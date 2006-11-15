@@ -29,17 +29,18 @@ extern DllImportExport const double DisplayZeroLimit;
 
 // ----------------------------------------------------------------------
 //Useful test and functions:
-template <class T> T GTZ(const T x) { return (x > (T)ZeroLimit ? x : (T)ZeroLimit); };
-template <class T> T GEZ(const T x) { return (x > 0 ? x : (T)0); };
-template <class T> T LTZ(const T x) { return (x < (T)-ZeroLimit ? x : (T)-ZeroLimit); };
-template <class T> T LEZ(const T x) { return (x < 0 ? x : (T)0); };
-template <class T> T NZ(const T x) { return (x >= 0.0) ? GTZ(x) : LTZ(x); };
-template <class T> T Sign(const T x) { return (x >= 0) ? 1 : -1; };
-template <class T> T ZSign(const T x) { return (x > 0.0) ? 1 : (x < 0.0) ? -1 : 0; };
-template <class T> T ChkZero(const T x) { return ((fabs(x) > (T)ZeroLimit) ? x : (T)0.0); };
-template <class T> bool TstGTZ(const T x) { return (x > (T)ZeroLimit); };
-template <class T> bool TstLTZ(const T x) { return (x < -(T)ZeroLimit); };
-template <class T> bool TstNZ(const T x) { return (fabs(x) > (T)ZeroLimit); };
+template <class T> T GTZ(const T x) { return (x > (T)ZeroLimit ? x : (T)ZeroLimit); };      //GTZ Greater Than ZeroLimit
+template <class T> T GEZ(const T x) { return (x > 0 ? x : (T)0); };                         //GEZ Greater or Equal to Zero
+template <class T> T LTZ(const T x) { return (x < (T)-ZeroLimit ? x : (T)-ZeroLimit); };    //LTZ Less Than ZeroLimit
+template <class T> T LEZ(const T x) { return (x < 0 ? x : (T)0); };                         //LEZ Less or Equal to Zero
+template <class T> T NZ(const T x) { return (x >= 0.0) ? GTZ(x) : LTZ(x); };                //NZ Non Zero
+template <class T> T Sign(const T x) { return (x >= 0) ? 1 : -1; };                         //
+template <class T> T ZSign(const T x) { return (x > 0.0) ? 1 : (x < 0.0) ? -1 : 0; };       //
+template <class T> T ChkZero(const T x) { return ((fabs(x) > (T)ZeroLimit) ? x : (T)0.0); };//
+template <class T> bool TstGTZ(const T x) { return (x > (T)ZeroLimit); };                   //
+template <class T> bool TstLTZ(const T x) { return (x < -(T)ZeroLimit); };                  //
+template <class T> bool TstNZ(const T x) { return (fabs(x) > (T)ZeroLimit); };              //
+
 template <class T> T Min(const T x, const T y) { return (x < y) ? x : y; };
 template <class T> T Max(const T x, const T y) { return (x > y) ? x : y; };
 template <class T> T Sqr(const T x) { return (x * x); };
