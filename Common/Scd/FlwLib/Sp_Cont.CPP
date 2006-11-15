@@ -1787,6 +1787,12 @@ void SpContainer::SetRequiredLevel(double TempRqd, double PressRqd, double LvlRq
   if (pImg)// && (Sp2Adjust>=SDB.No()))
     { // Mixture
     double ImgMass=pImg->Mass(som_SL);
+
+    // If Empty and Preset Exists
+    if (ImgMass<=1.0e-6 && pPreset && pPreset->DoImg())
+      pImg->Set(*pPreset->Img(), som_SL);
+    ImgMass=pImg->Mass(som_SL);
+ 
     if (ImgMass>1.0e-6)
       {
 
@@ -1831,6 +1837,12 @@ void SpContainer::SetRequiredPress(double TempRqd, double PressRqd, CSysVector *
   if (pImg)// && (Sp2Adjust>=SDB.No()))
     { // Mixture
     double ImgMass=pImg->Mass(som_Gas);
+
+    // If Empty and Preset Exists
+    if (ImgMass<=1.0e-6 && pPreset && pPreset->DoImg())
+      pImg->Set(*pPreset->Img(), som_Gas);
+    ImgMass=pImg->Mass(som_Gas);
+
     if (ImgMass>1.0e-6)
       {
       double Rho= pImg->Rho(Model()->m_iFidelity, som_Gas, TempRqd, PressRqd, &Model()->m_Ovr);
