@@ -43,7 +43,7 @@ void CSubNetBlk::ShowSubNetsL(CGrpFlwBlk * g, int dbgShowConns)
           if (p->IOFB(c,0)->GetFixed())
             Fxd=1;
         dbgp("%s%s%s(%i)%s",(Fxd?"{":" "), SgnStr(p->Dirn), p->Nd()->FullObjTag(),p->iJoinArrayInx,(Fxd?"}":" "));
-        dbgp("%02i ", p->pSubNet->m_SubNetNo);
+        dbgp("%02i ", p->m_pSubNet->m_SubNetNo);
         }
         break;
       default:
@@ -60,7 +60,7 @@ void CSubNetBlk::ShowSubNetsL(CGrpFlwBlk * g, int dbgShowConns)
 void CSubNetBlk::ShowSubNetsT(CJoinRec * p, int dbgShowConns)
   {
   dbgp("%s%s ", p->VFlowAllowed(m_bFullFlow) ? "V":" ", p->LFlowAllowed(m_bFullFlow) ? "L":" ");
-  dbgp("%02i ", p->pSubNet->m_SubNetNo);
+  dbgp("%02i ", p->m_pSubNet->m_SubNetNo);
   dbgp(" %s", JoinTypeStr(p->Typ));
   dbgp(" %s",SgnStr(p->Dirn));
   dbgp(" %s%s%s%s %s",
@@ -93,7 +93,7 @@ void CSubNetBlk::ShowSubNetsT(CJoinRec * p, int dbgShowConns)
 void CSubNetBlk::ShowSubNetsJ(CJoinRec * p, int dbgShowConns)
   {
   dbgp("%s%s ", p->VFlowAllowed(m_bFullFlow) ? "V":" ", p->LFlowAllowed(m_bFullFlow) ? "L":" ");
-  dbgp("%02i ", p->pSubNet->m_SubNetNo);
+  dbgp("%02i ", p->m_pSubNet->m_SubNetNo);
   dbgp(" %s", JoinTypeStr(p->Typ));
 //  dbgp("%s", p->fIsImpNd ? "I":" ");
 //  dbgp("%s", p->fIsAccLnk? "A":" ");
@@ -171,16 +171,16 @@ void CNetBlk::ShowSubNets(int N, int dbgShowConns)
   int dun=0;
   JoinIter J(Joins);
   for (CJoinRec * p = J.First(); (p); p = J.Next())
-    if (!p->pSubNet)
+    if (!p->m_pSubNet)
       {
       if (!dun)
         {
         dbgpln("--------------------------------");
         dbgpln("SubN PQIx - UnAssigned");              
-        if (p->pSubNet)
+        if (p->m_pSubNet)
           dbgpln("Sub ??? Unknown");
         }
-      dbgpln("%4i %s %s(%i)", p->pSubNet ? p->pSubNet->m_SubNetNo : -1, p->Nd()->TypeString(CS), p->Nd()->FullObjTag(),p->iJoinArrayInx);
+      dbgpln("%4i %s %s(%i)", p->m_pSubNet ? p->m_pSubNet->m_SubNetNo : -1, p->Nd()->TypeString(CS), p->Nd()->FullObjTag(),p->iJoinArrayInx);
       dun=1;
       }
   }

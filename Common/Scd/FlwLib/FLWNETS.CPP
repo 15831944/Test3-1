@@ -1567,8 +1567,8 @@ void CGrpFlwBlk::Reverse()
   if (m_Dst.m_iLnkNo>=0)
     m_Dst.Link().m_iSgn *= -1;
 
-  CJoinRec * Start=m_Lnks.GetHead();
-  if (Start)
+  //CJoinRec * Start=m_Lnks.GetHead();
+  if (!m_Lnks.IsEmpty())
     {
     CJoinRec * pWrk=m_Lnks.RemoveHead();
     pWrk->Dirn = -pWrk->Dirn;
@@ -7592,7 +7592,7 @@ void CNetBlk::BuildGFB(CGrpFlwList & Grps, CJoinRec * pStart, int ConnNo)
     {
     pGFB->AddJoin(pStart, false);
     pStart->Dirn = 1;
-    pStart->pSubNet = NULL;//&SNI;
+    pStart->m_pSubNet = NULL;//&SNI;
     }
 
   // Go to other side and try
@@ -7605,12 +7605,12 @@ void CNetBlk::BuildGFB(CGrpFlwList & Grps, CJoinRec * pStart, int ConnNo)
       {
       AddConn2GFB(ACP_Tail, JTyp_Unknown, pGFB, pJoinNxt, iConnNxt);
       pGFB->AddJoin(pJoinNxt, false);
-      pJoinNxt->Dirn    = ((iConnNxt == 1) ? 1 : -1);
-      pJoinNxt->pSubNet = NULL;//&SNI;
-      CJoinRec * pJ     = pJoinNxt->Join_Rmt(iConnNxt);
-      int iC            = OtherEnd(pJoinNxt->ConnNo_Rmt(iConnNxt));
-      pJoinNxt          = pJ;
-      iConnNxt          = iC;
+      pJoinNxt->Dirn      = ((iConnNxt == 1) ? 1 : -1);
+      pJoinNxt->m_pSubNet = NULL;//&SNI;
+      CJoinRec * pJ       = pJoinNxt->Join_Rmt(iConnNxt);
+      int iC              = OtherEnd(pJoinNxt->ConnNo_Rmt(iConnNxt));
+      pJoinNxt            = pJ;
+      iConnNxt            = iC;
       //dbgpln("...N [%i]%s",iConnNxt,pJoinNxt->pNd->FullObjTag());
       }
     else
@@ -7627,11 +7627,11 @@ void CNetBlk::BuildGFB(CGrpFlwList & Grps, CJoinRec * pStart, int ConnNo)
       {
       AddConn2GFB(ACP_Head, JTyp_Unknown, pGFB, pJoinPrv, iConnPrv);
       pGFB->AddJoin(pJoinPrv, true);
-      pJoinPrv->pSubNet = NULL;//&SNI;
-      CJoinRec * pJ     = pJoinPrv->Join_Rmt(iConnPrv);
-      int iC            = OtherEnd(pJoinPrv->ConnNo_Rmt(iConnPrv));
-      pJoinPrv          = pJ;
-      iConnPrv          = iC;
+      pJoinPrv->m_pSubNet = NULL;//&SNI;
+      CJoinRec * pJ       = pJoinPrv->Join_Rmt(iConnPrv);
+      int iC              = OtherEnd(pJoinPrv->ConnNo_Rmt(iConnPrv));
+      pJoinPrv            = pJ;
+      iConnPrv            = iC;
       //dbgpln("...P [%i]%s",iConnPrv,pJoinPrv->pNd->FullObjTag());
       }
     else
@@ -7854,7 +7854,8 @@ void CNetBlk::ConfigureGFBs(CSubNetBlk & SNI)
       pJ->SetQmVAccum(0.0);
       pJ->SetQmLAccum(0.0);
 
-      pJ->m_SubNetNo=SNI.m_SubNetNo;
+      pJ->m_SubNetNo  = SNI.m_SubNetNo;
+      pJ->m_pSubNet   = &SNI;
 
       if (dbgtestfileopen())
         {
@@ -7913,8 +7914,9 @@ void CNetBlk::ConfigureTies(CSubNetBlk & SNI)
     for (int c=0; c<pT->NConns(); c++)
       pT->m_Conns[c].m_iQSgn=(pT==pT->GFB(c)->m_Src.m_pJoin ? -1 : 1);
 
-    pT->m_NetNo=NetNo;
-    pT->m_SubNetNo=SNI.m_SubNetNo;
+    pT->m_NetNo     = NetNo;
+    pT->m_SubNetNo  = SNI.m_SubNetNo;
+    pT->m_pSubNet   = &SNI;
 
     if (dbgtestfileopen())
       {
@@ -8096,7 +8098,7 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
       //  pGFB->m_fFixedExternal=false;//(Where==LFP_Elsewhere);
       //dbgpln("pGFB->m_fFixedExternal %#010x %i %s", pGFB, Where, pGFB->m_fFixedExternal?"Fixed:External":"Fixed:Here");
 
-      p->pSubNet = &SNI;
+      //p->pSubNet = &SNI;
       p->iFxdQOrder = ++FxdOrder;
       p->fInFixedNet = true;
       p->fIsFixedExtern=(Where==LFP_Elsewhere);
@@ -8120,7 +8122,7 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
         SNI.m_FxdQList.AddJoin(p,-1);
 
         p->Typ             = JTyp_FxdTie;
-        p->pSubNet         = &SNI;
+        //p->pSubNet         = &SNI;
         p->iFxdQOrder      = ++FxdOrder;
         p->fInFixedNet     = true;
         p->fIsFixedXfer    = false;
@@ -8147,7 +8149,7 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
       SNI.m_FxdQList.AddJoin(p, -1);
 
       p->Typ             = JTyp_XferTie;//JTyp_FxdTie;
-      p->pSubNet         = &SNI;
+      //p->pSubNet         = &SNI;
       p->iFxdQOrder      = ++FxdOrder;
       p->fInFixedNet     = true;
       p->fIsFixedXfer    = false;
@@ -8225,7 +8227,7 @@ flag CNetBlk::FindXferTies(CSubNetBlk &SNI, CJoinRec * & pJ)
     SNI.fXferTies = true;
 
     pJ->Typ             = JTyp_XferTie;
-    pJ->pSubNet         = &SNI;
+    //pJ->pSubNet         = &SNI;
     //pJ->iFxdQOrder      = ++FxdOrder;
     pJ->fInFixedNet     = true;
     pJ->fIsFixedXfer    = false;
@@ -8243,7 +8245,7 @@ void CNetBlk::FindMatrixConns(CSubNetBlk &SNI, CJoinRec * pSrc, CJoinRec * p, in
   {
   FindConnsDeep++;
 
-  p->pSubNet = &SNI;
+  //p->pSubNet = &SNI;
   p->fHasQRatio=0;
   SNI.Joins.AddTail(p);
   if (p->pNd->fDoDbgBrk)
@@ -8253,14 +8255,14 @@ void CNetBlk::FindMatrixConns(CSubNetBlk &SNI, CJoinRec * pSrc, CJoinRec * p, in
   if (p->fIsTie)
     {
     p->Typ = (p->fIsImpNd ? JTyp_ImpNd : p->fIsAccLnk ? JTyp_AccLnk : JTyp_Tie);
-    p->pSubNet = &SNI;
+    //p->pSubNet = &SNI;
     SNI.Ties.AddTail(p);
     pGFB=NULL;
     }
   else if (p->fIs2IO)
     {
     p->Typ = JTyp_Link;
-    p->pSubNet = &SNI;
+    //p->pSubNet = &SNI;
     //pGFB->AddJoin(p);
     }
 
@@ -9091,8 +9093,57 @@ void CNetBlk::BldSubNets()
     dbgSubNetStruct=0;
 #endif
     }
-  SCDCATCH("CNetBlk::BldSubNets", NULL);
+  //SCDCATCH("CNetBlk::BldSubNets", NULL)
 
+    catch (MSysException e)                                           
+      {                                                               
+      /* clear any outstanding exceptions */                          
+      _clearfp();                                                     
+      /*XGotoEditMode();*/                                            
+                                                                      
+      Strng S, S1("CNetBlk::BldSubNets");                                           
+      //if (Identifier) { S1+="\n\n Near:"; S1+=(LPTSTR)Identifier; };
+      S.Set(" %s\n\n"                                                 
+            "Exception %s (%x) occurred\n\n"                          
+            "Address: %08x\n\n"                                       
+            "Push OK to continue",                                    
+            S1(), e.Name, e.Code, e.Address);                         
+
+      AfxMessageBox(S(), MB_OK);
+      //Strng *pS=new Strng(S);                                         
+      //CWnd *pWnd=ScdMainWnd();                                        
+      //bool Done=false;                                                
+      //pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   
+      //                                                                
+      ///*gs_License.Exit(); NBNB we need this!!!*/                     
+      //                                                                
+      //while (!Done)                                                   
+      //  Sleep(100);                                                   
+      //                                                                
+      //throw;                                                          
+      }
+  catch(CException *e)
+    {
+    e->ReportError();
+    //Strng S, S1("CNetBlk::BldSubNets");                                             
+    //S.Set(" %s\n\n"                                                 
+    //  "Exception %s (%x) occurred\n\n"                          
+    //  "Address: %08x\n\n"                                       
+    //  "Push OK to continue",                                    
+    //  S1(), e->Name, e.Code, e.Address);                         
+
+    //Strng *pS=new Strng(S);                                         
+    //CWnd *pWnd=ScdMainWnd();                                        
+    //bool Done=false;                                                
+    //pWnd->PostMessageA(WMU_EXCEPTION, (WPARAM)pS, (LPARAM)&Done);   
+
+    /*gs_License.Exit(); NBNB we need this!!!*/                     
+
+    //while (!Done)                                                   
+    //  Sleep(100);                                                   
+
+    e->Delete();
+    }
   };
 
 //-------------------------------------------------------------------------

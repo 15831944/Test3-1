@@ -1383,7 +1383,7 @@ void CJoinRec::Prepare()
 //  iQV2LInx        = UnUsedIndex;
 //  iQIsoInx        = UnUsedIndex;
 
-  pSubNet         = NULL;
+  m_pSubNet       = NULL;
   // CNM 02/12/95 fFixed                                 = 0;
   fInFixedNet     = false;
   fHasXBstHere    = false;
@@ -6266,7 +6266,7 @@ void FlwNode::Set_ProdFrac(int JoinNo, int i, double Frac)
     CJoinRec &J = Joins[js];
 
     if ((NetNo==Nd_Rmt(i)->NetNo) &&
-        (J.pSubNet==J.Join_Rmt(cs)->pSubNet))
+        (J.m_pSubNet==J.Join_Rmt(cs)->m_pSubNet))
       {
       int pf=J.nProdFracs;
       if (pf>=J.ProdFracs.GetSize())

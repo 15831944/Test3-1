@@ -2524,11 +2524,11 @@ class DllImportExport CJoinRec
 #if defined(WITH_GFB)
     CGrpFlwBlk    * GFB(int c);
     CGrpFlwBlk    * GFB_Rmt(int c);
-    CSubNetBlk    * SubNet() { return pSubNet; };
+    CSubNetBlk    * SubNet() { return m_pSubNet; };
 #else
     void         * GFB(int c);
     void         * GFB_Rmt(int c);
-    void         * SubNet() { return pSubNet; };
+    void         * SubNet() { return m_pSubNet; };
 #endif
     flag           Placed(int c);
     flag           Placed_Rmt(int c);
@@ -2640,9 +2640,9 @@ class DllImportExport CJoinRec
     TieInxBlk      TieInx;
 
 #if defined(WITH_GFB)
-    CSubNetBlk*     pSubNet;
+    CSubNetBlk   * m_pSubNet;
 #else
-    void*          pSubNet;
+    void         * m_pSubNet;
 #endif
 
     int            NdInx;
