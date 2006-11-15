@@ -46,7 +46,9 @@ template <class T> T Sqr(const T x) { return (x * x); };
 template <class T> T Sqrt(const T x) { return sqrt(x); };
 template <class T> T Range(const T n, const T x, const T m) { return (x >= n) ? ((x <= m) ? x : m ) : n; };
 template <class T> bool InRange( const T a, const T b , const T c) { return (a<=b && b<=c); };
-template <class T> void Exchange(T&a, T&b) {T c=a; a=b; b=c;};
+template <class T> void Exchange(T&a, T&b) { T c=a; a=b; b=c; };
+template <class T> T CircleArea(const T x) { return (PI*x*x/4.0); };  // Circle Area, where x is diameter
+template <class T> T SphereVol(const T x) { return (PI*x*x*x/6.0); }; // Sphere Volume, where x is diameter
 
 // ----------------------------------------------------------------------
 //NAN functions:
@@ -62,9 +64,6 @@ extern DllImportExport const double dSignalNAN;
 
 extern DllImportExport const float fNAN;
 extern DllImportExport const double dNAN;
-
-//inline void Invalidate(float &x)  { x=fSignalNAN; };
-//inline void Invalidate(double &x) { x=dSignalNAN; };
 
 inline bool IsQuietNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)!=0; };
 inline bool IsSignalNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)==0; };
