@@ -95,16 +95,16 @@ void MSMFnRanges::BumpGlblIter()
 
 void MLog::Message(MMessageType Type, LPCSTR pFmt, ...)
   {
-  char Buff[1024];
+  char Buff[2048];
   va_list argptr;
   va_start(argptr, pFmt);
   vsprintf(Buff, pFmt, argptr);
   va_end(argptr);
 
-  if (strlen(Buff)>0)
+  if (Buff[0])//strlen(Buff)>0)
     {
-    static DWORD What[/*MMessageType*/] = {LogFlag_Error, LogFlag_Error, LogFlag_Warning, LogFlag_Note };
-    LogLn(LogFlag_FromBlackBox|LogFlag_Error, m_pObj ? m_pObj->Tag():"SysCAD", 0/*BoxFlags*/, Buff);
+    static DWORD What[] = {LogFlag_Note, LogFlag_Error, LogFlag_Warning, LogFlag_Note };
+    LogLn(LogFlag_FromBlackBox|What[Type], m_pObj ? m_pObj->Tag() : "SysCAD", 0/*BoxFlags*/, Buff);
     }
   }
 
@@ -116,13 +116,13 @@ void MLog::SetCondition(bool On, long index, MMessageType Type, LPCSTR pFmt, ...
     {
     if (On)
       {
-      char Buff[1024];
+      char Buff[2048];
       va_list argptr;
       va_start(argptr, pFmt);
       vsprintf(Buff, pFmt, argptr);
       va_end(argptr);
 
-      if (strlen(Buff)>0)
+      if (Buff[0])//strlen(Buff)>0)
         {
         static LPCSTR What[/*MMessageType*/] = {"?", "E", "W", "N" };
         m_pObj->SetCIVirt(FirstUserCI+index+m_pObj->CBContextVirt(), "%s\t%s", What[Type], Buff);
@@ -141,13 +141,13 @@ void MLog::SetCondition(long index, MMessageType Type, LPCSTR pFmt, ...)
   {
   if (index>=0 && index<MaxUserCI)
     {
-    char Buff[1024];
+    char Buff[2048];
     va_list argptr;
     va_start(argptr, pFmt);
     vsprintf(Buff, pFmt, argptr);
     va_end(argptr);
 
-    if (strlen(Buff)>0)
+    if (Buff[0])//strlen(Buff)>0)
       {
       static LPCSTR What[/*MMessageType*/] = {"?", "E", "W", "N" };
       m_pObj->SetCIVirt(FirstUserCI+index+m_pObj->CBContextVirt(), "%s\t%s", What[Type], Buff);
