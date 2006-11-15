@@ -238,7 +238,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NSHM_All, ((SSMode & SSM_ConstNQv)!=0));
   DDB.Double ("NVolFlow_Rqd",  "NQv_Rqd", DC_NQv , "NL/s",  xidNQvRqd,  this, ParmOK ? (fCrossConnected?0:isParm) : isResult);
 
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, ((SSMode & (SSM_ConstQm|SSM_ConstQv|SSM_ConstNQv))!=0));
     DDB.Double("Q_Std_Dev",     "",    DC_Frac,  "%",     &dQ_Std_Dev,    this, (fCrossConnected?0:isParm)|InitHidden);
@@ -251,7 +251,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   int PIsParm=(iVLEOpt!=VLEO_SatLiq && iVLEOpt!=VLEO_SatVap)&&!fCrossConnected;
   int TIsParm=(iVLEOpt!=VLEO_SatLiqP && iVLEOpt!=VLEO_SatVapP)&&!fCrossConnected;
   DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidPRqd,        this, (PIsParm?isParm:0)|NAN_OK);
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Double("P_Std_Dev",     "",    DC_Frac,  "%",     &dP_Std_Dev,    this, (PIsParm?isParm:0)|InitHidden);
@@ -262,19 +262,23 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NSHM_All);
   //DDB.Text  ("Temperature");
   DDB.Double("T_Rqd",         "",    DC_T   , "C",      xidTRqd,        this, (TIsParm?isParm:0)|NAN_OK);
-  if (SolveDynamicMethod())
+  if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Double("T_Std_Dev",     "",    DC_Frac,  "%",     &dT_Std_Dev,    this, (TIsParm?isParm:0)|InitHidden);
     DDB.Double("T_Tau",         "",    DC_Time,  "s",     &dT_Tau,        this, (TIsParm?isParm:0)|InitHidden);
-
-    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-    DDB.Text  ("Batch Feed");
-    DDB.Double("Batch",         "",    DC_M   , "kg",     &BatchAvail,    this, (fCrossConnected?0:isParm)|NAN_OK);
     }
 
   DDB.Visibility();
   DDB.Byte  ("ZeroOutput",  "",             DC_, "", &m_bKeepTrace,     this, (fCrossConnected?0:isParm)|SetOnChange, DDBKeepTrace);
+
+  if (NetDynamicMethod())
+    {
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.Text  ("Batch Feed");
+    DDB.Double("Batch",         "",    DC_M   , "kg",     &BatchAvail,    this, (fCrossConnected?0:isParm)|NAN_OK);
+    DDB.Double("BatchAddition", "",    DC_M   , "kg",     xidBatchAddition, this, (fCrossConnected?0:isParm)|noFileAtAll);
+    }
   
   //VLE.Add_OnOff(DDB);
 

@@ -39,10 +39,11 @@ XID xidNQvRqd        = MdlBsXID(4004);
 XID xidTRqd          = MdlBsXID(4005);
 XID xidPRqd          = MdlBsXID(4006);
 XID xidSSVLEOnOff    = MdlBsXID(4007);
-XID xidCFTag         = MdlBsXID(4008);
-XID xidCFWhen        = MdlBsXID(4009);
-XID xidCFFetchNow    = MdlBsXID(4010);
-XID xidSSMode        = MdlBsXID(4011);
+XID xidBatchAddition = MdlBsXID(4008);
+XID xidCFTag         = MdlBsXID(4010);
+XID xidCFWhen        = MdlBsXID(4011);
+XID xidCFFetchNow    = MdlBsXID(4012);
+XID xidSSMode        = MdlBsXID(4013);
 
 // ==========================================================================
 // Basic Flow Object

@@ -183,6 +183,16 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         Flows.SetTemp(*DCB.rD);
       DCB.D=Flows.Temp();//som_ALL);
       return 1;
+    case xidBatchAddition:
+      if (DCB.rD)
+        {
+        if (Valid(BatchAvail))
+          BatchAvail = Max(0.0, BatchAvail+*DCB.rD);
+        else
+          BatchAvail = Max(0.0, *DCB.rD);
+        }
+      DCB.D=0.0;
+      return 1;
     case xidCFTag:
       if (DCB.rpC)
         {
@@ -1304,7 +1314,7 @@ void MN_SrcSnk::EvalDiscrete()
     dQ_Std_Dev_C = TstNZ(dQ_Std_Dev) ? Range(-1.0,dQ_Std_Dev*Q_Noise.GetVal(), 1.0) : 0.0;
     dT_Std_Dev_C = TstNZ(dT_Std_Dev) ? Range(-1.0,dT_Std_Dev*T_Noise.GetVal(), 1.0) : 0.0;
 
-    if (Valid(BatchAvail) && (nQmOut>0))
+    if (Valid(BatchAvail) && (nQmOut>0.0))
       BatchAvail = Max(0.0, BatchAvail-(ICGetTimeInc() * dQmOut/nQmOut));
     }
 
