@@ -14,6 +14,7 @@
 #include "tagobj.h"
 #include "fixedit.h"
 #include "scd_wm.h"
+//#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -3644,10 +3645,8 @@ void FxdEdtView::FixScrollSizes(flag fShowHideBars)
       HScrl= new CScrollBar();
       HScrl->Create(WS_CHILD|WS_VISIBLE|SBS_HORZ, r, this, 0);
       }
-    //??
-    //int sbs=ScrGB.GBC().ScrollBarSize;
-    int vsbs=ScrGB.VScrlWidth();//sbs>0 ? ScrGB.ColWdt()*sbs/10 : GetSystemMetrics(SM_CXVSCROLL);
-    int hsbs=ScrGB.HScrlHeight();//sbs>0 ? ScrGB.ColWdt()*sbs/10 : GetSystemMetrics(SM_CXHSCROLL);
+    const int vsbs=ScrGB.VScrlWidth();
+    const int hsbs=ScrGB.HScrlHeight();
     CRect Vr=ScrGB.ChVisibleRect(VScrlOn, HScrlOn);
 
     if (fShowHideBars)

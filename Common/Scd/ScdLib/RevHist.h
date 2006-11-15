@@ -21,7 +21,7 @@
 #define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "14 November 2006"
+#define SCD_PATCHDATE    "15 November 2006"
 #define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
@@ -2628,9 +2628,12 @@ Update 3 : 12 November 2006
 2) (#655, 658) Various fixes.
 3) Compiled with VS2003 SP1.
 
-Update 4 : 14 November 2006
+Update 4 : 15 November 2006
 ------------------------------
 1) (#649) For dynamic, fix for models as part of a 'cluster' not evaluated.
+2) (#659,660) Fix for reation in dynamic in tank with heat exchange power.
+3) (#663) Added BatchAddition option to feeder.
+3) (#661) Various fixes.
 
 =============================================================================
 ================                SysCAD 9.2                   ================
