@@ -26,8 +26,11 @@ class Splitter : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual void    EvalProducts();
+
+    //example of model "actions"
     virtual bool    GetModelAction(CMdlActionArray & Acts);
     virtual bool    SetModelAction(CMdlAction & Act);
+    //example of model "graphics view"
     virtual bool    GetModelGraphic(CMdlGraphicArray & Grfs);
     virtual bool    OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 

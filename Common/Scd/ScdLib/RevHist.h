@@ -2633,7 +2633,7 @@ Update 4 : 15 November 2006
 1) (#649) For dynamic, fix for models as part of a 'cluster' not evaluated.
 2) (#659,660) Fix for reation in dynamic in tank with heat exchange power.
 3) (#663) Added BatchAddition option to feeder.
-3) (#661) Various fixes.
+3) (#661, 637) Various fixes.
 
 =============================================================================
 ================                SysCAD 9.2                   ================

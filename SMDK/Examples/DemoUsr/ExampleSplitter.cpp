@@ -9,12 +9,16 @@
 
 //====================================================================================
 
+const long idFeed = 0;
+const long idProd1 = 1;
+const long idProd2 = 2;
+
 static MInOutDefStruct s_IODefs[]=
   {
-  //  Desc;             Name;       Id; Rqd; Max; CnId, FracHgt;  Options;
-    { "Feed",           "Feed",      0,   1,  10,    0,    1.0f,  MIO_In |MIO_Material },
-    { "Product1",       "Product1",  1,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
-    { "Product2",       "Product2",  2,   1,   4,    0,    1.0f,  MIO_Out|MIO_Material },
+  //  Desc;             Name;       Id;    Rqd; Max; CnId, FracHgt;  Options;
+    { "Feed",           "Feed",     idFeed,  1,  10,    0,    1.0f,  MIO_In |MIO_Material },
+    { "Product1",       "Product1", idProd1, 1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
+    { "Product2",       "Product2", idProd2, 1,   4,    0,    1.0f,  MIO_Out|MIO_Material },
     { NULL },
   };
 
@@ -97,7 +101,7 @@ void Splitter::EvalProducts()
     {
     if (1)
       {
-      // Examples of Environment Variables
+      // Examples of retrieving Environment Variables
       double X1=StdP;
       double X2=StdT;
       double X3=AtmosPress();
@@ -107,13 +111,20 @@ void Splitter::EvalProducts()
       double X7=WindDirection();
       }
 
-    //get handles to input and output streams...
+    //sum all input streams into a working copy
     MStream QI;
-    FlwIOs.AddMixtureIn_Id(QI, 0);
-    MStream & QO0 = FlwIOs[FlwIOs.First[1]].Stream;
-    MStream & QO1 = FlwIOs[FlwIOs.First[2]].Stream;
+    FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
-    //make outlet temperature and pressure same as input
+    //get handles to input and output streams...
+    MStream & QO0 = FlwIOs[FlwIOs.First[idProd1]].Stream;
+    MStream & QO1 = FlwIOs[FlwIOs.First[idProd2]].Stream;
+
+    // Always initialise the outputs as a copy of the inputs. This ensures all "qualities" are copied.
+    QO0 = QI;
+    QO1 = QI;
+
+    //make outlet temperature and pressure same as input 
+    //(not actualy needed because of stream copy above)
     QO0.SetTP(QI.T, QI.P);
     QO1.SetTP(QI.T, QI.P);
 
@@ -128,7 +139,7 @@ void Splitter::EvalProducts()
     for (int i=0; i<NumSpecies; i++)
       {
       if (bDoPhaseSplit)
-        {
+        {//split by phase
         if (gs_MVDefn[i].Phase() & MP_Sol)
           QO0.M[i] = QI.M[i] * dRqdSolSplit;
         else if (gs_MVDefn[i].Phase() & MP_Liq)
