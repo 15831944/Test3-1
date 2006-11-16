@@ -9,6 +9,7 @@
 
 #include "datacnvs.h"
 #include "dataattr.h"
+//#include "optoff.h"
 
 //===========================================================================
 
@@ -736,9 +737,7 @@ flag ObjectAttribute::Load()
   {
   char Buffer[65536];
   char *pBuff=Buffer;
-  if (GetPrivateProfileSection(Name(),	// address of section name
-                               Buffer, sizeof(Buffer),
-                               PrjIniFile())>0)
+  if (GetPrivateProfileSection(Name(), Buffer, sizeof(Buffer), PrjAccFmtsIniFile())>0)
     {
     while (strlen(pBuff)>0)
       {
@@ -766,28 +765,6 @@ flag ObjectAttribute::Load()
         p->Fmt.SetType('-');
         if (nFlds > 1)
           {
-          int ii=PrjFileVerNo();
-          int jj=NewPrjFileVerNo();
-
-          //if (pFld[1] && strpbrk(pFld[1], "efg")>0)
-          //  {
-          //  // Old Layout;
-          //  p->Fmt.SetType(*pFld[1]);
-          //  if (nFlds > 2  && pFld[2]) // Width
-          //    p->Fmt.SetWide(abs(atoi(pFld[2])));
-          //  if (nFlds > 3  && pFld[3]) // Precision
-          //    p->Fmt.SetPrec(abs(atoi(pFld[3])));
-          //  if (nFlds > 4  && pFld[4])
-          //    p->Cnv.SetText(pFld[4]);
-          //  if (nFlds > 5  && pFld[5])
-          //    p->dMin=SafeAtoF(pFld[5]);
-          //  if (nFlds > 6  && pFld[6])
-          //    p->dMax=SafeAtoF(pFld[6]);
-          //  }
-          //if (pFld[1] && strpbrk(pFld[1], "#")>0)
-          //  {
-
-          // New Layout;
           p->Fmt.ParseStr(pFld[1]);
           if (nFlds > 2  && pFld[2])
             p->Cnv.SetText(pFld[2]);
@@ -795,18 +772,11 @@ flag ObjectAttribute::Load()
             p->dMin=SafeAtoF(pFld[3]);
           if (nFlds > 4  && pFld[4])
             p->dMax=SafeAtoF(pFld[4]);
-
-          //  }
-          }
-        else
-          {
-          int xxx=0;
           }
 
         DataAttributes.AddTail(p);
         if (p->sName.Length()==0)
           DoBreak();
-
         }
       }
     }
@@ -822,7 +792,7 @@ flag ObjectAttribute::Save()
   char *pBuff=Buffer;
   Strng SFmt;
 
-  // Visible , Format, Width, Prec, Conversions
+  // Visible , Format, Conversions, min, max
   DataAttributeIter Data(DataAttributes);
   for (DataAttribute *p=Data.First(); p && (pBuff-Buffer)<sizeof(Buffer)-256; p=Data.Next())
     {
@@ -830,19 +800,17 @@ flag ObjectAttribute::Save()
     FixFldName(p->sName(), Tag);
     p->Fmt.BuildStr(SFmt);
     pBuff+=1+sprintf(pBuff, "%s=%i,%s,%s,%g,%g",
-      Tag, p->fVis, SFmt()?SFmt():"",
-      p->Cnv.Text() ? p->Cnv.Text() : "",p->dMin,p->dMax);
-//    pBuff+=1+sprintf(pBuff, "%s=%i,%c,%i,%i,%s,%g,%g",
-//      Tag, p->fVis, p->Fmt.Type(), p->Fmt.Wide(), p->Fmt.Prec(),
-//      p->Cnv.TextLength()>0 ? p->Cnv.Text() : "",p->dMin,p->dMax);
+      Tag, p->fVis, SFmt() ? SFmt() : "",
+      p->Cnv.Text() ? p->Cnv.Text() : "", p->dMin, p->dMax);
     }
-  pBuff+=1+sprintf(pBuff, "");
+
+  //blank line at end
+  pBuff+=1+sprintf(pBuff, " "); 
+  pBuff+=1+sprintf(pBuff, ""); //must be two NULL characters at end
 
   ASSERT((pBuff-Buffer)<sizeof(Buffer));
 
-  flag Ok=WritePrivateProfileSection(Name(),	// address of section name
-                                     Buffer,
-                                     PrjIniFile());
+  flag Ok=WritePrivateProfileSection(Name(), Buffer, PrjAccFmtsIniFile());
   return Ok;
   };
 

@@ -4859,9 +4859,9 @@ void CProject::EO_OnAppActivate(BOOL bActive)
 flag CProject::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
   {
 #if WithRmtFile
-  const int MaxCnt = 7;
+  const int MaxCnt = 8;
 #else
-  const int MaxCnt = 6;
+  const int MaxCnt = 7;
 #endif
   switch (Rqst.RQ_Type)
     {
@@ -4880,13 +4880,15 @@ flag CProject::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
         else if (Info.Count()==2)
           Info.sData += PrjIniFileName();
         else if (Info.Count()==3)
-          Info.sData += OPT_FILE;// += OPT_FILE; //defined in slvtool.cpp
+          Info.sData += PrjAccFmtsIniFileName();
         else if (Info.Count()==4)
-          Info.sData += CCopyBlock::CopyBlkFileName;// defined in copyblk.cpp
+          Info.sData += OPT_FILE;// += OPT_FILE; //defined in slvtool.cpp
         else if (Info.Count()==5)
+          Info.sData += CCopyBlock::CopyBlkFileName;// defined in copyblk.cpp
+        else if (Info.Count()==6)
           Info.sData += RmtBackupZipFileName;
 #if WithRmtFile
-        else if (Info.Count()==6)
+        else if (Info.Count()==7)
           Info.sData += RmtFileName;
 #endif
         Info.sData.FnContract();

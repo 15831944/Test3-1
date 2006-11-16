@@ -999,6 +999,7 @@ DllImportExport Strng  TxtEditCmdString(char* Fn);
 //---------------------------------------------------------------------------
 
 DllImportExport char*  PrjIniFileName();
+DllImportExport char*  PrjAccFmtsIniFileName();
 DllImportExport char*  BackupFilesFolderName();
 DllImportExport char*  FlwSymFolderName();
 DllImportExport char*  FontsFolderName();
@@ -1112,6 +1113,7 @@ DllImportExport char*  PrjName();
 DllImportExport char*  PrjNameAlias();
 #endif
 DllImportExport char*  PrjIniFile();
+DllImportExport char*  PrjAccFmtsIniFile();
 
 DllImportExport char*  SetGrfSymbolImportFiles(char* FullPath);
 DllImportExport char*  GrfSymbolImportFiles();

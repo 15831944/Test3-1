@@ -357,6 +357,8 @@ AccNodeWnd::AccNodeWnd()
 
 AccNodeWnd::~AccNodeWnd()
   {
+  //TODO: Need to delete the stored attribute settings on project close!!!
+
   //ObjectAttributeIter Obj(ObjAttributes);
   //for (ObjectAttribute *p=Obj.First(); p; p=Obj.Next())
   //  delete p;
@@ -2250,7 +2252,7 @@ void AccNodeWnd::ConnectFields()
           f.fIsTreeVis = d.pObjAttr->FieldVisible(Tag(), d.iFlags, f.fIsTreeVis);
 
           CCnvIndex iCnv=d.Cnv.Index();
-          if (iCnv>0)//IsFloatData(f.iType))
+          if (iCnv>0)
             {
             //if (iCnv>0 && !d.pObjAttr->ValidateCnv(Tag(), iCnv))
             //  LogWarning(d.sSymOrTag(), 0, "Unknown Conversion changed to '%s'", Cnvs[iCnv]->Txt());
@@ -2262,6 +2264,11 @@ void AccNodeWnd::ConnectFields()
               d.AdjTextValue(NewCnvs.Text(), false);
               }
             }
+		  else if (IsFloatData(f.iType))
+		    {
+            if (d.pObjAttr->FieldFmt(Tag(), d.Fmt))
+              d.FormatFloat();
+		    }
           }
         }
       }

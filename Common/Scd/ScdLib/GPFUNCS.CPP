@@ -3508,6 +3508,7 @@ double FractionToDouble(char * p)
 //===========================================================================
 
 static char *_PrjIniFileName        = "Scd_Prj.ini";
+static char *_PrjAccFmtsIniFileName = "Scd_PrjAccessFmts.ini";
 static char *_BackupFilesFolder     = "$Lc";
 static char *_FlwSymFolder          = "Symbols";//"FlwSym"; changed in Build113
 static char *_FontsFolder           = "Fonts";
@@ -3542,6 +3543,7 @@ static Strng _PrjFile               ;
 static Strng _PrjFiles              ;
 static Strng _PrjRmtCpyFiles        ;
 static Strng _PrjIniFile            ;
+static Strng _PrjAccFmtsIniFile     ;
 
 static Strng _PrevCfgName;
 static Strng _PrevCfgFile;
@@ -3578,6 +3580,7 @@ Strng TxtEditCmdString(char* Fn)
 //---------------------------------------------------------------------------
 
 char *PrjIniFileName()            { return _PrjIniFileName; };
+char *PrjAccFmtsIniFileName()     { return _PrjAccFmtsIniFileName; };
 char *BackupFilesFolderName()     { return _BackupFilesFolder; };
 char *FlwSymFolderName()          { return _FlwSymFolder; };
 char *FontsFolderName()           { return _FontsFolder; };
@@ -3608,7 +3611,8 @@ char*    PrjRmtCpyFiles()         { return _PrjRmtCpyFiles(); };
 char*    PrjRmtCpyFilesAlias()    { return "$RCFiles\\"; };
 LPTSTR   PrjName()                { return _UsePrevPrjAlias ? _PrevPrjName() : _PrjName(); };
 LPTSTR   PrjNameAlias()           { return "$PrjName"; };
-char*    PrjIniFile()             { return _UsePrevPrjAlias ? _PrevPrjIniFile() : _PrjIniFile(); }
+char*    PrjIniFile()             { return _UsePrevPrjAlias ? _PrevPrjIniFile() : _PrjIniFile(); };
+char*    PrjAccFmtsIniFile()      { return _PrjAccFmtsIniFile(); };
 
 //---------------------------------------------------------------------------
 
@@ -4266,6 +4270,7 @@ char*  SetPrjFiles(char* PD, char* PF)
       LogError("SysCAD", 0, "Cannot SetCurrentFolder %s", StartupDirectory());
       }
     _PrjIniFile="";
+    _PrjAccFmtsIniFile="";
     return "";
     }
 
@@ -4292,6 +4297,9 @@ char*  SetPrjFiles(char* PD, char* PF)
 
   _PrjIniFile=_PrjFiles;
   _PrjIniFile+=_PrjIniFileName;
+
+  _PrjAccFmtsIniFile=_PrjFiles;
+  _PrjAccFmtsIniFile+=_PrjAccFmtsIniFileName;
 
   return _PrjFiles();
   };
