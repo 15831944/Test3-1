@@ -24,6 +24,10 @@
 #include <afxtempl.h> // "xafxtempl.h"
 
 // ========================================================================
+
+extern bool DllImportExport MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2, WORD V3, bool DoMsg=true);
+
+// ========================================================================
 // ========================================================================
 // Define allocation debugging line numbers
 #ifdef _DEBUG

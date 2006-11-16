@@ -193,12 +193,12 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
           "At\t: %s\n"                                              \
           "Near\t: %s\n\n"                                          \
           "BuildNo\t: %i\n"                                         \
-          "RevNo\t: %i\n"                                           \
+          /*"RevNo\t: %i\n"*/                                           \
           "Date\t: %s\n\n"                                          \
           "Thread terminating\n"                                    \
           "Push OK to exit SysCAD",                                 \
       e.Name, e.Code, WhereStr, e.Address, e.Where, e.Near,         \
-      SCD_BUILDNO, SCD_REVNO, SCD_BUILDDTTM);                       \
+      SCD_BUILD_NUM, /*SCD_REVNO,*/ SCD_COMPILE_DTTM);                  \
                                                                     \
     Strng *pS=new Strng(S);                                         \
     CWnd *pWnd=AfxGetMainWnd();                                     \

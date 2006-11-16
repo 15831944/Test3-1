@@ -1801,13 +1801,13 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
     }
 
   s="-";
-  if (strlen(SCD_PATCHNOTE)>0)
+  /*if (strlen(SCD_PATCHNOTE)>0)
     {
     if (strlen(SCD_PATCHDATE)>0)
       s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
     else
       s.Set("%s", SCD_PATCHNOTE);
-    }
+    }*/
   PF.WrStr("LastUpdateInfo", "SysCAD_Update", s());
   PF.WrStr("LastUpdateInfo", "LastUpdateDate", DT);
   PF.WrStr("LastUpdateInfo", "LastUpdateTime", TM);

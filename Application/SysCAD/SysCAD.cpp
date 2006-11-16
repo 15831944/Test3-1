@@ -299,15 +299,7 @@ BOOL CAboutDlg::OnInitDialog()
   SetDlgItemText(IDC_BUILDDATE, s());
   s.Set("Distributed by %s", FullCompany2());
   SetDlgItemText(IDC_ACOMPANY2, s());
-  if (SCD_PATCHNOTE && strlen(SCD_PATCHNOTE)>0)
-    {
-    if (SCD_PATCHDATE && strlen(SCD_PATCHDATE)>0)
-      s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
-    else
-      s.Set("%s", SCD_PATCHNOTE);
-    }
-  else
-    s = "";
+  s.Set("First issue: Build %d.%d (%s)", SCD_BUILD_NUM, SCD_BUILD_SVN, SCD_BUILD_DATE);
   SetDlgItemText(IDC_PATCH, s());
   return TRUE;  // return TRUE  unless you set the focus to a control
   }
@@ -595,7 +587,7 @@ BOOL CSysCADApp::InitIniFile()
   if (!CnmVersion())
     RegKey.Set("SysCAD %i.%i", SCD_VERINFO_V0, SCD_VERINFO_V1);
   else
-    RegKey.Set("SysCAD Build %i", SCD_BUILDNO);
+    RegKey.Set("SysCAD Build %i", SCD_BUILD_NUM);
 
   free((void*)m_pszProfileName);
   m_pszProfileName=_strdup(RegKey());
@@ -1654,7 +1646,7 @@ BOOL CSysCADApp::DoInitInstance()
   if (0)
     {
     m_CLH.bDebugOn = true;
-    m_CLH.sDebugFile.Set("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);
+    m_CLH.sDebugFile.Set("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILD_NUM);
     }
 
   if (m_CLH.bDebugOn)
@@ -1795,18 +1787,7 @@ BOOL CSysCADApp::DoInitInstance()
 
   HelpMngr.Init();
 
-  Strng PatchStr;
-  if (SCD_PATCHNOTE && strlen(SCD_PATCHNOTE)>0)
-    {
-    if (SCD_PATCHDATE && strlen(SCD_PATCHDATE)>0)
-      PatchStr.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
-    else
-      PatchStr.Set("%s", SCD_PATCHNOTE);
-    }
-  if (PatchStr.Len()>0)
-    LogNote("Version", 0, "%s %s   %s", FullVersion(), BuildDate(), PatchStr());
-  else
-    LogNote("Version", 0, "%s %s", FullVersion(), BuildDate());
+  LogNote("Version", 0, "%s (%s)", FullVersion(), BuildDate());
 
   if (!InitInstLicense2(LicenseRet))
     return false;
@@ -3420,7 +3401,7 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
         if (OptRgt.GetLength()==0)
           {
 #if BLDDEPENDENTFILES
-          OptRgt.Format("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILDNO);
+          OptRgt.Format("%sScd_Dbg.%i.Txt", TemporaryFiles(), SCD_BUILD_NUM);
 #else
           OptRgt = TemporaryFiles();
           OptRgt += "Scd_Dbg.Txt";

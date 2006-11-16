@@ -6722,43 +6722,31 @@ flag SymbolicPaths()                            { return iSymbolicPaths; };
 
 BOOL IsWinNT = true;
 
-Strng MajorVersionNo;       //eg "8.0"
-Strng VersionNo;            //eg "8.0 Build 35"
-Strng FullMajorVersion;     //eg "SysCAD 8.0" or "SysCAD 8.0 (Release Debug)"
-Strng FullVersion;          //eg "SysCAD 8.0 Build 35" or "SysCAD Build 35 (Full Debug)"
-Strng FullVersionAndUpdate; //eg "SysCAD 8.2 (Build 57)   Update 2  (1 September 2001)"
+Strng MajorVersionNo;       //eg "9.1"
+Strng VersionNo;            //eg "9.1 Build 122.1020"
+Strng FullMajorVersion;     //eg "SysCAD 9.1" or "SysCAD 9.1 (Release Debug)"
+Strng FullVersion;          //eg "SysCAD 9.1 Build 122.1020" or "SysCAD 9.1 Build 122.1020 (Full Debug)"
+Strng FullVersionAndUpdate; //eg "SysCAD 9.1 Build 122.1020   (20 November 2006)"
 Strng UpdateString;         //eg "Update 2  (1 September 2001)"
 
 //---------------------------------------------------------------------------
 
-char* CopyrightNotice()
-  { return SCD_VERINFO_Copyright; }
-
-char* FullCopyrightNotice()
-  { return SCD_VERINFO_CopyrightFull; }
-
-char* Company()
-  { return SCD_VERINFO_Company; }
-
-char* FullCompany()
-  { return SCD_VERINFO_CompanyFull; }
-
-char* Company2()
-  { return SCD_VERINFO_Company2; }
-
-char* FullCompany2()
-  { return SCD_VERINFO_Company2Full; }
-
-char* BuildDate()
-  { return SCD_BUILDDATE; }
+char* CopyrightNotice()     { return SCD_VERINFO_Copyright; }
+char* FullCopyrightNotice() { return SCD_VERINFO_CopyrightFull; }
+char* Company()             { return SCD_VERINFO_Company; }
+char* FullCompany()         { return SCD_VERINFO_CompanyFull; }
+char* Company2()            { return SCD_VERINFO_Company2; }
+char* FullCompany2()        { return SCD_VERINFO_Company2Full; }
+char* FirstBuildDate()      { return SCD_BUILD_DATE; }
+char* BuildDate()           { return SCD_PATCHDATE; }
 
 //---------------------------------------------------------------------------
 
 void InitVersionStuff()
   {
   MajorVersionNo.Set("%d.%d", SCD_VERINFO_V0, SCD_VERINFO_V1);
-  VersionNo.Set("%s Build:%d Rev:%d", MajorVersionNo(), SCD_BUILDNO, SCD_REVNO);
   FullMajorVersion.Set("SysCAD %s", MajorVersionNo());
+  VersionNo.Set("%s Build:%d.%d", MajorVersionNo(), SCD_BUILD_NUM, SCD_PATCH_SVN);
   FullVersion.Set("SysCAD %s", VersionNo());
   #ifdef _DEBUG
   FullMajorVersion += " Debug";
@@ -6769,16 +6757,8 @@ void InitVersionStuff()
   FullVersion += " Rls Debug";
   #endif
   FullVersionAndUpdate = FullVersion;
-  UpdateString = " ";
-  if (strlen(SCD_PATCHNOTE)>0)
-    {
-    if (strlen(SCD_PATCHDATE)>0)
-      UpdateString.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
-    else
-      UpdateString.Set("%s", SCD_PATCHNOTE);
-
-    FullVersionAndUpdate.Append("   %s", UpdateString());
-    }
+  UpdateString.Set("(%s)", SCD_PATCHDATE);
+  FullVersionAndUpdate.Append("   %s", UpdateString());
   }
 
 ///===========================================================================

@@ -2059,7 +2059,7 @@ BOOL CDebugPage::OnInitDialog()
   //if (DbgFn.Len()>0 && DbgFn[DbgFn.Len()-1] != '\\')
   //  DbgFn += "\\";
 #if BLDDEPENDENTFILES
-  DbgFn.Set("%sScd_Dbg.%i.Txt", DbgFn(), SCD_BUILDNO);
+  DbgFn.Set("%sScd_Dbg.%i.Txt", DbgFn(), SCD_BUILD_NUM);
 #else
   DbgFn += "Scd_Dbg.Txt";
 #endif

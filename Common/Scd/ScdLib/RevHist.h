@@ -18,11 +18,11 @@
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //#define SCD_PATCHNOTE    ""   /* Update/patch number/comment*/
-#define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
+//#define SCD_PATCHNOTE    "Update 4"   /* Update/patch number/comment*/
 
 //#define SCD_PATCHDATE    ""        /* Update/patch release date*/
-#define SCD_PATCHDATE    "16 November 2006"
-#define SCD_COMPILEDATE    __DATE__
+//#define SCD_PATCHDATE    "16 November 2006"
+//#define SCD_COMPILEDATE    __DATE__
 
 #endif // __REVHIST_H
 
@@ -2568,6 +2568,10 @@ C) Other changes:
    aplication. The license, by default is now located in the folder "License"
    and not the "bin" folder. The correct syscad.exe and crp320001.ngn files must
    be located in this folder.
+1) (#200) Implemented new feature where user feedback is provided in any models
+   or pipes where, based on the state of stream composition, temperature and
+   pressure the properties model reports if any property correlations are out
+   of the expected range. Currently only partly implemented in Demo SMDK Bayer.
 
 
 Update 1 : 15 September 2006
@@ -2633,16 +2637,21 @@ Update 4 : 15 November 2006
 1) (#649) For dynamic, fix for models as part of a 'cluster' not evaluated.
 2) (#659,660) Fix for reation in dynamic in tank with heat exchange power.
 3) (#663) Added BatchAddition option to feeder.
-3) (#661, 637) Various fixes.
+4) (#661, 637) Various fixes.
 
+
+Build 122 : 16 November 2006
+------------------------------
+1)
+//Latest release information*/
+#define SCD_PATCH_SVN    1214
+#define SCD_PATCHDATE    SCD_COMPILE_DT
+
+/*
 =============================================================================
 ================                SysCAD 9.2                   ================
 =============================================================================
 
 What next...
-1) (#200) Implemented new feature where user feedback is provided in any models
-   or pipes where, based on the state of stream composition, temperature and
-   pressure the properties model reports if any property correlations are out
-   of the expected range. Currently only partly implemented in Demo SMDK Bayer.
 ..............
 */

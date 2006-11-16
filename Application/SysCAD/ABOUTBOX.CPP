@@ -86,15 +86,15 @@ BOOL CAboutBox::OnInitDialog()
   SetDlgItemText(IDC_BUILDDATE, s());
   s.Set("Distributed by %s", FullCompany2());
   SetDlgItemText(IDC_ACOMPANY2, s());
-  if (strlen(SCD_PATCHNOTE)>0)
+  /*if (strlen(SCD_PATCHNOTE)>0)
     {
     if (strlen(SCD_PATCHDATE)>0)
       s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
     else
       s.Set("%s", SCD_PATCHNOTE);
     }
-  else
-    s = "";
+  else*/
+    s = "TODO";
   SetDlgItemText(IDC_PATCH, s());
   return TRUE;  // return TRUE  unless you set the focus to a control
   }

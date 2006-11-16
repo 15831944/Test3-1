@@ -423,7 +423,7 @@ void CDbgMngr::LoadAll()
   //SetRootDirectory("c:\\syscad71");
   Strng NewDbgMngrFilename(TemporaryFiles());
 #if BLDDEPENDENTFILES
-  NewDbgMngrFilename.Set("%sScd_Dbg.%i.INI", NewDbgMngrFilename(), SCD_BUILDNO);
+  NewDbgMngrFilename.Set("%sScd_Dbg.%i.INI", NewDbgMngrFilename(), SCD_BUILD_NUM);
 #else
   NewDbgMngrFilename+="Scd_Dbg.ini"; // specifies the DbgMngrFile to be used  
 #endif

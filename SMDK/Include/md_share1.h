@@ -500,8 +500,6 @@ const DWORD TBF_LocalOnly     = 0x00100000;
 #define DllImportExport
 #endif
 
-extern bool DllImportExport MakeVersionOK(LPCTSTR FileName, LPCTSTR MakeName, WORD V0, WORD V1, WORD V2, WORD V3, bool DoMsg=true);
-
 #define DoBreak() { __debugbreak(); };
 
 DllImportExport void DoAssert1(char * pMsg);
@@ -522,27 +520,6 @@ DllImportExport void DoAssert1(char * pMsg);
 #define INCOMPLETECODEMSG(Msg) { char Buff[2000]; sprintf(Buff, "%s\n\n%s[%i]", Msg, __FILE__, __LINE__); DoAssert1(Buff); __debugbreak() ; }
 
 // ========================================================================
-// ========================================================================
-
-#define SCD_REVNO        1209                 /* Revision from SVN */
-#define SCD_BUILDNO      121                  /* Build number*/
-//#define SCD_BUILDDATE    "22 October 2006"    /* Build release date*/
-#define SCD_BUILDDATE    __DATE__             /* Build release date - for comment - CNM*/
-#define SCD_BUILDDTTM    __DATE__ " " __TIME__   
-#define SCD_BUILDTS      __TIMESTAMP__        
-#define SCD_VERINFO_V0   9                    /* Major Version */
-#define SCD_VERINFO_V1   1                    /* Minor Version */
-#define SCD_VERINFO_V2   SCD_BUILDNO          /* Incompatible Version, ie check these numbers match in DLLs*/
-#define SCD_VERINFO_V3   SCD_REVNO            /* Compatible Version - should change every time a version is issued*/
-
-#ifdef _DEBUG
-#define _MAKENAME "Debug"
-#elif  _RELEASE
-#define _MAKENAME "Release"
-#else
-#define _MAKENAME "Dbg_Release"
-#endif
-
 
 // ========================================================================
 

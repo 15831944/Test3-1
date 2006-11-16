@@ -8,10 +8,6 @@
 //  Compile Options
 //===========================================================================
 
-// License Options moved to ScdVerLic.h
-
-// --------------------------------------------------------------------------
-
 #define BLDDEPENDENTFILES     1
 #define WITHCOMCMD            0
 #define WITHMULTIFLWBLK       1
@@ -67,18 +63,44 @@
 #define WITHANALYSE           0
 #define WITHDRVMAN            0
 
+//#include "..\..\..\SMDK\include\md_share1.h"
 
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++ Used for changing SysCAD version numbers.           ++
-// ++ See BuildVer.h for build numbers.                   ++
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// ========================================================================
 
-#include "..\..\..\SMDK\include\md_share1.h"
-
-#if (NextVersion && SCD_VERINFO_V1==0)
-#error "SCD_VERINFO_V1 needs to be bumped"
+#ifdef _DEBUG
+#define _MAKENAME "Debug"
+#elif  _RELEASE
+#define _MAKENAME "Release"
+#else
+#define _MAKENAME "Dbg_Release"
 #endif
 
+// --------------------------------------------------------------------------
+//information when a Build is released
+#define SCD_BUILD_SVN    1213                 /* SVN when Build is first released */
+#define SCD_BUILD_NUM    122                  /* Build number*/
+#define SCD_BUILD_DATE   "16 November 2006"   /* Date when Build is first released */
+
+//compile information
+#define SCD_COMPILE_DT   __DATE__
+#define SCD_COMPILE_DTTM  __DATE__ " " __TIME__   
+#define SCD_COMPILE_TS   __TIMESTAMP__        
+
+//Version number
+#define SCD_VERINFO_V0   9                    /* Major Version */
+#define SCD_VERINFO_V1   1                    /* Minor Version */
+#define SCD_VERINFO_V2   SCD_BUILD_NUM        /* Incompatible Version, ie check these numbers match in DLLs*/
+#define SCD_VERINFO_V3   SCD_BUILD_SVN        /* Compatible Version - idealy this should change every time a version is issued, but for now use svn number when build is created*/
+
+// --------------------------------------------------------------------------
+
+//Version numbers used in rc2 files
+#define SCD_VERINFO_P0   SCD_VERINFO_V0
+#define SCD_VERINFO_P1   SCD_VERINFO_V1
+#define SCD_VERINFO_P2   SCD_VERINFO_V2
+#define SCD_VERINFO_P3   SCD_VERINFO_V3
+
+//Version strings
 #define VERSTR(x)    #x
 #define VERSTR2(x)  VERSTR(x)
 
@@ -92,14 +114,10 @@
 #define SCD_VERINFO_VS            SCD_VERINFO_VS_X(SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_BUILDNO, "Release Debug")
 #endif
 
-#define SCD_VERINFO_P0   SCD_VERINFO_V0
-#define SCD_VERINFO_P1   SCD_VERINFO_V1
-#define SCD_VERINFO_P2   SCD_VERINFO_V2
-#define SCD_VERINFO_P3   SCD_VERINFO_V3
-
 #define SCD_VERINFO_PS_X(A,B,C)   VERSTR2(A) "." VERSTR2(B) "." VERSTR2(C) "\0"
 #define SCD_VERINFO_PS            SCD_VERINFO_PS_X(SCD_VERINFO_P0, SCD_VERINFO_P1, SCD_VERINFO_P2)
 
+//More version information used in RC files, etc
 #define SCD_VERINFO_Company       "Kenwalt\0"
 #define SCD_VERINFO_CompanyFull   "Kenwalt Pty Ltd\0"
 #define SCD_VERINFO_Copyright     "Copyright © 1995-2006\0"
@@ -107,6 +125,11 @@
 #define SCD_VERINFO_Legal         "-\0"
 #define SCD_VERINFO_Company2      "KWA Kenwalt\0"
 #define SCD_VERINFO_Company2Full  "KWA Kenwalt Australia Pty Ltd\0"
+
+
+#if (NextVersion && SCD_VERINFO_V1==0)
+#error "SCD_VERINFO_V1 needs to be bumped"
+#endif
 
 #endif // __SCDVER_H
 

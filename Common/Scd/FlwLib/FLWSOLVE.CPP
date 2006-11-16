@@ -10808,7 +10808,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
 
     case xidGenVerStr       : DCB.pC=FullVersion(); return 1;
     case xidGenUpdateVerStr : DCB.pC=FullVersionAndUpdate(); return 1;
-    case xidGenBuildNo      : DCB.L=SCD_BUILDNO; return 1;
+    case xidGenBuildNo      : DCB.L=SCD_BUILD_NUM; return 1;
     case xidGenBuildDate    : DCB.pC=BuildDate(); return 1;
     case xidGenDateAndTime  : DCB.pC=CurDateTime(SecsBuff); return 1;
     case xidGenTime1970     : DCB.D=GetCurrentTime_1970().Seconds; return 1;
