@@ -58,20 +58,13 @@
   <ItemGroup>
     <Compile Include="Anchor.cs" />
     <Compile Include="Arc.cs" />
-    <Compile Include="BaseAccessItem.cs" />
-    <Compile Include="BaseAccessItemConverter.cs" />
     <Compile Include="BaseGraphic.cs" />
     <Compile Include="BaseModel.cs" />
     <Compile Include="Bezier.cs" />
-    <Compile Include="BranchAccessItem.cs" />
-    <Compile Include="BranchAccessItemConverter.cs" />
-    <Compile Include="BranchAccessItemProperty.cs" />
-    <Compile Include="BranchAccessItemPropertyDescriptor.cs" />
     <Compile Include="ClientGraphic.cs" />
     <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="FloatAccessItem.cs" />
     <Compile Include="GraphicItem.cs" />
     <Compile Include="GraphicStencil.cs">
       <SubType>Code</SubType>
@@ -80,12 +73,9 @@
     <Compile Include="GraphicLink.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="ModelItem.cs" />
-    <Compile Include="ModelItemProperty.cs" />
-    <Compile Include="ModelItemPropertyDescriptor.cs" />
     <Compile Include="ModelLink.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ARectangleF.cs" />
-    <Compile Include="ARectangleFConverter.cs" />
     <Compile Include="OldGraphicStencil.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ServiceGraphic.cs" />

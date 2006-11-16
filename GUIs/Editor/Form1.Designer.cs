@@ -207,10 +207,10 @@ namespace SysCAD.Editor
       this.toolWindowContainer2 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.dockContainerContainer1 = new ActiproSoftware.UIStudio.Dock.DockContainerContainer();
       this.twGraphicProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-      this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+      this.propertyGrid1 = new GraphicPropertyGrid();
       this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
       this.toolWindow1 = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-      this.propertyGrid2 = new System.Windows.Forms.PropertyGrid();
+      this.propertyGrid2 = new ModelPropertyGrid();
       this.statusStrip1 = new System.Windows.Forms.StatusStrip();
       this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
       ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
@@ -847,9 +847,9 @@ namespace SysCAD.Editor
     private PureComponents.TreeView.TreeView tvNavigation;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer4;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twGraphicProperties;
-    public System.Windows.Forms.PropertyGrid propertyGrid1;
+      public GraphicPropertyGrid propertyGrid1;
     private ActiproSoftware.UIStudio.Dock.ToolWindow toolWindow1;
-    private PropertyGrid propertyGrid2;
+    public ModelPropertyGrid propertyGrid2;
     private StatusStrip statusStrip1;
     public ToolStripStatusLabel toolStripStatusLabel1;
   }

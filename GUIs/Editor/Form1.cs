@@ -796,27 +796,12 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox);
         if (graphicItem != null)
         {
-          propertyGrid1.SelectedObject = graphicItem;
-          propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(propertyGrid1_PropertyValueChanged);
+          propertyGrid1.SetGraphic(graphicItem);
 
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
-          modelItem.Properties = new BaseAccessItem[6];
-          modelItem.Properties[0] = new FloatAccessItem("zero", "description zero", 074.6F);
-          modelItem.Properties[1] = new FloatAccessItem("one", "description one", 174.6F);
-          modelItem.Properties[2] = new FloatAccessItem("two", "description two", 274.6F);
-          modelItem.Properties[3] = new FloatAccessItem("three", "description three", 374.6F);
-          modelItem.Properties[4] = new FloatAccessItem("four", "description four", 474.6F);
+          propertyGrid2.SetModel(modelItem);
 
-          BaseAccessItem[] properties = new BaseAccessItem[5];
-          properties[0] = new FloatAccessItem("zero branch", "description zero branch", 074.6F);
-          properties[1] = new FloatAccessItem("one branch", "description one branch", 174.6F);
-          properties[2] = new FloatAccessItem("two branch", "description two branch", 274.6F);
-          properties[3] = new FloatAccessItem("three branch", "description three branch", 374.6F);
-          properties[4] = new FloatAccessItem("four branch", "description four branch", 474.6F);
-
-          modelItem.Properties[5] = new BranchAccessItem("branch zero", "description branch zero", properties);
-
-          propertyGrid2.SelectedObject = modelItem;
+          frmFlowChart.state.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 
           int i;
 
@@ -857,136 +842,136 @@ namespace SysCAD.Editor
       frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
-    void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
-    {
-      uint requestID;
-      string label = e.ChangedItem.Label;
-      if (label == "Shape")
-      {
-        GridItem gridItem = e.ChangedItem;
-        Shape shape = (gridItem.Value as Shape);
-        GraphicStencil graphicShape = frmFlowChart.state.GraphicShape(shape);
-        if (graphicShape != null)
-        {
-          while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-            gridItem = gridItem.Parent;
-          GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //void propertyGrid1_PropertyValueChanged(object s, VisualHint.SmartPropertyGrid.PropertyChangedEventArgs e)
+    //{
+    //  uint requestID;
+    //  string label = e.ChangedItem.Label;
+    //  if (label == "Shape")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    Shape shape = (gridItem.Value as Shape);
+    //    GraphicStencil graphicShape = frmFlowChart.state.GraphicShape(shape);
+    //    if (graphicShape != null)
+    //    {
+    //      while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //        gridItem = gridItem.Parent;
+    //      GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-          frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-        }
-      }
+    //      frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //    }
+    //  }
 
-      if (label == "Angle")
-      {
-        GridItem gridItem = e.ChangedItem;
-        float angle = (float)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Angle")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    float angle = (float)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Height")
-      {
-        GridItem gridItem = e.ChangedItem;
-        float height = (float)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Height")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    float height = (float)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        RectangleF rectangleF = graphicItem.BoundingRect;
-        rectangleF.Height = height;
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    RectangleF rectangleF = graphicItem.BoundingRect;
+    //    rectangleF.Height = height;
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Width")
-      {
-        GridItem gridItem = e.ChangedItem;
-        float width = (float)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Width")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    float width = (float)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        RectangleF rectangleF = graphicItem.BoundingRect;
-        rectangleF.Width = width;
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    RectangleF rectangleF = graphicItem.BoundingRect;
+    //    rectangleF.Width = width;
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "X")
-      {
-        GridItem gridItem = e.ChangedItem;
-        float x = (float)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "X")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    float x = (float)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        RectangleF rectangleF = graphicItem.BoundingRect;
-        rectangleF.X = x;
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    RectangleF rectangleF = graphicItem.BoundingRect;
+    //    rectangleF.X = x;
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Y")
-      {
-        GridItem gridItem = e.ChangedItem;
-        float y = (float)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Y")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    float y = (float)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        RectangleF rectangleF = graphicItem.BoundingRect;
-        rectangleF.Y = y;
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    RectangleF rectangleF = graphicItem.BoundingRect;
+    //    rectangleF.Y = y;
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Mirror X")
-      {
-        GridItem gridItem = e.ChangedItem;
-        bool mirrorX = (bool)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Mirror X")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    bool mirrorX = (bool)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, mirrorX, graphicItem.MirrorY);
-      }
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, mirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Mirror Y")
-      {
-        GridItem gridItem = e.ChangedItem;
-        bool mirrorY = (bool)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Mirror Y")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    bool mirrorY = (bool)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, mirrorY);
-      }
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, mirrorY);
+    //  }
 
-      if (label == "Tag")
-      {
-        GridItem gridItem = e.ChangedItem;
-        String tag = (String)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Tag")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    String tag = (String)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        graphicItem.Tag = tag;
-        frmFlowChart.state.SetTag(graphicItem.Guid, tag);
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+    //    graphicItem.Tag = tag;
+    //    frmFlowChart.state.SetTag(graphicItem.Guid, tag);
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
 
-      if (label == "Fill Color")
-      {
-        GridItem gridItem = e.ChangedItem;
-        Color fillColor = (Color)gridItem.Value;
-        while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-          gridItem = gridItem.Parent;
-        GraphicItem graphicItem = (gridItem.Value as GraphicItem);
+    //  if (label == "Fill Color")
+    //  {
+    //    GridItem gridItem = e.ChangedItem;
+    //    Color fillColor = (Color)gridItem.Value;
+    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
+    //      gridItem = gridItem.Parent;
+    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
 
-        graphicItem.FillColor = fillColor;
-        frmFlowChart.state.SetFillColor(graphicItem.Guid, fillColor);
-        frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
-    }
+    //    graphicItem.FillColor = fillColor;
+    //    frmFlowChart.state.SetFillColor(graphicItem.Guid, fillColor);
+    //    frmFlowChart.state.ModifyGraphicItem(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+    //  }
+    //}
 
     private void tvNavigation_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
     {

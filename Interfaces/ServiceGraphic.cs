@@ -34,6 +34,8 @@ namespace SysCAD.Interface
 
     public delegate PortStatus PortCheckDelegate(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
 
+    public delegate ArrayList PropertyListDelegate(ServiceGraphic graphic, Guid guid, String tag, String path);
+
     private CreateItemDelegate createItemDelegate;
     private ModifyItemDelegate modifyItemDelegate;
     private DeleteItemDelegate deleteItemDelegate;
@@ -48,11 +50,13 @@ namespace SysCAD.Interface
 
     private PortCheckDelegate portCheckDelegate;
 
+    private PropertyListDelegate propertyListDelegate;
+
     public ServiceGraphic(
       CreateItemDelegate createItemDelegate, ModifyItemDelegate modifyItemDelegate, DeleteItemDelegate deleteItemDelegate,
       CreateLinkDelegate createLinkDelegate, ModifyLinkDelegate modifyLinkDelegate, DeleteLinkDelegate deleteLinkDelegate,
       CreateThingDelegate createThingDelegate, ModifyThingDelegate modifyThingDelegate, DeleteThingDelegate deleteThingDelegate,
-      PortCheckDelegate portCheckDelegate)
+      PortCheckDelegate portCheckDelegate, PropertyListDelegate propertyListDelegate)
     {
       this.createItemDelegate = createItemDelegate;
       this.modifyItemDelegate = modifyItemDelegate;
@@ -67,6 +71,8 @@ namespace SysCAD.Interface
       this.deleteThingDelegate = deleteThingDelegate;
 
       this.portCheckDelegate = portCheckDelegate;
+
+      this.propertyListDelegate = propertyListDelegate;
     }
 
     ~ServiceGraphic()
@@ -165,6 +171,13 @@ namespace SysCAD.Interface
         return portCheckDelegate(this, itemGuid, anchor);
       else
         return PortStatus.Unavailable;
+    }
+
+
+    public ArrayList PropertyList(Guid guid, String tag, String path)
+    {
+      //todo: check path is valid.
+      return propertyListDelegate(this, guid, tag, path);
     }
 
 

@@ -107,10 +107,6 @@ namespace SysCAD.Editor
       fcFlowChart.Enabled = true;
     }
 
-    internal void UnsetProject()
-    {
-
-    }
 
     internal static float getMinArrowheadSize(GraphicsUnit currUnit)
     {

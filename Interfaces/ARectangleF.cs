@@ -40,7 +40,6 @@ namespace SysCAD.Interface
 {
   [Serializable]
   [ComVisible(true)]
-  [TypeConverter(typeof(ARectangleFConverter))]
   public struct ARectangleF
   {
     private float x, y, width, height;

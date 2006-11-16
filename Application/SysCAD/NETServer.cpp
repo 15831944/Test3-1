@@ -321,6 +321,17 @@ ref class CNETServerThread
       return PortStatus::Available;
       }
 
+    ArrayList^ PropertyListCheck(ServiceGraphic^ graphic, Guid guid, String^ tag, String^ path)
+      {
+        char* dest = new char[tag->Length+1];
+        strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(tag)))));
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)dest);
+
+        ArrayList^ list = gcnew ArrayList();
+        // Generate list of properties at this level in properties tree.
+        return list;
+      }
+
     void MarshalGraphics()
       {
       ServiceGraphic::CreateItemDelegate^ createItem = gcnew ServiceGraphic::CreateItemDelegate(this, &CNETServerThread::CreateItem);
@@ -337,8 +348,10 @@ ref class CNETServerThread
 
       ServiceGraphic::PortCheckDelegate^ portCheck = gcnew ServiceGraphic::PortCheckDelegate(this, &CNETServerThread::PortCheck);
 
+      ServiceGraphic::PropertyListDelegate^ propertyListCheck = gcnew ServiceGraphic::PropertyListDelegate(this, &CNETServerThread::PropertyListCheck);
 
-      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck);
+
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);

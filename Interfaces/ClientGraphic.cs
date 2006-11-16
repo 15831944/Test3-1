@@ -99,6 +99,14 @@ namespace SysCAD.Interface
     }
 
 
+    public ArrayList PropertyList(Guid guid, String tag, String path)
+    {
+      return serviceGraphic.PropertyList(guid, tag, path);
+    }
+
+
+    
+
     public bool Connect(string URL)
     {
       try

@@ -44,6 +44,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
     </Reference>
+    <Reference Include="SmartPropertyGrid, Version=2.0.0.0, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\VisualHint\Smart PropertyGrid.Net eval\bin\SmartPropertyGrid.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
@@ -55,6 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GraphicPropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ModelPropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Thing.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Link.cs" />

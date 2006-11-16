@@ -105,6 +105,13 @@ namespace SysCAD.Service
     }
 
 
+    private static ArrayList PropertyList(ServiceGraphic graphic, Guid guid, String tag, String path)
+    {
+      //todo: display the access window.
+      return null;
+    }
+
+
     [STAThread]
     static void Main(string[] args) 
     {
@@ -208,7 +215,7 @@ namespace SysCAD.Service
         
         string filename = Path.GetFileNameWithoutExtension(fullpath);
 
-        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, CreateThing, ModifyThing, DeleteThing, PortCheck);
+        ServiceGraphic graphic = new ServiceGraphic(CreateItem, ModifyItem, DeleteItem, CreateLink, ModifyLink, DeleteLink, CreateThing, ModifyThing, DeleteThing, PortCheck, PropertyList);
         graphic.name = filename;
 
         {

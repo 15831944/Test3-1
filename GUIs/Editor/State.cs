@@ -716,6 +716,12 @@ namespace SysCAD.Editor
     }
 
 
+    internal ArrayList PropertyList(Guid guid, String tag, String path)
+    {
+      return graphic.PropertyList(guid, tag, path);
+    }
+
+
     internal void ConnectGraphic(
       ClientGraphic.ItemCreatedHandler itemCreatedHandler,
       ClientGraphic.ItemModifiedHandler itemModifiedHandler,
