@@ -524,7 +524,7 @@ DllImportExport void DoAssert1(char * pMsg);
 // ========================================================================
 // ========================================================================
 
-#define SCD_REVNO        1208                 /* Revision from SVN */
+#define SCD_REVNO        1209                 /* Revision from SVN */
 #define SCD_BUILDNO      121                  /* Build number*/
 //#define SCD_BUILDDATE    "22 October 2006"    /* Build release date*/
 #define SCD_BUILDDATE    __DATE__             /* Build release date - for comment - CNM*/
