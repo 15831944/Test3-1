@@ -2642,9 +2642,12 @@ Update 4 : 15 November 2006
 
 Build 122 : 16 November 2006
 ------------------------------
-1)
-//Latest release information*/
-#define SCD_PATCH_SVN    1214
+1215) 16/11/06: New revision numbering.
+
+
+------------------------------
+//Latest release information:*/
+#define SCD_PATCH_SVN    1215
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
