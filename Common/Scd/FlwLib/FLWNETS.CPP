@@ -2267,6 +2267,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
 
           SrcPB.P=m_P_HereSafe;
           SrcPB.PEst=m_P_HereLnk;
+          //dbgpln("Set A pb[%4i] %15.6f", SrcPB.m_iNo, m_P_HereLnk);
 
           FB.SetQm(I->m_iSgn*Qm);
 
@@ -2282,12 +2283,17 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
           if (I->AtEnd(GoFwd) && I->Nd.IO_Open_Self(I->m_iIONo) && !I->Nd.IO_Direct_Self(I->m_iIONo))
             FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p2");
 
-          FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          if (!m_fFixedXfer)
+            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          else
+            FB.m_DPEstFxdQm=0.0;
+
           if (!I->AtEnd(GoFwd))
             {
             DstPB.P=m_P_HereSafe;
             DstPB.PEst=m_P_HereLnk;
             PEst=m_P_HereLnk;
+            //dbgpln("Set B pb[%4i] %15.6f", DstPB.m_iNo, m_P_HereLnk);
             }
 #if DISTERRORINTRAVERSE  
           double ADP = fabs(m_P_HereLnk-SrcPB.PEst);
@@ -2308,6 +2314,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
 
           SrcPB.P=m_P_HereSafe;
           SrcPB.PEst=m_P_HereLnk;
+          //dbgpln("Set C pb[%4i] %15.6f", SrcPB.m_iNo, m_P_HereLnk);
 
           FB.SetQm(I->m_iSgn*Qm);
 
@@ -2317,12 +2324,17 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
           if (ForceEvalFlow || HasEqns)
             FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "pl");
 
-          FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          if (!m_fFixedXfer)
+            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+          else
+            FB.m_DPEstFxdQm=0.0;
+  
           if (!I->AtEnd(GoFwd))
             {
             DstPB.P=m_P_HereSafe;
             DstPB.PEst=m_P_HereLnk;
             PEst=m_P_HereLnk;
+            //dbgpln("Set D pb[%4i] %15.6f", DstPB.m_iNo, m_P_HereLnk);
             }
 #if DISTERRORINTRAVERSE  
           double ADP = fabs(m_P_HereLnk-SrcPB.PEst);
@@ -2338,6 +2350,8 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
         case GFI_Join:
           I->Join.m_PB.P=m_P_HereSafe;
           I->Join.m_PB.PEst=m_P_Here;
+          //dbgpln("Set E pb[%4i] %15.6f", I->Join.m_PB.m_iNo, m_P_HereLnk);
+
 #if dbgFlwNets
           if (DbgFlags & DBG_TraverseP)
             {
@@ -4212,14 +4226,14 @@ void CSubNetBlk::Clear(int SubNetNo_, CNetBlk* pNet_, CFullNetBlk *pFNB_)
   fMustAnalyse          = false;
   fSolved               = false;
   fNetTolsOK            = false;
-  fLonely               = false;
-  fUnDefined            = false;
-  fIsolatedNode         = false;
-  fIsolatedNet          = false;
-  fFixed                = false;
-  fXfer                 = false;
-  fXferTies             = false;
-  fNetWrk               = false;
+  m_fLonely             = false;
+  m_fUnDefined          = false;
+  m_fIsolatedNode       = false;
+  m_fIsolatedNet        = false;
+  m_fFixed              = false;
+  m_fXfer               = false;
+  m_fXferTies           = false;
+  m_fNetWrk             = false;
 
   fTopologyChanged      = false;
 
@@ -4534,6 +4548,18 @@ void CSubNetBlk::SolveFxdPs()
   {
   CStopWatchLap SWLapSolveFxdFlwPTicks(gs_swSolveFxdFlwPTicks);
 
+  if (m_fXfer)
+    {
+#if dbgFlwNets
+    if (dbgSolveFxdPs())
+      {
+      dbgpln("FindXferPs SKIP");
+      }
+#endif
+    return;
+    }
+
+
 #if dbgFlwNets
   DumpFxdConnPs();
   char * SepLn="=========================================================================================================";
@@ -4583,13 +4609,13 @@ void CSubNetBlk::SolveFxdPs()
 
 void CSubNetBlk::SolveFxdGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
   {
-  char * pDbgStr=fXfer ? "SolveXfrLnkQ" : "SolveFxdLnkQ";
+  char * pDbgStr=m_fXfer ? "SolveXfrLnkQ" : "SolveFxdLnkQ";
   CGrpFlwBlk &GFB= *JG.GFB();
   if (GFB.m_fFixedExternal)
     {
 #if dbgFlwNets
     if (dbgSolveFxdQs())
-      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(fXfer), GFB.m_QmIn,"",GFB.FwdTag());
+      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(m_fXfer), GFB.m_QmIn,"",GFB.FwdTag());
 #endif
     // Actual flow should be set by SolveFxdTieQ
     GFB.Traverse(pDbgStr);
@@ -4611,7 +4637,7 @@ void CSubNetBlk::SolveFxdGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
     double QRqd=GFB.RequiredQm();
 #if dbgFlwNets
     if (dbgSolveFxdQs())
-      dbgpln("%s LnkQ Set   %#16.9g %18s ---- %s", FxdStr(fXfer), QRqd,"",GFB.FwdTag());
+      dbgpln("%s LnkQ Set   %#16.9g %18s ---- %s", FxdStr(m_fXfer), QRqd,"",GFB.FwdTag());
 #endif
     GFB.SetLinkQmEstAndQm(Valid(QRqd) ? QRqd : GFB.m_QmIn);
     }
@@ -4625,7 +4651,7 @@ void CSubNetBlk::SolveFxdJoinQ( CJoinGFBPtr & JG)
   ASSERT(Jn.fIsTie);
 #if dbgFlwNets
   if (dbgSolveFxdQs())
-    dbgpln("%s JoinQ                       %18s ---- %s",FxdStr(fXfer),"",Jn.Nd()->FullObjTag());
+    dbgpln("%s JoinQ                       %18s ---- %s",FxdStr(m_fXfer),"",Jn.Nd()->FullObjTag());
 #endif
 
   // Sum Inputs
@@ -4665,13 +4691,13 @@ void CSubNetBlk::SolveFxdJoinQ( CJoinGFBPtr & JG)
 
 void CSubNetBlk::LimitFxdGFBQ( CJoinGFBPtr & JG, long & Changes)
   {
-  char * pDbgStr=fXfer ? "LimitXfrLnkQ" : "LimitFxdLnkQ";
+  char * pDbgStr=m_fXfer ? "LimitXfrLnkQ" : "LimitFxdLnkQ";
   CGrpFlwBlk &GFB= *JG.GFB();
   if (GFB.m_fFixedExternal)
     {
 #if dbgFlwNets
     if (dbgSolveFxdQs())
-      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(fXfer), GFB.m_QmIn, "",GFB.FwdTag());
+      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(m_fXfer), GFB.m_QmIn, "",GFB.FwdTag());
 #endif
     // Actual flow should be set by SolveFxdTieQ
     double QRqd=GFB.RequiredQm();
@@ -4693,7 +4719,7 @@ void CSubNetBlk::LimitFxdGFBQ( CJoinGFBPtr & JG, long & Changes)
         {
 #if dbgFlwNets
         if (dbgSolveFxdQs())
-          dbgpln("%s LnkQ Limit %#16.9g > %#16.9g ---- %s", FxdStr(fXfer), GFB.m_QmIn, QRqd, GFB.FwdTag());
+          dbgpln("%s LnkQ Limit %#16.9g > %#16.9g ---- %s", FxdStr(m_fXfer), GFB.m_QmIn, QRqd, GFB.FwdTag());
 #endif
         if (fabs(GFB.m_QmIn-QRqd)>1e-6)
           Changes++;
@@ -4714,11 +4740,11 @@ void CSubNetBlk::LimitFxdGFBQ( CJoinGFBPtr & JG, long & Changes)
 void CSubNetBlk::LimitFxdJoinQ( CJoinGFBPtr & JG, long & Changes)
   {
   CJoinRec &Jn=*JG.Join();
-  char * pDbgStr=fXfer ? "LimitXfrJoinQ" : "LimitFxdJoinQ";
+  char * pDbgStr=m_fXfer ? "LimitXfrJoinQ" : "LimitFxdJoinQ";
   ASSERT(Jn.fIsTie);
 #if dbgFlwNets
   if (dbgSolveFxdQs())
-    dbgpln("%s JoinQLimit                  %18s ---- %s",FxdStr(fXfer),"",Jn.Nd()->FullObjTag());
+    dbgpln("%s JoinQLimit                  %18s ---- %s",FxdStr(m_fXfer),"",Jn.Nd()->FullObjTag());
 #endif
 
   // Sum Outputs
@@ -4879,7 +4905,7 @@ void CSubNetBlk::SolveFxdQs()
 void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
   {
   Strng S;
-  char * pDbgStr=fXfer ? "SolveXfrLnkQ" : "SolveFxdLnkQ";
+  char * pDbgStr=m_fXfer ? "SolveXfrLnkQ" : "SolveFxdLnkQ";
   CGrpFlwBlk &GFB= *JG.GFB();
   if (GFB.m_fFixedExternal)
     {
@@ -4898,7 +4924,7 @@ void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
 
 #if dbgFlwNets
     if (dbgSolveFxdQs())
-      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(fXfer), Qm,"",GFB.FwdTag());
+      dbgpln("%s LnkQ Is    %#16.9g %18s ---- %s", FxdStr(m_fXfer), Qm,"",GFB.FwdTag());
 #endif
     GFB.SetLinkQmEstAndQm(Qm);
     }
@@ -4908,7 +4934,7 @@ void CSubNetBlk::SolveXferGFBQ( CJoinGFBPtr & JG)//, CGrpFlwBlk * & pPrevGFB)
     double QRqd=GFB.RequiredQm();
 #if dbgFlwNets
     if (dbgSolveFxdQs())
-      dbgpln("%s LnkQ Set   %#16.9g %18s ---- %s", FxdStr(fXfer), QRqd,"",GFB.FwdTag());
+      dbgpln("%s LnkQ Set   %#16.9g %18s ---- %s", FxdStr(m_fXfer), QRqd,"",GFB.FwdTag());
 #endif
     GFB.SetLinkQmEstAndQm(Valid(QRqd) ? QRqd : GFB.m_QmIn);
     }
@@ -5680,8 +5706,8 @@ void CSubNetBlk::CalcIndicesFull1(CJoinRec * pSrc, CJoinRec * pJ, CGrpFlwBlk * p
     if (pJ->fIsTie)
       {
       pJ->NdInx = -1;
-      pJ->fIsolatedNet = fIsolatedNet;
-      pJ->fIsolatedNode = fIsolatedNode;
+      pJ->fIsolatedNet = m_fIsolatedNet;
+      pJ->fIsolatedNode = m_fIsolatedNode;
       m_CalcIndexSeq.AddJoin(pJ);
       for (int c = 0; c < pJ->m_nConns; c++)
         {
@@ -5693,8 +5719,8 @@ void CSubNetBlk::CalcIndicesFull1(CJoinRec * pSrc, CJoinRec * pJ, CGrpFlwBlk * p
     else if (pJ->fSelfLoop)//udf || pJ->fUDFShut)
       {
       pJ->NdInx = -1;
-      pJ->fIsolatedNet = fIsolatedNet;
-      pJ->fIsolatedNode = fIsolatedNode;
+      pJ->fIsolatedNet = m_fIsolatedNet;
+      pJ->fIsolatedNode = m_fIsolatedNode;
       m_CalcIndexSeq.AddJoin(pJ);
       }
     }
@@ -5705,8 +5731,8 @@ void CSubNetBlk::CalcIndicesFull1(CJoinRec * pSrc, CJoinRec * pJ, CGrpFlwBlk * p
     for (CJoinRec * pJ = L.First(); (pJ); pJ = L.Next())
       {
       pJ->NdInx = -1;
-      pJ->fIsolatedNet = fIsolatedNet;
-      pJ->fIsolatedNode = fIsolatedNode;
+      pJ->fIsolatedNet = m_fIsolatedNet;
+      pJ->fIsolatedNode = m_fIsolatedNode;
       }
     m_CalcIndexSeq.AddGrp(pG);
 
@@ -5900,16 +5926,16 @@ void CSubNetBlk::CalcIndicesFull()
     }
 
 
-  fNetWrk = 1;
-  fIsolatedNet  = ((InxCnt[JTyp_Edge] == 0) &&
+  m_fNetWrk = 1;
+  m_fIsolatedNet  = ((InxCnt[JTyp_Edge] == 0) &&
     (InxCnt[JTyp_Link] != 0) &&
     (InxCnt[JTyp_Tie] > 0) &&
     (InxCnt[JTyp_ImpNd] == 0) &&
     (InxCnt[JTyp_AccLnk] == 0));
-  fIsolatedNode = ((InxCnt[JTyp_Edge] == 0) &&
+  m_fIsolatedNode = ((InxCnt[JTyp_Edge] == 0) &&
     (InxCnt[JTyp_Link] == 0));
 
-  if (fIsolatedNet)
+  if (m_fIsolatedNet)
     {
     // Must add an Edge to connect the network to a reference Pressure
     // Find Tie with lowest Pressure
@@ -5962,7 +5988,7 @@ void CSubNetBlk::CalcIndicesFull()
   int EqnOne=1;
   CalcIndicesFull2(NdInx, NULL, m_pFirstJoin, NULL, PQInx, EqnOne);
 
-  if (fIsolatedNet)
+  if (m_fIsolatedNet)
     {
     //   JTyp_Tie
 
@@ -6945,7 +6971,7 @@ const bool DoDirectSubs=false;
 
 flag CSubNetBlk::SolveNetFlows()
   {
-  if (fIsolatedNode)
+  if (m_fIsolatedNode)
     BreakPoint();
 
   flag CountExceeded = false;
@@ -7151,7 +7177,7 @@ flag CSubNetBlk::Solve()
     for (flag FillsOK=0; !FillsOK; FillPass++)
       {
       FillsOK=true;
-      if (fXferTies)
+      if (m_fXferTies)
         {
 #if dbgFlwNets
         if (dbgWhere())
@@ -7163,7 +7189,7 @@ flag CSubNetBlk::Solve()
         // Do Nothing
         fSolved = 1;
         }
-      else if (fFixed)
+      else if (m_fFixed)
         {
 #if dbgFlwNets
         if (dbgWhere())
@@ -7172,13 +7198,13 @@ flag CSubNetBlk::Solve()
           dbgindent(+2); 
           }
 #endif
-        if (fXfer)
+        if (m_fXfer)
           SolveXferQs();
         else
           SolveFxdQs();
         fSolved = 1;
         }
-      else if (fLonely)
+      else if (m_fLonely)
         {
 #if dbgFlwNets
         if (dbgWhere())
@@ -7189,7 +7215,7 @@ flag CSubNetBlk::Solve()
 #endif
         fSolved = Converge(NLineCnvCnt);
         }
-      else if (fUnDefined)
+      else if (m_fUnDefined)
         {
 #if dbgFlwNets
         if (dbgWhere())
@@ -7332,7 +7358,7 @@ flag CSubNetBlk::CheckForErrors()
     //      LogError(g->FwdTag(), 0, "Link not converged");      
 
     FlwNode * pLoInGrp=NULL;
-    double LowestPressGrp=fLonely||fUnDefined ? LowPressureTest : LowestPressNet;
+    double LowestPressGrp=m_fLonely||m_fUnDefined ? LowPressureTest : LowestPressNet;
 
     if (g->m_Regulator.m_pNd)
       g->m_Regulator.m_pNd->SetCI(18, g->m_Regulator.m_fSetCI18 && g->m_Regulator.m_iWhat!=FBReg_Off);
@@ -7366,7 +7392,7 @@ flag CSubNetBlk::CheckForErrors()
 
     if (pLoInGrp)
       {
-      if (fLonely || fUnDefined)
+      if (m_fLonely || m_fUnDefined)
         pLoInGrp->fNegPress=true;
       else if (LowestPressGrp<LowestPressNet)
         {
@@ -7376,7 +7402,7 @@ flag CSubNetBlk::CheckForErrors()
       }
     }
 
-  if (pLoInNet && !(fLonely||fUnDefined))
+  if (pLoInNet && !(m_fLonely||m_fUnDefined))
     pLoInNet->fNegPress=true;
 
   return true;
@@ -7831,8 +7857,8 @@ void CNetBlk::ConfigureGFBs(CSubNetBlk & SNI)
     for (int f=0; f<g->m_FBs.GetCount(); f++)
       {
       FlwBlk * FB=g->m_FBs[f];
-      FB->SetDisabled(SNI.fXfer);
-      FB->SetInXferNet(SNI.fXfer);
+      FB->SetDisabled(SNI.m_fXfer);
+      FB->SetInXferNet(SNI.m_fXfer);
       if (FB->FlowMode()==FBMode_Full)
         IsFullFlow=true;
         //dbgpln("Src[%2i] fb[%4i] %s", fe, FB->m_iNo, g->m_Src.Nd()->Tag());
@@ -7859,21 +7885,21 @@ void CNetBlk::ConfigureGFBs(CSubNetBlk & SNI)
       if (dbgtestfileopen())
         {
         char * What="?";
-        if (SNI.fFixed)
+        if (SNI.m_fFixed)
           What="Fixed";
-        else if (SNI.fXfer)
+        else if (SNI.m_fXfer)
           What="Xfer";
-        else if (SNI.fXferTies)
+        else if (SNI.m_fXferTies)
           What="XferTies";
-        else if (SNI.fNetWrk)
+        else if (SNI.m_fNetWrk)
           What="Net";
-        else if (SNI.fLonely)
+        else if (SNI.m_fLonely)
           What="Lonely";
-        else if (SNI.fUnDefined)
+        else if (SNI.m_fUnDefined)
           What="Lonely";
-        else if (SNI.fIsolatedNet)
+        else if (SNI.m_fIsolatedNet)
           What="IsoNet";
-        else if(SNI.fIsolatedNode)
+        else if(SNI.m_fIsolatedNode)
           What="IsoNode";
 
         pJ->sNetInfo.Set("Lnk Net(%i)Sub(%i) %s",NetNo,SNI.m_SubNetNo,What);
@@ -7920,21 +7946,21 @@ void CNetBlk::ConfigureTies(CSubNetBlk & SNI)
     if (dbgtestfileopen())
       {
       char * What="?";
-      if (SNI.fFixed)
+      if (SNI.m_fFixed)
         What="Fixed";
-      else if (SNI.fXfer)
+      else if (SNI.m_fXfer)
         What="Xfer";
-      else if (SNI.fXferTies)
+      else if (SNI.m_fXferTies)
         What="XferTies";
-      else if (SNI.fNetWrk)
+      else if (SNI.m_fNetWrk)
         What="Net";
-      else if (SNI.fLonely)
+      else if (SNI.m_fLonely)
         What="Lonely";
-      else if (SNI.fUnDefined)
+      else if (SNI.m_fUnDefined)
         What="Lonely";
-      else if (SNI.fIsolatedNet)
+      else if (SNI.m_fIsolatedNet)
         What="IsoNet";
-      else if(SNI.fIsolatedNode)
+      else if(SNI.m_fIsolatedNode)
         What="IsoNode";
 
       //pT->sNetInfo.Set("Tie N(%i)S(%i)J(%i) %s",NetNo,Sub,iJn++,What);
@@ -8023,8 +8049,8 @@ void CNetBlk::FindFixedConns(flag ForXfer, bool Fwd, CSubNetBlk &SNI, CJoinRec *
     {
     if (!pGFB->m_fInGrpList)
       SNI.m_Grps.AddTail(pGFB);
-    SNI.fFixed = true;
-    SNI.fXfer  = ForXfer;
+    SNI.m_fFixed = true;
+    SNI.m_fXfer  = ForXfer;
     
     pGFB->m_fInGrpList=true;
     pGFB->m_fFixedExternal=(Where==LFP_Elsewhere);
@@ -8221,9 +8247,9 @@ flag CNetBlk::FindXferTies(CSubNetBlk &SNI, CJoinRec * & pJ)
 
     SNI.Ties.AddTail(pJ);
     SNI.Joins.AddTail(pJ);
-    SNI.fFixed    = true;
-    SNI.fXfer     = true;
-    SNI.fXferTies = true;
+    SNI.m_fFixed    = true;
+    SNI.m_fXfer     = true;
+    SNI.m_fXferTies = true;
 
     pJ->Typ             = JTyp_XferTie;
     //pJ->pSubNet         = &SNI;
@@ -8310,7 +8336,7 @@ flag CNetBlk::FindNetLinks(CSubNetBlk &SNI, CJoinRec * & pJ)
       FindMatrixConns(SNI, NULL, pJ, -1, pGFB);//, pJ->fIsTie, false, HasQRatio);
 
       SNI.fIndexCalculationReqd=1;
-      SNI.fNetWrk=1;
+      SNI.m_fNetWrk=1;
       return true;
       }
 
@@ -8390,7 +8416,7 @@ flag CNetBlk::FindLonelyConns(CSubNetBlk &SNI, CJoinRec * pJ, int Conn)
       {
       if (!pGFB->m_fInGrpList)
         SNI.m_Grps.AddTail(pGFB);
-      SNI.fLonely = 1;
+      SNI.m_fLonely = 1;
       pGFB->m_fInGrpList=true;
       }
     //dbgpln("PLnk %s", pLnk->Nd()->FullObjTag());
@@ -9319,7 +9345,7 @@ void CNetBlk::Solve()
 
       // Update all Fixed flow link Pressures Based on Current Best Estimates
       for (Sub = 0; (Sub < NSubNets); Sub++)
-        if (SubNet[Sub]->fFixed)
+        if (SubNet[Sub]->m_fFixed && !SubNet[Sub]->m_fXfer)
           SubNet[Sub]->SolveFxdPs();
 
       for (Sub = 0; (Sub < NSubNets); Sub++)
@@ -9353,21 +9379,21 @@ void CNetBlk::Solve()
         {
         CSubNetBlk &SNI=*SubNet[Sub];
         LPTSTR What;
-        if (SNI.fFixed)
+        if (SNI.m_fFixed)
           What="Fixed Group";
-        else if (SNI.fXfer)
+        else if (SNI.m_fXfer)
           What="Transfer Link Group";
-        else if (SNI.fXferTies)
+        else if (SNI.m_fXferTies)
           What="Transfer Ties Group";
-        else if (SNI.fNetWrk)
+        else if (SNI.m_fNetWrk)
           What="Network";
-        else if (SNI.fLonely)
+        else if (SNI.m_fLonely)
           What="Isolated Link Group";
-        else if (SNI.fUnDefined)
+        else if (SNI.m_fUnDefined)
           What="Indefined Link Group";
-        else if (SNI.fIsolatedNet)
+        else if (SNI.m_fIsolatedNet)
           What="Isolated Network";
-        else if(SNI.fIsolatedNode)
+        else if(SNI.m_fIsolatedNode)
           What="Isolated Node";
         else
           What="??";
@@ -9440,10 +9466,10 @@ void CNetBlk::JobFixNet()
 
   nJobsToDo=0;
   for (int Sub = 0; (Sub < NSubNets); Sub++)
-    if (SubNet[Sub]->fFixed)
+    if (SubNet[Sub]->m_fFixed)
       nJobsToDo++;
   for (Sub = 0; (Sub < NSubNets); Sub++)
-    if (SubNet[Sub]->fFixed)
+    if (SubNet[Sub]->m_fFixed)
       JobListIter().AddJob(Job_SolveFlwsFxd, NetNo, Sub);
 
   if (nJobsToDo==0)
@@ -9468,10 +9494,10 @@ void CNetBlk::JobSolveFlwsFxdDone()
   {
   nJobsToDo=0;
   for (int Sub = 0; (Sub < NSubNets); Sub++)
-    if (!SubNet[Sub]->fFixed)
+    if (!SubNet[Sub]->m_fFixed)
       nJobsToDo++;
   for (Sub = 0; (Sub < NSubNets); Sub++)
-    if (!SubNet[Sub]->fFixed)
+    if (!SubNet[Sub]->m_fFixed)
       JobListIter().AddJob(Job_SolveFlws, NetNo, Sub);
   if (nJobsToDo==0)
     JobListIter().AddJob(Job_SolveFlwsDone, NetNo, 0);
@@ -9503,7 +9529,7 @@ void CNetBlk::JobSolveFlwsDone()
 void CNetBlk::JobSolvePs(int Sub)
   {
   // Update all Fixed flow link Pressures Based on Current Best Estimates
-  if (SubNet[Sub]->fFixed)
+  if (SubNet[Sub]->m_fFixed )
     SubNet[Sub]->SolveFxdPs();
 
   if (InterlockedDecrement(&nJobsToDo)==0)
@@ -10041,7 +10067,7 @@ long CFullNetBlk::GetNumFxdLnks(long iNet)
     {
     CNetBlk &NB=Nets[i];
     for (long j=0 ; (j<NB.NSubNets); j++)
-      if (NB.SubNet[j]->fFixed)
+      if (NB.SubNet[j]->m_fFixed)
         N+=NB.SubNet[j]->m_Grps.GetCount();
     }
   return N;
@@ -10058,7 +10084,7 @@ long CFullNetBlk::GetNumLoneLnks(long iNet)
     {
     CNetBlk &NB=Nets[i];
     for (long j=0 ; (j<NB.NSubNets); j++)
-      if (NB.SubNet[j]->fLonely)
+      if (NB.SubNet[j]->m_fLonely)
         N+=NB.SubNet[j]->m_Grps.GetCount();
     }
   return N;
@@ -10075,7 +10101,7 @@ long CFullNetBlk::GetNumNetLnks(long iNet)
     {
     CNetBlk &NB=Nets[i];
     for (long j=0 ; (j<NB.NSubNets); j++)
-      if (NB.SubNet[j]->fNetWrk)
+      if (NB.SubNet[j]->m_fNetWrk)
         N+=NB.SubNet[j]->m_Grps.GetCount();
     }
   return N;

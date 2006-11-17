@@ -6914,7 +6914,7 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
     case xidIterPerStep:
       if (DCB.rL)
         {
-        IntCB.SetTimeIncMxRqd(TimeCB().m_StepSizeMax.Seconds/(*DCB.rL));
+        IntCB.SetTimeIncMxRqd(TimeCB().m_StepSizeMax.Seconds/Max(1L,*DCB.rL));
         IntCB.SetTimeInc(IntCB.GetTimeIncMxRqd());
         }
       DCB.L=(long)(TimeCB().m_StepSizeMax.Seconds/IntCB.GetTimeInc());

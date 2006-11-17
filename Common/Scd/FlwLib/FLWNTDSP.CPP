@@ -130,12 +130,12 @@ void CSubNetBlk::ShowSubNet(int dbgShowConns)
   dbgpln("--------------------------------");
   //dbgp("%i.%i - %s - ",pNet->NetNo, SubNetNo, SolnString(SolutionType()));
   dbgp("%i.%i - ",pNet->NetNo, m_SubNetNo);
-  if (fLonely) dbgp("Lonely ");
-  if (fUnDefined) dbgp("Undefined ");
-  if (fIsolatedNet) dbgp("IsolatedNet ");
-  if (fIsolatedNode) dbgp("IsolatedNode ");
-  if (fFixed) dbgp("Fixed ");
-  if (fNetWrk) dbgp("NetWrk ");
+  if (m_fLonely) dbgp("Lonely ");
+  if (m_fUnDefined) dbgp("Undefined ");
+  if (m_fIsolatedNet) dbgp("IsolatedNet ");
+  if (m_fIsolatedNode) dbgp("IsolatedNode ");
+  if (m_fFixed) dbgp("Fixed ");
+  if (m_fNetWrk) dbgp("NetWrk ");
   dbgpln("");
 
   GrpFlwIter G(m_Grps);

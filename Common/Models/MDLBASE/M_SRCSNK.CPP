@@ -863,6 +863,10 @@ void MN_SrcSnk::EvalJoinPressures(long JoinMask)
       }
 
     PFeed=Contents.Press();
+
+    if (fDoDbgBrk)
+      dbgpln("JoinPress %15.6f %15.6f %15s %s", PFeed, PRequired(), "", FullObjTag());
+              
     for (int i = 0; i<nfios; i++)
       {
       Set_IOP_Self(i,PFeed);
@@ -901,9 +905,17 @@ flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
       (Valid(Contents.QvRqd()) && ((SSMode&SSM_ConstQv)!=0)) ||
       (Valid(Contents.NQvRqd()) && ((SSMode&SSM_ConstNQv)!=0))))
       {
+      if (fDoDbgBrk)
+        dbgpln("IOP_Flng  %15.6f %15s %15s %s", IOP_Flng(IONo), "", "", FullObjTag());
+            
+      //if (IOFB(IONo)->
       Contents.SetPRqdTo(IOP_Flng(IONo));
       double PFeed=Contents.Press();
       pFB->SetQmReqd((((SSMode&SSM_Source)!=0) ? -1 : 1) * QRequired(Contents.Rho(som_ALL)), true, (float)PFeed);
+
+      if (fDoDbgBrk)
+        dbgpln("          %15.6f %15.6f %15.6f %s", IOP_Flng(IONo),Contents.PRqd(), PFeed, FullObjTag());
+
       }
     else
       pFB->SetQmFree();
@@ -1496,6 +1508,8 @@ double MN_SrcSnk::PRequired()
       P = (Contents.PRqd()-Std_P) * (1.0+dP_Std_Dev_C) * (dP_Out+dO) + Std_P;
       }
     Contents.SetPress(P);
+    if (fDoDbgBrk)
+      dbgpln("PRequired %15.6f %15.6f %15.6f %s", P, Contents.PRqd(), Contents.Press(), FullObjTag());
     return P;
     }
   else
