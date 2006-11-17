@@ -66,21 +66,43 @@ del %fn2%
 wzzip -a %fn2% ..\bin\alcanspm.dll 
 wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
 
-rem ========== QAL ==========
-set fn2=%fn%_c_QAL.zip
+rem ========== Alunorte ==========
+set fn2=%fn%_c_Alunorte.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
-rem wzzip -a %fn2% ..\bin\ttechqal.dll 
+wzzip -a %fn2% ..\bin\alunorte.dll
 
 rem ========== CAR ==========
 set fn2=%fn%_c_CAR.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
+wzzip -a %fn2% ..\bin\ttechcar.dll
 
-rem ========== Alunorte ==========
-set fn2=%fn%_c_Alunorte.zip
+rem ========== DeBeers ==========
+set fn2=%fn%_c_DeBeers.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\alunorte.dll
+wzzip -a %fn2% ..\bin\limndw.dll
+
+rem ========== Hatch ==========
+set fn2=%fn%_c_HatchAlcoa.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\alcoaspmdl.dll
+
+rem ========== Iluka ==========
+set fn2=%fn%_c_Iluka.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
+
+rem ========== Maaden ==========
+set fn2=%fn%_c_Maaden.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\Alumina2.dll
+
+rem ========== QAL ==========
+set fn2=%fn%_c_QAL.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
+rem wzzip -a %fn2% ..\bin\qalprcp1.dll old
+wzzip -a %fn2% ..\bin\ttechqal.dll
 
 rem ========== RTTS ==========
 set fn2=%fn%_c_RTTS.zip
@@ -88,30 +110,16 @@ del %fn2%
 wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
 wzzip -a %fn2% ..\bin\ts_prc.dll
 
-rem ========== Worsley ==========
-set fn2=%fn%_c_BATC.zip
-del %fn2%
-wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
-
-rem ========== Iluka ==========
-set fn2=%fn%_c_Iluka.zip
-del %fn2%
-wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
-
-rem ========== Hatch ==========
-set fn2=%fn%_c_HatchAlcoa.zip
-del %fn2%
-wzzip -a %fn2% ..\bin\alcoaspmdl.dll
-
 rem ========== Simutron ==========
 set fn2=%fn%_c_Simutron.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 
-rem ========== Maaden ==========
-set fn2=%fn%_c_Maaden.zip
+rem ========== Worsley ==========
+set fn2=%fn%_c_BATC.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\Alumina2.dll
+wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
+
 
 rem ------ ALL Client DLLs ------
 rem ========== Kenwalt ==========
@@ -125,15 +133,19 @@ wzzip -a %fn2% ..\bin\Alumina2.dll
 wzzip -a %fn2% ..\bin\HeatXch2.dll
 wzzip -a %fn2% ..\bin\ttgas.dll
 rem plus all the client DLLs
-wzzip -a %fn2% ..\bin\alcanspm.dll ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
-wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll ..\bin\qalprcp1.dll
+wzzip -a %fn2% ..\bin\alcanspm.dll 
+wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll
 wzzip -a %fn2% ..\bin\alunorte.dll
+wzzip -a %fn2% ..\bin\ttechcar.dll
+wzzip -a %fn2% ..\bin\alcoaspmdl.dll
+wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
+wzzip -a %fn2% ..\bin\qalspmdl.dll ..\bin\qalmdls.dll
+wzzip -a %fn2% ..\bin\ttechqal.dll
+wzzip -a %fn2% ..\bin\alcoaspmdl.dll
 wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
 wzzip -a %fn2% ..\bin\ts_prc.dll
-wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
-wzzip -a %fn2% ..\bin\control2.dll ..\bin\ilukaunits.dll
-wzzip -a %fn2% ..\bin\alcoaspmdl.dll
 wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
+wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
 
 @echo off
 

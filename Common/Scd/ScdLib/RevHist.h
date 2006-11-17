@@ -2632,17 +2632,20 @@ Update 3 : 12 November 2006
 2) (#655, 658) Various fixes.
 3) Compiled with VS2003 SP1.
 
-Update 4 : 15 November 2006
+Update 4 : 16 November 2006
 ------------------------------
 1) (#649) For dynamic, fix for models as part of a 'cluster' not evaluated.
 2) (#659,660) Fix for reation in dynamic in tank with heat exchange power.
 3) (#663) Added BatchAddition option to feeder.
-4) (#661, 637) Various fixes.
+4) (#666) Further improvements for exception trapping and error reporting.
+5) (#667) Fix for numerical display format of fields without engineering
+   units in access window.
+6) (#661, 637) Various fixes.
 
 
 Build 122 : 16 November 2006
 ------------------------------
-1215) 16/11/06: New revision numbering.
+1215) 16/11/06: New revision numbering using SVN number as part of Build number.
 
 
 ------------------------------
