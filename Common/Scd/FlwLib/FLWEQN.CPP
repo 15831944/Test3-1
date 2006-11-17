@@ -1976,12 +1976,29 @@ double CFlwBlkBase::MeanRho(CSpPropInfo *pProps, double P, flag AllowOveride)
 
   CSpPropInfo *p=Properties(pProps);//pProps?pProps:&m_FlwProps;
   if (1)
-    {
-    double Rv=AllowOveride && Valid(m_dOverideRhoV) ? m_dOverideRhoV : (Max(LowPressure, P)/p->m_dPress)/**(Norm_T/GTZ(p->m_dTemp))*/*p->m_dRhoV;
-    double Rl=AllowOveride && Valid(m_dOverideRhoL) ? m_dOverideRhoL : p->m_dRhoL;
-    double Ml=Rl*(p->NettLVolFrac());
-    double Mv=Rv*(p->NettVVolFrac());
-    return Min_FE_Rho((Mv+Ml)/GTZ(Ml/Rl+Mv/Rv));
+    {                              
+    double LVolFrac=p->NettLVolFrac();
+    double VVolFrac=p->NettVVolFrac();
+    if (TstGTZ(LVolFrac) && TstGTZ(VVolFrac))
+      {
+      double Rv=AllowOveride && Valid(m_dOverideRhoV) ? m_dOverideRhoV : (Max(LowPressure, P)/GTZ(p->m_dPress))*p->m_dRhoV;
+      double Rl=AllowOveride && Valid(m_dOverideRhoL) ? m_dOverideRhoL : p->m_dRhoL;
+      double Ml=Rl*LVolFrac;
+      double Mv=Rv*VVolFrac;
+      return Min_FE_Rho((Mv+Ml)/GTZ(Ml/GTZ(Rl)+Mv/GTZ(Rv)));
+      }
+    else if (TstGTZ(VVolFrac))
+      {
+      return Min_FE_Rho(AllowOveride && Valid(m_dOverideRhoV) ? m_dOverideRhoV : (Max(LowPressure, P)/GTZ(p->m_dPress))*p->m_dRhoV);
+      }
+    else if (TstGTZ(LVolFrac))
+      {
+      return Min_FE_Rho(AllowOveride && Valid(m_dOverideRhoL) ? m_dOverideRhoL : p->m_dRhoL);
+      }
+    else
+      {
+      return 1000.0; /* Water */ // should never get here
+      }
     }
 
   };
