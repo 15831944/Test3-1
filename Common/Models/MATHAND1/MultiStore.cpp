@@ -1717,7 +1717,10 @@ manipulation of the contents contained by the surge unit.*/
 void CMultiStorage::EvalDiscrete()
   {
   for (int p=0; p<m_Store.GetSize(); p++)
-    m_AccCalc.Complete(p, m_Store[p].MArray(), m_Store[p].totHz(), ICGetTimeInc());
+    m_AccCalc.Complete(p, m_Store[p].MArray(), m_Store[p].totHz());
+  
+  for (int p=0; p<m_StoreRB.GetSize(); p++)
+    m_ExtAudit.Complete(p, &m_StoreRB[p]);
   }
 
 //--------------------------------------------------------------------------

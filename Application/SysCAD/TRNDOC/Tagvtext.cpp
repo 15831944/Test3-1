@@ -380,7 +380,8 @@ void CTagVwText::OnUpdate(CView*pSender, LPARAM lHint, CObject* pHint)
     InitDC(&UpDC);
     ScrGB.Attach(&UpDC, NULL);
 
-    int i = Doc()->iFirstChgdFld;
+    int iStart = Doc()->iFirstChgdFld;
+    int i=iStart;
     while (i>=0)
       {
       CTagVwSlot * pSlot = Doc()->Slot(i);
@@ -393,12 +394,14 @@ void CTagVwText::OnUpdate(CView*pSender, LPARAM lHint, CObject* pHint)
       //NBNB: THIS MUST BE FIXED PROPERLY
       //NBNB: sometimes i == pSlot->iNextChgdFld causing an endless loop. This is almost certainly caused by dual CPU access to iFirstChgdFld, etc list!!!
       ASSERT_RDB(pSlot->iNextChgdFld!=i, "Going into permanent loop!");
-      if (pSlot->iNextChgdFld==i)
+      if (pSlot->iNextChgdFld==iStart)
         {//BUG
         i = -1; //jump out for now
         }
-      else
+      else if (i != pSlot->iNextChgdFld)
         i = pSlot->iNextChgdFld;
+      else
+        i = -1;
       }
 
     ScrGB.Detach();

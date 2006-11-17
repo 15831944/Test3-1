@@ -761,7 +761,7 @@ void BeltCnv::EvalDiscrete()
   m_Q.DumpProfile(1, "After", 0);
   m_BeltSB.EvalDiscrete(this);
 
-  m_AccCalc.Complete(0, m_Q, ICGetTimeInc());
+  m_AccCalc.Complete(0, m_Q);
   }
 
 //--------------------------------------------------------------------------

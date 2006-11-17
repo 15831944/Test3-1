@@ -13,6 +13,7 @@
 #include "flwnode.h"
 #include "dbgmngr.h"
 #include "sfe_srvr.h"
+#include "sp_react.h"
 
 #include "flwnets.h"
 #include "flwsolve.h"
@@ -1852,7 +1853,8 @@ bool gs_FSIdleRequested = false;
 // --------------------------------------------------------------------------
 
 FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  CTNode(pClass_, TagIn, pAttach, eAttach)
+  CTNode(pClass_, TagIn, pAttach, eAttach),
+  m_ExtAudit(this)
   {
   #if dbgFlwNode
   if (dbgConstruction())
@@ -6826,8 +6828,10 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
       case MSA_ZeroFlows:
       case MSA_EmptySpillTargets:
       //case MSA_SteadyState:
+        m_ExtAudit.ZeroFlows();
         AreaSum(i)->ZeroFlows();
       case MSA_DynStatsRunInit:
+        m_ExtAudit.ZeroTotals();
         AreaSum(i)->ZeroTotals();
         break;
       }
@@ -7393,6 +7397,7 @@ void FlwNode::EvalAudit(int Pass)
       {
       case 0:
         {
+        m_ExtAudit.Integrate(ICGetTimeInc());
         for (int i=0; i<NoProcessIOs(); i++)
           {
           // Only do the Ins
@@ -9799,7 +9804,7 @@ void CDirectAccCalc::Start(int Instance, CSysVector & V, double totHz)
   #endif
   };
 
-void CDirectAccCalc::Complete(int Instance, SpContainer & Cn, double TimeInc)
+void CDirectAccCalc::Complete(int Instance, SpContainer & Cn)
   {
   m_Out.Sum.Add(Cn);
   #if dbgFlwNode
@@ -9812,10 +9817,10 @@ void CDirectAccCalc::Complete(int Instance, SpContainer & Cn, double TimeInc)
       m_Nd.FullObjTag());
     }
   #endif
-  DoComplete(Instance, TimeInc);
+  DoComplete(Instance);
   };
 
-void CDirectAccCalc::Complete(int Instance, SpQueue & Q, double TimeInc)
+void CDirectAccCalc::Complete(int Instance, SpQueue & Q)
   {
   m_Out.Sum.Add(Q);
   #if dbgFlwNode
@@ -9828,10 +9833,10 @@ void CDirectAccCalc::Complete(int Instance, SpQueue & Q, double TimeInc)
       m_Nd.FullObjTag());
     }
   #endif
-  DoComplete(Instance, TimeInc);
+  DoComplete(Instance);
   };
 
-void CDirectAccCalc::Complete(int Instance, CSysVector & V, double totHz, double TimeInc)
+void CDirectAccCalc::Complete(int Instance, CSysVector & V, double totHz)
   {
   m_Out.Sum.Add(V, totHz);
   #if dbgFlwNode
@@ -9844,10 +9849,10 @@ void CDirectAccCalc::Complete(int Instance, CSysVector & V, double totHz, double
       m_Nd.FullObjTag());
     }
   #endif
-  DoComplete(Instance, TimeInc);
+  DoComplete(Instance);
   };
 
-void CDirectAccCalc::DoComplete(int Instance, double TimeInc)
+void CDirectAccCalc::DoComplete(int Instance)
   {
   if (Instance<m_LastInstance)
     return;
@@ -9858,7 +9863,8 @@ void CDirectAccCalc::DoComplete(int Instance, double TimeInc)
     }
   else
     {
-    double dM=(m_Out.Sum.FlowMass-m_In.Sum.FlowMass)/GTZ(TimeInc);
+    double TimeInc=GTZ(ICGetTimeInc());
+    double dM=(m_Out.Sum.FlowMass-m_In.Sum.FlowMass)/TimeInc;
     if (dM>=0)
       {
       m_In.Sum.FlowMass=dM;
@@ -9870,7 +9876,7 @@ void CDirectAccCalc::DoComplete(int Instance, double TimeInc)
       m_Out.Sum.FlowMass=-dM;
       }
 
-    double dH=(m_Out.Sum.FlowHz-m_In.Sum.FlowHz)/GTZ(TimeInc);
+    double dH=(m_Out.Sum.FlowHz-m_In.Sum.FlowHz)/TimeInc;
     if (dH>=0)
       {
       m_In.Sum.FlowHz=dH;
@@ -9882,14 +9888,71 @@ void CDirectAccCalc::DoComplete(int Instance, double TimeInc)
       m_Out.Sum.FlowHz=-dH;
       }
     }
+
   #if dbgFlwNode
   if (dbgAccCalcs())
     {
-    dbgpln("Complete === %20s %20s %20s %20s %s",
+    dbgpln("AccCalc::Complete === %20s %20s %20s %20s %s",
       DbgFltString(m_In.Sum.FlowMass,7,6),
       DbgFltString(m_Out.Sum.FlowMass,7,6),
       DbgFltString(m_In.Sum.FlowHz),
       DbgFltString(m_Out.Sum.FlowHz),
+      m_Nd.FullObjTag());
+    }
+  #endif
+  };
+
+//==========================================================================
+//
+//
+//
+//===========================================================================
+
+CExternAuditCalc::CExternAuditCalc(FlwNode * pNd) :
+  m_Nd(*pNd)
+  {
+  m_LastInstance=-1;
+  ZeroFlows();
+  //m_Mass=0;
+  //m_Heat=0;
+  };
+
+CExternAuditCalc::~CExternAuditCalc()
+  {
+  };
+
+void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB)
+  {
+  if (Instance==0)
+    {
+    ZeroFlows();
+    //m_Mass=0;
+    //m_Heat=0;
+    }
+
+  if (Instance<m_LastInstance)
+    return;
+
+  m_LastInstance=Instance;
+
+  double TimeInc=GTZ(ICGetTimeInc());
+  if (pRB && pRB->OnAndOK())
+    {
+    m_FlowMass+=pRB->MsSumSrc()->Mass()/TimeInc;
+    m_FlowMass-=pRB->MsSumSnk()->Mass()/TimeInc;
+
+    m_FlowHz+=pRB->HsSumPwr()/TimeInc;
+    m_FlowHz+=pRB->HsSumHX()/TimeInc;
+    }
+
+  #if dbgFlwNode
+  if (dbgAccCalcs())
+    {
+    dbgpln("AdtCalc::Complete === %20s %20s %20s %20s %s",
+      DbgFltString(FlowMass,7,6),
+      DbgFltString(FlowMass,7,6),
+      DbgFltString(FlowHz),
+      DbgFltString(FlowHz),
       m_Nd.FullObjTag());
     }
   #endif

@@ -465,9 +465,14 @@ class DllImportExport MdlNode : public FlwNode
   XID xidIO_CopyClsCompact      = MdlBsXID(183);
   XID xidIO_CopyClsFull         = MdlBsXID(184);
     
-  XID xidIO_InCnt               = MdlBsXID(196);
-  XID xidIO_OutCnt              = MdlBsXID(197);
-  XID xidIO_Count               = MdlBsXID(198);
+  XID xidIO_InCnt               = MdlBsXID(190);
+  XID xidIO_OutCnt              = MdlBsXID(191);
+  XID xidIO_Count               = MdlBsXID(192);
+  XID xidIO_ExtQm               = MdlBsXID(193);
+  XID xidIO_ExtHs               = MdlBsXID(194);
+  XID xidIO_ExtQmTotal          = MdlBsXID(195);
+  XID xidIO_ExtHsTotal          = MdlBsXID(196);
+
   XID xidIO_StreamTag0          = MdlBsXID(200+0*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_IoQm0               = MdlBsXID(200+1*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_DrQm0               = MdlBsXID(200+2*MaxIOList); // Leave 'MaxIOList' Ids After this

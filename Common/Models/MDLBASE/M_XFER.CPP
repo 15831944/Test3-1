@@ -643,6 +643,7 @@ void MN_Xfer ::EvalDiscrete()
 
     m_AccCalc->Complete(0, *m_Accumulator, ICGetTimeInc());
     }
+  m_ExtAudit.Complete(0, &m_RB);
 
   m_Leak.EvalDiscrete();
   }

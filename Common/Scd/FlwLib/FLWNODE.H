@@ -424,9 +424,9 @@ class DllImportExport CDirectAccCalc
     void Start(int Instance, SpContainer & Cn);
     void Start(int Instance, SpQueue & Q);
     void Start(int Instance, CSysVector & V, double totHz);
-    void Complete(int Instance, SpContainer & Cn, double TimeInc);
-    void Complete(int Instance, SpQueue & Q, double TimeInc);
-    void Complete(int Instance, CSysVector & V, double totHz, double TimeInc);
+    void Complete(int Instance, SpContainer & Cn);
+    void Complete(int Instance, SpQueue & Q);
+    void Complete(int Instance, CSysVector & V, double totHz);
 
   protected:
     FlwNode       & m_Nd;
@@ -434,7 +434,28 @@ class DllImportExport CDirectAccCalc
     CDirectFlwIO  & m_Out;
     int             m_LastInstance;
 
-    void        DoComplete(int Instance, double TimeInc);
+    void        DoComplete(int Instance);
+  };
+
+class CReactionBase; // forward
+class DllImportExport CExternAuditCalc : public CAreaSum
+  {
+  public:
+    CExternAuditCalc(FlwNode * pNd);
+    ~CExternAuditCalc();
+    void Complete(int Instance, CReactionBase * pRB);
+
+    bool            InUse()         { return m_LastInstance>=0; };
+    //double          Mass()          { return m_Mass; };
+    //double          Heat()          { return m_Heat; };
+
+  protected:
+    FlwNode       & m_Nd;
+    int             m_LastInstance;
+    //double          m_Mass;
+    //double          m_Heat;
+
+    //void        DoComplete(int Instance, double TimeInc, CReactionBase * pRB);
   };
 
 //---------------------------------------------------------------------------
@@ -4340,6 +4361,8 @@ class DllImportExport FlwNode : public CTNode
 
     long           m_AuditOption;
     long           m_ForceAuditOption;
+
+    CExternAuditCalc m_ExtAudit;
 
 #if NDSTOPWATCHES
     FNdSWs         *pSWs;

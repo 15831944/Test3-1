@@ -926,7 +926,8 @@ void MN_Surge::EvalDiscrete()
     if (IO_In(i))
       Contents.AddDiscrete(*IOConduit(i), IOSign(i));
 
-  m_AccCalc.Complete(0, Contents, ICGetTimeInc());
+  m_AccCalc.Complete(0, Contents);
+  m_ExtAudit.Complete(0, &RB);
 
   if (1)  //restore Qm/QvAcc
     {

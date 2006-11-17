@@ -1232,7 +1232,7 @@ void BeltCnv2::EvalDiscrete()
   for (i=0; i<m_ProdDrives.GetSize(); i++)
     m_ProdDrives[i]->m_IOPtSB.EvalDiscrete(this);
 
-  m_AccCalc.Complete(0, m_Q, ICGetTimeInc());
+  m_AccCalc.Complete(0, m_Q);
   }
 
 //--------------------------------------------------------------------------

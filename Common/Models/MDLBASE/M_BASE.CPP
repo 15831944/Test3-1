@@ -1764,7 +1764,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
         }
 
       double Flw=ContentFlw.QMass(som_SL);
-      double FlwRetBelow=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*(IORelFracHgt_Flng(iIONo)-PrevFHgt)/ICGetTimeInc();
+      double FlwRetBelow=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*(IORelFracHgt_Flng(iIONo)-PrevFHgt)/ICGetTimeIncMx();
       double FlwRetCtrl=0;
 #if WITHSURGECTRLDOUBLE 
       double CtrlFlw=0;
@@ -2299,11 +2299,21 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
       }
+    case xidIO_ExtQm:
+      {
+      if (AuditOption()>=Audit_Flows)
+        {
+        DCB.D=m_ExtAudit.FlowMass;
+        }
+      else
+        DCB.D=dNAN;
+      return true;
+      }
     case xidIO_QmBalance:
       {
       if (AuditOption()>=Audit_Flows)
         {
-        double Sig=0.0;
+        double Sig=m_ExtAudit.FlowMass;
         for (int i=0; i<NoProcLnkIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
         for (int d=FirstProcDirect(); d<=LastAuditDirect(); d++)
@@ -2321,9 +2331,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       {
       if (AuditOption()>=Audit_Flows)
         {
-        double Sig=0.0;
-        double SigPos=0.0;
-        double SigNeg=0.0;
+        double Sig=m_ExtAudit.FlowMass;
+        double SigPos=GEZ(m_ExtAudit.FlowMass);
+        double SigNeg=-LEZ(m_ExtAudit.FlowMass);
         for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
@@ -2363,11 +2373,21 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
       }
+    case xidIO_ExtQmTotal:
+      {
+      if (AuditOption()>=Audit_Totals)
+        {
+        DCB.D=m_ExtAudit.TotalMass;
+        }
+      else
+        DCB.D=dNAN;
+      return true;
+      }
     case xidIO_QmBalanceTotal:
       {
       if (AuditOption()>=Audit_Totals)
         {
-        double Sig=0.0;
+        double Sig=m_ExtAudit.TotalMass;
         for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
@@ -2385,9 +2405,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       {
       if (AuditOption()>=Audit_Totals)
         {
-        double Sig=0.0;
-        double SigPos=0.0;
-        double SigNeg=0.0;
+        double Sig=m_ExtAudit.TotalMass;
+        double SigPos=GEZ(m_ExtAudit.TotalMass);
+        double SigNeg=-LEZ(m_ExtAudit.TotalMass);
         for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
@@ -2425,11 +2445,21 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
       }
+    case xidIO_ExtHs:
+      {
+      if (AuditOption()>=Audit_Flows)
+        {
+        DCB.D=m_ExtAudit.FlowHz;
+        }
+      else
+        DCB.D=dNAN;
+      return true;
+      }
     case xidIO_HzBalance:
       {
       if (AuditOption()>=Audit_Flows)
         {
-        double Sig=0.0;
+        double Sig=m_ExtAudit.FlowHz;
         for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
@@ -2447,9 +2477,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       {
       if (AuditOption()>=Audit_Flows)
         {
-        double Sig=0.0;
-        double SigPos=0.0;
-        double SigNeg=0.0;
+        double Sig=m_ExtAudit.FlowHz;
+        double SigPos=GEZ(m_ExtAudit.FlowHz);
+        double SigNeg=-LEZ(m_ExtAudit.FlowHz);
         for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHz;
@@ -2486,11 +2516,21 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D=dNAN;
       return true;
       }
-    case xidIO_HzBalanceTotal:
+    case xidIO_ExtHsTotal:
       {
       if (AuditOption()>=Audit_Totals)
         {
-        double Sig=0.0;
+        DCB.D=m_ExtAudit.TotalHz;
+        }
+      else
+        DCB.D=dNAN;
+      return true;
+      }
+    case xidIO_HzBalanceTotal:
+      {
+      if (AuditOption()>=Audit_Totals)
+        {                                         
+        double Sig=m_ExtAudit.TotalHz;
         for (int i=0; i<NoProcessIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
         for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
@@ -2508,9 +2548,9 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       {
       if (AuditOption()>=Audit_Totals)
         {
-        double Sig=0.0;
-        double SigPos=0.0;
-        double SigNeg=0.0;
+        double Sig=m_ExtAudit.TotalHz;
+        double SigPos=GEZ(m_ExtAudit.TotalHz);
+        double SigNeg=-LEZ(m_ExtAudit.TotalHz);
         for (int i=0; i<NoProcessIOs(); i++)
           {
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHz;
@@ -3783,6 +3823,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                 DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
                 }
 
+              DDB.Double("External",    "",  DC_Qm , "kg/s",    xidIO_ExtQm,           this, isResult|/*isTag|*/noFile|noSnap);
+
               DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
               DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
               }
@@ -3818,6 +3860,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                 Tag.Set("Adt%i", iAdt);
                 DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",  xidIO_DrHz0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
                 }
+
+              DDB.Double("External",    "", DC_Pwr , "kJ/s",    xidIO_ExtHs,           this, isResult|noFile|noSnap|NAN_OK);
 
               DDB.Double("Balance",     "", DC_Pwr , "kJ/s",    xidIO_HzBalance,       this, isResult|noFile|noSnap|NAN_OK);
               DDB.Double("Balance.Rel", "", DC_Frac,  "%",      xidIO_HzBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
@@ -3863,6 +3907,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                 DDB.Double(Tag(), Sym(),  DC_M , "kg",   xidIO_DrQmTotal0+iAdt,       this, isResult|/*isTag|*/noFile|noSnap);
                 }
 
+              DDB.Double("External",     "",  DC_M , "kg",    xidIO_ExtQmTotal,           this, isResult|/*isTag|*/noFile|noSnap);
+
               DDB.Double("Balance",       "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
               DDB.Double("Balance.Rel",   "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
               }
@@ -3898,6 +3944,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                 Tag.Set("Adt.[%i]", iAdt);
                 DDB.Double(Tag(), Sym(),  DC_E , "kJ",  xidIO_DrHzTotal0+iAdt,        this, isResult|/*isTag|*/noFile|noSnap);
                 }
+
+              DDB.Double("External",    "",  DC_E , "kJ",    xidIO_ExtHsTotal,           this, isResult|/*isTag|*/noFile|noSnap);
 
               DDB.Double("Balance",     "", DC_E , "kJ",    xidIO_HzBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
               DDB.Double("Balance.Rel", "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
