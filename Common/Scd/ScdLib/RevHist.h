@@ -2646,11 +2646,11 @@ Update 4 : 16 November 2006
 Build 122 : 16 November 2006
 ------------------------------
 1215) 16/11/06: New revision numbering using SVN number as part of Build number.
-
+1220) 17/11/06: (#611) Fix for archiver crash when tag is NAN.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1215
+#define SCD_PATCH_SVN    1220
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

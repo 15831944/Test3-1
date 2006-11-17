@@ -14,7 +14,7 @@
 #include "hstmsg.h"
 #endif
 
-#define dbgDde       01 
+#define dbgDde       0
    
 #if dbgDde
 #include "dbgmngr.h"
@@ -574,7 +574,7 @@ CMyServer::~CMyServer()
 
 void CMyServer::Status(const char* pszFormat, ...)
   {
-  #ifdef dbgDde
+  #if dbgDde
   if (dbgDDE())
     {
     char buf[2048];

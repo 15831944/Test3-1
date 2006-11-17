@@ -18,10 +18,9 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-
 //#include "optoff.h"
 
-#define dbgArchiver       1
+#define dbgArchiver       WITHDEBUG
 
 #if dbgArchiver
 static CDbgMngr dbgArchiverWrites("ArchiveManager", "Writes");
@@ -347,14 +346,18 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
       InputAtStart = InputAtEnd;
     m_bResetReqd=true;
     }
+  const bool ValidInputAtStart = Valid(InputAtStart);
+  const bool ValidInputAtEnd = Valid(InputAtEnd);
+  const bool BothValid = (ValidInputAtStart && ValidInputAtEnd);
 
   double InputMeas    = dNAN;
   switch (m_iMeas)
     {
     case ADBMeas_StartPt:  InputMeas = InputAtStart; break;
-    case ADBMeas_MidPt:    InputMeas = 0.5*(InputAtStart+InputAtEnd); break;
+	case ADBMeas_MidPt:    InputMeas = (BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
     case ADBMeas_EndPt:    InputMeas = InputAtEnd; break;
     }
+  const bool ValidInputMeas = Valid(InputMeas);
 
 #if dbgArchiver
   LPCTSTR SrchTag="";//"GC_1-z-AVG";
@@ -367,17 +370,19 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
         m_dCalculatedValue=InputMeas; 
         break;
       case ADBFn_Minimum:
-        m_dCalculatedValue = Min(InputAtStart, InputAtEnd);
+	    if (BothValid)
+          m_dCalculatedValue = Min(InputAtStart, InputAtEnd);
         break;
       case ADBFn_Maximum:
-        m_dCalculatedValue = Max(InputAtStart, InputAtEnd);
+	    if (BothValid)
+          m_dCalculatedValue = Max(InputAtStart, InputAtEnd);
         break;
       case ADBFn_PeriodAvg:
       case ADBFn_RunningAvg:
         switch (m_iMeas)
           {
           case ADBMeas_StartPt:  m_dCalculatedValue=InputAtStart; break;
-          case ADBMeas_MidPt:    m_dCalculatedValue=0.5*(InputAtStart+InputAtEnd); break;
+          case ADBMeas_MidPt:    m_dCalculatedValue=(BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
           case ADBMeas_EndPt:    m_dCalculatedValue=InputAtEnd; break;
           }
         break;
@@ -392,7 +397,7 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
     //#endif
     }
 
-  //m_dInputValue    = ; // Value at the end of the step
+  //TODO: If value is NAN, what is best result for min and max, etc!!!! (for now ignore?)
 
   double PrevFieldVal = m_dCalculatedValue;
   switch (m_iFn)
@@ -401,13 +406,16 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
       m_dCalculatedValue = InputMeas; 
       break;
     case ADBFn_Minimum:
-      m_dCalculatedValue = Min(m_dCalculatedValue, Min(InputAtStart, InputAtEnd));
+      if (BothValid)
+        m_dCalculatedValue = Min(m_dCalculatedValue, Min(InputAtStart, InputAtEnd));
       break;               
     case ADBFn_Maximum:
-      m_dCalculatedValue = Max(m_dCalculatedValue, Max(InputAtStart, InputAtEnd));
+      if (BothValid)
+        m_dCalculatedValue = Max(m_dCalculatedValue, Max(InputAtStart, InputAtEnd));
       break;
     case ADBFn_PeriodAvg:
-      m_dCalculatedValue = (InputMeas+m_nSamples*m_dCalculatedValue)/(m_nSamples+1);
+      if (ValidInputMeas)
+		m_dCalculatedValue = (InputMeas + m_nSamples*m_dCalculatedValue)/(m_nSamples+1);
       m_nSamples++;
       break;
     case ADBFn_RunningAvg:
@@ -424,7 +432,15 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
     m_nSamples, InputAtStart, InputAtEnd, m_dInputValue, m_dCalculatedValue, m_sFldTag);
 #endif
 
-  m_bChanged = m_bResetReqd || (fabs(m_dCalculatedValue-PrevFieldVal)>1.0e-3);
+  if (m_bResetReqd)
+    m_bChanged = true;
+  else
+    {
+    if (!Valid(m_dCalculatedValue) || !Valid(PrevFieldVal))
+      m_bChanged = !(!Valid(m_dCalculatedValue) && !Valid(PrevFieldVal));
+	else
+      m_bChanged = (fabs(m_dCalculatedValue-PrevFieldVal)>1.0e-3);
+	}
   m_bResetReqd = false;
   return true;
   };
