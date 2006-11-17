@@ -415,9 +415,6 @@
 				RelativePath=".\LimnGlbl.cpp">
 			</File>
 			<File
-				RelativePath="..\Common\LimnModel_DiamondWizard_BulkSplitter.cpp">
-			</File>
-			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_CommonFunctions.cpp">
 			</File>
 			<File
@@ -428,9 +425,6 @@
 			</File>
 			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_GrindingMill.cpp">
-			</File>
-			<File
-				RelativePath="..\Common\LimnModel_DiamondWizard_SimpleMixer.cpp">
 			</File>
 			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_TrompCurve.cpp">
@@ -520,9 +514,6 @@
 				RelativePath=".\LimnGlbl.h">
 			</File>
 			<File
-				RelativePath="..\Common\LimnModel_DiamondWizard_BulkSplitter.h">
-			</File>
-			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_CommonFunctions.h">
 			</File>
 			<File
@@ -533,9 +524,6 @@
 			</File>
 			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_GrindingMill.h">
-			</File>
-			<File
-				RelativePath="..\Common\LimnModel_DiamondWizard_SimpleMixer.h">
 			</File>
 			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_TrompCurve.h">

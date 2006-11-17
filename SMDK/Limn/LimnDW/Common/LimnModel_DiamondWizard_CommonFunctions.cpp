@@ -6,6 +6,7 @@
 #ifndef LIMNDW
 	#include "globals.h"
 #endif
+//#pragma optimize("", off)
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 

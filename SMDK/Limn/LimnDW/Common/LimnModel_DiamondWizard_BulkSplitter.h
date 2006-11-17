@@ -5,7 +5,7 @@
 //		DIAMOND WIZARD SPECIFIC - SIMPLE MIXER
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_BulkSplitter: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_BulkSplitter//: public CLimn_ModelData_AbstractBase
   {
   public:
     C_ModelParameters_DiamondWizard_BulkSplitter(void)

@@ -5,17 +5,14 @@
 #include "stdafx.h"
 
 #define __MD_DEFN_CPP
-//#define LIBCOMMENTHD "..\\"
 #include "scdmacros.h"
 
 #define MDLBASE
 #define MDLBASE
 #define SIZEDST1
 //#define BLACKBOX1
-#include "models.h"
-//#include "md_headers.h"
-//#include "models.h"
 
+#include "models.h"
 #include "md_base.h"
 #include "md_defn.h"
 #include "md_vector.h"
@@ -27,12 +24,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 //===========================================================================
 
-double NAN=dNAN;
-double ZeroC     = 273.16;
-//double StdP      = 101.325;
-//double StdT      = 298.15;
-//
-//double AtmosP(double Altitude) { return AtmosPress(Altitude); };
+double NAN    = dNAN;
+double ZeroC  = ZeroCinK;
 
 //===========================================================================
 //
@@ -154,7 +147,7 @@ MCnv MC_MoneyFlow;
 //
 //===========================================================================
 
-MCnvs  gs_Cnvs;
+MCnvs gs_Cnvs;
 
 MCnvs::MCnvs()
   {
@@ -167,14 +160,12 @@ int MCnvs::Count()
   {
   return gs_CnvsMngr.CnvCnt();
   }
+
 bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
   {
   CString Nm(NameCnv);
   Nm=Nm.Trim();
   CString Txt(Nm);
-
-  if (Nm.Left(4)=="Frac")
-    { int xxx=0; }
 
   int iParen=Nm.Find("(");
   if (iParen>0)
@@ -183,7 +174,12 @@ bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
     Txt=Txt.Right(Txt.GetLength()-iParen);
     Cnv.m_Index=gs_CnvsMngr.FindCnv((LPTSTR)(LPCTSTR)Nm);
     Cnv.m_Txt=Txt.Trim("()");
-    return Cnv.m_Index>0;
+    if (Cnv.m_Index==MC_Frac.m_Index && Cnv.m_Txt.GetLength()==1 && Cnv.m_Txt==".")
+	  {
+      //Cnv.m_Txt = MC_Frac.m_Txt; //special case for Frac(.)
+      Cnv.m_Txt = "Frac"; //special case for Frac(.)
+	  }
+	return Cnv.m_Index>0;
     }
 
   Cnv.m_Index=0;
@@ -197,51 +193,21 @@ double MCnvs::Scale(const MCnv & Cnv)
   if (p)
     return p->SclValue();
 
-  if (Cnv.m_Index==1)
-    { int xxx=0; }
-
-  if (Cnv.m_Index>0)       
-    gs_Log.Message(MMsg_Error, "Bad Conversion %s", Cnv.m_Txt);
+  if (Cnv.m_Index>0)
+    gs_Log.Message(MMsg_Error, "Bad Conversion '%s' for '%s'", Cnv.m_Txt, gs_CnvsMngr.SICnv(Cnv.m_Index)->Fam());
   return 1.0;
-  };
+  }
+
 double MCnvs::Offset(const MCnv & Cnv)
   {
   CDataCnv * p= gs_CnvsMngr.FindSecCnv(Cnv.m_Index, (LPTSTR)(LPCTSTR)Cnv.m_Txt);
   if (p)
     return p->OffValue();
   if (Cnv.m_Index>0)
-    gs_Log.Message(MMsg_Error, "Bad Conversion %s", Cnv.m_Txt);
+    gs_Log.Message(MMsg_Error, "Bad Conversion '%s' for '%s'", Cnv.m_Txt, gs_CnvsMngr.SICnv(Cnv.m_Index)->Fam());
   return 1.0;
-  };
+  }
 
-
-//class DllImportExport CCnvsMngr
-//  {
-//  public:
-//    CCnvsMngr();
-//    ~CCnvsMngr();
-//    void Init();
-//    void Reset();
-//    CCnvIndex AddSI(char* Fam, char* Txt, char* Desc, double Min, double Max_, flag PrjCnv, long iXform=0);
-//    int LoadCnvsADO(char* Filename, flag PrjCnv, BOOL LogErrs = TRUE);
-//    void DumpCnvs();
-//    CCnvIndex FindCnv(char* pFamName);
-//    CCnvIndex AddPri(char* Fam, char* Txt, double Min, double Max_, char* Desc, flag PrjCnv);
-//    CCnvIndex AddSec(CCnvIndex index, char* Txt, double Scl, double Off, flag PrjCnv);
-//#if WITHCNVINDEXCLASS
-//    inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC.Index]->Find(pSecTxt); };
-//    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
-//    inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC.Index]->SICnv(); };
-//#else
-//    inline CDataCnv* FindSecCnv(CCnvIndex DC, char* pSecTxt) { return Cnvs[DC]->Find(pSecTxt); };
-//    inline CCnvIndex CnvCnt() { return Cnvs.GetSize(); };
-//    inline CDataCnv* SICnv(CCnvIndex DC) { return Cnvs[DC]->SICnv(); };
-//#endif
-//    void  Clear();
-//    void  Recover();
-//    void  Save();
-
-    //void SetAtmosPressMult(double M);
 //===========================================================================
 //
 //
@@ -253,7 +219,6 @@ long MP_Sol  = 0;
 long MP_Liq  = 0;
 long MP_Gas  = 0;
 long MP_SL   = 0;
-
 
 MToleranceBlock::MToleranceBlock(DWORD Use, LPCTSTR Name, double Abs, double Rel, long MaxIters,
                                  DWORD Flags, CCnvIndex AbsIndex, LPCTSTR AbsTxt)
