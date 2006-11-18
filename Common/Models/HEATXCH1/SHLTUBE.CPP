@@ -1306,12 +1306,12 @@ void ShellTube::EvalJoinPressures(long JoinMask)
       {
       for (int j=0; j<NoProcessJoins(); j++)
         {
-        double Pj=GetPBInputPressure(j);
+        double Pj=MeasureJoinPressure(j);
 
         if (j==1 && pHXST->m_FTC.Active())
           pHXST->m_FTC.SetSuctionP(Pj);
 
-        SetPBJoinPressure(j, Pj, true, true);
+        SetJoinPressure(j, Pj, true, true);
         #if dbgEvalPres
         if (dbgEvalJoinPress(sTag()))
           dbgpln("EJP: %12.2f  %s[%i]", Pm, sTag(), j );

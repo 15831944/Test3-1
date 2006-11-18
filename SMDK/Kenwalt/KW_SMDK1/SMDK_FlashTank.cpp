@@ -51,7 +51,7 @@ CFlashTank::CFlashTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) :
 MBaseMethod(pUnitDef, pNd),
 m_VLE(this, VLEF_QPFlash, "VLE"),
 m_FTF(this),
-m_PCtrl(this, "PCtrl", PBPC_SatP, StdP, true)
+m_PCtrl(this, "PCtrl", PC_SatP, StdP, true)
   {
   //m_FlashPRqd=gs_StdPress+50;
   m_FTF.FlashP=StdP;
@@ -87,7 +87,7 @@ void CFlashTank::BuildDataFields()
   m_VLE.OnOffCheckBox();
   DD.Text("");
 
-  m_PCtrl.BuildDataFields(PBPC_Atmos|PBPC_Reqd|PBPC_SatP|PBPC_ReqdSatT);
+  m_PCtrl.BuildDataFields(PC_Atmos|PC_Reqd|PC_SatP|PC_ReqdSatT);
   m_FTF.BuildDataFields();
 
   m_VLE.BuildDataFields();
@@ -144,9 +144,9 @@ bool CFlashTank::EvalJoinPressures()
       {
       switch (m_PCtrl.Method)
         {
-        case PBPC_Reqd:       m_FTF.FlashP=m_PCtrl.PRqd;                                break;
-        case PBPC_ReqdSatT:   m_FTF.FlashP=m_Feed.SaturationP(m_PCtrl.TRqd);            break;
-        case PBPC_Atmos:      m_FTF.FlashP=AtmosPress();                                break;
+        case PC_Reqd:       m_FTF.FlashP=m_PCtrl.PRqd;                                break;
+        case PC_ReqdSatT:   m_FTF.FlashP=m_Feed.SaturationP(m_PCtrl.TRqd);            break;
+        case PC_Atmos:      m_FTF.FlashP=AtmosPress();                                break;
         default:              m_FTF.FlashP=m_FTF.EstFlashP;                             break;
         }
       }
@@ -154,8 +154,8 @@ bool CFlashTank::EvalJoinPressures()
       {
       switch (m_PCtrl.Method)
         {
-        case PBPC_Reqd:       m_FTF.FlashP=m_PCtrl.PRqd;                                break;
-        case PBPC_ReqdSatT:   m_FTF.FlashP=m_Feed.SaturationP(m_PCtrl.TRqd);            break;
+        case PC_Reqd:       m_FTF.FlashP=m_PCtrl.PRqd;                                break;
+        case PC_ReqdSatT:   m_FTF.FlashP=m_Feed.SaturationP(m_PCtrl.TRqd);            break;
         default:              m_FTF.FlashP=AtmosPress();                                break;
         }
       }

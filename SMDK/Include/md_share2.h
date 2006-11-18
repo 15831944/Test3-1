@@ -45,7 +45,7 @@ const long LFM_Propagate    = eScdFlow_Propagate;
 const long LFM_Propagated   = eScdFlow_Propagated;
 const long LFM_AllPg        = LFM_AllPg | eScdFlow_Propagate | eScdFlow_Propagated;
 
-const long LFM_HasFullFlow  = eScdFlow_HasFullFlow;
+//const long LFM_HasFullFlow  = eScdFlow_HasFullFlow;
 
 const long SM_DynSurge      = SM_Inline | SM_Buffered;
 const long SM_DynBoth       = SM_Inline | SM_Buffered;

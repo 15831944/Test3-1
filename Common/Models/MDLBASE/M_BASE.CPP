@@ -293,7 +293,7 @@ void MdlNode::FillIOIndexList(int JoinId, int *I)
 //--------------------------------------------------------------------------
 
 #define OnlyCopyValidMass 1
-void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CPBPressCtrl *pPC)
+void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CRqdPressCtrl *pPC)
   {
   int I[MaxIOList+1];
   FillIOIndexList(JoinId, I);
@@ -305,7 +305,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   #endif
   if (NetProbalMethod())
     {
-    Press=GetPBInputPressure(JoinId, pPC);
+    Press=MeasureJoinPressure(JoinId, pPC);
     //dbgpln("PBPress     = %14.3f  %14.3f", Press,pPC->TRqd());
     }
 
@@ -430,7 +430,7 @@ void MdlNode::Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBl
 
 //--------------------------------------------------------------------------
 
-void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CPBPressCtrl *pPC)
+void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC)
   {
   // What Comes in must go out
   SpConduit & Qo=pQo ? *pQo : *pQi;
@@ -469,7 +469,7 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
 
 //--------------------------------------------------------------------------
 
-void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC/*=NULL*/, CBlockEvaluator * pBlkEval)
+void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CRqdPressCtrl *pPC/*=NULL*/, CBlockEvaluator * pBlkEval)
   {
   Press=Max(Press, LowPressure);
   SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());

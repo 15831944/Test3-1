@@ -84,7 +84,7 @@ class DllImportExport MN_Xfer : public MdlNode
     CSpCOptionPtr <SpConduit> m_QFeed;
     CSpCOptionPtr <SpConduit> m_QProd;
 
-    CPBPressCtrl   m_PBPCtrl0;
+    CRqdPressCtrl  m_PCtrl0;
     CDirectFlwIO   m_Leak;
 
     CReactionBase  m_RB;

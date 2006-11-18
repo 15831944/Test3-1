@@ -1359,9 +1359,9 @@ void C4PortValve ::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       if (NoProcessJoins()>=1)
-        EvalPBJoinPressure(0, NULL, NULL);//&QProd());
+        EvalJoinPressure(0, NULL, NULL);//&QProd());
       //if (NoProcessJoins()>=2)
-      //  EvalPBJoinPressure(1);
+      //  EvalJoinPressure(1);
 
       break;
     case NM_Dynamic:

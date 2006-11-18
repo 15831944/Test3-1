@@ -4701,7 +4701,7 @@ FlwSlvPB::FlwSlvPB(CFlwSolver * pFlwSlvNd) :
 #if DOPBSMOOTHING
   pSSMS=NULL;
 #endif
-  CPBPressCtrl::m_dLowQmFracNC=PrjFileVerNo()<57 ? 0.0 : 0.0001;
+  CRqdPressCtrl::m_dLowQmFracNC=PrjFileVerNo()<57 ? 0.0 : 0.0001;
   }
 
 //--------------------------------------------------------------------------
@@ -4750,7 +4750,7 @@ void FlwSlvPB::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBoxBtn("MassSmoothing","", DC_,     "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, 0 | InitHidden);
     #endif
     DDB.CheckBoxBtn("ResultsValid", "", DC_,     "",    xidResultsValid,               &FlwSlvNd, 0/*isParm */);
-    DDB.Double("LowQmFracOther",    "", DC_Frac, "%",   &CPBPressCtrl::m_dLowQmFracNC, &FlwSlvNd, isParm|SetOnChange);
+    DDB.Double("LowQmFracOther",    "", DC_Frac, "%",   &CRqdPressCtrl::m_dLowQmFracNC, &FlwSlvNd, isParm|SetOnChange);
 
     DDB.Text(" ");
     if (DDB.BeginStruct(this, "Closure"))

@@ -112,7 +112,7 @@ class Xfer_EvalProducts_Info
     CReactionBlock *pRB;
     GSModel        *pGSM;
     CEnvironHX     *pEHX;
-    CPBPressCtrl   *pPBP;
+    CRqdPressCtrl   *pPBP;
 
     int             Io[MaxIOList+1];
 
@@ -120,7 +120,7 @@ class Xfer_EvalProducts_Info
 
     Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
                            CReactionBlock *RB=NULL, GSModel * GSM=NULL, CEnvironHX * EHX=NULL,
-                           CPBPressCtrl *PBP=NULL)
+                           CRqdPressCtrl *PBP=NULL)
       {
       iJoinId = JoinId;
       dPress  = Press;
@@ -209,10 +209,10 @@ class DllImportExport MdlNode : public FlwNode
 //    void    ChngTrcBuildDataDefn(DataDefnBlk & DDB);
 
     // Performs the basic EvalProducts for Ties
-    void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CPBPressCtrl *pPC);
+    void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CRqdPressCtrl *pPC);
     void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
-    void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CPBPressCtrl *pPC);
-    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CPBPressCtrl *pPC = NULL, CBlockEvaluator *pBlkEval = NULL);
+    void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC);
+    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CRqdPressCtrl *pPC = NULL, CBlockEvaluator *pBlkEval = NULL);
     virtual void   Xfer_EvalProducts(Xfer_EvalProducts_Info & S1, Xfer_EvalProducts_Info & S2, CHXBase * pHX);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);

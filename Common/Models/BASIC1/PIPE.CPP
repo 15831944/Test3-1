@@ -727,7 +727,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 #else
   if (NetDynamicMethod())
     {
-    DDB.Visibility(NM_Dynamic|SM_All|HM_All, HasFullFlow() && !IsXfer);// || dbgfile());
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All, HasModeNear(-1, LFM_Full) && !IsXfer);// || dbgfile());
     DDB.Text   ("Rise/Length", Marker);
     DDB.Double ("PipeLength",     "",       DC_L, "m",  xidFELength,    this, isResult|0|isParmConstruct);
     DDB.Double ("SrcH",           "SrcHgt", DC_L, "m",  xidSrcHgt,      this, isResult|noFile|noSnap);

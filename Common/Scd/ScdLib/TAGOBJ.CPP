@@ -1784,19 +1784,6 @@ long TaggedObject::FlowModePg()
   return DefFlowMode();
   };
 
-void TaggedObject::SetHasFullFlow(flag On)
-  {
-  if (On)
-    *m_pRunMds |= LFM_HasFullFlow;
-  else
-    *m_pRunMds &= ~LFM_HasFullFlow;
-  }
-
-flag TaggedObject::HasFullFlow()
-  {
-  return (*m_pRunMds & LFM_HasFullFlow)!=0;
-  }
-
 void TaggedObject::Revert2Default()
   {
   if (gs_Revert2DefaultRqd)

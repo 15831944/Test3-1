@@ -50,7 +50,7 @@ class CFT_Condenser;
 class CFT_Mixer;
 class CMacroMdl;
 class CMacroMdlBase;
-class CPBPressCtrl;
+class CRqdPressCtrl;
 
 //---------------------------------------------------------------------------
 /* Class MInOutDefStruct : Used to Setup definition of IO (input/output) ports to a model.
@@ -966,7 +966,7 @@ class DllImportExport MProbalPCtrl : public MMethodUtility
   friend class MJoin;
 
   public:
-    MProbalPCtrl(MBaseMethodCommon *pCom, LPCTSTR Tag="PCtrl", long Method=PBPC_SatP, double PRqd=StdP+100, bool MdlAvail=true);
+    MProbalPCtrl(MBaseMethodCommon *pCom, LPCTSTR Tag="PCtrl", long Method=PC_SatP, double PRqd=StdP+100, bool MdlAvail=true);
     ~MProbalPCtrl();
 
     void    BuildDataFields(long Options);
@@ -992,7 +992,7 @@ class DllImportExport MProbalPCtrl : public MMethodUtility
     void SetP2Set(double P2Set, bool DoInputs, bool DoOutputs);
 
   protected:
-    CPBPressCtrl * m_pPCtrl;
+    CRqdPressCtrl * m_pPCtrl;
 
   };
 

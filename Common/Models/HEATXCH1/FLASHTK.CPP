@@ -196,7 +196,7 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   AttachIOAreas(FlashTankIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
-  m_PBPCtrl0.SetMethod(PBPC_SatP);
+  m_PCtrl0.SetMethod(PC_SatP);
 
   SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
 
@@ -251,7 +251,9 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   #if WITHOTHERVAPSPLIT
   DDB.Double ("OtherVapSplitToLiq", "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
   #endif
-  m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT|(NetProbalMethod() ? PBPC_SatP : 0));
+  long PBAllowed  = PC_Atmos|PC_Reqd|PC_ReqdSatT|PC_SatP;
+  long DynAllowed = PC_Atmos|PC_Reqd|PC_ReqdSatT;
+  m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PBAllowed, DynAllowed);
   DDB.Visibility();
   
   DDBValueLstMem DDB0;
@@ -355,8 +357,8 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
     case SM_Inline:
       //SetCI(2, !m_FTF.Active() && !Valid(Rqd_Flash_Press));
       SetCI(2, fOnLine &&
-               ( (!m_FTF.Active() && ((m_PBPCtrl0.Method()&(PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT))==0)) || 
-                 (m_FTF.Active() && ((m_PBPCtrl0.Method()&(PBPC_Atmos|PBPC_Reqd|PBPC_ReqdSatT))!=0)) ) );
+               ( (!m_FTF.Active() && ((m_PCtrl0.Method()&(PC_Atmos|PC_Reqd|PC_ReqdSatT))==0)) || 
+                 (m_FTF.Active() && ((m_PCtrl0.Method()&(PC_Atmos|PC_Reqd|PC_ReqdSatT))!=0)) ) );
       break;
     default:
       ClrCI(2);
@@ -419,26 +421,26 @@ void FlashTank::EvalJoinPressures(long JoinMask)
     {
     if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
       {
-      m_FTF.m_dFeedP=GetPBInputPressure(0, &m_PBPCtrl0);
+      m_FTF.m_dFeedP=MeasureJoinPressure(0, &m_PCtrl0);
       //m_FTF.dFlashP=Valid(Rqd_Flash_Press) ? Rqd_Flash_Press : m_FTF.dFeedP;
 
       if (m_FTF.Active())
         {
-        if (m_PBPCtrl0.Method()==PBPC_Reqd)
-          m_FTF.m_dFlashP=m_PBPCtrl0.PRqd();
-        else if (m_PBPCtrl0.Method()==PBPC_ReqdSatT)
-          m_FTF.m_dFlashP=QFeed().SaturationP(m_PBPCtrl0.TRqd());
-        else if (m_PBPCtrl0.Method()==PBPC_Atmos)
+        if (m_PCtrl0.Method()==PC_Reqd)
+          m_FTF.m_dFlashP=m_PCtrl0.PRqd();
+        else if (m_PCtrl0.Method()==PC_ReqdSatT)
+          m_FTF.m_dFlashP=QFeed().SaturationP(m_PCtrl0.TRqd());
+        else if (m_PCtrl0.Method()==PC_Atmos)
           m_FTF.m_dFlashP=AtmosPress();
         else if (!MassSmoothing())
           m_FTF.m_dFlashP=m_FTF.m_dPRqd;
         }
       else if (fOnLine)
         {
-        if (m_PBPCtrl0.Method()==PBPC_Reqd)
-          m_FTF.m_dFlashP=m_PBPCtrl0.PRqd();
-        else if (m_PBPCtrl0.Method()==PBPC_ReqdSatT)
-          m_FTF.m_dFlashP=QFeed().SaturationP(m_PBPCtrl0.TRqd());
+        if (m_PCtrl0.Method()==PC_Reqd)
+          m_FTF.m_dFlashP=m_PCtrl0.PRqd();
+        else if (m_PCtrl0.Method()==PC_ReqdSatT)
+          m_FTF.m_dFlashP=QFeed().SaturationP(m_PCtrl0.TRqd());
         else
           m_FTF.m_dFlashP=AtmosPress();
         }
@@ -447,8 +449,8 @@ void FlashTank::EvalJoinPressures(long JoinMask)
 
       m_FTF.m_dFlashP=Max(MinFlshTrainP, m_FTF.m_dFlashP);
       //dbgpln("xlashP1   %10.2f", m_FTF.m_dFlashP-101.325);
-      m_PBPCtrl0.SetP2Set(m_FTF.m_dFlashP, true, true);
-      SetPBJoinPressure(0, &m_PBPCtrl0);
+      m_PCtrl0.SetP2Set(m_FTF.m_dFlashP, true, true);
+      SetJoinPressure(0, &m_PCtrl0);
       }
     else
       MN_Surge::EvalJoinPressures(JoinMask);

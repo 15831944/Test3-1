@@ -610,7 +610,7 @@ END_MESSAGE_MAP()
 
 BOOL CProjectSettingsDlg::OnInitDialog()
   {
-  ASSERT(m_bModeless); //this code only needed when creating modeless property sheet!
+  //ASSERT(m_bModeless); //this code only needed when creating modeless property sheet!
 
   PROPSHEETTRICK0()
     BOOL b = CPropertySheet::OnInitDialog();

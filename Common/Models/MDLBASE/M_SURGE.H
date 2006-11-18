@@ -131,7 +131,7 @@ class DllImportExport MN_Surge : public MdlNode
     flag           bShowQFeed;
     flag           bShowQProd;
     double         POffset;
-    CPBPressCtrl   m_PBPCtrl0;
+    CRqdPressCtrl  m_PCtrl0;
 
     struct
       {

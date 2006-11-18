@@ -358,26 +358,26 @@ typedef enum eScdMacroMdlEvals
 //----------------------------------------------  
 [  
   uuid(FBDE39A0-94B9-4681-9B52-47C68CC3C52B),
-  helpstring("eScdProbalPCtrls"),
+  helpstring("eScdPressCtrls"),
   v1_enum
 ]
-typedef enum eScdProbalPCtrls
+typedef enum eScdPressCtrls
   { 
-  PBPC_Null       = 0x00000000,
-  PBPC_Atmos      = 0x00000001,
-  PBPC_MinFd      = 0x00000002,
-  PBPC_MaxFd      = 0x00000004,
-  PBPC_Reqd       = 0x00000008,
-  PBPC_SatP       = 0x00000010,
-  PBPC_ReqdSatT   = 0x00000020,
-  PBPC_BubblePt   = 0x00000040,
-  PBPC_DewPt      = 0x00000080,
-  PBPC_SubCooled  = 0x00000100,
-  PBPC_SuperHt    = 0x00000200,
+  PC_Null       = 0x00000000,
+  PC_Atmos      = 0x00000001,
+  PC_MinFd      = 0x00000002,
+  PC_MaxFd      = 0x00000004,
+  PC_Reqd       = 0x00000008,
+  PC_SatP       = 0x00000010,
+  PC_ReqdSatT   = 0x00000020,
+  PC_BubblePt   = 0x00000040,
+  PC_DewPt      = 0x00000080,
+  PC_SubCooled  = 0x00000100,
+  PC_SuperHt    = 0x00000200,
 
-  PBPC_Basic      = 0x0000001f,
-  PBPC_All        = 0x000003ff,
-  } eScdProbalPCtrls;
+  PC_Basic      = 0x0000001f,
+  PC_All        = 0x000003ff,
+  } eScdPressCtrls;
 
 //----------------------------------------------  
 [  
@@ -756,7 +756,7 @@ library ScdIF
   enum eScdVLEOptions;
   enum eScdMdlStateActs ;
   enum eScdMacroMdlEvals;
-  enum eScdProbalPCtrls;
+  enum eScdPressCtrls;
   enum eScdTagFixupRules;
   enum eScdNDBOptions;
   enum eScdBalanceValues;

@@ -1044,9 +1044,6 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            LinearFlowMode()        { return (FlowMode() & LFM_All)==LFM_Linear; };
     flag            FullFlowMode()          { return (FlowMode() & LFM_All)==LFM_Full; };
     
-    void            SetHasFullFlow(flag On);
-    flag            HasFullFlow();
-
     flag            GetActive();
     virtual void    SetActive(flag Active);
 

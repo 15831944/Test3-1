@@ -2518,7 +2518,7 @@ void FlwNode::GlobalConnect()
   if (!GetActive())
     goto Done;
 
-  SetHasFullFlow(FullFlowMode());
+  //SetHasModeNear(0, FlowMode());
 
   MakeAreaTag();
   if (m_pArea.Connect(this, -1, "Area"))
@@ -2652,8 +2652,8 @@ void FlwNode::PostGlobalConnect()
         //dbgpln("  IO  %2i fb[%4i] = %+i %s", i, IOFB(i, j)->m_iNo, Dirn, Nd_Rmt(i)->FullObjTag());
         }
 
-      if (FullFlowMode() && Nd_Rmt(i))
-        Nd_Rmt(i)->SetHasFullFlow(true);
+      //if (Nd_Rmt(i))
+      //  Nd_Rmt(i)->SetHasModeNear(FlowMode());
       }
 
     for (int i=0; i<NoLinks(); i++)
@@ -3270,7 +3270,7 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
 void FlwNode::BuildDataDefnElevation(DataDefnBlk & DDB)
   {
 //  if (1)//HasFullFlow() || DDB.ForFileSnpScn())
-  if (HasFullFlow() || DDB.ForNDB() || DDB.ForFileSnpScn())
+  if (HasModeNear(-1, LFM_Full) || DDB.ForNDB() || DDB.ForFileSnpScn())
     {
     DDEF_Flags Vis=DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Text    (" ");
@@ -3289,7 +3289,7 @@ static char IOTagTmp[256];
 
 flag FlwNode::DataXchg(DataChangeBlk & DCB)
   {
-  if (DCB.dwUserInfo & UIIOFlag)
+  if ((DCB.lHandle>=xidIOSeqFirst) && (DCB.lHandle<=xidIOSeqLast) && (DCB.dwUserInfo & UIIOFlag))
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFlag);
     DCB.dwUserInfo=0;
@@ -3308,7 +3308,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if (DCB.dwUserInfo & UIIOFBFlag)
+  if ((DCB.lHandle>=xidFBFirst) && (DCB.lHandle<=xidFBLast) && (DCB.dwUserInfo & UIIOFBFlag))
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFBFlag);
     DCB.dwUserInfo=0;
@@ -3325,7 +3325,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if (DCB.dwUserInfo & UINdFBFlag)
+  if ((DCB.lHandle>=xidFlwEqnLast) && (DCB.lHandle<=xidFlwEqnFirst) && (DCB.dwUserInfo & UINdFBFlag))   
     {
     DWORD UI=DCB.dwUserInfo&(~UINdFBFlag);
     DCB.dwUserInfo=0;
@@ -6571,10 +6571,137 @@ void FlwNode::SetDatumsDone()
   }
 
 //--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 
-double FlwNode::GetPBInputPressure(int iJoinNo, CPBPressCtrl *pPC/*=NULL*/)
+double CRqdPressCtrl::m_dLowQmFracNC=0.001f;
+
+void CRqdPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag ForProbal, long PBAllowed, long DynAllowed)
+  {
+  long Allowed = ForProbal ? PBAllowed : DynAllowed;
+  if (Allowed)
+    {
+
+    DDBValueLst DDBPBP[]={
+      {PC_Null     , "Null",                                                       MDD_Hidden},
+      {PC_Atmos    , "Atmospheric",  (PC_Atmos & Allowed)                  ? 0 : MDD_Hidden},
+      {PC_MinFd    , "LowestFeed",   (PC_MinFd & Allowed)                  ? 0 : MDD_Hidden},
+      {PC_MaxFd    , "HighestFeed",  (PC_MaxFd & Allowed)                  ? 0 : MDD_Hidden},
+      {PC_Reqd     , "Required",     (PC_Reqd & Allowed)                   ? 0 : MDD_Hidden},
+      {PC_SatP     , "Saturated",    (PC_SatP & Allowed)    && m_fMdlAvail ? 0 : MDD_Hidden},
+      {PC_ReqdSatT , "RequiredT",    (PC_ReqdSatT &Allowed) && m_fMdlAvail ? 0 : MDD_Hidden},
+      //{PC_BubblePt , "BubblePt",      ((PC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
+      //{PC_DewPt    , "DewPt",         ((PC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
+      //{PC_SubCooled, "SubCooled_Liq", ((PC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
+      //{PC_SuperHt  , "SuperHeat_Vap", ((PC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
+      {0}};
+
+    //const DDEF_Flags flgs = SM_Direct|HM_All;
+    const DDEF_Flags flgs = SM_Direct|SM_Inline|HM_All;
+
+    LPTSTR Tag=ForProbal ? "PBPress":"OperatingP";
+    if(DDB.BeginStruct(pObj, Tag))
+      {
+      DDB.Visibility(flgs);
+      DDB.Long ("Method",    "", DC_,  "",    &m_iMethod, pObj, isParm|SetOnChange, DDBPBP);
+
+      DDB.Visibility(flgs, (m_iMethod & (PC_MinFd | PC_MaxFd))!=0);
+      DDB.CheckBoxBtn("IgnoreLowQm",   "", DC_,  "",    &m_fIgnoreLoQm, pObj, isParm|SetOnChange, DDBOnOff);
+      DDB.Visibility(flgs, (m_iMethod & (PC_MinFd | PC_MaxFd))!=0 && m_fIgnoreLoQm);
+      DDB.Double("LowQmFrac", "", DC_Frac, "%",&m_dLowQmFrac, pObj, isParm|SetOnChange); 
+
+      DDB.Visibility(flgs, m_iMethod==PC_Reqd);
+      DDB.Double("Reqd",      "", DC_P, "kPa", &m_dPRqd,   pObj, m_iMethod==PC_Reqd?isParm:0);
+      DDB.Visibility(flgs, m_iMethod==PC_ReqdSatT);
+      DDB.Double("ReqdT",     "", DC_T, "C",   &m_dTRqd,   pObj, isParm);
+      DDB.Visibility(flgs);
+      DDB.Double("Result",    "", DC_P, "kPa", &m_dP2Set,  pObj, isResult);
+      DDB.Text(" ");
+      DDB.Visibility();
+      }
+    DDB.EndStruct();
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+void CRqdPressCtrl::CalculateResult()
+  {
+  if (m_fMdlAvail!=(m_pMdl!=NULL))
+    DoBreak(); // these must match
+
+  m_fDoInputs=false;
+  switch (m_iMethod)
+    {
+    case PC_Atmos:
+      m_dP2Set=AtmosPress();
+      m_fDoInputs=true;
+      break;
+    case PC_Reqd:
+      m_dP2Set=m_dPRqd;
+      m_fDoInputs=true;
+      break;
+    case PC_SatP:
+      {
+      SpModel &Mdl=*m_pMdl;//->pModel;
+      m_dP2Set=Mdl.SaturationP(Mdl.Temp());
+      m_fDoInputs=true;
+      }
+      break;
+    case PC_ReqdSatT:
+      {
+      SpModel &Mdl=*m_pMdl;//->pModel;
+      m_dP2Set=Mdl.SaturationP(m_dTRqd);
+      m_fDoInputs=true;
+      }
+    case PC_BubblePt:
+      //m_fP2Set=;
+      m_fDoInputs=true;
+      break;
+    case PC_DewPt:
+      //m_fP2Set=;
+      m_fDoInputs=true;
+      break;
+    case PC_SubCooled:
+      //m_fP2Set=;
+      m_fDoInputs=true;
+      break;
+    case PC_SuperHt:
+      //m_fP2Set=;
+      m_fDoInputs=true;
+      break;
+    }
+  }
+
+//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+flag FlwNode::HasModeNear(int iJoinNo, long Mode)    
+  { 
+  if (FlowMode() & Mode)
+    return true;
+  for (int i=0; i<NoJoins(); i++)
+    {
+    if (iJoinNo<0 || i==iJoinNo)
+      {
+      CJoinRec & J=Joins[i];
+      for (int c=0; c<J.NConns(); c++)
+        {
+        if (J.Nd_Rmt(c)->FlowMode() & Mode)
+          return true;
+        }
+      }
+    }
+
+  return false; 
+  };
+
+//--------------------------------------------------------------------------
+
+double FlwNode::MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
   {
   CJoinRec & J=Joins[iJoinNo];
+
+  double Pm=Std_P; // Pressure = Std_P if no inputs
 
   double QmIn=0.0;
   for (int c=0; c<J.NConns(); c++)
@@ -6587,7 +6714,6 @@ double FlwNode::GetPBInputPressure(int iJoinNo, CPBPressCtrl *pPC/*=NULL*/)
   const double LoQm=QmIn*(pPC ? (pPC->IgnoreLoQm() ? pPC->LowQmFrac():0.0):pPC->LowQmFracNC());
 
   int n=0;
-  double Pm=Std_P; // Pressure = Std_P if no inputs
   for (c=0; c<J.NConns(); c++)
     {
     int i = J.IONo(c);
@@ -6605,8 +6731,8 @@ double FlwNode::GetPBInputPressure(int iJoinNo, CPBPressCtrl *pPC/*=NULL*/)
             {
             switch (pPC->Method())
               {
-              case PBPC_MinFd: Pm=Min(Pm, P); break;
-              case PBPC_MaxFd: Pm=Max(Pm, P); break;
+              case PC_MinFd: Pm=Min(Pm, P); break;
+              case PC_MaxFd: Pm=Max(Pm, P); break;
               }
             }
           else
@@ -6627,106 +6753,14 @@ double FlwNode::GetPBInputPressure(int iJoinNo, CPBPressCtrl *pPC/*=NULL*/)
 
 //--------------------------------------------------------------------------
 
-double CPBPressCtrl::m_dLowQmFracNC=0.001f;
-
-void CPBPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, long Allowed)
+void FlwNode::SetJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
   {
-  DDBValueLst DDBPBP[]={
-    {PBPC_Null     , "Null",          MDD_Hidden},
-    {PBPC_Atmos    , "Atmospheric",  (PBPC_Atmos&Allowed) ? 0:MDD_Hidden},
-    {PBPC_MinFd    , "LowestFeed",   (PBPC_MinFd&Allowed) ? 0:MDD_Hidden},
-    {PBPC_MaxFd    , "HighestFeed",  (PBPC_MaxFd&Allowed) ? 0:MDD_Hidden},
-    {PBPC_Reqd     , "Required",     (PBPC_Reqd &Allowed) ? 0:MDD_Hidden},
-    {PBPC_SatP     , "Saturated",    ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    {PBPC_ReqdSatT , "RequiredT",    ((PBPC_ReqdSatT &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    //{PBPC_BubblePt , "BubblePt",      ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    //{PBPC_DewPt    , "DewPt",         ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    //{PBPC_SubCooled, "SubCooled_Liq", ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    //{PBPC_SuperHt  , "SuperHeat_Vap", ((PBPC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
-    {0}};
-
-  //const DDEF_Flags flgs = SM_Direct|HM_All;
-  const DDEF_Flags flgs = SM_Direct|SM_Inline|HM_All;
-
-  DDB.BeginStruct(pObj, "PBPress");
-  DDB.Visibility(flgs);
-  DDB.Long ("Method",    "", DC_,  "",    &m_iMethod, pObj, isParm|SetOnChange, DDBPBP);
-
-  DDB.Visibility(flgs, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0);
-  DDB.CheckBoxBtn("IgnoreLowQm",   "", DC_,  "",    &m_fIgnoreLoQm, pObj, isParm|SetOnChange, DDBOnOff);
-  DDB.Visibility(flgs, (m_iMethod & (PBPC_MinFd | PBPC_MaxFd))!=0 && m_fIgnoreLoQm);
-  DDB.Double("LowQmFrac", "", DC_Frac, "%",&m_dLowQmFrac, pObj, isParm|SetOnChange);
-
-  DDB.Visibility(flgs, m_iMethod==PBPC_Reqd);
-  DDB.Double("Reqd",      "", DC_P, "kPa", &m_dPRqd,   pObj, m_iMethod==PBPC_Reqd?isParm:0);
-  DDB.Visibility(flgs, m_iMethod==PBPC_ReqdSatT);
-  DDB.Double("ReqdT",     "", DC_T, "C",   &m_dTRqd,   pObj, isParm);
-  DDB.Visibility(flgs);
-  DDB.Double("Result",    "", DC_P, "kPa", &m_dP2Set,  pObj, isResult);
-  DDB.Visibility();
-  DDB.EndStruct();
+  SetJoinPressure(iJoinNo, pPC->P2Set(), pPC->DoInputs(), pPC->DoOutputs());
   }
 
 //--------------------------------------------------------------------------
 
-void CPBPressCtrl::CalculateResult()
-  {
-  if (m_fMdlAvail!=(m_pMdl!=NULL))
-    DoBreak(); // these must match
-
-  m_fDoInputs=false;
-  switch (m_iMethod)
-    {
-    case PBPC_Atmos:
-      m_dP2Set=AtmosPress();
-      m_fDoInputs=true;
-      break;
-    case PBPC_Reqd:
-      m_dP2Set=m_dPRqd;
-      m_fDoInputs=true;
-      break;
-    case PBPC_SatP:
-      {
-      SpModel &Mdl=*m_pMdl;//->pModel;
-      m_dP2Set=Mdl.SaturationP(Mdl.Temp());
-      m_fDoInputs=true;
-      }
-      break;
-    case PBPC_ReqdSatT:
-      {
-      SpModel &Mdl=*m_pMdl;//->pModel;
-      m_dP2Set=Mdl.SaturationP(m_dTRqd);
-      m_fDoInputs=true;
-      }
-    case PBPC_BubblePt:
-      //m_fP2Set=;
-      m_fDoInputs=true;
-      break;
-    case PBPC_DewPt:
-      //m_fP2Set=;
-      m_fDoInputs=true;
-      break;
-    case PBPC_SubCooled:
-      //m_fP2Set=;
-      m_fDoInputs=true;
-      break;
-    case PBPC_SuperHt:
-      //m_fP2Set=;
-      m_fDoInputs=true;
-      break;
-    }
-  }
-
-//--------------------------------------------------------------------------
-
-void FlwNode::SetPBJoinPressure(int iJoinNo, CPBPressCtrl *pPC/*=NULL*/)
-  {
-  SetPBJoinPressure(iJoinNo, pPC->P2Set(), pPC->DoInputs(), pPC->DoOutputs());
-  }
-
-//--------------------------------------------------------------------------
-
-void FlwNode::SetPBJoinPressure(int iJoinNo, double P, bool DoInputs, bool DoOutputs)
+void FlwNode::SetJoinPressure(int iJoinNo, double P, bool DoInputs, bool DoOutputs)
   {
   CJoinRec & J=Joins[iJoinNo];
   for (int c=0; c<J.NConns(); c++)
@@ -6736,26 +6770,29 @@ void FlwNode::SetPBJoinPressure(int iJoinNo, double P, bool DoInputs, bool DoOut
       {
       Set_IOP_Self(i, P);
       Set_IOP_Flng(i, P);
+      Set_IOP_Est_Self(i, P);
+      Set_IOP_Est_Flng(i, P);
       }
     }
   Joins[iJoinNo].m_PB.P=P;
+  Joins[iJoinNo].m_PB.PEst=P;
   }
 
 //--------------------------------------------------------------------------
 
-void FlwNode::EvalPBJoinPressure(int iJoin, CPBPressCtrl *pPC, SpModel/*Owner*/ * pMdl)
+void FlwNode::EvalJoinPressure(int iJoin, CRqdPressCtrl *pPC, SpModel/*Owner*/ * pMdl)
   {
   if (pPC)
     {
     pPC->SetMdl(pMdl);
-    GetPBInputPressure(iJoin, pPC);
+    MeasureJoinPressure(iJoin, pPC);
     pPC->CalculateResult();
-    SetPBJoinPressure(iJoin, pPC);
+    SetJoinPressure(iJoin, pPC);
     }
   else
     {
-    double P=GetPBInputPressure(iJoin);
-    SetPBJoinPressure(iJoin, P);
+    double P=MeasureJoinPressure(iJoin);
+    SetJoinPressure(iJoin, P);
     }
   }
 
@@ -6769,10 +6806,10 @@ void FlwNode::EvalJoinPressures(long JoinMask)
       {
       for (int j=0; j<NoJoins(); j++)
         {
-        double Pm=GetPBInputPressure(j);
-        SetPBJoinPressure(j, Pm);
-        //GetPBInputPressure(j, pPC);
-        //SetPBJoinPressure(j, pPC);
+        double Pm=MeasureJoinPressure(j);
+        SetJoinPressure(j, Pm);
+        //MeasureJoinPressure(j, pPC);
+        //SetJoinPressure(j, pPC);
         //#if dbgFlwNode
         //if (dbgEvalJoinPress(sTag()))
         //  dbgpln("EJP: %12.2f  %s[%i]", Pm, sTag(), j );
@@ -7128,29 +7165,6 @@ void FlwNode::SetEquilibratingV2L(int JoinId, SpContainer & C, ContStartInfo & S
     dbgpln("     V2L    %14.6g ", V2LQ);
   #endif
   }
-
-//--------------------------------------------------------------------------
-
-//void FlwNode::SetJoinPressure(int iSolnTyp, int iJoinId, double P)
-//  {
-//  switch (iSolnTyp)
-//    {
-////    case CurSoln: JoinPBlk(iJoinId).P=P; break;
-//    case DynSoln: JoinPBlk(iJoinId).PEst=P; break;
-//    }
-//  };
-
-//--------------------------------------------------------------------------
-
-//double FlwNode::GetJoinPressure(int iSolnTyp, int iJoinId)
-//  {
-//  switch (iSolnTyp)
-//    {
-////    case CurSoln: return JoinPBlk(iJoinId).P;
-//    case DynSoln: return JoinPBlk(iJoinId).PEst;
-//    }
-//  return Std_P;
-//  };
 
 //--------------------------------------------------------------------------
 

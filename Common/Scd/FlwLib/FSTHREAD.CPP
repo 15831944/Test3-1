@@ -586,7 +586,8 @@ FlwSlvThreadControl  FSTC;
 
 flag FlwSlvThreadControl::CreateThreads(int NThreads) 
   {
-  CFlwSlvThreads::sm_iThread.InitHashTable(13);
+  if (CFlwSlvThreads::sm_iThread.GetHashTableSize()==0)
+    CFlwSlvThreads::sm_iThread.InitHashTable(29);
 
   flag f1=FST.CreateThreads(NThreads, FlwSlvThread, (LPVOID)&FST);
   flag f2=FIT.CreateThreads(NThreads, FlwIterThread, (LPVOID)&FIT);

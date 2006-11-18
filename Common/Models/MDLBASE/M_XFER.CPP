@@ -20,7 +20,7 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_QProd("QProd", this),
   //m_Accumulator("Accumulator", this),
   m_RB(this, false),
-  m_PBPCtrl0(PBPC_MinFd, Std_P, true),
+  m_PCtrl0(PC_MinFd, Std_P, true),
   m_FTM(this),
   m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakI),
   m_Evap(this)
@@ -293,24 +293,6 @@ void MN_Xfer::StartSolution()
 
 //--------------------------------------------------------------------------
 
-//void MN_Xfer::SetJoinPressure(int iSolnTyp, int iJoinId, double P)
-//  {
-//  if (iJoinId==0)
-//    MdlNode::SetJoinPressure(iSolnTyp, PB, P);
-//  FlwNode::SetJoinPressure(iSolnTyp, iJoinId, P);
-//  };
-//
-////--------------------------------------------------------------------------
-//
-//double MN_Xfer::GetJoinPressure(int iSolnTyp, int iJoinId)
-//  {
-//  if (iJoinId==0)
-//    return MdlNode::GetJoinPressure(iSolnTyp, PB);
-//  return FlwNode::GetJoinPressure(iSolnTyp, iJoinId);
-//  };
-
-//--------------------------------------------------------------------------
-
 void MN_Xfer::StartStep()
   {
   MdlNode::StartStep();
@@ -334,22 +316,30 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
       if (OldCode)
         {
         if (NoProcessJoins()>=1)
-          EvalPBJoinPressure(0, &m_PBPCtrl0, m_QFeed());//&QProd());
+          EvalJoinPressure(0, &m_PCtrl0, m_QFeed());//&QProd());
         //if (NoProcessJoins()>=2)
-        //  EvalPBJoinPressure(1);
+        //  EvalJoinPressure(1);
         }
       else
         {
         if (NoProcessJoins()>=1)
-          EvalPBJoinPressure(0, &m_PBPCtrl0, m_QProd());
+          EvalJoinPressure(0, &m_PCtrl0, m_QProd());
         if (NoProcessJoins()>=2)
-          EvalPBJoinPressure(1);
+          EvalJoinPressure(1);
         }
       break;
       }
     //case SM_Inline:
     case NM_Dynamic:
-      MdlNode::EvalJoinPressures(JoinMask);
+      //if (m_PCtrl0.Method())
+      if (JoinMask&1)
+        {
+        if (HasModeNear(0, LFM_Xfer))
+          EvalJoinPressure(0, &m_PCtrl0);
+        else
+          SetJoinPressure(0, JoinP(0), true, true);
+        }
+      //MdlNode::EvalJoinPressures(JoinMask);
       break;
     }
   };
@@ -416,7 +406,7 @@ void MN_Xfer::EvalProducts(CNodeEvalIndex & NEI)
       {
       case SM_Direct:
         if (NoProcessJoins()>0)
-          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PBPCtrl0, &m_BlkEval);
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PCtrl0, &m_BlkEval);
         break;
       case SM_Inline:
       case SM_Buffered:

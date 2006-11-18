@@ -301,10 +301,10 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
         //  m_FTC.SetSuctionP(IOP_Rmt(IOWithId_Self(ioidSI_HotLiq)));what does this do for us?
         if (NoProcessJoins()>0)
           {
-          //m_FTC.SetSuctionP(Min(dFinalP, GetPBInputPressure(0)));
+          //m_FTC.SetSuctionP(Min(dFinalP, MeasureJoinPressure(0)));
           m_FTC.SetSuctionP(dFinalP);
-//          m_FTC.SetSuctionP(GetPBInputPressure(0));
-          SetPBJoinPressure(0, m_FTC.SuctionP(), true, true);
+//          m_FTC.SetSuctionP(MeasureJoinPressure(0));
+          SetJoinPressure(0, m_FTC.SuctionP(), true, true);
           }
         }
         break;

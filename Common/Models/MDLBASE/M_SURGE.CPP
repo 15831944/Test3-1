@@ -34,7 +34,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   VLE(this, VLEF_QVFlash),
   //Preset(&VLE),
   m_PresetImg("PresetImg", this, TOA_Embedded),
-  m_PBPCtrl0(PrjFileVerNo()<32 ? PBPC_MinFd : PBPC_Atmos, Std_P, true),
+  m_PCtrl0(PrjFileVerNo()<32 ? PC_MinFd : PC_Atmos, Std_P, true),
   m_EqThermals(this, &Contents),
   m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
   m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
@@ -418,9 +418,9 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         if (NoProcessJoins()>=1)
-          EvalPBJoinPressure(0, &m_PBPCtrl0, QProd());
+          EvalJoinPressure(0, &m_PCtrl0, QProd());
         if (NoProcessJoins()>=2)
-          EvalPBJoinPressure(1);
+          EvalJoinPressure(1);
         break;
       case NM_Dynamic:
         {
@@ -428,14 +428,26 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
         dbgpln("EvalJoinPressures:%s",FullObjTag());
         #endif
 
-        IOP_RhoH_Info RhoHInfo(Contents);
-        double Pm=ContainerMeanPress(RhoHInfo, POffset);
-        Set_JoinP(0, Pm);
-        for (int i=0; (i<NoProcessIOs()) && (IOId_Self(i)<IOId_HX); i++)
-          Set_IOP_RhoH_Self(i,Pm,RhoHInfo);
-        }
+        if (JoinMask&1)
+          {
+          if (HasModeNear(0, LFM_Xfer))
+            {
+            EvalJoinPressure(0, &m_PCtrl0);
+            Contents.SetPress(JoinP_Est(0));
+            }
+          else
+            {
+
+            IOP_RhoH_Info RhoHInfo(Contents);
+            double Pm=ContainerMeanPress(RhoHInfo, POffset);
+            Set_JoinP(0, Pm);
+            for (int i=0; (i<NoProcessIOs()) && (IOId_Self(i)<IOId_HX); i++)
+              Set_IOP_RhoH_Self(i,Pm,RhoHInfo);
+            }
+          }
         break;
-      }
+        }
+    }
   };
 
 
@@ -535,13 +547,13 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         }
       else if (NoProcessJoins()==2)
         {
-        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
-        CPBPressCtrl PBCtrl1;
+        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
+        CRqdPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, NULL, NULL, &PBCtrl1);
         Xfer_EvalProducts(I0, I1, &HX);
         }
       else if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PBPCtrl0);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
       break;
     case SM_Inline:
       SigmaQInPMin(QFeed(), som_ALL, First64IOIds);

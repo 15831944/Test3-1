@@ -402,7 +402,9 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   AddMdlNetworked(DDB);
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  m_PBPCtrl0.BuildDataDefn(DDB, this, PBPC_Basic);
+  
+  m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_Basic, PC_Basic);//PC_Atmos|PC_Reqd);
+
   if (DDB.BeginStruct(this, "CyclicStorage"))
     {
     DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);

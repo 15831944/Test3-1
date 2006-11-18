@@ -112,12 +112,12 @@ void CFT_Flash::BuildDataDefn(DataDefnBlk & DDB)
   //    if (Valid(Rqd_Flash_Press))
   //      {
   //      PBPCtrl0.SetPRqd((float)Rqd_Flash_Press);
-  //      //PBPCtrl0.SetMethod(PBPC_Reqd);
+  //      //PBPCtrl0.SetMethod(PC_Reqd);
   //      }
   //    else
   //      {
   //      PBPCtrl0.SetPRqd(Std_P);
-  //      PBPCtrl0.SetMethod(PBPC_SatP);
+  //      PBPCtrl0.SetMethod(PC_SatP);
   //      }
   //  }
   DDB.Double  ("Flash_Press",       "FlashP",   DC_P,   "kPag",   &m_dFlashP,   m_pNd, NAN_OK);

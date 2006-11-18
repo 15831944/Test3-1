@@ -206,7 +206,7 @@ void Boiler::EvalJoinPressures(long JoinMask)
         {
         for (int j=0; j<NoProcessJoins(); j++)
           {
-          SetPBJoinPressure(j, (j==0 ? dFinalP : dDrumPress), true, true);
+          SetJoinPressure(j, (j==0 ? dFinalP : dDrumPress), true, true);
           }
         break;
         }

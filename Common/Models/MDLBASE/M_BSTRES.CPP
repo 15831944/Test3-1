@@ -284,9 +284,9 @@ void MN_BstRes::EvalJoinPressures(long JoinMask)
       {
       for (int j=0; j<NoJoins(); j++)
         {
-        //double Pm=GetPBInputPressure(j);
-        //SetPBJoinPressure(j, Pm);
-        SetPBJoinPressure(j, dPout);
+        //double Pm=MeasureJoinPressure(j);
+        //SetJoinPressure(j, Pm);
+        SetJoinPressure(j, dPout);
         }
       }
     else

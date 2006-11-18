@@ -511,19 +511,19 @@ double MJoin::getP()
 void   MJoin::putP(double P)
   {
   if (m_pNd->NetProbalMethod())
-    m_pNd->SetPBJoinPressure(m_iJoin, P, true, true);
+    m_pNd->SetJoinPressure(m_iJoin, P, true, true);
   else
     {
     INCOMPLETECODE();
-    //m_pNd->SetPBJoinPressure;
+    //m_pNd->SetJoinPressure;
     }
   };
 
 // OTHER Methods at Bottom of file
-double MJoin::GetProbalPIn(MProbalPCtrl *pPC)                     { return m_pNd->GetPBInputPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL); };
-void   MJoin::SetProbalP(MProbalPCtrl *pPC)                       { m_pNd->SetPBJoinPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL); };
-void   MJoin::SetProbalP(double P, bool DoInputs, bool DoOutputs) { m_pNd->SetPBJoinPressure(m_iJoin, P, DoInputs, DoOutputs); };
-void   MJoin::EvalProbalP(MProbalPCtrl *pPC, SpModel * pMdl)      { m_pNd->EvalPBJoinPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL, pMdl?pMdl:NULL); };
+double MJoin::GetProbalPIn(MProbalPCtrl *pPC)                     { return m_pNd->MeasureJoinPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL); };
+void   MJoin::SetProbalP(MProbalPCtrl *pPC)                       { m_pNd->SetJoinPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL); };
+void   MJoin::SetProbalP(double P, bool DoInputs, bool DoOutputs) { m_pNd->SetJoinPressure(m_iJoin, P, DoInputs, DoOutputs); };
+void   MJoin::EvalProbalP(MProbalPCtrl *pPC, SpModel * pMdl)      { m_pNd->EvalJoinPressure(m_iJoin, pPC ? pPC->m_pPCtrl:NULL, pMdl?pMdl:NULL); };
 
 //---------------------------------------------------------------------------
 
@@ -1053,7 +1053,7 @@ MMethodUtility::~MMethodUtility()
 MProbalPCtrl::MProbalPCtrl(MBaseMethodCommon *pCom, LPCTSTR Tag, long Method, double PRqd, bool MdlAvail) : \
 MMethodUtility(pCom, Tag)
   {
-  m_pPCtrl= new CPBPressCtrl(Method, PRqd, MdlAvail);
+  m_pPCtrl= new CRqdPressCtrl(Method, PRqd, MdlAvail);
   };
 
 MProbalPCtrl::~MProbalPCtrl()

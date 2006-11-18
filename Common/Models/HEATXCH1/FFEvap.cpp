@@ -256,16 +256,16 @@ void FFEvap::EvalJoinPressures(long JoinMask)
         {
         for (int j=0; j<NoProcessJoins(); j++)
           {
-          double Pj=GetPBInputPressure(j);
+          double Pj=MeasureJoinPressure(j);
 
           //if (j==1 && m_HX.m_FTC.Active())
           //  m_FTC.SetSuctionP(Pj);
-          //SetPBJoinPressure(j, Pj, true, true);
+          //SetJoinPressure(j, Pj, true, true);
 
           if (j==0)
-            SetPBJoinPressure(j, Shell.dPo, true, true);
+            SetJoinPressure(j, Shell.dPo, true, true);
           else
-            SetPBJoinPressure(j, Tubes.dPo, true, true);
+            SetJoinPressure(j, Tubes.dPo, true, true);
           }
         }
         break;

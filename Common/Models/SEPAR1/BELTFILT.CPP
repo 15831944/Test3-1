@@ -269,7 +269,7 @@ void BeltFilt::EvalJoinPressures(long JoinMask)
       for (int j=0; j<NoProcessJoins(); j++)
         {
         double P = PBPress();//AtmosPress(IODatum_Term(j));
-        SetPBJoinPressure(j, P, true, true);
+        SetJoinPressure(j, P, true, true);
         }
       break;
       }

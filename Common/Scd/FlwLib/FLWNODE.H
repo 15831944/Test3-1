@@ -3007,15 +3007,15 @@ class IOP_RhoH_Info
 //---------------------------------------------------------------------------
 // Pressure control in PBMode
 
-//const long PBPC_??? Moved to ScdIF
+//const long PC_??? Moved to ScdIF
 
-class DllImportExport CPBPressCtrl
+class DllImportExport CRqdPressCtrl
   {
   friend class FlwSlvPB;
   public:
-    CPBPressCtrl()
+    CRqdPressCtrl()
       {
-      m_iMethod     = PBPC_MinFd;
+      m_iMethod     = PC_MinFd;
       m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
       m_dLowQmFrac  = 0.0001;
       m_fMdlAvail   = false;
@@ -3027,7 +3027,7 @@ class DllImportExport CPBPressCtrl
       m_dP2Set      = Std_P;
       m_pMdl        = NULL;
       }
-    CPBPressCtrl(long Method, double PRqd, bool MdlAvail)
+    CRqdPressCtrl(long Method, double PRqd, bool MdlAvail)
       {
       m_iMethod     = Method;
       m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
@@ -3041,7 +3041,7 @@ class DllImportExport CPBPressCtrl
       m_dP2Set      = Std_P;
       m_pMdl        = NULL;
       }
-    void BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, long Allowed);
+    void BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag ForProbal, long PBAllowed, long DynAllowed);
     void Set(long Method, double PRqd, bool MdlAvail)
       {
       m_iMethod    = Method;
@@ -4010,10 +4010,21 @@ class DllImportExport FlwNode : public CTNode
 
     void           SetQRatio(int iSolnIndex, FlwBlk* pSI, double Ratio, FlwBlk* pMI);
 
-    double         GetPBInputPressure(int iJoinNo, CPBPressCtrl *pPC=NULL);
-    void           SetPBJoinPressure(int iJoinNo, CPBPressCtrl *pPC=NULL);
-    void           SetPBJoinPressure(int iJoinNo, double P, bool DoInputs=false, bool DoOutputs=true);
-    void           EvalPBJoinPressure(int iJoin, CPBPressCtrl *pPC=NULL, SpModel/*Owner*/ * pMdl=NULL);
+
+    //long            m_lModesNear;
+
+    //void            SetHasFullFlow(flag On);
+    //flag            HasFullFlow();
+    //void            SetHasModeNear(int iJoinNo, long Mode);
+    //void            AddHasModeNear(int iJoinNo, long Mode);
+    flag           HasModeNear(int iJoinNo, long Mode);
+
+
+    double         MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC=NULL);
+    void           SetJoinPressure(int iJoinNo, CRqdPressCtrl *pPC=NULL);
+    void           SetJoinPressure(int iJoinNo, double P, bool DoInputs=false, bool DoOutputs=true);
+    void           EvalJoinPressure(int iJoin, CRqdPressCtrl *pPC=NULL, SpModel/*Owner*/ * pMdl=NULL);
+
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalJoinFlows(int JoinNo) {};
     virtual flag   EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo) { return false; };
@@ -4462,9 +4473,15 @@ XID xidFBActLen                   = FlwXID(30004);  // User Info passes Addition
 XID xidFBFitLen                   = FlwXID(30005);  // User Info passes Additional Info
 XID xidFBRqdLen                   = FlwXID(30006);  // User Info passes Additional Info
 
+XID xidFBFirst                    = FlwXID(30000);  
+XID xidFBLast                     = FlwXID(30009);  
+
 XID xidIOSeqStartOK               = FlwXID(30010);
 XID xidIORmtSeqStartOK            = FlwXID(30011);
 XID xidIOSeqStart                 = FlwXID(30012);
+
+XID xidIOSeqFirst                 = FlwXID(30010);  
+XID xidIOSeqLast                  = FlwXID(30019);  
 
 XID xidElevation                  = FlwXID(30020);
 

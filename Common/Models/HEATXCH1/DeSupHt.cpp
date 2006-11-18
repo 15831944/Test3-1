@@ -182,8 +182,8 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
         {
         for (int j=0; j<NoProcessJoins(); j++)
           {
-          double Pj=GetPBInputPressure(j);
-          SetPBJoinPressure(j, dFinalP, true, true);
+          double Pj=MeasureJoinPressure(j);
+          SetJoinPressure(j, dFinalP, true, true);
           }
         }
         break;
