@@ -1061,7 +1061,7 @@ MProbalPCtrl::~MProbalPCtrl()
   delete m_pPCtrl;
   };
 
-void    MProbalPCtrl::BuildDataFields(long Allowed) { m_pPCtrl->BuildDataDefn(*m_pCommon->m_pDDB, m_pNd, Allowed) ; };
+void    MProbalPCtrl::BuildDataFields(long Allowed) { m_pPCtrl->BuildDataDefn(*m_pCommon->m_pDDB, m_pNd, true, Allowed, 0); };
 void    MProbalPCtrl::CalculateResult()             { m_pPCtrl->CalculateResult() ; };
 
 long    MProbalPCtrl::getMethod()                   { return m_pPCtrl->Method(); };

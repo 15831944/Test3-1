@@ -2648,10 +2648,12 @@ Build 122 : 16 November 2006
 1215 16/11/06: New revision numbering using SVN number as part of Build number.
 1220 17/11/06: (#611) Fix for archiver crash when tag is NAN.
 1224 17/11/06: (#343) Pressure propagation in dynamic transfer links.
+1226 18/11/06: (#) Allow setting of pressures in ties and tanks for dynamic transfer.
+1227 20/11/06: Make QFeed visible in tank model in dynamic
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1224
+#define SCD_PATCH_SVN    1227
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

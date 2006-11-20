@@ -7,7 +7,6 @@
 #include "sc_defs.h"
 #define  __FLASHTK_CPP
 #include "flashtk.h"
-
 //#include "optoff.h"
 
 //==========================================================================
@@ -260,9 +259,8 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
-  DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
-  if (NetProbalMethod())
-    DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.Visibility(NM_All|SM_All|HM_All);
+  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
   #endif
@@ -302,12 +300,12 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
     EHX.BuildDataDefn(DDB);
   VLE.BuildDataDefn(DDB);
 
-  if (NetProbalMethod())
+  if (1)//NetProbalMethod())
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQFeed);
+      DDB.Visibility(NM_All|SM_All|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
@@ -355,11 +353,11 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
     {
     case SM_Direct:
     case SM_Inline:
-      //SetCI(2, !m_FTF.Active() && !Valid(Rqd_Flash_Press));
-      SetCI(2, fOnLine &&
-               ( (!m_FTF.Active() && ((m_PCtrl0.Method()&(PC_Atmos|PC_Reqd|PC_ReqdSatT))==0)) || 
-                 (m_FTF.Active() && ((m_PCtrl0.Method()&(PC_Atmos|PC_Reqd|PC_ReqdSatT))!=0)) ) );
+      {
+      const bool UsrSetP = ((m_PCtrl0.Method()&(PC_Atmos|PC_Reqd|PC_ReqdSatT))!=0);
+      SetCI(2, fOnLine && ((!m_FTF.Active() && !UsrSetP) || (m_FTF.Active() && UsrSetP)) );
       break;
+      }
     default:
       ClrCI(2);
       if (Contents.Closed())

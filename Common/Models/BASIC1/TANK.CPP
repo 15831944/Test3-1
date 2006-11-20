@@ -402,7 +402,6 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   AddMdlNetworked(DDB);
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  
   m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_Basic, PC_Basic);//PC_Atmos|PC_Reqd);
 
   if (DDB.BeginStruct(this, "CyclicStorage"))
@@ -434,8 +433,9 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
     
   //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
-  DDB.Visibility(NM_Probal|SM_All|HM_All);
+  DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.Visibility(NM_Probal|SM_Direct|HM_All);
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
   DDB.Visibility();
  
@@ -465,14 +465,17 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (SolveBufferedMethod())
     m_EqThermals.BuildDataDefn(DDB, "Body", NULL, DDB_RqdPage);
 
-  if (NetProbalMethod())
+  if (1)
     {
     QFeed(); // Ensure that exist so that they recover
     if (QFeed.Exists())
       {
-      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQFeed);
+      DDB.Visibility(NM_All|SM_All|HM_All, bShowQFeed);
       DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
       }
+    }
+  if (NetProbalMethod())
+    {
     QProd(); // Ensure that exist so that they recover
     if (QProd.Exists())
       {
