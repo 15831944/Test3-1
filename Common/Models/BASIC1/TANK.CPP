@@ -404,41 +404,52 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_Basic, PC_Basic);//PC_Atmos|PC_Reqd);
 
-  if (DDB.BeginStruct(this, "CyclicStorage"))
-    {
-    DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);
-    DDB.Visibility(NM_Probal|SM_All|HM_All, m_CyclicStorage.m_bOn);    
-    DDB.CheckBox("CycleIt",         "",  DC_,     "",      xidPBSurgeCycleIt,               this, isParm|SetOnChange);
-    DDB.Double  ("CycleTime",       "",  DC_Time, "s",     &m_CyclicStorage.m_dCycleTime,   this, isParm);
-    DDB.Double  ("Retained",        "",  DC_Frac, "%",     &m_CyclicStorage.m_dFracRetained, this, isParm);
-    DDB.Double  ("TotalMass",       "",  DC_M,    "kg",    &m_CyclicStorage.m_dTotalMass,   this, isResult);
-    DDB.Double  ("TotalVolume",     "",  DC_Vol,  "L",     &m_CyclicStorage.m_dTotalVolume, this, isResult);
-    }
-  DDB.EndStruct();
+  if (NetProbalMethod())
+    DDB.CheckBox("CyclicStorage",     "",  DC_,     "",      &m_CyclicStorage.m_bOn, this, isParm|SetOnChange);
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(NM_Probal|SM_Direct|HM_All);
   GSM.Add_OnOff(DDB);
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
-  //TODO RESTORE : VLE in ProBal mode!
+  DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
   if (NetProbalMethod())
     EHX.Add_OnOff(DDB);
+  //TODO RESTORE : VLE in ProBal mode!
   if (NetDynamicMethod())
     VLE.Add_OnOff(DDB);
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
   if (SolveSurgeMethod())
+    {
+    DDB.CheckBoxBtn("ThermalBody", "", DC_, "", &m_EqThermals.m_bActive, this, isParmStopped|SetOnChange);
     DDB.CheckBox("LevelLookup", "", DC_, "", xidLvl_Lookup, this, isParmStopped|SetOnChange);
+    }
     
   //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_Direct|HM_All);
   DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
+
+  if (NetProbalMethod() && m_CyclicStorage.m_bOn)
+    {
+    DDB.Visibility(NM_Probal|SM_All|HM_All, m_CyclicStorage.m_bOn);
+    DDB.Text("");
+    if (DDB.BeginStruct(this, "CyclicStorage"))
+      {
+      //DDB.CheckBox("On",              "",  DC_,     "",      &m_CyclicStorage.m_bOn,          this, isParm|SetOnChange);
+      DDB.CheckBox("CycleIt",         "",  DC_,     "",      xidPBSurgeCycleIt,               this, isParm|SetOnChange);
+      DDB.Double  ("CycleTime",       "",  DC_Time, "s",     &m_CyclicStorage.m_dCycleTime,   this, isParm);
+      DDB.Double  ("Retained",        "",  DC_Frac, "%",     &m_CyclicStorage.m_dFracRetained, this, isParm);
+      DDB.Double  ("TotalMass",       "",  DC_M,    "kg",    &m_CyclicStorage.m_dTotalMass,   this, isResult);
+      DDB.Double  ("TotalVolume",     "",  DC_Vol,  "L",     &m_CyclicStorage.m_dTotalVolume, this, isResult);
+      }
+    DDB.EndStruct();
+    }
+
   DDB.Visibility();
- 
+
   if (SolveInlineMethod())
     m_SrgCtrl.BuildDataDefn(DDB, "LCtrl", this);
 
@@ -462,8 +473,8 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
       LvlLookup.BuildDataDefn(this, DDB);
     }
 
-  if (SolveBufferedMethod())
-    m_EqThermals.BuildDataDefn(DDB, "Body", NULL, DDB_RqdPage);
+  if (SolveSurgeMethod())
+    m_EqThermals.BuildDataDefn(DDB, "Body", NULL, m_EqThermals.m_bActive ? DDB_RqdPage : DDB_OptPage);
 
   if (1)
     {
@@ -485,11 +496,16 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Visibility();
     }
 
-  if (NetDynamicMethod() || NetProbalMethod() && m_CyclicStorage.m_bOn)
+  if (NetDynamicMethod() || (NetProbalMethod() && m_CyclicStorage.m_bOn))
+    {
+    DDB.Visibility();
     DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
-  if (NetDynamicMethod() && Contents.GetPreset().DoImg() || 
-      NetProbalMethod() && m_CyclicStorage.m_bOn)
+    }
+  if ( (NetDynamicMethod() && Contents.GetPreset().DoImg()) || 
+       (NetProbalMethod() && m_CyclicStorage.m_bOn) )
+    {
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
+    }
 
   BuildDataDefnAreaIOs(DDB);
 
@@ -506,7 +522,7 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (HX.DataXchg(DCB))
     return 1;
-  if (!SolveInlineMethod() && m_EqThermals.DataXchg(DCB))
+  if (SolveSurgeMethod() && m_EqThermals.DataXchg(DCB))
     return 1;  
   if (SolveSurgeMethod() && LvlLookup.DataXchg(this, DCB))
     return 1;  

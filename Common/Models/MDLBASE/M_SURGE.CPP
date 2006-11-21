@@ -47,7 +47,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachClassInfo(nc_Process,NULL, &PipeEntryGroup);
   Contents.SetStateAction(IE_Integrate);
   m_EqThermals.SetStateAction(IE_Integrate);
-  if (SolveInlineMethod())
+  if (!SolveBufferedMethod())
     m_EqThermals.m_bActive = false;
   Contents.SetVentExpandOK();
   Contents.SetVLE(&VLE);
@@ -183,7 +183,8 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
   Set_JoinP(0, Contents.Press());
 //  Set_JoinP_Stb(0, Contents.Press());
 //  Set_JoinP_Imp(0, Contents.Press());
-  m_EqThermals.ValidateData(VDB);
+  if (SolveSurgeMethod())
+    m_EqThermals.ValidateData(VDB);
   return MdlNode::ValidateData(VDB);
 
   }
@@ -229,7 +230,7 @@ flag MN_Surge::InitialiseSolution()
     case SM_Buffered:
       Contents.dwDisplay=SPDF_All;
       Contents.SetStateAction(SolveInlineMethod() ? IE_SaveState : IE_Integrate);
-      if (SolveInlineMethod())
+      if (SolveSurgeMethod())
         m_EqThermals.SetStateAction(SolveInlineMethod() ? IE_SaveState : IE_Integrate);
       else
         m_EqThermals.SetStateAction(IE_Disabled);
@@ -603,7 +604,6 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
   //dbgpln("EvalDerivs   - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
 
   Contents.ZeroDeriv();
-
 
   if (/*!IntegralDone() &&*/ !GetActiveHold())
     {

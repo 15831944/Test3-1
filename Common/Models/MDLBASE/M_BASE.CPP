@@ -4371,7 +4371,9 @@ void CEquipmentThermals::BuildDataDefn(DataDefnBlk & DDB, char* pTag_, char* pTa
   {
   if (DDB.BeginStruct(m_pObj, pTag_ ? pTag_ : "Equipment", pTagComment, PageIs, UserInfo))
     {
-    DDB.CheckBoxBtn("Enable", "",          DC_,       "",         &m_bActive,      m_pObj, isParm);
+    DDEF_Flags Old = DDB.GetVisibility();
+    DDB.Visibility(NM_All|SM_All|HM_All, m_bActive);
+    DDB.CheckBoxBtn("Enable", "",          DC_,       "",         &m_bActive,      m_pObj, isParmStopped);
     DDB.Double("Mass",        "M",         DC_M,      "kg",       &m_dMass,        m_pObj, isParm);
     DDB.Double("",            "Cp",        DC_CpMs,     "kJ/kg.C",  &m_dCp,          m_pObj, isParm);
     DDB.Double("Temp",        "T",         DC_T,      "C",        &m_dTemp,        m_pObj, isParm);
@@ -4383,6 +4385,7 @@ void CEquipmentThermals::BuildDataDefn(DataDefnBlk & DDB, char* pTag_, char* pTa
     DDB.Double("TimeConstAm", "TauAm",     DC_Time,   "h",        xidEqThermTau2,  m_pObj, isResult);
     DDB.Double("PowerEq",     "PwrEq",     DC_Pwr,    "kW",       &m_dPwr1,        m_pObj, isResult);
     DDB.Double("PowerAm",     "PwrAm",     DC_Pwr,    "kW",       &m_dPwr2,        m_pObj, isResult);
+    DDB.SetVisibility(Old);
     }
   DDB.EndStruct();
   };
