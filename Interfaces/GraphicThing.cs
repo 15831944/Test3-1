@@ -49,6 +49,14 @@ namespace SysCAD.Interface
       set { tag = value; }
     }
 
+    [CategoryAttribute("Model"),
+     DescriptionAttribute("Text of the item.")]
+    public String Text
+    {
+      get { return text; }
+      set { text = value; }
+    }
+
     [CategoryAttribute("Graphic"),
      DescriptionAttribute("Area path of the item."),
      ReadOnlyAttribute(true),
@@ -161,54 +169,38 @@ namespace SysCAD.Interface
       this.tag = tag;
     }
 
-    public void Populate(String filename, String Page, String EqpGUID, float InsertX, float InsertY, float ScaleX, float ScaleY, float Rotation)
-    {
-      path = "/" + filename + "/" + Page + "/";
-      guid = new Guid(EqpGUID);
-
-      float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-
-      boundingRect.Width = ScaleX * 30.0F * sx;
-      boundingRect.Height = ScaleY * 30.0F * sy;
-
-      if (boundingRect.Width < 0.0F)
-      {
-        mirrorX = true;
-        boundingRect.Width = -boundingRect.Width;
-      }
-
-      if (boundingRect.Height < 0.0F)
-      {
-        mirrorY = true;
-        boundingRect.Height = -boundingRect.Height;
-      }
-
-      boundingRect.X = InsertX - boundingRect.Width / 2.0F + dx;
-      boundingRect.Y = -InsertY - boundingRect.Height / 2.0F + dy;
-      angle = Rotation;
-
-    }
-
-    public void Populate(String filename, String Page, String EqpGUID, RectangleF rectangle, float Rotation)
+    public void Populate(String filename, String Page, String EqpGUID, RectangleF rectangle, float Rotation, bool mirrorX, bool mirrorY, 
+      System.Drawing.Color fillColor, System.Drawing.Color frameColor, String text, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode)
     {
       path = "/" + filename + "/" + Page + "/";
       guid = new Guid(EqpGUID);
 
       boundingRect = rectangle;
 
+      this.mirrorX = mirrorX;
+      this.mirrorY = mirrorY;
+
       if (boundingRect.Width < 0.0F)
       {
-        mirrorX = true;
+        this.mirrorX = !this.mirrorX;
         boundingRect.Width = -boundingRect.Width;
       }
 
       if (boundingRect.Height < 0.0F)
       {
-        mirrorY = true;
+        this.mirrorY = !this.mirrorY;
         boundingRect.Height = -boundingRect.Height;
       }
 
       angle = Rotation;
+
+      this.fillColor = fillColor;
+      this.frameColor = frameColor;
+      this.text = text;
+      this.elements = elements;
+      this.decorations = decorations;
+      this.textArea = textArea;
+      this.fillMode = fillMode;
     }
   }
 }

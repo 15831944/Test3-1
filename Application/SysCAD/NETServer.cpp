@@ -402,13 +402,13 @@ ref class CNETServerThread
         pageOffset.Add("/" + filename + "/" + pages[k] + "/", PointF(dX, dY));
 
         i++;
-        dX += 400.0F;
+        dX += 450.0F;
         if (i > sqrtPages-1)
         {
           i = 0;
           dX = 0.0F;
           j++;
-          dY += 320.0F;
+          dY += 300.0F;
         }
       }
 
@@ -421,10 +421,29 @@ ref class CNETServerThread
           GraphicThing ^ graphicThing = gcnew GraphicThing(Guid(gcnew String(pThing->m_Guid)), gcnew String(pThing->m_Tag));
           String ^ path = "/" + filename + "/" + gcnew String(pThing->m_Page) + "/";
 
+		  ArrayList ^ elements = gcnew ArrayList();
+		  elements->Add(gcnew Line(70.0, 95.0, 100.0, 95.0));
+		  elements->Add(gcnew Line(100.0, 95.0, 100.0, 100.0));
+		  elements->Add(gcnew Line(100.0, 100.0, 70.0, 100.0));
+		  elements->Add(gcnew Line(70.0, 100.0, 70.0, 95.0));
+
+		  ArrayList ^ decorations = gcnew ArrayList();
+		  decorations->Add(gcnew Line(0.0, 0.0, 100.0, 0.0));
+		  decorations->Add(gcnew Line(100.0, 0.0, 100.0, 100.0));
+		  decorations->Add(gcnew Line(100.0, 100.0, 0.0, 100.0));
+		  decorations->Add(gcnew Line(0.0, 100.0, 0.0, 0.0));
+
+		  ArrayList ^ textArea = gcnew ArrayList();
+		  textArea->Add(gcnew Line(70.0, 95.0, 100.0, 95.0));
+		  textArea->Add(gcnew Line(100.0, 95.0, 100.0, 100.0));
+		  textArea->Add(gcnew Line(100.0, 100.0, 70.0, 100.0));
+		  textArea->Add(gcnew Line(70.0, 100.0, 70.0, 95.0));
+
           graphicThing->Populate(filename, gcnew String(pThing->m_Page),
             gcnew String(pThing->m_Guid), 
             RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
-            pThing->m_Rotation);
+			pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, "Text", elements, decorations, gcnew ArrayList(),
+			System::Drawing::Drawing2D::FillMode::Alternate);
           graphic->graphicThings->Add(graphicThing->Guid, graphicThing);
         }
       }

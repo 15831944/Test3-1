@@ -124,14 +124,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       {
         outLines = new ArrayList();
 
-        if (graphicThing.textArea != null)
-        {
-          Contour textArea = new Contour(graphicThing.FrameColor, graphicThing.textArea);
-          outLines.Add(textArea);
-          textArea.Changed += new OutlineChanged(onContourChanged);
-        }
-
-        if (graphicThing.elements != null)
+        if (graphicThing.elements.Count > 0)
         {
           Contour elements = new Contour(graphicThing.FrameColor, graphicThing.elements);
           outLines.Add(elements);
@@ -145,12 +138,40 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
           contour.Changed += new OutlineChanged(onContourChanged);
         }
 
-        if (graphicThing.decorations != null)
+        if (graphicThing.decorations.Count > 0)
         {
-          // This is wrong -- we need to break it up into a number of Ellipse & SegmentedOutline elements.
-          Contour decorations = new Contour(graphicThing.FrameColor, graphicThing.decorations);
-          outLines.Add(decorations);
-          decorations.Changed += new OutlineChanged(onContourChanged);
+          PolyLine polyLine = null;
+          foreach (Element element in graphicThing.decorations)
+          {
+            if (element is Line)
+            {
+              if (polyLine == null)
+              {
+                polyLine = new PolyLine(element as Line);
+              }
+              else
+              {
+                if (!polyLine.Add(element as Line)) // couldn't add because ends don't connect, start a new one.
+                {
+                  outLines.Add(polyLine);
+                  polyLine.Changed += new OutlineChanged(onContourChanged);
+                  polyLine = new PolyLine(element as Line);
+                }
+              }
+            }
+          }
+          if (polyLine != null)
+          {
+            outLines.Add(polyLine);
+            polyLine.Changed += new OutlineChanged(onContourChanged);
+          }
+        }
+
+        if (graphicThing.textArea.Count > 0)
+        {
+          Contour textArea = new Contour(graphicThing.FrameColor, graphicThing.textArea);
+          outLines.Add(textArea);
+          textArea.Changed += new OutlineChanged(onContourChanged);
         }
       }
 
@@ -435,7 +456,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private void menuItemInsertDecorLineOnClick(object Sender, System.EventArgs e)
     {
       LineSegment newDecorationLine = new LineSegment(new PointF(saveNewPosX, saveNewPosY), new PointF(saveNewPosX + decorationWidth, saveNewPosY));
-      newDecorationLine.isDecorationSegment = true;
+        newDecorationLine.isDecorationSegment = true;
       PolyLine newPolyLine = new PolyLine(newDecorationLine);
       outLines.Add(newPolyLine);
       newPolyLine.Changed += new OutlineChanged(onContourChanged);

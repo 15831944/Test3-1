@@ -21,7 +21,7 @@ namespace SysCAD.Editor
       PropertyEnumerator testRootProperty = AppendRootCategory(_id++, "Main");
       ExpandProperty(testRootProperty, false);
 
-      PropertyEnumerator dummyProperty = AppendManagedProperty(testRootProperty, _id++, "", typeof(dummyType), null, "");
+      //PropertyEnumerator dummyProperty = AppendManagedProperty(testRootProperty, _id++, "", typeof(dummyType), null, "");
 
       //modelItem.Properties = new BaseAccessItem[6];
       //modelItem.Properties[0] = new FloatAccessItem("zero", "description zero", 074.6F);
@@ -46,7 +46,8 @@ namespace SysCAD.Editor
 
       while (child != null)
       {
-        if (child.GetType() == typeof(dummyType))
+
+          if (child.GetType() == typeof(dummyType))
         {
           DeleteProperty(child);
         }

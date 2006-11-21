@@ -42,6 +42,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     public Contour(Color color, ArrayList elements)
     {
+      shapeSegments = new ArrayList();
       foreach (Element element in elements)
       {
         if (element is Line)

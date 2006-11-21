@@ -42,7 +42,7 @@ namespace SysCAD.ThingEditor
     public Form1(GraphicThing graphicThing)
 		{
       this.graphicThing = graphicThing;
-			//
+			//jj
 			// Required for Windows Form Designer support
 			//
 			InitializeComponent();
@@ -65,6 +65,14 @@ namespace SysCAD.ThingEditor
 			}
 			base.Dispose( disposing );
 		}
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+      // Write information back into the CraphicItem...
+      thingEditor1.setGraphicThing();
+
+      base.OnClosing(e);
+    }
 
 		#region Windows Form Designer generated code
 		/// <summary>
@@ -277,7 +285,7 @@ namespace SysCAD.ThingEditor
 
             Box b = flowChart1.CreateBox(0, 0, 70, 70);
             b.PolyTextLayout = true;
-            b.Text = "Some text to test the shape text area... The formatting algorithm is designed to layout text inside polygonal outlines ... The formatting algorithm is ";
+            b.Text = graphicThing.Text;
         }
 
         private void menuItem3_Click(object sender, System.EventArgs e)

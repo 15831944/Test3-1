@@ -189,11 +189,9 @@ namespace SysCAD.Editor
       box.ToolTip = graphicThing.Tag;
       box.Style = BoxStyle.Shape;
 
-      //!!!!!  convert from elements, decorations, textarea -> shapetemplate.
+      box.Shape = GetShapeTemplate(graphicThing);
 
-      //!!!!!
-
-      box.Shape = ShapeTemplate.FromId("Decision2");
+      box.Text = graphicThing.Text;
 
       if (!graphicThing.FillColor.IsEmpty)
         box.FillColor = Color.FromArgb(150, graphicThing.FillColor);
