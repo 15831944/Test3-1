@@ -6,6 +6,7 @@
 #include "stdafx.h"
 #define  __THICKEN_CPP
 #include "thicken.h"
+
 //==========================================================================
 /*#D:#T:Thickener
 #X:#h<General Description>#N#NThe thickener concentrates the solids in 
@@ -193,9 +194,12 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-	DDB.Object(&UFSolidsFn, this, NULL, NULL, DDB_RqdPage);
-  DDB.Object(&OFSolidsFn, this, NULL, NULL, DDB_RqdPage);
+  if (NetDynamicMethod())
+    {
+    DDB.Visibility(SM_Inline|SM_Buffered|HM_All);
+	  DDB.Object(&UFSolidsFn, this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&OFSolidsFn, this, NULL, NULL, DDB_RqdPage);
+    }
   DDB.Visibility();
 
   DDB.EndStruct();

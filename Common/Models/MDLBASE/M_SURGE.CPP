@@ -8,7 +8,6 @@
 #define  __M_SURGE_CPP
 #include "m_surge.h"
 #include "dbgmngr.h"
-
 //#include "optoff.h"
 
 #define dbgMSurge       (0 || WITHDEBUG)
@@ -879,8 +878,8 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
   {
   ASSERT(NetDynamicMethod());
 
-  if (RB())
-    {
+  if (RB() && SolveSurgeMethod())
+    {//only call this code if the surge is actualy used
     #if dbgMSurge
     if (dbgEvalConverge())
       dbgpln("MN_Surge::ConvergeStates - RB %s", FullObjTag());
