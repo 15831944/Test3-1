@@ -1929,12 +1929,16 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   pNetTopoChg=NULL;
   pSubNetTopoChg=NULL;
 
-  m_Datum=0.0;
-  m_DatumRqd=dNAN;
-  m_ZState=Z_Unknown;
+  m_Origin.m_X = 0.0;
+  m_Origin.m_Y = 0.0;
+  m_Origin.m_Z = 0.0;
 
-  Done2 = 0;
-  Reverse = 0;
+  m_Datum      = 0.0;
+  m_DatumRqd   = dNAN;
+  m_ZState     = Z_Unknown;
+
+  Done2        = 0;
+  Reverse      = 0;
 
   fSolutionBusy=0;  // Solution is Busy
   fHasFiles=0;
@@ -2735,9 +2739,14 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   {
   CTNode::BuildCommonStartDefn(DDB);
 
-  DDB.Text(" ");
+  //DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
-  DDB.String(AreaTag,    "", DC_, "", xidFlwNdRqdArea,  this, isParmStopped|InitHidden);
+  DDB.String(AreaTag,       "", DC_,     "",   xidFlwNdRqdArea,  this, isParmStopped|InitHidden);
+
+  DDB.Double ("Origin.X",   "", DC_L,    "m",  &m_Origin.m_X,    this, isParmStopped|InitHidden);
+  DDB.Double ("Origin.Y",   "", DC_L,    "m",  &m_Origin.m_Y,    this, isParmStopped|InitHidden);
+  DDB.Double ("Origin.Z",   "", DC_L,    "m",  &m_Origin.m_Z,    this, isParmStopped|InitHidden);
+  DDB.Text(" ");
 
   //GetGlblModeValueLst(DDBR, GetPermissableRunModes(SM_All));
   //if (m_DDBSolveModes.Length()>0)

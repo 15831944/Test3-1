@@ -4338,6 +4338,13 @@ class DllImportExport FlwNode : public CTNode
     pflag          pSubNetTopoChg;
     int            NetNo;
 
+    struct
+      {
+      double       m_X;
+      double       m_Y;
+      double       m_Z;
+      }          m_Origin;
+
     double         m_Datum, m_DatumRqd;
     Z_States       m_ZState;
 
