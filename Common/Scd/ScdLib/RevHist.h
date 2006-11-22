@@ -2651,9 +2651,10 @@ Build 122 : 16 November 2006
 1226 18/11/06: (#343) Allow setting of pressures in ties and tanks for dynamic transfer.
 1227 20/11/06: Make QFeed visible in tank model in dynamic.
 1233 21/11/06: Fix use of reactions in thickener in direct mode (no surge).
+1235 22/11/06Archive improvements...
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1233
+#define SCD_PATCH_SVN    1235
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

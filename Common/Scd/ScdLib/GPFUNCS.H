@@ -1153,9 +1153,9 @@ DllImportExport char*  GetSystemErrorStr(Strng &S, DWORD E);
 DllImportExport void   StripSingleQuoteComment(char * Buff);
 DllImportExport int    ParseTokenList(LPTSTR Buff, char* C[], char* WhiteSpace=" \t", int MaxColumns=MaxCSVCols, char Separator=0, bool Test4Braces=0);
 #if MOVEDTO_MD_SHARE_3
-DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
+DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL, bool TabsAsWhitespace=false);
 DllImportExport int    ParseCSVFunction(LPTSTR Buff, CSVColArray &C, int& Quote);
-DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL);
+DllImportExport int    ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL, bool TabsAsWhitespace=false);
 DllImportExport int    ParseCSVFunction(LPTSTR Buff, CSVColArray &C);
 DllImportExport int    ParseTokens(LPTSTR Buff, CSVColArray &C, char Token);
 DllImportExport int    ParseTabTokens(LPTSTR Buff, CSVColArray &C);

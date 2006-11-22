@@ -5831,7 +5831,7 @@ void StripSingleQuoteComment(char * Buff)
 
 //===========================================================================
 
-int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars)
+int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars/*=NULL*/, bool TabsAsWhitespace/*=false*/)
   {
   C[0]=&Buff[0];
   for (int j=1,i=0; j<MaxCSVCols; j++)
@@ -5839,9 +5839,15 @@ int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars)
   char *p=strchr(Buff, '\n');
   if (p!=NULL)
     *p=0;
-  //CNM ?? why was this here // strip out tabs convert to spaces;
-  //CNM ?? why was this here while ((p=strchr(Buff, '\t'))!=NULL)
-  //CNM ?? why was this here   *p=' ';
+  if (TabsAsWhitespace)
+    {
+    // strip out tabs and convert to spaces
+    //CNM ?? why was this here while ((p=strchr(Buff, '\t'))!=NULL)
+    //CNM ?? why was this here   *p=' ';
+    //KGA because sometimes tabs are part of whitespace and NOT separators
+    while ((p=strchr(Buff, '\t'))!=NULL)
+      *p=' ';
+    }
   Quote=0;
   for (i=0,j=0;Buff[i]!=0;i++)
     if (Buff[i]=='\"')
@@ -5869,10 +5875,10 @@ int ParseCSVTokens(char* Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars)
 
 //---------------------------------------------------------------------------
 
-int ParseCSVTokens(char* Buff, CSVColArray &C, LPCTSTR MoreSepars)
+int ParseCSVTokens(char* Buff, CSVColArray &C, LPCTSTR MoreSepars/*=NULL*/, bool TabsAsWhitespace/*=false*/)
   {
   int Quote=0;
-  int n=ParseCSVTokens(Buff, C, Quote, MoreSepars);
+  int n=ParseCSVTokens(Buff, C, Quote, MoreSepars, TabsAsWhitespace);
   if (Quote)
     return -1;
   return n;

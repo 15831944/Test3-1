@@ -435,17 +435,17 @@ void CArcTablesPage::RebuildTbTree()
         HTREEITEM hTr=InsertItem(m_TbTree, hTb, 2, Trg.m_Src.m_sTag, IS);
         if (Trg.m_bRise)
           {
-          Buff.Format("Rising Edge of %f", Trg.m_dDeltaRise);
+          Buff.Format("Rising %s of %f (%d occurrences)", Trg.m_bStepTest ? "step edge" : "delta", Trg.m_dDeltaRise, Trg.m_iTriggerFiredCount);
           InsertItem(m_TbTree, hTr, 5, Buff, IS);
           }
         if (Trg.m_bFall)
           {
-          Buff.Format("Falling Edge of %f", Trg.m_dDeltaFall);
+          Buff.Format("Falling %s of %f (%d occurrences)", Trg.m_bStepTest ? "step edge" : "delta", Trg.m_dDeltaRise, Trg.m_iTriggerFiredCount);
           InsertItem(m_TbTree, hTr, 6, Buff, IS);
           }
         if (Trg.m_bAny)
           {
-          Buff.Format("Change of %f", Trg.m_dDeltaAny);
+          Buff.Format("%s of %f (%d occurrences)", Trg.m_bStepTest ? "Step change" : "Change", Trg.m_dDeltaRise, Trg.m_iTriggerFiredCount);
           InsertItem(m_TbTree, hTr, 7, Buff, IS);
           }
         }

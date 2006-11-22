@@ -2811,7 +2811,7 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     {
     DDBValueLstMem DDBModes;
     GetAuditOptionStrLst(DDBModes, true);
-    DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange, &DDBModes);
+    DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange|InitHidden, &DDBModes);
     }
 
 #if WITHSPECSHEETS

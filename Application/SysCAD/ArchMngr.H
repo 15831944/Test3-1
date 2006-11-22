@@ -110,7 +110,7 @@ class CArchiveTrigger
     ~CArchiveTrigger();
 
     bool Parse(LPCTSTR Table, int No, LPCTSTR Cfg);
-    bool TestTrigger(bool DoTriggerNote);
+    bool TestTrigger();
 
   public:
     CArchiveManager  &m_rAM;
@@ -122,9 +122,11 @@ class CArchiveTrigger
 
     bool            m_bInitReqd;
     bool            m_bRewindReqd;
+    bool            m_bStepTest;
     bool            m_bRise;
     bool            m_bFall;
     bool            m_bAny;
+    long            m_iTriggerFiredCount;
     double          m_dPrevAny;
     double          m_dPrevEdge;
     double          m_dDeltaRise;
@@ -227,7 +229,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     static bool     CheckCfg(LPCTSTR CfgFile);
     bool            CompleteOpen();
                     
-    long            AddField(LPCTSTR Table, LPCTSTR CfgString);
+    long            DoAddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString);
     long            AddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString);
     long            AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);
     long            AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description);

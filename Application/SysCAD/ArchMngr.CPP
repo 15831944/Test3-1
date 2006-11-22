@@ -18,7 +18,7 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #define dbgArchiver       WITHDEBUG
 
@@ -95,20 +95,18 @@ static LPCTSTR s_sArchiveContent =
 ";=============================================================\n"
 "\n"
 "[MessageLog] ; System\n"
-"Name       = MessageLog\n"
 "On         = 1\n"
 "Format     = DB\n"
 "\n"
 ";=============================================================\n"
 "\n"
 "[EventLog] ; System\n"
-"Name       = EventLog\n"
 "On         = 1\n"
 "Format     = DB\n"
 "\n"
 ";=============================================================\n"
 "; \n"
-"; Example\n"
+"; Syntax\n"
 "; -------\n"
 "; \n"
 "; [Table1] \n"
@@ -119,31 +117,66 @@ static LPCTSTR s_sArchiveContent =
 "; SigDigits  = 20\n"
 "; Period     = hh:mm:ss\n"
 "; Offset     = hh:mm:ss\n"
+"; FieldNN    = \"FieldName\",   SysCADTag,              Function, MeasurePoint, FirstPoint\n"
+"; TriggerNN  = \"Description\", SysCADTag,              TriggerTest\n"
 "; Field1     = \"Steps\",       PlantModel.Stats.Steps, Current\n"
-"; Field2     = \"FieldName2\",  ScdTag,                 Function, MeasurePoint, FirstPoint\n"
-"; Trigger1   = \"Description\", ScdTag,                 TriggerTest\n"
-"; Trigger2   = \"Description\", ScdTag,                 TriggerTest\n"
+"; Trigger1   = \"Monthly\",     $Dyn.DateRec.Month,     Delta=0.1\n"
 "; \n"
 "; \n"
 "; Options\n"
 "; -------\n"
 "; Format     = DB / CSV / TXT\n"
-"; On         = 0/1\n" 
-"; Path       = A Folder Name (Usually with the Project)\n"
-"; SigDigits  = 1 .. 20 Number of Significant digits written to CSV & TXT files\n"
-"; ScdTag     = Any Tagged Point \n"
+"; On         = 0/1 (off/on)\n" 
+"; Path       = A Folder Name for CSV & TXT files. (Usually with the project) $Prj=current project folder\n"
+"; SigDigits  = 1 .. 20 Number of significant digits written to CSV & TXT files\n"
+"; Period     = Time frequency for reporting fields, where time zero is at start.\n"
+"; Offset     = Time offset within the specified period. Optional. Zero is the default.\n"
+"; FieldName  = Report column or field name. Should not contain characters: '.,[]\n"
+"; SysCADTag  = Any valid SysCAD tag. May have conversions.\n"
 "; Function   = Current / Minimum / Maximum / Average / Count\n"
 ";         OR = Cur     / Min     / Max     / Avg     / Cnt  \n"
 "; MeasurePt  = StartPt / EndPt / MidPt  - EndPt is the default\n"
-"; FirstPoint = IgnoreFirst / UseFirst - IgnoreFirst is the default\n"
+"; FirstPoint = IgnoreFirst / UseFirst  - IgnoreFirst is the default\n"
 "; TriggerTest = Rise [= Value]/ Fall [= Value]/ Delta [= Value]\n"
 ";   [= Value] = Optional Test Value (default = 1.0)\n"
+"; TriggerTest = StepRise [= Value]/ StepFall [= Value]/ StepDelta [= Value]\n"
+";   [= Value] = Optional Test Value (default = 1.0)\n"
 "; \n"
-"; All Table Entries are optional except the Name\n"
-"; If no Fields are entered then the table will be created with\n"
-"; default fields of RecordNo, Time & ElapsedTime\n"
-"; If No triggers or period are specified then the table will not\n"
-"; accumulate data\n"
+"; Notes:\n"
+"; 1) Use Period for reporting at fixed time intervals, OR use Triggers for reporting\n"
+";    at irregular time intervals (ie report specified fields based on trigger logic).\n"
+"; 2) For the trigger test use the StepXXXX functions to compare results from previous\n"
+";    iteration to decide if fields should be saved, or use the Rise/Fall/Delta to compare\n"
+";    results from previous occurance of the trigger.\n"
+"; 3) There can be any number of triggers. If the conditions of any of the triggers are met,\n"
+";    then the fields will be reported.\n"
+"; 4) All table entries are optional except the Name\n"
+"; 5) If no Fields are entered then the table will still be created.\n"
+"; 6) If one or more Triggers are used, a period & offset is not relevant or required.\n" 
+"; 7) If no triggers or period are specified then the table will not accumulate data.\n"
+"; \n"
+";=============================================================\n"
+"; Examples:\n"
+"; [Table1]\n"
+"; Name       = Daily\n"
+"; On         = 1\n"
+"; Format     = DB\n"
+"; Period     = 24:00:00\n"
+"; Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
+"; Field2     = \"Tank1 Level (%)\",      TNK_1.Lvl (%), Current\n"
+"; Field3     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%), Maximum\n"
+"; Field4     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%), Average\n"
+"; \n"
+"; [Table2]\n"
+"; Name       = Monthly\n"
+"; On         = 1\n"
+"; Format     = CSV\n"
+"; Path       = $Prj\\Archive\n"
+"; Trigger1   = \"Monthly\",              $Dyn.DateRec.Month,     Delta=0.1\n"
+"; Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
+"; Field2     = \"Tank1 Level (%)\",      TNK_1.Lvl (%),          Current\n"
+"; Field3     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%),          Maximum\n"
+"; Field4     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%),          Average\n"
 "; \n"
 ";=============================================================\n"
 "\n";
@@ -472,9 +505,11 @@ CArchiveTrigger::CArchiveTrigger(CArchiveManager *pAM) : m_rAM(*pAM)
   {
   m_bInitReqd   = true;
   m_bRewindReqd = false;
+  m_bStepTest   = false;
   m_bRise       = false;
   m_bFall       = false;
   m_bAny        = false;
+  m_iTriggerFiredCount = 0;
   }
 
 //---------------------------------------------------------------------------
@@ -494,13 +529,12 @@ bool CArchiveTrigger::Parse(LPCTSTR Table, int No, LPCTSTR Cfg)
   CSVColArray c;
   int Quote;
   strncpy(Buff, Cfg, sizeof(Buff));
-  int nFlds = ParseCSVTokens(Buff, c, Quote);//, "=");
+  int nFlds = ParseCSVTokens(Buff, c, Quote, NULL, true);//, "=");
 
   if (Quote || nFlds<3)
     goto Bad;
   else
     {
-
     if (strlen(c[0])>0)
       m_sName = c[0];
     else
@@ -508,6 +542,12 @@ bool CArchiveTrigger::Parse(LPCTSTR Table, int No, LPCTSTR Cfg)
 
     Strng WrkTag,WrkCnvTxt;
     TaggedObject::SplitTagCnv(c[1], WrkTag, WrkCnvTxt);
+
+    if (WrkTag.Len()==0)
+      {
+      LogError(ArcName, 0, "Tag not specified for Trigger '%s'", Cfg);
+      return false;
+      }
 
     m_Src.SetTag(WrkTag());
     m_sCnvTxt = WrkCnvTxt();
@@ -522,31 +562,73 @@ bool CArchiveTrigger::Parse(LPCTSTR Table, int No, LPCTSTR Cfg)
         memmove(p, p+1, strlen(p+1)+1);
       if (_strnicmp(Tkn, "delta=", 6)==0)
         {
+        m_bStepTest = false;
         m_bAny=true;
         m_dDeltaAny=fabs(SafeAtoF(Tkn+6,1));
         }
       else if (_strnicmp(Tkn, "rise=", 5)==0)
         {
+        m_bStepTest = false;
         m_bRise=true;
         m_dDeltaRise=fabs(SafeAtoF(Tkn+5,1));
         }
       else if (_strnicmp(Tkn, "fall=", 5)==0)
         {
+        m_bStepTest = false;
         m_bFall=true;
         m_dDeltaFall=fabs(SafeAtoF(Tkn+5,1));
         }
       else if (_stricmp(Tkn, "delta")==0)
         {
+        m_bStepTest = false;
         m_bAny=true;
         m_dDeltaAny=1;
         }
       else if (_stricmp(Tkn, "rise")==0)
         {
+        m_bStepTest = false;
         m_bRise=true;
         m_dDeltaRise=1;
         }
       else if (_stricmp(Tkn, "fall")==0)
         {
+        m_bStepTest = false;
+        m_bFall=true;
+        m_dDeltaFall=1;
+        }
+      else if (_strnicmp(Tkn, "stepdelta=", 10)==0)
+        {
+        m_bStepTest = true;
+        m_bAny=true;
+        m_dDeltaAny=fabs(SafeAtoF(Tkn+10,1));
+        }
+      else if (_strnicmp(Tkn, "steprise=", 9)==0)
+        {
+        m_bStepTest = true;
+        m_bRise=true;
+        m_dDeltaRise=fabs(SafeAtoF(Tkn+9,1));
+        }
+      else if (_strnicmp(Tkn, "stepfall=", 9)==0)
+        {
+        m_bStepTest = true;
+        m_bFall=true;
+        m_dDeltaFall=fabs(SafeAtoF(Tkn+9,1));
+        }
+      else if (_stricmp(Tkn, "stepdelta")==0)
+        {
+        m_bStepTest = true;
+        m_bAny=true;
+        m_dDeltaAny=1;
+        }
+      else if (_stricmp(Tkn, "steprise")==0)
+        {
+        m_bStepTest = true;
+        m_bRise=true;
+        m_dDeltaRise=1;
+        }
+      else if (_stricmp(Tkn, "stepfall")==0)
+        {
+        m_bStepTest = true;
         m_bFall=true;
         m_dDeltaFall=1;
         }
@@ -571,14 +653,15 @@ Bad:
 
 //---------------------------------------------------------------------------
 
-bool CArchiveTrigger::TestTrigger(bool DoTriggerNote)
+bool CArchiveTrigger::TestTrigger()
   {
-  double CurValue=m_Src.GetValue(m_rAM, m_sCnvTxt());
+  const double CurValue=m_Src.GetValue(m_rAM, m_sCnvTxt());
 
   bool Triggered=false;
 
   if (m_bInitReqd)
     {
+    m_iTriggerFiredCount = 0;
     m_bInitReqd   = false;
     m_dPrevAny    = CurValue;
     m_dPrevEdge   = CurValue;
@@ -590,29 +673,51 @@ bool CArchiveTrigger::TestTrigger(bool DoTriggerNote)
     m_bRewindReqd = false;
     }      
 
-
-  CString How;
-  if (m_bRise && (CurValue-m_dPrevEdge)>m_dDeltaRise)
+  const bool ValidCur = Valid(CurValue);
+  if (m_bRise || m_bFall)
     {
-    How.Format("Rise %.2f", CurValue-m_dPrevEdge);
-    Triggered=true;
+    const bool ValidEdge = Valid(m_dPrevEdge);
+    if (ValidCur || ValidEdge)
+      {
+      if (ValidCur!=ValidEdge)
+        {
+        Triggered=true;
+        }
+      else if (m_bRise && (CurValue-m_dPrevEdge)>m_dDeltaRise)
+        {
+        Triggered=true;
+        }
+      else if (m_bFall && (CurValue-m_dPrevEdge)<-m_dDeltaFall)
+        {
+        Triggered=true;
+        }
+      }
+    if (Triggered)
+      m_dPrevEdge=CurValue;
     }
-  else if (m_bFall && (CurValue-m_dPrevEdge)<-m_dDeltaFall)
+  else if (m_bAny)
     {
-    How.Format("Fall %.2f", CurValue-m_dPrevEdge);
-    Triggered=true;
+    const bool ValidAny = Valid(m_dPrevAny);
+    if (ValidCur || ValidAny)
+      {
+      if (ValidCur!=ValidAny || fabs(CurValue-m_dPrevAny)>m_dDeltaAny)
+        {
+        m_dPrevAny=CurValue;
+        Triggered=true;
+        }
+      }
     }
-  else if (m_bAny && fabs(CurValue-m_dPrevAny)>m_dDeltaAny)
+  if (m_bStepTest)
     {
-    How.Format("Delta %.2f", CurValue-m_dPrevAny);
+    m_dPrevEdge=CurValue;
     m_dPrevAny=CurValue;
-    Triggered=true;
     }
-  m_dPrevEdge=CurValue;
 
-  if (Triggered && DoTriggerNote)
-    LogNote(ArcName,0,"%s: %s", (LPCTSTR)m_sName, How);
+  //if (Triggered && DoTriggerNote)
+  //  LogNote(ArcName, 0, "%s: %s", (LPCTSTR)m_sName, How);
 
+  if (Triggered)
+    m_iTriggerFiredCount++;
   return Triggered;
   }
 
@@ -791,7 +896,7 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
     }
 
   for (int tr=0; tr<m_Triggers.GetSize(); tr++)
-    DoSaveTrg = DoSaveTrg || m_Triggers[tr]->TestTrigger(DoTriggerNote);
+    DoSaveTrg = DoSaveTrg || m_Triggers[tr]->TestTrigger();//DoTriggerNote);
 
 
   if (DoSavePer || DoSaveTrg)
@@ -1939,7 +2044,7 @@ bool CArchiveManager::ReadCfg()
       FldOpt=PF.RdStr(TbSect, FldNm, " ");
       if (FldOpt.GetLength()<=1)
         break;
-      AddField(pTb->m_sName, FldOpt);
+      DoAddField(pTb->m_sName, FldNm, FldOpt);
       }
     };
 
@@ -2314,12 +2419,12 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString)
   {
   CString S;
   S.Format("\"%s\", %s", Field, CfgString);
-  return AddField(Table, S);
+  return DoAddField(Table, Field, S);
   };
 
 //---------------------------------------------------------------------------
 
-long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
+long CArchiveManager::DoAddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgStringIn)
   {
   if (CfgStringIn==NULL || strlen(CfgStringIn)==0)
     return 0;
@@ -2329,17 +2434,14 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
   CString ADBCfg=CfgStringIn;
 
   CString CfgString=CfgStringIn;
-  int i;
-  while ((i=CfgString.Find('\t'))>=0)
-    CfgString.SetAt(i, ' ');
-  int nParms = ParseCSVTokens(C2T(CfgString), f, Quote);
+  int nParms = ParseCSVTokens(C2T(CfgString), f, Quote, NULL, true);
   if (Quote || f[0]==NULL || nParms<1)
     {
-    LogError(ArcName, 0, "Invalid Archive Spec: %s", (LPCTSTR)ADBCfg);
+    LogError(ArcName, 0, "Table %s, %s: Invalid archive field specification: %s", Table, Field, (LPCTSTR)ADBCfg);
     return -1;
     }
 
-  bool HasFldName = (ADBCfg.GetLength()>0 && ADBCfg[0]=='"');
+  const bool HasFldName = (ADBCfg.GetLength()>0 && ADBCfg[0]=='"');
   int iTagFld     = HasFldName?1:0;
 
   LPCTSTR FldName = HasFldName ? f[0]:NULL; 
@@ -2361,6 +2463,12 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
   LPCTSTR Fn      = f[iTagFld+1];   if (Fn   ==NULL) Fn   ="";
   LPCTSTR Meas    = f[iTagFld+2];   if (Meas ==NULL) Meas ="";
   LPCTSTR First   = f[iTagFld+3];   if (First==NULL) First="";
+  
+  if (Tag==NULL || strlen(Tag)==0)
+    {
+    LogError(ArcName, 0, "Table %s, %s: Tag not specified", Table, Field);
+    return -1;
+    }
 
   byte iFn=ADBFn_Null;
   if      (_stricmp(Fn, ADBFuncTags[ADBFn_Instant])==0    || _stricmp(Fn, ADBFuncSyms[ADBFn_Instant])==0     ) iFn=ADBFn_Instant;
@@ -2371,7 +2479,10 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_Count])==0      || _stricmp(Fn, ADBFuncSyms[ADBFn_Count])==0       ) iFn=ADBFn_Count;
   else if (iST<0)
     {
-    LogError(ArcName, 0, "%s has Invalid Function Spec: %s", Tag, Fn);
+    if (Fn==NULL || strlen(Fn)==0)
+      LogError(ArcName, 0, "Table %s, %s: For tag '%s', a Function has not been specified", Table, Field, Tag);
+    else
+      LogError(ArcName, 0, "Table %s, %s: Tag '%s' has invalid Function (%s)", Table, Field, Tag, Fn);
     return -1;
     }
 
@@ -2382,7 +2493,7 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
   else if (_stricmp(Meas, ADBMeasTags[ADBMeas_EndPt])==0)    iMeas=ADBMeas_EndPt;
   else if (iST<0)
     {
-    LogError(ArcName, 0, "%s has Invalid Measurement Spec: %s", Tag, Meas);
+    LogError(ArcName, 0, "Table %s, %s: Tag '%s' has invalid Measurement (%s)", Table, Field, Tag, Meas);
     return -1;
     }
 
@@ -2392,7 +2503,7 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
   else if (_stricmp(First, ADBFirstTags[ADBFirst_Ignore])==0)   iFirst=ADBFirst_Ignore;
   else if (iST<0)
     {
-    LogError(ArcName, 0, "%s has Invalid First Point Usage Spec: %s", Tag, First);
+    LogError(ArcName, 0, "Table %s, %s: Tag '%s' has invalid First Point Usage (%s)", Table, Tag, First);
     return -1;
     }
 
@@ -2413,6 +2524,8 @@ long CArchiveManager::AddField(LPCTSTR Table, LPCTSTR CfgStringIn)
 
   return AddField((iST>=0), WrkTag(), Table, FldName, iFn, iMeas, iFirst, iType, iSize, 0,  WrkCnvTxt() ? WrkCnvTxt():"","");
   };
+
+//---------------------------------------------------------------------------
 
 long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR FldName, byte iFn, byte iMeas, byte iFirst, byte iType, int iSize, CCnvIndex iCnv, LPCTSTR CnvTxt, LPCTSTR Description)
   {
@@ -2548,6 +2661,9 @@ long CArchiveManager::AppendField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTS
 
 long CArchiveManager::AddInput(LPCTSTR Tag)
   {
+  if (Tag==NULL || strlen(Tag)==0)
+    return -1;
+
   CXM_ObjectTag ObjTag((LPTSTR)Tag, TABOpt_AllInfoOnce);
   CXM_ObjectData ObjData;
   CXM_Route Route;

@@ -53,9 +53,9 @@ DllImportExport BOOL     FileWriteTime(LPCTSTR FileName, FILETIME & FileTime);
 
 const short MaxCSVCols = 256;
 typedef char * CSVColArray[MaxCSVCols];
-DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL);
+DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, int& Quote, LPCTSTR MoreSepars=NULL, bool TabsAsWhitespace=false);
 DllImportExport int      ParseCSVFunction(LPTSTR Buff, CSVColArray &C, int& Quote);
-DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL);
+DllImportExport int      ParseCSVTokens(LPTSTR Buff, CSVColArray &C, LPCTSTR MoreSepars=NULL, bool TabsAsWhitespace=false);
 DllImportExport int      ParseCSVFunction(LPTSTR Buff, CSVColArray &C);
 DllImportExport int      ParseTokens(LPTSTR Buff, CSVColArray &C, char Token);
 DllImportExport int      ParseTabTokens(LPTSTR Buff, CSVColArray &C);
