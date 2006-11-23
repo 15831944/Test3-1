@@ -47,7 +47,8 @@ const int Img_LostMdl     = 6;
 const int Img_GrfInActive = 7;
 
 const int PgType2TrIDs[3]={TrID_Other, TrID_Graphic, TrID_Trend};
-const int PgType2ImgIDs[3]={Img_Other, Img_GrfActive, Img_Trnd};
+const int PgType2ImgIDsActive[3]={Img_Other, Img_GrfActive, Img_Trnd};
+const int PgType2ImgIDsInactive[3]={Img_Other, Img_GrfInActive, Img_Trnd};
 
 //---------------------------------------------------------------------------
 
@@ -1322,7 +1323,9 @@ void CExploreScd::RemoveTagFromTree(CXTTag * pTag)
 void CExploreScd::AddPageToTree(CXTPage * pPage)
   {
   if (!pPage->m_hPage)
-    pPage->m_hPage=InsertItem(LPSTR_TEXTCALLBACK, PgType2ImgIDs[pPage->m_iType], GetTreeInfo(pPage), m_hWndItems[pPage->m_iType], TVI_LAST); 
+    pPage->m_hPage=InsertItem(LPSTR_TEXTCALLBACK, 
+                   pPage->m_iType==1 && !pPage->m_pGrfDoc->bModelsActive ? PgType2ImgIDsInactive[pPage->m_iType]:PgType2ImgIDsActive[pPage->m_iType], 
+                   GetTreeInfo(pPage), m_hWndItems[pPage->m_iType], TVI_LAST); 
   }
 
 void CExploreScd::RemovePageFromTree(CXTPage * pPage)
