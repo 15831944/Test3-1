@@ -4955,7 +4955,7 @@ flag CProject::EO_GotoRunEnd(CXM_TimeControl &CB, bool TimeChanged)
   bool ScrollTrendsToEnd = TimeChanged;
   if (CB.m_ScnState==Scn_Start)
     {
-    if (gs_Exec.RestartHstOnStart)
+    if (gs_Exec.RestartHstOnStart)// || gs_Exec.ResetTimeOnStart)
       {
       gs_pPrj->CloseHistorian();
       gs_pPrj->RestartHistorian();

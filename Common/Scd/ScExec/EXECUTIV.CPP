@@ -1986,7 +1986,6 @@ void CExecutive::DumpMsgHistory()
 
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
-
   //wState|=EXF_Busy;
   if (fDoingPB)
     wState|=EXF_SolvingPB;
@@ -2046,7 +2045,6 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
       break;
     }
 
-
   if (ScnStartupRequired())
     {
     #ifndef _RELEASE
@@ -2055,7 +2053,6 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
       Objs_Reg[RInx]->EO_PreStart(TimeCB());
     }
-
 
   CTimeValue OldTime(TheTime);
   bool OKToGo=true;
@@ -2080,17 +2077,12 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
 
     if (m_RestartHstOnStart || m_ResetTimeOnStart)
       {
-      //gs_pPrj->CloseHistorian();
-      //gs_pPrj->RestartHistorian();
-      //gs_pPrj->OpenHistorian();
-      //ScrollTrendsToEnd = true;
       if (DefNetProbalMode())
         SetTheTime(0.0, "ProBal"); //reset time to "zero"
       }
     if (m_ResetTimeOnStart && !DefNetProbalMode() && !SyncWithClock())
       {
-      SetTheTime(TimeAtStart, "RestartHstOnStart", m_RestartHstOnStart!=0);
-      //ScrollTrendsToEnd = true;
+      SetTheTime(TimeAtStart, "RestartHstOnStart", true);//m_RestartHstOnStart!=0);
       }
     if (m_SetHstTaglistOnStart)
       {
@@ -2114,7 +2106,6 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
     OKToGo = OKToGo && Objs_Reg[RInx]->EO_GotoRunEnd(TimeCB(), OldTime!=TheTime);
-
 
   for (int RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
     {
