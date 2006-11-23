@@ -2651,7 +2651,11 @@ Build 122 : 16 November 2006
 1226 18/11/06: (#343) Allow setting of pressures in ties and tanks for dynamic transfer.
 1227 20/11/06: Make QFeed visible in tank model in dynamic.
 1233 21/11/06: Fix use of reactions in thickener in direct mode (no surge).
-1235 22/11/06Archive improvements...
+1235 22/11/06: (#680, 681) Archive reporter improvements. New options for triggers.
+1236 22/11/06: (#677) Added new Origin.X,Y and Z tags to all models.
+1239 23/11/06: (#683) Fix for changing $Dyn.DayOfWeek, etc at correct time.
+
+
 ------------------------------
 //Latest release information:*/
 #define SCD_PATCH_SVN    1235

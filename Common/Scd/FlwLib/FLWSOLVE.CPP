@@ -338,6 +338,8 @@ XID xidDTDateDayOfWeek                = FlwXID(2192);
 XID xidDTDateDayOfYear                = FlwXID(2193);
 XID xidDTDateDaysInMonth              = FlwXID(2194);
 XID xidDTDateDaysInYear               = FlwXID(2195);
+XID xidDTDateDayOfWeekDesc            = FlwXID(2196);
+XID xidDTDateMonthDesc                = FlwXID(2197);
 
 XID xidScnState                       = FlwXID(2200);
 XID xidManualScnRestart               = FlwXID(2201);
@@ -6372,10 +6374,13 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     if (DDB.BeginStruct(&FlwSlvNd, "DateRec", NULL, DDB_NoPage))
       {
       DDB.Long  ("Day",              "", DC_,      "",    xidDTDateDay,        &FlwSlvNd, isResult|noFileAtAll);
+      DDB.TagComment("1=Sunday");
       DDB.Long  ("Month",            "", DC_,      "",    xidDTDateMonth,      &FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("Year",             "", DC_,      "",    xidDTDateYear,       &FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DayOfWeek",        "", DC_,      "",    xidDTDateDayOfWeek,  &FlwSlvNd, isResult|noFileAtAll);
+      DDB.String("DayOfWeekDesc",    "", DC_,      "",    xidDTDateDayOfWeekDesc,&FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DayOfYear",        "", DC_,      "",    xidDTDateDayOfYear,  &FlwSlvNd, isResult|noFileAtAll);
+      DDB.String("MonthDesc",        "", DC_,      "",    xidDTDateMonthDesc,  &FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DaysInMonth",      "", DC_,      "",    xidDTDateDaysInMonth,&FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DaysInYear",       "", DC_,      "",    xidDTDateDaysInYear, &FlwSlvNd, isResult|noFileAtAll);
       }
@@ -7362,6 +7367,12 @@ flag FlwSlvDyn::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidDTDateDaysInYear:
       DCB.L=gs_Exec.TheTime.DaysInYear;
+      return 1;
+    case xidDTDateDayOfWeekDesc:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.DayOfWeekDesc;
+      return 1;
+    case xidDTDateMonthDesc:
+      DCB.pC=(LPTSTR)gs_Exec.TheTime.DateMonthDesc;
       return 1;
 
     case xidScnState:

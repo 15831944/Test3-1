@@ -472,6 +472,7 @@ int SafeAlphatoI(const char * Str, int Default, int Base)
 //
 //===========================================================================
 
+#define UseLocal 0
 
 const long    CTimeValue::Divisor       = 1000;
 const double  CTimeValue::MinResolution = 1.0/Divisor;
@@ -499,7 +500,11 @@ int CTimeValue::getTimeDays()     { return int(SecondsI64/86400); };
 int CTimeValue::getDateDay()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     return DateTime->tm_mday;
   return -1;
@@ -507,15 +512,23 @@ int CTimeValue::getDateDay()
 int CTimeValue::getDateMonth()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
-    return DateTime->tm_mon+1;
+    return DateTime->tm_mon+1; //1=January
   return -1;
   };
 int CTimeValue::getDateYear()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     return DateTime->tm_year+1900;
   return -1;
@@ -529,11 +542,17 @@ int CTimeValue::getDateYear()
 
 inline bool IsLeapYear(int Y) { return (Y>0) && !(Y%4) && ( (Y%100) || !(Y%400) ) ; };
 static int MonthDays[12] = {31,-2,31,30,31,30,31,31,30,31,30,31};
+static char* DayDescriptions[7] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
+static char* MonthDescriptions[12] = {"January","Febuary","March","April","May","June","July","August","September","October","November","December"};
 
 int CTimeValue::getDaysInMonth()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     {
     if (DateTime->tm_mon==1) // Feb
@@ -545,7 +564,11 @@ int CTimeValue::getDaysInMonth()
 int CTimeValue::getDaysInYear()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     {
     return (IsLeapYear(DateTime->tm_year+1900) ? 366:365);
@@ -555,22 +578,46 @@ int CTimeValue::getDaysInYear()
 int CTimeValue::getDayOfWeek()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     {
-    int d=DateTime->tm_wday; // returns 0-6 Sunday = 0; 
-    return d==0 ? 7:d; // we want 1-7 : Mon-Sun
+    const int d=DateTime->tm_wday; // returns 0-6 Sunday = 0; 
+    //return d==0 ? 7:d; // we want 1-7 : Mon-Sun
+    return d+1; // we want 1-7 : Sun-Sat
     }
   return -1;
   };
 int CTimeValue::getDayOfYear()
   {
   __time64_t tt=(__time64_t)SecondsI64;
+  #if UseLocal
   tm* DateTime=_localtime64(&tt);
+  #else
+  tm* DateTime=_gmtime64(&tt);
+  #endif
   if (DateTime)
     return DateTime->tm_yday+1;
   return -1;
   };
+
+LPCTSTR CTimeValue::getDayOfWeekDesc()
+  {
+  const int day = getDayOfWeek();
+  if (day==-1)
+    return "";
+  return DayDescriptions[day-1];
+  }
+LPCTSTR CTimeValue::getDateMonthDesc()
+  {
+  const int month = getDateMonth();
+  if (month==-1)
+    return "";
+  return MonthDescriptions[month-1];
+  }
 
 //---------------------------------------------------------------------------
 

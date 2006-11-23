@@ -317,19 +317,21 @@ class DllImportExport CTimeValue
     int getTimeMinutes();
     int getTimeHours();
     int getTimeDays();       
-    int getDateDay();    
-    int getDateMonth();  
+    int getDateDay();
+    int getDateMonth();
     int getDateYear();   
     int getDaysInMonth();
     int getDaysInYear();
-    int getDayOfWeek();
+    int getDayOfWeek(); //1=Sunday
     int getDayOfYear();
+    LPCTSTR getDayOfWeekDesc();
+    LPCTSTR getDateMonthDesc();  
 
-    __declspec(property(get=getTimemSeconds))                           int     TimemSeconds;
-    __declspec(property(get=getTimeSeconds))                            int     TimeSeconds;
-    __declspec(property(get=getTimeMinutes))                            int     TimeMinutes;
-    __declspec(property(get=getTimeHours))                              int     TimeHours;
-    __declspec(property(get=getTimeDays))                               int     TimeDays;
+    __declspec(property(get=getTimemSeconds))                       int     TimemSeconds;
+    __declspec(property(get=getTimeSeconds))                        int     TimeSeconds;
+    __declspec(property(get=getTimeMinutes))                        int     TimeMinutes;
+    __declspec(property(get=getTimeHours))                          int     TimeHours;
+    __declspec(property(get=getTimeDays))                           int     TimeDays;
     __declspec(property(get=getDateDay))                            int     DateDay;
     __declspec(property(get=getDateMonth))                          int     DateMonth;
     __declspec(property(get=getDateYear))                           int     DateYear;
@@ -337,6 +339,8 @@ class DllImportExport CTimeValue
     __declspec(property(get=getDaysInYear))                         int     DaysInYear;
     __declspec(property(get=getDayOfWeek))                          int     DayOfWeek;
     __declspec(property(get=getDayOfYear))                          int     DayOfYear;
+    __declspec(property(get=getDayOfWeekDesc))                      LPCTSTR DayOfWeekDesc;
+    __declspec(property(get=getDateMonthDesc))                      LPCTSTR DateMonthDesc;
 
     CTimeValue & operator =(const CTimeValue & T1)      { m_mSecs=T1.m_mSecs; return *this; };
     //CTimeValue & operator =(const double T1)            { *this=CTimeValue(T1); return *this; };
