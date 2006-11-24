@@ -25,7 +25,7 @@
 #include "explorescd.h"
 #include "scdver.h"
 #include "scdcmdif.h"
-#include "dbhelper.h"
+#include "flwnode.h"
 #include "dbhelper.h"
 //#include "optoff.h"
 
@@ -169,6 +169,7 @@ class COtherPage : public CCustomPropertyPage
     BOOL m_GrfAutoLoad;
     BOOL m_GrfUpdateAnnot;
     BOOL m_GrfAnimationOn;
+    //BOOL m_GrfShowStatus;
     BOOL m_CopyDBFromOld;
     BOOL m_RemovePrevRev;
     //}}AFX_DATA
@@ -205,18 +206,18 @@ class CMousePage : public CCustomPropertyPage
     CMousePage();
         
     //{{AFX_DATA(CMousePage)
-	enum { IDD = IDD_GENMOUSE };
-	CComboBox	m_RightCtSh;
-	CComboBox	m_LeftCtSh;
-	CComboBox	m_Left;
-	CComboBox	m_LeftDbl;
-	CComboBox	m_LeftCtrl;
-	CComboBox	m_LeftShft;
-	CComboBox	m_Right;
-	CComboBox	m_RightDbl;
-	CComboBox	m_RightCtrl;
-	CComboBox	m_RightShft;
-	//}}AFX_DATA
+    enum { IDD = IDD_GENMOUSE };
+    CComboBox	m_RightCtSh;
+    CComboBox	m_LeftCtSh;
+    CComboBox	m_Left;
+    CComboBox	m_LeftDbl;
+    CComboBox	m_LeftCtrl;
+    CComboBox	m_LeftShft;
+    CComboBox	m_Right;
+    CComboBox	m_RightDbl;
+    CComboBox	m_RightCtrl;
+    CComboBox	m_RightShft;
+    //}}AFX_DATA
     //{{AFX_VIRTUAL(CMousePage)
     protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -224,24 +225,15 @@ class CMousePage : public CCustomPropertyPage
   protected:
     //{{AFX_MSG(CMousePage)
     virtual BOOL OnInitDialog();
-	afx_msg void OnDefault1();
-	afx_msg void OnDefault2();
-	//}}AFX_MSG
+    afx_msg void OnDefault1();
+    afx_msg void OnDefault2();
+    //}}AFX_MSG
     afx_msg void OnUpdateLoadGrf(CCmdUI* pCmdUi);
     virtual void OnOK();
     DECLARE_MESSAGE_MAP()
   };
 
 //===========================================================================
-
-//LPCTSTR Strs[]=
-//  {
-//  "Off",
-//  "Solid",
-//  "Long Dash",
-//  "Short Dash",
-//  "Dots",
-//  };
 
 class CStatusColourButton : public CButton
   {
@@ -270,12 +262,12 @@ class CStatusColourButton : public CButton
 //    ::DrawText(lpDrawItemStruct->hDC, Strs[ii], strlen(Strs[ii]), &lpDrawItemStruct->rcItem, DT_SINGLELINE |DT_CENTER);
 //    ::SetBkMode(lpDrawItemStruct->hDC, bm);
     DeleteObject(hBrush);
-
-    int xxx=0;
-    };
+    }
   };
 
-const int MaxMdlStatusTypes=22;
+//===========================================================================
+
+const int MaxMdlStatusTypes=24;
 
 class CColourPage : public CCustomPropertyPage
   {
@@ -285,12 +277,14 @@ class CColourPage : public CCustomPropertyPage
     virtual ~CColourPage();
 
     //{{AFX_DATA(CColourPage)
-	enum { IDD = IDD_GENCOLORS };
+	  enum { IDD = IDD_GENCOLORS };
 	  CComboBox	m_PenStyle[MaxMdlStatusTypes];
     CStatusColourButton	m_ButtonOther;
     CStatusColourButton m_ButtonHL;
     CStatusColourButton	m_Button[MaxMdlStatusTypes];
 	  BOOL	m_StatusOn;
+    double m_dVapTest;
+    double m_dSolTest;
   	//}}AFX_DATA
     //{{AFX_VIRTUAL(CColourPage)
     protected:
@@ -1064,6 +1058,7 @@ COtherPage::COtherPage() : CCustomPropertyPage(COtherPage::IDD)
   m_GrfAutoLoad = FALSE;
   m_GrfUpdateAnnot = FALSE;
   m_GrfAnimationOn = FALSE;
+  //m_GrfShowStatus = TRUE;
 	m_CopyDBFromOld = FALSE;
 	m_RemovePrevRev = FALSE;
   //}}AFX_DATA_INIT
@@ -1079,9 +1074,10 @@ void COtherPage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_PRJGRFAUTOLOAD, m_GrfAutoLoad);
   DDX_Check(pDX, IDC_UPDATEANNOT, m_GrfUpdateAnnot);
   DDX_Check(pDX, IDC_ANIMATIONON, m_GrfAnimationOn);
+  //DDX_Check(pDX, IDC_ANIMATIONSTATUS, m_GrfShowStatus);
   DDX_Check(pDX, IDC_DBCOPYFROMOLD, m_CopyDBFromOld);
   DDX_Check(pDX, IDC_DBREMOVEPREVREVS, m_RemovePrevRev);
-  // DDX_Check(pDX, IDC_KEEPGRFSIZED, m_KeepGrfSized);
+  //DDX_Check(pDX, IDC_KEEPGRFSIZED, m_KeepGrfSized);
   //DDX_Check(pDX, IDC_KEEPTRNDSIZED, m_KeepTrndSized);
   //}}AFX_DATA_MAP
   GetDlgItem(IDC_PRJGRFAUTOLOAD)->EnableWindow(m_GrfDeferLoad);
@@ -1098,6 +1094,7 @@ BEGIN_MESSAGE_MAP(COtherPage, CCustomPropertyPage)
   ON_BN_CLICKED(IDC_PRJGRFAUTOLOAD, OnGrfChanged)
   ON_BN_CLICKED(IDC_UPDATEANNOT, OnGrfChanged)
   ON_BN_CLICKED(IDC_ANIMATIONON, OnGrfChanged)
+  //ON_BN_CLICKED(IDC_ANIMATIONSTATUS, OnGrfChanged)
   //}}AFX_MSG_MAP
   ON_UPDATE_COMMAND_UI(IDC_PRJLOADGRF, OnUpdateLoadGrf)
   //ON_BN_CLICKED(IDC_KEEPGRFSIZED, &COtherPage::OnBnClickedKeepgrfsized)
@@ -1126,6 +1123,7 @@ BOOL COtherPage::OnInitDialog()
   m_GrfAutoLoad    = gs_pPrj->m_bGrfAutoLoad;
   m_GrfUpdateAnnot = gs_pPrj->m_bGrfUpdateAnnot;
   m_GrfAnimationOn = gs_pPrj->m_bGrfAnimationOn;
+  //m_GrfShowStatus  = gs_pPrj->ShowStatus();
   bAllGrfLoaded    = gs_pPrj->AllGrfLoaded();
   m_RemovePrevRev  = gs_pPrj->m_bRemoveRevs;
 
@@ -1161,6 +1159,7 @@ void COtherPage::OnOK()
       gs_pPrj->m_bGrfAutoLoad = m_GrfAutoLoad;
       gs_pPrj->m_bGrfUpdateAnnot = m_GrfUpdateAnnot;
       gs_pPrj->m_bGrfAnimationOn = m_GrfAnimationOn;
+      //gs_pPrj->SetShowStatus(m_GrfShowStatus!=0);
       gs_pPrj->m_GrfBehaviour   = gs_WBCBValues[m_GrfBehaviourCB.GetCurSel()].m_Val; 
       gs_pPrj->m_TrndBehaviour  = gs_WBCBValues[m_TrndBehaviourCB.GetCurSel()].m_Val;
       }
@@ -1386,8 +1385,10 @@ IMPLEMENT_DYNCREATE(CColourPage, CCustomPropertyPage)
 CColourPage::CColourPage() : CCustomPropertyPage(CColourPage::IDD)
   {
   //{{AFX_DATA_INIT(CColourPage)
-	m_StatusOn = gs_pPrj->m_bShowStatusColours;
+	m_StatusOn = gs_pPrj->ShowStatus();
   m_ShowEditStatus = gs_pPrj->ShowEditStatus();
+  m_dVapTest = FlwNode::m_dStatusVapTestFrac*100.0;
+  m_dSolTest = FlwNode::m_dStatusSolTestFrac*100.0;
 	//}}AFX_DATA_INIT
   }       
 
@@ -1407,6 +1408,8 @@ void CColourPage::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_GRCOLOTHER, m_ButtonOther);
   DDX_Control(pDX, IDC_GRCOLHIGHLITE, m_ButtonHL);
   DDX_Check(pDX, IDC_DISPLAYSTATUSCOLOURS, m_StatusOn);
+  DDX_Text(pDX, IDC_DISPLAYLINKVAPTEST, m_dVapTest);
+  DDX_Text(pDX, IDC_DISPLAYLINKSOLTEST, m_dSolTest);
   //}}AFX_DATA_MAP
   for (int i=0; i<MaxMdlStatusTypes; i++)
     {
@@ -1414,6 +1417,8 @@ void CColourPage::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_GRCOLSTATUS0+i, m_Button[i]);
     }
   DDX_Check(pDX, IDC_DISPLAYEDITCOLOURS, m_ShowEditStatus);
+  m_dVapTest = Range(0.0, m_dVapTest, 100.0);
+  m_dSolTest = Range(0.0, m_dSolTest, 100.0);
   }
 
 //--------------------------------------------------------------------------
@@ -1423,7 +1428,7 @@ BEGIN_MESSAGE_MAP(CColourPage, CCustomPropertyPage)
 	ON_BN_CLICKED(IDC_GRCOLHIGHLITE, OnGrcolhighlite)
 	ON_BN_CLICKED(IDC_GRCOLOTHER, OnGrcolother)
 	//}}AFX_MSG_MAP
-  ON_CONTROL_RANGE(BN_CLICKED, IDC_GRCOLSTATUS0, IDC_GRCOLSTATUS21, OnGrcolStatus)
+  ON_CONTROL_RANGE(BN_CLICKED, IDC_GRCOLSTATUS0, IDC_GRCOLSTATUS0+MaxMdlStatusTypes, OnGrcolStatus)
 END_MESSAGE_MAP()
 
 //--------------------------------------------------------------------------
@@ -1437,9 +1442,8 @@ BOOL CColourPage::OnInitDialog()
     false, false, false, false, false, // 0..4
     false, false, false, false, true,  // 5..9
     true,  true,  false, false, false, // 10..14
-    false, true,  true,  false, false, // 15..20
-    false, // 21
-
+    false, true,  true,  false, false, // 15..19
+    false, false, true,  true,         // 20..23
     };
   for (int i=0; i<MaxMdlStatusTypes; i++)
     {
@@ -1475,6 +1479,8 @@ BOOL CColourPage::OnInitDialog()
   m_PenStyle[19].SetCurSel(GrfHelper.iShowMdlStatusSimpleLnk);
   m_PenStyle[20].SetCurSel(GrfHelper.iShowMdlStatusLinearLnk);
   m_PenStyle[21].SetCurSel(GrfHelper.iShowMdlStatusFullLnk);
+  m_PenStyle[22].SetCurSel(GrfHelper.iShowMdlStatusLFlwVap);
+  m_PenStyle[23].SetCurSel(GrfHelper.iShowMdlStatusLFlwSol);
 
   UpdateDialogControls(this, FALSE);
   return TRUE;
@@ -1487,7 +1493,7 @@ void CColourPage::OnOK()
   if (bDidInit)
     {
     UpdateData(True);
-    gs_pPrj->m_bShowStatusColours = m_StatusOn;
+    gs_pPrj->SetShowStatus(m_StatusOn!=0);
     gs_pPrj->SetShowEditStatus(m_ShowEditStatus!=0);
 
     GrfHelper.iShowMdlStatusInActive  = m_PenStyle[ 16].GetCurSel();
@@ -1512,7 +1518,12 @@ void CColourPage::OnOK()
     GrfHelper.iShowMdlStatusSimpleLnk = m_PenStyle[ 19].GetCurSel();
     GrfHelper.iShowMdlStatusLinearLnk = m_PenStyle[ 20].GetCurSel();
     GrfHelper.iShowMdlStatusFullLnk   = m_PenStyle[ 21].GetCurSel();
+    GrfHelper.iShowMdlStatusLFlwVap   = m_PenStyle[ 22].GetCurSel();
+    GrfHelper.iShowMdlStatusLFlwSol   = m_PenStyle[ 23].GetCurSel();
     //ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
+
+    FlwNode::m_dStatusVapTestFrac = m_dVapTest/100.0;
+    FlwNode::m_dStatusSolTestFrac = m_dSolTest/100.0;
     }
   }
 
@@ -1552,7 +1563,6 @@ void CColourPage::OnGrcolhighlite()
     grl_set_win_color(GR_HIGHLIGHT, ColDlg.GetColor());
     GetDlgItem(IDC_GRCOLHIGHLITE)->Invalidate();
     }
-	
   }
 
 //--------------------------------------------------------------------------

@@ -198,6 +198,7 @@
 #define IDC_EDITSTART                   22228
 #define IDC_EDITDURATION                22229
 #define IDC_EDITEND                     22230
+#define IDC_DISPLAYLINKSOLTEST          22230
 #define ID_SCNLIST                      23005
 #define IDC_DYNAMICCROSS                23006
 #define IDB_BACK                        23007
@@ -514,10 +515,12 @@
 #define IDC_DSTIO_RQD2                  24100
 #define IDC_GRCOLSTATUS21               24101
 #define IDC_SCROLL_SCL_X                24101
-#define IDC_GRCOLHIGHLITE               24102
-#define IDC_GRCOLOTHER                  24103
+#define IDC_GRCOLSTATUS22               24102
+#define IDC_GRCOLSTATUS23               24103
 #define IDC_SCROLL_SCL_Y                24103
+#define IDC_GRCOLHIGHLITE               24104
 #define IDC_SCROLL_ROTATE               24104
+#define IDC_GRCOLOTHER                  24105
 #define IDC_REDRAW                      24105
 #define IDC_MDLREDRAW                   24105
 #define IDC_DSTIO_DESC2                 24106
@@ -969,6 +972,7 @@
 #define IDC_TRNDBEHAVIOUR               24566
 #define IDC_GRFBEHAVIOUR2               24566
 #define IDD_MESSAGESBACK1               24567
+#define IDC_ANIMATIONSTATUS             24567
 #define IDD_PF_FORM                     24568
 #define IDC_MAXCOUNT                    24569
 #define IDB_ERRORIMGS2                  24569
@@ -1314,7 +1318,9 @@
 #define IDD_GENGLOBAL                   25541
 #define IDC_CONNECT                     25541
 #define IDC_VIEWAREA                    25542
+#define IDC_MSON22                      25542
 #define IDC_TITLEAREA                   25543
+#define IDC_MSON23                      25543
 #define IDR_SYSCAD                      25544
 #define IDR_DUMMYXXX                    25545
 #define IDC_SETINFO                     25546
@@ -1593,6 +1599,7 @@
 #define IDC_OLDNAME                     25760
 #define IDC_ARCML_EVTLOGON              25761
 #define IDC_OLDNAME2                    25761
+#define IDC_DISPLAYLINKVAPTEST          25761
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -1981,7 +1988,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25598
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25761
+#define _APS_NEXT_CONTROL_VALUE         25762
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

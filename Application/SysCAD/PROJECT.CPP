@@ -1244,8 +1244,8 @@ void CProjectSettings::ClearSettings()
   m_bRptExcelUpdateLinks=1;
   m_bRptExcelSaveOnComplete=1;
   m_bRptSyscadTags=1;
-  m_bShowStatusColours=1;
-  m_dwMdlStatusOptions = 0;
+  m_dwMdlStatusOptions = MSO_ShowStatus|MSO_ShowRunInEdit;
+
   //iOverlayStatusPen=PS_DASH;
   //bTimeChanged=0;
   //bHstChanged=0;
@@ -2301,6 +2301,23 @@ void CProject::SetTagMonitor()
 
 //---------------------------------------------------------------------------
 
+void CProject::SetShowStatus(bool On)
+  {
+  if (On)
+    m_dwMdlStatusOptions |= MSO_ShowStatus;
+  else
+    m_dwMdlStatusOptions &= ~MSO_ShowStatus;
+  if (gs_pTheSFELib)
+    gs_pTheSFELib->FE_LoadAllModelStatus();
+  }
+
+bool CProject::ShowStatus()
+  {
+  return ((m_dwMdlStatusOptions & MSO_ShowStatus)!=0);
+  }
+
+//---------------------------------------------------------------------------
+
 void CProject::SetShowEditStatus(bool On)
   {
   if (On)
@@ -2329,6 +2346,8 @@ void CProject::InitColours()
   grl_set_win_color(GR_MDLSTATUS_MACMDL,   GRREF_MDLSTATUS_MACMDL);
   grl_set_win_color(GR_MDLSTATUS_OFF,      GRREF_MDLSTATUS_OFF);
   grl_set_win_color(GR_MDLSTATUS_ON,       GRREF_MDLSTATUS_ON);
+  grl_set_win_color(GR_MDLSTATUS_LFLWVAP,  GRREF_MDLSTATUS_LFLWVAP);
+  grl_set_win_color(GR_MDLSTATUS_LFLWSOL,  GRREF_MDLSTATUS_LFLWSOL);
   grl_set_win_color(GR_MDLSTATUS_LFLWP,    GRREF_MDLSTATUS_LFLWP);
   grl_set_win_color(GR_MDLSTATUS_LFLWN,    GRREF_MDLSTATUS_LFLWN);
   grl_set_win_color(GR_MDLSTATUS_LNOFLW,   GRREF_MDLSTATUS_LNOFLW);
@@ -2357,8 +2376,8 @@ void CProject::InitColours()
 
 void CProject::SaveColours(CProfINIFile & PF)
   {
-  PF.WrLong("StatusColours", "GrfShowStatusColours", m_bShowStatusColours);
   PF.WrLong("StatusColours", "Options",              m_dwMdlStatusOptions);
+  PF.WrLong("StatusColours", "GrfShowStatusColours", ShowStatus());
   //PF.WrLong("StatusColours", "GrfOverlayStatusPen",  iOverlayStatusPen);
   for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
     {
@@ -2378,6 +2397,8 @@ void CProject::SaveColours(CProfINIFile & PF)
   PF.WrLong("StatusColours", "ShowMacMdl",    GrfHelper.iShowMdlStatusMacMdl);
   PF.WrLong("StatusColours", "ShowOff",       GrfHelper.iShowMdlStatusOff);
   PF.WrLong("StatusColours", "ShowOn",        GrfHelper.iShowMdlStatusOn);
+  PF.WrLong("StatusColours", "ShowLFlwVap",   GrfHelper.iShowMdlStatusLFlwVap);
+  PF.WrLong("StatusColours", "ShowLFlwSol",   GrfHelper.iShowMdlStatusLFlwSol);
   PF.WrLong("StatusColours", "ShowLFlwP",     GrfHelper.iShowMdlStatusLFlwP);
   PF.WrLong("StatusColours", "ShowLFlwN",     GrfHelper.iShowMdlStatusLFlwN);
   PF.WrLong("StatusColours", "ShowLNoFlw",    GrfHelper.iShowMdlStatusLNoFlw);
@@ -2393,14 +2414,21 @@ void CProject::SaveColours(CProfINIFile & PF)
   PF.WrLong("StatusColours", "ShowSimpleLnk", GrfHelper.iShowMdlStatusSimpleLnk);
   PF.WrLong("StatusColours", "ShowLinearLnk", GrfHelper.iShowMdlStatusLinearLnk);
   PF.WrLong("StatusColours", "ShowFullLnk",   GrfHelper.iShowMdlStatusFullLnk);
+
+  PF.WrDouble("StatusColours", "VapTestFrac", FlwNode::m_dStatusVapTestFrac);
+  PF.WrDouble("StatusColours", "SolTestFrac", FlwNode::m_dStatusSolTestFrac);
   }
 
 //---------------------------------------------------------------------------
 
 void CProject::LoadColours(CProfINIFile & PF)
   {
-  m_bShowStatusColours = (PF.RdLong("StatusColours", "GrfShowStatusColours", m_bShowStatusColours) != 0);
-  m_dwMdlStatusOptions = PF.RdLong("StatusColours", "Options", OrigPrjFileVerNo()<94?MSO_ShowRunInEdit: m_dwMdlStatusOptions);
+  //m_dwMdlStatusOptions = PF.RdLong("StatusColours", "Options", OrigPrjFileVerNo()<94 ? MSO_ShowRunInEdit : m_dwMdlStatusOptions);
+  m_dwMdlStatusOptions = PF.RdLong("StatusColours", "Options", m_dwMdlStatusOptions);
+  if (PF.RdLong("StatusColours", "GrfShowStatusColours", ShowStatus()) != 0)
+    m_dwMdlStatusOptions |= MSO_ShowStatus;
+  else
+    m_dwMdlStatusOptions &= ~MSO_ShowStatus;
   //iOverlayStatusPen = (byte)PF.RdLong("StatusColours", "GrfOverlayStatusPen", iOverlayStatusPen);
   if (PrjFileVerNo()>=94)
     {
@@ -2452,6 +2480,8 @@ void CProject::LoadColours(CProfINIFile & PF)
     GrfHelper.iShowMdlStatusMacMdl    = PF.RdLong("StatusColours", "ShowMacMdl",    GrfHelper.iShowMdlStatusMacMdl);
     GrfHelper.iShowMdlStatusOff       = PF.RdLong("StatusColours", "ShowOff",       GrfHelper.iShowMdlStatusOff);
     GrfHelper.iShowMdlStatusOn        = PF.RdLong("StatusColours", "ShowOn",        GrfHelper.iShowMdlStatusOn);
+    GrfHelper.iShowMdlStatusLFlwVap   = PF.RdLong("StatusColours", "ShowLFlwVap",   GrfHelper.iShowMdlStatusLFlwVap);
+    GrfHelper.iShowMdlStatusLFlwSol   = PF.RdLong("StatusColours", "ShowLFlwSol",   GrfHelper.iShowMdlStatusLFlwSol);
     GrfHelper.iShowMdlStatusLFlwP     = PF.RdLong("StatusColours", "ShowLFlwP",     GrfHelper.iShowMdlStatusLFlwP);
     GrfHelper.iShowMdlStatusLFlwN     = PF.RdLong("StatusColours", "ShowLFlwN",     GrfHelper.iShowMdlStatusLFlwN);
     GrfHelper.iShowMdlStatusLNoFlw    = PF.RdLong("StatusColours", "ShowLNoFlw",    GrfHelper.iShowMdlStatusLNoFlw);
@@ -2468,6 +2498,9 @@ void CProject::LoadColours(CProfINIFile & PF)
     GrfHelper.iShowMdlStatusLinearLnk = PF.RdLong("StatusColours", "ShowLinearLnk", GrfHelper.iShowMdlStatusLinearLnk);
     GrfHelper.iShowMdlStatusFullLnk   = PF.RdLong("StatusColours", "ShowFullLnk",   GrfHelper.iShowMdlStatusFullLnk);
     }
+
+  FlwNode::m_dStatusVapTestFrac = PF.RdDouble("StatusColours", "VapTestFrac", FlwNode::m_dStatusVapTestFrac);
+  FlwNode::m_dStatusSolTestFrac = PF.RdDouble("StatusColours", "SolTestFrac", FlwNode::m_dStatusSolTestFrac);
   }
 
 //---------------------------------------------------------------------------

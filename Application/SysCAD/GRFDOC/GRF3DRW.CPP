@@ -91,21 +91,24 @@ CGrfHelper::CGrfHelper()
   iShowMdlStatusMacMdl      = MSStyle_Solid;
   iShowMdlStatusOff         = MSStyle_Solid;
   iShowMdlStatusOn          = MSStyle_Solid;
+  iShowMdlStatusLFlwVap     = MSStyle_Solid;
+  iShowMdlStatusLFlwSol     = MSStyle_Solid;
   iShowMdlStatusLFlwP       = MSStyle_Solid;
   iShowMdlStatusLFlwN       = MSStyle_Solid;
   iShowMdlStatusLNoFlw      = MSStyle_Solid;
   iShowMdlStatusClear       = MSStyle_Solid;
   iShowMdlStatusUnKnown     = MSStyle_Solid;
-  iShowMdlStatusXferLnk     = MSStyle_Solid; // CNM Changed Back //kga changed default to off!  MSStyle_Dots;
-  iShowMdlStatusSimpleLnk   = MSStyle_Solid;
-  iShowMdlStatusLinearLnk   = MSStyle_Solid;
-  iShowMdlStatusFullLnk     = MSStyle_Solid;
   iShowMdlStatusNettQmP     = MSStyle_Off;
   iShowMdlStatusNettQmN     = MSStyle_Off;
   iShowMdlStatusUFlw        = MSStyle_Solid;
   iShowMdlStatusUNoFlw      = MSStyle_Solid;
   iShowMdlStatusIsSrc       = MSStyle_Solid;
   iShowMdlStatusIsSnk       = MSStyle_Solid;
+
+  iShowMdlStatusXferLnk     = MSStyle_Solid;
+  iShowMdlStatusSimpleLnk   = MSStyle_Solid;
+  iShowMdlStatusLinearLnk   = MSStyle_Solid;
+  iShowMdlStatusFullLnk     = MSStyle_Solid;
   }
 
 //---------------------------------------------------------------------------
@@ -124,7 +127,7 @@ void CGrfHelper::MdlStatusColor(dword Status, int &Color, int &OvrColor, int &Ov
   {
   OvrColor=-1;
   OvrStyle=-1;
-  if (Color==-1 && gs_pPrj->m_bShowStatusColours)
+  if (Color==-1 && gs_pPrj->ShowStatus())
     {
     if (Status!=0xFFFFFFFF)
       {
@@ -160,6 +163,8 @@ void CGrfHelper::MdlStatusColor(dword Status, int &Color, int &OvrColor, int &Ov
       //else if (                      1                        && (Status & FNS_IsALnk   )) { Color    = GR_MDLSTATUS_BLACK; OvrStyle = MSStyle_LDash; }
         else if (                      iShowMdlStatusUFlw       && (Status & FNS_UFlw     )) { Color    = GR_MDLSTATUS_UFLW;                            }
         else if (                      iShowMdlStatusUNoFlw     && (Status & FNS_UNoFlw   )) { Color    = GR_MDLSTATUS_UNOFLW;                          }
+        else if (                      iShowMdlStatusLFlwVap    && (Status & FNS_LFlwVap  )) { Color    = GR_MDLSTATUS_LFLWVAP;                         }
+        else if (                      iShowMdlStatusLFlwSol    && (Status & FNS_LFlwSol  )) { Color    = GR_MDLSTATUS_LFLWSOL;                         }
         else if (                      iShowMdlStatusLFlwP      && (Status & FNS_LFlwP    )) { Color    = GR_MDLSTATUS_LFLWP;                           }
         else if (                      iShowMdlStatusLFlwN      && (Status & FNS_LFlwN    )) { Color    = GR_MDLSTATUS_LFLWN;                           }
         else if (                      iShowMdlStatusLNoFlw     && (Status & FNS_LNoFlw   )) { Color    = GR_MDLSTATUS_LNOFLW;                          }
@@ -167,7 +172,7 @@ void CGrfHelper::MdlStatusColor(dword Status, int &Color, int &OvrColor, int &Ov
         else Color=GR_MDLSTATUS_CLEAR;
         }
 
-      if (!gs_pPrj->m_bShowStatusColours && OvrColor>=0)
+      if (!gs_pPrj->ShowStatus() && OvrColor>=0)
         {
         Color=OvrColor;
         OvrColor=-1;
@@ -5293,7 +5298,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
 #endif
 
   int Ocolor=-1;
-  if (color==-1 && gs_pPrj->m_bShowStatusColours )
+  if (color==-1 && gs_pPrj->ShowStatus())
     if (GrfHelper.iShowMdlStatusUnKnown)
       Ocolor=GR_MDLSTATUS_UNKNOWN;
 
@@ -5663,7 +5668,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
     CEntInView* l = (CEntInView*)(item->pKenwalta);
     int ovrcolor=-1;
     int ovrstyle=-1;
-    if (color==-1 && gs_pPrj->m_bShowStatusColours)
+    if (color==-1 && gs_pPrj->ShowStatus())
       {
       pchar entitytag = l->Tag();
       if (entitytag && gs_pTheSFELib)
@@ -5726,7 +5731,7 @@ void DXF_Drawing::Draw(C3_CURVE c, pViewport vp, C3_BOX box, int color, int Lvl,
 #endif
 
   int Ocolor=-1;
-  if (color==-1 && gs_pPrj->m_bShowStatusColours )
+  if (color==-1 && gs_pPrj->ShowStatus())
     if (GrfHelper.iShowMdlStatusUnKnown)
       Ocolor=GR_MDLSTATUS_UNKNOWN;
 

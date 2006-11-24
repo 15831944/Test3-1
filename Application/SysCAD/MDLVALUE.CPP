@@ -696,7 +696,7 @@ FNS_On|
 FNS_Off|
 FNS_IsSrc|FNS_NettQmP|
 FNS_IsSnk|FNS_NettQmN|
-FNS_UFlw|FNS_LFlwP|FNS_LFlwN|
+FNS_UFlw|FNS_LFlwP|FNS_LFlwN|FNS_LFlwVap|FNS_LFlwSol|
 FNS_UNoFlw|FNS_LNoFlw|FNS_LnkXfer|
 FNS_Marked;
 
@@ -929,82 +929,89 @@ void CMdlValueShow::DoTheUpdate()
 
       if (gs_pTheSFELib && m_sTag[iTag]())
         {
-        dword Status=gs_pTheSFELib->FE_GetModelStatus(m_sTag[iTag]());
-        if ((Status&VisStates)!=0)
+        if (gs_pPrj->ShowStatus()) //would be better if we could get the status here even if graphics colour status displays are off
           {
-          int iState=0;
-          if (Status & FNS_InActive)
+          dword Status=gs_pTheSFELib->FE_GetModelStatus(m_sTag[iTag]());
+          if ((Status&VisStates)!=0)
             {
-            BLDSTATE(iTag, iState, 'i', GR_MDLSTATUS_INACTIVE)
+            int iState=0;
+            if (Status & FNS_InActive)
+              {
+              BLDSTATE(iTag, iState, 'i', GR_MDLSTATUS_INACTIVE)
               iState++;
+              }
+            else
+              {
+              //if (Status & FNS_Marked)
+              //  BLDSTATE(iTag, iState, '*', GR_HIGHLIGHT) 
+              //iState++;
+
+              if (Status & FNS_Error)
+                BLDSTATE(iTag, iState, 'e', GR_MDLSTATUS_ERROR) 
+              iState++;
+
+              if (Status & FNS_Warning)
+                BLDSTATE(iTag, iState, 'w', GR_MDLSTATUS_WARNING)
+              iState++;
+
+              if (Status & FNS_Tear)
+                BLDSTATE(iTag, iState, 't', GR_MDLSTATUS_TEAR)
+              iState++;
+
+              if (Status & FNS_MacMdl)
+                BLDSTATE(iTag, iState, 'm', GR_MDLSTATUS_MACMDL)
+              iState++;
+
+              if (Status & FNS_On)
+                BLDSTATE(iTag, iState, '!', GR_MDLSTATUS_ON)
+              else if (Status & FNS_Off)
+                BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
+              iState++;
+
+              if (Status & (FNS_IsSrc|FNS_NettQmP))
+                {
+                if (Status & FNS_IsSrc)
+                  BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_ISSRC)
+                else
+                  BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
+                }
+              else if (Status & (FNS_IsSnk|FNS_NettQmN))
+                {
+                if (Status & FNS_IsSnk)
+                  BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_ISSNK)
+                else
+                  BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
+                }
+              iState++;
+
+              if (Status & (FNS_UFlw|FNS_LFlwP|FNS_LFlwN|FNS_LFlwVap|FNS_LFlwSol))
+                {
+                if (Status & FNS_UFlw)
+                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_UFLW)
+                else if (Status & FNS_LFlwVap)
+                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWVAP)
+                else if (Status & FNS_LFlwSol)
+                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWSOL)
+                else if (Status & FNS_LFlwP)
+                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
+                else
+                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
+                }
+              else if (Status & (FNS_UNoFlw|FNS_LNoFlw))
+                {
+                if (Status & FNS_UNoFlw)
+                  BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_UNOFLW)
+                else
+                  BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
+                }
+              iState++;
+
+              if (Status & FNS_Hold)
+                BLDSTATE(iTag, iState, 'h', GR_MDLSTATUS_INACTIVE)
+              iState++;
+              }
             }
-          else
-            {
-            //if (Status & FNS_Marked)
-            //  BLDSTATE(iTag, iState, '*', GR_HIGHLIGHT) 
-            //iState++;
-
-            if (Status & FNS_Error)
-              BLDSTATE(iTag, iState, 'e', GR_MDLSTATUS_ERROR) 
-              iState++;
-
-            if (Status & FNS_Warning)
-              BLDSTATE(iTag, iState, 'w', GR_MDLSTATUS_WARNING)
-              iState++;
-
-            if (Status & FNS_Tear)
-              BLDSTATE(iTag, iState, 't', GR_MDLSTATUS_TEAR)
-
-              iState++;
-            if (Status & FNS_MacMdl)
-              BLDSTATE(iTag, iState, 'm', GR_MDLSTATUS_MACMDL)
-              iState++;
-
-            if (Status & FNS_On)
-              BLDSTATE(iTag, iState, '!', GR_MDLSTATUS_ON)
-            else if (Status & FNS_Off)
-            BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
-            iState++;
-
-            if (Status & (FNS_IsSrc|FNS_NettQmP))
-              {
-              if (Status & FNS_IsSrc)
-                BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_ISSRC)
-              else
-              BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
-              }
-            else if (Status & (FNS_IsSnk|FNS_NettQmN))
-              {
-              if (Status & FNS_IsSnk)
-                BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_ISSNK)
-              else
-              BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
-              }
-            iState++;
-
-            if (Status & (FNS_UFlw|FNS_LFlwP|FNS_LFlwN))
-              {
-              if (Status & FNS_UFlw)
-                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_UFLW)
-              else if (Status & FNS_LFlwP)
-              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
-              else
-              BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
-              }
-            else if (Status & (FNS_UNoFlw|FNS_LNoFlw))
-              {
-              if (Status & FNS_UNoFlw)
-                BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_UNOFLW)
-              else
-              BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
-              }
-            iState++;
-
-            if (Status & FNS_Hold)
-              BLDSTATE(iTag, iState, 'h', GR_MDLSTATUS_INACTIVE)
-              iState++;
-            }
-          };
+          }
         }
       }
     }

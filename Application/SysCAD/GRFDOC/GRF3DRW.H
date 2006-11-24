@@ -83,6 +83,8 @@ class CGrfHelper
               iShowMdlStatusMacMdl:4,
               iShowMdlStatusOff:4,
               iShowMdlStatusOn:4,
+              iShowMdlStatusLFlwVap:4,
+              iShowMdlStatusLFlwSol:4,
               iShowMdlStatusLFlwP:4,
               iShowMdlStatusLFlwN:4,
               iShowMdlStatusLNoFlw:4,
@@ -1148,11 +1150,14 @@ class DynamicSegment
 #define  GR_MDLSTATUS_LSIMPLE       (GR_FIRSTSTATUSCOLOR+19)
 #define  GR_MDLSTATUS_LLINEAR       (GR_FIRSTSTATUSCOLOR+20)
 #define  GR_MDLSTATUS_LFULL         (GR_FIRSTSTATUSCOLOR+21)
-#define  GR_MDLSTATUS_BLACK         (GR_FIRSTSTATUSCOLOR+22)
-#define  GR_MDLSTATUS_ELEC          (GR_FIRSTSTATUSCOLOR+23)
+#define  GR_MDLSTATUS_LFLWVAP       (GR_FIRSTSTATUSCOLOR+22)
+#define  GR_MDLSTATUS_LFLWSOL       (GR_FIRSTSTATUSCOLOR+23)
+#define  GR_MDLSTATUS_BLACK         (GR_FIRSTSTATUSCOLOR+24)
+#define  GR_MDLSTATUS_ELEC          (GR_FIRSTSTATUSCOLOR+25)
 
 #define  GR_OTHERGRAPHICS           (GR_FIRSTUSERCOLOR+32)
 
+//                                  0x00BBGGRR
 #define  GRREF_MDLSTATUS_INACTIVE   0x00008080
 #define  GRREF_MDLSTATUS_ERROR      0x000000ff
 #define  GRREF_MDLSTATUS_WARNING    0x000080ff
@@ -1166,9 +1171,11 @@ class DynamicSegment
 #define  GRREF_MDLSTATUS_NETTQMN    0x008080ff
 #define  GRREF_MDLSTATUS_UFLW       0x00ffff00
 #define  GRREF_MDLSTATUS_UNOFLW     0x00ff8000
+#define  GRREF_MDLSTATUS_LFLWVAP    0x0080ff80    
+#define  GRREF_MDLSTATUS_LFLWSOL    0x00ff8000    
 #define  GRREF_MDLSTATUS_LFLWP      0x00ffff00
-#define  GRREF_MDLSTATUS_LFLWN      0x00ff8000        // CNM 0x00808000
-#define  GRREF_MDLSTATUS_LNOFLW     0x00808000        // CNM 0x00ff8000
+#define  GRREF_MDLSTATUS_LFLWN      0x00ff8000
+#define  GRREF_MDLSTATUS_LNOFLW     0x00808000
 #define  GRREF_MDLSTATUS_UNKNOWN    0x00808080
 #define  GRREF_MDLSTATUS_CLEAR      0x00fefefe
 #define  GRREF_MDLSTATUS_LXFER      0x000080ff

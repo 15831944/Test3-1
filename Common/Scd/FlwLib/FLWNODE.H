@@ -3138,7 +3138,8 @@ const long Audit_Totals       = 3;
 const long Audit_Balance      = 4;
 
 // MdlStatusOptions
-const dword MSO_ShowRunInEdit = 0x00000001;
+const dword MSO_ShowStatus    = 0x00000001;
+const dword MSO_ShowRunInEdit = 0x00000002;
 
 //
 extern DllImportExport long gs_SpillOption;
@@ -4231,8 +4232,8 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
     virtual dword  ModelStatus();
-    bool           GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)==0) ;}
-
+    static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)==0); };
+    static bool    GetStatus() { return ((m_dwMdlStatusOptions&MSO_ShowStatus)!=0); };
 
     SpConduit *    GetWrkConduit(char *Tag, char *IdStr);
     SpContainer *  GetWrkContainer(char *Tag, char *IdStr);
@@ -4245,7 +4246,9 @@ class DllImportExport FlwNode : public CTNode
   public:// protected:
     static flag    fInConfigureJoins;
     static flag    fCollectChgStats;
-    static dword   m_dwMdlStatusOptions;
+    static dword   m_dwMdlStatusOptions; //for status displays
+    static double  m_dStatusVapTestFrac; //for status displays
+    static double  m_dStatusSolTestFrac; //for status displays
 
     bool           fSolutionBusy,
                    fHasFiles,

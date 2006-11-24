@@ -634,7 +634,17 @@ flag SFEFlwLib::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
 flag SFEFlwLib::EO_EndSave(FilingControlBlock &FCB)
   { FENTER(false) pSfe->EO_EndSave(FCB); FLEAVE};
 flag SFEFlwLib::EO_BeginLoad(FilingControlBlock &FCB)
-  { FENTER(false) pSfe->EO_BeginLoad(FCB); FLEAVE};
+  { 
+  LockStatus();
+  m_MdlStatusMap.RemoveAll();
+  m_MdlStatus.SetSize(0);
+  m_TestStatusLoadReqd=true;
+  m_LoadAllModelStatusDone=false;
+  m_nMdlStatusLoads=0;
+  m_nStatusColourChgs=0;
+  FreeStatus();
+  FENTER(false) pSfe->EO_BeginLoad(FCB); FLEAVE
+  };
 flag SFEFlwLib::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
   { FENTER(false) pSfe->EO_LoadDefinedData(FCB, XM); FLEAVE};
 flag SFEFlwLib::EO_LoadOtherData(FilingControlBlock &FCB)

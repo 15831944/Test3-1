@@ -1845,6 +1845,9 @@ void CClosureInfoArray::Clear()
 flag FlwNode::fInConfigureJoins=0;
 flag FlwNode::fCollectChgStats=0;
 dword FlwNode::m_dwMdlStatusOptions=0;
+double FlwNode::m_dStatusVapTestFrac=0.99;
+double FlwNode::m_dStatusSolTestFrac=0.9;
+
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_AuditOption     = Audit_Flows;

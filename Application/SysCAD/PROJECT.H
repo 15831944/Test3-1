@@ -451,7 +451,6 @@ class DllImportExport CProjectSettings
                   m_bRptExcelUpdateLinks, //OLE report option
                   m_bRptExcelSaveOnComplete,//OLE report option
                   m_bRptSyscadTags,       //OLE report option
-                  m_bShowStatusColours,   // Set if Status Colours to be shown
                   m_bReadOnlyPrj,         //can the project be saved on itself
                   m_bAccAutoSaveOn,       //Indicates Access Window autosave state
                   m_bAccUpdateOnRun,      //Indicates Access Window to update on run transitions
@@ -635,6 +634,8 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     BOOL           m_bWithVersion;
     BOOL           m_bRemoveOld;
 
+    bool           ShowStatus();
+    void           SetShowStatus(bool On);
     bool           ShowEditStatus();
     void           SetShowEditStatus(bool On);
 

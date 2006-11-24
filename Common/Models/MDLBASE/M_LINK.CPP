@@ -12,7 +12,6 @@
 #define  __M_LINK_CPP
 #include "m_link.h"
 #include "dbgmngr.h"
-
 //#include "optoff.h"
 
 #define dbgMLink        (0 || WITHDEBUG)    
@@ -3489,12 +3488,19 @@ dword MN_Lnk::ModelStatus()
         else if (IOFlange(iOut)->IsTear())
           Status|=FNS_Tear;
         }
-      Status |= (IOQm_In(iIn)>UsableMass ? (iIn==0 ? FNS_LFlwP : FNS_LFlwN) : FNS_LNoFlw);
+      if (IOQm_In(iIn)>UsableMass)
+        {
+        Status |= (iIn==0 ? FNS_LFlwP : FNS_LFlwN);
+        if (IOConduit(0)->MassFrac(som_Gas)>m_dStatusVapTestFrac)
+          Status |= FNS_LFlwVap;
+        else if (IOConduit(0)->MassFrac(som_Sol)>m_dStatusSolTestFrac)
+          Status |= FNS_LFlwSol;
+        }
+      else
+        Status |= FNS_LNoFlw;
       }
     if (GetActiveHold())
       Status |= FNS_IsSnk|FNS_IsSrc;
-    else if (IOFB(0, 0)->m_fInXferNet || IOFB(1, 0)->m_fInXferNet || FlowMode()==LFM_Xfer)
-      Status|=FNS_LnkXfer;
     }
   else
     Status|=FNS_Error;

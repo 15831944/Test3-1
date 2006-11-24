@@ -2648,17 +2648,19 @@ Build 122 : 16 November 2006
 1215 16/11/06: New revision numbering using SVN number as part of Build number.
 1220 17/11/06: (#611) Fix for archiver crash when tag is NAN.
 1224 17/11/06: (#343) Pressure propagation in dynamic transfer links.
-1226 18/11/06: (#343) Allow setting of pressures in ties and tanks for dynamic transfer.
+1226 18/11/06: (#343) Allow setting of pressures in ties and tanks for dynamic
+               transfer.
 1227 20/11/06: Make QFeed visible in tank model in dynamic.
 1233 21/11/06: Fix use of reactions in thickener in direct mode (no surge).
 1235 22/11/06: (#680, 681) Archive reporter improvements. New options for triggers.
 1236 22/11/06: (#677) Added new Origin.X,Y and Z tags to all models.
 1239 23/11/06: (#683) Fix for changing $Dyn.DayOfWeek, etc at correct time.
-
+1241 24/11/06: (#676, 684) Status calculation code now not called when status
+               colour is switched off. New link vapour and solids status colours.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1235
+#define SCD_PATCH_SVN    1241
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

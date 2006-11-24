@@ -11888,10 +11888,16 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
 
 //--------------------------------------------------------------------------
 
-int  CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
   {
-  int i=0;
   m_dwMdlStatusOptions=Criteria.m_dwMdlStatusOptions;
+  if (!GetStatus())
+    {
+    Status.SetSize(0);
+    return 0;
+    }
+
+  int i=0;
   for (FlwNode * p = NULL; GetObj_All(p); i++)
     {
     if (i>=Status.GetSize())
@@ -11921,8 +11927,12 @@ int  CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatu
 
 int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
   {
-  int Cnt=0;
   m_dwMdlStatusOptions=Criteria.m_dwMdlStatusOptions;
+  if (!GetStatus())
+    {
+    return 0;
+    }
+  int Cnt=0;
   for (FlwNode * p = NULL; (Cnt != MaxTest) && GetObj_All(p); )
     {
     //dbgpln("** Tst %8x  %8x %s", p->dwPrevStatus, p->ModelStatus(), p->FullObjTag());

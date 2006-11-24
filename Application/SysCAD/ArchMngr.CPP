@@ -18,7 +18,7 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgArchiver       WITHDEBUG
 
