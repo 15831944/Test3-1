@@ -6374,10 +6374,10 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     if (DDB.BeginStruct(&FlwSlvNd, "DateRec", NULL, DDB_NoPage))
       {
       DDB.Long  ("Day",              "", DC_,      "",    xidDTDateDay,        &FlwSlvNd, isResult|noFileAtAll);
-      DDB.TagComment("1=Sunday");
       DDB.Long  ("Month",            "", DC_,      "",    xidDTDateMonth,      &FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("Year",             "", DC_,      "",    xidDTDateYear,       &FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DayOfWeek",        "", DC_,      "",    xidDTDateDayOfWeek,  &FlwSlvNd, isResult|noFileAtAll);
+      DDB.TagComment("1=Sunday");
       DDB.String("DayOfWeekDesc",    "", DC_,      "",    xidDTDateDayOfWeekDesc,&FlwSlvNd, isResult|noFileAtAll);
       DDB.Long  ("DayOfYear",        "", DC_,      "",    xidDTDateDayOfYear,  &FlwSlvNd, isResult|noFileAtAll);
       DDB.String("MonthDesc",        "", DC_,      "",    xidDTDateMonthDesc,  &FlwSlvNd, isResult|noFileAtAll);

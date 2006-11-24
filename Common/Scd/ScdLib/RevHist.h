@@ -2657,10 +2657,11 @@ Build 122 : 16 November 2006
 1239 23/11/06: (#683) Fix for changing $Dyn.DayOfWeek, etc at correct time.
 1241 24/11/06: (#676, 684) Status calculation code now not called when status
                colour is switched off. New link vapour and solids status colours.
+1243 24/11/06: (#685) Time offset option fixed in archiver (was incorrect based on GMT).
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1241
+#define SCD_PATCH_SVN    1243
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

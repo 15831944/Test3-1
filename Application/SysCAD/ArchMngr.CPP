@@ -845,7 +845,8 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
     if (m_bPeriodOn)
       {
       __time64_t tt=(__time64_t)CB.m_TheTime.Seconds;
-      tm* t=_localtime64(&tt);
+      //tm* t=_localtime64(&tt);
+      tm* t=_gmtime64(&tt);
 
       CTimeValue CurTimeInDay((double)(t->tm_sec+t->tm_min*SecondsInMinute+t->tm_hour*SecondsInHour));
       CTimeValue SaveTimeInDay(Offset);
@@ -909,7 +910,9 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
       AddDBRecord(CB);
       }
     else
+      {
       LogWarning(ArcName,0,"Record not written : %s %s %s", CB.m_TheTime.Format(TD_Time), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
+      }
 
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       m_Fields[fd]->m_bResetReqd=true;
@@ -1296,7 +1299,8 @@ void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
     {
     COleDateTime DT;
     __time64_t TheTime=(__time64_t)CB.m_TheTime.Seconds;
-    tm* t=_localtime64(&TheTime);
+    //tm* t=_localtime64(&TheTime);
+    tm* t=_gmtime64(&TheTime);
     DT.SetDateTime(t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
     COleVariant dv1(DT);
     m_pRst->Fields->GetItem(sTimeStr)->Value=dv1;
