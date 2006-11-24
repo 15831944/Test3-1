@@ -884,6 +884,7 @@ BOOL CGlobalPage::OnInitDialog()
   strcat(Buff, "\\");
   strcat(Buff, ScdApp()->m_pszProfileName);
   SetDlgItemText(IDC_INI_TXT, Buff);
+
   CCustomPropertyPage::OnInitDialog();
   UpdateDialogControls(this, FALSE);
   for (int i=0; i<DBConnectCount(); i++)
@@ -1010,7 +1011,6 @@ BOOL CTrendsPage::OnInitDialog()
   m_Global = CTagVwDoc::TimeBaseGlobal();
   m_Flash = gs_pPrj->m_bFlashTrend;
 
-
   CCustomPropertyPage::OnInitDialog();
   return TRUE;  // return TRUE unless you set the focus to a control
   }
@@ -1117,8 +1117,6 @@ static struct { LPCTSTR m_Str; int m_Val; } gs_WBCBValues[] =
 
 BOOL COtherPage::OnInitDialog() 
   {
-  CCustomPropertyPage::OnInitDialog();
-
   m_GrfDeferLoad   = gs_pPrj->m_bGrfDeferLoad;
   m_GrfAutoLoad    = gs_pPrj->m_bGrfAutoLoad;
   m_GrfUpdateAnnot = gs_pPrj->m_bGrfUpdateAnnot;
@@ -1126,6 +1124,9 @@ BOOL COtherPage::OnInitDialog()
   //m_GrfShowStatus  = gs_pPrj->ShowStatus();
   bAllGrfLoaded    = gs_pPrj->AllGrfLoaded();
   m_RemovePrevRev  = gs_pPrj->m_bRemoveRevs;
+  m_CopyDBFromOld  = false;//ALWAYS default to false!!! gs_pPrj->m_bCopyDBFiles;
+
+  CCustomPropertyPage::OnInitDialog();
 
   int ig=0;
   int it=0;
@@ -1141,7 +1142,6 @@ BOOL COtherPage::OnInitDialog()
   m_GrfBehaviourCB.SetCurSel(ig);
   m_TrndBehaviourCB.SetCurSel(it);
 
-  m_CopyDBFromOld  = false;//ALWAYS default to false!!! gs_pPrj->m_bCopyDBFiles;
   UpdateDialogControls(this, FALSE);
   return TRUE;  // return TRUE unless you set the focus to a control
   }
@@ -1828,6 +1828,7 @@ BOOL CScreenSavePage::OnInitDialog()
   m_ScrCycles = AllocLen;
   CurSelNo = -1;
   CCustomPropertyPage::OnInitDialog();
+
   Windows.RemoveAll();
   VERIFY(m_WindowList.SubclassMoveUpDownControls(this, IDC_WINDOWLIST, IDC_WNDUP, IDC_WNDDWN));
   CWindowLists WL;
