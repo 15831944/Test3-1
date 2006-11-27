@@ -2663,7 +2663,7 @@ Build 122 : 16 November 2006
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1243
+#define SCD_PATCH_SVN    1245
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
