@@ -8,9 +8,11 @@ using System.IO;
 using System.Collections.Specialized;
 using MindFusion.FlowChartX;
 using SysCAD.Interface;
+using System.Security;
+using System.Security.Permissions;
 
 
-
+[assembly: CLSCompliant(true)]
 namespace SysCAD.ThingEditor.ThingEditorCtrl
 {
   /// <summary>
@@ -115,7 +117,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       decorationWidth = 100;
       gridSize = 16;
       saveGridSize = gridSize;
-      gridStyle = EGridStyle.grdLine;
+      gridStyle = EGridStyle.GrdLine;
 
       vScrollBar = null;
       hScrollBar = null;
@@ -257,8 +259,8 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     public enum EGridStyle
     {
-      grdLine,
-      grdDot,
+      GrdLine,
+      GrdDot,
     }
 
     #endregion
@@ -387,7 +389,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     #region Events
 
-    public void ScrollEvent(object sender, ScrollEventArgs e)
+    private void ScrollEvent(object sender, ScrollEventArgs e)
     {
       if (hScrollBar != null)
         if (sender == hScrollBar)
@@ -418,6 +420,11 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     }
 
     private void onContourChanged(object sender, EventArgs e)
+    {
+      changeContour(sender);
+    }
+
+    private void changeContour(object sender)
     {
       if (sender is PolyLine)
         if (!(sender as PolyLine).hasSegments())
@@ -460,7 +467,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       PolyLine newPolyLine = new PolyLine(newDecorationLine);
       outLines.Add(newPolyLine);
       newPolyLine.Changed += new OutlineChanged(onContourChanged);
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void menuItemInsertDecorBezierOnClick(object Sender, System.EventArgs e)
@@ -478,14 +485,14 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       PolyLine newPolyline = new PolyLine(newBezierSeg);
       outLines.Add(newPolyline);
       newPolyline.Changed += new OutlineChanged(onContourChanged);
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void menuItemInsertDecorEllipseOnClick(object Sender, System.EventArgs e)
     {
       Ellipse newEllipse = new Ellipse(saveNewPosX, saveNewPosY);
       outLines.Add(newEllipse);
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void menuItemDeleteDecorationOnClick(object Sender, System.EventArgs e)
@@ -498,11 +505,16 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
           if (outLine is Ellipse && outLine == currOutline)
             outLines.Remove(currOutline);
         }
-        onContourChanged(Sender, e);
+        changeContour(Sender);
       }
     }
 
-    public void menuItemDeleteAllDecorationsOnClick(object Sender, System.EventArgs e)
+    private void menuItemDeleteAllDecorationsOnClick(object sender, System.EventArgs e)
+    {
+      deleteAllDecorations(sender);
+    }
+
+    public void deleteAllDecorations(object Sender)
     {
       InitContextMenu();
       if (HScrollBar != null)
@@ -516,7 +528,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       Contour contour = new Contour(mainContourColor, GridSize);
       outLines.Add(contour);
       contour.Changed += new OutlineChanged(onContourChanged);
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void showPoints()
@@ -669,13 +681,13 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private void menuItemDefineTextAreaOnClick(object Sender, System.EventArgs e)
     {
       DefineTextArea();
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void menuItemClearTextAreaOnClick(object Sender, System.EventArgs e)
     {
       ClearTextArea();
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
 
@@ -852,14 +864,14 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private void menuItemCombineOnClick(object Sender, System.EventArgs e)
     {
       saveOutline.combineSegments(SaveCurrX, SaveCurrY);
-      onContourChanged(Sender, e);
+      changeContour(Sender);
     }
 
     private void drawGrid(Graphics gr)
     {
       switch (GridStyle)
       {
-        case EGridStyle.grdLine:
+        case EGridStyle.GrdLine:
           System.Drawing.Pen drawPen = new System.Drawing.Pen(GridColor, 1);
           for (int i = this.ClientRectangle.Left; i < this.ClientRectangle.Right + scrollX; i += gridSize)
             gr.DrawLine(drawPen, i - scrollX, this.ClientRectangle.Top, i - scrollX, this.ClientRectangle.Bottom);
@@ -868,7 +880,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
           drawPen.Dispose();
           break;
 
-        case EGridStyle.grdDot:
+        case EGridStyle.GrdDot:
           System.Drawing.SolidBrush solidBrush = new System.Drawing.SolidBrush(GridColor);
           for (int i = this.ClientRectangle.Left; i < this.ClientRectangle.Right + scrollX; i += gridSize)
             for (int j = this.ClientRectangle.Top; j < this.ClientRectangle.Bottom + scrollY; j += gridSize)

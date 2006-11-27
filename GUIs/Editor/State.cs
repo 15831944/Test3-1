@@ -644,6 +644,11 @@ namespace SysCAD.Editor
       get { return links.Values; }
     }
 
+    internal IEnumerable<Thing> Things
+    {
+      get { return things.Values; }
+    }
+
     internal string CurrentPath
     {
       get { return tvNavigation.SelectedNode.FullPath; }

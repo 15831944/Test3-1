@@ -9,6 +9,8 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
+using System.Security.Permissions;
+using System.Runtime.InteropServices;
 
 //
 // General Information about an assembly is controlled through the following 
@@ -22,7 +24,12 @@ using System.Security;
 [assembly: AssemblyProduct("FlowChartX.NET component")]
 [assembly: AssemblyCopyright("Copyright 2003-2006, MindFusion Ltd.")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]		
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -65,5 +72,8 @@ using System.Security;
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("../../../fcnet.snk")]
 //[assembly: AssemblyKeyName("")]
+
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+[assembly: PermissionSet(SecurityAction.RequestOptional, Name = "Nothing")]
 
 [assembly: AllowPartiallyTrustedCallers]

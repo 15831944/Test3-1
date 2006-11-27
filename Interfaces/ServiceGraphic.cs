@@ -20,59 +20,59 @@ namespace SysCAD.Interface
     private uint requestID = 0;
     private uint eventID = 0;
 
-    public delegate bool CreateItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteItemDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
+    public delegate bool CreateItemHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteItemHandler(ServiceGraphic graphic, uint requestID, Guid guid);
 
-    public delegate bool CreateLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool ModifyLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool DeleteLinkDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
+    public delegate bool CreateLinkHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool ModifyLinkHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool DeleteLinkHandler(ServiceGraphic graphic, uint requestID, Guid guid);
 
-    public delegate bool CreateThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteThingDelegate(ServiceGraphic graphic, uint requestID, Guid guid);
+    public delegate bool CreateThingHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingHandler(ServiceGraphic graphic, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteThingHandler(ServiceGraphic graphic, uint requestID, Guid guid);
 
-    public delegate PortStatus PortCheckDelegate(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
+    public delegate PortStatus PortCheckHandler(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
 
-    public delegate ArrayList PropertyListDelegate(ServiceGraphic graphic, Guid guid, String tag, String path);
+    public delegate ArrayList PropertyListHandler(ServiceGraphic graphic, Guid guid, String tag, String path);
 
-    private CreateItemDelegate createItemDelegate;
-    private ModifyItemDelegate modifyItemDelegate;
-    private DeleteItemDelegate deleteItemDelegate;
+    private CreateItemHandler createItemHandler;
+    private ModifyItemHandler modifyItemHandler;
+    private DeleteItemHandler deleteItemHandler;
 
-    private CreateLinkDelegate createLinkDelegate;
-    private ModifyLinkDelegate modifyLinkDelegate;
-    private DeleteLinkDelegate deleteLinkDelegate;
+    private CreateLinkHandler createLinkHandler;
+    private ModifyLinkHandler modifyLinkHandler;
+    private DeleteLinkHandler deleteLinkHandler;
 
-    private CreateThingDelegate createThingDelegate;
-    private ModifyThingDelegate modifyThingDelegate;
-    private DeleteThingDelegate deleteThingDelegate;
+    private CreateThingHandler createThingHandler;
+    private ModifyThingHandler modifyThingHandler;
+    private DeleteThingHandler deleteThingHandler;
 
-    private PortCheckDelegate portCheckDelegate;
+    private PortCheckHandler portCheckHandler;
 
-    private PropertyListDelegate propertyListDelegate;
+    private PropertyListHandler propertyListHandler;
 
     public ServiceGraphic(
-      CreateItemDelegate createItemDelegate, ModifyItemDelegate modifyItemDelegate, DeleteItemDelegate deleteItemDelegate,
-      CreateLinkDelegate createLinkDelegate, ModifyLinkDelegate modifyLinkDelegate, DeleteLinkDelegate deleteLinkDelegate,
-      CreateThingDelegate createThingDelegate, ModifyThingDelegate modifyThingDelegate, DeleteThingDelegate deleteThingDelegate,
-      PortCheckDelegate portCheckDelegate, PropertyListDelegate propertyListDelegate)
+      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
+      CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
+      CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, DeleteThingHandler deleteThingHandler,
+      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
-      this.createItemDelegate = createItemDelegate;
-      this.modifyItemDelegate = modifyItemDelegate;
-      this.deleteItemDelegate = deleteItemDelegate;
+      this.createItemHandler = createItemHandler;
+      this.modifyItemHandler = modifyItemHandler;
+      this.deleteItemHandler = deleteItemHandler;
 
-      this.createLinkDelegate = createLinkDelegate;
-      this.modifyLinkDelegate = modifyLinkDelegate;
-      this.deleteLinkDelegate = deleteLinkDelegate;
+      this.createLinkHandler = createLinkHandler;
+      this.modifyLinkHandler = modifyLinkHandler;
+      this.deleteLinkHandler = deleteLinkHandler;
 
-      this.createThingDelegate = createThingDelegate;
-      this.modifyThingDelegate = modifyThingDelegate;
-      this.deleteThingDelegate = deleteThingDelegate;
+      this.createThingHandler = createThingHandler;
+      this.modifyThingHandler = modifyThingHandler;
+      this.deleteThingHandler = deleteThingHandler;
 
-      this.portCheckDelegate = portCheckDelegate;
+      this.portCheckHandler = portCheckHandler;
 
-      this.propertyListDelegate = propertyListDelegate;
+      this.propertyListHandler = propertyListHandler;
     }
 
     ~ServiceGraphic()
@@ -84,7 +84,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       guid = Guid.NewGuid();
-      return createItemDelegate(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return createItemHandler(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public bool ModifyItem(out uint requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -92,7 +92,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
-        return modifyItemDelegate(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        return modifyItemHandler(this, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       else
         return false;
     }
@@ -102,7 +102,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicItems.ContainsKey(guid))
-        return deleteItemDelegate(this, requestID, guid);
+        return deleteItemHandler(this, requestID, guid);
       else
         return false;
     }
@@ -112,7 +112,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       guid = new Guid();
-      return createLinkDelegate(this, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+      return createLinkHandler(this, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public bool ModifyLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -120,7 +120,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicLinks.ContainsKey(guid))
-        return modifyLinkDelegate(this, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        return modifyLinkHandler(this, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
       else
         return false;
     }
@@ -130,7 +130,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicLinks.ContainsKey(guid))
-        return deleteLinkDelegate(this, requestID, guid);
+        return deleteLinkHandler(this, requestID, guid);
       else
         return false;
     }
@@ -141,7 +141,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       guid = Guid.NewGuid();
-      return createThingDelegate(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return createThingHandler(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public bool ModifyThing(out uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -149,7 +149,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicThings.ContainsKey(guid))
-        return modifyThingDelegate(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        return modifyThingHandler(this, requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
       else
         return false;
     }
@@ -159,7 +159,7 @@ namespace SysCAD.Interface
       this.requestID++;
       requestID = this.requestID;
       if (graphicThings.ContainsKey(guid))
-        return deleteThingDelegate(this, requestID, guid);
+        return deleteThingHandler(this, requestID, guid);
       else
         return false;
     }
@@ -168,7 +168,7 @@ namespace SysCAD.Interface
     public PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (graphicItems.ContainsKey(itemGuid))
-        return portCheckDelegate(this, itemGuid, anchor);
+        return portCheckHandler(this, itemGuid, anchor);
       else
         return PortStatus.Unavailable;
     }
@@ -177,7 +177,7 @@ namespace SysCAD.Interface
     public ArrayList PropertyList(Guid guid, String tag, String path)
     {
       //todo: check path is valid.
-      return propertyListDelegate(this, guid, tag, path);
+      return propertyListHandler(this, guid, tag, path);
     }
 
 

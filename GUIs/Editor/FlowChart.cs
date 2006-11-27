@@ -204,6 +204,11 @@ namespace SysCAD.Editor
         item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       }
 
+      foreach (Thing thing in state.Things)
+      {
+        thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      }
+
       fcFlowChart.Invalidate();
     }
 
@@ -713,7 +718,7 @@ namespace SysCAD.Editor
     private Arrow hoverArrow = null;
     private Box hoverBox = null;
 
-    public void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
+    private void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(new System.Drawing.Point(e.X, e.Y)), 2.0F);
 

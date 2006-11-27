@@ -8,29 +8,28 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
+using System.Runtime.InteropServices;
 
 //
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("MindFusion.FlowChartX")]
-[assembly: AssemblyDescription("Diagramming component for .NET")]
-
-#if DEMO_VERSION
-[assembly: AssemblyConfiguration("Trial version")]
-#else
-[assembly: AssemblyConfiguration("Retail version")]
-#endif
-
-[assembly: AssemblyCompany("MindFusion Ltd.")]
-[assembly: AssemblyProduct("FlowChart.NET component")]
-[assembly: AssemblyCopyright("Copyright 2003-2006, MindFusion Ltd.")]
+[assembly: AssemblyTitle("")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -71,14 +70,10 @@ using System.Security.Permissions;
 //       documentation for more information on this.
 //
 //[assembly: AssemblyDelaySign(false)]
-//[assembly: AssemblyKeyFile(@"D:\Projects\FlowChart.NET\Source code\fcnet.snk")]
+//[assembly: AssemblyKeyFile("../../../fcnet.snk")]
 //[assembly: AssemblyKeyName("")]
 
-//[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
-//[assembly: PermissionSet(SecurityAction.RequestOptional, Name = "Nothing")]
-//[assembly: RegistryPermission(SecurityAction.RequestMinimum, Read=@"HKEY_LOCAL_MACHINE\Software\MindFusion Limited\ComponentLicenses")]
-//[assembly: RegistryPermission(SecurityAction.RequestMinimum, Read=@"HKEY_LOCAL_MACHINE\Software\Wow6432Node\MindFusion Limited\ComponentLicenses")]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+[assembly: PermissionSet(SecurityAction.RequestOptional, Name = "Nothing")]
 
 [assembly: AllowPartiallyTrustedCallers]
-
-[assembly: ComVisible(true)]

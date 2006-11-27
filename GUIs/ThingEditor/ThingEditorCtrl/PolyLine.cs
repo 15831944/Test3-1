@@ -28,7 +28,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     public PolyLine(Line line)
     {
-      LineSegment lineSegment = new LineSegment(new PointF(line.x1, line.y1), new PointF(line.x2, line.y2));
+      LineSegment lineSegment = new LineSegment(new PointF(line.x1 * 3.0F + 10.0F, line.y1 * 3.0F + 10.0F), new PointF(line.x2 * 3.0F + 10.0F, line.y2 * 3.0F + 10.0F));
       lineSegment.isDecorationSegment = true;
 
       shapeSegments = new ArrayList();
@@ -61,7 +61,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal bool Add(Line line)
         {
-          LineSegment lineSegment = new LineSegment(new PointF(line.x1, line.y1), new PointF(line.x2, line.y2));
+          LineSegment lineSegment = new LineSegment(new PointF(line.x1 * 3.0F + 10.0F, line.y1 * 3.0F + 10.0F), new PointF(line.x2 * 3.0F + 10.0F, line.y2 * 3.0F + 10.0F));
           lineSegment.isDecorationSegment = true;
 
           if ((shapeSegments != null) && (shapeSegments.Count > 0) && (shapeSegments[shapeSegments.Count - 1] is LineSegment))

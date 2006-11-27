@@ -11,9 +11,8 @@
     <AssemblyName>SysCAD.Editor</AssemblyName>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>false</GenerateManifests>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Editor.snk</AssemblyOriginatorKeyFile>
     <ApplicationIcon>Logo32.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -115,6 +114,7 @@
     <None Include="app.config" />
     <None Include="ClassDiagram1.cd" />
     <BaseApplicationManifest Include="Properties\app.manifest" />
+    <None Include="Editor.snk" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -132,6 +132,7 @@
     <ProjectReference Include="..\..\Interfaces\Interface.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>Interface</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>

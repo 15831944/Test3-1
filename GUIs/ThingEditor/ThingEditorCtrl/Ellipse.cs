@@ -23,13 +23,13 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private bool pointedEllipse;
 
     // Constructor
-    public Ellipse(float X, float Y)
+    public Ellipse(float x, float y)
       : base()
     {
-      left = X;
-      top = Y;
-      right = X + width;
-      bottom = Y + height;
+      left = x;
+      top = y;
+      right = x + width;
+      bottom = y + height;
 
       pointedEllipse = false;
     }

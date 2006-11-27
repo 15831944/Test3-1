@@ -178,11 +178,11 @@ namespace SysCAD.ThingEditor
       this.thingEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.thingEditor1.GridColor = System.Drawing.Color.Black;
       this.thingEditor1.GridSize = 16;
-      this.thingEditor1.GridStyle = SysCAD.ThingEditor.ThingEditorCtrl.ThingEditor.EGridStyle.grdLine;
+      this.thingEditor1.GridStyle = SysCAD.ThingEditor.ThingEditorCtrl.ThingEditor.EGridStyle.GrdLine;
       this.thingEditor1.Location = new System.Drawing.Point(0, 0);
       this.thingEditor1.Name = "thingEditor1";
       this.thingEditor1.PenColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
-      this.thingEditor1.ShowScrollbars = true;
+      //this.thingEditor1.ShowScrollbars = true;
       this.thingEditor1.Size = new System.Drawing.Size(496, 397);
       this.thingEditor1.TabIndex = 0;
       this.thingEditor1.Text = "thingEditor1";
@@ -290,7 +290,7 @@ namespace SysCAD.ThingEditor
 
         private void menuItem3_Click(object sender, System.EventArgs e)
         {
-            thingEditor1.menuItemDeleteAllDecorationsOnClick(sender, e);
+          thingEditor1.deleteAllDecorations(sender);
         }
 
         private void menuItem7_Click(object sender, System.EventArgs e)

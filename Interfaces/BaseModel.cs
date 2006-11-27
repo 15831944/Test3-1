@@ -11,6 +11,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Security.Permissions;
 
 namespace SysCAD.Interface
 {
@@ -100,7 +101,7 @@ namespace SysCAD.Interface
     }
 
 
-
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public override Object InitializeLifetimeService()
     {
       return null;

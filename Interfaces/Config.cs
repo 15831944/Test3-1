@@ -9,6 +9,7 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Security.Permissions;
 
 namespace SysCAD.Interface
 {
@@ -26,6 +27,7 @@ namespace SysCAD.Interface
       graphicStencils = new Dictionary<string, GraphicStencil>();
     }
 
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public override Object InitializeLifetimeService()
     {
       return null;
@@ -38,6 +40,7 @@ namespace SysCAD.Interface
 
     public string connectionError = "";
 
+    [EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect(string URL)
     {
       try
@@ -59,9 +62,9 @@ namespace SysCAD.Interface
         connectionError = "";
         return true;
       }
-      catch (Exception exception)
+      catch (System.Runtime.Remoting.RemotingException remotingException)
       {
-        connectionError = exception.Message;
+        connectionError = remotingException.Message;
         return false;
       }
     }

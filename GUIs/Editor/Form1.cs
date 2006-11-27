@@ -31,11 +31,12 @@ namespace SysCAD.Editor
       TcpChannel tcpChannel = new TcpChannel(tcpProps, null, null);
       ChannelServices.RegisterChannel(tcpChannel, false);
 
-      try
+      //try
       {
         dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
       }
-      catch (Exception) { }
+      //catch (Exception) { }
+      // Leave out for now to see what exception is raised...
 
       (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
@@ -302,8 +303,9 @@ namespace SysCAD.Editor
           }
         }
       }
-      catch
+      catch (System.Runtime.InteropServices.ExternalException externalException)
       {
+        // just go on our merry way.
       }
     }
 

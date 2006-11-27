@@ -1,7 +1,0 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <StartWorkingDirectory>
-    </StartWorkingDirectory>
-    <StartArguments>"C:\Documents and Settings\pkh\My Documents\SysCAD\BaseFiles\Sample Projects" "C:\Documents and Settings\pkh\My Documents\SysCAD\BaseFiles\Stencils"</StartArguments>
-  </PropertyGroup>
-</Project>

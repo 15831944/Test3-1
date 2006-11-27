@@ -12,7 +12,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
   /// </summary>
   public delegate void OutlineChanged(object sender, EventArgs e);
 
-  public class SegmentedOutline : Outline
+  public class SegmentedOutline : Outline, IDisposable
   {
 
 
@@ -450,6 +450,32 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
       //!!!!!return et;
     }
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (disposing)
+      {
+        // dispose managed resources
+        menuItemSplit.Dispose();
+        menuItemToLine.Dispose();
+        menuItemToBezier.Dispose();
+        menuItemConvertTo.Dispose();
+        menuItemSeparator1.Dispose();
+        menuItemSeparator2.Dispose();
+        menuItemDeleteSegment.Dispose();
+      }
+      // free native resources
+    }
+
+    #endregion
   }
 }
 

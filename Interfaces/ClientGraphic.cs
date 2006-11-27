@@ -11,6 +11,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Security.Permissions;
 
 namespace SysCAD.Interface
 {
@@ -105,8 +106,9 @@ namespace SysCAD.Interface
     }
 
 
-    
 
+
+    [EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect(string URL)
     {
       try
@@ -128,9 +130,9 @@ namespace SysCAD.Interface
         connectionError = "";
         return true;
       }
-      catch (Exception exception)
+      catch (System.Runtime.Remoting.RemotingException remotingException)
       {
-        connectionError = exception.Message;
+        connectionError = remotingException.Message;
         return false;
       }
     }

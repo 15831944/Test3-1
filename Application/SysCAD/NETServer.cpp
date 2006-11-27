@@ -334,21 +334,21 @@ ref class CNETServerThread
 
     void MarshalGraphics()
       {
-      ServiceGraphic::CreateItemDelegate^ createItem = gcnew ServiceGraphic::CreateItemDelegate(this, &CNETServerThread::CreateItem);
-      ServiceGraphic::ModifyItemDelegate^ modifyItem = gcnew ServiceGraphic::ModifyItemDelegate(this, &CNETServerThread::ModifyItem);
-      ServiceGraphic::DeleteItemDelegate^ deleteItem = gcnew ServiceGraphic::DeleteItemDelegate(this, &CNETServerThread::DeleteItem);
+      ServiceGraphic::CreateItemHandler^ createItem = gcnew ServiceGraphic::CreateItemHandler(this, &CNETServerThread::CreateItem);
+      ServiceGraphic::ModifyItemHandler^ modifyItem = gcnew ServiceGraphic::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
+      ServiceGraphic::DeleteItemHandler^ deleteItem = gcnew ServiceGraphic::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
 
-      ServiceGraphic::CreateLinkDelegate^ createLink = gcnew ServiceGraphic::CreateLinkDelegate(this, &CNETServerThread::CreateLink);
-      ServiceGraphic::ModifyLinkDelegate^ modifyLink = gcnew ServiceGraphic::ModifyLinkDelegate(this, &CNETServerThread::ModifyLink);
-      ServiceGraphic::DeleteLinkDelegate^ deleteLink = gcnew ServiceGraphic::DeleteLinkDelegate(this, &CNETServerThread::DeleteLink);
+      ServiceGraphic::CreateLinkHandler^ createLink = gcnew ServiceGraphic::CreateLinkHandler(this, &CNETServerThread::CreateLink);
+      ServiceGraphic::ModifyLinkHandler^ modifyLink = gcnew ServiceGraphic::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
+      ServiceGraphic::DeleteLinkHandler^ deleteLink = gcnew ServiceGraphic::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
 
-      ServiceGraphic::CreateThingDelegate^ createThing = gcnew ServiceGraphic::CreateThingDelegate(this, &CNETServerThread::CreateThing);
-      ServiceGraphic::ModifyThingDelegate^ modifyThing = gcnew ServiceGraphic::ModifyThingDelegate(this, &CNETServerThread::ModifyThing);
-      ServiceGraphic::DeleteThingDelegate^ deleteThing = gcnew ServiceGraphic::DeleteThingDelegate(this, &CNETServerThread::DeleteThing);
+      ServiceGraphic::CreateThingHandler^ createThing = gcnew ServiceGraphic::CreateThingHandler(this, &CNETServerThread::CreateThing);
+      ServiceGraphic::ModifyThingHandler^ modifyThing = gcnew ServiceGraphic::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
+      ServiceGraphic::DeleteThingHandler^ deleteThing = gcnew ServiceGraphic::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
 
-      ServiceGraphic::PortCheckDelegate^ portCheck = gcnew ServiceGraphic::PortCheckDelegate(this, &CNETServerThread::PortCheck);
+      ServiceGraphic::PortCheckHandler^ portCheck = gcnew ServiceGraphic::PortCheckHandler(this, &CNETServerThread::PortCheck);
 
-      ServiceGraphic::PropertyListDelegate^ propertyListCheck = gcnew ServiceGraphic::PropertyListDelegate(this, &CNETServerThread::PropertyListCheck);
+      ServiceGraphic::PropertyListHandler^ propertyListCheck = gcnew ServiceGraphic::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
       ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
@@ -442,7 +442,7 @@ ref class CNETServerThread
           graphicThing->Populate(filename, gcnew String(pThing->m_Page),
             gcnew String(pThing->m_Guid), 
             RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
-			pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, "Text", elements, decorations, gcnew ArrayList(),
+            pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, gcnew String(pThing->m_Tag), elements, decorations, textArea,
 			System::Drawing::Drawing2D::FillMode::Alternate);
           graphic->graphicThings->Add(graphicThing->Guid, graphicThing);
         }

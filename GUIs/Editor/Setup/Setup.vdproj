@@ -117,6 +117,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_20946CBA41FCF59898687FC1E8B3C026"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_20D3B5BA5C864022931A9E32F29BD6CA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -395,6 +401,12 @@
         {
         "MsmKey" = "8:_71AE4FA3CEC3488A8A4B38C9344C8E07"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_727C0FFAB7E90B186A4779CDF3B85756"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -681,6 +693,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CD349888FC59A3E216811DE13C48C797"
+        "OwnerKey" = "8:_EB41A785ACC0D96EFB7F6D1704247CC1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CD349888FC59A3E216811DE13C48C797"
+        "OwnerKey" = "8:_727C0FFAB7E90B186A4779CDF3B85756"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CE1871E036974FB293ED2F4528C6724D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -736,6 +760,18 @@
         "Entry"
         {
         "MsmKey" = "8:_DA6AB3279A89218A07D7B5E4F57D5C51"
+        "OwnerKey" = "8:_EB41A785ACC0D96EFB7F6D1704247CC1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA6AB3279A89218A07D7B5E4F57D5C51"
+        "OwnerKey" = "8:_727C0FFAB7E90B186A4779CDF3B85756"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA6AB3279A89218A07D7B5E4F57D5C51"
         "OwnerKey" = "8:_B3BA1F58C640CFCE2B632571772F3323"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -783,6 +819,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EB41A785ACC0D96EFB7F6D1704247CC1"
+        "OwnerKey" = "8:_727C0FFAB7E90B186A4779CDF3B85756"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EB41A785ACC0D96EFB7F6D1704247CC1"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F0CAAEFE8E9C4189B7954C52F48445D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -808,6 +856,18 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_727C0FFAB7E90B186A4779CDF3B85756"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_EB41A785ACC0D96EFB7F6D1704247CC1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_B3BA1F58C640CFCE2B632571772F3323"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -815,6 +875,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DA6AB3279A89218A07D7B5E4F57D5C51"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_20946CBA41FCF59898687FC1E8B3C026"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1266,6 +1332,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_20946CBA41FCF59898687FC1E8B3C026"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:SmartPropertyGrid, Version=1.5.0.0, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_20946CBA41FCF59898687FC1E8B3C026"
+                    {
+                    "Name" = "8:SmartPropertyGrid.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:SmartPropertyGrid.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20D3B5BA5C864022931A9E32F29BD6CA"
@@ -2141,6 +2238,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_727C0FFAB7E90B186A4779CDF3B85756"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:ThingEditor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_727C0FFAB7E90B186A4779CDF3B85756"
+                    {
+                    "Name" = "8:ThingEditor.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:ThingEditor.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_757C6C1291094B88A68CA6F3262A2BA4"
             {
             "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Noise.graphicstencil"
@@ -2807,7 +2935,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.27985, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.21668, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_B3BA1F58C640CFCE2B632571772F3323"
@@ -3289,7 +3417,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.27970, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.21666, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_DA6AB3279A89218A07D7B5E4F57D5C51"
@@ -3456,6 +3584,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_EB41A785ACC0D96EFB7F6D1704247CC1"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:ThingEditorCtrl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_EB41A785ACC0D96EFB7F6D1704247CC1"
+                    {
+                    "Name" = "8:ThingEditorCtrl.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:ThingEditorCtrl.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0CAAEFE8E9C4189B7954C52F48445D4"
             {
             "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\Pump-1.graphicstencil"
@@ -3593,14 +3752,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Editor"
-        "ProductCode" = "8:{817171CF-23F0-44E2-B4D5-823F8B695EC4}"
-        "PackageCode" = "8:{CE547B36-4DCA-4A7B-A937-F2A790872790}"
+        "ProductCode" = "8:{0319B2F1-9A47-4B2B-8441-1612C77173ED}"
+        "PackageCode" = "8:{2B23B5D8-85BC-4BAC-AD90-0EE0523B2938}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:10.0.10"
+        "ProductVersion" = "8:10.0.12"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
