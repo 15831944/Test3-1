@@ -722,7 +722,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
         }
       }
 
-    if (bLogIt)
+    if (bLogIt && gs_pArcMan)
       gs_pArcMan->LogAMessage(Msg);
 
     }
