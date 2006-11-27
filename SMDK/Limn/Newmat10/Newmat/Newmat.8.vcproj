@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="D:\LIMN32\LIB\Newmat.lib"
+				OutputFile=".\LIB\Newmat.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -128,7 +128,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="D:\LIMN32\LIB\Newmat.lib"
+				OutputFile=".\LIB\Newmat.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -194,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="D:\LIMN32\LIB\Newmat.lib"
+				OutputFile=".\LIB\Newmat.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

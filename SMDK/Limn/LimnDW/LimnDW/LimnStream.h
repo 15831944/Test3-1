@@ -113,9 +113,9 @@ class CLimnStream : public MSpQualityBase
     virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd);
     virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub);
 
-    virtual void   Copy(MSpQualityBase * QualCopy);
-    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_);
-    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_);
+    virtual void   Copy(MVector &V2, MSpQualityBase * QualCopy);
+    virtual void   AddDeriv(MVector &V2, MSpQualityBase * Qual2, double Sgn_, double DeltaTime);
+    virtual void   AddDiscrete(MVector &V2, MSpQualityBase * Qual2, double Sgn_, double DeltaTime);
 
   protected:
     // CPropertyBase Overides

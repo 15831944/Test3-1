@@ -304,9 +304,9 @@ class DllImportExport MSpQualityBase : public MBaseDataCommon, public MSubConstr
     virtual void   AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)=0;
     virtual void   SubMassF(MSpQualityBase * QualSub, MArray & MSub)=0;
 
-    virtual void   Copy(MSpQualityBase * QualCopy)=0;
-    virtual void   AddDeriv(MSpQualityBase * Qual2, double Sgn_)=0;
-    virtual void   AddDiscrete(MSpQualityBase * Qual2, double Sgn_)=0;
+    virtual void   Copy(MVector & V, MSpQualityBase * QualCopy)=0;
+    virtual void   AddDeriv(MVector & V, MSpQualityBase * Qual2, double Sgn_, double DeltaTime)=0;
+    virtual void   AddDiscrete(MVector & V, MSpQualityBase * Qual2, double Sgn_, double DeltaTime)=0;
 
     virtual long   DefinedPropertyCount()                                          { return 0; };
     virtual long   DefinedPropertyInfo(long Index, MPropertyInfo & Info)           { return -1; };

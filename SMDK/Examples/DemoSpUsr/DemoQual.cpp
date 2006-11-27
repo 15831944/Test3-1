@@ -163,7 +163,7 @@ void CDemoQual::AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)
 void CDemoQual::SubMassF(MSpQualityBase * QualSub, MArray & M2) 
   {
   };
-void CDemoQual::Copy(MSpQualityBase * QualCopy) 
+void CDemoQual::Copy(MVector &V2, MSpQualityBase * QualCopy) 
   {
   CDemoQual * pQ2=dynamic_cast<CDemoQual*>(QualCopy);
   m_dSG=pQ2->m_dSG;
@@ -173,9 +173,9 @@ void CDemoQual::Copy(MSpQualityBase * QualCopy)
   m_DSDCount = pQ2->m_DSDCount;
   };
 
-void CDemoQual::AddDeriv(MSpQualityBase * pQual2, double Sgn_) 
+void CDemoQual::AddDeriv(MVector &V2, MSpQualityBase * pQual2, double Sgn_, double DeltaTime) 
   {
   };
-void CDemoQual::AddDiscrete(MSpQualityBase * pQual2, double Sgn_) 
+void CDemoQual::AddDiscrete(MVector &V2, MSpQualityBase * pQual2, double Sgn_, double DeltaTime) 
   {
   };

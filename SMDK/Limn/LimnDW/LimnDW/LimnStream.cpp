@@ -818,7 +818,7 @@ void CLimnStream::SubMassF(MSpQualityBase * QualSub, MArray & M2)
   {
   };
 
-void CLimnStream::Copy(MSpQualityBase * QualCopy) 
+void CLimnStream::Copy(MVector &V2, MSpQualityBase * QualCopy) 
   {
   CLimnStream * pQ2=dynamic_cast<CLimnStream*>(QualCopy);
   for (int i=0; i<m_Data.GetCount(); i++)
@@ -827,12 +827,30 @@ void CLimnStream::Copy(MSpQualityBase * QualCopy)
     Dump("Copy", 0x7);
   };
 
-void CLimnStream::AddDeriv(MSpQualityBase * pQual2, double Sgn_) 
+void CLimnStream::AddDeriv(MVector &V2, MSpQualityBase * pQual2, double Sgn_, double DeltaTime) 
   {
   };
 
-void CLimnStream::AddDiscrete(MSpQualityBase * pQual2, double Sgn_) 
+void CLimnStream::AddDiscrete(MVector &V2, MSpQualityBase * pQual2, double Sgn_, double DeltaTime) 
   {
+  CLimnStream * pQ2=dynamic_cast<CLimnStream*>(pQual2);
+  if (Sgn_>0.0)
+    {
+    MVector M1=Vector; //
+    MArray m1;
+    MArray m2;
+    for (int id=0; id<gs_MVDefn.Count(); id++)
+      {
+      m1[id] = M1.M[id];
+      m2[id] = V2.M[id]*DeltaTime;
+      }
+    for (int ii=0; ii<gs_DWCfg.m_SeqIndex.GetCount(); ii++)
+      {
+      int i = gs_DWCfg.m_SeqIndex[ii];
+      int id = gs_DWCfg.m_SpIds[i];
+      m_Data[i] = (m_Data[i]*m1[id] + pQ2->m_Data[i]*m2[id])/(GTZ(m1[id]+m2[id]));
+      };
+    }
   };
 
 void CLimnStream::Dump(LPCTSTR Where, DWORD What) 

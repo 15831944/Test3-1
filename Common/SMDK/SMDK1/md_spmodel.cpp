@@ -870,28 +870,28 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
       if (pQual2==NULL)
         return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      m_pUserQual->Copy(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
+      m_pUserQual->Copy(MVector(pMdl2), dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual);
       };
     virtual void   AddDeriv(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
       if (pQual2==NULL)
         return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
+      //MVector v2(pQual2->pModel);
+      m_pUserQual->AddDeriv(MVector(pMdl2), dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_, ICGetTimeInc());
       };
     virtual void   AddDiscrete(SpModel * pMdl2, SpQuality* pQual2, double Sgn_)
       {
       if (pQual2==NULL)
         return;
       ASSERT(dynamic_cast<CCall2MSpQuals*>(pQual2));
-      MVector v2(pQual2->pModel);
-      m_pUserQual->AddDeriv(dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_);
+      //MVector v2(pQual2->pModel);
+      m_pUserQual->AddDiscrete(MVector(pMdl2), dynamic_cast<CCall2MSpQuals*>(pQual2)->m_pUserQual, Sgn_, ICGetTimeInc());
       };
     virtual void   ODEOperate(CODEDataBlock & ODB)
       {
-      INCOMPLETECODE();
-      };
+      //INCOMPLETECODE();
+      };  
 
     // Extras for Tear Management;
     virtual void   TearGetInputs(TearVarArray & TV, int n)
