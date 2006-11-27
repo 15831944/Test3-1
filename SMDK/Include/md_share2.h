@@ -382,7 +382,7 @@ extern DllImportExport MCnv MC_dT       ; //Change in Temperature   : K
 extern DllImportExport MCnv MC_dTdt     ; //Rate of change in temp  : C/s
 extern DllImportExport MCnv MC_I        ; //Current                 : A
 extern DllImportExport MCnv MC_V        ; //Potential Diff          : V
-extern DllImportExport MCnv MC_Epm      ; //Energy per Mass         : kW/t 
+extern DllImportExport MCnv MC_PwrM     ; //Specific Power(Pwr/Mass): W/kg 
 extern DllImportExport MCnv MC_Visc     ; //Viscosity               : Ns/m^2
 extern DllImportExport MCnv MC_MpL      ; //Mass Loading            : kg/m
 extern DllImportExport MCnv MC_KgMl     ; //Moles                   : kmol
@@ -399,22 +399,6 @@ extern DllImportExport MCnv MC_SurfAreaL; //Surface Area(Volume)    : m^2/L
 extern DllImportExport MCnv MC_FracSol  ; //Fraction(Solids)        : 
 extern DllImportExport MCnv MC_FracLiq  ; //Fraction(Liquids)       :
 extern DllImportExport MCnv MC_FracVap  ; //Fraction(Vapour)        :
-/*extern DllImportExport MC_FracPh00      ; //Fraction(Phase00)
-extern DllImportExport MC_FracPh01      ; //Fraction(Phase01)
-extern DllImportExport MC_FracPh02      ; //Fraction(Phase02)
-extern DllImportExport MC_FracPh03      ; //Fraction(Phase03)
-extern DllImportExport MC_FracPh04      ; //Fraction(Phase04)
-extern DllImportExport MC_FracPh05      ; //Fraction(Phase05)
-extern DllImportExport MC_FracPh06      ; //Fraction(Phase06)
-extern DllImportExport MC_FracPh07      ; //Fraction(Phase07)
-extern DllImportExport MC_FracPh08      ; //Fraction(Phase08)
-extern DllImportExport MC_FracPh09      ; //Fraction(Phase09)
-extern DllImportExport MC_FracPh10      ; //Fraction(Phase10)
-extern DllImportExport MC_FracPh11      ; //Fraction(Phase11)
-extern DllImportExport MC_FracPh12      ; //Fraction(Phase12)
-extern DllImportExport MC_FracPh13      ; //Fraction(Phase13)
-extern DllImportExport MC_FracPh14      ; //Fraction(Phase14)
-extern DllImportExport MC_FracPh15      ; //Fraction(Phase15)*/
 extern DllImportExport MCnv MC_ThermTau ; //Thermal TimeConst       : dC/s.C
 extern DllImportExport MCnv MC_CosPhi   ; //Power Factor            : Cos(<)
 extern DllImportExport MCnv MC_Ohms     ; //Electrical Resistance   : Ohms
@@ -423,9 +407,11 @@ extern DllImportExport MCnv MC_ConcRate ; //Concentration Change Rate: kg/m^3/s
 extern DllImportExport MCnv MC_KinVisc  ; //Kinematic Viscosity (Stoke) : m^2/s
 extern DllImportExport MCnv MC_ElectVA  ; //Electrical VA (V*A)     : kVA
 extern DllImportExport MCnv MC_Humidity ; //Specific Humidity       : kg(l)/kg(v)
+extern DllImportExport MCnv MC_Accel    ; //Acceleration            : m/s^2
+extern DllImportExport MCnv MC_ThermDiff; //Thermal Diffusivity     : m^2/s
 
-extern DllImportExport MCnv MC_Money    ; //Money                   : US$
-extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : US$/s
+extern DllImportExport MCnv MC_Money    ; //Money                   : Base$
+extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base$/s
 
 
 class DllImportExport MCnvs

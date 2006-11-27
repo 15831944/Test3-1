@@ -2658,6 +2658,8 @@ Build 122 : 16 November 2006
 1241 24/11/06: (#676, 684) Status calculation code now not called when status
                colour is switched off. New link vapour and solids status colours.
 1243 24/11/06: (#685) Time offset option fixed in archiver (was incorrect based on GMT).
+1245 27/11/06: (#653,686,687) Changed conversion Epm to PwrM (Specific Power). Added new
+               conversions Acceleration (Accel) and Thermal Diffusivity (ThermDiff).
 
 ------------------------------
 //Latest release information:*/

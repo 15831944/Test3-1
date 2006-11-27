@@ -234,7 +234,7 @@ CCnvIndex    DC_dT       = 0;
 CCnvIndex    DC_dTdt     = 0;
 CCnvIndex    DC_I        = 0;
 CCnvIndex    DC_V        = 0;
-CCnvIndex    DC_Epm      = 0;
+CCnvIndex    DC_PwrM     = 0;
 CCnvIndex    DC_Visc     = 0;
 CCnvIndex    DC_MpL      = 0;
 CCnvIndex    DC_KgMl     = 0;
@@ -291,6 +291,8 @@ CCnvIndex    DC_ConcRate = 0;
 CCnvIndex    DC_KinVisc  = 0;
 CCnvIndex    DC_ElectVA  = 0;
 CCnvIndex    DC_Humidity = 0;
+CCnvIndex    DC_Accel    = 0;
+CCnvIndex    DC_ThermDiff= 0;
 
 CCnvIndex    DC_TimeStr  = 0;
 CCnvIndex    DC_dTimeStr = 0;
@@ -527,7 +529,7 @@ void CCnvsMngr::Init()
     DC_CpMs     = AddSI("Cp(Ms)"   , "kJ/kg.C"    , "Cp"                            ,    0.0 ,            1.0, false);
     DC_CpMl     = AddSI("Cp(Ml)"   , "kJ/kmol.C"  , "Molar Cp"                      ,    0.0 ,            1.0, false);
     DC_HCap     = AddSI("HCap"     , "kJ/dC"      , "Heat Capacity"                 ,    0.0 ,          100.0, false);
-    DC_HCapF    = AddSI("HCapF"    , "kJ/dC/s"    , ""                              ,    0.0 ,          100.0, false);
+    DC_HCapF    = AddSI("HCapF"    , "kJ/dC/s"    , "Heat Capacity Rate"            ,    0.0 ,          100.0, false);
     DC_HTC      = AddSI("HTC"      , "kW/m^2.K"   , "Heat Transfer Coeff"           ,    0.0 ,            1.0, false);
     DC_HCond    = AddSI("HCond"    , "kW/m.K"     , "Heat Conductivity"             ,    0.0 ,            1.0, false);
     DC_DP       = AddSI("DP"       , "kPa"        , "Pressure difference"           ,    0.0 ,         1000.0, false);
@@ -543,7 +545,7 @@ void CCnvsMngr::Init()
     DC_pS       = AddSI("pS"       , "/s"         , "Per unit time"                 ,    0.0 ,         3600.0, false);
     DC_Conc     = AddSI("Conc"     , "kg/m^3"     , "Concentration"                 ,    0.0 ,            1.0, false);
     DC_UA       = AddSI("UA"       , "kW/K"       , "Heat Transfer"                 ,    0.0 ,            1.0, false);
-    DC_Epm      = AddSI("Epm"      , "kW/t"       , "Energy per mass"               ,    0.0 ,         1000.0, false);
+    DC_PwrM     = AddSI("PwrM"     , "W/kg"       , "Specific Power"                ,    0.0 ,         1000.0, false);
     DC_Visc     = AddSI("Visc"     , "Ns/m^2"     , "Viscosity"                     ,    0.0 ,            1.0, false);//(10 * Poise)
     DC_MpL      = AddSI("MpL"      , "kg/m"       , "Mass Loading"                  ,    0.0 ,         1000.0, false);
     DC_KgMl     = AddSI("KgMl"     , "kmol"       , "Moles"                         ,    0.0 ,         1000.0, false);
@@ -603,7 +605,9 @@ void CCnvsMngr::Init()
     DC_ConcRate = AddSI("ConcRate" , "kg/m^3/s"   , "Concentration Change Rate"     ,    0.0 ,            1.0, false);
     DC_KinVisc  = AddSI("KinVisc"  , "m^2/s"      , "Kinematic Viscosity (Stoke)"   ,    0.0 ,            1.0, false);
     DC_ElectVA  = AddSI("ElectVA"  , "VA"         , "VoltAmps (V*A)"                ,    0.0 ,            1.0, false);
-    DC_Humidity = AddSI("Humidity" , "kg(l)/kg(v)"  , "Specific Humidity"           ,    0.0 ,            0.01, false);
+    DC_Humidity = AddSI("Humidity" , "kg(l)/kg(v)" , "Specific Humidity"            ,    0.0 ,            0.01, false);
+    DC_Accel    = AddSI("Accel"    , "m/s^2"      , "Acceleration"                  ,    0.0 ,            1.0, false);
+    DC_ThermDiff= AddSI("ThermDiff", "m^2/s"      , "Thermal Diffusivity"           ,    0.0 ,            1.0, false);
 
     DC_TimeStr  = AddSI("TimeStr"  , "s"          , "TimeString"                    ,    0.0 ,         3600.0, false);
     DC_dTimeStr = AddSI("dTimeStr" , "s"          , "dTimeString"                   ,    0.0 ,         3600.0, false);

@@ -81,7 +81,7 @@ MCnv MC_dT       ;
 MCnv MC_dTdt     ;
 MCnv MC_I        ;
 MCnv MC_V        ;
-MCnv MC_Epm      ;
+MCnv MC_PwrM     ;
 MCnv MC_Visc     ;
 MCnv MC_MpL      ;
 MCnv MC_KgMl     ;
@@ -138,6 +138,8 @@ MCnv MC_ConcRate ;
 MCnv MC_KinVisc  ;
 MCnv MC_ElectVA  ;
 MCnv MC_Humidity ;
+MCnv MC_Accel    ;
+MCnv MC_ThermDiff;
 MCnv MC_Money    ;
 MCnv MC_MoneyFlow;
 
@@ -593,7 +595,7 @@ bool MInitialise()
     MC_dTdt.m_Index       = (DC_dTdt)     ;
     MC_I.m_Index          = (DC_I)        ;
     MC_V.m_Index          = (DC_V)        ;
-    MC_Epm.m_Index        = (DC_Epm)      ;
+    MC_PwrM.m_Index       = (DC_PwrM)     ;
     MC_Visc.m_Index       = (DC_Visc)     ;
     MC_MpL.m_Index        = (DC_MpL)      ;
     MC_KgMl.m_Index       = (DC_KgMl)     ;
@@ -650,6 +652,8 @@ bool MInitialise()
     MC_KinVisc.m_Index    = (DC_KinVisc)  ;
     MC_ElectVA.m_Index    = (DC_ElectVA)  ;
     MC_Humidity.m_Index   = (DC_Humidity) ;
+    MC_Accel.m_Index      = (DC_Accel)    ;
+    MC_ThermDiff.m_Index  = (DC_ThermDiff);
     MC_Money.m_Index      = (DC_Money)    ;
     MC_MoneyFlow.m_Index  = (DC_MoneyFlow);
 

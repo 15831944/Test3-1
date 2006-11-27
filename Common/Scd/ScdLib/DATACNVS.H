@@ -98,7 +98,7 @@ extern DllImportExport CCnvIndex    DC_dT      ;
 extern DllImportExport CCnvIndex    DC_dTdt    ;
 extern DllImportExport CCnvIndex    DC_I       ;
 extern DllImportExport CCnvIndex    DC_V       ;
-extern DllImportExport CCnvIndex    DC_Epm     ;
+extern DllImportExport CCnvIndex    DC_PwrM    ;
 extern DllImportExport CCnvIndex    DC_Visc    ;
 extern DllImportExport CCnvIndex    DC_MpL     ;
 extern DllImportExport CCnvIndex    DC_KgMl    ;
@@ -156,6 +156,8 @@ extern DllImportExport CCnvIndex    DC_ConcRate;
 extern DllImportExport CCnvIndex    DC_KinVisc ;
 extern DllImportExport CCnvIndex    DC_ElectVA ;
 extern DllImportExport CCnvIndex    DC_Humidity;
+extern DllImportExport CCnvIndex    DC_Accel   ;
+extern DllImportExport CCnvIndex    DC_ThermDiff;
 
 extern DllImportExport CCnvIndex    DC_TimeStr ;
 extern DllImportExport CCnvIndex    DC_dTimeStr;
@@ -163,7 +165,7 @@ extern DllImportExport CCnvIndex    DC_dTimeStr;
 extern DllImportExport CCnvIndex    DC_Money;
 extern DllImportExport CCnvIndex    DC_MoneyFlow;
 
-//CNM extern DllImportExport CCnvIndex    DC_IsenHd;
+//CNM extern DllImportExport CCnvIndex    DC_IsenHd; //Nm/kg
 
 //ScdComTempl.h
 //#define Gc              9.81
