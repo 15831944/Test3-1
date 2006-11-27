@@ -187,7 +187,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 98; //CNM 15/05/2006 Change in 'Time' Management
 //const int LatestPrjFileVer = 99; //CNM 15/06/2006 Enabled Evaluator Block
 //const int LatestPrjFileVer = 100; //CNM  4/07/2006 New Flow Modes
-const int LatestPrjFileVer = 101; //CNM  11/09/2006 Force Fixes to Archiver
+//const int LatestPrjFileVer = 101; //CNM  11/09/2006 Force Fixes to Archiver
+const int LatestPrjFileVer = 102; //KGA  27/11/2006 Changes to status colours
 
 
 //===========================================================================
@@ -2354,8 +2355,8 @@ void CProject::InitColours()
   grl_set_win_color(GR_MDLSTATUS_CLEAR,    GRREF_MDLSTATUS_CLEAR);
   grl_set_win_color(GR_MDLSTATUS_UNKNOWN,  GRREF_MDLSTATUS_UNKNOWN);
   grl_set_win_color(GR_MDLSTATUS_INACTIVE, GRREF_MDLSTATUS_INACTIVE);
-  grl_set_win_color(GR_MDLSTATUS_BLACK,    GRREF_MDLSTATUS_BLACK);
-  grl_set_win_color(GR_MDLSTATUS_ELEC,     GRREF_MDLSTATUS_ELEC);
+//  grl_set_win_color(GR_MDLSTATUS_BLACK,    GRREF_MDLSTATUS_BLACK);
+//  grl_set_win_color(GR_MDLSTATUS_ELEC,     GRREF_MDLSTATUS_ELEC);
 
   grl_set_win_color(GR_MDLSTATUS_NETTQMP,  GRREF_MDLSTATUS_NETTQMP);
   grl_set_win_color(GR_MDLSTATUS_NETTQMN,  GRREF_MDLSTATUS_NETTQMN);
@@ -2430,6 +2431,7 @@ void CProject::LoadColours(CProfINIFile & PF)
   else
     m_dwMdlStatusOptions &= ~MSO_ShowStatus;
   //iOverlayStatusPen = (byte)PF.RdLong("StatusColours", "GrfOverlayStatusPen", iOverlayStatusPen);
+
   if (PrjFileVerNo()>=94)
     {
     for (int i=GR_FIRSTUSERCOLOR; i<=GR_LASTUSERCOLOR; i++)
@@ -2441,6 +2443,13 @@ void CProject::LoadColours(CProfINIFile & PF)
         {
         COLORREF rgb;
         int nf=sscanf(H(), "%x", &rgb);
+        if (PrjFileVerNo()<=101)
+          {
+          if (i==GR_MDLSTATUS_LFLWVAP)
+            rgb = GRREF_MDLSTATUS_LFLWVAP;
+          else if (i==GR_MDLSTATUS_LFLWSOL)
+            rgb = GRREF_MDLSTATUS_LFLWSOL;
+          }
         grl_set_win_color(i, rgb);
         }
       }
