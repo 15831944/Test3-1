@@ -26,11 +26,6 @@
   #define DllImportExport
 #endif
 
-#define SKIPIT 0
-#if SKIPIT 
-#pragma message ("---------------------------------------SKIPPED")
-#else
-
 //============================================================================
 
 _FWDDEF(QueueColInfo)
@@ -46,6 +41,8 @@ class QueueColInfo
     virtual ~QueueColInfo();
   };
 
+class CQueueCon;
+
 _FWDDEF(QueueConInfo)
 class QueueConInfo : public CXRefStatus
   {
@@ -54,8 +51,10 @@ class QueueConInfo : public CXRefStatus
                bValid:1,
                bReloadRqd:1,
                bLoaded:1,
-               bUseHeadingRow:1;//must the tags be obtained from the first row
+               bUseHeadingRow:1,//must the tags be obtained from the first row
+               bUseXRefs:1;
     flag       bWrapArround;  //must the queue wrap arround after all values used
+    flag       bLogSetTags;
     short      iStartIndex; //index for reset stats/start
     short      iCurIndex;
 
@@ -69,15 +68,18 @@ class QueueConInfo : public CXRefStatus
     short      iColCnt;
     QueueColInfo** ColData;
     CDMatrix   Data;      //data containing the values
+    CQueueCon* pParent;
 
 
-    QueueConInfo();
+    QueueConInfo(CQueueCon* Parent);
     virtual ~QueueConInfo();
     short SetColCnt(short NewSize);
     int DoLoad();
     void ExecIns(double ICTime);
     void SetIndex(short RqdIndex);
     void AdvanceIndex();
+    void SetTagsDirectly();
+    void CheckTags();
 
     //CXRefStatus Override
     bool IsXRefActive() const    { return bValid;  };
@@ -91,9 +93,10 @@ class CQueueCon : public FlwNode
   {
   public:
     static flag    bWithCnvComment;
-    QueueConInfo   QCI;              //
-    flag           bDoneExtRefs:1,       //
-                   bAboutToStart:1;      //flag set True for first iteration when run is pressed
+    QueueConInfo   QCI;
+    flag           bDoneExtRefs:1,  //
+                   bDirectSetRqd:1, //
+                   bAboutToStart:1; //flag set True for first iteration when run is pressed
 
     CQueueCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CQueueCon();
@@ -125,8 +128,6 @@ class CQueueCon : public FlwNode
   };
   
 //===========================================================================
-
-#endif
 
 #undef DllImportExport
 

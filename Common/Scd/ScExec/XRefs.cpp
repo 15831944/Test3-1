@@ -924,10 +924,31 @@ void CXRefItem::SetXRefStrValue(char* p, bool DoCnts)
 //
 //==========================================================================
 
+int TryTestTag(TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped/*=true*/)
+  {
+  Strng WrkTag,WrkCnv;
+  TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
+  TagAccessBlk TAB;
+  TAB.Init(pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
+  int Ret=FXR_NotFound;
+  if (TAB.LoadAddress())
+    {
+    CCnvIndex iCnvIndex = TAB.CnvIndex();
+
+    Ret=FXR_Found;
+    if (!IsNumData(TAB.Type()) && !IsStrng(TAB.Type()))
+      Ret|=FXR_BadValue;
+    if ((TAB.Flags() & DDEF_PARAM)==0)
+      Ret|=FXR_NotParam;
+    if (TestParamStopped && (TAB.Flags() & DDEF_PARAMSTOPPED))
+      Ret|=FXR_ParamStopped;
+    }
+  return Ret;
+  }
+
 int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestParamStopped/*=true*/)
   {
-  CStopWatch SW(true);
-
+  //CStopWatch SW(true);
   Strng WrkTag,WrkCnv;
   TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
   TagAccessBlk TAB;
@@ -958,14 +979,12 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestPara
     }
 
   //dbgpln("TryWriteTag D %10.2f %s ", 1e6*SW.Secs(), pTag);
-
   return Ret;
   }
 
 int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestParamStopped/*=true*/)
   {
-  CStopWatch SW(true);
-
+  //CStopWatch SW(true);
   Strng WrkTag,WrkCnv;
   TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
   TagAccessBlk TAB;
@@ -1008,7 +1027,6 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestPara
     }
 
   //dbgpln("TryWriteTag S %10.2f %s ", 1e6*SW.Secs(), pTag);
-
   return Ret;
   }
 

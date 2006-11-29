@@ -2660,10 +2660,13 @@ Build 122 : 16 November 2006
 1243 24/11/06: (#685) Time offset option fixed in archiver (was incorrect based on GMT).
 1245 27/11/06: (#653,686,687) Changed conversion Epm to PwrM (Specific Power). Added new
                conversions Acceleration (Accel) and Thermal Diffusivity (ThermDiff).
+1249 27/11/06: (#688) Fixes to SMDK qualities for surge, etc.
+1250 29/11/06: (#682) Added new option SetAlways to Queue control model. If off then the
+               tags are only set when the row is advanced or the row index is set.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1245
+#define SCD_PATCH_SVN    1250
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

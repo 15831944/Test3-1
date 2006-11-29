@@ -30,14 +30,17 @@ QueueColInfo::~QueueColInfo()
 //--------------------------------------------------------------------------
 //==========================================================================
 
-QueueConInfo::QueueConInfo()
+QueueConInfo::QueueConInfo(CQueueCon* Parent)
   {
+  pParent = Parent;
   bOn = 1;
   bValid = 0;
   bLoaded = 0;
   bReloadRqd = 1;
   bWrapArround = 1;
   bUseHeadingRow = 0;
+  bUseXRefs = 1;
+  bLogSetTags = 0;
   iCurIndex = -1;
   iStartIndex = 0;
   sPath = PrjFiles();
@@ -181,6 +184,62 @@ int QueueConInfo::DoLoad()
 
 //--------------------------------------------------------------------------
 
+void QueueConInfo::SetTagsDirectly()
+  {
+  if (!bUseXRefs && iCurIndex>=0)
+    {
+    const long Cols = Data.GetCols();
+    for (int j=0; j<Cols; j++)
+      {
+      Strng Tag = ColData[j]->m_OutputVar.sVar();
+      if (Tag.Len())
+        {
+        const double d = ColData[j]->m_dOutput;
+        int Ret = TryWriteTag(pParent->FamilyHead(), Tag(), d);
+        if (Ret==FXR_Found)
+          {
+          if (bLogSetTags)
+            LogNote(pParent->Tag(), 0, "Row %d: Set '%s' to %g", iCurIndex, Tag(), d);
+          }
+        else
+          {
+          LogWarning(pParent->Tag(), 0, "Row %d: Failed to set tag '%s'!", iCurIndex, Tag());
+          }
+        }
+      }
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+void QueueConInfo::CheckTags()
+  {
+  if (!bUseXRefs)
+    {
+    bool FoundErr = false;
+    const long Cols = Data.GetCols();
+    for (int j=0; j<Cols; j++)
+      {
+      Strng Tag = ColData[j]->m_OutputVar.sVar();
+      if (Tag.Len())
+        {
+        int Ret = TryTestTag(pParent->FamilyHead(), Tag());
+        if (Ret!=FXR_Found)
+          {
+          LogError(pParent->Tag(), 0, "Col %d: Tag '%s' not found or not allowed!", j+1, Tag());
+          FoundErr = true;
+          }
+        }
+      else
+        LogWarning(pParent->Tag(), 0, "Col %d: Tag not specified.", j+1);
+      }
+    if (!FoundErr)
+      LogNote(pParent->Tag(), 0, "No bad tags references.");
+    }
+  }
+
+//--------------------------------------------------------------------------
+
 void QueueConInfo::SetIndex(short RqdIndex)
   {
   if (bReloadRqd)
@@ -188,6 +247,7 @@ void QueueConInfo::SetIndex(short RqdIndex)
   iCurIndex = Range((short)-1, RqdIndex, (short)(Data.GetRows()-1));
   if (iCurIndex>=0)
     {
+    long SetCnt = 0;
     const long Cols = Data.GetCols();
     for (int j=0; j<Cols; j++)
       {
@@ -248,11 +308,13 @@ flag CQueueCon::bWithCnvComment = true;
 //--------------------------------------------------------------------------
 
 CQueueCon::CQueueCon(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  FlwNode(pClass_, TagIn, pAttach, eAttach)
+  FlwNode(pClass_, TagIn, pAttach, eAttach),
+  QCI(this)
   {
   fHasFiles=1;
   AttachClassInfo(nc_Control, NULL, NULL, &NullFlwGroup);
   fActiveHoldOK_Dyn=true;
+  bDirectSetRqd = 0;
   bAboutToStart = 0;
   }
 
@@ -273,17 +335,18 @@ void CQueueCon::ResetData(flag Complete)
 const word idmCheckBtn      = 1000;
 const word idmOn            = 1100;
 const word idmTagsInHeading = 1101;
-const word idmFolder        = 1102;
-const word idmFile          = 1103;
-const word idmEdit          = 1104;
-const word idmBrowse        = 1105;
-const word idmReload        = 1106;
-const word idmRestart       = 1107;
-const word idmReloadRestart = 1108;
-const word idmTagCount      = 1109;
-const word idmCurIndex      = 1110;
-const word idmAdvanceRowBtn = 1111;
-const word idmRowCount      = 1112;
+const word idmSetTagsAlways = 1102;
+const word idmFolder        = 1103;
+const word idmFile          = 1104;
+const word idmEdit          = 1105;
+const word idmBrowse        = 1106;
+const word idmReload        = 1107;
+const word idmRestart       = 1108;
+const word idmReloadRestart = 1109;
+const word idmTagCount      = 1110;
+const word idmCurIndex      = 1111;
+const word idmAdvanceRowBtn = 1112;
+const word idmRowCount      = 1113;
 
 const word idmFirstTag      = 1120;
 
@@ -297,6 +360,10 @@ void CQueueCon::BuildDataDefn(DataDefnBlk & DDB)
   Strng Tag;
   DDB.CheckBoxBtn("On",          "",          DC_,     "",      idmOn,              this, isParm, DDBYesNo);
   DDB.CheckBoxBtn("TagsInHeading","",         DC_,     "",      idmTagsInHeading,   this, isParmStopped, DDBYesNo);
+  DDB.CheckBoxBtn("SetAlways",   "",         DC_,     "",       idmSetTagsAlways,   this, isParmStopped, DDBYesNo);
+  DDB.Visibility(NSHM_All, !QCI.bUseXRefs);
+  DDB.CheckBoxBtn("LogTagSets",  "",          DC_,     "",      &(QCI.bLogSetTags), this, isParm, DDBYesNo);
+  DDB.Visibility();
   DDB.String("Folder",           "",          DC_,     "",      idmFolder,          this, isResult);//isParm);
   DDB.String("File",             "",          DC_,     "",      idmFile,            this, isParmStopped);
   DDB.String("Status",           "",          DC_,     "",      &(QCI.sStatus),     this, isResult|noFileAtAll);
@@ -359,7 +426,12 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
         //AccNodeWnd::RefreshData(TRUE); ???
         //TODO: need to accept current data before processing button push!
         if (PreStartCheck())
-          LogNote(Tag(), 0, "No bad external tag references or function errors");
+          {
+          if (QCI.bUseXRefs)
+            LogNote(Tag(), 0, "No bad external tag references or function errors");
+          }
+        if (!QCI.bUseXRefs)
+          QCI.CheckTags();
         bAboutToStart = 0;
         }
       DCB.B=0;
@@ -387,6 +459,16 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
           }
         }
       DCB.B = QCI.bUseHeadingRow;
+      return 1;
+    case idmSetTagsAlways:
+      if (DCB.rB)
+        {
+        //flag Prev = QCI.bUseXRefs;
+        QCI.bUseXRefs = (*DCB.rB);
+        //if (Prev!=QCI.bUseXRefs && !QCI.bUseXRefs)
+        //  UnlinkAllXRefs();
+        }
+      DCB.B = QCI.bUseXRefs;
       return 1;
     case idmFolder:
       if (DCB.rpC!=NULL)
@@ -441,14 +523,20 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
     case idmReload:
       if (DCB.rB && (*DCB.rB!=0))
         {
+        short Prev = QCI.iColCnt;
         DoLoad();
         QCI.SetIndex(QCI.iCurIndex);
+        if (QCI.iCurIndex!=Prev)
+          QCI.SetTagsDirectly();
         }
       DCB.B=0;
       return 1;
     case idmRestart:
       if (DCB.rB && (*DCB.rB!=0))
+        {
         QCI.SetIndex(QCI.iStartIndex);
+        QCI.SetTagsDirectly();
+        }
       DCB.B=0;
       return 1;
     case idmReloadRestart:
@@ -456,6 +544,7 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
         {
         DoLoad();
         QCI.SetIndex(QCI.iStartIndex);
+        QCI.SetTagsDirectly();
         }
       DCB.B=0;
       return 1;
@@ -475,9 +564,17 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
     case idmCurIndex:
       if (DCB.rS)
         {
+        short Prev = QCI.iCurIndex;
         if (QCI.bReloadRqd)
           DoLoad();
         QCI.SetIndex(*DCB.rS);
+        if (DCB.ForFileSnpScn())
+          bDirectSetRqd = 1;
+        else
+          {
+          if (QCI.iCurIndex!=Prev)
+            QCI.SetTagsDirectly();
+          }
         }
       DCB.S=QCI.iCurIndex;
       return 1;
@@ -486,6 +583,7 @@ flag CQueueCon::DataXchg(DataChangeBlk & DCB)
         {
         //dbgp("[QCI.AdvanceIndex]");
         QCI.AdvanceIndex();
+        QCI.SetTagsDirectly();
         }
       DCB.B=0;
       return 1;
@@ -555,12 +653,22 @@ flag CQueueCon::PreStartCheck()
     DoLoad();
     QCI.SetIndex(QCI.iCurIndex);
     }
+  if (bDirectSetRqd)
+    {
+    QCI.SetTagsDirectly();
+    bDirectSetRqd = 0;
+    }
   return FlwNode::PreStartCheck();
   }
 
 //--------------------------------------------------------------------------
 
-bool CQueueCon::TestXRefListActive() { return SetXRefListActive((!GetActiveHold()) && (QCI.bOn!=0) && (QCI.iCurIndex>=0)); }
+bool CQueueCon::TestXRefListActive() 
+  { 
+  if (QCI.bUseXRefs)
+    return SetXRefListActive((!GetActiveHold()) && (QCI.bOn!=0) && (QCI.iCurIndex>=0));
+  return false;
+  }
 
 //---------------------------------------------------------------------------
 
@@ -571,16 +679,20 @@ int CQueueCon::UpdateXRefLists(CXRefBuildResults & Results)
   if (QCI.bOn)
     {
     QCI.bValid = 1;
-    for (int j=0; j<QCI.iColCnt; j++)
+    if (QCI.bUseXRefs)
       {
-      Strng S;
-      S.Set("%s.Out%i", Tag(), j);
-      int RetCode = QCI.ColData[j]->m_OutputVar.UpdateXRef(&QCI, 1, 0, FunctNo, this, -1, S(), S(), "ProfileQueueCon:Output", Results);
-      if (RetCode!=BXR_OK)
-        QCI.bValid = 0;
+      for (int j=0; j<QCI.iColCnt; j++)
+        {
+        Strng S;
+        S.Set("%s.Out%i", Tag(), j);
+        int RetCode = QCI.ColData[j]->m_OutputVar.UpdateXRef(&QCI, 1, 0, FunctNo, this, -1, S(), S(), "ProfileQueueCon:Output", Results);
+        if (RetCode!=BXR_OK)
+          QCI.bValid = 0;
+        }
       }
     }
-  FnMngrTryUpdateXRefLists(Results);
+  if (QCI.bUseXRefs)
+    FnMngrTryUpdateXRefLists(Results);
   return Results.m_nMissing;
   }
 
@@ -599,6 +711,9 @@ void CQueueCon::UnlinkAllXRefs()
 
 void CQueueCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
+  if (!QCI.bUseXRefs)
+    return;
+
   if (XRefListActive() && QCI.iCurIndex>=0 && ICGetTimeInc()>0.0)
     {
     GetNearXRefValues();
@@ -654,6 +769,7 @@ void CQueueCon::SetState(eScdMdlStateActs RqdState)
   if (DoReset && QCI.bOn)
     {
     QCI.SetIndex(QCI.iStartIndex);
+    QCI.SetTagsDirectly();
     }
 
   }
