@@ -79,39 +79,36 @@ XID xidFlwEqnNomDP          = FlwXID(10041);
 XID xidFlwEqnNomQm          = FlwXID(10042);
 XID xidFlwEqnNomQv          = FlwXID(10043);
 
-XID xidFlwEqnLast           = FlwXID(10000);
-XID xidFlwEqnFirst          = FlwXID(10100);
 
+XID xidFEArea               = FlwXID(20000+ 0*NxidFEIOs);
+XID xidFELength             = FlwXID(20000+ 1*NxidFEIOs);
+XID xidFEDZ                 = FlwXID(20000+ 2*NxidFEIOs);
+XID xidFEVelocity           = FlwXID(20000+ 3*NxidFEIOs);
+XID xidFEDPb                = FlwXID(20000+ 4*NxidFEIOs);
+XID xidFEDPbX               = FlwXID(20000+ 5*NxidFEIOs);
+XID xidFEDPbdQ              = FlwXID(20000+ 7*NxidFEIOs);
+XID xidFEDPq                = FlwXID(20000+ 8*NxidFEIOs);
+XID xidFEDPqdQ              = FlwXID(20000+ 9*NxidFEIOs);
+XID xidFEDPa                = FlwXID(20000+10*NxidFEIOs);
+XID xidFEDPadQ              = FlwXID(20000+11*NxidFEIOs);
+XID xidFEDPz                = FlwXID(20000+12*NxidFEIOs);
+XID xidFEDPzdQ              = FlwXID(20000+13*NxidFEIOs);
+XID xidFEDPmB               = FlwXID(20000+14*NxidFEIOs);
+XID xidFEDPmQ               = FlwXID(20000+15*NxidFEIOs);
+XID xidFEDPmdQ              = FlwXID(20000+16*NxidFEIOs);
+XID xidFEQm                 = FlwXID(20000+17*NxidFEIOs);
 
-XID xidFEArea           = FlwXID(20000+ 0*NxidFEIOs);
-XID xidFELength         = FlwXID(20000+ 1*NxidFEIOs);
-XID xidFEDZ             = FlwXID(20000+ 2*NxidFEIOs);
-XID xidFEVelocity       = FlwXID(20000+ 3*NxidFEIOs);
-XID xidFEDPb            = FlwXID(20000+ 4*NxidFEIOs);
-XID xidFEDPbX           = FlwXID(20000+ 5*NxidFEIOs);
-XID xidFEDPbdQ          = FlwXID(20000+ 7*NxidFEIOs);
-XID xidFEDPq            = FlwXID(20000+ 8*NxidFEIOs);
-XID xidFEDPqdQ          = FlwXID(20000+ 9*NxidFEIOs);
-XID xidFEDPa            = FlwXID(20000+10*NxidFEIOs);
-XID xidFEDPadQ          = FlwXID(20000+11*NxidFEIOs);
-XID xidFEDPz            = FlwXID(20000+12*NxidFEIOs);
-XID xidFEDPzdQ          = FlwXID(20000+13*NxidFEIOs);
-XID xidFEDPmB           = FlwXID(20000+14*NxidFEIOs);
-XID xidFEDPmQ           = FlwXID(20000+15*NxidFEIOs);
-XID xidFEDPmdQ          = FlwXID(20000+16*NxidFEIOs);
-XID xidFEQm             = FlwXID(20000+17*NxidFEIOs);
+XID xidFEQmEst              = FlwXID(20000+18*NxidFEIOs);
 
-XID xidFEQmEst          = FlwXID(20000+18*NxidFEIOs);
-
-XID xidFEQmPrvPB        = FlwXID(20000+19*NxidFEIOs);
-XID xidFEQmAvail        = FlwXID(20000+20*NxidFEIOs);
-XID xidFEQmSpace        = FlwXID(20000+21*NxidFEIOs);
-//XID xidFEQmMemPB        = FlwXID(20000+24*NxidFEIOs);
-XID xidFEBstDamping     = FlwXID(20000+25*NxidFEIOs);
+XID xidFEQmPrvPB            = FlwXID(20000+19*NxidFEIOs);
+XID xidFEQmAvail            = FlwXID(20000+20*NxidFEIOs);
+XID xidFEQmSpace            = FlwXID(20000+21*NxidFEIOs);
+//XID xidFEQmMemPB            = FlwXID(20000+24*NxidFEIOs);
+XID xidFEBstDamping         = FlwXID(20000+25*NxidFEIOs);
 
 // Max of 40
-XID xidFELast           = FlwXID(20000+26*NxidFEIOs);
-XID xidFEFirst          = xidFEArea;
+XID xidFEFirst              = xidFEArea;
+XID xidFELast               = FlwXID(20000+26*NxidFEIOs);
 
 const double Min_FE_Rho_Value=1.0e-3;
 const double Max_FE_Rho_Value=20000.0;
@@ -757,7 +754,8 @@ class DllImportExport CFlwEqnPtr //: public CFBPhysData
 
     CFlwEqnPtr & operator=(const CFlwEqnPtr & A);
 
-    CFlwEqnPtr     & Eqn2Use() { return m_pParentFEP ? *m_pParentFEP : *this; };
+    CFlwEqnPtr     & Eqn2Use()   { return m_pParentFEP ? *m_pParentFEP : *this; };
+    bool            HasParent()  { return m_pParentFEP!=NULL; };
 
     void            SetOptions(long Options, double DPFactor);
     virtual void    ResetData(flag Complete);

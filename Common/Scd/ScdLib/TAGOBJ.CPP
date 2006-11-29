@@ -95,12 +95,19 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Direct, "$Dyn.Try_Start",                   "$Dyn.Cmd.Start",                         ""},
     {eO2N_Direct, "$Dyn.Try_Idle",                    "$Dyn.Cmd.Idle",                          ""},
     {eO2N_Direct, "$Dyn.Try_Stop",                    "$Dyn.Cmd.Stop",                          ""},
-
+ 
     {eO2N_Class,  "Pipe-1.Reactions",                 ".EB.Reactions",                          ""},
     {eO2N_Class,  "Pipe-1.EnvironHX",                 ".EB.EnvironHX",                          ""},
     {eO2N_Class,  "Pipe-1.VLEquilibrium",             ".EB.VLEquilibrium",                      ""},
     {eO2N_Class,  "Pipe-1.Evaporator",                ".EB.Evaporator",                         ""},
 
+    {eO2N_Class,  "Pipe-1.Qm_RqdCapacity",            ".Qm_RqdCapacity",                        ""},
+    {eO2N_Class,  "Pipe-1.Qm_Capacity",               ".Qm_Capacity",                           ""},
+    {eO2N_Class,  "Pipe-1.Qm_MinCapacity",            ".Qm_MinCapacity",                        ""},
+    {eO2N_Class,  "Pipe-1.Qm_MinCap",                 ".Qm_MinCap",                             ""},
+    {eO2N_Class,  "Pipe-1.Qm_MaxCapacity",            ".Qm_MaxCapacity",                        ""},
+    {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Qm_MaxCap",                             ""},
+ 
     {eO2N_End},
   };
 
@@ -838,7 +845,7 @@ INLINE void DDBShortcut::Set(DDBDataInfo * pDI, pchar FullItemTag, dword CurData
   m_sCurrentTag=FullItemTag;
    // Overcome the possible volatility of these strings;
 
-  if (DataDefnBlk::debugging)
+  if (DataDefnBlk::debugging&0x4)
     dbgpln("Set ShortCut %08x %08x      %6i:%6i %s", this, pThis, CurDataVer, TaggedObject::dwGlblDataVerNo, FullItemTag);
 
   sTag    = pTag;
@@ -873,7 +880,7 @@ INLINE flag DDBShortcut::TestShortcut(char *FullItemTag, dword ObjectVersion)
     {
     if (sFullItemTag.XStrICmp(FullItemTag)==0)
       {
-      if (DataDefnBlk::debugging)
+      if (DataDefnBlk::debugging&0x4)
         dbgpln("Shortcut FOUND  %s", FullItemTag);
       return True;
       }
@@ -3171,7 +3178,7 @@ DDEF_Flags DDBDataInfo::GetBool(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Byte=*(flag*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetBool %s = %i", pSym[0]?pSym:pTag, DataValue.Byte);
 
   return XtraFlags;
@@ -3217,7 +3224,7 @@ void DDBDataInfo::PutBool(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLs
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutBool %s = %i", pSym[0]?pSym:pTag, pDataValue->Byte);
 
   }
@@ -3246,7 +3253,7 @@ DDEF_Flags DDBDataInfo::GetChar(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Char=*(char*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetChar %s = %i", pSym[0]?pSym:pTag, DataValue.Char);
 
   return XtraFlags;
@@ -3292,7 +3299,7 @@ void DDBDataInfo::PutChar(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLs
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutChar %s = %i", pSym[0]?pSym:pTag, pDataValue->Char);
 
   }
@@ -3321,7 +3328,7 @@ DDEF_Flags DDBDataInfo::GetByte(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Byte=*(byte*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetByte %s = %i", pSym[0]?pSym:pTag, DataValue.Byte);
 
   return XtraFlags;
@@ -3367,7 +3374,7 @@ void DDBDataInfo::PutByte(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLs
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutByte %s = %i", pSym[0]?pSym:pTag, pDataValue->Byte);
 
   }
@@ -3396,7 +3403,7 @@ DDEF_Flags DDBDataInfo::GetWord(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Word=*(word*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetWord %s = %i", pSym[0]?pSym:pTag, DataValue.Word);
 
   return XtraFlags;
@@ -3442,7 +3449,7 @@ void DDBDataInfo::PutWord(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLs
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutWord %s = %i", pSym[0]?pSym:pTag, pDataValue->Word);
 
   }
@@ -3471,7 +3478,7 @@ DDEF_Flags DDBDataInfo::GetDWord(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.DWord=*(dword*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetDWord %s = %i", pSym[0]?pSym:pTag, DataValue.DWord);
 
   return XtraFlags;
@@ -3517,7 +3524,7 @@ void DDBDataInfo::PutDWord(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueL
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutDWord %s = %i", pSym[0]?pSym:pTag, pDataValue->DWord);
 
   }
@@ -3546,7 +3553,7 @@ DDEF_Flags DDBDataInfo::GetInt(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Int=*(int*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetInt %s = %i", pSym[0]?pSym:pTag, DataValue.Int);
 
   return XtraFlags;
@@ -3592,7 +3599,7 @@ void DDBDataInfo::PutInt(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLst
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutInt %s = %i", pSym[0]?pSym:pTag, pDataValue->Int);
 
   }
@@ -3621,7 +3628,7 @@ DDEF_Flags DDBDataInfo::GetShort(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Short=*(short*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetShort %s = %i", pSym[0]?pSym:pTag, DataValue.Short);
 
   return XtraFlags;
@@ -3667,7 +3674,7 @@ void DDBDataInfo::PutShort(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueL
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutShort %s = %i", pSym[0]?pSym:pTag, pDataValue->Short);
 
   }
@@ -3696,7 +3703,7 @@ DDEF_Flags DDBDataInfo::GetLong(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.Long=*(long*)pData;
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetLong %s = %i", pSym[0]?pSym:pTag, DataValue.Byte);
 
   return XtraFlags;
@@ -3742,7 +3749,7 @@ void DDBDataInfo::PutLong(TABOptions Opts, PkDataUnion &DataValue)//, DDBValueLs
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutLong %s = %i", pSym[0]?pSym:pTag, pDataValue->Long);
 
   }
@@ -3769,7 +3776,7 @@ DDEF_Flags DDBDataInfo::GetFloat(TABOptions Opts, PkDataUnion &DataValue)
   else
     DataValue.Float=*(float*)pData;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetFloat %s = %g", pSym[0]?pSym:pTag, DataValue.Float);
 
   return XtraFlags;
@@ -3826,7 +3833,7 @@ void DDBDataInfo::PutFloat(TABOptions Opts, PkDataUnion &DataValue)
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutFloat %s = %g", pSym[0]?pSym:pTag, pDataValue->Float);
 
   }
@@ -3853,7 +3860,7 @@ DDEF_Flags DDBDataInfo::GetDouble(TABOptions Opts, PkDataUnion &DataValue)
   else
     DataValue.Double=*(double*)pData;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetDouble %s = %g", pSym[0]?pSym:pTag, DataValue.Double);
 
   return XtraFlags;
@@ -3921,7 +3928,7 @@ void DDBDataInfo::PutDouble(TABOptions Opts, PkDataUnion &DataValue)
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutDouble %s = %g", pSym[0]?pSym:pTag, pDataValue->Double);
 
   }
@@ -3953,7 +3960,7 @@ DDEF_Flags DDBDataInfo::GetString(TABOptions Opts, PkDataUnion &DataValue)
     //DataValue.StringSet(p ? p : "");
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetString %s = %s", pSym[0]?pSym:pTag, DataValue.String());
 
   return XtraFlags;
@@ -4002,7 +4009,7 @@ void DDBDataInfo::PutString(TABOptions Opts, PkDataUnion &DataValue)//, DDBValue
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutString %s = %s", pSym[0]?pSym:pTag, pDataValue->String());
 
   return;
@@ -4037,7 +4044,7 @@ DDEF_Flags DDBDataInfo::GetBlob(TABOptions Opts, PkDataUnion &DataValue)
     DataValue.BlobSet(pData, wBlobSize);
     }
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x1)
   dbgpln("--------------------------GetBlob %s ", pTag);
 
   return XtraFlags;
@@ -4075,7 +4082,7 @@ void DDBDataInfo::PutBlob(TABOptions Opts, PkDataUnion &DataValue)
   pThis->bObjModified=True;
   pThis->bUnValidatedData=True;
 
-if (DataDefnBlk::debugging)
+if (DataDefnBlk::debugging&0x2)
   dbgpln("--------------------------PutBlob %s ", pTag);
 
   return;
@@ -4517,7 +4524,7 @@ flag DataDefnBlk::Analyse(CPkDataIter &Iter)
   lMsgItemLevel=0;
   pParentItem[lMsgItemLevel]=NULL;
 
-  if (debugging)
+  if (debugging&0x8)
     dbgItem(pItemList->ElementAt(0));
 
   return True;
@@ -4808,7 +4815,7 @@ flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
         if (pParentItem[lMsgItemLevel+1]!=NULL)
           {
           lMsgItemLevel++;
-          if (debugging)
+          if (debugging&0x4)
             dbgpln("Enter Blk: %s", pTag);
           }
         else
@@ -4914,7 +4921,7 @@ void DataDefnBlk::EndBlock(DDEF_Flags Flags)
     case DDBTask_PutData:
       if (Nest[lCallLevel].fBlockReqd)
         {
-        if (debugging)
+        if (debugging&0x4)
           dbgpln("Leave Blk");
         lMsgItemLevel--;
         //m_pList->AdvanceRead(pPItem);

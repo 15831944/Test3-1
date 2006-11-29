@@ -3684,7 +3684,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
               for (int fe=0; fe<NIOFBs(i); fe++)
                 {
                 MAKEIOTG4DDB(Tg, i, fe);
-                DWORD UI=UIIOFBFlag+i+(fe<<8);
+                DWORD UI=UIIOFBFlag+i+(fe<<16);
                 if (DDB.BeginElement(this, Tg(),NULL,UI,DDB_OptPage,0/*MarkerClosed*/))
                   {
                   IOFB(i,fe)->BuildDataDefn(FBDDOpt_WithEqn/*|FBDDOpt_HideEqnStruct*/, DDB, this, NULL/*Nd_Rmt(i)->Tag()*/, UI, DDB_NoPage);

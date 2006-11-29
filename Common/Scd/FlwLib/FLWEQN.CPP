@@ -1267,7 +1267,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
     case xidFlwEqnQmMeasRho:
       if (DCB.rD)
         {
-        Eqn()->m_FlwRqd.m_MeasDens=*DCB.rD;
+        Eqn()->m_FlwRqd.m_MeasDens=Max(0.001, *DCB.rD);
         Eqn()->m_FlwRqd.m_bMeasDensOK=true;
         }
       DCB.D=Eqn()->m_FlwRqd.m_MeasDens;

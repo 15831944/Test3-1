@@ -3165,13 +3165,16 @@ void FlwNode::BuildSystemDefn(DataDefnBlk & DDB)
             {
             for (int fe=0; fe<NIOFBs(i); fe++)
               {
-              Strng Tg;
-              MAKEIOTG4DDB(Tg, i, fe);
-
-              DWORD UI=UIIOFBFlag+i+(fe<<16);
-              if (DDB.BeginElement(this, Tg(),NULL,UI, DDB_OptPage,MarkerClosed))
+              if (!IOFB(i,fe)->HasParent())
                 {
-                IOFB(i,fe)->BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_HideEqnStruct|FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec, DDB, this, Nd_Rmt(i)->Tag(), UI, DDB_NoPage);
+                Strng Tg;
+                MAKEIOTG4DDB(Tg, i, fe);
+
+                DWORD UI=UIIOFBFlag+i+(fe<<16);
+                if (DDB.BeginElement(this, Tg(),NULL,UI, DDB_OptPage,MarkerClosed))
+                  {
+                  IOFB(i,fe)->BuildDataDefn(FBDDOpt_WithEqn|FBDDOpt_HideEqnStruct|FBDDOpt_WithQmSpec|FBDDOpt_WithDPSpec, DDB, this, Nd_Rmt(i)->Tag(), UI, DDB_NoPage);
+                  }
                 }
               }
             }
@@ -3301,7 +3304,7 @@ static char IOTagTmp[256];
 
 flag FlwNode::DataXchg(DataChangeBlk & DCB)
   {
-  if (/*(DCB.lHandle>=xidIOSeqFirst) && (DCB.lHandle<=xidIOSeqLast) &&*/ (DCB.dwUserInfo & UIIOFlag))
+  if (DCB.dwUserInfo & UIIOFlag)
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFlag);
     DCB.dwUserInfo=0;
@@ -3320,7 +3323,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if (/*(DCB.lHandle>=xidFBFirst) && (DCB.lHandle<=xidFBLast) &&*/ (DCB.dwUserInfo & UIIOFBFlag))
+  if (DCB.dwUserInfo & UIIOFBFlag)
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFBFlag);
     DCB.dwUserInfo=0;
@@ -3337,11 +3340,16 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if (/*(DCB.lHandle>=xidFlwEqnLast) && (DCB.lHandle<=xidFlwEqnFirst) &&*/ (DCB.dwUserInfo & UINdFBFlag))   
+  if (DCB.dwUserInfo & UINdFBFlag)   
     {
     DWORD UI=DCB.dwUserInfo&(~UINdFBFlag);
     DCB.dwUserInfo=0;
-    if (GetSystemDefnFlwEqn(UI&0xffff, NULL)->DataXchg(DCB))
+    CFlwEqnPtr *p=GetSystemDefnFlwEqn(UI&0xffff, NULL);
+    if (!p)
+      {
+      LogError(FullObjTag(), 0, "GetSystemDefnFlwEqn returned NULL");
+      }
+    else if (p->DataXchg(DCB))
       return 1;
     DCB.dwUserInfo=UI;
     }

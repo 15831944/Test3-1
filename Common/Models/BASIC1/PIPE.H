@@ -37,8 +37,6 @@ class DllImportExport Pipe : public MN_Lnk
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
 
-  private:
-    bool           m_UseNewCapVars;
   };
 
 //=========================================================================== 

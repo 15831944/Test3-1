@@ -149,7 +149,6 @@ Pipe::Pipe(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttac
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(Pipe), 0, mmio_CONNECT, NULL);
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(Pipe), 1, mmio_CONNECT, NULL);
 
-  m_UseNewCapVars =false;
   };
 
 //--------------------------------------------------------------------------
@@ -210,22 +209,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   else
     {
     DDB.Text   ("");
-    if (OrigPrjFileVerNo()<94)
-      DDB.CheckBoxBtn("UseNewCapVars",      "",   DC_,  "",  &m_UseNewCapVars,       this, isParm);
 
-    if (!m_UseNewCapVars && OrigPrjFileVerNo()<94)
-      {
-      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (!IsXfer/* || dbgfile()*/));
-      DDB.Double ("",               "Qm_Rqd",       DC_Qm,   "kg/s",  xidOldQmReqd,           this, isParm|NAN_OK, DDBNAN_NotSpecd);
-      DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
-      DDB.Double ("Qm_RqdCapacity", "Qm_Capacity",  DC_Qm,   "kg/s",  xidOldQmRqdCapacity,    this, isParm|NAN_OK, DDBNAN_NotSpecd);
-      DDB.Double ("Qm_MinCapacity", "Qm_MinCap",    DC_Qm,   "kg/s",  xidOldQmMinCapacity,    this, isParm);
-      DDB.Double ("Qm_MaxCapacity", "Qm_MaxCap",    DC_Qm,   "kg/s",  xidOldQmMaxCapacity,    this, isParm|NAN_OK, DDBNAN_NotSpecd);
-      }
-    else if (!IsPipe || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
+    if (IsXfer || !DDB.ForFileSnpScn() || PrjFileVerNo()<40)
       {
       DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && IsXfer);
-      m_FEP.BuildDataDefn(/*FBDDOpt_WithEqn|FBDDOpt_WithDPSpec|*/FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
+      m_FEP.BuildDataDefn(FBDDOpt_WithQmSpec, DDB, this, "Flw", 3, DDB_NoPage);
       }
 
     static DDBValueLst DDBXfCapOpt[]={
