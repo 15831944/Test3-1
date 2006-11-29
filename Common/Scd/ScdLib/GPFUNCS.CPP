@@ -5376,11 +5376,16 @@ void SwingCfgFileIfReqd(Strng & Fn)
     Strng sCfgFile(Fn);
     sCfgFile+=".Moved";
     CProfINIFile MovedPF(sCfgFile());
-    sCfgFile=MovedPF.RdStr("MovedTo", "Folder", "??????");
-    if (sCfgFile.Len()>0 && sCfgFile.XStrICmp("??????")!=0)
+    Strng NewsCfgFile, Tmp;
+    NewsCfgFile=MovedPF.RdStr("MovedTo", "Folder", "??????");
+    if (NewsCfgFile.Len()>0 && NewsCfgFile.XStrICmp("??????")!=0)
       {
       LogNote("SysCAD", 0, "Configuration file %s has been moved to %s", Fn(), sCfgFile()); 
-      Fn=sCfgFile; // Swing it
+      // Swing it
+      //TakeDrive from original;
+      Fn.FnDrive(sCfgFile());
+      NewsCfgFile.FnPathNameExt();
+      Fn+=NewsCfgFile; 
       }
     }
   }
