@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "STHx.h"
 #define PI 3.14159265358979
 
