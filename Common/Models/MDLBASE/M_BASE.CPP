@@ -2851,7 +2851,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         {
         int i=DCB.lHandle-xidIO_IoQm0-NoFlwIOs();
         CDirectFlwIO &D=*m_EnabledDirectIOs[i];
-        DCB.D=D.NdSignImplied*D.Sum.FlowMass;//?????
+        DCB.D=D.NdSignImplied*D.Sum.FlowMass;
         return true;
         }
       else if (DCB.lHandle>=xidIO_DrQm0 && DCB.lHandle<xidIO_DrQm0+m_EnabledDirectIOs.GetCount())
@@ -2870,6 +2870,13 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         {
         int i=DCB.lHandle-xidIO_IoHz0;
         DCB.D=IOConduit(i)->totHz()*Sign(IOQm_In(i));
+        return true;
+        }
+      else if (DCB.lHandle>=xidIO_IoHz0+NoFlwIOs() && DCB.lHandle<xidIO_IoHz0+NoFlwIOs()+NoProcDirectIOs())
+        {
+        int i=DCB.lHandle-xidIO_IoHz0-NoFlwIOs();
+        CDirectFlwIO &D=*m_EnabledDirectIOs[i];
+        DCB.D=D.NdSignImplied*D.Sum.FlowHz;
         return true;
         }
       else if (DCB.lHandle>=xidIO_DrHz0 && DCB.lHandle<xidIO_DrHz0+NoEnabledDirectIOs())

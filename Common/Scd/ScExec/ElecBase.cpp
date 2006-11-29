@@ -357,7 +357,7 @@ LPCTSTR CEComponent::DstName()
 void CECompData::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pTagObj, long Id, LPCTSTR Tag)
   {
   if (Tag)
-    DDB.BeginElement(pTagObj, Tag, NULL, Id);
+    DDB.BeginElement(pTagObj, Tag, NULL);//, Id);
   DDB.String   ("", "Src",      DC_,      "",     Id+xidConnSrc,    pTagObj, 0);
   DDB.String   ("", "Dst",      DC_,      "",     Id+xidConnDst,    pTagObj, 0);
 

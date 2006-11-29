@@ -3301,7 +3301,7 @@ static char IOTagTmp[256];
 
 flag FlwNode::DataXchg(DataChangeBlk & DCB)
   {
-  if ((DCB.lHandle>=xidIOSeqFirst) && (DCB.lHandle<=xidIOSeqLast) && (DCB.dwUserInfo & UIIOFlag))
+  if (/*(DCB.lHandle>=xidIOSeqFirst) && (DCB.lHandle<=xidIOSeqLast) &&*/ (DCB.dwUserInfo & UIIOFlag))
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFlag);
     DCB.dwUserInfo=0;
@@ -3320,7 +3320,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if ((DCB.lHandle>=xidFBFirst) && (DCB.lHandle<=xidFBLast) && (DCB.dwUserInfo & UIIOFBFlag))
+  if (/*(DCB.lHandle>=xidFBFirst) && (DCB.lHandle<=xidFBLast) &&*/ (DCB.dwUserInfo & UIIOFBFlag))
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFBFlag);
     DCB.dwUserInfo=0;
@@ -3337,7 +3337,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     DCB.dwUserInfo=UI;
     }
-  if ((DCB.lHandle>=xidFlwEqnLast) && (DCB.lHandle<=xidFlwEqnFirst) && (DCB.dwUserInfo & UINdFBFlag))   
+  if (/*(DCB.lHandle>=xidFlwEqnLast) && (DCB.lHandle<=xidFlwEqnFirst) &&*/ (DCB.dwUserInfo & UINdFBFlag))   
     {
     DWORD UI=DCB.dwUserInfo&(~UINdFBFlag);
     DCB.dwUserInfo=0;
