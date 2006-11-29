@@ -9,8 +9,7 @@
 using namespace std;
 
 #pragma comment(lib, "rpcrt4.lib")
-#pragma optimize ("",off)
-
+//#pragma optimize ("",off)
 
 //===========================================================================
 //
@@ -52,8 +51,6 @@ MSpeciePtr   Air                (InitTest, "Air(g)",         false);
 MSpeciePtr   Steam              (InitTest, "H2O(g)",         false);
 MSpeciePtr   Methane            (InitTest, "CH4(g)",         false);
 MSpeciePtr   Methanel           (InitTest, "CH4(g)",         false);
-
-
 
 DEFINE_SPECIEMODEL(CSKOSpMdl)
 IMPLEMENT_SPECIEMODEL(CSKOSpMdl, "SKOSM", "*SKO", "SKO User Specie Model", DLL_GroupName)

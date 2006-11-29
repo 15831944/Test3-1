@@ -4,9 +4,8 @@
 
 #include "stdafx.h"
 #include "kouevalle.h"  
-#pragma optimize("", off)
+//#pragma optimize("", off)
 #include "math.h"
-
 
 //====================================================================================
 
@@ -98,7 +97,7 @@ void CKoueValle_UnitDef::GetOptions()
 	SetDescription("TODO: A description");
 	SetModelSolveMode(MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_Energy);
-	SetModelLicense(MLicense_User);
+//	SetModelLicense(MLicense_User);
 };
 
 //---------------------------------------------------------------------------

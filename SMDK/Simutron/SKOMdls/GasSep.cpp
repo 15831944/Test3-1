@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __GASSEP_CPP
 #include "gassep.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 #include "iso646.h"
 
 //---------------------------------------------------------------------------
@@ -533,7 +533,7 @@ void CGasSep_UnitDef::GetOptions()
   SetDescription("SKO Gas Seperator");
   SetModelSolveMode(MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
   SetModelGroup(MGroup_Separation);
-  SetModelLicense(MLicense_User);
+  //SetModelLicense(MLicense_User);
   };
 
 //---------------------------------------------------------------------------

@@ -113,7 +113,7 @@ wzzip -a %fn2% ..\bin\ts_prc.dll
 rem ========== Simutron ==========
 set fn2=%fn%_c_Simutron.zip
 del %fn2%
-wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
+wzzip -a %fn2% ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 
 rem ========== Worsley ==========
 set fn2=%fn%_c_BATC.zip
@@ -144,7 +144,7 @@ wzzip -a %fn2% ..\bin\ttechqal.dll
 wzzip -a %fn2% ..\bin\alcoaspmdl.dll
 wzzip -a %fn2% ..\bin\rtts.dll ..\bin\ts.dll ..\bin\ts_modellib.dll
 wzzip -a %fn2% ..\bin\ts_prc.dll
-wzzip -a %fn2% ..\bin\SKO.dll ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
+wzzip -a %fn2% ..\bin\SKOMdls.dll ..\bin\SKOSpMdls.dll
 wzzip -a %fn2% ..\bin\batc_bayer.dll ..\bin\batc_brahma.dll
 
 @echo off
