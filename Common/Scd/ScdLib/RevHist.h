@@ -2663,10 +2663,12 @@ Build 122 : 16 November 2006
 1249 27/11/06: (#688) Fixes to SMDK qualities for surge, etc.
 1250 29/11/06: (#682) Added new option SetAlways to Queue control model. If off then the
                tags are only set when the row is advanced or the row index is set.
+1254 29/11/06: Fix for 'Bad Data Exchange' messages during save.
+1256 30/11/06: (#691) Added 'T,Comp' composition fetch option.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1250
+#define SCD_PATCH_SVN    1256
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

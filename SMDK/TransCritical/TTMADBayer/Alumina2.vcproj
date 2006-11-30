@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include"
+				AdditionalIncludeDirectories="..\..\Include,."
 				PreprocessorDefinitions="NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -92,7 +92,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Include"
+				AdditionalIncludeDirectories="..\..\Include,."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -160,7 +160,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include"
+				AdditionalIncludeDirectories="..\..\Include,."
 				PreprocessorDefinitions="_DEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -229,7 +229,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include"
+				AdditionalIncludeDirectories="..\..\Include,."
 				PreprocessorDefinitions="SMDK_Debug;_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

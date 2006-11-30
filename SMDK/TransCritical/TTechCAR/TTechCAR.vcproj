@@ -25,7 +25,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,..\TTCommon"
+				AdditionalIncludeDirectories="..\..\Include,..\TTCommon,."
 				PreprocessorDefinitions="NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -96,7 +96,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Include,..\TTCommon"
+				AdditionalIncludeDirectories="..\..\Include,..\TTCommon,."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -164,7 +164,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,..\TTCommon"
+				AdditionalIncludeDirectories="..\..\Include,..\TTCommon,."
 				PreprocessorDefinitions="_DEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -233,7 +233,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,..\TTCommon"
+				AdditionalIncludeDirectories="..\..\Include,..\TTCommon,."
 				PreprocessorDefinitions="SMDK_Debug;_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

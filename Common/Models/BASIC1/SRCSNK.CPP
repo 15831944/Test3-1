@@ -310,6 +310,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
       {CFWhatTemp|CFWhatPress,                        "T,P"                 },
       {CFWhatComp,                                    "Comp"                },
       {CFWhatFlow,                                    "Flow",           QDrv},
+      {CFWhatTemp|CFWhatComp,                         "T,Comp"              },
       {CFWhatTemp|CFWhatPress|CFWhatComp,             "T,P,Comp"            },
       {CFWhatTemp|CFWhatPress|CFWhatFlow,             "T,P,Flow",       QDrv},
       {CFWhatComp|CFWhatFlow,                         "Comp,Flow",      QDrv},
