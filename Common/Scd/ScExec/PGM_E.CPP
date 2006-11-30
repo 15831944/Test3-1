@@ -34,6 +34,7 @@
 #endif
 
 #if dbgGenCon
+static CDbgMngr dbgGetSets    ("PGM", "GetSets");
 static CDbgMngr dbgExec       ("PGM", "Exec");
 static CDbgMngr dbgLoad       ("PGM", "Load");
 static CDbgMngr dbgVars       ("PGM", "Vars");
@@ -1932,6 +1933,10 @@ pGCIns GCSetTagDef::Construct(GCInsMngr & IB)
 
 void GCSetTagIns::Exec(GCInsMngr & IB)
   {
+#if dbgGenCon
+  if (dbgGetSets())
+    dbgpln("SetTag %-35s %5i %-10s %15.6f", m_pVar->Name(), m_pVar->m_iCnvIndex, m_sCnvTxt(), IB.m_dCalcStack[IB.m_iCalcPos]);
+#endif
   m_pVar->set(Cnvs[m_pVar->m_iCnvIndex]->Normal(IB.m_dCalcStack[IB.m_iCalcPos--], m_sCnvTxt()));
   Advance(IB);
   }
@@ -1980,6 +1985,10 @@ void GCGetTagIns::Exec(GCInsMngr & IB)
   if (IB.m_iCalcPos >= MAX_CALC_STACK)
     IB.Err(ErrOtherRuntime, 3);
   IB.m_dCalcStack[++IB.m_iCalcPos] = Cnvs[m_pVar->m_iCnvIndex]->Human(m_pVar->getD(), m_sCnvTxt());
+#if dbgGenCon
+  if (dbgGetSets())
+    dbgpln("GetTag    %-35s %5i %-10s %15.6f", m_pVar->Name(), m_pVar->m_iCnvIndex, m_sCnvTxt(), IB.m_dCalcStack[IB.m_iCalcPos]);
+#endif
   Advance(IB);
   }
 
@@ -2065,6 +2074,10 @@ void GCSetDynTagIns::Exec(GCInsMngr & IB)
           IB.Err(ErrOtherRuntime, 11, s());
           }
         pVar->set(Cnvs[pTagVar->m_iCnvIndex]->Normal(IB.m_dCalcStack[IB.m_iCalcPos--], WrkCnvTxt()));
+#if dbgGenCon
+        if (dbgGetSets())
+          dbgpln("SetDynTag %-35s %5i %-10s %15.6f", pVar->Name(), pTagVar->m_iCnvIndex, WrkCnvTxt(), IB.m_dCalcStack[IB.m_iCalcPos]);
+#endif
         }
       else
         pVar->set(IB.m_dCalcStack[IB.m_iCalcPos--]);
@@ -2147,9 +2160,19 @@ void GCGetDynTagIns::Exec(GCInsMngr & IB)
           IB.Err(ErrOtherRuntime, 12, s());
           }
         IB.m_dCalcStack[++IB.m_iCalcPos] = Cnvs[pTagVar->m_iCnvIndex]->Human(pVar->getD(), WrkCnvTxt());
+#if dbgGenCon
+        if (dbgGetSets())
+          dbgpln("GetDynTag %-35s %5i %-10s %15.6f", pVar->Name(), pTagVar->m_iCnvIndex, WrkCnvTxt(), IB.m_dCalcStack[IB.m_iCalcPos]);
+#endif
         }
       else
+        {
         IB.m_dCalcStack[++IB.m_iCalcPos] = pVar->getD();
+#if dbgGenCon
+        if (dbgGetSets())
+          dbgpln("GetDynTag %-35s %5i %-10s %15.6f", pVar->Name(), -1, "", IB.m_dCalcStack[IB.m_iCalcPos]);
+#endif
+        }
       }
     }
   Advance(IB);

@@ -14,6 +14,7 @@
 #define dbgReaction  WITHDEBUG
 #if dbgReaction
 #include "dbgmngr.h"
+static CDbgMngr dbgRctCalcKs      ("RctEqns", "CalcKs");
 static CDbgMngr dbgRctSolve       ("RctEqns", "Solve");
 static CDbgMngr dbgRctSolveEqn    ("RctEqns", "SolveEqn");
 static CDbgMngr dbgRctSolveEqnSpc ("RctEqns", "SolveEqnSpc");
@@ -119,6 +120,9 @@ double CR_EqnControl::ExtentDynamicScale(double K)
         case eStateConverge:
           if (RB.CSB()->TimeInc()<=0.0)
             KScl=m_dKStart;
+          break;
+        default:
+          KScl=m_dKStart;
           break;
         }
       }
@@ -316,7 +320,7 @@ double CR_EqnControl::FwdRctExtent()
           }
 
         double Ret=Min(MaxExtentMols, ExtentReqd()*RB.Moles[R.SpcId])/R.NoOfMoles;
-        //dbgpln("====== %12.4f", Ret);
+        //dbgpln("====== %12.4f %12.4f", ExtentReqd(), Ret);
         return Ret;
         }
       else
@@ -1778,7 +1782,12 @@ class CReactingMolesSolver : public MRootFinder
       double EqK=0.0;
       double K=0.0;
       E.Control().CalcKs(dProdMoles, EqK, K);
-      //dbgpln("Fn:[%3i] %*s %20.14f %20.14f %20.14f %20.14f",Iterations(), 1,"", dProdMoles, m_EqK, m_K, 1+(m_EqK-m_K) - (E.dEqK0-E.dK0)*(1.0-Extent));
+
+      //#if dbgReaction
+      ////if (E.RB.DoDbgBrk() && dbgRctCalcKs())
+      //  dbgpln("Fn:[%3i] %*s %20.14f %20.14f",Iterations(), 1,"", dProdMoles, EqK, K);
+      //#endif
+
       return 1.0+(EqK-K);
       };
     bool Converged(double X1, double X2, double F1, double F2)
@@ -1803,20 +1812,31 @@ double CR_Eqn::ReactingMoles()
   double LimitProdMls  = /*1 ||*/ RevRct() ? LimitProductMoles() : 0.0;
   double LimitReactMls = /*1 ||*/ FwdRct() ? LimitReactantMoles() : 0.0;
 
+  //dbgp("ReactingMoles %20.10f %20.10f", LimitProdMls, LimitReactMls);
+
   if (DoFwdRctExtent())
+    {
+    //dbgpln(" FwdRctExtent %20.10f", Control().FwdRctExtent());
     return Control().FwdRctExtent();
-
+    }
   if (DoRevRctExtent())
+    {
+    //dbgpln(" RevRctExtent %20.10f", Control().RevRctExtent());
     return Control().RevRctExtent();
+    }
 
+  //dbgp("Solve");
   CReactingMolesSolver EqF(this, RB.m_RctTol);
   switch (EqF.FindRoot(1.0, -LimitProdMls, LimitReactMls))
     {
     case RF_OK:
+      //dbgpln(" OK");
       return EqF.Result();
     case RF_LoLimit:
+      //dbgpln(" LoLimit");
       return -LimitProdMls;
     case RF_HiLimit:
+      //dbgpln(" HiLimit");
       return LimitReactMls;
     default: 
       LogError(FullObjTag(), 0, "Rct not solved - RootFinder:%s", EqF.ResultString(EqF.Error())); 
