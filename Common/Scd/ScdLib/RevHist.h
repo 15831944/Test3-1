@@ -2665,10 +2665,11 @@ Build 122 : 16 November 2006
                tags are only set when the row is advanced or the row index is set.
 1254 29/11/06: Fix for 'Bad Data Exchange' messages during save.
 1256 30/11/06: (#691) Added 'T,Comp' composition fetch option.
-
+1257 30/11/06: For dynamic direct mode stop RB rate error in Washer and ElectroCell.
+1258 30/11/06: (#670) FixFor dynamic direct mode stop RB rate error in Washer and ElectroCell.
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1256
+#define SCD_PATCH_SVN    1258
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

@@ -207,6 +207,10 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
+  if (SolveBufferedMethod())
+    RB.SetSurgeType(true); //where is the best place to set this?
+  else
+    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);

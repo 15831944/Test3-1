@@ -2116,8 +2116,8 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
       }
     }
 
-  if (!OKToGo)
-    LogNote("Executive", 0, "Scenario Complete - RunSetup Failed");
+  /*if (!OKToGo)
+    LogNote("Executive", 0, "Scenario Complete - RunSetup Failed");*/
   //else if (!ScnStepAllowed())
   //  {
   //  LogNote("Executive", 0, "Scenario Complete - Restart Blocked");

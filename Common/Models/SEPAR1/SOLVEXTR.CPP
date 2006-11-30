@@ -339,6 +339,10 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
+  if (SolveBufferedMethod())
+    RB.SetSurgeType(true); //where is the best place to set this?
+  else
+    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms);

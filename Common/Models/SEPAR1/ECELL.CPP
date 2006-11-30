@@ -124,6 +124,10 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB, true);
 
+  if (SolveBufferedMethod())
+    RB.SetSurgeType(true); //where is the best place to set this?
+  else
+    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
