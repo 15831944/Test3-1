@@ -77,7 +77,7 @@
 
 // --------------------------------------------------------------------------
 //information when a Build is released
-#define SCD_BUILD_SVN    1213                 /* SVN when Build is first released */
+#define SCD_BUILD_SVN    1265                 /* SVN when Build is first released */
 #define SCD_BUILD_NUM    122                  /* Build number*/
 #define SCD_BUILD_DATE   "16 November 2006"   /* Date when Build is first released */
 
