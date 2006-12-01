@@ -325,7 +325,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.TTGas", "SMDK\TransCriti
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeatXch2", "SMDK\TransCritical\HeatXch2\HeatXch2.8.vcproj", "{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ks.HeatXch2", "SMDK\TransCritical\HeatXch2\HeatXch2.8.vcproj", "{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -4381,7 +4381,6 @@ Global
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{75CCDDB1-F322-46D7-98D7-7BEB139FEC88}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32

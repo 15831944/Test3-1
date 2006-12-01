@@ -217,43 +217,47 @@ void C4PortValve ::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   if (OrigPrjFileVerNo()<=90 &&  DDB.ForFiling())
     {
-    DDB.BeginStruct(this, "State");
-    DDB.CheckBoxBtn("Enable", "", DC_,    "",   xidStateEnable,            this, isParm|SM_DynBoth);
-    DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
-    DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
-    DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
-    DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
-    //DDB.Long  ("MidPt.Mode",  "", DC_,    "",   xidStateMidPtMode,         this, isParm|SM_DynBoth|SetOnChange, ModeListX);
+    if (DDB.BeginStruct(this, "State"))
+      {
+      DDB.CheckBoxBtn("Enable", "", DC_,    "",   xidStateEnable,            this, isParm|SM_DynBoth);
+      DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
+      DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
+      DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
+      DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
+      //DDB.Long  ("MidPt.Mode",  "", DC_,    "",   xidStateMidPtMode,         this, isParm|SM_DynBoth|SetOnChange, ModeListX);
+      }
     DDB.EndStruct();
     }
 
 
-  DDB.BeginStruct(this, "Posn");
-  if (OrigPrjFileVerNo()<=93 && DDB.ForFiling() && DDB.DoingPutData()) // to go after Coors
-    DDB.CheckBoxBtn("Enable", "", DC_,    "",   xidStateEnable,            this, isParm|SM_DynBoth);
+  if (DDB.BeginStruct(this, "Posn"))
+    {
+    if (OrigPrjFileVerNo()<=93 && DDB.ForFiling() && DDB.DoingPutData()) // to go after Coors
+      DDB.CheckBoxBtn("Enable", "", DC_,    "",   xidStateEnable,            this, isParm|SM_DynBoth);
 
-  DDBValueLstMem PosnMeth;
-  PosnMeth.Add(Meth_None, "Mode");
-  PosnMeth.Add(Meth_OnOff, "On/Off");
-  if (m_Profiles.GetCount())
-    PosnMeth.Add(Meth_Profile, "Profile");
-  DDB.Byte("Method", "", DC_,    "",   xidStateMethod,                   this, isParm|SM_DynBoth|SetOnChange, PosnMeth());
+    DDBValueLstMem PosnMeth;
+    PosnMeth.Add(Meth_None, "Mode");
+    PosnMeth.Add(Meth_OnOff, "On/Off");
+    if (m_Profiles.GetCount())
+      PosnMeth.Add(Meth_Profile, "Profile");
+    DDB.Byte("Method", "", DC_,    "",   xidStateMethod,                   this, isParm|SM_DynBoth|SetOnChange, PosnMeth());
 
-  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_None);
-  DDB.Long  ("Mode.Rqd",    "", DC_,    "",   xidValveModeRqd,           this, (m_State.m_iMethod==Meth_None?isParm:0)|SM_DynBoth|SetOnChange, ModeList);
-  DDB.Long  ("Mode.Act",    "", DC_,    "",   xidValveModeAct,           this, SM_DynBoth, ModeList);
-  DDB.Visibility(NSHM_All, m_State.m_iMethod!=Meth_None);
-  DDB.Double("Actual",      "", DC_Frac,  "%", xidStateActualPosn,       this, SM_DynBoth);
-  DDB.Double("Reqd",        "", DC_Frac,  "%", xidStateReqdPosn,         this, isParm|SM_DynBoth|NAN_OK);
-  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
-  DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
-  DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
-  DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
-  DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_Profile);
+    DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_None);
+    DDB.Long  ("Mode.Rqd",    "", DC_,    "",   xidValveModeRqd,           this, (m_State.m_iMethod==Meth_None?isParm:0)|SM_DynBoth|SetOnChange, ModeList);
+    DDB.Long  ("Mode.Act",    "", DC_,    "",   xidValveModeAct,           this, SM_DynBoth, ModeList);
+    DDB.Visibility(NSHM_All, m_State.m_iMethod!=Meth_None);
+    DDB.Double("Actual",      "", DC_Frac,  "%", xidStateActualPosn,       this, SM_DynBoth);
+    DDB.Double("Reqd",        "", DC_Frac,  "%", xidStateReqdPosn,         this, isParm|SM_DynBoth|NAN_OK);
+    DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_OnOff);
+    DDB.Long  ("Off.Mode",    "", DC_,    "",   xidStateOffMode,           this, isParm|SM_DynBoth|SetOnChange, ModeList);
+    DDB.Long  ("On.Mode",     "", DC_,    "",   xidStateOnMode,            this, isParm|SM_DynBoth|SetOnChange, ModeList);
+    DDB.CheckBoxBtn("On",     "", DC_,    "",   xidStateOn,                this, isParm|SM_DynBoth);
+    DDB.Visibility(NSHM_All, m_State.m_iMethod==Meth_Profile);
 
-  DDB.Long  ("Profile",     "", DC_,    "",   xidStateProfile,           this, isParm|SM_DynBoth|SetOnChange, ProfileList);
+    DDB.Long  ("Profile",     "", DC_,    "",   xidStateProfile,           this, isParm|SM_DynBoth|SetOnChange, ProfileList);
 
-  DDB.Visibility();
+    DDB.Visibility();
+    }
   DDB.EndStruct();
 
   DDB.Text("");
@@ -270,21 +274,25 @@ void C4PortValve ::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("Port4Open",   "", DC_Frac, "%",    xidPortOpn4,  this, SM_DynBoth);
 
   DDB.Text("");
-  DDB.BeginStruct(this, "Join1", NULL, DDB_NoPage);
-  DDB.Double("Pressure", "", DC_P,  "kPag", xidPress1,        this, SM_DynBoth);
-  DDB.String("Pipes",    "", DC_,   "",     xidConnStr1,      this, SM_DynBoth);
-  DDB.String("Pipe1",    "", DC_,   "",     xidConnStr10,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe2",    "", DC_,   "",     xidConnStr11,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe3",    "", DC_,   "",     xidConnStr12,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe4",    "", DC_,   "",     xidConnStr13,     this, SM_DynBoth|isTag);
+  if (DDB.BeginStruct(this, "Join1", NULL, DDB_NoPage))
+    {
+    DDB.Double("Pressure", "", DC_P,  "kPag", xidPress1,        this, SM_DynBoth);
+    DDB.String("Pipes",    "", DC_,   "",     xidConnStr1,      this, SM_DynBoth);
+    DDB.String("Pipe1",    "", DC_,   "",     xidConnStr10,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe2",    "", DC_,   "",     xidConnStr11,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe3",    "", DC_,   "",     xidConnStr12,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe4",    "", DC_,   "",     xidConnStr13,     this, SM_DynBoth|isTag);
+    }
   DDB.EndStruct();                          
-  DDB.BeginStruct(this, "Join2", NULL, DDB_NoPage);
-  DDB.Double("Pressure", "", DC_P,  "kPag", xidPress2,        this, SM_DynBoth);
-  DDB.String("Pipes",    "", DC_,   "",     xidConnStr2,      this, SM_DynBoth);
-  DDB.String("Pipe1",    "", DC_,   "",     xidConnStr20,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe2",    "", DC_,   "",     xidConnStr21,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe3",    "", DC_,   "",     xidConnStr22,     this, SM_DynBoth|isTag);
-  DDB.String("Pipe4",    "", DC_,   "",     xidConnStr23,     this, SM_DynBoth|isTag);
+  if (DDB.BeginStruct(this, "Join2", NULL, DDB_NoPage))
+    {
+    DDB.Double("Pressure", "", DC_P,  "kPag", xidPress2,        this, SM_DynBoth);
+    DDB.String("Pipes",    "", DC_,   "",     xidConnStr2,      this, SM_DynBoth);
+    DDB.String("Pipe1",    "", DC_,   "",     xidConnStr20,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe2",    "", DC_,   "",     xidConnStr21,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe3",    "", DC_,   "",     xidConnStr22,     this, SM_DynBoth|isTag);
+    DDB.String("Pipe4",    "", DC_,   "",     xidConnStr23,     this, SM_DynBoth|isTag);
+    }
   DDB.EndStruct();
 
   DDB.Page  ("..");

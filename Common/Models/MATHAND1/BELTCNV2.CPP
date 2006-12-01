@@ -445,12 +445,14 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
           {
           CBeltFdPrDrive &Fd=*m_FeedDrives[i];
           Fd.m_Pwr.BuildDataDefn(DDB);
-          DDB.BeginStruct(this, "Posn", 0, DDB_NoPage);
-          DDB.Long  ("Control","",   DC_ ,      "",      &Fd.m_lCtrl,        this, isParmStopped, DDBControl);
-          DDB.Double("Reqd",   "",   DC_L ,     "m",     &Fd.m_dPosnReqd,    this, isParm|NAN_OK);
-          DDB.Double("Actual", "",   DC_L ,     "m",     &Fd.m_dPosnActual,  this, isResult);
-          DDB.Double("Min",    "",   DC_L ,     "m",     &Fd.m_dPosnMin,     this, isParm);
-          DDB.Double("Max",    "",   DC_L ,     "m",     &Fd.m_dPosnMax,     this, isParm);
+          if (DDB.BeginStruct(this, "Posn", 0, DDB_NoPage))
+            {
+            DDB.Long  ("Control","",   DC_ ,      "",      &Fd.m_lCtrl,        this, isParmStopped, DDBControl);
+            DDB.Double("Reqd",   "",   DC_L ,     "m",     &Fd.m_dPosnReqd,    this, isParm|NAN_OK);
+            DDB.Double("Actual", "",   DC_L ,     "m",     &Fd.m_dPosnActual,  this, isResult);
+            DDB.Double("Min",    "",   DC_L ,     "m",     &Fd.m_dPosnMin,     this, isParm);
+            DDB.Double("Max",    "",   DC_L ,     "m",     &Fd.m_dPosnMax,     this, isParm);
+            }
           DDB.EndStruct();
           DDB.Double("MaximumSpeed", "MaxSpeed",   DC_Ldt,    "m/s",   &Fd.m_dMaxSpeed,    this, isParm);
           DDB.Text("");
@@ -471,12 +473,14 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
           {
           CBeltFdPrDrive &Pr=*m_ProdDrives[i];
           Pr.m_Pwr.BuildDataDefn(DDB);
-          DDB.BeginStruct(this, "Posn", 0, DDB_NoPage);
-          DDB.Long  ("Control","",   DC_ ,      "",      &Pr.m_lCtrl,        this, isParmStopped, DDBControl);
-          DDB.Double("Reqd",   "",   DC_L ,     "m",     &Pr.m_dPosnReqd,    this, isParm|NAN_OK);
-          DDB.Double("Actual", "",   DC_L ,     "m",     &Pr.m_dPosnActual,  this, isResult);
-          DDB.Double("Min",    "",   DC_L ,     "m",     &Pr.m_dPosnMin,     this, isParm);
-          DDB.Double("Max",    "",   DC_L ,     "m",     &Pr.m_dPosnMax,     this, isParm);
+          if (DDB.BeginStruct(this, "Posn", 0, DDB_NoPage))
+            {
+            DDB.Long  ("Control","",   DC_ ,      "",      &Pr.m_lCtrl,        this, isParmStopped, DDBControl);
+            DDB.Double("Reqd",   "",   DC_L ,     "m",     &Pr.m_dPosnReqd,    this, isParm|NAN_OK);
+            DDB.Double("Actual", "",   DC_L ,     "m",     &Pr.m_dPosnActual,  this, isResult);
+            DDB.Double("Min",    "",   DC_L ,     "m",     &Pr.m_dPosnMin,     this, isParm);
+            DDB.Double("Max",    "",   DC_L ,     "m",     &Pr.m_dPosnMax,     this, isParm);
+            }
           DDB.EndStruct();
           DDB.Text("");
           DDB.Double("MaximumSpeed", "MaxSpeed",   DC_Ldt,    "m/s",   &Pr.m_dMaxSpeed,    this, isParm);

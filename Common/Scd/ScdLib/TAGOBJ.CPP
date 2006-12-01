@@ -101,12 +101,13 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Class,  "Pipe-1.VLEquilibrium",             ".EB.VLEquilibrium",                      ""},
     {eO2N_Class,  "Pipe-1.Evaporator",                ".EB.Evaporator",                         ""},
 
-    {eO2N_Class,  "Pipe-1.Qm_RqdCapacity",            ".Qm_RqdCapacity",                        ""},
-    {eO2N_Class,  "Pipe-1.Qm_Capacity",               ".Qm_Capacity",                           ""},
-    {eO2N_Class,  "Pipe-1.Qm_MinCapacity",            ".Qm_MinCapacity",                        ""},
-    {eO2N_Class,  "Pipe-1.Qm_MinCap",                 ".Qm_MinCap",                             ""},
-    {eO2N_Class,  "Pipe-1.Qm_MaxCapacity",            ".Qm_MaxCapacity",                        ""},
-    {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Qm_MaxCap",                             ""},
+    {eO2N_Class,  "Pipe-1.Qm_RqdCapacity",            ".Flw.Qm.RqdCapacity",                    ""},
+    {eO2N_Class,  "Pipe-1.Qm_Capacity",               ".Flw.Qm.Capacity",                       ""},
+    {eO2N_Class,  "Pipe-1.Qm_MinCapacity",            ".Flw.Qm.MinCapacity",                    ""},
+    {eO2N_Class,  "Pipe-1.Qm_MinCap",                 ".Flw.Qm.MinCap",                         ""},
+    {eO2N_Class,  "Pipe-1.Qm_MaxCapacity",            ".Flw.Qm.MaxCapacity",                    ""},
+    {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Flw.Qm.MaxCap",                         ""},
+    {eO2N_Class,  "Pipe-1.Qm_Rqd",                    ".Eqn.Qm.Rqd",                            ""},
  
     {eO2N_End},
   };

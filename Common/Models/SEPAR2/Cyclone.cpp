@@ -845,9 +845,11 @@ void Cyclone::BuildDataDefn(DataDefnBlk & DDB)
         }
       else
         {
-        DDB.BeginStruct(this, Meth[i]->MethName(), NULL, DDB_NoPage, i+1);
-        Meth[i]->BuildDataDefn0(DDB, Flags);
-        Meth[i]->BuildDataDefn1(DDB, Flags);
+        if (DDB.BeginStruct(this, Meth[i]->MethName(), NULL, DDB_NoPage, i+1))
+          {
+          Meth[i]->BuildDataDefn0(DDB, Flags);
+          Meth[i]->BuildDataDefn1(DDB, Flags);
+          }
         DDB.EndStruct();
         }
       }

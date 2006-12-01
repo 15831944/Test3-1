@@ -82,91 +82,101 @@ ScheduleTask::ScheduleTask()
 void ScheduleTask::BuildDataDefn(DataDefnBlk & DDB, TaggedObject* pObj)
   {
   //DDB.Page("SchedTask", DDB_RqdPage);
-  static DDBValueLst DDBSchedType[]={
+  static DDBValueLst DDBSchedType[]=
+    {
       {STT_None,              "None"         }, 
       {STT_Count,             "Iter Count"   },
       {STT_Time,              "Sim Time"     },
-      {0}};
-  DDB.BeginStruct(pObj, "Scr", NULL, DDB_NoPage);
-  DDB.Text("");
-  DDB.Text("Schedule SysCAD Script...");
-  DDB.CheckBoxBtn("On",          "",    DC_,     "", &bScrOn,         pObj, isParm, DDBYesNo);
-  DDB.String("Status",           "",    DC_,     "", &sScrStatus,     pObj, isResult|noFileAtAll);
-  DDB.String("Folder",           "",    DC_,     "", idmScrFolder,    pObj, isResult);
-  DDB.String("File",             "",    DC_,     "", &sScrFile,       pObj, isParm);
-  DDB.Button("Edit_ssc",         "",    DC_,     "", idmScrEditBtn,   pObj, isParm);
-  DDB.Button("Browse_ssc",       "",    DC_,     "", idmScrBrowseBtn, pObj, isParm);
-  DDB.Button("Execute_Now",      "",    DC_,     "", idmScrExecBtn,   pObj, isParm);
-  DDB.Byte  ("SchedType",        "",    DC_,     "", &iScrSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(NSHM_All, iScrSchedType==STT_Count);
-  DDB.Long  ("ExecCnt",          "",    DC_,     "", &iScrExecCnt,    pObj, isParm);
-  DDB.Long  ("IterCnt",          "",    DC_,     "", &iScrIterCnt,    pObj, isParm);
-  DDB.Visibility(NSHM_All, iScrSchedType==STT_Time);
-  DDB.Double("ExecTime",         "",    DC_Time, "s", &dScrExecTime,  pObj, isParm);
-  DDB.Double("SimTime",          "",    DC_Time, "s", &dScrIterTime,  pObj, isParm);
-  DDB.Visibility();
-  DDB.Text("");
+      {0}
+    };
+  if (DDB.BeginStruct(pObj, "Scr", NULL, DDB_NoPage))
+    {
+    DDB.Text("");
+    DDB.Text("Schedule SysCAD Script...");
+    DDB.CheckBoxBtn("On",          "",    DC_,     "", &bScrOn,         pObj, isParm, DDBYesNo);
+    DDB.String("Status",           "",    DC_,     "", &sScrStatus,     pObj, isResult|noFileAtAll);
+    DDB.String("Folder",           "",    DC_,     "", idmScrFolder,    pObj, isResult);
+    DDB.String("File",             "",    DC_,     "", &sScrFile,       pObj, isParm);
+    DDB.Button("Edit_ssc",         "",    DC_,     "", idmScrEditBtn,   pObj, isParm);
+    DDB.Button("Browse_ssc",       "",    DC_,     "", idmScrBrowseBtn, pObj, isParm);
+    DDB.Button("Execute_Now",      "",    DC_,     "", idmScrExecBtn,   pObj, isParm);
+    DDB.Byte  ("SchedType",        "",    DC_,     "", &iScrSchedType,  pObj, isParm, DDBSchedType);
+    DDB.Visibility(NSHM_All, iScrSchedType==STT_Count);
+    DDB.Long  ("ExecCnt",          "",    DC_,     "", &iScrExecCnt,    pObj, isParm);
+    DDB.Long  ("IterCnt",          "",    DC_,     "", &iScrIterCnt,    pObj, isParm);
+    DDB.Visibility(NSHM_All, iScrSchedType==STT_Time);
+    DDB.Double("ExecTime",         "",    DC_Time, "s", &dScrExecTime,  pObj, isParm);
+    DDB.Double("SimTime",          "",    DC_Time, "s", &dScrIterTime,  pObj, isParm);
+    DDB.Visibility();
+    DDB.Text("");
+    }
   DDB.EndStruct();
 
-  static DDBValueLst DDBMcrType[]={
+  static DDBValueLst DDBMcrType[]=
+    {
       {MT_Macro,              "Macro"         }, 
       {MT_TagRep,             "Tag Report"    },
       {MT_TrendRep,           "Trend Report"  },
       {MT_SetTags,            "Set Tags"      },
-      {0}};
-  DDB.BeginStruct(pObj, "Mcr", NULL, DDB_NoPage);
-  DDB.Text("");
-  DDB.Text("Schedule Excel Report or Macro...");
-  DDB.CheckBoxBtn("On",          "",    DC_,     "", &bMcrOn,         pObj, isParm, DDBYesNo);
-  DDB.String("Status",           "",    DC_,     "", &sMcrStatus,     pObj, isResult|noFileAtAll);
-  DDB.String("Folder",           "",    DC_,     "", idmMcrFolder,    pObj, isResult);
-  DDB.String("File",             "",    DC_,     "", &sMcrFile,       pObj, isParm);
-  DDB.Byte  ("Type",             "",    DC_,     "", &iMcrType,       pObj, isParm, DDBMcrType);
-  DDB.String("Name",             "",    DC_,     "", &sMcrName,       pObj, isParm);
-  DDB.Button("Edit_xls",         "",    DC_,     "", idmMcrEditBtn,   pObj, isParm);
-  DDB.Button("Browse_xls",       "",    DC_,     "", idmMcrBrowseBtn, pObj, isParm);
-  DDB.Button("Execute_Now",      "",    DC_,     "", idmMcrExecBtn,   pObj, isParm);
-  DDB.Byte  ("SchedType",        "",    DC_,     "", &iMcrSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(NSHM_All, iMcrSchedType==STT_Count);
-  DDB.Long  ("ExecCnt",          "",    DC_,     "", &iMcrExecCnt,    pObj, isParm);
-  DDB.Long  ("IterCnt",          "",    DC_,     "", &iMcrIterCnt,    pObj, isParm);
-  DDB.Visibility(NSHM_All, iMcrSchedType==STT_Time);
-  DDB.Double("ExecTime",         "",    DC_Time, "s", &dMcrExecTime,  pObj, isParm);
-  DDB.Double("SimTime",          "",    DC_Time, "s", &dMcrIterTime,  pObj, isParm);
-  DDB.Visibility();
-  DDB.Text("");
+      {0}
+    };
+  if (DDB.BeginStruct(pObj, "Mcr", NULL, DDB_NoPage))
+    {
+    DDB.Text("");
+    DDB.Text("Schedule Excel Report or Macro...");
+    DDB.CheckBoxBtn("On",          "",    DC_,     "", &bMcrOn,         pObj, isParm, DDBYesNo);
+    DDB.String("Status",           "",    DC_,     "", &sMcrStatus,     pObj, isResult|noFileAtAll);
+    DDB.String("Folder",           "",    DC_,     "", idmMcrFolder,    pObj, isResult);
+    DDB.String("File",             "",    DC_,     "", &sMcrFile,       pObj, isParm);
+    DDB.Byte  ("Type",             "",    DC_,     "", &iMcrType,       pObj, isParm, DDBMcrType);
+    DDB.String("Name",             "",    DC_,     "", &sMcrName,       pObj, isParm);
+    DDB.Button("Edit_xls",         "",    DC_,     "", idmMcrEditBtn,   pObj, isParm);
+    DDB.Button("Browse_xls",       "",    DC_,     "", idmMcrBrowseBtn, pObj, isParm);
+    DDB.Button("Execute_Now",      "",    DC_,     "", idmMcrExecBtn,   pObj, isParm);
+    DDB.Byte  ("SchedType",        "",    DC_,     "", &iMcrSchedType,  pObj, isParm, DDBSchedType);
+    DDB.Visibility(NSHM_All, iMcrSchedType==STT_Count);
+    DDB.Long  ("ExecCnt",          "",    DC_,     "", &iMcrExecCnt,    pObj, isParm);
+    DDB.Long  ("IterCnt",          "",    DC_,     "", &iMcrIterCnt,    pObj, isParm);
+    DDB.Visibility(NSHM_All, iMcrSchedType==STT_Time);
+    DDB.Double("ExecTime",         "",    DC_Time, "s", &dMcrExecTime,  pObj, isParm);
+    DDB.Double("SimTime",          "",    DC_Time, "s", &dMcrIterTime,  pObj, isParm);
+    DDB.Visibility();
+    DDB.Text("");
+    }
   DDB.EndStruct();
 
   DDB.Page("MDB_Trend", DDB_RqdPage);
-  DDB.BeginStruct(pObj, "Rep", NULL, DDB_NoPage);
-  DDB.Text("");
-  DDB.Text("Trend MDB Report...");
-  DDB.CheckBoxBtn("On",          "",    DC_,     "", &bRepOn,         pObj, isParmStopped, DDBYesNo);
-  DDB.String("Status",           "",    DC_,     "", &sRepStatus,     pObj, isResult|noFileAtAll);
-  DDB.String("Folder",           "",    DC_,     "", idmRepFolder,    pObj, isResult);
-  DDB.String("File",             "",    DC_,     "", &sRepFile,       pObj, isParm);
-  DDB.String("TableName",        "",    DC_,     "", &sRepTblName,    pObj, isParm);
-  DDB.Long  ("NoOfPoints",       "",    DC_,     "", &iRepPtsCnt,     pObj, isParm);
-  DDB.Double("Duration",         "",    DC_Time, "s", &dRepDuration,  pObj, isParm);
-  DDB.String("EndTime",          "",    DC_,     "", idmRepEndTime,   pObj, isParm);
-  DDB.Long  ("NoOfTags",         "",    DC_,     "", idmRepTagCnt,    pObj, isParm);
-  char Buff[16];
-  for (int i=0; i<iRepTagCnt; i++)
+  if (DDB.BeginStruct(pObj, "Rep", NULL, DDB_NoPage))
     {
-    sprintf(Buff, "Tag%d", i);
-    DDB.String(Buff,             "",    DC_,     "", idmRepTag+i,     pObj, isParm|isTag);
+    DDB.Text("");
+    DDB.Text("Trend MDB Report...");
+    DDB.CheckBoxBtn("On",          "",    DC_,     "", &bRepOn,         pObj, isParmStopped, DDBYesNo);
+    DDB.String("Status",           "",    DC_,     "", &sRepStatus,     pObj, isResult|noFileAtAll);
+    DDB.String("Folder",           "",    DC_,     "", idmRepFolder,    pObj, isResult);
+    DDB.String("File",             "",    DC_,     "", &sRepFile,       pObj, isParm);
+    DDB.String("TableName",        "",    DC_,     "", &sRepTblName,    pObj, isParm);
+    DDB.Long  ("NoOfPoints",       "",    DC_,     "", &iRepPtsCnt,     pObj, isParm);
+    DDB.Double("Duration",         "",    DC_Time, "s", &dRepDuration,  pObj, isParm);
+    DDB.String("EndTime",          "",    DC_,     "", idmRepEndTime,   pObj, isParm);
+    DDB.Long  ("NoOfTags",         "",    DC_,     "", idmRepTagCnt,    pObj, isParm);
+    char Buff[16];
+    for (int i=0; i<iRepTagCnt; i++)
+      {
+      sprintf(Buff, "Tag%d", i);
+      DDB.String(Buff,             "",    DC_,     "", idmRepTag+i,     pObj, isParm|isTag);
+      }
+    DDB.Button("Browse_mdb",       "",    DC_,     "", idmRepBrowseBtn, pObj, isParm);
+    DDB.Button("Execute_Now",      "",    DC_,     "", idmRepExecBtn,   pObj, isParm);
+    DDB.Byte  ("SchedType",        "",    DC_,     "", &iRepSchedType,  pObj, isParm, DDBSchedType);
+    DDB.Visibility(NSHM_All, iRepSchedType==STT_Count);
+    DDB.Long  ("ExecCnt",          "",    DC_,     "", &iRepExecCnt,    pObj, isParm);
+    DDB.Long  ("IterCnt",          "",    DC_,     "", &iRepIterCnt,    pObj, isParm);
+    DDB.Visibility(NSHM_All, iRepSchedType==STT_Time);
+    DDB.Double("ExecTime",         "",    DC_Time, "s", &dRepExecTime,  pObj, isParm);
+    DDB.Double("SimTime",          "",    DC_Time, "s", &dRepIterTime,  pObj, isParm);
+    DDB.Visibility();
+    DDB.Text("");
     }
-  DDB.Button("Browse_mdb",       "",    DC_,     "", idmRepBrowseBtn, pObj, isParm);
-  DDB.Button("Execute_Now",      "",    DC_,     "", idmRepExecBtn,   pObj, isParm);
-  DDB.Byte  ("SchedType",        "",    DC_,     "", &iRepSchedType,  pObj, isParm, DDBSchedType);
-  DDB.Visibility(NSHM_All, iRepSchedType==STT_Count);
-  DDB.Long  ("ExecCnt",          "",    DC_,     "", &iRepExecCnt,    pObj, isParm);
-  DDB.Long  ("IterCnt",          "",    DC_,     "", &iRepIterCnt,    pObj, isParm);
-  DDB.Visibility(NSHM_All, iRepSchedType==STT_Time);
-  DDB.Double("ExecTime",         "",    DC_Time, "s", &dRepExecTime,  pObj, isParm);
-  DDB.Double("SimTime",          "",    DC_Time, "s", &dRepIterTime,  pObj, isParm);
-  DDB.Visibility();
-  DDB.Text("");
   DDB.EndStruct();
   }
 

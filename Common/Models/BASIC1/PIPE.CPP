@@ -454,160 +454,163 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     }
 
   DDB.Visibility();
-  DDB.BeginStruct(this, "Tear", NULL, DDB_NoPage, -1, MarkerClosed);
-  static DDBValueLst DDBTearPri[]=
+  if (DDB.BeginStruct(this, "Tear", NULL, DDB_NoPage, -1, MarkerClosed))
     {
-      {TP_First,  "First"},
-      {TP_Normal, "Normal"},
-      {TP_Last,   "Last"},
-      {0}
-    };
-  static DDBValueLst DDBTearTypeRqd[]=
-    {
-      {TT_NoTear,     "NoTear"},
-        //{TT_SystemTear, "SystemTear"}, // Cannot Select this
-      {TT_ManualTear, "ManualTear"},
-      {TT_Break,      "Break"},
-      {0}
-    };
-  static DDBValueLst DDBTearState[]=
-    {
-      {TT_NoTear,     "NoTear"},
-      {TT_SystemTear, "SystemTear"},
-      {TT_ManualTear, "ManualTear"},
-      {TT_Break,      "Break"},
-      {0}
-    };
-  static DDBValueLst DDBHow[]=
-    {
-      {TIH_ZeroNIters,  "Zero"                       },
-      {TIH_HoldNIters,  "Hold"                       },
-      {TIH_RampNIters,  "Ramp"                       },
-      {0}
-    };
-  static DDBValueLst DDBWhen[]=
-    {
-      {TIW_OnInit,      "OnInitialise", MDD_Default  },
-      {TIW_OnStart,     "OnStart"                    },
-      //{TIW_Always,      "Always"                     },
-      {TIW_Manual,      "OnDemand"                 },
-      {0}
-    };
-  static DDBValueLst DDBInitQmMode[] =
-    {
-      //{ SPI_QModeNone, "None" },
-      { SPI_QModeQm,   "Mass" },
-      { SPI_QModeQv,   "Volume" },
-      { SPI_QModeNQv,  "NVolume" },
-    };
-  static DDBValueLst DDBInitEstUsage[]=
-    {
-      //{TIEU_None,     "None"},
-      {TIEU_FullEst,  "Full"},
-      {TIEU_PartEst,  "Partial"},
-      {0},
-    };
-  static DDBValueLst DDBInitState[]=                             
-    {                                                            
-      {TIH_Off,        "Off"                      },                       
-      {TIH_ZeroNIters, "Zeroing"                  },                       
-      {TIH_HoldNIters, "Holding"                  },                       
-      {TIH_RampNIters, "Ramping"                  },                       
-
-      //{TIH_ZeroNIters, "WillZero"                 },                       
-      //{TIH_HoldNIters, "WillHold"                 },                       
-      //{TIH_RampNIters, "WillRamp"                 },                       
-      //{TIH_Zeroing,    "Zeroing"                  },
-      //{TIH_Holding,    "Holding"                  },
-      //{TIH_Ramping,    "Ramping"                  },
-      {0},
-    };
-
-  DDEF_Flags B4TearVis=DDB.GetVisibility();
-  DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDBTearPri);
-  DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDBTearTypeRqd);
-  DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDBTearState);
-
-  bool TearVis=(NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear);
-  DDB.Visibility(NSHM_All, TearVis);
-
-  if (PrjFileVerNo()>=78)
-    {
-    if (DDB.BeginStruct(this, "Init", NULL, DDB_NoPage))
+    static DDBValueLst DDBTearPri[]=
       {
-      DDB.Byte        ("How",      "",   DC_,    "",       xidTearInitHow,      this, isParmStopped|SetOnChange, DDBHow);
-      DDB.Byte        ("When",     "",   DC_,    "",       xidTearInitWhen,     this, isParmStopped|SetOnChange, DDBWhen);
-      static DDBValueLst DDBStart[] = {{0, "Start"}, {1, "Busy"}, {0}};
-      DDB.Button      ("Start",   "",   DC_,    "",       xidTearInitActivate, this, isParm|SetOnChange);//, DDBStart);
-      bool HoldCntVis=true;
-      DDB.Visibility(NSHM_All, TearVis && HoldCntVis);
-      DDB.Byte        ("Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParmStopped);
-      DDB.Byte        ("Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
-      DDB.Visibility(NSHM_All, TearVis);
+        {TP_First,  "First"},
+        {TP_Normal, "Normal"},
+        {TP_Last,   "Last"},
+        {0}
+      };
+    static DDBValueLst DDBTearTypeRqd[]=
+      {
+        {TT_NoTear,     "NoTear"},
+        //{TT_SystemTear, "SystemTear"}, // Cannot Select this
+        {TT_ManualTear, "ManualTear"},
+        {TT_Break,      "Break"},
+        {0}
+      };
+    static DDBValueLst DDBTearState[]=
+      {
+        {TT_NoTear,     "NoTear"},
+        {TT_SystemTear, "SystemTear"},
+        {TT_ManualTear, "ManualTear"},
+        {TT_Break,      "Break"},
+        {0}
+      };
+    static DDBValueLst DDBHow[]=
+      {
+        {TIH_ZeroNIters,  "Zero"                       },
+        {TIH_HoldNIters,  "Hold"                       },
+        {TIH_RampNIters,  "Ramp"                       },
+        {0}
+      };
+    static DDBValueLst DDBWhen[]=
+      {
+        {TIW_OnInit,      "OnInitialise", MDD_Default  },
+        {TIW_OnStart,     "OnStart"                    },
+        //{TIW_Always,      "Always"                     },
+        {TIW_Manual,      "OnDemand"                 },
+        {0}
+      };
+    static DDBValueLst DDBInitQmMode[] =
+      {
+      //{ SPI_QModeNone, "None" },
+        { SPI_QModeQm,   "Mass" },
+        { SPI_QModeQv,   "Volume" },
+        { SPI_QModeNQv,  "NVolume" },
+      };
+    static DDBValueLst DDBInitEstUsage[]=
+      {
+      //{TIEU_None,     "None"},
+        {TIEU_FullEst,  "Full"},
+        {TIEU_PartEst,  "Partial"},
+        {0},
+      };
+    static DDBValueLst DDBInitState[]=                             
+      {                                                            
+        {TIH_Off,        "Off"                      },                       
+        {TIH_ZeroNIters, "Zeroing"                  },                       
+        {TIH_HoldNIters, "Holding"                  },                       
+        {TIH_RampNIters, "Ramping"                  },                       
 
-      DDB.Byte        ("State",    "",   DC_,    "",       xidTearInitActive,   this, 0, DDBInitState);
+        //{TIH_ZeroNIters, "WillZero"                 },                       
+        //{TIH_HoldNIters, "WillHold"                 },                       
+        //{TIH_RampNIters, "WillRamp"                 },                       
+        //{TIH_Zeroing,    "Zeroing"                  },
+        //{TIH_Holding,    "Holding"                  },
+        //{TIH_Ramping,    "Ramping"                  },
+        {0},
+      };
 
-      SpImgMode Md=SPI_QModeNone;
-      DDBValueLstMem DDBInitQmModeX;
-      //DDBInitQmModeX.Add(SPI_QModeNone, "None");
-      DDBInitQmModeX.Add(SPI_QModeQm,   "Mass");
-      
-      if (NoProcessIOs()>0 && IOFlange(0) && IOFlange(0)->TearImage())
+    DDEF_Flags B4TearVis=DDB.GetVisibility();
+    DDB.Byte        ("Priority",      "",   DC_,    "",       xidTearPriority,     this, isParm|SetOnChange, DDBTearPri);
+    DDB.Byte        ("RqdType",       "",   DC_,    "",       xidTearType,         this, isParm|SetOnChange, DDBTearTypeRqd);
+    DDB.Byte        ("State",         "",   DC_,    "",       xidTearState,        this, 0, DDBTearState);
+
+    bool TearVis=(NoFlwIOs()>1 && IOFlange(0)->RqdTearType()>=TT_ManualTear);
+    DDB.Visibility(NSHM_All, TearVis);
+
+    if (PrjFileVerNo()>=78)
+      {
+      if (DDB.BeginStruct(this, "Init", NULL, DDB_NoPage))
         {
-        Md=IOFlange(0)->TearImage()->QMode();
+        DDB.Byte        ("How",      "",   DC_,    "",       xidTearInitHow,      this, isParmStopped|SetOnChange, DDBHow);
+        DDB.Byte        ("When",     "",   DC_,    "",       xidTearInitWhen,     this, isParmStopped|SetOnChange, DDBWhen);
+        static DDBValueLst DDBStart[] = {{0, "Start"}, {1, "Busy"}, {0}};
+        DDB.Button      ("Start",   "",   DC_,    "",       xidTearInitActivate, this, isParm|SetOnChange);//, DDBStart);
+        bool HoldCntVis=true;
+        DDB.Visibility(NSHM_All, TearVis && HoldCntVis);
+        DDB.Byte        ("Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParmStopped);
+        DDB.Byte        ("Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
+        DDB.Visibility(NSHM_All, TearVis);
 
-        SpImage &Img=*IOFlange(0)->TearImage();
-        if (Img.SpVarsAvail() & VAMsk_SpVol)
-          DDBInitQmModeX.Add(SPI_QModeQv,   "Volume");
-        if (Img.SpVarsAvail() & VAMsk_SpNVol)
-          DDBInitQmModeX.Add(SPI_QModeNQv,  "NVolume");
+        DDB.Byte        ("State",    "",   DC_,    "",       xidTearInitActive,   this, 0, DDBInitState);
+
+        SpImgMode Md=SPI_QModeNone;
+        DDBValueLstMem DDBInitQmModeX;
+        //DDBInitQmModeX.Add(SPI_QModeNone, "None");
+        DDBInitQmModeX.Add(SPI_QModeQm,   "Mass");
+
+        if (NoProcessIOs()>0 && IOFlange(0) && IOFlange(0)->TearImage())
+          {
+          Md=IOFlange(0)->TearImage()->QMode();
+
+          SpImage &Img=*IOFlange(0)->TearImage();
+          if (Img.SpVarsAvail() & VAMsk_SpVol)
+            DDBInitQmModeX.Add(SPI_QModeQv,   "Volume");
+          if (Img.SpVarsAvail() & VAMsk_SpNVol)
+            DDBInitQmModeX.Add(SPI_QModeNQv,  "NVolume");
+          }
+
+        DDB.Visibility(NSHM_All, TearVis);
+        DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
+        DDB.Double      ("P_Rqd",         "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
+        DDB.Byte        ("Estimate.Usage","",   DC_,    "",       xidTearInitEstUsage, this, isParmStopped|SetOnChange, DDBInitEstUsage);
+        DDB.Byte        ("Flow.Mode",     "",   DC_,    "",       xidTearQmMode,       this, isParmStopped|SetOnChange, DDBInitQmModeX());
+        DDB.Visibility(NSHM_All, TearVis && (Md!=SPI_QModeNone));
+        DDB.Double      ("Qm_Rqd",        "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, (Md==SPI_QModeQm?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
+        DDB.Double      ("Qv_Rqd",        "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, (Md==SPI_QModeQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
+        DDB.Double      ("NQv_Rqd",       "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, (Md==SPI_QModeNQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
         }
-
-      DDB.Visibility(NSHM_All, TearVis);
-      DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
-      DDB.Double      ("P_Rqd",         "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm       |NAN_OK, DDBNAN_NotSpecd);
-      DDB.Byte        ("Estimate.Usage","",   DC_,    "",       xidTearInitEstUsage, this, isParmStopped|SetOnChange, DDBInitEstUsage);
-      DDB.Byte        ("Flow.Mode",     "",   DC_,    "",       xidTearQmMode,       this, isParmStopped|SetOnChange, DDBInitQmModeX());
-      DDB.Visibility(NSHM_All, TearVis && (Md!=SPI_QModeNone));
-      DDB.Double      ("Qm_Rqd",        "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, (Md==SPI_QModeQm?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
-      DDB.Double      ("Qv_Rqd",        "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, (Md==SPI_QModeQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
-      DDB.Double      ("NQv_Rqd",       "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, (Md==SPI_QModeNQv?isParm:isResult)|NAN_OK, DDBNAN_NotSpecd);
+      DDB.EndStruct();
       }
-    DDB.EndStruct();
-    }
-  else
-    {
-    DDB.Byte        ("Init.QmMode",   "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDBInitQmMode);
-    DDB.Byte        ("Init.How",      "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDBHow);
-    DDB.Byte        ("Init.When",     "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDBWhen);
-    DDB.Byte        ("Init.Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParm);
-    DDB.Byte        ("Init.Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
-    DDB.CheckBoxBtn ("Init.Active",   "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
-    DDB.Double      ("Qm_Rqd",        "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
-    DDB.Double      ("Qv_Rqd",        "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
-    DDB.Double      ("NQv_Rqd",       "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
-    DDB.Double      ("P_Rqd",         "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
-    DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
-    }
+    else
+      {
+      DDB.Byte        ("Init.QmMode",   "",   DC_,    "",       xidTearQmMode,       this, isParm|SetOnChange, DDBInitQmMode);
+      DDB.Byte        ("Init.How",      "",   DC_,    "",       xidTearInitHow,      this, isParm|SetOnChange, DDBHow);
+      DDB.Byte        ("Init.When",     "",   DC_,    "",       xidTearInitWhen,     this, isParm|SetOnChange, DDBWhen);
+      DDB.Byte        ("Init.Count",    "",   DC_,    "",       xidTearCntRqd,       this, isParm);
+      DDB.Byte        ("Init.Iters",    "",   DC_,    "",       xidTearCntAct,       this, InitHidden);
+      DDB.CheckBoxBtn ("Init.Active",   "",   DC_,    "",       xidTearInitActive,   this, isParm|SetOnChange);
+      DDB.Double      ("Qm_Rqd",        "",   DC_Qm,  "kg/s",   xidTearQmRqd,        this, isParm|NAN_OK);
+      DDB.Double      ("Qv_Rqd",        "",   DC_Qv,  "L/s",    xidTearQvRqd,        this, isParm|NAN_OK);
+      DDB.Double      ("NQv_Rqd",       "",   DC_NQv, "NL/s",   xidTearNQvRqd,       this, isParm|NAN_OK);
+      DDB.Double      ("P_Rqd",         "",   DC_P,   "kPag",   xidTearPRqd,         this, isParm|NAN_OK);
+      DDB.Double      ("T_Rqd",         "",   DC_T,   "C",      xidTearTRqd,         this, isParm|NAN_OK);
+      }
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
-  DDB.SetVisibility(B4TearVis);
-
+    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.CheckBoxBtn ("AdjQmToEstQm",  "",   DC_,    "",       &m_bAdjustToEstFlow,  this, isParm|SetOnChange);
+    DDB.SetVisibility(B4TearVis);
+    }
   DDB.EndStruct();
 
   if (IsPipe)//NetDynamicMethod() && IsSrcSnk)
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, NetDynamicMethod() && IsSrcSnk);
-    DDB.BeginStruct(this, "SrcSnk", NULL, DDB_NoPage, -1, 0);//MarkerClosed);
-    DDB.Double("P_Rqd",     "", DC_P,     "kPag", &SrcSnk.dPress,     this, isParm);
-    DDB.Double("T_Rqd",     "", DC_T,     "C",    &SrcSnk.dTemp,      this, isParm);
+    if (DDB.BeginStruct(this, "SrcSnk", NULL, DDB_NoPage, -1, 0))
+      {
+      DDB.Double("P_Rqd",     "", DC_P,     "kPag", &SrcSnk.dPress,     this, isParm);
+      DDB.Double("T_Rqd",     "", DC_T,     "C",    &SrcSnk.dTemp,      this, isParm);
 #if WITHSRCSNKDIFFS
-    DDB.Double("QmDiff",    "", DC_Frac,  "%",    &SrcSnk.dQmDiff,    this, 0);
-    DDB.Double("TempDiff",  "", DC_Frac,  "%",    &SrcSnk.dTempDiff,  this, 0);
+      DDB.Double("QmDiff",    "", DC_Frac,  "%",    &SrcSnk.dQmDiff,    this, 0);
+      DDB.Double("TempDiff",  "", DC_Frac,  "%",    &SrcSnk.dTempDiff,  this, 0);
 #endif
-    DDB.CheckBoxBtn("KeepImage", "", DC_, "",     xidKeepSrcSnk,      this, isParm|InitHidden);
-    DDB.Button("CopyCurrent",    "", DC_, "",     xidCopyCurrent,     this, isParm);
+      DDB.CheckBoxBtn("KeepImage", "", DC_, "",     xidKeepSrcSnk,      this, isParm|InitHidden);
+      DDB.Button("CopyCurrent",    "", DC_, "",     xidCopyCurrent,     this, isParm);
+      }
     DDB.EndStruct();
     }
 
