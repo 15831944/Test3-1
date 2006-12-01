@@ -244,7 +244,7 @@ class CExploreScd : public CDialog
     void SetTagFilter(CXTTag & Tg, BOOL DoSetup);
     void UpdateSelectDisplay();
 
-    void LoadTagTree();
+    bool LoadTagTree(bool DoKbdTest);
     //void LoadTagItem(CXTTag & Tg, bool UpdateTag=false);
     void ActivateWndByName(LPCTSTR Txt);
     void AddTagToTree(CXTTag *pTag, CXTTag *pPrev);

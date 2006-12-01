@@ -1172,13 +1172,15 @@ void CExploreScd::ReBuildTags()
 
 //--------------------------------------------------------------------------
 
-void CExploreScd::LoadTagTree()
+bool CExploreScd::LoadTagTree(bool DoKbdTest)
   {
   if (!sm_bInited)
-    return;
+    return true;
 #if dbgAdd
   dbgpln("LoadTagTree====================================");
 #endif
+
+  DoKbdTest=false;
 
   CXTTag *pPrev=NULL;
   for (int i=0; i<m_Tags.GetCount(); i++)
@@ -1191,6 +1193,23 @@ void CExploreScd::LoadTagTree()
       }
     else
       RemoveTagFromTree(pTag);
+    Sleep(500);
+
+    if (DoKbdTest)
+      {
+      MSG msg;
+      if (PeekMessage(&msg, GetSafeHwnd(), WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
+        {
+        switch (msg.message)
+          {
+          case WM_CHAR:
+          case WM_KEYDOWN:
+            break;
+          case WM_KEYUP:
+            return false;
+          };
+        }
+      }
     }
 
   for (int p=0; p<m_Pages.GetCount(); p++)
@@ -1215,11 +1234,27 @@ void CExploreScd::LoadTagTree()
           P.m_hTag=0;
           }
         }
+      if (DoKbdTest)
+        {
+        MSG msg;
+        if (PeekMessage(&msg, GetSafeHwnd(), WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
+          {
+          switch (msg.message)
+            {
+            case WM_CHAR:
+            case WM_KEYDOWN:
+              break;
+            case WM_KEYUP:
+              return false;
+            };
+          }
+        }
       }
     }
 #if dbgAdd
   dbgpln("Done       ====================================");
 #endif
+  return true;
   };
 
 //--------------------------------------------------------------------------
@@ -2664,9 +2699,13 @@ void CExploreScd::OnEnChangeTagfilter()
   m_ChangeBusy++;
   CWaitMsgCursor WaitMsg("Changing Selection");
   m_Tree.LockWindowUpdate();
-  FixFilterStuff();
-  SetFilter();
-  LoadTagTree();
+  for (;;)
+    {
+    FixFilterStuff();
+    SetFilter();
+    if (LoadTagTree(true))
+      break;
+    }
 #if dbgDumpAll
   DumpAll("Filter");
 #endif
@@ -2680,9 +2719,13 @@ void CExploreScd::OnCbnSelchangeTagfilterrule()
   m_ChangeBusy++;
   CWaitMsgCursor WaitMsg("Changing Selection");
   m_Tree.LockWindowUpdate();
-  FixFilterStuff();
-  SetFilter();
-  LoadTagTree();
+  for (;;)
+    {
+    FixFilterStuff();
+    SetFilter();
+    if (LoadTagTree(true))
+      break;
+    }
 #if dbgDumpAll
   DumpAll("Rule");
 #endif
