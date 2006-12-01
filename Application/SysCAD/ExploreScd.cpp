@@ -1193,10 +1193,10 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
       }
     else
       RemoveTagFromTree(pTag);
-    Sleep(500);
 
     if (DoKbdTest)
       {
+      Sleep(500); // while testing
       MSG msg;
       if (PeekMessage(&msg, GetSafeHwnd(), WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
         {
