@@ -84,7 +84,7 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
     flag           Enabled() { return m_fEnabled && (m_pMakeupB!=NULL); };
     void           SetEnable(bool On) 
       {
-      dbgpln("MakeupEnable=%s", On?"On":"Off");
+      //dbgpln("MakeupEnable=%s", On?"On":"Off");
       m_pMakeupB->SrcIO.UsrEnable = On;
       m_fEnabled=On; 
       };
