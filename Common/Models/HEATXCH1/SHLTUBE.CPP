@@ -1649,10 +1649,13 @@ void ShellTube::ClosureInfo()
     if (m_Closure.DoFlows())
       {
       CClosureInfo &CI0=m_Closure[0];
-      CClosureInfo &CI1=m_Closure[1];
       CI0.m_PowerIn+=HX()->m_dDuty;
-      CI1.m_PowerIn+=-HX()->m_dDuty;
-      CI1.m_HfGainAtZero+=pHXST->VLE.HfGainAtZero();
+      if (m_Closure.GetSize()>1)
+        {
+        CClosureInfo &CI1=m_Closure[1];
+        CI1.m_PowerIn+=-HX()->m_dDuty;
+        CI1.m_HfGainAtZero+=pHXST->VLE.HfGainAtZero();
+        }
 
       const int id=IOWithId_Self(ioidST_ShellVent);
       if (id<0)

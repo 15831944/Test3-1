@@ -3082,33 +3082,30 @@ void HeatXchg1::ClosureInfo()
     MdlNode::ClosureInfo();
     if (m_Closure.DoFlows())
       {
-      if (m_Closure.GetSize()>0)
+      CClosureInfo &CI0=m_Closure[0];
+      CI0.m_PowerIn+=m_HX.m_dDuty;
+      if (m_pPriVent)
         {
-        CClosureInfo &CI0=m_Closure[0];
-        CI0.m_PowerIn+=m_HX.m_dDuty;
-        if (m_pPriVent)
+        const int id=IOWithId_Self(ioidPVent);
+        if (id<0)
           {
-          const int id=IOWithId_Self(ioidPVent);
+          CI0.m_HfLoss    += m_pPriVent->totHf();
+          CI0.m_HsLoss    += m_pPriVent->totHs();
+          CI0.m_MassLoss  += m_pPriVent->QMass();
+          }
+        }
+      if (m_Closure.GetSize()>1)
+        {
+        CClosureInfo &CI1=m_Closure[1];
+        CI1.m_PowerIn+=-m_HX.m_dDuty;
+        if (m_pSecVent)
+          {
+          const int id=IOWithId_Self(ioidSVent);
           if (id<0)
             {
-            CI0.m_HfLoss    += m_pPriVent->totHf();
-            CI0.m_HsLoss    += m_pPriVent->totHs();
-            CI0.m_MassLoss  += m_pPriVent->QMass();
-            }
-          }
-        if (m_Closure.GetSize()>1)
-          {
-          CClosureInfo &CI1=m_Closure[1];
-          CI1.m_PowerIn+=-m_HX.m_dDuty;
-          if (m_pSecVent)
-            {
-            const int id=IOWithId_Self(ioidSVent);
-            if (id<0)
-              {
-              CI1.m_HfLoss    += m_pSecVent->totHf();
-              CI1.m_HsLoss    += m_pSecVent->totHs();
-              CI1.m_MassLoss  += m_pSecVent->QMass();
-              }
+            CI1.m_HfLoss    += m_pSecVent->totHf();
+            CI1.m_HsLoss    += m_pSecVent->totHs();
+            CI1.m_MassLoss  += m_pSecVent->QMass();
             }
           }
         }
