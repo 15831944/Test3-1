@@ -41,6 +41,19 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
   AddBlk(m_pVLE, MaxNdMakeups+5); 
   AddBlk(m_pEvap, MaxNdMakeups+6); 
 
+  m_nMaxNdMakeups  = 1;
+
+  if (m_pRB  )
+    m_nMaxNdMakeups++;
+  if (m_pHX  ) 
+    m_nMaxNdMakeups++;
+  if (m_pEHX ) 
+    m_nMaxNdMakeups++;
+  if (m_pVLE ) 
+    m_nMaxNdMakeups++;
+  if (m_pEvap) 
+    m_nMaxNdMakeups++;
+
   SortBlocks();
   };
 
@@ -65,6 +78,28 @@ CBlockEvaluator::~CBlockEvaluator(void)
     delete m_pBleeds[a];
     }
   }
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::SetEnable(bool On)
+  {
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
+    m_pMakeups[a]->SetEnable(On);
+
+  //if (m_pRB)
+  //  m_pRB->Add_OnOff(DDB, isParmStopped|SetOnChange);
+  //if (m_pHX)
+  //  m_pHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
+  //if (m_pEHX)
+  //  m_pEHX->Add_OnOff(DDB, isParmStopped|SetOnChange);
+  //if (m_pVLE)
+  //  m_pVLE->Add_OnOff(DDB, isParmStopped|SetOnChange);
+  //if (m_pEvap)
+  //  m_pEvap->Add_OnOff(DDB, isParmStopped|SetOnChange);
+
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    m_pBleeds[a]->SetEnable(On);
+  };
 
 //-------------------------------------------------------------------------
 
@@ -194,7 +229,7 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
       if (DCB.rL)
         {
         int N=*DCB.rL;
-        N=Range(0, N, MaxNdMakeups); 
+        N=Range(0, N, m_nMaxNdMakeups); 
         for (int a=N; a<m_pMakeups.GetSize(); a++)
           {
           RemBlk(m_pMakeups[a]);
@@ -207,8 +242,8 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           Strng Tg, Nm;
           Tg.Set("MU%i", a+1);
           m_pMakeups[a] = new CMakeupBase(m_pThis, a, Tg());
-          m_pMakeups[a]->Enable();
           m_pMakeups[a]->Open(1);
+          m_pMakeups[a]->SetEnable(true);
           AddBlk(m_pMakeups[a], 1+a);
           }
         }
@@ -231,8 +266,8 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
           Strng Tg, Nm;
           Tg.Set("BL%i", a+1);
           m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
-          m_pBleeds[a]->Enable();
           m_pBleeds[a]->Open(1);
+          m_pBleeds[a]->SetEnable(true);
           AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
           }
         }

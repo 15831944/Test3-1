@@ -81,8 +81,7 @@ class DllImportExport CBleedBase : public CBlockEvalBase
 
     CBleedBlock *   operator->() { return m_pBleedB; };
     flag           Enabled() { return m_fEnabled && (m_pBleedB!=NULL); };
-    void           Enable() { m_fEnabled = true; };
-    void           Disable() { m_fEnabled = false; };
+    void           SetEnable(bool On) { m_fEnabled=On; };
     void           Add_OnOff(DataDefnBlk &DDB, dword Flags=isParmStopped, int UserInfo=0);
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="Adj", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);

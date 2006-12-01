@@ -82,8 +82,12 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
 
     CMakeupBlock *   operator->() { return m_pMakeupB; };
     flag           Enabled() { return m_fEnabled && (m_pMakeupB!=NULL); };
-    void           Enable() { m_fEnabled = true; };
-    void           Disable() { m_fEnabled = false; };
+    void           SetEnable(bool On) 
+      {
+      dbgpln("MakeupEnable=%s", On?"On":"Off");
+      m_pMakeupB->SrcIO.UsrEnable = On;
+      m_fEnabled=On; 
+      };
     void           Add_OnOff(DataDefnBlk &DDB, dword Flags=isParmStopped, int UserInfo=0);
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="Adj", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);

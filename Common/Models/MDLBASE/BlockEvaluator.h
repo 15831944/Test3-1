@@ -30,6 +30,8 @@ class DllImportExport CBlockEvaluator
                     CEvapBase * pEvap = NULL);
     ~CBlockEvaluator(void);
 
+    void              SetEnable(bool On);
+
     void              AddBlk(CBlockEvalBase *p, int DefSeqNo);
     void              RemBlk(CBlockEvalBase *p);
 
@@ -58,6 +60,7 @@ class DllImportExport CBlockEvaluator
     CBlockEvalBase  * m_Blks[MaxBEBlocks+1];
 
 
+    int               m_nMaxNdMakeups;
     CReactionBase   * m_pRB;
     CHXBase         * m_pHX;
     CEnvironHXBase  * m_pEHX;

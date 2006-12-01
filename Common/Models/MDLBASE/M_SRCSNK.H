@@ -135,6 +135,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     virtual double QRequired(double Rho);
 
     virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual int    DeleteTag(pchar pDelTag);
     virtual int    GetConnectionTags(Strng_List & TagLst);
 
 #if DOPBSMOOTHING
@@ -195,6 +196,9 @@ class DllImportExport MN_SrcSnk : public MdlNode
 
     CDirectFlwIO   m_Src;
     CDirectFlwIO   m_Snk;
+
+    CBlockEvaluator m_BlkEval;
+
   };
 
 //===========================================================================

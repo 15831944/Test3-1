@@ -22,7 +22,8 @@ P_RegB("RL_Basic", this, NULL),
 T_RegB("RL_Basic", this, NULL),
 m_VLE(this, VLEF_TPFlash),
 m_Src(eDIO_Src, this, false, true, "Source"), 
-m_Snk(eDIO_Snk, this, false, true, "Sink")
+m_Snk(eDIO_Snk, this, false, true, "Sink"),
+m_BlkEval(this, NULL, NULL, NULL, NULL, NULL)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
   //Initialise();
@@ -233,6 +234,8 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
+  if (m_BlkEval.DataXchg(DCB))
+    return 1;
   if (DCB.dwUserInfo==1 && m_Src.DataXchg(DCB))
     return 1;
   if (DCB.dwUserInfo==2 && m_Snk.DataXchg(DCB))
@@ -423,6 +426,10 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
 
   TaggedObject::ValidateTag(sConnectTag);
+  
+  if (!m_BlkEval.ValidateData(VDB))
+    OK=false;
+  
   if (!OK)
     { int xxx=0; }
   return OK;
@@ -444,6 +451,8 @@ flag MN_SrcSnk::PreStartCheck()
 
 int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
+  m_BlkEval.ChangeTag(pOldTag, pNewTag);
+
   if (sConnectTag.XStrICmp(pOldTag)==0)
     sConnectTag=pNewTag;
   const int len = strlen(pOldTag);
@@ -453,8 +462,17 @@ int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
     m_sCFTag = pNewTag;
     m_sCFTag += Right();
     }
-  return EOCT_DONE;
+  return MdlNode::ChangeTag(pOldTag, pNewTag);
   };
+
+//--------------------------------------------------------------------------
+
+int MN_SrcSnk::DeleteTag(char * pDelTag)
+  {
+  m_BlkEval.DeleteTag(pDelTag);
+  return MdlNode::DeleteTag(pDelTag);
+  };
+
 
 //--------------------------------------------------------------------------
 
@@ -552,6 +570,9 @@ long MN_SrcSnk::NodeFlwTask(NodeFlwTasks Task)
 void MN_SrcSnk::GlobalConnect()
   {
   fGlblConnectsInPlace=true;
+
+  //  m_Src.SysEnable = m_RB.Enabled();
+  //m_Snk.SysEnable = m_RB.Enabled();
 
   bool AllOK=false;
   Contents.SetSQFlags(SQF_Source, true);
@@ -679,6 +700,8 @@ Done:
   ////  if (IOId_Self(0)==SSIO_Snk)
   ////    m_Snk.Enabled=true; 
   ////  }
+  m_BlkEval.SetEnable(!fCrossConnected);
+
   MdlNode::GlobalConnect();
   };
 
@@ -1181,15 +1204,17 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
       }
     };
 
-  if (1)//NoDirectIOs()>0)
+  int iOut=IOWithId_Self(SSIO_Src);
+  if (iOut>=0)
     {
-    int IOOut=IOWithId_Self(SSIO_Src);
-    if (IOOut>=0)
-      m_Src.SetF(*IOConduit(IOOut));
+    m_Src.SetF(*IOConduit(iOut));
+    m_BlkEval.EvalProductsPipe(*IOConduit(iOut), 0.0, 1.0, IOP_Flng(iOut), NULL);//&m_FTB); 
+    }
 
-    int IOIn=IOWithId_Self(SSIO_Snk);
-    if (IOIn>=0)
-      m_Snk.SetF(*IOConduit(IOIn));
+  int iIn=IOWithId_Self(SSIO_Snk);
+  if (iIn>=0)
+    {
+    m_Snk.SetF(*IOConduit(iIn));
     }
 
   // This piece of code will overwrite the makeup image if acting as a sink

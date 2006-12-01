@@ -104,6 +104,8 @@ static IOAreaRec Feed_XPGIOAreaList[] =
    {"Sink of Material",       "I"    , SSIO_Snk, LIO_In  ,  nc_MLnk, 0, 1, IOPipeEntry, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},
    {"Source of Material",     "Src"  , SSIO_Src, LIO_Out0,  nc_MLnk, 0, 1, IOPipeEntry, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},
    {"Source of Material",     "O"    , SSIO_Src, LIO_Out ,  nc_MLnk, 0, 1, IOPipeEntry, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},
+    MAKEUP2AREA(),
+    BLEED2AREA(),
    {NULL}};
 
 static double Drw_Feed_XPG[] = { DD_Poly, -10,3, 7,3, 10,0, 7,-3, -10,-3 , -7,0, -10,3,
@@ -285,6 +287,10 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   
+  DDB.Visibility(NSHM_All, !fCrossConnected);
+  DDB.Text  ("");
+  m_BlkEval.Add_OnOff(DDB);  
+
   DDB.Visibility();
   DDB.Text  ("");
   DDB.Text   ("Cross Page Connection");
@@ -353,6 +359,9 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double("POut",         "",    DC_P   , "kPag",   &dP_Out,  this, isResult|0);
   DDB.Double("QOut",         "",    DC_Qm  , "kg/s",   &dQ_Out,  this, isResult|0);
   DDB.Double("TOut",         "",    DC_T   , "C",      &dT_Out,  this, isResult|0);
+
+  DDB.Visibility(NSHM_All, !fCrossConnected);
+  m_BlkEval.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, (SSMode & SSM_Source) || (iRevFlw==SSQmRev_Image));
   DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
