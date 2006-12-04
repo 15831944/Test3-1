@@ -4048,6 +4048,7 @@ void FlwNode::SetIO_Open(int i, int iJoinId, flag Damped, eEvalSeqStart ESS, byt
   S.fDamped=Damped;
   S.m_eEvalSeqStart=ESS;
 
+  m_nJoins=Max(m_nJoins, iJoinId+1);
   Joins.SetSize(Max(Joins.GetSize(), iJoinId+1));
   Joins[iJoinId].fIsOpen=!Damped;
   Joins[iJoinId].m_iFlwPh_Rqd = FlwPhasesAllowed;
@@ -4093,6 +4094,7 @@ void FlwNode::SetIO_Direct(int i, int iJoinId)
   S.fDamped=Damped;
   S.m_eEvalSeqStart=ESS;
 
+  m_nJoins=Max(m_nJoins, iJoinId+1);
   Joins.SetSize(Max(Joins.GetSize(), iJoinId+1));
   Joins[iJoinId].fIsOpen=!Damped;
   Joins[iJoinId].m_iFlwPh_Rqd = FlwPhasesAllowed;
@@ -4139,6 +4141,7 @@ void FlwNode::SetIO_Closed(int i, int iJoinId)
   S.fDamped=false;
   S.m_eEvalSeqStart=ESS_Denied;
 
+  m_nJoins=Max(m_nJoins, iJoinId+1);
   Joins.SetSize(Max(Joins.GetSize(), iJoinId+1));
   Joins[iJoinId].fIsOpen=False;
   Joins[iJoinId].m_iFlwPh_Rqd=FPh_None;
@@ -4181,6 +4184,7 @@ void FlwNode::SetIO_Join(int i, int iJoinId, eEvalSeqStart ESS, byte FlwPhasesAl
   S.fDamped=false;
   S.m_eEvalSeqStart=ESS;
 
+  m_nJoins=Max(m_nJoins, iJoinId+1);
   Joins.SetSize(Max(Joins.GetSize(), iJoinId+1));
 
   Joins[iJoinId].fIsOpen=false;
@@ -4194,6 +4198,7 @@ void FlwNode::SetIO_Join(int i, int iJoinId, eEvalSeqStart ESS, byte FlwPhasesAl
 
 void FlwNode::Init_NoJoins(int n)
   {
+  m_nJoins=n;
   Joins.SetSize(Max(Joins.GetSize(), n));
   };
 
@@ -4241,6 +4246,8 @@ void FlwNode::LinkJoins(int iLinkId, int iJoinId0, int iJoinId1, CFlwEqnPtr * FE
   L.m_pNd=this;
   L.m_FBs[0].SetParentFlwEqn(FEP);
 
+  m_nJoins=Max(m_nJoins, iJoinId0+1);
+  m_nJoins=Max(m_nJoins, iJoinId1+1);
   Joins.SetSize(Max(Joins.GetSize(), iJoinId0+1));
   Joins.SetSize(Max(Joins.GetSize(), iJoinId1+1));
 
@@ -4291,6 +4298,7 @@ static void CheckQmAuxExists(JoinArray &Joins, int iJoinId, FlwNode * pNd)
     {
     pNd->SetTopologyChanged();
     DBGTOPOCHG("CheckQmAuxExists")
+    pNd->m_nJoins=Max(pNd->m_nJoins, iJoinId+1);
     Joins.SetSize(Max(Joins.GetSize(), iJoinId+1));
     }
   CJoinRec &J=Joins[iJoinId];
@@ -4346,6 +4354,7 @@ void FlwNode::SetJoinQm_QmRatio (int iJoinId, int iIONo)
 
 void FlwNode::SetJoin_HasVolume(int JoinId, flag VolPrsFX, flag VolIsSmall)
   {
+  m_nJoins=Max(m_nJoins, JoinId+1);
   Joins.SetSize(Max(Joins.GetSize(), JoinId+1));
 
   if (Joins[JoinId].fVolPrsFX!=VolPrsFX || Joins[JoinId].fVolIsSmall!=VolIsSmall)
@@ -4477,9 +4486,29 @@ void FlwNode::PreConfigureJoins()
 
 //--------------------------------------------------------------------------
 
+//class CFailedAssertException : public CSimpleException
+//  {
+//  DECLARE_DYNAMIC(CFailedAssertException)
+//  public:
+//    CFailedAssertException();
+//
+//    // Implementation
+//  public:
+//    CFailedAssertException(BOOL bAutoDelete) {};
+//    CFailedAssertException(BOOL bAutoDelete, LPCTSTR Message) : CSimpleException(bAutoDelete)
+//      { 
+//      m_bInitialized=true;
+//     	m_bLoaded=true;
+//	    strcpy_s(m_szMessage, _countof(m_szMessage), Message);
+//      };
+//    virtual ~CFailedAssertException() {};
+//  };
+//IMPLEMENT_DYNAMIC(CFailedAssertException, CSimpleException)
+
 void FlwNode::PostConfigureJoins()
   {
-  m_nJoins=Joins.GetSize();
+  //m_nJoins=Joins.GetSize();
+  Joins.SetSize(Max(m_nJoins, m_nRqdJoins));
   ASSERT(fInConfigureJoins);
 
   if (NoFlwIOs()>0 && (Joins.GetSize()==0) && ((m_dwType&(nc_Control|nc_CLnk|nc_Elec|nc_ELnk|nc_ALnk))==0))
@@ -4504,6 +4533,14 @@ void FlwNode::PostConfigureJoins()
     else
       {
       m_nProcessJoins++;
+
+      if (!(m_nMkupJoins==0 && m_nAuditJoins==0))
+        {
+        int xxx=0;
+        //  throw MSysException(1000, this, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
+        //new CFailedAssertException(false, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
+        }
+
       ASSERT_ALWAYS(m_nMkupJoins==0 && m_nAuditJoins==0, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
       }
 
@@ -7000,7 +7037,10 @@ void FlwNode::Clr_RhoH_Self(int i)
 CPressBlk & FlwNode::JoinPBlk(int iJoinId)
   {
   if (Joins.GetUpperBound()<iJoinId)
+    {
+    m_nJoins=Max(m_nJoins, iJoinId+1);
     Joins.SetSize(iJoinId+1);
+    }
   return Joins[iJoinId].m_PB;
   };
 

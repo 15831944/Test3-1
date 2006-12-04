@@ -662,7 +662,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
     int iBleed=IOWithId_Self(IOId_Bleed2Area);
     if (iBleed>=0)
       {
-      for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+      for ( ;iBleed<NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
         Contents.AddDeriv(*IOConduit(iBleed), -1.0);
       }
 

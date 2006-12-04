@@ -262,6 +262,7 @@ void MN_Xfer::ConfigureJoins()
   {
   if (m_NetworkIsolator)
     {
+    Set_NoJoins(2);
     for (int i=0; i<NoProcessIOs(); i++)
       {
       if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
@@ -272,6 +273,7 @@ void MN_Xfer::ConfigureJoins()
     }
   else
     {
+    Set_NoJoins(1);
     for (int i=0; i<NoProcessIOs(); i++)
       SetIO_Join(i, 0);
     }
