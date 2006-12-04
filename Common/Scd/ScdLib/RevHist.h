@@ -2669,10 +2669,13 @@ Build 122 : 16 November 2006
 1258 30/11/06: For dynamic direct mode stop RB rate error in Washer and ElectroCell.
 1261  1/12/06: (#693) Fix for shell & tube crash where all pipes aren't connected.
 1265  1/12/06: Fix for normally open valve; Fix for finding tags where they don't exist.
+1270  3/12/06: (#694) Added makeup block to feeder.
+1273  4/12/06: (#615) Added makeup block to tank, acts on QFeed.
+1276  5/12/06: Improvements for exception handling and reporting.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1265
+#define SCD_PATCH_SVN    1276
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

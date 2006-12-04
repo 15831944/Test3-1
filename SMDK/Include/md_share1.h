@@ -544,7 +544,7 @@ DllImportExport void DoAssert1(char * pMsg);
 inline void ASSERT_ALWAYS(BOOL a, LPCTSTR msg, LPCTSTR file, int line) { if (!(a)) { throw MSysException(msg, file, line); }; };
 
 #ifdef _RELEASE
-#define ASSERT_RDB(a, msg) {};
+#define ASSERT_RDB(a, msg, file, line) {};
 #else
 inline void ASSERT_RDB(BOOL a, LPCTSTR msg, LPCTSTR file, int line) { if (!(a)) { throw MSysException(msg, file, line); }; };
 #endif
