@@ -2108,7 +2108,7 @@ void GSModel::PostConnect(int IONo)
       {
 
       //dbgp(" AddIt");
-      ASSERT_ALWAYS(IONo<250, "Max of 250 IOs in a GenModel");
+      ASSERT_ALWAYS(IONo<250, "Max of 250 IOs in a GenModel", __FILE__, __LINE__);
       int iPos=-1;
       for (int i=0; i<IOs.GetSize(); i++)
         if (IOs[i]>=IONo)

@@ -928,7 +928,7 @@ void CSqSzDPg::PopulateAll()
     }
   else
     CurDstIndex = -1;
-  ASSERT_RDB(CurDstIndex>=0, "One MUST exist!");
+  ASSERT_RDB(CurDstIndex>=0, "One MUST exist!", __FILE__, __LINE__);
 
   BuildSpList();
   CurDefSpecie = H.SDs[0]->DefaultSpecie();

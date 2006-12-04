@@ -454,9 +454,9 @@ void CommandWnd::ActivateVNT()
         CB->InitVNT();
         CB->BuildVNT();
         CB->VNTable[CB->VNLen++].Set(NULL,NULL,NULL,0,NULL,0);
-        ASSERT_ALWAYS(CB->VNLen<CB->MaxVN, "Too Many Verbs");
+        ASSERT_ALWAYS(CB->VNLen<CB->MaxVN, "Too Many Verbs", __FILE__, __LINE__);
         CB->CSTable[CB->CSLen++].Set(0,NULL);
-        ASSERT_ALWAYS(CB->CSLen<CB->MaxCS, "Too Many Cmds");
+        ASSERT_ALWAYS(CB->CSLen<CB->MaxCS, "Too Many Cmds", __FILE__, __LINE__);
         }
       //InitForCmd();
       }

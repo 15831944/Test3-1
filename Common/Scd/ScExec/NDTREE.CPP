@@ -368,7 +368,7 @@ void CTNode::Add_Child(CTNode* pAdd)
       }
   
     CTNode* pX;
-    ASSERT_ALWAYS(!pChildMap->Lookup(pAdd->Tag(), pX),"Tag already in ChildMap");
+    ASSERT_ALWAYS(!pChildMap->Lookup(pAdd->Tag(), pX),"Tag already in ChildMap", __FILE__, __LINE__);
     pChildMap->SetAt(pAdd->Tag(), pAdd);
     }
   }

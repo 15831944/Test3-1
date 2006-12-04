@@ -98,7 +98,7 @@ inline CString GetString(ADODB::_RecordsetPtr & RS, LPCTSTR FldName)
     S=v;
 #else
 //TODO S=v line above does not compile in V6
-  INCOMPLETECODE()
+  INCOMPLETECODE(__FILE__, __LINE__)
 #endif
   return S;
   }

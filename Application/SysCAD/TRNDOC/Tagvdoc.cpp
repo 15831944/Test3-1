@@ -4271,7 +4271,7 @@ void CTagVwDocC::ConnectAllTags()
           }
         else 
           {
-          ASSERT_ALWAYS(IsLayout(Type), "Unknown Item Type")
+          ASSERT_ALWAYS(IsLayout(Type), "Unknown Item Type", __FILE__, __LINE__);
           }
         }
       }
@@ -4454,7 +4454,7 @@ void CTagVwDocC::PreloadSlots()
     iSlot++;
     };
   m_nLoopSlotCount=iSlot-m_iLoopSlotOne;
-  ASSERT_ALWAYS((m_Loops.GetSize()==0) || (nCtrlSlots==iSlot), "Bad CtrlTrend Setup");
+  ASSERT_ALWAYS((m_Loops.GetSize()==0) || (nCtrlSlots==iSlot), "Bad CtrlTrend Setup", __FILE__, __LINE__);
 
   for (i=0; i<iSlot; i++)
     DS[i].bCtrlSlot=true;

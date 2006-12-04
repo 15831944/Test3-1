@@ -321,17 +321,53 @@ class MSysException
       {
       m_nCode=n;
       m_nAdd=(unsigned int )a;
+#if _MSC_VER >=1400
+      strncpy_s(m_sName, _countof(m_sName), Name, sizeof(m_sName)-1);
+      strncpy_s(m_sWhere, _countof(m_sWhere), "", sizeof(m_sWhere)-1);
+      strncpy_s(m_sNear, _countof(m_sNear), "", sizeof(m_sNear)-1);
+#else
       strncpy(m_sName, Name, sizeof(m_sName)-1);
       strncpy(m_sWhere, "", sizeof(m_sWhere)-1);
       strncpy(m_sNear, "", sizeof(m_sNear)-1);
+#endif
+      }
+    MSysException(LPCTSTR Test, LPCTSTR File, int LineNumber)
+      {
+      m_nCode=0;
+      m_nAdd=(unsigned int )0;
+#if _MSC_VER >=1400
+      strncpy_s(m_sName, _countof(m_sName), Test, sizeof(m_sName)-1); 
+      strncpy_s(m_sWhere, _countof(m_sWhere), File, sizeof(m_sWhere)-1);
+      char Tmp[25];
+      _ltoa_s(LineNumber, Tmp, _countof(Tmp), 10);
+      strncat_s(m_sWhere, _countof(m_sWhere), "(", sizeof(m_sWhere)-1);
+      strncat_s(m_sWhere, _countof(m_sWhere), Tmp, sizeof(m_sWhere)-1);
+      strncat_s(m_sWhere, _countof(m_sWhere), ")", sizeof(m_sWhere)-1);
+      strncpy_s(m_sNear, _countof(m_sNear), "", sizeof(m_sNear)-1);
+#else
+      strncpy(m_sName, Test, sizeof(m_sName)-1); 
+      strncpy(m_sWhere, __FILE__, sizeof(m_sWhere)-1);
+      char Tmp[25];
+      _ltoa(LineNumber, Tmp, 10);
+      strncat(m_sWhere, "(", sizeof(m_sWhere)-1);
+      strncat(m_sWhere, Tmp, sizeof(m_sWhere)-1);
+      strncat(m_sWhere, ")", sizeof(m_sWhere)-1);
+      strncpy(m_sNear, "", sizeof(m_sNear)-1);
+#endif
       }
     MSysException(MSysException & e, LPCTSTR Where, LPCTSTR Near)
       {
       m_nCode=e.m_nCode;
       m_nAdd=e.m_nAdd;
+#if _MSC_VER >=1400
+      strncpy_s(m_sName, _countof(m_sName), e.m_sName, sizeof(m_sName)-1);
+      strncpy_s(m_sWhere, _countof(m_sWhere), Where?Where:"", sizeof(m_sWhere)-1);
+      strncpy_s(m_sNear, _countof(m_sNear), Near?Near:"", sizeof(m_sNear)-1);
+#else
       strncpy(m_sName, e.m_sName, sizeof(m_sName)-1);
       strncpy(m_sWhere, Where?Where:"", sizeof(m_sWhere)-1);
       strncpy(m_sNear, Near?Near:"", sizeof(m_sNear)-1);
+#endif
       }
     ~MSysException()
       {
@@ -504,20 +540,17 @@ const DWORD TBF_LocalOnly     = 0x00100000;
 
 DllImportExport void DoAssert1(char * pMsg);
 
-#define ASSERT_ALWAYS(a, msg) { if (!(a)) { DoAssert1(msg); DoBreak(); }; };
-#ifdef _RELEASE
-#define RDBASSERT(a, msg) {};
-#else
-#define RDBASSERT(a, msg) { if (!(a)) { DoAssert1(msg); DoBreak(); }; };
-#endif
+//#define ASSERT_ALWAYS(a, msg) { if (!(a)) { DoAssert1(msg); DoBreak(); }; };
+inline void ASSERT_ALWAYS(BOOL a, LPCTSTR msg, LPCTSTR file, int line) { if (!(a)) { throw MSysException(msg, file, line); }; };
+
 #ifdef _RELEASE
 #define ASSERT_RDB(a, msg) {};
 #else
-#define ASSERT_RDB(a, msg) { if (!(a)) { DoAssert1(msg); DoBreak(); }; };
+inline void ASSERT_RDB(BOOL a, LPCTSTR msg, LPCTSTR file, int line) { if (!(a)) { throw MSysException(msg, file, line); }; };
 #endif
 
-#define INCOMPLETECODE()     { char Buff[2000]; sprintf(Buff, "INCOMPLETECODE\n\n%s[%i]", __FILE__, __LINE__); DoAssert1(Buff); DoBreak() ; }
-#define INCOMPLETECODEMSG(Msg) { char Buff[2000]; sprintf(Buff, "%s\n\n%s[%i]", Msg, __FILE__, __LINE__); DoAssert1(Buff); __debugbreak() ; }
+#define INCOMPLETECODE(file, line)         { if (1) throw MSysException("INCOMPLETECODE", file, line) ; }
+#define INCOMPLETECODEMSG(Msg, file, line) { if (1) throw MSysException(Msg, file, line); }
 
 // ========================================================================
 

@@ -745,7 +745,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, doubl
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
-      ASSERT_ALWAYS(0, "SetProdMakeup Sol Liq Vap NOT Implemented" );
+      ASSERT_ALWAYS(0, "SetProdMakeup Sol Liq Vap NOT Implemented" , __FILE__, __LINE__);
       }
     }
   else if (dwFlags & PMU_IOId)
@@ -1468,7 +1468,7 @@ void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, SpConduit * pQFeed, CSur
   {
   if (SolveInlineMethod())
     {
-    ASSERT_ALWAYS(pQFeed!=NULL, "Inline integral - Feed not supplied")
+    ASSERT_ALWAYS(pQFeed!=NULL, "Inline integral - Feed not supplied", __FILE__, __LINE__);
     EvalProducts_SurgeLevelInline(HO, pQFeed, pControl);
     }
   else
@@ -1589,7 +1589,7 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
     {
     //    if (Contents.Level()>1.0)
 //      {
-//      ASSERT_ALWAYS(FALSE, "INCOMPLETE")
+//      ASSERT_ALWAYS(FALSE, "INCOMPLETE", __FILE__, __LINE__);
 //      }
 
     if (DoDbgBrk())
@@ -1615,7 +1615,7 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
       {
       SVolFrac=Range(0.0, SVolFrac, 1.0);
       double Qs=SVolFrac*QmSLRqd;
-      ASSERT_RDB(Qs>=0.0, "Why is Qs negative !!!"); //kga 10/12/02 ERROR!!! (Set to zero for now)
+      ASSERT_RDB(Qs>=0.0, "Why is Qs negative !!!", __FILE__, __LINE__); //kga 10/12/02 ERROR!!! (Set to zero for now)
       Contents.Spill.Cd.QSetM(Contents, som_SL, Max(0.0, Qs), Contents.Press());
       //Contents.Spill.QSetM(Contents, som_SL, Qs, Contents.Press());
       //QvActual_SL+=Qs;

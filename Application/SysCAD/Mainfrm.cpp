@@ -869,7 +869,7 @@ LRESULT CMainFrame::OnCmd(WPARAM wParam, LPARAM lParam)
 
         }
       else
-        ASSERT_ALWAYS(FALSE, "OLE Exec Obj does not exist!");
+        ASSERT_ALWAYS(FALSE, "OLE Exec Obj does not exist!", __FILE__, __LINE__);
       delete pXB;
       break;
       }
@@ -1031,7 +1031,7 @@ LRESULT CMainFrame::OnCmd(WPARAM wParam, LPARAM lParam)
       break;
       }
     default:
-      ASSERT_ALWAYS(FALSE, "Unexpected SUB_CMD_xxx for WMU_CMD");
+      ASSERT_ALWAYS(FALSE, "Unexpected SUB_CMD_xxx for WMU_CMD", __FILE__, __LINE__);
       break;
     }
   return true;
@@ -2236,7 +2236,7 @@ LRESULT CMainFrame::OnGenerateReport(WPARAM wParam, LPARAM lParam)
         gs_pPrj->XSendMessage(XM, Route);
         }
       else
-        ASSERT_ALWAYS(FALSE, "Rep Exec Obj does not exist!");
+        ASSERT_ALWAYS(FALSE, "Rep Exec Obj does not exist!", __FILE__, __LINE__);
       delete pXB;
       break;
       }
@@ -3647,7 +3647,7 @@ LRESULT CMainFrame::OnCOMApp(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMainFrame::OnCOMSlv(WPARAM wParam, LPARAM lParam)
   {
-  INCOMPLETECODEMSG("Should not get here");
+  INCOMPLETECODEMSG("Should not get here", __FILE__, __LINE__);
   CScdCOCmdBlk * pCmdBlk = (CScdCOCmdBlk *)lParam;
   return CmdExec().DoCOMCmd(2, wParam, pCmdBlk, pCmdBlk->m_lData);
   }

@@ -19,7 +19,7 @@ CFindItDlg::CFindItDlg(CSysCADMarshalDoc * pDoc, CWnd* pParent /*=NULL*/)
 : CDialog(CFindItDlg::IDD, pParent)
   {
   m_pDoc=pDoc;
-  ASSERT_ALWAYS(sm_pTheOne==NULL, "sm_pTheOne!=NULL")
+  ASSERT_ALWAYS(sm_pTheOne==NULL, "sm_pTheOne!=NULL", __FILE__, __LINE__);
   Create(CFindItDlg::IDD, pParent);
 
   m_Off=false;

@@ -1479,7 +1479,7 @@ static flag DoPressCheck = 1;
 double PressTest_(double P)
   {
   #ifndef _RELEASE
-  ASSERT_ALWAYS(!DoPressCheck || !Valid(P) || P<MaxTestPress, "Excessive pressure!!!");
+  ASSERT_ALWAYS(!DoPressCheck || !Valid(P) || P<MaxTestPress, "Excessive pressure!!!", __FILE__, __LINE__);
   #endif
   return (Valid(P ) ? Min(MaxTestPress, P) : P);
   };
@@ -2022,7 +2022,7 @@ FlwNode::~FlwNode()
     {
     CString S;
     S.Format("Node %s still connected to Area", FullObjTag());
-    ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S);
+    ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S, __FILE__, __LINE__);
     }
 
   if (stricmp(Class()->Group(), FlwUnitGrp)==0)
@@ -2252,31 +2252,31 @@ void FlwNode::CheckIOAreas(bool OneGroup, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp
   int i=0;
   while (p->pDesc!=NULL)
     {
-    ASSERT_ALWAYS(p->m_Id<MaxIOId, "IOId >= MaxIOId");
+    ASSERT_ALWAYS(p->m_Id<MaxIOId, "IOId >= MaxIOId", __FILE__, __LINE__);
     if (p->m_dwType&nc_MLnk)
-      ASSERT_ALWAYS(IsFlwIOId(p->m_Id), "Condition Not Met FlwIOId0 <= FlwIOId < FlwIOIdN");
+      ASSERT_ALWAYS(IsFlwIOId(p->m_Id), "Condition Not Met FlwIOId0 <= FlwIOId < FlwIOIdN", __FILE__, __LINE__);
     if (p->m_dwType&nc_CLnk)
-      ASSERT_ALWAYS(IsCtrlIOId(p->m_Id), "Condition Not Met CtrlIOId0 <= CtrlIOId < CtrlIOIdN");
+      ASSERT_ALWAYS(IsCtrlIOId(p->m_Id), "Condition Not Met CtrlIOId0 <= CtrlIOId < CtrlIOIdN", __FILE__, __LINE__);
     if (p->m_dwType&nc_ELnk)
-      ASSERT_ALWAYS(IsElecIOId(p->m_Id), "Condition Not Met ElecIOId0 <= ElecIOId < ElecIOIdN");
+      ASSERT_ALWAYS(IsElecIOId(p->m_Id), "Condition Not Met ElecIOId0 <= ElecIOId < ElecIOIdN", __FILE__, __LINE__);
     if (p->m_dwType&nc_ALnk)
-      ASSERT_ALWAYS(IsAirIOId(p->m_Id), "Condition Not Met AirIOId0 <= AirIOId < AirIOIdN");
+      ASSERT_ALWAYS(IsAirIOId(p->m_Id), "Condition Not Met AirIOId0 <= AirIOId < AirIOIdN", __FILE__, __LINE__);
 
     if (pPrev)
       {
-      ASSERT_ALWAYS((p->m_Id>=pPrev->m_Id), "Ids Must Increase");
+      ASSERT_ALWAYS((p->m_Id>=pPrev->m_Id), "Ids Must Increase", __FILE__, __LINE__);
 
       if (p->m_dwType&nc_MLnk)
-        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_CLnk|nc_ELnk|nc_ALnk))==0), "MLnks must Preceed C/E/ALnks");}
+        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_CLnk|nc_ELnk|nc_ALnk))==0), "MLnks must Preceed C/E/ALnks", __FILE__, __LINE__);}
       else if (p->m_dwType&nc_CLnk)
-        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_ELnk|nc_ALnk))==0), "CLnks must Preceed E/ALnks");}
+        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_ELnk|nc_ALnk))==0), "CLnks must Preceed E/ALnks", __FILE__, __LINE__);}
       else if (p->m_dwType&nc_ELnk)
-        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_ALnk))==0), "CLnks must Preceed ALnks");}
+        {ASSERT_ALWAYS(((pPrev->m_dwType&(nc_ALnk))==0), "CLnks must Preceed ALnks", __FILE__, __LINE__);}
       else if (p->m_dwType&nc_ALnk)
         {}
       }
 
-    ASSERT_ALWAYS(p->m_nIORqd<=p->m_nIOMax, "m_nIORqd > m_nIOMax");
+    ASSERT_ALWAYS(p->m_nIORqd<=p->m_nIOMax, "m_nIORqd > m_nIOMax", __FILE__, __LINE__);
     // No blanks in Name
     char *pb;
     while ((pb=strchr(p->pName, ' '))!=NULL)
@@ -2651,7 +2651,7 @@ void FlwNode::PostGlobalConnect()
       else if (SOut || DIn)
         Dirn=-1;
       else
-        ASSERT_ALWAYS(FALSE, "Connect Direction undefined")
+        ASSERT_ALWAYS(FALSE, "Connect Direction undefined", __FILE__, __LINE__);
 
       for (int j=0; j<NIOFBs(i); j++)
         {
@@ -2693,7 +2693,7 @@ void FlwNode::GlobalDisConnect()
   if (m_pArea.Connected())
     {
     //POSITION Pos=m_pArea->m_NdsInArea.GetCount()>0 ? m_pArea->m_NdsInArea.Find(this) : NULL;
-    ASSERT_ALWAYS(m_AreaNdListPos, "Node must be in Area");
+    ASSERT_ALWAYS(m_AreaNdListPos!=0, "Node must be in Area", __FILE__, __LINE__);
     //dbgpln("Rem Nd %#010x %s", this, typeid(this).name());
     m_pArea->m_NdsInArea.RemoveAt(m_AreaNdListPos);
     m_pArea.DisConnect();
@@ -4524,7 +4524,7 @@ void FlwNode::PostConfigureJoins()
     if (J.fIsMkup)
       {
       m_nMkupJoins++;
-      ASSERT_ALWAYS(m_nAuditJoins==0, "m_nAuditJoins!=0");
+      ASSERT_ALWAYS(m_nAuditJoins==0, "m_nAuditJoins!=0", __FILE__, __LINE__);
       }
     else if (J.fIsAudit)
       {
@@ -4533,15 +4533,7 @@ void FlwNode::PostConfigureJoins()
     else
       {
       m_nProcessJoins++;
-
-      if (!(m_nMkupJoins==0 && m_nAuditJoins==0))
-        {
-        int xxx=0;
-        //  throw MSysException(1000, this, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
-        //new CFailedAssertException(false, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
-        }
-
-      ASSERT_ALWAYS(m_nMkupJoins==0 && m_nAuditJoins==0, "m_nMkupJoins!=0 || m_nAuditJoins!=0");
+      ASSERT_ALWAYS(m_nMkupJoins==0 && m_nAuditJoins==0, "m_nMkupJoins!=0 || m_nAuditJoins!=0", __FILE__, __LINE__);
       }
 
     if (J.pQmAux)
@@ -7283,7 +7275,7 @@ void FlwNode::OnAppActivate(BOOL bActive)
 int FlwNode::FilesUsed(CFilesUsedArray & Files)
   {
   //Expect model with reactions etc to override this virtual method eg:
-  ASSERT_ALWAYS(fHasFiles==0, "HasFiles!=0");
+  ASSERT_ALWAYS(fHasFiles==0, "HasFiles!=0", __FILE__, __LINE__);
   return 0;
   };
 
@@ -8432,7 +8424,7 @@ flag CMsAGData::Merge(CMsAGData * pDstAGData, CMsAGData * & pMrgdAG)
     // Do Arithmetic
     if (SrcMrgd)
       {
-      ASSERT_ALWAYS(pMrgdAG!=NULL, "No Merged Data");
+      ASSERT_ALWAYS(pMrgdAG!=NULL, "No Merged Data", __FILE__, __LINE__);
       #if dbgFlwNodeMS
       if (dbgMSMerge())
         dbgpln("       %s", m_pNd->FullObjTag());
@@ -8450,7 +8442,7 @@ flag CMsAGData::Merge(CMsAGData * pDstAGData, CMsAGData * & pMrgdAG)
       }
     else
       {
-      ASSERT_ALWAYS(pMrgdAG==NULL, "Merged Data Exists");
+      ASSERT_ALWAYS(pMrgdAG==NULL, "Merged Data Exists", __FILE__, __LINE__);
       #if dbgFlwNodeMS
       if (dbgMSMerge())
         dbgpln("Merge  %s", m_pNd->FullObjTag());
@@ -9812,7 +9804,7 @@ void CAreaSum::Integrate(double TimeInc)
   m_TotalHz+=m_TotalHzInc;
   if (DoArray)
     {
-    INCOMPLETECODE()
+    INCOMPLETECODE(__FILE__, __LINE__)
     }
   };
 
@@ -9933,7 +9925,7 @@ void CDirectAccCalc::DoComplete(int Instance)
 
   if (CAreaSum::sm_eAction==CAreaSum::SumArray)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   else
     {
@@ -10221,7 +10213,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   m_bSysEnable    = SysEnable;
   m_bShowUsr      = ShowUsr;
 
-  ASSERT_ALWAYS(!m_bConnected, "CDirectFlwIO Still Connected");
+  ASSERT_ALWAYS(!m_bConnected, "CDirectFlwIO Still Connected", __FILE__, __LINE__);
   m_iMyConnectedIO  = -1;
   m_Opening         = 1.0;
   m_iLclDIOId       = LclDIOId;

@@ -1630,7 +1630,7 @@ void CModesPage::DoSyncChange()
 
 //void CModesPage::OnBnClickedLibrarybtn()
 //  {
-//  INCOMPLETECODE()
+//  INCOMPLETECODE(__FILE__, __LINE__)
 //  //GetGraphicsOptions();
 //  //SetGraphicsOptions();
 //  }
@@ -2256,7 +2256,7 @@ void CGrfTagsPage::OnNumStTagsChanged()
 
 void CGrfTagsPage::OnBnClickedLibrarybtn()
   {
-  INCOMPLETECODE()
+  INCOMPLETECODE(__FILE__, __LINE__)
     //GetGraphicsOptions();
     //SetGraphicsOptions();
   }

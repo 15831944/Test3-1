@@ -439,7 +439,7 @@ bool MBaseMethod::ConfigureJoins()
     }
   else
     {
-//    INCOMPLETECODE();
+//    INCOMPLETECODE(__FILE__, __LINE__);
     }
   return true;
   }
@@ -514,7 +514,7 @@ void   MJoin::putP(double P)
     m_pNd->SetJoinPressure(m_iJoin, P, true, true);
   else
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     //m_pNd->SetJoinPressure;
     }
   };
@@ -633,13 +633,13 @@ void   MFlow::putMakeUpAvail(double Avl)
 
 double   MFlow::getAbsHeight()
   {
-  INCOMPLETECODE()
+  INCOMPLETECODE(__FILE__, __LINE__)
   //return m_pNd->IORelFracHgt_Flng(m_iIONo)*m_pSDD[iSurge].m_dShpHeight;
   return 0;
   };
 void     MFlow::putAbsHeight(double H)
   {
-  INCOMPLETECODE()
+  INCOMPLETECODE(__FILE__, __LINE__)
   //m_pSDD[iSurge].m_IOIdMask|=1<<m_pNd->IOId_Self(iIO);
   //m_pNd->SetIORelFracHgt_Flng(iIO, H/GTZ(m_pSDD[iSurge].m_dShpHeight));
   };
@@ -649,7 +649,7 @@ double    MFlow::getRelHeight()
   };
 void     MFlow::putRelHeight(double H)
   {
-  INCOMPLETECODE()
+  INCOMPLETECODE(__FILE__, __LINE__)
   //m_pSDD[iSurge].m_IOIdMask|=1<<m_pNd->IOId_Self(m_iIONo);
   //m_pNd->SetIORelFracHgt_Flng(iIO, H);
   };

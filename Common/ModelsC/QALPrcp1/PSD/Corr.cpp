@@ -276,7 +276,7 @@ double CPrecipPSD::NRate( CPSDConc & Conc, double surf, double tempk)
   //
   if(m_Corr.m_NucCorr == -1)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   else  // eNucCorrMisra1970
     {
@@ -322,7 +322,7 @@ double CPrecipPSD::ARate( CPSDConc & Conc, double  tempk)
   //     Based on correlation by Ilievski (1991)
   if(m_Corr.m_AgglCorr == -1)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   else // eAgglCorrIlievski1991
     {

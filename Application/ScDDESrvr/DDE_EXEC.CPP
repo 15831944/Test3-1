@@ -286,7 +286,7 @@ flag CReport::DoExcelReports()
 
 flag CReport::DoReport()
   {
-  ASSERT_ALWAYS(Opt==Excel, "Only Excel Report");
+  ASSERT_ALWAYS(Opt==Excel, "Only Excel Report", __FILE__, __LINE__);
   char Buff[512];
   int i,j,iMax,jMax;
   Strng s, sTag, WrkTag, WrkCnvTxt, Separ;

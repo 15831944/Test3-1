@@ -1549,7 +1549,7 @@ class CFeedMkUpFnd : public MRootFinder
 void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
-  ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
+  ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
 
   m_bHasFlow = (QPrd.QMass()>SmallPosFlow);
 
@@ -2890,7 +2890,7 @@ class CSimpleMkUpFnd : public MRootFinder
 void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   {
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
-  ASSERT_ALWAYS(pNd, "Should always be part of a FlwNode");
+  ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
 
   if (QPrd.QMass()>SmallPosFlow)
     {

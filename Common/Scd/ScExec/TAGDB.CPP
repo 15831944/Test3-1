@@ -343,7 +343,7 @@ int CTagDBMDB::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
       LogError("TagDB", LF_Exclamation, "Cannot open read-only Database '%s'", sDBName());
       return 4;
       }
-    ASSERT_ALWAYS(m_OpenOpts & (DBO_ForWrite|DBO_ForRead), "Must be Readble or Writable")
+    ASSERT_ALWAYS(m_OpenOpts & (DBO_ForWrite|DBO_ForRead), "Must be Readble or Writable", __FILE__, __LINE__);
     if (!OpenDB(DBFmt, sDBName(), (m_OpenOpts & DBO_ForWrite), false))
       return 1;
     }
@@ -378,7 +378,7 @@ int CTagDBMDB::CloseIt()
   CloseDB();
   if (1 && (m_OpenOpts & DBO_CompressDB))//DoCompact)
     {
-    ASSERT_ALWAYS(m_OpenOpts & DBO_ForWrite, "Must be Writable for Compact")
+    ASSERT_ALWAYS(m_OpenOpts & DBO_ForWrite, "Must be Writable for Compact", __FILE__, __LINE__);
     ULONGLONG SizeBefore=0;
     ULONGLONG SizeAfter=0;
     CFileStatus State;
@@ -545,7 +545,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
       CTagDBase::EscapeStructs(ItemTag);
 
-      ASSERT_ALWAYS(nKWFlds<sizeof(KWFlds)/sizeof(KWFlds[0]), "TooManyFields")
+      ASSERT_ALWAYS(nKWFlds<sizeof(KWFlds)/sizeof(KWFlds[0]), "TooManyFields", __FILE__, __LINE__);
       KWFieldDef* pFldInfo;
       if (!GetKWFieldInfo(ClassNV(), ItemTag(), pFldInfo))
         {
@@ -651,7 +651,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
 
                 CTagDBase::EscapeStructs(ItemTag);
 
-                ASSERT_ALWAYS(nKWFlds<sizeof(KWFlds)/sizeof(KWFlds[0]), "TooManyFields")
+                ASSERT_ALWAYS(nKWFlds<sizeof(KWFlds)/sizeof(KWFlds[0]), "TooManyFields", __FILE__, __LINE__);
                   KWFieldDef* pFldInfo;
 
                 ADOX::DataTypeEnum FldType=HasStrList ? ADOX::adVarWChar : TypeMap[ItemType].dbType;
@@ -719,7 +719,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                       else if (IsQuietNAN(f))
                         KWData[nKWFlds]=fNANMagic_Quiet;
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for Save value for tt_Double");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for Save value for tt_Double", __FILE__, __LINE__);
                       //float f=(float)pItem->Value()->Float;
                       //if (Valid(f))
                       //  KWData[nKWFlds]=f; 
@@ -748,7 +748,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                       else if (IsQuietNAN(d))
                         KWData[nKWFlds]=dNANMagic_Quiet;
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for Save value for tt_Double");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for Save value for tt_Double", __FILE__, __LINE__);
                       break;
                       }
                     case tt_pChar :
@@ -1631,7 +1631,7 @@ ReTry:
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeString(tt_Generic, "");
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adBoolean");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adBoolean", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adUnsignedTinyInt://   Byte
@@ -1642,7 +1642,7 @@ ReTry:
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeString(tt_Generic, "");
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adUnsignedTinyInt");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adUnsignedTinyInt", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adSmallInt://   Short
@@ -1653,7 +1653,7 @@ ReTry:
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeString(tt_Generic, "");
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSmallInt");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSmallInt", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adInteger://   Long
@@ -1664,7 +1664,7 @@ ReTry:
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeString(tt_Generic, "");
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adInteger");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adInteger", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adSingle://   Single
@@ -1675,19 +1675,19 @@ ReTry:
                         else if (f==fNANMagic_Signal) DU.SetTypeDouble(tt_Float, fNAN);
                         else if (f==fNANMagic_Quiet ) DU.SetTypeDouble(tt_Float, fQuietNAN);
                         else if (!Finite(f))          DU.SetTypeDouble(tt_Float, fNANMagic_Limit);
-                        else ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle");
+                        else ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle", __FILE__, __LINE__);
                         }
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeDouble(tt_Float, dNAN);
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle", __FILE__, __LINE__);
                       
                       //if (TheValue.vt==VT_R4)
                       //  DU.SetTypeDouble(tt_Float, V_R4(&TheValue));
                       //else if (TheValue.vt==VT_NULL)
                       //  DU.SetTypeDouble(tt_Float, fNAN);
                       //else
-                      //  ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle");
+                      //  ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adSingle", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adDouble://   Double
@@ -1717,12 +1717,12 @@ ReTry:
                         else if (d==dNANMagic_Star ) 
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Star  ));
                         else
-                          ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble");
+                          ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble", __FILE__, __LINE__);
                         }
                       else if (TheValue.vt==VT_NULL)
                         DU.SetTypeDouble(tt_Double, dNAN);
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble", __FILE__, __LINE__);
                       break;
 
                     case ADODB::adVarWChar://   Text
@@ -1731,11 +1731,11 @@ ReTry:
                       else if (TheValue.vt==VT_NULL|| TheValue.vt==VT_BSTRT)
                         DU.SetTypeString(tt_Generic, "");
                       else
-                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adVarWChar");
+                        ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adVarWChar", __FILE__, __LINE__);
                       break;
 
                     default:
-                      ASSERT_ALWAYS(FALSE, "Bad DataType");
+                      ASSERT_ALWAYS(FALSE, "Bad DataType", __FILE__, __LINE__);
                     }
                   }
                 List.SetDataValue(/*pItem,*/ PTag(), 0, DU);
@@ -1941,7 +1941,7 @@ void CTagDBase::EscapeFlds(Strng &Tag)
   if (Tag.XStrPBrk("{}")!=NULL && !AssertDone)
     {
     AssertDone=1;
-    ASSERT_ALWAYS(FALSE, "Bad Tag Name - Contains '{}'");
+    ASSERT_ALWAYS(FALSE, "Bad Tag Name - Contains '{}'", __FILE__, __LINE__);
     }
   //ASSERT(Tag.StrPBrk("{}")==NULL);
   char* p=Tag();

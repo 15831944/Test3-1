@@ -818,7 +818,7 @@ long CDemoBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
     default: 
       {
-      ASSERT_ALWAYS(FALSE, "Should never get here");
+      ASSERT_ALWAYS(FALSE, "Should never get here", __FILE__, __LINE__);
       //char Buff[16];
       //sprintf(Buff, "Unused%d", Inx);
       //Info.Set(ePT_Double, "", Buff, MC_, "", 0, 0, MP_Result|MP_NoFiling, ""); 

@@ -179,7 +179,7 @@ double CSimpleProfiler::CalcArea(CTimeValue T1, CTimeValue T2, byte Column)
     if (Info.bLinear || (Column==0))
       {
       //TODO GetAveVal for linear profile Not implemented yet!
-      ASSERT_ALWAYS(FALSE, "KGA : GetAveVal for linear profile Not implemented yet!")
+      ASSERT_ALWAYS(FALSE, "KGA : GetAveVal for linear profile Not implemented yet!", __FILE__, __LINE__);
       }
     else
       {

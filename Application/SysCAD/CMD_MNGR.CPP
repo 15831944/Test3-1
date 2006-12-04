@@ -2236,7 +2236,7 @@ LRESULT CCmdExec::DoCOMEvt(WPARAM wParam, LPARAM lParam)
       // Unexpected
       //DoBreak();
       LogError("ComCmd", 0, "DoCOMEvt(%d,%d)  Evt:%d", wParam, lParam, Evt);
-      ASSERT_ALWAYS(FALSE, "Unexpected ComCmd!");
+      ASSERT_ALWAYS(FALSE, "Unexpected ComCmd!", __FILE__, __LINE__);
       break;
     }
 //#endif

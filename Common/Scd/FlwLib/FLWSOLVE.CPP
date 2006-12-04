@@ -1972,8 +1972,8 @@ void SetUpFlwNodeEdges(FlwNode * p, long JoinMask, flag DoingDynMode, CSFGIOStac
         pIns.SetAtGrow(iIns++, pF);
       else if (p->IOEvalSeq_Out(i))
         pOuts.SetAtGrow(iOuts++, pF);
-      //ASSERT_ALWAYS(iIns>=MaxEdgeNds, "Insufficient MaxEdgeNds");
-      //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
+      //ASSERT_ALWAYS(iIns>=MaxEdgeNds, "Insufficient MaxEdgeNds", __FILE__, __LINE__);
+      //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds", __FILE__, __LINE__);
       }
     else if (p->IsLnk() && i<p->NoProcLnkIOs())
       {
@@ -2068,8 +2068,8 @@ void SetUpCtrlNodeEdges(FlwNode * p, flag DoingDynMode, CSFGIOStack & pIns, CSFG
           pIns.SetAtGrow(iIns++, pT);
         else if (p->Ctrl_Out(i))
           pOuts.SetAtGrow(iOuts++, pT);
-        //ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds");
-        //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds");
+        //ASSERT_ALWAYS(iIns<=MaxEdgeNds, "Insufficient MaxEdgeNds", __FILE__, __LINE__);
+        //ASSERT_ALWAYS(iOuts<=MaxEdgeNds, "Insufficient MaxEdgeNds", __FILE__, __LINE__);
         }
       else if (p->IsCLnk())
         {
@@ -2820,7 +2820,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
         {
         CString S;
         S.Format("%s already in Evaluation Order", p->Tag());
-        ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S);
+        ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S, __FILE__, __LINE__);
         }
       C.m_iProcOrder=iOrder++;
       ProcTOSequence.AddTail(NJ);
@@ -2931,7 +2931,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
         {
         CString S;
         S.Format("%s already in Evaluation Order", p->Tag());
-        ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S);
+        ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S, __FILE__, __LINE__);
         }
       p->m_iCtrlOrder=iOrder++;
       CtrlTOSequence.AddTail(NJ);
@@ -3825,7 +3825,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 
       for (p = Flw.First(); (p); p=Flw.Next())
         {
-        RDBASSERT(p->IsProcessSeq(), "Bad Proc Seq")
+        ASSERT_RDB(p->IsProcessSeq(), "Bad Proc Seq", __FILE__, __LINE__);
         if (p->IsLnk())
           {
           ASSERT(p->NClusters()==1);
@@ -4011,7 +4011,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
 
       for (p = Ctrl.First(); (p); p=Ctrl.Next())
         {
-        RDBASSERT(p->InPwrCtrlSeq(), "Bad Ctrl Seq")
+        ASSERT_RDB(p->InPwrCtrlSeq(), "Bad Ctrl Seq", __FILE__, __LINE__);
         for (int i = p->Ctrl1(); i < p->CtrlN(); i++)
           {
           if (p->Ctrl_In(i))
@@ -4685,7 +4685,7 @@ FlwSlvPB::FlwSlvPB(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   IntCB(0.0, 1.0)
   {
   //Should never get used
-  ASSERT_ALWAYS(FALSE, "Should never get used")
+  ASSERT_ALWAYS(FALSE, "Should never get used", __FILE__, __LINE__);
 #if DOPBSMOOTHING
   pSSMS=NULL;
 #endif
@@ -6267,7 +6267,7 @@ FlwSlvDyn::FlwSlvDyn(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_SSPressTol(TBF_DynSys, "SteadyState:Pressure",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_P, "kPa"),
   m_SSQmTol(TBF_DynSys, "SteadyState:MassFlow",     1.0e-3, 1.0e-4, 100, TBF_UseAbs|TBF_UseRel, DC_Qm, "kg/s")
   {
-  ASSERT_ALWAYS(FALSE, "Should never get used")
+  ASSERT_ALWAYS(FALSE, "Should never get used", __FILE__, __LINE__);
   Construct();
   };
 
@@ -9905,7 +9905,7 @@ flag CFlwSolver::Init()
   else
     {
     m_pPlantArea=NULL;
-    ASSERT_ALWAYS(m_pPlantArea, "$PlantArea not created");
+    ASSERT_ALWAYS(m_pPlantArea!=0, "$PlantArea not created", __FILE__, __LINE__);
     }
 
   return SfeInitOK;
@@ -11758,7 +11758,7 @@ flag CFlwSolver::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestMode
 
 flag CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
   {
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
 //flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
 //  {
   Info.SetSize(0);
@@ -12019,7 +12019,7 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
       _stricmp(p->Group(), CtrlLinkGrp)==0;
     if (GrpOK)
       {
-      ASSERT_RDB(p->NoProcLnkIOs()<=2, "A link should have two or less IOs!");
+      ASSERT_RDB(p->NoProcLnkIOs()<=2, "A link should have two or less IOs!", __FILE__, __LINE__);
       for (int iNo=0; iNo<p->NoProcLnkIOs(); iNo++)
         {
         if (iNo==0)

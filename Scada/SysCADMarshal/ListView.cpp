@@ -432,7 +432,7 @@ void  CTagView::KeepColumnWidths()
   if (m_lColumn_sMOD     >=0 && j<N) { Wds[i]= list.GetColumnWidth(j++); } i++;
   if (m_lColumn_sDRV     >=0 && j<N) { Wds[i]= list.GetColumnWidth(j++); } i++;
   if (m_lColumn_DESC     >=0 && j<N) { Wds[i]= list.GetColumnWidth(j++); } i++;
-  ASSERT_ALWAYS(j==N, "Bad Column count")
+  ASSERT_ALWAYS(j==N, "Bad Column count", __FILE__, __LINE__);
   }
 //-------------------------------------------------------------------
 

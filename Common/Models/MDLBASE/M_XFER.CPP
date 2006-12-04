@@ -963,7 +963,7 @@ flag TE_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
 
 //dbgpln("%14.4g %14.4g %14.4g %s", dVelMeas, FE.QmMeas(), DP, FullObjTag());
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 
   return True;
   };

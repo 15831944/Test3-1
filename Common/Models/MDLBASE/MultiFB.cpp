@@ -2004,7 +2004,7 @@ void MFCommonBlk::SetTwoPhDPs1(SpConduit & Cd, double P1)
     DPFricLiq1=(LFricFact*Length/DiamI)*Sqr(G1)/(2*LDens);
   DPFric1=-0.001*Phi*DPFricLiq1;
 
-  ASSERT_ALWAYS(Valid(DPFric1) && _finite(DPFric1), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(DPFric1) && _finite(DPFric1), "Bad Friction Value", __FILE__, __LINE__);
 
   DPStat1=-0.001*9.81*DZ*(VoidFrac*GDens+(1-VoidFrac)*LDens); // ?? What about sin(Theta)
 
@@ -2027,7 +2027,7 @@ void MFCommonBlk::SetTwoPhDPs2(SpConduit & Cd, double P2, double MaxTemp)
   DPFric2=-0.001*Phi*DPFricLiq1;
   DPStat2=-0.001*9.81*DZ*(VoidFrac*GDens+(1-VoidFrac)*LDens); // ?? What about sin(Theta)
 
-  ASSERT_ALWAYS(Valid(DPFric1) && _finite(DPFric1), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(DPFric1) && _finite(DPFric1), "Bad Friction Value", __FILE__, __LINE__);
 
   double Beta2 = 0.0;
   if (VoidFrac<1.0)
@@ -2228,7 +2228,7 @@ flag MFCommonBlk::DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
   FE.SetVelocity(FE.QmSign()*MixVel());
   FE.SetDPq(FE.DPq()*dOnePhPart+FE.QmSign()*DPFricTot, 0.0);
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 
   FE.SetDPa(FE.QmSign()*DPAcclTot, 0.0);
   if (fAppRhoH)
@@ -2422,7 +2422,7 @@ flag MFCommonBlk::DoFlashVapAtStart(flag AtEntry, CFlwBlkBase & FE,
   FE.SetVelocity(FE.QmSign()*MixVel());
   FE.SetDPq(dOnePhDPQ*dOnePhPart+FE.QmSign()*DPFricTot, 0.0);
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 
   FE.SetDPa(FE.QmSign()*DPAcclTot, 0.0);
   if (fAppRhoH)
@@ -2667,7 +2667,7 @@ flag MFB_Pipe::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
     FE.SetTempOut(FE.TwoPhCd().Temp());
     }
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 //  FE.SetMomentum(FE.MeanPress());
   return True;
   };
@@ -2789,7 +2789,7 @@ flag MFB_InLine::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
     FE.SetTempOut(FE.TwoPhCd().Temp());
     }
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 
 //  FE.SetMomentum(FE.MeanPress());
   return True;
@@ -3148,7 +3148,7 @@ flag MFB_EnEx::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
     FE.SetTempOut(FE.TwoPhCd().Temp());
     }
 
-  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+  ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
 
   return True;
   };

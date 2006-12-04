@@ -116,7 +116,7 @@ CString CNeutralGroupTagEditor::AdjustTag(LPCTSTR OldTag, long FixupRule, CStrin
       int i=FindOldTag(OldTags, OldTag);
       if (i>=0)
         return (*NewTags)[i];
-      ASSERT_ALWAYS(FALSE, "Bad Adjust Tag"); 
+      ASSERT_ALWAYS(FALSE, "Bad Adjust Tag", __FILE__, __LINE__); 
       return CString("Replacement")+OldTag;
       }
     case eFixup_RegExpression: 
@@ -148,10 +148,10 @@ CString CNeutralGroupTagEditor::AdjustTagWild(LPCTSTR OldTag, long FixupRule, CS
   switch (FixupRule)
     {
     case eFixup_NoChange      : return OldTag;
-    case eFixup_Prefix        : ASSERT_ALWAYS(FALSE, "Invalid Path"); return String1+OldTag;
-    case eFixup_Suffix        : ASSERT_ALWAYS(FALSE, "Invalid Path"); return OldTag+String2;
-    case eFixup_PrefixSuffix  : ASSERT_ALWAYS(FALSE, "Invalid Path"); return String1+OldTag+String2;
-    case eFixup_ReplaceTag    : ASSERT_ALWAYS(FALSE, "Invalid Path"); return String1;
+    case eFixup_Prefix        : ASSERT_ALWAYS(FALSE, "Invalid Path", __FILE__, __LINE__); return String1+OldTag;
+    case eFixup_Suffix        : ASSERT_ALWAYS(FALSE, "Invalid Path", __FILE__, __LINE__); return OldTag+String2;
+    case eFixup_PrefixSuffix  : ASSERT_ALWAYS(FALSE, "Invalid Path", __FILE__, __LINE__); return String1+OldTag+String2;
+    case eFixup_ReplaceTag    : ASSERT_ALWAYS(FALSE, "Invalid Path", __FILE__, __LINE__); return String1;
     case eFixup_ExchangeTags   : 
       {
       CString New(OldTag), Tmp;
@@ -204,7 +204,7 @@ CString CNeutralGroupTagEditor::AdjustTagWild(LPCTSTR OldTag, long FixupRule, CS
       }
     case eFixup_RegExpression: 
       {
-      ASSERT_ALWAYS(FALSE, "Invalid Path"); 
+      ASSERT_ALWAYS(FALSE, "Invalid Path", __FILE__, __LINE__); 
 
       IRegExpPtr *pRE= new IRegExpPtr("VBScript.RegExp");
 

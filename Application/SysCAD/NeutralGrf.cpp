@@ -319,7 +319,7 @@ m_Origin(0,0,0), m_Scale(1,1,1)
 CNeutralGrfImportExport::~CNeutralGrfImportExport()
   {
   ASSERT_RDB(m_pIn==NULL && m_pUn==NULL && m_pLk==NULL && m_pLl==NULL && m_pSy==NULL && m_pGr==NULL && m_pGI==NULL, 
-    "Incomplete Import Export !");
+    "Incomplete Import Export !", __FILE__, __LINE__);
   }
 
 //---------------------------------------------------------------------------
@@ -610,7 +610,7 @@ void CNeutralGrfImportExport::WriteInsert(LPCTSTR Group, CGrfTagInfo & GTI, CDbl
   strcat(m_pIn->m_sSymbol, ":");
   strcat(m_pIn->m_sSymbol, sym());
   strcat(m_pIn->m_sSymbol, pDocGUID);
-  ASSERT_RDB(strlen(m_pIn->m_sSymbol)<GrfDBMaxSymbolLen-1, "Symbol string length!!!");
+  ASSERT_RDB(strlen(m_pIn->m_sSymbol)<GrfDBMaxSymbolLen-1, "Symbol string length!!!", __FILE__, __LINE__);
 
   m_pIn->m_Insert.m_X   = GTI.m_Node.m_X-Org.m_X;
   m_pIn->m_Insert.m_Y   = GTI.m_Node.m_Y-Org.m_Y;
@@ -647,7 +647,7 @@ void CNeutralGrfImportExport::WriteUnit(LPCTSTR Group, CGrfTagInfo & GTI, CDblTr
   strcat(m_pUn->m_sSymbol, ":");
   strcat(m_pUn->m_sSymbol, sym());
   strcat(m_pUn->m_sSymbol, pDocGUID);
-  ASSERT_RDB(strlen(m_pUn->m_sSymbol)<GrfDBMaxSymbolLen-1, "Symbol string length!!!");
+  ASSERT_RDB(strlen(m_pUn->m_sSymbol)<GrfDBMaxSymbolLen-1, "Symbol string length!!!", __FILE__, __LINE__);
 
   //strcpy(m_pUn->m_sSymbol, MakeValidBlockName(m_pUn->m_sSymbol));
 
@@ -1023,7 +1023,7 @@ bool CNeutralGrfImportExport::ExportSymbol(CGrfTagInfo & GTI, CDblTriPt m_Origin
   strcat(m_pSy->m_sName, ":");
   strcat(m_pSy->m_sName, sym());
   strcat(m_pSy->m_sName, pDocGUID);
-  ASSERT_RDB(strlen(m_pSy->m_sName)<GrfDBMaxSymbolLen-1, "Symbol string length!!!");
+  ASSERT_RDB(strlen(m_pSy->m_sName)<GrfDBMaxSymbolLen-1, "Symbol string length!!!", __FILE__, __LINE__);
 
   //strcpy(m_pSy->m_sName, MakeValidBlockName(m_pUn->m_sSymbol));
 

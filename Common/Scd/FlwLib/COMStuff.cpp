@@ -44,7 +44,7 @@ bool CCOMObjManager::AddClass(LPCTSTR Cls1, LPCTSTR ProgID)
 
   if (strcmp(Cls1, "COMSpModel")==0)
     {
-    INCOMPLETECODE(); // should no longer come in here
+    INCOMPLETECODE(__FILE__, __LINE__); // should no longer come in here
     // Does Tmp2 hold a valid SpModel ProgID
     USES_CONVERSION;
     ICatInformation *pCatInfo = NULL;

@@ -143,7 +143,7 @@ void CMdlRunManager::SetDynamicMode()
     gs_Exec.SetDefNetMode(NM_Dynamic);
   //else
   //  {
-  //  ASSERT_ALWAYS(false, "No Permissable Dynamic Modes");
+  //  ASSERT_ALWAYS(false, "No Permissable Dynamic Modes", __FILE__, __LINE__);
   //  }
   //  }
 
@@ -154,7 +154,7 @@ void CMdlRunManager::SetDynamicMode()
   //  gs_Exec.SetGlblRunModes(SM_Buffered, SM_All);
   //else
   //  {
-  //  ASSERT_ALWAYS(false, "No Permissable Dynamic Modes");
+  //  ASSERT_ALWAYS(false, "No Permissable Dynamic Modes", __FILE__, __LINE__);
   //  }
   //  }
   //else

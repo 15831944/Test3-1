@@ -82,7 +82,7 @@ STDMETHODIMP CScdLicenseApp::GetKey(BSTR * KeyString)
       {
       UUID AGuid;
 
-      ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created");
+      ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
 
       m_sLicenseGUID.Format("%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x", 
         AGuid.Data1, AGuid.Data2, AGuid.Data3, 
@@ -261,7 +261,7 @@ STDMETHODIMP CScdLicenseApp::SetLicense(BSTR LicenseString, long * ErrorReturn)
 
       UUID AGuid;
 
-      ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created");
+      ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
 
       CString m_sGUID;
       m_sGUID.Format("%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x", 

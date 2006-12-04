@@ -192,11 +192,11 @@ double GCTermStrip::CallFunct(GCInsMngr &IB, pvoid pSubClass, short FunctId, GCC
           case Idf_SetImpedance:     IB.m_pTermStripPtrs->SetImpedance(0, Line, Ret, R, X, false); break;
           case Idf_SetImpedanceLoad: IB.m_pTermStripPtrs->SetImpedance(0, Line, Ret, R, X, true); break;
           case Idf_AddSeries:    
-            INCOMPLETECODE();
+            INCOMPLETECODE(__FILE__, __LINE__);
             //S.AddSeries   (iLine, iRet, R, X, (*IB.m_pTermStripPtrs)); 
             break;
           case Idf_AddParallel:  
-            INCOMPLETECODE();
+            INCOMPLETECODE(__FILE__, __LINE__);
             //S.AddParallel (iLine, iRet, R, X, (*IB.]m_pTermStripPtrs)); 
             break;
           }

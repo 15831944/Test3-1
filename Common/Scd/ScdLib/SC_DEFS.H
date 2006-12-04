@@ -184,21 +184,23 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     /* clear any outstanding exceptions */                          \
     _clearfp();                                                     \
                                                                     \
-    Strng S;                                                        \
+    Strng S, sCode, sAddress;                                       \
+    sCode.Set(e.Code!=0 ?"%x":" ", e.Code);                         \
+    sAddress.Set(e.Address!=0 ?"0x%08x":" ", e.Address);            \
     S.Set("Apologies - an Exception has occurred\n\n"               \
           "Name\t: %s\n"                                            \
-          "Code\t: %x\n\n"                                          \
+          "Code\t: %s\n\n"                                          \
           "In\t: %s\n"                                              \
-          "Address\t: 0x%08x\n"                                     \
+          "Address\t: %s\n"                                         \
           "At\t: %s\n"                                              \
           "Near\t: %s\n\n"                                          \
           "BuildNo\t: %i\n"                                         \
-          /*"RevNo\t: %i\n"*/                                           \
+          /*"RevNo\t: %i\n"*/                                       \
           "Date\t: %s\n\n"                                          \
           "Thread terminating\n"                                    \
           "Push OK to exit SysCAD",                                 \
-      e.Name, e.Code, WhereStr, e.Address, e.Where, e.Near,         \
-      SCD_BUILD_NUM, /*SCD_REVNO,*/ SCD_COMPILE_DTTM);                  \
+      e.Name, sCode(), WhereStr, sAddress(), e.Where, e.Near,       \
+      SCD_BUILD_NUM, /*SCD_REVNO,*/ SCD_COMPILE_DTTM);              \
                                                                     \
     Strng *pS=new Strng(S);                                         \
     CWnd *pWnd=AfxGetMainWnd();                                     \

@@ -353,7 +353,7 @@ CNeutralMdlImportExport::~CNeutralMdlImportExport()
   {
   //ASSERT_RDB(fUnits==NULL && fLinks==NULL && fLinkLines==NULL, "Should close file!");
   ASSERT_RDB(m_pCU==NULL && m_pCN==NULL && m_pCI==NULL && m_pUn==NULL && 
-             m_pGI==NULL && m_pSq==NULL && m_pLk==NULL && m_pCf==NULL && m_pWr==NULL && m_pEr==NULL, "Should close file!");
+             m_pGI==NULL && m_pSq==NULL && m_pLk==NULL && m_pCf==NULL && m_pWr==NULL && m_pEr==NULL, "Should close file!", __FILE__, __LINE__);
   }
 
 //---------------------------------------------------------------------------

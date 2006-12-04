@@ -1449,9 +1449,9 @@ void Strng::Expand(int l) // the required string storage capacity.
   if (l > Size)
     {
     ASSERT(DoAlloc==1);
-    ASSERT_ALWAYS(l<32768, "Strng Buffer Overflow"); 
+    ASSERT_ALWAYS(l<32768, "Strng Buffer Overflow", __FILE__, __LINE__); 
     //Why is string so HUGE!!! AllocBuff fails because of conversion of l>=32768 to short!
-    //ASSERT_ALWAYS(l<32768, "HUGE Strng!"); //Why is string so HUGE!!! AllocBuff fails because of conversion of l>=32768 to short!
+    //ASSERT_ALWAYS(l<32768, "HUGE Strng!", __FILE__, __LINE__); //Why is string so HUGE!!! AllocBuff fails because of conversion of l>=32768 to short!
     pchar tBuff = AllocBuff(l); //new char[l];
     strcpy(tBuff, Buff);
     FreeBuff(Size, Buff); //delete[] Buff;
@@ -2090,7 +2090,7 @@ pchar Strng::AllocBuff(short l)// size of the required string's buffer
 #ifdef _DEBUG
   if (l>=TestForBigStrngSize)
     {
-    ASSERT_ALWAYS(false, "Why a big Strng?!?");
+    ASSERT_ALWAYS(false, "Why a big Strng?!?", __FILE__, __LINE__);
     }
 #endif
 #if HEAP_SPARES
@@ -6070,7 +6070,7 @@ void CProfINIFile::WrInt64(LPCTSTR lpszSection, LPCTSTR lpszEntry, __int64 iValu
     DWORD Err=GetLastError();
     Strng E;
     E.GetSystemErrorStr(Err);
-    ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+    ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
     }
   #endif
   }
@@ -6112,7 +6112,7 @@ void CProfINIFile::WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValu
       DWORD Err=GetLastError();
       Strng E;
       E.GetSystemErrorStr(Err);
-      ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+      ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
       }
     #endif
     }
@@ -6129,7 +6129,7 @@ void CProfINIFile::WrDouble(LPCTSTR lpszSection, LPCTSTR lpszEntry, double dValu
       DWORD Err=GetLastError();
       Strng E;
       E.GetSystemErrorStr(Err);
-      ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+      ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
       }
     #endif
     }
@@ -6166,7 +6166,7 @@ void CProfINIFile::WrLong(LPCTSTR lpszSection, LPCTSTR lpszEntry, long nValue)
     DWORD Err=GetLastError();
     Strng E;
     E.GetSystemErrorStr(Err);
-    ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+    ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
     }
   #endif
   }
@@ -6204,7 +6204,7 @@ void CProfINIFile::WrInt(LPCTSTR lpszSection, LPCTSTR lpszEntry, int nValue)
     DWORD Err=GetLastError();
     Strng E;
     E.GetSystemErrorStr(Err);
-    ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+    ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
     }
   #endif
   }
@@ -6245,7 +6245,7 @@ void CProfINIFile::WrStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pValue)
     DWORD Err=GetLastError();
     Strng E;
     E.GetSystemErrorStr(Err);
-    ASSERT_ALWAYS(false, "WritePrivateProfileString error!");
+    ASSERT_ALWAYS(false, "WritePrivateProfileString error!", __FILE__, __LINE__);
     }
   #endif
   }
@@ -6255,7 +6255,7 @@ void CProfINIFile::WrStr(LPCTSTR lpszSection, LPCTSTR lpszEntry, LPCSTR pValue)
 DWORD CProfINIFile::RdSection(LPCTSTR lpszSection, LPSTR pBuff, int BuffLen)
   {
   if (m_bUseRegistry)
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__)(__FILE__, __LINE__);
 
   DWORD Len = GetPrivateProfileSection(lpszSection, pBuff, BuffLen, Filename());
   return Len;
@@ -6266,7 +6266,7 @@ DWORD CProfINIFile::RdSection(LPCTSTR lpszSection, LPSTR pBuff, int BuffLen)
 void CProfINIFile::WrSection(LPCTSTR lpszSection, LPSTR pBuff)
   {
   if (m_bUseRegistry)
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__)(__FILE__, __LINE__);
 
   BOOL b = WritePrivateProfileSection(lpszSection, pBuff, Filename());
   #ifndef _RELEASE
@@ -6275,7 +6275,7 @@ void CProfINIFile::WrSection(LPCTSTR lpszSection, LPSTR pBuff)
     DWORD Err=GetLastError();
     Strng E;
     E.GetSystemErrorStr(Err);
-    ASSERT_ALWAYS(false, "WritePrivateProfileSection error!");
+    ASSERT_ALWAYS(false, "WritePrivateProfileSection error!", __FILE__, __LINE__);
     }
   #endif
   }
@@ -6285,7 +6285,7 @@ void CProfINIFile::WrSection(LPCTSTR lpszSection, LPSTR pBuff)
 DWORD CProfINIFile::RdSectionNames(LPSTR pBuff, int BuffLen)
   {
   if (m_bUseRegistry)
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__)(__FILE__, __LINE__);
 
   DWORD Len = GetPrivateProfileSectionNames(pBuff, BuffLen, Filename());
   return Len;
@@ -6307,7 +6307,7 @@ void CProfINIFile::Flush()
 void CProfINIFile::GetProfItem(char* &pBuff, char* &pName, char* &pExp)
   {
   //if (m_bUseRegistry)
-  //  INCOMPLETECODE();
+  //  INCOMPLETECODE(__FILE__, __LINE__);
 
   pName=pBuff;
   pExp=strchr(pBuff, '=');

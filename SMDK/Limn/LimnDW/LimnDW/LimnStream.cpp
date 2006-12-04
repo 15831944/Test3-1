@@ -772,7 +772,7 @@ void CLimnStream::ZeroDeriv()
   };
 void CLimnStream::ScaleMass(long Phase, double Mult) 
   {
-  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected")
+  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected", __FILE__, __LINE__);
   //for (int i=0; i<m_Data.GetCount(); i++)
   //  m_Data[i] *= Mult;
   };
@@ -781,7 +781,7 @@ void CLimnStream::ScaleMass(CArray<int,int> &SpIds, double Mult)
   };
 void CLimnStream::SetMassF(MSpQualityBase * QualSet, MArray & MSet) 
   {
-  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected")
+  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected", __FILE__, __LINE__);
   CLimnStream * pQ2=dynamic_cast<CLimnStream*>(QualSet);
 
   for (int i=0; i<m_Data.GetCount(); i++)
@@ -793,7 +793,7 @@ void CLimnStream::SetMassF(MSpQualityBase * QualSet, MArray & MSet)
 
 void CLimnStream::AddMassF(MSpQualityBase * QualAdd, MArray & MAdd) 
   {
-  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected");
+  ASSERT_ALWAYS(!m_bIsMassForm, "Mass Format not Expected", __FILE__, __LINE__);
 
   CLimnStream * pQualAdd=dynamic_cast<CLimnStream*>(QualAdd);
   // These numbers are always Fractional

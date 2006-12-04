@@ -756,7 +756,7 @@ inline int FxdEdtFld::Ye(rGDIBlk GB) {return (GB.LuMargin.cy+GB.LuBorder.cy+(pRo
 
 inline int FxdEdtBook::StartPage(pchar PgName_, bool LoadByCol)
   {
-  ASSERT_RDB(Pages<MaxFixedPages, "Too many pages!");
+  ASSERT_RDB(Pages<MaxFixedPages, "Too many pages!", __FILE__, __LINE__);
   if (Pages<MaxFixedPages)
     {
     Pg[Pages]=new FxdEdtPage((FxdEdtView*)this, PgName_, Pages, LoadByCol);

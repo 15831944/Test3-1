@@ -2849,7 +2849,7 @@ void GCClassVar::CopyClass()
         }
       case VarArray:
         {
-        ASSERT_RDB(FALSE, "Not implemented!");
+        ASSERT_RDB(FALSE, "Not implemented!", __FILE__, __LINE__);
         break;
         }
       default:
@@ -4086,7 +4086,7 @@ flag GCInsMngr::Debug(byte Places, pchar fullFileName, CNodeXRefMngr* pXRM, WORD
 
 flag GCInsMngr::LoadFunct(char* ParseBuff, WORD InsSet)
   {
-  ASSERT_ALWAYS(m_bDoDebug==0, "NOT Done"); //NOT DONE !!!
+  ASSERT_ALWAYS(m_bDoDebug==0, "NOT Done", __FILE__, __LINE__); //NOT DONE !!!
 
   //ASSERT(m_pFirstBlk      == NULL);
   //ASSERT(m_pCurrentBlk    == NULL);

@@ -393,7 +393,7 @@ void CTagVwText::OnUpdate(CView*pSender, LPARAM lHint, CObject* pHint)
         CPg->SetFieldValue(ScrGB, ValFlds[i], p ? p : "");
       //NBNB: THIS MUST BE FIXED PROPERLY
       //NBNB: sometimes i == pSlot->iNextChgdFld causing an endless loop. This is almost certainly caused by dual CPU access to iFirstChgdFld, etc list!!!
-      ASSERT_RDB(pSlot->iNextChgdFld!=i, "Going into permanent loop!");
+      ASSERT_RDB(pSlot->iNextChgdFld!=i, "Going into permanent loop!", __FILE__, __LINE__);
       if (pSlot->iNextChgdFld==iStart)
         {//BUG
         i = -1; //jump out for now
@@ -570,7 +570,7 @@ void CTagVwText::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
     SetParm(r, "", TV_TagFldId, TagDspWdtFn(), 0, " ");
     if (DS.sTag.Length()>=TagDspWdtFn() || (DS.sTag.Length()>0 && DS.sTag[0]=='='))
       SetBigStrLength((DS.sTag.Length()>0 && DS.sTag[0]=='=') ? 2048 : 128);
-    ASSERT_ALWAYS((r-1)==nValFlds, "UpdFld Index Mismatch");
+    ASSERT_ALWAYS((r-1)==nValFlds, "UpdFld Index Mismatch", __FILE__, __LINE__);
     if (IsStrng(DS.cType))
       {
       byte Just= IsTimeCnv(DS.Cnv.Index()) ?2:0;

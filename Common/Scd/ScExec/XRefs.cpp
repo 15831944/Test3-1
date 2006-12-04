@@ -1454,7 +1454,7 @@ void CNodeXRefMngr::GetNearXRefValues()
   {
   //  CStopWatch SW;
   //  SW.Start();
-  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::GetNearXRefValues XRefList Inactive");
+  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::GetNearXRefValues XRefList Inactive", __FILE__, __LINE__);
 
   for (int i=0; i<m_XRefsOwnedByMe[XR_Near].GetSize(); i++)
     {
@@ -1467,7 +1467,7 @@ void CNodeXRefMngr::GetNearXRefValues()
 
 void CNodeXRefMngr::SetNearXRefValues()
   {
-  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::SetNearXRefValues XRefList Inactive");
+  ASSERT_ALWAYS(XRefListActive(), "CNodeXRefMngr::SetNearXRefValues XRefList Inactive", __FILE__, __LINE__);
 
   for (int i=0; i<m_XRefsOwnedByMe[XR_Near].GetSize(); i++)
     m_XRefsOwnedByMe[XR_Near][i]->SetNearXRefValue();
@@ -1993,7 +1993,7 @@ bool CTgFnIoVar::PutValue(double D)
       return true;
     case eIsFunct:
       //D=pFunctVar->getD();
-      INCOMPLETECODE(); //?????????????
+      INCOMPLETECODE(__FILE__, __LINE__); //?????????????
       return true;
     case eIsTag:
       if (m_pXRef)

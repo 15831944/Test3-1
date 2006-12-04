@@ -1700,9 +1700,9 @@ flag CExcelReportTrend::DoReport()
       Cnt++;
       }
 #ifndef _RELEASE
-    ASSERT_RDB(iTagLen==Cnt, "Should be equal!?!?");
+    ASSERT_RDB(iTagLen==Cnt, "Should be equal!?!?", __FILE__, __LINE__);
     for (i=0; i<iTagLen; i++)
-      ASSERT_RDB(TagOffsets[i]!=-1, "Why!!!");
+      ASSERT_RDB(TagOffsets[i]!=-1, "Why!!!", __FILE__, __LINE__);
 #endif
     }
 

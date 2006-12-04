@@ -1518,7 +1518,7 @@ char* GetVariantAsStr(COleVariant & Var, Strng &s)
     case VT_R4: s.Set("%g", Var.fltVal); break;
     case VT_UI1: s.Set("%d", Var.bVal); break;
     default:
-      ASSERT_ALWAYS(FALSE, "Variant Data Type?");
+      ASSERT_ALWAYS(FALSE, "Variant Data Type?", __FILE__, __LINE__);
       s="?";
       break;
     }

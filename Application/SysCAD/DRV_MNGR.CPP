@@ -2061,7 +2061,7 @@ int CDriverManager::DoOpen()
     else
       {
       #ifndef _DEBUG
-      INCOMPLETECODE(); // restore below
+      INCOMPLETECODE(__FILE__, __LINE__); // restore below
       #endif
       EO_Register(pExecName_DrvMngr, EOWrite_Msg | EORead_Msg | EOExec_Msg,/*Pri*/THREAD_PRIORITY_ABOVE_NORMAL,/*Stack*/50000, /*HashSize*/ 101);
       }
@@ -3043,7 +3043,7 @@ flag CDriverManager::EO_ReadSubsData(CXMsgLst &XM)
             pPrevItem->Value()->PutDouble(S.dForceVal);
           else if (DataIndex>=ConIndexStart)
             {
-            ASSERT_ALWAYS(false, "Bad Data Index"); //how can we ever get here???
+            ASSERT_ALWAYS(false, "Bad Data Index", __FILE__, __LINE__); //how can we ever get here???
             }
           //Data->SetSize();
           if (XM.PackMsg(Data))
@@ -3095,7 +3095,7 @@ flag CDriverManager::EO_ReadSubsData(CXMsgLst &XM)
                 pPrevItem->Value()->PutDouble(pSlt->dForceVal);
               else if (DataIndex>=ConIndexStart)
                 {
-                ASSERT_ALWAYS(false, "Bad Data Index"); //how can we ever get here???
+                ASSERT_ALWAYS(false, "Bad Data Index", __FILE__, __LINE__); //how can we ever get here???
                 }
               //Data->SetSize();
               if (pSlt->Changed())
@@ -3141,7 +3141,7 @@ flag CDriverManager::EO_ReadSubsData(CXMsgLst &XM)
     {
     CDrvSltChange * pChg=m_SltChanges.GetHead();
 
-//    ASSERT_ALWAYS(Slots[pChg->DataIndex]==pChg->m_pSlot, "Slots[pChg->DataIndex]!=pChg->pSlot")
+//    ASSERT_ALWAYS(Slots[pChg->DataIndex]==pChg->m_pSlot, "Slots[pChg->DataIndex]!=pChg->pSlot", __FILE__, __LINE__);
 
     CXM_ObjectData *Data=new CXM_ObjectData (pChg->DataIndex);
     //CPkDataItem * pPItem = Data->List.FirstItem();
@@ -3430,7 +3430,7 @@ flag CDriverManager::EO_SaveOtherData(FilingControlBlock &FCB)
     if (!pDrv->bDoneSave)
       {
       byte Len=pDrv->sTag.Len();
-      ASSERT_ALWAYS(Len<' ', "Bad Driver Tag Len");
+      ASSERT_ALWAYS(Len<' ', "Bad Driver Tag Len", __FILE__, __LINE__);
       //ASSERT(pDrv->sTag.Len()<9);
       strcpy(Buff, pDrv->sTag());
       Buff[Len]=0;

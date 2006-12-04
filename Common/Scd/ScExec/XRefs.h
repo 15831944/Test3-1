@@ -534,7 +534,7 @@ class DllImportExport CNodeXRefMngr
     virtual bool    XRefListActive();
     virtual LPSTR   GetOwnerTag()                                       { return NULL;};
     virtual bool    GetOwnerDbgBrk()                                    { return false; };
-    virtual int     UpdateXRefLists(CXRefBuildResults & Results)        { ASSERT_ALWAYS(FALSE, "UpdateXRefLists not Implemented"); return 0; };
+    virtual int     UpdateXRefLists(CXRefBuildResults & Results)        { ASSERT_ALWAYS(FALSE, "UpdateXRefLists not Implemented", __FILE__, __LINE__); return 0; };
     virtual int     ResolveNearXRef(CXRefItem * XRef, flag MustBeParm)  { return FXR_NotFound; };
     virtual int     ResolveFarXRef(CXRefItem * XRef)                    { return FXR_NotFound; };
     virtual int     ResolveIORef(int IOId, CTagRef * &pRef)             { return FXR_NotFound; };

@@ -51,7 +51,7 @@ MIPSD::~MIPSD()
 
 MIPSD &MIPSD::operator=(const MIPSD &V)
   {
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
   return *this;
   }
 

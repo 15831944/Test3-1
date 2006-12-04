@@ -916,7 +916,7 @@ CECompData * CNodeElectrics::SetImpedance(long Id, CETerminal *Src, CETerminal *
     }
   else
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   return pC ? pC->m_pCompData : NULL;
   };
@@ -937,7 +937,7 @@ CECompData * CNodeElectrics::SetLoad(long Id, CETerminal *Src, CETerminal *Dst, 
     }
   else
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
 
   return pC ? pC->m_pCompData : NULL;
@@ -956,7 +956,7 @@ CECompData * CNodeElectrics::SetSource(long Id, CETerminal *Src, CETerminal *Dst
     }
   else
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   return pC ? pC->m_pCompData : NULL;
   };

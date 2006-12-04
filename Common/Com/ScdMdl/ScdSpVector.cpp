@@ -125,7 +125,7 @@ double CScdSpVector::PFromP(VARIANT & P)
 
 double CScdSpVector::HFromH(VARIANT & H) 
   {
-  INCOMPLETECODE(); // sort out VT_NULL 
+  INCOMPLETECODE(__FILE__, __LINE__); // sort out VT_NULL 
   switch (H.vt)
     {
     case VT_R8    : return H.dblVal;

@@ -891,7 +891,7 @@ void CDrvSlot::ProcessConnects(CProcessConnItem * &pItemListHead, CProcessConnIt
                 {
                 if (pSetCB)
                   {
-                  //ASSERT_ALWAYS(TRUE, "Delays for CodeBlks not yet implemented")
+                  //ASSERT_ALWAYS(TRUE, "Delays for CodeBlks not yet implemented", __FILE__, __LINE__);
                   }
                 else
                   FeedBack = ((flag)(pSetSlt->m_bReqdByExec) && DlyTime!=InfiniteDelay);
@@ -903,7 +903,7 @@ void CDrvSlot::ProcessConnects(CProcessConnItem * &pItemListHead, CProcessConnIt
                   {
                   if (pSetCB)
                     {
-                    ASSERT_ALWAYS(TRUE, "Delays for CodeBlks not yet implemented")
+                    ASSERT_ALWAYS(TRUE, "Delays for CodeBlks not yet implemented", __FILE__, __LINE__);
                     }
                 
                   // pDrv->Lock();

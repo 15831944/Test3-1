@@ -636,7 +636,7 @@ int CPrecipPSD::TransferInputs(bool ForTest/*=false*/)
   //    Calculate grids
   m_GridPts.npts=m_pFdInts->GetSize();
   m_GridPts.q=m_pFdInts->Q();
-  ASSERT_RDB(m_GridPts.npts<sizeof(m_GridPts.x)/sizeof(m_GridPts.x[0]), "Array size!");
+  ASSERT_RDB(m_GridPts.npts<sizeof(m_GridPts.x)/sizeof(m_GridPts.x[0]), "Array size!", __FILE__, __LINE__);
 
   //was
   //for (int i=0; i<m_GridPts.npts; i++)
@@ -760,7 +760,7 @@ int CPrecipPSD::TransferOutputs()
 
   if (m_pCnBm->Temp()<273)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
 
   return 0;

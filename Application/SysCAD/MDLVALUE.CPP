@@ -179,7 +179,7 @@ void CRptTagListCommon::LoadVarTags(LPCSTR MdlType, LPCSTR Layout, CVarTagArray 
     m_pSectBuff=new char[m_dwSectBuff];
     ::memset(m_pSectBuff, 0, m_dwSectBuff);
     dw = PF.RdSection(Section(), m_pSectBuff, m_dwSectBuff);
-    ASSERT_ALWAYS(dw<m_dwSectBuff, "Section Buffer Too Small");
+    ASSERT_ALWAYS(dw<m_dwSectBuff, "Section Buffer Too Small", __FILE__, __LINE__);
     }
 
   if (dw>0)
@@ -1122,7 +1122,7 @@ void CMdlValueShow::OnPaint()
   for (int i=0;i<MdlValueShowMaxStatusBlks; i++)
     if(m_StateShw[i])
       NBlks++;
-  ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks")
+  ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks", __FILE__, __LINE__);
 
     long BlkW=RctX.Width();
   long BlkH=RctX.Height();
@@ -2484,7 +2484,7 @@ void CMdlGraphicShow::OnPaint()
   //for (int i=0;i<MdlValueShowMaxStatusBlks; i++)
   //  if(m_StateShw[i])
   //    NBlks++;
-  //ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks")
+  //ASSERT_ALWAYS(NBlks<=MdlValueShowMaxStatusBlks, "Too Many Status Blocks", __FILE__, __LINE__);
 
   long BlkW=RctX.Width();
   long BlkH=RctX.Height();

@@ -128,7 +128,7 @@ long CPropertyMap::Add(long Index, MPropertyInfo * Info)
     m_Map.SetAt(m_Props[Index]->m_sTag, Index); 
   if (m_Props[Index]->m_sSym.GetLength()>0)
     m_Map.SetAt(m_Props[Index]->m_sSym, Index); 
-  //ASSERT_ALWAYS(i==Index, "Bad Property Index"); 
+  //ASSERT_ALWAYS(i==Index, "Bad Property Index", __FILE__, __LINE__); 
   return Index; 
   };
 

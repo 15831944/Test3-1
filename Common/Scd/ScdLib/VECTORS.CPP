@@ -1685,7 +1685,7 @@ flag CDMatrix::Load(rCVMLoadHelper H, dword BlankFlag)
         }
       else
         {
-        ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!"); //not implemented KGA
+        ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!", __FILE__, __LINE__); //not implemented KGA
         }
       f.Close();
       }
@@ -1770,7 +1770,7 @@ flag CDMatrix::Load(rCVMLoadHelper H, dword BlankFlag)
       }
     else
       {
-      ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!"); //not implemented KGA
+      ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!", __FILE__, __LINE__); //not implemented KGA
       }
     SetSize(NRows, NCols);
     f.Close();
@@ -1900,7 +1900,7 @@ dbgpln("=== %s", f.GetWholeLine());
       }
     else
       {
-      ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!"); //not implemented KGA
+      ASSERT_ALWAYS(FALSE, "Horizontal load not implemented!", __FILE__, __LINE__); //not implemented KGA
       }
     SetSize(j, m_Cols);
     f.Close();

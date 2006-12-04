@@ -1463,7 +1463,7 @@ class VPQVFnd : public MRootFinderBase
       double T1=Min(10000.0, C.Temp()-VLE.dApproachTemp); //range to prevent crash?!?
 #else
       double T1=C.Temp()-VLE.dApproachTemp;
-      ASSERT_ALWAYS(T1<10000.0, "HIGH temperature in QVFlash!");
+      ASSERT_ALWAYS(T1<10000.0, "HIGH temperature in QVFlash!", __FILE__, __LINE__);
       T1=Min(10000.0, T1);
 #endif
      

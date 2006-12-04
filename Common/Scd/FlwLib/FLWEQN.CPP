@@ -124,7 +124,7 @@ void CSpPropInfo::SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, 
     {
     if (pImage)
       {
-      int xxx=0; //INCOMPLETECODE();
+      int xxx=0; //INCOMPLETECODE(__FILE__, __LINE__);
       }
     m_dTemp=Md.Temp();
     m_dPress=Md.Press();
@@ -871,7 +871,7 @@ CFlwEqn * CFlwEqnPtr::CreateFlwEqn(pchar Name_)
   else
     pEq=(CFlwEqn*)TagObjClass::Construct(NoEqnGroup, NoEqnName, NULL, "CFlwEqn", AttachedTo(), AttachedTo() ? TOA_Embedded : TOA_Free);
   pEq->m_pEqnPtr=this;
-  ASSERT_ALWAYS(pEq!=NULL, "Eqn Expected");
+  ASSERT_ALWAYS(pEq!=NULL, "Eqn Expected", __FILE__, __LINE__);
   return pEq;
   };
 
@@ -879,7 +879,7 @@ CFlwEqn * CFlwEqnPtr::CreateFlwEqn(pchar Name_)
 
 CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pTagObjClass pRqdEqnClass_)
   {
-  ASSERT_ALWAYS(pRqdEqnClass_!=NULL, "EqnClass Expected");
+  ASSERT_ALWAYS(pRqdEqnClass_!=NULL, "EqnClass Expected", __FILE__, __LINE__);
   Strng OldName, OldEDesc, OldEMemo, OldEIdStr, OldELocation;
   CFBPhysData OldPhD;
   CFlwEqnFlwRqd OldFR;
@@ -911,7 +911,7 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pTagObjClass pRqdEqnClass_)
       Eqn()->m_pEqnPtr=this;
       }
     }
-  ASSERT_ALWAYS(Eqn2Use().m_pEqn!=NULL, "Eqn Expected");
+  ASSERT_ALWAYS(Eqn2Use().m_pEqn!=NULL, "Eqn Expected", __FILE__, __LINE__);
   return Eqn2Use().m_pEqn;
   };
 
@@ -951,7 +951,7 @@ CFlwEqn * CFlwEqnPtr::ChangeFlwEqn(pchar Name_, flag ChgDefault)
 
     ////TODO Find Default
     }
-  ASSERT_ALWAYS(m_pEqn!=NULL, "Eqn Expected");
+  ASSERT_ALWAYS(m_pEqn!=NULL, "Eqn Expected", __FILE__, __LINE__);
   return m_pEqn;
   };
 
@@ -988,7 +988,7 @@ long CFlwEqnPtr::FlowMode()//bool MustHaveSrc)
   {
   if (m_FMSrc)
     return m_FMSrc->FlowMode();
-  //ASSERT_ALWAYS(!MustHaveSrc, "m_FMSrc should be Set");
+  //ASSERT_ALWAYS(!MustHaveSrc, "m_FMSrc should be Set", __FILE__, __LINE__);
   return m_FlowMode;
   };
 //long m=AttachedTo()->FlowMode(); return m ? m : AttachedTo()->FlowModeReqd() ; };//m_FlowMode; };
@@ -1411,7 +1411,7 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
 
 flag CFlwEqnPtr::ValidateData(ValidateDataBlk & VDB)
   {
-  ASSERT_ALWAYS(m_pEqn!=NULL, "Eqn Expected");
+  ASSERT_ALWAYS(m_pEqn!=NULL, "Eqn Expected", __FILE__, __LINE__);
   if (!GroupOK())
     return true;
   flag OK=true;
@@ -1642,17 +1642,17 @@ double CFlwBlkBase::QmMeas(double Scl)
   if (m_MeasType==0)
     return m_QmMeas;
 
-  ASSERT_ALWAYS(m_MeasType>0, "CFlwBlkBase::QmMeasBad");
+  ASSERT_ALWAYS(m_MeasType>0, "CFlwBlkBase::QmMeasBad", __FILE__, __LINE__);
   return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit);
   };
 double CFlwBlkBase::QvMeas(double Scl)
   {
-  ASSERT_ALWAYS(m_MeasType==2, "CFlwBlkBase::VolMeasBad");
+  ASSERT_ALWAYS(m_MeasType==2, "CFlwBlkBase::VolMeasBad", __FILE__, __LINE__);
   return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit)/MeasRhoA();
   };
 double CFlwBlkBase::VelMeas(double Scl)
   {
-  ASSERT_ALWAYS(m_MeasType==3, "CFlwBlkBase::VelMeasBad");
+  ASSERT_ALWAYS(m_MeasType==3, "CFlwBlkBase::VelMeasBad", __FILE__, __LINE__);
   return RangeFlow(m_QmMeas*Scl, m_MeasLoLimit)/MeasRhoA();
   };
 double CFlwBlkBase::DQmMeas(double Scl)

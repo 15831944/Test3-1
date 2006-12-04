@@ -374,7 +374,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRow* p)
     {
     if (!bDoneFirst)
       {
-      ASSERT_ALWAYS(bQueryTagsDone, "Should get tags BEFORE data!");
+      ASSERT_ALWAYS(bQueryTagsDone, "Should get tags BEFORE data!", __FILE__, __LINE__);
       int Cnt = 0;
       Strng s1;
       Strng s = sTagList;
@@ -402,7 +402,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRow* p)
       bDoneFirst = 1;
       }
 
-    ASSERT_ALWAYS(!bDoneEnd, "Still data...");
+    ASSERT_ALWAYS(!bDoneEnd, "Still data...", __FILE__, __LINE__);
 
     ASSERT(p->nPts==iTagCnt);
     const int offset = iRecCnt*(iTagCnt+1);
@@ -424,7 +424,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRowEx* p)
     {
     if (!bDoneFirst)
       {
-      ASSERT_ALWAYS(bQueryTagsDone, "Should get tags BEFORE data!");
+      ASSERT_ALWAYS(bQueryTagsDone, "Should get tags BEFORE data!", __FILE__, __LINE__);
       int Cnt = 0;
       Strng s1;
       Strng s = sTagList;
@@ -452,7 +452,7 @@ void CRepTrend::ProcessMsg(CXM_QueryRowEx* p)
       bDoneFirst = 1;
       }
 
-    ASSERT_ALWAYS(!bDoneEnd, "Still data...");
+    ASSERT_ALWAYS(!bDoneEnd, "Still data...", __FILE__, __LINE__);
 
     ASSERT(p->nPts==iTagCnt);
     const int offset = iRecCnt*(iTagCnt+1);

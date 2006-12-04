@@ -1079,7 +1079,7 @@ flag CExecObj::XReadASyncData(CXMsgLst &XM, flag ReadAll, long &Index)
             PutData(*LclBlk, LclBlk->Rmt.pTag()->m_pDataItem, false);
           if (LclBlk->Changed())
             {
-            INCOMPLETECODEMSG("Test This Code");
+            INCOMPLETECODEMSG("Test This Code", __FILE__, __LINE__);
             if (XM.PackMsg(new CXM_ObjectData(Index, 0, LclBlk->m_pDataItem)))
               LclBlk->ClearChanged();
             else
@@ -4104,20 +4104,20 @@ ExecCoupling CExecutive::SetCoupling(ExecCoupling XC)
 //  if (RunMdsMsk&SM_All)
 //    {
 //    if (RunMds&SM_Direct)
-//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Direct,   "Multiple Solve Modes"); }
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Direct,   "Multiple Solve Modes", __FILE__, __LINE__); }
 //    if (RunMds&SM_Inline)
-//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Inline,   "Multiple Solve Modes"); }
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Inline,   "Multiple Solve Modes", __FILE__, __LINE__); }
 //    if (RunMds&SM_Buffered)
-//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Buffered, "Multiple Solve Modes"); }
+//      { ASSERT_ALWAYS((RunMds&SM_All) == SM_Buffered, "Multiple Solve Modes", __FILE__, __LINE__); }
 //    }
 //  if (RunMdsMsk&HM_All)
 //    {
 //    if (RunMds&HM_None)
-//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_None,     "Multiple Heat Modes"); }
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_None,     "Multiple Heat Modes", __FILE__, __LINE__); }
 //    if (RunMds&HM_Reduced)
-//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Reduced,   "Multiple Heat Modes"); }
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Reduced,   "Multiple Heat Modes", __FILE__, __LINE__); }
 //    if (RunMds&HM_Full)
-//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Full,     "Multiple Heat Modes"); }
+//      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Full,     "Multiple Heat Modes", __FILE__, __LINE__); }
 //    }
 //
 //  if (wState&EXF_Busy)
@@ -4956,7 +4956,7 @@ DWORD CExecutive::XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_Obj
   for (int NObjs=0; NObjs<Objs_Reg.GetSize(); NObjs++)
     XObjs[NObjs]=Objs_Reg[NObjs];
   UnlockExec();
-  ASSERT_ALWAYS(NObjs<256, "XReadTaggedItem NObjs>=256")
+  ASSERT_ALWAYS(NObjs<256, "XReadTaggedItem NObjs>=256", __FILE__, __LINE__);
 
   for (int OInx=0; OInx<NObjs; OInx++)
     {
@@ -5011,7 +5011,7 @@ int CExecutive::XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Rou
   for (int NObjs=0; NObjs<Objs_Reg.GetSize(); NObjs++)
     XObjs[NObjs]=Objs_Reg[NObjs];
   UnlockExec();
-  ASSERT_ALWAYS(NObjs<256, "XWriteTaggedItem NObjs>=256");
+  ASSERT_ALWAYS(NObjs<256, "XWriteTaggedItem NObjs>=256", __FILE__, __LINE__);
 
   #ifdef _DEBUG
   if (pEO)
@@ -6342,14 +6342,14 @@ int CExecutive::CompareData(CCompareInfo& Info, CCompareWorkSpace &WS, char* pTa
     if (XM.MsgAvail())
       {
       XM.RewindReadPosition();
-ASSERT_ALWAYS(XM.MsgId()==XM_ObjectData, "Bad Message"); //what message is this ???
+ASSERT_ALWAYS(XM.MsgId()==XM_ObjectData, "Bad Message", __FILE__, __LINE__); //what message is this ???
       CXM_ObjectData *pb = XM.ObjectData();
 
 //pb->List.dbgDump(true, "");
 
       n[i] = IndexMessage(&(pb->List), i, WS);//, Itms, Ind, Tags);
       pFirstMsgByte[i] = (char*)(pb->List.FirstItem());
-ASSERT_ALWAYS(!XM.MsgAvail(), "Too Many Messages"); //only expect one object in message!!!
+ASSERT_ALWAYS(!XM.MsgAvail(), "Too Many Messages", __FILE__, __LINE__); //only expect one object in message!!!
       XM.RewindReadPosition();
       }
     }

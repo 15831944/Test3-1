@@ -368,7 +368,7 @@ BOOL KWDatabase::CreateObjectEx
     CStopWatch SW;
     SW.Start();
 #endif
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__)(__FILE__, __LINE__);
     ADODB::_RecordsetPtr pRS=ADODB::_RecordsetPtr(__uuidof(ADODB::Recordset));
     pRS->Open(_variant_t(strFind), _variant_t((IDispatch*)m_pCnn), ADODB::adOpenKeyset, ADODB::adLockOptimistic, ADODB::adCmdText);
     //    pRS->Open(dbOpenDynaset,strFind);
@@ -757,7 +757,7 @@ BOOL KWDatabase::SetFieldNull(LPCTSTR strObjName, LPCTSTR strFieldName)
         {
         //pRS->SetFieldValueNull(strFieldName);
         _variant_t Null;
-        INCOMPLETECODE();      // check is this null ie VT_NULL
+        INCOMPLETECODE(__FILE__, __LINE__);      // check is this null ie VT_NULL
         pRS->Fields->GetItem(strFieldName)->Value=Null;
         pRS->Update();
         bResult = TRUE;

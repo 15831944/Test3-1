@@ -982,7 +982,7 @@ CPkDataItem * CPkDataItem::Create(long Sz)
             case 31: p = new CPkDataItem4096; break;
             case 32: p = new CPkDataItem4224; break;
             default: 
-              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow");
+              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow", __FILE__, __LINE__);
             }
         }
     }
@@ -1060,7 +1060,7 @@ CPkDataItem * CPkDataItem::Create(const CPkDataItem &C)
             case 31: p = new CPkDataItem4096; break;
             case 32: p = new CPkDataItem4224; break;
             default: 
-              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow");
+              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow", __FILE__, __LINE__);
             }
         }
     }
@@ -1140,7 +1140,7 @@ CPkDataItem * CPkDataItem::Create(const CPkDataItemOld &C)
             case 31: p = new CPkDataItem4096; break;
             case 32: p = new CPkDataItem4224; break;
             default: 
-              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow");
+              ASSERT_ALWAYS(FALSE, "CPkDataItem Buffer overflow", __FILE__, __LINE__);
             }
         }
     }

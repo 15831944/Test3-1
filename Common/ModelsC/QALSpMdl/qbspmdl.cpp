@@ -690,7 +690,7 @@ void QSMBayer::DoInputCalcs()
 double QSMBayer::THAMassFlow()
   {
   //todo : check!
-  //ASSERT_ALWAYS(0, "Not implemented");
+  //ASSERT_ALWAYS(0, "Not implemented", __FILE__, __LINE__);
   //return 0.0;
   return m_M[::THA.SolPhInx()];
   }
@@ -700,7 +700,7 @@ double QSMBayer::THAMassFlow()
 double QSMBayer::THADens(double T_)
   {
   //todo : check!
-  //ASSERT_ALWAYS(0, "Not implemented");
+  //ASSERT_ALWAYS(0, "Not implemented", __FILE__, __LINE__);
   //return 0.0;
   return SDB[::THA.SolPhInx()].Density(Fidelity(), T_, Std_P, &m_Ovr, NULL);
   }
@@ -1206,7 +1206,7 @@ double QSMBayer::SSNRatio(double T_)
 // (British Aluminium - Burnt Island)
 double QSMBayer::OxalateEquilibrium(double T_)//, double Approach)
   {
-  ASSERT_ALWAYS(0, "Not implemented");
+  ASSERT_ALWAYS(0, "Not implemented", __FILE__, __LINE__);
   return 0.0;
   /*const double LiqQv    = LVolume25(); // m^3/s
   if (LiqQv<1.0e-12)
@@ -1243,7 +1243,7 @@ number is (37/70) = 0.53. Maybe as "Alumina_SSN"
 //
 //double QSMBayer::PerformAluminaSolubility(double TRqd, double ARqd, double THARqd, double NoPerSec, double Na2OFac, double SSat, flag & ConvergeErr)
 //  {
-//  ASSERT_ALWAYS(0, "Not implemented");
+//  ASSERT_ALWAYS(0, "Not implemented", __FILE__, __LINE__);
 //  return 0.0;
 //  // x is the Fraction of Alumina which precipitates as the hydrate
 //

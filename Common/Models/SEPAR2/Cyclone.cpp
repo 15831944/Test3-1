@@ -976,7 +976,7 @@ flag Cyclone::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int I
 
         double Q=GEZ(pFB->GetQm());
         double Q2=GEZ(QFd.QMass());
-        //RDBASSERT(fabs(Q-Q2)<1.0e-9, "Shouldn't these be equal?");
+        //ASSERT_RDB(fabs(Q-Q2)<1.0e-9, "Shouldn't these be equal?");
         //kga:8/10/02 what is difference between Q and Q2 should they have equal/similar values???
 
         if (Q>UsableMass && Q2>UsableMass)//kga:8/10/02: need to test Q2 to prevent div by zero!

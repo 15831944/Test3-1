@@ -631,7 +631,7 @@ double CPwrUser::SetPower(double ShaftPower)
   {
   if (m_pNd==NULL)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     LogWarning("PwrUser", 0, "GlobalConnect Not Called");
     }
   if (m_pLoad) //kga 15/8/03 should this ever be NULL ?!!!
@@ -653,7 +653,7 @@ void CPwrUser::ConnectPower()
   {
   if (m_pNd==NULL)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     LogWarning("PwrUser", 0, "GlobalConnect Not Called");
     }
   //m_pLoad->SetShaftPower(ShaftPower);

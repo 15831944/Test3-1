@@ -891,7 +891,7 @@ flag AccNodeWnd::LoadAccessData()
               {
               //dbgpln("  AddObject");
               TaggedObject::SetBuildingAccess(true);
-              ASSERT_ALWAYS(NObjs<MaxAccNdObjs, "Too many AccessWindow Objects!");
+              ASSERT_ALWAYS(NObjs<MaxAccNdObjs, "Too many AccessWindow Objects!", __FILE__, __LINE__);
               if (NObjs<MaxAccNdObjs)
                 {
                 if ((ObjInst[NObjs]=TagObjClass::Construct("", d.sValue(), NULL, d.sSymOrTag(), NULL, TOA_Free))!=NULL)
@@ -3113,7 +3113,7 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
     int f=EI.FieldId-Id_FldParms;
     if (f<NFlds)
       {
-      //ASSERT_ALWAYS(f>=0, "Bad Access field Index !!");
+      //ASSERT_ALWAYS(f>=0, "Bad Access field Index !!", __FILE__, __LINE__);
       if (f>=0 && Flds[f].HasData())
         {
         Str=Flds[f]().sValue();
@@ -3131,7 +3131,7 @@ void AccNodeWnd::Load(FxdEdtInfo &EI, Strng & Str)
       int f=EI.FieldId-Id_FldCnvs;
       if (f<NFlds)
         {
-        //ASSERT_ALWAYS(f>=0, "Bad Access field Index !!");
+        //ASSERT_ALWAYS(f>=0, "Bad Access field Index !!", __FILE__, __LINE__);
         Str=" ";
         if (f>=0 && Flds[f].HasData())
           {

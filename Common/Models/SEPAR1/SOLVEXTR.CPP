@@ -1014,7 +1014,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
       {
       SigmaQInPMin(QMxInEst, som_ALL, 0x5); /*0 & 2*/
 
-      ASSERT_ALWAYS(FALSE, "MixerSettler REWRITE NEEDED")
+      ASSERT_ALWAYS(FALSE, "MixerSettler REWRITE NEEDED", __FILE__, __LINE__);
 #if CNMTOREMOVE
       EvalProducts_SurgeLevel(Mixer, QMxInEst, 0x5); /*IOids 0 & 2*/
 #endif
@@ -1049,7 +1049,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
             //default:       SetProdMakeup(PMU_IONo |PMU_Image, i, Mix, Std_P); break;
             }   
 
-      ASSERT_ALWAYS(FALSE, "MixerSettler REWRITE NEEDED")
+      ASSERT_ALWAYS(FALSE, "MixerSettler REWRITE NEEDED", __FILE__, __LINE__);
 #if CNMTOREMOVE
       EvalProducts_SurgeLevel(Settler, QMxOFlow, 0xa /*IOids 1 & 3 */);
 #endif

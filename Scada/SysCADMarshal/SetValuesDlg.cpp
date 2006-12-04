@@ -17,7 +17,7 @@ CSetValuesDlg::CSetValuesDlg(CSysCADMarshalDoc * pDoc, CWnd* pParent /*=NULL*/)
 : CDialog(CSetValuesDlg::IDD, pParent)
   {
   m_pDoc=pDoc;
-  ASSERT_ALWAYS(sm_pTheOne==NULL, "sm_pTheOne!=NULL")
+  ASSERT_ALWAYS(sm_pTheOne==NULL, "sm_pTheOne!=NULL", __FILE__, __LINE__);
   Create(CSetValuesDlg::IDD, pParent);
 
   }

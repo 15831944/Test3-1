@@ -3578,7 +3578,7 @@ class DllImportExport FlwNode : public CTNode
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
         byte RemDirn=IOArea_Rmt(i).Dirn;
-        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control In Direction");
+        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control In Direction", __FILE__, __LINE__);
         return (RemDirn & LIO_Out)!=0;
         }
       return (Dirn & LIO_In)!=0;
@@ -3589,7 +3589,7 @@ class DllImportExport FlwNode : public CTNode
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
         byte RemDirn=IOArea_Rmt(i).Dirn;
-        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control Out Direction");
+        ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control Out Direction", __FILE__, __LINE__);
         return (RemDirn & LIO_In)!=0;
         }
       return (Dirn & LIO_Out)!=0;

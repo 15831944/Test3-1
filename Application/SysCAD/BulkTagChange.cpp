@@ -674,13 +674,13 @@ int CBulkTagChange::MonitorRemove(CBTCItem * pItem, BOOL SetRqd)
       if (Pos)
         p->m_Items.RemoveAt(Pos);
       else
-        ASSERT_ALWAYS(FALSE, "CBTCMonitor:Item not in list");
+        ASSERT_ALWAYS(FALSE, "CBTCMonitor:Item not in list", __FILE__, __LINE__);
       Ret=p->m_Count;
       UpdateDuplicateCounts(p);
       }
     }
   else
-    ASSERT_ALWAYS(FALSE, "CBTCMonitor:Item not found");
+    ASSERT_ALWAYS(FALSE, "CBTCMonitor:Item not found", __FILE__, __LINE__);
   return Ret;
   };
 
@@ -838,7 +838,7 @@ void CBulkTagChange::LoadTagList()
       if (Index>=m_TagList.GetItemCount())
         {
         int IndexChk=m_TagList.InsertItem(Index, LPSTR_TEXTCALLBACK);
-        ASSERT_ALWAYS(IndexChk==Index, "Bad TagList Insert");
+        ASSERT_ALWAYS(IndexChk==Index, "Bad TagList Insert", __FILE__, __LINE__);
         m_TagList.SetItem(Index, 1, LVIF_TEXT, LPSTR_TEXTCALLBACK,0,0,0,0);
         m_TagList.SetItem(Index, 2, LVIF_TEXT, LPSTR_TEXTCALLBACK,0,0,0,0);
         m_TagList.SetItem(Index, 3, LVIF_TEXT, LPSTR_TEXTCALLBACK,0,0,0,0);
@@ -1669,7 +1669,7 @@ void CBulkTagChange::OnBnClickedApply()
       if (Tg.m_SetReqd && m_TagMap.Lookup(Tg.m_sReplacement, pOtherTg))
         { // tag currently exists (Other unit?)
         NClashes++;
-        ASSERT_ALWAYS(pOtherTg->m_SetReqd, "Duplicate tag not marked for change");
+        ASSERT_ALWAYS(pOtherTg->m_SetReqd, "Duplicate tag not marked for change", __FILE__, __LINE__);
 
         // Keep appending "Q" to Intermediate tag until it exists in
         // neither 'Old' list or 'New' List

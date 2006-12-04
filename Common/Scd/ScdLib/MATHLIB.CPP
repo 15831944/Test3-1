@@ -709,7 +709,7 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
     __int64 secs = lSecs % 60;
     __int64 msecs = m_mSecs % Divisor;
 
-    ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight), "CTimeValue::Format - No Options");
+    ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight), "CTimeValue::Format - No Options", __FILE__, __LINE__);
 
     if (Options & (TD_DateLeft|TD_DateRight))
       {

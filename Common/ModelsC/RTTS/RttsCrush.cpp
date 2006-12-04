@@ -327,7 +327,7 @@ BOOL Model400Helper::CrushProduct(SpConduit & QFd, SpConduit & Disch)
   //product/discharge stream...
   SQSzDist1 & DsSz = *SQSzDist1::Ptr(Disch.Model());
   CSD_Distribution & DsDst = DsSz.Dist(DsSz.iDistUsed);
-  ASSERT_RDB(FdSz.iDistUsed==DsSz.iDistUsed, "Should use same sieve series!");
+  ASSERT_RDB(FdSz.iDistUsed==DsSz.iDistUsed, "Should use same sieve series!", __FILE__, __LINE__);
 
   //Other data...
   const double QmSolTtl = QFd.QMass(som_Sol) / 1000.0 * 3600.0; // total mass flow converted from kg/s to t/h

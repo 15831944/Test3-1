@@ -820,7 +820,7 @@ void FlwBlk::EvalFlow(eScdFlwEqnTasks Task, CGrpFlwBlk * pGFB, int FBDirn, int P
 #ifndef _RELEASE
         static bool DoCheck = 0;
         if (DoCheck)
-          ASSERT_ALWAYS(fabs(DP)<1.0e25, "Why is DP Wrong!"); //change DoCheck to 0 to stop assert
+          ASSERT_ALWAYS(fabs(DP)<1.0e25, "Why is DP Wrong!", __FILE__, __LINE__); //change DoCheck to 0 to stop assert
 #endif
         if (fabs(DP)>1.0e25)
           LogNote(FBI.m_pNd->FullObjTag(),0, "Very high DP %.4g",DP); //change DoCheck to 0 to stop assert
@@ -3652,7 +3652,7 @@ void CGrpFlwBlk::ConvergeQm( int MaxLoops, flag FirstOuterLoop, flag LastOuterLo
           {
           m_fSetCI7=true;
           dbgpln("SetCI7 %s", FwdTag());
-          ASSERT_ALWAYS(0, "Could not Start LineConvergence"); // could not Start - Should never occur
+          ASSERT_ALWAYS(0, "Could not Start LineConvergence", __FILE__, __LINE__); // could not Start - Should never occur
           }
         m_fSetCI8=false;
         }
@@ -7980,7 +7980,7 @@ flag CNetBlk::FindConnGFB(JoinTypes Typ, CGrpFlwBlkPtr & pGFB, CJoinRec * pSrcJo
     pGFB=pSrcJoin->GFB(SrcConnNo);
     if (ReverseIfReqd && pSrcJoin!=pGFB->m_Src.m_pJoin)
       {
-      ASSERT_ALWAYS(pSrcJoin==pGFB->m_Dst.m_pJoin, "pSrcJoin==pGFB->m_Dst.m_pJoin");
+      ASSERT_ALWAYS(pSrcJoin==pGFB->m_Dst.m_pJoin, "pSrcJoin==pGFB->m_Dst.m_pJoin", __FILE__, __LINE__);
       pGFB->Reverse();
       }
 
@@ -9094,7 +9094,7 @@ void CNetBlk::BldSubNets()
             dbgpln("FB  %s fb[%4i] sp[%4i] dp[%4i] ", pc->IsFixed()?"F":" ", FB.m_iNo, FB.SrcPB(pc->Forward()).m_iNo, FB.DstPB(pc->Forward()).m_iNo);
             }
           else
-            ASSERT_ALWAYS(FALSE, "GFB in FxdPList ?");
+            ASSERT_ALWAYS(FALSE, "GFB in FxdPList ?", __FILE__, __LINE__);
 
           dbgpln("Fixed QList -----------------");
           CJoinGFBIter QC(SNI.m_FxdQList);
@@ -9104,7 +9104,7 @@ void CNetBlk::BldSubNets()
             else  if (pc->IsGFB())
               dbgpln("GFB %s %s", " ", pc->Tag(S));
             else  
-              ASSERT_ALWAYS(FALSE, "FB in FxdQList ?");
+              ASSERT_ALWAYS(FALSE, "FB in FxdQList ?", __FILE__, __LINE__);
 
             dbgpln("=============================");
         }

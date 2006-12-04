@@ -1114,7 +1114,7 @@ double  FE_MRDM::DetermineTurbFactor(double Reynolds, double Tur_ff_Guess)
     double Delta =-Fn/dFn;
     Tur_ff=Max(MinFF*1.0001, Tur_ff+Delta);
 //TODO must restore 2 lines below 
-    INCOMPLETECODE(); // ,must restore 2 lines below 
+    INCOMPLETECODE(__FILE__, __LINE__); // ,must restore 2 lines below 
 //    if ((fabs(Delta)/GTZ(Tur_ff))<CFlwEqn::Lnk_Eps_R()*0.1)
 //      break;
     Iter--;
@@ -1533,7 +1533,7 @@ flag FE_MSBackFill::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CF
       double Vel=s_Curves[0].m_Data[p].m_Vel;
       for (int c=0; c<NCrvs; c++)
         {
-        ASSERT_ALWAYS(Vel==s_Curves[c].m_Data[p].m_Vel, "BackFill Bad Curves");
+        ASSERT_ALWAYS(Vel==s_Curves[c].m_Data[p].m_Vel, "BackFill Bad Curves", __FILE__, __LINE__);
         Spln.AddPt(s_Curves[c].m_Diam, s_Curves[c].m_Data[p].m_DP);  // Add Points ...
         }
       //Spln.SetSigma(1.0);  // optional - tension approx 1e-10 slack approx 1e10 tight (almost straight lines)

@@ -130,7 +130,7 @@ CToleranceBlock::CToleranceBlock(DWORD Use, LPCTSTR Name, double Abs, double Rel
   #ifndef _RELEASE
   if (m_pParent==NULL && ((m_dwFlags&TBF_UseMaxParent) || (m_dwFlags&TBF_UseAbsParent) || (m_dwFlags&TBF_UseRelParent)))
     {
-    ASSERT_ALWAYS(FALSE, "ToleranceBlock parent not defined!");
+    ASSERT_ALWAYS(FALSE, "ToleranceBlock parent not defined!", __FILE__, __LINE__);
     //future calls to GetMaxIters(), GetAbs(), GetRel(), etc will crash!
     }
   #endif
@@ -169,7 +169,7 @@ CToleranceBlock::CToleranceBlock(DWORD Use, CToleranceBlock * pParent, LPCTSTR N
   #ifndef _RELEASE
   if (m_pParent==NULL && ((m_dwFlags&TBF_UseMaxParent) || (m_dwFlags&TBF_UseAbsParent) || (m_dwFlags&TBF_UseRelParent)))
     {
-    ASSERT_ALWAYS(FALSE, "ToleranceBlock parent not defined!");
+    ASSERT_ALWAYS(FALSE, "ToleranceBlock parent not defined!", __FILE__, __LINE__);
     //future calls to GetMaxIters(), GetAbs(), GetRel(), etc will crash!
     }
   #endif

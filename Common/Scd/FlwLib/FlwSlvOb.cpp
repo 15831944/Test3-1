@@ -138,7 +138,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
           {
           SpecieProp * pPro1 = pEP->Find(iSp);
           SpecieProp * pProp = pEP->GetProp(iSp);
-          ASSERT_RDB(pProp==pPro1, "XXX");
+          ASSERT_RDB(pProp==pPro1, "XXX", __FILE__, __LINE__);
           if (pProp && pProp->OK())
             {
             if (DDB.BeginStruct(this, SDB[iSp].SymOrTag(), NULL, DDB_NoPage))
@@ -214,12 +214,12 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
     CSpeciePropDataBase* pEP    = SDB.ExtraProps();
     const int MaxProps         = pEP->PropCount();
     SpeciePropCfgHelper* pPCfg = pEP->GetPropCfg();
-    ASSERT_RDB(DCB.lHandle<xidExtraProp+(MaxProps*MaxSpecies), "Unexpected xid!");
+    ASSERT_RDB(DCB.lHandle<xidExtraProp+(MaxProps*MaxSpecies), "Unexpected xid!", __FILE__, __LINE__);
     int iSp=(DCB.lHandle-xidExtraProp)%MaxSpecies;
     int iEp=(DCB.lHandle-xidExtraProp)/MaxSpecies;
     SpecieProp * pPro1 = pEP->Find(iSp);
     SpecieProp * pProp = pEP->GetProp(iSp);
-    ASSERT_RDB(pProp==pPro1, "XXX");
+    ASSERT_RDB(pProp==pPro1, "XXX", __FILE__, __LINE__);
     if (pProp && pProp->OK())
       {
       if (pPCfg->String(iEp))
@@ -738,7 +738,7 @@ void SDBObjectEdt::Build()
             int iSp=I.SDBIndex();
             SpecieProp * pPro1 = pEP->Find(iSp);
             SpecieProp * pProp = pEP->GetProp(iSp);
-            ASSERT_RDB(pProp==pPro1, "XXX");
+            ASSERT_RDB(pProp==pPro1, "XXX", __FILE__, __LINE__);
             if (pProp)
               {
               SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
@@ -942,7 +942,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         ASSERT(iSp<MaxSpecies);
         SpecieProp * pPro1 = pEP->Find(iSp);
         SpecieProp * pProp = pEP->GetProp(iSp);
-        ASSERT_RDB(pProp==pPro1, "XXX");
+        ASSERT_RDB(pProp==pPro1, "XXX", __FILE__, __LINE__);
         if (pProp && pProp->OK())
           {
           if (pPCfg->String(iEp))

@@ -2901,7 +2901,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
                 else if (pSp->m_eOcc==BOT_Gas)
                   m_pSteam=pSp;
                 else
-                  ASSERT_ALWAYS(0, "Solid water phase not allowed!");
+                  ASSERT_ALWAYS(0, "Solid water phase not allowed!", __FILE__, __LINE__);
                 //DoBreak(); // should not get here
                 }
               ASSERT(pC->m_nPhaseData<MaxPhases);
@@ -3394,7 +3394,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       }
     else
       {
-      INCOMPLETECODE()
+      INCOMPLETECODE(__FILE__, __LINE__)
         //pRS->m_iDuplicate
         //AddSpecieD(c, C, C.PhaseData[p], p);
       }
@@ -5419,7 +5419,7 @@ void CSpecieBlk::TestInitialiseOK()
 CSpecieBlk::CSpecieBlk(MInitialiseTest & InitTest, LPCTSTR pName, LPCTSTR pFile, LPCTSTR pDll) :
   m_InitTest(InitTest)
   {
-  ASSERT_ALWAYS(strchr(pName, '(')!=0, "must be the full specie name")
+  ASSERT_ALWAYS(strchr(pName, '(')!=0, "must be the full specie name", __FILE__, __LINE__);
   //m_pTagObjClass=ObjClass;
   m_sSpName=pName; // Just in case needed for MdlCfg
   m_sSpName.Trim(); // Just in case
@@ -6406,7 +6406,7 @@ double CSysVecFn::Evaluate(CSysVecFnCtx & C)
         case SFS_Div:         Stk[iStk-1]=Stk[iStk-1]/NZ(Stk[iStk]); iStk--;                        break;
         case SFS_SVIndex:     Stk[++iStk]=C.m_pData1->ValueOp(T.m_iValue, C.m_Op, C.m_iFidelity, C.m_Temperature, C.m_Pressure); break;
 
-        default:              INCOMPLETECODE(); break;
+        default:              INCOMPLETECODE(__FILE__, __LINE__); break;
         }
       if (iStk>=SysVecFnStkSize)
         {

@@ -3119,7 +3119,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //#ifndef _RELEASE
       //      double T1=Fi.Temp();
       //      double T2=Fo.Temp();
-      //      ASSERT_ALWAYS(Valid(T1) && Valid(T2), "NAN FOR TEMPERATURE")
+      //      ASSERT_ALWAYS(Valid(T1) && Valid(T2), "NAN FOR TEMPERATURE", __FILE__, __LINE__);
       //#endif
       }
     }

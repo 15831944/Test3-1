@@ -602,7 +602,7 @@ flag CXM_QueryHistory::xAddTag(int iTrndNo, char* pNewTag)
   m_dwLength=(p-(char*)this);
   nTags++;
   return True;
-  //ASSERT_ALWAYS((dword)(m_dwLength)<sizeof(cTags)-10-strlen(pNewTag), "CXM_QueryHistory::xAddTag Tag Overflow");
+  //ASSERT_ALWAYS((dword)(m_dwLength)<sizeof(cTags)-10-strlen(pNewTag), "CXM_QueryHistory::xAddTag Tag Overflow", __FILE__, __LINE__);
   //char * p=(char*)this+m_dwLength;
   //int l=sizeof(iTrndNo)+strlen(pNewTag)+1;
   //if (p+l-(char*)this > sizeof(*this))
@@ -1134,7 +1134,7 @@ CXM_ArchiveExists::CXM_ArchiveExists()
   };
 flag CXM_ArchiveExists::xAddTag(char * pNewTag)//, char * pPosition)
   {
-INCOMPLETECODE();
+INCOMPLETECODE(__FILE__, __LINE__);
   //strcpy(pPosition, pNewTag);
   //pPosition+=strlen(pNewTag)+1;
   //*((dword*)pPosition)=0;

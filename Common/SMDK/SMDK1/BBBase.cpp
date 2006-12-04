@@ -151,7 +151,7 @@ void CBBBase::DoSetDatums(CSetDatumsData * pSDD, long nSDD)
   if (!m_pMethod)
     return;
 #ifndef _RELEASE   //kga temp
-//INCOMPLETECODE();
+//INCOMPLETECODE(__FILE__, __LINE__);
 #endif
   //Method.FlwIOs.Surge.m_pSDD=pSDD;
   //Method.FlwIOs.Surge.m_nSrg=nSDD;

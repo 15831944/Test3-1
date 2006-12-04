@@ -326,7 +326,7 @@ const double MerkelTMx = C2K(70.0);
 
 double AirEnth(double T)
   {
-  ASSERT_RDB(K2C(T)>-106.666666666666 && K2C(T)<70.0000001, "Temperature range problem!");
+  ASSERT_RDB(K2C(T)>-106.666666666666 && K2C(T)<70.0000001, "Temperature range problem!", __FILE__, __LINE__);
   const double Tc = Range(-106.666666666667, K2C(T), 70.0);
   if (Tc<-45.5555555555557)
     return 1.0086*Tc + 18.092; //y = 1.0086x + 18.092
@@ -348,7 +348,7 @@ double AirEnth(double T)
 
 double AirEnth_BTU(double T)
   {
-  ASSERT_RDB(T>=-160.0 && T<=158.0, "Temperature range problem!");
+  ASSERT_RDB(T>=-160.0 && T<=158.0, "Temperature range problem!", __FILE__, __LINE__);
   const double Tf = Range(-160.0, T, 158.0);
   if (Tf<-50.0)
     return 0.241*Tf + 0.0699; //y = 0.241x + 0.0699

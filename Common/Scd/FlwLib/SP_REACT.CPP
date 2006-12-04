@@ -1801,7 +1801,7 @@ CReaction *CReactionBlock::AddReaction(pTagObjClass pEqnClass)
 CReaction *CReactionBlock::AddReaction(CReaction *pRct)
   {
   Strng RTag;
-  ASSERT_ALWAYS(nPermReacts==NAll(), "Bad Permanent Reactions");
+  ASSERT_ALWAYS(nPermReacts==NAll(), "Bad Permanent Reactions", __FILE__, __LINE__);
 
   RTag.Set("R%i",nPermReacts+1);
   pRct->Tag(RTag());
@@ -2703,7 +2703,7 @@ void CReactionBlock::GetClosureInfo(CClosureInfo & CI)
   else
     {
     LogError(FullObjTag(), 0, "Invalid reaction HsSumHX()"); //error only occurs sometimes after first project load??? Why???
-    ASSERT_ALWAYS(true, "Invalid reaction HsSumHX()!!!???");
+    ASSERT_ALWAYS(true, "Invalid reaction HsSumHX()!!!???", __FILE__, __LINE__);
     }
 #endif
   const double h2 = HsSumPwr();

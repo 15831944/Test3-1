@@ -1146,7 +1146,7 @@ void SpQueue::EstProd(int ProdNo)//, int Feed0, int FeedN)
     Pb=m_dTripPosition+m_dTimeSlice*(m_dTripSpeed-m_dSpeed);
     Bs=Min(Pa, Pb);
     Be=Max(Pa, Pb);
-    ASSERT_ALWAYS(P.m_bUseBinSizes, "P.m_bUseBinSizes")
+    ASSERT_ALWAYS(P.m_bUseBinSizes, "P.m_bUseBinSizes", __FILE__, __LINE__);
 
     double S=P.m_dPosition-P.m_dBinWidth;
     double E=P.m_dPosition+P.m_dBinWidth;

@@ -1433,7 +1433,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
             break;
             }
           case MAT_Switch:
-            INCOMPLETECODEMSG("Should not get here");
+            INCOMPLETECODEMSG("Should not get here", __FILE__, __LINE__);
             break;
           }
         }
@@ -6867,7 +6867,7 @@ void GrfCmdBlk::DoExplode()
                 {
                 pDsp->Vp1->DeSelectEntity(p);
                 //TODO : Need to remove entity from db list !!!
-                ASSERT_ALWAYS(FALSE, "not implemented...");
+                ASSERT_ALWAYS(FALSE, "not implemented...", __FILE__, __LINE__);
                 DoIt = 0;
                 }
               }

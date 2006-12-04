@@ -3176,7 +3176,7 @@ void CHSCSlct::OnImport()
       {
       m_InfoSelected[M+i]=(HSCInfo*)m_List.GetItemData(iIndices[i]);
       m_List.SetSel(iIndices[i],false);
-      ASSERT_ALWAYS((i<1 || iIndices[i]>iIndices[i-1]), "BAD SPECIE IMPORT LIST ORDER");
+      ASSERT_ALWAYS((i<1 || iIndices[i]>iIndices[i-1]), "BAD SPECIE IMPORT LIST ORDER", __FILE__, __LINE__);
       }
     for (int i=N-1; i>=0; i--)
       m_List.DeleteString(iIndices[i]);

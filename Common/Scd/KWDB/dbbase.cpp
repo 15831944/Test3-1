@@ -283,7 +283,7 @@ bool CFileRec::SeekEqualStr(LPTSTR What)
   {
   if (m_pDB && (m_pRS!=NULL))
     {
-    INCOMPLETECODE(); // FIX below
+    INCOMPLETECODE(__FILE__, __LINE__); // FIX below
     COleVariant Val(What, VT_BSTRT);
     m_pRS->Seek(&Val, ADODB::adSeekFirstEQ);
     return !m_pRS->adEOF;

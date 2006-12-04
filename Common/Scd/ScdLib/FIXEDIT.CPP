@@ -404,7 +404,7 @@ FxdEdtRow::~FxdEdtRow()
 
 FxdEdtFld * FxdEdtRow::SetFld(pFxdEdtView pView_, int RowNo_, int BlkId_, pchar InitStr, int FieldId, int Width, UCHAR Just, BOOL Editable, byte FieldType)
   {
-  RDBASSERT(NFields < MaxFixedFields, "Too many fixed fields per row");
+  ASSERT_RDB(NFields < MaxFixedFields, "Too many fixed fields per row", __FILE__, __LINE__);
   pView=pView_;
   RowNo=RowNo_;
   if (InitStr)
@@ -2322,7 +2322,7 @@ void FxdEdtView::OnInitialUpdate()
 
 void FxdEdtView::DeleteWinControls()
   {
-  ASSERT_RDB(bWinCtrlListBusy==0, "Would usually expect this to be zero");
+  ASSERT_RDB(bWinCtrlListBusy==0, "Would usually expect this to be zero", __FILE__, __LINE__);
   if (bWinCtrlListBusy==0)
     {
     bWinCtrlListBusy = 1;
@@ -2362,7 +2362,7 @@ void FxdEdtView::DeleteWinControls()
 
 void FxdEdtView::PositionWinControls()
   {
-  //ASSERT_RDB(bWinCtrlListBusy==0, "Would usually expect this to be zero");
+  //ASSERT_RDB(bWinCtrlListBusy==0, "Would usually expect this to be zero", __FILE__, __LINE__);
   if (bWinCtrlListBusy==0)
     {
     bWinCtrlListBusy = 1;

@@ -561,7 +561,7 @@ void CFlwSlvThreads::CloseThreads()
     HANDLE hThread=ThreadHnd(ip);
     Thread(ip).m_bAutoDelete=FALSE;
     BOOL OK=Thread(ip).PostThreadMessage(WMU_FLWSOLVECMD, MAKEWPARAM(FST_Quit,ip), 0);
-    ASSERT_ALWAYS(OK, "CFlwSlvThreads::CloseThreads - PostThreadMessage FAILED");
+    ASSERT_ALWAYS(OK, "CFlwSlvThreads::CloseThreads - PostThreadMessage FAILED", __FILE__, __LINE__);
     #if dbgFlwSolve
     if (!OK && dbgThreads())
       dbgpln("%*sPost Done %i", CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", OK);

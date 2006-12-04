@@ -751,9 +751,9 @@ HRESULT CScdCmdIF::CreateUnitGrf(/*[in]*/ LPCTSTR Tag, /*[in]*/ double X, /*[in]
     RequestModelInfoRec MInfo;
     Strng ClassId;
     flag b = gs_pPrj->RequestModelClassId((char*)Tag, ClassId);
-    ASSERT_RDB(b, "Class for tag should be found");
+    ASSERT_RDB(b, "Class for tag should be found", __FILE__, __LINE__);
     b = gs_pPrj->RequestModelInfoByClassId(ClassId(), SubClassId(), MInfo);
-    ASSERT_RDB(b, "ModelInfo for Class should be found");
+    ASSERT_RDB(b, "ModelInfo for Class should be found", __FILE__, __LINE__);
 
     CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
     CInsertBlk CB; 
@@ -856,12 +856,12 @@ HRESULT CScdCmdIF::CreateLinkGrf(/*[in]*/ LPCTSTR Tag, /*[in]*/ long DrawLineMet
     RequestModelInfoRec MInfo;
     Strng ClassId;
     flag b = gs_pPrj->RequestModelClassId((char*)Tag, ClassId);
-    ASSERT_RDB(b, "Class for tag should be found");
+    ASSERT_RDB(b, "Class for tag should be found", __FILE__, __LINE__);
     b = gs_pPrj->RequestModelInfoByClassId(ClassId(), MInfo);
-    ASSERT_RDB(b, "ModelInfo for Class should be found");
+    ASSERT_RDB(b, "ModelInfo for Class should be found", __FILE__, __LINE__);
     RequestConnModelInfoRec MCInfo;
     b = gs_pPrj->RequestModelConnInfo((char*)Tag, MCInfo);
-    ASSERT_RDB(b, "ModelConnInfo for Class should be found");
+    ASSERT_RDB(b, "ModelConnInfo for Class should be found", __FILE__, __LINE__);
 
     CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
     CConnectBlk CB; 
@@ -907,12 +907,12 @@ HRESULT CScdCmdIF::CreateLinkGrfLine(/*[in]*/ LPCTSTR Tag, /*[in]*/ double Xs, /
     RequestModelInfoRec MInfo;
     Strng ClassId, SubClassId;
     flag b = gs_pPrj->RequestModelClassId((char*)Tag, ClassId);
-    ASSERT_RDB(b, "Class for tag should be found");
+    ASSERT_RDB(b, "Class for tag should be found", __FILE__, __LINE__);
     b = gs_pPrj->RequestModelInfoByClassId(ClassId(), MInfo);
-    ASSERT_RDB(b, "ModelInfo for Class should be found");
+    ASSERT_RDB(b, "ModelInfo for Class should be found", __FILE__, __LINE__);
     RequestConnModelInfoRec MCInfo;
     b = gs_pPrj->RequestModelConnInfo((char*)Tag, MCInfo);
-    ASSERT_RDB(b, "ModelConnInfo for Class should be found");
+    ASSERT_RDB(b, "ModelConnInfo for Class should be found", __FILE__, __LINE__);
 
     CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
     CConnectBlk CB; 

@@ -1032,7 +1032,7 @@ void CSlotMngr::AddCdBlk(CAddCdBlk * pAdd)
     // Must first remove before delete
     if (!m_CdBlkMap.RemoveKey(pAdd->m_sTag))
       {
-      INCOMPLETECODE();
+      INCOMPLETECODE(__FILE__, __LINE__);
       }
     pOrig=m_CdBlks[index];
     }
@@ -1129,7 +1129,7 @@ void CSlotMngr::EditSlot(bool DeleteIfFound, CSlotCfgStrings * pCfg)
       // Must first remove before delete
       if (!m_SlotMap.RemoveKey(pCfg->m_sTag))
         {
-        INCOMPLETECODE();
+        INCOMPLETECODE(__FILE__, __LINE__);
         }
       pOrig=m_Slots[index];
       }

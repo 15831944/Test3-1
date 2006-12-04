@@ -230,12 +230,12 @@ void MSpModelBase::Init(SpModelEx * pSpMdl)
 //IScdSpVirtualProps
 bool MSpModelBase::get_IsBaseClassOf(LPCTSTR OtherProgID)
   {
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
   return m_pSpMdlX->SpModelEx::IsBaseClassOf(NULL);
   };
 LPCTSTR MSpModelBase::get_PreferredModelProgID()
   {
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
   return NULL;
   };
 
@@ -890,21 +890,21 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
       };
     virtual void   ODEOperate(CODEDataBlock & ODB)
       {
-      //INCOMPLETECODE();
+      //INCOMPLETECODE(__FILE__, __LINE__);
       };  
 
     // Extras for Tear Management;
     virtual void   TearGetInputs(TearVarArray & TV, int n)
       {
-      INCOMPLETECODE();
+      INCOMPLETECODE(__FILE__, __LINE__);
       };
     virtual void   TearGetOutputs(TearVarArray & TV, int n)
       {
-      INCOMPLETECODE();
+      INCOMPLETECODE(__FILE__, __LINE__);
       };
     virtual void   TearSetOutputs(TearVarArray & TV, int n)
       {
-      INCOMPLETECODE();
+      INCOMPLETECODE(__FILE__, __LINE__);
       };
 
     // Debug Stuff

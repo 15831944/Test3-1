@@ -260,7 +260,7 @@ flag LE_EquivDiam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFl
 //
 //    m_dDP=dPq1;
 //
-//    ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value")
+//    ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);;
 //    }
 //  else
 //    FE.SetQmReqd(0.0);

@@ -730,7 +730,7 @@ void CExploreScd::GetRawPages(bool ChangesOK)
           goto NextWindow;
         }
 
-      // ASSERT_ALWAYS(ChangesOK, "Unexpected New Page");
+      // ASSERT_ALWAYS(ChangesOK, "Unexpected New Page", __FILE__, __LINE__);
 
       CXTPage *pPage=new CXTPage(this, PgType2TrIDs[WL.Wnds[i].iType], PgId(), PgName());
       pPage->m_iType=WL.Wnds[i].iType;
@@ -1286,7 +1286,7 @@ void CExploreScd::AddTagToTree(CXTTag *pTag, CXTTag * pPrev)
         }
       }
 
-    ASSERT_ALWAYS(!pTag->m_hClassItem, "Tag Class ??")
+    ASSERT_ALWAYS(!pTag->m_hClassItem, "Tag Class ??", __FILE__, __LINE__);
 
 #if dbgAdd   
       dbgp(" [Class %-20s]", pTag->m_pClass->m_sClassId);
@@ -2523,7 +2523,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             }
           }
         else
-          ASSERT_ALWAYS(FALSE, "Bad Page Lookup");
+          ASSERT_ALWAYS(FALSE, "Bad Page Lookup", __FILE__, __LINE__);
         break;
         }
       case TrID_Trend:
@@ -2644,7 +2644,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             }
           }
         else
-          ASSERT_ALWAYS(FALSE, "Bad Tag Lookup");
+          ASSERT_ALWAYS(FALSE, "Bad Tag Lookup", __FILE__, __LINE__);
         break;
         }
       }

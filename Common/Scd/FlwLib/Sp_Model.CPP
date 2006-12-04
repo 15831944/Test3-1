@@ -203,7 +203,7 @@ inline void DoTempChecks(double T)
       {
       static int DoIt=1;
       if (DoIt)
-        ASSERT_ALWAYS(FALSE, "Temperature below -220C");
+        ASSERT_ALWAYS(FALSE, "Temperature below -220C", __FILE__, __LINE__);
       }
     }
 #endif
@@ -3362,7 +3362,7 @@ void SpModel::VDS_UpdateAttribures()
     switch (I.AttrType())
       {
       case SVAT_Amnt:
-        INCOMPLETECODE();
+        INCOMPLETECODE(__FILE__, __LINE__);
         //WS.m_MTmp.VValue[a]=m_M[a]*m_dMassScale;
         break;
       case SVAT_Qual:
@@ -5428,7 +5428,7 @@ void SpModel::SetIntegrationTests(SPMTests T)
     }
   else if (m_States.NInts()>0)
     {
-    ASSERT_ALWAYS(FALSE, "Bad No of Ints")
+    ASSERT_ALWAYS(FALSE, "Bad No of Ints", __FILE__, __LINE__);
     }
   }
 
@@ -5776,7 +5776,7 @@ void SpModel::SetMassM(SpModel * C, eSetMass How, double SQ, double LQ, double V
   double LF=0;
   double VF=0;
 
-  ASSERT_ALWAYS(0, "SetMassM SQ,LQ,VQ Incomplete");
+  ASSERT_ALWAYS(0, "SetMassM SQ,LQ,VQ Incomplete", __FILE__, __LINE__);
   SetMassF(C, How, SF, LF, VF, Press);
   }
 
@@ -6425,7 +6425,7 @@ void SpModel::ApplyDerivs(double dTime, flag DoDbg)
 #if dbgSpModel
   if (dbgder)
     {
-    //ASSERT_ALWAYS(FALSE, "INCOMPLETE")
+    //ASSERT_ALWAYS(FALSE, "INCOMPLETE", __FILE__, __LINE__);
     dbgpln("H: %19.6f > %19.6f [%19.6f]    %19s %20s %s", msHf0, m_msHf, m_msHf-msHf0, "","", "Enthalpy");
     dbgpln("T: %19.3f > %19.3f [%19s]    %19s %20s %s", K2C(T0), K2C(Temp()),"","" ,"", "Temperature");
     int xxx=0;
@@ -6863,7 +6863,7 @@ void SpModel::FindTFromHAtP(double ThePress)
         static int s_TestCount=0;
         if (s_TestCount++<3)
           {
-        //  ASSERT_ALWAYS(FALSE, "Temperature Range in FindTFromHAtP!");
+        //  ASSERT_ALWAYS(FALSE, "Temperature Range in FindTFromHAtP!", __FILE__, __LINE__);
           }
         }
 #endif
@@ -7335,7 +7335,7 @@ double SpModel::DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector 
         {
         Strng S;
         S.Set("Silly Liquid Viscosity T=%10.4fC", Tc);
-        ASSERT_ALWAYS(FALSE, S());
+        ASSERT_ALWAYS(FALSE, S(), __FILE__, __LINE__);
         }
       }
     }
@@ -7948,7 +7948,7 @@ void SpModel::Set_msHs(double H_, double P, SpModel * pRefMdl)
   {
   if (Valid(P))
     m_CurrentP=Max(0.001, P);
-  ASSERT_ALWAYS(FALSE, "INCOMPLETE")
+  ASSERT_ALWAYS(FALSE, "INCOMPLETE", __FILE__, __LINE__);
     //m_totH=H_*Mass()+totdHf(som_ALL, C_2_K(0));
   ASSERT(Valid(m_msHf));
   ClrHStatesOK();
@@ -7959,7 +7959,7 @@ void SpModel::Set_msHz(double H_, double P, SpModel * pRefMdl)
   {
   if (Valid(P))
     m_CurrentP=Max(0.001, P);
-  //ASSERT_ALWAYS(FALSE, "INCOMPLETE")
+  //ASSERT_ALWAYS(FALSE, "INCOMPLETE", __FILE__, __LINE__);
   if (pRefMdl)
     m_msHf=H_+pRefMdl->msHf(som_ALL, ZeroCinK, Std_P, &MArray());
   else
@@ -9022,12 +9022,12 @@ void SpModelOwner::SanityCheck()
         if (mm<0.0)
           {
           Strng ss = SVImg(sn).SymOrTag();
-          ASSERT_ALWAYS(FALSE, "Unexpected -ve !");
+          ASSERT_ALWAYS(FALSE, "Unexpected -ve !", __FILE__, __LINE__);
           }
         }
       }
     //Perhaps put some other checks here?
-    //ASSERT_ALWAYS(???, "??? !");
+    //ASSERT_ALWAYS(???, "??? !", __FILE__, __LINE__);
     }
   }
 #endif

@@ -1535,7 +1535,7 @@ ReTry:
   char LongPath[_MAX_PATH],ShortPath[_MAX_PATH];
   if (Path==NULL)
     {
-    ASSERT_RDB(Path!=NULL, "Do not expect to get here!");
+    ASSERT_RDB(Path!=NULL, "Do not expect to get here!", __FILE__, __LINE__);
     if (GetModuleFileName(NULL, LongPath, sizeof(LongPath))<1)
       return LicInit_ExitReqd;
     }

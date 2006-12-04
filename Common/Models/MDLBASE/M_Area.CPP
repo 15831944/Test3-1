@@ -1046,7 +1046,7 @@ void MN_Area::EvalAudit(int Pass)
           //if (DoErrorMsg)
           //  LogError(FullObjTag(), 0, "Area : the following code is still to be checked");
           DoErrorMsg=false;
-          //ASSERT_ALWAYS(false, "Area : the following code is still to be checked");
+          //ASSERT_ALWAYS(false, "Area : the following code is still to be checked", __FILE__, __LINE__);
 #if dbgAreas
           if (dbgCalculations() || dbgCalculationsDbg() && DNd.DoDbgBrk())
             //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Sum.QMass(),7,10), DbgFltString(D.Sum.FlowHz()), D.Tag, TheNd->FullObjTag());

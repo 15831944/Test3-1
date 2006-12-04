@@ -57,7 +57,7 @@ double SpShape::CurrentP()
   SpModel *p=Model(this);
   if (p)
     return p->m_CurrentP;
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
   return 0;
   }
 
@@ -68,7 +68,7 @@ double SpShape::CurrentT()
   SpModel *p=Model(this);
   if (p)
     return p->m_CurrentT;
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
   return 0;
   }
 

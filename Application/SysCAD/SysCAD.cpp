@@ -602,10 +602,10 @@ BOOL CSysCADApp::InitIniFile()
     char UName[4096];
     ULONG Len=sizeof(UName)-1;
     BOOL GotIt=GetUserNameEx(NameSamCompatible, &UName[0], &Len);
-    ASSERT_ALWAYS(GotIt, "NameSamCompatible not available")
+    ASSERT_ALWAYS(GotIt, "NameSamCompatible not available", __FILE__, __LINE__);
 
       char * pName=strchr(UName, '\\');
-    ASSERT_ALWAYS(pName!=NULL, "Bad User Name ")
+    ASSERT_ALWAYS(pName!=NULL, "Bad User Name ", __FILE__, __LINE__);
       CString UFn, MFn;
     UFn.Format("%sSysCAD.User.%s.ini", BaseCfgFiles(), pName+1);
     MFn.Format("%sSysCAD.Machine.ini", BaseCfgFiles());
@@ -1443,7 +1443,7 @@ BOOL CSysCADApp::DoInitInstance()
   //========================================
   // Testing : put this in to break into a new debugger when running embedded
 #if BREAKINTODEBUGGER
-  INCOMPLETECODE();
+  INCOMPLETECODE(__FILE__, __LINE__);
 #endif
   //========================================
 

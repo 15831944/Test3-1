@@ -728,7 +728,7 @@ TaggedObject *TagObjClass::Construct(pchar pSubClassId, pchar pTag, TaggedObject
   {
   if (pSubClassId && strlen(pSubClassId))
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__)(__FILE__, __LINE__);
     }
   if (m_bIsCOMClass)
     return CCOMObjManagerRoot::gs_Manager->Construct(this, pTag, pAttach, eAttach);
@@ -1428,8 +1428,8 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   UCHAR*psEqGUID=NULL;
   UUID AGuid;
 
-  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created");
-  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted");
+  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
+  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
 
   m_sEqGUID.Set("{%s}", psEqGUID);
 
@@ -1891,7 +1891,7 @@ Strng GlblMode2String(long Md, long MdMsk)
   Strng MdStr;
   for (int i=0; ls_GlblModeNames[i].Md; i++)
     {
-    //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order");
+    //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order", __FILE__, __LINE__);
     if (ls_GlblModeNames[i].Md & Md & MdMsk)
       {
       if ((MdStr.Length()>0))// && !ls_GlblModeNames[i].Hidden)
@@ -1928,7 +1928,7 @@ long  String2GlblMode(LPCTSTR MdStr, long MdMsk)
   //  {
   //  if ((MdMsk&ls_GlblModeNames[i].Md)==0)
   //    continue;
-  //  //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order");
+  //  //ASSERT_ALWAYS(ls_GlblModeNames[i].Md==m, "Bad Mode Order", __FILE__, __LINE__);
   //  //Strng S(ls_GlblModeNames[i].Nm[0]);
   //  //S.Lower();
   //  //if (strstr(MS(), S()))
@@ -2127,7 +2127,7 @@ void TaggedObject::DetachMeFromOwner()
       TaggedObject *p=pAttachedTo->pAttachments;
       while (p && (p->pNxtAttachment!=this))
         p=p->pNxtAttachment;
-      ASSERT_ALWAYS(p!=NULL, "Bad Ptr DetachMeFromOwner");
+      ASSERT_ALWAYS(p!=NULL, "Bad Ptr DetachMeFromOwner", __FILE__, __LINE__);
       p->pNxtAttachment=pNxtAttachment;
       }
     }
@@ -4033,7 +4033,7 @@ DDEF_Flags DDBDataInfo::GetBlob(TABOptions Opts, PkDataUnion &DataValue)
     if (!pThis->DataXchg(DCB)) // NB is your TabgObj::DataXchg Correct ?
       DoBadDataExError(pThis, lHandle, lHandle2, dwUserInfo);
 
-    ASSERT_ALWAYS(DCB.wBlobLen<DataItemBuffSize, "Bad Blob Size");
+    ASSERT_ALWAYS(DCB.wBlobLen<DataItemBuffSize, "Bad Blob Size", __FILE__, __LINE__);
 
     DataValue.BlobSet(DCB.pBlob, DCB.wBlobLen);
     XtraFlags=DCB.dwRetFlags;
@@ -4041,7 +4041,7 @@ DDEF_Flags DDBDataInfo::GetBlob(TABOptions Opts, PkDataUnion &DataValue)
   else
     {
     //char * p=((Strng*)pData)->Str();
-    ASSERT_ALWAYS(wBlobSize<DataItemBuffSize, "Bad Blob Size");
+    ASSERT_ALWAYS(wBlobSize<DataItemBuffSize, "Bad Blob Size", __FILE__, __LINE__);
     DataValue.BlobSet(pData, wBlobSize);
     }
 
@@ -4429,7 +4429,7 @@ void DataDefnBlk::Open(TaggedObject *pRootObj_, char * FullItemTag, DDBTasks Tas
     strcpy(cChkTag, pRootObj_->ClassId());//FullItemTag);
     Chk[lCallLevel].iTagEnd=strlen(cChkTag);
     Chk[lCallLevel].pTagStart=&cChkTag[Chk[lCallLevel].iTagEnd];
-    ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart");
+    ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart", __FILE__, __LINE__);
     }
 #endif
 
@@ -4858,13 +4858,13 @@ flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
       {
       Chk[lCallLevel].pClass=FindClass(ClassName ? ClassName : Obj->Class()->ClassName());
       Chk[lCallLevel].pTagStart=&cChkTag[Chk[lCallLevel].iTagEnd];
-      ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart");
+      ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart", __FILE__, __LINE__);
       }
     else
       {
       Chk[lCallLevel].pClass=Chk[lCallLevel-1].pClass;
       Chk[lCallLevel].pTagStart=Chk[lCallLevel-1].pTagStart;
-      ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart");
+      ASSERT_ALWAYS(Chk[lCallLevel].pTagStart!=NULL, "Chk[lCallLevel].pTagStart", __FILE__, __LINE__);
       }
     //dbgpln("> '%s:%s'  %i", ClassName, Chk[lCallLevel].pTagStart, Chk[lCallLevel].lOpenCnts);
     }

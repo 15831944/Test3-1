@@ -1476,7 +1476,7 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
       }
     else
       {
-      ASSERT_ALWAYS(FALSE, "Bad RunMode in Old flowsheet");
+      ASSERT_ALWAYS(FALSE, "Bad RunMode in Old flowsheet", __FILE__, __LINE__);
       }
 
     long HtMd=0;
@@ -1488,7 +1488,7 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
     else if (sHMd.XStrICmp("None")==0)
       HtMd=HM_None;
     else 
-      ASSERT_ALWAYS(FALSE, "Bad HeatMode in Old flowsheet");
+      ASSERT_ALWAYS(FALSE, "Bad HeatMode in Old flowsheet", __FILE__, __LINE__);
 
     m_NetMode=NetMd;
     
@@ -7958,7 +7958,7 @@ flag CProject::OnSave(pchar pPrjPath)
 
 flag CProject::OnProjectSaveas(pchar pPrjPath)
   {
-  //  ASSERT_ALWAYS(sPrjFile.XStrICmp(PrjFile())==0)
+  //  ASSERT_ALWAYS(sPrjFile.XStrICmp(PrjFile())==0);
 
   Strng OldHstDataDir;
   m_sPrevPrjFile   = PrjFile();

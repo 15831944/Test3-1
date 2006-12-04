@@ -422,7 +422,7 @@ void MSpeciePtr::ChkIndex()
   //  m_iIndex=gs_MVDefn.Lookup(m_sName);
   if (m_pSB->sid()<0 && !m_pSB->m_fOpt)
     {
-    INCOMPLETECODE();
+    INCOMPLETECODE(__FILE__, __LINE__);
     }
   //  }
   };

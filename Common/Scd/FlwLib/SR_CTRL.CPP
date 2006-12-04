@@ -958,7 +958,7 @@ double CEC_FracExt::ExtentActual(double ProdMoles)
         MolesUsed=Eq.dMlXfer*Eq.Product[m_iXProdTerm].NoOfMoles;
       else
         {
-        ASSERT_ALWAYS(0, "FracExt not setup");
+        ASSERT_ALWAYS(0, "FracExt not setup", __FILE__, __LINE__);
         }
       if (RB.Moles_BS[m_iXSpcId]>=ZeroLimit)
         EA=MolesUsed/RB.Moles_BS[m_iXSpcId];

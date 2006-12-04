@@ -2083,7 +2083,7 @@ bool CArchiveManager::CheckCfg(LPCTSTR CfgFile)
 
 bool CArchiveManager::CompleteOpen()
   {
-  //ASSERT_ALWAYS(!XBusy(), "CompleteOpen - SysCAD Running");
+  //ASSERT_ALWAYS(!XBusy(), "CompleteOpen - SysCAD Running", __FILE__, __LINE__);
   bool OK=true;
 
   const int NT=m_Tables.GetSize();
@@ -3521,7 +3521,7 @@ flag CArchiveManager::EO_SaveOtherData(FilingControlBlock &FCB)
   //    if (!pDrv->bDoneSave)
   //      {
   //      byte Len=pDrv->sTag.Len();
-  //      ASSERT_ALWAYS(Len<' ', "Bad Driver Tag Len");
+  //      ASSERT_ALWAYS(Len<' ', "Bad Driver Tag Len", __FILE__, __LINE__);
   //      //ASSERT(pDrv->sTag.Len()<9);
   //      strcpy(Buff, pDrv->sTag());
   //      Buff[Len]=0;

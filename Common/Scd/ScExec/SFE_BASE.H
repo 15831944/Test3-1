@@ -894,7 +894,7 @@ class DllImportExport CTagRefInfoItem
   private:
     CTagRefInfoItem & operator=(const CTagRef & X)    // Hide this
       {
-      INCOMPLETECODE();
+      INCOMPLETECODE(__FILE__, __LINE__);
       return *this;
       };
   };

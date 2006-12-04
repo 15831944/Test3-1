@@ -403,7 +403,7 @@ SQSzDist1 & SQSzDist1::operator=(const SQSzDist1 & S)
 void SQSzDist1::AllocDist(int d)
   {
   ASSERT(d<NDistributions());
-  ASSERT_RDB(iDistUsed==d, "Why not!?!?!");
+  ASSERT_RDB(iDistUsed==d, "Why not!?!?!", __FILE__, __LINE__);
   if (Distributions[d]==NULL)
     {
     Distributions[d]=new CSD_Distribution(SD_Defn.GetDist(d));
@@ -614,7 +614,7 @@ void SQSzDist1::BuildDataDefn(DataDefnBlk & DDB)
       }
 
     CSD_DistDefn &DDefn=*SD_Defn.GetDist(d);
-    ASSERT_RDB(pD!=NULL, "What!!!");
+    ASSERT_RDB(pD!=NULL, "What!!!", __FILE__, __LINE__);
     //pD = Distributions[d];
     if (pD && pModel->UseAsFlow())
       {
@@ -643,7 +643,7 @@ void SQSzDist1::BuildDataDefn(DataDefnBlk & DDB)
         }
       }
 
-    ASSERT_RDB(Distributions[d]!=NULL, "Double damn What!!!");
+    ASSERT_RDB(Distributions[d]!=NULL, "Double damn What!!!", __FILE__, __LINE__);
     pD = Distributions[d];
     if (pD)
       {
@@ -1227,7 +1227,7 @@ flag SQSzDist1::ChangeDistribution(SpConduit &QFeed, SpConduit &QProd, int iDist
   if (pSzo==NULL || !pSzo->DistributionsExist())
     return false;
 
-  ASSERT_RDB(pMdli!=pMdlo, "Why are these pointing to same!!!");
+  ASSERT_RDB(pMdli!=pMdlo, "Why are these pointing to same!!!", __FILE__, __LINE__);
   pSzo->ChangeToDist(iDistRqd);
   int indexo = pSzo->DistIndex();
   if (indexi==indexo)

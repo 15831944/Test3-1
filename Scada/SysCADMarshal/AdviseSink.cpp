@@ -174,7 +174,7 @@ COPC_AdviseSink::OnWriteComplete(LPFORMATETC pFE, LPSTGMEDIUM pSTM)
   const OPCGROUPHEADERWRITE *pHeader = (OPCGROUPHEADERWRITE *) buffer;
   if(FAILED(pHeader->hrStatus))
     {
-    INCOMPLETECODE();  //
+    INCOMPLETECODE(__FILE__, __LINE__);  //
     //     PostMessage(theDoc->hView, WM_OPCWRITE, pHeader->hrStatus, 0);
     }
   else

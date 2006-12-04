@@ -785,7 +785,7 @@ flag CtrlSequencer::TestSettledPrior(long iVar)
     CtrlSeqBlk & Tsb=*m_CSBs[iVar].Blk();
     CDArray &EH=Tsb.m_ErrHistPrior;
 
-    ASSERT_ALWAYS(EH.GetSize()>=m_MinSettleCount, "Bad Error History");
+    ASSERT_ALWAYS(EH.GetSize()>=m_MinSettleCount, "Bad Error History", __FILE__, __LINE__);
     int EHN=EH.GetSize();
     int N=Min(1+m_MinSettleCount/2L, EHN/2L);
     
@@ -828,7 +828,7 @@ flag CtrlSequencer::TestSettledPost(long iVar)
     CtrlSeqBlk & Tsb=*m_CSBs[iVar].Blk();
     CDArray &EH=Tsb.m_ErrHistPost;
 
-    ASSERT_ALWAYS(EH.GetSize()>=m_MinSettleCount, "Bad Error History");
+    ASSERT_ALWAYS(EH.GetSize()>=m_MinSettleCount, "Bad Error History", __FILE__, __LINE__);
     LeastSquareFit LSF;
     for (int p=EH.GetSize()-m_MinSettleCount; p<EH.GetSize(); p++)
       LSF.AddPt(p, EH[p]);

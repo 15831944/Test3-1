@@ -115,16 +115,16 @@ class DllImportExport SMBayer : public SMBayerBase
     double         Na2SO4toC();
 
     //Jan 2002 : new virtuals for PSD...
-    //double         SodiumFlourideConc(double T_) { ASSERT_ALWAYS(true, "TODO:SodiumFlourideConc"); return 0.0; };
-    //double         QuartzConc(double T_) { ASSERT_ALWAYS(true, "TODO:QuartzConc"); return 0.0; };
-    //double         HeamatiteConc(double T_) { ASSERT_ALWAYS(true, "TODO:HeamatiteConc"); return 0.0; };
+    //double         SodiumFlourideConc(double T_) { ASSERT_ALWAYS(true, "TODO:SodiumFlourideConc", __FILE__, __LINE__); return 0.0; };
+    //double         QuartzConc(double T_) { ASSERT_ALWAYS(true, "TODO:QuartzConc", __FILE__, __LINE__); return 0.0; };
+    //double         HeamatiteConc(double T_) { ASSERT_ALWAYS(true, "TODO:HeamatiteConc", __FILE__, __LINE__); return 0.0; };
 
-    double         BoundSodaFrac() { ASSERT_ALWAYS(true, "TODO:BoundSodaFrac"); return 0.0; };
-    double         BoundSodaOrgFrac() { ASSERT_ALWAYS(true, "TODO:BoundSodaOrgFrac"); return 0.0; };
+    double         BoundSodaFrac() { ASSERT_ALWAYS(true, "TODO:BoundSodaFrac", __FILE__, __LINE__); return 0.0; };
+    double         BoundSodaOrgFrac() { ASSERT_ALWAYS(true, "TODO:BoundSodaOrgFrac", __FILE__, __LINE__); return 0.0; };
 
-    //double         OC(double T_) { ASSERT_ALWAYS(true, "TODO:OX"); return 0.0; };
-    //double         OX(double T_) { ASSERT_ALWAYS(true, "TODO:OC"); return 0.0; };
-    //void           DumpState() { ASSERT_ALWAYS(true, "TODO:DumpState"); };
+    //double         OC(double T_) { ASSERT_ALWAYS(true, "TODO:OX", __FILE__, __LINE__); return 0.0; };
+    //double         OX(double T_) { ASSERT_ALWAYS(true, "TODO:OC", __FILE__, __LINE__); return 0.0; };
+    //void           DumpState() { ASSERT_ALWAYS(true, "TODO:DumpState", __FILE__, __LINE__); };
     //... end for new virtuals for PSD
 
     double         LVolume25();
