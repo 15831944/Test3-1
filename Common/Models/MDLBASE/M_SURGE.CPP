@@ -39,7 +39,9 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
   m_AccIn(eDIO_Accum, this, false, true, "Accumulation"),
   m_AccOut(eDIO_Deplete, this, false, true, "Depletion"),
-  m_AccCalc(this, m_AccIn, m_AccOut)
+  m_AccCalc(this, m_AccIn, m_AccOut),
+  m_BlkEval(this)
+  //m_BlkEval(this, &m_RB, NULL, &EHX, &VLE, &m_Evap)
   {
   //pQFeed=NULL;
   //pQProd=NULL;
@@ -118,6 +120,8 @@ flag MN_Surge::DataXchg(DataChangeBlk & DCB)
   if (RB.DataXchg(DCB))
     return 1;
 
+  if (m_BlkEval.DataXchg(DCB))
+    return 1;
   if (HX.DataXchg(DCB))
     return 1;
   if (VLE.DataXchg(DCB))
@@ -184,8 +188,13 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
 //  Set_JoinP_Imp(0, Contents.Press());
   if (SolveSurgeMethod())
     m_EqThermals.ValidateData(VDB);
-  return MdlNode::ValidateData(VDB);
-
+  
+  flag OK=true;
+  if (!m_BlkEval.ValidateData(VDB))
+    OK=false;
+  if (!MdlNode::ValidateData(VDB))
+    OK=false;
+  return OK;
   }
 
 //--------------------------------------------------------------------------
@@ -547,6 +556,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         }
       else if (NoProcessJoins()==2)
         {
+//? Makeup
         Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
         CRqdPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, NULL, NULL, &PBCtrl1);
@@ -556,11 +566,14 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
       break;
     case SM_Inline:
+    case SM_Buffered:
       SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
+
+      m_BlkEval.EvalProducts(QFeed(), ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
+
       EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
       // fall thru
-    case SM_Buffered:
       if (NoProcessJoins()>=2)
         Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &QProd(), NULL, NULL, NULL);//RB());
 
@@ -606,7 +619,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
 
   if (/*!IntegralDone() &&*/ !GetActiveHold())
     {
-    for (int i = 0; i < NoFlwIOs(); i++)
+    for (int i = 0; i < NoProcessIOs(); i++)
       {
       int Id=IOId_Self(i);
       if (Id!=IOId_HX)
@@ -623,6 +636,36 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
         }
       }
     //dbgpln("EvalDerivs   - AddInflow ");
+
+    if (Contents.SpillExists())
+      {
+      //if (Contents.Spill.Cd.QMass()>0)
+      //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", Contents.Spill.Cd.QMass(), FullObjTag());
+      Contents.AddDeriv(Contents.Spill.Cd, -1.0);
+      }
+    if (Contents.VentExists())
+      {
+      //if (Contents.Vent.Cd.QMass()>0)
+      //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
+      Contents.AddDeriv(Contents.Vent.Cd, -1.0);
+      }
+
+    //Do Makeup
+    int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
+    if (iMkUp>=0)
+      {
+      for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
+        Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
+      }
+
+    //Do Bleed
+    int iBleed=IOWithId_Self(IOId_Bleed2Area);
+    if (iBleed>=0)
+      {
+      for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+        Contents.AddDeriv(*IOConduit(iBleed), -1.0);
+      }
+
 
     //    CEquipmentThermals
     m_EqThermals.EvalDerivs();
@@ -757,6 +800,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
     }
   #endif
   for (int i = 0; i < NoProcessIOs(); i++)
+    {
     if (IOIdMask_Self(i) & IOMsk)
       {
       SpConduit * Cd;
@@ -789,6 +833,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
         }
       #endif
       }
+    }
 
   //dbgpln("EvalIntegral - AddInflow");
   //Contents.AddInFlowDeriv();
@@ -805,6 +850,23 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
     //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
     Contents.AddDeriv(Contents.Vent.Cd, -1.0);
     }
+
+  //Do Makeup
+  int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
+  if (iMkUp>=0)
+    {
+    for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
+      Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
+    }
+
+  //Do Bleed
+  int iBleed=IOWithId_Self(IOId_Bleed2Area);
+  if (iBleed>=0)
+    {
+    for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+      Contents.AddDeriv(*IOConduit(iBleed), -1.0);
+    }
+
   #if dbgMSurge
   if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
     {
@@ -1217,6 +1279,20 @@ dword MN_Surge::ModelStatus()
       Status |= FNS_NettQmN;
     }
   return Status;
+  };
+
+//--------------------------------------------------------------------------
+
+int MN_Surge::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+  m_BlkEval.ChangeTag(pOldTag, pNewTag);
+  return MdlNode::ChangeTag(pOldTag, pNewTag);
+  };
+
+int MN_Surge::DeleteTag(char * pDelTag)
+  {
+  m_BlkEval.DeleteTag(pDelTag);
+  return MdlNode::DeleteTag(pDelTag);
   };
 
 //--------------------------------------------------------------------------

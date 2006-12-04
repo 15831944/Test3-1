@@ -338,6 +338,8 @@ static IOAreaRec TankIOAreaListNew[] =
     {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
     SPILL2AREA("Spills", IOId_Spill2Area),
     VENT2AREA("Vents",   IOId_Vent2Area),
+    MAKEUP2AREA(),
+    BLEED2AREA(),
     {NULL}
   };    
 
@@ -407,6 +409,9 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (NetProbalMethod())
     DDB.CheckBox("CyclicStorage",     "",  DC_,     "",      &m_CyclicStorage.m_bOn, this, isParm|SetOnChange);
 
+  DDB.Visibility();
+  m_BlkEval.Add_OnOff(DDB);  
+
   DDB.Visibility(NM_Probal|SM_Direct|HM_All);
   GSM.Add_OnOff(DDB);
   DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
@@ -457,6 +462,10 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
+
+  DDB.Visibility();
+  m_BlkEval.BuildDataDefn(DDB);
+
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);

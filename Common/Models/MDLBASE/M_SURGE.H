@@ -99,6 +99,9 @@ class DllImportExport MN_Surge : public MdlNode
 
     virtual dword  ModelStatus();
 
+    virtual int    ChangeTag(char * pOldTag, char * pNewTag);
+    virtual int    DeleteTag(char * pDelTag);
+
     DEFINE_CI(MN_Surge, MdlNode, 4);
 
   protected:
@@ -150,6 +153,9 @@ class DllImportExport MN_Surge : public MdlNode
     CDirectFlwIO   m_AccIn;
     CDirectFlwIO   m_AccOut;
     CDirectAccCalc m_AccCalc;
+
+    CBlockEvaluator m_BlkEval;
+
   };
 
 //===========================================================================
