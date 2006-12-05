@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-11-10 11:24:11 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2006-11-29 23:38:27 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $ QAL Extensions by Transcritical Technologies Pty Ltd
 //===========================================================================
 
@@ -7,7 +7,6 @@
 #include "TTCompress.h"
 
 #include <stdio.h>
-
 
 
 
@@ -113,7 +112,7 @@ void CTTCompress::BuildDataFields()
   DD.Double("Pressure.Boost", "", &m_dDeltaP, m_lPumpMode==PM_BOOST ? MF_PARAMETER : MF_RESULT, MC_P); 
   DD.Double("Pressure.Ratio", "", &m_dPRatio, m_lPumpMode==PM_RATIO ? MF_PARAMETER : MF_RESULT, MC_);
   DD.Show(m_lCalcMode==0);
-  DD.Double("Isentropic.Efficiency", "", &m_dPolyEff, MF_PARAMETER, MC_);
+  DD.Double("Adiabatic.Efficiency", "", &m_dPolyEff, MF_PARAMETER, MC_);
   DD.Show(m_lCalcMode==1);
   DD.Double("Polytropic.Efficiency", "", &m_dPolyEff, MF_PARAMETER, MC_);
   DD.Show(m_lCalcMode==2);
@@ -171,7 +170,7 @@ bool CTTCompress::EvalJoinPressures()
     }
   else
     {
-    //INCOMPLETECODE(__FILE__, __LINE__) 
+    //INCOMPLETECODE() 
     }
   return false;
   }

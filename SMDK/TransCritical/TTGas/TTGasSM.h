@@ -8,6 +8,7 @@
 #include <vector>
 
 class TTGasSM; // forward declare
+int cubic(double a1, double a2, double a3, double x[]);
 
 //===========================================================================
 
@@ -25,6 +26,8 @@ class TTGasSM : public MSpModelBase
     static byte   sm_iGasModel;
     bool fDoCalc;
     double dRqdMWT;
+    double m_dHRes;  // Save these when doing basic compressibility calc
+    double m_dSRes;
     
    
 
@@ -47,16 +50,22 @@ class TTGasSM : public MSpModelBase
     double          get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
     double          get_SaturationT(double P, MArray *pMA);
     
-    double  get_MWT(MArray *pMA);
+    double get_MWT(MArray *pMA);
     double idealCp(double T);
-    double dHRes(double T, double P);
-    double dGRes(double T, double P);
-    double dSRes(double T, double P);
-    
-      
+    double SRKn(double T, double P, MArray *pMA=NULL);
 
+  
+    double HRes(double T, double P);
+    double GRes(double T, double P);
+    double SRes(double T, double P);
+    double Tc();
+    double Pc();
+    
+    double GasZ(double, double);
     double GasCpCalc(double T, double P);
-    double GasHCalc(double T, double P);
+    double GasEnthalpy(double T, double P);
+    double GasEntropy(double T, double P);
+
 
     // Define accessable "properties"
     long            DefinedPropertyCount();
@@ -71,7 +80,8 @@ class TTGasSM : public MSpModelBase
 
   public:
     //Other properties
-    double NormalDensity() {return 101.325/8.3143*get_MWT(NULL)/273.15;}
+    double GasDensity(double T, double P) {return P*get_MWT(NULL)/(R_c*GTZ(T)*GasZ(T,P));}
+    double NormalDensity() {return 101.325/8.3143*get_MWT(NULL)/273.15;} // Density at atmospheric pressure and 0C
   };
 
 #endif

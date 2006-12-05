@@ -22,7 +22,7 @@ static MInitialiseTest InitTest("TTGasSMClass");
 
 
 
-//MSpeciePtr   Methane           (InitTest, "CH4(g)",        false);
+MSpeciePtr   Methane           (InitTest, "CH4(g)",        false);
 //MSpeciePtr   Steam             (InitTest, "H2O(g)",        true);
 
 // ==========================================================================
@@ -32,16 +32,6 @@ static MInitialiseTest InitTest("TTGasSMClass");
 enum GM_GasStateEqn { GM_Ideal,  GM_SRK, GM_PR,GM_BWR };
 
 // Global/Static data
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -85,47 +75,176 @@ bool TTGasSM::ValidateDataFields()
   return OK;
   }
 
-//---------------------------------------------------------------------------
-
-double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
-  {
-  MArray MA(pMA ? *pMA : this);
-  double MSol=0;
-  double MLiq=0;
-  double MGas=0;
-  long   SpecieCount=gs_MVDefn.Count();
-  //double * M=MassVector;
-  for (int i=0; i<SpecieCount; i++)
-    {
-    long Ph=gs_MVDefn[i].Phase();
-    if (Ph & MP_Sol)
-      MSol+=MA[i];
-    else if (Ph & MP_Liq)
-      MLiq+=MA[i];
-    else
-      MGas+=MA[i];
-    }
-
-  double DSol=2000;
-  double DLiq=1000;
-  //double mwt = Mass(MP_Gas)/GTZ(Moles(MP_Gas));
-  //double DGas=101.325/8.3143*P/GTZ(T)*mwt;
-  double DGas = 1;
-  return (MSol+MLiq+MGas)/GTZ(MSol/DSol+ MLiq/DLiq+ MGas/DGas);
-  }
-
-
 double TTGasSM::get_MWT(MArray *pMA) {
+
+  double mw = MoleWt(); //doesn't this work???
+
   MArray MA(pMA ? *pMA : this);
+  int im = Methane.Index;
+  MA.Normalise();
+  Log.Message(MMsg_Error, "get_MWT, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
+  MA.Normalise();
+  Log.Message(MMsg_Error, "get_MWT, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
   long   SpecieCount=gs_MVDefn.Count();
   double mtot=0.0, mwtot=0.0;
   for (int i=0; i<SpecieCount; i++) {
     //mtot += MA[i];
     mwtot += MA[i]*gs_MVDefn[i].MolecularWt();
   }
-  return mwtot/MA.Mass();
-  // MoleWt();
+  if (mwtot==0.0) return 20.0;
+  return mwtot;
+  //return MoleWt();
 }
+
+//---------------------------------------------------------------------------
+
+double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
+{
+  MArray MA(pMA ? *pMA : this);
+  
+  int im = Methane.Index;
+  Log.Message(MMsg_Error, "get_Density, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
+  MA.Normalise();
+  Log.Message(MMsg_Error, "get_Density, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
+
+
+  double MSol=MA.MassFrac(MP_Sol);
+  double MLiq=MA.MassFrac(MP_Liq);
+  double MGas=MA.MassFrac(MP_Gas);
+
+  double DSol = MSpModelBase::get_Density(MP_Sol, T, P, &MA);
+  double DLiq = MSpModelBase::get_Density(MP_Liq, T, P, &MA);
+  double DGas=GasDensity(T, P);
+  if (DGas==0.0)   
+    Log.Message(MMsg_Error, "Gas Density 0.0");
+
+  double vol = 0.0;
+  double mass = 0.0;
+  if (Phases & MP_Sol) {
+    vol+= MSol/DSol;
+    mass+= MSol;
+  }
+  if (Phases & MP_Liq) {
+    vol+= MLiq/DLiq;
+    mass+= MLiq;
+  }
+  if (Phases & MP_Gas) {
+    vol+= MGas/GTZ(DGas);
+    
+    mass+= MGas;
+  }
+  
+  if (vol==0.0) return 0.0;
+  return mass/vol;
+}
+
+
+
+
+double TTGasSM::HRes(double T_K, double p_kPa) {
+    
+  SRKn(T_K, p_kPa);
+  return m_dHRes;
+}
+
+double TTGasSM::SRes(double  T_K, double p_kPa) {
+
+  MArray MA(this);
+
+  int im = Methane.Index;
+  Log.Message(MMsg_Error, "Sres, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
+  MA.Normalise();
+  Log.Message(MMsg_Error, "Sres, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
+
+
+  SRKn(T_K, p_kPa);
+  return m_dSRes;
+}
+
+
+double TTGasSM::GasEnthalpy(double T, double P) 
+{
+  MArray MA(this);
+
+
+  return MSpModelBase::get_msEnthalpy(MP_Gas, T, P, &MA)+HRes(T, P);
+}
+
+
+double TTGasSM::GasEntropy(double T, double P) 
+{
+  MArray MA(this);
+  return MSpModelBase::get_msEntropy(MP_Gas, T, P, &MA)+SRes(T, P);
+}
+
+
+
+double TTGasSM::GasZ(double T, double P) {
+  switch (sm_iGasModel)  {
+  case GM_Ideal:
+    return 1.0;
+  case  GM_SRK: 
+  case GM_PR: 
+  case GM_BWR:
+    return SRKn(T, P, NULL);
+  }
+  return 1.0;
+}
+
+double TTGasSM::SRKn(double T, double P, MArray *pMA)
+// 	Soave-Redlich-Kwong Equations of State for multicomponent mixtures
+{
+  MArray MA(pMA ? *pMA : this);
+  MA.Normalise();
+  
+
+  long   SpecieCount=gs_MVDefn.Count();
+  const long MAXCOMP = 40;
+
+  double alpha[MAXCOMP], tr[MAXCOMP];
+  double m[MAXCOMP], wi, ac[MAXCOMP], b[MAXCOMP];
+  double bb = 0, aca = 0;
+  double beta=0.0;
+  double A, B;
+  for (int i=0; i<SpecieCount; i++) {
+    double tc = gs_MVDefn[i].TCritical();
+    double pc = gs_MVDefn[i].PCritical();
+    tr[i] = T/tc;
+    b[i] = .08667*R_c*tc/pc;
+    ac[i] = .42747*Sqr(R_c*tc)/pc;
+    wi = gs_MVDefn[i].Acentricity();
+    m[i] = 0.480 + wi*(1.574-.176*wi);
+    alpha[i] = 1+m[i]*(1-sqrt(tr[i]));
+  }
+  
+  for (i=0; i<SpecieCount; i++) {
+    double yi = MA[i];
+    if (yi==0.0) continue;
+    bb += yi*b[i];
+    for (int j=0; j<SpecieCount; j++)  {
+      double yj = MA[j];
+      if (yj==0.0) continue;
+      double tmp = yi*yj*sqrt(ac[i]*ac[j]);  // *(1.0-k[ID[i]][ID[j]]);
+      aca += tmp*alpha[i]*alpha[j];
+      beta += tmp*((1+m[i])*alpha[j]+(1+m[j])*alpha[i]);
+    }
+  }
+  beta /= 2.0;
+  
+  A = aca*P/Sqr(R_c*T);
+  B = bb*P/R_c/T;
+  double z[3];
+  int nr = cubic(-1.0, A-B*(1+B), -A*B, z);
+  double ZZ = z[0];
+  double mwt = get_MWT(NULL);
+  m_dHRes = (beta/bb*log(1+B/ZZ)+R_c*T*(1-ZZ))/mwt; // Reduced Enthalpy, kJ/kMol
+  double lnPhi = ZZ - 1 - log(ZZ - B) - A / B * log(1 + B / ZZ);
+  m_dSRes = R_c/mwt*lnPhi + m_dHRes/T ;
+  
+  
+  return z[0];
+}
+
 
 
 //---------------------------------------------------------------------------
@@ -134,11 +253,6 @@ double TTGasSM::GasCpCalc(double Tk, double Pbar)
 {
   MArray MA(this);
   return MSpModelBase::get_msCp(MP_Gas, Tk, 1.0, &MA);
-}
-
-double TTGasSM::GasHCalc(double Tk, double Pbar)
-{
-  return 2.2*Tk;
 }
 
 
@@ -203,11 +317,14 @@ enum {
   idDefineGas,
   idRqdMWT,
   // Normal
-  idSeparator1				  ,
+  idSeparator1,
 
   idGasDensity,
   idNormalDensity,
   idGasMWT,
+  idGasZ,
+  idHRes,
+  idSRes,
   idGasCp,
   idGasViscosity,
   idGasConductivity,
@@ -247,7 +364,7 @@ long TTGasSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
       Info.SetText("--DefineGas-------------");
       Info.SetStructName("Gas"); //NB: The "struct name" is used as part of tag!
       Info.Set(ePT_Bool,"", "DefineGas",    MC_, "",    0, 0,    MP_ConfigProp|MP_Parameter|MP_CheckBox, ""); return Inx;
-    case idRqdMWT	    : Info.Set(ePT_Double,   "", "RqdMWT",     MC_, "",    0, 0,    MP_ConfigProp|MP_Parameter, "The required MWT"); return Inx;
+    case idRqdMWT	    : Info.Set(ePT_Double,   "", "RqdMWT",     MC_, "", 0, 0,   MP_ConfigProp|MP_Parameter, "The required MWT"); return Inx;
 
     case idGasDensity: 
       Info.SetStructName("Props"); //NB: The "struct name" is used as part of tag! Recomend "Props" for compatability with other properties models.
@@ -261,7 +378,14 @@ long TTGasSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
       Info.Set(ePT_Double,    "", "GasMWT",MC_, "",    0, 0,  MP_RN,    "Molecular Wt"); return Inx;
       
     case idNormalDensity:
-      Info.Set(ePT_Double,    "", "NormalDensity",MC_Conc, "g/L",    0, 0,  MP_RN,    "Gas Density @1atm, 0C"); return Inx;
+      Info.Set(ePT_Double,    "", "NormalDensity",MC_Conc, "g/L", 0, 0,  MP_RN, "Gas Density @1atm, 0C"); return Inx;
+    case idGasZ:
+      Info.Set(ePT_Double,  "Z", "Compressibility",MC_, "",  0, 0,  MP_RN,   "Gas Compressibility @T,P"); return Inx;
+    case idHRes:
+      Info.Set(ePT_Double,  "HRes", "Residual.Enthalpy",MC_HMs, "",  0, 0,  MP_RNH,   "Gas Residual Enthalpy @T,P"); return Inx;
+    case idSRes:
+      Info.Set(ePT_Double,  "SRes", "Residual.Entropy",MC_SMs, "",  0, 0,  MP_RNH,   "Gas Residual Entropy @T,P"); return Inx;
+
     case idGasCp:
       Info.Set(ePT_Double,    "", "SpecificHeat",MC_Conc, "g/L",    0, 0,  MP_RN,    "Specific Heat @T,P"); return Inx;
     case idGasViscosity:
@@ -310,7 +434,11 @@ void TTGasSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*=NA
       GV(GasModel, sm_i);
       GVAL2(DefineGas, fDoCalc);
       GVAL2(GasMWT, get_MWT(NULL));
+      GVAL2(GasZ, SRKn(T, P, NULL));
+      GVALFTP(HRes);
+      GVALFTP(SRes);
       GVAL(RqdMWT);
+      GVALFTP(GasDensity);
       GVAL2(NormalDensity, NormalDensity());
     default: Value=0.0; return;
     }
@@ -333,15 +461,14 @@ void TTGasSM::PutPropertyValue(long Index, MPropertyValue & Value)
     }
 }
 
-#define SWAP(a, b) {double tmp=a; a=b; b=tmp;}
 
 void Order(double *x)
 {
-    if (x[1]<x[2]) SWAP(x[1],x[2])
-		       if (x[0]<x[1]) {
-			   SWAP(x[0],x[1])
-			       if (x[1]<x[2]) SWAP(x[1],x[2])
-						  }
+  if (x[1]<x[2]) Exchange(x[1],x[2]);
+		   if (x[0]<x[1]) {
+		     Exchange(x[0],x[1]);
+		     if (x[1]<x[2]) Exchange(x[1],x[2]);
+					}
 }
 
 
