@@ -10495,9 +10495,10 @@ flag CDirectFlwIO::GlobalConnect()
     #endif
     if (NdIOLcl[iO].pDesc==NULL)
       {
-      #ifndef _RELEASE
-      dbgpln("Direct Connect Failed LclDIOId %i not found in %s", m_iLclDIOId, m_pNd->FullObjTag());
-      #endif
+      //#ifndef _RELEASE
+      //dbgpln("Direct Connect Failed LclDIOId %i not found in %s", m_iLclDIOId, m_pNd->FullObjTag());
+      //#endif
+      LogError(m_pNd->FullObjTag(), 0, "Direct Connect Failed LclDIOId %i not found", m_iLclDIOId);
       return true;
       }
 

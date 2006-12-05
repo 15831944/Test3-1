@@ -54,6 +54,8 @@ static IOAreaRec ThickenerIOAreaList[] =
     {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, 1.0f},
     SPILL2AREA("Spills", IOId_Spill2Area),
     VENT2AREA("Vents",   IOId_Vent2Area),
+    MAKEUP2AREA(),
+    BLEED2AREA(),
     {NULL}
   };
 
@@ -136,6 +138,10 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",               "",                DC_,     "",       &bShowQFeed,         this, isParm|SetOnChange);
+ 
+  DDB.Visibility();
+  m_BlkEval.Add_OnOff(DDB);  
+
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
@@ -174,6 +180,9 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
 	BuildDataDefnShowIOs(DDB);
   BuildDataDefnIOOpts(DDB);
 
+  DDB.Visibility();
+  m_BlkEval.BuildDataDefn(DDB);
+
   if (SolveBufferedMethod())
     RB.SetSurgeType(true); //where is the best place to set this?
   else
@@ -181,7 +190,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && NetProbalMethod())
+  if (bShowQFeed)// && NetProbalMethod())
     {
     QFeed(); // ensure exists
     if (QFeed.Exists())
@@ -403,6 +412,9 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       SigmaQInPMin(Fd(), som_ALL, Id_2_Mask(ioidFd));
       flag HasFlw = (Fd().QMass(som_ALL)>UsableMass);
+
+      m_BlkEval.EvalProducts(Fd(), Fd->Press(), NULL);
+
 
       if (bShowQFeed && !QFeed.Exists())
         QFeed();//forces create
