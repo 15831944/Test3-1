@@ -2565,7 +2565,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       // Extras 
       RqdPgLen+=5;
       PgNo++;
-      StartPage(IsPage ? f.sTagText() : "Page 1", false);
+      if (PgNo==0)
+        StartPage(IsPage ? f.pData->sClsTag() : "Page 1", false);
+      else
+        StartPage(IsPage ? f.sTagText() : "Page 1", false);
       StartBlk(RqdPgLen, 0, NULL);
       LnNo=0;
       FirstFieldOnPage=1;
