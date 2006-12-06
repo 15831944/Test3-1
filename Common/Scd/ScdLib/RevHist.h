@@ -2672,10 +2672,12 @@ Build 122 : 16 November 2006
 1270  3/12/06: (#694) Added makeup block to feeder.
 1273  4/12/06: (#615) Added makeup block to tank, acts on QFeed.
 1276  5/12/06: Improvements for exception handling and reporting.
+1279  5/12/06: (#608) Added makeup block to thickener in direct mode, acts on QFeed.
+1280  5/12/06: (#699) Changed name of first tab in access window.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1276
+#define SCD_PATCH_SVN    1280
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

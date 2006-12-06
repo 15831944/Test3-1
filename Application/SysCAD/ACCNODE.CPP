@@ -2565,10 +2565,20 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       // Extras 
       RqdPgLen+=5;
       PgNo++;
+      //StartPage(IsPage ? f.sTagText() : "Page 1", false);
+      //TODO:Rather than ObjClassId use a better short type description!!!???
+      Strng NextPageTab;
       if (PgNo==0)
-        StartPage(IsPage ? f.pData->sClsTag() : "Page 1", false);
+        StartPage(IsPage ? ObjClassId() : "Page 1", false);
+      else if (PgNo<3 && strnicmp(f.sTagText(), NdTag(), NdTag.Len())==0)
+        {
+        NextPageTab = ObjClassId();
+        NextPageTab += "..";
+        StartPage(NextPageTab(), false);
+        }
       else
-        StartPage(IsPage ? f.sTagText() : "Page 1", false);
+        StartPage(f.sTagText(), false);
+
       StartBlk(RqdPgLen, 0, NULL);
       LnNo=0;
       FirstFieldOnPage=1;
