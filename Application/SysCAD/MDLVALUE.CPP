@@ -26,8 +26,10 @@ extern "C"
   extern int get_line_error();
   }
 
-#define dbgLoadSave  0
-#define dbgBuild     0
+#define dbgLoadSave    0
+#define dbgBuild       0
+#define dbgValueShow   0
+#define dbgGraphicShow 0
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -50,7 +52,7 @@ const int MaxSetPtrs    = 8;
 typedef CMdlValueSet *ValueSetPtr;
 typedef CMdlValueShow *ValueShwPtr;
 typedef CMdlGraphicShow *GraphicShwPtr;
-typedef CRptTagsAddRqst *AddPtr;
+typedef CRptTagsAddRqst *CAddRequestPtr;
 const char* BaseFileName = "Scd_RTL.ini";
 
 class CRptTagListCommon
@@ -70,8 +72,8 @@ class CRptTagListCommon
     CList <ValueSetPtr, ValueSetPtr> m_SetPtrs;
     CList <ValueShwPtr, ValueShwPtr> m_ValueShwPtrs;
     CList <GraphicShwPtr, GraphicShwPtr> m_GraphicShwPtrs;
-    CList <AddPtr, AddPtr> m_ValueAddPtrs;
-    CList <AddPtr, AddPtr> m_GraphicAddPtrs;
+    CList <CAddRequestPtr, CAddRequestPtr> m_ValueAddPtrs;
+    CList <CAddRequestPtr, CAddRequestPtr> m_GraphicAddPtrs;
     CList <ValueShwPtr, ValueShwPtr> m_SpareShwPtrs;
     CCriticalSection  m_MVCritSect;
 
@@ -1517,10 +1519,12 @@ void CMdlValueShow::OnPaint()
 
 void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
   {
-  //dbgpln("CMdlValueShow::TryAdd");
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::TryAdd");
+
   if (1)//gs_Exec.Busy()) //thread problem ---
     {
-    AddPtr Add = new CRptTagsAddRqst;
+    CAddRequestPtr Add = new CRptTagsAddRqst;
 
     Add->m_Tag=pTag;
     Add->m_X=X;
@@ -1539,6 +1543,8 @@ void CMdlValueShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, 
     {
     Add(pTag, X, Y, Pinned, Append, pParent);
     }
+
+  //Sleep(500); // Temp
   }
 
 void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
@@ -1546,7 +1552,8 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
   Strng T, ObjClassId;
   T.Set("%s.ClassId", pTag);
 
-  //dbgpln("CMdlValueShow::Add - Start");
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::Add - Start");
 
   CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
   CXM_ObjectData ObjData;
@@ -1580,19 +1587,26 @@ void CMdlValueShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, CWn
       }
     }
 
-  //dbgpln("CMdlValueShow::Add - AddIt");
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::Add - AddIt");
+
   ValueShwPtr P=new CMdlValueShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
   gs_RTLCom.m_ValueShwPtrs.AddHead(P);
   //  P->AtStart(pTag, X, Y, Pinned);
   P->ShowWindow(SW_SHOWNOACTIVATE);
+
   gs_RTLCom.m_MVCritSect.Unlock();	
+
   };
 
 void CMdlValueShow::TryClear(bool All)
   {
   gs_RTLCom.m_MVCritSect.Lock();	
-  //dbgpln("CMdlValueShow::TryClear");
+  
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::TryClear");
+  
   gs_RTLCom.m_iClear=All?2:1;
   gs_RTLCom.m_MVCritSect.Unlock();
   if (!gs_Exec.Busy() || gs_Exec.Waiting())
@@ -1603,13 +1617,21 @@ bool CMdlValueShow::Clear(bool All)
   {
   bool Ret=true;
   gs_RTLCom.m_MVCritSect.Lock();	
-  //dbgpln("CMdlValueShow::Clear");
+  
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::Clear %s", All?"All":"");
+  
   if (All)
     {
     while (!gs_RTLCom.m_ValueShwPtrs.IsEmpty())
       {
       ValueShwPtr P=gs_RTLCom.m_ValueShwPtrs.GetHead();
       P->DestroyWindow();
+      delete P;
+      }
+    while (!gs_RTLCom.m_ValueAddPtrs.IsEmpty())
+      {
+      CAddRequestPtr P=gs_RTLCom.m_ValueAddPtrs.GetHead();
       delete P;
       }
     }
@@ -1640,13 +1662,16 @@ bool CMdlValueShow::Clear(bool All)
 void CMdlValueShow::UpdateAll()
   {
   gs_RTLCom.m_MVCritSect.Lock();
-  //dbgpln("CMdlValueShow::UpdateAll");
+  
+  if (dbgValueShow)
+    dbgpln("CMdlValueShow::UpdateAll");
 
   while (!gs_RTLCom.m_ValueAddPtrs.IsEmpty())
     {
-    AddPtr A=gs_RTLCom.m_ValueAddPtrs.RemoveHead();
-    Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
-    //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
+    CAddRequestPtr A=gs_RTLCom.m_ValueAddPtrs.RemoveHead();
+    if (gs_RTLCom.m_iClear==0)
+      Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
+    dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }
@@ -1659,7 +1684,9 @@ void CMdlValueShow::UpdateAll()
     }
   if (gs_RTLCom.m_iClear)
     {
-    //dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    if (dbgValueShow)
+      dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    
     if (Clear(gs_RTLCom.m_iClear==2))
       gs_RTLCom.m_iClear=0;
     }
@@ -2081,13 +2108,17 @@ void CMdlGraphicShow::AtStart(char * pTag, int X, int Y, bool Pinned)
 
 void CMdlGraphicShow::DoTheUpdateByMsg()
   {
-  //dbgpln("CMdlGraphicShow::DoTheUpdateByMsg");
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::DoTheUpdateByMsg");
+  
   PostMessage(WMU_UPDATESHOWWND, 0, 0);
   }
 
 void CMdlGraphicShow::DoTheUpdate() 
   {
-  //dbgpln("CMdlGraphicShow::DoTheUpdate");
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::DoTheUpdate");
+  
   if (m_nTags<1)
     return;
   SetWindowText(m_nTags>1 ? m_sObjClassId() : m_sTag[0]());
@@ -2897,10 +2928,12 @@ void CMdlGraphicShow::OnMove(int x, int y)
 
 void CMdlGraphicShow::TryAdd(char * pTag, int X, int Y, bool Pinned, bool Append, CWnd* pParent)
   {
-  //dbgpln("CMdlGraphicShow::TryAdd");
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::TryAdd");
+  
   if (1)//gs_Exec.Busy()) //thread problem ---
     {
-    AddPtr Add = new CRptTagsAddRqst;
+    CAddRequestPtr Add = new CRptTagsAddRqst;
 
     Add->m_Tag=pTag;
     Add->m_X=X;
@@ -2926,7 +2959,8 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
   Strng T, ObjClassId;
   T.Set("%s.ClassId", pTag);
 
-  //dbgpln("CMdlGraphicShow::Add - Start");
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::Add - Start");
 
   CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
   CXM_ObjectData ObjData;
@@ -2960,7 +2994,9 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
       }
     }
 
-  //dbgpln("CMdlGraphicShow::Add - AddIt");
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::Add - AddIt");
+  
   GraphicShwPtr P=new CMdlGraphicShow(pTag, X, Y, Pinned, pParent);
   P->m_iSequence=gs_RTLCom.m_iSequence;
   gs_RTLCom.m_GraphicShwPtrs.AddHead(P);
@@ -2972,7 +3008,10 @@ void CMdlGraphicShow::Add(char * pTag, int X, int Y, bool Pinned, bool Append, C
 void CMdlGraphicShow::TryClear(bool All)
   {
   gs_RTLCom.m_MVCritSect.Lock();	
-  //dbgpln("CMdlGraphicShow::TryClear");
+  
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::TryClear");
+  
   gs_RTLCom.m_iClear=All?2:1;
   gs_RTLCom.m_MVCritSect.Unlock();
   if (!gs_Exec.Busy())
@@ -2983,13 +3022,21 @@ bool CMdlGraphicShow::Clear(bool All)
   {
   bool Ret=true;
   gs_RTLCom.m_MVCritSect.Lock();	
-  //dbgpln("CMdlGraphicShow::Clear");
+
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::Clear");
+  
   if (All)
     {
     while (!gs_RTLCom.m_GraphicShwPtrs.IsEmpty())
       {
       GraphicShwPtr P=gs_RTLCom.m_GraphicShwPtrs.GetHead();
       P->DestroyWindow();
+      delete P;
+      }
+    while (!gs_RTLCom.m_GraphicAddPtrs.IsEmpty())
+      {
+      CAddRequestPtr P=gs_RTLCom.m_GraphicAddPtrs.GetHead();
       delete P;
       }
     }
@@ -3020,13 +3067,18 @@ bool CMdlGraphicShow::Clear(bool All)
 void CMdlGraphicShow::UpdateAll()
   {
   gs_RTLCom.m_MVCritSect.Lock();
-  //dbgpln("CMdlGraphicShow::UpdateAll");
+  
+  if (dbgGraphicShow)
+    dbgpln("CMdlGraphicShow::UpdateAll");
 
   while (!gs_RTLCom.m_GraphicAddPtrs.IsEmpty())
     {
-    AddPtr A=gs_RTLCom.m_GraphicAddPtrs.RemoveHead();
-    Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
-    //dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
+    CAddRequestPtr A=gs_RTLCom.m_GraphicAddPtrs.RemoveHead();
+    if (gs_RTLCom.m_iClear==0)
+      Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
+    
+    if (dbgGraphicShow)
+      dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }
@@ -3039,7 +3091,9 @@ void CMdlGraphicShow::UpdateAll()
     }
   if (gs_RTLCom.m_iClear)
     {
-    //dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    if (dbgGraphicShow)
+      dbgpln("                             Clear >>>>>>> %s",gs_RTLCom.m_iClear==2?"All":"");
+    
     if (Clear(gs_RTLCom.m_iClear==2))
       gs_RTLCom.m_iClear=0;
     }
