@@ -154,7 +154,7 @@
 				StringPooling="true"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Rls/HeatXch2.pch"
 				AssemblerListingLocation=".\Rls/"

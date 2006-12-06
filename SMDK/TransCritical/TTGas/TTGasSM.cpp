@@ -217,7 +217,7 @@ double TTGasSM::SRKn(double T, double P, MArray *pMA)
     alpha[i] = 1+m[i]*(1-sqrt(tr[i]));
   }
   
-  for (i=0; i<SpecieCount; i++) {
+  for (int i=0; i<SpecieCount; i++) {
     double yi = MA[i];
     if (yi==0.0) continue;
     bb += yi*b[i];
