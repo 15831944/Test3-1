@@ -45,7 +45,7 @@
 #define MOVEDYNSTATS   1
 #define MYASSERT(x) /*ASSERT(x)*/
 
-#define PROGRESSLEVEL 1
+#define PROGRESSLEVEL 0
 #if (PROGRESSLEVEL>0)
 
 #define STARTPROGRESS                       \

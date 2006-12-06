@@ -984,7 +984,7 @@ void PIDControl::UnlinkAllXRefs()
 
 void PIDControl::EvalCtrlStrategy(eScdCtrlTasks Tasks)
   {
-  dbgpln("EvalCtrlStrategy %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
+  //dbgpln("EvalCtrlStrategy %s %s %s %s", GetActiveHold()?"HOLD":"    ", bOn?"ON":"  ", XRefListActive()?"ACTIVE":"      ", FullObjTag()); 
   if (XRefListActive() && ICGetTimeInc() > 0.0)
     {
     
