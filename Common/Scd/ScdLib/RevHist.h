@@ -2674,10 +2674,12 @@ Build 122 : 16 November 2006
 1276  5/12/06: Improvements for exception handling and reporting.
 1279  5/12/06: (#608) Added makeup block to thickener in direct mode, acts on QFeed.
 1280  5/12/06: (#699) Changed name of first tab in access window.
+1281  6/12/06: (#700) For slow projects Quickview window was not always closed.
+
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1280
+#define SCD_PATCH_SVN    1281
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
