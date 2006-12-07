@@ -6,7 +6,7 @@ using System.IO;
 
 using SysCAD.Interface;
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
 	/// <summary>
 	/// 
@@ -29,7 +29,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     public PolyLine(Line line)
     {
       LineSegment lineSegment = new LineSegment(new PointF(line.x1 * 3.0F + 10.0F, line.y1 * 3.0F + 10.0F), new PointF(line.x2 * 3.0F + 10.0F, line.y2 * 3.0F + 10.0F));
-      lineSegment.isDecorationSegment = true;
+      lineSegment.IsDecorationSegment = true;
 
       shapeSegments = new ArrayList();
       shapeSegments.Add(lineSegment);
@@ -40,7 +40,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         {
             if (!base.hitTest(p))
             {
-                belongSegment = null;
+                BelongSegment = null;
 				Segment s1 = (Segment)shapeSegments[0];
 				Segment s2 = (Segment)shapeSegments[shapeSegments.Count-1];
 				if (s1.hitTest(p) && s1.checkCommonPointStart())
@@ -62,7 +62,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         internal bool Add(Line line)
         {
           LineSegment lineSegment = new LineSegment(new PointF(line.x1 * 3.0F + 10.0F, line.y1 * 3.0F + 10.0F), new PointF(line.x2 * 3.0F + 10.0F, line.y2 * 3.0F + 10.0F));
-          lineSegment.isDecorationSegment = true;
+          lineSegment.IsDecorationSegment = true;
 
           if ((shapeSegments != null) && (shapeSegments.Count > 0) && (shapeSegments[shapeSegments.Count - 1] is LineSegment))
           {

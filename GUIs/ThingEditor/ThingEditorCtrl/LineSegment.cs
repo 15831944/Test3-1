@@ -3,8 +3,9 @@ using System.Drawing;
 using System.IO;
 using System.Collections;
 using SysCAD.Interface;
+using System.Globalization;
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
 	/// <summary>
 	/// 
@@ -15,7 +16,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private PointF pt2;
         private int Index;
 
-        public bool isDecorationSegment;
+        private bool isDecorationSegment;
 // Constructor
 		public LineSegment(PointF p1, PointF p2): base()
 		{
@@ -32,7 +33,20 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
 // end Constructor
 
-		public PointF start
+    public bool IsDecorationSegment
+    {
+      get
+      {
+        return isDecorationSegment;
+      }
+      set
+      {
+        isDecorationSegment = value;
+      }
+    }
+
+    
+    public PointF Start
 		{
 			get
 			{
@@ -44,7 +58,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 			}
 		}
 
-		public PointF end
+		public PointF End
 		{
 			get
 			{
@@ -58,27 +72,27 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override void Draw(Graphics g, Pen pen)
 		{
-			g.DrawLine(pen, start, end);
+			g.DrawLine(pen, Start, End);
 		}
 
 		internal override PointF GetStartPoint()
 		{
-			return start;
+			return Start;
 		}
 
 		internal override PointF GetEndPoint()
 		{
-			return end;
+			return End;
 		}
 
 		internal override bool hitTest(PointF p)
 		{
-            if (Math.Abs(p.X - start.X) < 5 && Math.Abs(p.Y - start.Y) < 5)
+            if (Math.Abs(p.X - Start.X) < 5 && Math.Abs(p.Y - Start.Y) < 5)
             {
                 Index = 0;
                 return true;
             }
-            if (Math.Abs(p.X - end.X) < 5 && Math.Abs(p.Y - end.Y) < 5)
+            if (Math.Abs(p.X - End.X) < 5 && Math.Abs(p.Y - End.Y) < 5)
             {
                 Index = 1;
                 return true;
@@ -124,17 +138,17 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 				PointsWidth, 
 				PointsHeight);
 
-            g.FillEllipse(br, start.X - PointsX, 
-                start.Y - PointsY, 
+            g.FillEllipse(br, Start.X - PointsX, 
+                Start.Y - PointsY, 
                 PointsWidth, 
                 PointsHeight);
         }
 
         internal override bool checkOverPoint(PointF p)
         {
-            if (Math.Abs(p.X - start.X) < 5 && Math.Abs(p.Y - start.Y) < 5)
+            if (Math.Abs(p.X - Start.X) < 5 && Math.Abs(p.Y - Start.Y) < 5)
                 return true;
-            if (Math.Abs(p.X - end.X) < 5 && Math.Abs(p.Y - end.Y) < 5)
+            if (Math.Abs(p.X - End.X) < 5 && Math.Abs(p.Y - End.Y) < 5)
                 return true;
             return false; 
         }
@@ -143,10 +157,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         {
             double nDist, nMinDist = 1000000;
 
-            double x1 = start.X;
-            double y1 = start.Y;
-            double x2 = end.X;
-            double y2 = end.Y;
+            double x1 = Start.X;
+            double y1 = Start.Y;
+            double x2 = End.X;
+            double y2 = End.Y;
 
             double A = y1 - y2;
             double B = x2 - x1;
@@ -197,25 +211,25 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override void setEndPoint(PointF p)
         {
-            end = p;
+            End = p;
         }
 
         internal override void setStartPoint(PointF p)
         {
-            start = p;
+            Start = p;
         }
 
         internal override string saveNameAsText()
         {
-            int startX = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, start.X);
-            int startY = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, start.Y);
-            int endX   = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, end.X);
-            int endY   = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, end.Y);
+            int startX = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, Start.X);
+            int startY = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, Start.Y);
+            int endX   = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, End.X);
+            int endY   = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, End.Y);
 
-            return "            new LineTemplate(" + (startX).ToString() + ", " + 
-                                                     (startY).ToString() + ", " + 
-                                                     (endX).ToString()   + ", " +
-                                                     (endY).ToString()   + ")";
+            return "            new LineTemplate(" + (startX).ToString(CultureInfo.InvariantCulture) + ", " +
+                                                     (startY).ToString(CultureInfo.InvariantCulture) + ", " +
+                                                     (endX).ToString(CultureInfo.InvariantCulture) + ", " +
+                                                     (endY).ToString(CultureInfo.InvariantCulture) + ")";
         }
 
         internal override void Load(System.IO.BinaryReader br)
@@ -228,10 +242,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override void Save(System.IO.BinaryWriter bw)
         {
-            bw.Write(start.X);
-            bw.Write(start.Y);
-            bw.Write(end.X);
-            bw.Write(end.Y);
+            bw.Write(Start.X);
+            bw.Write(Start.Y);
+            bw.Write(End.X);
+            bw.Write(End.Y);
         }
 
         internal override float getPercent(float Min, float Max, float Coord)
@@ -247,10 +261,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         internal override RectangleF getBoundingRect()
         {
             return new RectangleF(
-                Math.Min(start.X, end.X), 
-                Math.Min(start.Y, end.Y),
-                Math.Abs(start.X - end.X),
-                Math.Abs(start.Y - end.Y)
+                Math.Min(Start.X, End.X), 
+                Math.Min(Start.Y, End.Y),
+                Math.Abs(Start.X - End.X),
+                Math.Abs(Start.Y - End.Y)
                                 );
         }
 

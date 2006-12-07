@@ -76,8 +76,8 @@ namespace SysCAD.Editor
       this.fcFlowChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseDown);
       this.fcFlowChart.DrawArrow += new MindFusion.FlowChartX.ArrowCustomDraw(this.fcFlowChart_DrawArrow);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
-      this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChart_BoxModified);
-      this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChart_BoxModifying);
+      this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChartBoxModified);
+      this.fcFlowChart.BoxModifying += new MindFusion.FlowChartX.BoxConfirmation(this.fcFlowChartBoxModifying);
       this.fcFlowChart.DrawBox += new MindFusion.FlowChartX.BoxCustomDraw(this.fcFlowChart_DrawBox);
       this.fcFlowChart.ArrowCreated += new MindFusion.FlowChartX.ArrowEvent(this.fcFlowChart_ArrowCreated);
       this.fcFlowChart.ArrowDeleting += new MindFusion.FlowChartX.ArrowConfirmation(this.fcFlowChart_ArrowDeleting);

@@ -17,19 +17,37 @@ namespace SysCAD.Interface
     private String path;
     private String tag;
 
-    public ArrayList elements;
-    public ArrayList decorations;
-    public ArrayList textArea;
-    public FillMode fillMode;
+    private ArrayList elements;
+    private ArrayList decorations;
+    private ArrayList textArea;
+    private FillMode fillMode;
 
     private String text;
     private RectangleF boundingRect;
     
     private float angle;
-    private bool mirrorX = false;
-    private bool mirrorY = false;
+    private bool mirrorX;
+    private bool mirrorY;
     private System.Drawing.Color fillColor;
     private System.Drawing.Color frameColor;
+
+    public ArrayList Elements
+    {
+      get { return elements; }
+      set { elements = value; }
+    }
+
+    public ArrayList Decorations
+    {
+      get { return decorations; }
+      set { decorations = value; }
+    }
+
+    public ArrayList TextArea
+    {
+      get { return textArea; }
+      set { textArea = value; }
+    }
 
     [CategoryAttribute("Model"),
      DescriptionAttribute("Guid of the item."),
@@ -131,6 +149,15 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Mode of fill."),
+     DisplayName("Fill Mode")]
+    public System.Drawing.Drawing2D.FillMode FillMode
+    {
+      get { return fillMode; }
+      set { fillMode = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
     DescriptionAttribute("Color of frame."),
     DisplayName("Frame Color")]
     public System.Drawing.Color FrameColor
@@ -169,11 +196,11 @@ namespace SysCAD.Interface
       this.tag = tag;
     }
 
-    public void Populate(String filename, String Page, String EqpGUID, RectangleF rectangle, float Rotation, bool mirrorX, bool mirrorY, 
+    public void Populate(String filename, String page, String guid, RectangleF rectangle, float rotation, bool mirrorX, bool mirrorY, 
       System.Drawing.Color fillColor, System.Drawing.Color frameColor, String text, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode)
     {
-      path = "/" + filename + "/" + Page + "/";
-      guid = new Guid(EqpGUID);
+      path = "/" + filename + "/" + page + "/";
+      this.guid = new Guid(guid);
 
       boundingRect = rectangle;
 
@@ -192,7 +219,7 @@ namespace SysCAD.Interface
         boundingRect.Height = -boundingRect.Height;
       }
 
-      angle = Rotation;
+      angle = rotation;
 
       this.fillColor = fillColor;
       this.frameColor = frameColor;
@@ -201,6 +228,13 @@ namespace SysCAD.Interface
       this.decorations = decorations;
       this.textArea = textArea;
       this.fillMode = fillMode;
+    }
+
+    public void Clear()
+    {
+      elements = new ArrayList();
+      decorations = new ArrayList();
+      textArea = new ArrayList();
     }
   }
 }

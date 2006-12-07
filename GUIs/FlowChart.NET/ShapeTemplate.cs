@@ -806,7 +806,7 @@ namespace MindFusion.FlowChartX
 		private Image image;
 		private RectangleF imageRectangle = new RectangleF(0, 0, 100, 100);
 
-		public string Id
+		public string ID
 		{
 			get
 			{
@@ -3070,7 +3070,7 @@ namespace MindFusion.FlowChartX
 
 		public override string ToString()
 		{
-			return Id;
+			return ID;
 		}
 
 		private bool textOutside;

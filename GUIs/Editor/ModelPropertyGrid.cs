@@ -40,9 +40,12 @@ namespace SysCAD.Editor
       //modelItem.Properties[5] = new BranchAccessItem("branch zero", "description branch zero", properties);
     }
 
-    protected void removeDummy(PropertyEnumerator property)
+    protected void RemoveDummy(PropertyEnumerator property)
     {
-      PropertyEnumerator child = property.Children.MoveFirst();
+      PropertyEnumerator child = null;
+
+      if (property != null)
+        child = property.Children.MoveFirst();
 
       while (child != null)
       {
@@ -61,7 +64,7 @@ namespace SysCAD.Editor
       {
         PropertyEnumerator property = e.PropertyEnum;
         
-        removeDummy(property);
+        RemoveDummy(property);
 
         PropertyEnumerator testProperty = AppendManagedProperty(property, _id++, "Tag", typeof(string), "Test Expanded Member", "Test Comment");
       }

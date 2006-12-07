@@ -16,7 +16,7 @@ namespace SysCAD.Interface
     private Guid guid;
     private String tag;
 
-    private String classID;
+    private String classId;
     private Guid origin;
     private Guid destination;
     private String originPort;
@@ -40,10 +40,10 @@ namespace SysCAD.Interface
     [CategoryAttribute("Model"),
      DescriptionAttribute("ClassID of the link."),
      ReadOnlyAttribute(true)]
-    public String ClassID
+    public String ClassId
     {
-      get { return classID; }
-      set { classID = value; }
+      get { return classId; }
+      set { classId = value; }
     }
 
     [CategoryAttribute("Model"),
@@ -107,7 +107,7 @@ namespace SysCAD.Interface
         if (destinationGuidReader.Read())
           destination = new Guid(destinationGuidReader.GetString(0));
 
-        classID = linkReader.GetString(2);
+        classId = linkReader.GetString(2);
       }
       linkReader.Close();
 
@@ -157,28 +157,26 @@ namespace SysCAD.Interface
       linklineReader.Close();
     }
 
-    public void Populate(String filename, String Page, String EqpGUID, String ClassID,
-      String Source, String Destination,
-      String SourcePort, String DestinationPort,
-      //double [] XYs, int XYCount,
-      List<PointF> ControlPts,
+    public void Populate(String guid, String classId,
+      String source, String destination,
+      String sourcePort, String destinationPort,
+      List<PointF> controlPts,
       Dictionary<Guid, GraphicItem> graphicItems)
     {
-      //path = "/" + filename + "/" + Page + "/";
-      classID = ClassID;
-      guid = new Guid(EqpGUID);
-      origin = new Guid(Source);
-      destination = new Guid(Destination);
-      originPort = SourcePort;
-      destinationPort = DestinationPort;
+      this.classId = classId;
+      this.guid = new Guid(guid);
+      origin = new Guid(source);
+      this.destination = new Guid(destination);
+      originPort = sourcePort;
+      this.destinationPort = destinationPort;
 
-      controlPoints = ControlPts;
+      controlPoints = controlPts;
 
       // Reverse the list if the first is closer to the destination and vice versa...
 
       GraphicItem sourceItem, destinationItem;
       graphicItems.TryGetValue(origin, out sourceItem);
-      graphicItems.TryGetValue(destination, out destinationItem);
+      graphicItems.TryGetValue(this.destination, out destinationItem);
 
       float distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
       if ((sourceItem != null) && (controlPoints.Count > 0))
@@ -212,7 +210,7 @@ namespace SysCAD.Interface
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
-    private float distance(PointF pointF, RectangleF rectangleF)
+    static private float distance(PointF pointF, RectangleF rectangleF)
     {
       float dXL = System.Math.Abs(pointF.X - rectangleF.Left);
       float dXR = System.Math.Abs(pointF.X - rectangleF.Right);

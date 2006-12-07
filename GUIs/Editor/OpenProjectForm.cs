@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using SysCAD.Interface;
+using System.Security.Permissions;
 
 namespace SysCAD.Editor
 {
@@ -19,11 +20,11 @@ namespace SysCAD.Editor
     {
       InitializeComponent();
 
-      if (config.Connect(repositoryURLTextBox.Text + "Global"))
+      if (config.Connect(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
         config.Sync();
         projectListBox.Items.Clear();
-        foreach (String projectString in config.projectList)
+        foreach (String projectString in config.ProjectList)
         {
           projectListBox.Items.Add(projectString);
         }
@@ -34,11 +35,11 @@ namespace SysCAD.Editor
 
     private void listProjectsButton_Click(object sender, EventArgs e)
     {
-      if (config.Connect(repositoryURLTextBox.Text + "Global"))
+      if (config.Connect(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
         config.Sync();
         projectListBox.Items.Clear();
-        foreach (String projectString in config.projectList)
+        foreach (String projectString in config.ProjectList)
         {
           projectListBox.Items.Add(projectString);
         }
@@ -56,7 +57,7 @@ namespace SysCAD.Editor
     {
       if (projectListBox.SelectedItem != null)
       {
-        if (graphic.Connect(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString()))
+        if (graphic.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
         {
           openButton.Enabled = true;
         }

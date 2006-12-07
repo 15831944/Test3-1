@@ -78,7 +78,6 @@
     <Compile Include="ModelLink.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ARectangleF.cs" />
-    <Compile Include="OldGraphicStencil.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ServiceGraphic.cs" />
     <Compile Include="Stencil.cs" />

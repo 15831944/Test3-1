@@ -56,6 +56,7 @@
     <ProjectReference Include="..\..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>
       <Name>FlowChart.NET</Name>
+      <Private>True</Private>
     </ProjectReference>
     <ProjectReference Include="..\ThingEditorCtrl\ThingEditorCtrl.csproj">
       <Project>{DB2D992C-06EB-4E51-9AE9-B970C19C8B80}</Project>

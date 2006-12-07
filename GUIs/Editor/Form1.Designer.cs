@@ -824,7 +824,7 @@ namespace SysCAD.Editor
         this.Margin = new System.Windows.Forms.Padding(2);
         this.Name = "Form1";
         this.Text = "SysCAD.Editor";
-        this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+        this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1FormClosing);
         ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).EndInit();
         this.twOverview.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)(this.tvNavigation)).EndInit();

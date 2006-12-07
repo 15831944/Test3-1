@@ -7,31 +7,30 @@ using System.Text;
 namespace SysCAD.Interface
 {
   [Serializable]
-  [ComVisible(true)]
   [TypeConverter(typeof(ShapeConverter))]
   public class Shape
   {
     String str;
 
-    public Shape(String r)
+    public Shape(String str)
     {
-      str = r ;
+      this.str = str;
     }
 
-    public static implicit operator Shape(String r)
+    public static implicit operator Shape(String str)
     {
-      Shape shape = new Shape(r);
+      Shape shape = new Shape(str);
       return shape;
     }
 
-    public static implicit operator String(Shape r)
+    public static implicit operator String(Shape shape)
     {
-      return r.str;
+      return shape.str;
     }
 
-    public bool Contains(String substr)
+    public bool Contains(String substring)
     {
-      return str.Contains(substr);
+      return str.Contains(substring);
     }
 
     public override string ToString()

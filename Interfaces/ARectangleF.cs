@@ -35,11 +35,12 @@ using System;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 
 namespace SysCAD.Interface
 {
   [Serializable]
-  [ComVisible(true)]
+  [ComVisible(false)]
   public struct ARectangleF
   {
     private float x, y, width, height;
@@ -545,12 +546,12 @@ namespace SysCAD.Interface
     ///	Checks equivalence of this RectangleF and an object.
     /// </remarks>
 
-    public override bool Equals(object o)
+    public override bool Equals(object obj)
     {
-      if (!(o is ARectangleF))
+      if (!(obj is ARectangleF))
         return false;
 
-      return (this == (ARectangleF)o);
+      return (this == (ARectangleF)obj);
     }
 
     /// <summary>
@@ -617,7 +618,7 @@ namespace SysCAD.Interface
 
     public override string ToString()
     {
-      return String.Format("{{X={0},Y={1},Width={2},Height={3}}}",
+      return String.Format(CultureInfo.InvariantCulture, "{{X={0},Y={1},Width={2},Height={3}}}",
              x, y, width, height);
     }
 

@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
   /// <summary>
   /// 

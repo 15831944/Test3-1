@@ -19,15 +19,22 @@ namespace SysCAD.Interface
   {
     private string tag;
 
-    public ArrayList elements;
-    public ArrayList decorations;
-    public ArrayList anchors;
-    public FillMode fillMode;
-    public String groupName;
+    private ArrayList elements;
+    private ArrayList decorations;
+    private ArrayList anchors;
+    private FillMode fillMode;
+    private String groupName;
 
     public ModelStencil()
     {
     }
+
+    public String GroupName
+    {
+      get { return groupName; }
+      set { groupName = value; }
+    }
+
 
     public String Tag
     {
@@ -35,12 +42,30 @@ namespace SysCAD.Interface
       set { tag = value; }
     }
 
+
+    public ArrayList Elements
+    {
+      get { return elements; }
+      set { elements = value; }
+    }
+
+    public ArrayList Decorations
+    {
+      get { return decorations; }
+      set { decorations = value; }
+    }
+
     public ArrayList Anchors
     {
-      get
-      {
-        return anchors;
-      }
+      get { return anchors; }
+      set { anchors = value; }
+    }
+
+
+    public FillMode FillMode
+    {
+      get { return fillMode; }
+      set { fillMode = value; }
     }
   }
 }

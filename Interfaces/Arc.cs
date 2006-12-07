@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace SysCAD.Interface
 {
@@ -31,7 +32,12 @@ namespace SysCAD.Interface
   
     public override string ToString()
     {
-      return "(" + x.ToString("N2") + ", " + y.ToString("N2") + ", " + w.ToString("N2") + ", " + h.ToString("N2") + ", " + a.ToString("N2") + ", " + s.ToString("N2") + ")";
+      return "(" + x.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+                   y.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+                   w.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+                   h.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+                   a.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+                   s.ToString("N2", CultureInfo.InvariantCulture) + ")";
     }
   }
 }

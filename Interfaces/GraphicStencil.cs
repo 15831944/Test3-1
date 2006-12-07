@@ -19,9 +19,9 @@ namespace SysCAD.Interface
   {
     private string tag;
 
-    public ArrayList elements;
-    public ArrayList decorations;
-    public RectangleF textArea;
+    private ArrayList elements;
+    private ArrayList decorations;
+    private RectangleF textArea;
 
     public FillMode fillMode;
     public SizeF defaultSize;
@@ -36,5 +36,24 @@ namespace SysCAD.Interface
       get { return tag; }
       set { tag = value; }
     }
+
+    public ArrayList Elements
+    {
+      get { return elements; }
+      set { elements = value; }
+    }
+
+    public ArrayList Decorations
+    {
+      get { return decorations; }
+      set { decorations = value; }
+    }
+
+    public RectangleF TextArea
+    {
+      get { return textArea; }
+      set { textArea = value; }
+    }
+
   }
 }

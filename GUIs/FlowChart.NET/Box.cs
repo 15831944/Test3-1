@@ -21,6 +21,7 @@ using MindFusion.FlowChartX.Visitors;
 using MindFusion.Geometry.Geometry2D;
 
 
+[assembly: CLSCompliant(true)]
 namespace MindFusion.FlowChartX
 {
 	/// <summary>
@@ -345,8 +346,8 @@ namespace MindFusion.FlowChartX
 			if (shapeTemplate != null)
 			{
 				writer.Write((int)0);
-				writer.Write(shapeTemplate.Id);
-				if (shapeTemplate.Id == "")
+				writer.Write(shapeTemplate.ID);
+				if (shapeTemplate.ID == "")
 				{
 					ctx.saveObject(shapeTemplate);
 					ctx.saveObject(shapeData);
@@ -458,7 +459,7 @@ namespace MindFusion.FlowChartX
 									ShapeTemplate newVal = flowChart.DefaultShape;
 									if (stvalue != null)
 										newVal = stvalue;
-									if (newVal.Id == "")
+									if (newVal.ID == "")
 										shapeTemplate = (ShapeTemplate)newVal.Clone();
 									else
 										shapeTemplate = newVal;
@@ -2024,7 +2025,7 @@ namespace MindFusion.FlowChartX
 				// If the shape is contained within
 				// the static list with shape templates,
 				// set only reference to it
-				if (newVal.Id == "")
+				if (newVal.ID == "")
 					shapeTemplate = (ShapeTemplate)newVal.Clone();
 				else
 					shapeTemplate = newVal;

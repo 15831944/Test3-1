@@ -14,15 +14,29 @@ namespace SysCAD.Interface
   [Serializable]
   public class Anchor
 	{
-    public string tag;
-    public AnchorType type;
-    public PointF position;
+    private String tag;
+    private AnchorType type;
+    private PointF position;
 
     [System.Xml.Serialization.XmlIgnoreAttribute()]
     public object direction;
 
     //public uint min = 0;
     //public uint max = 0;
+
+    public String Tag
+    {
+      get { return tag; }
+      set { tag = value; }
+    }
+
+
+    public PointF Position
+    {
+      get { return position; }
+      set { position = value; }
+    }
+
 
     public Anchor()
     {
@@ -37,11 +51,11 @@ namespace SysCAD.Interface
       //this.max = max;
     }
 
-    public Anchor(string tag, AnchorType type, float X, float Y)//, uint min, uint max)
+    public Anchor(string tag, AnchorType type, float x, float y)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
-      this.position = new PointF(X, Y);
+      this.position = new PointF(x, y);
       //this.min = min;
       //this.max = max;
     }

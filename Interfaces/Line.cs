@@ -1,12 +1,14 @@
 using System;
+using System.Globalization;
 
+[assembly: CLSCompliant(true)]
 namespace SysCAD.Interface
 {
   /// <summary>
   /// Summary description for LineElement.
   /// </summary>
   [Serializable]
-  public class Line: Element
+  public class Line : Element
   {
     public float x1;
     public float y1;
@@ -27,7 +29,10 @@ namespace SysCAD.Interface
 
     public override string ToString()
     {
-      return "(" + x1.ToString("N2") + ", " + y1.ToString("N2") + ", " + x2.ToString("N2") + ", " + y2.ToString("N2") + ")";
+      return "(" + x1.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   y1.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   x2.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   y2.ToString("N2", CultureInfo.InvariantCulture) + ")";
     }
   }
 }

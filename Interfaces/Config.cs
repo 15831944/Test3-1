@@ -11,20 +11,37 @@ using System.Runtime.Serialization.Formatters;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Security.Permissions;
 
+
 namespace SysCAD.Interface
 {
   public class ConfigData : MarshalByRefObject
   {
-    public StringCollection projectList;
+    protected StringCollection protectedProjectList;
 
-    public Dictionary<string, ModelStencil> modelStencils = new Dictionary<string, ModelStencil>();
-    public Dictionary<string, GraphicStencil> graphicStencils = new Dictionary<string, GraphicStencil>();
+    protected Dictionary<string, ModelStencil> protectedModelStencils = new Dictionary<string, ModelStencil>();
+    protected Dictionary<string, GraphicStencil> protectedGraphicStencils = new Dictionary<string, GraphicStencil>();
+
+    public StringCollection ProjectList
+    {
+      get { return protectedProjectList; }
+    }
+
+    public Dictionary<string, ModelStencil> ModelStencils
+    {
+      get { return protectedModelStencils; }
+    }
+
+    public Dictionary<string, GraphicStencil> GraphicStencils
+    {
+      get { return protectedGraphicStencils; }
+    }
+
 
     public ConfigData()
     {
-      projectList = new StringCollection();
-      modelStencils = new Dictionary<string, ModelStencil>();
-      graphicStencils = new Dictionary<string, GraphicStencil>();
+      protectedProjectList = new StringCollection();
+      protectedModelStencils = new Dictionary<string, ModelStencil>();
+      protectedGraphicStencils = new Dictionary<string, GraphicStencil>();
     }
 
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
@@ -40,25 +57,12 @@ namespace SysCAD.Interface
 
     public string connectionError = "";
 
-    [EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
-    public bool Connect(string URL)
+    public bool Connect(Uri url)
     {
       try
       {
-        //BinaryClientFormatterSinkProvider clientProvider = new BinaryClientFormatterSinkProvider();
-        //BinaryServerFormatterSinkProvider serverProvider = new BinaryServerFormatterSinkProvider();
-        //serverProvider.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
-
-        //IDictionary props = new Hashtable();
-        //props["port"] = 0;
-        //string s = System.Guid.NewGuid().ToString();
-        //props["name"] = s;
-        //props["typeFilterLevel"] = TypeFilterLevel.Full;
-        //TcpChannel chan = new TcpChannel(props, clientProvider, serverProvider);
-        //ChannelServices.RegisterChannel(chan, false);
-
-        remoteConfig = Activator.GetObject(typeof(ConfigData), URL) as ConfigData;
-        StringCollection test = remoteConfig.projectList; // Check that the connection is up.
+        remoteConfig = Activator.GetObject(typeof(ConfigData), url.ToString()) as ConfigData;
+        StringCollection test = remoteConfig.ProjectList; // Check that the connection is up.
         connectionError = "";
         return true;
       }
@@ -74,17 +78,17 @@ namespace SysCAD.Interface
       MemoryStream memoryStream;
       System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-      projectList = remoteConfig.projectList;
+      protectedProjectList = remoteConfig.ProjectList;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteConfig.modelStencils);
+      bf.Serialize(memoryStream, remoteConfig.ModelStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      modelStencils = bf.Deserialize(memoryStream) as Dictionary<string, ModelStencil>;
+      protectedModelStencils = bf.Deserialize(memoryStream) as Dictionary<string, ModelStencil>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, remoteConfig.graphicStencils);
+      bf.Serialize(memoryStream, remoteConfig.GraphicStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicStencils = bf.Deserialize(memoryStream) as Dictionary<string, GraphicStencil>;
+      protectedGraphicStencils = bf.Deserialize(memoryStream) as Dictionary<string, GraphicStencil>;
     }
 
   }

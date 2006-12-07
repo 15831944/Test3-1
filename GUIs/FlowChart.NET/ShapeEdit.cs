@@ -34,7 +34,7 @@ namespace MindFusion.FlowChartX.Design
 
 			// Populate the list box with the available shapes
 			foreach (ShapeTemplate shape in ShapeTemplate.Shapes)
-				_list.Items.Add(shape.Id);
+				_list.Items.Add(shape.ID);
 		}
 
 		/// <summary> 

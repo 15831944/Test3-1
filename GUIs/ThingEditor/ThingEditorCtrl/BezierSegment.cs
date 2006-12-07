@@ -4,7 +4,7 @@ using System.IO;
 using System.Collections;
 using SysCAD.Interface;
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
 	/// <summary>
 	/// 
@@ -16,7 +16,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         private int Index;
         private bool pointedBezier;
 
-        public bool isDecorationSegment;
+        private bool isDecorationSegment;
         
 // Constructor
         public BezierSegment(): base()
@@ -35,19 +35,31 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         }
 
 // end Constructor
-        public PointF start
+      public bool IsDecorationSegment
         {
-            get
-            {
-                return points[0];
-            }
-            set
-            {
-                points[0] = value; 
-            }
+          get
+          {
+            return isDecorationSegment;
+          }
+          set
+          {
+            isDecorationSegment = value;
+          }
         }
 
-        public PointF end
+        public PointF Start
+        {
+          get
+          {
+            return points[0];
+          }
+          set
+          {
+            points[0] = value;
+          }
+        }
+
+        public PointF End
         {
             get
             {
@@ -73,12 +85,12 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override PointF GetStartPoint()
         {
-            return start;
+            return Start;
         }
         
         internal override PointF GetEndPoint()
         {
-            return end;
+            return End;
         }
 
         internal override bool hitTest(PointF p)
@@ -276,24 +288,24 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override void setEndPoint(PointF p)
         {
-            end = p;
+            End = p;
         }
 
         internal override void setStartPoint(PointF p)
         {
-            start = p;
+            Start = p;
         }
 
         internal override string saveNameAsText()
         {
-            int points0X = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, points[0].X);
-            int points0Y = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, points[0].Y);
-            int points1X = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, points[1].X);
-            int points1Y = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, points[1].Y);
-            int points2X = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, points[2].X);
-            int points2Y = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, points[2].Y);
-            int points3X = (int)getPercent(ThingEditor.MinX, ThingEditor.MaxX, points[3].X);
-            int points3Y = (int)getPercent(ThingEditor.MinY, ThingEditor.MaxY, points[3].Y);
+            int points0X = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, points[0].X);
+            int points0Y = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, points[0].Y);
+            int points1X = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, points[1].X);
+            int points1Y = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, points[1].Y);
+            int points2X = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, points[2].X);
+            int points2Y = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, points[2].Y);
+            int points3X = (int)getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, points[3].X);
+            int points3Y = (int)getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, points[3].Y);
 
             return "            new BezierTemplate(" + (points0X).ToString() + ", " + 
                                                        (points0Y).ToString() + ", " +
@@ -319,14 +331,14 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
         internal override void Save(System.IO.BinaryWriter bw)
         {
-            bw.Write(start.X);
-            bw.Write(start.Y);
+            bw.Write(Start.X);
+            bw.Write(Start.Y);
             bw.Write(points[1].X);
             bw.Write(points[1].Y);
             bw.Write(points[2].X);
             bw.Write(points[2].Y);
-            bw.Write(end.X);
-            bw.Write(end.Y);
+            bw.Write(End.X);
+            bw.Write(End.Y);
         }
 
       internal override float getPercent(float Min, float Max, float Coord)

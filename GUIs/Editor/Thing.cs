@@ -63,17 +63,18 @@ namespace SysCAD.Editor
     public Thing(Guid guid, String tag, Box box, bool visible, GraphicThing graphicThing)
     {
       this.guid = guid;
+      this.tag = tag;
       this.box = box;
       this.visible = visible;
       this.graphicThing = graphicThing;
     }
 
-    internal void Remove(FlowChart flowChart)
-    {
-      if (box != null)
-        flowChart.DeleteObject(box);
-      if (Node != null)
-        Node.Remove();
-    }
+    //internal void Remove(FlowChart flowChart)
+    //{
+    //  if (box != null)
+    //    flowChart.DeleteObject(box);
+    //  if (Node != null)
+    //    Node.Remove();
+    //}
   }
 }

@@ -100,12 +100,34 @@ ref class CNETServerThread
       for (int i=0; i<dirs->GetLength(0); i++)
         {
         String ^ fullpath = dirs[i];
+
+                    ////Create dummy graphicstencil for comparison...
+                    //{
+                    //  ModelStencil^ modelStencil = gcnew ModelStencil();
+                    //  modelStencil->Tag = "";
+                    //  modelStencil->GroupName = "Control";
+                    //  ArrayList^ elements = gcnew ArrayList();
+                    //  SysCAD::Interface::Arc^ arc = gcnew SysCAD::Interface::Arc(0, 0, 100, 100, 10, 360);
+                    //  elements->Add(arc);
+                    //  modelStencil->Elements = elements;
+
+                    //  modelStencil->Decorations = gcnew ArrayList();
+                    //  modelStencil->Anchors = gcnew ArrayList();
+                    //  modelStencil->FillMode = System::Drawing::Drawing2D::FillMode::Alternate;
+
+                    //  SoapFormatter^ sf = gcnew SoapFormatter();
+                    //  StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
+                    //  Stream^ stream = streamWriter->BaseStream;
+                    //  sf->Serialize(stream, modelStencil);
+                    //  stream->Close();
+                    //}
+
         SoapFormatter ^ sf = gcnew SoapFormatter;
         StreamReader ^ streamRdr = gcnew StreamReader(fullpath);
         Stream ^ stream = streamRdr->BaseStream;
         ModelStencil ^ modelStencil = (ModelStencil^)sf->Deserialize(stream);
         modelStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
-        m_Config->modelStencils->Add(Path::GetFileNameWithoutExtension(fullpath), modelStencil);
+        m_Config->ModelStencils->Add(Path::GetFileNameWithoutExtension(fullpath), modelStencil);
         stream->Close();
         //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
@@ -119,35 +141,33 @@ ref class CNETServerThread
       for (int i=0; i<dirs->GetLength(0); i++)
         {
         String ^ fullpath = dirs[i];
+
+                    ////Create dummy graphicstencil for comparison...
+                    //{
+                    //  GraphicStencil^ graphicStencil = gcnew GraphicStencil();
+                    //  graphicStencil->Tag = "";
+                    //  ArrayList^ elements = gcnew ArrayList();
+                    //  SysCAD::Interface::Arc^ arc = gcnew SysCAD::Interface::Arc(0, 0, 100, 100, 10, 360);
+                    //  elements->Add(arc);
+                    //  graphicStencil->Elements = elements;
+
+                    //  graphicStencil->Decorations = gcnew ArrayList();
+
+                    //  SoapFormatter^ sf = gcnew SoapFormatter();
+                    //  StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
+                    //  Stream^ stream = streamWriter->BaseStream;
+                    //  sf->Serialize(stream, graphicStencil);
+                    //  stream->Close();
+                    //}
+
         SoapFormatter ^ sf = gcnew SoapFormatter;
         Stream ^ stream = (gcnew StreamReader(fullpath))->BaseStream;
-        //Stream ^ stream = (gcnew StreamReader(fullpath))->BaseStream;
-
-        GraphicStencil ^ graphicStencil;
-
-        try
-          {
-          graphicStencil = (GraphicStencil^)sf->Deserialize(stream);
-          }
-        catch(...)
-          {
-          stream->Close();
-          sf = gcnew SoapFormatter();
-          stream = (gcnew StreamReader(fullpath))->BaseStream;
-          graphicStencil = gcnew GraphicStencil();
-
-          OldGraphicStencil^ oldGraphicStencil = (OldGraphicStencil^)sf->Deserialize(stream);
-          graphicStencil->elements = oldGraphicStencil->elements;
-          graphicStencil->decorations = oldGraphicStencil->decorations;
-          graphicStencil->defaultSize = oldGraphicStencil->defaultSize;
-          graphicStencil->groupName = oldGraphicStencil->groupName;
-          graphicStencil->textArea = RectangleF(0.0F, graphicStencil->defaultSize.Height * 1.1F, graphicStencil->defaultSize.Width, 5);
-          }
+        GraphicStencil ^ graphicStencil = (GraphicStencil^)sf->Deserialize(stream);
         stream->Close();
 
 
         graphicStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
-        m_Config->graphicStencils->Add(Path::GetFileNameWithoutExtension(fullpath), graphicStencil);
+        m_Config->GraphicStencils->Add(Path::GetFileNameWithoutExtension(fullpath), graphicStencil);
         //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         }
@@ -158,14 +178,14 @@ ref class CNETServerThread
       RemotingServices::Marshal(m_Config, "Global");
       }
 
-    bool CreateItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    bool CreateItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an item.
         { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        graphic->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        graphic->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -175,14 +195,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyItem(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    bool ModifyItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an item.
         { // We're going to do it.
         // Modify the item.
 
         // Raise event(s).
-       graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+       graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -192,7 +212,7 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteItem(ServiceGraphic^ graphic, uint requestID, Guid guid)
+    bool DeleteItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an item.
         { // We're going to do it.
@@ -209,7 +229,7 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool CreateLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to create an link.
         { // We're going to do it.
@@ -226,7 +246,7 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyLink(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool ModifyLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to modify an link.
         { // We're going to do it.
@@ -243,7 +263,7 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteLink(ServiceGraphic^ graphic, uint requestID, Guid guid)
+    bool DeleteLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an link.
         { // We're going to do it.
@@ -260,14 +280,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateThing(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    bool CreateThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an Thing.
         { // We're going to do it.
         // Create the Thing.
 
         // Raise event(s).
-        graphic->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        graphic->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -277,14 +297,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyThing(ServiceGraphic^ graphic, uint requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    bool ModifyThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an Thing.
         { // We're going to do it.
         // Modify the Thing.
 
         // Raise event(s).
-       graphic->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+       graphic->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -294,7 +314,7 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteThing(ServiceGraphic^ graphic, uint requestID, Guid guid)
+    bool DeleteThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an Thing.
         { // We're going to do it.
@@ -494,7 +514,7 @@ ref class CNETServerThread
           for (int i=0; i<Pts.GetCount(); i++)
             ControlPoints->Add(PointF(Pts[i].m_X + offset.X, -Pts[i].m_Y + offset.Y));
 
-          graphicLink->Populate(filename, gcnew String(pLink->m_pGrf->m_Page), 
+          graphicLink->Populate(//filename, gcnew String(pLink->m_pGrf->m_Page), 
             gcnew String(pLink->m_Guid), gcnew String(pLink->m_ClassID), 
             gcnew String(pLink->m_SrcGuid), gcnew String(pLink->m_DstGuid),
             gcnew String(pLink->m_SrcPort), gcnew String(pLink->m_DstPort),
@@ -507,7 +527,7 @@ ref class CNETServerThread
       }
 
       RemotingServices::Marshal(graphic, filename);
-      m_Config->projectList->Add(filename);
+      m_Config->ProjectList->Add(filename);
       LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
       };
 

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 
 namespace SysCAD.Interface
 {
@@ -20,9 +21,10 @@ namespace SysCAD.Interface
     private Shape shape;
     private RectangleF boundingRect;
     private float angle;
-    private bool mirrorX = false;
-    private bool mirrorY = false;
+    private bool mirrorX;
+    private bool mirrorY;
     private System.Drawing.Color fillColor;
+    private FillMode fillMode;
 
     public Dictionary<String, int> anchorTagToInt = new Dictionary<string,int>();
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int,string>();
@@ -140,6 +142,15 @@ namespace SysCAD.Interface
     }
 
     [CategoryAttribute("Graphic"),
+     DescriptionAttribute("Color of fill."),
+     DisplayName("Fill Color")]
+    public FillMode FillMode
+    {
+      get { return fillMode; }
+      set { fillMode = value; }
+    }
+
+    [CategoryAttribute("Graphic"),
      DescriptionAttribute("Whether the item is flipped horizontally."),
      DisplayName("Mirror X")]
     public bool MirrorX
@@ -219,12 +230,12 @@ namespace SysCAD.Interface
       itemReader.Close();
     }
 
-    public void Populate(String filename, String Page, String EqpGUID, String ClassID, float InsertX, float InsertY, float ScaleX, float ScaleY, float Rotation)
+    public void Populate(String filename, String page, String guid, String classId, float insertX, float insertY, float scaleX, float scaleY, float rotation   )
     {
-      path = "/" + filename + "/" + Page + "/";
-      model = ClassID;
-      shape = ClassID;
-      guid = new Guid(EqpGUID);
+      path = "/" + filename + "/" + page + "/";
+      model = classId;
+      shape = classId;
+      this.guid = new Guid(guid);
 
       float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
       if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
@@ -240,8 +251,8 @@ namespace SysCAD.Interface
       if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
       if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
-      boundingRect.Width = ScaleX * 30.0F * sx;
-      boundingRect.Height = ScaleY * 30.0F * sy;
+      boundingRect.Width = scaleX * 30.0F * sx;
+      boundingRect.Height = scaleY * 30.0F * sy;
 
       if (boundingRect.Width < 0.0F)
       {
@@ -255,18 +266,18 @@ namespace SysCAD.Interface
         boundingRect.Height = -boundingRect.Height;
       }
 
-      boundingRect.X = InsertX - boundingRect.Width / 2.0F + dx;
-      boundingRect.Y = -InsertY - boundingRect.Height / 2.0F + dy;
-      angle = Rotation;
+      boundingRect.X = insertX - boundingRect.Width / 2.0F + dx;
+      boundingRect.Y = -insertY - boundingRect.Height / 2.0F + dy;
+      angle = rotation;
 
     }
 
-    public void Populate(String filename, String Page, String EqpGUID, String ClassID, RectangleF rectangle, float Rotation)
+    public void Populate(String filename, String page, String guid, String classId, RectangleF rectangle, float rotation)
     {
-      path = "/" + filename + "/" + Page + "/";
-      model = ClassID;
-      shape = ClassID;
-      guid = new Guid(EqpGUID);
+      path = "/" + filename + "/" + page + "/";
+      model = classId;
+      shape = classId;
+      this.guid = new Guid(guid);
 
       boundingRect = rectangle;
 
@@ -282,7 +293,7 @@ namespace SysCAD.Interface
         boundingRect.Height = -boundingRect.Height;
       }
 
-      angle = Rotation;
+      angle = rotation;
     }
   }
 }

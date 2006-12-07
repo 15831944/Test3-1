@@ -13,6 +13,8 @@ using System.Windows.Forms;
 using ActiproSoftware.UIStudio.Bar;
 using MindFusion.FlowChartX.LayoutSystem;
 using System.Drawing.Drawing2D;
+using System.Collections;
+using System.Globalization;
 
 namespace SysCAD.Editor
 {
@@ -23,16 +25,16 @@ namespace SysCAD.Editor
     public string currentModel;
     public string currentStencil;
 
-    public Arrow arrowBeingModified = null;
+    public Arrow arrowBeingModified;
     public int arrowBeingModifiedSelectionHandle = -1;
 
-    private int tempBoxKey = 0;
-    private int tempArrowKey = 0;
+    private int tempBoxKey;
+    private int tempArrowKey;
 
     private Form1 form1;
 
-    private Anchor originAnchorChosen = null;
-    private Anchor destinationAnchorChosen = null;
+    private Anchor originAnchorChosen;
+    private Anchor destinationAnchorChosen;
 
 
     public FrmFlowChart(Form1 form1)
@@ -66,7 +68,7 @@ namespace SysCAD.Editor
     {
       state.Graphic = graphic;
       state.Config = config;
-      state.TvNavigation = tvNavigation;
+      state.TVNavigation = tvNavigation;
 
       state.ConnectGraphic(
         new ClientGraphic.ItemCreatedHandler(fcFlowChart_ItemCreated), 
@@ -170,10 +172,10 @@ namespace SysCAD.Editor
       else
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
-      setSizes();
+      SetSizes();
     }
 
-    public void setSizes()
+    public void SetSizes()
     {
       float zoomFactor = fcFlowChart.ZoomFactor;
 
@@ -286,13 +288,13 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
     }
 
-    private void fcFlowChart_ItemCreated(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       state.AddNode(path, tag, guid);
       state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
     }
 
-    private void fcFlowChart_ItemModified(uint eventID, uint requestID, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Item item = state.Item(guid);
       if (item != null)
@@ -302,11 +304,11 @@ namespace SysCAD.Editor
 
         ModelStencil modelShape = state.ModelShape(model);
         if (modelShape != null)
-          item.Model.Shape = state.GetShapeTemplate(modelShape, mirrorX, mirrorY);
+          item.Model.Shape = State.GetShapeTemplate(modelShape, mirrorX, mirrorY);
         else
           item.Model.Shape = ShapeTemplate.FromId("Decision2");
 
-        item.Model.AnchorPattern = state.GetAnchorPattern(modelShape, item.GraphicItem);
+        item.Model.AnchorPattern = State.GetAnchorPattern(modelShape, item.GraphicItem);
 
         item.Graphic.BoundingRect = boundingRect;
         item.Graphic.RotationAngle = angle;
@@ -316,32 +318,32 @@ namespace SysCAD.Editor
         {
           GraphicStencil graphicShape = state.GraphicShape(shape);
           if (graphicShape != null)
-            item.Graphic.Shape = state.GetShapeTemplate(graphicShape, mirrorX, mirrorY);
+            item.Graphic.Shape = State.GetShapeTemplate(graphicShape, mirrorX, mirrorY);
           else
             item.Graphic.Shape = ShapeTemplate.FromId("Decision2");
         }
       }
     }
 
-    private void fcFlowChart_ItemDeleted(uint eventID, uint requestID, Guid guid)
+    private void fcFlowChart_ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       state.DeleteItem(guid);
     }
 
 
 
-    private void fcFlowChart_LinkCreated(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       state.CreateLink(state.GraphicLink(guid), true, fcFlowChart);
     }
 
-    private void fcFlowChart_LinkModified(uint eventID, uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       Link link = state.Link(guid);
       if (link != null)
       {
         GraphicLink graphicLink = link.graphicLink;
-        graphicLink.ClassID = classID;
+        graphicLink.ClassID = classId;
         graphicLink.Origin = origin;
         graphicLink.Destination = destination;
         graphicLink.OriginPort = originPort;
@@ -383,23 +385,23 @@ namespace SysCAD.Editor
 
         if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
         {
-          state.SetControlPoints(arrow, graphicLink.controlPoints);
+          State.SetControlPoints(arrow, graphicLink.controlPoints);
         }
       }
     }
 
-    private void fcFlowChart_LinkDeleted(uint eventID, uint requestID, Guid guid)
+    private void fcFlowChart_LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       // TBD
     }
 
-    private void fcFlowChart_ThingCreated(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       state.AddNode(path, tag, guid);
       state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
     }
 
-    private void fcFlowChart_ThingModified(uint eventID, uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Thing thing = state.Thing(guid);
       if (thing != null)
@@ -410,7 +412,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_ThingDeleted(uint eventID, uint requestID, Guid guid)
+    private void fcFlowChart_ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       state.DeleteThing(guid);
     }
@@ -424,8 +426,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ArrowModified(object sender, ArrowMouseArgs e)
     {
-      List<PointF> tempOldControlPoints = new List<PointF>(oldControlPoints);
-
       {
         int i = 2;
         while ((oldControlPoints.Count > 3) && (i < oldControlPoints.Count - 1))
@@ -494,7 +494,7 @@ namespace SysCAD.Editor
         e.Arrow.DestAnchor = newDestinationAnchor;
       }
 
-      state.SetControlPoints(e.Arrow, oldControlPoints);
+      State.SetControlPoints(e.Arrow, oldControlPoints);
 
       Item originItem = e.Arrow.Origin.Tag as Item;
       Item destinationItem = e.Arrow.Destination.Tag as Item;
@@ -523,8 +523,8 @@ namespace SysCAD.Editor
       if (destinationGraphicItem != null)
         destinationGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.DestAnchor, out destinationAnchor);
 
-      uint requestID;
-      if (!state.ModifyGraphicLink(out requestID,
+      Int64 requestId;
+      if (!state.ModifyGraphicLink(out requestId,
         graphicLink.Guid,
         graphicLink.Tag,
         graphicLink.ClassID,
@@ -555,26 +555,26 @@ namespace SysCAD.Editor
     }
 
     Guid oldOriginGuid = Guid.Empty;
-    Box oldOriginBox = null;
+    Box oldOriginBox;
     int oldOriginAnchor = -1;
 
     Guid oldDestinationGuid = Guid.Empty;
-    Box oldDestinationBox = null;
+    Box oldDestinationBox;
     int oldDestinationAnchor = -1;
 
     Guid newOriginGuid = Guid.Empty;
-    Box newOriginBox = null;
+    Box newOriginBox;
     int newOriginAnchor = -1;
 
     Guid newDestinationGuid = Guid.Empty;
-    Box newDestinationBox = null;
+    Box newDestinationBox;
     int newDestinationAnchor = -1;
 
     List<PointF> oldControlPoints = new List<PointF>();
 
     private void fcFlowChart_ArrowModifying(object sender, ArrowConfirmArgs e)
     {
-      form1.Mode_Modify();
+      form1.ModeModify();
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
         DoModifyingStuff(e.Arrow, e.SelectionHandle);
@@ -712,11 +712,11 @@ namespace SysCAD.Editor
       fcFlowChart.RecreateCacheImage();
     }
 
-    private Arrow oldHoverArrow = null;
-    private Box oldHoverBox = null;
+    private Arrow oldHoverArrow;
+    private Box oldHoverBox;
 
-    private Arrow hoverArrow = null;
-    private Box hoverBox = null;
+    private Arrow hoverArrow;
+    private Box hoverBox;
 
     private void fcFlowChart_MouseMove(object sender, MouseEventArgs e)
     {
@@ -731,7 +731,7 @@ namespace SysCAD.Editor
         if ((hoverBox != null) || (hoverArrow != null)) // we're not in free space...
         {
           if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
-            form1.Mode_Modify();
+            form1.ModeModify();
         }
       }
 
@@ -964,8 +964,8 @@ namespace SysCAD.Editor
                 if (state.PortCheck((originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
-                    originAnchorChosen.position.X,
-                    originAnchorChosen.position.Y,
+                    originAnchorChosen.Position.X,
+                    originAnchorChosen.Position.Y,
                     originBox.RotationAngle);
 
                   PointF[] extensionPoints =
@@ -1014,8 +1014,8 @@ namespace SysCAD.Editor
                 if (state.PortCheck((destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
-                    destinationAnchorChosen.position.X,
-                    destinationAnchorChosen.position.Y,
+                    destinationAnchorChosen.Position.X,
+                    destinationAnchorChosen.Position.Y,
                     destinationBox.RotationAngle);
 
                   PointF[] extensionPoints =
@@ -1036,7 +1036,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private float Distance(PointF a, PointF b)
+    static private float Distance(PointF a, PointF b)
     {
       return (float)Math.Sqrt(((a.X - b.X) * (a.X - b.X)) + ((a.Y - b.Y) * (a.Y - b.Y)));
     }
@@ -1051,9 +1051,12 @@ namespace SysCAD.Editor
         {
           {
             MindFusion.FlowChartX.Node node = arrow.Destination;
-            if ((node is Box) && (arrow.DestAnchor != -1))
+            Box box = null;
+            if (node != null) 
+              box = node as Box;
+
+            if ((box != null) && (arrow.DestAnchor != -1))
             {
-              Box box = node as Box;
 
               PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
                 box.AnchorPattern.Points[arrow.DestAnchor].X,
@@ -1067,30 +1070,32 @@ namespace SysCAD.Editor
               e.Graphics.DrawLines(pen, extensionPoints);
 
               pen = new System.Drawing.Pen(Color.Green, 0.0F);
-              RectangleF r = new RectangleF(anchorPointPos, SizeF.Empty);
-              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
-              e.Graphics.DrawEllipse(pen, r);
+              RectangleF anchorPointRect = new RectangleF(anchorPointPos, SizeF.Empty);
+              anchorPointRect.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
+              e.Graphics.DrawEllipse(pen, anchorPointRect);
             }
             else
             {
               Color errorColor = new Color();
-              if (node is Box) errorColor = Color.Yellow;
+              if (box != null) errorColor = Color.Yellow;
               else errorColor = Color.Red;
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
-              PointF p = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
-              RectangleF r = new RectangleF(p, SizeF.Empty);
-              r.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
-              e.Graphics.DrawEllipse(pen, r);
+              PointF controlPoint = arrow.ControlPoints[arrow.ControlPoints.Count - 1];
+              RectangleF controlPointRect = new RectangleF(controlPoint, SizeF.Empty);
+              controlPointRect.Inflate(fcFlowChart.SelHandleSize, fcFlowChart.SelHandleSize);
+              e.Graphics.DrawEllipse(pen, controlPointRect);
             }
           }
 
           {
             MindFusion.FlowChartX.Node node = arrow.Origin;
-            if ((node is Box) && (arrow.OrgnAnchor != -1))
-            {
-              Box box = node as Box;
+            Box box = null;
+            if (node != null)
+              box = node as Box;
 
+            if ((box != null) && (arrow.OrgnAnchor != -1))
+            {
               PointF anchorPointPos = GetRelativeAnchorPosition(box.BoundingRect,
                 box.AnchorPattern.Points[arrow.OrgnAnchor].X,
                 box.AnchorPattern.Points[arrow.OrgnAnchor].Y,
@@ -1110,7 +1115,7 @@ namespace SysCAD.Editor
             else
             {
               Color errorColor = new Color();
-              if (node is Box) errorColor = Color.Yellow;
+              if (box != null) errorColor = Color.Yellow;
               else errorColor = Color.Red;
 
               System.Drawing.Pen pen = new System.Drawing.Pen(errorColor, fcFlowChart.SelHandleSize);
@@ -1203,7 +1208,7 @@ namespace SysCAD.Editor
       return new PointF(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
     }
 
-    private PointF GetRelativeAnchorPosition(RectangleF nodeRect, float x, float y, float angle)
+    static private PointF GetRelativeAnchorPosition(RectangleF nodeRect, float x, float y, float angle)
     {
       PointF point = new PointF(nodeRect.X + nodeRect.Width * x / 100, nodeRect.Y + nodeRect.Height * y / 100);
 
@@ -1215,15 +1220,15 @@ namespace SysCAD.Editor
       return point; 
     }
 
-    private void fcFlowChart_BoxModified(object sender, BoxMouseArgs e)
+    private void fcFlowChartBoxModified(object sender, BoxMouseArgs e)
     {
       if (e.Box.Tag is Item)
       {
         GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
         Box modelBox = (e.Box.Tag as Item).Model;
 
-        uint requestID;
-        if (!state.ModifyGraphicItem(out requestID,
+        Int64 requestId;
+        if (!state.ModifyGraphicItem(out requestId,
           graphicItem.Guid,
           graphicItem.Tag,
           graphicItem.Path,
@@ -1232,6 +1237,7 @@ namespace SysCAD.Editor
           modelBox.BoundingRect, // this is the new boundingbox from the user move.
           modelBox.RotationAngle, // this is the new rotationangle from the user move.
           graphicItem.FillColor,
+          graphicItem.FillMode,
           graphicItem.MirrorX,
           graphicItem.MirrorY))
         { // failure, revert back to previous.
@@ -1244,18 +1250,18 @@ namespace SysCAD.Editor
         GraphicThing graphicThing = state.GraphicThing((e.Box.Tag as Thing).Guid);
         Box box = (e.Box.Tag as Thing).Box;
 
-        uint requestID;
-        if (!state.ModifyGraphicThing(out requestID,
+        Int64 requestId;
+        if (!state.ModifyGraphicThing(out requestId,
             graphicThing.Guid,
             graphicThing.Tag,
             graphicThing.Path,
             graphicThing.BoundingRect,
             graphicThing.Angle,
             graphicThing.FillColor,
-            graphicThing.elements,
-            graphicThing.decorations,
-            graphicThing.textArea,
-            graphicThing.fillMode,
+            graphicThing.Elements,
+            graphicThing.Decorations,
+            graphicThing.TextArea,
+            graphicThing.FillMode,
             graphicThing.MirrorX,
             graphicThing.MirrorY))
         {
@@ -1275,7 +1281,7 @@ namespace SysCAD.Editor
       form1.propertyGrid1.ContextMenu = propertyGridMenu;
     }
 
-    private void fcFlowChart_BoxModifying(object sender, BoxConfirmArgs e)
+    private void fcFlowChartBoxModifying(object sender, BoxConfirmArgs e)
     {
       if (e.Box.Tag is Item)
       {
@@ -1287,23 +1293,24 @@ namespace SysCAD.Editor
 
     public void NewGraphicItem(GraphicItem graphicItem, string path)
     {
-      NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+      if (graphicItem != null)
+        NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
     }
 
-    public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
+    public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      uint requestID;
+      Int64 requestId;
       Guid guid;
 
-      while (state.Exists("N_" + tempBoxKey.ToString()))
+      while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
       
-      state.CreateGraphicItem(out requestID, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      state.CreateGraphicItem(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public GraphicLink NewGraphicLink(GraphicLink graphicLink, float dx, float dy)
     {
-      while (state.Exists("A_" + tempBoxKey.ToString()))
+      while (state.Exists("A_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
 
       GraphicLink newGraphicLink = new GraphicLink("A_" + tempBoxKey.ToString());
@@ -1322,18 +1329,19 @@ namespace SysCAD.Editor
 
     public void NewGraphicThing(GraphicThing graphicThing, string path)
     {
-      NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Angle, graphicThing.FillColor, graphicThing.MirrorX, graphicThing.MirrorY);
+      if (graphicThing != null)
+        NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Angle, graphicThing.FillColor, graphicThing.Elements, graphicThing.Decorations, graphicThing.TextArea, graphicThing.FillMode, graphicThing.MirrorX, graphicThing.MirrorY);
     }
 
-    public void NewGraphicThing(String path, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
+    public void NewGraphicThing(String path, RectangleF boundingRect, Single angle, Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      uint requestID;
+      Int64 requestId;
       Guid guid;
 
-      while (state.Exists("N_" + tempBoxKey.ToString()))
+      while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
 
-      state.CreateGraphicThing(out requestID, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, angle, fillColor, mirrorX, mirrorY);
+      state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
@@ -1355,13 +1363,14 @@ namespace SysCAD.Editor
               new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
               0.0F,
               Color.LightBlue,
+              FillMode.Alternate,
               false,
               false
               );
           }
           else
           {
-            form1.Mode_Modify();
+            form1.ModeModify();
           }
         }
       }
@@ -1376,14 +1385,14 @@ namespace SysCAD.Editor
             theMenu.MenuItems.Add("Route Links", new EventHandler(RouteLinks));
             theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseItemToTop));
             theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendItemToBottom));
-            form1.Mode_Modify();
+            form1.ModeModify();
           }
           else if (hoverBox.Tag is Thing)
           {
             theMenu.MenuItems.Add("Edit Thing", new EventHandler(EditThing));
             theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseThingToTop));
             theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendThingToBottom));
-            form1.Mode_Modify();
+            form1.ModeModify();
           }
         }
         else if (hoverArrow != null)
@@ -1391,7 +1400,7 @@ namespace SysCAD.Editor
           theMenu.MenuItems.Add("Route Link", new EventHandler(RouteLink));
           theMenu.MenuItems.Add("Disconnect Origin", new EventHandler(DisconnectOrigin));
           theMenu.MenuItems.Add("Disconnect Destination", new EventHandler(DisconnectDestination));
-          form1.Mode_Modify();
+          form1.ModeModify();
         }
 
         theMenu.MenuItems.Add("Layout Flowchart (!!Broken in an interesting way in latest release!!)", new EventHandler(LayoutFlowchart));
@@ -1431,22 +1440,22 @@ namespace SysCAD.Editor
       thingEditor.ShowDialog();
       graphicThing = thingEditor.graphicThing;
 
-      uint requestID;
-      if (state.ModifyGraphicThing(out requestID,
+      Int64 requestId;
+      if (state.ModifyGraphicThing(out requestId,
         graphicThing.Guid,
         graphicThing.Tag,
         graphicThing.Path,
         graphicThing.BoundingRect,
         graphicThing.Angle,
         graphicThing.FillColor,
-        graphicThing.elements,
-        graphicThing.decorations,
-        graphicThing.textArea,
-        graphicThing.fillMode,
+        graphicThing.Elements,
+        graphicThing.Decorations,
+        graphicThing.TextArea,
+        graphicThing.FillMode,
         graphicThing.MirrorX,
         graphicThing.MirrorY))
       {
-        hoverBox.Shape = state.GetShapeTemplate(graphicThing);
+        hoverBox.Shape = State.GetShapeTemplate(graphicThing);
       }
       
 
@@ -1490,7 +1499,7 @@ namespace SysCAD.Editor
         GraphicItem originGraphicItem = originItem.GraphicItem;
         GraphicItem destinationGraphicItem = destinationItem.GraphicItem;
 
-        uint requestID;
+        Int64 requestId;
 
         string originPort = "";
         string destinationPort = "";
@@ -1501,7 +1510,7 @@ namespace SysCAD.Editor
         if (arrow.DestAnchor != -1)
           destinationPort = destinationGraphicItem.anchorIntToTag[arrow.DestAnchor];
 
-        if (!state.ModifyGraphicLink(out requestID,
+        if (!state.ModifyGraphicLink(out requestId,
           graphicLink.Guid,
           graphicLink.Tag,
           graphicLink.ClassID,
@@ -1545,7 +1554,7 @@ namespace SysCAD.Editor
       hoverArrow.OrgnAnchor = -1;
       hoverArrow.Origin = fcFlowChart.Dummy;
 
-      state.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
     }
 
     private void DisconnectDestination(object sender, EventArgs e)
@@ -1553,7 +1562,7 @@ namespace SysCAD.Editor
       hoverArrow.DestAnchor = -1;
       hoverArrow.Destination = fcFlowChart.Dummy;
 
-      state.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
@@ -1571,11 +1580,9 @@ namespace SysCAD.Editor
     private void fcFlowChart_ArrowCreated(object sender, ArrowEventArgs e)
     {
       tempArrowKey++;
-      string newLinkTag = "A_" + tempArrowKey.ToString();
+      string newLinkTag = "A_" + tempArrowKey.ToString(CultureInfo.InvariantCulture);
       e.Arrow.Text = newLinkTag;
 
-      Box destinationBox = e.Arrow.Destination as Box;
-      Box originBox = e.Arrow.Origin as Box;
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);
 
       newGraphicLink.ClassID = "Pipe-1";

@@ -5,7 +5,7 @@ using System.IO;
 using System.Drawing.Drawing2D;
 using SysCAD.Interface;
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
   /// <summary>
   /// 
@@ -60,7 +60,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
             bezierSegment.points[1] = new PointF(bezier.x2 * 3.0F + 10.0F, bezier.y2 * 3.0F + 10.0F);
             bezierSegment.points[2] = new PointF(bezier.x3 * 3.0F + 10.0F, bezier.y3 * 3.0F + 10.0F);
             bezierSegment.points[3] = new PointF(bezier.x4 * 3.0F + 10.0F, bezier.y4 * 3.0F + 10.0F);
-            shapeSegments.Add(belongSegment);
+            shapeSegments.Add(BelongSegment);
           }
         }
       }
@@ -123,10 +123,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         Segment s = (Segment)shapeSegments[i];
 
         if (s is LineSegment)
-          graphPath.AddLine((s as LineSegment).start.X,
-                            (s as LineSegment).start.Y,
-                            (s as LineSegment).end.X,
-                            (s as LineSegment).end.Y);
+          graphPath.AddLine((s as LineSegment).Start.X,
+                            (s as LineSegment).Start.Y,
+                            (s as LineSegment).End.X,
+                            (s as LineSegment).End.Y);
 
         if (s is BezierSegment)
           graphPath.AddBezier(

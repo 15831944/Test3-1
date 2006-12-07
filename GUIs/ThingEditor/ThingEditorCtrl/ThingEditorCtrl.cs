@@ -13,21 +13,21 @@ using System.Security.Permissions;
 
 
 [assembly: CLSCompliant(true)]
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
   /// <summary>
   /// Summary description for ThingEditorCtrl.
   /// </summary>
   /// 
-  public delegate void ShapeChanged(object sender, EventArgs e);
+  public delegate void ShapeChangeEventHandler(object sender, EventArgs e);
 
-  public class ThingEditor : System.Windows.Forms.Control
+  public class ThingEditorCtrl : System.Windows.Forms.Control
   {
     #region Declarations
 
-    public GraphicThing graphicThing;
+    private GraphicThing graphicThing;
 
-    public event ShapeChanged ShapeChanged;
+    public event ShapeChangeEventHandler ShapeChanged;
 
     public static float MinX;
     public static float MinY;
@@ -96,7 +96,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     #region Constructors
 
-    public ThingEditor(GraphicThing graphicThing)
+    public ThingEditorCtrl(GraphicThing graphicThing)
     {
       this.graphicThing = graphicThing;
 
@@ -126,24 +126,24 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       {
         outLines = new ArrayList();
 
-        if (graphicThing.elements.Count > 0)
+        if (graphicThing.Elements.Count > 0)
         {
-          Contour elements = new Contour(graphicThing.FrameColor, graphicThing.elements);
+          Contour elements = new Contour(graphicThing.FrameColor, graphicThing.Elements);
           outLines.Add(elements);
-          elements.Changed += new OutlineChanged(onContourChanged);
+          elements.Changed += new OutlineChangeEventHandler(onContourChanged);
         }
         else
         {
           outLines = new ArrayList();
           Contour contour = new Contour(mainContourColor, gridSize);
           outLines.Add(contour);
-          contour.Changed += new OutlineChanged(onContourChanged);
+          contour.Changed += new OutlineChangeEventHandler(onContourChanged);
         }
 
-        if (graphicThing.decorations.Count > 0)
+        if (graphicThing.Decorations.Count > 0)
         {
           PolyLine polyLine = null;
-          foreach (Element element in graphicThing.decorations)
+          foreach (Element element in graphicThing.Decorations)
           {
             if (element is Line)
             {
@@ -156,7 +156,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
                 if (!polyLine.Add(element as Line)) // couldn't add because ends don't connect, start a new one.
                 {
                   outLines.Add(polyLine);
-                  polyLine.Changed += new OutlineChanged(onContourChanged);
+                  polyLine.Changed += new OutlineChangeEventHandler(onContourChanged);
                   polyLine = new PolyLine(element as Line);
                 }
               }
@@ -165,15 +165,15 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
           if (polyLine != null)
           {
             outLines.Add(polyLine);
-            polyLine.Changed += new OutlineChanged(onContourChanged);
+            polyLine.Changed += new OutlineChangeEventHandler(onContourChanged);
           }
         }
 
-        if (graphicThing.textArea.Count > 0)
+        if (graphicThing.TextArea.Count > 0)
         {
-          Contour textArea = new Contour(graphicThing.FrameColor, graphicThing.textArea);
+          Contour textArea = new Contour(graphicThing.FrameColor, graphicThing.TextArea);
           outLines.Add(textArea);
-          textArea.Changed += new OutlineChanged(onContourChanged);
+          textArea.Changed += new OutlineChangeEventHandler(onContourChanged);
         }
       }
 
@@ -463,10 +463,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private void menuItemInsertDecorLineOnClick(object Sender, System.EventArgs e)
     {
       LineSegment newDecorationLine = new LineSegment(new PointF(saveNewPosX, saveNewPosY), new PointF(saveNewPosX + decorationWidth, saveNewPosY));
-        newDecorationLine.isDecorationSegment = true;
+        newDecorationLine.IsDecorationSegment = true;
       PolyLine newPolyLine = new PolyLine(newDecorationLine);
       outLines.Add(newPolyLine);
-      newPolyLine.Changed += new OutlineChanged(onContourChanged);
+      newPolyLine.Changed += new OutlineChangeEventHandler(onContourChanged);
       changeContour(Sender);
     }
 
@@ -476,7 +476,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       PointF pt3 = new PointF(saveNewPosX + decorationWidth, saveNewPosY);
 
       BezierSegment newBezierSeg = new BezierSegment();
-      newBezierSeg.isDecorationSegment = true;
+      newBezierSeg.IsDecorationSegment = true;
       newBezierSeg.points[0] = pt0;
       newBezierSeg.points[1] = new PointF((pt0.X + pt3.X) / 3, (pt0.Y + pt3.Y) / 3);
       newBezierSeg.points[2] = new PointF((pt0.X + pt3.X) * 2 / 3, (pt0.Y + pt3.Y) * 2 / 3);
@@ -484,7 +484,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
       PolyLine newPolyline = new PolyLine(newBezierSeg);
       outLines.Add(newPolyline);
-      newPolyline.Changed += new OutlineChanged(onContourChanged);
+      newPolyline.Changed += new OutlineChangeEventHandler(onContourChanged);
       changeContour(Sender);
     }
 
@@ -511,10 +511,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     private void menuItemDeleteAllDecorationsOnClick(object sender, System.EventArgs e)
     {
-      deleteAllDecorations(sender);
+      DeleteAllDecorations(sender);
     }
 
-    public void deleteAllDecorations(object Sender)
+    public void DeleteAllDecorations(object sender)
     {
       InitContextMenu();
       if (HScrollBar != null)
@@ -527,8 +527,8 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
       Contour contour = new Contour(mainContourColor, GridSize);
       outLines.Add(contour);
-      contour.Changed += new OutlineChanged(onContourChanged);
-      changeContour(Sender);
+      contour.Changed += new OutlineChangeEventHandler(onContourChanged);
+      changeContour(sender);
     }
 
     private void showPoints()
@@ -634,7 +634,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
       Contour contour = new Contour(textAreaContourColor, arr, pStart, point1, point2, pEnd);
       outLines.Add(contour);
-      contour.Changed += new OutlineChanged(onContourChanged);
+      contour.Changed += new OutlineChangeEventHandler(onContourChanged);
     }
 
     private void ClearTextArea()
@@ -801,7 +801,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     }
 
 
-    public string[] exportTemplateCode(int srcCode)
+    public string[] ExportTemplateCode(int srcCode)
     {
       Outline outLine = null;
       bool isExistElementTemplate = false;
@@ -906,7 +906,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       }
     }
 
-    protected override void OnPaint(PaintEventArgs pe)
+    protected override void OnPaint(PaintEventArgs e)
     {
       // TODO: Add custom paint code here
       System.Drawing.Pen penNormalSegment = new System.Drawing.Pen(colorNormalSegment, 1);
@@ -931,7 +931,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
         outLine.Draw(gr, penNormalSegment);
         outLine.drawPoints(gr, brush);
       }
-      pe.Graphics.DrawImage(bm, this.ClientRectangle);
+      e.Graphics.DrawImage(bm, this.ClientRectangle);
 
       penNormalSegment.Dispose();
       brush.Dispose();
@@ -1071,7 +1071,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       return;
     }
 
-    public ShapeTemplate createShapeTemplate()
+    public ShapeTemplate CreateShapeTemplate()
     {
       int count = 0;
       ArrayList alDecorations = new ArrayList();
@@ -1106,26 +1106,25 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       return new ShapeTemplate(etContour, allDecorations, etTextArea, System.Drawing.Drawing2D.FillMode.Winding, "test");
     }
 
-    public void setGraphicThing()
+    public void SetGraphicThing()
     {
+      graphicThing.Clear();
+
       ArrayList alDecorations = new ArrayList();
       RectangleF rect = getBoundingRect();
 
-      graphicThing.elements = new ArrayList();
-      ((Outline)outLines[0]).getElements(rect, graphicThing.elements);
+      ((Outline)outLines[0]).getElements(rect, graphicThing.Elements);
 
-      graphicThing.decorations = new ArrayList();
       for (int i = 1; i < outLines.Count; ++i)
       {
         Outline outLine = (Outline)outLines[i];
         if (outLine is Contour)
         {
-          graphicThing.textArea = new ArrayList();
-          outLine.getElements(rect, graphicThing.textArea);
+          outLine.getElements(rect, graphicThing.TextArea);
         }
         else
         {
-          outLine.getElements(rect, graphicThing.decorations);
+          outLine.getElements(rect, graphicThing.Decorations);
         }
       }
     }

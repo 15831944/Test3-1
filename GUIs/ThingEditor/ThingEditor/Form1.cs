@@ -33,7 +33,7 @@ namespace SysCAD.ThingEditor
         private System.Windows.Forms.MenuItem menuItem12;
         private System.Windows.Forms.MenuItem menuItem13;
     private MindFusion.FlowChartX.FlowChart flowChart1;
-    private SysCAD.ThingEditor.ThingEditorCtrl.ThingEditor thingEditor1;
+    private SysCAD.ThingEditor.ThingEditorCtrl thingEditor1;
     private MenuItem menuItem6;
     private IContainer components;
 
@@ -69,7 +69,7 @@ namespace SysCAD.ThingEditor
     protected override void OnClosing(CancelEventArgs e)
     {
       // Write information back into the CraphicItem...
-      thingEditor1.setGraphicThing();
+      thingEditor1.SetGraphicThing();
 
       base.OnClosing(e);
     }
@@ -89,7 +89,7 @@ namespace SysCAD.ThingEditor
       this.flowChart1 = new MindFusion.FlowChartX.FlowChart();
       this.splitter3 = new System.Windows.Forms.Splitter();
       this.panel5 = new System.Windows.Forms.Panel();
-      this.thingEditor1 = new SysCAD.ThingEditor.ThingEditorCtrl.ThingEditor(graphicThing);
+      this.thingEditor1 = new SysCAD.ThingEditor.ThingEditorCtrl(graphicThing);
       this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
       this.menuItem1 = new System.Windows.Forms.MenuItem();
       this.menuItem3 = new System.Windows.Forms.MenuItem();
@@ -178,7 +178,7 @@ namespace SysCAD.ThingEditor
       this.thingEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
       this.thingEditor1.GridColor = System.Drawing.Color.Black;
       this.thingEditor1.GridSize = 16;
-      this.thingEditor1.GridStyle = SysCAD.ThingEditor.ThingEditorCtrl.ThingEditor.EGridStyle.GrdLine;
+      this.thingEditor1.GridStyle = SysCAD.ThingEditor.ThingEditorCtrl.EGridStyle.GrdLine;
       this.thingEditor1.Location = new System.Drawing.Point(0, 0);
       this.thingEditor1.Name = "thingEditor1";
       this.thingEditor1.PenColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
@@ -186,7 +186,7 @@ namespace SysCAD.ThingEditor
       this.thingEditor1.Size = new System.Drawing.Size(496, 397);
       this.thingEditor1.TabIndex = 0;
       this.thingEditor1.Text = "thingEditor1";
-      this.thingEditor1.ShapeChanged += new SysCAD.ThingEditor.ThingEditorCtrl.ShapeChanged(this.thingEditor1_ShapeChanged);
+      this.thingEditor1.ShapeChanged += new SysCAD.ThingEditor.ShapeChangeEventHandler(this.thingEditor1_ShapeChanged);
       // 
       // mainMenu1
       // 
@@ -281,7 +281,7 @@ namespace SysCAD.ThingEditor
             flowChart1.ClearAll();
             
 
-            flowChart1.DefaultShape = thingEditor1.createShapeTemplate();
+            flowChart1.DefaultShape = thingEditor1.CreateShapeTemplate();
 
             Box b = flowChart1.CreateBox(0, 0, 70, 70);
             b.PolyTextLayout = true;
@@ -290,13 +290,13 @@ namespace SysCAD.ThingEditor
 
         private void menuItem3_Click(object sender, System.EventArgs e)
         {
-          thingEditor1.deleteAllDecorations(sender);
+          thingEditor1.DeleteAllDecorations(sender);
         }
 
         private void menuItem7_Click(object sender, System.EventArgs e)
         {
           // Write information back into the CraphicItem...
-          thingEditor1.setGraphicThing();
+          thingEditor1.SetGraphicThing();
 
             Close();
         }

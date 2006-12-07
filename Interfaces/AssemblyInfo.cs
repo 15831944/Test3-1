@@ -17,11 +17,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Remoting Interface for SysCAD")]
+[assembly: AssemblyDescription("Remoting interface for communication between SysCAD Engine and Clients.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyCompany("Kenwalt")]
+[assembly: AssemblyProduct("SysCAD")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -29,7 +29,7 @@ using System.Runtime.InteropServices;
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+[assembly: ComVisible(true)]
 
 //
 // Version information for an assembly consists of the following four values:
@@ -42,7 +42,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("4.2.0.*")]
+[assembly: AssemblyVersion("4.2.0.28260")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
@@ -73,7 +73,6 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyKeyFile("../../../fcnet.snk")]
 //[assembly: AssemblyKeyName("")]
 
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
-[assembly: PermissionSet(SecurityAction.RequestOptional, Name = "Nothing")]
+[assembly: PermissionSet(System.Security.Permissions.SecurityAction.RequestMinimum, Name = "FullTrust")]
 
-[assembly: AllowPartiallyTrustedCallers]
+//[assembly: AllowPartiallyTrustedCallers]

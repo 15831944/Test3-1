@@ -5,12 +5,12 @@ using System.Windows.Forms;
 using System.IO;
 
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
   /// <summary>
   /// 
   /// </summary>
-  public delegate void OutlineChanged(object sender, EventArgs e);
+  public delegate void OutlineChangeEventHandler(object sender, EventArgs e);
 
   public class SegmentedOutline : Outline, IDisposable
   {
@@ -18,7 +18,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     protected ArrayList shapeSegments;
     protected Segment currSegment;
-    protected Segment belongSegment;
+    private Segment belongSegment;
 
     private Segment saveSegment;
 
@@ -40,7 +40,14 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
     private PointF saveStartPoint;
     private PointF saveEndPoint;
 
-    public event OutlineChanged Changed;
+    public event OutlineChangeEventHandler Changed;
+
+    protected Segment BelongSegment
+    {
+      get { return belongSegment; }
+      set { belongSegment = value; }
+    }
+
 
     public bool hasSegments()
     {
@@ -68,10 +75,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       LineSegment lineSegment = new LineSegment(saveStartPoint, new PointF(saveNewPosX, saveNewPosY));
       LineSegment lineSegmentNext = new LineSegment(new PointF(saveNewPosX, saveNewPosY), saveEndPoint);
 
-      if (saveSegment is LineSegment && (saveSegment as LineSegment).isDecorationSegment)
+      if (saveSegment is LineSegment && (saveSegment as LineSegment).IsDecorationSegment)
       {
-        lineSegment.isDecorationSegment = true;
-        lineSegmentNext.isDecorationSegment = true;
+        lineSegment.IsDecorationSegment = true;
+        lineSegmentNext.IsDecorationSegment = true;
       }
 
 
@@ -92,10 +99,10 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       BezierSegment newBezierSegment = new BezierSegment();
       LineSegment newLineSegment = new LineSegment(saveStartPoint, new PointF(saveNewPosX, saveNewPosY));
 
-      if (saveSegment is LineSegment && (saveSegment as LineSegment).isDecorationSegment)
+      if (saveSegment is LineSegment && (saveSegment as LineSegment).IsDecorationSegment)
       {
-        newBezierSegment.isDecorationSegment = true;
-        newLineSegment.isDecorationSegment = true;
+        newBezierSegment.IsDecorationSegment = true;
+        newLineSegment.IsDecorationSegment = true;
       }
 
       shapeSegments.Remove(saveSegment);
@@ -118,8 +125,8 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       {
         BezierSegment newBezierSeg = new BezierSegment();
 
-        if ((saveSegment as LineSegment).isDecorationSegment)
-          newBezierSeg.isDecorationSegment = true;
+        if ((saveSegment as LineSegment).IsDecorationSegment)
+          newBezierSeg.IsDecorationSegment = true;
 
         shapeSegments.Remove(saveSegment);
 
@@ -133,8 +140,8 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       {
         LineSegment newLineSegment = new LineSegment(saveStartPoint, saveEndPoint);
 
-        if ((saveSegment as BezierSegment).isDecorationSegment)
-          newLineSegment.isDecorationSegment = true;
+        if ((saveSegment as BezierSegment).IsDecorationSegment)
+          newLineSegment.IsDecorationSegment = true;
 
         shapeSegments.Remove(saveSegment);
         shapeSegments.Insert(saveIndex, newLineSegment);
@@ -152,7 +159,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     private void DeleteSegment()
     {
-      if (saveSegment is LineSegment && (saveSegment as LineSegment).isDecorationSegment)
+      if (saveSegment is LineSegment && (saveSegment as LineSegment).IsDecorationSegment)
       {
         if (shapeSegments.Count > 2)
         {
@@ -165,7 +172,7 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
           shapeSegments.Remove(saveSegment);
       }
       else
-        if (saveSegment is BezierSegment && (saveSegment as BezierSegment).isDecorationSegment)
+        if (saveSegment is BezierSegment && (saveSegment as BezierSegment).IsDecorationSegment)
         {
           if (shapeSegments.Count > 2)
           {
@@ -303,11 +310,11 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
       foreach (Segment s in shapeSegments)
       {
         if (s is LineSegment)
-          if ((s as LineSegment).isDecorationSegment)
+          if ((s as LineSegment).IsDecorationSegment)
             return false;
 
         if (s is BezierSegment)
-          if ((s as BezierSegment).isDecorationSegment)
+          if ((s as BezierSegment).IsDecorationSegment)
             return false;
       }
       return true;

@@ -4,9 +4,10 @@ using System.Windows.Forms;
 using System.Collections;
 using System.IO;
 using SysCAD.Interface;
+using System.Globalization;
 
 
-namespace SysCAD.ThingEditor.ThingEditorCtrl
+namespace SysCAD.ThingEditor
 {
   /// <summary>
   /// 
@@ -268,15 +269,15 @@ namespace SysCAD.ThingEditor.ThingEditorCtrl
 
     internal override string saveNameAsText()
     {
-      float _left = getPercent(ThingEditor.MinX, ThingEditor.MaxX, left);
-      float _top = getPercent(ThingEditor.MinY, ThingEditor.MaxY, top);
-      float _right = getPercent(ThingEditor.MinX, ThingEditor.MaxX, right);
-      float _bottom = getPercent(ThingEditor.MinY, ThingEditor.MaxY, bottom);
+      float _left = getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, left);
+      float _top = getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, top);
+      float _right = getPercent(ThingEditorCtrl.MinX, ThingEditorCtrl.MaxX, right);
+      float _bottom = getPercent(ThingEditorCtrl.MinY, ThingEditorCtrl.MaxY, bottom);
 
-      return "            new ArcTemplate(" + _left.ToString() + ", " +
-                                              _top.ToString() + ", " +
-                                              _right.ToString() + ", " +
-                                              _bottom.ToString() + ", " +
+      return "            new ArcTemplate(" + _left.ToString(CultureInfo.InvariantCulture) + ", " +
+                                              _top.ToString(CultureInfo.InvariantCulture) + ", " +
+                                              _right.ToString(CultureInfo.InvariantCulture) + ", " +
+                                              _bottom.ToString(CultureInfo.InvariantCulture) + ", " +
                         "0" + ", " +
                         "360" + ")";
     }

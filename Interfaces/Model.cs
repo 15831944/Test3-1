@@ -7,18 +7,21 @@ namespace SysCAD.Interface
   [Serializable]
   public class Model
   {
-    String str;
+    String str = string.Empty;
 
-    public static implicit operator Model(String r)
+    public static implicit operator Model(String str)
     {
       Model model = new Model();
-      model.str = r;
+      model.str = str;
       return model;
     }
 
-    public static implicit operator String(Model r)
+    public static implicit operator String(Model model)
     {
-      return r.str;
+      if (model != null)
+        return model.str;
+      else
+        return String.Empty;
     }
 
     public override string ToString()

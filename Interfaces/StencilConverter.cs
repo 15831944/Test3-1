@@ -8,7 +8,12 @@ namespace SysCAD.Interface
 {
   public class ShapeConverter : StringConverter
   {
-    public static List<Shape> stencilList = new List<Shape>();
+    private static List<Shape> stencilList = new List<Shape>();
+
+    static public void ClearStencilList()
+    {
+      stencilList.Clear();
+    }
 
     public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
     {
@@ -39,10 +44,16 @@ namespace SysCAD.Interface
 
     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-      if (value is String)
-        return new Shape(value as String);
+      String str = value as String;
+      if (str != null)
+        return new Shape(str);
 
       return base.ConvertFrom(context, culture, value);
+    }
+
+    public static void AddStencil(string stencil)
+    {
+      stencilList.Add(stencil);
     }
   }
 }

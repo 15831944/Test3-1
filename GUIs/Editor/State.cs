@@ -21,7 +21,7 @@ namespace SysCAD.Editor
 
     private PureComponents.TreeView.TreeView tvNavigation;
 
-    public bool ShowModels = false;
+    public bool ShowModels;
     public bool ShowGraphics = true;
     public bool ShowLinks = true;
     public bool ShowTags = true;
@@ -31,26 +31,29 @@ namespace SysCAD.Editor
 
     public IEnumerable<GraphicStencil> GraphicStencils
     {
-      get { return config.graphicStencils.Values; }
+      get { return config.GraphicStencils.Values; }
     }
 
     public IEnumerable<ModelStencil> ModelStencils
     {
-      get { return config.modelStencils.Values; }
+      get { return config.ModelStencils.Values; }
     }
 
     public Config Config
     {
+      get { return config; }
       set { config = value; }
     }
 
     public ClientGraphic Graphic
     {
+      get { return graphic; }
       set { graphic = value; }
     }
 
-    public PureComponents.TreeView.TreeView TvNavigation
+    public PureComponents.TreeView.TreeView TVNavigation
     {
+      get { return tvNavigation; }
       set { tvNavigation = value; }
     }
 
@@ -68,7 +71,7 @@ namespace SysCAD.Editor
       return item;
     }
 
-    public void setArrow(Guid guid, String tag, Arrow arrow, GraphicLink graphicLink)
+    public void SetArrow(Guid guid, String tag, Arrow arrow, GraphicLink graphicLink)
     {
       Link link = new Link(guid, tag, graphicLink);
       link.Arrow = arrow;
@@ -114,7 +117,7 @@ namespace SysCAD.Editor
       modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
 
-      if (config.modelStencils.TryGetValue(graphicItem.Model, out modelStencil))
+      if (config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil))
         modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
       else
         modelBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -131,7 +134,7 @@ namespace SysCAD.Editor
       graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       graphicBox.Style = BoxStyle.Shape;
 
-      if (config.graphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
+      if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
         graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
       else
         graphicBox.Shape = ShapeTemplate.FromId("Decision2");
@@ -147,7 +150,7 @@ namespace SysCAD.Editor
         graphicBox.FillColor = graphicItem.FillColor;
 
 
-      RectangleF textArea = graphicStencil.textArea;
+      RectangleF textArea = graphicStencil.TextArea;
       RectangleF textBoxRect = new RectangleF(
                                 graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
                                 graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
@@ -210,7 +213,7 @@ namespace SysCAD.Editor
       flowchart.ResumeLayout();
     }
 
-    public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, GraphicItem graphicItem)
+    static public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, GraphicItem graphicItem)
     {
       AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
       if (modelStencil.Anchors != null)
@@ -220,12 +223,12 @@ namespace SysCAD.Editor
         int anchorInt = 0;
         foreach (Anchor anchor in modelStencil.Anchors)
         {
-          graphicItem.anchorIntToTag.Add(anchorInt, anchor.tag);
-          graphicItem.anchorTagToInt.Add(anchor.tag, anchorInt);
+          graphicItem.anchorIntToTag.Add(anchorInt, anchor.Tag);
+          graphicItem.anchorTagToInt.Add(anchor.Tag, anchorInt);
           anchorInt++;
-          float x = anchor.position.X;
+          float x = anchor.Position.X;
           if (graphicItem.MirrorX) x = 100.0F - x;
-          float y = anchor.position.Y;
+          float y = anchor.Position.Y;
           if (graphicItem.MirrorY) y = 100.0F - y;
           AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, Color.Green);
           anchorPoint.Tag = anchor;
@@ -246,7 +249,7 @@ namespace SysCAD.Editor
       return things.Remove(guid);
     }
 
-    public void SetControlPoints(Arrow arrow, List<PointF> points)
+    static public void SetControlPoints(Arrow arrow, List<PointF> points)
     {
       arrow.SegmentCount = (short)(points.Count - 1);
       int i = 0;
@@ -491,8 +494,9 @@ namespace SysCAD.Editor
         GraphicItem graphicItem;
         if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
         {
+          graphicItem.MirrorX = mirrorX;
           GraphicStencil stencil;
-          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
             item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
@@ -509,8 +513,9 @@ namespace SysCAD.Editor
         GraphicItem graphicItem;
         if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
         {
+          graphicItem.MirrorY = mirrorY;
           GraphicStencil stencil;
-          if (config.graphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out stencil))
           {
             item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
@@ -542,14 +547,14 @@ namespace SysCAD.Editor
     internal ModelStencil ModelShape(string stencilName)
     {
       ModelStencil modelStencil;
-      config.modelStencils.TryGetValue(stencilName, out modelStencil);
+      config.ModelStencils.TryGetValue(stencilName, out modelStencil);
       return modelStencil;
     }
 
     internal GraphicStencil GraphicShape(string stencilName)
     {
       GraphicStencil graphicStencil;
-      config.graphicStencils.TryGetValue(stencilName, out graphicStencil);
+      config.GraphicStencils.TryGetValue(stencilName, out graphicStencil);
       return graphicStencil;
     }
 
@@ -655,58 +660,67 @@ namespace SysCAD.Editor
     }
 
 
+    internal bool IsLink(Guid guid)
+    {
+      return graphic.graphicLinks.ContainsKey(guid);
+    }
+
     internal bool IsItem(Guid guid)
     {
       return graphic.graphicItems.ContainsKey(guid);
     }
 
-
-
-    internal bool ModifyGraphicItem(out uint requestID, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    internal bool IsThing(Guid guid)
     {
-      return graphic.ModifyItem(out requestID, guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
-    }
-
-    internal bool CreateGraphicItem(out uint requestID, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
-    {
-      return graphic.CreateItem(out requestID, out guid, tag, path, model, shape, boundingRect, angle, fillColor, mirrorX, mirrorY);
-    }
-
-    internal bool DeleteGraphicItem(out uint requestID, Guid guid)
-    {
-      return graphic.DeleteItem(out requestID, guid);
+      return graphic.graphicThings.ContainsKey(guid);
     }
 
 
-    internal bool ModifyGraphicLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.ModifyLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+      return graphic.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicLink(out uint requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.CreateLink(out requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+      return graphic.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool DeleteGraphicLink(out uint requestID, Guid guid)
+    internal bool DeleteGraphicItem(out Int64 requestId, Guid guid)
     {
-      return graphic.DeleteLink(out requestID, guid);
+      return graphic.DeleteItem(out requestId, guid);
     }
 
 
-    internal bool ModifyGraphicThing(out uint requestID, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return graphic.ModifyThing(out requestID, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return graphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    internal bool CreateGraphicThing(out uint requestID, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, Color fillColor, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return graphic.CreateThing(out requestID, out guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      return graphic.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    internal bool DeleteGraphicThing(out uint requestID, Guid guid)
+    internal bool DeleteGraphicLink(out Int64 requestId, Guid guid)
     {
-      return graphic.DeleteThing(out requestID, guid);
+      return graphic.DeleteLink(out requestId, guid);
+    }
+
+
+    internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      return graphic.ModifyThing(out requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+    }
+
+    internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      return graphic.CreateThing(out requestId, out guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+    }
+
+    internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
+    {
+      return graphic.DeleteThing(out requestId, guid);
     }
 
 
@@ -781,7 +795,7 @@ namespace SysCAD.Editor
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
     }
 
-    internal float Mirrored(float x, bool mirrored)
+    static internal float Mirrored(float x, bool mirrored)
     {
       if (mirrored)
         return 100.0F - x;
@@ -789,159 +803,129 @@ namespace SysCAD.Editor
         return x;
     }
 
-    internal ArcTemplate MirroredArc(Arc arc, bool mirrorX, bool mirrorY)
-    {
-      return new ArcTemplate(Mirrored(arc.x, mirrorX), Mirrored(arc.y, mirrorY),
-                             arc.w, arc.h, arc.a, arc.s);
-    }
-
-    internal LineTemplate MirroredLine(Line line, bool mirrorX, bool mirrorY)
-    {
-      return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
-                              Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
-    }
-
-    internal BezierTemplate MirroredBezier(Bezier bezier, bool mirrorX, bool mirrorY)
-    {
-      return new BezierTemplate(Mirrored(bezier.x1, mirrorX), Mirrored(bezier.y1, mirrorY),
-                                Mirrored(bezier.x2, mirrorX), Mirrored(bezier.y2, mirrorY),
-                                Mirrored(bezier.x3, mirrorX), Mirrored(bezier.y3, mirrorY),
-                                Mirrored(bezier.x4, mirrorX), Mirrored(bezier.y4, mirrorY));
-    }
-
-    public ShapeTemplate GetShapeTemplate(ModelStencil stencil, bool mirrorX, bool mirrorY)
+    static public ShapeTemplate GetShapeTemplate(ModelStencil stencil, bool mirrorX, bool mirrorY)
     {
       int i;
 
-      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
-      i = 0;
-      foreach (Element element in stencil.elements)
+      if (stencil != null)
       {
-        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
-        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
-        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
-        i++;
-      }
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
+        i = 0;
+        foreach (Element element in stencil.Elements)
+        {
+          elementTemplate[i] = MirroredElement(element, mirrorX, mirrorY);
+          i++;
+        }
 
-      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
-      i = 0;
-      foreach (Element decoration in stencil.decorations)
-      {
-        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
-        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
-        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
-        i++;
-      }
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
+        i = 0;
+        foreach (Element decoration in stencil.Decorations)
+        {
+          decorationTemplate[i] = MirroredElement(decoration, mirrorX, mirrorY);
+          i++;
+        }
 
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.FillMode, stencil.Tag));
+      }
+      else
+        return null;
     }
 
 
-    public ShapeTemplate GetShapeTemplate(OldGraphicStencil stencil, bool mirrorX, bool mirrorY)
+    static public ShapeTemplate GetShapeTemplate(GraphicStencil stencil, bool mirrorX, bool mirrorY)
     {
       int i;
 
-      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
-      i = 0;
-      foreach (Element element in stencil.elements)
+      if (stencil != null)
       {
-        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
-        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
-        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
-        i++;
-      }
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
+        i = 0;
+        foreach (Element element in stencil.Elements)
+        {
+          elementTemplate[i] = MirroredElement(element, mirrorX, mirrorY);
+          i++;
+        }
 
-      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
-      i = 0;
-      foreach (Element decoration in stencil.decorations)
-      {
-        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
-        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
-        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
-        i++;
-      }
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
+        i = 0;
+        foreach (Element decoration in stencil.Decorations)
+        {
+          decorationTemplate[i] = MirroredElement(decoration, mirrorX, mirrorY);
+          i++;
+        }
 
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
+      }
+      else
+        return null;
     }
 
-    public ShapeTemplate GetShapeTemplate(GraphicStencil stencil, bool mirrorX, bool mirrorY)
+    static public ShapeTemplate GetShapeTemplate(GraphicThing thing)
     {
       int i;
 
-      ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
-      i = 0;
-      foreach (Element element in stencil.elements)
-      {
-        if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, mirrorX, mirrorY);
-        if (element is Line) elementTemplate[i] = MirroredLine(element as Line, mirrorX, mirrorY);
-        if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, mirrorX, mirrorY);
-        i++;
-      }
-
-      ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
-      i = 0;
-      foreach (Element decoration in stencil.decorations)
-      {
-        if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, mirrorX, mirrorY);
-        if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, mirrorX, mirrorY);
-        if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, mirrorX, mirrorY);
-        i++;
-      }
-
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, new ElementTemplate[0], stencil.fillMode, stencil.Tag));
-    }
-
-    public ShapeTemplate GetShapeTemplate(GraphicThing thing)
-    {
-      int i;
-
-      ElementTemplate[] elementTemplate = null;
-      ElementTemplate[] decorationTemplate = null;
-      ElementTemplate[] textAreaTemplate = null;
-      
       if (thing != null)
       {
-        if (thing.elements != null)
+        ElementTemplate[] elementTemplate = null;
+        ElementTemplate[] decorationTemplate = null;
+        ElementTemplate[] textAreaTemplate = null;
+
+        if (thing.Elements != null)
         {
-          elementTemplate = new ElementTemplate[thing.elements.Count];
+          elementTemplate = new ElementTemplate[thing.Elements.Count];
           i = 0;
-          foreach (Element element in thing.elements)
+          foreach (Element element in thing.Elements)
           {
-            if (element is Arc) elementTemplate[i] = MirroredArc(element as Arc, thing.MirrorX, thing.MirrorY);
-            if (element is Line) elementTemplate[i] = MirroredLine(element as Line, thing.MirrorX, thing.MirrorY);
-            if (element is Bezier) elementTemplate[i] = MirroredBezier(element as Bezier, thing.MirrorX, thing.MirrorY);
+            elementTemplate[i] = MirroredElement(element, thing.MirrorX, thing.MirrorY);
             i++;
           }
         }
 
-        if (thing.decorations != null)
+        if (thing.Decorations != null)
         {
-          decorationTemplate = new ElementTemplate[thing.decorations.Count];
+          decorationTemplate = new ElementTemplate[thing.Decorations.Count];
           i = 0;
-          foreach (Element decoration in thing.decorations)
+          foreach (Element decoration in thing.Decorations)
           {
-            if (decoration is Arc) decorationTemplate[i] = MirroredArc(decoration as Arc, thing.MirrorX, thing.MirrorY);
-            if (decoration is Line) decorationTemplate[i] = MirroredLine(decoration as Line, thing.MirrorX, thing.MirrorY);
-            if (decoration is Bezier) decorationTemplate[i] = MirroredBezier(decoration as Bezier, thing.MirrorX, thing.MirrorY);
+            decorationTemplate[i] = MirroredElement(decoration, thing.MirrorX, thing.MirrorY);
             i++;
           }
         }
 
-        if (thing.textArea != null)
+        if (thing.TextArea != null)
         {
-          textAreaTemplate = new ElementTemplate[thing.textArea.Count];
+          textAreaTemplate = new ElementTemplate[thing.TextArea.Count];
           i = 0;
-          foreach (Element textArea in thing.textArea)
+          foreach (Element textArea in thing.TextArea)
           {
-            if (textArea is Arc) textAreaTemplate[i] = MirroredArc(textArea as Arc, thing.MirrorX, thing.MirrorY);
-            if (textArea is Line) textAreaTemplate[i] = MirroredLine(textArea as Line, thing.MirrorX, thing.MirrorY);
-            if (textArea is Bezier) textAreaTemplate[i] = MirroredBezier(textArea as Bezier, thing.MirrorX, thing.MirrorY);
+            textAreaTemplate[i] = MirroredElement(textArea, thing.MirrorX, thing.MirrorY);
             i++;
           }
         }
+
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, thing.FillMode, thing.Tag));
       }
+      else
+        return null;
+    }
 
-      return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, thing.fillMode, thing.Tag));
+    static private ElementTemplate MirroredElement(object element, bool mirrorX, bool mirrorY)
+    {
+      Line line = element as Line;
+      if (line != null) return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
+                                                Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
+
+      Arc arc = element as Arc;
+      if (arc != null) return new ArcTemplate(Mirrored(arc.x, mirrorX), Mirrored(arc.y, mirrorY),
+                                              arc.w, arc.h, arc.a, arc.s);
+
+      Bezier bezier = element as Bezier;
+      if (bezier != null) return new BezierTemplate(Mirrored(bezier.x1, mirrorX), Mirrored(bezier.y1, mirrorY),
+                                                    Mirrored(bezier.x2, mirrorX), Mirrored(bezier.y2, mirrorY),
+                                                    Mirrored(bezier.x3, mirrorX), Mirrored(bezier.y3, mirrorY),
+                                                    Mirrored(bezier.x4, mirrorX), Mirrored(bezier.y4, mirrorY));
+
+      return null;
     }
 
   }
