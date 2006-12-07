@@ -826,7 +826,7 @@ DWORD Bayer::GetPropertyVisibility(long Index)
 
 #define GV(x, type) case id##x :Value = type##x; return 
 #define GVAL(x)   case id##x : Value = d##x; return
-#define GVAL2(v, x) case id##v : Value = x; return
+#define GVAL2(v, x) case id##v : LiqConcs25.Converge(MArray(this)); Value = x; return
 #define GVALF(x) case id##x : Value = x##(); return
 #define GVALFT(x) case id##x : Value = x##(T); return
 
