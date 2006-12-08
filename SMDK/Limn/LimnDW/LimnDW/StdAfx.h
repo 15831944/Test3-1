@@ -41,6 +41,8 @@
 #include "LimnModel_DiamondWizard_TrompCurve.h"
 #include "LimnModel_DiamondWizard_GrindingMill.h"
 #include "LimnModel_DiamondWizard_WhitenCrusher.h"
+#include "LimnModel_DiamondWizard_SimpleMixer.h"
+#include "LimnModel_DiamondWizard_BulkSplitter.h"
 
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>			// MFC support for Windows Common Controls

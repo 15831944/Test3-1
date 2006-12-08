@@ -5,33 +5,43 @@
 //		DIAMOND WIZARD SPECIFIC - SIMPLE MIXER
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_SimpleMixer: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_SimpleMixer: public CLimn_ModelData_Base
   {
   public:
-    C_ModelParameters_DiamondWizard_SimpleMixer(void)
+    C_ModelParameters_DiamondWizard_SimpleMixer(void)  : CLimn_ModelData_Base(&sm_Common)
       {
       };
-    ~C_ModelParameters_DiamondWizard_SimpleMixer(void){};
-
-
-    C_ModelParameters_DiamondWizard_SimpleMixer(double* ModelParams) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_SimpleMixer(double* ModelParams) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-      	m_pData=ModelParams;
-	  }
+      Initialise(); // number of ore sizes
+      };
+    ~C_ModelParameters_DiamondWizard_SimpleMixer(void)
+      {
+      };
   
-      int DataCount()              { return 1;       };
+    static CLimn_ModelData_Common sm_Common;
+
+    //CBooleanRef redistributeDensimetrics; 
+    //CDoubleRef tau;	    					
+    //CVectorRef S;						
+    //CMatrixRef B;						
  
 
-#ifdef LIMNDW
 	void Initialise() 
       {
+      CLimn_ModelData_Base::Initialise();
+      //m_nOSz = nOSz;
 
-      Allocate();
+      //redistributeDensimetrics      .Initialise(this,                                        "RedistributeDensimetrics",      1);
+      //MarkParameterGap(nOSz-1);
+      //tau                           .Initialise(this,                                        "Tau",                        0.14,  "");
+      //MarkParameterGap(nOSz-1);
+      //S                             .Initialise(this,   "S", m_nOSz,          DI_OSz,        "S",                           0.5,  "");
+      //B                             .Initialise(this,   "B", m_nOSz, m_nOSz , DI_OSz, DI_OSz,"B",                           0.0,  "");
 
       };
-#endif
 
-  protected:
+  protected: ;
 
   };
 //

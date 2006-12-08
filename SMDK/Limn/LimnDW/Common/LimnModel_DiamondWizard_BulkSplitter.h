@@ -5,35 +5,30 @@
 //		DIAMOND WIZARD SPECIFIC - SIMPLE MIXER
 //
 //				Parameter Access Class
-class C_ModelParameters_DiamondWizard_BulkSplitter//: public CLimn_ModelData_AbstractBase
+class C_ModelParameters_DiamondWizard_BulkSplitter: public CLimn_ModelData_Base
   {
   public:
-    C_ModelParameters_DiamondWizard_BulkSplitter(void)
+    C_ModelParameters_DiamondWizard_BulkSplitter(void) : CLimn_ModelData_Base(&sm_Common)
       {
       };
-    ~C_ModelParameters_DiamondWizard_BulkSplitter(void){};
-
-
-    C_ModelParameters_DiamondWizard_BulkSplitter(double* ModelParams) // usually called from parameter passing
+    C_ModelParameters_DiamondWizard_BulkSplitter(double* ModelParams) : CLimn_ModelData_Base(&sm_Common, ModelParams) // usually called from parameter passing
       { 
-		m_pData=ModelParams;
+      Initialise(); 
       }
+    ~C_ModelParameters_DiamondWizard_BulkSplitter(void)
+      {
+      };
 
-	  double & SplitToProduct1()  { return m_pData[0];         }; 
-  
-      int DataCount()             { return 1;       };
- 
+    static CLimn_ModelData_Common sm_Common;
 
-#ifdef LIMNDW
+    CDoubleRef SplitToProduct1;
+
 	void Initialise() 
       {
+      CLimn_ModelData_Base::Initialise();
 
-      Allocate();
-
-	  SplitToProduct1() = 0.5 ;
-
+      SplitToProduct1.Initialise(this,  "SplitToProduct1",  0.5,  "Frac(.)");
       };
-#endif
 
   protected:
 

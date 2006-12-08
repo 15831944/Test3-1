@@ -634,6 +634,10 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\BulkSplitter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\DiamondFunctions.cpp"
 				>
 			</File>
@@ -706,6 +710,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\LimnModel_DiamondWizard_BulkSplitter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_CommonFunctions.cpp"
 				>
 			</File>
@@ -722,6 +730,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\LimnModel_DiamondWizard_SimpleMixer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_TrompCurve.cpp"
 				>
 			</File>
@@ -735,6 +747,10 @@
 			</File>
 			<File
 				RelativePath="..\Common\LimnStreamMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SimpleMixer.cpp"
 				>
 			</File>
 			<File
@@ -820,6 +836,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath=".\BulkSplitter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\DiamondFunctions.h"
 				>
 			</File>
@@ -844,6 +864,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\LimnModel_DiamondWizard_BulkSplitter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_CommonFunctions.h"
 				>
 			</File>
@@ -860,6 +884,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Common\LimnModel_DiamondWizard_SimpleMixer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Common\LimnModel_DiamondWizard_TrompCurve.h"
 				>
 			</File>
@@ -873,6 +901,10 @@
 			</File>
 			<File
 				RelativePath="..\Common\limnstreammatrix.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SimpleMixer.h"
 				>
 			</File>
 			<File

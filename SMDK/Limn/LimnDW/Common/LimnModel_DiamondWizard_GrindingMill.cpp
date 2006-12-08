@@ -28,7 +28,7 @@
 //
 //
 int _Model_DiamondWizard_GrindingMill (int nRows,
-					 		 		   int nColumns,
+					 		 		                     int nColumns,
                                        int nParameters,
                                        int nReturns,
                                        double* ModelParams,

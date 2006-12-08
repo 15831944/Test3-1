@@ -20,7 +20,7 @@
 //										none
 //
 int _Model_DiamondWizard_SimpleMixer (int nRows,
-					                  int nColumns,
+					                            int nColumns,
                                       int nParameters,
                                       int nReturns,
                                       double* ModelParams,
@@ -32,6 +32,7 @@ int _Model_DiamondWizard_SimpleMixer (int nRows,
                                       double* Product4,
                                       double* Product5,
                                       double* Product6 ) 
+
 {
 
 	int configID = CONFIGURATION.ID() ;
