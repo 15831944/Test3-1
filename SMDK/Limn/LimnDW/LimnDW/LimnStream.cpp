@@ -5,7 +5,7 @@
 #include "limnstream.h"
 #include "math.h"
 #include "md_headers.h"
-//#include "..\LimnDWM\DiamondFunctions.h"
+#include "..\Common\DiamondFunctions.h"
 #pragma comment(lib, "rpcrt4.lib")
 
 const int DoDbg     = 0;//xf;

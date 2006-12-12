@@ -26,7 +26,7 @@ static double Drw_EfficiencyCurve[] = { MDrw_Poly,  -12,6,  12,2,  12,-2, 0,-6, 
                                         MDrw_Poly,  -12,2,  12,-2,
                                         MDrw_End };
 
-CLimn_ModelData_Common C_ModelParameters_DiamondWizard_EfficiencyCurve::sm_Common;
+//CLimn_ModelData_Common C_ModelParameters_DiamondWizard_EfficiencyCurve::sm_Common;
 
 //---------------------------------------------------------------------------
 

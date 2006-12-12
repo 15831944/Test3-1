@@ -24,7 +24,7 @@ static double Drw_GrindingMill[] = {  MDrw_Poly,  -13,8, 10,8, 10,-8, -13,-8, -1
                                       MDrw_Poly,  10,8, 10,12, 13,12, 13,-12, 10,-12, 10,-8,
                                       MDrw_End };
 
-CLimn_ModelData_Common C_ModelParameters_DiamondWizard_GrindingMill::sm_Common;
+//CLimn_ModelData_Common C_ModelParameters_DiamondWizard_GrindingMill::sm_Common;
 
 //---------------------------------------------------------------------------
 

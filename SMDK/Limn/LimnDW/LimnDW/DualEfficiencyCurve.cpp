@@ -32,7 +32,7 @@ static double Drw_DualEfficiencyCurve[] = { MDrw_Poly,  -12,8,  12,4,  12,-2, 0,
                                             MDrw_Poly,  -12,2,  12,-2,
                                             MDrw_End };
 
-CLimn_ModelData_Common C_ModelParameters_DiamondWizard_DualEfficiencyCurve::sm_Common;
+//CLimn_ModelData_Common C_ModelParameters_DiamondWizard_DualEfficiencyCurve::sm_Common;
 
 //---------------------------------------------------------------------------
 

@@ -9,6 +9,10 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_WhitenCrusher.h"
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_WhitenCrusher::sm_Common;
+CLimn_ModelData_Common C_ModelReturns_DiamondWizard_WhitenCrusher::sm_Common;
+
 //////     
 //
 //----------------------------------------------------------------------------------------------

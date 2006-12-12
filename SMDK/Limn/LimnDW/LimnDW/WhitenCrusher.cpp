@@ -25,8 +25,8 @@ static double Drw_WhitenCrusher[] = { MDrw_Poly,  -12,7,  -7,0,  -12,-7, -12,7,
                                       MDrw_Poly,  -7,7, -5,0, -7,-7, 7,-7, 5,0, 7,7, -7,7,
                                       MDrw_End };
 
-CLimn_ModelData_Common C_ModelParameters_DiamondWizard_WhitenCrusher::sm_Common;
-CLimn_ModelData_Common C_ModelReturns_DiamondWizard_WhitenCrusher::sm_Common;
+//CLimn_ModelData_Common C_ModelParameters_DiamondWizard_WhitenCrusher::sm_Common;
+//CLimn_ModelData_Common C_ModelReturns_DiamondWizard_WhitenCrusher::sm_Common;
 
 //---------------------------------------------------------------------------
 

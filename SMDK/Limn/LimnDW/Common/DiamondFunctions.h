@@ -205,6 +205,7 @@ inline int xlIndex(int iRow, int iColumn, int nColumns)
 ///---------------------------------------------------------------------------------------------------
 ///
 
+#endif  // LIMNDW //CNM 
 	double CalculatePassingSize( double Percent, double* OreDistribution, int nOsz, CDiamondWizardConfiguration* thisConfig ) ;
 
 	void OreMassFromDensimetricDistribution( CDiamondWizardConfiguration* thisConfig, 
@@ -227,7 +228,7 @@ inline int xlIndex(int iRow, int iColumn, int nColumns)
 								  double caratsBase, 
 								  CDiamondWizardConfiguration* thisConfig ) ;
 
+//CNM #endif  // LIMNDW 
 
-#endif  // LIMNDW
 
 

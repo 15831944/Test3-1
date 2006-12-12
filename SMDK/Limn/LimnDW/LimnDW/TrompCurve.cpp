@@ -26,7 +26,7 @@ static double Drw_TrompCurve[] = { MDrw_Poly,  -6,10,  6,10,  6,-2, 0,-20, -6,-2
                                    MDrw_Poly,  -6,-2, 6,-2,
                                    MDrw_End };
 
-CLimn_ModelData_Common C_ModelParameters_DiamondWizard_TrompCurve::sm_Common;
+//CLimn_ModelData_Common C_ModelParameters_DiamondWizard_TrompCurve::sm_Common;
 
 //---------------------------------------------------------------------------
 

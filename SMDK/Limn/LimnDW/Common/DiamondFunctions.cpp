@@ -2682,8 +2682,12 @@ int StreamSummaryCalculation( double SummaryXXXX[],
 	{
 		SummaryXXXX[16] = 0.0 ;
 	}
-	
+
+#ifdef LIMNDW
+  return 0; //CNM Is this OK ?????
+#else
 	return xlerrNull ;
+#endif
 }
 
 void OreMassFromDensimetricDistribution( CDiamondWizardConfiguration* thisConfig, double* densimetricDistribution, double* sizeFractionData, double totalFlow, double* oreMass )
