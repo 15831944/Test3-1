@@ -1243,6 +1243,7 @@ Global
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Distribution.Build.0 = Debug|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release.ActiveCfg = Release|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release - Full.ActiveCfg = Release|Win32
+		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release - Full.Build.0 = Release|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release_Dbg.ActiveCfg = Release|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release_Dbg.Build.0 = Release|Win32
 		{5075E987-6D84-477C-8F46-47EF7C1F9CC5}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
