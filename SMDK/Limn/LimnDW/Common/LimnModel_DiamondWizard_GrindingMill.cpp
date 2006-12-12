@@ -9,6 +9,8 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_GrindingMill.h"
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_GrindingMill::sm_Common;
 //////     
 //
 //----------------------------------------------------------------------------------------------

@@ -9,6 +9,9 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_BulkSplitter.h"
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_BulkSplitter::sm_Common;
+
 //////     
 //
 //----------------------------------------------------------------------------------------------

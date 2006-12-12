@@ -9,6 +9,9 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_EfficiencyCurve.h"
+
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_EfficiencyCurve::sm_Common;
 //////     
 //
 //----------------------------------------------------------------------------------------------
@@ -65,13 +68,6 @@ int _Model_DiamondWizard_EfficiencyCurve (int nRows,
 		{                                                   
 			return 1 ;                                      // 'Incorrect number of parameters'
 		}        
-	    
-	                                                        
-		if ( (p.OversizeStreamID() != 1) &&                   // First Model Parameter is the oversize stream identifier.
-			 (p.OversizeStreamID() != 2) )                    // It must be 1 or 2
-		{                                                   // Error code:
-			return 2 ;                                      // 'Model parameter out of range'.
-		}
 	            
 	///
 	///     Efficiency Curve size separator models
@@ -88,7 +84,7 @@ int _Model_DiamondWizard_EfficiencyCurve (int nRows,
 				partitionFraction = MeanEfficiencyPartitionFraction( p.Rf(), p.Alpha(), p.D50c(iSG), thisConfig->OreSizesTop(iOSz), 
 					                                                                             thisConfig->OreSizesBottom(iOSz) ) ;
 	            
-				if (p.OversizeStreamID() == 1) partitionFraction = 1 - partitionFraction ;
+				if ( p.Product1IsOversize() ) partitionFraction = 1 - partitionFraction ;
 				
 				Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 				Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
@@ -115,7 +111,7 @@ int _Model_DiamondWizard_EfficiencyCurve (int nRows,
 						partitionFraction = MeanEfficiencyPartitionFraction(p.Rf(), p.Alpha(), p.D50c(iSG), thisConfig->OreSizesTop(iOSz),
 							                                                                            thisConfig->OreSizesBottom(iOSz)) ;
 					}
-					if (p.OversizeStreamID() == 1) partitionFraction = 1 - partitionFraction ;
+					if ( p.Product1IsOversize() ) partitionFraction = 1 - partitionFraction ;
 					
 					Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 					Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
@@ -129,13 +125,13 @@ int _Model_DiamondWizard_EfficiencyCurve (int nRows,
 	///
 		idx = thisConfig->iWaterLimnStreamIndex() ;
 		partitionFraction = p.WaterSplit() ;
-		if (p.OversizeStreamID() == 1) partitionFraction = 1 - partitionFraction ;
+		if ( !p.Product1IsOversize() ) partitionFraction = 1 - partitionFraction ;
 		Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 		Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
 
 		idx = thisConfig->iFeSiLimnStreamIndex() ;
 		partitionFraction = p.FeSiSplit() ;
-		if (p.OversizeStreamID() == 1) partitionFraction = 1 - partitionFraction ;
+		if ( !p.Product1IsOversize() ) partitionFraction = 1 - partitionFraction ;
 		Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 		Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
 
@@ -147,14 +143,12 @@ int _Model_DiamondWizard_EfficiencyCurve (int nRows,
 	}
 }
 //////
-/*C_LINKAGE DLLMODEL */int  _Error_DiamondWizard_EfficiencyCurve ( int errorIndex, 
-															   LPSTR errorBuffer ) 
+int  _Error_DiamondWizard_EfficiencyCurve ( int errorIndex, LPSTR errorBuffer ) 
 {
 	return TRUE ;
 }
 
-/*C_LINKAGE DLLMODEL */int  _Parameter_DiamondWizard_EfficiencyCurve ( int parameterIndex, 
-																   LPSTR parameterInfoBuffer ) 
+int  _Parameter_DiamondWizard_EfficiencyCurve ( int parameterIndex, LPSTR parameterInfoBuffer ) 
 {
 	return TRUE ;
 }

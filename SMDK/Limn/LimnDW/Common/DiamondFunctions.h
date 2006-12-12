@@ -200,11 +200,11 @@ inline int xlIndex(int iRow, int iColumn, int nColumns)
                            LPXLOPER lpxParam3,
                            LPXLOPER lpxParam4 ) ;
 
-#endif  // LIMNDW
 ///
 ///
 ///---------------------------------------------------------------------------------------------------
 ///
+
 	double CalculatePassingSize( double Percent, double* OreDistribution, int nOsz, CDiamondWizardConfiguration* thisConfig ) ;
 
 	void OreMassFromDensimetricDistribution( CDiamondWizardConfiguration* thisConfig, 
@@ -228,5 +228,6 @@ inline int xlIndex(int iRow, int iColumn, int nColumns)
 								  CDiamondWizardConfiguration* thisConfig ) ;
 
 
+#endif  // LIMNDW
 
 

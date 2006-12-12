@@ -10,6 +10,8 @@
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_DualEfficiencyCurve.h"
 
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_DualEfficiencyCurve::sm_Common;
 //////     
 //
 //----------------------------------------------------------------------------------------------

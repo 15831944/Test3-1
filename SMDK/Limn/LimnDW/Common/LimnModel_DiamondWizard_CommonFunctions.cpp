@@ -10,6 +10,7 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ///			
@@ -67,10 +68,12 @@ CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, int I
      m_Hdrs.Add(RqdHdrs[i]);
   RqdHdrs.SetSize(0);
 
+#ifdef LIMNDW
   gs_Cnvs.Create(CnvStr, m_Cnv); 
   if (m_Cnv.m_Txt.GetLength()>0)
     { int xxx=0; }
   m_Scale = gs_Cnvs.Scale(m_Cnv);
+#endif // LIMNDW
   };
 
 CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCSTR Index, LPCTSTR CnvStr, bool IsBool, bool Hide, CArray<CLimn_ModelData_ParmHdr, CLimn_ModelData_ParmHdr&> & RqdHdrs) 
@@ -90,10 +93,12 @@ CLimn_ModelData_ParmDef::CLimn_ModelData_ParmDef(LPCSTR Class, LPCSTR Tag, LPCST
      m_Hdrs.Add(RqdHdrs[i]);
   RqdHdrs.SetSize(0);
 
+#ifdef LIMNDW
   gs_Cnvs.Create(CnvStr, m_Cnv); 
   if (m_Cnv.m_Txt.GetLength()>0)
     { int xxx=0; }
   m_Scale = gs_Cnvs.Scale(m_Cnv);
+#endif // LIMNDW
   };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -119,41 +124,54 @@ void CLimn_ModelData_Base::CDoubleRef::Initialise(CLimn_ModelData_Base * pBase, 
 
 //-----------------------------------------------------------------------------------------------------------
 
-static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI, int i, CString & Tg)
-  {
-  switch (DI)
-    {
-    case CLimn_ModelData_Base::DI_None:  Tg.Format("%i",i);                              return false;
-    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s",gs_DWCfg.OreSizeText(i));        return true;
-    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s",gs_DWCfg.DiamondSizeText(i));    return true;
-    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s",gs_DWCfg.SGTextShort(i));        return true;
-    }
-  Tg="?";
-  return true;
-  }
+#if LIMNDW
+	static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI, int i, CString & Tg)
+	{
+	switch (DI)
+		{
+		case CLimn_ModelData_Base::DI_None:  Tg.Format("%i",i);                              return false;
+		case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s",gs_DWCfg.OreSizeText(i));        return true;
+		case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s",gs_DWCfg.DiamondSizeText(i));    return true;
+		case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s",gs_DWCfg.SGTextShort(i));        return true;
+		}
+	Tg="?";
+	return true;
+	}
 
-//-----------------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------
 
-static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0, const CLimn_ModelData_Base::eDataIndex DI1, int i0, int i1, CString & Tg)
-  {
-  CString Tg0;
-  switch (DI0)
-    {
-    case CLimn_ModelData_Base::DI_None:  Tg0.Format("%i",i0);                              break;
-    case CLimn_ModelData_Base::DI_OSz:   Tg0.Format("%s",gs_DWCfg.OreSizeText(i0));        break;
-    case CLimn_ModelData_Base::DI_DSz:   Tg0.Format("%s",gs_DWCfg.DiamondSizeText(i0));    break;
-    case CLimn_ModelData_Base::DI_SG:    Tg0.Format("%s",gs_DWCfg.SGTextShort(i0));        break;
-    }
-  switch (DI1)
-    {
-    case CLimn_ModelData_Base::DI_None:  Tg.Format("%s/%i",Tg0,i1);                            return true;
-    case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.OreSizeText(i1));      return true;
-    case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.DiamondSizeText(i1));  return true;
-    case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s/%s",Tg0,gs_DWCfg.SGTextShort(i1));      return true;
-    }
-  Tg="?";
-  return true;
-  }
+	static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0, const CLimn_ModelData_Base::eDataIndex DI1, int i0, int i1, CString & Tg)
+	{
+	CString Tg0;
+	switch (DI0)
+		{
+		case CLimn_ModelData_Base::DI_None:  Tg0.Format("%i",i0);                              break;
+		case CLimn_ModelData_Base::DI_OSz:   Tg0.Format("%s",gs_DWCfg.OreSizeText(i0));        break;
+		case CLimn_ModelData_Base::DI_DSz:   Tg0.Format("%s",gs_DWCfg.DiamondSizeText(i0));    break;
+		case CLimn_ModelData_Base::DI_SG:    Tg0.Format("%s",gs_DWCfg.SGTextShort(i0));        break;
+		}
+	switch (DI1)
+		{
+		case CLimn_ModelData_Base::DI_None:  Tg.Format("%s/%i",Tg0,i1);                            return true;
+		case CLimn_ModelData_Base::DI_OSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.OreSizeText(i1));      return true;
+		case CLimn_ModelData_Base::DI_DSz:   Tg.Format("%s/%s",Tg0,gs_DWCfg.DiamondSizeText(i1));  return true;
+		case CLimn_ModelData_Base::DI_SG:    Tg.Format("%s/%s",Tg0,gs_DWCfg.SGTextShort(i1));      return true;
+		}
+	Tg="?";
+	return true;
+	}
+
+#else
+			/// Limn specific dummy versions of GetIndexTag
+	static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI, int i, CString & Tg)
+	{
+		return false ;
+	}
+	static bool GetIndexTag(LPCTSTR Tag, const CLimn_ModelData_Base::eDataIndex DI0, const CLimn_ModelData_Base::eDataIndex DI1, int i0, int i1, CString & Tg)
+	{
+		return false ;
+	}
+#endif // LIMNDW
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -340,8 +358,20 @@ int CLimn_ModelData_Base::AddParms(int Count)
   return Start;
   }
 
+#ifndef LIMNDW  //////////////////Limn versions of SysCAD data exchange class method implementations
 void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
   {
+  }
+bool CLimn_ModelData_Base::ExchangeDataFields(MDataChange & DX)
+  {
+	  return true ;
+  }
+#endif //LIMNDW
+
+#ifdef LIMNDW  //////////////////SysCAD data exchange class method implementations
+void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
+  {
+
   DD.Text("Parameters...");
   //DD.Text("");
 
@@ -471,6 +501,10 @@ bool CLimn_ModelData_Base::ExchangeDataFields(MDataChange & DX)
     }
   return false;
   };
+
+#endif // LIMNDW
+
+
 
 //////     
 //

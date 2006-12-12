@@ -9,6 +9,10 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_SimpleMixer.h"
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_SimpleMixer::sm_Common;
+
+
 //////     
 //
 //----------------------------------------------------------------------------------------------

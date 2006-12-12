@@ -9,6 +9,11 @@
 
 #include "LimnModel_DiamondWizard_CommonFunctions.h"
 #include "LimnModel_DiamondWizard_TrompCurve.h"
+
+
+CLimn_ModelData_Common C_ModelParameters_DiamondWizard_TrompCurve::sm_Common;
+
+
 //////     
 //
 //----------------------------------------------------------------------------------------------

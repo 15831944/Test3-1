@@ -105,9 +105,6 @@ class C_ModelReturns_DiamondWizard_WhitenCrusher: public CLimn_ModelData_Base
   protected:
 
   };
-
-
-
 //
 //				Limn callable model
 C_LINKAGE DLLMODEL int _Model_DiamondWizard_WhitenCrusher (int nRows,

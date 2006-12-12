@@ -9,13 +9,14 @@
 
 #ifdef LIMNDW
 
-#define CONFIGURATION   gs_DWCfg
-#define CONFIGURATIONS  gs_DWCfgs
+	#define CONFIGURATION   gs_DWCfg
+	#define CONFIGURATIONS  gs_DWCfgs
 
-const int xlerrRef  = -1;
-const int xlerrNull = -2;
+	const int xlerrRef  = -1;
+
 
 #endif
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -165,7 +166,9 @@ class CLimn_ModelData_Access
         if (m_Base.m_Defs[i])
           {
           m_Base.m_Data[i] *= m_Base.m_Defs[i]->m_Scale; 
+#ifdef LIMNDW
           gs_Dbg.PrintLn("Scale   :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+#endif // LIMNDW
           }
         }
       };
@@ -175,8 +178,10 @@ class CLimn_ModelData_Access
         {
         if (m_Base.m_Defs[i])
           {
-          m_Base.m_Data[i] /= m_Base.m_Defs[i]->m_Scale; 
+          m_Base.m_Data[i] /= m_Base.m_Defs[i]->m_Scale;
+#ifdef LIMNDW
           gs_Dbg.PrintLn("UnScale :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+#endif // LIMNDW
           }
         }
       };
