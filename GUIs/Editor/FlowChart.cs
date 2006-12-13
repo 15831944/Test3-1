@@ -31,13 +31,13 @@ namespace SysCAD.Editor
     private int tempBoxKey;
     private int tempArrowKey;
 
-    private MainForm form1;
+    private EditorForm form1;
 
     private Anchor originAnchorChosen;
     private Anchor destinationAnchorChosen;
 
 
-    public FrmFlowChart(MainForm form1)
+    public FrmFlowChart(EditorForm form1)
     {
       this.form1 = form1;
 
@@ -1450,7 +1450,7 @@ namespace SysCAD.Editor
       Thing thing = (hoverBox.Tag as Thing);
       GraphicThing graphicThing = thing.GraphicThing;
 
-      ThingEditor.Form1 thingEditor = new ThingEditor.Form1(graphicThing);
+      ThingEditor.ThingEditorForm thingEditor = new ThingEditor.ThingEditorForm(graphicThing);
       thingEditor.ShowDialog();
       graphicThing = thingEditor.graphicThing;
 

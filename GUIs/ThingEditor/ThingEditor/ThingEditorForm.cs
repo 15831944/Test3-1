@@ -15,7 +15,7 @@ namespace SysCAD.ThingEditor
 	/// <summary>
 	/// Summary description for Form1.
 	/// </summary>
-	public class Form1 : System.Windows.Forms.Form
+	public class ThingEditorForm : System.Windows.Forms.Form
   {
         private System.Windows.Forms.Splitter splitter1;
     private System.Windows.Forms.Panel panel2;
@@ -39,7 +39,7 @@ namespace SysCAD.ThingEditor
 
     public GraphicThing graphicThing;
 
-    public Form1(GraphicThing graphicThing)
+    public ThingEditorForm(GraphicThing graphicThing)
 		{
       this.graphicThing = graphicThing;
 			//jj
@@ -82,7 +82,7 @@ namespace SysCAD.ThingEditor
 		private void InitializeComponent()
 		{
       this.components = new System.ComponentModel.Container();
-      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ThingEditorForm));
       this.splitter1 = new System.Windows.Forms.Splitter();
       this.panel2 = new System.Windows.Forms.Panel();
       this.panel6 = new System.Windows.Forms.Panel();

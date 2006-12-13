@@ -17,12 +17,12 @@ using System.Runtime.Remoting.Channels.Tcp;
 
 namespace SysCAD.Editor
 {
-  public partial class MainForm : Form
+  public partial class EditorForm : Form
   {
     FrmFlowChart frmFlowChart;
 
 
-    public MainForm()
+    public EditorForm()
     {
       InitializeComponent();
       SetProjectBasedButtons(false);
