@@ -178,6 +178,28 @@ ref class CNETServerThread
       RemotingServices::Marshal(m_Config, "Global");
       }
 
+    bool ChangeState(ServiceGraphic^ graphic, Int64 requestID, BaseGraphic::RunStates runState)
+      {
+      if (true) // Decide whether to allow runstate change
+        { // We're going to do it.
+        // Change the runstate.
+
+        // Raise event(s).
+        graphic->DoStateChanged(requestID, runState);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
+    void GetTagValues(ServiceGraphic^ graphic, Int64 requestID, ArrayList^% tagList)
+      {
+        // Return modified ArrayList with tag details included.
+      }
+
     bool CreateItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an item.
@@ -353,7 +375,11 @@ ref class CNETServerThread
       }
 
     void MarshalGraphics()
-      {
+    {
+      ServiceGraphic::ChangeStateHandler^ changeState = gcnew ServiceGraphic::ChangeStateHandler(this, &CNETServerThread::ChangeState);
+
+      ServiceGraphic::GetTagValuesHandler^ getTagValues = gcnew ServiceGraphic::GetTagValuesHandler(this, &CNETServerThread::GetTagValues);
+
       ServiceGraphic::CreateItemHandler^ createItem = gcnew ServiceGraphic::CreateItemHandler(this, &CNETServerThread::CreateItem);
       ServiceGraphic::ModifyItemHandler^ modifyItem = gcnew ServiceGraphic::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
       ServiceGraphic::DeleteItemHandler^ deleteItem = gcnew ServiceGraphic::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
@@ -371,7 +397,7 @@ ref class CNETServerThread
       ServiceGraphic::PropertyListHandler^ propertyListCheck = gcnew ServiceGraphic::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceGraphic ^ graphic = gcnew ServiceGraphic(createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      ServiceGraphic ^ graphic = gcnew ServiceGraphic(changeState, getTagValues, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -459,11 +485,15 @@ ref class CNETServerThread
 		  textArea->Add(gcnew Line(100.0, 100.0, 70.0, 100.0));
 		  textArea->Add(gcnew Line(70.0, 100.0, 70.0, 95.0));
 
-          graphicThing->Populate(filename, gcnew String(pThing->m_Page),
+		  ArrayList ^ animations = gcnew ArrayList();
+      //animations->Add(gcnew Animation());
+
+      graphicThing->Populate(filename, gcnew String(pThing->m_Page),
             gcnew String(pThing->m_Guid), 
             RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
-            pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, gcnew String(pThing->m_Tag), elements, decorations, textArea,
-			System::Drawing::Drawing2D::FillMode::Alternate);
+            pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, gcnew String(pThing->m_Tag),
+            elements, decorations, textArea, animations,
+            System::Drawing::Drawing2D::FillMode::Alternate);
           graphic->graphicThings->Add(graphicThing->Guid, graphicThing);
         }
       }

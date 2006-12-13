@@ -21,7 +21,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 using System.Windows.Forms;
 
 using MindFusion.FlowChartX.Behaviors;

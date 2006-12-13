@@ -21,6 +21,10 @@ namespace SysCAD.Interface
     private Int64 requestId;
     private Int64 eventId;
 
+    public delegate bool ChangeStateHandler(ServiceGraphic graphic, Int64 requestId, RunStates runState);
+
+    public delegate void GetTagValuesHandler(ServiceGraphic graphic, Int64 requestId, ref ArrayList tagList);
+
     public delegate bool CreateItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool DeleteItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid);
@@ -36,6 +40,12 @@ namespace SysCAD.Interface
     public delegate PortStatus PortCheckHandler(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
 
     public delegate ArrayList PropertyListHandler(ServiceGraphic graphic, Guid guid, String tag, String path);
+
+
+
+    private ChangeStateHandler changeStateHandler;
+
+    private GetTagValuesHandler getTagValuesHandler;
 
     private CreateItemHandler createItemHandler;
     private ModifyItemHandler modifyItemHandler;
@@ -54,11 +64,16 @@ namespace SysCAD.Interface
     private PropertyListHandler propertyListHandler;
 
     public ServiceGraphic(
+      ChangeStateHandler changeStateHandler, GetTagValuesHandler getTagValuesHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, DeleteThingHandler deleteThingHandler,
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
+      this.changeStateHandler = changeStateHandler;
+
+      this.getTagValuesHandler = getTagValuesHandler;
+
       this.createItemHandler = createItemHandler;
       this.modifyItemHandler = modifyItemHandler;
       this.deleteItemHandler = deleteItemHandler;
@@ -74,6 +89,22 @@ namespace SysCAD.Interface
       this.portCheckHandler = portCheckHandler;
 
       this.propertyListHandler = propertyListHandler;
+    }
+
+    public bool ChangeState(out Int64 requestId, RunStates runState)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+      throw new Exception("The method or operation is not implemented.");
+      return changeStateHandler(this, requestId, runState);
+    }
+
+    public void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+      throw new Exception("The method or operation is not implemented.");
+      getTagValuesHandler(this, requestId, ref tagList);
     }
 
     public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -175,6 +206,20 @@ namespace SysCAD.Interface
     {
       //todo: check path is valid.
       return propertyListHandler(this, guid, tag, path);
+    }
+
+
+    public void DoStateChanged(Int64 requestId, RunStates runState)
+    {
+      eventId++;
+      OnStateChanged(eventId, requestId, runState);
+    }
+
+
+    public void DoStep(Int64 step, DateTime time)
+    {
+      eventId++;
+      OnStep(eventId, step, time);
     }
 
 

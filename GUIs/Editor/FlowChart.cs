@@ -31,13 +31,13 @@ namespace SysCAD.Editor
     private int tempBoxKey;
     private int tempArrowKey;
 
-    private Form1 form1;
+    private MainForm form1;
 
     private Anchor originAnchorChosen;
     private Anchor destinationAnchorChosen;
 
 
-    public FrmFlowChart(Form1 form1)
+    public FrmFlowChart(MainForm form1)
     {
       this.form1 = form1;
 
@@ -53,15 +53,17 @@ namespace SysCAD.Editor
     ~FrmFlowChart()
     {
       state.DisconnectGraphic(
-        new ClientGraphic.ItemCreatedHandler(fcFlowChart_ItemCreated),
-        new ClientGraphic.ItemModifiedHandler(fcFlowChart_ItemModified),
-        new ClientGraphic.ItemDeletedHandler(fcFlowChart_ItemDeleted),
-        new ClientGraphic.LinkCreatedHandler(fcFlowChart_LinkCreated),
-        new ClientGraphic.LinkModifiedHandler(fcFlowChart_LinkModified),
-        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted),
-        new ClientGraphic.ThingCreatedHandler(fcFlowChart_ThingCreated),
-        new ClientGraphic.ThingModifiedHandler(fcFlowChart_ThingModified),
-        new ClientGraphic.ThingDeletedHandler(fcFlowChart_ThingDeleted));
+        fcFlowChart_StateChanged,
+        fcFlowChart_Step,
+        fcFlowChart_ItemCreated,
+        fcFlowChart_ItemModified,
+        fcFlowChart_ItemDeleted,
+        fcFlowChart_LinkCreated,
+        fcFlowChart_LinkModified,
+        fcFlowChart_LinkDeleted,
+        fcFlowChart_ThingCreated,
+        fcFlowChart_ThingModified,
+        fcFlowChart_ThingDeleted);
     }
 
     internal void SetProject(ClientGraphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
@@ -71,7 +73,9 @@ namespace SysCAD.Editor
       state.TVNavigation = tvNavigation;
 
       state.ConnectGraphic(
-        new ClientGraphic.ItemCreatedHandler(fcFlowChart_ItemCreated), 
+        new ClientGraphic.StateChangedHandler(fcFlowChart_StateChanged),
+        new ClientGraphic.StepHandler(fcFlowChart_Step),
+        new ClientGraphic.ItemCreatedHandler(fcFlowChart_ItemCreated),
         new ClientGraphic.ItemModifiedHandler(fcFlowChart_ItemModified),
         new ClientGraphic.ItemDeletedHandler(fcFlowChart_ItemDeleted),
         new ClientGraphic.LinkCreatedHandler(fcFlowChart_LinkCreated),
@@ -286,6 +290,16 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(RectangleF.FromLTRB(minX - width * 0.05F, minY - height * 0.05F, maxX + width * 0.05F, maxY + height * 0.05F));
       else
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
+    }
+
+    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseGraphic.RunStates runState)
+    {
+      state.StateChanged(runState);
+    }
+
+    private void fcFlowChart_Step(Int64 eventId, Int64 step, DateTime time)
+    {
+      state.Step(step, time);
     }
 
     private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)

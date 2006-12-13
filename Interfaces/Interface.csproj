@@ -58,10 +58,10 @@
   -->
   <ItemGroup>
     <Compile Include="Anchor.cs" />
+    <Compile Include="Animation.cs" />
     <Compile Include="Arc.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BaseGraphic.cs" />
-    <Compile Include="BaseModel.cs" />
     <Compile Include="Bezier.cs" />
     <Compile Include="ClientGraphic.cs" />
     <Compile Include="GraphicThing.cs" />

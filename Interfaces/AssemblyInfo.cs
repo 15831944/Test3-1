@@ -9,7 +9,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 using System.Runtime.InteropServices;
 
 //
@@ -73,6 +73,6 @@ using System.Runtime.InteropServices;
 //[assembly: AssemblyKeyFile("../../../fcnet.snk")]
 //[assembly: AssemblyKeyName("")]
 
-[assembly: PermissionSet(System.Security.Permissions.SecurityAction.RequestMinimum, Name = "FullTrust")]
+//[assembly: PermissionSet(System.Security.Permissions.SecurityAction.RequestMinimum, Name = "FullTrust")]
 
 //[assembly: AllowPartiallyTrustedCallers]

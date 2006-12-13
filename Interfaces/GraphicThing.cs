@@ -20,6 +20,8 @@ namespace SysCAD.Interface
     private ArrayList elements;
     private ArrayList decorations;
     private ArrayList textArea;
+    private ArrayList animations;
+
     private FillMode fillMode;
 
     private String text;
@@ -47,6 +49,12 @@ namespace SysCAD.Interface
     {
       get { return textArea; }
       set { textArea = value; }
+    }
+
+    public ArrayList Animations
+    {
+      get { return animations; }
+      set { animations = value; }
     }
 
     [CategoryAttribute("Model"),
@@ -197,7 +205,7 @@ namespace SysCAD.Interface
     }
 
     public void Populate(String filename, String page, String guid, RectangleF rectangle, float rotation, bool mirrorX, bool mirrorY, 
-      System.Drawing.Color fillColor, System.Drawing.Color frameColor, String text, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode)
+      System.Drawing.Color fillColor, System.Drawing.Color frameColor, String text, ArrayList elements, ArrayList decorations, ArrayList textArea, ArrayList animations, FillMode fillMode)
     {
       path = "/" + filename + "/" + page + "/";
       this.guid = new Guid(guid);
@@ -227,6 +235,7 @@ namespace SysCAD.Interface
       this.elements = elements;
       this.decorations = decorations;
       this.textArea = textArea;
+      this.animations = animations;
       this.fillMode = fillMode;
     }
 
@@ -235,6 +244,7 @@ namespace SysCAD.Interface
       elements = new ArrayList();
       decorations = new ArrayList();
       textArea = new ArrayList();
+      animations = new ArrayList();
     }
   }
 }

@@ -9,7 +9,7 @@ using System.Collections.Specialized;
 using MindFusion.FlowChartX;
 using SysCAD.Interface;
 using System.Security;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 
 
 [assembly: CLSCompliant(true)]

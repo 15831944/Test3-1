@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using SysCAD.Interface;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 
 namespace SysCAD.Editor
 {

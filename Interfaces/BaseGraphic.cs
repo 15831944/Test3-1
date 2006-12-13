@@ -11,7 +11,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 
 namespace SysCAD.Interface
 {
@@ -37,7 +37,16 @@ namespace SysCAD.Interface
       protected set { name = value; }
     }
 
+    public enum RunStates
+    {
+      Edit, Run, Idle
+    }
 
+
+
+    public delegate void StateChangedHandler(Int64 eventId, Int64 requestId, RunStates runState);
+
+    public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
 
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
@@ -54,6 +63,12 @@ namespace SysCAD.Interface
     public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
 
 
+
+    public StateChangedHandler StateChanged;
+
+    public StepHandler Step;
+
+
     public ItemCreatedHandler ItemCreated;
     public ItemModifiedHandler ItemModified;
     public ItemDeletedHandler ItemDeleted;
@@ -67,6 +82,21 @@ namespace SysCAD.Interface
     public ThingCreatedHandler ThingCreated;
     public ThingModifiedHandler ThingModified;
     public ThingDeletedHandler ThingDeleted;
+
+
+
+    public void OnStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
+    {
+      if (StateChanged != null)
+        StateChanged(eventId, requestId, runState);
+    }
+
+
+    public void OnStep(Int64 eventId, Int64 step, DateTime time)
+    {
+      if (Step != null)
+        Step(eventId, step, time);
+    }
 
 
     public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -126,7 +156,7 @@ namespace SysCAD.Interface
         ThingDeleted(eventId, requestId, guid);
     }
 
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+    //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public override Object InitializeLifetimeService()
     {
       return null;

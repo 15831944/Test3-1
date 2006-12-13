@@ -676,14 +676,26 @@ namespace SysCAD.Editor
     }
 
 
-    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ChangeState(out Int64 requestId, BaseGraphic.RunStates runState)
     {
-      return graphic.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return graphic.ChangeState(out requestId, runState);
     }
+
+
+    internal void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    {
+      graphic.GetTagValues(out requestId, ref tagList);
+    }
+
 
     internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return graphic.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+    }
+
+    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      return graphic.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool DeleteGraphicItem(out Int64 requestId, Guid guid)
@@ -740,6 +752,8 @@ namespace SysCAD.Editor
 
 
     internal void ConnectGraphic(
+      ClientGraphic.StateChangedHandler stateChangedHandler,
+      ClientGraphic.StepHandler stepHandler,
       ClientGraphic.ItemCreatedHandler itemCreatedHandler,
       ClientGraphic.ItemModifiedHandler itemModifiedHandler,
       ClientGraphic.ItemDeletedHandler itemDeletedHandler,
@@ -750,6 +764,10 @@ namespace SysCAD.Editor
       ClientGraphic.ThingModifiedHandler thingModifiedHandler,
       ClientGraphic.ThingDeletedHandler thingDeletedHandler)
     {
+      graphic.StateChanged += stateChangedHandler;
+
+      graphic.Step += stepHandler;
+
       graphic.ItemCreated += itemCreatedHandler;
       graphic.ItemModified += itemModifiedHandler;
       graphic.ItemDeleted += itemDeletedHandler;
@@ -765,6 +783,8 @@ namespace SysCAD.Editor
 
 
     internal void DisconnectGraphic(
+      ClientGraphic.StateChangedHandler stateChangedHandler,
+      ClientGraphic.StepHandler stepHandler,
       ClientGraphic.ItemCreatedHandler itemCreatedHandler,
       ClientGraphic.ItemModifiedHandler itemModifiedHandler,
       ClientGraphic.ItemDeletedHandler itemDeletedHandler,
@@ -775,6 +795,10 @@ namespace SysCAD.Editor
       ClientGraphic.ThingModifiedHandler thingModifiedHandler,
       ClientGraphic.ThingDeletedHandler thingDeletedHandler)
     {
+      graphic.StateChanged -= stateChangedHandler;
+
+      graphic.Step -= stepHandler;
+
       graphic.ItemCreated -= itemCreatedHandler;
       graphic.ItemModified -= itemModifiedHandler;
       graphic.ItemDeleted -= itemDeletedHandler;
@@ -928,5 +952,15 @@ namespace SysCAD.Editor
       return null;
     }
 
+
+    internal void StateChanged(BaseGraphic.RunStates runState)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
+
+    internal void Step(Int64 step, DateTime time)
+    {
+      throw new Exception("The method or operation is not implemented.");
+    }
   }
 }

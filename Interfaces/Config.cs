@@ -9,7 +9,7 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Remoting.Channels.Tcp;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 
 
 namespace SysCAD.Interface
@@ -44,7 +44,7 @@ namespace SysCAD.Interface
       protectedGraphicStencils = new Dictionary<string, GraphicStencil>();
     }
 
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
+    //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public override Object InitializeLifetimeService()
     {
       return null;

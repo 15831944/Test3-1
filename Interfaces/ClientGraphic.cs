@@ -11,7 +11,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 using System.Drawing.Drawing2D;
 
 namespace SysCAD.Interface
@@ -31,6 +31,10 @@ namespace SysCAD.Interface
     {
       if (serviceGraphic != null)
       {
+        serviceGraphic.StateChanged -= new ServiceGraphic.StateChangedHandler(ServiceGraphicStateChanged);
+
+        serviceGraphic.Step -= new ServiceGraphic.StepHandler(ServiceGraphicStep);
+
         serviceGraphic.ItemCreated -= new ServiceGraphic.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphic.ItemModified -= new ServiceGraphic.ItemModifiedHandler(ServiceGraphicItemModified);
         serviceGraphic.ItemDeleted -= new ServiceGraphic.ItemDeletedHandler(ServiceGraphicItemDeleted);
@@ -47,14 +51,26 @@ namespace SysCAD.Interface
 
 
 
-    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool ChangeState(out Int64 requestId, RunStates runState)
     {
-      return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return serviceGraphic.ChangeState(out requestId, runState);
     }
+
+
+    public void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    {
+      serviceGraphic.GetTagValues(out requestId, ref tagList);
+    }
+
 
     public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return serviceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+    }
+
+    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool DeleteItem(out Int64 requestId, Guid guid)
@@ -109,7 +125,7 @@ namespace SysCAD.Interface
 
 
 
-    [EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
+    //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect(Uri url)
     {
       try
@@ -117,6 +133,10 @@ namespace SysCAD.Interface
         serviceGraphic = Activator.GetObject(typeof(BaseGraphic), url.ToString()) as ServiceGraphic;
 
         Name = serviceGraphic.Name; // Force a test of the connection.
+
+        serviceGraphic.StateChanged += new ServiceGraphic.StateChangedHandler(ServiceGraphicStateChanged);
+
+        serviceGraphic.Step += new ServiceGraphic.StepHandler(ServiceGraphicStep);
 
         serviceGraphic.ItemCreated += new ServiceGraphic.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphic.ItemModified += new ServiceGraphic.ItemModifiedHandler(ServiceGraphicItemModified);
@@ -159,6 +179,17 @@ namespace SysCAD.Interface
       graphicThings = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicThing>;
     }
 
+
+    public void ServiceGraphicStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
+    {
+      OnStateChanged(eventId, requestId, runState);
+    }
+
+
+    public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)
+    {
+      OnStep(eventId, step, time);
+    }
 
 
     public void ServiceGraphicItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
