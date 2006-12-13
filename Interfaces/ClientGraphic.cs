@@ -23,6 +23,22 @@ namespace SysCAD.Interface
 
     public string connectionError = "";
 
+    private ServiceGraphic.StateChangedHandler serviceGraphicStateChangedHandler = null;
+
+    private ServiceGraphic.StepHandler serviceGraphicStepHandler = null;
+
+    private ServiceGraphic.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
+    private ServiceGraphic.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
+    private ServiceGraphic.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
+
+    private ServiceGraphic.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
+    private ServiceGraphic.LinkModifiedHandler serviceGraphicLinkModifiedHandler = null;
+    private ServiceGraphic.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
+
+    private ServiceGraphic.ThingCreatedHandler serviceGraphicThingCreatedHandler = null;
+    private ServiceGraphic.ThingModifiedHandler serviceGraphicThingModifiedHandler = null;
+    private ServiceGraphic.ThingDeletedHandler serviceGraphicThingDeletedHandler = null;
+
     public ClientGraphic()
     {
     }
@@ -31,21 +47,21 @@ namespace SysCAD.Interface
     {
       if (serviceGraphic != null)
       {
-        serviceGraphic.StateChanged -= new ServiceGraphic.StateChangedHandler(ServiceGraphicStateChanged);
+        if (serviceGraphicStateChangedHandler != null) serviceGraphic.StateChanged -= serviceGraphicStateChangedHandler;
 
-        serviceGraphic.Step -= new ServiceGraphic.StepHandler(ServiceGraphicStep);
+        if (serviceGraphicStepHandler != null) serviceGraphic.Step -= serviceGraphicStepHandler;
 
-        serviceGraphic.ItemCreated -= new ServiceGraphic.ItemCreatedHandler(ServiceGraphicItemCreated);
-        serviceGraphic.ItemModified -= new ServiceGraphic.ItemModifiedHandler(ServiceGraphicItemModified);
-        serviceGraphic.ItemDeleted -= new ServiceGraphic.ItemDeletedHandler(ServiceGraphicItemDeleted);
+        if (serviceGraphicItemCreatedHandler != null) serviceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
+        if (serviceGraphicItemModifiedHandler != null) serviceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
+        if (serviceGraphicItemDeletedHandler != null) serviceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
 
-        serviceGraphic.LinkCreated -= new ServiceGraphic.LinkCreatedHandler(ServiceGraphicLinkCreated);
-        serviceGraphic.LinkModified -= new ServiceGraphic.LinkModifiedHandler(ServiceGraphicLinkModified);
-        serviceGraphic.LinkDeleted -= new ServiceGraphic.LinkDeletedHandler(ServiceGraphicLinkDeleted);
+        if (serviceGraphicLinkCreatedHandler != null) serviceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
+        if (serviceGraphicLinkModifiedHandler != null) serviceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
+        if (serviceGraphicLinkDeletedHandler != null) serviceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
 
-        serviceGraphic.ThingCreated -= new ServiceGraphic.ThingCreatedHandler(ServiceGraphicThingCreated);
-        serviceGraphic.ThingModified -= new ServiceGraphic.ThingModifiedHandler(ServiceGraphicThingModified);
-        serviceGraphic.ThingDeleted -= new ServiceGraphic.ThingDeletedHandler(ServiceGraphicThingDeleted);
+        if (serviceGraphicThingCreatedHandler != null) serviceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
+        if (serviceGraphicThingModifiedHandler != null) serviceGraphic.ThingModified -= serviceGraphicThingModifiedHandler;
+        if (serviceGraphicThingDeletedHandler != null) serviceGraphic.ThingDeleted -= serviceGraphicThingDeletedHandler;
       }
     }
 
@@ -134,17 +150,40 @@ namespace SysCAD.Interface
 
         Name = serviceGraphic.Name; // Force a test of the connection.
 
-        serviceGraphic.StateChanged += new ServiceGraphic.StateChangedHandler(ServiceGraphicStateChanged);
 
-        serviceGraphic.Step += new ServiceGraphic.StepHandler(ServiceGraphicStep);
+        serviceGraphicStateChangedHandler = new ServiceGraphic.StateChangedHandler(ServiceGraphicStateChanged);
 
-        serviceGraphic.ItemCreated += new ServiceGraphic.ItemCreatedHandler(ServiceGraphicItemCreated);
-        serviceGraphic.ItemModified += new ServiceGraphic.ItemModifiedHandler(ServiceGraphicItemModified);
-        serviceGraphic.ItemDeleted += new ServiceGraphic.ItemDeletedHandler(ServiceGraphicItemDeleted);
+        serviceGraphicStepHandler = new ServiceGraphic.StepHandler(ServiceGraphicStep);
 
-        serviceGraphic.LinkCreated += new ServiceGraphic.LinkCreatedHandler(ServiceGraphicLinkCreated);
-        serviceGraphic.LinkModified += new ServiceGraphic.LinkModifiedHandler(ServiceGraphicLinkModified);
-        serviceGraphic.LinkDeleted += new ServiceGraphic.LinkDeletedHandler(ServiceGraphicLinkDeleted);
+        serviceGraphicItemCreatedHandler = new ServiceGraphic.ItemCreatedHandler(ServiceGraphicItemCreated);
+        serviceGraphicItemModifiedHandler = new ServiceGraphic.ItemModifiedHandler(ServiceGraphicItemModified);
+        serviceGraphicItemDeletedHandler = new ServiceGraphic.ItemDeletedHandler(ServiceGraphicItemDeleted);
+
+        serviceGraphicLinkCreatedHandler = new ServiceGraphic.LinkCreatedHandler(ServiceGraphicLinkCreated);
+        serviceGraphicLinkModifiedHandler = new ServiceGraphic.LinkModifiedHandler(ServiceGraphicLinkModified);
+        serviceGraphicLinkDeletedHandler = new ServiceGraphic.LinkDeletedHandler(ServiceGraphicLinkDeleted);
+
+        serviceGraphicThingCreatedHandler = new ServiceGraphic.ThingCreatedHandler(ServiceGraphicThingCreated);
+        serviceGraphicThingModifiedHandler = new ServiceGraphic.ThingModifiedHandler(ServiceGraphicThingModified);
+        serviceGraphicThingDeletedHandler = new ServiceGraphic.ThingDeletedHandler(ServiceGraphicThingDeleted);
+
+
+        serviceGraphic.StateChanged += serviceGraphicStateChangedHandler;
+
+        serviceGraphic.Step += serviceGraphicStepHandler;
+
+        serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
+        serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
+        serviceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
+
+        serviceGraphic.LinkCreated += serviceGraphicLinkCreatedHandler;
+        serviceGraphic.LinkModified += serviceGraphicLinkModifiedHandler;
+        serviceGraphic.LinkDeleted += serviceGraphicLinkDeletedHandler;
+
+        serviceGraphic.ThingCreated += serviceGraphicThingCreatedHandler;
+        serviceGraphic.ThingModified += serviceGraphicThingModifiedHandler;
+        serviceGraphic.ThingDeleted += serviceGraphicThingDeletedHandler;
+
 
         Sync();
 

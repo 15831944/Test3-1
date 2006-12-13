@@ -11,6 +11,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Net.Sockets;
 //using System.Security.Permissions;
 
 namespace SysCAD.Interface
@@ -88,33 +89,63 @@ namespace SysCAD.Interface
     public void OnStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
     {
       if (StateChanged != null)
-        StateChanged(eventId, requestId, runState);
+      {
+        try
+        {
+          StateChanged(eventId, requestId, runState);
+        }
+        catch (SocketException) { }
+      }
     }
 
 
     public void OnStep(Int64 eventId, Int64 step, DateTime time)
     {
       if (Step != null)
-        Step(eventId, step, time);
+      {
+        try
+        {
+          Step(eventId, step, time);
+        }
+        catch (SocketException) { }
+      }
     }
 
 
     public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemCreated != null)
-        ItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      {
+        try
+        {
+          ItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        }
+        catch (SocketException) { }
+      }
     }
 
     public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemModified != null)
-        ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      {
+        try
+        {
+          ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        }
+        catch (SocketException) {}
+      }
     }
 
     public void OnItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       if (ItemDeleted != null)
-        ItemDeleted(eventId, requestId, guid);
+      {
+        try
+        {
+          ItemDeleted(eventId, requestId, guid);
+        }
+        catch (SocketException) { }
+      }
     }
 
 
@@ -122,38 +153,74 @@ namespace SysCAD.Interface
     public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (LinkCreated != null)
-        LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      {
+        try
+        {
+          LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+        }
+        catch (SocketException) { }
+      }
     }
 
     public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (LinkModified != null)
-        LinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      {
+        try
+        {
+          LinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+        }
+        catch (SocketException) { }
+      }
     }
 
     public void OnLinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       if (LinkDeleted != null)
-        LinkDeleted(eventId, requestId, guid);
+      {
+        try
+        {
+          LinkDeleted(eventId, requestId, guid);
+        }
+        catch (SocketException) { }
+      }
     }
 
 
     public void OnThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ThingCreated != null)
-        ThingCreated(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      {
+        try
+        {
+          ThingCreated(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        }
+        catch (SocketException) { }
+      }
     }
 
     public void OnThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ThingModified != null)
-        ThingModified(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      {
+        try
+        {
+          ThingModified(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        }
+        catch (SocketException) { }
+      }
     }
 
     public void OnThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       if (ThingDeleted != null)
-        ThingDeleted(eventId, requestId, guid);
+      {
+        try
+        {
+          ThingDeleted(eventId, requestId, guid);
+        }
+        catch (SocketException) { }
+      }
     }
 
     //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]

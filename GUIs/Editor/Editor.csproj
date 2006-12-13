@@ -47,10 +47,9 @@
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5">
       <Private>True</Private>
     </Reference>
-    <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
+    <Reference Include="PureComponents.TreeViewV2, Version=2.1.810.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2 (VS2005)\bin\PureComponents.TreeViewV2.dll</HintPath>
     </Reference>
     <Reference Include="SmartPropertyGrid, Version=2.0.0.0, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
