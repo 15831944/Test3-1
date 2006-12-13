@@ -18,7 +18,7 @@ namespace SysCAD.ThingEditor
 	public class ThingEditorForm : System.Windows.Forms.Form
   {
         private System.Windows.Forms.Splitter splitter1;
-    private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Splitter splitter3;
         private System.Windows.Forms.Panel panel6;
@@ -176,8 +176,8 @@ namespace SysCAD.ThingEditor
       // thingEditor1
       // 
       this.thingEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.thingEditor1.GridColor = System.Drawing.Color.Black;
-      this.thingEditor1.GridSize = 16;
+      this.thingEditor1.GridColor = System.Drawing.Color.DarkGray;
+      this.thingEditor1.GridSize = 10;
       this.thingEditor1.GridStyle = SysCAD.ThingEditor.ThingEditorCtrl.EGridStyle.GrdLine;
       this.thingEditor1.Location = new System.Drawing.Point(0, 0);
       this.thingEditor1.Name = "thingEditor1";
@@ -283,7 +283,7 @@ namespace SysCAD.ThingEditor
 
             flowChart1.DefaultShape = thingEditor1.CreateShapeTemplate();
 
-            Box b = flowChart1.CreateBox(0, 0, 70, 70);
+            Box b = flowChart1.CreateBox(0, 0, 70, 77);
             b.PolyTextLayout = true;
             b.Text = graphicThing.Text;
         }
