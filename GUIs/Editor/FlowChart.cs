@@ -1258,6 +1258,40 @@ namespace SysCAD.Editor
           modelBox.BoundingRect = graphicItem.BoundingRect;
           modelBox.RotationAngle = graphicItem.Angle;
         }
+
+        foreach (Arrow arrow in modelBox.IncomingArrows)
+        {
+          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Item).Guid);
+          if (!state.ModifyGraphicLink(out requestId,
+            graphicLink.Guid,
+            graphicLink.Tag,
+            graphicLink.ClassID,
+            graphicLink.Origin,
+            graphicLink.Destination,
+            graphicLink.OriginPort,
+            graphicLink.DestinationPort,
+            arrow.ControlPoints))
+          {
+            arrow.ControlPoints = graphicLink.controlPoints;
+          }
+        }
+
+        foreach (Arrow arrow in modelBox.OutgoingArrows)
+        {
+          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Item).Guid);
+          if (!state.ModifyGraphicLink(out requestId,
+            graphicLink.Guid,
+            graphicLink.Tag,
+            graphicLink.ClassID,
+            graphicLink.Origin,
+            graphicLink.Destination,
+            graphicLink.OriginPort,
+            graphicLink.DestinationPort,
+            arrow.ControlPoints))
+          {
+            arrow.ControlPoints = graphicLink.controlPoints;
+          }
+        }
       }
       else if (e.Box.Tag is Thing)
       {
