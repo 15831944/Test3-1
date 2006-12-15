@@ -17,7 +17,7 @@ using System.Net.Sockets;
 namespace SysCAD.Interface
 {
   [Serializable]
-  public class BaseGraphic : MarshalByRefObject
+  abstract public class BaseGraphic : MarshalByRefObject
   {
     private String name;
 
@@ -97,7 +97,6 @@ namespace SysCAD.Interface
         catch (SocketException) { }
       }
     }
-
 
     public void OnStep(Int64 eventId, Int64 step, DateTime time)
     {

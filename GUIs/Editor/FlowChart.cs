@@ -591,17 +591,13 @@ namespace SysCAD.Editor
       form1.ModeModify();
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-        DoModifyingStuff(e.Arrow, e.SelectionHandle);
+        DoArrowModifyingOperations(e.Arrow, e.SelectionHandle);
       }
     }
 
-    private void DoModifyingStuff(Arrow arrow, int selectionHandle)
+    private void DoArrowModifyingOperations(Arrow arrow, int selectionHandle)
     {
-      oldControlPoints.Clear();
-      foreach (PointF point in arrow.ControlPoints.Clone())
-      {
-        oldControlPoints.Add(point);
-      }
+      oldControlPoints = State.GetControlPoints(arrow.ControlPoints);
 
       arrowBeingModifiedSelectionHandle = selectionHandle;
       arrowBeingModified = arrow;
@@ -1270,9 +1266,9 @@ namespace SysCAD.Editor
             graphicLink.Destination,
             graphicLink.OriginPort,
             graphicLink.DestinationPort,
-            arrow.ControlPoints))
+            State.GetControlPoints(arrow.ControlPoints)))
           {
-            arrow.ControlPoints = graphicLink.controlPoints;
+            State.SetControlPoints(arrow, graphicLink.controlPoints);
           }
         }
 
@@ -1287,9 +1283,9 @@ namespace SysCAD.Editor
             graphicLink.Destination,
             graphicLink.OriginPort,
             graphicLink.DestinationPort,
-            arrow.ControlPoints))
+            State.GetControlPoints(arrow.ControlPoints)))
           {
-            arrow.ControlPoints = graphicLink.controlPoints;
+            State.SetControlPoints(arrow, graphicLink.controlPoints);
           }
         }
       }
@@ -1528,11 +1524,7 @@ namespace SysCAD.Editor
       arrow.Route();
 
       {
-        List<PointF> controlPoints = new List<PointF>();
-        foreach (PointF point in arrow.ControlPoints.Clone())
-        {
-          controlPoints.Add(point);
-        }
+        List<PointF> controlPoints = State.GetControlPoints(arrow.ControlPoints);
 
         if (Math.Abs(controlPoints[0].X - controlPoints[1].X) <= fcFlowChart.MergeThreshold)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Vertical;
@@ -1653,11 +1645,7 @@ namespace SysCAD.Editor
           newGraphicLink.OriginPort = (oldOriginBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
       }
 
-      newGraphicLink.controlPoints = new List<PointF>();
-      foreach (PointF point in e.Arrow.ControlPoints)
-      {
-        newGraphicLink.controlPoints.Add(point);
-      }
+      newGraphicLink.controlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
 
       fcFlowChart.DeleteObject(e.Arrow);
 
@@ -1713,7 +1701,7 @@ namespace SysCAD.Editor
         newOriginAnchor = closestI;
       }
 
-      DoModifyingStuff(e.Arrow, e.Arrow.ControlPoints.Count - 1);
+      DoArrowModifyingOperations(e.Arrow, e.Arrow.ControlPoints.Count - 1);
       //arrowBeingModified = e.Arrow;
       //arrowBeingModified.CustomDraw = CustomDraw.Additional;
       //arrowBeingModified.ZTop();

@@ -205,7 +205,7 @@ namespace SysCAD.Editor
     public void CopyToClipboard()
     {
       // create clones of selected items
-      BaseGraphic data = copySelection(frmFlowChart.fcFlowChart);
+      ClientGraphic data = copySelection(frmFlowChart.fcFlowChart);
 
       DataFormats.Format format =
            DataFormats.GetFormat("Kenwalt.GraphicData");
@@ -313,12 +313,12 @@ namespace SysCAD.Editor
       }
     }
 
-    private BaseGraphic copySelection(FlowChart doc)
+    private ClientGraphic copySelection(FlowChart doc)
     {
       if (doc.Selection.Objects.Count == 0)
         return null;
 
-      BaseGraphic copyGraphic = new BaseGraphic();
+      ClientGraphic copyGraphic = new ClientGraphic();
 
       foreach (Box box in doc.Selection.Boxes)
       {

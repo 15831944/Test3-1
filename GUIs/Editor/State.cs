@@ -962,5 +962,17 @@ namespace SysCAD.Editor
     {
       throw new Exception("The method or operation is not implemented.");
     }
+
+    internal static List<PointF> GetControlPoints(PointCollection pointCollection)
+    {
+      List<PointF> list = new List<PointF>(pointCollection.Capacity);
+
+      foreach (PointF point in pointCollection)
+      {
+        list.Add(point);
+      }
+
+      return list;
+    }
   }
 }
