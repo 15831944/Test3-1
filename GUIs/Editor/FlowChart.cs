@@ -362,7 +362,7 @@ namespace SysCAD.Editor
         graphicLink.Destination = destination;
         graphicLink.OriginPort = originPort;
         graphicLink.DestinationPort = destinationPort;
-        graphicLink.controlPoints = controlPoints;
+        graphicLink.ControlPoints = controlPoints;
 
         Arrow arrow = link.Arrow;
         Item originItem = null;
@@ -397,9 +397,9 @@ namespace SysCAD.Editor
         arrow.ArrowHead = ArrowHead.Triangle;
         arrow.Style = ArrowStyle.Cascading;
 
-        if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+        if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
         {
-          State.SetControlPoints(arrow, graphicLink.controlPoints);
+          State.SetControlPoints(arrow, graphicLink.ControlPoints);
         }
       }
     }
@@ -472,7 +472,7 @@ namespace SysCAD.Editor
       }
 
 
-      form1.toolStripStatusLabel1.Text = "";
+      form1.toolStripStatusLabel.Text = "";
 
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;
@@ -651,7 +651,7 @@ namespace SysCAD.Editor
             newOriginGuid = (originBox.Tag as Item).Guid;
             newOriginBox = originBox;
             newOriginAnchor = closestI;
-            form1.toolStripStatusLabel1.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
+            form1.toolStripStatusLabel.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
           }
         }
       }
@@ -695,7 +695,7 @@ namespace SysCAD.Editor
             newDestinationGuid = (destinationBox.Tag as Item).Guid;
             newDestinationBox = destinationBox;
             newDestinationAnchor = closestI;
-            form1.toolStripStatusLabel1.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+            form1.toolStripStatusLabel.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
           }
         }
       }
@@ -707,7 +707,7 @@ namespace SysCAD.Editor
           newOriginGuid = Guid.Empty;
           newOriginBox = null;
           newOriginAnchor = -1;
-          form1.toolStripStatusLabel1.Text = "";
+          form1.toolStripStatusLabel.Text = "";
         }
 
         if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
@@ -715,7 +715,7 @@ namespace SysCAD.Editor
           newDestinationGuid = Guid.Empty;
           newDestinationBox = null;
           newDestinationAnchor = -1;
-          form1.toolStripStatusLabel1.Text = "";
+          form1.toolStripStatusLabel.Text = "";
         }
       }
 
@@ -878,7 +878,7 @@ namespace SysCAD.Editor
             if (newOriginAnchor < 0)
               newOriginAnchor = newOriginBox.AnchorPattern.Points.Count - 1;
 
-            form1.toolStripStatusLabel1.Text = 
+            form1.toolStripStatusLabel.Text = 
               (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
           }
         }
@@ -896,7 +896,7 @@ namespace SysCAD.Editor
             if (newDestinationAnchor < 0)
               newDestinationAnchor = newDestinationBox.AnchorPattern.Points.Count - 1;
 
-            form1.toolStripStatusLabel1.Text = 
+            form1.toolStripStatusLabel.Text = 
               (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
           }
           refreshConnectedObjects(arrowBeingModified);
@@ -1255,9 +1255,10 @@ namespace SysCAD.Editor
           modelBox.RotationAngle = graphicItem.Angle;
         }
 
-        foreach (Arrow arrow in modelBox.IncomingArrows)
+        ArrowCollection incomingArrows = modelBox.IncomingArrows.Clone();
+        foreach (Arrow arrow in incomingArrows)
         {
-          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Item).Guid);
+          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Link).Guid);
           if (!state.ModifyGraphicLink(out requestId,
             graphicLink.Guid,
             graphicLink.Tag,
@@ -1268,13 +1269,14 @@ namespace SysCAD.Editor
             graphicLink.DestinationPort,
             State.GetControlPoints(arrow.ControlPoints)))
           {
-            State.SetControlPoints(arrow, graphicLink.controlPoints);
+            State.SetControlPoints(arrow, graphicLink.ControlPoints);
           }
         }
 
-        foreach (Arrow arrow in modelBox.OutgoingArrows)
+        ArrowCollection outgoingArrows = modelBox.OutgoingArrows.Clone();
+        foreach (Arrow arrow in outgoingArrows)
         {
-          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Item).Guid);
+          GraphicLink graphicLink = state.GraphicLink((arrow.Tag as Link).Guid);
           if (!state.ModifyGraphicLink(out requestId,
             graphicLink.Guid,
             graphicLink.Tag,
@@ -1285,7 +1287,7 @@ namespace SysCAD.Editor
             graphicLink.DestinationPort,
             State.GetControlPoints(arrow.ControlPoints)))
           {
-            State.SetControlPoints(arrow, graphicLink.controlPoints);
+            State.SetControlPoints(arrow, graphicLink.ControlPoints);
           }
         }
       }
@@ -1314,15 +1316,15 @@ namespace SysCAD.Editor
         }
       }
 
-      form1.propertyGrid1.Refresh();
+      form1.graphicPropertyGrid.Refresh();
 
-      ContextMenu propertyGridMenu = form1.propertyGrid1.ContextMenu;
+      ContextMenu propertyGridMenu = form1.graphicPropertyGrid.ContextMenu;
 
       if (propertyGridMenu == null)
         propertyGridMenu = new ContextMenu();
 
       propertyGridMenu.MenuItems.Add("Test");
-      form1.propertyGrid1.ContextMenu = propertyGridMenu;
+      form1.graphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
 
     private void fcFlowChartBoxModifying(object sender, BoxConfirmArgs e)
@@ -1361,9 +1363,9 @@ namespace SysCAD.Editor
       newGraphicLink.Destination = graphicLink.Destination;
       newGraphicLink.Origin = graphicLink.Origin;
 
-      foreach (PointF point in graphicLink.controlPoints)
+      foreach (PointF point in graphicLink.ControlPoints)
       {
-        newGraphicLink.controlPoints.Add(new PointF(point.X + dx, point.Y + dy));
+        newGraphicLink.ControlPoints.Add(new PointF(point.X + dx, point.Y + dy));
       }
 
       state.CreateLink(newGraphicLink, true, fcFlowChart);
@@ -1503,15 +1505,15 @@ namespace SysCAD.Editor
       }
       
 
-      form1.propertyGrid1.Refresh();
+      form1.graphicPropertyGrid.Refresh();
 
-      ContextMenu propertyGridMenu = form1.propertyGrid1.ContextMenu;
+      ContextMenu propertyGridMenu = form1.graphicPropertyGrid.ContextMenu;
 
       if (propertyGridMenu == null)
         propertyGridMenu = new ContextMenu();
 
       propertyGridMenu.MenuItems.Add("Test");
-      form1.propertyGrid1.ContextMenu = propertyGridMenu;
+      form1.graphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
       
     private void RouteLink(object sender, EventArgs e)
@@ -1594,7 +1596,7 @@ namespace SysCAD.Editor
       hoverArrow.OrgnAnchor = -1;
       hoverArrow.Origin = fcFlowChart.Dummy;
 
-      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.ControlPoints);
     }
 
     private void DisconnectDestination(object sender, EventArgs e)
@@ -1602,7 +1604,7 @@ namespace SysCAD.Editor
       hoverArrow.DestAnchor = -1;
       hoverArrow.Destination = fcFlowChart.Dummy;
 
-      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.controlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.ControlPoints);
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
@@ -1645,11 +1647,11 @@ namespace SysCAD.Editor
           newGraphicLink.OriginPort = (oldOriginBox.Tag as Item).GraphicItem.anchorIntToTag[oldOriginAnchor];
       }
 
-      newGraphicLink.controlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
+      newGraphicLink.ControlPoints = State.GetControlPoints(e.Arrow.ControlPoints);
 
       fcFlowChart.DeleteObject(e.Arrow);
 
-      form1.toolStripStatusLabel1.Text = "";
+      form1.toolStripStatusLabel.Text = "";
 
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;

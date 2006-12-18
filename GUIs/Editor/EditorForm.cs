@@ -263,9 +263,9 @@ namespace SysCAD.Editor
               newGraphicLink.Destination = graphicLink.Destination;
               newGraphicLink.Origin = graphicLink.Origin;
 
-              foreach (PointF point in graphicLink.controlPoints)
+              foreach (PointF point in graphicLink.ControlPoints)
               {
-                newGraphicLink.controlPoints.Add(new PointF(point.X, point.Y));
+                newGraphicLink.ControlPoints.Add(new PointF(point.X, point.Y));
               }
 
               // use new tags for connected items.
@@ -363,9 +363,9 @@ namespace SysCAD.Editor
           copyGraphicLink.Origin = graphicLink.Origin;
           copyGraphicLink.Destination = graphicLink.Destination;
 
-          foreach (PointF point in graphicLink.controlPoints)
+          foreach (PointF point in graphicLink.ControlPoints)
           {
-            copyGraphicLink.controlPoints.Add(point);
+            copyGraphicLink.ControlPoints.Add(point);
           }
 
           copyClientInterface.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
@@ -724,6 +724,8 @@ namespace SysCAD.Editor
 
     private void frmFlowChart_fcFlowChart_SelectionChanged()
     {
+      graphicPropertyGrid.Clear();
+
       frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
       if (!frmFlowChart.state.SelectItems)
@@ -778,7 +780,7 @@ namespace SysCAD.Editor
         GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow);
         if (graphicLink != null)
         {
-          propertyGrid1.SelectedObject = graphicLink;
+          graphicPropertyGrid.SetSelectedObject(graphicLink, frmFlowChart.state);
         }
       }
 
@@ -788,10 +790,10 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox);
         if (graphicItem != null)
         {
-          propertyGrid1.SetSelectedObject(graphicItem, frmFlowChart.state.ClientInterface);
+          graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.state);
 
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
-          propertyGrid2.SetModel(modelItem);
+          modelPropertiesGrid.SetModel(modelItem);
 
           frmFlowChart.state.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 

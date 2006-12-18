@@ -283,9 +283,9 @@ namespace SysCAD.Interface
       {
         GraphicLink graphicLink = new GraphicLink(guid, tag, classId, origin, originPort, destination, destinationPort);
 
-        graphicLink.controlPoints = new List<PointF>();
+        graphicLink.ControlPoints = new List<PointF>();
         foreach (PointF controlPoint in controlPoints)
-          graphicLink.controlPoints.Add(controlPoint);
+          graphicLink.ControlPoints.Add(controlPoint);
 
         graphicLinks.Add(guid, graphicLink);
 
@@ -306,9 +306,9 @@ namespace SysCAD.Interface
         graphicLink.OriginPort = originPort;
         graphicLink.DestinationPort = destinationPort;
 
-        graphicLink.controlPoints.Clear();
+        graphicLink.ControlPoints.Clear();
         foreach (PointF controlPoint in controlPoints)
-          graphicLink.controlPoints.Add(controlPoint);
+          graphicLink.ControlPoints.Add(controlPoint);
 
         eventId++;
         OnLinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);

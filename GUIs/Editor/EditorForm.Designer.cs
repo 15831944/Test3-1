@@ -207,12 +207,12 @@ namespace SysCAD.Editor
         this.toolWindowContainer2 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
         this.dockContainerContainer1 = new ActiproSoftware.UIStudio.Dock.DockContainerContainer();
         this.twGraphicProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-        this.propertyGrid1 = new SysCAD.Editor.GraphicPropertyGrid();
+        this.graphicPropertyGrid = new SysCAD.Editor.GraphicPropertyGrid();
         this.toolWindowContainer4 = new ActiproSoftware.UIStudio.Dock.ToolWindowContainer();
-        this.toolWindow1 = new ActiproSoftware.UIStudio.Dock.ToolWindow();
-        this.propertyGrid2 = new SysCAD.Editor.ModelPropertyGrid();
-        this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-        this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+        this.twModelProperties = new ActiproSoftware.UIStudio.Dock.ToolWindow();
+        this.modelPropertiesGrid = new SysCAD.Editor.ModelPropertyGrid();
+        this.statusStrip = new System.Windows.Forms.StatusStrip();
+        this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
         ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
         this.twOverview.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)(this.tvNavigation)).BeginInit();
@@ -222,8 +222,8 @@ namespace SysCAD.Editor
         this.toolWindowContainer2.SuspendLayout();
         this.dockContainerContainer1.SuspendLayout();
         this.twGraphicProperties.SuspendLayout();
-        this.toolWindow1.SuspendLayout();
-        this.statusStrip1.SuspendLayout();
+        this.twModelProperties.SuspendLayout();
+        this.statusStrip.SuspendLayout();
         this.SuspendLayout();
         // 
         // dockManager1
@@ -739,7 +739,7 @@ namespace SysCAD.Editor
         // twGraphicProperties
         // 
         this.twGraphicProperties.AccessibleName = "";
-        this.twGraphicProperties.Controls.Add(this.propertyGrid1);
+        this.twGraphicProperties.Controls.Add(this.graphicPropertyGrid);
         this.twGraphicProperties.Dock = System.Windows.Forms.DockStyle.Fill;
         this.twGraphicProperties.DockManager = this.dockManager1;
         this.twGraphicProperties.Location = new System.Drawing.Point(0, 0);
@@ -751,7 +751,7 @@ namespace SysCAD.Editor
         // 
         // propertyGrid1
         // 
-        this.propertyGrid1.Initialize();
+        this.graphicPropertyGrid.Initialize();
         // 
         // toolWindowContainer4
         // 
@@ -763,52 +763,52 @@ namespace SysCAD.Editor
         this.toolWindowContainer4.Size = new System.Drawing.Size(153, 516);
         this.toolWindowContainer4.TabIndex = 12;
         toolWindowContainer4.Controls.Add(twGraphicProperties);
-        toolWindowContainer4.Controls.Add(toolWindow1);
+        toolWindowContainer4.Controls.Add(twModelProperties);
         // 
         // toolWindow1
         // 
-        this.toolWindow1.Controls.Add(this.propertyGrid2);
-        this.toolWindow1.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.toolWindow1.DockManager = this.dockManager1;
-        this.toolWindow1.Location = new System.Drawing.Point(0, 0);
-        this.toolWindow1.Name = "toolWindow1";
-        this.toolWindow1.Size = new System.Drawing.Size(149, 467);
-        this.toolWindow1.TabIndex = 0;
-        this.toolWindow1.Text = "Model Properties";
+        this.twModelProperties.Controls.Add(this.modelPropertiesGrid);
+        this.twModelProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.twModelProperties.DockManager = this.dockManager1;
+        this.twModelProperties.Location = new System.Drawing.Point(0, 0);
+        this.twModelProperties.Name = "toolWindow1";
+        this.twModelProperties.Size = new System.Drawing.Size(149, 467);
+        this.twModelProperties.TabIndex = 0;
+        this.twModelProperties.Text = "Model Properties";
         // 
         // propertyGrid2
         // 
-        this.propertyGrid2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-        this.propertyGrid2.CommentsHeight = 70;
-        this.propertyGrid2.CommentsVisibility = true;
-        this.propertyGrid2.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.propertyGrid2.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-        this.propertyGrid2.Location = new System.Drawing.Point(0, 0);
-        this.propertyGrid2.Name = "propertyGrid2";
-        this.propertyGrid2.Size = new System.Drawing.Size(149, 467);
-        this.propertyGrid2.TabIndex = 0;
+        this.modelPropertiesGrid.BorderStyle = System.Windows.Forms.BorderStyle.None;
+        this.modelPropertiesGrid.CommentsHeight = 70;
+        this.modelPropertiesGrid.CommentsVisibility = true;
+        this.modelPropertiesGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.modelPropertiesGrid.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+        this.modelPropertiesGrid.Location = new System.Drawing.Point(0, 0);
+        this.modelPropertiesGrid.Name = "propertyGrid2";
+        this.modelPropertiesGrid.Size = new System.Drawing.Size(149, 467);
+        this.modelPropertiesGrid.TabIndex = 0;
         // 
         // statusStrip1
         // 
-        this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-        this.statusStrip1.Location = new System.Drawing.Point(132, 568);
-        this.statusStrip1.Name = "statusStrip1";
-        this.statusStrip1.Size = new System.Drawing.Size(678, 22);
-        this.statusStrip1.TabIndex = 14;
-        this.statusStrip1.Text = "statusStrip1";
+        this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel});
+        this.statusStrip.Location = new System.Drawing.Point(132, 568);
+        this.statusStrip.Name = "statusStrip1";
+        this.statusStrip.Size = new System.Drawing.Size(678, 22);
+        this.statusStrip.TabIndex = 14;
+        this.statusStrip.Text = "statusStrip1";
         // 
         // toolStripStatusLabel1
         // 
-        this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-        this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+        this.toolStripStatusLabel.Name = "toolStripStatusLabel1";
+        this.toolStripStatusLabel.Size = new System.Drawing.Size(0, 17);
         // 
         // Form1
         // 
         this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.ClientSize = new System.Drawing.Size(963, 590);
-        this.Controls.Add(this.statusStrip1);
+        this.Controls.Add(this.statusStrip);
         this.Controls.Add(this.toolWindowContainer4);
         this.Controls.Add(this.dockContainerContainer1);
         this.Controls.Add(this.barDockArea3);
@@ -830,9 +830,9 @@ namespace SysCAD.Editor
         this.toolWindowContainer2.ResumeLayout(false);
         this.dockContainerContainer1.ResumeLayout(false);
         this.twGraphicProperties.ResumeLayout(false);
-        this.toolWindow1.ResumeLayout(false);
-        this.statusStrip1.ResumeLayout(false);
-        this.statusStrip1.PerformLayout();
+        this.twModelProperties.ResumeLayout(false);
+        this.statusStrip.ResumeLayout(false);
+        this.statusStrip.PerformLayout();
         this.ResumeLayout(false);
         this.PerformLayout();
 
@@ -878,11 +878,11 @@ namespace SysCAD.Editor
     private PureComponents.TreeView.TreeView tvNavigation;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer4;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twGraphicProperties;
-      public GraphicPropertyGrid propertyGrid1;
-    private ActiproSoftware.UIStudio.Dock.ToolWindow toolWindow1;
-    public ModelPropertyGrid propertyGrid2;
-    private StatusStrip statusStrip1;
-    public ToolStripStatusLabel toolStripStatusLabel1;
+      public GraphicPropertyGrid graphicPropertyGrid;
+    private ActiproSoftware.UIStudio.Dock.ToolWindow twModelProperties;
+    public ModelPropertyGrid modelPropertiesGrid;
+    private StatusStrip statusStrip;
+    public ToolStripStatusLabel toolStripStatusLabel;
   }
 }
 

@@ -292,10 +292,10 @@ namespace SysCAD.Editor
       PointF pointOrigin = new PointF();
       PointF pointDestination = new PointF();
 
-      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+      if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
       {
-        pointOrigin = graphicLink.controlPoints[0];
-        pointDestination = graphicLink.controlPoints[graphicLink.controlPoints.Count - 1];
+        pointOrigin = graphicLink.ControlPoints[0];
+        pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
       }
 
       if (origin != null)
@@ -322,9 +322,9 @@ namespace SysCAD.Editor
       arrow.ArrowHead = ArrowHead.Triangle;
       arrow.Style = ArrowStyle.Cascading;
 
-      if (graphicLink.controlPoints != null && graphicLink.controlPoints.Count > 1)
+      if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
       {
-        SetControlPoints(arrow, graphicLink.controlPoints);
+        SetControlPoints(arrow, graphicLink.ControlPoints);
       }
 
       Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);

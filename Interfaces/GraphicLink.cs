@@ -22,64 +22,53 @@ namespace SysCAD.Interface
     private String originPort;
     private String destinationPort;
 
-    public List<PointF> controlPoints;
+    private List<PointF> controlPoints;
 
     public Guid Guid
     {
       get { return guid; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Tag name of the link.")]
     public String Tag
     {
       get { return tag; }
       set { tag = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("ClassID of the link."),
-     ReadOnlyAttribute(true)]
     public String ClassID
     {
       get { return classId; }
       set { classId = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Source item of the link."),
-     ReadOnlyAttribute(true)]
     public Guid Origin
     {
       get { return origin; }
       set { origin = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Destination item of the link."),
-     ReadOnlyAttribute(true)]
     public Guid Destination
     {
       get { return destination; }
       set { destination = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Source item of the link."),
-     ReadOnlyAttribute(true)]
     public String OriginPort
     {
       get { return originPort; }
       set { originPort = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Destination item of the link."),
-     ReadOnlyAttribute(true)]
     public String DestinationPort
     {
       get { return destinationPort; }
       set { destinationPort = value; }
+    }
+
+    public List<PointF> ControlPoints
+    {
+      get { return controlPoints; }
+      set { controlPoints = value; }
     }
 
     public GraphicLink(String tag)
