@@ -17,7 +17,7 @@ using System.Net.Sockets;
 namespace SysCAD.Interface
 {
   [Serializable]
-  abstract public class BaseGraphic : MarshalByRefObject
+  abstract public class BaseInterface : MarshalByRefObject
   {
     private String name;
 
@@ -25,7 +25,7 @@ namespace SysCAD.Interface
     public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicThing> graphicThings;
 
-    public BaseGraphic()
+    public BaseInterface()
     {
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicItems = new Dictionary<Guid, GraphicItem>();

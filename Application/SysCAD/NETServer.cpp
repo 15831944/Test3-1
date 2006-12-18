@@ -178,14 +178,14 @@ ref class CNETServerThread
       RemotingServices::Marshal(m_Config, "Global");
       }
 
-    bool ChangeState(ServiceGraphic^ graphic, Int64 requestID, BaseGraphic::RunStates runState)
+    bool ChangeState(ServiceInterface^ serviceInterface, Int64 requestID, BaseInterface::RunStates runState)
       {
       if (true) // Decide whether to allow runstate change
         { // We're going to do it.
         // Change the runstate.
 
         // Raise event(s).
-        graphic->DoStateChanged(requestID, runState);
+        serviceInterface->DoStateChanged(requestID, runState);
 
         return true;
         }
@@ -195,19 +195,19 @@ ref class CNETServerThread
         }
       }
 
-    void GetTagValues(ServiceGraphic^ graphic, Int64 requestID, ArrayList^% tagList)
+    void GetTagValues(ServiceInterface^ serviceInterface, Int64 requestID, ArrayList^% tagList)
       {
         // Return modified ArrayList with tag details included.
       }
 
-    bool CreateItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an item.
         { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        graphic->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        serviceInterface->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -217,14 +217,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an item.
         { // We're going to do it.
         // Modify the item.
 
         // Raise event(s).
-       graphic->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+       serviceInterface->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -234,14 +234,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteItem(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
+    bool DeleteItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an item.
         { // We're going to do it.
         // Delete the item.
 
         // Raise event(s).
-        graphic->DoItemDeleted(requestID, guid);
+        serviceInterface->DoItemDeleted(requestID, guid);
 
         return true;
         }
@@ -251,14 +251,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool CreateLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to create an link.
         { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        graphic->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        serviceInterface->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
         }
@@ -268,14 +268,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool ModifyLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to modify an link.
         { // We're going to do it.
         // Modify the item.
 
         // Raise event(s).
-        graphic->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        serviceInterface->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
         }
@@ -285,14 +285,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteLink(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
+    bool DeleteLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an link.
         { // We're going to do it.
         // Delete the item.
 
         // Raise event(s).
-        graphic->DoLinkDeleted(requestID, guid);
+        serviceInterface->DoLinkDeleted(requestID, guid);
 
         return true;
         }
@@ -302,14 +302,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an Thing.
         { // We're going to do it.
         // Create the Thing.
 
         // Raise event(s).
-        graphic->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+        serviceInterface->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -319,14 +319,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an Thing.
         { // We're going to do it.
         // Modify the Thing.
 
         // Raise event(s).
-       graphic->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+       serviceInterface->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -336,14 +336,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteThing(ServiceGraphic^ graphic, Int64 requestID, Guid guid)
+    bool DeleteThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an Thing.
         { // We're going to do it.
         // Delete the Thing.
 
         // Raise event(s).
-        graphic->DoThingDeleted(requestID, guid);
+        serviceInterface->DoThingDeleted(requestID, guid);
 
         return true;
         }
@@ -353,7 +353,7 @@ ref class CNETServerThread
         }
       }
 
-    PortStatus PortCheck(ServiceGraphic^ graphic, Guid guid, Anchor^ anchor)
+    PortStatus PortCheck(ServiceInterface^ serviceInterface, Guid guid, Anchor^ anchor)
       {
       //		CNSGuidItem * pGuid = new CNSGuidItem();
       //		pGuid->m_Guid = guid;
@@ -363,7 +363,7 @@ ref class CNETServerThread
       return PortStatus::Available;
       }
 
-    ArrayList^ PropertyListCheck(ServiceGraphic^ graphic, Guid guid, String^ tag, String^ path)
+    ArrayList^ PropertyListCheck(ServiceInterface^ serviceInterface, Guid guid, String^ tag, String^ path)
       {
         char* dest = new char[tag->Length+1];
         strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(tag)))));
@@ -374,30 +374,30 @@ ref class CNETServerThread
         return list;
       }
 
-    void MarshalGraphics()
+    void MarshalServiceInterface()
     {
-      ServiceGraphic::ChangeStateHandler^ changeState = gcnew ServiceGraphic::ChangeStateHandler(this, &CNETServerThread::ChangeState);
+      ServiceInterface::ChangeStateHandler^ changeState = gcnew ServiceInterface::ChangeStateHandler(this, &CNETServerThread::ChangeState);
 
-      ServiceGraphic::GetTagValuesHandler^ getTagValues = gcnew ServiceGraphic::GetTagValuesHandler(this, &CNETServerThread::GetTagValues);
+      ServiceInterface::GetTagValuesHandler^ getTagValues = gcnew ServiceInterface::GetTagValuesHandler(this, &CNETServerThread::GetTagValues);
 
-      ServiceGraphic::CreateItemHandler^ createItem = gcnew ServiceGraphic::CreateItemHandler(this, &CNETServerThread::CreateItem);
-      ServiceGraphic::ModifyItemHandler^ modifyItem = gcnew ServiceGraphic::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
-      ServiceGraphic::DeleteItemHandler^ deleteItem = gcnew ServiceGraphic::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
+      ServiceInterface::CreateItemHandler^ createItem = gcnew ServiceInterface::CreateItemHandler(this, &CNETServerThread::CreateItem);
+      ServiceInterface::ModifyItemHandler^ modifyItem = gcnew ServiceInterface::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
+      ServiceInterface::DeleteItemHandler^ deleteItem = gcnew ServiceInterface::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
 
-      ServiceGraphic::CreateLinkHandler^ createLink = gcnew ServiceGraphic::CreateLinkHandler(this, &CNETServerThread::CreateLink);
-      ServiceGraphic::ModifyLinkHandler^ modifyLink = gcnew ServiceGraphic::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
-      ServiceGraphic::DeleteLinkHandler^ deleteLink = gcnew ServiceGraphic::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
+      ServiceInterface::CreateLinkHandler^ createLink = gcnew ServiceInterface::CreateLinkHandler(this, &CNETServerThread::CreateLink);
+      ServiceInterface::ModifyLinkHandler^ modifyLink = gcnew ServiceInterface::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
+      ServiceInterface::DeleteLinkHandler^ deleteLink = gcnew ServiceInterface::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
 
-      ServiceGraphic::CreateThingHandler^ createThing = gcnew ServiceGraphic::CreateThingHandler(this, &CNETServerThread::CreateThing);
-      ServiceGraphic::ModifyThingHandler^ modifyThing = gcnew ServiceGraphic::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
-      ServiceGraphic::DeleteThingHandler^ deleteThing = gcnew ServiceGraphic::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
+      ServiceInterface::CreateThingHandler^ createThing = gcnew ServiceInterface::CreateThingHandler(this, &CNETServerThread::CreateThing);
+      ServiceInterface::ModifyThingHandler^ modifyThing = gcnew ServiceInterface::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
+      ServiceInterface::DeleteThingHandler^ deleteThing = gcnew ServiceInterface::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
 
-      ServiceGraphic::PortCheckHandler^ portCheck = gcnew ServiceGraphic::PortCheckHandler(this, &CNETServerThread::PortCheck);
+      ServiceInterface::PortCheckHandler^ portCheck = gcnew ServiceInterface::PortCheckHandler(this, &CNETServerThread::PortCheck);
 
-      ServiceGraphic::PropertyListHandler^ propertyListCheck = gcnew ServiceGraphic::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
+      ServiceInterface::PropertyListHandler^ propertyListCheck = gcnew ServiceInterface::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceGraphic ^ graphic = gcnew ServiceGraphic(changeState, getTagValues, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      ServiceInterface ^ serviceInterface = gcnew ServiceInterface(changeState, getTagValues, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -494,7 +494,7 @@ ref class CNETServerThread
             pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, gcnew String(pThing->m_Tag),
             elements, decorations, textArea, animations,
             System::Drawing::Drawing2D::FillMode::Alternate);
-          graphic->graphicThings->Add(graphicThing->Guid, graphicThing);
+            serviceInterface->graphicThings->Add(graphicThing->Guid, graphicThing);
         }
       }
 
@@ -515,7 +515,7 @@ ref class CNETServerThread
               gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
               RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
               pNode->m_pGrfs[0]->m_Rotation);
-            graphic->graphicItems->Add(graphicItem->Guid, graphicItem);
+            serviceInterface->graphicItems->Add(graphicItem->Guid, graphicItem);
           }
         }
       }
@@ -529,7 +529,7 @@ ref class CNETServerThread
           {
             CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(pGuid); 
             GraphicItem ^originGraphicItem;
-            graphic->graphicItems->TryGetValue(Guid(gcnew String(pLink->m_SrcGuid)), originGraphicItem);
+            serviceInterface->graphicItems->TryGetValue(Guid(gcnew String(pLink->m_SrcGuid)), originGraphicItem);
 
             PointF offset = PointF(0.0F, 0.0F);
             pageOffset.TryGetValue(originGraphicItem->Path, offset);
@@ -549,14 +549,14 @@ ref class CNETServerThread
             gcnew String(pLink->m_SrcGuid), gcnew String(pLink->m_DstGuid),
             gcnew String(pLink->m_SrcPort), gcnew String(pLink->m_DstPort),
             ControlPoints ,
-            graphic->graphicItems);
+            serviceInterface->graphicItems);
 
-          graphic->graphicLinks->Add(graphicLink->Guid, graphicLink);
+          serviceInterface->graphicLinks->Add(graphicLink->Guid, graphicLink);
           }
       }
       }
 
-      RemotingServices::Marshal(graphic, filename);
+      RemotingServices::Marshal(serviceInterface, filename);
       m_Config->ProjectList->Add(filename);
       LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
       };
@@ -577,7 +577,7 @@ ref class CNETServerThread
       Console::WriteLine("Startup");
       CreateConnects();
       GetStencils();
-      MarshalGraphics();
+      MarshalServiceInterface();
       MarshalConfig();
       };
 

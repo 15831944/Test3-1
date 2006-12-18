@@ -751,16 +751,7 @@ namespace SysCAD.Editor
         // 
         // propertyGrid1
         // 
-        this.propertyGrid1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-        this.propertyGrid1.CommentsHeight = 70;
-        this.propertyGrid1.CommentsVisibility = true;
-        this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.propertyGrid1.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
-        this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
-        this.propertyGrid1.Margin = new System.Windows.Forms.Padding(2);
-        this.propertyGrid1.Name = "propertyGrid1";
-        this.propertyGrid1.Size = new System.Drawing.Size(149, 467);
-        this.propertyGrid1.TabIndex = 0;
+        this.propertyGrid1.Initialize();
         // 
         // toolWindowContainer4
         // 

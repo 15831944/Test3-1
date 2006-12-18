@@ -30,138 +30,90 @@ namespace SysCAD.Interface
     public Dictionary<int, String> anchorIntToTag = new Dictionary<int,string>();
 
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Guid of the item."),
-     ReadOnlyAttribute(true),
-     DisplayName("Guid")]
     public Guid Guid
     {
       get { return guid; }
       set { guid = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Area path of the item."),
-     ReadOnlyAttribute(true),
-    DisplayName("Path")]
     public String Path
     {
       get { return path; }
       set { path = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Tag name of the item.")]
     public String Tag
     {
       get { return tag; }
       set { tag = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-    Browsable(false),
-    DescriptionAttribute("Horizontal position of the center of the item.")]
     public float X
     {
       get { return boundingRect.X; }
       set { boundingRect.X = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-   Browsable(false),
-    DescriptionAttribute("Vertical position of the center of the item.")]
     public float Y
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-   Browsable(false),
-    DescriptionAttribute("Width of the item.")]
     public float Width
     {
       get { return boundingRect.Width; }
       set { boundingRect.Width = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-   Browsable(false),
-    DescriptionAttribute("Height of the item.")]
     public float Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-    DescriptionAttribute("Bounding rectangle of the item."),
-    //ReadOnlyAttribute(true),
-   DisplayName("Bounding Rect")]
     public ARectangleF BoundingRect
     {
       get { return boundingRect; }
       set { boundingRect = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Angle of the item.")]
     public float Angle
     {
       get { return angle; }
       set { angle = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Shape name to be used for displaying the item."),
-     Browsable(true),
-     DisplayName("Shape")]
     public Shape Shape
     {
       get { return shape; }
       set { shape = value; }
     }
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Model type of the item."),
-     ReadOnlyAttribute(true),
-     DisplayName("Model")]
     public Model Model
     {
       get { return model; }
       set { model = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Color of fill."),
-     DisplayName("Fill Color")]
     public System.Drawing.Color FillColor
     {
       get { return fillColor; }
       set { fillColor = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Color of fill."),
-     DisplayName("Fill Color")]
     public FillMode FillMode
     {
       get { return fillMode; }
       set { fillMode = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Whether the item is flipped horizontally."),
-     DisplayName("Mirror X")]
     public bool MirrorX
     {
       get { return mirrorX; }
       set { mirrorX = value; }
     }
 
-    [CategoryAttribute("Graphic"),
-     DescriptionAttribute("Whether the item is flipped horizontally."),
-     DisplayName("Mirror Y")]
     public bool MirrorY
     {
       get { return mirrorY; }

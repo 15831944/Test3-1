@@ -16,7 +16,7 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
 
-    private ClientGraphic graphic;
+    private ClientInterface clientInterface;
     private Config config;
 
     private PureComponents.TreeView.TreeView tvNavigation;
@@ -45,10 +45,10 @@ namespace SysCAD.Editor
       set { config = value; }
     }
 
-    public ClientGraphic Graphic
+    public ClientInterface ClientInterface
     {
-      get { return graphic; }
-      set { graphic = value; }
+      get { return clientInterface; }
+      set { clientInterface = value; }
     }
 
     public PureComponents.TreeView.TreeView TVNavigation
@@ -492,7 +492,7 @@ namespace SysCAD.Editor
       if (item != null)
       {
         GraphicItem graphicItem;
-        if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
+        if (clientInterface.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorX = mirrorX;
           GraphicStencil stencil;
@@ -511,7 +511,7 @@ namespace SysCAD.Editor
       if (item != null)
       {
         GraphicItem graphicItem;
-        if (graphic.graphicItems.TryGetValue(guid, out graphicItem))
+        if (clientInterface.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorY = mirrorY;
           GraphicStencil stencil;
@@ -561,7 +561,7 @@ namespace SysCAD.Editor
     internal GraphicItem GraphicItem(Guid guid)
     {
       GraphicItem graphicItem;
-      graphic.graphicItems.TryGetValue(guid, out graphicItem);
+      clientInterface.graphicItems.TryGetValue(guid, out graphicItem);
       return graphicItem;
     }
 
@@ -569,14 +569,14 @@ namespace SysCAD.Editor
     {
       GraphicItem graphicItem = null;
       if (box.Tag is Item)
-        graphic.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
+        clientInterface.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
       return graphicItem;
     }
 
     internal GraphicLink GraphicLink(Guid guid)
     {
       GraphicLink graphicLink;
-      graphic.graphicLinks.TryGetValue(guid, out graphicLink);
+      clientInterface.graphicLinks.TryGetValue(guid, out graphicLink);
       return graphicLink;
     }
 
@@ -584,14 +584,14 @@ namespace SysCAD.Editor
     {
       GraphicLink graphicLink = null;
       if ((arrow != null) && (arrow.Tag != null))
-        graphic.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
+        clientInterface.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
       return graphicLink;
     }
 
     internal GraphicThing GraphicThing(Guid guid)
     {
       GraphicThing graphicThing;
-      graphic.graphicThings.TryGetValue(guid, out graphicThing);
+      clientInterface.graphicThings.TryGetValue(guid, out graphicThing);
       return graphicThing;
     }
 
@@ -599,23 +599,23 @@ namespace SysCAD.Editor
     {
       GraphicThing graphicThing = null;
       if (box.Tag is Thing)
-        graphic.graphicThings.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
+        clientInterface.graphicThings.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
       return graphicThing;
     }
 
     internal IEnumerable<GraphicItem> GraphicItems
     {
-      get { return graphic.graphicItems.Values; }
+      get { return clientInterface.graphicItems.Values; }
     }
 
     internal IEnumerable<GraphicLink> GraphicLinks
     {
-      get { return graphic.graphicLinks.Values; }
+      get { return clientInterface.graphicLinks.Values; }
     }
 
     internal IEnumerable<GraphicThing> GraphicThings
     {
-      get { return graphic.graphicThings.Values; }
+      get { return clientInterface.graphicThings.Values; }
     }
 
     internal Item Item(Guid guid)
@@ -662,84 +662,84 @@ namespace SysCAD.Editor
 
     internal bool IsLink(Guid guid)
     {
-      return graphic.graphicLinks.ContainsKey(guid);
+      return clientInterface.graphicLinks.ContainsKey(guid);
     }
 
     internal bool IsItem(Guid guid)
     {
-      return graphic.graphicItems.ContainsKey(guid);
+      return clientInterface.graphicItems.ContainsKey(guid);
     }
 
     internal bool IsThing(Guid guid)
     {
-      return graphic.graphicThings.ContainsKey(guid);
+      return clientInterface.graphicThings.ContainsKey(guid);
     }
 
 
-    internal bool ChangeState(out Int64 requestId, BaseGraphic.RunStates runState)
+    internal bool ChangeState(out Int64 requestId, BaseInterface.RunStates runState)
     {
-      return graphic.ChangeState(out requestId, runState);
+      return clientInterface.ChangeState(out requestId, runState);
     }
 
 
     internal void GetTagValues(out Int64 requestId, ref ArrayList tagList)
     {
-      graphic.GetTagValues(out requestId, ref tagList);
+      clientInterface.GetTagValues(out requestId, ref tagList);
     }
 
 
     internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientInterface.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientInterface.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool DeleteGraphicItem(out Int64 requestId, Guid guid)
     {
-      return graphic.DeleteItem(out requestId, guid);
+      return clientInterface.DeleteItem(out requestId, guid);
     }
 
 
     internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return graphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientInterface.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     internal bool CreateGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return graphic.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientInterface.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     internal bool DeleteGraphicLink(out Int64 requestId, Guid guid)
     {
-      return graphic.DeleteLink(out requestId, guid);
+      return clientInterface.DeleteLink(out requestId, guid);
     }
 
 
     internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.ModifyThing(out requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      return clientInterface.ModifyThing(out requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
     }
 
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return graphic.CreateThing(out requestId, out guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      return clientInterface.CreateThing(out requestId, out guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
     }
 
     internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
     {
-      return graphic.DeleteThing(out requestId, guid);
+      return clientInterface.DeleteThing(out requestId, guid);
     }
 
 
     internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (anchor != null)
-        return graphic.PortCheck(itemGuid, anchor);
+        return clientInterface.PortCheck(itemGuid, anchor);
       else
         return PortStatus.Unavailable;
     }
@@ -747,69 +747,69 @@ namespace SysCAD.Editor
 
     internal ArrayList PropertyList(Guid guid, String tag, String path)
     {
-      return graphic.PropertyList(guid, tag, path);
+      return clientInterface.PropertyList(guid, tag, path);
     }
 
 
     internal void ConnectGraphic(
-      ClientGraphic.StateChangedHandler stateChangedHandler,
-      ClientGraphic.StepHandler stepHandler,
-      ClientGraphic.ItemCreatedHandler itemCreatedHandler,
-      ClientGraphic.ItemModifiedHandler itemModifiedHandler,
-      ClientGraphic.ItemDeletedHandler itemDeletedHandler,
-      ClientGraphic.LinkCreatedHandler linkCreatedHandler,
-      ClientGraphic.LinkModifiedHandler linkModifiedHandler,
-      ClientGraphic.LinkDeletedHandler linkDeletedHandler,
-      ClientGraphic.ThingCreatedHandler thingCreatedHandler,
-      ClientGraphic.ThingModifiedHandler thingModifiedHandler,
-      ClientGraphic.ThingDeletedHandler thingDeletedHandler)
+      ClientInterface.StateChangedHandler stateChangedHandler,
+      ClientInterface.StepHandler stepHandler,
+      ClientInterface.ItemCreatedHandler itemCreatedHandler,
+      ClientInterface.ItemModifiedHandler itemModifiedHandler,
+      ClientInterface.ItemDeletedHandler itemDeletedHandler,
+      ClientInterface.LinkCreatedHandler linkCreatedHandler,
+      ClientInterface.LinkModifiedHandler linkModifiedHandler,
+      ClientInterface.LinkDeletedHandler linkDeletedHandler,
+      ClientInterface.ThingCreatedHandler thingCreatedHandler,
+      ClientInterface.ThingModifiedHandler thingModifiedHandler,
+      ClientInterface.ThingDeletedHandler thingDeletedHandler)
     {
-      graphic.StateChanged += stateChangedHandler;
+      clientInterface.StateChanged += stateChangedHandler;
 
-      graphic.Step += stepHandler;
+      clientInterface.Step += stepHandler;
 
-      graphic.ItemCreated += itemCreatedHandler;
-      graphic.ItemModified += itemModifiedHandler;
-      graphic.ItemDeleted += itemDeletedHandler;
+      clientInterface.ItemCreated += itemCreatedHandler;
+      clientInterface.ItemModified += itemModifiedHandler;
+      clientInterface.ItemDeleted += itemDeletedHandler;
 
-      graphic.LinkCreated += linkCreatedHandler;
-      graphic.LinkModified += linkModifiedHandler;
-      graphic.LinkDeleted += linkDeletedHandler;
+      clientInterface.LinkCreated += linkCreatedHandler;
+      clientInterface.LinkModified += linkModifiedHandler;
+      clientInterface.LinkDeleted += linkDeletedHandler;
 
-      graphic.ThingCreated += thingCreatedHandler;
-      graphic.ThingModified += thingModifiedHandler;
-      graphic.ThingDeleted += thingDeletedHandler;
+      clientInterface.ThingCreated += thingCreatedHandler;
+      clientInterface.ThingModified += thingModifiedHandler;
+      clientInterface.ThingDeleted += thingDeletedHandler;
     }
 
 
     internal void DisconnectGraphic(
-      ClientGraphic.StateChangedHandler stateChangedHandler,
-      ClientGraphic.StepHandler stepHandler,
-      ClientGraphic.ItemCreatedHandler itemCreatedHandler,
-      ClientGraphic.ItemModifiedHandler itemModifiedHandler,
-      ClientGraphic.ItemDeletedHandler itemDeletedHandler,
-      ClientGraphic.LinkCreatedHandler linkCreatedHandler,
-      ClientGraphic.LinkModifiedHandler linkModifiedHandler,
-      ClientGraphic.LinkDeletedHandler linkDeletedHandler,
-      ClientGraphic.ThingCreatedHandler thingCreatedHandler,
-      ClientGraphic.ThingModifiedHandler thingModifiedHandler,
-      ClientGraphic.ThingDeletedHandler thingDeletedHandler)
+      ClientInterface.StateChangedHandler stateChangedHandler,
+      ClientInterface.StepHandler stepHandler,
+      ClientInterface.ItemCreatedHandler itemCreatedHandler,
+      ClientInterface.ItemModifiedHandler itemModifiedHandler,
+      ClientInterface.ItemDeletedHandler itemDeletedHandler,
+      ClientInterface.LinkCreatedHandler linkCreatedHandler,
+      ClientInterface.LinkModifiedHandler linkModifiedHandler,
+      ClientInterface.LinkDeletedHandler linkDeletedHandler,
+      ClientInterface.ThingCreatedHandler thingCreatedHandler,
+      ClientInterface.ThingModifiedHandler thingModifiedHandler,
+      ClientInterface.ThingDeletedHandler thingDeletedHandler)
     {
-      graphic.StateChanged -= stateChangedHandler;
+      clientInterface.StateChanged -= stateChangedHandler;
 
-      graphic.Step -= stepHandler;
+      clientInterface.Step -= stepHandler;
 
-      graphic.ItemCreated -= itemCreatedHandler;
-      graphic.ItemModified -= itemModifiedHandler;
-      graphic.ItemDeleted -= itemDeletedHandler;
+      clientInterface.ItemCreated -= itemCreatedHandler;
+      clientInterface.ItemModified -= itemModifiedHandler;
+      clientInterface.ItemDeleted -= itemDeletedHandler;
 
-      graphic.LinkCreated -= linkCreatedHandler;
-      graphic.LinkModified -= linkModifiedHandler;
-      graphic.LinkDeleted -= linkDeletedHandler;
+      clientInterface.LinkCreated -= linkCreatedHandler;
+      clientInterface.LinkModified -= linkModifiedHandler;
+      clientInterface.LinkDeleted -= linkDeletedHandler;
 
-      graphic.ThingCreated -= thingCreatedHandler;
-      graphic.ThingModified -= thingModifiedHandler;
-      graphic.ThingDeleted -= thingDeletedHandler;
+      clientInterface.ThingCreated -= thingCreatedHandler;
+      clientInterface.ThingModified -= thingModifiedHandler;
+      clientInterface.ThingDeleted -= thingDeletedHandler;
     }
 
 
@@ -953,7 +953,7 @@ namespace SysCAD.Editor
     }
 
 
-    internal void StateChanged(BaseGraphic.RunStates runState)
+    internal void StateChanged(BaseInterface.RunStates runState)
     {
       throw new Exception("The method or operation is not implemented.");
     }

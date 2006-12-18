@@ -66,24 +66,24 @@ namespace SysCAD.Editor
         fcFlowChart_ThingDeleted);
     }
 
-    internal void SetProject(ClientGraphic graphic, Config config, PureComponents.TreeView.TreeView tvNavigation)
+    internal void SetProject(ClientInterface clientInterface, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
-      state.Graphic = graphic;
+      state.ClientInterface = clientInterface;
       state.Config = config;
       state.TVNavigation = tvNavigation;
 
       state.ConnectGraphic(
-        new ClientGraphic.StateChangedHandler(fcFlowChart_StateChanged),
-        new ClientGraphic.StepHandler(fcFlowChart_Step),
-        new ClientGraphic.ItemCreatedHandler(fcFlowChart_ItemCreated),
-        new ClientGraphic.ItemModifiedHandler(fcFlowChart_ItemModified),
-        new ClientGraphic.ItemDeletedHandler(fcFlowChart_ItemDeleted),
-        new ClientGraphic.LinkCreatedHandler(fcFlowChart_LinkCreated),
-        new ClientGraphic.LinkModifiedHandler(fcFlowChart_LinkModified),
-        new ClientGraphic.LinkDeletedHandler(fcFlowChart_LinkDeleted),
-        new ClientGraphic.ThingCreatedHandler(fcFlowChart_ThingCreated), 
-        new ClientGraphic.ThingModifiedHandler(fcFlowChart_ThingModified),
-        new ClientGraphic.ThingDeletedHandler(fcFlowChart_ThingDeleted));
+        new ClientInterface.StateChangedHandler(fcFlowChart_StateChanged),
+        new ClientInterface.StepHandler(fcFlowChart_Step),
+        new ClientInterface.ItemCreatedHandler(fcFlowChart_ItemCreated),
+        new ClientInterface.ItemModifiedHandler(fcFlowChart_ItemModified),
+        new ClientInterface.ItemDeletedHandler(fcFlowChart_ItemDeleted),
+        new ClientInterface.LinkCreatedHandler(fcFlowChart_LinkCreated),
+        new ClientInterface.LinkModifiedHandler(fcFlowChart_LinkModified),
+        new ClientInterface.LinkDeletedHandler(fcFlowChart_LinkDeleted),
+        new ClientInterface.ThingCreatedHandler(fcFlowChart_ThingCreated), 
+        new ClientInterface.ThingModifiedHandler(fcFlowChart_ThingModified),
+        new ClientInterface.ThingDeletedHandler(fcFlowChart_ThingDeleted));
 
       fcFlowChart.UndoManager.UndoEnabled = false;
       fcFlowChart.UseWaitCursor = true;
@@ -91,17 +91,17 @@ namespace SysCAD.Editor
       fcFlowChart.Visible = false;
       fcFlowChart.Enabled = false;
 
-      foreach (GraphicItem graphicItem in graphic.graphicItems.Values)
+      foreach (GraphicItem graphicItem in clientInterface.graphicItems.Values)
       {
         state.CreateItem(graphicItem, false, fcFlowChart);
       }
 
-      foreach (GraphicLink graphicLink in graphic.graphicLinks.Values)
+      foreach (GraphicLink graphicLink in clientInterface.graphicLinks.Values)
       {
         state.CreateLink(graphicLink, false, fcFlowChart);
       }
 
-      foreach (GraphicThing graphicThing in graphic.graphicThings.Values)
+      foreach (GraphicThing graphicThing in clientInterface.graphicThings.Values)
       {
         state.CreateThing(graphicThing, false, fcFlowChart);
       }
@@ -292,7 +292,7 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
     }
 
-    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseGraphic.RunStates runState)
+    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseInterface.RunStates runState)
     {
       state.StateChanged(runState);
     }

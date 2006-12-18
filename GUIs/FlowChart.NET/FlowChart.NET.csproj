@@ -554,44 +554,61 @@
     </Compile>
     <EmbeddedResource Include="AngleEdit.resx">
       <DependentUpon>AngleEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="BrushEdit.resx">
       <DependentUpon>BrushEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="BrushView.resx">
       <DependentUpon>BrushView.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Cursors.resx" />
+    <EmbeddedResource Include="Cursors.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DashEdit.resx">
       <DependentUpon>DashEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FlowChart.bmp" />
     <EmbeddedResource Include="FlowChart.resx">
       <DependentUpon>FlowChart.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="HatchCombo.resx">
       <DependentUpon>HatchCombo.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons.resx" />
+    <EmbeddedResource Include="Icons.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="LayoutSystem.GridLayout.bmp" />
     <EmbeddedResource Include="LayoutSystem.LayeredLayout.bmp" />
     <EmbeddedResource Include="LayoutSystem.SpringLayout.bmp" />
     <EmbeddedResource Include="LayoutSystem.TreeLayout.bmp" />
     <EmbeddedResource Include="PenEdit.resx">
       <DependentUpon>PenEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PenView.resx">
       <DependentUpon>PenView.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="PrintPreviewForm.resx">
       <DependentUpon>PrintPreviewForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ShapeEdit.resx">
       <DependentUpon>ShapeEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Shapes.resx" />
+    <EmbeddedResource Include="Shapes.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="StringFormatEdit.resx">
       <DependentUpon>StringFormatEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="LayoutSystem.AnnealLayout.bmp" />
   </ItemGroup>

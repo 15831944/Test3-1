@@ -205,7 +205,7 @@ namespace SysCAD.Editor
     public void CopyToClipboard()
     {
       // create clones of selected items
-      ClientGraphic data = copySelection(frmFlowChart.fcFlowChart);
+      ClientInterface data = copySelection(frmFlowChart.fcFlowChart);
 
       DataFormats.Format format =
            DataFormats.GetFormat("Kenwalt.GraphicData");
@@ -244,7 +244,7 @@ namespace SysCAD.Editor
         // is there anything of interest in the clipboard ?
         if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
         {
-          BaseGraphic pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseGraphic;
+          BaseInterface pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseInterface;
 
 
           if (pasteData != null)
@@ -313,12 +313,12 @@ namespace SysCAD.Editor
       }
     }
 
-    private ClientGraphic copySelection(FlowChart doc)
+    private ClientInterface copySelection(FlowChart doc)
     {
       if (doc.Selection.Objects.Count == 0)
         return null;
 
-      ClientGraphic copyGraphic = new ClientGraphic();
+      ClientInterface copyClientInterface = new ClientInterface();
 
       foreach (Box box in doc.Selection.Boxes)
       {
@@ -334,7 +334,7 @@ namespace SysCAD.Editor
           copyGraphicItem.MirrorY = graphicItem.MirrorY;
           copyGraphicItem.FillColor = graphicItem.FillColor;
 
-          copyGraphic.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
+          copyClientInterface.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
         }
 
         GraphicThing graphicThing = frmFlowChart.state.GraphicThing(box);
@@ -347,7 +347,7 @@ namespace SysCAD.Editor
           copyGraphicThing.MirrorY = graphicThing.MirrorY;
           copyGraphicThing.FillColor = graphicThing.FillColor;
 
-          copyGraphic.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
+          copyClientInterface.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
         }
 
       }
@@ -368,11 +368,11 @@ namespace SysCAD.Editor
             copyGraphicLink.controlPoints.Add(point);
           }
 
-          copyGraphic.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
+          copyClientInterface.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
         }
       }
 
-      return copyGraphic;
+      return copyClientInterface;
     }
 
     #endregion
@@ -580,9 +580,9 @@ namespace SysCAD.Editor
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
         frmFlowChart.MdiParent = this;
-        frmFlowChart.Text = openProjectForm.graphic.Name;
+        frmFlowChart.Text = openProjectForm.clientInterface.Name;
 
-        frmFlowChart.SetProject(openProjectForm.graphic, openProjectForm.config, tvNavigation);
+        frmFlowChart.SetProject(openProjectForm.clientInterface, openProjectForm.config, tvNavigation);
         tvNavigationSetProject();
         ovOverview.Document = frmFlowChart.fcFlowChart;
 
@@ -788,7 +788,7 @@ namespace SysCAD.Editor
         GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox);
         if (graphicItem != null)
         {
-          propertyGrid1.SetGraphic(graphicItem);
+          propertyGrid1.SetSelectedObject(graphicItem, frmFlowChart.state.ClientInterface);
 
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
           propertyGrid2.SetModel(modelItem);

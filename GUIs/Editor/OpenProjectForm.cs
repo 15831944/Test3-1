@@ -14,7 +14,7 @@ namespace SysCAD.Editor
   public partial class OpenProjectForm : Form
   {
     public Config config = new Config();
-    public ClientGraphic graphic = new ClientGraphic();
+    public ClientInterface clientInterface = new ClientInterface();
 
     public OpenProjectForm()
     {
@@ -57,12 +57,12 @@ namespace SysCAD.Editor
     {
       if (projectListBox.SelectedItem != null)
       {
-        if (graphic.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
+        if (clientInterface.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
         {
           openButton.Enabled = true;
         }
 
-        errorProvider1.SetError(projectListBox, graphic.connectionError);
+        errorProvider1.SetError(projectListBox, clientInterface.connectionError);
       }
     }
 

@@ -16,30 +16,30 @@ using System.Drawing.Drawing2D;
 namespace SysCAD.Interface
 {
   [Serializable]
-  public sealed class ServiceGraphic : BaseGraphic
+  public sealed class ServiceInterface : BaseInterface
   {
     private Int64 requestId;
     private Int64 eventId;
 
-    public delegate bool ChangeStateHandler(ServiceGraphic graphic, Int64 requestId, RunStates runState);
+    public delegate bool ChangeStateHandler(ServiceInterface serviceInterface, Int64 requestId, RunStates runState);
 
-    public delegate void GetTagValuesHandler(ServiceGraphic graphic, Int64 requestId, ref ArrayList tagList);
+    public delegate void GetTagValuesHandler(ServiceInterface serviceInterface, Int64 requestId, ref ArrayList tagList);
 
-    public delegate bool CreateItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteItemHandler(ServiceGraphic graphic, Int64 requestId, Guid guid);
+    public delegate bool CreateItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
 
-    public delegate bool CreateLinkHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool ModifyLinkHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool DeleteLinkHandler(ServiceGraphic graphic, Int64 requestId, Guid guid);
+    public delegate bool CreateLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool ModifyLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool DeleteLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
 
-    public delegate bool CreateThingHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingHandler(ServiceGraphic graphic, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteThingHandler(ServiceGraphic graphic, Int64 requestId, Guid guid);
+    public delegate bool CreateThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
 
-    public delegate PortStatus PortCheckHandler(ServiceGraphic graphic, Guid itemGuid, Anchor anchor);
+    public delegate PortStatus PortCheckHandler(ServiceInterface serviceInterface, Guid itemGuid, Anchor anchor);
 
-    public delegate ArrayList PropertyListHandler(ServiceGraphic graphic, Guid guid, String tag, String path);
+    public delegate ArrayList PropertyListHandler(ServiceInterface serviceInterface, Guid guid, String tag, String path);
 
 
 
@@ -63,7 +63,7 @@ namespace SysCAD.Interface
 
     private PropertyListHandler propertyListHandler;
 
-    public ServiceGraphic(
+    public ServiceInterface(
       ChangeStateHandler changeStateHandler, GetTagValuesHandler getTagValuesHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
