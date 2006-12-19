@@ -682,9 +682,14 @@ namespace SysCAD.Editor
     }
 
 
-    internal void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    internal void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      clientInterface.GetTagValues(out requestId, ref tagList);
+      clientInterface.GetPropertyValues(out requestId, ref tagPathList);
+    }
+
+    internal void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
+    {
+      clientInterface.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
 

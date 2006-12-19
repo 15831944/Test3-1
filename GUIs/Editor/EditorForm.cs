@@ -793,7 +793,7 @@ namespace SysCAD.Editor
           graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.state);
 
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
-          modelPropertiesGrid.SetModel(modelItem);
+          modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.state);
 
           frmFlowChart.state.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 

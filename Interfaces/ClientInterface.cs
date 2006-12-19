@@ -47,76 +47,75 @@ namespace SysCAD.Interface
     {
       if (serviceGraphic != null)
       {
-        //try
+        try
         {
           if (serviceGraphicStateChangedHandler != null) serviceGraphic.StateChanged -= serviceGraphicStateChangedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
 
-        //try
+        try
         {
-        if (serviceGraphicStepHandler != null) serviceGraphic.Step -= serviceGraphicStepHandler;
+          if (serviceGraphicStepHandler != null) serviceGraphic.Step -= serviceGraphicStepHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
 
-        //try
+        try
         {
-        if (serviceGraphicItemCreatedHandler != null) serviceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
+          if (serviceGraphicItemCreatedHandler != null) serviceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicItemModifiedHandler != null) serviceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
+          if (serviceGraphicItemModifiedHandler != null) serviceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicItemDeletedHandler != null) serviceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
+          if (serviceGraphicItemDeletedHandler != null) serviceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
 
-        //try
+        try
         {
-        if (serviceGraphicLinkCreatedHandler != null) serviceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
+          if (serviceGraphicLinkCreatedHandler != null) serviceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicLinkModifiedHandler != null) serviceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
+          if (serviceGraphicLinkModifiedHandler != null) serviceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicLinkDeletedHandler != null) serviceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
+          if (serviceGraphicLinkDeletedHandler != null) serviceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
 
-        //try
+        try
         {
-        if (serviceGraphicThingCreatedHandler != null) serviceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
+          if (serviceGraphicThingCreatedHandler != null) serviceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicThingModifiedHandler != null) serviceGraphic.ThingModified -= serviceGraphicThingModifiedHandler;
+          if (serviceGraphicThingModifiedHandler != null) serviceGraphic.ThingModified -= serviceGraphicThingModifiedHandler;
         }
-        //catch (SocketException) { }
+        catch (InvalidOperationException) { }
 
-        //try
+        try
         {
-        if (serviceGraphicThingDeletedHandler != null) serviceGraphic.ThingDeleted -= serviceGraphicThingDeletedHandler;
+          if (serviceGraphicThingDeletedHandler != null) serviceGraphic.ThingDeleted -= serviceGraphicThingDeletedHandler;
         }
-        //catch (SocketException) { }
-
+        catch (InvalidOperationException) { }
       }
     }
 
@@ -128,9 +127,14 @@ namespace SysCAD.Interface
     }
 
 
-    public void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      serviceGraphic.GetTagValues(out requestId, ref tagList);
+      serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
+    }
+
+    public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
+    {
+      serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
 

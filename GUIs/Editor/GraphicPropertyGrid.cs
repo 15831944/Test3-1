@@ -9,7 +9,7 @@ using System.Drawing.Drawing2D;
 
 namespace SysCAD.Editor
 {
-  public class GraphicPropertyGrid : VisualHint.SmartPropertyGrid.PropertyGrid
+  public class GraphicPropertyGrid : PropertyGrid
   {
     int id = 0;
     Int64 requestId;

@@ -23,7 +23,8 @@ namespace SysCAD.Interface
 
     public delegate bool ChangeStateHandler(ServiceInterface serviceInterface, Int64 requestId, RunStates runState);
 
-    public delegate void GetTagValuesHandler(ServiceInterface serviceInterface, Int64 requestId, ref ArrayList tagList);
+    public delegate void GetPropertyValuesHandler(ServiceInterface serviceInterface, Int64 requestId, ref ArrayList propertyList);
+    public delegate void GetSubTagsHandler(ServiceInterface serviceInterface, Int64 requestId, String propertyPath, out ArrayList propertyList);
 
     public delegate bool CreateItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
@@ -45,7 +46,8 @@ namespace SysCAD.Interface
 
     private ChangeStateHandler changeStateHandler;
 
-    private GetTagValuesHandler getTagValuesHandler;
+    private GetPropertyValuesHandler getPropertyValuesHandler;
+    private GetSubTagsHandler getSubTagsHandler;
 
     private CreateItemHandler createItemHandler;
     private ModifyItemHandler modifyItemHandler;
@@ -64,7 +66,7 @@ namespace SysCAD.Interface
     private PropertyListHandler propertyListHandler;
 
     public ServiceInterface(
-      ChangeStateHandler changeStateHandler, GetTagValuesHandler getTagValuesHandler,
+      ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, DeleteThingHandler deleteThingHandler,
@@ -72,7 +74,8 @@ namespace SysCAD.Interface
     {
       this.changeStateHandler = changeStateHandler;
 
-      this.getTagValuesHandler = getTagValuesHandler;
+      this.getPropertyValuesHandler = getPropertyValuesHandler;
+      this.getSubTagsHandler = getSubTagsHandler;
 
       this.createItemHandler = createItemHandler;
       this.modifyItemHandler = modifyItemHandler;
@@ -99,12 +102,19 @@ namespace SysCAD.Interface
       return changeStateHandler(this, requestId, runState);
     }
 
-    public void GetTagValues(out Int64 requestId, ref ArrayList tagList)
+    public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
       this.requestId++;
       requestId = this.requestId;
       throw new Exception("The method or operation is not implemented.");
-      getTagValuesHandler(this, requestId, ref tagList);
+      getPropertyValuesHandler(this, requestId, ref tagPathList);
+    }
+
+    public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+      getSubTagsHandler(this, requestId, propertyPath, out propertyList);
     }
 
     public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)

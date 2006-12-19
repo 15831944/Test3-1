@@ -14,7 +14,7 @@
 
 using namespace System;
 using namespace System::IO;
-//using namespace System::IO::Directory;
+using namespace System::Text;
 
 using namespace System::Collections;
 using namespace System::Collections::Generic;
@@ -195,10 +195,44 @@ ref class CNETServerThread
         }
       }
 
-    void GetTagValues(ServiceInterface^ serviceInterface, Int64 requestID, ArrayList^% tagList)
+    void GetPropertyValues(ServiceInterface^ serviceInterface, Int64 requestID, ArrayList^% propertyList)
       {
         // Return modified ArrayList with tag details included.
       }
+
+    void GetSubTags(ServiceInterface^ serviceInterface, Int64 requestID, String^ propertyPath, ArrayList^% propertyList)
+      {
+        Random^ random = gcnew Random();
+
+        // Return ArrayList with tag details included.
+        for (int i=0; i<10; i++)
+        {
+          StringBuilder^ builder = gcnew StringBuilder();
+          System::Char ch;
+          int n = random->Next(5, 10);
+          for (int i = 0; i < n; i++)
+          {
+            ch = Convert::ToChar(random->Next(33, 126));
+            builder->Append(ch);
+          }
+          switch (random->Next(0, 3))
+          {
+            case 0:
+              propertyList->Add(gcnew ModelProperty(builder->ToString(), gcnew Int64(random->Next())));
+              break;
+            case 1:
+              propertyList->Add(gcnew ModelProperty(builder->ToString(), gcnew Double(random->NextDouble())));
+              break;
+            case 2:
+              propertyList->Add(gcnew ModelProperty(builder->ToString(), builder->ToString()));
+              break;
+            case 3:
+              propertyList->Add(gcnew ModelProperty(builder->ToString(), Color::FromArgb(random->Next())));
+              break;
+          }
+        }
+      }
+
 
     bool CreateItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
@@ -378,7 +412,8 @@ ref class CNETServerThread
     {
       ServiceInterface::ChangeStateHandler^ changeState = gcnew ServiceInterface::ChangeStateHandler(this, &CNETServerThread::ChangeState);
 
-      ServiceInterface::GetTagValuesHandler^ getTagValues = gcnew ServiceInterface::GetTagValuesHandler(this, &CNETServerThread::GetTagValues);
+      ServiceInterface::GetPropertyValuesHandler^ getPropertyValues = gcnew ServiceInterface::GetPropertyValuesHandler(this, &CNETServerThread::GetPropertyValues);
+      ServiceInterface::GetSubTagsHandler^ getSubTags = gcnew ServiceInterface::GetSubTagsHandler(this, &CNETServerThread::GetSubTags);
 
       ServiceInterface::CreateItemHandler^ createItem = gcnew ServiceInterface::CreateItemHandler(this, &CNETServerThread::CreateItem);
       ServiceInterface::ModifyItemHandler^ modifyItem = gcnew ServiceInterface::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
@@ -397,7 +432,7 @@ ref class CNETServerThread
       ServiceInterface::PropertyListHandler^ propertyListCheck = gcnew ServiceInterface::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceInterface ^ serviceInterface = gcnew ServiceInterface(changeState, getTagValues, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      ServiceInterface ^ serviceInterface = gcnew ServiceInterface(changeState, getPropertyValues, getSubTags, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
