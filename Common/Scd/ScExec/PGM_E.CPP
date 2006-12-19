@@ -3523,6 +3523,7 @@ void GCInsMngr::ConstructConstants()
     GCDef::Find("*")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);//*
     GCDef::Find("-")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);//-
     GCDef::Find("+")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);//+
+    GCDef::Find("^")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);//^
     GCCmpGreat.m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCCmpLessEqual.m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCCmpLess.m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
@@ -3942,7 +3943,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
     m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
     }
 
-  m_pH->m_pTknParser->SetSeperators("+-*/;,= \t()<>!\"[]{}$#@\v\f");
+  m_pH->m_pTknParser->SetSeperators("+-*/^;,= \t()<>!\"[]{}$#@\v\f");
   m_pH->m_pTknParser->SetWhiteSpace(" \t\v\f");
   m_pH->m_pTknParser->SetFailFn(&PGMParseFailure, (void*)this);
 
@@ -4010,7 +4011,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
         }
       else
         m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
-      m_pH->m_pTknParser->SetSeperators("+-*/;,= \t()<>!\"[]{}$#@\v\f");
+      m_pH->m_pTknParser->SetSeperators("+-*/^;,= \t()<>!\"[]{}$#@\v\f");
       m_pH->m_pTknParser->SetWhiteSpace(" \t\v\f");
       //m_pH->m_pTknParser->SetFailFn(&PGMParseFailure, (void*)this);
       if (m_pH->m_pTknParser->Start())
@@ -5627,6 +5628,7 @@ void GCInsMngr::Err(char Code, int errNo, pchar ErrMsg)
     case 51 : errDesc = "Cannot find square root of a negative number."; break;
     case 52 : errDesc = "Cannot raise a negative number to a non-integer power."; break;
     case 53 : errDesc = "Cannot find the log or ln of zero or a negative number."; break;
+    case 54 : errDesc = "Cannot raise zero to a negative power."; break;
     //load errors 100 to 200
     case 100 : errDesc = "Valid datatype expected."; break;
     case 101 : errDesc = "Alphanumeric expected."; break;

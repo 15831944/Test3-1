@@ -2678,10 +2678,12 @@ Build 122 : 16 November 2006
 1301 17/12/06: (#703) Bayer SMDK fix.
 1305 19/12/06: (#704) Add option to allow reporting of set tag sets for taglist, queue and 
                events models to archive event log.
+1306 19/12/06: (#705) Added power (^) function to pgm. (eg d=3^2)
+               events models to archive event log.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1305
+#define SCD_PATCH_SVN    1306
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

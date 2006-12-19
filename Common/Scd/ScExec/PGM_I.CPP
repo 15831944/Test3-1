@@ -252,6 +252,27 @@ inline void GCDivideIns::Exec(rGCInsMngr IB)
 
 //===========================================================================
 
+START_CODE(Power)
+MID_CODE(Power,"^",DefExp | DefOperator,30)
+virtual pGCIns   Construct(rGCInsMngr IB)
+  { return new(IB) GCPowerIns; };
+END_CODE(Power)
+
+//---------------------------------------------------------------------------
+
+inline void GCPowerIns::Exec(rGCInsMngr IB)
+  {
+  --IB.m_iCalcPos;
+  if (IB.m_dCalcStack[IB.m_iCalcPos]<0.0 && IB.m_dCalcStack[IB.m_iCalcPos+1]-(double)((long)(IB.m_dCalcStack[IB.m_iCalcPos+1]))!=0.0)
+    IB.Err(ErrMathRuntime,52);
+  if (IB.m_dCalcStack[IB.m_iCalcPos]==0.0 && IB.m_dCalcStack[IB.m_iCalcPos+1]<0.0)
+    IB.Err(ErrMathRuntime,54);
+  IB.m_dCalcStack[IB.m_iCalcPos] = pow(IB.m_dCalcStack[IB.m_iCalcPos], IB.m_dCalcStack[IB.m_iCalcPos+1]);
+  Advance(IB);
+  };
+
+//===========================================================================
+
 START_CODE(Sin)
 MID_CODE(Sin,"SIN",DefExp,0)
 virtual pGCIns   Construct(rGCInsMngr IB)
@@ -350,6 +371,8 @@ void GCPowIns::Exec(rGCInsMngr IB)
   --IB.m_iCalcPos;
   if (IB.m_dCalcStack[IB.m_iCalcPos]<0.0 && IB.m_dCalcStack[IB.m_iCalcPos+1]-(double)((long)(IB.m_dCalcStack[IB.m_iCalcPos+1]))!=0.0)
     IB.Err(ErrMathRuntime,52);
+  if (IB.m_dCalcStack[IB.m_iCalcPos]==0.0 && IB.m_dCalcStack[IB.m_iCalcPos+1]<0.0)
+    IB.Err(ErrMathRuntime,54);
   IB.m_dCalcStack[IB.m_iCalcPos] = pow(IB.m_dCalcStack[IB.m_iCalcPos], IB.m_dCalcStack[IB.m_iCalcPos+1]);
   Advance(IB);
   }
