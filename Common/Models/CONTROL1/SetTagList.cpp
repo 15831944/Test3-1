@@ -17,11 +17,16 @@
 //
 //==========================================================================
 
+const byte ReportToMsg = 0x01;
+const byte ReportToEventLog = 0x02;
+
+//==========================================================================
+
 TagListFileHelper::TagListFileHelper(CTagListCon* Parent)
   {
   pParent = Parent;
   bValid = 0;
-  bLogSetTags = 0;
+  eLogSetTags = 0;
   sPath = PrjFiles();
   hProcess = NULL;
   dwProcessId = 0;
@@ -82,8 +87,15 @@ bool TagListFileHelper::LoadAndSetTags(bool TestParamStopped)
             if (Ret==FXR_Found)
               {
               ValidRowCnt++;
-              if (bLogSetTags)
-                LogNote(pParent->Tag(), 0, "Set '%s' to %s", c[0], c[1]);
+              if (eLogSetTags)
+                {
+                char Msg[1024];
+                sprintf(Msg, "Set '%s' to %s", c[0], c[1]);
+                if (eLogSetTags & ReportToMsg)
+                  LogNote(pParent->Tag(), 0, Msg);
+                if (eLogSetTags & ReportToEventLog)
+                  gs_EventLog.LogEvent(pParent->Tag(), Msg);
+                }
               }
             else
               {
@@ -97,8 +109,15 @@ bool TagListFileHelper::LoadAndSetTags(bool TestParamStopped)
         }
       fclose(f);
       sStatus.Set("OK (%d tags set out of %d rows)", ValidRowCnt, line_number-1);
-      if (bLogSetTags)
-        LogNote(pParent->Tag(), 0, "%d tags set out of %d rows", ValidRowCnt, line_number-1);
+      if (eLogSetTags)
+        {
+        char Msg[1024];
+        sprintf(Msg, "%d tags set out of %d rows", ValidRowCnt, line_number-1);
+        if (eLogSetTags & ReportToMsg)
+          LogNote(pParent->Tag(), 0, Msg);
+        if (eLogSetTags & ReportToEventLog)
+          gs_EventLog.LogEvent(pParent->Tag(), Msg);
+        }
       return true;
       }
     else
@@ -168,6 +187,13 @@ const word idmSetTagsBtn  = 1005;
 
 void CTagListCon::BuildDataDefn(DataDefnBlk & DDB)
   {
+  static DDBValueLst DDBLogSetTags[]={
+    {0, "None"},
+    {ReportToMsg, "Messages"},
+    {ReportToEventLog, "EventLog"},
+    {ReportToMsg|ReportToEventLog,   "Messages and EventLog"},
+    {0}};
+
   DDB.BeginStruct(this);
   //DDB.Text("");
   //DDB.Button("Check_tags"/* and functions"*/, "", DC_, "", idmCheckBtn, this, isParmStopped);
@@ -181,7 +207,7 @@ void CTagListCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   DDB.Button("Edit",             "",          DC_,     "",      idmEditBtn, this, isParm);
   DDB.Button("Browse",           "",          DC_,     "",      idmBrowseBtn, this, isParm);
-  DDB.CheckBoxBtn("LogTagSets",  "",          DC_,     "",      &TLH.bLogSetTags, this, isParm, DDBYesNo);
+  DDB.Byte("LogTagSets",         "",          DC_,      "",     &TLH.eLogSetTags, this, isParm, DDBLogSetTags);
   DDB.Text("");
   DDB.Button("SetTags",          "",          DC_,     "",      idmSetTagsBtn, this, isParm);
   DDB.Text("");

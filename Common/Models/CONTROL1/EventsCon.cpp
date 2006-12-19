@@ -17,6 +17,11 @@
 //
 //==========================================================================
 
+const byte ReportToMsg = 0x01;
+const byte ReportToEventLog = 0x02;
+
+//==========================================================================
+
 EventRowInfo::EventRowInfo()
   {
   m_dTime = 0.0;
@@ -40,7 +45,7 @@ EventConInfo::EventConInfo(CEventsCon* Parent)
   bValid = 0;
   bReloadRqd = 1;
   bWrapArround = 1;
-  bLogSetTags = 0;
+  eLogSetTags = 0;
   sPath = PrjFiles();
   hProcess = NULL;
   dwProcessId = 0;
@@ -258,8 +263,15 @@ void EventConInfo::ExecIns(double ICTime)
         }
       else
         {
-        if (bLogSetTags)
-          LogNote(pParent->Tag(), 0, "Set '%s' to %g", RowData[iCurIndex]->m_sOutputTag(), RowData[iCurIndex]->m_dOutputVal);
+        if (eLogSetTags)
+          {
+          char Msg[1024];
+          sprintf(Msg, "Set '%s' to %g", RowData[iCurIndex]->m_sOutputTag(), RowData[iCurIndex]->m_dOutputVal);
+          if (eLogSetTags & ReportToMsg)
+            LogNote(pParent->Tag(), 0, Msg);
+          if (eLogSetTags & ReportToEventLog)
+            gs_EventLog.LogEvent(pParent->Tag(), Msg);
+          }
         }
 
       iCurIndex++;
@@ -326,6 +338,13 @@ const word idmNextOutput  = 1012;
 
 void CEventsCon::BuildDataDefn(DataDefnBlk & DDB)
   {
+  static DDBValueLst DDBLogSetTags[]={
+    {0, "None"},
+    {ReportToMsg, "Messages"},
+    {ReportToEventLog, "EventLog"},
+    {ReportToMsg|ReportToEventLog,   "Messages and EventLog"},
+    {0}};
+
   DDB.BeginStruct(this);
   //DDB.Text("");
   //DDB.CheckBoxBtn("ShowCnv",      "",         DC_, "", &bWithCnvComment, this, isParmStopped, DDBYesNo);
@@ -340,7 +359,7 @@ void CEventsCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String("File",             "",          DC_,     "",      idmFile, this, isParm);
   DDB.Button("Edit",             "",          DC_,     "",      idmEditBtn, this, isParm);
   DDB.Button("Browse",           "",          DC_,     "",      idmBrowseBtn, this, isParm);
-  DDB.CheckBoxBtn("LogTagSets",  "",          DC_,     "",      &ECI.bLogSetTags, this, isParm, DDBYesNo);
+  DDB.Byte("LogTagSets",         "",          DC_,      "",     &ECI.eLogSetTags, this, isParm, DDBLogSetTags);
   DDB.Button("Reload_Restart",   "",          DC_,     "",      idmReloadBtn, this, isParm);
   DDB.Button("Restart",          "",          DC_,     "",      idmRestartBtn, this, isParm);
   //DDB.CheckBoxBtn("WrapArround", "",          DC_,     "",      &ECI.bWrapArround, this, isParm, DDBYesNo);

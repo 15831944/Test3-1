@@ -52,7 +52,8 @@ class EventConInfo
     flag       bValid:1,
                bReloadRqd:1;
     flag       bWrapArround;  //must the events wrap arround after full time
-    flag       bLogSetTags;
+    //flag       bLogSetTags;
+    byte       eLogSetTags;
 
     Strng      sStatus;
     Strng      sPath;

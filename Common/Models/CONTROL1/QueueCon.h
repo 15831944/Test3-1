@@ -54,7 +54,7 @@ class QueueConInfo : public CXRefStatus
                bUseHeadingRow:1,//must the tags be obtained from the first row
                bUseXRefs:1;
     flag       bWrapArround;  //must the queue wrap arround after all values used
-    flag       bLogSetTags;
+    byte       eLogSetTags;
     short      iStartIndex; //index for reset stats/start
     short      iCurIndex;
 

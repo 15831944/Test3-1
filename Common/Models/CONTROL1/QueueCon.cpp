@@ -12,6 +12,11 @@
 #if !SKIPIT 
 
 //==========================================================================
+
+const byte ReportToMsg = 0x01;
+const byte ReportToEventLog = 0x02;
+
+//==========================================================================
 const short MaxColumns = 250;
 
 QueueColInfo::QueueColInfo():
@@ -40,7 +45,7 @@ QueueConInfo::QueueConInfo(CQueueCon* Parent)
   bWrapArround = 1;
   bUseHeadingRow = 0;
   bUseXRefs = 1;
-  bLogSetTags = 0;
+  eLogSetTags = 0;
   iCurIndex = -1;
   iStartIndex = 0;
   sPath = PrjFiles();
@@ -198,8 +203,15 @@ void QueueConInfo::SetTagsDirectly()
         int Ret = TryWriteTag(pParent->FamilyHead(), Tag(), d);
         if (Ret==FXR_Found)
           {
-          if (bLogSetTags)
-            LogNote(pParent->Tag(), 0, "Row %d: Set '%s' to %g", iCurIndex, Tag(), d);
+          if (eLogSetTags)
+            {
+            char Msg[1024];
+            sprintf(Msg, "Row %d: Set '%s' to %g", iCurIndex, Tag(), d);
+            if (eLogSetTags & ReportToMsg)
+              LogNote(pParent->Tag(), 0, Msg);
+            if (eLogSetTags & ReportToEventLog)
+              gs_EventLog.LogEvent(pParent->Tag(), Msg);
+            }
           }
         else
           {
@@ -354,6 +366,13 @@ const word idmFirstTag      = 1120;
 
 void CQueueCon::BuildDataDefn(DataDefnBlk & DDB)
   {
+  static DDBValueLst DDBLogSetTags[]={
+    {0, "None"},
+    {ReportToMsg, "Messages"},
+    {ReportToEventLog, "EventLog"},
+    {ReportToMsg|ReportToEventLog,   "Messages and EventLog"},
+    {0}};
+
   DDB.BeginStruct(this);
   DDB.Text("");
 
@@ -362,7 +381,7 @@ void CQueueCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("TagsInHeading","",         DC_,     "",      idmTagsInHeading,   this, isParmStopped, DDBYesNo);
   DDB.CheckBoxBtn("SetAlways",   "",         DC_,     "",       idmSetTagsAlways,   this, isParmStopped, DDBYesNo);
   DDB.Visibility(NSHM_All, !QCI.bUseXRefs);
-  DDB.CheckBoxBtn("LogTagSets",  "",          DC_,     "",      &(QCI.bLogSetTags), this, isParm, DDBYesNo);
+  DDB.Byte("LogTagSets",         "",          DC_,      "",     &QCI.eLogSetTags,   this, isParm, DDBLogSetTags);
   DDB.Visibility();
   DDB.String("Folder",           "",          DC_,     "",      idmFolder,          this, isResult);//isParm);
   DDB.String("File",             "",          DC_,     "",      idmFile,            this, isParmStopped);

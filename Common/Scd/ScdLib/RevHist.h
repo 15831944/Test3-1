@@ -2676,10 +2676,12 @@ Build 122 : 16 November 2006
 1280  5/12/06: (#699) Changed name of first tab in access window.
 1281  6/12/06: (#700) For slow projects Quickview window was not always closed.
 1301 17/12/06: (#703) Bayer SMDK fix.
+1305 19/12/06: (#704) Add option to allow reporting of set tag sets for taglist, queue and 
+               events models to archive event log.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1301
+#define SCD_PATCH_SVN    1305
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

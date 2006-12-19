@@ -39,7 +39,7 @@ class TagListFileHelper
   {
   public:
     flag       bValid:1;
-    flag       bLogSetTags;
+    byte       eLogSetTags;
 
     Strng      sStatus;
     Strng      sPath;
