@@ -7,9 +7,7 @@
 #include "TTCompress.h"
 
 #include <stdio.h>
-
-
-
+//#pragma optimize("", off)
 
 //====================================================================================
 
@@ -33,11 +31,6 @@ static MDDValueLst DDCalcMode[]=
     {2, "Specify.K"},
     {NULL}
   };
-
-
-
-
-
 
 static MInOutDefStruct s_IODefs[]=
   {
@@ -81,6 +74,18 @@ MBaseMethod(pUnitDef, pNd)
   m_dPRatio = 3;
   m_dPolyEff=1;  //default values...
   m_dPolyK = 0.32;
+  m_dEff = 1.0;
+
+  //m_dRPM = ?;     // Actual pump speed
+  m_dP = 1200.0;       // Final Pressure
+  m_dDeltaP = 800.0;   // Pressure Boost
+  m_dPwr = 0.0;     // Pump Power
+  m_dMWT = 0.0;
+  m_dGasCp = 0.0;
+  m_dGasCv = 0.0;
+  m_dGasGamma = 0.0;
+  m_dTIn = C2K(25);
+  m_dTOut = C2K(25);
 }
 
 //---------------------------------------------------------------------------
@@ -97,10 +102,6 @@ void CTTCompress::Init()
 }
 
 //---------------------------------------------------------------------------
-
-
-
-
 
 void CTTCompress::BuildDataFields()
 {
@@ -125,24 +126,12 @@ void CTTCompress::BuildDataFields()
   DD.Double("TOut", "", &m_dTOut, MF_RESULT, MC_T("C")); 
   DD.Double("Power", "", &m_dPwr, MF_RESULT, MC_Pwr); 
 
-
   DD.Double("Compressor.Efficiency", "",  &m_dEff, MF_PARAMETER, MC_None);
   DD.Double("MWT", "",  &m_dMWT, MF_RESULT|MF_NO_FILING, MC_None);
   DD.Double("Gas.Cp", "",  &m_dGasCp, MF_RESULT|MF_NO_FILING, MC_CpMs);
   DD.Double("Gas.Cv", "",  &m_dGasCv, MF_RESULT|MF_NO_FILING, MC_CpMs);
   DD.Double("Gas.Gamma", "",  &m_dGasGamma, MF_RESULT|MF_NO_FILING, MC_None);
-  
-  
 }
-
-
-
-
-
-
-
-      
-
 
 //---------------------------------------------------------------------------
 
@@ -154,6 +143,7 @@ bool CTTCompress::ConfigureJoins()
   }
 
 //---------------------------------------------------------------------------
+
 bool CTTCompress::EvalJoinPressures()
   {
   if (1)
@@ -161,7 +151,6 @@ bool CTTCompress::EvalJoinPressures()
       for (int j=0; j<Joins.Count; j++)
       {
       double Pj=Joins[j].GetProbalPIn();
-
 
       Joins[j].SetProbalP(m_dP, false, true);
       
@@ -175,7 +164,7 @@ bool CTTCompress::EvalJoinPressures()
   return false;
   }
 
-
+//---------------------------------------------------------------------------
 
 void CTTCompress::doSimpleCompressor(MStream & sIn, MStream & sOut)
 {
@@ -203,12 +192,7 @@ void CTTCompress::doSimpleCompressor(MStream & sIn, MStream & sOut)
   }
   
   sOut.T = tOut;
-  
-  
 }
-
-
-
 
 //---------------------------------------------------------------------------
 
@@ -242,6 +226,7 @@ void CTTCompress::EvalProducts()
     }
     
     if (m_lPumpMode) {
+      m_dEff = Max(m_dEff, 0.01);
       doSimpleCompressor(PumpI, PumpO);
       double dGasWork = PumpO.totHz() - PumpI.totHz();
       m_dPwr = dGasWork/m_dEff;

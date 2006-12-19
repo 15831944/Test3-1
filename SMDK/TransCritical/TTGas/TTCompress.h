@@ -50,6 +50,7 @@ class CTTCompress : public MBaseMethod
     double m_dTOut;
     double m_dPolyEff;
     double m_dPolyK;
+
     void fitCurveData();
     double findDP();
     double calcDP(int, double);
