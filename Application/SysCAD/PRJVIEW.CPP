@@ -905,16 +905,23 @@ void CPrjForm::RebuildMdlTree()
       for (pT=pT->Next(); pT; pT=pT->Next())
         if (pT->Index()==0)
           {
-          Missing = 1;
-          if (pATI->NMissing==0)
+          if (stricmp(pT->Str(), PlantAreaTag)==0)
             {
-            IS.hParent = TVI_ROOT;
-            IS.item.pszText = (char*)MissingFromDrawingsTxt;
-            IS.hParent = MdlTree.InsertItem(&IS);
+            //special model, do not report
             }
-          IS.item.pszText = pT->Str();
-          MdlTree.InsertItem(&IS);
-          pATI->NMissing++;
+          else
+            {
+            Missing = 1;
+            if (pATI->NMissing==0)
+              {
+              IS.hParent = TVI_ROOT;
+              IS.item.pszText = (char*)MissingFromDrawingsTxt;
+              IS.hParent = MdlTree.InsertItem(&IS);
+              }
+            IS.item.pszText = pT->Str();
+            MdlTree.InsertItem(&IS);
+            pATI->NMissing++;
+            }
           }
       delete pATI;
       if (Missing && !bMissingNotified)
