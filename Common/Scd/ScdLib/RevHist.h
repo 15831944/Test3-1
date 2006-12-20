@@ -2680,10 +2680,11 @@ Build 122 : 16 November 2006
                events models to archive event log.
 1306 19/12/06: (#705) Added power (^) function to pgm. (eg d=3^2)
                events models to archive event log.
+1308 20/12/06: (#526) Added RoundUp(value, decimals) function to pgm.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1306
+#define SCD_PATCH_SVN    1308
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

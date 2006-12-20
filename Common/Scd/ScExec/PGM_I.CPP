@@ -11,7 +11,6 @@
 #include "optimize.h"
 #include "executiv.h"
 #include "ndtree.h"
-
 #include "pgm_i.h"
 
 #if WITHDEBUGNEW 
@@ -613,7 +612,7 @@ void GCTruncIns::Exec(rGCInsMngr IB)
   }
 
 //===========================================================================
-
+//note this is "arathmetic round" not "banking round"
 START_CODE(Round)
 MID_CODE(Round,"ROUND",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
@@ -631,6 +630,70 @@ void GCRoundIns::Exec(rGCInsMngr IB)
     IB.m_dCalcStack[IB.m_iCalcPos] = (long)(IB.m_dCalcStack[IB.m_iCalcPos]+0.5);
   else
     IB.m_dCalcStack[IB.m_iCalcPos] = (long)(IB.m_dCalcStack[IB.m_iCalcPos]-0.5);
+  Advance(IB);
+  }
+
+//===========================================================================
+
+START_CODE(RoundUp)
+MID_CODE(RoundUp,"ROUNDUP",DefExp,0)
+virtual pGCIns Construct(rGCInsMngr IB)
+  {
+  IB.DoConstructParms(2);
+  return new(IB) GCRoundUpIns;
+  };
+END_CODE(RoundUp)
+
+//---------------------------------------------------------------------------
+
+void GCRoundUpIns::Exec(rGCInsMngr IB)
+  {
+  --IB.m_iCalcPos;
+  const long decimals = (long)(IB.m_dCalcStack[IB.m_iCalcPos+1]);
+  //IB.m_dCalcStack[IB.m_iCalcPos] = Math::Round(IB.m_dCalcStack[IB.m_iCalcPos], decimals);
+  //there MUST be a better way of implementing this...
+  if (decimals<16)
+    {//do nothing
+    Advance(IB);
+    return;
+    }
+
+  double d;
+  switch (decimals)
+    {
+    case -5: d = 0.00001; break;
+    case -4: d = 0.0001; break;
+    case -3: d = 0.001; break;
+    case -2: d = 0.01; break;
+    case -1: d = 0.1; break;
+    case  0: d = 1.0; break;
+    case  1: d = 10.0; break;
+    case  2: d = 100.0; break;
+    case  3: d = 1000.0; break;
+    case  4: d = 10000.0; break;
+    case  5: d = 100000.0; break;
+    case  6: d = 1000000.0; break;
+    case  7: d = 10000000.0; break;
+    case  8: d = 100000000.0; break;
+    default: d = Pow(10, decimals); break;
+    }
+  const double v = IB.m_dCalcStack[IB.m_iCalcPos]*d;
+  if (v<0.0)
+    {
+    const double f = ceil(v);
+    if (v-f<-1.0e-12)
+      IB.m_dCalcStack[IB.m_iCalcPos] = (f-1)/d;
+    else
+      IB.m_dCalcStack[IB.m_iCalcPos] = f/d;
+    }
+  else
+    {
+    const double f = floor(v);
+    if (v>f)
+      IB.m_dCalcStack[IB.m_iCalcPos] = (f+1)/d;
+    else
+      IB.m_dCalcStack[IB.m_iCalcPos] = f/d;
+    }
   Advance(IB);
   }
 

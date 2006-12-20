@@ -3573,6 +3573,7 @@ void GCInsMngr::ConstructConstants()
     GCDef::Find("ISNAN")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCDef::Find("RANDOM")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCDef::Find("ROUND")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
+    GCDef::Find("ROUNDUP")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCDef::Find("TRUNC")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCDef::Find("RANGE")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
     GCDef::Find("MIN")->m_defFlags |= (DefSolverSet | DefGenConSet | DefFunctSet);
