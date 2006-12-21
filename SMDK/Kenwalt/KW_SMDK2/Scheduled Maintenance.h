@@ -9,7 +9,6 @@
 #include "md_headers.h"
 #endif
 
-//#include <stdatl>
 #include <vector>
 
 #ifdef __SCHEDULED_MAINTEANCE_CPP
@@ -44,6 +43,8 @@ class ScheduledMaintenance : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
+
+	virtual bool PreStartCheck();
 
     //virtual void    EvalProducts();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run
