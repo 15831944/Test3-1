@@ -173,9 +173,11 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 				{
 				case (Strat_Warning):
 				case (Strat_Error):
+          {
 					double dTimeInCycle = dCurrentTime - tasks.at(i).dOffset - tasks.at(i).dPeriod * cycles;
 					tasks.at(i).bRunning = dTimeInCycle >= tasks.at(i).dDownTime;
 					break;
+          }
 				case (Strat_Carry):
 					tasks.at(i).bRunning = cycles * tasks.at(i).dDownTime <= tasks.at(i).dTotalDowntime;
 				}
