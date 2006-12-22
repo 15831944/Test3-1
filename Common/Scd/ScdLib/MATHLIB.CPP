@@ -543,7 +543,7 @@ int CTimeValue::getDateYear()
 inline bool IsLeapYear(int Y) { return (Y>0) && !(Y%4) && ( (Y%100) || !(Y%400) ) ; };
 static int MonthDays[12] = {31,-2,31,30,31,30,31,31,30,31,30,31};
 static char* DayDescriptions[7] = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
-static char* MonthDescriptions[12] = {"January","Febuary","March","April","May","June","July","August","September","October","November","December"};
+static char* MonthDescriptions[12] = {"January","February","March","April","May","June","July","August","September","October","November","December"};
 
 int CTimeValue::getDaysInMonth()
   {
