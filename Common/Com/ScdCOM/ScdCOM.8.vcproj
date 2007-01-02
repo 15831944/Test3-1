@@ -265,6 +265,7 @@
 				RuntimeLibrary="1"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
+				TreatWChar_tAsBuiltInType="false"
 				ForceConformanceInForLoopScope="false"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"

@@ -157,6 +157,7 @@
 				RuntimeLibrary="3"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
+				TreatWChar_tAsBuiltInType="false"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
