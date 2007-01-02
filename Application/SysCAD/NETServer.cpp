@@ -336,14 +336,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an Thing.
         { // We're going to do it.
         // Create the Thing.
 
         // Raise event(s).
-        serviceInterface->DoThingCreated(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+        serviceInterface->DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
         }
@@ -353,14 +353,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, ArrayList^ elements, ArrayList^ decorations, ArrayList^ textArea, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an Thing.
         { // We're going to do it.
         // Modify the Thing.
 
         // Raise event(s).
-       serviceInterface->DoThingModified(requestID, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+       serviceInterface->DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
         }
@@ -502,33 +502,13 @@ ref class CNETServerThread
           GraphicThing ^ graphicThing = gcnew GraphicThing(Guid(gcnew String(pThing->m_Guid)), gcnew String(pThing->m_Tag));
           String ^ path = "/" + filename + "/" + gcnew String(pThing->m_Page) + "/";
 
-		  ArrayList ^ elements = gcnew ArrayList();
-		  elements->Add(gcnew Line(70.0, 95.0, 100.0, 95.0));
-		  elements->Add(gcnew Line(100.0, 95.0, 100.0, 100.0));
-		  elements->Add(gcnew Line(100.0, 100.0, 70.0, 100.0));
-		  elements->Add(gcnew Line(70.0, 100.0, 70.0, 95.0));
-
-		  ArrayList ^ decorations = gcnew ArrayList();
-		  decorations->Add(gcnew Line(0.0, 0.0, 100.0, 0.0));
-		  decorations->Add(gcnew Line(100.0, 0.0, 100.0, 100.0));
-		  decorations->Add(gcnew Line(100.0, 100.0, 0.0, 100.0));
-		  decorations->Add(gcnew Line(0.0, 100.0, 0.0, 0.0));
-
-		  ArrayList ^ textArea = gcnew ArrayList();
-		  textArea->Add(gcnew Line(70.0, 95.0, 100.0, 95.0));
-		  textArea->Add(gcnew Line(100.0, 95.0, 100.0, 100.0));
-		  textArea->Add(gcnew Line(100.0, 100.0, 70.0, 100.0));
-		  textArea->Add(gcnew Line(70.0, 100.0, 70.0, 95.0));
-
-		  ArrayList ^ animations = gcnew ArrayList();
-      //animations->Add(gcnew Animation());
+          //"<Image xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Stretch=\"None\" HorizontalAlignment=\"Left\">\n<Image.Source>\n<DrawingImage PresentationOptions:Freeze=\"True\">\n<DrawingImage.Drawing>\n<GeometryDrawing>\n<GeometryDrawing.Geometry>\n<!-- Create a composite shape. -->\n<GeometryGroup>\n<EllipseGeometry Center=\"50,50\" RadiusX=\"45\" RadiusY=\"20\" />\n<EllipseGeometry Center=\"50,50\" RadiusX=\"20\" RadiusY=\"45\" />\n</GeometryGroup>\n</GeometryDrawing.Geometry>\n<GeometryDrawing.Brush>\n<!-- Paint the drawing with a gradient. -->\n<LinearGradientBrush>\n<GradientStop Offset=\"0.0\" Color=\"Blue\" />\n<GradientStop Offset=\"1.0\" Color=\"#CCCCFF\" />\n</LinearGradientBrush>\n</GeometryDrawing.Brush>\n<GeometryDrawing.Pen>\n<!-- Outline the drawing with a solid color. -->\n<Pen Thickness=\"10\" Brush=\"Black\" />\n</GeometryDrawing.Pen>\n</GeometryDrawing>\n</DrawingImage.Drawing>\n</DrawingImage>\n</Image.Source>\n</Image>\n";
+          String^ xaml = "<Image xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\">\n<Image.Source>\n<DrawingImage>\n<DrawingImage.Drawing>\n<GeometryDrawing>\n<GeometryDrawing.Geometry>\n<!-- Create a composite shape. -->\n<GeometryGroup>\n<EllipseGeometry Center=\"50,50\" RadiusX=\"40\" RadiusY=\"20\" />\n<EllipseGeometry Center=\"50,50\" RadiusX=\"20\" RadiusY=\"40\" />\n</GeometryGroup>\n</GeometryDrawing.Geometry>\n<GeometryDrawing.Brush>\n<!-- Paint the drawing with a gradient. -->\n<LinearGradientBrush>\n<GradientStop Offset=\"0.0\" Color=\"Blue\" />\n<GradientStop Offset=\"1.0\" Color=\"#CCCCFF\" />\n</LinearGradientBrush>\n</GeometryDrawing.Brush>\n<GeometryDrawing.Pen>\n<!-- Outline the drawing with a solid color. -->\n<Pen Thickness=\"1\" Brush=\"Black\" />\n</GeometryDrawing.Pen>\n</GeometryDrawing>\n</DrawingImage.Drawing>\n</DrawingImage>\n</Image.Source>\n</Image>\n";
 
       graphicThing->Populate(filename, gcnew String(pThing->m_Page),
             gcnew String(pThing->m_Guid), 
             RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
-            pThing->m_Rotation, false, false, System::Drawing::Color::Aqua, System::Drawing::Color::Red, gcnew String(pThing->m_Tag),
-            elements, decorations, textArea, animations,
-            System::Drawing::Drawing2D::FillMode::Alternate);
+            xaml, pThing->m_Rotation, false, false);
             serviceInterface->graphicThings->Add(graphicThing->Guid, graphicThing);
         }
       }

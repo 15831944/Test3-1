@@ -342,10 +342,10 @@ namespace SysCAD.Editor
         {
           GraphicThing copyGraphicThing = new GraphicThing(graphicThing.Tag);
           copyGraphicThing.BoundingRect = graphicThing.BoundingRect;
+          copyGraphicThing.Xaml = graphicThing.Xaml;
           copyGraphicThing.Angle = graphicThing.Angle;
           copyGraphicThing.MirrorX = graphicThing.MirrorX;
           copyGraphicThing.MirrorY = graphicThing.MirrorY;
-          copyGraphicThing.FillColor = graphicThing.FillColor;
 
           copyClientInterface.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
         }

@@ -15,10 +15,6 @@ namespace SysCAD.Interface
   {
     private Guid guid;
 
-    [CategoryAttribute("Model"),
-     DescriptionAttribute("Guid of the item."),
-     ReadOnlyAttribute(true),
-     DisplayName("Guid")]
     public Guid Guid
     {
       get { return guid; }

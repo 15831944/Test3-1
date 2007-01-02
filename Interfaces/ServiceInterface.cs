@@ -34,8 +34,8 @@ namespace SysCAD.Interface
     public delegate bool ModifyLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool DeleteLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
 
-    public delegate bool CreateThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool CreateThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
     public delegate bool DeleteThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
 
     public delegate PortStatus PortCheckHandler(ServiceInterface serviceInterface, Guid itemGuid, Anchor anchor);
@@ -174,20 +174,20 @@ namespace SysCAD.Interface
     }
 
 
-    public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
       requestId = this.requestId;
       guid = Guid.NewGuid();
-      return createThingHandler(this, requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      return createThingHandler(this, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
-    public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
       requestId = this.requestId;
       if (graphicThings.ContainsKey(guid))
-        return modifyThingHandler(this, requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+        return modifyThingHandler(this, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
       else
         return false;
     }
@@ -337,30 +337,26 @@ namespace SysCAD.Interface
     }
 
 
-    public void DoThingCreated(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoThingCreated(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       if (!graphicThings.ContainsKey(guid))
       {
         GraphicThing graphicThing = new GraphicThing(guid, tag);
         graphicThing.Path = path;
         graphicThing.BoundingRect = (ARectangleF)boundingRect;
+        graphicThing.Xaml = xaml;
         graphicThing.Angle = angle;
-        graphicThing.FillColor = fillColor;
-        graphicThing.Elements = elements;
-        graphicThing.Decorations = decorations;
-        graphicThing.TextArea = textArea;
-        graphicThing.FillMode = fillMode;
         graphicThing.MirrorX = mirrorX;
         graphicThing.MirrorY = mirrorY;
 
         graphicThings.Add(guid, graphicThing);
 
         eventId++;
-        OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
       }
     }
 
-    public void DoThingModified(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoThingModified(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       GraphicThing graphicThing;
       if (graphicThings.TryGetValue(guid, out graphicThing))
@@ -368,17 +364,13 @@ namespace SysCAD.Interface
         graphicThing.Tag = tag;
         graphicThing.Path = path;
         graphicThing.BoundingRect = (ARectangleF)boundingRect;
+        graphicThing.Xaml = xaml;
         graphicThing.Angle = angle;
-        graphicThing.FillColor = fillColor;
-        graphicThing.Elements = elements;
-        graphicThing.Decorations = decorations;
-        graphicThing.TextArea = textArea;
-        graphicThing.FillMode = fillMode;
         graphicThing.MirrorX = mirrorX;
         graphicThing.MirrorY = mirrorY;
 
         eventId++;
-        OnThingModified(eventId, requestId, guid, tag, path, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
       }
     }
 

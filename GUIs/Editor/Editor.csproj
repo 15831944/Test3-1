@@ -47,6 +47,8 @@
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5">
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
+    <Reference Include="PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
@@ -65,6 +67,7 @@
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GraphicPropertyGrid.cs">
@@ -149,10 +152,6 @@
       <Project>{77CCAE13-E283-4677-B227-D39E75BA48EC}</Project>
       <Name>Overview</Name>
       <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\ThingEditor\ThingEditor\ThingEditor.csproj">
-      <Project>{B7B9A7DC-1AD1-4B45-83FD-3EDF9B86A6CD}</Project>
-      <Name>ThingEditor</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

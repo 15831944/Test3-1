@@ -409,20 +409,19 @@ namespace SysCAD.Editor
       // TBD
     }
 
-    private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       state.AddNode(path, tag, guid);
       state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
     }
 
-    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       Thing thing = state.Thing(guid);
       if (thing != null)
       {
         thing.Box.BoundingRect = boundingRect;
         thing.Box.RotationAngle = angle;
-        thing.Box.FillColor = fillColor;
       }
     }
 
@@ -1301,13 +1300,9 @@ namespace SysCAD.Editor
             graphicThing.Guid,
             graphicThing.Tag,
             graphicThing.Path,
-            graphicThing.BoundingRect,
-            graphicThing.Angle,
-            graphicThing.FillColor,
-            graphicThing.Elements,
-            graphicThing.Decorations,
-            graphicThing.TextArea,
-            graphicThing.FillMode,
+            box.BoundingRect, // this is the new boundingbox from the user move.
+            graphicThing.Xaml,
+            box.RotationAngle, // this is the new rotationangle from the user move.
             graphicThing.MirrorX,
             graphicThing.MirrorY))
         {
@@ -1376,10 +1371,10 @@ namespace SysCAD.Editor
     public void NewGraphicThing(GraphicThing graphicThing, string path)
     {
       if (graphicThing != null)
-        NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Angle, graphicThing.FillColor, graphicThing.Elements, graphicThing.Decorations, graphicThing.TextArea, graphicThing.FillMode, graphicThing.MirrorX, graphicThing.MirrorY);
+        NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
     }
 
-    public void NewGraphicThing(String path, RectangleF boundingRect, Single angle, Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void NewGraphicThing(String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       Int64 requestId;
       Guid guid;
@@ -1387,7 +1382,7 @@ namespace SysCAD.Editor
       while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
 
-      state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
@@ -1482,9 +1477,11 @@ namespace SysCAD.Editor
       Thing thing = (hoverBox.Tag as Thing);
       GraphicThing graphicThing = thing.GraphicThing;
 
-      ThingEditor.ThingEditorForm thingEditor = new ThingEditor.ThingEditorForm(graphicThing);
-      thingEditor.ShowDialog();
-      graphicThing = thingEditor.graphicThing;
+      //ThingEditor.ThingEditorForm thingEditor = new ThingEditor.ThingEditorForm(graphicThing);
+      //thingEditor.ShowDialog();
+      //graphicThing = thingEditor.graphicThing;
+
+      throw new Exception("The method or operation is not implemented.");
 
       Int64 requestId;
       if (state.ModifyGraphicThing(out requestId,
@@ -1492,16 +1489,12 @@ namespace SysCAD.Editor
         graphicThing.Tag,
         graphicThing.Path,
         graphicThing.BoundingRect,
+        graphicThing.Xaml,
         graphicThing.Angle,
-        graphicThing.FillColor,
-        graphicThing.Elements,
-        graphicThing.Decorations,
-        graphicThing.TextArea,
-        graphicThing.FillMode,
         graphicThing.MirrorX,
         graphicThing.MirrorY))
       {
-        hoverBox.Shape = State.GetShapeTemplate(graphicThing);
+        hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
       }
       
 
@@ -1573,12 +1566,14 @@ namespace SysCAD.Editor
     {
       (hoverBox.Tag as Item).Graphic.ZTop();
       (hoverBox.Tag as Item).Model.ZTop();
+      fcFlowChart.Invalidate();
     }
 
     private void SendItemToBottom(object sender, EventArgs e)
     {
       (hoverBox.Tag as Item).Graphic.ZBottom();
       (hoverBox.Tag as Item).Model.ZBottom();
+      fcFlowChart.Invalidate();
     }
 
     private void RaiseThingToTop(object sender, EventArgs e)

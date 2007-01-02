@@ -8,6 +8,18 @@ using SysCAD;
 using System.Collections;
 using System.Drawing.Drawing2D;
 
+using System.Windows;
+using System.Windows.Controls;
+
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.IO;
+using System.Xml; 
+
 namespace SysCAD.Editor
 {
   public class State
@@ -105,6 +117,81 @@ namespace SysCAD.Editor
       }
     }
 
+    //internal MemoryStream testXAML()
+    //{
+    //  //Page page = new Page();
+    //  //page.
+
+    //      //
+    //  // Create the Geometry to draw.
+    //  //
+    //  GeometryGroup ellipses = new GeometryGroup();
+    //  ellipses.Children.Add(new EllipseGeometry(new System.Windows.Point(50,50), 100, 20));
+    //  ellipses.Children.Add(new EllipseGeometry(new System.Windows.Point(50, 50), 20, 100));
+
+    //  //
+    //  // Create a GeometryDrawing.
+    //  //
+    //  GeometryDrawing aGeometryDrawing = new GeometryDrawing();
+    //  aGeometryDrawing.Geometry = ellipses;
+
+    //  // Paint the drawing with a gradient.
+    //  aGeometryDrawing.Brush = 
+    //      new System.Windows.Media.LinearGradientBrush(
+    //          Colors.Blue, 
+    //          System.Windows.Media.Color.FromRgb(204,204,255), 
+    //          new System.Windows.Point(0,0), 
+    //          new System.Windows.Point(1,1));
+
+    //  // Outline the drawing with a solid color.
+    //  aGeometryDrawing.Pen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.Green, 10);
+
+    //  //
+    //  // Use a DrawingImage and an Image control
+    //  // to display the drawing.
+    //  //
+    //  DrawingImage geometryImage = new DrawingImage(aGeometryDrawing);
+
+    //  // Freeze the DrawingImage for performance benefits.
+    //  geometryImage.Freeze();
+
+    //  System.Windows.Controls.Image anImage = new System.Windows.Controls.Image();
+    //  anImage.SnapsToDevicePixels = true;
+    //  anImage.Source = geometryImage;
+    //  anImage.HorizontalAlignment = HorizontalAlignment.Left;
+    //  anImage.Arrange(new Rect(0, 0, 96, 96));
+
+    //  RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(100, 100, 100, 100, PixelFormats.Default);
+    //  renderTargetBitmap.Render(anImage);
+
+    //  PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+    //  pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+    //  MemoryStream stream = new MemoryStream();
+    //  pngBitmapEncoder.Save(stream);
+    //  //FileStream fileStream = new FileStream("c:\\test.png", FileMode.Create);
+    //  //pngBitmapEncoder.Save(fileStream);
+    //  //fileStream.Flush();
+    //  //fileStream.Close();
+
+    //  return stream;
+
+    //  //
+    //  // Place the image inside a border and
+    //  // add it to the page.
+    //  //
+    //  //Border exampleBorder = new Border();
+    //  //exampleBorder.Child = anImage;
+    //  //exampleBorder.BorderBrush = System.Windows.Media.Brushes.Gray;
+    //  //exampleBorder.BorderThickness = new Thickness(1);
+    //  //exampleBorder.HorizontalAlignment = HorizontalAlignment.Left;
+    //  //exampleBorder.VerticalAlignment = VerticalAlignment.Top;
+    //  //exampleBorder.Margin = new Thickness(10);
+
+    //  //this.Margin = new Thickness(20);
+    //  //this.Background = Brushes.White;
+    //  //this.Content = exampleBorder;
+    //}
+
     internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
       flowchart.SuspendLayout();
@@ -117,6 +204,8 @@ namespace SysCAD.Editor
       modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       modelBox.Style = BoxStyle.Shape;
 
+      //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
+
       if (config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil))
         modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
       else
@@ -124,8 +213,8 @@ namespace SysCAD.Editor
 
       modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
 
-      modelBox.FillColor = Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-      modelBox.FrameColor = Color.FromArgb(200, System.Drawing.Color.BurlyWood);
+      modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+      modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
       modelBox.Visible = ShowModels && isVisible;
 
       Box graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
@@ -133,6 +222,8 @@ namespace SysCAD.Editor
       graphicBox.RotationAngle = graphicItem.Angle;
       graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
       graphicBox.Style = BoxStyle.Shape;
+
+      //graphicBox.Image = System.Drawing.Image.FromStream(testXAML());
 
       if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
         graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
@@ -159,8 +250,8 @@ namespace SysCAD.Editor
 
       Box textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
       textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
-      textBox.FillColor = Color.FromArgb(0, System.Drawing.Color.Black);
-      textBox.FrameColor = Color.FromArgb(0, System.Drawing.Color.Black);
+      textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+      textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
       textBox.Style = BoxStyle.Shape;
       textBox.Shape = ShapeTemplate.FromId("Rectangle");
       textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
@@ -183,6 +274,8 @@ namespace SysCAD.Editor
       flowchart.ResumeLayout();
     }
 
+
+
     internal void CreateThing(GraphicThing graphicThing, bool isVisible, FlowChart flowchart)
     {
       flowchart.SuspendLayout();
@@ -190,16 +283,14 @@ namespace SysCAD.Editor
       Box box = flowchart.CreateBox(graphicThing.X, graphicThing.Y, graphicThing.Width, graphicThing.Height);
       box.RotationAngle = graphicThing.Angle;
       box.ToolTip = graphicThing.Tag;
-      box.Style = BoxStyle.Shape;
+      box.Style = BoxStyle.Rectangle;
 
-      box.Shape = GetShapeTemplate(graphicThing);
+      box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
+      box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
 
-      box.Text = graphicThing.Text;
+      box.Image = GetImage(graphicThing, flowchart);
+      box.ImageAlign = ImageAlign.Stretch;
 
-      if (!graphicThing.FillColor.IsEmpty)
-        box.FillColor = Color.FromArgb(150, graphicThing.FillColor);
-      if (!graphicThing.FillColor.IsEmpty)
-        box.FrameColor = Color.FromArgb(200, graphicThing.FrameColor);
       box.Visible = isVisible;
 
       box.ZBottom();
@@ -211,6 +302,29 @@ namespace SysCAD.Editor
       things.Add(thing.Guid, thing);
 
       flowchart.ResumeLayout();
+    }
+
+    public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
+    {
+      StringReader sr = new StringReader(graphicThing.Xaml);
+      XmlReader xr = new XmlTextReader(sr);
+      System.Windows.Controls.Image image = (System.Windows.Controls.Image)System.Windows.Markup.XamlReader.Load(xr);
+
+      System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
+
+      //image.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
+      image.Arrange(new Rect(0, 0, 96, 96));
+
+      //RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, clientRect.Width, clientRect.Height, PixelFormats.Default);
+      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(500, 500, 500, 500, PixelFormats.Default);
+      renderTargetBitmap.Render(image);
+
+      PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+      pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+      MemoryStream stream = new MemoryStream();
+      pngBitmapEncoder.Save(stream);
+
+      return System.Drawing.Image.FromStream(stream);
     }
 
     static public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, GraphicItem graphicItem)
@@ -230,7 +344,7 @@ namespace SysCAD.Editor
           if (graphicItem.MirrorX) x = 100.0F - x;
           float y = anchor.Position.Y;
           if (graphicItem.MirrorY) y = 100.0F - y;
-          AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, Color.Green);
+          AnchorPoint anchorPoint = new AnchorPoint((short)x, (short)y, true, true, MarkStyle.Circle, System.Drawing.Color.Green);
           anchorPoint.Tag = anchor;
           anchorPointCollection.Add(anchorPoint);
         }
@@ -276,10 +390,10 @@ namespace SysCAD.Editor
         case "Pipe-1":
           break;
         case "CtrlLink":
-          arrow.PenColor = Color.Gray;
+          arrow.PenColor = System.Drawing.Color.Gray;
           break;
         default:
-          arrow.PenColor = Color.Red;
+          arrow.PenColor = System.Drawing.Color.Red;
           break;
       }
 
@@ -534,7 +648,7 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetFillColor(Guid guid, Color fillColor)
+    internal void SetFillColor(Guid guid, System.Drawing.Color fillColor)
     {
       Item item;
       items.TryGetValue(guid, out item);
@@ -693,7 +807,7 @@ namespace SysCAD.Editor
     }
 
 
-    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return clientInterface.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
@@ -725,14 +839,14 @@ namespace SysCAD.Editor
     }
 
 
-    internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.ModifyThing(out requestId, guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      return clientInterface.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, Single angle, Color fillColor, ArrayList elements, ArrayList decorations, ArrayList textArea, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.CreateThing(out requestId, out guid, tag, path, boundingRect, angle, fillColor, elements, decorations, textArea, fillMode, mirrorX, mirrorY);
+      return clientInterface.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
@@ -889,58 +1003,9 @@ namespace SysCAD.Editor
         return null;
     }
 
-    static public ShapeTemplate GetShapeTemplate(GraphicThing thing)
-    {
-      int i;
-
-      if (thing != null)
-      {
-        ElementTemplate[] elementTemplate = null;
-        ElementTemplate[] decorationTemplate = null;
-        ElementTemplate[] textAreaTemplate = null;
-
-        if (thing.Elements != null)
-        {
-          elementTemplate = new ElementTemplate[thing.Elements.Count];
-          i = 0;
-          foreach (Element element in thing.Elements)
-          {
-            elementTemplate[i] = MirroredElement(element, thing.MirrorX, thing.MirrorY);
-            i++;
-          }
-        }
-
-        if (thing.Decorations != null)
-        {
-          decorationTemplate = new ElementTemplate[thing.Decorations.Count];
-          i = 0;
-          foreach (Element decoration in thing.Decorations)
-          {
-            decorationTemplate[i] = MirroredElement(decoration, thing.MirrorX, thing.MirrorY);
-            i++;
-          }
-        }
-
-        if (thing.TextArea != null)
-        {
-          textAreaTemplate = new ElementTemplate[thing.TextArea.Count];
-          i = 0;
-          foreach (Element textArea in thing.TextArea)
-          {
-            textAreaTemplate[i] = MirroredElement(textArea, thing.MirrorX, thing.MirrorY);
-            i++;
-          }
-        }
-
-        return (new ShapeTemplate(elementTemplate, decorationTemplate, textAreaTemplate, thing.FillMode, thing.Tag));
-      }
-      else
-        return null;
-    }
-
     static private ElementTemplate MirroredElement(object element, bool mirrorX, bool mirrorY)
     {
-      Line line = element as Line;
+      SysCAD.Interface.Line line = element as SysCAD.Interface.Line;
       if (line != null) return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
                                                 Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
 
@@ -968,7 +1033,7 @@ namespace SysCAD.Editor
       throw new Exception("The method or operation is not implemented.");
     }
 
-    internal static List<PointF> GetControlPoints(PointCollection pointCollection)
+    internal static List<PointF> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)
     {
       List<PointF> list = new List<PointF>(pointCollection.Capacity);
 
