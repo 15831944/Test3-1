@@ -1317,33 +1317,29 @@ void CSqSzDMeasPg::OnOK()
   {
 	CMdlCfgBase::OnOK();
   }
+
 //---------------------------------------------------------------------------
 
 void CSqSzDMeasPg::ValidateNames(void)
-
   {
-
-   int lNDists = H.SDsMeas.GetCount();
-
-   for (int lDistNo = 0; lDistNo < lNDists; lDistNo++)
-     {
-     int lNMeas = H.SDsMeas[lDistNo]->Measurements.GetSize();
-     for (int m=0; m<lNMeas; m++)
-       {
-        CSD_Measurement M = H.SDsMeas[lDistNo]->Measurements[m];
-      
-        Strng NewTag(M.m_sName);
-        if (TaggedObject::ValidateTagChanged(NewTag))
-          {
-            // Name has been changed
-            // Silently change the original name
-            M.m_sName = NewTag;
-            H.SDsMeas[lDistNo]->Measurements[m] = M;
-          }
-
-       }
-     }
-
+  int lNDists = H.SDsMeas.GetCount();
+  for (int lDistNo = 0; lDistNo < lNDists; lDistNo++)
+    {
+    int lNMeas = H.SDsMeas[lDistNo]->Measurements.GetSize();
+    for (int m=0; m<lNMeas; m++)
+      {
+      CSD_Measurement M = H.SDsMeas[lDistNo]->Measurements[m];
+    
+      Strng NewTag(M.m_sName);
+      if (TaggedObject::ValidateTagChanged(NewTag))
+        {
+        // Name has been changed
+        // Silently change the original name
+        M.m_sName = NewTag;
+        H.SDsMeas[lDistNo]->Measurements[m] = M;
+        }
+      }
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -1353,12 +1349,11 @@ BOOL CSqSzDMeasPg::OnKillActive()
 	BOOL OK=CMdlCfgBase::OnKillActive();
   if (bInited)
     {
-
-      // Check Measurement Names comply with TagName conventions
-      ValidateNames();
+    // Check Measurement Names comply with TagName conventions
+    ValidateNames();
 
     gs_CountFactor = dCountFactor;
-      H.Save(Cfg);
+    H.Save(Cfg);
     }  
   return OK;
   }
@@ -1411,7 +1406,6 @@ void CSqSzDMeasPg::PopulateAll(void)
 //---------------------------------------------------------------------------
 
 void CSqSzDMeasPg::PopulateDistributionList(void)
-
   {
   m_DistSel.ResetContent();
   for (int d=0;d<H.SDs.GetSize();d++)
@@ -1424,21 +1418,16 @@ void CSqSzDMeasPg::PopulateDistributionList(void)
 //---------------------------------------------------------------------------
 
 void CSqSzDMeasPg::PopulateMeasurmentList(void)
-
   {
-
   if ( CurDistIndex >= 0 )
     {
     m_MeasList.ResetContent();
     for (int m=0; m<H.SDsMeas[CurDistIndex]->Measurements.GetSize(); m++)
       {
       CSD_Measurement M = H.SDsMeas[CurDistIndex]->Measurements[m];
-
       m_MeasList.AddString(M.m_sName.Str());
       }
-
-      m_MeasList.SetCurSel(0);
-
+    m_MeasList.SetCurSel(0);
     }
   }
 
@@ -1446,11 +1435,9 @@ void CSqSzDMeasPg::PopulateMeasurmentList(void)
 
 void CSqSzDMeasPg::OnCbnSelchangeDistributionSel()
   {
-
-    CurDistIndex = m_DistSel.GetCurSel();
-    PopulateMeasurmentList();
-    OnLbnSelchangeMeasList();
-
+  CurDistIndex = m_DistSel.GetCurSel();
+  PopulateMeasurmentList();
+  OnLbnSelchangeMeasList();
   }
 
 //---------------------------------------------------------------------------
@@ -1460,29 +1447,27 @@ void CSqSzDMeasPg::OnBnClickedMeasAdd()
   // Add a new measurement entry for the distribution list
   if ( CurDistIndex >= 0 )
     {
+    int cnt = H.SDsMeas[CurDistIndex]->Measurements.GetSize();
+    CSD_Measurement M;
 
-      int cnt = H.SDsMeas[CurDistIndex]->Measurements.GetSize();
-      CSD_Measurement M;
+    cnt++;
+    M.m_sName = "Name";
+    M.ValCnv.SetText("%");
+    M.Cnv.SetText("um");
+    //M.Fmt = ??;
+    M.m_dValue = 10;
+    M.m_eType = eSDMT_Text;
+    H.SDsMeas[CurDistIndex]->Measurements.Add(M);
+    m_MeasList.AddString(M.m_sName.Str());
 
-      cnt++;
-      M.m_sName = "Name";
-      M.ValCnv.SetText("%");
-      M.Cnv.SetText("um");
-      //M.Fmt = ??;
-      M.m_dValue = 10;
-      M.m_eType = eSDMT_Text;
-      H.SDsMeas[CurDistIndex]->Measurements.Add(M);
-      m_MeasList.AddString(M.m_sName.Str());
-      
-      int n = m_MeasList.GetCount();
-      //m_MeasList.SelectString(-1,M.m_sName.Str());
-      m_MeasList.SetCurSel(n-1);
+    int n = m_MeasList.GetCount();
+    //m_MeasList.SelectString(-1,M.m_sName.Str());
+    m_MeasList.SetCurSel(n-1);
 
-      OnLbnSelchangeMeasList();
+    OnLbnSelchangeMeasList();
 
-      UpdateData(false);
+    UpdateData(false);
     }
-
   }
 
 //---------------------------------------------------------------------------
@@ -1513,7 +1498,6 @@ void CSqSzDMeasPg::OnBnClickedMeasRemove()
         UpdateData(false);
       }
 
-
     }
   }
 
@@ -1521,7 +1505,6 @@ void CSqSzDMeasPg::OnBnClickedMeasRemove()
 
 void CSqSzDMeasPg::OnEnChangeMeasName()
   {
-
   if (CurDistIndex >= 0)
     {
     long sel = m_MeasList.GetCurSel();
@@ -1542,15 +1525,12 @@ void CSqSzDMeasPg::OnEnChangeMeasName()
       UpdateData(false);
       }   
     }
-
-
   }
 
 //---------------------------------------------------------------------------
 
 void CSqSzDMeasPg::OnLbnSelchangeMeasList()
   {
-
        long sel = m_MeasList.GetCurSel();
         if (sel >= 0)
           {
@@ -1730,22 +1710,19 @@ void CSqSzDMeasPg::OnCbnSelchangeSelMeasType()
 
 void CSqSzDMeasPg::OnEnChangeEditValue()
   {
-
   UpdateData(true);
   if (CurDistIndex >= 0)
     {
     long sel = m_MeasList.GetCurSel();
     if (sel >= 0)
       {
-          CString rString;
-          m_EditBoxValue.GetWindowText(rString);
-          double lVal = atof(rString);
-          lVal = H.SDsMeas[CurDistIndex]->Measurements[sel].ValCnv.Normal(lVal);
-          H.SDsMeas[CurDistIndex]->Measurements[sel].m_dValue = lVal;
-
+      CString rString;
+      m_EditBoxValue.GetWindowText(rString);
+      double lVal = atof(rString);
+      lVal = H.SDsMeas[CurDistIndex]->Measurements[sel].ValCnv.Normal(lVal);
+      H.SDsMeas[CurDistIndex]->Measurements[sel].m_dValue = lVal;
       }   
     }
-
   }
 
 //---------------------------------------------------------------------------
@@ -1758,20 +1735,19 @@ void CSqSzDMeasPg::OnCbnSelchangeComboValUnits()
     long sel = m_MeasList.GetCurSel();
     if (sel >= 0)
       {
-          long sel_units = m_ComboValueUnits.GetCurSel();
+      long sel_units = m_ComboValueUnits.GetCurSel();
 
-          CString rString;
-          m_ComboValueUnits.GetLBText(sel_units,rString);
+      CString rString;
+      m_ComboValueUnits.GetLBText(sel_units,rString);
 
-          const char* s = rString;
-          H.SDsMeas[CurDistIndex]->Measurements[sel].ValCnv.SetText((char*)s);
-          OnEnChangeEditValue();
+      const char* s = rString;
+      H.SDsMeas[CurDistIndex]->Measurements[sel].ValCnv.SetText((char*)s);
+      OnEnChangeEditValue();
       }   
     }
   }
 
 //---------------------------------------------------------------------------
-
 
 void CSqSzDMeasPg::OnCbnSelchangeComboResUnits()
   {
@@ -1781,14 +1757,14 @@ void CSqSzDMeasPg::OnCbnSelchangeComboResUnits()
     long sel = m_MeasList.GetCurSel();
     if (sel >= 0)
       {
-         long sel_result = m_ComboResultUnits.GetCurSel();
+      long sel_result = m_ComboResultUnits.GetCurSel();
 
-          CString rString;
-          m_ComboResultUnits.GetLBText(sel_result,rString);
+      CString rString;
+      m_ComboResultUnits.GetLBText(sel_result,rString);
 
-          const char* s = rString;
-          H.SDsMeas[CurDistIndex]->Measurements[sel].Cnv.SetText((char*)s);
-          OnEnChangeEditValue();
+      const char* s = rString;
+      H.SDsMeas[CurDistIndex]->Measurements[sel].Cnv.SetText((char*)s);
+      OnEnChangeEditValue();
       }   
     }
   }
@@ -1797,36 +1773,32 @@ void CSqSzDMeasPg::OnCbnSelchangeComboResUnits()
 
 void CSqSzDMeasPg::OnBnClickedButtonMeasUp()
   {
-
-    // Move measurement Up
-    if (CurDistIndex >= 0)
+  // Move measurement Up
+  if (CurDistIndex >= 0)
     {
-        long sel = m_MeasList.GetCurSel();
-        if (sel > 0)
-        { 
-            // Swap the measurement order with the previous measurement
+    long sel = m_MeasList.GetCurSel();
+    if (sel > 0)
+      { 
+      // Swap the measurement order with the previous measurement
+      CSD_Measurement temp;
+      CString selString;
+      selString = H.SDsMeas[CurDistIndex]->Measurements[sel].m_sName.Str();
 
-            CSD_Measurement temp;
-            CString selString;
-            selString = H.SDsMeas[CurDistIndex]->Measurements[sel].m_sName.Str();
+      CString selm1String;
+      selm1String = H.SDsMeas[CurDistIndex]->Measurements[sel-1].m_sName.Str();
 
-            CString selm1String;
-            selm1String = H.SDsMeas[CurDistIndex]->Measurements[sel-1].m_sName.Str();
-
-            temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
-            H.SDsMeas[CurDistIndex]->Measurements[sel] = H.SDsMeas[CurDistIndex]->Measurements[sel-1];
-            H.SDsMeas[CurDistIndex]->Measurements[sel-1] = temp;
-
-
-            m_MeasList.DeleteString(sel);
-            m_MeasList.InsertString(sel,selm1String);
-
-            m_MeasList.DeleteString(sel-1);
-            m_MeasList.InsertString(sel-1,selString);
-            m_MeasList.SetCurSel(sel-1);
+      temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
+      H.SDsMeas[CurDistIndex]->Measurements[sel] = H.SDsMeas[CurDistIndex]->Measurements[sel-1];
+      H.SDsMeas[CurDistIndex]->Measurements[sel-1] = temp;
 
 
-        }   
+      m_MeasList.DeleteString(sel);
+      m_MeasList.InsertString(sel,selm1String);
+
+      m_MeasList.DeleteString(sel-1);
+      m_MeasList.InsertString(sel-1,selString);
+      m_MeasList.SetCurSel(sel-1);
+      }   
     }
   }
 
@@ -1834,34 +1806,33 @@ void CSqSzDMeasPg::OnBnClickedButtonMeasUp()
 
 void CSqSzDMeasPg::OnBnClickedButtonMeasDown()
   {
-
-   // Move measurement Down
-    if (CurDistIndex >= 0)
+  // Move measurement Down
+  if (CurDistIndex >= 0)
     {
-        long sel = m_MeasList.GetCurSel();
-        if (sel < (m_MeasList.GetCount()-1))
-        { 
-            // Swap the measurement order with the previous measurement
+    long sel = m_MeasList.GetCurSel();
+    if (sel < (m_MeasList.GetCount()-1))
+      { 
+      // Swap the measurement order with the previous measurement
 
-            CSD_Measurement temp;
-            CString selString;
-            selString = H.SDsMeas[CurDistIndex]->Measurements[sel].m_sName.Str();
+      CSD_Measurement temp;
+      CString selString;
+      selString = H.SDsMeas[CurDistIndex]->Measurements[sel].m_sName.Str();
 
-            CString selp1String;
-            selp1String = H.SDsMeas[CurDistIndex]->Measurements[sel+1].m_sName.Str();
+      CString selp1String;
+      selp1String = H.SDsMeas[CurDistIndex]->Measurements[sel+1].m_sName.Str();
 
 
-            temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
+      temp = H.SDsMeas[CurDistIndex]->Measurements[sel];
       H.SDsMeas[CurDistIndex]->Measurements[sel] = H.SDsMeas[CurDistIndex]->Measurements[sel+1];
-            H.SDsMeas[CurDistIndex]->Measurements[sel+1] = temp;
+      H.SDsMeas[CurDistIndex]->Measurements[sel+1] = temp;
 
 
-            m_MeasList.DeleteString(sel);
-            m_MeasList.InsertString(sel,selp1String);
+      m_MeasList.DeleteString(sel);
+      m_MeasList.InsertString(sel,selp1String);
 
-            m_MeasList.DeleteString(sel+1);
-            m_MeasList.InsertString(sel+1,selString);
-            m_MeasList.SetCurSel(sel+1);
+      m_MeasList.DeleteString(sel+1);
+      m_MeasList.InsertString(sel+1,selString);
+      m_MeasList.SetCurSel(sel+1);
       }   
     }
   }
@@ -1875,6 +1846,6 @@ void CSqSzDMeasPg::OnEnChangeCountFactor()
   dCountFactor = atof(rString);
   if (dCountFactor<1.0e-12)
     dCountFactor=1.0;
-    }
+  }
 
 //---------------------------------------------------------------------------

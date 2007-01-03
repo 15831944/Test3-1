@@ -54,6 +54,7 @@
 #define IDC_BUTTON_MEAS_DOWN            9053
 #define IDC_MEAS_NAME2                  9054
 #define IDC_COUNTFACTOR                 9054
+#define IDC_EDIT_VALUE2                 9054
 #define IDC_EDIT1                       9055
 #define IDC_EDIT_NINTS                  9055
 
