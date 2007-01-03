@@ -18,7 +18,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.IO;
-using System.Xml; 
+using System.Xml;
+using System.Text.RegularExpressions; 
 
 namespace SysCAD.Editor
 {
@@ -306,7 +307,7 @@ namespace SysCAD.Editor
 
     public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
     {
-      StringReader sr = new StringReader(graphicThing.Xaml);
+      StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
       XmlReader xr = new XmlTextReader(sr);
       System.Windows.Controls.Image image = (System.Windows.Controls.Image)System.Windows.Markup.XamlReader.Load(xr);
 
@@ -325,6 +326,79 @@ namespace SysCAD.Editor
       pngBitmapEncoder.Save(stream);
 
       return System.Drawing.Image.FromStream(stream);
+    }
+
+    public static String PreprocessXaml(String xaml)
+    {
+      //String xaml = unProcessedXaml;
+      //Regex regex = new Regex(@"\[\[[^\]]*\]\]");
+      MatchEvaluator myEvaluator = new MatchEvaluator(ProcessMatch);
+      return Regex.Replace(xaml, @"\[\[[^\]]*\]\]", myEvaluator);
+      //MatchCollection matches = regex.Matches(xaml);
+      //foreach (Match match in matches)
+      //{
+      //}
+      //return xaml;
+    }
+
+    private static string ProcessMatch(Match match)
+    {
+      char[] splitter = { '[', ',', ']' };
+
+      String resultStr = String.Empty;
+      String matchStr = match.ToString();
+      String[] strings = matchStr.Split(splitter, StringSplitOptions.RemoveEmptyEntries);
+
+      
+
+      // Just randomly throw in some information until the connection to SysCAD9 is finished.\
+      switch (strings[6].Trim())
+      {
+        case "Hex":
+          {
+            int minResultValue;
+            int maxResultValue;
+
+            if (strings[3].Trim()[0] == '#')
+              minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+            else
+              minResultValue = Int32.Parse(strings[3].Trim());
+
+            if (strings[4].Trim()[0] == '#')
+              maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+            else
+              maxResultValue = Int32.Parse(strings[4].Trim());
+
+            Random rand = new Random();
+            resultStr = "#" + rand.Next(minResultValue, maxResultValue + 1).ToString("X6");
+          }
+          break;
+
+        case "Integer":
+          {
+            int minResultValue;
+            int maxResultValue;
+
+            if (strings[3].Trim()[0] == '#')
+              minResultValue = Int32.Parse(strings[3].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+            else
+              minResultValue = Int32.Parse(strings[3].Trim());
+
+            if (strings[4].Trim()[0] == '#')
+              maxResultValue = Int32.Parse(strings[4].Trim().TrimStart('#'), System.Globalization.NumberStyles.HexNumber);
+            else
+              maxResultValue = Int32.Parse(strings[4].Trim());
+
+            Random rand = new Random();
+            resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString();
+          }
+          break;
+        default:
+          resultStr = "!!Error!!";
+          break;
+      }
+
+      return resultStr;
     }
 
     static public AnchorPattern GetAnchorPattern(ModelStencil modelStencil, GraphicItem graphicItem)

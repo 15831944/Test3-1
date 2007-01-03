@@ -1431,6 +1431,7 @@ namespace SysCAD.Editor
           else if (hoverBox.Tag is Thing)
           {
             theMenu.MenuItems.Add("Edit Thing", new EventHandler(EditThing));
+            theMenu.MenuItems.Add("Imitate update", new EventHandler(RePreprocessThing));
             theMenu.MenuItems.Add("Raise to Top", new EventHandler(RaiseThingToTop));
             theMenu.MenuItems.Add("Send to Bottom", new EventHandler(SendThingToBottom));
             form1.ModeModify();
@@ -1470,6 +1471,14 @@ namespace SysCAD.Editor
       {
         RouteLink(arrow);
       }
+    }
+
+    private void RePreprocessThing(object sender, EventArgs e)
+    {
+      Thing thing = (hoverBox.Tag as Thing);
+      GraphicThing graphicThing = thing.GraphicThing;
+
+      hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
     }
 
     private void EditThing(object sender, EventArgs e)

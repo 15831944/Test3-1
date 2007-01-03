@@ -24,6 +24,9 @@ namespace SysCAD.Editor
 
     public EditorForm()
     {
+      //String testXaml = State.PreprocessXaml("test [[Test tag, 0, 5, #0, #ffffff, Linear, Hex]] test some more");
+
+
       InitializeComponent();
       SetProjectBasedButtons(false);
 
