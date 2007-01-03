@@ -2682,10 +2682,11 @@ Build 122 : 16 November 2006
                events models to archive event log.
 1308 20/12/06: (#526) Added RoundUp(value, decimals) function to pgm.
 1309 20/12/06: (#701) Removed incorrect PlantArea missing from drawings in project models view.
+1316  3/01/07: (#707) Added elemental molecular weights to specie data access window.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1309
+#define SCD_PATCH_SVN    1316
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

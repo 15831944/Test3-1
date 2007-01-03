@@ -98,6 +98,7 @@ class DllImportExport SDBObjectEdt : public FxdEdtBookRef
     int            iSpBlkLen[MaxSpecies+1];
     CnvAttribute   TCnv, PCnv, CpCnvMl, HCnvMl, SCnvMl, CpCnvMs, HCnvMs, SCnvMs, RhoCnv, VpCnv, VtCnv;
     FmtAttribute   MlFmt, TFmt, PFmt, CpFmt, HFmt, SFmt, RhoFmt, VpFmt, VtFmt;
+    FmtAttribute   ElFmt;//shared Elemental MoleWt Fmt
     FmtAttribute   EPFmt;//shared ExtraProps Fmt
 
     int DistFromPgNo(int Pg);

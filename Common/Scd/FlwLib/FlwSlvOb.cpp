@@ -70,7 +70,9 @@ XID xidRho       = ModelXID(1000) + 17*MaxSpecies;
 XID xidVp        = ModelXID(1000) + 18*MaxSpecies;
 XID xidVt        = ModelXID(1000) + 19*MaxSpecies;
 
-XID xidExtraProp = ModelXID(1000)+20*MaxSpecies; //first ExtraProps ID
+XID xidElemMolWt = ModelXID(1000) + 20*MaxSpecies;
+
+XID xidExtraProp = ModelXID(1000) + 21*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after xidExtraProp for MaxExtraProps*MaxSpecies !!!
 
 DDBFnParms Parms0[]   = { {tt_NULL}}; 
@@ -125,7 +127,20 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
       DDB.EndStruct();
       }    
     DDB.Visibility();
-    
+
+    const int iElemCnt = EDB.Count();
+    if (DDB.BeginStruct(this, "Elem", NULL, DDB_NoPage))
+      {
+      Strng Tg;
+      for (int i=0; i<iElemCnt; i++)
+        {
+        CElementD &E = EDB[i];
+        Tg.Set("%s.MoleWt", E.Name);
+        DDB.Double(Tg(), "", DC_, "", xidElemMolWt+i, this, isResult);
+        }
+      }
+    DDB.EndStruct();
+
     if (SDB.ExtraProps())
       {
       CSpeciePropDataBase* pEP    = SDB.ExtraProps();
@@ -173,7 +188,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
   if (CTNode::DataXchg(DCB))
     return true;
 
-  if (DCB.lHandle>=xidMolWt && DCB.lHandle<xidExtraProp)
+  if (DCB.lHandle>=xidMolWt && DCB.lHandle<xidElemMolWt)
     {
     int s=(DCB.lHandle-xidMolWt)%MaxSpecies;
     int i=(DCB.lHandle-xidMolWt)/MaxSpecies;
@@ -208,6 +223,12 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidVp:    DCB.D=SDB[s].VapourP(FIDELITY(1), PARM(0)); return true;
       case xidVt:    DCB.D=SDB[s].VapourT(FIDELITY(1), PARM(0)); return true;
       }
+    }
+  else if (DCB.lHandle>=xidElemMolWt && DCB.lHandle<xidExtraProp)
+    {
+    CElementD &E = EDB[DCB.lHandle-xidElemMolWt];
+    DCB.D=E.AtmWt;
+    return true;
     }
   else if (DCB.lHandle>=xidExtraProp && SDB.ExtraProps())
     {
@@ -276,6 +297,8 @@ const int Id_Vt1             =  13*MaxSpecies;
 const int Id_Rho1            =  14*MaxSpecies;
 const int Id_RelSGs1         =  15*MaxSpecies;
 
+const int Id_ElemMoleWt1     =  16*MaxSpecies;
+
 const int Id_ExtraProp1      =  20*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after Id_ExtraProp1 for MaxExtraProps*MaxSpecies !!!
 
@@ -315,10 +338,12 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
   RhoFmt.Set  ("", 0, 2, 'f');
   VpFmt.Set   ("", 0, 2, 'f');
 
+  ElFmt.Set   ("", 0, 6, 'f'); //shared Elemental MoleWt Fmt
+
   EPFmt.Set   ("", 0, 2, 'f'); //shared ExtraProps Fmt
 
   iPg1=0;
-  iPgExtraProps=1;//page number of first extra properties page
+  iPgExtraProps=2;//page number of first extra properties page
   iNameWidth=12;
   iSpBlkCnt=0;
   iSpBlkLen[iSpBlkCnt]=0;
@@ -474,28 +499,27 @@ void SDBObjectEdt::Build()
 
   if (1) //data Blk
     {
-    StartBlk(8, 0, NULL); 
+    StartBlk(6, 0, NULL); 
     int L=0;
 
     SetSpace(L,8);
     L++;
     SetDesc(L,"Mass Basis",  -1, 12, 0, "");
     SetCheckBoxBtn(L, rSDBO.m_bShowMs? "1" : "0", Id_ShowMass, 5, 2, " ", true);
-    L++;
+    SetSpace(L,2);
     SetDesc(L,"HiFidelity",  -1, 12, 0, "");
     SetCheckBoxBtn(L, rSDBO.m_bHiFidelity? "1" : "0", Id_HiFidelity, 5, 2, " ", true);
     L++;
     SetDParm(L,"Temperature", 12, "", Id_DisplayT, 10, 2, " ");
     SetDesc(L, TCnv.Text(),   -1, 6,  0, "");
-
     L++;
     SetDParm(L,"Pressure"   , 12, "", Id_DisplayP, 10, 2, " ");
     SetDesc(L, PCnv.Text(),   -1, 6,  0, "");
     
     //headings...
+    //L++;
     L++;
-    L++;
-    SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
+    SetSpace(L,iNameWidth);
     //SetDesc(L, "Src",           -1, iWd_Src    ,  0, "");
     SetDesc(L, "LoT",           -1, iWd_LoHiT,  2, "");
     SetDesc(L, "HiT",           -1, iWd_LoHiT,  2, "");
@@ -512,7 +536,7 @@ void SDBObjectEdt::Build()
     SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
     
     L++;
-    SetSpace(L,iNameWidth);
+    SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
     //SetDesc(L, "",              -1, iWd_Src    ,  0, "");
     SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
     SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
@@ -549,7 +573,6 @@ void SDBObjectEdt::Build()
     //int b=0;
     int L=0;
     StartBlk(iSpBlkCnt, 0, NULL);
-
 
     for (int i=0; i<SVCfgCount(); i++)
       {
@@ -699,6 +722,43 @@ void SDBObjectEdt::Build()
     }
 #endif
 
+  //---------- page ----------
+  StartPage("Elements");
+  const int iElemNameWidth = 6;
+  const int iElemWtWidth = 12;
+  if (1) // Elements heading Blk
+    {
+    StartBlk(3, 0, NULL);
+    int L=1;
+    SetDesc(L, "Molecular weights of elements...", -1, 50,  0, "");
+    L++;
+    //headings...
+    SetDesc(L, "", -1, 4, 0, "");
+    SetDesc(L, "", -1, iElemNameWidth, 0, "");
+    SetDesc(L, "MoleWt", -1, iElemWtWidth, 0, "");
+    }
+  const int iElemCnt = EDB.Count();
+
+  if (1) // Elements data Blk
+    {
+    Strng Tg;
+    int L=0;
+    StartBlk(iElemCnt, 0, NULL);
+    for (int i=0; i<iElemCnt; i++)
+      {
+      CElementD &E = EDB[i];
+      Tg.Set("%03d", i+1);
+      SetDesc(L, Tg(), -1, 4, 0, "");
+      SetDesc(L, E.Name, -1, iElemNameWidth, 0, "");
+      SetParm(L, "", Id_ElemMoleWt1+i, iElemWtWidth, 2, "");
+      Tg.Set("$SDB.Elem.%s.MoleWt", E.Name);
+      SetTag(Tg());
+      L++;
+      }
+    }
+
+
+  //---------- page ----------
   iPgExtraProps=pView->Pages;
   if (SDB.ExtraProps())
     {
@@ -779,7 +839,20 @@ static inline void FixWide(int &W, Strng &Str, FxdEdtView &View)
 
 void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
   {
-  if (EI.PageNo<iPgExtraProps)
+  if (EI.PageNo==1)
+    {//elements
+    if (CurrentBlk(EI))
+      {//heading
+      }
+    if (CurrentBlk(EI))
+      {//elements data
+      const int i = (EI.FieldId-Id_ElemMoleWt1);
+      CElementD &E = EDB[i];
+      ElFmt.FormatFloat(E.AtmWt, Str);
+      EI.Fld->fEditable=false;
+      }
+    }
+  else if (EI.PageNo<iPgExtraProps)
     {
     if (CurrentBlk(EI))
       {//data
@@ -965,7 +1038,16 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
 long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
   {
   long Fix=0; 
-  if (EI.PageNo<iPgExtraProps)
+  if (EI.PageNo==1)
+    {
+    if (CurrentBlk(EI))
+      {//elemente heading
+      }
+    if (CurrentBlk(EI))
+      {//elemente data
+      }
+    }
+  else if (EI.PageNo<iPgExtraProps)
     {
     if (CurrentBlk(EI))
       {//data
@@ -1020,7 +1102,16 @@ long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
 long SDBObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
   {
   long Fix=0; //set Fix=1 to redraw graph
-  if (EI.PageNo<iPgExtraProps)
+  if (EI.PageNo==1)
+    {
+    if (CurrentBlk(EI))
+      {//elemente heading
+      }
+    if (CurrentBlk(EI))
+      {//elemente data
+      }
+    }
+  else if (EI.PageNo<iPgExtraProps)
     {
     if (CurrentBlk(EI))
       {//data
@@ -1084,7 +1175,11 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
   if (EI.Fld)
     {
     flag TagOnly=false;
-    if (Vw.CPgNo<iPgExtraProps)
+    if (EI.PageNo==1)
+      {
+      WrkIB.Set(EI.Fld->Tag, NULL, &ElFmt);
+      }
+    else if (Vw.CPgNo<iPgExtraProps)
       {
       int iId=GetID(EI.FieldId);
       switch (iId)
