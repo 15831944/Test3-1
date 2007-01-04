@@ -1018,18 +1018,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_03C32B478AA4711A98D1C24E93CE1D36"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1DCA6D76B684F3D645BC6761D5E8DBF5"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_81C05916E4F89E762501243076384802"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1115,6 +1103,18 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_22D57FD734C4C7D43D1B93EB9803301C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_03C32B478AA4711A98D1C24E93CE1D36"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_1DCA6D76B684F3D645BC6761D5E8DBF5"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4173,14 +4173,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Editor"
-        "ProductCode" = "8:{E5E27691-E6D4-407C-9DD5-CFA999A03DE8}"
-        "PackageCode" = "8:{C1A962BE-777A-44EF-9A61-CE29D06994FB}"
+        "ProductCode" = "8:{584F62B1-5300-4032-9B94-ADC512FDEB04}"
+        "PackageCode" = "8:{17EF8252-6670-4C81-9676-84EFAA959485}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:10.0.14"
+        "ProductVersion" = "8:10.0.15"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

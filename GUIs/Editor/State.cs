@@ -309,16 +309,16 @@ namespace SysCAD.Editor
     {
       StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
       XmlReader xr = new XmlTextReader(sr);
-      System.Windows.Controls.Image image = (System.Windows.Controls.Image)System.Windows.Markup.XamlReader.Load(xr);
+      System.Windows.Controls.Canvas canvas = (System.Windows.Controls.Canvas)System.Windows.Markup.XamlReader.Load(xr);
 
       System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
 
-      //image.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
-      image.Arrange(new Rect(0, 0, 96, 96));
+      //canvas.Measure(new System.Windows.Size(400, 400));
+      canvas.Arrange(new Rect(0, 0, 0, 0));
 
       //RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, clientRect.Width, clientRect.Height, PixelFormats.Default);
-      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(500, 500, 500, 500, PixelFormats.Default);
-      renderTargetBitmap.Render(image);
+      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(264, 282, 200, 200, PixelFormats.Default);
+      renderTargetBitmap.Render(canvas);
 
       PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
       pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
@@ -370,7 +370,7 @@ namespace SysCAD.Editor
               maxResultValue = Int32.Parse(strings[4].Trim());
 
             Random rand = new Random();
-            resultStr = "#" + rand.Next(minResultValue, maxResultValue + 1).ToString("X6");
+            resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString("X6");
           }
           break;
 
@@ -393,6 +393,20 @@ namespace SysCAD.Editor
             resultStr = rand.Next(minResultValue, maxResultValue + 1).ToString();
           }
           break;
+
+        case "Float":
+          {
+            Double minResultValue;
+            Double maxResultValue;
+
+            minResultValue = Double.Parse(strings[3].Trim());
+            maxResultValue = Double.Parse(strings[4].Trim());
+
+            Random rand = new Random();
+            resultStr = (rand.NextDouble()*(maxResultValue-minResultValue)+minResultValue).ToString();
+          }
+          break;
+
         default:
           resultStr = "!!Error!!";
           break;
