@@ -52,27 +52,29 @@ SDBObject::~SDBObject()
 XID xidMolWt     = ModelXID(1000);
 XID xidLoT       = ModelXID(1000) +  1*MaxSpecies;
 XID xidHiT       = ModelXID(1000) +  2*MaxSpecies;
-XID xidmlHf25    = ModelXID(1000) +  3*MaxSpecies;
-XID xidmlHf      = ModelXID(1000) +  4*MaxSpecies;
-XID xidmlHs      = ModelXID(1000) +  5*MaxSpecies;
-XID xidmlHz      = ModelXID(1000) +  6*MaxSpecies;
-XID xidmlS       = ModelXID(1000) +  7*MaxSpecies;
-XID xidmlG       = ModelXID(1000) +  8*MaxSpecies;
-XID xidmlCp      = ModelXID(1000) +  9*MaxSpecies;
-XID xidmsHf25    = ModelXID(1000) + 10*MaxSpecies;
-XID xidmsHf      = ModelXID(1000) + 11*MaxSpecies;
-XID xidmsHs      = ModelXID(1000) + 12*MaxSpecies;
-XID xidmsHz      = ModelXID(1000) + 13*MaxSpecies;
-XID xidmsS       = ModelXID(1000) + 14*MaxSpecies;
-XID xidmsG       = ModelXID(1000) + 15*MaxSpecies;
-XID xidmsCp      = ModelXID(1000) + 16*MaxSpecies;
-XID xidRho       = ModelXID(1000) + 17*MaxSpecies;
-XID xidVp        = ModelXID(1000) + 18*MaxSpecies;
-XID xidVt        = ModelXID(1000) + 19*MaxSpecies;
+XID xidSpTag     = ModelXID(1000) +  3*MaxSpecies;
 
-XID xidElemMolWt = ModelXID(1000) + 20*MaxSpecies;
+XID xidmlHf25    = ModelXID(1000) +  4*MaxSpecies;
+XID xidmlHf      = ModelXID(1000) +  5*MaxSpecies;
+XID xidmlHs      = ModelXID(1000) +  6*MaxSpecies;
+XID xidmlHz      = ModelXID(1000) +  7*MaxSpecies;
+XID xidmlS       = ModelXID(1000) +  8*MaxSpecies;
+XID xidmlG       = ModelXID(1000) +  9*MaxSpecies;
+XID xidmlCp      = ModelXID(1000) + 10*MaxSpecies;
+XID xidmsHf25    = ModelXID(1000) + 11*MaxSpecies;
+XID xidmsHf      = ModelXID(1000) + 12*MaxSpecies;
+XID xidmsHs      = ModelXID(1000) + 13*MaxSpecies;
+XID xidmsHz      = ModelXID(1000) + 14*MaxSpecies;
+XID xidmsS       = ModelXID(1000) + 15*MaxSpecies;
+XID xidmsG       = ModelXID(1000) + 16*MaxSpecies;
+XID xidmsCp      = ModelXID(1000) + 17*MaxSpecies;
+XID xidRho       = ModelXID(1000) + 18*MaxSpecies;
+XID xidVp        = ModelXID(1000) + 19*MaxSpecies;
+XID xidVt        = ModelXID(1000) + 20*MaxSpecies;
 
-XID xidExtraProp = ModelXID(1000) + 21*MaxSpecies; //first ExtraProps ID
+XID xidElemMolWt = ModelXID(1000) + 21*MaxSpecies;
+
+XID xidExtraProp = ModelXID(1000) + 22*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after xidExtraProp for MaxExtraProps*MaxSpecies !!!
 
 DDBFnParms Parms0[]   = { {tt_NULL}}; 
@@ -103,9 +105,11 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
       {
       if (DDB.BeginStruct(this, SDB[i].SymOrTag(), NULL, DDB_NoPage))
         {
-        DDB.FnDouble("MoleWt",  "",       DC_,     "",              xidMolWt +i,   this, 0, Parms0);
-        DDB.FnDouble("",        "LoT",    DC_T,    "C",             xidLoT   +i,   this, 0, Parms00);
-        DDB.FnDouble("",        "HiT",    DC_T,    "C",             xidHiT   +i,   this, 0, Parms00);
+        DDB.Double("MoleWt",  "",       DC_,     "",              xidMolWt +i,   this, 0);
+        DDB.Double("",        "LoT",    DC_T,    "C",             xidLoT   +i,   this, 0);
+        DDB.Double("",        "HiT",    DC_T,    "C",             xidHiT   +i,   this, 0);
+        DDB.String("",        "Tag",    DC_,     "",              xidSpTag +i,   this, 0);
+
         DDB.FnDouble("",        "mlHf25", DC_HMl,  "kJ/kmol",       xidmlHf25+i,   this, 0, Parms00);
         DDB.FnDouble("",        "mlHf",   DC_HMl,  "kJ/kmol",       xidmlHf  +i,   this, 0, Parms2);
         DDB.FnDouble("",        "mlHs",   DC_HMl,  "kJ/kmol",       xidmlHs  +i,   this, 0, Parms2);
@@ -196,8 +200,10 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
     switch (i*MaxSpecies+xidMolWt)
       {
       case xidMolWt:  DCB.D=SDB[s].MoleWt(); return true;
-      case xidLoT:    DCB.D=SDB[s].LoT(FIDELITY(0));                                  return true;
-      case xidHiT:    DCB.D=SDB[s].HiT(FIDELITY(0));                                  return true;
+      case xidLoT:    DCB.D=SDB[s].LoT(FIDELITY(0)); return true;
+      case xidHiT:    DCB.D=SDB[s].HiT(FIDELITY(0)); return true;
+      case xidSpTag:  DCB.pC=SDB[s].Tag(); return true;
+
       case xidmlHf25: DCB.D=SDB[s].mlHf(FIDELITY(0), C_2_K(25), 101.325, NULL, NULL); return true;
       case xidmlHf:   DCB.D=SDB[s].mlHf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmlHs:   DCB.D=SDB[s].mlHs(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
@@ -276,16 +282,20 @@ flag SDBObject::ValidateData(ValidateDataBlk & VDB)
 //
 //===========================================================================
 
+const int iPgSpecieData1 = 0;
+const int iPgSpecieData2 = 1;
+const int iPgElements    = 2;
+
 const int Id_DisplayT        =   1;
 const int Id_DisplayP        =   2;
 const int Id_ShowMass        =   3;
 const int Id_HiFidelity      =   4;
                                   
 const int Id_Name1           =   1*MaxSpecies;
-//const int Id_SpSrc1          =   2*MaxSpecies;
-const int Id_LoT             =   3*MaxSpecies;
-const int Id_HiT             =   4*MaxSpecies;
-const int Id_MolWt1          =   5*MaxSpecies;
+const int Id_LoT1            =   2*MaxSpecies;
+const int Id_HiT1            =   3*MaxSpecies;
+const int Id_MolWt1          =   4*MaxSpecies;
+const int Id_SpTag1          =   5*MaxSpecies;
 const int Id_Sf1             =   6*MaxSpecies;
 const int Id_Hf1             =   7*MaxSpecies;
 const int Id_Gf1             =   8*MaxSpecies;
@@ -299,7 +309,7 @@ const int Id_RelSGs1         =  15*MaxSpecies;
 
 const int Id_ElemMoleWt1     =  16*MaxSpecies;
 
-const int Id_ExtraProp1      =  20*MaxSpecies; //first ExtraProps ID
+const int Id_ExtraProp1      =  17*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after Id_ExtraProp1 for MaxExtraProps*MaxSpecies !!!
 
 
@@ -330,7 +340,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
   RhoCnv.Set  (DC_Rho,  "kg/m^3");
   VpCnv.Set   (DC_P,    "kPa");
   VtCnv.Set   (DC_T,    "C");
-  MlFmt.Set   ("", 0, 2, 'f');
+  MlFmt.Set   ("", 0, 3, 'f');
   TFmt.Set    ("", 0, 2, 'f');
   PFmt.Set    ("", 0, 2, 'f');
   CpFmt.Set   ("", 0, 2, 'f');
@@ -345,6 +355,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
   iPg1=0;
   iPgExtraProps=2;//page number of first extra properties page
   iNameWidth=12;
+  iSpTgWidth=12;
   iSpBlkCnt=0;
   iSpBlkLen[iSpBlkCnt]=0;
   iSpBlkLen[iSpBlkCnt+1]=-1;
@@ -358,6 +369,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
         {
         int iSp=I.SDBIndex();
         iNameWidth=Max(iNameWidth, (int)(strlen(SDB[iSp].SymOrTag())+1));
+        iSpTgWidth=Max(iSpTgWidth, (int)(strlen(SDB[iSp].Tag())+1));
         iSpBlkLen[iSpBlkCnt]++;
         iSpBlkLen[iSpBlkCnt+1]=-1;
         }
@@ -466,9 +478,9 @@ void SDBObjectEdt::StartBuild()
   {
   }
 
-//static int iWd_Src        =  3; 
-static int iWd_LoHiT      =  4;
-static int iWd_MoleWt     =  7; 
+static int iWd_LoHiT      =  6;
+static int iWd_MoleWt     =  9;
+
 static int iWd_Sf         =  10;
 static int iWd_Hf         =  10;
 static int iWd_Gf         =  10;
@@ -478,9 +490,11 @@ static int iWd_Vp         =  8;
 static int iWd_Vt         =  8; 
 static int iWd_Rho        =  8; 
 static int iWd_Corr       =  30;
+static int iWdElemName    =  6;
+static int iWdElemMolWt   =  12;
 
-int GetSp(int i) { return i<MaxSpecies ? i :(i%MaxSpecies);};
-int GetID(int i) { return i<MaxSpecies ? i :(i/MaxSpecies)*MaxSpecies;};
+int GetSp(int i) { return i<MaxSpecies ? i : (i%MaxSpecies); };
+int GetID(int i) { return i<MaxSpecies ? i : (i/MaxSpecies)*MaxSpecies; };
 
 //---------------------------------------------------------------------------
 
@@ -520,10 +534,6 @@ void SDBObjectEdt::Build()
     //L++;
     L++;
     SetSpace(L,iNameWidth);
-    //SetDesc(L, "Src",           -1, iWd_Src    ,  0, "");
-    SetDesc(L, "LoT",           -1, iWd_LoHiT,  2, "");
-    SetDesc(L, "HiT",           -1, iWd_LoHiT,  2, "");
-    SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
     SetDesc(L, "Hf",            -1, iWd_Hf     ,  2, "");
     SetDesc(L, "Hz",            -1, iWd_H      ,  2, "");
     SetDesc(L, "Hs",            -1, iWd_H      ,  2, "");
@@ -537,10 +547,6 @@ void SDBObjectEdt::Build()
     
     L++;
     SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
-    //SetDesc(L, "",              -1, iWd_Src    ,  0, "");
-    SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
-    SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
-    SetDesc(L, "",              -1, iWd_MoleWt ,  2, "");
     if (rSDBO.m_bShowMs)
       {
       SetDesc(L, HCnvMs.Text(),     -1, iWd_Hf     ,  2, "");
@@ -568,7 +574,7 @@ void SDBObjectEdt::Build()
     {
     Strng Tg;
 
-    bool DidHeadings = false;
+    int TextCnt = 0;
   
     //int b=0;
     int L=0;
@@ -581,25 +587,28 @@ void SDBObjectEdt::Build()
         {
         case SVT_Specie:
           {
+          if (TextCnt>0)
+            {
+            //headings...
+            SetDesc(L, S(),             -1, iNameWidth ,  0, "");
+            SetDesc(L, "Hf",            -1, iWd_Hf     ,  2, "");
+            SetDesc(L, "Hz",            -1, iWd_H      ,  2, "");
+            SetDesc(L, "Hs",            -1, iWd_H      ,  2, "");
+            SetDesc(L, "Entropy",       -1, iWd_Sf     ,  2, "");
+            SetDesc(L, "Gf",            -1, iWd_Gf     ,  2, "");
+            SetDesc(L, "Cp",            -1, iWd_Cp     ,  2, "");
+            SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
+            SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
+            SetDesc(L, "Density",       -1, iWd_Rho    ,  2, " ");
+            SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
+            L++;
+            TextCnt = 0;
+            }
+
           int iSp=I.SDBIndex();
-          //iNameWidth=Max(iNameWidth, (int)(strlen(SDB[iSp].SymOrTag())+1));
-          //iSpBlkLen[j]++;
-          //iSpBlkLen[j+1]=-1;
 
           SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
-          //SetParm(L, "", Id_SpSrc1+iSp, iWd_Src   , 0, "");
 
-          SetParm(L, "", Id_LoT+iSp   , iWd_LoHiT, 2, "");   // MoleWt
-          Tg.Set("$SDB.%s.LoT()", SDB[iSp].SymOrTag());
-          SetTag(Tg());
-
-          SetParm(L, "", Id_HiT+iSp   , iWd_LoHiT, 2, "");   // MoleWt
-          Tg.Set("$SDB.%s.HiT()", SDB[iSp].SymOrTag());
-          SetTag(Tg());
-
-          SetParm(L, "", Id_MolWt1+iSp   , iWd_MoleWt, 2, "");   // MoleWt
-          Tg.Set("$SDB.%s.MoleWt()", SDB[iSp].SymOrTag());
-          SetTag(Tg());
           #if ShowSteamTableEntropy
           if (H2Og_i<0 && strcmp(SDB[iSp].SymOrTag(), "H2O(g)")==0)
             H2Og_i = iSp;
@@ -644,41 +653,15 @@ void SDBObjectEdt::Build()
         
           SetDesc(L, "", Id_RelSGs1+iSp, iWd_Corr, 0, "");          // DensityCorrs
           L++;
-          //DidHeadings = false;
-
           }
           break;
         case SVT_Annotation:
           {
           switch (I.Annotation())
             {
-            case SVA_Text:    
-              if (DidHeadings)
-                {
-                SetDesc(L, S(),             -1, S.Length() ,  0, "");
-                }
-              else
-                {
-                //headings...
-                SetDesc(L, S(),             -1, iNameWidth/*+iWd_Src*/,  0, "");
-                SetDesc(L, "LoT",           -1, iWd_LoHiT  ,  2, "");
-                SetDesc(L, "HiT",           -1, iWd_LoHiT  ,  2, "");
-                SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
-                SetDesc(L, "Hf",            -1, iWd_Hf     ,  2, "");
-                SetDesc(L, "Hz",            -1, iWd_H      ,  2, "");
-                SetDesc(L, "Hs",            -1, iWd_H      ,  2, "");
-                SetDesc(L, "Entropy",       -1, iWd_Sf     ,  2, "");
-                SetDesc(L, "Gf",            -1, iWd_Gf     ,  2, "");
-                SetDesc(L, "Cp",            -1, iWd_Cp     ,  2, "");
-                SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
-                SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
-                SetDesc(L, "Density",       -1, iWd_Rho    ,  2, " ");
-                SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
-                DidHeadings = true;
-                }
-              L++;
-              //j++;
-              //iSpBlkLen[j]=0;
+            case SVA_Text:
+              TextCnt++;
+              S = I.FullTag();
               break;
             default:
               break;
@@ -722,10 +705,99 @@ void SDBObjectEdt::Build()
     }
 #endif
 
+
+  //---------- page ----------
+  StartPage("...");
+
+  if (1) //data Blk
+    {
+    StartBlk(3, 0, NULL); 
+    int L=0;
+
+    //headings...
+    L++;
+    SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
+    SetDesc(L, "LoT",           -1, iWd_LoHiT  ,  2, "");
+    SetDesc(L, "HiT",           -1, iWd_LoHiT  ,  2, "");
+    SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
+    SetDesc(L, "Tag",           -1, iSpTgWidth ,  2, "");
+    
+    L++;
+    SetSpace(L,iNameWidth);
+    SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
+    SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
+    SetDesc(L, "",              -1, iWd_MoleWt ,  2, "");
+    SetDesc(L, "",              -1, iSpTgWidth ,  2, "");
+    }
+
+  if (1) // Other Blk
+    {
+    Strng Tg;
+    int TextCnt = 0;
+  
+    int L=0;
+    StartBlk(iSpBlkCnt, 0, NULL);
+
+    for (int i=0; i<SVCfgCount(); i++)
+      {
+      CSysVecItem &I=*SVI.Cfg(i);
+      switch (I.Type())
+        {
+        case SVT_Specie:
+          {
+          if (TextCnt>0)
+            {
+            //headings...
+            SetDesc(L, S(),             -1, iNameWidth ,  0, "");
+            SetDesc(L, "LoT",           -1, iWd_LoHiT  ,  2, "");
+            SetDesc(L, "HiT",           -1, iWd_LoHiT  ,  2, "");
+            SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
+            SetDesc(L, "Tag",           -1, iSpTgWidth ,  2, "");
+            L++;
+            TextCnt = 0;
+            }
+
+          int iSp=I.SDBIndex();
+
+          SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
+
+          SetParm(L, "", Id_LoT1+iSp   , iWd_LoHiT, 2, "");
+          Tg.Set("$SDB.%s.LoT", SDB[iSp].SymOrTag());
+          SetTag(Tg());
+
+          SetParm(L, "", Id_HiT1+iSp   , iWd_LoHiT, 2, "");
+          Tg.Set("$SDB.%s.HiT", SDB[iSp].SymOrTag());
+          SetTag(Tg());
+
+          SetParm(L, "", Id_MolWt1+iSp   , iWd_MoleWt, 2, "");   // MoleWt
+          Tg.Set("$SDB.%s.MoleWt", SDB[iSp].SymOrTag());
+          SetTag(Tg());
+
+          SetParm(L, "", Id_SpTag1+iSp   , iSpTgWidth, 2, "");
+          Tg.Set("$SDB.%s.Tag", SDB[iSp].SymOrTag());
+          SetTag(Tg());
+          L++;
+          }
+          break;
+        case SVT_Annotation:
+          {
+          switch (I.Annotation())
+            {
+            case SVA_Text:    
+              TextCnt++;
+              S = I.FullTag();
+              break;
+            default:
+              break;
+            }
+          break;
+          }
+        }
+      }
+    }
+
   //---------- page ----------
   StartPage("Elements");
-  const int iElemNameWidth = 6;
-  const int iElemWtWidth = 12;
   if (1) // Elements heading Blk
     {
     StartBlk(3, 0, NULL);
@@ -734,8 +806,8 @@ void SDBObjectEdt::Build()
     L++;
     //headings...
     SetDesc(L, "", -1, 4, 0, "");
-    SetDesc(L, "", -1, iElemNameWidth, 0, "");
-    SetDesc(L, "MoleWt", -1, iElemWtWidth, 0, "");
+    SetDesc(L, "", -1, iWdElemName, 0, "");
+    SetDesc(L, "MoleWt", -1, iWdElemMolWt, 0, "");
     }
   const int iElemCnt = EDB.Count();
 
@@ -749,8 +821,8 @@ void SDBObjectEdt::Build()
       CElementD &E = EDB[i];
       Tg.Set("%03d", i+1);
       SetDesc(L, Tg(), -1, 4, 0, "");
-      SetDesc(L, E.Name, -1, iElemNameWidth, 0, "");
-      SetParm(L, "", Id_ElemMoleWt1+i, iElemWtWidth, 2, "");
+      SetDesc(L, E.Name, -1, iWdElemName, 0, "");
+      SetParm(L, "", Id_ElemMoleWt1+i, iWdElemMolWt, 2, "");
       Tg.Set("$SDB.Elem.%s.MoleWt", E.Name);
       SetTag(Tg());
       L++;
@@ -762,7 +834,7 @@ void SDBObjectEdt::Build()
   iPgExtraProps=pView->Pages;
   if (SDB.ExtraProps())
     {
-    CSpeciePropDataBase* pEP    = SDB.ExtraProps();
+    CSpeciePropDataBase* pEP   = SDB.ExtraProps();
     const int MaxProps         = pEP->PropCount();
     const int MaxSp            = pEP->GetCount();
     SpeciePropCfgHelper* pPCfg = pEP->GetPropCfg();
@@ -839,7 +911,7 @@ static inline void FixWide(int &W, Strng &Str, FxdEdtView &View)
 
 void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
   {
-  if (EI.PageNo==1)
+  if (EI.PageNo==iPgElements)
     {//elements
     if (CurrentBlk(EI))
       {//heading
@@ -852,7 +924,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       EI.Fld->fEditable=false;
       }
     }
-  else if (EI.PageNo<iPgExtraProps)
+  else if (EI.PageNo==iPgSpecieData1)
     {
     if (CurrentBlk(EI))
       {//data
@@ -884,22 +956,6 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       //long m_lFidelity=0;
       switch (iId)
         {
-        //case Id_SpSrc1:
-        //  Str=SDB[iSp].PrjDB() ? "Prj" : "Lib";
-        //  FixWide(iWd_Src, Str, View());
-        //  break;
-        case Id_LoT:
-          TFmt.FormatFloat(TCnv.Human(SDB[iSp].LoT(rSDBO.m_bHiFidelity?1:0)), Str);
-          FixWide(iWd_LoHiT, Str, View());
-          break;
-        case Id_HiT:
-          TFmt.FormatFloat(TCnv.Human(SDB[iSp].HiT(rSDBO.m_bHiFidelity?1:0)), Str);
-          FixWide(iWd_LoHiT, Str, View());
-          break;
-        case Id_MolWt1:
-          MlFmt.FormatFloat(SDB[iSp].MoleWt(), Str);
-          FixWide(iWd_MoleWt, Str, View());
-          break;
         case Id_Sf1:
           if (rSDBO.m_bShowMs)
             D=SDB[iSp].msSf(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)-(SDB[iSp].m_Data[rSDBO.m_bHiFidelity?1:0].m_dCSf[0]/SDB[iSp].m_dMoleWt);
@@ -999,6 +1055,39 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       EI.Fld->fEditable=false;
       }
     }
+  else if (EI.PageNo==iPgSpecieData2)
+    {
+    if (CurrentBlk(EI))
+      {//data
+      }
+
+    if (CurrentBlk(EI))
+      {//other
+      int p=EI.PageNo;
+      int iSp=GetSp(EI.FieldId);
+      int iId=GetID(EI.FieldId);
+      //long m_lFidelity=0;
+      switch (iId)
+        {
+        case Id_LoT1:
+          TFmt.FormatFloat(TCnv.Human(SDB[iSp].LoT(rSDBO.m_bHiFidelity?1:0)), Str);
+          FixWide(iWd_LoHiT, Str, View());
+          break;
+        case Id_HiT1:
+          TFmt.FormatFloat(TCnv.Human(SDB[iSp].HiT(rSDBO.m_bHiFidelity?1:0)), Str);
+          FixWide(iWd_LoHiT, Str, View());
+          break;
+        case Id_MolWt1:
+          MlFmt.FormatFloat(SDB[iSp].MoleWt(), Str);
+          FixWide(iWd_MoleWt, Str, View());
+          break;
+        case Id_SpTag1:
+          Str = SDB[iSp].Tag();
+          break;
+        }
+      EI.Fld->fEditable=false;
+      }
+    }
   else
     {
     if (SDB.ExtraProps())
@@ -1038,7 +1127,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
 long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
   {
   long Fix=0; 
-  if (EI.PageNo==1)
+  if (EI.PageNo==iPgElements)
     {
     if (CurrentBlk(EI))
       {//elemente heading
@@ -1047,7 +1136,7 @@ long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
       {//elemente data
       }
     }
-  else if (EI.PageNo<iPgExtraProps)
+  else if (EI.PageNo==iPgSpecieData1)
     {
     if (CurrentBlk(EI))
       {//data
@@ -1080,6 +1169,15 @@ long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
       {//other
       }
     }
+  else if (EI.PageNo==iPgSpecieData2)
+    {
+    if (CurrentBlk(EI))
+      {//data
+      }
+    if (CurrentBlk(EI))
+      {//other
+      }
+    }
   else
     {
     if (SDB.ExtraProps())
@@ -1102,7 +1200,7 @@ long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
 long SDBObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
   {
   long Fix=0; //set Fix=1 to redraw graph
-  if (EI.PageNo==1)
+  if (EI.PageNo==iPgElements)
     {
     if (CurrentBlk(EI))
       {//elemente heading
@@ -1111,7 +1209,7 @@ long SDBObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
       {//elemente data
       }
     }
-  else if (EI.PageNo<iPgExtraProps)
+  else if (EI.PageNo==iPgSpecieData1)
     {
     if (CurrentBlk(EI))
       {//data
@@ -1128,6 +1226,12 @@ long SDBObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           View().DoRebuild();
           break;
         }
+      }
+    }
+  else if (EI.PageNo==iPgSpecieData2)
+    {
+    if (CurrentBlk(EI))
+      {//data
       }
     }
   return Fix;
@@ -1175,26 +1279,20 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
   if (EI.Fld)
     {
     flag TagOnly=false;
-    if (EI.PageNo==1)
+    if (EI.PageNo==iPgElements)
       {
       WrkIB.Set(EI.Fld->Tag, NULL, &ElFmt);
       }
-    else if (Vw.CPgNo<iPgExtraProps)
+    else if (Vw.CPgNo==iPgSpecieData1)
       {
       int iId=GetID(EI.FieldId);
       switch (iId)
         {
         case Id_DisplayT:
-        case Id_LoT:
-        case Id_HiT:
           WrkIB.Set(EI.Fld->Tag, &TCnv, &TFmt);
           break;
         case Id_DisplayP:
           WrkIB.Set(EI.Fld->Tag, &PCnv, &PFmt);
-          break;
-        case Id_MolWt1:
-          WrkIB.Set(EI.Fld->Tag, NULL, &MlFmt);
-          //TagOnly=true;
           break;
         case Id_Sf1:
           if (rSDBO.m_bShowMs)
@@ -1226,6 +1324,26 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
           break;
         case Id_Vt1:
           WrkIB.Set(EI.Fld->Tag, &VtCnv, &VtFmt);
+          break;
+        default: 
+          WrkIB.Set(EI.Fld->Tag);
+        }
+      }
+    else if (Vw.CPgNo==iPgSpecieData2)
+      {
+      int iId=GetID(EI.FieldId);
+      switch (iId)
+        {
+        case Id_LoT1:
+        case Id_HiT1:
+          WrkIB.Set(EI.Fld->Tag, &TCnv, &TFmt);
+          break;
+        case Id_MolWt1:
+          WrkIB.Set(EI.Fld->Tag, NULL, &MlFmt);
+          //TagOnly=true;
+          break;
+        case Id_SpTag1:
+          TagOnly=true;
           break;
         default: 
           WrkIB.Set(EI.Fld->Tag);

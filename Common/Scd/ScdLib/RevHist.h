@@ -2684,9 +2684,11 @@ Build 122 : 16 November 2006
 1309 20/12/06: (#701) Removed incorrect PlantArea missing from drawings in project models view.
 1316  3/01/07: (#707) Added elemental molecular weights to specie data access window.
 1317  3/01/07: Fix for error when trying to edit measurements in edit configuration.
+1319  4/01/07: Extended display of specie data access window.
+
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1317
+#define SCD_PATCH_SVN    1319
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

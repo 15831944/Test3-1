@@ -92,6 +92,7 @@ class DllImportExport SDBObjectEdt : public FxdEdtBookRef
   public :
     SDBObject    & rSDBO;
     int            iNameWidth;
+    int            iSpTgWidth;
     int            iPg1;
     int            iPgExtraProps;
     int            iSpBlkCnt;

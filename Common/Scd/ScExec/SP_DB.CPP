@@ -4112,7 +4112,7 @@ double CSpecie::VapourT(long Fidelity, double P_)
   if (VapT.SolveFromEst(dPrvVapT, 1.0, 10.0)==RF_OK)
     dPrvVapT=VapT.Result();
   else
-    LogError("CDB", 0, "%s VapourT not Converged", sTag());
+    LogError("CDB", 0, "%s VapourT not Converged", SymOrTag());
 
   if (0)
     dbgpln("++++++++++++");
