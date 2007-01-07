@@ -289,7 +289,7 @@ namespace SysCAD.Editor
       box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
       box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
 
-      box.Image = GetImage(graphicThing, flowchart);
+      //box.Image = GetImage(graphicThing, flowchart); -- we don't want to do this yet.  wait for initial zoom.
       box.ImageAlign = ImageAlign.Stretch;
 
       box.Visible = isVisible;
@@ -313,17 +313,31 @@ namespace SysCAD.Editor
 
       System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
 
-      //canvas.Measure(new System.Windows.Size(400, 400));
-      canvas.Arrange(new Rect(0, 0, 0, 0));
+      Viewbox viewbox = new Viewbox();
+      viewbox.Stretch = Stretch.Fill;
+      viewbox.Child = canvas;
+      viewbox.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
+      viewbox.Arrange(new Rect(0, 0, clientRect.Width, clientRect.Height));
+      viewbox.UpdateLayout();
+      
+      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, 96, 96, PixelFormats.Default);
+      renderTargetBitmap.Render(viewbox);
 
-      //RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, clientRect.Width, clientRect.Height, PixelFormats.Default);
-      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(264, 282, 200, 200, PixelFormats.Default);
-      renderTargetBitmap.Render(canvas);
-
-      PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-      pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
       MemoryStream stream = new MemoryStream();
-      pngBitmapEncoder.Save(stream);
+      {
+        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+        pngBitmapEncoder.Save(stream);
+      }
+
+      {
+        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+        FileStream fileStream = new FileStream("c:\\test.png", FileMode.Create);
+        pngBitmapEncoder.Save(fileStream);
+        fileStream.Flush();
+        fileStream.Close();
+      }
 
       return System.Drawing.Image.FromStream(stream);
     }
@@ -517,6 +531,11 @@ namespace SysCAD.Editor
       else
         arrow.DestAnchor = -1;
 
+      String originTag = "";
+      if (origin != null) originTag = origin.Tag;
+
+      String destinationTag = "";
+      if (destination != null) destinationTag = destination.Tag;
 
       arrow.ToolTip = "Tag:" + graphicLink.Tag +
         "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +

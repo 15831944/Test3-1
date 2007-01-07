@@ -177,6 +177,15 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
 
       SetSizes();
+
+      foreach (Box box in fcFlowChart.Boxes)
+      {
+        if ((box.Visible) && (box.Tag is Thing))
+        {
+          Thing thing = box.Tag as Thing;
+          box.Image = State.GetImage(thing.GraphicThing, fcFlowChart);
+        }
+      }
     }
 
     public void SetSizes()
@@ -210,10 +219,10 @@ namespace SysCAD.Editor
         item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       }
 
-      foreach (Thing thing in state.Things)
-      {
-        thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      }
+      //foreach (Thing thing in state.Things)
+      //{
+      //  thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 6.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      //}
 
       fcFlowChart.Invalidate();
     }
@@ -1309,6 +1318,13 @@ namespace SysCAD.Editor
           box.BoundingRect = graphicThing.BoundingRect;
           box.RotationAngle = graphicThing.Angle;
         }
+        else
+        {
+          graphicThing.BoundingRect = box.BoundingRect;
+          graphicThing.Angle = box.RotationAngle;
+        }
+
+        box.Image = State.GetImage(graphicThing, fcFlowChart);
       }
 
       form1.graphicPropertyGrid.Refresh();
