@@ -1196,17 +1196,25 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
 
     if (DoKbdTest)
       {
-      Sleep(500); // while testing
+      dbgpln("Sleep %s %s", pTag->m_Selected?"SEL":"   ", pTag->m_sTag);
+
+      Sleep(50); // while testing
       MSG msg;
       if (PeekMessage(&msg, GetSafeHwnd(), WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
         {
+        dbgpln("Peek1 %3i", msg.message);
+
         switch (msg.message)
           {
-          case WM_CHAR:
-          case WM_KEYDOWN:
-            break;
+          //    case WM_CHAR:
           case WM_KEYUP:
-            return false;
+          //  return false;
+          //case WM_KEYDOWN:
+            return true;
+            //    case WM_KEYDOWN:
+            //      break;
+            //    case WM_KEYUP:
+            //      return false;
           };
         }
       }
@@ -1236,16 +1244,20 @@ bool CExploreScd::LoadTagTree(bool DoKbdTest)
         }
       if (DoKbdTest)
         {
+        dbgpln("Sleep %s %s", P.m_pTag->m_Selected?"SEL":"   ", P.m_pTag->m_sTag);
+        Sleep(50); // while testing
         MSG msg;
         if (PeekMessage(&msg, GetSafeHwnd(), WM_KEYFIRST, WM_KEYLAST, PM_NOREMOVE))
           {
+          dbgpln("Peek2 %3i", msg.message);
           switch (msg.message)
             {
-            case WM_CHAR:
-            case WM_KEYDOWN:
-              break;
             case WM_KEYUP:
-              return false;
+            //  return false;
+            //case WM_KEYDOWN:
+              return true;
+          //  case WM_CHAR:
+          //    return false;
             };
           }
         }
