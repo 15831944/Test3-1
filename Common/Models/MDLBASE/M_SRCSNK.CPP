@@ -11,9 +11,6 @@
 
 //==========================================================================
 
-int MN_SrcSnk::sm_nCFQuals=-1;
-CArray<Strng, Strng&> MN_SrcSnk::sm_CFQualsNm;
-
 MN_SrcSnk::MN_SrcSnk (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
 MdlNode(pClass_, TagIn, pAttach, eAttach),
 Contents("Content", this, TOA_Embedded),
@@ -23,7 +20,8 @@ T_RegB("RL_Basic", this, NULL),
 m_VLE(this, VLEF_TPFlash),
 m_Src(eDIO_Src, this, false, true, "Source"), 
 m_Snk(eDIO_Snk, this, false, true, "Sink"),
-m_BlkEval(this, NULL, NULL, NULL, NULL, NULL)
+m_BlkEval(this, NULL, NULL, NULL, NULL, NULL),
+CF(this)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
   //Initialise();
@@ -55,54 +53,30 @@ m_BlkEval(this, NULL, NULL, NULL, NULL, NULL)
   m_bKeepTrace=(PrjFileVerNo()>73 ? 0 : 1);
 
   iRevFlw=SSQmRev_Null;
-  //  fOutFlwIsInFlw=false;
+  //fOutFlwIsInFlw=false;
 
   Contents.SetVLE(&m_VLE);
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
   Flows.SetModelSelectable(false);
 
-  SetAllowedModes(false, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);// "Transfer", "Inline", NULL);
+  SetAllowedModes(false, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);
 
-  //  Contents.SetSQCreateOK(true);
-  //  //Contents.SetSQRemoveOK(true);
-  //  Contents.SetSQDispCreate(true);
-  //  Contents.SetSQEditable(true);
+  CF.m_pCdOther = &Flows;
+
+  //Contents.SetSQCreateOK(true);
+  ////Contents.SetSQRemoveOK(true);
+  //Contents.SetSQDispCreate(true);
+  //Contents.SetSQEditable(true);
   //Contents.SetSQDispRemove(true);
   fCopyFlw2Contents=false;
   fGlblConnectsInPlace=false;
-
-  m_iCFWhen=CFWhenOff;
-  m_iCFWhat=CFWhatComp|CFWhatTemp|CFWhatPress;
-  m_sCFTag="";
-  m_fCFRatio=1.0f;
-  if (sm_nCFQuals<0)
-    {
-    sm_nCFQuals=0;
-    for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
-      if (pQ->Selectable() && pQ->LicenseOK())
-        sm_nCFQuals++;
-
-    sm_CFQualsNm.SetSize(sm_nCFQuals);
-    int i=0;
-    for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
-      if (pQ->Selectable() && pQ->LicenseOK())
-        {
-        sm_CFQualsNm[i]="CF.What.";
-        sm_CFQualsNm[i]+=pQ->ClassId();
-        i++;
-        }
-    }
-
-  m_CFQualsOn.SetSize(sm_nCFQuals);
-  for (int i=0; i<sm_nCFQuals; i++)
-    m_CFQualsOn[i]=1;
-  };
+  }
 
 // -------------------------------------------------------------------------
 
 MN_SrcSnk::~MN_SrcSnk ()
   {
-  };
+  }
 
 // -------------------------------------------------------------------------
 
@@ -124,7 +98,7 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         {
         SSMode=*DCB.rB;
         if (SSMode & SSM_ConstP)
-          m_iCFWhat &= ~CFWhatFlow;
+          CF.m_iCFWhat &= ~CFWhatFlow;
         }
       DCB.B=SSMode;
       return 1;
@@ -194,32 +168,6 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         }
       DCB.D=0.0;
       return 1;
-    case xidCFTag:
-      if (DCB.rpC)
-        {
-        m_sCFTag = DCB.rpC;
-        m_sCFTag.LRTrim();
-        if (m_sCFTag.FindI("Self")>=0)
-          m_sCFTag="";
-        if (m_sCFTag.Find(' ')>=0)
-          m_sCFTag=m_sCFTag.Left(m_sCFTag.Find(' '));
-        }
-      DCB.pC=m_sCFTag() ? m_sCFTag() : DCB.ForView() ? "(Self.Flows)" : "";
-      return 1;
-    case xidCFWhen:
-      {
-      if (DCB.rB)
-        m_iCFWhen=*DCB.rB;
-      DCB.B=m_iCFWhen;
-      return 1;
-      }
-    case xidCFFetchNow:
-      {
-      if (DCB.rB && (*DCB.rB!=0))
-        DoFetch();
-      DCB.B=0;
-      return 1;
-      }
     case xidConnectTag:
       if (DCB.rpC && !SolutionBusy())
         sConnectTag = DCB.rpC;
@@ -235,6 +183,8 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
   if (m_VLE.DataXchg(DCB))
     return 1;
   if (m_BlkEval.DataXchg(DCB))
+    return 1;
+  if (CF.DataXchg(DCB, Contents))
     return 1;
   if (DCB.dwUserInfo==1 && m_Src.DataXchg(DCB))
     return 1;
@@ -455,13 +405,9 @@ int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
 
   if (sConnectTag.XStrICmp(pOldTag)==0)
     sConnectTag=pNewTag;
-  const int len = strlen(pOldTag);
-  if (m_sCFTag.Len()>=len && _strnicmp(m_sCFTag(), pOldTag, len)==0 && (m_sCFTag.Len()==len || m_sCFTag[len]=='.'))
-    {
-    Strng Right = m_sCFTag.Mid(len, 256);
-    m_sCFTag = pNewTag;
-    m_sCFTag += Right();
-    }
+
+  CF.ChangeTag(pOldTag, pNewTag);
+
   return MdlNode::ChangeTag(pOldTag, pNewTag);
   };
 
@@ -1324,16 +1270,8 @@ void MN_SrcSnk::EvalDiscrete()
       }
     }
 
-  switch (m_iCFWhen)
-    {
-    case CFWhenOnceOff:
-      DoFetch();
-      m_iCFWhen=CFWhenOff;
-      break;
-    case CFWhenContinuous:
-      DoFetch();
-      break;
-    }
+  bool OK = CF.EvalDiscrete(Contents);
+  SetCI(1, !OK);
 
   //if (!NetProbalMethod())
     {
@@ -1410,88 +1348,6 @@ flag MN_SrcSnk::TerminateSolution()
 
   return 1;
   };
-
-//--------------------------------------------------------------------------
-
-void MN_SrcSnk::DoFetch()
-  {
-  SpContainer * pCn=NULL;
-  SpConduit * pCd=NULL;
-  if (m_sCFTag())
-    {
-    MdlNode *pRoot = (MdlNode*)InsertRoot(NULL);
-    //pMdl = dynamic_cast<SpModel*>(pRoot->FindObjTag(m_sCFTag(), true, ));
-    char TheTag[1024];
-    strcpy(TheTag, m_sCFTag());
-    int ObjTagLen=0;
-    TaggedObject * p=pRoot->FindObjTag(TheTag, true, ObjTagLen, 0);
-    if (p)
-      {
-      pCn=dynamic_cast<SpContainer*>(p);
-      pCd=dynamic_cast<SpConduit*>(p);
-      if (pCd==NULL && pCd==NULL)
-        {
-        pTaggedObject p1=p->pAttachments;
-        while (p1 && (_stricmp(p1->Tag(), &TheTag[ObjTagLen+1])!=0))
-          {
-          p1=p1->pNxtAttachment;
-          }
-        if (p1)
-          p=p1;
-        pCn=dynamic_cast<SpContainer*>(p);
-        pCd=dynamic_cast<SpConduit*>(p);
-        }
-      }
-    }
-  else
-    pCd=&Flows;
-
-  if (pCd)
-    {
-    if (m_iCFWhat&CFWhatComp)
-      {
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-      Contents.Copy(*pCd);
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, false);
-      Contents.MArray().Normalise();
-      Contents.Model()->SetMassScale(1);
-      }
-    if (m_iCFWhat&CFWhatTemp)
-      Contents.m_T_Rqd=pCd->Temp();
-    if (m_iCFWhat&CFWhatPress)
-      Contents.SetPRqdTo(pCd->Press());
-    if (m_iCFWhat&CFWhatFlow)
-      {
-      switch (Contents.QMode())
-        {
-        case SPI_QModeQm:  Contents.SetQmRqdTo(pCd->QMass()*m_fCFRatio, true, false); break;
-        case SPI_QModeQv:  Contents.SetQvRqdTo(pCd->QVolume()*m_fCFRatio, true, false); break;
-        case SPI_QModeNQv: Contents.SetNQvRqdTo(pCd->QNVolume()*m_fCFRatio, true, false); break;
-        }
-      }
-    ClrCI(1);
-    }
-  else if (pCn)
-    {
-    if (m_iCFWhat&CFWhatComp)
-      {
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-      Contents.Copy(*pCn, pCn->Press());
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, false);
-      }
-    if (m_iCFWhat&CFWhatTemp)
-      Contents.m_T_Rqd=pCn->Temp();
-    if (m_iCFWhat&CFWhatPress)
-      Contents.SetPRqdTo(pCn->Press());
-    ClrCI(1);
-    }
-  else
-    SetCI(1);
-  }
 
 //--------------------------------------------------------------------------
 

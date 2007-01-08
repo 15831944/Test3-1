@@ -30,7 +30,46 @@
   #define DllImportExport
 #endif
 
+//=========================================================================== 
+
+const byte CFWhenOff        = 0;
+const byte CFWhenOnceOff    = 1;
+const byte CFWhenContinuous = 2;
+
+const byte CFWhatNull       = 0x00;
+const byte CFWhatTemp       = 0x01;
+const byte CFWhatPress      = 0x02;
+const byte CFWhatFlow       = 0x04;
+const byte CFWhatComp       = 0x08;
+
+class DllImportExport CompositionFetchHelper
+  {
+  public:
+    MdlNode*       m_pMdl;
+    SpConduit *    m_pCdOther;
+    bool           m_bAllowFlow;
+    byte           m_iCFWhen;
+    byte           m_iCFWhat;
+    Strng          m_sCFTag;
+    double         m_dCFRatio;
+    static int     sm_nCFQuals;
+    static CArray<Strng, Strng&> sm_CFQualsNm;
+    CArray<flag, flag&> m_CFQualsOn;
+
+    CompositionFetchHelper(MdlNode* pMdl);
+    void   BuildDataDefn(DataDefnBlk & DDB);
+    flag   DataXchg(DataChangeBlk & DCB, SpImage & Contents);
+    int    ChangeTag(pchar pOldTag, pchar pNewTag);
+    bool   EvalDiscrete(SpImage & Contents);
+    bool   DoFetch(SpImage & Contents);
+  };
+
 // ==========================================================================
+
+XID xidCFTag         = MdlBsXID(4950);
+XID xidCFWhen        = MdlBsXID(4951);
+XID xidCFFetchNow    = MdlBsXID(4952);
+
 
 XID xidMakeupsInCnt           = MdlBsXID(5000);
 XID xidBleedsInCnt            = MdlBsXID(5001);
@@ -287,7 +326,6 @@ class DllImportExport MN_Area : public MdlNode
     virtual flag   InitialiseSolution();
     virtual flag   TerminateSolution();
 
-    //virtual void   DoFetch();
     virtual void   SetState(eScdMdlStateActs RqdState);
 
     //virtual void   EvalPBMakeUpReqd(long JoinMask);

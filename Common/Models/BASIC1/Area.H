@@ -45,7 +45,12 @@ class DllImportExport MakeupSrc : public MN_Area
     virtual void   PrepareDefinedData();
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
-    
+    virtual int    ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual void   EvalDiscrete();
+    DEFINE_CI(MakeupSrc, MN_Area, 2);
+
+  protected:
+    CompositionFetchHelper CF;
   };
 
 DEFINE_TAGOBJ(BleedSnk);

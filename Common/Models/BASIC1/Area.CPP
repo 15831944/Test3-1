@@ -54,13 +54,8 @@ CArea::CArea(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
 
 void CArea::PrepareDefinedData()
   {
-#if WITHSPECSHEETS
-  if (sSpecSheet.XStrCmp("-")!=0)
-    sSpecSheet= Contents.Model()->ShortDesc();
-#endif
   //Contents.SetView(SVV_AsMassFrac);
   //Flows.SetView(SVV_AsMassFlow);
-
   }
 
 //--------------------------------------------------------------------------
@@ -110,10 +105,14 @@ IMPLEMENT_MODELUNIT(MakeupSrc, "MakeupSrc", "1", Drw_MakeupSrc, "MakeupSrc", "Ma
                     "Simple Source Material for Makeups") 
 
 MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MN_Area(pClass_, TagIn, pAttach, eAttach)
+  MN_Area(pClass_, TagIn, pAttach, eAttach),
+  CF(this)
   {
   AttachIOAreas(MakeupSrcIOAreaList);
-  m_Content.SetView(SVV_AsMassFrac);  
+  m_Content.SetView(SVV_AsMassFrac);
+
+  CF.m_bAllowFlow = false;
+  CF.m_iCFWhat &= ~CFWhatFlow;
 
   static const BDDSpecies_Blk sbImage[]=
     {
@@ -132,18 +131,15 @@ MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
 void MakeupSrc::PrepareDefinedData()
   {
-#if WITHSPECSHEETS
-  if (sSpecSheet.XStrCmp("-")!=0)
-    sSpecSheet= Contents.Model()->ShortDesc();
-#endif
   }
 
 //--------------------------------------------------------------------------
 
 void MakeupSrc::BuildDataDefn(DataDefnBlk & DDB)
   {
+  CF.BuildDataDefn(DDB);
   MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_SrcSnk|BDDAO_MULinks);
-  };  
+  }
 
 //--------------------------------------------------------------------------
 
@@ -151,8 +147,40 @@ flag MakeupSrc::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Area::DataXchg(DCB)) 
     return 1;
+  if (CF.DataXchg(DCB, m_Content)) 
+    return 1;
 
   return 0;
+  }
+
+//--------------------------------------------------------------------------
+
+int MakeupSrc::ChangeTag(pchar pOldTag, pchar pNewTag)
+  {
+  CF.ChangeTag(pOldTag, pNewTag);
+  return MN_Area::ChangeTag(pOldTag, pNewTag);
+  }
+
+//--------------------------------------------------------------------------
+
+void MakeupSrc::EvalDiscrete()
+  {
+  bool OK = CF.EvalDiscrete(m_Content);
+  SetCI(1, !OK);
+  MN_Area::EvalDiscrete();
+  }
+
+//--------------------------------------------------------------------------
+
+flag MakeupSrc::CIStrng(int No, pchar & pS)
+  {
+  // NB check CBCount is large enough.
+  switch (No-CBContext())
+    {
+    case 1: pS="E\tFetch tag not found (valid examples: P_1.Qi or X_1.QFeed)"; return 1;
+    default:
+      return MN_Area::CIStrng(No, pS);
+    }
   }
 
 //==========================================================================
@@ -196,10 +224,6 @@ BleedSnk::BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
 
 void BleedSnk::PrepareDefinedData()
   {
-#if WITHSPECSHEETS
-  if (sSpecSheet.XStrCmp("-")!=0)
-    sSpecSheet= Contents.Model()->ShortDesc();
-#endif
   }
 
 //--------------------------------------------------------------------------
@@ -207,7 +231,7 @@ void BleedSnk::PrepareDefinedData()
 void BleedSnk::BuildDataDefn(DataDefnBlk & DDB)
   {
   MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_SrcSnk);
-  };  
+  }
 
 //--------------------------------------------------------------------------
 

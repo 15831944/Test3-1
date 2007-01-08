@@ -2679,16 +2679,16 @@ Build 122 : 16 November 2006
 1305 19/12/06: (#704) Add option to allow reporting of set tag sets for taglist, queue and 
                events models to archive event log.
 1306 19/12/06: (#705) Added power (^) function to pgm. (eg d=3^2)
-               events models to archive event log.
 1308 20/12/06: (#526) Added RoundUp(value, decimals) function to pgm.
 1309 20/12/06: (#701) Removed incorrect PlantArea missing from drawings in project models view.
 1316  3/01/07: (#707) Added elemental molecular weights to specie data access window.
 1317  3/01/07: Fix for error when trying to edit measurements in edit configuration.
-1319  4/01/07: Extended display of specie data access window.
+1319  4/01/07: Extended display of specie data extra tab page in $SDB access window.
+1322  8/01/07: (#575) Added composition fetch option to makeup source model.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1319
+#define SCD_PATCH_SVN    1322
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

@@ -300,49 +300,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String ("",           "Connected_To", DC_, "", xidConnectedTag,  this, DDEF_WRITEPROTECT|isTag);
   DDB.Bool   ("Connected",  "",             DC_, "", &fCrossConnected, this, DDEF_WRITEPROTECT, DDB2);
 
-  //if (DDB.BeginStruct(NULL, "Fetch", NULL, DDB_NoPage, -1, MarkerClosed))
-  if (1)
-    {
-    DDBValueLst DDBFetchOp[]={
-      {CFWhenOff,         "Off",       },
-      {CFWhenOnceOff,     "OnceOff"    },
-      {CFWhenContinuous,  "Continuous" },
-      {0}};
-
-    int Any = 0;
-    int QDrv = SSMode&SSM_ConstP ? MDD_Hidden : 0;
-    DDBValueLst DDBFetchWhat[]={
-      {CFWhatNull,                                    "Nothing"             }, 
-      {CFWhatTemp|CFWhatPress,                        "T,P"                 },
-      {CFWhatComp,                                    "Comp"                },
-      {CFWhatFlow,                                    "Flow",           QDrv},
-      {CFWhatTemp|CFWhatComp,                         "T,Comp"              },
-      {CFWhatTemp|CFWhatPress|CFWhatComp,             "T,P,Comp"            },
-      {CFWhatTemp|CFWhatPress|CFWhatFlow,             "T,P,Flow",       QDrv},
-      {CFWhatComp|CFWhatFlow,                         "Comp,Flow",      QDrv},
-      {CFWhatTemp|CFWhatPress|CFWhatComp|CFWhatFlow,  "T,P,Comp,Flow",  QDrv},
-      {0}};
-
-    DDB.Visibility();
-    DDB.Text  ("");
-    DDB.Text   ("Composition Fetch");
-    DDB.Byte  ("CF.When",    "", DC_, "", xidCFWhen,     this, isParm|SetOnChange, DDBFetchOp);
-    DDB.Byte  ("CF.What",    "", DC_, "", &m_iCFWhat,    this, isParm|SetOnChange, DDBFetchWhat);
-
-    if (m_iCFWhat&CFWhatComp)
-      {
-      for (int iQ=0; iQ<sm_nCFQuals; iQ++)
-        DDB.CheckBox(sm_CFQualsNm[iQ].Str(), "", DC_, "", &m_CFQualsOn[iQ], this, isParm); 
-      }
-
-    DDB.Visibility(NSHM_All, (SSMode&SSM_ConstP)==0);
-    DDB.Float ("CF.Ratio",   "", DC_, "", &m_fCFRatio,   this, isParm);
-    DDB.Visibility();
-    DDB.String("CF.Source",  "", DC_, "", xidCFTag,      this, isParm|isTag);
-    DDB.Button("CF.Fetch",   "", DC_, "", xidCFFetchNow, this, isParm);
-    DDB.Visibility();
-    }
-  //DDB.EndStruct();
+  CF.m_bAllowFlow = ((SSMode&SSM_ConstP)==0);
+  CF.BuildDataDefn(DDB);
 
   if (!NetProbalMethod())
     {

@@ -21,6 +21,9 @@
 #ifndef __VLEBASE_H
   #include "vlebase.h"
 #endif
+#ifndef __M_AREA_H
+  #include "m_area.h"
+#endif
 
 #ifdef __M_SRCSNK_CPP
   #define DllImportExport DllExport
@@ -40,10 +43,7 @@ XID xidTRqd          = MdlBsXID(4005);
 XID xidPRqd          = MdlBsXID(4006);
 XID xidSSVLEOnOff    = MdlBsXID(4007);
 XID xidBatchAddition = MdlBsXID(4008);
-XID xidCFTag         = MdlBsXID(4010);
-XID xidCFWhen        = MdlBsXID(4011);
-XID xidCFFetchNow    = MdlBsXID(4012);
-XID xidSSMode        = MdlBsXID(4013);
+XID xidSSMode        = MdlBsXID(4009);
 
 // ==========================================================================
 // Basic Flow Object
@@ -62,16 +62,6 @@ enum SSQmRev { SSQmRev_Null, SSQmRev_Image, SSQmRev_InFlw };
 
 enum SSQmRqd { SSQmRqdTot, SSQmRqdSol, SSQmRqdLiq, SSQmRqdVap };
 enum VLEOpts { VLEO_Off, VLEO_SatLiq, VLEO_SatVap, VLEO_SatLiqP, VLEO_SatVapP, VLEO_SubLiq, VLEO_SupVap, };
-
-const byte CFWhenOff        = 0;
-const byte CFWhenOnceOff    = 1;
-const byte CFWhenContinuous = 2;
-
-const byte CFWhatNull       = 0x00;
-const byte CFWhatTemp       = 0x01;
-const byte CFWhatPress      = 0x02;
-const byte CFWhatFlow       = 0x04;
-const byte CFWhatComp       = 0x08;
 
 _FWDDEF(MN_SrcSnk);
 
@@ -119,8 +109,6 @@ class DllImportExport MN_SrcSnk : public MdlNode
 
     virtual flag   InitialiseSolution();
     virtual flag   TerminateSolution();
-
-    virtual void   DoFetch();
 
     virtual void   EvalPBMakeUpReqd(long JoinMask);
     virtual void   EvalPBMakeUpAvail(long JoinMask);
@@ -178,13 +166,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     flag           bFlashIt;
     byte           iVLEOpt;
 
-    byte           m_iCFWhen;
-    byte           m_iCFWhat;
-    Strng          m_sCFTag;
-    float          m_fCFRatio;
-    static int     sm_nCFQuals;
-    static CArray<Strng, Strng&> sm_CFQualsNm;
-    CArray<flag, flag&> m_CFQualsOn;
+    CompositionFetchHelper CF;
 
 //    flag           fOutFlwIsInFlw;
     byte           iRevFlw;

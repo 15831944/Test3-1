@@ -20,6 +20,247 @@ static CDbgMngr dbgDumpReports     ("Areas", "DumpReports");
 #endif
 
 //==========================================================================
+
+int CompositionFetchHelper::sm_nCFQuals=-1;
+CArray<Strng, Strng&> CompositionFetchHelper::sm_CFQualsNm;
+
+CompositionFetchHelper::CompositionFetchHelper(MdlNode* pMdl)
+  {
+  m_pMdl=pMdl;
+  m_pCdOther=NULL;
+  m_bAllowFlow=true;
+  m_iCFWhen=CFWhenOff;
+  m_iCFWhat=CFWhatComp|CFWhatTemp|CFWhatPress;
+  m_sCFTag="";
+  m_dCFRatio=1.0;
+  if (sm_nCFQuals<0)
+    {
+    sm_nCFQuals=0;
+    for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
+      if (pQ->Selectable() && pQ->LicenseOK())
+        sm_nCFQuals++;
+
+    sm_CFQualsNm.SetSize(sm_nCFQuals);
+    int i=0;
+    for (TagObjClass* pQ=TagObjClass::FindGroupId(SpQuality::GroupName); pQ; pQ=pQ->NextClassInGrp())
+      if (pQ->Selectable() && pQ->LicenseOK())
+        {
+        sm_CFQualsNm[i]="CF.What.";
+        sm_CFQualsNm[i]+=pQ->ClassId();
+        i++;
+        }
+    //NBNB: TODO this list should be cleared when a project is closed!!!
+    }
+
+  m_CFQualsOn.SetSize(sm_nCFQuals);
+  for (int i=0; i<sm_nCFQuals; i++)
+    m_CFQualsOn[i]=1;
+  }
+
+// -------------------------------------------------------------------------
+
+void CompositionFetchHelper::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  DDBValueLst DDBFetchOp[]={
+    {CFWhenOff,         "Off",       },
+    {CFWhenOnceOff,     "OnceOff"    },
+    {CFWhenContinuous,  "Continuous" },
+    {0}};
+
+  int QDrv = m_bAllowFlow ? 0 : MDD_Hidden;
+  DDBValueLst DDBFetchWhat[]={
+    {CFWhatNull,                                    "Nothing"             }, 
+    {CFWhatTemp|CFWhatPress,                        "T,P"                 },
+    {CFWhatComp,                                    "Comp"                },
+    {CFWhatFlow,                                    "Flow",           QDrv},
+    {CFWhatTemp|CFWhatComp,                         "T,Comp"              },
+    {CFWhatTemp|CFWhatPress|CFWhatComp,             "T,P,Comp"            },
+    {CFWhatTemp|CFWhatPress|CFWhatFlow,             "T,P,Flow",       QDrv},
+    {CFWhatComp|CFWhatFlow,                         "Comp,Flow",      QDrv},
+    {CFWhatTemp|CFWhatPress|CFWhatComp|CFWhatFlow,  "T,P,Comp,Flow",  QDrv},
+    {0}};
+
+  //if (DDB.BeginStruct(NULL, "Fetch", NULL, DDB_NoPage, -1, MarkerClosed))
+  DDEF_Flags Vis=DDB.Visibility();
+  DDB.Text  ("");
+  DDB.Text  ("Composition Fetch");
+  DDB.Byte  ("CF.When",    "", DC_, "", xidCFWhen,     m_pMdl, isParm|SetOnChange, DDBFetchOp);
+  DDB.Byte  ("CF.What",    "", DC_, "", &m_iCFWhat,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
+
+  if (m_iCFWhat&CFWhatComp)
+    {
+    for (int iQ=0; iQ<sm_nCFQuals; iQ++)
+      DDB.CheckBox(sm_CFQualsNm[iQ].Str(), "", DC_, "", &m_CFQualsOn[iQ], m_pMdl, isParm); 
+    }
+
+  DDB.Visibility(NSHM_All, m_bAllowFlow);
+  DDB.Double("CF.Ratio",   "", DC_, "", &m_dCFRatio,   m_pMdl, isParm);
+  DDB.Visibility();
+  DDB.String("CF.Source",  "", DC_, "", xidCFTag,      m_pMdl, isParm|isTag);
+  DDB.Button("CF.Fetch",   "", DC_, "", xidCFFetchNow, m_pMdl, isParm);
+  DDB.Visibility(Vis);
+  //DDB.EndStruct();
+  }
+
+// -------------------------------------------------------------------------
+
+flag CompositionFetchHelper::DataXchg(DataChangeBlk & DCB, SpImage & Contents)
+  {
+  switch (DCB.lHandle)
+    {
+    case xidCFTag:
+      if (DCB.rpC)
+        {
+        m_sCFTag = DCB.rpC;
+        m_sCFTag.LRTrim();
+        if (m_sCFTag.FindI("Self")>=0)
+          m_sCFTag="";
+        if (m_sCFTag.Find(' ')>=0)
+          m_sCFTag=m_sCFTag.Left(m_sCFTag.Find(' '));
+        }
+      DCB.pC=m_sCFTag() ? m_sCFTag() : DCB.ForView() ? "(Self.Flows)" : "";
+      return 1;
+    case xidCFWhen:
+      {
+      if (DCB.rB)
+        m_iCFWhen=*DCB.rB;
+      DCB.B=m_iCFWhen;
+      return 1;
+      }
+    case xidCFFetchNow:
+      {
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        if (!DoFetch(Contents))
+          {
+          LogError(m_pMdl->FullObjTag(), 0, "Fetch tag '%s' not valid", m_sCFTag());
+          }
+        }
+      DCB.B=0;
+      return 1;
+      }
+    }
+  return 0;
+  }
+
+// -------------------------------------------------------------------------
+
+int CompositionFetchHelper::ChangeTag(pchar pOldTag, pchar pNewTag)
+  {
+  const int len = strlen(pOldTag);
+  if (m_sCFTag.Len()>=len && _strnicmp(m_sCFTag(), pOldTag, len)==0 && (m_sCFTag.Len()==len || m_sCFTag[len]=='.'))
+    {
+    Strng Right = m_sCFTag.Mid(len, 256);
+    m_sCFTag = pNewTag;
+    m_sCFTag += Right();
+    }
+  return EOCT_DONE;
+  }
+
+// -------------------------------------------------------------------------
+
+bool CompositionFetchHelper::EvalDiscrete(SpImage & Contents)
+  {
+  bool OK = true;
+  switch (m_iCFWhen)
+    {
+    case CFWhenOnceOff:
+      OK = DoFetch(Contents);
+      if (!OK)
+        LogError(m_pMdl->FullObjTag(), 0, "Fetch tag '%s' not valid", m_sCFTag());
+      OK = true;
+      m_iCFWhen = CFWhenOff;
+      break;
+    case CFWhenContinuous:
+      OK = DoFetch(Contents);
+      break;
+    }
+  return OK;
+  }
+
+// -------------------------------------------------------------------------
+
+bool CompositionFetchHelper::DoFetch(SpImage & Contents)
+  {
+  SpContainer * pCn=NULL;
+  SpConduit * pCd=NULL;
+  if (m_sCFTag())
+    {
+    MdlNode *pRoot = (MdlNode*)(m_pMdl->InsertRoot(NULL));
+    char TheTag[1024];
+    strcpy(TheTag, m_sCFTag());
+    int ObjTagLen=0;
+    TaggedObject * p=pRoot->FindObjTag(TheTag, true, ObjTagLen, 0);
+    if (p)
+      {
+      pCn=dynamic_cast<SpContainer*>(p);
+      pCd=dynamic_cast<SpConduit*>(p);
+      if (pCd==NULL && pCd==NULL)
+        {
+        pTaggedObject p1=p->pAttachments;
+        while (p1 && (_stricmp(p1->Tag(), &TheTag[ObjTagLen+1])!=0))
+          {
+          p1=p1->pNxtAttachment;
+          }
+        if (p1)
+          p=p1;
+        pCn=dynamic_cast<SpContainer*>(p);
+        pCd=dynamic_cast<SpConduit*>(p);
+        }
+      }
+    }
+  else
+    pCd=m_pCdOther;
+
+  if (pCd)
+    {
+    if (m_iCFWhat&CFWhatComp)
+      {
+      for (int i=0; i<sm_nCFQuals; i++)
+        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+      Contents.Copy(*pCd);
+      for (int i=0; i<sm_nCFQuals; i++)
+        pCd->SetQualityHoldCopy(i, false);
+      Contents.MArray().Normalise();
+      Contents.Model()->SetMassScale(1);
+      }
+    if (m_iCFWhat&CFWhatTemp)
+      Contents.m_T_Rqd=pCd->Temp();
+    if (m_iCFWhat&CFWhatPress)
+      Contents.SetPRqdTo(pCd->Press());
+    if (m_iCFWhat&CFWhatFlow)
+      {
+      switch (Contents.QMode())
+        {
+        case SPI_QModeQm:  Contents.SetQmRqdTo(pCd->QMass()*m_dCFRatio, true, false); break;
+        case SPI_QModeQv:  Contents.SetQvRqdTo(pCd->QVolume()*m_dCFRatio, true, false); break;
+        case SPI_QModeNQv: Contents.SetNQvRqdTo(pCd->QNVolume()*m_dCFRatio, true, false); break;
+        }
+      }
+    }
+  else if (pCn)
+    {
+    if (m_iCFWhat&CFWhatComp)
+      {
+      for (int i=0; i<sm_nCFQuals; i++)
+        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+      Contents.Copy(*pCn, pCn->Press());
+      for (int i=0; i<sm_nCFQuals; i++)
+        pCd->SetQualityHoldCopy(i, false);
+      }
+    if (m_iCFWhat&CFWhatTemp)
+      Contents.m_T_Rqd=pCn->Temp();
+    if (m_iCFWhat&CFWhatPress)
+      Contents.SetPRqdTo(pCn->Press());
+    }
+  else
+    {
+    return false;
+    }
+  return true;
+  }
+
+//==========================================================================
 //
 //
 //
