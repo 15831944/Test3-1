@@ -167,7 +167,7 @@ CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
   HXs1(*(new CReactionArray)),
   HXs2(*(new CReactionArray)),
   Seq(*(new CReactionArray)),
-  m_RctTol(TBF_Both, "CReactionBlock::RctTol", 1e-20, 1e-8, 20, TBF_LocalOnly), 
+  m_RctTol(TBF_Both, "CReactionBlock::RctTol", 1e-20, 1e-8, 100, TBF_LocalOnly), 
   m_RctTTol(TBF_Both, "CReactionBlock::RctTTol", 1e-20, 0.01, 100, TBF_LocalOnly)
   {
 

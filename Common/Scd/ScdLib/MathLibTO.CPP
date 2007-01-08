@@ -429,13 +429,13 @@ int MRootFinderBase::Solve_Brent()
   double fc, fnc,p,q,r,s,tol1,xm;
   fnc=fnb;
   fc=fb;
-  int dbgiters=(m_Tol.GetMaxIters()*90)/100;
+  int dbgiters=Min(Max(1L, m_Tol.GetMaxIters()-3),(m_Tol.GetMaxIters()*90)/100);
   for (iter=1; iter < m_Tol.GetMaxIters(); iter++)
     {
     if (iter>=dbgiters)
       {
       if (iter==dbgiters)
-        dbgpln("Brent Not Converging x1:%g(err1%g) > x2:%g(err2%g)",x1,m_Err1,x2,m_Err2);
+        dbgpln("Brent Not Converging x1:%12g(err1=%12g) > x2:%12g(err2=%12g)",x1,m_Err1,x2,m_Err2);
       dbgpln("                     x :%.20e(err %.20e)",b,fb);
       }
     
