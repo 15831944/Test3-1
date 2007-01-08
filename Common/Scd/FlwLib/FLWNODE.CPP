@@ -6728,33 +6728,29 @@ flag FlwNode::HasModeNear(int iJoinNo, long Mode)
   { 
   if (FlowMode() & Mode)
     return true;
-  for (int i=0; i<NoJoins(); i++)
+  if (iJoinNo<0)
     {
-    if (iJoinNo<0 || i==iJoinNo)
+    for (int i=0; i<NoProcessIOs(); i++)
       {
-      CJoinRec & J=Joins[i];
-      for (int c=0; c<J.NConns(); c++)
+      if (Nd_Rmt(i)->FlowMode() & Mode)
+        return true;
+      }
+    }
+  else
+    {
+    for (int i=0; i<NoJoins(); i++)
+      {
+      if (i==iJoinNo)
         {
-        if (0)
+        CJoinRec & J=Joins[i];
+        for (int c=0; c<J.NConns(); c++)
           {
           if (J.Nd_Rmt(c)->FlowMode() & Mode)
-            return true;
-          }
-        else
-          {//temporary test...
-          //KGA 19/12/06: added test to try prevent crash! What is the real cause for bad J.Nd_Rmt(c)->m_pRunMds!!? Bad Disconnect logic?
-          FlwNode* p = J.Nd_Rmt(c);
-          if (p && p->m_pRunMds && (unsigned int)(p->m_pRunMds)==0xfeeefeee)
-            {
-            int xxx=0; //BUGGER!!!
-            }
-          if (p && p->m_pRunMds && (unsigned int)(p->m_pRunMds)!=0xfeeefeee && (p->FlowMode() & Mode))
             return true;
           }
         }
       }
     }
-
   return false; 
   };
 
