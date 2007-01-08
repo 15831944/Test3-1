@@ -2683,12 +2683,13 @@ Build 122 : 16 November 2006
 1309 20/12/06: (#701) Removed incorrect PlantArea missing from drawings in project models view.
 1316  3/01/07: (#707) Added elemental molecular weights to specie data access window.
 1317  3/01/07: Fix for error when trying to edit measurements in edit configuration.
-1319  4/01/07: Extended display of specie data extra tab page in $SDB access window.
+1319  4/01/07: (#711) Extended display of specie data extra tab page in $SDB access window.
 1322  8/01/07: (#575) Added composition fetch option to makeup source model.
+1324  4/01/07: (#711) Minor fix for tag names (eg "$SDB.H2O(g).MoleWt()")
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1322
+#define SCD_PATCH_SVN    1324
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

@@ -105,10 +105,10 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
       {
       if (DDB.BeginStruct(this, SDB[i].SymOrTag(), NULL, DDB_NoPage))
         {
-        DDB.Double("MoleWt",  "",       DC_,     "",              xidMolWt +i,   this, 0);
-        DDB.Double("",        "LoT",    DC_T,    "C",             xidLoT   +i,   this, 0);
-        DDB.Double("",        "HiT",    DC_T,    "C",             xidHiT   +i,   this, 0);
-        DDB.String("",        "Tag",    DC_,     "",              xidSpTag +i,   this, 0);
+        DDB.Double("",        "MoleWt()", DC_,     "",              xidMolWt +i,   this, 0);
+        DDB.Double("",        "LoT()",    DC_T,    "C",             xidLoT   +i,   this, 0);
+        DDB.Double("",        "HiT()",    DC_T,    "C",             xidHiT   +i,   this, 0);
+        DDB.String("",        "Tag()",    DC_,     "",              xidSpTag +i,   this, 0);
 
         DDB.FnDouble("",        "mlHf25", DC_HMl,  "kJ/kmol",       xidmlHf25+i,   this, 0, Parms00);
         DDB.FnDouble("",        "mlHf",   DC_HMl,  "kJ/kmol",       xidmlHf  +i,   this, 0, Parms2);
@@ -762,19 +762,19 @@ void SDBObjectEdt::Build()
           SetDesc(L, SDB[iSp].SymOrTag(),  -1, iNameWidth,  0, "");
 
           SetParm(L, "", Id_LoT1+iSp   , iWd_LoHiT, 2, "");
-          Tg.Set("$SDB.%s.LoT", SDB[iSp].SymOrTag());
+          Tg.Set("$SDB.%s.LoT()", SDB[iSp].SymOrTag());
           SetTag(Tg());
 
           SetParm(L, "", Id_HiT1+iSp   , iWd_LoHiT, 2, "");
-          Tg.Set("$SDB.%s.HiT", SDB[iSp].SymOrTag());
+          Tg.Set("$SDB.%s.HiT()", SDB[iSp].SymOrTag());
           SetTag(Tg());
 
           SetParm(L, "", Id_MolWt1+iSp   , iWd_MoleWt, 2, "");   // MoleWt
-          Tg.Set("$SDB.%s.MoleWt", SDB[iSp].SymOrTag());
+          Tg.Set("$SDB.%s.MoleWt()", SDB[iSp].SymOrTag());
           SetTag(Tg());
 
           SetParm(L, "", Id_SpTag1+iSp   , iSpTgWidth, 2, "");
-          Tg.Set("$SDB.%s.Tag", SDB[iSp].SymOrTag());
+          Tg.Set("$SDB.%s.Tag()", SDB[iSp].SymOrTag());
           SetTag(Tg());
           L++;
           }
