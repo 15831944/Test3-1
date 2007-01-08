@@ -25,7 +25,7 @@
 				PreprocessorDefinitions="NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+``				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Rdb/HeatXch2.pch"
 				AssemblerListingLocation=".\Rdb/"
