@@ -125,7 +125,7 @@ IMPLEMENT_CLASSBUILDER1(CEC_Equilibrium, CR_EqnControl, "Equilibrium", pCR_Eqn)
 void CEC_Equilibrium::Clear()
   {
   CR_EqnControl::Clear();
-  m_dK_Eq=1.0;
+  m_ddKEq.Clear(&Eq);
   m_dK_Rt=1.0;
   };
 
@@ -137,7 +137,7 @@ void CEC_Equilibrium::Parse(CRCTTokenFile &TF)
 
   TF.TestToken("=");
 
-  m_dK_Eq=TF.DoubleToken();
+  m_ddKEq=TF.DoubleToken();
 
   if (TF.TokenIs("Rate"))
     {
@@ -154,7 +154,7 @@ void CEC_Equilibrium::Parse(CRCTTokenFile &TF)
     m_ddDefinedResTime=Max(1.0e-3, TF.DoubleToken());
     TF.CheckToken("=");
     m_dK_Rt=TF.DoubleToken();
-    if (m_dK_Rt>=0.99999999 * m_dK_Eq)
+    if (m_dK_Rt>=0.99999999 * m_ddKEq)
       m_ddDefinedResTime=-1;
     else
       m_bDoResTime=1;
@@ -180,7 +180,7 @@ void CEC_Equilibrium::SetUp()
     }
   else if (m_bDoResTime)
     {
-    double R=(m_dK_Eq-m_dK_Rt)/m_dK_Eq;
+    double R=(m_ddKEq-m_dK_Rt)/m_ddKEq;
     if ((R>1.0e-8) && R<(1.0-1.0e-9))
       m_dAlpha=-log(R);
     else
@@ -202,7 +202,10 @@ void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Text  ("Equilibrium");
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
-  DDB.Double("K_Eq",              "",        DC_,     "",      &m_dK_Eq,                &Eq, isResult);
+
+  m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "",      DC_,     "",    xid_RCTKEquilibrium, &Eq, "Cfg", "Rqd");
+
+  //DDB.Double("K_Eq",              "",        DC_,     "",      &m_dK_Eq,                &Eq, isResult);
   DDB.Double("K_EOStep",          "K_Act",   DC_,     "",      &m_dKEOStep,             &Eq, isResult);
   DDB.Double("K_Final",           "",        DC_,     "",      &m_dKFinal,              &Eq, isResult|NAN_OK);
   DDB.Double("ExtentError",       "",        DC_Frac, "%",     xid_ExtentError,         &Eq, isResult|noFile|noSnap|NAN_OK);
@@ -235,6 +238,8 @@ flag CEC_Equilibrium::DataXchg(DataChangeBlk & DCB)
       return 1;
     }
 
+  if (m_ddKEq.DataXchg(DCB, xid_RCTKEquilibrium, &Eq))
+    return 1;
   if (m_ddDefinedResTime.DataXchg(DCB, xid_RTRef, &Eq))
     return 1;
   if (m_ddActualResTime.DataXchg(DCB, xid_ResTime, &Eq))
@@ -262,7 +267,7 @@ void CEC_Equilibrium::CalcKs(double ProdMoles, double &EqK, double &K)
 
 double CEC_Equilibrium::ExtentReqd()
   {
-  return ExtentDynamicScale(m_dK_Eq);
+  return ExtentDynamicScale(m_ddKEq);
   };
 
 double CEC_Equilibrium::ExtentActual(double ProdMoles)

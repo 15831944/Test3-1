@@ -51,7 +51,7 @@ typedef  CArray <CEqnSpRef, CEqnSpRef&> CEqnSpRefArray;
 class DllImportExport CEC_Equilibrium : public CR_EqnControl
   {
   public:
-    double         m_dK_Eq;
+    DualDbl        m_ddKEq;//
     double         m_dK_Rt;
 
     CEC_Equilibrium(CR_EqnControlFactory * Factory, pCR_Eqn pEqn) : CR_EqnControl(Factory, pEqn) { Clear(); };
