@@ -99,8 +99,7 @@ CentrifugeMB::CentrifugeMB(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   AttachIOAreas(CentrifugeMBIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
-
-  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   FlowRatio     = 0.0;
   RqdSolidsToFiltrate = 0.0001;

@@ -100,8 +100,7 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Fd("Fd", this, TOA_Free)
   {
   AttachIOAreas(FilterPressIOAreaList);
-
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);//"Transfer", "Inline", "Buffered");
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iRqdFiltMethod  = FSM_SolToFiltFrac;
   RqdFiltSolConc  = 1.0;

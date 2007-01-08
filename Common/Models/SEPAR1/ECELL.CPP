@@ -80,8 +80,7 @@ ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   AttachIOAreas(ElectroCellIOAreaList);
   Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
-
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   CathMass     = 0.0;
   dCellEff     = 0.9;

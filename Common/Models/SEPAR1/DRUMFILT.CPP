@@ -86,8 +86,7 @@ DrumFilt::DrumFilt(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   {
   AttachIOAreas(DrumFiltIOAreaList);
   Contents.SetClosed(false);
-
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iRqdFiltMethod  = FSM_FiltSolFrac;
   RqdFiltSolids   = 0.0001;

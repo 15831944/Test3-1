@@ -85,8 +85,7 @@ Dryer::Dryer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   {
   AttachIOAreas(DryerIOAreaList);
   Contents.SetClosed(False);
-
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   fOn           = True;
   RqdFiltSolids = 0.00001;

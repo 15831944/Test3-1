@@ -84,6 +84,7 @@ Centrifuge1::Centrifuge1(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   AttachIOAreas(CentrifugeIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iMeth=CSF_SolRec|CSF_SolidAnal;
   Reqd_SolMFrac = 0.9;

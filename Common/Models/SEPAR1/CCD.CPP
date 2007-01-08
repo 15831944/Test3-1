@@ -101,7 +101,7 @@ Ccd::Ccd(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachm
   Contents.SetClosed(False);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
 
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   Stage		 = 3;
   UFSolids = 0.0;

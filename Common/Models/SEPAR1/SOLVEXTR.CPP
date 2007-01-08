@@ -156,9 +156,7 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   AttachIOAreas(MixerSettlerIOAreaList);
   Mixer.SetStateAction(IE_Integrate);
   Settler.SetStateAction(IE_Integrate);
-
-  //SetAllowedModes(true, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);//"Transfer", "Inline", "Buffered");
-  SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*//*|SM_Buffered*/|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   MixOFLev    = 0.85;
   MxResT      = 1.0;

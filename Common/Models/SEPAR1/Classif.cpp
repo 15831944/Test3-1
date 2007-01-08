@@ -93,7 +93,7 @@ Classifier::Classifier(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   AttachIOAreas(ClassifierIOAreaList);
   Contents.SetClosed(False);
 //  Contents.SetAllowAdjust(FALSE);
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iUFCalc       = CLUF_SolRec;
   Reqd_UFConc   = 700.0;

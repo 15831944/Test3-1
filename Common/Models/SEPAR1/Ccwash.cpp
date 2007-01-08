@@ -122,7 +122,7 @@ CCWasher::CCWasher(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachIOAreas(CCWasherIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
 
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iEffMethod           = MEM_Scandrett;
   MixEff               = 1.0;
