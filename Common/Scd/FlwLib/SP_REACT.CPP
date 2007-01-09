@@ -2732,7 +2732,7 @@ flag CReactionBlock::CIStrng(int No, pchar & pS)
     case 12: pS="E\tNot Avail";                       return 1;
 
     case 13: pS="W\tFinal Temperature not converged"; return 1;
-    case 14: pS="W\tLow Intermediate Temperature";    return 1;
+    case 14: pS="E\tLow Intermediate Temperature";    return 1;
 
     default:
       return TaggedObject::CIStrng(No, pS);
