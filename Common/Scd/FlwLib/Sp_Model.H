@@ -123,6 +123,7 @@ XID xidSMPureSatTemp    = SpcXID(100050);
 XID xidSMSatTemp        = SpcXID(100051);
 XID xidSMSatPress       = SpcXID(100052);
 XID xidSMBoilPtEle      = SpcXID(100053);
+XID xidSMSatComp        = SpcXID(100054);
 
 XID xidSMSmsH           = SpcXID(100060);
 XID xidSMLmsH           = SpcXID(100061);
@@ -246,17 +247,18 @@ XID xidSpdSIdeal            = SpcXID(100188);
 XID xidSpdHResidual         = SpcXID(100189);
 XID xidSpdSResidual         = SpcXID(100190);
 
-XID xidAutoVLESet           = SpcXID(100200);
-XID xidAutoVLESpecH         = SpcXID(100201);
-XID xidAutoVLERelH          = SpcXID(100202);
-XID xidAutoVLEDewPt         = SpcXID(100203);
+XID xidAutoVLEComp          = SpcXID(100200);
+XID xidAutoVLESet           = SpcXID(100201);
+XID xidAutoVLESpecH         = SpcXID(100202);
+XID xidAutoVLERelH          = SpcXID(100203);
+XID xidAutoVLEDewPt         = SpcXID(100204);
 
-XID xidHumiditySpecific     = SpcXID(100204);
-XID xidHumidityRelative     = SpcXID(100205);
-XID xidHumidityDewPt        = SpcXID(100206);
+XID xidHumiditySpecific     = SpcXID(100205);
+XID xidHumidityRelative     = SpcXID(100206);
+XID xidHumidityDewPt        = SpcXID(100207);
 
-XID xidSMFnRanges           = SpcXID(100207);
-XID xidSMFnRangeID          = SpcXID(100208);
+XID xidSMFnRanges           = SpcXID(100208);
+XID xidSMFnRangeID          = SpcXID(100209);
 
 XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
 XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 
@@ -960,6 +962,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual void   SetDebug(flag DbgOn_);
 
+    virtual int    SaturationComp();
+    virtual LPTSTR SaturationCompName();
     virtual double SaturationP(double T, CSysVector * pMA=NULL);
     virtual double SaturationT(double P, CSysVector * pMA=NULL);
     virtual double PureSaturationP(double T, CSysVector * pMA=NULL)               { return SpModel::SaturationP(T, pMA);};
@@ -1122,16 +1126,19 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     flag           m_bEquilOn;
     byte           m_iEquilAct;
-    static int     sm_iAutoVLELiq;
-    static int     sm_iAutoVLEVap;
+    //static int     sm_iAutoVLELiq;
+    //static int     sm_iAutoVLEVap;
 
-    void           ClearAutoVLE()   { sm_iAutoVLEVap=sm_iAutoVLELiq=-1; };
-    bool           AutoVLEOK()      { return sm_iAutoVLEVap>=0; };
-    flag           AutoVLEOn()      { return sm_iAutoVLEVap>=0 && m_bEquilOn && m_AutoVLE.m_bOn; };
+    void           ClearAutoVLE()   { m_AutoVLE.m_iCmp=m_AutoVLE.m_iVap=m_AutoVLE.m_iLiq=-1; };
+    bool           AutoVLEOK()      { return CDB.m_Flashable.GetCount()>0; };//m_AutoVLE.m_iCmp>=0; };
+    flag           AutoVLEOn()      { return m_AutoVLE.m_iCmp>=0 && m_bEquilOn; };// && m_AutoVLE.m_bOn; };
 
     struct 
       {
-      flag         m_bOn;
+      //flag         m_bOn;
+      int          m_iCmp;
+      int          m_iLiq;
+      int          m_iVap;
       byte         m_iSet;    
       double       m_dSpecH;    
       double       m_dRelH;    

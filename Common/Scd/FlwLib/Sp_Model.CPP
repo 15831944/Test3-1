@@ -498,8 +498,6 @@ double        SpModel::dTestToleranceMassFrac=0.0001;
 bool          SpModel::m_RangeErrorsOn=false;
 bool          SpModel::m_RangeExtErrorsOn=true;
 
-int           SpModel::sm_iAutoVLELiq=-1;
-int           SpModel::sm_iAutoVLEVap=-1;
 flag          SpModel::sm_VarsChange=0;
 long          SpModel::sm_VarsAvail=0;
 flag          SpModel::sm_SpVarsChange=0;
@@ -627,7 +625,9 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   m_iEquilAct=SQA_Xfer;
   m_bEquilOn=false;
 
-  m_AutoVLE.m_bOn=false;
+  m_AutoVLE.m_iCmp=-1;
+  m_AutoVLE.m_iLiq=-1;
+  m_AutoVLE.m_iVap=-1;
   m_AutoVLE.m_iSet=AVLESet_None;
   m_AutoVLE.m_dSpecH=0;
   m_AutoVLE.m_dRelH=0;
@@ -818,7 +818,9 @@ void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   else
     {
     m_bEquilOn=SrcModel->m_bEquilOn;
-    m_AutoVLE.m_bOn=SrcModel->m_AutoVLE.m_bOn;
+    m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
+    m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
+    m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
     }
   m_Ovr.CopySrc(SrcModel->m_Ovr);
 
@@ -849,7 +851,9 @@ void SpModel::SetQualities(SpModel * SrcModel)
   else
     {
     m_bEquilOn=SrcModel->m_bEquilOn;
-    m_AutoVLE.m_bOn=SrcModel->m_AutoVLE.m_bOn;
+    m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
+    m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
+    m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
     }
 
   m_Ovr.CopySrc(SrcModel->m_Ovr);
@@ -877,7 +881,9 @@ void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   else
     {
     m_bEquilOn=m_bEquilOn||SrcModel->m_bEquilOn;
-    m_AutoVLE.m_bOn=SrcModel->m_AutoVLE.m_bOn;
+    m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
+    m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
+    m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
     }
 
   m_Ovr.AddSrc(SrcModel->m_Ovr);
@@ -1046,7 +1052,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 #endif
 
 #if WITHAUTOVLE
-        if (m_AutoVLE.m_bOn)
+        if (m_AutoVLE.m_iCmp>=0)
           {
           switch (m_AutoVLE.m_iSet)
             {
@@ -1054,11 +1060,11 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
               {
               if (Valid(RqdT))
                 Set_totHf(totHf(som_ALL, RqdT, RqdP));
-              double TotMass=VValue[sm_iAutoVLELiq]+VValue[sm_iAutoVLEVap];
-              double VapP=SDB[sm_iAutoVLEVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
-              double PPVap1=PartialPress(sm_iAutoVLEVap, Valid(RqdT)?RqdT:Temp());
+              double TotMass=VValue[m_AutoVLE.m_iLiq]+VValue[m_AutoVLE.m_iVap];
+              double VapP=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
+              double PPVap1=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
               double MassGas=Mass(som_Gas);
-              if ((MassGas-VValue[sm_iAutoVLEVap])<1.0e-6*MassGas)
+              if ((MassGas-VValue[m_AutoVLE.m_iVap])<1.0e-6*MassGas)
                 {
                 }
               else
@@ -1067,38 +1073,38 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                 if (dbgAutoVLEEquil())
                   dbgp("%3i T:%10.4f PP:%10.4f VapP:%10.4f", Iter ,Valid(RqdT)?RqdT:Temp(), PPVap1, VapP);
 #endif
-                if (PPVap1<VapP && VValue[sm_iAutoVLELiq]<ZeroLimit)
+                if (PPVap1<VapP && VValue[m_AutoVLE.m_iLiq]<ZeroLimit)
                   {
                   // Cannot flash more  T Above DewPt;
                   }
                 else if(!gs_EquilFinderTol.ConvergedVV(PPVap1, VapP))
                   {
                   double DMassVap;
-                  if (VValue[sm_iAutoVLEVap]>ZeroLimit)
-                    DMassVap=(PPVap1>VapP ? -0.01:0.01)*VValue[sm_iAutoVLEVap];
+                  if (VValue[m_AutoVLE.m_iVap]>ZeroLimit)
+                    DMassVap=(PPVap1>VapP ? -0.01:0.01)*VValue[m_AutoVLE.m_iVap];
                   else
-                    DMassVap=0.001*VValue[sm_iAutoVLELiq];
+                    DMassVap=0.001*VValue[m_AutoVLE.m_iLiq];
                   if (fabs(DMassVap)>ZeroLimit)
                     {
                     VLEConverged=false;
-                    VValue[sm_iAutoVLELiq]-=DMassVap;
-                    VValue[sm_iAutoVLEVap]+=DMassVap;
+                    VValue[m_AutoVLE.m_iLiq]-=DMassVap;
+                    VValue[m_AutoVLE.m_iVap]+=DMassVap;
                     ClrStatesOK();
-                    double PPVap2=PartialPress(sm_iAutoVLEVap, Valid(RqdT)?RqdT:Temp());
-                    VValue[sm_iAutoVLELiq]-=-DMassVap;
-                    VValue[sm_iAutoVLEVap]+=-DMassVap;
+                    double PPVap2=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
+                    VValue[m_AutoVLE.m_iLiq]-=-DMassVap;
+                    VValue[m_AutoVLE.m_iVap]+=-DMassVap;
                     double dPPdM=(PPVap2-PPVap1)/DMassVap;
                     double Mass2Liq=(PPVap1-VapP)/dPPdM;
-                    Mass2Liq=Range(-VValue[sm_iAutoVLELiq], Mass2Liq, VValue[sm_iAutoVLEVap]);
-                    VValue[sm_iAutoVLELiq]+=Mass2Liq;
-                    VValue[sm_iAutoVLEVap]-=Mass2Liq;
+                    Mass2Liq=Range(-VValue[m_AutoVLE.m_iLiq], Mass2Liq, VValue[m_AutoVLE.m_iVap]);
+                    VValue[m_AutoVLE.m_iLiq]+=Mass2Liq;
+                    VValue[m_AutoVLE.m_iVap]-=Mass2Liq;
                     ClrStatesOK();
 
                     if (Valid(RqdT))
                       Set_totHf(totHf(som_ALL, RqdT, RqdP));
 #if dbgAutoVLE
                     if (dbgAutoVLEEquil())
-                      dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Liq, TotMass, VValue[sm_iAutoVLELiq], VValue[sm_iAutoVLEVap]);
+                      dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Liq, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
 #endif
                     }
                   }
@@ -1119,14 +1125,14 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                   Set_totHf(totHf(som_ALL, RqdT, RqdP));
                 if (!WithLiq)
                   {
-                  VValue[sm_iAutoVLELiq]=0;
+                  VValue[m_AutoVLE.m_iLiq]=0;
                   ClrStatesOK();
                   }
-                double TotMass=VValue[sm_iAutoVLELiq]+VValue[sm_iAutoVLEVap];
-                double VapP=SDB[sm_iAutoVLEVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
-                double PPVap1=PartialPress(sm_iAutoVLEVap, Valid(RqdT)?RqdT:Temp());
+                double TotMass=VValue[m_AutoVLE.m_iLiq]+VValue[m_AutoVLE.m_iVap];
+                double VapP=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
+                double PPVap1=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
                 double MassGas=Mass(som_Gas);
-                if ((MassGas-VValue[sm_iAutoVLEVap])<1.0e-6*MassGas)
+                if ((MassGas-VValue[m_AutoVLE.m_iVap])<1.0e-6*MassGas)
                   {
                   }
                 else
@@ -1138,29 +1144,29 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                   if(!gs_EquilFinderTol.ConvergedVV(PPVap1, VapP*PPScl))
                     {
                     double DMassVap;
-                    if (VValue[sm_iAutoVLEVap]>ZeroLimit)
-                      DMassVap=(PPVap1>VapP ? -0.01:0.01)*VValue[sm_iAutoVLEVap];
+                    if (VValue[m_AutoVLE.m_iVap]>ZeroLimit)
+                      DMassVap=(PPVap1>VapP ? -0.01:0.01)*VValue[m_AutoVLE.m_iVap];
                     else
                       DMassVap=0.001*Mass(som_Gas);
                     if (fabs(DMassVap)>ZeroLimit)
                       {
                       VLEConverged=false;
                       if (WithLiq)
-                        VValue[sm_iAutoVLELiq]-=DMassVap;
+                        VValue[m_AutoVLE.m_iLiq]-=DMassVap;
                       else
-                        VValue[sm_iAutoVLELiq]=0;
-                      VValue[sm_iAutoVLEVap]+=DMassVap;
+                        VValue[m_AutoVLE.m_iLiq]=0;
+                      VValue[m_AutoVLE.m_iVap]+=DMassVap;
                       ClrStatesOK();
-                      double PPVap2=PartialPress(sm_iAutoVLEVap, Valid(RqdT)?RqdT:Temp());
+                      double PPVap2=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
                       if (WithLiq)
-                        VValue[sm_iAutoVLELiq]+=DMassVap;
-                      VValue[sm_iAutoVLEVap]-=DMassVap;
+                        VValue[m_AutoVLE.m_iLiq]+=DMassVap;
+                      VValue[m_AutoVLE.m_iVap]-=DMassVap;
                       double dPPdM=(PPVap2-PPVap1)/DMassVap;
                       double Mass2Vap=-(PPVap1-VapP*PPScl)/dPPdM;
-                      Mass2Vap=Max(-VValue[sm_iAutoVLEVap], Mass2Vap);
+                      Mass2Vap=Max(-VValue[m_AutoVLE.m_iVap], Mass2Vap);
                       if (WithLiq)
-                        VValue[sm_iAutoVLELiq]-=Mass2Vap;
-                      VValue[sm_iAutoVLEVap]+=Mass2Vap;
+                        VValue[m_AutoVLE.m_iLiq]-=Mass2Vap;
+                      VValue[m_AutoVLE.m_iVap]+=Mass2Vap;
                       ClrStatesOK();
 
                       if (Valid(RqdT))
@@ -1168,7 +1174,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 
 #if dbgAutoVLE
                       if (dbgAutoVLEEquil())
-                        dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Vap, TotMass, VValue[sm_iAutoVLELiq], VValue[sm_iAutoVLEVap]);
+                        dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Vap, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
 #endif
                       }
                     }
@@ -1176,8 +1182,8 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                 }
               else
                 {
-                VValue[sm_iAutoVLELiq]=0;
-                VValue[sm_iAutoVLEVap]=0;
+                VValue[m_AutoVLE.m_iLiq]=0;
+                VValue[m_AutoVLE.m_iVap]=0;
                 ClrStatesOK();
                 if (Valid(RqdT))
                   Set_totHf(totHf(som_ALL, RqdT, RqdP));
@@ -1458,6 +1464,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   if (!HeatSkipMethod())
     {
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
+    DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isResult|noFile|noSnap);
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
     DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
@@ -4098,7 +4105,19 @@ void SpModel::BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms)
     DDB.TagComment("On");
 #if WITHAUTOVLE
   if (AutoVLEOK() && m_bEquilOn)
-    DDB.CheckBoxBtn("", "AutoVLE", DC_, "", &m_AutoVLE.m_bOn, this, Flag);
+    {
+
+    //DDB.CheckBoxBtn("", "AutoVLE", DC_, "", &m_AutoVLE.m_bOn, this, Flag);
+    DDBValueLstMem DDB1;
+    DDB1.Add(-1, "Off");
+    //DDB1.Add(CDB.No(), "MultiComponent");
+    for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+      {
+      int j=CDB.m_Flashable[i];
+      DDB1.Add(j, CDB[j].SymOrTag());
+      }
+    DDB.Long  ("AutoVLE",    "",  DC_,     "",    xidAutoVLEComp,    this, isParm, DDB1());
+    }
 #endif
 
   Strng SDesc;
@@ -4315,6 +4334,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);          return 1;
 
     case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());   return 1;
+    case xidSMSatComp     : DCB.pC = SaturationCompName();      return 1;
     case xidSMSatTemp     : DCB.D = SaturationT(Press());       return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp());        return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());   return 1;
@@ -4398,6 +4418,24 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSpdHResidual    : DCB.D = msdHResidual(som_Gas, Temp(), Press());   return 1;
     case xidSpdSResidual    : DCB.D = msdSResidual(som_Gas, Temp(), Press());   return 1;
 
+    case xidAutoVLEComp      : 
+      if (DCB.rL) 
+        { 
+        m_AutoVLE.m_iCmp  = *DCB.rL;
+        if (AutoVLEOn())
+          {
+          m_AutoVLE.m_iVap = CDB[m_AutoVLE.m_iCmp].VapPhInx("XXXX", true); 
+          m_AutoVLE.m_iLiq = CDB[m_AutoVLE.m_iCmp].LiqPhInx("XXXX", true); 
+          }
+        else
+          {
+          m_AutoVLE.m_iVap = -1;
+          m_AutoVLE.m_iLiq = -1;
+          }
+        m_dwValidFlags &= ~(SMVF_EquilOK); 
+        }; 
+      DCB.L = m_AutoVLE.m_iCmp;
+      return 1;
     case xidAutoVLESet      : if (DCB.rB) { m_AutoVLE.m_iSet   = *DCB.rB; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.B = m_AutoVLE.m_iSet;   return 1;
     case xidAutoVLESpecH    : if (DCB.rD) { m_AutoVLE.m_dSpecH = *DCB.rD; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.D = m_AutoVLE.m_dSpecH;   return 1;
     case xidAutoVLERelH     : if (DCB.rD) { m_AutoVLE.m_dRelH  = *DCB.rD; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.D = m_AutoVLE.m_dRelH;   return 1;
@@ -8046,19 +8084,17 @@ void SpModel::SetDebug(flag DbgOn_)
 //===========================================================================
 
 static MInitialiseTest SpModelIT(&SpModelClass);
-SPECIEBLK_L(SpModelIT, gs_FlshCompL, "Flash_Component(l)", true);
-SPECIEBLK_V(SpModelIT, gs_FlshCompV, "Flash_Component(g)", true);
 
 // --------------------------------------------------------------------------
 
 double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
   {
   //  if (SatPressCompV()>=0 && SatPressCompL()>=0)
-  if (gs_FlshCompV()>=0 && gs_FlshCompL()>=0)
+  if (CDB.DefFlashCompIndex()>=0)
     {
     CSysVector &MA = (pMA==NULL ? MArray() : *pMA);
-    double H0=gs_FlshCompV.D().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
-    double H1=gs_FlshCompL.D().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
+    double H0=CDB.DefFlashVapDesc().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
+    double H1=CDB.DefFlashLiqDesc().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
     return H0-H1;
     }
   return 0.0;
@@ -8066,16 +8102,55 @@ double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
 
 //===========================================================================
 
+int SpModel::SaturationComp()
+  {
+  return CDB.DefFlashCompIndex();
+  };
+
+LPTSTR SpModel::SaturationCompName()
+  {
+  static CString X;
+  X="None";
+  if (m_pVLE && m_pVLE->Enabled())
+    {
+    X="VLE:";
+    X+=m_pVLE->Description();
+    //X+=SDB[m_pVLE->.m_iLiq].SymOrTag();
+    //X+="/";
+    //X+=SDB[m_AutoVLE.m_iVap].SymOrTag();
+    }
+  else if (AutoVLEOn())
+    {
+    X="AutoVp:";
+    X+=SDB[m_AutoVLE.m_iLiq].SymOrTag();
+    X+="/";
+    X+=SDB[m_AutoVLE.m_iVap].SymOrTag();
+    }
+  else if (CDB.DefFlashCompIndex()>=0)
+    {
+    X="DefVp:";
+    X+=CDB.DefFlashLiqDesc().SymOrTag();
+    X+="/";
+    X+=CDB.DefFlashVapDesc().SymOrTag();
+    }
+  return (LPTSTR)(LPCTSTR)X;
+  };
+
 double SpModel::SaturationP(double T_, CSysVector * pMA)
   {
-  if (m_pVLE)
+  if (m_pVLE && m_pVLE->Enabled())
     {
     double P=m_pVLE->SaturationP(T_, pMA);
     if (Valid(P))
       return P;
     }
 
-  return gs_FlshCompV()>=0 ? gs_FlshCompV.cd().VapourP(m_iFidelity, T_) : Std_P;
+  if (m_AutoVLE.m_iCmp>=0)
+    return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
+  else if (CDB.DefFlashCompIndex()>=0)
+    return CDB.DefFlashCompDesc().VapourP(m_iFidelity, T_);
+  else
+    return Std_P;
   };
 
 //---------------------------------------------------------------------------
@@ -8101,6 +8176,7 @@ class SatTFnd : public MRootFinderBase
 CToleranceBlock SatTFnd::s_Tol(TBF_BothSys, "SpModel:SatTFnd", 0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
 
 // -------------------------------------------------------------------------
+
 
 double SpModel::SaturationT(double P_, CSysVector * pMA)
   {
@@ -8128,7 +8204,7 @@ double SpModel::SaturationT(double P_, CSysVector * pMA)
     else if (!m_fConvergeBusy)
       {
       //m_dPrvSatT=SatT.Result(); kga: perhaps should return value at limit???!!!
-      if (gs_FlshCompV()>=0) 
+      if (CDB.DefFlashCompIndex()>=0) 
         SetCI(4); // a FLash Component (the default) exists
       else
         ClrCI(4);
@@ -8336,13 +8412,13 @@ void SpModel::ClrMassInUse()
 
 void SpModel::InitialiseHumidity()
   {
-  sm_iAutoVLEVap=SDB.Find("H2O(g)");
-  sm_iAutoVLELiq=SDB.Find("H2O(l)");
-  if (sm_iAutoVLEVap<0 || sm_iAutoVLELiq<0)
-    {
-    sm_iAutoVLEVap=-1;
-    sm_iAutoVLELiq=-1;
-    }
+  //m_AutoVLE.m_iVap=SDB.Find("H2O(g)");
+  //m_AutoVLE.m_iLiq=SDB.Find("H2O(l)");
+  //if (m_AutoVLE.m_iVap<0 || m_AutoVLE.m_iLiq<0)
+  //  {
+  //  m_AutoVLE.m_iVap=-1;
+  //  m_AutoVLE.m_iLiq=-1;
+  //  }
   };
 
 // --------------------------------------------------------------------------
@@ -8352,15 +8428,15 @@ double SpModel::SpecificHumidity()
   if (AutoVLEOn())
     {
     double P=Press();
-    double Pw=PartialPress(sm_iAutoVLEVap, Temp());
-    double MWw=SDB[sm_iAutoVLEVap].MoleWt();
-    double MSw=VValue[sm_iAutoVLEVap];
+    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    double MWw=SDB[m_AutoVLE.m_iVap].MoleWt();
+    double MSw=VValue[m_AutoVLE.m_iVap];
     double MWo=0;
     double MSo=0;
     SpecieIter I(som_Gas);
     for (int i=-1; I.Loop(i); )
       {
-      if (i!=sm_iAutoVLEVap)
+      if (i!=m_AutoVLE.m_iVap)
         {
         MSo+=VValue[i];
         MWo+=VValue[i]*SDB[i].MoleWt();
@@ -8378,8 +8454,8 @@ double SpModel::RelativeHumidity()
   {
   if (AutoVLEOn())
     {
-    double Pw=PartialPress(sm_iAutoVLEVap, Temp());
-    double PSat=SDB[sm_iAutoVLEVap].VapourP(m_iFidelity, Temp());
+    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    double PSat=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Temp());
     return Pw/GTZ(PSat);
     }
   return dNAN;
@@ -8391,8 +8467,8 @@ double SpModel::HumidityDewPt()
   {
   if (AutoVLEOn())
     {
-    double Pw=PartialPress(sm_iAutoVLEVap, Temp());
-    return SDB[sm_iAutoVLEVap].VapourT(m_iFidelity, Pw);//ress());
+    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    return SDB[m_AutoVLE.m_iVap].VapourT(m_iFidelity, Pw);//ress());
     }
   return dNAN;
   }

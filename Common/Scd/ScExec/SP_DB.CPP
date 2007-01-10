@@ -4770,6 +4770,10 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_pWater=NULL;
   m_pSteam=NULL;
 
+  m_DefFlashCompIndex=-1;
+  m_DefFlashLiqIndex=-1;
+  m_DefFlashVapIndex=-1;
+
   bCDBBad=false;
 
 #if dbgBuildSDB
@@ -4819,12 +4823,12 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
 
       // replace Flash_Component with the actual name of the component
       // replace SatP_Component with the actual name of the component
-      if (pSb->m_sCmpName.XStrICmp("Flash_Component")==0)
-        {
-        pSb->m_sCmpName=CDBInit.Flash_Component();
-        pSb->m_sSpName=CDBInit.Flash_Component();
-        pSb->m_sSpName+=pSb->m_sSpPostfix;
-        }
+      //if (pSb->m_sCmpName.XStrICmp("Flash_Component")==0)
+      //  {
+      //  pSb->m_sCmpName=CDBInit.Flash_Component();
+      //  pSb->m_sSpName=CDBInit.Flash_Component();
+      //  pSb->m_sSpName+=pSb->m_sSpPostfix;
+      //  }
       }
 
     for (CSpecieBlk* pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
@@ -5181,6 +5185,35 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
     m_SDB.m_iCO2l = SDB.Find("CO2(l)");
     m_SDB.m_iH2Og = SDB.Find("H2O(g)");
     m_SDB.m_iCO2g = SDB.Find("CO2(g)");
+
+    struct {LPCTSTR m_L; LPCTSTR m_G;}  FlashPhases[] = {{"(l)", "(g)"}, {"(aq)", "(g)"}, {} }; 
+    m_DefFlashCompIndex=CDB.Find(CDBInit.Flash_Component());
+    for (int iPass=0; iPass<2; iPass++)
+      {
+      m_DefFlashLiqIndex=SDB.Find(CString(CDBInit.Flash_Component())+=FlashPhases[iPass].m_L);
+      m_DefFlashVapIndex=SDB.Find(CString(CDBInit.Flash_Component())+=FlashPhases[iPass].m_G);
+      if (m_DefFlashLiqIndex>=0 && m_DefFlashVapIndex>=0)
+        break;
+      }
+    if (FlashPhases[iPass].m_L==NULL)
+      m_DefFlashCompIndex=-1;
+
+    m_Flashable.SetSize(0);
+    for (int i=0; i<CDB.No(); i++)
+      {
+      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
+        m_Flashable.Add(i);
+      else
+        {
+        if (i==m_DefFlashCompIndex)
+          {
+          m_DefFlashCompIndex=-1;
+          m_DefFlashLiqIndex=-1;
+          m_DefFlashVapIndex=-1;
+          LogError("Specie Database",0,"Default Flash Component %s not found", CDBInit.Flash_Component());
+          }
+        }
+      }
 
 #if dbgBuildSDB
     if (dbgBuildLoops())

@@ -263,6 +263,11 @@ flag CVLEBase::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
+LPTSTR CVLEBase::Description()
+  {
+  return Enabled() ? pVLE->Description() : "";
+  };
+
 double CVLEBase::FlashVapFrac(SpModel &Mdl)
   {
   return Enabled() ? pVLE->FlashVapFrac(Mdl) : 0.0;
@@ -954,13 +959,10 @@ CVLEVapPress::CVLEVapPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   pMdlL=NULL;
   pMdlV=NULL;
 
-  m_iCmpNo=-1; //Shouldn't default always be H2O ???
-  for (int i=0; i<CDB.No(); i++)
-    if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
-      {
-      m_iCmpNo=i;
-      break;
-      }
+  m_iCmpNo=CDB.DefFlashCompIndex(); //Set to the default 
+  if (m_iCmpNo<0 && CDB.m_Flashable.GetCount()>=0)
+    m_iCmpNo=CDB.m_Flashable[0];    //First Flashable
+
   m_li=-1;
   m_vi=-1;
   iState=VLES_Error;
@@ -1116,6 +1118,22 @@ void CVLEVapPress::SetVapFrac(double VapFrac)//, double RqdH)
     pMdlL->VValue[m_vi] = Mt*VapFrac;
     }
   }
+
+// -------------------------------------------------------------------------
+
+LPTSTR CVLEVapPress::Description()
+  {
+  static CString X;
+  X="Vp:";
+  if (m_li>=0)
+    {
+    X+=SDB[m_li].SymOrTag();
+    X+="/";
+    X+=SDB[m_vi].SymOrTag();
+    }
+  else X+="???";
+  return (LPTSTR)(LPCTSTR)X;
+  };
 
 // -------------------------------------------------------------------------
 
@@ -2367,6 +2385,13 @@ void CVLERootK::SetMass()///SpModel &Mdl)
       }
     }
   }
+
+// -------------------------------------------------------------------------
+
+LPTSTR CVLERootK::Description()
+  {
+  return "VLERootK";
+  };
 
 // -------------------------------------------------------------------------
 

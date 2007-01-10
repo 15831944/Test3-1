@@ -104,6 +104,8 @@ class CCall2MSpProps :  public SpModelEx
 		virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
 
 		virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
+    virtual int    SaturationComp();
+    virtual LPTSTR SaturationCompName();
 		virtual double SaturationP(double T, CSysVector * pMA=NULL);
 		virtual double SaturationT(double P, CSysVector * pMA=NULL);
     virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
@@ -519,6 +521,24 @@ double CCall2MSpProps::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
   if (!m_pUserProps)
     return SpModel::Rho(Phase, T_, P_, pMA);
   return m_pUserProps->get_Density(Phase, T_, P_, pMA ? &::MArray(pMA):NULL);
+  };
+
+//---------------------------------------------------------------------------
+
+int    CCall2MSpProps::SaturationComp() 
+  { 
+  if (!m_pUserProps)
+    return SpModel::SaturationComp();
+  return -1; //m_pUserProps->get_SaturationComp();
+  };
+
+//---------------------------------------------------------------------------
+
+LPTSTR CCall2MSpProps::SaturationCompName()
+  { 
+  if (!m_pUserProps)
+    return SpModel::SaturationCompName();
+  return "Model";//m_pUserProps->get_SaturationCompName();
   };
 
 //---------------------------------------------------------------------------

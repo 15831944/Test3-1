@@ -1414,7 +1414,7 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
       Ok=true;
       if (DB.CheckFieldNames(SpColNames))
         {
-        Strng S, FriendOcc;
+        Strng S, FriendOcc1, FriendOcc2;
         CStringArray Values;
         while (!DB.IsEOF())
           {
@@ -1428,16 +1428,24 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
           Strng Te(Values[6]);
           S.Set("%s(%s)", Compound(), PhaseName());
           //byte Occ=0;
-          FriendOcc="";
+          FriendOcc1="";
+          FriendOcc2="";
           SpCfgItem X;
           X.Src=Src;
           X.Occ=0;
           dword OccVal=0;
-          switch (OccName[0])
+          if (OccName=="s")
+            X.Occ = BOT_Solid; 
+          else if (OccName=="l" || OccName=="aq")
             {
-            case 's': X.Occ = BOT_Solid; break;
-            case 'l': FriendOcc="g"; X.Occ = BOT_Liquid; break;
-            case 'g': FriendOcc="l"; X.Occ = BOT_Gas; break;
+            FriendOcc1="g"; 
+            X.Occ = BOT_Liquid; 
+            }
+          else if (OccName=="g")
+            {
+            FriendOcc1="l"; 
+            FriendOcc2="aq"; 
+            X.Occ = BOT_Gas; 
             }
           X.HasVP=(VPFunc.Length());
           X.m_Ts=SafeAtoF(Ts(), 0);
@@ -1455,13 +1463,14 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
             m_Species.Add(X);
             }
           // Try Find Friend
-          if (FriendOcc())
+          if (FriendOcc1())
             {
-            Strng Friend;
-            Friend.Set("%s(%s)", Compound(), FriendOcc());
+            Strng Friend1, Friend2;
+            Friend1.Set("%s(%s)", Compound(), FriendOcc1());
+            Friend2.Set("%s(%s)", Compound(), FriendOcc2());
 
             for (int f=0; f<m_Species.GetSize(); f++)
-              if (m_Species[f].Comp.XStrCmp(Friend())==0)
+              if (m_Species[f].Comp.XStrCmp(Friend1())==0 || m_Species[f].Comp.XStrCmp(Friend2())==0)
                 break;
             if ((f<m_Species.GetSize()) && (X.HasVP || m_Species[f].HasVP))//Comp.Index()&VPMask)))
               {

@@ -3013,7 +3013,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           else
             {
       //dbgpln("EvalProducts K  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-            Fo.QSetF(Fi, som_ALL, 1.0, PIn);
+            Fo.QSetF(Fi, som_ALL, 1.0, POut/*PIn*/);
             ClrCI(7);
             ClrCI(8);
             SpillClear();

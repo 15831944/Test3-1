@@ -97,6 +97,8 @@ class DllImportExport CVLEBlock : public TaggedObject
     CVLEBlock(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CVLEBlock();
 
+    virtual LPTSTR Description()=0;
+
     virtual double FlashVapFrac(SpModel &Mdl) = 0;
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags) {};
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags) {};
@@ -153,6 +155,8 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="VLE", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
+
+    LPTSTR         Description();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
@@ -250,6 +254,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
+    virtual LPTSTR Description();
+
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
@@ -320,6 +326,8 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
+    virtual LPTSTR Description();
+
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
@@ -372,6 +380,8 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual ~CVLERootK();
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
+
+    virtual LPTSTR Description();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
