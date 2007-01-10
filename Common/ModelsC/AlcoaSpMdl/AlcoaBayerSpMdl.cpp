@@ -407,7 +407,7 @@ void AlcoaBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("NaOx/TA",         "",   DC_,      "",        &sm_dNaOx_to_TA,  this,  isParm|InitHidden); //global constant
     DDB.Text("Bayer");
     DDB.CheckBoxBtn("DefineLiquor", "",   DC_,      "",        &fDoCalc,         this,  isParm|SetOnChange);
-    DDB.Visibility(SHM_All, fDoCalc);                                                         
+    DDB.Visibility(NSHM_All, fDoCalc);                                                         
     DDB.Double  ("Rqd_A/C",         "",   DC_,      "",        &dRqd_AtoC,       this,  isParm);
     DDB.Double  ("Rqd_C/S",         "",   DC_,      "",        &dRqd_CtoS,       this,  isParm);
     DDB.Double  ("Rqd_C",           "",   DC_Conc,  "g/L",     &dRqd_C,          this,  isParm);

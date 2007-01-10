@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="AlcoaSpMdl"
+	Name="um.AlcoaSpMdl"
 	ProjectGUID="{B1474608-BD36-4DC7-8600-317175D95809}"
 	Keyword="MFCProj">
 	<Platforms>

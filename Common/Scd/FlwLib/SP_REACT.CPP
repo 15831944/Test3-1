@@ -167,7 +167,7 @@ CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
   HXs1(*(new CReactionArray)),
   HXs2(*(new CReactionArray)),
   Seq(*(new CReactionArray)),
-  m_RctTol(TBF_Both, "CReactionBlock::RctTol", 1e-20, 1e-8, 100, TBF_LocalOnly), 
+  m_RctTol(TBF_Both, "CReactionBlock::RctTol", 1e-20, 1e-8, 80, TBF_LocalOnly), 
   m_RctTTol(TBF_Both, "CReactionBlock::RctTTol", 1e-20, 0.01, 100, TBF_LocalOnly)
   {
 
@@ -2732,7 +2732,7 @@ flag CReactionBlock::CIStrng(int No, pchar & pS)
     case 12: pS="E\tNot Avail";                       return 1;
 
     case 13: pS="W\tFinal Temperature not converged"; return 1;
-    case 14: pS="E\tLow Intermediate Temperature";    return 1;
+    case 14: pS="E\tLow intermediate temperature. (Reaction product temperature likey incorrect)"; return 1;
 
     default:
       return TaggedObject::CIStrng(No, pS);

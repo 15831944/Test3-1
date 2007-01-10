@@ -2685,11 +2685,14 @@ Build 122 : 16 November 2006
 1317  3/01/07: Fix for error when trying to edit measurements in edit configuration.
 1319  4/01/07: (#711) Extended display of specie data extra tab page in $SDB access window.
 1322  8/01/07: (#575) Added composition fetch option to makeup source model.
-1324  4/01/07: (#711) Minor fix for tag names (eg "$SDB.H2O(g).MoleWt()")
+1324  8/01/07: (#711) Minor fix for tag names (eg "$SDB.H2O(g).MoleWt()")
+1326  8/01/07: (#712) Fix for occasional crash related to pipe connections.
+1331  9/01/07: (#612,654) The reaction equilibrium extent option is now an input field.
+1333 10/01/07: Changed reaction low intermediate temperature message to an error.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1324
+#define SCD_PATCH_SVN    1333
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
