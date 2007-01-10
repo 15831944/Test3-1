@@ -1186,13 +1186,6 @@ int SDBE_Vp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   b=SpDB_TokenValue(Cols[1], 0.0);
   c=SpDB_TokenValue(Cols[2], 0.0);
   d=SpDB_TokenValue(Cols[3], 0.0);
-  //test equation for T = 273
-  if ((a/273.0+b*log10(273.0)+c*273.0+d)>60.0)
-    {
-    a=1.0;
-    b=c=d=0.0;
-    return 3;
-    }
   return 0;
   }
 
@@ -1246,13 +1239,6 @@ int SDBE_VpKPa::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   b=SpDB_TokenValue(Cols[1], 0.0);
   c=SpDB_TokenValue(Cols[2], 0.0);
   d=SpDB_TokenValue(Cols[3], 0.0);
-  //test equation for T = 273
-  if ((a/273.0+b*log10(273.0)+c*273.0+d)>60.0)
-    {
-    a=1.0;
-    b=c=d=0.0;
-    return 3;
-    }
   return 0;
   }
 
@@ -1264,6 +1250,60 @@ double SDBE_VpKPa::AtT(double T)
   double P=Pow(10.0, a/T+b*log10(T)+c*T+d);
   //dbgpln("T, P %10.4f(%10.4f) %10.4f", T, K2C(T), P); 
   return P;
+  }
+
+// ==========================================================================
+//
+//
+//
+// ===========================================================================
+
+class SDBE_VpAtm: protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  // friend class CSpecieData; 
+  // friend class CComponent; 
+  // // friend class CSpecieDataBase;
+  // friend class CComponentDataBase;
+
+  protected:
+    double         a,b,c,d;
+
+    SDBE_VpAtm(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=0.0;};
+    virtual ~SDBE_VpAtm() {};
+    static const char * Name() { return "VpAtm"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual void Copy(CSpDBEqn* p) { SDBE_VpAtm*pc=(SDBE_VpAtm*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
+    
+    virtual double AtT(double T); 
+  };
+
+//---------------------------------------------------------------------------
+
+int SDBE_VpAtm::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+  {
+  if (strlen(Cols[3])==0) 
+    {
+    a=1.0;
+    b=c=d=0.0;
+    return 2;
+    }
+  a=SpDB_TokenValue(Cols[0], 1.0);
+  b=SpDB_TokenValue(Cols[1], 0.0);
+  c=SpDB_TokenValue(Cols[2], 0.0);
+  d=SpDB_TokenValue(Cols[3], 0.0);
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+double SDBE_VpAtm::AtT(double T)
+  { 
+  T=Range(1.0, T, TCrit());
+  double P=Pow(10.0, a/T+b*log10(T)+c*T+d);    
+  //dbgpln("T, P %10.4f(%10.4f) %10.4f", T, K2C(T), P); 
+  return P*gs_StdPress;
   }
 
 // ==========================================================================
@@ -1415,7 +1455,7 @@ class SDBE_HFC134a_Vp: protected CSpDBEqn
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
   	  };
-    virtual void Copy(CSpDBEqn* p) { /*SDBE_Vp*pc=(SDBE_Vp*)p;*/ };
+    virtual void Copy(CSpDBEqn* p) {  };
     
     virtual double AtT(double T)
       { 
@@ -1806,6 +1846,11 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       {
       pn=SDBE_VpKPa::Name();
       p=new SDBE_VpKPa(pSpD);
+      }
+    else if (_stricmp(Str, SDBE_VpAtm::Name())==0) 
+      {
+      pn=SDBE_VpAtm::Name();
+      p=new SDBE_VpAtm(pSpD);
       }
 
 #if WithIAFH2OMdl

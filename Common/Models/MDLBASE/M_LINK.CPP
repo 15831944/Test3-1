@@ -1925,6 +1925,8 @@ void MN_Lnk::PostConnect(int IONo)
     //  {
     if (IsProcessIOId(IOId_Self(IONo)))
       {
+      IOConduit(IONo)->SetVLE(&m_VLE);
+
       IOFB(IONo,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
       IOFB(IONo,0)->SetParentFlwEqn(&m_FEP);
       IOFB(IONo,0)->SetFlowModeSrc(this, false);

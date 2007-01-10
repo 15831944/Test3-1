@@ -1161,9 +1161,9 @@ class DllImportExport CComponent
     int             LiqPhInx(int i=0);
     int             VapPhInx(int i=0);
     //int             AqsPhInx();
-    int             SolPhInx(LPCSTR PhNm);
-    int             LiqPhInx(LPCSTR PhNm);
-    int             VapPhInx(LPCSTR PhNm);
+    int             SolPhInx(LPCSTR PhNm, bool OtherwiseFirst=false);
+    int             LiqPhInx(LPCSTR PhNm, bool OtherwiseFirst=false);
+    int             VapPhInx(LPCSTR PhNm, bool OtherwiseFirst=false);
     int             CmpInx();
 
     CSpecie *       pSpecie(int occ);

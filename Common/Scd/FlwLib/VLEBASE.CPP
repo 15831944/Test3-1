@@ -106,10 +106,10 @@ void CVLEBlock::SetMixFrac(double dVMixFrac, double dLMixFrac)
 
 void CVLEBlock::SetMixFrac(int CompNo, double dVMixFrac, double dLMixFrac)
   {
-  if (CDB[CompNo].VapPhInx("g")>=0)
-    VMixFrac[CDB[CompNo].VapPhInx("g")]=dVMixFrac;
-  if (CDB[CompNo].LiqPhInx("l")>=0)
-    LMixFrac[CDB[CompNo].LiqPhInx("l")]=dLMixFrac;
+  if (CDB[CompNo].VapPhInx("g", true)>=0)
+    VMixFrac[CDB[CompNo].VapPhInx("g", true)]=dVMixFrac;
+  if (CDB[CompNo].LiqPhInx("l", true)>=0)
+    LMixFrac[CDB[CompNo].LiqPhInx("l", true)]=dLMixFrac;
   };
 
 //============================================================================
@@ -711,9 +711,9 @@ CVLEFixdPerc::CVLEFixdPerc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   //Nd(*((FlwNode*)pAttach))
   {
   for (int i=0; i<CDB.No(); i++)
-    if (CDB[i].LiqPhInx("l")>=0 && CDB[i].VapPhInx("g")>=0)
+    if (CDB[i].LiqPhInx("l", true)>=0 && CDB[i].VapPhInx("g", true)>=0)
       { 
-      CVLEData C(i, 0.5, CDB[i].LiqPhInx("l"), CDB[i].VapPhInx("g"));
+      CVLEData C(i, 0.5, CDB[i].LiqPhInx("l", true), CDB[i].VapPhInx("g", true));
       Cmp.Add(C);
       }
   
@@ -956,7 +956,7 @@ CVLEVapPress::CVLEVapPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
 
   m_iCmpNo=-1; //Shouldn't default always be H2O ???
   for (int i=0; i<CDB.No(); i++)
-    if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l")>=0) && (CDB[i].VapPhInx("g")>=0))
+    if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
       {
       m_iCmpNo=i;
       break;
@@ -994,9 +994,9 @@ void CVLEVapPress::BuildDataDefn(DataDefnBlk &DDB)//, pchar pTag_, DDBPages Page
     DDBValueLstMem DDB1;
     DDB1.Add(-1, " ");
     for (int i=0; i<CDB.No(); i++)
-      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l")>=0) && (CDB[i].VapPhInx("g")>=0))
+      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
         DDB1.Add(i, CDB[i].SymOrTag());
-  //  if (DDB1.Length()==0)
+      //  if (DDB1.Length()==0)
   //    DDB1.Add(-1, " ");
     DDB.Long  ("Component",    "",  DC_,     "",    &m_iCmpNo,        this, isParm, DDB1());
     DDB.Double("PrvVapFrac",   "",  DC_Frac, "%",   &dPrvVapFrac,   this, isParm|InitHidden);
@@ -1028,8 +1028,8 @@ flag CVLEVapPress::ValidateData(ValidateDataBlk & VDB)
   flag OK=true;
   if (m_iCmpNo>=0)
     {
-    m_li=CDB[m_iCmpNo].LiqPhInx("l");
-    m_vi=CDB[m_iCmpNo].VapPhInx("g");
+    m_li=CDB[m_iCmpNo].LiqPhInx("l", true);
+    m_vi=CDB[m_iCmpNo].VapPhInx("g", true);
     OK=(m_li>=0 && m_vi>=0);
     
     bool Lst[MaxSpecies];
@@ -1304,7 +1304,8 @@ void CVLEVapPress::QPFlash(double Press, double Duty, dword Flags)
   flag DoRestore=false;
   double Hf0, Hf1;
 
-  Hf0 = QPF.Function(0.0);
+  Hf0 = QPF.Function(0.0);    
+
   if (Hf0 >= HTrg)
     {// Sub Cooled (ie 0% vapour)
     HiX=0.0;
@@ -1996,9 +1997,9 @@ CVLERootK::CVLERootK(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   pMdlV=NULL;
 
   for (int i=0; i<CDB.No(); i++)
-    if (CDB[i].LiqPhInx("l")>=0 && CDB[i].VapPhInx("g")>=0)
+    if (CDB[i].LiqPhInx("l", true)>=0 && CDB[i].VapPhInx("g", true)>=0)
       { 
-      CVLEData C(i, 1.0, CDB[i].LiqPhInx("l"), CDB[i].VapPhInx("g"));
+      CVLEData C(i, 1.0, CDB[i].LiqPhInx("l", true), CDB[i].VapPhInx("g", true));
       Cmp.Add(C);
       }
   

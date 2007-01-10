@@ -1430,25 +1430,43 @@ double CComponent::VapourT(long Fidelity, double P_, double dPrvVapT)
   return dPrvVapT;
   };
 
-int CComponent::SolPhInx(LPCSTR PhSym)
+int CComponent::SolPhInx(LPCSTR PhSym, bool OtherwiseFirst)
   {
   for (int i=m_CDB.m_ph_SolS; i<=m_CDB.m_ph_SolE; i++)
     if (m_SpPhaseD[i] && CDB.m_PhInfo[i].m_Sym.XStrCmp(PhSym)==0)
       return m_SpPhaseD[i]->iSId;
+  if (OtherwiseFirst)
+    {
+    for (int i=m_CDB.m_ph_SolS; i<=m_CDB.m_ph_SolE; i++)
+      if (m_SpPhaseD[i])
+        return m_SpPhaseD[i]->iSId;
+    }
   return -1;
   }
-int CComponent::LiqPhInx(LPCSTR PhSym)
+int CComponent::LiqPhInx(LPCSTR PhSym, bool OtherwiseFirst)
   {
   for (int i=m_CDB.m_ph_LiqS; i<=m_CDB.m_ph_LiqE; i++)
     if (m_SpPhaseD[i] && CDB.m_PhInfo[i].m_Sym.XStrCmp(PhSym)==0)
       return m_SpPhaseD[i]->iSId;
+  if (OtherwiseFirst)
+    {
+    for (int i=m_CDB.m_ph_LiqS; i<=m_CDB.m_ph_LiqE; i++)
+      if (m_SpPhaseD[i])
+        return m_SpPhaseD[i]->iSId;
+    }
   return -1;
   }
-int CComponent::VapPhInx(LPCSTR PhSym)
+int CComponent::VapPhInx(LPCSTR PhSym, bool OtherwiseFirst)
   {
   for (int i=m_CDB.m_ph_GasS; i<=m_CDB.m_ph_GasE; i++)
     if (m_SpPhaseD[i] && CDB.m_PhInfo[i].m_Sym.XStrCmp(PhSym)==0)
       return m_SpPhaseD[i]->iSId;
+  if (OtherwiseFirst)
+    {
+    for (int i=m_CDB.m_ph_GasS; i<=m_CDB.m_ph_GasE; i++)
+      if (m_SpPhaseD[i])
+        return m_SpPhaseD[i]->iSId;
+    }
   return -1;
   }
 
