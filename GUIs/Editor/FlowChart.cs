@@ -1486,6 +1486,7 @@ namespace SysCAD.Editor
       {
         GraphicThing graphicThing = new GraphicThing(insertAnnotationDialog.ThingTag);
         PointF pointF = fcFlowChart.ClientToDoc(mousePressed);
+        graphicThing.Xaml = insertAnnotationDialog.ThingXaml;
         graphicThing.X = pointF.X;
         graphicThing.Y = pointF.Y;
         graphicThing.Width = insertAnnotationDialog.DefaultWidth;

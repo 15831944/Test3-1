@@ -78,10 +78,13 @@ namespace SysCAD.Editor
 
     private void annotationListBox_SelectedIndexChanged(object sender, EventArgs e)
     {
-      thingTag = "test";
       ThingStencil thingStencil = annotationListBox.SelectedItem as ThingStencil;
       thingXaml = thingStencil.Xaml;
-      Regex.Replace(thingXaml, "[[TAG]]", (tagListBox.SelectedItem as Item).Tag);
+      thingXaml = Regex.Replace(thingXaml, @"\[\[TAG\]\]", (tagListBox.SelectedItem as Item).Tag);
+
+      defaultWidth = thingStencil.defaultSize.Width;
+      defaultHeight = thingStencil.defaultSize.Height;
+
       okButton.Enabled = true;
     }
 

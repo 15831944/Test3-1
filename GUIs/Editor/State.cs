@@ -275,33 +275,41 @@ namespace SysCAD.Editor
       flowchart.ResumeLayout();
     }
 
+    private delegate void CreateThingDelegate(GraphicThing graphicThing, bool isVisible, FlowChart flowchart);
 
     internal void CreateThing(GraphicThing graphicThing, bool isVisible, FlowChart flowchart)
     {
-      flowchart.SuspendLayout();
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new CreateThingDelegate(CreateThing), new object[] { graphicThing, isVisible, flowchart });
+      }
+      else
+      {
+        flowchart.SuspendLayout();
 
-      Box box = flowchart.CreateBox(graphicThing.X, graphicThing.Y, graphicThing.Width, graphicThing.Height);
-      box.RotationAngle = graphicThing.Angle;
-      box.ToolTip = graphicThing.Tag;
-      box.Style = BoxStyle.Rectangle;
+        Box box = flowchart.CreateBox(graphicThing.X, graphicThing.Y, graphicThing.Width, graphicThing.Height);
+        box.RotationAngle = graphicThing.Angle;
+        box.ToolTip = graphicThing.Tag;
+        box.Style = BoxStyle.Rectangle;
 
-      box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
-      box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
+        box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
+        box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
 
-      //box.Image = GetImage(graphicThing, flowchart); -- we don't want to do this yet.  wait for initial zoom.
-      box.ImageAlign = ImageAlign.Stretch;
+        //box.Image = GetImage(graphicThing, flowchart); -- we don't want to do this yet.  wait for initial zoom.
+        box.ImageAlign = ImageAlign.Stretch;
 
-      box.Visible = isVisible;
+        box.Visible = isVisible;
 
-      box.ZBottom();
+        box.ZBottom();
 
-      Thing thing = new Thing(graphicThing.Guid, graphicThing.Tag, box, isVisible, graphicThing);
+        Thing thing = new Thing(graphicThing.Guid, graphicThing.Tag, box, isVisible, graphicThing);
 
-      box.Tag = thing;
+        box.Tag = thing;
 
-      things.Add(thing.Guid, thing);
+        things.Add(thing.Guid, thing);
 
-      flowchart.ResumeLayout();
+        flowchart.ResumeLayout();
+      }
     }
 
     public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
