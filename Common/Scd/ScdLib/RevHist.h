@@ -2689,10 +2689,11 @@ Build 122 : 16 November 2006
 1326  8/01/07: (#712) Fix for occasional crash related to pipe connections.
 1331  9/01/07: (#612,654) The reaction equilibrium extent option is now an input field.
 1333 10/01/07: Changed reaction low intermediate temperature message to an error.
+1335 10/01/07: (#695,696) Extensions to VLE to allow flashing of other components (eg NH3).
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1333
+#define SCD_PATCH_SVN    1335
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

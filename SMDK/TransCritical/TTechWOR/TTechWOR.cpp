@@ -29,9 +29,8 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 		case DLL_PROCESS_ATTACH:
 		case DLL_THREAD_ATTACH:
 
-   		/*if (!MakeVersionOK("BATC_Brahma.DLL", _MAKENAME, 
-				   SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))*/
-        return FALSE;
+   		/*if (!MakeVersionOK("BATC_Brahma.DLL", _MAKENAME, SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))
+        return FALSE;*/
 
 		case DLL_THREAD_DETACH:
 		case DLL_PROCESS_DETACH:
