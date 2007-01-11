@@ -22,8 +22,8 @@ namespace SysCAD.Editor
   {
     public State state = new State();
 
-    public string currentModel;
-    public string currentStencil;
+    public String currentModel;
+    public String currentStencil;
 
     public Arrow arrowBeingModified;
     public int arrowBeingModifiedSelectionHandle = -1;
@@ -538,8 +538,8 @@ namespace SysCAD.Editor
         destinationGuid = destinationItem.Guid;
       }
 
-      string originAnchor = null;
-      string destinationAnchor = null;
+      String originAnchor = null;
+      String destinationAnchor = null;
       if (originGraphicItem != null)
         originGraphicItem.anchorIntToTag.TryGetValue(e.Arrow.OrgnAnchor, out originAnchor);
       if (destinationGraphicItem != null)
@@ -1348,7 +1348,7 @@ namespace SysCAD.Editor
       }
     }
 
-    public void NewGraphicItem(GraphicItem graphicItem, string path)
+    public void NewGraphicItem(GraphicItem graphicItem, String path)
     {
       if (graphicItem != null)
         NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
@@ -1384,7 +1384,7 @@ namespace SysCAD.Editor
       return newGraphicLink;
     }
 
-    public void NewGraphicThing(GraphicThing graphicThing, string path)
+    public void NewGraphicThing(String path, GraphicThing graphicThing)
     {
       if (graphicThing != null)
         NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
@@ -1398,38 +1398,43 @@ namespace SysCAD.Editor
       while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
 
-      state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path,boundingRect, xaml, angle, mirrorX, mirrorY);
+      state.CreateGraphicThing(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
+
+    Point mousePressed;
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
       MouseEventArgs me = e as MouseEventArgs;
+      mousePressed = me.Location;
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
       hoverBox = fcFlowChart.GetBoxAt(fcFlowChart.ClientToDoc(me.Location), 2.0F);
 
-      if (me.Button == MouseButtons.Left)
+      if (
+          (me.Button == MouseButtons.Left)
+          &&
+          ((hoverBox == null) && (hoverArrow == null)) // we're in free space...
+          &&
+          ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
+          &&
+          ((currentModel != null) && (currentStencil != null))
+          )
       {
-        if ((hoverBox == null) && (hoverArrow == null)) // we're in free space...
-        {
-          if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
-          {
-            NewGraphicItem(
-              state.CurrentPath,
-              currentModel,
-              currentStencil,
-              new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
-              0.0F,
-              Color.LightBlue,
-              FillMode.Alternate,
-              false,
-              false
-              );
-          }
-          else
-          {
-            form1.ModeModify();
-          }
-        }
+        NewGraphicItem(
+          state.CurrentPath,
+          currentModel,
+          currentStencil,
+          new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
+          0.0F,
+          Color.LightBlue,
+          FillMode.Alternate,
+          false,
+          false
+          );
+      }
+      else
+      {
+        form1.ModeModify();
       }
 
       if (me.Button == MouseButtons.Right)
@@ -1462,6 +1467,7 @@ namespace SysCAD.Editor
         }
 
         theMenu.MenuItems.Add("Layout Flowchart (!!Broken in an interesting way in latest release!!)", new EventHandler(LayoutFlowchart));
+        theMenu.MenuItems.Add("Insert Annotation", new EventHandler(InsertAnnotation));
 
         theMenu.Show(fcFlowChart, me.Location);
       }
@@ -1471,6 +1477,22 @@ namespace SysCAD.Editor
     {
       AnnealLayout layout = new AnnealLayout();
       layout.Arrange(fcFlowChart);
+    }
+
+    private void InsertAnnotation(object sender, EventArgs e)
+    {
+      InsertAnnotationDialog insertAnnotationDialog = new InsertAnnotationDialog(state);
+      if (insertAnnotationDialog.ShowDialog(this) == DialogResult.OK)
+      {
+        GraphicThing graphicThing = new GraphicThing(insertAnnotationDialog.ThingTag);
+        PointF pointF = fcFlowChart.ClientToDoc(mousePressed);
+        graphicThing.X = pointF.X;
+        graphicThing.Y = pointF.Y;
+        graphicThing.Width = insertAnnotationDialog.DefaultWidth;
+        graphicThing.Height = insertAnnotationDialog.DefaultHeight;
+
+        NewGraphicThing(state.TVNavigation.SelectedNode.FullPath, graphicThing);
+      }
     }
 
     private void RouteLinks(object sender, EventArgs e)
@@ -1561,8 +1583,8 @@ namespace SysCAD.Editor
 
         Int64 requestId;
 
-        string originPort = "";
-        string destinationPort = "";
+        String originPort = "";
+        String destinationPort = "";
 
         if (arrow.OrgnAnchor != -1)
           originPort = originGraphicItem.anchorIntToTag[arrow.OrgnAnchor];
@@ -1642,7 +1664,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_ArrowCreated(object sender, ArrowEventArgs e)
     {
       tempArrowKey++;
-      string newLinkTag = "A_" + tempArrowKey.ToString(CultureInfo.InvariantCulture);
+      String newLinkTag = "A_" + tempArrowKey.ToString(CultureInfo.InvariantCulture);
       e.Arrow.Text = newLinkTag;
 
       GraphicLink newGraphicLink = new GraphicLink(newLinkTag);

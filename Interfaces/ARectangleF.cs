@@ -616,7 +616,7 @@ namespace SysCAD.Interface
     ///	Formats the RectangleF in (x,y,w,h) notation.
     /// </remarks>
 
-    public override string ToString()
+    public override String ToString()
     {
       return String.Format(CultureInfo.InvariantCulture, "{{X={0},Y={1},Width={2},Height={3}}}",
              x, y, width, height);

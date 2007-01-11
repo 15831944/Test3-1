@@ -105,5 +105,10 @@ namespace SysCAD.Editor
       if (Node != null)
         Node.Remove();
     }
+
+    public override string ToString()
+    {
+      return tag;
+    }
   }
 }

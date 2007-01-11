@@ -83,6 +83,7 @@
     <Compile Include="ServiceInterface.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
+    <Compile Include="ThingStencil.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

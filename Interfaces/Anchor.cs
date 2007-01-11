@@ -42,7 +42,7 @@ namespace SysCAD.Interface
     {
     }
 
-    public Anchor(string tag, AnchorType type, PointF position)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, PointF position)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;
@@ -51,7 +51,7 @@ namespace SysCAD.Interface
       //this.max = max;
     }
 
-    public Anchor(string tag, AnchorType type, float x, float y)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, float x, float y)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;

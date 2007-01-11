@@ -56,7 +56,7 @@ namespace SysCAD.Editor
 
       if (stencilIndex != -1)
       {
-        string stencilName = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
+        String stencilName = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
         if (stencilName != "-------")
         {
           frmFlowChart.currentStencil = stencilName;
@@ -201,7 +201,7 @@ namespace SysCAD.Editor
 
     public Dictionary<string, GraphicLink> clipBoardGraphicLinks;
     public Dictionary<string, GraphicItem> clipBoardGraphicItems;
-    public Dictionary<string, GraphicThing> clipBoardGraphicThings;
+    public Dictionary<String, GraphicThing> clipBoardGraphicThings;
 
     #region clipboard support
 
@@ -288,7 +288,7 @@ namespace SysCAD.Editor
             {
               graphicThing.X += dx;
               graphicThing.Y += dy;
-              frmFlowChart.NewGraphicThing(graphicThing, tvNavigation.SelectedNode.FullPath);
+              frmFlowChart.NewGraphicThing(tvNavigation.SelectedNode.FullPath, graphicThing);
             }
             
             //// that returns the active composite if somebody has already created one
@@ -804,7 +804,7 @@ namespace SysCAD.Editor
           int i;
 
           i = 0;
-          foreach (string model in (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items)
+          foreach (String model in (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items)
           {
             if (model == graphicItem.Model)
             {
@@ -823,7 +823,7 @@ namespace SysCAD.Editor
           }
 
           i = 0;
-          foreach (string shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
+          foreach (String shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
           {
             if (shape == graphicItem.Shape)
             {
@@ -843,7 +843,7 @@ namespace SysCAD.Editor
     //void propertyGrid1_PropertyValueChanged(object s, VisualHint.SmartPropertyGrid.PropertyChangedEventArgs e)
     //{
     //  uint requestId;
-    //  string label = e.ChangedItem.Label;
+    //  String label = e.ChangedItem.Label;
     //  if (label == "Shape")
     //  {
     //    GridItem gridItem = e.ChangedItem;

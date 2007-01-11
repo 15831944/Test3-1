@@ -26,8 +26,8 @@ namespace SysCAD.Interface
     private System.Drawing.Color fillColor;
     private FillMode fillMode;
 
-    public Dictionary<String, int> anchorTagToInt = new Dictionary<string,int>();
-    public Dictionary<int, String> anchorIntToTag = new Dictionary<int,string>();
+    public Dictionary<String, int> anchorTagToInt = new Dictionary<String,int>();
+    public Dictionary<int, String> anchorIntToTag = new Dictionary<int,String>();
 
 
     public Guid Guid

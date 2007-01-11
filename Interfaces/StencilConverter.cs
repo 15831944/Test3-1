@@ -51,7 +51,7 @@ namespace SysCAD.Interface
       return base.ConvertFrom(context, culture, value);
     }
 
-    public static void AddStencil(string stencil)
+    public static void AddStencil(String stencil)
     {
       stencilList.Add(stencil);
     }

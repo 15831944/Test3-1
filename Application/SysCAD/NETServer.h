@@ -11,9 +11,9 @@
 class CNETServer
   {
   public:
-    CNETServer(void);
+    CNETServer();
   public:
-    ~CNETServer(void);
+    ~CNETServer();
 
     static void Startup();
     static void Shutdown();

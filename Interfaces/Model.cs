@@ -7,7 +7,7 @@ namespace SysCAD.Interface
   [Serializable]
   public class Model
   {
-    String str = string.Empty;
+    String str = String.Empty;
 
     public static implicit operator Model(String str)
     {
@@ -24,7 +24,7 @@ namespace SysCAD.Interface
         return String.Empty;
     }
 
-    public override string ToString()
+    public override String ToString()
     {
       return str;
     }

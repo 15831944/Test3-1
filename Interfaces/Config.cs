@@ -18,30 +18,35 @@ namespace SysCAD.Interface
   {
     protected StringCollection protectedProjectList;
 
-    protected Dictionary<string, ModelStencil> protectedModelStencils = new Dictionary<string, ModelStencil>();
-    protected Dictionary<string, GraphicStencil> protectedGraphicStencils = new Dictionary<string, GraphicStencil>();
+    protected Dictionary<String, ModelStencil> protectedModelStencils = new Dictionary<String, ModelStencil>();
+    protected Dictionary<String, GraphicStencil> protectedGraphicStencils = new Dictionary<String, GraphicStencil>();
+    protected Dictionary<String, ThingStencil> protectedThingStencils = new Dictionary<String, ThingStencil>();
 
     public StringCollection ProjectList
     {
       get { return protectedProjectList; }
     }
 
-    public Dictionary<string, ModelStencil> ModelStencils
+    public Dictionary<String, ModelStencil> ModelStencils
     {
       get { return protectedModelStencils; }
     }
 
-    public Dictionary<string, GraphicStencil> GraphicStencils
+    public Dictionary<String, GraphicStencil> GraphicStencils
     {
       get { return protectedGraphicStencils; }
     }
 
+    public Dictionary<String, ThingStencil> ThingStencils
+    {
+      get { return protectedThingStencils; }
+    }
 
     public ConfigData()
     {
       protectedProjectList = new StringCollection();
-      protectedModelStencils = new Dictionary<string, ModelStencil>();
-      protectedGraphicStencils = new Dictionary<string, GraphicStencil>();
+      protectedModelStencils = new Dictionary<String, ModelStencil>();
+      protectedGraphicStencils = new Dictionary<String, GraphicStencil>();
     }
 
     //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
@@ -55,7 +60,7 @@ namespace SysCAD.Interface
   {
     private ConfigData remoteConfig;
 
-    public string connectionError = "";
+    public String connectionError = "";
 
     public bool Connect(Uri url)
     {
@@ -83,12 +88,17 @@ namespace SysCAD.Interface
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.ModelStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      protectedModelStencils = bf.Deserialize(memoryStream) as Dictionary<string, ModelStencil>;
+      protectedModelStencils = bf.Deserialize(memoryStream) as Dictionary<String, ModelStencil>;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.GraphicStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      protectedGraphicStencils = bf.Deserialize(memoryStream) as Dictionary<string, GraphicStencil>;
+      protectedGraphicStencils = bf.Deserialize(memoryStream) as Dictionary<String, GraphicStencil>;
+
+      memoryStream = new MemoryStream();
+      bf.Serialize(memoryStream, remoteConfig.ThingStencils);
+      memoryStream.Seek(0, SeekOrigin.Begin);
+      protectedThingStencils = bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>;
     }
 
   }

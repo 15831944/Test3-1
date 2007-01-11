@@ -21,7 +21,7 @@ namespace SysCAD.Interface
   {
     public ServiceInterface serviceGraphic;
 
-    public string connectionError = String.Empty;
+    public String connectionError = String.Empty;
 
     private ServiceInterface.StateChangedHandler serviceGraphicStateChangedHandler = null;
 

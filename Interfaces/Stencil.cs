@@ -33,7 +33,7 @@ namespace SysCAD.Interface
       return str.Contains(substring);
     }
 
-    public override string ToString()
+    public override String ToString()
     {
       return str;
     }

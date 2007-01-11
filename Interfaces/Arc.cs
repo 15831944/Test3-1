@@ -30,7 +30,7 @@ namespace SysCAD.Interface
       this.s = s;
 		}
   
-    public override string ToString()
+    public override String ToString()
     {
       return "(" + x.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
                    y.ToString("N2", CultureInfo.InvariantCulture) + ", " + 

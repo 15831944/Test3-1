@@ -276,7 +276,6 @@ namespace SysCAD.Editor
     }
 
 
-
     internal void CreateThing(GraphicThing graphicThing, bool isVisible, FlowChart flowchart)
     {
       flowchart.SuspendLayout();
@@ -355,7 +354,7 @@ namespace SysCAD.Editor
       //return xaml;
     }
 
-    private static string ProcessMatch(Match match)
+    private static String ProcessMatch(Match match)
     {
       char[] splitter = { '[', ',', ']' };
 
@@ -765,14 +764,14 @@ namespace SysCAD.Editor
       }
     }
 
-    internal ModelStencil ModelShape(string stencilName)
+    internal ModelStencil ModelShape(String stencilName)
     {
       ModelStencil modelStencil;
       config.ModelStencils.TryGetValue(stencilName, out modelStencil);
       return modelStencil;
     }
 
-    internal GraphicStencil GraphicShape(string stencilName)
+    internal GraphicStencil GraphicShape(String stencilName)
     {
       GraphicStencil graphicStencil;
       config.GraphicStencils.TryGetValue(stencilName, out graphicStencil);
@@ -875,7 +874,7 @@ namespace SysCAD.Editor
       get { return things.Values; }
     }
 
-    internal string CurrentPath
+    internal String CurrentPath
     {
       get { return tvNavigation.SelectedNode.FullPath; }
     }
@@ -1040,7 +1039,7 @@ namespace SysCAD.Editor
 
 
 
-    internal void AddNode(string path, string tag, Guid guid)
+    internal void AddNode(String path, String tag, Guid guid)
     {
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
     }

@@ -17,7 +17,7 @@ namespace SysCAD.Interface
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class ModelStencil
   {
-    private string tag;
+    private String tag;
 
     private ArrayList elements;
     private ArrayList decorations;

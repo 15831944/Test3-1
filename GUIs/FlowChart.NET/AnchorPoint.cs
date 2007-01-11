@@ -318,7 +318,7 @@ namespace MindFusion.FlowChartX
 
 		private object tag;
 
-		public string ToolTip
+		public String ToolTip
 		{
 			get { return toolTip; }
 			set
@@ -333,6 +333,6 @@ namespace MindFusion.FlowChartX
 			}
 		}
 
-		private string toolTip = "";
+		private String toolTip = "";
 	}
 }

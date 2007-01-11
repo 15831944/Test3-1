@@ -101,7 +101,7 @@ ref class CNETServerThread
         {
         String ^ fullpath = dirs[i];
 
-                    ////Create dummy graphicstencil for comparison...
+                    ////Create dummy ModelStencil for comparison...
                     //{
                     //  ModelStencil^ modelStencil = gcnew ModelStencil();
                     //  modelStencil->Tag = "";
@@ -142,7 +142,7 @@ ref class CNETServerThread
         {
         String ^ fullpath = dirs[i];
 
-                    ////Create dummy graphicstencil for comparison...
+                    ////Create dummy GraphicStencil for comparison...
                     //{
                     //  GraphicStencil^ graphicStencil = gcnew GraphicStencil();
                     //  graphicStencil->Tag = "";
@@ -171,7 +171,136 @@ ref class CNETServerThread
         //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         }
+
+      {
+      int iStencil = 0;
+      LogNote("Srvr", 0, "ThingStencils:");
+      array<String^>^dirs = Directory::GetFiles(m_StencilPath, "*.thingstencil");
+      for (int i=0; i<dirs->GetLength(0); i++)
+        {
+        String ^ fullpath = dirs[i];
+
+                    //Create dummy ThingStencil for comparison...
+                    {
+                      ThingStencil^ thingStencil = gcnew ThingStencil();
+                      thingStencil->Tag = "a tank annotation";
+                      thingStencil->Model = "Tank-1";
+                      thingStencil->defaultSize.Width = 20.0;
+                      thingStencil->defaultSize.Height = 20.0;
+                      thingStencil->Xaml = 
+                          "            <!-- Saved from Aurora XAML Designer for WinFX - Mobiform Software Ltd. - Thursday, 4 January 2007 11:45:44 AM -->"
+                          "<Canvas xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Name=\"Canvas1\" Width=\"132\" Height=\"141\" Background=\"{x:Static Brushes.Transparent}\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\">"
+                          "  <Ellipse Canvas.Left=\"6\" Canvas.Top=\"105\" Width=\"120\" Height=\"30\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush StartPoint=\"0,0\" EndPoint=\"0.03,1\">"
+                          "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Rectangle Canvas.Left=\"6\" Canvas.Top=\"21\" Width=\"120\" Height=\"100\" Stroke=\"Gray\" StrokeThickness=\"0.5\">"
+                          "    <Rectangle.Fill>"
+                          "      <LinearGradientBrush StartPoint=\"0,1\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Rectangle.Fill>"
+                          "  </Rectangle>"
+                          "  <Rectangle Canvas.Left=\"16\" Canvas.Bottom=\"21\" Width=\"100\" Height=\"100\" Fill=\"Blue\" Stroke=\"Black\">"
+                          "  </Rectangle>"
+                          "  <Rectangle Canvas.Left=\"16\" Canvas.Top=\"31\" Width=\"100\" Height=\"[[[[TAG]], 0, 3, 0, 85, Linear, Integer]]\" Stroke=\"Black\">"
+                          "    <Rectangle.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"Black\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"Black\" Offset=\"1\" />"
+                          "        <GradientStop Color=\"#FF444444\" Offset=\"0.821339950372208\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Rectangle.Fill>"
+                          "  </Rectangle>"
+                          "  <Ellipse Canvas.Left=\"2\" Canvas.Top=\"34\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"2\" Canvas.Top=\"63\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"56\" Canvas.Top=\"129\" Width=\"20\" Height=\"10\" Stroke=\"#FF716F64\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"120.5\" Canvas.Top=\"63\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"120.5\" Canvas.Top=\"34\" Width=\"10\" Height=\"20\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"1,0\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"56\" Canvas.Top=\"2\" Width=\"20\" Height=\"10\" Stroke=\"#FF716F64\">"
+                          "    <Ellipse.Fill>"
+                          "      <LinearGradientBrush Opacity=\"1\" StartPoint=\"0,1\" EndPoint=\"1,1\">"
+                          "        <GradientStop Color=\"#FFD4D0C8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"White\" Offset=\"0.5\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </LinearGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "  <Ellipse Canvas.Left=\"6\" Canvas.Top=\"7\" Width=\"120\" Height=\"30\" Stroke=\"#FF716F64\" StrokeThickness=\"0.5\">"
+                          "    <Ellipse.Fill>"
+                          "      <RadialGradientBrush Opacity=\"1\" Center=\"0.490074441687345,0.5\" RadiusX=\"0.52\" RadiusY=\"0.599255583126551\" GradientOrigin=\"0.16,0.54\">"
+                          "        <GradientStop Color=\"#FFECE9D8\" Offset=\"0\" />"
+                          "        <GradientStop Color=\"#FF716F64\" Offset=\"1\" />"
+                          "      </RadialGradientBrush>"
+                          "    </Ellipse.Fill>"
+                          "  </Ellipse>"
+                          "</Canvas>";
+
+                      SoapFormatter^ sf = gcnew SoapFormatter();
+                      StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
+                      Stream^ stream = streamWriter->BaseStream;
+                      sf->Serialize(stream, thingStencil);
+                      stream->Close();
+                    }
+
+        SoapFormatter ^ sf = gcnew SoapFormatter;
+        StreamReader ^ streamRdr = gcnew StreamReader(fullpath);
+        Stream ^ stream = streamRdr->BaseStream;
+        ThingStencil ^ thingStencil = (ThingStencil^)sf->Deserialize(stream);
+        thingStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
+        m_Config->ThingStencils->Add(Path::GetFileNameWithoutExtension(fullpath), thingStencil);
+        stream->Close();
+        //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
+        LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
+        }
       }
+    
+    }
 
     void MarshalConfig()
       {

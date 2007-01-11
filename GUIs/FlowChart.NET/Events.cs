@@ -814,53 +814,53 @@ namespace MindFusion.FlowChartX
 
 	public class BoxTextArgs : BoxEventArgs
 	{
-		public BoxTextArgs(Box box, string oldText, string newText) :
+		public BoxTextArgs(Box box, String oldText, String newText) :
 			base(box)
 		{
 			this.oldText = oldText;
 			this.newText = newText;
 		}
 
-		public string OldText
+		public String OldText
 		{
 			get { return oldText; }
 		}
 
-		public string NewText
+		public String NewText
 		{
 			get { return newText; }
 		}
 
-		private string oldText;
-		private string newText;
+		private String oldText;
+		private String newText;
 	}
 
 	public class TableCaptionArgs : TableEventArgs
 	{
-		public TableCaptionArgs(Table table, string oldText, string newText) :
+		public TableCaptionArgs(Table table, String oldText, String newText) :
 			base(table)
 		{
 			this.oldText = oldText;
 			this.newText = newText;
 		}
 
-		public string OldText
+		public String OldText
 		{
 			get { return oldText; }
 		}
 
-		public string NewText
+		public String NewText
 		{
 			get { return newText; }
 		}
 
-		protected internal string oldText;
-		protected internal string newText;
+		protected internal String oldText;
+		protected internal String newText;
 	}
 
 	public class CellTextArgs : TableCaptionArgs
 	{
-		public CellTextArgs(Table table, string oldText, string newText, int col, int row) :
+		public CellTextArgs(Table table, String oldText, String newText, int col, int row) :
 			base(table, oldText, newText)
 		{
 			this.oldText = oldText;
