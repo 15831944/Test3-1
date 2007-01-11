@@ -306,6 +306,8 @@ namespace SysCAD.Editor
 
         box.Tag = thing;
 
+        box.Image = State.GetImage(graphicThing, flowchart);
+
         things.Add(thing.Guid, thing);
 
         flowchart.ResumeLayout();
