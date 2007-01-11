@@ -136,7 +136,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &m_IntOFSolidsUsed,  this, isParmConstruct|isResult|InitHidden);//|noView);
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.CheckBox("ShowQFeed",               "",                DC_,     "",       &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQFeed",               "",                DC_,     "",       &m_bShowQFeed,         this, isParm|SetOnChange);
  
   DDB.Visibility();
   m_BlkEval.Add_OnOff(DDB);  
@@ -189,12 +189,8 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed)// && NetProbalMethod())
-    {
-    QFeed(); // ensure exists
-    if (QFeed.Exists())
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
-    }
+  if (m_bShowQFeed)// && NetProbalMethod())
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
   if (SolveSurgeMethod())
     {
@@ -415,10 +411,8 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       m_BlkEval.EvalProducts(Fd(), Fd->Press(), NULL);
 
 
-      if (bShowQFeed && !QFeed.Exists())
-        QFeed();//forces create
-      if (QFeed.Exists())
-        QFeed().QCopy(Fd());
+      if (m_bShowQFeed)
+        m_QFeed.QCopy(Fd());
 
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P
@@ -548,8 +542,8 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         Cvent.QSetM(Sd(), som_Gas, Qg, Std_P);
         }
 
-      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed(), &m_SrgCtrl);
+      SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);

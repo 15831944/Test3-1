@@ -124,7 +124,7 @@ FFEvap::FFEvap(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 
   //EHX.Open(&CEHX_LossPerQmClass);
   VLE_Tubes.Open(NULL, true);
-  VLE.Open(NULL, true); //shell
+  m_VLE.Open(NULL, true); //shell
 
   //RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &FFEvapClass, ioid_ShellIn, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -376,7 +376,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
       Shell.dVfi = Cshell().MassFrac(som_Gas);
       double PureSteamQm = Cshell().VMass[H2Og_i];
 
-      VLE.SetHfInAtZero(Cshell()); 
+      m_VLE.SetHfInAtZero(Cshell()); 
       VLE_Tubes.SetHfInAtZero(Ctubes()); 
 
       //tubes liquor in...
@@ -409,7 +409,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
           Shell.dPo = Cshell().SaturationP(Shell.dTo);
           Cshell().SetPress(Shell.dPo); //change pressure
           Cshell().Set_totHf(Shell.dHi); //ensure enthalpy is same
-          VLE.SetFlashVapFrac(Cshell(), 0.0, 0); //condense all steam
+          m_VLE.SetFlashVapFrac(Cshell(), 0.0, 0); //condense all steam
           Cshell().SetTemp(Shell.dTo); //change to required sat temp
           Shell.dHo = Cshell().totHf(); //get new enthalpy
           dDuty = Shell.dHi - Shell.dHo; //calc duty
@@ -535,7 +535,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
         }
       
       //VLE.AddHfOSensibleHeatOut(Cshell()); //steam out
-      VLE.AddHfOutAtZero(Cshell()); 
+      m_VLE.AddHfOutAtZero(Cshell()); 
       VLE_Tubes.AddHfOutAtZero(Ctubes()); 
 
       //dTRise  = dFinalT - Liquor().Temp();
@@ -563,7 +563,7 @@ void FFEvap::ClosureInfo()
     CI0.m_PowerIn+=-dDuty;
     CI1.m_PowerIn+=+dDuty;
 
-    CI0.m_HfGainAtZero+=VLE.HfGainAtZero();
+    CI0.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     CI1.m_HfGainAtZero+=VLE_Tubes.HfGainAtZero();
     }
   };

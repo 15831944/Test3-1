@@ -25,12 +25,12 @@ static CDbgMngr dbgODEOperateDbgBrk     ("MSurge",   "ODEOperateDbgBrk");
 MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   Contents("Content", this, TOA_Embedded),
-  QFeed("QFeed", this),
-  QProd("QProd", this),
+  m_QFeed("QFeed", this),
+  m_QProd("QProd", this),
   //QSigmaOut("QSigOut", this, TOA_Embedded),
   RB(this, true),
   HX(this, NULL),
-  VLE(this, VLEF_QVFlash),
+  m_VLE(this, VLEF_QVFlash),
   //Preset(&VLE),
   m_PresetImg("PresetImg", this, TOA_Embedded),
   m_PCtrl0(PrjFileVerNo()<32 ? PC_MinFd : PC_Atmos, Std_P, true),
@@ -51,20 +51,21 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   if (!SolveBufferedMethod())
     m_EqThermals.m_bActive = false;
   Contents.SetVentExpandOK();
-  Contents.SetVLE(&VLE);
+  Contents.SetVLEBlk(&m_VLE);
+  m_QFeed.SetVLEBlk(&m_VLE);
+  m_QProd.SetVLEBlk(&m_VLE);
   m_PresetImg.SetView(SVV_AsMassFrac);
   m_PresetImg.bSpeciesOnly=true;
 
   m_QmAcc=0.0;
   m_QvAcc=0.0;
-  //pHX=NULL;
 
   SS_Lvl=0.5;
 
   GSM.SetIOIdRange(0, IOId_HX-1);
 
-  bShowQFeed = 0;
-  bShowQProd = 0;
+  m_bShowQFeed = 0;
+  m_bShowQProd = 0;
   m_PrevQmV=0.0;
   m_PrevQmL=0.0;
 
@@ -124,7 +125,7 @@ flag MN_Surge::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (HX.DataXchg(DCB))
     return 1;
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
 
 //  if (PresetImg.DataXchg(DCB))
@@ -427,7 +428,7 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
       {
       case NM_Probal:
         if (NoProcessJoins()>=1)
-          EvalJoinPressure(0, &m_PCtrl0, QProd());
+          EvalJoinPressure(0, &m_PCtrl0, m_QProd);
         if (NoProcessJoins()>=2)
           EvalJoinPressure(1);
         break;
@@ -524,14 +525,11 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
   if (SolveBufferedMethod())
     {
     dword IOMsk=First64IOIds;
-    SigmaQInPMin(QFeed(), som_ALL, IOMsk);
-    if (0)
-      VLE.QPFlash(QFeed(), Contents.Press(), 0.0, VLEF_Null);
-    EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
-    //EvalProducts_SurgeLevel(Contents, QFeed, IOMsk, PMU());
+    SigmaQInPMin(m_QFeed, som_ALL, IOMsk);
+    EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
 
-    if (QFeed().QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
-      SetCI(1, "High Volume Throughput %.2f%%", 100.0*QFeed().QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
+    if (m_QFeed.QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
+      SetCI(1, "High Volume Throughput %.2f%%", 100.0*m_QFeed.QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
     else
       ClrCI(1);
     }
@@ -557,25 +555,25 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
       else if (NoProcessJoins()==2)
         {
 //? Makeup
-        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
+        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, RB(), GSM(), EHX(), &m_PCtrl0);
         CRqdPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, NULL, NULL, &PBCtrl1);
         Xfer_EvalProducts(I0, I1, &HX);
         }
       else if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), &QFeed, &QProd, RB(), GSM(), EHX(), &m_PCtrl0);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, RB(), GSM(), EHX(), &m_PCtrl0);
       break;
     case SM_Inline:
     case SM_Buffered:
-      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
+      SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
 
-      m_BlkEval.EvalProducts(QFeed(), ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
+      m_BlkEval.EvalProducts(m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
 
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
       // fall thru
       if (NoProcessJoins()>=2)
-        Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &QProd(), NULL, NULL, NULL);//RB());
+        Xfer_EvalProducts(1, Joins[1].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);//RB());
 
       if (HX())
         {
@@ -629,9 +627,9 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
         FracAbove=Range(0.0, FracAbove, 1.0);
         double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
                     (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
-        static int xx=0;
-        if (xx && (IOSign(i)>0))
-          VLE.QPFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
+        //static int xx=0;
+        //if (xx && (IOSign(i)>0))
+        //  m_VLE.QPFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
         Contents.AddDeriv(Cd, IOSign(i), EntR);
         }
       }
@@ -681,7 +679,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
   if (HX())
     HX.EvalDerivs();
 
-  VLE.AddQVDerivs(Contents, 0, 0);
+  m_VLE.AddQVDerivs(Contents, 0, 0);
 
   };
 
@@ -768,16 +766,9 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
   {
   //dbgpln("EvalIntegral - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
 
-  flag VLEOn=0 && VLE.Enabled();
+  flag VLEOn=0 && m_VLE.Enabled();
   dword IOMsk=First64IOIds;
   StkSpConduit QPF("QPF", chLINEID(), this);
-  //if (SolveInlineMethod())
-  //  {
-  //  SigmaQInPMin(QFeed(), som_ALL, IOMsk);
-  //  //VLE.QPFlash(QFeed(), Contents.Press(), 0.0, VLEF_Null);
-  //  EvalProducts_SurgeLevel(ContentHgtOrd, QFeed());
-  //  //EvalProducts_SurgeLevel(Contents, QFeed(), IOMsk, PMU());
-  //  }
 
   Contents.ZeroDeriv();
   #if dbgMSurge
@@ -807,7 +798,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       if (VLEOn && IO_In(i))
         {
         QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
-        VLE.QPFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
+        m_VLE.QPFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
         Cd=&QPF();
         }
       else
@@ -955,7 +946,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
     };
 
   if (!IntegralDone() && !GetActiveHold())
-    VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+    m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
   m_EqThermals.ConvergeStates(CSB);
   }
@@ -1096,16 +1087,16 @@ void MN_Surge::SetCyclicStorage()
   if (m_CyclicStorage.m_bOn)
     {
     dword IOMsk=First64IOIds;
-    SigmaQInPMin(QFeed(), som_ALL, IOMsk);
-    SigmaQOut(QProd(), som_ALL, IOMsk);
+    SigmaQInPMin(m_QFeed, som_ALL, IOMsk);
+    SigmaQOut(m_QProd, som_ALL, IOMsk);
 
-    Contents.SelectModel(&QFeed(), false);
-    QProd().SelectModel(&Contents, true);
+    Contents.SelectModel(&m_QFeed, false);
+    m_QProd.SelectModel(&Contents, true);
 
-    double TotalMassIn=QFeed().QMass()*m_CyclicStorage.m_dCycleTime;
-    double TotalMassOut=QProd().QMass()*m_CyclicStorage.m_dCycleTime;
-    Contents.SubM(QProd(), som_ALL, TotalMassOut);
-    Contents.AddM(QFeed(), som_ALL, TotalMassIn);
+    double TotalMassIn=m_QFeed.QMass()*m_CyclicStorage.m_dCycleTime;
+    double TotalMassOut=m_QProd.QMass()*m_CyclicStorage.m_dCycleTime;
+    Contents.SubM(m_QProd, som_ALL, TotalMassOut);
+    Contents.AddM(m_QFeed, som_ALL, TotalMassIn);
     m_CyclicStorage.m_dTotalMass=Contents.Mass();
     m_CyclicStorage.m_dTotalVolume=Contents.Volume();
 

@@ -71,7 +71,7 @@ class DllImportExport CHXShlTube : public CHXBlock
     
     CHXSdInfo      PriI, SecI;
 
-    CVLEBase        VLE;
+    CVLEBase       m_VLE;
 
     CFT_Condenser  m_FTC;
     

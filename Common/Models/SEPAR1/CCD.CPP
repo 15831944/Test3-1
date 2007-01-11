@@ -366,11 +366,11 @@ void Ccd::EvalProducts(CNodeEvalIndex & NEI)
       double Sol_Rho = Contents.Rho(som_Sol) ;
       double Liq_Rho = Contents.Rho(som_Liq) ;
 
-      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed());
+      SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
 
       if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &QProd, NULL, NULL, NULL);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);
       
       UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);
       OFSolids = IOConduit(IOWithId_Self(ioidOF))->MassFrac(som_Sol);

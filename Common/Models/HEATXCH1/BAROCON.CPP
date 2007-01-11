@@ -141,7 +141,7 @@ BarometricCondenser::BarometricCondenser(pTagObjClass pClass_, pchar TagIn, pTag
   dFlashT         = Std_T;
 
   EHX.Open(&CEHX_LossPerQmClass);
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(BarometricCondenser), ioidBC_Steam, mmio_MODEL, &typeid(CFT_Condenser));
   };
@@ -174,7 +174,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
   DDB.Visibility(SM_Buffered|HM_All);
-  VLE.Add_OnOff(DDB);
+  m_VLE.Add_OnOff(DDB);
   DDB.Visibility();
 
   DDB.Text    ("Results");
@@ -205,7 +205,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
 
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
-  VLE.BuildDataDefn(DDB);
+  m_VLE.BuildDataDefn(DDB);
 
   if (SolveBufferedMethod())
     {
@@ -342,7 +342,7 @@ class BCSteamFinder : public MRootFinderBase
       BC.RB.EvalProducts(Cd);
       BC.EHX.EvalProducts(Cd);
 
-      BC.VLE.SetFlashVapFrac(*Cd.Model(), 0.0, 0);
+      BC.m_VLE.SetFlashVapFrac(*Cd.Model(), 0.0, 0);
       double tt = Cd.Temp();
       return tt;
       };
@@ -414,7 +414,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
           double TRqd = Min(TSteam - ApproachTemp, TSat - ApproachTemp); //hss 6/8/98
           
           Cd().QSetF(CdSteam(), som_ALL, 1.0, PFlash);//CdSteam().Press());
-          VLE.SetFlashVapFrac(Cd(), 0.0, 0);
+          m_VLE.SetFlashVapFrac(Cd(), 0.0, 0);
           double Psat = Cd().SaturationP(TRqd);
 
           double LHVap   = Cd().msLatentHeatVap(TSat, Psat);
@@ -461,9 +461,9 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
       RB.EvalProducts(Cd());          
       EHX.EvalProducts(Cd());
 //double T3=Cd().Temp(), P3=Cd().Temp();
-      VLE.SetHfInAtZero(Cd());
+      m_VLE.SetHfInAtZero(Cd());
 
-      VLE.SetFlashVapFrac(Cd(), 0.0, 0);
+      m_VLE.SetFlashVapFrac(Cd(), 0.0, 0);
       //double T4=Cd().Temp(), P4=Cd().Temp();
       dFlashP = Cd().Press();
       dFlashT = Cd().Temp();
@@ -498,7 +498,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
         //  if (IOId_Self(i)==ioidBC_Steam)
         //    IOFlange(i)->ClrMakeUpReqd();
         }
-      VLE.AddHfOutAtZero(Cd());
+      m_VLE.AddHfOutAtZero(Cd());
       }
       break;
     default:
@@ -516,7 +516,7 @@ void BarometricCondenser::ClosureInfo()
     if (EHX.Enabled())
       CI.m_EHXPowerIn+=EHX.HeatFlow();
     if (1)
-      CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+      CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   };
 

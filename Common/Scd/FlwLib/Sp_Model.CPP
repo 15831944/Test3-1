@@ -1464,7 +1464,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   if (!HeatSkipMethod())
     {
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
-    DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isResult|noFile|noSnap);
+    DDB.String  ("VapourCalcs",   "",         DC_,      "",         xidSMSatComp,     this, isResult|noFile|noSnap);
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
     DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
@@ -4334,7 +4334,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);          return 1;
 
     case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());   return 1;
-    case xidSMSatComp     : DCB.pC = SaturationCompName();      return 1;
+    case xidSMSatComp     : DCB.pC = FlashDescription();      return 1;
     case xidSMSatTemp     : DCB.D = SaturationT(Press());       return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp());        return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());   return 1;
@@ -8083,14 +8083,10 @@ void SpModel::SetDebug(flag DbgOn_)
 
 //===========================================================================
 
-static MInitialiseTest SpModelIT(&SpModelClass);
-
-// --------------------------------------------------------------------------
-
 double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
   {
   //  if (SatPressCompV()>=0 && SatPressCompL()>=0)
-  if (CDB.DefFlashCompIndex()>=0)
+  if (CDB.DefFlashCmpIndex()>=0)
     {
     CSysVector &MA = (pMA==NULL ? MArray() : *pMA);
     double H0=CDB.DefFlashVapDesc().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
@@ -8102,19 +8098,45 @@ double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
 
 //===========================================================================
 
-int SpModel::SaturationComp()
+int SpModel::FlashCmpIndex()
   {
-  return CDB.DefFlashCompIndex();
+  if (m_pVLE && m_pVLE->Enabled())
+    return m_pVLE->FlashCmpIndex();
+  if (AutoVLEOn())
+    return m_AutoVLE.m_iCmp;
+  return CDB.DefFlashCmpIndex();
   };
 
-LPTSTR SpModel::SaturationCompName()
+int SpModel::FlashLiqIndex()
+  {
+  if (m_pVLE && m_pVLE->Enabled())
+    return m_pVLE->FlashLiqIndex();
+  if (AutoVLEOn())
+    return m_AutoVLE.m_iLiq;
+  if (CDB.DefFlashCmpIndex()>=0)
+    return CDB.DefFlashLiqIndex();
+  return -1;
+  };
+
+int SpModel::FlashVapIndex()
+  {
+  if (m_pVLE && m_pVLE->Enabled())
+    return m_pVLE->FlashVapIndex();
+  if (AutoVLEOn())
+    return m_AutoVLE.m_iVap;
+  if (CDB.DefFlashCmpIndex()>=0)
+    return CDB.DefFlashVapIndex();
+  return -1;
+  };
+
+LPTSTR SpModel::FlashDescription()
   {
   static CString X;
   X="None";
   if (m_pVLE && m_pVLE->Enabled())
     {
     X="VLE:";
-    X+=m_pVLE->Description();
+    X+=m_pVLE->FlashDescription();
     //X+=SDB[m_pVLE->.m_iLiq].SymOrTag();
     //X+="/";
     //X+=SDB[m_AutoVLE.m_iVap].SymOrTag();
@@ -8126,7 +8148,7 @@ LPTSTR SpModel::SaturationCompName()
     X+="/";
     X+=SDB[m_AutoVLE.m_iVap].SymOrTag();
     }
-  else if (CDB.DefFlashCompIndex()>=0)
+  else if (CDB.DefFlashCmpIndex()>=0)
     {
     X="DefVp:";
     X+=CDB.DefFlashLiqDesc().SymOrTag();
@@ -8147,8 +8169,8 @@ double SpModel::SaturationP(double T_, CSysVector * pMA)
 
   if (m_AutoVLE.m_iCmp>=0)
     return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
-  else if (CDB.DefFlashCompIndex()>=0)
-    return CDB.DefFlashCompDesc().VapourP(m_iFidelity, T_);
+  else if (CDB.DefFlashCmpIndex()>=0)
+    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
   else
     return Std_P;
   };
@@ -8204,7 +8226,7 @@ double SpModel::SaturationT(double P_, CSysVector * pMA)
     else if (!m_fConvergeBusy)
       {
       //m_dPrvSatT=SatT.Result(); kga: perhaps should return value at limit???!!!
-      if (CDB.DefFlashCompIndex()>=0) 
+      if (CDB.DefFlashCmpIndex()>=0) 
         SetCI(4); // a FLash Component (the default) exists
       else
         ClrCI(4);

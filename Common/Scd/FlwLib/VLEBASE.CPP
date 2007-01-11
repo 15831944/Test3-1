@@ -263,10 +263,23 @@ flag CVLEBase::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-LPTSTR CVLEBase::Description()
+int CVLEBase::FlashCmpIndex()
   {
-  return Enabled() ? pVLE->Description() : "";
+  return Enabled() ? pVLE->FlashCmpIndex() : -1;
   };
+int CVLEBase::FlashLiqIndex()
+  {
+  return Enabled() ? pVLE->FlashLiqIndex() : -1;
+  };
+int CVLEBase::FlashVapIndex()
+  {
+  return Enabled() ? pVLE->FlashVapIndex() : -1;
+  };
+LPTSTR CVLEBase::FlashDescription()
+  {
+  return Enabled() ? pVLE->FlashDescription() : "";
+  };
+
 
 double CVLEBase::FlashVapFrac(SpModel &Mdl)
   {
@@ -959,7 +972,7 @@ CVLEVapPress::CVLEVapPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   pMdlL=NULL;
   pMdlV=NULL;
 
-  m_iCmpNo=CDB.DefFlashCompIndex(); //Set to the default 
+  m_iCmpNo=CDB.DefFlashCmpIndex(); //Set to the default 
   if (m_iCmpNo<0 && CDB.m_Flashable.GetCount()>=0)
     m_iCmpNo=CDB.m_Flashable[0];    //First Flashable
 
@@ -1121,7 +1134,7 @@ void CVLEVapPress::SetVapFrac(double VapFrac)//, double RqdH)
 
 // -------------------------------------------------------------------------
 
-LPTSTR CVLEVapPress::Description()
+LPTSTR CVLEVapPress::FlashDescription()
   {
   static CString X;
   X="Vp:";
@@ -1134,6 +1147,11 @@ LPTSTR CVLEVapPress::Description()
   else X+="???";
   return (LPTSTR)(LPCTSTR)X;
   };
+
+int    CVLEVapPress::FlashCmpIndex() { return m_iCmpNo; };
+int    CVLEVapPress::FlashLiqIndex() { return m_li; };
+int    CVLEVapPress::FlashVapIndex() { return m_vi; };
+
 
 // -------------------------------------------------------------------------
 
@@ -2388,7 +2406,7 @@ void CVLERootK::SetMass()///SpModel &Mdl)
 
 // -------------------------------------------------------------------------
 
-LPTSTR CVLERootK::Description()
+LPTSTR CVLERootK::FlashDescription()
   {
   return "VLERootK";
   };

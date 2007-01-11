@@ -106,7 +106,7 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
   //GSM.Add_OnOff(DDB);
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   DDB.Visibility();
-  VLE.Add_OnOff(DDB);
+  m_VLE.Add_OnOff(DDB);
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
 
@@ -128,7 +128,7 @@ void SecReformer::BuildDataDefn(DataDefnBlk & DDB)
 
   HX.BuildDataDefn(DDB);
   RB.BuildDataDefn(DDB);
-  VLE.BuildDataDefn(DDB);
+  m_VLE.BuildDataDefn(DDB);
 
   if (NetDynamicMethod())
     {
@@ -155,7 +155,7 @@ flag SecReformer::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
   if (HX.DataXchg(DCB))
     return 1;

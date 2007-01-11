@@ -55,7 +55,7 @@ CF(this)
   iRevFlw=SSQmRev_Null;
   //fOutFlwIsInFlw=false;
 
-  Contents.SetVLE(&m_VLE);
+  Contents.SetVLEBlk(&m_VLE);
   Contents.SetSQFlags(SQF_Editable|SQF_Source|SQF_CreateOK|SQF_CreateDsp, true);
   Flows.SetModelSelectable(false);
 

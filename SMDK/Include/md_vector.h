@@ -339,8 +339,10 @@ class DllImportExport MVector
     double        HeatOfCombustionHi(DWORD Phases=MP_All, double Temp=NAN, double Pres=NAN) const;
     double        HeatOfCombustionLo(DWORD Phases=MP_All, double Temp=NAN, double Pres=NAN) const;
 
-    int           SaturationComp();
-    LPTSTR        SaturationCompName();
+    int           FlashCmpIndex();
+    int           FlashLiqIndex();
+    int           FlashVapIndex();
+    LPTSTR        FlashDescription();
     double        SaturationP(double Temp=NAN) const;
     double        SaturationT(double Pres=NAN) const;
     double        PureSaturationP(double Temp=NAN) const;

@@ -117,7 +117,7 @@ QCoolingTower::QCoolingTower(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   QmWaterEvap=0.0;
 
   EHX.Open(&CEHX_LossPerQmClass);
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
   };
 
 // -------------------------------------------------------------------------
@@ -265,7 +265,7 @@ void QCoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       double TDrop=Max(0.0, Ql.Temp()-ReqdLiqTemp);
       if (TDrop>0.0)
         {
-        EvapFnd EF(Ql.Model(), ReqdLiqTemp, Ql.Press(), VLE);
+        EvapFnd EF(Ql.Model(), ReqdLiqTemp, Ql.Press(), m_VLE);
         EF.SetTarget(Ql.totHf());
         if (Valid(EvapFraction))
           EF.SetEstimate(EvapFraction, 1.0);

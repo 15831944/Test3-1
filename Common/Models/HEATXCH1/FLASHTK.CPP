@@ -131,18 +131,21 @@ VapFinder::~VapFinder()
   
 double VapFinder::Function(double P) 
   { 
-  m_FT.VLE.QPFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
+  m_FT.m_VLE.QPFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
   return m_Qv.QMass();
   };
 */
 //==========================================================================
-#define WITHNONCONDENSABLES 0
-#define WITHOTHERVAPSPLIT 1
-#define ForceSteam 0
 
+#define WITHNONCONDENSABLES  (0)
+#define WITHOTHERVAPSPLIT    (1)
+#define FORCESTEAM           (0)
+
+#if FORCESTEAM
 static MInitialiseTest InitTest(&FlashTankClass);
 SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
 SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
+#endif
 
 const byte ioidFT_Feed         = 0;
 const byte ioidFT_Liq          = 1;
@@ -203,7 +206,8 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   //Rqd_Flash_Press=Std_P;
   fOnLine=True;
   
-  VLE.Open();
+  m_VLE.Open();
+  m_VLE.Enable();
 #if DOPBSMOOTHING  
   m_fSolnVapQmValid=false;
   m_dSolnVapQm=0.0;
@@ -260,7 +264,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
   DDB.Visibility(NM_All|SM_All|HM_All);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
   #endif
@@ -268,7 +272,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   RB.Add_OnOff(DDB);
   if (SolveBufferedMethod())
     EHX.Add_OnOff(DDB);
-  VLE.Add_OnOff(DDB);
+  m_VLE.Add_OnOff(DDB);
 
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
   DDB.Text    ("");
@@ -298,15 +302,15 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   if (SolveBufferedMethod())
     EHX.BuildDataDefn(DDB);
-  VLE.BuildDataDefn(DDB);
+  m_VLE.BuildDataDefn(DDB);
 
   if (1)//NetProbalMethod())
     {
-    QFeed(); // Ensure that exist so that they recover
-    if (QFeed.Exists())
+    //m_QFeed; // Ensure that exist so that they recover
+    //if (QFeed.Exists())
       {
-      DDB.Visibility(NM_All|SM_All|HM_All, bShowQFeed);
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
+      DDB.Visibility(NM_All|SM_All|HM_All, m_bShowQFeed);
+      DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
       }
     DDB.Visibility();
     }
@@ -325,7 +329,7 @@ flag FlashTank::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
 
   return 0;
@@ -361,7 +365,7 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
     default:
       ClrCI(2);
       if (Contents.Closed())
-        VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+        m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
       break;
     }
 
@@ -427,7 +431,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         if (m_PCtrl0.Method()==PC_Reqd)
           m_FTF.m_dFlashP=m_PCtrl0.PRqd();
         else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=QFeed().SaturationP(m_PCtrl0.TRqd());
+          m_FTF.m_dFlashP=m_QFeed.SaturationP(m_PCtrl0.TRqd());
         else if (m_PCtrl0.Method()==PC_Atmos)
           m_FTF.m_dFlashP=AtmosPress();
         else if (!MassSmoothing())
@@ -438,7 +442,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         if (m_PCtrl0.Method()==PC_Reqd)
           m_FTF.m_dFlashP=m_PCtrl0.PRqd();
         else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=QFeed().SaturationP(m_PCtrl0.TRqd());
+          m_FTF.m_dFlashP=m_QFeed.SaturationP(m_PCtrl0.TRqd());
         else
           m_FTF.m_dFlashP=AtmosPress();
         }
@@ -521,23 +525,23 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           }
 #endif
 
-        double PIn=SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-        //would "...Xfer_EvalProductsIn(0, Press, QFeed(), NULL, &PBPCtrl0)..." be better???
+        double PIn=SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+        //would "...Xfer_EvalProductsIn(0, Press, m_QFeed, NULL, &PBPCtrl0)..." be better???
 
-        dTempIn = QFeed().Temp();
-        dBPEIn = QFeed().BoilingPtElevation(PIn);
-        //dBPEIn = QFeed().BoilingPtElevation(m_FTF.m_dFeedP);
-        //dBPEIn = QFeed().BoilingPtElevation(m_FTF.m_dFlashP);
+        dTempIn = m_QFeed.Temp();
+        dBPEIn = m_QFeed.BoilingPtElevation(PIn);
+        //dBPEIn = m_QFeed.BoilingPtElevation(m_FTF.m_dFeedP);
+        //dBPEIn = m_QFeed.BoilingPtElevation(m_FTF.m_dFlashP);
         //do we want to show the flash tank contents/output BPE???
 
         Qv.SetModel(sVapSpModel());
 
-        VLE.SetHfInAtZero(QFeed());
+        m_VLE.SetHfInAtZero(m_QFeed);
 
         Ql.QZero();
         Qv.QZero();
         //double PIn=SigmaQInPMin(Ql, som_ALL, First64IOIds);
-        Ql.QCopy(QFeed());
+        Ql.QCopy(m_QFeed);
 
         //SetCI(1, Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
         flag OK=false;
@@ -567,12 +571,12 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
           double QLMass=Ql.QMass();
           if (QLMass>UsableMass)
-            {//TODO : CHECK! ... Does all this VLE stuff work if (1) steam is present in feed mixture? (2) other vapours are present in feed mixture?
+            {//TODO : CHECK! ... Does all this m_VLE stuff work if (1) steam is present in feed mixture? (2) other vapours are present in feed mixture?
             OK=true;
             m_FTF.m_dFeedVapP=Ql.SaturationP(Ql.Temp());
             double PMargin=0.0001;
 
-            VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
+            m_VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
             int Iter=4;  // goes to 1 Kpa;
             do 
@@ -586,7 +590,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 #if DOPBSMOOTHING  
                 if (m_fSolnVapQmValid && m_dSolnVapQm>0.0)
                   {
-                  VLE.QMVapFlash(Ql, Qv, m_dSolnVapQm, 0.0, 0);
+                  m_VLE.QMVapFlash(Ql, Qv, m_dSolnVapQm, 0.0, 0);
                   m_FTF.m_dFlashP=Ql.Press(); 
                   //dbgpln("xlashP2   %10.2f", m_FTF.m_dFlashP-101.325);
                   m_FTF.m_dPRqd=m_FTF.m_dFlashP;
@@ -597,12 +601,12 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
                 m_FTF.m_dPRqdCalc=m_FTF.m_dFlashP;
                 }
               if (DoQP)
-                VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit);
+                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit);
 
               CWrk.QCopy(Ql, PIn);
               CWrk.QAddF(Qv, som_ALL, 1.0);
               m_FTF.m_dFlashT=Ql.Temp();
-#if ForceSteam
+#if FORCESTEAM
               m_FTF.m_dQVap=Qv.VMass[H2OVap()]; //steam only!
 #else
               m_FTF.m_dQVap=Qv.QMass(som_ALL); //assumes steam!!!
@@ -627,7 +631,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         dBPE = Ql.BoilingPtElevation(m_FTF.m_dFlashP);
 
 #if WITHOTHERVAPSPLIT
-        //AFTER doing all the VLE work, if required, move "extra" vapours to vapour stream
+        //AFTER doing all the m_VLE work, if required, move "extra" vapours to vapour stream
         m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
         if (m_dOtherVapFracToLiq<1.0 && Ql.QMass(som_Gas)>UsableMass)
           {
@@ -638,8 +642,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           }
 #endif
 
-        VLE.AddHfOutAtZero(Ql);
-        VLE.AddHfOutAtZero(Qv);
+        m_VLE.AddHfOutAtZero(Ql);
+        m_VLE.AddHfOutAtZero(Qv);
 
 #if dbgModels
         if (NetProbalMethod() && dbgDumpChanges())
@@ -678,7 +682,7 @@ void FlashTank::ClosureInfo()
     if (EHX.Enabled())
       CI.m_EHXPowerIn+=EHX.HeatFlow();
     if (1)
-      CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+      CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   };
 
@@ -700,15 +704,15 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2P:
         {
         double P0=m_FTF.m_dPEval;
-        VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
-#if ForceSteam
+        m_VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
+#if FORCESTEAM
         double Q0=CWrk.VMass[H2OVap()];
 #else
         double Q0=CWrk.QMass(som_Gas);
 #endif
         double P1=P0+0.1; // CNM
-        VLE.QPFlash(CWrk, P1, 0.0, VLEF_Null);
-#if ForceSteam
+        m_VLE.QPFlash(CWrk, P1, 0.0, VLEF_Null);
+#if FORCESTEAM
         double Q1=CWrk.VMass[H2OVap()];
 #else
         double Q1=CWrk.QMass(som_Gas);
@@ -724,8 +728,8 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2Qv:
         {
         double P0=m_FTF.m_dPEval;
-        VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
-#if ForceSteam
+        m_VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
+#if FORCESTEAM
         m_FTF.m_dQVapEval=CWrk.VMass[H2OVap()]; //steam only!
 #else
         m_FTF.m_dQVapEval=CWrk.QMass(som_Gas);
@@ -739,7 +743,7 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2QvSens:
         {
         //double P0=m_FTF.dPEval;
-        VLE.QMVapFlash(CWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
+        m_VLE.QMVapFlash(CWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
         m_FTF.m_dPEval=CWrk.Press();
 //        #if dbgModels   
 //        if (dbgFlashTrain())
@@ -779,7 +783,7 @@ void FlashTank::EvalMsAGDatas()
   if (m_FTF.Active())
     {
     CVLEDataArray Cmp;
-    if (VLE.GetVLEData(Cmp)<1)
+    if (m_VLE.GetVLEData(Cmp)<1)
       {
       MN_Surge::EvalMsAGDatas();
       return;

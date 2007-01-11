@@ -421,7 +421,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     EHX.Add_OnOff(DDB);
   //TODO RESTORE : VLE in ProBal mode!
   if (NetDynamicMethod())
-    VLE.Add_OnOff(DDB);
+    m_VLE.Add_OnOff(DDB);
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
@@ -433,9 +433,9 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     
   //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   DDB.Visibility(NM_All|SM_All|HM_All);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_Direct|HM_All);
-  DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &bShowQProd,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQProd",         "",  DC_,     "",      &m_bShowQProd,         this, isParm|SetOnChange);
 
   if (NetProbalMethod() && m_CyclicStorage.m_bOn)
     {
@@ -472,7 +472,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   if (NetProbalMethod())
     EHX.BuildDataDefn(DDB);
   if (NetDynamicMethod())
-    VLE.BuildDataDefn(DDB);
+    m_VLE.BuildDataDefn(DDB);
   if (NetProbalMethod())
     GSM.BuildDataDefn(DDB);
   if (SolveSurgeMethod())
@@ -487,21 +487,13 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   if (1)
     {
-    QFeed(); // Ensure that exist so that they recover
-    if (QFeed.Exists())
-      {
-      DDB.Visibility(NM_All|SM_All|HM_All, bShowQFeed);
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
-      }
+    DDB.Visibility(NM_All|SM_All|HM_All, m_bShowQFeed);
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
     }
   if (NetProbalMethod())
     {
-    QProd(); // Ensure that exist so that they recover
-    if (QProd.Exists())
-      {
-      DDB.Visibility(NM_Probal|SM_All|HM_All, bShowQProd);
-      DDB.Object(&QProd, this, NULL, NULL, DDB_RqdPage);
-      }
+    DDB.Visibility(NM_Probal|SM_All|HM_All, m_bShowQProd);
+    DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
     DDB.Visibility();
     }
 
@@ -527,7 +519,7 @@ flag CTank::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
   if (HX.DataXchg(DCB))
     return 1;

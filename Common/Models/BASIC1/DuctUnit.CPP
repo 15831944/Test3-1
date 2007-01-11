@@ -118,7 +118,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
     isParmStopped|(!gs_Environment.HasGas() || !Contents.Closed() ? noView|noFile|noSnap|noScenario:0) , DDBYesNo);
 
   GSM.Add_OnOff(DDB);
-  VLE.Add_OnOff(DDB);
+  m_VLE.Add_OnOff(DDB);
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
   BuildDataDefnElevation(DDB);
@@ -160,7 +160,7 @@ void DuctUnit::BuildDataDefn(DataDefnBlk & DDB)
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);
-  VLE.BuildDataDefn(DDB);
+  m_VLE.BuildDataDefn(DDB);
   
   GSM.BuildDataDefn(DDB);
 
@@ -183,7 +183,7 @@ flag DuctUnit::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
 
 //  switch (DCB.lHandle)

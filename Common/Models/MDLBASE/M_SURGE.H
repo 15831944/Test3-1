@@ -112,10 +112,12 @@ class DllImportExport MN_Surge : public MdlNode
 
     CHXBase         HX;
     CReactionBase   RB;
-    CVLEBase        VLE;
+    CVLEBase        m_VLE;
 
-    CSpCOptionPtr <SpConduit>    QFeed;
-    CSpCOptionPtr <SpConduit>    QProd;
+    //CSpCOptionPtr <SpConduit>    m_QFeed;
+    //CSpCOptionPtr <SpConduit>    m_QProd;
+    SpConduit       m_QFeed;
+    SpConduit       m_QProd;
 
     CHgtOrdInfo     ContentHgtOrd;
     SpContainer     Contents;   //The object which contains the material within the surge unit.
@@ -131,8 +133,8 @@ class DllImportExport MN_Surge : public MdlNode
     double         m_PrevQmV;
     double         m_PrevQmL;
 
-    flag           bShowQFeed;
-    flag           bShowQProd;
+    flag           m_bShowQFeed;
+    flag           m_bShowQProd;
     double         POffset;
     CRqdPressCtrl  m_PCtrl0;
 

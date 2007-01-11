@@ -9,6 +9,7 @@
 #include "flwnode.h"
 #define  __M_HXBASE_CPP
 #include "m_hxbase.h"
+#include "vlebase.h"
 //#include "optoff.h"
 
 //==========================================================================
@@ -25,9 +26,9 @@ static CDbgMngr  dbgHeater   ("HXBASE",  "HeatXchg");
 static CDbgMngr  dbgHeaterCnv("HXBASE",  "HeatXchgCnv");
 #endif
 
-static MInitialiseTest InitTest(&CHXBlockClass);
-SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
-SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
+//static MInitialiseTest InitTest(&CHXBlockClass);
+//SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
+//SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
 
 //---------------------------------------------------------------------------
 
@@ -941,7 +942,8 @@ flag CEnvironHXBase::DataXchg(DataChangeBlk & DCB)
 
 #define BOX(x,y,w,h) x,y, x,y+h, x+w,y+h, x+w,y, x,y
 
-XID xidHXSd_dT = MdlBsXID(10004);
+XID xidHXSd_dT   = MdlBsXID(10004);
+XID xidHXSd_Desc = MdlBsXID(10005);
 
 const byte idPIn  = 0;
 const byte idPOut = 1;
@@ -961,8 +963,10 @@ CHXSide::CHXSide(CHXBlock * pHX_)
   Cp=4.186;
   Ci=0.0;
   Qm=0.0;
-  WaterQm=0.0;
-  SteamQm=0.0;
+#if HX_MEASURE_LIQVAP
+  m_LiqQm=0.0;
+  m_VapQm=0.0;
+#endif
   Ti=Std_T;
   To=Std_T;
 
@@ -1018,6 +1022,8 @@ void CHXSide::BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, 
       {QPF_Boiling,    "Boiling"},
       {0}};
     DDB.Bool("Mode",    "", DC_,     "",    &iMode, pTagObj, isParmConstruct, DDB0);
+    if (iMode==QPF_Condensing)
+      DDB.String("", "VapourCalcs",         DC_,    "",    xidHXSd_Desc   , pTagObj, isResult|noFileAtAll);
 
     DDB.Visibility(NSHM_All, Conduit);
     DDB.Double ("",               "Qm",     DC_Qm,    "kg/s",    &Qm      , pTagObj, Connected ? isParmConstruct : isParm);
@@ -1056,7 +1062,8 @@ flag CHXSide::DataXchg(DataChangeBlk & DCB)
 
   switch (DCB.lHandle)
     {
-    case xidHXSd_dT: DCB.D= To-Ti; return 1;
+    case xidHXSd_Desc: DCB.pC = m_pCd?m_pCd->FlashDescription():"";   return 1;
+    case xidHXSd_dT:   DCB.D  = To-Ti;                                return 1;
     }
   return 0;
   }
@@ -1074,8 +1081,10 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   Ci = In->totCp();
   Cp = pCd->msCp();
   Qm = pCd->QMass();
-  WaterQm = pCd->VMass[H2OLiq()];
-  SteamQm = pCd->VMass[H2OVap()];
+#if HX_MEASURE_LIQVAP
+  m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()/* H2OLiq()*/];
+  m_VapQm = pCd->VMass[pCd->FlashVapIndex()/* H2OVap()*/];
+#endif
   SatT = pCd->SaturationT(Po);
   m_pCd->QSaveMass(MassImg);
 
@@ -1097,8 +1106,10 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  WaterQm = pCn->VMass[H2OLiq()];
-  SteamQm = pCn->VMass[H2OVap()];
+#if HX_MEASURE_LIQVAP
+  m_LiqQm = pCn->VMass[pCn->FlashLiqIndex()/* H2OLiq()*/];
+  m_VapQm = pCn->VMass[pCn->FlashVapIndex()/* H2OVap()*/];
+#endif
   SatT = pCn->SaturationT(Po);
   //m_pCnd->QSaveMass(MassImg);
 
@@ -1170,8 +1181,10 @@ void CHXSide::ClrInput()
   Ci = 0.0;
   Cp = 0.0;
   Qm = 0.0;
-  WaterQm = 0.0;
-  SteamQm = 0.0;
+#if HX_MEASURE_LIQVAP
+  m_LiqQm = 0.0;
+  m_VapQm = 0.0;
+#endif
   Hi = 0.0;
 
   MassImg.Zero();
@@ -1250,8 +1263,9 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
       {
       if (FullyCondensing)
         {
+        CVLEBase & VLE = *m_pCd->VLEBlk();
         const double QmTotalVap=m_pCd->QMass(som_Gas);
-        const double QmSteam=m_pCd->VMass[H2OVap()];
+        const double QmSteam=m_pCd->VMass[VLE.FlashVapIndex()/*H2OVap()*/];
         const double QmOtherVap=QmTotalVap-QmSteam;
         if (QmVentRqd>0.0 || (pHX->m_dNonCondVentFrac>0.0 && QmOtherVap>0.0))
           {
@@ -1261,8 +1275,8 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
           pVent->QSetM(*m_pCd, som_Gas, qm, VentPress);
           m_pCd->QAdjustQmTo(som_Gas, QmTotalVap-qm);
           //fix steam...
-          pVent->VValue[H2OVap()] = QmSteamVent;
-          m_pCd->VValue[H2OVap()] = QmSteam-QmSteamVent;
+          pVent->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteamVent;
+          m_pCd->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteam-QmSteamVent;
           // Remeasure Total Measurements
           MeasureHXDataCd(NULL);
           QmVent = QmSteamVent;
@@ -1978,7 +1992,7 @@ flag CHXBlock::CIStrng(int No, pchar & pS)
     case 5: pS="W\tVenting - No Connection";                     return 1;
     case 6: pS="E\tDoes not support more than one vent connection"; return 1;
     case 7: pS="W\tVent Requirements not met";                   return 1;
-    case 8: pS="E\tSteam present in condensate";                 return 1;
+    case 8: pS="E\tVapour present in condensate";                return 1;
     case 9: pS="E\tActual duty exceeds theoretical duty";        return 1;
     default:
       return TaggedObject::CIStrng(No, pS);

@@ -247,6 +247,8 @@ class DllImportExport CEnvironHXBase : public CBlockEvalBase
 #define IMPLEMENT_HXB(Obj, ModelId, Version, Cat, SDesc, LDesc) \
         IMPLEMENT_TAGOBJ(Obj, CHXBlock::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
 
+#define HX_MEASURE_LIQVAP  0
+
 DEFINE_HXB(CHXBlock)
 
 class DllImportExport CHXSide
@@ -258,8 +260,10 @@ class DllImportExport CHXSide
     double         Ci;
     double         Cp;
     double         Qm; //total Qm
-    double         WaterQm;
-    double         SteamQm;
+#if HX_MEASURE_LIQVAP
+    double         m_LiqQm;
+    double         m_VapQm;
+#endif
     double         Ti;
     double         To;
     double         Sgn;

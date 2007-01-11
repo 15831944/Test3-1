@@ -190,7 +190,7 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
         {
         RB.EvalProducts(Sd());
   		  
-        VLE.SetHfInAtZero(Sd());
+        m_VLE.SetHfInAtZero(Sd());
 
         MSol = Sd().QMass(som_Sol);
         MLiq = Sd().QMass(som_Liq);
@@ -246,8 +246,8 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
         Cs.SetTemp(TReqd);
         Cl.SetTemp(TReqd);
 
-        VLE.AddHfOutAtZero(Cl);
-        VLE.AddHfOutAtZero(Cs);
+        m_VLE.AddHfOutAtZero(Cl);
+        m_VLE.AddHfOutAtZero(Cs);
 
         Cs.SanityCheck();
         Cl.SanityCheck();
@@ -292,8 +292,8 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
         // Just Operate as a Tank
         }
 
-      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed());
+      SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);
@@ -316,7 +316,7 @@ void Dryer::ClosureInfo()
     if (RB.Enabled())
       RB.GetClosureInfo(CI);
 
-    CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+    CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
 	  CI.m_PowerIn+=m_EnergyRqd; 
     }
   };

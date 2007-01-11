@@ -97,7 +97,10 @@ class DllImportExport CVLEBlock : public TaggedObject
     CVLEBlock(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CVLEBlock();
 
-    virtual LPTSTR Description()=0;
+    virtual int    FlashCmpIndex()=0;
+    virtual int    FlashLiqIndex()=0;
+    virtual int    FlashVapIndex()=0;
+    virtual LPTSTR FlashDescription()=0;
 
     virtual double FlashVapFrac(SpModel &Mdl) = 0;
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags) {};
@@ -156,7 +159,10 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    LPTSTR         Description();
+    virtual int    FlashCmpIndex();
+    virtual int    FlashLiqIndex();
+    virtual int    FlashVapIndex();
+    LPTSTR         FlashDescription();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
@@ -254,7 +260,10 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual LPTSTR Description();
+    virtual int    FlashCmpIndex();
+    virtual int    FlashLiqIndex();
+    virtual int    FlashVapIndex();
+    virtual LPTSTR FlashDescription();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
@@ -326,7 +335,7 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual LPTSTR Description();
+    virtual LPTSTR FlashDescription();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
@@ -381,7 +390,10 @@ class DllImportExport CVLERootK : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual LPTSTR Description();
+    virtual int    FlashCmpIndex() { return -1; };
+    virtual int    FlashLiqIndex() { return -1; };
+    virtual int    FlashVapIndex() { return -1; };
+    virtual LPTSTR FlashDescription();
 
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);

@@ -69,7 +69,7 @@ FTC(this)
   dFinalT    = Std_T;
   dSatTOut   = Std_T;
 
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
 
   //RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &BoilerClass, ioidSI_Steam, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -134,11 +134,7 @@ void Boiler::BuildDataDefn(DataDefnBlk & DDB)
   //EHX.BuildDataDefn(DDB);
 
   if (bShowQFeed && NetProbalMethod())
-    {
-    QFeed(); // ensure exists
-    if (QFeed.Exists())
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
-    }
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
   if (NetDynamicMethod())
     {
@@ -263,10 +259,8 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
 
       //VLE.SetHfInAtZero(Mixture());
 
-      if (bShowQFeed && !QFeed.Exists())
-        QFeed();//forces create
-      if (QFeed.Exists())
-        QFeed().QCopy(Mixture());
+      if (bShowQFeed)
+        m_QFeed.QCopy(Mixture());
 
       const int si = H2OVap();
       const int wi = H2OLiq();
@@ -327,9 +321,9 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
             const double htot = h1_+h1_bd;
             const double err = htot-h1;*/
             SO.SetPress(dFinalPRqd);
-            VLE.SetHfInAtZero(SO);
-            VLE.SetFlashVapFrac(SO, 1.0, 0);
-            VLE.AddHfOutAtZero(SO);
+            m_VLE.SetHfInAtZero(SO);
+            m_VLE.SetFlashVapFrac(SO, 1.0, 0);
+            m_VLE.AddHfOutAtZero(SO);
             SO.SetTemp(dFinalTRqd);
             const double h2 = SO.totHf();
             dHeat2 = (h2-h1_);
@@ -340,9 +334,9 @@ void Boiler::EvalProducts(CNodeEvalIndex & NEI)
             SO.SetTempPress(dDrumTemp, dDrumPress);
             const double h1_ = SO.totHf();
             SO.SetPress(dFinalPRqd);
-            VLE.SetHfInAtZero(SO);
-            VLE.SetFlashVapFrac(SO, 1.0, 0);
-            VLE.AddHfOutAtZero(SO);
+            m_VLE.SetHfInAtZero(SO);
+            m_VLE.SetFlashVapFrac(SO, 1.0, 0);
+            m_VLE.AddHfOutAtZero(SO);
             SO.SetTemp(dFinalTRqd);
             const double h2 = SO.totHf();
             dHeat2 = (h2-h1_);
@@ -410,7 +404,7 @@ void Boiler::ClosureInfo()
     {
     CClosureInfo &CI0=m_Closure[0];
     CI0.m_PowerIn+=dHeat1+dHeat2;
-    CI0.m_HfGainAtZero=VLE.HfGainAtZero();
+    CI0.m_HfGainAtZero=m_VLE.HfGainAtZero();
     CI0.m_MassLoss+=dBlowDownQm;
     CI0.m_HfLoss+=dBlowDownHf;
     CI0.m_HsLoss+=dBlowDownHs;

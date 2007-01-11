@@ -962,8 +962,10 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual void   SetDebug(flag DbgOn_);
 
-    virtual int    SaturationComp();
-    virtual LPTSTR SaturationCompName();
+    virtual int    FlashCmpIndex();
+    virtual int    FlashLiqIndex();
+    virtual int    FlashVapIndex();
+    virtual LPTSTR FlashDescription();
     virtual double SaturationP(double T, CSysVector * pMA=NULL);
     virtual double SaturationT(double P, CSysVector * pMA=NULL);
     virtual double PureSaturationP(double T, CSysVector * pMA=NULL)               { return SpModel::SaturationP(T, pMA);};
@@ -1126,8 +1128,6 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     flag           m_bEquilOn;
     byte           m_iEquilAct;
-    //static int     sm_iAutoVLELiq;
-    //static int     sm_iAutoVLEVap;
 
     void           ClearAutoVLE()   { m_AutoVLE.m_iCmp=m_AutoVLE.m_iVap=m_AutoVLE.m_iLiq=-1; };
     bool           AutoVLEOK()      { return CDB.m_Flashable.GetCount()>0; };//m_AutoVLE.m_iCmp>=0; };

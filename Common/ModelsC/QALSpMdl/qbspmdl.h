@@ -159,8 +159,10 @@ class DllImportExport QSMBayer : public SMBayerBase
 	  virtual double RefTemp() { return C_2_K(0.0); };
     virtual double msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
     virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
-    virtual int    SaturationComp() { return -1; };
-    virtual LPTSTR SaturationCompName() { return "Model"; };
+    virtual int    FlashCmpIndex() { return -1; };
+    virtual int    FlashLiqIndex() { return -1; };
+    virtual int    FlashVapIndex() { return -1; };
+    virtual LPTSTR FlashDescription()  { return "Model"; };
     virtual double SaturationP(double T_, CSysVector * pMA=NULL);
     virtual double SaturationT(double P_, CSysVector * pMA=NULL);
     virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);

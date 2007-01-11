@@ -23,11 +23,11 @@
 static CDbgMngr  dbgHeater   ("HeatXChg",  "ShellTube");
 #endif
 
-#define ForceSteam 0
+#define FORCESTEAM (0 && HX_MEASURE_LIQVAP)
 
-static MInitialiseTest InitTest(&CHXShlTubeClass);
-SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
-SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
+//static MInitialiseTest InitTest(&CHXShlTubeClass);
+//SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
+//SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
 
 #define BOX(x,y,w,h) x,y, x,y+h, x+w,y+h, x+w,y, x,y
 
@@ -134,7 +134,7 @@ static DDBValueLst DDBOpMode[]={
 IMPLEMENT_HXB(CHXShlTube, "HXShTb", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "Shell & Tube HX", "Shell & Tube HeatExchangeBlock");
 CHXShlTube::CHXShlTube(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
   CHXBlock(pClass_, Tag_, pAttach, eAttach),
-  VLE(this, VLEF_QPFlash),
+  m_VLE(this, VLEF_QPFlash),
   m_FTC(dynamic_cast<FlwNode*>(pAttach))
   {
   //m_iRqdOpMode=STHX_FullyCondensing; this causes a bug!?!? it doesn't condense ANY steam
@@ -223,7 +223,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   else
     m_Sec.BuildDataDefn("m_Sec", DDB, this, false, !m_Sec.fConnected, false);
 
-  VLE.BuildDataDefn(DDB);
+  m_VLE.BuildDataDefn(DDB);
 
   DDB.Text("");
   DDB.EndStruct();
@@ -241,9 +241,9 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
         {
         m_iRqdOpMode=*DCB.rB;
         if (m_iRqdOpMode==STHX_FullyCondensing)
-          VLE.Open();
+          m_VLE.Open();
         else
-          VLE.Close();
+          m_VLE.Close();
         }
       DCB.B=m_iRqdOpMode;
       return 1;
@@ -251,7 +251,7 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
       break;
     }
 
-  if (VLE.DataXchg(DCB))
+  if (m_VLE.DataXchg(DCB))
     return 1;
   if (CHXBlock::DataXchg(DCB))
     return 1;
@@ -264,7 +264,7 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
 flag CHXShlTube::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=true;//MN_Surge::ValidateData(ValidateDataBlk & VDB);
-  if (!VLE.ValidateData(VDB))
+  if (!m_VLE.ValidateData(VDB))
     OK=false;
   if (!CHXBlock::ValidateData(VDB))
     OK=false;
@@ -283,7 +283,7 @@ class ShlTubeCondFnd : public MRootFinderBase
     CHXShlTube & Blk;
     CHXSide    & HotSd;
     CHXSide    & ColdSd;
-    CVLEBase    & VLE;
+    CVLEBase   & m_VLE;
     SpConduit  & QMem;
     static CToleranceBlock s_Tol;
 
@@ -304,7 +304,7 @@ ShlTubeCondFnd::ShlTubeCondFnd(CHXShlTube* Blk_, CHXSide & HotSd_, CHXSide & Col
   Blk(*Blk_), HotSd(HotSd_), ColdSd(ColdSd_),
   MRootFinderBase("BaseFnd", s_Tol),//1.0e-12),
   QMem(QMemS),
-  VLE(Blk_->VLE)
+  m_VLE(Blk_->m_VLE)
   {
   HotSd.m_pCd->SetBadTempOK(true);
   ColdSd.m_pCd->SetBadTempOK(true);
@@ -351,7 +351,7 @@ double ShlTubeCondFnd::Function(double Amount)
 
   double FTemp=Max(ColdSd.Ti, HotSd.SatT-BPE);
   double FPress=HotSd.Po;
-  VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), FTemp, FPress, 0.0, VLEF_Null);
+  m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), FTemp, FPress, 0.0, VLEF_Null);
   HotSd.To=FTemp;//HotSd.m_pCd->Temp();
   Blk.m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
 
@@ -417,7 +417,7 @@ ShlTubeCondLimitFnd::ShlTubeCondLimitFnd(CHXShlTube* Blk_, CHXSide & HotSd_, CHX
 double ShlTubeCondLimitFnd::Function(double x)
   {
   double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
-  ST.VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, x, VLEF_Null);
+  ST.m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, x, VLEF_Null);
   HotSd.To=HotSd.m_pCd->Temp();
   ST.m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
   HotSd.iMode=QPF_Condensing;
@@ -454,7 +454,7 @@ void CHXShlTube::FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd
     double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
     HotSd.m_pCd->SetTemp(ColdSd.Ti);
     HotSd.MaxNfDuty=HotSd.Hi-HotSd.m_pCd->totHf();
-    VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
     HotSd.MaxFlDuty=HotSd.Hi-HotSd.m_pCd->totHf();
     }
   else
@@ -500,8 +500,8 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
   double VentFlow=0.0;
 
   double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
-  double OrigVapFrac=VLE.FlashVapFrac(*HotSd.m_pCd->Model());
-  VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+  double OrigVapFrac=m_VLE.FlashVapFrac(*HotSd.m_pCd->Model());
+  m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
   HotSd.To=HotSd.m_pCd->Temp();
   m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
   if (flags & CA_AllowVent)
@@ -511,7 +511,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
       double VentFrac=(m_dDuty-m_dMaxFlDuty)/GTZ(m_dDuty);
       // Adjust for what existed
       VentFrac = Range(0.0, VentFrac*(1.0-OrigVapFrac), 1.0);
-      VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VentFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VentFrac, VLEF_Null);
       VentFlow=HotSd.m_pCd->QMass(som_Gas);
       HotSd.AddGasToVent(VentFlow, false);
       m_dDuty=m_dMaxFlDuty;
@@ -527,7 +527,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
         m_dDuty=Min(m_dDuty, MaxDuty);
         // Adjust for what existed
         VapFrac = Range(0.0, VapFrac*(1.0-OrigVapFrac), 1.0);
-        VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VapFrac, VLEF_Null);
+        m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VapFrac, VLEF_Null);
         }
       }
   HotSd.iMode=QPF_Condensing;
@@ -553,8 +553,11 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
   flag SecCondensing=0;
   flag CoCurrent=false;
   flag DutyErr=false;
-  double SteamFlowInCondensate=0.0;
+  double VapourFlowInCondensate=0.0;
   m_dQmSteamCond=0.0;
+
+  m_Pri.m_pCd->SetVLEBlk(&m_VLE);
+  m_Sec.m_pCd->SetVLEBlk(&m_VLE);
 
   if (m_iActOpMode!=STHX_Inoperative && TstNZ(m_Pri.Ci) && TstNZ(m_Sec.Ci) && m_fOn)
     {
@@ -651,12 +654,14 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         }
       case STHX_FullyCondensing:
         {
+
         // Vents & Bypasses
         HotSd.KeepByPassLiquor(HotSd.Pi);
         HotSd.SendGasToVent(true);
 
         // Do Reactions Etc
         StkSpConduit QMemS("QMemS", chLINEID(), pNd);
+        QMemS->SetVLEBlk(&m_VLE);
         QMemS().QSetF(*HotSd.m_pCd, som_ALL, 1.0, HotSd.Pi);
 
         #ifndef _RELEASE
@@ -667,7 +672,8 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         const double QQm=QMemS().QMass();
         #endif
 
-        VLE.SetHfInAtZero(*HotSd.m_pCd);
+        m_VLE.SetHfInAtZero(*HotSd.m_pCd);
+
 
         ColdSd.EvalProducts(ColdSd.To);
         HotSd.EvalProducts(HotSd.To);
@@ -675,7 +681,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         ColdSd.dHEnv=ColdSd.m_pCd->totHf()-ColdSd.Hi;
         HotSd.dHEnv=HotSd.m_pCd->totHf()-HotSd.Hi;
 
-        const double SteamBefore=HotSd.m_pCd->VMass[H2OVap()];
+        const double SteamBefore=HotSd.m_pCd->VMass[m_VLE.FlashVapIndex()/*H2OVap()*/];
 
         // Find Mode Of Operation
         FindLimitingDuties(m_iActOpMode, HotSd, ColdSd, HotSdI, ColdSdI);
@@ -683,13 +689,13 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         // Estimate the required amount able to Condense
         if (m_FTC.Active())
           {
-#if ForceSteam
-          m_FTC.m_dQCond = HotSd.WaterQm+HotSd.SteamQm;
+#if FORCESTEAM
+          m_FTC.m_dQCond = HotSd.m_LiqQm+HotSd.m_VapQm;
 #else
           m_FTC.m_dQCond = HotSd.Qm;
 #endif
           m_FTC.m_dQCool = ColdSd.Qm;
-          VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HotSd.Po, 0.0, VLEF_Null);
+          m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HotSd.Po, 0.0, VLEF_Null);
           double OldQRqd=m_FTC.m_dQRqd;
           double MaxFlQm=ColdSd.MaxFlDuty/GTZ(HotSd.Hi/NZ(HotSd.Qm)-HotSd.m_pCd->msHf());
 
@@ -836,10 +842,10 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
 
         HotSd.AddByPassLiquor();
 
-        VLE.AddHfOutAtZero(*HotSd.m_pCd);
+        m_VLE.AddHfOutAtZero(*HotSd.m_pCd);
 
-        SteamFlowInCondensate=HotSd.m_pCd->VMass[H2OVap()];
-        m_dQmSteamCond = SteamBefore-SteamFlowInCondensate;
+        VapourFlowInCondensate=HotSd.m_pCd->VMass[m_VLE.FlashVapIndex()];
+        m_dQmSteamCond = SteamBefore-VapourFlowInCondensate;
 
         break;
         }
@@ -888,11 +894,11 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
   m_Pri.fConnected=0;
   m_Sec.fConnected=0;
   if (m_iActOpMode==STHX_FullyCondensing)
-    m_QmVent=m_pVent ? m_pVent->VMass[H2OVap()] : 0.0;
+    m_QmVent=m_pVent ? m_pVent->VMass[m_VLE.FlashVapIndex()] : 0.0;
   else
     m_QmVent=m_pVent ? m_pVent->QMass() : 0.0;
   CHXBlock::SetCI(7, !SolveBufferedMethod() && m_pVent && fabs(m_QmVent-m_QmVentRqd)>1.0e-9);
-  CHXBlock::SetCI(8, !SolveBufferedMethod() && m_iActOpMode==STHX_FullyCondensing && SteamFlowInCondensate>1.0e-6);
+  CHXBlock::SetCI(8, !SolveBufferedMethod() && m_iActOpMode==STHX_FullyCondensing && VapourFlowInCondensate>1.0e-6);
   CHXBlock::SetCI(9, !SolveBufferedMethod() && DutyErr && !m_bExtraCond);
   }
 
@@ -935,13 +941,13 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
       pNd->Set_IO_PSensVL(i, PSensV, PSensL);
 
   // Flash to Equilibrium
-  if (VLE.Enabled())
+  if (m_VLE.Enabled())
     {
     // Transfer due to movement toward equil
     double MV0,MV1,DeltaMass;
     MV0 = Contents.Mass(som_Gas);
 
-    VLE.QVFlash(Contents, Duty, VLEF_Null);
+    m_VLE.QVFlash(Contents, Duty, VLEF_Null);
     MV1   = Contents.Mass(som_Gas);
     m_dV2LQ = (MV0-MV1)/ICGetTimeInc();
 
@@ -966,7 +972,7 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
       DeltaMass = Max(1.0e-6, 0.01*MassEquilV);
       Contents.AddM(Cd, som_Gas, DeltaMass);
       MV0 = Contents.Mass(som_Gas);
-      VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
       MV1 = Contents.Mass(som_Gas);
       m_dV2LQVFrac = (MV0-MV1)/DeltaMass;
 //      RestoreContents(Contents, MassEquilA, totHA);
@@ -976,7 +982,7 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
       DeltaMass = Max(1.0e-6, 0.01*MassEquilL);
       Contents.AddM(Cd, som_SL, DeltaMass);
       MV0 = Contents.Mass(som_Gas);
-      VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
       MV1 = Contents.Mass(som_Gas);
       m_dV2LQLFrac = (MV0-MV1)/DeltaMass;
 //    RestoreContents(MassEquilA, totH0);
@@ -1022,11 +1028,12 @@ const IDMask TubeIOMask  = Id_2_Mask(ioidST_TubeIn)|
 
 
 static IOAreaRec ShellTubeIOAreaList[] =
-  {{"",              "Liquor_In",  ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].I"},
-   {"",              "Liquor_Out", ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].O"},
-   {"",              "Steam",      ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
-   {"",              "Condensate", ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
-   {"",              "Vent",       ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
+  {{"",              "Liquor_In",  ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                     1.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].I"},
+   {"",              "Liquor_Out", ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                     0.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].O"},
+   {"",              "Steam",      ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz|IOHidden, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
+   {"",              "Vapour",     ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
+   {"",              "Condensate", ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
+   {"",              "Vent",       ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
    {NULL}};
 
 
@@ -1058,7 +1065,7 @@ ShellTube::ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   AttachClassInfo(nc_Process, ShellTubeIOAreaList, &HeatXDPGroup);
   Shell.SetClosed(true);
   Shell.SetPreset(&m_Preset,NULL);
-  Shell.SetVLE(&((CHXShlTube*)HX())->VLE);
+  Shell.SetVLEBlk(&((CHXShlTube*)HX())->m_VLE);
 
 //  FBP.AssignFlwEqnGroup(HeatXDPGroup, HeatXDPGroup.Default(), this);
 //  FBS.AssignFlwEqnGroup(PipeEntryGroup, PipeEntryGroup.Default(), this);
@@ -1389,8 +1396,8 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
 
       if (m_HXJ.SecIsJoined() && m_HXJ.SecConnected())
         {
-#if ForceSteam
-        pHXST->m_FTC.m_dQCond = pHXST->m_Sec.WaterQm+pHXST->m_Sec.SteamQm;
+#if FORCESTEAM
+        pHXST->m_FTC.m_dQCond = pHXST->m_Sec.m_LiqQm+pHXST->m_Sec.m_VapQm;
 #else
         pHXST->m_FTC.m_dQCond = pHXST->m_Sec.Qm;
 #endif
@@ -1581,7 +1588,7 @@ void ShellTube::ConvergeStates(CConvergeStateBlk &CSB)
   MdlNode::ConvergeStates(CSB);
   ASSERT(NetDynamicMethod());
 
-  pHXST->VLE.QVFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+  pHXST->m_VLE.QVFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
   }
 
@@ -1654,7 +1661,7 @@ void ShellTube::ClosureInfo()
         {
         CClosureInfo &CI1=m_Closure[1];
         CI1.m_PowerIn+=-HX()->m_dDuty;
-        CI1.m_HfGainAtZero+=pHXST->VLE.HfGainAtZero();
+        CI1.m_HfGainAtZero+=pHXST->m_VLE.HfGainAtZero();
         }
 
       const int id=IOWithId_Self(ioidST_ShellVent);

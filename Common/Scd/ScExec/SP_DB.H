@@ -1361,10 +1361,10 @@ class DllImportExport CComponentDataBase
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
     
-    int            DefFlashCompIndex() { return m_DefFlashCompIndex; };
+    int            DefFlashCmpIndex()  { return m_DefFlashCmpIndex; };
     int            DefFlashLiqIndex()  { return m_DefFlashLiqIndex; };
     int            DefFlashVapIndex()  { return m_DefFlashVapIndex; };
-    CComponent &   DefFlashCompDesc()  { return *(m_DefFlashCompIndex >=0 ? CmD[m_DefFlashCompIndex] : NULL); };
+    CComponent &   DefFlashCmpDesc()   { return *(m_DefFlashCmpIndex >=0 ? CmD[m_DefFlashCmpIndex] : NULL); };
     CSpecie &      DefFlashLiqDesc()   { return m_DefFlashLiqIndex >=0  ? m_SDB[m_DefFlashLiqIndex] : *((CSpecie*)NULL); };
     CSpecie &      DefFlashVapDesc()   { return m_DefFlashVapIndex >=0  ? m_SDB[m_DefFlashVapIndex] : *((CSpecie*)NULL); };
 
@@ -1416,7 +1416,7 @@ class DllImportExport CComponentDataBase
     int                   m_PhInfoLast[BOT_All+1];
     CPhaseInfo            m_PhInfo[MaxPhases];
 
-    int                   m_DefFlashCompIndex;
+    int                   m_DefFlashCmpIndex;
     int                   m_DefFlashLiqIndex;
     int                   m_DefFlashVapIndex;
 

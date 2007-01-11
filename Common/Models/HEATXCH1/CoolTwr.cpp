@@ -103,7 +103,7 @@ CoolingTower::CoolingTower(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   dAirMixT         = dAirWetBulbT;
 
   //EHX.Open(&CEHX_LossPerQmClass);
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
   }
 
 //--------------------------------------------------------------------------
@@ -483,11 +483,11 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       double RqdLiqTempUsed;
       if (ValidData)
         {
-        VLE.SetHfInAtZero(QMix());
+        m_VLE.SetHfInAtZero(QMix());
         if (iMethod==CTM_Simple)
           {
           RqdLiqTempUsed = RqdLiqTemp;
-          EvapFnd EF(QMix(), RqdLiqTempUsed, POut, VLE);//QMix().Press());
+          EvapFnd EF(QMix(), RqdLiqTempUsed, POut, m_VLE);//QMix().Press());
           EF.SetTarget(QMix().totHf());
           if (Valid(dEvapFrac))
             {
@@ -513,7 +513,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
           if (!Ok)
             {
             SigmaQInPMin(QMix(), som_ALL, Id_2_Mask(ioid_Feed));
-            VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
+            m_VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
             QMix().SetPress(POut);
             RqdLiqTempUsed = QMix().Temp();
             }
@@ -592,7 +592,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
 
           dEvapFrac = Min(dMaxEvapFrac, (dEvapLossQm+QmWaterVapIn)/GTZ(QmWaterLiqIn+QmWaterVapIn));
           const double h1 = QMix().totHf();
-          VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
+          m_VLE.SetFlashVapFrac(QMix(), dEvapFrac, 0);
           QMix().SetPress(POut);
           QMix().SetTemp(RqdLiqTempUsed);
           const double h2 = QMix().totHf();
@@ -629,7 +629,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
           SetCI(4, true);
           dLossQm = dQmIn-dEvapLossQm-QmVapIn;
           }
-        VLE.AddHfOutAtZero(QMix());
+        m_VLE.AddHfOutAtZero(QMix());
         }
       else
         {
@@ -701,7 +701,7 @@ void CoolingTower::ClosureInfo()
     {
     CClosureInfo &CI=m_Closure[0];
     CI.m_PowerIn+=-dDuty;
-    CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+    CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   }
 

@@ -124,13 +124,13 @@ ContactHeater::ContactHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   dPrevPress = dNAN;
 //xx  dVapFracRqd = dNAN;
   iCalcMode  = QST_General;
-  bShowQFeed = 0;
+  m_bShowQFeed = 0;
   bTrackSteamStatus = 1;
   bRemoveExcessVapour = 1;
   bVentConnected = 0;
 
   //EHX.Open(&CEHX_LossPerQmClass);
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(ContactHeater), ioidSI_Steam, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -194,7 +194,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   RB.Add_OnOff(DDB);
   EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_All|HM_All, !bVentConnected);
   DDB.CheckBox("VentExcessVapour",  "",  DC_,     "",      &bRemoveExcessVapour,this, isParm|SetOnChange);
   DDB.Visibility();
@@ -243,12 +243,8 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && NetProbalMethod())
-    {
-    QFeed(); // ensure exists
-    if (QFeed.Exists())
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
-    }
+  if (m_bShowQFeed && NetProbalMethod())
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
   if (NetDynamicMethod())
     {
@@ -388,7 +384,7 @@ double FinalTempFnd::Function(double x)
   CH.EHX.EvalProducts(HL);
   const double RqdFrac = (VentRqd>UsableMass ? VentRqd/GTZ(HL.VMass[H2OVap()]+HL.VMass[H2OLiq()]) : 0.0);
   const double f = Max(RqdFrac, 1.0-Min(1.0, x/GTZ(VQm)));
-  CH.VLE.SetFlashVapFrac(HL, f, 0);
+  CH.m_VLE.SetFlashVapFrac(HL, f, 0);
   double dFinalT = HL.Temp();
   #ifndef _RELEASE
   double P = HL.Press();
@@ -422,10 +418,8 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(Liquor(), som_ALL, Id_2_Mask(ioidSI_Liq));
       SigmaQInPMin(Vapour(), som_ALL, Id_2_Mask(ioidSI_Steam));
 
-      if (bShowQFeed && !QFeed.Exists())
-        QFeed();//forces create
-      if (QFeed.Exists())
-        QFeed().QCopy(Mixture());
+      if (m_bShowQFeed)
+        m_QFeed.QCopy(Mixture());
 
       bVentConnected = (IOESteam>=0);
       const int si = H2OVap();
@@ -615,7 +609,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
           double RqdTemp = RqdProdTemp;
 
           TPress = Mixture().SaturationP(RqdTemp);
-          VLE.QPFlash(Mixture(), TPress, 0.0, 0);
+          m_VLE.QPFlash(Mixture(), TPress, 0.0, 0);
           double Tmp = Mixture().Temp();
           TPress = Mixture().SaturationP(RqdTemp); //new SaturationP after Flash
           double exsteam = Mixture().VMass[si];
@@ -631,7 +625,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
             const int MxIter=20;
             for (int iIter=0; iIter<MxIter; iIter++)
               {
-              VLE.QPFlash(Mixture(), TPress, 0.0, 0);
+              m_VLE.QPFlash(Mixture(), TPress, 0.0, 0);
               Tmp = Mixture().Temp();
               double TmpDiff = RqdTemp - Tmp;
               if (fabs(TmpDiff) < 1.0e-5)

@@ -300,8 +300,8 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
         // Just Operate as a Tank
         }
 
-      SigmaQInPMin(QFeed(), som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed());
+      SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
+      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
 
       TempKProd=Sd().Temp();
 //      if (NoProcessJoins()>=1)
@@ -326,7 +326,7 @@ void ElectroCell::ClosureInfo()
     
     if (EHX.Enabled())
       CI.m_EHXPowerIn+=EHX.HeatFlow();
-    CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+    CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   };
 

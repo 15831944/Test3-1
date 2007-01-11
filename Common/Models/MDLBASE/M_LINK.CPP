@@ -1788,6 +1788,21 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
       Fi.QCopy(Fo);
     else if (Fo.QMass()<1.0e-6 && Fi.QMass()>1.0e-6)
       Fo.QCopy(Fi);
+    if (IOQm_In(0)>=SmallPosFlow)
+      {
+      IOConduit(0)->ClrVLEBlk(&m_VLE);
+      IOConduit(1)->SetVLEBlk(&m_VLE);
+      }
+    else if (IOQm_In(1)>=SmallPosFlow)
+      {
+      IOConduit(1)->ClrVLEBlk(&m_VLE);
+      IOConduit(0)->SetVLEBlk(&m_VLE);
+      }
+    else
+      {
+      IOConduit(0)->ClrVLEBlk(&m_VLE);
+      IOConduit(1)->ClrVLEBlk(&m_VLE);
+      }
     }
 
   if (!m_BlkEval.ValidateData(VDB))
@@ -1923,9 +1938,12 @@ void MN_Lnk::PostConnect(int IONo)
 
     //for (int i=0; i<NoProcessIOs(); i++)
     //  {
+
+    //if (IOId_Self(IONo)==IOId_2IOOut)
+    //  IOConduit(IONo)->SetVLE(&m_VLE);
+
     if (IsProcessIOId(IOId_Self(IONo)))
       {
-      IOConduit(IONo)->SetVLE(&m_VLE);
 
       IOFB(IONo,0)->AssignFlwEqnGroup(PipeGroup, PipeGroup.Default(), this);
       IOFB(IONo,0)->SetParentFlwEqn(&m_FEP);
@@ -2887,6 +2905,8 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       if (IOQInEst == 0.0 && IOQOutEst == 0.0)
         {
         // Both Zero == Order of eval may be strange
+        Fi.ClrVLEBlk(&m_VLE);
+        Fo.ClrVLEBlk(&m_VLE);
         Fi.QSetM(Fi, som_ALL, 0.0, PIn);
         Fo.QSetM(Fo, som_ALL, 0.0, POut);
         // IsoThermal;
@@ -2902,6 +2922,8 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         {
         // Both In or Both Out
         // Adjust Input Flow if FlowOut
+        Fi.ClrVLEBlk(&m_VLE);
+        Fo.ClrVLEBlk(&m_VLE);
         Fi.QSetM(Fi, som_ALL, fabs(IOQInEst), PIn);
         Fo.QSetM(Fo, som_ALL, fabs(IOQOutEst), POut);
         // IsoThermal;
@@ -2957,6 +2979,9 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           Fi.QSetM(*m_pLastFlw, som_ALL, IOQInEst);
           //dbgpln("    <<: %10.2f %10.2f %10.2f %s", Fi.Temp(), Fi.Press(), Fi.QMass(), Fi.FullObjTag());        
           }
+
+        Fi.ClrVLEBlk(&m_VLE);
+        Fo.SetVLEBlk(&m_VLE);
 
       //dbgpln("EvalProducts I  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
         double Ti=Fi.Temp();

@@ -49,7 +49,7 @@ DeSuperHeater::DeSuperHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   AttachIOAreas(DeSuperHeaterIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
 
-  bShowQFeed = 0;
+  m_bShowQFeed = 0;
   bTrackH2OFeed = 1;
   iTempSpec  = TS_AppSatT;
   dFinalTRqd = C_2_K(220.0);
@@ -61,7 +61,7 @@ DeSuperHeater::DeSuperHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   dFlowRqd   = dNAN;
   dActualFlow= 0.0;
 
-  VLE.Open(NULL, true);
+  m_VLE.Open(NULL, true);
 
   //RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &DeSuperHeaterClass, ioidSI_Steam, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -97,7 +97,7 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NSHM_All, (iTempSpec == TS_AppSatT));
   DDB.Double  ("ApproachSatT","",  DC_dT,   "C",     &dAppTRqd,  this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &bShowQFeed,         this, isParm|SetOnChange);
+  DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility();
   DDB.CheckBox("TrackH2OFd",        "",  DC_,     "",      &bTrackH2OFeed,      this, isParm);
   //RB.Add_OnOff(DDB, False);
@@ -124,12 +124,8 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   //RB.BuildDataDefn(DDB);
   //EHX.BuildDataDefn(DDB);
 
-  if (bShowQFeed && NetProbalMethod())
-    {
-    QFeed(); // ensure exists
-    if (QFeed.Exists())
-      DDB.Object(&QFeed, this, NULL, NULL, DDB_RqdPage);
-    }
+  if (m_bShowQFeed && NetProbalMethod())
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
   if (NetDynamicMethod())
     {
@@ -262,7 +258,7 @@ double DSH_FinalTempFnd::Function(double x)
   {
   Mx.QSetF(HS, som_ALL, 1.0, dRqdP);
   Mx.QAddM(CW, som_ALL, x);
-  DSH.VLE.SetFlashVapFrac(Mx, 1.0, 0);
+  DSH.m_VLE.SetFlashVapFrac(Mx, 1.0, 0);
   double dFinalT = Mx.Temp();
   return dFinalT;
   }
@@ -287,12 +283,10 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       
       double Pi = SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn)|Id_2_Mask(ioidFeedLiq));
 
-      VLE.SetHfInAtZero(Mixture());
+      m_VLE.SetHfInAtZero(Mixture());
 
-      if (bShowQFeed && !QFeed.Exists())
-        QFeed();//forces create
-      if (QFeed.Exists())
-        QFeed().QCopy(Mixture());
+      if (m_bShowQFeed)
+        m_QFeed.QCopy(Mixture());
 
       const int si = H2OVap();
       const int wi = H2OLiq();
@@ -363,7 +357,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         const double hi = Mixture().totHf();
         Mixture().SetPress(SteamInP);
         double VF = 1.0;
-        VLE.SetFlashVapFrac(Mixture(), VF, 0);
+        m_VLE.SetFlashVapFrac(Mixture(), VF, 0);
         Mixture().Set_totHf(hi);
         Fo.QCopy(Mixture());
         }
@@ -383,7 +377,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       dFinalP    = Fo.Press();
       dSatTOut   = Fo.SaturationT(dFinalP);
 
-      VLE.AddHfOutAtZero(Fo);
+      m_VLE.AddHfOutAtZero(Fo);
       }
       break;
     default:
@@ -401,7 +395,7 @@ void DeSuperHeater::ClosureInfo()
     if (EHX.Enabled())
       CI.m_EHXPowerIn+=EHX.HeatFlow();
     if (1)
-      CI.m_HfGainAtZero+=VLE.HfGainAtZero();
+      CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   };
 

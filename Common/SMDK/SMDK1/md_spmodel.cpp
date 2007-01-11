@@ -104,8 +104,10 @@ class CCall2MSpProps :  public SpModelEx
 		virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
 
 		virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
-    virtual int    SaturationComp();
-    virtual LPTSTR SaturationCompName();
+    virtual int    FlashCmpIndex();
+    virtual int    FlashLiqIndex();
+    virtual int    FlashVapIndex();
+    virtual LPTSTR FlashDescription();
 		virtual double SaturationP(double T, CSysVector * pMA=NULL);
 		virtual double SaturationT(double P, CSysVector * pMA=NULL);
     virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
@@ -525,20 +527,38 @@ double CCall2MSpProps::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-int    CCall2MSpProps::SaturationComp() 
+int    CCall2MSpProps::FlashCmpIndex() 
   { 
   if (!m_pUserProps)
-    return SpModel::SaturationComp();
-  return -1; //m_pUserProps->get_SaturationComp();
+    return SpModel::FlashCmpIndex();
+  return -1; //m_pUserProps->get_SaturationCmp();
   };
 
 //---------------------------------------------------------------------------
 
-LPTSTR CCall2MSpProps::SaturationCompName()
+int    CCall2MSpProps::FlashLiqIndex() 
   { 
   if (!m_pUserProps)
-    return SpModel::SaturationCompName();
-  return "Model";//m_pUserProps->get_SaturationCompName();
+    return SpModel::FlashLiqIndex();
+  return -1; //m_pUserProps->get_SaturationCmp();
+  };
+
+//---------------------------------------------------------------------------
+
+int    CCall2MSpProps::FlashVapIndex() 
+  { 
+  if (!m_pUserProps)
+    return SpModel::FlashVapIndex();
+  return -1; //m_pUserProps->get_SaturationCmp();
+  };
+
+//---------------------------------------------------------------------------
+
+LPTSTR CCall2MSpProps::FlashDescription()
+  { 
+  if (!m_pUserProps)
+    return SpModel::FlashDescription();
+  return "Model";//m_pUserProps->get_SaturationCmpName();
   };
 
 //---------------------------------------------------------------------------

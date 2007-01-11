@@ -2022,7 +2022,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
               m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
             m_pPriSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pPriSg->SetPreset(m_pPriSgPS, NULL);
-            m_pPriSg->SetVLE(&m_HX.m_VLE);
+            m_pPriSg->SetVLEBlk(&m_HX.m_VLE);
             }
           SetContProps(m_iPriSgMd, m_pPriSg, PriIOMask);
           if (DCB.ForView() && (m_iPriSgMd==HXSM_Tubes))
@@ -2057,7 +2057,7 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
               m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
             m_pSecSgPS=new CSpContPreset;//VLE(&m_HX.m_VLE);
             m_pSecSg->SetPreset(m_pSecSgPS, NULL);
-            m_pSecSg->SetVLE(&m_HX.m_VLE);
+            m_pSecSg->SetVLEBlk(&m_HX.m_VLE);
             }
           SetContProps(m_iSecSgMd, m_pSecSg, SecIOMask);
           if (DCB.ForView() && (m_iSecSgMd==HXSM_Tubes))

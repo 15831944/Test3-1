@@ -352,15 +352,15 @@ void QPrecipMain2::EvalProducts(CNodeEvalIndex & NEI)
       SpConduit & Qp=*IOConduit(ioProd);
       Qp.QZero();
       bool MustCopy=true;
-      QFeed().QZero();
-      SigmaQInPMin(QFeed(), som_ALL, Id_2_Mask(ioid_Feed));//, &QSMBayerClass);
-      if (bOnLine && QFeed().QMass()>UsableMass)
+      m_QFeed.QZero();
+      SigmaQInPMin(m_QFeed, som_ALL, Id_2_Mask(ioid_Feed));//, &QSMBayerClass);
+      if (bOnLine && m_QFeed.QMass()>UsableMass)
         {
-        RB.EvalProducts(QFeed());
+        RB.EvalProducts(m_QFeed);
         //EHX.EvalProducts(Qp);
 
-        SMBayerB * pBm = dynamic_cast<SMBayerB*>(QFeed().Model());
-        SQSzDist1 * pFdSz = SQSzDist1::FindQual(QFeed().Model());
+        SMBayerB * pBm = dynamic_cast<SMBayerB*>(m_QFeed.Model());
+        SQSzDist1 * pFdSz = SQSzDist1::FindQual(m_QFeed.Model());
         SetCI(1, pBm==NULL);
         SetCI(2, pFdSz==NULL || !pFdSz->DistributionsExist());
         if (pBm && pFdSz && pFdSz->DistributionsExist())
@@ -371,30 +371,23 @@ void QPrecipMain2::EvalProducts(CNodeEvalIndex & NEI)
           //  Contents.SetTempPress(C2K(66), AtmosPress());
 
           Contents.SetVolume(PSD.m_GlobalVars.m_TankVol);
-          if (Contents.Mass()<1.0e-6*QFeed().QMass())
-            Contents.SetF(QFeed(), som_ALL, 1.0, AtmosPress()); //if contents empty, set to "same" as feed
+          if (Contents.Mass()<1.0e-6*m_QFeed.QMass())
+            Contents.SetF(m_QFeed, som_ALL, 1.0, AtmosPress()); //if contents empty, set to "same" as feed
           double L=Contents.Level();
           Contents.ScaleMass(som_SL, 1.0/GTZ(L));
 
-          if (Qp.QMass()<1.0e-6*QFeed().QMass())
-            Qp.QSetF(QFeed(), som_ALL, 1.0);
+          if (Qp.QMass()<1.0e-6*m_QFeed.QMass())
+            Qp.QSetF(m_QFeed, som_ALL, 1.0);
           MustCopy=false;
 
-          PSD.SolveIt(QFeed(), Contents, Qp, true);
-          //if (0)
-          //  {
-          //  double msH=QFeed().msHf();
-          //  Contents.Set_msHf(msH);
-          //  double t=Contents.Temp();
-          //  int xxx=0;
-          //  }
+          PSD.SolveIt(m_QFeed, Contents, Qp, true);
 
-          Qp.QSetM(Contents, som_ALL, QFeed().QMass());
+          Qp.QSetM(Contents, som_ALL, m_QFeed.QMass());
           }
         }
       
       if (MustCopy)
-        Qp.QSetF(QFeed(), som_ALL, 1.0);
+        Qp.QSetF(m_QFeed, som_ALL, 1.0);
       break;
       }
     default:
