@@ -4177,7 +4177,7 @@ void CSDBTest::TestMixHeat(int &nGood, int &nBad)
 void CSDBTest::OnSpDotest()
   {
   CWaitCursor W;
-  CDBInitRec CDBI("H2O", C_2_K(0.0), C_2_K(1000.0), 50.0, 350.0, false);
+  CDBInitRec CDBI(C_2_K(0.0), C_2_K(1000.0), 50.0, 350.0, false);
   for (int i=0; i<Rows().GetSize(); i++)
     {
     Strng S;

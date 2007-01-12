@@ -267,6 +267,13 @@ class DllImportExport DDBValueLstMem
             return i;
       return -1;
       };
+    int Find(long Index) 
+      { 
+      for (int i=0; i<Len; i++)
+        if (Lst[i].m_lVal == Index)
+          return i;
+      return -1;
+      };
     DDBValueLstMem & operator=(const DDBValueLstMem & VL);
     DDBValueLstMem & operator=(const DDBValueLst & VL);
 

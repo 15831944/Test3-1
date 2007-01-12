@@ -25,9 +25,6 @@ static CDbgMngr  dbgHeater   ("HeatXChg",  "ShellTube");
 
 #define FORCESTEAM (0 && HX_MEASURE_LIQVAP)
 
-//static MInitialiseTest InitTest(&CHXShlTubeClass);
-//SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
-//SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
 
 #define BOX(x,y,w,h) x,y, x,y+h, x+w,y+h, x+w,y, x,y
 
@@ -1030,8 +1027,8 @@ const IDMask TubeIOMask  = Id_2_Mask(ioidST_TubeIn)|
 static IOAreaRec ShellTubeIOAreaList[] =
   {{"",              "Liquor_In",  ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                     1.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].I"},
    {"",              "Liquor_Out", ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                     0.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].O"},
-   {"",              "Steam",      ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz|IOHidden, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
-   {"",              "Vapour",     ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
+   {"",              "Steam",      ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz/*|IOHidden*/, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
+   //{"",              "Vapour",     ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
    {"",              "Condensate", ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
    {"",              "Vent",       ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,          1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
    {NULL}};

@@ -9556,7 +9556,7 @@ bool CFlwSolver::ParseSpecieDef2(int nToks, CSVColArray & C, CDBInitRec &CDBI, i
 
 bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMsgs)
   {
-  CDBInitRec CDBI("H2O", C_2_K(0.0), C_2_K(1000.0), 50.0, 350.0, false);
+  CDBInitRec CDBI(C_2_K(0.0), C_2_K(1000.0), 50.0, 350.0, false);
 
   CProfINIFile CfgPF(CfgFile);
   Strng Tmp;
@@ -9596,9 +9596,6 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
     CDBI.UseStdFns4H2O = false;
 #endif
 
-  Tmp=CfgPF.RdStr("General", "Flash_Component");
-  if (Tmp() && Tmp.XStrICmp("(none)")!=0)
-    CDBI.Flash_Component=Tmp();
   Tmp=CfgPF.RdStr("General", "Default_SpModel");
   CheckSpMdlName(Tmp);
   if (Tmp())

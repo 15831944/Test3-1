@@ -141,7 +141,6 @@
 #define IDC_SPDEFAULTS                  14181
 #define IDC_CFGFILES                    14182
 #define IDC_CFGHOME                     14183
-#define IDC_FLASHCOMP                   14185
 #define IDC_SATPCOMP                    14186
 #define IDC_DEFSPMODEL                  14187
 #define IDC_CFG_REMOVE                  14188

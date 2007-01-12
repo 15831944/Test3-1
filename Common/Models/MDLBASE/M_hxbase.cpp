@@ -26,10 +26,6 @@ static CDbgMngr  dbgHeater   ("HXBASE",  "HeatXchg");
 static CDbgMngr  dbgHeaterCnv("HXBASE",  "HeatXchgCnv");
 #endif
 
-//static MInitialiseTest InitTest(&CHXBlockClass);
-//SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
-//SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
-
 //---------------------------------------------------------------------------
 
 static inline void SetTOut(CHXSide & Sd, double T)

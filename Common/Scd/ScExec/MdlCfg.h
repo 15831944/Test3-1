@@ -397,6 +397,7 @@ class CMdlCfgCfg : public CMdlCfgBase
 	  DECLARE_MESSAGE_MAP()
 
     void CheckModes();
+
   };
 
 //===========================================================================

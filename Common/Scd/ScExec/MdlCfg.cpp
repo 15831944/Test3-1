@@ -195,7 +195,6 @@ static CfgItem CfgItemsC[]=
     {IDC_MINPRESS,    0, "Minimum_Press",          "General",  true,          50.0, "", "kPa"},
     {IDC_MAXPRESS,    0, "Maximum_Press",          "General",  true,       16500.0, "", "kPa"},
     //{IDC_ATMOSPRESS,  0, "Atmospheric_Press",    Ggeneral",   false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
-    {IDC_FLASHCOMP,   1, "Flash_Component",       "General",  false,             0, "H2O", NULL},
 #if WithSIMPLESPMDL                             
     {IDC_DEFSPMDL,    1, "Default_SpModel",       "General",  false,             0, BaseSpModelName, NULL},
 #else                                   
@@ -215,7 +214,6 @@ static CfgItem CfgItemsO[]=
   //    {IDC_MINPRESS   , 0, "Minimum_Press",           true,          50.0, "", "kPa"},
   //    {IDC_MAXPRESS   , 0, "Maximum_Press",           true,         350.0, "", "kPa"},
   //    //{IDC_ATMOSPRESS , 0, "Atmospheric_Press",      false,             0, "101.287, -11.836e-3, 0.47931-6", NULL},
-  //    {IDC_FLASHCOMP  , 1, "Flash_Component",        false,             0, "H2O", NULL},
   //    {IDC_DEFSPMDL   , 1, "Default_SpModel",        false,             0, "Mass Wt Mean", NULL},
     {IDC_STDFNS4H2O    , 2, "UseStdFns4H2O",           "General", false,             1, "", NULL},
 #if WITHDEFAULTSPDB
@@ -1668,7 +1666,6 @@ void CMdlCfgCfg::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_MAXNODEMODE, m_MaxNodeMode);
   DDX_Control(pDX, IDC_MAXFLOWMODE, m_MaxFlowMode);
   DDX_Control(pDX, IDC_MAXHEATMODE, m_MaxHeatMode);
-  DDX_Control(pDX, IDC_FLASHCOMP, m_FlashComp);
   DDX_Control(pDX, IDC_DEFSPMDL, m_DefSpMdl);
   //DDX_Text(pDX, IDC_CFGFILES, m_CfgFiles);
   DDX_Text(pDX, IDC_CFGDESC, m_Desc);
@@ -1778,7 +1775,7 @@ BOOL CMdlCfgCfg::OnInitDialog()
     }
 
   Strng Data,S;
-  int iFC, iDM, iNetMd;
+  int iDM, iNetMd;
   int iPNodeMd, iPFlowMd, iPHeatMd;
   int iDNodeMd, iDFlowMd, iDHeatMd;
   int iNodeMx,  iFlowMx,  iHeatMx;
@@ -1789,7 +1786,6 @@ BOOL CMdlCfgCfg::OnInitDialog()
     switch (Id)
       {
       case 0: break;
-      case IDC_FLASHCOMP:   iFC=i;      break;
       case IDC_DEFSPMDL:    iDM=i;      break;
       case IDC_DEFNETMODE:  iNetMd=i;   break;
       case IDC_DYNNODEMODE: iDNodeMd=i; break;
@@ -1834,14 +1830,6 @@ BOOL CMdlCfgCfg::OnInitDialog()
       }
     }
 
-  int iSel;
-  S=Cfg.RdStr(CfgItemsC[iFC].SctName, CfgItemsC[iFC].Name, CfgItemsC[iFC].StrDef);
-  S.Trim();
-  if (S.Length()==0)
-    S=NoneString;
-  iSel=((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->SelectString(-1, S());
-  if (iSel<0)
-    ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->SelectString(-1, NoneString);
 
   S=Cfg.RdStr(CfgItemsC[iDM].SctName, CfgItemsC[iDM].Name, CfgItemsC[iDM].StrDef);
   if (S.Length()==0)
@@ -1860,7 +1848,7 @@ BOOL CMdlCfgCfg::OnInitDialog()
     LogWarning("EditCfg", 0, "Specie Properties Model '%s' not found in selected model DLL list", S());
     i=0;
     }
-  iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->SetCurSel(i);
+  int iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->SetCurSel(i);
 
 
   S=Cfg.RdStr(CfgItemsC[iNetMd].SctName, CfgItemsC[iNetMd].Name, CfgItemsC[iNetMd].StrDef);
@@ -2096,7 +2084,7 @@ BOOL CMdlCfgCfg::OnKillActive()
     {
     CString CS;
     Strng Data,S;
-    int Md, iFC, iDM, iNetMd;
+    int Md, iDM, iNetMd;
     int iPNodeMd, iPFlowMd, iPHeatMd;
     int iDNodeMd, iDFlowMd, iDHeatMd;
     int iNodeMx,  iFlowMx,  iHeatMx;
@@ -2106,7 +2094,6 @@ BOOL CMdlCfgCfg::OnKillActive()
       switch (Id)
         {
         case 0: break;
-        case IDC_FLASHCOMP:   iFC=i;      break;
         case IDC_DEFSPMDL:    iDM=i;      break;
         case IDC_DEFNETMODE:  iNetMd=i;   break;
         case IDC_PBNODEMODE:  iPNodeMd=i; break;
@@ -2151,12 +2138,7 @@ BOOL CMdlCfgCfg::OnKillActive()
         }
       }
 
-    int iSel=((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->GetCurSel();
-    if (iSel>=0)
-      ((CComboBox*)GetDlgItem(IDC_FLASHCOMP))->GetLBText(iSel, CS);
-    else
-      CS=NoneString;
-    Cfg.WrStr(CfgItemsC[iFC].SctName, CfgItemsC[iFC].Name, NONNULL((const char*)CS));
+    int iSel;
 
     iSel=((CComboBox*)GetDlgItem(IDC_DEFSPMDL))->GetCurSel();
     S=(iSel>=0 ? SpModels[m_DefSpMdlIndex[iSel]].Name() : NoneString);
@@ -4040,3 +4022,5 @@ void CMdlCfgSpcs::OnSpdefaults()
   Tmp.Set("Default %d", iSpDefaults+1);
   SetDlgItemText(IDC_SPDEFAULTS, Tmp());
   }
+
+  

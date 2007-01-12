@@ -1290,6 +1290,7 @@ void CVLEVapPress::QPFlash(double Press, double Duty, dword Flags)
   pMdlL->SetHoldVentExpand();  
   if (pMdlV)
     pMdlV->SetHoldVentExpand();  
+
   double P0 = pMdlL->Press();
   double T0 = pMdlL->Temp();
   double HL = pMdlL->totHf();
@@ -1299,6 +1300,20 @@ void CVLEVapPress::QPFlash(double Press, double Duty, dword Flags)
   double HTrg = HL+HV+Duty;
   double VFInit=Vf;
   double VFrac0=dPrvVapFrac;//Vf;
+
+  if (pMdlV)
+    {
+    //move all 'other gasses' to pMdlV 
+    SpecieIter I(som_Gas);
+    for (int i=-1; I.Loop(i); )
+      {
+      if (i!=m_vi)
+        {
+        pMdlV->VValue[i]+=pMdlL->VValue[i];  
+        pMdlL->VValue[i]=0.0;  
+        }
+      }
+    }
 
   QPRootFnd QPF(pMdlL, pMdlV, *this, Press, (Flags&VLEF_WithDebug)!=0);
   QPF.SetTarget(HTrg);

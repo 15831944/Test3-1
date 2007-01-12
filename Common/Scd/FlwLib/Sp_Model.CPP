@@ -20,6 +20,7 @@
 _declspec(dllexport) int SpModelExDbgOn = 0;
 
 #if dbgSoluble
+static CDbgMngr dbgEquilQuals           ("SpMdlEquil", "EquilQuals");
 static CDbgMngr dbgSolubleEquil         ("SpMdlEquil", "Soluble");
 static CDbgMngr dbgAutoVLEEquil         ("SpMdlEquil", "AutoVLE");
 #endif
@@ -52,6 +53,8 @@ static CDbgMngr dbgValidateSpcBrk       ("SpModel", "ValidateSpcBrk");
 
 const double LoPressLift       = 5.0;
 
+const int    AutoVLEDisabled   = -2;
+const int    AutoVLEOff        = -1;
 
 // ==========================================================================
 //
@@ -525,6 +528,11 @@ long SpModel::sm_lEvalHEvals=0;
 SPMEnthStrat SpModel::iEnthalpyStrategy=SPMES_BestTemp;
 SPMMixStrat SpModel::iSpMdlMixStrategy=SPMMS_Bld35;
 
+DDBValueLstMem SpModel::sm_DDBFlashable;
+CArray<Strng, Strng> SpModel::sm_FlashCmps;
+CArray<Strng, Strng> SpModel::sm_FlashCmpsI;
+bool    SpModel::sm_FlashInited=false;
+
 IMPLEMENT_SPARES(SpModel, 100);
 
 #if WithSIMPLESPMDL
@@ -548,6 +556,24 @@ eScdEqnOfState    SpModel::sm_iEqnOfState    = eScdEOS_SRK;
 SpModel::SpModel(TagObjClass* pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) ://, pSpMassModel pMM_)
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
+  if (!sm_FlashInited)
+    {
+    sm_DDBFlashable.Add(-1, "<Default>");
+    sm_FlashCmps.SetSize(CDB.No());
+    sm_FlashCmpsI.SetSize(CDB.No());
+    for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+      {
+      int c=CDB.m_Flashable[i];
+      sm_DDBFlashable.Add(c, CDB[c].SymOrTag());
+      sm_FlashCmps[c]=CDB[c].SymOrTag();
+      sm_FlashCmpsI[c]="<";
+      sm_FlashCmpsI[c]+=CDB[c].SymOrTag();
+      sm_FlashCmpsI[c]+=">";
+      }
+
+    sm_FlashInited=true;
+    };
+
   Strng S;
   m_dwValidFlags=0;
   m_dwMassVersionNo=0;
@@ -621,6 +647,9 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   m_dPrvSatT=dNAN;//Std_T;
 
   m_pVLE = NULL;
+
+  m_iSatCmpRqd=-1;
+  m_iSatCmp=CDB.DefFlashCmpIndex();
 
   m_iEquilAct=SQA_Xfer;
   m_bEquilOn=false;
@@ -811,6 +840,13 @@ void SpModel::SetQualityPresent(int q, flag Present)
 
 void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   {
+  if (m_iSatCmpRqd>=0)
+    m_iSatCmp=m_iSatCmpRqd;
+  //else if (m_iSatCmpRqd==-2)
+  //  m_iSatCmp=CDB.DefFlashCmpIndex();
+  else  
+    m_iSatCmp=SrcModel->SaturationCmpIndex();
+
   if (m_iEquilAct==SQA_Create)
     m_bEquilOn=true;
   else if (SrcModel->m_iEquilAct==SQA_Remove)
@@ -844,6 +880,13 @@ void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
 
 void SpModel::SetQualities(SpModel * SrcModel)
   {
+  if (m_iSatCmpRqd>=0)
+    m_iSatCmp=m_iSatCmpRqd;
+  //else if (m_iSatCmpRqd==-2)
+  //  m_iSatCmp=CDB.DefFlashCmpIndex();
+  else  
+    m_iSatCmp=SrcModel->SaturationCmpIndex();
+
   if (m_iEquilAct==SQA_Create)
     m_bEquilOn=true;
   else if (SrcModel->m_iEquilAct==SQA_Remove)
@@ -874,6 +917,17 @@ void SpModel::SetQualities(SpModel * SrcModel)
 
 void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   {
+  if (1) // should test rel masses
+    {
+    //dbgpln("");
+    if (m_iSatCmpRqd>=0)
+      m_iSatCmp=m_iSatCmpRqd;
+    //else if (m_iSatCmpRqd==-2)
+    //  m_iSatCmp=CDB.DefFlashCmpIndex();
+    else  
+      m_iSatCmp=SrcModel->SaturationCmpIndex();
+    }
+
   if (m_iEquilAct==SQA_Create)
     m_bEquilOn=true;
   else if (SrcModel->m_iEquilAct==SQA_Remove)
@@ -912,11 +966,10 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
   if ((m_iEquilibrateBusy==0) && (m_iHoldEquilibrate==0) && ((m_dwValidFlags & SMVF_EquilOK)==0))
     {
 #if dbgSoluble || dbgAutoVLE
-    if (dbgSolubleEquil() || dbgAutoVLEEquil())
-      dbgpln("SpModel::EquilibrateAll %10s  %10s ----------------------  %s", DbgFltString(RqdT), DbgFltString(RqdP), FullObjTag());
+    if (dbgEquilQuals())
+      dbgpln("SpModel::EquilibrateAll RqdT:%15s  RqdP:%15s ----------------------  %s", DbgFltString(RqdT), DbgFltString(RqdP), FullObjTag());
 #endif
     m_iEquilibrateBusy++;
-    //if (m_bEquilOn)
     for (int q=0; q<nQuals; q++)
       if (Quals[q].Exists())
         Quals[q].m_pQ->Equilibrate();
@@ -925,6 +978,10 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 
     if (m_bEquilOn)
       {
+#if dbgSoluble || dbgAutoVLE
+      if (dbgSolubleEquil() || dbgAutoVLEEquil())
+        dbgpln("SpModel::EquilSol/VLE   RqdT:%15s  RqdP:%15s ----------------------  %s", DbgFltString(RqdT), DbgFltString(RqdP), FullObjTag());
+#endif
 #if dbgSoluble
       double InitdbgT=Valid(RqdT)?RqdT:Temp();
       if (dbgSolubleEquil())
@@ -1066,19 +1123,28 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
               double MassGas=Mass(som_Gas);
               if ((MassGas-VValue[m_AutoVLE.m_iVap])<1.0e-6*MassGas)
                 {
+                dbgp("Pure VLE Gas - No Other Gasses");
+                int xxx=0;
                 }
               else
                 {
 #if dbgAutoVLE
                 if (dbgAutoVLEEquil())
-                  dbgp("%3i T:%10.4f PP:%10.4f VapP:%10.4f", Iter ,Valid(RqdT)?RqdT:Temp(), PPVap1, VapP);
+                  dbgp("I:%3i T:%10.4f PP:%10.4f VapP:%10.4f", Iter ,Valid(RqdT)?RqdT:Temp(), PPVap1, VapP);
 #endif
                 if (PPVap1<VapP && VValue[m_AutoVLE.m_iLiq]<ZeroLimit)
                   {
-                  // Cannot flash more  T Above DewPt;
+#if dbgAutoVLE
+                  if (dbgAutoVLEEquil())
+                    dbgp("Cannot flash more  T Above DewPt");
+#endif
                   }
                 else if(!gs_EquilFinderTol.ConvergedVV(PPVap1, VapP))
                   {
+#if dbgAutoVLE
+                  if (dbgAutoVLEEquil())
+                    dbgp("gs_EquilFinderTol NOT Converged");
+#endif
                   double DMassVap;
                   if (VValue[m_AutoVLE.m_iVap]>ZeroLimit)
                     DMassVap=(PPVap1>VapP ? -0.01:0.01)*VValue[m_AutoVLE.m_iVap];
@@ -1104,7 +1170,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                       Set_totHf(totHf(som_ALL, RqdT, RqdP));
 #if dbgAutoVLE
                     if (dbgAutoVLEEquil())
-                      dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Liq, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
+                      dbgp("A:%10.4f %10.4f %10.4f %10.4f", Mass2Liq, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
 #endif
                     }
                   }
@@ -1139,7 +1205,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                   {
 #if dbgAutoVLE
                   if (dbgAutoVLEEquil())
-                    dbgp("%3i T:%10.4f PP:%10.4f VapP:%10.4f", Iter ,Valid(RqdT)?RqdT:Temp(), PPVap1, VapP);
+                    dbgp("A:%3i T:%10.4f PP:%10.4f VapP:%10.4f", Iter ,Valid(RqdT)?RqdT:Temp(), PPVap1, VapP);
 #endif
                   if(!gs_EquilFinderTol.ConvergedVV(PPVap1, VapP*PPScl))
                     {
@@ -1174,7 +1240,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 
 #if dbgAutoVLE
                       if (dbgAutoVLEEquil())
-                        dbgp("%10.4f %10.4f %10.4f %10.4f", Mass2Vap, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
+                        dbgp("B:%10.4f %10.4f %10.4f %10.4f", Mass2Vap, TotMass, VValue[m_AutoVLE.m_iLiq], VValue[m_AutoVLE.m_iVap]);
 #endif
                       }
                     }
@@ -1464,7 +1530,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   if (!HeatSkipMethod())
     {
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
-    DDB.String  ("VapourCalcs",   "",         DC_,      "",         xidSMSatComp,     this, isResult|noFile|noSnap);
+    DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
     DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
@@ -1555,9 +1621,9 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     //DDB.Text("Humidity:");
     if (DDB.BeginStruct(this, "Humidity"))
       {
-      if (m_iEquilAct==SQA_Create)
+      if (1)//m_iEquilAct==SQA_Create)
         {
-        if (DDB.BeginStruct(this, "Rqd"))
+        //if (DDB.BeginStruct(this, "Rqd"))
           {
           static DDBValueLst DDBHSet[]=
             {
@@ -1570,16 +1636,19 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
               {0},
             };
 
-          DDB.Byte  ("What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, isParm|SetOnChange, DDBHSet);
-          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
-          DDB.Double("Specific", "", DC_Humidity ,  "kg(l)/kg(v)",  &m_AutoVLE.m_dSpecH,  this, isParm);
-          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
-          DDB.Double("Relative", "", DC_Frac, "%",                  &m_AutoVLE.m_dRelH,   this, isParm);
-          DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
-          DDB.Double("DewPoint", "", DC_T,    "C",                  &m_AutoVLE.m_dDewPt,  this, isParm);
+          DDB.Byte  ("Rqd.What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, m_iEquilAct==SQA_Create ? isParm|SetOnChange:isResult, DDBHSet);
+          if (m_iEquilAct==SQA_Create)
+            {
+            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
+            DDB.Double("Rqd.Specific", "", DC_Humidity ,  "kg(l)/kg(v)",  &m_AutoVLE.m_dSpecH,  this, isParm);
+            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
+            DDB.Double("Rqd.Relative", "", DC_Frac, "%",                  &m_AutoVLE.m_dRelH,   this, isParm);
+            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
+            DDB.Double("Rqd.DewPoint", "", DC_T,    "C",                  &m_AutoVLE.m_dDewPt,  this, isParm);
+            }
           DDB.Visibility(NSHM_All);
           }
-        DDB.EndStruct();
+        //DDB.EndStruct();
         }
       DDB.Double("Specific", "", DC_,     "",   xidHumiditySpecific,  this, isResult|noFile|noSnap);
       DDB.Double("Relative", "", DC_Frac, "%",  xidHumidityRelative,  this, isResult|noFile|noSnap);
@@ -4104,19 +4173,26 @@ void SpModel::BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms)
   if (m_bEquilOn)
     DDB.TagComment("On");
 #if WITHAUTOVLE
-  if (AutoVLEOK() && m_bEquilOn)
+  if (AutoVLEOK())// && m_bEquilOn)
     {
 
     //DDB.CheckBoxBtn("", "AutoVLE", DC_, "", &m_AutoVLE.m_bOn, this, Flag);
     DDBValueLstMem DDB1;
-    DDB1.Add(-1, "Off");
-    //DDB1.Add(CDB.No(), "MultiComponent");
-    for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+    if (m_bEquilOn)
       {
-      int j=CDB.m_Flashable[i];
-      DDB1.Add(j, CDB[j].SymOrTag());
+      DDB1.Add(AutoVLEOff, "Off");
+      //DDB1.Add(CDB.No(), "MultiComponent");
+      for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+        {
+        int j=CDB.m_Flashable[i];
+        DDB1.Add(j, CDB[j].SymOrTag());
+        }
       }
-    DDB.Long  ("AutoVLE",    "",  DC_,     "",    xidAutoVLEComp,    this, isParm, DDB1());
+    else
+      DDB1.Add(AutoVLEDisabled, "Disabled");
+
+    // RESTORE
+    //DDB.Long  ("AutoVLE",    "",  DC_,     "",    xidAutoVLEComp,    this, m_bEquilOn ? isParm:0, DDB1());
     }
 #endif
 
@@ -4322,22 +4398,42 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMVRho        : DCB.D = Rho(som_Gas, Temp(), Press());  return 1;
     case xidSMSLRho       : DCB.D = Rho(som_SL , Temp(), Press());  return 1;
 
-    case xidSMMoleWt      : DCB.D = MoleWt(som_ALL);            return 1;
-    case xidSMCpCv        : DCB.D = CpCv(som_ALL);              return 1;
+    case xidSMMoleWt      : DCB.D = MoleWt(som_ALL);                return 1;
+    case xidSMCpCv        : DCB.D = CpCv(som_ALL);                  return 1;
 
-    case xidSMSFrac       : DCB.D = MassFrac(som_Sol);          return 1;
-    case xidSMLFrac       : DCB.D = MassFrac(som_Liq);          return 1;
-    case xidSMVFrac       : DCB.D = MassFrac(som_Gas);          return 1;
+    case xidSMSFrac       : DCB.D = MassFrac(som_Sol);              return 1;
+    case xidSMLFrac       : DCB.D = MassFrac(som_Liq);              return 1;
+    case xidSMVFrac       : DCB.D = MassFrac(som_Gas);              return 1;
 
-    case xidSMMlSFrac     : DCB.D = MoleFrac(som_Sol);          return 1;
-    case xidSMMlLFrac     : DCB.D = MoleFrac(som_Liq);          return 1;
-    case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);          return 1;
+    case xidSMMlSFrac     : DCB.D = MoleFrac(som_Sol);              return 1;
+    case xidSMMlLFrac     : DCB.D = MoleFrac(som_Liq);              return 1;
+    case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);              return 1;
 
-    case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());   return 1;
-    case xidSMSatComp     : DCB.pC = FlashDescription();      return 1;
-    case xidSMSatTemp     : DCB.D = SaturationT(Press());       return 1;
-    case xidSMSatPress    : DCB.D = SaturationP(Temp());        return 1;
-    case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());   return 1;
+    case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());       return 1;
+    case xidSMSatComp     : 
+      {
+      if (DCB.rpC)
+        {
+        int i=sm_DDBFlashable.Find(DCB.rpC);
+        if (i>=0)
+          i=sm_DDBFlashable[i].m_lVal;
+
+        if (m_iSatCmp == m_iSatCmpRqd)
+           m_iSatCmp=i;
+
+        m_iSatCmpRqd=i;
+        }
+      if (m_iSatCmpRqd>=0)
+        DCB.pC = sm_FlashCmps[m_iSatCmpRqd]();
+      else if (m_iSatCmp>=0)
+        DCB.pC = sm_FlashCmpsI[m_iSatCmp]();
+      else
+        DCB.pC = sm_FlashCmpsI[CDB.DefFlashCmpIndex()]();
+      return 1;
+      }
+    case xidSMSatTemp     : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
+    case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
+    case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
     case xidSMtotHsFn     : DCB.D=totHs(som_ALL, PARM(0), PARM(1), NULL); return true;
     case xidSMtotHzFn     : DCB.D=totHz(som_ALL, PARM(0), PARM(1), NULL); return true;
@@ -4434,7 +4530,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         m_dwValidFlags &= ~(SMVF_EquilOK); 
         }; 
-      DCB.L = m_AutoVLE.m_iCmp;
+      DCB.L = m_bEquilOn ? m_AutoVLE.m_iCmp : AutoVLEDisabled;
       return 1;
     case xidAutoVLESet      : if (DCB.rB) { m_AutoVLE.m_iSet   = *DCB.rB; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.B = m_AutoVLE.m_iSet;   return 1;
     case xidAutoVLESpecH    : if (DCB.rD) { m_AutoVLE.m_dSpecH = *DCB.rD; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.D = m_AutoVLE.m_dSpecH;   return 1;
@@ -5607,14 +5703,16 @@ void SpModel::ZeroMass()
   m_bEquilOn=false;
 
   for (int q=0; q<nQuals; q++)
+    {
     if (Quals[q].m_iAct!=SQA_Create && Quals[q].m_pQ)
       {
       Quals[q].m_pQ->ZeroMass(); //Destroy();
       SetQualityPresent(q, false);
       }
+    }
 
-    DoTempChecks(m_PreviousT);
-    ClrStatesOK();
+  DoTempChecks(m_PreviousT);
+  ClrStatesOK();
   };
 
 // --------------------------------------------------------------------------
@@ -7786,7 +7884,7 @@ double SpModel::PartialPress(SpecieIter &Ids, double T)
   TestHStatesOK();
 
   double PPart=0;
-  if (m_bClosed && !m_bPressAsSet)
+  if (/*m_bClosed &&*/ !m_bPressAsSet)
     {
     double P=Press();
     double Vol1=0;
@@ -8143,14 +8241,14 @@ LPTSTR SpModel::FlashDescription()
     }
   else if (AutoVLEOn())
     {
-    X="AutoVp:";
+    X="Auto:Vp:";
     X+=SDB[m_AutoVLE.m_iLiq].SymOrTag();
     X+="/";
     X+=SDB[m_AutoVLE.m_iVap].SymOrTag();
     }
   else if (CDB.DefFlashCmpIndex()>=0)
     {
-    X="DefVp:";
+    X="Def:Vp:";
     X+=CDB.DefFlashLiqDesc().SymOrTag();
     X+="/";
     X+=CDB.DefFlashVapDesc().SymOrTag();
@@ -8158,8 +8256,33 @@ LPTSTR SpModel::FlashDescription()
   return (LPTSTR)(LPCTSTR)X;
   };
 
-double SpModel::SaturationP(double T_, CSysVector * pMA)
+LPTSTR SpModel::SaturationDescription()    
+  { 
+  static CString X;
+  if (m_iSatCmpRqd<0)
+    {
+    X="(";
+    X+=CDB[SaturationCmpIndex()].SymOrTag();
+    X+=")";
+    }
+  else
+    X=CDB[SaturationCmpIndex()].SymOrTag();
+  return (LPTSTR)(LPCTSTR)X;
+  };
+int SpModel::SaturationCmpIndex()
+  { 
+ if (m_iSatCmpRqd>=0)
+    return m_iSatCmpRqd;
+  if (m_iSatCmp>=0)
+    return m_iSatCmp;
+  return CDB.DefFlashCmpIndex();
+  };
+
+double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
+  if (iSatComp>=0)
+    return CDB[iSatComp].VapourP(m_iFidelity, T_);
+ 
   if (m_pVLE && m_pVLE->Enabled())
     {
     double P=m_pVLE->SaturationP(T_, pMA);
@@ -8169,10 +8292,13 @@ double SpModel::SaturationP(double T_, CSysVector * pMA)
 
   if (m_AutoVLE.m_iCmp>=0)
     return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
-  else if (CDB.DefFlashCmpIndex()>=0)
+  //if (m_iSatCmpRqd>=0)
+  //  return CDB[m_iSatCmpRqd].VapourP(m_iFidelity, T_);
+  //if (m_iSatCmp>=0)
+  //  return CDB[m_iSatCmp].VapourP(m_iFidelity, T_);
+  if (CDB.DefFlashCmpIndex()>=0)
     return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
-  else
-    return Std_P;
+  return Std_P;
   };
 
 //---------------------------------------------------------------------------
@@ -8185,14 +8311,16 @@ class SatTFnd : public MRootFinderBase
   public:
     CSysVector & MA;
     SpModel *Mdl;
+    int m_iSatComp;
     static CToleranceBlock s_Tol;
-    SatTFnd(CSysVector *pMA, SpModel * pMdl_) : MA(*pMA), MRootFinderBase("SatTFnd", s_Tol)
+    SatTFnd(CSysVector *pMA, SpModel * pMdl_, int iSatComp) : MA(*pMA), MRootFinderBase("SatTFnd", s_Tol)
       {
       Mdl=pMdl_;
+      m_iSatComp=iSatComp;
       SetErrorHandling(true, &Mdl->m_fConvergeBusy);
       };
     LPCTSTR ObjTag() { return (LPCTSTR)Mdl->FullObjTag(); };
-    double Function(double x) { return Mdl->SpModel::SaturationP(x); };
+    double Function(double x) { return Mdl->SpModel::SaturationP(x, NULL, m_iSatComp); };
   };
 
 CToleranceBlock SatTFnd::s_Tol(TBF_BothSys, "SpModel:SatTFnd", 0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
@@ -8200,12 +8328,12 @@ CToleranceBlock SatTFnd::s_Tol(TBF_BothSys, "SpModel:SatTFnd", 0, 1.0e-9, 100, T
 // -------------------------------------------------------------------------
 
 
-double SpModel::SaturationT(double P_, CSysVector * pMA)
+double SpModel::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
   CSysVector & MA = pMA==NULL ? MArray() : *pMA;
   if (MA.Mass()>1.0e-6)
     {
-    SatTFnd SatT(&MA, this);
+    SatTFnd SatT(&MA, this, iSatComp);
     SatT.SetTarget(P_);
     double LoLim=1;//Std_T-100.0;
     double HiLim=1000.0;//IF97_MaxSatT;//647.096;//CDB.MaxT;

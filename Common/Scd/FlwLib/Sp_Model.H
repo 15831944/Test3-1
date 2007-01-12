@@ -966,10 +966,13 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual int    FlashLiqIndex();
     virtual int    FlashVapIndex();
     virtual LPTSTR FlashDescription();
-    virtual double SaturationP(double T, CSysVector * pMA=NULL);
-    virtual double SaturationT(double P, CSysVector * pMA=NULL);
-    virtual double PureSaturationP(double T, CSysVector * pMA=NULL)               { return SpModel::SaturationP(T, pMA);};
-    virtual double PureSaturationT(double P, CSysVector * pMA=NULL)               { return SpModel::SaturationT(P, pMA);};
+
+    virtual LPTSTR SaturationDescription();
+    virtual int    SaturationCmpIndex();
+    virtual double SaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
+    virtual double SaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1);
+    virtual double PureSaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1)               { return SpModel::SaturationP(T, pMA, iSatComp);};
+    virtual double PureSaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1)               { return SpModel::SaturationT(P, pMA, iSatComp);};
     virtual double BoilingPtElevation(double P_, CSysVector * pMA=NULL);
 
     //virtual long   InitialisePropertyMap(CPropertyMap * pParentMap);
@@ -1144,6 +1147,13 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
       double       m_dRelH;    
       double       m_dDewPt;    
       }            m_AutoVLE;
+
+    int            m_iSatCmpRqd;
+    int            m_iSatCmp;
+    static DDBValueLstMem       sm_DDBFlashable;
+    static CArray<Strng, Strng> sm_FlashCmps;
+    static CArray<Strng, Strng> sm_FlashCmpsI;
+    static bool                 sm_FlashInited;
 
     byte           nQuals;
     SpQualInfo     *Quals;

@@ -2660,9 +2660,8 @@ H2OPropertiesBlock & CComponentDataBase::H2OPropertiesSelectedBlk()
 //
 // ==========================================================================
 
-CDBInitRec::CDBInitRec(pchar pFlash_Component, double MinT_, double MaxT_, double MinP_, double MaxP_, flag UseStdFns4H2O_)
+CDBInitRec::CDBInitRec(double MinT_, double MaxT_, double MinP_, double MaxP_, flag UseStdFns4H2O_)
   {
-  Flash_Component = pFlash_Component;
   MinT = MinT_;
   MaxT = MaxT_;
   MinP = MinP_;
@@ -4821,14 +4820,6 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       //pSb->m_sSpName    = S;
       //pSb->m_sSpPostfix = P;
 
-      // replace Flash_Component with the actual name of the component
-      // replace SatP_Component with the actual name of the component
-      //if (pSb->m_sCmpName.XStrICmp("Flash_Component")==0)
-      //  {
-      //  pSb->m_sCmpName=CDBInit.Flash_Component();
-      //  pSb->m_sSpName=CDBInit.Flash_Component();
-      //  pSb->m_sSpName+=pSb->m_sSpPostfix;
-      //  }
       }
 
     for (CSpecieBlk* pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
@@ -5186,23 +5177,23 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
     m_SDB.m_iH2Og = SDB.Find("H2O(g)");
     m_SDB.m_iCO2g = SDB.Find("CO2(g)");
 
-    struct {LPCTSTR m_L; LPCTSTR m_G;}  FlashPhases[] = {{"(l)", "(g)"}, {"(aq)", "(g)"}, {} }; 
-    m_DefFlashCmpIndex=CDB.Find(CDBInit.Flash_Component());
-    for (int iPass=0; iPass<2; iPass++)
-      {
-      m_DefFlashLiqIndex=SDB.Find(CString(CDBInit.Flash_Component())+=FlashPhases[iPass].m_L);
-      m_DefFlashVapIndex=SDB.Find(CString(CDBInit.Flash_Component())+=FlashPhases[iPass].m_G);
-      if (m_DefFlashLiqIndex>=0 && m_DefFlashVapIndex>=0)
-        break;
-      }
-    if (FlashPhases[iPass].m_L==NULL)
+    LPCTSTR Flash_Component= "H2O";
+    m_DefFlashCmpIndex=CDB.Find(Flash_Component);
+    m_DefFlashLiqIndex=SDB.Find(CString(Flash_Component)+="(l)");
+    m_DefFlashVapIndex=SDB.Find(CString(Flash_Component)+="(g)");
+    if (m_DefFlashLiqIndex<0 || m_DefFlashVapIndex<0)
       m_DefFlashCmpIndex=-1;
+
+    if (m_DefFlashCmpIndex<0)
+      LogError("Specie Database",0,"Default Flash Component %s not found", Flash_Component);
 
     m_Flashable.SetSize(0);
     for (int i=0; i<CDB.No(); i++)
       {
-      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
+      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0 || CDB[i].LiqPhInx("aq", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
+        {
         m_Flashable.Add(i);
+        }
       else
         {
         if (i==m_DefFlashCmpIndex)
@@ -5210,7 +5201,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
           m_DefFlashCmpIndex=-1;
           m_DefFlashLiqIndex=-1;
           m_DefFlashVapIndex=-1;
-          LogError("Specie Database",0,"Default Flash Component %s not found", CDBInit.Flash_Component());
+          LogError("Specie Database",0,"Default Flash Component %s not flashable", Flash_Component);
           }
         }
       }

@@ -3169,7 +3169,6 @@ void CModelInfo::MakeDefaultNewCfgFile(char* pCfgFile, char* pCfgFiles, char * D
   Cfg.WrDouble("General", "Minimum_Press", 50.0);
   Cfg.WrDouble("General", "Maximum_Press", 350.0);
   Cfg.WrStr("General", "Atmospheric_Press", "101.287, -11.836e-3, 0.47931e-6");
-  Cfg.WrStr("General", "Flash_Component", "H2O");
 #if WithSIMPLESPMDL
   Cfg.WrStr("General", "Default_SpModel", BaseSpModelName);
 #else

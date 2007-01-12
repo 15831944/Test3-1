@@ -200,6 +200,8 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Contents.SetPreset(&m_Preset, &m_PresetImg);
   m_PCtrl0.SetMethod(PC_SatP);
 
+  CWrk.SetVLEBlk(&m_VLE);
+
   SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
 
   sVapSpModel="Steam/Water";//SMSteamClass.?
@@ -508,6 +510,9 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
         SpConduit & Ql=*IOConduit(ioLiq);
         SpConduit & Qv=*IOConduit(ioVap);
+        
+        Ql.SetVLEBlk(&m_VLE);
+        Ql.SetVLEBlk(&m_VLE);
 
 #if dbgModels
         double MemTl, MemPl, MemHl, MemMl;

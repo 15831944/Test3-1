@@ -1260,7 +1260,6 @@ class DllImportExport CDBInitRec
   public:
     CRqdSpList     RqdSpecies;
     Strng_List     RqdAnnotation;
-    Strng          Flash_Component;
     double         MinT;
     double         MaxT;
     double         MinP;
@@ -1272,7 +1271,7 @@ class DllImportExport CDBInitRec
     int            NSpDensCorrPrj; //number of species with DensityCorrFn loaded from project database
     int            NSpSolFnPrj; //number of species with SolubilityFn loaded from project database
 
-    CDBInitRec(pchar pFlash_Component, double MinT_, double MaxT_, double MinP_, double MaxP_, flag UseStdFns4H2O_);
+    CDBInitRec(double MinT_, double MaxT_, double MinP_, double MaxP_, flag UseStdFns4H2O_);
   };
 
 // ===========================================================================
@@ -1395,6 +1394,7 @@ class DllImportExport CComponentDataBase
     CCElementDataBase     m_EDB;
     CH2ODataBase          m_H2O;
     CArray<int, int>      m_Flashable;
+
 
     int                   m_ph_SolS;
     int                   m_ph_SolE;
