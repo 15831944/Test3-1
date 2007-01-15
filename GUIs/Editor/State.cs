@@ -193,86 +193,95 @@ namespace SysCAD.Editor
     //  //this.Content = exampleBorder;
     //}
 
+    private delegate void CreateItemDelegate(GraphicItem graphicItem, bool isVisible, FlowChart flowchart);
+
     internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
-      flowchart.SuspendLayout();
-
-      ModelStencil modelStencil;
-      GraphicStencil graphicStencil;
-
-      Box modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-      modelBox.RotationAngle = graphicItem.Angle;
-      modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
-      modelBox.Style = BoxStyle.Shape;
-
-      //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
-
-      if (config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil))
-        modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new CreateItemDelegate(CreateItem), new object[] { graphicItem, isVisible, flowchart });
+      }
       else
-        modelBox.Shape = ShapeTemplate.FromId("Decision2");
+      {
+        flowchart.SuspendLayout();
 
-      modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
+        ModelStencil modelStencil;
+        GraphicStencil graphicStencil;
 
-      modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-      modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
-      modelBox.Visible = ShowModels && isVisible;
+        Box modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+        modelBox.RotationAngle = graphicItem.Angle;
+        modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
+        modelBox.Style = BoxStyle.Shape;
 
-      Box graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-      graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
-      graphicBox.RotationAngle = graphicItem.Angle;
-      graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
-      graphicBox.Style = BoxStyle.Shape;
+        //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
 
-      //graphicBox.Image = System.Drawing.Image.FromStream(testXAML());
+        if (config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil))
+          modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+        else
+          modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-      if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
-        graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
-      else
-        graphicBox.Shape = ShapeTemplate.FromId("Decision2");
+        modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
 
-      graphicBox.EnabledHandles = Handles.None;
-      graphicBox.HandlesStyle = HandlesStyle.Invisible;
-      graphicBox.Visible = ShowGraphics && isVisible;
+        modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+        modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
+        modelBox.Visible = ShowModels && isVisible;
 
+        Box graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
+        graphicBox.RotationAngle = graphicItem.Angle;
+        graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
+        graphicBox.Style = BoxStyle.Shape;
 
-      if (graphicItem.FillColor.IsEmpty)
-        graphicItem.FillColor = graphicBox.FillColor;
-      else
-        graphicBox.FillColor = graphicItem.FillColor;
+        //graphicBox.Image = System.Drawing.Image.FromStream(testXAML());
 
+        if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
+          graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+        else
+          graphicBox.Shape = ShapeTemplate.FromId("Decision2");
 
-      RectangleF textArea = graphicStencil.TextArea;
-      RectangleF textBoxRect = new RectangleF(
-                                graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
-                                textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
-
-      Box textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
-      textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
-      textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
-      textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
-      textBox.Style = BoxStyle.Shape;
-      textBox.Shape = ShapeTemplate.FromId("Rectangle");
-      textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
-        Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
-        Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
-        Handles.Move;
-      textBox.Visible = ShowTags && isVisible;
-      textBox.Text = graphicItem.Tag;
+        graphicBox.EnabledHandles = Handles.None;
+        graphicBox.HandlesStyle = HandlesStyle.Invisible;
+        graphicBox.Visible = ShowGraphics && isVisible;
 
 
-      Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
+        if (graphicItem.FillColor.IsEmpty)
+          graphicItem.FillColor = graphicBox.FillColor;
+        else
+          graphicBox.FillColor = graphicItem.FillColor;
 
 
-      modelBox.Tag = item;
-      graphicBox.Tag = item;
-      textBox.Tag = item;
+        RectangleF textArea = graphicStencil.TextArea;
+        RectangleF textBoxRect = new RectangleF(
+                                  graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                  graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
+                                  textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                  textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
 
-      items.Add(item.Guid, item);
+        Box textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
+        textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
+        textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+        textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+        textBox.Style = BoxStyle.Shape;
+        textBox.Shape = ShapeTemplate.FromId("Rectangle");
+        textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
+          Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
+          Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
+          Handles.Move;
+        textBox.Visible = ShowTags && isVisible;
+        textBox.Text = graphicItem.Tag;
 
-      flowchart.ResumeLayout();
+
+        Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
+
+
+        modelBox.Tag = item;
+        graphicBox.Tag = item;
+        textBox.Tag = item;
+
+        items.Add(item.Guid, item);
+
+        flowchart.ResumeLayout();
+      }
     }
 
     private delegate void CreateThingDelegate(GraphicThing graphicThing, bool isVisible, FlowChart flowchart);
@@ -492,80 +501,89 @@ namespace SysCAD.Editor
       arrow.UpdateFromPoints();
     }
 
+    private delegate void CreateLinkDelegate(GraphicLink graphicLink, bool isVisible, FlowChart flowchart);
+
     internal void CreateLink(GraphicLink graphicLink, bool isVisible, FlowChart flowchart)
     {
-      Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
-
-      switch (graphicLink.ClassID)
+      if (flowchart.InvokeRequired)
       {
-        case "Pipe-1":
-          break;
-        case "CtrlLink":
-          arrow.PenColor = System.Drawing.Color.Gray;
-          break;
-        default:
-          arrow.PenColor = System.Drawing.Color.Red;
-          break;
+        flowchart.BeginInvoke(new CreateLinkDelegate(CreateLink), new object[] { graphicLink, isVisible, flowchart });
       }
-
-      Item origin = null;
-      Item destination = null;
-
-      if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
-      if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
-
-      PointF pointOrigin = new PointF();
-      PointF pointDestination = new PointF();
-
-      if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
-      {
-        pointOrigin = graphicLink.ControlPoints[0];
-        pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
-      }
-
-      if (origin != null)
-        arrow.Origin = origin.Model;
-      if (destination != null)
-        arrow.Destination = destination.Model;
-
-
-
-      if ((graphicLink.OriginPort != null) && ((origin.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
-        arrow.OrgnAnchor = (origin.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
       else
-        arrow.OrgnAnchor = -1;
-
-      if ((graphicLink.DestinationPort != null) && ((destination.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
-        arrow.DestAnchor = (destination.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
-      else
-        arrow.DestAnchor = -1;
-
-      String originTag = "";
-      if (origin != null) originTag = origin.Tag;
-
-      String destinationTag = "";
-      if (destination != null) destinationTag = destination.Tag;
-
-      arrow.ToolTip = "Tag:" + graphicLink.Tag +
-        "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
-        "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
-      arrow.ArrowHead = ArrowHead.Triangle;
-      arrow.Style = ArrowStyle.Cascading;
-
-      if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
       {
-        SetControlPoints(arrow, graphicLink.ControlPoints);
+        Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
+
+        switch (graphicLink.ClassID)
+        {
+          case "Pipe-1":
+            break;
+          case "CtrlLink":
+            arrow.PenColor = System.Drawing.Color.Gray;
+            break;
+          default:
+            arrow.PenColor = System.Drawing.Color.Red;
+            break;
+        }
+
+        Item origin = null;
+        Item destination = null;
+
+        if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
+        if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
+
+        PointF pointOrigin = new PointF();
+        PointF pointDestination = new PointF();
+
+        if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
+        {
+          pointOrigin = graphicLink.ControlPoints[0];
+          pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
+        }
+
+        if (origin != null)
+          arrow.Origin = origin.Model;
+        if (destination != null)
+          arrow.Destination = destination.Model;
+
+
+
+        if ((graphicLink.OriginPort != null) && ((origin.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
+          arrow.OrgnAnchor = (origin.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
+        else
+          arrow.OrgnAnchor = -1;
+
+        if ((graphicLink.DestinationPort != null) && ((destination.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
+          arrow.DestAnchor = (destination.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
+        else
+          arrow.DestAnchor = -1;
+
+        String originTag = "";
+        if (origin != null) originTag = origin.Tag;
+
+        String destinationTag = "";
+        if (destination != null) destinationTag = destination.Tag;
+
+        arrow.ToolTip = "Tag:" + graphicLink.Tag +
+          "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
+          "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
+        arrow.ArrowHead = ArrowHead.Triangle;
+        arrow.Style = ArrowStyle.Cascading;
+
+        if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
+        {
+          SetControlPoints(arrow, graphicLink.ControlPoints);
+        }
+
+        Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
+        link.Arrow = arrow;
+        link.Visible = true;
+
+        arrow.Tag = link;
+
+        arrow.Visible = ShowLinks && isVisible;
+
+        links.Add(link.Guid, link);
       }
-
-      Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
-      link.Arrow = arrow;
-      link.Visible = true;
-
-      arrow.Tag = link;
-
-      arrow.Visible = ShowLinks && isVisible;
-
-      links.Add(link.Guid, link);
     }
 
     internal bool DeleteLink(Guid guid)

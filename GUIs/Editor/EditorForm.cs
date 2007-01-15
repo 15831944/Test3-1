@@ -602,11 +602,10 @@ namespace SysCAD.Editor
 
         frmFlowChart.Show();
 
-        frmFlowChart.ZoomToVisible();
-
         ResumeLayout(true);
         frmFlowChart.ResumeLayout(true);
 
+        frmFlowChart.ZoomToVisible();
       }
     }
 
