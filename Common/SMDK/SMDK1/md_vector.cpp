@@ -287,7 +287,7 @@ double  MVector::msdHIdeal(DWORD Phase, double T1, double T2) const            {
 double  MVector::msdSIdeal(DWORD Phase, double T1, double T2) const            { return SpMdl->msdSIdeal(Phase, T1, T2);                                                };
 double  MVector::msdHResidual(DWORD Phase, double T, double P, eScdGasMixingRule Rule, eScdEqnOfState Eqn) const { return SpMdl->msdHResidual(Phase, T, P, Rule, Eqn);  };
 double  MVector::msdSResidual(DWORD Phase, double T, double P, eScdGasMixingRule Rule, eScdEqnOfState Eqn) const { return SpMdl->msdSResidual(Phase, T, P, Rule, Eqn);  };
-double  MVector::PartialPress(int Id, double T) const                          { return SpMdl->PartialPress(Id, Valid(T)?T:SpMdl->Temp());                              };
+double  MVector::PartialPress(int IncIds, int ExcIds, double T) const           { return SpMdl->PartialPress(IncIds, ExcIds, Valid(T)?T:SpMdl->Temp());                              };
 double  MVector::Mass(DWORD Phases) const                                      { return SpMdl->Mass(Phases);                                                            };
 double  MVector::Moles(DWORD Phases) const                                     { return SpMdl->Moles(Phases);                                                           };
 double  MVector::MoleWt(DWORD Phases) const                                    { return SpMdl->MoleWt(Phases);                                                          };
@@ -307,6 +307,7 @@ double  MVector::PrandtlNo(DWORD Phases, double T, double P) const             {
 double  MVector::SurfaceTension(DWORD Phases, double T, double P) const        { return SpMdl->SurfaceTension(Phases, Valid(T)?T:SpMdl->Temp(), P);                     };
 double  MVector::HeatOfCombustionHi(DWORD Phases, double T, double P) const    { return SpMdl->HeatOfCombustionHi(Phases, Valid(T)?T:SpMdl->Temp(), P);                 };
 double  MVector::HeatOfCombustionLo(DWORD Phases, double T, double P) const    { return SpMdl->HeatOfCombustionLo(Phases, Valid(T)?T:SpMdl->Temp(), P);                 };
+double  MVector::SaturationTotalP(double T) const                              { return SpMdl->SaturationTotalP(Valid(T)?T:SpMdl->Temp());                                   };
 double  MVector::SaturationP(double T) const                                   { return SpMdl->SaturationP(Valid(T)?T:SpMdl->Temp());                                   };
 double  MVector::SaturationT(double P) const                                   { return SpMdl->SaturationT(Valid(P)?P:SpMdl->Press());                                  };
 double  MVector::PureSaturationP(double T) const                               { return SpMdl->PureSaturationP(Valid(T)?T:SpMdl->Temp());                               };

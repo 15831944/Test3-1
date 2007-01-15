@@ -318,25 +318,26 @@ class DllImportExport SpConduit : public SpModelOwner
     double         Press() { return pModel->Press();};
     void           SetPress(double P) { pModel->SetPress(P);};
 
-    double         PartialPress(SpecieIter & Ids, double T) { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int Id) { return pModel->PartialPress(Id, Temp());};
-    double         PartialPressFrac(SpecieIter & Ids, double T) { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int Id) { return pModel->PartialPressFrac(Id, Temp());};
+    double         PartialPress(SpecieIter & Ids, double T)       { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int IncIds, int ExcIds)           { return pModel->PartialPress(IncIds, ExcIds, Temp());};
+    double         PartialPressFrac(SpecieIter & Ids, double T)   { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int IncIds, int ExcIds)       { return pModel->PartialPressFrac(IncIds, ExcIds, Temp());};
 
-    void           SetVLEBlk(CVLEBase * pVLE)    { pModel->m_pVLE=pVLE;  };
-    void           ClrVLEBlk(CVLEBase * pVLE)    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
-    int            FlashCmpIndex()               { return pModel->FlashCmpIndex(); };
-    int            FlashLiqIndex()               { return pModel->FlashLiqIndex(); };
-    int            FlashVapIndex()               { return pModel->FlashVapIndex(); };
-    LPTSTR         FlashDescription()            { return pModel->FlashDescription(); };
+    void           SetVLEBlk(CVLEBase * pVLE)                     { pModel->m_pVLE=pVLE;  };
+    void           ClrVLEBlk(CVLEBase * pVLE)                     { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
+    int            FlashCmpIndex()                                { return pModel->FlashCmpIndex(); };
+    int            FlashLiqIndex()                                { return pModel->FlashLiqIndex(); };
+    int            FlashVapIndex()                                { return pModel->FlashVapIndex(); };
+    LPTSTR         FlashDescription()                             { return pModel->FlashDescription(); };
     
-    LPTSTR         SaturationDescription()       { return pModel->SaturationDescription(); };
-    int            SaturationCmpIndex()          { return pModel->SaturationCmpIndex(); };
+    LPTSTR         SaturationDescription()                        { return pModel->SaturationDescription(); };
+    int            SaturationCmpIndex()                           { return pModel->SaturationCmpIndex(); };
+    double         SaturationTotalP(double T, int iSatComp=-1)    { return pModel->SaturationTotalP(T, NULL, iSatComp); };
     double         SaturationP(double T, int iSatComp=-1)         { return pModel->SaturationP(T, NULL, iSatComp); };
     double         SaturationT(double P, int iSatComp=-1)         { return pModel->SaturationT(P, NULL, iSatComp); };
     double         PureSaturationP(double T, int iSatComp=-1)     { return pModel->PureSaturationP(T, NULL, iSatComp); };
     double         PureSaturationT(double P, int iSatComp=-1)     { return pModel->PureSaturationT(P, NULL, iSatComp); };
-    double         BoilingPtElevation(double P_) { return pModel->BoilingPtElevation(P_); };
+    double         BoilingPtElevation(double P_)                  { return pModel->BoilingPtElevation(P_); };
 
     double         MassFrac(PhMask PhaseM=som_ALL) {return pModel->MassFrac(PhaseM);};
     double         MoleFrac(PhMask PhaseM=som_ALL) {return pModel->MoleFrac(PhaseM);};
@@ -922,25 +923,26 @@ class DllImportExport SpContainer : public SpModelOwner
     double         Press()                                                          { return pModel->Press();};
     double         Temp()                                                           {return pModel->Temp();}
 
-    double         PartialPress(SpecieIter & Ids, double T) { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int Id) { return pModel->PartialPress(Id, Temp());};
-    double         PartialPressFrac(SpecieIter & Ids, double T) { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int Id) { return pModel->PartialPressFrac(Id, Temp());};
+    double         PartialPress(SpecieIter & Ids, double T)           { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int IncIds, int ExcIds, double T)     { return pModel->PartialPress(IncIds, ExcIds, T);};
+    double         PartialPressFrac(SpecieIter & Ids, double T)       { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int IncIds, int ExcIds, double T) { return pModel->PartialPressFrac(IncIds, ExcIds, T);};
 
-    void           SetVLEBlk(CVLEBase * pVLE)    { pModel->m_pVLE=pVLE; };
-    void           ClrVLEBlk(CVLEBase * pVLE)    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
-    int            FlashCmpIndex()               { return pModel->FlashCmpIndex(); };
-    int            FlashLiqIndex()               { return pModel->FlashLiqIndex(); };
-    int            FlashVapIndex()               { return pModel->FlashVapIndex(); };
-    LPTSTR         FlashDescription()            { return pModel->FlashDescription(); };
+    void           SetVLEBlk(CVLEBase * pVLE)                    { pModel->m_pVLE=pVLE; };
+    void           ClrVLEBlk(CVLEBase * pVLE)                    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
+    int            FlashCmpIndex()                               { return pModel->FlashCmpIndex(); };
+    int            FlashLiqIndex()                               { return pModel->FlashLiqIndex(); };
+    int            FlashVapIndex()                               { return pModel->FlashVapIndex(); };
+    LPTSTR         FlashDescription()                            { return pModel->FlashDescription(); };
 
-    LPTSTR         SaturationDescription()       { return pModel->SaturationDescription(); };
-    int            SaturationCmpIndex()          { return pModel->SaturationCmpIndex(); };
-    double         SaturationP(double T, int iSatComp=-1)         { return pModel->SaturationP(T, NULL, iSatComp); };
-    double         SaturationT(double P, int iSatComp=-1)         { return pModel->SaturationT(P, NULL, iSatComp); };
-    double         PureSaturationP(double T, int iSatComp=-1)     { return pModel->PureSaturationP(T, NULL, iSatComp); };
-    double         PureSaturationT(double P, int iSatComp=-1)     { return pModel->PureSaturationT(P, NULL, iSatComp); };
-    double         BoilingPtElevation(double P_) { return pModel->BoilingPtElevation(P_); };
+    LPTSTR         SaturationDescription()                       { return pModel->SaturationDescription(); };
+    int            SaturationCmpIndex()                          { return pModel->SaturationCmpIndex(); };
+    double         SaturationTotalP(double T, int iSatComp=-1)   { return pModel->SaturationTotalP(T, NULL, iSatComp); };
+    double         SaturationP(double T, int iSatComp=-1)        { return pModel->SaturationP(T, NULL, iSatComp); };
+    double         SaturationT(double P, int iSatComp=-1)        { return pModel->SaturationT(P, NULL, iSatComp); };
+    double         PureSaturationP(double T, int iSatComp=-1)    { return pModel->PureSaturationP(T, NULL, iSatComp); };
+    double         PureSaturationT(double P, int iSatComp=-1)    { return pModel->PureSaturationT(P, NULL, iSatComp); };
+    double         BoilingPtElevation(double P_)                 { return pModel->BoilingPtElevation(P_); };
 
     void           Set_msHs(double H, double P=dNAN, SpModel * pRefMdl=NULL)   { pModel->Set_msHs(H, P, pRefMdl); };
     void           Set_msHz(double H, double P=dNAN, SpModel * pRefMdl=NULL)   { pModel->Set_msHz(H, P, pRefMdl); };
@@ -1314,33 +1316,34 @@ class DllImportExport SpImage : public SpModelOwner
     double         Temp() { return pModel->Temp();};
     double         Press() { return pModel->Press();};
 
-    double         PartialPress(SpecieIter & Ids, double T) { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int Id) { return pModel->PartialPress(Id, Temp());};
-    double         PartialPressFrac(SpecieIter & Ids, double T) { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int Id) { return pModel->PartialPressFrac(Id, Temp());};
+    double         PartialPress(SpecieIter & Ids, double T)           { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int IncIds, int ExcIds, double T)     { return pModel->PartialPress(IncIds, ExcIds, T);};
+    double         PartialPressFrac(SpecieIter & Ids, double T)       { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int IncIds, int ExcIds, double T) { return pModel->PartialPressFrac(IncIds, ExcIds, T);};
 
-    void           SetTempPress(double T_, double P_) {pModel->SetTempPress(T_, P_);};
-    void           SetTemp(double T) { pModel->SetTemp(T); };
-    void           SetPress(double P) { pModel->SetPress(P);};
+    void           SetTempPress(double T_, double P_)                 { pModel->SetTempPress(T_, P_);};
+    void           SetTemp(double T)                                  { pModel->SetTemp(T); };
+    void           SetPress(double P)                                 { pModel->SetPress(P);};
 
     void           Set_totHs(double H, double P=dNAN, SpModel * pRefMdl=NULL) { pModel->Set_totHs(H, P, pRefMdl); };
     void           Set_totHz(double H, double P=dNAN, SpModel * pRefMdl=NULL) { pModel->Set_totHz(H, P, pRefMdl); };
     void           Set_totHf(double H, double P=dNAN, SpModel * pRefMdl=NULL) { pModel->Set_totHf(H, P, pRefMdl); };
 
-    void           SetVLEBlk(CVLEBase * pVLE)    { pModel->m_pVLE=pVLE; };
-    void           ClrVLEBlk(CVLEBase * pVLE)    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
-    int            FlashCmpIndex()               { return pModel->FlashCmpIndex(); };
-    int            FlashLiqIndex()               { return pModel->FlashLiqIndex(); };
-    int            FlashVapIndex()               { return pModel->FlashVapIndex(); };
-    LPTSTR         FlashDescription()            { return pModel->FlashDescription(); };
+    void           SetVLEBlk(CVLEBase * pVLE)                    { pModel->m_pVLE=pVLE; };
+    void           ClrVLEBlk(CVLEBase * pVLE)                    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
+    int            FlashCmpIndex()                               { return pModel->FlashCmpIndex(); };
+    int            FlashLiqIndex()                               { return pModel->FlashLiqIndex(); };
+    int            FlashVapIndex()                               { return pModel->FlashVapIndex(); };
+    LPTSTR         FlashDescription()                            { return pModel->FlashDescription(); };
 
-    LPTSTR         SaturationDescription()       { return pModel->SaturationDescription(); };
-    int            SaturationCmpIndex()          { return pModel->SaturationCmpIndex(); };
-    double         SaturationP(double T, int iSatComp=-1)         { return pModel->SaturationP(T, NULL, iSatComp); };
-    double         SaturationT(double P, int iSatComp=-1)         { return pModel->SaturationT(P, NULL, iSatComp); };
-    double         PureSaturationP(double T, int iSatComp=-1)     { return pModel->PureSaturationP(T, NULL, iSatComp); };
-    double         PureSaturationT(double P, int iSatComp=-1)     { return pModel->PureSaturationT(P, NULL, iSatComp); };
-    double         BoilingPtElevation(double P_) { return pModel->BoilingPtElevation(P_); };
+    LPTSTR         SaturationDescription()                       { return pModel->SaturationDescription(); };
+    int            SaturationCmpIndex()                          { return pModel->SaturationCmpIndex(); };
+    double         SaturationTotalP(double T, int iSatComp=-1)   { return pModel->SaturationTotalP(T, NULL, iSatComp); };
+    double         SaturationP(double T, int iSatComp=-1)        { return pModel->SaturationP(T, NULL, iSatComp); };
+    double         SaturationT(double P, int iSatComp=-1)        { return pModel->SaturationT(P, NULL, iSatComp); };
+    double         PureSaturationP(double T, int iSatComp=-1)    { return pModel->PureSaturationP(T, NULL, iSatComp); };
+    double         PureSaturationT(double P, int iSatComp=-1)    { return pModel->PureSaturationT(P, NULL, iSatComp); };
+    double         BoilingPtElevation(double P_)                 { return pModel->BoilingPtElevation(P_); };
 
     double         msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)    { return pModel->msCp(Phase, T_, P_, pMA); };
     double         msCp(PhMask Phase, double T_)                                    { return pModel->msCp(Phase, T_, Press()); };

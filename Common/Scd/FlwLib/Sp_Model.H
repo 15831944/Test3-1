@@ -120,10 +120,11 @@ XID xidSMMlLFrac        = SpcXID(100044);
 XID xidSMMlVFrac        = SpcXID(100045);
 
 XID xidSMPureSatTemp    = SpcXID(100050);
-XID xidSMSatTemp        = SpcXID(100051);
-XID xidSMSatPress       = SpcXID(100052);
-XID xidSMBoilPtEle      = SpcXID(100053);
-XID xidSMSatComp        = SpcXID(100054);
+XID xidSMSatTempP       = SpcXID(100051);
+XID xidSMSatTempPP      = SpcXID(100052);
+XID xidSMSatPress       = SpcXID(100053);
+XID xidSMBoilPtEle      = SpcXID(100054);
+XID xidSMSatComp        = SpcXID(100055);
 
 XID xidSMSmsH           = SpcXID(100060);
 XID xidSMLmsH           = SpcXID(100061);
@@ -809,9 +810,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double dTemp();
     virtual double Press();
     virtual double PartialPress(SpecieIter & Ids, double Temp);
-    virtual double PartialPress(int Id, double Temp);
+    virtual double PartialPress(int IncIds, int ExcIds, double Temp);
     virtual double PartialPressFrac(SpecieIter & Ids, double Temp);
-    virtual double PartialPressFrac(int Id, double Temp);
+    virtual double PartialPressFrac(int IncIds, int ExcIds, double Temp);
 
     // Properties
     double          getVValue(int s)                              { return m_M.VValue[s]; };
@@ -969,6 +970,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual LPTSTR SaturationDescription();
     virtual int    SaturationCmpIndex();
+    virtual double SaturationTotalP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
     virtual double SaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
     virtual double SaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1);
     virtual double PureSaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1)               { return SpModel::SaturationP(T, pMA, iSatComp);};

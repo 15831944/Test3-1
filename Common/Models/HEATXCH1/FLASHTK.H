@@ -33,7 +33,7 @@ class DllImportExport FlashTank : public MN_Surge
   public:
     Strng          sVapSpModel;
     flag           fOnLine;
-    flag           bTrackVapFdStatus;
+    flag           m_bTrackVapFdStatus;
 
     #if DOPBSMOOTHING  
     flag           m_fSolnVapQmValid;
@@ -50,7 +50,8 @@ class DllImportExport FlashTank : public MN_Surge
     double         dWaterSatT;
     
     CFT_Flash      m_FTF;
-    SpConduit      CWrk;
+    SpConduit      m_QWrk;
+    SpConduit      m_QFlash;
 
     FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~FlashTank (){};

@@ -313,7 +313,7 @@ class DllImportExport MVector
     double        msdSResidual(DWORD Phase, double T, double P, eScdGasMixingRule Rule=eScdGMR_Default, eScdEqnOfState Eqn=eScdEOS_Default) const;
 
 
-    double        PartialPress(int Id, double Temp) const;
+    double        PartialPress(int IncIds, int ExcIds, double Temp) const;
 
     double        Mass(DWORD Phases=MP_All) const;
     double        Moles(DWORD Phases=MP_All) const;
@@ -343,6 +343,7 @@ class DllImportExport MVector
     int           FlashLiqIndex();
     int           FlashVapIndex();
     LPTSTR        FlashDescription();
+    double        SaturationTotalP(double Temp=NAN) const;
     double        SaturationP(double Temp=NAN) const;
     double        SaturationT(double Pres=NAN) const;
     double        PureSaturationP(double Temp=NAN) const;

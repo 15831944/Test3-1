@@ -1119,7 +1119,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                 Set_totHf(totHf(som_ALL, RqdT, RqdP));
               double TotMass=VValue[m_AutoVLE.m_iLiq]+VValue[m_AutoVLE.m_iVap];
               double VapP=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
-              double PPVap1=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
+              double PPVap1=PartialPress(m_AutoVLE.m_iVap, -1, Valid(RqdT)?RqdT:Temp());
               double MassGas=Mass(som_Gas);
               if ((MassGas-VValue[m_AutoVLE.m_iVap])<1.0e-6*MassGas)
                 {
@@ -1156,7 +1156,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                     VValue[m_AutoVLE.m_iLiq]-=DMassVap;
                     VValue[m_AutoVLE.m_iVap]+=DMassVap;
                     ClrStatesOK();
-                    double PPVap2=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
+                    double PPVap2=PartialPress(m_AutoVLE.m_iVap, -1, Valid(RqdT)?RqdT:Temp());
                     VValue[m_AutoVLE.m_iLiq]-=-DMassVap;
                     VValue[m_AutoVLE.m_iVap]+=-DMassVap;
                     double dPPdM=(PPVap2-PPVap1)/DMassVap;
@@ -1196,7 +1196,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                   }
                 double TotMass=VValue[m_AutoVLE.m_iLiq]+VValue[m_AutoVLE.m_iVap];
                 double VapP=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Valid(RqdT)?RqdT:Temp());
-                double PPVap1=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
+                double PPVap1=PartialPress(m_AutoVLE.m_iVap, -1, Valid(RqdT)?RqdT:Temp());
                 double MassGas=Mass(som_Gas);
                 if ((MassGas-VValue[m_AutoVLE.m_iVap])<1.0e-6*MassGas)
                   {
@@ -1223,7 +1223,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                         VValue[m_AutoVLE.m_iLiq]=0;
                       VValue[m_AutoVLE.m_iVap]+=DMassVap;
                       ClrStatesOK();
-                      double PPVap2=PartialPress(m_AutoVLE.m_iVap, Valid(RqdT)?RqdT:Temp());
+                      double PPVap2=PartialPress(m_AutoVLE.m_iVap, -1, Valid(RqdT)?RqdT:Temp());
                       if (WithLiq)
                         VValue[m_AutoVLE.m_iLiq]+=DMassVap;
                       VValue[m_AutoVLE.m_iVap]-=DMassVap;
@@ -1532,7 +1532,8 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
     DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
-    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTemp,     this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFile|noSnap);//|InitHidden);
     DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
     DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFile|noSnap|InitHidden);
     if (m_Ovr.bUse&(SPO_BPEle))
@@ -2819,7 +2820,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
             if (IsSpc)
               {
               if (SDB[s].IsGas())
-                DCB.D=(DCB.lHandle==xidSpPartialP) ? PartialPress(s, T) : PartialPressFrac(s, T);
+                DCB.D=(DCB.lHandle==xidSpPartialP) ? PartialPress(s, -1, T) : PartialPressFrac(s, -1, T);
               else
                 DCB.D=dNAN;
               }
@@ -4431,7 +4432,9 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         DCB.pC = sm_FlashCmpsI[CDB.DefFlashCmpIndex()]();
       return 1;
       }
-    case xidSMSatTemp     : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
+    case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
+    //case xidSMSatTempPP   : DCB.D = SaturationT(PartialPress(SaturationCmpIndex(), SaturationT(Press(), NULL, SaturationCmpIndex())), NULL, SaturationCmpIndex());   return 1;
+    case xidSMSatTempPP   : DCB.D = SaturationT(PartialPress(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex());   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
@@ -7884,7 +7887,7 @@ double SpModel::PartialPress(SpecieIter &Ids, double T)
   TestHStatesOK();
 
   double PPart=0;
-  if (/*m_bClosed &&*/ !m_bPressAsSet)
+  if (1)//m_bClosed && !m_bPressAsSet)
     {
     double P=Press();
     double Vol1=0;
@@ -7907,23 +7910,40 @@ double SpModel::PartialPress(SpecieIter &Ids, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPress(int Id, double T)
+double SpModel::PartialPress(int IncIds, int ExcIds, double T)
   {
   TestHStatesOK();
 
-  double PPart;
+  double P=Press();
+  double PPart=0.0;
+
+  dbgpln("SpModel::PartialPress T:%12.4f P:%12.4f", T, P);
+
   if (1)//m_bClosed && !m_bPressAsSet)
     {
-    double P=Press();
-    double Vol1 = m_M[Id]*SDB[Id].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-    double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-    // Assume Linear Relationship - Ideal Gas;
-    PPart=P*Vol1/GTZ(VolA);
-    //if (PPart<20.0)
-    //  {
-    //  //Limit Lowest Pressure up by 1 kPa at 0 kPa prop to press below 20.0 kPa
-    //  PPart+=1.0*(20.0-PPart)/20.0;
-    //  }
+    if (IncIds>=0 )
+      {
+      double Vol1 = m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+      // Assume Linear Relationship - Ideal Gas;
+      PPart=P*Vol1/GTZ(VolA);
+      }
+    else
+      {
+      SpecieIter I(som_Gas);
+      for (int i=-1; I.Loop(i); )
+        {
+        if (i!=ExcIds)
+          {
+          double Vol1 = m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+          double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+          // Assume Linear Relationship - Ideal Gas;
+          PPart+=P*Vol1/GTZ(VolA);
+          dbgpln("   %3i) V1:%12.4f Va:%12.4f PP:%12.4f (PPart:%12.4f) %s", 
+            i, Vol1, VolA, P*Vol1/GTZ(VolA), PPart, SDB[i].SymOrTag());
+          }
+        }
+      }
     }
 
   return PPart;
@@ -7955,22 +7975,36 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPressFrac(int Id, double T)
+double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T)
   {
   TestHStatesOK();
 
   double P=Press();
-  double Vt=0, V=0;
-  SpecieIter I(som_Gas);
-  for (int i=-1; I.Loop(i); )
+  double Pf=0;
+  if (1)//m_bClosed && !m_bPressAsSet)
     {
-    double v = m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-    Vt += v;
-    if (i==Id)
-      V=v;
-    }
+    if (IncIds>=0 )
+      {           
+      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+      double Vol1 = m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
 
-  return V/GTZ(Vt);
+      // Assume Linear Relationship - Ideal Gas;
+      Pf=Vol1/GTZ(VolA);
+      }
+    else
+      {
+      double Vol1 = 0;
+      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+      SpecieIter I(som_Gas);
+      for (int i=-1; I.Loop(i); )
+        {
+        if (i!=ExcIds)
+          Vol1 += m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+        }
+      Pf=Vol1/GTZ(VolA);
+      }
+    }
+  return Pf;
   }
 
 // --------------------------------------------------------------------------
@@ -8301,6 +8335,47 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   return Std_P;
   };
 
+double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
+  {
+  if (iSatComp>=0)
+    {
+
+    //bool Lst[MaxSpecies];
+    //SpecieIter I(som_Gas), J;
+    //for (int i=-1; I.Loop(i); )
+    //  Lst[i]=(i!=iSatComp);
+
+    //J.Copy(-1, iSatComp);
+    //OtherVapSp.CreateFrom(Lst, false);
+
+    double PP=PartialPress(-1, iSatComp, T_);  
+    return CDB[iSatComp].VapourP(m_iFidelity, T_)+PP;
+    }
+
+  if (m_pVLE && m_pVLE->Enabled())
+    {
+    double P=m_pVLE->SaturationTotalP(T_, pMA ? pMA : pMArray(), this);
+    if (Valid(P))
+      return P;
+    }
+
+  if (m_AutoVLE.m_iCmp>=0)
+    {
+    _asm int 3;
+    return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
+    }
+  //if (m_iSatCmpRqd>=0)
+  //  return CDB[m_iSatCmpRqd].VapourP(m_iFidelity, T_);
+  //if (m_iSatCmp>=0)
+  //  return CDB[m_iSatCmp].VapourP(m_iFidelity, T_);
+  if (CDB.DefFlashCmpIndex()>=0)
+    {
+    _asm int 3;
+    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
+    }
+  return Std_P;
+  };
+
 //---------------------------------------------------------------------------
 
 
@@ -8578,7 +8653,7 @@ double SpModel::SpecificHumidity()
   if (AutoVLEOn())
     {
     double P=Press();
-    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    double Pw=PartialPress(m_AutoVLE.m_iVap, -1, Temp());
     double MWw=SDB[m_AutoVLE.m_iVap].MoleWt();
     double MSw=VValue[m_AutoVLE.m_iVap];
     double MWo=0;
@@ -8604,7 +8679,7 @@ double SpModel::RelativeHumidity()
   {
   if (AutoVLEOn())
     {
-    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    double Pw=PartialPress(m_AutoVLE.m_iVap, -1, Temp());
     double PSat=SDB[m_AutoVLE.m_iVap].VapourP(m_iFidelity, Temp());
     return Pw/GTZ(PSat);
     }
@@ -8617,7 +8692,7 @@ double SpModel::HumidityDewPt()
   {
   if (AutoVLEOn())
     {
-    double Pw=PartialPress(m_AutoVLE.m_iVap, Temp());
+    double Pw=PartialPress(m_AutoVLE.m_iVap, -1, Temp());
     return SDB[m_AutoVLE.m_iVap].VapourT(m_iFidelity, Pw);//ress());
     }
   return dNAN;

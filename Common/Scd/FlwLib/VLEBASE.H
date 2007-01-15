@@ -114,7 +114,8 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual int    GetVLEData(CVLEDataArray & Array) { return 0; }; 
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv)  { return dNAN; };
     virtual double CondensableFrac(SpContainer*Cn)   { return dNAN; };
-    virtual double SaturationP(double Temp, CSysVector * pMA)  { return dNAN; };
+    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
+    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
 
     virtual flag   HasTPEnvelope() = 0;
     //virtual double SensibleHeatGain() = 0;
@@ -179,7 +180,8 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
-    virtual double SaturationP(double Temp, CSysVector * pMA);
+    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
+    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
 
     flag           HasTPEnvelope();
 
@@ -276,7 +278,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
-    virtual double SaturationP(double Temp, CSysVector * pMA);
+    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
+    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
 
 
     virtual flag   HasTPEnvelope() { return False;};

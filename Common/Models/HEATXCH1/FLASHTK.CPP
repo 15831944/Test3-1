@@ -152,6 +152,8 @@ const byte ioidFT_Liq          = 1;
 const byte ioidFT_Vap          = 2;
 const byte ioidFT_NCVent       = 3;
 
+XID   xidFlashDesc             = MdlBsXID(10000);
+
 static IOAreaRec FlashTankIOAreaList[] =
   {{"Feeds",        "Feed"    , ioidFT_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
    {"Liquor",       "Liquor"  , ioidFT_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
@@ -192,7 +194,7 @@ IMPLEMENT_MODELUNIT(FlashTank, "FlshTank", "1", Drw_FlashTank, "Tank", "FT", TOC
 
 FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach),
-  CWrk("CWrk", this, TOA_Embedded),
+  m_QWrk("Wrk", this, TOA_Embedded),
   m_FTF(this)
   {
   AttachIOAreas(FlashTankIOAreaList, &PipeEntryGroup);
@@ -200,7 +202,8 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   Contents.SetPreset(&m_Preset, &m_PresetImg);
   m_PCtrl0.SetMethod(PC_SatP);
 
-  CWrk.SetVLEBlk(&m_VLE);
+  m_QWrk.SetVLEBlk(&m_VLE);
+  m_QFlash.SetVLEBlk(&m_VLE);
 
   SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
 
@@ -208,14 +211,14 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   //Rqd_Flash_Press=Std_P;
   fOnLine=True;
   
-  m_VLE.Open();
-  m_VLE.Enable();
+  m_VLE.Open(true);
+  //m_VLE.Enable();
 #if DOPBSMOOTHING  
   m_fSolnVapQmValid=false;
   m_dSolnVapQm=0.0;
 #endif
   m_dOtherVapFracToLiq=1.0;
-  bTrackVapFdStatus=1;
+  m_bTrackVapFdStatus=1;
 
   m_nRmtScl=0;
   for (int j=0; j<sizeof(m_RmtScl)/sizeof(m_RmtScl[0]); j++)        
@@ -268,7 +271,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   #if WITHOTHERVAPSPLIT
-  DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &bTrackVapFdStatus,  this, isParm);
+  DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &m_bTrackVapFdStatus,  this, isParm);
   #endif
   DDB.Visibility();
   RB.Add_OnOff(DDB);
@@ -279,10 +282,11 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
   DDB.Text    ("");
   DDB.Text    ("Results");
-  DDB.Double  ("TemperatureIn",   "Ti",  DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
-  DDB.Double  ("BoilPtElevIn",  "BPEIn", DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
-  DDB.Double  ("BoilPtElev", "BPE",      DC_dT,   "C",     &dBPE,              this, isResult|noFile|noSnap);
-  DDB.Double  ("",  "WaterSatT",         DC_T,    "C",     &dWaterSatT,        this, isResult|noFile|noSnap|InitHidden);
+  DDB.String  ("VapourCalcs",   "",       DC_,     "",      xidFlashDesc,       this, isResult|noFileAtAll);
+  DDB.Double  ("TemperatureIn", "Ti",     DC_T,    "C",     &dTempIn,           this, isResult|noFile|noSnap);
+  DDB.Double  ("BoilPtElevIn",  "BPEIn",  DC_dT,   "C",     &dBPEIn,            this, isResult|noFile|noSnap);
+  DDB.Double  ("BoilPtElev",    "BPE",    DC_dT,   "C",     &dBPE,              this, isResult|noFile|noSnap);
+  DDB.Double  ("WaterSatT",     "",       DC_T,    "C",     &dWaterSatT,        this, isResult|noFile|noSnap|InitHidden);
 
   m_FTF.BuildDataDefn(DDB);
 
@@ -333,6 +337,11 @@ flag FlashTank::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_VLE.DataXchg(DCB))
     return 1;
+
+  switch (DCB.lHandle)
+    {
+    case xidFlashDesc: DCB.pC = m_VLE.FlashDescription();   return 1;
+    }
 
   return 0;
   }
@@ -433,7 +442,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         if (m_PCtrl0.Method()==PC_Reqd)
           m_FTF.m_dFlashP=m_PCtrl0.PRqd();
         else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=m_QFeed.SaturationP(m_PCtrl0.TRqd());
+          m_FTF.m_dFlashP=m_QFlash.SaturationTotalP(m_PCtrl0.TRqd());
         else if (m_PCtrl0.Method()==PC_Atmos)
           m_FTF.m_dFlashP=AtmosPress();
         else if (!MassSmoothing())
@@ -444,7 +453,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
         if (m_PCtrl0.Method()==PC_Reqd)
           m_FTF.m_dFlashP=m_PCtrl0.PRqd();
         else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=m_QFeed.SaturationP(m_PCtrl0.TRqd());
+          m_FTF.m_dFlashP=m_QFlash.SaturationTotalP(m_PCtrl0.TRqd());
         else
           m_FTF.m_dFlashP=AtmosPress();
         }
@@ -512,7 +521,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         SpConduit & Qv=*IOConduit(ioVap);
         
         Ql.SetVLEBlk(&m_VLE);
-        Ql.SetVLEBlk(&m_VLE);
+        Qv.SetVLEBlk(&m_VLE);
 
 #if dbgModels
         double MemTl, MemPl, MemHl, MemMl;
@@ -546,7 +555,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         Ql.QZero();
         Qv.QZero();
         //double PIn=SigmaQInPMin(Ql, som_ALL, First64IOIds);
-        Ql.QCopy(m_QFeed);
+        //Ql.QCopy(m_QFeed);
+        Ql.QSetF(m_QFeed, som_ALL, 1.0, m_QFeed.Press());
 
         //SetCI(1, Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
         flag OK=false;
@@ -559,26 +569,26 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           const int idNCVent=IOWithId_Self(ioidFT_NCVent);
           if (idNCVent>=0)
             {
-            CWrk.QSetF(Ql, som_SL, 1.0, PIn);
+             m_QWrk.QSetF(Ql, som_SL, 1.0, PIn);
             SpConduit& NonCondVent = *(IOConduit(idNCVent));
             NonCondVent.QSetF(Ql, som_Gas, 1.0, PIn);
-            Ql.QCopy(CWrk);
+            Ql.QCopy( m_QWrk);
             }
           else
             {
-            CWrk.QCopy(Ql, PIn); //leave vapours in slurry...
+             m_QWrk.QCopy(Ql, PIn); //leave vapours in slurry...
             }
           SetCI(1, bTrackVapFdStatus && idNCVent<0 && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
 #else
-          SetCI(1, bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
-          CWrk.QCopy(Ql, PIn);
+          SetCI(1, m_bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
+           m_QWrk.QCopy(Ql, PIn);
 #endif
 
           double QLMass=Ql.QMass();
           if (QLMass>UsableMass)
             {//TODO : CHECK! ... Does all this m_VLE stuff work if (1) steam is present in feed mixture? (2) other vapours are present in feed mixture?
             OK=true;
-            m_FTF.m_dFeedVapP=Ql.SaturationP(Ql.Temp());
+            m_FTF.m_dFeedVapP=Ql.SaturationTotalP(Ql.Temp());
             double PMargin=0.0001;
 
             m_VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
@@ -608,8 +618,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
               if (DoQP)
                 m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit);
 
-              CWrk.QCopy(Ql, PIn);
-              CWrk.QAddF(Qv, som_ALL, 1.0);
+              m_QWrk.QCopy(Ql, PIn);
+              m_QWrk.QAddF(Qv, som_ALL, 1.0);
               m_FTF.m_dFlashT=Ql.Temp();
 #if FORCESTEAM
               m_FTF.m_dQVap=Qv.VMass[H2OVap()]; //steam only!
@@ -632,6 +642,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           Qv.QSetF(Ql, som_ALL, 0.0, PIn);
           m_FTF.m_dQVap=0.0;
           }
+        m_QFlash.QCopy(m_QWrk);
         dWaterSatT = Ql.PureSaturationT(m_FTF.m_dFlashP);
         dBPE = Ql.BoilingPtElevation(m_FTF.m_dFlashP);
 
@@ -640,10 +651,10 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
         if (m_dOtherVapFracToLiq<1.0 && Ql.QMass(som_Gas)>UsableMass)
           {
-          CWrk.QCopy(Ql);
-          Qv.QAddF(CWrk, som_Gas, 1.0-m_dOtherVapFracToLiq);
-          Ql.QSetF(CWrk, som_SL, 1.0);
-          Ql.QAddF(CWrk, som_Gas, m_dOtherVapFracToLiq);
+          m_QWrk.QCopy(Ql);
+          Qv.QAddF(m_QWrk, som_Gas, 1.0-m_dOtherVapFracToLiq);
+          Ql.QSetF(m_QWrk, som_SL, 1.0);
+          Ql.QAddF(m_QWrk, som_Gas, m_dOtherVapFracToLiq);
           }
 #endif
 
@@ -709,21 +720,21 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2P:
         {
         double P0=m_FTF.m_dPEval;
-        m_VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
+        m_VLE.QPFlash(m_QWrk, P0, 0.0, VLEF_Null);
 #if FORCESTEAM
-        double Q0=CWrk.VMass[H2OVap()];
+        double Q0= m_QWrk.VMass[H2OVap()];
 #else
-        double Q0=CWrk.QMass(som_Gas);
+        double Q0=m_QWrk.QMass(som_Gas);
 #endif
         double P1=P0+0.1; // CNM
-        m_VLE.QPFlash(CWrk, P1, 0.0, VLEF_Null);
+        m_VLE.QPFlash(m_QWrk, P1, 0.0, VLEF_Null);
 #if FORCESTEAM
-        double Q1=CWrk.VMass[H2OVap()];
+        double Q1= m_QWrk.VMass[H2OVap()];
 #else
-        double Q1=CWrk.QMass(som_Gas);
+        double Q1= m_QWrk.QMass(som_Gas);
 #endif
         m_FTF.m_dDQvDp=(Q0-Q1)/(P0-P1); // should be negative
-        m_FTF.m_fDQvDpGood=(CWrk.QMass()>1.0e-10);
+        m_FTF.m_fDQvDpGood=( m_QWrk.QMass()>1.0e-10);
         #if dbgModels   
         if (dbgFlashTrain())
           dbgpln("FlashMM2P  %12.6f @ %12.6f %s", m_FTF.m_dDQvDp, m_FTF.m_dPEval, Tag());
@@ -733,11 +744,11 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2Qv:
         {
         double P0=m_FTF.m_dPEval;
-        m_VLE.QPFlash(CWrk, P0, 0.0, VLEF_Null);
+        m_VLE.QPFlash( m_QWrk, P0, 0.0, VLEF_Null);
 #if FORCESTEAM
-        m_FTF.m_dQVapEval=CWrk.VMass[H2OVap()]; //steam only!
+        m_FTF.m_dQVapEval= m_QWrk.VMass[H2OVap()]; //steam only!
 #else
-        m_FTF.m_dQVapEval=CWrk.QMass(som_Gas);
+        m_FTF.m_dQVapEval= m_QWrk.QMass(som_Gas);
 #endif
         #if dbgModels   
         if (dbgFlashTrain())
@@ -748,8 +759,8 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2QvSens:
         {
         //double P0=m_FTF.dPEval;
-        m_VLE.QMVapFlash(CWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
-        m_FTF.m_dPEval=CWrk.Press();
+        m_VLE.QMVapFlash( m_QWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
+        m_FTF.m_dPEval= m_QWrk.Press();
 //        #if dbgModels   
 //        if (dbgFlashTrain())
 //          dbgpln("FlashMM2QS %12.6f @ %12.6f %s", m_FTF.dQVapEval, m_FTF.dPEval, Tag());

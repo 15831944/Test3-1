@@ -706,10 +706,19 @@ double CVLEBase::CondensableFrac(SpContainer *Cn)
 
 //--------------------------------------------------------------------------
 
-double CVLEBase::SaturationP(double Temp, CSysVector * pMA)
+double CVLEBase::SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl)
   {
   if (Enabled()) 
-    return pVLE->SaturationP(Temp, pMA);
+    return pVLE->SaturationP(Temp, pMA, pMdl);
+  return dNAN;
+  };
+
+//--------------------------------------------------------------------------
+
+double CVLEBase::SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl)
+  {
+  if (Enabled()) 
+    return pVLE->SaturationTotalP(Temp, pMA, pMdl);
   return dNAN;
   };
 
@@ -1183,7 +1192,7 @@ void CVLEVapPress::TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)
 
 //    DoBreak(); // Should Use Partial Press
     //double PPressO=Mdl.
-    double OtherPP=0.0;//pMdlL->PartialPress(OtherVapSp, Temp);
+    double OtherPP=/*0.0;//*/pMdlL->PartialPress(OtherVapSp, Temp);
     double TSat;
     if (fModelSatP)
       TSat=Mdl.SaturationT(Max(1.0, Press-OtherPP));
@@ -1235,7 +1244,7 @@ class QPRootFnd : public MRootFinderBase
       if (m_DbgOn && m_PassOne)
         { int xxx=0; }
       
-      double OtherPP=pMdlL->PartialPress(VLE.OtherVapSp, pMdlL->Temp());
+      double OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp());
 
       VLE.SetVapFrac(Range(0.0, x, 1.0));
       double Ts = Min(TMx, pMdlL->SaturationT(Max(1.0, P-OtherPP)));
@@ -2009,10 +2018,23 @@ double CVLEVapPress::CondensableFrac(SpContainer*Cn)
 
 //--------------------------------------------------------------------------
 
-double CVLEVapPress::SaturationP(double Temp, CSysVector * pMA)
+double CVLEVapPress::SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl)
   {
+  if (pMdl==NULL)
+    pMdl = pMdlL;
   if (m_li>=0)
-    return SDB[m_li].VapourP(pMdlL->Fidelity(), Temp);
+    return SDB[m_li].VapourP(pMdl->Fidelity(), Temp);
+  return dNAN;
+  };
+
+//--------------------------------------------------------------------------
+
+double CVLEVapPress::SaturationTotalP(double Temp, CSysVector * pMA, SpModel *pMdl)
+  {
+  if (pMdl==NULL)
+    pMdl = pMdlL;
+  if (m_li>=0)
+    return SDB[m_li].VapourP(pMdl->Fidelity(), Temp) + pMdl->PartialPress(-1, m_vi, Temp);
   return dNAN;
   };
 
