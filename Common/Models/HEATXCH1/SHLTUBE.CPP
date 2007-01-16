@@ -260,6 +260,7 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
 
 flag CHXShlTube::ValidateData(ValidateDataBlk & VDB)
   {
+  m_dNonCondVentFrac=Range(0.0, m_dNonCondVentFrac, 1.0);
   flag OK=true;//MN_Surge::ValidateData(ValidateDataBlk & VDB);
   if (!m_VLE.ValidateData(VDB))
     OK=false;
