@@ -558,7 +558,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
   if (!sm_FlashInited)
     {
-    sm_DDBFlashable.Add(-1, "<Default>");
+    sm_DDBFlashable.Add(CDB.No(), "<Default>");
     sm_FlashCmps.SetSize(CDB.No());
     sm_FlashCmpsI.SetSize(CDB.No());
     for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
@@ -4415,23 +4415,20 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
       {
       if (DCB.rpC)
         {
-        bool SetRqd=true;
-        CString Nm = DCB.rpC;
-
-        int Len = Nm.GetLength();
-        if (Len>=3 && Nm[0]=='<' && Nm[Len-1]=='>')
+        if (stricmp(DCB.rpC, "<Default>")==0)
           {
-          SetRqd=false;
-          Nm=Nm.Mid(1, Len-2);
+          m_iSatCmp=CDB.DefFlashCmpIndex();
+          m_iSatCmpRqd=-1;
           }
-
-        int i=sm_DDBFlashable.Find((LPTSTR)(LPCTSTR)Nm);
-        if (i>=0)
+        else
           {
-          i=sm_DDBFlashable[i].m_lVal;
-          m_iSatCmp=i;
-          if (SetRqd)
+          int i=sm_DDBFlashable.Find(DCB.rpC);
+          if (i>=0)  
+            {
+            i=sm_DDBFlashable[i].m_lVal;
+            m_iSatCmp=i;
             m_iSatCmpRqd=i;
+            }
           }
         }
       if (m_iSatCmpRqd>=0)
