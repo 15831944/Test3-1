@@ -555,9 +555,9 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
       else if (NoProcessJoins()==2)
         {
 //? Makeup
-        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, RB(), GSM(), EHX(), &m_PCtrl0);
+        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), EHX());
         CRqdPressCtrl PBCtrl1;
-        Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, NULL, NULL, &PBCtrl1);
+        Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, &PBCtrl1, NULL, NULL);
         Xfer_EvalProducts(I0, I1, &HX);
         }
       else if (NoProcessJoins()>=1)

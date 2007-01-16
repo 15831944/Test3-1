@@ -119,8 +119,8 @@ class Xfer_EvalProducts_Info
   public:
 
     Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
-                           CReactionBlock *RB=NULL, GSModel * GSM=NULL, CEnvironHX * EHX=NULL,
-                           CRqdPressCtrl *PBP=NULL)
+                           GSModel * GSM=NULL, CRqdPressCtrl *PBP=NULL, 
+                           CReactionBlock *RB=NULL, CEnvironHX * EHX=NULL)
       {
       iJoinId = JoinId;
       dPress  = Press;
