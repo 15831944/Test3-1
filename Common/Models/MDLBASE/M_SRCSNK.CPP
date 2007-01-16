@@ -127,6 +127,9 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         Contents.SetPRqdTo(Range(1.0, *DCB.rD, (iVLEOpt==VLEO_SatVapP) ? IF97_MaxSatP : 1.0e10));
       DCB.D=Contents.PRqd();
       return 1;
+    case xidSatCondDesc:
+      DCB.pC=Contents.FlashDescription();
+      return 1;
     case xidRho:
       DCB.D=Flows.Rho(som_ALL);
       return 1;

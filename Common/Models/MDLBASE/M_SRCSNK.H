@@ -44,6 +44,7 @@ XID xidPRqd          = MdlBsXID(4006);
 XID xidSSVLEOnOff    = MdlBsXID(4007);
 XID xidBatchAddition = MdlBsXID(4008);
 XID xidSSMode        = MdlBsXID(4009);
+XID xidSatCondDesc   = MdlBsXID(4010);
 
 // ==========================================================================
 // Basic Flow Object

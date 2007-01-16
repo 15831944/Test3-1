@@ -23,8 +23,9 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_PCtrl0(PC_MinFd, Std_P, true),
   m_FTM(this),
   m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakI),
-  m_Evap(this)
-  , m_BlkEval(this, &m_RB, NULL, &EHX, NULL/*&m_VLE*/, &m_Evap)
+  m_VLE(this, VLEF_QPFlash),
+  m_Evap(this),
+  m_BlkEval(this, &m_RB, NULL, &EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MXfer,NULL);
   Joins.SetSize(1);
@@ -50,6 +51,10 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
   if (m_BlkEval.DataXchg(DCB))
     return 1;
   if (m_RB.DataXchg(DCB))
+    return 1;
+  if (m_VLE.DataXchg(DCB))
+    return 1;
+  if (m_Evap.DataXchg(DCB))
     return 1;
 
   switch(DCB.lHandle)
@@ -408,13 +413,13 @@ void MN_Xfer::EvalProducts(CNodeEvalIndex & NEI)
       {
       case SM_Direct:
         if (NoProcessJoins()>0)
-          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), &m_PCtrl0, &m_BlkEval);
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, &m_BlkEval);
         break;
       case SM_Inline:
       case SM_Buffered:
         {
         if (NoProcessJoins()>=1)
-          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, m_RB(), GSM(), EHX(), NULL, &m_BlkEval);
+          Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), NULL, &m_BlkEval);
         }
         break;
       }                

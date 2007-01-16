@@ -483,6 +483,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
       case BEId_VLE:   
         if (pFTB)
           pFTB->AddVLEBegin();
+        Fo.SetVLEBlk(m_pVLE);
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
         if (pFTB)
           pFTB->AddVLEEnd();
@@ -555,6 +556,7 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
       case BEId_VLE:   
         if (pFTB)
           pFTB->AddVLEBegin();
+        Fo.SetVLEBlk(m_pVLE);
         m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
         if (pFTB)
           pFTB->AddVLEEnd();

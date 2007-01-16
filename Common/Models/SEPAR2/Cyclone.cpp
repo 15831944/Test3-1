@@ -1012,12 +1012,12 @@ void Cyclone::EvalProducts(CNodeEvalIndex & NEI)
         {
         case SM_Direct:
           if (NoProcessJoins()>=1)
-            Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, NULL, GSM(), NULL);
+            Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, NULL, GSM(), NULL, NULL);
           break;
         case SM_Inline:
         case SM_Buffered:
           for (int j=0; j<NoProcessJoins(); j++)
-            Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, NULL, GSM(), NULL);
+            Xfer_EvalProducts(j, Joins[j].Pressure(), NULL, NULL, GSM(), NULL, NULL);
           break;
         }
     }

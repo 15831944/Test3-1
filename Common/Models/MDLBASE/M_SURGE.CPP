@@ -561,7 +561,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
         Xfer_EvalProducts(I0, I1, &HX);
         }
       else if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, RB(), GSM(), EHX(), &m_PCtrl0);
+        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), EHX());
       break;
     case SM_Inline:
     case SM_Buffered:

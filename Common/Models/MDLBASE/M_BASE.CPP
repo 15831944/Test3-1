@@ -469,14 +469,22 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
 
 //--------------------------------------------------------------------------
 
-void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CRqdPressCtrl *pPC/*=NULL*/, CBlockEvaluator * pBlkEval)
+void   MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CReactionBlock *pRB, CEnvironHX * pEHX)
   {
   Press=Max(Press, LowPressure);
   SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());
   Xfer_EvalProductsIn_(JoinId, Press, pQi, Sd, pPC);
-  Xfer_EvalProductsWork_(pQi, Sd, pRB, pEHX, pBlkEval);
+  Xfer_EvalProductsWork_(pQi, Sd, pRB, pEHX, NULL);
   Xfer_EvalProductsOut_(JoinId, pQi, Sd, pGSM, pPC);
-  }
+  };
+void   MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CBlockEvaluator *pBlkEval)
+  {
+  Press=Max(Press, LowPressure);
+  SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());
+  Xfer_EvalProductsIn_(JoinId, Press, pQi, Sd, pPC);
+  Xfer_EvalProductsWork_(pQi, Sd, NULL, NULL, pBlkEval);
+  Xfer_EvalProductsOut_(JoinId, pQi, Sd, pGSM, pPC);
+  };
 
 //--------------------------------------------------------------------------
 

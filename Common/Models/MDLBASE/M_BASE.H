@@ -212,7 +212,8 @@ class DllImportExport MdlNode : public FlwNode
     void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CRqdPressCtrl *pPC);
     void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
     void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC);
-    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, GSModel * pGSM, CEnvironHX * pEHX, CRqdPressCtrl *pPC = NULL, CBlockEvaluator *pBlkEval = NULL);
+    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CReactionBlock *pRB, CEnvironHX * pEHX);
+    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CBlockEvaluator *pBlkEval);
     virtual void   Xfer_EvalProducts(Xfer_EvalProducts_Info & S1, Xfer_EvalProducts_Info & S2, CHXBase * pHX);
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);

@@ -88,6 +88,7 @@ class DllImportExport MN_Xfer : public MdlNode
     CDirectFlwIO   m_Leak;
 
     CReactionBase  m_RB;
+    CVLEBase       m_VLE;
     CEvapBase      m_Evap;
     CBlockEvaluator m_BlkEval;
 

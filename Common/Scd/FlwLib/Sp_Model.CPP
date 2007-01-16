@@ -917,7 +917,7 @@ void SpModel::SetQualities(SpModel * SrcModel)
 
 void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   {
-  if (SrcModel->Mass(som_Gas)>Mass(som_Gas)) // should test rel masses
+  if (SrcModel->Mass(som_ALL)>Mass(som_ALL)) // should test rel masses
     {
     //dbgpln("");
     if (m_iSatCmpRqd>=0)

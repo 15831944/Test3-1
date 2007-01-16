@@ -252,8 +252,13 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Feed Conditions");
   DDB.Byte  ("VLEquilibrium",  "",             DC_, "", xidSSVLEOnOff,  this, (fCrossConnected?0:isParm)|SetOnChange, DDBVLEO);
   DDB.Visibility(NSHM_All);
+  
   int PIsParm=(iVLEOpt!=VLEO_SatLiqT && iVLEOpt!=VLEO_SatVapT)&&!fCrossConnected;
   int TIsParm=(iVLEOpt!=VLEO_SatLiqP && iVLEOpt!=VLEO_SatVapP)&&!fCrossConnected;
+
+  if (iVLEOpt!=VLEO_Off)
+    DDB.String  ("VapourCalcs", "",    DC_,      "",      xidSatCondDesc,       this, isResult|noFileAtAll);
+  
   DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidPRqd,        this, (PIsParm?isParm:0)|NAN_OK);
   if (NetDynamicMethod())
     {

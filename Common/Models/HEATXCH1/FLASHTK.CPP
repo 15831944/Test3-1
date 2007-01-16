@@ -580,7 +580,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           SetCI(1, bTrackVapFdStatus && idNCVent<0 && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
 #else
           SetCI(1, m_bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
-           m_QWrk.QCopy(Ql, PIn);
+          m_QWrk.QCopy(Ql, PIn);
 #endif
 
           double QLMass=Ql.QMass();
@@ -589,6 +589,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
             OK=true;
             m_FTF.m_dFeedVapP=Ql.SaturationTotalP(Ql.Temp());
             double PMargin=0.0001;
+            Qv.CopyQualities(Ql);
 
             m_VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
