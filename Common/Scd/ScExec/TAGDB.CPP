@@ -755,9 +755,19 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                     case tt_ppChar:
                     case tt_Strng :
                     case tt_Text  :
-//                      KWData[nKWFlds].SetString(pItem->Value()->GetString(), VT_BSTRT); 
-                      KWData[nKWFlds]=T2BSTR(pItem->Value()->GetString()); 
+                      {
+                      CString V(pItem->Value()->GetString());
+                      if (V.GetLength()>0 && V.FindOneOf("<[(\"")>=0)
+                        {
+                        CString S("\"");
+                        S+=V;
+                        S+="\"";
+                        KWData[nKWFlds]=T2BSTR(S); 
+                        }
+                      else
+                        KWData[nKWFlds]=T2BSTR(V);//pItem->Value()->GetString()); 
                       break;
+                      }
                     };                                              
                   }
 
@@ -1485,34 +1495,7 @@ ReTry:
               // Need to Unwind and rebuild Structure names to match this tag
               RqdPrefix=LastFld ? "" : FldName;
               CTagDBase::UnEscapeStructs(RqdPrefix);
-              TheValue=pRS->Fields->GetItem((LPCTSTR)FldName)->Value;
-              switch (TheValue.vt)
-                {
-                case VT_BSTR:
-                case VT_BSTRT:
-                  StrValue=(LPCTSTR)_bstr_t(TheValue);
-                  break;
-                case VT_NULL:
-                  StrValue="";
-                  IsNullValue=true;
-                  continue;
-                  break;
-                case VT_EMPTY:// Empty Fields
-                  StrValue="";
-                  continue;
-                  break;
-                default:
-                  StrValue="";
-                  break;
-                }
-              pStrValue=StrValue();
-              if (!pStrValue)
-                pStrValue="";
 
-              int StrValLen=strlen(pStrValue);
-              //              #if dbgLoadObjMDB
-              //              dbgpln("LdObj:%-15s = %s", RqdPrefix(), (const char *)CCrack::strVARIANT(TheValue));
-              //              #endif
               pchar p=RqdPrefix() ? strrchr(RqdPrefix(), '.') : NULL;
               if (p)// && 0) // ? Temporary Fix to Fix Load of data with '.' in field names 
                 {
@@ -1591,9 +1574,49 @@ ReTry:
                 Prefix=RqdPrefix();
                 }
 
+              TheValue=pRS->Fields->GetItem((LPCTSTR)FldName)->Value;
+              switch (TheValue.vt)
+                {
+                case VT_BSTR:
+                case VT_BSTRT:
+                  StrValue=(LPCTSTR)_bstr_t(TheValue);
+                  break;
+                case VT_NULL:
+                  StrValue="";
+                  IsNullValue=true;
+                  continue;
+                  break;
+                case VT_EMPTY:// Empty Fields
+                  StrValue="";
+                  continue;
+                  break;
+                default:
+                  StrValue="";
+                  break;
+                }
+              pStrValue=StrValue();
+              if (!pStrValue)
+                pStrValue="";
+
+              int StrValLen=strlen(pStrValue);
+              //              #if dbgLoadObjMDB
+              //              dbgpln("LdObj:%-15s = %s", RqdPrefix(), (const char *)CCrack::strVARIANT(TheValue));
+              //              #endif
+
+              bool StructsOK=true;
+              if (StrValLen>=3 && pStrValue[0]=='\"' && pStrValue[StrValLen-1]=='\"')
+                {
+                StrValue=StrValue.Mid(1, StrValLen-2); // remove quotes
+                pStrValue=StrValue();
+                if (!pStrValue)
+                  pStrValue="";
+                StrValLen=strlen(pStrValue);
+                StructsOK=false;
+                }
+
               //if (LoadArray)
               //  Tag.Set("%s[%i]", Tag(), iRec);
-              if (!IsTagFld && StrValLen>2 && 
+              if (!IsTagFld && StructsOK && StrValLen>2 && 
                 ((StrValue[0]=='<' && StrValue[StrValLen-1]=='>') || 
                 (StrValue[0]=='[' && StrValue[StrValLen-1]==']')))
                 {

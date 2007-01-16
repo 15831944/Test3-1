@@ -1529,16 +1529,16 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
 
   if (!HeatSkipMethod())
     {
-    DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFile|noSnap|InitHidden);
+    DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFileAtAll|InitHidden);
     DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
-    DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFile|noSnap|InitHidden);
-    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFile|noSnap);//|InitHidden);
-    DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFile|noSnap);//|InitHidden);
-    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFile|noSnap);//|InitHidden);
-    DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFile|noSnap|InitHidden);
+    DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
+    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+    DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
+    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
+    DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
     if (m_Ovr.bUse&(SPO_BPEle))
       DDB.TagComment("Ovr");
-    DDB.Double  ("",              "LatHtVap", DC_HMs,  "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);//|InitHidden);
+    DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
     DDB.Text("");
     }
 
@@ -1546,15 +1546,15 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     {
     DDB.Page(Tg(), DDB_OptPage);
     DDB.Text("Transport Properties:");
-    DDB.Double  ("VViscosity",      "",  DC_Visc,     "cP",     xidVVisc,     this, isResult|noFile|noSnap);
-    DDB.Double  ("LViscosity",      "",  DC_Visc,     "cP",     xidLVisc,     this, isResult|noFile|noSnap);
-    DDB.Double  ("VKinematicVisc",  "",  DC_KinVisc,  "m^2/s",  xidVKVisc,     this, isResult|noFile|noSnap);
-    DDB.Double  ("LKinematicVisc",  "",  DC_KinVisc,  "m^2/s",  xidLKVisc,     this, isResult|noFile|noSnap);
-    DDB.Double  ("VThermalCond",    "",  DC_HCond,    "kW/m.K", xidVThermCond, this, isResult|noFile|noSnap);
-    DDB.Double  ("LThermalCond",    "",  DC_HCond,    "kW/m.K", xidLThermCond, this, isResult|noFile|noSnap);
-    DDB.Double  ("VPrandtlNo",      "",  DC_,         "",       xidVPrandtl,   this, isResult|noFile|noSnap);
-    DDB.Double  ("LPrandtlNo",      "",  DC_,         "",       xidLPrandtl,   this, isResult|noFile|noSnap);
-    DDB.Double  ("SurfaceTens",     "LSurfaceTens",  DC_SurfTens, "N/m",    xidLSurfT,     this, isResult|noFile|noSnap);
+    DDB.Double  ("VViscosity",      "",              DC_Visc,     "cP",     xidVVisc,      this, isResult|noFileAtAll);
+    DDB.Double  ("LViscosity",      "",              DC_Visc,     "cP",     xidLVisc,      this, isResult|noFileAtAll);
+    DDB.Double  ("VKinematicVisc",  "",              DC_KinVisc,  "m^2/s",  xidVKVisc,     this, isResult|noFileAtAll);
+    DDB.Double  ("LKinematicVisc",  "",              DC_KinVisc,  "m^2/s",  xidLKVisc,     this, isResult|noFileAtAll);
+    DDB.Double  ("VThermalCond",    "",              DC_HCond,    "kW/m.K", xidVThermCond, this, isResult|noFileAtAll);
+    DDB.Double  ("LThermalCond",    "",              DC_HCond,    "kW/m.K", xidLThermCond, this, isResult|noFileAtAll);
+    DDB.Double  ("VPrandtlNo",      "",              DC_,         "",       xidVPrandtl,   this, isResult|noFileAtAll);
+    DDB.Double  ("LPrandtlNo",      "",              DC_,         "",       xidLPrandtl,   this, isResult|noFileAtAll);
+    DDB.Double  ("SurfaceTens",     "LSurfaceTens",  DC_SurfTens, "N/m",    xidLSurfT,     this, isResult|noFileAtAll);
     //DDB.Double  ("LSurfaceTens",  "",  DC_SurfTens, "N/m",    xidSurfT,     this, isResult|noFile|noSnap|InitHidden);
     DDB.Text("");
     }
@@ -1565,22 +1565,22 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
       {
       DDB.Page(Tg(), DDB_OptPage);//DDB.Page("HV");
       DDB.Text("Heating Values:");
-      DDB.Double  ("HeatValueHiM",    "HVHiM",    DC_HMs, "MJ/kg",    xidSpHeatValueHiM,    this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiMl",   "HVHiMl",   DC_HMl, "MJ/kmol",  xidSpHeatValueHiMl,   this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiV",    "HVHiV",    DC_HV,  "MJ/m^3",   xidSpHeatValueHiV,    this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiNV",   "HVHiNV",   DC_HNV, "MJ/Nm^3",  xidSpHeatValueHiNV,   this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoM",    "HVLoM",    DC_HMs, "MJ/kg",    xidSpHeatValueLoM,    this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoMl",   "HVLoMl",   DC_HMl, "MJ/kmol",  xidSpHeatValueLoMl,   this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoV",    "HVLoV",    DC_HV,  "MJ/m^3",   xidSpHeatValueLoV,    this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoNV",   "HVLoNV",   DC_HNV, "MJ/Nm^3",  xidSpHeatValueLoNV,   this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiM25",  "HVHiM25",  DC_HMs, "MJ/kg",    xidSpHeatValueHiM25,  this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiMl25", "HVHiMl25", DC_HMl, "MJ/kmol",  xidSpHeatValueHiMl25, this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiV25",  "HVHiV25",  DC_HV,  "MJ/m^3",   xidSpHeatValueHiV25,  this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueHiNV25", "HVHiNV25", DC_HNV, "MJ/Nm^3",  xidSpHeatValueHiNV25, this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoM25",  "HVLoM25",  DC_HMs, "MJ/kg",    xidSpHeatValueLoM25,  this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoMl25", "HVLoMl25", DC_HMl, "MJ/kmol",  xidSpHeatValueLoMl25, this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoV25",  "HVLoV25",  DC_HV,  "MJ/m^3",   xidSpHeatValueLoV25,  this, isResult|noFile|noSnap);
-      DDB.Double  ("HeatValueLoNV25", "HVLoNV25", DC_HNV, "MJ/Nm^3",  xidSpHeatValueLoNV25, this, isResult|noFile|noSnap);
+      DDB.Double  ("HeatValueHiM",    "HVHiM",    DC_HMs, "MJ/kg",    xidSpHeatValueHiM,    this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiMl",   "HVHiMl",   DC_HMl, "MJ/kmol",  xidSpHeatValueHiMl,   this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiV",    "HVHiV",    DC_HV,  "MJ/m^3",   xidSpHeatValueHiV,    this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiNV",   "HVHiNV",   DC_HNV, "MJ/Nm^3",  xidSpHeatValueHiNV,   this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoM",    "HVLoM",    DC_HMs, "MJ/kg",    xidSpHeatValueLoM,    this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoMl",   "HVLoMl",   DC_HMl, "MJ/kmol",  xidSpHeatValueLoMl,   this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoV",    "HVLoV",    DC_HV,  "MJ/m^3",   xidSpHeatValueLoV,    this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoNV",   "HVLoNV",   DC_HNV, "MJ/Nm^3",  xidSpHeatValueLoNV,   this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiM25",  "HVHiM25",  DC_HMs, "MJ/kg",    xidSpHeatValueHiM25,  this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiMl25", "HVHiMl25", DC_HMl, "MJ/kmol",  xidSpHeatValueHiMl25, this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiV25",  "HVHiV25",  DC_HV,  "MJ/m^3",   xidSpHeatValueHiV25,  this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueHiNV25", "HVHiNV25", DC_HNV, "MJ/Nm^3",  xidSpHeatValueHiNV25, this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoM25",  "HVLoM25",  DC_HMs, "MJ/kg",    xidSpHeatValueLoM25,  this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoMl25", "HVLoMl25", DC_HMl, "MJ/kmol",  xidSpHeatValueLoMl25, this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoV25",  "HVLoV25",  DC_HV,  "MJ/m^3",   xidSpHeatValueLoV25,  this, isResult|noFileAtAll);
+      DDB.Double  ("HeatValueLoNV25", "HVLoNV25", DC_HNV, "MJ/Nm^3",  xidSpHeatValueLoNV25, this, isResult|noFileAtAll);
       DDB.Text("");
       }
 
@@ -4415,14 +4415,24 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
       {
       if (DCB.rpC)
         {
-        int i=sm_DDBFlashable.Find(DCB.rpC);
+        bool SetRqd=true;
+        CString Nm = DCB.rpC;
+
+        int Len = Nm.GetLength();
+        if (Len>=3 && Nm[0]=='<' && Nm[Len-1]=='>')
+          {
+          SetRqd=false;
+          Nm=Nm.Mid(1, Len-2);
+          }
+
+        int i=sm_DDBFlashable.Find((LPTSTR)(LPCTSTR)Nm);
         if (i>=0)
+          {
           i=sm_DDBFlashable[i].m_lVal;
-
-        if (m_iSatCmp == m_iSatCmpRqd)
-           m_iSatCmp=i;
-
-        m_iSatCmpRqd=i;
+          m_iSatCmp=i;
+          if (SetRqd)
+            m_iSatCmpRqd=i;
+          }
         }
       if (m_iSatCmpRqd>=0)
         DCB.pC = sm_FlashCmps[m_iSatCmpRqd]();
@@ -4433,8 +4443,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
       return 1;
       }
     case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
-    //case xidSMSatTempPP   : DCB.D = SaturationT(PartialPress(SaturationCmpIndex(), SaturationT(Press(), NULL, SaturationCmpIndex())), NULL, SaturationCmpIndex());   return 1;
-    case xidSMSatTempPP   : DCB.D = SaturationT(PartialPress(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex());   return 1;
+    case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPress(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
