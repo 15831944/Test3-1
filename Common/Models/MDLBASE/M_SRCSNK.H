@@ -61,7 +61,7 @@ const byte  SSM_ConstNQv  = 0x40;
 enum SSQmRev { SSQmRev_Null, SSQmRev_Image, SSQmRev_InFlw };
 
 enum SSQmRqd { SSQmRqdTot, SSQmRqdSol, SSQmRqdLiq, SSQmRqdVap };
-enum VLEOpts { VLEO_Off, VLEO_SatLiq, VLEO_SatVap, VLEO_SatLiqP, VLEO_SatVapP, VLEO_SubLiq, VLEO_SupVap, };
+enum VLEOpts { VLEO_Off, VLEO_SatLiqT, VLEO_SatVapT, VLEO_SatLiqP, VLEO_SatVapP, VLEO_SubLiq, VLEO_SupVap, };
 
 _FWDDEF(MN_SrcSnk);
 

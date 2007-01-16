@@ -119,7 +119,7 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidTRqd:
       if (DCB.rD && Finite(*DCB.rD))
-        Contents.SetTRqdTo(Range(CDB.MinT, *DCB.rD, (iVLEOpt==VLEO_SatVap) ? IF97_MaxSatT : CDB.MaxT));
+        Contents.SetTRqdTo(Range(CDB.MinT, *DCB.rD, (iVLEOpt==VLEO_SatVapT) ? IF97_MaxSatT : CDB.MaxT));
       DCB.D=Contents.TRqd();
       return 1;
     case xidPRqd:
@@ -304,19 +304,16 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       }
     else
       {
-      //VLE.TPFlash(CMdl, TRequired(), PRequired(), VLEF_Null);//NULL, NULL, NULL);
-      //double TSat=Contents.SaturationT(TRequired());
-      //double PSat=Contents.SaturationP(TRequired());
       double PSat,TSat;
       switch (iVLEOpt)
         {
-        case VLEO_SatLiq:
-          PSat=Contents.SaturationP(TRequired());
+        case VLEO_SatLiqT:
+          PSat=Contents.SaturationTotalP(TRequired());
           Contents.SetPRqdTo(PSat);
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 0.0, 0);
           break;
-        case VLEO_SatVap:
-          PSat=Contents.SaturationP(TRequired());
+        case VLEO_SatVapT:
+          PSat=Contents.SaturationTotalP(TRequired());
           Contents.SetPRqdTo(PSat);
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 1.0, 0);
           break;
@@ -332,7 +329,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
           break;
         case VLEO_SupVap:
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-          PSat=Contents.SaturationP(TRequired());
+          PSat=Contents.SaturationTotalP(TRequired());
           if (PRequired()>PSat)
             {
             Contents.SetPRqdTo(PSat);
@@ -341,7 +338,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
           break;
         case VLEO_SubLiq:
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-          PSat=Contents.SaturationP(TRequired());
+          PSat=Contents.SaturationTotalP(TRequired());
           if (PRequired()<PSat)
             {
             Contents.SetPRqdTo(PSat);

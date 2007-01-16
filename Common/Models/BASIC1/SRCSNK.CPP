@@ -174,14 +174,16 @@ static DDBValueLst DDBQmRev[]={
   {SSQmRev_InFlw, "PrevInFlow"},
   {0}};
 static DDBValueLst DDBVLEO[]={
-  {VLEO_Off,    "Off",          MDD_Default },
-  {VLEO_SatLiq, "Saturated_Liq" },
-  {VLEO_SatVap, "Saturated_Vap" },
-  {VLEO_SatLiqP, "Saturated_Liq(P)" },
-  {VLEO_SatVapP, "Saturated_Vap(P)" },
-  {VLEO_SubLiq, "SubCooled_Liq" },
-  {VLEO_SupVap, "SuperHeat_Vap" },
-  {VLEO_SatVap, "On",           MDD_Hidden  },
+  {VLEO_Off,     "Off",              MDD_Default  },
+  {VLEO_SatLiqT, "Saturated_Liq(T)"               },
+  {VLEO_SatVapT, "Saturated_Vap(T)"               },
+  {VLEO_SatLiqP, "Saturated_Liq(P)"               },
+  {VLEO_SatVapP, "Saturated_Vap(P)"               },
+  {VLEO_SubLiq,  "SubCooled_Liq"                  },
+  {VLEO_SupVap,  "SuperHeat_Vap"                  },
+  {VLEO_SatVapT, "On",               MDD_Hidden   },
+  {VLEO_SatLiqT, "Saturated_Liq",    MDD_Hidden   },
+  {VLEO_SatVapT, "Saturated_Vap",    MDD_Hidden   },
   {0}};
 static DDBValueLst DDBKeepTrace[]={
   {0,    "Nothing"},
@@ -250,7 +252,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  (SSMode & SSM_Sink ? "Sink Conditions" : "Feed Conditions");
   DDB.Byte  ("VLEquilibrium",  "",             DC_, "", xidSSVLEOnOff,  this, (fCrossConnected?0:isParm)|SetOnChange, DDBVLEO);
   DDB.Visibility(NSHM_All);
-  int PIsParm=(iVLEOpt!=VLEO_SatLiq && iVLEOpt!=VLEO_SatVap)&&!fCrossConnected;
+  int PIsParm=(iVLEOpt!=VLEO_SatLiqT && iVLEOpt!=VLEO_SatVapT)&&!fCrossConnected;
   int TIsParm=(iVLEOpt!=VLEO_SatLiqP && iVLEOpt!=VLEO_SatVapP)&&!fCrossConnected;
   DDB.Double("P_Rqd",         "",    DC_P   , "kPag",   xidPRqd,        this, (PIsParm?isParm:0)|NAN_OK);
   if (NetDynamicMethod())
