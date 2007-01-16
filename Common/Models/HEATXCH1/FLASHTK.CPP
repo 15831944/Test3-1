@@ -194,6 +194,7 @@ IMPLEMENT_MODELUNIT(FlashTank, "FlshTank", "1", Drw_FlashTank, "Tank", "FT", TOC
 
 FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach),
+  m_QFlash("QFlash", this, TOA_Embedded),
   m_QWrk("Wrk", this, TOA_Embedded),
   m_FTF(this)
   {
@@ -312,12 +313,10 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
 
   if (1)//NetProbalMethod())
     {
-    //m_QFeed; // Ensure that exist so that they recover
-    //if (QFeed.Exists())
-      {
-      DDB.Visibility(NM_All|SM_All|HM_All, m_bShowQFeed);
-      DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
-      }
+    DDB.Visibility(NM_All|SM_All|HM_All, m_bShowQFeed);
+    DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
+    DDB.Visibility(NM_All|SM_All|HM_All);
+    DDB.Object(&m_QFlash, this, NULL, NULL, DDB_RqdPage);
     DDB.Visibility();
     }
   if (SolveBufferedMethod())
