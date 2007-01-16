@@ -98,9 +98,9 @@ IMPLEMENT_MODELUNIT(ContactHeater, "ContctHt", "1", Drw_ContactHeater, "HeatTran
                     "rejecting the amount of heat lost and calculating the temperature, "
                     "composition and flow rate of the exit stream." )
                     
-static MInitialiseTest InitTest(&ContactHeaterClass);
-SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
-SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
+//static MInitialiseTest InitTest(&ContactHeaterClass);
+//SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
+//SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
 
 ContactHeater::ContactHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach),
@@ -382,7 +382,7 @@ double FinalTempFnd::Function(double x)
   HL.QAddM(Vp, som_ALL, Max(VQm, x));
   CH.RB.EvalProducts(HL);
   CH.EHX.EvalProducts(HL);
-  const double RqdFrac = (VentRqd>UsableMass ? VentRqd/GTZ(HL.VMass[H2OVap()]+HL.VMass[H2OLiq()]) : 0.0);
+  const double RqdFrac = (VentRqd>UsableMass ? VentRqd/GTZ(HL.VMass[CH.m_VLE.FlashVapIndex()/*H2OVap()*/]+HL.VMass[CH.m_VLE.FlashLiqIndex()/*H2OLiq()*/]) : 0.0);
   const double f = Max(RqdFrac, 1.0-Min(1.0, x/GTZ(VQm)));
   CH.m_VLE.SetFlashVapFrac(HL, f, 0);
   double dFinalT = HL.Temp();
@@ -422,7 +422,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
         m_QFeed.QCopy(Mixture());
 
       bVentConnected = (IOESteam>=0);
-      const int si = H2OVap();
+      const int si = m_VLE.FlashVapIndex()/*H2OVap()*/;
       double LiquorQ      = Liquor().QMass();
       double LiquorQVap   = Liquor().QMass(som_Gas); //vapour in liquor feed
       //double LiquorP      = Liquor().Press();//this is "WRONG" because of PMin used!
