@@ -318,8 +318,8 @@ double CondenseFinder::TheoryDuty()
   double TDuty=0.0;
   if (Blk.EffUA()>1.0e-6)
     {
-    //Blk.m_dLMTD=CHXBlock::LMTD(False, m_Pri.SatT, m_Pri.SatT, m_Sec.Ti, m_Sec.To);
-    Blk.m_dLMTD=CHXBlock::LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.SatT-BPE);
+    //Blk.m_dLMTD=CHXBlock::LMTD(False, m_Pri.m_SatT, m_Pri.m_SatT, m_Sec.Ti, m_Sec.To);
+    Blk.m_dLMTD=CHXBlock::LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.m_SatT-BPE);
     TDuty = Blk.EffUA() * Blk.m_dLMTD * Blk.m_dLMTDFactor;
     }
   else
@@ -342,8 +342,8 @@ double CondenseFinder::Function(double Amount)
   HotSd.Qm = QFlsh.QMass();
   HotSd.Hi = QFlsh.totHf();
 
-  double FTemp=Max(ColdSd.Ti, HotSd.SatT-BPE);
-  double FPress=HotSd.Po;
+  double FTemp=Max(ColdSd.Ti, HotSd.m_SatT-BPE);
+  double FPress=HotSd.FlashPressOut()/*.Po*/;
   m_VLE.SetFlashVapFrac(*QFlsh.Model(), FTemp, FPress, 0.0, VLEF_Null);
   HotSd.To=FTemp;//QFlsh.Temp();
   Blk.m_dDuty=fabs(QFlsh.totHf()-HotSd.Hi);
@@ -388,11 +388,11 @@ void CHXBlock1::FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd,
   if (OpMode==HX1_FullyCondensing)
     {
     // All Hot Condensing .. No Change in Cold
-    //dMaxDuty1=EffUA()*LMTDSat(ColdSd.Ti, ColdSd.Ti, HotSd.SatT-BPE);
-    double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
+    //dMaxDuty1=EffUA()*LMTDSat(ColdSd.Ti, ColdSd.Ti, HotSd.m_SatT-BPE);
+    double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
     HotSd.m_pCd->SetTemp(ColdSd.Ti);
     HotSd.MaxNfDuty=HotSd.Hi-HotSd.m_pCd->totHf();
-    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
     HotSd.MaxFlDuty=HotSd.Hi-HotSd.m_pCd->totHf();
     //dbgpln("FC : ToE:%10.3f To:%10.3f D:%14.5g %s", HotSdToEst, HotSd.m_pCd->Temp(), m_dDuty, pAttachedTo->FullObjTag());
     }
@@ -407,8 +407,8 @@ void CHXBlock1::FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd,
   if (OpMode==HX1_FullyCondensing)
     {
     // All Cold To Max Temp .. No Hot Condensing
-    //dMaxDuty2=EffUA()*LMTD(False, ColdSd.Ti, HotSd.SatT-BPE, HotSd.Ti, HotSd.SatT-BPE);
-    //ColdSd.m_pCd->SetTemp(Min(HotSd.Ti, HotSd.SatT-BPE));
+    //dMaxDuty2=EffUA()*LMTD(False, ColdSd.Ti, HotSd.m_SatT-BPE, HotSd.Ti, HotSd.m_SatT-BPE);
+    //ColdSd.m_pCd->SetTemp(Min(HotSd.Ti, HotSd.m_SatT-BPE));
     ColdSd.m_pCd->SetTemp(HotSd.Ti);
     ColdSd.MaxNfDuty=ColdSd.m_pCd->totHf()-ColdSd.Hi;
     ColdSd.MaxFlDuty=ColdSd.MaxNfDuty;
@@ -444,7 +444,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
   if (AllowVent)
     {
 //   m_VLE.QPFlash(*HotSd.m_pCd, HotSd.Po, -m_dMaxFlDuty, VLEF_Null);
-////    m_VLE.SetFlashVapFrac(*HotSd.m_pCd, HotSd.SatT-BPE, HotSd.Po, 0.0, VLEF_Null);
+////    m_VLE.SetFlashVapFrac(*HotSd.m_pCd, HotSd.m_SatT-BPE, HotSd.Po, 0.0, VLEF_Null);
 //    HotSd.To=HotSd.m_pCd->Temp();
 //    m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
 //
@@ -452,10 +452,10 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
 //    HotSd.AddGasToVent(VentFlow);
 //    m_dDuty=m_dMaxFlDuty;
 
-    double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
+    double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
 
     double OrigVapFrac=m_VLE.FlashVapFrac(*HotSd.m_pCd->Model());
-    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
     HotSd.To=HotSd.m_pCd->Temp();
     m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
 
@@ -466,7 +466,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
       double VentFrac=(m_dDuty-m_dMaxFlDuty)/GTZ(m_dDuty);
       // Adjust for what existed
       VentFrac = VentFrac*(1.0-OrigVapFrac);
-      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, VentFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
       VentFlow=HotSd.m_pCd->QMass(som_Gas);
       //Move Gases to Vent
       HotSd.AddGasToVent(VentFlow, MixVentBack!=0);
@@ -478,8 +478,8 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
     }
   else
     {
-    double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
-    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+    double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
+    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
     HotSd.To=HotSd.m_pCd->Temp();
     m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
     m_dDuty=Min(m_dDuty, HotSd.MaxFlDuty);
@@ -488,7 +488,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
   HotSd.iMode=QPF_Condensing;
   HotSd.Ho=HotSd.m_pCd->totHf();
 
-  ColdSd.m_pCd->SetPress(ColdSd.Po);
+  ColdSd.m_pCd->SetPress(ColdSd.m_Po);
   ColdSd.m_pCd->Set_totHf(ColdSd.Hi+ColdSd.Sgn*m_dDuty+ColdSd.dHEnv+HotSd.dHEnv);
   ColdSd.To=ColdSd.m_pCd->Temp();
   ColdSd.iMode=QPF_Sensible;
@@ -496,7 +496,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
 
   CHECKTEMPS(HotSd, ColdSd, 1000);
 
-//  m_dLMTD=LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.SatT-BPE);
+//  m_dLMTD=LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.m_SatT-BPE);
 
   return VentFlow;
   }
@@ -559,9 +559,9 @@ double CHXBlock1::SolveForDutySubsFn(double UA, CHXSide &SdA, CHXSide &SdB, doub
   SET_ENTH_AND_TO(SdB, SdB.Hi+SdB.Duty);
 
   if (SdA.m_pCd)
-    SdA.m_pCd->SetPress(SdA.Po);
+    SdA.m_pCd->SetPress(SdA.m_Po);
   if (SdB.m_pCd)
-    SdB.m_pCd->SetPress(SdB.Po);
+    SdB.m_pCd->SetPress(SdB.m_Po);
   SdA.iMode=QPF_Sensible;
   SdB.iMode=QPF_Sensible;
 
@@ -796,7 +796,7 @@ double CHXBlock1::SolveForDutySteelFn(double UA, CHXSide &Flow, CStructure &Stru
       Flow.m_pCd->QRestoreMass(Flow.MassImg);
     SET_ENTH_AND_TO(Flow, Flow.Hi+Flow.Duty);
     if (Flow.m_pCd)
-      Flow.m_pCd->SetPress(Flow.Po);
+      Flow.m_pCd->SetPress(Flow.m_Po);
     Flow.iMode=QPF_Sensible;
     }
   else
@@ -812,7 +812,7 @@ double CHXBlock1::SolveForDutySteelFn(double UA, CHXSide &Flow, CStructure &Stru
       Other.m_pCd->QRestoreMass(Other.MassImg);
     SET_ENTH_AND_TO(Other, Other.Hi+Other.Duty);
     if (Other.m_pCd)
-      Other.m_pCd->SetPress(Other.Po);
+      Other.m_pCd->SetPress(Other.m_Po);
     Other.iMode=QPF_Sensible;
     }
   else
@@ -1171,13 +1171,13 @@ double DutyFinder1::TheoryDuty()
 //    {
 //    if (CrossOver(HotSd, ColdSd, 0.001))
 //      {
-//      Blk.m_dLMTD=(HotSd.SatT-BPE)-ColdSd.To;
+//      Blk.m_dLMTD=(HotSd.m_SatT-BPE)-ColdSd.To;
 //      TDuty = Blk.EffUA() * Blk.m_dLMTD * Blk.m_dLMTDFactor;
 //      }
 //    else
 //      {
-      //Blk.m_dLMTD=CHXBlock::LMTD(False, m_Pri.SatT, m_Pri.SatT, m_Sec.Ti, m_Sec.To);
-  Blk.m_dLMTD=CHXBlock::LMTDSat1(ColdSd.Ti, ColdSd.To, HotSd.SatT-BPE);
+      //Blk.m_dLMTD=CHXBlock::LMTD(False, m_Pri.m_SatT, m_Pri.m_SatT, m_Sec.Ti, m_Sec.To);
+  Blk.m_dLMTD=CHXBlock::LMTDSat1(ColdSd.Ti, ColdSd.To, HotSd.m_SatT-BPE);
   TDuty = Blk.EffUA() * Blk.m_dLMTD * Blk.m_dLMTDFactor;
 //      }
 //    }
@@ -1204,21 +1204,21 @@ double DutyFinder1::Function(double Frac)
   HotSd.Cp = QFlsh.msCp();
   HotSd.Qm = QFlsh.QMass();
   HotSd.Hi = QFlsh.totHf();
-  HotSd.Po = QMem.Press();
-  HotSd.SatT = QFlsh.SaturationT(HotSd.Po);
+  HotSd.m_Po = QMem.Press();
+  HotSd.m_SatT = QFlsh.SaturationT(HotSd.FlashPressOut()/*.Po*/);
   if (Frac>1)
     {
-    double FTemp=Max(ColdSd.Ti, HotSd.SatT-BPE);
-    double FPress=HotSd.Po;
+    double FTemp=Max(ColdSd.Ti, HotSd.m_SatT-BPE);
+    double FPress=HotSd.FlashPressOut()/*.Po*/;
     m_VLE.SetFlashVapFrac(*QFlsh.Model(), FTemp, FPress, 1.0, VLEF_Null);
 
 
    // m_VLE.SetFlashVapFrac(*QFlsh.Model(), FTemp, FPress, Frac, VLEF_Null);
 
-    double Ts = QFlsh.SaturationT(HotSd.Po);
+    double Ts = QFlsh.SaturationT(HotSd.FlashPressOut()/*.Po*/);
  //   double Ps = QFlsh.SaturationP(HotSd.Ti);
 
-    double Hs= QFlsh.totHf(som_ALL, Ts, HotSd.Po);
+    double Hs= QFlsh.totHf(som_ALL, Ts, HotSd.m_Po);
 
     Blk.m_dDuty=(HotSd.Hi-Hs)*(2-Frac);
     HotSd.To=HotSd.Ti-(HotSd.Ti-Ts)*(2-Frac);
@@ -1228,8 +1228,8 @@ double DutyFinder1::Function(double Frac)
   else
     {
 
-    double FTemp=Max(ColdSd.Ti, HotSd.SatT-BPE);
-    double FPress=HotSd.Po;
+    double FTemp=Max(ColdSd.Ti, HotSd.m_SatT-BPE);
+    double FPress=HotSd.FlashPressOut()/*.Po*/;
     m_VLE.SetFlashVapFrac(*QFlsh.Model(), FTemp, FPress, Frac, VLEF_Null);
     HotSd.To=FTemp;//QFlsh.Temp();
     Blk.m_dDuty=fabs(QFlsh.totHf()-HotSd.Hi);
@@ -1296,10 +1296,10 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     HotSd.dHEnv=0;// ??? CNM 9/sep/2001 HotSd.m_pCd->totHf()-HotSd.Hi;
 
 
-    QResult().QCopy(*HotSd.m_pCd, HotSd.Pi);
+    QResult().QCopy(*HotSd.m_pCd, HotSd.m_Pi);
 
     // update data
-    HotSd.SetInput(HotSd.m_pCdIn, QResult(), HotSd.Pi, HotSd.m_pEHX, HotSd.m_pRB, HotSd.dFinalTEst, HotSd.fPreReact);
+    HotSd.SetInput(HotSd.m_pCdIn, QResult(), HotSd.m_Pi, HotSd.m_pEHX, HotSd.m_pRB, HotSd.dFinalTEst, HotSd.fPreReact);
 
     CSysVector & AR=QResult().MArray();
     CSysVector & AI=QInitial.MArray();
@@ -1308,10 +1308,10 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     double ql1=QResult().QMass(som_SL);
 
 
-    double HotSdToEst=Min(HotSd.Ti, HotSd.SatT-BPE);
+    double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
     HotSd.m_pCd->SetTemp(ColdSd.Ti);
     HotSd.MaxNfDuty=HotSd.Hi-HotSd.m_pCd->totHf();
-    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.Po, 0.0, VLEF_Null);
+    m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
     HotSd.MaxFlDuty=HotSd.Hi-HotSd.m_pCd->totHf();
 
 
@@ -1322,7 +1322,7 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     double H2=QResult().totHf(som_ALL, T2, P1);
 
 
-    QResult().QCopy(QInitial, HotSd.Pi);
+    QResult().QCopy(QInitial, HotSd.m_Pi);
 
 
     m_Structure.m_Ci=m_Structure.m_Cp*m_Structure.m_Mass/ICGetTimeInc();
@@ -1374,10 +1374,12 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     double ql3=QInitial.QMass(som_SL);
     HotSd.MeasureHXDataCd(NULL);
 
-    ColdSd.SatP = ColdSd.m_pCd->SaturationP(ColdSd.To);
-    HotSd.SatP = HotSd.m_pCd->SaturationP(HotSd.To);
+    ColdSd.m_SatP  = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
+    ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
+    HotSd.m_SatP   = HotSd.m_pCd->SaturationTotalP(HotSd.To);
+    HotSd.m_SatPP  = HotSd.m_pCd->SaturationP(HotSd.To);
 
-    m_dLMTD=LMTDSat1(ColdSd.Ti, ColdSd.To, HotSd.SatT);
+    m_dLMTD=LMTDSat1(ColdSd.Ti, ColdSd.To, HotSd.m_SatT);
     // Temperature Crossover Error
     CHXBlock::SetCI(3, m_dLMTD<0.0);
 
@@ -1468,6 +1470,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
         {
         // Vents & Bypasses
         HotSd.SendGasToVent(false);
+        HotSd.MeasureHXDataCd(NULL);
 
         // Do Reactions Etc
 
@@ -1506,12 +1509,13 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
       case HX1_FullyCondensing:
         {
         // Vents & Bypasses
-        HotSd.KeepByPassLiquor(HotSd.Pi);
+        HotSd.KeepByPassLiquor(HotSd.m_Pi);
         HotSd.SendGasToVent(true);
+        HotSd.MeasureHXDataCd(NULL);
 
         // Do Reactions Etc
         StkSpConduit QMemS("QMemS", chLINEID(), pNd);
-        QMemS().QSetF(*HotSd.m_pCd, som_ALL, 1.0, HotSd.Pi);
+        QMemS().QSetF(*HotSd.m_pCd, som_ALL, 1.0, HotSd.m_Pi);
 
         double PVf=ColdSd.m_pCd->MassFrac(som_Gas);
         double SVf=HotSd.m_pCd->MassFrac(som_Gas);
@@ -1536,7 +1540,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
           {
           m_FTC.m_dQCond = HotSd.Qm;
           m_FTC.m_dQCool = ColdSd.Qm;
-          m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HotSd.Po, 0.0, VLEF_Null);
+          m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.m_SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
           double OldQRqd=m_FTC.m_dQRqd;
           double MaxFlQm=ColdSd.MaxFlDuty/GTZ(HotSd.Hi/NZ(HotSd.Qm)-HotSd.m_pCd->msHf());
           //MaxFlQm=Min(MaxFlQm, HotSd.Qm);
@@ -1606,10 +1610,12 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
 
         ColdSd.Duty=m_dDuty;
         HotSd.Duty=-m_dDuty;
-        ColdSd.SatP = ColdSd.m_pCd->SaturationP(ColdSd.To);
-        HotSd.SatP = HotSd.m_pCd->SaturationP(HotSd.To);
+        ColdSd.m_SatP  = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
+        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
+        HotSd.m_SatP   = HotSd.m_pCd->SaturationTotalP(HotSd.To);
+        HotSd.m_SatPP  = HotSd.m_pCd->SaturationP(HotSd.To);
 
-        m_dLMTD=LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.SatT);
+        m_dLMTD=LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.m_SatT);
         // Temperature Crossover Error
         CHXBlock::SetCI(3, m_dLMTD<0.0);
 

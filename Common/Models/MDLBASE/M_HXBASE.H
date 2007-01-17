@@ -268,8 +268,12 @@ class DllImportExport CHXSide
     double         To;
     double         Sgn;
     double         Hi, Ho, dHEnv;
-    double         FlFrac, SatT, SatP;
-    //double         SatT, SatP;
+    double         FlFrac;
+    double         m_SatT;
+    double         m_SatP;
+    double         m_SatPP;
+    double         m_PPFrac;
+
     flag           fConnected;
     bool           fPreReact;
 
@@ -283,7 +287,8 @@ class DllImportExport CHXSide
     CEnvironHX    *m_pEHX;
     CReactionBlock *m_pRB;
 
-    double         Pi, Po;
+    double         m_Pi;
+    double         m_Po;
     double         Duty;
     double         MaxFlDuty;
     double         MaxNfDuty;
@@ -312,6 +317,8 @@ class DllImportExport CHXSide
     void           AddByPassLiquor();
     double         SendGasToVent(bool FullyCondensing);
     double         AddGasToVent(double VentFlow, bool MixVentBack);
+
+    double         FlashPressOut() { return m_Po*m_PPFrac; };
 
   };
 

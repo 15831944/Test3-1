@@ -966,8 +966,8 @@ CHXSide::CHXSide(CHXBlock * pHX_)
   Ti=Std_T;
   To=Std_T;
 
-  Pi=Std_P;
-  Po=Std_P;
+  m_Pi=Std_P;
+  m_Po=Std_P;
   Duty=0.0;
   MaxFlDuty=0.0;
   MaxNfDuty=0.0;
@@ -986,8 +986,11 @@ CHXSide::CHXSide(CHXBlock * pHX_)
   fConnected=0;
   fPreReact=false;
 
-  SatT=Std_T;
-  SatP=Std_P;
+  m_SatT=Std_T;
+  m_SatP=Std_P;
+  m_SatPP=Std_P;
+  m_PPFrac=1.0;
+
   FlFrac=0.0;
   Sgn=1.0;
   dFinalTEst=dNAN;
@@ -1019,31 +1022,33 @@ void CHXSide::BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, 
       {0}};
     DDB.Bool("Mode",    "", DC_,     "",    &iMode, pTagObj, isParmConstruct, DDB0);
     if (iMode==QPF_Condensing)
-      DDB.String("", "VapourCalcs",         DC_,    "",    xidHXSd_Desc   , pTagObj, isResult|noFileAtAll);
+      DDB.String("", "VapourCalcs",         DC_,    "",    xidHXSd_Desc,    pTagObj, isResult|noFileAtAll);
 
     DDB.Visibility(NSHM_All, Conduit);
-    DDB.Double ("",               "Qm",     DC_Qm,    "kg/s",    &Qm      , pTagObj, Connected ? isParmConstruct : isParm);
-  //  DDB.Double ("",               "QmVent", DC_Qm,    "kg/s",    &QmVent  , pTagObj, Connected ? isParmConstruct : isParm);
+    DDB.Double ("",               "Qm",     DC_Qm,    "kg/s",    &Qm,       pTagObj, Connected ? isParmConstruct : isParm);
+  //  DDB.Double ("",               "QmVent", DC_Qm,    "kg/s",    &QmVent,   pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Visibility();
-    DDB.Double ("",               "Cp",     DC_CpMs,    "kJ/kg.C", &Cp      , pTagObj, Connected ? isParmConstruct : isParm);
+    DDB.Double ("",               "Cp",     DC_CpMs,    "kJ/kg.C", &Cp,       pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Visibility(NSHM_All, Conduit||!Conduit);
-    DDB.Double ("",               "Ti",     DC_T,     "C",       &Ti      , pTagObj, Connected ? isParmConstruct : isParm);
+    DDB.Double ("",               "Ti",     DC_T,     "C",       &Ti,       pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Visibility(NSHM_All, Conduit);
-    DDB.Double ("",               "To",     DC_T,     "C",       &To      , pTagObj, isParmConstruct);
-    DDB.Double ("",               "Pi",     DC_P,     "kPag",    &Pi      , pTagObj, isParmConstruct);
-    DDB.Double ("",               "Po",     DC_P,     "kPag",    &Po      , pTagObj, isParmConstruct);
+    DDB.Double ("",               "To",     DC_T,     "C",       &To,       pTagObj, isParmConstruct);
+    DDB.Double ("",               "Pi",     DC_P,     "kPag",    &m_Pi,     pTagObj, isParmConstruct);
+    DDB.Double ("",               "Po",     DC_P,     "kPag",    &m_Po,     pTagObj, isParmConstruct);
     DDB.Visibility(NSHM_All, !Conduit);
-    DDB.Double ("",               "T",      DC_T,     "C",       &To      , pTagObj, Connected ? isParmConstruct : isParm);
-    DDB.Double ("",               "P",      DC_P,     "kPag",    &Po      , pTagObj, Connected ? isParmConstruct : isParm);
+    DDB.Double ("",               "T",      DC_T,     "C",       &To,       pTagObj, Connected ? isParmConstruct : isParm);
+    DDB.Double ("",               "P",      DC_P,     "kPag",    &m_Po,     pTagObj, Connected ? isParmConstruct : isParm);
     DDB.Visibility(NSHM_All, Conduit);
-    DDB.Double ("",               "dT",     DC_dT,    "C",       xidHXSd_dT , pTagObj, isParmConstruct);
+    DDB.Double ("",               "dT",     DC_dT,    "C",       xidHXSd_dT,  pTagObj, isParmConstruct);
 
     DDB.Visibility(NSHM_All, iMode!=QPF_Sensible);
 
     DDB.Visibility(NSHM_All, true);//Conduit);
-    DDB.Double("SatT",            "",       DC_T,     "C",       &SatT,   pTagObj, isParmConstruct);
-    DDB.Double("SatP",            "",       DC_P,     "kPag",    &SatP,   pTagObj, isParmConstruct);
-    DDB.Double("Duty",            "",       DC_Pwr,   "kW",      &Duty,   pTagObj, isParmConstruct);
+    DDB.Double("SatT",            "",       DC_T,     "C",       &m_SatT,  pTagObj, isParmConstruct);
+    DDB.Double("SatP",            "",       DC_P,     "kPag",    &m_SatP,  pTagObj, isParmConstruct);
+    DDB.Double("SatPP",           "",       DC_P,     "kPag",    &m_SatPP, pTagObj, isParmConstruct);
+    DDB.Double("PPFrac",          "",       DC_Frac,  "%",       &m_PPFrac, pTagObj, isParmConstruct|InitHidden);
+    DDB.Double("Duty",            "",       DC_Pwr,   "kW",      &Duty,    pTagObj, isParmConstruct);
 
     DDB.Visibility();
     DDB.Text("");
@@ -1073,19 +1078,21 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   SpConduit *In=m_pCdIn ? m_pCdIn : pCd;
   Ti = In->Temp();
   Hi = In->totHf();
-  Pi = In->Press();
+  m_Pi = In->Press();
   Ci = In->totCp();
   Cp = pCd->msCp();
   Qm = pCd->QMass();
+  m_PPFrac = pCd->PartialPressFrac(pCd->FlashVapIndex(), -1);
+
 #if HX_MEASURE_LIQVAP
   m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()/* H2OLiq()*/];
   m_VapQm = pCd->VMass[pCd->FlashVapIndex()/* H2OVap()*/];
 #endif
-  SatT = pCd->SaturationT(Po);
+  m_SatT = pCd->SaturationT(FlashPressOut());
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
-  Po=Pi;
+  m_Po=m_Pi;
   Ho=Hi;
   }
 
@@ -1098,19 +1105,21 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   //SpConduit *In=m_pCdIn ? m_pCdIn : m_pCd;
   Ti = pCn->Temp();
   Hi = pCn->totHf();
-  Pi = pCn->Press();
+  m_Pi = pCn->Press();
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
+  m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1, Ti);
+
 #if HX_MEASURE_LIQVAP
   m_LiqQm = pCn->VMass[pCn->FlashLiqIndex()/* H2OLiq()*/];
   m_VapQm = pCn->VMass[pCn->FlashVapIndex()/* H2OVap()*/];
 #endif
-  SatT = pCn->SaturationT(Po);
+  m_SatT = pCn->SaturationT(FlashPressOut());
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
-  Po=Pi;
+  m_Po=m_Pi;
   Ho=Hi;
   }
 
@@ -1124,8 +1133,8 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, doubl
   m_pEHX=EHX;
   m_pRB=RB;
 
-  Pi=PIn;
-  Po=Pi;
+  m_Pi=PIn;
+  m_Po=m_Pi;
 
   if (m_pWrkCd==NULL)
     m_pWrkCd=new SpConduit("Wrk", NULL, TOA_Free);
@@ -1152,8 +1161,9 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CEnvironHX 
   m_pEHX=EHX;
   m_pRB=RB;
 
-  Pi=PIn;
-  Po=Pi;
+  m_Pi=PIn;
+  m_Po=m_Pi;
+
 
   if (m_pRB && m_pCd && fPreReact)
     m_pRB->EvalProducts(*m_pCd, FinalTEst);
@@ -1161,6 +1171,7 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CEnvironHX 
   dFinalTEst=FinalTEst;
 
   MeasureHXDataCd(m_pCd);
+
   }
 
 //--------------------------------------------------------------------------
@@ -1274,7 +1285,7 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
           pVent->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteamVent;
           m_pCd->VValue[VLE.FlashVapIndex()/*H2OVap()*/] = QmSteam-QmSteamVent;
           // Remeasure Total Measurements
-          MeasureHXDataCd(NULL);
+          //MeasureHXDataCd(NULL);
           QmVent = QmSteamVent;
           }
         }
@@ -1286,7 +1297,7 @@ double CHXSide::SendGasToVent(bool FullyCondensing)
         pVent->QSetM(*m_pCd, som_Gas, QmVent, VentPress);
         m_pCd->QAdjustQmTo(som_Gas, QmVap-QmVent);
         // Remeasure Total Measurements
-        MeasureHXDataCd(NULL);
+        //MeasureHXDataCd(NULL);
         }
 
       }
@@ -1838,9 +1849,9 @@ double CHXDutyFinder::Function(double Extent)
   Set_Enth_and_TOut(m_Sec, m_Sec.Hi+m_Sec.Duty);
 
   if (m_Pri.m_pCd)
-    m_Pri.m_pCd->SetPress(m_Pri.Po);
+    m_Pri.m_pCd->SetPress(m_Pri.m_Po);
   if (m_Sec.m_pCd)
-    m_Sec.m_pCd->SetPress(m_Sec.Po);
+    m_Sec.m_pCd->SetPress(m_Sec.m_Po);
   m_Pri.iMode=QPF_Sensible;
   m_Sec.iMode=QPF_Sensible;
 
@@ -1925,10 +1936,15 @@ void CHXBlock::EvalProducts(FlwNode* pNd)
           }
 
         if (m_Pri.m_pCd)
-          m_Pri.SatP = m_Pri.m_pCd->SaturationP(m_Pri.To);
+          {
+          m_Pri.m_SatP = m_Pri.m_pCd->SaturationTotalP(m_Pri.To);
+          m_Pri.m_SatPP = m_Pri.m_pCd->SaturationP(m_Pri.To);
+          }
         if (m_Sec.m_pCd)
-          m_Sec.SatP = m_Sec.m_pCd->SaturationP(m_Sec.To);
-
+          {
+          m_Sec.m_SatP = m_Sec.m_pCd->SaturationTotalP(m_Sec.To);
+          m_Sec.m_SatPP = m_Sec.m_pCd->SaturationP(m_Sec.To);
+          }
         }
       }
   // NB NB Only for connected parts

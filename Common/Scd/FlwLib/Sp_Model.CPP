@@ -1532,9 +1532,10 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFileAtAll|InitHidden);
     DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
-    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+    DDB.Double  ("SatPP@T",       "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
     DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
+    //DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+    //DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
     DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
     if (m_Ovr.bUse&(SPO_BPEle))
       DDB.TagComment("Ovr");
@@ -4442,6 +4443,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
     case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPress(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
+    case xidSMSatPPress   : DCB.D = PartialPress(SaturationCmpIndex(), -1, Temp());     return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
     case xidSMtotHsFn     : DCB.D=totHs(som_ALL, PARM(0), PARM(1), NULL); return true;
@@ -7923,7 +7925,8 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T)
   double P=Press();
   double PPart=0.0;
 
-  dbgpln("SpModel::PartialPress T:%12.4f P:%12.4f", T, P);
+  if (0)
+    dbgpln("SpModel::PartialPress T:%12.4f P:%12.4f", T, P);
 
   if (1)//m_bClosed && !m_bPressAsSet)
     {
@@ -7945,8 +7948,9 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T)
           double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
           // Assume Linear Relationship - Ideal Gas;
           PPart+=P*Vol1/GTZ(VolA);
-          dbgpln("   %3i) V1:%12.4f Va:%12.4f PP:%12.4f (PPart:%12.4f) %s", 
-            i, Vol1, VolA, P*Vol1/GTZ(VolA), PPart, SDB[i].SymOrTag());
+          if (0)
+            dbgpln("   %3i) V1:%12.4f Va:%12.4f PP:%12.4f (PPart:%12.4f) %s", 
+             i, Vol1, VolA, P*Vol1/GTZ(VolA), PPart, SDB[i].SymOrTag());
           }
         }
       }

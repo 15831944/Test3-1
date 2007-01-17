@@ -123,8 +123,9 @@ XID xidSMPureSatTemp    = SpcXID(100050);
 XID xidSMSatTempP       = SpcXID(100051);
 XID xidSMSatTempPP      = SpcXID(100052);
 XID xidSMSatPress       = SpcXID(100053);
-XID xidSMBoilPtEle      = SpcXID(100054);
-XID xidSMSatComp        = SpcXID(100055);
+XID xidSMSatPPress      = SpcXID(100054);
+XID xidSMBoilPtEle      = SpcXID(100055);
+XID xidSMSatComp        = SpcXID(100056);
 
 XID xidSMSmsH           = SpcXID(100060);
 XID xidSMLmsH           = SpcXID(100061);
