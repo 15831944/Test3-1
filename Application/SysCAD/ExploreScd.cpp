@@ -1730,7 +1730,7 @@ void CExploreScd::ArrangeWindows(int RqdLayoutStyle/*=-1*/)
         {
         if (Dlg.m_GrfStyle==0)
           {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+          //CNM ??? WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
           }
         else
           {
@@ -1770,7 +1770,7 @@ void CExploreScd::ArrangeWindows(int RqdLayoutStyle/*=-1*/)
         {
         if (Dlg.m_TrnStyle==0)
           {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+          //CNM ??? WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
           }
         else
           {
@@ -1816,7 +1816,7 @@ void CExploreScd::ArrangeWindows(int RqdLayoutStyle/*=-1*/)
         ASSERT(NAccessWnds==2);
         if (Dlg.m_OthStyle==0)
           {
-          WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
+          //CNM ??? WL.Wnds[i].pWnd->ShowWindow(SW_SHOWNOACTIVATE);
           }
         else if (WL.Wnds[i].pWnd==WL.pAccessWnd[0])
           {
