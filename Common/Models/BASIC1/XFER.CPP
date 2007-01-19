@@ -70,6 +70,7 @@ X_Tie::X_Tie(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   Joins.SetSize(1); // PreInit to Allow access to Leak Information
   //Joins[0].Leak.Qm=0.0;
   m_bShowQFeed = 1;
+  m_bShowQProd = 1;
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(X_Tie), 0, mmio_CONNECT, &typeid(CFT_Mixer));
   };
@@ -112,6 +113,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Visibility();
     GSM.Add_OnOff(DDB);
     DDB.CheckBox("ShowQFeed",             "",  DC_, "", &m_bShowQFeed,         this, isParm|SetOnChange);
+    DDB.CheckBox("ShowQProd",             "",  DC_, "", &m_bShowQProd,         this, isParm|SetOnChange);
     }
 
   DDB.Text("");
@@ -123,9 +125,14 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Visibility();
     DDB.Object(m_Accumulator, this, NULL, NULL, DDB_RqdPage);
     if (m_bShowQFeed)
-    if (m_bShowQFeed)
       DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
-    DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
+    m_QProd(); // ensure exists
+    if (m_QProd.Exists())
+      {
+      DDB.Visibility(NSHM_All, m_bShowQProd);
+      DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
+      DDB.Visibility();
+      }
     }
   else //if (1)//NetProbalMethod())
     {
@@ -137,6 +144,13 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
       {
       DDB.Visibility(NSHM_All, m_bShowQFeed);
       DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
+      DDB.Visibility();
+      }
+    m_QProd(); // ensure exists
+    if (m_QProd.Exists())
+      {
+      DDB.Visibility(NSHM_All, m_bShowQProd);
+      DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
       DDB.Visibility();
       }
     }

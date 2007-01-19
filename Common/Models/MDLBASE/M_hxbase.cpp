@@ -1088,11 +1088,17 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()/* H2OLiq()*/];
   m_VapQm = pCd->VMass[pCd->FlashVapIndex()/* H2OVap()*/];
 #endif
+
+  //dbgpln("CHXSide::MeasureHXDataCd Liq:%12.5f Vap:%12.5f Ti:%12.4f Pi:%12.4f %s", 
+  //  pCd->VMass[pCd->FlashLiqIndex()], pCd->VMass[pCd->FlashVapIndex()], 
+  //  Ti, m_Pi,
+  //  pCd->FullObjTag());
+
+  m_Po=m_Pi;
   m_SatT = pCd->SaturationT(FlashPressOut());
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
-  m_Po=m_Pi;
   Ho=Hi;
   }
 
@@ -1109,17 +1115,17 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1, Ti);
+  m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1);
 
 #if HX_MEASURE_LIQVAP
   m_LiqQm = pCn->VMass[pCn->FlashLiqIndex()/* H2OLiq()*/];
   m_VapQm = pCn->VMass[pCn->FlashVapIndex()/* H2OVap()*/];
 #endif
+  m_Po=m_Pi;
   m_SatT = pCn->SaturationT(FlashPressOut());
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
-  m_Po=m_Pi;
   Ho=Hi;
   }
 

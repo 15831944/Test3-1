@@ -4441,9 +4441,9 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
       return 1;
       }
     case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
-    case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPress(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
+    case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPressC(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
-    case xidSMSatPPress   : DCB.D = PartialPress(SaturationCmpIndex(), -1, Temp());     return 1;
+    case xidSMSatPPress   : DCB.D = PartialPressC(SaturationCmpIndex(), -1, Temp());     return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
     case xidSMtotHsFn     : DCB.D=totHs(som_ALL, PARM(0), PARM(1), NULL); return true;
@@ -7961,6 +7961,19 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T)
 
 // --------------------------------------------------------------------------
 
+double SpModel::PartialPressC(int CmpIncIds, int CmpExcIds, double T)
+  {
+  int SpIncIds=-1;
+  int SpExcIds=-1;
+  if (CmpIncIds>=0)
+    SpIncIds=CDB[CmpIncIds].VapPhInx();
+  if (CmpExcIds>=0)
+    SpExcIds=CDB[CmpExcIds].VapPhInx();
+  return PartialPress(SpIncIds, SpExcIds, T);
+  }
+
+// --------------------------------------------------------------------------
+
 double SpModel::PartialPressFrac(SpecieIter &Ids, double T)
   {
   TestHStatesOK();
@@ -8015,6 +8028,19 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T)
       }
     }
   return Pf;
+  }
+
+// --------------------------------------------------------------------------
+
+double SpModel::PartialPressFracC(int CmpIncIds, int CmpExcIds, double T)
+  {
+  int SpIncIds=-1;
+  int SpExcIds=-1;
+  if (CmpIncIds>=0)
+    SpIncIds=CDB[CmpIncIds].VapPhInx();
+  if (CmpExcIds>=0)
+    SpExcIds=CDB[CmpExcIds].VapPhInx();
+  return PartialPress(SpIncIds, SpExcIds, T);
   }
 
 // --------------------------------------------------------------------------
@@ -8325,23 +8351,34 @@ int SpModel::SaturationCmpIndex()
 double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
   if (iSatComp>=0)
+    {
+    //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "SatComp", T_, CDB[iSatComp].VapourP(m_iFidelity, T_), FullObjTag());
     return CDB[iSatComp].VapourP(m_iFidelity, T_);
- 
+    }
+
   if (m_pVLE && m_pVLE->Enabled())
     {
     double P=m_pVLE->SaturationP(T_, pMA);
     if (Valid(P))
+      {
+      //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "VLE", T_, P, FullObjTag());
       return P;
+      }
     }
 
   if (m_AutoVLE.m_iCmp>=0)
+    {
+    //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "AutoVLE", T_, CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_), FullObjTag());
     return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
-  //if (m_iSatCmpRqd>=0)
-  //  return CDB[m_iSatCmpRqd].VapourP(m_iFidelity, T_);
-  //if (m_iSatCmp>=0)
-  //  return CDB[m_iSatCmp].VapourP(m_iFidelity, T_);
+    }
+
   if (CDB.DefFlashCmpIndex()>=0)
+    {
+    //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "DefFlash", T_, CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_), FullObjTag());
     return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
+    }
+
+  dbgpln("SpModel::SaturationP = No Calculation");
   return Std_P;
   };
 
@@ -8349,15 +8386,6 @@ double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
   {
   if (iSatComp>=0)
     {
-
-    //bool Lst[MaxSpecies];
-    //SpecieIter I(som_Gas), J;
-    //for (int i=-1; I.Loop(i); )
-    //  Lst[i]=(i!=iSatComp);
-
-    //J.Copy(-1, iSatComp);
-    //OtherVapSp.CreateFrom(Lst, false);
-
     double PP=PartialPress(-1, iSatComp, T_);  
     return CDB[iSatComp].VapourP(m_iFidelity, T_)+PP;
     }
@@ -8371,18 +8399,16 @@ double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
 
   if (m_AutoVLE.m_iCmp>=0)
     {
-    _asm int 3;
-    return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
+    double PP=PartialPress(-1, m_AutoVLE.m_iCmp, T_);  
+    return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_)+PP;
     }
-  //if (m_iSatCmpRqd>=0)
-  //  return CDB[m_iSatCmpRqd].VapourP(m_iFidelity, T_);
-  //if (m_iSatCmp>=0)
-  //  return CDB[m_iSatCmp].VapourP(m_iFidelity, T_);
+
   if (CDB.DefFlashCmpIndex()>=0)
     {
-    _asm int 3;
-    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
+    double PP=PartialPress(-1, CDB.DefFlashCmpIndex(), T_);  
+    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_)+PP;
     }
+  dbgpln("SpModel::SaturationTotalP = No Calculation");
   return Std_P;
   };
 
@@ -8421,7 +8447,7 @@ double SpModel::SaturationT(double P_, CSysVector * pMA, int iSatComp)
     SatTFnd SatT(&MA, this, iSatComp);
     SatT.SetTarget(P_);
     double LoLim=1;//Std_T-100.0;
-    double HiLim=1000.0;//IF97_MaxSatT;//647.096;//CDB.MaxT;
+    double HiLim=5000.0;//IF97_MaxSatT;//647.096;//CDB.MaxT;
     SatT.SetLimits(LoLim, HiLim);
 
     if (Valid(m_dPrvSatT) && SatT.SolveFromEst(m_dPrvSatT, 1.0, 50.0)==RF_OK)
@@ -8440,7 +8466,12 @@ double SpModel::SaturationT(double P_, CSysVector * pMA, int iSatComp)
       {
       //m_dPrvSatT=SatT.Result(); kga: perhaps should return value at limit???!!!
       if (CDB.DefFlashCmpIndex()>=0) 
-        SetCI(4); // a FLash Component (the default) exists
+        {
+        if (MA[CDB.DefFlashLiqIndex()] + MA[CDB.DefFlashVapIndex()]>1e-12)
+          SetCI(4); // a FLash Component (the default) exists
+        else
+          ClrCI(4);
+        }
       else
         ClrCI(4);
       }

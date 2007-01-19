@@ -321,7 +321,7 @@ class DllImportExport CReactionBlock : public TaggedObject
     virtual flag   PutOtherData(FilingControlBlock &FCB);
 
   protected:
-    void           Clear(flag fClearMsg);
+    void           Clear(flag fClearMsg, flag ClearAll);
     void           Parse(CRCTTokenFile &TF);
 
     // Solution

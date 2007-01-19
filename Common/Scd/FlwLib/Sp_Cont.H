@@ -318,10 +318,12 @@ class DllImportExport SpConduit : public SpModelOwner
     double         Press() { return pModel->Press();};
     void           SetPress(double P) { pModel->SetPress(P);};
 
-    double         PartialPress(SpecieIter & Ids, double T)       { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int IncIds, int ExcIds)           { return pModel->PartialPress(IncIds, ExcIds, Temp());};
-    double         PartialPressFrac(SpecieIter & Ids, double T)   { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int IncIds, int ExcIds)       { return pModel->PartialPressFrac(IncIds, ExcIds, Temp());};
+    double         PartialPress(SpecieIter & Ids, double T)         { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int SpIncIds, int SpExcIds)         { return pModel->PartialPress(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressC(int CmpIncIds, int CmpExcIds)      { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp());};
+    double         PartialPressFrac(SpecieIter & Ids, double T)     { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int SpIncIds, int SpExcIds)     { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds)  { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp());};
 
     void           SetVLEBlk(CVLEBase * pVLE)                     { pModel->m_pVLE=pVLE;  };
     void           ClrVLEBlk(CVLEBase * pVLE)                     { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
@@ -923,10 +925,12 @@ class DllImportExport SpContainer : public SpModelOwner
     double         Press()                                                          { return pModel->Press();};
     double         Temp()                                                           {return pModel->Temp();}
 
-    double         PartialPress(SpecieIter & Ids, double T)           { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int IncIds, int ExcIds, double T)     { return pModel->PartialPress(IncIds, ExcIds, T);};
-    double         PartialPressFrac(SpecieIter & Ids, double T)       { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int IncIds, int ExcIds, double T) { return pModel->PartialPressFrac(IncIds, ExcIds, T);};
+    double         PartialPress(SpecieIter & Ids, double T)         { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int SpIncIds, int SpExcIds)         { return pModel->PartialPress(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressC(int CmpIncIds, int CmpExcIds)      { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp());};
+    double         PartialPressFrac(SpecieIter & Ids, double T)     { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int SpIncIds, int SpExcIds)     { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds)  { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp());};
 
     void           SetVLEBlk(CVLEBase * pVLE)                    { pModel->m_pVLE=pVLE; };
     void           ClrVLEBlk(CVLEBase * pVLE)                    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
@@ -1316,10 +1320,12 @@ class DllImportExport SpImage : public SpModelOwner
     double         Temp() { return pModel->Temp();};
     double         Press() { return pModel->Press();};
 
-    double         PartialPress(SpecieIter & Ids, double T)           { return pModel->PartialPress(Ids, T);};
-    double         PartialPress(int IncIds, int ExcIds, double T)     { return pModel->PartialPress(IncIds, ExcIds, T);};
-    double         PartialPressFrac(SpecieIter & Ids, double T)       { return pModel->PartialPressFrac(Ids, T);};
-    double         PartialPressFrac(int IncIds, int ExcIds, double T) { return pModel->PartialPressFrac(IncIds, ExcIds, T);};
+    double         PartialPress(SpecieIter & Ids, double T)         { return pModel->PartialPress(Ids, T);};
+    double         PartialPress(int SpIncIds, int SpExcIds)         { return pModel->PartialPress(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressC(int CmpIncIds, int CmpExcIds)      { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp());};
+    double         PartialPressFrac(SpecieIter & Ids, double T)     { return pModel->PartialPressFrac(Ids, T);};
+    double         PartialPressFrac(int SpIncIds, int SpExcIds)     { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp());};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds)  { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp());};
 
     void           SetTempPress(double T_, double P_)                 { pModel->SetTempPress(T_, P_);};
     void           SetTemp(double T)                                  { pModel->SetTemp(T); };

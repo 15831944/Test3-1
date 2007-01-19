@@ -31,6 +31,7 @@ class DllImportExport X_Tie : public MN_Xfer
 
   protected:
     flag           m_bShowQFeed;
+    flag           m_bShowQProd;
   };
 
 //=========================================================================== 

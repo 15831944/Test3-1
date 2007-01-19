@@ -185,7 +185,7 @@ CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
   m_pModelOwn=NULL;
   m_pCSB=NULL;
 
-  Clear(True);
+  Clear(true, true);
 
   bAutoReload=true;
   bReloadReqd=false;
@@ -214,7 +214,7 @@ CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
 
 CReactionBlock::~CReactionBlock()
   {
-  Clear(True);
+  Clear(true, true);
   nPermReacts=0;
 
   delete pTkns;
@@ -232,7 +232,7 @@ CReactionBlock::~CReactionBlock()
 
 //---------------------------------------------------------------------------
 
-void CReactionBlock::Clear(flag fClearMsg)
+void CReactionBlock::Clear(flag fClearMsg, flag ClearAll)
   {
   for (int k = nPermReacts; k < NAll(); k++)
     {
@@ -254,38 +254,46 @@ void CReactionBlock::Clear(flag fClearMsg)
   Seq.SetSize(0);
 
   //HeatSum              = 0.0;
-  m_dHfIn                = 0;
-  m_dHfOut               = 0;
+  if (ClearAll)
+    {
+    m_dHfIn                = 0;
+    m_dHfOut               = 0;
 
-  m_dHfSumTotFdT         = 0.0;
-  m_dHfSumTotPrT         = 0.0;
-  m_dHfSumTotRefT        = 0.0;
-  m_dHfSumTotZeroT       = 0.0;
-  m_dHfSumTotZeroTAtmP   = 0.0;
+    m_dHfSumTotFdT         = 0.0;
+    m_dHfSumTotPrT         = 0.0;
+    m_dHfSumTotRefT        = 0.0;
+    m_dHfSumTotZeroT       = 0.0;
+    m_dHfSumTotZeroTAtmP   = 0.0;
 
-  m_SrcB.Clear();
-  m_SnkB.Clear();
-  m_dHfErrFdT            = 0.0;
-  m_dHfErrPrT            = 0.0;
-  m_dHfErrZeroT          = 0.0;
+    m_SrcB.Clear();
+    m_SnkB.Clear();
+    m_dHfErrFdT            = 0.0;
+    m_dHfErrPrT            = 0.0;
+    m_dHfErrZeroT          = 0.0;
 
-  m_HfFdStd0           = 0;
-  m_HfPrStd0           = 0;
-  m_HfFdStdT           = 0;
-  m_HfPrStdT           = 0;
-  m_HfFdMdl0           = 0;
-  m_HfPrMdl0           = 0;
-  m_HfFdMdlT           = 0;
-  m_HfPrMdlT           = 0;
+    m_HfFdStd0           = 0;
+    m_HfPrStd0           = 0;
+    m_HfFdStdT           = 0;
+    m_HfPrStdT           = 0;
+    m_HfFdMdl0           = 0;
+    m_HfPrMdl0           = 0;
+    m_HfFdMdlT           = 0;
+    m_HfPrMdlT           = 0;
+    }
 
   NumSpecies           = 0;
   NumElemnts           = 0;
-  m_TempK              = Std_T;
-  m_TempKFeed          = Std_T;
-  m_TempKRct           = Std_T;
-  m_TempKProd          = Std_T;
+
+  if (ClearAll)
+    {
+    m_TempK              = Std_T;
+    m_TempKFeed          = Std_T;
+    m_TempKRct           = Std_T;
+    m_TempKProd          = Std_T;
+    }
   m_UsrDefT            = C_2_K(25.0);
   m_UsrDefP            = StdP;
+
   m_pModelOwn          = NULL;
   m_pOvr               = NULL;
   m_Press              = Std_P;
@@ -1041,16 +1049,16 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
         {
         if (DDB.BeginStruct(this, "dH@Ref", NULL, DDB_NoPage, 0, MarkerClosed))
           {
-          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTRefDuty,    this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTRefDutyRct, this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTRefDuty,    this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTRefDutyRct, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
           DDB.TagComment("-ExoThermic");
           }
         DDB.EndStruct();
         }
       if (DDB.BeginStruct(this, "dH@0", NULL, DDB_NoPage, 0, MarkerClosed))
         {
-        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTZeroDuty,    this, isResult|noFile|noSnap|InitHidden);
-        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTZeroDutyRct, this, isResult|noFile|noSnap|InitHidden);
+        DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTZeroDuty,    this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+        DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTZeroDutyRct, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
         DDB.TagComment("-ExoThermic");
         }
       DDB.EndStruct();
@@ -1058,13 +1066,13 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
         {
         if (DDB.BeginStruct(this, "dH@Fd", NULL, DDB_NoPage, 0, MarkerClosed))
           {
-          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTFdDuty,    this, isResult|noFile|noSnap);
-          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutyRct, this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTFdDuty,    this, 0/*|isResult|noFile|noSnap*/);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutyRct, this, 0/*|isResult|noFile|noSnap*/);
           DDB.TagComment("-ExoThermic");
-          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySrc, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySnk, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTFdHfErr,   this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySrc, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTFdDutySnk, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTFdHfErr,   this, 0/*|isResult|noFile|noSnap*/|InitHidden);
           }
         DDB.EndStruct();
         }
@@ -1072,13 +1080,13 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
         {
         if (DDB.BeginStruct(this, "dH@Pr", NULL, DDB_NoPage, 0))
           {
-          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult|noFile|noSnap);
-          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult|noFile|noSnap);
+          DDB.Double("Nett",       "",    DC_Pwr,  "kJ/s",  xidRCTPrDuty,    this, isResult/*|noFile|noSnap*/);
+          DDB.Double("Rct",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutyRct, this, isResult/*|noFile|noSnap*/);
           DDB.TagComment("-ExoThermic");
-          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, isResult|noFile|noSnap|InitHidden);
-          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, isResult|noFile|noSnap|InitHidden);
+          DDB.Double("HX",         "",    DC_Pwr,  "kJ/s",  xidRCTDutyHXPwr, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Src",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySrc, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Snk",        "",    DC_Pwr,  "kJ/s",  xidRCTPrDutySnk, this, 0/*|isResult|noFile|noSnap*/|InitHidden);
+          DDB.Double("Err",        "",    DC_Pwr,  "kJ/s",  xidRCTPrHfErr,   this, 0/*|isResult|noFile|noSnap*/|InitHidden);
           }
         DDB.EndStruct();
         }
@@ -1091,7 +1099,7 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.Double("CnvTTolerance",     "",    DC_dT,   "C", xidRCTdRctTTol,  this, isParm);
     DDB.Long  ("MaxTIters",         "",    DC_,     "",  xidRCTiMaxTIter, this, isParm);
     DDB.Long  ("Version",           "",    DC_,     "",  &iVersion,       this, isParm|InitHidden, DDBVersion);
-    DDB.Long  ("NoOfReactions",     "",    DC_,     "",  xidRCTNumOfRct,  this, isResult|noFile|noSnap|InitHidden);
+    DDB.Long  ("NoOfReactions",     "",    DC_,     "",  xidRCTNumOfRct,  this, isResult/*|noFile|noSnap*/|InitHidden);
 
     for (int i = 0; i< NSeq(); i++)
       DDB.Object(Seq[i], this, NULL/*Nm()*/, NULL, DDB_OptPage);
@@ -1265,12 +1273,24 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       DCB.D=m_RctB.m_dHfZeroTAtmP/ICGetTimeInc();
       return 1;
     case xidRCTFdDuty:
+      if (DCB.rD)
+        m_dHfSumTotFdT = *DCB.rD*ICGetTimeInc();
+      DCB.D=m_dHfSumTotFdT/ICGetTimeInc();
+      return 1;
     case xidRCTPrDuty:
-      DCB.D=HfSumTot(DCB.lHandle==xidRCTPrDuty)/ICGetTimeInc();
+      if (DCB.rD)
+        m_dHfSumTotPrT = *DCB.rD*ICGetTimeInc();
+      DCB.D=m_dHfSumTotPrT/ICGetTimeInc();
       return 1;
     case xidRCTFdDutyRct:
+      if (DCB.rD)
+        m_RctB.m_Hf_FdT= *DCB.rD*ICGetTimeInc();
+      DCB.D=m_RctB.m_Hf_FdT/ICGetTimeInc();
+      return 1;
     case xidRCTPrDutyRct:
-      DCB.D=HfSumRct(DCB.lHandle==xidRCTPrDutyRct)/ICGetTimeInc();
+      if (DCB.rD)
+        m_RctB.m_Hf_PrT= *DCB.rD*ICGetTimeInc();
+      DCB.D=m_RctB.m_Hf_PrT/ICGetTimeInc();
       return 1;
     case xidRCTDutyHXPwr:
       DCB.D=HsSumHXPwr()/ICGetTimeInc();
@@ -1283,6 +1303,10 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       return 1;
     case xidRCTFdDutySrc:
     case xidRCTPrDutySrc:
+      if (DCB.rD)
+        {
+        dbgpln("xidRCTPrDutySrc Missing Code - Here and others");
+        }
       DCB.D=HfSumSrc(DCB.lHandle==xidRCTPrDutySrc)/ICGetTimeInc();
       return 1;
     case xidRCTFdDutySnk:
@@ -1680,7 +1704,7 @@ flag CReactionBlock::Load(pchar pRCTName, flag KeepState)
 
   MyTagsHaveChanged();
 
-  Clear(True);
+  Clear(true, false);
   iReactionState=RBS_Error;
 
   if (pRCTName)
@@ -1735,7 +1759,7 @@ flag CReactionBlock::Load(pchar pRCTName, flag KeepState)
       }
     catch (RBException thePGMException)
       {
-      Clear(False);
+      Clear(false, true);
       iReactionState=RBS_Error;
       dbgpln("** File Reset Exeption During Compile ** %i", thePGMException.m_Reason);
       }
@@ -2732,7 +2756,7 @@ flag CReactionBlock::CIStrng(int No, pchar & pS)
     case 12: pS="E\tNot Avail";                       return 1;
 
     case 13: pS="W\tFinal Temperature not converged"; return 1;
-    case 14: pS="E\tLow intermediate temperature. (Reaction product temperature likey incorrect)"; return 1;
+    case 14: pS="E\tLow intermediate temperature. (Reaction product temperature likely incorrect)"; return 1;
 
     default:
       return TaggedObject::CIStrng(No, pS);
@@ -2773,7 +2797,7 @@ void CReactionBase::Close()
   if (pRB==NULL)
     return;
 
-  pRB->Clear(True);
+  pRB->Clear(true, true);
 
   if (pRB->nPermReacts>0)
     {
