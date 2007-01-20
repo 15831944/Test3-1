@@ -40,7 +40,7 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
         DDB.Double("AArea", "", DC_Area, "m^2", &AArea, pTagObj, isResult);
 
       DDB.SetVisibility(Vis);
-      DDB.Text("Volume Lookup...");
+      /*DDB.Text("Volume Lookup...");
       Strng Tg;
       for (int i=0; i<iCount; i++)
         {
@@ -61,6 +61,43 @@ void CVolumeShapeLookup::BuildDataDefn(TaggedObject* pTagObj, DataDefnBlk & DDB)
           Tg.Set("Area.[%d]", i);
           DDB.Double(Tg(), "", DC_Area, "m^2", xidLvl_FirstArea+i, pTagObj, isParm);
           }
+        }*/
+      Strng Tg1,Tg2;
+      if (DDB.BeginObject(pTagObj, "Vol", "LookupVolume", NULL, DDB_OptPage))
+        {
+        DDB.Text("Volume Lookup...");
+        for (int i=0; i<iCount; i++)
+          {
+          Tg1.Set("Volume_%03d", i);
+          Tg2.Set("[%d]", i);
+          DDB.Double(Tg1(), Tg2(), DC_Vol, "m^3", xidLvl_FirstVol+i, pTagObj, isParm);
+          }
+        }
+      DDB.EndObject();
+      if (DDB.BeginObject(pTagObj, "Height", "LookupHeight", NULL, DDB_OptPage))
+        {
+        DDB.Text("Height Lookup...");
+        for (int i=0; i<iCount; i++)
+          {
+          Tg1.Set("Height_%03d", i);
+          Tg2.Set("[%d]", i);
+          DDB.Double(Tg1(), Tg2(), DC_L, "mm", xidLvl_FirstHeight+i, pTagObj, isParm);
+          }
+        }
+      DDB.EndObject();
+      if (bWithSurfAreaLookup)
+        {
+        if (DDB.BeginObject(pTagObj, "Area", "LookupArea", NULL, DDB_OptPage))
+          {
+          DDB.Text("Surface Area Lookup...");
+          for (int i=0; i<iCount; i++)
+            {
+            Tg1.Set("Area_%03d", i);
+            Tg2.Set("[%d]", i);
+            DDB.Double(Tg1(), Tg2(), DC_Area, "m^2", xidLvl_FirstArea+i, pTagObj, isParm);
+            }
+          }
+        DDB.EndObject();
         }
       }
     DDB.EndObject();

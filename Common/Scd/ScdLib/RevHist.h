@@ -2690,10 +2690,15 @@ Build 122 : 16 November 2006
 1331  9/01/07: (#612,654) The reaction equilibrium extent option is now an input field.
 1333 10/01/07: Changed reaction low intermediate temperature message to an error.
 1335 10/01/07: (#695,696) Extensions to VLE to allow flashing of other components (eg NH3).
+1341 11/01/07: (#695,696) Extensions to VLE for other components to work in shell&tube and contact heater.
+1353 16/01/07: (#695,696) Extension to VLE to use Partial Pressures for stream with multiple vapours.
+1355 17/01/07: (#695,696) Further improvements to VLE and Partial pressures.
+1356 18/01/07: (#715) Increase number of tank level lookup fields allowed and fix error during save.
+1357 20/01/07: (#715) Additional fix for data entry.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1335
+#define SCD_PATCH_SVN    1357
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

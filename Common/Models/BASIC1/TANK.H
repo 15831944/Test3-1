@@ -21,11 +21,11 @@
   #define DllImportExport
 #endif
 
-const long MaxLvlLookupCnt = 100;
-XID xidLvl_Lookup         = MdlBsXID(20001);
-XID xidLvl_Count          = MdlBsXID(20002);
-XID xidLvl_Sort           = MdlBsXID(20003);
-XID xidLvl_FirstHeight    = MdlBsXID(20010);
+const long MaxLvlLookupCnt = 200;
+XID xidLvl_Lookup         = MdlBsXID(22001);
+XID xidLvl_Count          = MdlBsXID(22002);
+XID xidLvl_Sort           = MdlBsXID(22003);
+XID xidLvl_FirstHeight    = MdlBsXID(22010);
 XID xidLvl_FirstArea      = xidLvl_FirstHeight+MaxLvlLookupCnt;
 XID xidLvl_FirstVol       = xidLvl_FirstArea+MaxLvlLookupCnt;
 
