@@ -2,7 +2,7 @@
 // $Nokeywords: $
 //===========================================================================
 // SysCAD Copyright Kenwalt (Pty) Ltd 1992
- 
+
 #include "stdafx.h"
 #include "sc_defs.h"
 #define  __FLASHTK_CPP
@@ -100,40 +100,40 @@ Model type:Unit#n
 //---------------------------------------------------------------------------
 /* not used any more
 class VapFinder : public MRootFinderBase
-  {
-  protected:
-    FlashTank &m_FT;
-    SpConduit &m_Ql, &m_Qv;
-    static CToleranceBlock s_Tol;
+{
+protected:
+FlashTank &m_FT;
+SpConduit &m_Ql, &m_Qv;
+static CToleranceBlock s_Tol;
 
-  public:
-    VapFinder(FlashTank & FT, SpConduit &Ql, SpConduit &Qv);
-    ~VapFinder();
-    double Function(double x);
-  };
+public:
+VapFinder(FlashTank & FT, SpConduit &Ql, SpConduit &Qv);
+~VapFinder();
+double Function(double x);
+};
 
 CToleranceBlock VapFinder::s_Tol(TBF_Both, "FlashTank:Vapour", 0.0, 1.0e-8);
 
 //---------------------------------------------------------------------------
 
 VapFinder::VapFinder(FlashTank & FT, SpConduit &Ql, SpConduit &Qv) :
-  m_FT(FT), m_Ql(Ql), m_Qv(Qv), MRootFinderBase("FlashTank:Vapour", s_Tol)//1.0e-8)
-  { 
-  };
+m_FT(FT), m_Ql(Ql), m_Qv(Qv), MRootFinderBase("FlashTank:Vapour", s_Tol)//1.0e-8)
+{ 
+};
 
 //---------------------------------------------------------------------------
 
 VapFinder::~VapFinder()
-  { 
-  };
+{ 
+};
 
 //---------------------------------------------------------------------------
-  
+
 double VapFinder::Function(double P) 
-  { 
-  m_FT.m_VLE.QPFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
-  return m_Qv.QMass();
-  };
+{ 
+m_FT.m_VLE.QPFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
+return m_Qv.QMass();
+};
 */
 //==========================================================================
 
@@ -156,25 +156,25 @@ XID   xidFlashDesc             = MdlBsXID(10000);
 
 static IOAreaRec FlashTankIOAreaList[] =
   {{"Feeds",        "Feed"    , ioidFT_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-   {"Liquor",       "Liquor"  , ioidFT_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-   {"Vapour",       "Vapour"  , ioidFT_Vap  , LIO_Out1,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {"Liquor",       "Liquor"  , ioidFT_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
+  {"Vapour",       "Vapour"  , ioidFT_Vap  , LIO_Out1,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
 #if WITHNONCONDENSABLES
-   {"NonCond Vent", "NonCondVent",ioidFT_NCVent, LIO_Out, nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {"NonCond Vent", "NonCondVent",ioidFT_NCVent, LIO_Out, nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
 #endif
-   SPILL2AREA("Spills", IOId_Spill2Area),
-   VENT2AREA("Vents",   IOId_Vent2Area),
-   {NULL}}; //This lists the areas of the model where links can be attached.
+  SPILL2AREA("Spills", IOId_Spill2Area),
+  VENT2AREA("Vents",   IOId_Vent2Area),
+  {NULL}}; //This lists the areas of the model where links can be attached.
 
 
 static double Drw_FlashTank[] = { DD_Poly, -5,10, -5,-5, 0,-10, 5,-5, 5,10,
-                                 DD_Poly, -5,-2, 5,-2,
-                                 DD_Arc3, -5,10, 0,13, 5,10,
-                                 DD_End }; 
+DD_Poly, -5,-2, 5,-2,
+DD_Arc3, -5,10, 0,13, 5,10,
+DD_End }; 
 
 //--------------------------------------------------------------------------
 
 IMPLEMENT_MODELUNIT(FlashTank, "FlshTank", "1", Drw_FlashTank, "Tank", "FT", TOC_ALL|TOC_GRP_ENERGY|TOC_HEATBAL,
-//                    "HX - Flash Tank(1)",
+                    //                    "HX - Flash Tank(1)",
                     "Heat Transfer:Flash Tank(1)",
                     "The flash tank flashes water vapour from the liquor feed stream.  "
                     "The amount vaporised depends on the condition of the heaters and "
@@ -192,11 +192,11 @@ IMPLEMENT_MODELUNIT(FlashTank, "FlshTank", "1", Drw_FlashTank, "Tank", "FT", TOC
                     "and liquor phases, and the necessary resistance number in the outlet pipes "
                     "to give the required pressure drops to obtain a pressure balance.")
 
-FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MN_Surge(pClass_, TagIn, pAttach, eAttach),
-  m_QFlash("QFlash", this, TOA_Embedded),
-  m_QWrk("Wrk", this, TOA_Embedded),
-  m_FTF(this)
+                    FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
+MN_Surge(pClass_, TagIn, pAttach, eAttach),
+m_QFlash("QFlash", this, TOA_Embedded),
+m_QWrk("Wrk", this, TOA_Embedded),
+m_FTF(this)
   {
   AttachIOAreas(FlashTankIOAreaList, &PipeEntryGroup);
   Contents.SetClosed(False);
@@ -211,15 +211,16 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   sVapSpModel="Steam/Water";//SMSteamClass.?
   //Rqd_Flash_Press=Std_P;
   fOnLine=True;
-  
+
   m_VLE.Open(true);
   //m_VLE.Enable();
 #if DOPBSMOOTHING  
   m_fSolnVapQmValid=false;
   m_dSolnVapQm=0.0;
 #endif
-  m_dOtherVapFracToLiq=1.0;
-  m_bTrackVapFdStatus=1;
+  m_dFlashVapFracToLiq = 0.0;
+  m_dOtherVapFracToLiq = 0.0;
+  m_bTrackVapFdStatus  = 1;
 
   m_nRmtScl=0;
   for (int j=0; j<sizeof(m_RmtScl)/sizeof(m_RmtScl[0]); j++)        
@@ -238,7 +239,7 @@ FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
- 
+
   BuildDataDefnElevation(DDB);
   if (SolveSurgeMethod())
     {
@@ -257,23 +258,24 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("Requirements");
   DDB.Bool    ("On_Line",      "",      DC_,     "",       &fOnLine,       this, isParmStopped, DDBYesNo);
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
-  #if WITHOTHERVAPSPLIT
-  DDB.Double ("OtherVapSplitToLiq", "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
-  #endif
+#if WITHOTHERVAPSPLIT
+  DDB.Double ("FlashVapSplitToLiq",   "", DC_Frac, "%",      &m_dFlashVapFracToLiq, this, isParm);
+  DDB.Double ("OtherVapSplitToLiq",   "", DC_Frac, "%",      &m_dOtherVapFracToLiq, this, isParm);
+#endif
   long PBAllowed  = PC_Atmos|PC_Reqd|PC_ReqdSatT|PC_SatP;
   long DynAllowed = PC_Atmos|PC_Reqd|PC_ReqdSatT;
   m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PBAllowed, DynAllowed);
   DDB.Visibility();
-  
+
   DDBValueLstMem DDB0;
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
   DDB.String("VapSpModel",     "",        DC_,    "",      &sVapSpModel,  this, isParm, DDB0());
 
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
-  #if WITHOTHERVAPSPLIT
+#if WITHOTHERVAPSPLIT
   DDB.CheckBox("TrackVapFd",        "",  DC_,     "",      &m_bTrackVapFdStatus,  this, isParm);
-  #endif
+#endif
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   if (SolveBufferedMethod())
@@ -292,7 +294,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   m_FTF.BuildDataDefn(DDB);
 
   DDB.Visibility(SM_Buffered|HM_All);
-//  DDB.CheckBoxBtn("Closed",    "",      DC_     , "",      xidClosed,      this, isParm, DDBYesNo);
+  //  DDB.CheckBoxBtn("Closed",    "",      DC_     , "",      xidClosed,      this, isParm, DDBYesNo);
   AddMdlClosed(DDB);
   AddMdlNetworked(DDB);
   DDB.Visibility();
@@ -352,6 +354,9 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
   flag OK=MN_Surge::ValidateData(VDB);
   if (sVapSpModel.XStrICmp(SteamWaterSpModelName)==0)
     sVapSpModel=BaseSpModelName;
+
+  m_dFlashVapFracToLiq = Range(0.0, m_dFlashVapFracToLiq, 1.0);
+  m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
 
   DDBValueLstMem DDB0;
   TagObjClass::GetSDescValueLst(SpModel::GroupName, DDB0);
@@ -468,7 +473,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
       MN_Surge::EvalJoinPressures(JoinMask);
     }
   };
- 
+
 //--------------------------------------------------------------------------
 
 void FlashTank::SetState(eScdMdlStateActs RqdState)
@@ -487,12 +492,12 @@ void FlashTank::SetState(eScdMdlStateActs RqdState)
     default:
       break;
 
-//    case MSA_Empty:
-//    case MSA_PreSet:
-//      break;
-//    case MSA_SteadyState:
-//      LogNote(FullObjTag(), 0, "SteadyState Undefined");
-//      break;
+      //    case MSA_Empty:
+      //    case MSA_PreSet:
+      //      break;
+      //    case MSA_SteadyState:
+      //      LogNote(FullObjTag(), 0, "SteadyState Undefined");
+      //      break;
     }
   };
 
@@ -518,7 +523,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
         SpConduit & Ql=*IOConduit(ioLiq);
         SpConduit & Qv=*IOConduit(ioVap);
-        
+
         Ql.SetVLEBlk(&m_VLE);
         Qv.SetVLEBlk(&m_VLE);
 
@@ -568,14 +573,14 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           const int idNCVent=IOWithId_Self(ioidFT_NCVent);
           if (idNCVent>=0)
             {
-             m_QWrk.QSetF(Ql, som_SL, 1.0, PIn);
+            m_QWrk.QSetF(Ql, som_SL, 1.0, PIn);
             SpConduit& NonCondVent = *(IOConduit(idNCVent));
             NonCondVent.QSetF(Ql, som_Gas, 1.0, PIn);
             Ql.QCopy( m_QWrk);
             }
           else
             {
-             m_QWrk.QCopy(Ql, PIn); //leave vapours in slurry...
+            m_QWrk.QCopy(Ql, PIn); //leave vapours in slurry...
             }
           SetCI(1, bTrackVapFdStatus && idNCVent<0 && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
 #else
@@ -630,7 +635,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
               if (fDoDbgBrk)
                 { int xxx=0; };
               }
-            while ((--Iter>0) && (m_FTF.m_dQVap<1.0e-6*QLMass)); 
+              while ((--Iter>0) && (m_FTF.m_dQVap<1.0e-6*QLMass)); 
             }
           }
 
@@ -647,14 +652,21 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         dBPE = Ql.BoilingPtElevation(m_FTF.m_dFlashP);
 
 #if WITHOTHERVAPSPLIT
-        //AFTER doing all the m_VLE work, if required, move "extra" vapours to vapour stream
-        m_dOtherVapFracToLiq = Range(0.0, m_dOtherVapFracToLiq, 1.0);
-        if (m_dOtherVapFracToLiq<1.0 && Ql.QMass(som_Gas)>UsableMass)
+        if (1)
           {
-          m_QWrk.QCopy(Ql);
-          Qv.QAddF(m_QWrk, som_Gas, 1.0-m_dOtherVapFracToLiq);
-          Ql.QSetF(m_QWrk, som_SL, 1.0);
-          Ql.QAddF(m_QWrk, som_Gas, m_dOtherVapFracToLiq);
+          double T=Ql.Temp();
+          double P=Ql.Press();
+          SpecieIter It(som_Gas);
+          for (int g=-1; It.Loop(g); )
+            {
+            double Splt= (g==m_VLE.FlashVapIndex()) ? m_dFlashVapFracToLiq : m_dOtherVapFracToLiq;
+            double G=Qv.VValue[g]+Ql.VValue[g];
+            Qv.VValue[g]=G*(1.0-Splt);
+            Ql.VValue[g]=G*Splt;
+            }
+
+          Qv.SetTempPress(T,P);
+          Ql.SetTempPress(T,P);
           }
 #endif
 
@@ -681,7 +693,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           }
 #endif
         }
-      break;
+        break;
       default:
         MN_Surge::EvalProducts(NEI);
       }
@@ -735,10 +747,10 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
 #endif
         m_FTF.m_dDQvDp=(Q0-Q1)/(P0-P1); // should be negative
         m_FTF.m_fDQvDpGood=( m_QWrk.QMass()>1.0e-10);
-        #if dbgModels   
+#if dbgModels   
         if (dbgFlashTrain())
           dbgpln("FlashMM2P  %12.6f @ %12.6f %s", m_FTF.m_dDQvDp, m_FTF.m_dPEval, Tag());
-        #endif
+#endif
         }
         break;
       case MME_Flash2Qv:
@@ -750,10 +762,10 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
 #else
         m_FTF.m_dQVapEval= m_QWrk.QMass(som_Gas);
 #endif
-        #if dbgModels   
+#if dbgModels   
         if (dbgFlashTrain())
           dbgpln("FlashMM2Qv %12.6f @ %12.6f %s", m_FTF.m_dQVapEval, m_FTF.m_dPEval, Tag());
-        #endif
+#endif
         }
         break;
       case MME_Flash2QvSens:
@@ -761,10 +773,10 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
         //double P0=m_FTF.dPEval;
         m_VLE.QMVapFlash( m_QWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
         m_FTF.m_dPEval= m_QWrk.Press();
-//        #if dbgModels   
-//        if (dbgFlashTrain())
-//          dbgpln("FlashMM2QS %12.6f @ %12.6f %s", m_FTF.dQVapEval, m_FTF.dPEval, Tag());
-//        #endif
+        //        #if dbgModels   
+        //        if (dbgFlashTrain())
+        //          dbgpln("FlashMM2QS %12.6f @ %12.6f %s", m_FTF.dQVapEval, m_FTF.dPEval, Tag());
+        //        #endif
         }
         break;
       }
@@ -809,17 +821,17 @@ void FlashTank::EvalMsAGDatas()
     for (int i=0; i<NoFlwIOs(); i++)
       if (IO_Out(i))
         nDstIOs++;
-      
+
     MsAGDatas.SetSize(nDstIOs);
-  
+
     //SpMArray MassIn=0;
     //SpMArray MassOut=0;
 
-//    if (pMIn && pMIn[0])
-//      MassIn=*pMIn[0];
-//    if (pMOut && pMOut[0])
-//      MassOut=*pMOut[0];
-    
+    //    if (pMIn && pMIn[0])
+    //      MassIn=*pMIn[0];
+    //    if (pMOut && pMOut[0])
+    //      MassOut=*pMOut[0];
+
     int iDstIO=0;
     SpMArray MTotI=0;
     SpMArray MTotO=0;
@@ -831,7 +843,7 @@ void FlashTank::EvalMsAGDatas()
       if (IO_In(i))
         {
         MSrcIOs[nMSrcIOs].SetSrc(this, i);
-//        MSrcIOs[nMSrcIOs].pRmtLnk=Nd_Rmt(i);
+        //        MSrcIOs[nMSrcIOs].pRmtLnk=Nd_Rmt(i);
         nMSrcIOs++;
         MTotI+=IOConduit(i)->MArray();
         }
@@ -842,144 +854,144 @@ void FlashTank::EvalMsAGDatas()
         MTotO+=IOConduit(i)->MArray();
         }
 
-    double TotI=MTotI.Sum();
-    double TotO=MTotO.Sum();
-    int ioLiq = IOWithId_Self(ioidFT_Liq);
-    int ioVap = IOWithId_Self(ioidFT_Vap);
-    if (IO_Out(ioVap))
-      { // Add Dst
-      double QmTot=IOConduit(ioVap)->QMass();
-      CMsAGData & MSA=MsAGDatas[iDstIO++];
+      double TotI=MTotI.Sum();
+      double TotO=MTotO.Sum();
+      int ioLiq = IOWithId_Self(ioidFT_Liq);
+      int ioVap = IOWithId_Self(ioidFT_Vap);
+      if (IO_Out(ioVap))
+        { // Add Dst
+        double QmTot=IOConduit(ioVap)->QMass();
+        CMsAGData & MSA=MsAGDatas[iDstIO++];
 #if DOPB_FILT_ALPHAS
-      MSA.M_EST.SetSize(1);
+        MSA.M_EST.SetSize(1);
 #endif
 
-      MSA.m_Op=CMSOp_RmtMult;
-      MSA.m_iJoinNo=0;//j;
-      MSA.m_pNd=this;
-      MSA.m_fMergeSrc=false;
-      MSA.m_fMergeDst=false;
-      MSA.m_fMergeDstIfUnity=true;
+        MSA.m_Op=CMSOp_RmtMult;
+        MSA.m_iJoinNo=0;//j;
+        MSA.m_pNd=this;
+        MSA.m_fMergeSrc=false;
+        MSA.m_fMergeDst=false;
+        MSA.m_fMergeDstIfUnity=true;
 
-      MSA.m_DstIO.SetDst(this, ioVap, &MSA);
-      MSA.m_SrcIOs.SetSize(nMSrcIOs);
-      for (int m=0; m<MSA.m_SrcIOs.GetSize(); m++)
-        MSA.m_SrcIOs[m]=MSrcIOs[m];
+        MSA.m_DstIO.SetDst(this, ioVap, &MSA);
+        MSA.m_SrcIOs.SetSize(nMSrcIOs);
+        for (int m=0; m<MSA.m_SrcIOs.GetSize(); m++)
+          MSA.m_SrcIOs[m]=MSrcIOs[m];
 
-      MSA.m_RmtIOs.SetSize(m_FTF.CoolLnks.GetSize());
-      for (m=0; m<MSA.m_RmtIOs.GetSize(); m++)
-        MSA.m_RmtIOs[m]=m_FTF.CoolLnks[m];
+        MSA.m_RmtIOs.SetSize(m_FTF.CoolLnks.GetSize());
+        for (m=0; m<MSA.m_RmtIOs.GetSize(); m++)
+          MSA.m_RmtIOs[m]=m_FTF.CoolLnks[m];
 
-      MSA.M_EST.m_MConst.Init();
-      //MSA.M_EST.m_MConst.SetAll(0);
+        MSA.M_EST.m_MConst.Init();
+        //MSA.M_EST.m_MConst.SetAll(0);
 
-      double NewRmtScl=m_FTF.dQFrac*(m_FTF.dQRqdTotal+m_FTF.dVapLoss)/GTZ(m_FTF.m_dQCool);
-      double AvgRmtScl=0.0;
+        double NewRmtScl=m_FTF.dQFrac*(m_FTF.dQRqdTotal+m_FTF.dVapLoss)/GTZ(m_FTF.m_dQCool);
+        double AvgRmtScl=0.0;
 
-      int j;
-      if (m_nRmtScl==0)
-        {
-        m_nRmtScl=3;//sizeof(m_RmtScl)/sizeof(m_RmtScl[0]);
+        int j;
+        if (m_nRmtScl==0)
+          {
+          m_nRmtScl=3;//sizeof(m_RmtScl)/sizeof(m_RmtScl[0]);
+          for (j=0; j<m_nRmtScl; j++)        
+            m_RmtScl[j]=NewRmtScl;
+          }
+
+        for (j=m_nRmtScl-1; j>0; j--)        
+          m_RmtScl[j]=m_RmtScl[j-1];
+        m_RmtScl[0]=NewRmtScl;
+
+        dbgp("RmtScl ");
         for (j=0; j<m_nRmtScl; j++)        
-          m_RmtScl[j]=NewRmtScl;
-        }
+          {
+          AvgRmtScl+=m_RmtScl[j];
+          dbgp(" %12.8f ", m_RmtScl[j]);
+          }
+        AvgRmtScl/=m_nRmtScl;
+        NewRmtScl=AvgRmtScl;
 
-      for (j=m_nRmtScl-1; j>0; j--)        
-        m_RmtScl[j]=m_RmtScl[j-1];
-      m_RmtScl[0]=NewRmtScl;
+        dbgpln(" = %12.8f ", NewRmtScl);
 
-dbgp("RmtScl ");
-      for (j=0; j<m_nRmtScl; j++)        
-        {
-        AvgRmtScl+=m_RmtScl[j];
-dbgp(" %12.8f ", m_RmtScl[j]);
-        }
-      AvgRmtScl/=m_nRmtScl;
-      NewRmtScl=AvgRmtScl;
-
-dbgpln(" = %12.8f ", NewRmtScl);
-
-      #if dbgModels   
-      double xxx=(NewRmtScl-MSA.M_EST.m_RmtScl)/GTZ(Max(fabs(NewRmtScl), fabs(MSA.M_EST.m_RmtScl)));
-      if (dbgMSProgress())
-        dbgp("RmtScl %12.8f >> ", MSA.M_EST.m_RmtScl);
-      #endif
-      static double Filt=0.90;//0.75;
-      if (NewRmtScl<1.0e-12)
-        NewRmtScl=1.0e-6;
-      if (MSA.M_EST.m_RmtScl>0.0)
-        MSA.M_EST.m_RmtScl=Filt*MSA.M_EST.m_RmtScl+(1-Filt)*NewRmtScl;
-      else
-        MSA.M_EST.m_RmtScl=NewRmtScl;
-      #if dbgModels   
-      if (dbgMSProgress())
-        dbgpln("%12.8f [%12.8f] %10.4f%% %s", MSA.M_EST.m_RmtScl, NewRmtScl, xxx, sTag());
-      #endif
-
-      MSA.M_EST.m_MPhi.Init();
-      MSA.M_EST.m_SpReqd.Init();
-      for (int s=0; s<SDB.No(); s++)
-        {
-        MSA.M_EST.m_MPhi[s]=ChkMeaningFull(IOConduit(ioVap)->Qm(s)/GTZ(QmTot));
-        if (IOConduit(ioVap)->Qm(s)!=0.0)
-          MSA.M_EST.m_SpReqd[s]=true;
-        }
-      }
-
-    if (IO_Out(ioLiq))
-      { // Add Dst
-      CMsAGData & MSA=MsAGDatas[iDstIO++];
-#if DOPB_FILT_ALPHAS
-      MSA.M_EST.SetSize(1);
+#if dbgModels   
+        double xxx=(NewRmtScl-MSA.M_EST.m_RmtScl)/GTZ(Max(fabs(NewRmtScl), fabs(MSA.M_EST.m_RmtScl)));
+        if (dbgMSProgress())
+          dbgp("RmtScl %12.8f >> ", MSA.M_EST.m_RmtScl);
+#endif
+        static double Filt=0.90;//0.75;
+        if (NewRmtScl<1.0e-12)
+          NewRmtScl=1.0e-6;
+        if (MSA.M_EST.m_RmtScl>0.0)
+          MSA.M_EST.m_RmtScl=Filt*MSA.M_EST.m_RmtScl+(1-Filt)*NewRmtScl;
+        else
+          MSA.M_EST.m_RmtScl=NewRmtScl;
+#if dbgModels   
+        if (dbgMSProgress())
+          dbgpln("%12.8f [%12.8f] %10.4f%% %s", MSA.M_EST.m_RmtScl, NewRmtScl, xxx, sTag());
 #endif
 
-      MSA.m_Op=CMSOp_IODiff;
-      MSA.m_iJoinNo=0;//j;
-      MSA.m_pNd=this;
-      MSA.m_fMergeSrc=false;
-      MSA.m_fMergeDst=false;
-      MSA.m_fMergeDstIfUnity=true;
-
-      MSA.m_DstIO.SetDst(this, ioLiq, &MSA);
-      MSA.m_SrcIOs.SetSize(nMSrcIOs);
-      for (int m=0; m<MSA.m_SrcIOs.GetSize(); m++)
-        MSA.m_SrcIOs[m]=MSrcIOs[m];
-      MSA.m_MOutIOs.SetSize(nMOutIOs-1);
-      int n=0;
-      for (m=0; m<nMOutIOs; m++)
-        if (MOutIOs[m].IONo()!=ioLiq)
-          MSA.m_MOutIOs[n++]=MOutIOs[m];
-      MSA.M_EST.m_MBeta.SetAll(0.0);
-      //MSA.M_EST.m_MAlpha.Init();
-      MSA.M_EST.m_MGamma.Init(true);
-      MSA.M_EST.m_MBeta.Init(false);
-      MSA.M_EST.m_SpReqd.Init();
-      for (int s=0; s<SDB.No(); s++)
-        {
-//        MSA.M_EST.m_MAlpha[s]=(MTotI[s]+MassIn[s])>1.0e-12 ? 1.0 : 0.0;
-//        MSA.M_EST.m_MGamma[s][s]=(MTotI[s]/*+MassIn[s]*/)>1.0e-12 ? 1.0 : 0.0;
-//        MSA.M_EST.m_MGamma[s][s]=1.0;
-        if (MTotO[s]!=0.0)
-          MSA.M_EST.m_SpReqd[s]=true;
-        //MSA.M_EST.m_MBeta.SetSize(SDB.No(), SDB.No());
-        for (int j=0; j<Cmp.GetSize(); j++)
-          if (s==Cmp[j].li)
-            {
-            MSA.M_EST.m_MBeta[s][Cmp[j].li]=-1.0;
-            MSA.M_EST.m_MBeta[s][Cmp[j].vi]=1.0;
-            }
-          else if (s==Cmp[j].vi)
-            {
-            //MSA.MBeta[s][s]=0.0;
-            }
-          else
-            {
-            MSA.M_EST.m_MBeta[s][s]=0.0;
-            if (SDB[s].IsGas())
-              MSA.M_EST.m_MGamma[s][s]=0.0;//Loss*Alpha;
-            }
+        MSA.M_EST.m_MPhi.Init();
+        MSA.M_EST.m_SpReqd.Init();
+        for (int s=0; s<SDB.No(); s++)
+          {
+          MSA.M_EST.m_MPhi[s]=ChkMeaningFull(IOConduit(ioVap)->Qm(s)/GTZ(QmTot));
+          if (IOConduit(ioVap)->Qm(s)!=0.0)
+            MSA.M_EST.m_SpReqd[s]=true;
+          }
         }
-      }
+
+      if (IO_Out(ioLiq))
+        { // Add Dst
+        CMsAGData & MSA=MsAGDatas[iDstIO++];
+#if DOPB_FILT_ALPHAS
+        MSA.M_EST.SetSize(1);
+#endif
+
+        MSA.m_Op=CMSOp_IODiff;
+        MSA.m_iJoinNo=0;//j;
+        MSA.m_pNd=this;
+        MSA.m_fMergeSrc=false;
+        MSA.m_fMergeDst=false;
+        MSA.m_fMergeDstIfUnity=true;
+
+        MSA.m_DstIO.SetDst(this, ioLiq, &MSA);
+        MSA.m_SrcIOs.SetSize(nMSrcIOs);
+        for (int m=0; m<MSA.m_SrcIOs.GetSize(); m++)
+          MSA.m_SrcIOs[m]=MSrcIOs[m];
+        MSA.m_MOutIOs.SetSize(nMOutIOs-1);
+        int n=0;
+        for (m=0; m<nMOutIOs; m++)
+          if (MOutIOs[m].IONo()!=ioLiq)
+            MSA.m_MOutIOs[n++]=MOutIOs[m];
+        MSA.M_EST.m_MBeta.SetAll(0.0);
+        //MSA.M_EST.m_MAlpha.Init();
+        MSA.M_EST.m_MGamma.Init(true);
+        MSA.M_EST.m_MBeta.Init(false);
+        MSA.M_EST.m_SpReqd.Init();
+        for (int s=0; s<SDB.No(); s++)
+          {
+          //        MSA.M_EST.m_MAlpha[s]=(MTotI[s]+MassIn[s])>1.0e-12 ? 1.0 : 0.0;
+          //        MSA.M_EST.m_MGamma[s][s]=(MTotI[s]/*+MassIn[s]*/)>1.0e-12 ? 1.0 : 0.0;
+          //        MSA.M_EST.m_MGamma[s][s]=1.0;
+          if (MTotO[s]!=0.0)
+            MSA.M_EST.m_SpReqd[s]=true;
+          //MSA.M_EST.m_MBeta.SetSize(SDB.No(), SDB.No());
+          for (int j=0; j<Cmp.GetSize(); j++)
+            if (s==Cmp[j].li)
+              {
+              MSA.M_EST.m_MBeta[s][Cmp[j].li]=-1.0;
+              MSA.M_EST.m_MBeta[s][Cmp[j].vi]=1.0;
+              }
+            else if (s==Cmp[j].vi)
+              {
+              //MSA.MBeta[s][s]=0.0;
+              }
+            else
+              {
+              MSA.M_EST.m_MBeta[s][s]=0.0;
+              if (SDB[s].IsGas())
+                MSA.M_EST.m_MGamma[s][s]=0.0;//Loss*Alpha;
+              }
+          }
+        }
     }
   else
     MN_Surge::EvalMsAGDatas();
@@ -996,14 +1008,14 @@ void FlashTank::UpdateMsSoln(SparseSolver & SSMS)
     SpConduit & Vap=*IOConduit(ioVap);
     m_fSolnVapQmValid=true;
 
-    #if dbgModels   
+#if dbgModels   
     if (dbgMSProgress())
       dbgpln("UpdateMsSoln %10.6f >> %10.6f  %s", m_dSolnVapQm,Vap.QMass(), FullObjTag());
-    #endif
+#endif
     m_dSolnVapQm=Vap.QMass();
     int xxx=0;
     }
-  
+
   };
 #endif
 //===========================================================================

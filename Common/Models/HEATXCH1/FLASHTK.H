@@ -40,6 +40,7 @@ class DllImportExport FlashTank : public MN_Surge
     double         m_dSolnVapQm;
     #endif
 
+    double         m_dFlashVapFracToLiq;
     double         m_dOtherVapFracToLiq;
 
     double         m_RmtScl[10];

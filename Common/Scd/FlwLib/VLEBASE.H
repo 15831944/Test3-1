@@ -40,17 +40,9 @@ _FWDDEF(CVLEBlock);
 //
 //============================================================================
 
-XID xidVLEEnable = MdlBsXID(2000);
-XID xidVLEEqnNm  = MdlBsXID(2001);
-
-//const dword VLEF_Null             = 0x00000000;
-//const dword VLEF_VfFlash          = 0x00000001;
-//const dword VLEF_TPFlash          = 0x00000002;
-//const dword VLEF_QPFlash          = 0x00000004;
-//const dword VLEF_QVFlash          = 0x00000008;
-//const dword VLEF_SaturationLimit  = 0x00000010;
-//const dword VLEF_QMVapFlash       = 0x00000020;
-//const dword VLEF_WithDebug        = 0x10000000;
+XID xidVLEEnable    = MdlBsXID(2000);
+XID xidVLEEqnNm     = MdlBsXID(2001);
+XID xidVLENettVapQm = MdlBsXID(2002);
 
 //============================================================================
 
@@ -118,7 +110,6 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
 
     virtual flag   HasTPEnvelope() = 0;
-    //virtual double SensibleHeatGain() = 0;
   protected:
 
     void SetMixFrac(SpMArray *pVMixFrac, SpMArray *pLMixFrac);
@@ -138,23 +129,23 @@ class DllImportExport CVLEBlock : public TaggedObject
 class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
   {
   public:
-    CVLEBase(pTaggedObject pAttach, dword SelectMask, LPTSTR Name="VLE") : CBlockEvalBase(BEId_VLE,0,Name) { pVLE=NULL; pNd=pAttach; fEnabled=fFixed=False; dwSelectMask=SelectMask; };
-    virtual ~CVLEBase() { delete pVLE; };
+    CVLEBase(pTaggedObject pAttach, dword SelectMask, LPTSTR Name="VLE");
+    virtual ~CVLEBase();
 
     flag           Open(TagObjClass * pVLEClass=NULL, flag Fixed=False);
     flag           Open(byte OnOffSeq, TagObjClass * pVLEClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pVLEClass, Fixed); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
 
-    int TPFlashReqd() { return (dwSelectMask&VLEF_TPFlash)!=0; };
-    int QPFlashReqd() { return (dwSelectMask&VLEF_QPFlash)!=0; };
-    int QVFlashReqd() { return (dwSelectMask&VLEF_QVFlash)!=0; };
-    int QMVapFlashReqd() { return (dwSelectMask&VLEF_QMVapFlash)!=0; };
+    int TPFlashReqd()     { return (m_dwSelectMask&VLEF_TPFlash)!=0; };
+    int QPFlashReqd()     { return (m_dwSelectMask&VLEF_QPFlash)!=0; };
+    int QVFlashReqd()     { return (m_dwSelectMask&VLEF_QVFlash)!=0; };
+    int QMVapFlashReqd()  { return (m_dwSelectMask&VLEF_QMVapFlash)!=0; };
 
-    CVLEBlock *     operator() () { return pVLE; };
-    flag           Enabled() { return fEnabled && (pVLE!=NULL); };
-    void           Enable() { fEnabled = true; };
-    void           Disable() { fEnabled = false; };
+    CVLEBlock *     operator() () { return m_pVLE; };
+    flag           Enabled()  { return m_fEnabled && (m_pVLE!=NULL); };
+    void           Enable()   { m_fEnabled = true; };
+    void           Disable()  { m_fEnabled = false; };
     void           Add_OnOff(DataDefnBlk &DDB, dword Flags=isParmStopped);
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="VLE", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);
@@ -185,23 +176,26 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
 
     flag           HasTPEnvelope();
 
-    //void           SensibleHeatIn(bool ClearIt, SpModel & Mdl);                                                     
-    //void           SensibleHeatOut(SpModel & Mdl);
-    //double         SensibleHeatGain() { return m_SensHtIn; };
-
     void           SetMixFrac(SpMArray *pVMixFrac=NULL, SpMArray *pLMixFrac=NULL);
     void           SetMixFrac(double dVMixFrac=1.0, double dLMixFrac=1.0);
     void           SetMixFrac(int CompNo, double dVMixFrac=1.0, double dLMixFrac=1.0);
 
   protected:
-    flag            fFixed;
-    flag            fEnabled;
-    CVLEBlock *      pVLE;
-    //    pFlwNode        pNd;
-    pTaggedObject   pNd;
-    dword           dwSelectMask;
+    flag            m_fFixed;
+    flag            m_fEnabled;
+    CVLEBlock *     m_pVLE;
+    pTaggedObject   m_pNd;
+    dword           m_dwSelectMask;
 
-    double          m_SensHtIn;
+    bool            m_AsFlow;
+    double          m_TIn;
+    double          m_PIn;
+    double          m_VapQmIn;
+    double          m_VapFracIn;
+    double          m_TOut;
+    double          m_POut;
+    double          m_VapQmOut;
+    double          m_VapFracOut;
 
   public:
 
@@ -216,24 +210,23 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
   };
 
 inline void CVLEBase::SetMixFrac(SpMArray *pVMixFrac, SpMArray *pLMixFrac) 
-  { if (pVLE) pVLE->SetMixFrac(pVMixFrac, pLMixFrac); };
+  { if (m_pVLE) m_pVLE->SetMixFrac(pVMixFrac, pLMixFrac); };
 inline void CVLEBase::SetMixFrac(double dVMixFrac, double dLMixFrac) 
-  { if (pVLE) pVLE->SetMixFrac(dVMixFrac, dLMixFrac); };
+  { if (m_pVLE) m_pVLE->SetMixFrac(dVMixFrac, dLMixFrac); };
 inline void CVLEBase::SetMixFrac(int CompNo, double dVMixFrac, double dLMixFrac) 
-  { if (pVLE) pVLE->SetMixFrac(CompNo, dVMixFrac, dLMixFrac); };
+  { if (m_pVLE) m_pVLE->SetMixFrac(CompNo, dVMixFrac, dLMixFrac); };
 inline void CVLEBase::SetFlashVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags)
   { SetFlashVapFrac(*Q.Model(), Temp, Press, VapFrac, Flags);}
 inline void CVLEBase::SetFlashVapFrac(SpConduit &Q, double VapFrac, dword Flags)
   { SetFlashVapFrac(*Q.Model(), VapFrac, Flags);}
-//inline double CVLEBase::SensibleHeatGain()
-//  { return (pVLE) ? pVLE->SensibleHeatGain():0.0; };
 
 // =========================================================================
 
 enum VLEStates 
   { 
-  VLES_Error, 
+  VLES_CfgError, 
   VLES_OK, 
+  VLES_Nothing, 
   VLES_SubCooled, 
   VLES_BubblePt, 
   VLES_TwoPhase, 
@@ -283,7 +276,6 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
 
     virtual flag   HasTPEnvelope() { return False;};
-    //virtual double SensibleHeatGain() { return m_SensHeatGain; };
 
     //  protected:
     int            Setup(SpModel *pMdlL_, SpModel *pMdlV_);
@@ -311,7 +303,6 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     double         dPrvVapFrac;
     double         dPrvVapPress;
     double         dApproachTemp;
-    //double         m_SensHeatGain;
 
   };
 
@@ -351,7 +342,6 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return False;}
-    //virtual double SensibleHeatGain() { return m_SensHeatGain; };
 
   protected:
     int            NAvailComps() { return Cmp.GetSize(); };
@@ -362,13 +352,11 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
     DEFINE_CI(CVLEFixdPerc, CVLEBlock, 4);
 
   protected:
-    //    FlwNode        &Nd;
     CVLEDataArray   Cmp;
     CDArray        M,F;
     double         Mt,Ht;
     int            iState;
     int            nComps;
-    //double         m_SensHeatGain;
   };
 
 #endif
@@ -409,7 +397,6 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return True;};
-    //virtual double SensibleHeatGain() { return m_SensHeatGain; };
 
   protected:
     int            NAvailComps() { return Cmp.GetSize(); };
@@ -446,7 +433,6 @@ class DllImportExport CVLERootK : public CVLEBlock
     CArray <CComponent*, CComponent*> CDefn;
 
     double         dPrvTemp, dPrvPress, dPrvVMoleFrac;
-    //double         m_SensHeatGain;
 
   };
 

@@ -609,31 +609,234 @@ overflow.*/
 
 void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
   {
-  const int DoLast10=01;
-
-  //dbgpln("EvalDerivs   - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
-
-  Contents.ZeroDeriv();
-
-  if (/*!IntegralDone() &&*/ !GetActiveHold())
+  if (SolveSurgeMethod())
     {
-    for (int i = 0; i < NoProcessIOs(); i++)
+
+    const int DoLast10=01;
+
+    //dbgpln("EvalDerivs   - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
+
+    Contents.ZeroDeriv();
+
+    if (/*!IntegralDone() &&*/ !GetActiveHold())
       {
-      int Id=IOId_Self(i);
-      if (Id!=IOId_HX)
+      for (int i = 0; i < NoProcessIOs(); i++)
         {
-        SpConduit & Cd=*IOConduit(i);
-        double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
-        FracAbove=Range(0.0, FracAbove, 1.0);
-        double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
-                    (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
-        //static int xx=0;
-        //if (xx && (IOSign(i)>0))
-        //  m_VLE.QPFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
-        Contents.AddDeriv(Cd, IOSign(i), EntR);
+        int Id=IOId_Self(i);
+        if (Id!=IOId_HX)
+          {
+          SpConduit & Cd=*IOConduit(i);
+          double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
+          FracAbove=Range(0.0, FracAbove, 1.0);
+          double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
+            (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
+          //static int xx=0;
+          //if (xx && (IOSign(i)>0))
+          //  m_VLE.QPFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
+          Contents.AddDeriv(Cd, IOSign(i), EntR);
+          }
+        }
+      //dbgpln("EvalDerivs   - AddInflow ");
+
+      if (Contents.SpillExists())
+        {
+        //if (Contents.Spill.Cd.QMass()>0)
+        //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", Contents.Spill.Cd.QMass(), FullObjTag());
+        Contents.AddDeriv(Contents.Spill.Cd, -1.0);
+        }
+      if (Contents.VentExists())
+        {
+        //if (Contents.Vent.Cd.QMass()>0)
+        //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
+        Contents.AddDeriv(Contents.Vent.Cd, -1.0);
+        }
+
+      //Do Makeup
+      int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
+      if (iMkUp>=0)
+        {
+        for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
+          Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
+        }
+
+      //Do Bleed
+      int iBleed=IOWithId_Self(IOId_Bleed2Area);
+      if (iBleed>=0)
+        {
+        for ( ;iBleed<NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+          Contents.AddDeriv(*IOConduit(iBleed), -1.0);
+        }
+
+
+      //    CEquipmentThermals
+      m_EqThermals.EvalDerivs();
+
+      //  if (RB())
+      //    {
+      //    StkSpConduit QOutEst;
+      //    SigmaQOut(QOutEst(), First64IOIds);
+      //    RB.EvalDerivs(Contents, QInEst, QOutEst());
+      //    }
+
+      }
+    if (HX())
+      HX.EvalDerivs();
+
+    m_VLE.AddQVDerivs(Contents, 0, 0);
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void MN_Surge::ODEOperate(CODEDataBlock & ODB)
+  {
+  if (SolveSurgeMethod())
+    {
+
+    bool DoIt=true;
+    switch (ODB.m_Cmd)
+      {
+      case eStateAdvance:
+        DoIt=!IntegralDone();
+      case eStateConverge:
+      case eStateLoad:
+      case eStateDiskLoad:
+        {
+        if (DoIt && !GetActiveHold())
+          {
+          #if dbgMSurge
+          if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+            {
+            dbgp("ODE:---  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+              m_CnStart.DTemp(Contents), Contents.Temp(),
+              m_CnStart.DPress(Contents), Contents.Press(),
+              m_CnStart.DMass(Contents), Contents.Mass(),
+              m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
+            if (dbgODEOperateSpc())
+              for (int s=0; s<SVValueCount(); s++)
+                dbgp(" %12.5g", Contents.MArray()[s]);
+            dbgpln(" %s.Contents", FullObjTag());
+            }
+          #endif
+          Contents.ODEOperate(ODB);
+          m_EqThermals.ODEOperate(ODB);
+
+          #if dbgMSurge
+          if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+            {
+            dbgp("ODE:Int  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+              m_CnStart.DTemp(Contents), Contents.Temp(),
+              m_CnStart.DPress(Contents), Contents.Press(),
+              m_CnStart.DMass(Contents), Contents.Mass(),
+              m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
+            if (dbgODEOperateSpc())
+              for (int s=0; s<SVValueCount(); s++)
+                dbgp(" %12.5g", Contents.MArray()[s]);
+            dbgpln(" %s.Contents", FullObjTag());
+            }
+          #endif
+
+          ConvergeStates(CConvergeStateBlk(ODB));
+          #if dbgMSurge
+          if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+            {
+            dbgp("ODE:Cvg  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+              m_CnStart.DTemp(Contents), Contents.Temp(),
+              m_CnStart.DPress(Contents), Contents.Press(),
+              m_CnStart.DMass(Contents), Contents.Mass(),
+              m_CnStart.DLevel(Contents)*100, Contents.Level()*100);
+            if (dbgODEOperateSpc())
+              for (int s=0; s<SVValueCount(); s++)
+                dbgp(" %12.5g", Contents.MArray()[s]);
+            dbgpln(" %s.Contents", FullObjTag());
+            }
+          #endif
+          }
+        break;
+        }
+      case eStateFixDV:
+      case eStateTest:
+      case eStateSave:
+      case eStateDiskSave:
+        {
+        Contents.ODEOperate(ODB);
+        m_EqThermals.ODEOperate(ODB);
+        break;
         }
       }
-    //dbgpln("EvalDerivs   - AddInflow ");
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
+  {
+  //dbgpln("EvalIntegral - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
+  if (SolveSurgeMethod())
+    {
+
+    flag VLEOn=0 && m_VLE.Enabled();
+    dword IOMsk=First64IOIds;
+    StkSpConduit QPF("QPF", chLINEID(), this);
+
+    Contents.ZeroDeriv();
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+      {
+      dbgp("           %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.12s", SVImg(s).Tag());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("InI:---  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+        m_CnStart.DTemp(Contents), Contents.Temp(),
+        m_CnStart.DPress(Contents), Contents.Press(),
+        m_CnStart.DMass(Contents), Contents.Mass(),
+        m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.MArray()[s]);
+      dbgpln(" %s.Contents", FullObjTag());
+      }
+#endif
+    for (int i = 0; i < NoProcessIOs(); i++)
+      {
+      if (IOIdMask_Self(i) & IOMsk)
+        {
+        SpConduit * Cd;
+        if (VLEOn && IO_In(i))
+          {
+          QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
+          m_VLE.QPFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
+          Cd=&QPF();
+          }
+        else
+          Cd=IOConduit(i);
+        double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
+        FracAbove=Range(0.0, FracAbove, 1.0);
+        double EntR=FracAbove*IOEntrainRateA(i)*Cd->QMass(som_SL)+
+          (1.0-FracAbove)*IOEntrainRateB(i)*Cd->QMass(som_Gas);
+        Contents.AddDeriv(*Cd, IOSign(i), EntR);
+#if dbgMSurge
+        if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+          {
+          dbgp("dM :IO   > Sgn:%2i EntR:%10.4f CdQm:%10.4f %*s",IOSign(i),EntR,Cd->QMass(),151-39-24,"");
+          if (dbgODEOperateSpc())
+            for (int s=0; s<SVValueCount(); s++)
+              dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+          dbgpln(" %s", Nd_Rmt(i)->FullObjTag());
+          dbgp("         < %*s",151-24,"");
+          if (dbgODEOperateSpc())
+            for (int s=0; s<SVValueCount(); s++)
+              dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+          dbgpln(" %s %s", IOQmEst_In(i)?"IN":"", IOQmEst_Out(i)?"Out":"");
+          }
+#endif
+        }
+      }
+
+    //dbgpln("EvalIntegral - AddInflow");
+    //Contents.AddInFlowDeriv();
 
     if (Contents.SpillExists())
       {
@@ -660,268 +863,76 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
     int iBleed=IOWithId_Self(IOId_Bleed2Area);
     if (iBleed>=0)
       {
-      for ( ;iBleed<NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+      for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
         Contents.AddDeriv(*IOConduit(iBleed), -1.0);
       }
 
-
-    //    CEquipmentThermals
-    m_EqThermals.EvalDerivs();
-
-  //  if (RB())
-  //    {
-  //    StkSpConduit QOutEst;
-  //    SigmaQOut(QOutEst(), First64IOIds);
-  //    RB.EvalDerivs(Contents, QInEst, QOutEst());
-  //    }
-
-    }
-  if (HX())
-    HX.EvalDerivs();
-
-  m_VLE.AddQVDerivs(Contents, 0, 0);
-
-  };
-
-//--------------------------------------------------------------------------
-
-void MN_Surge::ODEOperate(CODEDataBlock & ODB)
-  {
-  bool DoIt=true;
-  switch (ODB.m_Cmd)
-    {
-    case eStateAdvance:
-      DoIt=!IntegralDone();
-    case eStateConverge:
-    case eStateLoad:
-    case eStateDiskLoad:
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
       {
-      if (DoIt && !GetActiveHold())
-        {
-        #if dbgMSurge
-        if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-          {
-          dbgp("ODE:---  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
-            m_CnStart.DTemp(Contents), Contents.Temp(),
-            m_CnStart.DPress(Contents), Contents.Press(),
-            m_CnStart.DMass(Contents), Contents.Mass(),
-            m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
-          if (dbgODEOperateSpc())
-            for (int s=0; s<SVValueCount(); s++)
-              dbgp(" %12.5g", Contents.MArray()[s]);
-          dbgpln(" %s.Contents", FullObjTag());
-          }
-        #endif
-        Contents.ODEOperate(ODB);
-        m_EqThermals.ODEOperate(ODB);
-
-        #if dbgMSurge
-        if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-          {
-          dbgp("ODE:Int  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
-            m_CnStart.DTemp(Contents), Contents.Temp(),
-            m_CnStart.DPress(Contents), Contents.Press(),
-            m_CnStart.DMass(Contents), Contents.Mass(),
-            m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
-          if (dbgODEOperateSpc())
-            for (int s=0; s<SVValueCount(); s++)
-              dbgp(" %12.5g", Contents.MArray()[s]);
-          dbgpln(" %s.Contents", FullObjTag());
-          }
-        #endif
-
-        ConvergeStates(CConvergeStateBlk(ODB));
-        #if dbgMSurge
-        if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-          {
-          dbgp("ODE:Cvg  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
-            m_CnStart.DTemp(Contents), Contents.Temp(),
-            m_CnStart.DPress(Contents), Contents.Press(),
-            m_CnStart.DMass(Contents), Contents.Mass(),
-            m_CnStart.DLevel(Contents)*100, Contents.Level()*100);
-          if (dbgODEOperateSpc())
-            for (int s=0; s<SVValueCount(); s++)
-              dbgp(" %12.5g", Contents.MArray()[s]);
-          dbgpln(" %s.Contents", FullObjTag());
-          }
-        #endif
-        }
-      break;
+      dbgp("dM :Ovr  > %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("         < %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+      dbgpln("");
       }
-    case eStateFixDV:
-    case eStateTest:
-    case eStateSave:
-    case eStateDiskSave:
+#endif
+
+    Contents.pModel->m_DC.Finalise(Contents.pModel, ICGetTimeInc());
+    //Contents.m_DC.Finalise(this, ICGetTimeInc());
+
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
       {
-      Contents.ODEOperate(ODB);
-      m_EqThermals.ODEOperate(ODB);
-      break;
+      dbgp("dM :Final> %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
+      dbgpln(" %s.Contents", FullObjTag());
+      dbgp("         < %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
+      dbgpln("");
+      dbgp("         = %*s",151-24,"");
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", (Contents.pModel->m_DC.m_pFd->m_M[s]-Contents.pModel->m_DC.m_pPr->m_M[s])*ICGetTimeInc());
+      dbgpln("");
       }
-    }
-  };
+#endif
 
-//--------------------------------------------------------------------------
-
-void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
-  {
-  //dbgpln("EvalIntegral - %s %s %s %s", SolveInlineMethod()?"Inline":"      ", IntegralDone()?"IntDone":"       ", GetActiveHold()?"Hold":"    ", Tag());
-
-  flag VLEOn=0 && m_VLE.Enabled();
-  dword IOMsk=First64IOIds;
-  StkSpConduit QPF("QPF", chLINEID(), this);
-
-  Contents.ZeroDeriv();
-  #if dbgMSurge
-  if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-    {
-    dbgp("           %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.12s", SVImg(s).Tag());
-    dbgpln(" %s.Contents", FullObjTag());
-    dbgp("InI:---  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
-      m_CnStart.DTemp(Contents), Contents.Temp(),
-      m_CnStart.DPress(Contents), Contents.Press(),
-      m_CnStart.DMass(Contents), Contents.Mass(),
-      m_CnStart.DLevel(Contents)*100, Contents.Level()*100, FullObjTag());
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.MArray()[s]);
-    dbgpln(" %s.Contents", FullObjTag());
-    }
-  #endif
-  for (int i = 0; i < NoProcessIOs(); i++)
-    {
-    if (IOIdMask_Self(i) & IOMsk)
+    if (!GetActiveHold())
       {
-      SpConduit * Cd;
-      if (VLEOn && IO_In(i))
-        {
-        QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
-        m_VLE.QPFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
-        Cd=&QPF();
-        }
-      else
-        Cd=IOConduit(i);
-      double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
-      FracAbove=Range(0.0, FracAbove, 1.0);
-      double EntR=FracAbove*IOEntrainRateA(i)*Cd->QMass(som_SL)+
-                  (1.0-FracAbove)*IOEntrainRateB(i)*Cd->QMass(som_Gas);
-      Contents.AddDeriv(*Cd, IOSign(i), EntR);
-      #if dbgMSurge
-      if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-        {
-        dbgp("dM :IO   > Sgn:%2i EntR:%10.4f CdQm:%10.4f %*s",IOSign(i),EntR,Cd->QMass(),151-39-24,"");
-        if (dbgODEOperateSpc())
-          for (int s=0; s<SVValueCount(); s++)
-            dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
-        dbgpln(" %s", Nd_Rmt(i)->FullObjTag());
-        dbgp("         < %*s",151-24,"");
-        if (dbgODEOperateSpc())
-          for (int s=0; s<SVValueCount(); s++)
-            dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
-        dbgpln(" %s %s", IOQmEst_In(i)?"IN":"", IOQmEst_Out(i)?"Out":"");
-        }
-      #endif
+      Contents.ApplyDerivs(ICGetTimeInc(), true);
+
+      CConvergeStateBlk CSB(eStateAdvance, ICGetTimeInc());
+      ConvergeStates(CSB);
+
+      //VLE.QVFlash(Contents, 0.0, VLEF_Null);
       }
+
+#if dbgMSurge
+    if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
+      {
+      dbgp("InI:End  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
+        m_CnStart.DTemp(Contents), Contents.Temp(),
+        m_CnStart.DPress(Contents), Contents.Press(),
+        m_CnStart.DMass(Contents), Contents.Mass(),
+        m_CnStart.DLevel(Contents)*100, Contents.Level()*100);
+      if (dbgODEOperateSpc())
+        for (int s=0; s<SVValueCount(); s++)
+          dbgp(" %12.5g", Contents.MArray()[s]);
+      dbgpln(" %s.Contents", FullObjTag());
+      }
+#endif
     }
 
-  //dbgpln("EvalIntegral - AddInflow");
-  //Contents.AddInFlowDeriv();
-
-  if (Contents.SpillExists())
-    {
-    //if (Contents.Spill.Cd.QMass()>0)
-    //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", Contents.Spill.Cd.QMass(), FullObjTag());
-    Contents.AddDeriv(Contents.Spill.Cd, -1.0);
-    }
-  if (Contents.VentExists())
-    {
-    //if (Contents.Vent.Cd.QMass()>0)
-    //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
-    Contents.AddDeriv(Contents.Vent.Cd, -1.0);
-    }
-
-  //Do Makeup
-  int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
-  if (iMkUp>=0)
-    {
-    for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
-      Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
-    }
-
-  //Do Bleed
-  int iBleed=IOWithId_Self(IOId_Bleed2Area);
-  if (iBleed>=0)
-    {
-    for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
-      Contents.AddDeriv(*IOConduit(iBleed), -1.0);
-    }
-
-  #if dbgMSurge
-  if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-    {
-    dbgp("dM :Ovr  > %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
-    dbgpln(" %s.Contents", FullObjTag());
-    dbgp("         < %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
-    dbgpln("");
-    }
-  #endif
-
-  Contents.pModel->m_DC.Finalise(Contents.pModel, ICGetTimeInc());
-  //Contents.m_DC.Finalise(this, ICGetTimeInc());
-
-  #if dbgMSurge
-  if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-    {
-    dbgp("dM :Final> %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
-    dbgpln(" %s.Contents", FullObjTag());
-    dbgp("         < %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
-    dbgpln("");
-    dbgp("         = %*s",151-24,"");
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", (Contents.pModel->m_DC.m_pFd->m_M[s]-Contents.pModel->m_DC.m_pPr->m_M[s])*ICGetTimeInc());
-    dbgpln("");
-    }
-  #endif
-
-  if (!GetActiveHold())
-    {
-    Contents.ApplyDerivs(ICGetTimeInc(), true);
-
-    CConvergeStateBlk CSB(eStateAdvance, ICGetTimeInc());
-    ConvergeStates(CSB);
-
-    //VLE.QVFlash(Contents, 0.0, VLEF_Null);
-    }
-
-  #if dbgMSurge
-  if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
-    {
-    dbgp("InI:End  : T:%+13.6f = %13.6f P:%+13.6f = %13.6f M:%+13.6f = %13.6f L:%+13.6f = %13.6f",
-      m_CnStart.DTemp(Contents), Contents.Temp(),
-      m_CnStart.DPress(Contents), Contents.Press(),
-      m_CnStart.DMass(Contents), Contents.Mass(),
-      m_CnStart.DLevel(Contents)*100, Contents.Level()*100);
-    if (dbgODEOperateSpc())
-      for (int s=0; s<SVValueCount(); s++)
-        dbgp(" %12.5g", Contents.MArray()[s]);
-    dbgpln(" %s.Contents", FullObjTag());
-    }
-  #endif
   SetIntegralDone(true);
   }
 
@@ -931,24 +942,29 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
   {
   ASSERT(NetDynamicMethod());
 
-  if (RB() && SolveSurgeMethod())
-    {//only call this code if the surge is actualy used
-    #if dbgMSurge
-    if (dbgEvalConverge())
-      dbgpln("MN_Surge::ConvergeStates - RB %s", FullObjTag());
-    #endif
-    Contents.SetMeanResTimeCalcsReqd(true);
-    RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
-    #if dbgMSurge
-    if (dbgEvalConverge())
-      dbgpln("-------------------------------------- ");
-    #endif
-    };
+  if (SolveSurgeMethod())
+    {
+    if (RB())
+      {//only call this code if the surge is actualy used
+      #if dbgMSurge
+      if (dbgEvalConverge())
+        dbgpln("MN_Surge::ConvergeStates - RB %s", FullObjTag());
+      #endif
+      
+      Contents.SetMeanResTimeCalcsReqd(true);
+      RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
+      
+      #if dbgMSurge
+      if (dbgEvalConverge())
+        dbgpln("-------------------------------------- ");
+      #endif
+      };
 
-  if (!IntegralDone() && !GetActiveHold())
-    m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+    if (!IntegralDone() && !GetActiveHold())
+      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
-  m_EqThermals.ConvergeStates(CSB);
+    m_EqThermals.ConvergeStates(CSB);
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -963,32 +979,35 @@ void MN_Surge::EvalDiscrete()
   if (GetActiveHold())
     return;
 
-  if (Contents.MeanResTimeCalcsReqd())
+  if (SolveSurgeMethod())
     {
-    SpConduit &Fd=*GetWrkConduit("CSFd", chLINEID());
-    SpConduit &Pr=*GetWrkConduit("CSPr", chLINEID());
-    SigmaQInPMin(Fd, som_ALL, First64IOIds);
-    SigmaQOut(Pr, som_ALL, First64IOIds);
-    Contents.CompleteMeanResTimeCalcs(Fd, Pr);
+    if (Contents.MeanResTimeCalcsReqd())
+      {
+      SpConduit &Fd=*GetWrkConduit("CSFd", chLINEID());
+      SpConduit &Pr=*GetWrkConduit("CSPr", chLINEID());
+      SigmaQInPMin(Fd, som_ALL, First64IOIds);
+      SigmaQOut(Pr, som_ALL, First64IOIds);
+      Contents.CompleteMeanResTimeCalcs(Fd, Pr);
+      }
+
+    //if (Contents.SpillExists())
+    //  {
+    //  SpDirectCd & O=Contents.OverFlow;
+    //  if (O.QMass()>1e-20)
+    //    dbgpln("EvalDiscrete - AddTotal: %14.3f %s", O.QMass(), Tag());
+    //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
+    //  }
+    //if (Contents.VentExists())
+    //  {
+    //  SpDirectCd & O=Contents.GasVent();
+    //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
+    //  }
+
+    // Qualities
+    for (int i = 0;  (i<NoProcessIOs()) && (IOId_Self(i)!=IOId_HX); i++)
+      if (IO_In(i))
+        Contents.AddDiscrete(*IOConduit(i), IOSign(i));
     }
-
-  //if (Contents.SpillExists())
-  //  {
-  //  SpDirectCd & O=Contents.OverFlow;
-  //  if (O.QMass()>1e-20)
-  //    dbgpln("EvalDiscrete - AddTotal: %14.3f %s", O.QMass(), Tag());
-  //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
-  //  }
-  //if (Contents.VentExists())
-  //  {
-  //  SpDirectCd & O=Contents.GasVent();
-  //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
-  //  }
-
-  // Qualities
-  for (int i = 0;  (i<NoProcessIOs()) && (IOId_Self(i)!=IOId_HX); i++)
-    if (IO_In(i))
-      Contents.AddDiscrete(*IOConduit(i), IOSign(i));
 
   m_AccCalc.Complete(0, Contents);
   m_ExtAudit.Complete(0, &RB);

@@ -3994,6 +3994,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
       DDB.Page("Audit", DDB_RqdPage);
       DDB.Text(" ");
       DDB.Text(" All Audit Features Disabled");
+      DDB.Text("  (see PlantModel.AuditLevel) ");
+      DDB.Text(" ");
       }
     }
 
