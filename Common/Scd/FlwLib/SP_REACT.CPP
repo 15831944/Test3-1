@@ -1261,15 +1261,23 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       return 1;
       }
     case xidRCTRefDuty:
+      if (DCB.rD)
+        m_dHfSumTotRefT = *DCB.rD*ICGetTimeInc();
       DCB.D=m_dHfSumTotRefT/ICGetTimeInc();
       return 1;
     case xidRCTRefDutyRct:
+      if (DCB.rD)
+        m_RctB.m_Hf_RefT = *DCB.rD*ICGetTimeInc();
       DCB.D=m_RctB.m_Hf_RefT/ICGetTimeInc();
       return 1;
     case xidRCTZeroDuty:
+      if (DCB.rD)
+        m_dHfSumTotZeroTAtmP = *DCB.rD*ICGetTimeInc();
       DCB.D=m_dHfSumTotZeroTAtmP/ICGetTimeInc();
       return 1;
     case xidRCTZeroDutyRct:
+      if (DCB.rD)
+        m_RctB.m_dHfZeroTAtmP = *DCB.rD*ICGetTimeInc();
       DCB.D=m_RctB.m_dHfZeroTAtmP/ICGetTimeInc();
       return 1;
     case xidRCTFdDuty:
@@ -1296,33 +1304,51 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       DCB.D=HsSumHXPwr()/ICGetTimeInc();
       return 1;
     case xidRCTDutyHX:
-      DCB.D=HsSumHX()/ICGetTimeInc();
+      if (DCB.rD)
+        m_dHsSumHX = *DCB.rD*ICGetTimeInc();
+      DCB.D=m_dHsSumHX/ICGetTimeInc();
       return 1;
     case xidRCTDutyPwr:
-      DCB.D=HsSumPwr()/ICGetTimeInc();
+      if (DCB.rD)
+        m_dHsSumPwr = *DCB.rD*ICGetTimeInc();
+      DCB.D=m_dHsSumPwr/ICGetTimeInc();
       return 1;
     case xidRCTFdDutySrc:
+      if (DCB.rD)
+        m_SrcB.m_Hf_FdT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_SrcB.m_Hf_FdT/ICGetTimeInc();
+      return 1;
     case xidRCTPrDutySrc:
       if (DCB.rD)
-        {
-        dbgpln("xidRCTPrDutySrc Missing Code - Here and others");
-        }
-      DCB.D=HfSumSrc(DCB.lHandle==xidRCTPrDutySrc)/ICGetTimeInc();
+        m_SrcB.m_Hf_PrT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_SrcB.m_Hf_PrT/ICGetTimeInc();
       return 1;
     case xidRCTFdDutySnk:
+      if (DCB.rD)
+        m_SnkB.m_Hf_FdT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_SnkB.m_Hf_FdT/ICGetTimeInc();
+      return 1;
     case xidRCTPrDutySnk:
-      DCB.D=-HfSumSnk(DCB.lHandle==xidRCTPrDutySnk)/ICGetTimeInc();
+      if (DCB.rD)
+        m_SnkB.m_Hf_PrT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_SnkB.m_Hf_PrT/ICGetTimeInc();
       return 1;
     case xidRCTFdDutySrcSnk:
+      DCB.D=HfSumSrcSnk(false)/ICGetTimeInc();
+      return 1;
     case xidRCTPrDutySrcSnk:
-      DCB.D=HfSumSrcSnk(DCB.lHandle==xidRCTPrDutySrcSnk)/ICGetTimeInc();
+      DCB.D=HfSumSrcSnk(true)/ICGetTimeInc();
       return 1;
     case xidRCTFdHfErr:
+      if (DCB.rD)
+        m_dHfErrFdT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_dHfErrFdT/ICGetTimeInc();
     case xidRCTPrHfErr:
-      DCB.D=HfErr(DCB.lHandle==xidRCTPrHfErr)/ICGetTimeInc();
+      if (DCB.rD)
+        m_dHfErrPrT = *DCB.rD*ICGetTimeInc();
+      DCB.D = m_dHfErrPrT/ICGetTimeInc();
       return 1;
     case xidRCTName:
-//??      if ((DCB.rpC!=NULL)  && ((DCB.dwOpts&(TABOpt_ForSnapShot|TABOpt_ForScenario))!=0))
       if (DCB.rpC!=NULL)
         {
         // Dont Set if coming from snapshot

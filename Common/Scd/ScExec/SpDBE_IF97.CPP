@@ -3751,11 +3751,10 @@ static double StmDens(double T, double P)
 
 static double VapP(double T)
   {
-  if (T<273.15 || T>647.096)
-    {
-    int xx=0;
-    };
-  T=Range(273.15, T, 647.096);
+  if (T<273.15)
+    return T/273.15*IF97Calcs.pSatW(273.15);
+  
+  T=Min(T, 647.096);
   return IF97Calcs.pSatW(T);
   }
 

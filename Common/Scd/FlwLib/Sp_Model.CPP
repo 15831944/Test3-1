@@ -8442,46 +8442,64 @@ CToleranceBlock SatTFnd::s_Tol(TBF_BothSys, "SpModel:SatTFnd", 0, 1.0e-9, 100, T
 double SpModel::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
   CSysVector & MA = pMA==NULL ? MArray() : *pMA;
+  double TRet=Std_T;
+  bool Set4=false;
+  bool Set6=false;
+  bool Set7=false;
   if (MA.Mass()>1.0e-6)
     {
     SatTFnd SatT(&MA, this, iSatComp);
     SatT.SetTarget(P_);
-    double LoLim=1;//Std_T-100.0;
+    double LoLim=0.1;//Std_T-100.0;
     double HiLim=5000.0;//IF97_MaxSatT;//647.096;//CDB.MaxT;
     SatT.SetLimits(LoLim, HiLim);
 
     if (Valid(m_dPrvSatT) && SatT.SolveFromEst(m_dPrvSatT, 1.0, 50.0)==RF_OK)
       {
       m_dPrvSatT=SatT.Result();
-      ClrCI(4);
-      return m_dPrvSatT;
+      TRet=m_dPrvSatT;
       }
-    else if (SatT.Start(LoLim, HiLim)==RF_OK && SatT.Solve_Brent()==RF_OK)
+    else 
       {
-      m_dPrvSatT=SatT.Result();
-      ClrCI(4);
-      return m_dPrvSatT;
-      }
-    else if (!m_fConvergeBusy)
-      {
-      //m_dPrvSatT=SatT.Result(); kga: perhaps should return value at limit???!!!
-      if (CDB.DefFlashCmpIndex()>=0) 
+      switch (SatT.Start(LoLim, HiLim))
         {
-        if (MA[CDB.DefFlashLiqIndex()] + MA[CDB.DefFlashVapIndex()]>1e-12)
-          SetCI(4); // a FLash Component (the default) exists
-        else
-          ClrCI(4);
+        case RF_OK:
+          if (SatT.Solve_Brent()==RF_OK)
+            {
+            m_dPrvSatT=SatT.Result();
+            TRet = m_dPrvSatT;
+            }
+          else
+            Set4=true;
+          break;
+        case RF_LoLimit:
+          Set6=true;
+          m_dPrvSatT=SatT.Result();
+          TRet = m_dPrvSatT;
+          break;
+        case RF_HiLimit:
+          Set7=true;
+          m_dPrvSatT=SatT.Result();
+          TRet = m_dPrvSatT;
+          break;
+        default:
+          if (!m_fConvergeBusy)
+            {
+            if (CDB.DefFlashCmpIndex()>=0) 
+              {
+              if (MA[CDB.DefFlashLiqIndex()] + MA[CDB.DefFlashVapIndex()]>1e-12)
+                Set4=true; // a FLash Component (the default) exists
+              }
+            }
         }
-      else
-        ClrCI(4);
       }
-    else
-      ClrCI(4);
     }
-  //else
-  //  m_dPrvSatT=Std_T;// kga: perhaps return SaturationT at P for H2O???!!! PureSaturationT(P_, pMA);
+  
+  SetCI(4, Set4);
+  SetCI(6, Set6);
+  SetCI(7, Set7);
 
-  return Std_T;
+  return TRet;
   };
 
 //===========================================================================
@@ -8491,11 +8509,13 @@ flag SpModel::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 1: pS="W\tSlurry Venting";            return 1;
-    case 2: pS="W\tGas Venting";               return 1;
-    case 3: pS="W\tVolume Expanded";           return 1;
-    case 4: pS="W\tSaturationT not converged"; return 1;
-    case 5: pS="W\tTemp/Press Out of Range for ????"; return 1;
+    case 1: pS="W\tSlurry Venting";                     return 1;
+    case 2: pS="W\tGas Venting";                        return 1;
+    case 3: pS="W\tVolume Expanded";                    return 1;
+    case 4: pS="W\tSaturationT not converged";          return 1;
+    case 5: pS="W\tTemp/Press Out of Range for ????";   return 1;
+    case 6: pS="N\tSaturationT Low Limit";              return 1;
+    case 7: pS="N\tSaturationT High Limit";             return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }
