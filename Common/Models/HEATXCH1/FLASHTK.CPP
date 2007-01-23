@@ -311,12 +311,17 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   RB.BuildDataDefn(DDB);
   if (SolveBufferedMethod())
     EHX.BuildDataDefn(DDB);
+
   m_VLE.BuildDataDefn(DDB);
 
   if (1)//NetProbalMethod())
     {
     DDB.Visibility(NM_All|SM_All|HM_All, m_bShowQFeed);
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
+    DDB.Visibility();
+    }
+  if (1)//NetProbalMethod())
+    {
     DDB.Visibility(NM_All|SM_All|HM_All);
     DDB.Object(&m_QFlash, this, NULL, NULL, DDB_RqdPage);
     DDB.Visibility();
@@ -518,6 +523,9 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
       case SM_Direct:
       case SM_Inline:
         {
+        if (fDoDbgBrk)
+          { int xxx=0; };
+
         const int ioLiq = IOWithId_Self(ioidFT_Liq);
         const int ioVap = IOWithId_Self(ioidFT_Vap);
 
@@ -584,7 +592,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
             }
           SetCI(1, bTrackVapFdStatus && idNCVent<0 && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
 #else
-          SetCI(1, m_bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
+          //Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
+          SetCI(1, m_bTrackVapFdStatus && Ql.MassFrac(som_Gas)>1.0e-3);
           m_QWrk.QCopy(Ql, PIn);
 #endif
 
@@ -621,7 +630,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
                 m_FTF.m_dPRqdCalc=m_FTF.m_dFlashP;
                 }
               if (DoQP)
-                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit);
+                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit|VLEF_HoldStartMeasure);
 
               m_QWrk.QCopy(Ql, PIn);
               m_QWrk.QAddF(Qv, som_ALL, 1.0);
@@ -635,7 +644,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
               if (fDoDbgBrk)
                 { int xxx=0; };
               }
-              while ((--Iter>0) && (m_FTF.m_dQVap<1.0e-6*QLMass)); 
+            while ((--Iter>0) && (m_FTF.m_dQVap<1.0e-6*QLMass)); 
             }
           }
 

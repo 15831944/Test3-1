@@ -1534,8 +1534,8 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
     DDB.Double  ("SatPP@T",       "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
     DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
-    //DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
-    //DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
+    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
     DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
     if (m_Ovr.bUse&(SPO_BPEle))
       DDB.TagComment("Ovr");
@@ -7890,14 +7890,15 @@ double SpModel::Press()
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPress(SpecieIter &Ids, double T)
+double SpModel::PartialPress(SpecieIter &Ids, double T, double P)
   {
   TestHStatesOK();
 
   double PPart=0;
   if (1)//m_bClosed && !m_bPressAsSet)
     {
-    double P=Press();
+    if (!Valid(P))
+      P=Press();
     double Vol1=0;
     double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
@@ -7918,11 +7919,12 @@ double SpModel::PartialPress(SpecieIter &Ids, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPress(int IncIds, int ExcIds, double T)
+double SpModel::PartialPress(int IncIds, int ExcIds, double T, double P)
   {
   TestHStatesOK();
 
-  double P=Press();
+  if (!Valid(P))
+    P=Press();
   double PPart=0.0;
 
   if (0)
@@ -7961,7 +7963,7 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPressC(int CmpIncIds, int CmpExcIds, double T)
+double SpModel::PartialPressC(int CmpIncIds, int CmpExcIds, double T, double P)
   {
   int SpIncIds=-1;
   int SpExcIds=-1;
@@ -7969,19 +7971,20 @@ double SpModel::PartialPressC(int CmpIncIds, int CmpExcIds, double T)
     SpIncIds=CDB[CmpIncIds].VapPhInx();
   if (CmpExcIds>=0)
     SpExcIds=CDB[CmpExcIds].VapPhInx();
-  return PartialPress(SpIncIds, SpExcIds, T);
+  return PartialPress(SpIncIds, SpExcIds, T, P);
   }
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPressFrac(SpecieIter &Ids, double T)
+double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
   {
   TestHStatesOK();
 
   double Pf=0;
   if (1)//m_bClosed && !m_bPressAsSet)
     {
-    double P=Press();
+    if (!Valid(P))
+      P=Press();
     double Vol1=0;
     double VolA= SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
@@ -7998,11 +8001,12 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T)
+double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
   {
   TestHStatesOK();
 
-  double P=Press();
+  if (!Valid(P))
+    P=Press();
   double Pf=0;
   if (1)//m_bClosed && !m_bPressAsSet)
     {
@@ -8032,7 +8036,7 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T)
 
 // --------------------------------------------------------------------------
 
-double SpModel::PartialPressFracC(int CmpIncIds, int CmpExcIds, double T)
+double SpModel::PartialPressFracC(int CmpIncIds, int CmpExcIds, double T, double P)
   {
   int SpIncIds=-1;
   int SpExcIds=-1;
@@ -8040,7 +8044,7 @@ double SpModel::PartialPressFracC(int CmpIncIds, int CmpExcIds, double T)
     SpIncIds=CDB[CmpIncIds].VapPhInx();
   if (CmpExcIds>=0)
     SpExcIds=CDB[CmpExcIds].VapPhInx();
-  return PartialPress(SpIncIds, SpExcIds, T);
+  return PartialPress(SpIncIds, SpExcIds, T, P);
   }
 
 // --------------------------------------------------------------------------

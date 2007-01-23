@@ -810,12 +810,12 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double Temp();
     virtual double dTemp();
     virtual double Press();
-    virtual double PartialPress(SpecieIter & Ids, double Temp);
-    virtual double PartialPress(int IncIds, int ExcIds, double Temp);
-    virtual double PartialPressC(int CmpIncIds, int CmpExcIds, double Temp);
-    virtual double PartialPressFrac(SpecieIter & Ids, double Temp);
-    virtual double PartialPressFrac(int IncIds, int ExcIds, double Temp);
-    virtual double PartialPressFracC(int CmpIncIds, int CmpExcIds, double Temp);
+    virtual double PartialPress(SpecieIter & Ids, double Temp, double P=dNAN);
+    virtual double PartialPress(int IncIds, int ExcIds, double Temp, double P=dNAN);
+    virtual double PartialPressC(int CmpIncIds, int CmpExcIds, double Temp, double P=dNAN);
+    virtual double PartialPressFrac(SpecieIter & Ids, double Temp, double P=dNAN);
+    virtual double PartialPressFrac(int IncIds, int ExcIds, double Temp, double P=dNAN);
+    virtual double PartialPressFracC(int CmpIncIds, int CmpExcIds, double Temp, double P=dNAN);
 
     // Properties
     double          getVValue(int s)                              { return m_M.VValue[s]; };

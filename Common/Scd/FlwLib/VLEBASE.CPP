@@ -221,26 +221,33 @@ void CVLEBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, D
       }
     }                                                           
   DDB.Text(" ");
-  DDB.Double("T.In",              "", DC_T,      "C",     &m_TIn,           m_pNd, isResult);
-  DDB.Double("P.In",              "", DC_P,      "kPag",  &m_PIn,           m_pNd, isResult);
+  DDB.Double("TempIn",            "", DC_T,      "C",     &m_TIn,           m_pNd, isResult);
+  DDB.Double("PressIn",           "", DC_P,      "kPag",  &m_PIn,           m_pNd, isResult);
   if (m_AsFlow)
-    DDB.Double("VapQm.In",        "", DC_Qm,     "kg/s",  &m_VapQmIn,       m_pNd, isResult);
+    DDB.Double("VapFlowIn",       "", DC_Qm,     "kg/s",  &m_VapQmIn,       m_pNd, isResult);
   else
-    DDB.Double("VapMass.In",      "", DC_M,      "kg",    &m_VapQmIn,       m_pNd, isResult);
-  DDB.Double("VapFrac.In",        "", DC_Frac,   "%",     &m_VapFracIn,     m_pNd, isResult);
+    DDB.Double("VapMassIn",       "", DC_M,      "kg",    &m_VapQmIn,       m_pNd, isResult);
+  DDB.Double("VapFracIn",         "", DC_Frac,   "%",     &m_VapFracIn,     m_pNd, isResult);
+  DDB.Double("VapFracIn",         "", DC_Frac,   "%",     &m_VapFracIn,     m_pNd, isResult);
   DDB.Text(" ");
-  DDB.Double("T.Out",             "", DC_T,      "C",     &m_TOut,          m_pNd, isResult);
-  DDB.Double("P.Out",             "", DC_P,      "kPag",  &m_POut,          m_pNd, isResult);
+  DDB.Double("TempOut",           "", DC_T,      "C",     &m_TOut,          m_pNd, isResult);
+  DDB.Double("PressOut",          "", DC_P,      "kPag",  &m_POut,          m_pNd, isResult);
   if (m_AsFlow)
-    DDB.Double("VapQm.Out",       "", DC_Qm,     "kg/s",  &m_VapQmOut,      m_pNd, isResult);
+    DDB.Double("VapFlowOut",      "", DC_Qm,     "kg/s",  &m_VapQmOut,      m_pNd, isResult);
   else
-    DDB.Double("VapMass.Out",     "", DC_M,      "kg",    &m_VapQmOut,      m_pNd, isResult);
-  DDB.Double("VapFrac.Out",       "", DC_Frac,   "%",     &m_VapFracOut,    m_pNd, isResult);
+    DDB.Double("VapMassOut",      "", DC_M,      "kg",    &m_VapQmOut,      m_pNd, isResult);
+  DDB.Double("VapFracOut",        "", DC_Frac,   "%",     &m_VapFracOut,    m_pNd, isResult);
   DDB.Text(" ");
   if (m_AsFlow)
-    DDB.Double("VapQm.Nett",      "", DC_Qm,     "kg/s",  xidVLENettVapQm,  m_pNd, isResult);
+    {
+    DDB.Double("VapFlowFlashed",  "", DC_Qm,     "kg/s",  xidVLENettVapQm,  m_pNd, isResult);
+    }
   else
-    DDB.Double("VapMass.Change",  "", DC_M,      "kg",    xidVLENettVapQm,  m_pNd, isResult);
+    {
+    _asm int 3;
+    //DDB.Double("VapMassFlashed",  "", DC_M,      "kg",    xidVLENettVapQm,  m_pNd, isResult);
+    //DDB.Double("VapMassFlashed",  "", DC_M,      "kg",    xidVLENettVapQm,  m_pNd, isResult);
+    }
   DDB.Text(" ");
 
   DDB.EndObject();
@@ -462,17 +469,23 @@ void CVLEBase::QPFlash(SpConduit &Q, double Press, double Duty, dword Flags)
 
     m_AsFlow=true;
 
-    m_TIn=Q.Temp();
-    m_PIn=Q.Press();
-    m_VapQmIn=Q.QMass(som_Gas);
-    m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
+    if ((Flags&VLEF_HoldStartMeasure)==0)
+      {
+      m_TIn=Q.Temp();
+      m_PIn=Q.Press();
+      m_VapQmIn=Q.QMass(som_Gas);
+      m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
+      }
 
     m_pVLE->QPFlash(Q, Press, Duty, Flags);
 
-    m_TOut=Q.Temp();
-    m_POut=Q.Press();
-    m_VapQmOut=Q.QMass(som_Gas);
-    m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
+    if ((Flags&VLEF_HoldEndMeasure)==0)
+      {
+      m_TOut=Q.Temp();
+      m_POut=Q.Press();
+      m_VapQmOut=Q.QMass(som_Gas);
+      m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
+      }
 
 #if DoDbg
     double T1=Q.Temp();
@@ -503,9 +516,9 @@ void CVLEBase::QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, 
 #if DoDbg
     double T0=Ql.Temp();
     double P0=Ql.Press();
-    double H0=Ql.totHf();
-    double MV0=Ql.QMass(som_Gas);
-    double MSL0=Ql.QMass(som_SL);
+    double H0=Ql.totHf()+Qv.totHf();
+    double MV0=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+    double MSL0=Ql.QMass(som_SL)+Qv.QMass(som_SL);
     SpMArray XXX(*Ql.Model());
     //    int dbg=Ql.DoDbgBrk();
     int dbg=m_pNd && m_pNd->DoDbgBrk();
@@ -518,24 +531,30 @@ void CVLEBase::QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, 
 
     m_AsFlow=true;
 
-    m_TIn=Ql.Temp();
-    m_PIn=Ql.Press();
-    m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-    m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
+    if ((Flags&VLEF_HoldStartMeasure)==0)
+      {
+      m_TIn=Ql.Temp();
+      m_PIn=Ql.Press();
+      m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+      m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
+      }
 
     m_pVLE->QPFlash(Ql, Qv, Press, Duty, Flags);
 
-    m_TOut=Ql.Temp();
-    m_POut=Ql.Press();
-    m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-    m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
+    if ((Flags&VLEF_HoldEndMeasure)==0)
+      {
+      m_TOut=Ql.Temp();
+      m_POut=Ql.Press();
+      m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+      m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
+      }
 
 #if DoDbg
     double T1=Ql.Temp();
     double P1=Ql.Press();
-    double H1=Ql.totHf();
-    double MV1=Qv.QMass(som_Gas);
-    double MSL1=Ql.QMass(som_SL);
+    double H1=Ql.totHf()+Qv.totHf();
+    double MV1=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+    double MSL1=Ql.QMass(som_SL)+Qv.QMass(som_SL);
     if (dbg)
       {
       //dbgpln("QPFlash:%s",Ql.FullObjTag());
@@ -547,10 +566,15 @@ void CVLEBase::QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, 
       dbgpln("  H : %14.6g > %14.6g [%+14.6g]",  H0, H1, H1-H0);
       dbgpln("  Mv: %14.6f > %14.6f [%+14.6g]",  MV0, MV1, (MV1-MV0));
       dbgpln("  Ml: %14.6f > %14.6f [%+14.6g]",  MSL0, MSL1, (MSL1-MSL0));
-      CSysVector &YYY=Ql.MArray();
+      CSysVector &YYYl=Ql.MArray();
+      CSysVector &YYYv=Qv.MArray();
       for (int i=0; i<SVSpcCount(); i++)
-        if (XXX[i]>1.0e-6 || YYY[i]>1.0e-6)
-          dbgpln("  M : %14.6f > %14.6f [%+14.6g] %s", XXX[i], YYY[i], YYY[i]-XXX[i], SVImg(i).SymOrTag());
+        {
+        double YYY = YYYl[i]+YYYv[i];
+        //if (XXX[i]>1.0e-6 || YYY>1.0e-6)
+        if (fabs(YYY-XXX[i])>1e-6)
+          dbgpln("  M : %14.6f > %14.6f [%+14.6g] %s", XXX[i], YYY, YYY-XXX[i], SVImg(i).SymOrTag());
+        }
       }
     int xxx=0;
 #endif
@@ -576,19 +600,25 @@ void CVLEBase::QVFlash(SpContainer &C, double Duty, dword Flags)
       dbgpln("QVFlash:%s",C.FullObjTag());
 #endif
 
-    m_AsFlow=false;
+    m_AsFlow=true;
 
-    m_TIn=C.Temp();
-    m_PIn=C.Press();
-    m_VapQmIn=C.Mass(som_Gas);
-    m_VapFracIn=C.Mass(som_Gas)/GTZ(C.Mass());
+    if ((Flags&VLEF_HoldStartMeasure)==0)
+      {
+      m_TIn=C.Temp();
+      m_PIn=C.Press();
+      m_VapQmIn=C.Mass(som_Gas)/ICGetTimeInc();
+      m_VapFracIn=C.Mass(som_Gas)/GTZ(C.Mass());
+      }
 
     m_pVLE->QVFlash(C, Duty, Flags);
 
-    m_TOut=C.Temp();
-    m_POut=C.Press();
-    m_VapQmOut=C.Mass(som_Gas);
-    m_VapFracOut=C.Mass(som_Gas)/GTZ(C.Mass());
+    if ((Flags&VLEF_HoldEndMeasure)==0)
+      {
+      m_TOut=C.Temp();
+      m_POut=C.Press();
+      m_VapQmOut=C.Mass(som_Gas)/ICGetTimeInc();
+      m_VapFracOut=C.Mass(som_Gas)/GTZ(C.Mass());
+      }
 
 #if DoDbg
     double T1=C.Temp();
@@ -716,17 +746,23 @@ void CVLEBase::QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags)
 
     m_AsFlow=true;
 
-    m_TIn=Q.Temp();
-    m_PIn=Q.Press();
-    m_VapQmIn=Q.QMass(som_Gas);
-    m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
+    if ((Flags&VLEF_HoldStartMeasure)==0)
+      {
+      m_TIn=Q.Temp();
+      m_PIn=Q.Press();
+      m_VapQmIn=Q.QMass(som_Gas);
+      m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
+      }
 
     m_pVLE->QMVapFlash(Q, MVap, Duty, Flags);
 
-    m_TOut=Q.Temp();
-    m_POut=Q.Press();
-    m_VapQmOut=Q.QMass(som_Gas);
-    m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
+    if ((Flags&VLEF_HoldEndMeasure)==0)
+      {
+      m_TOut=Q.Temp();
+      m_POut=Q.Press();
+      m_VapQmOut=Q.QMass(som_Gas);
+      m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
+      }
 
 #if DoDbg
     double T1=Q.Temp();
@@ -761,17 +797,23 @@ void CVLEBase::QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty
 
     m_AsFlow=true;
 
-    m_TIn=Ql.Temp();
-    m_PIn=Ql.Press();
-    m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-    m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
+    if ((Flags&VLEF_HoldStartMeasure)==0)
+      {
+      m_TIn=Ql.Temp();
+      m_PIn=Ql.Press();
+      m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+      m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
+      }
 
     m_pVLE->QMVapFlash(Ql, Qv, MVap, Duty, Flags);
 
-    m_TOut=Ql.Temp();
-    m_POut=Ql.Press();
-    m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-    m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
+    if ((Flags&VLEF_HoldEndMeasure)==0)
+      {
+      m_TOut=Ql.Temp();
+      m_POut=Ql.Press();
+      m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
+      m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
+      }
 
 #if DoDbg
     double T1=Ql.Temp();
@@ -1360,9 +1402,9 @@ class QPRootFnd : public MRootFinderBase
       if (m_DbgOn && m_PassOne)
         { int xxx=0; }
 
-      double OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp());
-
       VLE.SetVapFrac(Range(0.0, x, 1.0));
+
+      double OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp(), P);
       double Ts = Min(TMx, pMdlL->SaturationT(Max(1.0, P-OtherPP)));
       double h, t;
       if (x<0.0)
@@ -1386,10 +1428,10 @@ class QPRootFnd : public MRootFinderBase
         SpModelExDbgOn++;
 
         if (m_PassOne)
-          dbgpln("  QPRoot\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s", 
-          "VFrac","Ts","t","M","P","Htrg","H-Htrg","Hl", "Hv", "Ml", "Mv");
+          dbgpln("  QPRoot\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s", 
+          "VFrac","Ts","t","M","P", "PP","Htrg","H-Htrg","Hl", "Hv", "Ml", "Mv");
         dbgpln("  QPRoot\t%14.10f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6g\t%14.6f\t%14.6f\t%14.6f\t%14.6f", 
-          x, K_2_C(Ts),K_2_C(t),VLE.Mt,P,dTarget,h-dTarget, 
+          x, K_2_C(Ts),K_2_C(t),VLE.Mt,P,P-OtherPP,dTarget,h-dTarget, 
           pMdlL->totHf(), pMdlV?pMdlL->totHf(som_ALL, pMdlV->Temp(), pMdlV->Press(), pMdlV->pMArray()):0.0,
           pMdlL->Mass(), pMdlV?pMdlV->Mass():0.0);
 

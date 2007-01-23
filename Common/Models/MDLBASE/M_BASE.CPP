@@ -828,7 +828,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, doubl
 /*#F:
 */
 
-double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObjClass * RqdMdl)
+double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool PRmt, TagObjClass * RqdMdl)
   {
   int    iQMax=-1;
   double QMax=0.0;
@@ -837,7 +837,7 @@ double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObj
   for (int i=0; i<NoProcessIOs(); i++)
     if (IO_In(i) && ((IOIdMask_Self(i) & IOIds)!=0))
       {
-      PMax=Max(PMax, IOP_Self(i));
+      PMax=Max(PMax, PRmt ? IOP_Rmt(i) : IOP_Self(i));
       Slct.Add(IOConduit(i)->Model(), IOQm_In(i));
       //if (IOQm_In(i)>QMax)
       //  {
@@ -872,7 +872,7 @@ double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObj
 /*#F:
 */
 
-double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObjClass * RqdMdl)
+double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool PRmt, TagObjClass * RqdMdl)
   {
   int    iQMax=-1;
   double QMax=0.0;
@@ -881,7 +881,7 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObj
   for (int i=0; i<NoProcessIOs(); i++)
     if (IO_In(i) && ((IOIdMask_Self(i) & IOIds)!=0))
       {
-      PMin=Min(PMin, IOP_Self(i));
+      PMin=Min(PMin, PRmt ? IOP_Rmt(i) : IOP_Self(i));
       Slct.Add(IOConduit(i)->Model(), IOQm_In(i));
       }
 
@@ -923,7 +923,7 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, TagObj
 /*#F:
 */
 
-double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN, TagObjClass * RqdMdl)
+double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN, bool PRmt, TagObjClass * RqdMdl)
   {
   int    iQMax=-1;
   double QMax=0.0;
@@ -932,7 +932,7 @@ double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN
   for (int i=0; i<NoProcessIOs(); i++)
     if (IO_In(i) && (IOId_Self(i) >= IOId1) && (IOId_Self(i) <= IOIdN))
       {
-      PMax=Max(PMax, IOP_Self(i));
+      PMax=Max(PMax, PRmt ? IOP_Rmt(i) : IOP_Self(i));
       Slct.Add(IOConduit(i)->Model(), IOQm_In(i));
       //if (IOQm_In(i)>QMax)
       //  {
@@ -967,7 +967,7 @@ double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN
 /*#F:
 */
 
-double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN, TagObjClass * RqdMdl)
+double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN, bool PRmt, TagObjClass * RqdMdl)
   {
   int    iQMax=-1;
   double QMax=0.0;
@@ -976,7 +976,7 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN
   for (int i=0; i<NoProcessIOs(); i++)
     if (IO_In(i) && (IOId_Self(i) >= IOId1) && (IOId_Self(i) <= IOIdN))
       {
-      PMin=Min(PMin, IOP_Self(i));
+      PMin=Min(PMin, PRmt ? IOP_Rmt(i) : IOP_Self(i));
       Slct.Add(IOConduit(i)->Model(), IOQm_In(i));
       //if (IOQm_In(i)>QMax)
       //  {
@@ -1011,7 +1011,7 @@ double MdlNode::SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN
 /*#F:
 */
 
-void MdlNode::SigmaQOut(SpConduit & Qo, PhMask PhaseM, IDMask IOIds)
+void MdlNode::SigmaQOut(SpConduit & Qo, PhMask PhaseM, IDMask IOIds, bool PRmt)
   {
   int    iQMax=-1;
   double QMax=0.0;
@@ -1019,7 +1019,7 @@ void MdlNode::SigmaQOut(SpConduit & Qo, PhMask PhaseM, IDMask IOIds)
   for (int i=0; i<NoProcessIOs(); i++)
     if (IO_Out(i) && ((IOIdMask_Self(i) & IOIds)!=0))
       {
-      PMax=Max(PMax, IOP_Self(i));
+      PMax=Max(PMax, PRmt ? IOP_Rmt(i) : IOP_Self(i));
       if (IOQm_Out(i)>QMax)
         {
         QMax=IOQm_Out(i);

@@ -321,11 +321,15 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 1.0, 0);
           break;
         case VLEO_SatLiqP:
+          //PSat=Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
+          //TSat=Contents.SaturationT(PSat);
           TSat=Contents.SaturationT(PRequired());
           Contents.SetTRqdTo(TSat);
           m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 0.0, 0);
           break;
         case VLEO_SatVapP:
+          //PSat=Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
+          //TSat=Contents.SaturationT(PSat);
           TSat=Contents.SaturationT(PRequired());
           Contents.SetTRqdTo(TSat);
           m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 1.0, 0);
