@@ -2695,10 +2695,11 @@ Build 122 : 16 November 2006
 1355 17/01/07: (#695,696) Further improvements to VLE and Partial pressures.
 1356 18/01/07: (#715) Increase number of tank level lookup fields allowed and fix error during save.
 1357 20/01/07: (#715) Additional fix for data entry.
+1359 17/01/07: (#695,696) Further improvements to VLE and Partial pressures.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1357
+#define SCD_PATCH_SVN    1359
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
