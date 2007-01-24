@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   public class GraphicThing

@@ -7,7 +7,7 @@ using System.Drawing.Design;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   public class GraphicItem

@@ -261,12 +261,12 @@ namespace SysCAD.Editor
         // 
         // tvNavigation
         // 
-        this.tvNavigation.AllowAdding = false;
-        //this.tvNavigation.AllowArranging = false;
-        this.tvNavigation.AllowDeleting = false;
-        //this.tvNavigation.AllowDrop = false;
-        //this.tvNavigation.AutoDragDrop = false;
-        this.tvNavigation.AllowEditing = false;
+        //this.tvNavigation.AllowAdding = false;
+        //this.tvNavigation.AllowArranging = true;
+        //this.tvNavigation.AllowDeleting = false;
+        //this.tvNavigation.AllowDrop = true;
+        //this.tvNavigation.AutoDragDrop = true;
+        //this.tvNavigation.AllowEditing = false;
 
         this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
         this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -848,17 +848,17 @@ namespace SysCAD.Editor
 
     void tvNavigation_DragLeave(object sender, System.EventArgs e)
     {
-      throw new System.Exception("The method or operation is not implemented.");
+      throw new System.NotImplementedException("The method or operation is not implemented.");
     }
 
     void tvNavigation_DragEnter(object sender, System.EventArgs e)
     {
-      throw new System.Exception("The method or operation is not implemented.");
+      throw new System.NotImplementedException("The method or operation is not implemented.");
     }
 
     void tvNavigation_DragOver(object sender, System.EventArgs e)
     {
-      throw new System.Exception("The method or operation is not implemented.");
+      throw new System.NotImplementedException("The method or operation is not implemented.");
     }
 
     #endregion
@@ -868,7 +868,7 @@ namespace SysCAD.Editor
     private ActiproSoftware.UIStudio.Dock.ToolWindow twOverview;
     private Overview ovOverview;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea3;
-    public ActiproSoftware.UIStudio.Bar.BarManager barManager1;
+    private ActiproSoftware.UIStudio.Bar.BarManager barManager1;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea1;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea4;
     private ActiproSoftware.UIStudio.Bar.BarDockArea barDockArea2;
@@ -878,11 +878,11 @@ namespace SysCAD.Editor
     private PureComponents.TreeView.TreeView tvNavigation;
     private ActiproSoftware.UIStudio.Dock.ToolWindowContainer toolWindowContainer4;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twGraphicProperties;
-      public GraphicPropertyGrid graphicPropertyGrid;
+    private GraphicPropertyGrid graphicPropertyGrid;
     private ActiproSoftware.UIStudio.Dock.ToolWindow twModelProperties;
-    public ModelPropertyGrid modelPropertiesGrid;
+    private ModelPropertyGrid modelPropertiesGrid;
     private StatusStrip statusStrip;
-    public ToolStripStatusLabel toolStripStatusLabel;
+    private ToolStripStatusLabel toolStripStatusLabel;
   }
 }
 

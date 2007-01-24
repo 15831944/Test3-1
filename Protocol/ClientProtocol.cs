@@ -14,36 +14,36 @@ using System.Runtime.Remoting.Channels.Tcp;
 //using System.Security.Permissions;
 using System.Drawing.Drawing2D;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
-  public sealed class ClientInterface : BaseInterface
+  public sealed class ClientProtocol : BaseProtocol
   {
-    public ServiceInterface serviceGraphic;
+    public ServiceProtocol serviceGraphic;
 
     public String connectionError = String.Empty;
 
-    private ServiceInterface.StateChangedHandler serviceGraphicStateChangedHandler = null;
+    private ServiceProtocol.StateChangedHandler serviceGraphicStateChangedHandler = null;
 
-    private ServiceInterface.StepHandler serviceGraphicStepHandler = null;
+    private ServiceProtocol.StepHandler serviceGraphicStepHandler = null;
 
-    private ServiceInterface.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
-    private ServiceInterface.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
-    private ServiceInterface.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
+    private ServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
+    private ServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
+    private ServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
 
-    private ServiceInterface.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
-    private ServiceInterface.LinkModifiedHandler serviceGraphicLinkModifiedHandler = null;
-    private ServiceInterface.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
+    private ServiceProtocol.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
+    private ServiceProtocol.LinkModifiedHandler serviceGraphicLinkModifiedHandler = null;
+    private ServiceProtocol.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
 
-    private ServiceInterface.ThingCreatedHandler serviceGraphicThingCreatedHandler = null;
-    private ServiceInterface.ThingModifiedHandler serviceGraphicThingModifiedHandler = null;
-    private ServiceInterface.ThingDeletedHandler serviceGraphicThingDeletedHandler = null;
+    private ServiceProtocol.ThingCreatedHandler serviceGraphicThingCreatedHandler = null;
+    private ServiceProtocol.ThingModifiedHandler serviceGraphicThingModifiedHandler = null;
+    private ServiceProtocol.ThingDeletedHandler serviceGraphicThingDeletedHandler = null;
 
-    public ClientInterface()
+    public ClientProtocol()
     {
     }
 
-    ~ClientInterface()
+    ~ClientProtocol()
     {
       if (serviceGraphic != null)
       {
@@ -205,26 +205,26 @@ namespace SysCAD.Interface
     {
       try
       {
-        serviceGraphic = Activator.GetObject(typeof(BaseInterface), url.ToString()) as ServiceInterface;
+        serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ServiceProtocol;
 
         Name = serviceGraphic.Name; // Force a test of the connection.
 
 
-        serviceGraphicStateChangedHandler = new ServiceInterface.StateChangedHandler(ServiceGraphicStateChanged);
+        serviceGraphicStateChangedHandler = new ServiceProtocol.StateChangedHandler(ServiceGraphicStateChanged);
 
-        serviceGraphicStepHandler = new ServiceInterface.StepHandler(ServiceGraphicStep);
+        serviceGraphicStepHandler = new ServiceProtocol.StepHandler(ServiceGraphicStep);
 
-        serviceGraphicItemCreatedHandler = new ServiceInterface.ItemCreatedHandler(ServiceGraphicItemCreated);
-        serviceGraphicItemModifiedHandler = new ServiceInterface.ItemModifiedHandler(ServiceGraphicItemModified);
-        serviceGraphicItemDeletedHandler = new ServiceInterface.ItemDeletedHandler(ServiceGraphicItemDeleted);
+        serviceGraphicItemCreatedHandler = new ServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
+        serviceGraphicItemModifiedHandler = new ServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
+        serviceGraphicItemDeletedHandler = new ServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
 
-        serviceGraphicLinkCreatedHandler = new ServiceInterface.LinkCreatedHandler(ServiceGraphicLinkCreated);
-        serviceGraphicLinkModifiedHandler = new ServiceInterface.LinkModifiedHandler(ServiceGraphicLinkModified);
-        serviceGraphicLinkDeletedHandler = new ServiceInterface.LinkDeletedHandler(ServiceGraphicLinkDeleted);
+        serviceGraphicLinkCreatedHandler = new ServiceProtocol.LinkCreatedHandler(ServiceGraphicLinkCreated);
+        serviceGraphicLinkModifiedHandler = new ServiceProtocol.LinkModifiedHandler(ServiceGraphicLinkModified);
+        serviceGraphicLinkDeletedHandler = new ServiceProtocol.LinkDeletedHandler(ServiceGraphicLinkDeleted);
 
-        serviceGraphicThingCreatedHandler = new ServiceInterface.ThingCreatedHandler(ServiceGraphicThingCreated);
-        serviceGraphicThingModifiedHandler = new ServiceInterface.ThingModifiedHandler(ServiceGraphicThingModified);
-        serviceGraphicThingDeletedHandler = new ServiceInterface.ThingDeletedHandler(ServiceGraphicThingDeleted);
+        serviceGraphicThingCreatedHandler = new ServiceProtocol.ThingCreatedHandler(ServiceGraphicThingCreated);
+        serviceGraphicThingModifiedHandler = new ServiceProtocol.ThingModifiedHandler(ServiceGraphicThingModified);
+        serviceGraphicThingDeletedHandler = new ServiceProtocol.ThingDeletedHandler(ServiceGraphicThingDeleted);
 
 
         serviceGraphic.StateChanged += serviceGraphicStateChangedHandler;

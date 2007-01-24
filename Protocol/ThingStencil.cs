@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   /// <summary>
   /// Summary description for ThingStencil.

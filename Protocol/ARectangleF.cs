@@ -37,7 +37,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   [ComVisible(false)]
@@ -80,10 +80,10 @@ namespace SysCAD.Interface
     ///	RectangleF by the specified coordinate values.
     /// </remarks>
 
-    public static ARectangleF Inflate(ARectangleF r,
+    public static ARectangleF Inflate(ARectangleF rect,
               float x, float y)
     {
-      ARectangleF ir = new ARectangleF(r.X, r.Y, r.Width, r.Height);
+      ARectangleF ir = new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
       ir.Inflate(x, y);
       return ir;
     }
@@ -126,12 +126,11 @@ namespace SysCAD.Interface
     ///	RectangleFs. Returns null if there is no intersection.
     /// </remarks>
 
-    public static ARectangleF Intersect(ARectangleF r1,
-                ARectangleF r2)
+    public static ARectangleF Intersect(ARectangleF rect1, ARectangleF rect2)
     {
-      ARectangleF r = new ARectangleF(r1.X, r1.Y, r1.Width, r1.Height);
-      r.Intersect(r2);
-      return r;
+      ARectangleF rect = new ARectangleF(rect1.X, rect1.Y, rect1.Width, rect1.Height);
+      rect.Intersect(rect2);
+      return rect;
     }
 
     /// <summary>
@@ -143,9 +142,9 @@ namespace SysCAD.Interface
     ///	and another RectangleF.
     /// </remarks>
 
-    public void Intersect(ARectangleF r)
+    public void Intersect(ARectangleF rect)
     {
-      if (!IntersectsWith(r))
+      if (!IntersectsWith(rect))
       {
         x = 0;
         y = 0;
@@ -153,10 +152,10 @@ namespace SysCAD.Interface
         height = 0;
       }
 
-      x = Math.Max(Left, r.Left);
-      y = Math.Max(Top, r.Top);
-      width = Math.Min(Right, r.Right) - X;
-      height = Math.Min(Bottom, r.Bottom) - Y;
+      x = Math.Max(Left, rect.Left);
+      y = Math.Max(Top, rect.Top);
+      width = Math.Min(Right, rect.Right) - X;
+      height = Math.Min(Bottom, rect.Bottom) - Y;
     }
 
     /// <summary>
@@ -216,9 +215,9 @@ namespace SysCAD.Interface
     ///	Converts a Rectangle object to a RectangleF.
     /// </remarks>
 
-    public static implicit operator ARectangleF(Rectangle r)
+    public static implicit operator ARectangleF(Rectangle rect)
     {
-      return new ARectangleF(r.X, r.Y, r.Width, r.Height);
+      return new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
     /// <summary>
@@ -229,14 +228,14 @@ namespace SysCAD.Interface
     ///	Converts a Rectangle object to a RectangleF.
     /// </remarks>
 
-    public static implicit operator ARectangleF(System.Drawing.RectangleF r)
+    public static implicit operator ARectangleF(System.Drawing.RectangleF rect)
     {
-      return new ARectangleF(r.X, r.Y, r.Width, r.Height);
+      return new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
-    public static implicit operator System.Drawing.RectangleF(ARectangleF r)
+    public static implicit operator System.Drawing.RectangleF(ARectangleF rect)
     {
-      return new System.Drawing.RectangleF(r.X, r.Y, r.Width, r.Height);
+      return new System.Drawing.RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
 
@@ -505,10 +504,10 @@ namespace SysCAD.Interface
     ///	Checks if an x,y coordinate lies within this RectangleF.
     /// </remarks>
 
-    public bool Contains(float x, float y)
+    public bool Contains(float positionX, float positionY)
     {
-      return ((x >= Left) && (x <= Right) &&
-        (y >= Top) && (y <= Bottom));
+      return ((positionX >= Left) && (positionX <= Right) &&
+        (positionY >= Top) && (positionY <= Bottom));
     }
 
     /// <summary>
@@ -519,9 +518,9 @@ namespace SysCAD.Interface
     ///	Checks if a Point lies within this RectangleF.
     /// </remarks>
 
-    public bool Contains(PointF pt)
+    public bool Contains(PointF point)
     {
-      return Contains(pt.X, pt.Y);
+      return Contains(point.X, point.Y);
     }
 
     /// <summary>
@@ -575,10 +574,10 @@ namespace SysCAD.Interface
     ///	Checks if a RectangleF intersects with this one.
     /// </remarks>
 
-    public bool IntersectsWith(ARectangleF r)
+    public bool IntersectsWith(ARectangleF rect)
     {
-      return !((Left > r.Right) || (Right < r.Left) ||
-          (Top > r.Bottom) || (Bottom < r.Top));
+      return !((Left > rect.Right) || (Right < rect.Left) ||
+          (Top > rect.Bottom) || (Bottom < rect.Top));
     }
 
     /// <summary>

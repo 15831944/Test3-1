@@ -30,7 +30,7 @@ using namespace System::Data;
 using namespace System::Data::OleDb;
 using namespace System::Drawing;
 
-using namespace SysCAD::Interface;
+using namespace SysCAD::Protocol;
 using namespace System::Runtime::Serialization::Formatters;
 using namespace System::Runtime::Serialization::Formatters::Soap;
 
@@ -101,26 +101,26 @@ ref class CNETServerThread
         {
         String ^ fullpath = dirs[i];
 
-                    ////Create dummy ModelStencil for comparison...
-                    //{
-                    //  ModelStencil^ modelStencil = gcnew ModelStencil();
-                    //  modelStencil->Tag = "";
-                    //  modelStencil->GroupName = "Control";
-                    //  ArrayList^ elements = gcnew ArrayList();
-                    //  SysCAD::Interface::Arc^ arc = gcnew SysCAD::Interface::Arc(0, 0, 100, 100, 10, 360);
-                    //  elements->Add(arc);
-                    //  modelStencil->Elements = elements;
+                    //Create dummy ModelStencil for comparison...
+                    {
+                      ModelStencil^ modelStencil = gcnew ModelStencil();
+                      modelStencil->Tag = "";
+                      modelStencil->GroupName = "Control";
+                      ArrayList^ elements = gcnew ArrayList();
+                      SysCAD::Protocol::Arc^ arc = gcnew SysCAD::Protocol::Arc(0, 0, 100, 100, 10, 360);
+                      elements->Add(arc);
+                      modelStencil->Elements = elements;
 
-                    //  modelStencil->Decorations = gcnew ArrayList();
-                    //  modelStencil->Anchors = gcnew ArrayList();
-                    //  modelStencil->FillMode = System::Drawing::Drawing2D::FillMode::Alternate;
+                      modelStencil->Decorations = gcnew ArrayList();
+                      modelStencil->Anchors = gcnew ArrayList();
+                      modelStencil->FillMode = System::Drawing::Drawing2D::FillMode::Alternate;
 
-                    //  SoapFormatter^ sf = gcnew SoapFormatter();
-                    //  StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
-                    //  Stream^ stream = streamWriter->BaseStream;
-                    //  sf->Serialize(stream, modelStencil);
-                    //  stream->Close();
-                    //}
+                      SoapFormatter^ sf = gcnew SoapFormatter();
+                      StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
+                      Stream^ stream = streamWriter->BaseStream;
+                      sf->Serialize(stream, modelStencil);
+                      stream->Close();
+                    }
 
         SoapFormatter ^ sf = gcnew SoapFormatter;
         StreamReader ^ streamRdr = gcnew StreamReader(fullpath);
@@ -142,23 +142,23 @@ ref class CNETServerThread
         {
         String ^ fullpath = dirs[i];
 
-                    ////Create dummy GraphicStencil for comparison...
-                    //{
-                    //  GraphicStencil^ graphicStencil = gcnew GraphicStencil();
-                    //  graphicStencil->Tag = "";
-                    //  ArrayList^ elements = gcnew ArrayList();
-                    //  SysCAD::Interface::Arc^ arc = gcnew SysCAD::Interface::Arc(0, 0, 100, 100, 10, 360);
-                    //  elements->Add(arc);
-                    //  graphicStencil->Elements = elements;
+                    //Create dummy GraphicStencil for comparison...
+                    {
+                      GraphicStencil^ graphicStencil = gcnew GraphicStencil();
+                      graphicStencil->Tag = "";
+                      ArrayList^ elements = gcnew ArrayList();
+                      SysCAD::Protocol::Arc^ arc = gcnew SysCAD::Protocol::Arc(0, 0, 100, 100, 10, 360);
+                      elements->Add(arc);
+                      graphicStencil->Elements = elements;
 
-                    //  graphicStencil->Decorations = gcnew ArrayList();
+                      graphicStencil->Decorations = gcnew ArrayList();
 
-                    //  SoapFormatter^ sf = gcnew SoapFormatter();
-                    //  StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
-                    //  Stream^ stream = streamWriter->BaseStream;
-                    //  sf->Serialize(stream, graphicStencil);
-                    //  stream->Close();
-                    //}
+                      SoapFormatter^ sf = gcnew SoapFormatter();
+                      StreamWriter ^ streamWriter = gcnew StreamWriter(fullpath+".new");
+                      Stream^ stream = streamWriter->BaseStream;
+                      sf->Serialize(stream, graphicStencil);
+                      stream->Close();
+                    }
 
         SoapFormatter ^ sf = gcnew SoapFormatter;
         Stream ^ stream = (gcnew StreamReader(fullpath))->BaseStream;
@@ -307,14 +307,14 @@ ref class CNETServerThread
       RemotingServices::Marshal(m_Config, "Global");
       }
 
-    bool ChangeState(ServiceInterface^ serviceInterface, Int64 requestID, BaseInterface::RunStates runState)
+    bool ChangeState(ServiceProtocol^ serviceProtocol, Int64 requestID, BaseProtocol::RunStates runState)
       {
       if (true) // Decide whether to allow runstate change
         { // We're going to do it.
         // Change the runstate.
 
         // Raise event(s).
-        serviceInterface->DoStateChanged(requestID, runState);
+        serviceProtocol->DoStateChanged(requestID, runState);
 
         return true;
         }
@@ -324,12 +324,12 @@ ref class CNETServerThread
         }
       }
 
-    void GetPropertyValues(ServiceInterface^ serviceInterface, Int64 requestID, ArrayList^% propertyList)
+    void GetPropertyValues(ServiceProtocol^ serviceProtocol, Int64 requestID, ArrayList^% propertyList)
       {
         // Return modified ArrayList with tag details included.
       }
 
-    void GetSubTags(ServiceInterface^ serviceInterface, Int64 requestID, String^ propertyPath, ArrayList^% propertyList)
+    void GetSubTags(ServiceProtocol^ serviceProtocol, Int64 requestID, String^ propertyPath, ArrayList^% propertyList)
       {
         Random^ random = gcnew Random();
 
@@ -363,14 +363,14 @@ ref class CNETServerThread
       }
 
 
-    bool CreateItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an item.
         { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        serviceInterface->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        serviceProtocol->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -380,14 +380,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an item.
         { // We're going to do it.
         // Modify the item.
 
         // Raise event(s).
-       serviceInterface->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+       serviceProtocol->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
         }
@@ -397,14 +397,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteItem(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
+    bool DeleteItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an item.
         { // We're going to do it.
         // Delete the item.
 
         // Raise event(s).
-        serviceInterface->DoItemDeleted(requestID, guid);
+        serviceProtocol->DoItemDeleted(requestID, guid);
 
         return true;
         }
@@ -414,14 +414,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool CreateLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to create an link.
         { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        serviceInterface->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        serviceProtocol->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
         }
@@ -431,14 +431,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
+    bool ModifyLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
       {
       if (true) // Decide whether to modify an link.
         { // We're going to do it.
         // Modify the item.
 
         // Raise event(s).
-        serviceInterface->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        serviceProtocol->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
         }
@@ -448,14 +448,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteLink(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
+    bool DeleteLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an link.
         { // We're going to do it.
         // Delete the item.
 
         // Raise event(s).
-        serviceInterface->DoLinkDeleted(requestID, guid);
+        serviceProtocol->DoLinkDeleted(requestID, guid);
 
         return true;
         }
@@ -465,14 +465,14 @@ ref class CNETServerThread
         }
       }
 
-    bool CreateThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool CreateThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to create an Thing.
         { // We're going to do it.
         // Create the Thing.
 
         // Raise event(s).
-        serviceInterface->DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        serviceProtocol->DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
         }
@@ -482,14 +482,14 @@ ref class CNETServerThread
         }
       }
 
-    bool ModifyThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool ModifyThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       if (true) // Decide whether to modify an Thing.
         { // We're going to do it.
         // Modify the Thing.
 
         // Raise event(s).
-       serviceInterface->DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+       serviceProtocol->DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
         }
@@ -499,14 +499,14 @@ ref class CNETServerThread
         }
       }
 
-    bool DeleteThing(ServiceInterface^ serviceInterface, Int64 requestID, Guid guid)
+    bool DeleteThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an Thing.
         { // We're going to do it.
         // Delete the Thing.
 
         // Raise event(s).
-        serviceInterface->DoThingDeleted(requestID, guid);
+        serviceProtocol->DoThingDeleted(requestID, guid);
 
         return true;
         }
@@ -516,7 +516,7 @@ ref class CNETServerThread
         }
       }
 
-    PortStatus PortCheck(ServiceInterface^ serviceInterface, Guid guid, Anchor^ anchor)
+    PortStatus PortCheck(ServiceProtocol^ serviceProtocol, Guid guid, Anchor^ anchor)
       {
       //		CNSGuidItem * pGuid = new CNSGuidItem();
       //		pGuid->m_Guid = guid;
@@ -526,7 +526,7 @@ ref class CNETServerThread
       return PortStatus::Available;
       }
 
-    ArrayList^ PropertyListCheck(ServiceInterface^ serviceInterface, Guid guid, String^ tag, String^ path)
+    ArrayList^ PropertyListCheck(ServiceProtocol^ serviceProtocol, Guid guid, String^ tag, String^ path)
       {
         char* dest = new char[tag->Length+1];
         strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(tag)))));
@@ -539,29 +539,29 @@ ref class CNETServerThread
 
     void MarshalServiceInterface()
     {
-      ServiceInterface::ChangeStateHandler^ changeState = gcnew ServiceInterface::ChangeStateHandler(this, &CNETServerThread::ChangeState);
+      ServiceProtocol::ChangeStateHandler^ changeState = gcnew ServiceProtocol::ChangeStateHandler(this, &CNETServerThread::ChangeState);
 
-      ServiceInterface::GetPropertyValuesHandler^ getPropertyValues = gcnew ServiceInterface::GetPropertyValuesHandler(this, &CNETServerThread::GetPropertyValues);
-      ServiceInterface::GetSubTagsHandler^ getSubTags = gcnew ServiceInterface::GetSubTagsHandler(this, &CNETServerThread::GetSubTags);
+      ServiceProtocol::GetPropertyValuesHandler^ getPropertyValues = gcnew ServiceProtocol::GetPropertyValuesHandler(this, &CNETServerThread::GetPropertyValues);
+      ServiceProtocol::GetSubTagsHandler^ getSubTags = gcnew ServiceProtocol::GetSubTagsHandler(this, &CNETServerThread::GetSubTags);
 
-      ServiceInterface::CreateItemHandler^ createItem = gcnew ServiceInterface::CreateItemHandler(this, &CNETServerThread::CreateItem);
-      ServiceInterface::ModifyItemHandler^ modifyItem = gcnew ServiceInterface::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
-      ServiceInterface::DeleteItemHandler^ deleteItem = gcnew ServiceInterface::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
+      ServiceProtocol::CreateItemHandler^ createItem = gcnew ServiceProtocol::CreateItemHandler(this, &CNETServerThread::CreateItem);
+      ServiceProtocol::ModifyItemHandler^ modifyItem = gcnew ServiceProtocol::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
+      ServiceProtocol::DeleteItemHandler^ deleteItem = gcnew ServiceProtocol::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
 
-      ServiceInterface::CreateLinkHandler^ createLink = gcnew ServiceInterface::CreateLinkHandler(this, &CNETServerThread::CreateLink);
-      ServiceInterface::ModifyLinkHandler^ modifyLink = gcnew ServiceInterface::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
-      ServiceInterface::DeleteLinkHandler^ deleteLink = gcnew ServiceInterface::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
+      ServiceProtocol::CreateLinkHandler^ createLink = gcnew ServiceProtocol::CreateLinkHandler(this, &CNETServerThread::CreateLink);
+      ServiceProtocol::ModifyLinkHandler^ modifyLink = gcnew ServiceProtocol::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
+      ServiceProtocol::DeleteLinkHandler^ deleteLink = gcnew ServiceProtocol::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
 
-      ServiceInterface::CreateThingHandler^ createThing = gcnew ServiceInterface::CreateThingHandler(this, &CNETServerThread::CreateThing);
-      ServiceInterface::ModifyThingHandler^ modifyThing = gcnew ServiceInterface::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
-      ServiceInterface::DeleteThingHandler^ deleteThing = gcnew ServiceInterface::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
+      ServiceProtocol::CreateThingHandler^ createThing = gcnew ServiceProtocol::CreateThingHandler(this, &CNETServerThread::CreateThing);
+      ServiceProtocol::ModifyThingHandler^ modifyThing = gcnew ServiceProtocol::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
+      ServiceProtocol::DeleteThingHandler^ deleteThing = gcnew ServiceProtocol::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
 
-      ServiceInterface::PortCheckHandler^ portCheck = gcnew ServiceInterface::PortCheckHandler(this, &CNETServerThread::PortCheck);
+      ServiceProtocol::PortCheckHandler^ portCheck = gcnew ServiceProtocol::PortCheckHandler(this, &CNETServerThread::PortCheck);
 
-      ServiceInterface::PropertyListHandler^ propertyListCheck = gcnew ServiceInterface::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
+      ServiceProtocol::PropertyListHandler^ propertyListCheck = gcnew ServiceProtocol::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceInterface ^ serviceInterface = gcnew ServiceInterface(changeState, getPropertyValues, getSubTags, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      ServiceProtocol ^ serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -735,7 +735,7 @@ ref class CNETServerThread
             gcnew String(pThing->m_Guid), 
             RectangleF(pThing->m_Left + pageOffset[path].X, pThing->m_Top + pageOffset[path].Y, pThing->m_Width, pThing->m_Height),
             xaml, pThing->m_Rotation, false, false);
-            serviceInterface->graphicThings->Add(graphicThing->Guid, graphicThing);
+            serviceProtocol->graphicThings->Add(graphicThing->Guid, graphicThing);
         }
       }
 
@@ -756,7 +756,7 @@ ref class CNETServerThread
               gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
               RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
               pNode->m_pGrfs[0]->m_Rotation);
-            serviceInterface->graphicItems->Add(graphicItem->Guid, graphicItem);
+            serviceProtocol->graphicItems->Add(graphicItem->Guid, graphicItem);
           }
         }
       }
@@ -770,7 +770,7 @@ ref class CNETServerThread
           {
             CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(pGuid); 
             GraphicItem ^originGraphicItem;
-            serviceInterface->graphicItems->TryGetValue(Guid(gcnew String(pLink->m_SrcGuid)), originGraphicItem);
+            serviceProtocol->graphicItems->TryGetValue(Guid(gcnew String(pLink->m_SrcGuid)), originGraphicItem);
 
             PointF offset = PointF(0.0F, 0.0F);
             pageOffset.TryGetValue(originGraphicItem->Path, offset);
@@ -790,14 +790,14 @@ ref class CNETServerThread
             gcnew String(pLink->m_SrcGuid), gcnew String(pLink->m_DstGuid),
             gcnew String(pLink->m_SrcPort), gcnew String(pLink->m_DstPort),
             ControlPoints ,
-            serviceInterface->graphicItems);
+            serviceProtocol->graphicItems);
 
-          serviceInterface->graphicLinks->Add(graphicLink->Guid, graphicLink);
+          serviceProtocol->graphicLinks->Add(graphicLink->Guid, graphicLink);
           }
       }
       }
 
-      RemotingServices::Marshal(serviceInterface, filename);
+      RemotingServices::Marshal(serviceProtocol, filename);
       m_Config->ProjectList->Add(filename);
       LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
       };
@@ -807,7 +807,7 @@ ref class CNETServerThread
       {
       LogNote("CNETServerThread", 0, "Startup");
 
-      m_Config = gcnew SysCAD::Interface::ConfigData;
+      m_Config = gcnew ConfigData;
       m_StencilPath = gcnew String(BaseCfgFiles());
       m_StencilPath = m_StencilPath + "Stencils\\";
 
@@ -836,7 +836,7 @@ ref class CNETServerThread
 
 
   protected:
-    SysCAD::Interface::ConfigData ^ m_Config;
+    SysCAD::Protocol::ConfigData ^ m_Config;
     String ^ m_StencilPath;
 
     CNETServerU  * m_pUnmanaged;

@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.Collections.Generic;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   [ComVisible(true)]

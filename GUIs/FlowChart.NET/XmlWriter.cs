@@ -1268,7 +1268,7 @@ namespace MindFusion.FlowChartX.Xml
 					{
 						// Only shapes with assigned ids are serialized
 						writer.WriteElementString(tprop,
-							(val as ShapeTemplate).ID);
+							(val as ShapeTemplate).Id);
 					}
 					else if (val != null)
 					{
@@ -1418,7 +1418,7 @@ namespace MindFusion.FlowChartX.Xml
 						break;
 					case BoxStyle.Shape:
 						// Only shapes with assigned ids are serialized
-						shape = b.Shape.ID;
+						shape = b.Shape.Id;
 
 						if (shape == "")
 						{
@@ -1427,7 +1427,7 @@ namespace MindFusion.FlowChartX.Xml
 							{
 								if (b.Shape.Equals(newShape))
 								{
-									shape = newShape.ID;
+									shape = newShape.Id;
 									break;
 								}
 							}

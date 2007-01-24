@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Collections;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   public class Animation

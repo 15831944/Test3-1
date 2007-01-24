@@ -16,6 +16,19 @@ namespace SysCAD.Editor
     {
       if (disposing && (components != null))
       {
+        state.DisconnectGraphic(
+          fcFlowChart_StateChanged,
+          fcFlowChart_Step,
+          fcFlowChart_ItemCreated,
+          fcFlowChart_ItemModified,
+          fcFlowChart_ItemDeleted,
+          fcFlowChart_LinkCreated,
+          fcFlowChart_LinkModified,
+          fcFlowChart_LinkDeleted,
+          fcFlowChart_ThingCreated,
+          fcFlowChart_ThingModified,
+          fcFlowChart_ThingDeleted);
+
         components.Dispose();
       }
       base.Dispose(disposing);
@@ -101,6 +114,6 @@ namespace SysCAD.Editor
 
     #endregion
 
-    public FlowChart fcFlowChart;
+    private FlowChart fcFlowChart;
   }
 }

@@ -12,41 +12,39 @@ using System.Runtime.Remoting.Channels.Tcp;
 //using System.Security.Permissions;
 
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   public class ConfigData : MarshalByRefObject
   {
-    protected StringCollection protectedProjectList;
+    private StringCollection projectList = new StringCollection();
 
-    protected Dictionary<String, ModelStencil> protectedModelStencils = new Dictionary<String, ModelStencil>();
-    protected Dictionary<String, GraphicStencil> protectedGraphicStencils = new Dictionary<String, GraphicStencil>();
-    protected Dictionary<String, ThingStencil> protectedThingStencils = new Dictionary<String, ThingStencil>();
+    protected Dictionary<String, ModelStencil> modelStencils = new Dictionary<String, ModelStencil>();
+    protected Dictionary<String, GraphicStencil> graphicStencils = new Dictionary<String, GraphicStencil>();
+    protected Dictionary<String, ThingStencil> thingStencils = new Dictionary<String, ThingStencil>();
 
     public StringCollection ProjectList
     {
-      get { return protectedProjectList; }
+      get { return projectList; }
+      set { projectList = value; }
     }
 
     public Dictionary<String, ModelStencil> ModelStencils
     {
-      get { return protectedModelStencils; }
+      get { return modelStencils; }
     }
 
     public Dictionary<String, GraphicStencil> GraphicStencils
     {
-      get { return protectedGraphicStencils; }
+      get { return graphicStencils; }
     }
 
     public Dictionary<String, ThingStencil> ThingStencils
     {
-      get { return protectedThingStencils; }
+      get { return thingStencils; }
     }
 
     public ConfigData()
     {
-      protectedProjectList = new StringCollection();
-      protectedModelStencils = new Dictionary<String, ModelStencil>();
-      protectedGraphicStencils = new Dictionary<String, GraphicStencil>();
     }
 
     //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
@@ -83,22 +81,22 @@ namespace SysCAD.Interface
       MemoryStream memoryStream;
       System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
-      protectedProjectList = remoteConfig.ProjectList;
+      ProjectList = remoteConfig.ProjectList;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.ModelStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      protectedModelStencils = bf.Deserialize(memoryStream) as Dictionary<String, ModelStencil>;
+      modelStencils = bf.Deserialize(memoryStream) as Dictionary<String, ModelStencil>;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.GraphicStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      protectedGraphicStencils = bf.Deserialize(memoryStream) as Dictionary<String, GraphicStencil>;
+      graphicStencils = bf.Deserialize(memoryStream) as Dictionary<String, GraphicStencil>;
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.ThingStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      protectedThingStencils = bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>;
+      thingStencils = bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>;
     }
 
   }

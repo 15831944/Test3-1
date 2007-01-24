@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MindFusion.FlowChartX;
 using System.Drawing;
-using SysCAD.Interface;
+using SysCAD.Protocol;
 
 namespace SysCAD.Editor
 {
@@ -15,7 +15,7 @@ namespace SysCAD.Editor
 
     private Arrow arrow;
 
-    public GraphicLink graphicLink;
+    private GraphicLink graphicLink;
 
     private bool visible;
 
@@ -33,6 +33,11 @@ namespace SysCAD.Editor
     {
       get { return arrow; }
       set { arrow = value; }
+    }
+
+    public GraphicLink GraphicLink
+    {
+      get { return graphicLink; }
     }
 
     public bool Visible

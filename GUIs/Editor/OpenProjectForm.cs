@@ -6,15 +6,25 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 //using System.Security.Permissions;
 
 namespace SysCAD.Editor
 {
   public partial class OpenProjectForm : Form
   {
-    public Config config = new Config();
-    public ClientInterface clientInterface = new ClientInterface();
+    private Config config = new Config();
+    private ClientProtocol clientInterface = new ClientProtocol();
+
+    public ClientProtocol ClientInterface
+    {
+      get { return clientInterface; }
+    }
+
+    public Config Config
+    {
+      get { return config; }
+    }
 
     public OpenProjectForm()
     {

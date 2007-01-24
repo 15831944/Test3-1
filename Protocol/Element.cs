@@ -1,7 +1,7 @@
 using System;
 using System.Xml.Serialization;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
 	/// <summary>
 	/// Summary description for Element.

@@ -8307,7 +8307,7 @@ namespace MindFusion.FlowChartX
 			get { return shapeTemplate; }
 			set
 			{
-				if(value.ID != "")
+				if(value.Id != "")
 					shapeTemplate = value;
 				else
 					shapeTemplate = (ShapeTemplate)value.Clone();

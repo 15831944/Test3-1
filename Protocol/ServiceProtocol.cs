@@ -13,34 +13,34 @@ using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Drawing.Drawing2D;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
-  public sealed class ServiceInterface : BaseInterface
+  public sealed class ServiceProtocol : BaseProtocol
   {
     private Int64 requestId;
     private Int64 eventId;
 
-    public delegate bool ChangeStateHandler(ServiceInterface serviceInterface, Int64 requestId, RunStates runState);
+    public delegate bool ChangeStateHandler(ServiceProtocol serviceProtocol, Int64 requestId, RunStates runState);
 
-    public delegate void GetPropertyValuesHandler(ServiceInterface serviceInterface, Int64 requestId, ref ArrayList propertyList);
-    public delegate void GetSubTagsHandler(ServiceInterface serviceInterface, Int64 requestId, String propertyPath, out ArrayList propertyList);
+    public delegate void GetPropertyValuesHandler(ServiceProtocol serviceProtocol, Int64 requestId, ref ArrayList propertyList);
+    public delegate void GetSubTagsHandler(ServiceProtocol serviceProtocol, Int64 requestId, String propertyPath, out ArrayList propertyList);
 
-    public delegate bool CreateItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteItemHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
+    public delegate bool CreateItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
 
-    public delegate bool CreateLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool ModifyLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool DeleteLinkHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
+    public delegate bool CreateLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool ModifyLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool DeleteLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
 
-    public delegate bool CreateThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteThingHandler(ServiceInterface serviceInterface, Int64 requestId, Guid guid);
+    public delegate bool CreateThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
 
-    public delegate PortStatus PortCheckHandler(ServiceInterface serviceInterface, Guid itemGuid, Anchor anchor);
+    public delegate PortStatus PortCheckHandler(ServiceProtocol serviceProtocol, Guid itemGuid, Anchor anchor);
 
-    public delegate ArrayList PropertyListHandler(ServiceInterface serviceInterface, Guid guid, String tag, String path);
+    public delegate ArrayList PropertyListHandler(ServiceProtocol serviceProtocol, Guid guid, String tag, String path);
 
 
 
@@ -65,7 +65,7 @@ namespace SysCAD.Interface
 
     private PropertyListHandler propertyListHandler;
 
-    public ServiceInterface(
+    public ServiceProtocol(
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
@@ -98,7 +98,7 @@ namespace SysCAD.Interface
     {
       this.requestId++;
       requestId = this.requestId;
-      throw new Exception("The method or operation is not implemented.");
+      throw new NotImplementedException("The method or operation is not implemented.");
       return changeStateHandler(this, requestId, runState);
     }
 
@@ -106,7 +106,7 @@ namespace SysCAD.Interface
     {
       this.requestId++;
       requestId = this.requestId;
-      throw new Exception("The method or operation is not implemented.");
+      throw new NotImplementedException("The method or operation is not implemented.");
       getPropertyValuesHandler(this, requestId, ref tagPathList);
     }
 

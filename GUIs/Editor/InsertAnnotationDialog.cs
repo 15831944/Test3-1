@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using System.Text.RegularExpressions;
 
 namespace SysCAD.Editor

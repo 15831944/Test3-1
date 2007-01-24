@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using MindFusion.FlowChartX;
 using ActiproSoftware.UIStudio.Bar;
 using MindFusion.FlowChartX.Commands;
@@ -21,7 +21,24 @@ namespace SysCAD.Editor
   {
     FrmFlowChart frmFlowChart;
 
+    public ToolStripStatusLabel ToolStripStatusLabel
+    {
+      get { return toolStripStatusLabel; }
+      set { toolStripStatusLabel = value; }
+    }
 
+    public GraphicPropertyGrid GraphicPropertyGrid
+    {
+      get { return graphicPropertyGrid; }
+      set { graphicPropertyGrid = value; }
+    }
+
+    public ActiproSoftware.UIStudio.Bar.BarManager BarManager1
+    {
+      get { return barManager1; }
+      set { barManager1 = value; }
+    }
+    
     public EditorForm()
     {
       //String testXaml = State.PreprocessXaml("test [[Test tag, 0, 5, #0, #ffffff, Linear, Hex]] test some more");
@@ -59,7 +76,7 @@ namespace SysCAD.Editor
         String stencilName = (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items[stencilIndex] as string;
         if (stencilName != "-------")
         {
-          frmFlowChart.currentStencil = stencilName;
+          frmFlowChart.CurrentStencil = stencilName;
         }
       }
     }
@@ -73,9 +90,9 @@ namespace SysCAD.Editor
 
       int stencilIndex = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex;
       string stencilName = (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items[stencilIndex] as string;
-      frmFlowChart.currentModel = stencilName;
+      frmFlowChart.CurrentModel = stencilName;
 
-      ModelStencil modelStencil = frmFlowChart.state.ModelShape(stencilName);
+      ModelStencil modelStencil = frmFlowChart.State.ModelShape(stencilName);
       if (modelStencil != null)
       {
         groupName = modelStencil.GroupName;
@@ -94,7 +111,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
       ShapeConverter.ClearStencilList();
 
-      foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
+      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencils)
       {
         if (groupName == graphicStencil.groupName)
         {
@@ -105,7 +122,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
       ShapeConverter.AddStencil("-------");
 
-      foreach (GraphicStencil graphicStencil in frmFlowChart.state.GraphicStencils)
+      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencils)
       {
         if (groupName != graphicStencil.groupName)
         {
@@ -199,16 +216,16 @@ namespace SysCAD.Editor
       }
     }
 
-    public Dictionary<string, GraphicLink> clipBoardGraphicLinks;
-    public Dictionary<string, GraphicItem> clipBoardGraphicItems;
-    public Dictionary<String, GraphicThing> clipBoardGraphicThings;
+    //private Dictionary<string, GraphicLink> clipBoardGraphicLinks;
+    //private Dictionary<string, GraphicItem> clipBoardGraphicItems;
+    //private Dictionary<String, GraphicThing> clipBoardGraphicThings;
 
     #region clipboard support
 
     public void CopyToClipboard()
     {
       // create clones of selected items
-      ClientInterface data = copySelection(frmFlowChart.fcFlowChart);
+      ClientProtocol data = copySelection(frmFlowChart.FCFlowChart);
 
       DataFormats.Format format =
            DataFormats.GetFormat("Kenwalt.GraphicData");
@@ -224,10 +241,10 @@ namespace SysCAD.Editor
       CopyToClipboard();
 
       // that returns the active composite if somebody has already created one
-      CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+      CompositeCmd composite = frmFlowChart.FCFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
 
       // delete selected items
-      frmFlowChart.state.Remove(frmFlowChart.fcFlowChart);
+      frmFlowChart.State.Remove(frmFlowChart.FCFlowChart);
 
       if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
       {
@@ -247,7 +264,7 @@ namespace SysCAD.Editor
         // is there anything of interest in the clipboard ?
         if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
         {
-          BaseInterface pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseInterface;
+          BaseProtocol pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseProtocol;
 
 
           if (pasteData != null)
@@ -316,16 +333,16 @@ namespace SysCAD.Editor
       }
     }
 
-    private ClientInterface copySelection(FlowChart doc)
+    private ClientProtocol copySelection(FlowChart doc)
     {
       if (doc.Selection.Objects.Count == 0)
         return null;
 
-      ClientInterface copyClientInterface = new ClientInterface();
+      ClientProtocol copyClientInterface = new ClientProtocol();
 
       foreach (Box box in doc.Selection.Boxes)
       {
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(box);
+        GraphicItem graphicItem = frmFlowChart.State.GraphicItem(box);
         if (graphicItem != null)
         {
           GraphicItem copyGraphicItem = new GraphicItem(box.Text);
@@ -340,7 +357,7 @@ namespace SysCAD.Editor
           copyClientInterface.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
         }
 
-        GraphicThing graphicThing = frmFlowChart.state.GraphicThing(box);
+        GraphicThing graphicThing = frmFlowChart.State.GraphicThing(box);
         if (graphicThing != null)
         {
           GraphicThing copyGraphicThing = new GraphicThing(graphicThing.Tag);
@@ -357,7 +374,7 @@ namespace SysCAD.Editor
 
       foreach (Arrow arrow in doc.Selection.Arrows)
       {
-        GraphicLink graphicLink = frmFlowChart.state.GraphicLink((arrow.Tag as Link).Guid);
+        GraphicLink graphicLink = frmFlowChart.State.GraphicLink((arrow.Tag as Link).Guid);
         if (graphicLink != null)
         {
           GraphicLink copyGraphicLink = new GraphicLink(arrow.Text);
@@ -384,7 +401,7 @@ namespace SysCAD.Editor
     {
       barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
       barManager1.Commands["CreateItem.ModelType"].Enabled = false;
-      frmFlowChart.fcFlowChart.Behavior = BehaviorType.CreateArrow;
+      frmFlowChart.FCFlowChart.Behavior = BehaviorType.CreateArrow;
     }
 
     private void ModeCreateNode()
@@ -398,7 +415,7 @@ namespace SysCAD.Editor
     {
       barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
       barManager1.Commands["CreateItem.ModelType"].Enabled = false;
-      frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+      frmFlowChart.FCFlowChart.Behavior = BehaviorType.Modify;
       (barManager1.Commands["Mode.Modify"] as BarButtonCommand).Checked = true;
       (barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked = false;
       (barManager1.Commands["Mode.CreateLink"] as BarButtonCommand).Checked = false;
@@ -406,10 +423,10 @@ namespace SysCAD.Editor
 
     private void ViewSelectItems()
     {
-      frmFlowChart.state.SelectItems = true;
+      frmFlowChart.State.SelectItems = true;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
       
-      frmFlowChart.state.SelectLinks = false;
+      frmFlowChart.State.SelectLinks = false;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
 
       frmFlowChart_fcFlowChart_SelectionChanged();
@@ -417,10 +434,10 @@ namespace SysCAD.Editor
 
     private void ViewSelectArrows()
     {
-      frmFlowChart.state.SelectLinks = true;
+      frmFlowChart.State.SelectLinks = true;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = true;
 
-      frmFlowChart.state.SelectItems = false;
+      frmFlowChart.State.SelectItems = false;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = false;
 
       frmFlowChart_fcFlowChart_SelectionChanged();
@@ -428,11 +445,11 @@ namespace SysCAD.Editor
 
     private void ViewShowModels()
     {
-      frmFlowChart.state.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
+      frmFlowChart.State.ShowModels = ((IBarCheckableCommand)barManager1.Commands["View.ShowModels"]).Checked;
 
-      foreach (Item item in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.State.Items)
       {
-        item.Model.Visible = item.Visible && frmFlowChart.state.ShowModels;
+        item.Model.Visible = item.Visible && frmFlowChart.State.ShowModels;
         item.Model.ZIndex = item.Graphic.ZIndex + 1;
         item.Text.ZIndex = item.Model.ZIndex + 1;
       }
@@ -440,11 +457,11 @@ namespace SysCAD.Editor
 
     private void ViewShowGraphics()
     {
-      frmFlowChart.state.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
+      frmFlowChart.State.ShowGraphics = ((IBarCheckableCommand)barManager1.Commands["View.ShowGraphics"]).Checked;
 
-      foreach (Item item in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.State.Items)
       {
-        item.Graphic.Visible = item.Visible && frmFlowChart.state.ShowGraphics;
+        item.Graphic.Visible = item.Visible && frmFlowChart.State.ShowGraphics;
         item.Model.ZIndex = item.Graphic.ZIndex + 1;
         item.Text.ZIndex = item.Model.ZIndex + 1;
       }
@@ -452,9 +469,9 @@ namespace SysCAD.Editor
 
     private void ViewShowLinks()
     {
-      frmFlowChart.state.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
+      frmFlowChart.State.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
 
-      foreach (Arrow arrow in frmFlowChart.fcFlowChart.Arrows)
+      foreach (Arrow arrow in frmFlowChart.FCFlowChart.Arrows)
       {
         bool visible = true;
         Item origin = arrow.Origin.Tag as Item;
@@ -465,28 +482,28 @@ namespace SysCAD.Editor
         if (origin != null) visible = visible && origin.Visible;
         if (destination != null) visible = visible && destination.Visible;
 
-        arrow.Visible = visible && frmFlowChart.state.ShowLinks;
+        arrow.Visible = visible && frmFlowChart.State.ShowLinks;
       }
     }
 
     private void ViewShowTags()
     {
-      frmFlowChart.state.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
+      frmFlowChart.State.ShowTags = ((IBarCheckableCommand)barManager1.Commands["View.ShowTags"]).Checked;
 
-      foreach (Link link in frmFlowChart.state.Links)
+      foreach (Link link in frmFlowChart.State.Links)
       {
-        if (frmFlowChart.state.ShowTags)
+        if (frmFlowChart.State.ShowTags)
           link.Arrow.Text = link.Tag;
         else
           link.Arrow.Text = "";
       }
 
-      foreach (Item item in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.State.Items)
       {
-          item.Text.Visible = frmFlowChart.state.ShowTags;
+          item.Text.Visible = frmFlowChart.State.ShowTags;
       }
 
-      frmFlowChart.fcFlowChart.Invalidate();
+      frmFlowChart.FCFlowChart.Invalidate();
     }
 
     private void ViewZoomToVisible()
@@ -503,7 +520,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.fcFlowChart.ZoomOut();
+      frmFlowChart.FCFlowChart.ZoomOut();
 
       frmFlowChart.SetSizes();
     }
@@ -512,7 +529,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.fcFlowChart.ZoomIn();
+      frmFlowChart.FCFlowChart.ZoomIn();
 
       frmFlowChart.SetSizes();
     }
@@ -545,8 +562,8 @@ namespace SysCAD.Editor
 
       if (frmFlowChart != null)
       {
-        frmFlowChart.state.SelectItems = true;
-        frmFlowChart.state.SelectLinks = false;
+        frmFlowChart.State.SelectItems = true;
+        frmFlowChart.State.SelectLinks = false;
       }
 
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
@@ -583,16 +600,16 @@ namespace SysCAD.Editor
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
         frmFlowChart.MdiParent = this;
-        frmFlowChart.Text = openProjectForm.clientInterface.Name;
+        frmFlowChart.Text = openProjectForm.ClientInterface.Name;
 
-        frmFlowChart.SetProject(openProjectForm.clientInterface, openProjectForm.config, tvNavigation);
+        frmFlowChart.SetProject(openProjectForm.ClientInterface, openProjectForm.Config, tvNavigation);
         tvNavigationSetProject();
-        ovOverview.Document = frmFlowChart.fcFlowChart;
+        ovOverview.Document = frmFlowChart.FCFlowChart;
 
-        frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+        frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
         (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Clear();
-        foreach (ModelStencil modelStencil in frmFlowChart.state.ModelStencils)
+        foreach (ModelStencil modelStencil in frmFlowChart.State.ModelStencils)
         {
           (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
         }
@@ -611,13 +628,13 @@ namespace SysCAD.Editor
 
     private void tvNavigationSetProject()
     {
-      foreach (GraphicItem graphicItem in frmFlowChart.state.GraphicItems)
+      foreach (GraphicItem graphicItem in frmFlowChart.State.GraphicItems)
       {
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
       }
 
-      foreach (GraphicThing graphicThing in frmFlowChart.state.GraphicThings)
+      foreach (GraphicThing graphicThing in frmFlowChart.State.GraphicThings)
       {
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
@@ -655,7 +672,7 @@ namespace SysCAD.Editor
           if (node.Key == null) // not an item.
             SelectSubNodes(node);
           else
-            frmFlowChart.state.ItemVisible(new Guid(node.Key), node.IsSelected);
+            frmFlowChart.State.ItemVisible(new Guid(node.Key), node.IsSelected);
         }
 
         wasSelectedNodes.Clear();
@@ -669,7 +686,7 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node node in wasSelectedNodes)
         {
           if (node.Key != null)
-            frmFlowChart.state.ItemVisible(new Guid(node.Key), false);
+            frmFlowChart.State.ItemVisible(new Guid(node.Key), false);
         }
 
         wasSelectedNodes.Clear();
@@ -689,7 +706,7 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
+            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
 
           SelectSubNodes(innerNode);
         }
@@ -700,7 +717,7 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), false);
+            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), false);
 
           tvNavigation.RemoveSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -712,7 +729,7 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
           if (innerNode.Key != null)
-            frmFlowChart.state.ItemVisible(new Guid(innerNode.Key), true);
+            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), true);
 
           tvNavigation.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -729,13 +746,13 @@ namespace SysCAD.Editor
     {
       graphicPropertyGrid.Clear();
 
-      frmFlowChart.fcFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart.FCFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
-      if (!frmFlowChart.state.SelectItems)
+      if (!frmFlowChart.State.SelectItems)
       {
-        if (frmFlowChart.fcFlowChart.Selection.Boxes.Count > 1)
+        if (frmFlowChart.FCFlowChart.Selection.Boxes.Count > 1)
         {
-          BoxCollection boxCollection = frmFlowChart.fcFlowChart.Selection.Boxes.Clone();
+          BoxCollection boxCollection = frmFlowChart.FCFlowChart.Selection.Boxes.Clone();
           foreach (Box box in boxCollection)
           {
             box.Selected = false;
@@ -743,11 +760,11 @@ namespace SysCAD.Editor
         }
       }
 
-      if (!frmFlowChart.state.SelectLinks)
+      if (!frmFlowChart.State.SelectLinks)
       {
-        if (frmFlowChart.fcFlowChart.Selection.Arrows.Count > 1)
+        if (frmFlowChart.FCFlowChart.Selection.Arrows.Count > 1)
         {
-          ArrowCollection arrowCollection = frmFlowChart.fcFlowChart.Selection.Arrows.Clone();
+          ArrowCollection arrowCollection = frmFlowChart.FCFlowChart.Selection.Arrows.Clone();
           foreach (Arrow arrow in arrowCollection)
           {
             arrow.Selected = false;
@@ -755,7 +772,7 @@ namespace SysCAD.Editor
         }
       }
 
-      foreach (Item item in frmFlowChart.state.Items)
+      foreach (Item item in frmFlowChart.State.Items)
       {
         if (item.Graphic.Selected)
         {
@@ -768,37 +785,37 @@ namespace SysCAD.Editor
         {
           item.Model.Visible = item.Visible;
           item.Model.ZIndex = item.Graphic.ZIndex + 1;
-          item.Text.Visible = item.Visible && frmFlowChart.state.ShowTags;
+          item.Text.Visible = item.Visible && frmFlowChart.State.ShowTags;
           item.Text.ZIndex = item.Graphic.ZIndex + 2;
         }
         else
         {
-          item.Model.Visible = item.Visible && frmFlowChart.state.ShowModels;
+          item.Model.Visible = item.Visible && frmFlowChart.State.ShowModels;
         }
       }
 
-      if (frmFlowChart.fcFlowChart.ActiveObject is Arrow)
+      if (frmFlowChart.FCFlowChart.ActiveObject is Arrow)
       {
-        Arrow activeArrow = frmFlowChart.fcFlowChart.ActiveObject as Arrow;
-        GraphicLink graphicLink = frmFlowChart.state.GraphicLink(activeArrow);
+        Arrow activeArrow = frmFlowChart.FCFlowChart.ActiveObject as Arrow;
+        GraphicLink graphicLink = frmFlowChart.State.GraphicLink(activeArrow);
         if (graphicLink != null)
         {
-          graphicPropertyGrid.SetSelectedObject(graphicLink, frmFlowChart.state);
+          graphicPropertyGrid.SetSelectedObject(graphicLink, frmFlowChart.State);
         }
       }
 
-      if (frmFlowChart.fcFlowChart.ActiveObject is Box)
+      if (frmFlowChart.FCFlowChart.ActiveObject is Box)
       {
-        Box activeBox = frmFlowChart.fcFlowChart.ActiveObject as Box;
-        GraphicItem graphicItem = frmFlowChart.state.GraphicItem(activeBox);
+        Box activeBox = frmFlowChart.FCFlowChart.ActiveObject as Box;
+        GraphicItem graphicItem = frmFlowChart.State.GraphicItem(activeBox);
         if (graphicItem != null)
         {
-          graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.state);
+          graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.State);
 
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
-          modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.state);
+          modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.State);
 
-          frmFlowChart.state.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
+          frmFlowChart.State.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 
           int i;
 
@@ -815,7 +832,7 @@ namespace SysCAD.Editor
           if ((barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
             (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
 
-          ModelStencil modelStencil = frmFlowChart.state.ModelShape(graphicItem.Model);
+          ModelStencil modelStencil = frmFlowChart.State.ModelShape(graphicItem.Model);
           if (modelStencil != null)
           {
             GraphicType_Populate(modelStencil.GroupName);
@@ -836,7 +853,7 @@ namespace SysCAD.Editor
         }
       }
 
-      frmFlowChart.fcFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
     //void propertyGrid1_PropertyValueChanged(object s, VisualHint.SmartPropertyGrid.PropertyChangedEventArgs e)

@@ -7,7 +7,7 @@ using System.Text;
 
 using MindFusion.FlowChartX;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using PureComponents.TreeView;
 using System.Windows.Forms;
 using ActiproSoftware.UIStudio.Bar;
@@ -20,13 +20,13 @@ namespace SysCAD.Editor
 {
   public partial class FrmFlowChart : Form
   {
-    public State state = new State();
+    private State state = new State();
 
-    public String currentModel;
-    public String currentStencil;
+    private String currentModel;
+    private String currentStencil;
 
-    public Arrow arrowBeingModified;
-    public int arrowBeingModifiedSelectionHandle = -1;
+    private Arrow arrowBeingModified;
+    private int arrowBeingModifiedSelectionHandle = -1;
 
     private int tempBoxKey;
     private int tempArrowKey;
@@ -37,10 +37,32 @@ namespace SysCAD.Editor
     private Anchor destinationAnchorChosen;
 
 
+    public String CurrentStencil
+    {
+      get { return currentStencil; }
+      set { currentStencil = value; }
+    }
+
+    public String CurrentModel
+    {
+      get { return currentModel; }
+      set { currentModel = value; }
+    }
+
+    public State State
+    {
+      get { return state; }
+    }
+
+    public FlowChart FCFlowChart
+    {
+      get { return fcFlowChart; }
+    }
+
+
     public FrmFlowChart(EditorForm form1)
     {
       this.form1 = form1;
-
       InitializeComponent();
 
 
@@ -50,40 +72,24 @@ namespace SysCAD.Editor
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
-    ~FrmFlowChart()
+    internal void SetProject(ClientProtocol clientInterface, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
-      state.DisconnectGraphic(
-        fcFlowChart_StateChanged,
-        fcFlowChart_Step,
-        fcFlowChart_ItemCreated,
-        fcFlowChart_ItemModified,
-        fcFlowChart_ItemDeleted,
-        fcFlowChart_LinkCreated,
-        fcFlowChart_LinkModified,
-        fcFlowChart_LinkDeleted,
-        fcFlowChart_ThingCreated,
-        fcFlowChart_ThingModified,
-        fcFlowChart_ThingDeleted);
-    }
-
-    internal void SetProject(ClientInterface clientInterface, Config config, PureComponents.TreeView.TreeView tvNavigation)
-    {
-      state.ClientInterface = clientInterface;
+      state.ClientProtocol = clientInterface;
       state.Config = config;
       state.TVNavigation = tvNavigation;
 
       state.ConnectGraphic(
-        new ClientInterface.StateChangedHandler(fcFlowChart_StateChanged),
-        new ClientInterface.StepHandler(fcFlowChart_Step),
-        new ClientInterface.ItemCreatedHandler(fcFlowChart_ItemCreated),
-        new ClientInterface.ItemModifiedHandler(fcFlowChart_ItemModified),
-        new ClientInterface.ItemDeletedHandler(fcFlowChart_ItemDeleted),
-        new ClientInterface.LinkCreatedHandler(fcFlowChart_LinkCreated),
-        new ClientInterface.LinkModifiedHandler(fcFlowChart_LinkModified),
-        new ClientInterface.LinkDeletedHandler(fcFlowChart_LinkDeleted),
-        new ClientInterface.ThingCreatedHandler(fcFlowChart_ThingCreated), 
-        new ClientInterface.ThingModifiedHandler(fcFlowChart_ThingModified),
-        new ClientInterface.ThingDeletedHandler(fcFlowChart_ThingDeleted));
+        new ClientProtocol.StateChangedHandler(fcFlowChart_StateChanged),
+        new ClientProtocol.StepHandler(fcFlowChart_Step),
+        new ClientProtocol.ItemCreatedHandler(fcFlowChart_ItemCreated),
+        new ClientProtocol.ItemModifiedHandler(fcFlowChart_ItemModified),
+        new ClientProtocol.ItemDeletedHandler(fcFlowChart_ItemDeleted),
+        new ClientProtocol.LinkCreatedHandler(fcFlowChart_LinkCreated),
+        new ClientProtocol.LinkModifiedHandler(fcFlowChart_LinkModified),
+        new ClientProtocol.LinkDeletedHandler(fcFlowChart_LinkDeleted),
+        new ClientProtocol.ThingCreatedHandler(fcFlowChart_ThingCreated), 
+        new ClientProtocol.ThingModifiedHandler(fcFlowChart_ThingModified),
+        new ClientProtocol.ThingDeletedHandler(fcFlowChart_ThingDeleted));
 
       fcFlowChart.UndoManager.UndoEnabled = false;
       fcFlowChart.UseWaitCursor = true;
@@ -301,7 +307,7 @@ namespace SysCAD.Editor
         fcFlowChart.ZoomToRect(fcFlowChart.DocExtents);
     }
 
-    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseInterface.RunStates runState)
+    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseProtocol.RunStates runState)
     {
       state.StateChanged(runState);
     }
@@ -365,7 +371,7 @@ namespace SysCAD.Editor
       Link link = state.Link(guid);
       if (link != null)
       {
-        GraphicLink graphicLink = link.graphicLink;
+        GraphicLink graphicLink = link.GraphicLink;
         graphicLink.ClassID = classId;
         graphicLink.Origin = origin;
         graphicLink.Destination = destination;
@@ -480,7 +486,7 @@ namespace SysCAD.Editor
       }
 
 
-      form1.toolStripStatusLabel.Text = "";
+      form1.ToolStripStatusLabel.Text = "";
 
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;
@@ -488,30 +494,30 @@ namespace SysCAD.Editor
       originAnchorChosen = null;
       destinationAnchorChosen = null;
 
-      GraphicLink graphicLink = (e.Arrow.Tag as Link).graphicLink as GraphicLink;
+      GraphicLink graphicLink = (e.Arrow.Tag as Link).GraphicLink as GraphicLink;
 
       if (oldOriginBox != null)
       {
-        (e.Arrow.Tag as Link).graphicLink.Origin = oldOriginGuid;
+        (e.Arrow.Tag as Link).GraphicLink.Origin = oldOriginGuid;
         e.Arrow.Origin = oldOriginBox;
         e.Arrow.OrgnAnchor = oldOriginAnchor;
       }
       else if (newOriginBox != null)
       {
-        (e.Arrow.Tag as Link).graphicLink.Origin = newOriginGuid;
+        (e.Arrow.Tag as Link).GraphicLink.Origin = newOriginGuid;
         e.Arrow.Origin = newOriginBox;
         e.Arrow.OrgnAnchor = newOriginAnchor;
       }
 
       if (oldDestinationBox != null)
       {
-        (e.Arrow.Tag as Link).graphicLink.Destination = oldDestinationGuid;
+        (e.Arrow.Tag as Link).GraphicLink.Destination = oldDestinationGuid;
         e.Arrow.Destination = oldDestinationBox;
         e.Arrow.DestAnchor = oldDestinationAnchor;
       }
       else if (newDestinationBox != null)
       {
-        (e.Arrow.Tag as Link).graphicLink.Destination = newDestinationGuid;
+        (e.Arrow.Tag as Link).GraphicLink.Destination = newDestinationGuid;
         e.Arrow.Destination = newDestinationBox;
         e.Arrow.DestAnchor = newDestinationAnchor;
       }
@@ -613,14 +619,14 @@ namespace SysCAD.Editor
       arrowBeingModified.ZTop();
 
       if (arrow.Tag != null)
-        oldOriginGuid = (arrow.Tag as Link).graphicLink.Origin;
+        oldOriginGuid = (arrow.Tag as Link).GraphicLink.Origin;
       else
         oldOriginGuid = Guid.Empty;
       oldOriginBox = arrow.Origin as Box;
       oldOriginAnchor = arrow.OrgnAnchor;
 
       if (arrow.Tag != null)
-        oldDestinationGuid = (arrow.Tag as Link).graphicLink.Destination;
+        oldDestinationGuid = (arrow.Tag as Link).GraphicLink.Destination;
       else
         oldDestinationGuid = Guid.Empty;
       oldDestinationBox = arrow.Destination as Box;
@@ -659,7 +665,7 @@ namespace SysCAD.Editor
             newOriginGuid = (originBox.Tag as Item).Guid;
             newOriginBox = originBox;
             newOriginAnchor = closestI;
-            form1.toolStripStatusLabel.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
+            form1.ToolStripStatusLabel.Text = (originBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
           }
         }
       }
@@ -703,7 +709,7 @@ namespace SysCAD.Editor
             newDestinationGuid = (destinationBox.Tag as Item).Guid;
             newDestinationBox = destinationBox;
             newDestinationAnchor = closestI;
-            form1.toolStripStatusLabel.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
+            form1.ToolStripStatusLabel.Text = (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
           }
         }
       }
@@ -715,7 +721,7 @@ namespace SysCAD.Editor
           newOriginGuid = Guid.Empty;
           newOriginBox = null;
           newOriginAnchor = -1;
-          form1.toolStripStatusLabel.Text = "";
+          form1.ToolStripStatusLabel.Text = "";
         }
 
         if (selectionHandle == arrowBeingModified.ControlPoints.Count - 1)
@@ -723,7 +729,7 @@ namespace SysCAD.Editor
           newDestinationGuid = Guid.Empty;
           newDestinationBox = null;
           newDestinationAnchor = -1;
-          form1.toolStripStatusLabel.Text = "";
+          form1.ToolStripStatusLabel.Text = "";
         }
       }
 
@@ -748,7 +754,7 @@ namespace SysCAD.Editor
       {
         if ((hoverBox != null) || (hoverArrow != null)) // we're not in free space...
         {
-          if ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
+          if ((form1.BarManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
             form1.ModeModify();
         }
       }
@@ -886,7 +892,7 @@ namespace SysCAD.Editor
             if (newOriginAnchor < 0)
               newOriginAnchor = newOriginBox.AnchorPattern.Points.Count - 1;
 
-            form1.toolStripStatusLabel.Text = 
+            form1.ToolStripStatusLabel.Text = 
               (newOriginBox.Tag as Item).GraphicItem.anchorIntToTag[newOriginAnchor];
           }
         }
@@ -904,7 +910,7 @@ namespace SysCAD.Editor
             if (newDestinationAnchor < 0)
               newDestinationAnchor = newDestinationBox.AnchorPattern.Points.Count - 1;
 
-            form1.toolStripStatusLabel.Text = 
+            form1.ToolStripStatusLabel.Text = 
               (newDestinationBox.Tag as Item).GraphicItem.anchorIntToTag[newDestinationAnchor];
           }
           refreshConnectedObjects(arrowBeingModified);
@@ -1327,15 +1333,15 @@ namespace SysCAD.Editor
         box.Image = State.GetImage(graphicThing, fcFlowChart);
       }
 
-      form1.graphicPropertyGrid.Refresh();
+      form1.GraphicPropertyGrid.Refresh();
 
-      ContextMenu propertyGridMenu = form1.graphicPropertyGrid.ContextMenu;
+      ContextMenu propertyGridMenu = form1.GraphicPropertyGrid.ContextMenu;
 
       if (propertyGridMenu == null)
         propertyGridMenu = new ContextMenu();
 
       propertyGridMenu.MenuItems.Add("Test");
-      form1.graphicPropertyGrid.ContextMenu = propertyGridMenu;
+      form1.GraphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
 
     private void fcFlowChartBoxModifying(object sender, BoxConfirmArgs e)
@@ -1415,7 +1421,7 @@ namespace SysCAD.Editor
           &&
           ((hoverBox == null) && (hoverArrow == null)) // we're in free space...
           &&
-          ((form1.barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
+          ((form1.BarManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked == true)
           &&
           ((currentModel != null) && (currentStencil != null))
           )
@@ -1529,7 +1535,7 @@ namespace SysCAD.Editor
       //thingEditor.ShowDialog();
       //graphicThing = thingEditor.graphicThing;
 
-      throw new Exception("The method or operation is not implemented.");
+      throw new NotImplementedException("The method or operation is not implemented.");
 
       Int64 requestId;
       if (state.ModifyGraphicThing(out requestId,
@@ -1546,15 +1552,15 @@ namespace SysCAD.Editor
       }
       
 
-      form1.graphicPropertyGrid.Refresh();
+      form1.GraphicPropertyGrid.Refresh();
 
-      ContextMenu propertyGridMenu = form1.graphicPropertyGrid.ContextMenu;
+      ContextMenu propertyGridMenu = form1.GraphicPropertyGrid.ContextMenu;
 
       if (propertyGridMenu == null)
         propertyGridMenu = new ContextMenu();
 
       propertyGridMenu.MenuItems.Add("Test");
-      form1.graphicPropertyGrid.ContextMenu = propertyGridMenu;
+      form1.GraphicPropertyGrid.ContextMenu = propertyGridMenu;
     }
       
     private void RouteLink(object sender, EventArgs e)
@@ -1574,7 +1580,7 @@ namespace SysCAD.Editor
         else if (Math.Abs(controlPoints[0].Y - controlPoints[1].Y) <= fcFlowChart.MergeThreshold)
           arrow.CascadeOrientation = MindFusion.FlowChartX.Orientation.Horizontal;
 
-        GraphicLink graphicLink = (arrow.Tag as Link).graphicLink as GraphicLink;
+        GraphicLink graphicLink = (arrow.Tag as Link).GraphicLink as GraphicLink;
 
         Item originItem = arrow.Origin.Tag as Item;
         Item destinationItem = arrow.Destination.Tag as Item;
@@ -1639,7 +1645,7 @@ namespace SysCAD.Editor
       hoverArrow.OrgnAnchor = -1;
       hoverArrow.Origin = fcFlowChart.Dummy;
 
-      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.ControlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).GraphicLink.ControlPoints);
     }
 
     private void DisconnectDestination(object sender, EventArgs e)
@@ -1647,7 +1653,7 @@ namespace SysCAD.Editor
       hoverArrow.DestAnchor = -1;
       hoverArrow.Destination = fcFlowChart.Dummy;
 
-      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).graphicLink.ControlPoints);
+      State.SetControlPoints(hoverArrow, (hoverArrow.Tag as Link).GraphicLink.ControlPoints);
     }
 
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
@@ -1694,7 +1700,7 @@ namespace SysCAD.Editor
 
       fcFlowChart.DeleteObject(e.Arrow);
 
-      form1.toolStripStatusLabel.Text = "";
+      form1.ToolStripStatusLabel.Text = "";
 
       arrowBeingModified.CustomDraw = CustomDraw.None;
       arrowBeingModifiedSelectionHandle = -1;

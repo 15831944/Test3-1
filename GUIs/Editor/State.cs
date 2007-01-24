@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MindFusion.FlowChartX;
 using System.Drawing;
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using SysCAD;
 using System.Collections;
 using System.Drawing.Drawing2D;
@@ -29,18 +29,54 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
 
-    private ClientInterface clientInterface;
+    private ClientProtocol clientInterface;
     private Config config;
 
     private PureComponents.TreeView.TreeView tvNavigation;
 
-    public bool ShowModels;
-    public bool ShowGraphics = true;
-    public bool ShowLinks = true;
-    public bool ShowTags = true;
+    private bool showModels = true;
+    private bool showGraphics = true;
+    private bool showLinks = true;
+    private bool showTags = true;
 
-    public bool SelectLinks = true;
-    public bool SelectItems = true;
+    private bool selectLinks = true;
+    private bool selectItems = true;
+
+    public bool ShowModels
+    {
+      get { return showModels; }
+      set { showModels = value; }
+    }
+
+    public bool ShowGraphics
+    {
+      get { return showGraphics; }
+      set { showGraphics = value; }
+    }
+
+    public bool ShowLinks
+    {
+      get { return showLinks; }
+      set { showLinks = value; }
+    }
+
+    public bool ShowTags
+    {
+      get { return showTags; }
+      set { showTags = value; }
+    }
+
+    public bool SelectLinks
+    {
+      get { return selectLinks; }
+      set { selectLinks = value; }
+    }
+
+    public bool SelectItems
+    {
+      get { return selectItems; }
+      set { selectItems = value; }
+    }
 
     public IEnumerable<GraphicStencil> GraphicStencils
     {
@@ -58,7 +94,7 @@ namespace SysCAD.Editor
       set { config = value; }
     }
 
-    public ClientInterface ClientInterface
+    public ClientProtocol ClientProtocol
     {
       get { return clientInterface; }
       set { clientInterface = value; }
@@ -924,7 +960,7 @@ namespace SysCAD.Editor
     }
 
 
-    internal bool ChangeState(out Int64 requestId, BaseInterface.RunStates runState)
+    internal bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
     {
       return clientInterface.ChangeState(out requestId, runState);
     }
@@ -1005,17 +1041,17 @@ namespace SysCAD.Editor
 
 
     internal void ConnectGraphic(
-      ClientInterface.StateChangedHandler stateChangedHandler,
-      ClientInterface.StepHandler stepHandler,
-      ClientInterface.ItemCreatedHandler itemCreatedHandler,
-      ClientInterface.ItemModifiedHandler itemModifiedHandler,
-      ClientInterface.ItemDeletedHandler itemDeletedHandler,
-      ClientInterface.LinkCreatedHandler linkCreatedHandler,
-      ClientInterface.LinkModifiedHandler linkModifiedHandler,
-      ClientInterface.LinkDeletedHandler linkDeletedHandler,
-      ClientInterface.ThingCreatedHandler thingCreatedHandler,
-      ClientInterface.ThingModifiedHandler thingModifiedHandler,
-      ClientInterface.ThingDeletedHandler thingDeletedHandler)
+      ClientProtocol.StateChangedHandler stateChangedHandler,
+      ClientProtocol.StepHandler stepHandler,
+      ClientProtocol.ItemCreatedHandler itemCreatedHandler,
+      ClientProtocol.ItemModifiedHandler itemModifiedHandler,
+      ClientProtocol.ItemDeletedHandler itemDeletedHandler,
+      ClientProtocol.LinkCreatedHandler linkCreatedHandler,
+      ClientProtocol.LinkModifiedHandler linkModifiedHandler,
+      ClientProtocol.LinkDeletedHandler linkDeletedHandler,
+      ClientProtocol.ThingCreatedHandler thingCreatedHandler,
+      ClientProtocol.ThingModifiedHandler thingModifiedHandler,
+      ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
       clientInterface.StateChanged += stateChangedHandler;
 
@@ -1036,17 +1072,17 @@ namespace SysCAD.Editor
 
 
     internal void DisconnectGraphic(
-      ClientInterface.StateChangedHandler stateChangedHandler,
-      ClientInterface.StepHandler stepHandler,
-      ClientInterface.ItemCreatedHandler itemCreatedHandler,
-      ClientInterface.ItemModifiedHandler itemModifiedHandler,
-      ClientInterface.ItemDeletedHandler itemDeletedHandler,
-      ClientInterface.LinkCreatedHandler linkCreatedHandler,
-      ClientInterface.LinkModifiedHandler linkModifiedHandler,
-      ClientInterface.LinkDeletedHandler linkDeletedHandler,
-      ClientInterface.ThingCreatedHandler thingCreatedHandler,
-      ClientInterface.ThingModifiedHandler thingModifiedHandler,
-      ClientInterface.ThingDeletedHandler thingDeletedHandler)
+      ClientProtocol.StateChangedHandler stateChangedHandler,
+      ClientProtocol.StepHandler stepHandler,
+      ClientProtocol.ItemCreatedHandler itemCreatedHandler,
+      ClientProtocol.ItemModifiedHandler itemModifiedHandler,
+      ClientProtocol.ItemDeletedHandler itemDeletedHandler,
+      ClientProtocol.LinkCreatedHandler linkCreatedHandler,
+      ClientProtocol.LinkModifiedHandler linkModifiedHandler,
+      ClientProtocol.LinkDeletedHandler linkDeletedHandler,
+      ClientProtocol.ThingCreatedHandler thingCreatedHandler,
+      ClientProtocol.ThingModifiedHandler thingModifiedHandler,
+      ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
       clientInterface.StateChanged -= stateChangedHandler;
 
@@ -1139,7 +1175,7 @@ namespace SysCAD.Editor
 
     static private ElementTemplate MirroredElement(object element, bool mirrorX, bool mirrorY)
     {
-      SysCAD.Interface.Line line = element as SysCAD.Interface.Line;
+      SysCAD.Protocol.Line line = element as SysCAD.Protocol.Line;
       if (line != null) return new LineTemplate(Mirrored(line.x1, mirrorX), Mirrored(line.y1, mirrorY),
                                                 Mirrored(line.x2, mirrorX), Mirrored(line.y2, mirrorY));
 
@@ -1157,14 +1193,14 @@ namespace SysCAD.Editor
     }
 
 
-    internal void StateChanged(BaseInterface.RunStates runState)
+    internal void StateChanged(BaseProtocol.RunStates runState)
     {
-      throw new Exception("The method or operation is not implemented.");
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     internal void Step(Int64 step, DateTime time)
     {
-      throw new Exception("The method or operation is not implemented.");
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     internal static List<PointF> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)

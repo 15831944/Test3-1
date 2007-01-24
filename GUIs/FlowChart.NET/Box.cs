@@ -346,8 +346,8 @@ namespace MindFusion.FlowChartX
 			if (shapeTemplate != null)
 			{
 				writer.Write((int)0);
-				writer.Write(shapeTemplate.ID);
-				if (shapeTemplate.ID == "")
+				writer.Write(shapeTemplate.Id);
+				if (shapeTemplate.Id == "")
 				{
 					ctx.saveObject(shapeTemplate);
 					ctx.saveObject(shapeData);
@@ -459,7 +459,7 @@ namespace MindFusion.FlowChartX
 									ShapeTemplate newVal = flowChart.DefaultShape;
 									if (stvalue != null)
 										newVal = stvalue;
-									if (newVal.ID == "")
+									if (newVal.Id == "")
 										shapeTemplate = (ShapeTemplate)newVal.Clone();
 									else
 										shapeTemplate = newVal;
@@ -2025,7 +2025,7 @@ namespace MindFusion.FlowChartX
 				// If the shape is contained within
 				// the static list with shape templates,
 				// set only reference to it
-				if (newVal.ID == "")
+				if (newVal.Id == "")
 					shapeTemplate = (ShapeTemplate)newVal.Clone();
 				else
 					shapeTemplate = newVal;

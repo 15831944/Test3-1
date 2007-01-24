@@ -1,47 +1,41 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 //using MindFusion.FlowChartX;
-using System.Collections;
+using System.Drawing;
+using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   /// <summary>
   /// Summary description for Class1.
   /// </summary>
   [Serializable]
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
-  public class ModelStencil
+  public class GraphicStencil
   {
     private String tag;
 
     private ArrayList elements;
     private ArrayList decorations;
-    private ArrayList anchors;
-    private FillMode fillMode;
-    private String groupName;
+    private RectangleF textArea;
 
-    public ModelStencil()
+    public FillMode fillMode;
+    public SizeF defaultSize;
+    public String groupName;
+
+    public GraphicStencil()
     {
     }
-
-    public String GroupName
-    {
-      get { return groupName; }
-      set { groupName = value; }
-    }
-
 
     public String Tag
     {
       get { return tag; }
       set { tag = value; }
     }
-
 
     public ArrayList Elements
     {
@@ -55,17 +49,11 @@ namespace SysCAD.Interface
       set { decorations = value; }
     }
 
-    public ArrayList Anchors
+    public RectangleF TextArea
     {
-      get { return anchors; }
-      set { anchors = value; }
+      get { return textArea; }
+      set { textArea = value; }
     }
 
-
-    public FillMode FillMode
-    {
-      get { return fillMode; }
-      set { fillMode = value; }
-    }
   }
 }

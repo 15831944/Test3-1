@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Globalization;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   /// <summary>
   /// Summary description for BezierTemplate.

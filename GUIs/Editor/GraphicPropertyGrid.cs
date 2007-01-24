@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 using VisualHint.SmartPropertyGrid;
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 

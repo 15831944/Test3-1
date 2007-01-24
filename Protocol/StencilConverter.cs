@@ -4,7 +4,7 @@ using System.Text;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   public class ShapeConverter : StringConverter
   {

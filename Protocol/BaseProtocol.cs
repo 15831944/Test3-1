@@ -14,10 +14,10 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Net.Sockets;
 //using System.Security.Permissions;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
-  abstract public class BaseInterface : MarshalByRefObject
+  abstract public class BaseProtocol : MarshalByRefObject
   {
     private String name;
 
@@ -25,7 +25,7 @@ namespace SysCAD.Interface
     public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicThing> graphicThings;
 
-    public BaseInterface()
+    public BaseProtocol()
     {
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicItems = new Dictionary<Guid, GraphicItem>();

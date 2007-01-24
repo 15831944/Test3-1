@@ -5,13 +5,13 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   /// <summary>
   /// Internal representation of a link in the model.
   /// </summary>
   [Serializable]
-  public class GraphicLink
+  public class ModelLink
   {
     private Guid guid;
     private String tag;
@@ -22,7 +22,7 @@ namespace SysCAD.Interface
     private String originPort;
     private String destinationPort;
 
-    private List<PointF> controlPoints;
+    public List<PointF> controlPoints;
 
     public Guid Guid
     {
@@ -35,7 +35,7 @@ namespace SysCAD.Interface
       set { tag = value; }
     }
 
-    public String ClassID
+    public String ClassId
     {
       get { return classId; }
       set { classId = value; }
@@ -65,27 +65,16 @@ namespace SysCAD.Interface
       set { destinationPort = value; }
     }
 
-    public List<PointF> ControlPoints
-    {
-      get { return controlPoints; }
-      set { controlPoints = value; }
-    }
-
-    public GraphicLink(String tag)
+    public ModelLink(String tag)
     {
       this.guid = Guid.NewGuid();
       this.tag = tag;
     }
 
-    public GraphicLink(Guid guid, String tag, String classId, Guid srcGuid, String srcPort, Guid dstGuid, String dstPort)
+    public ModelLink(Guid guid, String tag)
     {
       this.guid = guid;
       this.tag = tag;
-      this.classId = classId;
-      this.origin = srcGuid;
-      this.originPort = srcPort;
-      this.destination = dstGuid;
-      this.destinationPort = dstPort;
     }
 
     public void Populate(OleDbConnection connection, Dictionary<Guid, GraphicItem> graphicItems)

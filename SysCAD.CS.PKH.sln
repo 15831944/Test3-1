@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "Interfaces\Interface.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview", "GUIs\FlowChart.NET\Overview\Overview.csproj", "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{483B7CB6-4E63-4FDD-9E02-C95C5A449AF1}"
@@ -13,11 +11,15 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "EditorSetup", "GUIs\Editor\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "GUIs\Editor\Editor.csproj", "{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protocol", "Protocol\Protocol.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BETA Debug|Any CPU = BETA Debug|Any CPU
 		BETA Release|Any CPU = BETA Release|Any CPU
 		Debug|Any CPU = Debug|Any CPU
+		Distribution|Any CPU = Distribution|Any CPU
+		Release Marshal|Any CPU = Release Marshal|Any CPU
 		Release|Any CPU = Release|Any CPU
 		Standard|Any CPU = Standard|Any CPU
 		Trial Fixed Date Debug|Any CPU = Trial Fixed Date Debug|Any CPU
@@ -26,30 +28,16 @@ Global
 		Vertigo|Any CPU = Vertigo|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.Build.0 = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.ActiveCfg = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.Build.0 = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Vertigo|Any CPU.ActiveCfg = Distribution|Any CPU
-		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Vertigo|Any CPU.Build.0 = Distribution|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.BETA Release|Any CPU.Build.0 = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Standard|Any CPU.ActiveCfg = Standard|Any CPU
@@ -68,6 +56,10 @@ Global
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.BETA Release|Any CPU.Build.0 = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}.Standard|Any CPU.ActiveCfg = Standard|Any CPU
@@ -85,6 +77,10 @@ Global
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.BETA Release|Any CPU.ActiveCfg = Release
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.BETA Release|Any CPU.Build.0 = Release
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Debug|Any CPU.ActiveCfg = Debug
+		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Distribution|Any CPU.ActiveCfg = Debug
+		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Distribution|Any CPU.Build.0 = Debug
+		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Release Marshal|Any CPU.ActiveCfg = Release
+		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Release Marshal|Any CPU.Build.0 = Release
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Release|Any CPU.ActiveCfg = Release
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Release|Any CPU.Build.0 = Release
 		{7F0018C6-DBB4-4D66-92FE-4B5078D45687}.Standard|Any CPU.ActiveCfg = Release
@@ -103,6 +99,10 @@ Global
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.BETA Release|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Standard|Any CPU.ActiveCfg = Release|Any CPU
@@ -115,6 +115,28 @@ Global
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
 		{12B07AE8-7877-4B7E-A1E4-BCF248D843DD}.Vertigo|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Distribution|Any CPU.ActiveCfg = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Distribution|Any CPU.Build.0 = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release Marshal|Any CPU.ActiveCfg = Release Marshal|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release Marshal|Any CPU.Build.0 = Release Marshal|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.ActiveCfg = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.Build.0 = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Vertigo|Any CPU.ActiveCfg = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Vertigo|Any CPU.Build.0 = Distribution|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

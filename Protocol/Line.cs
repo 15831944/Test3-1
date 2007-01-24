@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 
 [assembly: CLSCompliant(true)]
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   /// <summary>
   /// Summary description for LineElement.

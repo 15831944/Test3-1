@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MindFusion.FlowChartX;
 using System.Drawing;
-using SysCAD.Interface;
+using SysCAD.Protocol;
 
 namespace SysCAD.Editor
 {
