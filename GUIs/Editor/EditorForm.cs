@@ -338,7 +338,7 @@ namespace SysCAD.Editor
       if (doc.Selection.Objects.Count == 0)
         return null;
 
-      ClientProtocol copyClientInterface = new ClientProtocol();
+      ClientProtocol copyClientProtocol = new ClientProtocol();
 
       foreach (Box box in doc.Selection.Boxes)
       {
@@ -354,7 +354,7 @@ namespace SysCAD.Editor
           copyGraphicItem.MirrorY = graphicItem.MirrorY;
           copyGraphicItem.FillColor = graphicItem.FillColor;
 
-          copyClientInterface.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
+          copyClientProtocol.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
         }
 
         GraphicThing graphicThing = frmFlowChart.State.GraphicThing(box);
@@ -367,7 +367,7 @@ namespace SysCAD.Editor
           copyGraphicThing.MirrorX = graphicThing.MirrorX;
           copyGraphicThing.MirrorY = graphicThing.MirrorY;
 
-          copyClientInterface.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
+          copyClientProtocol.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
         }
 
       }
@@ -388,11 +388,11 @@ namespace SysCAD.Editor
             copyGraphicLink.ControlPoints.Add(point);
           }
 
-          copyClientInterface.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
+          copyClientProtocol.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
         }
       }
 
-      return copyClientInterface;
+      return copyClientProtocol;
     }
 
     #endregion
@@ -600,9 +600,9 @@ namespace SysCAD.Editor
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
         frmFlowChart.MdiParent = this;
-        frmFlowChart.Text = openProjectForm.ClientInterface.Name;
+        frmFlowChart.Text = openProjectForm.ClientProtocol.Name;
 
-        frmFlowChart.SetProject(openProjectForm.ClientInterface, openProjectForm.Config, tvNavigation);
+        frmFlowChart.SetProject(openProjectForm.ClientProtocol, openProjectForm.Config, tvNavigation);
         tvNavigationSetProject();
         ovOverview.Document = frmFlowChart.FCFlowChart;
 
@@ -856,137 +856,6 @@ namespace SysCAD.Editor
       frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
-    //void propertyGrid1_PropertyValueChanged(object s, VisualHint.SmartPropertyGrid.PropertyChangedEventArgs e)
-    //{
-    //  uint requestId;
-    //  String label = e.ChangedItem.Label;
-    //  if (label == "Shape")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    Shape shape = (gridItem.Value as Shape);
-    //    GraphicStencil graphicShape = frmFlowChart.state.GraphicShape(shape);
-    //    if (graphicShape != null)
-    //    {
-    //      while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //        gridItem = gridItem.Parent;
-    //      GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //      frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //    }
-    //  }
-
-    //  if (label == "Angle")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    float angle = (float)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Height")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    float height = (float)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    RectangleF rectangleF = graphicItem.BoundingRect;
-    //    rectangleF.Height = height;
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Width")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    float width = (float)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    RectangleF rectangleF = graphicItem.BoundingRect;
-    //    rectangleF.Width = width;
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "X")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    float x = (float)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    RectangleF rectangleF = graphicItem.BoundingRect;
-    //    rectangleF.X = x;
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Y")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    float y = (float)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    RectangleF rectangleF = graphicItem.BoundingRect;
-    //    rectangleF.Y = y;
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, rectangleF, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Mirror X")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    bool mirrorX = (bool)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, mirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Mirror Y")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    bool mirrorY = (bool)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, mirrorY);
-    //  }
-
-    //  if (label == "Tag")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    String tag = (String)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    graphicItem.Tag = tag;
-    //    frmFlowChart.state.SetTag(graphicItem.Guid, tag);
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-
-    //  if (label == "Fill Color")
-    //  {
-    //    GridItem gridItem = e.ChangedItem;
-    //    Color fillColor = (Color)gridItem.Value;
-    //    while (!((gridItem.Value is GraphicItem) || (gridItem.Parent == null)))
-    //      gridItem = gridItem.Parent;
-    //    GraphicItem graphicItem = (gridItem.Value as GraphicItem);
-
-    //    graphicItem.FillColor = fillColor;
-    //    frmFlowChart.state.SetFillColor(graphicItem.Guid, fillColor);
-    //    frmFlowChart.state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-    //  }
-    //}
-
     private void tvNavigation_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
     {
       // Select only this area/item if navigation node clicked.
@@ -997,14 +866,51 @@ namespace SysCAD.Editor
       }
     }
 
+    PureComponents.TreeView.Node oldParent;
+    int oldIndex;
+
     private void tvNavigation_AfterNodePositionChange(PureComponents.TreeView.Node oNode)
     {
+      if (oNode.Parent != oldParent)
+      {
+        if (oNode.Parent == null) // The parent is root or an item, undo move.
+        {
+          tvNavigation.Nodes.Remove(oNode);
+          oldParent.Nodes.Insert(oldIndex, oNode);
+        }
+        else if (oNode.Parent.Key != null)
+        {
+          oNode.Parent.Nodes.Remove(oNode);
+          oldParent.Nodes.Insert(oldIndex, oNode);
+        }
+        else
+        {
+          RePathNodes(oNode);
+        }
+      }
+
       tvNavigation.ClearSelectedNodes();
       wasSelectedNodes.Clear();
     }
 
+    private void RePathNodes(PureComponents.TreeView.Node node)
+    {
+      if (node.Key != null)
+      {
+        Int64 requestId;
+        frmFlowChart.State.ModifyGraphicItemPath(out requestId, new Guid(node.Key), node.FullPath);
+      }
+
+      foreach (PureComponents.TreeView.Node subNode in node.Nodes)
+      {
+        RePathNodes(subNode);
+      }
+    }
+
     private void tvNavigation_BeforeNodePositionChange(PureComponents.TreeView.Node oNode)
     {
+      oldParent = oNode.Parent;
+      oldIndex = oNode.Index;
     }
   }
 }

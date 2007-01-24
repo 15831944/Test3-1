@@ -270,7 +270,7 @@ namespace SysCAD.Editor
 
         this.tvNavigation.ContextMenuStrings = contextMenuStrings1;
         this.tvNavigation.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.tvNavigation.ExpandOnDblClick = false;
+        //this.tvNavigation.ExpandOnDblClick = false;
         this.tvNavigation.Location = new System.Drawing.Point(0, 0);
         this.tvNavigation.Margin = new System.Windows.Forms.Padding(2);
         this.tvNavigation.Multiline = false;
@@ -290,10 +290,10 @@ namespace SysCAD.Editor
         this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
         this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
         this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
-        this.tvNavigation.DragOver += new DragEventHandler(tvNavigation_DragOver);
-        this.tvNavigation.DragEnter += new DragEventHandler(tvNavigation_DragEnter);
-        this.tvNavigation.DragLeave += new System.EventHandler(tvNavigation_DragLeave);
-        this.tvNavigation.NodeMouseMove += new PureComponents.TreeView.TreeView.NodeMouseMoveEventHandler(tvNavigation_NodeMouseMove);
+        //this.tvNavigation.DragOver += new DragEventHandler(tvNavigation_DragOver);
+        //this.tvNavigation.DragEnter += new DragEventHandler(tvNavigation_DragEnter);
+        //this.tvNavigation.DragLeave += new System.EventHandler(tvNavigation_DragLeave);
+        //this.tvNavigation.NodeMouseMove += new PureComponents.TreeView.TreeView.NodeMouseMoveEventHandler(tvNavigation_NodeMouseMove);
         // 
         // twNavigation
         // 
@@ -838,28 +838,28 @@ namespace SysCAD.Editor
 
     }
 
-    void tvNavigation_NodeMouseMove(MouseEventArgs e, PureComponents.TreeView.Node oNode)
-    {
-      if (e.Button == MouseButtons.Left)
-      {
-        tvNavigation.DoDragDrop(oNode, DragDropEffects.All);
-      }
-    }
+    //void tvNavigation_NodeMouseMove(MouseEventArgs e, PureComponents.TreeView.Node oNode)
+    //{
+    //  if (e.Button == MouseButtons.Left)
+    //  {
+    //    tvNavigation.DoDragDrop(oNode, DragDropEffects.All);
+    //  }
+    //}
 
-    void tvNavigation_DragLeave(object sender, System.EventArgs e)
-    {
-      throw new System.NotImplementedException("The method or operation is not implemented.");
-    }
+    //void tvNavigation_DragLeave(object sender, System.EventArgs e)
+    //{
+    //  //throw new System.NotImplementedException("The method or operation is not implemented.");
+    //}
 
-    void tvNavigation_DragEnter(object sender, System.EventArgs e)
-    {
-      throw new System.NotImplementedException("The method or operation is not implemented.");
-    }
+    //void tvNavigation_DragEnter(object sender, System.EventArgs e)
+    //{
+    //  //throw new System.NotImplementedException("The method or operation is not implemented.");
+    //}
 
-    void tvNavigation_DragOver(object sender, System.EventArgs e)
-    {
-      throw new System.NotImplementedException("The method or operation is not implemented.");
-    }
+    //void tvNavigation_DragOver(object sender, System.EventArgs e)
+    //{
+    //  //throw new System.NotImplementedException("The method or operation is not implemented.");
+    //}
 
     #endregion
 

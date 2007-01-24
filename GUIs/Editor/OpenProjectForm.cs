@@ -14,11 +14,11 @@ namespace SysCAD.Editor
   public partial class OpenProjectForm : Form
   {
     private Config config = new Config();
-    private ClientProtocol clientInterface = new ClientProtocol();
+    private ClientProtocol clientProtocol = new ClientProtocol();
 
-    public ClientProtocol ClientInterface
+    public ClientProtocol ClientProtocol
     {
-      get { return clientInterface; }
+      get { return clientProtocol; }
     }
 
     public Config Config
@@ -67,12 +67,12 @@ namespace SysCAD.Editor
     {
       if (projectListBox.SelectedItem != null)
       {
-        if (clientInterface.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
+        if (clientProtocol.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
         {
           openButton.Enabled = true;
         }
 
-        errorProvider1.SetError(projectListBox, clientInterface.connectionError);
+        errorProvider1.SetError(projectListBox, clientProtocol.connectionError);
       }
     }
 

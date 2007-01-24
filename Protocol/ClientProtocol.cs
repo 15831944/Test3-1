@@ -148,6 +148,11 @@ namespace SysCAD.Protocol
       return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
+    public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
+    {
+      return serviceGraphic.ModifyItemPath(out requestId, guid, path);
+    }
+
     public bool DeleteItem(out Int64 requestId, Guid guid)
     {
       return serviceGraphic.DeleteItem(out requestId, guid);

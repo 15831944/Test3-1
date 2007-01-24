@@ -72,9 +72,9 @@ namespace SysCAD.Editor
       fcFlowChart.Selection.Style = SelectionStyle.SemiTransparent;
     }
 
-    internal void SetProject(ClientProtocol clientInterface, Config config, PureComponents.TreeView.TreeView tvNavigation)
+    internal void SetProject(ClientProtocol clientProtocol, Config config, PureComponents.TreeView.TreeView tvNavigation)
     {
-      state.ClientProtocol = clientInterface;
+      state.ClientProtocol = clientProtocol;
       state.Config = config;
       state.TVNavigation = tvNavigation;
 
@@ -97,17 +97,17 @@ namespace SysCAD.Editor
       fcFlowChart.Visible = false;
       fcFlowChart.Enabled = false;
 
-      foreach (GraphicItem graphicItem in clientInterface.graphicItems.Values)
+      foreach (GraphicItem graphicItem in clientProtocol.graphicItems.Values)
       {
         state.CreateItem(graphicItem, false, fcFlowChart);
       }
 
-      foreach (GraphicLink graphicLink in clientInterface.graphicLinks.Values)
+      foreach (GraphicLink graphicLink in clientProtocol.graphicLinks.Values)
       {
         state.CreateLink(graphicLink, false, fcFlowChart);
       }
 
-      foreach (GraphicThing graphicThing in clientInterface.graphicThings.Values)
+      foreach (GraphicThing graphicThing in clientProtocol.graphicThings.Values)
       {
         state.CreateThing(graphicThing, false, fcFlowChart);
       }

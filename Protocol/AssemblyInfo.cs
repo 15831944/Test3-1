@@ -17,8 +17,8 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("Remoting Interface for SysCAD")]
-[assembly: AssemblyDescription("Remoting interface for communication between SysCAD Engine and Clients.")]
+[assembly: AssemblyTitle("Remoting Protocol for SysCAD")]
+[assembly: AssemblyDescription("Remoting protocol for communication between SysCAD Engine and Clients.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Kenwalt")]
 [assembly: AssemblyProduct("SysCAD")]

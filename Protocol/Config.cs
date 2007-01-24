@@ -18,9 +18,9 @@ namespace SysCAD.Protocol
   {
     private StringCollection projectList = new StringCollection();
 
-    protected Dictionary<String, ModelStencil> modelStencils = new Dictionary<String, ModelStencil>();
-    protected Dictionary<String, GraphicStencil> graphicStencils = new Dictionary<String, GraphicStencil>();
-    protected Dictionary<String, ThingStencil> thingStencils = new Dictionary<String, ThingStencil>();
+    private Dictionary<String, ModelStencil> modelStencils = new Dictionary<String, ModelStencil>();
+    private Dictionary<String, GraphicStencil> graphicStencils = new Dictionary<String, GraphicStencil>();
+    private Dictionary<String, ThingStencil> thingStencils = new Dictionary<String, ThingStencil>();
 
     public StringCollection ProjectList
     {
@@ -41,6 +41,21 @@ namespace SysCAD.Protocol
     public Dictionary<String, ThingStencil> ThingStencils
     {
       get { return thingStencils; }
+    }
+
+    protected void SetModelStencils(Dictionary<String, ModelStencil> modelStencils)
+    {
+      this.modelStencils = modelStencils;
+    }
+
+    protected void SetGraphicStencils(Dictionary<String, GraphicStencil> graphicStencils)
+    {
+      this.graphicStencils = graphicStencils;
+    }
+
+    protected void SetThingStencils(Dictionary<String, ThingStencil> thingStencils)
+    {
+      this.thingStencils = thingStencils;
     }
 
     public ConfigData()
@@ -86,17 +101,17 @@ namespace SysCAD.Protocol
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.ModelStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      modelStencils = bf.Deserialize(memoryStream) as Dictionary<String, ModelStencil>;
+      SetModelStencils(bf.Deserialize(memoryStream) as Dictionary<String, ModelStencil>);
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.GraphicStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      graphicStencils = bf.Deserialize(memoryStream) as Dictionary<String, GraphicStencil>;
+      SetGraphicStencils(bf.Deserialize(memoryStream) as Dictionary<String, GraphicStencil>);
 
       memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, remoteConfig.ThingStencils);
       memoryStream.Seek(0, SeekOrigin.Begin);
-      thingStencils = bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>;
+      SetThingStencils(bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>);
     }
 
   }

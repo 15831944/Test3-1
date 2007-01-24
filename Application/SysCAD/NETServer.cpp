@@ -397,6 +397,23 @@ ref class CNETServerThread
         }
       }
 
+    bool ModifyItemPath(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ path)
+      {
+      if (true) // Decide whether to modify an item.
+        { // We're going to do it.
+        // Modify the item.
+
+        // Raise event(s).
+       serviceProtocol->DoItemPathModified(requestID, guid, path);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
     bool DeleteItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an item.
@@ -546,6 +563,7 @@ ref class CNETServerThread
 
       ServiceProtocol::CreateItemHandler^ createItem = gcnew ServiceProtocol::CreateItemHandler(this, &CNETServerThread::CreateItem);
       ServiceProtocol::ModifyItemHandler^ modifyItem = gcnew ServiceProtocol::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
+      ServiceProtocol::ModifyItemPathHandler^ modifyItemPath = gcnew ServiceProtocol::ModifyItemPathHandler(this, &CNETServerThread::ModifyItemPath);
       ServiceProtocol::DeleteItemHandler^ deleteItem = gcnew ServiceProtocol::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
 
       ServiceProtocol::CreateLinkHandler^ createLink = gcnew ServiceProtocol::CreateLinkHandler(this, &CNETServerThread::CreateLink);
@@ -561,7 +579,7 @@ ref class CNETServerThread
       ServiceProtocol::PropertyListHandler^ propertyListCheck = gcnew ServiceProtocol::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceProtocol ^ serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      ServiceProtocol ^ serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);

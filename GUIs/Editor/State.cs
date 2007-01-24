@@ -29,7 +29,7 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
 
-    private ClientProtocol clientInterface;
+    private ClientProtocol clientProtocol;
     private Config config;
 
     private PureComponents.TreeView.TreeView tvNavigation;
@@ -96,8 +96,8 @@ namespace SysCAD.Editor
 
     public ClientProtocol ClientProtocol
     {
-      get { return clientInterface; }
-      set { clientInterface = value; }
+      get { return clientProtocol; }
+      set { clientProtocol = value; }
     }
 
     public PureComponents.TreeView.TreeView TVNavigation
@@ -776,7 +776,7 @@ namespace SysCAD.Editor
       if (item != null)
       {
         GraphicItem graphicItem;
-        if (clientInterface.graphicItems.TryGetValue(guid, out graphicItem))
+        if (clientProtocol.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorX = mirrorX;
           GraphicStencil stencil;
@@ -795,7 +795,7 @@ namespace SysCAD.Editor
       if (item != null)
       {
         GraphicItem graphicItem;
-        if (clientInterface.graphicItems.TryGetValue(guid, out graphicItem))
+        if (clientProtocol.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorY = mirrorY;
           GraphicStencil stencil;
@@ -845,7 +845,7 @@ namespace SysCAD.Editor
     internal GraphicItem GraphicItem(Guid guid)
     {
       GraphicItem graphicItem;
-      clientInterface.graphicItems.TryGetValue(guid, out graphicItem);
+      clientProtocol.graphicItems.TryGetValue(guid, out graphicItem);
       return graphicItem;
     }
 
@@ -853,14 +853,14 @@ namespace SysCAD.Editor
     {
       GraphicItem graphicItem = null;
       if (box.Tag is Item)
-        clientInterface.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
+        clientProtocol.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
       return graphicItem;
     }
 
     internal GraphicLink GraphicLink(Guid guid)
     {
       GraphicLink graphicLink;
-      clientInterface.graphicLinks.TryGetValue(guid, out graphicLink);
+      clientProtocol.graphicLinks.TryGetValue(guid, out graphicLink);
       return graphicLink;
     }
 
@@ -868,14 +868,14 @@ namespace SysCAD.Editor
     {
       GraphicLink graphicLink = null;
       if ((arrow != null) && (arrow.Tag != null))
-        clientInterface.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
+        clientProtocol.graphicLinks.TryGetValue((arrow.Tag as Link).Guid, out graphicLink);
       return graphicLink;
     }
 
     internal GraphicThing GraphicThing(Guid guid)
     {
       GraphicThing graphicThing;
-      clientInterface.graphicThings.TryGetValue(guid, out graphicThing);
+      clientProtocol.graphicThings.TryGetValue(guid, out graphicThing);
       return graphicThing;
     }
 
@@ -883,23 +883,23 @@ namespace SysCAD.Editor
     {
       GraphicThing graphicThing = null;
       if (box.Tag is Thing)
-        clientInterface.graphicThings.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
+        clientProtocol.graphicThings.TryGetValue((box.Tag as Thing).Guid, out graphicThing);
       return graphicThing;
     }
 
     internal IEnumerable<GraphicItem> GraphicItems
     {
-      get { return clientInterface.graphicItems.Values; }
+      get { return clientProtocol.graphicItems.Values; }
     }
 
     internal IEnumerable<GraphicLink> GraphicLinks
     {
-      get { return clientInterface.graphicLinks.Values; }
+      get { return clientProtocol.graphicLinks.Values; }
     }
 
     internal IEnumerable<GraphicThing> GraphicThings
     {
-      get { return clientInterface.graphicThings.Values; }
+      get { return clientProtocol.graphicThings.Values; }
     }
 
     internal Item Item(Guid guid)
@@ -946,89 +946,94 @@ namespace SysCAD.Editor
 
     internal bool IsLink(Guid guid)
     {
-      return clientInterface.graphicLinks.ContainsKey(guid);
+      return clientProtocol.graphicLinks.ContainsKey(guid);
     }
 
     internal bool IsItem(Guid guid)
     {
-      return clientInterface.graphicItems.ContainsKey(guid);
+      return clientProtocol.graphicItems.ContainsKey(guid);
     }
 
     internal bool IsThing(Guid guid)
     {
-      return clientInterface.graphicThings.ContainsKey(guid);
+      return clientProtocol.graphicThings.ContainsKey(guid);
     }
 
 
     internal bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
     {
-      return clientInterface.ChangeState(out requestId, runState);
+      return clientProtocol.ChangeState(out requestId, runState);
     }
 
 
     internal void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      clientInterface.GetPropertyValues(out requestId, ref tagPathList);
+      clientProtocol.GetPropertyValues(out requestId, ref tagPathList);
     }
 
     internal void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
-      clientInterface.GetSubTags(out requestId, propertyPath, out propertyList);
+      clientProtocol.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
 
     internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+    }
+
+    internal bool ModifyGraphicItemPath(out Int64 requestId, Guid guid, String path)
+    {
+      return clientProtocol.ModifyItemPath(out requestId, guid, path);
     }
 
     internal bool DeleteGraphicItem(out Int64 requestId, Guid guid)
     {
-      return clientInterface.DeleteItem(out requestId, guid);
+      return clientProtocol.DeleteItem(out requestId, guid);
     }
 
 
     internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientInterface.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     internal bool CreateGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientInterface.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientProtocol.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     internal bool DeleteGraphicLink(out Int64 requestId, Guid guid)
     {
-      return clientInterface.DeleteLink(out requestId, guid);
+      return clientProtocol.DeleteLink(out requestId, guid);
     }
 
 
     internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return clientProtocol.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientInterface.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
     {
-      return clientInterface.DeleteThing(out requestId, guid);
+      return clientProtocol.DeleteThing(out requestId, guid);
     }
 
 
     internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
     {
       if (anchor != null)
-        return clientInterface.PortCheck(itemGuid, anchor);
+        return clientProtocol.PortCheck(itemGuid, anchor);
       else
         return PortStatus.Unavailable;
     }
@@ -1036,7 +1041,7 @@ namespace SysCAD.Editor
 
     internal ArrayList PropertyList(Guid guid, String tag, String path)
     {
-      return clientInterface.PropertyList(guid, tag, path);
+      return clientProtocol.PropertyList(guid, tag, path);
     }
 
 
@@ -1053,21 +1058,21 @@ namespace SysCAD.Editor
       ClientProtocol.ThingModifiedHandler thingModifiedHandler,
       ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
-      clientInterface.StateChanged += stateChangedHandler;
+      clientProtocol.StateChanged += stateChangedHandler;
 
-      clientInterface.Step += stepHandler;
+      clientProtocol.Step += stepHandler;
 
-      clientInterface.ItemCreated += itemCreatedHandler;
-      clientInterface.ItemModified += itemModifiedHandler;
-      clientInterface.ItemDeleted += itemDeletedHandler;
+      clientProtocol.ItemCreated += itemCreatedHandler;
+      clientProtocol.ItemModified += itemModifiedHandler;
+      clientProtocol.ItemDeleted += itemDeletedHandler;
 
-      clientInterface.LinkCreated += linkCreatedHandler;
-      clientInterface.LinkModified += linkModifiedHandler;
-      clientInterface.LinkDeleted += linkDeletedHandler;
+      clientProtocol.LinkCreated += linkCreatedHandler;
+      clientProtocol.LinkModified += linkModifiedHandler;
+      clientProtocol.LinkDeleted += linkDeletedHandler;
 
-      clientInterface.ThingCreated += thingCreatedHandler;
-      clientInterface.ThingModified += thingModifiedHandler;
-      clientInterface.ThingDeleted += thingDeletedHandler;
+      clientProtocol.ThingCreated += thingCreatedHandler;
+      clientProtocol.ThingModified += thingModifiedHandler;
+      clientProtocol.ThingDeleted += thingDeletedHandler;
     }
 
 
@@ -1084,21 +1089,21 @@ namespace SysCAD.Editor
       ClientProtocol.ThingModifiedHandler thingModifiedHandler,
       ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
-      clientInterface.StateChanged -= stateChangedHandler;
+      clientProtocol.StateChanged -= stateChangedHandler;
 
-      clientInterface.Step -= stepHandler;
+      clientProtocol.Step -= stepHandler;
 
-      clientInterface.ItemCreated -= itemCreatedHandler;
-      clientInterface.ItemModified -= itemModifiedHandler;
-      clientInterface.ItemDeleted -= itemDeletedHandler;
+      clientProtocol.ItemCreated -= itemCreatedHandler;
+      clientProtocol.ItemModified -= itemModifiedHandler;
+      clientProtocol.ItemDeleted -= itemDeletedHandler;
 
-      clientInterface.LinkCreated -= linkCreatedHandler;
-      clientInterface.LinkModified -= linkModifiedHandler;
-      clientInterface.LinkDeleted -= linkDeletedHandler;
+      clientProtocol.LinkCreated -= linkCreatedHandler;
+      clientProtocol.LinkModified -= linkModifiedHandler;
+      clientProtocol.LinkDeleted -= linkDeletedHandler;
 
-      clientInterface.ThingCreated -= thingCreatedHandler;
-      clientInterface.ThingModified -= thingModifiedHandler;
-      clientInterface.ThingDeleted -= thingDeletedHandler;
+      clientProtocol.ThingCreated -= thingCreatedHandler;
+      clientProtocol.ThingModified -= thingModifiedHandler;
+      clientProtocol.ThingDeleted -= thingDeletedHandler;
     }
 
 

@@ -28,6 +28,7 @@ namespace SysCAD.Protocol
 
     public delegate bool CreateItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemPathHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String path);
     public delegate bool DeleteItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
 
     public delegate bool CreateLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
@@ -51,6 +52,7 @@ namespace SysCAD.Protocol
 
     private CreateItemHandler createItemHandler;
     private ModifyItemHandler modifyItemHandler;
+    private ModifyItemPathHandler modifyItemPathHandler;
     private DeleteItemHandler deleteItemHandler;
 
     private CreateLinkHandler createLinkHandler;
@@ -67,7 +69,7 @@ namespace SysCAD.Protocol
 
     public ServiceProtocol(
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
-      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, DeleteItemHandler deleteItemHandler,
+      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, DeleteThingHandler deleteThingHandler,
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
@@ -79,6 +81,7 @@ namespace SysCAD.Protocol
 
       this.createItemHandler = createItemHandler;
       this.modifyItemHandler = modifyItemHandler;
+      this.modifyItemPathHandler = modifyItemPathHandler;
       this.deleteItemHandler = deleteItemHandler;
 
       this.createLinkHandler = createLinkHandler;
@@ -131,6 +134,16 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
       if (graphicItems.ContainsKey(guid))
         return modifyItemHandler(this, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      else
+        return false;
+    }
+
+    public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+      if (graphicItems.ContainsKey(guid))
+        return modifyItemPathHandler(this, requestId, guid, path);
       else
         return false;
     }
@@ -273,6 +286,18 @@ namespace SysCAD.Protocol
 
         eventId++;
         OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void DoItemPathModified(Int64 requestId, Guid guid, String path)
+    {
+      GraphicItem graphicItem;
+      if (graphicItems.TryGetValue(guid, out graphicItem))
+      {
+        graphicItem.Path = path;
+
+        eventId++;
+        OnItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
       }
     }
 
