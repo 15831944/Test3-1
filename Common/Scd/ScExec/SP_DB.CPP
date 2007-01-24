@@ -1416,6 +1416,9 @@ class CVapTFndC : public MRootFinderBase
 
 double CComponent::VapourT(long Fidelity, double P_, double dPrvVapT)
   {
+  if (!VpOK())
+    return 0.0;
+
   if (!Valid(dPrvVapT))
     dPrvVapT=373.0;
   CVapTFndC VapT(this, Fidelity);
@@ -4112,6 +4115,9 @@ class CVapTFndS : public MRootFinderBase
 
 double CSpecie::VapourT(long Fidelity, double P_)
   {
+  if (!VpOK())
+    return 0.0;
+
   double dPrvVapT=Min(373.0, TCrit()-10);
   CVapTFndS VapT(this, Fidelity);
   VapT.SetTarget(P_);
@@ -4124,12 +4130,11 @@ double CSpecie::VapourT(long Fidelity, double P_)
       dbgpln("                                                      %10.3f %10.3f", t, VapT.Function(t));
     dbgpln("++++++++++++");
     }
-
   dPrvVapT=Range(1.0, dPrvVapT, TCrit());
   if (VapT.SolveFromEst(dPrvVapT, 1.0, 10.0)==RF_OK)
     dPrvVapT=VapT.Result();
   else
-    LogError("CDB", 0, "%s VapourT not Converged", SymOrTag());
+    LogError("Specie", 0, "%s VapourT not Converged", SymOrTag());
 
   if (0)
     dbgpln("++++++++++++");
