@@ -187,7 +187,7 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     Strng S, sCode, sAddress;                                       \
     sCode.Set(e.Code!=0 ?"%x":" ", e.Code);                         \
     sAddress.Set(e.Address!=0 ?"0x%08x":" ", e.Address);            \
-    S.Set("Apologies - an Exception has occurred\n\n"               \
+    S.Set("An exception has occurred\n\n"                           \
           "Name\t: %s\n"                                            \
           "Code\t: %s\n\n"                                          \
           "In\t: %s\n"                                              \

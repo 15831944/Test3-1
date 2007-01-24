@@ -8026,7 +8026,7 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
       for (int i=-1; I.Loop(i); )
         {
         if (i!=ExcIds)
-          Vol1 += m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+          Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
         }
       Pf=Vol1/GTZ(VolA);
       }
