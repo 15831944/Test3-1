@@ -2128,7 +2128,7 @@ CProject::CProject() : CProjectSettings(gs_HstMngr)
   m_bWithVersion = WithVersionDefault;
   m_bRemoveOld   = RemoveOldDefault;
 
-#if CREATENETSERVER
+#if SYSCAD10
   m_pCLRSrvr = NULL;
 #endif
   }
@@ -6162,7 +6162,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       }
 
 
-#if CREATENETSERVER
+#if SYSCAD10
     if (01)//pkh && OK)
       {
       m_pCLRSrvr = new CNETServer;
@@ -7420,7 +7420,7 @@ flag CProject::DoClose(flag ForExit, flag AllowCancel/*=true*/)
   if (gs_Exec.TestRunning())
     return false;
 
-#if CREATENETSERVER
+#if SYSCAD10
   if (m_pCLRSrvr)
     {
     m_pCLRSrvr->Shutdown();

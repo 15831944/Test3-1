@@ -14,9 +14,6 @@
 #define WITHTWOPHASE          0
 #define WITH_H2O_FNS_ALWAYS   1
 
-// CNM removed this due to crashes in NetServer
-#define CREATENETSERVER       (0 && SYSCAD10)
-
 //Water model selection...
 #define WithSatH2OMdl         0
 #define WithIAFH2OMdl         0
