@@ -31,29 +31,6 @@ DEFINE_TAGOBJ(FlashTank);
 class DllImportExport FlashTank : public MN_Surge
   {
   public:
-    Strng          sVapSpModel;
-    flag           fOnLine;
-    flag           m_bTrackVapFdStatus;
-
-    #if DOPBSMOOTHING  
-    flag           m_fSolnVapQmValid;
-    double         m_dSolnVapQm;
-    #endif
-
-    double         m_dFlashVapFracToLiq;
-    double         m_dOtherVapFracToLiq;
-
-    double         m_RmtScl[10];
-    int            m_nRmtScl;
-    double         dTempIn;
-    double         dBPEIn;
-    double         dBPE;
-    double         dWaterSatT;
-    
-    CFT_Flash      m_FTF;
-    SpConduit      m_QWrk;
-    SpConduit      m_QFlash;
-
     FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~FlashTank (){};
 
@@ -88,6 +65,32 @@ class DllImportExport FlashTank : public MN_Surge
 
     // ConditionBlk Override
     DEFINE_CI(FlashTank, MN_Surge, 4);
+
+    double         GetFlashPressure(SpConduit &Q);
+
+  public:
+    Strng          sVapSpModel;
+    flag           fOnLine;
+    flag           m_bTrackVapFdStatus;
+
+    #if DOPBSMOOTHING  
+    flag           m_fSolnVapQmValid;
+    double         m_dSolnVapQm;
+    #endif
+
+    double         m_dFlashVapFracToLiq;
+    double         m_dOtherVapFracToLiq;
+
+    double         m_RmtScl[10];
+    int            m_nRmtScl;
+    double         dTempIn;
+    double         dBPEIn;
+    double         dBPE;
+    double         dWaterSatT;
+    
+    CFT_Flash      m_FTF;
+    SpConduit      m_QWrk;
+    SpConduit      m_QProd;
 
    private:
   };

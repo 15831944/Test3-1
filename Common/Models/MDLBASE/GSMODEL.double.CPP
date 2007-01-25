@@ -2458,13 +2458,7 @@ void GSModel::EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReac
 
   dbgpln("Must Pass and Solve VLE");
   if (pRB)
-    {
-  //  if (bFlashIt)
-  //    Sd.QPFlash(Flash_Press, 0.0);
     pRB->EvalProducts(Sd);
-    }
-  //if (bFlashIt)
-  //  Sd.QPFlash(Flash_Press, 0.0);
 
   // Environmental Exchange
   if (pEHX)

@@ -255,8 +255,6 @@ MdlNode::MdlNode(TagObjClass * pClass_, pchar TagIn, pTaggedObject pAttach, TagO
   EHX(this)
   {
   FlowIn = 0.0;
-//  bFlashIt=0;
-//  Rqd_Flash_Press=dNAN;
   bNodeMakeUpReqd=0;
 //  bPMUCfgOn=false;
 

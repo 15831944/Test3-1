@@ -108,6 +108,7 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual double CondensableFrac(SpContainer*Cn)   { return dNAN; };
     virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
+    virtual int    SaturationMethod()=0;
 
     virtual flag   HasTPEnvelope() = 0;
   protected:
@@ -136,6 +137,8 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     flag           Open(byte OnOffSeq, TagObjClass * pVLEClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pVLEClass, Fixed); }
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
+    void           SetFlags(int Flags) { m_iFlags=Flags; };
+
 
     int TPFlashReqd()     { return (m_dwSelectMask&VLEF_TPFlash)!=0; };
     int QPFlashReqd()     { return (m_dwSelectMask&VLEF_QPFlash)!=0; };
@@ -173,12 +176,16 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual double CondensableFrac(SpContainer*Cn);
     virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
+    virtual int    SaturationMethod();//SpModel * Mdl);
 
     flag           HasTPEnvelope();
 
     void           SetMixFrac(SpMArray *pVMixFrac=NULL, SpMArray *pLMixFrac=NULL);
     void           SetMixFrac(double dVMixFrac=1.0, double dLMixFrac=1.0);
     void           SetMixFrac(int CompNo, double dVMixFrac=1.0, double dLMixFrac=1.0);
+
+    void           SaveFeedInfo(bool Cvt2Flow, SpModel * Ql, SpModel * Qv=NULL);
+    void           SaveProdInfo(bool Cvt2Flow, SpModel * Ql, SpModel * Qv=NULL);
 
   protected:
     flag            m_fFixed;
@@ -187,15 +194,30 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     pTaggedObject   m_pNd;
     dword           m_dwSelectMask;
 
-    bool            m_AsFlow;
-    double          m_TIn;
-    double          m_PIn;
+    int             m_iFlags;
+
+    //bool            m_AsFlow;
+    double          m_TempIn;
+    double          m_TotalPIn;
+    double          m_PartialPIn;
     double          m_VapQmIn;
     double          m_VapFracIn;
-    double          m_TOut;
-    double          m_POut;
+    double          m_TotQmIn;
+    double          m_FlshVapQmIn;
+    double          m_FlshVapFracIn;
+
+    double          m_TempOut;
+    double          m_TotalPOut;
+    double          m_PartialPOut;
     double          m_VapQmOut;
     double          m_VapFracOut;
+    double          m_TotQmOut;
+    double          m_FlshVapQmOut;
+    double          m_FlshVapFracOut;
+    
+    double          m_BPE;
+    Strng           m_sSpModel;
+    Strng           m_sSatMethod;
 
   public:
 
@@ -273,7 +295,7 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual double CondensableFrac(SpContainer*Cn);
     virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
-
+    virtual int    SaturationMethod();
 
     virtual flag   HasTPEnvelope() { return False;};
 
@@ -295,11 +317,12 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
     SpecieIter     OtherVapSp;
 
+    long           m_iMethod;
     long           m_iCmpNo, m_li, m_vi;
     double         Mt,Ht,Vf;
     long           iState;
     byte           fModelSatP;
-
+                        
     double         dPrvVapFrac;
     double         dPrvVapPress;
     double         dApproachTemp;
@@ -397,6 +420,8 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return True;};
+
+    virtual int    SaturationMethod() { return SMFM_Undefined; };
 
   protected:
     int            NAvailComps() { return Cmp.GetSize(); };

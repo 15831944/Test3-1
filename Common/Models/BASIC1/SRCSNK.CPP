@@ -121,6 +121,8 @@ IMPLEMENT_MODELUNIT(Feed_XPG, "Feed_XPG", "1", Drw_Feed_XPG, "Feed", "XPG", TOC_
 Feed_XPG::Feed_XPG(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_SrcSnk(pClass_, TagIn, pAttach, eAttach)
   {
+  m_VLE.SetFlags(VLEF_HideFeedMeasure|VLEF_HideChanges);
+  
   AttachIOAreas(Feed_XPGIOAreaList);
   Contents.SetView(SVV_AsMassFrac);  
   Flows.SetView(SVV_AsMassFlow);

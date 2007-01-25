@@ -1082,7 +1082,10 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   Ci = In->totCp();
   Cp = pCd->msCp();
   Qm = pCd->QMass();
-  m_PPFrac = pCd->PartialPressFrac(pCd->FlashVapIndex(), -1);
+  if (pCd->SaturationMethod()==SMFM_PartialP)
+    m_PPFrac = pCd->PartialPressFrac(pCd->FlashVapIndex(), -1);
+  else
+    m_PPFrac = 1;
 
 #if HX_MEASURE_LIQVAP
   m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()/* H2OLiq()*/];
@@ -1118,7 +1121,10 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1);
+  if (pCn->SaturationMethod()==SMFM_PartialP)
+    m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1);
+  else
+    m_PPFrac = 1.0;
 
 #if HX_MEASURE_LIQVAP
   m_LiqQm = pCn->VMass[pCn->FlashLiqIndex()/* H2OLiq()*/];

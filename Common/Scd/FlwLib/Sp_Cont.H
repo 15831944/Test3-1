@@ -333,6 +333,8 @@ class DllImportExport SpConduit : public SpModelOwner
     LPTSTR         FlashDescription()                             { return pModel->FlashDescription(); };
     
     LPTSTR         SaturationDescription()                        { return pModel->SaturationDescription(); };
+    int            SaturationMethod()                             { return pModel->SaturationMethod(); };
+    LPTSTR         SaturationMethodUsed()                         { return pModel->SaturationMethodUsed(); };
     int            SaturationCmpIndex()                           { return pModel->SaturationCmpIndex(); };
     double         SaturationTotalP(double T, int iSatComp=-1)    { return pModel->SaturationTotalP(T, NULL, iSatComp); };
     double         SaturationP(double T, int iSatComp=-1)         { return pModel->SaturationP(T, NULL, iSatComp); };
@@ -940,6 +942,8 @@ class DllImportExport SpContainer : public SpModelOwner
     LPTSTR         FlashDescription()                            { return pModel->FlashDescription(); };
 
     LPTSTR         SaturationDescription()                       { return pModel->SaturationDescription(); };
+    int            SaturationMethod()                            { return pModel->SaturationMethod(); };
+    LPTSTR         SaturationMethodUsed()                        { return pModel->SaturationMethodUsed(); };
     int            SaturationCmpIndex()                          { return pModel->SaturationCmpIndex(); };
     double         SaturationTotalP(double T, int iSatComp=-1)   { return pModel->SaturationTotalP(T, NULL, iSatComp); };
     double         SaturationP(double T, int iSatComp=-1)        { return pModel->SaturationP(T, NULL, iSatComp); };
@@ -1343,6 +1347,8 @@ class DllImportExport SpImage : public SpModelOwner
     LPTSTR         FlashDescription()                            { return pModel->FlashDescription(); };
 
     LPTSTR         SaturationDescription()                       { return pModel->SaturationDescription(); };
+    int            SaturationMethod()                            { return pModel->SaturationMethod(); };
+    LPTSTR         SaturationMethodUsed()                        { return pModel->SaturationMethodUsed(); };
     int            SaturationCmpIndex()                          { return pModel->SaturationCmpIndex(); };
     double         SaturationTotalP(double T, int iSatComp=-1)   { return pModel->SaturationTotalP(T, NULL, iSatComp); };
     double         SaturationP(double T, int iSatComp=-1)        { return pModel->SaturationP(T, NULL, iSatComp); };

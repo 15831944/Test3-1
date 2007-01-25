@@ -528,10 +528,16 @@ long SpModel::sm_lEvalHEvals=0;
 SPMEnthStrat SpModel::iEnthalpyStrategy=SPMES_BestTemp;
 SPMMixStrat SpModel::iSpMdlMixStrategy=SPMMS_Bld35;
 
+bool    SpModel::sm_FlashInited=false;
+
 DDBValueLstMem SpModel::sm_DDBFlashable;
 CArray<Strng, Strng> SpModel::sm_FlashCmps;
 CArray<Strng, Strng> SpModel::sm_FlashCmpsI;
-bool    SpModel::sm_FlashInited=false;
+
+DDBValueLstMem SpModel::sm_DDBFlashMethods;
+CArray<Strng, Strng> SpModel::sm_FlashMethods;
+CArray<Strng, Strng> SpModel::sm_FlashMethodsI;
+
 
 IMPLEMENT_SPARES(SpModel, 100);
 
@@ -570,6 +576,16 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
       sm_FlashCmpsI[c]+=CDB[c].SymOrTag();
       sm_FlashCmpsI[c]+=">";
       }
+
+    sm_DDBFlashMethods.Add(SMFM_Default,      "<Default>");
+    sm_DDBFlashMethods.Add(SMFM_PartialP,     "PartialP");
+    sm_DDBFlashMethods.Add(SMFM_TotalP,       "TotalP");
+    sm_DDBFlashMethods.Add(SMFM_Undefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
+
+    sm_FlashMethods.SetAtGrow(SMFM_PartialP,  "PartialP");
+    sm_FlashMethods.SetAtGrow(SMFM_TotalP,    "TotalP");
+    sm_FlashMethodsI.SetAtGrow(SMFM_PartialP, "<PartialP>");
+    sm_FlashMethodsI.SetAtGrow(SMFM_TotalP,   "<TotalP>");
 
     sm_FlashInited=true;
     };
@@ -650,6 +666,8 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
 
   m_iSatCmpRqd=-1;
   m_iSatCmp=CDB.DefFlashCmpIndex();
+  m_iSatMethodRqd=-1;
+  m_iSatMethod=CDB.DefFlashMethod();
 
   m_iEquilAct=SQA_Xfer;
   m_bEquilOn=false;
@@ -840,12 +858,8 @@ void SpModel::SetQualityPresent(int q, flag Present)
 
 void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   {
-  if (m_iSatCmpRqd>=0)
-    m_iSatCmp=m_iSatCmpRqd;
-  //else if (m_iSatCmpRqd==-2)
-  //  m_iSatCmp=CDB.DefFlashCmpIndex();
-  else  
-    m_iSatCmp=SrcModel->SaturationCmpIndex();
+  m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
+  m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
 
   if (m_iEquilAct==SQA_Create)
     m_bEquilOn=true;
@@ -880,12 +894,8 @@ void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
 
 void SpModel::SetQualities(SpModel * SrcModel)
   {
-  if (m_iSatCmpRqd>=0)
-    m_iSatCmp=m_iSatCmpRqd;
-  //else if (m_iSatCmpRqd==-2)
-  //  m_iSatCmp=CDB.DefFlashCmpIndex();
-  else  
-    m_iSatCmp=SrcModel->SaturationCmpIndex();
+  m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
+  m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
 
   if (m_iEquilAct==SQA_Create)
     m_bEquilOn=true;
@@ -919,13 +929,8 @@ void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
   {
   if (SrcModel->Mass(som_ALL)>Mass(som_ALL)) // should test rel masses
     {
-    //dbgpln("");
-    if (m_iSatCmpRqd>=0)
-      m_iSatCmp=m_iSatCmpRqd;
-    //else if (m_iSatCmpRqd==-2)
-    //  m_iSatCmp=CDB.DefFlashCmpIndex();
-    else  
-      m_iSatCmp=SrcModel->SaturationCmpIndex();
+    m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
+    m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
     }
 
   if (m_iEquilAct==SQA_Create)
@@ -1527,19 +1532,42 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Text("");
     }
 
-  if (!HeatSkipMethod())
+  if (!HeatSkipMethod()) 
     {
     DDB.Double  ("CpCv",          "",         DC_,      "",         xidSMCpCv,        this, isResult|noFileAtAll|InitHidden);
-    DDB.String  ("Saturation",    "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
-    DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
-    DDB.Double  ("SatPP@T",       "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
-    DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
-    DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
-    DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
-    DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
-    if (m_Ovr.bUse&(SPO_BPEle))
-      DDB.TagComment("Ovr");
-    DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
+    DDB.Text("");
+
+    if (DDB.BeginStruct(this, "Saturation"))
+      {
+      DDB.String  ("Method",        "",         DC_,      "",         xidSMSatMethod,   this, isParm|SetOnChange, sm_DDBFlashMethods());
+      DDB.String  ("Component",     "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
+      DDB.Double  ("TotalP",        "",         DC_P,     "kPag",     xidSMPress,       this, isResult|noFileAtAll);
+      DDB.Double  ("PartialP",      "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
+      DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
+      DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
+      DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+      DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
+      if (m_Ovr.bUse&(SPO_BPEle))
+        DDB.TagComment("Ovr");
+      DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
+      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
+      }
+    DDB.EndStruct();
+
+    if (0)
+      {
+      DDB.String  ("SatComponent",  "",         DC_,      "",         xidSMSatComp,     this, isParm|SetOnChange, sm_DDBFlashable());
+      DDB.String  ("SatMethod",     "",         DC_,      "",         xidSMSatMethod,   this, isParm|SetOnChange, sm_DDBFlashMethods());
+      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
+      DDB.Double  ("SatPP@T",       "",         DC_P,     "kPag",     xidSMSatPPress,   this, isResult|noFileAtAll);
+      DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
+      DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+      DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
+      DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
+      if (m_Ovr.bUse&(SPO_BPEle))
+        DDB.TagComment("Ovr");
+      DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
+      }
     DDB.Text("");
     }
 
@@ -4412,34 +4440,9 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);              return 1;
 
     case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());       return 1;
-    case xidSMSatComp     : 
-      {
-      if (DCB.rpC)
-        {
-        if (stricmp(DCB.rpC, "<Default>")==0)
-          {
-          m_iSatCmp=CDB.DefFlashCmpIndex();
-          m_iSatCmpRqd=-1;
-          }
-        else
-          {
-          int i=sm_DDBFlashable.Find(DCB.rpC);
-          if (i>=0)  
-            {
-            i=sm_DDBFlashable[i].m_lVal;
-            m_iSatCmp=i;
-            m_iSatCmpRqd=i;
-            }
-          }
-        }
-      if (m_iSatCmpRqd>=0)
-        DCB.pC = sm_FlashCmps[m_iSatCmpRqd]();
-      else if (m_iSatCmp>=0)
-        DCB.pC = sm_FlashCmpsI[m_iSatCmp]();
-      else
-        DCB.pC = sm_FlashCmpsI[CDB.DefFlashCmpIndex()]();
-      return 1;
-      }
+    case xidSMSatComp     : return DoDCBSatComp(DCB, m_iSatCmpRqd, m_iSatCmp);
+    case xidSMSatMethod   : return DoDCBSatMethod(DCB, m_iSatMethodRqd, m_iSatMethod);
+
     case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
     case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPressC(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
@@ -4829,6 +4832,66 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
       }
     }
   return 0;
+  }
+
+// --------------------------------------------------------------------------
+
+int SpModel::DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp)
+  {
+  if (DCB.rpC)
+    {
+    if (stricmp(DCB.rpC, "<Default>")==0)
+      {
+      iSatCmp=CDB.DefFlashCmpIndex();
+      iSatCmpRqd=-1;
+      }
+    else
+      {
+      int i=sm_DDBFlashable.Find(DCB.rpC);
+      if (i>=0)  
+        {
+        i=sm_DDBFlashable[i].m_lVal;
+        iSatCmp=i;
+        iSatCmpRqd=i;
+        }
+      }
+    }
+  if (iSatCmpRqd>=0)
+    DCB.pC = sm_FlashCmps[iSatCmpRqd]();
+  else if (iSatCmp>=0)
+    DCB.pC = sm_FlashCmpsI[iSatCmp]();
+  else
+    DCB.pC = sm_FlashCmpsI[CDB.DefFlashCmpIndex()]();
+  return 1;
+  }
+
+int SpModel::DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod)
+  {
+  if (DCB.rpC)
+    {
+    if (stricmp(DCB.rpC, "<Default>")==0)
+      {
+      iSatMethod=CDB.DefFlashMethod(); 
+      iSatMethodRqd=SMFM_Default;
+      }
+    else
+      {
+      int i=sm_DDBFlashMethods.Find(DCB.rpC);
+      if (i>=0)  
+        {
+        i=sm_DDBFlashMethods[i].m_lVal;
+        iSatMethod=i;
+        iSatMethodRqd=i;
+        }
+      }
+    }
+  if (iSatMethodRqd>=0)
+    DCB.pC = sm_FlashMethods[iSatMethodRqd]();
+  else if (iSatMethod>=0)
+    DCB.pC = sm_FlashMethodsI[iSatMethod]();
+  else
+    DCB.pC = sm_FlashMethodsI[CDB.DefFlashMethod()]();
+  return 1;
   }
 
 // --------------------------------------------------------------------------
@@ -8343,6 +8406,7 @@ LPTSTR SpModel::SaturationDescription()
     X=CDB[SaturationCmpIndex()].SymOrTag();
   return (LPTSTR)(LPCTSTR)X;
   };
+
 int SpModel::SaturationCmpIndex()
   { 
  if (m_iSatCmpRqd>=0)
@@ -8350,6 +8414,40 @@ int SpModel::SaturationCmpIndex()
   if (m_iSatCmp>=0)
     return m_iSatCmp;
   return CDB.DefFlashCmpIndex();
+  };
+
+int SpModel::SaturationMethod()
+  { 
+  if (m_pVLE && m_pVLE->Enabled())
+    {
+    int iM=m_pVLE->SaturationMethod();
+    if (iM>=0)
+      return iM;
+    }
+  if (m_iSatMethodRqd>=0)
+    return m_iSatMethodRqd;
+  if (m_iSatMethod>=0)
+    return m_iSatMethod;
+  return CDB.DefFlashMethod();
+  };
+
+LPTSTR SpModel::SaturationMethodUsed()
+  { 
+  int iM=SaturationMethod();//SMFM_Default;
+  //if (m_pVLE && m_pVLE->Enabled())
+  //  iM=m_pVLE->SaturationMethod();
+  //
+  //if (iM<0 && m_iSatMethodRqd>=0)
+  //  iM=m_iSatMethodRqd;
+  //if (iM<0 && m_iSatMethod>=0)
+  //  iM=m_iSatMethod;
+  //if (iM<0)
+  //  iM=CDB.DefFlashMethod();
+
+  for (int i=0; i<SpModel::sm_DDBFlashMethods.Length(); i++)
+    if (SpModel::sm_DDBFlashMethods[i].m_lVal==iM)
+      return SpModel::sm_DDBFlashMethods[i].m_pStr;
+  return "Bad SaturationMethod";
   };
 
 double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
@@ -8388,10 +8486,13 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
 
 double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
   {
+  //if (m_iSatMethod==SMFM_PartialP)
+  //  return SaturationP(T_, pMA, iSatComp);
+
   if (iSatComp>=0)
     {
     double PP=PartialPress(-1, iSatComp, T_);  
-    return CDB[iSatComp].VapourP(m_iFidelity, T_)+PP;
+    return SaturationP(T_, pMA, iSatComp)+PP;
     }
 
   if (m_pVLE && m_pVLE->Enabled())
@@ -8404,16 +8505,16 @@ double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
   if (m_AutoVLE.m_iCmp>=0)
     {
     double PP=PartialPress(-1, m_AutoVLE.m_iCmp, T_);  
-    return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_)+PP;
+    return SaturationP(T_, pMA, m_AutoVLE.m_iCmp)+PP;
     }
 
   if (CDB.DefFlashCmpIndex()>=0)
     {
     double PP=PartialPress(-1, CDB.DefFlashCmpIndex(), T_);  
-    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_)+PP;
+    return SaturationP(T_, pMA, CDB.DefFlashCmpIndex())+PP;
+    //return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_)+PP;
     }
-  dbgpln("SpModel::SaturationTotalP = No Calculation");
-  return Std_P;
+  return SaturationP(T_, pMA);
   };
 
 //---------------------------------------------------------------------------

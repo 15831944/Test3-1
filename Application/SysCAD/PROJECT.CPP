@@ -188,8 +188,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 99; //CNM 15/06/2006 Enabled Evaluator Block
 //const int LatestPrjFileVer = 100; //CNM  4/07/2006 New Flow Modes
 //const int LatestPrjFileVer = 101; //CNM  11/09/2006 Force Fixes to Archiver
-const int LatestPrjFileVer = 102; //KGA  27/11/2006 Changes to status colours
-
+//const int LatestPrjFileVer = 102; //KGA  27/11/2006 Changes to status colours
+const int LatestPrjFileVer = 103; //CNM  24/01/2007 Changes Saturation Pressure
 
 //===========================================================================
 //

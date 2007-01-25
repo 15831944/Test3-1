@@ -126,6 +126,7 @@ XID xidSMSatPress       = SpcXID(100053);
 XID xidSMSatPPress      = SpcXID(100054);
 XID xidSMBoilPtEle      = SpcXID(100055);
 XID xidSMSatComp        = SpcXID(100056);
+XID xidSMSatMethod      = SpcXID(100057);
 
 XID xidSMSmsH           = SpcXID(100060);
 XID xidSMLmsH           = SpcXID(100061);
@@ -710,6 +711,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
+    static  int    DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp);
+    static  int    DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod);
+
     virtual flag   GetOtherData(FilingControlBlock &FCB);
     virtual flag   PutOtherData(FilingControlBlock &FCB);
     void           CopyPutOtherData(SpModel & Src);
@@ -973,6 +977,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual LPTSTR SaturationDescription();
     virtual int    SaturationCmpIndex();
+    virtual int    SaturationMethod();
+    virtual LPTSTR SaturationMethodUsed();
     virtual double SaturationTotalP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
     virtual double SaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
     virtual double SaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1);
@@ -1155,9 +1161,17 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     int            m_iSatCmpRqd;
     int            m_iSatCmp;
+    sint           m_iSatMethodRqd;
+    sint           m_iSatMethod;
+
     static DDBValueLstMem       sm_DDBFlashable;
     static CArray<Strng, Strng> sm_FlashCmps;
     static CArray<Strng, Strng> sm_FlashCmpsI;
+
+    static DDBValueLstMem       sm_DDBFlashMethods;
+    static CArray<Strng, Strng> sm_FlashMethods;
+    static CArray<Strng, Strng> sm_FlashMethodsI;
+
     static bool                 sm_FlashInited;
 
     byte           nQuals;

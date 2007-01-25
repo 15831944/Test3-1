@@ -1315,6 +1315,11 @@ class CPhaseInfo
 
 // ===========================================================================
 
+const sint SMFM_Default     = -1;
+const sint SMFM_PartialP    = 0;
+const sint SMFM_TotalP      = 1;
+const sint SMFM_Undefined   = 2;
+
 class DllImportExport CComponentDataBase
   {
   friend class CSpecieDataBase;
@@ -1360,6 +1365,7 @@ class DllImportExport CComponentDataBase
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
     
+    int            DefFlashMethod()    { return m_DefFlashMethod; };
     int            DefFlashCmpIndex()  { return m_DefFlashCmpIndex; };
     int            DefFlashLiqIndex()  { return m_DefFlashLiqIndex; };
     int            DefFlashVapIndex()  { return m_DefFlashVapIndex; };
@@ -1416,6 +1422,7 @@ class DllImportExport CComponentDataBase
     int                   m_PhInfoLast[BOT_All+1];
     CPhaseInfo            m_PhInfo[MaxPhases];
 
+    int                   m_DefFlashMethod;
     int                   m_DefFlashCmpIndex;
     int                   m_DefFlashLiqIndex;
     int                   m_DefFlashVapIndex;

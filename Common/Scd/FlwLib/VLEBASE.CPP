@@ -132,22 +132,36 @@ CGlblStopWatch CVLEBase::sm_swQMVapFlash(gs_swFlwSolve,  "VLE", "QMVapFlash");
 CVLEBase::CVLEBase(pTaggedObject pAttach, dword SelectMask, LPTSTR Name) : 
 CBlockEvalBase(BEId_VLE,0,Name) 
   { 
-  m_pVLE          = NULL; 
-  m_pNd           = pAttach; 
-  m_fEnabled      = false;
-  m_fFixed        = false; 
-  m_dwSelectMask  = SelectMask; 
+  m_pVLE            = NULL; 
+  m_pNd             = pAttach; 
+  m_fEnabled        = false;
+  m_fFixed          = false; 
+  m_dwSelectMask    = SelectMask; 
 
-  m_AsFlow        = true;
+  m_iFlags          = 0;
 
-  m_TIn           = Std_T;
-  m_PIn           = Std_P;
-  m_VapQmIn       = 0.0;
-  m_VapFracIn     = 0.0;
-  m_TOut          = Std_T;
-  m_POut          = Std_P;
-  m_VapQmOut      = 0.0;
-  m_VapFracOut    = 0.0;
+  m_TempIn          = Std_T;
+  m_TotalPIn        = Std_P;
+  m_PartialPIn      = 0.0;
+  m_VapQmIn         = 0.0;
+  m_VapFracIn       = 0.0;
+  m_TotQmIn         = 0.0;
+  m_FlshVapQmIn     = 0.0;
+  m_FlshVapFracIn   = 0.0;
+
+  m_TempOut         = Std_T;
+  m_TotalPOut       = Std_P;
+  m_PartialPOut     = 0.0;
+  m_VapQmOut        = 0.0;
+  m_VapFracOut      = 0.0;
+  m_TotQmOut        = 0.0;
+  m_FlshVapQmOut    = 0.0;
+  m_FlshVapFracOut  = 0.0;
+
+  m_BPE             = 0.0;
+  m_sSpModel        = "Unknown";
+  m_sSatMethod      = "Unknown";
+
   };
 
 CVLEBase::~CVLEBase() 
@@ -221,34 +235,44 @@ void CVLEBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, D
       }
     }                                                           
   DDB.Text(" ");
-  DDB.Double("TempIn",            "", DC_T,      "C",     &m_TIn,           m_pNd, isResult);
-  DDB.Double("PressIn",           "", DC_P,      "kPag",  &m_PIn,           m_pNd, isResult);
-  if (m_AsFlow)
-    DDB.Double("VapFlowIn",       "", DC_Qm,     "kg/s",  &m_VapQmIn,       m_pNd, isResult);
-  else
-    DDB.Double("VapMassIn",       "", DC_M,      "kg",    &m_VapQmIn,       m_pNd, isResult);
-  DDB.Double("VapFracIn",         "", DC_Frac,   "%",     &m_VapFracIn,     m_pNd, isResult);
-  DDB.Double("VapFracIn",         "", DC_Frac,   "%",     &m_VapFracIn,     m_pNd, isResult);
-  DDB.Text(" ");
-  DDB.Double("TempOut",           "", DC_T,      "C",     &m_TOut,          m_pNd, isResult);
-  DDB.Double("PressOut",          "", DC_P,      "kPag",  &m_POut,          m_pNd, isResult);
-  if (m_AsFlow)
-    DDB.Double("VapFlowOut",      "", DC_Qm,     "kg/s",  &m_VapQmOut,      m_pNd, isResult);
-  else
-    DDB.Double("VapMassOut",      "", DC_M,      "kg",    &m_VapQmOut,      m_pNd, isResult);
-  DDB.Double("VapFracOut",        "", DC_Frac,   "%",     &m_VapFracOut,    m_pNd, isResult);
-  DDB.Text(" ");
-  if (m_AsFlow)
+  if ((m_iFlags & VLEF_HideFeedMeasure)==0)
     {
-    DDB.Double("VapFlowFlashed",  "", DC_Qm,     "kg/s",  xidVLENettVapQm,  m_pNd, isResult);
+    DDB.Double("Feed.Temp",               "", DC_T,      "C",     &m_TempIn,          m_pNd, isResult);
+    DDB.Double("Feed.TotalP",             "", DC_P,      "kPag",  &m_TotalPIn,        m_pNd, isResult);
+    DDB.Double("Feed.PartialP",           "", DC_P,      "kPag",  &m_PartialPIn,      m_pNd, isResult);
+    DDB.Double("Feed.TotalFlow",          "", DC_Qm,     "kg/s",  &m_TotQmIn,         m_pNd, isResult);
+    DDB.Double("Feed.VapFlow",            "", DC_Qm,     "kg/s",  &m_VapQmIn,         m_pNd, isResult);
+    DDB.Double("Feed.VapFrac",            "", DC_Frac,   "%",     &m_VapFracIn,       m_pNd, isResult);
+    DDB.Double("Feed.FlashVapFlow",       "", DC_Qm,     "kg/s",  &m_FlshVapQmIn,     m_pNd, isResult);
+    DDB.Double("Feed.FlashVapFrac",       "", DC_Frac,   "%",     &m_FlshVapFracIn,   m_pNd, isResult);
+    DDB.Text(" ");
     }
-  else
+
+  if ((m_iFlags & VLEF_HideChanges)==0)
     {
-    _asm int 3;
-    //DDB.Double("VapMassFlashed",  "", DC_M,      "kg",    xidVLENettVapQm,  m_pNd, isResult);
-    //DDB.Double("VapMassFlashed",  "", DC_M,      "kg",    xidVLENettVapQm,  m_pNd, isResult);
+    DDB.Double("VapFlowFlashed",          "", DC_Qm,     "kg/s",  xidVLENettVapQm,    m_pNd, isResult);
     }
-  DDB.Text(" ");
+  
+  if (1)
+    {
+    DDB.Double("BoilingPointElevation",   "", DC_dT,     "C",     &m_BPE,             m_pNd, isResult);
+    DDB.String("LiquorModel",             "", DC_,       "",      &m_sSpModel,        m_pNd, isResult);
+    DDB.String("SatMethodUsed",           "", DC_,       "",      &m_sSatMethod,      m_pNd, isResult);
+    DDB.Text(" ");
+    }
+
+  if ((m_iFlags & VLEF_HideProdMeasure)==0)
+    {
+    DDB.Double("Prod.Temp",               "", DC_T,      "C",     &m_TempOut,         m_pNd, isResult);
+    DDB.Double("Prod.TotalP",             "", DC_P,      "kPag",  &m_TotalPOut,       m_pNd, isResult);
+    DDB.Double("Prod.PartialP",           "", DC_P,      "kPag",  &m_PartialPOut,     m_pNd, isResult);
+    DDB.Double("Prod.TotalFlow",          "", DC_Qm,     "kg/s",  &m_TotQmOut,        m_pNd, isResult);
+    DDB.Double("Prod.VapFlow",            "", DC_Qm,     "kg/s",  &m_VapQmOut,        m_pNd, isResult);
+    DDB.Double("Prod.VapFrac",            "", DC_Frac,   "%",     &m_VapFracOut,      m_pNd, isResult);
+    DDB.Double("Prod.FlashVapFlow",       "", DC_Qm,     "kg/s",  &m_FlshVapQmOut,    m_pNd, isResult);
+    DDB.Double("Prod.FlashVapFrac",       "", DC_Frac,   "%",     &m_FlshVapFracOut,  m_pNd, isResult);
+    DDB.Text(" ");
+    }
 
   DDB.EndObject();
 
@@ -313,35 +337,15 @@ flag CVLEBase::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-int CVLEBase::FlashCmpIndex()
-  {
-  return Enabled() ? m_pVLE->FlashCmpIndex() : -1;
-  };
-int CVLEBase::FlashLiqIndex()
-  {
-  return Enabled() ? m_pVLE->FlashLiqIndex() : -1;
-  };
-int CVLEBase::FlashVapIndex()
-  {
-  return Enabled() ? m_pVLE->FlashVapIndex() : -1;
-  };
-LPTSTR CVLEBase::FlashDescription()
-  {
-  return Enabled() ? m_pVLE->FlashDescription() : "";
-  };
-
-
-double CVLEBase::FlashVapFrac(SpModel &Mdl)
-  {
-  return Enabled() ? m_pVLE->FlashVapFrac(Mdl) : 0.0;
-  };
+int CVLEBase::FlashCmpIndex()                 { return Enabled() ? m_pVLE->FlashCmpIndex() : -1; };
+int CVLEBase::FlashLiqIndex()                 { return Enabled() ? m_pVLE->FlashLiqIndex() : -1; };
+int CVLEBase::FlashVapIndex()                 { return Enabled() ? m_pVLE->FlashVapIndex() : -1; };
+LPTSTR CVLEBase::FlashDescription()           { return Enabled() ? m_pVLE->FlashDescription() : ""; };
+double CVLEBase::FlashVapFrac(SpModel &Mdl)   { return Enabled() ? m_pVLE->FlashVapFrac(Mdl) : 0.0; };
 
 //--------------------------------------------------------------------------
 
-flag CVLEBase::HasTPEnvelope()
-  {
-  return Enabled() ? m_pVLE->HasTPEnvelope() : false;
-  };
+flag CVLEBase::HasTPEnvelope()                { return Enabled() ? m_pVLE->HasTPEnvelope() : false; };
 
 //--------------------------------------------------------------------------
 
@@ -454,6 +458,76 @@ void CVLEBase::TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)
 
 //--------------------------------------------------------------------------
 
+void CVLEBase::SaveFeedInfo(bool Cvt2Flow, SpModel * Ql, SpModel * Qv)
+  {
+  m_TempIn          = Ql->Temp();
+  m_TotalPIn        = Ql->Press();
+  m_TotQmIn         = Ql->Mass();
+  m_VapQmIn         = Ql->Mass(som_Gas);
+  if (Qv)
+    {
+    m_TotQmIn       += Qv->Mass();
+    m_VapQmIn       += Qv->Mass(som_Gas);
+    }
+  m_VapFracIn       = m_VapQmIn/GTZ(m_TotQmIn);
+  
+  if (FlashVapIndex()>=0)
+    {
+    m_FlshVapQmIn   = Ql->VValue[FlashVapIndex()];
+    m_FlshVapFracIn = m_FlshVapQmIn/GTZ(m_TotQmIn);
+    if (Qv)
+      {
+      m_FlshVapQmIn += Qv->VValue[FlashVapIndex()];
+      m_PartialPIn  = Qv->PartialPress(FlashVapIndex(), -1, m_TempIn);
+      }
+    else
+      m_PartialPIn  = Ql->PartialPress(FlashVapIndex(), -1, m_TempIn);
+    }
+  else
+    {
+    m_PartialPIn    = 0.0;
+    m_FlshVapQmIn   = m_VapQmIn;
+    m_FlshVapFracIn = m_VapFracIn;
+    }
+  }
+
+void CVLEBase::SaveProdInfo(bool Cvt2Flow, SpModel * Ql, SpModel * Qv)
+  {
+  m_TempOut           = Ql->Temp();
+  m_TotalPOut         = Ql->Press();
+  m_TotQmOut          = Ql->Mass();
+  m_VapQmOut          = Ql->Mass(som_Gas);
+  if (Qv)
+    {
+    m_TotQmOut        += Qv->Mass();
+    m_VapQmOut        += Qv->Mass(som_Gas);
+    }
+  m_VapFracOut        = m_VapQmOut/GTZ(m_TotQmOut);
+  if (FlashVapIndex()>=0)
+    {
+    m_FlshVapQmOut    = Ql->VValue[FlashVapIndex()];
+    m_FlshVapFracOut  = m_FlshVapQmOut/GTZ(m_TotQmOut);
+    if (Qv)
+      {
+      m_PartialPOut   = Qv->PartialPress(FlashVapIndex(), -1, m_TempOut);
+      m_FlshVapQmOut  += Qv->VValue[FlashVapIndex()];
+      }
+    else
+      m_PartialPOut   = Ql->PartialPress(FlashVapIndex(), -1, m_TempOut);
+    }
+  else
+    {
+    m_FlshVapQmOut    = m_VapQmOut;
+    m_FlshVapFracOut  = m_VapFracOut;
+    }
+
+  m_BPE               = Ql->BoilingPtElevation(m_TotalPOut);
+  m_sSpModel          = Ql->ClassId();
+  m_sSatMethod        = Ql->SaturationMethodUsed();
+  }
+
+//--------------------------------------------------------------------------
+
 void CVLEBase::QPFlash(SpConduit &Q, double Press, double Duty, dword Flags)
   {
   if (Enabled()) 
@@ -467,25 +541,13 @@ void CVLEBase::QPFlash(SpConduit &Q, double Press, double Duty, dword Flags)
     double MSL0=Q.QMass(som_SL);
 #endif
 
-    m_AsFlow=true;
-
-    if ((Flags&VLEF_HoldStartMeasure)==0)
-      {
-      m_TIn=Q.Temp();
-      m_PIn=Q.Press();
-      m_VapQmIn=Q.QMass(som_Gas);
-      m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
-      }
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(false, Q);
 
     m_pVLE->QPFlash(Q, Press, Duty, Flags);
 
-    if ((Flags&VLEF_HoldEndMeasure)==0)
-      {
-      m_TOut=Q.Temp();
-      m_POut=Q.Press();
-      m_VapQmOut=Q.QMass(som_Gas);
-      m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
-      }
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(false, Q);
 
 #if DoDbg
     double T1=Q.Temp();
@@ -529,25 +591,13 @@ void CVLEBase::QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, 
       }
 #endif
 
-    m_AsFlow=true;
-
-    if ((Flags&VLEF_HoldStartMeasure)==0)
-      {
-      m_TIn=Ql.Temp();
-      m_PIn=Ql.Press();
-      m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-      m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
-      }
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(false, Ql, Qv);
 
     m_pVLE->QPFlash(Ql, Qv, Press, Duty, Flags);
 
-    if ((Flags&VLEF_HoldEndMeasure)==0)
-      {
-      m_TOut=Ql.Temp();
-      m_POut=Ql.Press();
-      m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-      m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
-      }
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(false, Ql, Qv);
 
 #if DoDbg
     double T1=Ql.Temp();
@@ -600,25 +650,13 @@ void CVLEBase::QVFlash(SpContainer &C, double Duty, dword Flags)
       dbgpln("QVFlash:%s",C.FullObjTag());
 #endif
 
-    m_AsFlow=true;
-
-    if ((Flags&VLEF_HoldStartMeasure)==0)
-      {
-      m_TIn=C.Temp();
-      m_PIn=C.Press();
-      m_VapQmIn=C.Mass(som_Gas)/ICGetTimeInc();
-      m_VapFracIn=C.Mass(som_Gas)/GTZ(C.Mass());
-      }
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(true, C);
 
     m_pVLE->QVFlash(C, Duty, Flags);
 
-    if ((Flags&VLEF_HoldEndMeasure)==0)
-      {
-      m_TOut=C.Temp();
-      m_POut=C.Press();
-      m_VapQmOut=C.Mass(som_Gas)/ICGetTimeInc();
-      m_VapFracOut=C.Mass(som_Gas)/GTZ(C.Mass());
-      }
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(true, C);
 
 #if DoDbg
     double T1=C.Temp();
@@ -744,25 +782,13 @@ void CVLEBase::QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags)
     double MSL0=Q.QMass(som_SL);
 #endif
 
-    m_AsFlow=true;
-
-    if ((Flags&VLEF_HoldStartMeasure)==0)
-      {
-      m_TIn=Q.Temp();
-      m_PIn=Q.Press();
-      m_VapQmIn=Q.QMass(som_Gas);
-      m_VapFracIn=m_VapQmIn/GTZ(Q.QMass());
-      }
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(false, Q);
 
     m_pVLE->QMVapFlash(Q, MVap, Duty, Flags);
 
-    if ((Flags&VLEF_HoldEndMeasure)==0)
-      {
-      m_TOut=Q.Temp();
-      m_POut=Q.Press();
-      m_VapQmOut=Q.QMass(som_Gas);
-      m_VapFracOut=m_VapQmOut/GTZ(Q.QMass());
-      }
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(false, Q);
 
 #if DoDbg
     double T1=Q.Temp();
@@ -795,25 +821,13 @@ void CVLEBase::QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty
     double MSL0=Ql.QMass(som_SL);
 #endif
 
-    m_AsFlow=true;
-
-    if ((Flags&VLEF_HoldStartMeasure)==0)
-      {
-      m_TIn=Ql.Temp();
-      m_PIn=Ql.Press();
-      m_VapQmIn=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-      m_VapFracIn=m_VapQmIn/GTZ(Ql.QMass()+Qv.QMass());
-      }
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(false, Ql, Qv);
 
     m_pVLE->QMVapFlash(Ql, Qv, MVap, Duty, Flags);
 
-    if ((Flags&VLEF_HoldEndMeasure)==0)
-      {
-      m_TOut=Ql.Temp();
-      m_POut=Ql.Press();
-      m_VapQmOut=Ql.QMass(som_Gas)+Qv.QMass(som_Gas);
-      m_VapFracOut=m_VapQmOut/GTZ(Ql.QMass()+Qv.QMass());
-      }
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(false, Ql, Qv);
 
 #if DoDbg
     double T1=Ql.Temp();
@@ -876,6 +890,8 @@ double CVLEBase::SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl)
     return m_pVLE->SaturationTotalP(Temp, pMA, pMdl);
   return dNAN;
   };
+
+int CVLEBase::SaturationMethod()         { return Enabled() ? m_pVLE->SaturationMethod() : SMFM_Default; };
 
 //============================================================================
 //
@@ -1149,6 +1165,7 @@ CVLEBlock(pClass_, TagIn, pAttach, eAttach)//,
   dPrvVapPress=Std_P;
   fModelSatP=true;
   dApproachTemp=0.0;
+  m_iMethod=SMFM_Default;
   };
 
 //--------------------------------------------------------------------------
@@ -1170,17 +1187,19 @@ void CVLEVapPress::BuildDataDefn(DataDefnBlk &DDB)//, pchar pTag_, DDBPages Page
     DDB.CheckBox("", "ModelSatP",  DC_, "", &fModelSatP, this, isParm, DDBOnOff);
 
     //Strng S;
-    DDBValueLstMem DDB1;
-    DDB1.Add(-1, " ");
+    DDBValueLstMem DDBCmp;
+    DDBCmp.Add(-1, " ", MDD_Hidden);
+    DDBCmp.Add(-1, "<Default>");
     for (int i=0; i<CDB.No(); i++)
       if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
-        DDB1.Add(i, CDB[i].SymOrTag());
-    //  if (DDB1.Length()==0)
-    //    DDB1.Add(-1, " ");
-    DDB.Long  ("Component",    "",  DC_,     "",    &m_iCmpNo,        this, isParm, DDB1());
-    DDB.Double("PrvVapFrac",   "",  DC_Frac, "%",   &dPrvVapFrac,   this, isParm|InitHidden);
-    DDB.Double("PrvVapPress",  "",  DC_P,    "kPa", &dPrvVapPress,  this, isParm|InitHidden);
-    DDB.Double("ApproachTemp", "",  DC_dT,   "C",   &dApproachTemp, this, isParm);
+        DDBCmp.Add(i, CDB[i].SymOrTag());
+
+
+    DDB.Long  ("Method",       "",  DC_,     "",    &m_iMethod,      this, isParm|SetOnChange, SpModel::sm_DDBFlashMethods());
+    DDB.Long  ("Component",    "",  DC_,     "",    &m_iCmpNo,       this, isParm|SetOnChange, DDBCmp());
+    DDB.Double("PrvVapFrac",   "",  DC_Frac, "%",   &dPrvVapFrac,    this, isParm|InitHidden);
+    DDB.Double("PrvVapPress",  "",  DC_P,    "kPa", &dPrvVapPress,   this, isParm|InitHidden);
+    DDB.Double("ApproachTemp", "",  DC_dT,   "C",   &dApproachTemp,  this, isParm);
     }
   DDB.EndStruct();
   };
@@ -1189,12 +1208,6 @@ void CVLEVapPress::BuildDataDefn(DataDefnBlk &DDB)//, pchar pTag_, DDBPages Page
 
 flag CVLEVapPress::DataXchg(DataChangeBlk & DCB)
   {
-
-  //  if (DCB.lHandle>=xidGSMSpcSplts &&  DCB.lHandle<xidGSMSpcSplts+SDB.No()*IOs.GetSize())
-  //    {
-  //    return 1;
-  //    }
-  //
   return 0;
   };
 
@@ -1318,7 +1331,7 @@ LPTSTR CVLEVapPress::FlashDescription()
 int    CVLEVapPress::FlashCmpIndex() { return m_iCmpNo; };
 int    CVLEVapPress::FlashLiqIndex() { return m_li; };
 int    CVLEVapPress::FlashVapIndex() { return m_vi; };
-
+int    CVLEVapPress::SaturationMethod() { return m_iMethod; };
 
 // -------------------------------------------------------------------------
 
@@ -1350,7 +1363,9 @@ void CVLEVapPress::TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)
 
     //    DoBreak(); // Should Use Partial Press
     //double PPressO=Mdl.
-    double OtherPP=/*0.0;//*/pMdlL->PartialPress(OtherVapSp, Temp);
+    double OtherPP=0;
+    if (pMdlL->SaturationMethod()==SMFM_PartialP)
+      OtherPP=pMdlL->PartialPress(OtherVapSp, Temp);
     double TSat;
     if (fModelSatP)
       TSat=Mdl.SaturationT(Max(1.0, Press-OtherPP));
@@ -1404,7 +1419,9 @@ class QPRootFnd : public MRootFinderBase
 
       VLE.SetVapFrac(Range(0.0, x, 1.0));
 
-      double OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp(), P);
+      double OtherPP=0;
+      if (pMdlL->SaturationMethod()==SMFM_PartialP)
+        OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp(), P);
       double Ts = Min(TMx, pMdlL->SaturationT(Max(1.0, P-OtherPP)));
       double h, t;
       if (x<0.0)

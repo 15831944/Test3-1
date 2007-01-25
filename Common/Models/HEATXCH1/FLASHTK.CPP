@@ -75,9 +75,6 @@ The default is Steam/Water.
 configured.#n
 #i<EnvironHX>: The user may specify an environmental heat loss.#n
 #i<Reactions>: If this block is checked, the user may specify a reaction file in the unit.#n
-#i<Rqd_Flash_Press>: If the flash tank is NOT part of a Flash Train, then the user must specify 
-the required flash pressure in the unit.#n
-
 
 #n#n#h<Variables calculated by the model>#n
 #i<Flash_Temp>: The equilibrium temperature in the Flash Tank.#n
@@ -192,9 +189,9 @@ IMPLEMENT_MODELUNIT(FlashTank, "FlshTank", "1", Drw_FlashTank, "Tank", "FT", TOC
                     "and liquor phases, and the necessary resistance number in the outlet pipes "
                     "to give the required pressure drops to obtain a pressure balance.")
 
-                    FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
+FlashTank::FlashTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
 MN_Surge(pClass_, TagIn, pAttach, eAttach),
-m_QFlash("QFlash", this, TOA_Embedded),
+m_QProd("QProd", this, TOA_Embedded),
 m_QWrk("Wrk", this, TOA_Embedded),
 m_FTF(this)
   {
@@ -204,12 +201,11 @@ m_FTF(this)
   m_PCtrl0.SetMethod(PC_SatP);
 
   m_QWrk.SetVLEBlk(&m_VLE);
-  m_QFlash.SetVLEBlk(&m_VLE);
+  m_QProd.SetVLEBlk(&m_VLE);
 
   SetAllowedModes(true, NM_All|SM_Direct/*|SM_Inline*/|SM_Buffered|HM_All);
 
   sVapSpModel="Steam/Water";//SMSteamClass.?
-  //Rqd_Flash_Press=Std_P;
   fOnLine=True;
 
   m_VLE.Open(true);
@@ -323,7 +319,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   if (1)//NetProbalMethod())
     {
     DDB.Visibility(NM_All|SM_All|HM_All);
-    DDB.Object(&m_QFlash, this, NULL, NULL, DDB_RqdPage);
+    DDB.Object(&m_QProd, this, NULL, NULL, DDB_RqdPage);
     DDB.Visibility();
     }
   if (SolveBufferedMethod())
@@ -437,6 +433,49 @@ void FlashTank::EvalPBMakeUpAvail(long JoinMask)
 
 //--------------------------------------------------------------------------
 
+double FlashTank::GetFlashPressure(SpConduit &Q)
+  {
+  double FlashP=0;
+  if (m_FTF.Active())
+    {
+    if (m_PCtrl0.Method()==PC_Reqd)
+      FlashP=m_PCtrl0.PRqd();
+    else if (m_PCtrl0.Method()==PC_ReqdSatT)
+      {
+      if (Q.SaturationMethod()==SMFM_PartialP)
+        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd());
+      else
+        FlashP=Q.SaturationP(m_PCtrl0.TRqd());
+      }
+    else if (m_PCtrl0.Method()==PC_Atmos)
+      FlashP=AtmosPress();
+    else if (!MassSmoothing())
+      FlashP=m_FTF.m_dPRqd;
+    }
+  else if (fOnLine)
+    {
+    if (m_PCtrl0.Method()==PC_Reqd)
+      FlashP=m_PCtrl0.PRqd();
+    else if (m_PCtrl0.Method()==PC_ReqdSatT)
+      {
+      if (Q.SaturationMethod()==SMFM_PartialP)
+        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd());
+      else
+        FlashP=Q.SaturationP(m_PCtrl0.TRqd());
+      }
+    else
+      FlashP=AtmosPress();
+    }
+  else
+    FlashP=m_FTF.m_dFeedP;
+
+  FlashP = Max(MinFlshTrainP, FlashP);
+  m_PCtrl0.SetP2Set(FlashP, true, true);
+  return FlashP;
+  }
+
+//--------------------------------------------------------------------------
+
 void FlashTank::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
@@ -444,34 +483,7 @@ void FlashTank::EvalJoinPressures(long JoinMask)
     if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
       {
       m_FTF.m_dFeedP=MeasureJoinPressure(0, &m_PCtrl0);
-      //m_FTF.dFlashP=Valid(Rqd_Flash_Press) ? Rqd_Flash_Press : m_FTF.dFeedP;
-
-      if (m_FTF.Active())
-        {
-        if (m_PCtrl0.Method()==PC_Reqd)
-          m_FTF.m_dFlashP=m_PCtrl0.PRqd();
-        else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=m_QFlash.SaturationTotalP(m_PCtrl0.TRqd());
-        else if (m_PCtrl0.Method()==PC_Atmos)
-          m_FTF.m_dFlashP=AtmosPress();
-        else if (!MassSmoothing())
-          m_FTF.m_dFlashP=m_FTF.m_dPRqd;
-        }
-      else if (fOnLine)
-        {
-        if (m_PCtrl0.Method()==PC_Reqd)
-          m_FTF.m_dFlashP=m_PCtrl0.PRqd();
-        else if (m_PCtrl0.Method()==PC_ReqdSatT)
-          m_FTF.m_dFlashP=m_QFlash.SaturationTotalP(m_PCtrl0.TRqd());
-        else
-          m_FTF.m_dFlashP=AtmosPress();
-        }
-      else
-        m_FTF.m_dFlashP=m_FTF.m_dFeedP;
-
-      m_FTF.m_dFlashP=Max(MinFlshTrainP, m_FTF.m_dFlashP);
-      //dbgpln("xlashP1   %10.2f", m_FTF.m_dFlashP-101.325);
-      m_PCtrl0.SetP2Set(m_FTF.m_dFlashP, true, true);
+      m_FTF.m_dFlashP=GetFlashPressure(m_QProd);
       SetJoinPressure(0, &m_PCtrl0);
       }
     else
@@ -552,13 +564,9 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 #endif
 
         double PIn=SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-        //would "...Xfer_EvalProductsIn(0, Press, m_QFeed, NULL, &PBPCtrl0)..." be better???
 
         dTempIn = m_QFeed.Temp();
         dBPEIn = m_QFeed.BoilingPtElevation(PIn);
-        //dBPEIn = m_QFeed.BoilingPtElevation(m_FTF.m_dFeedP);
-        //dBPEIn = m_QFeed.BoilingPtElevation(m_FTF.m_dFlashP);
-        //do we want to show the flash tank contents/output BPE???
 
         Qv.SetModel(sVapSpModel());
 
@@ -566,11 +574,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
         Ql.QZero();
         Qv.QZero();
-        //double PIn=SigmaQInPMin(Ql, som_ALL, First64IOIds);
-        //Ql.QCopy(m_QFeed);
         Ql.QSetF(m_QFeed, som_ALL, 1.0, m_QFeed.Press());
 
-        //SetCI(1, Ql.MassFrac(som_Gas)>1.0e-3);//Should this test be before or after RB???  Should this only test for OtherVapours (or steam as well???)
         flag OK=false;
         if (fOnLine)
           {
@@ -607,9 +612,9 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
             m_VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
-            int Iter=4;  // goes to 1 Kpa;
-            do 
+            for (int Iter=0;  ;Iter++)
               {
+              double PrevFlashP=m_FTF.m_dFlashP;
               PMargin *= 10.0;
               flag DoQP=true;
               if (m_FTF.Active())
@@ -630,9 +635,9 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
                 m_FTF.m_dPRqdCalc=m_FTF.m_dFlashP;
                 }
               if (DoQP)
-                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit|VLEF_HoldStartMeasure);
+                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit|VLEF_HoldFeedMeasure);
 
-              m_QWrk.QCopy(Ql, PIn);
+              m_QWrk.QCopy(Ql, m_FTF.m_dFlashP/*PIn*/);
               m_QWrk.QAddF(Qv, som_ALL, 1.0);
               m_FTF.m_dFlashT=Ql.Temp();
 #if FORCESTEAM
@@ -641,10 +646,16 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
               m_FTF.m_dQVap=Qv.QMass(som_ALL); //assumes steam!!!
 #endif
 
-              if (fDoDbgBrk)
-                { int xxx=0; };
+              m_FTF.m_dFlashP=GetFlashPressure(m_QWrk);
+
+              if (Iter>50)
+                {
+                LogError(FullObjTag(), 0, "Flash Pressure Not Converged");
+                break;
+                }
+              if ((m_FTF.m_dQVap>=1.0e-6*QLMass) && (fabs(PrevFlashP-m_FTF.m_dFlashP)<1e-6))
+                break;
               }
-            while ((--Iter>0) && (m_FTF.m_dQVap<1.0e-6*QLMass)); 
             }
           }
 
@@ -656,7 +667,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
           Qv.QSetF(Ql, som_ALL, 0.0, PIn);
           m_FTF.m_dQVap=0.0;
           }
-        m_QFlash.QCopy(m_QWrk);
+        m_QProd.QCopy(m_QWrk);
         dWaterSatT = Ql.PureSaturationT(m_FTF.m_dFlashP);
         dBPE = Ql.BoilingPtElevation(m_FTF.m_dFlashP);
 

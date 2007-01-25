@@ -48,7 +48,6 @@ CF(this)
   nQmOut=0;
   dTime=1.0;
   bMakeUpMode=0;
-  bFlashIt=0;
   QmRqdMode=SSQmRqdTot;
   m_bKeepTrace=(PrjFileVerNo()>73 ? 0 : 1);
 
@@ -300,70 +299,76 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
     SpModel & CMdl=*Contents.Model();
     // For compatiblity
-    if (bFlashIt)
+    
+    double PSat,TSat;
+    switch (iVLEOpt)
       {
-      double Duty=0.0;
-      m_VLE.TPFlash(CMdl, TRequired(), PRequired(), VLEF_Null);//NULL, NULL, NULL);
-      }
-    else
-      {
-      double PSat,TSat;
-      switch (iVLEOpt)
-        {
-        case VLEO_SatLiqT:
+      case VLEO_SatLiqT:
+        PSat=Contents.SaturationP(TRequired());
+        Contents.SetPRqdTo(PSat);
+        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 0.0, 0);
+        break;
+      case VLEO_SatVapT:
+        if (Contents.SaturationMethod()==SMFM_PartialP)
           PSat=Contents.SaturationTotalP(TRequired());
-          Contents.SetPRqdTo(PSat);
-          m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 0.0, 0);
-          break;
-        case VLEO_SatVapT:
-          PSat=Contents.SaturationTotalP(TRequired());
-          Contents.SetPRqdTo(PSat);
-          m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 1.0, 0);
-          break;
-        case VLEO_SatLiqP:
-          //PSat=Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
-          //TSat=Contents.SaturationT(PSat);
-          TSat=Contents.SaturationT(PRequired());
-          Contents.SetTRqdTo(TSat);
-          m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 0.0, 0);
-          break;
-        case VLEO_SatVapP:
-          //PSat=Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
-          //TSat=Contents.SaturationT(PSat);
+        else
+          PSat=Contents.SaturationP(TRequired());
+        Contents.SetPRqdTo(PSat);
+        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PSat, 1.0, 0);
+        break;
+      case VLEO_SatLiqP:
+        TSat=Contents.SaturationT(PRequired());
+        Contents.SetTRqdTo(TSat);
+        m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 0.0, 0);
+        break;
+      case VLEO_SatVapP:
+        if (Contents.SaturationMethod()==SMFM_PartialP)
+          {
+          double PPress0=-1;
+          for (int Iter=0; ; Iter++)
+            {
+            double PPress = Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
+            if (fabs(PPress-PPress0)<1e-6)
+              break;
+            if (Iter>50)
+              {
+              LogError(FullObjTag(), 0, "Saturated VapourPress not converged");
+              break;
+              }
+            TSat=Contents.SaturationT(PPress);
+            Contents.SetTRqdTo(TSat);
+            m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 1.0, 0);
+            PPress0=PPress;
+            }
+          }
+        else
+          {
           TSat=Contents.SaturationT(PRequired());
           Contents.SetTRqdTo(TSat);
           m_VLE.SetFlashVapFrac(CMdl, TSat, PRequired(), 1.0, 0);
-          break;
-        case VLEO_SupVap:
+          }
+        break;
+      case VLEO_SupVap:
+        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
+        PSat=Contents.SaturationTotalP(TRequired());
+        if (PRequired()>PSat)
+          {
+          Contents.SetPRqdTo(PSat);
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-          PSat=Contents.SaturationTotalP(TRequired());
-          if (PRequired()>PSat)
-            {
-            Contents.SetPRqdTo(PSat);
-            m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-            }
-          break;
-        case VLEO_SubLiq:
+          }
+        break;
+      case VLEO_SubLiq:
+        m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
+        PSat=Contents.SaturationTotalP(TRequired());
+        if (PRequired()<PSat)
+          {
+          Contents.SetPRqdTo(PSat);
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-          PSat=Contents.SaturationTotalP(TRequired());
-          if (PRequired()<PSat)
-            {
-            Contents.SetPRqdTo(PSat);
-            m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-            }
-          break;
-        }
-
-      int xxx=0;
+          }
+        break;
       }
-    //else
-    //  {
-    //  Contents.SetTemp(TRequired());
-    //  Contents.SetPress(PRequired());
-    //  }
 
     Contents.SetTempPress(TRequired(), PRequired());
-
     Contents.ValidateData(VDB);
 
     PFeed=Contents.Press();
@@ -375,6 +380,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       Flows.QSetM(Contents, som_ALL, Qo, Contents.Press());
       Flows.SetTempPress(TRequired(), PRequired());
       Flows.SetLoMassLimit();
+      m_VLE.SaveProdInfo(false, Flows);
       }
     }
 

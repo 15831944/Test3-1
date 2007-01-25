@@ -103,30 +103,11 @@ m_pNd(pNd)
 void CFT_Flash::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.Double  ("Flash_Temp",        "FlashT",   DC_T,   "C",      &m_dFlashT,   m_pNd, NAN_OK );
-  //if (PrjFileVerNo()<33)
-  //  {
-  //  dword VFlags1=(FTF.Active() ? noView : 0);
-  //  double Rqd_Flash_Press=Std_P;
-  //  DDB.Double  ("Rqd_Flash_Press",   "",  DC_P,    "kPag",  &Rqd_Flash_Press, this, isParm|NAN_OK|VFlags1);
-  //  if (DDB.DoingPutData())
-  //    if (Valid(Rqd_Flash_Press))
-  //      {
-  //      PBPCtrl0.SetPRqd((float)Rqd_Flash_Press);
-  //      //PBPCtrl0.SetMethod(PC_Reqd);
-  //      }
-  //    else
-  //      {
-  //      PBPCtrl0.SetPRqd(Std_P);
-  //      PBPCtrl0.SetMethod(PC_SatP);
-  //      }
-  //  }
   DDB.Double  ("Flash_Press",       "FlashP",   DC_P,   "kPag",   &m_dFlashP,   m_pNd, NAN_OK);
 
   dword VFlags2=(Active() ? 0 : noView);
   DDB.Double  ("QVap",              "",         DC_Qm,  "kg/s",   &m_dQVap,     m_pNd, 0/*VFlags2*/); //steam
   DDB.Double  ("PRqd",              "",         DC_P,   "kPag",   &m_dPRqd,     m_pNd, VFlags2);
-  //if (PrjFileVerNo()<33 && DDB.DoingPutData() && FTF.dPRqd<1.000001)
-  //  dPRqd = 35.0; //set dPRqd to something other than lower limit to "assist" recovery/solution
   DDB.Double  ("PRqdCalc",          "",         DC_P,   "kPag",   &m_dPRqdCalc, m_pNd, noView|isParm|VFlags2);
   DDB.Double  ("dDQvDp",            "",         DC_,    "",       &m_dDQvDp,    m_pNd, /*noView|*/VFlags2);
   if (Active())

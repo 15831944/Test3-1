@@ -4774,6 +4774,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   m_pWater=NULL;
   m_pSteam=NULL;
 
+  m_DefFlashMethod = OrigPrjFileVerNo()<103 ? SMFM_TotalP : SMFM_PartialP;
   m_DefFlashCmpIndex=-1;
   m_DefFlashLiqIndex=-1;
   m_DefFlashVapIndex=-1;

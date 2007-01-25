@@ -6635,7 +6635,8 @@ void CRqdPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag F
       {PC_Atmos    , "Atmospheric",  (PC_Atmos & Allowed)                  ? 0 : MDD_Hidden},
       {PC_MinFd    , "LowestFeed",   (PC_MinFd & Allowed)                  ? 0 : MDD_Hidden},
       {PC_MaxFd    , "HighestFeed",  (PC_MaxFd & Allowed)                  ? 0 : MDD_Hidden},
-      {PC_Reqd     , "Required",     (PC_Reqd & Allowed)                   ? 0 : MDD_Hidden},
+      {PC_Reqd     , "Required",     /*(PC_Reqd & Allowed)                   ? 0 :*/ MDD_Hidden},
+      {PC_Reqd     , "RequiredP",    (PC_Reqd & Allowed)                   ? 0 : MDD_Hidden},
       {PC_SatP     , "Saturated",    (PC_SatP & Allowed)    && m_fMdlAvail ? 0 : MDD_Hidden},
       {PC_ReqdSatT , "RequiredT",    (PC_ReqdSatT &Allowed) && m_fMdlAvail ? 0 : MDD_Hidden},
       //{PC_BubblePt , "BubblePt",      ((PC_SatP &Allowed) && m_fMdlAvail) ? 0 : MDD_Hidden},
@@ -6699,7 +6700,14 @@ void CRqdPressCtrl::CalculateResult()
     case PC_ReqdSatT:
       {
       SpModel &Mdl=*m_pMdl;//->pModel;
-      m_dP2Set=Mdl.SaturationP(m_dTRqd);
+      if (Mdl.SaturationMethod()==SMFM_PartialP)
+        {
+        m_dP2Set=Mdl.SaturationP(m_dTRqd);
+        }
+      else
+        {
+        m_dP2Set=Mdl.SaturationTotalP(m_dTRqd);
+        };
       m_fDoInputs=true;
       }
     case PC_BubblePt:

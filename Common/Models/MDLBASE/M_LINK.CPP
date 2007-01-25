@@ -1125,17 +1125,6 @@ flag MN_Lnk::DataXchg(DataChangeBlk & DCB)
       else
         DCB.D=0.0;
       return 1;
-    //case xidFlashIt:
-    //  {
-    //  if (DCB.rB)
-    //    {
-    //    if (bFlashIt!=*DCB.rB)
-    //      StructureChanged(this);
-    //    bFlashIt=*DCB.rB;
-    //    }
-    //  DCB.B=bFlashIt;
-    //  }
-    //  return 1;
     case xidVelocity:
       if (NoProcLnkIOs()>=1)
         DCB.D=IOFB(0,0)->Velocity()*IOFB(0,0)->GetQm()/NZ(IOFB(0,0)->GetQmEst());

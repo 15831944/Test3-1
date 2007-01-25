@@ -164,7 +164,6 @@ class DllImportExport MN_SrcSnk : public MdlNode
     flag           bMakeUpMode;
 
     CVLEBase       m_VLE;
-    flag           bFlashIt;
     byte           iVLEOpt;
 
     CompositionFetchHelper CF;

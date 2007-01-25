@@ -320,8 +320,11 @@ typedef enum eScdVLEOptions
   VLEF_QVFlash          = 0x00000008,
   VLEF_SaturationLimit  = 0x00000010,
   VLEF_QMVapFlash       = 0x00000020,
-  VLEF_HoldStartMeasure = 0x00001000,
-  VLEF_HoldEndMeasure   = 0x00002000,
+  VLEF_HoldFeedMeasure  = 0x00001000,
+  VLEF_HoldProdMeasure  = 0x00002000,
+  VLEF_HideFeedMeasure  = 0x00010000,
+  VLEF_HideProdMeasure  = 0x00020000,
+  VLEF_HideChanges      = 0x00040000,
   VLEF_WithDebug        = 0x10000000,
   
   } eScdVLEOptions;
