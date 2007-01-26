@@ -209,7 +209,9 @@ m_FTF(this)
   fOnLine=True;
 
   m_VLE.Open(true);
-  //m_VLE.Enable();
+  //CNM This is commented out - Approach Temp does not work correctly
+  //m_VLE.SetFlags(VLEF_ApproachTempOn);
+
 #if DOPBSMOOTHING  
   m_fSolnVapQmValid=false;
   m_dSolnVapQm=0.0;
@@ -443,9 +445,9 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
       if (Q.SaturationMethod()==SMFM_PartialP)
-        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd());
+        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
-        FlashP=Q.SaturationP(m_PCtrl0.TRqd());
+        FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       }
     else if (m_PCtrl0.Method()==PC_Atmos)
       FlashP=AtmosPress();
@@ -459,9 +461,9 @@ double FlashTank::GetFlashPressure(SpConduit &Q)
     else if (m_PCtrl0.Method()==PC_ReqdSatT)
       {
       if (Q.SaturationMethod()==SMFM_PartialP)
-        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd());
+        FlashP=Q.SaturationTotalP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       else
-        FlashP=Q.SaturationP(m_PCtrl0.TRqd());
+        FlashP=Q.SaturationP(m_PCtrl0.TRqd()-m_VLE.ApproachTemp());
       }
     else
       FlashP=AtmosPress();

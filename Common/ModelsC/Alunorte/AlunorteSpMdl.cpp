@@ -1540,13 +1540,16 @@ double AlunorteBayer::TotalSodium(CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double AlunorteBayer::SaturationP(double T_, CSysVector * pMA)
+double AlunorteBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
 
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
+
+  if (iSatComp>=0)
+    return SpModelEx::SaturationP(T_, &MA, iSatComp);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationP(T_, &MA);
@@ -1586,12 +1589,15 @@ double AlunorteBayer::SaturationP(double T_, CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double AlunorteBayer::SaturationT(double P_, CSysVector * pMA)
+double AlunorteBayer::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
+
+  if (iSatComp>=0)
+    return SpModelEx::SaturationT(P_, &MA, iSatComp);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationT(P_, &MA);

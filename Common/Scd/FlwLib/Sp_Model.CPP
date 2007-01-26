@@ -1546,11 +1546,12 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
       DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
       DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
       DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
+      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
       DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
       if (m_Ovr.bUse&(SPO_BPEle))
         DDB.TagComment("Ovr");
+      DDB.Double  ("FinalT",        "",         DC_T,     "C",        xidSMTemp,        this, isResult|noFileAtAll|InitHidden);
       DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
-      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
       }
     DDB.EndStruct();
 

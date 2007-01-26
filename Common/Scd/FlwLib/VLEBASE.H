@@ -110,6 +110,8 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
     virtual int    SaturationMethod()=0;
 
+    virtual double ApproachTemp()=0;
+
     virtual flag   HasTPEnvelope() = 0;
   protected:
 
@@ -119,10 +121,12 @@ class DllImportExport CVLEBlock : public TaggedObject
 
   public:
     static const pchar GroupName;
-  protected:
 
+  protected:
     FlwNode        &Nd;
     CDArray         VMixFrac, LMixFrac;
+    CVLEBase *      m_pVLEBase;
+
   };
 
 //============================================================================
@@ -138,6 +142,7 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
     void           Close();
     void           SetFlags(int Flags) { m_iFlags=Flags; };
+    int            Flags()             { return m_iFlags; };
 
 
     int TPFlashReqd()     { return (m_dwSelectMask&VLEF_TPFlash)!=0; };
@@ -176,7 +181,10 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual double CondensableFrac(SpContainer*Cn);
     virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
-    virtual int    SaturationMethod();//SpModel * Mdl);
+    virtual int    SaturationMethod();
+
+    virtual double ApproachTemp();
+    virtual bool   ApproachTempOn() { return (m_iFlags & VLEF_ApproachTempOn)!=0; }
 
     flag           HasTPEnvelope();
 
@@ -297,6 +305,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual double SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
     virtual int    SaturationMethod();
 
+    virtual double ApproachTemp();
+
     virtual flag   HasTPEnvelope() { return False;};
 
     //  protected:
@@ -320,12 +330,12 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     long           m_iMethod;
     long           m_iCmpNo, m_li, m_vi;
     double         Mt,Ht,Vf;
-    long           iState;
-    byte           fModelSatP;
+    long           m_iState;
+    byte           m_fModelSatP;
                         
-    double         dPrvVapFrac;
-    double         dPrvVapPress;
-    double         dApproachTemp;
+    double         m_dPrvVapFrac;
+    double         m_dPrvVapPress;
+    double         m_dApproachTemp;
 
   };
 
@@ -422,6 +432,8 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual flag   HasTPEnvelope() { return True;};
 
     virtual int    SaturationMethod() { return SMFM_Undefined; };
+
+    virtual double ApproachTemp()  { return 0.0; };
 
   protected:
     int            NAvailComps() { return Cmp.GetSize(); };

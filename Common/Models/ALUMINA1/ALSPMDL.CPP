@@ -1407,7 +1407,7 @@ double SMBayer::TotalSodium(CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double SMBayer::SaturationP(double T_, CSysVector * pMA)
+double SMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
@@ -1415,6 +1415,9 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA)
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
   m_SMFnRanges.SetInRange(eSpFn_SatP, true);
+
+  if (iSatComp>=0)
+    return SpModelEx::SaturationP(T_, &MA, iSatComp);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationP(T_, &MA);
@@ -1460,7 +1463,7 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double SMBayer::SaturationT(double P_, CSysVector * pMA)
+double SMBayer::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
@@ -1468,9 +1471,13 @@ double SMBayer::SaturationT(double P_, CSysVector * pMA)
   CSysVector &MA = (Local ? MArray() : *pMA);
   m_SMFnRanges.SetInRange(eSpFn_SatT, true);
 
+  if (iSatComp>=0)
+    return SpModelEx::SaturationT(P_, &MA, iSatComp);
+
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationT(P_, &MA);
-  #if TestBayerForWater
+
+#if TestBayerForWater
   // NB This will introduce a nonlinearity
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
