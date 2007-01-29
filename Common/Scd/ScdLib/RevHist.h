@@ -2692,18 +2692,20 @@ Build 122 : 16 November 2006
 1335 10/01/07: (#695,696) Extensions to VLE to allow flashing of other components (eg NH3).
 1341 11/01/07: (#695,696) Extensions to VLE for other components to work in shell&tube and contact heater.
 1351 16/01/07: (#714) Added VLE option to tie in ProBal.
-1353 16/01/07: (#695,696) Extension to VLE to use Partial Pressures for stream with multiple vapours.
-1355 17/01/07: (#695,696) Further improvements to VLE and Partial pressures.
+1353 16/01/07: (#695,696,720) Extension to VLE to use Partial Pressures for stream with multiple vapours.
+1355 17/01/07: (#695,696,720) Further improvements to VLE and Partial pressures.
 1356 18/01/07: (#715) Increase number of tank level lookup fields allowed and fix error during save.
 1357 20/01/07: (#715) Additional fix for data entry.
-1359 23/01/07: (#695,696) Further improvements to VLE and Partial pressures.
-1361 24/01/07: (#695,696,#717) And further improvements to VLE.
+1359 23/01/07: (#695,696,720) Further improvements to VLE and Partial pressures.
+1361 24/01/07: (#695,696,720,717) And further improvements to VLE.
 1364 25/01/07: (#695,696) VLE fix for crash in Bayer properties models.
 1365 25/01/07: (#716) Fix VapourT error messages.
+1370 26/01/07: (#718,719,722) Use of VLE partial pressures optional. Flash tank RequiredT option fixed.
+1372 29/01/07: (#723) Fix VLE BPE errors in Bayer streams.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1365
+#define SCD_PATCH_SVN    1372
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
