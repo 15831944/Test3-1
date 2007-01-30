@@ -1730,6 +1730,7 @@
 #define ID_TREND_REFRESHALL             30157
 #define ID_TREND_SLOTS                  30158
 #define ID_FILE_DUMMY                   30169
+#define ID_FILE_DUMMY2                  30168
 #define ID_HELP_MODELS                  30170
 #define ID_HELP_PGMLANGUAGE             30171
 #define ID_HELP_SYSCAD                  30172

@@ -314,7 +314,7 @@ namespace SysCAD.Protocol
 
     public void DoLinkCreated(Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      if (!graphicItems.ContainsKey(guid))
+      if (!graphicLinks.ContainsKey(guid))
       {
         GraphicLink graphicLink = new GraphicLink(guid, tag, classId, origin, originPort, destination, destinationPort);
 

@@ -9,6 +9,15 @@ namespace SysCAD.Protocol
   {
     String str = String.Empty;
 
+    public Model(String str)
+    {
+      this.str = str;
+    }
+
+    public Model()
+    {
+    }
+
     public static implicit operator Model(String str)
     {
       Model model = new Model();

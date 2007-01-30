@@ -1110,6 +1110,8 @@ namespace SysCAD.Editor
 
     internal void AddNode(String path, String tag, Guid guid)
     {
+      if (tvNavigation.GetNodeByPath(path) == null)
+        tvNavigation.AddNodeByPath(path);
       tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
     }
 

@@ -71,6 +71,9 @@ class CSrvrConfig
 ref class CNETServerThread
   {
   public:
+
+    ServiceProtocol ^ serviceProtocol;
+
     CNETServerThread()
       {
       };
@@ -579,7 +582,7 @@ ref class CNETServerThread
       ServiceProtocol::PropertyListHandler^ propertyListCheck = gcnew ServiceProtocol::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      ServiceProtocol ^ serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);
@@ -897,6 +900,27 @@ void CNETServer::Shutdown()
   delete CNETServerThreadGlbl::gs_SrvrThread;
 
   LogNote("CNETServer", 0, "Shutdown");
+  };
+
+
+void CNETServer::CreateItem(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, LPCTSTR model, LPCTSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY)
+  {
+    LogNote("CNETServer", 0, "CreateItem");
+
+    CNETServerThreadGlbl::gs_SrvrThread->CreateItem(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(path), gcnew Model(gcnew String(model)), gcnew Shape(gcnew String(stencil)), RectangleF(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h), angle, System::Drawing::Color::FromArgb(fillColor), System::Drawing::Drawing2D::FillMode(fillMode), mirrorX, mirrorY);   
+  };
+
+
+void CNETServer::CreateLink(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR classID, LPCTSTR origin, LPCTSTR destination, LPCTSTR originPort, LPCTSTR destinationPort, PKPointF controlPoints[], int controlPointsLength)
+  {
+    LogNote("CNETServer", 0, "CreateLink");
+
+    Generic::List<PointF>^ controlPointsList = gcnew Generic::List<PointF>();
+    
+    for (int i=0; i<controlPointsLength; i++)
+      controlPointsList->Add(PointF(controlPoints[i].x, controlPoints[i].y));
+
+    CNETServerThreadGlbl::gs_SrvrThread->CreateLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(classID), Guid(gcnew String(origin)), Guid(gcnew String(destination)), gcnew String(originPort), gcnew String(destinationPort), controlPointsList);
   };
 
 //========================================================================

@@ -394,6 +394,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -522,6 +523,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -713,6 +715,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -790,6 +793,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1004,6 +1008,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1218,6 +1223,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1477,6 +1483,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1691,6 +1698,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
+        MENUITEM "Insert Dummy Nodes & Links",                       ID_FILE_DUMMY2
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
