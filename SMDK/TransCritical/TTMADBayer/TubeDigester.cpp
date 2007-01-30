@@ -535,7 +535,7 @@ double CCondensateFinder::Function(double Amount)
 
   m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
   
-  // CNM This line creates a problem if the STaem is superheated ???
+  // CNM This line creates a problem if the Steam is superheated ???
   // JSM/RAS to check??
   //m_ShellO.SetTP(FTemp, FPress);                                  // at the flash temperature and pressure
   m_ShellO.SetTP(FTemp, m_ShellI.P);                                  // at the flash temperature and pressure
