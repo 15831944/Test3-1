@@ -174,12 +174,14 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_HELP_UserDocs, OnHelpModels)
   ON_COMMAND(ID_PROJECT_SAVEALL, OnProjectSaveall)
   ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
-#if (SYSCAD10)
-  ON_COMMAND(ID_FILE_DUMMY2, OnFileDummy2)
+#ifdef SYSCAD10
+  ON_COMMAND(ID_FILE_DUMMYINSERT, DummyInsert)
+  ON_COMMAND(ID_FILE_DUMMYDELETE, DummyDelete)
 #endif
   ON_COMMAND(ID_FILE_NEW, OnFileNew)
-#if (SYSCAD10)
-  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMY2, OnUpdateFileDummy2)
+#ifdef SYSCAD10
+  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYINSERT, OnUpdateDummyInsert)
+  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYDELETE, OnUpdateDummyDelete)
 #endif
   ON_UPDATE_COMMAND_UI(ID_FILE_NEW, OnUpdateFileNew)
   ON_UPDATE_COMMAND_UI(ID_FILE_OPEN, OnUpdateFileOpen)
@@ -2691,8 +2693,8 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 //---------------------------------------------------------------------------
 
-#if (SYSCAD10)
-void CSysCADApp::OnFileDummy2()
+#ifdef SYSCAD10
+void CSysCADApp::DummyInsert()
   {
     PKRectangleF boundingRect1 = { 0.0,  0.0, 20.0, 20.0};
     PKRectangleF boundingRect2 = {30.0,  0.0, 20.0, 20.0};
@@ -2707,6 +2709,17 @@ void CSysCADApp::OnFileDummy2()
     PKPointF controlPoints34[10] = {{20.0, 35.0}, {25.0, 35.0}, {25.0, 45.0}, {30.0, 45.0}};
     gs_pPrj->m_pCLRSrvr->CreateLink(5, "ce429210-aff1-11db-abbd-0800200c9a66", "One-Two", "Pipe-1", "5CC47868-AF4E-11DB-9259-AFCD56D89593", "08C8768E-AF5C-11DB-A0C1-F05655D89593", "Side", "Feed", controlPoints12, 4);
     gs_pPrj->m_pCLRSrvr->CreateLink(6, "ce429211-aff1-11db-abbd-0800200c9a66", "Three-Four", "Pipe-1", "0D2CA98E-AF5C-11DB-B82F-F15655D89593", "1109E6DE-AF5C-11DB-8B86-F35655D89593", "Side", "Feed", controlPoints34, 4);
+  }
+
+void CSysCADApp::DummyDelete()
+  {
+    gs_pPrj->m_pCLRSrvr->DeleteItem(1, "5CC47868-AF4E-11DB-9259-AFCD56D89593");
+    gs_pPrj->m_pCLRSrvr->DeleteItem(2, "08C8768E-AF5C-11DB-A0C1-F05655D89593");
+    gs_pPrj->m_pCLRSrvr->DeleteItem(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593");
+    gs_pPrj->m_pCLRSrvr->DeleteItem(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593");
+
+    gs_pPrj->m_pCLRSrvr->DeleteItem(5, "ce429210-aff1-11db-abbd-0800200c9a66");
+    gs_pPrj->m_pCLRSrvr->DeleteItem(6, "ce429211-aff1-11db-abbd-0800200c9a66");
   }
 #endif
 
@@ -2747,8 +2760,12 @@ void CSysCADApp::OnUpdateFileNew(CCmdUI* pCmdUI)
   pCmdUI->Enable((EnableNoPrj() || (EnableNotBusy() && EnableNotAnalysing())) && EnableNotFiling() && EnableNotStopped() && !gs_License.Blocked());
   }
 
-#if (SYSCAD10)
-void CSysCADApp::OnUpdateFileDummy2(CCmdUI* pCmdUI)
+#ifdef SYSCAD10
+void CSysCADApp::OnUpdateDummyInsert(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
+  }
+void CSysCADApp::OnUpdateDummyDelete(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
   }

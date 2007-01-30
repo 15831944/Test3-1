@@ -923,6 +923,21 @@ void CNETServer::CreateLink(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTST
     CNETServerThreadGlbl::gs_SrvrThread->CreateLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(classID), Guid(gcnew String(origin)), Guid(gcnew String(destination)), gcnew String(originPort), gcnew String(destinationPort), controlPointsList);
   };
 
+void CNETServer::DeleteItem(__int64 requestID, LPCTSTR guid)
+  {
+    LogNote("CNETServer", 0, "DeleteItem");
+
+    CNETServerThreadGlbl::gs_SrvrThread->DeleteItem(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)));
+  };
+
+
+void CNETServer::DeleteLink(__int64 requestID, LPCTSTR guid)
+  {
+    LogNote("CNETServer", 0, "DeleteLink");
+
+    CNETServerThreadGlbl::gs_SrvrThread->DeleteLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)));
+  };
+
 //========================================================================
 
 #endif
