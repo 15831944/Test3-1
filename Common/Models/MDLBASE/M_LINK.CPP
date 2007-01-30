@@ -2884,7 +2884,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       if (fDoDbgBrk)
         { int xxx=0; }
 
-      double TPrev=Fo.Temp();
+      double TPrev = Fo.QMass()>1e-12 ? Fo.Temp():dNAN;
       
       //m_FTB.BeginEvalProducts(Fi);
 
@@ -3027,7 +3027,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           else
             {
       //dbgpln("EvalProducts K  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
-            Fo.QSetF(Fi, som_ALL, 1.0, POut/*PIn*/);
+            Fo.QSetF(Fi, som_ALL, 1.0, POut);
             ClrCI(7);
             ClrCI(8);
             SpillClear();
@@ -3079,7 +3079,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
 
-      if (NetProbalMethod()) // Limit Rates of Temp Change
+      if (NetProbalMethod() && Valid(TPrev)) // Limit Rates of Temp Change
         {
         const double MaxPBTChange=50.0;
         if (fabs(TPrev-Fo.Temp())>MaxPBTChange)

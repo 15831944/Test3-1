@@ -559,9 +559,13 @@ long SpModel::sm_iFixupStrategy=FUS_Largest;//FUS_BottomUp;
 eScdGasMixingRule SpModel::sm_iGasMixingRule = eScdGMR_Simple;
 eScdEqnOfState    SpModel::sm_iEqnOfState    = eScdEOS_SRK;
 
+long SpModel::m_lIdCount=0;
+
+
 SpModel::SpModel(TagObjClass* pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) ://, pSpMassModel pMM_)
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
   {
+  m_lId = SpModel::m_lIdCount++;
   if (!sm_FlashInited)
     {
     sm_DDBFlashable.Add(CDB.No(), "<Default>");
@@ -1331,6 +1335,8 @@ static DDBValueLst DDBShw[] =
 
 void SpModel::BuildDataDefn_AvailVars(DataDefnBlk & DDB)
   {
+  DDB.Long("SpMdlIdNo",       "",      DC_,   "",   &m_lId,         this, 0|noFile|noSnap|InitHidden);
+
   if (DDB.BeginObject(this, "VarSelect", "SpModel_VarSelect", NULL, DDB_NoPage, -1, DDEF_TREECLOSED))
     {
     for (int j=0; VAList[j].Inx>=0; j++)
@@ -6438,6 +6444,11 @@ void SpModel::Copy(SpModel * C)
   ASSERT_MASS_OK(pMArray());
 
   m_CurrentP=C->m_CurrentP;
+
+  // incase there near Zero Mass
+  m_CurrentT=C->m_CurrentT;
+  m_PreviousT=C->m_PreviousT; 
+
   ClrStatesOK();
   TESTMASSNOTNEG();
 

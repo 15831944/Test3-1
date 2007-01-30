@@ -93,6 +93,10 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
     double m_dTSTout;
     double m_dSSTin;
     double m_dSSTout;
+    double m_dTSPin;       // Pressures on tube and shell side streams
+    double m_dTSPout;
+    double m_dSSPin;
+    double m_dSSPout;
     double m_dEntranceC, m_dExitC;   // Correction factors for entrance and exit
     
     double m_dQmTS;

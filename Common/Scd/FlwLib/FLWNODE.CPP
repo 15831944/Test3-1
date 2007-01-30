@@ -6693,7 +6693,10 @@ void CRqdPressCtrl::CalculateResult()
     case PC_SatP:
       {
       SpModel &Mdl=*m_pMdl;//->pModel;
-      m_dP2Set=Mdl.SaturationP(Mdl.Temp());
+      if (Mdl.Mass()>SmallPosFlow)
+        m_dP2Set=Mdl.SaturationP(Mdl.Temp());
+      //else
+        //m_dP2Set=Mdl.SaturationP(Mdl.Temp());
       m_fDoInputs=true;
       }
       break;
@@ -7582,11 +7585,11 @@ void FlwNode::MonitorPreEvalProducts()
 void FlwNode::MonitorPostEvalProducts()
   {
   #if dbgFlwNode
-  if (dbgDumpChanges())
+  if (dbgDumpChanges()) 
     {
     dbglock();
     int nSpc=120;
-    dbgpln("%*s %s", nSpc, "                        -------------------------------", FullObjTag());
+    dbgpln("%*s %s [%s]", nSpc, "                        -------------------------------", FullObjTag(), ClassId());
     //int N=6;//dbgDumpChangesIn() 8 : 4;
 #if WithSpecies
     int M=6+SDB.Count();
@@ -7643,21 +7646,24 @@ void FlwNode::MonitorPostEvalProducts()
             IODesc_Self(i)->pName,
             Nd_Rmt(i)->FullObjTag());
 
-          #define DBGIT(A,B,C,D,T)  \
-            dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6 %s %s", \
-            A, B, (B-A), 1000000*(B-A)/GTZ(Max(fabs(A), fabs(B))), 1000000*(B-A)/GTZ(Max(Max(fabs(A), fabs(B)), C)), D, T)
+          #define DBGIT(A,B,C,D,ShowIt,T)  \
+          if (ShowIt && fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChanges()*1.0e-6) \
+            dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6     %s %s", \
+            A, B, (B-A), ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))), 9999999.):0.0, \
+                         ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(Max(fabs(A), fabs(B)), C)), 9999999.):0.0, D, T)
 
           char * Tmp=(j==0)?"*":"";
-          DBGIT(DM[0+j*M], C->QMass(),            MaxVal[0], "Qm", Tmp);
-          DBGIT(DM[1+j*M], C->Temp(),             MaxVal[1], "T",  Tmp);
-          DBGIT(DM[2+j*M], C->Press(),            MaxVal[2], "P",  Tmp);
-          //DBGIT(DM[3+j*M], C->totEnthalpy(),      MaxVal[3], "H",  Tmp);
-          DBGIT(DM[4+j*M], C->MassFrac(som_Sol),  MaxVal[4], "Sf", Tmp);
-          DBGIT(DM[5+j*M], C->MassFrac(som_Liq),  MaxVal[5], "Lf", Tmp);
+          bool ShowIt=C->QMass()>1.0e-6;
+          DBGIT(DM[0+j*M], C->QMass(),            MaxVal[0], "Qm", ShowIt, Tmp);
+          DBGIT(DM[1+j*M], C->Temp(),             MaxVal[1], "T",  ShowIt, Tmp);
+          DBGIT(DM[2+j*M], C->Press(),            MaxVal[2], "P",  ShowIt, Tmp);
+          //DBGIT(DM[3+j*M], C->totEnthalpy(),      MaxVal[3], "H",  DoIt, Tmp);
+          DBGIT(DM[4+j*M], C->MassFrac(som_Sol),  MaxVal[4], "Sf", ShowIt, Tmp);
+          DBGIT(DM[5+j*M], C->MassFrac(som_Liq),  MaxVal[5], "Lf", ShowIt, Tmp);
 #if WithSpecies
           for (int ss=0; ss<SDB.Count(); ss++)
             {
-            DBGIT(DM[6+ss+j*M], C->VMass[ss],  MaxVal[6+ss], SDB[ss].SymOrTag(), Tmp);
+            DBGIT(DM[6+ss+j*M], C->VMass[ss],  MaxVal[6+ss], SDB[ss].SymOrTag(), ShowIt, Tmp);
             }
 #endif
           #undef DBGIT
@@ -7669,31 +7675,37 @@ void FlwNode::MonitorPostEvalProducts()
 
 
     #define DBGIT(A,B,IO,T)  \
-      dbgpln("XR %18.10f > %18.10f %+15.6f %+25.16f *e-6 %31s %-3s %s", \
-      A, B, (B-A), 1000000*(B-A)/GTZ(Max(fabs(A), fabs(B))), "", IO, T)
+      {   \
+      if (fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChanges()*1.0e-6) \
+        dbgpln("XR %18.10f > %18.10f %+15.6f %+25.16f *e-6 %31s%-3s %s", \
+          A, B, (B-A), Range(-9999999., 9999999*(B-A)/Max(1e-12, Max(fabs(A), fabs(B))), 9999999.), "", IO, T); \
+        }
     #define DBGITX(A,B,IO,T)  \
-      dbgpln("XR %18s > %18.10f %+15.6f %+25.16f *e-6 %31s %-3s %s", \
-      "NAN", B, B, 1000000*1.0, "", IO, T)
+      dbgpln("XR*%18s > %18.10f %+15.6f %+25.16f *e-6 %31s%-3s %s", \
+      "NAN", B, B, 9999999*1.0, "", IO, T)
 
     for (i=0; i<NoXRefs2Me(); i++)
+      {
       if (CXRef_DstNd(i)==this)
         {
         CXRefItem *pRef=CXRef(i);
         if (Valid(pRef->m_Value.m_dValMem))
-          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "In", pRef->SFGNodeTag(this));
+          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "In", pRef->SFGNodeTag(this))
         else
           DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(),   "In", pRef->SFGNodeTag(this));
         }
+      }
     for (i=0; i<NoXRefs2Me(); i++)
+      {
       if (CXRef_SrcNd(i)==this)
         {
         CXRefItem *pRef=CXRef(i);
         if (Valid(pRef->m_Value.m_dValMem))
-          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "Out", pRef->SFGNodeTag(this));
+          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "Out", pRef->SFGNodeTag(this))
         else
           DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(),   "Out", pRef->SFGNodeTag(this));
         }
-
+      }
 
     #undef DBGIT
     #undef DBGITX
@@ -7710,6 +7722,25 @@ void FlwNode::MonitorPostTestTears()
   #if dbgFlwNode
   if (dbgDumpChanges())
     {
+    for (int i=0; i<NoFlwIOs(); i++)
+      {
+      if (!IOQmEst_In(i) || dbgDumpChangesIn())
+        {
+        if (IOConduitIn(i))
+          {
+          for (int j=0; j<2; j++)
+            {
+            SpConduit * C=(j==0)?IOConduitIn(i):IOConduitIO(i);
+            if (C==NULL)
+              continue;
+            goto DoIt;
+            }
+          }
+        }
+      }
+    goto Done;
+
+DoIt:
     dbglock();
     int nSpc=99;
     dbgpln("%*s %s", nSpc, "", FullObjTag());
@@ -7735,17 +7766,18 @@ void FlwNode::MonitorPostTestTears()
             if (C==NULL)
               continue;
 
-            #define DBGIT(A,B,C,T)  \
-              dbgpln("TT %25.10f > %25.10f %+15.6f %+25.16f *e-6 %s %s", \
-              A, B, (B-A), 1000000*(B-A)/GTZ(Max(fabs(A), fabs(B))), C, T)
+            #define DBGIT(A,B,D,ShowIt,T)  \
+              if (fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChanges()*1.0e-6) \
+                 dbgpln("TT %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6     %s %s", \
+              A, B, (B-A), ShowIt?9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))):0.0, ShowIt?9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))):0.0, D, T)
 
             char * Tmp=(j==0)?"*":"";
-            DBGIT(DM[0+j*M], C->QMass(),            "Qm", Tmp);
-            DBGIT(DM[1+j*M], C->Temp(),             "T",  Tmp);
-            DBGIT(DM[2+j*M], C->Press(),            "P",  Tmp);
+            DBGIT(DM[0+j*M], C->QMass(),            "Qm", true, Tmp);
+            DBGIT(DM[1+j*M], C->Temp(),             "T",  true, Tmp);
+            DBGIT(DM[2+j*M], C->Press(),            "P",  true, Tmp);
             //DBGIT(DM[3+j*M], C->totEnthalpy(),      "H",  Tmp);
-            DBGIT(DM[4+j*M], C->MassFrac(som_Sol),  "Sf", Tmp);
-            DBGIT(DM[5+j*M], C->MassFrac(som_Liq),  "Lf", Tmp);
+            DBGIT(DM[4+j*M], C->MassFrac(som_Sol),  "Sf", true, Tmp);
+            DBGIT(DM[5+j*M], C->MassFrac(som_Liq),  "Lf", true, Tmp);
             #undef DBGIT
             }
           }
@@ -7753,6 +7785,8 @@ void FlwNode::MonitorPostTestTears()
       }
     //dbgpln("");
     dbgunlock();
+      
+Done:;
     }
   #endif
   }

@@ -1137,6 +1137,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     double         m_dPrvSatT;         // Previous Estimate of VapourTemp
 
   public:
+    static long    m_lIdCount;
+    long           m_lId;
 
     CVLEBase     * m_pVLE;
 

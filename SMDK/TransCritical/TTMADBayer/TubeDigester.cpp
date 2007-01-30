@@ -313,7 +313,13 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("Tube.Out.T",      "",     &m_dTSTout,          MF_RESULT, MC_T("C"));
   DD.Double("Shell.In.T",      "",     &m_dSSTin,          MF_RESULT, MC_T("C"));
   DD.Double("Shell.Out.T",      "",     &m_dSSTout,          MF_RESULT, MC_T("C"));
-  
+
+  DD.Text("");
+  DD.Double("Tube.In.P",      "",     &m_dTSPin,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Tube.Out.P",      "",     &m_dTSPout,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Shell.In.P",      "",     &m_dSSPin,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Shell.Out.P",      "",     &m_dSSPout,          MF_RESULT, MC_P("kPa"));
+
   DD.Double("Tube.Qm", "",     &m_dQmTS,     MF_RESULT, MC_Qm("kg/s"));
   DD.Double("Shell.Qm", "",    &m_dQmSS,     MF_RESULT, MC_Qm("kg/s"));
 
@@ -528,7 +534,13 @@ double CCondensateFinder::Function(double Amount)
   double FPress=m_ShellI.SaturationP();
 
   m_VLE.SetFlashVapFrac(m_ShellO, FTemp, FPress, 0.0, VLEF_Null); // Set the shell out stream to all liq
-  m_ShellO.SetTP(FTemp, FPress);                                  // at the flash temperature and pressure
+  
+  // CNM This line creates a problem if the STaem is superheated ???
+  // JSM/RAS to check??
+  //m_ShellO.SetTP(FTemp, FPress);                                  // at the flash temperature and pressure
+  m_ShellO.SetTP(FTemp, m_ShellI.P);                                  // at the flash temperature and pressure
+  
+  
   m_TD.m_dTotDuty = ShtotHz-m_ShellO.totHz();         // This is the total duty incl env loss for Amount
   m_TD.m_dDuty = m_TD.m_dTotDuty;                     // This is Hx duty: tot - env
 
@@ -888,6 +900,11 @@ void CCARTubeDigester::EvalProducts()
 	m_dTSTout = TubeO.T;
 	m_dSSTin =  ShellI.T;
 	m_dSSTout = ShellO.T;
+
+	m_dTSPin =  TubeI.P;
+	m_dTSPout = TubeO.P;
+	m_dSSPin =  ShellI.P;
+	m_dSSPout = ShellO.P;
 
 	m_dQmTS = TubeO.Mass();
 	m_dQmSS = ShellO.Mass();

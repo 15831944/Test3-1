@@ -1970,7 +1970,7 @@ class DllImportExport CIORec
     FlwBlkArray   &FBs()                            { return (*pFBs); };
     CPressBlkArray &PBs()                            { return (*pPBs); };
 
-    SpConduit*     Conduit()                        { return pFlng->Conduit(FlwPos(FBs()[0].GetQm()));};
+    SpConduit*     Conduit()                        { return pFlng->Conduit(FlwPos(FBs()[0].GetQmEst()));};
     SpConduit*     ConduitIO()                      { return pFlng->ConduitIO();};
     SpConduit*     ConduitIn()                      { return pFlng->ConduitIn();};
     SpConduit*     ConduitMem()                     { return pFlng->ConduitMem();};
