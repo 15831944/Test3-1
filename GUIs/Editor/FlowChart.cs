@@ -319,7 +319,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      state.AddNode(path, tag, guid);
       state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
     }
 
@@ -356,7 +355,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
-      state.DeleteItem(guid);
+      state.DeleteItem(guid, fcFlowChart);
     }
 
 
@@ -383,8 +382,8 @@ namespace SysCAD.Editor
         Item originItem = null;
         Item destinationItem = null;
 
-        if (graphicLink.Origin != null) originItem = state.Item(graphicLink.Origin);
-        if (graphicLink.Destination != null) destinationItem = state.Item(graphicLink.Destination);
+        if (graphicLink.Origin != Guid.Empty) originItem = state.Item(graphicLink.Origin);
+        if (graphicLink.Destination != Guid.Empty) destinationItem = state.Item(graphicLink.Destination);
 
         if (originItem != null)
           arrow.Origin = originItem.Model;
@@ -406,9 +405,17 @@ namespace SysCAD.Editor
         if (toolTipOriginPort == null) toolTipOriginPort = "*";
         if (toolTipDestinationPort == null) toolTipDestinationPort = "*";
 
+        String originItemTag = "--";
+        if (originItem != null)
+          originItemTag = originItem.Tag;
+
+        String destinationItemTag = "--";
+        if (destinationItem != null)
+          destinationItemTag = destinationItem.Tag;
+
         arrow.ToolTip = "Tag:" + graphicLink.Tag +
-          "\nSrc: " + originItem.Tag + ":" + toolTipOriginPort +
-          "\nDst: " + destinationItem.Tag + ":" + toolTipDestinationPort;
+          "\nSrc: " + originItemTag + ":" + toolTipOriginPort +
+          "\nDst: " + destinationItemTag + ":" + toolTipDestinationPort;
         arrow.ArrowHead = ArrowHead.Triangle;
         arrow.Style = ArrowStyle.Cascading;
 
@@ -426,7 +433,6 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      state.AddNode(path, tag, guid);
       state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
     }
 
@@ -442,7 +448,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
-      state.DeleteThing(guid);
+      state.DeleteThing(guid, fcFlowChart);
     }
 
     internal bool mergePoints(PointF point1, PointF point2)

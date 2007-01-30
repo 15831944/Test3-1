@@ -317,6 +317,12 @@ namespace SysCAD.Editor
         items.Add(item.Guid, item);
 
         flowchart.ResumeLayout();
+
+        PureComponents.TreeView.Node node =
+          tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+        //if (tvNavigation.GetNodeByPath(graphicItem.Path) == null)
+        //  tvNavigation.AddNodeByPath(graphicItem.Path);
+        //tvNavigation.GetNodeByPath(graphicItem.Path).Nodes.Add(graphicItem.Tag, graphicItem.Guid.ToString());
       }
     }
 
@@ -356,6 +362,17 @@ namespace SysCAD.Editor
         things.Add(thing.Guid, thing);
 
         flowchart.ResumeLayout();
+
+        //if (tvNavigation.GetNodeByPath(graphicThing.Path) == null)
+        //  tvNavigation.AddNodeByPath(graphicThing.Path);
+        //tvNavigation.GetNodeByPath(graphicThing.Path).Nodes.Add(graphicThing.Tag, graphicThing.Guid.ToString());
+
+        PureComponents.TreeView.Node node =
+          tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
+
+        node.NodeStyle = new PureComponents.TreeView.NodeStyle();
+        node.NodeStyle.SelectedForeColor = System.Drawing.Color.Green;
+        node.NodeStyle.ForeColor = System.Drawing.Color.Green;
       }
     }
 
@@ -508,15 +525,49 @@ namespace SysCAD.Editor
       return new AnchorPattern(anchorPointCollection);
     }
 
-    internal bool DeleteItem(Guid guid)
+    private delegate void DeleteItemDelegate(Guid guid, FlowChart flowchart);
+
+    internal void DeleteItem(Guid guid, FlowChart flowchart)
     {
-      //TBD: unlink connected links first
-      return items.Remove(guid);
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new DeleteItemDelegate(DeleteItem), new object[] { guid, flowchart });
+      }
+      else
+      {
+        tvNavigation.GetNodeByKey(guid.ToString()).Remove();
+
+        //TBD: unlink connected links first
+        Item item;
+        if (items.TryGetValue(guid, out item))
+        {
+          flowchart.DeleteObject(item.Model);
+          flowchart.DeleteObject(item.Graphic);
+          flowchart.DeleteObject(item.Text);
+          items.Remove(guid);
+        }
+      }
     }
 
-    internal bool DeleteThing(Guid guid)
+    private delegate void DeleteThingDelegate(Guid guid, FlowChart flowchart);
+
+    internal void DeleteThing(Guid guid, FlowChart flowchart)
     {
-      return things.Remove(guid);
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new DeleteThingDelegate(DeleteThing), new object[] { guid, flowchart });
+      }
+      else
+      {
+        tvNavigation.Nodes.Remove(tvNavigation.GetNodeByKey(guid.ToString()));
+
+        Thing thing;
+        if (things.TryGetValue(guid, out thing))
+        {
+          flowchart.DeleteObject(thing.Box);
+          things.Remove(guid);
+        }
+      }
     }
 
     static public void SetControlPoints(Arrow arrow, List<PointF> points)
@@ -564,8 +615,8 @@ namespace SysCAD.Editor
         Item origin = null;
         Item destination = null;
 
-        if (graphicLink.Origin != null) origin = item(graphicLink.Origin);
-        if (graphicLink.Destination != null) destination = item(graphicLink.Destination);
+        if (graphicLink.Origin != Guid.Empty) origin = item(graphicLink.Origin);
+        if (graphicLink.Destination != Guid.Empty) destination = item(graphicLink.Destination);
 
         PointF pointOrigin = new PointF();
         PointF pointDestination = new PointF();
@@ -622,10 +673,25 @@ namespace SysCAD.Editor
       }
     }
 
-    internal bool DeleteLink(Guid guid)
+    private delegate void DeleteLinkDelegate(Guid guid, FlowChart flowchart);
+
+    internal void DeleteLink(Guid guid, FlowChart flowchart)
     {
-      return links.Remove(guid);
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new DeleteLinkDelegate(DeleteLink), new object[] { guid, flowchart });
+      }
+      else
+      {
+        Link link;
+        if (links.TryGetValue(guid, out link))
+        {
+          flowchart.DeleteObject(link.Arrow);
+          links.Remove(guid);
+        }
+      }
     }
+
 
 
 
@@ -1107,13 +1173,6 @@ namespace SysCAD.Editor
     }
 
 
-
-    internal void AddNode(String path, String tag, Guid guid)
-    {
-      if (tvNavigation.GetNodeByPath(path) == null)
-        tvNavigation.AddNodeByPath(path);
-      tvNavigation.GetNodeByPath(path).Nodes.Add(tag, guid.ToString());
-    }
 
     static internal float Mirrored(float x, bool mirrored)
     {

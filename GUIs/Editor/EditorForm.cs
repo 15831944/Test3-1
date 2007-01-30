@@ -628,21 +628,21 @@ namespace SysCAD.Editor
 
     private void tvNavigationSetProject()
     {
-      foreach (GraphicItem graphicItem in frmFlowChart.State.GraphicItems)
-      {
-        PureComponents.TreeView.Node node =
-          tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
-      }
+      //foreach (GraphicItem graphicItem in frmFlowChart.State.GraphicItems)
+      //{
+      //  PureComponents.TreeView.Node node =
+      //    tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+      //}
 
-      foreach (GraphicThing graphicThing in frmFlowChart.State.GraphicThings)
-      {
-        PureComponents.TreeView.Node node =
-          tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
+      //foreach (GraphicThing graphicThing in frmFlowChart.State.GraphicThings)
+      //{
+      //  PureComponents.TreeView.Node node =
+      //    tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
 
-        node.NodeStyle = new PureComponents.TreeView.NodeStyle();
-        node.NodeStyle.SelectedForeColor = Color.Green;
-        node.NodeStyle.ForeColor = Color.Green;
-      }
+      //  node.NodeStyle = new PureComponents.TreeView.NodeStyle();
+      //  node.NodeStyle.SelectedForeColor = Color.Green;
+      //  node.NodeStyle.ForeColor = Color.Green;
+      //}
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
       {

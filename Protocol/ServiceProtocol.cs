@@ -303,8 +303,18 @@ namespace SysCAD.Protocol
 
     public void DoItemDeleted(Int64 requestId, Guid guid)
     {
-      if (graphicItems.ContainsKey(guid))
+      GraphicItem graphicItem;
+      if (graphicItems.TryGetValue(guid, out graphicItem))
       {
+        foreach (GraphicLink graphicLink in graphicLinks.Values)
+        {
+          if (graphicLink.Origin == guid)
+            DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, new Guid(), graphicLink.Destination, null, graphicLink.DestinationPort, graphicLink.ControlPoints);
+
+          if (graphicLink.Destination == guid)
+            DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, new Guid(), graphicLink.OriginPort, null, graphicLink.ControlPoints);
+        }
+
         graphicItems.Remove(guid);
 
         eventId++;

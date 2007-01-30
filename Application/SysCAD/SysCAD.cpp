@@ -2718,8 +2718,8 @@ void CSysCADApp::DummyDelete()
     gs_pPrj->m_pCLRSrvr->DeleteItem(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593");
     gs_pPrj->m_pCLRSrvr->DeleteItem(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593");
 
-    gs_pPrj->m_pCLRSrvr->DeleteItem(5, "ce429210-aff1-11db-abbd-0800200c9a66");
-    gs_pPrj->m_pCLRSrvr->DeleteItem(6, "ce429211-aff1-11db-abbd-0800200c9a66");
+    gs_pPrj->m_pCLRSrvr->DeleteLink(5, "ce429210-aff1-11db-abbd-0800200c9a66");
+    gs_pPrj->m_pCLRSrvr->DeleteLink(6, "ce429211-aff1-11db-abbd-0800200c9a66");
   }
 #endif
 
