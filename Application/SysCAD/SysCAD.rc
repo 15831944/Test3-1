@@ -395,6 +395,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "New"
         BEGIN
@@ -525,6 +526,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -718,6 +720,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -797,6 +800,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -1013,6 +1017,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -1229,6 +1234,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -1490,6 +1496,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
@@ -1706,6 +1713,7 @@ BEGIN
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
         MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN

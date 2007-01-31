@@ -154,9 +154,9 @@
     <Content Include="Logo32.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Protocol\Protocol.csproj">
-      <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
-      <Name>Protocol</Name>
+    <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
+      <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
+      <Name>70.Protocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\FlowChart.NET\FlowChart.NET.csproj">
       <Project>{FB33A25D-2FD4-4456-BDAC-113D5E7CD9B4}</Project>

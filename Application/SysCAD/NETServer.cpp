@@ -400,6 +400,23 @@ ref class CNETServerThread
         }
       }
 
+    bool ModifyItemBoundingRect(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, RectangleF boundingRect)
+      {
+      if (true) // Decide whether to modify an item.
+        { // We're going to do it.
+        // Modify the item.
+
+        // Raise event(s).
+       serviceProtocol->DoItemBoundingRectModified(requestID, guid, boundingRect);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
     bool ModifyItemPath(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ path)
       {
       if (true) // Decide whether to modify an item.
@@ -459,6 +476,23 @@ ref class CNETServerThread
 
         // Raise event(s).
         serviceProtocol->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
+    bool ModifyLinkControlPoints(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, Generic::List<PointF>^ controlPoints)
+      {
+      if (true) // Decide whether to modify an item.
+        { // We're going to do it.
+        // Modify the item.
+
+        // Raise event(s).
+       serviceProtocol->DoLinkControlPointsModified(requestID, guid, controlPoints);
 
         return true;
         }
@@ -923,13 +957,34 @@ void CNETServer::CreateLink(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTST
     CNETServerThreadGlbl::gs_SrvrThread->CreateLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(classID), Guid(gcnew String(origin)), Guid(gcnew String(destination)), gcnew String(originPort), gcnew String(destinationPort), controlPointsList);
   };
 
+
+void CNETServer::ModifyItemBoundingRect(__int64 requestID, LPCTSTR guid, PKRectangleF boundingRect)
+  {
+    LogNote("CNETServer", 0, "ModifyItemBoundingRect");
+
+    CNETServerThreadGlbl::gs_SrvrThread->ModifyItemBoundingRect(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), RectangleF(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h));
+  };
+
+
+void CNETServer::ModifyLinkControlPoints(__int64 requestID, LPCTSTR guid, PKPointF controlPoints[], int controlPointsLength)
+  {
+    LogNote("CNETServer", 0, "ModifyItemBoundingRect");
+
+    Generic::List<PointF>^ controlPointsList = gcnew Generic::List<PointF>();
+    
+    for (int i=0; i<controlPointsLength; i++)
+      controlPointsList->Add(PointF(controlPoints[i].x, controlPoints[i].y));
+
+    CNETServerThreadGlbl::gs_SrvrThread->ModifyLinkControlPoints(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), controlPointsList);
+  };
+
+
 void CNETServer::DeleteItem(__int64 requestID, LPCTSTR guid)
   {
     LogNote("CNETServer", 0, "DeleteItem");
 
     CNETServerThreadGlbl::gs_SrvrThread->DeleteItem(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)));
   };
-
 
 void CNETServer::DeleteLink(__int64 requestID, LPCTSTR guid)
   {

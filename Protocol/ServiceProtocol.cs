@@ -289,6 +289,18 @@ namespace SysCAD.Protocol
       }
     }
 
+    public void DoItemBoundingRectModified(Int64 requestId, Guid guid, RectangleF boundingRect)
+    {
+      GraphicItem graphicItem;
+      if (graphicItems.TryGetValue(guid, out graphicItem))
+      {
+        graphicItem.BoundingRect = boundingRect;
+
+        eventId++;
+        OnItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+      }
+    }
+
     public void DoItemPathModified(Int64 requestId, Guid guid, String path)
     {
       GraphicItem graphicItem;
@@ -297,7 +309,7 @@ namespace SysCAD.Protocol
         graphicItem.Path = path;
 
         eventId++;
-        OnItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+        OnItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
       }
     }
 
@@ -357,6 +369,20 @@ namespace SysCAD.Protocol
 
         eventId++;
         OnLinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      }
+    }
+
+    public void DoLinkControlPointsModified(Int64 requestId, Guid guid, List<PointF> controlPoints)
+    {
+      GraphicLink graphicLink;
+      if (graphicLinks.TryGetValue(guid, out graphicLink))
+      {
+        graphicLink.ControlPoints.Clear();
+        foreach (PointF controlPoint in controlPoints)
+          graphicLink.ControlPoints.Add(controlPoint);
+
+        eventId++;
+        OnLinkModified(eventId, requestId, guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints);
       }
     }
 

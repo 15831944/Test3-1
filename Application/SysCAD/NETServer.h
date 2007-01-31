@@ -39,6 +39,10 @@ class CNETServer
 
     static void DeleteItem(__int64 requestID, LPCTSTR guid);
     static void DeleteLink(__int64 requestID, LPCTSTR guid);
+
+    static void ModifyItemBoundingRect(__int64 requestID, LPCTSTR guid, PKRectangleF boundingRect);
+    static void ModifyLinkControlPoints(__int64 requestID, LPCTSTR guid, PKPointF controlPoints[], int controlPointsLength);
+
 };
 
 //========================================================================

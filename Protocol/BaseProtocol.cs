@@ -131,7 +131,7 @@ namespace SysCAD.Protocol
         {
           ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
         }
-        catch (SocketException) {}
+        catch (SocketException) { }
       }
     }
 
