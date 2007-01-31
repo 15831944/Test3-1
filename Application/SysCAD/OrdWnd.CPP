@@ -1409,8 +1409,8 @@ double COrdWnd::DrawStr(CEvalOrderItem *pItm, CEvalOrderIOItem *pIO, double C, d
   return C+Len;
   }
 
-#define XP(X) (short(X-m_Pos.x))
-#define YP(Y) (short(Y-m_Pos.y))
+#define XP(X) (long(X-m_Pos.x))      
+#define YP(Y) (long(Y-m_Pos.y))
 
 inline long TLen(char * s) { return Max(0L,(long)strlen(s)); };
 
@@ -2054,9 +2054,9 @@ void COrdWnd::OnDraw(CDC* pDC)
             X=DrawIOChgStr(&Itm, &CIO, id, X, Y, m_ChgWd, m_eOTV, m_bDoProc);
           What=CIO.m_dwType|(CIO.m_bTear ? W_Tear : W_Norm);
           SelfRef=(CIO.m_bIn && CIO.m_bOut);
-          GoesToNext=CIO.m_lRmtProcOrd==Itm.m_lProcOrd+1;
+          GoesToNext=CIO.m_lRmtCtrlOrd==Itm.m_lCtrlOrd+1;
           if (!GoesToNext)
-            X=DrawStr(&Itm, &CIO, X, Y, WithXYOff|(CIO.m_lRmtProcOrd!=Itm.m_lProcOrd+1?WithBackGrnd:0), " %-*s ", m_lOutWide, pS);
+            X=DrawStr(&Itm, &CIO, X, Y, WithXYOff|(CIO.m_lRmtCtrlOrd!=Itm.m_lCtrlOrd+1?WithBackGrnd:0), " %-*s ", m_lOutWide, pS);
           COut++;
           }
         else
@@ -2074,9 +2074,9 @@ void COrdWnd::OnDraw(CDC* pDC)
             What=XIO.m_bTear ? W_Tear|EOC_XRef : W_Norm|EOC_XRef;
             SelfRef=(XIO.m_bIn && XIO.m_bOut);
             FillShape=!XIO.m_bOwner; 
-            GoesToNext=XIO.m_lRmtProcOrd==Itm.m_lProcOrd+1;
-            if (!GoesToNext)
-              X=DrawStr(&Itm, &XIO, X, Y, WithXYOff|(XIO.m_lRmtProcOrd!=Itm.m_lProcOrd+1?WithBackGrnd:0), " %-*s ", m_lOutWide, pS);
+            GoesToNext=Itm.m_lCtrlOrd>=0 ? (XIO.m_lRmtCtrlOrd==Itm.m_lCtrlOrd+1) : (XIO.m_lRmtProcOrd==Itm.m_lProcOrd+1);
+            if (1)//TRUE(!GoesToNext)
+              X=DrawStr(&Itm, &XIO, X, Y, WithXYOff|(true/*XIO.m_lRmtProcOrd!=Itm.m_lProcOrd+1*/?WithBackGrnd:0), " %-*s ", m_lOutWide, pS);
             XOut++;
             }
 #if !ProcLast

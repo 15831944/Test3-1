@@ -14835,7 +14835,10 @@ int CFlwSolver::FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDes
         IO.m_sRmtDesc=GetFullDescO ? XR.SFGNodeTag(p) : (pOther ? pOther->FullObjTag() : "...?...");
         }
       //IO.m_lRmtProcOrd=(pOther ? pOther->m_iProcOrder : iNotInEvalOrder);
-      dbgpln("IO.m_lRmtProcOrd=(pOther ? pOther->m_iProcOrder : iNotInEvalOrder");
+      
+      if (0)
+        dbgpln("IO.m_lRmtProcOrd=(pOther ? pOther->m_iProcOrder : iNotInEvalOrder");
+      
       IO.m_lRmtCtrlOrd=(pOther ? pOther->m_iCtrlOrder : iNotInEvalOrder);
       if (IO.m_sRmtTag.GetLength()<1)
         IO.m_sRmtTag="?";
@@ -14848,7 +14851,7 @@ int CFlwSolver::FE_GetEvalOrder(bool GetCtrl, bool GetFullDescI, bool GetFullDes
 
       //XferTrace(TraceWhat, IO, 0, XR.m_Chg);
 
-      if (1)
+      if (0)
         {
         dbgpln("%4i %30s %30s %3i %30s %3i %30s  %4i %4i",
               j,
