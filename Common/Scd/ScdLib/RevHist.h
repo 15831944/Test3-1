@@ -2702,10 +2702,11 @@ Build 122 : 16 November 2006
 1365 25/01/07: (#716) Fix VapourT error messages.
 1370 26/01/07: (#718,719,722) Use of VLE partial pressures optional. Flash tank RequiredT option fixed.
 1372 29/01/07: (#723) Fix VLE BPE errors in Bayer streams.
+1379 30/01/07: (#695,696) VLE fix for project load.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1372
+#define SCD_PATCH_SVN    1379
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
