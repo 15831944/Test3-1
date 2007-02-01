@@ -40,6 +40,7 @@ namespace SysCAD.Editor
         }
 
         projectListBox.Enabled = true;
+        projectListBox.SelectedIndex = 0;
       }
     }
 

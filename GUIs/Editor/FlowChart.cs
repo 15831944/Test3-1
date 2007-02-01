@@ -112,6 +112,12 @@ namespace SysCAD.Editor
         state.CreateThing(graphicThing, false, fcFlowChart);
       }
 
+      foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
+      {
+        node.Select();
+        node.Expand();
+      }
+
       fcFlowChart.UndoManager.UndoEnabled = true;
       fcFlowChart.UseWaitCursor = false;
       fcFlowChart.ValidityChecks = true;

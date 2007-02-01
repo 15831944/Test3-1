@@ -239,7 +239,7 @@ namespace SysCAD.Editor
       }
       else
       {
-        flowchart.SuspendLayout();
+        //flowchart.SuspendLayout();
 
         ModelStencil modelStencil;
         GraphicStencil graphicStencil;
@@ -316,7 +316,7 @@ namespace SysCAD.Editor
 
         items.Add(item.Guid, item);
 
-        flowchart.ResumeLayout();
+        //flowchart.ResumeLayout();
 
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());

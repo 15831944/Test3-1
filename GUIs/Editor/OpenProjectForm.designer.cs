@@ -46,7 +46,7 @@ namespace SysCAD.Editor
       this.repositoryURLTextBox.Location = new System.Drawing.Point(98, 16);
       this.repositoryURLTextBox.Name = "repositoryURLTextBox";
       this.repositoryURLTextBox.Size = new System.Drawing.Size(274, 22);
-      this.repositoryURLTextBox.TabIndex = 0;
+      this.repositoryURLTextBox.TabIndex = 3;
       this.repositoryURLTextBox.Text = "ipc://SysCAD.Service/";
       this.repositoryURLTextBox.WordWrap = false;
       this.repositoryURLTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.repositoryURLTextBox_KeyPress);
@@ -79,7 +79,7 @@ namespace SysCAD.Editor
       this.projectListBox.Name = "projectListBox";
       this.projectListBox.Size = new System.Drawing.Size(357, 180);
       this.projectListBox.Sorted = true;
-      this.projectListBox.TabIndex = 3;
+      this.projectListBox.TabIndex = 0;
       this.projectListBox.DoubleClick += new System.EventHandler(this.projectListBox_DoubleClick);
       this.projectListBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.projectListBox_KeyPress);
       this.projectListBox.SelectedValueChanged += new System.EventHandler(this.projectListBox_SelectedValueChanged);

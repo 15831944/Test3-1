@@ -595,6 +595,7 @@ namespace SysCAD.Editor
         frmFlowChart = new FrmFlowChart(this);
 
         frmFlowChart.SuspendLayout();
+        tvNavigation.SuspendLayout();
         SuspendLayout();
 
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -603,7 +604,7 @@ namespace SysCAD.Editor
         frmFlowChart.Text = openProjectForm.ClientProtocol.Name;
 
         frmFlowChart.SetProject(openProjectForm.ClientProtocol, openProjectForm.Config, tvNavigation);
-        tvNavigationSetProject();
+        
         ovOverview.Document = frmFlowChart.FCFlowChart;
 
         frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
@@ -621,33 +622,9 @@ namespace SysCAD.Editor
 
         ResumeLayout(true);
         frmFlowChart.ResumeLayout(true);
+        tvNavigation.ResumeLayout(true);
 
         frmFlowChart.ZoomToVisible();
-      }
-    }
-
-    private void tvNavigationSetProject()
-    {
-      //foreach (GraphicItem graphicItem in frmFlowChart.State.GraphicItems)
-      //{
-      //  PureComponents.TreeView.Node node =
-      //    tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
-      //}
-
-      //foreach (GraphicThing graphicThing in frmFlowChart.State.GraphicThings)
-      //{
-      //  PureComponents.TreeView.Node node =
-      //    tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
-
-      //  node.NodeStyle = new PureComponents.TreeView.NodeStyle();
-      //  node.NodeStyle.SelectedForeColor = Color.Green;
-      //  node.NodeStyle.ForeColor = Color.Green;
-      //}
-
-      foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
-      {
-        node.Select();
-        node.Expand();
       }
     }
 
