@@ -4481,8 +4481,8 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
     dbgpln("Test Closure -------------------------------------------------------- %s", NJ.Nd.Tag());
     #endif
 
-    NJ.Nd.m_Closure.Setup(true, NJ.Nd.NoProcessJoins());
-    for (int iJoin=0; iJoin<NJ.Nd.NoProcessJoins(); iJoin++)
+    NJ.Nd.m_Closure.Setup(true, NJ.Nd.NoJoins());
+    for (int iJoin=0; iJoin<NJ.Nd.NoJoins(); iJoin++)
       {
       CClosureInfo &CI=NJ.Nd.m_Closure[iJoin];
       CJoinRec & J=NJ.Nd.Joins[iJoin];
