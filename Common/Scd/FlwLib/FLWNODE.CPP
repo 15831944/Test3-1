@@ -40,6 +40,7 @@ static CDbgMngr dbgTraceChanges     ("FlwNode",  "TraceChanges");
 #if WithIOChgMonitor
 static CDbgMngr dbgDumpChanges      ("FlwNode",  "DumpChanges");
 static CDbgMngr dbgDumpChangesIn    ("FlwNode",  "DumpChangesIn");
+static CDbgMngr dbgDumpChangeTol    ("FlwNode",  "DumpChangeTol");
 #endif
 
 static CDbgMngr dbgEvalJoinPress    ("ProBal",   "EvalJoinPress");
@@ -6852,17 +6853,20 @@ void FlwNode::SetJoinPressure(int iJoinNo, double P, bool DoInputs, bool DoOutpu
 
 void FlwNode::EvalJoinPressure(int iJoin, CRqdPressCtrl *pPC, SpModel/*Owner*/ * pMdl)
   {
-  if (pPC)
+  if (iJoin<NoJoins())
     {
-    pPC->SetMdl(pMdl);
-    MeasureJoinPressure(iJoin, pPC);
-    pPC->CalculateResult();
-    SetJoinPressure(iJoin, pPC);
-    }
-  else
-    {
-    double P=MeasureJoinPressure(iJoin);
-    SetJoinPressure(iJoin, P);
+    if (pPC)
+      {
+      pPC->SetMdl(pMdl);
+      MeasureJoinPressure(iJoin, pPC);
+      pPC->CalculateResult();
+      SetJoinPressure(iJoin, pPC);
+      }
+    else
+      {
+      double P=MeasureJoinPressure(iJoin);
+      SetJoinPressure(iJoin, P);
+      }
     }
   }
 
@@ -7641,19 +7645,17 @@ void FlwNode::MonitorPostEvalProducts()
           if (C==NULL)
             continue;
 
-          dbgpln("%*s %s : %s : %s",
-            nSpc, "", IOQmEst_In(i)>0.0 ? (j==0?"TearIn":"In"):"Out",
-            IODesc_Self(i)->pName,
-            Nd_Rmt(i)->FullObjTag());
+          #define DBGIT(A,B,C,D,ShowIt,T)                                                                         \
+          if (ShowIt && fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChangeTol()*1.0e-6)                         \
+            dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6 %s(%-4.4s): %2s%s %s->%s",           \
+            A, B, (B-A), ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))), 9999999.):0.0,         \
+                         ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(Max(fabs(A), fabs(B)), C)), 9999999.):0.0, \
+                         IOQmEst_In(i)>0.0 ? (j==0?"TrIn":"In  "):"Out ",                                         \
+                         IODesc_Self(i)->pName, D, T,                                                             \
+                         FullObjTag(), Nd_Rmt(i)->FullObjTag());
 
-          #define DBGIT(A,B,C,D,ShowIt,T)  \
-          if (ShowIt && fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChanges()*1.0e-6) \
-            dbgpln("EP %18.10f > %18.10f %+15.6f %+25.16f *e-6 %+25.16f *e-6     %s %s", \
-            A, B, (B-A), ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(fabs(A), fabs(B))), 9999999.):0.0, \
-                         ShowIt?Range(-9999999., 9999999*(B-A)/GTZ(Max(Max(fabs(A), fabs(B)), C)), 9999999.):0.0, D, T)
-
-          char * Tmp=(j==0)?"*":"";
-          bool ShowIt=C->QMass()>1.0e-6;
+          char * Tmp=(j==0)?"*":" ";
+          bool ShowIt = true || C->QMass()>1.0e-6;
           DBGIT(DM[0+j*M], C->QMass(),            MaxVal[0], "Qm", ShowIt, Tmp);
           DBGIT(DM[1+j*M], C->Temp(),             MaxVal[1], "T",  ShowIt, Tmp);
           DBGIT(DM[2+j*M], C->Press(),            MaxVal[2], "P",  ShowIt, Tmp);
@@ -7676,7 +7678,7 @@ void FlwNode::MonitorPostEvalProducts()
 
     #define DBGIT(A,B,IO,T)  \
       {   \
-      if (fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChanges()*1.0e-6) \
+      if (fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChangeTol()*1.0e-6) \
         dbgpln("XR %18.10f > %18.10f %+15.6f %+25.16f *e-6 %31s%-3s %s", \
           A, B, (B-A), Range(-9999999., 9999999*(B-A)/Max(1e-12, Max(fabs(A), fabs(B))), 9999999.), "", IO, T); \
         }
@@ -7690,9 +7692,9 @@ void FlwNode::MonitorPostEvalProducts()
         {
         CXRefItem *pRef=CXRef(i);
         if (Valid(pRef->m_Value.m_dValMem))
-          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "In", pRef->SFGNodeTag(this))
+          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),  "In        :", pRef->SFGNodeTag(this))
         else
-          DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(),   "In", pRef->SFGNodeTag(this));
+          DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(), "In        :", pRef->SFGNodeTag(this));
         }
       }
     for (i=0; i<NoXRefs2Me(); i++)
@@ -7701,9 +7703,9 @@ void FlwNode::MonitorPostEvalProducts()
         {
         CXRefItem *pRef=CXRef(i);
         if (Valid(pRef->m_Value.m_dValMem))
-          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),   "Out", pRef->SFGNodeTag(this))
+          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),  "Out       :", pRef->SFGNodeTag(this))
         else
-          DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(),   "Out", pRef->SFGNodeTag(this));
+          DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(), "Out       :", pRef->SFGNodeTag(this));
         }
       }
 
