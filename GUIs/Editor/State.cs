@@ -239,7 +239,6 @@ namespace SysCAD.Editor
       }
       else
       {
-        //flowchart.SuspendLayout();
 
         ModelStencil modelStencil;
         GraphicStencil graphicStencil;
@@ -267,8 +266,6 @@ namespace SysCAD.Editor
         graphicBox.RotationAngle = graphicItem.Angle;
         graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
         graphicBox.Style = BoxStyle.Shape;
-
-        //graphicBox.Image = System.Drawing.Image.FromStream(testXAML());
 
         if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
           graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
@@ -316,13 +313,8 @@ namespace SysCAD.Editor
 
         items.Add(item.Guid, item);
 
-        //flowchart.ResumeLayout();
-
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
-        //if (tvNavigation.GetNodeByPath(graphicItem.Path) == null)
-        //  tvNavigation.AddNodeByPath(graphicItem.Path);
-        //tvNavigation.GetNodeByPath(graphicItem.Path).Nodes.Add(graphicItem.Tag, graphicItem.Guid.ToString());
       }
     }
 

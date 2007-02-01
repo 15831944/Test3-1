@@ -321,10 +321,28 @@ namespace SysCAD.Protocol
         foreach (GraphicLink graphicLink in graphicLinks.Values)
         {
           if (graphicLink.Origin == guid)
-            DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, new Guid(), graphicLink.Destination, null, graphicLink.DestinationPort, graphicLink.ControlPoints);
+          {
+            if (graphicLink.Destination == Guid.Empty) // it isn't connected to anything on the other end.
+            {
+              DoLinkDeleted(requestId, graphicLink.Guid);
+            }
+            else
+            {
+              DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, new Guid(), graphicLink.Destination, null, graphicLink.DestinationPort, graphicLink.ControlPoints);
+            }
+          }
 
           if (graphicLink.Destination == guid)
-            DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, new Guid(), graphicLink.OriginPort, null, graphicLink.ControlPoints);
+          {
+            if (graphicLink.Origin == Guid.Empty) // it isn't connected to anything on the other end.
+            {
+              DoLinkDeleted(requestId, graphicLink.Guid);
+            }
+            else
+            {
+              DoLinkModified(requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, new Guid(), graphicLink.OriginPort, null, graphicLink.ControlPoints);
+            }
+          }
         }
 
         graphicItems.Remove(guid);
