@@ -95,6 +95,34 @@ ref class CNETServerThread
       ChannelServices::RegisterChannel(ipcChannel, false);
       }
 
+    bool ConfirmModelStencil(ModelStencil^ modelstencil)
+    {
+      // TODO: check whether this stencil is to be included in the project.
+      return true;
+    }
+
+    bool ValidAnchor(Anchor^ anchor)
+    {
+      // TODO: Check here if anchor->Tag is to be included. (and possibly in future anchor->Type)
+      return true;
+    }
+
+    void TrimAnchorPoints(ModelStencil^ modelStencil)
+    {
+      ArrayList^ anchors = modelStencil->Anchors;
+      ArrayList^ validAnchors = gcnew ArrayList();
+      for (int i=0; i<anchors->Count; i++)
+      {
+        Anchor^ anchor = (Anchor^)(anchors[i]);
+        if (ValidAnchor(anchor)) 
+        {
+          validAnchors->Add(anchor);
+        }
+      }
+
+      modelStencil->Anchors = validAnchors;
+    }
+    
     void GetStencils()
       {
       int iStencil = 0;
@@ -130,7 +158,13 @@ ref class CNETServerThread
         Stream ^ stream = streamRdr->BaseStream;
         ModelStencil ^ modelStencil = (ModelStencil^)sf->Deserialize(stream);
         modelStencil->Tag = Path::GetFileNameWithoutExtension(fullpath);
-        m_Config->ModelStencils->Add(Path::GetFileNameWithoutExtension(fullpath), modelStencil);
+
+        if (ConfirmModelStencil(modelStencil))
+        {
+          TrimAnchorPoints(modelStencil);
+          m_Config->ModelStencils->Add(Path::GetFileNameWithoutExtension(fullpath), modelStencil);
+        }
+
         stream->Close();
         //Console::WriteLine("  {0}] {1}", iStencil++, Path::GetFileNameWithoutExtension(fullpath));
         LogNote("Srvr", 0, "  %i] %s", iStencil++, Path::GetFileNameWithoutExtension(fullpath));

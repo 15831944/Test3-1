@@ -1336,8 +1336,10 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         #if (!WITHANALYSE)
         DeleteMenuItem(ID_ACTIONS_Analyse);
         #endif
-        #if (!SYSCAD10)
-        DeleteMenuItem(ID_ACTIONS_Analyse);
+        #ifndef SYSCAD10
+        DeleteMenuItem(ID_FILE_DUMMYINSERT);
+        DeleteMenuItem(ID_FILE_DUMMYMODIFY);
+        DeleteMenuItem(ID_FILE_DUMMYDELETE);
         #endif
         //DeleteMenuItem(ID_GRF_ZoomIso);
         DeleteMenuItem(ID_FILE_DUMMY);
