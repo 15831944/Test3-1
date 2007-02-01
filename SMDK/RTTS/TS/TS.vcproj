@@ -128,6 +128,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\boost_1_31_0"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;TS_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"

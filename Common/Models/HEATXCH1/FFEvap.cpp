@@ -212,7 +212,7 @@ flag FFEvap::DataXchg(DataChangeBlk & DCB)
 flag FFEvap::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MN_Surge::ValidateData(VDB);
-  dTRiseRqd=ValidateRange(VDB, "TRiseRqd", -100.0, dTRiseRqd, 500.0);
+  dTRiseRqd=ValidateRange(VDB, "TRiseRqd", -150.0, dTRiseRqd, 500.0);
   return OK;
   }
 
