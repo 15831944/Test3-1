@@ -315,6 +315,7 @@ namespace SysCAD.Editor
 
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+        node.AllowDrop = false;
       }
     }
 
