@@ -43,6 +43,7 @@ class ScheduledMaintenance : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
+	virtual bool	ValidateDataFields();
 
 	virtual bool PreStartCheck();
 
@@ -62,6 +63,7 @@ class ScheduledMaintenance : public MBaseMethod
     std::vector<MaintVariables> tasks;
 
     void SetSize(long size);
+	void Reset();
   };
 
 #endif

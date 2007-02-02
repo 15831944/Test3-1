@@ -29,8 +29,9 @@ void ScheduledMaintenance_UnitDef::GetOptions()
 ScheduledMaintenance::ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
 	//default values...
-	bOn = false;
+	bOn = true;
 
+	dCurrentTime = 0;
 	eType = Type_Simple;
 	eStrategy = Strat_Warning;
 }
@@ -40,6 +41,8 @@ ScheduledMaintenance::ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject
 void ScheduledMaintenance::Init()
 {
 }
+
+//---------------------------------------------------------------------------
 
 bool ScheduledMaintenance::PreStartCheck()
 {
@@ -58,8 +61,9 @@ bool ScheduledMaintenance::PreStartCheck()
 				std::string errorMsg = "Running Scheduled Maintenance without compensation for the fact that the downtime is not an integral multiple of the stepsize. Failing tasks: ";
 				for (int i = 0; i < failingTasks.size(); i++)
 				{
-					char buffer[2];
-					errorMsg.append(_itoa(failingTasks.at(i), buffer, 10));
+					char buffer[3];
+					_itoa_s(failingTasks.at(i), buffer, 10);
+					errorMsg.append(buffer);
 					if (i < failingTasks.size() - 1)
 						errorMsg.append(", ");
 				}
@@ -70,7 +74,16 @@ bool ScheduledMaintenance::PreStartCheck()
 	return true;
 }
 
+//---------------------------------------------------------------------------
+
 void ScheduledMaintenance::EvalCtrlInitialise(eScdCtrlTasks Tasks)
+{
+	Reset();
+}
+
+//---------------------------------------------------------------------------
+
+void ScheduledMaintenance::Reset()
 {
 	dCurrentTime = 0;
 	for (int i = 0; i < tasks.size(); i++)
@@ -84,8 +97,11 @@ void ScheduledMaintenance::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 
 const int idDX_Description = 100;
 const int idDX_Count = 1;
+const int idDX_Reset = 2;
 
 const int maxElements = 20;
+
+//---------------------------------------------------------------------------
 
 void ScheduledMaintenance::BuildDataFields()
 {
@@ -102,10 +118,17 @@ void ScheduledMaintenance::BuildDataFields()
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
 	DD.Long ("Strategy", "Strat", (long*)&eStrategy, MF_PARAMETER, DDB1);
 	DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
+	DD.Text("");
+	DD.Double("TotalTime", "T(tot)", &dCurrentTime, MF_RESULT, MC_Time(""));
+	DD.Button("Reset All", "", idDX_Reset, MF_PARAMETER);
+	DD.Text("");
 
 	DD.ArrayBegin("Maintenance_Tasks", "Task", tasks.size());
 	for (long i = 0; i < tasks.size(); i++)
 	{
+		if (i == 2 || (i-2)%3 == 0)
+			DD.Page("Tasks");
+
 		DD.ArrayElementStart(i);
 		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
 		DD.Long ("Type", "", (long*)&tasks.at(i).eType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
@@ -116,11 +139,14 @@ void ScheduledMaintenance::BuildDataFields()
 
 		DD.Text("");
 		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
+		DD.Double("Total Downtime", "TDown", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time(""));
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}
 	DD.ArrayEnd();
 }
+
+//---------------------------------------------------------------------------
 
 bool ScheduledMaintenance::ExchangeDataFields()
 {
@@ -142,8 +168,31 @@ bool ScheduledMaintenance::ExchangeDataFields()
 		DX.Long = tasks.size();
 		return true;
 	}
+	if (DX.Handle == idDX_Reset)
+	{
+		if (DX.HasReqdValue && DX.Bool)
+			Reset();
+		DX.Bool = false;
+		return true;
+	}
+		
 	return false;
 }
+
+//---------------------------------------------------------------------------
+
+bool ScheduledMaintenance::ValidateDataFields()
+{
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		if (tasks.at(i).dDownTime > tasks.at(i).dPeriod)
+			tasks.at(i).dDownTime = tasks.at(i).dPeriod;
+		if (tasks.at(i).dOffset < 0)
+			tasks.at(i).dOffset = 0;
+	}
+	return true;
+}
+
 //---------------------------------------------------------------------------
 
 void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
@@ -204,6 +253,8 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 			}
 	}
 }
+
+//---------------------------------------------------------------------------
 
 void ScheduledMaintenance::SetSize(long size)
 {
