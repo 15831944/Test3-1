@@ -75,7 +75,7 @@ namespace SysCAD.Protocol
 
     public String connectionError = "";
 
-    public bool Connect(Uri url)
+    public bool TestUrl(Uri url)
     {
       try
       {
@@ -90,6 +90,12 @@ namespace SysCAD.Protocol
         return false;
       }
     }
+
+    public void GetProjectList()
+    {
+      ProjectList = remoteConfig.ProjectList;
+    }
+
 
     public void Sync()
     {
@@ -113,6 +119,5 @@ namespace SysCAD.Protocol
       memoryStream.Seek(0, SeekOrigin.Begin);
       SetThingStencils(bf.Deserialize(memoryStream) as Dictionary<String, ThingStencil>);
     }
-
   }
 }

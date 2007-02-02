@@ -109,7 +109,7 @@ namespace SysCAD.Editor
 
       foreach (GraphicThing graphicThing in clientProtocol.graphicThings.Values)
       {
-        state.CreateThing(graphicThing, false, fcFlowChart);
+        state.CreateThing(graphicThing, false, false, fcFlowChart);
       }
 
       foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
@@ -439,7 +439,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      state.CreateThing(state.GraphicThing(guid), true, fcFlowChart);
+      state.CreateThing(state.GraphicThing(guid), true, true, fcFlowChart);
     }
 
     private void fcFlowChart_ThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)

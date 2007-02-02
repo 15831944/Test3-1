@@ -318,9 +318,9 @@ namespace SysCAD.Editor
       }
     }
 
-    private delegate void CreateThingDelegate(GraphicThing graphicThing, bool isVisible, FlowChart flowchart);
+    private delegate void CreateThingDelegate(GraphicThing graphicThing, bool isVisible, bool renderImage, FlowChart flowchart);
 
-    internal void CreateThing(GraphicThing graphicThing, bool isVisible, FlowChart flowchart)
+    internal void CreateThing(GraphicThing graphicThing, bool isVisible, bool renderImage, FlowChart flowchart)
     {
       if (flowchart.InvokeRequired)
       {
@@ -338,8 +338,11 @@ namespace SysCAD.Editor
         box.FillColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
         box.FrameColor = System.Drawing.Color.FromArgb(0, 0, 0, 0);
 
-        //box.Image = GetImage(graphicThing, flowchart); -- we don't want to do this yet.  wait for initial zoom.
-        box.ImageAlign = ImageAlign.Stretch;
+        if (renderImage)
+        {
+          box.Image = GetImage(graphicThing, flowchart);
+          box.ImageAlign = ImageAlign.Stretch;
+        }
 
         box.Visible = isVisible;
 
@@ -349,15 +352,11 @@ namespace SysCAD.Editor
 
         box.Tag = thing;
 
-        box.Image = State.GetImage(graphicThing, flowchart);
+        //box.Image = State.GetImage(graphicThing, flowchart);
 
         things.Add(thing.Guid, thing);
 
         flowchart.ResumeLayout();
-
-        //if (tvNavigation.GetNodeByPath(graphicThing.Path) == null)
-        //  tvNavigation.AddNodeByPath(graphicThing.Path);
-        //tvNavigation.GetNodeByPath(graphicThing.Path).Nodes.Add(graphicThing.Tag, graphicThing.Guid.ToString());
 
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
@@ -368,17 +367,17 @@ namespace SysCAD.Editor
       }
     }
 
+
     public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
     {
       StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
       XmlReader xr = new XmlTextReader(sr);
-      System.Windows.Controls.Canvas canvas = (System.Windows.Controls.Canvas)System.Windows.Markup.XamlReader.Load(xr);
 
       System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
 
       Viewbox viewbox = new Viewbox();
       viewbox.Stretch = Stretch.Fill;
-      viewbox.Child = canvas;
+      viewbox.Child = System.Windows.Markup.XamlReader.Load(xr) as System.Windows.Controls.Canvas;
       viewbox.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
       viewbox.Arrange(new Rect(0, 0, clientRect.Width, clientRect.Height));
       viewbox.UpdateLayout();

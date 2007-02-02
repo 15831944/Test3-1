@@ -202,11 +202,33 @@ namespace SysCAD.Protocol
       return serviceGraphic.PropertyList(guid, tag, path);
     }
 
+    Uri url = null;
+
+    public bool TestUrl(Uri url)
+    {
+      try
+      {
+        serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ServiceProtocol;
+
+        Name = serviceGraphic.Name; // Force a test of the connection.
+
+        this.url = url;
+        connectionError = "";
+        return true;
+      }
+      catch (System.Runtime.Remoting.RemotingException remotingException)
+      {
+        url = null;
+        connectionError = remotingException.Message;
+        return false;
+      }
+    }
+
 
 
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
-    public bool Connect(Uri url)
+    public bool Connect()
     {
       try
       {

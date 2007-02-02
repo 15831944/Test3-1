@@ -44,6 +44,7 @@ namespace SysCAD.Editor
     {
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmFlowChart));
       this.fcFlowChart = new MindFusion.FlowChartX.FlowChart();
+      this.fcFlowChart.SuspendLayout();
       this.SuspendLayout();
       // 
       // fcFlowChart

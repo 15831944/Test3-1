@@ -587,16 +587,20 @@ namespace SysCAD.Editor
 
       OpenProjectForm openProjectForm = new OpenProjectForm();
 
-      if (openProjectForm.ShowDialog() == DialogResult.OK)
+      if (openProjectForm.ShowDialog(this) == DialogResult.OK)
       {
+        openProjectForm.ClientProtocol.Connect();
+        openProjectForm.Config.Sync();
+
         openProjectForm.Close();
         Refresh();
+
+        tvNavigation.SuspendLayout();
+        SuspendLayout();
 
         frmFlowChart = new FrmFlowChart(this);
 
         frmFlowChart.SuspendLayout();
-        tvNavigation.SuspendLayout();
-        SuspendLayout();
 
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
@@ -619,6 +623,18 @@ namespace SysCAD.Editor
         SetProjectBasedButtons(true);
 
         frmFlowChart.Show();
+
+        tvNavigation.ClearNodeSelection();
+        foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
+        {
+          node.Select();
+          SelectSubNodes(node);
+        }
+
+        this.tvNavigation.BeforeNodePositionChange += new PureComponents.TreeView.TreeView.BeforeNodePositionChangeEventHandler(this.tvNavigation_BeforeNodePositionChange);
+        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
+        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
 
         ResumeLayout(true);
         frmFlowChart.ResumeLayout(true);

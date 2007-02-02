@@ -286,10 +286,6 @@ namespace SysCAD.Editor
         treeViewStyle1.NodeStyle = nodeStyle1;
         this.tvNavigation.Style = treeViewStyle1;
         this.tvNavigation.TabIndex = 1;
-        this.tvNavigation.BeforeNodePositionChange += new PureComponents.TreeView.TreeView.BeforeNodePositionChangeEventHandler(this.tvNavigation_BeforeNodePositionChange);
-        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
-        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
         //this.tvNavigation.DragOver += new DragEventHandler(tvNavigation_DragOver);
         //this.tvNavigation.DragEnter += new DragEventHandler(tvNavigation_DragEnter);
         //this.tvNavigation.DragLeave += new System.EventHandler(tvNavigation_DragLeave);

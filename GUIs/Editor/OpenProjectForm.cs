@@ -30,9 +30,9 @@ namespace SysCAD.Editor
     {
       InitializeComponent();
 
-      if (config.Connect(new System.Uri(repositoryURLTextBox.Text + "Global")))
+      if (config.TestUrl(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
-        config.Sync();
+        config.GetProjectList();
         projectListBox.Items.Clear();
         foreach (String projectString in config.ProjectList)
         {
@@ -46,9 +46,9 @@ namespace SysCAD.Editor
 
     private void listProjectsButton_Click(object sender, EventArgs e)
     {
-      if (config.Connect(new System.Uri(repositoryURLTextBox.Text + "Global")))
+      if (config.TestUrl(new System.Uri(repositoryURLTextBox.Text + "Global")))
       {
-        config.Sync();
+        config.GetProjectList();
         projectListBox.Items.Clear();
         foreach (String projectString in config.ProjectList)
         {
@@ -68,7 +68,7 @@ namespace SysCAD.Editor
     {
       if (projectListBox.SelectedItem != null)
       {
-        if (clientProtocol.Connect(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
+        if (clientProtocol.TestUrl(new System.Uri(repositoryURLTextBox.Text + projectListBox.SelectedItem.ToString())))
         {
           openButton.Enabled = true;
         }
