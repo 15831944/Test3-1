@@ -222,13 +222,14 @@ void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList
         }
       nOnPg++;
 
+      char LabelBuff[512];
       m_VarData[nUseData] = pVar;
       Tag.Set("%s%s", HdTag, pVar->Name());
       //const DDEF_Flags flgs = ((!pVar->ReadOnly() ? 0 : isParm) | noFile);
       const DDEF_Flags flgs = ((pVar->ReadOnly() ? 0 : isParm) | noFile);
       if (pVar->m_pWatchInfo)
         {
-        switch(pVar->WhatAmI())
+        switch (pVar->WhatAmI())
           {
           case VarTag   :
           case VarDouble: 
@@ -250,6 +251,20 @@ void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList
           case VarStr   : 
             DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
             break;
+          case VarLabel :
+            {
+            if (pVar->m_flags & VarPageLabel)
+              {
+              DDB.Page(pVar->GetStrVal(LabelBuff), DDB_RqdPage);
+              nOnPg = 0;
+              nPg++;
+              }
+            else
+              {
+              DDB.Text(pVar->GetStrVal(LabelBuff)); 
+              }
+            break;
+            }
           }
         }
       else
@@ -270,6 +285,20 @@ void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList
           case VarStr   : 
             DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
             break;
+          case VarLabel : 
+            {
+            if (pVar->m_flags & VarPageLabel)
+              {
+              DDB.Page(pVar->GetStrVal(LabelBuff), DDB_RqdPage);
+              nOnPg = 0;
+              nPg++;
+              }
+            else
+              {
+              DDB.Text(pVar->GetStrVal(LabelBuff)); 
+              }
+            break;
+            }
           }
         }
       }
@@ -338,15 +367,19 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Button("Debug_PGM",    "", DC_,    "",    idmDebugPGMBtn,           this, isParm);
   //DDB.Text(" ");
 
+  //look ahead to see how many tags need to be display & how many tab pages..
+  //TODO: These calcs need improving for user defined pages, etc
   m_nVarData = 0;
   int nPg = 0;
   int nOnPg = 20;
   int nTtlCnt = 0;
-  CountWatchedVars(PgmMngr.m_pVarList, nTtlCnt);
+  CountWatchedVars(PgmMngr.m_pVarList, nTtlCnt); 
   SetMaxVarData(Max(32, nTtlCnt));
-  const int MaxPerPage = Max(30, (int)(nTtlCnt/63)); //Note: 63 = "FixedEditView::MaxFixedPages-1"
+  const int MaxPerPage = Max(30, (int)(nTtlCnt/(MaxAccWndTabPages-1)));
+  //now add the watched variables..
   DDBAddWatchedVars(DDB, "", PgmMngr.m_pVarList, 0, nPg, nOnPg, 0, MaxPerPage);
 
+  //now add 'special' watched array variables..
   if (PgmMngr.m_ExtraWatchArray.GetSize()>0)
     {
     nPg = 0;

@@ -59,6 +59,7 @@ _FWDDEF(GCFunctVar)
 _FWDDEF(GCClassVar)
 _FWDDEF(GCTagVar)
 _FWDDEF(GCStrTagVar)
+_FWDDEF(GCLabelVar)
 class GCArrayWatch;
 
 //============================================================================
@@ -95,23 +96,25 @@ const char VarFunct  = 'F';
 const char VarTag    = 'T';
 const char VarClass  = 'C';
 const char VarArray  = 'A';
+const char VarLabel  = 'E';
 
-const WORD VarConst       = 0x0001; //variable is a constant and may not be altered by PGM code
-const WORD VarClassDefn   = 0x0002; //is not actually a variable but contains a variable definition
-const WORD VarPgmWatch    = 0x0004; //variable is watched ie accessable externally
-const WORD VarReadOnly    = 0x0008; //variable is read only externally
-const WORD VarTagOut      = 0x0010; //tag variable is set by PGM code
-const WORD VarTagIn       = 0x0020; //tag variable is read by PGM code
-const WORD VarTagNear     = 0x0040; //tag variable accessed by PGM code is "nearby" (ie in flowsheet)
-const WORD VarTagFar      = 0x0080; //tag variable accessed by PGM code is "far away" (ie external eg driver)
-const WORD VarSetNotify   = 0x0100; //if the variable is set must the PGM class be notified
-const WORD VarGetNotify   = 0x0200; //if the variable is read must the PGM class be notified
-const WORD VarStrFunct    = 0x0400; //if the variable is a FunctVar that returns a Str
-const WORD VarDynTag      = 0x0800; //CNM - moved m_bDynTag
-const WORD VarDynTagOK    = 0x1000; //
-const WORD VarArrayClass  = 0x2000; //is this an array class
-const WORD VarMatrixClass = 0x4000; //is this a matrix class
-const WORD VarClassUsed   = 0x8000; //is this class defn used
+const DWORD VarConst       = 0x00000001; //variable is a constant and may not be altered by PGM code
+const DWORD VarClassDefn   = 0x00000002; //is not actually a variable but contains a variable definition
+const DWORD VarPgmWatch    = 0x00000004; //variable is watched ie accessable externally
+const DWORD VarReadOnly    = 0x00000008; //variable is read only externally
+const DWORD VarTagOut      = 0x00000010; //tag variable is set by PGM code
+const DWORD VarTagIn       = 0x00000020; //tag variable is read by PGM code
+const DWORD VarTagNear     = 0x00000040; //tag variable accessed by PGM code is "nearby" (ie in flowsheet)
+const DWORD VarTagFar      = 0x00000080; //tag variable accessed by PGM code is "far away" (ie external eg driver)
+const DWORD VarSetNotify   = 0x00000100; //if the variable is set must the PGM class be notified
+const DWORD VarGetNotify   = 0x00000200; //if the variable is read must the PGM class be notified
+const DWORD VarStrFunct    = 0x00000400; //if the variable is a FunctVar that returns a Str
+const DWORD VarDynTag      = 0x00000800; //CNM - moved m_bDynTag
+const DWORD VarDynTagOK    = 0x00001000; //
+const DWORD VarArrayClass  = 0x00002000; //is this an array class
+const DWORD VarMatrixClass = 0x00004000; //is this a matrix class
+const DWORD VarClassUsed   = 0x00008000; //is this class defn used
+const DWORD VarPageLabel   = 0x00010000; //access window tab page label
 
 const WORD DefLHS       = 0x0001; //instruction/symbol is allowed as a left hand side
 const WORD DefExp       = 0x0002; //symbol is allowed in expressions
@@ -124,6 +127,8 @@ const WORD DefGenConSet = 0x0080; //reserved word is used in gencon
 const WORD DefFunctSet  = 0x0100; //reserved word is used in functions
 
 enum VarLocation { VL_NotFound, VL_Funct, VL_Class, VL_Global, VL_GlobalTag };
+
+const int MaxAccWndTabPages = 80; //Note: same as "FixedEditView::MaxFixedPages"
 
 //=========================== 'Exception handler' ===========================
 
@@ -170,6 +175,8 @@ class GCLoadHelp
     GCVar*         m_pTempTagVars[MaxTagStack]; //nasty trick to get latest GCTag just created
     Strng          m_sTempCnvTxt[MaxTagStack];  //Cnv Text to be used by a GCTagVar, temp storage
     int            m_iTempTagPos;  //current position in tag stack
+    int            m_iTxtLblCnt;   //next text label count
+    int            m_iPgLblCnt;   //next page label count
 
     GCLoadHelp();
     int GetCurLineNo();
@@ -399,7 +406,7 @@ class GCDef
     GCDef(pchar Name_);
   public:
     virtual pGCIns Construct(GCInsMngr &IB) = 0;
-    virtual GCVar* ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags) { ASSERT(FALSE); return NULL; };
+    virtual GCVar* ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags) { ASSERT(FALSE); return NULL; };
     static  pGCDef Find(pchar pName);
     pchar          Name() { return m_pName;};
     pGCDef         Next() { return m_pNext;};
@@ -472,12 +479,12 @@ class DllImportExport GCVar
   protected:
     GCVar( pGCVar &pFirstVar,
            pchar pName, 
-           WORD flags);
+           DWORD flags);
     GCVar*         m_pNext;   //points to next var in linked list
     pchar          m_pName;   //points to identifier name
   public:
     virtual ~GCVar();
-    WORD           m_flags;       //flags
+    DWORD          m_flags;       //flags
     CWatchInfo*    m_pWatchInfo;  //points to extra tag info, NULL if none
     CnvAttribute*  m_pCnvInfo;    //points to conversion info, NULL if none
 
@@ -537,8 +544,8 @@ inline long GetAsLong(double d)
 class DllImportExport GCDoubleVar : public GCVar
   {
   public:
-    GCDoubleVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0.0 ;};
-    GCDoubleVar(pGCVar &pFirstVar, pchar pName, WORD flags, double d) : GCVar(pFirstVar, pName, flags) { m_var = d ;};
+    GCDoubleVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0.0 ;};
+    GCDoubleVar(pGCVar &pFirstVar, pchar pName, DWORD flags, double d) : GCVar(pFirstVar, pName, flags) { m_var = d ;};
     double         m_var;
     char           WhatAmI() { return VarDouble; };                               
     pchar          GetStrVal(pchar Buff) { Valid(m_var) ? sprintf(Buff, "%.12g", m_var) : sprintf(Buff, "*"); return Buff; };
@@ -562,8 +569,8 @@ class DllImportExport GCDoubleVar : public GCVar
 class DllImportExport GCLongVar : public GCVar
   {
   public:
-    GCLongVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags)  { m_var = 0; };
-    GCLongVar(pGCVar &pFirstVar, pchar pName, WORD flags, long l) : GCVar(pFirstVar, pName, flags) { m_var = l ;};
+    GCLongVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags)  { m_var = 0; };
+    GCLongVar(pGCVar &pFirstVar, pchar pName, DWORD flags, long l) : GCVar(pFirstVar, pName, flags) { m_var = l ;};
     long           m_var;
     char           WhatAmI() { return VarLong; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%d", m_var); return Buff; };
@@ -587,8 +594,8 @@ class DllImportExport GCLongVar : public GCVar
 class DllImportExport GCByteVar : public GCVar
   {
   public:
-    GCByteVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
-    GCByteVar(pGCVar &pFirstVar, pchar pName, WORD flags, unsigned char c) : GCVar(pFirstVar, pName, flags) { m_var = c ;};
+    GCByteVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
+    GCByteVar(pGCVar &pFirstVar, pchar pName, DWORD flags, unsigned char c) : GCVar(pFirstVar, pName, flags) { m_var = c ;};
     unsigned char  m_var;
     char           WhatAmI() { return VarByte; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%d", m_var); return Buff; };
@@ -612,8 +619,8 @@ class DllImportExport GCByteVar : public GCVar
 class DllImportExport GCBitVar : public GCVar
   {
   public:
-    GCBitVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
-    GCBitVar(pGCVar &pFirstVar, pchar pName, WORD flags, flag b) : GCVar(pFirstVar, pName, flags) { m_var = b ;};
+    GCBitVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
+    GCBitVar(pGCVar &pFirstVar, pchar pName, DWORD flags, flag b) : GCVar(pFirstVar, pName, flags) { m_var = b ;};
     flag           m_var;
     char           WhatAmI() { return VarBit; };
     pchar          GetStrVal(pchar Buff) { m_var ? sprintf(Buff, "True") : sprintf(Buff, "False"); return Buff; };
@@ -638,8 +645,8 @@ class DllImportExport GCBitVar : public GCVar
 class DllImportExport GCStrVar : public GCVar
   {
   public:
-    GCStrVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) { m_var = ""; };
-    GCStrVar(pGCVar &pFirstVar, pchar pName, WORD flags, pchar p) : GCVar(pFirstVar, pName, flags) { m_var = p; };
+    GCStrVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = ""; };
+    GCStrVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pName, flags) { m_var = p; };
     Strng m_var;
     char           WhatAmI() { return VarStr; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%s", m_var() ? m_var() : ""); return Buff; };
@@ -680,7 +687,7 @@ class DllImportExport GCStrVar : public GCVar
 class DllImportExport GCTagVar : public GCVar
   {
   public:
-    GCTagVar(pGCVar &pFirstVar, pchar pName, WORD flags);
+    GCTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags);
     virtual ~GCTagVar();   
 
     char           WhatAmI() { return VarTag; };                               
@@ -733,6 +740,33 @@ class DllImportExport GCTagVar : public GCVar
 
 //===========================================================================
 
+class DllImportExport GCLabelVar : public GCVar
+  {
+  public:
+    GCLabelVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var=""; };
+    GCLabelVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pName, flags) { m_var=p; };
+    Strng m_var;
+
+    char           WhatAmI() { return VarLabel; };
+    pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%s", m_var() ? m_var() : ""); return Buff; };
+    double         getD() { return 0.0; };
+    long           getL() { return 0; }; 
+    unsigned char  getC() { return 0; }; 
+    flag           getB() { return 0; }; 
+    pchar          getS() { return (m_var() ? m_var() : ""); }; 
+
+    void           set(double d) {}; 
+    void           set(long l) {}; 
+    void           set(char c) {};
+    void           setC(unsigned char c) {};
+    void           set(flag b) {};
+    void           set(pchar p) { m_var = p; };
+
+    pchar  GetDesc(pchar Buff, flag Short = True);
+  };
+
+//===========================================================================
+
 //inline CGCXRefItem::CGCXRefItem(GCTagVar * pVar) //: CXRefItem(&pVar->m_xValue)      
 //  { 
 //  //dbgpln("CGCXRefItem() %08x", this);
@@ -753,7 +787,7 @@ class DllImportExport GCTagVar : public GCVar
 class DllImportExport GCStrTagVar : public GCTagVar
   {
   public:
-    GCStrTagVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCTagVar(pFirstVar, pName, flags)
+    GCStrTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCTagVar(pFirstVar, pName, flags)
       {
       m_bStrTag=1;
       };
@@ -786,7 +820,7 @@ class DllImportExport GCStrTagVar : public GCTagVar
 class DllImportExport GCFunctVar : public GCVar
   {
   public:
-    GCFunctVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCFunctVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
       { m_var = 0.0; m_pVarList = NULL; m_pFntIPos = NULL; m_bStrParms = False; };
     virtual ~GCFunctVar();
     double m_var;
@@ -818,9 +852,9 @@ class DllImportExport GCFunctVar : public GCVar
 class DllImportExport GCClassVar : public GCVar
   {
   public:
-    GCClassVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
       { m_pVarList = NULL; m_pRefClass = NULL; m_pSubClass = NULL; m_pParentClass = NULL; };
-    GCClassVar(pGCVar &pFirstVar, pchar pName, WORD flags, pGCClassVar pRefClass);
+    GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pGCClassVar pRefClass);
     virtual ~GCClassVar();
     void           CopyClass();
     void           DestroySubClass();
@@ -886,7 +920,7 @@ class DllImportExport GCClassVar : public GCVar
     GCVar*         AddVar( GCInsMngr &IB,
                            pchar pName,
                            pGCDef pDef,
-                           WORD flags = 0);
+                           DWORD flags = 0);
     GCVar*         AddFunct( GCInsMngr &IB,
                              pchar pName,
                              short TtlParmCount,
@@ -900,9 +934,9 @@ class DllImportExport GCClassVar : public GCVar
 class DllImportExport GCArrayVar : public GCVar
   {
   public:
-    GCArrayVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
       { m_pClassRefVar = NULL; m_iArrayLen = 0; };
-    GCArrayVar(pGCVar &pFirstVar, pchar pName, WORD flags, GCClassVar* pClassRefVar, int ArrayLen);
+    GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen);
     virtual ~GCArrayVar();
     GCClassVar*    m_pClassRefVar; // pointer to reference class for the array
     int            m_iArrayLen;    // array length
@@ -988,7 +1022,7 @@ class GC##Name##Def : public GCDef                            \
         else                                                  \
           IB.DoConstructVars(*this, IB.m_pVarList);           \
         return NULL; };                                       \
-    virtual GCVar* ConstructVar(GCVar* &pFirstVar, pchar pName, WORD flags)    \
+    virtual GCVar* ConstructVar(GCVar* &pFirstVar, pchar pName, DWORD flags)    \
       { return new GC##Name##Var(pFirstVar, pName, flags); }  \
    };                                                         \
                                                               \

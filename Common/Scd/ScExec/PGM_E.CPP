@@ -129,7 +129,7 @@ _FWDDEF(GCLblDef)
 //---------------------------------------------------------------------------
 long GCTagVar::m_nXRefNumber=0;
 
-GCTagVar::GCTagVar(pGCVar &pFirstVar, pchar pName, WORD flags) : GCVar(pFirstVar, pName, flags)
+GCTagVar::GCTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags)
   {
 //static
   //m_bDynTag=0;
@@ -1071,7 +1071,7 @@ class GCTagDef : public GCDef
     { m_defFlags = DefLHS | DefExp; };
   virtual pGCIns Construct(GCInsMngr & IB)
     { IB.DoConstructTag(']'); return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCTagVar(pFirstVar, pName, flags); }
   };
 GCTagDef GCTag;
@@ -1085,7 +1085,7 @@ class GCStrTagDef : public GCDef
     { m_defFlags = DefLHS | DefExp/* | DefRetStr*/; };
   virtual pGCIns Construct(GCInsMngr & IB)
     { IB.DoConstructTag(']'); return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCStrTagVar(pFirstVar, pName, flags); }
   };
 GCStrTagDef GCStrTag;
@@ -1231,7 +1231,7 @@ class GCClassDef : public GCDef
   GCClassDef() : GCDef("Class")
     { m_defFlags = DefLHS; };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCClassVar(pFirstVar, pName, flags); }
   };
 
@@ -1264,7 +1264,7 @@ class GCClassDecDef : public GCDef
   public:
   GCClassDecDef() : GCDef("#ClassDec#") { };
   virtual pGCIns Construct(GCInsMngr & IB) { return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCClassVar(pFirstVar, pName, flags, m_pClassVar); };
   GCClassVar* m_pClassVar;
   };
@@ -1600,6 +1600,94 @@ pGCIns GCWatchInfoDef::Construct(GCInsMngr & IB)
 
 //===========================================================================
 
+class GCTextLabelDef : public GCDef
+  {
+  public:
+  GCTextLabelDef() : GCDef("TextLabel")
+    { m_defFlags = DefLHS; };
+  virtual pGCIns Construct(GCInsMngr & IB);
+  };
+
+GCTextLabelDef GCTextLabel;
+
+//---------------------------------------------------------------------------
+
+pGCIns GCTextLabelDef::Construct(GCInsMngr & IB)
+  {
+  char Tkn[MaxTknMemSize];
+  Tkn[MaxTknSize] = 0;
+  strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+  if (strcmp(Tkn,"(")!=0)
+    IB.Err(ErrBuild, 104);
+  char Lbl[32];
+  bool Done = false;
+  while (!Done)
+    {
+    sprintf(Lbl, "Label_%d", IB.m_pH->m_iTxtLblCnt++);
+    strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+    if ((strcmp(Tkn,")")==0) || (strcmp(Tkn,",") == 0))
+      {//blank line
+      GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch);
+	    }
+    else
+      {
+      GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch, Tkn);
+      strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+      if ((strcmp(Tkn,")")!=0) && (strcmp(Tkn,",")!=0))
+        IB.Err(ErrBuild, 107);
+    	}
+    if (strcmp(Tkn,")")==0)
+      Done = true;
+    }
+  return NULL;
+  }
+
+//===========================================================================
+
+class GCPageLabelDef : public GCDef
+  {
+  public:
+  GCPageLabelDef() : GCDef("PageLabel")
+    { m_defFlags = DefLHS; };
+  virtual pGCIns Construct(GCInsMngr & IB);
+  };
+
+GCPageLabelDef GCPageLabel;
+
+//---------------------------------------------------------------------------
+
+pGCIns GCPageLabelDef::Construct(GCInsMngr & IB)
+  {
+  if (IB.m_pH->m_iPgLblCnt>=MaxAccWndTabPages)
+    IB.Err(ErrBuild, 169);
+  char Tkn[MaxTknMemSize];
+  Tkn[MaxTknSize] = 0;
+  strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+  if (strcmp(Tkn,"(")!=0)
+    IB.Err(ErrBuild, 104);
+  char Lbl[32];
+  sprintf(Lbl, "Page_%d", IB.m_pH->m_iPgLblCnt++);
+  strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+  if (strcmp(Tkn,")")==0)
+    {//blank line
+    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch|VarPageLabel, "..");
+    }
+  else
+    {
+    if (strlen(Tkn)==0)
+      sprintf(Tkn, "..");
+    else if (strlen(Tkn)>60)
+      Tkn[60] = 0;
+    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch|VarPageLabel, Tkn);
+    strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
+    if (strcmp(Tkn,")")!=0)
+      IB.Err(ErrBuild, 107);
+  	}
+  return NULL;
+  }
+
+//===========================================================================
+
 class GCDynamicTagsDef : public GCDef
   {
   public:
@@ -1661,7 +1749,7 @@ class GCFunctDef : public GCDef
   GCFunctDef() : GCDef("Function")
     { m_defFlags = DefLHS; };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCFunctVar(pFirstVar, pName, flags); }
   };
 
@@ -1702,7 +1790,7 @@ class GCStrFunctDef : public GCDef
   public:
   GCStrFunctDef() : GCDef("StrFunction") { m_defFlags = (DefLHS | DefRetStr); };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, WORD flags)
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
     { return new GCFunctVar(pFirstVar, pName, flags); };
   };
 
@@ -2532,7 +2620,7 @@ pGCIns GCCnvInfoDef::Construct(GCInsMngr & IB)
 
 GCVar::GCVar( pGCVar &pFirstVar,
               pchar pName,
-              WORD flags)
+              DWORD flags)
   {
   m_flags = flags;
   m_pName = new char[strlen(pName) + 1];
@@ -2732,6 +2820,17 @@ pchar GCStrVar::GetDesc(pchar Buff, flag Short)
 
 //===========================================================================
 
+pchar GCLabelVar::GetDesc(pchar Buff, flag Short)
+  {
+  if (m_var.Length()>0)
+    sprintf(Buff, "[%c]%s=\"%s\"", WhatAmI(), Name(), m_var());
+  else
+    sprintf(Buff, "[%c]%s=\"\"", WhatAmI(), Name());
+  return Buff;
+  }
+
+//===========================================================================
+
 GCFunctVar::~GCFunctVar()
   {
   //destruct all vars in the function...
@@ -2747,7 +2846,7 @@ GCFunctVar::~GCFunctVar()
 
 //===========================================================================
 
-GCClassVar::GCClassVar(pGCVar &pFirstVar, pchar pName, WORD flags, pGCClassVar pRefClass)
+GCClassVar::GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pGCClassVar pRefClass)
   : GCVar(pFirstVar, pName, flags)
   {
   m_pSubClass = NULL;
@@ -3005,7 +3104,7 @@ pGCVar GCClassVar::GetVarByIndex(int index)
 pGCVar GCClassVar::AddVar( GCInsMngr & IB,
                            pchar pName,
                            pGCDef pDef,
-                           WORD flags)
+                           DWORD flags)
   {
   pGCVar pVar = GetVarByName(pName);
   if (pVar)
@@ -3118,7 +3217,7 @@ void GCClassVar::SaveVal(FilingControlBlock &FCB,
 
 //===========================================================================
 
-GCArrayVar::GCArrayVar(pGCVar &pFirstVar, pchar pName, WORD flags, GCClassVar* pClassRefVar, int ArrayLen) : GCVar(pFirstVar, pName, flags)
+GCArrayVar::GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen) : GCVar(pFirstVar, pName, flags)
   {
   m_pClassRefVar = pClassRefVar;
   m_iArrayLen = ArrayLen;
@@ -3183,6 +3282,8 @@ GCLoadHelp::GCLoadHelp()
   m_pTknParser   = NULL;
   m_iWhilePos    = -1;
   m_iTempTagPos  = -1;
+  m_iTxtLblCnt   = 0;
+  m_iPgLblCnt    = 0;
   }
 
 //---------------------------------------------------------------------------
@@ -3490,6 +3591,8 @@ void GCInsMngr::ConstructConstants()
     GCWatch.m_defFlags |= (DefGenConSet);//Watch
     GCExcludeWatch.m_defFlags |= (DefGenConSet);//ExcludeWatch
     GCWatchInfo.m_defFlags |= (DefGenConSet);//WatchInfo
+    GCTextLabel.m_defFlags |= (DefGenConSet);//TextLabel
+    GCPageLabel.m_defFlags |= (DefGenConSet);//PageLabel
     GCClass.m_defFlags |= (DefSolverSet | DefGenConSet);//Class
     GCEndClass.m_defFlags |= (DefSolverSet | DefGenConSet);//EndClass
     GCTag.m_defFlags |= (DefSolverSet | DefGenConSet);//[
@@ -4106,6 +4209,8 @@ flag GCInsMngr::LoadFunct(char* ParseBuff, WORD InsSet)
     m_pH->m_pClassVar    = NULL;
     m_pH->m_pTempVar     = NULL;
     m_pH->m_iWhilePos    = -1;
+    m_pH->m_iTxtLblCnt   = 0;
+    m_pH->m_iPgLblCnt    = 0;
     }
   m_iStrPos      = -1;
   m_iCalcPos     = -1;
@@ -5473,6 +5578,8 @@ void GCInsMngr::Reset()
     m_pH->m_pClassVar    = NULL;
     m_pH->m_pTempVar     = NULL;
     m_pH->m_iWhilePos    = -1;
+    m_pH->m_iTxtLblCnt   = 0;
+    m_pH->m_iPgLblCnt    = 0;
     }
   m_iStrPos      = -1;
   m_iCalcPos     = -1;
@@ -5700,6 +5807,7 @@ void GCInsMngr::Err(char Code, int errNo, pchar ErrMsg)
     case 166 : errDesc = "Cannot declare an array here."; break;
     case 167 : errDesc = "Array index is not in range."; break;
     case 168 : errDesc = "Cannot exclude watch of this variable."; break;
+    case 169 : errDesc = "Exceeded maximum number of PageLabels allowed."; break;
     default: errDesc = "Unknown Error Number";
     };
 

@@ -45,7 +45,7 @@ const byte FXWC_BM2BTN    = 8;
 const int  MaxFixedFields = 64;//kga 2/10/02 increased this from 48 to 64 for RTTS sizedist data
 const int  MaxFixedRows   = 4096;
 const int  MaxBlkIds      = 256;
-const int  MaxFixedPages  = 64;
+const int  MaxFixedPages  = 80; //64; kga increased this 2/2/07
 const int  MaxFixedControls=256;
 const word FxdEdtCtrlID0  = 200;
 

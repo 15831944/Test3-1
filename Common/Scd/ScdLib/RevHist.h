@@ -2703,11 +2703,12 @@ Build 122 : 16 November 2006
 1370 26/01/07: (#718,719,722) Use of VLE partial pressures optional. Flash tank RequiredT option fixed.
 1372 29/01/07: (#723) Fix VLE BPE errors in Bayer streams.
 1379 30/01/07: (#695,696) VLE fix for project load.
-1391  1/02007: (#727) SMDK fix, and other minor fixes.
+1391  1/02/07: (#727) SMDK fix, and other minor fixes.
+1396  2/02/07: (#623) New pgm command PageLabel(string) and TextLabel(string[, string]).
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1391
+#define SCD_PATCH_SVN    1396
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
