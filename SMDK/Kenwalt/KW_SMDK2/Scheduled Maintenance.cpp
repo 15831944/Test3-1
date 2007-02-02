@@ -61,8 +61,9 @@ bool ScheduledMaintenance::PreStartCheck()
 				std::string errorMsg = "Running Scheduled Maintenance without compensation for the fact that the downtime is not an integral multiple of the stepsize. Failing tasks: ";
 				for (int i = 0; i < failingTasks.size(); i++)
 				{
-					char buffer[3];
-					_itoa_s(failingTasks.at(i), buffer, 10);
+					char buffer[16];
+					sprintf(buffer, "%d", failingTasks.at(i));
+					//_itoa_s(failingTasks.at(i), buffer, 10); VS2003 doesn't like this
 					errorMsg.append(buffer);
 					if (i < failingTasks.size() - 1)
 						errorMsg.append(", ");
