@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __SCHEDULED_MAINTENANCE_H
-#define  __SCHEDULED_MAINTENANCE_H
+#ifndef  __RANDOM_FAILURE_H
+#define  __RANDOM_FAILURE_H
 
 #ifndef __MD_HEADERS_H
 #include "md_headers.h"
@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#ifdef __SCHEDULED_MAINTEANCE_CPP
+#ifdef __RANDOM_FAILURE_CPP
   #define DllImportExport __declspec(dllexport)
 #elif !defined(SMDKDemoU)
   #define DllImportExport __declspec(dllimport)
@@ -22,22 +22,29 @@
 //---------------------------------------------------------------------------
 
 
-struct MaintVariables
+enum PDFType : long { PDFType_Constant, PDFType_Exponential };
+
+struct FailureVariables
   {
   public:
-    double dDesiredDowntime, dDowntime;
-	double dDesiredPeriod, dPeriod;
-	double dOffset, dNextShutdown;
+    double dAvgDowntime, dDowntimeStdDev;
+	double dAvgUptime, dUptimeStdDev;
     CString sDescription;
+    PDFType eFailureType;
+	PDFType eRepairType;
     
-    bool bRunning;
-    double dTotalDowntime, dBackedUpDowntime;
+	double dNextFailure;	//When the task will next fail
+	double dRepairsDone;	//When the task will be repaired
+	double dBackedUpDowntime;	//How much downtime the task needs in actual iterations
+    bool bRunning;			//Whether the task is running (in actual iterations)
+    double dTotalDowntime;	//
+	long lFailureCount;
   };
 
-class ScheduledMaintenance : public MBaseMethod
+class RandomFailure : public MBaseMethod
   {
   public:
-    ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+    RandomFailure(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
@@ -56,12 +63,14 @@ class ScheduledMaintenance : public MBaseMethod
     bool bOn;
 
     double dCurrentTime;
-	bool bForceIntegralPeriod, bForceIntegralDowntime;
-    std::vector<MaintVariables> tasks;
+    std::vector<FailureVariables> tasks;
 
     void SetSize(long size);
 	void Reset();
-	void RevalidateParameters();
+
+	void FailItem(FailureVariables* task);
+	void RepairItem(FailureVariables* task);
+	double CalculateEvent(PDFType ePDF, double dAverage, double dStdDev);
   };
 
 #endif

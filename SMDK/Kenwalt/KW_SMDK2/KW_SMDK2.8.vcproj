@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="KW_SMDK2"
 	ProjectGUID="{20DEA2B6-2062-43A5-A5F6-CD1FE82BAE17}"
+	RootNamespace="KW_SMDK2"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -562,6 +563,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Random Failure.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Scheduled Maintenance.cpp"
 				>
 			</File>
@@ -627,6 +632,10 @@
 			>
 			<File
 				RelativePath="KW_SMDK2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Random Failure.h"
 				>
 			</File>
 			<File

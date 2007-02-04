@@ -8,6 +8,8 @@
 #include <math.h>
 #pragma optimize("", off)
 
+#define ROUNDBY(a, b) a/b - (int)(a/b) < 0.5 ? b * (int)(a/b) : b * (int)(a/b + 1)
+
 //====================================================================================
 
 static double Drw_SchedMaint[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,2., MDrw_End };
@@ -32,8 +34,6 @@ ScheduledMaintenance::ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject
 	bOn = true;
 
 	dCurrentTime = 0;
-	eType = Type_Simple;
-	eStrategy = Strat_Warning;
 }
 
 //---------------------------------------------------------------------------
@@ -46,32 +46,6 @@ void ScheduledMaintenance::Init()
 
 bool ScheduledMaintenance::PreStartCheck()
 {
-	if (eStrategy == Strat_Error || eStrategy == Strat_Warning)
-	{
-		std::vector<int> failingTasks;
-		for (int i = 0; i < tasks.size(); i++)
-			if (fmod(tasks.at(i).dDownTime, getDeltaTime()) != 0)
-				failingTasks.push_back(i);
-
-		if (failingTasks.size() > 0)
-			if (eStrategy == Strat_Warning)
-				Log.Message(MMsg_Warning, "Running Scheduled Maintenance without compensation for the fact that the downtime is not an integral multiple of the stepsize");
-			else
-			{
-				std::string errorMsg = "Running Scheduled Maintenance without compensation for the fact that the downtime is not an integral multiple of the stepsize. Failing tasks: ";
-				for (int i = 0; i < failingTasks.size(); i++)
-				{
-					char buffer[16];
-					sprintf(buffer, "%d", failingTasks.at(i));
-					//_itoa_s(failingTasks.at(i), buffer, 10); VS2003 doesn't like this
-					errorMsg.append(buffer);
-					if (i < failingTasks.size() - 1)
-						errorMsg.append(", ");
-				}
-				m_sErrorMsg = errorMsg.c_str();
-				return false;
-			}
-	}
 	return true;
 }
 
@@ -89,6 +63,8 @@ void ScheduledMaintenance::Reset()
 	dCurrentTime = 0;
 	for (int i = 0; i < tasks.size(); i++)
 	{
+		tasks.at(i).dBackedUpDowntime = 0;
+		tasks.at(i).dNextShutdown = tasks.at(i).dOffset;
 		tasks.at(i).bRunning = true;
 		tasks.at(i).dTotalDowntime = 0;
 	}
@@ -106,19 +82,10 @@ const int maxElements = 20;
 
 void ScheduledMaintenance::BuildDataFields()
 {
-	static MDDValueLst DDB1[]={
-		{Strat_Error,     "Error"},
-		{Strat_Warning,   "Warning"},
-		{Strat_Carry,     "Carry"},
-		{0}};
-
-	static MDDValueLst DDB2[]={ 
-		{ Type_Simple, "Simple" },
-		{0} };
-
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
-	DD.Long ("Strategy", "Strat", (long*)&eStrategy, MF_PARAMETER, DDB1);
-	DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
+	DD.CheckBox("Force Integral Period", "FIP", &bForceIntegralPeriod, MF_PARAMETER);
+	DD.CheckBox("Force Integral Downtime", "FID", &bForceIntegralDowntime, MF_PARAMETER);
+	DD.Long ("Count", "", idDX_Count, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
 	DD.Text("");
 	DD.Double("TotalTime", "T(tot)", &dCurrentTime, MF_RESULT, MC_Time(""));
 	DD.Button("Reset All", "", idDX_Reset, MF_PARAMETER);
@@ -132,15 +99,17 @@ void ScheduledMaintenance::BuildDataFields()
 
 		DD.ArrayElementStart(i);
 		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
-		DD.Long ("Type", "", (long*)&tasks.at(i).eType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
 
-		DD.Double ("Period", "T", &tasks.at(i).dPeriod, MF_PARAMETER, MC_Time(""));
-		DD.Double ("Offset", "T0", &tasks.at(i).dOffset, MF_PARAMETER, MC_Time(""));
-		DD.Double ("Downtime", "Td", &tasks.at(i).dDownTime, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Desired Period", "DT", &tasks.at(i).dDesiredPeriod, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Period", "T", &tasks.at(i).dPeriod, MF_RESULT, MC_Time(""));
+		DD.Double ("Offset", "T0", &tasks.at(i).dOffset, MF_PARAM_STOPPED, MC_Time(""));
+		DD.Double ("Desired Downtime", "DTd", &tasks.at(i).dDesiredDowntime, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Downtime", "Td", &tasks.at(i).dDowntime, MF_RESULT, MC_Time(""));
 
 		DD.Text("");
 		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
 		DD.Double("Total Downtime", "TDown", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time(""));
+		DD.Double("Next Shutdown", "Tls", &tasks.at(i).dNextShutdown, MF_RESULT, MC_Time(""));
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}
@@ -176,7 +145,7 @@ bool ScheduledMaintenance::ExchangeDataFields()
 		DX.Bool = false;
 		return true;
 	}
-		
+
 	return false;
 }
 
@@ -186,10 +155,18 @@ bool ScheduledMaintenance::ValidateDataFields()
 {
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i).dDownTime > tasks.at(i).dPeriod)
-			tasks.at(i).dDownTime = tasks.at(i).dPeriod;
 		if (tasks.at(i).dOffset < 0)
 			tasks.at(i).dOffset = 0;
+
+		if (bForceIntegralPeriod)
+			tasks.at(i).dPeriod = ROUNDBY(tasks.at(i).dDesiredPeriod, getDeltaTime());
+		else
+			tasks.at(i).dPeriod = tasks.at(i).dDesiredPeriod;
+
+		if (bForceIntegralDowntime)
+			tasks.at(i).dDowntime = ROUNDBY(tasks.at(i).dDesiredDowntime, getDeltaTime());
+		else
+			tasks.at(i).dDowntime = tasks.at(i).dDesiredDowntime;
 	}
 	return true;
 }
@@ -199,6 +176,7 @@ bool ScheduledMaintenance::ValidateDataFields()
 void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 {
 	//TODO: Add support for periods other than Simple.
+	RevalidateParameters();
 	dCurrentTime += getDeltaTime();
 	for (int i = 0; i < tasks.size(); i++)
 	{
@@ -208,32 +186,19 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 		}
 		else
 			try
+			{
+				if (tasks.at(i).dNextShutdown < dCurrentTime)
 				{
-				if (tasks.at(i).eType == Type_Simple && dCurrentTime < tasks.at(i).dOffset)
-				{
-					tasks.at(i).bRunning = true;  //Assume no maintenance before the specifed offset;
-					continue;
+					tasks.at(i).dBackedUpDowntime += tasks.at(i).dDowntime;
+					tasks.at(i).dNextShutdown += tasks.at(i).dPeriod;
 				}
-				int cycles;
-
-				if (tasks.at(i).eType == Type_Simple)
-					cycles = (int)((dCurrentTime - tasks.at(i).dOffset) / tasks.at(i).dPeriod) + 1;
-
-				switch (eStrategy)
-				{
-				case (Strat_Warning):
-				case (Strat_Error):
-          {
-					double dTimeInCycle = dCurrentTime - tasks.at(i).dOffset - tasks.at(i).dPeriod * cycles;
-					tasks.at(i).bRunning = dTimeInCycle >= tasks.at(i).dDownTime;
-					break;
-          }
-				case (Strat_Carry):
-					tasks.at(i).bRunning = cycles * tasks.at(i).dDownTime <= tasks.at(i).dTotalDowntime;
-				}
+				tasks.at(i).bRunning = tasks.at(i).dBackedUpDowntime <= 0;
 
 				if (!tasks.at(i).bRunning)
+				{
 					tasks.at(i).dTotalDowntime += getDeltaTime();
+					tasks.at(i).dBackedUpDowntime -= getDeltaTime();
+				}
 			}
 			catch (MMdlException &ex)
 			{
@@ -257,6 +222,27 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 
 //---------------------------------------------------------------------------
 
+void ScheduledMaintenance::RevalidateParameters()
+{
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		if (tasks.at(i).dDesiredDowntime > tasks.at(i).dDesiredPeriod)
+			tasks.at(i).dDesiredDowntime = tasks.at(i).dDesiredPeriod;
+
+		if (bForceIntegralDowntime)
+			tasks.at(i).dDowntime = ROUNDBY(tasks.at(i).dDesiredDowntime, getDeltaTime());
+		else
+			tasks.at(i).dDowntime = tasks.at(i).dDesiredDowntime;
+
+		if (bForceIntegralPeriod)
+			tasks.at(i).dPeriod = ROUNDBY(tasks.at(i).dDesiredPeriod, getDeltaTime());
+		else
+			tasks.at(i).dPeriod = tasks.at(i).dDesiredPeriod;
+	}
+}
+
+//---------------------------------------------------------------------------
+
 void ScheduledMaintenance::SetSize(long size)
 {
 	if (size > maxElements) size = maxElements;
@@ -267,11 +253,10 @@ void ScheduledMaintenance::SetSize(long size)
 		{
 			MaintVariables newTask;
 			newTask.bRunning = true;
-			newTask.dDownTime = 3600;
+			newTask.dDesiredDowntime = 3600;
 			newTask.dOffset = 0;
-			newTask.dPeriod = 24 * 3600;
+			newTask.dDesiredPeriod = 24 * 3600;
 			newTask.dTotalDowntime = 0;
-			newTask.eType = Type_Simple;
 			tasks.push_back(newTask);
 		}
 	if (size < tasks.size())  //We want to remove elements
