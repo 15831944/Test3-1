@@ -8,8 +8,21 @@
 #include "math.h"
 #include "md_headers.h"
 #pragma comment(lib, "rpcrt4.lib")
+
+#define FORCECNVG 1
 //#pragma optimize("", off)
 
+#if 0
+#define DUMPIT0(S, X)           DumpIt(S,X)
+#define DUMPIT1(S, X, A)        DumpIt(S,X,A)
+#define DUMPIT2(S, X, A, B)     DumpIt(S,X,A,B)
+#define DUMPIT3(S, X, A, B, C)  DumpIt(S,X,A,B,C)
+#else
+#define DUMPIT0(S, X)           X
+#define DUMPIT1(S, X, A)        X
+#define DUMPIT2(S, X, A, B)     X
+#define DUMPIT3(S, X, A, B, C)  X
+#endif
 //===========================================================================
 //
 //
@@ -66,19 +79,6 @@ double Bayer::sm_dGrowth_n =	    1.70 ;
 double Bayer::sm_dGrowth_sol =	    1.00 ;
 double Bayer::sm_dGrowth_ssa =	    0.60 ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 byte Bayer::sm_iASatMethod      = ASM_MAD99;
 byte Bayer::sm_iTSEMethod       = TSE_97;
 
@@ -126,7 +126,7 @@ void CBayerConcs::Zero()
 // --------------------------------------------------------------------------
 
 bool CBayerConcs::Converge(MArray & MA)
-{
+  {
   double TLiq = MA.Mass(MP_Liq);
   if (TLiq<1.0e-9)
     {
@@ -141,25 +141,27 @@ bool CBayerConcs::Converge(MArray & MA)
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
   double OldDensity = Density25;
-  while (1) {
+  while (1)
+    {
     Density25 = Range(0.0001, Density25, 10000.0);
-    for (int sn=0; sn<gs_MVDefn.Count(); sn++) {
-	if (gs_MVDefn[sn].IsLiquid())
-	  {
-	    Liq[sn] = MA[sn] / TLiq * Density25 * NaFactor[sn];
-	  }
-    }
+    for (int sn=0; sn<gs_MVDefn.Count(); sn++) 
+      {
+      if (gs_MVDefn[sn].IsLiquid())
+        {
+        Liq[sn] = MA[sn] / TLiq * Density25 * NaFactor[sn];
+        }
+      }
     Liq[CausticSoda] = (MA[CausticSoda] + MA[Alumina]*::CausticSoda.MW/::Alumina.MW)/TLiq*NaFactor[::CausticSoda]*Density25;
-    
+
 
     Density25 = LiquorDensity(T_, MA);
     if  (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0) break;
     OldDensity = Density25;
-    
-  } // end of while
+
+    } // end of while
   Density25 = Max(0.001, Density25);
   return (IterCount>=0);
-}
+  }
 
 //---------------------------------------------------------------------------
 
@@ -341,7 +343,13 @@ double Bayer::get_Density(long Phases, double T, double P, MArray *pMA)
   double Dl=1.0;
   if (FLiq>1.0e-9)
     {
-    LiqConcs25.Converge(MA);
+    if (pMA)
+      {
+      SetStateValid(0, false);
+      LiqConcs25.Converge(MA);
+      }
+    else if (FORCECNVG || StateUpdateReqd(0))
+      LiqConcs25.Converge(MA);
     Dl = LiqConcs25.LiquorDensity(T, MA);
     if (WaterFrac>sm_dH2OTestFrac1)
       {
@@ -351,14 +359,15 @@ double Bayer::get_Density(long Phases, double T, double P, MArray *pMA)
       }
     }
 
-  return DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA);
+  return DUMPIT0("Density", DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA));
   }
 
 //---------------------------------------------------------------------------
 
 double Bayer::LiqCpCalc(MArray & MA, double Tc)
 {
-  LiqConcs25.Converge(MA);
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
   const double A = LiqConcs25.Liq[::Alumina];
   const double C = LiqConcs25.Liq[::CausticSoda];
   const double K1 = 0.99639 - 3.90998e-4 * C - 5.382e-4 * A + (2.46493e-7 * C + 5.7186e-7 * A) * C;
@@ -369,7 +378,8 @@ double Bayer::LiqCpCalc(MArray & MA, double Tc)
 
 double Bayer::LiqHCalc(MArray & MA, double Tc)
 {
-  LiqConcs25.Converge(MA);
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
   const double A = LiqConcs25.Liq[::Alumina];
   const double C = LiqConcs25.Liq[::CausticSoda];
   const double K1 = 0.99639 - 3.90998e-4 * C - 5.382e-4 * A + (2.46493e-7 * C + 5.7186e-7 * A) * C;
@@ -419,7 +429,7 @@ double Bayer::get_msEnthalpy(long Phases, double T, double P, MArray *pMA)
       }
     }
   double Hs=(FSol>1.0e-9) ? gs_MVDefn.msHz(MP_Sol, T, P, PropOverides, &MA) : 0.0;
-  return msEnthalpyMix(FSol, Hs, FLiq, Hl, (1.0-FSol-FLiq), dNAN, T, P, MA);
+  return DUMPIT0("msEnthalpy", msEnthalpyMix(FSol, Hs, FLiq, Hl, (1.0-FSol-FLiq), dNAN, T, P, MA));
   }
 
 //---------------------------------------------------------------------------
@@ -472,16 +482,24 @@ double Bayer::get_SaturationT(double P, MArray *pMA)
 {
   MArray MA(pMA ? (*pMA) : this);
 
+  if (pMA)
+    {
+    SetStateValid(0, false);
+    LiqConcs25.Converge(MA);
+    }
+  else if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
+
   double PureSatT = MSpModelBase::get_SaturationT(P, &MA);
   if (MA.Mass(MP_Liq)/GTZ(MA.Mass())<1.0e-6)
-    return PureSatT;
+    return DUMPIT1("SaturationTPure", PureSatT, P);
 
 
   const double TotNa2C = NaOnCS();
   double SatT = (4737.8+0.479859*LiqConcs25.Liq[::CausticSoda]*TotNa2C)/
     (17.43407-log(Max(1.0, P)));
   SatT = Max(SatT, PureSatT);
-  return SatT;
+  return DUMPIT3("SaturationT", SatT, P, TotNa2C, LiqConcs25.Liq[::CausticSoda]);
 
 }
 
@@ -490,7 +508,7 @@ double Bayer::get_SaturationT(double P, MArray *pMA)
 double Bayer::get_SaturationP(double T, MArray *pMa)
 {
 
-  return exp ( 17.43407 - ( 4737.8 + 0.479859 * LiqConcs25.Liq[::CausticSoda] * NaOnCS() ) / Max(200.0, T) );
+  return DUMPIT1("SaturationP", exp ( 17.43407 - ( 4737.8 + 0.479859 * LiqConcs25.Liq[::CausticSoda] * NaOnCS() ) / Max(200.0, T) ), T);
 
 }
 
@@ -502,7 +520,7 @@ double Bayer::BoilPtElev(MArray & MA, double P)
   double PureSatT = MSpModelBase::get_SaturationT(P, &MA);
 
   const double Sodium = TotalNa25();
-  return get_SaturationT(P, &MA)  -  PureSatT;
+  return DUMPIT1("BoilPtElev", get_SaturationT(P, &MA)  -  PureSatT, P);
 }
 
 //---------------------------------------------------------------------------
@@ -514,8 +532,13 @@ double Bayer::get_DynamicViscosity(long Phases, double T, double P, MArray *pMA)
   
   MArray MA(pMA ? (*pMA) : this);
     
-
-  LiqConcs25.Converge(MA);
+  if (pMA)
+    {
+    SetStateValid(0, false);
+    LiqConcs25.Converge(MA);
+    }
+  else if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
   double Tc = Max(-41.0, K_2_C(T));
   const double C = LiqConcs25.Liq[::CausticSoda];
   const double A = LiqConcs25.Liq[::Alumina];
@@ -826,7 +849,7 @@ DWORD Bayer::GetPropertyVisibility(long Index)
 
 #define GV(x, type) case id##x :Value = type##x; return 
 #define GVAL(x)   case id##x : Value = d##x; return
-#define GVAL2(v, x) case id##v : LiqConcs25.Converge(MArray(this)); Value = x; return
+#define GVAL2(v, x) case id##v : if (FORCECNVG || StateUpdateReqd(0)) LiqConcs25.Converge(MArray(this)); Value = x; return
 #define GVALF(x) case id##x : Value = x##(); return
 #define GVALFT(x) case id##x : Value = x##(T); return
 
@@ -1034,7 +1057,8 @@ double Bayer::DigAtoCEquil(double T_)
 
   double Tc = K2C(T_);
 
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
 
   double C = LiqConcs25.Liq[::CausticSoda];
   if (C<1.0e-9) return 0.0;
@@ -1084,7 +1108,8 @@ double Bayer::DRatio(double T_)
   
 double Bayer::CausticConc(double T_)
 {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return Max(0.0, LiqConcs25.Liq[::CausticSoda] * DRatio(T_));
 }
 
@@ -1092,7 +1117,8 @@ double Bayer::CausticConc(double T_)
 
 double Bayer::AluminaConc(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return Max(0.0, LiqConcs25.Liq[::Alumina]*DRatio(T_));
   }
 
@@ -1100,7 +1126,8 @@ double Bayer::AluminaConc(double T_)
 
 double Bayer::SodaConc(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double liq25S = LiqConcs25.Liq[::CausticSoda]
                   + LiqConcs25.Liq[::SodiumCarbonate];
 
@@ -1111,7 +1138,8 @@ double Bayer::SodaConc(double T_)
 
 double Bayer::SodiumCarbonateConc(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return Max(0.0, LiqConcs25.Liq[SodiumCarbonate]*DRatio(T_));
   }
 
@@ -1119,7 +1147,8 @@ double Bayer::SodiumCarbonateConc(double T_)
 
 double Bayer::SodiumSulphateConc(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return Max(0.0, LiqConcs25.Liq[SodiumSulphate]*DRatio(T_));
   }
 
@@ -1127,7 +1156,8 @@ double Bayer::SodiumSulphateConc(double T_)
 
 double Bayer::SodiumOxalateConc(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return Max(0.0, LiqConcs25.Liq[SodiumOxalate]*DRatio(T_));
   }
 
@@ -1148,14 +1178,16 @@ double Bayer::SolidsConc25()
 
 double Bayer::TOC(double T_)
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Toc = (LiqConcs25.Liq[::SodiumOxalate]*2.0 + LiqConcs25.Liq[::Organics]*5.2)*MW_C/::SodiumCarbonate.MW;
   return Max(0.0, Toc*DRatio(T_));
   }
 
 double Bayer::TOC25()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return (LiqConcs25.Liq[::SodiumOxalate]*2.0)*MW_C/::SodiumCarbonate.MW
       + LiqConcs25.Liq[::Organics]*5.2*MW_C/::SodiumCarbonate.MW;
   }
@@ -1164,7 +1196,8 @@ double Bayer::TOC25()
 double Bayer::TOS(double T_)
   {
   MArray MA(this);
-  LiqConcs25.Converge(MA);
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
   const double InorganicSoda = LiqConcs25.Liq[::SodiumSulphate] + LiqConcs25.Liq[::SodiumChloride] 
          +  LiqConcs25.Liq[::SodiumCarbonate] + LiqConcs25.Liq[::CausticSoda];
   const double TSodium = InorganicSoda + LiqConcs25.Liq[::SodiumOxalate] + LiqConcs25.Liq[::Organics];
@@ -1174,7 +1207,8 @@ double Bayer::TOS(double T_)
 double Bayer::TOS25()
 {
   MArray MA(this);
-  LiqConcs25.Converge(MA);
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MA);
   const double InorganicSoda = 
     LiqConcs25.Liq[::SodiumSulphate] + 
     LiqConcs25.Liq[::SodiumChloride] + 
@@ -1208,7 +1242,8 @@ double Bayer::FreeCaustic(double T_)
 
 double Bayer::AtoC()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return LiqConcs25.Liq[::Alumina] / GTZ(LiqConcs25.Liq[::CausticSoda]);
   }
 
@@ -1216,7 +1251,8 @@ double Bayer::AtoC()
 
 double Bayer::CtoS()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return LiqConcs25.Liq[::CausticSoda]
          / GTZ(LiqConcs25.Liq[::CausticSoda] + LiqConcs25.Liq[::SodiumCarbonate]);
   }
@@ -1225,7 +1261,8 @@ double Bayer::CtoS()
 
 double Bayer::CltoC()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return (LiqConcs25.Liq[SodiumChloride])/GTZ(LiqConcs25.Liq[::CausticSoda]);
   }
 
@@ -1233,7 +1270,8 @@ double Bayer::CltoC()
 
 double Bayer::Na2SO4toC()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return (LiqConcs25.Liq[SodiumSulphate])/GTZ(LiqConcs25.Liq[::CausticSoda]);
   }
 
@@ -1259,7 +1297,8 @@ double Bayer::IonicStrength()
   const double MW_Na2CO3   = ::SodiumCarbonate.MW;  //105.989..
   const double MW_NaCl     = ::SodiumChloride.MW;   //58.4425..
   const double MW_Na2SO4   = ::SodiumSulphate.MW;   //142.043..
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double I;
   const double C = LiqConcs25.Liq[::CausticSoda];
   switch (sm_iASatMethod)
@@ -1317,94 +1356,95 @@ double Bayer::AluminaConcSat(double T_)
     {
     case ASM_Rosenberg:
       {
-	// Saturated Alumina concentration (ie Alumina concentration at Equilibrium)
-	//calculated using the formula found in:
-	//Fourth International Alumina Quality Workshop  June 1996 Proceedings
-	//Rosenberg S.P, Healy S.J 'A Thermodynamic Model for Gibbsite Solubility
-	//in Bayer Liquors'.
-	const double a0 = -9.2082;
-	const double a3 = -0.8743;
-	const double a4 = 0.2149; 
-	const double dG = -30960.0; //Gibbs energy of dissolution
-	const double R  = R_c;//8.3145; //Universal Gas Constant 8.314472
-	const double X    = a0*I2/(1.0+I2) - a3*I - a4*Pow(I, 3.0/2.0);
-	const double Keq  = Exps(dG/(R*T_)); //Equilibrium Constant
-	const double ASat = 0.96197*C/(1.0+(Pow(10.0, X)/Keq));
-	return ASat;
+      // Saturated Alumina concentration (ie Alumina concentration at Equilibrium)
+      //calculated using the formula found in:
+      //Fourth International Alumina Quality Workshop  June 1996 Proceedings
+      //Rosenberg S.P, Healy S.J 'A Thermodynamic Model for Gibbsite Solubility
+      //in Bayer Liquors'.
+      const double a0 = -9.2082;
+      const double a3 = -0.8743;
+      const double a4 = 0.2149; 
+      const double dG = -30960.0; //Gibbs energy of dissolution
+      const double R  = R_c;//8.3145; //Universal Gas Constant 8.314472
+      const double X    = a0*I2/(1.0+I2) - a3*I - a4*Pow(I, 3.0/2.0);
+      const double Keq  = Exps(dG/(R*T_)); //Equilibrium Constant
+      const double ASat = 0.96197*C/(1.0+(Pow(10.0, X)/Keq));
+      return DUMPIT1("AluminaConcSat", ASat, T_);
       }
     case ASM_MAD99:
       { // This is ACTUALLY the ALPART correlation, included so as to allow compatibility with the
-	// old method (see bug above...)
-	const double a0 = -9.11181236102574;
-	const double a3 = -0.902799187095254;
-	const double a4 = 0.239197078637227;
-	const double dG = -30960.0;
-	const double X   = a0*I2 / (1.0+I2) - a3*I - a4*Pow(GTZ(I),1.5);
-	const double Keq = Exps(dG/(R_c*T_));
-	return  0.96197*C / (1.0 + (Pow(10.0, X) / Keq));
+      // old method (see bug above...)
+      const double a0 = -9.11181236102574;
+      const double a3 = -0.902799187095254;
+      const double a4 = 0.239197078637227;
+      const double dG = -30960.0;
+      const double X   = a0*I2 / (1.0+I2) - a3*I - a4*Pow(GTZ(I),1.5);
+      const double Keq = Exps(dG/(R_c*T_));
+      return  DUMPIT1("AluminaConcSat", 0.96197*C / (1.0 + (Pow(10.0, X) / Keq)), T_);
       }
     case ASM_MAD05:
       {
-	const double a0 = -8.7168; //-9.2082;
-	const double a3 = -0.7767; //-0.8743;
-	const double a4 =  0.2028;
-	const double dG = -30960.0;
-	const double E   = a0*I2 / (1.0+I2) - I*(a3 + a4*I2);
-	const double Keq = Exps(dG/(R_c*T_));
-	return 0.96197*C / (1.0 + (Pow(10.0, E) / Keq));
+      const double a0 = -8.7168; //-9.2082;
+      const double a3 = -0.7767; //-0.8743;
+      const double a4 =  0.2028;
+      const double dG = -30960.0;
+      const double E   = a0*I2 / (1.0+I2) - I*(a3 + a4*I2);
+      const double Keq = Exps(dG/(R_c*T_));
+      return DUMPIT1("AluminaConcSat", 0.96197*C / (1.0 + (Pow(10.0, E) / Keq)), T_);
       }
 
 
     }
-  return 0.0;
+  return DUMPIT1("AluminaConcSat", 0.0, T_);
   }
 
 //---------------------------------------------------------------------------
 
 
 double Bayer::LVolume25()
-{
+  {
   const double mt=Mass(MP_Liq);
   return ((mt>=UsableMass) ? (mt / get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL)) : 0.0);
-}
+  }
 
 double Bayer::SLVolume25()
-{
+  {
   const double mt=Mass(MP_SL);
   return ((mt>=UsableMass) ? (mt / get_Density(MP_SL, C_2_K(25.0), Pressure, NULL)) : 0.0);
-}
+  }
 
 //---------------------------------------------------------------------------
 
 double Bayer::LDensity25()
-{
+  {
   return (get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL));
-}
+  }
 
 double Bayer::SLDensity25()
-{
+  {
   return (get_Density(MP_SL, C_2_K(25.0), Pressure, NULL));
-}
+  }
 
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 double Bayer::AtoCSaturation(double T_)
-{
+  {
   double C = CausticConc(T_);
   if (C<1.0e-12)
     return 0.0;
   const double ACsat = AluminaConcSat(T_) / GTZ(C);
   return ACsat;
-}
+  }
 
 //---------------------------------------------------------------------------
 
 
 double Bayer::BoundSodaSat(double T_)
-{
-  LiqConcs25.Converge(MArray(this));
+  {
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   const double C = LiqConcs25.Liq[::CausticSoda];
   const double C_atT  = C*DRatio(T_);
   const double Aeq    = AluminaConcSat(T_);
@@ -1414,18 +1454,18 @@ double Bayer::BoundSodaSat(double T_)
   const double C2S    = CtoS();
   const double X      = sm_dK1_BoundSodaCalc * (0.000598*C - 0.00036*K_2_C(T_) + 0.019568*TOOC2C) * (1.0 - 0.758*C2S);
   const double BoundSoda = X * Sqr(AC-ACeq);
-  return BoundSoda;
-  
-}
+  return DUMPIT0("BoundSoda", BoundSoda);
+
+  }
 
 double Bayer::SSNRatio(double T_)
-{   // AtoC actual / AtoC saturation ==> A/ASat
+  {   // AtoC actual / AtoC saturation ==> A/ASat
   const double C = CausticConc(T_);
   if (C<1.0e-12)
     return 0.0;
   const double ACsat = AtoCSaturation(T_);
   return AtoC() / GTZ(ACsat);
-}
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1434,38 +1474,41 @@ double Bayer::SSNRatio(double T_)
 
 double Bayer::TotalNa25()
   {//TotalNa Conc @ 25 expressed as Na2CO3
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Sodium = LiqConcs25.Liq[::CausticSoda]       // NaOH+NaAl[OH]4
-                  + LiqConcs25.Liq[::SodiumCarbonate] // Na2CO3
-                  + LiqConcs25.Liq[SodiumOxalate]     // Na2C2O4
-                  + LiqConcs25.Liq[SodiumSilicate]    // Na2SiO3
-                  + LiqConcs25.Liq[Organics]         //  Na2C5.2O7.2
-                  + LiqConcs25.Liq[SodiumChloride]    // NaCl
-                  + LiqConcs25.Liq[SodiumSulphate];    // Na2SO4
-                  
-  return Sodium;
++ LiqConcs25.Liq[::SodiumCarbonate] // Na2CO3
++ LiqConcs25.Liq[SodiumOxalate]     // Na2C2O4
++ LiqConcs25.Liq[SodiumSilicate]    // Na2SiO3
++ LiqConcs25.Liq[Organics]         //  Na2C5.2O7.2
++ LiqConcs25.Liq[SodiumChloride]    // NaCl
++ LiqConcs25.Liq[SodiumSulphate];    // Na2SO4
+
+return Sodium;
   }
 
 //---------------------------------------------------------------------------
 
 double Bayer::NaOnCS() 
-{ 
- return TotalNa25()/GTZ(LiqConcs25.Liq[::CausticSoda]);
-}
+  { 
+  return TotalNa25()/GTZ(LiqConcs25.Liq[::CausticSoda]);
+  }
 
 
 double Bayer::Na2CO3toS()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return LiqConcs25.Liq[::SodiumCarbonate]
-         / GTZ(LiqConcs25.Liq[::CausticSoda] + LiqConcs25.Liq[::SodiumCarbonate]);
+/ GTZ(LiqConcs25.Liq[::CausticSoda] + LiqConcs25.Liq[::SodiumCarbonate]);
   }
 
 //---------------------------------------------------------------------------
 
 double Bayer::OrganateConc25()
   {//Organic Na2C5O7 + NaOrg Conc @ 25
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Organate = LiqConcs25.Liq[::Organics];
   return Organate;
   }
@@ -1474,7 +1517,8 @@ double Bayer::OrganateConc25()
 
 double Bayer::OxalateConc25()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Oxalate = LiqConcs25.Liq[::SodiumOxalate];
   return Oxalate;
   }
@@ -1482,28 +1526,31 @@ double Bayer::OxalateConc25()
 //---------------------------------------------------------------------------
 
 double Bayer::TotalOrganics25()
-{
-  LiqConcs25.Converge(MArray(this));
+  {
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Organics = LiqConcs25.Liq[::Organics] + LiqConcs25.Liq[::SodiumOxalate];
   return Organics;
-}
+  }
 //---------------------------------------------------------------------------
 
 double Bayer::ChlorineConc25()
-{
-  LiqConcs25.Converge(MArray(this));
+  {
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Chlorine = LiqConcs25.Liq[::SodiumChloride];
   return Chlorine;
-}
+  }
 
 //---------------------------------------------------------------------------
 
 double Bayer::SulphateConc25()
-{
-  LiqConcs25.Converge(MArray(this));
+  {
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   double Sulphate = LiqConcs25.Liq[::SodiumSulphate];
   return Sulphate;
-}
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1511,29 +1558,52 @@ double Bayer::SulphateConc25()
 
 double Bayer::TOOCtoC()
   {
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   return (LiqConcs25.Liq[::SodiumOxalate]*2.0 + LiqConcs25.Liq[::Organics]*5.2)/GTZ(LiqConcs25.Liq[::CausticSoda]);
   }
 
 
 
 double Bayer::AluminaSSN(double T_)
-{
-/* the parameter (supersaturated alumina) / (free caustic) was found at MAD
-to be a very good measure of clarification and press floor stability - it
-was the best measure of the propensity for homogeneous nucleation of a
-pregnant liquor. The measure is gpl of alumina (as alumina) above the
-saturation concentration divided by free caustic - i.e. if there are 112 gpl
-of Al2O3 and A-sat is 75 gpl then the supersaturated alumina is (112 - 75) =
-37 gpl. If the free caustic was 70 gpl (as Na2CO3) then the supersaturation
-number is (37/70) = 0.53. Maybe as "Alumina_SSN"
+  {
+  /* the parameter (supersaturated alumina) / (free caustic) was found at MAD
+  to be a very good measure of clarification and press floor stability - it
+  was the best measure of the propensity for homogeneous nucleation of a
+  pregnant liquor. The measure is gpl of alumina (as alumina) above the
+  saturation concentration divided by free caustic - i.e. if there are 112 gpl
+  of Al2O3 and A-sat is 75 gpl then the supersaturated alumina is (112 - 75) =
+  37 gpl. If the free caustic was 70 gpl (as Na2CO3) then the supersaturation
+  number is (37/70) = 0.53. Maybe as "Alumina_SSN"
   Al_FC_SSN = C * (AC - AC_eq) / FC  */
-  LiqConcs25.Converge(MArray(this));
+  if (FORCECNVG || StateUpdateReqd(0))
+    LiqConcs25.Converge(MArray(this));
   const double C = LiqConcs25.Liq[::CausticSoda];
   if (C < 1.0e-12)
-    return 0.0;
+    return   DUMPIT1("AluminaSSN", 0.0, T_);
   const double ACsat = AtoCSaturation(T_);
   const double FC = FreeCaustic(C_2_K(25.0));
   const double Al_FC_SSN = C * (AtoC() - ACsat)/GTZ(FC);
-  return Al_FC_SSN;
-}
+  return DUMPIT1("AluminaSSN", Al_FC_SSN, T_);
+  }
+
+
+double  Bayer::DumpIt(LPCTSTR FnTag, double V, double x1, double x2, double x3)
+  {
+  if (Valid(x3))
+    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g %25.12g)", FnTag, Tag, V, x1,x2,x3);
+  else if (Valid(x2))
+    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g)", FnTag, Tag, V, x1,x2);
+  else if (Valid(x1))
+    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g)", FnTag, Tag, V, x1);
+  else
+    Dbg.PrintLn("%-20s %-30s %25.12g  ()", FnTag, Tag, V);
+  return V;
+  };
+
+bool Bayer::StateUpdateReqd(int i)
+  {
+  //Dbg.PrintLn("%-20s %-30s %25.12g  ()", FnTag, Tag, V);
+
+  return MSpModelBase::StateUpdateReqd(i);
+  }; 

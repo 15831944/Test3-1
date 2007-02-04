@@ -13,32 +13,32 @@ class Bayer; // forward declare
 
 // A helper class to assist with calculating iterative concentration and density calculations.
 class CBayerConcs
-{
- public:
-  static bool     NaFactorOK;
-  static MArray   NaFactor;
-  
-  Bayer    *pBayerMdl;
-  MArray          Liq; //array of concentrations at 25C as Na2CO3 Equiv
-  
-  double          Density25;    // Density @ 25 C
-  double denOld;    // Start with this rather than 1000.0 to accelerate convergence
-  CBayerConcs(Bayer *pMdl);
-  void            Zero();
-  bool            Converge(MArray & MA);
-  double          LTotalSodium(MArray & MA);
-  double          LTotalInorganicSodium(MArray & MA);
-  double          LiquorDensity(double T_, MArray & MA);
-  static double   WaterDensity(double T_);
-  static double   LiquorDensEqn1(double Tc,
-				 double A, double C,
-				 double L1,    // Carbonate
-				 double L2,    // Chloride
-				 double L3,    // Sulphate
-				 double L4,    // Oxalate
-				 double L5     // Organic Soda
-				 );
-};
+  {
+  public:
+    static bool     NaFactorOK;
+    static MArray   NaFactor;
+
+    Bayer    *pBayerMdl;
+    MArray          Liq; //array of concentrations at 25C as Na2CO3 Equiv
+
+    double          Density25;    // Density @ 25 C
+    double denOld;    // Start with this rather than 1000.0 to accelerate convergence
+    CBayerConcs(Bayer *pMdl);
+    void            Zero();
+    bool            Converge(MArray & MA);
+    double          LTotalSodium(MArray & MA);
+    double          LTotalInorganicSodium(MArray & MA);
+    double          LiquorDensity(double T_, MArray & MA);
+    static double   WaterDensity(double T_);
+    static double   LiquorDensEqn1(double Tc,
+      double A, double C,
+      double L1,    // Carbonate
+      double L2,    // Chloride
+      double L3,    // Sulphate
+      double L4,    // Oxalate
+      double L5     // Organic Soda
+      );
+  };
 
 
 //===========================================================================
@@ -65,13 +65,6 @@ class Bayer : public MSpModelBase, public MIBayer
     static double sm_dGrowth_n;
     static double sm_dGrowth_sol;
     static double sm_dGrowth_ssa;
-    
-
-
-
-
-
-
 
     static byte sm_iVersion;
     static byte   sm_iASatMethod;
@@ -86,26 +79,26 @@ class Bayer : public MSpModelBase, public MIBayer
     double     dRqd_Ox, dRqd_Org;
     double     dRqd_SolFrac;
     double dRqd_Ca;
-    
+
 
     static     CArray <int, int> LclParm;
-  
+
   public:
-	  Bayer(TaggedObject *pNd);
-	  ~Bayer();
+    Bayer(TaggedObject *pNd);
+    ~Bayer();
 
     bool            ValidateDataFields();
 
     // Standard Methods
-	  bool            get_IsBaseClassOf(LPCTSTR OtherProgID);
-	  LPCTSTR         get_PreferredModelProgID();
-	  double          get_Density(long Phases, double T, double P, MArray * pMA);
-	  double          get_msEnthalpy(long Phases, double T, double P, MArray * pMA);
-	  double          get_msEntropy(long Phases, double T, double P, MArray * pMA);
-	  double          get_msCp(long Phases, double T, double P, MArray * pMA);
-	  double          get_SaturationT(double P, MArray * pMA);
-	  double          get_SaturationP(double T, MArray * pMA);
-	  double          get_DynamicViscosity(long Phases, double T, double P, MArray * pMA);
+    bool            get_IsBaseClassOf(LPCTSTR OtherProgID);
+    LPCTSTR         get_PreferredModelProgID();
+    double          get_Density(long Phases, double T, double P, MArray * pMA);
+    double          get_msEnthalpy(long Phases, double T, double P, MArray * pMA);
+    double          get_msEntropy(long Phases, double T, double P, MArray * pMA);
+    double          get_msCp(long Phases, double T, double P, MArray * pMA);
+    double          get_SaturationT(double P, MArray * pMA);
+    double          get_SaturationP(double T, MArray * pMA);
+    double          get_DynamicViscosity(long Phases, double T, double P, MArray * pMA);
     double          get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
 
     // Define accessable "properties"
@@ -143,7 +136,7 @@ class Bayer : public MSpModelBase, public MIBayer
     double          LiqHCalc(MArray & MA, double Tc);
     double          BoilPtElev(MArray & MA, double T);
     void            InputCalcs(bool DoIt, double T_);
-    void LiquorComposition(bool);
+    void            LiquorComposition(bool);
     double          Molality(MArray & MA, double &, double &);
     double          DigAtoCEquil(double);
     double          PFAtoCEquil(double);
@@ -166,12 +159,16 @@ class Bayer : public MSpModelBase, public MIBayer
     double          SulphateConc25();
     double          TOS(double T_);
     double          TOS25();
-    double	    TOC25();
+    double	        TOC25();
     double          TOStoTOC();
-    double	    SolidsConc25();
+    double	        SolidsConc25();
     double          TOOCtoC();
     double          AluminaSSN(double T_);
-    double          NaOnCS();
+    double          NaOnCS();                  
+
+  protected:
+    double          DumpIt(LPCTSTR Tag, double V, double x1=NAN, double x2=NAN, double x3=NAN);
+    bool            StateUpdateReqd(int i); 
   };
 
 #endif

@@ -14,11 +14,11 @@
 #include "md_data.h"
 
 #ifdef __MD_SPMODEL_CPP
-  #define DllImportExport __declspec(dllexport)
+#define DllImportExport __declspec(dllexport)
 #elif !defined(SMDK1)
-  #define DllImportExport __declspec(dllimport)
+#define DllImportExport __declspec(dllimport)
 #else
-  #define DllImportExport
+#define DllImportExport
 #endif
 
 //---------------------------------------------------------------------------
@@ -64,18 +64,18 @@ class DllImportExport MSpModelDefBase : public MSubConstructBaseDef
 class Obj##SpMdlDef :  public MSpModelDefBase \
   { \
   public: \
-    Obj##SpMdlDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL); \
-    virtual MSpModelBase * Construct(TaggedObject * pNd); \
+  Obj##SpMdlDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL); \
+  virtual MSpModelBase * Construct(TaggedObject * pNd); \
   }; \
-extern Obj##SpMdlDef Obj##_D; \
-extern Obj * gs_p##Obj;  
+  extern Obj##SpMdlDef Obj##_D; \
+  extern Obj * gs_p##Obj;  
 
 #define IMPLEMENT_SPECIEMODEL(Obj, Class, ShortDesc, Desc, DLL) \
-Obj##SpMdlDef::Obj##SpMdlDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL) : \
+  Obj##SpMdlDef::Obj##SpMdlDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL) : \
   MSpModelDefBase(pName, pClassId, pShortDesc, pDesc, Flgs, pDLL) { }; \
-MSpModelBase * Obj##SpMdlDef::Construct(TaggedObject * pNd) { return new Obj(pNd); }; \
-Obj##SpMdlDef Obj##_D(DLL##"*"##Class, NULL, ShortDesc, Desc, 0, DLL); \
-Obj * gs_p##Obj=NULL;
+  MSpModelBase * Obj##SpMdlDef::Construct(TaggedObject * pNd) { return new Obj(pNd); }; \
+  Obj##SpMdlDef Obj##_D(DLL##"*"##Class, NULL, ShortDesc, Desc, 0, DLL); \
+  Obj * gs_p##Obj=NULL;
 
 //---------------------------------------------------------------------------
 //
@@ -124,17 +124,24 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
 
     double          RefTemp() const;
 
-	int             getFidelity();
+    int             getFidelity();
     SpPropOveride * getPropOverides();
     LPCTSTR         getTag();
     MVector         getVector();
     bool            TestStateValid(int i);
     void            SetStateValid(int i, bool On=true);
+    bool            StateUpdateReqd(int i) 
+      { 
+      if (TestStateValid(i))
+        return false;
+      SetStateValid(i, true);
+      return true;
+      }
 
     SV_View         getView();
     SV_ViewBasis    getViewBasis();
 
-	// ----------------------------- Basic State Access
+    // ----------------------------- Basic State Access
     double          getM(long i) const;
     void            putM(long i, double M) const;
     double          getMl(long i) const;
@@ -144,19 +151,19 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     double          getPressure();                 
     double          getTemperature();              
 
-	// ----------------------------- 
+    // ----------------------------- 
     MSMFnRanges   & getSMFnRanges();
 
     double          getBoilingPtElevation(double P, MArray * pMA);
 
-	double          Mass(DWORD Phases=MP_All) const;
+    double          Mass(DWORD Phases=MP_All) const;
     double          Moles(DWORD Phases=MP_All) const;
     double          MoleWt(DWORD Phases=MP_All) const;
 
     double          MassFrac(DWORD Phases=MP_All) const;
     double          MoleFrac(DWORD Phases=MP_All) const;
 
-	void            ScaleMass(DWORD Phases, double Scl);
+    void            ScaleMass(DWORD Phases, double Scl);
 
     // ----------------------------- Properties
     //virtual LPCTSTR DefinedPropertyMapName() { return ClassId(); }
@@ -234,11 +241,11 @@ class DllImportExport MSpQualityDefBase : public MSubConstructBaseDef
 class Obj##SpQualDef :  public MSpQualityDefBase \
   { \
   public: \
-    Obj##SpQualDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL); \
-    virtual MSpQualityBase* Construct(TaggedObject * pNd); \
-    static MSpQualityBase* ConstructX(TaggedObject * pNd); \
+  Obj##SpQualDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL); \
+  virtual MSpQualityBase* Construct(TaggedObject * pNd); \
+  static MSpQualityBase* ConstructX(TaggedObject * pNd); \
   }; \
-extern Obj##SpQualDef Obj##_D; 
+  extern Obj##SpQualDef Obj##_D; 
 //extern Obj * gs_p##Obj;  
 
 #define ATTACH_SPECIEQUALITY(Obj) \
@@ -248,13 +255,13 @@ public: \
   static int GroupIdNo()   { return sm_GroupIdNo; };
 
 #define IMPLEMENT_SPECIEQUALITY(Obj, Class, ShortDesc, Desc, DLL) \
-Obj##SpQualDef::Obj##SpQualDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL) : \
+  Obj##SpQualDef::Obj##SpQualDef(LPCTSTR pName, LPCTSTR pClassId, LPCTSTR pShortDesc, LPCTSTR pDesc, unsigned long Flgs, LPCTSTR pDLL) : \
   MSpQualityDefBase(pName, pClassId, pShortDesc, pDesc, Flgs, pDLL, &Obj::sm_GroupIdNo) \
   {   /*Obj::sm_GroupIdNo = Obj##_D.m_pClassDef->GroupIdNo();*/ }; \
-MSpQualityBase* Obj##SpQualDef::Construct(TaggedObject * pNd) { return new Obj(pNd); }; \
+  MSpQualityBase* Obj##SpQualDef::Construct(TaggedObject * pNd) { return new Obj(pNd); }; \
   Obj##SpQualDef Obj##_D(DLL##"*"##Class, NULL, ShortDesc, Desc, 0, DLL); \
-Obj##SpQualDef * Obj::sm_pQualDefn=&Obj##_D; \
-int Obj::sm_GroupIdNo=-1;
+  Obj##SpQualDef * Obj::sm_pQualDefn=&Obj##_D; \
+  int Obj::sm_GroupIdNo=-1;
 //Obj * gs_p##Obj;  
 
 //---------------------------------------------------------------------------
