@@ -1627,11 +1627,17 @@ pGCIns GCTextLabelDef::Construct(GCInsMngr & IB)
     strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
     if ((strcmp(Tkn,")")==0) || (strcmp(Tkn,",") == 0))
       {//blank line
-      GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch);
+      if (IB.m_pH->m_pClassVar)
+        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, Lbl, 0);
+      else
+        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch);
 	    }
     else
       {
-      GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch, Tkn);
+      if (IB.m_pH->m_pClassVar)
+        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, Lbl, 0, Tkn);
+      else
+        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch, Tkn);
       strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
       if ((strcmp(Tkn,")")!=0) && (strcmp(Tkn,",")!=0))
         IB.Err(ErrBuild, 107);
@@ -2877,6 +2883,7 @@ GCClassVar::~GCClassVar()
 
 void GCClassVar::CopyClass()
   {//makes a set of vars for the PGM instance of the class, ie makes a copy based on the reference class
+  int TxtLblCnt = 0;
   pGCVar pVar = m_pRefClass->m_pVarList;
   while (pVar)
     {
@@ -2944,6 +2951,14 @@ void GCClassVar::CopyClass()
         pClassVar->m_pSubClass = NULL;
         pClassVar->m_pParentClass = this;
         pClassVar->CopyClass();
+        break;
+        }
+      case VarLabel:
+        {
+        char Buff[512];
+        char Lbl[32];
+        sprintf(Lbl, "%s_%d", pVar->Name(), TxtLblCnt++);
+        GCVar* pLabel = new GCLabelVar(m_pVarList, Lbl, VarPgmWatch, pVar->GetStrVal(Buff));
         break;
         }
       case VarArray:
@@ -6887,6 +6902,8 @@ void GCInsMngr::DoConstructClass()
       if (pDef->m_defFlags & DefDataType)
         DoConstructVars((*pDef), pClassVar->m_pVarList);
       else if (pDef == &GCFunct || pDef == &GCStrFunct)
+        pDef->Construct(*this);
+      else if (pDef == &GCTextLabel)
         pDef->Construct(*this);
       else
         Err(ErrBuild, 132);

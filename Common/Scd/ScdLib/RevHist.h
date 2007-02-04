@@ -2705,10 +2705,11 @@ Build 122 : 16 November 2006
 1379 30/01/07: (#695,696) VLE fix for project load.
 1391  1/02/07: (#727) SMDK fix, and other minor fixes.
 1396  2/02/07: (#623) New pgm command PageLabel(string) and TextLabel(string[, string]).
+1399  4/02/07: (#623) Extend PGM TextLabel(..) command to work in class definitions.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1396
+#define SCD_PATCH_SVN    1399
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
