@@ -289,6 +289,9 @@ class DllImportExport CHXSide
 
     double         m_Pi;
     double         m_Po;
+    
+    double         m_VfIn;
+
     double         Duty;
     double         MaxFlDuty;
     double         MaxNfDuty;

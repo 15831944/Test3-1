@@ -968,6 +968,9 @@ CHXSide::CHXSide(CHXBlock * pHX_)
 
   m_Pi=Std_P;
   m_Po=Std_P;
+
+  m_VfIn=0.0;
+
   Duty=0.0;
   MaxFlDuty=0.0;
   MaxNfDuty=0.0;
@@ -1015,10 +1018,10 @@ void CHXSide::BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, 
     {
     DDB.Visibility();
     static DDBValueLst DDB0[]={
-      {QPF_Error, "-"},
-      {QPF_Sensible,   "Sensible"},
-      {QPF_Condensing, "Condensing"},
-      {QPF_Boiling,    "Boiling"},
+      {QPF_Error,       "-"},
+      {QPF_Sensible,    "Sensible"},
+      {QPF_Condensing,  "Condensing"},
+      {QPF_Evaporating, "Evaporating"},
       {0}};
     DDB.Bool("Mode",    "", DC_,     "",    &iMode, pTagObj, isParmConstruct, DDB0);
     if (iMode==QPF_Condensing)
@@ -1079,6 +1082,7 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   Ti = In->Temp();
   Hi = In->totHf();
   m_Pi = In->Press();
+  m_VfIn = In->MassFrac(som_Gas);
   Ci = In->totCp();
   Cp = pCd->msCp();
   Qm = pCd->QMass();
@@ -1118,6 +1122,7 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   Ti = pCn->Temp();
   Hi = pCn->totHf();
   m_Pi = pCn->Press();
+  m_VfIn = pCn->MassFrac(som_Gas);
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
@@ -1756,15 +1761,30 @@ double CHXBlock::LMTD1(flag CoCurrent, double PTi, double PTo, double STi, doubl
 
 double CHXBlock::LMTDSat(double Ti, double To, double Ts)
   {
-  Ts=Max(Ts, Ti+0.001); // Prevent overflow
-  if (fabs(To-Ti)<1.0e-6)
-    To=Ti+Sign(To-Ti)*1.0e-6;
-  const double Diff1=GEZ(Ts-Ti);
-  double Diff2=GEZ(Ts-To);
-  if (Diff2<1.0e-300)
-    Diff2=1.0e-300;
+  double Diff1;
+  double Diff2;
+  if (Ti<Ts)
+    {
+    Ts=Max(Ts, Ti+0.001); // Prevent overflow
+    if (fabs(To-Ti)<1.0e-6)
+      To=Ti+Sign(To-Ti)*1.0e-6;
+    Diff1=GEZ(Ts-Ti);
+    Diff2=GEZ(Ts-To);
+    if (Diff2<1.0e-300)
+      Diff2=1.0e-300;
+    }
+  else
+    {
+    Ts=Min(Ts, Ti-0.001); // Prevent overflow
+    if (fabs(To-Ti)<1.0e-6)
+      To=Ti+Sign(To-Ti)*1.0e-6;
+    Diff1=LEZ(Ts-Ti);
+    Diff2=LEZ(Ts-To);
+    if (Diff2>-1.0e-300)
+      Diff2=-1.0e-300;
+    }
 
-  double DT=(To-Ti)/NZ(Ln(Diff1/Diff2));
+  double DT=fabs(To-Ti)/NZ(Ln(Diff1/Diff2));
 //  if (fabs(DT)>100000.0)
 //    DoBreak();
   return DT;
@@ -1774,16 +1794,30 @@ double CHXBlock::LMTDSat(double Ti, double To, double Ts)
 
 double CHXBlock::LMTDSat1(double Ti, double To, double Ts)
   {
-  Ts=Max(Ts, Ti+0.001); // Prevent overflow
+  double Diff1;
+  double Diff2;
+  if (Ti>=Ts)
+    {
+    Ts=Max(Ts, Ti+0.001); // Prevent overflow
+    if (fabs(To-Ti)<1.0e-6)
+      To=Ti+Sign(To-Ti)*1.0e-6;
+    Diff1=GEZ(Ts-Ti);
+    Diff2=GEZ(Ts-To);
+    if (Diff2<1.0e-300)
+      Diff2=1.0e-300;
+    }
+  else
+    {
+    Ts=Min(Ts, Ti-0.001); // Prevent overflow
+    if (fabs(To-Ti)<1.0e-6)
+      To=Ti+Sign(To-Ti)*1.0e-6;
+    Diff1=LEZ(Ts-Ti);
+    Diff2=LEZ(Ts-To);
+    if (Diff2>-1.0e-300)
+      Diff2=-1.0e-300;
+    }
 
-  if (fabs(To-Ti)<1.0e-6)
-    To=Ti+Sign(To-Ti)*1.0e-6;
-  const double Diff1=GEZ(Ts-Ti);
-  double Diff2=GEZ(Ts-To);
-  if (Diff2<1.0e-300)
-    Diff2=1.0e-300;
-
-  double DT=(To-Ti)/NZ(Ln(Diff1/Diff2));
+  double DT=fabs(To-Ti)/NZ(Ln(Diff1/Diff2));
 
   // check for cross over
   if (Ti<Ts && To>Ts || Ti>Ts && To<Ts)

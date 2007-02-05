@@ -41,12 +41,14 @@
 //
 // ==========================================================================
 
-const byte STHX_Inoperative       = 0;
-const byte STHX_LiquorLiquor      = 1;
-const byte STHX_LiquorGas         = 2;
-const byte STHX_GasGas            = 3;
-const byte STHX_FullyCondensing   = 4;
-const byte STHX_PartialCondensing = 5;
+const byte STHX_Inoperative        = 0;
+const byte STHX_LiquorLiquor       = 1;
+const byte STHX_LiquorGas          = 2;
+const byte STHX_GasGas             = 3;
+const byte STHX_FullyCondensing    = 4;
+const byte STHX_PartialCondensing  = 5;
+const byte STHX_FullyEvaporating   = 6;
+const byte STHX_PartialEvaporating = 7;
 
 class CHXSdInfo 
   {
@@ -66,7 +68,8 @@ class DllImportExport CHXShlTube : public CHXBlock
 
     double         m_dV2LQ, m_dV2LQZeroDuty;
 		double				 m_dV2LQVFrac, m_dV2LQLFrac;
-    double         m_dQmSteamCond;
+    double         m_dQmVapCond;
+    double         m_dQmLiqEvap;
     flag           m_bExtraCond;
     
     CHXSdInfo      PriI, SecI;
@@ -84,6 +87,7 @@ class DllImportExport CHXShlTube : public CHXBlock
 
     void           FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI, CHXSdInfo &ColdI);
     double         CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI, CHXSdInfo &ColdI, byte flags);// AllowVent, flag LimitDuty);
+    double         EvaporateAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI, CHXSdInfo &ColdI, byte flags);// AllowVent, flag LimitDuty);
     
     virtual void   EvalProducts(pFlwNode pNd); 
 

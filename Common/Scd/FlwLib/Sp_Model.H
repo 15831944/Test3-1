@@ -425,7 +425,7 @@ inline void SpQuality::SetDebug(flag DbgOn_) {};
 //
 // ===========================================================================
 
-enum QPF_Modes { QPF_Error, QPF_Sensible, QPF_Condensing, QPF_Boiling };
+enum QPF_Modes { QPF_Error, QPF_Sensible, QPF_Condensing, QPF_Evaporating };
 
 // Specie Validity Flags
 
