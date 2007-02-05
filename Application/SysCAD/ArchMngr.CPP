@@ -18,7 +18,7 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #define dbgArchiver       WITHDEBUG
 
@@ -79,6 +79,8 @@ static LPCTSTR s_sArchiveContent =
 ";=============================================================\n"
 "\n"
 "[Columns]\n"
+"DateTime   = 0\n"
+"Date       = 1\n"
 "Time       = 1\n"
 "ElapsedHMS = 0\n"
 "ElapsedDbl = s\n"
@@ -188,6 +190,8 @@ const LPCTSTR InvalidFldNmCharsD = ".'";
 static LPCTSTR sMessageLogStr    = "MessageLog";
 static LPCTSTR sEventLogStr      = "EventLog";
 static LPCTSTR sRecordStr        = "RecordNo";
+static LPCTSTR sDateTimeStr      = "DateTime";
+static LPCTSTR sDateStr          = "Date";
 static LPCTSTR sTimeStr          = "Time";
 static LPCTSTR sElapsedHMSStr    = "ElapsedHMS";
 static LPCTSTR sElapsedDaysStr   = "ElapsedDays";
@@ -214,7 +218,9 @@ static const struct CSystemTable
   } 
 s_SystemTables[] =
   {
-    {NULL,           sTimeStr,       tt_Generic,0,   LogItem_Time         }, // tt_Generic to map to DateTime
+    {NULL,           sDateTimeStr,   tt_Generic,0,   LogItem_Time         }, // tt_Generic to map to DateTime
+    {NULL,           sDateStr,       tt_Generic,0,   LogItem_TimeDate     }, // tt_Generic to map to DateTime
+    {NULL,           sTimeStr,       tt_Generic,0,   LogItem_TimeTime     }, // tt_Generic to map to DateTime
     {NULL,           sElapsedHMSStr, tt_Strng,  30,  LogItem_ElapsedHMS   },
     {NULL,           sElapsedDaysStr,tt_Double, 0,   LogItem_ElapsedDays  },
     {NULL,           sElapsedHrsStr, tt_Double, 0,   LogItem_ElapsedHrs   },
@@ -1295,7 +1301,7 @@ bool CArchiveDBTable::DeleteDBRecords()
 
 void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
   {
-  if (m_rAM.m_dwOptions & LogItem_Time)
+  if (m_rAM.m_dwOptions & (LogItem_Time | LogItem_TimeDate | LogItem_TimeTime))
     {
     COleDateTime DT;
     __time64_t TheTime=(__time64_t)CB.m_TheTime.Seconds;
@@ -1303,9 +1309,14 @@ void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
     tm* t=_gmtime64(&TheTime);
     DT.SetDateTime(t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
     COleVariant dv1(DT);
-    m_pRst->Fields->GetItem(sTimeStr)->Value=dv1;
+    if (m_rAM.m_dwOptions & LogItem_Time)
+      m_pRst->Fields->GetItem(sDateTimeStr)->Value=dv1;
+    if (m_rAM.m_dwOptions & LogItem_TimeDate)
+      m_pRst->Fields->GetItem(sDateStr)->Value=dv1;
+    if (m_rAM.m_dwOptions & LogItem_TimeTime)
+      m_pRst->Fields->GetItem(sTimeStr)->Value=dv1;
+//todo
     }
-
 
   CTimeValue ET=(m_rAM.m_TimeAtStartValid ? CB.m_TheTime.Seconds-m_rAM.m_TimeAtStart.Seconds : 0);
   if (m_rAM.m_dwOptions & LogItem_ElapsedHMS)
@@ -1330,11 +1341,24 @@ void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
 
 void CArchiveDBTable::AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ)
   {
-  if (m_rAM.m_dwOptions & LogItem_Time)
+  if (m_rAM.m_dwOptions & (LogItem_Time | LogItem_TimeDate | LogItem_TimeTime))
     {
     CString S;
-    S=CB.m_TheTime.Format(TD_DateLeft|TD_Time|TD_TrimTime);
-    fprintf(m_hFile, "%c%s", Separ, S);
+    if (m_rAM.m_dwOptions & LogItem_Time)
+      {
+      S=CB.m_TheTime.Format(TD_DateLeft|TD_Time|TD_TrimTime);
+      fprintf(m_hFile, "%c%s", Separ, S);
+      }
+    if (m_rAM.m_dwOptions & LogItem_TimeDate)
+      {
+      S=CB.m_TheTime.Format(TD_DateLeft);
+      fprintf(m_hFile, "%c%s", Separ, S);
+      }
+    if (m_rAM.m_dwOptions & LogItem_TimeTime)
+      {
+      S=CB.m_TheTime.Format(TD_Time|TD_TrimTime);
+      fprintf(m_hFile, "%c%s", Separ, S);
+      }
     }
 
   CTimeValue ET=(m_rAM.m_TimeAtStartValid ? CB.m_TheTime.Seconds-m_rAM.m_TimeAtStart.Seconds : 0);
@@ -1816,7 +1840,9 @@ void CArchiveManager::Initialise()
 
 void CArchiveManager::AddTimeFields(LPCTSTR Table)
   {
-  if (m_dwOptions & LogItem_Time         )  AddField(Table, sTimeStr       ,      "Reserved");
+  if (m_dwOptions & LogItem_Time         )  AddField(Table, sDateTimeStr   ,      "Reserved");
+  if (m_dwOptions & LogItem_TimeDate     )  AddField(Table, sDateStr       ,      "Reserved");
+  if (m_dwOptions & LogItem_TimeTime     )  AddField(Table, sTimeStr       ,      "Reserved");
   if (m_dwOptions & LogItem_ElapsedHMS   )  AddField(Table, sElapsedHMSStr ,      "Reserved");
   if (m_dwOptions & LogItem_ElapsedDays  )  AddField(Table, sElapsedDaysStr,      "Reserved");
   if (m_dwOptions & LogItem_ElapsedHrs   )  AddField(Table, sElapsedHrsStr ,      "Reserved");
@@ -1864,7 +1890,10 @@ DWORD CArchiveManager::ReadOptions(LPCTSTR FileName)
 
   LPCTSTR sDblOpt=PF.RdStr("Columns", "ElapsedDbl ", "");
 
-  if (PF.RdInt("Columns", "Time"       , 0)!=0) Opts |= LogItem_Time       ;
+  //if (PF.RdInt("Columns", "Time"       , 0)!=0) Opts |= LogItem_Time       ;//for backward compatability
+  if (PF.RdInt("Columns", "DateTime"   , 0)!=0) Opts |= LogItem_Time       ;
+  if (PF.RdInt("Columns", "Date"       , 0)!=0) Opts |= LogItem_TimeDate   ;
+  if (PF.RdInt("Columns", "Time"       , 0)!=0) Opts |= LogItem_TimeTime   ;
   if (PF.RdInt("Columns", "ElapsedHMS" , 0)!=0) Opts |= LogItem_ElapsedHMS ;
   if (sDblOpt && stricmp(sDblOpt," d")==0) Opts |= LogItem_ElapsedDays;
   if (sDblOpt && stricmp(sDblOpt," h")==0) Opts |= LogItem_ElapsedHrs ;
@@ -1898,8 +1927,9 @@ void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
 
   CProfINIFile PF(Fn());
 
-
-  PF.WrInt("Columns", "Time"       , (Opts & LogItem_Time       )!=0 ? 1:0);
+  PF.WrInt("Columns", "DateTime"   , (Opts & LogItem_Time       )!=0 ? 1:0);
+  //PF.WrInt("Columns", "Date"       , (Opts & LogItem_TimeDate   )!=0 ? 1:0);
+  //PF.WrInt("Columns", "Time"       , (Opts & LogItem_TimeTime   )!=0 ? 1:0);
   PF.WrInt("Columns", "ElapsedHMS" , (Opts & LogItem_ElapsedHMS )!=0 ? 1:0);
   if (Opts & LogItem_ElapsedDays) PF.WrStr("Columns", "ElapsedDbl ", "d") ;
   if (Opts & LogItem_ElapsedHrs ) PF.WrStr("Columns", "ElapsedDbl ", "h") ;
