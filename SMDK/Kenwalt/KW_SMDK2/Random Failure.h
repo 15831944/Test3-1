@@ -22,7 +22,8 @@
 //---------------------------------------------------------------------------
 
 
-enum PDFType : long { PDFType_Constant, PDFType_Exponential };
+//enum PDFType : long { PDFType_Constant, PDFType_Exponential };
+enum PDFType { PDFType_Constant, PDFType_Exponential };
 
 struct FailureVariables
   {

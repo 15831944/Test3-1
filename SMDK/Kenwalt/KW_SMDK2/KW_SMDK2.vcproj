@@ -400,6 +400,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Random Failure.cpp">
+			</File>
+			<File
 				RelativePath=".\Scheduled Maintenance.cpp">
 			</File>
 			<File
@@ -452,6 +455,9 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath="KW_SMDK2.h">
+			</File>
+			<File
+				RelativePath=".\Random Failure.h">
 			</File>
 			<File
 				RelativePath=".\Scheduled Maintenance.h">
