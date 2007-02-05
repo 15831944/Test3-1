@@ -22,8 +22,7 @@
 //---------------------------------------------------------------------------
 
 
-//enum PDFType : long { PDFType_Constant, PDFType_Exponential };
-enum PDFType { PDFType_Constant, PDFType_Exponential };
+enum PDFType { PDFType_Constant, PDFType_Exponential, PDFType_Normal };
 
 struct FailureVariables
   {
@@ -68,6 +67,7 @@ class RandomFailure : public MBaseMethod
 
     void SetSize(long size);
 	void Reset();
+	void RevalidateDataFields();
 
 	void FailItem(FailureVariables* task);
 	void RepairItem(FailureVariables* task);

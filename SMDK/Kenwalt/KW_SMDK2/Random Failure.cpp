@@ -69,6 +69,7 @@ void RandomFailure::Reset()
 		tasks.at(i).dBackedUpDowntime = 0;
 		tasks.at(i).dNextFailure = -1;
 		tasks.at(i).dRepairsDone = -1;
+		tasks.at(i).lFailureCount = 0;
 	}
 }
 
@@ -87,6 +88,7 @@ void RandomFailure::BuildDataFields()
 	static MDDValueLst DDB2[]={ 
 		{ PDFType_Constant, "Constant" },
 		{ PDFType_Exponential, "Exponential" },
+		{ PDFType_Normal, "Normal" }, 
 		{0} };
 
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
@@ -169,18 +171,37 @@ bool RandomFailure::ValidateDataFields()
 {
 	for (int i = 0; i < tasks.size(); i++)
 	{
+		if (tasks.at(i).dAvgDowntime < 0)
+			tasks.at(i).dAvgDowntime = 0;
+		if (tasks.at(i).dAvgUptime < 0)
+			tasks.at(i).dAvgUptime = 0;
+		if (tasks.at(i).dDowntimeStdDev < 0)
+			tasks.at(i).dDowntimeStdDev = 0;
+		if (tasks.at(i).dUptimeStdDev < 0)
+			tasks.at(i).dUptimeStdDev = 0;
+		if (tasks.at(i).dAvgDowntime + tasks.at(i).dAvgUptime == 0)	//This will result in an infinite loop...
+			return false;
+	}
+	return true;
+}
+
+void RandomFailure::RevalidateDataFields()
+{
+	ValidateDataFields();
+	for (int i = 0; i < tasks.size(); i++)
+	{
 		if (tasks.at(i).dDowntimeStdDev > tasks.at(i).dAvgDowntime)
 			tasks.at(i).dDowntimeStdDev = tasks.at(i).dAvgDowntime;
 		if (tasks.at(i).dUptimeStdDev > tasks.at(i).dAvgUptime)
 			tasks.at(i).dUptimeStdDev = tasks.at(i).dAvgUptime;
 	}
-	return true;
 }
 
 //---------------------------------------------------------------------------
 
 void RandomFailure::EvalCtrlActions(eScdCtrlTasks Tasks)
 {
+	RevalidateDataFields();
 	dCurrentTime += getDeltaTime();
 	for (int i = 0; i < tasks.size(); i++)
 	{
@@ -272,8 +293,24 @@ double RandomFailure::CalculateEvent(PDFType ePDF, double dAverage, double dStdD
 	{
 	case PDFType_Constant:
 		ret = dAverage + 2 * dStdDev * (rnd - 0.5);
+		break;
 	case PDFType_Exponential:
 		ret = -log(rnd) * dAverage;	//TODO: Check that this is valid (Initial testing indicates that it is.)
+		break;
+	case PDFType_Normal:			//This is derived from the approximation found on Mathworld for 1/2 * Erf(x) = 0.1x(4.4-x). http://mathworld.wolfram.com/NormalDistributionFunction.html
+		double dev;
+		if (rnd > 0.5)				//Effectively, we're normalising this so -0.5 <= rnd <= 0.5.
+			if (rnd <= 0.98)
+				dev = 2.2 - sqrt(4.84-10*(rnd-0.5));
+			else
+				dev = 2.2 + 40 * (rnd - 0.98);
+		else
+			if (rnd <= 0.48)
+				dev = -2.2 + sqrt(4.84-10*rnd);
+			else
+				dev = -2.2 - 40 * (rnd - 0.98);
+		ret = dAverage + dStdDev * dev;
+		break;
 	default:
 		ret = dAverage;				//If the PDFType is not supported.
 	}
