@@ -48,24 +48,26 @@ const UINT  LF_Hand        = MB_ICONHAND;
 const UINT  LF_DoAfxMsgBox = MB_NOFOCUS;
 const UINT  LF_NoSkip      = MB_DEFAULT_DESKTOP_ONLY;
 
-const DWORD LogItem_Time         = 0x00000001;
-const DWORD LogItem_ElapsedHMS   = 0x00000002;
-const DWORD LogItem_ElapsedDays  = 0x00000004;
-const DWORD LogItem_ElapsedHrs   = 0x00000008;
-const DWORD LogItem_ElapsedMins  = 0x00000010;
-const DWORD LogItem_ElapsedSecs  = 0x00000020;
+const DWORD LogItem_Time         = 0x00000001; //date&time
+const DWORD LogItem_TimeDate     = 0x00000002; //date only
+const DWORD LogItem_TimeTime     = 0x00000004; //time only
+const DWORD LogItem_ElapsedHMS   = 0x00000008;
+const DWORD LogItem_ElapsedDays  = 0x00000010;
+const DWORD LogItem_ElapsedHrs   = 0x00000020;
+const DWORD LogItem_ElapsedMins  = 0x00000040;
+const DWORD LogItem_ElapsedSecs  = 0x00000080;
 const DWORD LogItem_ElapsedDbl   = LogItem_ElapsedDays | LogItem_ElapsedHrs | LogItem_ElapsedMins | LogItem_ElapsedSecs;
-const DWORD LogItem_Command      = 0x00000040;
-const DWORD LogItem_Type         = 0x00000080;
-const DWORD LogItem_Tag          = 0x00000100;
-const DWORD LogItem_Source       = 0x00000200;
-const DWORD LogItem_IDNo         = 0x00000400;
-const DWORD LogItem_IterNo       = 0x00000800;
-const DWORD LogItem_CallNo       = 0x00001000;
-const DWORD LogItem_SeqNo        = 0x00002000;
-const DWORD LogItem_Message	     = 0x00004000;
-const DWORD LogItem_MessageLogOn = 0x00008000;
-const DWORD LogItem_EventLogOn   = 0x00010000;
+const DWORD LogItem_Command      = 0x00000100;
+const DWORD LogItem_Type         = 0x00000200;
+const DWORD LogItem_Tag          = 0x00000400;
+const DWORD LogItem_Source       = 0x00000800;
+const DWORD LogItem_IDNo         = 0x00001000;
+const DWORD LogItem_IterNo       = 0x00002000;
+const DWORD LogItem_CallNo       = 0x00004000;
+const DWORD LogItem_SeqNo        = 0x00008000;
+const DWORD LogItem_Message	     = 0x00010000;
+const DWORD LogItem_MessageLogOn = 0x00020000;
+const DWORD LogItem_EventLogOn   = 0x00040000;
                                           
 // ========================================================================
 
