@@ -1855,7 +1855,7 @@ HeatXchg1::HeatXchg1(pTagObjClass pClass_, pchar TagIn, TaggedObject* pAttach, T
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_HX(&CHXBlock1Class, "HX", this, TOA_Embedded),
   //m_HXJ(this, ioidPIn, ioidPVent, ioidSIn, ioidSVent) //KGA why PVent and SVent !!!?!?!?!?!?!!
-  m_HXJ(this, ioidPIn, ioidPOut, ioidSIn, ioidSOut)
+  m_HXJ(this, ioidPIn, ioidPVent/*Out*/, ioidSIn, ioidSVent/*Out*/)
   {
   AttachClassInfo(nc_Process, HeaterIOAreaList, &HeatXDPGroup);
 
@@ -2352,37 +2352,53 @@ void HeatXchg1::ConfigureJoins()
       if (m_iPriSgMd==HXSM_Shell)
         {
         for (int i=0; i<NoProcessIOs(); i++)
+          {
           if (m_HXJ.PriIO(i))
+            {
             SetIO_Open(i, m_HXJ.PriJoinId(), /*m_fDamped*/m_pPriSg->NetPressDamp(),
                           SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
+            }
+          }
         }
       else
         {
         for (int i=0; i<NoProcessIOs(); i++)
+          {
           if (m_HXJ.PriIO(i))
+            {
             if (m_HXJ.PriIsJoined())
               SetIO_Join(i, m_HXJ.P.JoinId(),
                          m_iPriSgMd==HXSM_Tubes ? ESS_Allowed : ESS_Denied);
             else
               SetIO_Closed(i, m_HXJ.P.JoinId());
+            }
+          }
         }
 
       if (m_iSecSgMd==HXSM_Shell)
         {
         for (int i=0; i<NoProcessIOs(); i++)
+          {
           if (m_HXJ.SecIO(i))
+            {
             SetIO_Open(i, m_HXJ.SecJoinId(), /*m_fDamped*/m_pSecSg->NetPressDamp(),
                        SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
+            }
+          }
         }
       else
         {
         for (int i=0; i<NoProcessIOs(); i++)
+          {
           if (m_HXJ.SecIO(i))
+            {
             if (m_HXJ.SecIsJoined())
               SetIO_Join(i, m_HXJ.S.JoinId(),
                          m_iSecSgMd==HXSM_Tubes ? ESS_Allowed : ESS_Denied);
             else
               SetIO_Closed(i, m_HXJ.S.JoinId());
+            }
+          }
         }
       break;
       }
