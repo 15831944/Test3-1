@@ -5029,14 +5029,14 @@ void FlwNode::ConnectJoinList()
   #if dbgFlwNode
   if (dbgJoinsBld())
     {
-    dbgpln("ConnectJoinList:%s", FullObjTag());
+    dbgpln("ConnectJoinList:%s [%s]", FullObjTag(), ClassId());
     for (i=0; i<NoFlwIOs(); i++)
       {
       Strng S;
       if (IO_Closed_Self(i))
         S="Closed_Self";
       else if (IO_Closed_Rmt(i))
-        S="Closed_Self";
+        S="Closed_Self_Rmt";
       else if (IO_Direct_Self(i))
         S="Direct_Self";
       else if (IO_Direct_Rmt(i))
@@ -5046,13 +5046,18 @@ void FlwNode::ConnectJoinList()
       else if (IO_Open_Rmt(i))
         S="Open_Rmt   ";
       else
-        S.Set("Jn[%i]     ", IO_Join_Id(i));
-      dbgpln("IO   %3i) %s -> %s",i, S(), Nd_Rmt(i)->FullObjTag());
+        S.Set("Jn[%2i]     ", IO_Join_Id(i));
+      dbgpln("IO   %3i) [%5i %5i %5i %5i] %-20s -> %s",i, 
+        IO_Self(i).iJoinId,
+        IO_Self(i).iJoinConnNo,
+        IO_Rmt(i).iJoinId,
+        IO_Rmt(i).iJoinConnNo,
+        S(), Nd_Rmt(i)->FullObjTag());
       }
     for (i=0; i<m_nLinks; i++)
       {
       CLinkRec & L=m_Links[i];
-      dbgpln("Link %3i) Jn[%i]  -> Jn[%i]",i, L.m_iJoinId0, L.m_iJoinId1);
+      dbgpln("Link %3i) Jn[%2i]  -> Jn[%2i]",i, L.m_iJoinId0, L.m_iJoinId1);
       }
     }
   #endif

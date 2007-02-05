@@ -4919,6 +4919,11 @@ int GCInsMngr::UpdateXRef(pGCVar pVar)
         if (pXRef->m_bDynTag)
           pVar->m_flags |= VarDynTagOK;
         }
+      
+      if (pXRef->m_TAB.Flags()&DDEF_NOFILE)
+        {
+        int xxx=0;
+        }
       }
     }
   else

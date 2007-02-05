@@ -3797,6 +3797,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   //  if (CollectChgStats() && NetProbalMethod() && (ChgStats.GetSize()>0))
   //    ChngTrcBuildDataDefn(DDB);
 
+  static bool ShowIONames=false;
   Strng Sym, Tag;
 
   if (!DDB.ForFileSnpScn())
@@ -3805,6 +3806,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
       {
       if (DDB.BeginStruct(this, "Audit", NULL, DDB_RqdPage))
         {
+        DDB.CheckBoxBtn("ShowIONames", "", DC_, 0, &ShowIONames, this, isParm);
+        DDB.Text(" ");
         if (AuditOption()>=Audit_Flows)
           {
           if (DDB.BeginStruct(this, "Flows", NULL, DDB_NoPage))
@@ -3818,6 +3821,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
                   Tag.Set("Lnk%i", iIO);
                   DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
+                  if (ShowIONames)
+                    DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
@@ -3828,6 +3833,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Dir.%s", D.Tag);
                   Tag.Set("Dir%i", iDir);
                   DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_DrQm0+iDir,       this, isResult|noFile|noSnap);
+                  //if (ShowIONames)
+                  //  DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
@@ -3856,6 +3863,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
                   Tag.Set("Lnk%i", iIO);
                   DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",      xidIO_IoHz0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
+                  if (ShowIONames)
+                    DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap|NAN_OK);
@@ -3866,6 +3875,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Dir.%s", D.Tag);
                   Tag.Set("Dir%i", iDir);
                   DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",    xidIO_DrHz0+iDir,       this, isResult|noFile|noSnap);
+                  //if (ShowIONames)
+                  //  DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
@@ -3902,6 +3913,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
                   Tag.Set("Lnk.[%i]", iIO);
                   DDB.Double(Tag(), Sym(),  DC_M , "kg",       xidIO_IoQmTotal0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
+                  if (ShowIONames)
+                    DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap|NAN_OK);
@@ -3912,6 +3925,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Dir.%s", D.Tag);
                   Tag.Set("Dir.[%i]", iDir);
                   DDB.Double(Tag(), Sym(),  DC_M , "kg",     xidIO_DrQmTotal0+iDir,       this, isResult|noFile|noSnap);
+                  //if (ShowIONames)
+                  //  DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 
@@ -3940,6 +3955,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
                   Tag.Set("Lnk.[%i]", iIO);
                   DDB.Double(Tag(), Sym(),  DC_E , "kJ",      xidIO_IoHzTotal0+iIO,         this, isResult|/*isTag|*/noFile|noSnap);
+                  if (ShowIONames)
+                    DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap|NAN_OK);
@@ -3950,6 +3967,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Sym.Set("Dir.%s", D.Tag);
                   Tag.Set("Dir.[%i]", iDir);
                   DDB.Double(Tag(), Sym(),  DC_E , "kJ",    xidIO_DrHzTotal0+iDir,         this, isResult|noFile|noSnap);
+                  //if (ShowIONames)
+                  //  DDB.TagComment(IODesc_Self(iIO)->pName);
                   }
 
                 for (int iAdt=FirstAuditDirect(); iAdt<=LastAuditDirect(); iAdt++) 

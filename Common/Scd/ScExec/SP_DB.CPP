@@ -1645,19 +1645,26 @@ double CSpecieDataBase::Density(long Fidelity, PhMask Phase, double T, double P,
 
   for (int i=-1; I.Loop(i); )
     {
-    if (M[i] > MeasTolerance && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
-      const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      if (m_SpD[i]->HasDensCorrs())
+      if (m_SpD[i]->DensityDirect())
         {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += mm;
-        v += mm*vv;
+        const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+        if (m_SpD[i]->HasDensCorrs())
+          {
+          const double mm=m_SpD[i]->DensCorrMass(M);
+          m += mm;
+          v += mm*vv;
+          }
+        else
+          {
+          m += M[i];
+          v += M[i]*vv;
+          }
         }
       else
         {
-        m += M[i];
-        v += M[i]*vv;
+        int xxx=0;
         }
       }
     }
