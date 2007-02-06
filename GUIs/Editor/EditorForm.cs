@@ -534,6 +534,41 @@ namespace SysCAD.Editor
       frmFlowChart.SetSizes();
     }
 
+    public void StateChanged(BaseProtocol.RunStates runState)
+    {
+      switch (runState)
+      {
+        case BaseProtocol.RunStates.Edit:
+          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          barManager1.Commands["Mode.CreateNode"].Enabled = false;
+          barManager1.Commands["Mode.CreateLink"].Enabled = false;
+
+          barManager1.Commands["Edit.Paste"].Enabled = false;
+
+          tvNavigation.AllowArranging = false;
+          break;
+        case BaseProtocol.RunStates.Run:
+          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          barManager1.Commands["Mode.CreateNode"].Enabled = false;
+          barManager1.Commands["Mode.CreateLink"].Enabled = false;
+
+          barManager1.Commands["Edit.Paste"].Enabled = false;
+          tvNavigation.AllowArranging = false;
+          break;
+        case BaseProtocol.RunStates.Idle:
+          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          barManager1.Commands["Mode.CreateNode"].Enabled = false;
+          barManager1.Commands["Mode.CreateLink"].Enabled = false;
+
+          barManager1.Commands["Edit.Paste"].Enabled = false;
+          tvNavigation.AllowArranging = false;
+          break;
+        default:
+          throw new Exception("Unknown RunState: " + runState.ToString());
+          break;
+      }
+    }
+
     private void SetProjectBasedButtons(bool projectExists)
     {
       barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
@@ -575,7 +610,7 @@ namespace SysCAD.Editor
       SetProjectBasedButtons(false);
 
       frmFlowChart.Close();
-      tvNavigation.Nodes.Clear();
+      tvNavigation.Clear();
       ovOverview.Document = null;
     }
 
@@ -631,7 +666,6 @@ namespace SysCAD.Editor
           SelectSubNodes(node);
         }
 
-        this.tvNavigation.BeforeNodePositionChange += new PureComponents.TreeView.TreeView.BeforeNodePositionChangeEventHandler(this.tvNavigation_BeforeNodePositionChange);
         this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
         this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
         this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
@@ -859,31 +893,19 @@ namespace SysCAD.Editor
       }
     }
 
-    PureComponents.TreeView.Node oldParent;
-    int oldIndex;
-
     private void tvNavigation_AfterNodePositionChange(PureComponents.TreeView.Node oNode)
     {
-      if (oNode.Parent != oldParent)
-      {
-        if (oNode.Parent == null) // The parent is root or an item, undo move.
-        {
-          tvNavigation.Nodes.Remove(oNode);
-          oldParent.Nodes.Insert(oldIndex, oNode);
-        }
-        else if (oNode.Parent.Key != null)
-        {
-          oNode.Parent.Nodes.Remove(oNode);
-          oldParent.Nodes.Insert(oldIndex, oNode);
-        }
-        else
-        {
-          RePathNodes(oNode);
-        }
-      }
+      tvNavigation.ClearNodeSelection();
 
-      tvNavigation.ClearSelectedNodes();
-      wasSelectedNodes.Clear();
+      foreach (MindFusion.FlowChartX.ChartObject chartObject in frmFlowChart.fcFlowChart.Objects)
+        chartObject.Visible = false;
+
+      RePathNodes(oNode);
+
+      if (oNode.Parent != null)
+        oNode.Parent.Select();
+      else
+        oNode.Select();
     }
 
     private void RePathNodes(PureComponents.TreeView.Node node)
@@ -891,7 +913,10 @@ namespace SysCAD.Editor
       if (node.Key != null)
       {
         Int64 requestId;
-        frmFlowChart.State.ModifyGraphicItemPath(out requestId, new Guid(node.Key), node.FullPath);
+        if (node.Tag is Item)
+          frmFlowChart.State.ModifyGraphicItemPath(out requestId, new Guid(node.Key), node.FullPath);
+        if (node.Tag is Thing)
+          frmFlowChart.State.ModifyGraphicThingPath(out requestId, new Guid(node.Key), node.FullPath);
       }
 
       foreach (PureComponents.TreeView.Node subNode in node.Nodes)
@@ -900,10 +925,10 @@ namespace SysCAD.Editor
       }
     }
 
-    private void tvNavigation_BeforeNodePositionChange(PureComponents.TreeView.Node oNode)
-    {
-      oldParent = oNode.Parent;
-      oldIndex = oNode.Index;
-    }
+    //private void tvNavigation_BeforeNodePositionChange(PureComponents.TreeView.Node oNode)
+    //{
+    //  oldParent = oNode.Parent;
+    //  oldIndex = oNode.Index;
+    //}
   }
 }

@@ -25,6 +25,11 @@ namespace SysCAD.Editor
 {
   public class State
   {
+    Int64 step = Int64.MinValue;
+    DateTime time = DateTime.MinValue;
+
+    BaseProtocol.RunStates runState;
+
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
@@ -315,6 +320,7 @@ namespace SysCAD.Editor
 
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+        node.Tag = item;
         node.AllowDrop = false;
       }
     }
@@ -361,6 +367,8 @@ namespace SysCAD.Editor
 
         PureComponents.TreeView.Node node =
           tvNavigation.AddNodeByPath(graphicThing.Path + graphicThing.Tag, graphicThing.Guid.ToString());
+        node.Tag = thing;
+        node.AllowDrop = false;
 
         node.NodeStyle = new PureComponents.TreeView.NodeStyle();
         node.NodeStyle.SelectedForeColor = System.Drawing.Color.Green;
@@ -684,9 +692,7 @@ namespace SysCAD.Editor
       }
     }
 
-
-
-
+    
     internal void ItemVisible(Guid guid, bool visible)
     {
       Item item;
@@ -1082,6 +1088,11 @@ namespace SysCAD.Editor
       return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
+    internal bool ModifyGraphicThingPath(out Int64 requestId, Guid guid, String path)
+    {
+      return clientProtocol.ModifyThingPath(out requestId, guid, path);
+    }
+
     internal bool DeleteGraphicThing(out Int64 requestId, Guid guid)
     {
       return clientProtocol.DeleteThing(out requestId, guid);
@@ -1253,12 +1264,13 @@ namespace SysCAD.Editor
 
     internal void StateChanged(BaseProtocol.RunStates runState)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      this.runState = runState;
     }
 
     internal void Step(Int64 step, DateTime time)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      this.step = step;
+      this.time = time;
     }
 
     internal static List<PointF> GetControlPoints(MindFusion.FlowChartX.PointCollection pointCollection)

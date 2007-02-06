@@ -1383,8 +1383,8 @@ namespace PureComponents.TreeView
 				this.Collection.Remove(this);
 
 				// set each subnode's key to null
-				foreach (Node node in this.Nodes)
-					node.ClearKeys();
+				//pkhforeach (Node node in this.Nodes)
+				//pkh	node.ClearKeys();
 
 				Invalidate();
 			}

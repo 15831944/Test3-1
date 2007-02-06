@@ -402,6 +402,9 @@ ref class CNETServerThread
 
     bool CreateItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
+        // Need to check for runstate here, and decide if we'll fire DoItemCreated.
+        // This is required in case a rogue client tries to create an item even when not supposed to.
+        // This applies to all three create*, and all three delete* events.
       if (true) // Decide whether to create an item.
         { // We're going to do it.
         // Create the item.
@@ -587,6 +590,23 @@ ref class CNETServerThread
         }
       }
 
+    bool ModifyThingPath(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ path)
+      {
+      if (true) // Decide whether to modify an item.
+        { // We're going to do it.
+        // Modify the item.
+
+        // Raise event(s).
+       serviceProtocol->DoThingPathModified(requestID, guid, path);
+
+        return true;
+        }
+      else
+        { // We're not going to do it.
+        return false;
+        }
+      }
+
     bool DeleteThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
       {
       if (true) // Decide whether to delete an Thing.
@@ -643,6 +663,7 @@ ref class CNETServerThread
 
       ServiceProtocol::CreateThingHandler^ createThing = gcnew ServiceProtocol::CreateThingHandler(this, &CNETServerThread::CreateThing);
       ServiceProtocol::ModifyThingHandler^ modifyThing = gcnew ServiceProtocol::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
+      ServiceProtocol::ModifyThingPathHandler^ modifyThingPath = gcnew ServiceProtocol::ModifyThingPathHandler(this, &CNETServerThread::ModifyThingPath);
       ServiceProtocol::DeleteThingHandler^ deleteThing = gcnew ServiceProtocol::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
 
       ServiceProtocol::PortCheckHandler^ portCheck = gcnew ServiceProtocol::PortCheckHandler(this, &CNETServerThread::PortCheck);
@@ -650,7 +671,7 @@ ref class CNETServerThread
       ServiceProtocol::PropertyListHandler^ propertyListCheck = gcnew ServiceProtocol::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
 
 
-      serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, deleteThing, portCheck, propertyListCheck);
+      serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, modifyThingPath, deleteThing, portCheck, propertyListCheck);
 
       String ^ filename;
       filename = gcnew String(m_pUnmanaged->m_PrjName);

@@ -115,6 +115,6 @@ namespace SysCAD.Editor
 
     #endregion
 
-    private FlowChart fcFlowChart;
+    public FlowChart fcFlowChart;
   }
 }

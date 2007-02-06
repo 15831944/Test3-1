@@ -316,6 +316,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseProtocol.RunStates runState)
     {
       state.StateChanged(runState);
+      form1.StateChanged(runState);
     }
 
     private void fcFlowChart_Step(Int64 eventId, Int64 step, DateTime time)

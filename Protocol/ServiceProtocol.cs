@@ -37,6 +37,7 @@ namespace SysCAD.Protocol
 
     public delegate bool CreateThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
     public delegate bool ModifyThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingPathHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String path);
     public delegate bool DeleteThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
 
     public delegate PortStatus PortCheckHandler(ServiceProtocol serviceProtocol, Guid itemGuid, Anchor anchor);
@@ -61,6 +62,7 @@ namespace SysCAD.Protocol
 
     private CreateThingHandler createThingHandler;
     private ModifyThingHandler modifyThingHandler;
+    private ModifyThingPathHandler modifyThingPathHandler;
     private DeleteThingHandler deleteThingHandler;
 
     private PortCheckHandler portCheckHandler;
@@ -71,7 +73,7 @@ namespace SysCAD.Protocol
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
-      CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, DeleteThingHandler deleteThingHandler,
+      CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
       this.changeStateHandler = changeStateHandler;
@@ -90,6 +92,7 @@ namespace SysCAD.Protocol
 
       this.createThingHandler = createThingHandler;
       this.modifyThingHandler = modifyThingHandler;
+      this.modifyThingPathHandler = modifyThingPathHandler;
       this.deleteThingHandler = deleteThingHandler;
 
       this.portCheckHandler = portCheckHandler;
@@ -201,6 +204,16 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
       if (graphicThings.ContainsKey(guid))
         return modifyThingHandler(this, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      else
+        return false;
+    }
+
+    public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+      if (graphicThings.ContainsKey(guid))
+        return modifyThingPathHandler(this, requestId, guid, path);
       else
         return false;
     }
@@ -450,6 +463,18 @@ namespace SysCAD.Protocol
 
         eventId++;
         OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      }
+    }
+
+    public void DoThingPathModified(Int64 requestId, Guid guid, String path)
+    {
+      GraphicThing graphicThing;
+      if (graphicThings.TryGetValue(guid, out graphicThing))
+      {
+        graphicThing.Path = path;
+
+        eventId++;
+        OnThingModified(eventId, requestId, guid, graphicThing.Tag, graphicThing.Path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
       }
     }
 

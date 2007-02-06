@@ -180,6 +180,11 @@ namespace SysCAD.Protocol
       return serviceGraphic.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
+    public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
+    {
+      return serviceGraphic.ModifyThingPath(out requestId, guid, path);
+    }
+
     public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       return serviceGraphic.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
