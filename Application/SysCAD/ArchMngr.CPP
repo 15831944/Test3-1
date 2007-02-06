@@ -1937,8 +1937,8 @@ void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
   CProfINIFile PF(Fn());
 
   PF.WrInt("Columns", "DateTime"   , (Opts & LogItem_Time       )!=0 ? 1:0);
-  //PF.WrInt("Columns", "Date"       , (Opts & LogItem_TimeDate   )!=0 ? 1:0);
-  //PF.WrInt("Columns", "Time"       , (Opts & LogItem_TimeTime   )!=0 ? 1:0);
+  PF.WrInt("Columns", "Date"       , (Opts & LogItem_TimeDate   )!=0 ? 1:0);
+  PF.WrInt("Columns", "Time"       , (Opts & LogItem_TimeTime   )!=0 ? 1:0);
   PF.WrInt("Columns", "ElapsedHMS" , (Opts & LogItem_ElapsedHMS )!=0 ? 1:0);
   if (Opts & LogItem_ElapsedDays) PF.WrStr("Columns", "ElapsedDbl ", "d") ;
   if (Opts & LogItem_ElapsedHrs ) PF.WrStr("Columns", "ElapsedDbl ", "h") ;
