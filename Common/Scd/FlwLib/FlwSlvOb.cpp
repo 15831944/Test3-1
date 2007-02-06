@@ -221,7 +221,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidmsG:    DCB.D=SDB[s].msGf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsCp:   DCB.D=SDB[s].msCp(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidRho:   
-        if (SDB[s].DensityDirect())
+        if (!SDB[s].HasDensCalc())
           DCB.D=SDB[s].Density(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); 
         else
           DCB.D=dNAN;
@@ -1017,10 +1017,10 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           FixWide(iWd_Vt, Str, View());
           break;
         case Id_Rho1:
-          if (SDB[iSp].DensityDirect())
+          if (!SDB[iSp].HasDensCalc())
             RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)), Str);
           else
-            Str="-";
+            Str="*";
           FixWide(iWd_Rho, Str, View());
           break;
         case Id_RelSGs1:
@@ -1032,20 +1032,13 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             CDensCorr & SI=SDB[iSp].DensCorr(j);
             if (j>0)
               Str+=",";
-  //            Str+=SDB[SDB[iSp].SolnItem(j).iSpecie].SymOrTag();
 
-            if (SI.m_pDensCorrFn)// || SI.m_pCpCorrFn)
+            if (SI.m_pDensCorrFn)
               {
-              //Strng buff1,buff2; 
-              //if (SI.m_pDensCorrFn) buff1.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff1="";
-              //if (SI.m_pDensCorrFn) buff2.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff2="";
-              //buff1.Trim();
-              //buff2.Trim();
-              //T.Set("%s{%s,%s}", SDB[SI.m_iSoluteA].SymOrTag(), buff1(), buff2());
               Strng buff1,buff2; 
               if (SI.m_pDensCorrFn) buff1.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff1="";
               buff1.Trim();
-              T.Set("%s{%s}", SDB[SI.m_iSoluteA].SymOrTag(), buff1());
+              T.Set("%s{%s}", SDB[SI.m_iSolute].SymOrTag(), buff1());
               }
             Str+=T;
             }

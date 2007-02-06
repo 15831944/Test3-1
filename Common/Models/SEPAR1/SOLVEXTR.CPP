@@ -1383,7 +1383,7 @@ double MixerSettler::GetDensity(int index, double T, double P, SpPropOveride *Ov
   //return SDB[index].Density(T, P, Ovr, NULL);
   //return SDB[index].DensityInDirect() ? 1000.0 : SDB[index].Density(T, P, Ovr, NULL);
   //return SDB[index].DensityInDirect() ? SDB[index].SpRho(Tc, Std_P) : SDB[index].Density(T, P, Ovr, NULL);
-  return SDB[index].DensityInDirect() ? SDB[SDB[index].Solvent()].Density(Settler.Fidelity(), T, P, Ovr, NULL) : SDB[index].Density(Settler.Fidelity(), T, P, Ovr, NULL);
+  return SDB[index].Density(Settler.Fidelity(), T, P, Ovr, NULL);
   }
 
 //--------------------------------------------------------------------------

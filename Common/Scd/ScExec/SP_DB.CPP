@@ -653,6 +653,65 @@ CSpecieData::~CSpecieData()
 //
 // ==========================================================================
 
+CDensCorr::CDensCorr()
+  {
+  m_iSolute=-1;
+  m_iSolvent=-1;
+  m_pDensCorrFn=NULL;
+  m_DensCorrZero=0.0;
+  };
+
+CDensCorr::CDensCorr(int Solute, int Solvent,
+                     CSpDBEqn *DensCorrFn, double DensCorrZero,
+                     double LimitFrac, double PureValue, bool DoWarn)
+  {
+  m_iSolute        = Solute;
+  m_iSolvent       = Solvent;
+  m_pDensCorrFn    = DensCorrFn;
+  m_DensCorrZero   = DensCorrZero;
+  m_LimitFrac      = LimitFrac;        
+  m_PureValue      = PureValue;
+  m_DoWarn         = DoWarn;
+  };
+
+CDensCorr::~CDensCorr()
+  {
+  };
+
+void CDensCorr::Clear()
+  {
+  delete m_pDensCorrFn;
+  m_pDensCorrFn=NULL;
+  };
+
+double CDensCorr::Evaluate(long Fidelity, double T, double P, CSVData M)
+  {
+  double DensSolvent    = SDB[m_iSolvent].Density(Fidelity, T,P, NULL, M);
+
+  double MassSolvent    = M[m_iSolvent];
+  double MassSolute     = M[m_iSolute];
+  double MassTotal      = MassSolute+MassSolvent;
+  double MassFrac       = MassSolute/GTZ(MassSolute+MassSolvent);
+  double MassFracCalc   = Min(MassFrac, m_LimitFrac);
+
+  double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
+
+  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent);
+
+  if (MassFrac>m_LimitFrac)
+    {
+    AppDensSolute=AppDensSolute+(m_PureValue-AppDensSolute)*(MassFrac-m_LimitFrac)/GTZ(1.0-m_LimitFrac);
+    }    
+
+  return AppDensSolute;
+  };
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
 CSpecie::CSpecie(CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * pCmpTag): \
 m_SDB(SDB),
 m_CDB(CDB),
@@ -691,9 +750,10 @@ m_H2O(H2ODB)
   m_bPrjDB=true;
 
   m_iSolvent=-1;
-  m_bHasDensCorrs=false;
+
+  m_pDensCalc=NULL;
+
   m_bHasCpCorrs=false;
-  m_bDensInDirect=false;
   m_bCpInDirect=false;
 
   //  m_bPcOK=false;
@@ -718,6 +778,8 @@ CSpecie::~CSpecie()
     CDB.m_pWater=NULL;
   if (CDB.m_pSteam==this)
     CDB.m_pSteam=NULL;
+
+  delete m_pDensCalc;
 
   for (int i=0; i<m_DensCorrs.GetSize(); i++)
     m_DensCorrs[i].Clear();
@@ -1125,27 +1187,80 @@ flag CSpecie::CopyDataForMultiFidelity()
 
 //---------------------------------------------------------------------------
 
-int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, char* pDensCorr, char* pCpCorr, char* pSoluble, char* pHeatOfMix)
+int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCorr, char* pCpCorr, char* pSoluble, char* pHeatOfMix)
   {
+  ASSERT_ALWAYS(iSId==iSolvent, "iSId!=iSolvent", __FILE__, __LINE__);
+  
   int Ret=0;
   // Test for existance
   for (int i=0; i<m_DensCorrs.GetSize(); i++)
     {
-    if (m_DensCorrs[i].m_iSoluteA==iSoluteA)
+    if (m_DensCorrs[i].m_iSolute==iSoluteA)
       {
       Ret=2;
       goto DensOK;
       }
     }
-  CSpDBEqn * pDensCorrFn = (pDensCorr && strlen(pDensCorr)>0) ? CSpDBEqn::Construct(&m_Data[0], pDensCorr) : NULL;
-  m_bHasDensCorrs = (pDensCorrFn!=NULL);
-  double DOffSet  = m_bHasDensCorrs ? pDensCorrFn->AtT(0.0) : 0.0;
-  //m_bHasDensCorrs = (pDensCorrFn!=NULL); why was this line here?
-  m_DensCorrs.Add(CDensCorr(iSoluteA, pDensCorrFn, DOffSet));
+
+  CSpDBEqn * pDensCorrFn = NULL;
+  double LimitFrac  = 0.8;
+  double PureValue  = 1000;
+  bool   DoWarn     = true;
+  int Count=strlen(pDensCorr);
+  if (pDensCorr && strlen(pDensCorr)>0)
+    {
+    Strng Str,Fn,Limit;
+    int iChar=0;
+    int iStart=0;
+    int iParen=-1;
+    while (iChar<Count)
+      {
+      switch (pDensCorr[iChar])
+        {
+        case '(': iParen=Max(1, iParen+1); break;
+        case ')': iParen=iParen-1;         break;
+        default:;
+        }
+      Str+=pDensCorr[iChar];
+      if (iParen==0)
+        {
+        iChar++;
+        Str.Trim();
+        if (Str.XStrNICmp("Limit", 5)==0)
+          {
+          CSVColArray Cols;
+          int N=ParseCSVFunction(Str(), Cols);
+          if (N==4)
+            {
+            LimitFrac=SafeAtoF(Cols[1], 0.8);
+            PureValue=SafeAtoF(Cols[2], 1000);
+            DoWarn=!(stricmp(Cols[3], "Off")==0);
+            int xxx=0;
+            }
+          else
+            Ret=4;
+          }
+        else
+          pDensCorrFn = (pDensCorr && strlen(pDensCorr)>0) ? CSpDBEqn::Construct(&m_Data[0], pDensCorr) : NULL;
+        Str="";
+        //SKipCOmma
+        while (iChar<Count && (pDensCorr[iChar]==' ' || pDensCorr[iChar]==','))
+          iChar++;
+        iParen=-1;
+        }
+      else
+        iChar++;
+      }
+    }
+  double DensCorrZero  = pDensCorrFn ? pDensCorrFn->AtT(0.0) : 0.0;
+
+  SDB[iSoluteA].m_pDensCalc = new CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn);
+
+  m_DensCorrs.Add(CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn));
 DensOK:
 
   for (int i=0; i<m_CpCorrs.GetSize(); i++)
-    if (m_CpCorrs[i].m_iSoluteA==iSoluteA)
+    if (m_CpCorrs[i].m_iSolute==iSoluteA)
       {
       Ret=2;
       goto CpOK;
@@ -1184,7 +1299,7 @@ double CSpecie::DensCorrMass(double *M)
   {
   double m=M[iSId]; //m_iSolvent (eg H2O(l))
   for (int i=0; i<m_DensCorrs.GetSize(); i++)
-    m+=M[m_DensCorrs[i].m_iSoluteA]; //+solute (eg NaCl(aq))
+    m+=M[m_DensCorrs[i].m_iSolute]; //+solute (eg NaCl(aq))
   return m;
   }
 
@@ -1196,7 +1311,7 @@ double CSpecie::DensCorrFactor(double *M)
   for (int i=0; i<m_DensCorrs.GetSize(); i++)
     {
     CDensCorr & SI=m_DensCorrs[i];
-    const double F=Range(0.0, M[SI.m_iSoluteA]/GTZ(M[iSId]+M[SI.m_iSoluteA]), 2.0);
+    const double F=Range(0.0, M[SI.m_iSolute]/GTZ(M[iSId]+M[SI.m_iSolute]), 2.0);
     C+=SI.DensCorr(F);
     }
   return (1.0+C);
@@ -1210,7 +1325,7 @@ double CSpecie::CpCorrFactor(double *M)
   for (int i=0; i<m_CpCorrs.GetSize(); i++)
     {
     CCpCorr & SI=m_CpCorrs[i];
-    const double F=Range(0.0, M[SI.m_iSoluteA]/GTZ(M[iSId]+M[SI.m_iSoluteA]), 2.0);
+    const double F=Range(0.0, M[SI.m_iSolute]/GTZ(M[iSId]+M[SI.m_iSolute]), 2.0);
     C+=SI.CpCorr(F);
     }
   return (1.0+C);
@@ -1647,25 +1762,9 @@ double CSpecieDataBase::Density(long Fidelity, PhMask Phase, double T, double P,
     {
     if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->DensityDirect())
-        {
-        const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-        if (m_SpD[i]->HasDensCorrs())
-          {
-          const double mm=m_SpD[i]->DensCorrMass(M);
-          m += mm;
-          v += mm*vv;
-          }
-        else
-          {
-          m += M[i];
-          v += M[i]*vv;
-          }
-        }
-      else
-        {
-        int xxx=0;
-        }
+      double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      m += M[i];
+      v += M[i]*vv;
       }
     }
 
@@ -1682,20 +1781,11 @@ double CSpecieDataBase::Density(long Fidelity, CIArray & SpIds, double T, double
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
     {
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
       const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += mm;
-        v += mm*vv;
-        }
-      else
-        {
-        m += M[i];
-        v += M[i]*vv;
-        }
+      m += M[i];
+      v += M[i]*vv;
       }
     }
 
@@ -1712,20 +1802,11 @@ double CSpecieDataBase::Density(long Fidelity, CSysVector & Scale, double T, dou
 
   for (int i=-1; I.Loop(i); )
     {
-    if (M[i] > MeasTolerance && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
       const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += Scale[i]*mm;
-        v += Scale[i]*mm*vv;
-        }
-      else
-        {
-        m += Scale[i]*M[i];
-        v += Scale[i]*M[i]*vv;
-        }
+      m += Scale[i]*M[i];
+      v += Scale[i]*M[i]*vv;
       }
     }
 
@@ -1741,22 +1822,15 @@ double CSpecieDataBase::msVolume(long Fidelity, PhMask Phase, double T, double P
   SpecieIter I(Phase);
 
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    {
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += mm;
-        v += mm*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-        }
-      else
-        {
-        m += M[i];
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-        }
+      m += M[i];
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
       }
+    }
 
-    return (m >= 1.0e-100/*TraceMass*/) ? v/GTZ(m) : 1.0/DefaultRho;
+  return (m >= 1.0e-100/*TraceMass*/) ? v/GTZ(m) : 1.0/DefaultRho;
   };
 
 //--------------------------------------------------------------------------
@@ -1768,36 +1842,28 @@ double CSpecieDataBase::msVolumeFrac(long Fidelity, PhMask Phase, double T, doub
 
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    {
+    if (M[i] > MeasTolerance) 
       {
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += mm;
-        Frac[i] = mm*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-        v += Frac[i];
-        }
-      else
-        {
-        m += M[i];
-        Frac[i] = M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-        v += Frac[i];
-        }
+      m += M[i];
+      Frac[i] = M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      v += Frac[i];
       }
+    }
 
-    if (m >= 1.0e-100)
-      {
-      v=GTZ(v);
-      for (int i=-1; I.Loop(i); )
-        if (m_SpD[i]->DensityDirect())
-          Frac[i] /= v;
-      return v/GTZ(m);
-      }
+  if (m >= 1.0e-100)
+    {
+    v=GTZ(v);
+    for (int i=-1; I.Loop(i); )
+      //if (m_SpD[i]->DensityDirect())
+      Frac[i] /= v;
+    return v/GTZ(m);
+    }
 
-    for (i=-1; I.Loop(i); )
-      if (m_SpD[i]->DensityDirect())
-        Frac[i] = 0.0;
-    return 1.0/DefaultRho;
+  for (i=-1; I.Loop(i); )
+    //if (m_SpD[i]->DensityDirect())
+    Frac[i] = 0.0;
+  return 1.0/DefaultRho;
   };
 
 //--------------------------------------------------------------------------
@@ -1807,14 +1873,11 @@ double CSpecieDataBase::Volume(long Fidelity, PhMask Phase, double T, double P, 
   double v=0.0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
-      {
-      if (m_SpD[i]->HasDensCorrs())
-        v += m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      else
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      }
-    return v;
+    {
+    if (M[i] > MeasTolerance)
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+    }
+  return v;
   };
 
 //--------------------------------------------------------------------------
@@ -1824,14 +1887,11 @@ double CSpecieDataBase::Volume(long Fidelity, CIArray & SpIds, double T, double 
   double v=0.0;
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
-      {
-      if (m_SpD[i]->HasDensCorrs())
-        v += m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      else
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      }
-    return v;
+    {
+    if (M[i] > MeasTolerance)
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+    }
+  return v;
   };
 
 //--------------------------------------------------------------------------
@@ -1841,14 +1901,11 @@ double CSpecieDataBase::Volume(long Fidelity, CSysVector &Scale, double T, doubl
   double v=0.0;
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
-      {
-      if (m_SpD[i]->HasDensCorrs())
-        v += Scale[i]*m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      else
-        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
-      }
-    return v;
+    {
+    if (M[i] > MeasTolerance) 
+      v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+    }
+  return v;
   };
 
 //--------------------------------------------------------------------------
@@ -1860,22 +1917,15 @@ double CSpecieDataBase::NDensity(long Fidelity, PhMask Phase, SpPropOveride *Ovr
   SpecieIter I(Phase);
 
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    {
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += mm;
-        v += mm*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-        }
-      else
-        {
-        m += M[i];
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-        }
+      m += M[i];
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
-
-    return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+    }
+  
+  return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
   };
 
 //--------------------------------------------------------------------------
@@ -1887,22 +1937,14 @@ double CSpecieDataBase::NDensity(long Fidelity, CSysVector & Scale, SpPropOverid
   SpecieIter I(som_ALL);
 
   for (int i=-1; I.Loop(i); )
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    {
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        {
-        const double mm=m_SpD[i]->DensCorrMass(M);
-        m += Scale[i]*mm;
-        v += Scale[i]*mm*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-        }
-      else
-        {
-        m += Scale[i]*M[i];
-        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-        }
+      m += Scale[i]*M[i];
+      v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
-
-    return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+    }
+  return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
   };
 
 //--------------------------------------------------------------------------
@@ -1914,12 +1956,9 @@ double CSpecieDataBase::NVolume(long Fidelity, PhMask Phase, SpPropOveride *Ovr,
 
   for (int i=-1; I.Loop(i); )
     {
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        v += m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-      else
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
     }
   return v;
@@ -1933,12 +1972,9 @@ double CSpecieDataBase::NVolume(long Fidelity, CIArray & SpIds, SpPropOveride *O
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
     {
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        v += m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-      else
-        v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+      v += M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
     }
   return v;
@@ -1952,12 +1988,9 @@ double CSpecieDataBase::NVolume(long Fidelity, CSysVector & Scale, SpPropOveride
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
     {
-    if ((M[i] > MeasTolerance) && m_SpD[i]->DensityDirect())
+    if (M[i] > MeasTolerance)
       {
-      if (m_SpD[i]->HasDensCorrs())
-        v += Scale[i]*m_SpD[i]->DensCorrMass(M)*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
-      else
-        v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
+      v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, Norm_T, Norm_P, Ovr, M);
       }
     }
   return v;
@@ -3111,16 +3144,15 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
           if (Bad)
             continue;
 
-          switch (m_SDB[iSolvent].AddSolnInfo(iSoluteA, iSoluteS, (char*)pDensFn, (char*)pCpFn, (char*)pSolFn, ""))
+          switch (m_SDB[iSolvent].AddSolnInfo(iSoluteA, iSoluteS, iSolvent, (char*)pDensFn, (char*)pCpFn, (char*)pSolFn, ""))
             {
             case 0:
               {
               if (m_SDB[iSoluteA].m_iSolvent<0)
                 {
                 m_SDB[iSoluteA].m_iSolvent=iSolvent;
-                m_SDB[iSoluteA].m_bDensInDirect=m_SDB[iSolvent].m_bHasDensCorrs;
                 m_SDB[iSoluteA].m_bCpInDirect=m_SDB[iSolvent].m_bHasCpCorrs;
-                if (m_SDB[iSoluteA].m_bDensInDirect)
+                if (m_SDB[iSoluteA].m_pDensCalc)
                   CDBInit.NSpDensCorrPrj++;
                 if (m_SDB[iSolvent].m_Solubilities.GetCount()>0)
                   CDBInit.NSpSolFnPrj++;
@@ -3143,6 +3175,10 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
             case 3:
               //LogError("SpecieDB", 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               LogError("SpecieDB", 0, "No valid data for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              break;
+            case 4:
+              //LogError("SpecieDB", 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              LogError("SpecieDB", 0, "Bad Limit Info for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
             }
 
@@ -4146,6 +4182,64 @@ double CSpecie::VapourT(long Fidelity, double P_)
   if (0)
     dbgpln("++++++++++++");
   return dPrvVapT;
+  };
+
+//---------------------------------------------------------------------------
+
+double     CSpecie::msVolume(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)
+  {
+  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
+    return 1.0/Ovr->fDens[m_iOverIndex];
+
+  double D;
+  if (m_pDensCalc && M)
+    D=m_pDensCalc->Evaluate(Fidelity, T, P, M);
+  else
+    D=m_Data[Fidelity].SpRho(T,P);
+
+  return 1.0/GTZ(D);
+  }
+
+double     CSpecie::Density(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)
+  {
+  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
+    return 1.0/Ovr->fDens[m_iOverIndex];
+
+  double D;
+  if (m_pDensCalc && M)
+    D=m_pDensCalc->Evaluate(Fidelity, T, P, M);
+  else
+    D=m_Data[Fidelity].SpRho(T,P);
+
+  return D;
+  };
+
+double     CSpecie::NmsVolume(long Fidelity, SpPropOveride *Ovr, CSVData M)
+  {
+  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
+    return 1.0/Ovr->fDens[m_iOverIndex];
+
+  double D;
+  if (m_pDensCalc && M)
+    D=m_pDensCalc->Evaluate(Fidelity, Norm_T, Norm_P, M);
+  else
+    D=m_Data[Fidelity].SpRho(Norm_T, Norm_P);
+
+  return 1.0/GTZ(D);
+  };
+
+double     CSpecie::NDensity(long Fidelity, SpPropOveride *Ovr, CSVData M)
+  {
+  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
+    return 1.0/Ovr->fDens[m_iOverIndex];
+
+  double D;
+  if (m_pDensCalc && M)
+    D=m_pDensCalc->Evaluate(Fidelity, Norm_T, Norm_P, M);
+  else
+    D=m_Data[Fidelity].SpRho(Norm_T, Norm_P);
+
+  return D;
   };
 
 //---------------------------------------------------------------------------
@@ -8685,8 +8779,8 @@ double CSysVector::ValueOp(int i, byte Op, long Fidelity, double T, double P)
   switch (Op)
     {
     case SVOP_Mole: return m_d[i]/SDB[i].MoleWt();
-    case SVOP_Vol:  return SDB[i].DensityDirect() ? m_d[i]/GTZ(SDB[i].Density(Fidelity, T, P, NULL, m_d)) : 0.0;
-    case SVOP_NVol: return SDB[i].DensityDirect() ? m_d[i]/GTZ(SDB[i].NDensity(Fidelity, NULL, m_d)) : 0.0;
+    case SVOP_Vol:  return m_d[i]/GTZ(SDB[i].Density(Fidelity, T, P, NULL, m_d));
+    case SVOP_NVol: return m_d[i]/GTZ(SDB[i].NDensity(Fidelity, NULL, m_d));
     default:        return m_d[i];
     }
   };

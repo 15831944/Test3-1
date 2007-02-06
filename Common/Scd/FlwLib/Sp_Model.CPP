@@ -3562,12 +3562,7 @@ void SpModel::VDS_FindOptions(CVDS_WorkSpace & WS, bool doDbg)
         WS.m_MTmp.Normalise();
       WS.m_Op=SVOP_Vol;
       for (int i=0; i<SVValueCount(); i++)
-        {
-        if (SDB[i].DensityDirect())
-          WS.m_SclX.VValue[i]=SDB[i].msVolume(m_iFidelity, m_dSetCfgImgT, m_dSetCfgImgP, &m_Ovr, SVData());
-        else
-          WS.m_SclX.VValue[i]=0;
-        }
+        WS.m_SclX.VValue[i]=SDB[i].msVolume(m_iFidelity, m_dSetCfgImgT, m_dSetCfgImgP, &m_Ovr, SVData());
       break;
     case SVV_AsNVol:
     case SVV_AsNVolFlow:
@@ -3579,12 +3574,7 @@ void SpModel::VDS_FindOptions(CVDS_WorkSpace & WS, bool doDbg)
         WS.m_MTmp.Normalise();
       WS.m_Op=SVOP_NVol;
       for (int i=0; i<SVValueCount(); i++)
-        {
-        if (SDB[i].DensityDirect())
-          WS.m_SclX.VValue[i]=SDB[i].msVolume(m_iFidelity, Norm_T, Norm_P, &m_Ovr, SVData());
-        else
-          WS.m_SclX.VValue[i]=0;
-        }
+        WS.m_SclX.VValue[i]=SDB[i].msVolume(m_iFidelity, Norm_T, Norm_P, &m_Ovr, SVData());
       }
     break;
     }
@@ -4952,7 +4942,8 @@ flag SpModel::ValidateData(ValidateDataBlk & VDB)
 
 long SpModel::CheckDataRanges()
   {
-  long NBadRanges=0;
+  long NBadTempRanges=0;
+  long NBadDensRanges=0;
   if (HeatSkipMethod())
     {
     ClrCI(5);
@@ -4967,28 +4958,29 @@ long SpModel::CheckDataRanges()
     if (Mt>1.0e-9)
       {
       Strng S1;
-      int NBad=0;
+      int NBadTemp=0;
+      int NBadDens=0;
       for (int s=0; s<SDB.Count(); s++)
         {
         if (m_M[s]/Mt > dTestToleranceMassFrac)
           {
           CSpecie & D=SDB[s];
-          flag IsBad=false;
+          flag BadTemp=false;
           if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
             {
             AsWarn=true;
-            IsBad=true;
+            BadTemp=true;
             }
           else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
-            IsBad=true;
+            BadTemp=true;
 
-          if (IsBad)
+          if (BadTemp)
             {
-            NBadRanges++;
+            NBadTempRanges++;
             if (WithSpcs)
               {
               const int MaxBad=5;
-              if (NBad<MaxBad)
+              if (NBadTemp<MaxBad)
                 {
                 if (Spcs.Length()>0)
                   Spcs+=",";
@@ -5000,15 +4992,43 @@ long SpModel::CheckDataRanges()
                 else
                   Spcs+=D.SymOrTag();
                 }
-              else if (NBad==MaxBad)
+              else if (NBadTemp==MaxBad)
                 Spcs+=" ...";
-              NBad++;
+              NBadTemp++;
+              }
+            }
+
+          if (SDB[s].HasDensCalc())
+            {
+            CDensCorr & DC = SDB[s].DensCalc();
+            if (DC.m_DoWarn && m_M[DC.m_iSolute]/GTZ(m_M[DC.m_iSolute]+m_M[DC.m_iSolvent])>DC.m_LimitFrac)
+              {
+              NBadDensRanges++;
+              if (WithSpcs)
+                {
+                const int MaxBad=5;
+                if (NBadDens<MaxBad)
+                  {
+                  if (Spcs.Length()>0)
+                    Spcs+=",";
+                  if (0)
+                    {
+                    S1.Set("%s[%5.1f%%]", D.SymOrTag(), 100*m_M[s]/Mt);
+                    Spcs+=S1();
+                    }
+                  else
+                    Spcs+=D.SymOrTag();
+                  }
+                else if (NBadDens==MaxBad)
+                  Spcs+=" ...";
+                NBadDens++;
+                }
               }
             }
           }
         }
       }
-    if (NBadRanges)
+    if (NBadTempRanges)
       {
       if (WithSpcs)
         SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), Spcs());
@@ -5017,8 +5037,17 @@ long SpModel::CheckDataRanges()
       }
     else
       ClrCI(5);
+    if (NBadDensRanges)
+      {
+      if (WithSpcs)
+        SetCI(8, "%s\tDensityCorrection Range %s", AsWarn?"W":"N", Spcs());
+      else
+        SetCI(8, "%s\tDensityCorrection out of Valid Data Range", AsWarn?"W":"N");
+      }
+    else
+      ClrCI(8);
     }
-  return NBadRanges;
+  return NBadTempRanges+NBadDensRanges;
   };
 
 // --------------------------------------------------------------------------
@@ -7978,8 +8007,7 @@ double SpModel::PartialPress(SpecieIter &Ids, double T, double P)
     double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
     for (int i=-1; Ids.Loop(i); )
-      if (SDB[i].DensityDirect())
-        Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+      Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
     // Assume Linear Relationship - Ideal Gas;
     PPart=P*Vol1/GTZ(VolA);
     //if (PPart<20.0)
@@ -8064,8 +8092,7 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
     double VolA= SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
     for (int i=-1; Ids.Loop(i); )
-      if (SDB[i].DensityDirect())
-        Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+      Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
 
     // Assume Linear Relationship - Ideal Gas;
     Pf=Vol1/GTZ(VolA);
@@ -8626,13 +8653,14 @@ flag SpModel::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 1: pS="W\tSlurry Venting";                     return 1;
-    case 2: pS="W\tGas Venting";                        return 1;
-    case 3: pS="W\tVolume Expanded";                    return 1;
-    case 4: pS="W\tSaturationT not converged";          return 1;
-    case 5: pS="W\tTemp/Press Out of Range for ????";   return 1;
-    case 6: pS="N\tSaturationT Low Limit";              return 1;
-    case 7: pS="N\tSaturationT High Limit";             return 1;
+    case 1: pS="W\tSlurry Venting";                               return 1;
+    case 2: pS="W\tGas Venting";                                  return 1;
+    case 3: pS="W\tVolume Expanded";                              return 1;
+    case 4: pS="W\tSaturationT not converged";                    return 1;
+    case 5: pS="W\tTemp/Press Out of Range for ????";             return 1;
+    case 6: pS="N\tSaturationT Low Limit";                        return 1;
+    case 7: pS="N\tSaturationT High Limit";                       return 1;
+    case 8: pS="W\tDensity Corrections Out of Range for ????";    return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }

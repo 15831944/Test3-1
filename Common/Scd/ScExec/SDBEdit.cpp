@@ -3934,12 +3934,12 @@ void CSDBTest::TestRelDens(int &nGood, int &nBad)
         Strng Note;
         flag fBad=false;
         CDensCorr &SItem=Solvent.DensCorr(iDensCorr);
-        M[SItem.m_iSoluteA]=0.0;
+        M[SItem.m_iSolute]=0.0;
         M[iSolvent]=1.0;
         double Rho0=m_SDB[iSolvent].SpRho(iFidelity, C_2_K(25.0), Std_T);
         for (int it=0; it<=m_NIntervals; it++)
           {
-          M[SItem.m_iSoluteA]=(1.0/m_NIntervals)*it;
+          M[SItem.m_iSolute]=(1.0/m_NIntervals)*it;
           M[iSolvent]=1.0;
           double Rho=m_SDB.Density(iFidelity, som_ALL, C_2_K(25.0), Std_T, NULL, &M[0]);
           double SG=Rho/Rho0;
@@ -3964,8 +3964,8 @@ void CSDBTest::TestRelDens(int &nGood, int &nBad)
             Strng S;
             S.Set("%s\t%s\t%.2f\t%.3f\t%.3f\t%s",
               it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-              it==0 ? (m_SDB[SItem.m_iSoluteA].SymOrTag()?m_SDB[SItem.m_iSoluteA].SymOrTag():""):"",
-              100.0*M[SItem.m_iSoluteA]/M[iSolvent],
+              it==0 ? (m_SDB[SItem.m_iSolute].SymOrTag()?m_SDB[SItem.m_iSolute].SymOrTag():""):"",
+              100.0*M[SItem.m_iSolute]/M[iSolvent],
               Rho,
               SG,
               Note() ? Note() : " ");

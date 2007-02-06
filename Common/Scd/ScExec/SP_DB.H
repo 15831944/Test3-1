@@ -152,6 +152,10 @@ class CSVBoolArray : public CArray<bool, bool> {};
 
 // ===========================================================================
 
+typedef double *CSVData;
+
+// ===========================================================================
+
 extern DllImportExport long FixSpecieTypeId(long Type, long CfgFilePrjFileVerNo);
 extern double SpDB_TokenValue(pchar p, double Default);
 extern void SpDB_ParseTokens(char * Buff, char* C[MaxSPDBCols]);
@@ -374,41 +378,52 @@ class DllImportExport CSpDBEqn
 class DllImportExport CDensCorr
   {
   public:
-    int      m_iSoluteA;
-    //int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
+    CDensCorr();
+      //{
+      //m_iSolute=-1;
+      //m_iSolvent=-1;
+      //m_pDensCorrFn=NULL;
+      //m_DensCorrZero=0.0;
+      //};
+
+    CDensCorr(int Solute, int Solvent,
+              CSpDBEqn *DensCorrFn, double DensCorrZero,
+              double LimitFrac, double PureValue, bool DoWarn);
+      //{
+      //m_iSolute        = Solute;
+      //m_iSolvent       = Solvent;
+      ////m_iSoluteS       = SoluteS;
+      //m_pDensCorrFn    = DensCorrFn;
+      //m_DensCorrZero   = DensCorrZero;
+      //m_LimitFrac      = LimitFrac;        
+      //m_PureValue      = PureValue;
+      //m_DoWarn         = DoWarn;
+      //};
+
+    ~CDensCorr();
+      //{
+      //};
+
+    void Clear();
+      //{
+      //delete m_pDensCorrFn;
+      //m_pDensCorrFn=NULL;
+      //};
+
+    double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_DensCorrZero; }
+
+    double Evaluate(long Fidelity, double T, double P, CSVData M);
+
+  public:
+    int      m_iSolute;
+    int      m_iSolvent;
 
     CSpDBEqn *m_pDensCorrFn;          // Density Correction Function
-    double   m_dDensCorrZero;        // Density Correction Function
+    double   m_DensCorrZero; 
+    double   m_LimitFrac;        
+    double   m_PureValue;
+    bool     m_DoWarn;
 
-
-    CDensCorr()
-      {
-      m_iSoluteA=-1;
-     // m_iSoluteS=-1;
-      m_pDensCorrFn=NULL;
-      m_dDensCorrZero=0.0;
-      };
-
-    CDensCorr(int SoluteA, //int SoluteS,
-              CSpDBEqn *DensCorrFn, double DensCorrZero)
-      {
-      m_iSoluteA       = SoluteA;
-      //m_iSoluteS       = SoluteS;
-      m_pDensCorrFn    = DensCorrFn;
-      m_dDensCorrZero  = DensCorrZero;
-      };
-
-    ~CDensCorr()
-      {
-      };
-
-    void Clear()
-      {
-      delete m_pDensCorrFn;
-      m_pDensCorrFn=NULL;
-      };
-
-    double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_dDensCorrZero; }
   };
 
 class CDensCorrs : public CArray<CDensCorr, CDensCorr&> {};
@@ -417,25 +432,16 @@ class CDensCorrs : public CArray<CDensCorr, CDensCorr&> {};
 class DllImportExport CCpCorr
   {
   public:
-    int      m_iSoluteA;
-    //int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
-
-    CSpDBEqn *m_pCpCorrFn;            // Cp Correction Function
-    double   m_dCpCorrZero;          // Cp Correction Function
-
     CCpCorr()
       {
-      m_iSoluteA=-1;
-      //m_iSoluteS=-1;
-      m_pCpCorrFn=NULL;
-      m_dCpCorrZero=0.0;
+      m_iSolute     = -1;
+      m_pCpCorrFn   = NULL;
+      m_dCpCorrZero = 0.0;
       };
 
-    CCpCorr(int SoluteA, //int SoluteS,
-              CSpDBEqn *CpCorrFn, double CpCorrZero)
+    CCpCorr(int Solute, CSpDBEqn *CpCorrFn, double CpCorrZero)
       {
-      m_iSoluteA       = SoluteA;
-      //m_iSoluteS       = SoluteS;
+      m_iSolute        = Solute;
       m_pCpCorrFn      = CpCorrFn;
       m_dCpCorrZero    = CpCorrZero;
       };
@@ -451,6 +457,12 @@ class DllImportExport CCpCorr
       };
 
     double CpCorr(double MF)   { return m_pCpCorrFn->AtT(MF)-m_dCpCorrZero; }
+
+    int      m_iSolute;
+
+    CSpDBEqn *m_pCpCorrFn;            // Cp Correction Function
+    double   m_dCpCorrZero;          // Cp Correction Function
+
   };
 
 class CCpCorrs : public CArray<CCpCorr, CCpCorr&> {};
@@ -464,12 +476,6 @@ class CCpCorrs : public CArray<CCpCorr, CCpCorr&> {};
 class DllImportExport CSolubility
   {
   public:
-    int      m_iSoluteA;
-    int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
-
-    CSpDBEqn *m_pSolubleFn;           // Solubility Function
-    CSpDBEqn *m_pHeatOfMixFn;
-
     CSolubility()
       {
       m_iSoluteA=-1;
@@ -498,6 +504,12 @@ class DllImportExport CSolubility
       m_pSolubleFn=NULL;
       m_pHeatOfMixFn=NULL;
       };
+
+    int      m_iSoluteA;
+    int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
+
+    CSpDBEqn *m_pSolubleFn;           // Solubility Function
+    CSpDBEqn *m_pHeatOfMixFn;
 
   };
 
@@ -745,8 +757,6 @@ typedef CSpecieData CSpecieDataArray[MaxFidelity];
 
 // ---------------------------------------------------------------------------
 
-typedef double *CSVData;
-
 class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
   {
   friend class CSpDBEqn;
@@ -786,9 +796,7 @@ class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
     byte           m_bReference:1,
                    m_bPrjDB:1,
                    m_bIsAqueous:1,
-                   m_bHasDensCorrs:1,
                    m_bHasCpCorrs:1,
-                   m_bDensInDirect:1,
                    m_bCpInDirect:1;
 
     SPOType        m_bCpOvrMask;
@@ -796,6 +804,8 @@ class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
     byte           m_iOverIndex;
 
     int            m_iSolvent;
+    CDensCorr *    m_pDensCalc;
+
     CDensCorrs     m_DensCorrs;
     CCpCorrs       m_CpCorrs;
     CSolubilities  m_Solubilities;
@@ -814,7 +824,7 @@ class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
 
     flag           FixMissingData(CComponent * pC);
     flag           CopyDataForMultiFidelity();
-    int            AddSolnInfo(int iSoluteA, int iSoluteS, char* dDensCorr, char* dHCapCorr, char* pSoluble, char* pHeatOfMix);
+    int            AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* dDensCorr, char* dHCapCorr, char* pSoluble, char* pHeatOfMix);
 
     flag           PhaseIs(PhMask OccM__);
     flag           IsSol();
@@ -831,15 +841,15 @@ class DllImportExport CSpecie : public CSpecieCommonData, public CPropertyBase
     double         CpCorrFactor(CSVData M);
     int            DensCorrCount();
     CDensCorr    & DensCorr(int i);
+    CDensCorr    & DensCalc();
     int            CpCorrCount();
     CCpCorr      & CpCorr(int i);
     int            SolubilityCount();
     CSolubility  & Solubility(int i);
     int            Solvent();
 
-    flag           HasDensCorrs();
-    flag           DensityDirect();
-    flag           DensityInDirect();
+    flag           HasDensCalc() { return m_pDensCalc!=0; };
+
     flag           CpDirect();
     flag           CpInDirect();
 
@@ -1008,15 +1018,6 @@ class DllImportExport CSpecieDataBase
     int            Count(PhMask Ph) { int n=0; for (int i=0; i<m_iNo; i++) if (m_SpD[i]->PhaseIs(Ph)) n++; return n; };
     int            GetIndexArray(PhMask Phases, CSVLongArray*pInx=NULL);  //number of species in Phase
     int            Lookup(LPCTSTR pSpName) { int i; return m_Map.Lookup(pSpName, i) ? i:-1; };
-
-    //int            MixtureId()    { return No(); };
-    //int            SolMixtureId() { return No()+1; };
-    //int            LiqMixtureId() { return No()+2; };
-    //int            VapMixtureId() { return No()+3; };
-    //int            ImageId()      { return No()+4; };
-    //int            SolImageId()   { return No()+5; };
-    //int            LiqImageId()   { return No()+6; };
-    //int            VapImageId()   { return No()+7; };
 
     void           SetExtraProps(CSpeciePropDataBase* pSPDB) { m_pExtraProps = pSPDB; };
     CSpeciePropDataBase* ExtraProps() { return m_pExtraProps; };
@@ -1474,56 +1475,8 @@ inline bool       CSpecieData::VpOK()                  { return m_pSp->VpOK();  
 // ===========================================================================
 
 inline double     CSpecie::SpRho(long Fidelity, double T, double P) { return m_Data[Fidelity].SpRho(T,P);};
-inline flag       CSpecie::HasDensCorrs()     { return m_bHasDensCorrs; };
-inline flag       CSpecie::DensityDirect()    { return !m_bDensInDirect; };
-inline flag       CSpecie::DensityInDirect()  { return m_bDensInDirect; };
 inline flag       CSpecie::CpDirect()         { return !m_bCpInDirect; };
 inline flag       CSpecie::CpInDirect()       { return m_bCpInDirect; };
-
-inline double     CSpecie::msVolume(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)
-  {
-  if (m_bDensInDirect)
-    return 0.0;
-  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
-    return 1.0/Ovr->fDens[m_iOverIndex];
-  double D=m_Data[Fidelity].SpRho(T,P);
-  if (M && m_bHasDensCorrs)
-    D*=DensCorrFactor(M);
-  return 1.0/GTZ(D);
-  }
-inline double     CSpecie::Density(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)
-  {
-  if (m_bDensInDirect)
-    return 0.0;
-  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
-    return Ovr->fDens[m_iOverIndex];
-  double D=m_Data[Fidelity].SpRho(T,P);
-  if (M && m_bHasDensCorrs)
-    D*=DensCorrFactor(M);
-  return D;
-  };
-inline double     CSpecie::NmsVolume(long Fidelity, SpPropOveride *Ovr, CSVData M)
-  {
-  if (m_bDensInDirect)
-    return 0.0;
-  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
-    return 1.0/Ovr->fDens[m_iOverIndex];
-  double D=m_Data[Fidelity].SpRho(Norm_T,Norm_P);
-  if (M && m_bHasDensCorrs)
-    D*=DensCorrFactor(M);
-  return 1.0/GTZ(D);
-  };
-inline double     CSpecie::NDensity(long Fidelity, SpPropOveride *Ovr, CSVData M)
-  {
-  if (m_bDensInDirect)
-    return 0.0;
-  if (Ovr && (Ovr->bUse & m_bDensOvrMask))
-    return Ovr->fDens[m_iOverIndex];
-  double D=m_Data[Fidelity].SpRho(Norm_T,Norm_P);
-  if (M && m_bHasDensCorrs)
-    D*=DensCorrFactor(M);
-  return D;
-  };
 
 inline double     CSpecie::LoT(long Fidelity)              { return m_Data[Fidelity].m_dTs[0]; };
 inline double     CSpecie::HiT(long Fidelity)              { return m_Data[Fidelity].m_dTe[m_Data[Fidelity].m_iLastTPoint]; };
@@ -1567,6 +1520,7 @@ inline int        CSpecie::BaseOccType()          { return m_iBOccT; };
 inline int        CSpecie::CId()                  { return iCId; };
 inline int        CSpecie::DensCorrCount()        { return m_DensCorrs.GetSize(); };
 inline CDensCorr & CSpecie::DensCorr(int i)       { return m_DensCorrs[i]; };
+inline CDensCorr & CSpecie::DensCalc()            { return *m_pDensCalc; };
 inline int        CSpecie::CpCorrCount()          { return m_CpCorrs.GetSize(); };
 inline CCpCorr  & CSpecie::CpCorr(int i)          { return m_CpCorrs[i]; };
 inline int        CSpecie::SolubilityCount()      { return m_Solubilities.GetSize(); };
