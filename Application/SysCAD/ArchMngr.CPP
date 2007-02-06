@@ -1365,7 +1365,7 @@ void CArchiveDBTable::AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ)
       }
     if (m_rAM.m_dwOptions & LogItem_TimeTime)
       {
-      S=CB.m_TheTime.Format(TD_Time|TD_TrimTime);
+      S=CB.m_TheTime.Format(TD_Time|TD_TimeOnly);
       fprintf(m_hFile, "%c%s", Separ, S);
       }
     }

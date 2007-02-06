@@ -708,14 +708,14 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
     __int64 secs = lSecs % 60;
     __int64 msecs = m_mSecs % Divisor;
 
-    ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight), "CTimeValue::Format - No Options", __FILE__, __LINE__);
+    ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight|TD_DateStrFormat), "CTimeValue::Format - No Options", __FILE__, __LINE__);
 
-    if (Options & (TD_DateLeft|TD_DateRight|TD_TimeOnly))
+    if (Options & (TD_DateLeft|TD_DateRight|TD_DateStrFormat|TD_TimeOnly))
       {
       hour = hour%24;
       Dt.Format("%02i/%02i/%04i", mday, mon, year);
       if (Options & TD_DateStrFormat)
-        Dt.Format("%02i/%02i/%04i", mday, mon, year); //TODO: change this to eg "14-Dec-07" or similar???
+        Dt.Format("%2i %s %04i", mday, MonthDescriptions[mon-1], year); //what is the best format??? perhaps "14-Dec-07" or ???
       else
         Dt.Format("%02i/%02i/%04i", mday, mon, year);
       }
@@ -776,7 +776,7 @@ Done:
         }
       S=Tm;
       }
-    else if (Options & (TD_DateLeft|TD_DateRight))
+    else if (Options & (TD_DateLeft|TD_DateRight|TD_DateStrFormat))
       {
       S=Dt;
       }
