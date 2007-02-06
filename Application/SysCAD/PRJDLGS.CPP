@@ -373,6 +373,8 @@ class CArchivePage : public CCustomPropertyPage
   public:
 
     CButton m_MLTime;
+    CButton m_MLTimeDate;
+    CButton m_MLTimeTime;
     CButton m_MLElapsedHMS;
     CComboBox m_MLElapsedDbl;
     CButton m_MLCommand;
@@ -388,6 +390,8 @@ class CArchivePage : public CCustomPropertyPage
     CButton m_EventLogOn;
 
     afx_msg void OnBnClickedArcMLTime();
+    afx_msg void OnBnClickedArcMLTimeDate();
+    afx_msg void OnBnClickedArcMLTimeTime();
     afx_msg void OnBnClickedArcMLElapsedHMS();
     //afx_msg void OnBnClickedArcMLElapsedDbl();
     afx_msg void OnBnClickedArcMLCommand();
@@ -2733,6 +2737,8 @@ void CArchivePage::DoDataExchange(CDataExchange* pDX)
   DDX_Check(pDX, IDC_PRJARCON, m_ArcOn);
   DDX_Text(pDX, IDD_PRJARCNAME, m_ArcName);
   DDX_Control(pDX, IDC_ARCML_TIME, m_MLTime);
+  DDX_Control(pDX, IDC_ARCML_TIMEDATE, m_MLTimeDate);
+  DDX_Control(pDX, IDC_ARCML_TIMETIME, m_MLTimeTime);
   DDX_Control(pDX, IDC_ARCML_ELAPSEDHMS, m_MLElapsedHMS);
   DDX_Control(pDX, IDC_ARCML_ELAPSEDDBL, m_MLElapsedDbl);
   DDX_Control(pDX, IDC_ARCML_COMMAND, m_MLCommand);
@@ -2763,6 +2769,8 @@ BEGIN_MESSAGE_MAP(CArchivePage, CCustomPropertyPage)
   ON_UPDATE_COMMAND_UI(IDC_ARCBROWSE, OnUpdateArchiveOn)
 
   ON_BN_CLICKED(IDC_ARCML_TIME, &CArchivePage::OnBnClickedArcMLTime)
+  ON_BN_CLICKED(IDC_ARCML_TIMEDATE, &CArchivePage::OnBnClickedArcMLTimeDate)
+  ON_BN_CLICKED(IDC_ARCML_TIMETIME, &CArchivePage::OnBnClickedArcMLTimeTime)
   ON_BN_CLICKED(IDC_ARCML_ELAPSEDHMS, &CArchivePage::OnBnClickedArcMLElapsedHMS)
   //ON_BN_CLICKED(IDC_ARCML_ELAPSEDDBL, &CArchivePage::OnBnClickedArcMLElapsedDbl)
   ON_BN_CLICKED(IDC_ARCML_COMMAND, &CArchivePage::OnBnClickedArcMLCommand)
@@ -2817,6 +2825,9 @@ void CArchivePage::GetOptions(LPCTSTR FileName)
   DWORD Opts = CArchiveManager::ReadOptions(FileName);
 
   m_MLTime       .SetCheck((Opts & LogItem_Time      )  !=0 ? 1:0);
+  m_MLTimeDate   .SetCheck((Opts & LogItem_TimeDate  )  !=0 ? 1:0);
+  m_MLTimeTime   .SetCheck((Opts & LogItem_TimeTime  )  !=0 ? 1:0);
+
   m_MLElapsedHMS .SetCheck((Opts & LogItem_ElapsedHMS)  !=0 ? 1:0);
   //m_MLElapsedDbl .SetCheck((Opts & LogItem_ElapsedDbl)  !=0 ? 1:0);
   if (Opts & LogItem_ElapsedDays)
@@ -2849,6 +2860,9 @@ void CArchivePage::SetOptions(LPCTSTR FileName)
   DWORD Opts=0;
 
   if (m_MLTime       .GetCheck()!=0) Opts |= LogItem_Time      ;
+  if (m_MLTimeDate   .GetCheck()!=0) Opts |= LogItem_TimeDate  ;
+  if (m_MLTimeTime   .GetCheck()!=0) Opts |= LogItem_TimeTime  ;
+
   if (m_MLElapsedHMS .GetCheck()!=0) Opts |= LogItem_ElapsedHMS;
 
   if (m_MLElapsedDbl.GetCurSel()==1) Opts |= LogItem_ElapsedDays;
@@ -3062,6 +3076,8 @@ void CArchivePage::OnArchiveApply()
   }
 
 void CArchivePage::OnBnClickedArcMLTime()         { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLTimeDate()     { bArcChanged=1; }
+void CArchivePage::OnBnClickedArcMLTimeTime()     { bArcChanged=1; }
 void CArchivePage::OnBnClickedArcMLElapsedHMS()   { bArcChanged=1; }
 void CArchivePage::OnCbnSelchangeArcmlElapseddbl(){ bArcChanged=1; }
 void CArchivePage::OnBnClickedArcMLCommand()      { bArcChanged=1; }

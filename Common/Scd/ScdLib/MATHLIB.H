@@ -271,14 +271,16 @@ class DllImportExport LeastSquareFit
 
 // ===========================================================================
 
-const DWORD   TD_Time               = 0x01;
-const DWORD   TD_DateLeft           = 0x02;
-const DWORD   TD_DateRight          = 0x04;
-const DWORD   TD_Days               = 0x08;
-const DWORD   TD_DaysJoined         = 0x10;
-const DWORD   TD_IntegralSecs       = 0x20;
-const DWORD   TD_TrimTime           = 0x40;
-const DWORD   TD_Seconds            = 0x80;
+const DWORD   TD_Time               = 0x0001;
+const DWORD   TD_DateLeft           = 0x0002;
+const DWORD   TD_DateRight          = 0x0004;
+const DWORD   TD_Days               = 0x0008;
+const DWORD   TD_DaysJoined         = 0x0010;
+const DWORD   TD_IntegralSecs       = 0x0020;
+const DWORD   TD_TrimTime           = 0x0040;
+const DWORD   TD_Seconds            = 0x0080;
+const DWORD   TD_DateStrFormat      = 0x0100;
+const DWORD   TD_TimeOnly           = 0x0200;
 
 const DWORD   TD_DateTime           = TD_Time|TD_DateLeft;
 const DWORD   TD_TimeDate           = TD_Time|TD_DateRight;

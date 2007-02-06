@@ -18,7 +18,7 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #define dbgArchiver       WITHDEBUG
 
@@ -1307,15 +1307,24 @@ void CArchiveDBTable::AddTimeFieldsDB(CXM_TimeControl &CB)
     __time64_t TheTime=(__time64_t)CB.m_TheTime.Seconds;
     //tm* t=_localtime64(&TheTime);
     tm* t=_gmtime64(&TheTime);
-    DT.SetDateTime(t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
-    COleVariant dv1(DT);
     if (m_rAM.m_dwOptions & LogItem_Time)
+      {
+      DT.SetDateTime(t->tm_year+1900, t->tm_mon+1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+      COleVariant dv1(DT);
       m_pRst->Fields->GetItem(sDateTimeStr)->Value=dv1;
+      }
     if (m_rAM.m_dwOptions & LogItem_TimeDate)
+      {
+      DT.SetDate(t->tm_year+1900, t->tm_mon+1, t->tm_mday);
+      COleVariant dv1(DT);
       m_pRst->Fields->GetItem(sDateStr)->Value=dv1;
+      }
     if (m_rAM.m_dwOptions & LogItem_TimeTime)
+      {
+      DT.SetTime(t->tm_hour, t->tm_min, t->tm_sec);
+      COleVariant dv1(DT);
       m_pRst->Fields->GetItem(sTimeStr)->Value=dv1;
-//todo
+      }
     }
 
   CTimeValue ET=(m_rAM.m_TimeAtStartValid ? CB.m_TheTime.Seconds-m_rAM.m_TimeAtStart.Seconds : 0);
@@ -1351,7 +1360,7 @@ void CArchiveDBTable::AddTimeFieldsTxt(CXM_TimeControl &CB, char Separ)
       }
     if (m_rAM.m_dwOptions & LogItem_TimeDate)
       {
-      S=CB.m_TheTime.Format(TD_DateLeft);
+      S=CB.m_TheTime.Format(TD_DateLeft|TD_DateStrFormat);
       fprintf(m_hFile, "%c%s", Separ, S);
       }
     if (m_rAM.m_dwOptions & LogItem_TimeTime)

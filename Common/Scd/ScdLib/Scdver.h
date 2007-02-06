@@ -117,8 +117,8 @@
 //More version information used in RC files, etc
 #define SCD_VERINFO_Company       "Kenwalt\0"
 #define SCD_VERINFO_CompanyFull   "Kenwalt Pty Ltd\0"
-#define SCD_VERINFO_Copyright     "Copyright © 1995-2006\0"
-#define SCD_VERINFO_CopyrightFull "Copyright © Kenwalt 1995-2006\0"
+#define SCD_VERINFO_Copyright     "Copyright © 1995-2007\0"
+#define SCD_VERINFO_CopyrightFull "Copyright © Kenwalt 1995-2007\0"
 #define SCD_VERINFO_Legal         "-\0"
 #define SCD_VERINFO_Company2      "KWA Kenwalt\0"
 #define SCD_VERINFO_Company2Full  "KWA Kenwalt Australia Pty Ltd\0"

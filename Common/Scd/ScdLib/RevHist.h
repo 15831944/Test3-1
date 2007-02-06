@@ -2706,10 +2706,13 @@ Build 122 : 16 November 2006
 1391  1/02/07: (#727) SMDK fix, and other minor fixes.
 1396  2/02/07: (#623) New pgm command PageLabel(string) and TextLabel(string[, string]).
 1399  4/02/07: (#623) Extend PGM TextLabel(..) command to work in class definitions.
+1402  4/02/07: Minor client add-on DLL fixes.
+1407  5/02/07: (#721) Added evaporation mode option to shell and tube heater.
+1410  6/02/07: (#633) Added separate archive report time fields for date and time.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1399
+#define SCD_PATCH_SVN    1410
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

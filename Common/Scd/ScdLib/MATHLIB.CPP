@@ -697,10 +697,9 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
   tm* DateTime=_gmtime64(&tt);
   if (DateTime)
     {
-
-    int mday=DateTime->tm_mday;
-    int mon=DateTime->tm_mon+1;
-    int year=DateTime->tm_year+1900;
+    const int mday=DateTime->tm_mday;
+    const int mon=DateTime->tm_mon+1;
+    const int year=DateTime->tm_year+1900;
     
     __int64 lSecs = SecondsI64;                       
     __int64 days = SecondsI64/86400;
@@ -711,10 +710,14 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
 
     ASSERT_ALWAYS(Options & (TD_Time|TD_DateLeft|TD_DateRight), "CTimeValue::Format - No Options", __FILE__, __LINE__);
 
-    if (Options & (TD_DateLeft|TD_DateRight))
+    if (Options & (TD_DateLeft|TD_DateRight|TD_TimeOnly))
       {
       hour = hour%24;
       Dt.Format("%02i/%02i/%04i", mday, mon, year);
+      if (Options & TD_DateStrFormat)
+        Dt.Format("%02i/%02i/%04i", mday, mon, year); //TODO: change this to eg "14-Dec-07" or similar???
+      else
+        Dt.Format("%02i/%02i/%04i", mday, mon, year);
       }
     else
       Dt="Date";
@@ -772,6 +775,10 @@ Done:
           Tm.Delete(0,1);
         }
       S=Tm;
+      }
+    else if (Options & (TD_DateLeft|TD_DateRight))
+      {
+      S=Dt;
       }
     }
 

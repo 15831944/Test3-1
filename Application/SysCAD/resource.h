@@ -1600,6 +1600,9 @@
 #define IDC_ARCML_EVTLOGON              25761
 #define IDC_OLDNAME2                    25761
 #define IDC_DISPLAYLINKVAPTEST          25761
+#define IDC_ARCML_TIMEDATE              25762
+#define IDC_ARCML_TIMEDATE2             25763
+#define IDC_ARCML_TIMETIME              25763
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -1729,10 +1732,10 @@
 #define ID_TREND_REFRESH                30156
 #define ID_TREND_REFRESHALL             30157
 #define ID_TREND_SLOTS                  30158
+#define ID_FILE_DUMMYDELETE             30166
+#define ID_FILE_DUMMYMODIFY             30167
+#define ID_FILE_DUMMYINSERT             30168
 #define ID_FILE_DUMMY                   30169
-#define ID_FILE_DUMMYINSERT                  30168
-#define ID_FILE_DUMMYMODIFY                  30167
-#define ID_FILE_DUMMYDELETE                  30166
 #define ID_HELP_MODELS                  30170
 #define ID_HELP_PGMLANGUAGE             30171
 #define ID_HELP_SYSCAD                  30172

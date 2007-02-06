@@ -48,7 +48,7 @@ BEGIN
             VALUE "FileDescription", "SysCAD Process Simulator"
             VALUE "FileVersion", "9, 1, 121, 0"
             VALUE "InternalName", "SysCAD"
-            VALUE "LegalCopyright", "Copyright © Kenwalt 1995-2006"
+            VALUE "LegalCopyright", "Copyright © Kenwalt 1995-2007"
             VALUE "OriginalFilename", "SysCAD91.exe"
             VALUE "ProductName", "Kenwalt SysCAD 9.1"
             VALUE "ProductVersion", "9, 1, 121, 0"
@@ -394,9 +394,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -525,9 +525,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -719,9 +719,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -799,9 +799,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1016,9 +1016,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1233,9 +1233,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1495,9 +1495,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1712,9 +1712,9 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                       ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                       ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                       ID_FILE_DUMMYDELETE
+        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
+        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
+        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -4299,50 +4299,54 @@ BEGIN
     EDITTEXT        IDD_PRJIOMNODE,11,72,198,12,ES_AUTOHSCROLL
 END
 
-IDD_PRJARCHIVEDLG DIALOGEX 0, 0, 246, 188
+IDD_PRJARCHIVEDLG DIALOGEX 0, 0, 334, 188
 STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_DISABLED | WS_CAPTION | 
     WS_SYSMENU
 CAPTION "Archive"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "Archive Reporter Configuration",IDC_STATIC,5,5,235,44
+    GROUPBOX        "Archive Reporter Configuration",IDC_STATIC,5,5,319,31
     CONTROL         "On",IDC_PRJARCON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
-                    12,16,55,11
-    LTEXT           "Name:",IDC_STATIC,12,31,22,12
-    EDITTEXT        IDD_PRJARCNAME,36,31,198,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_ARCBROWSE,212,16,20,12
-    GROUPBOX        "Time",IDC_STATIC,5,53,235,27
-    CONTROL         "Absolute",IDC_ARCML_TIME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,63,42,12
+                    12,18,42,11
+    LTEXT           "Name:",IDC_STATIC,54,18,22,12
+    EDITTEXT        IDD_PRJARCNAME,78,18,216,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_ARCBROWSE,300,18,20,12
+    GROUPBOX        "Time Fields",IDC_STATIC,5,42,235,54
+    CONTROL         "Date and Time",IDC_ARCML_TIME,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,54,78,12
+    CONTROL         "Date Only",IDC_ARCML_TIMEDATE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,66,78,12
+    CONTROL         "Time Only",IDC_ARCML_TIMETIME,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,78,78,12
     CONTROL         "Elapsed as HMS",IDC_ARCML_ELAPSEDHMS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,57,63,65,12
-    LTEXT           "Elapsed Time",IDC_STATIC,133,63,46,12,SS_CENTERIMAGE
-    COMBOBOX        IDC_ARCML_ELAPSEDDBL,182,63,51,60,CBS_DROPDOWN | 
+                    BS_AUTOCHECKBOX | WS_TABSTOP,132,48,65,12
+    LTEXT           "Elapsed Time",IDC_STATIC,132,66,46,12,SS_CENTERIMAGE
+    COMBOBOX        IDC_ARCML_ELAPSEDDBL,181,66,51,60,CBS_DROPDOWN | 
                     WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Tables",IDC_STATIC,5,83,118,24
+    GROUPBOX        "System Tables",IDC_STATIC,6,96,325,67
     CONTROL         "Message Log",IDC_ARCML_MSGLOGON,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,12,93,55,11
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,108,60,11
     CONTROL         "Event Log",IDC_ARCML_EVTLOGON,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,72,93,48,11
-    GROUPBOX        "Standard Fields",IDC_STATIC,5,110,235,50
+                    WS_TABSTOP,12,126,54,11
+    GROUPBOX        "Standard Fields",IDC_STATIC,97,109,223,50
     CONTROL         "Source",IDC_ARCML_SOURCE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,120,59,11
+                    WS_TABSTOP,103,119,59,11
     CONTROL         "Tag",IDC_ARCML_TAG,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,132,59,11
+                    WS_TABSTOP,103,131,59,11
     CONTROL         "Command",IDC_ARCML_COMMAND,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,12,144,59,11
+                    WS_TABSTOP,103,143,59,11
     CONTROL         "Type",IDC_ARCML_TYPE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,82,120,59,11
+                    WS_TABSTOP,173,119,59,11
     CONTROL         "Message",IDC_ARCML_MESSAGE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,82,132,59,11
+                    WS_TABSTOP,173,131,59,11
     CONTROL         "ID No",IDC_ARCML_IDNO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,82,144,59,11
+                    WS_TABSTOP,173,143,59,11
     CONTROL         "Iteration",IDC_ARCML_ITERNO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,152,120,59,11
+                    WS_TABSTOP,243,119,59,11
     CONTROL         "Call No",IDC_ARCML_CALLNO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,152,132,59,11
+                    WS_TABSTOP,243,131,59,11
     CONTROL         "Sequence No",IDC_ARCML_SEQNO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,152,144,59,11
+                    WS_TABSTOP,243,143,59,11
     PUSHBUTTON      "Edit",IDC_PRJEDITARC,43,167,50,14
     PUSHBUTTON      "Reload",IDC_PRJRELOADARC,123,167,50,14
 END
@@ -4902,7 +4906,7 @@ BEGIN
 
     IDD_PRJARCHIVEDLG, DIALOG
     BEGIN
-        RIGHTMARGIN, 241
+        RIGHTMARGIN, 329
     END
 
     IDD_WNDARRANGEDLG, DIALOG
