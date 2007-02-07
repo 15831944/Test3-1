@@ -1177,7 +1177,7 @@ void MN_Area::EvalAudit(int Pass)
             dbgpln("FlowIO:%2i %2s %20s %20s %12s %12s     %-10s : %s", io, "", 
               DbgFltString(Nd.IOAreaSum(io)->FlowMass,7,10), 
               DbgFltString(Nd.IOAreaSum(io)->FlowHz),
-              "","",Nd.IODesc_Self(io)->pName, Nd.Nd_Rmt(io)->FullObjTag());
+              "","",Nd.IODesc_Self(io)->IOName(), Nd.Nd_Rmt(io)->FullObjTag());
             }
 #endif
           }

@@ -314,22 +314,22 @@ void CIncomer::GlobalConnect()
     if (!GetActive() || !pOther->GetActive())
       return;
 
-    for (int iO=0; (pOther->IOAreas[iO].Dirn & LIO_Out)==0 ; iO++) {} ;
-    for (int iI=0; (IOAreas[iI].Dirn & LIO_In)==0 ; iI++) {} ;
-    ASSERT(pOther->IOAreas[iO].pDesc!=NULL);
-    ASSERT(IOAreas[iI].pDesc!=NULL);
+    for (int iO=0; (pOther->IOAreas[iO].m_Dirn & LIO_Out)==0 ; iO++) {} ;
+    for (int iI=0; (IOAreas[iI].m_Dirn & LIO_In)==0 ; iI++) {} ;
+    ASSERT(pOther->IOAreas[iO].IODesc()!=NULL);
+    ASSERT(IOAreas[iI].IODesc()!=NULL);
 
 
     m_bIAmOut=false;
-    if (NoEIOs()>0 && (IODesc_Self(0)->Dirn & LIO_Out)!=0)
+    if (NoEIOs()>0 && (IODesc_Self(0)->m_Dirn & LIO_Out)!=0)
       m_bIAmOut=true;
-    else if (pOther->NoFlwIOs()>0 && (pOther->IODesc_Self(0)->Dirn & LIO_In)!=0)
+    else if (pOther->NoFlwIOs()>0 && (pOther->IODesc_Self(0)->m_Dirn & LIO_In)!=0)
       m_bIAmOut=true;
 
     IOInfoBlk Info;
     if (m_bIAmOut)
       {
-      ConnectIOTag(pOther, pOther->IOAreas[iO].pName, this, IOAreas[iI].pName, &Info);
+      ConnectIOTag(pOther, pOther->IOAreas[iO].IOName(), this, IOAreas[iI].IOName(), &Info);
       iConnectedIO = Info[1].IOIndex;
       pOther->iConnectedIO = Info[0].IOIndex;
       SetIOAutoConnect(iConnectedIO, true);
@@ -337,7 +337,7 @@ void CIncomer::GlobalConnect()
       }
     else
       {
-      ConnectIOTag(pOther, pOther->IOAreas[iI].pName, this, IOAreas[iO].pName, &Info);
+      ConnectIOTag(pOther, pOther->IOAreas[iI].IOName(), this, IOAreas[iO].IOName(), &Info);
       iConnectedIO = Info[1].IOIndex;
       pOther->iConnectedIO = Info[0].IOIndex;
       SetIOAutoConnect(iConnectedIO, true);

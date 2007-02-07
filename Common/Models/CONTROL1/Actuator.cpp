@@ -322,8 +322,8 @@ CActuator::CActuator(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
       IONames[j].Set("A%i.Rqd", i);
       ActuatorIOAreaList[j]=BaseActuatorIOArea;
       ActuatorIOAreaList[j].m_Id=CtrlIOId(j);
-      ActuatorIOAreaList[j].pName=IONames[j]();
-      ActuatorIOAreaList[j].pDesc="";
+      ActuatorIOAreaList[j].SetIOName(IONames[j]());
+      ActuatorIOAreaList[j].SetIODesc("");
       j++;
       //IONames[j].Set("T%i.Raw", i);
       //ActuatorIOAreaList[j]=BaseActuatorIOArea;
@@ -430,8 +430,8 @@ void CActuator::FixIOTags()
 
     IOAreaRec & AV= m_IOAreas[j];
     AV=BaseActuatorIOArea;
-    AV.pDesc=pT->m_sIDInput();
-    AV.pName=IONames[j]();
+    AV.SetIODesc(pT->m_sIDInput());
+    AV.SetIOName(IONames[j]());
     AV.m_Id=CtrlIOId(j);
     j++;   
 

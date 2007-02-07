@@ -379,7 +379,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
       if (i<NoProcessIOs() && IO_In(i))
         {
         char t[128];
-        sprintf(t, "%s.%s", FullObjTag(), IODesc_Self(i)->pName);
+        sprintf(t, "%s.%s", FullObjTag(), IODesc_Self(i)->IOName());
         dbgpln("i-Xfr %-12.12s : %14.6g, %14.6g | %14.6g (%14.6g)",t,
                IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), K_2_C(IOConduit(i)->Temp()), IOConduit(i)->totHz());
         }
@@ -3399,11 +3399,11 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       dbgpln("Ord:   i Inx Seq  SH  Height Apertur");
       for (i = 0; i < Oi; i++)
         dbgpln("Ord: %3i %3i %3i %3i %6.2f%% %6.2f%% %15s %s",
-        i,HO.Ord[i], HO.Seq[i], IOSameHgt((byte)IHgt[i]), FHgt[IHgt[i]]*100, IOAperture(IHgt[i])*100, IODesc_Self(HO.Ord[i])->pName, Nd_Rmt(HO.Ord[i])->FullObjTag());
+        i,HO.Ord[i], HO.Seq[i], IOSameHgt((byte)IHgt[i]), FHgt[IHgt[i]]*100, IOAperture(IHgt[i])*100, IODesc_Self(HO.Ord[i])->IOName(), Nd_Rmt(HO.Ord[i])->FullObjTag());
       for (i = 0; i < HO.NOvr(); i++)
-        dbgpln("Ovr: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Ovr[i], "","","","", IODesc_Self(HO.m_Ovr[i])->pName, Nd_Rmt(HO.m_Ovr[i])->FullObjTag());
+        dbgpln("Ovr: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Ovr[i], "","","","", IODesc_Self(HO.m_Ovr[i])->IOName(), Nd_Rmt(HO.m_Ovr[i])->FullObjTag());
       for (i = 0; i < HO.NGas(); i++)
-        dbgpln("Gas: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Gas[i], "","","","", IODesc_Self(HO.m_Gas[i])->pName, Nd_Rmt(HO.m_Gas[i])->FullObjTag());
+        dbgpln("Gas: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Gas[i], "","","","", IODesc_Self(HO.m_Gas[i])->IOName(), Nd_Rmt(HO.m_Gas[i])->FullObjTag());
       }
     #endif
     }
@@ -3651,7 +3651,7 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
             {
             MAKEIOTG4DDB(Tg, i, 0);
             IOAreaRec & D=*IODesc_Self(i);
-            if (DDB.BeginElement(this, Tg(), D.pName, 0, DDB_OptPage, 0))
+            if (DDB.BeginElement(this, Tg(), D.IOName(), 0, DDB_OptPage, 0))
               {
               DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
               DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOShwFracHgt)?noView:0)|isParmStopped);
@@ -3822,7 +3822,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Tag.Set("Lnk%i", iIO);
                   DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
                   if (ShowIONames)
-                    DDB.TagComment(IODesc_Self(iIO)->pName);
+                    DDB.TagComment(IODesc_Self(iIO)->IOName());
                   }
 
                 DDB.Double("Nett",       "", DC_Qm ,  "kg/s",    xidIO_QmNett,       this, isResult|noFile|noSnap|NAN_OK);
@@ -3864,7 +3864,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Tag.Set("Lnk%i", iIO);
                   DDB.Double(Tag(), Sym(),  DC_Pwr , "kJ/s",      xidIO_IoHz0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
                   if (ShowIONames)
-                    DDB.TagComment(IODesc_Self(iIO)->pName);
+                    DDB.TagComment(IODesc_Self(iIO)->IOName());
                   }
 
                 DDB.Double("Nett",       "", DC_Pwr, "kJ/s",      xidIO_HzNett,        this, isResult|noFile|noSnap|NAN_OK);
@@ -3914,7 +3914,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Tag.Set("Lnk.[%i]", iIO);
                   DDB.Double(Tag(), Sym(),  DC_M , "kg",       xidIO_IoQmTotal0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
                   if (ShowIONames)
-                    DDB.TagComment(IODesc_Self(iIO)->pName);
+                    DDB.TagComment(IODesc_Self(iIO)->IOName());
                   }
 
                 DDB.Double("Nett",       "", DC_M ,  "kg",     xidIO_QmNettTotal,       this, isResult|noFile|noSnap|NAN_OK);
@@ -3956,7 +3956,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   Tag.Set("Lnk.[%i]", iIO);
                   DDB.Double(Tag(), Sym(),  DC_E , "kJ",      xidIO_IoHzTotal0+iIO,         this, isResult|/*isTag|*/noFile|noSnap);
                   if (ShowIONames)
-                    DDB.TagComment(IODesc_Self(iIO)->pName);
+                    DDB.TagComment(IODesc_Self(iIO)->IOName());
                   }
 
                 DDB.Double("Nett",       "", DC_E, "kJ",      xidIO_HzNettTotal,          this, isResult|noFile|noSnap|NAN_OK);

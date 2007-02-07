@@ -341,18 +341,18 @@ void MBaseMethod::SetIODefinition(MInOutDefStruct * pDefs)
   {
   m_pIODefs=pDefs;
   m_nJoins=0;
-  IOAreaRec IOA[MaxIOList+1];
+  IOAreaRec IOA[100+1];
   for (int i=0; pDefs[i].m_sDesc; i++)
     {
-    ASSERT(i<=MaxIOList);
+    ASSERT_ALWAYS(i<100, "Too many IO Definitions in SetIODefinition()", __FILE__, __LINE__);
     IOAreaRec & N=IOA[i];
     MInOutDefStruct & D=pDefs[i];
     memset(&IOA[i], 0, sizeof(IOAreaRec));
-    N.pDesc     = D.m_sDesc;
-    N.pName     = D.m_sName;
+    N.SetIODesc(D.m_sDesc);
+    N.SetIOName(D.m_sName);
 
-    if (D.m_dwOptions & MIO_In)   N.Dirn |= LIO_In;
-    if (D.m_dwOptions & MIO_Out)  N.Dirn |= LIO_Out;
+    if (D.m_dwOptions & MIO_In)   N.m_Dirn |= LIO_In;
+    if (D.m_dwOptions & MIO_Out)  N.m_Dirn |= LIO_Out;
 
     N.m_Id      = D.m_lId;
     N.m_nIORqd  = D.m_nRqd;

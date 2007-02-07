@@ -682,7 +682,7 @@ flag MN_Xfer::MacroMdlValidNd(int iIONo)
     return False;
 
 // if (IOQmEst_Out(iIONo))
-  if (IODesc_Rmt(iIONo)->Dirn==LIO_In)
+  if (IODesc_Rmt(iIONo)->m_Dirn==LIO_In)
     {
     byte QmMd=GSM.QmMode(iIONo);
     if (QmMd!=GSA_QmDemand)

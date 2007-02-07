@@ -1590,20 +1590,25 @@ double Bayer::AluminaSSN(double T_)
 
 double  Bayer::DumpIt(LPCTSTR FnTag, double V, double x1, double x2, double x3)
   {
-  if (Valid(x3))
-    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g %25.12g)", FnTag, Tag, V, x1,x2,x3);
-  else if (Valid(x2))
-    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g)", FnTag, Tag, V, x1,x2);
-  else if (Valid(x1))
-    Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g)", FnTag, Tag, V, x1);
-  else
-    Dbg.PrintLn("%-20s %-30s %25.12g  ()", FnTag, Tag, V);
+  if (0 || Dbg.Marked())
+    {
+    if (Valid(x3))
+      Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g %25.12g)", FnTag, Tag, V, x1,x2,x3);
+    else if (Valid(x2))
+      Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g %25.12g)", FnTag, Tag, V, x1,x2);
+    else if (Valid(x1))
+      Dbg.PrintLn("%-20s %-30s %25.12g  (%25.12g)", FnTag, Tag, V, x1);
+    else
+      Dbg.PrintLn("%-20s %-30s %25.12g  ()", FnTag, Tag, V);
+    }
   return V;
   };
 
 bool Bayer::StateUpdateReqd(int i)
   {
+  if (Dbg.Marked())
+    {
   //Dbg.PrintLn("%-20s %-30s %25.12g  ()", FnTag, Tag, V);
-
+    }
   return MSpModelBase::StateUpdateReqd(i);
   }; 

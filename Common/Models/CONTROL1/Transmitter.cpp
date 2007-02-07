@@ -324,14 +324,14 @@ CTransmitter::CTransmitter(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
       IONames[j].Set("T%i.Tx", i);
       TransmitterIOAreaList[j]=BaseTransmitterIOArea;
       TransmitterIOAreaList[j].m_Id=CtrlIOId(j);
-      TransmitterIOAreaList[j].pName=IONames[j]();
-      TransmitterIOAreaList[j].pDesc="";
+      TransmitterIOAreaList[j].SetIOName(IONames[j]());
+      TransmitterIOAreaList[j].SetIODesc("");
       j++;
       IONames[j].Set("T%i.Raw", i);
       TransmitterIOAreaList[j]=BaseTransmitterIOArea;
       TransmitterIOAreaList[j].m_Id=CtrlIOId(j);
-      TransmitterIOAreaList[j].pName=IONames[j]();
-      TransmitterIOAreaList[j].pDesc="";
+      TransmitterIOAreaList[j].SetIOName(IONames[j]());
+      TransmitterIOAreaList[j].SetIODesc("");
       j++;
       }
     TransmitterIOAreaList[j++]=BaseTransmitterIOArea;
@@ -435,15 +435,15 @@ void CTransmitter::FixIOTags()
 
     IOAreaRec & AV= m_IOAreas[j];
     AV=BaseTransmitterIOArea;
-    AV.pDesc=pT->m_sIDVal();
-    AV.pName=IONames[j]();
+    AV.SetIODesc(pT->m_sIDVal());
+    AV.SetIOName(IONames[j]());
     AV.m_Id=CtrlIOId(j);
     j++;   
 
     IOAreaRec & AR= m_IOAreas[j];
     AR=BaseTransmitterIOArea;
-    AR.pDesc=pT->m_sIDRaw();
-    AR.pName=IONames[j]();
+    AR.SetIODesc(pT->m_sIDRaw());
+    AR.SetIOName(IONames[j]());
     AR.m_Id=CtrlIOId(j);
     j++;
     }

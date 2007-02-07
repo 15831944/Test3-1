@@ -699,8 +699,15 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
   m_dQmVapCond=0.0;
   m_dQmLiqEvap=0.0;
 
-  m_Pri.m_pCd->SetVLEBlk(&m_VLE);
-  m_Sec.m_pCd->SetVLEBlk(&m_VLE);
+  if (m_Pri.m_pCd)
+    m_Pri.m_pCd->SetVLEBlk(&m_VLE);
+  if (m_Sec.m_pCd)
+    m_Sec.m_pCd->SetVLEBlk(&m_VLE);
+
+  if (m_Pri.m_pCn)
+    m_Pri.m_pCn->SetVLEBlk(&m_VLE);
+  if (m_Sec.m_pCn)
+    m_Sec.m_pCn->SetVLEBlk(&m_VLE);
 
   if (m_iActOpMode!=STHX_Inoperative && TstNZ(m_Pri.Ci) && TstNZ(m_Sec.Ci) && m_fOn)
     {
@@ -1625,18 +1632,20 @@ const IDMask TubeIOMask  = Id_2_Mask(ioidST_TubeIn)|
                            Id_2_Mask(ioidST_TubeOut);
 
 
+static CAltIOName AIOTubesIn[]    = {{"Liquor_In",  104}, {}};
+static CAltIOName AIOTubesOut[]   = {{"Liquor_Out", 104}, {}};
+static CAltIOName AIOShellIn[]    = {{"Steam",      104}, {}};
+static CAltIOName AIOShellOut[]   = {{"Condensate", 104}, {}};
+static CAltIOName AIOShellVent[]  = {{"Vent",       104}, {}};
+
 static IOAreaRec ShellTubeIOAreaList[] =
   {
-         {"",              "TubesIn",    ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                            1.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].I"},
-/*Old*/  {"",              "Liquor_In",  ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOHidden,                                 1.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].I"},
-         {"",              "TubesOut",   ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                                            0.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].O"},
-/*Old*/  {"",              "Liquor_Out", ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOHidden,                                 0.0f, {0,0,0,0}, NULL, &HeatXDPGroup},//, "Side[iP].O"},
-         {"",              "ShellIn",    ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz/*|IOHidden*/,  1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
-/*Old*/  {"",              "Steam",      ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz|IOHidden,      1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
-         {"",              "ShellOut",   ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,               0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
-/*Old*/  {"",              "Condensate", ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz|IOHidden,      0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
-         {"",              "Vent",       ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,               1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
-         {NULL}
+    {"",  "TubesIn",    ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                             1.0f, {0,0,0,0}, AIOTubesIn,   &HeatXDPGroup},
+    {"",  "TubesOut",   ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                             0.0f, {0,0,0,0}, AIOTubesOut,  &HeatXDPGroup},
+    {"",  "ShellIn",    ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellIn,   &PipeEntryGroup},
+    {"",  "ShellOut",   ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  0.0f, {0,0,0,0}, AIOShellOut,  &PipeEntryGroup},
+    {"",  "ShellVent",  ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellVent, &PipeEntryGroup},
+    {NULL}
   };
 
 static double Drw_ShellTube[] = { DD_Poly, -6,7, -4,7, -4,-7, -6,-7, -6,7,

@@ -1993,7 +1993,7 @@ Continue:
       {
       double QmEstIn=p->IOQmEst_In(i);
       Strng Me, You;
-      Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->pName);
+      Me.Set("%s.%s", p->FullObjTag(), p->IODesc_Self(i)->IOName());
       You=p->Nd_Rmt(i)->FullObjTag();
       dbgpln("SetUpFlwNodeEdges %-3s %-3s %-3s %-6s %-10s %-2s %-3s %20s %5s %30s %s %s",
         DoingDynMode?"Dyn":"",
@@ -2410,7 +2410,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
               p->IOEvalSeq_Out(i)?"Out":"",
               p->Nd_Rmt(i)->GetActive()?"Act":"",
               !p->IOFlange(i)->IsEvalSeqStart()?"!Start":"",
-              p->IODesc_Self(i)->pName,
+              p->IODesc_Self(i)->IOName(),
               p->Nd_Rmt(i)->FullObjTag());
             }
           #endif
@@ -4329,7 +4329,7 @@ void FlwSlvBlk::ShowFlows(CNodeEvalIndexList &Nds, LPCTSTR Where)
     {
     dbgpln("-----%s",NJ.Nd.FullObjTag());
     for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
-      dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g  > %s",i,NJ.Nd.IODesc_Self(i)->pName,NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i), NJ.Nd.Nd_Rmt(i)->FullObjTag());
+      dbgpln("  %2i %-10.10s Qm:%14.6g Est:%14.6g  > %s",i,NJ.Nd.IODesc_Self(i)->IOName(),NJ.Nd.IOQm_In(i), NJ.Nd.IOQmEst_In(i), NJ.Nd.Nd_Rmt(i)->FullObjTag());
 
     for (int j=0; j<NJ.Nd.NoJoins(); j++)
       {
@@ -11776,14 +11776,14 @@ flag CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArr
       IOAreaRec * pIO=p->IODesc_SelfIndexed(i);
       if (pIO)
         {
-        Info[i].Name=pIO->pName;
-        Info[i].Desc=pIO->pDesc;
+        Info[i].Name=pIO->IOName();
+        Info[i].Desc=pIO->IODesc();
         Info[i].iId=pIO->m_Id;
-        Info[i].Input=(pIO->Dirn & LIO_In)!=0;
-        Info[i].Output=(pIO->Dirn & LIO_Out)!=0;
+        Info[i].Input=(pIO->m_Dirn & LIO_In)!=0;
+        Info[i].Output=(pIO->m_Dirn & LIO_Out)!=0;
         Info[i].nIORqd=pIO->m_nIORqd;
         Info[i].nIOMax=pIO->m_nIOMax;
-        Info[i].Dirn=pIO->Dirn;
+        Info[i].Dirn=pIO->m_Dirn;
         Info[i].iGrp=IOGRP(pIO->m_dwFlags);
         Info[i].m_dwType=pIO->m_dwType;
         Info[i].m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
@@ -11808,14 +11808,14 @@ flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelI
     IOAreaRec * pIO=p->IODesc_SelfIndexed(iIndex);
     if (pIO)
       {
-      Info.Name=pIO->pName;
-      Info.Desc=pIO->pDesc;
+      Info.Name=pIO->IOName();
+      Info.Desc=pIO->IODesc();
       Info.iId=pIO->m_Id;
-      Info.Input=(pIO->Dirn & LIO_In)!=0;
-      Info.Output=(pIO->Dirn & LIO_Out)!=0;
+      Info.Input=(pIO->m_Dirn & LIO_In)!=0;
+      Info.Output=(pIO->m_Dirn & LIO_Out)!=0;
       Info.nIORqd=pIO->m_nIORqd;
       Info.nIOMax=pIO->m_nIOMax;
-      Info.Dirn=pIO->Dirn;
+      Info.Dirn=pIO->m_Dirn;
       Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
@@ -11838,14 +11838,14 @@ flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoR
     IOAreaRec * pIO=p->IODesc_SelfId(iId);
     if (pIO)
       {
-      Info.Name=pIO->pName;
-      Info.Desc=pIO->pDesc;
+      Info.Name=pIO->IOName();
+      Info.Desc=pIO->IODesc();
       Info.iId=pIO->m_Id;
-      Info.Input=(pIO->Dirn & LIO_In)!=0;
-      Info.Output=(pIO->Dirn & LIO_Out)!=0;
+      Info.Input=(pIO->m_Dirn & LIO_In)!=0;
+      Info.Output=(pIO->m_Dirn & LIO_Out)!=0;
       Info.nIORqd=pIO->m_nIORqd;
       Info.nIOMax=pIO->m_nIOMax;
-      Info.Dirn=pIO->Dirn;
+      Info.Dirn=pIO->m_Dirn;
       Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
@@ -11875,7 +11875,7 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
     else if (p->Nd_Rmt(iNo)->NoProcLnkIOs()==2)
       Info.iDirn = (p->IOIONo_Rmt(iNo)==0) ? -1 : 1;
     else
-      Info.iDirn = p->IODesc_Self(iNo)->Dirn & LIO_In ? 1 : -1;
+      Info.iDirn = p->IODesc_Self(iNo)->m_Dirn & LIO_In ? 1 : -1;
     Info.fAutoConnect= p->IOAutoConnect(iNo)!=0;
     Info.fIsDirectConnect = IsDirectIOId(Info.iId);
     return true;
@@ -14942,8 +14942,8 @@ int CFlwSolver::FE_GetNodeList(CNodeList&List)
       {
       I.m_sSrcNd    = p->Nd_Rmt(0)->Tag();
       I.m_sDstNd    = p->Nd_Rmt(1)->Tag();
-      I.m_sSrcIO    = p->IODesc_Rmt(0)->pName;
-      I.m_sDstIO    = p->IODesc_Rmt(1)->pName;
+      I.m_sSrcIO    = p->IODesc_Rmt(0)->IOName();
+      I.m_sDstIO    = p->IODesc_Rmt(1)->IOName();
       I.m_lSrcIOInx = p->IODescNo_Rmt(0);
       I.m_lDstIOInx = p->IODescNo_Rmt(1);
       }
@@ -15165,7 +15165,7 @@ int CFlwSolver::FE_GetNodeBalanceInfo(CNodeBalanceInfo & Balance, CNodeAuditInfo
       CNodeBalanceIO &I=A[i];
 
       I.m_Tag         = p->Nd_Rmt(io)->FullObjTag();
-      I.m_IOPort      = p->IODesc_Self(io)->pName;
+      I.m_IOPort      = p->IODesc_Self(io)->IOName();
       I.m_SpModelName = p->IOConduit(io)->Model()->Class()->ShortDesc();
       I.m_iJoinId     = p->IO_Join_Id(io);
       I.m_iSgn        = Sgn;

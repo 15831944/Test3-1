@@ -464,8 +464,9 @@ void GSModel::BuildDataDefnGen0(DataDefnBlk &DDB)
 //        IOAlpha[ia].iOrder=j+1;
 //        IOAlpha[ia].Desc.Set("%s:%s", Nd.IODesc_Self(IOs[ia])->pName, Nd.Nd_Rmt(IOs[ia])->Tag());
 
+        //IORECBUG
         flag Visible=Nd.LnkFlowDefinedOut(IOs[ia]);
-        if (DDB.BeginElement(this, Nd.Nd_Rmt(IOs[ia])->Tag(), Nd.IODesc_Self(IOs[ia])->pName))
+        if (DDB.BeginElement(this, Nd.Nd_Rmt(IOs[ia])->Tag(), Nd.IODesc_Self(IOs[ia])->DefaultIOName(OrigPrjFileVerNo())))
           IOAlpha[ia].BuildDataDefn(DDB, *this, Visible, ia, (Priority[j+1]<0));
         }
 
@@ -727,10 +728,11 @@ int GSModel::FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd)
 
   for (j = 0; j<NPri; j++)
     {
+    //IORECBUG
     int ia=Priority[j];
     //IOAlpha[Priority[j]].iOrder=j+1;
     IOAlpha[ia].iOrder=j+1;
-    IOAlpha[ia].Desc.Set("%s:%s", Nd.IODesc_Self(IOs[ia])->pName, Nd.Nd_Rmt(IOs[ia])->Tag());
+    IOAlpha[ia].Desc.Set("%s:%s", Nd.IODesc_Self(IOs[ia])->IOName(), Nd.Nd_Rmt(IOs[ia])->Tag());
     }
 
   ASSERT(NPri==NOrd);
@@ -1049,7 +1051,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
           {
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           DDB.Double ("", "Split", DC_Frac, "%", &A[j]->m_FracSplit, this, j<NPri-1 ? isParm : 0);
           }
@@ -1059,7 +1062,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
           {
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           if (j<NPri-1 || !DDB.ForView())
             DDB.Double("", "Flow", DC_Qm, "kg/s", &A[j]->Qm, this, j<NPri-1 ? isParm : 0);
@@ -1073,7 +1077,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
           {
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           if (j<NPri-1 || !DDB.ForView())
             DDB.Double("", "VFlow", DC_Qv, "L/s", &A[j]->Qv, this, j<NPri-1 ? isParm : 0);
@@ -1091,7 +1096,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           {
           if (j>0)
             DDB.Page("..", DDB_OptPage);
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           if (PrjFileVerNo()<22)
             {
@@ -1181,7 +1187,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           {
           if (j>0)
             DDB.Page("..", DDB_OptPage);
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           if (j<NPri-1 || !DDB.ForView())
             {
@@ -1214,7 +1221,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           {
           if (j>0)
             DDB.Page("..", DDB_OptPage);
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           if (j<NPri-1 || !DDB.ForView())
             {
@@ -1248,7 +1256,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           {
           if (j>0)
             DDB.Page("..", DDB_OptPage);
-          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+          //IORECBUG
+          DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           int ns=A[j]->Splits.GetSize();
           if (PrjFileVerNo()<22)
@@ -1280,7 +1289,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
         {
         if (j>0)
           DDB.Page("..", DDB_OptPage);
-        DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+        //IORECBUG
+        DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
         A[j]->BuildDataDefnOrdPri(DDB, *this);
         if (j<NPri-1 || !DDB.ForView())
           {
@@ -1318,7 +1328,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
         {
         if (j>0)
           DDB.Page("..", DDB_OptPage);
-        DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->pName);
+        //IORECBUG
+        DDB.BeginElement(this, Nd.Nd_Rmt(I[j])->Tag(), Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
         A[j]->BuildDataDefnOrdPri(DDB, *this);
         if (j<NPri-1 || !DDB.ForView())
           {
@@ -1629,10 +1640,11 @@ int GSModel::FindIOEvalPrioritySplit(int *I, GSIOAlpha **A)
 
   for (int j = 0; j<NOrd; j++)
     {
+    //IORECBUG
     int ia=I[j];
     //IOAlpha[Priority[j]].iOrder=j+1;
     A[j]->iOrder=j+1;
-    A[j]->Desc.Set("%s:%s", Nd.IODesc_Self(IOs[ia])->pName, Nd.Nd_Rmt(IOs[ia])->Tag());
+    A[j]->Desc.Set("%s:%s", Nd.IODesc_Self(IOs[ia])->IOName(), Nd.Nd_Rmt(IOs[ia])->Tag());
     }
 
   return NOrd;

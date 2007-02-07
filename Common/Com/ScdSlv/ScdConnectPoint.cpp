@@ -27,7 +27,7 @@ STDMETHODIMP CScdConnectPoint::get_Name(BSTR *pVal)
   dllSCD_COMENTRYGET(eScdNodeCodes, pVal)
     {
     CHECK_TOPO_OK;
-    SCD_Copy2BSTR(pVal, m_pNode->IOArea(m_lIndex).pName);
+    SCD_Copy2BSTR(pVal, m_pNode->IOArea(m_lIndex).IOName());
     }
   SCD_COMEXIT
   }
@@ -37,7 +37,7 @@ STDMETHODIMP CScdConnectPoint::get_Description(BSTR *pVal)
   dllSCD_COMENTRYGET(eScdNodeCodes, pVal)
     {
     CHECK_TOPO_OK;
-    SCD_Copy2BSTR(pVal, m_pNode->IOArea(m_lIndex).pDesc);
+    SCD_Copy2BSTR(pVal, m_pNode->IOArea(m_lIndex).IODesc());
     }
   SCD_COMEXIT
   }
@@ -47,7 +47,7 @@ STDMETHODIMP CScdConnectPoint::get_Input(VARIANT_BOOL *pVal)
   dllSCD_COMENTRYGET(eScdNodeCodes, pVal)
     {
     CHECK_TOPO_OK;
-    *pVal=(m_pNode->IOArea(m_lIndex).Dirn & LIO_In)!=0;
+    *pVal=(m_pNode->IOArea(m_lIndex).m_Dirn & LIO_In)!=0;
     }
   SCD_COMEXIT
   }
@@ -57,7 +57,7 @@ STDMETHODIMP CScdConnectPoint::get_Output(VARIANT_BOOL *pVal)
   dllSCD_COMENTRYGET(eScdNodeCodes, pVal)
     {
     CHECK_TOPO_OK;
-    *pVal=(m_pNode->IOArea(m_lIndex).Dirn & LIO_Out)!=0;
+    *pVal=(m_pNode->IOArea(m_lIndex).m_Dirn & LIO_Out)!=0;
     }
   SCD_COMEXIT
   }

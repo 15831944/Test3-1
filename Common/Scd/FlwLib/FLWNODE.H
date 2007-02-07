@@ -1926,25 +1926,46 @@ const dword dwIOEqnsHide      = 0x10000000;
 #define IOOptsHide        dwIOOptsHide
 #define IOEqnsHide        dwIOEqnsHide
 
-class DllImportExport IOAreaRec
+class DllImportExport CAltIOName
   {
   public:
-    LPTSTR         pDesc;
-    LPTSTR         pName;
+    LPTSTR         m_pName;
+    int            m_DefB4Ver;
+  };
+
+class DllImportExport IOAreaRec
+  {
+  public:          
+    void           SetIODesc(LPTSTR Desc)   { m_pDesc=Desc; };
+    void           SetIOName(LPTSTR Name)   { m_pName=Name; };
+    LPTSTR         IODesc()                 { return m_pDesc; };
+    int            IONameCount()            { return m_nNameCount; };
+    LPTSTR         IOName(int i=0)          { return i==0 ? m_pName : m_pAltNames ? m_pAltNames[i-1].m_pName : NULL; };
+    LPTSTR         DefaultIOName(int iOrigFileVerNo);
+
+    void           Duplicate(IOAreaRec & I);
+    void           PreDelete();
+
+  public:
+    LPTSTR         m_pDesc;
+    LPTSTR         m_pName;
     int            m_Id;
-    byte           Dirn;
+    byte           m_Dirn;
     DWORD          m_dwType;
     int            m_nIORqd;
     int            m_nIOMax;
     dword          m_dwFlags;
     float          m_dFracHgt;
     CRct_Dbl       m_GrfTarget;
-    LPTSTR         m_pMapTo;
-    CFlwEqnGrp     *m_pFlwGroup;
-    LPTSTR         m_pDefaultTS;
+    CAltIOName   * m_pAltNames;
+    CFlwEqnGrp   * m_pFlwGroup;
+    LPTSTR         m_pDefaultTS;  // DefaultTermStrip
+    LPTSTR         m_pMapTo;      // Used to Map IO down into contained subnodes - no  models use this currently
+    
     // Extra Info
-    flag           fChecked,
-                   fValid;
+    flag           m_fChecked,
+                   m_fValid;
+    int            m_nNameCount;
   };
 
 // ----------------------------------------------------------
@@ -3485,8 +3506,8 @@ class DllImportExport FlwNode : public CTNode
     flag           SolveInlineMethod_Rmt(int i)  { return Nd_Rmt(i) ? Nd_Rmt(i)->SolveInlineMethod() : false; };
 
     IOAreaRec     *getIOAreas()           { return m_pIOAreasOwned ? m_pIOAreasOwned : m_pIOAreas; };
-    long           IOAreaCount()          { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) {}; return N; };
-    long           IOAreaWithIOId(int Id) { IOAreaRec *p=IOAreas; for (long N=0; p->pDesc!=NULL; p++, N++) { if (p->m_Id==Id) return N; }; return -1; };
+    long           IOAreaCount()          { IOAreaRec *p=IOAreas; for (long N=0; p->IODesc()!=NULL; p++, N++) {}; return N; };
+    long           IOAreaWithIOId(int Id) { IOAreaRec *p=IOAreas; for (long N=0; p->IODesc()!=NULL; p++, N++) { if (p->m_Id==Id) return N; }; return -1; };
     IOAreaRec     &IOArea(int i)          { return m_pIOAreasOwned ? m_pIOAreasOwned[i] : m_pIOAreas[i]; };
     IOAreaRec     &IOArea_Rmt(int i)      { return Nd_Rmt(i)->IOArea(m_IOs[i].m_iIONoRmt); };
     CIORec        &IO_Self(int i)         { return m_IOs[i];};
@@ -3574,10 +3595,10 @@ class DllImportExport FlwNode : public CTNode
 
     flag           Ctrl_In(int i)
       {
-      byte Dirn=IOAreas[m_IOs[i].m_iIODescSelf].Dirn;
+      byte Dirn=IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn;
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
-        byte RemDirn=IOArea_Rmt(i).Dirn;
+        byte RemDirn=IOArea_Rmt(i).m_Dirn;
         ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control In Direction", __FILE__, __LINE__);
         return (RemDirn & LIO_Out)!=0;
         }
@@ -3585,10 +3606,10 @@ class DllImportExport FlwNode : public CTNode
       };
     flag           Ctrl_Out(int i)
       {
-      byte Dirn=IOAreas[m_IOs[i].m_iIODescSelf].Dirn;
+      byte Dirn=IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn;
       if ((Dirn & LIO_InOut)==LIO_InOut)
         {
-        byte RemDirn=IOArea_Rmt(i).Dirn;
+        byte RemDirn=IOArea_Rmt(i).m_Dirn;
         ASSERT_ALWAYS((RemDirn & LIO_InOut)!=LIO_InOut, "Bad Control Out Direction", __FILE__, __LINE__);
         return (RemDirn & LIO_In)!=0;
         }
@@ -3604,24 +3625,24 @@ class DllImportExport FlwNode : public CTNode
     int            CIOId_Self(int i)              { return IOAreas[m_IOs[i].m_iIODescSelf].m_Id;};
     int            CIOWithId_Self(int  RqdId)     { for (int i = CIO1(); i < CION(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
     int            NCIOsWithId_Self(int  RqdId)   { for (int i=CIO1(), j=0; i < CION(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
-    flag           CIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_In)!=0; };
-    flag           CIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_Out)!=0; };
+    flag           CIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_In)!=0; };
+    flag           CIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_Out)!=0; };
     double         CIO_Value(int i)               { return m_IOs[i].CtrlData().m_dValue; };
     void           SetCIO_Value(int i, double d)  { m_IOs[i].CtrlData().m_dValue=d; };
 
     int            EIOId_Self(int i)              { return IOAreas[m_IOs[i].m_iIODescSelf].m_Id;};
     int            EIOWithId_Self(int  RqdId)     { for (int i = EIO1(); i < EION(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
     int            NEIOsWithId_Self(int  RqdId)   { for (int i=EIO1(), j=0; i < EION(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
-    flag           EIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_In)!=0; };
-    flag           EIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_Out)!=0; };
+    flag           EIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_In)!=0; };
+    flag           EIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_Out)!=0; };
     //CElecConduit  &EIO_Conduit(int i) const       { return m_IOs[i].ElecConduit(); };
     //void           SetEIO_Conduit(int i, const CElecConduit & v) { m_IOs[i].SetElecConduit(v); };
 
     int            AIOId_Self(int i)              { return IOAreas[m_IOs[i].m_iIODescSelf].m_Id;};
     int            AIOWithId_Self(int  RqdId)     { for (int i = AIO1(); i < AION(); i++) if (IOId_Self(i)==RqdId) return i; return -1;};
     int            NAIOsWithId_Self(int  RqdId)   { for (int i=AIO1(), j=0; i < AION(); i++) if (IOId_Self(i)==RqdId) j++; return j;};
-    flag           AIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_In)!=0; };
-    flag           AIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].Dirn & LIO_Out)!=0; };
+    flag           AIO_In(int i)                  { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_In)!=0; };
+    flag           AIO_Out(int i)                 { return (IOAreas[m_IOs[i].m_iIODescSelf].m_Dirn & LIO_Out)!=0; };
     //CAirConduit   &AIO_Conduit(int i) const       { return m_IOs[i].AirConduit(); };
     //void           SetAIO_Conduit(int i, const CAirConduit & d) { m_IOs[i].SetAirConduit(d); };
 
@@ -3724,8 +3745,8 @@ class DllImportExport FlwNode : public CTNode
     //int            IOWithId_Rmt(int  RqdId)     { for (int i = 0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) return i; return -1;};
     //int            NIOsWithId_Rmt(int  RqdId)   { for (int i = 0, j=0; i < NoFlwIOs(); i++) if (IOId_Rmt(i)==RqdId) j++; return j;};
 
-    IOAreaRec     *IODesc_SelfIndexed(int i)    { IOAreaRec * p=&IOAreas[i]; return (p && p->pName ? p : NULL); };
-    IOAreaRec     *IODesc_SelfId(int iId)       { IOAreaRec * p=IOAreas; while (p && p->pName && p->m_Id!=iId) p++; return (p && p->pName ? p : NULL); };
+    IOAreaRec     *IODesc_SelfIndexed(int i)    { IOAreaRec * p=&IOAreas[i]; return (p && p->IOName() ? p : NULL); };
+    IOAreaRec     *IODesc_SelfId(int iId)       { IOAreaRec * p=IOAreas; while (p && p->IOName() && p->m_Id!=iId) p++; return (p && p->IOName() ? p : NULL); };
 
     int            IOIONo_Rmt(int i)            { return (m_IOs.GetCount() ? m_IOs[i].m_iIONoRmt : 0);};
 
@@ -3734,9 +3755,9 @@ class DllImportExport FlwNode : public CTNode
       {
       if (GetActiveHold())
         return false;
-      if ((IODesc_Self(IONo)->Dirn & LIO_InOut)==LIO_In)
+      if ((IODesc_Self(IONo)->m_Dirn & LIO_InOut)==LIO_In)
         return true;
-      if ((IODesc_Rmt(IONo)->Dirn & LIO_InOut)==LIO_Out)
+      if ((IODesc_Rmt(IONo)->m_Dirn & LIO_InOut)==LIO_Out)
         return true;
 
       return false;
@@ -3746,9 +3767,9 @@ class DllImportExport FlwNode : public CTNode
       {
       if (GetActiveHold())
         return false;
-      if ((IODesc_Self(IONo)->Dirn & LIO_InOut)==LIO_Out)
+      if ((IODesc_Self(IONo)->m_Dirn & LIO_InOut)==LIO_Out)
         return true;
-      if ((IODesc_Rmt(IONo)->Dirn & LIO_InOut)==LIO_In)
+      if ((IODesc_Rmt(IONo)->m_Dirn & LIO_InOut)==LIO_In)
         return true;
       return false;
       //return !GetActiveHold() && (Nd_Rmt(0)==p);
@@ -4680,26 +4701,26 @@ inline FlwNode * CMSIO::Nd_Rmt() { return m_pNd->Nd_Rmt(m_iIONo); };
 //
 //===========================================================================
 
-#define MAKEIOTG4DDB(Tg, i, fe)                                              \
-  {                                                                          \
-  if (PrjFileVerNo()<69)                                                     \
-    {                                                                        \
-    if (fe>0)                                                                \
-      Tg.Set("%s.%i", Nd_Rmt(i)->Tag(), fe);                                \
-    else                                                                     \
-      Tg=Nd_Rmt(i)->Tag();                                                   \
-    }                                                                        \
-  else                                                                       \
-    {                                                                        \
-    if (fe>0)                                                                \
-      Tg.Set("%s.%s.%i", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->pName, fe);       \
-    else                                                                     \
-      Tg.Set("%s.%s", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->pName);               \
-    }                                                                        \
+#define MAKEIOTG4DDB(Tg, i, fe)                                                                    \
+  {                                                                                                \
+  if (PrjFileVerNo()<69)                                                                           \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%i", Nd_Rmt(i)->Tag(), fe);                                                       \
+    else                                                                                           \
+      Tg=Nd_Rmt(i)->Tag();                                                                         \
+    }                                                                                              \
+  else                                                                                             \
+    {                                                                                              \
+    if (fe>0)                                                                                      \
+      Tg.Set("%s.%s.%i", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()), fe);  \
+    else                                                                                           \
+      Tg.Set("%s.%s", Nd_Rmt(i)->Tag(), IODesc_Rmt(i)->DefaultIOName(OrigPrjFileVerNo()));         \
+    }                                                                                              \
   }
-#define MAKELNKTG4DDB(Tg, i, fe)                                             \
-  {                                                                          \
-  Tg.Set("Lnk.%i.%i", i, fe);                                               \
+#define MAKELNKTG4DDB(Tg, i, fe)                                                                   \
+  {                                                                                                \
+  Tg.Set("Lnk.%i.%i", i, fe);                                                                      \
   }
 
 // ===========================================================================

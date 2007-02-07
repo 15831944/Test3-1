@@ -166,9 +166,9 @@ STDMETHODIMP CScdConnectPoints::get_InputPathName(eScdLinkTypes Type, long PathN
 	  for (UINT i = 0; i < N; i++)
       {
       IOAreaRec &A=m_pNode->IOArea(i);
-      if ((A.m_dwType&Type) && ((A.Dirn&RqdMask)==RqdMask))
+      if ((A.m_dwType&Type) && ((A.m_Dirn&RqdMask)==RqdMask))
         {
-        T=A.pName;
+        T=A.IOName();
         break;
         }
       }
@@ -196,9 +196,9 @@ STDMETHODIMP CScdConnectPoints::get_OutputPathName(eScdLinkTypes Type, long Path
 	  for (UINT i = 0; i < N; i++)
       {
       IOAreaRec &A=m_pNode->IOArea(i);
-      if ((A.m_dwType&Type) && ((A.Dirn&RqdMask)==RqdMask))
+      if ((A.m_dwType&Type) && ((A.m_Dirn&RqdMask)==RqdMask))
         {
-        T=A.pName;
+        T=A.IOName();
         break;
         }
       }

@@ -271,29 +271,29 @@ PIDControl::PIDControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
       IONames[j].Set("C%i.Meas", i);
       PIDIOAreaList[j]=BasePIDIOArea;
       PIDIOAreaList[j].m_Id=CtrlIOId(j);
-      PIDIOAreaList[j].pName=IONames[j]();
-      PIDIOAreaList[j].pDesc="";
+      PIDIOAreaList[j].SetIOName(IONames[j]());
+      PIDIOAreaList[j].SetIODesc("");
       j++;
       IONames[j].Set("C%i.Spt", i);
       PIDIOAreaList[j]=BasePIDIOArea;
       PIDIOAreaList[j].m_Id=CtrlIOId(j);
-      PIDIOAreaList[j].pName=IONames[j]();
-      PIDIOAreaList[j].pDesc="";
+      PIDIOAreaList[j].SetIOName(IONames[j]());
+      PIDIOAreaList[j].SetIODesc("");
       j++;
       IONames[j].Set("C%i.Out", i);
       PIDIOAreaList[j]=BasePIDIOArea;
       PIDIOAreaList[j].m_Id=CtrlIOId(j);
-      PIDIOAreaList[j].pName=IONames[j]();
-      PIDIOAreaList[j].pDesc="";
-      PIDIOAreaList[j].Dirn=LIO_Out;
+      PIDIOAreaList[j].SetIOName(IONames[j]());
+      PIDIOAreaList[j].SetIODesc("");
+      PIDIOAreaList[j].m_Dirn=LIO_Out;
       PIDIOAreaList[j].m_nIORqd=0;
       PIDIOAreaList[j].m_nIOMax=5;
       j++;
       IONames[j].Set("C%i.FF", i);
       PIDIOAreaList[j]=BasePIDIOArea;
       PIDIOAreaList[j].m_Id=CtrlIOId(j);
-      PIDIOAreaList[j].pName=IONames[j]();
-      PIDIOAreaList[j].pDesc="";
+      PIDIOAreaList[j].SetIOName(IONames[j]());
+      PIDIOAreaList[j].SetIODesc("");
       j++;
       }
     PIDIOAreaList[j++]=BasePIDIOArea;
@@ -481,32 +481,32 @@ void PIDControl::FixIOTags()
 
     IOAreaRec & AM= m_IOAreas[j];
     AM=BasePIDIOArea;
-    AM.pDesc=pT->m_sIDMeas();
-    AM.pName=IONames[j]();
+    AM.SetIODesc(pT->m_sIDMeas());
+    AM.SetIOName(IONames[j]());
     AM.m_Id=CtrlIOId(j);
     j++;
 
     IOAreaRec & AS= m_IOAreas[j];
     AS=BasePIDIOArea;
-    AS.pDesc=pT->m_sIDSpt();
-    AS.pName=IONames[j]();
+    AS.SetIODesc(pT->m_sIDSpt());
+    AS.SetIOName(IONames[j]());
     AS.m_Id=CtrlIOId(j);
     j++;
 
     IOAreaRec & AO= m_IOAreas[j];
     AO=BasePIDIOArea;
-    AO.pDesc=pT->m_sIDOut();
-    AO.pName=IONames[j]();
+    AO.SetIODesc(pT->m_sIDOut());
+    AO.SetIOName(IONames[j]());
     AO.m_Id=CtrlIOId(j);
-    AO.Dirn=LIO_Out;
+    AO.m_Dirn=LIO_Out;
     AO.m_nIORqd=0;
     AO.m_nIOMax=10;
     j++;
 
     IOAreaRec & AF= m_IOAreas[j];
     AF=BasePIDIOArea;
-    AF.pDesc=pT->m_sIDFeedFwd();
-    AF.pName=IONames[j]();
+    AF.SetIODesc(pT->m_sIDFeedFwd());
+    AF.SetIOName(IONames[j]());
     AF.m_Id=CtrlIOId(j);
     j++;
     }

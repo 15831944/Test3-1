@@ -135,7 +135,7 @@ STDMETHODIMP CScdNode::get_SrcNode(IScdNode **pVal)
     FlwNode * pRmt=NULL;
 
     DWORD Type=m_pNode->m_dwType;
-    if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==1 && m_pNode->IODesc_Self(0)->Dirn&LIO_In) 
+    if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==1 && m_pNode->IODesc_Self(0)->m_Dirn&LIO_In) 
       pRmt=m_pNode->Nd_Rmt(0);
     else if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==2) 
       pRmt=m_pNode->Nd_Rmt(0);
@@ -168,7 +168,7 @@ STDMETHODIMP CScdNode::get_DstNode(IScdNode **pVal)
     FlwNode * pRmt=NULL;
 
     DWORD Type=m_pNode->m_dwType;
-    if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==1 && m_pNode->IODesc_Self(0)->Dirn&LIO_Out) 
+    if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==1 && m_pNode->IODesc_Self(0)->m_Dirn&LIO_Out) 
       pRmt=m_pNode->Nd_Rmt(0);
     else if (Type&(nc_MSrcSnk) && m_pNode->NoFlwIOs()==2) 
       pRmt=m_pNode->Nd_Rmt(1);

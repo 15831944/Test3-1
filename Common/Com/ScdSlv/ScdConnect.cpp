@@ -84,7 +84,7 @@ STDMETHODIMP CScdConnect::get_ConnectString(BSTR *pVal)
     Strng T;
     T=m_pNode->Tag();
     T+=".";
-    T+=m_pNode->IODesc_Self(m_lIndex)->pName;
+    T+=m_pNode->IODesc_Self(m_lIndex)->IOName();
     SCD_Copy2BSTR(pVal, T());
     }
   SCD_COMEXIT
@@ -97,7 +97,7 @@ STDMETHODIMP CScdConnect::get_RmtConnectString(BSTR *pVal)
     Strng T;
     T=m_pNode->Nd_Rmt(m_lIndex)->Tag();
     T+=".";
-    T+=m_pNode->IODesc_Rmt(m_lIndex)->pName;
+    T+=m_pNode->IODesc_Rmt(m_lIndex)->IOName();
     SCD_Copy2BSTR(pVal, T());
     }
   SCD_COMEXIT
@@ -112,7 +112,7 @@ STDMETHODIMP CScdConnect::get_ConnectPoint(IScdConnectPoint **pVal)
     int i=0;
     int Id=m_pNode->IOId_Self(m_lIndex);
     IOAreaRec * pRec=m_pNode->IOAreas; 
-    while (pRec && pRec->pName && pRec->m_Id!=Id) 
+    while (pRec && pRec->IOName() && pRec->m_Id!=Id) 
       { pRec++; i++; };
     p->SetObjectInfo((DWORD)m_pNode, i);
     *pVal=p; // User must release
@@ -129,7 +129,7 @@ STDMETHODIMP CScdConnect::get_RmtConnectPoint(IScdConnectPoint **pVal)
     int i=0;
     int Id=m_pNode->IOId_Rmt(m_lIndex);
     IOAreaRec * pRec=m_pNode->Nd_Rmt(m_lIndex)->IOAreas; 
-    while (pRec && pRec->pName && pRec->m_Id!=Id) 
+    while (pRec && pRec->IOName() && pRec->m_Id!=Id) 
       { pRec++; i++; };
     p->SetObjectInfo((DWORD)m_pNode, i);
     *pVal=p; // User must release
