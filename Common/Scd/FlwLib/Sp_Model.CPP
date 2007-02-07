@@ -4775,7 +4775,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         {
         const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSoln1];
         //CSpecie & Solvent=SDB[iSolvent];
-        ASSERT(SDB[iSolvent].DensityDirect() && SDB[iSolvent].HasDensCorrs());
+        //ASSERT(SDB[iSolvent].DensityDirect() && SDB[iSolvent].HasDensCorrs());
         DCB.D=SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData());
         return 1;
         }

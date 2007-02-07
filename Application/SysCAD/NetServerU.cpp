@@ -265,9 +265,10 @@ void CNETServerU::LoadItems()
               }
               else
               {
-                DoneOne = true;
-                CNSGrfThing * pGrf=new CNSGrfThing(I.m_sTag(), Guid(), Page(), I);
-                m_Things.AddTail(pGrf);
+                // This creates a dummy 'tank-1' thing annotation.
+                //DoneOne = true;
+                //CNSGrfThing * pGrf=new CNSGrfThing(I.m_sTag(), Guid(), Page(), I);
+                //m_Things.AddTail(pGrf);
               }
             }
           }

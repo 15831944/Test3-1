@@ -1128,7 +1128,8 @@ namespace MindFusion.FlowChartX
 				{
 					enabledHandles = value;
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}

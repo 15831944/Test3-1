@@ -45,7 +45,32 @@ namespace MindFusion.FlowChartX
 #endif
 	public class FlowChart : System.Windows.Forms.Control, IPersistObjFactory, IPersists
 	{
-		#region initialization
+    private bool layoutSuspended = false;
+    
+    public bool LayoutSuspended
+    {
+      get { return layoutSuspended; }
+    }
+
+    public void SuspendLayout()
+    {
+      layoutSuspended = true;
+      base.SuspendLayout();
+    }
+
+    public void ResumeLayout()
+    {
+      layoutSuspended = false;
+      base.ResumeLayout();
+    }
+
+    public void ResumeLayout(bool performLayout)
+    {
+      layoutSuspended = false;
+      base.ResumeLayout(performLayout);
+    }
+
+    #region initialization
 
 		/// <summary>
 		/// Initializes a new instance of the FlowChart class.
@@ -431,7 +456,8 @@ namespace MindFusion.FlowChartX
 					}
 				}
 
-				invalidate(rcUpdate);
+        if (!LayoutSuspended)
+          invalidate(rcUpdate);
 			}
 		}
 
@@ -504,7 +530,8 @@ namespace MindFusion.FlowChartX
 				cmd.saveSelState();
 
 			// repaint the diagram area covered by the new item
-			invalidate(rc);
+      if (!LayoutSuspended)
+        invalidate(rc);
 			setDirty();
 		}
 
@@ -1417,7 +1444,10 @@ namespace MindFusion.FlowChartX
 			Box newBox = new Box(this);
 			newBox.setPos(x, y, width, height);
 
-			Add(newBox, SelectAfterCreate);
+      if (!LayoutSuspended)
+        Add(newBox, SelectAfterCreate);
+      else
+        Add(newBox, false);
 
 			return newBox;
 		}
@@ -5046,7 +5076,7 @@ namespace MindFusion.FlowChartX
 			}
 
 			undoManager.onEndRoute();
-			invalidate(invalid);
+			//pkhinvalidate(invalid);
 		}
 
 		/// <summary>

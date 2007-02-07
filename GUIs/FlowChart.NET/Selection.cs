@@ -558,7 +558,9 @@ namespace MindFusion.FlowChartX
 				if (flowChart.ActiveObject != null)
 					flowChart.fireActivationEvent();
 			}
-			flowChart.invalidate(invArea);
+
+      if (!flowChart.LayoutSuspended)
+        flowChart.invalidate(invArea);
 
 			flowChart.fireSelectionChanged();
 
@@ -789,7 +791,8 @@ namespace MindFusion.FlowChartX
 				{
 					style = value;
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+					if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}

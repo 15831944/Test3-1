@@ -562,7 +562,8 @@ namespace MindFusion.FlowChartX
 					Brush = new SolidBrush(fillColor);
 
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -586,7 +587,8 @@ namespace MindFusion.FlowChartX
 					pen.Color = frameColor;
 
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -643,7 +645,8 @@ namespace MindFusion.FlowChartX
 					fillColor = ((MindFusion.FlowChartX.SolidBrush)value).Color;
 
 				flowChart.setDirty();
-				flowChart.invalidate(getRepaintRect(false));
+        if (!flowChart.LayoutSuspended)
+          flowChart.invalidate(getRepaintRect(false));
 			}
 		}
 
@@ -912,7 +915,8 @@ namespace MindFusion.FlowChartX
 					if (invisible)
 						flowChart.Selection.RemoveObject(this);
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}

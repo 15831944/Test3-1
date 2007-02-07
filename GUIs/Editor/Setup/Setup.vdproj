@@ -975,6 +975,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EB6A41B7E1B88D175783DCB44F31DED6"
+        "OwnerKey" = "8:_11994B46DF3145D8ACAB98FF5665A354"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_ED5FB68767734E0B968E49C8F21A9284"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1138,12 +1144,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7F5490364C57BEEC6149A914D94A2D7D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_81C05916E4F89E762501243076384802"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1252,6 +1252,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7F5490364C57BEEC6149A914D94A2D7D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_03C32B478AA4711A98D1C24E93CE1D36"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1259,6 +1265,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_1DCA6D76B684F3D645BC6761D5E8DBF5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_EB6A41B7E1B88D175783DCB44F31DED6"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1405,7 +1417,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.19790, Culture=neutral, PublicKeyToken=1bd7010f03a28673, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Overview, Version=4.2.0.22651, Culture=neutral, PublicKeyToken=1bd7010f03a28673, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_03C32B478AA4711A98D1C24E93CE1D36"
@@ -1756,7 +1768,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.19789, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.22650, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_1DCA6D76B684F3D645BC6761D5E8DBF5"
@@ -3981,6 +3993,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_EB6A41B7E1B88D175783DCB44F31DED6"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Protocol, Version=4.2.0.28260, Culture=neutral, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_EB6A41B7E1B88D175783DCB44F31DED6"
+                    {
+                    "Name" = "8:Protocol.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Protocol.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ED5FB68767734E0B968E49C8F21A9284"
             {
             "SourcePath" = "8:..\\..\\..\\BaseFiles\\Stencils\\DrumFilt-0.ModelStencil"
@@ -4369,14 +4412,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Editor"
-        "ProductCode" = "8:{E98E0C6F-1E82-410C-BA1C-B260F3DEB1E3}"
-        "PackageCode" = "8:{17C3024B-F291-409E-A878-A192E2F8622D}"
+        "ProductCode" = "8:{E9459330-0DA2-4F48-AA30-5DD01148435C}"
+        "PackageCode" = "8:{CD6D9B01-92D6-4DDD-8942-E954ACB914ED}"
         "UpgradeCode" = "8:{D662DE63-23E0-4793-AE99-B412D97F451F}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:10.0.19"
+        "ProductVersion" = "8:10.0.21"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -4904,7 +4947,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_11994B46DF3145D8ACAB98FF5665A354"
             {
-            "SourcePath" = "8:..\\obj\\Debug\\SysCAD.Editor.exe"
+            "SourcePath" = "8:..\\obj\\Release\\SysCAD.Editor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_7B1771E8DEC149FFA7EB82AB6C02744A"

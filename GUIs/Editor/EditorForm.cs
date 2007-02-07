@@ -630,12 +630,12 @@ namespace SysCAD.Editor
         openProjectForm.Close();
         Refresh();
 
-        tvNavigation.SuspendLayout();
-        SuspendLayout();
-
         frmFlowChart = new FrmFlowChart(this);
 
+        SuspendLayout();
         frmFlowChart.SuspendLayout();
+        frmFlowChart.FCFlowChart.SuspendLayout();
+        tvNavigation.SuspendLayout();
 
         frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
@@ -670,9 +670,10 @@ namespace SysCAD.Editor
         this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
         this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
 
-        ResumeLayout(true);
-        frmFlowChart.ResumeLayout(true);
         tvNavigation.ResumeLayout(true);
+        frmFlowChart.FCFlowChart.ResumeLayout(true);
+        frmFlowChart.ResumeLayout(true);
+        ResumeLayout(true);
 
         frmFlowChart.ZoomToVisible();
       }

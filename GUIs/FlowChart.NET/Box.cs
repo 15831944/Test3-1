@@ -836,7 +836,8 @@ namespace MindFusion.FlowChartX
 				if (value != selStyle)
 				{
 					selStyle = value;
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 					flowChart.setDirty();
 				}
 			}
@@ -1349,7 +1350,8 @@ namespace MindFusion.FlowChartX
 					updateText();
 					layoutText();
 					flowChart.setDirty();
-					flowChart.invalidate(getRepaintRect(false));
+          if (!flowChart.LayoutSuspended)
+            flowChart.invalidate(getRepaintRect(false));
 				}
 			}
 		}
@@ -2034,7 +2036,8 @@ namespace MindFusion.FlowChartX
 				updateShapePoints();
 				updateArrowsIntsc();
 
-				flowChart.invalidate(getRepaintRect(false));
+        if (!flowChart.LayoutSuspended)
+          flowChart.invalidate(getRepaintRect(false));
 				flowChart.setDirty();
 			}
 		}
