@@ -10077,30 +10077,31 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   if (DDB.BeginStruct(this))
     {
 
+    DDB.Text  ("");
     DDB.Text  ("Commands");
     DDB.Visibility();
-    DDB.Long  ("State",                 "", DC_,     "",  xidExecState,      this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-    DDB.String("StateDesc",             "", DC_,     "",  xidExecStateDesc,  this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-    DDB.Button("Cmd.Start",             "", DC_, "", xidExecStart,                   this, isParm);
-    DDB.Button("Cmd.Idle",              "", DC_, "", xidExecIdle,                    this, isParm);
-    DDB.Button("Cmd.Stop",              "", DC_, "", xidExecStop,                    this, isParm);
+    DDB.Long  ("State",                 "", DC_, "",  xidExecState,                   this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.String("StateDesc",             "", DC_, "",  xidExecStateDesc,               this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.Button("Cmd.Start",             "", DC_, "", xidExecStart,                    this, isParm);
+    DDB.Button("Cmd.Idle",              "", DC_, "", xidExecIdle,                     this, isParm);
+    DDB.Button("Cmd.Stop",              "", DC_, "", xidExecStop,                     this, isParm);
     //DDB.Text  ("");
-    DDB.Bool("SetStateAll",             "", DC_,     "",  xidSetStateAll,    this, isParm|noFileAtAll|InitHidden, SetStateStrs);
-    DDB.Button("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,        this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,            this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,           this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,      this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,           this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,  this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets,this, isParm|noFileAtAll|InitHidden);
+    DDB.Bool("SetStateAll",             "", DC_, "",  xidSetStateAll,                 this, isParm|noFileAtAll|InitHidden, SetStateStrs);
+    DDB.Button("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,         this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,             this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,            this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,       this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,            this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,   this, isParm|noFileAtAll|InitHidden);
+    DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets, this, isParm|noFileAtAll|InitHidden);
 
     // For Compatibility with older flowsheets
     //DDB.Text  ("");
-    DDB.Double("Dyn.Time",              "", DC_Time, "s", xidODETime,        this, InitHidden|noFile|noScenario|noSnap);
-    DDB.Double("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,     this, InitHidden|noFile|noScenario|noSnap);
-    //DDB.Double("Dyn.StopTime",          "", DC_Time, "s", &Dyn.StopTime,     this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double("Dyn.Time",              "", DC_Time, "s", xidODETime,                 this, InitHidden|noFile|noScenario|noSnap);
+    DDB.Double("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,              this, InitHidden|noFile|noScenario|noSnap);
+    //DDB.Double("Dyn.StopTime",          "", DC_Time, "s", &Dyn.StopTime,              this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
 
     DDB.Text  ("");
     DDB.Text("Balance & Closure");
@@ -10110,9 +10111,9 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
  //   DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
  //   DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
-    DDB.Text  ("");
-    DDB.Text  ("Information");
-    DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
+    //DDB.Text  ("");
+    //DDB.Text  ("Information");
+    //DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
 
 
     DDB.Text  ("");

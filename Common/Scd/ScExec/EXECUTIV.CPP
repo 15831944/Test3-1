@@ -7674,9 +7674,10 @@ int CExecutive::PrepareMerge(CMergeProjectsInfo& MPI)
           _stricmp(pClass, "TbPID2")==0 ||
           _stricmp(pClass, "TbPID")==0 ||
           _stricmp(pClass, "TbFlshTrn")==0 ||
-          _stricmp(pClass, "Area")==0) )
+          (_stricmp(pClass, "Area-1")==0 && _stricmp(pItem->SymOrTag(), PlantAreaTag)==0)
+          ) )
           {
-          // Skip It
+          int xxx=0; // Skip It
           }
         else
           {
@@ -7852,10 +7853,13 @@ int CExecutive::DoMergeA(CMergeProjectsInfo& MPI)
   CDlgBusy::SetLine(3, "Changing tags in current project");
   for (int i=0; i<MPI.PreChangeTags.GetSize(); i++)
     {
-    int Err = ChangeTag(MPI.PreChangeTags[i](), MPI.PreTempTags[i]());
-    ASSERT(Err==EOCT_DONE);
-    if (Err!=EOCT_DONE)
-      LogError("Merge", LF_Exclamation, "A: Change tag failed  %s --> %s", MPI.PreChangeTags[i](), MPI.PreTempTags[i]());
+    if (MPI.PreChangeTags[i].XStrICmp(PlantAreaTag)!=0) // Skip PlantArea it will fail
+      {
+      int Err = ChangeTag(MPI.PreChangeTags[i](), MPI.PreTempTags[i]());
+      ASSERT(Err==EOCT_DONE);
+      if (Err!=EOCT_DONE)
+        LogError("Merge", LF_Exclamation, "A: Change tag failed  %s --> %s", MPI.PreChangeTags[i](), MPI.PreTempTags[i]());
+      }
     }
 
   //copy relavent files...
@@ -7910,10 +7914,13 @@ int CExecutive::DoMergeB(CMergeProjectsInfo& MPI)
   CDlgBusy::SetLine(3, "Changing tags in current project");
   for (i=0; i<MPI.PreTempTags.GetSize(); i++)
     {
-    int Err = ChangeTag(MPI.PreTempTags[i](), MPI.PreNewTags[i]());
-    //ASSERT(Err==EOCT_DONE);
-    if (Err!=EOCT_DONE)
-      LogError("Merge", LF_Exclamation, "C: Change tag failed  %s --> %s", MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+    if (MPI.PreNewTags[i].XStrICmp(PlantAreaTag)!=0) // Skip PlantArea - It was not changed to Temp
+      {
+      int Err = ChangeTag(MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+      //ASSERT(Err==EOCT_DONE);
+      if (Err!=EOCT_DONE)
+        LogError("Merge", LF_Exclamation, "C: Change tag failed  %s --> %s", MPI.PreTempTags[i](), MPI.PreNewTags[i]());
+      }
     }
   return 0;
   }
