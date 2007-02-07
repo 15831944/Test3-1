@@ -146,6 +146,8 @@ namespace SysCAD.Protocol
         if (itemGuidReader.Read())
           guid = new Guid(itemGuidReader.GetString(0));
 
+        fillColor = Color.FromArgb(255, 220, 220, 255);
+
         float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
         if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
         if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
@@ -189,6 +191,8 @@ namespace SysCAD.Protocol
       shape = classId;
       this.guid = new Guid(guid);
 
+      fillColor = Color.FromArgb(255, 220, 220, 255);
+
       float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
       if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
       if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
@@ -230,6 +234,8 @@ namespace SysCAD.Protocol
       model = classId;
       shape = classId;
       this.guid = new Guid(guid);
+
+      fillColor = Color.FromArgb(255, 220, 220, 255);
 
       boundingRect = rectangle;
 
