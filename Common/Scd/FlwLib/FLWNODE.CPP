@@ -2295,7 +2295,8 @@ void FlwNode::SwapIOAreas(IOAreaRec * IOAreas_, bool Copy)
 
 void FlwNode::CheckIOAreas(bool OneGroup, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp * DefFlwEqnGrp1)
   {
-  dbgpln("------- CheckIOAreas :%s", ClassId());
+  if (0)
+    dbgpln("------- CheckIOAreas :%s", ClassId());
 
   IOAreaRec *p=IOAreas;
   IOAreaRec *pPrev=NULL;
@@ -2333,7 +2334,8 @@ void FlwNode::CheckIOAreas(bool OneGroup, CFlwEqnGrp * DefFlwEqnGrp0, CFlwEqnGrp
       char *pb;
       while ((pb=strchr(p->IOName(n), ' '))!=NULL)
         *pb='_';
-      dbgpln("  %2i %2i %s", i, n, p->IOName(n));
+      if (0)
+        dbgpln("  %2i %2i %s", i, n, p->IOName(n));
       }
     p->m_nNameCount= n;
 

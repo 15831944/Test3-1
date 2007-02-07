@@ -24,7 +24,7 @@ static CDbgMngr  dbgHeater   ("HeatXChg",  "ShellTube");
 #endif
 
 #define FORCESTEAM  (0 && HX_MEASURE_LIQVAP)
-#define dbgShlTube  (1)
+#define dbgShlTube  (0)
 
 #define BOX(x,y,w,h) x,y, x,y+h, x+w,y+h, x+w,y, x,y
 
