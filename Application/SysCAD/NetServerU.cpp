@@ -244,7 +244,7 @@ void CNETServerU::LoadItems()
 
             CNSMdlLink * pMdl = new CNSMdlLink(I.m_sTag(), Guid(), I.m_sClass(),
               pNode->Nd_Rmt(0)->EqpGUID(), pNode->Nd_Rmt(1)->EqpGUID(),
-              pNode->IOArea_Rmt(0).pName, pNode->IOArea_Rmt(1).pName);
+              pNode->IOArea_Rmt(0).m_pName, pNode->IOArea_Rmt(1).m_pName);
             CNSGrfLink * pGrf = new CNSGrfLink(Page(), pMdl, I, LPA);
             for (int i=0; i<LPA.GetSize(); i++)
               pGrf->m_Pts.Add(CNSGrfLink::CPt(LPA[i].x, LPA[i].y));
