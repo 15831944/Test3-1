@@ -1,5 +1,7 @@
-#   Time-stamp: <2006-11-08 12:45:23 Rod Stephenson Transcritical Pty Ltd>
-SYSCAD=90
+#   Time-stamp: <2007-02-09 09:12:19 Rod Stephenson Transcritical Pty Ltd>
+SYSCAD=91
+SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
+
 #DBG = 1
 COMMON = ../TTCommon/
 
@@ -47,7 +49,7 @@ endif
 TTechQAL.dll: $(OBJS)
 	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/TTechQAL.pdb" /IMPLIB:".\Rls/TTechQAL.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
 	../../smdk/devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
-
+	cp "$(SYSCADDIR)/$(SMDKDLL).dll" "g:/archive/syscad/syscad$(SYSCAD)"
 
 QALClassifier.obj : QALClassifier.cpp QALClassifier.h
 QALCyclone.obj : QALCyclone.cpp QALCyclone.h
