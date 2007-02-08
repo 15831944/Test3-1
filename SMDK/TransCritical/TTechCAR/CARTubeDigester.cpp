@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-11-02 14:06:06 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-09 08:46:08 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -752,7 +752,7 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
       ms = TubeI;
       ms.Set_totHz(TubeI.totHz()+qShell);
       MxTbOutT = ms.T;
-      Log.Message(MMsg_Note, "Limiting TubeOutT %g TubeI %g %d %d", MxTbOutT-273.15, TubeI.T-273.15, &TubeI, &ms); 
+      //Log.Message(MMsg_Note, "Limiting TubeOutT %g TubeI %g %d %d", MxTbOutT-273.15, TubeI.T-273.15, &TubeI, &ms); 
       } 
 
 //     if (MnTbOutT > MxTbOutT) {
@@ -778,11 +778,12 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
       Log.Message(MMsg_Error, "TubeOutT not found - RootFinder:%s", Fn.ResultString(Fn.Error())); 
       TubeOutT=Fn.Result();
       break;
-
-      m_RB.EvalProducts(TubeO);    
-      dHf=m_RB.HfSumRct();
-      m_dRMTD = m_dLMTD;
     }
+    
+    m_RB.EvalProducts(TubeO);    
+    dHf=m_RB.HfSumRct();
+    m_dRMTD = m_dLMTD;
+    
   }
 };
 
