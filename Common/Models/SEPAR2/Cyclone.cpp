@@ -544,19 +544,22 @@ class CMPlitt : public CycloneMeth
       const double RefPress = (m_OldCalcs ? gs_StdPress : FeedPress); // Reference pressure
       m_Phi = Fd.VolFrac(som_Sol, RefTemp, RefPress);  //kga 28/07/06: Changed to feed stream temperature & Pressure
 
+      const double QmLIn = Fd.QMass(som_Liq);
+      //TODO: Error message if (a) liquid frac is too low;
+      //      and (b) liq Rho too high (>solids Rho)
       double Qv = GTZ(QmTtl)/GTZ(Fd.Rho());
       m_pCyc->dCycNo = Max(m_pCyc->dCycNo, 0.001);
       m_Qvc = Qv/m_pCyc->dCycNo;
       Qv = Qv*1000.0*60.0;     // convert to l/min
       const double Qvc = Qv/m_pCyc->dCycNo;  // l/min
-      double RhoS=0.001*Fd.Rho(som_Sol);     // g/cc
-      double RhoL=0.001*Fd.Rho(som_Liq);     // g/cc
-      double d50N=50.5*Pow(m_Dc, 0.46)*Pow(m_Di, 0.6)*Pow(m_Do, 1.21)*Exps(0.063*m_Phi*100.0);
+      const double RhoS=0.001*Fd.Rho(som_Sol); // g/cc
+      const double RhoL=(QmLIn>UsableMass ? 0.001*Fd.Rho(som_Liq) : 1.0); // g/cc
+      const double d50N=50.5*Pow(m_Dc, 0.46)*Pow(m_Di, 0.6)*Pow(m_Do, 1.21)*Exps(0.063*m_Phi*100.0);
       double d50D;
       if (m_OldCalcs)
-        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.46)*Pow((RhoS-RhoL), 0.5);
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.46)*Pow(GTZ(RhoS-RhoL), 0.5);
       else
-        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.45)*Pow((RhoS-RhoL), 0.5); //kga 19/03/06: changed Qvc power to 0.45 from 0.46
+        d50D=Pow(m_Du, 0.71)*Pow(m_h, 0.38)*Pow(Qvc, 0.45)*Pow(GTZ(RhoS-RhoL), 0.5); //kga 19/03/06: changed Qvc power to 0.45 from 0.46
       m_d50=m_Factor1_d50*1.0e-6*d50N/GTZ(d50D);
 
       m_DP=DP(Fd.QMass(), Fd);
@@ -1082,7 +1085,8 @@ void Cyclone::EvalProducts(CNodeEvalIndex & NEI)
       }
     ClrCI(2);
 
-    Meth[iMethod]->Init(GEZ(IOQm_In(idFeed)), QFd);
+    const double qm = IOQm_In(idFeed);
+    Meth[iMethod]->Init(GEZ(qm), QFd);
 
     //===========================================================================
     // Transfer All Qualities / Solids to US and Liquids 50/50
