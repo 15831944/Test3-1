@@ -1170,7 +1170,7 @@ flag CTrendPtBlk::AddPt(CTimeValue Time, double Val, byte Typ, int SltNo, int Fw
 void CTrendPtBlk::ShiftPts(CTimeValue d, CTrendSclBlk & Scl, CTagVwDoc *Doc)
   {
   ASSERT(iNPts>=0 && iNPts<=MaxTrendPtBlk);
-  double XSc=TrendXMax/(Doc->TB.EndTime-Doc->TB.StartTime).Seconds;
+  double XSc=TrendXMax/Max(1.0e-3, (Doc->TB.EndTime-Doc->TB.StartTime).Seconds);
   long dx=(int)(XSc*d.Seconds);
 
   for (int i=0; i<iNPts; i++)

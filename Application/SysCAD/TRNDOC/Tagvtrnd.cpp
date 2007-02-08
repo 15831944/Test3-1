@@ -1401,7 +1401,7 @@ LRESULT CTagVwTrend::OnScrollByMsg(WPARAM wParam, LPARAM lParam)
     RECT ClntRct;
     GetClientRect(&ClntRct);
     TrndTimeBase &TB = pDoc->GetCurrentTimeBase();
-    long dx=(long)(d/NZ((TB.EndTime-TB.StartTime).Seconds)*(ClntRct.right-ClntRct.left));
+    long dx=(long)(d/Max(1e-3, (TB.EndTime-TB.StartTime).Seconds)*(ClntRct.right-ClntRct.left));
     if (pDoc->ET || pDoc->ED)
       ETWnd.ShowWindow(SW_HIDE);
     if (pDoc->Dur)
