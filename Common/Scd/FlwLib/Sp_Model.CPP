@@ -4440,9 +4440,9 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMSatComp     : return DoDCBSatComp(DCB, m_iSatCmpRqd, m_iSatCmp);
     case xidSMSatMethod   : return DoDCBSatMethod(DCB, m_iSatMethodRqd, m_iSatMethod);
 
-    case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL, SaturationCmpIndex());   return 1;
+    case xidSMSatTempP    : DCB.D = SaturationT(Press(), NULL);     return 1;
     case xidSMSatTempPP   : DCB.D = Mass(som_Gas)>SmallMassFrac ? SaturationT(PartialPressC(SaturationCmpIndex(), -1, Temp()), NULL, SaturationCmpIndex()) : dNAN;   return 1;
-    case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL, SaturationCmpIndex());    return 1;
+    case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL);      return 1;
     case xidSMSatPPress   : DCB.D = PartialPressC(SaturationCmpIndex(), -1, Temp());     return 1;
     case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
 
