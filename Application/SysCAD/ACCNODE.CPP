@@ -44,9 +44,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgDataReadWrite    0
-#define dbgANW              0
+#define dbgANW              01
 #define dbgDumpObject       0
-#define dbgBld              0
+#define dbgBld              01        
 
 #define CHECKBOXESRIGHT     0
 #define BASICWIDTH          20 /*14*/
@@ -649,12 +649,6 @@ void AccNodeWnd::BuildDone()
 flag AccNodeWnd::LoadAccessData()
   {
   CWaitCursor Wait;
-  WndTitle.Set("Loading - %s", NdTag());
-  m_pMyFrm->SetWindowText(WndTitle());
-  
-  TABOptions ForXtra=0;//(fAllFldsVis?TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario:0);
-  CXM_ObjectTag ObjTag(NdTag(), ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
-  CXM_ObjectData ObjData(0);
 
   for (int i = 0; i < MaxAccNdFlds; i++)
     {
@@ -662,16 +656,44 @@ flag AccNodeWnd::LoadAccessData()
     Data[i].Init();
     }
 
-#if WITHSPECSHEETS
-//ss  sSpecSheet="Standard";
-//ss  iSpecSheet=-1;
-#endif
+  #if WITHSPECSHEETS
+  //ss  sSpecSheet="Standard";
+  //ss  iSpecSheet=-1;
+  #endif
 
-  ObjRoute.Clear();
-  flag Ok = (XReadTaggedItem(ObjTag, ObjData, ObjRoute)!=0);
-//LogNote("Acc", 0, "XRead %s", SW.MinSecHunDesc(sSWTmp));
+  CXM_ObjectData ObjData(0);
+  flag Ok = false;
+  Strng TryNdTag;
+  int iLastDot=-1;
+  for (;;)
+    {
+    TryNdTag=NdTag;
+    for (int i=iLastDot+1; i<NdTag.GetLength(); i++)
+      {
+      if (TryNdTag[i]=='.')
+        {
+        TryNdTag.SetLength(i);
+        iLastDot=i;
+        break;
+        }
+      }
+    WndTitle.Set("Loading - %s", TryNdTag());
+    m_pMyFrm->SetWindowText(WndTitle());
+    
+    TABOptions ForXtra=0;//(fAllFldsVis?TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario:0);
+    CXM_ObjectTag ObjTag(TryNdTag(), ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
+    ObjData.Clear();
+
+    ObjRoute.Clear();
+    Ok = (XReadTaggedItem(ObjTag, ObjData, ObjRoute)!=0);
+    if (Ok || (TryNdTag.GetLength()==NdTag.GetLength()))
+      break;
+    }
+
+    //LogNote("Acc", 0, "XRead %s", SW.MinSecHunDesc(sSWTmp));
   if (Ok)
     {
+    NdTag=TryNdTag;
     fLastSaveInvalid=0;
     #if dbgDumpObject
     ObjRoute.dbgDump("Access : Load");
