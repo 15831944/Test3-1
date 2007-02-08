@@ -130,13 +130,6 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     MVector         getVector();
     bool            TestStateValid(int i);
     void            SetStateValid(int i, bool On=true);
-    bool            StateUpdateReqd(int i) 
-      { 
-      if (TestStateValid(i))
-        return false;
-      SetStateValid(i, true);
-      return true;
-      }
 
     SV_View         getView();
     SV_ViewBasis    getViewBasis();

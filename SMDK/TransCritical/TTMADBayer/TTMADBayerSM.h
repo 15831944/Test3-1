@@ -25,7 +25,7 @@ class CBayerConcs
     double denOld;    // Start with this rather than 1000.0 to accelerate convergence
     CBayerConcs(Bayer *pMdl);
     void            Zero();
-    bool            Converge(MArray & MA);
+    bool            Converge(MArray & MA, bool SetValid);
     double          LTotalSodium(MArray & MA);
     double          LTotalInorganicSodium(MArray & MA);
     double          LiquorDensity(double T_, MArray & MA);
@@ -83,6 +83,11 @@ class Bayer : public MSpModelBase, public MIBayer
 
     static     CArray <int, int> LclParm;
 
+#if DBG_MVECTOR
+    CArray<double, double> m_dbgM;
+    double                 m_dbgtotHf;
+#endif
+
   public:
     Bayer(TaggedObject *pNd);
     ~Bayer();
@@ -128,6 +133,11 @@ class Bayer : public MSpModelBase, public MIBayer
     double          FreeCaustic(double T_);
     double          AluminaSolubility(double T_) { return AluminaConcSat(T_); };
 
+    // Extras
+    double          CausticConc(double T_, MArray *pMA);
+    double          AtoC(MArray *pMA);
+    double          FreeCaustic(double T_, MArray *pMA);
+
   protected:
     DDEF_Flags      FixSpEditFlags(DDEF_Flags Flags, int iSpid, bool AsParms);
     double          DRatio(double Tc);
@@ -165,10 +175,14 @@ class Bayer : public MSpModelBase, public MIBayer
     double          TOOCtoC();
     double          AluminaSSN(double T_);
     double          NaOnCS();                  
+  
+    void            CheckConverged(MArray *pMA=NULL);
 
   protected:
+#if DBG_MVECTOR
     double          DumpIt(LPCTSTR Tag, double V, double x1=NAN, double x2=NAN, double x3=NAN);
-    bool            StateUpdateReqd(int i); 
+    bool            TestStateValid(int i);
+#endif
   };
 
 #endif

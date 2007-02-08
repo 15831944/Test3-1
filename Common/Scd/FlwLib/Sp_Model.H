@@ -739,6 +739,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     void           ClrMStatesOK() { m_dwValidFlags &= ~(SMVF_M_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); m_dwMassVersionNo++; };
     void           ClrHStatesOK() { m_dwValidFlags &= ~(SMVF_H_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); };
+    void           ClrUserStatesOK() { m_dwValidFlags &= ~(SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); };
     void           ClrStatesOK()  { m_dwValidFlags = 0; m_dwMassVersionNo++; };
     bool           Modified()     { return (m_dwValidFlags & SMVF_UnModified)==0; };
     void           ClrModified()  { TestHStatesOK(); m_dwValidFlags |= SMVF_UnModified; };

@@ -314,6 +314,10 @@ double  MVector::PureSaturationP(double T) const                               {
 double  MVector::PureSaturationT(double P) const                               { return SpMdl->PureSaturationT(Valid(P)?P:SpMdl->Press());                              };
 double  MVector::BoilingPtElevation(double P) const                            { return SpMdl->BoilingPtElevation(Valid(P)?P:SpMdl->Press());                           };
 
+#if DBG_MVECTOR
+double  MVector::msHfRaw() const                                               { return SpMdl->m_msHf;      };
+#endif
+
 // ----------------------------- Operations
 void    MVector::SetTP(double Temp, double Pres)                               { SpMdl->SetTempPress(Temp, Pres);                      };
 void    MVector::Set_msHs(double H, double Pres, MVector * pRefMdl)            { SpMdl->Set_msHs(H, Pres, pRefMdl?pRefMdl->m_pSpMdl:NULL);      };

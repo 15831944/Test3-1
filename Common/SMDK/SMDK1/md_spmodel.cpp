@@ -297,9 +297,17 @@ SpPropOveride * MSpModelBase::getPropOverides()
   return &m_pSpMdlX->m_Ovr;
   };
 
+//int             MSpModelBase::getFidelity();
+//SpPropOveride * MSpModelBase::getPropOverides();
+
 LPCTSTR MSpModelBase::getTag()
   {
   return (LPCTSTR)m_pSpMdlX->FullObjTag();
+  };
+
+MVector MSpModelBase::getVector() 
+  { 
+  return MVector(m_pSpMdlX);  
   };
 
 bool MSpModelBase::TestStateValid(int i)

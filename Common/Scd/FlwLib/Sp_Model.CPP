@@ -8169,6 +8169,7 @@ void SpModel::SetTempPress(double T_, double P_)
     ASSERT(Finite(m_msHf));
     m_CurrentT=T_;
     m_dwValidFlags |= SMVF_H_OK;
+    ClrUserStatesOK();
     m_PreviousT=m_CurrentT;
     m_KeptTemp=dNAN;
 
@@ -8209,6 +8210,7 @@ void SpModel::SetTemp(double T_)
 
     m_CurrentT=T_;
     m_dwValidFlags |= SMVF_H_OK;
+    ClrUserStatesOK();
     m_PreviousT=m_CurrentT;
     DoTempChecks(m_CurrentT);
     }

@@ -20,6 +20,10 @@
 #endif
 
 //---------------------------------------------------------------------------
+// Open up low level options
+#define DBG_MVECTOR 0
+
+//---------------------------------------------------------------------------
 // Forward declares; implementation in SysCAD App;
 class CSysVector;
 class SpModel;
@@ -349,6 +353,10 @@ class DllImportExport MVector
     double        PureSaturationP(double Temp=NAN) const;
     double        PureSaturationT(double Pres=NAN) const;
     double        BoilingPtElevation(double Pres=NAN) const;
+
+#if DBG_MVECTOR
+    double        msHfRaw() const;
+#endif
 
     // ----------------------------- Operations
     void          SetTP(double Temp, double Pres);
