@@ -6,7 +6,7 @@
 #define  __BallMill_CPP
 #include "SysCADSystemHelper.h"
 #include "BallMill.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             Ball Mill

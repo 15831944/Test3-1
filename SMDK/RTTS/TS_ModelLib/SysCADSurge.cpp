@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __SysCADSurge_CPP
 #include "SysCADSurge.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 

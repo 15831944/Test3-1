@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __SysCADSeperator_CPP
 #include "SysCADSeperator.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 
@@ -47,15 +47,15 @@ void SysCADSeperator_UnitDef::GetOptions()
 //SysCADSeperator::SysCADSeperator(TaggedObject * pNd) : MBaseMethod(pNd)
 SysCADSeperator::SysCADSeperator(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
+  // Contruct the type of Seperator
+  m_Method = CSeperator::eMethod_EfficiencyCurve; 
+  m_pCSeperator = &m_CSeperator_EfficiencyCurve;
 
-	// Contruct the type of Seperator
-	m_Method = CSeperator::eMethod_EfficiencyCurve; 
-	m_pCSeperator = &m_CSeperator_EfficiencyCurve;
-
-    // Initialisation Flag
-    bInit = true;
-    m_bTwoDecks = true;
-
+  // Initialisation Flag
+  bInit = true;
+  m_bTwoDecks = true;
+  m_dOtherLiqToUS = 1.0;
+  m_dOtherSolToUS = 1.0;
   }
 
 //---------------------------------------------------------------------------
@@ -85,10 +85,13 @@ void SysCADSeperator::BuildDataFields()
 
     //DD.Bool("N", "", &m_bTwoDecks , MF_RESULT);//MF_PARAMETER | MF_SET_ON_CHANGE | MF_PARAM_STOPPED);
 
-   DD.ObjectBegin("TS_Seperation", "Seperation" );
+    DD.ObjectBegin("TS_Seperation", "Seperation" );
 
 
     DD.Long("Method", "", (long*)&m_Method, MF_PARAMETER|MF_SET_ON_CHANGE|MF_PARAM_STOPPED, DDMethod);
+  	DD.Double("OtherLiquidSplitToUS", "", &m_dOtherLiqToUS, MF_PARAMETER|MF_INIT_HIDDEN, MC_Frac("%"));
+  	DD.Double("OtherSolidSplitToUS", "", &m_dOtherSolToUS, MF_PARAMETER, MC_Frac("%"));
+
     int l = 0;
 
     switch(m_Method)
@@ -119,7 +122,7 @@ void SysCADSeperator::BuildDataFields()
 	  // selected method so all data is persistent.
 	  // We just specify the visibility based on the selected method.
 	  if (m_pCSeperator==&m_CSeperator_LoadBased)
-		DD.Show(true,true,true);
+  		DD.Show(true,true,true);
 	  else
 	    DD.Show(false,true,true);
 	  m_CSeperator_LoadBased.BuildDataFields(DD);
@@ -149,68 +152,102 @@ void SysCADSeperator::BuildDataFields()
 //---------------------------------------------------------------------------
 
 void SysCADSeperator::EvalProducts()
-{
-
-  try
   {
-      MStream Feed; // SysCAD Feed Stream
-      FlwIOs.AddMixtureIn_Id(Feed, idFeed); //sum all input streams
+  try
+    {
+    MStream Feed; // SysCAD Feed Stream
+    FlwIOs.AddMixtureIn_Id(Feed, idFeed); //sum all input streams
 
-      //
-      // Get References to our Output Streams using the FlwIOs helper class and IO ids
-      //
+    //
+    // Get References to our Output Streams using the FlwIOs helper class and IO ids
+    //
+    MStream & P1 = FlwIOs[FlwIOs.First[idProduct1]].Stream; // SysCAD Output Stream
+    MStream & P2 = FlwIOs[FlwIOs.First[idProduct2]].Stream; // SysCAD Output Stream (may be invalid if not connected!!!)
+    MStream & P3 = FlwIOs[FlwIOs.First[idProduct3]].Stream; // SysCAD Output Stream
 
-      MStream & P1 = FlwIOs[FlwIOs.First[idProduct1]].Stream; // SysCAD Output Stream
-      MStream & P2 = FlwIOs[FlwIOs.First[idProduct2]].Stream; // SysCAD Output Stream (may be invalid if not connected!!!)
-      MStream & P3 = FlwIOs[FlwIOs.First[idProduct3]].Stream; // SysCAD Output Stream
+    m_bTwoDecks = (FlwIOs.First[idProduct2]>=0);
 
-      m_bTwoDecks = (FlwIOs.First[idProduct2]>=0);
+    //Set both outlet streams to equal inlet stream
+    P1=Feed;
+    P3=Feed;
+    if (m_bTwoDecks)
+      {
+      P2 = Feed;
+      }
 
-      P1=Feed;
-      P3=Feed;
-      if (m_bTwoDecks)
-        {
-          P2 = Feed;
-        }
-
-      if (Feed.MassFlow()>1.0e-5)
-        {
-
+    if (Feed.MassFlow()>1.0e-5)
+      {
       MIPSD & PSD=*Feed.FindIF<MIPSD>();
 
       if (!IsNothing(PSD)) // Only do something if our input stream has a SizeData
-      {  
- 	      if (m_pCSeperator)
-		  {
-			    m_pCSeperator->EvalProducts(Feed,P1,P2,P3,m_bTwoDecks,bInit);
-				bInit = false;
-		  }
-      }
-      else
-      {
-        if (Feed.MassFlow()>1.0e-5)
-        Log.Message(MMsg_Warning, "No PSD Properties present, report to underflow");
-      }
-
-        }
-      //
-      // Handle solids and gas species without size data (send all to P3)...
-	  // Individual evals should handle liquid split
-	  //
-      for (int l_SpeciesIndex=0;  l_SpeciesIndex < Feed.Count(); l_SpeciesIndex ++)
-        {
-        if ((Feed.HasSizeData(l_SpeciesIndex)==false) && Feed.IsSolid(l_SpeciesIndex) )
+        {  
+        if (m_pCSeperator)
           {
-          // Species has no Size Data
-          P1.putM(l_SpeciesIndex, 0.0);
-          if (m_bTwoDecks)
-            P2.putM(l_SpeciesIndex, 0.0);
-          P3.putM(l_SpeciesIndex, Feed.getM(l_SpeciesIndex) );
+          m_pCSeperator->EvalProducts(Feed,P1,P2,P3,m_bTwoDecks,bInit);
+          bInit = false;
           }
-
+        }
+      else
+        {
+        if (Feed.MassFlow()>1.0e-5)
+          Log.Message(MMsg_Warning, "No PSD Properties present, report to underflow");
+        if (m_bTwoDecks)
+          {
+          P2.ZeroMass();
+          }
         }
 
-  }
+      }
+    else
+      {
+      if (m_bTwoDecks)
+        {
+        P2.ZeroMass();
+        }
+      }
+
+    //
+    // Handle solids and gas species without size data (send all to P3)...
+    // Individual evals should handle liquid split
+    //
+    const int WaterIndex = gs_MVDefn.Lookup("H2O(l)");
+    for (int l_SpeciesIndex=0;  l_SpeciesIndex < Feed.Count(); l_SpeciesIndex ++)
+      {
+      if (Feed.IsGas(l_SpeciesIndex))
+        {//put all vapours to US
+        P1.putM(l_SpeciesIndex, 0.0);
+        if (m_bTwoDecks)
+          P2.putM(l_SpeciesIndex, 0.0);
+        P3.putM(l_SpeciesIndex, Feed.getM(l_SpeciesIndex));
+        }
+      else if (Feed.IsLiquid(l_SpeciesIndex) && l_SpeciesIndex!=WaterIndex)
+        {//split liquids excluding water
+        double m = Feed.getM(l_SpeciesIndex);
+        double mus = m * m_dOtherLiqToUS;
+        P1.putM(l_SpeciesIndex, m-mus);
+        if (m_bTwoDecks)
+          {
+          m = mus;
+          mus = m * m_dOtherLiqToUS;
+          P2.putM(l_SpeciesIndex, m-mus);
+          }
+        P3.putM(l_SpeciesIndex, mus);
+        }
+      else if (Feed.IsSolid(l_SpeciesIndex) && Feed.HasSizeData(l_SpeciesIndex)==false)
+        {//split solids without PSD data
+        double m = Feed.getM(l_SpeciesIndex);
+        double mus = m * m_dOtherSolToUS;
+        P1.putM(l_SpeciesIndex, m-mus);
+        if (m_bTwoDecks)
+          {
+          m = mus;
+          mus = m * m_dOtherSolToUS;
+          P2.putM(l_SpeciesIndex, m-mus);
+          }
+        P3.putM(l_SpeciesIndex, mus);
+        }
+      }
+    }
 
   //
   // Catch SysCAD Model Specific Exceptions
@@ -244,7 +281,7 @@ void SysCADSeperator::EvalProducts()
     {
     Log.Message(MMsg_Error, "Some Unknown Exception occured");
     }
-}
+  }
 
 //====================================================================================
 

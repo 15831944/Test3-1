@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __GlobalPartitionSeperator_CPP
 #include "GlobalPartitionSeperator.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             Global Partition

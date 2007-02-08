@@ -7,7 +7,7 @@
 #include <vector>
 #include <sstream>
 
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 
 

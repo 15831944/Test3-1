@@ -22,7 +22,6 @@
   #define DllImportExport
 #endif
 
-
 //---------------------------------------------------------------------------
 
 class SysCADSeperator : public MBaseMethod
@@ -30,7 +29,7 @@ class SysCADSeperator : public MBaseMethod
   public:
 
     //SysCADSeperator(TaggedObject * pNd);
-	SysCADSeperator(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+    SysCADSeperator(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void Init();
     virtual void BuildDataFields();
     virtual void EvalProducts();
@@ -49,6 +48,10 @@ class SysCADSeperator : public MBaseMethod
 
 	// The Selected Method
 	CSeperator          *m_pCSeperator;
+
+  // Options for species not handled by the Method
+  double m_dOtherLiqToUS;
+  double m_dOtherSolToUS;
 
 	// Flag to tell EvalProducts to initialise
 	bool bInit;

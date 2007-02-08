@@ -6,7 +6,7 @@
 #define  __SysCADComminution_CPP
 #include "SysCADSystemHelper.h"
 #include "SysCADComminution.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 

@@ -394,7 +394,6 @@ void CMill_AGSAG::EvalProducts(MBaseMethod &M,
 	
 { 
 #if WithFortranModel430
-
 	// Get info on Size Distribution
     MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
     if (IsNothing(l_PSD))

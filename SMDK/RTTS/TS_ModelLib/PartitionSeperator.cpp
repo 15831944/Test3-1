@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __PartitionSeperator_CPP
 #include "PartitionSeperator.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 #define COMPILE_COMPONENTPARTITION 1
 

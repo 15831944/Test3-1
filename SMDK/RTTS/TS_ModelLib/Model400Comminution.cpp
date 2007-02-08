@@ -6,7 +6,7 @@
 #define  __Model400Comminution_CPP
 #include "SysCADSystemHelper.h"
 #include "Model400Comminution.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             Model400 Comminution

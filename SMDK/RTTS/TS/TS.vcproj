@@ -186,7 +186,43 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\RioTintoTS\CubicSpline.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\FlowStream1.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\LoadBasedScreen1.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\Matrix.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\MineralInfo1.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\Model430A.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\ObjectPtr.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\SagMill1.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\StreamInfo1.h">
+			</File>
+			<File
 				RelativePath=".\TS.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\TSMath.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\Vector.h">
+			</File>
+			<File
+				RelativePath="..\RioTintoTS\WhitenCrusher1.h">
 			</File>
 		</Filter>
 		<Filter
@@ -201,58 +237,31 @@
 				RelativePath="..\RioTintoTS\CubicSpline.cpp">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\CubicSpline.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\CubicSpline2.cpp">
 			</File>
 			<File
 				RelativePath="..\RioTintoTS\FlowStream1.cpp">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\FlowStream1.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\LoadBasedScreen1.cpp">
-			</File>
-			<File
-				RelativePath="..\RioTintoTS\LoadBasedScreen1.h">
 			</File>
 			<File
 				RelativePath="..\RioTintoTS\Matrix.cpp">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\Matrix.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\MineralInfo1.cpp">
-			</File>
-			<File
-				RelativePath="..\RioTintoTS\MineralInfo1.h">
 			</File>
 			<File
 				RelativePath="..\RioTintoTS\Model430A.CPP">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\ObjectPtr.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\SagMill1.cpp">
-			</File>
-			<File
-				RelativePath="..\RioTintoTS\SagMill1.h">
 			</File>
 			<File
 				RelativePath="..\RioTintoTS\StreamInfo1.cpp">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\StreamInfo1.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\TSBallMill.cpp">
-			</File>
-			<File
-				RelativePath="..\RioTintoTS\TSMath.h">
 			</File>
 			<File
 				RelativePath="..\RioTintoTS\TSRodMill.cpp">
@@ -261,13 +270,7 @@
 				RelativePath="..\RioTintoTS\Vector.cpp">
 			</File>
 			<File
-				RelativePath="..\RioTintoTS\Vector.h">
-			</File>
-			<File
 				RelativePath="..\RioTintoTS\WhitenCrusher1.cpp">
-			</File>
-			<File
-				RelativePath="..\RioTintoTS\WhitenCrusher1.h">
 			</File>
 		</Filter>
 		<Filter

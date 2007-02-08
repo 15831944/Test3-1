@@ -4,7 +4,7 @@
 #include "CubicSpline2.h"
 
 using namespace RioTintoTS;
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 /****************************************************************************
 *

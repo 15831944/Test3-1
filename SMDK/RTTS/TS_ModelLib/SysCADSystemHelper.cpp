@@ -9,7 +9,7 @@
 #include "oreprops.h"
 
 using namespace RioTintoTS;
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //---------------------------------------------------------------------------
 
@@ -348,6 +348,8 @@ bool SysCADSystemHelper::SysCADLiquidToSystem(MVector &SysCAD,RioTintoTS::PFlowS
 
 {
 	const int WaterIndex = gs_MVDefn.Lookup("H2O(l)");
+
+  //This should perhaps include other liquid species...???
 
 	if ( WaterIndex >= 0 )
 	{

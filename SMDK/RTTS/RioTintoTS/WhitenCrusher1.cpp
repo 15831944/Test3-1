@@ -1,5 +1,5 @@
 // externals
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 #include "WhitenCrusher1.h"
 

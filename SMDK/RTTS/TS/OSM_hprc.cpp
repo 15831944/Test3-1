@@ -23,7 +23,7 @@
 #include <math.h>
 
 #include "OSM.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //---------------------------------------------------------------------------
 //

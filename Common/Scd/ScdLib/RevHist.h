@@ -2709,10 +2709,17 @@ Build 122 : 16 November 2006
 1402  4/02/07: Minor client add-on DLL fixes.
 1407  5/02/07: (#721) Added evaporation mode option to shell and tube heater.
 1413  6/02/07: (#633) Added separate archive report time fields for date and time.
+1414  7/02/07: (#71) For density correction functions added option Limit(UpperLimit, PureDensity, 
+               DoWarning). Now get a "sensible" number if 100% solute and warning if solute 
+               fraction is above the limit.
+1417  7/02/07: (#735) Change IONames for S&T
+1418  7/02/07: (#726) Fixed PlantArea model errors when merging project.
+1420  8/02/07: (#736) Fix for Cyclone Plitt when no liquid in feed or liquid density > solids density.
+1421  8/02/07: Client RTTS model improvements.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1413
+#define SCD_PATCH_SVN    1421
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

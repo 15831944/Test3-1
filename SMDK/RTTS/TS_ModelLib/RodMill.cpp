@@ -6,7 +6,7 @@
 #define  __RodMill_CPP
 #include "SysCADSystemHelper.h"
 #include "RodMill.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             Rod Mill

@@ -6,7 +6,7 @@
 #define  __LoadBasedSeperator_CPP
 #include "SysCADSystemHelper.h"
 #include "LoadBasedSeperator.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             Load Based Screen

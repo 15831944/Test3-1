@@ -1,7 +1,7 @@
 // externals
 
 #include "TSRodMill.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 using namespace RioTintoTS;
 

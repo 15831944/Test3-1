@@ -6,7 +6,7 @@
 #define  __SysCADMill_CPP
 #include "SysCADSystemHelper.h"
 #include "SysCADMill.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 

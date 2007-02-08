@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #define  __HPRCComminution_CPP
 #include "HPRCComminution.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             HPRC Comminution
@@ -55,7 +55,7 @@ CComminution_HPRC::CComminution_HPRC()
   passing118       = 0.0;
   Fsp              = 0.0;
   bUseCalculatedGap= 1;
-  xg_Set           = 20.0;
+  xg_Set           = 0.02; //User specified working gap   [mm] = 20mm
   xg_Calculated    = 0.0;
   kWtotal          = 0.0;
 }
@@ -63,7 +63,6 @@ CComminution_HPRC::CComminution_HPRC()
 //====================================================================================
 
 void CComminution_HPRC::BuildDataFields(MDataDefn &DB)
-	
 { 
   DB.ObjectBegin("TS_HPRC", "HPRC");
 
@@ -79,7 +78,7 @@ void CComminution_HPRC::BuildDataFields(MDataDefn &DB)
   else
     DB.Text("Using Unknown model");
   DB.Double("RollPressure",    "",  &P_set,            MF_PARAMETER|((RollModel==RM_StudMethod2 || RollModel==RM_Smooth) ? 0 : MF_NO_VIEW),MC_P("kPa"));
-  DB.CheckBox("UseDesignFeed",   "",  &bUseDesignFeed,   MF_PARAMETER);
+  DB.CheckBox("UseDesignFeed", "",  &bUseDesignFeed,   MF_PARAMETER);
   DB.Double("DesignFeed",      "",  &tphDesignFeed,    MF_PARAMETER|(bUseDesignFeed ? 0 : MF_NO_VIEW),MC_Qm("t/h"));
   DB.Double("RollDiameter",    "",  &D,                MF_PARAMETER,MC_L("mm"));
   DB.Double("RollWidth",       "",  &W,                MF_PARAMETER,MC_L("mm"));
@@ -88,6 +87,10 @@ void CComminution_HPRC::BuildDataFields(MDataDefn &DB)
   DB.Double("BypassSplit",     "",  &splitB,           MF_PARAMETER,MC_Frac("%"));
   DB.Double("MaxBypassSize",   "",  &MaxBypassSize,    MF_PARAMETER|MF_INIT_HIDDEN,MC_L("mm"));
   DB.Double("EdgeSplit",       "",  &splitE,           MF_PARAMETER,MC_Frac("%"));
+  DB.CheckBox("UseCalculatedGap", "", &bUseCalculatedGap, MF_PARAMETER);
+  DB.Show(bUseCalculatedGap==0);
+  DB.Double("WorkingGap",      "",  &xg_Set,           MF_PARAMETER,MC_L("mm"));
+  DB.Show();
   DB.Double("DropWeight_A",    "",  &dropA,            MF_PARAMETER|MF_INIT_HIDDEN,MC_None);
   DB.Double("DropWeight_B",    "",  &dropB,            MF_PARAMETER|MF_INIT_HIDDEN,MC_None);
   DB.Double("PackedBed_A",     "",  &packedA,          MF_PARAMETER|MF_INIT_HIDDEN,MC_None);
@@ -121,7 +124,6 @@ void CComminution_HPRC::BuildDataFields(MDataDefn &DB)
 void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Product , bool bInit )
 	
 { 
-
 	bool ModelErr=true;
 
 	MIPSD & PSDin  = *Feed.FindIF<MIPSD>();
@@ -174,8 +176,7 @@ void CComminution_HPRC::EvalProducts(MBaseMethod &M, MStream &Feed , MStream &Pr
 			sizeSeries[i] = pSieveData[NumSizes-1-i];
 		sizeSeries[OSM_NumSizes-1] = 0.0; //ensure "smallest" size is zero
 
-
-		bUseCalculatedGap = 1; //force this...
+		//bUseCalculatedGap = 1; //force this...
 		if (RollModel!=RM_Smooth && RollModel!=RM_StudMethod2  && RollModel!=RM_StudMethod1 )
 			RollModel = RM_Smooth; //force to be one of these two models...
 
