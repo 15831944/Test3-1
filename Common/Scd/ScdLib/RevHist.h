@@ -2716,10 +2716,12 @@ Build 122 : 16 November 2006
 1418  7/02/07: (#726) Fixed PlantArea model errors when merging project.
 1420  8/02/07: (#736) Fix for Cyclone Plitt when no liquid in feed or liquid density > solids density.
 1421  8/02/07: Client RTTS model improvements.
+1425  8/02/07: (#739) Bayer stream SatT@P and SatP@T fix.
+1430  9/02/07: (#742) Fix for client SMDK bayer model call to density converge.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1421
+#define SCD_PATCH_SVN    1430
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
