@@ -111,9 +111,13 @@ GControl::GControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_nMaxVarData = 0;
   SetMaxVarData(32L);
 
-  hProcess = NULL;
-  EditTime.dwLowDateTime=0;
-  EditTime.dwHighDateTime=0; 
+  for (int incs=0; incs<TP_MaxTtlIncludeFiles; incs++)
+    {
+    m_hProcess[incs] = NULL;
+    m_dwProcessId[incs] = 0;
+    m_EditTime[incs].dwLowDateTime=0;
+    m_EditTime[incs].dwHighDateTime=0; 
+    }
 
   #if WithPGMWatches
   bWatchesOn = (PrjFileVerNo()<22);
@@ -161,19 +165,24 @@ void GControl::ResetData(flag Complete)
 
 //--------------------------------------------------------------------------
 
-const int MaxPGMArrayWatch = 512;
+const int MaxPGMArrayWatch     = 512;
 
-const word idmPGMName      = 1000;
-const word idmPGMPath      = 1001;
-const word idmEditPGMBtn   = 1002;
-const word idmReloadPGMBtn = 1003;
-const word idmBrowsePGMBtn = 1004;
-const word idmDebugPGMBtn  = 1005;
-const word idmTagCheckBtn  = 1006;
-const word idmWatchesOn    = 1007;
-const word idmPGMWatch     = 1100;                    // Keep MaxPGMWatch free after this
-const word idmPGMArrayWatch= idmPGMWatch+MaxPGMWatch; // Keep MaxPGMArrayWatch free after this
-const word idmPGMData      = idmPGMArrayWatch+MaxPGMArrayWatch; // Keep everything free after this
+const word idmPGMName          = ModelXID(1000);
+const word idmPGMPath          = ModelXID(1001);
+const word idmEditPGMBtn       = ModelXID(1002);
+const word idmReloadPGMBtn     = ModelXID(1003);
+const word idmBrowsePGMBtn     = ModelXID(1004);
+const word idmDebugPGMBtn      = ModelXID(1005);
+const word idmTagCheckBtn      = ModelXID(1006);
+const word idmWatchesOn        = ModelXID(1007);
+const word idmEditFileBtn      = ModelXID(1010);
+const word idmEditFileBtnLast  = ModelXID(1090);
+const word idmEditFileNameNew  = ModelXID(1091);
+const word idmEditFileBtnNew   = ModelXID(1092);
+
+const word idmPGMWatch         = ModelXID(1100);                    // Keep MaxPGMWatch free after this
+const word idmPGMArrayWatch    = idmPGMWatch+MaxPGMWatch; // Keep MaxPGMArrayWatch free after this
+const word idmPGMData          = idmPGMArrayWatch+MaxPGMArrayWatch; // Keep everything free after this
 
 //--------------------------------------------------------------------------
 
@@ -359,7 +368,25 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Button("Reload_PGM",   "", DC_,    "",    idmReloadPGMBtn,          this, isParm);
   DDB.Button("Browse_PGM",   "", DC_,    "",    idmBrowsePGMBtn,          this, isParm);
   DDB.Button("Check_tags",   "", DC_,    "",    idmTagCheckBtn,           this, isParmStopped);
-  #if WithPGMWatches
+
+  // #744 Allow editting of Includes
+  if (DDB.ForView())
+    {
+    DDB.Text(" ");
+    for (int i=0; i<PgmMngr.m_FilesUsed.GetLen(); i++)
+      {
+      Strng Fn, Fn1;
+      Fn.FnNameExt(PgmMngr.m_FilesUsed[i]());
+      Fn1="Edit_";
+      Fn1+=Fn;
+      DDB.Button(Fn(),         Fn1(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
+      }
+    DDB.String("NewInclude",   "",       DC_,      "",    idmEditFileNameNew,            this, isParm|SetOnChange|noFileAtAll);
+    if (m_sEditFileNameNew.GetLength()>0)
+      DDB.Button(m_sEditFileNameNew(),  "Create", DC_,    "",    idmEditFileBtnNew,            this, isParm);
+    }
+
+#if WithPGMWatches
   DDB.Text(" ");
   DDB.CheckBoxBtn("WatchesOn", "", DC_,   "",    idmWatchesOn,            this, isParm, DDBYesNo);
   #endif
@@ -488,6 +515,18 @@ const char* DefaultPGM =
 "\n";
 const int DefaultPGMLen = strlen(DefaultPGM);
 
+const char* DefaultPGMInc =
+";--- SysCAD General Controller (PGM)  Include logic file ---\n"
+"\n"
+";--- place functions here \n"
+"\n"
+"\n"
+"\n"
+"; --- end of file ---\n"
+"\n";
+const int DefaultPGMIncLen = strlen(DefaultPGMInc);
+
+
 flag GControl::DataXchg(DataChangeBlk & DCB)
   {
   if (FlwNode::DataXchg(DCB))
@@ -523,8 +562,8 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
     case idmEditPGMBtn:
       if (DCB.rB && (*DCB.rB!=0))
         {
-        EditTime.dwLowDateTime=0;
-        EditTime.dwHighDateTime=0; 
+        m_EditTime[0].dwLowDateTime=0;
+        m_EditTime[0].dwHighDateTime=0; 
         if (sPGMName.Length()==0)
           {
           sPGMName=FnDefaultControlsFolder();
@@ -537,7 +576,7 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
           }
         Strng FileName(sPGMName());
         Strng FullFilename;
-        int RetCode = DCB.DoEditBtn(hProcess, dwProcessId, "", FileName(), "pgm", &FullFilename, true);
+        int RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm", &FullFilename, true);
         if (RetCode==-1)
           {
           FILE* f = fopen(FullFilename(), "wt");
@@ -546,14 +585,49 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
             fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
             fclose(f);
             }
-          RetCode = DCB.DoEditBtn(hProcess, dwProcessId, "", FileName(), "pgm");
+          RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm");
           }
         if (RetCode==0)
           {
           SYSTEMTIME ST;
           GetSystemTime(&ST);
-          SystemTimeToFileTime(&ST, &EditTime);
+          SystemTimeToFileTime(&ST, &m_EditTime[0]);
           }
+        }
+      DCB.B=0;
+      return 1;
+    case idmEditFileNameNew:
+      if (DCB.rpC)
+        {
+        m_sEditFileNameNew=DCB.rpC;
+        m_sEditFileNameNew.FnName();
+        //m_sEditFileNameNew.FnName();
+        }
+      DCB.pC=m_sEditFileNameNew();
+      return 1;
+    case idmEditFileBtnNew:
+      if (DCB.rB && (*DCB.rB!=0))
+        {
+        Strng FileName=FnDefaultControlsFolder();
+        
+        HANDLE   hNewProcess=NULL;
+        DWORD    dwNewProcessId;
+
+        FileName+=m_sEditFileNameNew;
+        FileName+=".pgm";
+        Strng FullFilename;
+        int RetCode = DCB.DoEditBtn(hNewProcess, dwNewProcessId, "", FileName(), "pgm", &FullFilename, true);
+        if (RetCode==-1)
+          {
+          FILE* f = fopen(FullFilename(), "wt");
+          if (f)
+            {
+            fwrite(DefaultPGMInc, sizeof(char), DefaultPGMIncLen, f);
+            fclose(f);
+            }
+          RetCode = DCB.DoEditBtn(hNewProcess, dwNewProcessId, "", FileName(), "pgm");
+          }
+        m_sEditFileNameNew="";
         }
       DCB.B=0;
       return 1;
@@ -616,7 +690,51 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
       return 1;
     #endif
     default:
-      #if WithPGMWatches
+      if (DCB.lHandle>=idmEditFileBtn && DCB.lHandle<=idmEditFileBtnLast)
+        {
+        if (DCB.rB && (*DCB.rB!=0))
+          {
+          int inc=DCB.lHandle-idmEditFileBtn;
+          Strng FileName=PgmMngr.m_FilesUsed[inc];
+          //EditTime.dwLowDateTime=0;
+          //EditTime.dwHighDateTime=0; 
+          //if (sPGMName.Length()==0)
+          //  {
+          //  sPGMName=FnDefaultControlsFolder();
+          //  sPGMName+=Tag();
+          //  sPGMName+=".pgm";
+          //  if (FileExists(sPGMName()))
+          //    {
+          //    LoadPGM(sPGMName(), bWithDBG);
+          //    }
+          //  }
+          //Strng FileName(sPGMName());
+          Strng FullFilename;
+          int RetCode = DCB.DoEditBtn(m_hProcess[inc], m_dwProcessId[inc], "", FileName(), "pgm", &FullFilename, true);
+          if (RetCode==-1)
+            {
+            FILE* f = fopen(FullFilename(), "wt");
+            if (f)
+              {
+              if (DCB.lHandle==idmEditFileBtn)
+                fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
+              else
+                fwrite(DefaultPGMInc, sizeof(char), DefaultPGMIncLen, f);
+              fclose(f);
+              }
+            RetCode = DCB.DoEditBtn(m_hProcess[inc], m_dwProcessId[inc], "", FileName(), "pgm");
+            }
+          //if (RetCode==0)
+          //  {
+          //  SYSTEMTIME ST;
+          //  GetSystemTime(&ST);
+          //  SystemTimeToFileTime(&ST, &EditTime);
+          //  }
+          }
+        DCB.B=0;
+        return 1;
+        }
+       #if WithPGMWatches
       if (DCB.lHandle>=idmPGMWatch && DCB.lHandle<idmPGMWatch+MaxPGMWatch)
         {         
         int i=DCB.lHandle-idmPGMWatch;
@@ -868,10 +986,17 @@ void GControl::DoEvalCtrl()
 
 flag GControl::GetOtherData(FilingControlBlock &FCB)
   {
-  if (FCB.SaveAs() && hProcess)
+  if (FCB.SaveAs() && m_hProcess[0])
     {//during a save-as we must reset the link to the "old" edit files...
     //LogNote(Tag(), 0, "Remove link to currently open pgm file. (File should be closed)");
-    hProcess = NULL; //this is probably not needed for "far-away" files where location does not change
+    //this is probably not needed for "far-away" files where location does not change
+    for (int incs=0; incs<TP_MaxTtlIncludeFiles; incs++)
+      {
+      m_hProcess[incs] = NULL;
+      m_dwProcessId[incs] = 0;
+      m_EditTime[incs].dwLowDateTime=0;
+      m_EditTime[incs].dwHighDateTime=0; 
+      }
     }
   
   return PgmMngr.SaveScenario(FCB);
@@ -892,13 +1017,13 @@ void GControl::OnAppActivate(BOOL bActive)
     {//perhaps auto-reload PGM if date/time changed...
     Strng sFn;
     flag Reload=false;
-    if (sPGMName() && (EditTime.dwLowDateTime || EditTime.dwHighDateTime))
+    if (sPGMName() && (m_EditTime[0].dwLowDateTime || m_EditTime[0].dwHighDateTime))
       {
-      if (sFn.FnExpandQueryReload(sPGMName(), EditTime))
+      if (sFn.FnExpandQueryReload(sPGMName(), m_EditTime[0]))
         {
         Reload=true;
-        EditTime.dwLowDateTime=0;
-        EditTime.dwHighDateTime=0; 
+        m_EditTime[0].dwLowDateTime=0;
+        m_EditTime[0].dwHighDateTime=0; 
         }
       }
     for (int i=0; i<PgmMngr.m_FilesUsed.GetSize(); i++)

@@ -2871,7 +2871,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             else
               {
               Strng Nm(" ");
-              Nm+=NameBuff();
+              if (d.sTagOnly.GetLength()>0)
+                Nm+=d.sTagOnly();
+              else
+                Nm+=NameBuff();
               SetDesc(LnNo, Nm(),Id_FldBtns+fi,NamW-TagComLen, 3,TagComStr());
               if (d.sFullTag())
                 SetTag(d.sFullTag());

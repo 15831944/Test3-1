@@ -98,9 +98,10 @@ class GControl : public FlwNode//, GCXRefHelper
     long            m_nMaxVarData;          //current max length of array of data vars
     CCriticalSection m_VarDataSect;
 
-    HANDLE          hProcess;             //process handle for the editor
-    DWORD           dwProcessId;          //process ID for the editor
-    FILETIME        EditTime;             //time editor scheduled
+    HANDLE          m_hProcess[TP_MaxTtlIncludeFiles];             //process handle for the editor
+    DWORD           m_dwProcessId[TP_MaxTtlIncludeFiles];          //process ID for the editor
+    FILETIME        m_EditTime[TP_MaxTtlIncludeFiles];             //time editor scheduled
+    
     flag            bOn;                  //must the pgm be executed etc
     flag            bAutoReload;          // AutoReload ?
     flag            bReloadReqd;          //
@@ -115,7 +116,7 @@ class GControl : public FlwNode//, GCXRefHelper
                     #if WithPGMWatches
                     bWatchesOn:1;         //flag set True to activate watches
                     #endif
-
+    Strng           m_sEditFileNameNew;
   };
 
 //===========================================================================
