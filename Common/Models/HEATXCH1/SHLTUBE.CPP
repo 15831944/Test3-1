@@ -1876,7 +1876,7 @@ void ShellTube::ConfigureJoins()
     flag fS=m_HXJ.SecIsJoined();
     for (i=0; i<NoProcessIOs(); i++)
       {
-      if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellOut)
+      if (IOId_Self(i)>=ioidST_ShellIn && IOId_Self(i)<=ioidST_ShellVent/*ioidST_ShellVOut*/)
         {
         // if Fully Condensing then try to prevent Tears
         //IOFlange(i)->SetTearPriority((1 && (IOId_Self(i)==ioidST_ShellIn)) ? TP_First: TP_Normal);
