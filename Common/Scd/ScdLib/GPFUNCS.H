@@ -1067,6 +1067,9 @@ DllImportExport char*  ProgFiles();
 DllImportExport char*  SetExeFile(char* PD=NULL);
 DllImportExport char*  ExeFile();
 
+DllImportExport Strng FnDefaultControlsFolder();
+DllImportExport Strng FnDefaultReactionsFolder();
+
 DllImportExport char*  SetDllFilesPath(char* FP);
 DllImportExport char*  ClrDllFilesPath();
 DllImportExport char*  AddDllFilesPath(char* FP);

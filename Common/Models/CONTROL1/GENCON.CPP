@@ -498,8 +498,9 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
       if (DCB.rB && (*DCB.rB!=0))
         {
         Strng Ext("*.pgm");
+        Strng Dir = FnDefaultControlsFolder();
         CSCDFileDialog Dlg(true, NULL, Ext(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "PGM Files (*.PGM)|*.PGM||");
-        Dlg.m_ofn.lpstrInitialDir = PrjFiles();
+        Dlg.m_ofn.lpstrInitialDir = Dir();
         Dlg.m_ofn.lpstrTitle = "Program File";
         HWND H=::GetActiveWindow();
         if (Dlg.DoModal()==IDOK)
@@ -526,7 +527,8 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
         EditTime.dwHighDateTime=0; 
         if (sPGMName.Length()==0)
           {
-          sPGMName=Tag();
+          sPGMName=FnDefaultControlsFolder();
+          sPGMName+=Tag();
           sPGMName+=".pgm";
           if (FileExists(sPGMName()))
             {

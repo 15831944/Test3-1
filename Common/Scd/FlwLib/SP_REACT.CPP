@@ -1387,8 +1387,9 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       if (DCB.rB && (*DCB.rB!=0))
         {
         Strng Ext("*.rct");
+        Strng Dir=FnDefaultReactionsFolder();
         CSCDFileDialog Dlg(true, NULL, Ext(), OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_SHAREAWARE, "RCT Files (*.RCT)|*.RCT||");
-        Dlg.m_ofn.lpstrInitialDir = PrjFiles();
+        Dlg.m_ofn.lpstrInitialDir = Dir();
         Dlg.m_ofn.lpstrTitle = "Reaction File";
         HWND H=::GetActiveWindow();
         if (Dlg.DoModal()==IDOK)
@@ -1424,7 +1425,8 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
         EditTime.dwHighDateTime=0; 
         if (sRCTName.Length()==0)
           {                          
-          sRCTName=FullObjTag();
+          sRCTName=FnDefaultReactionsFolder();
+          sRCTName+=FullObjTag();
           if (sRCTName.Len()>3)
             sRCTName=sRCTName.Left(sRCTName.Len()-3); //strip .RB from end
           sRCTName+=".rct";

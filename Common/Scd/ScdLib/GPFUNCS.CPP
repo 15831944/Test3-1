@@ -4078,6 +4078,26 @@ int DllFilesFolder(int N, char * DllPath, Strng &Folder)
 
 //---------------------------------------------------------------------------
 
+Strng FnDefaultControlsFolder()
+  {
+  Strng ControlFiles(PrjFiles());
+  ControlFiles+="Controls\\";
+  FnCreateDirectory(ControlFiles(), false);
+  return ControlFiles;
+  }
+
+//---------------------------------------------------------------------------
+
+Strng FnDefaultReactionsFolder()
+  {
+  Strng ReactionFiles(PrjFiles());
+  ReactionFiles+="Reactions\\";
+  FnCreateDirectory(ReactionFiles(), false);
+  return ReactionFiles();
+  }
+
+//---------------------------------------------------------------------------
+
 HINSTANCE AFXAPI MyAfxLoadLibrary( LPCTSTR lpszModuleName, char * DllPath)
   {
   HINSTANCE hLib=NULL;
