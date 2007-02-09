@@ -145,6 +145,8 @@ void CTubeReactor::BuildDataFields()
   m_RB.BuildDataFields();
   }
 
+//---------------------------------------------------------------------------
+
 bool CTubeReactor::ExchangeDataFields()
   {
   if (m_FTC.ExchangeDataFields())
@@ -162,11 +164,23 @@ bool CTubeReactor::ExchangeDataFields()
 
 //---------------------------------------------------------------------------
 
+// NOTE: if the tears in a flash train are moved to the slurry lines connecting the heaters the resulting convergence
+// is much improved. This code snippet will set this up automatically
 bool CTubeReactor::ConfigureJoins()
   { 
-  MBaseMethod::ConfigureJoins();
-  //Joins.Count=2;
-  return true; 
+  if (MBaseMethod::ConfigureJoins())
+    {
+    // If a tear is needed then tear the slurry lines first
+    for (int i=0; i<FlwIOs.Count; i++)
+      {
+      MFlow F=FlwIOs[i];
+      if (F.Id>=idTubeI && F.Id<=idTubeO)
+        F.TearPriority=MTP_First;
+      }
+  
+    return true;
+    }
+  return false;
   }
 
 //---------------------------------------------------------------------------
