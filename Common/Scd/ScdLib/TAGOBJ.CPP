@@ -108,7 +108,11 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Class,  "Pipe-1.Qm_MaxCapacity",            ".Flw.Qm.MaxCapacity",                    ""},
     {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Flw.Qm.MaxCap",                         ""},
     {eO2N_Class,  "Pipe-1.Qm_Rqd",                    ".Eqn.Qm.Rqd",                            ""},
- 
+
+    {eO2N_Class,  "SpConduit.SatT@P",                 ".Saturation.SatT@P",                     ""},
+    {eO2N_Class,  "SpConduit.SatP@T",                 ".Saturation.SatP@T",                     ""},
+    {eO2N_Class,  "SpConduit.BPE",                    ".Saturation.BPE",                        ""},
+
     {eO2N_End},
   };
 
@@ -151,40 +155,39 @@ COld2NewItem * FindAndFixOld2New(TaggedObject * pSrchRoot, LPCTSTR pOldTag, Strn
     return pRet;
     }
 
-  int iDot=0;
-  int Len=OldTag.GetLength();
   int MinTagLen=0;
-  Strng NdTag;
-  for (;;)
+  int ObjTagLen=0;
+  TaggedObject *p=pSrchRoot->FindObjTag(OldTag(), true, ObjTagLen, MinTagLen);
+  if (p)
     {
-    while (iDot<Len && OldTag[iDot]!='.')
-      NdTag+=OldTag[iDot++];
-
-    int ObjTagLen=0;
-    TaggedObject *p=pSrchRoot->FindObjTag(NdTag(), true, ObjTagLen, MinTagLen);
-    if (p)
+    TaggedObject *pAtt=p->pAttachments;
+    while (pAtt)
       {
-      Strng ClassTag(p->ClassId());
-      ClassTag+=&OldTag[iDot];
-      if (gs_Old2NewMapClass.Lookup(ClassTag(), pRet))
+      Strng ObjTag(p->Tag());
+      ObjTag+='.';
+      ObjTag+=pAtt->Tag();
+      if (ObjTag.GetLength()<OldTag.GetLength() &&
+          OldTag[ObjTag.GetLength()]=='.' &&
+          OldTag.XStrNICmp(ObjTag, ObjTag.GetLength())==0)
         {
-        NewTag=NdTag;
-        NewTag+=pRet->m_NewTag;
-        if (pRet->m_nLogged<NLogs)
+        Strng TestTag(pAtt->ClassId());
+        TestTag+=OldTag.Right(OldTag.GetLength()-ObjTag.GetLength());
+        if (gs_Old2NewMapClass.Lookup(TestTag(), pRet))
           {
-          LogWarning("Executive", 0,
-            pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
-            OldTag(), NewTag(), pRet->m_Comment);
-          pRet->m_nLogged++;
+          NewTag=ObjTag;
+          NewTag+=pRet->m_NewTag;
+          if (pRet->m_nLogged<NLogs)
+            {
+            LogWarning("Executive", 0,
+              pRet->m_Comment ? "Changed '%s' to '%s' : %s":"Changed '%s' to '%s'",
+              OldTag(), NewTag(), pRet->m_Comment);
+            pRet->m_nLogged++;
+            }
+          return pRet;
           }
-        return pRet;
         }
-      return NULL;
+      pAtt = pAtt->pNxtAttachment;
       }
-    else if (iDot>=Len)
-      break;
-    NdTag+='.';
-    iDot++;
     }
 
   return pRet;
