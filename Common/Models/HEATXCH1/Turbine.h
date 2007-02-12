@@ -23,8 +23,28 @@
 // ==========================================================================
 
 DEFINE_TAGOBJ(CTurbine);
-class DllImportExport CTurbine : public MN_Surge
+class DllImportExport CTurbine : public MN_Xfer
   {
+  public:
+    CTurbine(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~CTurbine();
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk &VDB);
+    //void           ConfigureJoins();
+    virtual void   EvalJoinPressures(long JoinMask);
+    virtual void   ClosureInfo();
+    virtual void   SetState(eScdMdlStateActs RqdState);
+    //virtual void   EvalJoinFlows(int JoinNo);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+
+    //flag           MacroMdlValidNd(int iIONo) { return True; };
+    //void           MacroMdlEvaluate(int Option) {};
+    //MMVars_Base*   MacroMdlActivate() { return &FTC; };
+    //void           MacroMdlDeactivate() {};
+
+    DEFINE_CI(CTurbine, MN_Xfer, 4);
+
   public:
     byte           iExhaustMode;
     flag           bOnLine;
@@ -52,25 +72,7 @@ class DllImportExport CTurbine : public MN_Surge
 
     //FT_Cond        FTC;
 
-    CTurbine(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~CTurbine();
-    virtual void   BuildDataDefn(DataDefnBlk & DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-    virtual flag   ValidateData(ValidateDataBlk &VDB);
-    //void           ConfigureJoins();
-    virtual void   EvalJoinPressures(long JoinMask);
-    virtual void   ClosureInfo();
-    virtual void   SetState(eScdMdlStateActs RqdState);
-    //virtual void   EvalJoinFlows(int JoinNo);
-    virtual void   EvalProducts(CNodeEvalIndex & NEI);
-
-    //flag           MacroMdlValidNd(int iIONo) { return True; };
-    //void           MacroMdlEvaluate(int Option) {};
-    //MMVars_Base*   MacroMdlActivate() { return &FTC; };
-    //void           MacroMdlDeactivate() {};
-
-    DEFINE_CI(CTurbine, MN_Surge, 4);
-   private:
+  private:;
   };
 
 //=========================================================================== 

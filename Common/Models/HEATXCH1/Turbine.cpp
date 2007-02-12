@@ -37,10 +37,10 @@ XID xid_MechWork = MdlBsXID(4408);
 //--------------------------------------------------------------------------
 
 CTurbine::CTurbine(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MN_Surge(pClass_, TagIn, pAttach, eAttach)
+  MN_Xfer(pClass_, TagIn, pAttach, eAttach)
   {
   AttachIOAreas(TwoIOAreaListWithSV, &PipeEntryGroup);
-  Contents.SetClosed(False);
+  //Contents.SetClosed(False);
   bOnLine = 1;
   dEfficiency = 0.8;
   dMechEff = 0.99;
@@ -163,7 +163,7 @@ void CTurbine::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CTurbine::DataXchg(DataChangeBlk & DCB)
   {
-  if (MN_Surge::DataXchg(DCB)) 
+  if (MN_Xfer::DataXchg(DCB)) 
     return 1;
   switch (DCB.lHandle)
     {
@@ -187,7 +187,7 @@ flag CTurbine::DataXchg(DataChangeBlk & DCB)
 
 flag CTurbine::ValidateData(ValidateDataBlk & VDB)
   {
-  flag OK=MN_Surge::ValidateData(VDB);
+  flag OK=MN_Xfer::ValidateData(VDB);
   //dTRiseRqd=ValidateRange(VDB, "TRiseRqd", -100.0, dTRiseRqd, 500.0);
   return OK;
   }
@@ -260,7 +260,7 @@ void CTurbine::EvalJoinPressures(long JoinMask)
 
 void CTurbine::ClosureInfo()
   {
-  MN_Surge::ClosureInfo();
+  MN_Xfer::ClosureInfo();
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
@@ -272,7 +272,7 @@ void CTurbine::ClosureInfo()
 
 void   CTurbine::SetState(eScdMdlStateActs RqdState)
   {
-  MN_Surge::SetState(RqdState);
+  MN_Xfer::SetState(RqdState);
   switch (RqdState)
     {
     case MSA_PBInit:
@@ -381,7 +381,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
 
   if (NetDynamicMethod())
     {
-    MN_Surge::EvalProducts(NEI); //todo implement dynamic version.....
+    MN_Xfer::EvalProducts(NEI); //todo implement dynamic version.....
     return;
     }
 
@@ -651,7 +651,7 @@ flag CTurbine::CIStrng(int No, pchar & pS)
     case 2: pS="W\tCannot Achieve Pressure Requirements based on feed";  return 1;
     case 3: pS="E\tError converging";                                    return 1;
     default:                                               
-      return MN_Surge::CIStrng(No, pS);
+      return MN_Xfer::CIStrng(No, pS);
     }
   }
 
