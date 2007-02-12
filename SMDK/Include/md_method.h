@@ -536,32 +536,45 @@ class DllImportExport MFlow
 //  } Surge;
 
 //---------------------------------------------------------------------------
-
+/* Class MFlowIOs: Helper class for accessing streams connected to input and output connections (ie ports). 
+   There may be zero, one or more streams connected to a given port Id. A stream connected to a port Id may
+   be an input or output (different streams for the same port Id could be input or output).
+*/
 class DllImportExport MFlowIOs : public MBaseMethodCommonRef
   {
   public:
-    MFlowIOs (MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom)/*, Surge(pCom)*/ {};
+    MFlowIOs (MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
 
-    // Properties
+    // Return number of connected streams for the specified Port Id (-1 for all)
     long         getCount(long Id=-1);
+
+    // Return index of first connected stream for the specified Port Id (-1 for all)
     long         getFirst(long Id=-1);
+    // Return index of next connected stream after the specified index for the specified Port Id (-1 for all)
     long         getNext(long CurIndex, long Id=-1);
+    // Return index of first input connected stream for the specified Port Id (-1 for all)
     long         getFirst_In(long Id=-1);
+    // Return index of next input connected stream after the specified index for the specified Port Id (-1 for all)
     long         getNext_In(long CurIndex, long Id=-1);
+    // Return index of first output connected stream for the specified Port Id (-1 for all)
     long         getFirst_Out(long Id=-1);
+    // Return index of next output connected stream after the specified index for the specified Port Id (-1 for all)
     long         getNext_Out(long CurIndex, long Id=-1);
 
-    MFlow        operator[](int IONo) { return MFlow(m_pNd, IONo); }
+    // Return total mass flow for the stream of the specified index
+    MFlow        operator[](int Index) { return MFlow(m_pNd, Index); }
 
+    // Sum of all connected streams, filtered by the specified phases, to the specified Port Id (-1 for all) into Cd. 
+    // MStream will be at min P of all streams. Return total mass flow.
+    double   AddMixtureIn_Id(MStream & Cd, long Id=-1, DWORD PhaseM=MP_All);
+
+  public:
     __declspec(property(get=getCount))          long Count[/*Id*/];
     __declspec(property(get=getFirst))          long First[/*Id*/];
     __declspec(property(get=getFirst_In))       long First_In[/*Id*/];
     __declspec(property(get=getNext_In))        long Next_In[/*CurIndex*/][/*Id*/];
     __declspec(property(get=getFirst_Out))      long First_Out[/*Id*/];
     __declspec(property(get=getNext_Out))       long Next_Out[/*CurIndex*/][/*Id*/];
-
-    double   AddMixtureIn(MStream & Cd, long Count=255, DWORD PhaseM=MP_All);
-    double   AddMixtureIn_Id(MStream & Cd, long Id=-1, long Count=255, DWORD PhaseM=MP_All);
 
   private:
     //void          CheckMIOStreams();

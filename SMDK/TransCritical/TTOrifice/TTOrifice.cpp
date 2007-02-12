@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "TTOrifice.h"
+//#pragma optimize("", off)
 
 #define dbgModels 1
 
@@ -241,7 +242,6 @@ void CTTOrifice::Init()
 
 //---------------------------------------------------------------------------
 
-
 void CTTOrifice::BuildDataFields()
 {
 
@@ -276,10 +276,7 @@ void CTTOrifice::BuildDataFields()
   
 }
 
-  
-
-
-
+//---------------------------------------------------------------------------
 
 bool CTTOrifice::ConfigureJoins()
   { 
@@ -295,7 +292,6 @@ bool CTTOrifice::EvalJoinPressures()
     //Joins[0].SetProbalP(dFlashP);
     return true;
   }
-
 
 
 
@@ -342,10 +338,39 @@ void CTTOrifice::EvalProducts()
       FlwIOs.AddMixtureIn_Id(InStream, idIn);
       double p = InStream.getP();
       Log.Message(MMsg_Error, "Pressure %8.3f", p);
-	
+
+      double MaxP = AtmosPress();
+      long index = FlwIOs.First[idIn];
+      while (index>=0)
+        {
+        MStream & QI = FlwIOs[index].Stream; //get reference to the actual input stream
+        p = QI.getP();
+        MaxP = Max(MaxP, p);
+        Log.Message(MMsg_Note, "Pressure %8.3f", p);
+        index = FlwIOs.Next_In[index][idIn]; //is there another stream connected to this port
+        }
+
+      InStream.P = MaxP;
+      //const double Ti = InStream.T;
+      //InStream.SetTP(Ti, MaxP);
+      p = InStream.getP();
+      Log.Message(MMsg_Note, "After set Pressure %8.3f", p);
+
+      //so....
+      //probably want code below...
+      //MStream InStream;
+      //FlwIOs.AddMixtureIn_Id(InStream, idIn);
+      //const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP() //get pressure of input stream (one and only connection)
+      //InStream.P = Pi;
+
       MStream & OutStream = FlwIOs[FlwIOs.First[idOut]].Stream;
       SlipFlow s1(m_lSlipMode);
       OutStream = InStream;
+
+      //same parameter sanity checks
+      dPipe = Max(dPipe, 1.0e-6);
+      dEntryK = Max(dEntryK, 1.0e-9);
+
       /* 
       //m_VLE.TPFlash(OutStream, OutStream.T-dFlashdT, dFlashP, VLEF_QVFlash);
       //m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);

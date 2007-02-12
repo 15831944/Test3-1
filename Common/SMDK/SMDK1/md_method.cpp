@@ -886,18 +886,20 @@ double MFlow::getDatum()          { return m_pNd->IODatum_Term(m_iIONo); };
 
 //---------------------------------------------------------------------------
 
-double MFlowIOs::AddMixtureIn(MStream & S, long Count/*=255*/, DWORD PhaseM/*=MP_All*/)
-  {
-  S.CheckAttached();
-  //Cd.SetToZero();
-  DWORD IOIds=0xffffffff;
-  m_pNd->SigmaQInPMin(S.Cd, som_ALL, IOIds);
-  return S.Cd.QMass();
-  };
+//double MFlowIOs::AddMixtureIn(MStream & S, long Count/*=255*/, DWORD PhaseM/*=MP_All*/)
+//double MFlowIOs::AddMixtureIn(MStream & S, DWORD PhaseM/*=MP_All*/)
+//  {
+//  S.CheckAttached();
+//  //Cd.SetToZero();
+//  DWORD IOIds=0xffffffff;
+//  m_pNd->SigmaQInPMin(S.Cd, som_ALL, IOIds);
+//  return S.Cd.QMass();
+//  };
 
 //---------------------------------------------------------------------------
 
-double MFlowIOs::AddMixtureIn_Id(MStream & S, long Id/*=-1*/, long Count/*=255*/, DWORD PhaseM/*=MP_All*/)
+//double MFlowIOs::AddMixtureIn_Id(MStream & S, long Id/*=-1*/, long Count/*=255*/, DWORD PhaseM/*=MP_All*/)
+double MFlowIOs::AddMixtureIn_Id(MStream & S, long Id/*=-1*/, DWORD PhaseM/*=MP_All*/)
   {
   S.CheckAttached();
   //Cd.SetToZero();

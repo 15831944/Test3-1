@@ -7,7 +7,6 @@
 #include "flwnode.h"
 #define  __COOLTWR_CPP
 #include "cooltwr.h"
-
 //#include "optoff.h"
 
 //==========================================================================
@@ -451,9 +450,9 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       Ql.QCopy(QMix());
       Qv.QCopy(QMix());
 
-      double QmWaterLiqIn = QMix().VMass[wi];
-      double QmWaterVapIn = QMix().VMass[si];
-      double QmVapIn = QMix().QMass(som_Gas);
+      const double QmWaterLiqIn = QMix().VMass[wi];
+      const double QmWaterVapIn = QMix().VMass[si];
+      const double QmVapIn = QMix().QMass(som_Gas);
       dQmIn = QMix().QMass(som_ALL);
       const flag HasFlw = (dQmIn>UsableMass);
       dTempKFeed = QMix().Temp();
@@ -486,6 +485,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
         m_VLE.SetHfInAtZero(QMix());
         if (iMethod==CTM_Simple)
           {
+          //const double h1 = QMix().totHf();
           RqdLiqTempUsed = RqdLiqTemp;
           EvapFnd EF(QMix(), RqdLiqTempUsed, POut, m_VLE);//QMix().Press());
           EF.SetTarget(QMix().totHf());
@@ -517,6 +517,9 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
             QMix().SetPress(POut);
             RqdLiqTempUsed = QMix().Temp();
             }
+          //const double h2 = QMix().totHf();
+          //dDuty = h1-h2;
+          //todo calculate dDuty
           }
         else
           {
@@ -604,7 +607,7 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
           dAirTRise = dDuty/GTZ(dAirQmIn)/dAirCp;
           dAirTOut = dAirDryBulbT + dAirTRise;
           dAirMixQm = dAirQmIn + dEvapLossQm;
-          double EvapLossCp = Qv.msCp();
+          const double EvapLossCp = Qv.msCp();
           dAirMixCp = dAirQmIn/GTZ(dAirMixQm)*dAirCp + dEvapLossQm/GTZ(dAirMixQm)*EvapLossCp;
           dAirMixT = dAirQmIn/GTZ(dAirMixQm)*dAirTOut + dEvapLossQm/GTZ(dAirMixQm)*T2;
           }
