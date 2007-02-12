@@ -50,6 +50,7 @@ class CTTOrifice : public MBaseMethod
     double dPout;
     double dPOrificein;
     double dMassFlow;
+    double dMassFlow1;
     
 
 

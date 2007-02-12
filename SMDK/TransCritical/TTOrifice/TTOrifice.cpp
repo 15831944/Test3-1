@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-09 04:45:04 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-12 14:04:13 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -268,16 +268,17 @@ void CTTOrifice::BuildDataFields()
 
 
   DD.Double("OrificeEntryPressure", "", &dPOrificein, MF_RESULT, MC_P("kPa"));
-  DD.Double("MassFlow", "", &dMassFlow, MF_RESULT, MC_P("kPa"));
+  DD.Double("MassFlow", "", &dMassFlow, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("MassFlow1", "", &dMassFlow1, MF_RESULT, MC_Qm("kg/s"));
   
 
     
-
+  
+}
 
   
 
 
-}
 
 
 bool CTTOrifice::ConfigureJoins()
@@ -291,7 +292,7 @@ bool CTTOrifice::ConfigureJoins()
 
 bool CTTOrifice::EvalJoinPressures()
   {
-    Joins[0].SetProbalP(dFlashP);
+    //Joins[0].SetProbalP(dFlashP);
     return true;
   }
 
@@ -339,11 +340,13 @@ void CTTOrifice::EvalProducts()
     {
       MStream InStream;
       FlwIOs.AddMixtureIn_Id(InStream, idIn);
-
+      double p = InStream.getP();
+      Log.Message(MMsg_Error, "Pressure %8.3f", p);
+	
       MStream & OutStream = FlwIOs[FlwIOs.First[idOut]].Stream;
       SlipFlow s1(m_lSlipMode);
       OutStream = InStream;
-      
+      /* 
       //m_VLE.TPFlash(OutStream, OutStream.T-dFlashdT, dFlashP, VLEF_QVFlash);
       //m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);
       //dFlashP = OutStream.SaturationP(OutStream.T);
@@ -361,11 +364,13 @@ void CTTOrifice::EvalProducts()
 	dSlipDensity = s1.SlipDensity(OutStream);
       } else {
 	Log.Message(MMsg_Error, "Couldnt solve for root");
-      }
-      
-      
-      
-      
+	} */
+      dPin = p;
+      double deltaP = GTZ(p - dPout);
+      double den = InStream.Density();
+      double area = CircleArea(dPipe);
+      dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
+      dMassFlow1 = InStream.Mass();
       
 
     
