@@ -1082,9 +1082,9 @@ class DllImportExport MVLEBlk : public MMethodUtility
     void            SetFlashVapFrac(MStream &Q, double VapFrac, DWORD Flags);
     // Flash the contents given Temperature & Pressure (adjust VapMassFrac)
     void            TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags);
-    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T)
+    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) ie T will be the Saturation Temp at the final conditions
     void            QPFlash(MStream &Q, double Press, double Duty, DWORD Flags);
-    // Flash the contents given Duty & Pressure
+    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) ie T will be the Saturation Temp at the final conditions
     void            QPFlash(MStream &Ql, MStream &Qv, double Press, double Duty, DWORD Flags);
     // Flash the contents to equilibrium
     void            QVFlash(MContainer &Cn, double Duty, DWORD Flags);
@@ -1093,6 +1093,11 @@ class DllImportExport MVLEBlk : public MMethodUtility
     void            QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags);
     // Flash the contents Such that mass of Vapour is VapMass (adjust T & P)
     void            QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags);
+
+    // returns the Saturation Pressure At T igonres the Partial pressure of other gasses
+    double          SaturationP(MVector & V, double T);
+    // returns the Total Pressure At T ie SaturationP + Partial Pressure of other gasses
+    double          SaturationTotalP(MVector & V, double T);
 
     void            Enable();
     void            Disable();

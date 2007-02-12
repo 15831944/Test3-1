@@ -1225,6 +1225,12 @@ void    MVLEBlk::QVFlash(MContainer &Cn, double Duty, DWORD Flags)
   { m_pVLE->QVFlash(Cn.Cn, Duty, Flags); };
 
 
+double MVLEBlk::SaturationP(MVector & Mdl, double T)
+  { return m_pVLE->SaturationP(T, *Mdl.SpMdl); };
+
+double MVLEBlk::SaturationTotalP(MVector & Mdl, double T)
+  { return m_pVLE->SaturationTotalP(T, *Mdl.SpMdl); };
+
 void    MVLEBlk::QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
   { return m_pVLE->QMVapFlash(Q.Cd, VapMass, Duty, Flags); };
 void    MVLEBlk::QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags)
