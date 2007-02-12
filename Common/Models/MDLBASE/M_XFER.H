@@ -93,7 +93,7 @@ class DllImportExport MN_Xfer : public MdlNode
     CBlockEvaluator m_BlkEval;
 
     bool           m_NetworkIsolator;
-    //SpModel      * m_pAccumulator;
+
     SpContainer    * m_Accumulator;
     CDirectFlwIO   * m_AccIn;
     CDirectFlwIO   * m_AccOut;

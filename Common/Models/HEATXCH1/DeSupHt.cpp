@@ -20,9 +20,9 @@ const byte ioidFeedLiq  = 1;
 const byte ioidSteamOut = 2;
 
 static IOAreaRec DeSuperHeaterIOAreaList[] =
-  {{"",   "SteamIn",    ioidSteamIn,  LIO_In0,     nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
-  {"",    "FeedLiquor", ioidFeedLiq,  LIO_In1,     nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
-  {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {{"",   "SteamIn",    ioidSteamIn,  LIO_In0,     nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
+  {"",    "FeedLiquor", ioidFeedLiq,  LIO_In1,     nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
+  {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
   SPILL2AREA("Spills", IOId_Spill2Area),
   VENT2AREA("Vents",   IOId_Vent2Area),
   {NULL}}; //This lists the areas of the model where links can be attached.
@@ -43,27 +43,31 @@ SPECIEBLK_L(InitTest, H2OLiq, "H2O(l)", true);
 SPECIEBLK_V(InitTest, H2OVap, "H2O(g)", true);
 
 DeSuperHeater::DeSuperHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MN_Surge(pClass_, TagIn, pAttach, eAttach),
-  FTC(this)
+  MN_Xfer(pClass_, TagIn, pAttach, eAttach),
+  m_FTC(this)
   {
   AttachIOAreas(DeSuperHeaterIOAreaList, &PipeEntryGroup);
-  Contents.SetClosed(False);
+  //Contents.SetClosed(False);
 
   m_bShowQFeed = 0;
-  bTrackH2OFeed = 1;
-  iTempSpec  = TS_AppSatT;
-  dFinalTRqd = C_2_K(220.0);
-  dAppTRqd   = 40.0;
-  dTDropRqd  = 10.0;
-  dFinalP    = Std_P;
-  dFinalT    = Std_T;
-  dSatTOut   = Std_T;
-  dFlowRqd   = dNAN;
-  dActualFlow= 0.0;
+  m_bTrackH2OFeed = 1;
+  m_iTempSpec  = TS_AppSatT;
+  m_dFinalTRqd = C_2_K(220.0);
+  m_dAppTRqd   = 40.0;
+  m_dTDropRqd  = 10.0;
+  m_dFinalP    = Std_P;
+  m_dFinalT    = Std_T;
+  m_dSatTOut   = Std_T;
+  m_dFlowRqd   = dNAN;
+  m_dActualFlow= 0.0;
 
   m_VLE.Open(NULL, true);
 
+  GSM.Open(); // required to Pass Avail/Reqd info about
+
   //RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &DeSuperHeaterClass, ioidSI_Steam, mmio_MODEL, &typeid(CFT_Condenser));
+  RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(DeSuperHeater), ioidSteamIn, mmio_CONNECT, &typeid(CFT_Mixer));
+  RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(DeSuperHeater), ioidSteamOut, mmio_CONNECT, &typeid(CFT_Mixer));
   }
 
 //--------------------------------------------------------------------------
@@ -89,33 +93,35 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
     {TS_FinalT, "Final Temp"},
     {TS_AppSatT, "Approach SatT"},
     {0}};
-  DDB.Byte    ("TempSpec",  "",  DC_,     "",      &iTempSpec,  this, isParm|AffectsStruct|SetOnChange, DDB0);
-  DDB.Visibility(NSHM_All, (iTempSpec == TS_FinalT));
-  DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &dFinalTRqd, this, isParm);
-  DDB.Visibility(NSHM_All, (iTempSpec == TS_TDrop));
-  DDB.Double  ("TDropRqd",  "",  DC_dT,   "C",     &dTDropRqd,  this, isParm);
-  DDB.Visibility(NSHM_All, (iTempSpec == TS_AppSatT));
-  DDB.Double  ("ApproachSatT","",  DC_dT,   "C",     &dAppTRqd,  this, isParm);
+  DDB.Byte    ("TempSpec",  "",  DC_,     "",      &m_iTempSpec,  this, isParm|AffectsStruct|SetOnChange, DDB0);
+  DDB.Visibility(NSHM_All, (m_iTempSpec == TS_FinalT));
+  DDB.Double  ("FinalTRqd", "",  DC_T,    "C",     &m_dFinalTRqd, this, isParm);
+  DDB.Visibility(NSHM_All, (m_iTempSpec == TS_TDrop));
+  DDB.Double  ("TDropRqd",  "",  DC_dT,   "C",     &m_dTDropRqd,  this, isParm);
+  DDB.Visibility(NSHM_All, (m_iTempSpec == TS_AppSatT));
+  DDB.Double  ("ApproachSatT","",  DC_dT,   "C",     &m_dAppTRqd,  this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility();
-  DDB.CheckBox("TrackH2OFd",        "",  DC_,     "",      &bTrackH2OFeed,      this, isParm);
+  DDB.CheckBox("TrackH2OFd",        "",  DC_,     "",      &m_bTrackH2OFeed,      this, isParm);
   //RB.Add_OnOff(DDB, False);
   //EHX.Add_OnOff(DDB, False);
+
+  //GSM.Add_OnOff(DDB);
 
   DDB.Text    ("");
   DDB.Text    ("Results");
   //DDB.Double  ("TRise",     "",  DC_dT,   "C",     &dTRise,     this, isResult|0);
-  DDB.Double  ("FlowRqd",   "",  DC_Qm,   "kg/s",  &dFlowRqd,   this, isResult|NAN_OK);
-  DDB.Double  ("ActualFlow","",  DC_Qm,   "kg/s",  &dActualFlow,this, isResult);
-  DDB.Double  ("FinalP",    "",  DC_P,    "kPag",  &dFinalP,    this, isResult);
-  DDB.Double  ("FinalT",    "",  DC_T,    "C",     &dFinalT,    this, isResult);
-  DDB.Double  ("SatT",      "",  DC_T,    "C",     &dSatTOut,   this, isResult|noFile|noSnap);
+  DDB.Double  ("FlowRqd",   "",  DC_Qm,   "kg/s",  &m_dFlowRqd,   this, isResult|NAN_OK);
+  DDB.Double  ("ActualFlow","",  DC_Qm,   "kg/s",  &m_dActualFlow,this, isResult);
+  DDB.Double  ("FinalP",    "",  DC_P,    "kPag",  &m_dFinalP,    this, isResult);
+  DDB.Double  ("FinalT",    "",  DC_T,    "C",     &m_dFinalT,    this, isResult);
+  DDB.Double  ("SatT",      "",  DC_T,    "C",     &m_dSatTOut,   this, isResult|noFile|noSnap);
   DDB.Double  ("DegSuperHeat","",DC_dT,   "C",     xid_DegSuperHeat,this, isResult|noFile|noSnap);
   
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  AddMdlClosed(DDB);
-  AddMdlNetworked(DDB);
+  //AddMdlClosed(DDB);
+  //AddMdlNetworked(DDB);
 
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
@@ -127,11 +133,11 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   if (m_bShowQFeed && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
 
-  if (NetDynamicMethod())
-    {
-    DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
-    DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
-    }
+  //if (NetDynamicMethod())
+  //  {
+  //  //DDB.Object(&Contents, this, NULL, NULL, DDB_RqdPage);
+  //  DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
+  //  }
 
   DDB.EndStruct();
   }
@@ -140,18 +146,13 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
 
 flag DeSuperHeater::DataXchg(DataChangeBlk & DCB)
   {
-  if (MN_Surge::DataXchg(DCB)) 
+  if (MN_Xfer::DataXchg(DCB)) 
     return 1;
 
   switch (DCB.lHandle)
     {
     case xid_DegSuperHeat:
-      DCB.D = dFinalT-dSatTOut;
-      return 1;
-    case xidClosed:
-      if (DCB.rB)
-        Contents.SetClosed(*DCB.rB, DCB.ForView()); 
-      DCB.B=Contents.Closed(); 
+      DCB.D = m_dFinalT-m_dSatTOut;
       return 1;
     }
   return 0;
@@ -161,11 +162,42 @@ flag DeSuperHeater::DataXchg(DataChangeBlk & DCB)
 
 flag DeSuperHeater::ValidateData(ValidateDataBlk & VDB)
   {
-  flag OK=MN_Surge::ValidateData(VDB);
-  dTDropRqd=ValidateRange(VDB, "TDropRqd", 0.0, dTDropRqd, 500.0);
+  flag OK=MN_Xfer::ValidateData(VDB);
+  m_dTDropRqd=ValidateRange(VDB, "TDropRqd", 0.0, m_dTDropRqd, 500.0);
   //dFinalTRqd=ValidateRange(VDB, "FinalTRqd", 20.0, dFinalTRqd, IF97_MaxSatT);
   return OK;
   }
+
+//--------------------------------------------------------------------------
+
+void DeSuperHeater::EvalPBMakeUpReqd(long JoinMask)
+  {
+  if (GSM.Enabled())
+    GSM.MakeUpNodeTransferReqd(0);
+  MakeUpNodeTransferReqd(0);
+
+  if (Valid(m_dFlowRqd))
+    {
+    const int IOHotSteam  = IOWithId_Self(ioidSteamIn);
+    const int IOCoolWater = IOWithId_Self(ioidFeedLiq);
+    const int IOSteamOut  = IOWithId_Self(ioidSteamOut);
+    
+    CFlange &HotSteam=*IOFlange(IOHotSteam);
+    CFlange &CoolWater=*IOFlange(IOCoolWater);
+    CFlange &SteamOut=*IOFlange(IOSteamOut);
+    CoolWater.SetMakeUpReqd(m_dFlowRqd);
+    HotSteam.SetMakeUpReqd(SteamOut.MakeUpReqd()-m_dFlowRqd);
+    }
+  };
+
+//--------------------------------------------------------------------------
+
+void DeSuperHeater::EvalPBMakeUpAvail(long JoinMask)
+  {
+  if (GSM.Enabled())
+    GSM.MakeUpNodeTransferAvail(0);
+  MakeUpNodeTransferAvail(0);
+  };
 
 //--------------------------------------------------------------------------
 
@@ -179,12 +211,12 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
         for (int j=0; j<NoProcessJoins(); j++)
           {
           double Pj=MeasureJoinPressure(j);
-          SetJoinPressure(j, dFinalP, true, true);
+          SetJoinPressure(j, m_dFinalP, true, true);
           }
         }
         break;
       case NM_Dynamic:
-        MdlNode::EvalJoinPressures(JoinMask);
+        MN_Xfer::EvalJoinPressures(JoinMask);
         break;
       }
   }
@@ -193,11 +225,11 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
 
 void   DeSuperHeater::SetState(eScdMdlStateActs RqdState)
   {
-  MN_Surge::SetState(RqdState);
+  MN_Xfer::SetState(RqdState);
   switch (RqdState)
     {
     case MSA_PBInit:
-      FTC.SetState(RqdState);
+      m_FTC.SetState(RqdState);
       break;
     case MSA_ZeroFlows:
     case MSA_Empty:
@@ -281,12 +313,15 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       
       SpConduit & Fo = *(IOConduit(IOSteamOut));
       
-      double Pi = SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn)|Id_2_Mask(ioidFeedLiq));
+      double Pi = SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn));//|Id_2_Mask(ioidFeedLiq));
+      Mixture().QAddF(*IOConduit(IOCoolWater), som_ALL, 1.0);
+
+      SetCI(4, IOP_Flng(IOCoolWater)<IOP_Flng(IOHotSteam));
 
       m_VLE.SetHfInAtZero(Mixture());
 
       if (m_bShowQFeed)
-        m_QFeed.QCopy(Mixture());
+        m_QFeed().QCopy(Mixture());
 
       const int si = H2OVap();
       const int wi = H2OLiq();
@@ -300,8 +335,8 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       const double FeedLiqT = QFeedLiq.Temp();
       const double FeedLiqP = QFeedLiq.Press();
       const double FeedLiqQ = QFeedLiq.QMass();
-      dActualFlow = FeedLiqQ;
-      dFinalP = SteamInP;
+      m_dActualFlow = FeedLiqQ;
+      m_dFinalP = SteamInP;
 
       ClrCI(1);
       ClrCI(2);
@@ -313,27 +348,27 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         SigmaQInPMin(SteamIn(), som_ALL, Id_2_Mask(ioidSteamIn));
         SigmaQInPMin(WaterIn(), som_ALL, Id_2_Mask(ioidFeedLiq));
         const double PureSteamQ = SteamIn().VMass[si];
-        SetCI(2, bTrackH2OFeed && (SteamIn().QMass(som_SL)>1.0e-9) || PureSteamQ/GTZ(SteamIn().QMass(som_Gas))<0.98);
+        SetCI(2, m_bTrackH2OFeed && (SteamIn().QMass(som_SL)>1.0e-9) || PureSteamQ/GTZ(SteamIn().QMass(som_Gas))<0.98);
         const double PureWaterQ = WaterIn().VMass[wi];
-        SetCI(3, bTrackH2OFeed && (PureWaterQ/FeedLiqQ<0.999));
+        SetCI(3, m_bTrackH2OFeed && (PureWaterQ/FeedLiqQ<0.999));
 
-        dSatTOut = Mixture().SaturationT(dFinalP);
-        double RqdProdTemp = (iTempSpec==TS_AppSatT) ? dSatTOut+dAppTRqd : ((iTempSpec==TS_TDrop) ? SteamInT-dTDropRqd : dFinalTRqd);
-        SetCI(1, RqdProdTemp<dSatTOut-1.0e-12);
-        RqdProdTemp = Max(RqdProdTemp, dSatTOut+1.0e-9);
+        m_dSatTOut = Mixture().SaturationT(m_dFinalP);
+        double RqdProdTemp = (m_iTempSpec==TS_AppSatT) ? m_dSatTOut+m_dAppTRqd : ((m_iTempSpec==TS_TDrop) ? SteamInT-m_dTDropRqd : m_dFinalTRqd);
+        //SetCI(1, RqdProdTemp<dSatTOut-1.0e-12);
+        //RqdProdTemp = Max(RqdProdTemp, dSatTOut+1.0e-9);
         bool Ok = false;
         DSH_FinalTempFnd FTF(SteamIn(), WaterIn(), Mixture(), *this, SteamInP, RqdProdTemp);
         FTF.SetTarget(RqdProdTemp);
         const double MaxQWater = Max(FeedLiqQ,1.0)*100.0;
         int iRet=FTF.Start(0.001, MaxQWater);
-        if (Valid(dFlowRqd))
+        if (Valid(m_dFlowRqd))
           {
-          FTF.SetEstimate(dFlowRqd, 1.0);
-          dFlowRqd = dNAN;
+          FTF.SetEstimate(m_dFlowRqd, 1.0);
+          m_dFlowRqd = dNAN;
           }
         if (iRet==RF_EstimateOK) //estimate is good, solve not required
           {
-          dFlowRqd = FTF.Result();
+          m_dFlowRqd = FTF.Result();
           Ok = true;
           }
         else
@@ -343,14 +378,14 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
           if (iRet==RF_OK)
             switch (FTF.Solve_Brent())
               {
-              case RF_OK: dFlowRqd = FTF.Result(); Ok = true; break;
-              case RF_HiLimit: dFlowRqd = MaxQWater; Ok = true; break;
-              case RF_LoLimit: dFlowRqd = 0.1; Ok = true; break;
+              case RF_OK: m_dFlowRqd = FTF.Result(); Ok = true; break;
+              case RF_HiLimit: m_dFlowRqd = MaxQWater; Ok = true; break;
+              case RF_LoLimit: m_dFlowRqd = 0.1; Ok = true; break;
               }
           }
-        CFlange &FeedFl=*IOFlange(IOCoolWater);
-        if (FeedFl.IsMakeUpAvail())
-          FeedFl.SetMakeUpReqd(dFlowRqd);
+        CFlange &CoolWater=*IOFlange(IOCoolWater);
+        if (CoolWater.IsMakeUpAvail())
+          CoolWater.SetMakeUpReqd(m_dFlowRqd);
 
         //flash ALL water to steam
         SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn)|Id_2_Mask(ioidFeedLiq));
@@ -367,21 +402,23 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
         }
       else
         {
-        CFlange &FeedFl=*IOFlange(IOCoolWater);
-        if (FeedFl.IsMakeUpAvail())
-          FeedFl.SetMakeUpReqd(1.0);//demand something
+        CFlange &CoolWater=*IOFlange(IOCoolWater);
+        if (CoolWater.IsMakeUpAvail())
+          CoolWater.SetMakeUpReqd(1.0);//demand something
         Fo.QCopy(QSteamIn);
         }
       
-      dFinalT    = Fo.Temp();
-      dFinalP    = Fo.Press();
-      dSatTOut   = Fo.SaturationT(dFinalP);
+      m_dFinalT    = Fo.Temp();
+      m_dFinalP    = Fo.Press();
+      m_dSatTOut   = Fo.SaturationT(m_dFinalP);
 
       m_VLE.AddHfOutAtZero(Fo);
       }
       break;
     default:
-      MN_Surge::EvalProducts(NEI);
+      {
+      MN_Xfer::EvalProducts(NEI);
+      }
     }
   }
 
@@ -409,8 +446,9 @@ flag DeSuperHeater::CIStrng(int No, pchar & pS)
     case 1: pS="E\tOutlet temperature cannot be below Saturation temperature"; return 1;
     case 2: pS="W\tExpect pure steam in steam feed"; return 1;
     case 3: pS="W\tExpect pure water in feed liquor feed"; return 1;
+    case 4: pS="W\tCooling water - Low Pressure"; return 1;
     default:                                               
-      return MN_Surge::CIStrng(No, pS);
+      return MN_Xfer::CIStrng(No, pS);
     }
   }
 

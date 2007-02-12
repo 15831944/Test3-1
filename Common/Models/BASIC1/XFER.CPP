@@ -96,8 +96,9 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   if (NetDynamicMethod())
     {
     DDB.Text("");
-    DDB.CheckBoxBtn("NetworkIsolator",  "",  DC_, "", xidNetworkIsolator,   this, isParm|SetOnChange);
+    DDB.CheckBoxBtn("NetworkIsolator",  "",  DC_, "", xidNetworkIsolator,   this, isParmStopped|SetOnChange|AffectsStruct);
     }
+
   if (!m_NetworkIsolator)
     {
     m_BlkEval.Add_OnOff(DDB);  

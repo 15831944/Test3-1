@@ -387,6 +387,7 @@ flag CMMFlashTrain::PBInitialise()
       T1=pFNd->Tag();
 
     if (Nd.m_pNdVarTypeId)
+      {
       if (*Nd.m_pNdVarTypeId==typeid(CFT_Flash))
         {
         if (TagLvl<2 && _stricmp(pFNd->Tag(), T1())<0)
@@ -435,7 +436,7 @@ flag CMMFlashTrain::PBInitialise()
         {
         int xxx=0;
         }
-
+      }
     }
 
   T2.Set("%s_FT", T1());

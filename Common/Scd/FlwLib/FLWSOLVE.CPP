@@ -5592,6 +5592,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalMakeUpReqd, FSW_PBEvalMakeUpReqd);
+    //dbgpln("EvalPBMakeUpReqd %s", NJ.Nd.FullObjTag());
     NJ.Nd.EvalPBMakeUpReqd(NJ.JoinMask);
     XT.ExecDone();//Postamble(p, eFITPBEvalMakeUpReqd, FSW_PBEvalMakeUpReqd);
     XT.EndLoop();

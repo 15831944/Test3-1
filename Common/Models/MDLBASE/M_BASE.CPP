@@ -2700,40 +2700,40 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       return true;
       }
 #endif
-    //case xidIO_MkUpAvail0:
-    //case xidIO_MkUpAvail1:
-    //  {
-    //  int ioId=DCB.lHandle-xidIO_MkUpAvail0;
-    //  if (DCB.rD && NoFlwIOs()>1)
-    //    {
-    //    if (Valid(*DCB.rD))
-    //      IOFlange(ioId)->SetMakeUpAvail(*DCB.rD);
-    //    else
-    //      IOFlange(ioId)->ClrMakeUpAvail();
-    //    }
-    //  if (NoFlwIOs()>1 && IOFlange(ioId)->IsMakeUpAvail())
-    //    DCB.D=IOFlange(ioId)->MakeUpAvail();
-    //  else
-    //    DCB.D=dNAN;
-    //  return true;
-    //  }
-    //case xidIO_MkUpReqd0:
-    //case xidIO_MkUpReqd1:
-    //  {
-    //  int ioId=DCB.lHandle-xidIO_MkUpReqd0;
-    //  if (DCB.rD && NoFlwIOs()>1)
-    //    {
-    //    if (Valid(*DCB.rD))
-    //      IOFlange(ioId)->SetMakeUpReqd(*DCB.rD);
-    //    else
-    //      IOFlange(ioId)->ClrMakeUpReqd();
-    //    }
-    //  if (NoFlwIOs()>1 && IOFlange(ioId)->IsMakeUpReqd())
-    //    DCB.D=IOFlange(ioId)->MakeUpReqd();
-    //  else
-    //    DCB.D=dNAN;
-    //  return true;
-    //  }
+    case xidIO_MkUpAvail0:
+    case xidIO_MkUpAvail1:
+      {
+      int ioId=DCB.lHandle-xidIO_MkUpAvail0;
+      if (DCB.rD && NoFlwIOs()>1)
+        {
+        if (Valid(*DCB.rD))
+          IOFlange(ioId)->SetMakeUpAvail(*DCB.rD);
+        else
+          IOFlange(ioId)->ClrMakeUpAvail();
+        }
+      if (NoFlwIOs()>1 && IOFlange(ioId)->IsMakeUpAvail())
+        DCB.D=IOFlange(ioId)->MakeUpAvail();
+      else
+        DCB.D=dNAN;
+      return true;
+      }
+    case xidIO_MkUpReqd0:
+    case xidIO_MkUpReqd1:
+      {
+      int ioId=DCB.lHandle-xidIO_MkUpReqd0;
+      if (DCB.rD && NoFlwIOs()>1)
+        {
+        if (Valid(*DCB.rD))
+          IOFlange(ioId)->SetMakeUpReqd(*DCB.rD);
+        else
+          IOFlange(ioId)->ClrMakeUpReqd();
+        }
+      if (NoFlwIOs()>1 && IOFlange(ioId)->IsMakeUpReqd())
+        DCB.D=IOFlange(ioId)->MakeUpReqd();
+      else
+        DCB.D=dNAN;
+      return true;
+      }
     case xidIO_QmAvail:
       {
       DCB.D=(NoFlwIOs()>1) ? IOQmAvail_Self(IO_In(0) ? 0 : 1) : 0.0;

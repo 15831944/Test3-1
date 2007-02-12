@@ -3212,6 +3212,12 @@ void MN_Lnk::EvalPBMakeUpReqd(long JoinMask)
     }
   else
     IOFlange(iIn)->SetMakeUpReqd(Rqd);
+
+  //if (Valid(IOFlange(iOut)->MakeUpReqd()))
+  //  dbgpln("                                 MN_Lnk:EvalPBMakeUpReqd %15.4f  %15.4f %s", 
+  //    IOFlange(iOut)->MakeUpReqd(),
+  //    IOFlange(iIn)->MakeUpReqd(),
+  //    FullObjTag());
   };
 
 //--------------------------------------------------------------------------

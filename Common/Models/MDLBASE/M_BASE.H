@@ -408,10 +408,10 @@ class DllImportExport MdlNode : public FlwNode
   XID xidIO_HzSigma             = MdlBsXID(118);
 #endif
 
-  //XID xidIO_MkUpAvail0          = MdlBsXID(120);
-  //XID xidIO_MkUpAvail1          = MdlBsXID(121);
-  //XID xidIO_MkUpReqd0           = MdlBsXID(122);
-  //XID xidIO_MkUpReqd1           = MdlBsXID(123);
+  XID xidIO_MkUpAvail0          = MdlBsXID(120);
+  XID xidIO_MkUpAvail1          = MdlBsXID(121);
+  XID xidIO_MkUpReqd0           = MdlBsXID(122);
+  XID xidIO_MkUpReqd1           = MdlBsXID(123);
 
   XID xidIO_QmAvail             = MdlBsXID(124);
   XID xidIO_QmSpace             = MdlBsXID(125);
