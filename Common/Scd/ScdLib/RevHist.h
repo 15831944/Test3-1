@@ -2718,10 +2718,14 @@ Build 122 : 16 November 2006
 1421  8/02/07: Client RTTS model improvements.
 1425  8/02/07: (#739) Bayer stream SatT@P and SatP@T fix.
 1430  9/02/07: (#742) Fix for client SMDK bayer model call to density converge.
+1437 10/02/07: (#743) Implemented default folder for rct and pgm files.
+1439 10/02/07: (#744) Added edit button for included pgm files.
+1441 10/02/07: (#746) Fix for shell&tube vent stream pressure.
+1445 12/02/07: (#750) Added PrjName and MajorBuildNo to PlantModel System fields.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1430
+#define SCD_PATCH_SVN    1445
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

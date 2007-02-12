@@ -43,11 +43,6 @@ static double LMTD(double TbTi, double TbTo, double ShTi, double ShTo)
   return   (gttd==lttd) ? gttd : (gttd-lttd)/log(r);
 }
 
-
-
-
-
-
 //====================================================================================
 
 const long idTubeI  = 0;
@@ -57,10 +52,8 @@ const long idShellO = 3;
 const long idVentO  = 4;
 
 
-
 enum AmbientLossMethod {ALM_None, ALM_LossPerQm, ALM_ProductTemp, ALM_TempDrop, ALM_LossToAmbient, ALM_LossToAmbient2,
    ALM_FixedHeatFlow};
-
 
 static MDDValueLst DDALMethod[]=
   {
@@ -73,7 +66,6 @@ static MDDValueLst DDALMethod[]=
     {ALM_FixedHeatFlow, "FixedHeatFlow"},
     {NULL}
   };
-
 
 static MDDValueLst DDHxMode[]=
   {
@@ -96,7 +88,6 @@ static MDDValueLst DDTSHxMode[]=
     {NULL}
   };
 
-
 static MDDValueLst DDSSdPMode[]=
   {
     {0, "Fixed"},
@@ -114,10 +105,7 @@ static MDDValueLst DDTSdPMode[]=
   };
 
 
-enum {OM_Simple, OM_Condensing, OM_LiveSteam
-}
-;
-
+enum {OM_Simple, OM_Condensing, OM_LiveSteam};
 
 static MDDValueLst DDOpMode[]=
   {
@@ -127,12 +115,6 @@ static MDDValueLst DDOpMode[]=
     {0}
   };
 
-
-
-
-
-
-
 static MInOutDefStruct s_IODefs[]=
   {
   //  Desc;        Name;    PortId; Rqd; Max; CnId, FracHgt;  Options;
@@ -140,7 +122,7 @@ static MInOutDefStruct s_IODefs[]=
     { "Tube Out", "TubeO",  idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
     { "Shell In", "ShellI", idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material },
     { "Shell Out","ShellO", idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
-    { "Vent",     "VentO",  idVentO,   0,   1,    1,    1.0f,  MIO_Out|MIO_Material },
+    { "Shell Vent","VentO", idVentO,   0,   1,    1,    1.0f,  MIO_Out|MIO_Material },
     { NULL },
   };
 
@@ -226,10 +208,8 @@ m_FTC(this)
 
   m_dReactionDamping = 0.0;
   m_dDeltaTOld = 0.0;
-  
-  
+ 
 }
-
 
 //---------------------------------------------------------------------------
 
@@ -246,7 +226,6 @@ void CCARTubeDigester::Init()
 }
 
 //---------------------------------------------------------------------------
-
 
 void CCARTubeDigester::BuildDataFields()
 {
@@ -312,6 +291,11 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("Tube.Out.T",      "",     &m_dTSTout,          MF_RESULT, MC_T("C"));
   DD.Double("Shell.In.T",      "",     &m_dSSTin,          MF_RESULT, MC_T("C"));
   DD.Double("Shell.Out.T",      "",     &m_dSSTout,          MF_RESULT, MC_T("C"));
+
+  DD.Double("Tube.In.P",      "",     &m_dTSPin,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Tube.Out.P",      "",     &m_dTSPout,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Shell.In.P",      "",     &m_dSSPin,          MF_RESULT, MC_P("kPa"));
+  DD.Double("Shell.Out.P",      "",     &m_dSSPout,          MF_RESULT, MC_P("kPa"));
   
   DD.Double("Tube.Qm", "",     &m_dQmTS,     MF_RESULT, MC_Qm("kg/s"));
   DD.Double("Shell.Qm", "",    &m_dQmSS,     MF_RESULT, MC_Qm("kg/s"));
@@ -435,42 +419,32 @@ bool CCARTubeDigester::ConfigureJoins()
 //---------------------------------------------------------------------------
 
 bool CCARTubeDigester::EvalJoinPressures()
-  {
-  if (1)
-    {//set pressures at each join (pipes connected to unit)
-    for (int j=0; j<Joins.Count; j++)
-      {
-      double Pj=Joins[j].GetProbalPIn();
-
-      if (j==1 && m_FTC.Active) {
-        m_FTC.SuctionP=Pj;
-	
-	Joins[j].SetProbalP(Pj, true, true);
-      } else {
-	Joins[j].SetProbalP(Pj, false, true);
-	
-      }
-      
-
-      if (j==0) {
-	double pOut;
-	if (Pj < m_dP)    // Pressure drop greater than inlet pressure
-	  pOut = 101.325;   // Just set outlet to atmospheric for now...
-	else
-	  pOut = Pj-m_dP;
-	Joins[j].SetProbalP(pOut, false, true);
-      }
-      }
-    return true;
-    }
-  else
+  {//set pressures at each join (pipes connected to unit)
+  for (int j=0; j<Joins.Count; j++)
     {
-    //INCOMPLETECODE() 
+    double Pj=Joins[j].GetProbalPIn();
+    if (j==1 && m_FTC.Active) 
+      {
+      m_FTC.SuctionP=Pj;
+      Joins[j].SetProbalP(Pj, true, true);
+      } 
+    else 
+      {
+      Joins[j].SetProbalP(Pj, false, true);
+      }
+
+    if (j==0)
+      {
+      double pOut;
+      if (Pj < m_dP)    // Pressure drop greater than inlet pressure
+        pOut = 101.325;   // Just set outlet to atmospheric for now...
+      else
+        pOut = Pj-m_dP;
+      Joins[j].SetProbalP(pOut, false, true);
+      }
     }
-  return false;
+  return true;
   }
-
-
 
 
 //===========================================================================
@@ -497,7 +471,6 @@ class CCondensateFinder : public MRootFinder
 
     static MToleranceBlock s_Tol;
   };
-
 
 
 
@@ -904,6 +877,11 @@ void CCARTubeDigester::EvalProducts()
 	m_dTSTout = TubeO.T;
 	m_dSSTin =  ShellI.T;
 	m_dSSTout = ShellO.T;
+
+	m_dTSPin =  TubeI.P;
+	m_dTSPout = TubeO.P;
+	m_dSSPin =  ShellI.P;
+	m_dSSPout = ShellO.P;
 
 	m_dQmTS = TubeO.Mass();
 	m_dQmSS = ShellO.Mass();

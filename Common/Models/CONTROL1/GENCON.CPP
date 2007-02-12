@@ -377,7 +377,7 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
       {
       Strng Fn, Fn1;
       Fn.FnNameExt(PgmMngr.m_FilesUsed[i]());
-      Fn1="Edit_";
+      Fn1="Edit ";
       Fn1+=Fn;
       DDB.Button(Fn(),         Fn1(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
       }
@@ -516,13 +516,14 @@ const char* DefaultPGM =
 const int DefaultPGMLen = strlen(DefaultPGM);
 
 const char* DefaultPGMInc =
-";--- SysCAD General Controller (PGM)  Include logic file ---\n"
+";--- SysCAD General Controller (PGM) include file ---\n"
+";--- referenced in main pgm file with '>>'\n"
 "\n"
-";--- place functions here \n"
+";--- place functions or classes here ---\n"
 "\n"
 "\n"
 "\n"
-"; --- end of file ---\n"
+"; --- end of include file (Note: $ must NOT be used) ---\n"
 "\n";
 const int DefaultPGMIncLen = strlen(DefaultPGMInc);
 

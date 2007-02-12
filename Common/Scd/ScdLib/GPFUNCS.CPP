@@ -6770,6 +6770,8 @@ char* Company2()            { return SCD_VERINFO_Company2; }
 char* FullCompany2()        { return SCD_VERINFO_Company2Full; }
 char* FirstBuildDate()      { return SCD_BUILD_DATE; }
 char* BuildDate()           { return SCD_PATCHDATE; }
+long BuildNumber()          { return SCD_PATCH_SVN; }
+long MajorBuildNumber()     { return SCD_BUILD_NUM; }
 
 //---------------------------------------------------------------------------
 

@@ -1320,13 +1320,16 @@ DllImportExport flag SymbolicPaths();
 //===========================================================================
 extern DllImportExport BOOL IsWinNT; //set to false if not WindowsNT
 
-DllImportExport char* CopyrightNotice(); //"Copyright © 1995-96"
-DllImportExport char* FullCopyrightNotice(); //"Copyright © Kenwalt 1995-96"
+DllImportExport char* CopyrightNotice(); //"Copyright © 1995-2007"
+DllImportExport char* FullCopyrightNotice(); //"Copyright © Kenwalt 1995-2007"
 DllImportExport char* Company(); //"Kenwalt"
 DllImportExport char* FullCompany(); //"Kenwalt Pty Ltd"
 DllImportExport char* Company2(); //"KWA Kenwalt"
 DllImportExport char* FullCompany2(); //"KWA Kenwalt Australia Pty Ltd"
 DllImportExport char* BuildDate(); //"1 December 1998"
+DllImportExport long BuildNumber(); //122
+DllImportExport long MajorBuildNumber(); //1445
+
 
 extern DllImportExport Strng MajorVersionNo;       //eg "8.0"
 extern DllImportExport Strng VersionNo;            //eg "8.0 (Build 35)"

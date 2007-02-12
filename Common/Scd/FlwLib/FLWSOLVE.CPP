@@ -398,10 +398,11 @@ XID xidHistSetTagsNow                 = FlwXID(5029);
 
 XID xidGenVerStr                      = FlwXID(5030);
 XID xidGenUpdateVerStr                = FlwXID(5031);
-XID xidGenBuildNo                     = FlwXID(5032);
-XID xidGenBuildDate                   = FlwXID(5033);
-XID xidGenDateAndTime                 = FlwXID(5034);
-XID xidGenTime1970                    = FlwXID(5035);
+XID xidGenMajorBuildNo                = FlwXID(5032);
+XID xidGenBuildNo                     = FlwXID(5033);
+XID xidGenBuildDate                   = FlwXID(5034);
+XID xidGenDateAndTime                 = FlwXID(5035);
+XID xidGenTime1970                    = FlwXID(5036);
 
 XID xidSetStateAll                    = FlwXID(5040);
 XID xidIncludeSpcCnvs                 = FlwXID(5041);
@@ -10229,11 +10230,13 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Text  ("Executable Build...");
       DDB.String("VersionOnly",     "", DC_,       "", xidGenVerStr,       this, InitHidden|isResult|noFile|noScenario|noSnap);
       DDB.String("Version",         "", DC_,       "", xidGenUpdateVerStr, this, isResult|noFile|noScenario|noSnap);
+      DDB.Long  ("MajorBuildNo",    "", DC_,       "", xidGenMajorBuildNo, this, isResult|noFile|noSnap);
       DDB.Long  ("BuildNo",         "", DC_,       "", xidGenBuildNo,      this, isResult|noFile|noSnap);
       DDB.String("BuildDate",       "", DC_,       "", xidGenBuildDate,    this, isResult|noFile|noScenario|noSnap);
 
       DDB.Text  ("");
       DDB.Text  ("Project...");
+      DDB.String("PrjName",         "", DC_,       "", xidPrjName,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("PrjFile",         "", DC_,       "", xidPrjFile,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("CfgFile",         "", DC_,       "", xidCfgFile,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("DateAndTime",     "", DC_,       "", xidGenDateAndTime,  this, isResult|noFile|noScenario|noSnap);
@@ -10815,7 +10818,8 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
 
     case xidGenVerStr       : DCB.pC=FullVersion(); return 1;
     case xidGenUpdateVerStr : DCB.pC=FullVersionAndUpdate(); return 1;
-    case xidGenBuildNo      : DCB.L=SCD_BUILD_NUM; return 1;
+    case xidGenMajorBuildNo : DCB.L=MajorBuildNumber(); return 1;
+    case xidGenBuildNo      : DCB.L=BuildNumber(); return 1;
     case xidGenBuildDate    : DCB.pC=BuildDate(); return 1;
     case xidGenDateAndTime  : DCB.pC=CurDateTime(SecsBuff); return 1;
     case xidGenTime1970     : DCB.D=GetCurrentTime_1970().Seconds; return 1;
