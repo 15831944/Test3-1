@@ -160,6 +160,9 @@ CCARTubeDigester::CCARTubeDigester(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
 MBaseMethod(pUnitDef, pNd),
 m_RB(this, false, "RB"),
 m_VLE(this, VLEF_QPFlash, "VLE"),
+#if (USEEHXBLK)
+m_EHX(this, 0, "EHX"),
+#endif
 m_FTC(this)
 {
   //default values...
@@ -179,12 +182,14 @@ m_FTC(this)
   m_dExitC = 0.34;
   m_bMTDCalcMode = false;
 
+#if (!USEEHXBLK)
   m_bEnvironHX = false;
   m_lEnvHxMode = 0;
   m_dEnvHTC = .2;
   m_dLossPerQm = 10.;
   m_dEnvHeatLoss = 100;
-  
+#endif
+
   m_lHxMode = 0;
   m_lSSHxMode = 0;  
   m_lTSHxMode =0;
@@ -242,8 +247,10 @@ void CCARTubeDigester::BuildDataFields()
   //  DD.Double("Reaction.Damping", "",   &m_dReactionDamping, MF_PARAMETER, MC_Frac("%"));
   DD.Double("Reaction.Ht",  "",     &dHf, MF_RESULT , MC_Pwr("kW"));
 
-
   DD.Show();
+#if (USEEHXBLK)
+  m_EHX.BuildDataFields();
+#else
   DD.CheckBox("EnvironHX", "", &m_bEnvironHX,  MF_PARAMETER|MF_SET_ON_CHANGE);
 
   DD.Show(m_bEnvironHX);
@@ -256,7 +263,8 @@ void CCARTubeDigester::BuildDataFields()
   DD.Show(m_bEnvironHX);
   DD.Double("Env.Heat.Loss",  "",     &m_dEnvHeatLoss, 
 	    m_lEnvHxMode==6 ?  MF_PARAMETER:MF_RESULT , MC_Pwr("kW"));
-  
+#endif
+
   DD.Show();
   DD.Long("Layout",   "", &m_lHxMode , MF_PARAMETER|MF_SET_ON_CHANGE, DDHxMode); 
   DD.Double("HTC",       "", &m_dHTC, m_lHxMode ? MF_RESULT : MF_PARAMETER, MC_HTC("kW/m^2.K"));
@@ -517,9 +525,12 @@ double CCondensateFinder::Function(double Amount)
   m_TD.m_dTotDuty = ShtotHz-m_ShellO.totHz();         // This is the total duty incl env loss for Amount
   m_TD.m_dDuty = m_TD.m_dTotDuty;                     // This is Hx duty: tot - env
 
+#if (USEEHXBLK)
+  m_TD.m_EHX.EvalProducts(m_TubeO);
+#else
   if (m_TD.m_bEnvironHX && m_TD.m_lEnvHxMode) m_TD.m_dDuty -= m_TD.m_dEnvHeatLoss;
   m_TubeO.Set_totHz(m_TubeI.totHz()+/*m_TubeO.Sgn**/m_TD.m_dDuty-m_TD.dHf);
-
+#endif
 
 
   double EMTD;  // Effective Mean Temperature Difference
@@ -798,7 +809,11 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
     ShellO.T = FTemp;
     double duty = ShellI.totHz()-ShellO.totHz() - VentO.totHz();
     m_dTotDuty = duty;         // This is the total duty incl env loss for Amount
+#if (USEEHXBLK)
+    m_EHX.EvalProducts(TubeO);    
+#else
     if (m_bEnvironHX && m_lEnvHxMode) duty -= m_dEnvHeatLoss;
+#endif
     m_dDuty = duty;           // This is Hx duty: tot - env
 
 
@@ -887,8 +902,10 @@ void CCARTubeDigester::EvalProducts()
 	m_dQmSS = ShellO.Mass();
 
     
+#if (!USEEHXBLK)
 	m_dActualDuty = m_lEnvHxMode ? m_dEnvHeatLoss : 0;
-      }
+#endif
+        }
     
     }
   catch (MMdlException &e)

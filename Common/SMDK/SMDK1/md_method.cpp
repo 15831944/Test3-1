@@ -1176,6 +1176,53 @@ int     MReactionBlk::FilesUsed(CFilesUsedArray & Files)     { return m_pRB->Fil
 //
 //---------------------------------------------------------------------------
 
+MEnvironHXBlk::MEnvironHXBlk(MBaseMethodCommon *pCom, dword Options, LPCTSTR Tag) : \
+MMethodUtility(pCom, Tag)
+  {
+  m_pEHX = new CEnvironHXBase(m_pNd, (LPTSTR)Tag);
+  m_pEHX->Open();
+  //m_pEHX->Enable();
+  };
+
+MEnvironHXBlk::~MEnvironHXBlk()
+  {
+  delete m_pEHX;
+  };                        
+           
+//bool    MEnvironHXBlk::Open(bool Fixed)         { return m_pEHX->Open(m_pNd, Fixed!=0)!=0; };
+//void    MEnvironHXBlk::Close()                  { m_pEHX->Close()   ; };
+void    MEnvironHXBlk::Enable()                 { m_pEHX->Open(&CEHX_LossPerQmClass)  ; };
+void    MEnvironHXBlk::Disable()                { m_pEHX->Close() ; };
+
+bool    MEnvironHXBlk::Enabled()                { return m_pEHX->Enabled()!=0; };
+//bool    MEnvironHXBlk::OnAndOK()                { return m_pEHX->OnAndOK()!=0; };
+void    MEnvironHXBlk::OnOffCheckBox(DWORD Flags)  { m_pEHX->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
+void    MEnvironHXBlk::BuildDataFields()        { if (m_pEHX->Enabled()) m_pEHX->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+bool    MEnvironHXBlk::ExchangeDataFields()     { return m_pEHX->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MEnvironHXBlk::ValidateDataFields()     { return m_pEHX->ValidateData(*m_pCommon->m_pVDB)!=0; };
+
+void MEnvironHXBlk::EvalProducts(MStream &S, double FinalTEst)
+  { m_pEHX->EvalProducts(S, FinalTEst); };
+void MEnvironHXBlk::EvalProducts(MStream &S, double Len, double Diam, double FinalTEst)
+  { m_pEHX->EvalProductsPipe(S, Len, Diam, FinalTEst); };
+
+double MEnvironHXBlk::HeatFlow()
+  { return m_pEHX->HeatFlow(); };
+
+//double MEnvironHXBlk::SaturationTotalP(MVector & Mdl, double T)
+//  { return m_pEHX->SaturationTotalP(T, *Mdl.SpMdl); };
+//
+//void    MEnvironHXBlk::QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
+//  { return m_pEHX->QMVapFlash(Q.Cd, VapMass, Duty, Flags); };
+//void    MEnvironHXBlk::QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags)
+//  { return m_pEHX->QMVapFlash(Ql.Cd, Qv.Cd, VapMass, Duty, Flags); };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
 MVLEBlk::MVLEBlk(MBaseMethodCommon *pCom, dword Options, LPCTSTR Tag) : \
 MMethodUtility(pCom, Tag)
   {

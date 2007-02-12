@@ -44,6 +44,7 @@ class CClosureInfoArray;
 class CPropagateNetInfoCtrl;
 class SpModel;
 
+class CEnvironHXBase;
 class CVLEBase;
 class CFT_Flash;
 class CFT_Condenser;
@@ -1051,6 +1052,40 @@ class DllImportExport MReactionBlk : public MMethodUtility
 
   protected:
     CReactionBase   * m_pRB;
+  };
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+class DllImportExport MEnvironHXBlk : public MMethodUtility
+  {
+  public:
+    MEnvironHXBlk(MBaseMethodCommon *pCom, DWORD Options, LPCTSTR Tag="EHX");
+    ~MEnvironHXBlk();
+
+  public:
+    void            OnOffCheckBox(DWORD Flags=MF_PARAM_STOPPED);
+    void            BuildDataFields();
+
+  public:
+    void            Enable();
+    void            Disable();
+    bool            Enabled();
+
+    void            EvalProducts(MStream & S, double FinalTEst=dNAN);
+    void            EvalProducts(MStream & S, double Len, double Diam, double FinalTEst=dNAN);
+    double          HeatFlow();
+
+  protected:
+    bool            ExchangeDataFields();
+    bool            ValidateDataFields();
+
+
+  protected:
+    CEnvironHXBase * m_pEHX;
   };
 
 //---------------------------------------------------------------------------

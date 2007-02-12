@@ -18,6 +18,7 @@ double  ft(double);              // Basic HT and dP correlations for tubeside
 double NuG(double, double);
 
 
+#define USEEHXBLK 01
 
 class CCARTubeDigester : public MBaseMethod, CSTHx
   {
@@ -63,8 +64,10 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
     
     bool bOnline;     // If online
     bool m_bMTDCalcMode;     // if true use RMTD formulation
+#if (!USEEHXBLK)
     bool m_bEnvironHX; // Environmental HX
-
+#endif
+ 
     long m_lOpMode;    // Operating Mode (not implemented, always uses condensing)
     long m_lHxMode;    // Heat Transfer calc mode - 0 lumped, 1 detailed
     long m_lTSHxMode;  // Modes for Tubeside and Shellside HT and dP calculations
@@ -72,10 +75,12 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
     long m_lTSdPMode;  
     long m_lSSdPMode;
 
+#if (!USEEHXBLK)
     long m_lEnvHxMode;  // Environmental Hx Mode
     double m_dEnvHeatLoss; // Heat loss to environment
     double m_dLossPerQm;   // Env loss per kg
     double m_dEnvHTC;
+#endif
 
     double m_dCondFlow;    // Condensate flow
     double m_dSatT;        // Saturation Temperature and Pressure
@@ -135,6 +140,9 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
     MReactionBlk    m_RB;     // Reactions
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
     MFT_Condenser   m_FTC;    // Flash Train
+#if (USEEHXBLK)
+    MEnvironHXBlk   m_EHX;    // Environmental
+#endif
 
 #ifdef TTDEBUG
 #include "ttdebug.h"
