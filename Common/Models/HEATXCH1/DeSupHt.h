@@ -30,6 +30,7 @@ class DllImportExport DeSuperHeater : public MN_Xfer
     virtual void    BuildDataDefn(DataDefnBlk & DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB);
     virtual flag    ValidateData(ValidateDataBlk &VDB);
+    virtual void    ConfigureJoins();
     virtual void    EvalJoinPressures(long JoinMask);
     virtual void    SetState(eScdMdlStateActs RqdState);
     virtual void    EvalJoinFlows(int JoinNo);
@@ -61,6 +62,11 @@ class DllImportExport DeSuperHeater : public MN_Xfer
 
     flag           m_bTrackH2OFeed;
     flag           m_bShowQFeed;
+
+    double dPIn;
+    double dTempIn;
+    double dVapFracIn;
+    double dVapFracOut;
 
     CFT_Condenser  m_FTC;
 

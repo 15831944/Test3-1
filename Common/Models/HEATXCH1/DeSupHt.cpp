@@ -7,6 +7,7 @@
 #include "sc_defs.h"
 #define  __DESUPHT_CPP
 #include "desupht.h"
+//#include "optoff.h"
 
 //==========================================================================
 
@@ -61,6 +62,11 @@ DeSuperHeater::DeSuperHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   m_dFlowRqd   = dNAN;
   m_dActualFlow= 0.0;
 
+  dPIn = Std_P;
+  dTempIn = Std_T;
+  dVapFracIn = 1.0;
+  dVapFracOut = 1.0;
+
   m_VLE.Open(NULL, true);
 
   GSM.Open(); // required to Pass Avail/Reqd info about
@@ -114,8 +120,13 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Double  ("TRise",     "",  DC_dT,   "C",     &dTRise,     this, isResult|0);
   DDB.Double  ("FlowRqd",   "",  DC_Qm,   "kg/s",  &m_dFlowRqd,   this, isResult|NAN_OK);
   DDB.Double  ("ActualFlow","",  DC_Qm,   "kg/s",  &m_dActualFlow,this, isResult);
-  DDB.Double  ("FinalP",    "",  DC_P,    "kPag",  &m_dFinalP,    this, isResult);
-  DDB.Double  ("FinalT",    "",  DC_T,    "C",     &m_dFinalT,    this, isResult);
+
+  DDB.Double  ("", "Steam.Ti",   DC_T,    "C",     &dTempIn,      this, isResult|noFile|noSnap);
+  DDB.Double  ("FinalT", "To",   DC_T,    "C",     &m_dFinalT,    this, isResult);
+  DDB.Double  ("", "Steam.Pi",   DC_P,    "kPag",  &dPIn,         this, isResult|noFile|noSnap|InitHidden);
+  DDB.Double  ("FinalP", "Po",   DC_P,    "kPag",  &m_dFinalP,    this, isResult);
+  DDB.Double  ("", "Steam.Vfi",  DC_Frac, "%",     &dVapFracIn,   this, isResult|noFile|noSnap|InitHidden);
+  DDB.Double  ("VapourFracOut", "Vfo", DC_Frac, "%", &dVapFracOut, this, isResult);
   DDB.Double  ("SatT",      "",  DC_T,    "C",     &m_dSatTOut,   this, isResult|noFile|noSnap);
   DDB.Double  ("DegSuperHeat","",DC_dT,   "C",     xid_DegSuperHeat,this, isResult|noFile|noSnap);
   
@@ -188,7 +199,7 @@ void DeSuperHeater::EvalPBMakeUpReqd(long JoinMask)
     CoolWater.SetMakeUpReqd(m_dFlowRqd);
     HotSteam.SetMakeUpReqd(SteamOut.MakeUpReqd()-m_dFlowRqd);
     }
-  };
+  }
 
 //--------------------------------------------------------------------------
 
@@ -197,7 +208,23 @@ void DeSuperHeater::EvalPBMakeUpAvail(long JoinMask)
   if (GSM.Enabled())
     GSM.MakeUpNodeTransferAvail(0);
   MakeUpNodeTransferAvail(0);
-  };
+  }
+
+//--------------------------------------------------------------------------
+
+void DeSuperHeater::ConfigureJoins()
+  {
+  MN_Xfer::ConfigureJoins();
+  /*if (NetMethod()==NM_Probal)
+    {
+    for (int i=0; i<NoProcessIOs(); i++)
+      SetIO_Join(i, 0); 
+    }
+  else
+    {
+    MN_Xfer::ConfigureJoins();
+    }*/
+  }
 
 //--------------------------------------------------------------------------
 
@@ -210,8 +237,10 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
         {
         for (int j=0; j<NoProcessJoins(); j++)
           {
-          double Pj=MeasureJoinPressure(j);
-          SetJoinPressure(j, m_dFinalP, true, true);
+          //double Pj=MeasureJoinPressure(j);
+          //const int IOHotSteam  = IOWithId_Self(ioidSteamIn);
+          //double P = IOP_Flng(IOHotSteam);
+          SetJoinPressure(j, m_dFinalP); //only set outlet pressures
           }
         }
         break;
@@ -223,7 +252,7 @@ void DeSuperHeater::EvalJoinPressures(long JoinMask)
  
 //--------------------------------------------------------------------------
 
-void   DeSuperHeater::SetState(eScdMdlStateActs RqdState)
+void DeSuperHeater::SetState(eScdMdlStateActs RqdState)
   {
   MN_Xfer::SetState(RqdState);
   switch (RqdState)
@@ -316,7 +345,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       double Pi = SigmaQInPMin(Mixture(), som_ALL, Id_2_Mask(ioidSteamIn));//|Id_2_Mask(ioidFeedLiq));
       Mixture().QAddF(*IOConduit(IOCoolWater), som_ALL, 1.0);
 
-      SetCI(4, IOP_Flng(IOCoolWater)<IOP_Flng(IOHotSteam));
+      //SetCI(4, IOP_Flng(IOCoolWater)<IOP_Flng(IOHotSteam)); do not need this test!?; ignore cool water pressure
 
       m_VLE.SetHfInAtZero(Mixture());
 
@@ -331,6 +360,9 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       const double SteamInT = QSteamIn.Temp();
       const double SteamInP = QSteamIn.Press();
       const double SteamInQ = QSteamIn.QMass();
+      dPIn       = SteamInP;
+      dTempIn    = SteamInT;
+      dVapFracIn = QSteamIn.MassFrac(som_Gas);
       SpConduit & QFeedLiq = *IOConduit(IOCoolWater);
       const double FeedLiqT = QFeedLiq.Temp();
       const double FeedLiqP = QFeedLiq.Press();
@@ -411,6 +443,7 @@ void DeSuperHeater::EvalProducts(CNodeEvalIndex & NEI)
       m_dFinalT    = Fo.Temp();
       m_dFinalP    = Fo.Press();
       m_dSatTOut   = Fo.SaturationT(m_dFinalP);
+      dVapFracOut  = Fo.MassFrac(som_Gas);
 
       m_VLE.AddHfOutAtZero(Fo);
       }
@@ -434,7 +467,7 @@ void DeSuperHeater::ClosureInfo()
     if (1)
       CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
-  };
+  }
 
 //--------------------------------------------------------------------------
 

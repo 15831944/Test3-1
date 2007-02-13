@@ -7,6 +7,7 @@
 #include "sc_defs.h"
 #define  __TURBINE_CPP
 #include "turbine.h"
+//#include "optoff.h"
 
 //==========================================================================
 
@@ -194,34 +195,18 @@ flag CTurbine::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-/*void CTurbine::ConfigureJoins()
+void CTurbine::ConfigureJoins()
   {
-  switch (NetMethod())
+  if (NetMethod()==NM_Probal)
     {
-    case NM_Direct:
-    //case SSMODE:
-      {
-      Set_NoJoins(2);
-      for (int i=0; i<NoFlwIOs(); i++)
-        if (IOId_Self(i)>=ioid_ShellIn)
-          SetIO_Join(i, 0);
-        else
-          SetIO_Join(i, 1);
-
-      //todo SetTearPriority
-//IOFlange(i)->SetTearPriority((1 && (IOId_Self(i)==ioidSIn)) ? TP_Last : TP_Normal);
-      break;
-      }
-
-    case NM_Dynamic:
-    //case DYNMODE:
-      {
-      Set_NoJoins(2);
-      //todo
-      break;
-      }
+    for (int i=0; i<NoProcessIOs(); i++)
+      SetIO_Join(i, 0); 
     }
-  }*/
+  else
+    {
+    MN_Xfer::ConfigureJoins();
+    }
+  }
 
 //--------------------------------------------------------------------------
 
@@ -229,30 +214,16 @@ void CTurbine::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
     {
-    switch (NetMethod())
+    if (NetMethod()==NM_Probal)
       {
-      case NM_Probal:
+      for (int j=0; j<NoJoins(); j++)
         {
-        for (int j=0; j<NoProcessJoins(); j++)
-          {
-          double Pj=MeasureJoinPressure(j);
-          SetJoinPressure(j, dPOut, true, true);
-
-          //if (j==1 && m_HX.m_FTC.Active())
-          //  m_FTC.SetSuctionP(Pj);
-          //SetJoinPressure(j, Pj, true, true);
-
-          /*if (j==0)
-            SetJoinPressure(j, Shell.dPo, true, true);
-          else
-            SetJoinPressure(j, Tubes.dPo, true, true);*/
-          }
+        //double Pj=MeasureJoinPressure(j);
+        SetJoinPressure(j, dPOut); //only set outlet pressures
         }
-        break;
-      case NM_Dynamic:
-        MdlNode::EvalJoinPressures(JoinMask);
-        break;
       }
+    else
+      MN_Xfer::EvalJoinPressures(JoinMask);
     }
   }
  
@@ -347,7 +318,7 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
     return;
   const int In  = (IO_In(0) ? 0 : 1);
   const int Out = ((In+1) % 2);
-  SpConduit & FiTmp= *IOConduit(In);
+  SpConduit & FiTmp = *IOConduit(In);
   SpConduit & Fo = *IOConduit(Out);
   ClrCI(1);
   ClrCI(2);

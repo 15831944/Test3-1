@@ -31,7 +31,7 @@ class DllImportExport CTurbine : public MN_Xfer
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk &VDB);
-    //void           ConfigureJoins();
+    virtual void   ConfigureJoins();
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   ClosureInfo();
     virtual void   SetState(eScdMdlStateActs RqdState);
