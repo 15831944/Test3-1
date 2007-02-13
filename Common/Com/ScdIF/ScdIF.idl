@@ -332,6 +332,21 @@ typedef enum eScdVLEOptions
 
 //----------------------------------------------  
 [  
+  uuid(1DA94968-F585-41be-911E-FA1B17275C03),
+  helpstring("eScdEHXOptions"),
+  v1_enum
+]
+typedef enum eScdEHXOptions
+  {
+  EHXF_Null             = 0x00000000,
+  EHXF_Inline           = 0x00000001,
+  EHXF_Node             = 0x00000002,
+  EHXF_WithDebug        = 0x10000000,
+  
+  } eScdEHXOptions;
+
+//----------------------------------------------  
+[  
   uuid(1085B615-96FE-4475-AC73-FC40DEEA79C4),
   helpstring("eScdMdlStateActs"),
   v1_enum
@@ -761,6 +776,7 @@ library ScdIF
   enum eScdGasMixingRule;
   enum eScdEqnOfState;
   enum eScdVLEOptions;
+  enum eScdEHXOptions;
   enum eScdMdlStateActs ;
   enum eScdMacroMdlEvals;
   enum eScdPressCtrls;

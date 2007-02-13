@@ -91,6 +91,7 @@ class DllImportExport MN_BstRes : public MdlNode
     double         dDuty; //ProBal
     //double         dTempDrop;
     CVLEBase       m_VLE;
+    CEnvironHXBase m_EHX;
     CDirectFlwIO   m_LeakI;
     CDirectFlwIO   m_LeakO;
 

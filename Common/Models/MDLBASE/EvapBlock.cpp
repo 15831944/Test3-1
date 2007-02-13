@@ -52,7 +52,7 @@ void CEvapBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
   };
 
-void CEvapBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CEvapBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   };
 
@@ -285,7 +285,7 @@ void CEvBlk_Percentage::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
 
 //--------------------------------------------------------------------------
 
-void CEvBlk_Percentage::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CEvBlk_Percentage::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(Qf, Po, FinalTEst);
   }
@@ -450,7 +450,7 @@ void CEvBlk_FixedFlow::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
 
 //--------------------------------------------------------------------------
 
-void CEvBlk_FixedFlow::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CEvBlk_FixedFlow::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(Qf, Po, FinalTEst);
   }

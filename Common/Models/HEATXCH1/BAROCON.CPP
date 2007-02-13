@@ -140,7 +140,7 @@ BarometricCondenser::BarometricCondenser(pTagObjClass pClass_, pchar TagIn, pTag
   dFlashP         = Std_P;
   dFlashT         = Std_T;
 
-  EHX.Open(&CEHX_LossPerQmClass);
+  m_EHX.Open(&CEHX_LossPerQmClass);
   m_VLE.Open(NULL, true);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(BarometricCondenser), ioidBC_Steam, mmio_MODEL, &typeid(CFT_Condenser));
@@ -172,7 +172,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("ApproachTemp",      "",  DC_dT,   "C",     &ApproachTemp,     this, isParm|VFlags2);
   DDB.Visibility();
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(SM_Buffered|HM_All);
   m_VLE.Add_OnOff(DDB);
   DDB.Visibility();
@@ -204,7 +204,7 @@ void BarometricCondenser::BuildDataDefn(DataDefnBlk & DDB)
   //  DDB.Object(&QFd, this, NULL, NULL, DDB_RqdPage);
 
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
   m_VLE.BuildDataDefn(DDB);
 
   if (SolveBufferedMethod())
@@ -340,7 +340,7 @@ class BCSteamFinder : public MRootFinderBase
       Cd.QAddM(CdSteam, som_ALL, x);
       
       BC.RB.EvalProducts(Cd);
-      BC.EHX.EvalProducts(Cd);
+      BC.m_EHX.EvalProducts(Cd);
 
       BC.m_VLE.SetFlashVapFrac(*Cd.Model(), 0.0, 0);
       double tt = Cd.Temp();
@@ -459,7 +459,7 @@ void BarometricCondenser::EvalProducts(CNodeEvalIndex & NEI)
 //double T2=Cd().Temp(), P2=Cd().Temp();
 
       RB.EvalProducts(Cd());          
-      EHX.EvalProducts(Cd());
+      m_EHX.EvalProducts(Cd());
 //double T3=Cd().Temp(), P3=Cd().Temp();
       m_VLE.SetHfInAtZero(Cd());
 
@@ -513,8 +513,8 @@ void BarometricCondenser::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn+=m_EHX.HeatFlow();
     if (1)
       CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }

@@ -203,7 +203,7 @@ void CFlashTank::EvalProducts()
         m_FTF.FeedSaturationP=Slurry.SaturationP(Slurry.T);
         double PMargin=0.0001;
 
-        m_VLE.QPFlash(Slurry, Steam, m_FTF.SuctionP, 0.0, VLEF_SaturationLimit);
+        m_VLE.PFlash(Slurry, Steam, m_FTF.SuctionP, 0.0, VLEF_SaturationLimit);
 
         int Iter=4;  // goes to 1 Kpa;
         do 
@@ -217,7 +217,7 @@ void CFlashTank::EvalProducts()
             m_FTF.EstFlashP=m_FTF.FlashP;
             }
           if (DoQP)
-            m_VLE.QPFlash(Slurry, Steam, m_FTF.FlashP, 0.0, VLEF_SaturationLimit);
+            m_VLE.PFlash(Slurry, Steam, m_FTF.FlashP, 0.0, VLEF_SaturationLimit);
 
           m_WrkStrm.Copy(Slurry, PIn);
           m_WrkStrm.AddF(Steam, MP_All, 1.0);
@@ -281,10 +281,10 @@ void CFlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2P:
         {
         double P0=m_FTF.PEval;
-        m_VLE.QPFlash(m_WrkStrm, P0, 0.0, VLEF_Null);
+        m_VLE.PFlash(m_WrkStrm, P0, 0.0, VLEF_Null);
         double Q0=m_WrkStrm.Mass(MP_Gas);
         double P1=P0-0.1; // CNM
-        m_VLE.QPFlash(m_WrkStrm, P1, 0.0, VLEF_Null);
+        m_VLE.PFlash(m_WrkStrm, P1, 0.0, VLEF_Null);
         double Q1=m_WrkStrm.Mass(MP_Gas);
         m_FTF.VapourFlowSensEval=(Q0-Q1)/(P0-P1); // should be negative
         m_FTF.VapourFlowSensGood=(m_WrkStrm.Mass()>1.0e-10);
@@ -296,7 +296,7 @@ void CFlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2Qv:
         {
         double P0=m_FTF.PEval;
-        m_VLE.QPFlash(m_WrkStrm, P0, 0.0, VLEF_Null);
+        m_VLE.PFlash(m_WrkStrm, P0, 0.0, VLEF_Null);
         m_FTF.VapourFlowEval=m_WrkStrm.Mass(MP_Gas);
         #if dbgModels   
         Dbg.PrintLn("FlashMM2Qv %12.6f @ %12.6f %s", m_FTF.VapourFlowEval, m_FTF.PEval, Tag);
@@ -306,7 +306,7 @@ void CFlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2QvSens:
         {
         //double P0=m_FTF.dPEval;
-        m_VLE.QMVapFlash(m_WrkStrm, m_FTF.VapourFlowEval, 0.0, VLEF_Null);
+        m_VLE.MVapFlash(m_WrkStrm, m_FTF.VapourFlowEval, 0.0, VLEF_Null);
         m_FTF.PEval=m_WrkStrm.P;
         #if dbgModels   
         Dbg.PrintLn("FlashMM2QS %12.6f @ %12.6f %s", m_FTF.VapourFlowEval, m_FTF.PEval, Tag);

@@ -95,19 +95,19 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual LPTSTR FlashDescription()=0;
 
     virtual double FlashVapFrac(SpModel &Mdl) = 0;
-    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags) {};
-    virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags) {};
-    virtual void   QPFlash(SpConduit &Q, double Press, double Duty, dword Flags) {};
-    virtual void   QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags) {};
-    virtual void   QVFlash(SpContainer &C, double Duty, dword Flags) {};
-    virtual void   AddQVDerivs(SpContainer &C, double Duty, dword Flags) {};
-    virtual void   QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags) {};
-    virtual void   QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags) {};
-    virtual int    GetVLEData(CVLEDataArray & Array) { return 0; }; 
-    virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv)  { return dNAN; };
-    virtual double CondensableFrac(SpContainer*Cn)   { return dNAN; };
-    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
-    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)  { return dNAN; };
+    virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags)  {};
+    virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)                          {};
+    virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags)                           {};
+    virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags)           {};
+    virtual void   VFlash(SpContainer &C, double Duty, dword Flags)                                       {};
+    virtual void   AddQVDerivs(SpContainer &C, double Duty, dword Flags)                                  {};
+    virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags)                         {};
+    virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags)         {};
+    virtual int    GetVLEData(CVLEDataArray & Array)                                                      { return 0; }; 
+    virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv)                                          { return dNAN; };
+    virtual double CondensableFrac(SpContainer*Cn)                                                        { return dNAN; };
+    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)                   { return dNAN; };
+    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)                        { return dNAN; };
     virtual int    SaturationMethod()=0;
 
     virtual double ApproachTemp()=0;
@@ -150,10 +150,10 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     int QVFlashReqd()     { return (m_dwSelectMask&VLEF_QVFlash)!=0; };
     int QMVapFlashReqd()  { return (m_dwSelectMask&VLEF_QMVapFlash)!=0; };
 
-    CVLEBlock *     operator() () { return m_pVLE; };
-    flag           Enabled()  { return m_fEnabled && (m_pVLE!=NULL); };
-    void           Enable()   { m_fEnabled = true; };
-    void           Disable()  { m_fEnabled = false; };
+    CVLEBlock *    operator() () { return m_pVLE; };
+    flag           Enabled()     { return m_fEnabled && (m_pVLE!=NULL); };
+    void           Enable()      { m_fEnabled = true; };
+    void           Disable()     { m_fEnabled = false; };
     void           Add_OnOff(DataDefnBlk &DDB, dword Flags=isParmStopped);
     void           BuildDataDefn(DataDefnBlk &DDB, char* pTag="VLE", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);
@@ -170,12 +170,12 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual void   SetFlashVapFrac(SpConduit &Q, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   SetFlashVapFrac(SpConduit &Q, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
-    virtual void   QPFlash(SpConduit &Q, double Press, double Duty, dword Flags);
-    virtual void   QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
-    virtual void   QVFlash(SpContainer &C, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
     virtual void   AddQVDerivs(SpContainer &C, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
@@ -293,11 +293,11 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
-    virtual void   QPFlash(SpConduit &Q, double Press, double Duty, dword Flags);
-    virtual void   QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
-    virtual void   QVFlash(SpContainer &C, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
@@ -312,8 +312,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     //  protected:
     int            Setup(SpModel *pMdlL_, SpModel *pMdlV_);
     void           SetVapFrac(double VapFrac);//, double RqdH);
-    void           QPFlash(double Press, double Duty, dword Flags);
-    void           QMVapFlash(double MVap, double Duty, dword Flags);
+    void           PFlash(double Press, double Duty, dword Flags);
+    void           MVapFlash(double MVap, double Duty, dword Flags);
     double         CondensableFrac();
 
   public:  
@@ -367,11 +367,11 @@ class DllImportExport CVLEFixdPerc : public CVLEBlock
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
-    virtual void   QPFlash(SpConduit &Q, double Press, double Duty, dword Flags);
-    virtual void   QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
-    virtual void   QVFlash(SpContainer &C, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return False;}
@@ -422,11 +422,11 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual double FlashVapFrac(SpModel &Mdl);
     virtual void   SetFlashVapFrac(SpModel &Mdl, double Temp, double Press, double VapFrac, dword Flags);
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
-    virtual void   QPFlash(SpConduit &Q, double Press, double Duty, dword Flags);
-    virtual void   QPFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
-    virtual void   QVFlash(SpContainer &C, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
-    virtual void   QMVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);    
+    virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
+    virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);    
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return True;};

@@ -1164,7 +1164,7 @@ void MN_SrcSnk::DoEvalProducts(flag Validating, double dTime)
   if (iOut>=0)
     {
     m_Src.SetF(*IOConduit(iOut));
-    m_BlkEval.EvalProductsPipe(*IOConduit(iOut), 0.0, 1.0, IOP_Flng(iOut), NULL);//&m_FTB); 
+    m_BlkEval.EvalProductsInline(*IOConduit(iOut), 0.0, 1.0, IOP_Flng(iOut), NULL);//&m_FTB); 
     }
 
   int iIn=IOWithId_Self(SSIO_Snk);

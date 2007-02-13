@@ -87,6 +87,8 @@ class DllImportExport MN_Xfer : public MdlNode
     CRqdPressCtrl  m_PCtrl0;
     CDirectFlwIO   m_Leak;
 
+
+    CEnvironHXBase m_EHX;
     CReactionBase  m_RB;
     CVLEBase       m_VLE;
     CEvapBase      m_Evap;

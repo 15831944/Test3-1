@@ -122,29 +122,6 @@ DEFINE_TAGOBJ(HeatXchg1);
 class DllImportExport HeatXchg1 : public MdlNode
   {
   public:
-    CHXBlock1      m_HX;
-    CHXJoinInfo    m_HXJ;
-
-    flag           m_fUsePriDP, m_fUseSecDP;
-    byte           m_iPriSgMd, m_iSecSgMd;
-    SpConduit      *m_pPriVent;
-    SpConduit      *m_pSecVent;
-
-    SpContainer    *m_pPriSg;
-    SpContainer    *m_pSecSg;
-    CHgtOrdInfo     m_PriHgtOrd;
-    CHgtOrdInfo     m_SecHgtOrd;
-
-    CSpContPreset * m_pPriSgPS;
-    CSpContPreset * m_pSecSgPS;
-
-    CCnStartCnds    m_PriStart;
-    CCnStartCnds    m_SecStart;
-
-    //flag           m_fDamped;
-
-    long            m_MyPrjFileVerNo;
-
     HeatXchg1(TagObjClass* pClass_, pchar TagIn, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~HeatXchg1();
 
@@ -186,6 +163,31 @@ class DllImportExport HeatXchg1 : public MdlNode
     void           MacroMdlDeactivate()                     {};
 
     dword          ModelStatus();
+
+  public:
+    CEnvironHXBase m_EHX;
+    CHXBlock1      m_HX;
+    CHXJoinInfo    m_HXJ;
+
+    flag           m_fUsePriDP, m_fUseSecDP;
+    byte           m_iPriSgMd, m_iSecSgMd;
+    SpConduit      *m_pPriVent;
+    SpConduit      *m_pSecVent;
+
+    SpContainer    *m_pPriSg;
+    SpContainer    *m_pSecSg;
+    CHgtOrdInfo     m_PriHgtOrd;
+    CHgtOrdInfo     m_SecHgtOrd;
+
+    CSpContPreset * m_pPriSgPS;
+    CSpContPreset * m_pSecSgPS;
+
+    CCnStartCnds    m_PriStart;
+    CCnStartCnds    m_SecStart;
+
+    //flag           m_fDamped;
+
+    long            m_MyPrjFileVerNo;
 
   private:
   };

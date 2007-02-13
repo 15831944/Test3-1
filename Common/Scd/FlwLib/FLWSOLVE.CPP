@@ -4622,7 +4622,7 @@ void FlwSlvBlk::TestClosure(CNodeEvalIndexList &TOSequence)
           if (!HtOK && !QtOK)
             NJ.Nd.SetCI(9, "W\t%s :Join[%i]: Bad Mass & Energy Balance [%7.4f%%] {%7.4f/%7.4f} %s", NJ.Nd.ClassId(), iJoin,Max(fabs(QtErr), fabs(HtErr))*100.0,NettQm,NettHt,SpMsg());
           else if (!HtOK && QtOK)
-            NJ.Nd.SetCI(9, "%s\t%s:Join[%i]: Bad Energy Balance [%7.4f%%] {%7.4f} %s", NJ.Nd.ClassId(), iJoin,(HtOK2&&nModels>1) ? "N":"W", fabs(HtErr)*100.0, NettHt, SpMsg());
+            NJ.Nd.SetCI(9, "%s\t%s:Join[%i]: Bad Energy Balance [%7.4f%%] {%7.4f} %s", (HtOK2&&nModels>1) ? "N":"W", NJ.Nd.ClassId(), iJoin,fabs(HtErr)*100.0, NettHt, SpMsg());
           else
             NJ.Nd.SetCI(9, "W\t%s:Join[%i]: Bad Mass Balance [%7.4f%%] {%7.4f}", NJ.Nd.ClassId(), iJoin,fabs(QtErr)*100.0, NettQm);
           }

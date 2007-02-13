@@ -428,7 +428,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
               if (Tubes.dPo<dTubeMinPout)//check again
                 {
                 Tubes.dPo = dTubeMinPout;
-                VLE_Tubes.QPFlash(Ctubes(), Tubes.dPo, 0.0, 0); //flash to required temperature, if BPE=0.0 then press=PureSaturationP
+                VLE_Tubes.PFlash(Ctubes(), Tubes.dPo, 0.0, 0); //flash to required temperature, if BPE=0.0 then press=PureSaturationP
                 double vf = Ctubes().MassFrac(som_Gas);
                 if (vf<0.00000001)
                   {
@@ -443,7 +443,7 @@ void FFEvap::EvalProducts(CNodeEvalIndex & NEI)
               }
             if (!ZeroEvapLimit)
               {
-              VLE_Tubes.QPFlash(Ctubes(), Tubes.dPo, 0.0, 0); //flash to required temperature, if BPE=0.0 then press=PureSaturationP
+              VLE_Tubes.PFlash(Ctubes(), Tubes.dPo, 0.0, 0); //flash to required temperature, if BPE=0.0 then press=PureSaturationP
               //require covergance to exact reqd temp...
               const double sv = Ctubes().VMass[H2Og_i];
               const double dEst = sv/GTZ(sv+Ctubes().VMass[H2Ol_i]);

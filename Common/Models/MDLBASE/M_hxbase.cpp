@@ -101,7 +101,7 @@ CToleranceBlock CHXDutyFinder::s_Tol(TBF_Both, "HeatExchange:DutyFinder", 0, 1.0
 
 const pchar CEnvironHX::GroupName="EnvirnHX";
 
-IMPLEMENT_EHX(CEnvironHX, "EHXNone", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "None",  " ");
+IMPLEMENT_EHX(CEnvironHX, "EHXNone", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "None",  " ", EHXF_Node|EHXF_Inline);
 
 
 CEnvironHX::CEnvironHX(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
@@ -140,7 +140,7 @@ void CEnvironHX::EvalProducts(SpConduit &Qf, double FinalTEst)
   //TempKProd=TempKFeed;
   };
 
-void CEnvironHX::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEnvironHX::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   dHeatFlow=0.0;
   //TempKFeed=Qf.Temp();
@@ -153,7 +153,7 @@ void CEnvironHX::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, doubl
 //
 //============================================================================
 
-IMPLEMENT_EHX(CEHX_LossPerQm, "EHXLPQ", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "LossPerQm",  " ");
+IMPLEMENT_EHX(CEHX_LossPerQm, "EHXLPQ", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "LossPerQm",  " ", EHXF_Node|EHXF_Inline);
 
 CEHX_LossPerQm::CEHX_LossPerQm(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -211,7 +211,7 @@ void CEHX_LossPerQm::EvalProducts(SpConduit &Qf, double FinalTEst)
   //  Qf.Set_totHf(Qf.totHf()+dHeatFlow);
   };
 
-void CEHX_LossPerQm::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_LossPerQm::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -238,7 +238,7 @@ void CEHX_LossPerQm::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, d
 //
 //============================================================================
 
-IMPLEMENT_EHX(CEHX_ProductT, "EHXProdT", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "ProductTemp",  " ");
+IMPLEMENT_EHX(CEHX_ProductT, "EHXProdT", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "ProductTemp",  " ", EHXF_Node|EHXF_Inline);
 
 CEHX_ProductT::CEHX_ProductT(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -289,7 +289,7 @@ void CEHX_ProductT::EvalProducts(SpConduit &Qf, double FinalTEst)
   //  Qf.Set_totHf(Qf.totHf()+dHeatFlow);
   };
 
-void CEHX_ProductT::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_ProductT::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -309,7 +309,7 @@ void CEHX_ProductT::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, do
 //
 //============================================================================
 
-IMPLEMENT_EHX(CEHX_TDrop, "EHXTempD", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "TempDrop",  " ");
+IMPLEMENT_EHX(CEHX_TDrop, "EHXTempD", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "TempDrop",  " ", /*EHXF_Node|*/EHXF_Inline);
 
 CEHX_TDrop::CEHX_TDrop(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -360,7 +360,7 @@ void CEHX_TDrop::EvalProducts(SpConduit &Qf, double FinalTEst)
   //  Qf.Set_totHf(Qf.totHf()+dHeatFlow);
   };
 
-void CEHX_TDrop::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_TDrop::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -421,7 +421,7 @@ CToleranceBlock CEHXLossFinder::s_Tol(TBF_Both, "EHX:LossFInder", 0, 1.0e-8);
 //
 //
 //============================================================================
-IMPLEMENT_EHX(CEHX_Loss2Ambient, "Loss2Amb", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "Loss to Ambient",  "Loss to Ambient");
+IMPLEMENT_EHX(CEHX_Loss2Ambient, "Loss2Amb", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "Loss to Ambient",  "Loss to Ambient", EHXF_Node|EHXF_Inline);
 
 CEHX_Loss2Ambient::CEHX_Loss2Ambient(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -558,7 +558,7 @@ void CEHX_Loss2Ambient::EvalProducts(SpConduit &Qf, double FinalTEst)
   //  Qf.Set_totHf(Qf.totHf()+dHeatFlow);
   };
 
-void CEHX_Loss2Ambient::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_Loss2Ambient::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -628,7 +628,7 @@ void CEHX_Loss2Ambient::EvalProductsPipe(SpConduit & Qf, double Len, double Diam
 //
 //
 //============================================================================
-IMPLEMENT_EHX(CEHX_Loss2AmbientTank, "Loss2Amb2", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "Loss to Ambient2",  "Loss to Ambient2");
+IMPLEMENT_EHX(CEHX_Loss2AmbientTank, "Loss2Amb2", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "Loss to Ambient2",  "Loss to Ambient2", EHXF_Node|EHXF_Inline);
 
 CEHX_Loss2AmbientTank::CEHX_Loss2AmbientTank(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -700,7 +700,7 @@ void CEHX_Loss2AmbientTank::EvalProducts(SpConduit &Qf, double FinalTEst)
     }
   };
 
-void CEHX_Loss2AmbientTank::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_Loss2AmbientTank::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -734,7 +734,7 @@ void CEHX_Loss2AmbientTank::EvalProductsPipe(SpConduit & Qf, double Len, double 
 //
 //============================================================================
 
-IMPLEMENT_EHX(CEHX_FixedHeatFlow, "EHXFHF", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "FixedHeatFlow", " ");
+IMPLEMENT_EHX(CEHX_FixedHeatFlow, "EHXFHF", "", TOC_ALL|TOC_GRP_ENERGY|TOC_STD_KENWALT, "FixedHeatFlow", " ", EHXF_Node|EHXF_Inline);
 
 CEHX_FixedHeatFlow::CEHX_FixedHeatFlow(pTagObjClass pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach) :
   CEnvironHX(pClass_, Tag_, pAttach, eAttach)
@@ -793,7 +793,7 @@ void CEHX_FixedHeatFlow::EvalProducts(SpConduit &Qf, double FinalTEst)
 
 //--------------------------------------------------------------------------
 
-void CEHX_FixedHeatFlow::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst)
+void CEHX_FixedHeatFlow::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst)
   {
   if (!Valid(FinalTEst))
     FinalTEst=Qf.Temp();
@@ -821,6 +821,25 @@ void CEHX_FixedHeatFlow::EvalProductsPipe(SpConduit & Qf, double Len, double Dia
 //
 //============================================================================
 
+CEnvironHXBase::CEnvironHXBase(FlwNode* pAttach, dword SelectMask, LPTSTR Name) : \
+CBlockEvalBase(BEId_EHX, 0, Name) 
+  {
+  pHL=NULL;
+  pNd=pAttach;
+  fEnabled=false;
+  fFixed=False;
+  m_dwSelectMask=SelectMask;
+  };
+
+//--------------------------------------------------------------------------
+
+CEnvironHXBase::~CEnvironHXBase()
+  {
+  delete pHL;
+  };
+
+//--------------------------------------------------------------------------
+
 flag CEnvironHXBase::Open(TagObjClass * pEHXClass, flag Fixed)
   {
   fEnabled=True;
@@ -840,6 +859,21 @@ flag CEnvironHXBase::Open(TagObjClass * pEHXClass, flag Fixed)
   fEnabled=pHL!=NULL;
   return fEnabled;
   };
+
+//--------------------------------------------------------------------------
+
+flag CEnvironHXBase::Open(byte OnOffSeq, TagObjClass * pEHXClass, flag Fixed) 
+  { 
+  CBlockEvalBase::Open(OnOffSeq); 
+  return Open(pEHXClass, Fixed); 
+  }
+
+//--------------------------------------------------------------------------
+
+byte CEnvironHXBase::OpenStatus()
+  {
+  return CBlockEvalBase::OpenStatus(Enabled());
+  }
 
 //--------------------------------------------------------------------------
 
@@ -878,7 +912,7 @@ void CEnvironHXBase::BuildDataDefn(DataDefnBlk& DDB, pchar pTag_, pchar pTagComm
     if (DDB.BeginStruct(pNd, pTag_, pTagComment, PageIs))
       {
       DDBValueLstMem DDB0;
-      TagObjClass::GetSDescValueLst(CEnvironHX::GroupName, DDB0);
+      TagObjClass::GetSDescValueLst(CEnvironHX::GroupName, DDB0, NULL, m_dwSelectMask);
       DDB.String  ("Model",      "",       DC_    , "",      xidEnvHXEqnNm  , pNd,fFixed ? 0 : isParm|SetOnChange, DDB0());
 
       if (pHL)

@@ -43,7 +43,7 @@ class DllImportExport CMakeupBlock : public TaggedObject
 
     virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
     virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
     inline CDirectFlwIO & getSrcIO();
 
@@ -104,10 +104,10 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
         m_pMakeupB->SrcIO.Sum.ZeroFlows();
         }
       };
-    void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
+    void           EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
       {
       if (Enabled())
-        m_pMakeupB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst);
+        m_pMakeupB->EvalProductsInline(QPrd, Len, Diam, Po, FinalTEst);
       else
         {
         m_pMakeupB->SrcIO.Cd.QZero();

@@ -17,6 +17,7 @@
 MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_VLE(this, VLEF_QPFlash),
+  m_EHX(this, EHXF_Inline),
   m_FEP(NULL, FBOpt_HasSimpleRes, 1.0),
   m_FTB(this, &m_FEP),
   m_LeakI(eDIO_Leak, this, true, false, "Inlet_Leak", IOId_2IOLeakI, IOId_AreaLeakI),
@@ -459,7 +460,7 @@ void MN_BstRes::EvalProducts(CNodeEvalIndex & NEI)
         Fo.SetPress(dPout);
         Fo.Set_totHf(h1); //restore enthalpy
         }
-      m_VLE.QPFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);
+      m_VLE.PFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);
       dTout = Fo.Temp();
       }
     }
@@ -535,7 +536,7 @@ void MN_BstRes::EvalProducts(CNodeEvalIndex & NEI)
       if (m_VLE.Enabled())
         {
         m_FTB.AddVLEBegin();
-        m_VLE.QPFlash(Fo, L.PB(Out).P, /*Valid(L.FB.ShaftPower()) ? L.FB.ShaftPower()/0.8 :*/ 0.0, VLEF_Null);
+        m_VLE.PFlash(Fo, L.PB(Out).P, /*Valid(L.FB.ShaftPower()) ? L.FB.ShaftPower()/0.8 :*/ 0.0, VLEF_Null);
         m_FTB.AddVLEEnd();
         }
       m_FTB.EndEvalProducts();
@@ -570,8 +571,8 @@ void MN_BstRes::ClosureInfo()
     {
     CClosureInfo &CI=m_Closure[0];
     CI.m_PowerIn+=dDuty;
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn+=m_EHX.HeatFlow();
     m_FTB.GetClosureInfo(CI, false, false);
     }
   }

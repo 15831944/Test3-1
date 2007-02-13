@@ -107,7 +107,7 @@ Classifier::Classifier(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   ActUFSolRec   = 0.0;
   bTrackStatus  = true;
    
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
   }
 
 //--------------------------------------------------------------------------
@@ -145,7 +145,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
  
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
@@ -154,7 +154,7 @@ void Classifier::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnShowIOs(DDB);
   
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
     {
@@ -214,7 +214,7 @@ void Classifier::EvalProducts(CNodeEvalIndex & NEI)
   flag HasFlw = (Qm().QMass(som_ALL)>UsableMass);
 
   RB.EvalProducts(Qm());
-  EHX.EvalProducts(Qm());
+  m_EHX.EvalProducts(Qm());
 
   //put all vapours (if any) to vent (if present)...
   flag bVentErr = false;

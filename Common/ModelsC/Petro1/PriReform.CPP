@@ -85,8 +85,8 @@ PriReform::PriReform(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_HotBox("HotBox", this, TOA_Embedded),
   //m_HotBoxPreset(NULL),
   m_HotBoxImg("PresetImg", this, TOA_Embedded),
-  m_CombFeed("CombFeed", this, TOA_Embedded)
-
+  m_CombFeed("CombFeed", this, TOA_Embedded),
+  m_EHX(this, EHXF_Node)
   //Shell("Shell", this, TOA_Embedded)
   {
   AttachClassInfo(nc_Process, m_PriReformIOAreaList);
@@ -105,7 +105,7 @@ PriReform::PriReform(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_HotBox.SetPreset(&m_HotBoxPreset, &m_HotBoxImg);
   //m_HotBox.SetAllowPreset(TRUE);
 
-  EHX.Open(&CEHX_LossPerQmClass);
+  m_EHX.Open(&CEHX_LossPerQmClass);
 
   FuelRB.Open();
   GasRB.Open();
@@ -134,7 +134,7 @@ void PriReform::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
   DDB.Text(" ");
 
-  EHX.Add_OnOff(DDB, False);
+  m_EHX.Add_OnOff(DDB, False);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
@@ -199,7 +199,7 @@ void PriReform::BuildDataDefn(DataDefnBlk & DDB)
   FuelRB.BuildDataDefn(DDB, "FuelRB", NULL, DDB_RqdPage, 1);
   GasRB.BuildDataDefn(DDB, "GasRB", NULL, DDB_RqdPage, 2);
 
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   DDB.EndStruct();
   }
@@ -623,7 +623,7 @@ void PriReform::ConvergeStates(CConvergeStateBlk &CSB)
     };
 
 //  if (!IntegralDone() && !GetActiveHold())
-//    VLE.QVFlash(m_HotBox, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+//    VLE.VFlash(m_HotBox, 0.0, VLEF_Null);//, NULL, NULL, NULL);
   }
 
 //===========================================================================
@@ -636,8 +636,8 @@ void PriReform::ClosureInfo()
     if (m_Closure.DoFlows())
       {
       CClosureInfo &CI=m_Closure[0];
-      if (EHX.Enabled())
-        CI.m_EHXPowerIn += EHX.HeatFlow();
+      if (m_EHX.Enabled())
+        CI.m_EHXPowerIn += m_EHX.HeatFlow();
       }
     }
   };

@@ -640,6 +640,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_RB(this, false),
   m_VLE(this, VLEF_QPFlash),
+  m_EHX(this, EHXF_Inline),
   m_Evap(this),
   m_MFB("MFB", this, TOA_Embedded, 0, 1, &m_VLE),
   m_PFI(this),
@@ -651,13 +652,13 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 #if WITHLINKBLEED 
   , m_Bleed(eDIO_Bleed, this, false, true, "Bleed")
 #endif
-  , m_BlkEval(this, &m_RB, NULL, &EHX, &m_VLE, &m_Evap)
+  , m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MLnk,NULL);
   m_RiseRqd=dNAN;
   m_DatumChg=dNAN;
 
-  m_iBlockSeq = (PrjFileVerNo()<79 ? BS_EHX_RB_VLE : BS_RB_EHX_VLE); //sequence of RB,EHX,VLE,etc
+  m_iBlockSeq = (PrjFileVerNo()<79 ? BS_EHX_RB_VLE : BS_RB_EHX_VLE); //sequence of RB,m_EHX,VLE,etc
   m_iLF_Direction = LFD_Default;
 
   SetAllowedModes(false, NM_All|SM_Direct/*|SM_Inline*/|HM_All|LFM_All);//"Transfer", "Inline", NULL);
@@ -3074,7 +3075,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //dbgpln("EvalProducts N  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
       double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
-      m_BlkEval.EvalProductsPipe(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
+      m_BlkEval.EvalProductsInline(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
       //dbgpln("EvalProducts R  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
@@ -3544,8 +3545,8 @@ void MN_Lnk::ClosureInfo()
     CClosureInfo &CI=m_Closure[0];
     if (m_RB.Enabled())
       m_RB.GetClosureInfo(CI);
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn += EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn += m_EHX.HeatFlow();
     m_FTB.GetClosureInfo(CI, false, false);
     }
   };

@@ -31,6 +31,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   RB(this, true),
   HX(this, NULL),
   m_VLE(this, VLEF_QVFlash),
+  m_EHX(this, EHXF_Node),
   //Preset(&VLE),
   m_PresetImg("PresetImg", this, TOA_Embedded),
   m_PCtrl0(PrjFileVerNo()<32 ? PC_MinFd : PC_Atmos, Std_P, true),
@@ -41,7 +42,7 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_AccOut(eDIO_Deplete, this, false, true, "Depletion"),
   m_AccCalc(this, m_AccIn, m_AccOut),
   m_BlkEval(this)
-  //m_BlkEval(this, &m_RB, NULL, &EHX, &VLE, &m_Evap)
+  //m_BlkEval(this, &m_RB, NULL, &m_EHX, &VLE, &m_Evap)
   {
   //pQFeed=NULL;
   //pQProd=NULL;
@@ -555,13 +556,13 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
       else if (NoProcessJoins()==2)
         {
 //? Makeup
-        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), EHX());
+        Xfer_EvalProducts_Info I0(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), m_EHX());
         CRqdPressCtrl PBCtrl1;
         Xfer_EvalProducts_Info I1(1, Joins[1].Pressure(), NULL, NULL, NULL, &PBCtrl1, NULL, NULL);
         Xfer_EvalProducts(I0, I1, &HX);
         }
       else if (NoProcessJoins()>=1)
-        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), EHX());
+        Xfer_EvalProducts(0, Joins[0].Pressure(), &m_QFeed, &m_QProd, GSM(), &m_PCtrl0, RB(), m_EHX());
       break;
     case SM_Inline:
     case SM_Buffered:
@@ -632,7 +633,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
             (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
           //static int xx=0;
           //if (xx && (IOSign(i)>0))
-          //  m_VLE.QPFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
+          //  m_VLE.PFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
           Contents.AddDeriv(Cd, IOSign(i), EntR);
           }
         }
@@ -807,7 +808,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
         if (VLEOn && IO_In(i))
           {
           QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
-          m_VLE.QPFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
+          m_VLE.PFlash(QPF(), Contents.Press(), 0.0, VLEF_Null);
           Cd=&QPF();
           }
         else
@@ -914,7 +915,7 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       CConvergeStateBlk CSB(eStateAdvance, ICGetTimeInc());
       ConvergeStates(CSB);
 
-      //VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      //VLE.VFlash(Contents, 0.0, VLEF_Null);
       }
 
 #if dbgMSurge
@@ -961,7 +962,7 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
       };
 
     if (!IntegralDone() && !GetActiveHold())
-      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
     m_EqThermals.ConvergeStates(CSB);
     }
@@ -1165,8 +1166,8 @@ void MN_Surge::ClosureInfo()
     CClosureInfo &CI=m_Closure[0];
     if (RB.Enabled())
       RB.GetClosureInfo(CI);
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn += EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn += m_EHX.HeatFlow();
 
     //if (Contents.SpillFlowing())
     //  {

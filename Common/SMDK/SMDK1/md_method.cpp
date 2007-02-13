@@ -1179,7 +1179,9 @@ int     MReactionBlk::FilesUsed(CFilesUsedArray & Files)     { return m_pRB->Fil
 MEnvironHXBlk::MEnvironHXBlk(MBaseMethodCommon *pCom, dword Options, LPCTSTR Tag) : \
 MMethodUtility(pCom, Tag)
   {
-  m_pEHX = new CEnvironHXBase(m_pNd, (LPTSTR)Tag);
+  if (Options==0)
+    Options=EHXF_Node|EHXF_Inline;
+  m_pEHX = new CEnvironHXBase(m_pNd, Options, (LPTSTR)Tag);
   m_pEHX->Open();
   //m_pEHX->Enable();
   };
@@ -1189,33 +1191,19 @@ MEnvironHXBlk::~MEnvironHXBlk()
   delete m_pEHX;
   };                        
            
-//bool    MEnvironHXBlk::Open(bool Fixed)         { return m_pEHX->Open(m_pNd, Fixed!=0)!=0; };
-//void    MEnvironHXBlk::Close()                  { m_pEHX->Close()   ; };
-void    MEnvironHXBlk::Enable()                 { m_pEHX->Open(&CEHX_LossPerQmClass)  ; };
-void    MEnvironHXBlk::Disable()                { m_pEHX->Close() ; };
+void MEnvironHXBlk::Enable()                    { m_pEHX->Open(&CEHX_LossPerQmClass)  ; };
+void MEnvironHXBlk::Disable()                   { m_pEHX->Close() ; };
 
-bool    MEnvironHXBlk::Enabled()                { return m_pEHX->Enabled()!=0; };
-//bool    MEnvironHXBlk::OnAndOK()                { return m_pEHX->OnAndOK()!=0; };
-void    MEnvironHXBlk::OnOffCheckBox(DWORD Flags)  { m_pEHX->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
-void    MEnvironHXBlk::BuildDataFields()        { if (m_pEHX->Enabled()) m_pEHX->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MEnvironHXBlk::ExchangeDataFields()     { return m_pEHX->DataXchg(*m_pCommon->m_pDCB)!=0; };
-bool    MEnvironHXBlk::ValidateDataFields()     { return m_pEHX->ValidateData(*m_pCommon->m_pVDB)!=0; };
+bool MEnvironHXBlk::Enabled()                   { return m_pEHX->Enabled()!=0; };
+void MEnvironHXBlk::OnOffCheckBox(DWORD Flags)  { m_pEHX->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
+void MEnvironHXBlk::BuildDataFields()           { if (m_pEHX->Enabled()) m_pEHX->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+bool MEnvironHXBlk::ExchangeDataFields()        { return m_pEHX->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool MEnvironHXBlk::ValidateDataFields()        { return m_pEHX->ValidateData(*m_pCommon->m_pVDB)!=0; };
 
-void MEnvironHXBlk::EvalProducts(MStream &S, double FinalTEst)
-  { m_pEHX->EvalProducts(S, FinalTEst); };
-void MEnvironHXBlk::EvalProducts(MStream &S, double Len, double Diam, double FinalTEst)
-  { m_pEHX->EvalProductsPipe(S, Len, Diam, FinalTEst); };
+void MEnvironHXBlk::EvalProducts(MStream &S, double FinalTEst)                          { m_pEHX->EvalProducts(S, FinalTEst); };
+void MEnvironHXBlk::EvalProducts(MStream &S, double Len, double Diam, double FinalTEst) { m_pEHX->EvalProductsInline(S, Len, Diam, FinalTEst); };
 
-double MEnvironHXBlk::HeatFlow()
-  { return m_pEHX->HeatFlow(); };
-
-//double MEnvironHXBlk::SaturationTotalP(MVector & Mdl, double T)
-//  { return m_pEHX->SaturationTotalP(T, *Mdl.SpMdl); };
-//
-//void    MEnvironHXBlk::QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
-//  { return m_pEHX->QMVapFlash(Q.Cd, VapMass, Duty, Flags); };
-//void    MEnvironHXBlk::QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags)
-//  { return m_pEHX->QMVapFlash(Ql.Cd, Qv.Cd, VapMass, Duty, Flags); };
+double MEnvironHXBlk::HeatFlow()                { return m_pEHX->HeatFlow(); };
 
 //---------------------------------------------------------------------------
 //
@@ -1236,17 +1224,14 @@ MVLEBlk::~MVLEBlk()
   delete m_pVLE;
   };
 
-//bool    MVLEBlk::Open(bool Fixed)         { return m_pVLE->Open(m_pNd, Fixed!=0)!=0; };
-//void    MVLEBlk::Close()                  { m_pVLE->Close()   ; };
-void    MVLEBlk::Enable()                 { m_pVLE->Enable()  ; };
-void    MVLEBlk::Disable()                { m_pVLE->Disable() ; };
+void    MVLEBlk::Enable()                       { m_pVLE->Enable()  ; };
+void    MVLEBlk::Disable()                      { m_pVLE->Disable() ; };
 
-bool    MVLEBlk::Enabled()                { return m_pVLE->Enabled()!=0; };
-//bool    MVLEBlk::OnAndOK()                { return m_pVLE->OnAndOK()!=0; };
-void    MVLEBlk::OnOffCheckBox(DWORD Flags)  { m_pVLE->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
-void    MVLEBlk::BuildDataFields()        { if (m_pVLE->Enabled()) m_pVLE->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
-bool    MVLEBlk::ExchangeDataFields()     { return m_pVLE->DataXchg(*m_pCommon->m_pDCB)!=0; };
-bool    MVLEBlk::ValidateDataFields()     { return m_pVLE->ValidateData(*m_pCommon->m_pVDB)!=0; };
+bool    MVLEBlk::Enabled()                      { return m_pVLE->Enabled()!=0; };
+void    MVLEBlk::OnOffCheckBox(DWORD Flags)     { m_pVLE->Add_OnOff(*m_pCommon->m_pDDB, Flags); };;
+void    MVLEBlk::BuildDataFields()              { if (m_pVLE->Enabled()) m_pVLE->BuildDataDefn(*m_pCommon->m_pDDB, (LPSTR)(LPCTSTR)m_sTag); };
+bool    MVLEBlk::ExchangeDataFields()           { return m_pVLE->DataXchg(*m_pCommon->m_pDCB)!=0; };
+bool    MVLEBlk::ValidateDataFields()           { return m_pVLE->ValidateData(*m_pCommon->m_pVDB)!=0; };
 
 double  MVLEBlk::FlashVapFrac(MVector &Mdl)
   { return m_pVLE->FlashVapFrac(*Mdl.SpMdl); };
@@ -1263,13 +1248,12 @@ void    MVLEBlk::TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags)
 
 //void            AddQVDerivs(SpContainer &C, double Duty, DWORD Flags);
 
-
-void    MVLEBlk::QPFlash(MStream &Q, double Press, double Duty, DWORD Flags)
-  { m_pVLE->QPFlash(Q.Cd, Press, Duty, Flags); };
-void    MVLEBlk::QPFlash(MStream &Ql, MStream &Qv, double Press, double Duty, DWORD Flags)
-  { m_pVLE->QPFlash(Ql.Cd, Qv.Cd, Press, Duty, Flags); };
-void    MVLEBlk::QVFlash(MContainer &Cn, double Duty, DWORD Flags)
-  { m_pVLE->QVFlash(Cn.Cn, Duty, Flags); };
+void    MVLEBlk::PFlash(MStream &Q, double Press, double Duty, DWORD Flags)
+  { m_pVLE->PFlash(Q.Cd, Press, Duty, Flags); };
+void    MVLEBlk::PFlash(MStream &Ql, MStream &Qv, double Press, double Duty, DWORD Flags)
+  { m_pVLE->PFlash(Ql.Cd, Qv.Cd, Press, Duty, Flags); };
+void    MVLEBlk::VFlash(MContainer &Cn, double Duty, DWORD Flags)
+  { m_pVLE->VFlash(Cn.Cn, Duty, Flags); };
 
 
 double MVLEBlk::SaturationP(MVector & Mdl, double T)
@@ -1278,10 +1262,10 @@ double MVLEBlk::SaturationP(MVector & Mdl, double T)
 double MVLEBlk::SaturationTotalP(MVector & Mdl, double T)
   { return m_pVLE->SaturationTotalP(T, *Mdl.SpMdl); };
 
-void    MVLEBlk::QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
-  { return m_pVLE->QMVapFlash(Q.Cd, VapMass, Duty, Flags); };
-void    MVLEBlk::QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags)
-  { return m_pVLE->QMVapFlash(Ql.Cd, Qv.Cd, VapMass, Duty, Flags); };
+void    MVLEBlk::MVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags)
+  { return m_pVLE->MVapFlash(Q.Cd, VapMass, Duty, Flags); };
+void    MVLEBlk::MVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags)
+  { return m_pVLE->MVapFlash(Ql.Cd, Qv.Cd, VapMass, Duty, Flags); };
 
 //---------------------------------------------------------------------------
 //

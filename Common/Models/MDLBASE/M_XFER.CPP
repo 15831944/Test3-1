@@ -24,8 +24,9 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_FTM(this),
   m_Leak(eDIO_Leak, this, true, false, "Leak", IOId_XferLeak, IOId_AreaLeakI),
   m_VLE(this, VLEF_QPFlash),
+  m_EHX(this, EHXF_Node),
   m_Evap(this),
-  m_BlkEval(this, &m_RB, NULL, &EHX, &m_VLE, &m_Evap)
+  m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MXfer,NULL);
   Joins.SetSize(1);
@@ -397,7 +398,7 @@ of the surge unit.*/
 //    dword IOMsk=First64IOIds;
 //    SigmaQInPMin(QFeed(), som_ALL, IOMsk);
 //    if (0)
-//      VLE.QPFlash(QFeed(), m_Accumulator->Press(), 0.0, VLEF_Null);
+//      VLE.PFlash(QFeed(), m_Accumulator->Press(), 0.0, VLEF_Null);
 //    EvalProducts_SurgeLevel(ContentHgtOrd, &QFeed, &m_SrgCtrl);
 //    //EvalProducts_SurgeLevel(Contents, QFeed, IOMsk, PMU());
 //    }
@@ -464,7 +465,7 @@ void MN_Xfer::EvalIntegral(CNodeEvalIndex & NEI)
       //if (VLEOn && IO_In(i))
       //  {
       //  QPF->QSetF(*IOConduit(i), som_ALL, 1.0);
-      //  VLE.QPFlash(QPF(), m_Accumulator->Press(), 0.0, VLEF_Null);
+      //  VLE.PFlash(QPF(), m_Accumulator->Press(), 0.0, VLEF_Null);
       //  Cd=&QPF();
       //  }
       //else
@@ -550,7 +551,7 @@ void MN_Xfer::EvalIntegral(CNodeEvalIndex & NEI)
       {
       m_Accumulator->ApplyDerivs(ICGetTimeInc(), true);
 
-      //VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      //VLE.VFlash(Contents, 0.0, VLEF_Null);
       }
 
     //#if dbgMSurge
@@ -592,7 +593,7 @@ void MN_Xfer::ConvergeStates(CConvergeStateBlk &CSB)
   //  };
 
   //if (!IntegralDone() && !GetActiveHold())
-  //  VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+  //  VLE.VFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
   //m_EqThermals.ConvergeStates(CSB);
   }
@@ -724,8 +725,8 @@ void MN_Xfer::ClosureInfo()
     CClosureInfo &CI= m_Closure[0];
     if (m_RB.Enabled())
       m_RB.GetClosureInfo(CI);
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn += EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn += m_EHX.HeatFlow();
     }
   };
 

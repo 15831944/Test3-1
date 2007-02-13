@@ -42,18 +42,12 @@
 // ==========================================================================
 
 #define DEFINE_EHX(SM) DEFINE_TAGOBJ(SM)
-#define IMPLEMENT_EHX(Obj, ModelId, Version, Cat, SDesc, LDesc) \
-        IMPLEMENT_TAGOBJ(Obj, CEnvironHX::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc)
+#define IMPLEMENT_EHX(Obj, ModelId, Version, Cat, SDesc, LDesc, SelectMask) \
+  IMPLEMENT_TAGOBJSLCT(Obj, CEnvironHX::GroupName, ModelId, Version, "", "", Cat, SDesc, LDesc, SelectMask)
 
 class DllImportExport CEnvironHX : public TaggedObject
   {
   public:
-    static const pchar GroupName;
-
-    double       dHeatFlow;
-    double       TempKFeed;
-    double       TempKProd;
-
     CEnvironHX(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEnvironHX();
 
@@ -62,8 +56,15 @@ class DllImportExport CEnvironHX : public TaggedObject
 
     virtual flag   ValidateData(ValidateDataBlk & VDB) { return 1; };
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
     virtual double HeatFlow() { return dHeatFlow; };
+
+  public:
+    static const pchar GroupName;
+
+    double       dHeatFlow;
+    double       TempKFeed;
+    double       TempKProd;
   };
 
 DEFINE_EHX(CEnvironHX);
@@ -73,8 +74,6 @@ DEFINE_EHX(CEnvironHX);
 class DllImportExport CEHX_LossPerQm: public CEnvironHX
   {
   public:
-    double         dHperQm;
-
     CEHX_LossPerQm(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEHX_LossPerQm();
 
@@ -82,7 +81,10 @@ class DllImportExport CEHX_LossPerQm: public CEnvironHX
     virtual flag   DataXchg(DataChangeBlk & DCB);
 
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
+  public:
+    double         dHperQm;
   };
 
 DEFINE_EHX(CEHX_LossPerQm);
@@ -92,8 +94,6 @@ DEFINE_EHX(CEHX_LossPerQm);
 class DllImportExport CEHX_ProductT: public CEnvironHX
   {
   public:
-    double         dProdT;
-
     CEHX_ProductT(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEHX_ProductT();
 
@@ -101,7 +101,10 @@ class DllImportExport CEHX_ProductT: public CEnvironHX
     virtual flag   DataXchg(DataChangeBlk & DCB);
 
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
+  public:
+    double         dProdT;
   };
 
 DEFINE_EHX(CEHX_ProductT);
@@ -111,8 +114,6 @@ DEFINE_EHX(CEHX_ProductT);
 class DllImportExport CEHX_TDrop: public CEnvironHX
   {
   public:
-    double         dTDrop;
-
     CEHX_TDrop(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEHX_TDrop();
 
@@ -120,7 +121,10 @@ class DllImportExport CEHX_TDrop: public CEnvironHX
     virtual flag   DataXchg(DataChangeBlk & DCB);
 
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
+  public:
+    double         dTDrop;
   };
 
 DEFINE_EHX(CEHX_TDrop);
@@ -129,6 +133,16 @@ DEFINE_EHX(CEHX_TDrop);
 
 class DllImportExport CEHX_Loss2Ambient: public CEnvironHX
   {
+  public:
+    CEHX_Loss2Ambient(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
+    virtual ~CEHX_Loss2Ambient();
+
+    virtual void   BuildDataDefn(DataDefnBlk& DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+
+    virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
   public:
     double dAmbTOvr;
     double dAmbT;
@@ -144,14 +158,6 @@ class DllImportExport CEHX_Loss2Ambient: public CEnvironHX
     double dPipeD; //used in ProBal only!
     double dPipeL; //used in ProBal only!
 
-    CEHX_Loss2Ambient(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
-    virtual ~CEHX_Loss2Ambient();
-
-    virtual void   BuildDataDefn(DataDefnBlk& DDB);
-    virtual flag   DataXchg(DataChangeBlk & DCB);
-
-    virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
   };
 
 DEFINE_EHX(CEHX_Loss2Ambient);
@@ -161,11 +167,6 @@ DEFINE_EHX(CEHX_Loss2Ambient);
 class DllImportExport CEHX_Loss2AmbientTank: public CEnvironHX
   {
   public:
-    double dAmbTOvr;
-    double dAmbT;
-    double dArea;
-    double dHTC;
-
     CEHX_Loss2AmbientTank(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEHX_Loss2AmbientTank();
 
@@ -173,7 +174,13 @@ class DllImportExport CEHX_Loss2AmbientTank: public CEnvironHX
     virtual flag   DataXchg(DataChangeBlk & DCB);
 
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
+  public:
+    double dAmbTOvr;
+    double dAmbT;
+    double dArea;
+    double dHTC;
   };
 
 DEFINE_EHX(CEHX_Loss2AmbientTank);
@@ -183,8 +190,6 @@ DEFINE_EHX(CEHX_Loss2AmbientTank);
 class DllImportExport CEHX_FixedHeatFlow: public CEnvironHX
   {
   public:
-    double         dRqdHeatFlow;
-
     CEHX_FixedHeatFlow(TagObjClass* pClass_, pchar Tag_, TaggedObject* pAttach, TagObjAttachment eAttach);
     virtual ~CEHX_FixedHeatFlow();
 
@@ -192,7 +197,10 @@ class DllImportExport CEHX_FixedHeatFlow: public CEnvironHX
     virtual flag   DataXchg(DataChangeBlk & DCB);
 
     virtual void   EvalProducts(SpConduit & Qf, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN);
+
+  public:
+    double         dRqdHeatFlow;
   };
 
 DEFINE_EHX(CEHX_FixedHeatFlow);
@@ -206,35 +214,33 @@ XID xidEnvHXEqnNm  = MdlBsXID(32002);
 
 class DllImportExport CEnvironHXBase : public CBlockEvalBase
   {
+  public:
+    CEnvironHXBase(FlwNode* pAttach, dword SelectMask, LPTSTR Name="EHX");
+    ~CEnvironHXBase();
+
+    flag           Open(TagObjClass * pEHXClass=NULL, flag Fixed=False);
+    flag           Open(byte OnOffSeq, TagObjClass * pEHXClass=NULL, flag Fixed=False);
+    byte           OpenStatus();
+    void           Close();
+
+    CEnvironHX *   operator() ()                                            { return fEnabled ? pHL : NULL; };
+    flag           Enabled()                                                { return fEnabled && (pHL!=NULL); };
+    void           Add_OnOff(DataDefnBlk& DDB, dword Flags=isParmStopped);
+    void           BuildDataDefn(DataDefnBlk& DDB, char* pTag="EHX", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
+    flag           DataXchg(DataChangeBlk & DCB);
+
+    flag           ValidateData(ValidateDataBlk & VDB)                      { return Enabled() ? pHL->ValidateData(VDB) : 0; };
+    void           EvalProducts(SpConduit & Qf, double FinalTEst=dNAN)  { if (Enabled()) pHL->EvalProducts(Qf, FinalTEst); };
+    void           EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN) { if (Enabled()) pHL->EvalProductsInline(Qf, Len, Diam, FinalTEst); };
+
+    double         HeatFlow()                                               { return Enabled() ? pHL->dHeatFlow : 0.0; };
+
   protected:
     flag            fFixed;
     flag            fEnabled;
     CEnvironHX *    pHL;
     FlwNode*        pNd;
-  public:
-    CEnvironHXBase(FlwNode* pAttach, LPTSTR Name="EHX") : CBlockEvalBase(BEId_EHX, 0, Name) { pHL=NULL; pNd=pAttach; fEnabled=fFixed=False;};
-    ~CEnvironHXBase() { delete pHL; };
-
-    flag           Open(TagObjClass * pEHXClass=NULL, flag Fixed=False);
-    flag           Open(byte OnOffSeq, TagObjClass * pEHXClass=NULL, flag Fixed=False) { CBlockEvalBase::Open(OnOffSeq); return Open(pEHXClass, Fixed); }
-    byte           OpenStatus() { return CBlockEvalBase::OpenStatus(Enabled()); }
-    void           Close();
-
-    CEnvironHX *    operator() () { return fEnabled ? pHL : NULL; };
-    flag           Enabled() { return fEnabled && (pHL!=NULL); };
-    void           Add_OnOff(DataDefnBlk& DDB, dword Flags=isParmStopped);
-    void           BuildDataDefn(DataDefnBlk& DDB, char* pTag="EHX", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
-    flag           DataXchg(DataChangeBlk & DCB);
-
-    flag           ValidateData(ValidateDataBlk & VDB)
-      { return Enabled() ? pHL->ValidateData(VDB) : 0; };
-    void           EvalProducts(SpConduit & Qf, double FinalTEst=dNAN)
-      { if (Enabled()) pHL->EvalProducts(Qf, FinalTEst); };
-    void           EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN)
-      { if (Enabled()) pHL->EvalProductsPipe(Qf, Len, Diam, FinalTEst); };
-
-    double         HeatFlow()
-      { return Enabled() ? pHL->dHeatFlow : 0.0; };
+    dword           m_dwSelectMask;
   };
 
 //===========================================================================

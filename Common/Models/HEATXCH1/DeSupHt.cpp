@@ -111,7 +111,7 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   DDB.CheckBox("TrackH2OFd",        "",  DC_,     "",      &m_bTrackH2OFeed,      this, isParm);
   //RB.Add_OnOff(DDB, False);
-  //EHX.Add_OnOff(DDB, False);
+  //m_EHX.Add_OnOff(DDB, False);
 
   //GSM.Add_OnOff(DDB);
 
@@ -139,7 +139,7 @@ void DeSuperHeater::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnIOOpts(DDB);
 
   //RB.BuildDataDefn(DDB);
-  //EHX.BuildDataDefn(DDB);
+  //m_EHX.BuildDataDefn(DDB);
 
   if (m_bShowQFeed && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
@@ -462,8 +462,8 @@ void DeSuperHeater::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn+=m_EHX.HeatFlow();
     if (1)
       CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }

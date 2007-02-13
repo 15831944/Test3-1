@@ -189,12 +189,12 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    (" ");
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|SM_Inline|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
 
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   DDB.Text    (" ");
 	BuildDataDefnShowIOs(DDB);
@@ -307,7 +307,7 @@ double CWasherOFFnd::Function(double x)
   Sd.QAddF(Ww, som_ALL, 1.0);
 
   pSurge->RB.EvalProducts(Sd); //React mixture
-  pSurge->EHX.EvalProducts(Sd);
+  pSurge->m_EHX.EvalProducts(Sd);
 
   //put all vapours (if any) to vent (if present)...
   const double Qg = Sd.QMass(som_Gas);
@@ -575,7 +575,7 @@ void Washer::EvalProducts(CNodeEvalIndex & NEI)
       {
       Contents.ZeroDeriv();
       RB.EvalProducts(Sd());
-      EHX.EvalProducts(Sd());
+      m_EHX.EvalProducts(Sd());
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);

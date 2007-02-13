@@ -96,7 +96,7 @@ Centrifuge1::Centrifuge1(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   ActCakeSolConc     = Reqd_SolConc;
   ActCentrateSolConc = Reqd_CenConc;
 
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
 
   SolFlwFrac    = 0.0;
   CenFlwFrac    = 0.0;
@@ -163,7 +163,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("",                        "TrackStatus",     DC_,     "",       &bTrackStatus,       this, isParm);
   DDB.Visibility();
@@ -172,7 +172,7 @@ void Centrifuge1::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnShowIOs(DDB);
   
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
     {
@@ -258,7 +258,7 @@ void Centrifuge1::EvalProducts(CNodeEvalIndex & NEI)
     flag HasFlw = (Qm().QMass(som_ALL)>UsableMass);
 
     RB.EvalProducts(Qm());
-    EHX.EvalProducts(Qm());
+    m_EHX.EvalProducts(Qm());
 
     const double Qg = Qm().QMass(som_Gas);
     SetCI(4, Qg>1e-9);

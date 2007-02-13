@@ -280,7 +280,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Visibility();
   DDB.Text("Product Options");
   m_RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   m_VLE.Add_OnOff(DDB);
 
   DDB.Text("Flow Configuration");
@@ -537,7 +537,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Visibility(); //hss 14/2/98
 
   m_RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
   m_VLE.BuildDataDefn(DDB);
            
 //  if (Qc)

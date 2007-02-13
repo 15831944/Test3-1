@@ -82,7 +82,7 @@ QPrecipD::QPrecipD(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   AttachIOAreas(QPrecipIOAreaList);
   Contents.SetClosed(False);
 //  Contents.SetAllowAdjust(FALSE);
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
   
   bOnLine=1;
   iSecSplitMethod=SSM_None;
@@ -260,8 +260,8 @@ void QPrecipD::BuildDataDefn(DataDefnBlk & DDB)
   
   DDB.Visibility();
 
-  //EHX.Add_OnOff(DDB, False);
-  //EHX.BuildDataDefn(DDB);
+  //m_EHX.Add_OnOff(DDB, False);
+  //m_EHX.BuildDataDefn(DDB);
 
   BuildDataDefnShowIOs(DDB);
   
@@ -864,7 +864,7 @@ void QPrecipD::EvalProducts(CNodeEvalIndex & NEI)
           }
 
         RB.EvalProducts(Qp);
-        //EHX.EvalProducts(Qp);
+        //m_EHX.EvalProducts(Qp);
 
         Damping = Range(0.0, Damping, 1.0);
         MaxACIter = Range((byte)1, MaxACIter, (byte)1000);
@@ -1158,8 +1158,8 @@ void QPrecipD::ClosureInfo()
         {
         CI.m_PowerIn+=-dThermalLoss;
         CI.m_PowerIn+=dExtraDuty;
-        if (EHX.Enabled())
-          CI.m_EHXPowerIn += EHX.HeatFlow();
+        if (m_EHX.Enabled())
+          CI.m_EHXPowerIn += m_EHX.HeatFlow();
         }
       }
     }

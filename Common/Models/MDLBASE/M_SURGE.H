@@ -113,6 +113,7 @@ class DllImportExport MN_Surge : public MdlNode
     CHXBase         HX;
     CReactionBase   RB;
     CVLEBase        m_VLE;
+    CEnvironHXBase  m_EHX;
 
     //CSpCOptionPtr <SpConduit>    m_QFeed;
     //CSpCOptionPtr <SpConduit>    m_QProd;

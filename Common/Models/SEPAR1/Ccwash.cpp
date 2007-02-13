@@ -140,7 +140,7 @@ CCWasher::CCWasher(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //ActOFSolidsConc25    = 0.0;
   ActScandrettEff      = 0.0;
 
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
 
   ByPassGuess=dNAN;
   WashByPassGuess=dNAN;
@@ -213,13 +213,13 @@ void CCWasher::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
 
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   DDB.Visibility();
 
@@ -574,7 +574,7 @@ void CCWasher::EvalProducts(CNodeEvalIndex & NEI)
 				double Cw = Qw.SpecieConc(Qw.Temp(), iScanEffSpecie, som_Liq);
       
         RB.EvalProducts(Qm);
-        EHX.EvalProducts(Qm);
+        m_EHX.EvalProducts(Qm);
 
         //double Qg = Qm.QMass(som_Gas);
         //Qg += Qw.QMass(som_Gas);

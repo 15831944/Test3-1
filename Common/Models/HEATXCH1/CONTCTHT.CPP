@@ -129,7 +129,7 @@ ContactHeater::ContactHeater(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   bRemoveExcessVapour = 1;
   bVentConnected = 0;
 
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
   m_VLE.Open(NULL, true);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(ContactHeater), ioidSI_Steam, mmio_MODEL, &typeid(CFT_Condenser));
@@ -192,7 +192,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   DDB.Double  ("SteamVentRqd", "", DC_Qm, "kg/s",  &dVentRqd,   this, isParm);
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_All|HM_All, !bVentConnected);
@@ -241,7 +241,7 @@ void ContactHeater::BuildDataDefn(DataDefnBlk & DDB)
   BuildDataDefnIOOpts(DDB);
 
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   if (m_bShowQFeed && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
@@ -381,7 +381,7 @@ double FinalTempFnd::Function(double x)
   HL.QSetF(Liq, som_ALL, 1.0, LP);
   HL.QAddM(Vp, som_ALL, Max(VQm, x));
   CH.RB.EvalProducts(HL);
-  CH.EHX.EvalProducts(HL);
+  CH.m_EHX.EvalProducts(HL);
   const double RqdFrac = (VentRqd>UsableMass ? VentRqd/GTZ(HL.VMass[CH.m_VLE.FlashVapIndex()/*H2OVap()*/]+HL.VMass[CH.m_VLE.FlashLiqIndex()/*H2OLiq()*/]) : 0.0);
   const double f = Max(RqdFrac, 1.0-Min(1.0, x/GTZ(VQm)));
   CH.m_VLE.SetFlashVapFrac(HL, f, 0);
@@ -599,7 +599,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
         iCalcMode = QST_General;
         //SetCI(2, (Mixture().Qm(si)<1.0e-6));???
         RB.EvalProducts(Mixture());
-        EHX.EvalProducts(Mixture());
+        m_EHX.EvalProducts(Mixture());
 
         double TPress = LiquorP;
         RqdProdTemp = (iTempSpec==QST_TRise) ? LiquorT+dTRiseRqd : dFinalTRqd;
@@ -609,7 +609,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
           double RqdTemp = RqdProdTemp;
 
           TPress = Mixture().SaturationP(RqdTemp);
-          m_VLE.QPFlash(Mixture(), TPress, 0.0, 0);
+          m_VLE.PFlash(Mixture(), TPress, 0.0, 0);
           double Tmp = Mixture().Temp();
           TPress = Mixture().SaturationP(RqdTemp); //new SaturationP after Flash
           double exsteam = Mixture().VMass[si];
@@ -625,7 +625,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
             const int MxIter=20;
             for (int iIter=0; iIter<MxIter; iIter++)
               {
-              m_VLE.QPFlash(Mixture(), TPress, 0.0, 0);
+              m_VLE.PFlash(Mixture(), TPress, 0.0, 0);
               Tmp = Mixture().Temp();
               double TmpDiff = RqdTemp - Tmp;
               if (fabs(TmpDiff) < 1.0e-5)

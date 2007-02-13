@@ -40,7 +40,7 @@ class DllImportExport CEvapBlock : public TaggedObject
 
     virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
     virtual void    EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
     static const pchar GroupName;
@@ -63,7 +63,7 @@ class DllImportExport CEvBlk_Percentage: public CEvapBlock
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
     double m_dEvapFrac;
@@ -102,7 +102,7 @@ class DllImportExport CEvBlk_FixedFlow: public CEvapBlock
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
     double m_dEvapFrac;
@@ -158,8 +158,8 @@ class DllImportExport CEvapBase : public CBlockEvalBase
       { return Enabled() ? m_pEvapB->ValidateData(VDB) : 0; };
     void           EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pEvapB->EvalProducts(Fo, Po, FinalTEst); };
-    void           EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pEvapB->EvalProductsPipe(Fo, Len, Diam, Po, FinalTEst); };
+    void           EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pEvapB->EvalProductsInline(Fo, Len, Diam, Po, FinalTEst); };
 
     SpConduit    & DiscardCd() { return m_DiscardCd; };
 

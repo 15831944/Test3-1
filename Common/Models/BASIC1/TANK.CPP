@@ -455,7 +455,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
   if (NetProbalMethod())
-    EHX.Add_OnOff(DDB);
+    m_EHX.Add_OnOff(DDB);
   //TODO RESTORE : VLE in ProBal mode!
   if (NetDynamicMethod())
     m_VLE.Add_OnOff(DDB);
@@ -507,7 +507,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);
   if (NetProbalMethod())
-    EHX.BuildDataDefn(DDB);
+    m_EHX.BuildDataDefn(DDB);
   if (NetDynamicMethod())
     m_VLE.BuildDataDefn(DDB);
   if (NetProbalMethod())
@@ -681,7 +681,7 @@ void CTank::EvalDerivs(CNodeEvalIndex & NEI)
     //    Contents.Set_totHf(totH0+dT*dtotH0);
     //    SpMArray Mass1(ContentsMA);
     //
-    //    VLE.QVFlash(Contents, 0.0, VLEF_Null);
+    //    VLE.VFlash(Contents, 0.0, VLEF_Null);
     //
     //    for (s=0; s<SDB.No(); s++)
     //      ContentsdMA[s]+=(ContentsMA[s]-Mass1[s])/GTZ(dT);

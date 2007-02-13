@@ -51,7 +51,7 @@ void CBleedBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
   };
 
-void CBleedBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CBleedBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   };
 
@@ -232,7 +232,7 @@ class DllImportExport CXBlk_Bleed: public CBleedBlock
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
   public:
 
@@ -422,7 +422,7 @@ void CXBlk_Bleed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   //Discard.SetTempPress(T, P);
   };
 
-void CXBlk_Bleed::EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst)
+void CXBlk_Bleed::EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(QPrd, Po, FinalTEst);
   };

@@ -347,7 +347,7 @@ class CCondensingSolverFn : public MRootFinder
       else
         {
         m_ShellO.Set_totHf(m_ShellI.totHf()-q);
-        m_TR.m_VLE.QPFlash(m_ShellO, m_SatP, 0, 0);
+        m_TR.m_VLE.PFlash(m_ShellO, m_SatP, 0, 0);
         }
 
       if (m_ShellO.T<m_ShellI.T)

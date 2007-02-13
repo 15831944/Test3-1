@@ -128,7 +128,7 @@ VapFinder::~VapFinder()
 
 double VapFinder::Function(double P) 
 { 
-m_FT.m_VLE.QPFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
+m_FT.m_VLE.PFlash(m_Ql, m_Qv, P, 0.0, VLEF_SaturationLimit);
 return m_Qv.QMass();
 };
 */
@@ -277,7 +277,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   RB.Add_OnOff(DDB);
   if (SolveBufferedMethod())
-    EHX.Add_OnOff(DDB);
+    m_EHX.Add_OnOff(DDB);
   m_VLE.Add_OnOff(DDB);
 
   DDB.Visibility(NM_Probal|SM_Direct|SM_Inline|HM_All);
@@ -308,7 +308,7 @@ void FlashTank::BuildDataDefn(DataDefnBlk & DDB)
     RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
   if (SolveBufferedMethod())
-    EHX.BuildDataDefn(DDB);
+    m_EHX.BuildDataDefn(DDB);
 
   m_VLE.BuildDataDefn(DDB);
 
@@ -383,7 +383,7 @@ flag FlashTank::ValidateData(ValidateDataBlk & VDB)
     default:
       ClrCI(2);
       if (Contents.Closed())
-        m_VLE.QVFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+        m_VLE.VFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
       break;
     }
 
@@ -582,7 +582,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
         if (fOnLine)
           {
           RB.EvalProducts(Ql);
-          EHX.EvalProducts(Ql);
+          m_EHX.EvalProducts(Ql);
 
 #if WITHNONCONDENSABLES
           const int idNCVent=IOWithId_Self(ioidFT_NCVent);
@@ -612,7 +612,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
             double PMargin=0.0001;
             Qv.CopyQualities(Ql);
 
-            m_VLE.QPFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
+            m_VLE.PFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
             for (int Iter=0;  ;Iter++)
               {
@@ -626,7 +626,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 #if DOPBSMOOTHING  
                 if (m_fSolnVapQmValid && m_dSolnVapQm>0.0)
                   {
-                  m_VLE.QMVapFlash(Ql, Qv, m_dSolnVapQm, 0.0, 0);
+                  m_VLE.MVapFlash(Ql, Qv, m_dSolnVapQm, 0.0, 0);
                   m_FTF.m_dFlashP=Ql.Press(); 
                   //dbgpln("xlashP2   %10.2f", m_FTF.m_dFlashP-101.325);
                   m_FTF.m_dPRqd=m_FTF.m_dFlashP;
@@ -637,7 +637,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
                 m_FTF.m_dPRqdCalc=m_FTF.m_dFlashP;
                 }
               if (DoQP)
-                m_VLE.QPFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit|VLEF_HoldFeedMeasure);
+                m_VLE.PFlash(Ql, Qv, m_FTF.m_dFlashP, 0.0, VLEF_SaturationLimit|VLEF_HoldFeedMeasure);
 
               m_QWrk.QCopy(Ql, m_FTF.m_dFlashP/*PIn*/);
               m_QWrk.QAddF(Qv, som_ALL, 1.0);
@@ -729,8 +729,8 @@ void FlashTank::ClosureInfo()
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn+=m_EHX.HeatFlow();
     if (1)
       CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
@@ -754,14 +754,14 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2P:
         {
         double P0=m_FTF.m_dPEval;
-        m_VLE.QPFlash(m_QWrk, P0, 0.0, VLEF_Null);
+        m_VLE.PFlash(m_QWrk, P0, 0.0, VLEF_Null);
 #if FORCESTEAM
         double Q0= m_QWrk.VMass[H2OVap()];
 #else
         double Q0=m_QWrk.QMass(som_Gas);
 #endif
         double P1=P0+0.1; // CNM
-        m_VLE.QPFlash(m_QWrk, P1, 0.0, VLEF_Null);
+        m_VLE.PFlash(m_QWrk, P1, 0.0, VLEF_Null);
 #if FORCESTEAM
         double Q1= m_QWrk.VMass[H2OVap()];
 #else
@@ -778,7 +778,7 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2Qv:
         {
         double P0=m_FTF.m_dPEval;
-        m_VLE.QPFlash( m_QWrk, P0, 0.0, VLEF_Null);
+        m_VLE.PFlash( m_QWrk, P0, 0.0, VLEF_Null);
 #if FORCESTEAM
         m_FTF.m_dQVapEval= m_QWrk.VMass[H2OVap()]; //steam only!
 #else
@@ -793,7 +793,7 @@ void FlashTank::MacroMdlEvaluate(eScdMacroMdlEvals Eval)
       case MME_Flash2QvSens:
         {
         //double P0=m_FTF.dPEval;
-        m_VLE.QMVapFlash( m_QWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
+        m_VLE.MVapFlash( m_QWrk, m_FTF.m_dQVapEval, 0.0, VLEF_Null);
         m_FTF.m_dPEval= m_QWrk.Press();
         //        #if dbgModels   
         //        if (dbgFlashTrain())

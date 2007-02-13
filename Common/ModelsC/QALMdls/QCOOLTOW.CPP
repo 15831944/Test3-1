@@ -116,7 +116,7 @@ QCoolingTower::QCoolingTower(pTagObjClass pClass_, pchar TagIn, pTaggedObject pA
   EvapFraction=0.0;
   QmWaterEvap=0.0;
 
-  EHX.Open(&CEHX_LossPerQmClass);
+  m_EHX.Open(&CEHX_LossPerQmClass);
   m_VLE.Open(NULL, true);
   };
 

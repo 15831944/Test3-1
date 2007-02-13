@@ -43,7 +43,7 @@ class DllImportExport CBleedBlock : public TaggedObject
 
     virtual flag    ValidateData(ValidateDataBlk & VDB) { return 1; };
     virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
-    virtual void    EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void    EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
     inline CDirectFlwIO   & getSnkIO();
 
@@ -90,8 +90,8 @@ class DllImportExport CBleedBase : public CBlockEvalBase
       { return Enabled() ? m_pBleedB->ValidateData(VDB) : 0; };
     void           EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN)
       { if (Enabled()) m_pBleedB->EvalProducts(QPrd, Po, FinalTEst); };
-    void           EvalProductsPipe(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
-      { if (Enabled()) m_pBleedB->EvalProductsPipe(QPrd, Len, Diam, Po, FinalTEst); };
+    void           EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN)
+      { if (Enabled()) m_pBleedB->EvalProductsInline(QPrd, Len, Diam, Po, FinalTEst); };
 
     virtual int       ChangeTag(char * pOldTag, char * pNewTag);
     virtual int       DeleteTag(char * pDelTag);

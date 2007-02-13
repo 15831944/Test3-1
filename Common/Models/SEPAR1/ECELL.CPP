@@ -324,8 +324,8 @@ void ElectroCell::ClosureInfo()
     
     CI.m_PowerIn+=dHeatFlow;
     
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn+=m_EHX.HeatFlow();
     CI.m_HfGainAtZero+=m_VLE.HfGainAtZero();
     }
   };

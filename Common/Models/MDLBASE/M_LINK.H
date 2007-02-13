@@ -497,6 +497,7 @@ class DllImportExport MN_Lnk : public MdlNode
   public:
     CReactionBase  m_RB;
     CVLEBase       m_VLE;
+    CEnvironHXBase m_EHX;
     CEvapBase      m_Evap;
     CBlockEvaluator m_BlkEval;
 

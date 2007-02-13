@@ -143,7 +143,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility();
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   if (SolveInlineMethod())
     DDB.CheckBoxBtn("LevelControl", "",  DC_,     "",      &m_SrgCtrl.m_bEnabled,           this, isParmStopped|SetOnChange);
@@ -187,7 +187,7 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   else
     RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   if (m_bShowQFeed)// && NetProbalMethod())
     DDB.Object(&m_QFeed, this, NULL, NULL, DDB_RqdPage);
@@ -281,7 +281,7 @@ double CThickenerOFFnd::Function(double x)
   Sd.QCopy(Fd);
   
   pSurge->RB.EvalProducts(Sd);
-  pSurge->EHX.EvalProducts(Sd);
+  pSurge->m_EHX.EvalProducts(Sd);
 
   //put all vapours (if any) to vent (if present)...
   const double Qg = Sd.QMass(som_Gas);
@@ -502,7 +502,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       {
       //Contents.ZeroDeriv();
       RB.EvalProducts(Sd());
-      EHX.EvalProducts(Sd());
+      m_EHX.EvalProducts(Sd());
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);

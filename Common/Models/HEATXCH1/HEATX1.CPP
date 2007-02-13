@@ -443,7 +443,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
 
   if (AllowVent)
     {
-//   m_VLE.QPFlash(*HotSd.m_pCd, HotSd.Po, -m_dMaxFlDuty, VLEF_Null);
+//   m_VLE.PFlash(*HotSd.m_pCd, HotSd.Po, -m_dMaxFlDuty, VLEF_Null);
 ////    m_VLE.SetFlashVapFrac(*HotSd.m_pCd, HotSd.m_SatT-BPE, HotSd.Po, 0.0, VLEF_Null);
 //    HotSd.To=HotSd.m_pCd->Temp();
 //    m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
@@ -1736,7 +1736,7 @@ void CHXBlock1::EvalPressureSens(FlwNode* pNd, SpContainer & Contents, int iJoin
     double MV0,MV1,DeltaMass;
     MV0=Contents.Mass(som_Gas);
 
-    m_VLE.QVFlash(Contents, Duty, VLEF_Null);
+    m_VLE.VFlash(Contents, Duty, VLEF_Null);
     MV1=Contents.Mass(som_Gas);
     m_dV2LQ=(MV0-MV1)/ICGetTimeInc();
 
@@ -1762,7 +1762,7 @@ void CHXBlock1::EvalPressureSens(FlwNode* pNd, SpContainer & Contents, int iJoin
       DeltaMass=Max(1.0e-6, 0.01*MassEquilV);
       Contents.AddM(Cd, som_Gas, DeltaMass);
       MV0=Contents.Mass(som_Gas);
-      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);
       MV1=Contents.Mass(som_Gas);
       m_dV2LQVFrac=(MV0-MV1)/DeltaMass;
 //      RestoreContents(Contents, MassEquilA, totHA);
@@ -1772,7 +1772,7 @@ void CHXBlock1::EvalPressureSens(FlwNode* pNd, SpContainer & Contents, int iJoin
       DeltaMass=Max(1.0e-6, 0.01*MassEquilL);
       Contents.AddM(Cd, som_SL, DeltaMass);
       MV0=Contents.Mass(som_Gas);
-      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);
       MV1=Contents.Mass(som_Gas);
       m_dV2LQLFrac=(MV0-MV1)/DeltaMass;
 //    RestoreContents(MassEquilA, totH0);
@@ -1854,6 +1854,7 @@ IMPLEMENT_MODELUNIT(HeatXchg1, "HeatXchg", "1", Drw_Heater, "HeatExchange", "HXC
 HeatXchg1::HeatXchg1(pTagObjClass pClass_, pchar TagIn, TaggedObject* pAttach, TagObjAttachment eAttach) :
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   m_HX(&CHXBlock1Class, "HX", this, TOA_Embedded),
+  m_EHX(this, EHXF_Node),
   //m_HXJ(this, ioidPIn, ioidPVent, ioidSIn, ioidSVent) //KGA why PVent and SVent !!!?!?!?!?!?!!
   m_HXJ(this, ioidPIn, ioidPVent/*Out*/, ioidSIn, ioidSVent/*Out*/)
   {
@@ -1875,7 +1876,7 @@ HeatXchg1::HeatXchg1(pTagObjClass pClass_, pchar TagIn, TaggedObject* pAttach, T
 
   m_MyPrjFileVerNo=-1;
 
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(HeatXchg1), ioidSIn, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -1929,7 +1930,7 @@ void HeatXchg1::BuildDataDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn("", pPTg,     DC_,    "",     &m_fUsePriDP,  this, isParmStopped|SetOnChange);
   DDB.CheckBoxBtn("", pSTg,     DC_,    "",     &m_fUseSecDP,  this, isParmStopped|SetOnChange);
 
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
@@ -1959,7 +1960,7 @@ void HeatXchg1::BuildDataDefn(DataDefnBlk & DDB)
   if (m_pSecVent)
     DDB.Object(m_pSecVent, this, NULL, NULL, DDB_RqdPage);
 
-  EHX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
+  m_EHX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
   DDB.EndStruct();
   }
@@ -2541,7 +2542,7 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         {
         SpConduit & CdOut=*IOConduit(m_HXJ.S.IOFlwOut());
         SecPIn=SigmaQInPMin(CdOut, som_ALL, ioidSIn, ioidSIn);//som_Gas);
-        m_HX.SetSecondary(NULL, CdOut, SecPIn, EHX());
+        m_HX.SetSecondary(NULL, CdOut, SecPIn, m_EHX());
         }
       else
         m_HX.ClrSecondary();
@@ -2785,7 +2786,7 @@ void HeatXchg1::EvalDerivs(CNodeEvalIndex & NEI)
             double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
                         (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
             if (CondOn && (IOSign(i)>0))
-              m_HX.m_VLE.QPFlash(Cd, m_pCn->Press(), 0.0, VLEF_Null);
+              m_HX.m_VLE.PFlash(Cd, m_pCn->Press(), 0.0, VLEF_Null);
 
             m_pCn->AddDeriv(Cd, IOSign(i), EntR);
             }
@@ -2910,7 +2911,7 @@ void HeatXchg1::EvalIntegral(CNodeEvalIndex & NEI)
 
     Shell.ApplyDerivs(ICGetTimeInc(), true);
 
-    m_HX.m_VLE.QVFlash(Shell, 0.0, VLEF_Null);
+    m_HX.m_VLE.VFlash(Shell, 0.0, VLEF_Null);
 
     SetIntegralDone(true);
     }
@@ -3028,9 +3029,9 @@ void HeatXchg1::ConvergeStates(CConvergeStateBlk &CSB)
   if (m_HX.m_iRqdOpMode==HX1_FullyCondensing && !IntegralDone())
     {
     if (m_iPriSgMd==HXSM_Shell)
-      m_HX.m_VLE.QVFlash(*m_pPriSg, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+      m_HX.m_VLE.VFlash(*m_pPriSg, 0.0, VLEF_Null);//, NULL, NULL, NULL);
     if (m_iSecSgMd==HXSM_Shell)
-      m_HX.m_VLE.QVFlash(*m_pSecSg, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+      m_HX.m_VLE.VFlash(*m_pSecSg, 0.0, VLEF_Null);//, NULL, NULL, NULL);
     }
   }
 
@@ -3119,6 +3120,8 @@ void HeatXchg1::ClosureInfo()
       if (m_Closure.GetSize()>1)
         {
         CClosureInfo &CI1=m_Closure[1];
+        if (m_EHX.Enabled())
+          CI1.m_EHXPowerIn+=m_EHX.HeatFlow();
         CI1.m_PowerIn+=-m_HX.m_dDuty;
         if (m_pSecVent)
           {

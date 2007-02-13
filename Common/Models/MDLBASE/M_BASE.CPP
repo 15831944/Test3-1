@@ -251,8 +251,8 @@ void CSurgeControl::StartStep()
 
 MdlNode::MdlNode(TagObjClass * pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   FlwNode(pClass_, TagIn, pAttach, eAttach),
-  GSM(this),
-  EHX(this)
+  GSM(this)//,
+  //EHX(this)
   {
   FlowIn = 0.0;
   bNodeMakeUpReqd=0;
@@ -1973,8 +1973,8 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
     return true;
   if (GSM.DataXchg(DCB))
     return true;
-  if (EHX.DataXchg(DCB))
-    return true;
+  //if (EHX.DataXchg(DCB))
+  //  return true;
 
   if (DCB.lHandle>=xidFEFirst && DCB.lHandle<xidFELast)
     {
@@ -3016,12 +3016,12 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
 
 void MdlNode::ClosureInfo()
   {
-  if (m_Closure.DoFlows())
-    {
-    CClosureInfo &CI=m_Closure[0];
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn+=EHX.HeatFlow();
-    }
+  //if (m_Closure.DoFlows())
+  //  {
+  //  CClosureInfo &CI=m_Closure[0];
+  //  if (EHX.Enabled())
+  //    CI.m_EHXPowerIn+=EHX.HeatFlow();
+  //  }
   };
 
 //==========================================================================
@@ -4074,6 +4074,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   DDB.Text("");
   if (m_Closure.GetSize())
     {
+    DDB.Page("Closure", DDB_RqdPage);
     if (DDB.BeginArray(this, "Closure", "Closure", m_Closure.GetSize(), 0, DDB_NoPage))
       {
       for (int i=0; i<m_Closure.GetSize(); i++)

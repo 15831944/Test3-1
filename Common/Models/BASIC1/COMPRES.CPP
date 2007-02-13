@@ -342,7 +342,7 @@ flag GasPump_GP::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, in
 //      {
 //      Fo.QCopy(Fi);
 //      m_FTB.BeginEvalProducts(Fo);
-//      m_VLE.QPFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);//, NULL, NULL, NULL);
+//      m_VLE.PFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);//, NULL, NULL, NULL);
 //      IOFB(0,0)->SetQm(Sign(IOFB(0,0)->GetQm())*Fo.QMass(som_ALL));
 //      IOFB(0,0)->EvalProducts(IOP_Flng(In), IOP_Flng(Out), Fo, m_FTB);
 //      m_FTB.EndEvalProducts();

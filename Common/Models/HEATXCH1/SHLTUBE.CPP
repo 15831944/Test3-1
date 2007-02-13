@@ -1552,7 +1552,7 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
     double MV0,MV1,DeltaMass;
     MV0 = Contents.Mass(som_Gas);
 
-    m_VLE.QVFlash(Contents, Duty, VLEF_Null);
+    m_VLE.VFlash(Contents, Duty, VLEF_Null);
     MV1   = Contents.Mass(som_Gas);
     m_dV2LQ = (MV0-MV1)/ICGetTimeInc();
 
@@ -1577,7 +1577,7 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
       DeltaMass = Max(1.0e-6, 0.01*MassEquilV);
       Contents.AddM(Cd, som_Gas, DeltaMass);
       MV0 = Contents.Mass(som_Gas);
-      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);
       MV1 = Contents.Mass(som_Gas);
       m_dV2LQVFrac = (MV0-MV1)/DeltaMass;
 //      RestoreContents(Contents, MassEquilA, totHA);
@@ -1587,7 +1587,7 @@ void CHXShlTube::EvalPressureSens(pFlwNode pNd, SpContainer & Contents, int iJoi
       DeltaMass = Max(1.0e-6, 0.01*MassEquilL);
       Contents.AddM(Cd, som_SL, DeltaMass);
       MV0 = Contents.Mass(som_Gas);
-      m_VLE.QVFlash(Contents, 0.0, VLEF_Null);
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);
       MV1 = Contents.Mass(som_Gas);
       m_dV2LQLFrac = (MV0-MV1)/DeltaMass;
 //    RestoreContents(MassEquilA, totH0);
@@ -1667,6 +1667,7 @@ ShellTube::ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   MdlNode(pClass_, TagIn, pAttach, eAttach),
   LastVent("LastVent", this, TOA_Embedded),
   HX(this, &CHXShlTubeClass, true),
+  m_EHX(this, EHXF_Node),
   m_HXJ(this, ioidST_TubeIn, ioidST_TubeOut, ioidST_ShellIn, ioidST_ShellOut),
   Shell("Shell", this, TOA_Embedded),
   //Preset(&((CHXShlTube*)HX())->VLE),
@@ -1683,7 +1684,7 @@ ShellTube::ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   pHXST=(CHXShlTube*)HX();
 
-  //EHX.Open(&CEHX_LossPerQmClass);
+  //m_EHX.Open(&CEHX_LossPerQmClass);
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(ShellTube), ioidST_ShellIn, mmio_MODEL, &typeid(CFT_Condenser));
   }
@@ -1695,10 +1696,10 @@ void ShellTube::BuildDataDefn(DataDefnBlk & DDB)
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
   DDB.Text("");
 
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
 
   DDB.Text("");
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
@@ -1999,7 +2000,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
         ShellPIn=SigmaQInPMin(CdOut, som_ALL, ioidST_ShellIn, ioidST_ShellIn);//som_Gas);
         if (SolveInlineMethod() && pHXST->m_iRqdOpMode==STHX_FullyCondensing)
           ShellPIn = CdOut.SaturationTotalP(CdOut.Temp()); //temp kludge
-        HX.SetSecondary(NULL, CdOut, ShellPIn, EHX());
+        HX.SetSecondary(NULL, CdOut, ShellPIn, m_EHX());
         }
       else
         HX.ClrSecondary();
@@ -2199,7 +2200,7 @@ void ShellTube::ConvergeStates(CConvergeStateBlk &CSB)
   MdlNode::ConvergeStates(CSB);
   ASSERT(NetDynamicMethod());
 
-  pHXST->m_VLE.QVFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+  pHXST->m_VLE.VFlash(Shell, 0.0, VLEF_Null);//, NULL, NULL, NULL);
 
   }
 
@@ -2273,6 +2274,8 @@ void ShellTube::ClosureInfo()
         CClosureInfo &CI1=m_Closure[1];
         CI1.m_PowerIn+=-HX()->m_dDuty;
         CI1.m_HfGainAtZero+=pHXST->m_VLE.HfGainAtZero();
+        if (m_EHX.Enabled())
+          CI1.m_EHXPowerIn+=m_EHX.HeatFlow();
         }
 
       const int id=IOWithId_Self(ioidST_ShellVent);

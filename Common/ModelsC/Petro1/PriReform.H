@@ -75,6 +75,7 @@ class DllImportExport PriReform : public MdlNode
     SpImage        m_HotBoxImg;
     CSpContPreset  m_HotBoxPreset;
     CCnStartCnds   m_HBStart;
+    CEnvironHXBase m_EHX;
 
 //  flag           m_bIgnition[7];
     struct 

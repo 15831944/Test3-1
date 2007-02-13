@@ -294,7 +294,7 @@ class DllImportExport MdlNode : public FlwNode
   public:
     double         FlowIn;
     GSModelBase    GSM;
-    CEnvironHXBase EHX;
+    //CEnvironHXBase EHX;
 
     flag           bNodeMakeUpReqd; // Set If Makeup Defines splits through the node
 

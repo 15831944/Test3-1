@@ -53,7 +53,7 @@ void CMakeupBlock::EvalProducts(SpConduit &Qf, double Po, double FinalTEst)
   {
   };
 
-void CMakeupBlock::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CMakeupBlock::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   };
 
@@ -351,7 +351,7 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
     double         GetSetPoint();
     double         GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd);
@@ -1681,7 +1681,7 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
   };
 
-void CXBlk_MUFeed::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CXBlk_MUFeed::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(Qf, Po, FinalTEst);
   };
@@ -1742,7 +1742,7 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
-    virtual void   EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
+    virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
     double         GetSetPoint();
     double         GetRawMeas(SpConduit &QPrd, PhMask PhRqd=0);
@@ -3037,7 +3037,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
 
   };
 
-void CXBlk_MUSimple::EvalProductsPipe(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
+void CXBlk_MUSimple::EvalProductsInline(SpConduit & Qf, double Len, double Diam, double Po, double FinalTEst)
   {
   EvalProducts(Qf, Po, FinalTEst);
   };

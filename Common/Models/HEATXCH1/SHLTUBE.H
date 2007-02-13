@@ -109,22 +109,6 @@ DEFINE_TAGOBJ(ShellTube);
 class DllImportExport ShellTube : public MdlNode
   {
 	public:
-    CHXBase        HX;
-    CHXShlTube     *pHXST;
-    CHXJoinInfo    m_HXJ;
-    CFlwEqnPtr      FBP, FBS;
-    //double         QmVentRqd;
-    SpConduit      LastVent;
-      
-    SpContainer    Shell;
-    SpConduit      QInEst;     //The object which manages the estimate of the input of materials to the surge unit.
-    SpConduit      QSigmaOut;  //The object which manages the estimate of the input of materials to the surge unit.
-    CHgtOrdInfo    ShellHgtOrd;
-
-    CCnStartCnds   m_ShellStart;
-
-    CSpContPreset  m_Preset;
-
     ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~ShellTube(){};
 
@@ -160,6 +144,24 @@ class DllImportExport ShellTube : public MdlNode
     void           MacroMdlDeactivate()                       {};
     
     virtual        dword ModelStatus();
+
+  public:
+    CEnvironHXBase m_EHX;
+    CHXBase        HX;
+    CHXShlTube     *pHXST;
+    CHXJoinInfo    m_HXJ;
+    CFlwEqnPtr      FBP, FBS;
+    //double         QmVentRqd;
+    SpConduit      LastVent;
+      
+    SpContainer    Shell;
+    SpConduit      QInEst;     //The object which manages the estimate of the input of materials to the surge unit.
+    SpConduit      QSigmaOut;  //The object which manages the estimate of the input of materials to the surge unit.
+    CHgtOrdInfo    ShellHgtOrd;
+
+    CCnStartCnds   m_ShellStart;
+
+    CSpContPreset  m_Preset;
 
   private:
   };

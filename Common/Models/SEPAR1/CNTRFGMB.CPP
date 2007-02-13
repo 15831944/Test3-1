@@ -160,13 +160,13 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    (" ");
   RB.Add_OnOff(DDB);
-  EHX.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
 
   DDB.Text    (" ");
   BuildDataDefnShowIOs(DDB);
 
   RB.BuildDataDefn(DDB);
-  EHX.BuildDataDefn(DDB);
+  m_EHX.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
     {
@@ -242,7 +242,7 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       double CWash2 = QW2.SpecieConc(QW2.Temp(), iWashEffSpecie, som_Liq);
 
       RB.EvalProducts(QFd);
-      EHX.EvalProducts(QFd);
+      m_EHX.EvalProducts(QFd);
 
 		  MSol    = QFd.QMass(som_Sol);
       MLiq    = QFd.QMass(som_Liq);
@@ -356,7 +356,7 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       //double CWash1 = QWw.SpecieConc(QWw.Temp(), iWashEffSpecie, som_Liq);
       //double CWash2 = QW2.SpecieConc(QW2.Temp(), iWashEffSpecie, som_Liq);
       RB.EvalProducts(Sd());
-      EHX.EvalProducts(Sd());
+      m_EHX.EvalProducts(Sd());
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);

@@ -744,7 +744,7 @@ flag CSpContPreset::AdjustConditions(SpContainer & Cn)
   {
   if (bDoVLE && Cn.VLEBlk())
     {
-    Cn.VLEBlk()->QVFlash(Cn, 0.0, VLEF_Null);
+    Cn.VLEBlk()->VFlash(Cn, 0.0, VLEF_Null);
     return Cn.VLEBlk()->Enabled();
     }
   return false;

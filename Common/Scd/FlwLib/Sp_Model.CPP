@@ -472,7 +472,7 @@ void CSpMdlDerivCtrl::Estimate(SpModel * pMdl, double dTime)
   double MSL1=pMdl->Mass(som_SL);
   if (dbgDerivCtrl() || dbgDerivCtrlDbgBrk() && pMdl->DoDbgBrk())
     {
-    //      dbgpln("QVFlash:%s",pMdl->FullObjTag());
+    //      dbgpln("VFlash:%s",pMdl->FullObjTag());
     dbgpln("  T : %14.6f > %14.6f [%+14.6g]",  T0, T1, T1-T0);
     dbgpln("  P : %14.6f > %14.6f [%+14.6g]",  P0, P1, P1-P0);
     dbgpln("  H : %14.6g > %14.6g [%+14.6g]",  H0, H1, H1-H0);

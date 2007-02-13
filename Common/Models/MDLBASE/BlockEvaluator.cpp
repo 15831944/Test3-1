@@ -484,7 +484,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
         if (pFTB)
           pFTB->AddVLEBegin();
         Fo.SetVLEBlk(m_pVLE);
-        m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
+        m_pVLE->PFlash(Fo, Po, 0.0, VLEF_Null);
         if (pFTB)
           pFTB->AddVLEEnd();
         break;
@@ -522,10 +522,10 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
+void CBlockEvaluator::EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   if (dbgBlkEvalProd && m_nBlocks>0)
-    dbgpln("CBlockEvaluator::EvalProductsPipe >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
+    dbgpln("CBlockEvaluator::EvalProductsInline >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
   for (int i=0; i<m_nBlocks; i++)
     {
     switch (m_Blks[i]->BEId())
@@ -548,7 +548,7 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
       case BEId_EHX:  
         if (pFTB)
           pFTB->AddEHXBegin();
-        m_pEHX->EvalProductsPipe(Fo, Len, Diam);
+        m_pEHX->EvalProductsInline(Fo, Len, Diam);
         if (pFTB)
           pFTB->AddEHXEnd();
         break;
@@ -557,7 +557,7 @@ void CBlockEvaluator::EvalProductsPipe(SpConduit & Fo, double Len, double Diam, 
         if (pFTB)
           pFTB->AddVLEBegin();
         Fo.SetVLEBlk(m_pVLE);
-        m_pVLE->QPFlash(Fo, Po, 0.0, VLEF_Null);
+        m_pVLE->PFlash(Fo, Po, 0.0, VLEF_Null);
         if (pFTB)
           pFTB->AddVLEEnd();
         break;

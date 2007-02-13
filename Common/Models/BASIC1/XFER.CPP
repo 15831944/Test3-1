@@ -106,7 +106,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
       {                      
       DDB.Text("");
       m_RB.Add_OnOff(DDB);
-      EHX.Add_OnOff(DDB);
+      m_EHX.Add_OnOff(DDB);
       }
 
     DDB.Visibility(SM_Buffered|HM_All);

@@ -350,8 +350,8 @@ void Mill1::ClosureInfo()
     CI.m_HsGain+=Sd.totHs(); 
     CI.m_HfLoss+=Pr.totHf();
     CI.m_HsLoss+=Pr.totHs(); 
-    if (EHX.Enabled())
-      CI.m_EHXPowerIn += EHX.HeatFlow();
+    if (m_EHX.Enabled())
+      CI.m_EHXPowerIn += m_EHX.HeatFlow();
     }
   };
 

@@ -1961,7 +1961,7 @@ void MFCommonBlk::SetProperties(SpConduit & Cd, double P, double MaxT, flag DoDb
     }
   */
   int dodbg=0;
-  pVLE->QPFlash(Cd, P, 0.0, VLEF_SaturationLimit);
+  pVLE->PFlash(Cd, P, 0.0, VLEF_SaturationLimit);
 
   if (MaxT>0 && Cd.Temp()>MaxT)
     Cd.SetTemp(MaxT);
@@ -2105,7 +2105,7 @@ flag MFCommonBlk::DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
     dOnePhPart=0.5*(OnePhPart0+OnePhPart1);
     double P=FE.PAtFromEntry(dOnePhPart);
     Cd.Set_totHf(HIn);
-    pVLE->QPFlash(Cd, P, 0.0, VLEF_SaturationLimit);
+    pVLE->PFlash(Cd, P, 0.0, VLEF_SaturationLimit);
     double Vf=Cd.MassFrac(som_Gas);
     double T=Cd.Temp();
     if (Vf>MinMFBVapFrac)
@@ -2474,7 +2474,7 @@ flag MFCommonBlk::DoFlash(flag AtEntry, CFlwBlkBase & FE,
     //double DPTot=POut-PIn; // Initial Est
     }
   #endif
-  pVLE->QPFlash(Cd, POut, 0.0, VLEF_SaturationLimit);
+  pVLE->PFlash(Cd, POut, 0.0, VLEF_SaturationLimit);
 
   VfOut=Cd.MassFrac(som_Gas);
 
@@ -2501,7 +2501,7 @@ flag MFCommonBlk::DoFlash(flag AtEntry, CFlwBlkBase & FE,
       Done=DoFlashVapAtStart(/*How,*/ AtEntry, FE, Regulation, Cd, K, DI, DE, DO);//, D2);
     //CHECK Flash End
 
-    //pVLE->QPFlash(Cd, POut, 0.0, VLEF_SaturationLimit);
+    //pVLE->PFlash(Cd, POut, 0.0, VLEF_SaturationLimit);
     }
   else
     {

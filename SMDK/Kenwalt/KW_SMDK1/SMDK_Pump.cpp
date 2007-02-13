@@ -320,7 +320,7 @@ void CPumpValve::EvalProducts()
         Prod.P = dPout;
         Prod.Set_totHf(h1); //restore enthalpy
         }
-      //VLE.QPFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);
+      //VLE.PFlash(Fo, IOP_Flng(Out), 0.0, VLEF_Null);
       dTout = Prod.T;
       }
     }

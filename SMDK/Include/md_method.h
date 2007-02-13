@@ -1117,17 +1117,21 @@ class DllImportExport MVLEBlk : public MMethodUtility
     void            SetFlashVapFrac(MStream &Q, double VapFrac, DWORD Flags);
     // Flash the contents given Temperature & Pressure (adjust VapMassFrac)
     void            TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags);
-    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) ie T will be the Saturation Temp at the final conditions
-    void            QPFlash(MStream &Q, double Press, double Duty, DWORD Flags);
-    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) ie T will be the Saturation Temp at the final conditions
-    void            QPFlash(MStream &Ql, MStream &Qv, double Press, double Duty, DWORD Flags);
-    // Flash the contents to equilibrium
-    void            QVFlash(MContainer &Cn, double Duty, DWORD Flags);
+    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) 
+    // ie T will be the Saturation Temp at the final conditions
+    // InjectedDuty is that added due to mechanical inefficiencies is machinery like pumps 
+    void            PFlash(MStream &Q, double Press, double InjectedDuty=0.0, DWORD Flags=0);
+    // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) 
+    // ie T will be the Saturation Temp at the final conditions
+    // InjectedDuty is that added due to mechanical inefficiencies is machinery like pumps 
+    void            PFlash(MStream &Ql, MStream &Qv, double Press, double InjectedDuty=0.0, DWORD Flags=0);
+    // Flash the contents to equilibrium within the Fixed Container Volume
+    void            VFlash(MContainer &Cn, double InjectedDuty=0.0, DWORD Flags=0);
 
+    // Flash the contents Such that mass of Vapour is VapMass (adjust T & P)  
+    void            MVapFlash(MStream &Q, double VapMass, double InjectedDuty=0.0, DWORD Flags=0);
     // Flash the contents Such that mass of Vapour is VapMass (adjust T & P)
-    void            QMVapFlash(MStream &Q, double VapMass, double Duty, DWORD Flags);
-    // Flash the contents Such that mass of Vapour is VapMass (adjust T & P)
-    void            QMVapFlash(MStream &Ql, MStream &Qv, double VapMass, double Duty, DWORD Flags);
+    void            MVapFlash(MStream &Ql, MStream &Qv, double VapMass, double InjectedDuty=0.0, DWORD Flags=0);
 
     // returns the Saturation Pressure At T igonres the Partial pressure of other gasses
     double          SaturationP(MVector & V, double T);
