@@ -221,7 +221,7 @@ void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList
       if (m_nVarData>=m_nMaxVarData)
         SetMaxVarData(m_nMaxVarData+16);
       char S[256];
-      if (ForceNewPage || (Lvl==0 && nOnPg>MaxPerPage))
+      if (ForceNewPage || (Lvl==0 && nOnPg>MaxPerPage && pVar->WhatAmI()!=VarLabel))
         {
         ForceNewPage = 0;
         sprintf(S, "Data:%i",nPg+1);
@@ -372,21 +372,23 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   // #744 Allow editting of Includes
   if (DDB.ForView())
     {
-    DDB.Text(" ");
+    DDB.Text("");
     for (int i=0; i<PgmMngr.m_FilesUsed.GetLen(); i++)
       {
-      Strng Fn, Fn1;
-      Fn.FnNameExt(PgmMngr.m_FilesUsed[i]());
-      Fn1="Edit ";
-      Fn1+=Fn;
-      DDB.Button(Fn(),         Fn1(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
+      Strng Fn, Tg;
+      Fn.FnName(PgmMngr.m_FilesUsed[i]());
+      if (i==0)
+        Tg = "Edit Main pgm";
+      else
+        Tg.Set("Edit include %d", i);
+      DDB.Button(Tg(),         Fn(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
       }
     DDB.String("NewInclude",   "",       DC_,      "",    idmEditFileNameNew,            this, isParm|SetOnChange|noFileAtAll);
     if (m_sEditFileNameNew.GetLength()>0)
       DDB.Button(m_sEditFileNameNew(),  "Create", DC_,    "",    idmEditFileBtnNew,            this, isParm);
     }
 
-#if WithPGMWatches
+  #if WithPGMWatches
   DDB.Text(" ");
   DDB.CheckBoxBtn("WatchesOn", "", DC_,   "",    idmWatchesOn,            this, isParm, DDBYesNo);
   #endif
