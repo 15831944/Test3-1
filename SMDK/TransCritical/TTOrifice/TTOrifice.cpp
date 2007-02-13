@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-12 14:04:13 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-13 10:45:48 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -50,6 +50,7 @@ static MDDValueLst DD0[]=
 
 static const double slipData[8][4] = 
     { 
+
 	{1,1,1,0},
 	{.28,.64,.36,.07},
 	{1,1,.5,0},
@@ -77,13 +78,16 @@ public:
     SlipFlow(double _mBb, double _mn1, double _mn2, double _mn3): 
 	mBb(_mBb), mn1(_mn1), mn2(_mn2), mn3(_mn3) 
     { }
-    SlipFlow(int i) 
-    {
-	mBb = slipData[i][0];
-	mn1 = slipData[i][1];
-	mn2 = slipData[i][2];
-	mn3 = slipData[i][3];
-    }
+  SlipFlow(int i) 
+  {
+    
+    mBb = slipData[i][0];
+    mn1 = slipData[i][1];
+    mn2 = slipData[i][2];
+    mn3 = slipData[i][3];
+  }
+  
+
     
 	     
 
@@ -128,7 +132,7 @@ public:
 //===========================================================================
 
 
-
+/*
 class CFlashSolver : public MRootFinder
   {
   public:
@@ -157,32 +161,7 @@ double CFlashSolver::Function(double x)
   double dFlashP = iStream.SaturationP(iStream.T);
   return pRqd - dFlashP;
 }
-
-
-/*
-double PFlash(MStream & inStream, double P) 
-{
-  CFlashSolver fn(inStream, dFlashP, m_VLE);
-
-      
-
-
-  if (fn.FindRoot(0., 0., 0.99)==RF_OK) {
-	//Log.Message(MMsg_Error, "Found Root");
-    dxVapor = fn.Result();
-    m_VLE.SetFlashVapFrac(inStream, dxVapor, VLEF_QVFlash);
-    return dxVapor
-  } else {
-    Log.Message(MMsg_Error, "Couldnt solve for root");
-    return -1.0;
-  } 
-
-
-  
-}
 */
-
-
 
 static MInOutDefStruct s_IODefs[]=
   {
@@ -222,6 +201,10 @@ MBaseMethod(pUnitDef, pNd),
 m_VLE(this, VLEF_QPFlash, "VLE")
 {
   //default values...
+  dEntryK = 1.0;
+  dPipe = 0.4;
+  dOut = 0.1;
+  
   
   
 }
@@ -289,7 +272,7 @@ bool CTTOrifice::ConfigureJoins()
 
 bool CTTOrifice::EvalJoinPressures()
   {
-    //Joins[0].SetProbalP(dFlashP);
+    Joins[0].SetProbalP(dFlashP);
     return true;
   }
 
@@ -336,32 +319,10 @@ void CTTOrifice::EvalProducts()
     {
       MStream InStream;
       FlwIOs.AddMixtureIn_Id(InStream, idIn);
-      double p = InStream.getP();
-      Log.Message(MMsg_Error, "Pressure %8.3f", p);
 
-      double MaxP = AtmosPress();
-      long index = FlwIOs.First[idIn];
-      while (index>=0)
-        {
-        MStream & QI = FlwIOs[index].Stream; //get reference to the actual input stream
-        p = QI.getP();
-        MaxP = Max(MaxP, p);
-        Log.Message(MMsg_Note, "Pressure %8.3f", p);
-        index = FlwIOs.Next_In[index][idIn]; //is there another stream connected to this port
-        }
 
-      InStream.P = MaxP;
-      //const double Ti = InStream.T;
-      //InStream.SetTP(Ti, MaxP);
-      p = InStream.getP();
-      Log.Message(MMsg_Note, "After set Pressure %8.3f", p);
-
-      //so....
-      //probably want code below...
-      //MStream InStream;
-      //FlwIOs.AddMixtureIn_Id(InStream, idIn);
-      //const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP() //get pressure of input stream (one and only connection)
-      //InStream.P = Pi;
+      const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP(); //get pressure of input stream 
+      InStream.P = Pi;
 
       MStream & OutStream = FlwIOs[FlwIOs.First[idOut]].Stream;
       SlipFlow s1(m_lSlipMode);
@@ -390,8 +351,13 @@ void CTTOrifice::EvalProducts()
       } else {
 	Log.Message(MMsg_Error, "Couldnt solve for root");
 	} */
-      dPin = p;
-      double deltaP = GTZ(p - dPout);
+
+      m_VLE.QPFlash(OutStream, dFlashP, 0.0, VLEF_QPFlash);
+      OutStream.P = dFlashP;
+      
+
+      dPin = Pi;
+      double deltaP = GTZ(Pi - dPout);
       double den = InStream.Density();
       double area = CircleArea(dPipe);
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
