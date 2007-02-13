@@ -2724,13 +2724,14 @@ Build 122 : 16 November 2006
 1445 12/02/07: (#750) Added PrjName and MajorBuildNo to PlantModel System fields.
 1448 12/02/07: (#219) Desuperheater improvements, model can now be used in flash train.
 1450 12/02/07: (#747) SMDK VLE block extensions.
-1451 12/02/07: (#751) SMDK EHX block implementation.
+1451 12/02/07: (#335) SMDK EHX block implementation.
 1453 13/02/07: (#744) Minor changes to edit buttons for pgm files.
 1454 13/02/07: (#753) Pressure fixes for turbine and desuperheater.
+1456 14/02/07: (#335) SMDK VLE and EHX block improvements.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1454
+#define SCD_PATCH_SVN    1456
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

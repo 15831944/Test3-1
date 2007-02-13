@@ -352,7 +352,7 @@ void CTTOrifice::EvalProducts()
 	Log.Message(MMsg_Error, "Couldnt solve for root");
 	} */
 
-      m_VLE.QPFlash(OutStream, dFlashP, 0.0, VLEF_QPFlash);
+      m_VLE.PFlash(OutStream, dFlashP, 0.0, VLEF_QPFlash);
       OutStream.P = dFlashP;
       
 

@@ -155,7 +155,8 @@ class DllImportExport MBaseMethodCommonRef
   };
 
 //===========================================================================
-
+/* Class MJoin: Helper class for managing a join. A join is a number of streams 
+   from one or more port Id connections.*/
 class DllImportExport MJoin
   {
   public:
@@ -180,7 +181,7 @@ class DllImportExport MJoin
   };
 
 //---------------------------------------------------------------------------
-
+/* Class MJoins: Array of Join classes.*/
 class DllImportExport MJoins : public MBaseMethodCommonRef
   {
   public:
@@ -241,52 +242,11 @@ class DllImportExport MFlowBlk
     void            SetDerivsBad(bool On=true);
     void            SetFunctOfPress(bool On=true);
 
-
-    //double          MeanPress(int FD);
     double          MeanPress();
     double          MeanFlngPress();
     double          MeanNodePress();
     double          MeanFBPress();
 
-    //void           SetPropSelect(byte iProps)
-    //  {
-    //  switch (iProps)
-    //    {
-    //    case FBPS_Default:
-    //      m_PropSel.m_iInUse = iProps;
-    //      break;
-    //    case FBPS_FwdOnly:
-    //      m_PropSel.m_iInUse = m_iDirnRel2Connect>0 ? FBPS_FwdOnly : FBPS_RevOnly;
-    //      break;
-    //    case FBPS_RevOnly:
-    //      m_PropSel.m_iInUse = m_iDirnRel2Connect<0 ? FBPS_FwdOnly : FBPS_RevOnly;
-    //      break;
-    //    }
-    //  }
-
-    //CSpPropInfo *  Properties(CSpPropInfo * pProps);
-    //double         MeanTemp(CSpPropInfo * pProps, bool AllowOveride=true);
-    //double         MeanRho(CSpPropInfo * pProps, double P, bool AllowOveride=true);
-    //double         MeanRho(CSpPropInfo * pProps) { return MeanRho(pProps, MeanPress()); };
-    //double         MeanRhoL(CSpPropInfo * pProps, bool AllowOveride=true);
-    //double         MeanRhoV(CSpPropInfo * pProps, double P, bool AllowOveride=true);
-    //double         MeanViscosity(CSpPropInfo * pProps, bool AllowOveride=true);
-
-    //double         NettLVolFrac(CSpPropInfo * pProps);
-    //double         NettVVolFrac(CSpPropInfo * pProps);
-
-    //double         StaticHead(CSpPropInfo * pProps);
-    //bool           ApplyStaticHead()           { return m_fApplyStaticHead; };
-    //void           SetApplyStaticHead(bool On) { m_fApplyStaticHead=On; };
-    //bool           FindStaticHead()           { return m_fFindStaticHead; };
-    //void           SetFindStaticHead(bool On) { m_fFindStaticHead=On; };
-
-    //double         VThrottle()              { return dVThrottle; };
-    //double         LThrottle()              { return dLThrottle; };
-    //void           VThrottle(double T)      { dVThrottle=T; };
-    //void           LThrottle(double T)      { dLThrottle=T; };
-
-    //void           SetVelocity(double V, double SonicV=dNAN)    { m_Vel=V; m_VelSonic=SonicV; };
     double         getVelocity();
 
     double         getRegulation();
@@ -301,109 +261,6 @@ class DllImportExport MFlowBlk
     double         SetQmMeasRange(double Rho, double LoQm);
     double         SetQvMeasRange(double Rho, double LoVol);
     double         SetVelMeasRange(double Rho, double Area, double LoVel);
-
-    //void           SetDPb(double A)         { m_dPb=A; };
-    //double         DPb()                    { return m_dPb; };
-    //void           SetDPbX(double A)        { m_dPbX=A; };
-    //double         DPbX()                   { return m_dPbX; };
-    //void           SetDPbdQ(double A)       { m_dPbdQ=A; };
-    //double         DPbdQ()                  { return m_dPbdQ; };
-    //void           SetDPq(double A)         { m_dPq=A; };
-    //double         DPq()                    { return m_dPq; };
-    //void           SetDPqdQ(double A)       { m_dPqdQ=A; };
-    //double         DPqdQ()                  { return m_dPqdQ; };
-    //void           SetDPa(double A)         { m_dPa=A; };
-    //double         DPa()                    { return m_dPa; };
-    //void           SetDPadQ(double A)       { m_dPadQ=A; };
-    //double         DPadQ()                  { return m_dPadQ; };
-    //void           SetDPz(double A)         { m_dPz=A; };
-    //double         DPz()                    { return m_dPz; };
-    //void           SetDPzI(double A)        { m_dPzI=A; };
-    //double         DPzI()                   { return m_dPzI; };
-    //void           SetDPzdQ(double A)       { m_dPzdQ=A; };
-    //double         DPzdQ()                  { return m_dPzdQ; };
-    //void           SetDPzX(double A)        { m_dPzX=A; };
-    //double         DPzX()                   { return m_dPzX; };
-    //void           SetDPzXdQ(double A)      { m_dPzXdQ=A; };
-    //double         DPzXdQ()                 { return m_dPzXdQ; };
-    //void           SetDPmB(double A)        { m_dPmB=A; };
-    //double         DPmB()                   { return m_dPmB; };
-    //void           SetDPmQ(double A)        { m_dPmQ=A; };
-    //double         DPmQ()                   { return m_dPmQ; };
-    //void           SetDPmdQ(double A)       { m_dPmdQ=A; };
-    //double         DPmdQ()                  { return m_dPmdQ; };
-    //double         DPtot()                  { return m_dPb+m_dPbX+m_dPq+m_dPa+m_dPz/*+dPzI*/+m_dPmB+m_dPmQ; };
-
-    //void           SetDPa(double dPa_, double dPadQ_)   { m_dPa = dPa_; m_dPadQ = dPadQ_; };
-    //void           SetDPb(double dPb_, double dPbdQ_)   { m_dPb = dPb_; m_dPbdQ = dPbdQ_; };
-    //void           SetDPz(double dPz_, double dPzdQ_)   { m_dPz = dPz_; m_dPzdQ = dPzdQ_; };
-    //void           SetDPzX(double dPz_, double dPzdQ_)  { m_dPzX = dPz_; m_dPzXdQ = dPzdQ_; };
-    //void           SetDPq(double dPq_, double dPqdQ_)
-    //  {
-    //  if (fabs(dPq_)<1e6) // a ridiculous pressure drop
-    //    {
-    //    m_dPq = dPq_;
-    //    m_dPqdQ = dPqdQ_;
-    //    }
-    //  else
-    //    {
-    //    double Scl=fabs(dPq_)/1e6;
-    //    m_dPq = dPq_/Scl;
-    //    m_dPqdQ = dPqdQ_/Scl;
-    //    }
-    //  };
-    //void           AddDPa(double dPa_, double dPadQ_)   { m_dPa += dPa_; m_dPadQ += dPadQ_; };
-    //void           AddDPb(double dPb_, double dPbdQ_)   { m_dPb += dPb_; m_dPbdQ += dPbdQ_; };
-    //void           AddDPz(double dPz_, double dPzdQ_)   { m_dPz += dPz_; m_dPzdQ += dPzdQ_; };
-    //void           AddDPzX(double dPz_, double dPzdQ_)  { m_dPzX += dPz_; m_dPzXdQ += dPzdQ_; };
-    //void           AddDPq(double dPq_, double dPqdQ_)   { m_dPq += dPq_; m_dPqdQ += dPqdQ_; };
-    //void           ClrDPb() { SetDPb(0,0); };
-    //void           ClrDPq() { SetDPq(0,0); };
-    //void           ClrDPz() { SetDPz(0,0); };
-
-    //void           SetMomentum(CSpPropInfo * pProps, double P);
-    //void           AddMomentum(CSpPropInfo * pProps, double P);
-    //void           ClrMomentum();
-
-    //double         PAtFromEntry(double Frac);
-
-    //void           SetQm(double A)          { m_Qm=A; A=NZ(A); m_QmMeas = fabs(A); m_sQMeas = (sint)FlwSign(A); };
-    //void           SetVLFracs(CSpPropInfo * pProps, double V, double L);
-
-    //// help with MFB futures
-    //double         VapVolFrac(CSpPropInfo * pProps) { return Properties(pProps)->NettVVolFrac(); };
-    //double         LiqVolFrac(CSpPropInfo * pProps) { return Properties(pProps)->NettLVolFrac(); };
-    //double         PhaseFrac(CSpPropInfo * pProps, int Lp) { return Lp==0 ? VapVolFrac(pProps): LiqVolFrac(pProps); };
-
-    //double         GetQm()                  { return m_Qm; };
-    //void           SetQmEst(double A)       { m_QmEst=A;};
-    //double         GetQmEst()               { return m_QmEst; };
-    //void           SetQmPrvPB(double A)     { m_QmPrvPB=A;};
-    //double         GetQmPrvPB()             { return m_QmPrvPB; };
-    //void           SetQmAvail(double A)     { m_QmAvail=A;};
-    //double         GetQmAvail()             { return m_QmAvail; };
-    //void           SetQmSpace(double A)     { m_QmSpace=A;};
-    //double         GetQmSpace()             { return m_QmSpace; };
-
-    ////void           SetQmMemPB(double A)     { QmMemPB=A;};
-    ////double         GetQmMemPB()             { return QmMemPB; };
-
-    //void           SetBstDamping(double A)  { dBstDamping=A; };
-    //double         BstDamping()             { return dBstDamping; };
-
-    //void           SetOverideTau(double A)  { m_dOverideTau=A; };
-
-    //void           SetSlipRatio(double D=dNAN)    { dSlip=D; };
-    //double         SlipRatio()                      { return dSlip; };
-    //void           SetVoidFraction(double D=dNAN) { dVoidFrac=D; };
-    //double         VoidFraction()                   { return dVoidFrac; };
-    //void           SetOnePhPart(double D=dNAN)    { dOnePhPart=D; };
-    //double         OnePhPart()                      { return dOnePhPart; };
-    //void           SetTempOut(double D=dNAN)      { dTempOut=D; };
-    //double         TempOut()                        { return dTempOut; };
-
-    /**
-    **/
 
     MPressureBlk  getNodePBlk();
     MPressureBlk  getFlngPBlk();
@@ -974,7 +831,7 @@ class DllImportExport MMethodUtility : public MBaseMethodCommonRef
 //
 //
 //---------------------------------------------------------------------------
-
+/*Class MProbalPCtrl: Helper class for managing input or outpu stream pressures.*/
 class DllImportExport MProbalPCtrl : public MMethodUtility
   {
   friend class MJoin;
@@ -1033,9 +890,9 @@ class DllImportExport MReactionBlk : public MMethodUtility
     double            HsSumPwr();
     double            EstFinalT();
 
+  public:
     void              Enable();
     void              Disable();
-    //return
     bool              Enabled();
     bool              OnAndOK();
 
@@ -1059,7 +916,7 @@ class DllImportExport MReactionBlk : public MMethodUtility
 //
 //
 //---------------------------------------------------------------------------
-
+/* Class MEnvironHXBlk: Helper class to provide access to the SysCAD EHX block functionality.*/
 class DllImportExport MEnvironHXBlk : public MMethodUtility
   {
   public:
@@ -1069,20 +926,19 @@ class DllImportExport MEnvironHXBlk : public MMethodUtility
   public:
     void            OnOffCheckBox(DWORD Flags=MF_PARAM_STOPPED);
     void            BuildDataFields();
+    void            EvalProducts(MStream & S, double FinalTEst=dNAN);
+    void            EvalProducts(MStream & S, double Len, double Diam, double FinalTEst=dNAN);
+
+    double          HeatFlow();
 
   public:
     void            Enable();
     void            Disable();
     bool            Enabled();
 
-    void            EvalProducts(MStream & S, double FinalTEst=dNAN);
-    void            EvalProducts(MStream & S, double Len, double Diam, double FinalTEst=dNAN);
-    double          HeatFlow();
-
   protected:
     bool            ExchangeDataFields();
     bool            ValidateDataFields();
-
 
   protected:
     CEnvironHXBase * m_pEHX;
@@ -1093,7 +949,7 @@ class DllImportExport MEnvironHXBlk : public MMethodUtility
 //
 //
 //---------------------------------------------------------------------------
-
+/* Class MVLEBlk: Helper class to provide access to the SysCAD VLE block functionality.*/
 class DllImportExport MVLEBlk : public MMethodUtility
   {
   public:
@@ -1105,7 +961,7 @@ class DllImportExport MVLEBlk : public MMethodUtility
     void            BuildDataFields();
 
   public:
-    // Flash the
+    // Flash the contents
     double          FlashVapFrac(MVector &Mdl);
     // Flash the contents such that the mass fraction of vapour is VapFrac
     void            SetFlashVapFrac(MVector &Mdl, double Temp, double Press, double VapFrac, DWORD Flags);
@@ -1115,6 +971,7 @@ class DllImportExport MVLEBlk : public MMethodUtility
     void            SetFlashVapFrac(MStream &Q, double Temp, double Press, double VapFrac, DWORD Flags);
     // Flash the contents such that the mass fraction of vapour is VapFrac
     void            SetFlashVapFrac(MStream &Q, double VapFrac, DWORD Flags);
+
     // Flash the contents given Temperature & Pressure (adjust VapMassFrac)
     void            TPFlash(MVector &Mdl, double Temp, double Press, DWORD Flags);
     // Flash the contents given Duty & Pressure (adjust VapMassFrac & T) 
@@ -1138,6 +995,7 @@ class DllImportExport MVLEBlk : public MMethodUtility
     // returns the Total Pressure At T ie SaturationP + Partial Pressure of other gasses
     double          SaturationTotalP(MVector & V, double T);
 
+  public:
     void            Enable();
     void            Disable();
     bool            Enabled();
@@ -1155,7 +1013,7 @@ class DllImportExport MVLEBlk : public MMethodUtility
 //
 //
 //---------------------------------------------------------------------------
-
+/* Class MFT_Flash: Helper class for managing a steam source in a flash train macro model.*/
 class DllImportExport MFT_Flash : public MMethodUtility
   {
   public:
@@ -1197,6 +1055,7 @@ class DllImportExport MFT_Flash : public MMethodUtility
     bool              getVapourFlowSensGood();
     void              putVapourFlowSensGood(bool VapourFlowSensGood);
 
+  public:
     _declspec(property(get=getActive))                                        bool   Active;
     _declspec(property(get=getFeedP,put=putFeedP))                            double FeedP;
     _declspec(property(get=getFeedSaturationP,put=putFeedSaturationP))        double FeedSaturationP;
@@ -1216,8 +1075,12 @@ class DllImportExport MFT_Flash : public MMethodUtility
     CFT_Flash       * m_pFlash;
   };
 
-// --------------------------------------------------------------------------
-
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+/* Class MFT_Condenser: Helper class for managing a steam sink in a flash train macro model.*/
 class DllImportExport MFT_Condenser : public MMethodUtility
   {
   public:
@@ -1244,6 +1107,7 @@ class DllImportExport MFT_Condenser : public MMethodUtility
     double            getMinSaturationP();
     void              putMinSaturationP(double MinSaturationP);
 
+  public:
     _declspec(property(get=getActive))                            bool   Active;
     _declspec(property(get=getSuctionP,put=putSuctionP))          double SuctionP;
     _declspec(property(get=getVapourFlow,put=putVapourFlow))                      double VapourFlow;
@@ -1252,7 +1116,6 @@ class DllImportExport MFT_Condenser : public MMethodUtility
 
   protected:
     CFT_Condenser *   m_pCondenser;
-
   };
 
 // --------------------------------------------------------------------------
