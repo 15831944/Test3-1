@@ -226,6 +226,9 @@ flag CPipeTerm::ValidateData(ValidateDataBlk & VDB)
 
   EvalState();
 
+  //if (AllowMineServe())
+  //  SetCI(1, m_FRB.What()== FBReg_Pi || m_FRB.What()==FBReg_Po);
+
   if (!OK)
 	  { int xxx=0; }
   return OK;
@@ -519,7 +522,7 @@ flag CPipeTerm::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 2: pS="W\t"; return 1;
+    case 1: pS="E\tBad Regulator Configuration"; return 1;
     default:                                               
       return MdlNode::CIStrng(No, pS);
     }

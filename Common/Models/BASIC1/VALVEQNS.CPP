@@ -471,6 +471,11 @@ flag VE_Linear::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBl
       case VC_Quick  : Regulation=sqrt(Regulation);        break;
       }
 
+    double dDensMeas=FE.MeanRho(pProps);
+    dDensMeas=Min_FE_Rho(dDensMeas);
+
+    FE.SetQmMeasRange(dDensMeas, 0.001);
+
     //double aQm = fabs(FE.Qm);
     //double SQm = Sign(FE.Qm);
     FE.SetDPb(0.0, 0.0);

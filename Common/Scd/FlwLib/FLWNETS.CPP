@@ -3924,7 +3924,7 @@ class CRegSolver: public MRootFinderBase
 
 #if dbgFlwNets
           if (dbgRegulators())
-            dbgpln("Cvg Ctrl:%20.11f Target:%17.6f Meas:%17.6f %17.6f %14.8f", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0);
+            dbgpln("Cvg Ctrl:%20.11f Target:%17.6f Meas:%17.6f %17.6f %14.8f %s", x, dTarget, pGrp->m_Regulator.m_dMeasValue, pGrp->m_QmEstIn, pFRB->m_pFB?pFRB->m_pFB->m_MeasRho:0.0, pGrp->FwdTag());
 #endif
 
           return (pGrp->m_Regulator.m_dMeasValue);
@@ -5122,7 +5122,7 @@ flag CSubNetBlk::Measure(int NetCnvLoop)
             }
 #endif
 
-          if (GFRB.m_nHistory>=2 && 
+          if (GFRB.m_nHistory>2 && 
             (fabs(GFRB.m_daGain[0]-GFRB.m_daGain[1]) < 0.1*fabs(GFRB.m_daGain[0])) && // small change
             (GFRB.m_daGain[0]*GFRB.m_daGain[1]>=0)  // same sign
             )
