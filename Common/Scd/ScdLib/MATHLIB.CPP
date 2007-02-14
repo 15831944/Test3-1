@@ -715,7 +715,7 @@ LPCTSTR CTimeValue::Format(DWORD Options) const
       hour = hour%24;
       Dt.Format("%02i/%02i/%04i", mday, mon, year);
       if (Options & TD_DateStrFormat)
-        Dt.Format("%2i %s %04i", mday, MonthDescriptions[mon-1], year); //what is the best format??? perhaps "14-Dec-07" or ???
+        Dt.Format("%i %s %04i", mday, MonthDescriptions[mon-1], year); //what is the best format??? perhaps "14-Dec-07" or ???
       else
         Dt.Format("%02i/%02i/%04i", mday, mon, year);
       }
