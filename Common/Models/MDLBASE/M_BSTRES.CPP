@@ -85,6 +85,8 @@ flag MN_BstRes::DataXchg(DataChangeBlk & DCB)
   {
   if (m_VLE.DataXchg(DCB))
     return 1;
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (m_FTB.DataXchg(DCB))
     return 1;
   if (DCB.dwUserInfo==1 && m_LeakI.DataXchg(DCB))
@@ -163,6 +165,8 @@ flag MN_BstRes::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MdlNode::ValidateData(VDB);
 
+  if (!m_EHX.ValidateData(VDB))
+    OK=0;
   if (!m_FTB.ValidateData(VDB))
     OK=0;
   if (!m_LeakI.ValidateData(VDB))

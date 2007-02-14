@@ -53,6 +53,8 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_RB.DataXchg(DCB))
     return 1;
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (m_VLE.DataXchg(DCB))
     return 1;
   if (m_Evap.DataXchg(DCB))
@@ -113,6 +115,8 @@ flag MN_Xfer::ValidateData(ValidateDataBlk & VDB)
     OK=false;
   
   if (!MdlNode::ValidateData(VDB))
+    OK=false;
+  if (!m_EHX.ValidateData(VDB))
     OK=false;
 
   if (!m_BlkEval.ValidateData(VDB))

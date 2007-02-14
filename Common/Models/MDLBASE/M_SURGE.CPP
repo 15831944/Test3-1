@@ -126,6 +126,8 @@ flag MN_Surge::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (HX.DataXchg(DCB))
     return 1;
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (m_VLE.DataXchg(DCB))
     return 1;
 
@@ -195,6 +197,8 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
   if (!m_BlkEval.ValidateData(VDB))
     OK=false;
   if (!MdlNode::ValidateData(VDB))
+    OK=false;
+  if (!m_EHX.ValidateData(VDB))
     OK=false;
   return OK;
   }

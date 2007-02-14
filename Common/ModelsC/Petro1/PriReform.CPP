@@ -211,6 +211,8 @@ flag PriReform::DataXchg(DataChangeBlk & DCB)
   if (MdlNode::DataXchg(DCB))
     return 1;
 
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (m_HotBox.DataXchg(DCB))
     return 1;
   if (DCB.dwUserInfo==1 && FuelRB.DataXchg(DCB))
@@ -226,6 +228,8 @@ flag PriReform::DataXchg(DataChangeBlk & DCB)
 flag PriReform::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MdlNode::ValidateData(VDB);
+  if (!m_EHX.ValidateData(VDB))
+    OK=0;
 
   for (int r=0; r<7; r++)
     {

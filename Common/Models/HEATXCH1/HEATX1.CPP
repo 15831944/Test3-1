@@ -2002,6 +2002,8 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
   if (MdlNode::DataXchg(DCB))
     return 1;
 
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (m_HX.DataXchg(DCB))
     return 1;
   switch (DCB.lHandle)
@@ -2092,6 +2094,9 @@ flag HeatXchg1::DataXchg(DataChangeBlk & DCB)
 flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MdlNode::ValidateData(VDB);
+
+  if (!m_EHX.ValidateData(VDB))
+    OK=0;
 
   if (m_iPriSgMd==HXSM_Shell && m_iSecSgMd==HXSM_Shell)
     {

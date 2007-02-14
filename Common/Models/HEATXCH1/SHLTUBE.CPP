@@ -1722,6 +1722,8 @@ flag ShellTube::DataXchg(DataChangeBlk & DCB)
   {
   if (MdlNode::DataXchg(DCB))
     return 1;
+  if (m_EHX.DataXchg(DCB))
+    return true;
   if (HX.DataXchg(DCB))
     return 1;
 //  switch (DCB.dwUserInfo)
@@ -1738,6 +1740,8 @@ flag ShellTube::DataXchg(DataChangeBlk & DCB)
 flag ShellTube::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=MdlNode::ValidateData(VDB);
+  if (!m_EHX.ValidateData(VDB))
+    OK=0;
   return OK;
   }
 

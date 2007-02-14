@@ -229,7 +229,7 @@ class DllImportExport CEnvironHXBase : public CBlockEvalBase
     void           BuildDataDefn(DataDefnBlk& DDB, char* pTag="EHX", char* pTagComment=NULL, DDBPages PageIs=DDB_RqdPage, dword UserInfo=0);
     flag           DataXchg(DataChangeBlk & DCB);
 
-    flag           ValidateData(ValidateDataBlk & VDB)                      { return Enabled() ? pHL->ValidateData(VDB) : 0; };
+    flag           ValidateData(ValidateDataBlk & VDB)                      { return Enabled() ? pHL->ValidateData(VDB) : true; };
     void           EvalProducts(SpConduit & Qf, double FinalTEst=dNAN)  { if (Enabled()) pHL->EvalProducts(Qf, FinalTEst); };
     void           EvalProductsInline(SpConduit & Qf, double Len, double Diam, double FinalTEst=dNAN) { if (Enabled()) pHL->EvalProductsInline(Qf, Len, Diam, FinalTEst); };
 
