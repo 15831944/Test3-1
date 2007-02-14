@@ -539,6 +539,8 @@ BOOL CPrjForm::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
   }
 
 //---------------------------------------------------------------------------
+const char* MissingFromDrawingsTxt = "{Missing from drawings}";
+const char* MissingFromDatabaseTxt = "Missing from database";
 
 void CPrjForm::OnMenu(UINT id)
   {
@@ -557,27 +559,61 @@ void CPrjForm::OnMenu(UINT id)
       ChgTag.DoModal();
       break;
       }
+    case IDM_PRJ_DELETEALL:
+      sCurrentSeln = MissingFromDrawingsTxt;
+      if (MdlTree.GetParentItem(hCurrentSeln))
+        hCurrentSeln = MdlTree.GetParentItem(hCurrentSeln);
     case IDM_PRJ_DELETE:
       {
+      const bool MissingDrawing = (_stricmp(sCurrentSeln(), MissingFromDrawingsTxt)==0);
       char Buff[1024];
-      sprintf(Buff, "Are you sure you want to delete the model '%s' from the database?", sCurrentSeln());
+      if (MissingDrawing)
+        sprintf(Buff, "Are you sure you want to delete ALL the 'missing' models from the database?");
+      else
+        sprintf(Buff, "Are you sure you want to delete the model '%s' from the database?", sCurrentSeln());
       if (AfxMessageBox(Buff, MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON2)==IDYES)
         {
         SFEFlwLib* pFlwLib = gs_pPrj->FlwLib();
         ASSERT(pFlwLib);
-        //int err = pFlwLib->FE_DoDelete(sCurrentSeln());
-        int RetCode = gs_Exec.DeleteTag(sCurrentSeln());
-        if (RetCode!=EODT_DONE)
+        if (MissingDrawing)
           {
-          LogError(sCurrentSeln(), LF_Exclamation, "Model not deleted");
+          long DeleteCnt = 0;
+          HTREEITEM hParent = hCurrentSeln;//MdlTree.GetParentItem(hCurrentSeln);
+          while (hParent && MdlTree.ItemHasChildren(hParent))
+            {
+            HTREEITEM h = MdlTree.GetChildItem(hParent);
+            CString Tag = MdlTree.GetItemText(h);
+            int RetCode = gs_Exec.DeleteTag((char*)(const char*)Tag);
+            if (RetCode!=EODT_DONE)
+              {
+              LogError((const char*)Tag, 0, "Model not deleted");
+              }
+            else
+              {
+              DeleteCnt++;
+              }
+            MdlTree.DeleteItem(h);
+            }
+          if (hParent && !MdlTree.ItemHasChildren(hParent))
+            MdlTree.DeleteItem(hParent);
+          if (DeleteCnt)
+            LogNote("Project", 0, "%d models deleted", DeleteCnt);
           }
         else
           {
-          ASSERT(hCurrentSeln);
-          HTREEITEM hParent = MdlTree.GetParentItem(hCurrentSeln);
-          MdlTree.DeleteItem(hCurrentSeln);
-          if (!MdlTree.ItemHasChildren(hParent))
-            MdlTree.DeleteItem(hParent);
+          int RetCode = gs_Exec.DeleteTag(sCurrentSeln());
+          if (RetCode!=EODT_DONE)
+            {
+            LogError(sCurrentSeln(), LF_Exclamation, "Model not deleted");
+            }
+          else
+            {
+            ASSERT(hCurrentSeln);
+            HTREEITEM hParent = MdlTree.GetParentItem(hCurrentSeln);
+            MdlTree.DeleteItem(hCurrentSeln);
+            if (!MdlTree.ItemHasChildren(hParent))
+              MdlTree.DeleteItem(hParent);
+            }
           }
         }
       break;
@@ -598,6 +634,24 @@ void CPrjForm::OnMenu(UINT id)
         {
         CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, sCurrentSeln(), "", SUB_REPORT_OPEN);
         ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+        }
+      break;
+      }
+    case IDM_PRJ_LISTTOCLIPBOARD:
+      {
+      HTREEITEM hParent = (MdlTree.GetParentItem(hCurrentSeln) ? MdlTree.GetParentItem(hCurrentSeln) : hCurrentSeln);
+      if (hParent)
+        {
+        HTREEITEM h = MdlTree.GetChildItem(hParent);
+        CString Buffer;
+        while (h)
+          {
+          CString S = MdlTree.GetItemText(h);
+          S += "\n";
+          Buffer += S;
+          h = MdlTree.GetNextItem(h, TVGN_NEXT);
+          }
+        CopyTextToClipboard(this, (LPTSTR)(LPCTSTR)Buffer);
         }
       break;
       }
@@ -687,76 +741,100 @@ void CPrjForm::OnDblclkEnvList(NMHDR* pNMHDR, LRESULT* pResult)
 
 //---------------------------------------------------------------------------
 
-const char* MissingFromDrawingsTxt = "{Missing from drawings}";
-const char* MissingFromDatabaseTxt = "Missing from database";
-
 void CPrjForm::OnRclickMdlTree(NMHDR* pNMHDR, LRESULT* pResult)
   {
   SFEFlwLib* pFlwLib = gs_pPrj->FlwLib();
   ASSERT(pFlwLib && pFlwLib==gs_pTheSFELib);
   TV_HITTESTINFO HTI;
   HTI.pt = MdlTree.PrevDownPoint;
-  if (MdlTree.HitTest(&HTI) && ((HTI.flags & TVHT_ONITEM) || (HTI.flags & TVHT_ONITEMRIGHT) || (HTI.flags & TVHT_ONITEMICON)))
+  HTREEITEM Hit = MdlTree.HitTest(&HTI);
+  if (Hit)
     {
-    HTREEITEM hParent = MdlTree.GetParentItem(HTI.hItem);
-    if (hParent)
+    const bool OnLine = ((HTI.flags & TVHT_ONITEMRIGHT|TVHT_TOLEFT|TVHT_TORIGHT)!=0);
+    const bool OnItem = ((HTI.flags & TVHT_ONITEM/*|TVHT_ONITEMRIGHT|TVHT_ONITEMLABEL*/)!=0);
+    if (OnItem || (HTI.flags & TVHT_ONITEMRIGHT) || (HTI.flags & TVHT_ONITEMICON))
       {
-      CString ParentTxt = MdlTree.GetItemText(hParent);
-      flag MissingDrawing = (_stricmp((const char*)ParentTxt, MissingFromDrawingsTxt)==0);
-      flag MissingDatabase = (ParentTxt.Find(MissingFromDatabaseTxt)>0);
-      hCurrentSeln = HTI.hItem;
-      CString Tag = MdlTree.GetItemText(HTI.hItem);
+      HTREEITEM hParent = MdlTree.GetParentItem(HTI.hItem);
+      HTREEITEM hTestItem = (hParent ? hParent : HTI.hItem);
+      CString ParentTxt;
+      if (hTestItem)
+        ParentTxt = MdlTree.GetItemText(hTestItem);
+      const bool MissingDrawing = (_stricmp((const char*)ParentTxt, MissingFromDrawingsTxt)==0);
+      const bool MissingDatabase = (ParentTxt.Find(MissingFromDatabaseTxt)>0);
 
-      sCurrentSeln = (const char*)Tag;
-      int i=sCurrentSeln.XStrCSpn(" ");
-      if (i>0)
-        sCurrentSeln.SetLength(i);
+      if (hParent)
+        {
+        hCurrentSeln = HTI.hItem;
+        CString Tag = MdlTree.GetItemText(HTI.hItem);
 
-      Strng s;
-      s.Set("&Access %s...", sCurrentSeln());
-      CMenu Menu;
-      Menu.CreatePopupMenu();
-      Menu.AppendMenu(MF_STRING, IDM_PRJ_ACCESS, s());
-      Menu.AppendMenu(MF_STRING, IDM_PRJ_FIND, "&Find...");
-      Menu.AppendMenu(MF_STRING, IDM_PRJ_CHANGETAG, "&Change Tag...");
-      if (MissingDrawing)
-        {
-        Menu.EnableMenuItem(IDM_PRJ_FIND, MF_BYCOMMAND|MF_GRAYED);
-        Menu.AppendMenu(MF_STRING, IDM_PRJ_DELETE, "&Delete");
-        }
-      if (MissingDatabase)
-        {
-        Menu.EnableMenuItem(IDM_PRJ_ACCESS, MF_BYCOMMAND|MF_GRAYED);
-        Menu.EnableMenuItem(IDM_PRJ_CHANGETAG, MF_BYCOMMAND|MF_GRAYED);
-        }
-      RequestModelIOConnRec ConnInfo;
-      int j = 0;
-      while (pFlwLib->RequestModelIOConn(sCurrentSeln(), j++, ConnInfo) && j<IDM_PRJ_ACCESSLAST-IDM_PRJ_ACCESSFIRST)
-        {
-        Strng Tg;
-        RequestModelIOInfoRec IOInfo;
-        if (pFlwLib->RequestModelIOInfoById(sCurrentSeln(), ConnInfo.iId, IOInfo))
-          Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
-        else
-          Tg=ConnInfo.Tag();
+        sCurrentSeln = (const char*)Tag;
+        int i=sCurrentSeln.XStrCSpn(" ");
+        if (i>0)
+          sCurrentSeln.SetLength(i);
 
-        if (j==1)
-          Menu.AppendMenu(MF_SEPARATOR);
-        //s.Set("Access %s...", ConnInfo.Tag());
-        s.Set("Access %s...", Tg());
-        Menu.AppendMenu(MF_STRING, IDM_PRJ_ACCESSFIRST+j-1, s());
+        Strng s;
+        s.Set("&Access %s...", sCurrentSeln());
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+        Menu.AppendMenu(MF_STRING, IDM_PRJ_ACCESS, s());
+        Menu.AppendMenu(MF_STRING, IDM_PRJ_FIND, "&Find...");
+        Menu.AppendMenu(MF_STRING, IDM_PRJ_CHANGETAG, "C&hange Tag...");
+        if (MissingDrawing)
+          {
+          Menu.EnableMenuItem(IDM_PRJ_FIND, MF_BYCOMMAND|MF_GRAYED);
+          Menu.AppendMenu(MF_STRING, IDM_PRJ_DELETE, "&Delete");
+          }
+        if (MissingDatabase)
+          {
+          Menu.EnableMenuItem(IDM_PRJ_ACCESS, MF_BYCOMMAND|MF_GRAYED);
+          Menu.EnableMenuItem(IDM_PRJ_CHANGETAG, MF_BYCOMMAND|MF_GRAYED);
+          }
+        RequestModelIOConnRec ConnInfo;
+        int j = 0;
+        while (pFlwLib->RequestModelIOConn(sCurrentSeln(), j++, ConnInfo) && j<IDM_PRJ_ACCESSLAST-IDM_PRJ_ACCESSFIRST)
+          {
+          Strng Tg;
+          RequestModelIOInfoRec IOInfo;
+          if (pFlwLib->RequestModelIOInfoById(sCurrentSeln(), ConnInfo.iId, IOInfo))
+            Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
+          else
+            Tg=ConnInfo.Tag();
+
+          if (j==1)
+            Menu.AppendMenu(MF_SEPARATOR);
+          //s.Set("Access %s...", ConnInfo.Tag());
+          s.Set("Access %s...", Tg());
+          Menu.AppendMenu(MF_STRING, IDM_PRJ_ACCESSFIRST+j-1, s());
+          }
+        Menu.AppendMenu(MF_SEPARATOR);
+        Menu.AppendMenu(MF_STRING, IDM_PRJ_LISTTOCLIPBOARD, "&Copy list to clipboard");
+        if (MissingDrawing)
+          Menu.AppendMenu(MF_STRING, IDM_PRJ_DELETEALL, "Delete ALL missing models");
+        CRect Rect;
+        MdlTree.GetWindowRect(&Rect);
+        Menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, Rect.left+MdlTree.PrevDownPoint.x, Rect.top+MdlTree.PrevDownPoint.y, this);
+        Menu.DestroyMenu();
         }
-      CRect Rect;
-      MdlTree.GetWindowRect(&Rect);
-      Menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, Rect.left+MdlTree.PrevDownPoint.x, Rect.top+MdlTree.PrevDownPoint.y, this);
-      Menu.DestroyMenu();
-      }
-    else
-      {
-      MdlTree.SelectItem(HTI.hItem);
-      HTREEITEM h = MdlTree.GetChildItem(HTI.hItem);
-      if (h)
-        MdlTree.EnsureVisible(h);
+      else
+        {
+        hCurrentSeln = HTI.hItem;
+        MdlTree.SelectItem(HTI.hItem);
+        HTREEITEM h = MdlTree.GetChildItem(HTI.hItem);
+        if (h)
+          MdlTree.EnsureVisible(h);
+        CMenu Menu;
+        Menu.CreatePopupMenu();
+        Menu.AppendMenu(MF_STRING, IDM_PRJ_LISTTOCLIPBOARD, "Copy list to clipboard");
+        if (MissingDrawing)
+          {
+          sCurrentSeln = MissingFromDrawingsTxt;
+          Menu.AppendMenu(MF_STRING, IDM_PRJ_DELETEALL, "Delete all missing models");
+          }
+        CRect Rect;
+        MdlTree.GetWindowRect(&Rect);
+        Menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, Rect.left+MdlTree.PrevDownPoint.x, Rect.top+MdlTree.PrevDownPoint.y, this);
+        Menu.DestroyMenu();
+        }
       }
     }
   *pResult = 0;

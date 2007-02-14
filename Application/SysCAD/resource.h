@@ -267,7 +267,9 @@
 #define IDM_PRJ_FIND                    24001
 #define IDM_PRJ_CHANGETAG               24002
 #define IDM_PRJ_DELETE                  24003
-#define IDM_PRJ_ACCESSFIRST             24004
+#define IDM_PRJ_DELETEALL               24004
+#define IDM_PRJ_LISTTOCLIPBOARD         24005
+#define IDM_PRJ_ACCESSFIRST             24006
 #define IDC_GRAPHICS1                   24011
 #define IDC_PRJHSTNAME                  24011
 #define IDC_PRJREALTIME                 24012
@@ -347,9 +349,9 @@
 #define IDC_EQP_ISA                     24049
 #define IDC_DESTCURS                    24049
 #define IDD_MDLSELECT                   24050
-#define IDM_PRJ_ACCESSLAST              24052
 #define IDC_LOOP_ISA                    24052
 #define IDC_LOOP_AREA                   24053
+#define IDM_PRJ_ACCESSLAST              24054
 #define IDC_LOOP_WSEQ                   24054
 #define IDC_LOOP_POFOP                  24055
 #define IDC_LOOP_TYPE                   24056

@@ -2729,10 +2729,11 @@ Build 122 : 16 November 2006
 1454 13/02/07: (#753) Pressure fixes for turbine and desuperheater.
 1456 14/02/07: (#335) SMDK VLE and EHX block improvements.
 1457 14/02/07: (#754) Added ReportKey field to system fields for all models.
+1459 14/02/07: (#32) Addeded menu option in project view for deleting models missing from graphics.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1457
+#define SCD_PATCH_SVN    1459
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
