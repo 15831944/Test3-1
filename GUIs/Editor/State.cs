@@ -244,69 +244,81 @@ namespace SysCAD.Editor
       }
       else
       {
-
-        ModelStencil modelStencil;
         GraphicStencil graphicStencil;
+        ModelStencil modelStencil;
+        config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil);
+        config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil);
 
-        Box modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-        modelBox.RotationAngle = graphicItem.Angle;
-        modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
-        modelBox.Style = BoxStyle.Shape;
+        Box textBox, graphicBox, modelBox;
 
-        //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
+        {
+          RectangleF textArea = graphicStencil.TextArea;
+          RectangleF textBoxRect = new RectangleF(
+                                    graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                    graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
+                                    textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                    textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
 
-        if (config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil))
-          modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
-        else
-          modelBox.Shape = ShapeTemplate.FromId("Decision2");
-
-        modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
-
-        modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
-        modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
-        modelBox.Visible = ShowModels && isVisible;
-
-        Box graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
-        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
-        graphicBox.RotationAngle = graphicItem.Angle;
-        graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
-        graphicBox.Style = BoxStyle.Shape;
-
-        if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil))
-          graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
-        else
-          graphicBox.Shape = ShapeTemplate.FromId("Decision2");
-
-        graphicBox.EnabledHandles = Handles.None;
-        graphicBox.HandlesStyle = HandlesStyle.Invisible;
-        graphicBox.Visible = ShowGraphics && isVisible;
+          textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
+          textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+          textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
+          textBox.Style = BoxStyle.Shape;
+          textBox.Shape = ShapeTemplate.FromId("Rectangle");
+          textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
+            Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
+            Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
+            Handles.Move;
+          textBox.Visible = ShowTags && isVisible;
+          textBox.Text = graphicItem.Tag;
+        }
 
 
-        if (graphicItem.FillColor.IsEmpty)
-          graphicItem.FillColor = graphicBox.FillColor;
-        else
-          graphicBox.FillColor = graphicItem.FillColor;
+        {
+          graphicBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+          graphicBox.RotationAngle = graphicItem.Angle;
+          graphicBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
+          graphicBox.Style = BoxStyle.Shape;
+
+          if (graphicStencil != null)
+            graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+          else
+            graphicBox.Shape = ShapeTemplate.FromId("Decision2");
+
+          graphicBox.EnabledHandles = Handles.None;
+          graphicBox.HandlesStyle = HandlesStyle.Invisible;
+          graphicBox.Visible = ShowGraphics && isVisible;
 
 
-        RectangleF textArea = graphicStencil.TextArea;
-        RectangleF textBoxRect = new RectangleF(
-                                  graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                  graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
-                                  textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                  textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
+          if (graphicItem.FillColor.IsEmpty)
+            graphicItem.FillColor = graphicBox.FillColor;
+          else
+            graphicBox.FillColor = graphicItem.FillColor;
+        }
 
-        Box textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
+
+        {
+          modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
+          modelBox.RotationAngle = graphicItem.Angle;
+          modelBox.ToolTip = graphicItem.Tag + "\n\nClassID: " + graphicItem.Model;
+          modelBox.Style = BoxStyle.Shape;
+
+          //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
+
+          if (modelStencil != null)
+            modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
+          else
+            modelBox.Shape = ShapeTemplate.FromId("Decision2");
+
+          modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
+
+          modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+          modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
+          modelBox.Visible = ShowModels && isVisible;
+        }
+
+
         textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
-        textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
-        textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
-        textBox.Style = BoxStyle.Shape;
-        textBox.Shape = ShapeTemplate.FromId("Rectangle");
-        textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
-          Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
-          Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
-          Handles.Move;
-        textBox.Visible = ShowTags && isVisible;
-        textBox.Text = graphicItem.Tag;
+        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
 
 
         Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
@@ -322,6 +334,12 @@ namespace SysCAD.Editor
           tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
         node.Tag = item;
         node.AllowDrop = false;
+
+        tvNavigation.AddSelectedNode(node);
+
+        if ((isVisible) && (node.Parent != null))
+          node.Parent.Select();
+
       }
     }
 
@@ -1004,7 +1022,7 @@ namespace SysCAD.Editor
 
     internal String CurrentPath
     {
-      get { return tvNavigation.SelectedNode.FullPath; }
+      get { return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator; }
     }
 
 
