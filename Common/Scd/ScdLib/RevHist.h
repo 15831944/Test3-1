@@ -2728,10 +2728,11 @@ Build 122 : 16 November 2006
 1453 13/02/07: (#744) Minor changes to edit buttons for pgm files.
 1454 13/02/07: (#753) Pressure fixes for turbine and desuperheater.
 1456 14/02/07: (#335) SMDK VLE and EHX block improvements.
+1457 14/02/07: (#754) Added ReportKey field to system fields for all models.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1456
+#define SCD_PATCH_SVN    1457
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

@@ -791,7 +791,8 @@ XID xidEqIdStr       = SysXID(5);
 XID xidEqLocation    = SysXID(6);
 XID xidEqLink        = SysXID(7);
 XID xidEqGUID        = SysXID(8);
-XID xidPrimaryCfg    = SysXID(9);
+XID xidEqRepKey      = SysXID(9);
+XID xidPrimaryCfg    = SysXID(10);
 
 //const int  MaxFullObjTagTmp = 10;
 
@@ -950,11 +951,11 @@ class DllImportExport TaggedObject : public ConditionBlk
     virtual void    BuildCommonStartDefn(DataDefnBlk &DDB);
     virtual void    BuildCommonEndDefn(DataDefnBlk &DDB) {};
     virtual void    BuildSystemDefn(DataDefnBlk &DDB) {};
-    short           IdNo()                   { return m_pClass->iId;};
-    pchar           ClassId()                { return m_pClass->sClassId();};
-    pchar           SubClassId()             { return m_pClass->SubClassId();};
-    pchar           BaseClassId()            { return m_pClass->BaseClassId();};
-    pchar           Group()                  { return m_pClass->sGroup();};
+    short           IdNo()                   { return m_pClass->iId; };
+    pchar           ClassId()                { return m_pClass->sClassId(); };
+    pchar           SubClassId()             { return m_pClass->SubClassId(); };
+    pchar           BaseClassId()            { return m_pClass->BaseClassId(); };
+    pchar           Group()                  { return m_pClass->sGroup(); };
     TagObjClass*    Class()                  { return m_pClass; };
     void            SetClass(TagObjClass*pClass)
       {
@@ -963,8 +964,8 @@ class DllImportExport TaggedObject : public ConditionBlk
         SetSubClass(SubClassId());
       };
     virtual void    SetSubClass(pchar pSubClass)  { /*m_sSubClass=pSubClass*/; };
-    pchar           Desc()                   { return m_pClass->sDesc();};
-    pchar           ShortDesc()              { return m_pClass->sShortDesc();};
+    pchar           Desc()                   { return m_pClass->sDesc(); };
+    pchar           ShortDesc()              { return m_pClass->sShortDesc(); };
     Strng &         TagRef()                 { return m_sTag; };
     Strng &         PrefixRef()              { return m_sPrefix; };
 
@@ -978,6 +979,8 @@ class DllImportExport TaggedObject : public ConditionBlk
     char *          EqpLocation()               { return m_sEqLocation(); };
     void            SetEqpLink(long Id)      { m_lEqLink=Id; };
     long            EqpLink()                { return m_lEqLink; };
+    void            SetReportKey(long Key)   { m_lReportKey=Key; };
+    long            ReportKey()              { return m_lReportKey; };
     bool            SetEqpGUID(LPCSTR strGuid);
     LPCSTR          EqpGUID();
 
@@ -1084,9 +1087,9 @@ class DllImportExport TaggedObject : public ConditionBlk
     Strng           m_sEqMemo;
     Strng           m_sEqIdStr;
     Strng           m_sEqLocation;
-
-    long            m_lEqLink;
     Strng           m_sEqGUID;
+    long            m_lEqLink;
+    long            m_lReportKey;
 
     static flag     fRunning;
     static flag     fBuildingAccess;

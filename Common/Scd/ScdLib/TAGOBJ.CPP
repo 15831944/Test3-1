@@ -1430,13 +1430,12 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   // Generate DefaultGuid
   UCHAR*psEqGUID=NULL;
   UUID AGuid;
-
   ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
   ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
-
   m_sEqGUID.Set("{%s}", psEqGUID);
-
   RpcStringFree(&psEqGUID);
+
+  m_lReportKey=0;
   }
 
 //---------------------------------------------------------------------------
@@ -2362,17 +2361,18 @@ LPCSTR TaggedObject::EqpGUID()
 
 void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
   {
-  DDB.String      ("Tag",      "", DC_,   "", xidTag,              this, 0|DDEF_WRITEPROTECT);//InitHidden);// temporary isParm);
-  DDB.String      ("Parent",   "", DC_,   "", xidParent,           this, 0|DDEF_WRITEPROTECT|InitHidden);
-  DDB.String      ("Type",     "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
-  DDB.String      ("ClassId",  "", DC_,   "", &m_pClass->sClassId, this, 0|DDEF_WRITEPROTECT|InitHidden);
-  DDB.String      ("PrimaryCfg", "", DC_, "", xidPrimaryCfg,       this, 0|InitHidden);
-  DDB.String      ("EqpDesc",  "", DC_,   "", xidEqDesc,           this, isParm);
-  DDB.String      ("EqpMemo",  "", DC_,   "", xidEqMemo,           this, isParm|InitHidden);
-  DDB.String      ("EqpIdStr", "", DC_,   "", xidEqIdStr,          this, isParm|InitHidden);
-  DDB.String      ("EqpLocation", "", DC_,"", xidEqLocation,       this, isParm|InitHidden);
-  DDB.String      ("EqpGUID",  "", DC_,   "", xidEqGUID,           this, isParmConstruct|InitHidden);
-  DDB.Long        ("EqpLink",  "", DC_,   "", xidEqLink,           this, isParmConstruct|InitHidden);
+  DDB.String      ("Tag",         "", DC_,   "", xidTag,              this, 0|DDEF_WRITEPROTECT);//InitHidden);// temporary isParm);
+  DDB.String      ("Parent",      "", DC_,   "", xidParent,           this, 0|DDEF_WRITEPROTECT|InitHidden);
+  DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
+  DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId, this, 0|DDEF_WRITEPROTECT|InitHidden);
+  DDB.String      ("PrimaryCfg",  "", DC_, "", xidPrimaryCfg,         this, 0|InitHidden);
+  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,           this, isParm);
+  DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,           this, isParm|InitHidden);
+  DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,          this, isParm|InitHidden);
+  DDB.String      ("EqpLocation", "", DC_,"", xidEqLocation,          this, isParm|InitHidden);
+  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,           this, isParmConstruct|InitHidden);
+  DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,           this, isParmConstruct|InitHidden);
+  DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,         this, isParm|InitHidden);
   if (dbgtestfileopen())
     DDB.CheckBoxBtn ("DbgBrk", "", DC_,   "", &fDoDbgBrk,          this, isParm);
   DDB.CheckBoxBtn ("SkipSnapLoad", "", DC_, "", &bSkipSnapLoad,    this, isParm|InitHidden|noFileAtAll);
@@ -2385,15 +2385,16 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
-    case xidTag    : DCB.pC=Tag(DCB.rpC);  return 1;
-    case xidParent : DCB.pC=TagOfParent(); return 1;
-    case xidEqDesc : if (DCB.rpC) m_sEqDesc=DCB.rpC; DCB.pC=m_sEqDesc(); return 1;
-    case xidEqMemo : if (DCB.rpC) m_sEqMemo=DCB.rpC; DCB.pC=m_sEqMemo(); return 1;
-    case xidEqIdStr: if (DCB.rpC) m_sEqIdStr=DCB.rpC; DCB.pC=m_sEqIdStr(); return 1;
+    case xidTag       : DCB.pC=Tag(DCB.rpC); return 1;
+    case xidParent    : DCB.pC=TagOfParent(); return 1;
+    case xidEqDesc    : if (DCB.rpC) m_sEqDesc=DCB.rpC; DCB.pC=m_sEqDesc(); return 1;
+    case xidEqMemo    : if (DCB.rpC) m_sEqMemo=DCB.rpC; DCB.pC=m_sEqMemo(); return 1;
+    case xidEqIdStr   : if (DCB.rpC) m_sEqIdStr=DCB.rpC; DCB.pC=m_sEqIdStr(); return 1;
     case xidEqLocation: if (DCB.rpC) m_sEqLocation=DCB.rpC; DCB.pC=m_sEqLocation(); return 1;
-    case xidEqLink : if (DCB.rL)  m_lEqLink=*DCB.rL; DCB.L=m_lEqLink; return 1;
-    case xidEqGUID : if (DCB.rpC) SetEqpGUID(DCB.rpC); DCB.pC=(LPSTR)EqpGUID(); return 1;
-    case xidPrimaryCfg : if (DCB.rpC) PutPrimaryCfg(DCB.rpC); DCB.pC=(LPSTR)GetPrimaryCfg(); return 1;
+    case xidEqLink    : if (DCB.rL)  m_lEqLink=*DCB.rL; DCB.L=m_lEqLink; return 1;
+    case xidEqRepKey  : if (DCB.rL)  m_lReportKey=*DCB.rL; DCB.L=m_lReportKey; return 1;
+    case xidEqGUID    : if (DCB.rpC) SetEqpGUID(DCB.rpC); DCB.pC=(LPSTR)EqpGUID(); return 1;
+    case xidPrimaryCfg: if (DCB.rpC) PutPrimaryCfg(DCB.rpC); DCB.pC=(LPSTR)GetPrimaryCfg(); return 1;
     }
   return 0;
   }
