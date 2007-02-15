@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-13 10:45:48 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-15 10:37:41 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -76,6 +76,7 @@ class SlipFlow
     double mn3;
 public:
     SlipFlow(double _mBb, double _mn1, double _mn2, double _mn3): 
+
 	mBb(_mBb), mn1(_mn1), mn2(_mn2), mn3(_mn3) 
     { }
   SlipFlow(int i) 
@@ -125,43 +126,6 @@ public:
 };
 
 
-//===========================================================================
-//
-//  Flash Solver
-//
-//===========================================================================
-
-
-/*
-class CFlashSolver : public MRootFinder
-  {
-  public:
-    CFlashSolver(MStream & _iStream, double _p, MVLEBlk &_VLE): 
-      MRootFinder("FlashSolver" ,s_Tol), iStream(_iStream), m_VLE(_VLE), pRqd(_p) {};
-    ~CFlashSolver() {};
-    double Function(double x);
-    double setP(double P) { pRqd = P;}
-    
-  protected:
-    MStream & iStream;
-    MVLEBlk      &m_VLE;
-    double pRqd;
-    
-
-    static MToleranceBlock s_Tol;
-  };
-
-
-
-MToleranceBlock CFlashSolver::s_Tol(TBF_Both, "CFlashSolver:CondensFinder", 0.0, 1.0e-12);
-
-double CFlashSolver::Function(double x) 
-{
-  m_VLE.SetFlashVapFrac(iStream, x, VLEF_QVFlash);
-  double dFlashP = iStream.SaturationP(iStream.T);
-  return pRqd - dFlashP;
-}
-*/
 
 static MInOutDefStruct s_IODefs[]=
   {
@@ -189,7 +153,7 @@ void CTTOrifice_UnitDef::GetOptions()
   SetDrawing("HeatExchange", Drw_CTTOrifice);
   SetTreeDescription("TTechFT:Orifice");
   SetDescription("TODO: Two Phase Flow Orifice");
-  SetModelSolveMode(MSolveMode_Probal);
+  SetModelSolveMode(MSolveMode_All);
   SetModelGroup(MGroup_Energy);
   SetModelLicense(MLicense_HeatExchange | 0x00010000);
   };
@@ -204,6 +168,8 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dEntryK = 1.0;
   dPipe = 0.4;
   dOut = 0.1;
+  dLevel = 5.0;
+  dOrificeHead = 3.0;
   
   
   
@@ -237,22 +203,30 @@ void CTTOrifice::BuildDataFields()
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
   DD.Double ("PipeD", "", &dPipe, MF_PARAMETER, MC_L("mm"));
   DD.Double ("OrificeDiameter", "", &dOut, MF_PARAMETER, MC_L("mm"));
-  DD.Double ("OrificeInletD", "", &dIn, MF_PARAMETER, MC_L("mm"));
-  DD.Double ("OrificeThickness", "", &dThick, MF_PARAMETER, MC_L("mm"));
-  DD.Double("FlashPressure", "", &dFlashP, MF_PARAMETER, MC_P("kPa"));
-  DD.Double("TemperatureDrop", "", &dFlashdT, MF_PARAMETER, MC_dT("C"));
-  DD.Double("VaporFraction", "", &dxVapor, MF_PARAMETER, MC_Frac);
+  DD.Double ("OrificeInletD", "", &dIn, MF_PARAMETER|MF_INIT_HIDDEN, MC_L("mm"));
+  DD.Double ("OrificeThickness", "", &dThick, MF_PARAMETER|MF_INIT_HIDDEN, MC_L("mm"));
+  DD.Double("FlashPressure", "", &dFlashP, MF_RESULT, MC_P("kPa"));
+  DD.Double("TemperatureDrop", "", &dFlashdT, MF_RESULT, MC_dT("C"));
+  DD.Double("VaporFraction", "", &dxVapor, MF_RESULT, MC_Frac("%"));
   DD.Double("SlipDensity", "", &dSlipDensity, MF_RESULT, MC_Rho);
+  DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
+  DD.Double("OrifceHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));  
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
 
 
   DD.Double("InletPressure", "", &dPin, MF_RESULT, MC_P("kPa"));
   DD.Double("DownstreamPressure", "", &dPout, MF_PARAMETER, MC_P("kPa"));
+  DD.Double("SaturationPressure", "", &dSatP, MF_RESULT, MC_P("kPa"));
+  DD.Double("TemperatureIn", "", &dTin, MF_RESULT, MC_T("C"));  
+  DD.Double("TemperatureDrop", "", &dFlashdT, MF_RESULT, MC_dT("C"));
 
+ 
 
   DD.Double("OrificeEntryPressure", "", &dPOrificein, MF_RESULT, MC_P("kPa"));
   DD.Double("MassFlow", "", &dMassFlow, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlow1", "", &dMassFlow1, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("MassFlow2", "", &dMassFlow2, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT, MC_None);
   
 
     
@@ -310,7 +284,6 @@ double SlipDensity(MStream &s, long SFM)
 
 
 
-
 //---------------------------------------------------------------------------
 
 void CTTOrifice::EvalProducts()
@@ -331,11 +304,11 @@ void CTTOrifice::EvalProducts()
       //same parameter sanity checks
       dPipe = Max(dPipe, 1.0e-6);
       dEntryK = Max(dEntryK, 1.0e-9);
+      dFlashP = InStream.SaturationP(InStream.T);
 
       /* 
       //m_VLE.TPFlash(OutStream, OutStream.T-dFlashdT, dFlashP, VLEF_QVFlash);
       //m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);
-      //dFlashP = OutStream.SaturationP(OutStream.T);
       
       CFlashSolver fn(OutStream, dFlashP, m_VLE);
 
@@ -346,13 +319,12 @@ void CTTOrifice::EvalProducts()
 	//Log.Message(MMsg_Error, "Found Root");
 	dxVapor = fn.Result();
 	m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);
-	dFlashdT = InStream.T - OutStream.T;
-	dSlipDensity = s1.SlipDensity(OutStream);
+	
       } else {
 	Log.Message(MMsg_Error, "Couldnt solve for root");
 	} */
 
-      m_VLE.PFlash(OutStream, dFlashP, 0.0, VLEF_QPFlash);
+      m_VLE.PFlash(OutStream, dPout/*, 0.0, VLEF_QPFlash*/);
       OutStream.P = dFlashP;
       
 
@@ -362,6 +334,14 @@ void CTTOrifice::EvalProducts()
       double area = CircleArea(dPipe);
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
       dMassFlow1 = InStream.Mass();
+      dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
+      dSatP = m_VLE.SaturationP(InStream, InStream.T);
+      dTin = InStream.T;
+      dFlashdT = InStream.T - OutStream.T;
+      dSlipDensity = s1.SlipDensity(OutStream);
+      dMassVelocity = massVelocity(InStream, Pi, dPout);
+      dMassFlow2 = dMassVelocity*CircleArea(dOut);
+      
       
 
     
@@ -398,5 +378,46 @@ void CTTOrifice::ClosureInfo(MClosureInfo & CI)
 
 
 
+double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut) 
+{
+
+  if (pOut > pIn) return 0.0;
+  double pSat = ms.SaturationP(ms.T);
+  if (pOut > pSat) {
+    double den = ms.Density();
+    return sqrt(2000.*(pIn-pOut)*den);
+  }
+  // Main Cases
+  
+  SlipFlow s1(m_lSlipMode);
+  double den1, den2, den3;
+  // Initial pressure below saturation
+  if (pIn < pSat) {
+    double pMid = (pIn+pOut)/2;
+    m_VLE.PFlash(ms, pIn);
+    den1 = s1.SlipDensity(ms);
+    m_VLE.PFlash(ms, pMid);
+    den2 = s1.SlipDensity(ms);
+    m_VLE.PFlash(ms, pOut);
+    den3 = s1.SlipDensity(ms);
+    return den3*sqrt(2000.*(pIn-pOut)*(1./den1+4./den2+1./den3)/6.);
+  }
+  // Default Case, Initial Pressure above saturation
+  double den = ms.Density();   // Slurry (nonflashed) Density
+  double I1 = sqrt(2000.*(pIn-pSat)/den);
+  double pMid = (pSat+pOut)/2;
+  m_VLE.PFlash(ms, pMid);
+  den2 = s1.SlipDensity(ms);
+  m_VLE.PFlash(ms, pOut);
+  den3 = s1.SlipDensity(ms);
+  double I2 = sqrt(2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
+  return den3*(I1+I2);
+  
+  
+
+   
+
+
+}
 
 
