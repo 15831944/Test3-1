@@ -39,22 +39,21 @@ class SysCADMill : public MBaseMethod
     virtual bool PreStartCheck() { bInit = true; return true; }; 
 
   protected:
- 
-	// Seperator Method
-	CMill::eMethod				m_Method;
+    // Seperator Method
+    CMill::eMethod m_Method;
     bool  m_bOrePropsExist; //true if OreProperties database found
 
-	// Persistent Storage for each Seperation Type
-	CComminution_Fixed			m_CComminution_Individual_Fixed;
-	CMill_Rod	    m_CMill_Rod;
-	CMill_Ball		m_CMill_Ball;
-	CMill_AGSAG		m_CMill_AGSAG;
+    // Persistent Storage for each Seperation Type
+    CComminution_Fixed			m_CComminution_Individual_Fixed;
+    CMill_Rod	    m_CMill_Rod;
+    CMill_Ball		m_CMill_Ball;
+    CMill_AGSAG		m_CMill_AGSAG;
 
-	// The Selected Method
-	CMill          *m_pCMill;
+    // The Selected Method
+    CMill          *m_pCMill;
 
-	// Flag to tell EvalProducts to initialise
-	bool bInit;
+    // Flag to tell EvalProducts to initialise
+    bool bInit;
  
   };
 
