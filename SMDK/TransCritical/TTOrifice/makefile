@@ -33,6 +33,7 @@ TTechCAR.dll: $(OBJS)
 	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" \
 	/IMPLIB:".\Rls/$(DLLNAME).lib" /LIBPATH:$(LDIR) /MACHINE:X86 $(OBJS) $(LIBS)
 	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
+	cp "$(SYSCADDIR)\$(DLLNAME).dll" "g:/archive/syscad/syscad$(SYSCAD)"
 
 TTOrifice.obj : TTOrifice.cpp TTOrifice.h
 

@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-15 10:37:41 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-15 10:46:08 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -272,11 +272,8 @@ double ChokeMassVelocity(MStream & s)
 
 double SlipDensity(MStream &s, long SFM) 
 {
-  
+
   return 0;
-  
-
-
   
 }
 

@@ -18,8 +18,7 @@
 
 class CTTOrifice : public MBaseMethod
   {
-  friend class CCondensateFinder;
-  friend class CSimpleSolverFn;
+
   public:
     CTTOrifice(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual ~CTTOrifice(void);
@@ -31,6 +30,9 @@ class CTTOrifice : public MBaseMethod
     virtual bool    EvalJoinPressures();
     virtual void    EvalProducts();
     virtual void    ClosureInfo(MClosureInfo & CI);
+
+    double massVelocity(MStream  ms, double pIn, double pOut);
+    
     
 
   protected:
@@ -45,12 +47,19 @@ class CTTOrifice : public MBaseMethod
     double dxVapor;
     double dSlipDensity;
 
-    double dEntryK; 
+    double dEntryK;    // K value for pipe run up to orifice
     double dPin;
     double dPout;
     double dPOrificein;
     double dMassFlow;
     double dMassFlow1;
+    double dMassFlow2;
+    double dSatP;
+    double dTin;
+    double dLevel;     // Inlet hydrostatic level
+    double dOrificeHead;  // Additional level drop to orifice inlet
+    double dMassVelocity;
+    
     
 
 
