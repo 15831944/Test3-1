@@ -32,6 +32,7 @@ class CTTOrifice : public MBaseMethod
     virtual void    ClosureInfo(MClosureInfo & CI);
 
     double massVelocity(MStream  ms, double pIn, double pOut);
+    double chokeMassVelocity(MStream  ms, double pIn);
     
     
 
@@ -50,18 +51,18 @@ class CTTOrifice : public MBaseMethod
     double dEntryK;    // K value for pipe run up to orifice
     double dPin;
     double dPout;
-    double dPOrificein;
+    double dPOrificeIn;
     double dMassFlow;
     double dMassFlow1;
     double dMassFlow2;
+    double dMassFlow3;
+    double dMassFlow4;
     double dSatP;
     double dTin;
     double dLevel;     // Inlet hydrostatic level
     double dOrificeHead;  // Additional level drop to orifice inlet
     double dMassVelocity;
-    
-    
-
+    double dPCritical;  // Critical Pressure in orifice choke flow
 
   };
 

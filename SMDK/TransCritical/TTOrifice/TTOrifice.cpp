@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-15 10:46:08 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-16 16:32:07 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -87,7 +87,6 @@ public:
     mn2 = slipData[i][2];
     mn3 = slipData[i][3];
   }
-  
 
     
 	     
@@ -210,7 +209,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("VaporFraction", "", &dxVapor, MF_RESULT, MC_Frac("%"));
   DD.Double("SlipDensity", "", &dSlipDensity, MF_RESULT, MC_Rho);
   DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
-  DD.Double("OrifceHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));  
+  DD.Double("OrificeHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));  
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
 
 
@@ -222,11 +221,14 @@ void CTTOrifice::BuildDataFields()
 
  
 
-  DD.Double("OrificeEntryPressure", "", &dPOrificein, MF_RESULT, MC_P("kPa"));
+  DD.Double("OrificeEntryPressure", "", &dPOrificeIn, MF_RESULT, MC_P("kPa"));
   DD.Double("MassFlow", "", &dMassFlow, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlow1", "", &dMassFlow1, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlow2", "", &dMassFlow2, MF_RESULT, MC_Qm("kg/s"));
-  DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT, MC_None);
+  DD.Double("MassFlow3", "", &dMassFlow3, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("MassFlow4", "", &dMassFlow4, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
+  DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
   
 
     
@@ -280,7 +282,6 @@ double SlipDensity(MStream &s, long SFM)
 
 
 
-
 //---------------------------------------------------------------------------
 
 void CTTOrifice::EvalProducts()
@@ -303,24 +304,7 @@ void CTTOrifice::EvalProducts()
       dEntryK = Max(dEntryK, 1.0e-9);
       dFlashP = InStream.SaturationP(InStream.T);
 
-      /* 
-      //m_VLE.TPFlash(OutStream, OutStream.T-dFlashdT, dFlashP, VLEF_QVFlash);
-      //m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);
       
-      CFlashSolver fn(OutStream, dFlashP, m_VLE);
-
-      
-
-
-      if (fn.FindRoot(0., 0., 0.99)==RF_OK) {
-	//Log.Message(MMsg_Error, "Found Root");
-	dxVapor = fn.Result();
-	m_VLE.SetFlashVapFrac(OutStream, dxVapor, VLEF_QVFlash);
-	
-      } else {
-	Log.Message(MMsg_Error, "Couldnt solve for root");
-	} */
-
       m_VLE.PFlash(OutStream, dPout/*, 0.0, VLEF_QPFlash*/);
       OutStream.P = dFlashP;
       
@@ -332,18 +316,32 @@ void CTTOrifice::EvalProducts()
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
       dMassFlow1 = InStream.Mass();
       dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
+      double dGIn = dMassFlow1/area;
+      double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
+      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
+
       dSatP = m_VLE.SaturationP(InStream, InStream.T);
       dTin = InStream.T;
       dFlashdT = InStream.T - OutStream.T;
       dSlipDensity = s1.SlipDensity(OutStream);
-      dMassVelocity = massVelocity(InStream, Pi, dPout);
+      MStream mstmp;
+      mstmp = InStream;
+
+      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);
       dMassFlow2 = dMassVelocity*CircleArea(dOut);
+      dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*CircleArea(dOut);
+      if (dPCritical>dPout) {   // Choked Flow
+	dMassFlow4 = dMassFlow3;
+      } else {
+	dMassFlow4 = dMassFlow2;
+      }
       
       
 
     
     }
-  catch (MMdlException &e)
+  catch (MMdlException &e)  
+
     {
       Log.Message(MMsg_Error, e.Description);
     }
@@ -385,7 +383,7 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
     return sqrt(2000.*(pIn-pOut)*den);
   }
   // Main Cases
-  
+
   SlipFlow s1(m_lSlipMode);
   double den1, den2, den3;
   // Initial pressure below saturation
@@ -395,7 +393,8 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
     den1 = s1.SlipDensity(ms);
     m_VLE.PFlash(ms, pMid);
     den2 = s1.SlipDensity(ms);
-    m_VLE.PFlash(ms, pOut);
+    m_VLE.PFlash(ms, pOut);     
+
     den3 = s1.SlipDensity(ms);
     return den3*sqrt(2000.*(pIn-pOut)*(1./den1+4./den2+1./den3)/6.);
   }
@@ -410,11 +409,29 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
   double I2 = sqrt(2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
   return den3*(I1+I2);
   
-  
-
-   
-
-
+ 
 }
 
 
+
+double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn) 
+{
+  double pSat = ms.SaturationP(ms.T);
+  double pMin = pSat/2.;
+  double dP = pSat-pMin;
+  double gmax = -1000.;
+  double pcrit;
+  for (int i=0; i<=20; i++) {
+    MStream mtmp;
+    mtmp = ms;
+    double p = pSat - dP*i/20.;
+    double mv = massVelocity(mtmp, pIn, p);
+    if (mv>gmax) {
+      pcrit = p;
+      gmax = mv;
+    }
+  }
+  dPCritical = pcrit;
+  return gmax;
+}
+  DD.Double("MassFlow3", "", &dMassFlow3, MF_RESULT, MC_Qm("kg/s"));
