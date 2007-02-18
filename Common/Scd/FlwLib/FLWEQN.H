@@ -67,12 +67,15 @@ XID xidFlwEqnQmAsMass       = FlwXID(10022);
 XID xidFlwEqnQmMeasRho      = FlwXID(10023);
 XID xidFlwEqnQmReqd         = FlwXID(10024);
 XID xidFlwEqnQvReqd         = FlwXID(10025);
-XID xidFlwEqnQmRqdCapacity  = FlwXID(10026);
-XID xidFlwEqnQmMinCapacity  = FlwXID(10027);
-XID xidFlwEqnQmMaxCapacity  = FlwXID(10028);
-XID xidFlwEqnQvRqdCapacity  = FlwXID(10029);
-XID xidFlwEqnQvMinCapacity  = FlwXID(10030);
-XID xidFlwEqnQvMaxCapacity  = FlwXID(10031);
+XID xidFlwEqnBatchMethod    = FlwXID(10026);
+XID xidFlwEqnMBatch         = FlwXID(10027);
+XID xidFlwEqnIncMBatch      = FlwXID(10028);
+XID xidFlwEqnQmRqdCapacity  = FlwXID(10029);
+XID xidFlwEqnQmMinCapacity  = FlwXID(10030);
+XID xidFlwEqnQmMaxCapacity  = FlwXID(10031);
+XID xidFlwEqnQvRqdCapacity  = FlwXID(10032);
+XID xidFlwEqnQvMinCapacity  = FlwXID(10033);
+XID xidFlwEqnQvMaxCapacity  = FlwXID(10034);
 
 //XID xidFlwEqnPressOn        = FlwXID(10040);
 XID xidFlwEqnNomDP          = FlwXID(10041);
@@ -366,11 +369,11 @@ class DllImportExport CSpPropInfo
 class DllImportExport CSpPropInfoArray : public CArray<CSpPropInfo, CSpPropInfo&> {};
 
 //============================================================================
+enum eBOBatchOperation { BO_None, BO_TotalMass }; //BO_TotalVolume, BO_SolidsMass, };
 
 class DllImportExport CFlwEqnFlwRqd
   {
   public:
-
     bool          m_AsMass;
     bool          m_bMeasDensOK;
     double        m_MeasDens;
@@ -388,6 +391,9 @@ class DllImportExport CFlwEqnFlwRqd
     double        m_PressDP;
     double        m_PressQm;
     double        m_PressQv;
+
+    long          m_BatchMethod;
+    double        m_RqdMBatch;
 
   };
 
@@ -1163,7 +1169,7 @@ class DllImportExport CFlwThermalBlk
 
   protected:
     FlwNode     * m_pNd;
-    CFlwEqnPtr   * m_pFEP;
+    CFlwEqnPtr  * m_pFEP;
     SpConduit   * m_pCd;
 
     enum          eTRSpec { TR_None, TR_TChange, TR_TFinal };

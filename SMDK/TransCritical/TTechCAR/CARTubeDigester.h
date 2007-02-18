@@ -18,7 +18,7 @@ double  ft(double);              // Basic HT and dP correlations for tubeside
 double NuG(double, double);
 
 
-#define USEEHXBLK 01
+#define USEEHXBLK 0
 
 class CCARTubeDigester : public MBaseMethod, CSTHx
   {

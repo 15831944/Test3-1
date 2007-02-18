@@ -2733,11 +2733,11 @@ Build 122 : 16 November 2006
 1460 14/02/07: (#335) Fix for bug in EHX used in tamks introduced in Build 122.1456.
 1463 15/02/07: (#759) For dynamic fixed a network converge issue due to measured density in regulators.
 1464 15/02/07: (#633) Fixed archive csv date formatting.
-
+1473 16/02/07: (#664) Implemented batch feed option in dynamic mode for transfer pipes.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1464
+#define SCD_PATCH_SVN    1473
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
