@@ -101,8 +101,9 @@ const short MaxSpeciesPerAssaySum=100;
 XID xidBCCritCnt           = 1;             // Number of Criteria in Controller
 XID xidBCAssaySumCnt       = 2;             // Number of Global Assays
 XID xidBCOptimise          = 3;             // Optimise Button
-XID xidBCOptimiseSet       = 4;
-XID xidBCNSpcs1            = 5;             // Number of Species in each Assay
+XID xidBCOptimiseSet       = 4;             // Optimise and Set Button
+XID xidBCTtlRqd            = 5;             // For manual mode, sum of forced fractions
+XID xidBCNSpcs1            = 6;             // Number of Species in each Assay
 XID xidBCAddSpc            = xidBCNSpcs1+MaxAssaySum;
 XID xidBCRemSpc            = xidBCAddSpc+MaxAssaySum*MaxSpeciesPerAssaySum;
 
@@ -118,16 +119,14 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Button("Check_tags", "", DC_, "", idmCheckBtn, this, isParmStopped);
   DDB.String("MultiStoreTag", "", DC_, "", &sMSTag, this, isParmStopped|isTag);
   DDB.String("StreamTag", "", DC_, "", &sPipeTag, this, isParmStopped|isTag);
+  DDB.Text("");
   DDB.CheckBoxBtn("TrackErrors", "", DC_, "", &bLogOptimiseErrors, this, isParm, DDBYesNo);
   DDB.CheckBoxBtn("TrackNotes", "", DC_, "", &bLogOptimiseNotes, this, isParm, DDBYesNo);
   DDB.CheckBoxBtn("TrackSetData", "", DC_, "", &bLogSetOptimiseData, this, isParm, DDBYesNo);
   DDB.Text("");
   //DDB.Text    ("Results");
   DDB.String("State",        "", DC_,    "",    &m_StateLine[0],  this, isResult|noFileAtAll);
-  //DDB.Text("Error:");
   DDB.String("Msg_1",        "", DC_,    "",    &m_StateLine[1],  this, isResult|noFileAtAll);
-  //DDB.String("Msg_2",        "", DC_,    "",    &m_StateLine[2],  this, isResult|noFileAtAll);
-  //DDB.Text("");
   //DDB.Text("----------------------------------------");
 
 
@@ -150,13 +149,14 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
 
   // Criteria Definitions
   DDB.Page("BC", DDB_RqdPage);
-  DDB.Text("");
   m_BC.BuildDataDefn(this, DDB);
+  DDB.Visibility(NSHM_All, m_BC.m_iMethod==CBlendControlHelper::eBM_Auto1);
   DDB.Page("Crit", DDB_RqdPage);
   DDB.Text("");
   m_BC.BuildCriteriaDataDefn(this, DDB);
 
   // For display only
+  DDB.Visibility(NSHM_All, m_BC.m_iMethod==CBlendControlHelper::eBM_Auto1);
   DDB.Object(&mStockpileAssays,this,NULL,NULL,DDB_RqdPage); 
 
   #if WithMethod1
@@ -169,6 +169,7 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Object(&mSoftConstraintCosts, this, NULL, NULL, DDB_RqdPage);
   DDB.Object(&mSoftRatiosCosts, this, NULL, NULL, DDB_RqdPage);
   #endif
+  DDB.Visibility();
 
   DDB.EndStruct();
   }
@@ -180,16 +181,12 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
   if (FlwNode::DataXchg(DCB))
     return 1;
 
-  //
   // Assay Sum Count - Number of Defined Assays for Project
-  //
   if (DCB.lHandle==xidBCAssaySumCnt)
     {
     if (DCB.rS)
       {
-      //
       // Should move hooks into assay sum to AssaySumHelper
-      //
       gs_Assays.SetAssaySumCount(Range((short)0, *DCB.rS, MaxAssaySum));
       for (int i=0;i<gs_Assays.GetAssaySumCount();i++)
         {
@@ -203,9 +200,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     }
 
 
-  //
   // Assay Sum List Count
-  //
   if (DCB.lHandle>=xidBCNSpcs1 && DCB.lHandle<xidBCNSpcs1+MaxAssaySum)
     {
     int AssySumIndex=DCB.lHandle-xidBCNSpcs1;
@@ -215,9 +210,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
-  //
   // AssaySum InsertIndex List Members 
-  //
   if (DCB.lHandle>=xidBCAddSpc && DCB.lHandle<xidBCAddSpc+MaxAssaySum*MaxSpeciesPerAssaySum)
     {
     if (DCB.rL)
@@ -235,9 +228,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
-  //
   // AssaySum Remove Index List Members
-  //
   if (DCB.lHandle>=xidBCRemSpc && DCB.lHandle<xidBCRemSpc+MaxAssaySum*MaxSpeciesPerAssaySum)
     {
     if (DCB.rL)
@@ -255,9 +246,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
-  //
   // Criteria Count
-  //
   if (DCB.lHandle==xidBCCritCnt)
     {
     if (DCB.rS)
@@ -266,9 +255,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
-  //
   // Blend Controller Optimise Button
-  //
   if (DCB.lHandle==xidBCOptimise)
     {
     //if (DCB.rB && (*DCB.rB!=0) && DCB.ForView())
@@ -280,9 +267,7 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
-  //
   // Blend Controller Optimise Button
-  //
   if (DCB.lHandle==xidBCOptimiseSet)
     {
     //if (DCB.rB && (*DCB.rB!=0) && DCB.ForView())
@@ -294,6 +279,11 @@ flag CBlendCon::DataXchg(DataChangeBlk & DCB)
     return 1;
     }
 
+  if (DCB.lHandle==xidBCTtlRqd)
+    {
+    DCB.D=m_BC.GetTotalRqdSplits();
+    return 1;
+    }
 
   return False;
   }
@@ -596,7 +586,6 @@ void CBlendCriteriaHelper::SetUpDDB()
 
 void CBlendCriteriaHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB, int CriteriaIndex)
   {
-
   static DDBValueLst DDB0[]={
     {CBlendCriteria::eCT_Soft, "Soft"},
     {CBlendCriteria::eCT_Ratio,"Ratio"},
@@ -650,6 +639,7 @@ void CBlendCriteriaHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB, in
 CBlendControlHelper::CBlendControlHelper(/*int MyIndex*/)
   {
   //m_iMyIndex = MyIndex;
+  m_iMethod = eBM_Manual;
   m_iStreamIndex = -1;
   m_iIOIndex = -1;
   m_iOptimiseMethod = 1;
@@ -690,27 +680,51 @@ void CBlendControlHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB)
     {1, "Method1"},
     {0}};
 
+  static DDBValueLst DDB1[]={
+    {CBlendControlHelper::eBM_Manual, "Manual"},
+    {CBlendControlHelper::eBM_Auto1, "Auto1"},
+    {0}};
+
   DDBValueLstMem DDBSt;
   char Buff[64];
   int ProdCount = 0;
   int i;
 
-  DDB.Short   ("CriteriaCount", "", DC_, "", xidBCCritCnt, pTagObj, isParmStopped|SetOnChange);
+  DDB.Long("BlendMethod", "", DC_, "", &m_iMethod, pTagObj, isParmStopped|SetOnChange, DDB1);
+  DDB.Visibility(NSHM_All, m_iMethod==eBM_Auto1);
+  DDB.Short("CriteriaCount", "", DC_, "", xidBCCritCnt, pTagObj, isParmStopped|SetOnChange);
   //DDB.Short   ("OptimiseMethod", "", DC_, "", &m_iOptimiseMethod, pTagObj, isParmStopped, DDB0);
+  DDB.Visibility();
   DDB.Double  ("Rqd", "", DC_M, "kg", &m_dTotalRqd, pTagObj, isParm);
   DDB.Text("");
-  DDB.Button("Optimise", "", DC_, "", xidBCOptimise, pTagObj, isParm);
-  DDB.Button("Optimise_Set", "", DC_, "", xidBCOptimiseSet, pTagObj, isParm);
-  DDB.Text("");
+  if (m_iMethod==eBM_Manual)
+    {
+    DDB.Button("Calculate", "", DC_, "", xidBCOptimise, pTagObj, isParm);
+    DDB.Button("Calculate_Set", "", DC_, "", xidBCOptimiseSet, pTagObj, isParm);
+    DDB.Text("");
+    DDB.Double("TotalRequiredFrac", "", DC_Frac, "%", xidBCTtlRqd, pTagObj, isResult|noFileAtAll);
+    DDB.Text("");
+    }
+  else if (m_iMethod==eBM_Auto1)
+    {
+    DDB.Button("Optimise", "", DC_, "", xidBCOptimise, pTagObj, isParm);
+    DDB.Button("Optimise_Set", "", DC_, "", xidBCOptimiseSet, pTagObj, isParm);
+    DDB.Text("");
+    }
 
   for (i=0; i<m_iTankCnt; i++)
     {
+    DDB.Visibility(NSHM_All, m_iMethod==eBM_Auto1);
     sprintf(Buff, "Tank.[%d].FracMin", i);
-    DDB.Double (Buff/*"FracMin"*/, "", DC_Frac, "%", &(m_pMin[i]), pTagObj, isParm);
+    DDB.Double(Buff/*"FracMin"*/, "", DC_Frac, "%", &(m_pMin[i]), pTagObj, isParm);
     sprintf(Buff, "Tank.[%d].FracMax", i);
-    DDB.Double (Buff/*"FracMax"*/, "", DC_Frac, "%", &(m_pMax[i]), pTagObj, isParm);
+    DDB.Double(Buff/*"FracMax"*/, "", DC_Frac, "%", &(m_pMax[i]), pTagObj, isParm);
+    DDB.Visibility(NSHM_All, m_iMethod==eBM_Manual);
+    sprintf(Buff, "Tank.[%d].RqdFrac", i);
+    DDB.Double(Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pRqdSplits[i]), pTagObj, isParm|NAN_OK);
+    DDB.Visibility();
     sprintf(Buff, "Tank.[%d].Frac", i);
-    DDB.Double (Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pResultSplits[i]), pTagObj, isResult);
+    DDB.Double(Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pResultSplits[i]), pTagObj, isResult);
     }
 
   }
@@ -762,6 +776,7 @@ void CBlendControlHelper::InitTanks(long TankCnt, long ComponentCnt)
     double * pTotal = NULL;
     double * pMin = NULL;
     double * pMax = NULL;
+    double * pRqdSplits = NULL;
     double * pResultSplits = NULL;
     if (TankCnt>0 && ComponentCnt>0)
       {
@@ -771,6 +786,7 @@ void CBlendControlHelper::InitTanks(long TankCnt, long ComponentCnt)
       pTotal = new double[TankCnt];
       pMin = new double[TankCnt];
       pMax = new double[TankCnt];
+      pRqdSplits = new double[TankCnt];
       pResultSplits = new double[TankCnt];
 
       for (int i=0; i<min(PrevTankCount, TankCnt); i++)
@@ -782,6 +798,7 @@ void CBlendControlHelper::InitTanks(long TankCnt, long ComponentCnt)
         pTotal[i] = m_pTotal[i];
         pMin[i] = m_pMin[i];
         pMax[i] = m_pMax[i];
+        pRqdSplits[i] = m_pRqdSplits[i];
         pResultSplits[i] = m_pResultSplits[i];
         }
       for (int i=PrevTankCount; i<TankCnt; i++)
@@ -791,6 +808,7 @@ void CBlendControlHelper::InitTanks(long TankCnt, long ComponentCnt)
         pTotal[i] = 0.0;
         pMin[i] = 0.0;
         pMax[i] = 1.0;
+        pRqdSplits[i] = dNAN;
         pResultSplits[i] = 0.0;
         }
       }
@@ -803,6 +821,7 @@ void CBlendControlHelper::InitTanks(long TankCnt, long ComponentCnt)
       m_pTotal = pTotal;
       m_pMin = pMin;
       m_pMax = pMax;
+      m_pRqdSplits = pRqdSplits;
       m_pResultSplits = pResultSplits;
       }
     }
@@ -866,13 +885,20 @@ void CBlendControlHelper::InitCriteria(long CriteriaCount)
 
 void CBlendControlHelper::Optimise(CBlendCon* pBlender, bool SetIt)
   {
-  m_iOptimiseMethod = 2;
-  if (m_iOptimiseMethod==0)
-    Optimise0(pBlender, SetIt);
-  else if (m_iOptimiseMethod==1)
-    Optimise1(pBlender, SetIt);
+  if (m_iMethod==eBM_Auto1)
+    {
+    m_iOptimiseMethod = 2;
+    if (m_iOptimiseMethod==0)
+      Optimise0(pBlender, SetIt);
+    else if (m_iOptimiseMethod==1)
+      Optimise1(pBlender, SetIt);
+    else
+      Optimise2(pBlender, SetIt);
+    }
   else
-    Optimise2(pBlender, SetIt);
+    {
+    Calculate(pBlender, SetIt);
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -2196,6 +2222,7 @@ void CBlendControlHelper::Optimise2(CBlendCon* pBlender, bool SetIt)
     dbgpln("================");
     }
 
+
   //now solve...
   tankOpt->InitSolution(); //TODO... rather solve from previous iteration?
   int ExitCode = tankOpt->go();
@@ -2213,7 +2240,7 @@ void CBlendControlHelper::Optimise2(CBlendCon* pBlender, bool SetIt)
   for (int t=0; t<m_iTankCnt; t++)
     {
     m_pResultSplits[t] = tankOpt->tank[t];
-  }
+    }
 
   // Criteria Results
   for (int i=0; i<m_iCriteriaCnt; i++)
@@ -2279,5 +2306,260 @@ void CBlendControlHelper::Optimise2(CBlendCon* pBlender, bool SetIt)
     }
   }
 
+//==========================================================================
+
+void CBlendControlHelper::Calculate(CBlendCon* pBlender, bool SetIt)
+  {
+  pBlender->m_StateLine[0] = "OK";
+  pBlender->m_StateLine[1] = "";
+  pBlender->m_StateLine[2] = "";
+  CMultiStorage* lpMultiStore = (CMultiStorage*)(pBlender->m_pStorage);
+  if (lpMultiStore == NULL)
+    {
+    pBlender->m_StateLine[0] = "Error: Multistore not connected";
+    LogError(pBlender->Tag(), 0, "Calculate Failed: Multistore %s not connected!", pBlender->sMSTag());
+    return;
+    }
+
+  double dBlendRqd = m_dTotalRqd; // This is the blend amount required
+  if (dBlendRqd <= 0.0)
+    {
+    pBlender->m_StateLine[0] = "Error: Target Mass is zero";
+    LogWarning(pBlender->Tag(), 0, "Calculate Failed: Target Mass is zero");
+    return;
+    }
+
+  const double EmptyAmnt = 1.0e-12;
+  int EmptyTankCnt = 0;
+  int ForcedTankCnt = 0;
+  double TtlMassAvail = 0.0;
+  double ForcedMassAvail = 0.0;
+  double FracForced = 0.0;
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    CMultiStore & St = lpMultiStore->m_Store[t];
+    const double Mtot = St.Mass();// kgs
+    const bool Empty = (Mtot<EmptyAmnt);
+    if (Empty)
+      EmptyTankCnt++;
+    else
+      TtlMassAvail += Mtot;
+    if (Valid(m_pRqdSplits[t]))
+      {
+      m_pRqdSplits[t] = Range(0.0, m_pRqdSplits[t], 1.0);
+      FracForced += m_pRqdSplits[t];
+      ForcedTankCnt++;
+      if (!Empty)
+        ForcedMassAvail += Mtot;
+      }
+    }
+  const double FreeMassAvail = TtlMassAvail - ForcedMassAvail;
+  const double FracFree = 1.0 - FracForced;
+  const int FreeTankCnt = m_iTankCnt - ForcedTankCnt;
+  if (TtlMassAvail<EmptyAmnt)
+    {
+    pBlender->m_StateLine[0] = "Error: Available mass is zero";
+    LogWarning(pBlender->Tag(), 0, "Calculate Failed: Available mass is zero");
+    return;
+    }
+
+  if (FracForced>1.0)
+    {
+    pBlender->m_StateLine[0] = "Error: Sum of required fractions is greater than 1";
+    LogWarning(pBlender->Tag(), 0, "Calculate Failed: Sum of required fractions is greater than 1");
+    return;
+    }
+
+  if (dBlendRqd>TtlMassAvail)
+    {
+    pBlender->m_StateLine[0] = "Required mass < mass available,";
+    pBlender->m_StateLine[1] = "calculation uses mass available.";
+    LogWarning(pBlender->Tag(), 0, "Required mass < mass available!  Calculation will use mass available (%.3f).", TtlMassAvail);
+    dBlendRqd = TtlMassAvail;
+    }
+
+  if (pBlender->bLogOptimiseNotes)
+    {
+    LogNote(pBlender->Tag(), 0, "Blend amount required:%.3f (%d of %d 'tanks' have material available)", dBlendRqd, m_iTankCnt-EmptyTankCnt, m_iTankCnt);
+    }
+
+
+  //now solve...
+  const bool FreeMassEmpty = (FreeMassAvail<EmptyAmnt);
+  double FracTtl = 0.0;
+  for (int t=0; t<m_iTankCnt-1; t++)
+    {
+    if (Valid(m_pRqdSplits[t]))
+      {//for a 'forced' tank, set split to the forced amount
+      m_pResultSplits[t] = m_pRqdSplits[t];
+      }
+    else
+      {
+      if (FreeMassEmpty)
+        {//all the 'free' tanks are empty, set equal split
+        m_pResultSplits[t] = FracFree/FreeTankCnt;
+        }
+      else
+        {//for a 'free' tank set split proportional to contents
+        CMultiStore & St = lpMultiStore->m_Store[t];
+        const double Mtot = St.Mass();// kgs
+        m_pResultSplits[t] = Max(0.0, Mtot/FreeMassAvail*FracFree);
+        }
+      }
+    FracTtl += m_pResultSplits[t];
+    }
+  m_pResultSplits[m_iTankCnt-1] = Max(0.0, 1.0-FracTtl); //set last split to the remainder
+
+  //now check if material is actually available, if not adjust propartionally
+  double TtlErr = 0.0;
+  double MaxAvail = 0.0; //maximum available excluding stores where ResultSplits==0
+  double TtlExtraFrac = 0.0;
+  int MaxFreeIndex = 0;
+  double MaxFree = 0.0;
+  for (int t=0; t<m_iTankCnt; t++)
+    {
+    if (m_pResultSplits[t]>0.0)
+      {
+      CMultiStore & St = lpMultiStore->m_Store[t];
+      const double Mtot = St.Mass();// kgs
+      const double Err = Max(0.0, (dBlendRqd*m_pResultSplits[t])-Mtot);
+      MaxAvail += Mtot;
+      if (Err>0.0)
+        TtlErr += Err;
+      else
+        TtlExtraFrac += m_pResultSplits[t];
+      if (Mtot-(dBlendRqd*m_pResultSplits[t])>MaxFree)
+        {
+        MaxFree = Mtot-(dBlendRqd*m_pResultSplits[t]);
+        MaxFreeIndex = t;
+        }
+      }
+    }
+  if (TtlErr>0.0)
+    {
+    if (MaxAvail<EmptyAmnt)
+      {//effectively nothing available from allowed tanks
+      pBlender->m_StateLine[0] = "Error: Available mass from allowed 'tanks' is zero";
+      pBlender->m_StateLine[1] = "";
+      LogWarning(pBlender->Tag(), 0, "Calculate Failed: Available mass from allowed 'tanks' is zero");
+      }
+    else
+      {
+      if (MaxAvail<dBlendRqd)
+        {
+        TtlErr = dBlendRqd - MaxAvail;
+        LogWarning(pBlender->Tag(), 0, "Required mass (%.3f) < mass available in allowed tanks!  Calculation will use mass available (%.3f)", dBlendRqd, MaxAvail);
+        dBlendRqd = MaxAvail;
+        }
+      if (pBlender->bLogOptimiseNotes)
+        {
+        LogNote(pBlender->Tag(), 0, "Adjusted blend amount required:%.3f", dBlendRqd);
+        }
+      pBlender->m_StateLine[0] = "User specified requirements cannot be met,";
+      pBlender->m_StateLine[1] = "proportional adjustments made.";
+      if (pBlender->bLogOptimiseNotes)
+        {
+        LogWarning(pBlender->Tag(), 0, "User specified requirements cannot be met, proportional adjustments made");
+        }
+
+      //first adjust any fractions to limit based on available mass, adjust others proportianal to fraction required
+      CArray<bool,bool> ForcedArray;
+      ForcedArray.SetSize(m_iTankCnt);
+      FracTtl = 0.0;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        if (m_pResultSplits[t]>0.0)
+          {
+          CMultiStore & St = lpMultiStore->m_Store[t];
+          const double Mtot = St.Mass();// kgs
+          double Err = Max(0.0, (dBlendRqd*m_pResultSplits[t])-Mtot);
+          if (Err>0.0)
+            {
+            ForcedArray[t] = true;
+            m_pResultSplits[t] = Max(0.0, Mtot/dBlendRqd);
+            }
+          else
+            {
+            const double ExtraM = TtlErr*(m_pResultSplits[t]/TtlExtraFrac);
+            const double NewM = (dBlendRqd*m_pResultSplits[t]) + ExtraM;
+            m_pResultSplits[t] = Max(0.0, NewM/dBlendRqd);
+            Err = Max(0.0, (dBlendRqd*m_pResultSplits[t])-Mtot);
+            if (Err>0.0)
+              {
+              ForcedArray[t] = true;
+              m_pResultSplits[t] = Max(0.0, Mtot/dBlendRqd);
+              }
+            else
+              {
+              ForcedArray[t] = false;
+              }
+            }
+          }
+        else
+          ForcedArray[t] = true;
+        FracTtl += m_pResultSplits[t];
+        }
+
+      if (FracTtl<1.0)
+        {//further adjustment required
+        //second adjust any stores that are not limited proportional to free material available (ie "ignore" required fractions for this last step)
+        TtlErr = dBlendRqd*(1.0-FracTtl);
+        double ExtraAvailTtlM = 0.0;
+        for (int t=0; t<m_iTankCnt; t++)
+          {
+          if (!ForcedArray[t])
+            {
+            CMultiStore & St = lpMultiStore->m_Store[t];
+            const double Mtot = St.Mass();// kgs
+            const double ExtraAvailM = Mtot - (dBlendRqd*m_pResultSplits[t]);
+            ExtraAvailTtlM += ExtraAvailM;
+            }
+          }
+        FracTtl = 0.0;
+        for (int t=0; t<m_iTankCnt; t++)
+          {
+          if (!ForcedArray[t])
+            {
+            CMultiStore & St = lpMultiStore->m_Store[t];
+            const double Mtot = St.Mass();// kgs
+            const double ExtraAvailM = Mtot - (dBlendRqd*m_pResultSplits[t]);
+            const double ExtraM = TtlErr*(ExtraAvailM/ExtraAvailTtlM);
+            const double NewM = (dBlendRqd*m_pResultSplits[t]) + ExtraM;
+            m_pResultSplits[t] = Max(0.0, NewM/dBlendRqd);
+            }
+          if (t!=MaxFreeIndex)
+            FracTtl += m_pResultSplits[t];
+          }
+        m_pResultSplits[t] = Max(0.0, 1.0 - FracTtl); //ensure sum is exactly 1.0
+        }
+      }
+    }
+
+
+  //set the fractions
+  if (SetIt && pBlender->bOn)
+    {
+    const int StreamIndex = lpMultiStore->GetOutputStreamIndex(pBlender->sPipeTag());
+
+    if (StreamIndex>=0)
+      {
+      if (lpMultiStore->IsFracForStream(StreamIndex))
+        {
+        for (int t=0; t<m_iTankCnt; t++)
+          lpMultiStore->SetStoreFracForStream(StreamIndex, t, m_pResultSplits[t]);
+        if (pBlender->bLogSetOptimiseData)
+          LogNote(pBlender->Tag(), 0, "Fractions for '%s' have been set in '%s'", pBlender->sPipeTag(), pBlender->sMSTag());
+        }
+      else
+        {
+        LogError(pBlender->Tag(), 0, "Fraction split method must be specified for product stream '%s'", pBlender->sPipeTag());
+        }
+      }
+    else
+      {
+      LogError(pBlender->Tag(), 0, "Invalid Stream specified '%s'", pBlender->sPipeTag());
+      }
+    }
+  }
 //==========================================================================
 #endif

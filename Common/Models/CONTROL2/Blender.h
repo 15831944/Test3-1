@@ -153,6 +153,16 @@ class CBlendData
     double* GetResultSplits() { return m_pResultSplits; };
     CBlendCriteria* GetCriteria(int index) { return m_pCriteria[index]; };
 	  //CAssaySum*      GetAssaySum(int index) { return gs_pAssaySum[index]; };//{return m_pAssaySum[index]; };
+    double GetTotalRqdSplits()
+      {
+      double Ttl = 0.0;
+      for (int t=0; t<m_iTankCnt; t++)
+        {
+        if (Valid(m_pRqdSplits[t]))
+          Ttl += m_pRqdSplits[t];
+        }
+      return Ttl;
+      }
 
   protected:
     long        m_iTankCnt;       //number of tanks
@@ -162,6 +172,7 @@ class CBlendData
     double *    m_pTotal;         //total amount for each tank
     double *    m_pMin;           //as a fraction minimum output allowed for each tank
     double *    m_pMax;           //as a fraction maximum output allowed for each tank
+    double *    m_pRqdSplits;     //for manual method, the required split (use NAN for proportianal)
     double *    m_pResultSplits;  //calculated fraction from each tank making up total output (add up to 1.0)
 
     long        m_iCriteriaCnt;   //number of criteria to be tested

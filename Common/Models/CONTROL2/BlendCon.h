@@ -66,6 +66,7 @@ typedef CArray <CBlendCriteriaHelper*, CBlendCriteriaHelper*> BlendCriteriaArray
 class CBlendControlHelper : public CBlendData
   {
   public:
+   	enum eBlendMethod { eBM_Manual, eBM_Auto1 };
     CBlendControlHelper();
     ~CBlendControlHelper();
 
@@ -81,8 +82,10 @@ class CBlendControlHelper : public CBlendData
     void      Optimise0(CBlendCon* pBlender, bool SetIt);
     void      Optimise1(CBlendCon* pBlender, bool SetIt);
     void      Optimise2(CBlendCon* pBlender, bool SetIt);
+    void      Calculate(CBlendCon* pBlender, bool SetIt);
 
     //int       m_iMyIndex;
+    long      m_iMethod;
     short     m_iStreamIndex;
     short     m_iIOIndex;
     short     m_iOptimiseMethod;
@@ -101,7 +104,7 @@ DEFINE_TAGOBJ(CBlendCon);
 class CBlendCon : public FlwNode , public CXRefStatus 
   {
   public:
- 
+
     CTODirectPtr<CMultiStorage>  m_pStorage; 
     flag       bValid:1;
     Strng      sMSTag; //Tag of MultiStore model
@@ -152,13 +155,11 @@ class CBlendCon : public FlwNode , public CXRefStatus
     // keep everything together.
     //
 
-    //
     // Blend Criteria
-    //
     CBlendControlHelper m_BC;
 
-	// For display purposes
-	CMatrixTB mStockpileAssays;
+    // For display purposes
+    CMatrixTB mStockpileAssays;
     #if WithMethod1
     // Blend Optimsation Input/Output Data
     CMatrixTB mAssays;

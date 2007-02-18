@@ -272,6 +272,7 @@ CBlendData::CBlendData()
   m_pTotal = NULL;
   m_pMin = NULL;
   m_pMax = NULL;
+  m_pRqdSplits = NULL;
   m_pResultSplits = NULL;
   m_iTankCnt = 0;
   m_iComponentCnt = 0;
@@ -303,6 +304,7 @@ void CBlendData::Init(long TankCnt, long ComponentCnt, long CriteriaCnt, long As
     m_pTotal = new double[TankCnt];
     m_pMin = new double[TankCnt];
     m_pMax = new double[TankCnt];
+    m_pRqdSplits = new double[TankCnt];
     m_pResultSplits = new double[TankCnt];
     m_iTankCnt = TankCnt;
     m_iComponentCnt = ComponentCnt;
@@ -331,12 +333,14 @@ void CBlendData::DestroyContent()
     delete []m_pTotal;
     delete []m_pMin;
     delete []m_pMax;
+    delete []m_pRqdSplits;
     delete []m_pResultSplits;
     }
   m_pContent = NULL;
   m_pTotal = NULL;
   m_pMin = NULL;
   m_pMax = NULL;
+  m_pRqdSplits = NULL;
   m_pResultSplits = NULL;
   m_iTankCnt = 0;
   m_iComponentCnt = 0;
