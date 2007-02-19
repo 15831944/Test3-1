@@ -865,9 +865,10 @@ const byte ADBFn_Maximum      = 3;
 const byte ADBFn_PeriodAvg    = 4;
 const byte ADBFn_RunningAvg   = 5;
 const byte ADBFn_Count        = 6;
-const byte ADBFn_Sum          = 7;
-const byte ADBFn_String       = 8;
-const byte ADBFn_System       = 9;
+const byte ADBFn_ChangeCount  = 7;
+const byte ADBFn_Sum          = 8;
+const byte ADBFn_String       = 9;
+const byte ADBFn_System       = 10;
 
 const byte ADBMeas_Null       = 0;
 const byte ADBMeas_StartPt    = 1;

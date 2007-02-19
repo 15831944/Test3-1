@@ -16,7 +16,7 @@
 #include "scd_wm.h"
 #include "archdlgs.h"
 #include "..\..\..\SMDK\Include\msglog.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #define dbgArchiver       WITHDEBUG
 
@@ -43,6 +43,7 @@ LPCTSTR ADBFnStr(int iFn)
     case ADBFn_PeriodAvg:    return "Average";
     case ADBFn_RunningAvg:   return "RunningAvg";
     case ADBFn_Count:        return "Count";
+    case ADBFn_ChangeCount:  return "ChangeCount";
     case ADBFn_Sum:          return "Sum";
     case ADBFn_String:       return "String";
     }
@@ -74,7 +75,7 @@ LPCTSTR ADBFirstStr(int iMeas)
 
 static LPCTSTR s_sArchiveContent = 
 ";=============================================================\n"
-"; SysCAD Archive configuration file\n"
+";=====         SysCAD Archive configuration file         =====\n"
 ";=============================================================\n"
 "\n"
 "[Options]\n"
@@ -89,6 +90,7 @@ static LPCTSTR s_sArchiveContent =
 "Time       = 1\n"
 "ElapsedHMS = 0\n"
 "ElapsedDbl = s\n"
+"\n"
 "Command    = 0\n"
 "Type       = 1\n"
 "Tag        = 1\n"
@@ -101,13 +103,13 @@ static LPCTSTR s_sArchiveContent =
 "\n"
 ";=============================================================\n"
 "\n"
-"[MessageLog] ; System\n"
+"[MessageLog] ; System table\n"
 "On         = 1\n"
 "Format     = DB\n"
 "\n"
 ";=============================================================\n"
 "\n"
-"[EventLog] ; System\n"
+"[EventLog] ; System table\n"
 "On         = 1\n"
 "Format     = DB\n"
 "\n"
@@ -140,8 +142,8 @@ static LPCTSTR s_sArchiveContent =
 "; Offset     = Time offset within the specified period. Optional. Zero is the default.\n"
 "; FieldName  = Report column or field name. Should not contain characters: '.,[]\n"
 "; SysCADTag  = Any valid SysCAD tag. May have conversions.\n"
-"; Function   = Current / Minimum / Maximum / Average / Count\n"
-";         OR = Cur     / Min     / Max     / Avg     / Cnt  \n"
+"; Function   = Current / Minimum / Maximum / Average / Sum / Count / ChangeCount / String\n"
+";         OR = Cur     / Min     / Max     / Avg     / Sum / Cnt   / ChgCnt      / Str\n"
 "; MeasurePt  = StartPt / EndPt / MidPt  - EndPt is the default\n"
 "; FirstPoint = IgnoreFirst / UseFirst  - IgnoreFirst is the default\n"
 "; TriggerTest = Rise [= Value]/ Fall [= Value]/ Delta [= Value]\n"
@@ -150,41 +152,51 @@ static LPCTSTR s_sArchiveContent =
 ";               [= Value] is Optional Test Value (default = 1.0)\n"
 "; \n"
 "; Notes:\n"
-"; 1) Use Period for reporting at fixed time intervals, OR use Triggers for reporting\n"
-";    at irregular time intervals (ie report specified fields based on trigger logic).\n"
-"; 2) For the trigger test use the StepXXXX functions to compare results from previous\n"
-";    iteration to decide if fields should be saved, or use the Rise/Fall/Delta to compare\n"
-";    results from previous occurance of the trigger.\n"
-"; 3) There can be any number of triggers. If the conditions of any of the triggers are met,\n"
-";    then the fields will be reported.\n"
-"; 4) All table entries are optional except the Name\n"
-"; 5) If no Fields are entered then the table will still be created.\n"
-"; 6) If one or more Triggers are used, a period & offset is not relevant or required.\n" 
-"; 7) If no triggers or period are specified then the table will not accumulate data.\n"
+";  1) Use Period for reporting at fixed time intervals, OR use Triggers for reporting\n"
+";     at irregular time intervals (ie report specified fields based on trigger logic).\n"
+";  2) The period and offset are relative to mifnight, not the simulation start time.\n"
+";  3) For the trigger test use the StepXXXX functions to compare results from previous\n"
+";     iteration to decide if fields should be saved, or use the Rise/Fall/Delta to compare\n"
+";     results from previous occurance of the trigger.\n"
+";  4) There can be any number of triggers. If the conditions of any of the triggers are met,\n"
+";     then the fields will be reported.\n"
+";  5) For 'Sum' function type, the SysCAD tag MUST be on a per second basis (eg P_1.Qm (t/s)),\n"
+";     the reported value will be a totaliser for the report period.\n"
+";  6) For 'Count' function type, the reported value will be the number of iterations for the\n"
+";     report period, any valid SysCAD tag can be specified.\n"
+";  7) For 'ChangeCount' function type, the reported value will be count of number of iterations\n"
+";     for which the specified tag changes by more than 1e-3.\n"
+";  8) For 'String' function type, the SysCAD tag must be a string.\n"
+";  9) All table entries are optional except the Name\n"
+"; 10) If no Fields are entered then the table will still be created.\n"
+"; 11) If one or more Triggers are used, a period & offset is not relevant or required.\n" 
+"; 12) If no triggers or period are specified then the table will not accumulate data.\n"
 "; \n"
 ";=============================================================\n"
 "; Examples:\n"
-"; [Table1]\n"
-"; Name       = Daily\n"
-"; On         = 1\n"
-"; Format     = DB\n"
-"; Period     = 24:00:00\n"
-"; Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
-"; Field2     = \"Tank1 Level (%)\",      TNK_1.Lvl (%), Current\n"
-"; Field3     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%), Maximum\n"
-"; Field4     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%), Average\n"
-"; \n"
-"; [Table2]\n"
-"; Name       = Monthly\n"
-"; On         = 1\n"
-"; Format     = CSV\n"
-"; Path       = $Prj\\Archive\n"
-"; Trigger1   = \"Monthly\",              $Dyn.DateRec.Month,     Delta=0.1\n"
-"; Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
-"; Field2     = \"Tank1 Level (%)\",      TNK_1.Lvl (%),          Current\n"
-"; Field3     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%),          Maximum\n"
-"; Field4     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%),          Average\n"
-"; \n"
+";[Table1]\n"
+";Name       = Daily\n"
+";On         = 1\n"
+";Format     = DB\n"
+";Period     = 24:00:00\n"
+";Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
+";Field2     = \"Tank1 Level (%)\",      TNK_1.Lvl (%), Current\n"
+";Field3     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%), Maximum\n"
+";Field4     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%), Average\n"
+";Field5     = \"Total Tank Feed\",      TNK_1.QFeed.QMt (kg/s), Sum\n"
+";\n"
+";[Table2]\n"
+";Name       = Monthly\n"
+";On         = 1\n"
+";Format     = CSV\n"
+";Path       = $Prj\\Archive\n"
+";Trigger1   = \"Monthly\",              $Dyn.DateRec.Month,     Delta=0.1\n"
+";Field1     = \"Steps\",                PlantModel.Stats.Steps, Current\n"
+";Field3     = \"Month\",                $Dyn.DateRec.MonthDesc, String\n"
+";Field3     = \"Tank1 Level (%)\",      TNK_1.Lvl (%),          Current\n"
+";Field4     = \"Tank1 Max Level (%)\",  TNK_1.Lvl (%),          Maximum\n"
+";Field5     = \"Tank1 Ave Level (%)\",  TNK_1.Lvl (%),          Average\n"
+";\n"
 ";=============================================================\n"
 "\n";
 
@@ -357,24 +369,23 @@ CArchiveDBField::CArchiveDBField(CArchiveManager *pAM) : m_rAM(*pAM)
   m_lTableIndex       = -1;
   m_bResetReqd        = true;
   m_dCalculatedValue  = 0.0;
+  m_dPrevInputMeas    = 0.0;
   m_dInputValue       = 0.0;
 
   m_bSystem           = false;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
 CArchiveDBField::~CArchiveDBField()
   {
-  };
+  }
 
 //---------------------------------------------------------------------------
 
 bool CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ bool Complete)
   {
-  bool GotIt = False;
   PkDataUnion PData;
-
   PData.SetTypeDouble(tt_Double, m_dCalculatedValue);  
 
   if (Complete)
@@ -429,7 +440,7 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
   const bool ValidInputAtEnd = Valid(InputAtEnd);
   const bool BothValid = (ValidInputAtStart && ValidInputAtEnd);
 
-  double InputMeas    = dNAN;
+  double InputMeas = dNAN;
   switch (m_iMeas)
     {
     case ADBMeas_StartPt:  InputMeas = InputAtStart; break;
@@ -437,6 +448,8 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
     case ADBMeas_EndPt:    InputMeas = InputAtEnd; break;
     }
   const bool ValidInputMeas = Valid(InputMeas);
+  if (m_bResetReqd)
+    m_dPrevInputMeas = InputMeas;
 
 #if dbgArchiver
   LPCTSTR SrchTag="";//"GC_1-z-AVG";
@@ -446,7 +459,7 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
     switch (m_iFn)
       {
       case ADBFn_Instant:
-        m_dCalculatedValue=InputMeas; 
+        m_dCalculatedValue = InputMeas; 
         break;
       case ADBFn_Minimum:
 	      if (BothValid)
@@ -460,16 +473,17 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
       case ADBFn_RunningAvg:
         switch (m_iMeas)
           {
-          case ADBMeas_StartPt:  m_dCalculatedValue=InputAtStart; break;
-          case ADBMeas_MidPt:    m_dCalculatedValue=(BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
-          case ADBMeas_EndPt:    m_dCalculatedValue=InputAtEnd; break;
+          case ADBMeas_StartPt:  m_dCalculatedValue = InputAtStart; break;
+          case ADBMeas_MidPt:    m_dCalculatedValue = (BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
+          case ADBMeas_EndPt:    m_dCalculatedValue = InputAtEnd; break;
           }
         break;
       case ADBFn_Count:
-        m_dCalculatedValue=0;
+      case ADBFn_ChangeCount:
+        m_dCalculatedValue = 0;
         break;
       case ADBFn_Sum:
-        m_dCalculatedValue=0.0;
+        m_dCalculatedValue = 0.0;
         break;
       }
     m_nSamples=0;
@@ -506,11 +520,22 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
     case ADBFn_Count:
       m_dCalculatedValue += 1.0;
       break;
-    case ADBFn_Sum:
-      if (DeltaSecs>0.0 && ValidInputMeas)
-        m_dCalculatedValue += (InputMeas/DeltaSecs);
+    case ADBFn_ChangeCount:
+      {
+      bool Chgd;
+      if (!Valid(m_dPrevInputMeas) || !Valid(InputMeas))
+        Chgd = !(!Valid(m_dPrevInputMeas) && !Valid(InputMeas));
+	    else
+        Chgd = (fabs(m_dPrevInputMeas-InputMeas)>1.0e-3);
+      if (Chgd)
+        m_dCalculatedValue += 1.0;
       break;
-    };
+      }
+    case ADBFn_Sum:
+      if (ValidInputMeas)
+        m_dCalculatedValue += (InputMeas*DeltaSecs);
+      break;
+    }
 
 #if dbgArchiver
   if (dbgExecute() && (strlen(SrchTag)==0 || stricmp(m_sFldTag, SrchTag)==0))
@@ -518,6 +543,8 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
     m_nSamples, InputAtStart, InputAtEnd, m_dInputValue, m_dCalculatedValue, m_sFldTag);
 #endif
 
+  m_dPrevInputMeas = InputMeas;
+  
   if (m_bResetReqd)
     m_bChanged = true;
   else
@@ -965,7 +992,8 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
       LogWarning(ArcName,0,"Record not written : %s %s %s", CB.m_TheTime.Format(TD_Time), DoSavePer ? "Period ":"Trigger",(LPCTSTR)m_sName);
       }
 
-    for (long fd=0; fd<m_Fields.GetSize(); fd++)
+    const long n=m_Fields.GetSize();
+    for (long fd=0; fd<n; fd++)
       m_Fields[fd]->m_bResetReqd=true;
     }
 
@@ -2201,8 +2229,8 @@ bool CArchiveManager::CompleteOpen()
     Tb.m_Fields.SetSize(0,64);
     }
 
-  const long nf=m_Fields.GetSize();
-  for (long f=0; f<nf; f++)
+  const long n=m_Fields.GetSize();
+  for (long f=0; f<n; f++)
     {
     CArchiveDBField *pFld=m_Fields[f];
     pFld->m_lTableIndex=FindTable(pFld->m_sTable);
@@ -2421,8 +2449,8 @@ bool CArchiveManager::ConnectAll()
       }
     }
 
-  const long nf=m_Fields.GetSize();
-  for (long f=0; f<nf; f++)
+  const long n=m_Fields.GetSize();
+  for (long f=0; f<n; f++)
     {
     CArchiveDBField & Fld=*m_Fields[f];
     if (!Fld.m_bSystem)
@@ -2598,6 +2626,7 @@ long CArchiveManager::DoAddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_PeriodAvg])==0  || _stricmp(Fn, ADBFuncSyms[ADBFn_PeriodAvg])==0   ) iFn=ADBFn_PeriodAvg;
   //else if (_stricmp(Fn, ADBFuncTags[ADBFn_RunningAvg])==0 || _stricmp(Fn, ADBFuncSyms[ADBFn_RunningAvg])==0  ) iFn=ADBFn_RunningAvg
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_Count])==0      || _stricmp(Fn, ADBFuncSyms[ADBFn_Count])==0       ) iFn=ADBFn_Count;
+  else if (_stricmp(Fn, ADBFuncTags[ADBFn_ChangeCount])==0 || _stricmp(Fn, ADBFuncSyms[ADBFn_ChangeCount])==0) iFn=ADBFn_ChangeCount;
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_Sum])==0        || _stricmp(Fn, ADBFuncSyms[ADBFn_Sum])==0         ) iFn=ADBFn_Sum;
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_String])==0     || _stricmp(Fn, ADBFuncSyms[ADBFn_String])==0      ) iFn=ADBFn_String;
   else if (iST<0)
@@ -2662,13 +2691,13 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
     pFld->m_iFn             = iFn;
     pFld->m_iMeas           = iMeas;
     pFld->m_iFirstOnRewind  = iFirst;
-    if (iFn == ADBFn_Count)
+    if (iFn==ADBFn_Count || iFn==ADBFn_ChangeCount)
       {
       pFld->m_iType         = tt_Long;
       pFld->m_iSize         = iSize;
-      pFld->m_sCnvTxt       = "";
+      pFld->m_sCnvTxt       = CnvTxt;
       }
-    else if (iFn == ADBFn_String)
+    else if (iFn==ADBFn_String)
       {
       pFld->m_iType         = tt_Strng;
       pFld->m_iSize         = 100; //assume max length!!!?
@@ -2845,8 +2874,8 @@ bool CArchiveManager::Execute(CXM_TimeControl &CB)
 
   //dbgpln("CArchiveManager::Execute");
 
-  const int NI=m_Fields.GetSize();
-  for (int i=0; i<NI; i++)
+  const long n=m_Fields.GetSize();
+  for (int i=0; i<n; i++)
     m_Fields[i]->Execute(CB);
 
   const int NT=m_Tables.GetSize();
@@ -2867,8 +2896,8 @@ bool CArchiveManager::StepDone(CXM_TimeControl &CB)
   //dbgpln("CArchiveManager::StepDone");
   const double DeltaSecs = Max(0.0, CB.m_TheTime.Seconds-m_TimeOfLastExec.Seconds);
 
-  const int NI=m_Fields.GetSize();
-  for (int i=0; i<NI; i++)
+  const long n=m_Fields.GetSize();
+  for (int i=0; i<n; i++)
     m_Fields[i]->StepDone(CB, DeltaSecs);
 
   const int NT=m_Tables.GetSize();
@@ -2890,7 +2919,8 @@ long CArchiveManager::NoOfChanges()
     return 0;
 
   long N=0;
-  for (long i=0; i<m_Fields.GetSize(); i++) 
+  const long n=m_Fields.GetSize();
+  for (long i=0; i<n; i++) 
     if (m_Fields[i]->m_bChanged) 
       N++; 
   return N;
@@ -3295,13 +3325,19 @@ void CArchiveManager::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &Rq
     case MSA_PreSet: 
     case MSA_SteadyState: 
     case MSA_PBInit: 
-    case MSA_DynStatsRunInit: 
     case MSA_EmptySpillTargets :    
+      break;
+    case MSA_DynStatsRunInit: 
+      {
       //for (int i=0; i<m_Inputs.GetCount(); i++)
       //  m_Inputs[i]->ClrPreviousValue();
+      const long n=m_Fields.GetSize();
+      for (long fd=0; fd<n; fd++)
+        m_Fields[fd]->m_bResetReqd=true;
       break;
+      }
     }
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -3425,7 +3461,8 @@ flag CArchiveManager::EO_ReadSubsData(CXMsgLst &XM)
       {//return all points...
       XM.Clear();
 
-      while (DataIndex < m_Fields.GetSize())
+      const long n=m_Fields.GetSize();
+      while (DataIndex < n)
         {
         CArchiveDBField & It = GetField(DataIndex);
         if (!It.m_bSystem)
@@ -3872,20 +3909,23 @@ void CArchiveManager::SaveTags(FilingControlBlock &FCB, BOOL SaveAll)
   {
   DWORD NWrite;
   char Buff[9];
-  long n;
-  double d;
+  long ns;
+  double d,dp;
   strcpy(Buff, "TAGS....");
   FCB.WriteFile((LPVOID)Buff, 9, &NWrite);
-  for (long i=0; i<m_Fields.GetSize(); i++)
+  const long n=m_Fields.GetSize();
+  for (long i=0; i<n; i++)
     {
     CArchiveDBField & C = *m_Fields[i];
-    long len = C.m_sScdMTag.GetLength();
-    n=C.m_nSamples;
+    const long len = C.m_sScdMTag.GetLength();
+    ns=C.m_nSamples;
     d=C.m_dCalculatedValue;
+    dp=C.m_dPrevInputMeas;
     FCB.WriteFile((LPVOID)&len, sizeof(long), &NWrite);
     FCB.WriteFile((LPVOID)(LPCTSTR)C.m_sScdMTag, len+1, &NWrite);
-    FCB.WriteFile((LPVOID)&n, sizeof(n), &NWrite);
+    FCB.WriteFile((LPVOID)&ns, sizeof(ns), &NWrite);
     FCB.WriteFile((LPVOID)&d, sizeof(d), &NWrite);
+    FCB.WriteFile((LPVOID)&dp, sizeof(dp), &NWrite);
     }
   }
 
@@ -3896,20 +3936,22 @@ void CArchiveManager::LoadTags(FilingControlBlock &FCB)
   DWORD NRead;
   char Buff[512];
   long len;
-  long n;
-  double d;
+  long ns;
+  double d,dp;
   while (!FCB.Eof())
     {
     FCB.ReadFile((LPVOID)&len, sizeof(long), &NRead);
     FCB.ReadFile((LPVOID)Buff, len+1, &NRead);
-    FCB.ReadFile((LPVOID)&n, sizeof(n), &NRead);
+    FCB.ReadFile((LPVOID)&ns, sizeof(ns), &NRead);
     FCB.ReadFile((LPVOID)&d, sizeof(d), &NRead);
-    int ci = FindFieldIndex(Buff);
+    FCB.ReadFile((LPVOID)&dp, sizeof(dp), &NRead);
+    const int ci = FindFieldIndex(Buff);
     if (ci>=0)
       {//tag found...
-      m_Fields[ci]->m_nSamples =n;
-      if (Valid(d))
-        m_Fields[ci]->m_dCalculatedValue = d;
+      m_Fields[ci]->m_nSamples = ns;
+      //if (Valid(d))
+      m_Fields[ci]->m_dCalculatedValue = d;
+      m_Fields[ci]->m_dPrevInputMeas = dp;
       }
     }
   }

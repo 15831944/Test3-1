@@ -104,10 +104,12 @@ class CArchiveDBField
     bool            m_bSystem;
     bool            m_bResetReqd;
     bool            m_bChanged;
-    long            m_nSamples;
-    double          m_dCalculatedValue;  // ...
     double          m_dInputValue;
     CString         m_sInputValue;
+
+    long            m_nSamples;
+    double          m_dCalculatedValue;  // ...
+    double          m_dPrevInputMeas;
   };
 
 class CArchiveTrigger
