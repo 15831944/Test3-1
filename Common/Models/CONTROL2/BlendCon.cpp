@@ -134,13 +134,19 @@ void CBlendCon::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Page("ASSY", DDB_RqdPage);
   DDB.Text("");
   const int cc = gs_Assays.GetAssaySumCount();
-  Strng Tg;
-  Tg.Set("AS");
   DDB.Short("AssaySumCount", "", DC_, "", xidBCAssaySumCnt , this, isParmStopped|SetOnChange);
-  if (DDB.BeginArray(this, Tg(), "SPG_AssaySum", gs_Assays.GetAssaySumCount()))
+  DDB.Text("");
+  char Buff[32];
+  if (DDB.BeginArray(this, "AS", "SPG_AssaySum", gs_Assays.GetAssaySumCount()))
     {
     for (int i=0; i<gs_Assays.GetAssaySumCount(); i++)
       {
+      if (i%5==0 && i>0)
+        {
+        sprintf(Buff, "ASSY:%i", i);
+        DDB.Page(Buff, DDB_RqdPage);
+        DDB.Text("");
+        }
       DDB.BeginElement(this, i);
       gs_Assays.m_Assays[i]->BuildDataDefn(this, DDB, i);
       }
@@ -712,21 +718,50 @@ void CBlendControlHelper::BuildDataDefn(FlwNode* pTagObj, DataDefnBlk & DDB)
     DDB.Text("");
     }
 
-  for (i=0; i<m_iTankCnt; i++)
+  if (1)
     {
-    DDB.Visibility(NSHM_All, m_iMethod==eBM_Auto1);
-    sprintf(Buff, "Tank.[%d].FracMin", i);
-    DDB.Double(Buff/*"FracMin"*/, "", DC_Frac, "%", &(m_pMin[i]), pTagObj, isParm);
-    sprintf(Buff, "Tank.[%d].FracMax", i);
-    DDB.Double(Buff/*"FracMax"*/, "", DC_Frac, "%", &(m_pMax[i]), pTagObj, isParm);
-    DDB.Visibility(NSHM_All, m_iMethod==eBM_Manual);
-    sprintf(Buff, "Tank.[%d].RqdFrac", i);
-    DDB.Double(Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pRqdSplits[i]), pTagObj, isParm|NAN_OK);
-    DDB.Visibility();
-    sprintf(Buff, "Tank.[%d].Frac", i);
-    DDB.Double(Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pResultSplits[i]), pTagObj, isResult);
+    if (DDB.BeginArray(pTagObj, "Tank", "BlendCriteriaFracs", m_iTankCnt))
+      {
+      for (i=0; i<m_iTankCnt; i++)
+        {
+        if (i%15==0 && i>0)
+          {
+          sprintf(Buff, "BC:%i", i);
+          DDB.Page(Buff, DDB_RqdPage);
+          DDB.Text("");
+          }
+        if (DDB.BeginElement(pTagObj, i))
+          {
+          DDB.Visibility(NSHM_All, m_iMethod==eBM_Auto1);
+          DDB.Double("FracMin", "", DC_Frac, "%", &(m_pMin[i]), pTagObj, isParm);
+          DDB.Double("FracMax", "", DC_Frac, "%", &(m_pMax[i]), pTagObj, isParm);
+          DDB.Visibility(NSHM_All, m_iMethod==eBM_Manual);
+          sprintf(Buff, "Tank.[%d].RqdFrac", i);
+          DDB.Double("RqdFrac", "", DC_Frac, "%", &(m_pRqdSplits[i]), pTagObj, isParm|NAN_OK);
+          DDB.Visibility();
+          DDB.Double("Frac", "", DC_Frac, "%", &(m_pResultSplits[i]), pTagObj, isResult);
+          }
+        }
+      }
+    DDB.EndArray();
     }
-
+  else
+    {
+    for (i=0; i<m_iTankCnt; i++)
+      {
+      DDB.Visibility(NSHM_All, m_iMethod==eBM_Auto1);
+      sprintf(Buff, "Tank.[%d].FracMin", i);
+      DDB.Double(Buff/*"FracMin"*/, "", DC_Frac, "%", &(m_pMin[i]), pTagObj, isParm);
+      sprintf(Buff, "Tank.[%d].FracMax", i);
+      DDB.Double(Buff/*"FracMax"*/, "", DC_Frac, "%", &(m_pMax[i]), pTagObj, isParm);
+      DDB.Visibility(NSHM_All, m_iMethod==eBM_Manual);
+      sprintf(Buff, "Tank.[%d].RqdFrac", i);
+      DDB.Double(Buff/*"RqdFrac"*/, "", DC_Frac, "%", &(m_pRqdSplits[i]), pTagObj, isParm|NAN_OK);
+      DDB.Visibility();
+      sprintf(Buff, "Tank.[%d].Frac", i);
+      DDB.Double(Buff/*"Frac"*/, "", DC_Frac, "%", &(m_pResultSplits[i]), pTagObj, isResult);
+      }
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -736,17 +771,17 @@ void CBlendControlHelper::BuildCriteriaDataDefn(FlwNode * pTagObj, DataDefnBlk &
   DDB.Text("");
   const int cc = CriteriaCount();
 
-  //
   // Criteria Data Definition
-  //
-
-  Strng  Tg;
-  //Tg.Set("CR%d", m_iMyIndex);
-   Tg.Set("CR");
-  if (DDB.BeginArray(pTagObj, Tg(), "SPG_BlendCriteria", CriteriaCount()))
+  char Buff[32];
+  if (DDB.BeginArray(pTagObj, "CR", "SPG_BlendCriteria", CriteriaCount()))
     {
     for (int i=0; i<cc; i++)
       {
+      if (i%5==0 && i>0)
+        {
+        sprintf(Buff, "Crit:%i", i);
+        DDB.Page(Buff, DDB_RqdPage);
+        }
       if (DDB.BeginElement(pTagObj, i))
         {
         Strng       m_sName;
