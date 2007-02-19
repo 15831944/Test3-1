@@ -30,6 +30,7 @@ class CArcAddress
       m_sTag=Tag;
       };
     void      SetIndex(CArchiveManager & AM);
+    char*     GetValue(CArchiveManager & AM);
     double    GetValue(CArchiveManager & AM, LPTSTR CnvTxt);
     CCnvIndex GetCnvIndex(CArchiveManager & AM);
 
@@ -45,9 +46,12 @@ class CArchiveInput
   {
   public:
     CArchiveInput();
-    bool        PutValue(CPkDataItem &PItem);
-    bool        PutValue(double Value);
-    double      GetValue(LPTSTR CnvTxt)       { return Cnvs[m_iCnv]->Human(m_dValue, CnvTxt); };
+    void        PutValue(CPkDataItem &PItem);
+    void        PutValue(double Value);
+    void        PutValue(char* Value);
+    double      GetValue(LPTSTR CnvTxt);//       { return Cnvs[m_iCnv]->Human(m_dValue, CnvTxt); };
+    char*       GetValue();// { return (char*)(const char*)m_sValue; };
+    bool        IsString() { return (IsStrng(m_iType)!=0); };
 
   public:
     CString     m_sScdMTag;
@@ -56,6 +60,7 @@ class CArchiveInput
     
   protected:
     double      m_dValue;
+    CString     m_sValue;
   };
 
 class CAInputArray : public CArray < CArchiveInput*, CArchiveInput* > {};
@@ -71,8 +76,9 @@ class CArchiveDBField
 
     bool          GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ bool Complete);
     double        GetValue() { return m_dCalculatedValue; };
-    bool          Execute(CXM_TimeControl &CB);
-    bool          StepDone(CXM_TimeControl &CB);
+    char*         GetSValue() { return (char*)(const char*)m_sInputValue; };
+    void          Execute(CXM_TimeControl &CB);
+    void          StepDone(CXM_TimeControl &CB);
     void          ClearChanged() { m_bChanged=false; };
     bool          Changed() { return m_bChanged; };
 
@@ -80,7 +86,7 @@ class CArchiveDBField
     ADOX::ColumnAttributesEnum dbAttr();
 
   public:
-    CArchiveManager  &m_rAM;
+    CArchiveManager &m_rAM;
                                   // By Example
     CArcAddress     m_Src;        // m_Src.m_sTag = SomeTag
     CString         m_sTable;     // ATable
@@ -91,6 +97,7 @@ class CArchiveDBField
     byte            m_iFirstOnRewind;
     long            m_lTableIndex;
     byte            m_iType;
+    bool            m_bStrType;
     long            m_iSize;
     Strng           m_sCnvTxt;          //engineering units
     CString         m_sDescription;   
@@ -100,7 +107,8 @@ class CArchiveDBField
     bool            m_bChanged;
     long            m_nSamples;
     double          m_dCalculatedValue;  // ...
-    double          m_dInputValue;  // ...
+    double          m_dInputValue;
+    CString         m_sInputValue;
   };
 
 class CArchiveTrigger
@@ -331,12 +339,12 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     virtual flag    EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
 
   protected:
-    bool            m_bOn,
-                    m_bDBOK,
+    bool            m_bOn;
+    bool            m_bAllowTagAccess;
+    bool            m_bDBOK,
                     m_bRegistered,
                     //m_bOpenDBOnRun,
                     m_bDoneLocalLoadSave;
-
     DWORD           m_dwOptions;
 
     CString         m_sCfgFile;

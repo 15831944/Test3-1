@@ -6,8 +6,6 @@
 #include "sc_defs.h"
 #include "resource.h"
 #include "archmngr.h"
-//#include "drv_dlgs.h"
-//#include "drv_mngr.h"
 #include "project.h"
 #include "dlgbusy.h"
 #include "dbgmngr.h"
@@ -30,6 +28,8 @@ static CDbgMngr dbgReadCfg("ArchiveManager", "ReadCfg");
 static CDbgMngr dbgDBState("ArchiveManager", "DbState");
 static CDbgMngr dbgExecute("ArchiveManager", "Execute");
 #endif
+
+//---------------------------------------------------------------------------
 
 const LPTSTR ArcName = "Archive";
 
@@ -68,6 +68,8 @@ LPCTSTR ADBFirstStr(int iMeas)
   return "?";
   };
 
+//---------------------------------------------------------------------------
+
 static LPCTSTR s_sArchiveContent = 
 ";=============================================================\n"
 "; SysCAD Archive configuration file\n"
@@ -75,6 +77,7 @@ static LPCTSTR s_sArchiveContent =
 "\n"
 "[Options]\n"
 "DBFile     = $Prj\\Archive.MDB\n"
+"AllowAccess= 0\n"
 "\n"
 ";=============================================================\n"
 "\n"
@@ -140,9 +143,9 @@ static LPCTSTR s_sArchiveContent =
 "; MeasurePt  = StartPt / EndPt / MidPt  - EndPt is the default\n"
 "; FirstPoint = IgnoreFirst / UseFirst  - IgnoreFirst is the default\n"
 "; TriggerTest = Rise [= Value]/ Fall [= Value]/ Delta [= Value]\n"
-";   [= Value] = Optional Test Value (default = 1.0)\n"
+";               [= Value] is Optional Test Value (default = 1.0)\n"
 "; TriggerTest = StepRise [= Value]/ StepFall [= Value]/ StepDelta [= Value]\n"
-";   [= Value] = Optional Test Value (default = 1.0)\n"
+";               [= Value] is Optional Test Value (default = 1.0)\n"
 "; \n"
 "; Notes:\n"
 "; 1) Use Period for reporting at fixed time intervals, OR use Triggers for reporting\n"
@@ -208,6 +211,8 @@ static LPCTSTR sIterNoStr        = "IterNo";
 static LPCTSTR sCallNoStr        = "CallNo";
 static LPCTSTR sSeqNoStr         = "SeqNo";
 
+//---------------------------------------------------------------------------
+
 static const struct CSystemTable 
   { 
   LPCTSTR   m_Table; 
@@ -259,13 +264,22 @@ void CArcAddress::SetIndex(CArchiveManager & AM)
       m_lInputIndex=AM.AddInput(m_sTag); 
     }
   else
-    m_lFieldIndex=-1; 
+    m_lFieldIndex=-1;
 
 #if dbgArchiver
   if (dbgReadCfg())
     dbgpln("SetIndex:Inp/Fld:[%4i/%4i] %s", m_lInputIndex, m_lFieldIndex, (LPCTSTR)m_sTag);
 #endif
-  };
+  }
+
+char* CArcAddress::GetValue(CArchiveManager & AM)
+  {
+  if (m_lInputIndex>=0)
+    return AM.GetInput(m_lInputIndex).GetValue();
+  if (m_lFieldIndex>=0)
+    return AM.GetField(m_lFieldIndex).GetSValue();
+  return NULL;
+  }
 
 double CArcAddress::GetValue(CArchiveManager & AM, LPTSTR CnvTxt)
   {
@@ -295,21 +309,38 @@ CCnvIndex CArcAddress::GetCnvIndex(CArchiveManager & AM)
 
 CArchiveInput::CArchiveInput()
   {
+  m_iType = 0;
   //m_dPreviousValue=dNAN;
   m_dValue=dNAN;
-  };
+  }
 
-bool CArchiveInput::PutValue(CPkDataItem &PItem)
+void CArchiveInput::PutValue(CPkDataItem &PItem)
   {
-  m_dValue=PItem.Value()->GetDouble();
-  return true;
-  };
+  if (IsStrng(m_iType))
+    m_sValue=PItem.Value()->GetString();
+  else
+    m_dValue=PItem.Value()->GetDouble();
+  }
 
-bool CArchiveInput::PutValue(double Value)
+void CArchiveInput::PutValue(double Value)
   {
   m_dValue=Value;
-  return true;
-  };
+  }
+
+void CArchiveInput::PutValue(char* Value)
+  {
+  m_sValue=Value;
+  }
+
+double CArchiveInput::GetValue(LPTSTR CnvTxt)
+  { 
+  return Cnvs[m_iCnv]->Human(m_dValue, CnvTxt); 
+  }
+
+char* CArchiveInput::GetValue()
+  {
+  return (char*)(const char*)m_sValue; 
+  }
 
 //===========================================================================
 //
@@ -363,17 +394,24 @@ bool CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ boo
 
 //---------------------------------------------------------------------------
 
-bool CArchiveDBField::Execute(CXM_TimeControl &CB)
+void CArchiveDBField::Execute(CXM_TimeControl &CB)
   {
-  m_dInputValue = m_Src.GetValue(m_rAM, m_sCnvTxt()); // Value at the beginning of the step
-
-  return true;
+  if (m_bStrType)
+    m_sInputValue = m_Src.GetValue(m_rAM);
+  else
+    m_dInputValue = m_Src.GetValue(m_rAM, m_sCnvTxt()); // Value at the beginning of the step
   }
 
 //---------------------------------------------------------------------------
 
-bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
+void CArchiveDBField::StepDone(CXM_TimeControl &CB)
   {
+  if (m_bStrType)
+    {//do not need to do anything for a string field
+    m_bResetReqd = false;
+    return;
+    }
+
   double InputAtStart = m_dInputValue;
   double InputAtEnd   = m_Src.GetValue(m_rAM, m_sCnvTxt());
 
@@ -393,7 +431,7 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
   switch (m_iMeas)
     {
     case ADBMeas_StartPt:  InputMeas = InputAtStart; break;
-	case ADBMeas_MidPt:    InputMeas = (BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
+    case ADBMeas_MidPt:    InputMeas = (BothValid ? 0.5*(InputAtStart+InputAtEnd) : dNAN); break;
     case ADBMeas_EndPt:    InputMeas = InputAtEnd; break;
     }
   const bool ValidInputMeas = Valid(InputMeas);
@@ -477,12 +515,11 @@ bool CArchiveDBField::StepDone(CXM_TimeControl &CB)
     {
     if (!Valid(m_dCalculatedValue) || !Valid(PrevFieldVal))
       m_bChanged = !(!Valid(m_dCalculatedValue) && !Valid(PrevFieldVal));
-	else
+	  else
       m_bChanged = (fabs(m_dCalculatedValue-PrevFieldVal)>1.0e-3);
-	}
+	  }
   m_bResetReqd = false;
-  return true;
-  };
+  }
 
 //===========================================================================
 
@@ -490,9 +527,9 @@ ADOX::DataTypeEnum CArchiveDBField::dbType()
   {
   switch (m_iType)
     {
-    case tt_Float : 
+    case tt_Float: 
     case tt_Double: return ADOX::adDouble;
-    case tt_Strng:  return ADOX::adVarWChar;
+    case tt_Strng: return ADOX::adVarWChar;
     case tt_Generic: return ADOX::adDate;
     }
   return ADOX::adInteger;
@@ -522,7 +559,7 @@ CArchiveTrigger::CArchiveTrigger(CArchiveManager *pAM) : m_rAM(*pAM)
 
 CArchiveTrigger::~CArchiveTrigger()
   {
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -655,7 +692,7 @@ bool CArchiveTrigger::Parse(LPCTSTR Table, int No, LPCTSTR Cfg)
 Bad:
   LogError(ArcName, 0, "Bad Trigger Configuration %s", Cfg);
   return false;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -745,8 +782,7 @@ CArchiveDBTable::CArchiveDBTable(CArchiveManager *pAM, LPCTSTR TbName) : m_rAM(*
   m_nTxtRecNo     = -1;
 
   m_bClearOnRewind = true;
-
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -769,7 +805,7 @@ CArchiveDBTable::CArchiveDBTable(CArchiveManager *pAM,
   m_nSigDigits   = iSigDigits;
 
   m_bClearOnRewind = true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -779,7 +815,7 @@ CArchiveDBTable::~CArchiveDBTable()
     delete m_Triggers[t];
   m_Triggers.SetSize(0);
   m_Fields.SetSize(0);
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -803,7 +839,7 @@ bool CArchiveDBTable::AddPeriod(long Period, long Offset)
       LogNote(ArcName, 0, "Period for %s not modulo 24 hours", (LPCTSTR)m_sName);
     }
   return true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -818,7 +854,7 @@ bool CArchiveDBTable::AddTrigger(LPCTSTR Cfg)
   else
     m_Triggers.Add(pTr);
   return true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -922,7 +958,7 @@ bool CArchiveDBTable::StepDone(CXM_TimeControl &CB)
 
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       m_Fields[fd]->m_bResetReqd=true;
-    };
+    }
 
   return true;
   }
@@ -1438,12 +1474,17 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
 
     AddTimeFieldsTxt(CB, Separ);
 
-
     m_nSigDigits=Range(2,(int)m_nSigDigits,20);
     for (long fd=0; fd<m_Fields.GetSize(); fd++)
       {
-      if (!m_Fields[fd]->m_bSystem)
-        fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, m_Fields[fd]->m_dCalculatedValue);
+      CArchiveDBField & Fld=*m_Fields[fd];
+      if (!Fld.m_bSystem)
+        {
+        if (Fld.m_bStrType)
+          fprintf(m_hFile, "%c'%s'", Separ, (const char*)(Fld.m_sInputValue));
+        else
+          fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, Fld.m_dCalculatedValue);
+        }
       }
 
     fprintf(m_hFile, "\n");
@@ -1706,6 +1747,7 @@ m_evDone(FALSE)
   //m_pDB=NULL;
   m_lChgSrchStart=0;
   m_bOn=false;
+  m_bAllowTagAccess=false;
   m_bDBOK=false;
   m_bRegistered=false;
   //m_bOpenDBOnRun=true;
@@ -1751,23 +1793,23 @@ CArchiveManager::~CArchiveManager()
 
 long CArchiveManager::FindInputIndex(LPCTSTR Tag) 
   {
-  long n=m_Inputs.GetSize();
+  const long n=m_Inputs.GetSize();
   for (long i=0; i<n; i++)
     if (_stricmp(m_Inputs[i]->m_sScdMTag, Tag)==0)
       return i;
   return -1;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
 long CArchiveManager::FindFieldIndex(LPCTSTR Tag) 
   { 
-  long n=m_Fields.GetSize();
+  const long n=m_Fields.GetSize();
   for (long i=0; i<n; i++)
     if (_stricmp(m_Fields[i]->m_sScdMTag, Tag)==0)
       return i;
   return -1;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1778,17 +1820,17 @@ long CArchiveManager::FindTable(LPCTSTR TbName)
     if (m_Tables[i]->m_sName.CompareNoCase(TbName)==0)
       return i;
   return -1;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
 long CArchiveManager::FindField(LPCTSTR TbName, LPCTSTR FldName)
   { 
-  long iTb=FindTable(TbName);
+  const long iTb=FindTable(TbName);
   if (iTb>=0)
     return FindField(iTb, FldName);
   return -1;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1797,13 +1839,13 @@ long CArchiveManager::FindField(long iTb, LPCTSTR FldName)
   if (iTb>=0)
     {
     CArchiveDBTable &Tb=*m_Tables[iTb];
-    long n=Tb.m_Fields.GetSize();
+    const long n=Tb.m_Fields.GetSize();
     for (long i=0; i<n; i++)
       if (Tb.m_Fields[i]->m_sFldTag.CompareNoCase(FldName)==0)
         return i;
     }
   return -1;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1826,6 +1868,7 @@ void CArchiveManager::Initialise()
 
   m_lChgSrchStart=0;
   m_bOn=false;
+  m_bAllowTagAccess=false;
   m_bDBOK=false;
 
   m_bDBExclusive=false;
@@ -1890,15 +1933,12 @@ DWORD CArchiveManager::ReadOptions(LPCTSTR FileName)
   {
   Strng Fn(FileName);
   Fn.FnExpand();
-
   CheckCfg(Fn());
 
   CProfINIFile PF(Fn());
 
-  DWORD Opts = 0;
-
   LPCTSTR sDblOpt=PF.RdStr("Columns", "ElapsedDbl ", "");
-
+  DWORD Opts = 0;
   //if (PF.RdInt("Columns", "Time"       , 0)!=0) Opts |= LogItem_Time       ;//for backward compatability
   if (PF.RdInt("Columns", "DateTime"   , 0)!=0) Opts |= LogItem_Time       ;
   if (PF.RdInt("Columns", "Date"       , 0)!=0) Opts |= LogItem_TimeDate   ;
@@ -1931,7 +1971,6 @@ void CArchiveManager::WriteOptions(LPCTSTR FileName, DWORD Opts)
   {
   Strng Fn(FileName);
   Fn.FnExpand();
-
   CheckCfg(Fn());
 
   CProfINIFile PF(Fn());
@@ -1975,6 +2014,7 @@ bool CArchiveManager::ReadCfg()
   CProfINIFile PF(C2T(m_sCfgFile));
 
   m_dwOptions = ReadOptions(C2T(m_sCfgFile)); 
+  m_bAllowTagAccess = (PF.RdInt("Options", "AllowAccess", 0)!=0);
 
   AddReqdTables();
 
@@ -2132,7 +2172,7 @@ bool CArchiveManager::CompleteOpen()
     Tb.m_Fields.SetSize(0,64);
     }
 
-  long nf=m_Fields.GetSize();
+  const long nf=m_Fields.GetSize();
   for (long f=0; f<nf; f++)
     {
     CArchiveDBField *pFld=m_Fields[f];
@@ -2255,7 +2295,6 @@ int CArchiveManager::Open(LPCTSTR CfgFile, bool FirstClear)
   m_bOn = false;
   if (m_sCfgFile.GetLength()>0)
     {
-
     m_bSubsRead_Busy = 0;
 
     CDlgBusy::SetLine(1, "Opening Archive Manager : %s", (LPCTSTR)m_sCfgFile);
@@ -2323,7 +2362,6 @@ int CArchiveManager::Open(LPCTSTR CfgFile, bool FirstClear)
 
   XBuildDataLists(); //otherwise if connect column tags are removed, and the Archive is reloaded, SysCAD crashes
 
-
   CDlgBusy::Close();
 
   return Err;
@@ -2359,6 +2397,20 @@ bool CArchiveManager::ConnectAll()
     if (!Fld.m_bSystem)
       {
       Fld.m_Src.SetIndex(*this);
+      if (Fld.m_Src.m_lInputIndex>=0)
+        {
+        CArchiveInput & It=GetInput(Fld.m_Src.m_lInputIndex);
+        if (It.IsString())
+          {//change field type to string
+          Fld.m_iType = It.m_iType;
+          Fld.m_bStrType = (IsStrng(Fld.m_iType)!=0);
+          }
+        }
+      if (Fld.m_bStrType && Fld.m_iFn!=ADBFn_Instant)
+        {
+        LogWarning(ArcName, 0, "Function type for a string must be 'Current' for %s", Fld.m_Src.m_sTag);
+        Fld.m_iFn = ADBFn_Instant;
+        }
       CCnvIndex iCnv=Fld.m_Src.GetCnvIndex(*this);
       if (iCnv && Cnvs[iCnv]->Find(Fld.m_sCnvTxt())==NULL)
         LogError(ArcName, 0, "Conversion units '%s' are invalid for %s", Fld.m_sCnvTxt(), Fld.m_Src.m_sTag);
@@ -2581,7 +2633,7 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
     pFld->m_sTable          = Table;
     pFld->m_iFn             = iFn;
     pFld->m_iMeas           = iMeas;
-    pFld->m_iFirstOnRewind  =  iFirst;
+    pFld->m_iFirstOnRewind  = iFirst;
     if (iFn == ADBFn_Count)
       {
       pFld->m_iType         = tt_Long;
@@ -2597,6 +2649,7 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
     pFld->m_sDescription    = Description;
 
     pFld->m_Src.m_sTag      = Tag;
+    pFld->m_bStrType = (IsStrng(pFld->m_iType)!=0);
 
 
     if (FldName)
@@ -2732,8 +2785,15 @@ long CArchiveManager::AddInput(LPCTSTR Tag)
         dbgpln("AddInput %-20s %-10s ", (LPCTSTR)pInput->m_sScdMTag, tt_TypeString(pInput->m_iType));
 #endif
       }
+    else if (IsStrng(pInput->m_iType))
+      {
+      pInput->PutValue(Item.Value()->GetString());
+      Index=m_Inputs.Add(pInput);
+      }
     else
-      LogError(ArcName, 0, "Tag '%s' not numeric.", Tag);
+      {
+      LogError(ArcName, 0, "Tag '%s' not valid or allowed.", Tag);
+      }
     }
   else
     {
@@ -3116,16 +3176,12 @@ DWORD CArchiveManager::EO_Message(CXMsgLst &XM, CXM_Route &Route)
           RetCode=0;
           if (i>=0)
             {
-            RetCode |= RC_SM_ArcExists; //exists in historian
-            //if (Slots[i]->Data.bRecordIt)
-            //  RetCode |= RC_SM_ArcRecOn; //recording is on
-            //if (Slots[i]->Data.bDriver)
-            //  RetCode |= RC_SM_ArchiveTag; //archive tag
+            RetCode |= RC_SM_ArcExists;
             }
           pX->SetFlags(pTag, RetCode);
           pTag=pX->NextTag(pTag);
           }
-        XM.RewindReadPosition();//ClearBuff();
+        XM.RewindReadPosition();
         return RetCode;
         }
 
@@ -3137,7 +3193,7 @@ DWORD CArchiveManager::EO_Message(CXMsgLst &XM, CXM_Route &Route)
         LastIndex = pX->lDataIndex;
         break;
         }
-      case XM_ArcShowTagInfo :
+      case XM_ArcShowTagInfo:
         {
         CXM_ArcShowTagInfo *pX = XM.ArcShowTagInfo();
         LogNote(ArcName, 0, "Incomplete TagInfo %s", pX->cTag);
@@ -3262,15 +3318,7 @@ flag CArchiveManager::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTi
 
 flag CArchiveManager::EO_Start(CXM_TimeControl &CB)
   {
-
-  //  if (!bRecordHistDone)
-  //    RecordSlots(); //ensure the historian knows what to record
   flag OK = 1;
-  //  for (int i=0; i<Slots.GetSize(); i++)
-  //    Slots[i]->bReqd = Slots[i]->bHasSet;
-  //  for (i=0; i<Drivers.InUse(); i++)
-  //    OK = OK && Drivers.At(i)->Start();
-
   //for (int i=0; i<m_Inputs.GetCount(); i++)
   //  m_Inputs[i]->PutValid(false);
 
@@ -3314,14 +3362,17 @@ void CArchiveManager::EO_QuerySubsReqd(CXMsgLst &XM)
 
 void CArchiveManager::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
   {
-  while (XM.MsgAvail())
+  if (m_bAllowTagAccess)
     {
-    CXM_DataRequest * Msg = XM.DataRequest();
-    long ItemIndex=FindFieldIndex(Msg->Tag);
-    if (ItemIndex>=0)
-      {//tag is in item list...
-      CXM_DataAvailable *DA=new CXM_DataAvailable (ItemIndex, Msg->Tag, Msg->Action);
-      XMRet.PackMsg(DA);
+    while (XM.MsgAvail())
+      {
+      CXM_DataRequest * Msg = XM.DataRequest();
+      long ItemIndex=FindFieldIndex(Msg->Tag);
+      if (ItemIndex>=0)
+        {//tag is in item list...
+        CXM_DataAvailable *DA=new CXM_DataAvailable (ItemIndex, Msg->Tag, Msg->Action);
+        XMRet.PackMsg(DA);
+        }
       }
     }
   }
@@ -3331,81 +3382,84 @@ void CArchiveManager::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
 flag CArchiveManager::EO_ReadSubsData(CXMsgLst &XM)
   {
   flag DataRead = 0;
-  CXM_ReadIndexedData *pMsg = XM.ReadIndexedData();
-  long DataIndex = pMsg->Start ? 0 : pMsg->LastIndex+1;
-  if (pMsg->ReadAll)
-    {//return all points...
-    XM.Clear();
+  if (m_bAllowTagAccess)
+    {
+    CXM_ReadIndexedData *pMsg = XM.ReadIndexedData();
+    long DataIndex = pMsg->Start ? 0 : pMsg->LastIndex+1;
+    if (pMsg->ReadAll)
+      {//return all points...
+      XM.Clear();
 
-    while (DataIndex < m_Fields.GetSize())
-      {
-      CArchiveDBField & It = GetField(DataIndex);
-      if (!It.m_bSystem)
+      while (DataIndex < m_Fields.GetSize())
         {
-        CXM_ObjectData *Data=new CXM_ObjectData (DataIndex);
-        CPkDataItem * pPItem = Data->List.FirstItem();
-        //CPkDataItem * pPrevItem = pPItem;
-        if (It.GetValue(Data->List, /*pPItem,*/ true))
+        CArchiveDBField & It = GetField(DataIndex);
+        if (!It.m_bSystem)
           {
-          //Data->SetSize();
-          if (XM.PackMsg(Data))
-            {
-            DataRead = 1;
-            It.ClearChanged();
-            }
-          else
-            break; //message full
-          }
-        }
-      DataIndex++;
-      }
-    }
-  else
-    {//return points that have changed (if any)...
-    XM.Clear();
-    if (!m_bSubsRead_Busy)
-      {
-      m_bSubsRead_Busy = 1;
-      m_lBusyChanges = NoOfChanges();
-      }
-    while (1)
-      {
-      while (m_lBusyChanges)
-        {
-        long iIt= GetNextChange();
-        m_lBusyChanges--;
-        if (iIt>=0)
-          {
-          DataIndex = iIt;
           CXM_ObjectData *Data=new CXM_ObjectData (DataIndex);
           CPkDataItem * pPItem = Data->List.FirstItem();
           //CPkDataItem * pPrevItem = pPItem;
-          if (GetCalcValue(iIt, Data->List, /*pPItem,*/ false))
+          if (It.GetValue(Data->List, /*pPItem,*/ true))
             {
             //Data->SetSize();
-            if (GetField(iIt).Changed())
+            if (XM.PackMsg(Data))
               {
-              if (XM.PackMsg(Data))
+              DataRead = 1;
+              It.ClearChanged();
+              }
+            else
+              break; //message full
+            }
+          }
+        DataIndex++;
+        }
+      }
+    else
+      {//return points that have changed (if any)...
+      XM.Clear();
+      if (!m_bSubsRead_Busy)
+        {
+        m_bSubsRead_Busy = 1;
+        m_lBusyChanges = NoOfChanges();
+        }
+      while (1)
+        {
+        while (m_lBusyChanges)
+          {
+          long iIt= GetNextChange();
+          m_lBusyChanges--;
+          if (iIt>=0)
+            {
+            DataIndex = iIt;
+            CXM_ObjectData *Data=new CXM_ObjectData (DataIndex);
+            CPkDataItem * pPItem = Data->List.FirstItem();
+            //CPkDataItem * pPrevItem = pPItem;
+            if (GetCalcValue(iIt, Data->List, /*pPItem,*/ false))
+              {
+              //Data->SetSize();
+              if (GetField(iIt).Changed())
                 {
-                DataRead = 1;
-                GetField(iIt).ClearChanged();
-                }
-              else
-                {
-                delete Data;
-                //NOT good, change is not sent !!!
-                break; //message full
+                if (XM.PackMsg(Data))
+                  {
+                  DataRead = 1;
+                  GetField(iIt).ClearChanged();
+                  }
+                else
+                  {
+                  delete Data;
+                  //NOT good, change is not sent !!!
+                  break; //message full
+                  }
                 }
               }
             }
           }
+        m_bSubsRead_Busy = 0;
+        break;
         }
-      m_bSubsRead_Busy = 0;
-      break;
-      }
 
+      }
+    //Free();
     }
-  //Free();
   return DataRead;
   }
 
@@ -3413,7 +3467,6 @@ flag CArchiveManager::EO_ReadSubsData(CXMsgLst &XM)
 
 flag CArchiveManager::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   {
-
   while (XM.MsgAvail())
     {
     CXM_ObjectData *pX = XM.ObjectData();
@@ -3422,8 +3475,8 @@ flag CArchiveManager::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastB
       {
       CArchiveInput & It=GetInput(pX->Index-m_lInputOffset);
       It.PutValue(*pPItem);
-#if dbgDriverMan
-      if (dbgPutValues())
+#if dbgArchiver
+      if (dbgArchiverWrites())
         dbgpln("Arc: Put %s  EO_WriteSubsData", (LPCTSTR)It.m_sScdMTag);
 #endif
       }
@@ -3437,24 +3490,26 @@ flag CArchiveManager::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastB
 DWORD CArchiveManager::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route)
   {
   DWORD RetCode = 0;
-  long ItemIndex=FindFieldIndex(ObjTag.Tag);
-  if (ItemIndex>=0)
+  if (m_bAllowTagAccess)
     {
-    RetCode = (RC_RTI_Exists | RC_RTI_ArchiveTag);
-    if (IsNumData(FieldType(ItemIndex)))
-      RetCode |= RC_RTI_NumData;
-    else if (IsStrng(FieldType(ItemIndex)))
-      RetCode |= RC_RTI_StrData;
-    ObjData.List.Clear();
-    if ((ObjTag.Options & TABOpt_Exists)==0)
+    const long ItemIndex=FindFieldIndex(ObjTag.Tag);
+    if (ItemIndex>=0)
       {
-      CPkDataItem * pPItem = ObjData.List.FirstItem();
-      //CPkDataItem * pPrevItem = pPItem;
-      GetCalcValue(ItemIndex, ObjData.List, /*pPItem,*/ true);
-      //ObjData.SetSize();
+      RetCode = (RC_RTI_Exists | RC_RTI_ArchiveTag);
+      if (IsNumData(FieldType(ItemIndex)))
+        RetCode |= RC_RTI_NumData;
+      else if (IsStrng(FieldType(ItemIndex)))
+        RetCode |= RC_RTI_StrData;
+      ObjData.List.Clear();
+      if ((ObjTag.Options & TABOpt_Exists)==0)
+        {
+        CPkDataItem * pPItem = ObjData.List.FirstItem();
+        //CPkDataItem * pPrevItem = pPItem;
+        GetCalcValue(ItemIndex, ObjData.List, /*pPItem,*/ true);
+        //ObjData.SetSize();
+        }
       }
     }
-
   return RetCode;
   }
 
