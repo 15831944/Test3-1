@@ -25,6 +25,10 @@
 #endif
 
 // =========================================================================
+
+#define WITHTHERMAL 0
+
+// =========================================================================
 // Forward Declaration
 class MdlNode;
 
@@ -185,7 +189,10 @@ class DllImportExport GSModel : public TaggedObject
     int            IOIdN;
     int            NProds;
 
-    byte           iOperation;
+    byte           m_iOperation;
+#if WITHTHERMAL 
+    bool           m_bThermal;
+#endif
     byte           m_iPhMethSpec;
     byte           iGMode;
     byte           iQmMode;
@@ -195,11 +202,12 @@ class DllImportExport GSModel : public TaggedObject
 
     byte           iRecPh;
     byte           iRecStrm;
-    double          dRecFrac;
-    double          dRecComp;
+    double         dRecFrac;
+    double         dRecComp;
 
     flag           bIOChanges;
     flag           bTrackStatus;
+    SpConduit    * m_pWrkCd;
   
   public:
     static pGSModel Open(pchar TagIn, pTaggedObject pAttach);
@@ -241,6 +249,14 @@ class DllImportExport GSModel : public TaggedObject
     void           MakeUpNodeTransferAvail(int JoinId);
     void           MakeUpNodeTransferReqd(int JoinId);
     //flag           MakeUpNodeEvalProducts(int JoinId, GSModel *pGSM);
+
+#if WITHTHERMAL 
+    void           BuildDataDefnThermal(DataDefnBlk &DDB);
+    flag           DataXchgThermal(DataChangeBlk & DCB);
+    flag           ValidateDataThermal(ValidateDataBlk & VDB);
+    //int            FindIOEvalPrioritySplit(int *I, GSIOAlpha**A);//, byte *QmMd, byte *MkMd);
+    void           EvalProductsThermal();
+#endif
 
   protected:
     void           CheckConfig();

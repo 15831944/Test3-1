@@ -30,7 +30,8 @@ const byte AutoPriority=250/*MaxIOList*/+1;
 
 XID xidGSModelOn     = MdlBsXID(1000);
 XID xidGSOperation   = MdlBsXID(1001);
-XID xidGSPhMethSpec  = MdlBsXID(1002);
+XID xidGSThermal     = MdlBsXID(1002);
+XID xidGSPhMethSpec  = MdlBsXID(1003);
 XID xidGSMDmndSplts  = MdlBsXID(2000);                       // Keep MaxIOList Spare
 XID xidGSMSpcSplts   = xidGSMDmndSplts+MaxIOList;  // Keep MaxSpecies*MaxIOs Spare
 XID xidGSPhSplts     = xidGSMSpcSplts+MaxSpecies*MaxIOList;  // Keep MaxSpecies*MaxIOs Spare
@@ -390,7 +391,10 @@ GSModel::GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   IOAlpha(*(new GSIOAlphaArray)),
   IOs(*(new GSIOIndexArray))
   {
-  iOperation=GSO_General0;
+  m_iOperation=GSO_General0;
+#if WITHTHERMAL 
+  m_bThermal=false;
+#endif
   m_iPhMethSpec=GSPM_Total;
 
   iGMode=GSG_Off;
@@ -406,12 +410,14 @@ GSModel::GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   iRecStrm=0;
   dRecFrac=1.0;
   dRecComp=0.5;
+  m_pWrkCd=NULL;
   };
 
 //--------------------------------------------------------------------------
 
 GSModel::~GSModel()
   {
+  delete m_pWrkCd;
   delete &Gammas;
   delete &IOAlpha;
   delete &IOs;
@@ -743,16 +749,22 @@ int GSModel::FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd)
 
 void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
   {
-  double Temperature=Sd.Temp();
-  int nShort=0;
+  if (m_pWrkCd==NULL)
+    m_pWrkCd= new SpConduit(&SpConduitClass, "Work", NULL, TOA_Free);
 
+  SpConduit & WrkCd = *m_pWrkCd;
+  WrkCd.QCopy(Sd);
+
+  double Temperature=WrkCd.Temp();
+  int nShort=0;
+    
   // Sort IOs in order of priority
   int Priority[MaxIOList+1];
   byte QmMd[MaxIOList], MkMd[MaxIOList];
   int NPri=FindIOEvalPriorityGen0(Priority, QmMd, MkMd);
 
   // Calculate total output flows in each Output
-  double QmInTotal=Sd.QMass(som_ALL);
+  double QmInTotal=WrkCd.QMass(som_ALL);
   double QmOutAvail=QmInTotal;
   double QmDemandTot=0.0;
   double QmDemandEstTot=0.0;
@@ -823,7 +835,7 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
         case GSA_QmVolumeFlow  :
           if (Valid(A.Qv))
             {
-            Qo=A.Qv*Sd.Rho();
+            Qo=A.Qv*WrkCd.Rho();
             SetMakeUpRqdLcl=MakeUpRqd;
             }
           break;
@@ -847,30 +859,30 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
       switch (MkMd[ia])
         {
         case GSA_MkMixture   :
-          //Cn.QSetM(Sd, som_ALL, Max(0.5*UsableMass, Qo), Press); //why use 0.5*UsableMass when it should be zero?
-          Cn.QSetM(Sd, som_ALL, Max(0.1*UsableMass, Qo), Press);
-          //Cn.QSetM(Sd, som_ALL, Qo, Press); //Wouldn't this be best! ???
+          //Cn.QSetM(WrkCd, som_ALL, Max(0.5*UsableMass, Qo), Press); //why use 0.5*UsableMass when it should be zero?
+          Cn.QSetM(WrkCd, som_ALL, Max(0.1*UsableMass, Qo), Press);
+          //Cn.QSetM(WrkCd, som_ALL, Qo, Press); //Wouldn't this be best! ???
           break;
         case GSA_MkDensity   :
-          Cn.QSetM(Sd, som_Liq, 0.0, Press);
+          Cn.QSetM(WrkCd, som_Liq, 0.0, Press);
           break;
         case GSA_MkLSRatio   :
           if (Valid(A.LSRatio))
             {
             // Check Availability
             double LFrac=A.LSRatio/(1.0+A.LSRatio);
-            double LQoAv=Sd.QMass(som_Liq);
-            double SQoAv=Sd.QMass(som_Sol);
+            double LQoAv=WrkCd.QMass(som_Liq);
+            double SQoAv=WrkCd.QMass(som_Sol);
             double LQo=Qo*LFrac;
             double SQo=Qo*(1.0-LFrac);
             if (LQoAv<LQo || SQoAv<SQo)
               Qo=Min(LQoAv/GTZ(LFrac), SQoAv/GTZ(1.0-LFrac));
 
-            Cn.QSetM(Sd, som_Liq, Qo*LFrac, Press);
-            Cn.QAddM(Sd, som_Sol, Qo*(1.0-LFrac));
+            Cn.QSetM(WrkCd, som_Liq, Qo*LFrac, Press);
+            Cn.QAddM(WrkCd, som_Sol, Qo*(1.0-LFrac));
             }
           else
-            Cn.QSetM(Sd, som_ALL, 0.0, Press);
+            Cn.QSetM(WrkCd, som_ALL, 0.0, Press);
           break;
         case GSA_MkPhaseComp :
           if (Valid(A.SFrac) && Valid(A.LFrac) && Valid(A.VFrac))
@@ -880,9 +892,9 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
             A.LFrac*=Scl;
             A.VFrac*=Scl;
 
-            double SQoAv=Sd.QMass(som_Sol);
-            double LQoAv=Sd.QMass(som_Liq);
-            double VQoAv=Sd.QMass(som_Gas);
+            double SQoAv=WrkCd.QMass(som_Sol);
+            double LQoAv=WrkCd.QMass(som_Liq);
+            double VQoAv=WrkCd.QMass(som_Gas);
             double SQo=Qo*A.SFrac;
             double LQo=Qo*A.LFrac;
             double VQo=Qo*A.VFrac;
@@ -893,16 +905,16 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
             if (VQoAv<VQo)
               Qo=Min(Qo, VQoAv/GTZ(A.VFrac));
 
-            Cn.QSetM(Sd, som_Sol, Qo*A.SFrac, Press);
-            Cn.QAddM(Sd, som_Liq, Qo*A.LFrac);
-            Cn.QAddM(Sd, som_Gas, Qo*A.VFrac);
+            Cn.QSetM(WrkCd, som_Sol, Qo*A.SFrac, Press);
+            Cn.QAddM(WrkCd, som_Liq, Qo*A.LFrac);
+            Cn.QAddM(WrkCd, som_Gas, Qo*A.VFrac);
             }
           else
-            Cn.QSetM(Sd, som_ALL, 0.0, Press);
+            Cn.QSetM(WrkCd, som_ALL, 0.0, Press);
           break;
         case GSA_MkSpecieFrac :
           {
-          Cn.QSetM(Sd, som_ALL, 1.0, Press); // Transfer Qualities etc'
+          Cn.QSetM(WrkCd, som_ALL, 1.0, Press); // Transfer Qualities etc'
 
           int sn=A.Splits.GetSize();
           for (int s=0; s<SDB.Count(); s++)
@@ -919,12 +931,12 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
             else
               Splt=0.0;
             Splt=Range(0.0, (Valid(Splt) ? Splt : 0.0), 1.0);
-            Cn.SetVMass(s, Sd, Splt*Sd.VMass[s]);
+            Cn.SetVMass(s, WrkCd, Splt*WrkCd.VMass[s]);
             }
           }
           break;
         default              :
-          Cn.QSetM(Sd, som_ALL, Max(0.5*UsableMass, 0.0), Press);
+          Cn.QSetM(WrkCd, som_ALL, Max(0.5*UsableMass, 0.0), Press);
           break;
         }
       Cn.SetTemp(Temperature);
@@ -946,18 +958,18 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
           QmDemandEstTot-=Nd.IOQmEst_Out(io);
         }
 
-      Sd.QSubM(Cn, som_ALL, Cn.QMass());
+      WrkCd.QSubM(Cn, som_ALL, Cn.QMass());
       // Check That Species dont go negative
       for (int s=0; s<SDB.Count(); s++)
-        if (Sd.VMass[s]<0.0)
-          Sd.VValue[s]=0.0;
+        if (WrkCd.VMass[s]<0.0)
+          WrkCd.VValue[s]=0.0;
 
-      Sd.SetTemp(Temperature);
+      WrkCd.SetTemp(Temperature);
       }
     else
       {
       // The Last Output Must take What is Left
-      Cn.QCopy(Sd);
+      Cn.QCopy(WrkCd);
       Cn.SetTempPress(Temperature, Press);
 
       switch (QmMd[ia])
@@ -1045,7 +1057,7 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
     };
 
   // Calculate total output flows in each Output
-  switch (iOperation)
+  switch (m_iOperation)
     {
     case GSO_MassFracSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", IOs.GetSize(), 0))
@@ -1406,7 +1418,7 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
     return false;
 
   // Calculate total output flows in each Output
-  switch (iOperation)
+  switch (m_iOperation)
     {
     case GSO_MassFracSplit:
       {
@@ -1667,7 +1679,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
   double QmOutAvail=QmInTotal;
   int nShort=0;
 
-  switch (iOperation)
+  switch (m_iOperation)
     {
     case GSO_MassFracSplit:
       {
@@ -2261,9 +2273,9 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
 
 
     DDB.Byte   ("", "Operation",   DC_, "", xidGSOperation, this, isParmStopped | AffectsStruct | SetOnChange, (NProds==2) ? DDB0 : DDB1);
-  //  DDB.Byte   ("", "Operation",   DC_, "", &iOperation, this, isParmStopped | AffectsStruct, DDB1);
+  //  DDB.Byte   ("", "Operation",   DC_, "", &m_iOperation, this, isParmStopped | AffectsStruct, DDB1);
 
-    switch (iOperation)
+    switch (m_iOperation)
       {
       case GSO_General0:
         BuildDataDefnGen0(DDB);
@@ -2284,6 +2296,11 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
         BuildDataDefnSplit(DDB);
         break;
       }
+#if WITHTHERMAL 
+    DDB.CheckBoxBtn("", "Thermal",   DC_, "", xidGSThermal, this, isParmStopped | AffectsStruct | SetOnChange);//, (NProds==2) ? DDB0 : DDB1);
+    if (m_bThermal)
+      BuildDataDefnThermal(DDB);
+#endif
     }
   DDB.EndStruct();
   };
@@ -2297,8 +2314,8 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
     case xidGSOperation:
       if (DCB.rB)
         {
-        iOperation=*DCB.rB;
-        switch (iOperation)
+        m_iOperation=*DCB.rB;
+        switch (m_iOperation)
           {
           case GSO_General0:
           case GSO_V5:
@@ -2329,27 +2346,38 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
               if (Nd.LnkFlowDefinedOut(IOs[i]))
                 N++;
             if (N!=2)
-              iOperation=GSO_MassFracSplit;
+              m_iOperation=GSO_MassFracSplit;
             }
             break;
           }
         }
-      DCB.B=iOperation;
+      DCB.B=m_iOperation;
       return 1;
     case xidGSPhMethSpec:
       if (DCB.rB)
         m_iPhMethSpec=*DCB.rB;
       DCB.B=m_iPhMethSpec;
       return 1;
+#if WITHTHERMAL 
+    case xidGSThermal:
+      if (DCB.rB)
+        m_bThermal=*DCB.rB!=0;
+      DCB.B=m_bThermal;
+      return 1;
+#endif
     default:;
     }
 
-  switch (iOperation)
+  switch (m_iOperation)
     {
     case GSO_General0:
-      return DataXchgGen0(DCB);
+      if (DataXchgGen0(DCB))
+        return true;
+      break;
     case GSO_V5:
-      return DataXchgV5(DCB);
+      if (DataXchgV5(DCB))
+        return true;
+      break;
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
     case GSO_VolumeFlowSplit:
@@ -2360,8 +2388,16 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
     case GSO_SpMassFlowSplit:
     case GSO_SpVolumeFlowSplit:
     case GSO_PhaseRecovery:
-      return DataXchgSplit(DCB);
+      if (DataXchgSplit(DCB))
+        return true;
+      break;
     }
+
+#if WITHTHERMAL 
+  if (m_bThermal && DataXchgThermal(DCB))
+    return true;
+#endif
+
   return 0;
   }
 
@@ -2376,27 +2412,32 @@ flag GSModel::ValidateData(ValidateDataBlk & VDB)
     for (int ia = 0; ia < IOCount; ia++)
       {
       const int io=IOs[ia];
-    /*GSIOAlpha &A=IOAlpha[ia];
-    QmMd[ia] = A.QmMode(*this);
-    MkMd[ia] = A.MkMode(*this);
-    Order[ia]=-1;
-    Priority[ia]=-1;*/
-    if (Nd.LnkFlowDefinedOut(io))
-    //for (int j=0; j<NPri; j++)
-      {
-      Strng s;
-      //s = Nd.Nd_Rmt(I[j])->Tag();
-      s = Nd.Nd_Rmt(io)->Tag();
-      flag Err=true;
-      for (int i=0; i<s.Len(); i++)
-        if (!isdigit(s[i]))
-          Err=false;
-      SetCI(4, Err);
+      /*GSIOAlpha &A=IOAlpha[ia];
+      QmMd[ia] = A.QmMode(*this);
+      MkMd[ia] = A.MkMode(*this);
+      Order[ia]=-1;
+      Priority[ia]=-1;*/
+      if (Nd.LnkFlowDefinedOut(io))
+        //for (int j=0; j<NPri; j++)
+        {
+        Strng s;
+        //s = Nd.Nd_Rmt(I[j])->Tag();
+        s = Nd.Nd_Rmt(io)->Tag();
+        flag Err=true;
+        for (int i=0; i<s.Len(); i++)
+          if (!isdigit(s[i]))
+            Err=false;
+        SetCI(4, Err);
+        }
       }
     }
-    }
 
-  switch (iOperation)
+#if WITHTHERMAL 
+  if (m_bThermal)
+    ValidateDataThermal(VDB);
+#endif
+
+  switch (m_iOperation)
     {
     case GSO_General0:
       return ValidateDataGen0(VDB);
@@ -2477,13 +2518,14 @@ void GSModel::EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReac
     pEHX->EvalProducts(Sd);
 
   EvalProductsOut(SolveMethod, Press, Sd);
+  
   }
 
 //--------------------------------------------------------------------------
 
 void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
   {
-  switch (iOperation)
+  switch (m_iOperation)
     {
     case GSO_General0:
       EvalProductsOutGen0(SolveMethod, Press, Sd);
@@ -2504,8 +2546,73 @@ void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
       EvalProductsOutSplit(SolveMethod, Press, Sd);
       break;
     }
+
+#if WITHTHERMAL 
+  if (m_bThermal)
+    EvalProductsThermal();
+#endif
   }
 
+//--------------------------------------------------------------------------
+//
+//
+//
+//--------------------------------------------------------------------------
+
+#if WITHTHERMAL 
+
+void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
+  {
+  }
+
+//--------------------------------------------------------------------------
+
+flag GSModel::DataXchgThermal(DataChangeBlk & DCB)
+  {
+  return false;
+  }
+
+//--------------------------------------------------------------------------
+
+flag GSModel::ValidateDataThermal(ValidateDataBlk & VDB)
+  {
+  return true;
+  }
+
+//--------------------------------------------------------------------------
+
+void GSModel::EvalProductsThermal()
+  {
+  dbgpln("GSModel::EvalProductsThermal");
+  for (int i=0;i<IOs.GetCount(); i++)
+    {
+    dbgpln("%2i", IOs[i]);
+
+      //if (Nd.IOFlange(IOs[ia])->IsMakeUpReqd())
+    //if (j<NPri-1)
+    //IOAlpha[ia].QmErr=0.0;
+    //IOAlpha[ia].QvErr=0.0;
+    //if (QmMd[ia]==GSA_QmDemand)
+    //  {
+    //  if (Nd.IOFlange(IOs[ia])->IsMakeUpReqd())
+    //    {
+    //    //MakeUpRqd=True;
+    //    //QmDemandTot+=Nd.IOFlange(IOs[ia])->MakeUpReqd();
+    //    }
+    //  else
+    //    {
+    //    //QmDemandEstTot+=Nd.IOQmEst_Out(IOs[ia]);
+    //    }
+    //  }
+    }
+  }
+
+#endif
+
+//--------------------------------------------------------------------------
+//
+//
+//
 //--------------------------------------------------------------------------
 
 flag GSModel::CIStrng(int No, pchar & pS)
@@ -2588,7 +2695,7 @@ byte GSModelBase::QmMode(int iIONo)
   //int NPri=pGSM->FindIOEvalPriority(Priority, QmMd, MkMd);
   int NPri0;//pGSM->FindIOEvalPriority(Priority, QmMd, MkMd);
 
-  switch (pGSM->iOperation)
+  switch (pGSM->m_iOperation)
     {
     case GSO_General0:
       {
@@ -2637,7 +2744,7 @@ byte GSModelBase::MkMode(int iIONo)
   int Priority[MaxIOList+1];
 //  byte QmMd[MaxIOList], MkMd[MaxIOList];
   int NPri0;//=pGSM->FindIOEvalPriority(Priority, QmMd, MkMd);
-  switch (pGSM->iOperation)
+  switch (pGSM->m_iOperation)
     {
     case GSO_General0:
       {
