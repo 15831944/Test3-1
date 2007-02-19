@@ -78,7 +78,7 @@ class CArchiveDBField
     double        GetValue() { return m_dCalculatedValue; };
     char*         GetSValue() { return (char*)(const char*)m_sInputValue; };
     void          Execute(CXM_TimeControl &CB);
-    void          StepDone(CXM_TimeControl &CB);
+    void          StepDone(CXM_TimeControl &CB, double DeltaSecs);
     void          ClearChanged() { m_bChanged=false; };
     bool          Changed() { return m_bChanged; };
 
@@ -97,9 +97,8 @@ class CArchiveDBField
     byte            m_iFirstOnRewind;
     long            m_lTableIndex;
     byte            m_iType;
-    bool            m_bStrType;
     long            m_iSize;
-    Strng           m_sCnvTxt;          //engineering units
+    Strng           m_sCnvTxt; //engineering units
     CString         m_sDescription;   
                     
     bool            m_bSystem;
@@ -268,9 +267,8 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            RestartDBTables();
     bool            CreateDBRecordsets();
     bool            CloseDB();
-    bool            Start();
+    bool            Start(CXM_TimeControl &CB);
     bool            Stop();
-                    
     bool            Execute(CXM_TimeControl &CB);
     bool            StepDone(CXM_TimeControl &CB);
                     
@@ -385,6 +383,7 @@ class CArchiveManager : public CExecObj//, public CArchiveManagerBase
     bool            m_bRewind;
     bool            m_TimeAtStartValid;
     CTimeValue      m_TimeAtStart;
+    CTimeValue      m_TimeOfLastExec;
   };
 
 inline byte CArchiveManager::FieldType(long Index) { return m_Fields[Index]->m_iType; };

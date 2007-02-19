@@ -936,7 +936,7 @@ LRESULT CMainFrame::OnCmd(WPARAM wParam, LPARAM lParam)
 
     case SUB_CMD_ARCHIVESTART:
       {
-      gs_pArcMan->Start();
+      gs_pArcMan->Start(TimeCB());
       gs_pArcMan->SetEvent();
       break;
       }

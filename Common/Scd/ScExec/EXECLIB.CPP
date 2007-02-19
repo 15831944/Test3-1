@@ -1106,8 +1106,8 @@ char* CXM_RepTrendDB::NextTag(char* pPrevTag)
 
 //===========================================================================
                                           
-LPCTSTR ADBFuncTags[]   = {  "",  "Current",  "Minimum",      "Maximum",  "Average",   "RunningAvg",  "Count",  "System", NULL, };
-LPCTSTR ADBFuncSyms[]   = {  "",  "CUR",      "MIN",          "MAX",      "AVG",       "RUNAVG",      "CNT",  "System", NULL, };
+LPCTSTR ADBFuncTags[]   = {  "",  "Current",  "Minimum",      "Maximum",  "Average",   "RunningAvg",  "Count",  "Sum", "String", "System", NULL, };
+LPCTSTR ADBFuncSyms[]   = {  "",  "CUR",      "MIN",          "MAX",      "AVG",       "RUNAVG",      "CNT",    "SUM", "STR",    "System", NULL, };
 LPCTSTR ADBMeasTags[]   = {  "",  "StartPt",  "MidPt",        "EndPt", "Injected", NULL, };
 LPCTSTR ADBFirstTags[]  = {  "",  "UseFirst", "IgnoreFirst",  NULL, };
 LPCTSTR ADBTbFmtTags[]  = {  "",  "DB",       "CSV",          "TXT", NULL, };

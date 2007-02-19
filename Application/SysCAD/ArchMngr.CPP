@@ -37,12 +37,14 @@ LPCTSTR ADBFnStr(int iFn)
   {
   switch (iFn)
     {
-    case ADBFn_Instant:      return "Instant";
+    case ADBFn_Instant:      return "Current";
     case ADBFn_Minimum:      return "Minimum";
     case ADBFn_Maximum:      return "Maximum";
     case ADBFn_PeriodAvg:    return "Average";
     case ADBFn_RunningAvg:   return "RunningAvg";
     case ADBFn_Count:        return "Count";
+    case ADBFn_Sum:          return "Sum";
+    case ADBFn_String:       return "String";
     }
   return "?";
   };
@@ -396,7 +398,7 @@ bool CArchiveDBField::GetValue(CPkDataList &List, /*CPkDataItem * &pPItem,*/ boo
 
 void CArchiveDBField::Execute(CXM_TimeControl &CB)
   {
-  if (m_bStrType)
+  if (m_iFn==ADBFn_String)
     m_sInputValue = m_Src.GetValue(m_rAM);
   else
     m_dInputValue = m_Src.GetValue(m_rAM, m_sCnvTxt()); // Value at the beginning of the step
@@ -404,9 +406,9 @@ void CArchiveDBField::Execute(CXM_TimeControl &CB)
 
 //---------------------------------------------------------------------------
 
-void CArchiveDBField::StepDone(CXM_TimeControl &CB)
+void CArchiveDBField::StepDone(CXM_TimeControl &CB, double DeltaSecs)
   {
-  if (m_bStrType)
+  if (m_iFn==ADBFn_String)
     {//do not need to do anything for a string field
     m_bResetReqd = false;
     return;
@@ -447,11 +449,11 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB)
         m_dCalculatedValue=InputMeas; 
         break;
       case ADBFn_Minimum:
-	    if (BothValid)
+	      if (BothValid)
           m_dCalculatedValue = Min(InputAtStart, InputAtEnd);
         break;
       case ADBFn_Maximum:
-	    if (BothValid)
+        if (BothValid)
           m_dCalculatedValue = Max(InputAtStart, InputAtEnd);
         break;
       case ADBFn_PeriodAvg:
@@ -465,6 +467,9 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB)
         break;
       case ADBFn_Count:
         m_dCalculatedValue=0;
+        break;
+      case ADBFn_Sum:
+        m_dCalculatedValue=0.0;
         break;
       }
     m_nSamples=0;
@@ -480,7 +485,7 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB)
   switch (m_iFn)
     {
     case ADBFn_Instant:
-      m_dCalculatedValue = InputMeas; 
+      m_dCalculatedValue = InputMeas;
       break;
     case ADBFn_Minimum:
       if (BothValid)
@@ -492,7 +497,7 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB)
       break;
     case ADBFn_PeriodAvg:
       if (ValidInputMeas)
-		m_dCalculatedValue = (InputMeas + m_nSamples*m_dCalculatedValue)/(m_nSamples+1);
+        m_dCalculatedValue = (InputMeas + m_nSamples*m_dCalculatedValue)/(m_nSamples+1);
       m_nSamples++;
       break;
     case ADBFn_RunningAvg:
@@ -500,6 +505,10 @@ void CArchiveDBField::StepDone(CXM_TimeControl &CB)
       break;
     case ADBFn_Count:
       m_dCalculatedValue += 1.0;
+      break;
+    case ADBFn_Sum:
+      if (DeltaSecs>0.0 && ValidInputMeas)
+        m_dCalculatedValue += (InputMeas/DeltaSecs);
       break;
     };
 
@@ -1202,13 +1211,22 @@ bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR
   if (!m_bOn)
     return true;
 
+  bool FieldTypeError = false;
   ADOX::_ColumnPtr pCol;
   try
     {
     pCol=pTbl->Columns->GetItem(FldName);
     //m_pDef->GetFieldInfo(FldName, FI);
-    if (!SysFld)
-      m_rAM.m_nFieldsOpn++;
+    if (pCol->Type!=FldType)
+      {//how do you change the type of a field!?
+      LogError(ArcName, 0, "Field type mismatch for '%s' (delete the table or mdb)", FldName);
+      FieldTypeError = true;
+      }
+    else
+      {
+      if (!SysFld)
+        m_rAM.m_nFieldsOpn++;
+      }
     }
   catch (_com_error & e)
     {
@@ -1252,6 +1270,9 @@ bool CArchiveDBTable::CreateDBField(ADOX::_TablePtr & pTbl, bool SysFld, LPCTSTR
         }
       }
     }
+
+  if (FieldTypeError)
+    return false;
   return true;
   }
 
@@ -1444,12 +1465,17 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
 
       AddTimeFieldsDB(CB);
 
-      for (long fd=0; fd<m_Fields.GetSize(); fd++)
+      const long n=m_Fields.GetSize();
+      for (long fd=0; fd<n; fd++)
         {
-        if (!m_Fields[fd]->m_bSystem)
+        CArchiveDBField & Fld=*m_Fields[fd];
+        if (!Fld.m_bSystem)
           {
-          COleVariant v((double)fd);
-          m_pRst->Fields->GetItem((LPCTSTR)m_Fields[fd]->m_sFldTag)->Value=m_Fields[fd]->m_dCalculatedValue;
+          //COleVariant v((double)fd);
+          if (Fld.m_iFn==ADBFn_String)
+            m_pRst->Fields->GetItem((LPCTSTR)Fld.m_sFldTag)->Value = (const char*)Fld.m_sInputValue;
+          else
+            m_pRst->Fields->GetItem((LPCTSTR)Fld.m_sFldTag)->Value = Fld.m_dCalculatedValue;
           }
         }
 
@@ -1463,7 +1489,6 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
     }
   else
     {
-
     if (m_hFile==NULL)
       return false;
 
@@ -1475,12 +1500,13 @@ bool CArchiveDBTable::AddDBRecord(CXM_TimeControl &CB)
     AddTimeFieldsTxt(CB, Separ);
 
     m_nSigDigits=Range(2,(int)m_nSigDigits,20);
-    for (long fd=0; fd<m_Fields.GetSize(); fd++)
+    const long n=m_Fields.GetSize();
+    for (long fd=0; fd<n; fd++)
       {
       CArchiveDBField & Fld=*m_Fields[fd];
       if (!Fld.m_bSystem)
         {
-        if (Fld.m_bStrType)
+        if (Fld.m_iFn==ADBFn_String)
           fprintf(m_hFile, "%c'%s'", Separ, (const char*)(Fld.m_sInputValue));
         else
           fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, Fld.m_dCalculatedValue);
@@ -1556,12 +1582,13 @@ bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
       if (m_rAM.m_dwOptions & LogItem_Message) 
         m_pRst->Fields->GetItem(sMessageStr)->Value = Msg.Description();
 
-      for (long fd=0; fd<m_Fields.GetSize(); fd++)
+      const long n=m_Fields.GetSize();
+      for (long fd=0; fd<n; fd++)
         {
         if (!m_Fields[fd]->m_bSystem)
           {
-          COleVariant v((double)fd);
-          m_pRst->Fields->GetItem((LPCTSTR)m_Fields[fd]->m_sFldTag)->Value=m_Fields[fd]->m_dCalculatedValue;
+          //COleVariant v((double)fd);
+          m_pRst->Fields->GetItem((LPCTSTR)m_Fields[fd]->m_sFldTag)->Value = m_Fields[fd]->m_dCalculatedValue;
           }
         }
 
@@ -1601,7 +1628,8 @@ bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
       fprintf(m_hFile, "%c%s", Separ, Msg.Description());
 
     m_nSigDigits=Range(2,(int)m_nSigDigits,20);
-    for (long fd=0; fd<m_Fields.GetSize(); fd++)
+    const long n=m_Fields.GetSize();
+    for (long fd=0; fd<n; fd++)
       {
       if (!m_Fields[fd]->m_bSystem)
         fprintf(m_hFile, "%c%.*g", Separ, m_nSigDigits, m_Fields[fd]->m_dCalculatedValue);
@@ -1639,12 +1667,13 @@ bool CArchiveDBTable::AddEventRecord(CXM_TimeControl &CB, LPCTSTR Tag, LPCTSTR M
       if (m_rAM.m_dwOptions & LogItem_Message) 
         m_pRst->Fields->GetItem(sMessageStr)->Value=Msg;
 
-      for (long fd=0; fd<m_Fields.GetSize(); fd++)
+      const long n=m_Fields.GetSize();
+      for (long fd=0; fd<n; fd++)
         {
         if (!m_Fields[fd]->m_bSystem)
           {
-          COleVariant v((double)fd);
-          m_pRst->Fields->GetItem((LPCTSTR)m_Fields[fd]->m_sFldTag)->Value=m_Fields[fd]->m_dCalculatedValue;
+          //COleVariant v((double)fd);
+          m_pRst->Fields->GetItem((LPCTSTR)m_Fields[fd]->m_sFldTag)->Value = m_Fields[fd]->m_dCalculatedValue;
           }
         }
 
@@ -2243,7 +2272,7 @@ bool CArchiveManager::OpenTheDB()
 
 //---------------------------------------------------------------------------
 
-bool CArchiveManager::Start()
+bool CArchiveManager::Start(CXM_TimeControl &CB)
   {
   if (!m_bOn)
     return true;
@@ -2251,6 +2280,8 @@ bool CArchiveManager::Start()
   dbgpln("Manager::Start");
 
   m_TimeAtStartValid = true;
+
+  m_TimeOfLastExec = CB.m_TheTime;
 
   //if (m_bOn && m_bOpenDBOnRun)
   //  m_bDBOK = OpenTheDB();
@@ -2400,16 +2431,11 @@ bool CArchiveManager::ConnectAll()
       if (Fld.m_Src.m_lInputIndex>=0)
         {
         CArchiveInput & It=GetInput(Fld.m_Src.m_lInputIndex);
-        if (It.IsString())
-          {//change field type to string
-          Fld.m_iType = It.m_iType;
-          Fld.m_bStrType = (IsStrng(Fld.m_iType)!=0);
+        if (It.IsString() && Fld.m_iFn!=ADBFn_String)
+          {
+          LogError(ArcName, 0, "Function must be 'String' for tag %s", Fld.m_Src.m_sTag);
+          //Fld.m_iType = It.m_iType;
           }
-        }
-      if (Fld.m_bStrType && Fld.m_iFn!=ADBFn_Instant)
-        {
-        LogWarning(ArcName, 0, "Function type for a string must be 'Current' for %s", Fld.m_Src.m_sTag);
-        Fld.m_iFn = ADBFn_Instant;
         }
       CCnvIndex iCnv=Fld.m_Src.GetCnvIndex(*this);
       if (iCnv && Cnvs[iCnv]->Find(Fld.m_sCnvTxt())==NULL)
@@ -2572,6 +2598,8 @@ long CArchiveManager::DoAddField(LPCTSTR Table, LPCTSTR Field, LPCTSTR CfgString
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_PeriodAvg])==0  || _stricmp(Fn, ADBFuncSyms[ADBFn_PeriodAvg])==0   ) iFn=ADBFn_PeriodAvg;
   //else if (_stricmp(Fn, ADBFuncTags[ADBFn_RunningAvg])==0 || _stricmp(Fn, ADBFuncSyms[ADBFn_RunningAvg])==0  ) iFn=ADBFn_RunningAvg
   else if (_stricmp(Fn, ADBFuncTags[ADBFn_Count])==0      || _stricmp(Fn, ADBFuncSyms[ADBFn_Count])==0       ) iFn=ADBFn_Count;
+  else if (_stricmp(Fn, ADBFuncTags[ADBFn_Sum])==0        || _stricmp(Fn, ADBFuncSyms[ADBFn_Sum])==0         ) iFn=ADBFn_Sum;
+  else if (_stricmp(Fn, ADBFuncTags[ADBFn_String])==0     || _stricmp(Fn, ADBFuncSyms[ADBFn_String])==0      ) iFn=ADBFn_String;
   else if (iST<0)
     {
     if (Fn==NULL || strlen(Fn)==0)
@@ -2640,6 +2668,12 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
       pFld->m_iSize         = iSize;
       pFld->m_sCnvTxt       = "";
       }
+    else if (iFn == ADBFn_String)
+      {
+      pFld->m_iType         = tt_Strng;
+      pFld->m_iSize         = 100; //assume max length!!!?
+      pFld->m_sCnvTxt       = "";
+      }
     else
       {
       pFld->m_iType         = iType;
@@ -2649,7 +2683,6 @@ long CArchiveManager::AddField(bool System, LPCTSTR Tag, LPCTSTR Table, LPCTSTR 
     pFld->m_sDescription    = Description;
 
     pFld->m_Src.m_sTag      = Tag;
-    pFld->m_bStrType = (IsStrng(pFld->m_iType)!=0);
 
 
     if (FldName)
@@ -2822,7 +2855,7 @@ bool CArchiveManager::Execute(CXM_TimeControl &CB)
     m_Tables[t]->Execute(CB);
     }
   return true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
@@ -2832,10 +2865,11 @@ bool CArchiveManager::StepDone(CXM_TimeControl &CB)
     return false;
 
   //dbgpln("CArchiveManager::StepDone");
+  const double DeltaSecs = Max(0.0, CB.m_TheTime.Seconds-m_TimeOfLastExec.Seconds);
 
   const int NI=m_Fields.GetSize();
   for (int i=0; i<NI; i++)
-    m_Fields[i]->StepDone(CB);
+    m_Fields[i]->StepDone(CB, DeltaSecs);
 
   const int NT=m_Tables.GetSize();
   for (int t=0; t<NT; t++)
@@ -2843,9 +2877,10 @@ bool CArchiveManager::StepDone(CXM_TimeControl &CB)
     m_Tables[t]->StepDone(CB);
     }
 
+  m_TimeOfLastExec = CB.m_TheTime;
   m_bRewind = false;
   return true;
-  };
+  }
 
 //---------------------------------------------------------------------------
 
