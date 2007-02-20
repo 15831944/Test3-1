@@ -14,7 +14,7 @@
 
 
 
-
+double dcf(double);
 
 class CTTOrifice : public MBaseMethod
   {
@@ -38,7 +38,11 @@ class CTTOrifice : public MBaseMethod
 
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
+    bool bOn;     // Bypass if not...
+    bool bPassThru;    // If on, pass stream through unaltered
     long m_lSlipMode;
+    long m_lOpMode;
+
     double dIn;
     double dPipe;
     double dOut;
@@ -47,6 +51,8 @@ class CTTOrifice : public MBaseMethod
     double dFlashdT;
     double dxVapor;
     double dSlipDensity;
+    double dInletDensity;
+    double dDensityCorrection;
 
     double dEntryK;    // K value for pipe run up to orifice
     double dPin;
@@ -63,6 +69,9 @@ class CTTOrifice : public MBaseMethod
     double dOrificeHead;  // Additional level drop to orifice inlet
     double dMassVelocity;
     double dPCritical;  // Critical Pressure in orifice choke flow
+    double dPOutActual;
+    double dValvePosition;  // Position of valve, 0-100%
+    // double dDensityCorrection;
 
   };
 

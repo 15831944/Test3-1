@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-16 16:32:07 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-20 01:48:12 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -30,6 +30,7 @@ class CFlashSolver;
 
 
 enum SlipModels {SFM_Homo,  SFM_Lock,  SFM_Faus,  SFM_Thom,  SFM_Zivi,  SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM};
+enum OpMode {OM_Simple, OM_Full};
 
 
 static MDDValueLst DD0[]=
@@ -45,6 +46,16 @@ static MDDValueLst DD0[]=
     {SFM_HNEM, "Homogeneous NonEquil"},
     {NULL}
   };
+
+static MDDValueLst DD1[]=
+  {
+    {OM_Simple, "Simple"},
+    {OM_Full, "Choking"},
+
+    {NULL}
+  };
+
+
 
 
 
@@ -79,6 +90,7 @@ public:
 
 	mBb(_mBb), mn1(_mn1), mn2(_mn2), mn3(_mn3) 
     { }
+
   SlipFlow(int i) 
   {
     
@@ -143,13 +155,29 @@ double Drw_CTTOrifice[] =
   MDrw_End 
   };
 
+
+double Drw_CTTOrifice1[] = {
+  MDrw_Poly, -10, 0, -5, 0,
+  MDrw_Poly, -5, -3, -5, 3, 5, -3, 5, 3, -5, -3,
+  MDrw_Poly, 0, 0, 0, 5, -3, 5, -2, 7, 0,8, 2, 7, 3, 5, 0,5,
+  MDrw_Poly, 5, 0, 10, 0,
+  MDrw_Poly, 10, -5, 10, 5,
+  MDrw_Poly, 12, -5, 12, -3,
+  MDrw_Poly, 12, 5, 12, 3,
+  MDrw_Poly, 14, -5, 14, 5,
+  MDrw_Poly, 14, 0, 18, 0,
+
+  MDrw_End
+};
+
+
 //---------------------------------------------------------------------------
 DEFINE_TRANSFER_UNIT(CTTOrifice, "TTOrifice", DLL_GroupName)
 
 void CTTOrifice_UnitDef::GetOptions()
   {
   SetDefaultTag("ORI");
-  SetDrawing("HeatExchange", Drw_CTTOrifice);
+  SetDrawing("HeatExchange", Drw_CTTOrifice1);
   SetTreeDescription("TTechFT:Orifice");
   SetDescription("TODO: Two Phase Flow Orifice");
   SetModelSolveMode(MSolveMode_All);
@@ -169,6 +197,10 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dOut = 0.1;
   dLevel = 5.0;
   dOrificeHead = 3.0;
+  bOn  = true;
+  m_lOpMode = OM_Full;
+  dValvePosition = 0.0;
+  
   
   
   
@@ -196,10 +228,12 @@ void CTTOrifice::BuildDataFields()
 #ifdef TTDEBUG
   DD.CheckBox("TTDBG", "",  &bTTDebug, MF_PARAMETER);
 #endif
-  //DD.CheckBox("On", "",  &bOnline, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.CheckBox("On", "",  &bOn, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.CheckBox("PassThru", "",  &bPassThru, MF_PARAMETER|MF_SET_ON_CHANGE);
 
   
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
+  DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD1);
   DD.Double ("PipeD", "", &dPipe, MF_PARAMETER, MC_L("mm"));
   DD.Double ("OrificeDiameter", "", &dOut, MF_PARAMETER, MC_L("mm"));
   DD.Double ("OrificeInletD", "", &dIn, MF_PARAMETER|MF_INIT_HIDDEN, MC_L("mm"));
@@ -211,9 +245,13 @@ void CTTOrifice::BuildDataFields()
   DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
   DD.Double("OrificeHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));  
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
+  DD.Double("ValvePosition", "", &dValvePosition, MF_PARAMETER, MC_Frac("%"));
 
 
   DD.Double("InletPressure", "", &dPin, MF_RESULT, MC_P("kPa"));
+  DD.Double("InletDensity", "", &dInletDensity, MF_RESULT, MC_Rho);
+  // DD.Double("DensityCorrection", "", &dDensityCorrection, MF_RESULT, MC_None);
+  
   DD.Double("DownstreamPressure", "", &dPout, MF_PARAMETER, MC_P("kPa"));
   DD.Double("SaturationPressure", "", &dSatP, MF_RESULT, MC_P("kPa"));
   DD.Double("TemperatureIn", "", &dTin, MF_RESULT, MC_T("C"));  
@@ -233,6 +271,7 @@ void CTTOrifice::BuildDataFields()
 
     
   
+       
 }
 
 //---------------------------------------------------------------------------
@@ -248,7 +287,7 @@ bool CTTOrifice::ConfigureJoins()
 
 bool CTTOrifice::EvalJoinPressures()
   {
-    Joins[0].SetProbalP(dFlashP);
+    Joins[0].SetProbalP(dPOutActual);
     return true;
   }
 
@@ -259,29 +298,6 @@ bool CTTOrifice::EvalJoinPressures()
 //    Choke and slip calculations for stream
 //
 //===========================================================================
-
-
-
-double ChokeMassVelocity(MStream & s) 
-{
-  
-  return 0;
-  
-
-
-  
-}
-
-double SlipDensity(MStream &s, long SFM) 
-{
-
-  return 0;
-  
-}
-
-
-
-
 //---------------------------------------------------------------------------
 
 void CTTOrifice::EvalProducts()
@@ -291,54 +307,61 @@ void CTTOrifice::EvalProducts()
       MStream InStream;
       FlwIOs.AddMixtureIn_Id(InStream, idIn);
 
+      // dDensityCorrection = dcf(K2C(InStream.T));
 
       const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP(); //get pressure of input stream 
       InStream.P = Pi;
 
       MStream & OutStream = FlwIOs[FlwIOs.First[idOut]].Stream;
-      SlipFlow s1(m_lSlipMode);
       OutStream = InStream;
-
-      //same parameter sanity checks
-      dPipe = Max(dPipe, 1.0e-6);
-      dEntryK = Max(dEntryK, 1.0e-9);
-      dFlashP = InStream.SaturationP(InStream.T);
-
       
-      m_VLE.PFlash(OutStream, dPout/*, 0.0, VLEF_QPFlash*/);
-      OutStream.P = dFlashP;
+      SlipFlow s1(m_lSlipMode);
+      if (bOn) {
+	//same parameter sanity checks
+	dPipe = Max(dPipe, 1.0e-6);
+	dEntryK = Max(dEntryK, 1.0e-9);
+	dFlashP = InStream.SaturationP(InStream.T);
+
+	if (!bPassThru) 
+	  m_VLE.PFlash(OutStream, dPout);
+	OutStream.P = dFlashP;
+	dPOutActual = bPassThru ? dPin : dFlashP;
       
 
-      dPin = Pi;
-      double deltaP = GTZ(Pi - dPout);
-      double den = InStream.Density();
-      double area = CircleArea(dPipe);
-      dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
-      dMassFlow1 = InStream.Mass();
-      dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
-      double dGIn = dMassFlow1/area;
-      double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
-      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
+	dPin = Pi;
+	double deltaP = GTZ(Pi - dPout);
+	double den = InStream.Density();
+	double area = CircleArea(dPipe);
+	dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
+	dMassFlow1 = InStream.Mass();
+	dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
+	double dGIn = dMassFlow1/area;
+	double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
+	dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
 
-      dSatP = m_VLE.SaturationP(InStream, InStream.T);
-      dTin = InStream.T;
-      dFlashdT = InStream.T - OutStream.T;
-      dSlipDensity = s1.SlipDensity(OutStream);
-      MStream mstmp;
-      mstmp = InStream;
+	dSatP = m_VLE.SaturationP(InStream, InStream.T);
+	dTin = InStream.T;
+	dFlashdT = InStream.T - OutStream.T;
+	dSlipDensity = s1.SlipDensity(OutStream);
+	MStream mstmp;
+	mstmp = InStream;
 
-      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);
-      dMassFlow2 = dMassVelocity*CircleArea(dOut);
-      dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*CircleArea(dOut);
-      if (dPCritical>dPout) {   // Choked Flow
-	dMassFlow4 = dMassFlow3;
+	dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);
+	dMassFlow2 = dMassVelocity*CircleArea(dOut);// Density correction, based on bayer.exe AMIRA 
+	dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*CircleArea(dOut);
+	if (dPCritical>dPout) {   // Choked Flow
+	  dMassFlow4 = dMassFlow3;
+	} else {
+	  dMassFlow4 = dMassFlow2;
+	}
+      
       } else {
-	dMassFlow4 = dMassFlow2;
+	dMassFlow4 = dMassFlow1;
+	dFlashdT = 0;
+	dPOutActual = dPin;
       }
-      
-      
 
-    
+
     }
   catch (MMdlException &e)  
 
@@ -434,4 +457,13 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
   dPCritical = pcrit;
   return gmax;
 }
-  DD.Double("MassFlow3", "", &dMassFlow3, MF_RESULT, MC_Qm("kg/s"));
+
+/*
+// Density correction, based on bayer.exe AMIRA 
+double dcf(double tc) {
+  if (tc<144.2467) return 1.0;
+  /// Dont apply correction for low temperatures; this just happens that
+  // dcf(144.2467) === 1.00000, so no discontinuity!
+  else return 1.1737e-5*tc*tc -2.3329e-3*tc+1.0923;
+}
+*/
