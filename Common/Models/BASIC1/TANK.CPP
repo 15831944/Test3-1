@@ -346,33 +346,38 @@ const int ioid_Base          = FlwIOId(2);
 const int ioid_OverFlw       = FlwIOId(3);
 const int ioid_GasVent       = FlwIOId(4);
 
-static IOAreaRec TankIOAreaListOld[] =
-  {
-    {"Top of Tank",                "Top",     ioid_Top,         LIO_In0Out,  nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
-    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
-    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
-    {"Bottom of Tank",             "Base",    ioid_Base,        LIO_InOut0,  nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
-    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
-    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow, 1.0f},
-    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent , 1.0f},
-    {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1) },
-    {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1) },
-    {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
-    SPILL2AREA("Spills",  IOId_Spill2Area),
-    VENT2AREA("Vents",    IOId_Vent2Area),
-    {NULL}
-  }; //This lists the areas of the model where links can be attached.
+//static IOAreaRec TankIOAreaListOld[] =
+//  {
+//    {"Top of Tank",                "Top",     ioid_Top,         LIO_In0Out,  nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
+//    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
+//    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
+//    {"Bottom of Tank",             "Base",    ioid_Base,        LIO_InOut0,  nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
+//    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
+//    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow, 1.0f},
+//    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent , 1.0f},
+//    {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1) },
+//    {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1) },
+//    {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
+//    SPILL2AREA("Spills",  IOId_Spill2Area),
+//    VENT2AREA("Vents",    IOId_Vent2Area),
+//    {NULL}
+//  }; //This lists the areas of the model where links can be attached.
 
-static IOAreaRec TankIOAreaListNew[] =
+
+static CAltIOName AIOTop[]   = {{"Top",   90}, {}};
+static CAltIOName AIOBase[]  = {{"Base",  90}, {}};
+
+
+static IOAreaRec TankIOAreaList[] =
   {
-    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
-    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture|IOHidden, (float)0.5},
-    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0f},
-    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow, 1.0f},
-    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent , 1.0f},
-    {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1) },
-    {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1) },
-    {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1) },
+    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0, {0,0,0,0}, AIOTop },
+    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOShwFracHgt|IOShwAperture|IOHidden,        0.5, {0,0,0,0}         },
+    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 0.0, {0,0,0,0}, AIOBase},
+    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOOverflow,                                 1.0, {0,0,0,0}         },
+    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOGasVent,                                  1.0, {0,0,0,0}         },
+    {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1)},
+    {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1)},
+    {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1)},
     SPILL2AREA("Spills", IOId_Spill2Area),
     VENT2AREA("Vents",   IOId_Vent2Area),
     MAKEUP2AREA(),
@@ -393,10 +398,11 @@ IMPLEMENT_MODELUNIT(CTank, "Tank", "1", Drw_Tank, "Tank", "TNK",
 CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
-  if (OrigPrjFileVerNo()<90)
-    AttachIOAreas(TankIOAreaListOld, &PipeEntryGroup);
-  else
-    AttachIOAreas(TankIOAreaListNew, &PipeEntryGroup);
+  //if (OrigPrjFileVerNo()<90)
+  //  AttachIOAreas(TankIOAreaListOld, &PipeEntryGroup);
+  //else
+  //  AttachIOAreas(TankIOAreaListNew, &PipeEntryGroup);
+  AttachIOAreas(TankIOAreaList, &PipeEntryGroup);
 
   //m_Spill.SetLclIOId(ioid_OverFlw);
   //m_Vent.SetLclIOId(ioid_GasVent);
