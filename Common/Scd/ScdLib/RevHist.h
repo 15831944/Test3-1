@@ -2737,10 +2737,11 @@ Build 122 : 16 November 2006
 1475 19/02/07: (#762) String tags can now be included in the Archive reporter.
 1477 19/02/07: Implemented manual calculation method for blend controller.
 1478 19/02/07: (#672,730) In archive reporter, implemented new 'ChangeCount' and 'Sum' functions.
+1479 20/02/07: (#761) Fix for QProd displaying incorrect data when GM model operation general.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1478
+#define SCD_PATCH_SVN    1479
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
