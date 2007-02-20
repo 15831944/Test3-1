@@ -5229,12 +5229,15 @@ int FlwNode::IOWithId_Self(int  RqdId)
     if (IOAreas[i].m_Id==RqdId)
       {
       if (m_IOAreaLcl[i].m_nConnected==0)
-       iIO=-1;
-      break;
+        iIO=-1;
+      goto Found;
       }
     iIO+=m_IOAreaLcl[i].m_nConnected;
     }
+  // Not Found - not in list
+  iIO=-1;
 
+Found:
   if (0)//i!=iIO)
     {
     dbgpln("=======================");
