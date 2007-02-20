@@ -328,7 +328,7 @@ void CPrecipitator::BuildDataFields()
   DD.Double("SSAin", "",    	    &m_dSSAin		    ,MF_RESULT, MC_SurfAreaM);
   DD.Double("SSA", "",    	    &m_dSSA		    ,MF_PARAMETER, MC_SurfAreaM);
 
-  DD.Show (iGrowthRateMethod);
+  DD.Show (iGrowthRateMethod!=0);
 
   DD.Double("BoundSoda_OrgPart","", &m_dBndOrgSoda          ,MF_PARAMETER, MC_Frac("%"));
 
@@ -338,12 +338,12 @@ void CPrecipitator::BuildDataFields()
   DD.Text("Thermal and Mass Balance");
   DD.Double("Mass.Flow.In", "",       &dQmin          ,MF_RESULT|MF_NO_FILING, MC_Qm("t/d"));
   DD.Double("Mass.Flow.Out", "",      &dQmout         ,MF_RESULT|MF_NO_FILING, MC_Qm("t/d"));
-  DD.Show(iEvapMethod);
+  DD.Show(iEvapMethod!=0);
   DD.Double("Evap.Mass.Loss", "", &m_dEvapRate, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("Evap.Thermal.Loss", "",   &m_dEvapThermalLoss  ,MF_RESULT, MC_Pwr("kW"));
   DD.Show(iThermalLossMethod==THL_Ambient);
   DD.Double("Env.Thermal.Loss", "", &m_dEnvironmentLoss, MF_RESULT, MC_Pwr("kW"));  
-  DD.Show(iCoolType);
+  DD.Show(iCoolType!=0);
   DD.Double("Cooler.Thermal.Loss", "", &m_dCoolRate, MF_RESULT, MC_Pwr("kW")); // Ext Cooling Rate
   DD.Double("ReactionHeat", "",     &dReactionHeat  ,MF_RESULT, MC_Pwr("kW"));
   DD.Double("Total.Thermal.Loss", "", &m_dTotThermalLoss, MF_RESULT, MC_Pwr("kW"));
@@ -353,7 +353,7 @@ void CPrecipitator::BuildDataFields()
   DD.Double("HzOut", "", &m_dHOut, MF_RESULT, MC_Pwr);
   DD.Double("HzBal", "", &m_dHBal, MF_RESULT, MC_Pwr);
 
-  DD.Show(iCoolType);
+  DD.Show(iCoolType!=0);
   DD.Page("Cooler");
   DD.Show(iCoolType==COOL_INTERNAL);
   DD.CheckBox("Cooler.On", "",  &m_bCoolerOn, MF_PARAMETER);
@@ -395,7 +395,7 @@ void CPrecipitator::BuildDataFields()
 
   DD.Double("Ext.Cooling.Temp", "", &m_dExtCoolTemp, MF_RESULT, MC_T("C")); // Ext Cooling.Temp
   DD.Double("Ext.Cooling.totHz", "", &m_dCoolOutTotHz , MF_RESULT, MC_Pwr("kW")); // Ext Cooling Rate
-  DD.Show(iCoolType);
+  DD.Show(iCoolType!=0);
   DD.Double("Cooling.Rate", "", &m_dCoolRate, MF_RESULT, MC_Pwr("kW")); // Ext Cooling Rate
 
 

@@ -653,12 +653,21 @@ bool CXRefItem::SetNearXRefValue()
           double d2=IsOneShotBtn ? 0 : m_TAB.GetDouble();
           if (!Finite(d1) && !Finite(d2))
             goto TheSame;
-          if (Finite(d1) && Finite(d2))
+          bool BothFinite=(Finite(d1) && Finite(d2));
+          if (BothFinite)
             {
-            float f1=(float)d1; // the typecast allows for dest vars to be floats
-            float f2=(float)d2;
-            if (f1==f2)  //Surely this should have a tolerance!!! 
-              goto TheSame;
+            if (InRange((double)-FLT_MAX, d1, (double)FLT_MAX) && InRange((double)-FLT_MAX, d2, (double)FLT_MAX))
+              {
+              float f1=(float)d1; // the typecast allows for dest vars to be floats
+              float f2=(float)d2;
+              if (f1==f2)  //Surely this should have a tolerance!!! 
+                goto TheSame;
+              }
+            else
+              {
+              if (d1==d2)  //Surely this should have a tolerance!!! 
+                goto TheSame;
+              }
             }
 
           ClearChanged();
@@ -1732,7 +1741,7 @@ int CTgFnIoVar::DoDataXchg(DataChangeBlk& DCB, flag IgnoreCnv/*=false*/, char* p
 
 //--------------------------------------------------------------------------
 
-BXReturn CTgFnIoVar::UpdateXRef(CXRefStatus * pStatus, /*CXRefItem * pXRef,*/ bool MustSet, bool MustGet, int& FunctNo, CNodeXRefMngr * pXRM, /*BXOptions Options,*/ int IOId, LPSTR LclTag, LPSTR LclID, LPSTR Desc, CXRefBuildResults &Results)
+BXReturn CTgFnIoVar::UpdateXRef(CXRefStatus * pStatus, bool MustSet, bool MustGet, int& FunctNo, CNodeXRefMngr * pXRM, int IOId, LPCSTR LclTag, LPCSTR LclID, LPCSTR Desc, CXRefBuildResults &Results)
   {
   m_iIOId       = IOId;
   m_iIOInx      = -1;
@@ -1776,7 +1785,7 @@ BXReturn CTgFnIoVar::UpdateXRef(CXRefStatus * pStatus, /*CXRefItem * pXRef,*/ bo
         char FunctName[16];
         iFunctNo = FunctNo++;
         sprintf(FunctName, "F%d", iFunctNo);
-        flag b = pXRM->m_pFnMngr->AddFunct(FunctName, sVar(), LclTag);
+        flag b = pXRM->m_pFnMngr->AddFunct(FunctName, sVar(), (LPSTR)LclTag);
         if (b)
           {
           pFunctVar = pXRM->m_pFnMngr->GetFunctVar(FunctName);
@@ -1963,7 +1972,7 @@ void CTgFnIoVar::SetCtrlValue(double D)
 
 //--------------------------------------------------------------------------
 
-bool CTgFnIoVar::GetValue(double &D)
+bool CTgFnIoVar::GetValue(double &D, bool AsSIValue)
   {
   switch (m_eWhat)
     {
@@ -1975,7 +1984,10 @@ bool CTgFnIoVar::GetValue(double &D)
       D=pFunctVar->getD();
       return true;
     case eIsTag:
-      D=XRef().GetHumanXRefValue();  
+      if (AsSIValue)
+        D=XRef().GetXRefValue();  
+      else
+        D=XRef().GetHumanXRefValue();  
       return true;
     }
   return false;
@@ -1983,7 +1995,7 @@ bool CTgFnIoVar::GetValue(double &D)
 
 //--------------------------------------------------------------------------
 
-bool CTgFnIoVar::PutValue(double D)
+bool CTgFnIoVar::PutValue(double D, bool AsSIValue)
   {
   switch (m_eWhat)
     {
@@ -2000,7 +2012,10 @@ bool CTgFnIoVar::PutValue(double D)
         {
         CXRefItem& Output = *m_pXRef;
         //D=XRef().GetHumanRefValue();  
-        Output.SetXRefValue(Cnvs[Output.m_iCnvIndex]->Normal(D, Output.m_sCnv()), false);
+        if (AsSIValue)
+          Output.SetXRefValue(D, false);
+        else
+          Output.SetXRefValue(Cnvs[Output.m_iCnvIndex]->Normal(D, Output.m_sCnv()), false);
         }
       return true;
     }

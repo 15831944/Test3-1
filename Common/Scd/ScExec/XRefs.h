@@ -446,7 +446,7 @@ class DllImportExport CTgFnIoVar
     int           DoDataXchg(DataChangeBlk & DCB, flag IgnoreCnv=false, char* pForceTag=NULL);
     BXReturn      UpdateXRef(CXRefStatus * pStatus, bool MustSet, bool MustGet, 
                             int& FunctNo, CNodeXRefMngr * pMERH, int IOId, 
-                            LPSTR LclTag, LPSTR LclID, LPSTR Desc, CXRefBuildResults &Results);
+                            LPCSTR LclTag, LPCSTR LclID, LPCSTR Desc, CXRefBuildResults &Results);
     bool          UnlinkXRefs();
     static BOOL   ChangeTag(Strng & SrcTag, char* pOldTag, char* pNewTag);
     static BOOL   ContainsTag(Strng & SrcTag, char* pTag);
@@ -460,8 +460,8 @@ class DllImportExport CTgFnIoVar
     CXRefItem   & XRef() { return * m_pXRef; };
     CTagRef     & TagRef() { return * m_pTagRef; };
     
-    bool          GetValue(double &D);
-    bool          PutValue(double D);
+    bool          GetValue(double &D, bool AsSIValue=false);
+    bool          PutValue(double D, bool AsSIValue=false);
 
   //protected:
     Strng         sVar;

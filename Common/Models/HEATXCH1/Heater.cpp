@@ -385,7 +385,8 @@ void SimpleHeater::EvalCtrlActions(eScdCtrlTasks Tasks)
     ECtx.dIC_Time.Seconds = ICGetTime();
     ECtx.dIC_dTime.Seconds  = ICGetTimeInc();
     ECtx.OnStart = bAboutToStart;
-    ECtx.HoldNearXRefXfer=true;
+    ECtx.m_HoldNearXRefGet=true;
+    ECtx.m_HoldNearXRefSet=true;
     FnMngr().Execute(ECtx);
     bAboutToStart = 0;
     /*if (ECtx.DoXStop)

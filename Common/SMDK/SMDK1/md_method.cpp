@@ -12,6 +12,7 @@
 #include "m_base.h"
 #include "bbtransfer.h"
 #include "bbsurge.h"
+#include "bbcontrol.h"
 //#include "optoff.h"
 
 #ifdef _DEBUG
@@ -283,6 +284,59 @@ MSurgeUnitDefBase::MSurgeUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR 
 //
 //===========================================================================
 
+class CControlMethodClassDef : public TagObjClass
+    {
+    public:
+      TaggedObject * ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+      TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+      virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+      CControlMethodClassDef(pchar pClassName, pchar pGroup_, pchar pClassId_, pchar pSubClass, pchar pVersion_, pchar pDrwGroup, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask);
+    };
+
+TaggedObject * CControlMethodClassDef::ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
+  { return TagObjClass::ConstructGrp(pClass, pSubClass, pTag, pAttach, eAttach); };
+TaggedObject * CControlMethodClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
+  { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); };
+TaggedObject * CControlMethodClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
+  {
+  CBBControl * pn = new CBBControl(this, pTag, pAttach, eAttach);
+  SetTypeId(NULL); // will be set by Init
+  if (SubClassId())
+    pn->SetSubClass(SubClassId());
+
+  return pn;
+  };
+
+CControlMethodClassDef::CControlMethodClassDef(pchar pClassName, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask) : \
+TagObjClass(pClassName, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup, pDefTag_, dwCat, pShortDesc, pDesc, dwSelectMask)
+  {
+  //sSubClassId=pSubClassId_;
+  sMdlLibName=MDLLIBNAME;
+  };
+
+//---------------------------------------------------------------------------
+
+MControlUnitDefBase::MControlUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks) :
+  MUnitDefBase(WithDevelopementChecks)
+  {
+  m_pClassDef= new CControlMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
+    "Ctrl", "C", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+  m_pClassDef->SetMdlLibName(DLL);
+  m_pClassDef->SetSubConstruct(this);
+
+  m_pDrawEntry = new NodeDrawEntry((LPTSTR)pClass, MethodBaseVersion, "SMDKControl", DefaultDrawing);
+
+  m_sClassName = pClass;
+  //m_iMethodFlags = 0;
+  }
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 MClosureInfo::MClosureInfo(CClosureInfoArray & CIA, MVector & RefMdl) : \
   m_CIA(CIA)
   {
@@ -313,7 +367,8 @@ MBaseMethod::MBaseMethod(MUnitDefBase * pUnitDef, TaggedObject * pNd) :
   DV(this),
   Joins(this),
   FlwIOs(this),
-  CtrlIOs(this)
+  CtrlIOs(this),
+  TagIO(this)
   {
   m_pImpl = new MBaseMethodImpl;
   }
@@ -957,6 +1012,102 @@ double MFlowIOs::AddMixtureIn_Id(MStream & S, long Id/*=-1*/, DWORD PhaseM/*=MP_
 //---------------------------------------------------------------------------
 
 long MCtrlIOs::getNoCtrlIOs() { return m_pNd->NoCIOs(); };
+
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#if WITHNODETAGIO
+
+void   MTagIO::Open(long EstimatedTagCount)                       { m_pNd->SetTagIOReqd(true, EstimatedTagCount);         };
+void   MTagIO::Close()                                            { m_pNd->SetTagIOReqd(false, 0);                        };
+
+long   MTagIO::Add(LPCSTR ItemTag, LPCSTR Name, long Options)     { return m_pNd->m_pTagIO->Add(ItemTag, Name, Options);  };       
+bool   MTagIO::Remove(long ID)                                    { return m_pNd->m_pTagIO->Remove(ID);                   };
+bool   MTagIO::Remove(LPCSTR ItemTag)                             { return m_pNd->m_pTagIO->Remove(ItemTag);              };
+void   MTagIO::RemoveAll()                                        { return m_pNd->m_pTagIO->RemoveAll();                  };
+long   MTagIO::getCount()                                         { return m_pNd->m_pTagIO->GetCount();                   };
+                                                                                            
+long   MTagIO::FindTag(LPCSTR ItemTag)                            { return m_pNd->m_pTagIO->FindTag(ItemTag);             };
+long   MTagIO::FindName(LPCSTR Name)                              { return m_pNd->m_pTagIO->FindName(Name);               };
+                                                                                            
+long   MTagIO::getType(long ID)                                   { return m_pNd->m_pTagIO->GetType(ID);                  };
+LPCSTR MTagIO::getTag(long ID)                                    { return m_pNd->m_pTagIO->GetTag(ID);                   };
+LPCSTR MTagIO::getFullTag(long ID)                                { return m_pNd->m_pTagIO->GetFullTag(ID);               };
+LPCSTR MTagIO::getCnvText(long ID)                                { return m_pNd->m_pTagIO->GetCnvText(ID);               };
+long   MTagIO::getOptions(long ID)                                { return m_pNd->m_pTagIO->GetOptions(ID);               };
+                                                                                               
+double MTagIO::getDValue(long ID)                                 { return m_pNd->m_pTagIO->GetDValue(ID, false);         };
+void   MTagIO::putDValue(long ID, double Value)                   { m_pNd->m_pTagIO->SetDValue(ID, Value, false);         };
+                                                                                            
+long   MTagIO::getType(LPCSTR Tag)                                { return m_pNd->m_pTagIO->GetType(Tag);                 };
+LPCSTR MTagIO::getCnvText(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetCnvText(Tag);              };
+LPCSTR MTagIO::getFullTag(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetFullTag(Tag);              };
+long   MTagIO::getOptions(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetOptions(Tag);              };
+                                                                                            
+double MTagIO::getDValue(LPCSTR Tag)                              { return m_pNd->m_pTagIO->GetDValue(Tag, false);        };
+void   MTagIO::putDValue(LPCSTR Tag, double Value)                { m_pNd->m_pTagIO->SetDValue(Tag, Value, false);        };
+
+//===========================================================================
+
+MTagIOResult MTagIO::Peek(LPCSTR Tag, double & Value)
+  {
+  CXM_Route ObjRoute;
+  CXM_ObjectTag ObjTag((LPSTR)Tag, TABOpt_ValCnvs);
+  CXM_ObjectData ObjData;
+  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+    {
+    CPkDataItem * pItem=ObjData.FirstItem();
+    if (IsNumData(pItem->Type()))
+      {
+      Value=pItem->Value()->GetDouble();
+      return TagIO_OK;
+      }
+    else
+      return TagIO_NotAllowed;
+    }
+
+  return TagIO_NotFound;
+  };
+
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::Poke(LPCSTR Tag, double Value)
+  {
+  CXM_Route ObjRoute;
+  CXM_ObjectTag ObjTag((LPSTR)Tag, TABOpt_ValCnvs);
+  CXM_ObjectData ObjData;
+  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute)!=0)
+    {
+    CPkDataItem * pPItem=ObjData.FirstItem();
+    if ((pPItem->Flags() & isParm)!=0)
+      {
+      if (IsNumData(pPItem->Type()))
+        {
+        PkDataUnion DU;
+        DU.SetTypeDouble(tt_Double, Value);
+        CXM_ObjectData ObjData(0, 0, (LPSTR)Tag, 0, DU);
+        if (gs_Exec.XWriteTaggedItem(NULL, ObjData, ObjRoute)==TOData_OK)
+          {
+          return TagIO_OK;
+          }
+        else
+          return TagIO_WriteFail;
+        }
+      else 
+        return TagIO_NotAllowed;
+      }
+    else
+      return TagIO_ReadOnly;
+    }
+  else
+    return TagIO_NotFound;
+  };
+
+#endif
 
 //===========================================================================
 //

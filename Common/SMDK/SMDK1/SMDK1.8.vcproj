@@ -547,6 +547,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BBControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BBSurge.cpp"
 				>
 			</File>
@@ -637,6 +641,10 @@
 			>
 			<File
 				RelativePath=".\BBBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BBControl.h"
 				>
 			</File>
 			<File

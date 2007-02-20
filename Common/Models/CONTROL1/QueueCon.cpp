@@ -744,7 +744,8 @@ void CQueueCon::EvalCtrlStrategy(eScdCtrlTasks Tasks)
       ECtx.dIC_Time = ICGetTime();
       ECtx.dIC_dTime = ICGetTimeInc();
       ECtx.OnStart = bAboutToStart;
-      ECtx.HoldNearXRefXfer=true;
+      ECtx.m_HoldNearXRefGet=true;
+      ECtx.m_HoldNearXRefSet=true;
       FnMngr().Execute(ECtx);
       bAboutToStart = 0;
       if (ECtx.DoXStop)

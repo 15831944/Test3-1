@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="KW_SMDK2"
+	Name="ks.KW_SMDK2"
 	ProjectGUID="{20DEA2B6-2062-43A5-A5F6-CD1FE82BAE17}"
 	RootNamespace="KW_SMDK2"
 	Keyword="MFCProj"
@@ -625,6 +625,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\TagIO.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -644,6 +648,10 @@
 			</File>
 			<File
 				RelativePath="StdAfx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TagIO.h"
 				>
 			</File>
 		</Filter>

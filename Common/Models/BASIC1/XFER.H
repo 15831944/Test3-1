@@ -18,6 +18,8 @@
   #define DllImportExport
 #endif
 
+#define XREFTEST (1 && WITHNODETAGIO)
+
 // ==========================================================================
 
 DEFINE_TAGOBJ(X_Tie);
@@ -32,6 +34,15 @@ class DllImportExport X_Tie : public MN_Xfer
   protected:
     flag           m_bShowQFeed;
     flag           m_bShowQProd;
+
+#if XREFTEST 
+    flag           m_bTestTagIO;
+    int            m_iQm2;
+    int            m_iQm1;
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+    virtual void   EvalProducts(CNodeEvalIndex & NEI);
+#endif
+
   };
 
 //=========================================================================== 

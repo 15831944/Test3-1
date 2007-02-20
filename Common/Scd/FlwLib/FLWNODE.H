@@ -52,6 +52,7 @@
   #include "power.h"
 #endif
 #include "dbgmngr.h"
+#include "ndxrefs.h"
 
 #include <typeinfo.h>
 
@@ -126,6 +127,9 @@ class CLinkRec;
 class CTraceItem;
 class CTraceArray;
 class CTraceList;
+
+class CNodeProcedures;
+class CNodeTagIOList;
 
 //===========================================================================
 //
@@ -3424,6 +3428,7 @@ class DllImportExport FlwNode : public CTNode
 
     virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
     virtual void   BuildSystemDefn_FB(bool IsLink, LPTSTR Tg, int i, int fe, DWORD UI, FlwBlk & FB, DataDefnBlk & DDB);
+    virtual void   BuildCommonEndDefn(DataDefnBlk & DDB);
 
     virtual void   BuildSystemDefn(DataDefnBlk & DDB);
     void           BuildDataDefnElevation(DataDefnBlk & DDB);
@@ -4067,8 +4072,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   PreConfigureJoins();
     virtual void   ConfigureJoins()                         {};
     virtual void   PostConfigureJoins();
-    virtual void   StartStep()        {};
-    virtual void   EvalSteadyState()  {};
+    virtual void   StartStep()                              {};
+    virtual void   EvalSteadyState()                        {};
 
     virtual void   InitFlowInfo();
     virtual void   StepFlowInfo();
@@ -4077,9 +4082,9 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   TestFlowInfo();
     virtual flag   EvalPressureSens() { return true; };
 //    virtual void   CompletePressureSens();
-    virtual void   ApplyDerivs(double dTime, flag DoDbg) {};
+    virtual void   ApplyDerivs(double dTime, flag DoDbg)    {};
 
-    virtual double GetMaxTimeInc()     { return 1e10; };
+    virtual double GetMaxTimeInc()                          { return 1e10; };
     virtual void   EvalProductsInit(EvalProductsInitTasks Task) {};
     virtual bool   EvalProductClusters(int Index, long & JoinMask)   { JoinMask=-1; return Index==0; };
     virtual void   EvalProductsSurge(CNodeEvalIndex & NEI) {};
@@ -4192,6 +4197,11 @@ class DllImportExport FlwNode : public CTNode
     virtual double GetCIOValue(long Id)           { long i = CIOWithId_Self(Id); return i>=0 ? CIO_Value(i) : dNAN; };
     virtual void   SetCIOValue(long Id, double D) { long i = CIOWithId_Self(Id); if (i>=0)  SetCIO_Value(i, D); };
 
+    // CNodeXRefMngr Overides
+    virtual bool   TestXRefListActive();
+    virtual int    UpdateXRefLists(CXRefBuildResults & Results);
+    virtual void   UnlinkAllXRefs();
+
 
     long           AuditOption();
     LPCSTR         GetAuditOptionStr();
@@ -4199,7 +4209,7 @@ class DllImportExport FlwNode : public CTNode
     void           GetAuditOptionStrLst(DDBValueLstMem & Lst, bool ForNode);
 
     // ConditionBlk Override
-    DEFINE_CI(FlwNode, CTNode, 36);
+    DEFINE_CI(FlwNode, CTNode, 40);
 
     virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)
       {
@@ -4261,8 +4271,53 @@ class DllImportExport FlwNode : public CTNode
 
     static flag    CollectChgStats() { return fCollectChgStats; };
 
-   FlwNode   & getArea()                { return *m_pArea; };
-    _declspec(property(get=getArea))    FlwNode   & Area;
+    FlwNode      & getArea()         { return *m_pArea; };
+    _declspec(property(get=getArea)) FlwNode   & Area;
+
+#if WITHNODEPROCS
+    void           SetProcsAllowed(bool Allowed);
+    void           SetProcsReqd(bool Reqd);
+    bool           GetProcsReqd()  
+      {  
+      return m_ProcsAllowed && m_ProcsReqd; 
+      };
+    bool           ProcsOn(long ProcIDMask)
+      {
+      if (!GetProcsReqd())
+        return false;
+
+      if (ProcIDMask==NPM_Any)
+        return true;
+
+      if ((m_pProcs->m_lProcsChecked&ProcIDMask)==0)
+        {
+        m_pProcs->m_lProcsChecked|=ProcIDMask;
+        return true;
+        }
+
+      if ((m_pProcs->m_lProcsFound&ProcIDMask)!=0)
+        return true;
+
+      return false;
+      };
+#else
+    bool           GetProcsReqd()               { return false; };
+    bool           ProcsOn(long ProcIDMask)     { return false; };
+#endif
+
+#if WITHNODETAGIO
+    void           SetTagIOReqd(bool Reqd, long EstTagCount);
+    bool           GetTagIOReqd()               { return m_TagIOReqd;  };
+    bool           TagIOOn()                    { return m_TagIOReqd && true; };
+#else
+    bool           GetTagIOReqd()               { return false; };
+    bool           TagIOOn()                    { return false; };
+#endif
+
+#if (WITHNODEPROCS || WITHNODETAGIO)
+    void           BeforeNode(long ProcIDMask=0);
+    void           AfterNode(long ProcIDMask=0);
+#endif
 
   public:// protected:
     static flag    fInConfigureJoins;
@@ -4410,17 +4465,28 @@ class DllImportExport FlwNode : public CTNode
     FNdSWs         *pSWs;
 #endif
 
-    dword          dwPrevStatus;
+    dword             dwPrevStatus;
 
-    byte           m_iEvalPosn;
-    Strng          m_sEvalOrder;
-    //long           m_iProcOrder;
-    long           m_iCtrlOrder;
-    long           iAllIndex;
+    byte              m_iEvalPosn;
+    Strng             m_sEvalOrder;
+    //long             m_iProcOrder;
+    long              m_iCtrlOrder;
+    long              iAllIndex;
 
-    flag           fMarked;
-    flag           fNegPress;
+    flag              fMarked;
+    flag              fNegPress;
+    
+#if WITHNODEPROCS
+    bool              m_ProcsAllowed;   // 
+    bool              m_ProcsReqd; // 
+    CNodeProcedures * m_pProcs;
+#endif
 
+#if WITHNODETAGIO
+    bool              m_TagIOReqd;   // 
+    CNodeTagIOList  * m_pTagIO;
+    long              m_EstTagCount;
+#endif
 
     CClosureInfoArray m_Closure;
 
@@ -4519,6 +4585,8 @@ XID xidElevation                  = FlwXID(30020);
 XID xidJoinNetInfo                = FlwXID(30100);  // User Info passes Additional Info
 XID xidFRBMeasRho                 = FlwXID(30200);
 XID xidFRBMeasRhoStep             = FlwXID(30201);
+
+XID xidProcsEnable                = FlwXID(30202);
 
 //===========================================================================
 

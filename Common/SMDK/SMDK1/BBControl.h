@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __BBTRANSFER_H
-#define  __BBTRANSFER_H
+#ifndef  __BBCONTROL_H
+#define  __BBCONTROL_H
 
 #include "sc_defs.h"
 #include "bbbase.h"
@@ -12,7 +12,7 @@
 #include "models.h"
 #include "..\..\..\SMDK\Include\md_headers.h"
 
-#ifdef __BBTRANSFER_CPP
+#ifdef __BBCONTROL_CPP
   #define DllImportExport DllExport
 #elif !defined(SMDK1)
   #define DllImportExport DllImport
@@ -26,12 +26,12 @@
 //
 // ===========================================================================
 
-DEFINE_TAGOBJ(CBBTransfer);
-class CBBTransfer : public MN_Xfer/*MdlNode*/, CBBBase
+DEFINE_TAGOBJ(CBBControl);
+class CBBControl : public MdlNode, CBBBase
   {
   public:
-    CBBTransfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~CBBTransfer();
+    CBBControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~CBBControl();
     virtual void    SetSubClass(pchar pSubClass);
 
     virtual void    BuildDataDefn(DataDefnBlk & DDB);
@@ -43,17 +43,17 @@ class CBBTransfer : public MN_Xfer/*MdlNode*/, CBBBase
     virtual void    StartSolution();
     virtual void    StartStep();
                     
-    virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-    virtual void    ConfigureJoins();
-    virtual void    EvalPBMakeUpReqd(long JoinMask);
-    virtual void    EvalPBMakeUpAvail(long JoinMask);
-    virtual void    EvalJoinPressures(long JoinMask);
-    virtual void    EvalJoinFlows(int JoinNo);
+    //virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
+    //virtual void    ConfigureJoins();
+    //virtual void    EvalPBMakeUpReqd(long JoinMask);
+    //virtual void    EvalPBMakeUpAvail(long JoinMask);
+    //virtual void    EvalJoinPressures(long JoinMask);
+    //virtual void    EvalJoinFlows(int JoinNo);
 
-    virtual CSpPropInfo* IOGetNetProps(int i, double Qm);
-    virtual flag    EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
-                    
-    virtual void    EvalProducts(CNodeEvalIndex & NEI);
+    //virtual CSpPropInfo* IOGetNetProps(int i, double Qm);
+    //virtual flag    EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
+    //                
+    //virtual void    EvalProducts(CNodeEvalIndex & NEI);
                     
     virtual void    EvalDiscrete();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
@@ -78,19 +78,19 @@ class CBBTransfer : public MN_Xfer/*MdlNode*/, CBBBase
 
     virtual flag    GetModelGraphic(CMdlGraphicArray & Grfs);
     virtual flag    OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-    // FlashTrain
-    virtual void    MacroMdlEvaluate(eScdMacroMdlEvals Eval);
-    virtual flag    MacroMdlValidNd(int iIONo);
-    virtual void    MacroMdlAddNd(int iIONo);
-    virtual void    MacroMdlRemoveNd(int iIONo);
-    virtual CMacroMdlBase* MacroMdlActivate();
-    virtual void    MacroMdlDeactivate();
+    //// FlashTrain
+    //virtual void    MacroMdlEvaluate(eScdMacroMdlEvals Eval);
+    //virtual flag    MacroMdlValidNd(int iIONo);
+    //virtual void    MacroMdlAddNd(int iIONo);
+    //virtual void    MacroMdlRemoveNd(int iIONo);
+    //virtual CMacroMdlBase* MacroMdlActivate();
+    //virtual void    MacroMdlDeactivate();
 
   protected:
 
   private:
-    DEFINE_CI(CBBTransfer, MdlNode, FirstUserCI+MaxUserCI);
-    DEFINE_CIVIRT(CBBTransfer, MdlNode);
+    DEFINE_CI(CBBControl, FlwNode, FirstUserCI+MaxUserCI);
+    DEFINE_CIVIRT(CBBControl, FlwNode);
 
   };
 

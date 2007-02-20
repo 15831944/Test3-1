@@ -283,7 +283,7 @@ void CCARTubeDigester::BuildDataFields()
   DD.Long("Layout",   "", &m_lHxMode , MF_PARAMETER|MF_SET_ON_CHANGE, DDHxMode); 
   DD.Double("HTC",       "", &m_dHTC, m_lHxMode ? MF_RESULT : MF_PARAMETER, MC_HTC("kW/m^2.K"));
   DD.Double("Area",      "", &m_dHTArea, m_lHxMode ? MF_RESULT : MF_PARAMETER, MC_Area("m^2"));
-  DD.Show((bool) m_lHxMode);
+  DD.Show(m_lHxMode!=0);
 
   DD.Text("Calculation Modes");
   DD.Long("SSHxCalc",   "", &m_lSSHxMode , MF_PARAMETER|MF_SET_ON_CHANGE, DDSSHxMode); 
@@ -293,7 +293,7 @@ void CCARTubeDigester::BuildDataFields()
   DD.CheckBox("TS.Scaling", "",  &m_bTSScaling, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("SS.Scaling", "",  &m_bSSScaling, MF_PARAMETER|MF_SET_ON_CHANGE);
 
-  DD.Show((bool) m_lHxMode);
+  DD.Show(m_lHxMode!=0);
 
   DD.Show();
   DD.Double("U*A",       "",     &m_dUA,            MF_RESULT, MC_UA("kW/K"));
@@ -301,11 +301,11 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("RMTD",      "",     &m_dRMTD,          MF_RESULT, MC_dT("C"));
 
   DD.Double("Duty",      "",     &m_dDuty,          MF_RESULT, MC_Pwr("kW"));
-  DD.Show(m_lOpMode);
+  DD.Show(m_lOpMode!=0);
   DD.Double("Tot.Cond.Duty", "", &m_dTotDuty,  MF_RESULT, MC_Pwr("kW"));
   DD.Show();
   DD.Double("LMTDFact",  "",     &m_dLMTDFactor,    MF_RESULT, MC_Frac("%"));
-  DD.Show(m_lOpMode);
+  DD.Show(m_lOpMode!=0);
   DD.Double("QmVentRqd", "",     &m_dQmVentRqd,     MF_PARAMETER, MC_Qm("kg/s"));
   DD.Show();
   DD.Text("");
@@ -339,7 +339,7 @@ void CCARTubeDigester::BuildDataFields()
 #endif
 
   
-  DD.Show(m_lHxMode);
+  DD.Show(m_lHxMode!=0);
 
   DD.Page("ShellSide");         // For detailed models, all shellside stuff here
   DD.Text("Mode: Condensing");
@@ -347,7 +347,7 @@ void CCARTubeDigester::BuildDataFields()
   DD.Show(m_lHxMode && m_bSSScaling);
   DD.Double("SS.Scale.Thick", "", &m_dSScaleThickness, MF_PARAMETER, MC_L("mm")); 
   DD.Double("SS.Scale.Cond", "", &m_dScaleConductivity, MF_PARAMETER, MC_HCond); 
-  DD.Show(m_lHxMode);
+  DD.Show(m_lHxMode!=0);
   DD.Text("Results");
   DD.Double("Qm", "", &m_dCondFlow, MF_RESULT|MF_NO_FILING, MC_Qm);
   DD.Double("Sat.T", "", &m_dSatT, MF_RESULT|MF_NO_FILING, MC_T);
@@ -373,7 +373,7 @@ void CCARTubeDigester::BuildDataFields()
   DD.Show(m_lHxMode && m_bTSScaling);  // Scaling active
   DD.Double("Scale.Thick", "", &m_dScaleThickness, MF_PARAMETER, MC_L("mm")); 
   DD.Double("Scale.Cond", "", &m_dScaleConductivity, MF_PARAMETER, MC_HCond);
-  DD.Show(m_lHxMode);
+  DD.Show(m_lHxMode!=0);
  
   DD.Text("Results");
   DD.Double("TS.Vel", "", &m_dTSVel, MF_RESULT, MC_Ldt("m/s"));
@@ -396,7 +396,7 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("TS.dP", "",  &m_dP,  m_lTSdPMode ? MF_RESULT|MF_NO_FILING : MF_PARAMETER, MC_P("kPa"));
 
 
-  DD.Show(m_lOpMode);
+  DD.Show(m_lOpMode!=0);
   DD.Page("VLE");
   DD.Show();
   m_FTC.BuildDataFields();

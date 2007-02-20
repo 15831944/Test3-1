@@ -1553,7 +1553,7 @@ void FlwSlvBlk::BuildCtrlNdList()
   for (FlwNode * p=All.First(); (p); p=All.Next())
     //{
     //if (p->UpdateXRefListsReqd())
-      p->UpdateXRefLists(false);
+    p->CNodeXRefMngr::UpdateXRefLists(false);
     //}
 
   #if dbgFlwSolve
@@ -1678,7 +1678,7 @@ flag FlwSlvBlk::PreStartCheckAll()
 CStopWatch SW;
 SW.Start();
 #endif
-if (!p->PreStartCheck())
+    if (!p->PreStartCheck())
       {
       p->SetCI(16);
       Ok=0;
@@ -1761,8 +1761,12 @@ flag FlwSlvBlk::InitialiseSolutionAll()
   flag OK=true;
   CFlwNodeIter All(m_AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
+    {
+    p->BeforeNode();
     if (!p->InitialiseSolution())
       OK=false;
+    p->AfterNode(NPM_InitialiseSolution);
+    }
   return OK;
   }
 
@@ -1772,8 +1776,11 @@ flag FlwSlvBlk::TerminateSolutionAll()
   {
   CFlwNodeIter All(m_AllNds);
   for (FlwNode * p=All.First(); (p); p=All.Next())
+    {
+    p->BeforeNode(NPM_TerminateSolution);
     p->TerminateSolution();
-
+    p->AfterNode();
+    }
   //TargetTags.TerminateSolution();
   return true;
   }
@@ -5140,7 +5147,9 @@ void FlwSlvPB::FITPBEvalProducts(CLkNodeEvalIter & Iter)
     ProcLoopStart(Iter, NJ, Cnt);
     if (p->fEvalProductsCalled)
       { int xxx=0; };
+    p->BeforeNode(NPM_BeforeEvalProducts);
     p->EvalProducts(NJ);
+    p->AfterNode(NPM_AfterEvalProducts);
     p->fEvalProductsCalled=true;
     XT.ExecDone();//Postamble(p, eFITPBEvalProducts, FSW_EvalProducts);
     ProcLoopEnd(Iter, NJ, Cnt);
@@ -5187,7 +5196,9 @@ void FlwSlvPB::FITPBEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     //p->LockFlanges();
     p->LockNode();
     XT.LockDone();//(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
+    p->BeforeNode();
     p->EvalCtrlActions(CO_All);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5212,7 +5223,9 @@ void FlwSlvPB::FITPBEvalCtrlStrategy(CFlwNodeList & List)//CLkFlwNodeIter & Iter
     //p->LockFlanges();
     p->LockNode();
     XT.LockDone();//(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
+    p->BeforeNode();
     p->EvalCtrlStrategy(CO_All);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5277,7 +5290,9 @@ void FlwSlvPB::EvalAllCtrlInitialise(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITPBEvalCtrlInitialise, FSW_EvalCtrlInitialise);
+    p->BeforeNode();
     p->EvalCtrlInitialise(Tasks);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlInitialise, FSW_EvalCtrlInitialise);
     XT.EndLoop();//PostambleUnLock();
     }
@@ -5292,7 +5307,9 @@ void FlwSlvPB::EvalAllCtrlStrategy(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
+    NJ.Nd.BeforeNode();
     NJ.Nd.EvalCtrlStrategy(Tasks);
+    NJ.Nd.AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     XT.EndLoop();
     MYASSERT(_CrtCheckMemory());
@@ -5308,7 +5325,9 @@ void FlwSlvPB::EvalAllCtrlActions(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
+    NJ.Nd.BeforeNode();
     NJ.Nd.EvalCtrlActions(Tasks);
+    NJ.Nd.AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlActions, FSW_EvalCtrlActions);
     XT.EndLoop();
     }
@@ -5323,7 +5342,9 @@ void FlwSlvPB::EvalAllCtrlTerminate(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITPBEvalCtrlTerminate, FSW_EvalCtrlTerminate);
+    p->BeforeNode();
     p->EvalCtrlTerminate(Tasks);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITPBEvalCtrlTerminate, FSW_EvalCtrlTerminate);
     XT.EndLoop();
     }
@@ -5650,7 +5671,9 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
 #endif
         XT.StartLoop(NJ.m_pNd);
         XT.LockDone();//(p, eFITPBEvalProducts, FSW_EvalProducts);
+        NJ.Nd.BeforeNode(NPM_BeforeEvalProducts);
         NJ.Nd.EvalProducts(NJ);
+        NJ.Nd.AfterNode(NPM_AfterEvalProducts);
         //ASSERT(_CrtCheckMemory());
         NJ.Nd.fEvalProductsCalled=true;
         XT.ExecDone();//Postamble(p, eFITPBEvalPressures, FSW_EvalProducts);
@@ -7669,7 +7692,9 @@ void FlwSlvDyn::FITStartStep(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     //p->LockFlanges();
     p->LockNode();
     XT.LockDone();//(p, eFITStartStep, FSW_StartStep);
+    p->BeforeNode();
     p->StartStep();
+    p->AfterNode(NPM_StartStep);
     p->StepFlowInfo();
     XT.ExecDone();//Postamble(p, eFITStartStep, FSW_StartStep);
     //p->UnLockFlanges();
@@ -7698,7 +7723,9 @@ void FlwSlvDyn::ODEStartStep()
       {
       XT.StartLoop(p);
       XT.LockDone();//(p, eFITStartStep, FSW_StartStep);
+      p->BeforeNode();
       p->StartStep();
+      p->AfterNode(NPM_StartStep);
       p->StepFlowInfo();
       XT.ExecDone();//Postamble(p, eFITStartStep, FSW_StartStep);
       XT.EndLoop();
@@ -7798,7 +7825,9 @@ void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
       //  }
       XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
       //dbgpln("---------------------------- %s", p->FullObjTag());
+      p->BeforeNode(NPM_BeforeEvalProducts);
       p->EvalProducts(NJ);
+      p->AfterNode(NPM_AfterEvalProducts);
       p->fEvalProductsCalled=true;
       XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
 
@@ -8052,7 +8081,9 @@ void FlwSlvDyn::ODEDerivs()
             //  XT.ExecDone();//Postamble(p, eFITNull, FSW_EvalSteadyState);
             //  }
             XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
+            NJ.Nd.BeforeNode(NPM_BeforeEvalProducts);
             NJ.Nd.EvalProducts(NJ);
+            NJ.Nd.AfterNode(NPM_AfterEvalProducts);
             NJ.Nd.fEvalProductsCalled=true;
             XT.ExecDone();//Postamble(p, eFITEvalProducts, FSW_EvalProducts);
             XT.EndLoop();
@@ -8268,7 +8299,9 @@ void FlwSlvDyn::FITEvalCtrlActions(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     XT.StartLoop(p);
     p->LockCtrls();
     XT.LockDone();//(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
+    p->BeforeNode();
     p->EvalCtrlActions(CO_All);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
     p->UnLockCtrls();
     XT.EndLoop();//PostambleUnLock();
@@ -8288,7 +8321,9 @@ void FlwSlvDyn::FITEvalCtrlStrategy(CLkFlwNodeIter & Iter)
     XT.StartLoop(p);
     CtrlLoopStart(Iter, p, Iter.List().GetCount());
     XT.LockDone();//(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
+    p->BeforeNode();
     p->EvalCtrlStrategy(CO_All);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
     CtrlLoopEnd(Iter, p, Iter.List().GetCount());
     XT.EndLoop();//PostambleUnLock();
@@ -8528,7 +8563,9 @@ void FlwSlvDyn::EvalAllCtrlInitialise(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(p);
     XT.LockDone();
+    p->BeforeNode();
     p->EvalCtrlInitialise(Tasks);
+    p->AfterNode();
 
     //dbgpln("   %10.1fms %s", SW.Lap()*1e3, p->FullObjTag());
 
@@ -8556,7 +8593,9 @@ void FlwSlvDyn::EvalAllCtrlActions(eScdCtrlTasks Tasks)
       {
       XT.StartLoop(p);
       XT.LockDone();//(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
+      p->BeforeNode();
       p->EvalCtrlActions(Tasks);
+      p->AfterNode();
       XT.ExecDone();//Postamble(p, eFITEvalCtrlActions, FSW_EvalCtrlActions);
       XT.EndLoop();
       }
@@ -8579,7 +8618,9 @@ void FlwSlvDyn::EvalAllCtrlStrategy(eScdCtrlTasks Tasks)
       {
       XT.StartLoop(NJ.m_pNd);
       XT.LockDone();//(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
+      NJ.Nd.BeforeNode();
       NJ.Nd.EvalCtrlStrategy(Tasks);
+      NJ.Nd.AfterNode();
       XT.ExecDone();//Postamble(p, eFITEvalCtrlStrategy, FSW_EvalCtrlStrategy);
       XT.EndLoop();
       MYASSERT(_CrtCheckMemory());
@@ -8597,7 +8638,9 @@ void FlwSlvDyn::EvalAllCtrlTerminate(eScdCtrlTasks Tasks)
     {
     XT.StartLoop(p);
     XT.LockDone();//(p, eFITEvalCtrlTerminate, FSW_EvalCtrlTerminate);
+    p->BeforeNode();
     p->EvalCtrlTerminate(Tasks);
+    p->AfterNode();
     XT.ExecDone();//Postamble(p, eFITEvalCtrlTerminate, FSW_EvalCtrlTerminate);
     XT.EndLoop();
     }

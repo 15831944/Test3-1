@@ -884,7 +884,8 @@ int GControl::UpdateXRefLists(CXRefBuildResults & Results)
 void GControl::UnlinkAllXRefs()
   {
   PgmMngr.UnlinkAllXRefs();
-  CNodeXRefMngr::UnlinkAllXRefs();
+  //CNodeXRefMngr::UnlinkAllXRefs();
+  FlwNode::UnlinkAllXRefs();
   };
 
 //--------------------------------------------------------------------------

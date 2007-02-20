@@ -18,6 +18,7 @@
 #include "flwnets.h"
 #include "flwsolve.h"
 #include "licbase.h"
+#include "ndxrefs.h"
 
 //#include "optoff.h"
 
@@ -2037,6 +2038,17 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   //m_DDBRunModes.Add(SM_DynBoth Xfer);
   m_AreaNdListPos=NULL;
 
+#if WITHNODEPROCS
+  m_ProcsAllowed   = false;
+  m_ProcsReqd = false;
+  m_pProcs      = NULL;
+#endif
+#if WITHNODETAGIO
+  m_TagIOReqd   = false;
+  m_pTagIO      = NULL;
+  m_EstTagCount = -1;
+#endif
+
   InitializeCriticalSectionAndSpinCount(&m_LockSect, 4000);
   };
 
@@ -2462,6 +2474,21 @@ void FlwNode::BuildDataDefnAreaIOs_OnOff(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
+void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
+  {
+  CTNode::BuildCommonEndDefn(DDB);
+#if WITHNODEPROCS
+  if (m_ProcsAllowed && m_ProcsReqd)
+    m_pProcs->BuildDataDefn(DDB);
+#endif
+#if WITHNODETAGIO
+  if (m_TagIOReqd)
+    m_pTagIO->BuildDataDefn(DDB);
+#endif
+  }
+
+//--------------------------------------------------------------------------
+
 flag FlwNode::DataXchgDefnAreaIOs(DataChangeBlk & DCB)
   {
   for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
@@ -2796,7 +2823,6 @@ static DDBValueLst SolutionStrsN[]={
   {-1, ActiveHold_Str},
   {0}};
 
-
 void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   {
   CTNode::BuildCommonStartDefn(DDB);
@@ -2878,6 +2904,14 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
       }
     }
 
+#if WITHNODEPROCS
+  if (m_ProcsAllowed)
+    {
+    DDB.CheckBoxBtn("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange);
+    //DDB.Byte("Procedures", "", DC_, "", xidProcsEnable,  this, isParmStopped|SetOnChange, DDBOnOff);
+    }
+#endif
+
   if (!fSolutionForRoot)
     {
     DDBValueLstMem DDBModes;
@@ -2908,11 +2942,13 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     DDB.CheckBoxBtn ("Active", "", DC_, "", xidActiveMode, this, isParmStopped);
     DDB.CheckBoxBtn ("Hold",   "", DC_, "", xidHoldMode,   this, isParm);
     }
+
   DDB.CheckBoxBtn ("Marked", "", DC_, "", xidMarked,  this, isParm|noFileAtAll|InitHidden);
   if (!fSolutionForRoot)
     {
     DDB.String      ("EvalOrder",    "", DC_, "", xidEvalOrder,  this, InitHidden);
     }
+
 
   DDB.String      ("Condition",      "", DC_, "", xidNdCondition,       this, MultiLineStr|noFile|noSnap);
   DDB.Long        ("ConditionCount", "", DC_, "", xidNdConditionCount,  this, noFile|noSnap);
@@ -3419,6 +3455,15 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
   if (CTNode::DataXchg(DCB))
     return 1;
 
+#if WITHNODEPROCS
+  if (m_ProcsAllowed && m_ProcsReqd && m_pProcs->DataXchg(DCB))
+    return 1;
+#endif
+#if WITHNODETAGIO
+  if (m_TagIOReqd && m_pTagIO->DataXchg(DCB))
+    return 1;
+#endif
+
   switch (DCB.lHandle)
     {
     case xidElevation:
@@ -3508,6 +3553,17 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       DCB.pC=(LPSTR)GetAuditOptionStr();
       return 1;
       }
+
+#if WITHNODEPROCS
+    case xidProcsEnable:
+      {
+      if (DCB.rB)
+        SetProcsReqd(*DCB.rB!=0);
+      DCB.B=GetProcsReqd()?1:0;
+      return 1;
+      }
+#endif
+
     case xidSolveState:
       {
       if (DCB.rpC)
@@ -3834,6 +3890,52 @@ void FlwNode::GetAuditOptionStrLst(DDBValueLstMem & Lst, bool ForNode)
 
 //--------------------------------------------------------------------------
 
+#if WITHNODEPROCS
+
+void FlwNode::SetProcsAllowed(bool Allowed)
+  {
+  m_ProcsAllowed = Allowed;
+  }
+
+void FlwNode::SetProcsReqd(bool Reqd)
+  {
+  m_ProcsReqd=Reqd;
+  if (!m_ProcsAllowed || !m_ProcsReqd)
+    {
+    delete m_pProcs;
+    m_pProcs=NULL;
+    }
+  else if (m_ProcsAllowed && m_pProcs==NULL)
+    {
+    m_pProcs = new CNodeProcedures(this);
+    }
+  };
+
+#endif
+
+//--------------------------------------------------------------------------
+
+#if WITHNODETAGIO
+
+void FlwNode::SetTagIOReqd(bool Reqd, long EstTagCount)
+  {
+  m_TagIOReqd = Reqd;
+  if (!m_TagIOReqd || (m_EstTagCount != EstTagCount))
+    {
+    delete m_pTagIO;
+    m_pTagIO=NULL;
+    }
+  if (m_TagIOReqd && m_pTagIO==NULL)
+    {
+    m_pTagIO = new CNodeTagIOList(this, EstTagCount);
+    }
+  m_EstTagCount = EstTagCount;
+  };
+
+#endif
+
+//--------------------------------------------------------------------------
+
 flag FlwNode::ValidateData(ValidateDataBlk & VDB)
   {
   fValidateDataComplete=True;
@@ -3855,6 +3957,16 @@ flag FlwNode::ValidateData(ValidateDataBlk & VDB)
       i--;
       }
     }
+
+#if WITHNODEPROCS
+  if (m_ProcsAllowed && m_ProcsReqd && !m_pProcs->ValidateData(VDB))
+    OK=false;
+#endif
+#if WITHNODETAGIO
+  if (m_TagIOReqd && !m_pTagIO->ValidateData(VDB))
+    OK=false;
+#endif
+
   return OK;
   }
 
@@ -7348,6 +7460,7 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 32: pS="W\tNBadDirects";                            return 1;
     case 33: pS="W\tNBadPwrCOnnects";                        return 1;
     case 34: pS="W\tNBadCluster";                            return 1;
+    case 35: pS="W\tProcedure reload required";              return 1;
     default:
       return CTNode::CIStrng(No, pS);
     }
@@ -8165,7 +8278,7 @@ flag FlwNode::OnSave(pchar pConfigName)
 
 flag FlwNode::PreStartCheck()
   {
-  return UpdateXRefLists(true)>=0;
+  return CNodeXRefMngr::UpdateXRefLists(true)>=0;
   };
 
 //==========================================================================
@@ -9522,6 +9635,92 @@ int FlwNode::ResolveIORef(int IOId, CTagRef * & pRef)
     }
   return FXR_NotFound;
   }
+
+//--------------------------------------------------------------------------
+
+bool FlwNode::TestXRefListActive()
+  {
+#if (WITHNODEPROCS && WITHNODETAGIO)
+  return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On() || TagIOOn()));
+#elif (WITHNODEPROCS)
+  return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On())); 
+#elif (WITHNODETAGIO)
+  return SetXRefListActive(!GetActiveHold() && TagIOOn());
+#else
+  return false;
+#endif
+  }
+
+//--------------------------------------------------------------------------
+
+int FlwNode::UpdateXRefLists(CXRefBuildResults & Results) 
+  {
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    m_pProcs->m_PgmMngr.UpdateXRefLists(Results);
+#endif
+#if WITHNODETAGIO
+  if (TagIOOn())
+    m_pTagIO->UpdateXRefLists(Results);
+#endif
+  return Results.m_nMissing;
+  }
+
+//--------------------------------------------------------------------------
+
+void FlwNode::UnlinkAllXRefs()
+  {
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    m_pProcs->m_PgmMngr.UnlinkAllXRefs();
+#endif
+#if WITHNODETAGIO
+  if (TagIOOn())
+    m_pTagIO->UnlinkAllXRefs();
+#endif
+  //PgmMngr.UnlinkAllXRefs();
+  CNodeXRefMngr::UnlinkAllXRefs();
+  };
+
+//--------------------------------------------------------------------------
+
+#if (WITHNODEPROCS || WITHNODETAGIO)
+
+void FlwNode::BeforeNode(long ProcIDMask)
+  {
+#if WITHNODEPROCS
+  if (ProcIDMask && ProcsOn(ProcIDMask))
+    m_pProcs->DoEvalProc(ProcIDMask, true, true);
+
+#endif
+ 
+#if WITHNODETAGIO
+  if (TagIOOn())
+    m_pTagIO->GetAllValues(true);
+#endif
+ }
+
+#endif
+
+//--------------------------------------------------------------------------
+
+#if (WITHNODEPROCS || WITHNODETAGIO)
+
+void FlwNode::AfterNode(long ProcIDMask)
+  {
+#if WITHNODETAGIO
+  if (TagIOOn())
+    m_pTagIO->SetAllValues(true);
+#endif
+
+#if WITHNODEPROCS
+  if (ProcIDMask && ProcsOn(ProcIDMask))
+    m_pProcs->DoEvalProc(ProcIDMask, true, true);
+#endif
+ 
+ }
+
+#endif
 
 //==========================================================================
 //

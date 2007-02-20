@@ -3796,6 +3796,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
   {
   //  if (CollectChgStats() && NetProbalMethod() && (ChgStats.GetSize()>0))
   //    ChngTrcBuildDataDefn(DDB);
+  
+  FlwNode::BuildCommonEndDefn(DDB);
 
   static bool ShowIONames=false;
   Strng Sym, Tag;
@@ -4119,7 +4121,6 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
     }
   else
     DDB.Text("No Closure Information");
-  FlwNode::BuildCommonEndDefn(DDB);
   };
 
 //---------------------------------------------------------------------------

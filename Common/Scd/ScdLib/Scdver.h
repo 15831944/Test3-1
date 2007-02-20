@@ -39,6 +39,8 @@
 #define WITHTAGMONITOR        (WITHGRFGROUPCONFIG)
 #define WithSimpleEvap        1
 #define WithSimpleBleed       0  /*not ready for release*/
+#define WITHNODETAGIO         1  /*currently cannot be switched off due to link errors*/
+#define WITHNODEPROCS         10  /*not ready for release*/
 
 #define USEREGISTRY           0
 

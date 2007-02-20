@@ -453,6 +453,63 @@ class DllImportExport MCtrlIOs : public MBaseMethodCommonRef
   };
 
 //===========================================================================
+// Tag IO Interface
+
+enum MTagIOResult { TagIO_OK, TagIO_NotFound, TagIO_NotAllowed, TagIO_ReadOnly, TagIO_WriteFail };
+
+class DllImportExport MTagIO : public MBaseMethodCommonRef
+  {
+  public:
+    MTagIO(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
+
+    // List Management
+    void            Open(long EstimatedTagCount);
+    void            Close();
+
+    long            Add(LPCSTR ItemTag, LPCSTR Name, long Options);        // returns >=0 Index, < 0 Errors
+    bool            Remove(long ID);
+    bool            Remove(LPCSTR ItemTag);
+    void            RemoveAll();
+
+    long            FindTag(LPCSTR ItemTag);
+    long            FindName(LPCSTR Name);
+
+    long            getCount();
+
+    long            getType(long ID);
+    LPCSTR          getTag(long ID);
+    LPCSTR          getFullTag(long ID);
+    LPCSTR          getCnvText(long ID);
+    long            getOptions(long ID);
+
+    double          getDValue(long ID);
+    void            putDValue(long ID, double Value);
+
+    long            getType(LPCSTR Tag);
+    LPCSTR          getCnvText(LPCSTR Tag);
+    LPCSTR          getFullTag(LPCSTR Tag);
+    long            getOptions(LPCSTR Tag);
+                    
+    double          getDValue(LPCSTR Tag);
+    void            putDValue(LPCSTR Tag, double Value);
+
+
+    __declspec(property(get=getCount))                          long       Count;
+
+    __declspec(property(get=getType))                           long       Type[];
+    __declspec(property(get=getTag))                            LPCSTR     Tag[];
+    __declspec(property(get=getFullTag))                        LPCSTR     FullTag[];
+    __declspec(property(get=getCnvText))                        LPCSTR     CnvText[];
+    __declspec(property(get=getOptions))                        long       Options[];
+
+    __declspec(property(get=getDValue,put=putDValue))           double     DValue[];
+
+    // "On-the-fly" functions 
+    MTagIOResult    Peek(LPCSTR Tag, double & Value);
+    MTagIOResult    Poke(LPCSTR Tag, double Value);
+  };
+
+//===========================================================================
 
 class DllImportExport MClosureInfo
   {
@@ -506,6 +563,7 @@ class DllImportExport MBaseMethod : public MBaseMethodCommon
     MJoins          Joins;
     MFlowIOs        FlwIOs;
     MCtrlIOs        CtrlIOs;
+    MTagIO          TagIO;
 
   private:
     long            m_lJoinMask;
@@ -797,6 +855,39 @@ class Obj##_UnitDef :  public MSurgeUnitDefBase \
 extern Obj##_UnitDef Obj##_UnitD; \
 Obj##_UnitDef::Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDesc, LPCTSTR pDLL) : \
   MSurgeUnitDefBase(pClass, pSubClass, pShortDesc, pDLL, DEVCHECKSON) { GetOptions(); }; \
+Obj##_UnitDef::~Obj##_UnitDef() { }; \
+MSubConstructBase* Obj##_UnitDef::Construct(TaggedObject * pNd) { return new Obj(this, pNd); }; \
+Obj##_UnitDef Obj##_UnitD(DLL##"*"##Class, NULL, "User:"##Class, DLL);
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+//Class MControlUnitDefBase: Unit Definition base class for unit models with surge (contents).
+class DllImportExport MControlUnitDefBase : public MUnitDefBase
+  {
+  public:
+    MControlUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks);
+    virtual ~MControlUnitDefBase() {};
+  };
+
+//---------------------------------------------------------------------------
+
+/*Macro for adding a SMDK surge unit to the system. See description for DEFINE_TRANSFER_UNIT.*/
+#define DEFINE_CONTROL_UNIT(Obj, Class, DLL) \
+class Obj##_UnitDef :  public MControlUnitDefBase \
+  { \
+  public: \
+    Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDesc, LPCTSTR pDLL); \
+    ~Obj##_UnitDef(); \
+    virtual MSubConstructBase* Construct(TaggedObject * pNd); \
+    virtual void GetOptions(); /* to be supplied by the user*/ \
+  }; \
+extern Obj##_UnitDef Obj##_UnitD; \
+Obj##_UnitDef::Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDesc, LPCTSTR pDLL) : \
+  MControlUnitDefBase(pClass, pSubClass, pShortDesc, pDLL, DEVCHECKSON) { GetOptions(); }; \
 Obj##_UnitDef::~Obj##_UnitDef() { }; \
 MSubConstructBase* Obj##_UnitDef::Construct(TaggedObject * pNd) { return new Obj(this, pNd); }; \
 Obj##_UnitDef Obj##_UnitD(DLL##"*"##Class, NULL, "User:"##Class, DLL);

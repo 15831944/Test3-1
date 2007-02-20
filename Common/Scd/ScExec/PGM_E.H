@@ -200,7 +200,8 @@ class CGExecContext
     flag    OnPreset;
     long    m_NetMode;
     long    m_HeatMode;
-    flag    HoldNearXRefXfer;
+    flag    m_HoldNearXRefGet;
+    flag    m_HoldNearXRefSet;
     //returned...
     flag    DoXStop;
     flag    DoXIdle;
@@ -220,7 +221,8 @@ class CGExecContext
       OnLoaded = False;
       OnEmpty = False;
       OnPreset = False;
-      HoldNearXRefXfer=false;
+      m_HoldNearXRefGet=false;
+      m_HoldNearXRefSet=false;
       DoXStop = False;
       DoXIdle = False;
       }
@@ -375,6 +377,8 @@ class DllImportExport GCInsMngr
     CNodeElectrics * m_pTermStripPtrs;
 
     Strng          m_sFldName;
+
+    bool           m_ProcExecuted;
 
     static double  sm_ExecTimeout; // Execution Timeout in seconds.
   };

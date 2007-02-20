@@ -3383,6 +3383,9 @@ GCInsMngr::GCInsMngr(LPCTSTR pFnExt)
     }
 
   m_pTermStripPtrs=NULL;
+  
+  m_ProcExecuted = false;
+
   //ConstructConstants();
   //srand( (unsigned)time( NULL ) );
   }
@@ -5247,6 +5250,8 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
   PGMTIMERLAP(s_swPGMExec);
 
   m_pTermStripPtrs=pTermStripPtrs;
+  m_ProcExecuted = false;
+  
   ECtx.DoXStop = 0;
   ECtx.DoXIdle = 0;
   if (ECtx.pXRM) // incase is null - then use previous value
@@ -5269,7 +5274,7 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
 //??  if (Ret&(XR_Changed))
 //??    return 4;
 
-  if (!ECtx.HoldNearXRefXfer)
+  if (!ECtx.m_HoldNearXRefGet)
     m_pXRM->GetNearXRefValues();//*m_pNearGCXRefs);
 
   if (m_pTermStripPtrs)
@@ -5376,6 +5381,7 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
           {
           if (_stricmp(pFn->Name(), TriggerName)==0)
             {
+            m_ProcExecuted = true;
             // create a call
             char LclMem[256];
             m_pIPtr = (GCIns*)LclMem;
@@ -5482,7 +5488,7 @@ int GCInsMngr::Execute(CGExecContext &ECtx, LPCTSTR TriggerName, CNodeElectrics 
   if (m_pTermStripPtrs)
     PutTermStripData(ECtx);
 
-  if (!ECtx.HoldNearXRefXfer)
+  if (!ECtx.m_HoldNearXRefSet)
     m_pXRM->SetNearXRefValues();
 
   if (m_pStopVar)

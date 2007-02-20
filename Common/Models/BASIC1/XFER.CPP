@@ -2,7 +2,7 @@
 // $Nokeywords: $
 //===========================================================================
 // SysCAD Copyright Kenwalt (Pty) Ltd 1992
- 
+
 #include "stdafx.h"
 #include "sc_defs.h"
 #define  __XFER_CPP
@@ -45,16 +45,16 @@ Model type:Unit#n
 
 static IOAreaRec X_TieIOAreaList[] =
   {{"IOPts",    "IO",   0,              LIO_InOut,     nc_MLnk, 2, 50, IOOptsHide|IOPipeJoin|IOGRP(1)},
-   {"Inputs",   "In",   0,              LIO_In0,       nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
-   {"Outputs",  "Out",  0,              LIO_Out0,      nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
-   //"Leak",     "Leak", IOId_XferLeak,  LIO_Out,       nc_MLnk, 0,  1, IOOptsHide|IOEqnsHide|IOPipeJoin|IOHidden},
-    LEAKS2AREA("Leak", IOId_XferLeak),
-    MAKEUP2AREA(),
-    BLEED2AREA(),
-   {NULL}};
+  {"Inputs",   "In",   0,              LIO_In0,       nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
+  {"Outputs",  "Out",  0,              LIO_Out0,      nc_MLnk, 2, 25, IOOptsHide|IOPipeJoin|IOGRP(1)},
+  //"Leak",     "Leak", IOId_XferLeak,  LIO_Out,       nc_MLnk, 0,  1, IOOptsHide|IOEqnsHide|IOPipeJoin|IOHidden},
+  LEAKS2AREA("Leak", IOId_XferLeak),
+  MAKEUP2AREA(),
+  BLEED2AREA(),
+  {NULL}};
 
 double Drw_X_Tie[] = { DD_Poly, -1,1, 1,1, 1,-1, -1,-1, -1,1,
-                     DD_End };
+DD_End };
 
 //--------------------------------------------------------------------------
 
@@ -62,8 +62,8 @@ IMPLEMENT_MODELUNIT(X_Tie, "Tie", "1", Drw_X_Tie, "MixerSplitter", "X", TOC_ALL|
                     "Process:Piping:Tie(1)",
                     "General Purpose Tie Piece used to Simulate Tee & Cross pieces") 
 
-X_Tie::X_Tie(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  MN_Xfer(pClass_, TagIn, pAttach, eAttach)//,
+                    X_Tie::X_Tie(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
+MN_Xfer(pClass_, TagIn, pAttach, eAttach)//,
   {
   AttachIOAreas(X_TieIOAreaList, &TeeEntryGroup);
   //Initialise();
@@ -71,6 +71,16 @@ X_Tie::X_Tie(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAtt
   //Joins[0].Leak.Qm=0.0;
   m_bShowQFeed = 1;
   m_bShowQProd = 1;
+
+#if WITHNODEPROCS
+  SetProcsAllowed(1);
+#endif
+
+#if XREFTEST 
+  m_bTestTagIO = 0;
+  m_iQm2=-1;
+  m_iQm1=-1;
+#endif
 
   RegisterMacroMdlNode(CMMFlashTrain::MMIOs, &typeid(X_Tie), 0, mmio_CONNECT, &typeid(CFT_Mixer));
   };
@@ -87,7 +97,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("PressureEst",  "PEst",  DC_P,    "kPag",   xidPEstMean,    this, isResult|0);
   DDB.Text   ("");
   BuildDataDefnElevation(DDB);
-  
+
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Text   ("");
   m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_Basic, PC_Basic);//PC_Atmos|PC_Reqd);
@@ -116,6 +126,10 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBox("ShowQFeed",             "",  DC_, "", &m_bShowQFeed,         this, isParm|SetOnChange);
     DDB.CheckBox("ShowQProd",             "",  DC_, "", &m_bShowQProd,         this, isParm|SetOnChange);
     }
+
+#if XREFTEST
+  DDB.CheckBox("TagIOTest",             "",  DC_, "", &m_bTestTagIO,         this, isParm|SetOnChange);
+#endif
 
   DDB.Text("");
   BuildDataDefnShowIOs(DDB);
@@ -166,10 +180,6 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
 
 flag X_Tie::DataXchg(DataChangeBlk & DCB)
   {
-//  for (int i=0; i<NoFlwIOs(); i++)
-//    if (DCB.dwUserInfo==i+1 && IOFB(i,0)->DataXchg(DCB))
-//      return 1;
-
   if (m_BlkEval.DataXchg(DCB))
     return 1;
 
@@ -179,6 +189,56 @@ flag X_Tie::DataXchg(DataChangeBlk & DCB)
   return 0;
   }
 
+// -------------------------------------------------------------------------
+#if XREFTEST
+// -------------------------------------------------------------------------
+
+flag X_Tie::ValidateData(ValidateDataBlk & VDB)
+  {
+  bool OK=true;
+  if (m_bTestTagIO)
+    {
+    if (!GetTagIOReqd())
+      {
+      SetTagIOReqd(true, 100); 
+
+      m_pTagIO->Add("P_1.Qm (kg/s)",                        "AName",  TIO_Get);
+      m_pTagIO->Add("P_1.Qv (L/s)",                         "BName",  TIO_Get);
+      m_pTagIO->Add("P_1.NQv (NL/s)",                       "",       TIO_Get);
+      m_pTagIO->Add("P_1.Ti (C)",                           "",       TIO_Get);
+      m_pTagIO->Add("P_1.To (K)",                           "",       TIO_Get);
+      m_pTagIO->Add("P_1.To (C)",                           "",       TIO_Get);
+      m_pTagIO->Add("XXXXX",                                "",       TIO_Get);
+
+      m_iQm2 = m_pTagIO->Add("P_2.Qm (kg/s)",               "",       TIO_Get);
+      m_iQm1 = m_pTagIO->Add("Cold_Water.Qm_Rqd (t/h)",     "",       TIO_Set);
+
+      m_pTagIO->Remove("XXXXX");
+
+      OK = (m_iQm2>=0 && m_iQm1>=0);
+      }
+    }
+  else
+    SetTagIOReqd(false, 100);
+
+  return OK && MN_Xfer::ValidateData(VDB);
+  }
+
+// -------------------------------------------------------------------------
+
+void X_Tie::EvalProducts(CNodeEvalIndex & NEI)
+  {
+  if (TagIOOn())
+    {
+   // =Some simple control !!
+    m_pTagIO->SetDValue(m_iQm1, 2.0*m_pTagIO->GetDValue(m_iQm2));
+    }
+
+  MN_Xfer::EvalProducts(NEI);
+  };
+
+// -------------------------------------------------------------------------
+#endif
 //==========================================================================
 //
 //
