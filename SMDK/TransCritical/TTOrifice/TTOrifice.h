@@ -52,7 +52,7 @@ class CTTOrifice : public MBaseMethod
     double dxVapor;
     double dSlipDensity;
     double dInletDensity;
-    double dDensityCorrection;
+    double dDensityCorrection;  // If new variable is here, crashes
 
     double dEntryK;    // K value for pipe run up to orifice
     double dPin;
@@ -71,7 +71,7 @@ class CTTOrifice : public MBaseMethod
     double dPCritical;  // Critical Pressure in orifice choke flow
     double dPOutActual;
     double dValvePosition;  // Position of valve, 0-100%
-    // double dDensityCorrection;
+    // double dDensityCorrection;  /// But here is OK...
 
   };
 
