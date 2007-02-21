@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-09 08:46:08 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-20 04:33:39 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -67,6 +67,7 @@ static MDDValueLst DDALMethod[]=
     {NULL}
   };
 
+    double dDensityCorrection;
 static MDDValueLst DDHxMode[]=
   {
     {0, "Overall"},
@@ -162,6 +163,7 @@ m_RB(this, false, "RB"),
 m_VLE(this, VLEF_QPFlash, "VLE"),
 #if (USEEHXBLK)
 m_EHX(this, 0, "EHX"),
+    double dDensityCorrection;
 #endif
 m_FTC(this)
 {
@@ -181,7 +183,7 @@ m_FTC(this)
   m_dEntranceC = 1.0;
   m_dExitC = 0.34;
   m_bMTDCalcMode = false;
-
+  m_bNonMacro = false;
 #if (!USEEHXBLK)
   m_bEnvironHX = false;
   m_lEnvHxMode = 0;
@@ -240,7 +242,7 @@ void CCARTubeDigester::BuildDataFields()
 #endif
   DD.CheckBox("On", "",  &bOnline, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DDOpMode);
-
+  DD.CheckBox("NonMacro", "", &m_bNonMacro, MF_PARAMETER | MF_SET_ON_CHANGE | MF_INIT_HIDDEN);
   m_RB.OnOffCheckBox();
   DD.Show(m_RB.Enabled());
   DD.CheckBox("Use.RMTD", "", &m_bMTDCalcMode,  MF_PARAMETER|MF_SET_ON_CHANGE);
@@ -270,7 +272,6 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("HTC",       "", &m_dHTC, m_lHxMode ? MF_RESULT : MF_PARAMETER, MC_HTC("kW/m^2.K"));
   DD.Double("Area",      "", &m_dHTArea, m_lHxMode ? MF_RESULT : MF_PARAMETER, MC_Area("m^2"));
   DD.Show((bool) m_lHxMode);
-
   DD.Text("Calculation Modes");
   DD.Long("SSHxCalc",   "", &m_lSSHxMode , MF_PARAMETER|MF_SET_ON_CHANGE, DDSSHxMode); 
   DD.Long("TSHxCalc",   "", &m_lTSHxMode , MF_PARAMETER|MF_SET_ON_CHANGE, DDTSHxMode); 
@@ -285,6 +286,9 @@ void CCARTubeDigester::BuildDataFields()
   DD.Double("U*A",       "",     &m_dUA,            MF_RESULT, MC_UA("kW/K"));
   DD.Double("LMTD",      "",     &m_dLMTD,          MF_RESULT, MC_dT("C"));
   DD.Double("RMTD",      "",     &m_dRMTD,          MF_RESULT, MC_dT("C"));
+  DD.Double("TheoDuty", "", &m_dTheoDuty,    MF_RESULT, MC_Pwr("kW"));
+  DD.Double("TheoDutyR", "", &m_dTheoDutyR,    MF_RESULT, MC_Pwr("kW"));
+
 
   DD.Double("Duty",      "",     &m_dDuty,          MF_RESULT, MC_Pwr("kW"));
   DD.Show(m_lOpMode);
@@ -821,7 +825,7 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
     dHf=m_RB.HfSumRct();
     TubeO.Set_totHz(TubeO.totHz()+duty);
     if (TubeO.T > ShellI.T) TubeO.T = ShellI.T;
-    m_dRMTD = m_dLMTD = LMTD(TubeI.T, TubeO.T, ShellI.T, ShellO.T);
+    m_dRMTD = m_dLMTD = LMTD(TubeI.T, TubeO.T, ShellO.T, ShellO.T);
     
   }
 }
@@ -900,6 +904,9 @@ void CCARTubeDigester::EvalProducts()
 
 	m_dQmTS = TubeO.Mass();
 	m_dQmSS = ShellO.Mass();
+	m_dTheoDuty = m_dUA*m_dLMTD;
+	m_dTheoDutyR = m_dUA*m_dRMTD;
+
 
     
 #if (!USEEHXBLK)
