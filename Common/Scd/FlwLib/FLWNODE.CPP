@@ -7470,6 +7470,10 @@ flag FlwNode::CIStrng(int No, pchar & pS)
 
 void FlwNode::OnAppActivate(BOOL bActive)
   {
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    m_pProcs->OnAppActivate(bActive);
+#endif
   };
 
 //--------------------------------------------------------------------------
@@ -7477,8 +7481,34 @@ void FlwNode::OnAppActivate(BOOL bActive)
 int FlwNode::FilesUsed(CFilesUsedArray & Files)
   {
   //Expect model with reactions etc to override this virtual method eg:
-  ASSERT_ALWAYS(fHasFiles==0, "HasFiles!=0", __FILE__, __LINE__);
+  //ASSERT_ALWAYS(fHasFiles==0, "HasFiles!=0", __FILE__, __LINE__);
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    return m_pProcs->FilesUsed(Files);
+#endif
   return 0;
+  };
+
+//--------------------------------------------------------------------------
+
+int FlwNode::ChangeTag(char * pOldTag, char * pNewTag)
+  {
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    return m_pProcs->ChangeTag(pOldTag, pNewTag);
+#endif
+  return EOCT_DONE;
+  };
+
+//--------------------------------------------------------------------------
+
+int FlwNode::DeleteTag(char * pDelTag)
+  {
+#if WITHNODEPROCS
+  if (ProcsOn(NPM_Any))
+    return m_pProcs->DeleteTag(pDelTag);
+#endif
+  return EODT_DONE; 
   };
 
 //--------------------------------------------------------------------------
@@ -9657,7 +9687,7 @@ int FlwNode::UpdateXRefLists(CXRefBuildResults & Results)
   {
 #if WITHNODEPROCS
   if (ProcsOn(NPM_Any))
-    m_pProcs->m_PgmMngr.UpdateXRefLists(Results);
+    m_pProcs->m_ProcMngr.UpdateXRefLists(Results);
 #endif
 #if WITHNODETAGIO
   if (TagIOOn())
@@ -9672,7 +9702,7 @@ void FlwNode::UnlinkAllXRefs()
   {
 #if WITHNODEPROCS
   if (ProcsOn(NPM_Any))
-    m_pProcs->m_PgmMngr.UnlinkAllXRefs();
+    m_pProcs->m_ProcMngr.UnlinkAllXRefs();
 #endif
 #if WITHNODETAGIO
   if (TagIOOn())

@@ -380,7 +380,9 @@ int CTagListCon::FilesUsed(CFilesUsedArray & Files)
     Files.AddFile(Fn(), FU_CopyFile|FU_EditTxt);
     Cnt++;
     }
-  return Cnt;
+  FlwNode::FilesUsed(Files);
+  return Files.GetCount();
+  //return Cnt;
   }
 
 //--------------------------------------------------------------------------
@@ -388,7 +390,7 @@ int CTagListCon::FilesUsed(CFilesUsedArray & Files)
 int CTagListCon::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
   //todo: perhaps load the file and check all tags...
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -396,7 +398,7 @@ int CTagListCon::ChangeTag(pchar pOldTag, pchar pNewTag)
 int CTagListCon::DeleteTag(pchar pDelTag)
   {
   //todo: perhaps load the file and check all tags...
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

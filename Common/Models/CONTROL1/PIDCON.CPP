@@ -1069,7 +1069,7 @@ int PIDControl::ChangeTag(pchar pOldTag, pchar pNewTag)
     UnlinkAllXRefs();
     bAboutToStart = 0;
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -1094,7 +1094,7 @@ int PIDControl::DeleteTag(pchar pDelTag)
     UnlinkAllXRefs();//PreStartCheck();
     bAboutToStart = 0;
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

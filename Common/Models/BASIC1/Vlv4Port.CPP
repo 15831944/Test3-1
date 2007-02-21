@@ -1532,6 +1532,7 @@ void C4PortValve ::OnAppActivate(BOOL bActive)
       //  ValidateData(VDB);
       //  }
       }
+    MdlNode::OnAppActivate(bActive);
     }
   }
 
@@ -1545,7 +1546,8 @@ int C4PortValve ::FilesUsed(CFilesUsedArray & Files)
     Files.AddFile(S(), FU_CopyFile|FU_EditTxt);
     return 1;
     }
-  return 0;
+  MdlNode::FilesUsed(Files);
+  return Files.GetCount();
   };
 
 //--------------------------------------------------------------------------

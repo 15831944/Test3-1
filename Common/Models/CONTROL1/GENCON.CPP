@@ -11,12 +11,7 @@
 #include "scd_wm.h"
 //#include "optoff.h"
 
-#if (0 && SYSCAD10)
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
-#define WithPGMTagChange 1
-#else
-#define WithPGMTagChange 0
-#endif
 
 #if WithPGMTagChange
 #include < fstream >
@@ -1050,6 +1045,7 @@ void GControl::OnAppActivate(BOOL bActive)
       ValidateDataBlk VDB;
       ValidateData(VDB);
       }
+    FlwNode::OnAppActivate(bActive);
     }
   }
 
@@ -1064,9 +1060,11 @@ int GControl::FilesUsed(CFilesUsedArray & Files)
     const int RefFilesUsed = PgmMngr.m_FilesUsed.GetSize();
     for (int i=1; i<RefFilesUsed; i++)
       Files.AddFile(FnExpand(ss, PgmMngr.m_FilesUsed[i]()), FU_CopyFile|FU_EditTxt);
-    return RefFilesUsed;
+    //return RefFilesUsed;
     }
-  return 0;
+  FlwNode::FilesUsed(Files);
+  return Files.GetCount();
+  //return 0;
   }
 
 //--------------------------------------------------------------------------
@@ -1203,14 +1201,14 @@ int GControl::ChangeTag(pchar pOldTag, pchar pNewTag)
       //  }
       }
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
 
 int GControl::DeleteTag(pchar pDelTag)
   {
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

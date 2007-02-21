@@ -67,8 +67,21 @@ class DllImportExport MN_Xfer : public MdlNode
     virtual void   MacroMdlDeactivate();
     virtual void   ClosureInfo();
 
-    virtual void   OnAppActivate(BOOL bActive) { m_RB.OnAppActivate(bActive); };
-    virtual int    FilesUsed(CFilesUsedArray & Files) { return m_RB.FilesUsed(Files); };
+    virtual void   OnAppActivate(BOOL bActive)
+      {
+      if (bActive)
+        {
+        m_RB.OnAppActivate(bActive);
+        MdlNode::OnAppActivate(bActive);
+        }
+      };
+    virtual int    FilesUsed(CFilesUsedArray & Files) 
+      {
+      m_RB.FilesUsed(Files);
+      MdlNode::FilesUsed(Files);
+      return Files.GetCount();
+      //return RB.FilesUsed(Files); 
+      };
     virtual flag   GetOtherData(FilingControlBlock &FCB) { return m_RB.GetOtherData(FCB); };
     virtual flag   PutOtherData(FilingControlBlock &FCB) { return m_RB.PutOtherData(FCB); };
 

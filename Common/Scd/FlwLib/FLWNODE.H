@@ -2958,45 +2958,6 @@ class DllImportExport ContStartInfo
 
 //---------------------------------------------------------------------------
 
-//files used flags...
-const byte FU_CopyFile  = 0x01;
-const byte FU_EditTxt   = 0x02;
-const byte FU_EditExcel = 0x04;
-const byte FU_EditMDB   = 0x08;
-
-class FilesUsedItem
-  {
-  public:
-    CString        Name;
-    byte           FUFlags;
-
-    FilesUsedItem()
-      {
-      FUFlags=0;
-      };
-    FilesUsedItem(char *pName, byte FilesUsedFlags)
-      {
-      Name=pName;
-      FUFlags=FilesUsedFlags;
-      };
-    inline flag CopyFile()  { return (FUFlags & FU_CopyFile)!=0; };
-    inline flag EditTxt()   { return (FUFlags & FU_EditTxt)!=0; };
-    inline flag EditExcel() { return (FUFlags & FU_EditExcel)!=0; };
-    inline flag EditMDB()   { return (FUFlags & FU_EditMDB)!=0; };
-  };
-
-class CFilesUsedArray : public CArray <FilesUsedItem, FilesUsedItem &>
-  {
-  public:
-    void AddFile(char *pName, byte FilesUsedFlags=FU_CopyFile)
-      {
-      FilesUsedItem Item(pName, FilesUsedFlags);
-      Add(Item);
-      }
-  };
-
-//---------------------------------------------------------------------------
-
 const dword TCO_DoInitialise  = 0x00000001;
 const dword TCO_DoCalcs       = 0x00000002;
 const dword TCO_DoCollect     = 0x00000004;
@@ -4166,11 +4127,11 @@ class DllImportExport FlwNode : public CTNode
 
     virtual flag   OnLoad(char * pConfigName);
     virtual flag   OnSave(char * pConfigName);
-    virtual void   OnAppActivate(BOOL bActive);
-    virtual int    FilesUsed(CFilesUsedArray & Files);
+    virtual void   OnAppActivate(BOOL bActive);//                { };
+    virtual int    FilesUsed(CFilesUsedArray & Files);//         { return 0; };
 //    virtual int    FilesUsed(CStringArray& Files);
-    virtual int    ChangeTag(char * pOldTag, char * pNewTag) { return EOCT_DONE; };
-    virtual int    DeleteTag(char * pDelTag) { return EODT_DONE; };
+    virtual int    ChangeTag(char * pOldTag, char * pNewTag);//  { return EOCT_DONE; };
+    virtual int    DeleteTag(char * pDelTag);//                  { return EODT_DONE; };
     virtual int    GetConnectionTags(Strng_List & TagLst);
 
     virtual void   InitChangeTrace();

@@ -553,7 +553,7 @@ int CGenStats::ChangeTag(pchar pOldTag, pchar pNewTag)
     UnlinkAllXRefs(); //PreStartCheck();
     bAboutToStart = 0;
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -572,7 +572,7 @@ int CGenStats::DeleteTag(pchar pDelTag)
     UnlinkAllXRefs(); //PreStartCheck();
     bAboutToStart = 0;
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

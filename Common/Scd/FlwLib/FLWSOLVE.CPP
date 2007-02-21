@@ -12319,7 +12319,9 @@ void CFlwSolver::EO_OnAppActivate(BOOL bActive)
 
   FlwNode * p=NULL;
   while (GetObj_All(p))
+    {
     p->OnAppActivate(bActive);
+    }
 
   //dbgpln("EO_OnAppActivate ======================================================== %10.1fms", SW.Lap()*1e3);
   }

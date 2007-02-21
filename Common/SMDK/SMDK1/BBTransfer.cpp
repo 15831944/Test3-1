@@ -252,14 +252,20 @@ void CBBTransfer::ClosureInfo()
 
 void CBBTransfer::OnAppActivate(BOOL bActive)
   {
-  DoOnAppActivate(bActive);
+  if (bActive)
+    {
+    DoOnAppActivate(bActive);
+    MdlNode::OnAppActivate(bActive);
+    }
   };
 
 //--------------------------------------------------------------------------
 
 int CBBTransfer::FilesUsed(CFilesUsedArray & Files)
   {
-  return DoFilesUsed(Files);
+  DoFilesUsed(Files);
+  MdlNode::FilesUsed(Files);
+  return Files.GetCount();
   };
 
 //--------------------------------------------------------------------------

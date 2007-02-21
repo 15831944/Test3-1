@@ -255,14 +255,20 @@ void CBBControl::ClosureInfo()
 
 void CBBControl::OnAppActivate(BOOL bActive)
   {
-  DoOnAppActivate(bActive);
+  if (bActive)
+    {
+    DoOnAppActivate(bActive);
+    MdlNode::OnAppActivate(bActive);
+    }
   };
 
 //--------------------------------------------------------------------------
 
 int CBBControl::FilesUsed(CFilesUsedArray & Files)
   {
-  return DoFilesUsed(Files);
+  DoFilesUsed(Files);
+  MdlNode::FilesUsed(Files);
+  return Files.GetCount();
   };
 
 //--------------------------------------------------------------------------

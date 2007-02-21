@@ -5,6 +5,13 @@
 #include "NdXRefs.h"
 #include "flwnode.h"
 #include "..\..\..\smdk\include\md_share3.h"
+#include "scd_wm.h"
+
+#if WithPGMTagChange
+#include < fstream >
+#include <RegexWrap.h>
+#pragma LIBCOMMENT("..\\..\\scd\\RegexWrap\\", "\\RegexWrap" )
+#endif
 
 #if WITHNODEPROCS
 
@@ -328,7 +335,7 @@ void CNodeProcedures::DDBAddArrayWatchedVars(DataDefnBlk & DDB, int &nPg, int Ma
   {
   Strng Tag;
   int nOnPg = 0;
-  for (int i=0; i<m_PgmMngr.m_ExtraWatchArray.GetSize() && i<MaxProcArrayWatch; i++)
+  for (int i=0; i<m_ProcMngr.m_ExtraWatchArray.GetSize() && i<MaxProcArrayWatch; i++)
     {
     if (nOnPg>MaxPerPage)
       {
@@ -339,7 +346,7 @@ void CNodeProcedures::DDBAddArrayWatchedVars(DataDefnBlk & DDB, int &nPg, int Ma
       nPg++;
       }
     nOnPg++;
-    GCArrayWatch* pAW = m_PgmMngr.m_ExtraWatchArray[i];
+    GCArrayWatch* pAW = m_ProcMngr.m_ExtraWatchArray[i];
     DDB.Double(pAW->m_sTg(), "", DC_, "", xidPRCArrayWatch+i, m_pNd, (pAW->m_bReadOnly ? 0 : isParm)|NAN_OK|noFile);
     }
   }
@@ -354,12 +361,12 @@ void CNodeProcedures::BuildDataDefn(DataDefnBlk & DDB)
     DDB.String("Procs_Path",      "", DC_, "",    xidPRCPath,               m_pNd, noFileAtAll);
     DDB.CheckBoxBtn("On",         "", DC_, "",    &m_bOn,                     m_pNd, isParmStopped, DDBYesNo);
     DDB.CheckBoxBtn("AutoReload", "", DC_, "",    &m_bAutoReload,             m_pNd, isParm, DDBOnOff);
-    DDB.String("State",           "", DC_, "",    &m_PgmMngr.m_StateLine[0],  m_pNd, noSnap|noFile);
+    DDB.String("State",           "", DC_, "",    &m_ProcMngr.m_StateLine[0],  m_pNd, noSnap|noFile);
     DDB.Text("Error:");
-    DDB.String("Msg_1",           "", DC_, "",    &m_PgmMngr.m_StateLine[1],  m_pNd, noSnap|noFile);
-    DDB.String("Msg_2",           "", DC_, "",    &m_PgmMngr.m_StateLine[2],  m_pNd, noSnap|noFile);
-    DDB.String("Msg_3",           "", DC_, "",    &m_PgmMngr.m_StateLine[3],  m_pNd, noSnap|noFile);
-    DDB.String("Msg_4",           "", DC_, "",    &m_PgmMngr.m_StateLine[4],  m_pNd, noSnap|noFile);
+    DDB.String("Msg_1",           "", DC_, "",    &m_ProcMngr.m_StateLine[1],  m_pNd, noSnap|noFile);
+    DDB.String("Msg_2",           "", DC_, "",    &m_ProcMngr.m_StateLine[2],  m_pNd, noSnap|noFile);
+    DDB.String("Msg_3",           "", DC_, "",    &m_ProcMngr.m_StateLine[3],  m_pNd, noSnap|noFile);
+    DDB.String("Msg_4",           "", DC_, "",    &m_ProcMngr.m_StateLine[4],  m_pNd, noSnap|noFile);
     DDB.Text(" ");
     // These buttons should follow the ProcsName
     DDB.Button("Edit_Procs",      "", DC_, "",    xidEditProcBtn,            m_pNd, isParm);
@@ -371,10 +378,10 @@ void CNodeProcedures::BuildDataDefn(DataDefnBlk & DDB)
     if (DDB.ForView())
       {
       DDB.Text("");
-      for (int i=0; i<m_PgmMngr.m_FilesUsed.GetLen(); i++)
+      for (int i=0; i<m_ProcMngr.m_FilesUsed.GetLen(); i++)
         {
         Strng Fn, Tg;
-        Fn.FnName(m_PgmMngr.m_FilesUsed[i]());
+        Fn.FnName(m_ProcMngr.m_FilesUsed[i]());
         if (i==0)
           Tg = "Edit Main Proc";
         else
@@ -396,14 +403,14 @@ void CNodeProcedures::BuildDataDefn(DataDefnBlk & DDB)
     int nPg = 0;
     int nOnPg = 20;
     int nTtlCnt = 0;
-    CountWatchedVars(m_PgmMngr.m_pVarList, nTtlCnt); 
+    CountWatchedVars(m_ProcMngr.m_pVarList, nTtlCnt); 
     SetMaxVarData(Max(32, nTtlCnt));
     const int MaxPerPage = Max(30, (int)(nTtlCnt/(MaxAccWndTabPages-1)));
     //now add the watched variables..
-    DDBAddWatchedVars(DDB, "", m_PgmMngr.m_pVarList, 0, nPg, nOnPg, 0, MaxPerPage);
+    DDBAddWatchedVars(DDB, "", m_ProcMngr.m_pVarList, 0, nPg, nOnPg, 0, MaxPerPage);
 
     //now add 'special' watched array variables..
-    if (m_PgmMngr.m_ExtraWatchArray.GetSize()>0)
+    if (m_ProcMngr.m_ExtraWatchArray.GetSize()>0)
       {
       nPg = 0;
       DDB.Page("D0", DDB_RqdPage);
@@ -603,7 +610,7 @@ flag CNodeProcedures::DataXchg(DataChangeBlk & DCB)
         if (DCB.rB && (*DCB.rB!=0))
           {
           int inc=DCB.lHandle-xidEditFileBtn;
-          Strng FileName=m_PgmMngr.m_FilesUsed[inc];
+          Strng FileName=m_ProcMngr.m_FilesUsed[inc];
           //EditTime.dwLowDateTime=0;
           //EditTime.dwHighDateTime=0; 
           //if (m_sProcName.Length()==0)
@@ -677,9 +684,9 @@ flag CNodeProcedures::DataXchg(DataChangeBlk & DCB)
           return True;
           }
         }
-      else if (DCB.lHandle>=xidPRCArrayWatch && DCB.lHandle<xidPRCArrayWatch+m_PgmMngr.m_ExtraWatchArray.GetSize())
+      else if (DCB.lHandle>=xidPRCArrayWatch && DCB.lHandle<xidPRCArrayWatch+m_ProcMngr.m_ExtraWatchArray.GetSize())
         {
-        GCArrayWatch* pAW = m_PgmMngr.m_ExtraWatchArray[DCB.lHandle-xidPRCArrayWatch];
+        GCArrayWatch* pAW = m_ProcMngr.m_ExtraWatchArray[DCB.lHandle-xidPRCArrayWatch];
         if (pAW)
           {
           if (DCB.rD && !DCB.ForFileSnpScn()) 
@@ -724,9 +731,9 @@ flag CNodeProcedures::LoadProc(char * pProcName, flag WithDebug)
     }
 
   if (WithDebug)
-    m_bReloadReqd=!m_PgmMngr.Debug(AF_All|AF_BackupFiles, ss(), m_pNd, DefGenConSet);
+    m_bReloadReqd=!m_ProcMngr.Debug(AF_All|AF_BackupFiles, ss(), m_pNd, DefGenConSet);
   else
-    m_bReloadReqd=!m_PgmMngr.Load(AF_All|AF_BackupFiles, ss(), m_pNd, DefGenConSet);
+    m_bReloadReqd=!m_ProcMngr.Load(AF_All|AF_BackupFiles, ss(), m_pNd, DefGenConSet);
 
   //long Ret = UpdateXRefLists(); 
   m_pNd->MyTagsHaveChanged();
@@ -778,7 +785,7 @@ void CNodeProcedures::DoEvalProc(long ProcIDMask, bool DoGet, bool DoSet)
     {
     m_pNd->SetCI(1, m_bReloadReqd);
 //    if (bIterationOne && NetProbalMethod())
-//      m_PgmMngr.InitPBConvergence();
+//      m_ProcMngr.InitPBConvergence();
     CGExecContext ECtx(m_pNd);
     ECtx.dIC_Time = ICGetTime();
     ECtx.dIC_dTime = XRunning() ? ICGetTimeInc() : 0.0;
@@ -789,28 +796,28 @@ void CNodeProcedures::DoEvalProc(long ProcIDMask, bool DoGet, bool DoSet)
     flag Initialise = (m_bMustInit && !XRunning());
     ECtx.SetFlags(Initialise, m_bIterOne, m_bMustTerm && !XRunning(), m_bJustLoaded, m_bEmpty, m_bPreset);
        
-    m_PgmMngr.Execute(ECtx, What); 
-    if (m_PgmMngr.m_ProcExecuted)
+    m_ProcMngr.Execute(ECtx, What); 
+    if (m_ProcMngr.m_ProcExecuted)
       m_lProcsFound|=ProcIDMask;
 
     m_pNd->ClrCI(4);
-    if (m_PgmMngr.m_iRunTimeErr==1)
+    if (m_ProcMngr.m_iRunTimeErr==1)
       m_pNd->SetCI(4, "E\tRun time error during iteration %d", m_iIterCnt);
-    else if (m_PgmMngr.m_iRunTimeErr>1)
-      m_pNd->SetCI(4, "E\t%d run time errors during iteration %d", m_PgmMngr.m_iRunTimeErr, m_iIterCnt);
+    else if (m_ProcMngr.m_iRunTimeErr>1)
+      m_pNd->SetCI(4, "E\t%d run time errors during iteration %d", m_ProcMngr.m_iRunTimeErr, m_iIterCnt);
     m_pNd->ClrCI(5);
-    if (m_PgmMngr.m_iMathRunTimeErr==1)
+    if (m_ProcMngr.m_iMathRunTimeErr==1)
       m_pNd->SetCI(5, "E\tMath run time error during iteration %d", m_iIterCnt);
-    else if (m_PgmMngr.m_iMathRunTimeErr>1)
-      m_pNd->SetCI(5, "E\t%d math run time errors during iteration %d", m_PgmMngr.m_iMathRunTimeErr, m_iIterCnt);
+    else if (m_ProcMngr.m_iMathRunTimeErr>1)
+      m_pNd->SetCI(5, "E\t%d math run time errors during iteration %d", m_ProcMngr.m_iMathRunTimeErr, m_iIterCnt);
     for (int i=0; i<MaxCondMsgs; i++)
       {
-      if (m_PgmMngr.m_CINOn[i])
-        m_pNd->SetCI(6+i, "N\t%s", m_PgmMngr.m_CINMsgs[i]());
+      if (m_ProcMngr.m_CINOn[i])
+        m_pNd->SetCI(6+i, "N\t%s", m_ProcMngr.m_CINMsgs[i]());
       else
         m_pNd->ClrCI(6+i);
-      if (m_PgmMngr.m_CIEOn[i])
-        m_pNd->SetCI(6+MaxCondMsgs+i, "E\t%s", m_PgmMngr.m_CIEMsgs[i]());
+      if (m_ProcMngr.m_CIEOn[i])
+        m_pNd->SetCI(6+MaxCondMsgs+i, "E\t%s", m_ProcMngr.m_CIEMsgs[i]());
       else
         m_pNd->ClrCI(6+MaxCondMsgs+i);
       }
@@ -836,6 +843,219 @@ void CNodeProcedures::DoEvalProc(long ProcIDMask, bool DoGet, bool DoSet)
     for (int i=0; i<MaxCondMsgs*2; i++)
       m_pNd->ClrCI(6+i);
     }
+  }
+
+//--------------------------------------------------------------------------
+
+flag CNodeProcedures::GetOtherData(FilingControlBlock &FCB)
+  {
+  if (FCB.SaveAs() && m_hProcess[0])
+    {//during a save-as we must reset the link to the "old" edit files...
+    //LogNote(Tag(), 0, "Remove link to currently open pgm file. (File should be closed)");
+    //this is probably not needed for "far-away" files where location does not change
+    for (int incs=0; incs<TP_MaxTtlIncludeFiles; incs++)
+      {
+      m_hProcess[incs] = NULL;
+      m_dwProcessId[incs] = 0;
+      m_EditTime[incs].dwLowDateTime=0;
+      m_EditTime[incs].dwHighDateTime=0; 
+      }
+    }
+  
+  return m_ProcMngr.SaveScenario(FCB);
+  }
+
+//--------------------------------------------------------------------------
+
+flag CNodeProcedures::PutOtherData(FilingControlBlock &FCB)
+  {
+  return m_ProcMngr.LoadScenario(FCB);
+  }
+
+//---------------------------------------------------------------------------
+
+void CNodeProcedures::OnAppActivate(BOOL bActive) 
+  { 
+  if (m_bOn && bActive)
+    {//perhaps auto-reload PGM if date/time changed...
+    Strng sFn;
+    flag Reload=false;
+    if (m_sProcName() && (m_EditTime[0].dwLowDateTime || m_EditTime[0].dwHighDateTime))
+      {
+      if (sFn.FnExpandQueryReload(m_sProcName(), m_EditTime[0]))
+        {
+        Reload=true;
+        m_EditTime[0].dwLowDateTime=0;
+        m_EditTime[0].dwHighDateTime=0; 
+        }
+      }
+    for (int i=0; i<m_ProcMngr.m_FilesUsed.GetSize(); i++)
+      if (sFn.FnExpandQueryReload(m_ProcMngr.m_FilesUsed[i](), m_ProcMngr.m_FilesTime[i]))
+        Reload=true;
+    
+    if (Reload)
+      {
+      m_bReloadReqd=true;
+      if (m_bAutoReload)
+        {
+        LoadProc(m_sProcName(), m_bWithDBG);
+        if (1)
+          {
+          char* pTag = new char[strlen(m_pNd->Tag())+1];
+          strcpy(pTag, m_pNd->Tag());
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+          }
+        }
+      ValidateDataBlk VDB;
+      ValidateData(VDB);
+      }
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+int CNodeProcedures::FilesUsed(CFilesUsedArray & Files)
+  {
+  if (m_sProcName.Len()>0)
+    {
+    Strng ss;
+    Files.AddFile(FnExpand(ss, m_sProcName()), FU_CopyFile|FU_EditTxt);
+    const int RefFilesUsed = m_ProcMngr.m_FilesUsed.GetSize();
+    for (int i=1; i<RefFilesUsed; i++)
+      Files.AddFile(FnExpand(ss, m_ProcMngr.m_FilesUsed[i]()), FU_CopyFile|FU_EditTxt);
+    return RefFilesUsed;
+    }
+  return 0;
+  }
+
+// -------------------------------------------------------------------------
+#if WithPGMTagChange
+string IntToString(int num)
+{
+  ostringstream myStream; //creates an ostringstream object
+  myStream << num << flush;
+  /*
+   * outputs the number into the string stream and then flushes
+   * the buffer (makes sure the output is put into the stream)
+   */
+  return(myStream.str()); //returns the string form of the stringstream object
+}
+#endif
+
+// Replaces pOldTag for pNewTag.  Renames the original file as fn.bck
+void CNodeProcedures::DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount, bool lookInComments, bool listChanges)
+{
+  TagChangeCount = 0;
+#if WithPGMTagChange
+  string lineList = "";
+  const int BUFSIZE = 10000;
+  char buf[BUFSIZE];
+
+  CString out;
+  CString regexStart = "(?<=[\\(\\[\\'\\\"\\.])";
+  CString regexTag   = pOldTag;
+  CString regexEnd   = "(?=[\\)\\]\\'\\\"\\.])";
+
+  CString commentRegex = "^[ \t]*;";
+
+  CString regexStr = regexStart + regexTag + regexEnd;
+  
+  CString fnIn = fn();
+  CString fnTmp = fnIn + ".tmp";
+  CString fnBck = fnIn + ".bck";
+
+  ifstream pgmIn(fnIn);
+  ofstream pgmOut(fnTmp);
+
+  if (pgmIn.eof())
+  {
+    // complain...
+  }
+  else
+  {
+    CMRegex *regex = new CMRegex();
+
+    int lineNo = 0;
+
+    while (!pgmIn.eof())
+    {
+      lineNo++;
+
+      pgmIn.getline(buf, BUFSIZE-1);
+
+      if ((lookInComments)||(!regex->IsMatch(buf, commentRegex)))
+      {
+      out = regex->Replace(buf, regexStr, pNewTag, CMRegex::IgnoreCase);
+
+        int matches = regex->Matches(buf, regexStr).Count();
+        if (matches > 0)
+        {
+          lineList += IntToString(lineNo) + ", ";
+          TagChangeCount += matches;
+        }
+      }
+
+      pgmOut << out;
+      if (!pgmIn.eof())
+        pgmOut << endl;
+    }
+
+    delete regex;
+  }
+
+  if (listChanges)
+  {
+    pgmOut << endl;
+    pgmOut << ";" + string(CTime::GetCurrentTime().Format("%x %X")) + ":  '" + string(pOldTag) + "' changed to '" + string(pNewTag) + "'.  " + IntToString(TagChangeCount)
+              + " occurances on lines " + lineList.substr(0, lineList.length()-2) + ".";
+    // %x %X -- uses currently defined time/date format for current locale...
+  }
+
+  pgmIn.close();
+  pgmOut.close();
+
+  remove(fnBck);
+  rename(fnIn, fnBck);
+  rename(fnTmp, fnIn);
+#endif
+}
+
+//--------------------------------------------------------------------------
+
+int CNodeProcedures::ChangeTag(pchar pOldTag, pchar pNewTag)
+  {
+  if (m_sProcName.Len()>0)
+    {
+    Strng fn;
+	  int TagChangeCount;
+
+    FnExpand(fn, m_sProcName());
+    DoTextFileChangeTag(fn(), pOldTag, pNewTag, TagChangeCount, true, true);
+    if (TagChangeCount>0)
+      {
+      LogNote(m_pNd->Tag(), 0, "%d occurances of %s changed in %s", TagChangeCount, pOldTag, m_sProcName());
+      }
+
+    const int RefFilesUsed = m_ProcMngr.m_FilesUsed.GetSize();
+    for (int i=1; i<RefFilesUsed; i++)
+      {
+      FnExpand(fn, m_ProcMngr.m_FilesUsed[i]());
+      //pkh todo 
+      //DoTextFileChangeTag(fn(), pOldTag, pNewTag, ResultData);
+      //if (ResultData.iTagChangeCount>0)
+      //  {
+      //  LogNote(Tag(), 0, "%d occurances of %s changed in %s", ResultData.iTagChangeCount, pOldTag, m_ProcMngr.m_FilesUsed[i]());
+      //  }
+      }
+    }
+  return EOCT_DONE;
+  }
+
+//--------------------------------------------------------------------------
+
+int CNodeProcedures::DeleteTag(pchar pDelTag)
+  {
+  return EODT_DONE;
   }
 
 #endif

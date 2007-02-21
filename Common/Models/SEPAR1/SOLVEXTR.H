@@ -140,8 +140,17 @@ class MixerSettler : public MdlNode
     virtual double MetalConc(SpContainer* WV, SpMArray &Phse, Strng Metal, double* MetMass);
     virtual double MetalConc(SpConduit* FlwIn, SpMArray &Phse, Strng Metal, double* MetMass);
 
-    virtual void   OnAppActivate(BOOL bActive) { RB.OnAppActivate(bActive); };
-    virtual int    FilesUsed(CFilesUsedArray & Files) { return RB.FilesUsed(Files); };
+    virtual void   OnAppActivate(BOOL bActive)
+      { 
+      RB.OnAppActivate(bActive);
+      };
+    virtual int    FilesUsed(CFilesUsedArray & Files) 
+      {
+      RB.FilesUsed(Files);
+      MdlNode::FilesUsed(Files);
+      return Files.GetCount();
+      //return RB.FilesUsed(Files); 
+      };
     virtual flag   GetOtherData(FilingControlBlock &FCB) { return RB.GetOtherData(FCB); };
     virtual flag   PutOtherData(FilingControlBlock &FCB) { return RB.PutOtherData(FCB); };
 

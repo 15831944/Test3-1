@@ -516,7 +516,7 @@ int SimpleHeater::ChangeTag(pchar pOldTag, pchar pNewTag)
     PreStartCheck();
     bAboutToStart = 0;
     }
-  return EOCT_DONE;
+  return MdlNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -529,7 +529,7 @@ int SimpleHeater::DeleteTag(pchar pDelTag)
     UnlinkAllXRefs(); //PreStartCheck();
     bAboutToStart = 0;
     }
-  return EODT_DONE;
+  return MdlNode::DeleteTag(pDelTag);
   }
 
 //---------------------------------------------------------------------------

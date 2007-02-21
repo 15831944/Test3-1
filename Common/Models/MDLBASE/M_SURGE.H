@@ -82,8 +82,21 @@ class DllImportExport MN_Surge : public MdlNode
 
     virtual void   ClosureInfo();
     
-    virtual void   OnAppActivate(BOOL bActive)            { RB.OnAppActivate(bActive); };
-    virtual int    FilesUsed(CFilesUsedArray & Files)     { return RB.FilesUsed(Files); };
+    virtual void   OnAppActivate(BOOL bActive)
+      {
+      if (bActive)
+        {
+        RB.OnAppActivate(bActive);
+        MdlNode::OnAppActivate(bActive);
+        }
+      };
+    virtual int    FilesUsed(CFilesUsedArray & Files)   
+      {
+      RB.FilesUsed(Files);
+      MdlNode::FilesUsed(Files);
+      return Files.GetCount();
+      //return RB.FilesUsed(Files); 
+      };
     virtual flag   GetOtherData(FilingControlBlock &FCB)  { return RB.GetOtherData(FCB); };
     virtual flag   PutOtherData(FilingControlBlock &FCB)  { return RB.PutOtherData(FCB); };
 

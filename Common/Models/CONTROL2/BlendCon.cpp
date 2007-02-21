@@ -422,7 +422,7 @@ int CBlendCon::ChangeTag(pchar pOldTag, pchar pNewTag)
     {
     PreStartCheck();
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -453,7 +453,7 @@ int CBlendCon::DeleteTag(pchar pDelTag)
     LogNote(Tag(), 0, "Delete tag '%s' affects Controller model '%s'.", pDelTag, Tag());
     PreStartCheck();
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

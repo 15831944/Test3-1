@@ -924,7 +924,7 @@ int CActuator::ChangeTag(pchar pOldTag, pchar pNewTag)
     PreStartCheck();
     bAboutToStart = 0;
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -943,7 +943,7 @@ int CActuator::DeleteTag(pchar pDelTag)
     PreStartCheck();
     bAboutToStart = 0;
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

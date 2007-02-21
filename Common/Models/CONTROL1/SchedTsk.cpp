@@ -690,14 +690,17 @@ void CScheduleTask::EvalDiscrete()
 
 int CScheduleTask::FilesUsed(CFilesUsedArray & Files)
   {
-  return ST.FilesUsed(Files);
+  ST.FilesUsed(Files);
+  FlwNode::FilesUsed(Files);
+  return Files.GetCount();
   }
 
 //--------------------------------------------------------------------------
 
 int CScheduleTask::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
-  return ST.ChangeTag(pOldTag, pNewTag);
+  ST.ChangeTag(pOldTag, pNewTag);
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -710,7 +713,7 @@ int CScheduleTask::DeleteTag(pchar pDelTag)
     {
     LogNote(Tag(), 0, "Delete tag '%s' affects Schedule Task model '%s'.", pDelTag, Tag());
     }
-  return RetCode;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

@@ -131,7 +131,13 @@ class DllImportExport PriReform : public MdlNode
 
     void           ClosureInfo();
 
-    virtual int    FilesUsed(CFilesUsedArray & Files) { return FuelRB.FilesUsed(Files)+GasRB.FilesUsed(Files); };
+    virtual int    FilesUsed(CFilesUsedArray & Files) 
+      { 
+      FuelRB.FilesUsed(Files);
+      GasRB.FilesUsed(Files);
+      MdlNode::FilesUsed(Files);
+      return Files.GetCount();
+      };
 
     dword          ModelStatus();
 

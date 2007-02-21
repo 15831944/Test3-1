@@ -567,7 +567,9 @@ int CEventsCon::FilesUsed(CFilesUsedArray & Files)
     Files.AddFile(Fn(), FU_CopyFile|FU_EditTxt);
     Cnt++;
     }
-  return Cnt;
+  FlwNode::FilesUsed(Files);
+  return Files.GetCount();
+  //return Cnt;
   }
 
 //--------------------------------------------------------------------------
@@ -579,7 +581,7 @@ int CEventsCon::ChangeTag(pchar pOldTag, pchar pNewTag)
     if (CTgFnIoVar::ContainsTag(ECI.RowData[j]->m_sOutputTag, pOldTag))
       LogWarning(Tag(), 0, "Change tag '%s' affects Events Controller model line %d.", pOldTag, j+2);
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -591,7 +593,7 @@ int CEventsCon::DeleteTag(pchar pDelTag)
     if (CTgFnIoVar::ContainsTag(ECI.RowData[j]->m_sOutputTag, pDelTag))
       LogWarning(Tag(), 0, "Delete tag '%s' affects Events Controller model line %d.", pDelTag, j+2);
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

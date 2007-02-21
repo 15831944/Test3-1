@@ -15,6 +15,49 @@
 #define DllImportExport
 #endif
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+//files used flags...
+const byte FU_CopyFile  = 0x01;
+const byte FU_EditTxt   = 0x02;
+const byte FU_EditExcel = 0x04;
+const byte FU_EditMDB   = 0x08;
+
+class FilesUsedItem
+  {
+  public:
+    CString        Name;
+    byte           FUFlags;
+
+    FilesUsedItem()
+      {
+      FUFlags=0;
+      };
+    FilesUsedItem(char *pName, byte FilesUsedFlags)
+      {
+      Name=pName;
+      FUFlags=FilesUsedFlags;
+      };
+    inline flag CopyFile()  { return (FUFlags & FU_CopyFile)!=0; };
+    inline flag EditTxt()   { return (FUFlags & FU_EditTxt)!=0; };
+    inline flag EditExcel() { return (FUFlags & FU_EditExcel)!=0; };
+    inline flag EditMDB()   { return (FUFlags & FU_EditMDB)!=0; };
+  };
+
+class CFilesUsedArray : public CArray <FilesUsedItem, FilesUsedItem &>
+  {
+  public:
+    void AddFile(char *pName, byte FilesUsedFlags=FU_CopyFile)
+      {
+      FilesUsedItem Item(pName, FilesUsedFlags);
+      Add(Item);
+      }
+  };
+
 
 //===========================================================================
 //
@@ -73,14 +116,15 @@ class DllImportExport CNodeProcedures
     void            DoEvalProc(long ProcIDMask, bool DoGet, bool DoSet); 
     //    void           EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All);
     //    virtual void   SetState(eScdMdlStateActs RqdState);
-    //	  void		       DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount, bool lookInComments, bool listChanges);
+    void		        DoTextFileChangeTag(Strng fn, pchar pOldTag, pchar pNewTag, int& TagChangeCount, bool lookInComments, bool listChanges);
+    //
+    flag            GetOtherData(FilingControlBlock &FCB);
+    flag            PutOtherData(FilingControlBlock &FCB);
+    
+    void            OnAppActivate(BOOL bActive);
+    int             FilesUsed(CFilesUsedArray & Files);
     int             ChangeTag(pchar pOldTag, pchar pNewTag);
     int             DeleteTag(pchar pDelTag);
-    //
-    //    virtual flag   GetOtherData(FilingControlBlock &FCB);
-    //    virtual flag   PutOtherData(FilingControlBlock &FCB);
-    //    virtual void   OnAppActivate(BOOL bActive);
-    //    virtual int    FilesUsed(CFilesUsedArray & Files);
     //
     //    // CNodeXRefMngr Overides
     //    virtual bool   TestXRefListActive();
@@ -106,7 +150,7 @@ class DllImportExport CNodeProcedures
     Strng           m_sProcName;             //name of pgm file
     Strng           m_sProcFile;             //temp name of pgm file
     Strng           m_sProcPath;             //temp path of pgm file
-    GCInsMngr       m_PgmMngr;              //Proc manager
+    GCInsMngr       m_ProcMngr;              //Proc manager
 
     GCVar**         m_VarData;              //pointer to array of data vars (external refrences)
     int             m_nVarData;             //number of data vars

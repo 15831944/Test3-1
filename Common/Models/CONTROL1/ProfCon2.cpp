@@ -548,7 +548,9 @@ int CProfileCon2::FilesUsed(CFilesUsedArray & Files)
     Files.AddFile(Fn(), FU_CopyFile|FU_EditTxt);
     Cnt++;
     }
-  return Cnt;
+  FlwNode::FilesUsed(Files);
+  return Files.GetCount();
+  //return Cnt;
   }
 
 //--------------------------------------------------------------------------
@@ -566,7 +568,7 @@ int CProfileCon2::ChangeTag(pchar pOldTag, pchar pNewTag)
     UnlinkAllXRefs(); //PreStartCheck();
     bAboutToStart = 0;
     }
-  return EOCT_DONE;
+  return FlwNode::ChangeTag(pOldTag, pNewTag);
   }
 
 //--------------------------------------------------------------------------
@@ -585,7 +587,7 @@ int CProfileCon2::DeleteTag(pchar pDelTag)
     UnlinkAllXRefs(); //PreStartCheck();
     bAboutToStart = 0;
     }
-  return EODT_DONE;
+  return FlwNode::DeleteTag(pDelTag);
   }
 
 //--------------------------------------------------------------------------

@@ -1054,11 +1054,15 @@ void CMultiStorage::SetRBsOn(flag On)
 
 void CMultiStorage::OnAppActivate(BOOL bActive)
   {
-  if (m_bRBsOn)
+  if (bActive)
     {
-    int N=m_Store.GetSize();
-    for (int p=0; p<N; p++)
-      m_StoreRB[p].OnAppActivate(bActive); 
+    if (m_bRBsOn)
+      {
+      int N=m_Store.GetSize();
+      for (int p=0; p<N; p++)
+        m_StoreRB[p].OnAppActivate(bActive); 
+      }
+    MdlNode::OnAppActivate(bActive);
     }
   };
 
@@ -1074,7 +1078,9 @@ int CMultiStorage::FilesUsed(CFilesUsedArray & Files)
     for (int p=0; p<N; p++)
       Cnt+=m_StoreRB[p].FilesUsed(Files);
     }
-  return Cnt;
+  MdlNode::FilesUsed(Files);
+  return Files.GetCount();
+  //return Cnt;
   };
 
 //--------------------------------------------------------------------------
