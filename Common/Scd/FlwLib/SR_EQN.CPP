@@ -454,13 +454,13 @@ flag CR_EqnHeat::DataXchg(DataChangeBlk & DCB)
     {
     case xid_msHORUsrDef:   DCB.D=msDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP);  return 1;
     case xid_mlHORUsrDef:   DCB.D=mlDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP);  return 1;
-    case xid_totHORUsrDef:  DCB.D=totDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP)/ICGetTimeInc(); return 1;
+    case xid_totHORUsrDef:  DCB.D=totDHf(m_RB.Model, m_RB.m_UsrDefT, m_RB.m_UsrDefP)/m_RB.TimeIncAtSolve(); return 1;
     case xid_msHORRctFd:    DCB.D=msDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
     case xid_mlHORRctFd:    DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press);  return 1;
-    case xid_totHORRctFd:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press)/ICGetTimeInc(); return 1;
+    case xid_totHORRctFd:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKFeed, m_RB.m_Press)/m_RB.TimeIncAtSolve(); return 1;
     case xid_msHORRctPr:    DCB.D=msDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
     case xid_mlHORRctPr:    DCB.D=mlDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press);  return 1;
-    case xid_totHORRctPr:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press)/ICGetTimeInc(); return 1;
+    case xid_totHORRctPr:   DCB.D=totDHf(m_RB.Model, m_RB.m_TempKProd, m_RB.m_Press)/m_RB.TimeIncAtSolve(); return 1;
     }
   return 0;
   };
@@ -470,7 +470,7 @@ flag CR_EqnHeat::DataXchg(DataChangeBlk & DCB)
 double CR_EqnHeat::msDHf(SpModel *Mdl, double T, double P)
   {
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
-  return totDHf(Mdl, T, P)/GTZ(fabs(Trm.dMlXfer)*SDB[Trm.SpcId].MoleWt());
+  return totDHf(Mdl, T, P)/GTZ(fabs(Trm.m_dMlXfer)*SDB[Trm.SpcId].MoleWt());
   };
 
 //---------------------------------------------------------------------------
@@ -478,7 +478,7 @@ double CR_EqnHeat::msDHf(SpModel *Mdl, double T, double P)
 double CR_EqnHeat::mlDHf(SpModel *Mdl, double T, double P)
   {
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
-  return totDHf(Mdl, T, P)/GTZ(fabs(Trm.dMlXfer));
+  return totDHf(Mdl, T, P)/GTZ(fabs(Trm.m_dMlXfer));
   };
 
 //---------------------------------------------------------------------------
@@ -498,12 +498,12 @@ double CR_EqnHeat::totDHf(SpModel *Mdl, double T, double P)
     for (int l=0; l<m_Eq.NReactants(); l++)
       {
       CR_EqnTerm &R=m_Eq.Reactant[l];
-      Moles.VValue[R.SpcId]-=/*Xf**/R.dMlXfer;
+      Moles.VValue[R.SpcId]-=R.m_dMlXfer;
       }
     for (int r=0; r<m_Eq.NProducts(); r++)
       {
       CR_EqnTerm &P=m_Eq.Product[r];
-      Moles.VValue[P.SpcId]-=/*Xf**/P.dMlXfer;
+      Moles.VValue[P.SpcId]-=P.m_dMlXfer;
       }
     Mass.ToMass(Moles);
     double Hf1=Mdl->totHf(som_ALL, T, P, &Mass);
@@ -515,13 +515,13 @@ double CR_EqnHeat::totDHf(SpModel *Mdl, double T, double P)
       {
       CR_EqnTerm &R=m_Eq.Reactant[l];
       double H=SDB[R.SpcId].mlHf(m_RB.Fidelity(), T, P, m_RB.Ovr(), m_RB.MassArray());
-      Ht+=R.dMlXfer*H;
+      Ht+=R.m_dMlXfer*H;
       }
     for (int r=0; r<m_Eq.NProducts(); r++)
       {
       CR_EqnTerm &R=m_Eq.Product[r];
       double H=SDB[R.SpcId].mlHf(m_RB.Fidelity(), T, P, m_RB.Ovr(), m_RB.MassArray());
-      Ht+=R.dMlXfer*H;
+      Ht+=R.m_dMlXfer*H;
       }
     }
   //dbgpln("Ht            @ %8.2f %8.2f = %15.6f", T, P, Ht);
@@ -708,7 +708,7 @@ double CR_EqnHeatFixedMs::totDHf(SpModel *Mdl, double T, double P)
 
   //should this be independent of T ?!?!?!?
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
-  double Ms=fabs(Trm.dMlXfer)*SDB[Trm.SpcId].MoleWt();
+  double Ms=fabs(Trm.m_dMlXfer)*SDB[Trm.SpcId].MoleWt();
 
   double d=0;
   if (!HasNANFlag(m_dDefT, NF_Always))
@@ -873,7 +873,7 @@ double CR_EqnHeatFixedMl::totDHf(SpModel *Mdl, double T, double P)
 
   //should this be independent of T ?!?!?!?
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
-  double Ml=fabs(Trm.dMlXfer);
+  double Ml=fabs(Trm.m_dMlXfer);
 
   double d=0;
   if (!HasNANFlag(m_dDefT, NF_Always))
@@ -1281,20 +1281,20 @@ flag CR_Eqn::DataXchg(DataChangeBlk & DCB)
       {
       CR_EqnTerm &R=Reactant[DCB.dwUserInfo];
       if (DCB.rD)
-        dMlXfer=*DCB.rD;
-      DCB.D=dMlXfer;
+        m_dMlXfer=*DCB.rD;
+      DCB.D=m_dMlXfer;
       return 1;
       }
     case xid_dMlXfer:
       {
       CR_EqnTerm &R=Reactant[DCB.dwUserInfo];
-      DCB.D=dMlXfer*R.NoOfMoles/ICGetTimeInc();
+      DCB.D=m_dMlXfer*R.NoOfMoles/RB.TimeIncAtSolve();
       return 1;
       }
     case xid_dMsXfer:
       {
       CR_EqnTerm &R=Reactant[DCB.dwUserInfo];
-      DCB.D=dMlXfer*R.NoOfMoles*SDB[R.SpcId].MoleWt()/ICGetTimeInc();
+      DCB.D=m_dMlXfer*R.NoOfMoles*SDB[R.SpcId].MoleWt()/RB.TimeIncAtSolve();
       return 1;
       }
     }
@@ -1340,7 +1340,7 @@ void CR_Eqn::Clear()
   fAutoBalance=0;
   fDone=0;
   iLimitSpc=-1;
-  dMlXfer=0.0;
+  m_dMlXfer=0.0;
   dRctScl=1.0;
   m_dRelRate=1.0;
 
@@ -1704,7 +1704,7 @@ dword CR_Eqn::Check()
 
 void CR_Eqn::Zero()
   {
-  dMlXfer=0.0;
+  m_dMlXfer=0.0;
   for (int i=0; i<NReactants(); i++)
     Reactant[i].Zero();
   for (int i=0; i<NProducts(); i++)
@@ -1974,7 +1974,7 @@ long CR_Eqn::SolveBlock1(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
       if (!Eqns[e]->fDone)
         {
         CR_Eqn &E=*(Eqns[e]);
-        E.dMlXfer=1.0e100;
+        E.m_dMlXfer=1.0e100;
 
         double EXfr=0.0;
         //if (CalcControl)
@@ -1989,13 +1989,13 @@ long CR_Eqn::SolveBlock1(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         for (int l=0; l<E.NReactants(); l++)
           {
           CR_EqnTerm &L=E.Reactant[l];
-          L.dMlXfer=Min(EXfr, L.dSpAvailToEqn/L.NoOfMoles);
+          L.m_dMlXfer=Min(EXfr, L.dSpAvailToEqn/L.NoOfMoles);
 
-          if (L.dMlXfer<E.dMlXfer)
+          if (L.m_dMlXfer<E.m_dMlXfer)
             {
             // Limiting specie for equation
             E.iLimitSpc=L.SpcId;
-            E.dMlXfer=L.dMlXfer;
+            E.m_dMlXfer=L.m_dMlXfer;
             }
           }
         if (E.iLimitSpc==LowSn)
@@ -2003,7 +2003,7 @@ long CR_Eqn::SolveBlock1(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         for (l=0; l<E.NReactants(); l++)
           {
           CR_EqnTerm &L=E.Reactant[l];
-          L.dSpUsed=E.dMlXfer*L.NoOfMoles;
+          L.dSpUsed=E.m_dMlXfer*L.NoOfMoles;
           SpReqd[L.SpcId] += L.dSpUsed;
           }
         }
@@ -2076,19 +2076,19 @@ long CR_Eqn::SolveBlock1(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
     //E.dHeatOfReact=0.0;
     #if dbgReaction
     if (RB.DoDbgBrk() && dbgRctSolve())
-      dbgpln("2# %3i %14.6g ", e, E.dMlXfer);
+      dbgpln("2# %3i %14.6g ", e, E.m_dMlXfer);
     #endif
     for (int l=0; l<E.NReactants(); l++)
       {
       CR_EqnTerm &L=E.Reactant[l];
       int Sn=L.SpcId;
-      L.dMlXfer=-E.dMlXfer*L.NoOfMoles; //??
-      RB.DMoles[Sn] += L.dMlXfer;
-      L.dUseFrac=L.dMlXfer/GTZ(RB.Moles[Sn]);
-      //E.dHeatOfReact+=L.dMlXfer*SDB[Sn].mlHf(RB.RefTempK, RB.RefTempK);  //hss
+      L.m_dMlXfer=-E.m_dMlXfer*L.NoOfMoles; //??
+      RB.DMoles[Sn] += L.m_dMlXfer;
+      L.dUseFrac=L.m_dMlXfer/GTZ(RB.Moles[Sn]);
+      //E.dHeatOfReact+=L.m_dMlXfer*SDB[Sn].mlHf(RB.RefTempK, RB.RefTempK);  //hss
       #if dbgReaction
       if (RB.DoDbgBrk() && dbgRctSolve())
-        dbgpln("  r %14.6g [%14.6g%%] %s", L.dMlXfer, L.dUseFrac*100.0, SDB[Sn].SymOrTag());
+        dbgpln("  r %14.6g [%14.6g%%] %s", L.m_dMlXfer, L.dUseFrac*100.0, SDB[Sn].SymOrTag());
       #endif
 
       }
@@ -2096,13 +2096,13 @@ long CR_Eqn::SolveBlock1(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
       {
       CR_EqnTerm &R=E.Product[r];
       int Sn=R.SpcId;
-      R.dMlXfer=E.dMlXfer*R.NoOfMoles; //??
-      RB.DMoles[Sn] += R.dMlXfer;
-      //E.dHeatOfReact+=R.dMlXfer*SDB[Sn].mlHf(RB.RefTempK, RB.RefTempK);  //hss
+      R.m_dMlXfer=E.m_dMlXfer*R.NoOfMoles; //??
+      RB.DMoles[Sn] += R.m_dMlXfer;
+      //E.dHeatOfReact+=R.m_dMlXfer*SDB[Sn].mlHf(RB.RefTempK, RB.RefTempK);  //hss
       R.dUseFrac=0.0;
       #if dbgReaction
       if (RB.DoDbgBrk() && dbgRctSolve())
-        dbgpln("  p %14.6g %*.*s %s", R.dMlXfer, 14+2, 14+2, "", SDB[Sn].SymOrTag());
+        dbgpln("  p %14.6g %*.*s %s", R.m_dMlXfer, 14+2, 14+2, "", SDB[Sn].SymOrTag());
       #endif
       }
     HeatR+=E.Heat().totDHf(RB.TempKProd);//Feed);
@@ -2133,7 +2133,7 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
     E.fDone=0;
     E.iLimitSpc=-1;
     E.dRctScl=1.0;
-    E.dMlXfer=0.0;
+    E.m_dMlXfer=0.0;
     E.dMlXferTot=0.0;
     for (int l=0; l<E.NReactants(); l++)
       {
@@ -2168,16 +2168,16 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
       {
       CR_Eqn &E=*(Eqns[e]);
 
-      double OldXfer=E.dMlXfer;
+      double OldXfer=E.m_dMlXfer;
       double EXfr= E.ReactingMoles();
-      E.dMlXfer=EXfr;
+      E.m_dMlXfer=EXfr;
       if (!E.FwdRct())
-        E.dMlXfer=LEZ(E.dMlXfer);
+        E.m_dMlXfer=LEZ(E.m_dMlXfer);
       if (!E.RevRct())
-        E.dMlXfer=GEZ(E.dMlXfer);
+        E.m_dMlXfer=GEZ(E.m_dMlXfer);
 
       double Err;
-      if (!ConvergedDV(OldXfer-E.dMlXfer, E.dMlXfer, 1.0e-8, 1.0e-8, Err))
+      if (!ConvergedDV(OldXfer-E.m_dMlXfer, E.m_dMlXfer, 1.0e-8, 1.0e-8, Err))
         RctConverged=False;
 
       }
@@ -2186,11 +2186,11 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
       {
       CR_Eqn &E=*(Eqns[e]);
       #if dbgReaction
-      double EXfr=E.dMlXfer;
+      double EXfr=E.m_dMlXfer;
       #endif
-      //E.dMlXfer/=E.dRctScl;
+      //E.m_dMlXfer/=E.dRctScl;
       E.dRctScl=1.0;
-      if (E.dMlXfer>0.0)
+      if (E.m_dMlXfer>0.0)
         {
         for (int r=0; r<E.NReactants(); r++)
           E.dRctScl=Min(E.dRctScl, SpScale[E.Reactant[r].SpcId]);
@@ -2201,20 +2201,20 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
           E.dRctScl=Min(E.dRctScl, SpScale[E.Product[p].SpcId]);
         }
       E.dRctScl=GEZ(E.dRctScl);
-      E.dMlXfer*=E.dRctScl;
+      E.m_dMlXfer*=E.dRctScl;
       for (int r=0; r<E.NReactants(); r++)
         {
         CR_EqnTerm &T=E.Reactant[r];
-        DMoles[T.SpcId] -= E.dMlXfer*T.NoOfMoles;
+        DMoles[T.SpcId] -= E.m_dMlXfer*T.NoOfMoles;
         }
       for (int p=0; p<E.NProducts(); p++)
         {
         CR_EqnTerm &T=E.Product[p];
-        DMoles[T.SpcId] += E.dMlXfer*T.NoOfMoles;
+        DMoles[T.SpcId] += E.m_dMlXfer*T.NoOfMoles;
         }
       #if dbgReaction
       if (RB.DoDbgBrk() && dbgRctSolveIter())
-        dbgpln("Eqn:%2i %14.6g EqnMlXfer:%14.6g RctScl:%14.6g ",e, EXfr, E.dMlXfer, E.dRctScl);
+        dbgpln("Eqn:%2i %14.6g EqnMlXfer:%14.6g RctScl:%14.6g ",e, EXfr, E.m_dMlXfer, E.dRctScl);
       #endif
       }
 
@@ -2247,21 +2247,21 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
   for (e=0; e<NEqns; e++)
     {
     CR_Eqn &E=*(Eqns[e]);
-    E.dMlXferTot+=E.dMlXfer;
+    E.dMlXferTot+=E.m_dMlXfer;
     #if dbgReaction
     if (RB.DoDbgBrk() && dbgRctSolve())
-      dbgpln("2# %3i %14.6g ", e, E.dMlXfer);
+      dbgpln("2# %3i %14.6g ", e, E.m_dMlXfer);
     #endif
     for (int l=0; l<E.NReactants(); l++)
       {
       CR_EqnTerm &L=E.Reactant[l];
       int Sn=L.SpcId;
-      L.dMlXfer=-E.dMlXfer*L.NoOfMoles; //??
-      RB.DMoles[Sn] += L.dMlXfer;
-      L.dUseFrac=L.dMlXfer/GTZ(RB.Moles[Sn]);
+      L.m_dMlXfer=-E.m_dMlXfer*L.NoOfMoles; //??
+      RB.DMoles[Sn] += L.m_dMlXfer;
+      L.dUseFrac=L.m_dMlXfer/GTZ(RB.Moles[Sn]);
       #if dbgReaction
       if (RB.DoDbgBrk() && dbgRctSolve())
-        dbgpln("  r %14.6g %+14.6g [%14.6g%%] %s", RB.Moles[Sn], L.dMlXfer, L.dUseFrac*100.0, SDB[Sn].SymOrTag());
+        dbgpln("  r %14.6g %+14.6g [%14.6g%%] %s", RB.Moles[Sn], L.m_dMlXfer, L.dUseFrac*100.0, SDB[Sn].SymOrTag());
       #endif
 
       }
@@ -2269,12 +2269,12 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
       {
       CR_EqnTerm &R=E.Product[r];
       int Sn=R.SpcId;
-      R.dMlXfer=E.dMlXfer*R.NoOfMoles; //??
-      RB.DMoles[Sn] += R.dMlXfer;
-      R.dUseFrac=R.dMlXfer/GTZ(RB.Moles[Sn]);
+      R.m_dMlXfer=E.m_dMlXfer*R.NoOfMoles; //??
+      RB.DMoles[Sn] += R.m_dMlXfer;
+      R.dUseFrac=R.m_dMlXfer/GTZ(RB.Moles[Sn]);
       #if dbgReaction
       if (RB.DoDbgBrk() && dbgRctSolve())
-        dbgpln("  p %14.6g %+14.6g [%14.6g%%] %s", RB.Moles[Sn], R.dMlXfer, R.dUseFrac*100.0, SDB[Sn].SymOrTag());
+        dbgpln("  p %14.6g %+14.6g [%14.6g%%] %s", RB.Moles[Sn], R.m_dMlXfer, R.dUseFrac*100.0, SDB[Sn].SymOrTag());
       #endif
       }
     HeatR+=E.Heat().totDHf(RB.TempKFeed);
@@ -2292,7 +2292,7 @@ long CR_Eqn::SolveBlock2(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
   for (e=0; e<NEqns; e++)
     {
     CR_Eqn &E=*(Eqns[e]);
-    E.dMlXfer=E.dMlXferTot;
+    E.m_dMlXfer=E.dMlXferTot;
     }
   **/
   return 0;
@@ -2392,12 +2392,12 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
   for (int e=0; e<NEqns; e++)
     {
     CR_Eqn &E=*(Eqns[e]);
-    E.dMlXfer=0.0;
+    E.m_dMlXfer=0.0;
     E.fCnvrgd=true;
     for (int l=0; l<E.NReactants(); l++)
-      E.Reactant[l].dMlXfer=0.0;
+      E.Reactant[l].m_dMlXfer=0.0;
     for (int r=0; r<E.NProducts(); r++)
-      E.Product[r].dMlXfer=0.0;
+      E.Product[r].m_dMlXfer=0.0;
     }
 
   RB.DMoles.Zero();
@@ -2674,30 +2674,30 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
         {
         CR_Eqn &E=*(Eqns[e]);
         double DiffXfer=E.iDirn*SPlex.Value(1+e)*XFScl/SimPlxScl;
-        E.dMlXfer+=DiffXfer;
-        E.fCnvrgd=(fabs(DiffXfer)<(RB.m_RctTol.GetAbs()+RB.m_RctTol.GetRel()*fabs(E.dMlXfer))) &&
-                  (fabs(EXfrReqd[e])<(RB.m_RctTol.GetAbs()+RB.m_RctTol.GetRel()*fabs(E.dMlXfer)));
+        E.m_dMlXfer+=DiffXfer;
+        E.fCnvrgd=(fabs(DiffXfer)<(RB.m_RctTol.GetAbs()+RB.m_RctTol.GetRel()*fabs(E.m_dMlXfer))) &&
+                  (fabs(EXfrReqd[e])<(RB.m_RctTol.GetAbs()+RB.m_RctTol.GetRel()*fabs(E.m_dMlXfer)));
 
         bConverged=bConverged && E.fCnvrgd;
 
         #if dbgReaction
         if (RB.DoDbgBrk() && dbgRctSolveEqnCnvg())
           dbgpln("EqnCnvg %3i %s %14.8f %14.8f %25.18f %25.18f %25.18f", 
-                  e, E.fCnvrgd?"Cnvg":"    ", E.Control().ExtentReqd(), E.Control().ExtentActual(), DiffXfer, EXfrReqd[e], E.dMlXfer);
+                  e, E.fCnvrgd?"Cnvg":"    ", E.Control().ExtentReqd(), E.Control().ExtentActual(), DiffXfer, EXfrReqd[e], E.m_dMlXfer);
 
         double TotDMass=0.0;
         if (RB.DoDbgBrk() && dbgRctSolveEqnXfer())
           dbgpln("2# %3i XFer %*s %25.18f %25s %25s  %25s", e,
-                TagSymLen-20, "",E.dMlXfer, "kgMoles", "kgMoles", "kg");
+                TagSymLen-20, "",E.m_dMlXfer, "kgMoles", "kgMoles", "kg");
         #endif
         for (int l=0; l<E.NReactants(); l++)
           {
           CR_EqnTerm &L=E.Reactant[l];
           int Sn=L.SpcId;
           double LDiffXfer=-DiffXfer*L.NoOfMoles; //??
-          L.dMlXfer+=LDiffXfer;
+          L.m_dMlXfer+=LDiffXfer;
           RB.DMoles.VValue[Sn] += LDiffXfer;
-          L.m_dMsXfer=L.dMlXfer*SDB[Sn].MoleWt();
+          L.m_dMsXfer=L.m_dMlXfer*SDB[Sn].MoleWt();
           #if dbgReaction
           if (RB.DoDbgBrk() && dbgRctSolveEqnXfer())
             dbgpln("  %+5.1f %-*s %25.18f %+25.18f  %+25.18f",
@@ -2711,9 +2711,9 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
           CR_EqnTerm &R=E.Product[r];
           int Sn=R.SpcId;
           double RDiffXfer=DiffXfer*R.NoOfMoles; //??
-          R.dMlXfer+=RDiffXfer;//*R.NoOfMoles; //??
+          R.m_dMlXfer+=RDiffXfer;//*R.NoOfMoles; //??
           RB.DMoles.VValue[Sn] += RDiffXfer;
-          R.m_dMsXfer=R.dMlXfer*SDB[Sn].MoleWt();
+          R.m_dMsXfer=R.m_dMlXfer*SDB[Sn].MoleWt();
 
           #if dbgReaction
           if (RB.DoDbgBrk() && dbgRctSolveEqnXfer())
@@ -2763,13 +2763,13 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
           {
           CR_Eqn &E=*(Eqns[e]);
           double DiffXfer=E.iDirn*SPlex.Value(1+e);
-          E.dMlXfer+=DiffXfer;
+          E.m_dMlXfer+=DiffXfer;
           bConverged=bConverged && (fabs(DiffXfer)<(1.0e-20+RB.dRctTol*TotMoles));
 
           #if dbgReaction
           double TotDMass=0.0;
           if (RB.DoDbgBrk() && dbgRctSolveEqn())
-            dbgpln("2# %3i XFer %14.6f   %14s %14s  %14s", e, E.dMlXfer,
+            dbgpln("2# %3i XFer %14.6f   %14s %14s  %14s", e, E.m_dMlXfer,
                     "kgMoles", "kgMoles", "kg");
           #endif
           for (int l=0; l<E.NReactants(); l++)
@@ -2777,7 +2777,7 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
             CR_EqnTerm &L=E.Reactant[l];
             int Sn=L.SpcId;
             double LDiffXfer=-DiffXfer*L.NoOfMoles; //??
-            L.dMlXfer+=LDiffXfer;
+            L.m_dMlXfer+=LDiffXfer;
             RB.DMoles[Sn] += LDiffXfer;
             L.dUseFrac=LDiffXfer/GTZ(Max(RB.Moles[Sn], RB.Moles[Sn]+RB.DMoles[Sn]));
             #if dbgReaction
@@ -2793,7 +2793,7 @@ long CR_Eqn::SolveBlock3(CReactionBlock &RB, pCR_Eqn *Eqns, int NEqns, CRctSolve
             CR_EqnTerm &R=E.Product[r];
             int Sn=R.SpcId;
             double RDiffXfer=DiffXfer*R.NoOfMoles; //??
-            R.dMlXfer+=RDiffXfer;//*R.NoOfMoles; //??
+            R.m_dMlXfer+=RDiffXfer;//*R.NoOfMoles; //??
             RB.DMoles[Sn] += RDiffXfer;
             R.dUseFrac=RDiffXfer/GTZ(Max(RB.Moles[Sn], RB.Moles[Sn]+RB.DMoles[Sn]));
             #if dbgReaction
@@ -2893,7 +2893,7 @@ void CR_Eqn::AdjustModel(double dProdMoles, double T, double P)
     int SpId=Reactant[j].SpcId;
     double Ml=Moles[SpId]+DMoles[SpId];
     double StMoles=Reactant[j].NoOfMoles;
-    Ml += (-dProdMoles+dMlXfer)*StMoles;
+    Ml += (-dProdMoles+m_dMlXfer)*StMoles;
     Mdl.VValue[SpId]=Ml*SDB[SpId].MoleWt();
     }
   for (int k=0; k<Product.GetSize(); k++)
@@ -2901,7 +2901,7 @@ void CR_Eqn::AdjustModel(double dProdMoles, double T, double P)
     int SpId=Product[k].SpcId;
     double Ml=Moles[SpId]+DMoles[SpId];
     double StMoles=Product[k].NoOfMoles;
-    Ml += (dProdMoles-dMlXfer)*StMoles;
+    Ml += (dProdMoles-m_dMlXfer)*StMoles;
     Mdl.VValue[SpId]=Ml*SDB[SpId].MoleWt();
     }
   Mdl.SetTemp(T);
@@ -2916,7 +2916,7 @@ void CR_Eqn::GetMsAGData(CMSJoin & AG)
   for (int r=0; r<NProducts(); r++)
     {
     CR_EqnTerm &P=Product[r];
-    MassXfer+=P.dMlXfer*SDB[P.SpcId].MoleWt();
+    MassXfer+=P.m_dMlXfer*SDB[P.SpcId].MoleWt();
     }
   int NPs, NRs;
   CR_EqnTerm *Ps, *Rs;
@@ -2943,12 +2943,12 @@ void CR_Eqn::GetMsAGData(CMSJoin & AG)
     {
     CR_EqnTerm &P=Ps[p];
     int PSn=P.SpcId;
-    double XP=fabs(P.dMlXfer)*SDB[PSn].MoleWt();
+    double XP=fabs(P.m_dMlXfer)*SDB[PSn].MoleWt();
     for (int r=0; r<NRs; r++)
       {
       CR_EqnTerm &R=Rs[r];
       int RSn=R.SpcId;
-      double XR=fabs(R.dMlXfer)*SDB[RSn].MoleWt();
+      double XR=fabs(R.m_dMlXfer)*SDB[RSn].MoleWt();
       AG.m_Gamma[PSn][RSn] += XR*XP/MassXfer;///R.NoOfMoles;
       }
     }

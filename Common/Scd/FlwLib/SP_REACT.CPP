@@ -196,6 +196,7 @@ CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
 
   m_dEstFinalT=Std_T;
   m_bFindFinalT=true;
+  m_TimeIncAtSolve=1.0;
 
   m_ExtentType=(PrjFileVerNo()<73 ? RBXT_Target : RBXT_Strict);
 
@@ -1262,91 +1263,91 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
       }
     case xidRCTRefDuty:
       if (DCB.rD)
-        m_dHfSumTotRefT = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHfSumTotRefT/ICGetTimeInc();
+        m_dHfSumTotRefT = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHfSumTotRefT/TimeIncAtSolve();
       return 1;
     case xidRCTRefDutyRct:
       if (DCB.rD)
-        m_RctB.m_Hf_RefT = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_RctB.m_Hf_RefT/ICGetTimeInc();
+        m_RctB.m_Hf_RefT = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_RctB.m_Hf_RefT/TimeIncAtSolve();
       return 1;
     case xidRCTZeroDuty:
       if (DCB.rD)
-        m_dHfSumTotZeroTAtmP = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHfSumTotZeroTAtmP/ICGetTimeInc();
+        m_dHfSumTotZeroTAtmP = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHfSumTotZeroTAtmP/TimeIncAtSolve();
       return 1;
     case xidRCTZeroDutyRct:
       if (DCB.rD)
-        m_RctB.m_dHfZeroTAtmP = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_RctB.m_dHfZeroTAtmP/ICGetTimeInc();
+        m_RctB.m_dHfZeroTAtmP = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_RctB.m_dHfZeroTAtmP/TimeIncAtSolve();
       return 1;
     case xidRCTFdDuty:
       if (DCB.rD)
-        m_dHfSumTotFdT = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHfSumTotFdT/ICGetTimeInc();
+        m_dHfSumTotFdT = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHfSumTotFdT/TimeIncAtSolve();
       return 1;
     case xidRCTPrDuty:
       if (DCB.rD)
-        m_dHfSumTotPrT = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHfSumTotPrT/ICGetTimeInc();
+        m_dHfSumTotPrT = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHfSumTotPrT/TimeIncAtSolve();
       return 1;
     case xidRCTFdDutyRct:
       if (DCB.rD)
-        m_RctB.m_Hf_FdT= *DCB.rD*ICGetTimeInc();
-      DCB.D=m_RctB.m_Hf_FdT/ICGetTimeInc();
+        m_RctB.m_Hf_FdT= *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_RctB.m_Hf_FdT/TimeIncAtSolve();
       return 1;
     case xidRCTPrDutyRct:
       if (DCB.rD)
-        m_RctB.m_Hf_PrT= *DCB.rD*ICGetTimeInc();
-      DCB.D=m_RctB.m_Hf_PrT/ICGetTimeInc();
+        m_RctB.m_Hf_PrT= *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_RctB.m_Hf_PrT/TimeIncAtSolve();
       return 1;
     case xidRCTDutyHXPwr:
-      DCB.D=HsSumHXPwr()/ICGetTimeInc();
+      DCB.D=HsSumHXPwr()/TimeIncAtSolve();
       return 1;
     case xidRCTDutyHX:
       if (DCB.rD)
-        m_dHsSumHX = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHsSumHX/ICGetTimeInc();
+        m_dHsSumHX = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHsSumHX/TimeIncAtSolve();
       return 1;
     case xidRCTDutyPwr:
       if (DCB.rD)
-        m_dHsSumPwr = *DCB.rD*ICGetTimeInc();
-      DCB.D=m_dHsSumPwr/ICGetTimeInc();
+        m_dHsSumPwr = *DCB.rD*TimeIncAtSolve();
+      DCB.D=m_dHsSumPwr/TimeIncAtSolve();
       return 1;
     case xidRCTFdDutySrc:
       if (DCB.rD)
-        m_SrcB.m_Hf_FdT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_SrcB.m_Hf_FdT/ICGetTimeInc();
+        m_SrcB.m_Hf_FdT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_SrcB.m_Hf_FdT/TimeIncAtSolve();
       return 1;
     case xidRCTPrDutySrc:
       if (DCB.rD)
-        m_SrcB.m_Hf_PrT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_SrcB.m_Hf_PrT/ICGetTimeInc();
+        m_SrcB.m_Hf_PrT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_SrcB.m_Hf_PrT/TimeIncAtSolve();
       return 1;
     case xidRCTFdDutySnk:
       if (DCB.rD)
-        m_SnkB.m_Hf_FdT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_SnkB.m_Hf_FdT/ICGetTimeInc();
+        m_SnkB.m_Hf_FdT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_SnkB.m_Hf_FdT/TimeIncAtSolve();
       return 1;
     case xidRCTPrDutySnk:
       if (DCB.rD)
-        m_SnkB.m_Hf_PrT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_SnkB.m_Hf_PrT/ICGetTimeInc();
+        m_SnkB.m_Hf_PrT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_SnkB.m_Hf_PrT/TimeIncAtSolve();
       return 1;
     case xidRCTFdDutySrcSnk:
-      DCB.D=HfSumSrcSnk(false)/ICGetTimeInc();
+      DCB.D=HfSumSrcSnk(false)/TimeIncAtSolve();
       return 1;
     case xidRCTPrDutySrcSnk:
-      DCB.D=HfSumSrcSnk(true)/ICGetTimeInc();
+      DCB.D=HfSumSrcSnk(true)/TimeIncAtSolve();
       return 1;
     case xidRCTFdHfErr:
       if (DCB.rD)
-        m_dHfErrFdT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_dHfErrFdT/ICGetTimeInc();
+        m_dHfErrFdT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_dHfErrFdT/TimeIncAtSolve();
     case xidRCTPrHfErr:
       if (DCB.rD)
-        m_dHfErrPrT = *DCB.rD*ICGetTimeInc();
-      DCB.D = m_dHfErrPrT/ICGetTimeInc();
+        m_dHfErrPrT = *DCB.rD*TimeIncAtSolve();
+      DCB.D = m_dHfErrPrT/TimeIncAtSolve();
       return 1;
     case xidRCTName:
       if (DCB.rpC!=NULL)
@@ -2056,6 +2057,8 @@ void CReactionBlock::EvalProducts(SpConduit & Cd, double EstFinalT/*, bool FindF
   m_InWhat = eEvalProducts;    
   m_pCSB=NULL;
 
+  m_TimeIncAtSolve=ICGetTimeInc();
+
   CAttachSpModel ASM(this, Cd);
 
   m_dHfSumTotFdT=0.0;
@@ -2321,6 +2324,8 @@ void CReactionBlock::EvalDerivs(SpContainer & Cn, SpConduit & Fd, SpConduit & Pr
   //m_pRefModel=M.Model();
   m_pCSB=NULL;
 
+  m_TimeIncAtSolve=ICGetTimeInc();
+
   CAttachSpModel ASM(this, Cn);
 
   if (GetActiveHold() || !fOn || iReactionState!=RBS_OK)
@@ -2441,6 +2446,8 @@ void CReactionBlock::ConvergeStates(CConvergeStateBlk &CSB, SpModelOwner /*Conta
   if (dbgRctSolve())
     dbgpln("Converge States ---------------------- %s", FullObjTag());
   #endif
+
+  m_TimeIncAtSolve=ICGetTimeInc();
 
   m_InWhat = eConvergeStates;      
   //m_pRefModel=M.Model();

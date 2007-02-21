@@ -250,7 +250,7 @@ class DllImportExport CR_EqnTerm
     int          SpcId;
     double       dSpUsed;
     double       dSpAvailToEqn;
-    double       dMlXfer;
+    double       m_dMlXfer;
     double       m_dMsXfer;
 
     CR_EqnTerm()
@@ -260,7 +260,7 @@ class DllImportExport CR_EqnTerm
       SpcId=-1;
       dSpUsed=0.0;
       dSpAvailToEqn=0.0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       }
     CR_EqnTerm(char * Name, double StMoles, int Id)
@@ -272,7 +272,7 @@ class DllImportExport CR_EqnTerm
         CReactionBlock::Error(NULL, 'B', 0, Name);
       dSpUsed=0.0;
       dSpAvailToEqn=0.0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       };
 
@@ -285,7 +285,7 @@ class DllImportExport CR_EqnTerm
         CReactionBlock::Error(NULL, 'B', 0, Name);
       dSpUsed=0.0;
       dSpAvailToEqn=0.0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       };
     CR_EqnTerm(int Id, double StMoles)
@@ -298,7 +298,7 @@ class DllImportExport CR_EqnTerm
         SpcName=SDB[Id].SymOrTag();
       dSpUsed=0.0;
       dSpAvailToEqn=0.0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       };
     void Clear()
@@ -308,14 +308,14 @@ class DllImportExport CR_EqnTerm
       SpcId=-1;
       dSpUsed=0.0;
       dSpAvailToEqn=0.0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       }
     void   Zero()
       {
       dSpUsed=0;
       dSpAvailToEqn=0;
-      dMlXfer=0.0;
+      m_dMlXfer=0.0;
       m_dMsXfer=0.0;
       };
   };
@@ -451,7 +451,7 @@ class DllImportExport CR_Eqn : public CReaction
     flag           fCnvrgd;
 
     int            iLimitSpc;
-    double         dMlXfer;
+    double         m_dMlXfer;
     //double         dMlXferTot;
     double         dRctScl;
     double         m_dRelRate;

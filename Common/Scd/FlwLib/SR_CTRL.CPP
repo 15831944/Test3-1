@@ -877,10 +877,10 @@ void CEC_FracExt::BuildDataDefnEnd(DataDefnBlk & DDB)
         {
         for (int i=0; i<Eq.Reactant.GetSize(); i++)
           {
-          DDB.Double(SDB[Eq.Reactant[i].SpcId].SymOrTag(), "", DC_QKgMl, "kmol/s", &Eq.Reactant[i].dMlXfer, &Eq, isResult|noFileAtAll);
+          DDB.Double(SDB[Eq.Reactant[i].SpcId].SymOrTag(), "", DC_QKgMl, "kmol/s", &Eq.Reactant[i].m_dMlXfer, &Eq, isResult|noFileAtAll);
           }
         for (int i=0; i<Eq.Product.GetSize(); i++)
-          DDB.Double(SDB[Eq.Product[i].SpcId].SymOrTag(), "", DC_QKgMl, "kmol/s", &Eq.Product[i].dMlXfer, &Eq, isResult|noFileAtAll);
+          DDB.Double(SDB[Eq.Product[i].SpcId].SymOrTag(), "", DC_QKgMl, "kmol/s", &Eq.Product[i].m_dMlXfer, &Eq, isResult|noFileAtAll);
         }
       DDB.EndStruct();
       }
@@ -958,9 +958,9 @@ double CEC_FracExt::ExtentActual(double ProdMoles)
       {
       double MolesUsed=0;
       if (m_iXReactTerm>=0)
-        MolesUsed=Eq.dMlXfer*Eq.Reactant[m_iXReactTerm].NoOfMoles;
+        MolesUsed=Eq.m_dMlXfer*Eq.Reactant[m_iXReactTerm].NoOfMoles;
       else if (m_iXProdTerm>=0)
-        MolesUsed=Eq.dMlXfer*Eq.Product[m_iXProdTerm].NoOfMoles;
+        MolesUsed=Eq.m_dMlXfer*Eq.Product[m_iXProdTerm].NoOfMoles;
       else
         {
         ASSERT_ALWAYS(0, "FracExt not setup", __FILE__, __LINE__);

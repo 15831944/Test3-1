@@ -381,6 +381,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     double        *MassArray()        { return (m_pModelOwn!=NULL) ? m_pModelOwn->pModel->SVData() : NULL; };
     double         EstFinalT()        { return Valid(m_dEstFinalT) ? m_dEstFinalT : m_TempK; };
     CConvergeStateBlk * CSB()         { return m_pCSB; };
+    double         TimeIncAtSolve()   { return m_TimeIncAtSolve; };
+
 
     _declspec(property(get=getModel))         SpModel * Model;
     _declspec(property(get=getOwnModel))      SpModel * OwnModel;
@@ -546,6 +548,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     bool           m_bFindFinalT;
 
     byte           m_ExtentType;
+
+    double         m_TimeIncAtSolve;
 
     static byte    sm_AllVars;
     static byte    sm_ChgVars;
