@@ -2057,7 +2057,7 @@ void CReactionBlock::EvalProducts(SpConduit & Cd, double EstFinalT/*, bool FindF
   m_InWhat = eEvalProducts;    
   m_pCSB=NULL;
 
-  m_TimeIncAtSolve=ICGetTimeInc();
+  m_TimeIncAtSolve=1.0;//ICGetTimeInc(); these are all in terms of flow already
 
   CAttachSpModel ASM(this, Cd);
 
