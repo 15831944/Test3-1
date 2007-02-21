@@ -18,7 +18,7 @@ double  ft(double);              // Basic HT and dP correlations for tubeside
 double NuG(double, double);
 
 
-#define USEEHXBLK 0
+//**/ #define USEEHXBLK 01
 
 class CCARTubeDigester : public MBaseMethod, CSTHx
   {
@@ -67,8 +67,8 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
 #if (!USEEHXBLK)
     bool m_bEnvironHX; // Environmental HX
 #endif
- 
-    long m_lOpMode;    // Operating Mode (not implemented, always uses condensing)
+    bool m_bNonMacro;  // For non macro use
+    long m_lOpMode;    // Operating Mode 
     long m_lHxMode;    // Heat Transfer calc mode - 0 lumped, 1 detailed
     long m_lTSHxMode;  // Modes for Tubeside and Shellside HT and dP calculations
     long m_lSSHxMode;  // Presently no detailed calculations implemented
@@ -124,6 +124,9 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
 
     double m_dDuty;           // Heat Exchanged
     double m_dTotDuty;        // Hx plus environment loss
+    double m_dTheoDuty;
+    double m_dTheoDutyR;
+    
 
     double m_dLMTDFactor;
 
