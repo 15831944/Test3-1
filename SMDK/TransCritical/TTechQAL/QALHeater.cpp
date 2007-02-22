@@ -444,7 +444,7 @@ void CQALHeater::DoCondensingHeater(MStream & ShellI, MStream & TubeI,
 	  }
 	A=GTZ(A);
 	// Distribute according to MakeUpAvail
-	for (i=0; i<FlwIOs.Count; i++)
+	for (int i=0; i<FlwIOs.Count; i++)
 	  {
 	    MFlow F=FlwIOs[i];
 	    if (F.Id==idShellI && F.IsFlwIn && F.IsMakeUpAvail)
