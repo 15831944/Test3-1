@@ -19,6 +19,7 @@
 //
 // Example: Client MyMachineName 2000
 //
+#include "stdafx.h"
 #include <stdio.h>
 #include <winsock.h>
 #include "client.h"

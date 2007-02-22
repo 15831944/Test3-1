@@ -237,7 +237,7 @@ void CPrecipitator::BuildDataFields()
 	  
    
 
-  DD.Show(iCoolType);
+  DD.Show(iCoolType!=0);
   DD.Page("Cooler");
   DD.Show(iCoolType==COOL_INTERNAL);
   DD.CheckBox("Cooler.On", "",  &m_bCoolerOn, MF_PARAMETER);
@@ -279,7 +279,7 @@ void CPrecipitator::BuildDataFields()
 
   DD.Double("Ext.Cooling.Temp", "", &m_dExtCoolTemp, MF_RESULT, MC_T("C")); // Ext Cooling.Temp
   DD.Double("Ext.Cooling.totHz", "", &m_dCoolOutTotHz , MF_RESULT, MC_Pwr("kW")); // Ext Cooling Rate
-  DD.Show(iCoolType);
+  DD.Show(iCoolType!=0);
   DD.Double("Cooling.Rate", "", &m_dCoolRate, MF_RESULT, MC_Pwr("kW")); // Ext Cooling Rate
 
 

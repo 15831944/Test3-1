@@ -231,7 +231,7 @@ void CFilter::DoFilter(MStream &OFlow, MStream &UFlow)
   double pVol_U = 0.0, pVol_O=0.0, mO=0.0, mU=0.0;
   double eff, ab, nl[nClasses+1][2];
   double xS;
-  double xL;  // Solids and Liquids split
+  //CNM double xL;  // Solids and Liquids split
   
   MIPSD & FeedPSD = Feed.IF<MIPSD>(false);
   MIPSD & OFPSD = OFlow.IF<MIPSD>(false);
