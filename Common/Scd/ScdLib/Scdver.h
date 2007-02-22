@@ -30,7 +30,6 @@
 #define WITHORDEROBJ          1
 #define WITHIOOBJ             1
 #define WITHXMENUS            1
-#define WITHDOUBLEGSMODEL     1
 #define WITHSURGECTRLDOUBLE   1
 #define WITHGRFDOCFRAME       1
 #define WITHAUTOVLE           1

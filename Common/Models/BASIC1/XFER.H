@@ -18,7 +18,7 @@
   #define DllImportExport
 #endif
 
-#define XREFTEST (1 && WITHNODETAGIO)
+#define XREFTEST (0 && WITHNODETAGIO)
 
 // ==========================================================================
 
