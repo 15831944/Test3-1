@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-22 23:55:48 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-23 03:06:52 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -57,6 +57,7 @@ static MDDValueLst DD1[]=
 
 
 static MDDValueLst DD2[]={
+  {1, "Simple"},
   {2, "Linear"},
   {3, "50%"}, 
   {5, "25%"}, 
