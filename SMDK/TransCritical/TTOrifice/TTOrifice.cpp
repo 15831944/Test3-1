@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-23 03:06:52 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-23 03:43:34 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -337,11 +337,13 @@ bool CTTOrifice::EvalJoinPressures()
 
 double CTTOrifice::ValveCv() 
 {
-  if (bValveDetail) {
-    return 1;
-  }
-  else {
-    return 1;
+  switch (lValveDataPts) {
+  case 1:
+    return dValveData[0]*dValvePosition;
+  case 2: 
+    return dValveData[0] + (dValveData[1]-dValveData[0])*dValvePosition;
+  default:
+    return dValveData[0]+ (dValveData[lValveDataPts-1]-dValveData[0])*dValvePosition;
   }
   
 }
@@ -388,7 +390,7 @@ void CTTOrifice::EvalProducts()
       dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
       double dGIn = dMassFlow1/area;
       double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
-      double dValveCv = dValveData[0] + dValvePosition*(dValveData[1]-dValveData[0]);
+      double dValveCv = ValveCv();
       dValveK = 200.*Sqr(area*3600/(.866*dValveCv));
       dPValve = .5*dValveK*Sqr(dGIn)/den/1000.;
       dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1-dPValve;
