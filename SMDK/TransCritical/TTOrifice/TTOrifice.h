@@ -33,13 +33,14 @@ class CTTOrifice : public MBaseMethod
 
     double massVelocity(MStream  ms, double pIn, double pOut);
     double chokeMassVelocity(MStream  ms, double pIn);
-    
+    double ValveCv();
     
 
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
     bool bOn;     // Bypass if not...
     bool bPassThru;    // If on, pass stream through unaltered
+    bool bValveDetail;
     long m_lSlipMode;
     long m_lOpMode;
 
@@ -70,7 +71,16 @@ class CTTOrifice : public MBaseMethod
     double dMassVelocity;
     double dPCritical;  // Critical Pressure in orifice choke flow
     double dPOutActual;
+    double dPValve;         // (Variable) Pressure drop in valve
     double dValvePosition;  // Position of valve, 0-100%
+    double dValvePressureDrop;
+    double dValveCvOpen;
+    double dValveCvClosed;
+    double dValveK;
+    double dPipeVelocity;
+    long lValveDataPts;      // 10 for angle, 11 for %, 2 for simple case.
+    double dValveData[11];  // Data for control valve, Cv at data points
+
     // double dDensityCorrection;  /// But here is OK...
 
   };
