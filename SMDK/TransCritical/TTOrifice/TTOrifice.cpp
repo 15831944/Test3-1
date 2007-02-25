@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-23 03:43:34 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-25 01:15:34 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 #include "TTOrifice.h"
+#include "..\ttcommon\utils.h"
 //#pragma optimize("", off)
 
 #define dbgModels 1
@@ -212,7 +213,7 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   bPassThru = false;
   m_lOpMode = OM_Full;
   dValvePosition = 0.0;
-  bValveDetail = false;
+  bControlValve = true;
   //todo: set some reasonable defaults....
   m_lSlipMode = SFM_Homo;
   dIn = dOut;
@@ -256,6 +257,7 @@ void CTTOrifice::BuildDataFields()
 #endif
   DD.CheckBox("On", "",  &bOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("PassThru", "",  &bPassThru, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.CheckBox("LCValve", "",  &bControlValve, MF_PARAMETER|MF_SET_ON_CHANGE);
   
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
   DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD1);
@@ -273,9 +275,11 @@ void CTTOrifice::BuildDataFields()
   DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
   DD.Double("OrificeHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
+  DD.Show(bControlValve);
   DD.Double("ValvePosition", "", &dValvePosition, MF_PARAMETER, MC_Frac("%"));
   DD.Double("ValveK", "", &dValveK, MF_RESULT, MC_None);
   DD.Double("ValvePressureDrop", "", &dPValve, MF_RESULT, MC_P("kPa"));
+  DD.Show();
   DD.Double("OrificeEntryPressure", "", &dPOrificeIn, MF_RESULT, MC_P("kPa"));
 
 
@@ -299,14 +303,17 @@ void CTTOrifice::BuildDataFields()
   DD.Double("MassFlow4", "", &dMassFlow4, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
+  DD.Show(bControlValve);
   DD.Page("Valve Cv");
   DD.Long  ("ValveDataPts",    "",     &lValveDataPts,   MF_PARAMETER|MF_SET_ON_CHANGE, DD2);
+  DD.CheckBox("LinearInterpolate", "", &bValveLinear,  MF_PARAMETER|MF_SET_ON_CHANGE);
   CString Tg;
   for (int i=0; i<lValveDataPts; i++) {
     Tg.Format("Valve Cv %2d", i);
     DD.Double((char*)(const char*)Tg, "", dValveData+i, MF_PARAMETER, MC_None);
   }
-
+  DD.Double("ValveCv@posn", "", &dValveCv, MF_RESULT, MC_None);
+  DD.Show();
 }
 
 //---------------------------------------------------------------------------
@@ -342,10 +349,17 @@ double CTTOrifice::ValveCv()
     return dValveData[0]*dValvePosition;
   case 2: 
     return dValveData[0] + (dValveData[1]-dValveData[0])*dValvePosition;
+  case 3:
+    if (bValveLinear)
+      return linn(dValvePosition, dValveData, 3);
+    else
+      return poly3(dValvePosition, dValveData);
   default:
-    return dValveData[0]+ (dValveData[lValveDataPts-1]-dValveData[0])*dValvePosition;
+    if (bValveLinear)
+      return linn(dValvePosition, dValveData, lValveDataPts);
+    else
+      return polyn(dValvePosition, dValveData, lValveDataPts);
   }
-  
 }
 
 
@@ -390,9 +404,12 @@ void CTTOrifice::EvalProducts()
       dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
       double dGIn = dMassFlow1/area;
       double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
-      double dValveCv = ValveCv();
-      dValveK = 200.*Sqr(area*3600/(.866*dValveCv));
-      dPValve = .5*dValveK*Sqr(dGIn)/den/1000.;
+      if (bControlValve) {
+	dValveCv = ValveCv();
+	dValveK = 200.*Sqr(area*3600/(.866*dValveCv));
+	dPValve = .5*dValveK*Sqr(dGIn)/den/1000.;
+      } else dPValve=0.0;
+
       dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1-dPValve;
 
       dSatP = m_VLE.SaturationP(InStream, InStream.T);

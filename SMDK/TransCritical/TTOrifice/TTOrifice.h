@@ -40,7 +40,9 @@ class CTTOrifice : public MBaseMethod
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
     bool bOn;     // Bypass if not...
     bool bPassThru;    // If on, pass stream through unaltered
-    bool bValveDetail;
+    bool bControlValve;  // Include control valve dP
+    bool bValveLinear;   // Interpolate linearly between data points.
+
     long m_lSlipMode;
     long m_lOpMode;
 
@@ -80,8 +82,7 @@ class CTTOrifice : public MBaseMethod
     double dPipeVelocity;
     long lValveDataPts;      // 10 for angle, 11 for %, 2 for simple case.
     double dValveData[11];  // Data for control valve, Cv at data points
-
-    // double dDensityCorrection;  /// But here is OK...
+    double dValveCv;  // Valve Cv at position
 
   };
 
