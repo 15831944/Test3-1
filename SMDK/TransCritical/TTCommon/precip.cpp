@@ -1,9 +1,9 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2005-03-18 11:17:57 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-09 00:28:57 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "Precip.h"
 
 //=========================================================================== 
