@@ -300,7 +300,7 @@ void ContactHeater::EvalJoinPressures(long JoinMask)
           //m_FTC.SetSuctionP(Min(dFinalP, MeasureJoinPressure(0)));
           m_FTC.SetSuctionP(dFinalP);
 //          m_FTC.SetSuctionP(MeasureJoinPressure(0));
-          SetJoinPressure(0, m_FTC.SuctionP(), true, true);
+          SetJoinPressure(0, m_FTC.SuctionP(),  false, true);
           }
         }
         break;
