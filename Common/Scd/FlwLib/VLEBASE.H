@@ -106,9 +106,9 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual int    GetVLEData(CVLEDataArray & Array)                                                      { return 0; }; 
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv)                                          { return dNAN; };
     virtual double CondensableFrac(SpContainer*Cn)                                                        { return dNAN; };
-    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)                   { return dNAN; };
-    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL)                        { return dNAN; };
-    virtual int    SaturationMethod()=0;
+    virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA)                        { return dNAN; };
+    virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA)                               { return dNAN; };
+    //virtual int    SaturationMethod(SpModel * pMdl)=0;
 
     virtual double ApproachTemp()=0;
 
@@ -179,9 +179,9 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
-    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
-    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel * pMdl=NULL);
-    virtual int    SaturationMethod();
+    virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA);
+    virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA);
+    //virtual int    SaturationMethod(SpModel * pMdl);
 
     virtual double ApproachTemp();
     virtual bool   ApproachTempOn() { return (m_iFlags & VLEF_ApproachTempOn)!=0; }
@@ -301,9 +301,9 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
-    virtual double SaturationTotalP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
-    virtual double SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl=NULL);
-    virtual int    SaturationMethod();
+    virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA);
+    virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA);
+    //virtual int    SaturationMethod(SpModel * pMdl);
 
     virtual double ApproachTemp();
 
@@ -327,7 +327,7 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
     SpecieIter     OtherVapSp;
 
-    long           m_iMethod;
+    //long           m_iMethod;
     long           m_iCmpNo, m_li, m_vi;
     double         Mt,Ht,Vf;
     long           m_iState;
@@ -431,7 +431,7 @@ class DllImportExport CVLERootK : public CVLEBlock
 
     virtual flag   HasTPEnvelope() { return True;};
 
-    virtual int    SaturationMethod() { return SMFM_Undefined; };
+    //virtual int    SaturationMethod(SpModel * pMdl) { return SMFM_Undefined; };
 
     virtual double ApproachTemp()  { return 0.0; };
 

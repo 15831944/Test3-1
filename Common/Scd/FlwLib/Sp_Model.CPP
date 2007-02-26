@@ -8457,12 +8457,12 @@ int SpModel::SaturationCmpIndex()
 
 int SpModel::SaturationMethod()
   { 
-  if (m_pVLE && m_pVLE->Enabled())
-    {
-    int iM=m_pVLE->SaturationMethod();
-    if (iM>=0)
-      return iM;
-    }
+  //if (m_pVLE && m_pVLE->Enabled())
+  //  {
+  //  int iM=m_pVLE->SaturationMethod(this);
+  //  if (iM>=0)
+  //    return iM;
+  //  }
   if (m_iSatMethodRqd>=0)
     return m_iSatMethodRqd;
   if (m_iSatMethod>=0)
@@ -8497,15 +8497,15 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
     return CDB[iSatComp].VapourP(m_iFidelity, T_);
     }
 
-  if (m_pVLE && m_pVLE->Enabled())
-    {
-    double P=m_pVLE->SaturationP(T_, pMA);
-    if (Valid(P))
-      {
-      //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "VLE", T_, P, FullObjTag());
-      return P;
-      }
-    }
+  //if (m_pVLE && m_pVLE->Enabled())
+  //  {
+  //  double P=m_pVLE->SaturationP(this, T_, pMA);
+  //  if (Valid(P))
+  //    {
+  //    //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "VLE", T_, P, FullObjTag());
+  //    return P;
+  //    }
+  //  }
 
   if (m_AutoVLE.m_iCmp>=0)
     {
@@ -8534,12 +8534,12 @@ double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
     return SaturationP(T_, pMA, iSatComp)+PP;
     }
 
-  if (m_pVLE && m_pVLE->Enabled())
-    {
-    double P=m_pVLE->SaturationTotalP(T_, pMA ? pMA : pMArray(), this);
-    if (Valid(P))
-      return P;
-    }
+  //if (m_pVLE && m_pVLE->Enabled())
+  //  {
+  //  double P=m_pVLE->SaturationTotalP(this, T_, pMA ? pMA : pMArray());
+  //  if (Valid(P))
+  //    return P;
+  //  }
 
   if (m_AutoVLE.m_iCmp>=0)
     {

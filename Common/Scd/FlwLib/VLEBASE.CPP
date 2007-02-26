@@ -849,51 +849,14 @@ void CVLEBase::MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty,
 
 //--------------------------------------------------------------------------
 
-int CVLEBase::GetVLEData(CVLEDataArray & Array)
-  {
-  if (Enabled()) 
-    return m_pVLE->GetVLEData(Array);
-  return 0;
-  };
+int CVLEBase::GetVLEData(CVLEDataArray & Array)                                  { return Enabled() ? m_pVLE->GetVLEData(Array) : 0;          };
+double CVLEBase::CondensableFrac(SpConduit *Ql, SpConduit *Qv)                   { return Enabled() ? m_pVLE->CondensableFrac(Ql, Qv) : dNAN; };
+double CVLEBase::CondensableFrac(SpContainer *Cn)                                { return Enabled() ? m_pVLE->CondensableFrac(Cn) : dNAN;     };
+double CVLEBase::SaturationP(SpModel *pMdl, double Temp, CSysVector * pMA)       { return Enabled() ? pMdl->SaturationP(Temp, pMA) : dNAN;    };
+double CVLEBase::SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA) { return Enabled() ? pMdl->SaturationTotalP(Temp, pMA) : dNAN; };
 
-//--------------------------------------------------------------------------
-
-double CVLEBase::CondensableFrac(SpConduit *Ql, SpConduit *Qv)
-  {
-  if (Enabled()) 
-    return m_pVLE->CondensableFrac(Ql, Qv);
-  return dNAN;
-  };
-
-//--------------------------------------------------------------------------
-
-double CVLEBase::CondensableFrac(SpContainer *Cn)
-  {
-  if (Enabled()) 
-    return m_pVLE->CondensableFrac(Cn);
-  return dNAN;
-  };
-
-//--------------------------------------------------------------------------
-
-double CVLEBase::SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl)
-  {
-  if (Enabled()) 
-    return m_pVLE->SaturationP(Temp, pMA, pMdl);
-  return dNAN;
-  };
-
-//--------------------------------------------------------------------------
-
-double CVLEBase::SaturationTotalP(double Temp, CSysVector * pMA, SpModel * pMdl)
-  {
-  if (Enabled()) 
-    return m_pVLE->SaturationTotalP(Temp, pMA, pMdl);
-  return dNAN;
-  };
-
-int CVLEBase::SaturationMethod()   { return Enabled() ? m_pVLE->SaturationMethod() : SMFM_Default; };
-double CVLEBase::ApproachTemp()    { return Enabled() && (m_iFlags&VLEF_ApproachTempOn) ? m_pVLE->ApproachTemp() : 0.0; };
+//int CVLEBase::SaturationMethod(SpModel * pMdl)                                   { return Enabled() ? pMdl->SaturationMethod() : SMFM_Default; };
+double CVLEBase::ApproachTemp()                                                  { return Enabled() && (m_iFlags&VLEF_ApproachTempOn) ? m_pVLE->ApproachTemp() : 0.0; };
 
 //============================================================================
 //
@@ -1167,7 +1130,7 @@ CVLEBlock(pClass_, TagIn, pAttach, eAttach)//,
   m_dPrvVapPress=Std_P;
   m_fModelSatP=true;
   m_dApproachTemp=0.0;
-  m_iMethod=SMFM_Default;
+  //m_iMethod=SMFM_Default;
   };
 
 //--------------------------------------------------------------------------
@@ -1197,7 +1160,7 @@ void CVLEVapPress::BuildDataDefn(DataDefnBlk &DDB)//, pchar pTag_, DDBPages Page
         DDBCmp.Add(i, CDB[i].SymOrTag());
 
 
-    DDB.Long  ("Method",       "",  DC_,     "",    &m_iMethod,      this, isParm|SetOnChange, SpModel::sm_DDBFlashMethods());
+    //DDB.Long  ("Method",       "",  DC_,     "",    &m_iMethod,      this, isParm|SetOnChange, SpModel::sm_DDBFlashMethods());
     DDB.Long  ("Component",    "",  DC_,     "",    &m_iCmpNo,       this, isParm|SetOnChange, DDBCmp());
     DDB.Double("PrvVapFrac",   "",  DC_Frac, "%",   &m_dPrvVapFrac,  this, isParm|InitHidden);
     DDB.Double("PrvVapPress",  "",  DC_P,    "kPa", &m_dPrvVapPress, this, isParm|InitHidden);
@@ -1334,7 +1297,7 @@ LPTSTR CVLEVapPress::FlashDescription()
 int    CVLEVapPress::FlashCmpIndex() { return m_iCmpNo; };
 int    CVLEVapPress::FlashLiqIndex() { return m_li; };
 int    CVLEVapPress::FlashVapIndex() { return m_vi; };
-int    CVLEVapPress::SaturationMethod() { return m_iMethod; };
+//int    CVLEVapPress::SaturationMethod(SpModel * pMdl) { return m_iMethod; };
 double CVLEVapPress::ApproachTemp()     { return m_dApproachTemp; };
 
 // -------------------------------------------------------------------------
@@ -2174,7 +2137,7 @@ double CVLEVapPress::CondensableFrac(SpContainer*Cn)
 
 //--------------------------------------------------------------------------
 
-double CVLEVapPress::SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl)
+double CVLEVapPress::SaturationP(SpModel *pMdl, double Temp, CSysVector * pMA)
   {
   if (pMdl==NULL)
     pMdl = pMdlL;
@@ -2185,7 +2148,7 @@ double CVLEVapPress::SaturationP(double Temp, CSysVector * pMA, SpModel *pMdl)
 
 //--------------------------------------------------------------------------
 
-double CVLEVapPress::SaturationTotalP(double Temp, CSysVector * pMA, SpModel *pMdl)
+double CVLEVapPress::SaturationTotalP(SpModel *pMdl, double Temp, CSysVector * pMA)
   {
   if (pMdl==NULL)
     pMdl = pMdlL;

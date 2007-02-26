@@ -304,6 +304,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
   DD.Show(bControlValve);
+  
   DD.Page("Valve Cv");
   DD.Long  ("ValveDataPts",    "",     &lValveDataPts,   MF_PARAMETER|MF_SET_ON_CHANGE, DD2);
   DD.CheckBox("LinearInterpolate", "", &bValveLinear,  MF_PARAMETER|MF_SET_ON_CHANGE);
@@ -314,6 +315,8 @@ void CTTOrifice::BuildDataFields()
   }
   DD.Double("ValveCv@posn", "", &dValveCv, MF_RESULT, MC_None);
   DD.Show();
+  
+  m_VLE.BuildDataFields();     
 }
 
 //---------------------------------------------------------------------------
@@ -339,7 +342,6 @@ bool CTTOrifice::EvalJoinPressures()
 //
 //===========================================================================
 //---------------------------------------------------------------------------
-
 
 
 double CTTOrifice::ValveCv() 
