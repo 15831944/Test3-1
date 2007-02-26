@@ -2115,6 +2115,9 @@ void GSModel::PostConnect(int IONo)
       GSIOAlpha A;
       A.m_IONo = m_IOs[i];
       m_IOAlpha.InsertAt(i, A);
+      GSIOThermal T;
+      T.m_IONo = m_IOs[i];
+      m_IOThermal.InsertAt(i, T);
       i++;
       //}
 
@@ -2128,7 +2131,10 @@ void GSModel::PostConnect(int IONo)
         //shift everything up...
         const int AlphaSize = m_IOAlpha.GetSize();
         for (int j=ii; j<IOsSize && j<AlphaSize; j++)
+          {
           m_IOAlpha[j].m_IONo = m_IOs[j];
+          m_IOThermal[j].m_IONo = m_IOs[j];
+          }
         }
       m_bIOChanges=1;
       }
@@ -2187,6 +2193,21 @@ void GSModel::PreDisConnect(int IONo)
           m_IOAlpha[j] = A;
           m_IOAlpha[j].m_IONo = AlphaSize-1;//m_IOs[j];
           }
+
+        GSIOThermal T;
+        T = m_IOThermal[ii];
+        const int ThermalSize = m_IOThermal.GetSize();
+        for (int j=ii; j<IOsSize && j<ThermalSize; j++)
+          {
+          m_IOThermal[j] = m_IOThermal[j+1];
+          m_IOThermal[j].m_IONo = m_IOs[j];
+          }
+        if (j<ThermalSize)
+          {
+          m_IOThermal[j] = T;
+          m_IOThermal[j].m_IONo = ThermalSize-1;//m_IOs[j];
+          }
+
         }
       }
     }
