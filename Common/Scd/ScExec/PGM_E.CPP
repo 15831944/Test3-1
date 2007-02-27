@@ -1902,7 +1902,7 @@ pchar GCRefArrayIns::GetDesc(pchar Buff)
 //===========================================================================
 
 START_CODE(CallFnt);
-  pGCFunctVar m_pFntVar;
+  GCFunctVar * m_pFntVar;
   virtual pchar    GetDesc(pchar Buff);
 MID_CODE(CallFnt,"#CallFunct#",DefExp | DefLHS,0);
   virtual pGCIns   Construct(GCInsMngr & IB);
@@ -1954,8 +1954,18 @@ void GCCallFntIns::Exec(GCInsMngr & IB)
     }
   else
     {//MUST use Temp or-else CalcStack index gets confused !!!
-    double Temp = IB.m_pClassRefStack[IB.m_iClassRefPos]->m_pRefClass->CallFunct(IB, IB.m_pClassRefStack[IB.m_iClassRefPos]->m_pSubClass, m_pFntVar->m_FunctId, IB.m_pClassRefStack[IB.m_iClassRefPos]);
-    IB.m_dCalcStack[++IB.m_iCalcPos] = Temp;
+    GCClassVar * pClass = IB.m_pClassRefStack[IB.m_iClassRefPos];
+    if ((m_pFntVar->m_flags & VarStrFunct)!=0)// m_bStrRet)
+      {
+      pClass->m_pRefClass->CallFunct(IB, pClass->m_pSubClass, m_pFntVar->m_FunctId, pClass);
+      // The Function will push the String Value using PushStringValue(LPSTR Value);
+      //IB.m_StrStack[++IB.m_iStrPos] = m_pFntVar->m_sStrRet;
+      }
+    else
+      {
+      double Temp = pClass->m_pRefClass->CallFunct(IB, pClass->m_pSubClass, m_pFntVar->m_FunctId, pClass);
+      IB.m_dCalcStack[++IB.m_iCalcPos] = Temp;
+      }
     Advance(IB);
     }
   }
@@ -3134,12 +3144,13 @@ pGCVar GCClassVar::AddFunct( GCInsMngr & IB,
                              pchar pName,
                              short TtlParmCount,
                              flag StrParms,
-                             short FunctId)
+                             short FunctId,
+                             flag StrRet)
   {
   pGCVar pVar = GetVarByName(pName);
   if (pVar)
     IB.Err(ErrBuild, 102);
-  pGCFunctVar pFunctVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, pName, 0);
+  pGCFunctVar pFunctVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, pName, StrRet ? VarStrFunct:0);
   pFunctVar->m_Parms = TtlParmCount;
   pFunctVar->m_bStrParms = StrParms;
   pFunctVar->m_FunctId = FunctId;
@@ -3515,6 +3526,13 @@ void GCInsMngr::DestroyVars(pGCVar& pVarList)
   pVarList = NULL;
 
   }
+
+//---------------------------------------------------------------------------
+
+void GCInsMngr::PushStringValue(LPSTR Value)
+  {
+  m_StrStack[++m_iStrPos] = Value;
+  };
 
 //---------------------------------------------------------------------------
 

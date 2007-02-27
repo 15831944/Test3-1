@@ -298,6 +298,7 @@ class DllImportExport GCInsMngr
     void           DestroyCodeFrom(pGCIns pIPtr, char* OldCurBlk);
     void           DestroyVars(pGCVar& pVarList);
   public:
+    void           PushStringValue(LPSTR Value);
     void           UnlinkAllXRefs();
   protected:
     void           DestroyTempDynTagVars();
@@ -311,6 +312,7 @@ class DllImportExport GCInsMngr
     void           DbgVarList();
     void           DbgCalcStack();
     void           DbgExe();
+
   public:
     CNodeXRefMngr *m_pXRM;              //pointer to the external ref helper, ie the code that is using the PGM
     CTimeValue     m_dIC_Time;          //IntegrationControl Time
@@ -827,12 +829,12 @@ class DllImportExport GCFunctVar : public GCVar
     GCFunctVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
       { m_var = 0.0; m_pVarList = NULL; m_pFntIPos = NULL; m_bStrParms = False; };
     virtual ~GCFunctVar();
-    double m_var;
-    short m_Parms;      // number of parameters for fnt
-    pGCIns m_pFntIPos;  // address of the function (PGM functions)
-    short m_FunctId;    // id of function (C++ functions)
-    GCVar* m_pVarList;  // variables used in function class
-    flag m_bStrParms;   // True if all the parameters are strings
+    double  m_var;
+    short   m_Parms;      // number of parameters for fnt
+    pGCIns  m_pFntIPos;  // address of the function (PGM functions)
+    short   m_FunctId;    // id of function (C++ functions)
+    GCVar * m_pVarList;  // variables used in function class
+    flag   m_bStrParms;   // True if all the parameters are strings
     
     char           WhatAmI() { return VarFunct; };                               
     pchar          GetStrVal(pchar Buff) { Valid(m_var) ? sprintf(Buff, "%.12g", m_var) : sprintf(Buff, "*"); return Buff; };
@@ -929,7 +931,8 @@ class DllImportExport GCClassVar : public GCVar
                              pchar pName,
                              short TtlParmCount,
                              flag StrParms,
-                             short FunctId);
+                             short FunctId,
+                             flag StrRet=false);
     int            GetVarCount();
   };
 

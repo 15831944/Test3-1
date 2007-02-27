@@ -10,6 +10,7 @@
 #include "profiler.h"
 #include "pgm_n.h"
 #include "pgm_c.h"
+#include "pgm_s.h"
 #include "executiv.h"
 #include "PGM_ELEC.h"
 //#include "optoff.h"
@@ -2257,10 +2258,12 @@ void DefinePGMClasses(rGCInsMngr IB)
     new GCProfiler(IB);
     //new GCRandomProfiler(IB);
     new GCNoise(IB);
-    // Eletrical Stuff    
+    // Electrical Stuff    
     new GCETerminal(IB);
     new GCTermStrip(IB);
-    
+    // Specie DB
+    new GCSDB(IB);
+
     #ifdef PMC
     //optimiser equations used at PMC 1995...
     new GCQuadEqn(IB);
