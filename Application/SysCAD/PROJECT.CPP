@@ -6042,7 +6042,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         if (gs_pPrj->m_pFlwLib)
           gs_pPrj->m_pFlwLib->FE_SetSpModelFixupStrategy(PF.RdLong("SpModel", "FixupStrategy", FUS_Largest));
 
-        if (CExploreScd::UseScdExplorer() || PF.RdInt("Explorer", "Open", 0))
+        if (CExploreScd::UseScdExplorer() && CExploreScd::TestOpen())
           CExploreScd::OpenIt();
         else
           CExploreScd::CloseIt();

@@ -210,6 +210,7 @@ class CExploreScd : public CDialog
 
     static void OpenIt();
     static void CloseIt();
+    static bool TestOpen();
     static void RefreshIt(BOOL Complete);
     static void ChkRefreshIt();
     static BOOL UseScdExplorer() { return sm_bUseScdExplorer; };

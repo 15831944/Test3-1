@@ -455,8 +455,6 @@ void CExploreScd::RestorePos()
 
   if (xPos<=-10000)
     {
-
-
     CRect Rct;
     GetParent()->GetClientRect(&Rct);
     GetParent()->ClientToScreen(&Rct);
@@ -549,12 +547,19 @@ void CExploreScd::CloseIt()
     sm_pTheWnd->SaveProfile();
 
     sm_pTheWnd->ShowWindow(SW_HIDE);
-    //sm_pTheWnd->DestroyWindow();
+
+    CProfINIFile PF(PrjIniFile());
+    PF.WrInt(Section, "Open", 0);
     }
-  //delete sm_pTheWnd;
-  //sm_pTheWnd=NULL;
-  //sm_bInited=false;
   }
+
+//--------------------------------------------------------------------------
+
+bool CExploreScd::TestOpen()
+  {
+  CProfINIFile PF(PrjIniFile());
+  return PF.RdInt(Section, "Open", 0)!=0;
+  };
 
 //--------------------------------------------------------------------------
 

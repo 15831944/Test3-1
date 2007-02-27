@@ -953,7 +953,7 @@ void CGlobalPage::OnOK()
     if (PrevUseScdExplorer!=m_UseScdExplorer)
       {
       CExploreScd::SetUseScdExplorer(m_UseScdExplorer);
-      if (PrevUseScdExplorer!=0)
+      if (m_UseScdExplorer==0)
         CExploreScd::CloseIt();
       }
 
