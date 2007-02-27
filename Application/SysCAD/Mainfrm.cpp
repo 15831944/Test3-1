@@ -660,15 +660,15 @@ void CMainFrame::OnUpdateFrameTitle(BOOL bAddToTitle)
       Txt+= " - Dynamic";
     else
       Txt+= " - ?????";
-#if _MSC_VER >=1400
-      Txt+= " [VS2005]";
+#if _MSC_VER <1400
+      Txt+= " [VS2003]";
 #endif
     UpdateFrameTitleForDocument(Txt());
     }
   else
     {
-#if _MSC_VER >=1400
-    Txt+= " [VS2005]";
+#if _MSC_VER <1400
+    Txt+= " [VS2003]";
 #endif
     UpdateFrameTitleForDocument(Txt());
     }

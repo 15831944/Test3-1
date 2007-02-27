@@ -2738,10 +2738,23 @@ Build 122 : 16 November 2006
 1477 19/02/07: Implemented manual calculation method for blend controller.
 1478 19/02/07: (#672,730) In archive reporter, implemented new 'ChangeCount' and 'Sum' functions.
 1479 20/02/07: (#761) Fix for QProd displaying incorrect data when GM model operation general.
+1486 20/02/07: (#768) Fix for crash for tank connections in dynamic for old projects.
+1487 20/02/07: (#768) For upgraded projects, make better use of old tank connections 'top', 'bottom', etc.
+
+Build 123 : 21 February 2007
+------------------------------
+1489 21/02/07: First release of Build 123. Moved from Visual Studio 2003 to VS 2005 SP1 compiler.
+1489 21/02/07: (#36,#766,#767) 
+1494 21/02/07: (#660,#764) Fix for dynamic for displaying correct reaction specie msXfr rate.
+1502 23/02/07: (#757) Preliminary implementation for setting alternate stream exit temperatures in GM model.
+1511 26/02/07: (#770) Fix for contact heater problem.
+1513 26/02/07: (#758) SMDK VLEBlk SaturationP fix.
+1514 26/02/07: (#757) Further improvements for setting GM stream exit temperatures.
+1515 27/02/07: Check for correct versions of MFC files.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1479
+#define SCD_PATCH_SVN    1515
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

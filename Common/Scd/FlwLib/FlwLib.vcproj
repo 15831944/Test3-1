@@ -354,6 +354,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\NdXRefs.cpp">
+			</File>
+			<File
 				RelativePath=".\ODESOLVE.CPP">
 			</File>
 			<File
@@ -464,6 +467,9 @@
 			</File>
 			<File
 				RelativePath=".\Fsthread.h">
+			</File>
+			<File
+				RelativePath=".\NdXRefs.h">
 			</File>
 			<File
 				RelativePath=".\ODESOLVE.H">
@@ -1374,19 +1380,19 @@
 				RelativePath=".\SparseSlv\Indirect\include\spblas.h">
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tblas1.h">
+				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h">
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h">
+				RelativePath=".\SparseSlv\Indirect\include\tblas1.h">
 			</File>
 			<File
 				RelativePath=".\SparseSlv\Indirect\include\tmvec.h">
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h">
+				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h">
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h">
+				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h">
 			</File>
 			<File
 				RelativePath=".\SparseSlv\Indirect\mv\include\vecdefs.h">

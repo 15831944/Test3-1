@@ -305,6 +305,9 @@
 				RelativePath=".\BBBase.cpp">
 			</File>
 			<File
+				RelativePath=".\BBControl.cpp">
+			</File>
+			<File
 				RelativePath=".\BBSurge.cpp">
 			</File>
 			<File
@@ -367,6 +370,9 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath=".\BBBase.h">
+			</File>
+			<File
+				RelativePath=".\BBControl.h">
 			</File>
 			<File
 				RelativePath=".\BBSurge.h">

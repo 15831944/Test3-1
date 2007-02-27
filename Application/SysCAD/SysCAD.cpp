@@ -542,8 +542,10 @@ BOOL CSysCADApp::InitInstStartup()
       {"msvcrtd.dll",  6,0,8797,0,  false},//sp5
       {"mfc42d.dll",   6,0,8665,0,  false},//sp5
 #elif _MSC_VER >= 1400 
-      {"msvcr80d.dll",  8,0,50727,42,  true },//.net
-      {"mfc80d.dll",    8,0,50727,42,  true },//.net
+//      {"msvcr80d.dll",  8,0,50727,42,  true },//vs2005
+//      {"mfc80d.dll",    8,0,50727,42,  true },//vs2005
+      {"msvcr80d.dll",  8,0,50727,762,  true },//vs2005.sp1
+      {"mfc80d.dll",    8,0,50727,762,  true },//vs2005.sp1
 #else
       {"msvcr71d.dll", 7,0,9466,0,  false},//.net
       {"mfc71d.dll",   7,0,9466,0,  false},//.net
@@ -555,8 +557,12 @@ BOOL CSysCADApp::InitInstStartup()
       {"msvcrt.dll",   6,0,8797,0,  true },//sp5
       {"mfc42.dll",    6,0,8665,0,  true},//sp5
 #elif (_MSC_VER >= 1400)
-      {"msvcr80.dll",  8,0,50727,42,  true },//.net
-      {"mfc80.dll",    8,0,50727,42,  true },//.net
+//      {"msvcr80.dll",  8,0,50727,42,  true },//vs2005
+//      {"mfc80.dll",    8,0,50727,42,  true },//vs2005
+      {"msvcr80.dll",  8,0,50727,762,  true },//vs2005.sp1
+      {"mfc80.dll",    8,0,50727,762,  true },//vs2005.sp1
+      //{"msvcp80.dll",  8,0,50727,762,  true },//vs2005.sp1
+      //{"atl80.dll",    8,0,50727,762,  true },//vs2005.sp1
 #else
       {"msvcr71.dll",  7,0,0x24fa,0,  true },//.net
       {"mfc71.dll",    7,0,0x24fa,0,  true },//.net
