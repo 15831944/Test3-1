@@ -184,8 +184,8 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-#define PARM(N) DCB.pDataInfo->m_dParms[N]
-#define FIDELITY(N) Range(0L, (long)DCB.pDataInfo->m_dParms[N], 1L)
+#define PARM(N) (N < DCB.pDataInfo->m_nParms ? DCB.pDataInfo->m_dParms[N]:0.0)
+#define FIDELITY(N) Range(0L, (long)PARM(N), 1L)
 
 flag SDBObject::DataXchg(DataChangeBlk & DCB)
   {

@@ -231,60 +231,34 @@ class TaggedObject;
 class DllImportExport DDBDataInfo
   {
   public:
-    char            *pTag;
-    char            *pSym;
-    Strng           *m_psFullItemTag;
-    byte            iType;
-    DDEF_Flags      iFlags;
-    CCnvIndex       iCnv;
-    pchar           pCnvTxt;
-    pchar           pCnvFam;
-    TaggedObject    *pThis;
-    TaggedObject    *m_pRootObj;
-
-    void *          pData;
-    long            lHandle;
-    long            lHandle2;
-    dword           dwUserInfo;
-    word            wBlobSize;
-
-    DDBValueLst     *pValueLst;
-    DDBValueLstMem  *pValueLstMem;
-
-    int             m_nParms;
-    double          m_dParms[3];
-
-    bool            m_bCurrentComplete;
-    Strng           m_sCurrentTag;
-
     DDBDataInfo()
       {
-      m_psFullItemTag=NULL;
-      m_bCurrentComplete=false;
+      m_psFullItemTag     = NULL;
+      m_bCurrentComplete  = false;
       }
     DDBDataInfo & operator=(const DDBDataInfo & X)
       {
-      pTag=X.pTag;
-      pSym=X.pSym;
-      iType=X.iType;
-      iFlags=X.iFlags;
-      iCnv=X.iCnv;
-      pCnvTxt=X.pCnvTxt;
-      pCnvFam=X.pCnvFam;
-      pThis=X.pThis;
-      m_pRootObj=X.m_pRootObj;
-      pData=X.pData;
-      lHandle=X.lHandle;
-      lHandle2=X.lHandle2;
-      dwUserInfo=X.dwUserInfo;
-      wBlobSize=X.wBlobSize;
-      pValueLst=X.pValueLst;
-      pValueLstMem=X.pValueLstMem;
-      m_nParms=X.m_nParms;
-      for (int i=0; i<X.m_nParms; i++)
-        m_dParms[i]=X.m_dParms[i];
-      m_bCurrentComplete=X.m_bCurrentComplete;
-      m_sCurrentTag=X.m_sCurrentTag;
+      pTag                = X.pTag;
+      pSym                = X.pSym;
+      iType               = X.iType;
+      iFlags              = X.iFlags;
+      iCnv                = X.iCnv;
+      pCnvTxt             = X.pCnvTxt;
+      pCnvFam             = X.pCnvFam;
+      pThis               = X.pThis;
+      m_pRootObj          = X.m_pRootObj;
+      pData               = X.pData;
+      lHandle             = X.lHandle;
+      lHandle2            = X.lHandle2;
+      dwUserInfo          = X.dwUserInfo;
+      wBlobSize           = X.wBlobSize;
+      pValueLst           = X.pValueLst;
+      pValueLstMem        = X.pValueLstMem;
+      m_bCurrentComplete  = X.m_bCurrentComplete;
+      m_sCurrentTag       = X.m_sCurrentTag;
+      m_nParms            = X.m_nParms;
+      for (int i = 0; i<X.m_nParms; i++)
+        m_dParms[i]         = X.m_dParms[i];
       return *this;
       }
 
@@ -337,6 +311,33 @@ class DllImportExport DDBDataInfo
 
     static CTagRefStatusFnHook *gs_TagRefGlblFn;
 
+  public:
+    char            *pTag;
+    char            *pSym;
+    Strng           *m_psFullItemTag;
+    byte            iType;
+    DDEF_Flags      iFlags;
+    CCnvIndex       iCnv;
+    pchar           pCnvTxt;
+    pchar           pCnvFam;
+    TaggedObject    *pThis;
+    TaggedObject    *m_pRootObj;
+
+    void *          pData;
+    long            lHandle;
+    long            lHandle2;
+    dword           dwUserInfo;
+    word            wBlobSize;
+
+    DDBValueLst     *pValueLst;
+    DDBValueLstMem  *pValueLstMem;
+
+    int             m_nParms;
+    double          m_dParms[3];
+
+    bool            m_bCurrentComplete;
+    Strng           m_sCurrentTag;
+
   };
 
 class DDBShortcutVersion
@@ -349,15 +350,6 @@ class DDBShortcutVersion
       dwDataVerObj=0xffffffff;
       dwDataVerGlbl=0xffffffff;
       }
-    //BOOL operator = (const DDBShortcutVersion& O)
-    //  {
-    //  dwDataVerObj=O.dwDataVerObj;
-    //  dwDataVerGlbl=O.dwDataVerGlbl;
-    //  }
-    //BOOL operator == (const DDBShortcutVersion& O)
-    //  {
-    //  return (dwDataVerObj==O.dwDataVerObj && dwDataVerGlbl==O.dwDataVerGlbl);
-    //  }
   };
 
 class DllImportExport DDBShortcut : public DDBDataInfo
@@ -706,7 +698,7 @@ class DllImportExport DataChangeBlk
     flag           ForScenario()      { return (dwOpts&TABOpt_ForScenario)!=0; };
     flag           ForFileSnpScn()    { return (dwOpts&(TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario))!=0; };
     double         NParms()           { return pDataInfo->m_nParms; };
-    double         DoubleParm(int i)  { return pDataInfo->m_dParms[i]; };
+    double         DoubleParm(int i)  { return i<pDataInfo->m_nParms ? pDataInfo->m_dParms[i] : 0.0; };
 
     //flag OperatePropertyMap(CPropertyMap & Map, long iBaseHandle, long iLastHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj, MPropertyValue & WorkPropValue);
 
@@ -1840,11 +1832,11 @@ class DllImportExport TagAccessBlk
 
     void           GotAllDataFromObject();
 
-    byte           Type() { return Shortcut.fOK ? Shortcut.iType : tt_NULL; };
-    flag           IsNumData() { return Shortcut.fOK ? ::IsNumData(Shortcut.iType) : False; };
-    flag           IsStrng() { return Shortcut.fOK ? ::IsStrng(Shortcut.iType) : False; };
-    CCnvIndex      CnvIndex() { return Shortcut.fOK ? Shortcut.iCnv : 0; };
-    DDEF_Flags     Flags() { return Shortcut.fOK ? Shortcut.iFlags : 0; };
+    byte           Type()           { return m_Shortcut.fOK ? m_Shortcut.iType : tt_NULL; };
+    flag           IsNumData()      { return m_Shortcut.fOK ? ::IsNumData(m_Shortcut.iType) : False; };
+    flag           IsStrng()        { return m_Shortcut.fOK ? ::IsStrng(m_Shortcut.iType) : False; };
+    CCnvIndex      CnvIndex()       { return m_Shortcut.fOK ? m_Shortcut.iCnv : 0; };
+    DDEF_Flags     Flags()          { return m_Shortcut.fOK ? m_Shortcut.iFlags : 0; };
 
     double         GetDouble(char * pRqdCnvText=NULL);
     long           GetLong();
@@ -1853,7 +1845,7 @@ class DllImportExport TagAccessBlk
     char*          GetString();
     int            PutString(char* p);
 
-    flag           Changed() {return bChanged; };
+    flag           Changed()        {return bChanged; };
     static void    ResetTimers();
 
   public:
@@ -1867,7 +1859,7 @@ class DllImportExport TagAccessBlk
     char              * m_pPrevValues;
     dword               m_lPrevValues;
     CTagRefStatusWord   m_PrevXRefStatus;
-    DDBShortcut         Shortcut;
+    DDBShortcut         m_Shortcut;
 
   public:
     struct CTimes

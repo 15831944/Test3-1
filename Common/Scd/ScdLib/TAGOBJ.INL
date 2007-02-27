@@ -2244,7 +2244,7 @@ INLINE void DataDefnBlk::FnDouble(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar Cnv
     lHandle  = Handle;
     lHandle2 = 0;
     pThis    = This ? This : Nest[lCallLevel].pThis;
-    if (eTask&DDBTask_GetData)
+    if (eTask&(DDBTask_GetData|DDBTask_FndData))
       ParseParms(ParmDefs);
     CHKSTUFF1(this);
     DoDouble();

@@ -6177,7 +6177,7 @@ TagAccessBlk& TagAccessBlk::operator=(const TagAccessBlk&X)
   m_pPrevValues    = X.m_pPrevValues;
   m_lPrevValues    = X.m_lPrevValues;
   m_PrevXRefStatus = X.m_PrevXRefStatus;
-  Shortcut         = X.Shortcut;
+  m_Shortcut       = X.m_Shortcut;
   return *this;
   };
 
@@ -6199,7 +6199,7 @@ void TagAccessBlk::Init(TaggedObject *pSrchRoot_, pchar Tag_, TABOptions Opts, T
   m_pPrevValues=NULL;
   m_lPrevValues=0;
   m_PrevXRefStatus=-1;
-  Shortcut.fOK=False;
+  m_Shortcut.fOK=False;
   };
 
 //--------------------------------------------------------------------------
@@ -6213,18 +6213,18 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
 
   if (FndShortcut)
     {
-    if (!Shortcut.fOK)
+    if (!m_Shortcut.fOK)
       {
       if (DoDbg)
         dbgpln("LoadAddress - !OK                                      %s", sTag());
       pAccObj=NULL;
       }
-    else if (!Shortcut.TestShortcut(m_pTagFound, Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion()))
+    else if (!m_Shortcut.TestShortcut(m_pTagFound, m_Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion()))
       {
       if (DoDbg)
         dbgpln("LoadAddress - Bad          %6i?%6i:%6i?%6i %s",
-          Shortcut.DataVer.dwDataVerObj, Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion(),
-          Shortcut.DataVer.dwDataVerGlbl, TaggedObject::dwGlblDataVerNo,
+          m_Shortcut.DataVer.dwDataVerObj, m_Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion(),
+          m_Shortcut.DataVer.dwDataVerGlbl, TaggedObject::dwGlblDataVerNo,
           sTag());
       pAccObj=NULL;
       }
@@ -6239,7 +6239,7 @@ ReTry:
   if (pAccObj==NULL )
     {
     CStopWatch SW(true);
-    Shortcut.fOK=False;
+    m_Shortcut.fOK=False;
     Ok=0;
     int MinTagLen=0;
     while (!Ok)
@@ -6257,7 +6257,7 @@ ReTry:
         long AllModes=pAccObj->AllModes();
         DDEF_Flags Opts=dwOptions|AllModes;
         Opts=Opts &~(noView|noFileAtAll); // Full Visibility;
-        Ok=pAccObj->FndDefinedData(m_pTagFound, Opts|dwOptions|AllModes, &Shortcut);
+        Ok=pAccObj->FndDefinedData(m_pTagFound, Opts|dwOptions|AllModes, &m_Shortcut);
         }
       else
         Ok=1;
@@ -6291,7 +6291,7 @@ flag TagAccessBlk::GetDefinedData(CPkDataList &DataObj, TABOptions Opts)
     {
     CStopWatch SW(true);
     //CPkDataItem* pPItem=NULL;
-    pAccObj->GetDefinedData(m_pTagFound, DataObj, Opts|dwOptions|pAccObj->AllModes(), /*pPItem,*/ &Shortcut);
+    pAccObj->GetDefinedData(m_pTagFound, DataObj, Opts|dwOptions|pAccObj->AllModes(), /*pPItem,*/ &m_Shortcut);
     if (bAllowChangeTest && DataObj.GetCount()>0)
       {
       bChanged=0;
@@ -6338,7 +6338,7 @@ int TagAccessBlk::PutDefinedData(CPkDataList &DataObj)
     CStopWatch SW(true);
     ValidateDataBlk VDB;
     CPkDataIter Iter;
-    pAccObj->PutDefinedData(m_pTagFound, DataObj, Iter, dwOptions, &Shortcut);
+    pAccObj->PutDefinedData(m_pTagFound, DataObj, Iter, dwOptions, &m_Shortcut);
     Ret=(pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     m_PutDefined.Add(SW);
     }
@@ -6381,13 +6381,13 @@ void TagAccessBlk::ClearDDBLists()
 
 double TagAccessBlk::GetDouble(char * pRqdCnvText)
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     PkDataUnion DataValue;
-    Shortcut.GetValue(dwOptions, DataValue);
+    m_Shortcut.GetValue(dwOptions, DataValue);
     if (!pRqdCnvText)
       pRqdCnvText=sCnvTxt();
-    return DataValue.GetDouble(pRqdCnvText ? Shortcut.iCnv : 0, pRqdCnvText);
+    return DataValue.GetDouble(pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText);
     }
   return 0.0;
   }
@@ -6396,10 +6396,10 @@ double TagAccessBlk::GetDouble(char * pRqdCnvText)
 
 long TagAccessBlk::GetLong()
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     PkDataUnion DataValue;
-    Shortcut.GetValue(dwOptions, DataValue);
+    m_Shortcut.GetValue(dwOptions, DataValue);
     return DataValue.GetLong();
     }
   return 0L;
@@ -6409,10 +6409,10 @@ long TagAccessBlk::GetLong()
 
 char* TagAccessBlk::GetString()
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     PkDataUnion DataValue;
-    Shortcut.GetValue(dwOptions, DataValue);
+    m_Shortcut.GetValue(dwOptions, DataValue);
     return DataValue.GetString();
     }
   return "";
@@ -6422,13 +6422,13 @@ char* TagAccessBlk::GetString()
 
 int TagAccessBlk::PutDouble(double D, char * pRqdCnvText)
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     if (!pRqdCnvText)
       pRqdCnvText=sCnvTxt();
     PkDataUnion DataValue;
-    DataValue.SetTypeDouble(Shortcut.iType, D, pRqdCnvText ? Shortcut.iCnv : 0, pRqdCnvText);
-    Shortcut.PutValue(dwOptions, DataValue);
+    DataValue.SetTypeDouble(m_Shortcut.iType, D, pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText);
+    m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
@@ -6439,11 +6439,11 @@ int TagAccessBlk::PutDouble(double D, char * pRqdCnvText)
 
 int TagAccessBlk::PutLong(long L)
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     PkDataUnion DataValue;
-    DataValue.SetTypeLong(Shortcut.iType, L);
-    Shortcut.PutValue(dwOptions, DataValue);
+    DataValue.SetTypeLong(m_Shortcut.iType, L);
+    m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
@@ -6454,11 +6454,11 @@ int TagAccessBlk::PutLong(long L)
 
 int TagAccessBlk::PutString(char* p)
   {
-  if (Shortcut.fOK)
+  if (m_Shortcut.fOK)
     {
     PkDataUnion DataValue;
-    DataValue.SetTypeString(Shortcut.iType, p);
-    Shortcut.PutValue(dwOptions, DataValue);
+    DataValue.SetTypeString(m_Shortcut.iType, p);
+    m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
