@@ -34,7 +34,7 @@ class CTTOrifice : public MBaseMethod
     double massVelocity(MStream  ms, double pIn, double pOut);
     double chokeMassVelocity(MStream  ms, double pIn);
     double ValveCv();
-    
+    double orificeDeltaP(MStream ms);
 
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
@@ -75,6 +75,7 @@ class CTTOrifice : public MBaseMethod
     double dPOutActual;
     double dPValve;         // (Variable) Pressure drop in valve
     double dValvePosition;  // Position of valve, 0-100%
+    double dSinglePhaseDP;
     double dValvePressureDrop;
     double dValveCvOpen;
     double dValveCvClosed;

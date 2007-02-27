@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-25 01:15:34 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-27 04:28:36 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -229,6 +229,7 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dValveData[0] = 300;
   dValveData[1] = 6000;
   dPipeVelocity = 0.0;
+  dSinglePhaseDP = 0.0;
   lValveDataPts = 2;
   for (int i=2; i<=10; i++) dValveData[i]=0.0;
 }
@@ -288,9 +289,11 @@ void CTTOrifice::BuildDataFields()
   DD.Double("InletDensity", "", &dInletDensity, MF_RESULT, MC_Rho);
   DD.Double("DensityCorrection", "", &dDensityCorrection, MF_RESULT, MC_None);
   
-  DD.Double("POutActual", "", &dPOutActual, MF_RESULT|MF_NO_VIEW, MC_P("kPa")); //Use MF_NO_VIEW if user will never see this but parameter must be saved and recovered
+  DD.Double("POutActual", "", &dPOutActual, MF_RESULT|MF_INIT_HIDDEN, MC_P("kPa"));
+  //Use MF_NO_VIEW if user will never see this but parameter must be saved and recovered
 
   DD.Double("DownstreamPressure", "", &dPout, MF_PARAMETER, MC_P("kPa"));
+  DD.Double("VaporFraction", "", &dxVapor, MF_RESULT, MC_Frac("%"));
   DD.Double("SaturationPressure", "", &dSatP, MF_RESULT, MC_P("kPa"));
   DD.Double("TemperatureIn", "", &dTin, MF_RESULT, MC_T("C"));  
   DD.Double("TemperatureDrop", "", &dFlashdT, MF_RESULT, MC_dT("C"));
@@ -303,6 +306,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("MassFlow4", "", &dMassFlow4, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
+  DD.Double("SinglePhaseDP", "", &dSinglePhaseDP, MF_RESULT, MC_P("kPa"));
   DD.Show(bControlValve);
   
   DD.Page("Valve Cv");
@@ -378,68 +382,85 @@ void CTTOrifice::EvalProducts()
     dDensityCorrection = dcf(K2C(InStream.T));
 
     const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP(); //get pressure of input stream 
+    bool bValveFlash = false;
     InStream.P = Pi;
 
     MStream & OutStream = FlwIOs[FlwIOs.First[idOut]].Stream;
     OutStream = InStream;
     dInletDensity = InStream.Density(MP_Liq);
     SlipFlow s1(m_lSlipMode);
-    if (bOn) 
-      {
+    if (bOn) {
       //same parameter sanity checks
       dPipe = Max(dPipe, 1.0e-6);
       dEntryK = Max(dEntryK, 1.0e-9);
       dFlashP = InStream.SaturationP(InStream.T);
 
-      if (!bPassThru) 
-        m_VLE.PFlash(OutStream, dPout);
       OutStream.P = dFlashP;
-      dPOutActual = bPassThru ? dPin : dFlashP;
 
       dPin = Pi;
       double deltaP = GTZ(Pi - dPout);
       double den = InStream.Density();
       double area = CircleArea(dPipe);
+      double oarea = CircleArea(dOut);
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
       dMassFlow1 = InStream.Mass();
       dPipeVelocity = InStream.Volume()/area;
-      dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
       double dGIn = dMassFlow1/area;
       double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
       if (bControlValve) {
 	dValveCv = ValveCv();
-	dValveK = 200.*Sqr(area*3600/(.866*dValveCv));
-	dPValve = .5*dValveK*Sqr(dGIn)/den/1000.;
+	if (dValveCv > 1.0) {
+	  dValveK = 200.*Sqr(area*3600/(.866*dValveCv));
+	  dPValve = .5*dValveK*Sqr(dGIn)/den/1000.;
+	} else {
+	  bValveFlash = true;
+	}
       } else dPValve=0.0;
 
-      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1-dPValve;
+      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
+      if (dPOrificeIn - dPValve < dFlashP) {
+	Log.SetCondition(true, 0, MMsg_Warning, "Flashing in Valve");
+      }
+	
+
+
+      if (!bValveFlash) dPOrificeIn -= -dPValve;
 
       dSatP = m_VLE.SaturationP(InStream, InStream.T);
       dTin = InStream.T;
-      dFlashdT = InStream.T - OutStream.T;
-      dSlipDensity = s1.SlipDensity(OutStream);
       MStream mstmp;
       mstmp = InStream;
 
       dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);  CString Tg;
 
+
+      dSinglePhaseDP = 0.5*Sqr(dMassFlow1/CircleArea(dOut))/den/1000.;
       dMassFlow2 = dMassVelocity*CircleArea(dOut);// Density correction, based on bayer.exe AMIRA 
       dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*CircleArea(dOut);
-      if (dPCritical>dPout) 
-        {   // Choked Flow
+      if (dPCritical>dPout)  {   // Choked Flow
         dMassFlow4 = dMassFlow3;
-        }
-      else 
-        {
-        dMassFlow4 = dMassFlow2;
-        }
-      } 
-    else 
-      {
+	dPOutActual = dPCritical;
+      }
+      else {
+	  dMassFlow4 = dMassFlow2;
+	dPOutActual = dPout;
+      }
+      if (!bPassThru) 
+        m_VLE.PFlash(OutStream, dPout);
+
+      if (bPassThru)
+	dPOutActual = dPin;
+
+      dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
+      dFlashdT = InStream.T - OutStream.T;
+      dSlipDensity = s1.SlipDensity(OutStream);
+
+    }  else {    // !bOn... bypass altogether and dont do calcs.
       dMassFlow4 = dMassFlow1;
       dFlashdT = 0;
       dPOutActual = dPin;
-      }
+      //SetCondition(0, "Off");
+    }
     }
   catch (MMdlException &e)  
     {
@@ -534,6 +555,30 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
   return gmax;
 }
 
+
+// Orifice dP for incoming saturated two phase flow
+
+
+double CTTOrifice::orificeDeltaP(MStream ms) {
+
+  MStream mtmp;
+  mtmp = ms;
+  double pIn  = ms.P;
+  SlipFlow s1(m_lSlipMode);
+  double den1, den2, den3;
+  den1 = s1.SlipDensity(mtmp);
+  double Gin = ms.Mass()/CircleArea(dOut);
+  double dp1 = .5*Sqr(Gin)/den1;
+  double dp1old = dp1;
+  for (int i=0; i<20; i++) {
+    m_VLE.PFlash(mtmp, pIn - dp1);
+    den1 = s1.SlipDensity(mtmp);
+    dp1 = .5*Sqr(Gin)/den1;
+    if (fabs(dp1old-dp1)<1.0e-3) return dp1;
+  }
+  return 0.0;
+
+}
 
 // Density correction, based on bayer.exe AMIRA 
 double dcf(double tc) {
