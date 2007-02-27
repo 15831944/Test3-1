@@ -363,7 +363,7 @@ void Precip::EvalJoinPressures(long JoinMask)
     case NM_Probal:
       {
       for (int j=0; j<NoProcessJoins(); j++)
-        SetJoinPressure(j, AtmosPress(IODatum_Term(j)), true, true);
+        SetJoinPressure(j, AtmosPress(IODatum_Term(j)));
       break;
       }
     case NM_Dynamic:

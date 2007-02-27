@@ -258,14 +258,10 @@ void FFEvap::EvalJoinPressures(long JoinMask)
           {
           double Pj=MeasureJoinPressure(j);
 
-          //if (j==1 && m_HX.m_FTC.Active())
-          //  m_FTC.SetSuctionP(Pj);
-          //SetJoinPressure(j, Pj, true, true);
-
           if (j==0)
-            SetJoinPressure(j, Shell.dPo, true, true);
+            SetJoinPressure(j, Shell.dPo);
           else
-            SetJoinPressure(j, Tubes.dPo, true, true);
+            SetJoinPressure(j, Tubes.dPo);
           }
         }
         break;

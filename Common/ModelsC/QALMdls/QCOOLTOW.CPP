@@ -180,7 +180,7 @@ void QCoolingTower::EvalJoinPressures(long JoinMask)
     case NM_Probal:
       {
       for (int j=0; j<NoProcessJoins(); j++)
-        SetJoinPressure(j, Std_P, true, true);
+        SetJoinPressure(j, Std_P);
       break;
       }
     case NM_Dynamic:

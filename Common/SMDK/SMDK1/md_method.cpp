@@ -566,7 +566,7 @@ double MJoin::getP()
 void   MJoin::putP(double P)
   {
   if (m_pNd->NetProbalMethod())
-    m_pNd->SetJoinPressure(m_iJoin, P, true, true);
+    m_pNd->SetJoinPressure(m_iJoin, P);
   else
     {
     INCOMPLETECODE(__FILE__, __LINE__);

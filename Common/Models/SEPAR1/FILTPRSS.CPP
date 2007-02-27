@@ -518,11 +518,9 @@ void FilterPress::EvalJoinPressures(long JoinMask)
     {
     case NM_Probal:
       {
+      double P = PBPress();
       for (int j=0; j<NoProcessJoins(); j++)
-        {
-        double P = PBPress();//AtmosPress(IODatum_Term(j));
-        SetJoinPressure(j, P, true, true);
-        }
+        SetJoinPressure(j, P);
       break;
       }
     case NM_Dynamic:

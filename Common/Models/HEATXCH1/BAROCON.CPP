@@ -261,7 +261,7 @@ void BarometricCondenser::EvalJoinPressures(long JoinMask)
         {
         const double SuctP = MeasureJoinPressure(0);
         m_FTC.SetSuctionP(SuctP);
-        SetJoinPressure(0, m_FTC.SuctionP(), true, true);
+        SetJoinPressure(0, m_FTC.SuctionP());
         }
       }
       break;
