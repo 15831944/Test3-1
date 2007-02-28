@@ -2290,11 +2290,13 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
         break;
       }
 #if WITHTHERMAL 
-    DDB.Text(" ");
-    DDB.Page("..", DDB_OptPage);
-    DDB.CheckBoxBtn("", "Thermal",   DC_, "", xidGSThermal, this, isParmStopped | AffectsStruct | SetOnChange);//, (NProds==2) ? DDB0 : DDB1);
     if (m_bThermal)
+      {
+      //DDB.Text(" ");
+      DDB.Page("GMT", DDB_RqdPage);
+    //DDB.CheckBoxBtn("", "Thermal",   DC_, "", xidGSThermal, this, isParmStopped | AffectsStruct | SetOnChange);//, (NProds==2) ? DDB0 : DDB1);
       BuildDataDefnThermal(DDB);
+      }
 #endif
     }
   DDB.EndStruct();
@@ -2353,13 +2355,6 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
         m_iPhMethSpec=*DCB.rB;
       DCB.B=m_iPhMethSpec;
       return 1;
-#if WITHTHERMAL 
-    case xidGSThermal:
-      if (DCB.rB)
-        m_bThermal=*DCB.rB!=0;
-      DCB.B=m_bThermal;
-      return 1;
-#endif
     default:;
     }
 
@@ -3117,7 +3112,11 @@ GSIOAlphaArray & GSModelBase::IOAlpha()
 
 void GSModelBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-  DDB.CheckBoxBtn("",     "General_Model",  DC_,    "",     xidGSModelOn,  m_pNd, Flags, DDBOnOff);
+  DDB.CheckBoxBtn("General_Model", "Splitter_Flows", DC_, "", xidGSModelOn, m_pNd, Flags, DDBOnOff);
+#if WITHTHERMAL 
+  if (Enabled())
+    DDB.CheckBoxBtn("General_Model_Thermal", "Splitter_Thermal", DC_, "", xidGSThermal, m_pNd, isParmStopped | AffectsStruct | SetOnChange, DDBOnOff);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -3149,6 +3148,16 @@ flag GSModelBase::DataXchg(DataChangeBlk & DCB)
         }
       DCB.B=(Enabled());
       return 1;
+#if WITHTHERMAL 
+    case xidGSThermal:
+      if (m_pGSM)
+        {
+        if (DCB.rB)
+          m_pGSM->m_bThermal=*DCB.rB!=0;
+        DCB.B=m_pGSM->m_bThermal;
+        }
+      return 1;
+#endif
     }
   return 0;
   }
