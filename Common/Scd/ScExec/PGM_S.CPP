@@ -28,6 +28,7 @@ class CLclSDB
 enum 
   {
   Idf_SDB_Count = 1,
+  Idf_SDB_Find,
   Idf_SDB_SolidPhases,
   Idf_SDB_LiquidPhases,
   Idf_SDB_GasPhases,
@@ -52,25 +53,26 @@ GCSDB::GCSDB(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "GlblSDB", VarClassDefn)
   {
   AddVar  (IB, "Fidelity",      &GCLong);        
   
-  AddFunct(IB, "Count",         0, False, Idf_SDB_Count);                 // Count          ()
+  AddFunct(IB, "Count",         0, false, Idf_SDB_Count);                 // Count          ()
+  AddFunct(IB, "Find",          1, true,  Idf_SDB_Find);                  // Find           (Symbol/Tag)
 
-  AddFunct(IB, "SolidPhases",   0, False, Idf_SDB_SolidPhases);           // SolidPhases    ()
-  AddFunct(IB, "LiquidPhases",  0, False, Idf_SDB_LiquidPhases);          // LiquidPhases   ()
-  AddFunct(IB, "GasPhases",     0, False, Idf_SDB_GasPhases);             // GasPhases      ()
+  AddFunct(IB, "SolidPhases",   0, false, Idf_SDB_SolidPhases);           // SolidPhases    ()
+  AddFunct(IB, "LiquidPhases",  0, false, Idf_SDB_LiquidPhases);          // LiquidPhases   ()
+  AddFunct(IB, "GasPhases",     0, false, Idf_SDB_GasPhases);             // GasPhases      ()
   
-  AddFunct(IB, "Symbol",        1, False, Idf_SDB_Symbol,       true);    // Symbol         (index)
-  AddFunct(IB, "Tag",           1, False, Idf_SDB_Tag,          true);    // Tag            (index)
-  AddFunct(IB, "Phase",         1, False, Idf_SDB_Phase);                 // Phase          (index)
-  AddFunct(IB, "MolecularWt",   1, False, Idf_SDB_MolecularWt);           // MolecularWt    (index, temp, press)
-  AddFunct(IB, "Density",       3, False, Idf_SDB_Density);               // Density        (index, temp, press)
-  AddFunct(IB, "mlHf",          3, False, Idf_SDB_mlHf);                  // mlHf           (index, temp, press)
-  AddFunct(IB, "msHf",          3, False, Idf_SDB_msHf);                  // msHf           (index, temp, press)
-  AddFunct(IB, "mlHz",          3, False, Idf_SDB_mlHz);                  // mlHz           (index, temp, press)
-  AddFunct(IB, "msHz",          3, False, Idf_SDB_msHz);                  // msHz           (index, temp, press)
-  AddFunct(IB, "mlHs",          3, False, Idf_SDB_mlHs);                  // mlHs           (index, temp, press)
-  AddFunct(IB, "msHs",          3, False, Idf_SDB_msHs);                  // msHs           (index, temp, press)
-  AddFunct(IB, "VapourP",       2, False, Idf_SDB_VapourP);               // VapourP        (index, temp)
-  AddFunct(IB, "VapourT",       2, False, Idf_SDB_VapourT);               // VapourT        (index, temp)
+  AddFunct(IB, "Symbol",        1, false, Idf_SDB_Symbol,       true);    // Symbol         (index)
+  AddFunct(IB, "Tag",           1, false, Idf_SDB_Tag,          true);    // Tag            (index)
+  AddFunct(IB, "Phase",         1, false, Idf_SDB_Phase);                 // Phase          (index)
+  AddFunct(IB, "MolecularWt",   1, false, Idf_SDB_MolecularWt);           // MolecularWt    (index, temp, press)
+  AddFunct(IB, "Density",       3, false, Idf_SDB_Density);               // Density        (index, temp, press)
+  AddFunct(IB, "mlHf",          3, false, Idf_SDB_mlHf);                  // mlHf           (index, temp, press)
+  AddFunct(IB, "msHf",          3, false, Idf_SDB_msHf);                  // msHf           (index, temp, press)
+  AddFunct(IB, "mlHz",          3, false, Idf_SDB_mlHz);                  // mlHz           (index, temp, press)
+  AddFunct(IB, "msHz",          3, false, Idf_SDB_msHz);                  // msHz           (index, temp, press)
+  AddFunct(IB, "mlHs",          3, false, Idf_SDB_mlHs);                  // mlHs           (index, temp, press)
+  AddFunct(IB, "msHs",          3, false, Idf_SDB_msHs);                  // msHs           (index, temp, press)
+  AddFunct(IB, "VapourP",       2, false, Idf_SDB_VapourP);               // VapourP        (index, temp)
+  AddFunct(IB, "VapourT",       2, false, Idf_SDB_VapourT);               // VapourT        (index, temp)
   }
 
 //---------------------------------------------------------------------------
@@ -96,6 +98,7 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
   switch (FunctId)
     {
     case Idf_SDB_Count:         return SDB.Count();
+    case Idf_SDB_Find:          return SDB.Find(IB.GetSParm());
 
     case Idf_SDB_SolidPhases:   return som_Sol;
     case Idf_SDB_LiquidPhases:  return som_Liq;
