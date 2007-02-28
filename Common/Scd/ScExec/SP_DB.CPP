@@ -353,21 +353,34 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
   {
   Strng ElDefRet;
   flag Ok=(ElDef.Length()>0);
+  bool FndOne = false;
   int i=0;
-  for ( ; Ok ; )
+  for ( ; Ok; )
     {
     if (i>=ElDef.Length())
       break;
     if (isalpha(ElDef[i]) && isupper(ElDef[i]))
       {
+	  FndOne = true;
       Strng El, No, Wt;
-      while (isalpha(ElDef[i])) El+=ElDef[i++];
-      Ok=Ok && isdigit(ElDef[i]);
-      while (isdigit(ElDef[i]) || ElDef[i]=='.' || ElDef[i]=='/')No+=ElDef[i++];
+      while (isalpha(ElDef[i])) 
+		El+=ElDef[i++];
+      if (!isdigit(ElDef[i]) && ElDef[i]!='.')
+        {
+		Strng c;
+		c = ElDef[i];
+        LogError("SpecieDB", 0, "Illegal character '%s', Element name must only contain characters and begin with uppercase character.", c());
+        Ok=false;
+	    }
+	  if (ElDef[i]=='.')
+	    No="0";
+      while (isdigit(ElDef[i]) || ElDef[i]=='.' || ElDef[i]=='/')
+	    No+=ElDef[i++];
       if (i < ElDef.Length() && ElDef[i]=='(')
         {
         i++;
-        while (isdigit(ElDef[i]) || ElDef[i]=='.')Wt+=ElDef[i++];
+        while (isdigit(ElDef[i]) || ElDef[i]=='.')
+		  Wt+=ElDef[i++];
         Ok=Ok && (ElDef[i]==')');
         i++;
         }
@@ -384,7 +397,7 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           LogError("SpecieDB", 0, "Pseudo element name '%s' corrected to '%s'", ElOld(), El());
         if (No.Length()==0)
           {
-          LogError("SpecieDB", 0, "No of Atoms of '%s' in '%s' not specified", El(), ElDef());
+          LogError("SpecieDB", 0, "Number of Atoms of '%s' in '%s' not specified", El(), ElDef());
           No="1";
           Ok=false;
           }
@@ -398,7 +411,11 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           Ok=(m_Data[m_iNo].AtmWt>=0.5);
           m_iNo++;
           }
-        Ok=Ok && (Find(El())>=0);
+        if (Ok && Find(El())<0)
+		  {
+          LogError("SpecieDB", 0, "Invalid element '%s' or molecular weight not specified for pseudo element '%s' eg Or1(100)", El(), El());
+          Ok=false;
+		  }
         if (Ok)
           {
           ElDefRet+=El();
@@ -407,6 +424,11 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
       }
     else
       i++;
+    }
+  if (!FndOne)
+    {
+    LogError("SpecieDB", 0, "Element name must only contain characters and begin with uppercase character, '%s' is invalid", ElDef());
+    Ok = false;
     }
   if (Ok)
     ElDef=ElDefRet();
@@ -2915,7 +2937,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               if (!m_EDB.CheckElDef(ElDef))
                 {
                 Ok=false;
-                LogError("SpecieDB", 0, "Invalid Compound Definition '%s' for '%s'", ElDef(), pSym);
+                LogError("SpecieDB", 0, "Invalid Compound Definition '%s' for '%s'.  Each element must begin with uppercase character and end with number eg C1O2 or Ore1(90)", ElDef(), pSym);
                 bCDBBad=true;
                 }
 
