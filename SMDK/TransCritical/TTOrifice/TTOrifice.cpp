@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-27 04:28:36 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-28 02:01:34 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -30,8 +30,6 @@ const long idOut  = 1;
 class CFlashSolver;
 
 
-enum SlipModels {SFM_Homo,  SFM_Lock,  SFM_Faus,  SFM_Thom,  SFM_Zivi,  SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM};
-enum OpMode {OM_Simple, OM_Full};
 
 
 static MDDValueLst DD0[]=
@@ -307,6 +305,14 @@ void CTTOrifice::BuildDataFields()
   DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
   DD.Double("SinglePhaseDP", "", &dSinglePhaseDP, MF_RESULT, MC_P("kPa"));
+
+  DD.Double("ChokeVelocity", "", &dChokeVelocity, MF_RESULT, MC_P("Ldt"));
+  DD.Double("HomogChokeVelocity", "", &dHomogChokeVelocity, MF_RESULT, MC_P("Ldt"));
+  DD.Double("ChokeMassVel", "", &dChokeMassVelocity, MF_RESULT, MC_None);
+  DD.Double("HomoChokeMassVel", "", &dHomogMassChokeVelocity, MF_RESULT, MC_None);
+
+
+
   DD.Show(bControlValve);
   
   DD.Page("Valve Cv");
@@ -455,6 +461,11 @@ void CTTOrifice::EvalProducts()
       dFlashdT = InStream.T - OutStream.T;
       dSlipDensity = s1.SlipDensity(OutStream);
 
+      dChokeVelocity =       criticalVelocity(OutStream);
+      dHomogChokeVelocity   = criticalVelocity(OutStream, SFM_Homo);
+      dChokeMassVelocity = criticalFlow(OutStream);
+      dHomogMassChokeVelocity = criticalFlow(OutStream, SFM_Homo);
+
     }  else {    // !bOn... bypass altogether and dont do calcs.
       dMassFlow4 = dMassFlow1;
       dFlashdT = 0;
@@ -556,6 +567,40 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
 }
 
 
+// Calculate critical velocity for flashed flow
+double CTTOrifice::criticalVelocity(MStream ms, int slipMode) 
+{
+  if (slipMode == SFM_Default) slipMode = m_lSlipMode;
+  MStream mtmp;
+  mtmp = ms;
+  SlipFlow s1(slipMode);
+  double den1 = s1.SlipDensity(ms);
+  m_VLE.PFlash(mtmp, ms.P-1.0);
+  double den2 = s1.SlipDensity(mtmp);
+  if (den1==den2) return 0.0;
+  return Sqrt(1000./(den1-den2));
+}
+
+// Calculate critical flow for flashed flow
+double CTTOrifice::criticalFlow(MStream ms, int slipMode) 
+{
+  if (slipMode == SFM_Default) slipMode = m_lSlipMode;
+  MStream mtmp;
+  mtmp = ms;
+  SlipFlow s1(slipMode);
+  double den1 = s1.SlipDensity(ms);
+  m_VLE.PFlash(mtmp, ms.P-1.0);
+  double den2 = s1.SlipDensity(mtmp);
+  if (den1==den2) return 0.0;
+  return den1*Sqrt(1000./(den1-den2));
+}
+
+
+    
+
+
+
+
 // Orifice dP for incoming saturated two phase flow
 
 
@@ -565,7 +610,7 @@ double CTTOrifice::orificeDeltaP(MStream ms) {
   mtmp = ms;
   double pIn  = ms.P;
   SlipFlow s1(m_lSlipMode);
-  double den1, den2, den3;
+  double den1;
   den1 = s1.SlipDensity(mtmp);
   double Gin = ms.Mass()/CircleArea(dOut);
   double dp1 = .5*Sqr(Gin)/den1;
@@ -579,6 +624,10 @@ double CTTOrifice::orificeDeltaP(MStream ms) {
   return 0.0;
 
 }
+
+
+
+
 
 // Density correction, based on bayer.exe AMIRA 
 double dcf(double tc) {

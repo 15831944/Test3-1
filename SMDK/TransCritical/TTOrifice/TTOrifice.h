@@ -12,6 +12,11 @@
 
 //---------------------------------------------------------------------------
 
+enum SlipModels {SFM_Homo,  SFM_Lock,  SFM_Faus,  SFM_Thom,  SFM_Zivi,
+SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM, SFM_Default};
+
+enum OpMode {OM_Simple, OM_Full};
+
 
 
 double dcf(double);
@@ -35,6 +40,8 @@ class CTTOrifice : public MBaseMethod
     double chokeMassVelocity(MStream  ms, double pIn);
     double ValveCv();
     double orificeDeltaP(MStream ms);
+    double criticalVelocity(MStream ms, int slipMode = SFM_Default);
+    double criticalFlow(MStream ms, int slipMode = SFM_Default);    
 
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
@@ -81,6 +88,10 @@ class CTTOrifice : public MBaseMethod
     double dValveCvClosed;
     double dValveK;
     double dPipeVelocity;
+    double dChokeVelocity;       
+    double dHomogChokeVelocity;
+    double dChokeMassVelocity;
+    double dHomogMassChokeVelocity;
     long lValveDataPts;      // 10 for angle, 11 for %, 2 for simple case.
     double dValveData[11];  // Data for control valve, Cv at data points
     double dValveCv;  // Valve Cv at position
