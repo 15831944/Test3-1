@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-28 02:01:34 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-02-28 02:06:06 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -306,8 +306,8 @@ void CTTOrifice::BuildDataFields()
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
   DD.Double("SinglePhaseDP", "", &dSinglePhaseDP, MF_RESULT, MC_P("kPa"));
 
-  DD.Double("ChokeVelocity", "", &dChokeVelocity, MF_RESULT, MC_P("Ldt"));
-  DD.Double("HomogChokeVelocity", "", &dHomogChokeVelocity, MF_RESULT, MC_P("Ldt"));
+  DD.Double("ChokeVelocity", "", &dChokeVelocity, MF_RESULT, MC_Ldt);
+  DD.Double("HomogChokeVelocity", "", &dHomogChokeVelocity, MF_RESULT, MC_Ldt);
   DD.Double("ChokeMassVel", "", &dChokeMassVelocity, MF_RESULT, MC_None);
   DD.Double("HomoChokeMassVel", "", &dHomogMassChokeVelocity, MF_RESULT, MC_None);
 
