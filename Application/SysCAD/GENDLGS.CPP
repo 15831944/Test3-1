@@ -4192,7 +4192,7 @@ void CCompareResultsDlg::OnMenu(UINT id)
       gs_AccessWnds.AccessNode(-1, (char*)(const char*)sLastTag);
       break;
     case IDM_PRJ_FIND:
-      gs_pPrj->FindTag((char*)(const char*)sLastTag);
+      gs_pPrj->FindTag((char*)(const char*)sLastTag, NULL, NULL, FTO_MoveCursor|FTO_Highlite);
       break;
     }
   }

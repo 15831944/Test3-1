@@ -548,19 +548,19 @@ void CSolveState::PopupMenuForTag(CString& sTag, int x, int y)
         gs_AccessWnds.AccessNode(-1, (char*)(const char*)sObjTag);
         break;
       case IDM_SLV_FIND:
-        gs_pPrj->FindTag((char*)(const char*)sObjTag);
+        gs_pPrj->FindTag((char*)(const char*)sObjTag, NULL, NULL, FTO_MoveCursor|FTO_Highlite);
         break;
       case IDM_SLV_ACCESSLEFT:
         gs_AccessWnds.AccessNode(-1, (char*)(const char*)LeftTag);
         break;
       case IDM_SLV_FINDLEFT:
-        gs_pPrj->FindTag((char*)(const char*)LeftTag);
+        gs_pPrj->FindTag((char*)(const char*)LeftTag, NULL, NULL, FTO_MoveCursor|FTO_Highlite);
         break;
       case IDM_SLV_ACCESSRIGHT:
         gs_AccessWnds.AccessNode(-1, (char*)(const char*)RightTag);
         break;
       case IDM_SLV_FINDRIGHT:
-        gs_pPrj->FindTag((char*)(const char*)RightTag);
+        gs_pPrj->FindTag((char*)(const char*)RightTag, NULL, NULL, FTO_MoveCursor|FTO_Highlite);
         break;
       case IDM_SLV_COPY:
       case IDM_SLV_COPYEXTRA:

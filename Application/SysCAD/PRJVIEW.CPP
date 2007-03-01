@@ -551,7 +551,7 @@ void CPrjForm::OnMenu(UINT id)
       gs_AccessWnds.AccessNode(-1, sCurrentSeln());
       break;
     case IDM_PRJ_FIND:
-      gs_pPrj->FindTag(sCurrentSeln());
+      gs_pPrj->FindTag(sCurrentSeln(), NULL, NULL, FTO_MoveCursor|FTO_Highlite);
       break;
     case IDM_PRJ_CHANGETAG:
       {

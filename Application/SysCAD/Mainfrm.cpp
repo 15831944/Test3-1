@@ -1997,16 +1997,16 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
       case SUB_TAGACTION_FIND:
       case SUB_TAGACTION_FINDANDACCESS:
         if (pTxt)
-          gs_pPrj->FindTag(pTxt, (wParam==SUB_TAGACTION_FINDANDACCESS));
+          gs_pPrj->FindTag(pTxt, NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite);
         else
-          gs_pPrj->FindTag("", (wParam==SUB_TAGACTION_FINDANDACCESS));
+          gs_pPrj->FindTag("", NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite);
         break;
       case SUB_TAGACTION_FIND_NOERRDLG:
       case SUB_TAGACTION_FINDANDACCESS_NOERRDLG:
         if (pTxt)
-          gs_pPrj->FindTag(pTxt, (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG), TRUE);
+          gs_pPrj->FindTag(pTxt, NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite|FTO_NoErrDlg);
         else
-          gs_pPrj->FindTag("", (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG), TRUE);
+          gs_pPrj->FindTag("", NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite|FTO_NoErrDlg);
         break;
       case SUB_TAGACTION_CHANGE:
         if (pTxt)
@@ -2071,8 +2071,9 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnFindTag()
   {
+  //INCOMPLETECODE(__FILE__,__LINE__);
   if (gs_pPrj)
-    gs_pPrj->FindTag();
+    gs_pPrj->FindTag("",NULL, NULL, 0);
   }
 
 void CMainFrame::OnUpdateFindTag(CCmdUI* pCmdUI)
@@ -2084,8 +2085,9 @@ void CMainFrame::OnUpdateFindTag(CCmdUI* pCmdUI)
 
 void CMainFrame::OnFindNext()
   {
+  //INCOMPLETECODE(__FILE__,__LINE__);
   if (gs_pPrj)
-    gs_pPrj->FindTag("", FALSE, FALSE, TRUE);
+    gs_pPrj->FindTag("", NULL, NULL, FTO_FindNext);// FALSE, FALSE, TRUE);
   }
 
 void CMainFrame::OnUpdateFindNext(CCmdUI* pCmdUI)

@@ -55,6 +55,10 @@ class CGrfDoc : public DocRoot
     virtual BOOL ReadDocument(const char* pszPathName, FILE* pFile);
     virtual BOOL WriteDocument(const char* pszPathName, FILE* pFile);
 
+    BOOL         FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    void         FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
+    void         SetCursor(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
+
     virtual int GetTagList(Strng_List & Lst);
     virtual flag TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs) 
       { return pCurrentCB->TestModelTagUnique(pTag, TRB/*pHdr, SepChar*/, UniqueTag, HdrAsIs); };

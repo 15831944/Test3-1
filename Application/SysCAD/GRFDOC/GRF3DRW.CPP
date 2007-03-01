@@ -648,6 +648,47 @@ void CGrfLayer::CollectTags(Strng_List & TagList)
 
 //----------------------------------------------------------------------------
 
+flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  DML_ITEM it;
+  DXF_ENTITY e;
+  //dbgpln("=========");
+  WALK_ENTITY_LIST(InsertLst, it, e)
+    {
+    DML_LIST l1 = DXF_INSERT_ATTRS(e);
+    if (l1)
+      {
+      DML_ITEM it1;
+      DXF_ENTITY e1;
+      WALK_ENTITY_LIST(l1, it1, e1)
+        {
+        //dbgpln("%-30s : %s ",
+        //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
+        //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
+
+        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))// &&
+          //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
+          {
+          if (stricmp(DXF_ATTRIB_VALUE_GET(e1), Tag)==0)
+            {
+            if (pLastMatchingInsert==e)
+              pLastMatchingInsert=NULL;
+            else
+              {
+              pLastMatchingInsert=e;
+              pLastMatchingAttr=e1;
+              return true;          
+              }
+            }
+          }
+        }
+      }
+    }
+  return false;
+  }
+
+//----------------------------------------------------------------------------
+
 void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, CGrfTagInfo & GTI, DML_LIST &style)
   {
   GTI.m_sSymbol = DXF_INSERT_BLOCK_GET(insert);
@@ -1971,6 +2012,19 @@ void LayerCollection::CollectTags(Strng_List &TagList)
   CGrfLayer * l = NULL;
   WALK_LAYERS(Layers,NULL, l)
     l->CollectTags(TagList);
+  }
+
+//----------------------------------------------------------------------------
+
+flag LayerCollection::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  CGrfLayer * l = NULL;
+  WALK_LAYERS(Layers,NULL, l)
+    {
+    if (l->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr))
+      return true;
+    }
+  return false;
   }
 
 //----------------------------------------------------------------------------
@@ -3897,6 +3951,20 @@ void DXF_Drawing::CollectTags(Strng_List & TagList)
     pLay->CollectTags(TagList);
     pLay = pLay->Nxt;
     }
+  }
+
+// ---------------------------------------------------------------------------
+
+flag DXF_Drawing::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  CGrfLayer * pLay = Layers;
+  while (pLay)
+    {
+    if (pLay->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr))
+      return true;
+    pLay = pLay->Nxt;
+    }
+  return NULL;
   }
 
 // ---------------------------------------------------------------------------

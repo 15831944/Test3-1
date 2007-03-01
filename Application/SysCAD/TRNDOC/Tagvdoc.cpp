@@ -2808,6 +2808,7 @@ int CTagVwDoc::FindTrendTag(FindTrendTagHelper &Pos)
   for ( ; Pos.iLastPos<NoSlots(); Pos.iLastPos++)
     if (DS[Pos.iLastPos].sTag.FindI(Pos.sTag())>=0)
       {
+      Pos.sLineTag = DS[Pos.iLastPos].sTag;
       Pos.iFoundPos = Pos.iLastPos;
       Pos.iFoundCnt++;
       return Pos.iFoundPos;

@@ -62,7 +62,8 @@ extern DllImportExport int gs_ProjectOpenFlag;
 
 const bool AllowHistStr = true;
 
-typedef CWnd* pCWnd;
+//typedef CWnd* pCWnd;
+class CGrfDoc;
 
 class DllImportExport CTopWindowInfo
   {
@@ -267,12 +268,6 @@ class CDdeReportInfo
 class FindTrendTagHelper
   {
   public:
-    Strng sTag;
-    int iLastPos;
-    int iFoundPos;
-    POSITION DocPos;
-    int iFoundCnt;
-
     FindTrendTagHelper()
       {
       iLastPos = 0;
@@ -280,14 +275,22 @@ class FindTrendTagHelper
       DocPos = NULL;
       iFoundCnt = 0;
       };
-    FindTrendTagHelper(char* pTag_)
+    FindTrendTagHelper(LPCSTR pTag_, POSITION Pos)
       {
-      sTag = pTag_;
-      iLastPos = 0;
+      sTag      = pTag_;
+      iLastPos  = 0;
       iFoundPos = -1;
-      DocPos = NULL;
+      DocPos    = Pos;
       iFoundCnt = 0;
       };
+
+  public:
+    Strng     sTag;
+    int       iLastPos;
+    int       iFoundPos;
+    POSITION  DocPos;
+    int       iFoundCnt;
+    Strng     sLineTag;
   };
 
 //===========================================================================
@@ -567,6 +570,13 @@ class DllImportExport CProjectSettings
   };
 
 //===========================================================================
+// FindTagOptions
+const dword FTO_Null             = 0x00000000;
+const dword FTO_DoAccess         = 0x00000001;
+const dword FTO_MoveCursor       = 0x00000002;
+const dword FTO_Highlite         = 0x00000004;
+const dword FTO_NoErrDlg         = 0x00000008;
+const dword FTO_FindNext         = 0x00000010;
 
 //_FWDDEF(CProject)
 class DllImportExport CProject : public CExecObj, public CProjectSettings
@@ -749,8 +759,8 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     //void           OpenOPCManager();
     //void           CloseOPCManager(BOOL ForExit = FALSE);
 
-    BOOL           FindTag(LPCTSTR pTag = "", BOOL DoAutoAccess = FALSE, BOOL NoErrDlg = FALSE, BOOL FindNext = FALSE);
-    BOOL           AllGrfLoaded();
+    flag           FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, dword Options);
+    flag           AllGrfLoaded();
     void           BrowseTags();
     void           HistorianQuery();
     void           CheckLicense(BOOL StartingSolve);

@@ -1015,6 +1015,13 @@ void Grf3D_Display::CollectTags(Strng_List & TagList)
 
 //---------------------------------------------------------------------------
 
+flag Grf3D_Display::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  return Vp1->Drw->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr);
+  }
+
+//---------------------------------------------------------------------------
+
 void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
   {
   Sect.Lock();

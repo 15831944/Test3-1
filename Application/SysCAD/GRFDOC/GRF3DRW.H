@@ -463,7 +463,8 @@ class CGrfLayer
     flag             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
     void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
-
+    flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,double *BiggestDim = NULL);
@@ -506,7 +507,7 @@ class LayerCollection
     void             SetCurrentLayer(pchar LayName);
     pchar            CurrentLayer() { return CurLayer; };
     BOOL             SetLayerState(pViewport vp, pchar LayName, BOOL set, int state);
-    BOOL             SetLayerColor(pViewport vp, pchar LayName, int color);
+    BOOL             SetLayerColor(Viewport * vp, pchar LayName, int color);
     void             CountBlocksUsed(CWordArray& BlkCnt);
     CGrfLayer *           Find(pchar LayerName);
     CGrfLayer *           Find(LayerTypes Typ) {return Find(LayerNames[Typ]);};
@@ -514,7 +515,7 @@ class LayerCollection
     void             Free(CGrfLayer * layer);
     void             Get(DXF_FILE file,int What,int test_mode);
     void             Put(DXF_FILE file);
-    void             Draw(pViewport vp, C3_BOX box, int color, int Lvl,CGrfLayer * iLay);
+    void             Draw(Viewport * vp, C3_BOX box, int color, int Lvl,CGrfLayer * iLay);
     DML_LIST         SelectInsertsOnAttrCombo(DML_LIST l,pchar *AttrTag,pchar *AttrVal, IRegExpPtr *pRE);
     DML_LIST         SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);
     void             Explode(C3_TRANSFORM x, DXF_ENTITY insert, pBlock  b);
@@ -556,10 +557,10 @@ class LayerCollection
                                      PT3 Pt, Attr_Settings &Set);
     DXF_ENTITY       Find_Attrib_Defn(pchar Tag);
 
-    CEntInView*       IsEntitySelected(pViewport v, DXF_ENTITY pEnt);
-    CEntInView*       IsCurveSelected(pViewport v, C3_CURVE c);
-    long             TranslateEntitiesInWin(pViewport vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
-    long             TranslateEntitiesInList(pViewport vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
+    CEntInView*       IsEntitySelected(Viewport * v, DXF_ENTITY pEnt);
+    CEntInView*       IsCurveSelected(Viewport * v, C3_CURVE c);
+    long             TranslateEntitiesInWin(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
+    long             TranslateEntitiesInList(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
 
     void             ChangeLayer(DXF_ENTITY e,LayerTypes NewLayer);
     void             ChangeLayer(C3_CURVE   c,LayerTypes NewLayer);
@@ -575,7 +576,7 @@ class LayerCollection
     flag             RemoveFromLayer(C3_CURVE c);
     flag             Exists(DXF_ENTITY e);
     flag             Exists(C3_CURVE c);
-    void             PrintEntities(pViewport vp,FILE *fp);
+    void             PrintEntities(Viewport * vp,FILE *fp);
     DXF_ENTITY       Find_Tagged_Insert(pchar pVal);
     void             EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
@@ -583,6 +584,7 @@ class LayerCollection
 
     void             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
+    flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
   };
 
 //---------------------------------------------------------------------------
@@ -591,8 +593,8 @@ class Block : public LayerCollection
   {
   public:
     DXF_BLOCK         Def;       // this block DXF header info
-    pBlock            Nxt;       // Pointer to Next block in collection
-    pDXF_Drawing      Drawing;   // Pointer to parent drawing
+    Block            *Nxt;       // Pointer to Next block in collection
+    DXF_Drawing      *Drawing;   // Pointer to parent drawing
     char              IsNew:1,   //
 //                      IsScd:1,   // Has SysCAD added/created this block
                       SaveIt:1,  // Save this block to dxf
@@ -612,8 +614,8 @@ class Block : public LayerCollection
 class BlockCollection
   {
   public:
-    pBlock           Blocks;   // Pointer to first block in list of blocks for the drawing
-    pDXF_Drawing     Drawing;  // Pointer to the drawing
+    Block           *Blocks;   // Pointer to first block in list of blocks for the drawing
+    DXF_Drawing     *Drawing;  // Pointer to the drawing
 
     BlockCollection(pDXF_Drawing DrawingIn);
     ~BlockCollection();
@@ -622,7 +624,7 @@ class BlockCollection
     pBlock           Find(pchar BlkName, int& index);
     pBlock           FindByIndex(int index);
     int              FindUnique(pchar CoreName, int NoFindRet=0);
-    void             PrintEntities(pViewport vp,FILE *fp);
+    void             PrintEntities(Viewport * vp,FILE *fp);
     void             EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
     void             SetDiscColor(DML_LIST dlay=NULL,int on=NULL);
     pBlock           Append(DXF_BLOCK block);
@@ -638,14 +640,14 @@ class BlockCollection
 class DllImportExport DXF_Drawing : public LayerCollection
   {
   public:
-    char           Name[128];
-    pGrf3D_Display pDsp;
+    char            Name[128];
+    Grf3D_Display * pDsp;
 
-    pchar    HdrInfo[N_HDR_VARS];
-    char     GotHdrInfo;
+    char          * HdrInfo[N_HDR_VARS];
+    char            GotHdrInfo;
 
-    C3_BOX_S  Bounds;
-    float     PageWd;
+    C3_BOX_S        Bounds;
+    float           PageWd;
 
     BlockCollection Blocks;            // Instance of blockcollection for this drawings blocks
 
@@ -657,7 +659,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     DML_LIST VPortLst;
 
   public:
-    DXF_Drawing(pGrf3D_Display pDsp,pchar NameIn, flag InitForSyscad);
+    DXF_Drawing(Grf3D_Display *pDsp,pchar NameIn, flag InitForSyscad);
     ~DXF_Drawing();
     int               Load(pchar NameIn, int What,int test_mode);
     int               Save(pchar NameOut);
@@ -666,13 +668,13 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     void              ConstructInsertMatrix(C3_TRANSFORM Imat,pBlock b,DXF_ENTITY e);
     void              EntityInvalidate(DXF_ENTITY e = NULL,C3_CURVE c = NULL);
-    BOOL              PrintEntities(pViewport vp, pchar file_name);
+    BOOL              PrintEntities(Viewport * vp, pchar file_name);
     flag              CleanupDXF(pchar fn);
     void              SetDiscColor(DML_LIST dlay = NULL,int on = NULL);
 
-    void              Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item);
-    void              Draw(C3_CURVE   c, pViewport vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item);
-    void              Draw(pViewport vp, C3_BOX SubRgn, pchar LayName);
+    void              Draw(DXF_ENTITY e, Viewport * vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item);
+    void              Draw(C3_CURVE   c, Viewport * vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item);
+    void              Draw(Viewport * vp, C3_BOX SubRgn, pchar LayName);
     void              SetGfxLayer(int Ocol,int Lvl,CGrfLayer * eLay,CGrfLayer * iLay,pchar EntityLay,int EntityColor,double EntityThickness);
 
 
@@ -683,6 +685,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     void              CollectTags(Strng_List & TagList);
     void              CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
     void              CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA);
+    flag              FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
 
     DML_LIST          SelectNearbyCurves(PT3 p,REAL tol);
     DML_LIST          SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);
@@ -704,19 +707,19 @@ class DllImportExport DXF_Drawing : public LayerCollection
     pStrng_List       AttrValuesInWin(pchar AttrTag, PT3 p1, PT3 p2, pStrng_List &Lst);
     pStrng_List       AttrValuesInWin(pchar AttrTag, Pt_SLW p1, Pt_SLW p2, pStrng_List &Lst) {return AttrValuesInWin(AttrTag, p1.World.p(), p2.World.p(), Lst);};
 
-    long              TranslateEntitiesInWin(pViewport vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
+    long              TranslateEntitiesInWin(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
                         { return LayerCollection::TranslateEntitiesInWin(vp,S1,S2,E1,E2, DoX, DoY, DoXScl, DoYScl, DoSpred); };
-    long              TranslateEntitiesInWin(pViewport vp,Pt_SLW S1, Pt_SLW S2, Pt_SLW E1, Pt_SLW E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
+    long              TranslateEntitiesInWin(Viewport * vp,Pt_SLW S1, Pt_SLW S2, Pt_SLW E1, Pt_SLW E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
                         { return TranslateEntitiesInWin(vp,S1.World.p(), S2.World.p(), E1.World.p(), E2.World.p(), DoX, DoY, DoXScl, DoYScl, DoSpred); };
-    long              TranslateEntitiesInList(pViewport vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
+    long              TranslateEntitiesInList(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
                         { return LayerCollection::TranslateEntitiesInList(vp,S1,S2,E1,E2, DoX, DoY, DoXScl, DoYScl, DoSpred); };
-    long              TranslateEntitiesInList(pViewport vp,Pt_SLW S1, Pt_SLW S2, Pt_SLW E1, Pt_SLW E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
+    long              TranslateEntitiesInList(Viewport * vp,Pt_SLW S1, Pt_SLW S2, Pt_SLW E1, Pt_SLW E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred)
                         { return TranslateEntitiesInList(vp,S1.World.p(), S2.World.p(), E1.World.p(), E2.World.p(), DoX, DoY, DoXScl, DoYScl, DoSpred); };
 
     pBlock            Add_Block(pchar BlockName, REAL *basept);
     pBlock            LoadFromLib(pchar Path, pchar FileName, pchar BlockName);
-    pBlock            ConstructBlockFromSelection(pViewport v,pchar KernalName,Pt_3f pt);
-    flag              FindCOGfromSelection(pViewport vp,Pt_3f &pt,Pt_3f &boxll,Pt_3f &boxur);
+    pBlock            ConstructBlockFromSelection(Viewport * v,pchar KernalName,Pt_3f pt);
+    flag              FindCOGfromSelection(Viewport * vp,Pt_3f &pt,Pt_3f &boxll,Pt_3f &boxur);
     DXF_ENTITY        Add_Attr(DXF_ENTITY Insert, pchar Tag, pchar Prompt, pchar Value,
                                Pt_3f Pt, Attr_Settings &Set);
     void              MergeLTypeDefs(DXF_FILE f);
@@ -744,9 +747,9 @@ class DllImportExport DXF_Drawing : public LayerCollection
     long              AddNodeGrfInfo(pNodeGrfInfo pNGI);
     flag              GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs, Strng_List &IOL);
     DXF_ENTITY        Add_PidBubble(CEntInView* ent,PT3 pt,Pt_SLW pta,pchar loop_id,pchar area_id,pchar equip_isa,pchar loop_type);
-    DXF_ENTITY        Add_Unit(pViewport vp, Pt_3f &CTagPt, flag CTagPtOK, pchar equip_name, pchar Tag, pchar BlockName, pchar ModelName, Attr_Settings &Tag_Attr_Set);
-    DXF_ENTITY        Add_Instr(pViewport vp);
-    DXF_ENTITY        Add_Loop(pViewport vp);
+    DXF_ENTITY        Add_Unit(Viewport * vp, Pt_3f &CTagPt, flag CTagPtOK, pchar equip_name, pchar Tag, pchar BlockName, pchar ModelName, Attr_Settings &Tag_Attr_Set);
+    DXF_ENTITY        Add_Instr(Viewport * vp);
+    DXF_ENTITY        Add_Loop(Viewport * vp);
     DXF_ENTITY        Create_Annotation_Block(CExecObj *pDb, Strng_List &Vars, Strng_List &Fmts, Strng_List &Tags, Pt_3f Pos, Attr_Settings &Set, double Scale);
     DXF_ENTITY        Update_Annotation_Block(DXF_ENTITY e, CExecObj *pDb, Attr_Settings &Set, double Scale);
     DXF_ENTITY        Create_NewAnnotation_Block(CExecObj *pDb, Strng_List &Tags, Strng_List &TLbs, Strng_List &Vars, Strng_List &VLbs, Strng_List &Fmts, Strng_List &Cvss, Pt_3f Pos, Attr_Settings &Set, double Scale);
@@ -757,14 +760,14 @@ class DllImportExport DXF_Drawing : public LayerCollection
     DXF_ENTITY        Create_Bars_Block(CExecObj *pDb, Strng_List &Vars, Strng_List &Tags, Strng_List &Mins, Strng_List &Maxs, Strng_List &Cols, Pt_3f Pos, Attr_Settings &ASet, Text_Settings &TSet, long DisplayOptions, flag NewInsert);
     DXF_ENTITY        Create_Toggle_Block(CExecObj *pDb, Strng_List &Vars, Strng_List &Tags, Pt_3f Pos, Attr_Settings &ASet, Text_Settings &TSet, double Scale);
     DXF_ENTITY        Create_NewText_Block(char* Text, Pt_3f Pos, Attr_Settings &Set, double Scale);
-    void              DumpSelectedEntities(pViewport vp);
-    void              AlignSelectedInserts(pViewport vp);
+    void              DumpSelectedEntities(Viewport * vp);
+    void              AlignSelectedInserts(Viewport * vp);
 
     flag              Explode(DXF_ENTITY e);
     flag              DivideCurve(C3_CURVE c1,C3_CURVE c2,C3_CURVE &cn1,C3_CURVE &cn2,double Tol = 1.0e-6);
 
-    int               FindCurveIntersect(pViewport vp, Pt_3f Pt, CEntInView* pEnt_1,CEntInView* pEnt_2, Pt_3f &IntPt, PARM parm_1, PARM parm_2);
-    int               BreakCurvesAtIntersect(pViewport vp, Pt_3f Pt, Pt_3f &IntPt);
+    int               FindCurveIntersect(Viewport * vp, Pt_3f Pt, CEntInView* pEnt_1,CEntInView* pEnt_2, Pt_3f &IntPt, PARM parm_1, PARM parm_2);
+    int               BreakCurvesAtIntersect(Viewport * vp, Pt_3f Pt, Pt_3f &IntPt);
   };
 
 //===========================================================================
@@ -867,7 +870,7 @@ class Viewport
 
     //int             MarkCount(){ return MarkCount; };
 
-    pViewport       Nxt, Prv;
+    Viewport      * Nxt, *Prv;
     VP_VIEWPORT     vp;
     pDXF_Drawing    Drw;
     ZoomTypes       ZoomType;
@@ -919,6 +922,7 @@ class DllImportExport Grf3D_Display
     void            XORCursor();
     flag            ChangeTag(pchar pOldTag, pchar pNewTag);
     void            CollectTags(Strng_List & TagList);
+    flag            FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
 
     void            SetCursImgBase();
     void            SetCursImgBase(Pt_3i Pt);
@@ -934,10 +938,10 @@ class DllImportExport Grf3D_Display
     void            ButtonUpEnd(POINT point, byte Button);
     void            MouseMoveBegin(POINT point);
     void            MouseMoveEnd(POINT point);
-    pViewport       CurrentView() {return Vp1;};
-    pViewport       AddView(ViewDirections VwDir, double ulx, double uly, double lrx, double lry, pDXF_Drawing DrwIn);
-    void            SetViewDrawing(pDXF_Drawing DrwIn, pViewport Vp=NULL);
-    pDXF_Drawing    CurrentDrawing(pViewport Vp=NULL);
+    Viewport      * CurrentView() {return Vp1;};
+    Viewport      * AddView(ViewDirections VwDir, double ulx, double uly, double lrx, double lry, pDXF_Drawing DrwIn);
+    void            SetViewDrawing(DXF_Drawing * DrwIn, Viewport *Vp=NULL);
+    DXF_Drawing   * CurrentDrawing(Viewport * Vp=NULL);
     void            SetCurrentPt(POINT point);
     void            SetCurrentPtWorld(Pt_3f pnt);
     void            SetCPtWorld(Pt_3f world, Pt_SLW  &CPt);
@@ -1003,7 +1007,7 @@ class CEntInView
   private:
     CEntInView*                nxt;
     CEntInView*                prv;
-    pViewport                  vp;     // The viewport to whick it points
+    Viewport                  *vp;     // The viewport to whick it points
     DML_ITEM                 item;     // The list on whick the entity appears
     C3_CURVE                    c;
     DXF_ENTITY                  e;

@@ -3322,8 +3322,8 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         RequestModelIOConnRec ConnInfo;
         RequestModelIOInfoRec IOInfo;
         for (int i=0; gs_pTheSFELib->RequestModelIOConn(NdTag(), i, ConnInfo); i++)
-          if ((ConnInfo.iDirn<0 && (EI.FieldId==Id_Next)) ||
-              (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev)))
+          if (!ConnInfo.fIsDirectConnect && ((ConnInfo.iDirn<0 && (EI.FieldId==Id_Next)) ||
+                                           (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev))))
             {
             if (gs_pTheSFELib->RequestModelIOInfoById(NdTag(), ConnInfo.iId, IOInfo))
               Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());

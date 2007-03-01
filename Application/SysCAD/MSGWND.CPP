@@ -1806,7 +1806,7 @@ void CMsgCommon::PopupListMenu(CCustomListCtrl& Ctrl, CMsgList& List, CWnd* pWnd
         gs_AccessWnds.AccessNode(-1, (char*)(const char*)sLastTag);
         break;
       case IDM_MSG_FIND:
-        gs_pPrj->FindTag((char*)(const char*)sLastTag);
+        gs_pPrj->FindTag((char*)(const char*)sLastTag, NULL, NULL, FTO_MoveCursor|FTO_Highlite);
         break;
       case IDM_MSG_CLEARLINE:
         {

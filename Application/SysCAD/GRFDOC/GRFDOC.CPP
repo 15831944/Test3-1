@@ -316,6 +316,201 @@ BOOL CGrfDoc::OnOpenDocument(const char* pszPathName)
 
 //---------------------------------------------------------------------------
 
+BOOL CGrfDoc::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr)
+  {
+  return GCB.pDrw->FindTag(Tag, pLastMatchingInsert, pLastMatchingAttr);
+  }
+
+//---------------------------------------------------------------------------
+
+void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options)
+  {
+
+
+
+  //if (!pGWnd->bDonePaint)
+  //  {//drawing has never been painted ie display list has not been built, force it...
+  //  pGWnd->Dsp.Open(NULL);
+  //  CRect ClpBox;
+  //  pGWnd->GetClientRect(&ClpBox);
+  //  pGWnd->Dsp.Paint(ClpBox);
+  //  pGWnd->Dsp.Close();
+  //  pGWnd->bDonePaint = 1;
+  //  }
+
+
+  //pDrw->SelectInsertsOnAttrCombo(NULL, a999, b999);
+  //if (1)//(pDsp->Vp1)->FirstSelectedEntity())
+  //  {
+  //gs_pCmd->SetRetCode(1);
+  //gs_pCmd->Print("Goto '%s' succeeded\n", b999[0]);
+  //ActivateGWnd();
+
+  POSITION pos = GetFirstViewPosition();
+  CView* pFirstView = GetNextView( pos );
+  CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+
+  if (pGWnd->GetFocus()!=pGWnd)
+    MDIActivateThis(pGWnd); //bring the window to the front
+  if (pGWnd->GetParent()->IsIconic())
+    pGWnd->GetParent()->ShowWindow(SW_RESTORE);
+ 
+  GCB.pDrw->pDsp->Open();
+
+  //if (Options & FTO_MoveCursor)
+  //  SetCursor(pTagInsert, pTagAttr);
+
+  //if (0)//gs_pPrj && (gs_pPrj->m_bGrfPromptForZoom || gs_pPrj->m_bGrfMoveCursor))
+  //  {
+  //  //PanAndSetCursor();
+  //  }
+  //else
+  //  {
+  //  //CString DocTitle = pGWnd->GetDocument()->GetTitle();
+  //  LogNote("GrfCmds", 0, "%s has been found on %s.", Tag, (const char*)GetTitle());//DocTitle);
+  //  }
+  char * TagTagList[] =   { "Tag", (pchar)NULL  };
+  char * ValueTagList[] = { Tag, (pchar)NULL     };
+
+  GCB.pDrw->pDsp->Vp1->ClearAllEntity();
+  GCB.pDrw->pDsp->Vp1->ClrSelectionAllList();
+  GCB.pDrw->pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
+  GCB.pDrw->pDsp->Vp1->AddSelectionAttribList("Tag");
+
+
+  IRegExpPtr *pRE=NULL;//(gs_pPrj->m_bGrfRegExpOn) ? new IRegExpPtr("VBScript.RegExp") : NULL;
+  GCB.pDrw->SelectInsertsOnAttrCombo(NULL, TagTagList, ValueTagList, pRE);
+
+  GCB.pDrw->EntityInvalidate(pTagAttr, NULL);
+  //pDsp->Vp1->ClearAllEntity();
+  //GCB.pDrw->pDsp->Draw(e1, -1);
+
+  CRect ClpBox;
+  pGWnd->GetClientRect(&ClpBox);
+  pGWnd->Dsp.Paint(ClpBox);
+
+  //pGWnd->EnInvalidate(false);
+
+  if (Options & (FTO_MoveCursor|FTO_Highlite))
+    SetCursor(pTagInsert, pTagAttr, Options );
+
+  if (Options & FTO_DoAccess)// gs_pPrj->bDoGrfAutoAccess)
+    {
+    char* pTxt = new char[strlen(Tag)+1];
+    strcpy(pTxt, Tag);
+    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+    }
+
+  //else
+  //  {
+  //  gs_pCmd->Print("Goto '%s' failed\n", b999[0]);
+  //  //AfxMessageBox("Goto has not found the requested Tag.\nTry another drawing.");//, MB_ICONQUESTION);
+  //  if (GotoFromToolbar)
+  //    {
+  //    char* pTxt = new char[strlen(b999[0])+1];
+  //    strcpy(pTxt, b999[0]);
+  //    ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+  //    }
+  //  }
+  //gs_pPrj->bDoGrfAutoAccess = 0;
+  //delete pRE;
+  //......
+
+  GCB.pDrw->pDsp->Close();
+
+  };
+
+/**
+  CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
+  DXF_ENTITY e = pEnt->EntityPtr();
+
+  if (gs_pPrj->m_bGrfPromptForZoom)
+    {
+
+    C3_BOX_S Bounds;
+    PT3 p;
+    c3v_set(1.1e30, 1.1e30, 1.1e30, p);
+    c3a_box_init_pt(&Bounds, p);
+    C3_TRANSFORM c3t;
+
+    c3t[0][0] = c3t[0][1] = c3t[0][2] = c3t[0][3] = 0.0;
+    c3t[1][0] = c3t[1][1] = c3t[1][2] = c3t[1][3] = 0.0;
+    c3t[2][0] = c3t[2][1] = c3t[2][2] = c3t[2][3] = 0.0;
+    c3t[0][0] = c3t[1][1] = c3t[2][2] = 1.0;
+
+    // Get bound on the block
+    pBlock b = pDrw->Blocks.Find(DXF_INSERT_BLOCK_GET(e));
+    pDrw->ConstructInsertMatrix(c3t, b, e);
+    b->GetBounds(c3t, &Bounds);
+
+    double ZBx0=pDsp->Vp1->ZoomBox.minpt[0];
+    double ZBy0=pDsp->Vp1->ZoomBox.minpt[1];
+    double ZBx1=pDsp->Vp1->ZoomBox.maxpt[0];
+    double ZBy1=pDsp->Vp1->ZoomBox.maxpt[1];
+
+    double xl=ZBx1-ZBx0;
+    double yl=ZBy1-ZBy0;
+
+    xl=Max(xl, C3_MAX_X(&Bounds) - C3_MIN_X(&Bounds));
+    yl=Max(yl, C3_MAX_Y(&Bounds) - C3_MIN_Y(&Bounds));
+
+    double xc=(C3_MIN_X(&Bounds)+C3_MAX_X(&Bounds))/2.0;
+    double yc=(C3_MIN_Y(&Bounds)+C3_MAX_Y(&Bounds))/2.0;
+
+    double w = Max(C3_MAX_X(&pDrw->Bounds)-C3_MIN_X(&pDrw->Bounds), (REAL)1.0);
+    double h = Max(C3_MAX_Y(&pDrw->Bounds)-C3_MIN_Y(&pDrw->Bounds), (REAL)1.0);
+
+    double x0=pDrw->Bounds.minpt[0]-0.025*w;
+    double y0=pDrw->Bounds.minpt[1]-0.025*h;
+    double x1=pDrw->Bounds.maxpt[0]+0.025*w;
+    double y1=pDrw->Bounds.maxpt[1]+0.025*h;
+
+    double xlh=xl/2.0;
+    double ylh=yl/2.0;
+    if (xc-xlh<x0)
+      xc-=xc-xlh-x0;
+    if (xc+xlh>x1)
+      xc-=xc+xlh-x1;
+    if (yc-ylh<y0)
+      yc-=yc-ylh-y0;
+    if (yc+ylh>y1)
+      yc-=yc+ylh-y1;
+
+    pDsp->SetZoom(Zoom_Win, xc-xlh, yc-ylh, xc+xlh, yc+ylh);
+
+    pWnd->Invalidate(True);
+    }
+**/
+
+//---------------------------------------------------------------------------
+
+void CGrfDoc::SetCursor(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options)
+  {
+  Pt_3f   world;
+  Pt_SLW  Pt1;
+  world.X=DXF_INSERT_PT(pTagInsert)[0];//xc;
+  world.Y=DXF_INSERT_PT(pTagInsert)[1];//yc;
+  world.Z=0.0;
+  GCB.pDrw->pDsp->SetCPtWorld(world, Pt1); 
+  ///gs_pCmd->SetDigInfo(GC_BigCurs, 1);
+
+  if (Options & FTO_MoveCursor)
+    SetCursorPos((int)Pt1.Screen.X, (int)Pt1.Screen.Y);
+
+  if (Options & FTO_Highlite)
+    {
+    Cursor_Types CursMem=GCB.pDrw->pDsp->Cursor;
+    GCB.pDrw->pDsp->Cursor=GC_BigCurs;
+    GCB.pDrw->pDsp->EndPt=Pt1;
+    GCB.pDrw->pDsp->XORCursor();
+    Sleep(200);
+    GCB.pDrw->pDsp->XORCursor();
+    GCB.pDrw->pDsp->Cursor=CursMem;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 int CGrfDoc::GetTagList(Strng_List & Lst) 
   { 
   Lst.Clear();

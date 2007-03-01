@@ -82,7 +82,6 @@ class CFTItem //: public CFTRepSeq
     int               m_nRefs;
     HTREEITEM         m_hTree;
 
-
     CArray<CFTPage*, CFTPage*> m_Pages;
   };
 
@@ -146,8 +145,18 @@ class CFindTagsDlg : public CDialog
     void          LoadTagItem(CFTItem & Tg, bool UpdateTag=false);
     void          SaveProfile();
 
+    void          PositionControls(int cx, int cy);
+    void          SavePos();
+    void          RestorePos();
+
     DECLARE_MESSAGE_MAP()
   public:
+
+    CPoint                m_TopLeft;            // Relative to Main Wnd Client TopLeft
+    CRect                 m_ClientRctInit;
+    CRect                 m_WindowRctInit;
+    CArray<CRect, CRect&> m_CtrlRcts;
+
     CTreeCtrl       m_TagTree;
     CComboBox       m_TagFilterRule;
     CEdit           m_TagFilter;
@@ -155,6 +164,12 @@ class CFindTagsDlg : public CDialog
     BOOL            m_Inited;
     BOOL            m_bCaseSens;
     IRegExpPtr    * m_pFilterRE;
+
+    BOOL            m_GoTo;
+    BOOL            m_DoAccess;
+    CString         m_TagName;
+    CString         m_GraphName;
+    CString         m_TrendName;
 
     CArray <CFTItem*, CFTItem*> m_Tags;
     CMap <LPCTSTR, LPCTSTR,  CFTItem*, CFTItem*> m_TagMap;
@@ -164,7 +179,14 @@ class CFindTagsDlg : public CDialog
     CArray <CFTClass*, CFTClass*> m_Classes;
     CMap <LPCTSTR, LPCTSTR,  CFTClass*, CFTClass*> m_ClassMap;
 
+    afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
+    afx_msg void OnSize(UINT nType, int cx, int cy);
     afx_msg void OnTvnSelchangedTagtree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnCbnSelchangeTagfilterrule();
     afx_msg void OnEnChangeTagfilter();
+    afx_msg void OnBnClickedGoto();
+    afx_msg void OnBnClickedGoaccess();
+    afx_msg void OnNMDblclkTagtree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnNMClickTagtree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnTvnSelchangingTagtree(NMHDR *pNMHDR, LRESULT *pResult);
   };

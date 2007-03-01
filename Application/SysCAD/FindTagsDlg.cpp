@@ -11,6 +11,7 @@
 #include "dbgmngr.h"
 #include "scdver.h"
 #include "nrecipe.h"
+#include "tagvdoc.h"
 
 extern "C" 
   {
@@ -21,6 +22,31 @@ extern "C"
 #include "FindTagsDlg.h"
 #include ".\findtagsdlg.h"
 
+const byte TrkLeft      = 0x01;
+const byte TrkTop       = 0x02;
+const byte TrkRight     = 0x04;
+const byte TrkBottom    = 0x08;
+const byte TrkSep0      = 0x10;
+const byte TrkSep1      = 0x20;
+const byte TrkSep2      = 0x40;
+
+static struct { UINT m_ID; byte m_TrkTL; byte m_TrkBR; } const CtrlIDs[]=//CtrlIDCount]= 
+  {
+    { IDC_TAGFILTER         , TrkLeft   |TrkBottom , TrkRight   |TrkBottom  },
+    { IDC_FILTOPTIONS       , TrkRight  |TrkBottom , TrkRight   |TrkBottom  },
+    { IDC_TAGFILTERRULE     , TrkLeft   |TrkBottom , TrkRight   |TrkBottom  },
+    { ID_GOTO               , TrkRight  |TrkBottom , TrkRight   |TrkBottom  },
+    { ID_GOACCESS           , TrkRight  |TrkBottom , TrkRight   |TrkBottom  },
+    { IDCANCEL              , TrkRight  |TrkBottom , TrkRight   |TrkBottom  },
+    { IDC_TAGTREE           , TrkLeft   |TrkTop    , TrkRight   |TrkBottom  },
+    { IDC_STRNM4            , TrkLeft   |TrkBottom , TrkLeft    |TrkBottom  },
+    { IDC_STATICFILTER      , TrkLeft   |TrkBottom , TrkRight   |TrkBottom  },
+    { IDC_STRNM3            , TrkLeft   |TrkBottom , TrkLeft    |TrkBottom  },
+  };
+  
+const int CtrlIDCount = sizeof(CtrlIDs)/sizeof(CtrlIDs[0]);
+
+static LPCTSTR Section="FindTags";
 
 // CFindTagsDlg dialog
 
@@ -55,6 +81,9 @@ CFindTagsDlg::CFindTagsDlg(CWnd* pParent /*=NULL*/)
   m_Inited=false;
   m_bCaseSens=false;
   m_pFilterRE=NULL;
+  m_GoTo=false;
+  m_DoAccess=false;
+
   }
 
 CFindTagsDlg::~CFindTagsDlg()
@@ -75,6 +104,13 @@ BEGIN_MESSAGE_MAP(CFindTagsDlg, CDialog)
   ON_NOTIFY(TVN_SELCHANGED, IDC_TAGTREE, OnTvnSelchangedTagtree)
   ON_CBN_SELCHANGE(IDC_TAGFILTERRULE, OnCbnSelchangeTagfilterrule)
   ON_EN_CHANGE(IDC_TAGFILTER, OnEnChangeTagfilter)
+  ON_BN_CLICKED(ID_GOTO, &CFindTagsDlg::OnBnClickedGoto)
+  ON_BN_CLICKED(ID_GOACCESS, &CFindTagsDlg::OnBnClickedGoaccess)
+  ON_NOTIFY(NM_DBLCLK, IDC_TAGTREE, &CFindTagsDlg::OnNMDblclkTagtree)
+  ON_WM_GETMINMAXINFO()
+  ON_WM_SIZE()
+  ON_NOTIFY(NM_CLICK, IDC_TAGTREE, &CFindTagsDlg::OnNMClickTagtree)
+  ON_NOTIFY(TVN_SELCHANGING, IDC_TAGTREE, &CFindTagsDlg::OnTvnSelchangingTagtree)
 END_MESSAGE_MAP()
 
 
@@ -85,6 +121,15 @@ BOOL CFindTagsDlg::OnInitDialog()
   CDialog::OnInitDialog();
   CProfINIFile PF(PrjIniFile());
   CString S;
+
+  GetWindowRect(&m_WindowRctInit);
+  GetClientRect(&m_ClientRctInit);
+  m_CtrlRcts.SetSize(CtrlIDCount);
+  for (int i=0; i<CtrlIDCount; i++)
+    {
+    GetDlgItem(CtrlIDs[i].m_ID)->GetWindowRect(&m_CtrlRcts[i]);
+    ScreenToClient(&m_CtrlRcts[i]);
+    }
 
   m_TagFilterRule.AddString(eFilterRuleNames[eFROff]);
   m_TagFilterRule.AddString(eFilterRuleNames[eFRContains]);
@@ -236,9 +281,137 @@ BOOL CFindTagsDlg::OnInitDialog()
   ShowWindow(SW_SHOW);
   UpdateDialogControls(this, FALSE);
 
+  RestorePos();
   return TRUE;
   }
 
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 
+  {
+  CDialog::OnGetMinMaxInfo(lpMMI);
+
+  if (!m_Inited)
+    return;
+
+  lpMMI->ptMinTrackSize.x = m_WindowRctInit.Width();
+  lpMMI->ptMinTrackSize.y = m_WindowRctInit.Height();
+  }
+
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::OnSize(UINT nType, int cx, int cy) 
+  {
+  CDialog::OnSize(nType, cx, cy);
+  if (m_Inited)
+    {
+    PositionControls(cx, cy);
+    InvalidateRect(NULL);
+    SavePos();
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::PositionControls(int cx, int cy)
+  {
+  if (!m_Inited)
+    return;
+
+  int CW=m_ClientRctInit.Width();
+  int CH=m_ClientRctInit.Height();
+
+  for (int i=0; i<CtrlIDCount; i++)
+    {
+    CWnd &Wnd = *GetDlgItem(CtrlIDs[i].m_ID);
+    int X1=m_CtrlRcts[i].left;
+    int Y1=m_CtrlRcts[i].top;
+    int X2=X1+m_CtrlRcts[i].Width();
+    int Y2=Y1+m_CtrlRcts[i].Height();
+    if (CtrlIDs[i].m_TrkTL & TrkLeft)
+      {}
+
+    if (CtrlIDs[i].m_TrkTL & TrkRight)
+      X1+=cx-CW;
+    if (CtrlIDs[i].m_TrkBR & TrkLeft)
+      {}
+
+    if (CtrlIDs[i].m_TrkBR & TrkRight)
+      X2+=cx-CW;
+
+    if (CtrlIDs[i].m_TrkTL & TrkTop)
+      {}
+    if (CtrlIDs[i].m_TrkTL & TrkBottom)
+      Y1+=cy-CH;
+    if (CtrlIDs[i].m_TrkBR & TrkTop)
+      {}
+    if (CtrlIDs[i].m_TrkBR & TrkBottom)
+      Y2+=cy-CH;
+
+    Wnd.SetWindowPos(NULL, X1, Y1, X2-X1, Y2-Y1, SWP_NOCOPYBITS|SWP_NOACTIVATE|SWP_NOZORDER);
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+void CFindTagsDlg::SavePos()
+  {
+  CProfINIFile PF(PrjIniFile());
+
+  CRect Rct;
+  GetWindowRect(&Rct);
+
+  PF.WrInt(Section, "XPos", Rct.left);
+  PF.WrInt(Section, "YPos", Rct.top);
+  PF.WrInt(Section, "Width", Rct.Width());
+  PF.WrInt(Section, "Height", Rct.Height());
+
+  CRect SRct;
+  ScdMainWnd()->GetClientRect(&SRct);
+  ScdMainWnd()->ClientToScreen(&SRct);
+
+  m_TopLeft = Rct.TopLeft();
+  m_TopLeft -= SRct.TopLeft();
+  //dbgpln(">>>>>> Save Pos         %5i %5i  %5i %5i", Rct.left, Rct.top, m_TopLeft.x, m_TopLeft.y); 
+  }
+
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::RestorePos()
+  {
+  CProfINIFile PF(PrjIniFile());
+
+  CRect Rct;
+  GetClientRect(&Rct);
+  GetParent()->ClientToScreen(&Rct);
+  int xPos = PF.RdInt(Section, "XPos", -10000);//Rct.left);
+  int yPos = PF.RdInt(Section, "YPos", Rct.top);
+  int CW = PF.RdInt(Section, "Width", Rct.Width());
+  int CH = PF.RdInt(Section, "Height", Rct.Height());
+
+  if (xPos<=-10000)
+    {
+    CRect Rct;
+    GetParent()->GetClientRect(&Rct);
+    GetParent()->ClientToScreen(&Rct);
+    xPos=Rct.left;
+    yPos=Rct.top+50;
+
+    CRect IRect;
+    CWnd * p=ScdMainWnd();
+    if (dynamic_cast<CMainFrame*>(p)->GetInitRect(0, IRect))
+      {
+      xPos=IRect.left;
+      yPos=IRect.top;
+      CW=IRect.Width();
+      CH=IRect.Height();
+      }
+    }
+  SetWindowPos(NULL, 0,0, 1,1 , SWP_NOREPOSITION | SWP_NOZORDER | SWP_SHOWWINDOW); // set size small to force an OnSize
+  SetVisibleWindowPos(this, xPos, yPos, CW, CH, true);
+  }
+
+//--------------------------------------------------------------------------
 
 BOOL CFindTagsDlg::XXOnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
   {
@@ -285,15 +458,14 @@ BOOL CFindTagsDlg::XXOnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
   return CDialog::OnNotify(wParam, lParam, pResult);
   }
 
-
 //--------------------------------------------------------------------------
 
 void CFindTagsDlg::OnOK() 
   {
   UpdateData(TRUE);
 
-
   SaveProfile();
+  SavePos();
 
   CDialog::OnOK();
   }
@@ -303,10 +475,50 @@ void CFindTagsDlg::OnOK()
 void CFindTagsDlg::OnCancel()
   {
   SaveProfile();
+  SavePos();
 
   CDialog::OnCancel();
   }
 
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::OnBnClickedGoto()
+  {
+  UpdateData(TRUE);
+  SaveProfile();
+  m_GoTo = true;
+  //if (m_TagName.GetLength()==0)
+  //  m_TagFilter.GetWindowText(m_TagName);
+  //m_TrndName;
+  if (m_TagName.GetLength()>0)
+    OnOK();
+  }
+
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::OnBnClickedGoaccess()
+  {
+  UpdateData(TRUE);
+  SaveProfile();
+  m_DoAccess = true;
+  //if (m_TagName.GetLength()==0)
+  //  m_TagFilter.GetWindowText(m_TagName);
+  if (m_TagName.GetLength()>0)
+    OnOK();
+  }
+
+//--------------------------------------------------------------------------
+
+void CFindTagsDlg::OnNMDblclkTagtree(NMHDR *pNMHDR, LRESULT *pResult)
+  {
+  SaveProfile();
+  m_GoTo=true;
+  m_DoAccess=false;
+
+  OnOK();
+
+  *pResult = 0;
+  }
 
 //--------------------------------------------------------------------------
 
@@ -585,6 +797,10 @@ void CFindTagsDlg::SetFilter()
 
 //--------------------------------------------------------------------------
 
+const int TagId=1;
+const int GraphPageId=2;
+const int TrendPageId=3;
+
 void CFindTagsDlg::LoadTagTree()
   {
   CString S;
@@ -599,6 +815,7 @@ void CFindTagsDlg::LoadTagTree()
       if (!Tg.m_hTree)
         {
         Tg.m_hTree = m_TagTree.InsertItem(Tg.Display(), TVI_ROOT);
+        m_TagTree.SetItemData(Tg.m_hTree, TagId);
         m_TagHMap.SetAt(Tg.m_hTree, m_Tags[i]);
         if (Tg.m_Loaded)
           LoadTagItem(Tg);
@@ -626,69 +843,106 @@ void CFindTagsDlg::LoadTagItem(CFTItem & Tg, bool UpdateTag)
   if (!Tg.m_Loaded)
     {
     Tg.m_nRefs=Tg.m_Pages.GetCount();
-    // Get 'Other stuff from Project'
 
-    Tg.m_nRefs+=3; // Trends
-    Tg.m_nRefs+=3; // XRefs
+    FindTrendTagHelper TrndPos(Tg.m_sTag, ScdApp()->TrendTemplate().GetFirstDocPosition());
+    while (/*Tg.m_nRefs<2 &&*/ TrndPos.DocPos)
+      {
+      POSITION    PrevDocPos = TrndPos.DocPos;
+      CTagVwDoc * pTrndDoc = (CTagVwDoc*)(ScdApp()->TrendTemplate().GetNextDoc(TrndPos.DocPos));
+      if (pTrndDoc->FindTag(TrndPos))
+        {
+        TrndPos.DocPos = PrevDocPos;
+        TrndPos.iLastPos++;
+        Tg.m_nRefs++;
+        }
+      }
 
     Tg.m_Loaded=true;
     }
 
+  if (Tg.m_nRefs<=1)
+    return;
+
   if (!m_TagTree.GetChildItem(Tg.m_hTree))
     {
-    S.Format("Class: %s",Tg.m_pClassId->m_sClassId);
-    HTREEITEM h=m_TagTree.InsertItem(S, Tg.m_hTree, TVI_LAST);
-    m_TagTree.EnsureVisible(h);
-
+    HTREEITEM h;
     for (int i=0; i<Tg.m_Pages.GetCount(); i++)
       {
-      S.Format("Graphic: %s",m_Pages[i]->m_sPageId);
-      h=m_TagTree.InsertItem(S, Tg.m_hTree, TVI_LAST);
+      Strng S(Tg.m_Pages[i]->m_sPageId);
+      S.FnCheckExtension(".scg");
+      h=m_TagTree.InsertItem(S(), Tg.m_hTree, TVI_LAST);
+      m_TagTree.SetItemData(h, GraphPageId);
       m_TagTree.EnsureVisible(h);
       }
 
-    h=m_TagTree.InsertItem("Trend: Flows", Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
-    h=m_TagTree.InsertItem("Trend: Levels", Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
-    h=m_TagTree.InsertItem("Trend: Temperatures", Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
-
-    HTREEITEM hx;
-    hx=m_TagTree.InsertItem("XRefs", Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
-
-
-    CXRefInfoArray Refs;
-    gs_pTheSFELib->RequestTagRefInfo(Tg.m_sTag, Refs);
-    if (Refs.GetSize())
+    FindTrendTagHelper TrndPos(Tg.m_sTag, ScdApp()->TrendTemplate().GetFirstDocPosition());
+    while (TrndPos.DocPos)
       {
-      //Menu.AppendMenu(MF_SEPARATOR);
-      //bool HasConns=0;
-      //CMenu CnMenu;
-      //CnMenu.CreatePopupMenu();
-      //if (1)
-      //  {
-      //  bool FirstOne=true;
-      //  int iTag=1;
-      //  for (int iPass=0; iPass<2; iPass++)
-      //    {
-      //    for (int ii=0; ii<Refs.GetSize(); ii++)
-      //      {
-      //      CTagRefInfoItem  *Ref = Refs[ii];
-      //      CString s, sID;
-      //      if (Ref->m_fIsSetRef && iPass==0)
-      //        {
-      //        sLastSelected[iTag] = Ref->m_sRmtTag();
-      //        s.Format(Ref->m_iSetCnt ? "%s -->(Set)":"%s -->()", Ref->m_sRmtID());
-      //        }
-      //      if (Ref->m_fIsGetRef && iPass==1)
-      }
+      POSITION PrevDocPos = TrndPos.DocPos;
+      CTagVwDoc* pTrndDoc = (CTagVwDoc*)(ScdApp()->TrendTemplate().GetNextDoc(TrndPos.DocPos));
+      if (pTrndDoc->FindTag(TrndPos))
+        {
+        TrndPos.DocPos = PrevDocPos;
+        TrndPos.iLastPos++;
 
-    LPCTSTR Vars[]={"Level", "ReqdPos", "P", NULL};
-    LPCTSTR XRef[]={"GC_1", "PID_1", "V_1", NULL};
-    for (LPCTSTR *p=Vars, *x=XRef; *p; p++, x++)
-      {
-      S.Format("%s [%s]", *x, *p);
-      h=m_TagTree.InsertItem(S, hx, TVI_LAST); 
-      m_TagTree.EnsureVisible(h);
+        S=pTrndDoc->GetTitle();
+        S = S + " : " + TrndPos.sLineTag();
+
+        h=m_TagTree.InsertItem(S, Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
+        m_TagTree.SetItemData(h, TrendPageId);
+        }
       }
+    //if (Found)
+    //  {
+    //  //LogNote(sFindTag(), 0, "'%s' found on line %d in %s", sFindTag(), TrndPos.iFoundPos+1, pTrndDoc->GetTitle());
+    //  //pStatusBar->SetMsg("'%s' found on line %d in %s", sFindTag(), TrndPos.iFoundPos+1, pTrndDoc->GetTitle());
+    //  }
+    //else
+    //  {
+    //  //pStatusBar->SetMsg("'%s' NOT found", sFindTag());
+    //  //if (TrndPos.iFoundCnt>0)
+    //  //  LogWarning(sFindTag(), 0, "Cannot find more instances of '%s' in trend windows", sFindTag());
+    //  //else
+    //  //  LogWarning(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find '%s' in trend windows", sFindTag());
+    //  }
+
+    //CXRefInfoArray Refs;
+    //gs_pTheSFELib->RequestTagRefInfo(Tg.m_sTag, Refs);
+    //if (Refs.GetSize())
+    //  {
+    //  HTREEITEM hx=NULL;
+    //  hx=m_TagTree.InsertItem("XRefs", Tg.m_hTree, TVI_LAST); m_TagTree.EnsureVisible(h);
+
+    //  //Menu.AppendMenu(MF_SEPARATOR);
+    //  //bool HasConns=0;
+    //  //CMenu CnMenu;
+    //  //CnMenu.CreatePopupMenu();
+    //  //if (1)
+    //  //  {
+    //  //  bool FirstOne=true;
+    //  //  int iTag=1;
+    //  //  for (int iPass=0; iPass<2; iPass++)
+    //  //    {
+    //  //    for (int ii=0; ii<Refs.GetSize(); ii++)
+    //  //      {
+    //  //      CTagRefInfoItem  *Ref = Refs[ii];
+    //  //      CString s, sID;
+    //  //      if (Ref->m_fIsSetRef && iPass==0)
+    //  //        {
+    //  //        sLastSelected[iTag] = Ref->m_sRmtTag();
+    //  //        s.Format(Ref->m_iSetCnt ? "%s -->(Set)":"%s -->()", Ref->m_sRmtID());
+    //  //        }
+    //  //      if (Ref->m_fIsGetRef && iPass==1)
+    //  }
+
+    ////LPCTSTR Vars[]={"Level", "ReqdPos", "P", NULL};
+    ////LPCTSTR XRef[]={"GC_1", "PID_1", "V_1", NULL};
+    ////for (LPCTSTR *p=Vars, *x=XRef; *p; p++, x++)
+    ////  {
+    ////  S.Format("%s [%s]", *x, *p);
+    ////  h=m_TagTree.InsertItem(S, hx, TVI_LAST); 
+    ////  m_TagTree.EnsureVisible(h);
+    ////  }
     }
   if (UpdateTag)
     m_TagTree.SetItemText(Tg.m_hTree, Tg.Display());
@@ -709,15 +963,65 @@ void CFindTagsDlg::SaveProfile()
 
 //--------------------------------------------------------------------------
 
+CString TrimIt(LPCTSTR Tag, LPCTSTR Separ)
+  {
+  CString X(Tag);
+  int i=X.Find(Separ);
+  if (i>=0)
+    X = X.Left(i);
+  return X;
+  }
+
 void CFindTagsDlg::OnTvnSelchangedTagtree(NMHDR *pNMHDR, LRESULT *pResult)
   {
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-  // TODO: Add your control notification handler code here
-  CFTItem *p;
-  if (pNMTreeView->action==1 && m_TagHMap.Lookup(pNMTreeView->itemNew.hItem, p))
+  
+  CFTItem *p=NULL;
+  switch (pNMTreeView->action)
     {
-    LoadTagItem(*p, true);
+    case 1:
+    case 2:
+      {
+      switch (pNMTreeView->itemNew.lParam)
+        {
+        case TagId:
+          {
+          if (m_TagHMap.Lookup(pNMTreeView->itemNew.hItem, p))
+            LoadTagItem(*p, true);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " (");
+          m_GraphName = "";
+          m_TrendName = "";
+          gs_pPrj->FindTag(m_TagName, NULL, NULL, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        case GraphPageId:
+          {
+          HTREEITEM hTag=m_TagTree.GetParentItem(pNMTreeView->itemNew.hItem);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(hTag), " (");
+          m_GraphName = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " :");
+          m_TrendName = "";
+          gs_pPrj->FindTag(m_TagName, m_GraphName, NULL, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        case TrendPageId:
+          {
+          HTREEITEM hTag=m_TagTree.GetParentItem(pNMTreeView->itemNew.hItem);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(hTag), " (");
+          m_GraphName = "";
+          m_TrendName = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " :");
+          gs_pPrj->FindTag(m_TagName, NULL, m_TrendName, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        default:
+          m_TagName   = "";
+          m_GraphName = "";
+          m_TrendName = "";
+          break;
+        }
+      break;
+      }
     }
+          
   *pResult = 0;
   }
 
@@ -731,4 +1035,63 @@ void CFindTagsDlg::OnEnChangeTagfilter()
   {
   SetFilter();
   LoadTagTree();
+  }
+
+void CFindTagsDlg::OnNMClickTagtree(NMHDR *pNMHDR, LRESULT *pResult)
+  {
+  LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+
+  CFTItem *p=NULL;
+  switch (pNMTreeView->action)
+    {
+    case 1:
+    case 2:
+      {
+      switch (pNMTreeView->itemNew.lParam)
+        {
+        case TagId:
+          {
+          if (m_TagHMap.Lookup(pNMTreeView->itemNew.hItem, p))
+            LoadTagItem(*p, true);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " (");
+          m_GraphName = "";
+          m_TrendName = "";
+          gs_pPrj->FindTag(m_TagName, NULL, NULL, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        case GraphPageId:
+          {
+          HTREEITEM hTag=m_TagTree.GetParentItem(pNMTreeView->itemNew.hItem);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(hTag), " (");
+          m_GraphName = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " :");
+          m_TrendName = "";
+          gs_pPrj->FindTag(m_TagName, m_GraphName, NULL, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        case TrendPageId:
+          {
+          HTREEITEM hTag=m_TagTree.GetParentItem(pNMTreeView->itemNew.hItem);
+          m_TagName   = TrimIt(m_TagTree.GetItemText(hTag), " (");
+          m_GraphName = "";
+          m_TrendName = TrimIt(m_TagTree.GetItemText(pNMTreeView->itemNew.hItem), " :");
+          gs_pPrj->FindTag(m_TagName, NULL, m_TrendName, /*FTO_MoveCursor|*/FTO_Highlite);
+          break;
+          }
+        default:
+          m_TagName   = "";
+          m_GraphName = "";
+          m_TrendName = "";
+          break;
+        }
+      break;
+      }
+    }
+  *pResult = 0;
+  }
+
+void CFindTagsDlg::OnTvnSelchangingTagtree(NMHDR *pNMHDR, LRESULT *pResult)
+  {
+  LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+  // TODO: Add your control notification handler code here
+  *pResult = 0;
   }

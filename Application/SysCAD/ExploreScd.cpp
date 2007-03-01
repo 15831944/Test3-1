@@ -2246,7 +2246,8 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 
   HTREEITEM hSel = m_Tree.GetSelectedItem();
-  if (m_ChangeBusy==0 &&  hSel && m_Tree.GetItemData(hSel)!=0 /* && pNMTreeView->action==TVC_BYMOUSE*/ )
+  if (m_ChangeBusy==0 &&  hSel && m_Tree.GetItemData(hSel)!=0 && 
+    (pNMTreeView->action==TVC_BYMOUSE || pNMTreeView->action==TVC_BYKEYBOARD))
     {
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
@@ -2283,11 +2284,11 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
             if (pTag->m_iAccPage>=pTag->m_Pages.GetCount())
               pTag->m_iAccPage=0;
 
-            CString S;
-            S.Format("%s\t%s", Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName);
+            //CString S;
+            //S.Format("%s\t%s", Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName);
             bool GMC=gs_pPrj->m_bGrfMoveCursor!=0;
             gs_pPrj->m_bGrfMoveCursor=false;
-            gs_pPrj->FindTag(S);
+            gs_pPrj->FindTag(Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName, NULL, FTO_Highlite);
             gs_pPrj->m_bGrfMoveCursor=GMC;
             }
           }
@@ -2649,9 +2650,9 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
               {
               if (RetCd>=110 && RetCd<110+pTag->m_Pages.GetCount())
                 {
-                S.Format("%s\t%s", Txt, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName);
-
-                gs_pPrj->FindTag(S);
+                //S.Format("%s\t%s", Txt, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName);
+                S=Txt;
+                gs_pPrj->FindTag(S, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName, NULL, FTO_MoveCursor|FTO_Highlite);
                 }
               break;
               }

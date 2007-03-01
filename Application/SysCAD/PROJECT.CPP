@@ -3938,108 +3938,138 @@ void CProject::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 //  }
 
 //---------------------------------------------------------------------------
-#define USENEWFINDTAG 0
 
-BOOL CProject::FindTag(LPCTSTR pTag/*=""*/, BOOL DoAutoAccess/*=FALSE*/, BOOL NoErrDlg/*=FALSE*/, BOOL FindNext/*=FALSE*/)
-  {//if pTag is specified assume search is in graphics
-  char * pGrfPg=(char*)strchr(pTag, '\t');
-  if (pGrfPg)
+flag FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, DXF_ENTITY &pTagInsert, DXF_ENTITY &pTagAttr,int & DocNotLoadedCnt)
+  {
+  //Strng Cmd("\x1b");
+  //gs_pCmd->ProcessAStr(Cmd()); //Ensure there are no half complete commands
+  pGrfDocFound=NULL;
+  pTagInsert=NULL;
+  pTagAttr=NULL;
+
+  Strng sFindTag(FindTag);
+  Strng sGraphPage(GraphPage);
+  if (sGraphPage.GetLength()>0)
+    sGraphPage.FnName();
+
+  //CWaitMsgCursor Wait(Buff);
+  DocNotLoadedCnt = 0;
+  Strng sFindTagMem(sFindTag);
+  for (int iPass=0; iPass<10; iPass++)
     {
-    *pGrfPg++=0;
-    NoErrDlg=true;
-    }
-  BOOL GrfSearch = TRUE;
-  Strng sFindTag;
-  if (FindNext && TrndPos.sTag.Len()>0)
-    {
-    GrfSearch = FALSE;
-    sFindTag = TrndPos.sTag;
-    }
-  else
-    FindNext = FALSE;
-  if (!FindNext)
-    {
-    if (pTag==NULL || strlen(pTag)==0)
+    sFindTag=sFindTagMem;
+    for (int i=0; i<iPass; i++)
       {
-#if USENEWFINDTAG 
-      CFindTagsDlg Dlg;
-      if (Dlg.DoModal()==IDOK)// && Dlg.sFindTag.GetLength()>0)
-        {
-        //GrfSearch = !Dlg.bTrendFind;
-        //DoAutoAccess = Dlg.m_AutoAccess;
-        //sFindTag = (const char*)Dlg.sFindTag;
-        }
+      char * p=sFindTag.XStrRChr('.');
+      if (p)
+        sFindTag.SetLength(p-sFindTag());
       else
         return false;
-#else
-      CFindTagDlg Dlg;
-      if (Dlg.DoModal()==IDOK && Dlg.sFindTag.GetLength()>0)
+      }
+    for (int iTemp=iGraphTemplate; iTemp<=iVisioTemplate; iTemp++)
+      {
+      if (ScdApp()->TemplateExists(iTemp))
         {
-        GrfSearch = !Dlg.bTrendFind;
-        DoAutoAccess = Dlg.m_AutoAccess;
-        sFindTag = (const char*)Dlg.sFindTag;
+        POSITION Pos = ScdApp()->Template(iTemp).GetFirstDocPosition();
+        while (!pGrfDocFound && Pos)
+          {
+          CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
+          if (pGrfDoc->GCB.bGrfLoadDefered)
+            DocNotLoadedCnt++;
+          else 
+            {
+            Strng Pg(pGrfDoc->GetTitle());
+            Pg.FnName();
+            if (sGraphPage.GetLength()==0 || _stricmp(Pg(), sGraphPage())==0)
+              {
+              if (pGrfDoc->FindTag(sFindTag(), pTagInsert, pTagAttr))
+                {
+                pGrfDocFound=pGrfDoc;
+                return true;
+                }
+              }
+            }
+          }
         }
-      else
-        return false;
-#endif
+      }
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+#define USENEWFINDTAG 01
+
+flag CProject::FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, dword Options)//BOOL DoAutoAccess, BOOL NoErrDlg, BOOL FindNext)
+  {
+  //if pTag is specified assume search is in graphics
+  Strng sFindTag;
+  Strng sGraphPage(pGrf);
+  Strng sTrendPage(pTrnd);
+  if (pTag==NULL || strlen(pTag)==0)
+    {
+#if (USENEWFINDTAG)
+    CFindTagsDlg Dlg;
+    if (Dlg.DoModal()==IDOK)
+      {
+      sFindTag   = (const char*)Dlg.m_TagName;
+      sGraphPage = (const char*)Dlg.m_GraphName;
+      sTrendPage = (const char*)Dlg.m_TrendName;
+      Options    |= (Dlg.m_DoAccess ? FTO_DoAccess:0);
+      Options    |= (Dlg.m_GoTo && !Dlg.m_DoAccess ? FTO_MoveCursor:0);
+      Options    |= FTO_Highlite;
+      bDoGrfAutoAccess = Dlg.m_DoAccess!=0;
       }
     else
-      sFindTag = pTag;
-    }
+      return false;
+#else
+    CFindTagDlg Dlg;
+    if (Dlg.DoModal()==IDOK && Dlg.sFindTag.GetLength()>0)
+      {
+      sFindTag  = (const char*)Dlg.sFindTag;
 
-  bDoGrfAutoAccess = DoAutoAccess!=0;
+      //GrfSearch = !Dlg.bTrendFind;
+      Options   |= (Dlg.m_AutoAccess?FTO_DoAccess:0);
+      Options   |= (Dlg.m_MoveCursor?FTO_MoveCursor:0);
+
+      //Options  |= (Dlg.m_ZoomPrompt?FTO_MoveCursor:0);
+      bDoGrfAutoAccess = Dlg.m_AutoAccess!=0;
+      }
+    else
+      return false;
+#endif
+    }
+  else
+    {
+    sFindTag = pTag;
+    }
+  BOOL GrfSearch = sTrendPage.GetLength()==0;
+
+  //bDoGrfAutoAccess = DoAutoAccess!=0;
   BOOL Found = 0;
   char Buff[256];
   sprintf(Buff, "Searching for tag '%s'", sFindTag());
   if (GrfSearch)
     {//search graphics...
-    Strng Cmd("\x1b");
-    gs_pCmd->ProcessAStr(Cmd()); //Ensure there are no half complete commands
-    CWaitMsgCursor Wait(Buff);
-    int DocNotLoadedCnt = 0;
-    Strng sFindTagMem(sFindTag);
-    for (int iPass=0; iPass<10; iPass++)
-      {
-      sFindTag=sFindTagMem;
-      for (int i=0; i<iPass; i++)
-        {
-        char * p=sFindTag.XStrRChr('.');
-        if (p)
-          sFindTag.SetLength(p-sFindTag());
-        else
-          goto Done;
-        }
-      for (int iTemp=iGraphTemplate; iTemp<=iVisioTemplate; iTemp++)
-        if (ScdApp()->TemplateExists(iTemp))
-          {
-          POSITION Pos = ScdApp()->Template(iTemp).GetFirstDocPosition();
-          while (!Found && Pos)
-            {
-            CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->Template(iTemp).GetNextDoc(Pos));
-            if (pGrfDoc->GCB.bGrfLoadDefered)
-              DocNotLoadedCnt++;
-            else if (!pGrfPg || _stricmp(pGrfDoc->GetTitle(), pGrfPg)==0)
-              {
-              pGrfDoc->OnActivate(true);  // direct cmds to this document
-              //        Cmd.Set("mark entity goto %s \r", sFindTag());
-              bDoGrfAutoAccess = DoAutoAccess!=0;
-              Cmd.Set("find entity goto %s \r", sFindTag());
-              Found = (gs_pCmd->ProcessAStr(Cmd())==1);
-              }
-            }
-          }
-      }
-Done:
+    CGrfDoc * pGrfDocFound=NULL;
+    DXF_ENTITY pTagInsert=NULL;
+    DXF_ENTITY pTagAttr=NULL;
+    int DocNotLoadedCnt=0;
+    Found = FindTagInGraphic(sFindTag(), sGraphPage(), pGrfDocFound, pTagInsert, pTagAttr, DocNotLoadedCnt);
+
     if (Found)
+      {
+      pGrfDocFound->FindTagComplete(sFindTag(), pTagInsert, pTagAttr, Options);
       pStatusBar->SetMsg("Tag '%s' found", sFindTag());
+      }
     else
       {
       pStatusBar->SetMsg("Tag '%s' NOT found", sFindTag());
       if (DocNotLoadedCnt>0)
-        LogNote(sFindTag(), NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag; %d drawing%s NOT searched (not loaded)", DocNotLoadedCnt, DocNotLoadedCnt>1 ? "s" : "");
+        LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag; %d drawing%s NOT searched (not loaded)", DocNotLoadedCnt, DocNotLoadedCnt>1 ? "s" : "");
       else
-        LogNote(sFindTag(), NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag in graphics windows");
-      if (DoAutoAccess)
+        LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag in graphics windows");
+      if (Options&FTO_DoAccess)
         gs_AccessWnds.AccessNode(-1, sFindTag());
       }
     }
@@ -4067,7 +4097,7 @@ Done:
       {
       POSITION PrevDocPos = TrndPos.DocPos;
       pTrndDoc = (CTagVwDoc*)(ScdApp()->TrendTemplate().GetNextDoc(TrndPos.DocPos));
-      bDoGrfAutoAccess = DoAutoAccess!=0;
+      //bDoGrfAutoAccess = DoAutoAccess!=0;
       Found = pTrndDoc->FindTag(TrndPos);
       if (Found)
         {
@@ -4077,16 +4107,16 @@ Done:
       }
     if (Found)
       {
-      LogNote(sFindTag(), 0, "'%s' found on line %d in %s", sFindTag(), TrndPos.iFoundPos+1, pTrndDoc->GetTitle());
+      //LogNote(sFindTag(), 0, "'%s' found on line %d in %s", sFindTag(), TrndPos.iFoundPos+1, pTrndDoc->GetTitle());
       pStatusBar->SetMsg("'%s' found on line %d in %s", sFindTag(), TrndPos.iFoundPos+1, pTrndDoc->GetTitle());
       }
     else
       {
       pStatusBar->SetMsg("'%s' NOT found", sFindTag());
-      if (TrndPos.iFoundCnt>0)
-        LogWarning(sFindTag(), 0, "Cannot find more instances of '%s' in trend windows", sFindTag());
-      else
-        LogWarning(sFindTag(), NoErrDlg ? 0 : LF_Exclamation, "Unable to find '%s' in trend windows", sFindTag());
+      //if (TrndPos.iFoundCnt>0)
+      //  LogWarning(sFindTag(), 0, "Cannot find more instances of '%s' in trend windows", sFindTag());
+      //else
+      //  LogWarning(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find '%s' in trend windows", sFindTag());
       }
     }
   return Found;
@@ -4094,7 +4124,7 @@ Done:
 
 //---------------------------------------------------------------------------
 
-BOOL CProject::AllGrfLoaded()
+flag CProject::AllGrfLoaded()
   {
   //for (int iTemp=iTrendTemplate; iTemp<iControlTemplate; iTemp++)
   POSITION Pos = ScdApp()->GraphTemplate().GetFirstDocPosition();

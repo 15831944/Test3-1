@@ -1603,8 +1603,11 @@
 #define IDC_OLDNAME2                    25761
 #define IDC_DISPLAYLINKVAPTEST          25761
 #define IDC_ARCML_TIMEDATE              25762
+#define ID_GOTO                         25762
 #define IDC_ARCML_TIMEDATE2             25763
 #define IDC_ARCML_TIMETIME              25763
+#define ID_GOTO2                        25763
+#define ID_GOACCESS                     25763
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -1996,7 +1999,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25598
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25762
+#define _APS_NEXT_CONTROL_VALUE         25763
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif
