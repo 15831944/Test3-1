@@ -1028,9 +1028,9 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.Double("UsrDefP",           "",    DC_P,    "kPa",   &m_UsrDefP,      this, isParm);
     DDB.Visibility();
     DDB.Double("Press",             "",    DC_P,    "kPa",   &m_Press,        this, isResult);
-    DDB.Double("TempFeed",          "",    DC_T,    "C",     &m_TempKFeed,    this, isResult);
+    DDB.Double("TempFeed",    "Feed.T",    DC_T,    "C",     &m_TempKFeed,    this, isResult);
     DDB.Double("TempRct",           "",    DC_T,    "C",     &m_TempKRct,     this, isResult|InitHidden);
-    DDB.Double("TempProd",          "",    DC_T,    "C",     &m_TempKProd,    this, isResult);
+    DDB.Double("TempProd",    "Prod.T",    DC_T,    "C",     &m_TempKProd,    this, isResult);
 
     DDB.Byte("ExtraInfo",           "",    DC_,     "",      &sm_AllVars,     this, isParm|SetOnChange, DDBExtraInfo);
     DDB.Byte("ChangeVars",          "",    DC_,     "",      &sm_ChgVars,     this, isParm|SetOnChange, DDBChgVars);

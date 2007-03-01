@@ -238,14 +238,14 @@ void CVLEBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, D
   DDB.Text(" ");
   if ((m_iFlags & VLEF_HideFeedMeasure)==0)
     {
-    DDB.Double("Feed.Temp",               "", DC_T,      "C",     &m_TempIn,          m_pNd, isResult);
-    DDB.Double("Feed.TotalP",             "", DC_P,      "kPag",  &m_TotalPIn,        m_pNd, isResult);
-    DDB.Double("Feed.PartialP",           "", DC_P,      "kPag",  &m_PartialPIn,      m_pNd, isResult);
-    DDB.Double("Feed.TotalFlow",          "", DC_Qm,     "kg/s",  &m_TotQmIn,         m_pNd, isResult);
-    DDB.Double("Feed.VapFlow",            "", DC_Qm,     "kg/s",  &m_VapQmIn,         m_pNd, isResult);
-    DDB.Double("Feed.VapFrac",            "", DC_Frac,   "%",     &m_VapFracIn,       m_pNd, isResult);
-    DDB.Double("Feed.FlashVapFlow",       "", DC_Qm,     "kg/s",  &m_FlshVapQmIn,     m_pNd, isResult);
-    DDB.Double("Feed.FlashVapFrac",       "", DC_Frac,   "%",     &m_FlshVapFracIn,   m_pNd, isResult);
+    DDB.Double("Feed.Temp",               "Feed.T", DC_T,      "C",     &m_TempIn,          m_pNd, isResult);
+    DDB.Double("Feed.TotalP",                   "", DC_P,      "kPag",  &m_TotalPIn,        m_pNd, isResult);
+    DDB.Double("Feed.PartialP",                 "", DC_P,      "kPag",  &m_PartialPIn,      m_pNd, isResult);
+    DDB.Double("Feed.TotalMassFlow",     "Feed.Qm", DC_Qm,     "kg/s",  &m_TotQmIn,         m_pNd, isResult);
+    DDB.Double("Feed.VapourMassFlow",  "Feed.VQMt", DC_Qm,     "kg/s",  &m_VapQmIn,         m_pNd, isResult);
+    DDB.Double("Feed.VapourFrac",        "Feed.Vf", DC_Frac,   "%",     &m_VapFracIn,       m_pNd, isResult);
+    DDB.Double("Feed.FlashVapFlow",             "", DC_Qm,     "kg/s",  &m_FlshVapQmIn,     m_pNd, isResult);
+    DDB.Double("Feed.FlashVapFrac",             "", DC_Frac,   "%",     &m_FlshVapFracIn,   m_pNd, isResult);
     DDB.Text(" ");
     }
 
@@ -264,14 +264,14 @@ void CVLEBase::BuildDataDefn(DataDefnBlk &DDB, pchar pTag_, pchar pTagComment, D
 
   if ((m_iFlags & VLEF_HideProdMeasure)==0)
     {
-    DDB.Double("Prod.Temp",               "", DC_T,      "C",     &m_TempOut,         m_pNd, isResult);
-    DDB.Double("Prod.TotalP",             "", DC_P,      "kPag",  &m_TotalPOut,       m_pNd, isResult);
-    DDB.Double("Prod.PartialP",           "", DC_P,      "kPag",  &m_PartialPOut,     m_pNd, isResult);
-    DDB.Double("Prod.TotalFlow",          "", DC_Qm,     "kg/s",  &m_TotQmOut,        m_pNd, isResult);
-    DDB.Double("Prod.VapFlow",            "", DC_Qm,     "kg/s",  &m_VapQmOut,        m_pNd, isResult);
-    DDB.Double("Prod.VapFrac",            "", DC_Frac,   "%",     &m_VapFracOut,      m_pNd, isResult);
-    DDB.Double("Prod.FlashVapFlow",       "", DC_Qm,     "kg/s",  &m_FlshVapQmOut,    m_pNd, isResult);
-    DDB.Double("Prod.FlashVapFrac",       "", DC_Frac,   "%",     &m_FlshVapFracOut,  m_pNd, isResult);
+    DDB.Double("Prod.Temp",               "Prod.T", DC_T,      "C",     &m_TempOut,         m_pNd, isResult);
+    DDB.Double("Prod.TotalP",                   "", DC_P,      "kPag",  &m_TotalPOut,       m_pNd, isResult);
+    DDB.Double("Prod.PartialP",                 "", DC_P,      "kPag",  &m_PartialPOut,     m_pNd, isResult);
+    DDB.Double("Prod.TotalMassFlow",     "Prod.Qm", DC_Qm,     "kg/s",  &m_TotQmOut,        m_pNd, isResult);
+    DDB.Double("Prod.VapourMassFlow",  "Prod.VQMt", DC_Qm,     "kg/s",  &m_VapQmOut,        m_pNd, isResult);
+    DDB.Double("Prod.VapourFrac",        "Prod.Vf", DC_Frac,   "%",     &m_VapFracOut,      m_pNd, isResult);
+    DDB.Double("Prod.FlashVapFlow",             "", DC_Qm,     "kg/s",  &m_FlshVapQmOut,    m_pNd, isResult);
+    DDB.Double("Prod.FlashVapFrac",             "", DC_Frac,   "%",     &m_FlshVapFracOut,  m_pNd, isResult);
     DDB.Text(" ");
     }
 

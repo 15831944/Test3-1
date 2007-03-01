@@ -158,7 +158,7 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("KaVL",                 "", DC_,     "",      &dKaVL,          this, (iMethod==CTM_Merkel && iMerkelCalcType==MCT_TOut) ? isParm : isResult);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("FeedQm",               "", DC_Qm,   "kg/s",  &dQmIn,          this, isResult);
-  DDB.Double  ("TempFeed",             "", DC_T,    "C",     &dTempKFeed,     this, isResult);
+  DDB.Double  ("TempFeed",       "Feed.T", DC_T,    "C",     &dTempKFeed,     this, isResult);
   DDB.Double  ("TempDrop",        "TDrop", DC_dT,   "C",     &dTempDrop,      this, isResult);
   DDB.Double  ("FinalT",               "", DC_T,    "C",     &dFinalT,        this, isResult);
   //DDB.Double  ("HeatFlow",             "", DC_Pwr,  "kW",    &dHeatFlow,      this, isResult); perhaps remove???

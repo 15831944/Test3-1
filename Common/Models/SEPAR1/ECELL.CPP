@@ -113,8 +113,8 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("CellEfficiency","Cell_Eff", DC_Frac, "%",      &dCellEff,      this, isParm);
   //DDB.Double  ("",           "PreHeatFrac", DC_Frac, "%",      &dPreHeatFrac,  this, isParm); //possibly not needed?
   DDB.Double  ("",             "EnergyRqd", DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|noFileAtAll|InitHidden);
-  DDB.Double  ("",              "HeatFlow", DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|0);
-  DDB.Double  ("TempFeed",              "", DC_T,    "C",      &TempKFeed,     this, isResult|noFileAtAll);
+  DDB.Double  ("",             "HeatFlow",  DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|0);
+  DDB.Double ("TempFeed",      "Feed.T",    DC_T,    "C",      &TempKFeed,     this, isResult);//|noFileAtAll);
   DDB.Double  ("FinalT",                "", DC_T,    "C",      &TempKProd,     this, isResult|0);
 
   DDB.Text    ("");

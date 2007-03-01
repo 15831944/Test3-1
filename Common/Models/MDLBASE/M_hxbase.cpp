@@ -125,8 +125,8 @@ void CEnvironHX::BuildDataDefn(DataDefnBlk& DDB)
   if (DDB.BeginStruct(this, "EHX", NULL, DDB_NoPage))
     {
     DDB.Double ("",     "HeatFlow",   DC_Pwr,  "kW",    &dHeatFlow,  this, isResult|0);
-    //DDB.Double("TempFeed",          "",    DC_T,    "C",     &TempKFeed,      this, isResult);//|noFileAtAll);
-    //DDB.Double("TempProd",          "",    DC_T,    "C",     &TempKProd,      this, isResult);//|noFileAtAll);
+    //DDB.Double ("TempFeed", "Feed.T",    DC_T,    "C",       &TempKFeed,  this, isResult);//|noFileAtAll);
+    //DDB.Double ("TempProd", "Prod.T",    DC_T,    "C",       &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -175,8 +175,8 @@ void CEHX_LossPerQm::BuildDataDefn(DataDefnBlk& DDB)
     {
     DDB.Double ("",     "LossPerQm",  DC_HMs, "kJ/kg", &dHperQm,    this, isParm);
     DDB.Double ("",     "HeatFlow",   DC_Pwr,  "kW",    &dHeatFlow,  this, isResult|0);
-    DDB.Double ("TempFeed",     "",   DC_T,    "C",     &TempKFeed,  this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",     "",   DC_T,    "C",     &TempKProd,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempFeed", "Feed.T", DC_T,    "C",     &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T", DC_T,    "C",     &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -258,10 +258,10 @@ void CEHX_ProductT::BuildDataDefn(DataDefnBlk& DDB)
   {
   if (DDB.BeginStruct(this, "EHX", NULL, DDB_NoPage))
     {
-    DDB.Double ("",     "ProductTemp",   DC_T,    "C",       &dProdT,      this, isParm);
-    DDB.Double ("",     "HeatFlow",      DC_Pwr,  "kW",      &dHeatFlow,   this, isResult|0);
-    DDB.Double ("TempFeed",          "", DC_T,    "C",       &TempKFeed,   this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",          "", DC_T,    "C",       &TempKProd,   this, isResult);//|noFileAtAll);
+    DDB.Double ("",     "ProductTemp",   DC_T,    "C",       &dProdT,     this, isParm);
+    DDB.Double ("",     "HeatFlow",      DC_Pwr,  "kW",      &dHeatFlow,  this, isResult|0);
+    DDB.Double ("TempFeed", "Feed.T",    DC_T,    "C",       &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T",    DC_T,    "C",       &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -331,8 +331,8 @@ void CEHX_TDrop::BuildDataDefn(DataDefnBlk& DDB)
     {
     DDB.Double ("",     "TempDrop",      DC_dT,   "C",       &dTDrop,      this, isParm);
     DDB.Double ("",     "HeatFlow",      DC_Pwr,  "kW",      &dHeatFlow,   this, isResult|0);
-    DDB.Double ("TempFeed",          "", DC_T,    "C",       &TempKFeed,   this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",          "", DC_T,    "C",       &TempKProd,   this, isResult);//|noFileAtAll);
+    DDB.Double ("TempFeed", "Feed.T",    DC_T,    "C",       &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T",    DC_T,    "C",       &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -469,8 +469,8 @@ void CEHX_Loss2Ambient::BuildDataDefn(DataDefnBlk& DDB)
     DDB.Double ("UA",                 "", DC_UA,    "kW/K",    &dUA,         this, 0);
     DDB.Double ("Power",              "", DC_Pwr,   "kW",      &dPwr,        this, 0);
     DDB.Double ("",           "HeatFlow", DC_Pwr,   "kW",      &dHeatFlow,   this, isResult|0);
-    DDB.Double ("TempFeed",           "", DC_T,     "C",       &TempKFeed,   this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",           "", DC_T,     "C",       &TempKProd,   this, isResult);//|noFileAtAll);
+    DDB.Double ("TempFeed", "Feed.T",    DC_T,    "C",       &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T",    DC_T,    "C",       &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -657,8 +657,8 @@ void CEHX_Loss2AmbientTank::BuildDataDefn(DataDefnBlk& DDB)
     DDB.Double ("HTC",                "", DC_HTC,   "kW/m^2.K",&dHTC,        this, isParm);
     DDB.Double ("Area",               "", DC_Area,  "m^2",     &dArea,       this, isParm);
     DDB.Double ("",           "HeatFlow", DC_Pwr,   "kW",      &dHeatFlow,   this, isResult);
-    DDB.Double ("TempFeed",           "", DC_T,     "C",       &TempKFeed,   this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd",           "", DC_T,     "C",       &TempKProd,   this, isResult);//|noFileAtAll);
+    DDB.Double ("TempFeed", "Feed.T",     DC_T,     "C",       &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T",     DC_T,     "C",       &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   };
@@ -756,8 +756,8 @@ void CEHX_FixedHeatFlow::BuildDataDefn(DataDefnBlk& DDB)
     {
     DDB.Double ("",         "RqdHeatFlow", DC_Pwr,  "kW",    &dRqdHeatFlow, this, isParm);
     DDB.Double ("",         "HeatFlow",    DC_Pwr,  "kW",    &dHeatFlow,    this, isResult|0);
-    DDB.Double ("TempFeed", "",            DC_T,    "C",     &TempKFeed,    this, isResult);//|noFileAtAll);
-    DDB.Double ("TempProd", "",            DC_T,    "C",     &TempKProd,    this, isResult);//|noFileAtAll);
+    DDB.Double ("TempFeed", "Feed.T",      DC_T,    "C",     &TempKFeed,  this, isResult);//|noFileAtAll);
+    DDB.Double ("TempProd", "Prod.T",      DC_T,    "C",     &TempKProd,  this, isResult);//|noFileAtAll);
     }
   DDB.EndStruct();
   }

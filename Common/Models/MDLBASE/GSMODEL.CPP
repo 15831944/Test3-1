@@ -401,8 +401,8 @@ GSModel::GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_FinalTempMin  = CDB.MinT;
   m_FinalTempMax  = CDB.MaxT;
   m_ChangeTst     = false;
-  m_ChangeNeg     = -50;
-  m_ChangePos     = 50;
+  m_ChangeNeg     = 50;
+  m_ChangePos     = 80;
 #endif
   m_iPhMethSpec=GSPM_Total;
 
@@ -2616,18 +2616,22 @@ void GSIOThermal::BuildDataDefnOrdPri(DataDefnBlk &DDB, GSModel & Mdl)
 
 void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
   {
-  DDB.Double     ("TempIn",         "", DC_T,   "C",    &m_TempIn,       this, 0);
-  DDB.Double     ("FinalT.Min",     "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
-  DDB.Double     ("FinalT.Max",     "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
-  DDB.CheckBoxBtn("Change.Test",    "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
-  DDB.Visibility(NSHM_All,  m_ChangeTst);
-  DDB.Double     ("Change.MaxNeg",  "", DC_dT,  "C",    &m_ChangeNeg,    this, isParm);
-  DDB.Double     ("Change.MaxPos",  "", DC_dT,  "C",    &m_ChangePos,    this, isParm);
   DDB.Visibility();
+  DDB.Text("");
+  DDB.Double     ("Feed.Temp",      "Feed.T", DC_T,   "C",    &m_TempIn,       this, isResult);
   DDB.CheckBoxBtn("AllowHX",        "", DC_,    "",     &m_bAllowHX,     this, isParm|SetOnChange);
   DDB.Visibility(NSHM_All,  m_bAllowHX);
   DDB.Double     ("PowerInput",     "", DC_Pwr, "kW",   &m_PowerIn,      this, 0);
   DDB.Visibility();
+  DDB.Text("Temperature change limits:");
+  DDB.Double     ("FinalT.Min",     "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
+  DDB.Double     ("FinalT.Max",     "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
+  DDB.CheckBoxBtn("ChangeT.Limit",  "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
+  DDB.Visibility(NSHM_All,  m_ChangeTst);
+  DDB.Double     ("ChangeT.MaxDrop", "", DC_dT, "C",    &m_ChangeNeg,    this, isParm);
+  DDB.Double     ("ChangeT.MaxRise", "", DC_dT, "C",    &m_ChangePos,    this, isParm);
+  DDB.Visibility();
+  DDB.Text("");
 
   Strng T, Tt, Ts;
   int j;
@@ -2696,7 +2700,7 @@ flag GSModel::ValidateDataThermal(ValidateDataBlk & VDB)
     m_PowerIn = 0.0;
   m_FinalTempMin = Max(1.0, m_FinalTempMin  );
   m_FinalTempMax = Range(m_FinalTempMin, m_FinalTempMax, C2K(10000.0));
-  m_ChangeNeg    = LEZ(m_ChangeNeg);
+  m_ChangeNeg    = GEZ(m_ChangeNeg);
   m_ChangePos    = GEZ(m_ChangePos);
 
   flag OK=1;
@@ -2847,7 +2851,7 @@ void GSModel::EvalProductsThermal()
   bool AdjustOutOfRange = false;
   bool PowerOutOfRange  = false;
 
-  double TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn + m_ChangeNeg) : m_FinalTempMin;
+  double TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn - m_ChangeNeg) : m_FinalTempMin;
   double TMax = m_ChangeTst ? Min(m_FinalTempMax, m_TempIn + m_ChangePos) : m_FinalTempMax;
 
   int NFree=0;
@@ -3112,10 +3116,10 @@ GSIOAlphaArray & GSModelBase::IOAlpha()
 
 void GSModelBase::Add_OnOff(DataDefnBlk &DDB, dword Flags)
   {
-  DDB.CheckBoxBtn("General_Model", "Splitter_Flows", DC_, "", xidGSModelOn, m_pNd, Flags, DDBOnOff);
+  DDB.CheckBoxBtn("General_Model", "SplitFlows", DC_, "", xidGSModelOn, m_pNd, Flags, DDBOnOff);
 #if WITHTHERMAL 
   if (Enabled())
-    DDB.CheckBoxBtn("General_Model_Thermal", "Splitter_Thermal", DC_, "", xidGSThermal, m_pNd, isParmStopped | AffectsStruct | SetOnChange, DDBOnOff);
+    DDB.CheckBoxBtn("General_Model_Thermal", "SplitThermal", DC_, "", xidGSThermal, m_pNd, isParmStopped | AffectsStruct | SetOnChange, DDBOnOff);
 #endif
   }
 
