@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-28 02:06:06 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-03-01 05:35:11 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -251,9 +251,9 @@ void CTTOrifice::Init()
 void CTTOrifice::BuildDataFields()
 {
 
-#ifdef TTDEBUG
+  /*#ifdef TTDEBUG
   DD.CheckBox("TTDBG", "",  &bTTDebug, MF_PARAMETER);
-#endif
+  #endif */
   DD.CheckBox("On", "",  &bOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("PassThru", "",  &bPassThru, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("LCValve", "",  &bControlValve, MF_PARAMETER|MF_SET_ON_CHANGE);
@@ -325,6 +325,21 @@ void CTTOrifice::BuildDataFields()
   }
   DD.Double("ValveCv@posn", "", &dValveCv, MF_RESULT, MC_None);
   DD.Show();
+#ifdef TTDEBUG
+  DD.Page("Flash Densities");
+  DD.Double ("PMax", "", &dPMax, MF_RESULT, MC_P);
+  DD.Double ("PMin", "", &dPMin, MF_RESULT, MC_P);
+  DD.Double ("Beta", "", &dBeta, MF_RESULT, MC_None);
+  DD.Double ("GIn", "", &dGIn, MF_RESULT, MC_None);
+  DD.Double ("r_est", "", &d_rEst, MF_RESULT, MC_None);
+  DD.Double ("PCriticalEst", "", &dPCritEst, MF_RESULT, MC_P);
+  
+  for (int i=0; i<30; i++) {
+    Tg.Format("Density %3d", i);
+    DD.Double((char*)(const char*)Tg, "", dRhoData+i, MF_RESULT, MC_Rho);
+  }
+#endif
+
   
   m_VLE.BuildDataFields();     
 }
@@ -411,7 +426,7 @@ void CTTOrifice::EvalProducts()
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
       dMassFlow1 = InStream.Mass();
       dPipeVelocity = InStream.Volume()/area;
-      double dGIn = dMassFlow1/area;
+      dGIn = dMassFlow1/area;
       double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
       if (bControlValve) {
 	dValveCv = ValveCv();
@@ -430,14 +445,14 @@ void CTTOrifice::EvalProducts()
 	
 
 
-      if (!bValveFlash) dPOrificeIn -= -dPValve;
+      if (!bValveFlash) dPOrificeIn -= dPValve;
 
       dSatP = m_VLE.SaturationP(InStream, InStream.T);
       dTin = InStream.T;
       MStream mstmp;
       mstmp = InStream;
 
-      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);  CString Tg;
+      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout); 
 
 
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/CircleArea(dOut))/den/1000.;
@@ -452,7 +467,7 @@ void CTTOrifice::EvalProducts()
 	dPOutActual = dPout;
       }
       if (!bPassThru) 
-        m_VLE.PFlash(OutStream, dPout);
+        m_VLE.PFlash(OutStream, dPOutActual);
 
       if (bPassThru)
 	dPOutActual = dPin;
@@ -465,6 +480,27 @@ void CTTOrifice::EvalProducts()
       dHomogChokeVelocity   = criticalVelocity(OutStream, SFM_Homo);
       dChokeMassVelocity = criticalFlow(OutStream);
       dHomogMassChokeVelocity = criticalFlow(OutStream, SFM_Homo);
+
+#ifdef TTDEBUG   // Flash densities...
+      double dPData[30];
+      mstmp = InStream;
+      SlipFlow s1(m_lSlipMode);
+      dPMax = dFlashP;
+      dPMin = dFlashP - dFlashP/2.*29/30.;
+      for (int i=0; i<30; i++) {
+	double p = dFlashP - dFlashP/2.*i/30.;
+	m_VLE.PFlash(mstmp, p);
+	dPData[i] = p;
+	dRhoData[i] = s1.SlipDensity(mstmp);
+      }
+      dBeta = betaCoeff(dPData,  dRhoData, 30);
+      double dG2 = dGIn*dGIn + 2*den*(dPin-dFlashP)*1000.;
+      d_rEst = pow((dBeta+1)/(2*dBeta)/(1.-(dBeta-1)*dG2/(2000.*dFlashP*den)), 1.0/(dBeta-1));
+      dPCritEst = d_rEst*dFlashP;
+
+	  
+#endif
+
 
     }  else {    // !bOn... bypass altogether and dont do calcs.
       dMassFlow4 = dMassFlow1;
@@ -531,14 +567,17 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
   }
   // Default Case, Initial Pressure above saturation
   double den = ms.Density();   // Slurry (nonflashed) Density
-  double I1 = sqrt(2000.*(pIn-pSat)/den);
+  double I1 = 2000.*(pIn-pSat)/den;
   double pMid = (pSat+pOut)/2;
   m_VLE.PFlash(ms, pMid);
   den2 = s1.SlipDensity(ms);
   m_VLE.PFlash(ms, pOut);
   den3 = s1.SlipDensity(ms);
-  double I2 = sqrt(2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
-  return den3*(I1+I2);
+  double I2 = (2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
+  // Log.Message(MMsg_Warning, "Pin %8.2f Pout %8.2f Psat %8.2f", pIn, pOut, pSat);
+  // Log.Message(MMsg_Warning, "den %8.2f den2 %8.2f den3 %8.2f I1 %8.2f I2 %8.2f", den, den2, den3, I1, I2);
+
+  return den3*sqrt(I1+I2);
   
  
 }
@@ -557,6 +596,7 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
     mtmp = ms;
     double p = pSat - dP*i/20.;
     double mv = massVelocity(mtmp, pIn, p);
+    // Log.Message(MMsg_Error, "Mass Velocity %8.2f", mv);
     if (mv>gmax) {
       pcrit = p;
       gmax = mv;
@@ -626,7 +666,21 @@ double CTTOrifice::orificeDeltaP(MStream ms) {
 }
 
 
+double betaCoeff(double *pdata, double* rhodata, int n)
+{
+  double sx(0), sy(0), sxy(0), sxx(0);
+  for (int i=0; i<n; i++) {
+    double lp = log(pdata[i]);
+    double lr = log(rhodata[i]);
 
+    sx+=lp;
+    sy+=lr;
+    sxx+=lp*lp;
+    sxy+=lp*lr;
+  }
+  double delta = n*sxx-sx*sx;
+  return (n*sxy-sx*sy)/delta;
+}
 
 
 // Density correction, based on bayer.exe AMIRA 

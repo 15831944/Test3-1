@@ -8,7 +8,7 @@
 #include "md_headers.h"
 #endif
 
-//**/ #define TTDEBUG
+/**/ #define TTDEBUG
 
 //---------------------------------------------------------------------------
 
@@ -20,6 +20,7 @@ enum OpMode {OM_Simple, OM_Full};
 
 
 double dcf(double);
+double betaCoeff(double *pdata, double* rhodata, int n);
 
 class CTTOrifice : public MBaseMethod
   {
@@ -59,6 +60,8 @@ class CTTOrifice : public MBaseMethod
     double dThick;
     double dFlashP;
     double dFlashdT;
+    double dGIn;    // Mass velocity in pipe entry
+
     double dxVapor;
     double dSlipDensity;
     double dInletDensity;
@@ -95,6 +98,13 @@ class CTTOrifice : public MBaseMethod
     long lValveDataPts;      // 10 for angle, 11 for %, 2 for simple case.
     double dValveData[11];  // Data for control valve, Cv at data points
     double dValveCv;  // Valve Cv at position
+
+#ifdef TTDEBUG
+    double d_rEst;
+    double dPCritEst;
+    double dPMin, dPMax, dBeta;
+    double dRhoData[30];
+#endif
 
   };
 
