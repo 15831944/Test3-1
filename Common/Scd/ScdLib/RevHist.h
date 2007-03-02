@@ -2746,7 +2746,7 @@ Build 123 : 21 February 2007
 1489 21/02/07: First release of Build 123. Moved from Visual Studio 2003 to VS 2005 SP1 compiler.
 1489 21/02/07: (#36)
 1489 21/02/07: (#766) PGM trigger code in unit operations
-,#767) 
+(#767) 
 1494 21/02/07: (#660,#764) Fix for dynamic for displaying correct reaction specie msXfr rate.
 1502 23/02/07: (#757) Preliminary implementation for setting alternate stream exit temperatures in GM model.
 1511 26/02/07: (#770) Fix for contact heater problem.
@@ -2759,10 +2759,13 @@ Build 123 : 21 February 2007
 1520 27/02/07: (#53,772) Fix for getting tag values for $SDB fields with T and P parameters.
 1521 27/02/07: (#635,643) Begin adding PGM functions to access specie database values.
 1526 28/02/07: (#774) Fix for crash for incorrect definition of pseudo specie in specie database.
+1531  1/03/07: (#202) Fix for when graphics find tag fails because the window was minimised at load time.
+1531  1/03/07: (#755) 
+1532  2/03/07: Fix for crash in conveyor when required drive position is NAN.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1528
+#define SCD_PATCH_SVN    1532
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

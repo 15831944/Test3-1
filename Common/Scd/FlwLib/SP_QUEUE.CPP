@@ -537,15 +537,16 @@ void SpQIO::SetUseBinSizes(bool On)//, double BinWide, double SpillMargin)
 
 void SpQIO::SetIOMoving(bool On, double PosActual, double PosReqd, double Spd, double TimeSlice, double MinPosn, double MaxPosn) 
   { 
-
   if (On)
     {
     if (m_dPosition!=PosActual) 
       {
       m_pQ->m_bPosChg=1;
       m_dPosition=PosActual;
-      }; 
-    if (PosReqd>PosActual)
+      }
+    if (!Valid(PosReqd))
+      Spd=0.0;
+    else if (PosReqd>PosActual)
       Spd=Min(Spd, (PosReqd-PosActual)/TimeSlice);
     else if (PosReqd<PosActual)
       Spd=Max(Spd, (PosReqd-PosActual)/TimeSlice);
