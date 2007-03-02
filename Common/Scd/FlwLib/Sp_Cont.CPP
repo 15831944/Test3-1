@@ -3465,31 +3465,34 @@ flag SpImage::ValidateData(ValidateDataBlk & VDB)
       m_Qv_Rqd=m_Qm_Rqd/GTZ(Rho());
       break;
     default:
+      {
+      bool CalcRqd = Mdl.m_bSpeciesAdjusted && !Mdl.m_bCfgImgSetByFile;
       switch (m_iQRqdMode) // Individual Species have been set
         {
         case SPI_QModeQm: 
           ApplyScale = ApplyScale && !Mdl.m_bSpeciesAdjusted;
-          if (Mdl.m_bSpeciesAdjusted)
+          if (CalcRqd)
             m_Qm_Rqd=Mdl.Mass(som_ALL)*Mdl.MassScale();
           m_Qv_Rqd=m_Qm_Rqd/GTZ(Rho());
           m_NQv_Rqd=m_Qm_Rqd/GTZ(NRho());
           break;
         case SPI_QModeQv: 
           ApplyScale = ApplyScale && !Mdl.m_bSpeciesAdjusted;
-          if (Mdl.m_bSpeciesAdjusted)
+          if (CalcRqd)
             m_Qv_Rqd=Mdl.Mass(som_ALL)*Mdl.MassScale()/GTZ(Mdl.Rho());
           m_Qm_Rqd=m_Qv_Rqd*Mdl.Rho();
           m_NQv_Rqd=m_Qm_Rqd/GTZ(Mdl.NRho());
           break;
         case SPI_QModeNQv: 
           ApplyScale = ApplyScale && !Mdl.m_bSpeciesAdjusted;
-          if (Mdl.m_bSpeciesAdjusted)
+          if (CalcRqd)
             m_NQv_Rqd=Mdl.Mass(som_ALL)*Mdl.MassScale()/GTZ(Mdl.NRho());
           m_Qm_Rqd=m_NQv_Rqd*Mdl.NRho();
           m_Qv_Rqd=m_Qm_Rqd/GTZ(Mdl.Rho());
           break;
         }
       break;
+      }
     }
 
   if (ApplyScale)                
@@ -3505,7 +3508,8 @@ flag SpImage::ValidateData(ValidateDataBlk & VDB)
 
   m_iQRqdSet=SPI_QModeNone;
   Mdl.m_bSpeciesAdjusted=false;
-
+  Mdl.m_bCfgImgSetByFile=false;
+  
   #if dbgSpCont
   if (doDbg)
     {

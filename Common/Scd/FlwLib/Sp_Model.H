@@ -707,7 +707,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual void   BuildDataDefn_Quals(DataDefnBlk & DDB, flag AsParms);
     virtual void   BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms);
     virtual flag   DataXchg(DataChangeBlk & DCB);
-    void           SetCfgImage(SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value);
+    void           SetCfgImage(DataChangeBlk & DCB, SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
@@ -1109,6 +1109,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     SV_View        m_iSetView;
     SV_ViewBasis   m_iViewBasis;
     bool           m_bCfgImgSet;
+    bool           m_bCfgImgSetByFile;
     CSpMCfgImg    *m_pSetCfgImg;
     double         m_dSetCfgImgT;
     double         m_dSetCfgImgP;

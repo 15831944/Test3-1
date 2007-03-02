@@ -103,17 +103,17 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidQmRqd:
       if (DCB.rD)
-        Contents.SetQmRqdTo(GEZ(*DCB.rD), !DCB.ForFiling(), !DCB.ForFiling());
+        Contents.SetQmRqdTo(GEZ(*DCB.rD), !DCB.ForFileSnpScn(), !DCB.ForFileSnpScn());
       DCB.D=Contents.QmRqd();
       return 1;
     case xidQvRqd:
       if (DCB.rD)
-        Contents.SetQvRqdTo(GEZ(*DCB.rD), !DCB.ForFiling(), !DCB.ForFiling());// CNM true); recovery of QAL
+        Contents.SetQvRqdTo(GEZ(*DCB.rD), !DCB.ForFileSnpScn(), !DCB.ForFileSnpScn());// CNM true); recovery of QAL
       DCB.D=Contents.QvRqd();
       return 1;
     case xidNQvRqd:
       if (DCB.rD)
-        Contents.SetNQvRqdTo(GEZ(*DCB.rD), !DCB.ForFiling(), !DCB.ForFiling());// CNM true); recovery of QAL
+        Contents.SetNQvRqdTo(GEZ(*DCB.rD), !DCB.ForFileSnpScn(), !DCB.ForFileSnpScn());// CNM true); recovery of QAL
       DCB.D=Contents.NQvRqd();
       return 1;
     case xidTRqd:

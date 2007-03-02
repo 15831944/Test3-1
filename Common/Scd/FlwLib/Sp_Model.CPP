@@ -660,6 +660,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
 
   m_pGlblView=NULL;
   m_bCfgImgSet=false;
+  m_bCfgImgSetByFile=false;
   m_dSetCfgImgT=Std_T;
   m_dSetCfgImgP=Std_P;
   m_sMainTemplate="-";
@@ -2620,10 +2621,10 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
               switch (I.Type())
                 {
                 case SVT_Specie:
-                  SetCfgImage(SVV_AsMassFrac, SVVB_All, iImg, pT->m_Values[iImg]*SumM/SumT);
+                  SetCfgImage(DCB, SVV_AsMassFrac, SVVB_All, iImg, pT->m_Values[iImg]*SumM/SumT);
                   break;
                 case SVT_Attribute:
-                  SetCfgImage(SVV_AsMassFrac, SVVB_All, iImg, pT->m_Values[iImg]);
+                  SetCfgImage(DCB, SVV_AsMassFrac, SVVB_All, iImg, pT->m_Values[iImg]);
                   break;
                 }
               }
@@ -2785,7 +2786,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                 ASSERT(s<MaxSpecies);
                 SV_View       RqdVw = (SV_View)(DCB.lHandle-xidSpFirst);
                 SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
-                SetCfgImage(RqdVw, RqdBasis, s, fabs(M) / (m_dMassScale>0.0?m_dMassScale:1.0));
+                SetCfgImage(DCB, RqdVw, RqdBasis, s, fabs(M) / (m_dMassScale>0.0?m_dMassScale:1.0));
                 }
               }
             DCB.D=((m_bUsableMass || !DCB.ForView()) && ((SVI.Img(s)->OccMask()&PhM)!=0)) ? m_iDataSgn * m_dMassScale * m_M.ValueOp(s, Op, Fidelity(), Temp(), Press()) : 0.0;
@@ -2840,7 +2841,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                   M=GEZ(M);
                 SV_View       RqdVw = (SV_View)(DCB.lHandle-xidSpFirst);
                 SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
-                SetCfgImage(RqdVw, RqdBasis, s, M);
+                SetCfgImage(DCB, RqdVw, RqdBasis, s, M);
                 }
               }
             DCB.D=((SVI.Img(s)->OccMask()&PhM)!=0 ? m_M.ValueOp(s, Op, Fidelity(), Temp(), Press()) : 0.0) / GTZ(PhTotal);
@@ -2978,7 +2979,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
             double A = Valid(*DCB.rD) ? *DCB.rD : 0.0;
             SV_View       RqdVw = (SV_View)(DCB.lHandle-xidAttrViews);
             SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
-            SetCfgImage(RqdVw, RqdBasis, a, A);
+            SetCfgImage(DCB, RqdVw, RqdBasis, a, A);
             }
           }
         DCB.D=m_M[a];
@@ -2991,11 +2992,12 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetCfgImage(SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value)
+void SpModel::SetCfgImage(DataChangeBlk & DCB, SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value)
   {
   if (!m_bCfgImgSet)//m_iSetView!=SetView)
     {
     m_bCfgImgSet=true;
+    m_bCfgImgSetByFile=DCB.ForFileSnpScn();
     if (SetView!=SVV_NULL)
       m_iSetView=SetView;
     //m_iPhMask=PhM;
@@ -4026,6 +4028,7 @@ flag SpModel::ValidateData_Species(ValidateDataBlk & VDB)
     dbgpln(">>> ######################################################################################");
     dbgpln("SpModel::ValidateDataSpc %s", FullObjTag());
     dbgpln("CfgImgSet                %s", m_bCfgImgSet?"TRUE":"");
+    dbgpln("CfgImgSet4File           %s", m_bCfgImgSetByFile?"TRUE":"");
     dbgpln("View                     %s", SV_ViewStr[m_iSetView]);
     for (int s=-SVClcCount(); s<SVValueCount(); s++)
       dbgpln("%3i) %14s %14s  %s",s, s>=0?DbgFltString(m_M[s]):"", m_bCfgImgSet ? DbgFltString(m_pSetCfgImg[s].m_Value):"", SVImg(s).SymOrTag());

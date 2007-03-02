@@ -12,6 +12,12 @@
 #include "dbgmngr.h"
 //#include "optoff.h"
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 #define dbgXRefs     (WITHDEBUG)
 
 #if dbgXRefs
@@ -36,6 +42,15 @@ static CDbgMngr dbgLocking          ("XRefs",  "Locking");
 #define PUSHIN(x)  
 #define POPIN(x)   
 #endif
+
+//===========================================================================
+
+static CString GetPtrStr(void * Ptr)
+  {
+  CString X;
+  //X.Format("%08x", Ptr);
+  return X;
+  }
 
 //===========================================================================
 //
@@ -445,7 +460,7 @@ int CXRefItem::ResolveNearXRef(pTaggedObject pSrchRoot, char* pTag, CTNode* Owne
 #if dbgXRefs
   if (dbgFind(m_sRefTag()))
     {
-    dbgp("FndNearXRefValue %08x : %s         ", this, (Ret&FXR_Found)?"Found":(Ret&FXR_DynTag)?"DynTg":"     ");
+    dbgp("FndNearXRefValue %s : %s         ", GetPtrStr(this), (Ret&FXR_Found)?"Found":(Ret&FXR_DynTag)?"DynTg":"     ");
     dbgpln("                               =  %16.5f %-20s -> %s", m_Value.m_dValue, m_sRefTag(), m_sRmtTag());
     }
 #endif
@@ -488,7 +503,7 @@ int CXRefItem::ResolveFarXRef(CExecObj *pExecObj, char* pTag, CTNode* Owner)
   #if dbgXRefs
   if (dbgFind(m_sRefTag()))
     {
-    dbgp("FndFarXRefValue  %08x : %s         ", this, (Ret&FXR_Found)?"Found":(Ret&FXR_DynTag)?"DynTg":"     ");
+    dbgp("FndFarXRefValue  %s : %s         ", GetPtrStr(this), (Ret&FXR_Found)?"Found":(Ret&FXR_DynTag)?"DynTg":"     ");
     dbgpln("                               =  %16.5f %-20s -> %s", m_Value.m_dValue, m_sRefTag(), m_sRmtTag());
     }
   #endif
@@ -568,8 +583,8 @@ bool CXRefItem::GetNearXRefValue()
       }
     #if dbgXRefs
     if (dbgGet(RefTag()))
-      dbgpln("Xfer Near Get    %08x :                {%2i   /%4i}{%2i:%2i/%4i%s} <-- %16.5f %-20s -> %s", 
-             this, m_nGets, m_nGetsTot, m_Lcl.m_nSets, m_Lcl.m_nResets, m_Lcl.m_nSetsTot, m_Lcl.m_bIsFnTerm?"F":" ", 
+      dbgpln("Xfer Near Get    %s :                {%2i   /%4i}{%2i:%2i/%4i%s} <-- %16.5f %-20s -> %s", 
+             GetPtrStr(this), m_nGets, m_nGetsTot, m_Lcl.m_nSets, m_Lcl.m_nResets, m_Lcl.m_nSetsTot, m_Lcl.m_bIsFnTerm?"F":" ", 
              m_Value.m_dValue, m_sRefTag(), m_sRmtTag());
     #endif
     return true;
@@ -590,8 +605,8 @@ bool CXRefItem::SetNearXRefValue()
     #if dbgXRefs
     if (dbgSet(RefTag()))
       {
-      dbgp("Xfer Near Set %s%s %08x : %s%s Frc:%2i ",
-            (Flgs&DDEF_BUTTON)?"B":" ",(Flgs&DDEF_CHECKBOX)?"C":" ", this, 
+      dbgp("Xfer Near Set %s%s %s : %s%s Frc:%2i ",
+            (Flgs&DDEF_BUTTON)?"B":" ",(Flgs&DDEF_CHECKBOX)?"C":" ", GetPtrStr(this), 
             m_Value.m_bTouched?"Tch":"   ",m_Value.m_bChanged?"Chg":"   ", ForceCount());
       }
     #endif
@@ -818,11 +833,11 @@ double CXRefItem::GetXRefValue(bool DoCnts)
   if (dbgSet())//RefTag()))
     {
     if (DoCnts)
-      dbgpln("  GetXRefValue   %08x :                {%2i   /%4i}              <-- %16.5f %s -> %s", 
-             this, m_nGets, m_nGetsTot, m_Value.m_dValue, m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
+      dbgpln("  GetXRefValue   %s :                {%2i   /%4i}              <-- %16.5f %s -> %s", 
+             GetPtrStr(this), m_nGets, m_nGetsTot, m_Value.m_dValue, m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     else                                      
-      dbgpln("  GetXRefValue   %08x :                                          <-- %16.5f %s -> %s",
-             this, m_Value.m_dValue, m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
+      dbgpln("  GetXRefValue   %s :                                          <-- %16.5f %s -> %s",
+             GetPtrStr(this), m_Value.m_dValue, m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     }
   #endif
 
@@ -855,12 +870,12 @@ void CXRefItem::SetXRefValue(double V, bool DoCnts)
   if (dbgSet())//RefTag()))
     {
     if (DoCnts)
-      dbgpln("  SetXRefValue   %08x : %s%s         {%2i:%2i/%4i}              ==> %16.5f %s -> %s", 
-              this, m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_nSets, m_nResets, m_nSetsTot, m_Value.m_dValue, 
+      dbgpln("  SetXRefValue   %s : %s%s         {%2i:%2i/%4i}              ==> %16.5f %s -> %s", 
+              GetPtrStr(this), m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_nSets, m_nResets, m_nSetsTot, m_Value.m_dValue, 
               m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     else
-      dbgpln("  SetXRefValue   %08x : %s%s                                   ==> %16.5f %s -> %s", 
-              this, m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_Value.m_dValue, 
+      dbgpln("  SetXRefValue   %s : %s%s                                   ==> %16.5f %s -> %s", 
+              GetPtrStr(this), m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_Value.m_dValue, 
               m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     }
   #endif
@@ -879,11 +894,11 @@ char* CXRefItem::GetXRefStrValue(bool DoCnts)
   if (dbgSet())//RefTag()))
     {
     if (DoCnts)
-      dbgpln("  GetXRefStrValue   %08x :                {%2i   /%4i}              <-- %16s %s -> %s", 
-             this, m_nGets, m_nGetsTot, m_Value.m_sValue(), m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
+      dbgpln("  GetXRefStrValue   %s :                {%2i   /%4i}              <-- %16s %s -> %s", 
+             GetPtrStr(this), m_nGets, m_nGetsTot, m_Value.m_sValue(), m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     else                                      
-      dbgpln("  GetXRefStrValue   %08x :                                          <-- %16s %s -> %s",
-             this, m_Value.m_sValue(), m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
+      dbgpln("  GetXRefStrValue   %s :                                          <-- %16s %s -> %s",
+             GetPtrStr(this), m_Value.m_sValue(), m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     }
   #endif
 
@@ -916,12 +931,12 @@ void CXRefItem::SetXRefStrValue(char* p, bool DoCnts)
   if (dbgSet())//RefTag()))
     {
     if (DoCnts)
-      dbgpln("  SetXRefStrValue   %08x : %s%s         {%2i:%2i/%4i}              ==> %16s %s -> %s", 
-              this, m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_nSets, m_nResets, m_nSetsTot, m_Value.m_sValue(), 
+      dbgpln("  SetXRefStrValue   %s : %s%s         {%2i:%2i/%4i}              ==> %16s %s -> %s", 
+              GetPtrStr(this), m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_nSets, m_nResets, m_nSetsTot, m_Value.m_sValue(), 
               m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     else
-      dbgpln("  SetXRefStrValue   %08x : %s%s                                   ==> %16s %s -> %s", 
-              this, m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_Value.m_sValue(), 
+      dbgpln("  SetXRefStrValue   %s : %s%s                                   ==> %16s %s -> %s", 
+              GetPtrStr(this), m_Value.m_bTouched?"Tch":"   ", m_Value.m_bChanged?"Chg":"   ",m_Value.m_sValue(), 
               m_pOwner?m_pOwner->GetOwnerTag():"", m_TAB.sTag());
     }
   #endif
@@ -1758,7 +1773,7 @@ BXReturn CTgFnIoVar::UpdateXRef(CXRefStatus * pStatus, bool MustSet, bool MustGe
 
   #if dbgXRefs
   if (dbgReBuild())
-    dbgpln("CTgFnIoVar::UpdateXRef %08x IO:%3i Tg:'%s'", this, m_iIOId, sVar() ? sVar() : "");
+    dbgpln("CTgFnIoVar::UpdateXRef %s IO:%3i Tg:'%s'", GetPtrStr(this), m_iIOId, sVar() ? sVar() : "");
   #endif
   PUSHIN("CTgFnIoVar::UpdateXRef");
 
