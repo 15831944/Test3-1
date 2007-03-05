@@ -2288,7 +2288,7 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
             //S.Format("%s\t%s", Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName);
             bool GMC=gs_pPrj->m_bGrfMoveCursor!=0;
             gs_pPrj->m_bGrfMoveCursor=false;
-            gs_pPrj->FindTag(Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName, NULL, FTO_Highlite);
+            gs_pPrj->FindTag(Txt, pTag->m_Pages[pTag->m_iAccPage]->m_pPage->m_sPageName, NULL, -1, FTO_HighliteSlow);
             gs_pPrj->m_bGrfMoveCursor=GMC;
             }
           }
@@ -2652,7 +2652,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
                 {
                 //S.Format("%s\t%s", Txt, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName);
                 S=Txt;
-                gs_pPrj->FindTag(S, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName, NULL, FTO_MoveCursor|FTO_Highlite);
+                gs_pPrj->FindTag(S, pTag->m_Pages[RetCd-110]->m_pPage->m_sPageName, NULL, -1, FTO_MoveCursor|FTO_HighliteSlow);
                 }
               break;
               }

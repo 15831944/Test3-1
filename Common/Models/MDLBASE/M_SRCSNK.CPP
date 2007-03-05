@@ -479,12 +479,12 @@ flag MN_SrcSnk::SetModelAction(CMdlAction & Act)
     case 3:
       if (sConnectedTag.Len()>0)
         {
-        //SUB_TAGACTION_FINDANDACCESS_NOERRDLG
-        //SUB_TAGACTION_FINDANDACCESS
-        //SUB_TAGACTION_FIND
+        //SUB_TAG_FINDANDACCESS_NOERRDLG
+        //SUB_TAG_FINDANDACCESS
+        //SUB_TAG_FIND
         char* pTxt = new char[sConnectedTag.Len()+1];
         strcpy(pTxt, sConnectedTag());
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS, (LPARAM)pTxt);
         }
       break;
     }

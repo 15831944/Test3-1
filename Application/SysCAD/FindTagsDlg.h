@@ -117,6 +117,35 @@ class CFTPage
     //BOOL              m_Checked; 
   };
 
+//class CFindTagsTreeCtrl : public CTreeCtrl
+//  {
+//  // Construction
+//  public:
+//    CFindTagsTreeCtrl(CFindTagsDlg *Dlg);
+//    //CFindTagTreeCtrl &m_Data;
+//
+//    // Attributes
+//  public:
+//    CFindTagsDlg &m_Dlg;
+//
+//    // Operations
+//
+//  public:
+//    virtual ~CFindTagsTreeCtrl();
+//    void    OnButtonUp(CPoint point);
+//
+//    // Generated message map functions
+//  protected:
+//    //{{AFX_MSG(CFindTagTreeCtrl)
+//    //afx_msg void OnBeginDrag(LPNMHDR pnmhdr, LRESULT *pResult);
+//    //afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+//    afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+//    afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+//    //}}AFX_MSG
+////    afx_msg void OnPaint();
+//
+//    DECLARE_MESSAGE_MAP()
+//  };
 
 class CFindTagsDlg : public CDialog
   {
@@ -149,7 +178,13 @@ class CFindTagsDlg : public CDialog
     void          SavePos();
     void          RestorePos();
 
+  public:
+    void          DoOnItem(HTREEITEM hItem, bool RClick);
+    void          ProcessTimer(UINT_PTR idEvent);
+
+  protected:
     DECLARE_MESSAGE_MAP()
+
   public:
 
     CPoint                m_TopLeft;            // Relative to Main Wnd Client TopLeft
@@ -157,20 +192,27 @@ class CFindTagsDlg : public CDialog
     CRect                 m_WindowRctInit;
     CArray<CRect, CRect&> m_CtrlRcts;
 
-    CTreeCtrl       m_TagTree;
-    CComboBox       m_TagFilterRule;
-    CEdit           m_TagFilter;
+    CTreeCtrl             m_TagTree;
+    CComboBox             m_TagFilterRule;
+    CEdit                 m_TagFilter;
 
-    BOOL            m_Inited;
-    BOOL            m_bCaseSens;
-    IRegExpPtr    * m_pFilterRE;
+    BOOL                  m_Inited;
+    BOOL                  m_bCaseSens;
+    IRegExpPtr          * m_pFilterRE;
 
-    BOOL            m_GoTo;
-    BOOL            m_DoAccess;
-    CString         m_TagName;
-    CString         m_GraphName;
-    CString         m_TrendName;
+    BOOL                  m_GoTo;
+    BOOL                  m_DoAccess;
+    CString               m_TagName;
+    CString               m_GraphName;
+    CString               m_TrendName;
+    int                   m_TrendLine;
 
+    HTREEITEM             m_LastItem;
+    UINT                  m_nTimer;
+
+    //int                   m_RClick;
+    static CFindTagsDlg * gs_pDlg;
+   
     CArray <CFTItem*, CFTItem*> m_Tags;
     CMap <LPCTSTR, LPCTSTR,  CFTItem*, CFTItem*> m_TagMap;
     CMap <HTREEITEM, HTREEITEM,  CFTItem*, CFTItem*> m_TagHMap;
@@ -189,4 +231,6 @@ class CFindTagsDlg : public CDialog
     afx_msg void OnNMDblclkTagtree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMClickTagtree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnSelchangingTagtree(NMHDR *pNMHDR, LRESULT *pResult);
+    //afx_msg void OnTimer(UINT nIDEvent); 
+    afx_msg void OnNMRclickTagtree(NMHDR *pNMHDR, LRESULT *pResult);
   };

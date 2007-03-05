@@ -3473,7 +3473,7 @@ flag CExecutive::QueryStartExec()
       }
     LogError("SysCAD", LF_Exclamation, buff);*/
     wState|=EXF_StartError;
-    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)0);
+    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)0);
     LogError("SysCAD", LF_Exclamation, "Startup Failure!  (see preceding messages)");
     return false;
     }

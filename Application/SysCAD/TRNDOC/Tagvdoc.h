@@ -491,8 +491,8 @@ class CTagVwDoc : public DocRoot, public CExecObj, CNodeXRefMngr
     void             Rebuild();
     virtual void     PreloadSlots() {}; 
 
-    int              FindTrendTag(FindTrendTagHelper &Pos);
-    flag             FindTag(FindTrendTagHelper &Pos);
+    flag             FindTrendTag(LPCSTR Tag, int &iLine);
+    flag             FindTag(LPCSTR Tag, int &iLine, bool Activate);
     void             TrendSlotsDlg(char* pTag);
     void             TrendQueryDlg();
     void             TrendOptionsDlg();

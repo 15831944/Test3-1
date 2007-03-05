@@ -903,7 +903,7 @@ void CNodeProcedures::OnAppActivate(BOOL bActive)
           {
           char* pTag = new char[strlen(m_pNd->Tag())+1];
           strcpy(pTag, m_pNd->Tag());
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
           }
         }
       ValidateDataBlk VDB;

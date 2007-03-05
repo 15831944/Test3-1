@@ -2385,7 +2385,7 @@ long TearObjectEdt::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             {
             char* pTxt=new char[s.Len()+1];
             strcpy(pTxt, s());
-            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FIND, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_GOTO, (LPARAM)pTxt);
             }
           break;
           }

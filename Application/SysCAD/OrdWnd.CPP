@@ -2466,7 +2466,7 @@ void COrdWnd::OnRButtonDown(UINT nFlags, CPoint point)
         gs_AccessWnds.AccessNode(-1, pPt->Tag());
         break;
       case IDM_SLV_FIND:
-        gs_pPrj->FindTag(pPt->Tag(), NULL, NULL, FTO_MoveCursor|FTO_Highlite);
+        gs_pPrj->FindTag(pPt->Tag(), NULL, NULL, -1, FTO_MoveCursor|FTO_HighliteSlow);
         break;
       //case IDM_SLV_COPY:
       //case IDM_SLV_COPYEXTRA:

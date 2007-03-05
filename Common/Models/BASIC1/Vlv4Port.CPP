@@ -1498,7 +1498,7 @@ void C4PortValve ::OnAppActivate(BOOL bActive)
 
         char* pTag = new char[strlen(Tag())+1];
         strcpy(pTag, Tag());
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
         };
 
       //if (!Reload && sRCTName() && (EditTime.dwLowDateTime || EditTime.dwHighDateTime))
@@ -1526,7 +1526,7 @@ void C4PortValve ::OnAppActivate(BOOL bActive)
       //    Load(sRCTName(), true);
       //    char* pTag = new char[strlen(BaseTag())+1];
       //    strcpy(pTag, BaseTag());
-      //    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+      //    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
       //    }
       //  ValidateDataBlk VDB;
       //  ValidateData(VDB);

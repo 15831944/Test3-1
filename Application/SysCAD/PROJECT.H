@@ -265,36 +265,6 @@ class CDdeReportInfo
 
 //===========================================================================
 
-class FindTrendTagHelper
-  {
-  public:
-    FindTrendTagHelper()
-      {
-      iLastPos = 0;
-      iFoundPos = -1;
-      DocPos = NULL;
-      iFoundCnt = 0;
-      };
-    FindTrendTagHelper(LPCSTR pTag_, POSITION Pos)
-      {
-      sTag      = pTag_;
-      iLastPos  = 0;
-      iFoundPos = -1;
-      DocPos    = Pos;
-      iFoundCnt = 0;
-      };
-
-  public:
-    Strng     sTag;
-    int       iLastPos;
-    int       iFoundPos;
-    POSITION  DocPos;
-    int       iFoundCnt;
-    Strng     sLineTag;
-  };
-
-//===========================================================================
-
 class CSFPInfo
   {
   public:
@@ -574,9 +544,10 @@ class DllImportExport CProjectSettings
 const dword FTO_Null             = 0x00000000;
 const dword FTO_DoAccess         = 0x00000001;
 const dword FTO_MoveCursor       = 0x00000002;
-const dword FTO_Highlite         = 0x00000004;
-const dword FTO_NoErrDlg         = 0x00000008;
-const dword FTO_FindNext         = 0x00000010;
+const dword FTO_HighliteKwik     = 0x00000004;
+const dword FTO_HighliteSlow     = 0x00000008;
+const dword FTO_NoErrDlg         = 0x00000010;
+const dword FTO_FindNext         = 0x00000020;
 
 //_FWDDEF(CProject)
 class DllImportExport CProject : public CExecObj, public CProjectSettings
@@ -648,9 +619,6 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           SetShowStatus(bool On);
     bool           ShowEditStatus();
     void           SetShowEditStatus(bool On);
-
-  protected:
-    FindTrendTagHelper TrndPos;
 
   public:
     SFEFlwLib      m_FlwLib, *m_pFlwLib;
@@ -759,7 +727,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     //void           OpenOPCManager();
     //void           CloseOPCManager(BOOL ForExit = FALSE);
 
-    flag           FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, dword Options);
+    flag           FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, int TrndLineNo, dword Options);
     flag           AllGrfLoaded();
     void           BrowseTags();
     void           HistorianQuery();

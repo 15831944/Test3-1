@@ -154,7 +154,7 @@ void CChangeTag::OnOK()
             {
             char* pTxt = new char[NewTag.Len()+1];
             strcpy(pTxt, NewTag());
-            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)pTxt);
             }
 
           CDialog::OnOK();

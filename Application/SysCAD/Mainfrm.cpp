@@ -1990,25 +1990,11 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
     {
     switch (wParam)
       {
-      case SUB_TAGACTION_ACCESS:
+      case SUB_TAG_ACCESS:
         if (pTxt)
           gs_AccessWnds.AccessNode(-1, pTxt);
         break;
-      case SUB_TAGACTION_FIND:
-      case SUB_TAGACTION_FINDANDACCESS:
-        if (pTxt)
-          gs_pPrj->FindTag(pTxt, NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite);
-        else
-          gs_pPrj->FindTag("", NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite);
-        break;
-      case SUB_TAGACTION_FIND_NOERRDLG:
-      case SUB_TAGACTION_FINDANDACCESS_NOERRDLG:
-        if (pTxt)
-          gs_pPrj->FindTag(pTxt, NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite|FTO_NoErrDlg);
-        else
-          gs_pPrj->FindTag("", NULL, NULL, (wParam==SUB_TAGACTION_FINDANDACCESS_NOERRDLG?FTO_DoAccess:FTO_MoveCursor)|FTO_Highlite|FTO_NoErrDlg);
-        break;
-      case SUB_TAGACTION_CHANGE:
+      case SUB_TAG_CHANGE:
         if (pTxt)
           {
           CChangeTag ChgTag(pTxt, False);
@@ -2020,7 +2006,7 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
           ChgTag.DoModal();
           }
         break;
-      case SUB_TAGACTION_MDLHELP:
+      case SUB_TAG_MDLHELP:
         if (pTxt)
           {
           CXM_ObjectTag ObjTag(pTxt, TABOpt_Parms);//TABOpt_AllInfoOnce);
@@ -2042,13 +2028,13 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
         else
           gs_pPrj->ModelHelp();
         break;
-      case SUB_TAGACTION_COPYBLK:
+      case SUB_TAG_COPYBLK:
         {
         CCopyTagBlkDlg CopyBlkDlg(this, NULL, pTxt);
         CopyBlkDlg.DoModal();
         break;
         }
-      case SUB_TAGACTION_ACCREFRESHSAVE:
+      case SUB_TAG_ACCREFRESHSAVE:
         {//refresh the access window
         for (int i=0; i<NAccessWnds; i++)
           {
@@ -2058,7 +2044,27 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
         break;
         }
       default:
-        ASSERT(FALSE);
+      //case SUB_TAG_FIND_KWIK:
+      //case SUB_TAG_FINDANDACCESS_KWIK:
+      //case SUB_TAG_FIND:
+      //case SUB_TAG_FINDANDACCESS:
+      //case SUB_TAG_FIND_NOERRDLG_KWIK:
+      //case SUB_TAG_FINDANDACCESS_NOERRDLG_KWIK:
+      //case SUB_TAG_FIND_NOERRDLG:
+      //case SUB_TAG_FINDANDACCESS_NOERRDLG:
+        {
+        dword Options=0;
+        Options |= wParam&SUB_TAG_ACCESS   ? FTO_DoAccess:0;
+        Options |= wParam&SUB_TAG_MARK     ? (wParam&SUB_TAG_KWIK ? FTO_HighliteKwik:FTO_HighliteSlow):0;
+        Options |= wParam&SUB_TAG_GOTO     ? FTO_MoveCursor:0;
+        Options |= wParam&SUB_TAG_NOERRDLG ? FTO_NoErrDlg:0;
+
+        if (pTxt)
+          gs_pPrj->FindTag(pTxt, NULL, NULL, -1, Options);
+        else
+          gs_pPrj->FindTag("", NULL, NULL, -1, Options);
+        break;
+        }
         break;
       }
     }
@@ -2073,7 +2079,7 @@ void CMainFrame::OnFindTag()
   {
   //INCOMPLETECODE(__FILE__,__LINE__);
   if (gs_pPrj)
-    gs_pPrj->FindTag("",NULL, NULL, 0);
+    gs_pPrj->FindTag("",NULL, NULL, -1, 0);
   }
 
 void CMainFrame::OnUpdateFindTag(CCmdUI* pCmdUI)
@@ -2087,7 +2093,7 @@ void CMainFrame::OnFindNext()
   {
   //INCOMPLETECODE(__FILE__,__LINE__);
   if (gs_pPrj)
-    gs_pPrj->FindTag("", NULL, NULL, FTO_FindNext);// FALSE, FALSE, TRUE);
+    gs_pPrj->FindTag("", NULL, NULL, -1, FTO_FindNext);// FALSE, FALSE, TRUE);
   }
 
 void CMainFrame::OnUpdateFindNext(CCmdUI* pCmdUI)

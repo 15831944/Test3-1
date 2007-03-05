@@ -1039,7 +1039,7 @@ void GControl::OnAppActivate(BOOL bActive)
           {
           char* pTag = new char[strlen(Tag())+1];
           strcpy(pTag, Tag());
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
           }
         }
       ValidateDataBlk VDB;

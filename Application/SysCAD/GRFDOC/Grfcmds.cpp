@@ -1817,7 +1817,7 @@ void GrfCmdBlk::DoObjectAccess()
           strcpy(pTxt, pTag);
           strcat(pTxt, "\t"); 
           strcat(pTxt, pGrfDoc->GetTitle()); // current graphics page
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS, (LPARAM)pTxt);
           };
         }
       break;
@@ -6364,7 +6364,7 @@ void GrfCmdBlk::DoSelect()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)pTxt);
         }
       }
     else
@@ -6375,7 +6375,7 @@ void GrfCmdBlk::DoSelect()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_GOTO, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;
@@ -6473,7 +6473,7 @@ void GrfCmdBlk::DoFind()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)pTxt);
         }
       }
     else
@@ -6484,7 +6484,7 @@ void GrfCmdBlk::DoFind()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_GOTO, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;
@@ -7391,7 +7391,7 @@ void GrfCmdBlk::DoHelpUnit()
             {
             char* pTxt = new char[strlen(pTag)+1];
             strcpy(pTxt, pTag);
-            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_MDLHELP, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MDLHELP, (LPARAM)pTxt);
 
             /*if (pMdl)
               {

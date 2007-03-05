@@ -2801,51 +2801,49 @@ flag CTagVwDoc::StartFile(char* Filename)
 
 //---------------------------------------------------------------------------
 
-int CTagVwDoc::FindTrendTag(FindTrendTagHelper &Pos)
+flag CTagVwDoc::FindTrendTag(LPCSTR Tag, int &iLine)
   {
-  if (Pos.iLastPos<0 || Pos.iLastPos>=NoSlots())
-    Pos.iLastPos = 0;
-  for ( ; Pos.iLastPos<NoSlots(); Pos.iLastPos++)
-    if (DS[Pos.iLastPos].sTag.FindI(Pos.sTag())>=0)
-      {
-      Pos.sLineTag = DS[Pos.iLastPos].sTag;
-      Pos.iFoundPos = Pos.iLastPos;
-      Pos.iFoundCnt++;
-      return Pos.iFoundPos;
-      }
-  Pos.iFoundPos = -1;
-  return Pos.iFoundPos;
+  int iFindLen=strlen(Tag);
+  for (iLine++; iLine<NoSlots(); iLine++)
+    {
+    Strng & LineTag=DS[iLine].sTag;
+    int iPos=LineTag.FindI(Tag);
+    
+    if (iPos==0 && (LineTag.GetLength()==iFindLen || LineTag[iPos+iFindLen]=='.' || LineTag[iPos+iFindLen]==' '))
+      return true;
+    }
+  return false;
   }
 
 //---------------------------------------------------------------------------
 
-flag CTagVwDoc::FindTag(FindTrendTagHelper &Pos)
+flag CTagVwDoc::FindTag(LPCSTR Tag, int &iLine, bool Activate)
   {
-  if (Pos.sTag.Len()>0)
+  if (strlen(Tag)>0)
     {
-    const int i = FindTrendTag(Pos);
-    if (i>=0)
+    if (FindTrendTag(Tag, iLine))
       {
       POSITION pos = GetFirstViewPosition();
       if (pos != NULL)
         {
         CView* pView = GetNextView(pos);
-        if (pView->GetFocus()!=pView)
-          MDIActivateThis(pView); //bring the window to the front
-        if (pView->GetParent()->GetParent()->IsIconic())
-          pView->GetParent()->GetParent()->ShowWindow(SW_RESTORE);
-        if (dynamic_cast<CTagVwText*>(pView)==NULL)
-          pView = GetNextView(pos);
-        CTagVwText * pTxtView=dynamic_cast<CTagVwText*>(pView);
-        if (pTxtView)
+        if (Activate)
           {
-          pTxtView->SelectTrendTag(i);
+          if (pView->GetFocus()!=pView)
+            MDIActivateThis(pView); //bring the window to the front
+          if (pView->GetParent()->GetParent()->IsIconic())
+            pView->GetParent()->GetParent()->ShowWindow(SW_RESTORE);
+          if (dynamic_cast<CTagVwText*>(pView)==NULL)
+            pView = GetNextView(pos);
+          CTagVwText * pTxtView=dynamic_cast<CTagVwText*>(pView);
+          if (pTxtView)
+            pTxtView->SelectTrendTag(iLine);
           }
-        return True;
         }
+      return true;
       }
     }
-  return False;
+  return false;
   }
 
 //---------------------------------------------------------------------------
@@ -3794,7 +3792,7 @@ flag CTagVwDoc::ProcessScaleMenu(int RetCd, CTagVwSlot* pSlot, double Val)
         AccTg = AccTg.Left(DotPos);
       char* pTxt = new char[AccTg.Len()+1];
       strcpy(pTxt, AccTg());
-      ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+      ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
       break;
       }
     default:

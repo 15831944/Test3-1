@@ -1683,7 +1683,7 @@ void CReactionBlock::OnAppActivate(BOOL bActive)
           Load(sRCTName(), true);
           char* pTag = new char[strlen(BaseTag())+1];
           strcpy(pTag, BaseTag());
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCREFRESHSAVE, (LPARAM)pTag);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)pTag);
           }
         ValidateDataBlk VDB;
         ValidateData(VDB);

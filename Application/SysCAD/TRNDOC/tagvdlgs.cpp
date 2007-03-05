@@ -453,7 +453,7 @@ void CTrndInfoDlg::OnSelchangeTag()
     {
     CString Txt;
     m_TagList.GetLBText(CurSel, Txt);
-    FindTrendTagHelper Pos((pchar)(const char*)Txt);
+    CFindTrendTagHelper Pos((pchar)(const char*)Txt);
     int Index = pDoc->FindTrendTag(Pos);
     if (Index>=0)
       {
@@ -530,7 +530,7 @@ void CTrndInfoDlg::OnApply()
     UpdateData(True);
     CString Txt;
     m_TagList.GetLBText(CurSel, Txt);
-    FindTrendTagHelper Pos((pchar)(const char*)Txt);
+    CFindTrendTagHelper Pos((pchar)(const char*)Txt);
     int Index = pDoc->FindTrendTag(Pos);
     if (Index>=0)
       {
@@ -574,7 +574,7 @@ void CTrndInfoDlg::OnEdit()
     {
     CString Txt;
     m_TagList.GetLBText(CurSel, Txt);
-    FindTrendTagHelper Pos((pchar)(const char*)Txt);
+    CFindTrendTagHelper Pos((pchar)(const char*)Txt);
     int Index = pDoc->FindTrendTag(Pos);
     if (Index>=0)
       {

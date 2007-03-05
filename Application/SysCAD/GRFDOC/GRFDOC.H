@@ -58,6 +58,7 @@ class CGrfDoc : public DocRoot
     BOOL         FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
     void         FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
     void         SetCursor(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
+    flag         Pan(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options);
 
     virtual int GetTagList(Strng_List & Lst);
     virtual flag TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs) 

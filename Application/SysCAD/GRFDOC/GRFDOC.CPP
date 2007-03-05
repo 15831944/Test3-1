@@ -391,14 +391,17 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
 
   //pGWnd->EnInvalidate(false);
 
-  if (Options & (FTO_MoveCursor|FTO_Highlite))
+  Pan(pTagInsert, pTagAttr, Options );
+
+  if (Options & (FTO_MoveCursor|FTO_HighliteSlow|FTO_HighliteKwik))
     SetCursor(pTagInsert, pTagAttr, Options );
+
 
   if (Options & FTO_DoAccess)// gs_pPrj->bDoGrfAutoAccess)
     {
     char* pTxt = new char[strlen(Tag)+1];
     strcpy(pTxt, Tag);
-    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_ACCESS, (LPARAM)pTxt);
+    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)pTxt);
     }
 
   //else
@@ -409,7 +412,7 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
   //    {
   //    char* pTxt = new char[strlen(b999[0])+1];
   //    strcpy(pTxt, b999[0]);
-  //    ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+  //    ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_FINDANDACCESS : SUB_TAG_FIND, (LPARAM)pTxt);
   //    }
   //  }
   //gs_pPrj->bDoGrfAutoAccess = 0;
@@ -420,11 +423,17 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
 
   };
 
-/**
-  CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
-  DXF_ENTITY e = pEnt->EntityPtr();
+//---------------------------------------------------------------------------
 
-  if (gs_pPrj->m_bGrfPromptForZoom)
+flag CGrfDoc::Pan(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Options)
+  {
+  //CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
+  DXF_ENTITY e = pTagInsert;
+
+  DXF_Drawing   * pDrw = GCB.pDrw;
+  Grf3D_Display * pDsp = GCB.pDrw->pDsp;
+
+  if (1)//gs_pPrj->m_bGrfPromptForZoom)
     {
 
     C3_BOX_S Bounds;
@@ -443,7 +452,7 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
     pDrw->ConstructInsertMatrix(c3t, b, e);
     b->GetBounds(c3t, &Bounds);
 
-    double ZBx0=pDsp->Vp1->ZoomBox.minpt[0];
+    double ZBx0=GCB.pDrw->pDsp->Vp1->ZoomBox.minpt[0];
     double ZBy0=pDsp->Vp1->ZoomBox.minpt[1];
     double ZBx1=pDsp->Vp1->ZoomBox.maxpt[0];
     double ZBy1=pDsp->Vp1->ZoomBox.maxpt[1];
@@ -451,36 +460,54 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
     double xl=ZBx1-ZBx0;
     double yl=ZBy1-ZBy0;
 
-    xl=Max(xl, C3_MAX_X(&Bounds) - C3_MIN_X(&Bounds));
-    yl=Max(yl, C3_MAX_Y(&Bounds) - C3_MIN_Y(&Bounds));
+    bool DoPan=false;
+    if (C3_MIN_X(&Bounds)<ZBx0)
+      DoPan=true;
+    else if (C3_MAX_X(&Bounds)>ZBx1)
+      DoPan=true;
+    else if (C3_MIN_Y(&Bounds)<ZBy0)
+      DoPan=true;
+    else if (C3_MAX_Y(&Bounds)>ZBy1)
+      DoPan=true;
 
-    double xc=(C3_MIN_X(&Bounds)+C3_MAX_X(&Bounds))/2.0;
-    double yc=(C3_MIN_Y(&Bounds)+C3_MAX_Y(&Bounds))/2.0;
+    if (DoPan)
+      {
+      xl=Max(xl, C3_MAX_X(&Bounds) - C3_MIN_X(&Bounds));
+      yl=Max(yl, C3_MAX_Y(&Bounds) - C3_MIN_Y(&Bounds));
 
-    double w = Max(C3_MAX_X(&pDrw->Bounds)-C3_MIN_X(&pDrw->Bounds), (REAL)1.0);
-    double h = Max(C3_MAX_Y(&pDrw->Bounds)-C3_MIN_Y(&pDrw->Bounds), (REAL)1.0);
+      double xc=(C3_MIN_X(&Bounds)+C3_MAX_X(&Bounds))/2.0;
+      double yc=(C3_MIN_Y(&Bounds)+C3_MAX_Y(&Bounds))/2.0;
 
-    double x0=pDrw->Bounds.minpt[0]-0.025*w;
-    double y0=pDrw->Bounds.minpt[1]-0.025*h;
-    double x1=pDrw->Bounds.maxpt[0]+0.025*w;
-    double y1=pDrw->Bounds.maxpt[1]+0.025*h;
+      double w = Max(C3_MAX_X(&pDrw->Bounds)-C3_MIN_X(&pDrw->Bounds), (REAL)1.0);
+      double h = Max(C3_MAX_Y(&pDrw->Bounds)-C3_MIN_Y(&pDrw->Bounds), (REAL)1.0);
 
-    double xlh=xl/2.0;
-    double ylh=yl/2.0;
-    if (xc-xlh<x0)
-      xc-=xc-xlh-x0;
-    if (xc+xlh>x1)
-      xc-=xc+xlh-x1;
-    if (yc-ylh<y0)
-      yc-=yc-ylh-y0;
-    if (yc+ylh>y1)
-      yc-=yc+ylh-y1;
+      double x0=pDrw->Bounds.minpt[0]-0.025*w;
+      double y0=pDrw->Bounds.minpt[1]-0.025*h;
+      double x1=pDrw->Bounds.maxpt[0]+0.025*w;
+      double y1=pDrw->Bounds.maxpt[1]+0.025*h;
 
-    pDsp->SetZoom(Zoom_Win, xc-xlh, yc-ylh, xc+xlh, yc+ylh);
+      double xlh=xl/2.0;
+      double ylh=yl/2.0;
+      if (xc-xlh<x0)
+        xc-=xc-xlh-x0;
+      if (xc+xlh>x1)
+        xc-=xc+xlh-x1;
+      if (yc-ylh<y0)
+        yc-=yc-ylh-y0;
+      if (yc+ylh>y1)
+        yc-=yc+ylh-y1;
 
-    pWnd->Invalidate(True);
+      pDsp->SetZoom(Zoom_Win, xc-xlh, yc-ylh, xc+xlh, yc+ylh);
+
+      POSITION pos = GetFirstViewPosition();
+      CView* pFirstView = GetNextView( pos );
+      CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+      pGWnd->RedrawWindow();
+      return true;
+      }
     }
-**/
+  return false;
+  }
 
 //---------------------------------------------------------------------------
 
@@ -497,13 +524,13 @@ void CGrfDoc::SetCursor(DXF_ENTITY pTagInsert, DXF_ENTITY pTagAttr, dword Option
   if (Options & FTO_MoveCursor)
     SetCursorPos((int)Pt1.Screen.X, (int)Pt1.Screen.Y);
 
-  if (Options & FTO_Highlite)
+  if (Options & (FTO_HighliteKwik|FTO_HighliteSlow))
     {
     Cursor_Types CursMem=GCB.pDrw->pDsp->Cursor;
     GCB.pDrw->pDsp->Cursor=GC_BigCurs;
     GCB.pDrw->pDsp->EndPt=Pt1;
     GCB.pDrw->pDsp->XORCursor();
-    Sleep(200);
+    Sleep((Options & FTO_HighliteKwik) ? 200 : 400);
     GCB.pDrw->pDsp->XORCursor();
     GCB.pDrw->pDsp->Cursor=CursMem;
     }

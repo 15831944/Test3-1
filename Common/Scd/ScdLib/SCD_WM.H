@@ -91,15 +91,23 @@
 #define WMU_CHKLICENSE           (WM_USER + 579)
 
 //WPARAM sub-messages used by WMU_TAGACTION...
-#define SUB_TAGACTION_ACCESS          1
-#define SUB_TAGACTION_FIND            2
-#define SUB_TAGACTION_FINDANDACCESS   3
-#define SUB_TAGACTION_CHANGE          4
-#define SUB_TAGACTION_MDLHELP         5
-#define SUB_TAGACTION_COPYBLK         6
-#define SUB_TAGACTION_FIND_NOERRDLG   7
-#define SUB_TAGACTION_FINDANDACCESS_NOERRDLG 8
-#define SUB_TAGACTION_ACCREFRESHSAVE  9
+#define SUB_TAG_ACCESS                       0x0001
+#define SUB_TAG_MARK                         0x0002
+#define SUB_TAG_GOTO                         0x0004
+#define SUB_TAG_NOERRDLG                     0x0008
+#define SUB_TAG_KWIK                         0x0010
+#define SUB_TAG_CHANGE                       0x0020
+#define SUB_TAG_MDLHELP                      0x0040
+#define SUB_TAG_COPYBLK                      0x0080
+#define SUB_TAG_ACCREFRESHSAVE               0x0100
+
+//#define SUB_TAG_FIND_NOERRDLG                 (SUB_TAG_FIND                     |SUB_TAG_NOERRDLG                   )
+//#define SUB_TAG_FIND_KWIK                     (SUB_TAG_FIND                                            |SUB_TAG_KWIK)
+//#define SUB_TAG_FIND_NOERRDLG_KWIK            (SUB_TAG_FIND                     |SUB_TAG_NOERRDLG|SUB_TAG_KWIK)
+//#define SUB_TAG_FINDANDACCESS                 (SUB_TAG_FIND|SUB_TAG_ACCESS                                          )
+//#define SUB_TAG_FINDANDACCESS_NOERRDLG        (SUB_TAG_FIND|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG                   )
+//#define SUB_TAG_FINDANDACCESS_KWIK            (SUB_TAG_FIND|SUB_TAG_ACCESS                       |SUB_TAG_KWIK)
+//#define SUB_TAG_FINDANDACCESS_NOERRDLG_KWIK   (SUB_TAG_FIND|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG|SUB_TAG_KWIK)
 
 //WPARAM sub-messages used by WMU_INFOVIEWMSG...
 #define SUB_INFO_STRING          1

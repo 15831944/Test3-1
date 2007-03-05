@@ -3209,7 +3209,7 @@ long AccNodeWnd::Parse(FxdEdtInfo &EI, Strng & Str)
 
         char* pTxt = new char[Str.Len()+1];
         strcpy(pTxt, Str());
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
         break;
         }
       default: 
@@ -3358,7 +3358,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             {
             char* pTxt=new char[Tags[iIO].Length()+1];
             strcpy(pTxt, Tags[iIO]());
-            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+            ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG|SUB_TAG_KWIK, (LPARAM)pTxt);
             DidPost = true;
             }
           }
@@ -3372,7 +3372,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           m_pMyFrm->SetWindowText("Access ...");
           char* pTxt = new char[NdHistList[1].Len()+1];
           strcpy(pTxt, NdHistList[1]());
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
           }
         break;
       case Id_SetBtn:
@@ -3545,7 +3545,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             pTxt = new char[d.sTagOnly.Len()+1];
             strcpy(pTxt, d.sTagOnly());
             }
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS_NOERRDLG, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
           }
         else if (d.iFlags & DDEF_TAGPARM)
           {
@@ -3584,7 +3584,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
               char* pTxt = NULL;
               pTxt = new char[sLastSelected[0].GetLength()+1];
               strcpy(pTxt, (LPSTR)(LPCSTR)sLastSelected[0]);
-              ScdMainWnd()->PostMessage(WMU_TAGACTION, TryAccess ? SUB_TAGACTION_FINDANDACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+              ScdMainWnd()->PostMessage(WMU_TAGACTION, TryAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS : SUB_TAG_MARK, (LPARAM)pTxt);
               }
             }
           }
@@ -4526,9 +4526,9 @@ void AccNodeWnd::OnAccMenu(UINT id)
         WPARAM wp;
         switch (id)
           {
-          case IDM_ACC_ACCESSTAG_0: wp = SUB_TAGACTION_FINDANDACCESS;  break;
-          case IDM_ACC_FINDTAG_0  : wp = SUB_TAGACTION_FIND;    break;
-          case IDM_ACC_MDLHELP_0  : wp = SUB_TAGACTION_MDLHELP; break;
+          case IDM_ACC_ACCESSTAG_0: wp = SUB_TAG_MARK|SUB_TAG_ACCESS;  break;
+          case IDM_ACC_FINDTAG_0  : wp = SUB_TAG_GOTO;    break;
+          case IDM_ACC_MDLHELP_0  : wp = SUB_TAG_MDLHELP; break;
           }
         char* pTxt = new char[sLastSelected[Index].GetLength()+1];
         strcpy(pTxt, sLastSelected[Index]);

@@ -1680,7 +1680,7 @@ void CTagVwText::OnMenu(UINT id)
           {
           char* pTxt = new char[m_sTag4Access[idx].GetLength()+1];
           strcpy(pTxt, m_sTag4Access[idx]);
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, (id<IDM_TRND_FINDTAG_0) ? SUB_TAGACTION_ACCESS : SUB_TAGACTION_FIND, (LPARAM)pTxt);
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, (id<IDM_TRND_FINDTAG_0 ? SUB_TAG_ACCESS:0)| SUB_TAG_MARK, (LPARAM)pTxt);
           }
         }
       else
