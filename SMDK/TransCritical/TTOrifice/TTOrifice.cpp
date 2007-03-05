@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-03-01 05:35:11 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-03-05 02:04:31 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -34,14 +34,14 @@ class CFlashSolver;
 
 static MDDValueLst DD0[]=
   {
-    {SFM_Homo, "Homogeneous"},
-    {SFM_Lock, "Lockheed Martinelli"},
-    {SFM_Faus, "Fauske"},
-    {SFM_Thom, "Thom"},
-    {SFM_Zivi, "Zivi"},
-    {SFM_Baro, "Baroczy"},
-    {SFM_Mood, "Moody"},
-    {SFM_Wall, "Wallis"},
+    {SFM_Homo, "Homogeneous"},	       
+    {SFM_Lock, "Lockheed Martinelli"}, 
+    {SFM_Faus, "Fauske"},	       
+    {SFM_Thom, "Thom"},		       
+    {SFM_Zivi, "Zivi"},		       
+    {SFM_Baro, "Baroczy"},	       
+    {SFM_Mood, "Moody"},	       
+    {SFM_Wall, "Wallis"},	       
     {SFM_HNEM, "Homogeneous NonEquil"},
     {NULL}
   };
@@ -71,17 +71,18 @@ static MDDValueLst DD2[]={
   
     
 
-static const double slipData[8][4] = 
+static const double slipData[9][4] = 
     { 
 
-	{1,1,1,0},
-	{.28,.64,.36,.07},
-	{1,1,.5,0},
-	{1,1,.89,.18},
-	{1,1,.67,0.},
-	{1,.74,.65,.13},
-	{1,1,.6666666,0},
-	{1,.72,.4,0.08}
+	{1,1,1,0},            //"Homogeneous"	       
+	{.28,.64,.36,.07},    //"Lockheed Martinelli" 
+	{1,1,.5,0},	      //"Fauske"	       
+	{1,1,.89,.18},	      //"Thom"		       
+	{1,1,.67,0.},	      //"Zivi"		       
+	{1,.74,.65,.13},      //"Baroczy"	       
+	{1,1,.6666666,0},     //"Moody"	       
+	{1,.72,.4,0.08},      //"Wallis"	       
+	{1,1,1,0}, 	      //"Homogeneous NonEquil"
     };
 
 
@@ -90,10 +91,12 @@ static const double slipData[8][4] =
 class SlipFlow 
 {
 
-    double mBb;
-    double mn1;
-    double mn2;
-    double mn3;
+  double mBb;
+  double mn1;
+  double mn2;
+  double mn3;
+  bool bAmiraCorrection;
+
 public:
     SlipFlow(double _mBb, double _mn1, double _mn2, double _mn3): 
 
@@ -107,6 +110,7 @@ public:
     mn1 = slipData[i][1];
     mn2 = slipData[i][2];
     mn3 = slipData[i][3];
+    bAmiraCorrection = true;
   }
 
     
@@ -115,9 +119,10 @@ public:
   double voidFraction(const MStream &fs) {
     double vapor = fs.MassFrac(MP_Gas);
     double slurry = fs.MassFrac(MP_SL);
+    double dc = bAmiraCorrection ? dcf(K2C(fs.T)) : 1.0;
     if (vapor < 1.0e-8) return 0.0;
     return 1./(1+mBb*pow(slurry/vapor, mn1)*
-	       pow(fs.Density(MP_Gas)/fs.Density(MP_SL), mn2)*
+	       pow(fs.Density(MP_Gas)/(fs.Density(MP_SL)/dc), mn2)*
 	       pow(fs.DynamicViscosity(MP_SL)/fs.DynamicViscosity(MP_Gas), mn3));
   }
 
@@ -125,9 +130,10 @@ public:
   double SlipDensity(const MStream &fs) 
   {
     double epsilon = voidFraction(fs);
-    if (epsilon<1.0e-6) return fs.Density(MP_SL); 
+    double dc = bAmiraCorrection ? dcf(K2C(fs.T)) : 1.0;
+    if (epsilon<1.0e-6) return fs.Density(MP_SL)/dc; 
     double x = fs.MassFrac(MP_Gas);
-    return 1./(Sqr(1-x)/fs.Density(MP_SL)/(1-epsilon) + Sqr(x)/fs.Density(MP_Gas)/epsilon);
+    return 1./(Sqr(1-x)/(fs.Density(MP_SL)/dc)/(1-epsilon) + Sqr(x)/fs.Density(MP_Gas)/epsilon);
   }
   
 
@@ -261,6 +267,7 @@ void CTTOrifice::BuildDataFields()
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
   DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD1);
   DD.Double("FlashPressure", "", &dFlashP, MF_RESULT, MC_P("kPa"));
+  DD.Double("BoilingPtElev", "", &dBPE, MF_RESULT, MC_dT("C"));
   DD.Double("TemperatureDrop", "", &dFlashdT, MF_RESULT, MC_dT("C"));
   DD.Double("VaporFraction", "", &dxVapor, MF_RESULT, MC_Frac("%"));
   DD.Double("SlipDensity", "", &dSlipDensity, MF_RESULT, MC_Rho);
@@ -415,7 +422,7 @@ void CTTOrifice::EvalProducts()
       dPipe = Max(dPipe, 1.0e-6);
       dEntryK = Max(dEntryK, 1.0e-9);
       dFlashP = InStream.SaturationP(InStream.T);
-
+      dBPE = InStream.BoilingPtElevation();
       OutStream.P = dFlashP;
 
       dPin = Pi;
@@ -427,6 +434,7 @@ void CTTOrifice::EvalProducts()
       dMassFlow1 = InStream.Mass();
       dPipeVelocity = InStream.Volume()/area;
       dGIn = dMassFlow1/area;
+
       double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;
       if (bControlValve) {
 	dValveCv = ValveCv();
@@ -439,11 +447,10 @@ void CTTOrifice::EvalProducts()
       } else dPValve=0.0;
 
       dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
-      if (dPOrificeIn - dPValve < dFlashP) {
+      if (dPOrificeIn - dPValve < dFlashP && bControlValve) {
 	Log.SetCondition(true, 0, MMsg_Warning, "Flashing in Valve");
       }
 	
-
 
       if (!bValveFlash) dPOrificeIn -= dPValve;
 
@@ -452,14 +459,18 @@ void CTTOrifice::EvalProducts()
       MStream mstmp;
       mstmp = InStream;
 
+
       dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout); 
 
 
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/CircleArea(dOut))/den/1000.;
       dMassFlow2 = dMassVelocity*CircleArea(dOut);// Density correction, based on bayer.exe AMIRA 
       dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*CircleArea(dOut);
+
+
       if (dPCritical>dPout)  {   // Choked Flow
         dMassFlow4 = dMassFlow3;
+
 	dPOutActual = dPCritical;
       }
       else {
@@ -489,9 +500,15 @@ void CTTOrifice::EvalProducts()
       dPMin = dFlashP - dFlashP/2.*29/30.;
       for (int i=0; i<30; i++) {
 	double p = dFlashP - dFlashP/2.*i/30.;
-	m_VLE.PFlash(mstmp, p);
 	dPData[i] = p;
-	dRhoData[i] = s1.SlipDensity(mstmp);
+
+	if (m_lSlipMode == SFM_HNEM) 
+	  dRhoData[i] = HNEFlash(InStream, p);
+	else {
+	  m_VLE.PFlash(mstmp, p);
+	  dRhoData[i] = s1.SlipDensity(mstmp);
+	}
+	
       }
       dBeta = betaCoeff(dPData,  dRhoData, 30);
       double dG2 = dGIn*dGIn + 2*den*(dPin-dFlashP)*1000.;
@@ -568,16 +585,21 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
   // Default Case, Initial Pressure above saturation
   double den = ms.Density();   // Slurry (nonflashed) Density
   double I1 = 2000.*(pIn-pSat)/den;
+  double I2;
   double pMid = (pSat+pOut)/2;
-  m_VLE.PFlash(ms, pMid);
-  den2 = s1.SlipDensity(ms);
-  m_VLE.PFlash(ms, pOut);
-  den3 = s1.SlipDensity(ms);
-  double I2 = (2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
+  if (m_lSlipMode != SFM_HNEM) {
+    m_VLE.PFlash(ms, pMid);
+    den2 = s1.SlipDensity(ms);
+    m_VLE.PFlash(ms, pOut);
+    den3 = s1.SlipDensity(ms);
   // Log.Message(MMsg_Warning, "Pin %8.2f Pout %8.2f Psat %8.2f", pIn, pOut, pSat);
   // Log.Message(MMsg_Warning, "den %8.2f den2 %8.2f den3 %8.2f I1 %8.2f I2 %8.2f", den, den2, den3, I1, I2);
-
-  return den3*sqrt(I1+I2);
+  } else {
+    den2 = HNEFlash(ms, pMid);
+    den3 = HNEFlash(ms, pOut);
+  }  
+  I2 = (2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
+  return den3*sqrt(Sqr(dGIn/den)+I1+I2);
   
  
 }
@@ -689,4 +711,28 @@ double dcf(double tc) {
   /// Dont apply correction for low temperatures; this just happens that
   // dcf(144.2467) === 1.00000, so no discontinuity!
   else return 1.1737e-5*tc*tc -2.3329e-3*tc+1.0923;
+}
+
+
+
+
+
+
+
+double CTTOrifice::HNEFlash(MStream ms, double p, double alpha, double flashmax)
+{
+  MStream mtmp;
+  mtmp = ms;
+  m_VLE.PFlash(mtmp, p);
+  double x1;   // Non equilibrium vapor fraction
+  double x = mtmp.MassFrac(MP_Gas);  // Equilibrium vapor fraction
+  if (x>flashmax) 
+    x1 = x;
+  else
+    x1 = pow(x, alpha);    
+  m_VLE.SetFlashVapFrac(mtmp, x1, 0);
+  //Log.Message(MMsg_Error, "T %8.2f P %8.2f x, %10.6f, x1 %10.6f", mtmp.T, mtmp.P, x, x1);
+
+  SlipFlow s1(SFM_HNEM);
+  return s1.SlipDensity(mtmp);
 }

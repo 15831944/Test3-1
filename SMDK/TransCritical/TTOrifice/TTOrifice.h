@@ -43,7 +43,7 @@ class CTTOrifice : public MBaseMethod
     double orificeDeltaP(MStream ms);
     double criticalVelocity(MStream ms, int slipMode = SFM_Default);
     double criticalFlow(MStream ms, int slipMode = SFM_Default);    
-
+    double HNEFlash(MStream, double, double alpha = 2.0, double flashmax = 0.14);
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
     bool bOn;     // Bypass if not...
@@ -59,6 +59,7 @@ class CTTOrifice : public MBaseMethod
     double dOut;
     double dThick;
     double dFlashP;
+    double dBPE;
     double dFlashdT;
     double dGIn;    // Mass velocity in pipe entry
 
