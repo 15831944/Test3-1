@@ -4771,8 +4771,12 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
           Menu.AppendMenu(MF_STRING, IDM_ACC_COPYRHSTAG, "Copy Tag");
           Menu.AppendMenu(MF_STRING, ID_EDIT_COPY, "Copy");
           Menu.AppendMenu(MF_STRING, ID_EDIT_PASTE, "Paste");
+          Menu.AppendMenu(MF_STRING, ID_EDIT_PASTE_SPECIAL, "Paste Special");
           if (!EdtFld)
+            {
             Menu.EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND|MF_GRAYED);
+            Menu.EnableMenuItem(ID_EDIT_PASTE_SPECIAL, MF_BYCOMMAND|MF_GRAYED);
+            }
     
           if (d.iFlags & DDEF_TAGPARM)
             {
