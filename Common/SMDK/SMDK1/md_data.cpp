@@ -198,6 +198,15 @@ void MDataDefn::ArrayEnd(MD_Flags Flags)
   m_pCommon->m_pDDB->EndArray(Flags);
   };
 
+bool MDataDefn::getForNDB()           { return m_pCommon->m_pDDB->ForNDB()!=0;           };
+bool MDataDefn::getForFiling()        { return m_pCommon->m_pDDB->ForFiling()!=0;        };
+bool MDataDefn::getForView()          { return m_pCommon->m_pDDB->ForView()!=0;          };
+//bool MDataDefn::getForViewConstruct() { return m_pCommon->m_pDDB->ForViewConstruct()!=0; };
+bool MDataDefn::getForSnapShot()      { return m_pCommon->m_pDDB->ForSnapShot()!=0;      };
+bool MDataDefn::getForScenario()      { return m_pCommon->m_pDDB->ForScenario()!=0;      };
+bool MDataDefn::getForFileSnpScn()    { return m_pCommon->m_pDDB->ForFileSnpScn()!=0;    };
+
+
 //---------------------------------------------------------------------------
 //
 //
@@ -234,6 +243,14 @@ void    MDataChange::putLong(long   V)    { m_pCommon->m_pDCB->L=V; };
 void    MDataChange::putShort(short  V)   { m_pCommon->m_pDCB->S=V; };
 void    MDataChange::putBool(bool   V)    { m_pCommon->m_pDCB->B=(V!=0 ? true : false); };
 void    MDataChange::putString(LPCTSTR V) { m_pCommon->m_pDCB->pC=(LPTSTR)V; };
+
+bool    MDataChange::getForNDB()           { return m_pCommon->m_pDDB->ForNDB()!=0;           };
+bool    MDataChange::getForFiling()        { return m_pCommon->m_pDDB->ForFiling()!=0;        };
+bool    MDataChange::getForView()          { return m_pCommon->m_pDDB->ForView()!=0;          };
+//bool    MDataChange::getForViewConstruct() { return m_pCommon->m_pDDB->ForViewConstruct()!=0; };
+bool    MDataChange::getForSnapShot()      { return m_pCommon->m_pDDB->ForSnapShot()!=0;      };
+bool    MDataChange::getForScenario()      { return m_pCommon->m_pDDB->ForScenario()!=0;      };
+bool    MDataChange::getForFileSnpScn()    { return m_pCommon->m_pDDB->ForFileSnpScn()!=0;    };
 
 //---------------------------------------------------------------------------
 //

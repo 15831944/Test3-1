@@ -1810,12 +1810,12 @@ void SpModel::BuildDataDefn_RqdProps(DataDefnBlk & DDB)
 
 static PhMask SVV_BasisMask(long Handle2)
   {
-  SV_ViewBasis VB=(SV_ViewBasis)SpPhase2(Handle2);
+  eScdSVViewBasis VB=(eScdSVViewBasis)SpPhase2(Handle2);
   int          s=SpIndex2(Handle2);
   PhMask  M=SVI.Img(s)->ViewBasisMask(VB);
 
 
-  return SVI.Img(SpIndex2(Handle2))->ViewBasisMask((SV_ViewBasis)SpPhase2(Handle2));
+  return SVI.Img(SpIndex2(Handle2))->ViewBasisMask((eScdSVViewBasis)SpPhase2(Handle2));
   };
 
 // --------------------------------------------------------------------------
@@ -1842,7 +1842,7 @@ CSpView & SpModel::WhichView(eSVForce Force)
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetView(SV_View View, eSVForce Force)
+void SpModel::SetView(eScdSVView View, eSVForce Force)
   {
   WhichView(Force).m_iView = View;
   StructureChanged(this);
@@ -1850,7 +1850,7 @@ void SpModel::SetView(SV_View View, eSVForce Force)
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetViewBasis(SV_ViewBasis ViewBasis, eSVForce Force)
+void SpModel::SetViewBasis(eScdSVViewBasis ViewBasis, eSVForce Force)
   {
   WhichView(Force).m_iViewBasis = ViewBasis;
   StructureChanged(this);
@@ -1878,7 +1878,7 @@ void SpModel::AddSpView(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlk
 
 // --------------------------------------------------------------------------
 
-void SpModel::AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlks, SV_View RqdVw, DDEF_Flags Flags)
+void SpModel::AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlks, eScdSVView RqdVw, DDEF_Flags Flags)
   {
   //DDBValueLstMem DDB0;
   //DDB0.Empty();
@@ -2019,8 +2019,8 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
     }
 
   // Get Current View Reqd
-  SV_View       iView       = GetView();
-  SV_ViewBasis  iViewBasis  = GetViewBasis();
+  eScdSVView       iView       = GetView();
+  eScdSVViewBasis  iViewBasis  = GetViewBasis();
   if (DDB.ForFileSnpScn())
     {
     // switch view to file equivalent
@@ -2062,13 +2062,13 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
 
   for (iBlk=iBlk0; iBlk<iBlkN; iBlk++)
     {
-    SV_View  RqdVw=Blks[iBlk].m_iView;
+    eScdSVView  RqdVw=Blks[iBlk].m_iView;
     flag     AsParms=Blks[iBlk].m_bAsParm;
     flag     IsRoot=Blks[iBlk].m_bIsRoot;
     flag     ForView=(iView==RqdVw);
     const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
-    SV_ViewBasis iBasis0=SVVB_All;
-    SV_ViewBasis iBasisN=SVVB_All;
+    eScdSVViewBasis iBasis0=SVVB_All;
+    eScdSVViewBasis iBasisN=SVVB_All;
 
     if (((sm_SpVarsAvail|m_SpVarsAvail) & Blks[iBlk].m_VAMsk)==0)
       continue;
@@ -2087,7 +2087,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
       {
       if (RqdVw!=iView)
         continue;
-      for (SV_ViewBasis ii=iBasis0; ii<=iBasisN; ii++)
+      for (eScdSVViewBasis ii=iBasis0; ii<=iBasisN; ii++)
         if (ViewInfo.m_Basis[ii].m_Basis==iViewBasis)
           {
           iBasis0=ii;
@@ -2213,9 +2213,9 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
         {
         const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
 
-        for (SV_ViewBasis ii=iBasis0; ii<=iBasisN; ii++)
+        for (eScdSVViewBasis ii=iBasis0; ii<=iBasisN; ii++)
           {
-          SV_ViewBasis RqdVwBasis=ViewInfo.m_Basis[ii].m_Basis;
+          eScdSVViewBasis RqdVwBasis=ViewInfo.m_Basis[ii].m_Basis;
           //const CSV_ViewCnv * Cnv=SpViewCnv(ii, RqdVwBasis, );
           byte LPh=GetViewBasis(DDB.ForFiling()?SVForce_Lcl:SVForce_None);
           Strng Ttl(ViewInfo.Nm);
@@ -2522,7 +2522,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
 
   if (m_bMassInUseOK && !DDB.ForView() && (m_MassInUse.GetSize()>0 || DDB.DoingPutData()))
     {
-    SV_View  RqdVw=Blks[iViewBlk].m_iView;
+    eScdSVView  RqdVw=Blks[iViewBlk].m_iView;
     const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
 
     Strng Class("SpUsage");
@@ -2565,27 +2565,27 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
       return 1;
     case xidSMView:
       if (DCB.rB)
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
       DCB.B=GetView(DCB.ForFiling()?SVForce_Lcl:SVForce_None);
       return 1;
     case xidSMViewL:
       if (DCB.rB)
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
       DCB.B=GetView(SVForce_Lcl);
       return 1;
     case xidSMViewG:
       if (DCB.rB)
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
       DCB.B=GetView(SVForce_Glbl);
       return 1;
     case xidSMViewBasisMass:
       if (DCB.rB)
-        SetViewBasis(SV_ViewBasis(*DCB.rB));
+        SetViewBasis(eScdSVViewBasis(*DCB.rB));
       DCB.B=GetViewBasis(DCB.ForFiling()?SVForce_Lcl:SVForce_None);
       return 1;
     case xidSMViewBasisElem:
       if (DCB.rB)
-        SetViewBasis(SV_ViewBasis(*DCB.rB));
+        SetViewBasis(eScdSVViewBasis(*DCB.rB));
       DCB.B=GetViewBasis(DCB.ForFiling()?SVForce_Lcl:SVForce_None);
       return 1;
 
@@ -2784,8 +2784,8 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                 else
                   M=GEZ(M);
                 ASSERT(s<MaxSpecies);
-                SV_View       RqdVw = (SV_View)(DCB.lHandle-xidSpFirst);
-                SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
+                eScdSVView       RqdVw = (eScdSVView)(DCB.lHandle-xidSpFirst);
+                eScdSVViewBasis  RqdBasis = (eScdSVViewBasis)SpPhase2(DCB.lHandle2);
                 SetCfgImage(DCB, RqdVw, RqdBasis, s, fabs(M) / (m_dMassScale>0.0?m_dMassScale:1.0));
                 }
               }
@@ -2839,8 +2839,8 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                   SetDataSign((int)Sign(M));
                 else
                   M=GEZ(M);
-                SV_View       RqdVw = (SV_View)(DCB.lHandle-xidSpFirst);
-                SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
+                eScdSVView       RqdVw = (eScdSVView)(DCB.lHandle-xidSpFirst);
+                eScdSVViewBasis  RqdBasis = (eScdSVViewBasis)SpPhase2(DCB.lHandle2);
                 SetCfgImage(DCB, RqdVw, RqdBasis, s, M);
                 }
               }
@@ -2872,7 +2872,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
           case xidSpElemConc25:
             {
             int e=SpIndex2(DCB.lHandle2);
-            SV_ViewBasis VB=(SV_ViewBasis)SpPhase2(DCB.lHandle2);
+            eScdSVViewBasis VB=(eScdSVViewBasis)SpPhase2(DCB.lHandle2);
             PhMask PhM=som_ALL;
             switch (VB)
               {
@@ -2911,7 +2911,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
           case xidSpCompConc25:
             {
             int c=SpIndex2(DCB.lHandle2);
-            SV_ViewBasis VB=(SV_ViewBasis)SpPhase2(DCB.lHandle2);
+            eScdSVViewBasis VB=(eScdSVViewBasis)SpPhase2(DCB.lHandle2);
             PhMask PhM=som_ALL;
             switch (VB)
               {
@@ -2977,8 +2977,8 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
           else
             {
             double A = Valid(*DCB.rD) ? *DCB.rD : 0.0;
-            SV_View       RqdVw = (SV_View)(DCB.lHandle-xidAttrViews);
-            SV_ViewBasis  RqdBasis = (SV_ViewBasis)SpPhase2(DCB.lHandle2);
+            eScdSVView       RqdVw = (eScdSVView)(DCB.lHandle-xidAttrViews);
+            eScdSVViewBasis  RqdBasis = (eScdSVViewBasis)SpPhase2(DCB.lHandle2);
             SetCfgImage(DCB, RqdVw, RqdBasis, a, A);
             }
           }
@@ -2992,7 +2992,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetCfgImage(DataChangeBlk & DCB, SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value)
+void SpModel::SetCfgImage(DataChangeBlk & DCB, eScdSVView SetView, eScdSVViewBasis ViewBasis, int Index, double Value)
   {
   if (!m_bCfgImgSet)//m_iSetView!=SetView)
     {
@@ -4331,7 +4331,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     {
     case xidSMUsage:
       if (DCB.rB)
-        SetUsage(SpMdlUsage(*DCB.rB));
+        SetUsage(eScdSpMdlUsage(*DCB.rB));
       DCB.B=m_iUsage;
       return 1;
     case xidSMPress:
@@ -4371,7 +4371,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMView:
       if (DCB.rB)
         {
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
         //byte b=GetViewBasis(DCB.ForFiling()?SVForce_Lcl:SVForce_None);
 
         }
@@ -4380,7 +4380,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMViewL:
       if (DCB.rB)
         {
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
         //byte b=GetViewBasis(DCB.ForFiling());
         }
       DCB.B=GetView(SVForce_Lcl);
@@ -4388,19 +4388,19 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMViewG:
       if (DCB.rB)
         {
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
         //byte b=GetViewBasis(DCB.ForFiling());
         }
       DCB.B=GetView(SVForce_Glbl);
       return 1;
     case xidSMViewBasisMass:
       if (DCB.rB)
-        SetViewBasis(SV_ViewBasis(*DCB.rB));// ? SVVB_Phase : SVVB_All);
+        SetViewBasis(eScdSVViewBasis(*DCB.rB));// ? SVVB_Phase : SVVB_All);
       DCB.B=GetViewBasis(DCB.ForFiling()?SVForce_Lcl:SVForce_None);//==SVVB_Phase;
       return 1;
     case xidSMViewBasisElem:
       if (DCB.rB)
-        SetViewBasis(SV_ViewBasis(*DCB.rB));
+        SetViewBasis(eScdSVViewBasis(*DCB.rB));
       DCB.B=GetViewBasis(DCB.ForFiling()?SVForce_Lcl:SVForce_None);
       return 1;
 

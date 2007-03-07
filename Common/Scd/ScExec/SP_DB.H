@@ -1701,7 +1701,7 @@ const byte SVOP_Mole = 2;
 const byte SVOP_Vol  = 3;
 const byte SVOP_NVol = 4;
 
-inline SV_ViewBasis operator++( SV_ViewBasis &b, int ) { return b = (SV_ViewBasis )(b + 1); }
+inline eScdSVViewBasis operator++( eScdSVViewBasis &b, int ) { return b = (eScdSVViewBasis )(b + 1); }
 
 extern DllImportExport const LPCTSTR SV_ViewStr[];
 extern DllImportExport const LPCTSTR SV_ViewBasisStr[];
@@ -1773,7 +1773,7 @@ struct CSV_ViewCnv
   };
 struct CSV_ViewBasis
 {
-  SV_ViewBasis    m_Basis;
+  eScdSVViewBasis    m_Basis;
   char          * m_Txt;
   };
 struct CSV_ViewInfo
@@ -1842,11 +1842,11 @@ class DllImportExport CSysVecItem
     bool                PhaseIs(PhMask PhM)             { return (PhaseMask() & PhM)!=0; };
     bool                OccIs(PhMask PhM)               { return (OccMask() & PhM)!=0; };
 
-    CSV_ViewCnv       * ViewBasisCnv(SV_View w, SV_ViewBasis Ph);
-    PhMask              ViewBasisMask(SV_ViewBasis Ph);
-    LPCSTR              ViewBasisName(SV_ViewBasis Ph);
-    long                ViewBasisEditable(SV_View Vw, SV_ViewBasis Ph);
-    long                ViewBasisUsed(SV_ViewBasis Ph);
+    CSV_ViewCnv       * ViewBasisCnv(eScdSVView w, eScdSVViewBasis Ph);
+    PhMask              ViewBasisMask(eScdSVViewBasis Ph);
+    LPCSTR              ViewBasisName(eScdSVViewBasis Ph);
+    long                ViewBasisEditable(eScdSVView Vw, eScdSVViewBasis Ph);
+    long                ViewBasisUsed(eScdSVViewBasis Ph);
 
     LPCSTR              FnString()                      { return m_sFormula(); };
     bool                FnIsSpcsSum()                   { return m_bIsSpcsSum; };

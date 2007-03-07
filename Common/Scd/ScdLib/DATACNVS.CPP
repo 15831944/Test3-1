@@ -612,8 +612,8 @@ void CCnvsMngr::Init()
     DC_TimeStr  = AddSI("TimeStr"  , "s"          , "TimeString"                    ,    0.0 ,         3600.0, false);
     DC_dTimeStr = AddSI("dTimeStr" , "s"          , "dTimeString"                   ,    0.0 ,         3600.0, false);
 
-    DC_Money      = AddSI("Money"      , "Base$"      , "Money in Base$"                ,    0.0 ,         1000.0, false);
-    DC_MoneyFlow  = AddSI("MoneyFlow"  , "Base$/s"    , "Money Flow in Base$/s"         ,    0.0 ,         1000.0, false);
+    DC_Money      = AddSI("Money"      , "Base"      , "Money in Base"                ,    0.0 ,         1000.0, false);
+    DC_MoneyFlow  = AddSI("MoneyFlow"  , "Base/s"    , "Money Flow in Base/s"         ,    0.0 ,         1000.0, false);
 
     //NB: ensure new cnvs are added to SMDK (md_share2.h and md_defn.cpp)!
 

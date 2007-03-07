@@ -12,54 +12,6 @@
 //
 //===========================================================================
 
-//class CLimnStream 
-//  {
-//  public:
-//	  CLimnStream();
-//	  ~CLimnStream();
-//
-//    long           OreSGCount()                  { return m_nOreSG; }
-//    long           OreSzCount()                  { return m_nOreSz; }
-//    long           DmdSzCount()                  { return m_nDmdSz; }
-//
-//    double         OreSGStart(int Interval)       { return gs_LimnGlbl.m_OreSG[Interval].m_Start; };
-//    double         OreSGEnd(int Interval)         { return gs_LimnGlbl.m_OreSG[Interval].m_End;   };
-//    double         OreSGMean(int Interval)        { return gs_LimnGlbl.m_OreSG[Interval].m_Mean;  };
-//    LPCTSTR        OreSGText(int Interval)        { return gs_LimnGlbl.m_OreSG[Interval].m_Text;  };
-//
-//    double         OreSzStart(int Interval)       { return gs_LimnGlbl.m_OreSz[Interval].m_Start; };
-//    double         OreSzEnd(int Interval)         { return gs_LimnGlbl.m_OreSz[Interval].m_End;   };
-//    double         OreSzMean(int Interval)        { return gs_LimnGlbl.m_OreSz[Interval].m_Mean;  };
-//    LPCTSTR        OreSzText(int Interval)        { return gs_LimnGlbl.m_OreSz[Interval].m_Text;  };
-//   
-//    double         DmdSzStart(int Interval)       { return gs_LimnGlbl.m_DmdSz[Interval].m_Start; };
-//    double         DmdSzEnd(int Interval)         { return gs_LimnGlbl.m_DmdSz[Interval].m_End;   };
-//    double         DmdSzMean(int Interval)        { return gs_LimnGlbl.m_DmdSz[Interval].m_Mean;  };
-//    LPCTSTR        DmdSzText(int Interval)        { return gs_LimnGlbl.m_DmdSz[Interval].m_Text;  };
-//
-//    double       & OreMass(int iSg, int iOreSz)                 { return m_OreMass[iSg*m_nOreSz+iOreSz];  };
-//    double       & DmdMass(int iSg, int iOreSz, int iDmdSz)     { return m_DmdMass[(iSg*m_nOreSz+iOreSz)*m_nDmdSz+iDmdSz];  };
-//
-//    double       * OreMassArray()                 { return &m_OreMass[0];  };
-//    double       * DmdMassArray()                 { return &m_DmdMass[0];  };
-//
-//
-//    void           Dump();
-//
-//  protected:
-//    long           m_nOreSG; // copied from Defn for speed
-//    long           m_nOreSz; // copied from Defn for speed
-//    long           m_nDmdSz;// copied from Defn for speed
-//    CArray<double, double&> m_OreMass;
-//    CArray<double, double&> m_DmdMass;
-//
-//
-//  };
-
-//===========================================================================
-//
-//===========================================================================
-
 DEFINE_SPECIEQUALITY(CLimnStream)
 
 class CLimnStream : public MSpQualityBase
@@ -191,13 +143,10 @@ class CLimnStream : public MSpQualityBase
     CFeed                 * m_pFeed;
 
     CArray<double, double&> m_Results;
-    //long             m_iSource;
-    //CString          m_sSrcName;
-    //CArray<double, double> m_DmdSGFeed;
-    //CArray<double, double> m_DmdSizeFeed;
-    //CArray<double, double> m_OreSizeFeed;
-    //CArray<double, double> m_Densimetrics;
 
+    static CString          sm_sBaseTag;
+    static double           sm_BaseCarats;
+    static double           sm_BaseRevenue;
   };
 
 //===========================================================================

@@ -200,13 +200,13 @@ class DllImportExport SpConduit : public SpModelOwner
     __declspec(property(get=getVCalc))                          double VCalc[];
     __declspec(property(get=getVPtr))                           double *VPtr[];
 
-    void           SetUsage(SpMdlUsage What)                                                              { pModel->SetUsage(What); };
-    SpMdlUsage     Usage()                                                                                { return pModel->Usage(); };
+    void           SetUsage(eScdSpMdlUsage What)                                                              { pModel->SetUsage(What); };
+    eScdSpMdlUsage Usage()                                                                                { return pModel->Usage(); };
 
-    void           SetView(SV_View View)                                                                  { pModel->SetView(View); };
-    SV_View        GetView()                                                                              { return pModel->GetView(); };
-    void           SetViewBasis(SV_ViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
-    SV_ViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
+    void           SetView(eScdSVView View)                                                                  { pModel->SetView(View); };
+    eScdSVView        GetView()                                                                              { return pModel->GetView(); };
+    void           SetViewBasis(eScdSVViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
+    eScdSVViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
     long           GenVarsAvail()                                                                         { return pModel->GenVarsAvail(); };
     long           SpVarsAvail()                                                                          { return pModel->SpVarsAvail(); };
 
@@ -796,8 +796,8 @@ class DllImportExport SpContainer : public SpModelOwner
     void           ClrModified()                { pModel->ClrModified(); };
 
 
-    void           SetUsage(SpMdlUsage What)                                                              { pModel->SetUsage(What); };
-    SpMdlUsage     Usage()                                                                                { return pModel->Usage(); };
+    void           SetUsage(eScdSpMdlUsage What)                                                              { pModel->SetUsage(What); };
+    eScdSpMdlUsage Usage()                                                                                { return pModel->Usage(); };
 
     void           SetSQFlags(byte Flags, flag On)                                                        { pModel->SetSQFlags(Flags, On); }
     flag           SQFlagsSet(byte Flags)                                                                 { return pModel->SQFlagsSet(Flags); }
@@ -807,10 +807,10 @@ class DllImportExport SpContainer : public SpModelOwner
     void           KillQuality(int No)                                                                    { pModel->QualityRemove(No);};
     void           SetQualityHoldCopy(int No, flag On)                                                    { SpQuality * p=FindQuality(No); if (p) p->SetHoldCopy(On); }; 
 
-    void           SetView(SV_View View)                                                                  { pModel->SetView(View); };
-    SV_View        GetView()                                                                              { return pModel->GetView(); };
-    void           SetViewBasis(SV_ViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
-    SV_ViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
+    void           SetView(eScdSVView View)                                                                  { pModel->SetView(View); };
+    eScdSVView        GetView()                                                                              { return pModel->GetView(); };
+    void           SetViewBasis(eScdSVViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
+    eScdSVViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
     long           GenVarsAvail()                                                                         { return pModel->GenVarsAvail(); };
     long           SpVarsAvail()                                                                          { return pModel->SpVarsAvail(); };
 
@@ -1213,13 +1213,13 @@ class DllImportExport SpImage : public SpModelOwner
     __declspec(property(get=getVCalc))                          double VCalc[];
     __declspec(property(get=getVPtr))                           double *VPtr[];
 
-    void           SetUsage(SpMdlUsage What)                                                              { pModel->SetUsage(What); };
-    SpMdlUsage     Usage()                                                                                { return pModel->Usage(); };
+    void           SetUsage(eScdSpMdlUsage What)                                                              { pModel->SetUsage(What); };
+    eScdSpMdlUsage Usage()                                                                                { return pModel->Usage(); };
 
-    void           SetView(SV_View View)                                                                  { pModel->SetView(View); };
-    SV_View        GetView()                                                                              { return pModel->GetView(); };
-    void           SetViewBasis(SV_ViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
-    SV_ViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
+    void           SetView(eScdSVView View)                                                                  { pModel->SetView(View); };
+    eScdSVView        GetView()                                                                              { return pModel->GetView(); };
+    void           SetViewBasis(eScdSVViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
+    eScdSVViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
     long           GenVarsAvail()                                                                         { return pModel->GenVarsAvail(); };
     long           SpVarsAvail()                                                                          { return pModel->SpVarsAvail(); };
 
@@ -1439,8 +1439,8 @@ class DllImportExport SpVectorObj : public TaggedObject
   //DEFINE_SPARES(SpVectorObj);
 
   protected:
-    SV_View        iView;
-    SV_ViewBasis   iViewBasis;
+    eScdSVView        iView;
+    eScdSVViewBasis   iViewBasis;
   public :
     SpVector       M;
 
@@ -1455,10 +1455,10 @@ class DllImportExport SpVectorObj : public TaggedObject
     virtual flag   GetOtherData(FilingControlBlock &FCB);
     virtual flag   PutOtherData(FilingControlBlock &FCB);
 
-    void           SetView(SV_View View) { iView=View; };
-    SV_View        GetView() { return iView; };
-    void           SetViewBasis(SV_ViewBasis ViewBasis) { iViewBasis=ViewBasis; };
-    SV_ViewBasis   GetViewBasis() { return iViewBasis; };
+    void           SetView(eScdSVView View) { iView=View; };
+    eScdSVView        GetView() { return iView; };
+    void           SetViewBasis(eScdSVViewBasis ViewBasis) { iViewBasis=ViewBasis; };
+    eScdSVViewBasis   GetViewBasis() { return iViewBasis; };
 
   };
 

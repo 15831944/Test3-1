@@ -180,7 +180,7 @@ class DllImportExport CSzSSA : public SpQuality, public MISSA
 //
 //    // Local Quality
 //
-//    virtual void   BuildDataDefn_PartSize(DataDefnBlk & DDB, SV_View View);
+//    virtual void   BuildDataDefn_PartSize(DataDefnBlk & DDB, eScdSVView View);
 //    virtual flag   DataXchg(DataChangeBlk & DCB);
 ////    virtual flag   ValidateData(ValidateDataBlk & VDB)=0;
 //

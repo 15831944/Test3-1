@@ -169,7 +169,7 @@ class CDiamondWizardConfiguration : public CObject
     bool                    UseLimnScaling()                                   { return false;  }  // needs work
   protected:
     int                     liberatedDiamondIndex( int iDSz, int iOSz    )     { return iDSz*m_numOreSizes + iOSz; }
-    int                     lockedParticleIndex( int iDSz, int iOSz, int iSG ) { return iDSz*m_numDiamondSizes + iOSz*m_numOreSizes + iSG; }
+    int                     lockedParticleIndex( int iDSz, int iOSz, int iSG ) { return iDSz*m_numOreSizes*m_numSGs + iOSz*m_numSGs + iSG; }
   	int	                  	referenceDensimetricIndex( int iOSz, int iSG )     { return iOSz*m_numSGs + iSG ; }
     // 
     // Data

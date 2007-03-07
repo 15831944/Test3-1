@@ -6008,28 +6008,28 @@ byte SVOperatorsXID(XID xid)
   return SVOP_;
   };
 
-CSV_ViewCnv * CSysVecItem::ViewBasisCnv(SV_View Vw, SV_ViewBasis Ph)
+CSV_ViewCnv * CSysVecItem::ViewBasisCnv(eScdSVView Vw, eScdSVViewBasis Ph)
   {
   if (gs_ViewInfo[Vw].m_IsFrac)
     return gs_ViewInfo[Vw].Cnvs[m_ViewBasisRules[Ph].m_iSpVwMaskIndex];
   return gs_ViewInfo[Vw].Cnvs[0];
   };
 
-PhMask CSysVecItem::ViewBasisMask(SV_ViewBasis Ph)
+PhMask CSysVecItem::ViewBasisMask(eScdSVViewBasis Ph)
   {
   return CSysVecInfo::SpVwPhMask(m_ViewBasisRules[Ph].m_iSpVwMaskIndex);
   };
-LPCSTR CSysVecItem::ViewBasisName(SV_ViewBasis Ph)
+LPCSTR CSysVecItem::ViewBasisName(eScdSVViewBasis Ph)
   {
   return CSysVecInfo::SpVwPhMaskName(m_ViewBasisRules[Ph].m_iSpVwMaskIndex);
   };
-long CSysVecItem::ViewBasisEditable(SV_View Vw, SV_ViewBasis Ph)
+long CSysVecItem::ViewBasisEditable(eScdSVView Vw, eScdSVViewBasis Ph)
   {
   if (gs_ViewInfo[Vw].m_IsFrac)
     return m_ViewBasisRules[Ph].m_bEditable;
   return true;
   };
-long CSysVecItem::ViewBasisUsed(SV_ViewBasis Ph)
+long CSysVecItem::ViewBasisUsed(eScdSVViewBasis Ph)
   {
   return m_ViewBasisRules[Ph].m_bUsed;
   };
@@ -8555,7 +8555,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
         CSysVecItemTypeNm[p->m_eType], p->CfgIndex(), p->SVIndex(), p->TypeIndex(), m_ChildCount[p->SVIndex()], p->Level(),
         p->OccMask(), p->PhaseMask());
 
-      for (SV_ViewBasis b=SVVB_Start; b<SVVB_End; b++)
+      for (eScdSVViewBasis b=SVVB_Start; b<SVVB_End; b++)
         {
         dbgp("|%s%s%2i %-4s %#010x ",
               p->ViewBasisUsed(b)?"U":" ",

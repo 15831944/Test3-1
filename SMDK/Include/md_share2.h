@@ -410,8 +410,8 @@ extern DllImportExport MCnv MC_Humidity ; //Specific Humidity       : kg(l)/kg(v
 extern DllImportExport MCnv MC_Accel    ; //Acceleration            : m/s^2
 extern DllImportExport MCnv MC_ThermDiff; //Thermal Diffusivity     : m^2/s
 
-extern DllImportExport MCnv MC_Money    ; //Money                   : Base$
-extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base$/s
+extern DllImportExport MCnv MC_Money    ; //Money                   : Base
+extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base/s
 
 
 class DllImportExport MCnvs

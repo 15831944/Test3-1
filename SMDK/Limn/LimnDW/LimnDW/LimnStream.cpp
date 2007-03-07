@@ -124,13 +124,17 @@ const int idx_WaterFlow         = 7;
 const int idx_SolidsFrac        = 8;
 const int idx_PulpSG            = 9;
 const int idx_FeSiFlow          = 10;
-const int idx_DiamondRate       = 11;
+const int idx_DiamondFlow       = 11;
 const int idx_DiamondAssay      = 12;
 const int idx_LiberatedFlow     = 13;
 const int idx_RelativeDiamonds  = 14;
 const int idx_LiberatedFraction = 15;
 const int idx_RelativeRevenue   = 16;
-const int idx_RevenueFlow       = 17;
+const int idx_Revenue           = 17;
+const int idx_BaseTag           = 18; 
+const int idx_BaseMark          = 19; 
+const int idx_BaseDiamondFlow   = 20; 
+const int idx_BaseRevenue       = 21; 
 
 const int idx_CopySummary       = 100;
 const int idx_CopyMass          = 101;
@@ -140,32 +144,43 @@ const int idx_Source            = 104;
 const int idx_SrcName           = 105;
 const int idx_SrcLoad           = 106;
 
+CString CLimnStream::sm_sBaseTag;
+double  CLimnStream::sm_BaseCarats;
+double  CLimnStream::sm_BaseRevenue;
 
 void CLimnStream::BuildDataFields()
   { 
   //DD.Double();
   DD.Page("Limn", false);
   DD.Text("");
-  DD.Text("Calculated Values ...");
+  if (Usage==SPMU_Flow)
+    {
+    DD.Text("Calculated Values ...");
 
-  DD.Double("OreSolidsFlow",                   "", idx_OreSolidsFlow      , MF_RESULT, MC_Qm("t/h")); 
-  DD.Double(gs_DWCfg.PassSizePercentsText(0),  "", idx_PassingSize0       , MF_RESULT, MC_L("mm")); 
-  DD.Double(gs_DWCfg.PassSizePercentsText(1),  "", idx_PassingSize1       , MF_RESULT, MC_L("mm")); 
-  DD.Double(gs_DWCfg.PassSizePercentsText(2),  "", idx_PassingSize2       , MF_RESULT, MC_L("mm")); 
-  DD.Double("MeanSG",                          "", idx_MeanSG             , MF_RESULT, MC_Rho("t/m^3")); 
-  DD.Double("MeanSize",                        "", idx_MeanSize           , MF_RESULT, MC_L("mm")); 
-  DD.Double("WaterFlow",                       "", idx_WaterFlow          , MF_RESULT, MC_Qm("t/h")); 
-  DD.Double("SolidsFrac",                      "", idx_SolidsFrac         , MF_RESULT, MC_Frac("%")); 
-  DD.Double("PulpSG",                          "", idx_PulpSG             , MF_RESULT, MC_Rho("t/m^3")); 
-  DD.Double("FeSiFlow",                        "", idx_FeSiFlow           , MF_RESULT, MC_Qm("t/h")); 
-  DD.Double("DiamondRate",                     "", idx_DiamondRate        , MF_RESULT, MC_Qm("Carat/h")); 
-  DD.Double("DiamondAssay",                    "", idx_DiamondAssay       , MF_RESULT, MC_Assay("Carat/100t")); 
-  DD.Double("LiberatedFlow",                   "", idx_LiberatedFlow      , MF_RESULT, MC_Qm("Carat/h")); 
-  DD.Double("RelativeDiamonds",                "", idx_RelativeDiamonds   , MF_RESULT, MC_Frac("%")); 
-  DD.Double("LiberatedFraction",               "", idx_LiberatedFraction  , MF_RESULT, MC_Frac("%")); 
-  DD.Double("RelativeRevenue",                 "", idx_RelativeRevenue    , MF_RESULT, MC_Frac("%")); 
-  DD.Double("RevenueFlow",                     "", idx_RevenueFlow        , MF_RESULT, MC_MoneyFlow("R/h")); 
-  
+    DD.Double("OreSolidsFlow",                   "", idx_OreSolidsFlow      , MF_RESULT, MC_Qm("t/h")); 
+    DD.Double(gs_DWCfg.PassSizePercentsText(0),  "", idx_PassingSize0       , MF_RESULT, MC_L("mm")); 
+    DD.Double(gs_DWCfg.PassSizePercentsText(1),  "", idx_PassingSize1       , MF_RESULT, MC_L("mm")); 
+    DD.Double(gs_DWCfg.PassSizePercentsText(2),  "", idx_PassingSize2       , MF_RESULT, MC_L("mm")); 
+    DD.Double("MeanSG",                          "", idx_MeanSG             , MF_RESULT, MC_Rho("t/m^3")); 
+    DD.Double("MeanSize",                        "", idx_MeanSize           , MF_RESULT, MC_L("mm")); 
+    DD.Double("WaterFlow",                       "", idx_WaterFlow          , MF_RESULT, MC_Qm("t/h")); 
+    DD.Double("SolidsFrac",                      "", idx_SolidsFrac         , MF_RESULT, MC_Frac("%")); 
+    DD.Double("PulpSG",                          "", idx_PulpSG             , MF_RESULT, MC_Rho("t/m^3")); 
+    DD.Double("FeSiFlow",                        "", idx_FeSiFlow           , MF_RESULT, MC_Qm("t/h")); 
+    DD.Double("DiamondFlow",                     "", idx_DiamondFlow        , MF_RESULT, MC_Qm("Carat/h")); 
+    DD.Double("DiamondAssay",                    "", idx_DiamondAssay       , MF_RESULT, MC_Assay("Carat/100t")); 
+    DD.Double("LiberatedFlow",                   "", idx_LiberatedFlow      , MF_RESULT, MC_Qm("Carat/h")); 
+    DD.Double("RelativeDiamonds",                "", idx_RelativeDiamonds   , MF_RESULT, MC_Frac("%")); 
+    DD.Double("LiberatedFraction",               "", idx_LiberatedFraction  , MF_RESULT, MC_Frac("%")); 
+    DD.Double("RelativeRevenue",                 "", idx_RelativeRevenue    , MF_RESULT, MC_Frac("%")); 
+    DD.Double("Revenue",                         "", idx_Revenue            , MF_RESULT, MC_MoneyFlow("R/h")); 
+    DD.CheckBox("MarkAsBase",                    "", idx_BaseMark           , MF_PARAMETER); 
+    DD.String("BaseTag",                         "", idx_BaseTag            , MF_RESULT); 
+
+    DD.Double("BaseDiamondFlow",                 "", idx_BaseDiamondFlow    , MF_RESULT, MC_Qm("Carat/h")); 
+    DD.Double("BaseRevenue",                     "", idx_BaseRevenue        , MF_RESULT, MC_MoneyFlow("R/h")); 
+
+    }    
   //Relative Carats
   //% Liberated  
   //Relative Revenue  
@@ -173,52 +188,57 @@ void CLimnStream::BuildDataFields()
 
 
 
-  DD.Text("");
-  DD.Text("Copy to Clipboard ...");
-  DD.Button("Summary",                  "", idx_CopySummary);
-  DD.Button("Data as Mass",             "", idx_CopyMass);
-  DD.Button("Data as Fractional",       "", idx_CopyFractional);
-
-  DD.Text("");
-  DD.Text("Options ...");
-  DD.CheckBox("Calculator",             "",  idx_Calculate, MF_PARAMETER|MF_SET_ON_CHANGE);
-  if (m_bCalculate && m_pFeed)
+  if (Usage==SPMU_Flow)
     {
-    static MDDValueLst DDSource[]=
-      {
-      {0,  "CSV"},
-      {1,  "XLS"},
-      {0}
-      };
-    
-    DD.Long("Source",     "",  idx_Source, MF_PARAMETER, DDSource);
-    DD.String("SrcName",  "",  idx_SrcName, MF_PARAMETER);
-    DD.Button("SrcLoad",  "",  idx_SrcLoad, MF_PARAMETER);
+    DD.Text("");
+    DD.Text("Copy to Clipboard ...");
+    DD.Button("Summary",                  "", idx_CopySummary);
+    DD.Button("Data as Mass",             "", idx_CopyMass);
+    DD.Button("Data as Fractional",       "", idx_CopyFractional);
+    }
 
-    DD.Page("...", false);
-    DD.ObjectBegin("LimnDW_Fd",  "OreSizeFeed",  gs_DWCfg.nOreSizes()       );
-    CString Tg;
-    for (int i=0; i<gs_DWCfg.nOreSizes(); i++)
+  if (Usage==SPMU_Image)
+    {
+    DD.Text("");
+    DD.Text("Options ...");
+    DD.CheckBox("Calculator",             "",  idx_Calculate, MF_PARAMETER|MF_SET_ON_CHANGE);
+    if (m_bCalculate && m_pFeed)
       {
-      Tg.Format("Ore%s",gs_DWCfg.OreSizeText(i));
-      DD.Double(Tg, "", &m_pFeed->m_OreSizeFeed[i], gs_DWCfg.nOreSizes()-1?MF_PARAMETER:0, MC_Frac("%"));
+      static MDDValueLst DDSource[]=
+        {
+          {0,  "CSV"},
+          {1,  "XLS"},
+          {0}
+        };
+
+      DD.Long("Source",     "",  idx_Source, MF_PARAMETER, DDSource);
+      DD.String("SrcName",  "",  idx_SrcName, MF_PARAMETER);
+      DD.Button("SrcLoad",  "",  idx_SrcLoad, MF_PARAMETER);
+
+      DD.Page("...", true);
+      DD.ObjectBegin("LimnDW_Fd",  "OreSizeFeed",  gs_DWCfg.nOreSizes()       );
+      CString Tg;
+      for (int i=0; i<gs_DWCfg.nOreSizes(); i++)
+        {
+        Tg.Format("Ore%s",gs_DWCfg.OreSizeText(i));
+        DD.Double(Tg, "", &m_pFeed->m_OreSizeFeed[i], gs_DWCfg.nOreSizes()-1?MF_PARAMETER:0, MC_Frac("%"));
+        }
+      DD.ObjectEnd();
+      DD.ObjectBegin("LimnDW_Fd",  "DmdSizeFeed",  gs_DWCfg.nDiamondSizes()   );
+      for (int i=0; i<gs_DWCfg.nDiamondSizes(); i++)
+        {
+        Tg.Format("Dmd%s",gs_DWCfg.DiamondSizeText(i));
+        DD.Double(Tg, "", &m_pFeed->m_DmdSizeFeed[i], i<gs_DWCfg.nDiamondSizes()-1?MF_PARAMETER:0, MC_Frac("%"));
+        }
+      DD.ObjectEnd();
+      DD.ObjectBegin("LimnDW_Fd",  "DmdSGFeed",    gs_DWCfg.nSGs()            );
+      for (int i=0; i<gs_DWCfg.nSGs(); i++)
+        {
+        Tg.Format("SG-%s",gs_DWCfg.SGTextShort(i));
+        DD.Double(Tg, "", &m_pFeed->m_DmdSGFeed[i], i<gs_DWCfg.nSGs()-1?MF_PARAMETER:0, MC_Frac("%"));
+        }
+      DD.ObjectEnd();
       }
-    DD.ObjectEnd();
-    DD.ObjectBegin("LimnDW_Fd",  "DmdSizeFeed",  gs_DWCfg.nDiamondSizes()   );
-    for (int i=0; i<gs_DWCfg.nDiamondSizes(); i++)
-      {
-      Tg.Format("Dmd%s",gs_DWCfg.DiamondSizeText(i));
-      DD.Double(Tg, "", &m_pFeed->m_DmdSizeFeed[i], i<gs_DWCfg.nDiamondSizes()-1?MF_PARAMETER:0, MC_Frac("%"));
-      }
-    DD.ObjectEnd();
-    DD.ObjectBegin("LimnDW_Fd",  "DmdSGFeed",    gs_DWCfg.nSGs()            );
-    for (int i=0; i<gs_DWCfg.nSGs(); i++)
-      {
-      Tg.Format("SG-%s",gs_DWCfg.SGTextShort(i));
-      DD.Double(Tg, "", &m_pFeed->m_DmdSGFeed[i], i<gs_DWCfg.nSGs()-1?MF_PARAMETER:0, MC_Frac("%"));
-      }
-    DD.ObjectEnd();
-    
     }
   };              
 
@@ -234,12 +254,29 @@ double CLimnStream::GetResult(int iResult)
     ConvertToMassForm(Vector);
 	  int xx=StreamSummaryCalculation(&m_Results[0], 
 						                    	  &m_Data[0], 
-                                    100, // TODO 
-							                      100, // TODO 
+                                    sm_BaseRevenue,
+                                    sm_BaseCarats, 
                                     &gs_DWCfg) ;
     ConvertToFracForm(Vector);
 
     SetStateValid();
+
+    if (sm_sBaseTag.CompareNoCase(Tag)==0)
+      {
+      sm_BaseCarats=GetResult(10);
+      sm_BaseRevenue=GetResult(16);
+
+      // Recalculate
+      ConvertToMassForm(Vector);
+	    int xx=StreamSummaryCalculation(&m_Results[0], 
+						                    	    &m_Data[0], 
+                                      sm_BaseRevenue,
+                                      sm_BaseCarats, 
+                                      &gs_DWCfg) ;
+      ConvertToFracForm(Vector);
+
+      SetStateValid();
+      }
     }
   return m_Results[iResult];
   }
@@ -260,13 +297,30 @@ bool CLimnStream::ExchangeDataFields()
     case idx_SolidsFrac         : DX.Double = GetResult(7)*0.01;                  return true;
     case idx_PulpSG             : DX.Double = GetResult(8)*1000;                  return true;
     case idx_FeSiFlow           : DX.Double = GetResult(9)/(3.6);                 return true;
-    case idx_DiamondRate        : DX.Double = GetResult(10)/(5000.0*1000*3.6);    return true;
+    case idx_DiamondFlow        : DX.Double = GetResult(10)/(5000.0*1000*3.6);    return true;
     case idx_DiamondAssay       : DX.Double = GetResult(11)*5000*1000*100;        return true;
     case idx_LiberatedFlow      : DX.Double = GetResult(12)/(5000.0*1000*3.6);    return true;
-    case idx_RelativeDiamonds   : DX.Double = GetResult(13);                      return true;
+    case idx_RelativeDiamonds   : DX.Double = GetResult(13)/100;                  return true;
     case idx_LiberatedFraction  : DX.Double = GetResult(14)*0.01;                 return true;
-    case idx_RelativeRevenue    : DX.Double = GetResult(15);                      return true;
-    case idx_RevenueFlow        : DX.Double = GetResult(16);                      return true;
+    case idx_RelativeRevenue    : DX.Double = GetResult(15)/100;                  return true;
+    case idx_Revenue            : DX.Double = GetResult(16)/3600.0;               return true;
+
+    case idx_BaseTag:
+      DX.String=sm_sBaseTag;
+      return true;
+    case idx_BaseMark:
+      if (DX.HasReqdValue)
+        {
+        if (DX.Bool)
+          sm_sBaseTag=Tag;
+        else if (DX.ForView)
+          sm_sBaseTag="";
+        }
+      DX.Bool=sm_sBaseTag.CompareNoCase(Tag)==0;
+      return true;
+
+    case idx_BaseDiamondFlow     : DX.Double = sm_BaseCarats/(5000.0*1000*3.6);    return true;
+    case idx_BaseRevenue         : DX.Double = sm_BaseRevenue/3600.0;              return true;
 
     case idx_CopySummary        : 
       {

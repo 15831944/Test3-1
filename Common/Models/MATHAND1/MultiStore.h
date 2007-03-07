@@ -81,8 +81,8 @@ class DllImportExport CMultiStore : public SpModelOwner
     virtual flag   PutOtherData(FilingControlBlock &FCB);
 
 
-    void           SetUsage(SpMdlUsage What)                                                              { pModel->SetUsage(What); };
-    SpMdlUsage     Usage()                                                                                { return pModel->Usage(); };
+    void           SetUsage(eScdSpMdlUsage What)                                                              { pModel->SetUsage(What); };
+    eScdSpMdlUsage Usage()                                                                                { return pModel->Usage(); };
 
     void           SetSQFlags(byte Flags, flag On)                                                        { pModel->SetSQFlags(Flags, On); }
     flag           SQFlagsSet(byte Flags)                                                                 { return pModel->SQFlagsSet(Flags); }
@@ -91,10 +91,10 @@ class DllImportExport CMultiStore : public SpModelOwner
     SpQuality *    CreateQuality(int No)                                                                  { return pModel->QualityPtr(No, True);};
     void           KillQuality(int No)                                                                    { pModel->QualityRemove(No);};
 
-    void           SetView(SV_View View)                                                                  { pModel->SetView(View); };
-    SV_View        GetView()                                                                              { return pModel->GetView(); };
-    void           SetViewBasis(SV_ViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
-    SV_ViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
+    void           SetView(eScdSVView View)                                                                  { pModel->SetView(View); };
+    eScdSVView        GetView()                                                                              { return pModel->GetView(); };
+    void           SetViewBasis(eScdSVViewBasis ViewBasis)                                                   { pModel->SetViewBasis(ViewBasis); };
+    eScdSVViewBasis   GetViewBasis()                                                                         { return pModel->GetViewBasis(); };
 
     virtual void   BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, size_t BlkSize)  { pModel->BuildDataDefn_Species(DDB, Blks, BlkSize); };
 

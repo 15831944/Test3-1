@@ -65,8 +65,6 @@ class CCall2MSpQuals;
 
 // ===========================================================================
 
-enum SpMdlUsage { SPMU_Null, SPMU_Mass, SPMU_Flow, SPMU_Image };
-
 const int MaxSpQualities = 16;
 
 XID xidSpShape          = SpcXID(100000);
@@ -342,7 +340,7 @@ class DllImportExport SpQuality : public TaggedObject, public CPropertyBase, pub
     SpQuality(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~SpQuality();
 
-    SpMdlUsage Usage();
+    eScdSpMdlUsage Usage();
     flag SQEditable();
     flag SQSource();
     flag SQTearSet();
@@ -499,11 +497,11 @@ class CSpView
   friend class SpModel;
   protected:
     flag         m_bOn;
-    SV_View      m_iView;
-    SV_ViewBasis m_iViewBasis;
+    eScdSVView      m_iView;
+    eScdSVViewBasis m_iViewBasis;
 
   public:
-    CSpView(SV_View View=SVV_AsMass)
+    CSpView(eScdSVView View=SVV_AsMass)
       {
       m_bOn=false;
       m_iView=View;//SVV_AsMass;
@@ -515,8 +513,8 @@ class CSpView
 // Used to setup BuildDataDefn_Species
 struct BDDSpecies_Blk
   {
-  SV_View   m_iView;
-  SV_View   m_iFileView;
+  eScdSVView   m_iView;
+  eScdSVView   m_iFileView;
   flag      m_bAsParm;
   flag      m_bIsRoot;
   long      m_VAMsk;
@@ -647,8 +645,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual bool   IsBaseClassOf(SpModel * pOther) { return (SpModel::iSpMdlMixStrategy==SPMMS_PreBld35) ? false : ((dynamic_cast<SpModel*>(pOther)) != NULL); };
     virtual SpModel * PreferredModel(SpModel * pOther) { return this ; };
 
-    void           SetUsage(SpMdlUsage As)  { m_iUsage=As; };
-    SpMdlUsage     Usage()                  { return m_iUsage; };
+    void           SetUsage(eScdSpMdlUsage As)  { m_iUsage=As; };
+    eScdSpMdlUsage Usage()                  { return m_iUsage; };
     flag           UseAsFlow()              { return m_iUsage==SPMU_Flow; };
     flag           UseAsMass()              { return m_iUsage==SPMU_Mass; };
     flag           UseAsImage()             { return m_iUsage==SPMU_Image; };
@@ -696,7 +694,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual void   BuildDataDefn_RqdProps(DataDefnBlk & DDB);
 
     void           AddSpView(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlk, /*byte RqdVw,*/ DDEF_Flags Flags);
-    void           AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlk, SV_View Vw, DDEF_Flags Flags);
+    void           AddSpViewBasis(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, int nBlk, eScdSVView Vw, DDEF_Flags Flags);
     virtual void   BuildDataDefn_AvailVars(DataDefnBlk & DDB);
     virtual void   BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Blks, size_t BlkSize);
     virtual DDEF_Flags FixSpEditFlags(DDEF_Flags Flags, int iSpid, flag AsParms) { return (Flags&!(isParm|isResult)) | AsParms ? isParm : isResult; };
@@ -707,7 +705,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual void   BuildDataDefn_Quals(DataDefnBlk & DDB, flag AsParms);
     virtual void   BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms);
     virtual flag   DataXchg(DataChangeBlk & DCB);
-    void           SetCfgImage(DataChangeBlk & DCB, SV_View SetView, SV_ViewBasis ViewBasis, int Index, double Value);
+    void           SetCfgImage(DataChangeBlk & DCB, eScdSVView SetView, eScdSVViewBasis ViewBasis, int Index, double Value);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
@@ -1018,10 +1016,10 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     enum eSVForce {SVForce_None, SVForce_Lcl, SVForce_Glbl};
 
     CSpView       & WhichView(eSVForce Force);
-    void            SetView(SV_View View, eSVForce Force=SVForce_None);
-    SV_View         GetView(eSVForce Force=SVForce_None)                               { return WhichView(Force).m_iView; };
-    void            SetViewBasis(SV_ViewBasis ViewBasis, eSVForce Force=SVForce_None);
-    SV_ViewBasis    GetViewBasis(eSVForce Force=SVForce_None)                          { return WhichView(Force).m_iViewBasis; };
+    void            SetView(eScdSVView View, eSVForce Force=SVForce_None);
+    eScdSVView         GetView(eSVForce Force=SVForce_None)                               { return WhichView(Force).m_iView; };
+    void            SetViewBasis(eScdSVViewBasis ViewBasis, eSVForce Force=SVForce_None);
+    eScdSVViewBasis    GetViewBasis(eSVForce Force=SVForce_None)                          { return WhichView(Force).m_iViewBasis; };
     long            GenVarsAvail() { return sm_VarsAvail|m_VarsAvail; };
     long            SpVarsAvail() { return sm_SpVarsAvail|m_SpVarsAvail; };
 
@@ -1089,7 +1087,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     flag           m_bEquilRqd4HEval;
     flag           m_bScan4EquilRqd4HEval;
 
-    SpMdlUsage     m_iUsage;
+    eScdSpMdlUsage m_iUsage;
 
     byte           m_bBadTempOK;
     byte           m_iHoldVentExpand;
@@ -1106,8 +1104,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     bool           m_bNegDataOK;
 
     Strng          m_sMainTemplate;
-    SV_View        m_iSetView;
-    SV_ViewBasis   m_iViewBasis;
+    eScdSVView        m_iSetView;
+    eScdSVViewBasis   m_iViewBasis;
     bool           m_bCfgImgSet;
     bool           m_bCfgImgSetByFile;
     CSpMCfgImg    *m_pSetCfgImg;
@@ -1407,7 +1405,7 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
 //
 // ==========================================================================
 
-inline SpMdlUsage SpQuality::Usage()        { return pModel->Usage();};
+inline eScdSpMdlUsage SpQuality::Usage()    { return pModel->Usage();};
 inline flag SpQuality::SQEditable()         { return pModel->SQFlagsSet(SQF_Editable);};
 inline flag SpQuality::SQSource()           { return pModel->SQFlagsSet(SQF_Source);};
 inline flag SpQuality::SQTearSet()          { return pModel->SQFlagsSet(SQF_TearSet);};

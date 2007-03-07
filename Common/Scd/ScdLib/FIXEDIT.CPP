@@ -2240,6 +2240,7 @@ BEGIN_MESSAGE_MAP(FxdEdtView, CView)
   ON_COMMAND(ID_EDIT_CUT, OnCut)
   ON_COMMAND(ID_EDIT_COPY, OnCopy)
   ON_COMMAND(ID_EDIT_PASTE, OnPaste)
+  ON_COMMAND(ID_EDIT_PASTE_SPECIAL, OnPasteSpecial)
   ON_MESSAGE(WMU_FXDEDTEDITDONE, OnEditDone)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
@@ -4025,7 +4026,7 @@ void FxdEdtView::SetRqdCursor(HCURSOR hCursor)
 
 //---------------------------------------------------------------------------
 
-int GetLineOfFlds(char ** pStart, CSVector &FldBuff)
+int GetLineOfFlds(char ** pStart, CSVector &FldBuff, bool Special)
   {
   char * p=*pStart;
   long NFlds=0;
@@ -4035,7 +4036,7 @@ int GetLineOfFlds(char ** pStart, CSVector &FldBuff)
     {
     int i=NFlds++;
     FldBuff.SetSize(Max(FldBuff.GetSize(), NFlds));
-    char *p1=strpbrk(p, "\t\n\r");
+    char *p1=strpbrk(p, Special ? " \t\n\r" : "\t\n\r");
     if (p1)
       {
       FldBuff[i].Set("%*.*s", p1-p, p1-p, p);
@@ -4047,6 +4048,11 @@ int GetLineOfFlds(char ** pStart, CSVector &FldBuff)
         }
       else if (*p1=='\n' || *p1=='\r') // newline
         break;
+      if (Special)
+        {
+        while (*p==' ')
+          p++;
+        }
       }
     else
       {
@@ -4089,7 +4095,7 @@ void FxdEdtView::PutToFld(FxdEdtFld * pFld, Strng & Buff)
 
 //---------------------------------------------------------------------------
 
-void FxdEdtView::PasteFromClipBoard()//FxdEdtFld * pFld)
+void FxdEdtView::PasteFromClipBoard(bool Special)
   {
   HANDLE hData=GetClipboardData(CF_TEXT);
   if (hData!=NULL)
@@ -4107,7 +4113,7 @@ void FxdEdtView::PasteFromClipBoard()//FxdEdtFld * pFld)
       {
       CSVector FldBuff;
       int R1=pFld->pRow->RowNo;
-      int NFlds=GetLineOfFlds(&p, FldBuff);
+      int NFlds=GetLineOfFlds(&p, FldBuff, Special);
       int iF=0;
       for ( ; pFld; pFld=NextSlctFld())
         //if (pFld->FieldType!=SEPAR_FIELDS)
@@ -4115,7 +4121,7 @@ void FxdEdtView::PasteFromClipBoard()//FxdEdtFld * pFld)
           if (pFld->pRow->RowNo!=R1)
             {
             if (MultipleSrcLines)
-              NFlds=GetLineOfFlds(&p, FldBuff);
+              NFlds=GetLineOfFlds(&p, FldBuff, Special);
             iF=0;
             }
           R1=pFld->pRow->RowNo;
@@ -4178,7 +4184,25 @@ void FxdEdtView::OnPaste()
     {
     if (OpenClipboard())
       {
-      PasteFromClipBoard();//pFld);
+      PasteFromClipBoard(false);//pFld);
+      CloseClipboard();
+      }
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+void FxdEdtView::OnPasteSpecial()
+  {
+  if (pEdtControl)
+    pEdtControl->Paste();
+  else if (pCBoxControl)
+    pCBoxControl->Paste();
+  else if (CPg)
+    {
+    if (OpenClipboard())
+      {
+      PasteFromClipBoard(true);
       CloseClipboard();
       }
     }

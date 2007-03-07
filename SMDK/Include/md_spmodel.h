@@ -131,8 +131,8 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     bool            TestStateValid(int i);
     void            SetStateValid(int i, bool On=true);
 
-    SV_View         getView();
-    SV_ViewBasis    getViewBasis();
+    eScdSVView         getView();
+    eScdSVViewBasis    getViewBasis();
 
     // ----------------------------- Basic State Access
     double          getM(long i) const;
@@ -190,8 +190,8 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     __declspec(property(get=getTag))              LPCTSTR       Tag;
     __declspec(property(get=getVector))           MVector       Vector;
 
-    __declspec(property(get=getView))             SV_View      View;
-    __declspec(property(get=getViewBasis))        SV_ViewBasis ViewBasis;
+    __declspec(property(get=getView))             eScdSVView      View;
+    __declspec(property(get=getViewBasis))        eScdSVViewBasis ViewBasis;
 
   private:
     SpModelEx     * m_pSpMdlX;
@@ -282,6 +282,7 @@ class DllImportExport MSpQualityBase : public MBaseDataCommon, public MSubConstr
 
     LPCTSTR        getTag();
     MVector        getVector();
+    eScdSpMdlUsage getUsage();
     bool           TestStateValid();
     void           SetStateValid(bool On=true);
 
@@ -315,8 +316,9 @@ class DllImportExport MSpQualityBase : public MBaseDataCommon, public MSubConstr
     virtual void   GetPropertyValue(long Index, ULONG Phase, double T, double P, MPropertyValue & Value) {};
     virtual void   PutPropertyValue(long Index, MPropertyValue & Value)            {};
 
-    __declspec(property(get=getTag))              LPCTSTR       Tag;
-    __declspec(property(get=getVector))           MVector       Vector;
+    __declspec(property(get=getTag))              LPCTSTR         Tag;
+    __declspec(property(get=getVector))           MVector         Vector;
+    __declspec(property(get=getUsage))            eScdSpMdlUsage  Usage;
 
     MLog           Log;
     MDebug         Dbg;

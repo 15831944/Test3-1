@@ -332,8 +332,8 @@ MArray MSpModelBase::getMassArray()                       { return MArray(m_pSpM
 double MSpModelBase::getPressure()                        { return m_pSpMdlX->Press();                   };
 double MSpModelBase::getTemperature()                     { return m_pSpMdlX->Temp();                    };
 
-SV_View      MSpModelBase::getView()                      { return m_pSpMdlX->GetView();                 };
-SV_ViewBasis MSpModelBase::getViewBasis()                 { return m_pSpMdlX->GetViewBasis();            };
+eScdSVView      MSpModelBase::getView()                      { return m_pSpMdlX->GetView();                 };
+eScdSVViewBasis MSpModelBase::getViewBasis()                 { return m_pSpMdlX->GetViewBasis();            };
 
 double MSpModelBase::Mass(DWORD Phases) const             { return m_pSpMdlX->Mass(Phases);              };
 double MSpModelBase::Moles(DWORD Phases) const            { return m_pSpMdlX->Moles(Phases);             };
@@ -378,6 +378,7 @@ void MSpQualityBase::Init(SpQuality * pSpQual)
 
 LPCTSTR MSpQualityBase::getTag()    { return m_pSpQual->pModel->FullObjTag(); };
 MVector MSpQualityBase::getVector() { return MVector(m_pSpQual->pModel); };
+eScdSpMdlUsage MSpQualityBase::getUsage() { return m_pSpQual->pModel->Usage(); };
 
 //int MSpQualityBase::GroupIdNo()
 //  {

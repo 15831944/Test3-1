@@ -587,12 +587,7 @@ public:
   void    ClrChanged() { bChanged=false; };
 
   void PutToFld(FxdEdtFld* pFld, Strng & Buff);
-  void PasteFromClipBoard();//FxdEdtFld* pFld);
-//  void DoAccCutTag();
-//  void DoAccCutVal();
-//  void DoAccCopyTag();
-//  void DoAccCopyVal();
-//  void DoAccPaste();
+  void PasteFromClipBoard(bool Special);
   void MoveCursorTo(int PageNo, int RowNo, int FldNo, flag SelectFld);
 protected:
   virtual ~FxdEdtView();
@@ -618,6 +613,7 @@ protected:
   afx_msg void OnCut();
   afx_msg void OnCopy();
   afx_msg void OnPaste();
+  afx_msg void OnPasteSpecial();
   afx_msg LRESULT OnEditDone(WPARAM wParam, LPARAM lParam);
   //}}AFX_MSG
   afx_msg BOOL OnUDNDeltaPos(UINT id, NMHDR * pNotifyStruct, LRESULT * result);

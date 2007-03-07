@@ -3645,12 +3645,12 @@ flag SpVectorObj::DataXchg(DataChangeBlk & DCB)
     {
     case xidSvView:
       if (DCB.rB)
-        SetView(SV_View(*DCB.rB));
+        SetView(eScdSVView(*DCB.rB));
       DCB.B=iView;
       return 1;
     case xidSvViewBasis:
       if (DCB.rB)
-        SetViewBasis(SV_ViewBasis(*DCB.rB));
+        SetViewBasis(eScdSVViewBasis(*DCB.rB));
       DCB.B=iViewBasis;
       return 1;
     case xidSpMass:

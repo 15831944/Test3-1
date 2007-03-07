@@ -461,6 +461,9 @@ class InitDefinedFmts
     DefinedFmts.AddOne( "f5", 0, 5, 'f');
     DefinedFmts.AddOne( "f6", 0, 6, 'f');
     DefinedFmts.AddOne( "f7", 0, 7, 'f');
+    DefinedFmts.AddOne( "f8", 0, 8, 'f');
+    DefinedFmts.AddOne( "f9", 0, 9, 'f');
+    DefinedFmts.AddOne( "f10", 0, 10, 'f');
 
     DefinedFmts.AddOne( "s1", 0, 1, 's');
     DefinedFmts.AddOne( "s2", 0, 2, 's');
@@ -470,6 +473,8 @@ class InitDefinedFmts
     DefinedFmts.AddOne( "s6", 0, 6, 's');
     DefinedFmts.AddOne( "s7", 0, 7, 's');
     DefinedFmts.AddOne( "s8", 0, 8, 's');
+    DefinedFmts.AddOne( "s9", 0, 9, 's');
+    DefinedFmts.AddOne( "s10", 0, 10, 's');
 
     DefinedFmts.AddOne( "e0", 0, 0, 'e');
     DefinedFmts.AddOne( "e1", 0, 1, 'e');
@@ -479,6 +484,9 @@ class InitDefinedFmts
     DefinedFmts.AddOne( "e5", 0, 5, 'e');
     DefinedFmts.AddOne( "e6", 0, 6, 'e');
     DefinedFmts.AddOne( "e7", 0, 7, 'e');
+    DefinedFmts.AddOne( "e8", 0, 8, 'e');
+    DefinedFmts.AddOne( "e9", 0, 9, 'e');
+    DefinedFmts.AddOne( "e10", 0, 10, 'e');
 /*
     DefinedFmts.AddOne(        "*.", 0, 0, 'f');
     DefinedFmts.AddOne(       "*.#", 0, 1, 'f');

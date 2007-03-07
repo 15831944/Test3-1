@@ -148,7 +148,19 @@ class DllImportExport MDataDefn : public MBaseDataCommonRef
     //end structure marker
     void    ArrayEnd(MD_Flags Flags=0);
 
-    //double  ValidateRange(LPCTSTR What, double MinV=dNAN, double V=dNAN, double MaxV=dNAN, bool *pOK=NULL);
+    bool    getForNDB();           //retrieve flag
+    bool    getForFiling();        //retrieve flag
+    bool    getForView();          //retrieve flag
+    bool    getForSnapShot();      //retrieve flag
+    bool    getForScenario();      //retrieve flag
+    bool    getForFileSnpScn();    //retrieve flag
+
+    __declspec(property(get=getForNDB))                 bool    ForNDB;
+    __declspec(property(get=getForFiling))              bool    ForFiling;
+    __declspec(property(get=getForView))                bool    ForView;
+    __declspec(property(get=getForSnapShot))            bool    ForSnapShot;
+    __declspec(property(get=getForScenario))            bool    ForScenario;
+    __declspec(property(get=getForFileSnpScn))          bool    ForFileSnpScn;
 
   //protected:
   //  DataDefnBlk       * &m_pDDB;
@@ -163,6 +175,13 @@ class DllImportExport MDataChange : public MBaseDataCommonRef
 
     long    getHandle();       //return data handle
     bool    getHasReqdValue(); //return true when data is being set
+
+    bool    getForNDB();           //retrieve flag
+    bool    getForFiling();        //retrieve flag
+    bool    getForView();          //retrieve flag
+    bool    getForSnapShot();      //retrieve flag
+    bool    getForScenario();      //retrieve flag
+    bool    getForFileSnpScn();    //retrieve flag
 
     double  getDouble();   //retrieve value
     float   getFloat();    //retrieve value
@@ -181,6 +200,14 @@ class DllImportExport MDataChange : public MBaseDataCommonRef
   public:
     __declspec(property(get=getHandle))                 long    Handle;
     __declspec(property(get=getHasReqdValue))           bool    HasReqdValue;
+
+    __declspec(property(get=getForNDB))                 bool    ForNDB;
+    __declspec(property(get=getForFiling))              bool    ForFiling;
+    __declspec(property(get=getForView))                bool    ForView;
+    __declspec(property(get=getForSnapShot))            bool    ForSnapShot;
+    __declspec(property(get=getForScenario))            bool    ForScenario;
+    __declspec(property(get=getForFileSnpScn))          bool    ForFileSnpScn;
+
     __declspec(property(get=getDouble,put=putDouble))   double  Double;
     __declspec(property(get=getFloat, put=putFloat))    float   Float;
     __declspec(property(get=getLong,  put=putLong))     long    Long;

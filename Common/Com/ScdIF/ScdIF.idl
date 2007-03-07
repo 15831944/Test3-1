@@ -657,10 +657,10 @@ typedef enum eScdLinkDrawMethods
 //----------------------------------------------
 [  
   uuid(F4019F64-0BF8-4ff2-BAED-FD62EB03A629),
-  helpstring("SV_View"),
+  helpstring("eScdSVView"),
   v1_enum
 ]
-typedef enum SV_View 
+typedef enum eScdSVView 
   {
   SVV_NULL,
   SVV_AsRawFrac,
@@ -673,18 +673,30 @@ typedef enum SV_View
   SVV_AsSpcConc,
   SVV_AsElem,      SVV_AsElemFlow,      SVV_AsElemFrac,    SVV_AsElemConc,    SVV_AsElemConc25,
   SVV_AsComp,      SVV_AsCompFlow,      SVV_AsCompFrac,    SVV_AsCompConc,    SVV_AsCompConc25
-  } SV_View;
+  } eScdSVView;
 
 //----------------------------------------------
 [  
   uuid(13CB03A9-6729-4052-BFA6-70238A8B3AB2),
-  helpstring("SV_ViewBasis"),
+  helpstring("eScdSVViewBasis"),
   v1_enum
 ]
-typedef enum SV_ViewBasis
+typedef enum eScdSVViewBasis
   {
   SVVB_All, SVVB_Start=SVVB_All, SVVB_Sol, SVVB_Liq, SVVB_Gas, SVVB_Occ, SVVB_Phase, SVVB_End
-  } SV_ViewBasis;
+  } eScdSVViewBasis;
+
+
+//----------------------------------------------
+[  
+  uuid(19D6A118-4B53-4bab-8797-6E77A5BEAE82),
+  helpstring("eScdSpMdlUsage"),
+  v1_enum
+]
+typedef enum eScdSpMdlUsage
+  {
+  SPMU_Null, SPMU_Mass, SPMU_Flow, SPMU_Image 
+  } eScdSpMdlUsage;
 
 //----------------------------------------------  
 [  
@@ -794,8 +806,9 @@ library ScdIF
   enum eScdAppTagType;
   enum eScdTagRecState;
   enum eScdLinkDrawMethods;
-  enum SV_View;
-  enum SV_ViewBasis;
+  enum eScdSVView;
+  enum eScdSVViewBasis;
+  enum eScdSpMdlUsage;
   enum eScdFlwEqnTasks;
   enum eScdPropagateNetTasks;
   enum eScdReactionBasis;
