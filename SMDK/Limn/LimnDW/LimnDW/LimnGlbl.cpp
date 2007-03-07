@@ -365,11 +365,8 @@ bool CDiamondWizardConfiguration::Initialise()//LPCTSTR Fn)
         {
         double Top    = SafeAtoF(PrevTkn0);
         double Bottom = SafeAtoF(Tkns[0]);
-        //if (iSeries>0)
-        //  {
-        //  Top    *= 0.001; // mm to m
-        //  Bottom *= 0.001; // mm to m
-        //  }
+        if (iSeries==0)
+          Exchange(Top, Bottom);
         double GeoMean = Bottom>0.0 ? Sqrt(Top*Bottom):Top/Sqrt(2.0);
         double ArtMean = Bottom>0.0 ? 0.5*(Top+Bottom):Top/2.0;
         CString Text  = Tkns[1];
@@ -379,7 +376,7 @@ bool CDiamondWizardConfiguration::Initialise()//LPCTSTR Fn)
             {
             m_SGsTop.Add(Top);
             m_SGsBottom.Add(Bottom);
-            m_SG.Add(GeoMean);
+            m_SG.Add(ArtMean);
             m_SGText.Add(Text);
             Text.Format("%.2f", ArtMean);
             m_SGTextShort.Add(Text);

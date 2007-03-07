@@ -69,13 +69,18 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 		{                                                   
 			return 1 ;                                      // 'Incorrect number of parameters'
 		}        
-	    
-	                                                        
+	  
+    int DoDbg=0;
+    FILE * hDbg=NULL;
+    if (DoDbg)  
+      hDbg=fopen("Tromp.DBG", "wt");
 	///
 	///     Tromp Curve SG separator models
 	///
 	///     Apply to Ore first
 	///
+    if (DoDbg)  
+      fprintf(hDbg, "Ore\n");
 		for ( iOSz = 0 ; iOSz < nOSz ; iOSz++ )
 		{
 			for ( iSG = 0 ; iSG < nSG ; iSG++ )
@@ -89,6 +94,9 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 				
 				Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 				Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
+
+        if (DoDbg)  
+          fprintf(hDbg, "%5i %5i %5i %15.10f %15.10f %15.10f %15.10f\n", iOSz, iSG, idx, partitionFraction, CombinedFeed[idx], Product1[idx], Product1[idx]);
 			}
 		}
 
@@ -98,6 +106,8 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 	///       separation of any liberated diamonds
 	///       in the feed
 	///
+    if (DoDbg)  
+      fprintf(hDbg, "Dmd\n");
 		for ( iSG = 0 ; iSG < nSG ; iSG++ )
 		{
 			for ( iDSz = 0 ; iDSz < nDSz ; iDSz++ )
@@ -119,6 +129,8 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 					
 					Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 					Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
+        if (DoDbg)  
+          fprintf(hDbg, "%5i %5i %5i %15.10f %15.10f %15.10f %15.10f %15.10f\n", iOSz, iSG, idx, partitionFraction, lockedSG, CombinedFeed[idx], Product1[idx], Product1[idx]);
 				}
 			}
 		}
@@ -138,6 +150,9 @@ int _Model_DiamondWizard_TrompCurve (int nRows,
 		if ( !p.Product1IsFloats() ) partitionFraction = 1 - partitionFraction ;
 		Product1[idx] = partitionFraction * CombinedFeed[idx] ;
 		Product2[idx] = CombinedFeed[idx] - Product1[idx] ;    
+
+    if (DoDbg)  
+      fclose(hDbg);
 
  		return 0 ;
 	}
