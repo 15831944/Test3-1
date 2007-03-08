@@ -614,6 +614,7 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
 
             m_VLE.PFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
+            int ZeroQvCount=0;
             for (int Iter=0;  ;Iter++)
               {
               double PrevFlashP=m_FTF.m_dFlashP;
@@ -655,8 +656,18 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
                 LogError(FullObjTag(), 0, "Flash Pressure Not Converged");
                 break;
                 }
-              if ((m_FTF.m_dQVap>=1.0e-6*QLMass) && (fabs(PrevFlashP-m_FTF.m_dFlashP)<1e-6))
-                break;
+              if (m_FTF.m_dQVap>=1.0e-6*QLMass)
+                {
+                ZeroQvCount=0;
+                if (fabs(PrevFlashP-m_FTF.m_dFlashP)<1e-6)
+                  break;
+                }
+              else if (Iter>=3)
+                {
+                // Not able to flash any vapour - make sure this is true
+                if (ZeroQvCount++>=5)
+                  break;
+                }
               }
             }
           }
