@@ -57,7 +57,7 @@ enum BPM_BPEMethod { BPM_Dewey, BPM_Adamson };
 enum ASM_AlSolubilityMethod { ASM_Original, ASM_March2002, ASM_May2003, ASM_Hyprod };
 enum BDM_BayerDensityMethod { BDM_Original, BDM_March2002, BDM_July2003, BDM_MD };
 enum GRM_GrowthRateMethod { GRM_Original, GRM_Nov2003, GRM_Hyprod };
-enum CPM_CpMethod { CPM_Original, CPM_Hyprod };
+enum CPM_CpMethod { CPM_Original, CPM_Hyprod, CPM_Langa };
 
 double ASMBayer::dBPEFactor      = 1.0;
 double ASMBayer::dRhoFactor      = 1.0;
@@ -527,6 +527,7 @@ void ASMBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
   static DDBValueLst DDB5[]={
     {CPM_Original, "Original"},
     {CPM_Hyprod, "Hyprod"},
+    {CPM_Langa, "Langa"},
     {0}};
 
   if (UseAsMass() || UseAsImage())
@@ -2232,6 +2233,37 @@ double ASMBayer::LiqCpCalc(CSysVector & Mn, double FLiq, double T)
                  -2.9831e-9*pow(Tf,3));
         Cpl = KCal_2_kJ(Cpl); // kJ/kg.degC   (KCal_2_kJ=4.184)
         }
+      return Cpl;
+      }
+    case CPM_Langa:
+      {
+      //As per email from Catherine Venz dated 25/07/06
+      //Langa Model: 
+      //Cpl = (0.99639 - 0.000390998*TNa  - 0.00053832*Al + 0.000000246493*TNa*TNa +0.00000057186*TNa*Al - 0.000000186581*Al*TempC - 0.000000107766*TNa*TempC - 0.000151278*TempC + 0.0000021464*TempC*TempC) * 4.186 
+      //where Cpl is in       kJ/kg.C 
+      //      TempC is in     degrees C 
+      //      TNa is          g Na2CO3 / L 
+      //      Al is           g Al2O3 / L 
+      double Cpl;
+      LiqConcs25.Converge(Mn);
+      const double Tc = K2C(T);
+      //const double TNa = LiqConcs25.LTotalSodium(Mn);
+      const double TNaConc = 
+                  LiqConcs25.Liq[::CausticSoda.LiqPhInx()]       // NaOH
+                + LiqConcs25.Liq[::SodiumCarbonate.LiqPhInx()] // Na2CO3
+                + LiqConcs25.Liq[SodiumOxalate.LiqPhInx()]     // Na2C2O4
+                + LiqConcs25.Liq[Organics.LiqPhInx()]          // Na2C5O7
+                + LiqConcs25.Liq[Organics1.LiqPhInx()]         // Na2C5O11
+                + LiqConcs25.Liq[SodiumChloride.LiqPhInx()]    // NaCl
+                + LiqConcs25.Liq[SodiumSulphate.LiqPhInx()]    // Na2SO4
+                + LiqConcs25.Liq[SodiumFluoride.LiqPhInx()];   // NaF
+      const double CAlum = LiqConcs25.Liq[::Alumina.LiqPhInx()];
+      Cpl = (0.99639 - 0.000390998*TNaConc  - 0.00053832*CAlum + 
+             0.000000246493*TNaConc*TNaConc + 0.00000057186*TNaConc*CAlum - 
+             0.000000186581*CAlum*Tc - 0.000000107766*TNaConc*Tc - 
+             0.000151278*Tc + 0.0000021464*Tc*Tc) * 4.186;
+      //Cpl = KCal_2_kJ(Cpl); // kJ/kg.degC   (KCal_2_kJ=4.184)
+
       return Cpl;
       }
     }

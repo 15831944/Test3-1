@@ -2764,10 +2764,12 @@ Build 123 : 21 February 2007
 1532  2/03/07: Fix for crash in conveyor when required drive position is NAN.
 1533  2/03/07: (#702) Fix for feeder state recovery for a load scenario.
 1535  6/03/07: (#776) Improved find tag window.
+1541  8/03/07: (#781) Client model improvements.
+1542  9/03/07: (#777) Do not report.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1535
+#define SCD_PATCH_SVN    1542
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
