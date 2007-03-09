@@ -206,7 +206,7 @@ void CHXShlTube::BuildDataDefn(DataDefnBlk & DDB)
   m_FTC.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, m_iRqdOpMode==STHX_FullyCondensing);
-  DDB.CheckBox("IgnoreAreaLimit", "", DC_, "",    &m_bExtraCond,     this, isParm);
+  DDB.CheckBox("IgnoreAreaLimit", "", DC_, "",    &m_bExtraCond,     this, m_FTC.Active()?0:isParm);
   DDB.Double("NonCondVentFrac", "", DC_Frac, "%",      &m_dNonCondVentFrac,this, isParm);
   DDB.Visibility();
   DDB.Double("QmVentRqd",     "", DC_Qm,   "kg/s",     &m_QmVentRqd,      this, isParm);//steam vent required
@@ -271,6 +271,9 @@ flag CHXShlTube::DataXchg(DataChangeBlk & DCB)
 
 flag CHXShlTube::ValidateData(ValidateDataBlk & VDB)
   {
+  if (m_FTC.Active())
+    m_bExtraCond = false; // force this off
+
   m_dNonCondVentFrac=Range(0.0, m_dNonCondVentFrac, 1.0);
   flag OK=true;//MN_Surge::ValidateData(ValidateDataBlk & VDB);
   if (!m_VLE.ValidateData(VDB))
@@ -689,6 +692,9 @@ double CHXShlTube::EvaporateAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI
 
 void CHXShlTube::EvalProducts(pFlwNode pNd)
   {
+  if (m_FTC.Active())
+    m_bExtraCond = false; // force this off
+
   m_iActOpMode=m_iRqdOpMode;
   m_dMaxDuty=0.0;
   flag SecCondensing=0;
