@@ -2861,6 +2861,7 @@ bool CModelInfo::GetCfgFileLocation(CProfINIFile & Cfg)
 //        1 - file format bad 
 //        2 - file OK - dll(s) missing
 //        3 - file OK - dll(s) loaded
+//        4 - file OK - dll(s) not checked
 
 byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, flag WhingeLoudly)
   {
@@ -2906,86 +2907,92 @@ byte CModelInfo::GetCfgInfo(char * FileName, flag DoDllLoad, flag Whinge)//, fla
   if (!GetCfgFileLocation(Cfg))
     return 0;
 
-  //get list of model DLLs...
-  Strng DllName;
-  for (int i=0; ; i++)
+  if (DoDllLoad)
     {
-    Strng Tag;
-    Tag.Set("M%04i",i);
-    DllName=Cfg.RdStr("ModelDLLs", Tag(), "");
-    if (DllName())
+    //get list of model DLLs...
+    Strng DllName;
+    for (int i=0; ; i++)
       {
-      DllName.FnCheckExtension("DLL");
-      if (_stricmp("compres1.dll", DllName())!=0)
+      Strng Tag;
+      Tag.Set("M%04i",i);
+      DllName=Cfg.RdStr("ModelDLLs", Tag(), "");
+      if (DllName())
         {
-        DllListSpecd=True;
-        DLLs.Add(DllName);
-        }
-      }
-    else
-      break;
-    }
-  /*//add ScdMDK user DLLs to list...
-  int FirstCOMDLL = DLLs.GetSize();
-  for (i=0; ; i++)
-    {
-    Strng Tag;
-    Tag.Set("C%04i",i);
-    DllName=Cfg.RdStr("COMModelDLLs", Tag(), "");
-    if (DllName())
-      {
-      DllListSpecd=True;
-      DllName.FnCheckExtension("DLL");
-      DLLs.Add(DllName);
-      }
-    else
-      break;
-    }*/
-
-  /*//add ScdMDK user DLLs to list...
-  int FirstSMDKDLL = DLLs.GetSize();
-  for (i=0; ; i++)
-    {
-    Strng Tag;
-    Tag.Set("U%04i",i);
-    DllName=Cfg.RdStr("SMDKUserDLLs", Tag(), "");
-    if (DllName())
-      {
-      DllListSpecd=True;
-      DllName.FnCheckExtension("DLL");
-      DLLs.Add(DllName);
-      }
-    else
-      break;
-    }*/
-
-  if (DLLs.GetSize())
-    {
-    DLLListOK=True;
-    // Do these DLL's Exist
-    for (int i=0; i<DLLs.GetSize(); i++)
-      {
-      Strng FullName;
-      if (IsDLLOK(CfgName(), DLLs[i](), DllFilesPath(), FullName, true, false/*i<FirstCOMDLL, i>=FirstSMDKDLL*/, Whinge))
-        {
-        if (m_sDLLList.Length()>0)
-          m_sDLLList+=",";
-        m_sDLLList+=FullName();
+        DllName.FnCheckExtension("DLL");
+        if (_stricmp("compres1.dll", DllName())!=0)
+          {
+          DllListSpecd=True;
+          DLLs.Add(DllName);
+          }
         }
       else
-        DLLListOK=false;
+        break;
       }
-    }
-  else
-    DLLListOK=false;
+    /*//add ScdMDK user DLLs to list...
+    int FirstCOMDLL = DLLs.GetSize();
+    for (i=0; ; i++)
+      {
+      Strng Tag;
+      Tag.Set("C%04i",i);
+      DllName=Cfg.RdStr("COMModelDLLs", Tag(), "");
+      if (DllName())
+        {
+        DllListSpecd=True;
+        DllName.FnCheckExtension("DLL");
+        DLLs.Add(DllName);
+        }
+      else
+        break;
+      }*/
 
-  if (!DLLListOK && Whinge)
-    if (DllListSpecd)
-      LogWarning(CfgName(), LF_Exclamation, "Invalid Model DLL List");
+    /*//add ScdMDK user DLLs to list...
+    int FirstSMDKDLL = DLLs.GetSize();
+    for (i=0; ; i++)
+      {
+      Strng Tag;
+      Tag.Set("U%04i",i);
+      DllName=Cfg.RdStr("SMDKUserDLLs", Tag(), "");
+      if (DllName())
+        {
+        DllListSpecd=True;
+        DllName.FnCheckExtension("DLL");
+        DLLs.Add(DllName);
+        }
+      else
+        break;
+      }*/
+
+    if (DLLs.GetSize())
+      {
+      DLLListOK=True;
+      // Do these DLL's Exist
+      for (int i=0; i<DLLs.GetSize(); i++)
+        {
+        Strng FullName;
+        if (IsDLLOK(CfgName(), DLLs[i](), DllFilesPath(), FullName, true, false/*i<FirstCOMDLL, i>=FirstSMDKDLL*/, Whinge))
+          {
+          if (m_sDLLList.Length()>0)
+            m_sDLLList+=",";
+          m_sDLLList+=FullName();
+          }
+        else
+          DLLListOK=false;
+        }
+      }
     else
-      LogWarning(CfgName(), LF_Exclamation, "No Model DLL List specified");
-  
-  return DLLListOK ? 3 : 2;
+      DLLListOK=false;
+
+    if (!DLLListOK && Whinge)
+      {
+      if (DllListSpecd)
+        LogWarning(CfgName(), LF_Exclamation, "Invalid Model DLL List");
+      else
+        LogWarning(CfgName(), LF_Exclamation, "No Model DLL List specified");
+      }
+    
+    return DLLListOK ? 3 : 2;
+    }
+  return 4;
   }
 
 //---------------------------------------------------------------------------
