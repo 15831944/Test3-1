@@ -29,6 +29,9 @@ struct MaintVariables
 	double dDesiredPeriod, dPeriod;
 	double dOffset, dNextShutdown;
     CString sDescription;
+
+	CString sTag; int nTagID;
+	double dOnValue, dOffValue;
     
     bool bRunning;
     double dTotalDowntime, dBackedUpDowntime;

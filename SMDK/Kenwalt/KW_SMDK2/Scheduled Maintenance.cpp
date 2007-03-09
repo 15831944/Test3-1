@@ -34,6 +34,8 @@ ScheduledMaintenance::ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject
 	bOn = true;
 
 	dCurrentTime = 0;
+
+	TagIO.Open(10);
 }
 
 //---------------------------------------------------------------------------
@@ -73,6 +75,7 @@ void ScheduledMaintenance::Reset()
 //---------------------------------------------------------------------------
 
 const int idDX_Description = 100;
+const int idDX_Tag = 200;
 const int idDX_Count = 1;
 const int idDX_Reset = 2;
 
@@ -107,6 +110,15 @@ void ScheduledMaintenance::BuildDataFields()
 		DD.Double ("Downtime", "Td", &tasks.at(i).dDowntime, MF_RESULT, MC_Time(""));
 
 		DD.Text("");
+		DD.String("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
+		if (tasks.at(i).nTagID < 0)
+			DD.Text("Tag Not Found");
+		DD.Show(tasks.at(i).nTagID >= 0);
+		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i).dOnValue, MF_PARAMETER);
+		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i).dOffValue, MF_PARAMETER);
+		DD.Show();
+
+		DD.Text("");
 		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
 		DD.Double("Total Downtime", "TDown", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time(""));
 		DD.Double("Next Shutdown", "Tls", &tasks.at(i).dNextShutdown, MF_RESULT, MC_Time(""));
@@ -125,6 +137,35 @@ bool ScheduledMaintenance::ExchangeDataFields()
 		if (DX.HasReqdValue)
 		  tasks.at(DX.Handle - idDX_Description).sDescription = DX.String;
 		DX.String = tasks.at(DX.Handle - idDX_Description).sDescription;
+		return true;
+	}
+	if (0 <= DX.Handle - idDX_Tag && DX.Handle - idDX_Tag < tasks.size())
+	{
+		int task = DX.Handle - idDX_Tag;
+		if (DX.HasReqdValue)
+		{
+			tasks.at(task).sTag = DX.String;
+			CString name;
+			name.Format("TagToSet%x", task);
+
+			int curTag = TagIO.FindTag(DX.String);
+			if (curTag >= 0)
+				tasks.at(task).nTagID = curTag;
+			else
+			{
+				TagIO.Remove(TagIO.FindName(name));
+				tasks.at(task).nTagID = TagIO.Add(DX.String, name, TIO_Set);
+			}
+
+			if (tasks.at(task).nTagID >= 0)
+			{
+				tasks.at(task).dOffValue = 0;
+				double dTemp;
+				TagIO.Peek(DX.String, dTemp);
+				tasks.at(task).dOnValue = dTemp;
+			}
+		}
+		DX.String = tasks.at(task).sTag;
 		return true;
 	}
 	if (DX.Handle == idDX_Count)
@@ -192,7 +233,15 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 					tasks.at(i).dBackedUpDowntime += tasks.at(i).dDowntime;
 					tasks.at(i).dNextShutdown += tasks.at(i).dPeriod;
 				}
-				tasks.at(i).bRunning = tasks.at(i).dBackedUpDowntime <= 0;
+				bool bNowRunning = tasks.at(i).dBackedUpDowntime <= 0;
+				if (tasks.at(i).nTagID >= 0)
+				{
+					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
+						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOnValue;
+					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
+						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOffValue;
+				}
+				tasks.at(i).bRunning = bNowRunning;
 
 				if (!tasks.at(i).bRunning)
 				{
@@ -257,6 +306,8 @@ void ScheduledMaintenance::SetSize(long size)
 			newTask.dOffset = 0;
 			newTask.dDesiredPeriod = 24 * 3600;
 			newTask.dTotalDowntime = 0;
+			newTask.sTag = "";
+			newTask.nTagID = -1;
 			tasks.push_back(newTask);
 		}
 	if (size < tasks.size())  //We want to remove elements

@@ -34,6 +34,8 @@ RandomFailure::RandomFailure(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 	//default values...
 	bOn = true;
 
+	TagIO.Open(20);
+
 	dCurrentTime = 0;
 }
 
@@ -76,6 +78,7 @@ void RandomFailure::Reset()
 //---------------------------------------------------------------------------
 
 const int idDX_Description = 100;
+const int idDX_Tag = 200;
 const int idDX_Count = 1;
 const int idDX_Reset = 2;
 
@@ -89,7 +92,7 @@ void RandomFailure::BuildDataFields()
 		{ PDFType_Constant, "Constant" },
 		{ PDFType_Exponential, "Exponential" },
 		{ PDFType_Normal, "Normal" }, 
-		{0} };
+		{ 0 } };
 
 	DD.CheckBox("On", "", &bOn, MF_PARAMETER);
 	DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
@@ -121,6 +124,14 @@ void RandomFailure::BuildDataFields()
 		else
 			DD.Double ("Downtime StdDev", "Tds", &tasks.at(i).dAvgDowntime, MF_RESULT, MC_Time(""));
 
+		DD.Text("");
+		DD.String("TagToSet", "TagToSet", idDX_Tag, MF_PARAMETER | MF_SET_ON_CHANGE);
+		if (tasks.at(i).nTagID < 0)
+			DD.Text("Tag Not Found");
+		DD.Show(tasks.at(i).nTagID >= 0);
+		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i).dOnValue, MF_PARAMETER);
+		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i).dOffValue, MF_PARAMETER);
+		DD.Show();
 
 		DD.Text("");
 		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
@@ -141,6 +152,35 @@ bool RandomFailure::ExchangeDataFields()
 		if (DX.HasReqdValue)
 		  tasks.at(DX.Handle - idDX_Description).sDescription = DX.String;
 		DX.String = tasks.at(DX.Handle - idDX_Description).sDescription;
+		return true;
+	}
+	if (0 <= DX.Handle - idDX_Tag && DX.Handle - idDX_Tag < tasks.size())
+	{
+		int task = DX.Handle - idDX_Tag;
+		if (DX.HasReqdValue)
+		{
+			tasks.at(task).sTag = DX.String;
+			CString name;
+			name.Format("TagToSet%x", task);
+
+			int curTag = TagIO.FindTag(DX.String);
+			if (curTag >= 0)
+				tasks.at(task).nTagID = curTag;
+			else
+			{
+				TagIO.Remove(TagIO.FindName(name));
+				tasks.at(task).nTagID = TagIO.Add(DX.String, name, TIO_Set);
+			}
+
+			if (tasks.at(task).nTagID >= 0)
+			{
+				tasks.at(task).dOffValue = 0;
+				double dTemp;
+				TagIO.Peek(DX.String, dTemp);
+				tasks.at(task).dOnValue = dTemp;
+			}
+		}
+		DX.String = tasks.at(task).sTag;
 		return true;
 	}
 	if (DX.Handle == idDX_Count)
@@ -231,7 +271,15 @@ void RandomFailure::EvalCtrlActions(eScdCtrlTasks Tasks)
 							break;
 					}
 				}
-				tasks.at(i).bRunning = tasks.at(i).dBackedUpDowntime < getDeltaTime();
+				bool bNowRunning = tasks.at(i).dBackedUpDowntime < getDeltaTime();
+				if (tasks.at(i).nTagID >= 0)
+				{
+					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
+						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOnValue;
+					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
+						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOffValue;
+				}
+				tasks.at(i).bRunning = bNowRunning;
 				if (!tasks.at(i).bRunning)
 				{
 					tasks.at(i).dTotalDowntime += getDeltaTime();
@@ -342,6 +390,9 @@ void RandomFailure::SetSize(long size)
 			newTask.lFailureCount = 0;
 			newTask.eFailureType = PDFType_Constant;
 			newTask.eRepairType = PDFType_Constant;
+
+			newTask.nTagID = -1;
+			newTask.sTag = "";
 			tasks.push_back(newTask);
 		}
 	if (size < tasks.size())  //We want to remove elements

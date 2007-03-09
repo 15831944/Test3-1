@@ -32,6 +32,9 @@ struct FailureVariables
     CString sDescription;
     PDFType eFailureType;
 	PDFType eRepairType;
+
+	CString sTag; int nTagID;
+	double dOnValue, dOffValue;
     
 	double dNextFailure;	//When the task will next fail
 	double dRepairsDone;	//When the task will be repaired
