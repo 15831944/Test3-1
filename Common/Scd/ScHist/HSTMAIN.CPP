@@ -1829,11 +1829,11 @@ DWORD CHistorian::EO_Message(CXMsgLst &XM, CXM_Route &Route)
   }
 
 //---------------------------------------------------------------------------
-
+#define WhatWasThis 0
 //const double InitTimeGap = 0.0;// CNM 0025; // 0.0005 > 0.00025 so that each start/stop advance 0.001 secs only
 
 flag CHistorian::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
-  {
+  {//this can be called a number of times each iteration!
   if (TimeRqd < GetLastTime())
     {
     if (Rewind)
@@ -1852,10 +1852,20 @@ flag CHistorian::EO_SetTime(CTimeValue TimeRqd, bool Rewind)
       }
     }
 
+#if WhatWasThis
   dTime=(TimeRqd-m_StopGap).Seconds;
   dPrevTime=(TimeRqd-m_StopGap).Seconds;
   dMidTime=dPrevTime+(m_StopGap*0.5);
-  dTimeRunStarted=dTime;
+#else
+  if (dTime!=TimeRqd.Seconds)
+    {
+    dPrevTime=dTime;
+    dTime=TimeRqd.Seconds;
+    dMidTime = dPrevTime + ((dTime - dPrevTime) * m_MidTimeFactor);
+//LogNote("EO SetTime",0,"Hist  %18.6f --> %18.6f [%+12.6f]",dPrevTime,dTime,dTime-dPrevTime);
+    }
+#endif
+  //dTimeRunStarted=dTime; !!!????
   return True;
   };
 
@@ -1890,7 +1900,6 @@ flag CHistorian::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeVal
 
 flag CHistorian::EO_Start(CXM_TimeControl &CB)
   {
-
   bDoneWrite      = False;
   bJustStarted    = True;
   dTimeRunStarted = CB.m_TheTime.Seconds;
@@ -2106,9 +2115,14 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
     if (bJustStarted)
       {
       bJustStarted = False;
+#if !WhatWasThis
+      dMidTime = dTime - m_StopGap;
+      dPrevTime = dMidTime - m_StopGap;
+#endif
       //dTime = gs_Exec.TheTime.Seconds - m_StopGap;
       //pCurEvBlk->Start(dTime); //put start StopGap seconds in past
       }
+#if WhatWasThis
     dPrevTime = dTime;
     dTime = gs_Exec.TheTime.Seconds;
     double Total2Add=0.0;
@@ -2128,6 +2142,8 @@ flag CHistorian::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
 
     if (0)
       dbgpln("  Hist  %18.6f > %18.6f [%+12.6f]",dPrevTime,dTime,dTime-dPrevTime);
+#endif
+//LogNote("EO Write",0,"Hist  %18.6f --> %18.6f [%+12.6f]",dPrevTime,dTime,dTime-dPrevTime);
 
     if (dTime<dPrevTime)
       {
