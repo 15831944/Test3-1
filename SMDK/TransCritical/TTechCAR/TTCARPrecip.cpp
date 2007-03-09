@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2006-10-25 16:15:23 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-03-07 06:03:25 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -273,6 +273,7 @@ void CPrecipitator::BuildDataFields()
   DD.Text  ("Results Tank");
   DD.Double("ResidenceTime", "",    &dResidenceTime ,MF_RESULT, MC_Time("h"));
   DD.Double("SuperSat", "", &m_dSSat, MF_RESULT, MC_);
+  DD.Text("Yield in grams Al2O3 per liter liquor@25C");
   DD.Double("Yield", "",            &dYield         ,MF_RESULT, MC_Conc("kg/m^3"));
   DD.Double("THA.Precip", "",        &dTHAPrecip     ,MF_RESULT, MC_Qm("kg/s"));
   DD.Double("Solids.Precip", "",    &dSolPrecip     ,MF_RESULT, MC_Qm("kg/s"));
