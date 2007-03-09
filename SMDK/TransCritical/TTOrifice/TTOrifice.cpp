@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-03-05 02:04:31 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-03-07 05:05:01 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -43,6 +43,7 @@ static MDDValueLst DD0[]=
     {SFM_Mood, "Moody"},	       
     {SFM_Wall, "Wallis"},	       
     {SFM_HNEM, "Homogeneous NonEquil"},
+    {SFM_Frozen, "Frozen Flow"},
     {NULL}
   };
 
@@ -71,7 +72,7 @@ static MDDValueLst DD2[]={
   
     
 
-static const double slipData[9][4] = 
+static const double slipData[10][4] = 
     { 
 
 	{1,1,1,0},            //"Homogeneous"	       
@@ -83,6 +84,7 @@ static const double slipData[9][4] =
 	{1,1,.6666666,0},     //"Moody"	       
 	{1,.72,.4,0.08},      //"Wallis"	       
 	{1,1,1,0}, 	      //"Homogeneous NonEquil"
+	{1,1,1,0}             //"Frozen Flow
     };
 
 
@@ -235,6 +237,7 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dPipeVelocity = 0.0;
   dSinglePhaseDP = 0.0;
   lValveDataPts = 2;
+  bAmiraCorrection = true;
   for (int i=2; i<=10; i++) dValveData[i]=0.0;
 }
 
@@ -263,7 +266,8 @@ void CTTOrifice::BuildDataFields()
   DD.CheckBox("On", "",  &bOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("PassThru", "",  &bPassThru, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("LCValve", "",  &bControlValve, MF_PARAMETER|MF_SET_ON_CHANGE);
-  
+  DD.CheckBox("AmiraCorrection", "",  &bAmiraCorrection, MF_PARAMETER|MF_SET_ON_CHANGE);
+
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
   DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD1);
   DD.Double("FlashPressure", "", &dFlashP, MF_RESULT, MC_P("kPa"));
@@ -317,8 +321,6 @@ void CTTOrifice::BuildDataFields()
   DD.Double("HomogChokeVelocity", "", &dHomogChokeVelocity, MF_RESULT, MC_Ldt);
   DD.Double("ChokeMassVel", "", &dChokeMassVelocity, MF_RESULT, MC_None);
   DD.Double("HomoChokeMassVel", "", &dHomogMassChokeVelocity, MF_RESULT, MC_None);
-
-
 
   DD.Show(bControlValve);
   
@@ -407,7 +409,7 @@ void CTTOrifice::EvalProducts()
     MStream InStream;
     FlwIOs.AddMixtureIn_Id(InStream, idIn);
 
-    dDensityCorrection = dcf(K2C(InStream.T));
+    dDensityCorrection = bAmiraCorrection ? dcf(K2C(InStream.T)) : 1.0;
 
     const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP(); //get pressure of input stream 
     bool bValveFlash = false;
@@ -562,9 +564,14 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
 
   if (pOut > pIn) return 0.0;
   double pSat = ms.SaturationP(ms.T);
+  double den = ms.Density();
+  
+  
+  if (bAmiraCorrection) den /= dcf(K2C(ms.T));
+
   if (pOut > pSat) {
-    double den = ms.Density();
-    return sqrt(2000.*(pIn-pOut)*den);
+    //Log.Message(MMsg_Warning, "noflash den %8.2f", den);
+    return sqrt(Sqr(dGIn) + 2000.*(pIn-pOut)*den);
   }
   // Main Cases
 
@@ -583,7 +590,6 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
     return den3*sqrt(2000.*(pIn-pOut)*(1./den1+4./den2+1./den3)/6.);
   }
   // Default Case, Initial Pressure above saturation
-  double den = ms.Density();   // Slurry (nonflashed) Density
   double I1 = 2000.*(pIn-pSat)/den;
   double I2;
   double pMid = (pSat+pOut)/2;
@@ -599,6 +605,7 @@ double CTTOrifice::massVelocity(MStream  ms, double pIn, double pOut)
     den3 = HNEFlash(ms, pOut);
   }  
   I2 = (2000.*(pSat-pOut)*(1./den+4./den2+1./den3)/6.);
+  // Log.Message(MMsg_Warning, "den %8.2f den3 %8.2f", den, den3);
   return den3*sqrt(Sqr(dGIn/den)+I1+I2);
   
  
@@ -718,7 +725,7 @@ double dcf(double tc) {
 
 
 
-
+// Homogeneous Nonequilibrium Flash Calculation...
 double CTTOrifice::HNEFlash(MStream ms, double p, double alpha, double flashmax)
 {
   MStream mtmp;
@@ -730,7 +737,8 @@ double CTTOrifice::HNEFlash(MStream ms, double p, double alpha, double flashmax)
     x1 = x;
   else
     x1 = pow(x, alpha);    
-  m_VLE.SetFlashVapFrac(mtmp, x1, 0);
+  m_VLE.SetFlashVapFrac(mtmp, x1, 0);  // Flash back to the nonequilibrium quality
+  // mtmp.P = p;// But set the pressure to the actual pressure
   //Log.Message(MMsg_Error, "T %8.2f P %8.2f x, %10.6f, x1 %10.6f", mtmp.T, mtmp.P, x, x1);
 
   SlipFlow s1(SFM_HNEM);

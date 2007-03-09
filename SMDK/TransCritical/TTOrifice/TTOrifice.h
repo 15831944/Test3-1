@@ -13,7 +13,7 @@
 //---------------------------------------------------------------------------
 
 enum SlipModels {SFM_Homo,  SFM_Lock,  SFM_Faus,  SFM_Thom,  SFM_Zivi,
-SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM, SFM_Default};
+SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM, SFM_Frozen, SFM_Default};
 
 enum OpMode {OM_Simple, OM_Full};
 
@@ -50,6 +50,7 @@ class CTTOrifice : public MBaseMethod
     bool bPassThru;    // If on, pass stream through unaltered
     bool bControlValve;  // Include control valve dP
     bool bValveLinear;   // Interpolate linearly between data points.
+    bool bAmiraCorrection;
 
     long m_lSlipMode;
     long m_lOpMode;
