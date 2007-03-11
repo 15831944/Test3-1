@@ -43,28 +43,27 @@ class CTagIO : public MBaseMethod
 
   protected:
     bool            m_bOn;
-    bool            m_OnFly;
 
-    CString         m_GetTempTag;
-    CString         m_PutTempTag;
+    //variables for direct tag set and get
+    double          m_dGetValue;
+    double          m_dSetValue;
+    CString         m_sGetTag;
+    CString         m_sSetTag;
+    CString         m_sGetStatus;
+    CString         m_sSetStatus;
 
-    double          m_GetTemp;
-    double          m_PutTemp;
-    double          m_DeltaTemp;
 
-    int             m_iGet;
-    int             m_iPut;
-
-    //   double dCurrentTime;
-    //   std::vector<FailureVariables> tasks;
-
-    //   void SetSize(long size);
-    //void Reset();
-    //void RevalidateDataFields();
-
-    //void FailItem(FailureVariables* task);
-    //void RepairItem(FailureVariables* task);
-    //double CalculateEvent(PDFType ePDF, double dAverage, double dStdDev);
+    //variables for tag subscription
+    bool            m_bSubsActive;
+    CString         m_sGetTagSubs1;
+    CString         m_sGetTagSubs2;
+    CString         m_sSetTagSubs1;
+    double          m_dGetValueSubs1;
+    double          m_dGetValueSubs2;
+    double          m_dSetValueSubs1;
+    int             m_iGet1;
+    int             m_iGet2;
+    int             m_iSet1;
   };
 
 #endif

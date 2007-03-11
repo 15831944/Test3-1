@@ -16,7 +16,8 @@ static double Drw_SchedMaint[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2.,
 
 //---------------------------------------------------------------------------
 
-DEFINE_TRANSFER_UNIT(ScheduledMaintenance, "Scheduled Maintenance", DLL_GroupName)
+DEFINE_CONTROL_UNIT(ScheduledMaintenance, "Scheduled Maintenance", DLL_GroupName)
+
 void ScheduledMaintenance_UnitDef::GetOptions()
 {
 	SetDefaultTag("SM");
@@ -154,14 +155,14 @@ bool ScheduledMaintenance::ExchangeDataFields()
 			else
 			{
 				TagIO.Remove(TagIO.FindName(name));
-				tasks.at(task).nTagID = TagIO.Add(DX.String, name, TIO_Set);
+				tasks.at(task).nTagID = TagIO.Add(DX.String, name, MTIO_Set);
 			}
 
 			if (tasks.at(task).nTagID >= 0)
 			{
 				tasks.at(task).dOffValue = 0;
 				double dTemp;
-				TagIO.Peek(DX.String, dTemp);
+				TagIO.SetTag(DX.String, dTemp);
 				tasks.at(task).dOnValue = dTemp;
 			}
 		}

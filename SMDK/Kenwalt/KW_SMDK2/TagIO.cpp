@@ -35,16 +35,20 @@ void CTagIO_UnitDef::GetOptions()
 
 CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
-  srand((unsigned)time(NULL));
-
   //default values...
   m_bOn       = true;
-  m_OnFly     = true;
 
-  m_GetTemp   = StdT;
-  m_PutTemp   = StdT;
-  m_DeltaTemp = 0.0;
+  m_dGetValue = dNAN;
+  m_dSetValue = 0.0;
 
+
+  m_bSubsActive = false;
+  m_dGetValueSubs1 = dNAN;
+  m_dGetValueSubs2 = dNAN;
+  m_dSetValueSubs1 = 0.0;
+  m_iGet1 = -1;
+  m_iGet2 = -1;
+  m_iSet1 = -1;
   }
 
 //---------------------------------------------------------------------------
@@ -62,9 +66,14 @@ bool CTagIO::PreStartCheck()
 
 //---------------------------------------------------------------------------
 
-const int idDX_OnFly  = 1;
-const int idDX_GetTag = 2;
-const int idDX_PutTag = 3;
+const int idDX_GetTagStr  = 1;
+const int idDX_GetTagButton = 2;
+const int idDX_PutTagStr = 3;
+const int idDX_SetTagButton = 4;
+const int idDX_TagSubscriptionOn = 5;
+const int idDX_GetTagSubsStr1 = 6;
+const int idDX_GetTagSubsStr2 = 7;
+const int idDX_SetTagSubsStr1 = 8;
 
 const int maxElements = 80;
 
@@ -72,18 +81,32 @@ const int maxElements = 80;
 
 void CTagIO::BuildDataFields()
   {
-
   DD.CheckBox("On",       "", &m_bOn,         MF_PARAMETER);
-  DD.CheckBox("OnFly",    "", idDX_OnFly,     MF_PARAMETER);
+  DD.Text(" ");
+  DD.Text("----------------------------------------");
+  DD.Text("Example of GetTag and SetTag...");
+  DD.String("GetTag", "", idDX_GetTagStr, MF_PARAMETER);
+  DD.Button("GetValueNow", "", idDX_GetTagButton);
+  DD.Double("GetValue", "", &m_dGetValue, MF_RESULT|MF_NanOK, MC_);
+  DD.Text((LPCSTR)m_sGetStatus);
+  DD.Text(" ");
+  DD.String("PutTag", "", idDX_PutTagStr, MF_PARAMETER);
+  DD.Double("ValueToSet", "", &m_dSetValue, MF_PARAMETER|MF_NanOK);
+  DD.Button("SetValueNow", "", idDX_SetTagButton);
+  DD.Text((LPCSTR)m_sSetStatus);
+  
 
   DD.Text(" ");
-  DD.String("GetTempTag", "", idDX_GetTag,    MF_PARAMETER);
-  DD.String("PutTempTag", "", idDX_PutTag,    MF_PARAMETER);
-
   DD.Text(" ");
-  DD.Double("GetTemp",    "", &m_GetTemp,     0,            MC_T("C"));
-  DD.Double("DeltaTemp",  "", &m_DeltaTemp,   MF_PARAMETER, MC_dT("C"));
-  DD.Double("PutTemp",    "", &m_PutTemp,     0,            MC_T("C"));
+  DD.Text("----------------------------------------");
+  DD.Text("Example of tag subscription...");
+  DD.CheckBox("TagSubscriptionOn", "", idDX_TagSubscriptionOn, MF_PARAMETER);
+  DD.String("GetTagSubs1", "", idDX_GetTagSubsStr1, MF_PARAMETER);
+  DD.String("GetTagSubs2", "", idDX_GetTagSubsStr2, MF_PARAMETER);
+  DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, MC_);
+  DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, MC_);
+  DD.String("SetTagSubs1", "", idDX_GetTagSubsStr1, MF_PARAMETER);
+  DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, MC_);
   }
 
 //---------------------------------------------------------------------------
@@ -92,38 +115,83 @@ bool CTagIO::ExchangeDataFields()
   {
   switch (DX.Handle)
     {
-    case idDX_OnFly:
+    case idDX_GetTagStr:
       if (DX.HasReqdValue)
+        m_sGetTag = DX.String;
+      DX.String = m_sGetTag;
+      return true;
+    case idDX_PutTagStr:
+      if (DX.HasReqdValue)
+        m_sSetTag = DX.String;
+      DX.String = m_sSetTag;
+      return true;
+    case idDX_GetTagButton:
+		  if (DX.HasReqdValue && DX.Bool)
         {
-        m_OnFly = DX.Bool;
-        if (m_OnFly)
+        int RetCode = TagIO.GetTag(m_sGetTag, m_dGetValue);
+        if (RetCode==MTagIO_OK)
           {
-          TagIO.Close();
-          m_iGet = -1;
-          m_iPut = -1;
+          m_sGetStatus.Format("Retrieved %s", m_sGetTag);
           }
         else
           {
-          TagIO.Open(100);
-          m_iGet = TagIO.Add(m_GetTempTag, "Tag2Get", TIO_Get);
-          m_iPut = TagIO.Add(m_PutTempTag, "Tag2Put", TIO_Set);
-          if (m_iGet<0 || m_iPut<0)
-            {
-            /*Error*/;
-            }
+          m_sGetStatus.Format("Error %d", RetCode);
           }
         }
-      DX.Bool=m_OnFly;
+  		DX.Bool = false;
       return true;
-    case idDX_GetTag:
-      if (DX.HasReqdValue)
-        m_GetTempTag = DX.String;
-      DX.String = m_GetTempTag;
+    case idDX_SetTagButton:
+		  if (DX.HasReqdValue && DX.Bool)
+        {
+        int RetCode = TagIO.SetTag(m_sSetTag, m_dSetValue);
+        if (RetCode==MTagIO_OK)
+          {
+          m_sSetStatus.Format("Set %s", m_sSetTag);
+          }
+        else
+          {
+          m_sSetStatus.Format("Error %d", RetCode);
+          }
+        }
+  		DX.Bool = false;
       return true;
-    case idDX_PutTag:
+
+    case idDX_TagSubscriptionOn:
       if (DX.HasReqdValue)
-        m_PutTempTag = DX.String;
-      DX.String = m_PutTempTag;
+        {
+        m_bSubsActive = DX.Bool;
+        if (m_bSubsActive)
+          {
+          TagIO.Open(100);
+          m_iGet1 = TagIO.Add(m_sGetTagSubs1, "Tag2Get1", MTIO_Get);
+          m_iGet2 = TagIO.Add(m_sGetTagSubs2, "Tag2Get2", MTIO_Get);
+          m_iSet1 = TagIO.Add(m_sSetTagSubs1, "Tag2Put1", MTIO_Set);
+          if (m_iGet1<0)
+            Log.Message(MMsg_Error, "Error with GetTag1");
+          if (m_iGet2<0)
+            Log.Message(MMsg_Error, "Error with GetTag2");
+          if (m_iSet1<0)
+            Log.Message(MMsg_Error, "Error with SetTag1");
+          }
+        else
+          {
+          TagIO.Close();
+          m_iGet1 = -1;
+          m_iGet2 = -1;
+          m_iSet1 = -1;
+          }
+        }
+      DX.Bool=m_bSubsActive;
+      return true;
+    case idDX_GetTagSubsStr1:
+      if (DX.HasReqdValue)
+        m_sGetTagSubs1 = DX.String;
+      DX.String = m_sGetTagSubs1;
+      return true;
+    case idDX_GetTagSubsStr2:
+      if (DX.HasReqdValue)
+        m_sGetTagSubs2 = DX.String;
+      DX.String = m_sGetTagSubs2;
       return true;
     }
   return false;
@@ -138,44 +206,30 @@ bool CTagIO::ValidateDataFields()
 
 //---------------------------------------------------------------------------
 
-void    CTagIO::EvalCtrlInitialise(eScdCtrlTasks Tasks)
+void CTagIO::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   { 
-  }; 
-void    CTagIO::EvalCtrlActions(eScdCtrlTasks Tasks)    
+  }
+
+//---------------------------------------------------------------------------
+
+void CTagIO::EvalCtrlActions(eScdCtrlTasks Tasks)    
   { 
-  ; 
-  };
-void    CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)   
+  }
+
+//---------------------------------------------------------------------------
+
+void CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)   
   { 
   if (m_bOn) 
     {
     try
       {
-      if (m_OnFly)
-        {
-        if (TagIO.Peek(m_GetTempTag, m_GetTemp)!=TagIO_OK)
-          { /* Error*/ }
-
-        m_PutTemp=m_GetTemp+m_DeltaTemp;
-
-        if (TagIO.Poke(m_PutTempTag, m_PutTemp)!=TagIO_OK)
-          { /* Error*/ }
-        }
-      else
-        {
-        if (1) // The efficient option
-          {
-          m_GetTemp = TagIO.DValue[m_iGet];
-          m_PutTemp = m_GetTemp + m_DeltaTemp;
-          TagIO.DValue[m_iPut] = m_PutTemp;
-          }
-        else
-          {
-          m_GetTemp = TagIO.DValue[m_GetTempTag];
-          m_PutTemp = m_GetTemp + m_DeltaTemp;
-          TagIO.DValue[m_PutTempTag] = m_PutTemp;
-          }
-        }
+      if (m_iGet1>=0)
+        m_dGetValueSubs1 = TagIO.DValue[m_iGet1];
+      if (m_iGet2>=0)
+        m_dGetValueSubs2 = TagIO.DValue[m_iGet2];
+      if (m_iSet1>=0)
+        TagIO.DValue[m_iSet1] = m_dSetValueSubs1;
       }
     catch (MMdlException &ex)
       {
@@ -195,10 +249,12 @@ void    CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)
       Log.Message(MMsg_Error, "Some Unknown Exception occured");
       }
     }
-  };
-void    CTagIO::EvalCtrlTerminate(eScdCtrlTasks Tasks)
+  }
+
+//---------------------------------------------------------------------------
+
+void CTagIO::EvalCtrlTerminate(eScdCtrlTasks Tasks)
   {
-  ; 
-  }; 
+  }
 
 //---------------------------------------------------------------------------
