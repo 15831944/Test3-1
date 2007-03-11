@@ -326,6 +326,9 @@
 			<File
 				RelativePath=".\TTOrifice.cpp">
 			</File>
+			<File
+				RelativePath="..\TTCommon\utils.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -338,6 +341,9 @@
 			</File>
 			<File
 				RelativePath=".\TTOrifice.h">
+			</File>
+			<File
+				RelativePath="..\TTCommon\utils.h">
 			</File>
 		</Filter>
 		<Filter

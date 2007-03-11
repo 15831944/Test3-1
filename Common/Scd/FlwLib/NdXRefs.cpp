@@ -1075,19 +1075,25 @@ CNodeTagIOList::CTagItem::CTagItem(LPCSTR Tag, LPCSTR Name, long Options) : m_Va
 
   m_sTag         = sTag();
   m_sCnv         = sCnv();
-  m_sFullTag.Format("%s (%s)", sTag(), sCnv());
+  if (sCnv.Len())
+    m_sFullTag.Format("%s (%s)", sTag(), sCnv());
+  else
+    m_sFullTag = m_sTag;
   m_sName        = Name;
   if (m_sName.GetLength()==0) 
     m_sName.Format("Tag%03i", m_lIdNo);
   m_lOptions     = Options;
+  //m_iDataType    = tt_NULL;
   m_DblValue     = dNAN;//0.0;
   m_lIdNo        = -1;
   m_bValid       = false; 
-  };
+  }
+
+//---------------------------------------------------------------------------
 
 CNodeTagIOList::CTagItem::~CTagItem()
   {
-  };
+  }
 
 //===========================================================================
 //
@@ -1124,7 +1130,7 @@ void CNodeTagIOList::BuildDataDefn(DataDefnBlk & DDB)
       if (m_Items[i])
         {
         CTagItem *p=m_Items[i];
-        DWORD Opts=(p->m_lOptions & (TIO_Parm|TIO_Set))==(TIO_Parm|TIO_Set) ? isParm:0;
+        DWORD Opts=(p->m_lOptions & (MTIO_Parm|MTIO_Set))==(MTIO_Parm|MTIO_Set) ? isParm : 0;
         DDB.Double((LPSTR)p->Name(), "", p->CnvIndex(), (LPSTR)p->CnvText(), &p->m_DblValue, m_pNd, Opts|NAN_OK|noFileAtAll);
         if (m_bShowTags)
           DDB.TagComment((LPSTR)p->Tag());
@@ -1154,6 +1160,8 @@ flag CNodeTagIOList::ValidateData(ValidateDataBlk & VDB)
 
 long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
   {
+  if (ItemTag==NULL || ItemTag[0]==0)
+    return -3;
   if (FindTag(ItemTag)<0)
     {
     if (Name && strlen(Name)>0 && FindName(Name)>=0)
@@ -1242,13 +1250,33 @@ long CNodeTagIOList::FindName(LPCSTR Name)
 
 //---------------------------------------------------------------------------
 
-long CNodeTagIOList::GetType(long Index)         
+bool CNodeTagIOList::IsActive(long Index)         
   { 
   if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
-    return -1;//m_Items[Index]->m_Var.mm_sTag; 
-  return -1;
+    return m_Items[Index]->IsXRefActive();
+  return false;
   }
 
+short CNodeTagIOList::GetDataType(long Index)         
+  { 
+  if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
+    return m_Items[Index]->DataType();
+  return tt_NULL;
+  }
+
+short CNodeTagIOList::GetCnvIndex(long Index)         
+  { 
+  if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
+    return m_Items[Index]->CnvIndex();
+  return 0;
+  }
+
+long CNodeTagIOList::GetOptions(long Index)     
+  {
+  if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
+    return m_Items[Index]->m_lOptions; 
+  return 0;
+  }
 
 LPCSTR CNodeTagIOList::GetTag(long Index)         
   { 
@@ -1271,13 +1299,6 @@ LPCSTR CNodeTagIOList::GetCnvText(long Index)
   return "";                    
   }
 
-long CNodeTagIOList::GetOptions(long Index)     
-  {
-  if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
-    return m_Items[Index]->m_lOptions; 
-  return 0;
-  }
-
 double CNodeTagIOList::GetDValue(long Index, bool UseCnv)
   {
   if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
@@ -1292,7 +1313,7 @@ double CNodeTagIOList::GetDValue(long Index, bool UseCnv)
       }
     }
   return dNAN;
-  };
+  }
 
 void   CNodeTagIOList::SetDValue(long Index, double Value, bool UseCnv)
   {
@@ -1310,10 +1331,12 @@ void   CNodeTagIOList::SetDValue(long Index, double Value, bool UseCnv)
   }
 
 bool   CNodeTagIOList::Remove(LPCSTR ItemTag)                             { return Remove(FindTag(ItemTag));              }
-long   CNodeTagIOList::GetType(LPCSTR Tag)                                { return GetType(FindTag(Tag));                 }
+bool   CNodeTagIOList::IsActive(LPCSTR Tag)                               { return IsActive(FindTag(Tag));                }
+short  CNodeTagIOList::GetDataType(LPCSTR Tag)                            { return GetDataType(FindTag(Tag));             }
+short  CNodeTagIOList::GetCnvIndex(LPCSTR Tag)                            { return GetCnvIndex(FindTag(Tag));             }
+long   CNodeTagIOList::GetOptions(LPCSTR Tag)                             { return GetOptions(FindTag(Tag));              }
 LPCSTR CNodeTagIOList::GetFullTag(LPCSTR Tag)                             { return GetFullTag(FindTag(Tag));              }
 LPCSTR CNodeTagIOList::GetCnvText(LPCSTR Tag)                             { return GetCnvText(FindTag(Tag));              }
-long   CNodeTagIOList::GetOptions(LPCSTR Tag)                             { return GetOptions(FindTag(Tag));              }
 double CNodeTagIOList::GetDValue(LPCSTR Tag, bool UseCnv)                 { return GetDValue(FindTag(Tag), UseCnv);       }
 void   CNodeTagIOList::SetDValue(LPCSTR Tag, double Value, bool UseCnv)   { SetDValue(FindTag(Tag), Value, UseCnv);       }
 
@@ -1330,7 +1353,7 @@ int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
       if (m_Items[i])
         {
         CTagItem *p=m_Items[i];
-        int RetCode = p->m_Var.UpdateXRef(p, (p->m_lOptions & TIO_Set)!=0, true /*Always Get the latest*/, 
+        int RetCode = p->m_Var.UpdateXRef(p, (p->m_lOptions & MTIO_Set)!=0, true /*Always Get the latest*/, 
                                           FunctNo, m_pNd, -1, p->Tag(), p->Name(), "CNodeTagList:Output", Results);
         if (RetCode!=BXR_OK)
           {
@@ -1449,8 +1472,8 @@ void CNodeTagIOList::GetAllValues(bool CallGetNearXRefs)
     for (int i=0; i<m_Items.GetCount(); i++)
       {
       CTagItem * p=m_Items[i];
-      if (p && (p->m_lOptions & TIO_Get))
-        p->m_Var.GetValue(p->m_DblValue, true);//(p->m_lOptions &TIO_SICnv)!=0);
+      if (p && (p->m_lOptions & MTIO_Get))
+        p->m_Var.GetValue(p->m_DblValue, true);//(p->m_lOptions &MTIO_SICnv)!=0);
       }
     }
   };
@@ -1464,7 +1487,7 @@ void CNodeTagIOList::SetAllValues(bool CallSetNearXRefs)
     for (int i=0; i<m_Items.GetCount(); i++)
       {
       CTagItem * p=m_Items[i];
-      if (p && (p->m_lOptions & TIO_Set))
+      if (p && (p->m_lOptions & MTIO_Set))
         p->m_Var.PutValue(p->m_DblValue, true);
       }
 

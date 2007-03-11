@@ -5,108 +5,9 @@
 #if !defined(MD_SHARE2_H__35A13D43_76B6_4580_9346_73722745E1B7__INCLUDED_)
 #define MD_SHARE2_H__35A13D43_76B6_4580_9346_73722745E1B7__INCLUDED_
 
-//#if _MSC_VER > 1000
-//#pragma once
-//#endif // _MSC_VER > 1000
+#include "md_share0.h"
 
 // ======================================================================
-//
-//
-//
-// ======================================================================
-
-typedef ULONG64 DDEF_Flags;
-
-// First Octet
-// Network solution modes
-const long NM_Probal       = eScdNet_Probal;
-const long NM_Dynamic      = eScdNet_Dynamic;
-const long NM_All          = eScdNet_Probal|eScdNet_Dynamic;
-
-// Second Octet
-const long SM_Direct       = eScdSolve_Direct;
-const long SM_Inline       = eScdSolve_Inline;
-const long SM_Buffered     = eScdSolve_Buffered;
-//const long SM_Inline       = 0x00000008;              
-
-// Third Octet
-const long HM_None         = eScdHeat_None;
-const long HM_Reduced       = eScdHeat_Simple;
-const long HM_Full         = eScdHeat_Full;
-
-// Fourth & Fifth Octets
-// Link Flw Modes
-const long LFM_Xfer         = eScdFlow_Xfer;   
-const long LFM_Simple       = eScdFlow_Simple;
-const long LFM_Linear       = eScdFlow_Linear;
-const long LFM_Full         = eScdFlow_Full;
-const long LFM_All          = eScdFlow_Xfer | eScdFlow_Simple | eScdFlow_Linear | eScdFlow_Full;
-const long LFM_Propagate    = eScdFlow_Propagate;
-const long LFM_Propagated   = eScdFlow_Propagated;
-const long LFM_AllPg        = LFM_AllPg | eScdFlow_Propagate | eScdFlow_Propagated;
-
-//const long LFM_HasFullFlow  = eScdFlow_HasFullFlow;
-
-const long SM_DynSurge      = SM_Inline | SM_Buffered;
-const long SM_DynBoth       = SM_Inline | SM_Buffered;
-const long SM_All           = SM_Direct | SM_Inline | SM_Buffered;
-const long HM_All           = HM_None | HM_Reduced | HM_Full;
-
-const long NSHM_All         = NM_All | SM_All | HM_All;       
-
-const long MODEVISIBLE      = eScdFlow_ModeVisible;       
-
-const DDEF_Flags DDEF_NOCOMPARE           = 0x0000000000020000;// Maybe masked out ??
-const DDEF_Flags DDEF_NAN_OK              = 0x0000000000040000;
-
-const DDEF_Flags DDEF_NONDB               = 0x0000000000080000;
-const DDEF_Flags DDEF_NOFILE              = 0x0000000000100000;
-const DDEF_Flags DDEF_NOVIEW              = 0x0000000000200000;
-const DDEF_Flags DDEF_NOSNAPSHOT          = 0x0000000000400000;
-const DDEF_Flags DDEF_NOSCENARIO          = 0x0000000000800000;
-const DDEF_Flags DDEF_CHECKBOX            = 0x0000000001000000;
-const DDEF_Flags DDEF_BUTTON              = 0x0000000002000000;
-const DDEF_Flags DDEF_PARAMSTOPPED        = 0x0000000004000000;
-const DDEF_Flags DDEF_PARAM               = 0x0000000008000000;
-const DDEF_Flags DDEF_RESULT              = 0x0000000010000000;
-const DDEF_Flags DDEF_SETONCHANGE         = 0x0000000020000000;
-const DDEF_Flags DDEF_HIDDEN              = 0x0000000040000000;
-const DDEF_Flags DDEF_HIDEIFZERO          = 0x0000000080000000;
-
-const DDEF_Flags DDEF_PARAMCONSTRUCT      = 0x0000000100000000;
-const DDEF_Flags DDEF_WRITEPROTECT        = 0x0000000200000000;
-const DDEF_Flags DDEF_TAGPARM             = 0x0000000400000000; 
-const DDEF_Flags DDEF_FUNCTPARM           = 0x0000000800000000;
-const DDEF_Flags DDEF_AFFECTSSTRUCT       = 0x0000001000000000;
-const DDEF_Flags DDEF_KEEPHISTORY         = 0x0000002000000000;
-const DDEF_Flags DDEF_DUPHANDLES_OK       = 0x0000004000000000;
-const DDEF_Flags DDEF_MULTILINESTR        = 0x0000008000000000;
-const DDEF_Flags DDEF_INERROR             = 0x0000010000000000;
-const DDEF_Flags DDEF_DRIVERTAG           = 0x0000020000000000;
-const DDEF_Flags DDEF_ARCHIVETAG          = 0x0000040000000000;
-const DDEF_Flags DDEF_NOPUTSHORTCUT       = 0x0000080000000000; // Facilty Unused
-const DDEF_Flags DDEF_DUALVALUE           = 0x0000100000000000;
-const DDEF_Flags DDEF_DUALVALUEOVR        = 0x0000200000000000;
-const DDEF_Flags DDEF_TREENODE            = 0x0000400000000000;
-const DDEF_Flags DDEF_TREECLOSED          = 0x0000800000000000;
-const DDEF_Flags DDEF_CHILDMASK           = 0x0003000000000000;
-const DDEF_Flags DDEF_ISSPECIE            = 0x0004000000000000;
-const DDEF_Flags DDEF_ISSPECIEATT         = 0x0008000000000000;
-const DDEF_Flags DDEF_ISSPECIECALC        = 0x0010000000000000;
-const DDEF_Flags DDEF_STARTROW            = 0x0020000000000000;
-const DDEF_Flags DDEF_ENDROWS             = 0x0040000000000000;
-//const DDEF_Flags DDEF_NDBIMPORT           = 0x0020000000000000;
-
-//                                            6 5  4 3  2 1
-//                                            0628406284062840
-const int     DDEF_CHILDSHIFT             = 40;
-
-inline DDEF_Flags ChildLevel(int i) { return (DDEF_CHILDMASK) & (((ULONG64)i)<<DDEF_CHILDSHIFT); }
-
-//===============================
-
-typedef DDEF_Flags MD_Flags;
-
 
 // Unit Model Field MF_xxx : unit model field flags information/options/etc for adding tags to the system...
 const MD_Flags MF_RESULT        = DDEF_RESULT;         //result field in access window
@@ -170,9 +71,56 @@ const DWORD MP_HardMin          = 0x40000000;
 const DWORD MP_HardMax          = 0x80000000;
 
 // ======================================================================
+// Field data types MDT_xxx
+
+const unsigned char MDT_NULL        = tt_NULL        ;
+const unsigned char MDT_Bool        = tt_Bool        ;
+const unsigned char MDT_Bit         = tt_Bit         ;
+const unsigned char MDT_Byte        = tt_Byte        ;
+const unsigned char MDT_Word        = tt_Word        ;
+const unsigned char MDT_DWord       = tt_DWord       ;
+const unsigned char MDT_Char        = tt_Char        ;
+const unsigned char MDT_Int         = tt_Int         ;
+const unsigned char MDT_Short       = tt_Short       ;
+const unsigned char MDT_Long        = tt_Long        ;
+const unsigned char MDT_Flt16       = tt_Flt16       ;
+const unsigned char MDT_Float       = tt_Float       ;
+const unsigned char MDT_Double      = tt_Double      ;
+const unsigned char MDT_Generic     = tt_Generic     ;
+const unsigned char MDT_pChar       = tt_pChar       ;
+const unsigned char MDT_ppChar      = tt_ppChar      ;
+const unsigned char MDT_Strng       = tt_Strng       ;
+const unsigned char MDT_RqdPage     = tt_RqdPage     ;
+const unsigned char MDT_OptPage     = tt_OptPage     ;
+const unsigned char MDT_Column      = tt_Column      ;
+const unsigned char MDT_Text        = tt_Text        ;
+const unsigned char MDT_Struct      = tt_Struct      ;
+const unsigned char MDT_Element     = tt_Element     ;
+const unsigned char MDT_Object      = tt_Object      ;
+const unsigned char MDT_Array       = tt_Array       ;
+const unsigned char MDT_Struct_E    = tt_Struct_E    ;
+const unsigned char MDT_Element_E   = tt_Element_E   ;
+const unsigned char MDT_Object_E    = tt_Object_E    ;
+const unsigned char MDT_Array_E     = tt_Array_E     ;
+const unsigned char MDT_Blob        = tt_Blob        ;
+
+inline bool IsNumDataType(unsigned char iType)     { return (iType>=MDT_Bool && iType <= MDT_Generic); };
+inline bool IsIntDataType(unsigned char iType)     { return (iType>=MDT_Bool && iType <= MDT_Long); };
+inline bool IsFloatDataType(unsigned char iType)   { return (iType>=MDT_Flt16 && iType <= MDT_Double); };
+inline bool IsStrngDataType(unsigned char iType)   { return (iType>=MDT_pChar && iType <= MDT_Strng); };
+
+// ======================================================================
 //
 //
 //
+// ======================================================================
+// MTagIO constants for options used in class MTagIO see md_method.h
+enum { MTIO_Int, MTIO_Double, MTIO_String };
+const long MTIO_Get       = 0x00000001;
+const long MTIO_Set       = 0x00000002;
+const long MTIO_Parm      = 0x00000004;
+const long MTIO_SICnv     = 0x00000008;
+
 // ======================================================================
 
 const long AH_Active = 0x01;
@@ -304,7 +252,6 @@ class DllImportExport MPropertyValue
     CString         m_String;
   };
 
-
 // ======================================================================
 //
 //
@@ -320,11 +267,12 @@ class DllImportExport MPropertyValue
 #define DllImportExport
 #endif
 
+/* Class MCnv: Engineering conversion.*/
 class DllImportExport MCnv
   {
   public:
-    MCnv()                          { m_Index=0; m_Txt=""; }
-    MCnv & operator()(LPCTSTR Txt)  { m_Txt=Txt; return *this; }
+    MCnv()                          { m_Index=0; m_Txt=""; };
+    MCnv & operator()(LPCTSTR Txt)  { m_Txt=Txt; return *this; };
     operator short()                { return m_Index; };
     operator long()                 { return m_Index; };
 
@@ -414,18 +362,26 @@ extern DllImportExport MCnv MC_Money    ; //Money                   : Base
 extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base/s
 
 
+/* Class MCnvs: Helper class for accessing collection of engineering conversions.*/
 class DllImportExport MCnvs
   {
   public:
     MCnvs();    
+    
+    //return number of Cnvs
     int     Count();
-    int     FindPrimary(LPCTSTR Name);
-    //int FindSecondary(LPCTSTR Name);
-    bool    Create(LPCTSTR NameCnv, MCnv & Cnv);
+    //return index of specified conversion family name
+    short   FindPrimary(LPCTSTR Name);
+    //return scale for specified conversion
     double  Scale(const MCnv & Cnv);
+    //return offset for specified conversion
     double  Offset(const MCnv & Cnv);
+
+    //try create a valid conversion for the suplied string
+    bool    Create(LPCTSTR NameCnv, MCnv & Cnv);
   };
 
+//The global instance of the engineering conversion collection helper class:
 extern DllImportExport MCnvs gs_Cnvs;
 
 //---------------------------------------------------------------------------

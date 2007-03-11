@@ -383,6 +383,9 @@
 				RelativePath=".\PGM_N.CPP">
 			</File>
 			<File
+				RelativePath=".\PGM_S.CPP">
+			</File>
+			<File
 				RelativePath=".\picture.cpp">
 			</File>
 			<File
@@ -557,6 +560,9 @@
 			</File>
 			<File
 				RelativePath=".\PGM_N.H">
+			</File>
+			<File
+				RelativePath=".\PGM_S.H">
 			</File>
 			<File
 				RelativePath=".\picture.h">

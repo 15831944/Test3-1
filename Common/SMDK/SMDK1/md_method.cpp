@@ -1022,91 +1022,379 @@ long MCtrlIOs::getNoCtrlIOs() { return m_pNd->NoCIOs(); };
 
 #if WITHNODETAGIO
 
+void MTagIOInfo::Clear()
+  {
+  DataType = MDT_NULL;
+  CnvIndex = 0;
+  Flags = 0;
+  }
+
+bool MTagIOInfo::NumDataType() { return IsNumDataType(DataType); };
+bool MTagIOInfo::IntDataType() { return IsIntDataType(DataType); };
+bool MTagIOInfo::FloatDataType() { return IsFloatDataType(DataType); };
+bool MTagIOInfo::StrngDataType() { return IsStrngDataType(DataType); };
+
+
+//---------------------------------------------------------------------------
+
 void   MTagIO::Open(long EstimatedTagCount)                       { m_pNd->SetTagIOReqd(true, EstimatedTagCount);         };
 void   MTagIO::Close()                                            { m_pNd->SetTagIOReqd(false, 0);                        };
 
 long   MTagIO::Add(LPCSTR ItemTag, LPCSTR Name, long Options)     { return m_pNd->m_pTagIO->Add(ItemTag, Name, Options);  };       
 bool   MTagIO::Remove(long ID)                                    { return m_pNd->m_pTagIO->Remove(ID);                   };
-bool   MTagIO::Remove(LPCSTR ItemTag)                             { return m_pNd->m_pTagIO->Remove(ItemTag);              };
 void   MTagIO::RemoveAll()                                        { return m_pNd->m_pTagIO->RemoveAll();                  };
 long   MTagIO::getCount()                                         { return m_pNd->m_pTagIO->GetCount();                   };
                                                                                             
 long   MTagIO::FindTag(LPCSTR ItemTag)                            { return m_pNd->m_pTagIO->FindTag(ItemTag);             };
 long   MTagIO::FindName(LPCSTR Name)                              { return m_pNd->m_pTagIO->FindName(Name);               };
                                                                                             
-long   MTagIO::getType(long ID)                                   { return m_pNd->m_pTagIO->GetType(ID);                  };
+bool   MTagIO::getIsActive(long ID)                               { return m_pNd->m_pTagIO->IsActive(ID);                 };
+short  MTagIO::getDataType(long ID)                               { return m_pNd->m_pTagIO->GetDataType(ID);              };
+short  MTagIO::getCnvIndex(long ID)                               { return m_pNd->m_pTagIO->GetCnvIndex(ID);              };
+long   MTagIO::getOptions(long ID)                                { return m_pNd->m_pTagIO->GetOptions(ID);               };
 LPCSTR MTagIO::getTag(long ID)                                    { return m_pNd->m_pTagIO->GetTag(ID);                   };
 LPCSTR MTagIO::getFullTag(long ID)                                { return m_pNd->m_pTagIO->GetFullTag(ID);               };
 LPCSTR MTagIO::getCnvText(long ID)                                { return m_pNd->m_pTagIO->GetCnvText(ID);               };
-long   MTagIO::getOptions(long ID)                                { return m_pNd->m_pTagIO->GetOptions(ID);               };
                                                                                                
 double MTagIO::getDValue(long ID)                                 { return m_pNd->m_pTagIO->GetDValue(ID, false);         };
 void   MTagIO::putDValue(long ID, double Value)                   { m_pNd->m_pTagIO->SetDValue(ID, Value, false);         };
-                                                                                            
-long   MTagIO::getType(LPCSTR Tag)                                { return m_pNd->m_pTagIO->GetType(Tag);                 };
-LPCSTR MTagIO::getCnvText(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetCnvText(Tag);              };
-LPCSTR MTagIO::getFullTag(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetFullTag(Tag);              };
-long   MTagIO::getOptions(LPCSTR Tag)                             { return m_pNd->m_pTagIO->GetOptions(Tag);              };
-                                                                                            
-double MTagIO::getDValue(LPCSTR Tag)                              { return m_pNd->m_pTagIO->GetDValue(Tag, false);        };
-void   MTagIO::putDValue(LPCSTR Tag, double Value)                { m_pNd->m_pTagIO->SetDValue(Tag, Value, false);        };
 
 //===========================================================================
 
-MTagIOResult MTagIO::Peek(LPCSTR Tag, double & Value)
+MTagIOResult MTagIO::GetTagInfo(LPCSTR Tag, MTagIOInfo & TagInfo)
   {
-  CXM_Route ObjRoute;
-  CXM_ObjectTag ObjTag((LPSTR)Tag, TABOpt_ValCnvs);
-  CXM_ObjectData ObjData;
-  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+  TagInfo.Clear();
+  if (Tag==NULL || Tag[0]==0)
     {
-    CPkDataItem * pItem=ObjData.FirstItem();
-    if (IsNumData(pItem->Type()))
-      {
-      Value=pItem->Value()->GetDouble();
-      return TagIO_OK;
-      }
-    else
-      return TagIO_NotAllowed;
+    return MTagIO_NotSpecified;
     }
-
-  return TagIO_NotFound;
-  };
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      TagInfo.DataType = pItem->Type();
+      TagInfo.CnvIndex = pItem->CnvIndex();
+      TagInfo.Flags = pItem->Flags();
+      if (IsData(pItem->Type()))
+        return MTagIO_OK;
+      else
+        return MTagIO_NotAllowed;
+      }
+    return MTagIO_NotFound;
+    }
+  }
 
 //---------------------------------------------------------------------------
 
-MTagIOResult MTagIO::Poke(LPCSTR Tag, double Value)
+MTagIOResult MTagIO::GetTag(LPCSTR Tag, double & Value)
   {
-  CXM_Route ObjRoute;
-  CXM_ObjectTag ObjTag((LPSTR)Tag, TABOpt_ValCnvs);
-  CXM_ObjectData ObjData;
-  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute)!=0)
+  if (Tag==NULL || Tag[0]==0)
     {
-    CPkDataItem * pPItem=ObjData.FirstItem();
-    if ((pPItem->Flags() & isParm)!=0)
-      {
-      if (IsNumData(pPItem->Type()))
-        {
-        PkDataUnion DU;
-        DU.SetTypeDouble(tt_Double, Value);
-        CXM_ObjectData ObjData(0, 0, (LPSTR)Tag, 0, DU);
-        if (gs_Exec.XWriteTaggedItem(NULL, ObjData, ObjRoute)==TOData_OK)
-          {
-          return TagIO_OK;
-          }
-        else
-          return TagIO_WriteFail;
-        }
-      else 
-        return TagIO_NotAllowed;
-      }
-    else
-      return TagIO_ReadOnly;
+    return MTagIO_NotSpecified;
     }
   else
-    return TagIO_NotFound;
-  };
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      const byte cType = pItem->Type();
+      if (IsFloatData(cType))
+        {
+        if (UseCnv && ((pItem->CnvIndex())==0 || Cnvs[(pItem->CnvIndex())]->Find(sCnv())==NULL))
+          {
+          UseCnv = false;
+          //errormsg = "Warning: Engineering units '%s' for tag %s are invalid", sCnv(), sTag());
+          }
+        Value = (UseCnv ? pItem->Value()->GetDouble(pItem->CnvIndex(), sCnv()) : pItem->Value()->GetDouble());
+        return MTagIO_OK;
+        }
+      else if (IsIntData(cType))
+        {
+        /*if (UseCnv)
+          {
+          //errormsg = "Warning: Engineering units should not be specified for tag %s", sTag());
+          }*/
+        Value = pItem->Value()->GetLong();
+        return MTagIO_OK;
+        }
+      else if (IsStrng(cType))
+        {
+        return MTagIO_BadDataType;
+        }
+      else 
+        {
+        return MTagIO_NotAllowed;
+        }
+      }
+    return MTagIO_NotFound;
+    }
+  }
 
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::GetTag(LPCSTR Tag, long & Value)
+  {
+  if (Tag==NULL || Tag[0]==0)
+    {
+    return MTagIO_NotSpecified;
+    }
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    //bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      const byte cType = pItem->Type();
+      if (IsIntData(cType))
+        {
+        Value = pItem->Value()->GetLong();
+        return MTagIO_OK;
+        }
+      else if (IsFloatData(cType))
+        {
+        return MTagIO_BadDataType;
+        }
+      else if (IsStrng(cType))
+        {
+        return MTagIO_BadDataType;
+        }
+      else 
+        {
+        return MTagIO_NotAllowed;
+        }
+      }
+    return MTagIO_NotFound;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::GetTag(LPCSTR Tag, CString & Value)
+  {
+  if (Tag==NULL || Tag[0]==0)
+    {
+    return MTagIO_NotSpecified;
+    }
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    //bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute))
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      const byte cType = pItem->Type();
+      if (IsStrng(cType))
+        {
+        Value = pItem->Value()->GetString();
+        return MTagIO_OK;
+        }
+      else if (IsNumData(cType))
+        {
+        return MTagIO_BadDataType;
+        }
+      else 
+        {
+        return MTagIO_NotAllowed;
+        }
+      }
+    return MTagIO_NotFound;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::SetTag(LPCSTR Tag, double Value)
+  {
+  if (Tag==NULL || Tag[0]==0)
+    {
+    return MTagIO_NotSpecified;
+    }
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute)!=0)
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      if ((pItem->Flags() & isParm)!=0)
+        {
+        const byte cType = pItem->Type();
+        if (IsNumData(cType))
+          {
+          PkDataUnion DU;
+          if (IsFloatData(cType))
+            {
+            if (UseCnv && ((pItem->CnvIndex())==0 || Cnvs[(pItem->CnvIndex())]->Find(sCnv())==NULL))
+              {
+              UseCnv = false;
+              //errormsg = "Warning: Engineering units '%s' for tag %s are invalid", sCnv(), sTag());
+              }
+            }
+          else
+            {
+            UseCnv = false;
+            }
+          if (UseCnv)
+            DU.SetTypeDouble(cType, Value, pItem->CnvIndex(), sCnv());
+          else
+            DU.SetTypeDouble(cType, Value);
+          CXM_ObjectData ObjData(0, 0, sTag(), 0, DU);
+          if (gs_Exec.XWriteTaggedItem(NULL, ObjData, ObjRoute)==TOData_OK)
+            {
+            return MTagIO_OK;
+            }
+          else
+            {
+            return MTagIO_WriteFail;
+            }
+          }
+        else if (IsStrng(cType))
+          {
+          return MTagIO_BadDataType;
+          }
+        else 
+          {
+          return MTagIO_NotAllowed;
+          }
+        }
+      else
+        return MTagIO_ReadOnly;
+      }
+    else
+      return MTagIO_NotFound;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::SetTag(LPCSTR Tag, long Value)
+  {
+  if (Tag==NULL || Tag[0]==0)
+    {
+    return MTagIO_NotSpecified;
+    }
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    //bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute)!=0)
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      if ((pItem->Flags() & isParm)!=0)
+        {
+        const byte cType = pItem->Type();
+        if (IsNumData(cType))
+          {
+          PkDataUnion DU;
+          DU.SetTypeDouble(cType, Value);
+          CXM_ObjectData ObjData(0, 0, sTag(), 0, DU);
+          if (gs_Exec.XWriteTaggedItem(NULL, ObjData, ObjRoute)==TOData_OK)
+            {
+            return MTagIO_OK;
+            }
+          else
+            {
+            return MTagIO_WriteFail;
+            }
+          }
+        else if (IsStrng(cType))
+          {
+          return MTagIO_BadDataType;
+          }
+        else 
+          {
+          return MTagIO_NotAllowed;
+          }
+        }
+      else
+        return MTagIO_ReadOnly;
+      }
+    else
+      return MTagIO_NotFound;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
+MTagIOResult MTagIO::SetTag(LPCSTR Tag, LPCSTR Value)
+  {
+  if (Tag==NULL || Tag[0]==0)
+    {
+    return MTagIO_NotSpecified;
+    }
+  else
+    {
+    Strng sTag, sCnv;
+    TaggedObject::SplitTagCnv((char*)Tag, sTag, sCnv);
+    //bool UseCnv = (sCnv.Len()>0);
+    CXM_Route ObjRoute;
+    CXM_ObjectTag ObjTag(sTag(), TABOpt_ValCnvs);
+    CXM_ObjectData ObjData;
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, ObjRoute)!=0)
+      {
+      CPkDataItem * pItem=ObjData.FirstItem();
+      if ((pItem->Flags() & isParm)!=0)
+        {
+        const byte cType = pItem->Type();
+        if (IsNumData(cType))
+          {
+          return MTagIO_BadDataType;
+          }
+        else if (IsStrng(cType))
+          {
+          PkDataUnion DU;
+          DU.SetTypeString(cType, (char*)Value);
+          CXM_ObjectData ObjData(0, 0, sTag(), 0, DU);
+          if (gs_Exec.XWriteTaggedItem(NULL, ObjData, ObjRoute)==TOData_OK)
+            {
+            return MTagIO_OK;
+            }
+          else
+            {
+            return MTagIO_WriteFail;
+            }
+          }
+        else 
+          {
+          return MTagIO_NotAllowed;
+          }
+        }
+      else
+        return MTagIO_ReadOnly;
+      }
+    else
+      return MTagIO_NotFound;
+    }
+  }
 #endif
 
 //===========================================================================

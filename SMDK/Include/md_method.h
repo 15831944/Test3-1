@@ -453,60 +453,107 @@ class DllImportExport MCtrlIOs : public MBaseMethodCommonRef
   };
 
 //===========================================================================
-// Tag IO Interface
+/* Class MTagIO: Helper class for geting or setting external tags. 
+   This can be with once off get and set commands; or through a subscription 
+   list where tags are continuously updated.
+*/
 
-enum MTagIOResult { TagIO_OK, TagIO_NotFound, TagIO_NotAllowed, TagIO_ReadOnly, TagIO_WriteFail };
+class DllImportExport MTagIOInfo
+  {
+  public:
+    MTagIOInfo() { Clear(); };
+    void Clear();
+
+    bool NumDataType();
+    bool IntDataType();
+    bool FloatDataType();
+    bool StrngDataType();
+
+    bool IsParam() { return (Flags & MF_PARAMETER)!=0; };
+
+  public:
+    unsigned char DataType;
+    short CnvIndex;
+    MD_Flags Flags;
+  };
+
+enum MTagIOResult { MTagIO_OK, MTagIO_NotSpecified, MTagIO_NotFound, MTagIO_BadDataType, MTagIO_NotAllowed, MTagIO_ReadOnly, MTagIO_WriteFail };
 
 class DllImportExport MTagIO : public MBaseMethodCommonRef
   {
   public:
     MTagIO(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
 
-    // List Management
+    // Section 1: Direct tag access:
+
+    //Get value for specified tag
+    MTagIOResult    GetTag(LPCSTR Tag, double & Value);
+    //Get value for specified tag
+    MTagIOResult    GetTag(LPCSTR Tag, long & Value);
+    //Get value for specified tag
+    MTagIOResult    GetTag(LPCSTR Tag, CString & Value);
+    //Set value for specified tag
+    MTagIOResult    SetTag(LPCSTR Tag, double Value);
+    //Set value for specified tag
+    MTagIOResult    SetTag(LPCSTR Tag, long Value);
+    //Set value for specified tag
+    MTagIOResult    SetTag(LPCSTR Tag, LPCSTR Value);
+    //Check if tag is valid and return tag information
+    MTagIOResult    GetTagInfo(LPCSTR Tag, MTagIOInfo & TagInfo);
+
+
+    // Section 2: Tag subscription list management:
+
+    //Enable and activate TagIO subscription
     void            Open(long EstimatedTagCount);
+    //Disable and stop TagIO subscription
     void            Close();
 
-    long            Add(LPCSTR ItemTag, LPCSTR Name, long Options);        // returns >=0 Index, < 0 Errors
-    bool            Remove(long ID);
-    bool            Remove(LPCSTR ItemTag);
+    //return count of IO tags
+    long            getCount();
+    //add an IO tag, return index ID if OK, -ve number if error; Options=MTIO_Get, etc
+    long            Add(LPCSTR Tag, LPCSTR Name, long Options);
+    //remove all tags in IO list
     void            RemoveAll();
-
-    long            FindTag(LPCSTR ItemTag);
+    //find index ID of specified Tag
+    long            FindTag(LPCSTR Tag);
+    //find index ID of specified Name
     long            FindName(LPCSTR Name);
 
-    long            getCount();
-
-    long            getType(long ID);
-    LPCSTR          getTag(long ID);
-    LPCSTR          getFullTag(long ID);
-    LPCSTR          getCnvText(long ID);
-    long            getOptions(long ID);
-
+    //remove IO tag at specified index ID
+    bool            Remove(long ID);
+    //return true if tag is valid and active
+    bool            getIsActive(long ID);
+    //return value of IO tag at specified index ID
     double          getDValue(long ID);
+    //set value of IO tag at specified index ID
     void            putDValue(long ID, double Value);
-
-    long            getType(LPCSTR Tag);
-    LPCSTR          getCnvText(LPCSTR Tag);
-    LPCSTR          getFullTag(LPCSTR Tag);
-    long            getOptions(LPCSTR Tag);
+    //return data type of IO tag at specified index ID
+    short           getDataType(long ID);
+    //return conversion index of IO tag at specified index ID
+    short           getCnvIndex(long ID);
+    //return options of IO tag at specified index ID
+    long            getOptions(long ID);
+    //return tag of IO tag at specified index ID
+    LPCSTR          getTag(long ID);
+    //return fulltag of IO tag at specified index ID
+    LPCSTR          getFullTag(long ID);
+    //return conversion text of IO tag at specified index ID
+    LPCSTR          getCnvText(long ID);
                     
-    double          getDValue(LPCSTR Tag);
-    void            putDValue(LPCSTR Tag, double Value);
-
 
     __declspec(property(get=getCount))                          long       Count;
 
-    __declspec(property(get=getType))                           long       Type[];
+    __declspec(property(get=getDValue,put=putDValue))           double     DValue[];
+
+    __declspec(property(get=getIsActive))                       bool       IsActive[];
+    __declspec(property(get=getDataType))                       short      DataType[];
+    __declspec(property(get=getCnvIndex))                       short      CnvIndex[];
+    __declspec(property(get=getOptions))                        long       Options[];
     __declspec(property(get=getTag))                            LPCSTR     Tag[];
     __declspec(property(get=getFullTag))                        LPCSTR     FullTag[];
     __declspec(property(get=getCnvText))                        LPCSTR     CnvText[];
-    __declspec(property(get=getOptions))                        long       Options[];
 
-    __declspec(property(get=getDValue,put=putDValue))           double     DValue[];
-
-    // "On-the-fly" functions 
-    MTagIOResult    Peek(LPCSTR Tag, double & Value);
-    MTagIOResult    Poke(LPCSTR Tag, double Value);
   };
 
 //===========================================================================

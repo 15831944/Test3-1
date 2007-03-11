@@ -1744,7 +1744,7 @@ if (dbgDoComCmd())
         const byte cType = pItem->Type();
         if (IsNumData(cType) && UseCnv)
           {//check cnv
-          if (Cnvs[pItem->CnvIndex()]->Find(WrkCnvTxt())==NULL)
+          if ((pItem->CnvIndex())==0 || Cnvs[pItem->CnvIndex()]->Find(WrkCnvTxt())==NULL)
             {
             UseCnv = false;
             LogWarning("COM Cmd", 0, "SetTag: Valid conversion expected %s", WrkTag());

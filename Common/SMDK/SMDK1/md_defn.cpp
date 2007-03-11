@@ -153,18 +153,20 @@ MCnvs gs_Cnvs;
 
 MCnvs::MCnvs()
   {
-  };
-int MCnvs::FindPrimary(LPCTSTR Name)
-  {
-  return gs_CnvsMngr.CnvCnt();
   }
+
 int MCnvs::Count()
   {
   return gs_CnvsMngr.CnvCnt();
   }
 
-bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
+short MCnvs::FindPrimary(LPCTSTR Name)
   {
+  return gs_CnvsMngr.FindCnv((char*)Name);
+  }
+
+bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
+  {//what does this do!?!?
   CString Nm(NameCnv);
   Nm=Nm.Trim();
   CString Txt(Nm);
@@ -177,11 +179,11 @@ bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
     Cnv.m_Index=gs_CnvsMngr.FindCnv((LPTSTR)(LPCTSTR)Nm);
     Cnv.m_Txt=Txt.Trim("()");
     if (Cnv.m_Index==MC_Frac.m_Index && Cnv.m_Txt.GetLength()==1 && Cnv.m_Txt==".")
-	  {
+	    {
       //Cnv.m_Txt = MC_Frac.m_Txt; //special case for Frac(.)
       Cnv.m_Txt = "Frac"; //special case for Frac(.)
-	  }
-	return Cnv.m_Index>0;
+	    }
+	  return Cnv.m_Index>0;
     }
 
   Cnv.m_Index=0;

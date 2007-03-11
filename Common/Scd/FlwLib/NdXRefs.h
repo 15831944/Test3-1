@@ -211,8 +211,9 @@ class DllImportExport CNodeTagIOList
         LPCSTR        Cnv()       { return m_sCnv; };
         LPCSTR        FullTag()   { return m_sFullTag; };
         LPCSTR        Name()      { return m_sName; };//if (m_Name.GetLength()>0) return m_sName; CString S; S.Format("Tag%03i", m_IdNo); return S; };
-        CCnvIndex     CnvIndex()  { return m_Var.m_pXRef ? m_Var.m_pXRef->m_iCnvIndex:0; };
-        LPCSTR        CnvText()   { return m_Var.m_pXRef ? m_Var.m_pXRef->m_sCnv():""; };
+        byte          DataType()  { return m_Var.m_pXRef ? m_Var.m_pXRef->m_iType : tt_NULL; };
+        CCnvIndex     CnvIndex()  { return m_Var.m_pXRef ? m_Var.m_pXRef->m_iCnvIndex : 0; };
+        LPCSTR        CnvText()   { return m_Var.m_pXRef ? m_Var.m_pXRef->m_sCnv() : ""; };
 
         //CXRefStatus Override
         bool IsXRefActive() const    { return m_bValid;  };
@@ -223,6 +224,7 @@ class DllImportExport CNodeTagIOList
         CString           m_sFullTag;
         CString           m_sName;
         long              m_lOptions;
+        //short             m_iDataType;
         long              m_lIdNo;
         bool              m_bValid;
 
@@ -254,19 +256,23 @@ class DllImportExport CNodeTagIOList
     long            FindTag(LPCSTR ItemTag);
     long            FindName(LPCSTR Name);
 
-    long            GetType(long ID);
+    bool            IsActive(long ID);
+    short           GetDataType(long ID);
+    short           GetCnvIndex(long ID);
+    long            GetOptions(long ID);
     LPCSTR          GetTag(long ID);
     LPCSTR          GetFullTag(long ID);
     LPCSTR          GetCnvText(long ID);
-    long            GetOptions(long ID);
 
     double          GetDValue(long ID, bool UseCnv=false);
     void            SetDValue(long ID, double Value, bool UseCnv=false);
 
-    long            GetType(LPCSTR Tag);
-    LPCSTR          GetCnvText(LPCSTR Tag);
-    LPCSTR          GetFullTag(LPCSTR Tag);
+    bool            IsActive(LPCSTR Tag);
+    short           GetDataType(LPCSTR Tag);
+    short           GetCnvIndex(LPCSTR Tag);
     long            GetOptions(LPCSTR Tag);
+    LPCSTR          GetFullTag(LPCSTR Tag);
+    LPCSTR          GetCnvText(LPCSTR Tag);
 
     double          GetDValue(LPCSTR Tag, bool UseCnv=false);
     void            SetDValue(LPCSTR Tag, double Value, bool UseCnv=false);

@@ -15,6 +15,7 @@
 #define DllImportExport
 #endif
 
+#include "..\..\..\SMDK\Include\md_share0.h"
 #include "..\..\..\SMDK\Include\md_share1.h"
 
 //===========================================================================

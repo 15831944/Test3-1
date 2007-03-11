@@ -390,20 +390,6 @@ class MInitialiseTest
 //
 //
 // ======================================================================
-// TagIO Constants - See NdXRefs.h
-
-enum { TIO_Int, TIO_Double, TIO_String };
-const long TIO_Get       = 0x00000001;
-const long TIO_Set       = 0x00000002;
-const long TIO_Parm      = 0x00000004;
-const long TIO_SICnv     = 0x00000008;
-
-
-// ======================================================================
-//
-//
-//
-// ======================================================================
 
 #undef DllImportExport
 

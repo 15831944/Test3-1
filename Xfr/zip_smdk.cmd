@@ -41,7 +41,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -57,7 +58,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -73,7 +75,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -91,7 +94,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -111,7 +115,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -136,7 +141,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
@@ -158,7 +164,8 @@ del %fn2%
 wzzip -a -P -r %fn2% smdk\devlic.exe
 wzzip -a -P -r %fn2% smdk\kwa.exe
 wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
-wzzip -a -P -r %fn2% smdk\include\md_share1.h smdk\include\md_share2.h smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
 wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib

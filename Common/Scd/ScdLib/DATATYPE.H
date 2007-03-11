@@ -10,11 +10,11 @@
   #include <afxtempl.h> // "xafxtempl.h"
 #endif
 
+#include "..\..\..\SMDK\Include\md_share0.h"
 #include "..\..\..\SMDK\Include\md_share2.h"
 #include "scdtempl.h"
 #include "errorlog.h"
 #include "datacnvs.h"
-
 
 #undef DllImportExport
 
@@ -106,39 +106,27 @@ const TABOptions TABOpt_AllInfoOnce      = TABOpt_Once|TABOpt_AllInfo;
 const TABOptions TABOPT_DisplayOnly      = 0x0000001000000000;
 
 //---------------------------------------------------------------------------
+//data types in md_share0.h
 
-// DataTypes
-const byte tt_NULL        =  0;
-const byte tt_Bool        =  1;
-const byte tt_Bit         =  2;
-const byte tt_Byte        =  3;
-const byte tt_Word        =  4;
-const byte tt_DWord       =  5;
-const byte tt_Char        =  6;
-const byte tt_Int         =  7;
-const byte tt_Short       =  8;
-const byte tt_Long        =  9;
-const byte tt_Flt16       = 10;
-const byte tt_Float       = 11;
-const byte tt_Double      = 12;
-const byte tt_Generic     = 13;
-const byte tt_pChar       = 14;
-const byte tt_ppChar      = 15;
-const byte tt_Strng       = 16;
-const byte tt_RqdPage     = 17;
-const byte tt_OptPage     = 18;
-const byte tt_Column      = 19;
-const byte tt_Text        = 20;
-const byte tt_Struct      = 21;
-const byte tt_Element     = 22;
-const byte tt_Object      = 23;
-const byte tt_Array       = 24;
-const byte tt_Struct_E    = 25;
-const byte tt_Element_E   = 26;
-const byte tt_Object_E    = 27;
-const byte tt_Array_E     = 28;
-const byte tt_Blob        = 29;
-                          
+inline flag IsData(byte iType)        { return (iType>=tt_Bool && iType <= tt_Strng); };
+inline flag IsNumData(byte iType)     { return (iType>=tt_Bool && iType <= tt_Generic); };
+inline flag IsIntData(byte iType)     { return (iType>=tt_Bool && iType <= tt_Long); };
+inline flag IsUnSgnData(byte iType)   { return (iType>=tt_Byte && iType <= tt_DWord); };
+inline flag IsFloatData(byte iType)   { return (iType>=tt_Flt16 && iType <= tt_Double); };
+inline flag IsStrng(byte iType)       { return (iType>=tt_pChar && iType <= tt_Strng); };
+inline flag IsStructure(byte iType)   { return (iType>=tt_Struct && iType <= tt_Array_E); };
+inline flag IsStructStart(byte iType) { return (iType>=tt_Struct && iType <= tt_Array); };
+inline flag IsStructEnd(byte iType)   { return (iType>=tt_Struct_E && iType <= tt_Array_E); };
+inline flag IsBlockStart(byte iType)  { return (iType>=tt_Struct && iType <= tt_Object); };
+inline flag IsBlockEnd(byte iType)    { return (iType>=tt_Struct_E && iType <= tt_Object_E); };
+inline flag IsObjectStart(byte iType) { return (iType==tt_Object); };
+inline flag IsObjectEnd(byte iType)   { return (iType==tt_Object_E); };
+inline flag IsArrayStart(byte iType)  { return (iType==tt_Array); };
+inline flag IsArrayEnd(byte iType)    { return (iType==tt_Array_E); };
+inline flag IsLayout(byte iType)      { return (iType>=tt_RqdPage && iType<=tt_Text); };
+inline byte StructEndType(byte iType) { switch (iType) {case tt_Struct: return tt_Struct_E;case tt_Element: return tt_Element_E;case tt_Object: return tt_Object_E;case tt_Array: return tt_Array_E;};return tt_NULL;};
+inline byte IsBlob(byte iType)        { return (iType==tt_Blob); };
+
 // Data Status            
 const byte ds_OK          = 0;
 const byte ds_UnderFlow   = 1;
@@ -146,61 +134,6 @@ const byte ds_OverFlow    = 2;
 const byte ds_NAN         = 3;
 
 // --------------------------------------------------------------------------
-
-inline flag IsData(byte iType)        { return (iType>=tt_Bool && iType <= tt_Strng);};
-inline flag IsNumData(byte iType)     { return (iType>=tt_Bool && iType <= tt_Generic);};
-inline flag IsIntData(byte iType)     { return (iType>=tt_Bool && iType <= tt_Long);};
-inline flag IsUnSgnData(byte iType)   { return (iType>=tt_Byte && iType <= tt_DWord);};
-inline flag IsFloatData(byte iType)   { return (iType>=tt_Flt16 && iType <= tt_Double);};
-inline flag IsStrng(byte iType)       { return (iType>=tt_pChar && iType <= tt_Strng);};
-inline flag IsStructure(byte iType)   { return (iType>=tt_Struct && iType <= tt_Array_E);};
-inline flag IsStructStart(byte iType) { return (iType>=tt_Struct && iType <= tt_Array);};
-inline flag IsStructEnd(byte iType)   { return (iType>=tt_Struct_E && iType <= tt_Array_E);};
-inline flag IsBlockStart(byte iType)  { return (iType>=tt_Struct && iType <= tt_Object);};
-inline flag IsBlockEnd(byte iType)    { return (iType>=tt_Struct_E && iType <= tt_Object_E);};
-inline flag IsObjectStart(byte iType) { return (iType==tt_Object);};
-inline flag IsObjectEnd(byte iType)   { return (iType==tt_Object_E);};
-inline flag IsArrayStart(byte iType)  { return (iType==tt_Array);};
-inline flag IsArrayEnd(byte iType)    { return (iType==tt_Array_E);};
-inline flag IsLayout(byte iType)      { return (iType>=tt_RqdPage && iType<=tt_Text);};
-inline byte StructEndType(byte iType) { switch (iType) {case tt_Struct: return tt_Struct_E;case tt_Element: return tt_Element_E;case tt_Object: return tt_Object_E;case tt_Array: return tt_Array_E;};return tt_NULL;};
-inline byte IsBlob(byte iType)        { return (iType==tt_Blob);};
-
-typedef struct {byte t; LPCTSTR Str;} TagObjTypeStruct;
-const TagObjTypeStruct TagObjTypeNames[] = 
-  { 
-    { tt_NULL,      "NULL" },
-    { tt_Bool,      "Bool" },
-    { tt_Bit,       "Bit" },
-    { tt_Byte,      "Byte" },
-    { tt_Word,      "Word" },
-    { tt_DWord,     "DWord" },
-    { tt_Char,      "Char" },
-    { tt_Int,       "Int" },
-    { tt_Short,     "Short" },
-    { tt_Long,      "Long" },
-    { tt_Flt16,     "Flt16" },
-    { tt_Float,     "Float" },
-    { tt_Double,    "Double" },
-    { tt_Generic,   "Generic" },
-    { tt_pChar,     "pChar" },
-    { tt_ppChar,    "ppChar" },
-    { tt_Strng,     "Strng" },
-    { tt_RqdPage,   "RqdPage" },
-    { tt_OptPage,   "OptPage" },
-    { tt_Column,    "Column" },
-    { tt_Text,      "Text" },
-    { tt_Struct,    "{" },
-    { tt_Element,   "(" },
-    { tt_Object,    "<" },
-    { tt_Array,     "[" },
-    { tt_Struct_E,  "}" },
-    { tt_Element_E, ")" },
-    { tt_Object_E,  ">" },
-    { tt_Array_E,   "]" },
-    { tt_Blob,      "BLOB" },
-    { tt_NULL,      NULL}
-  };
 
 inline const LPCTSTR tt_TypeString(byte tt) 
   { 
