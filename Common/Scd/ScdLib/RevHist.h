@@ -2765,11 +2765,17 @@ Build 123 : 21 February 2007
 1533  2/03/07: (#702) Fix for feeder state recovery for a load scenario.
 1535  6/03/07: (#776) Improved find tag window.
 1541  8/03/07: (#781) Client model improvements.
-1542  9/03/07: (#777) Do not report.
+1542  9/03/07: (#777) Do not report flashtank error when no vapours are produced due to feed conditions.
+1546  9/03/07: (#453) Force IgnoreAreaLimit to false in shell&tube heater when part of flashtrain.
+1548  9/03/07: Fix for historian time management to remove 'MidTime>=Time' error.
+1549  9/03/07: Do not physically load all model DLLs when cfg dialog list is opened, resulting in 
+               faster dialog load time.
+1550 12/03/07: (#36) Changes and improvements to new SMDK MTagIO class.
+1553 12/03/07: (#785) Revert back to VS2003 because of solver speed.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1542
+#define SCD_PATCH_SVN    1553
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
