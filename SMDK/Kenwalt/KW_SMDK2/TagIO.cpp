@@ -13,9 +13,9 @@
 //TODO: A Proper icon
 static double Drw_TagIO[] = 
   { 
-  MDrw_Poly,  -8.,8.,  8.,8.,  8.,-8., -8.,-8., -8.,8., 
-  MDrw_Poly,  -5.,8.,  -5.,-8., 
-  MDrw_Poly,  5.,8.,  5.,-8., 
+  MDrw_Poly,  -5.,5.,  5.,5.,  5.,-5., -5.,-5., -5.,5., 
+  MDrw_Poly,  -3.5,5.0,  -3.5,-5.0, 
+  MDrw_Poly,  3.5,5.0,  3.5,-5.0, 
   MDrw_End 
   };
 
@@ -68,12 +68,13 @@ bool CTagIO::PreStartCheck()
 
 const int idDX_GetTagStr  = 1;
 const int idDX_GetTagButton = 2;
-const int idDX_PutTagStr = 3;
-const int idDX_SetTagButton = 4;
-const int idDX_TagSubscriptionOn = 5;
-const int idDX_GetTagSubsStr1 = 6;
-const int idDX_GetTagSubsStr2 = 7;
-const int idDX_SetTagSubsStr1 = 8;
+const int idDX_GetTagInfoButton = 3;
+const int idDX_PutTagStr = 4;
+const int idDX_SetTagButton = 5;
+const int idDX_TagSubscriptionOn = 10;
+const int idDX_GetTagSubsStr1 = 11;
+const int idDX_GetTagSubsStr2 = 12;
+const int idDX_SetTagSubsStr1 = 13;
 
 const int maxElements = 80;
 
@@ -86,6 +87,7 @@ void CTagIO::BuildDataFields()
   DD.Text("----------------------------------------");
   DD.Text("Example of GetTag and SetTag...");
   DD.String("GetTag", "", idDX_GetTagStr, MF_PARAMETER);
+  DD.Button("GetTagInfo", "", idDX_GetTagInfoButton);
   DD.Button("GetValueNow", "", idDX_GetTagButton);
   DD.Double("GetValue", "", &m_dGetValue, MF_RESULT|MF_NanOK, MC_);
   DD.Text((LPCSTR)m_sGetStatus);
@@ -105,7 +107,7 @@ void CTagIO::BuildDataFields()
   DD.String("GetTagSubs2", "", idDX_GetTagSubsStr2, MF_PARAMETER);
   DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, MC_);
   DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, MC_);
-  DD.String("SetTagSubs1", "", idDX_GetTagSubsStr1, MF_PARAMETER);
+  DD.String("SetTagSubs1", "", idDX_SetTagSubsStr1, MF_PARAMETER);
   DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, MC_);
   }
 
@@ -119,6 +121,26 @@ bool CTagIO::ExchangeDataFields()
       if (DX.HasReqdValue)
         m_sGetTag = DX.String;
       DX.String = m_sGetTag;
+      return true;
+    case idDX_GetTagInfoButton:
+		  if (DX.HasReqdValue && DX.Bool)
+        {
+        MTagIOInfo TagInfo;
+        int RetCode = TagIO.GetTagInfo(m_sGetTag, TagInfo);
+        switch (RetCode)
+          {
+          case MTagIO_OK: 
+            {
+            m_sGetStatus.Format("Tag OK: DataType:%d(%s)  CnvIndex:%d(%s)  Flags:%d", TagInfo.DataType, TagObjTypeNames[TagInfo.DataType].Str, TagInfo.CnvIndex, "todo"/*gs_Cnvs[TagInfo.CnvIndex].Name*/, TagInfo.Flags); break;
+            break;
+            }
+          case MTagIO_NotSpecified: m_sGetStatus = "Tag not specified."; break;
+          case MTagIO_NotFound: m_sGetStatus = "Tag not found."; break;
+          case MTagIO_NotAllowed: m_sGetStatus = "Tag not allowed."; break;
+          }
+        Log.Message(MMsg_Error, m_sGetStatus);
+        }
+  		DX.Bool = false;
       return true;
     case idDX_PutTagStr:
       if (DX.HasReqdValue)
@@ -192,6 +214,11 @@ bool CTagIO::ExchangeDataFields()
       if (DX.HasReqdValue)
         m_sGetTagSubs2 = DX.String;
       DX.String = m_sGetTagSubs2;
+      return true;
+    case idDX_SetTagSubsStr1:
+      if (DX.HasReqdValue)
+        m_sSetTagSubs1 = DX.String;
+      DX.String = m_sSetTagSubs1;
       return true;
     }
   return false;

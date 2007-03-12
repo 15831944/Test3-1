@@ -499,6 +499,9 @@
 				RelativePath="..\..\Include\md_PSD.h">
 			</File>
 			<File
+				RelativePath="..\..\Include\md_share0.h">
+			</File>
+			<File
 				RelativePath="..\..\Include\md_share1.h">
 			</File>
 			<File
