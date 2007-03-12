@@ -12,13 +12,11 @@
 #include "sc_defs.h"
 #include "sp_cont.h"
 #define  __GSMODEL_CPP
-#include "gsmodel.h"
 #include "m_base.h"
+#include "gsmodel.h"
 
 #include "errorlog.h"
 #include "dbgmngr.h"
-
-//#include "optoff.h"
 
 #define dbgGSModel       WITHDEBUG
 
@@ -45,10 +43,10 @@ XID xidLast          = xidGSTermMode+MaxIOList;               // Keep MaxIOs Spa
 //============================================================================
 
 GSIOAlpha::GSIOAlpha() :
-  m_Alphas(*(new GSAlphaArray)),
-  m_Splits(*(new GSAlphaArray)),
-  m_QmRqds(*(new GSAlphaArray)),
-  m_QvRqds(*(new GSAlphaArray))
+m_Alphas(*(new GSAlphaArray)),
+m_Splits(*(new GSAlphaArray)),
+m_QmRqds(*(new GSAlphaArray)),
+m_QvRqds(*(new GSAlphaArray))
   {
 
   m_iQmMode=GSA_QmDefault;
@@ -200,93 +198,93 @@ void GSIOAlpha::BuildDataDefn(DataDefnBlk & DDB, GSModel & Mdl, flag Visible, in
     {GSA_QmVolumeFlow,  "VolumeFlow"},
     {0}};
 
-  DDB.Byte   ("",             "QmMode",   DC_,    "",     &m_iQmMode,         &Mdl, isParmStopped | AffectsStruct | SetOnChange, DDB0);
+    DDB.Byte   ("",             "QmMode",   DC_,    "",     &m_iQmMode,         &Mdl, isParmStopped | AffectsStruct | SetOnChange, DDB0);
 
-  DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmMassFlow)), Visible, Visible, Visible);
-  DDB.Double("",     "Qm",          DC_Qm,      "kg/s",   &m_Qm,              &Mdl,
-    ((QmMode(Mdl)==GSA_QmMassFlow) && !LastOne ? isParm : 0));
-  DDB.Double("",     "QmErr",          DC_Qm,      "kg/s",   &m_QmErr,              &Mdl, isResult|0);
+    DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmMassFlow)), Visible, Visible, Visible);
+    DDB.Double("",     "Qm",          DC_Qm,      "kg/s",   &m_Qm,              &Mdl,
+      ((QmMode(Mdl)==GSA_QmMassFlow) && !LastOne ? isParm : 0));
+    DDB.Double("",     "QmErr",          DC_Qm,      "kg/s",   &m_QmErr,              &Mdl, isResult|0);
 
-  DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmVolumeFlow)), Visible, Visible, Visible);
-  DDB.Double("",     "Qv",          DC_Qv,      "L/s",   &m_Qv,              &Mdl,
-    ((QmMode(Mdl)==GSA_QmVolumeFlow) && !LastOne ? isParm : 0));
-  DDB.Double("",     "QvErr",          DC_Qv,      "L/s",   &m_QvErr,              &Mdl, isResult|0);
+    DDB.Visibility(NSHM_All, Visible && ((QmMode(Mdl)==GSA_QmVolumeFlow)), Visible, Visible, Visible);
+    DDB.Double("",     "Qv",          DC_Qv,      "L/s",   &m_Qv,              &Mdl,
+      ((QmMode(Mdl)==GSA_QmVolumeFlow) && !LastOne ? isParm : 0));
+    DDB.Double("",     "QvErr",          DC_Qv,      "L/s",   &m_QvErr,              &Mdl, isResult|0);
 
-  DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmPercSplit), Visible, Visible, Visible);
-  DDB.Double ("",     "Split",       DC_Frac,    "%",      &m_FracSplit,       &Mdl,
-    ((QmMode(Mdl)==GSA_QmPercSplit) && !LastOne ? isParm : 0));
+    DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmPercSplit), Visible, Visible, Visible);
+    DDB.Double ("",     "Split",       DC_Frac,    "%",      &m_FracSplit,       &Mdl,
+      ((QmMode(Mdl)==GSA_QmPercSplit) && !LastOne ? isParm : 0));
 
-  DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmDemand), Visible, Visible, Visible);
-  DDB.Double("",     "Demand",      DC_Frac,    "%",      &m_DmndSplit,        &Mdl, isResult|0);
+    DDB.Visibility(NSHM_All, Visible && (QmMode(Mdl)==GSA_QmDemand), Visible, Visible, Visible);
+    DDB.Double("",     "Demand",      DC_Frac,    "%",      &m_DmndSplit,        &Mdl, isResult|0);
 
-  DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
-  switch (Mdl.m_iMkMode)
-    {
-    case GSA_MkMixture   : DefLbl= "(Mixture)";     break;
-    case GSA_MkDensity   : DefLbl= "(Density)";     break;
-    case GSA_MkLSRatio   : DefLbl= "(LSRatio)";     break;
-    case GSA_MkPhaseComp : DefLbl= "(Composition)"; break;
-    case GSA_MkSpecieFrac: DefLbl= "(SpecieFracs)"; break;
-    default              : DefLbl= "(Unknown)";     break;
-    }
-  DDBValueLst DDB1[]={
-    {GSA_MkDefault   ,  DefLbl()},
-    {GSA_MkMixture   ,  "Mixture"},
-    {GSA_MkLSRatio   ,  "LSRatio"},
-    {GSA_MkPhaseComp ,  "PhaseFracs", MDD_Hidden},
-    {GSA_MkPhaseComp ,  "PhaseComp",  MDD_Hidden},
-    {GSA_MkPhaseComp ,  "Composition"},
-    {GSA_MkSpecieFrac ,  "SpecieFracs"},
-    {0}};
-  DDB.Byte   ("",             "MkMode",   DC_,    "",     &m_iMkMode,         &Mdl, isParmStopped|AffectsStruct | SetOnChange, DDB1);
-
-  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkLSRatio), Visible, Visible, Visible);
-  DDB.Double("",     "LSRatio",     DC_Frac,    "%",      &m_LSRatio,         &Mdl, isParm);
-  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkDensity), Visible, Visible, Visible);
-  DDB.Double("",     "Density",     DC_Rho,    "kg/m^3",  &m_Density,         &Mdl, isParm);
-  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkPhaseComp), Visible, Visible, Visible);
-  DDB.Double("",     "SolidsFrac",  DC_Frac,    "%",      &m_SFrac,           &Mdl, isParm);
-  DDB.Double("",     "LiquidFrac",  DC_Frac,    "%",      &m_LFrac,           &Mdl, isParm);
-  DDB.Double("",     "VapourFrac",  DC_Frac,    "%",      &m_VFrac,           &Mdl, isParm);
-  DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkSpecieFrac), Visible, Visible, Visible);
-  if (PrjFileVerNo()<22)
-    {
-    DDB.Double("",     "SolidsSplt",  DC_Frac,    "%",      &m_SSplt,           &Mdl, isParm);
-    DDB.Double("",     "LiquidSplt",  DC_Frac,    "%",      &m_LSplt,           &Mdl, isParm);
-    DDB.Double("",     "VapourSplt",  DC_Frac,    "%",      &m_VSplt,           &Mdl, isParm);
-    }
-
-  if (PrjFileVerNo()<22)
-    {
-    Strng Tag, Sym;
-    for (int s=0; s<SDB.Count(); s++)
+    DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
+    switch (Mdl.m_iMkMode)
       {
-      if (strlen(SDB[s].Tag()))
-        Tag.Set("%s.Splt", SDB[s].Tag());
-      else
-        Tag="";
-      if (strlen(SDB[s].Sym()))
-        Sym.Set("%s.Splt", SDB[s].Sym());
-      else
-        Sym="";
-      DDB.Double(Tag() ? Tag() : "",   Sym(),  DC_Frac,    "%",      xidGSMSpcSplts + s + SDB.Count()*IONo,  &Mdl, isParm|NAN_OK);
+      case GSA_MkMixture   : DefLbl= "(Mixture)";     break;
+      case GSA_MkDensity   : DefLbl= "(Density)";     break;
+      case GSA_MkLSRatio   : DefLbl= "(LSRatio)";     break;
+      case GSA_MkPhaseComp : DefLbl= "(Composition)"; break;
+      case GSA_MkSpecieFrac: DefLbl= "(SpecieFracs)"; break;
+      default              : DefLbl= "(Unknown)";     break;
       }
-    }
-  else
-    {
-    if (DDB.BeginObject(&Mdl, "Splt", "GSM_Splt", NULL, DDB_NoPage))
-      {
-      DDB.Double("",     "Solids",  DC_Frac,    "%",      &m_SSplt,           &Mdl, isParm);
-      DDB.Double("",     "Liquid",  DC_Frac,    "%",      &m_LSplt,           &Mdl, isParm);
-      DDB.Double("",     "Vapour",  DC_Frac,    "%",      &m_VSplt,           &Mdl, isParm);
-      for (int s=0; s<SDB.Count(); s++)
-        DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Frac,    "%",      xidGSMSpcSplts + s + SDB.Count()*IONo,  &Mdl, isParm|NAN_OK);
-      }
-    DDB.EndObject();
-    }
-  DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
+    DDBValueLst DDB1[]={
+      {GSA_MkDefault   ,  DefLbl()},
+      {GSA_MkMixture   ,  "Mixture"},
+      {GSA_MkLSRatio   ,  "LSRatio"},
+      {GSA_MkPhaseComp ,  "PhaseFracs", MDD_Hidden},
+      {GSA_MkPhaseComp ,  "PhaseComp",  MDD_Hidden},
+      {GSA_MkPhaseComp ,  "Composition"},
+      {GSA_MkSpecieFrac ,  "SpecieFracs"},
+      {0}};
+      DDB.Byte   ("",             "MkMode",   DC_,    "",     &m_iMkMode,         &Mdl, isParmStopped|AffectsStruct | SetOnChange, DDB1);
 
-  DDB.Text("");
+      DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkLSRatio), Visible, Visible, Visible);
+      DDB.Double("",     "LSRatio",     DC_Frac,    "%",      &m_LSRatio,         &Mdl, isParm);
+      DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkDensity), Visible, Visible, Visible);
+      DDB.Double("",     "Density",     DC_Rho,    "kg/m^3",  &m_Density,         &Mdl, isParm);
+      DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkPhaseComp), Visible, Visible, Visible);
+      DDB.Double("",     "SolidsFrac",  DC_Frac,    "%",      &m_SFrac,           &Mdl, isParm);
+      DDB.Double("",     "LiquidFrac",  DC_Frac,    "%",      &m_LFrac,           &Mdl, isParm);
+      DDB.Double("",     "VapourFrac",  DC_Frac,    "%",      &m_VFrac,           &Mdl, isParm);
+      DDB.Visibility(NSHM_All, Visible && (MkMode(Mdl)==GSA_MkSpecieFrac), Visible, Visible, Visible);
+      if (PrjFileVerNo()<22)
+        {
+        DDB.Double("",     "SolidsSplt",  DC_Frac,    "%",      &m_SSplt,           &Mdl, isParm);
+        DDB.Double("",     "LiquidSplt",  DC_Frac,    "%",      &m_LSplt,           &Mdl, isParm);
+        DDB.Double("",     "VapourSplt",  DC_Frac,    "%",      &m_VSplt,           &Mdl, isParm);
+        }
+
+      if (PrjFileVerNo()<22)
+        {
+        Strng Tag, Sym;
+        for (int s=0; s<SDB.Count(); s++)
+          {
+          if (strlen(SDB[s].Tag()))
+            Tag.Set("%s.Splt", SDB[s].Tag());
+          else
+            Tag="";
+          if (strlen(SDB[s].Sym()))
+            Sym.Set("%s.Splt", SDB[s].Sym());
+          else
+            Sym="";
+          DDB.Double(Tag() ? Tag() : "",   Sym(),  DC_Frac,    "%",      xidGSMSpcSplts + s + SDB.Count()*IONo,  &Mdl, isParm|NAN_OK);
+          }
+        }
+      else
+        {
+        if (DDB.BeginObject(&Mdl, "Splt", "GSM_Splt", NULL, DDB_NoPage))
+          {
+          DDB.Double("",     "Solids",  DC_Frac,    "%",      &m_SSplt,           &Mdl, isParm);
+          DDB.Double("",     "Liquid",  DC_Frac,    "%",      &m_LSplt,           &Mdl, isParm);
+          DDB.Double("",     "Vapour",  DC_Frac,    "%",      &m_VSplt,           &Mdl, isParm);
+          for (int s=0; s<SDB.Count(); s++)
+            DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Frac,    "%",      xidGSMSpcSplts + s + SDB.Count()*IONo,  &Mdl, isParm|NAN_OK);
+          }
+        DDB.EndObject();
+        }
+      DDB.Visibility(NSHM_All, Visible, Visible, Visible, Visible);
+
+      DDB.Text("");
   };
 
 //--------------------------------------------------------------------------
@@ -384,12 +382,12 @@ Model type:Block#n
 IMPLEMENT_TAGOBJ(GSModel, "GSM_Cfg", "GSM_Cfg", "", "", "", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "General Model", "General Model");
 
 GSModel::GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  TaggedObject(pClass_, TagIn, pAttach, eAttach),
-  m_Nd(*((MdlNode*)pAttach)),
-  m_Gammas(*(new GSGammaArray)),
-  m_IOAlpha(*(new GSIOAlphaArray)),
-  m_IOs(*(new GSIOIndexArray)),
-  m_IOThermal(*(new GSIOThermalArray))
+TaggedObject(pClass_, TagIn, pAttach, eAttach),
+m_Nd(*((MdlNode*)pAttach)),
+m_Gammas(*(new GSGammaArray)),
+m_IOAlpha(*(new GSIOAlphaArray)),
+m_IOs(*(new GSIOIndexArray)),
+m_IOThermal(*(new GSIOThermalArray))
   {
   m_iOperation=GSO_General0;
 #if WITHTHERMAL 
@@ -403,6 +401,8 @@ GSModel::GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_ChangeTst     = false;
   m_ChangeNeg     = 50;
   m_ChangePos     = 80;
+  m_eCorrection   = eReverse;
+  //m_HfError       = 0;
 #endif
   m_iPhMethSpec=GSPM_Total;
 
@@ -447,63 +447,63 @@ void GSModel::BuildDataDefnGen0(DataDefnBlk &DDB)
     {GSA_QmMassFlow ,  "MassFlow"},
     {GSA_QmVolumeFlow ,"VolumeFlow"},
     {0}};
-  DDB.Byte   ("",     "QmMode",   DC_,    "",     &m_iQmMode,          this, isParmStopped | AffectsStruct | SetOnChange, DDB1);
+    DDB.Byte   ("",     "QmMode",   DC_,    "",     &m_iQmMode,          this, isParmStopped | AffectsStruct | SetOnChange, DDB1);
 
-  static DDBValueLst DDB2[]={
-    {GSA_MkMixture  ,  "Mixture"},
-    //{GSA_MkDensity  ,  "Density"},  Arithmetic Incomplete
-    {GSA_MkLSRatio  ,  "LSRatio"},
-    {GSA_MkPhaseComp , "PhaseFracs", MDD_Hidden},
-    {GSA_MkPhaseComp , "PhaseComp",  MDD_Hidden},
-    {GSA_MkPhaseComp , "Composition"},
-    {0}};
-  DDB.Byte   ("",     "MkMode",   DC_,    "",     &m_iMkMode,          this, isParmStopped | AffectsStruct | SetOnChange, DDB2);
+    static DDBValueLst DDB2[]={
+      {GSA_MkMixture  ,  "Mixture"},
+      //{GSA_MkDensity  ,  "Density"},  Arithmetic Incomplete
+      {GSA_MkLSRatio  ,  "LSRatio"},
+      {GSA_MkPhaseComp , "PhaseFracs", MDD_Hidden},
+      {GSA_MkPhaseComp , "PhaseComp",  MDD_Hidden},
+      {GSA_MkPhaseComp , "Composition"},
+      {0}};
+      DDB.Byte   ("",     "MkMode",   DC_,    "",     &m_iMkMode,          this, isParmStopped | AffectsStruct | SetOnChange, DDB2);
 
-  DDB.CheckBox("TrackStatus", "", DC_,    "",     &m_bTrackStatus,     this, isParm);
+      DDB.CheckBox("TrackStatus", "", DC_,    "",     &m_bTrackStatus,     this, isParm);
 
-  int Priority[MaxIOList+1];
-  byte QmMd[MaxIOList], MkMd[MaxIOList];
-  int NPri=FindIOEvalPriorityGen0(Priority, QmMd, MkMd);
-  int NOut=0;
-  for (int i=0; i<m_IOs.GetSize(); i++)
-    if (m_Nd.LnkFlowDefinedOut(m_IOs[i]))
-      NOut++;
+      int Priority[MaxIOList+1];
+      byte QmMd[MaxIOList], MkMd[MaxIOList];
+      int NPri=FindIOEvalPriorityGen0(Priority, QmMd, MkMd);
+      int NOut=0;
+      for (int i=0; i<m_IOs.GetSize(); i++)
+        if (m_Nd.LnkFlowDefinedOut(m_IOs[i]))
+          NOut++;
 
-  if (NOut>1)
-    {
-    Strng S;
-    if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
-      {
-      int ia;
-      for (int j = 0;((ia=Priority[j])>=0); j++)
+      if (NOut>1)
         {
-//        m_IOAlpha[ia].iOrder=j+1;
-//        m_IOAlpha[ia].Desc.Set("%s:%s", m_Nd.IODesc_Self(m_IOs[ia])->pName, m_Nd.Nd_Rmt(m_IOs[ia])->Tag());
-
-        //IORECBUG
-        flag Visible=m_Nd.LnkFlowDefinedOut(m_IOs[ia]);
-        if (DDB.BeginElement(this, m_Nd.Nd_Rmt(m_IOs[ia])->Tag(), m_Nd.IODesc_Self(m_IOs[ia])->DefaultIOName(OrigPrjFileVerNo())))
-          m_IOAlpha[ia].BuildDataDefn(DDB, *this, Visible, ia, (Priority[j+1]<0));
-        }
-
-      // Old Version - for compatibility
-      if ((!DDB.ForFiling() && !DDB.ForSnapShot() && !DDB.ForScenario() && !DDB.ForView()) ||
-          (DDB.ForFiling() && DDB.DoingPutData()))
-        for (int i=0; i<m_IOs.GetSize(); i++)
+        Strng S;
+        if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
           {
-          byte Ord=1;
-          for (int j = 0;(Priority[j]>=0) && (Priority[j]!=i); j++)
-              Ord++;
-          m_IOAlpha[i].m_iOrder=Ord;
-          if (DDB.BeginElement(this, i, m_IOAlpha[i].m_Desc()))
+          int ia;
+          for (int j = 0;((ia=Priority[j])>=0); j++)
             {
-            flag Visible=m_Nd.LnkFlowDefinedOut(m_IOs[i]);
-            m_IOAlpha[i].BuildDataDefn(DDB, *this, True, i, False);
+            //        m_IOAlpha[ia].iOrder=j+1;
+            //        m_IOAlpha[ia].Desc.Set("%s:%s", m_Nd.IODesc_Self(m_IOs[ia])->pName, m_Nd.Nd_Rmt(m_IOs[ia])->Tag());
+
+            //IORECBUG
+            flag Visible=m_Nd.LnkFlowDefinedOut(m_IOs[ia]);
+            if (DDB.BeginElement(this, m_Nd.Nd_Rmt(m_IOs[ia])->Tag(), m_Nd.IODesc_Self(m_IOs[ia])->DefaultIOName(OrigPrjFileVerNo())))
+              m_IOAlpha[ia].BuildDataDefn(DDB, *this, Visible, ia, (Priority[j+1]<0));
             }
+
+          // Old Version - for compatibility
+          if ((!DDB.ForFiling() && !DDB.ForSnapShot() && !DDB.ForScenario() && !DDB.ForView()) ||
+            (DDB.ForFiling() && DDB.DoingPutData()))
+            for (int i=0; i<m_IOs.GetSize(); i++)
+              {
+              byte Ord=1;
+              for (int j = 0;(Priority[j]>=0) && (Priority[j]!=i); j++)
+                Ord++;
+              m_IOAlpha[i].m_iOrder=Ord;
+              if (DDB.BeginElement(this, i, m_IOAlpha[i].m_Desc()))
+                {
+                flag Visible=m_Nd.LnkFlowDefinedOut(m_IOs[i]);
+                m_IOAlpha[i].BuildDataDefn(DDB, *this, True, i, False);
+                }
+              }
           }
-      }
-    DDB.EndArray();
-    }
+        DDB.EndArray();
+        }
 
   };
 
@@ -564,66 +564,66 @@ flag GSModel::ValidateDataGen0(ValidateDataBlk & VDB)
       double xxx=m_Nd.IOQmEst_Out(m_IOs[ia]);
       QmDemandEstTot+=m_Nd.IOQmEst_Out(m_IOs[ia]);
       }
-  for (j = 0;((ia=Priority[j])>=0); j++)
-    if (QmMd[ia]==GSA_QmDemand)
-      {
-      double xxx=m_Nd.IOQmEst_Out(m_IOs[ia]);
-      m_IOAlpha[ia].m_DmndSplit=Range((double)FLT_MIN, xxx/GTZ(QmDemandEstTot), (double)FLT_MAX);
-      }
-
-  double TotalSplit=0.0;
-  flag AllPercSplit=false;
-  for (j = 0;((ia=Priority[j])>=0); j++)
-    {
-    int ianext=Priority[j+1];
-    GSIOAlpha &A=m_IOAlpha[ia];
-    switch (QmMd[ia])
-      {
-      case GSA_QmPercSplit:
+    for (j = 0;((ia=Priority[j])>=0); j++)
+      if (QmMd[ia]==GSA_QmDemand)
         {
-        if (j==0)
-          AllPercSplit=true;
-        if (!Valid(A.m_FracSplit))
-          A.m_FracSplit=0.0;
-        if (ianext>=0)
-          A.m_FracSplit=Range(0.0 , A.m_FracSplit, 1.0-TotalSplit);
-        else if (AllPercSplit)
-          A.m_FracSplit=1.0-TotalSplit;
-        TotalSplit+=A.m_FracSplit;
-        break;
+        double xxx=m_Nd.IOQmEst_Out(m_IOs[ia]);
+        m_IOAlpha[ia].m_DmndSplit=Range((double)FLT_MIN, xxx/GTZ(QmDemandEstTot), (double)FLT_MAX);
         }
-      default:
-        AllPercSplit=false;
-        break;
-      }
-    switch (MkMd[ia])
-      {
-      case GSA_MkPhaseComp :
-        {
-        if (!Valid(A.m_SFrac)) A.m_SFrac=0.0;
-        if (!Valid(A.m_LFrac)) A.m_LFrac=0.0;
-        if (!Valid(A.m_VFrac)) A.m_VFrac=0.0;
-        double Tot=A.m_SFrac+A.m_LFrac+A.m_VFrac;
-        if (Tot>1.0e-10)
-          {
-          double Scl=1.0/Tot;
-          A.m_SFrac*=Scl;
-          A.m_LFrac*=Scl;
-          A.m_VFrac*=Scl;
-          }
-        else
-          {
-          A.m_SFrac=1.0;
-          A.m_LFrac=0.0;
-          A.m_VFrac=0.0;
-          }
-        break;
-        }
-      default:;
-      }
-    }
 
-  return OK;
+      double TotalSplit=0.0;
+      flag AllPercSplit=false;
+      for (j = 0;((ia=Priority[j])>=0); j++)
+        {
+        int ianext=Priority[j+1];
+        GSIOAlpha &A=m_IOAlpha[ia];
+        switch (QmMd[ia])
+          {
+          case GSA_QmPercSplit:
+            {
+            if (j==0)
+              AllPercSplit=true;
+            if (!Valid(A.m_FracSplit))
+              A.m_FracSplit=0.0;
+            if (ianext>=0)
+              A.m_FracSplit=Range(0.0 , A.m_FracSplit, 1.0-TotalSplit);
+            else if (AllPercSplit)
+              A.m_FracSplit=1.0-TotalSplit;
+            TotalSplit+=A.m_FracSplit;
+            break;
+            }
+          default:
+            AllPercSplit=false;
+            break;
+          }
+        switch (MkMd[ia])
+          {
+          case GSA_MkPhaseComp :
+            {
+            if (!Valid(A.m_SFrac)) A.m_SFrac=0.0;
+            if (!Valid(A.m_LFrac)) A.m_LFrac=0.0;
+            if (!Valid(A.m_VFrac)) A.m_VFrac=0.0;
+            double Tot=A.m_SFrac+A.m_LFrac+A.m_VFrac;
+            if (Tot>1.0e-10)
+              {
+              double Scl=1.0/Tot;
+              A.m_SFrac*=Scl;
+              A.m_LFrac*=Scl;
+              A.m_VFrac*=Scl;
+              }
+            else
+              {
+              A.m_SFrac=1.0;
+              A.m_LFrac=0.0;
+              A.m_VFrac=0.0;
+              }
+            break;
+            }
+          default:;
+          }
+        }
+
+      return OK;
   };
 
 //--------------------------------------------------------------------------
@@ -667,13 +667,13 @@ int GSModel::FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd)
       if (!Done[ia])
         {
         GSIOAlpha &A=m_IOAlpha[ia];
-        if (A.m_iPriority==ThisPri)
+        if (A.Priority(this)==ThisPri)
           {
           Priority[NPri++]=ia;
           Done[ia]=1;
           }
-        else if (A.m_iPriority>ThisPri)
-          NextPri=Min(NextPri, A.m_iPriority);
+        else if (A.Priority(this)>ThisPri)
+          NextPri=Min(NextPri, A.Priority(this));
         }
     }
 
@@ -682,77 +682,77 @@ int GSModel::FindIOEvalPriorityGen0(int *Priority, byte *QmMd, byte *MkMd)
       {
       GSIOAlpha &A=m_IOAlpha[ia];
       if ((MkMd[ia]==GSA_MkLSRatio) && Valid(A.m_LSRatio) ||
-          (MkMd[ia]==GSA_MkDensity) && Valid(A.m_Density) ||
-          (MkMd[ia]==GSA_MkPhaseComp) && (Valid(A.m_SFrac) && Valid(A.m_LFrac) && Valid(A.m_VFrac)) ||
-          (MkMd[ia]==GSA_MkSpecieFrac))
+        (MkMd[ia]==GSA_MkDensity) && Valid(A.m_Density) ||
+        (MkMd[ia]==GSA_MkPhaseComp) && (Valid(A.m_SFrac) && Valid(A.m_LFrac) && Valid(A.m_VFrac)) ||
+        (MkMd[ia]==GSA_MkSpecieFrac))
         {
         Priority[NPri++]=ia;
         Done[ia]=1;
         }
       }
 
-  for (j = 0;((ia=Order[j])>=0); j++)
-    if (!Done[ia])
-      {
-      GSIOAlpha &A=m_IOAlpha[ia];
-      if ((QmMd[ia]==GSA_QmMassFlow) && Valid(A.m_Qm))
+    for (j = 0;((ia=Order[j])>=0); j++)
+      if (!Done[ia])
         {
-        Priority[NPri++]=ia;
-        Done[ia]=1;
+        GSIOAlpha &A=m_IOAlpha[ia];
+        if ((QmMd[ia]==GSA_QmMassFlow) && Valid(A.m_Qm))
+          {
+          Priority[NPri++]=ia;
+          Done[ia]=1;
+          }
         }
-      }
 
-  for (j = 0;((ia=Order[j])>=0); j++)
-    if (!Done[ia])
-      {
-      GSIOAlpha &A=m_IOAlpha[ia];
-      if ((QmMd[ia]==GSA_QmVolumeFlow) && Valid(A.m_Qv))
-        {
-        Priority[NPri++]=ia;
-        Done[ia]=1;
-        }
-      }
+      for (j = 0;((ia=Order[j])>=0); j++)
+        if (!Done[ia])
+          {
+          GSIOAlpha &A=m_IOAlpha[ia];
+          if ((QmMd[ia]==GSA_QmVolumeFlow) && Valid(A.m_Qv))
+            {
+            Priority[NPri++]=ia;
+            Done[ia]=1;
+            }
+          }
 
-  for (j = 0;((ia=Order[j])>=0); j++)
-    if (!Done[ia])
-      {
-      GSIOAlpha &A=m_IOAlpha[ia];
-      if ((QmMd[ia]==GSA_QmPercSplit) && Valid(A.m_FracSplit))
-        {
-        Priority[NPri++]=ia;
-        Done[ia]=1;
-        }
-      }
+        for (j = 0;((ia=Order[j])>=0); j++)
+          if (!Done[ia])
+            {
+            GSIOAlpha &A=m_IOAlpha[ia];
+            if ((QmMd[ia]==GSA_QmPercSplit) && Valid(A.m_FracSplit))
+              {
+              Priority[NPri++]=ia;
+              Done[ia]=1;
+              }
+            }
 
-  for (j = 0;((ia=Order[j])>=0); j++)
-    if (!Done[ia])
-      {
-      GSIOAlpha &A=m_IOAlpha[ia];
-      if ((QmMd[ia]==GSA_QmDemand))
-        {
-        Priority[NPri++]=ia;
-        Done[ia]=1;
-        }
-      }
+          for (j = 0;((ia=Order[j])>=0); j++)
+            if (!Done[ia])
+              {
+              GSIOAlpha &A=m_IOAlpha[ia];
+              if ((QmMd[ia]==GSA_QmDemand))
+                {
+                Priority[NPri++]=ia;
+                Done[ia]=1;
+                }
+              }
 
-  for (j = 0;((ia=Order[j])>=0); j++)
-    if (!Done[ia])
-      {
-      Priority[NPri++]=ia;
-      Done[ia]=1;
-      }
+            for (j = 0;((ia=Order[j])>=0); j++)
+              if (!Done[ia])
+                {
+                Priority[NPri++]=ia;
+                Done[ia]=1;
+                }
 
-  for (j = 0; j<NPri; j++)
-    {
-    //IORECBUG
-    int ia=Priority[j];
-    //m_IOAlpha[Priority[j]].iOrder=j+1;
-    m_IOAlpha[ia].m_iOrder=j+1;
-    m_IOAlpha[ia].m_Desc.Set("%s:%s", m_Nd.IODesc_Self(m_IOs[ia])->IOName(), m_Nd.Nd_Rmt(m_IOs[ia])->Tag());
-    }
+              for (j = 0; j<NPri; j++)
+                {
+                //IORECBUG
+                int ia=Priority[j];
+                //m_IOAlpha[Priority[j]].iOrder=j+1;
+                m_IOAlpha[ia].m_iOrder=j+1;
+                m_IOAlpha[ia].m_Desc.Set("%s:%s", m_Nd.IODesc_Self(m_IOs[ia])->IOName(), m_Nd.Nd_Rmt(m_IOs[ia])->Tag());
+                }
 
-  ASSERT(NPri==NOrd);
-  return NPri;
+              ASSERT(NPri==NOrd);
+              return NPri;
   }
 
 //--------------------------------------------------------------------------
@@ -767,7 +767,7 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
 
   double Temperature=WrkCd.Temp();
   int nShort=0;
-    
+
   // Sort m_IOs in order of priority
   int Priority[MaxIOList+1];
   byte QmMd[MaxIOList], MkMd[MaxIOList];
@@ -860,9 +860,9 @@ void GSModel::EvalProductsOutGen0(long SolveMethod, double Press, SpConduit &Sd)
 
       // Input estimates Based on Sigma Output estimates
       //...
-//2811      for (int i=0; i<IOCount; i++)
-//2811        if (m_Nd.IO_In(i))
-//2811          m_Nd.IOFlange(i)->SetPBFlwScl(Max(1.0e-6, m_Nd.IOConduit(i)->QMass()/GTZ(QmInTotal)));
+      //2811      for (int i=0; i<IOCount; i++)
+      //2811        if (m_Nd.IO_In(i))
+      //2811          m_Nd.IOFlange(i)->SetPBFlwScl(Max(1.0e-6, m_Nd.IOConduit(i)->QMass()/GTZ(QmInTotal)));
 
       double QoReqd=Qo;
       Qo=Range(0.0, Qo, QmOutAvail);
@@ -1078,8 +1078,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           A[j]->BuildDataDefnOrdPri(DDB, *this);
           DDB.Double ("", "Split", DC_Frac, "%", &A[j]->m_FracSplit, this, j<NPri-1 ? isParm : 0);
           }
-      DDB.EndArray();
-      break;
+        DDB.EndArray();
+        break;
     case GSO_MassFlowSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
@@ -1093,9 +1093,9 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           if (j<(NPri-1))
             DDB.Double("", "QmErr", DC_Qm,  "kg/s", &A[j]->m_QmErr, this, isResult);
           }
-      DDB.EndArray();
-      break;
-     case GSO_VolumeFlowSplit:
+        DDB.EndArray();
+        break;
+    case GSO_VolumeFlowSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
           {
@@ -1108,10 +1108,10 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           if (j<(NPri-1))
             DDB.Double("", "QvErr", DC_Qv,  "L/s", &A[j]->m_QvErr, this, isResult);
           }
-      DDB.EndArray();
-      break;
+        DDB.EndArray();
+        break;
     case GSO_PhMassFracSplit:
-//      DDB.Byte   ("", "PhaseSpec",   DC_, "", &m_iPhMethSpec, this, isParmStopped | AffectsStruct | SetOnChange, DDBPhMeth);
+      //      DDB.Byte   ("", "PhaseSpec",   DC_, "", &m_iPhMethSpec, this, isParmStopped | AffectsStruct | SetOnChange, DDBPhMeth);
       DDB.Byte   ("", "PhaseSpec",   DC_, "", xidGSPhMethSpec, this, isParmStopped | AffectsStruct | SetOnChange, DDBPhMeth);
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
@@ -1201,8 +1201,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
               }
             }
           }
-      DDB.EndArray();
-      break;
+        DDB.EndArray();
+        break;
     case GSO_PhMassFlowSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
@@ -1235,8 +1235,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           if (j<(NPri-1))
             DDB.Double("", "QmErr", DC_Qm,  "kg/s", &A[j]->m_QmErr, this, isResult|0);
           }
-      DDB.EndArray();
-      break;
+        DDB.EndArray();
+        break;
     case GSO_PhVolumeFlowSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
@@ -1269,8 +1269,8 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
           if (j<(NPri-1))
             DDB.Double("", "QvErr", DC_Qv,  "L/s", &A[j]->m_QvErr, this, isResult|0);
           }
-      DDB.EndArray();
-      break;
+        DDB.EndArray();
+        break;
     case GSO_SpMassFracSplit:
       {
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
@@ -1301,85 +1301,85 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
             DDB.EndObject();
             }
           }
-      DDB.EndArray();
+        DDB.EndArray();
       }
       break;
     case GSO_SpMassFlowSplit:
       {
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
-      for (j = 0;j<NPri; j++)
-        {
-        if (j>0)
-          DDB.Page("..", DDB_OptPage);
-        //IORECBUG
-        DDB.BeginElement(this, m_Nd.Nd_Rmt(I[j])->Tag(), m_Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
-        A[j]->BuildDataDefnOrdPri(DDB, *this);
-        if (j<NPri-1 || !DDB.ForView())
+        for (j = 0;j<NPri; j++)
           {
-          int ns=A[j]->m_QmRqds.GetSize();
-          if (PrjFileVerNo()<22)
+          if (j>0)
+            DDB.Page("..", DDB_OptPage);
+          //IORECBUG
+          DDB.BeginElement(this, m_Nd.Nd_Rmt(I[j])->Tag(), m_Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
+          A[j]->BuildDataDefnOrdPri(DDB, *this);
+          if (j<NPri-1 || !DDB.ForView())
             {
-            for (int s=0; s<ns; s++)
-              {
-              Tt.Set("%s.QmRqd", SDB[s].Tag());
-              Ts.Set("%s.QmRqd", SDB[s].Sym());
-              DDB.Double(Tt(), Ts(),  DC_Qm, "kg/s",  &A[j]->m_QmRqds[s],  this, j<NPri-1 ? isParm : 0);
-              }
-            }
-          else
-            {
-            if (DDB.BeginObject(this, "QmRqd", "GSM_QmRqd", NULL, DDB_NoPage))
+            int ns=A[j]->m_QmRqds.GetSize();
+            if (PrjFileVerNo()<22)
               {
               for (int s=0; s<ns; s++)
-                DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Qm, "kg/s",  &A[j]->m_QmRqds[s],  this, j<NPri-1 ? isParm : 0);
+                {
+                Tt.Set("%s.QmRqd", SDB[s].Tag());
+                Ts.Set("%s.QmRqd", SDB[s].Sym());
+                DDB.Double(Tt(), Ts(),  DC_Qm, "kg/s",  &A[j]->m_QmRqds[s],  this, j<NPri-1 ? isParm : 0);
+                }
               }
-            DDB.EndObject();
+            else
+              {
+              if (DDB.BeginObject(this, "QmRqd", "GSM_QmRqd", NULL, DDB_NoPage))
+                {
+                for (int s=0; s<ns; s++)
+                  DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Qm, "kg/s",  &A[j]->m_QmRqds[s],  this, j<NPri-1 ? isParm : 0);
+                }
+              DDB.EndObject();
+              }
             }
+          //else if (j==(NPri-1))
+          if (j<(NPri-1))
+            DDB.Double("", "QmErr", DC_Qm,  "kg/s", &A[j]->m_QmErr, this, isResult|0);
           }
-        //else if (j==(NPri-1))
-        if (j<(NPri-1))
-          DDB.Double("", "QmErr", DC_Qm,  "kg/s", &A[j]->m_QmErr, this, isResult|0);
-        }
-      DDB.EndArray();
+        DDB.EndArray();
       }
       break;
     case GSO_SpVolumeFlowSplit:
       {
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
-      for (j = 0;j<NPri; j++)
-        {
-        if (j>0)
-          DDB.Page("..", DDB_OptPage);
-        //IORECBUG
-        DDB.BeginElement(this, m_Nd.Nd_Rmt(I[j])->Tag(), m_Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
-        A[j]->BuildDataDefnOrdPri(DDB, *this);
-        if (j<NPri-1 || !DDB.ForView())
+        for (j = 0;j<NPri; j++)
           {
-          int ns=A[j]->m_QvRqds.GetSize();
-          if (PrjFileVerNo()<22)
+          if (j>0)
+            DDB.Page("..", DDB_OptPage);
+          //IORECBUG
+          DDB.BeginElement(this, m_Nd.Nd_Rmt(I[j])->Tag(), m_Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
+          A[j]->BuildDataDefnOrdPri(DDB, *this);
+          if (j<NPri-1 || !DDB.ForView())
             {
-            for (int s=0; s<ns; s++)
-              {
-              Tt.Set("%s.QvRqd", SDB[s].Tag());
-              Ts.Set("%s.QvRqd", SDB[s].Sym());
-              DDB.Double(Tt(), Ts(),  DC_Qv, "L/s",  &A[j]->m_QvRqds[s],  this, j<NPri-1 ? isParm : 0);
-              }
-            }
-          else
-            {
-            if (DDB.BeginObject(this, "QvRqd", "GSM_QvRqd", NULL, DDB_NoPage))
+            int ns=A[j]->m_QvRqds.GetSize();
+            if (PrjFileVerNo()<22)
               {
               for (int s=0; s<ns; s++)
-                DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Qv, "L/s",  &A[j]->m_QvRqds[s],  this, j<NPri-1 ? isParm : 0);
+                {
+                Tt.Set("%s.QvRqd", SDB[s].Tag());
+                Ts.Set("%s.QvRqd", SDB[s].Sym());
+                DDB.Double(Tt(), Ts(),  DC_Qv, "L/s",  &A[j]->m_QvRqds[s],  this, j<NPri-1 ? isParm : 0);
+                }
               }
-            DDB.EndObject();
+            else
+              {
+              if (DDB.BeginObject(this, "QvRqd", "GSM_QvRqd", NULL, DDB_NoPage))
+                {
+                for (int s=0; s<ns; s++)
+                  DDB.Double(SDB[s].Tag(), SDB[s].Sym(),  DC_Qv, "L/s",  &A[j]->m_QvRqds[s],  this, j<NPri-1 ? isParm : 0);
+                }
+              DDB.EndObject();
+              }
             }
+          //else if (j==(NPri-1))
+          if (j<(NPri-1))
+            DDB.Double("", "QvErr", DC_Qv,  "L/s", &A[j]->m_QvErr, this, isResult|0);
           }
-        //else if (j==(NPri-1))
-        if (j<(NPri-1))
-          DDB.Double("", "QvErr", DC_Qv,  "L/s", &A[j]->m_QvErr, this, isResult|0);
-        }
-      DDB.EndArray();
+        DDB.EndArray();
       }
       break;
     case GSO_PhaseRecovery:
@@ -1388,22 +1388,22 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
         {1,  "Liquid"},
         {2,  "Vapour"},
         {0}};
-      static DDBValueLst DDBSt[]={
-        {0,  ""},
-        {1,  ""},
-        {0}};
-      if (NPri>=1) DDBSt[0].m_pStr=m_Nd.Nd_Rmt(I[0])->Tag();
-      if (NPri>=2) DDBSt[1].m_pStr=m_Nd.Nd_Rmt(I[1])->Tag();
+        static DDBValueLst DDBSt[]={
+          {0,  ""},
+          {1,  ""},
+          {0}};
+          if (NPri>=1) DDBSt[0].m_pStr=m_Nd.Nd_Rmt(I[0])->Tag();
+          if (NPri>=2) DDBSt[1].m_pStr=m_Nd.Nd_Rmt(I[1])->Tag();
 
-      if (DDB.BeginStruct(this, "Recovery", NULL, DDB_NoPage))
-        {
-        DDB.Byte  ("Phase",       "",  DC_,     "",  &m_iRecPh,   this, isParm, DDBPh);
-        DDB.Byte  ("Stream",      "",  DC_,     "",  &m_iRecStrm, this, isParm, DDBSt);
-        DDB.Double("Fraction",    "",  DC_Frac, "%", &m_dRecFrac, this, isParm);
-        DDB.Double("Composition", "",  DC_Frac, "%", &m_dRecComp, this, isParm);
-        }
-      DDB.EndStruct();
-      break;
+          if (DDB.BeginStruct(this, "Recovery", NULL, DDB_NoPage))
+            {
+            DDB.Byte  ("Phase",       "",  DC_,     "",  &m_iRecPh,   this, isParm, DDBPh);
+            DDB.Byte  ("Stream",      "",  DC_,     "",  &m_iRecStrm, this, isParm, DDBSt);
+            DDB.Double("Fraction",    "",  DC_Frac, "%", &m_dRecFrac, this, isParm);
+            DDB.Double("Composition", "",  DC_Frac, "%", &m_dRecComp, this, isParm);
+            }
+          DDB.EndStruct();
+          break;
     }
   };
 
@@ -1611,15 +1611,15 @@ int GSModel::FindIOEvalPrioritySplit(int *I, GSIOAlpha **A)
       {
       if (!Done[ia] && m_Nd.LnkFlowDefinedOut(m_IOs[ia]))
         {
-        if (m_IOAlpha[ia].m_iPriority==ThisPri)
+        if (m_IOAlpha[ia].Priority(this)==ThisPri)
           {
           I[NOrd]=ia;
           A[NOrd]=&m_IOAlpha[ia];
           NOrd++;
           Done[ia]=true;
           }
-        else if (m_IOAlpha[ia].m_iPriority>ThisPri)
-          NextPri=Min(NextPri, m_IOAlpha[ia].m_iPriority);
+        else if (m_IOAlpha[ia].Priority(this)>ThisPri)
+          NextPri=Min(NextPri, m_IOAlpha[ia].Priority(this));
         }
       }
     }
@@ -1938,11 +1938,11 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
       SCd.QAddM(Sd, som_Other, MassOther-RqdOtherMass);
 
 
-//      case Range((byte)0, iRecPh, (byte)2);
-//      iRecStrm=Range((byte)0, iRecStrm, (byte)1);
-//      dRecFrac=Range(0.0, dRecFrac, 1.0);
-//      dRecComp=Range(0.0, dRecComp, 1.0);
-//      ?
+      //      case Range((byte)0, iRecPh, (byte)2);
+      //      iRecStrm=Range((byte)0, iRecStrm, (byte)1);
+      //      dRecFrac=Range(0.0, dRecFrac, 1.0);
+      //      dRecComp=Range(0.0, dRecComp, 1.0);
+      //      ?
       break;
       }
     }
@@ -1958,11 +1958,11 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
 //
 //--------------------------------------------------------------------------
 
-template <class T> void SortPriority(T & IOA, int IOsSize)
+template <class T> void SortPriority(GSModel * Mdl, T & IOA, int IOsSize)
   {
   bool FixRqd = false;
   for (int j=0; j<IOsSize && !FixRqd; j++)
-    FixRqd = (IOA[j].m_iPriority!=AutoPriority && IOA[j].m_iPriority>=IOsSize-1);
+    FixRqd = (IOA[j].Priority(Mdl)!=AutoPriority && IOA[j].Priority(Mdl)>=IOsSize-1);
   if (FixRqd)
     {
     int LastLow = -1;
@@ -1973,8 +1973,8 @@ template <class T> void SortPriority(T & IOA, int IOsSize)
       int LowIndex = -1;
       for (j=0; j<IOsSize; j++)
         {
-        if (IOA[j].m_iPriority!=AutoPriority && IOA[j].m_iPriority>LastLow && IOA[j].m_iPriority<Low)
-          Low = IOA[j].m_iPriority;
+        if (IOA[j].Priority(Mdl)!=AutoPriority && IOA[j].Priority(Mdl)>LastLow && IOA[j].Priority(Mdl)<Low)
+          Low = IOA[j].Priority(Mdl);
         }
       LastLow++;
       Fnd = (Low!=999);
@@ -1982,7 +1982,7 @@ template <class T> void SortPriority(T & IOA, int IOsSize)
         {
         for (j=0; j<IOsSize; j++)
           {
-          if (IOA[j].m_iPriority==Low)
+          if (IOA[j].Priority(Mdl)==Low)
             IOA[j].m_iPriority = LastLow;
           }
         }
@@ -2029,8 +2029,8 @@ void GSModel::CheckConfig()
         m_NProds++;
       }
 
-    SortPriority(m_IOAlpha, IOsSize);
-    SortPriority(m_IOThermal, IOsSize);
+    SortPriority(this, m_IOAlpha, IOsSize);
+    SortPriority(this, m_IOThermal, IOsSize);
 
     ////fix priority numbers...
     //bool FixRqd = false;
@@ -2069,22 +2069,22 @@ void GSModel::PrepareDefinedData()
 // -------------------------------------------------------------------------
 
 /*void GSModel::PostConnect(int IONo)
-  {
-  for (int i=0; i<m_IOs.GetSize(); i++)
-    if (m_IOs[i]>=IONo)
-      break;
-  int Id=m_Nd.IOId_Self(IONo);
-  if (Id>=IOId0 && Id<=IOIdN)
-    {
-    m_IOs.InsertAt(i, IONo);
-    i++;
-    }
+{
+for (int i=0; i<m_IOs.GetSize(); i++)
+if (m_IOs[i]>=IONo)
+break;
+int Id=m_Nd.IOId_Self(IONo);
+if (Id>=IOId0 && Id<=IOIdN)
+{
+m_IOs.InsertAt(i, IONo);
+i++;
+}
 
-  for (i ; i<m_IOs.GetSize(); i++)
-    m_IOs[i]++;
-  m_bIOChanges=1;
-  CheckConfig();
-  };*/
+for (i ; i<m_IOs.GetSize(); i++)
+m_IOs[i]++;
+m_bIOChanges=1;
+CheckConfig();
+};*/
 
 void GSModel::PostConnect(int IONo)
   {
@@ -2150,17 +2150,17 @@ void GSModel::PostConnect(int IONo)
 // -------------------------------------------------------------------------
 
 /*void GSModel::PreDisConnect(int IONo)
-  {
-  for (int i=0; i<m_IOs.GetSize(); i++)
-    if (m_IOs[i]==IONo)
-      {
-      m_IOs.RemoveAt(i);
-      for ( ; i<m_IOs.GetSize(); i++)
-        m_IOs[i]--;
-      }
-  m_bIOChanges=1;
-  CheckConfig();
-  };*/
+{
+for (int i=0; i<m_IOs.GetSize(); i++)
+if (m_IOs[i]==IONo)
+{
+m_IOs.RemoveAt(i);
+for ( ; i<m_IOs.GetSize(); i++)
+m_IOs[i]--;
+}
+m_bIOChanges=1;
+CheckConfig();
+};*/
 
 void GSModel::PreDisConnect(int IONo)
   {
@@ -2235,7 +2235,7 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
     static DDBValueLst DDB0[]=
       {
         {GSO_General0         ,"General"},
-          //      {GSO_V5               ,"V5"},
+        //      {GSO_V5               ,"V5"},
         {GSO_MassFracSplit    ,"MassFrac"},
         {GSO_MassFlowSplit    ,"MassFlow"},
         {GSO_VolumeFlowSplit  ,"VolumeFlow"},
@@ -2251,7 +2251,7 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
     static DDBValueLst DDB1[]=
       {
         {GSO_General0         ,"General"},
-          //      {GSO_V5               ,"V5"},
+        //      {GSO_V5               ,"V5"},
         {GSO_MassFracSplit    ,"MassFrac"},
         {GSO_MassFlowSplit    ,"MassFlow"},
         {GSO_VolumeFlowSplit  ,"VolumeFlow"},
@@ -2266,7 +2266,7 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
 
 
     DDB.Byte   ("", "Operation",   DC_, "", xidGSOperation, this, isParmStopped | AffectsStruct | SetOnChange, (m_NProds==2) ? DDB0 : DDB1);
-  //  DDB.Byte   ("", "Operation",   DC_, "", &m_iOperation, this, isParmStopped | AffectsStruct, DDB1);
+    //  DDB.Byte   ("", "Operation",   DC_, "", &m_iOperation, this, isParmStopped | AffectsStruct, DDB1);
 
     switch (m_iOperation)
       {
@@ -2294,7 +2294,7 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
       {
       //DDB.Text(" ");
       DDB.Page("GMT", DDB_RqdPage);
-    //DDB.CheckBoxBtn("", "Thermal",   DC_, "", xidGSThermal, this, isParmStopped | AffectsStruct | SetOnChange);//, (NProds==2) ? DDB0 : DDB1);
+      //DDB.CheckBoxBtn("", "Thermal",   DC_, "", xidGSThermal, this, isParmStopped | AffectsStruct | SetOnChange);//, (NProds==2) ? DDB0 : DDB1);
       BuildDataDefnThermal(DDB);
       }
 #endif
@@ -2506,7 +2506,7 @@ void GSModel::EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReac
     pEHX->EvalProducts(Sd);
 
   EvalProductsOut(SolveMethod, Press, Sd);
-  
+
   }
 
 //--------------------------------------------------------------------------
@@ -2535,7 +2535,7 @@ void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
       break;
     }
 
-#if WITHTHERMAL 
+#if (WITHTHERMAL) 
   if (m_bThermal)
     EvalProductsThermal();
 #endif
@@ -2547,19 +2547,23 @@ void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
 //
 //--------------------------------------------------------------------------
 
-#if WITHTHERMAL 
-
+//#if (WITHTHERMAL)  // problems with VS greying out code
 
 GSIOThermal::GSIOThermal() 
   {
-  m_iMode      = GST_None;
+  m_iMode      = GST_TFree;
 
   m_iOrder     = AutoPriority;
   m_iPriority  = AutoPriority;
 
   m_TempReqd   = StdT;
+#if GST_ASCHANGE
+  m_TempChange = 0.0;
+#else
   m_TempRise   = 0.0;
   m_TempDrop   = 0.0;
+#endif
+  m_TempDiff   = 0.0;
   m_TempOut    = StdT;
 
   m_bLast      = false;
@@ -2582,8 +2586,13 @@ GSIOThermal & GSIOThermal::operator=(GSIOThermal & A)
   m_iMode      = A.m_iMode;
 
   m_TempReqd   = A.m_TempReqd;
+#if GST_ASCHANGE
+  m_TempChange = A.m_TempChange;
+#else
   m_TempRise   = A.m_TempRise;
   m_TempDrop   = A.m_TempDrop;
+#endif
+  m_TempDiff   = A.m_TempDiff;
   m_TempOut    = A.m_TempOut;
 
   return *this;
@@ -2613,24 +2622,35 @@ void GSIOThermal::BuildDataDefnOrdPri(DataDefnBlk &DDB, GSModel & Mdl)
 //
 //--------------------------------------------------------------------------
 
-
 void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
   {
+  static DDBValueLst DDBCorrect[]=
+    {
+      {eForward,             "Forward"},
+      {eForwardGroups       ,"ForwardGroups"},
+      {eReverse,             "Reverse"},
+      {eReverseGroups       ,"ReverseGroups"},
+      {eSimultaneous        ,"Simultaneous"},
+      {0}
+    };
+
   DDB.Visibility();
   DDB.Text("");
-  DDB.Double     ("Feed.Temp",      "Feed.T", DC_T,   "C",    &m_TempIn,       this, isResult);
-  DDB.CheckBoxBtn("AllowHX",        "", DC_,    "",     &m_bAllowHX,     this, isParm|SetOnChange);
+  DDB.Double     ("Feed.Temp",        "Feed.T", DC_T,   "C",    &m_TempIn,       this, isResult);
+  DDB.CheckBoxBtn("AllowHX",          "", DC_,    "",     &m_bAllowHX,     this, isParm|SetOnChange);
   DDB.Visibility(NSHM_All,  m_bAllowHX);
-  DDB.Double     ("PowerInput",     "", DC_Pwr, "kW",   &m_PowerIn,      this, 0);
+  DDB.Double     ("PowerInput",       "", DC_Pwr, "kW",   &m_PowerIn,      this, 0);
   DDB.Visibility();
   DDB.Text("Temperature change limits:");
-  DDB.Double     ("FinalT.Min",     "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
-  DDB.Double     ("FinalT.Max",     "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
-  DDB.CheckBoxBtn("ChangeT.Limit",  "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
+  DDB.Double     ("FinalT.Min",       "", DC_T,   "C",    &m_FinalTempMin, this, isParm);
+  DDB.Double     ("FinalT.Max",       "", DC_T,   "C",    &m_FinalTempMax, this, isParm);
+  DDB.CheckBoxBtn("ChangeT.Limit",    "", DC_,    "",     &m_ChangeTst,    this, isParm|SetOnChange);
   DDB.Visibility(NSHM_All,  m_ChangeTst);
-  DDB.Double     ("ChangeT.MaxDrop", "", DC_dT, "C",    &m_ChangeNeg,    this, isParm);
-  DDB.Double     ("ChangeT.MaxRise", "", DC_dT, "C",    &m_ChangePos,    this, isParm);
+  DDB.Double     ("ChangeT.MaxDrop",  "", DC_dT, "C",    &m_ChangeNeg,    this, isParm);
+  DDB.Double     ("ChangeT.MaxRise",  "", DC_dT, "C",    &m_ChangePos,    this, isParm);
   DDB.Visibility();
+  DDB.Text("");
+  DDB.Byte       ("CorrectionMethod", "", DC_,   "",     &m_eCorrection,    this, isParm, DDBCorrect);
   DDB.Text("");
 
   Strng T, Tt, Ts;
@@ -2645,33 +2665,44 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
       {
       //IORECBUG
       DDB.BeginElement(this, m_Nd.Nd_Rmt(I[j])->Tag(), m_Nd.IODesc_Self(I[j])->DefaultIOName(OrigPrjFileVerNo()));
-      if (A[j]->Mode(this)!=GST_None || !m_bAllowHX || !DDB.ForView())
+      if ((A[j]->Mode(this)<GST_TFree) || !m_bAllowHX || !DDB.ForView())
         A[j]->BuildDataDefnOrdPri(DDB, *this);
 
-      bool CfgAble = j<NPri-1||m_bAllowHX;
+      bool CfgAble = true;//j<NPri-1||m_bAllowHX;
 
-      DDBValueLst DDB0[]={
-        {GST_None,    "None"      },
-        {GST_TReqd,   "Required"  },
-        {GST_TRise,   "Rise"      },
-        {GST_TDrop,   "Drop"      },
-        {0}};
-
-        DDB.Byte   ("",             "Mode",   DC_,    "",     xidGSTermMode+A[j]->m_IONo,         this, CfgAble ? (isParm | SetOnChange) : 0, DDB0);
-      switch (A[j]->Mode(this))
+      DDBValueLst DDB0[]=
         {
-        case GST_TReqd:
-          DDB.Double ("", "TempReqd", DC_T,  "C", &A[j]->m_TempReqd, this, CfgAble ? isParm : 0);
-          break;
-        case GST_TRise:
-          DDB.Double ("", "TempRise", DC_dT, "C", &A[j]->m_TempRise, this, CfgAble ? isParm : 0);
-          break;
-        case GST_TDrop:
-          DDB.Double ("", "TempDrop", DC_dT, "C", &A[j]->m_TempDrop, this, CfgAble ? isParm : 0);
-          break;
-        }
+          {GST_TReqd,     "Required"      },
+#if GST_ASCHANGE
+          {GST_TChange,   "Change"        },  
+#else
+          {GST_TRise,     "Rise"          },
+          {GST_TDrop,     "Drop"          },
+#endif
+          {GST_TFreeDiff, "FreeDiff"      },
+          {GST_TFree,     "Free"          },
+          {0}
+        };
 
-      DDB.Double ("", "TempOut", DC_T, "C", &A[j]->m_TempOut, this, 0);
+      DDB.Byte   ("",             "Mode",   DC_,    "",     xidGSTermMode+A[j]->m_IONo,         this, CfgAble ? (isParm | SetOnChange) : 0, DDB0);
+
+      DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TReqd);
+      DDB.Double ("", "TempReqd", DC_T,  "C", &A[j]->m_TempReqd, this, CfgAble ? isParm : 0);
+#if GST_ASCHANGE
+      DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TChange);
+      DDB.Double ("", "TempChange", DC_dT, "C", &A[j]->m_TempChange, this, CfgAble ? isParm : 0);
+#else
+      DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TRise);
+      DDB.Double ("", "TempRise", DC_dT, "C", &A[j]->m_TempRise, this, CfgAble ? isParm : 0);
+      DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TDrop);
+      DDB.Double ("", "TempDrop", DC_dT, "C", &A[j]->m_TempDrop, this, CfgAble ? isParm : 0);
+#endif
+      DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TFreeDiff);
+      DDB.Double ("", "TempDiff", DC_dT, "C", &A[j]->m_TempDiff, this, CfgAble ? isParm : 0);
+      DDB.Visibility();
+
+      DDB.Double ("", "TempOut",  DC_T,    "C", &A[j]->m_TempOut,    this, 0);
+      DDB.Double ("", "Achieved", DC_Frac, "%", &A[j]->m_BalanceScl, this, 0);
       }
     }
   DDB.EndArray();
@@ -2722,7 +2753,7 @@ int GSModel::FindIOEvalPriorityThermal(int *I, GSIOThermal **A)
   bool Done[MaxIOList];
 
   for (int ia = 0; ia < IOCount; ia++)
-      Done[ia]=false;
+    Done[ia]=false;
 
   int NOrd=0;
   byte ThisPri=0;
@@ -2733,21 +2764,20 @@ int GSModel::FindIOEvalPriorityThermal(int *I, GSIOThermal **A)
     NextPri=AutoPriority;
     for (int ia = 0; ia < IOCount; ia++)
       {
-      if (!Done[ia] && m_Nd.LnkFlowDefinedOut(m_IOs[ia]))// && (m_IOThermal[ia].m_iMode!=GST_None))
+      if (!Done[ia] && m_Nd.LnkFlowDefinedOut(m_IOs[ia]))
         {
-        if (m_IOThermal[ia].m_iPriority==ThisPri)
+        if (m_IOThermal[ia].Priority(this)==ThisPri)
           {
           I[NOrd]=ia;
           A[NOrd]=&m_IOThermal[ia];
           NOrd++;
           Done[ia]=true;
           }
-        else if (m_IOThermal[ia].m_iPriority>ThisPri)
-          NextPri=Min(NextPri, m_IOThermal[ia].m_iPriority);
+        else if (m_IOThermal[ia].Priority(this)>ThisPri)
+          NextPri=Min(NextPri, m_IOThermal[ia].Priority(this));
         }
       }
     }
-
 
   for (ia = 0; ia < IOCount; ia++)
     {
@@ -2774,32 +2804,38 @@ int GSModel::FindIOEvalPriorityThermal(int *I, GSIOThermal **A)
 
 //--------------------------------------------------------------------------
 
-class CTNoneFinder : public MRootFinderBase
+class CTFreeFinder : public MRootFinderBase
   {
   friend class GSModel;
   public:
-    CTNoneFinder(GSModel & GS, int * I, GSIOThermal ** A, int NPri) : m_GS(GS), m_I(I), m_A(A), m_NPri(NPri), MRootFinderBase("TNoneFinder", s_Tol)
+    CTFreeFinder(GSModel & GS, int * I, GSIOThermal ** A, int NPri) : \
+      m_GS(GS), m_I(I), m_A(A), m_NPri(NPri), MRootFinderBase("TNoneFinder", GSModel::sm_TolPwr)
       {
-      m_NoneHf = 0.0;
+      m_HfFree = 0.0;
       };
     LPCTSTR ObjTag() { return (LPCTSTR)m_GS.FullObjTag(); };
-    double Function(double x)
+    double Function(double TReqd)
       {
       // x is Temp
-      m_NoneHf=0.0;
+      m_HfFree=0.0;
       for (int j = 0;j<m_NPri; j++)
         {
         SpConduit & Cd = *m_GS.m_Nd.IOConduit(m_I[j]);
-        GSIOThermal & TOp = *m_A[j];
-        if (TOp.Mode(&m_GS)==GST_None)
+        GSIOThermal & Aj = *m_A[j];
+        if (Aj.Mode(&m_GS)>=GST_TFreeDiff)
           {
-          Cd.SetTempPress(x, m_GS.m_PressIn);
-          m_NoneHf+=Cd.totHf();
+          if (Aj.Mode(&m_GS)==GST_TFreeDiff)
+            TReqd+=Aj.m_TempDiff;
+
+          if (Cd.QMass()>SmallPosFlow)
+            Cd.SetTempPress(TReqd, m_GS.m_PressIn);
+          else
+            Cd.SetTempPress(m_GS.m_TempIn, m_GS.m_PressIn);
+          m_HfFree+=Cd.totHz ();
           }
         }
 
-      //dbgpln("RhoHFinder %8.6f %16.8f %16.8f %16.8f", x, pGrp->m_P_Applied, pGrp->m_Sum_dP, pGrp->m_P_Applied+pGrp->m_Sum_dP);
-      return m_NoneHf;
+      return m_HfFree;
       };
 
   protected:
@@ -2807,16 +2843,221 @@ class CTNoneFinder : public MRootFinderBase
     int          * m_I;
     GSIOThermal ** m_A;
     int            m_NPri;
-    double         m_NoneHf;
-    
-    static CToleranceBlock s_Tol;
-  };
+    double         m_HfFree;
 
-CToleranceBlock CTNoneFinder::s_Tol(TBF_BothSys, "GM:TempFinder", 0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
+  };
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsThermal()
+void GSModel::SetDeltaTemp(int * I, GSIOThermal ** A, int NPri)
+  {
+  for (int j = 0;j<NPri; j++)
+    {
+    GSIOThermal & Aj = *A[j];
+    double Diff=0;
+    switch (Aj.Mode(this))
+      {
+      case GST_TReqd:         Aj.m_DeltaT = Aj.m_TempReqd-m_TempIn;             break;
+#if GST_ASCHANGE 
+      case GST_TChange:       Aj.m_DeltaT = Aj.m_TempChange;                    break;  
+#else
+      case GST_TRise:         Aj.m_DeltaT = Aj.m_TempRise;                      break;  
+      case GST_TDrop:         Aj.m_DeltaT = - Aj.m_TempDrop;                    break;
+#endif
+      default:                Aj.m_DeltaT = 0.0;                                break;
+      }
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
+  {
+  bool ReqdOutOfRange   = false;
+
+  double HfReqdSpec=0;
+  for (int j = 0;j<NPri; j++)
+    {
+    GSIOThermal & Aj = *A[j];
+    if (Aj.Mode(this)<GST_TFreeDiff)
+      {
+      SpConduit & Cd = *m_Nd.IOConduit(I[j]);
+      double TReqd = m_TempIn + Aj.m_DeltaT * Aj.m_BalanceScl;
+      double TSet = Range(m_TMin, TReqd, m_TMax);
+      if (TSet!=TReqd)
+        ReqdOutOfRange=true;
+
+      Cd.SetTempPress(TSet, m_PressIn);
+      HfReqdSpec += Cd.totHz ();
+      }
+    }
+  return HfReqdSpec;
+  }
+
+//--------------------------------------------------------------------------
+
+double GSModel::SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri)
+  {
+  CTFreeFinder TNF(*this, I, A, NPri);
+  TNF.SetTarget(HfReqdFree);
+  switch (TNF.Start(m_TMin, m_TMax))
+    {
+    case RF_OK:
+      if (TNF.Solve_Brent()==RF_OK)
+        break;
+      break;
+    case RF_LoLimit:
+      TNF.Function(m_TMin);
+      break;
+    case RF_HiLimit:
+      TNF.Function(m_TMax);
+      break;
+    }
+  return TNF.m_HfFree;
+  }
+
+//--------------------------------------------------------------------------
+
+class CTSpecFinder : public MRootFinderBase
+  {
+  friend class GSModel;
+  public:
+    CTSpecFinder(GSModel & GS, int * I, GSIOThermal ** A, int NPri, int nGroups, int LastSpecd) : \
+      m_GS(GS), m_I(I), m_A(A), m_NPri(NPri), MRootFinderBase("TNoneFinder", GSModel::sm_TolPwr)
+      {
+      m_HfSpecd   = 0.0;
+      m_nGroups   = nGroups;
+      m_LastSpecd = LastSpecd;
+      };
+    LPCTSTR ObjTag() { return (LPCTSTR)m_GS.FullObjTag(); };
+    double Function(double x)
+      {
+      // x is 
+      m_HfSpecd = 0.0;
+      for (int j = 0;j<=m_LastSpecd; j++)
+        {
+        //m_GoFwd
+        m_A[j]->m_BalanceScl=Range(0.0, (x-m_A[j]->m_iGroup), 1.0);
+        dbgpln("CTSpecFinder %8.6f %3i %3i %8.6f", x, j, m_A[j]->m_iGroup, m_A[j]->m_BalanceScl);
+        }
+
+      m_HfSpecd=m_GS.SetRequirements(m_I, m_A, m_NPri);
+      dbgpln("CTSpecFinder %8.6f                       %16.8f cf %16.8f = (%16.8f)",x, m_HfSpecd, dTarget, m_HfSpecd-dTarget);
+      return m_HfSpecd;
+      };
+
+  protected:
+    GSModel      & m_GS;
+    int          * m_I;
+    GSIOThermal ** m_A;
+    int            m_NPri;
+    double         m_HfSpecd;
+    int            m_nGroups;
+    int            m_LastSpecd;
+
+    //static CToleranceBlock sm_Tol;
+  };
+
+CToleranceBlock GSModel::sm_TolPwr(TBF_BothSys, "GMT:PowerFinder", 0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
+
+//--------------------------------------------------------------------------
+
+bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, double HfSpecdInitial, int * I, GSIOThermal ** A, int NPri)
+  {
+  bool Solved    = false;
+  bool GoFwd     = false;
+  bool CoolSpecd = HfSpecReqd <= HfSpecdStreams;
+  int nGroups   = 0;
+  int LastSpecd = -1;
+  int iPrevPriority = 0;
+
+  for (int j = 0;j<NPri; j++)
+    {
+    GSIOThermal & Aj = *A[j];
+    if (Aj.Mode(this)<GST_TFreeDiff)
+      {
+      LastSpecd=j;
+      if (CoolSpecd && Aj.m_DeltaT>0 || !CoolSpecd && Aj.m_DeltaT<0)
+        {
+
+        switch (m_eCorrection)
+          {
+          case eForward:
+            GoFwd=true;
+          case eReverse:
+            Aj.m_iGroup=nGroups;
+            nGroups++;
+            break;
+          case eForwardGroups:
+            GoFwd=true;
+          case eReverseGroups:
+            {
+            // Do Those with the same priority as a group;
+            if (j==0 || A[j]->Priority(this)!=iPrevPriority)
+              nGroups++;
+            Aj.m_iGroup=nGroups-1;
+            break;
+            }
+          case eSimultaneous:
+            // All together
+            GoFwd=true;
+            Aj.m_iGroup=0;
+            nGroups=1;
+            break;
+          }
+        iPrevPriority=A[j]->Priority(this);
+        }
+      else
+        Aj.m_iGroup=-1;
+      }
+    else
+      Aj.m_iGroup=-1;
+    } 
+
+  if (LastSpecd>=0)
+    {
+    CTSpecFinder SF(*this, I, A, NPri, nGroups, LastSpecd);
+    SF.SetTarget(HfSpecReqd);
+
+    bool Started=false;
+    if (GoFwd)
+      {
+      for (int iGrp=0; !Started && iGrp<nGroups; iGrp++)
+        Started=(SF.Start(0, iGrp+1)==RF_OK);
+      }
+    else
+      {
+      for (int iGrp=nGroups-1; !Started && iGrp>=0; iGrp--)
+        Started=(SF.Start(iGrp, nGroups)==RF_OK);
+      }
+
+    if (Started)
+      {
+      if (SF.Solve_Brent()==RF_OK)
+        {
+        Solved=true;
+        }
+      else
+        {
+        _asm int 3; // should not get here 
+        }
+      }
+    else
+      {
+      _asm int 3; // should not get here 
+      }
+    }
+  else
+    {
+    _asm int 3; // should not get here 
+    }
+
+  return true;
+  };
+
+//--------------------------------------------------------------------------
+
+void GSModel::EvalProductsThermal()  
   {
   dbgpln("GSModel::EvalProductsThermal");
 
@@ -2834,103 +3075,58 @@ void GSModel::EvalProductsThermal()
   m_TempIn       = StdT;
   m_PressIn      = StdP;
 
-  double totHf=0.0;
+  int NFree=0;
+  double HfIn=0.0;
+  double HfSpecdInitial=0.0;
   for (int j = 0;j<NPri; j++)
     {
     SpConduit & Cd = *m_Nd.IOConduit(I[j]);
-    totHf+=Cd.totHf();
+    HfIn+=Cd.totHz ();
     if (Cd.QMass()>BigFlow)
       {
       BigFlow=Cd.QMass();
       m_TempIn=Cd.Temp();
       m_PressIn=Cd.Press();
       }
+    A[j]->m_BalanceScl=1.0;
+    if (A[j]->Mode(this)>=GST_TFreeDiff)
+      NFree++;
+    else
+      HfSpecdInitial+=Cd.totHz ();
     }
 
-  bool ReqdOutOfRange   = false;
-  bool AdjustOutOfRange = false;
-  bool PowerOutOfRange  = false;
+  m_TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn - m_ChangeNeg) : m_FinalTempMin;
+  m_TMax = m_ChangeTst ? Min(m_FinalTempMax, m_TempIn + m_ChangePos) : m_FinalTempMax;
 
-  double TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn - m_ChangeNeg) : m_FinalTempMin;
-  double TMax = m_ChangeTst ? Min(m_FinalTempMax, m_TempIn + m_ChangePos) : m_FinalTempMax;
+  SetDeltaTemp(I, A, NPri);
 
-  int NFree=0;
-  double RqdHf=0;
-  for (int j = 0;j<NPri; j++)
-    {
-    SpConduit & Cd = *m_Nd.IOConduit(I[j]);
-    GSIOThermal & TOp = *A[j];
-    double PReqd = Cd.Press();
-    double TReqd = Cd.Temp();
-    switch (TOp.Mode(this))
-      {
-      case GST_TReqd:
-        TReqd = TOp.m_TempReqd;
-        break;
-      case GST_TRise:
-        TReqd =Cd.Temp()+TOp.m_TempRise;
-        break;  
-      case GST_TDrop:
-        TReqd = Cd.Temp()-TOp.m_TempDrop;
-        break;
-      case GST_None:
-        NFree++;
-        continue;
-      }
-
-    double TSet=Range(TMin, TReqd, TMax);
-    if (TSet!=TReqd)
-      ReqdOutOfRange=true;
-
-    Cd.SetTempPress(TSet, m_PressIn);
-    RqdHf+=Cd.totHf();
-    }
+  double HfSpecdStreams=SetRequirements(I, A, NPri);
 
   m_PowerIn=0.0;
-  double OtherHf=totHf-RqdHf;
+  double HfSpecReqd=0.0;
+  double HfReqdInFreeStreams=HfIn-HfSpecdStreams;
   if (NFree>0)
     {
-    CTNoneFinder TNF(*this, I, A, NPri);
-    TNF.SetTarget(OtherHf);
-    switch (TNF.Start(TMin, TMax))
-      {
-      case RF_OK:
-        if (TNF.Solve_Brent()==RF_OK)
-          break;
-        m_PowerIn=totHf-TNF.m_NoneHf;
-        if (!m_bAllowHX)
-          AdjustOutOfRange=true;
-        break;
-      case RF_LoLimit:
-        TNF.Function(TMin);
-        m_PowerIn=totHf-TNF.m_NoneHf;
-        if (!m_bAllowHX)
-          AdjustOutOfRange=true;
-        break;
-      case RF_HiLimit:
-        TNF.Function(TMax);
-        m_PowerIn=totHf-TNF.m_NoneHf;
-        if (!m_bAllowHX)
-          AdjustOutOfRange=true;
-        break;
-      }
+    double HfFreeStreams=SetFreeStreams(HfReqdInFreeStreams, I, A, NPri);
+    if (m_bAllowHX)
+      m_PowerIn=HfIn-HfFreeStreams;
+    else
+      HfSpecReqd=HfIn-HfFreeStreams;
     }
-  else if (fabs(OtherHf)>1e-6)
+  else if (fabs(HfReqdInFreeStreams)>1e-6)
     {
-    m_PowerIn=OtherHf;
-    if (!m_bAllowHX)
-      PowerOutOfRange =true;
+    if (m_bAllowHX)
+      m_PowerIn=HfReqdInFreeStreams;
+    else
+      HfSpecReqd=HfReqdInFreeStreams;
     }
+
+  CorrectRequirements(HfSpecReqd, HfSpecdStreams, HfSpecdInitial, I,A, NPri);
 
   for (int j = 0;j<NPri; j++)
     A[j]->m_TempOut = m_Nd.IOConduit(I[j])->Temp();
 
-  SetCI(5, ReqdOutOfRange);
-  SetCI(6, AdjustOutOfRange);
-  SetCI(7, PowerOutOfRange);
   }
-
-#endif
 
 //--------------------------------------------------------------------------
 //
@@ -2983,7 +3179,7 @@ flag GSModelBase::Open()
       m_pGSM->m_IOs.Add(i);
       //dbgp(" Add");
       }
-      //m_pGSM->m_IOs.InsertAt(i, i);
+    //m_pGSM->m_IOs.InsertAt(i, i);
     //dbgpln("");
     }
   m_pGSM->m_bIOChanges=1;

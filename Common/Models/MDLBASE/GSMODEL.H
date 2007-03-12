@@ -26,7 +26,7 @@
 
 // =========================================================================
 
-#define WITHTHERMAL 01
+#define WITHTHERMAL 1
 
 // =========================================================================
 // Forward Declaration
@@ -80,11 +80,17 @@ const byte GSPM_Total           = 0x01;
 const byte GSPM_Individual      = 0x02;
 const byte GSPM_Both            = 0x03;
 
-// Flow Modes
-const byte GST_None             = 0;
+#define GST_ASCHANGE 1
+// Thermal Modes
 const byte GST_TReqd            = 1;
+#if GST_ASCHANGE 
+const byte GST_TChange          = 2;
+#else
 const byte GST_TRise            = 2;
 const byte GST_TDrop            = 3;
+#endif
+const byte GST_TFreeDiff        = 10;
+const byte GST_TFree            = 11;
 
 // ---------------------------------------------------------------------------
 
@@ -105,6 +111,7 @@ class DllImportExport GSIOAlpha
 
     byte            QmMode(GSModel &  Mdl);
     byte            MkMode(GSModel &  Mdl);
+    byte            Priority(GSModel * Mdl) { return m_iPriority; };
 
   public:
     byte            m_IONo;
@@ -172,18 +179,27 @@ class DllImportExport GSIOThermal
     GSIOThermal &   operator=(GSIOThermal & A);
 
     byte            Mode(GSModel * Mdl);
+    byte            Priority(GSModel * Mdl) { return Mode(Mdl)<GST_TFreeDiff ? m_iPriority : Mode(Mdl)==GST_TFreeDiff ? 254 : 255; };
 
   public:
     byte            m_IONo;
     byte            m_iMode;
     byte            m_iOrder;
     byte            m_iPriority;
+    int             m_iGroup;
     Strng           m_Desc;
     double          m_TempReqd;
+#if GST_ASCHANGE 
+    double          m_TempChange;
+#else
     double          m_TempRise;
     double          m_TempDrop;
+#endif
+    double          m_TempDiff;
     double          m_TempOut;
     bool            m_bLast;
+    double          m_DeltaT;
+    double          m_BalanceScl;
 
   };
 
@@ -218,13 +234,16 @@ class DllImportExport GSModel : public TaggedObject
   friend class GSIOAlpha;
   friend class GSIOThermal;
   friend class GSModelBase;
-  friend class CTNoneFinder;
+  friend class CTFreeFinder;
 
- public:
+  public:
     static pGSModel Open(pchar TagIn, pTaggedObject pAttach);
     static void    Close(pGSModel &pGSM);
 
-    
+  public:
+    enum { eForward, eForwardGroups, eReverse, eReverseGroups, eSimultaneous }; 
+
+  public:
     GSModel(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     ~GSModel();
 
@@ -265,6 +284,12 @@ class DllImportExport GSModel : public TaggedObject
     flag           DataXchgThermal(DataChangeBlk & DCB);
     flag           ValidateDataThermal(ValidateDataBlk & VDB);
     int            FindIOEvalPriorityThermal(int *I, GSIOThermal**A);
+
+    void           SetDeltaTemp(int * I, GSIOThermal ** A, int NPri);
+    double         SetRequirements(int * I, GSIOThermal ** A, int NPri);
+    double         SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri);
+    bool           CorrectRequirements(double HfError, double HfSpecdStreams, double HfSpecdInitial, int * I, GSIOThermal ** A, int NPri);
+
     void           EvalProductsThermal();
 #endif
 
@@ -272,11 +297,11 @@ class DllImportExport GSModel : public TaggedObject
     void           CheckConfig();
 
     DEFINE_CI(GSModel, TaggedObject, 16);
- 
+
   protected:
     MdlNode           & m_Nd;
     GSIOIndexArray    & m_IOs;
-    
+
     int                 m_IOId0;
     int                 m_IOIdN;
     int                 m_NProds;
@@ -310,9 +335,22 @@ class DllImportExport GSModel : public TaggedObject
     bool                m_ChangeTst;
     double              m_ChangeNeg;
     double              m_ChangePos;
+    byte                m_eCorrection;
+    //double              m_HfError;
+    //int                 m_NPri;
+    //int                 m_NFree;
+    //double              m_HfReqdSpec;
+    double              m_TMin;
+    double              m_TMax;
+
+  public:
+
+    static CToleranceBlock sm_TolPwr;
+    //static CToleranceBlock sm_TolTmp;
+
 #endif
 
-   };
+  };
 
 // ---------------------------------------------------------------------------
 
@@ -385,7 +423,7 @@ inline byte GSIOAlpha::MkMode(GSModel &  Mdl) { return (m_iMkMode==GSA_MkDefault
 
 // ---------------------------------------------------------------------------
 
-inline byte GSIOThermal::Mode(GSModel * Mdl) { return m_bLast && !Mdl->m_bAllowHX ? GST_None : m_iMode; };
+inline byte GSIOThermal::Mode(GSModel * Mdl) { return m_bLast && !Mdl->m_bAllowHX ? GST_TFree : m_iMode; };
 
 // =========================================================================
 
