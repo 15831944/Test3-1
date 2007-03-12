@@ -452,8 +452,10 @@
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;_WINDOWS;ZIP32;WIN32;NO_ASM;MSDOS;WINDLL;USE_ZIPMAIN"
 				StringPooling="true"
 				ExceptionHandling="2"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				StructMemberAlignment="3"
+				EnableFunctionLevelLinking="true"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
@@ -476,7 +478,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
+				AdditionalOptions="/MACHINE:I386 "
 				OutputFile="..\..\..\Bin\Zip32.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

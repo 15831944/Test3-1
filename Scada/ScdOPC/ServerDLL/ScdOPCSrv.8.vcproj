@@ -457,6 +457,7 @@
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;WIN32;_WINDOWS;_SCDOPCSRVIMPL;_ATL_NO_UUIDOF;MFC_EXTENSION_DLL"
 				StringPooling="true"
 				ExceptionHandling="2"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				FloatingPointModel="1"

@@ -473,8 +473,11 @@
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
+				StringPooling="true"
 				ExceptionHandling="2"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
@@ -551,7 +554,7 @@
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
-			RelativePath="..\..\Bin\Protocol.dll"
+			RelativePath="..\..\Bin\protocol.dll"
 			AssemblyName=""
 		/>
 		<AssemblyReference

@@ -2997,7 +2997,7 @@ void SpModel::SetCfgImage(DataChangeBlk & DCB, eScdSVView SetView, eScdSVViewBas
   if (!m_bCfgImgSet)//m_iSetView!=SetView)
     {
     m_bCfgImgSet=true;
-    m_bCfgImgSetByFile=DCB.ForFileSnpScn();
+    m_bCfgImgSetByFile=DCB.ForFileSnpScn()!=0;
     if (SetView!=SVV_NULL)
       m_iSetView=SetView;
     //m_iPhMask=PhM;

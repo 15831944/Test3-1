@@ -10,6 +10,7 @@
 #include "Matrix.h"
 #include "MineralInfo1.h"
 
+#pragma warning(disable : 4251) 
 
 namespace RioTintoTS
 {
