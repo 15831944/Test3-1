@@ -49,6 +49,8 @@ class CTagIO : public MBaseMethod
     //variables for direct tag set and get
     double          m_dGetValue;
     double          m_dSetValue;
+    MCnv            m_GetCnv;
+    MCnv            m_SetCnv;
     CString         m_sGetTag;
     CString         m_sSetTag;
     CString         m_sGetStatus;
