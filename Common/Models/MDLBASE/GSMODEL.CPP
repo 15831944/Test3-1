@@ -2702,7 +2702,8 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
       DDB.Visibility();
 
       DDB.Double ("", "TempOut",  DC_T,    "C", &A[j]->m_TempOut,    this, 0);
-      DDB.Double ("", "Achieved", DC_Frac, "%", &A[j]->m_BalanceScl, this, 0);
+      //DDB.Double ("", "BalXX",    DC_Frac, "%", &A[j]->m_BalanceScl, this, 0);
+      DDB.Double ("", "Achieved", DC_Frac, "%", &A[j]->m_Achieved, this, 0);
       }
     }
   DDB.EndArray();
@@ -2804,51 +2805,6 @@ int GSModel::FindIOEvalPriorityThermal(int *I, GSIOThermal **A)
 
 //--------------------------------------------------------------------------
 
-class CTFreeFinder : public MRootFinderBase
-  {
-  friend class GSModel;
-  public:
-    CTFreeFinder(GSModel & GS, int * I, GSIOThermal ** A, int NPri) : \
-      m_GS(GS), m_I(I), m_A(A), m_NPri(NPri), MRootFinderBase("TNoneFinder", GSModel::sm_TolPwr)
-      {
-      m_HfFree = 0.0;
-      };
-    LPCTSTR ObjTag() { return (LPCTSTR)m_GS.FullObjTag(); };
-    double Function(double TReqd)
-      {
-      // x is Temp
-      m_HfFree=0.0;
-      for (int j = 0;j<m_NPri; j++)
-        {
-        SpConduit & Cd = *m_GS.m_Nd.IOConduit(m_I[j]);
-        GSIOThermal & Aj = *m_A[j];
-        if (Aj.Mode(&m_GS)>=GST_TFreeDiff)
-          {
-          if (Aj.Mode(&m_GS)==GST_TFreeDiff)
-            TReqd+=Aj.m_TempDiff;
-
-          if (Cd.QMass()>SmallPosFlow)
-            Cd.SetTempPress(TReqd, m_GS.m_PressIn);
-          else
-            Cd.SetTempPress(m_GS.m_TempIn, m_GS.m_PressIn);
-          m_HfFree+=Cd.totHz ();
-          }
-        }
-
-      return m_HfFree;
-      };
-
-  protected:
-    GSModel      & m_GS;
-    int          * m_I;
-    GSIOThermal ** m_A;
-    int            m_NPri;
-    double         m_HfFree;
-
-  };
-
-//--------------------------------------------------------------------------
-
 void GSModel::SetDeltaTemp(int * I, GSIOThermal ** A, int NPri)
   {
   for (int j = 0;j<NPri; j++)
@@ -2873,8 +2829,6 @@ void GSModel::SetDeltaTemp(int * I, GSIOThermal ** A, int NPri)
 
 double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
   {
-  bool ReqdOutOfRange   = false;
-
   double HfReqdSpec=0;
   for (int j = 0;j<NPri; j++)
     {
@@ -2882,10 +2836,9 @@ double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
     if (Aj.Mode(this)<GST_TFreeDiff)
       {
       SpConduit & Cd = *m_Nd.IOConduit(I[j]);
-      double TReqd = m_TempIn + Aj.m_DeltaT * Aj.m_BalanceScl;
-      double TSet = Range(m_TMin, TReqd, m_TMax);
-      if (TSet!=TReqd)
-        ReqdOutOfRange=true;
+      double TReqd  = m_TempIn + Aj.m_DeltaT * Aj.xm_BalanceScl;
+      double TSet   = Range(m_TMin, TReqd, m_TMax);
+      Aj.m_Achieved = (TSet-m_TempIn)/NZ(Aj.m_DeltaT);
 
       Cd.SetTempPress(TSet, m_PressIn);
       HfReqdSpec += Cd.totHz ();
@@ -2896,11 +2849,73 @@ double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
 
 //--------------------------------------------------------------------------
 
+class CTFreeFinder : public MRootFinderBase
+  {
+  friend class GSModel;
+  public:
+    CTFreeFinder(double TMin, double TMax, GSModel & GS, int * I, GSIOThermal ** A, int NPri) : \
+      m_TMin(TMin), m_TMax(TMax), m_GS(GS), m_I(I), m_A(A), m_NPri(NPri), MRootFinderBase("TNoneFinder", GSModel::sm_TolPwr)
+      {
+      m_HfFree = 0.0;
+      };
+    LPCTSTR ObjTag() { return (LPCTSTR)m_GS.FullObjTag(); };
+    double Function(double TReqd)
+      {
+      // x is Temp
+      m_HfFree=0.0;
+      for (int j = 0;j<m_NPri; j++)
+        {
+        SpConduit & Cd = *m_GS.m_Nd.IOConduit(m_I[j]);
+        GSIOThermal & Aj = *m_A[j];
+        if (Aj.Mode(&m_GS)>=GST_TFreeDiff)
+          {
+
+          if (Cd.QMass()>SmallPosFlow)
+            {
+            double Tr=(Aj.Mode(&m_GS)==GST_TFreeDiff ? TReqd+Aj.m_TempDiff:TReqd);
+            double Ts = Range(m_TMin, Tr, m_TMax);
+            Aj.m_Achieved=(Ts-m_GS.m_TempIn)/NZ(Tr-m_GS.m_TempIn);
+            Cd.SetTempPress(Ts, m_GS.m_PressIn);
+            }
+          else
+            Cd.SetTempPress(m_GS.m_TempIn, m_GS.m_PressIn);
+          m_HfFree+=Cd.totHz ();
+          }
+        }
+
+      return m_HfFree;
+      };
+
+  protected:
+    double         m_TMin;
+    double         m_TMax;
+    GSModel      & m_GS;
+    int          * m_I;
+    GSIOThermal ** m_A;
+    int            m_NPri;
+    double         m_HfFree;
+
+  };
+
+//--------------------------------------------------------------------------
+
 double GSModel::SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri)
   {
-  CTFreeFinder TNF(*this, I, A, NPri);
+  double LargeTDiffPos=0;
+  double LargeTDiffNeg=0;
+  for (int j = 0;j<NPri; j++)
+    {
+    GSIOThermal & Aj = *A[j];
+    if (Aj.Mode(this)==GST_TFreeDiff)
+      {
+      LargeTDiffPos=Max(LargeTDiffPos, Aj.m_TempDiff);
+      LargeTDiffNeg=Min(LargeTDiffNeg, Aj.m_TempDiff);
+      }
+    }
+
+  CTFreeFinder TNF(m_TMin, m_TMax, *this, I, A, NPri);
   TNF.SetTarget(HfReqdFree);
-  switch (TNF.Start(m_TMin, m_TMax))
+  switch (TNF.Start(m_TMin+LargeTDiffNeg, m_TMax-LargeTDiffPos))
     {
     case RF_OK:
       if (TNF.Solve_Brent()==RF_OK)
@@ -2937,8 +2952,8 @@ class CTSpecFinder : public MRootFinderBase
       for (int j = 0;j<=m_LastSpecd; j++)
         {
         //m_GoFwd
-        m_A[j]->m_BalanceScl=Range(0.0, (x-m_A[j]->m_iGroup), 1.0);
-        dbgpln("CTSpecFinder %8.6f %3i %3i %8.6f", x, j, m_A[j]->m_iGroup, m_A[j]->m_BalanceScl);
+        m_A[j]->xm_BalanceScl=Range(0.0, (x-m_A[j]->m_iGroup), 1.0);
+        dbgpln("CTSpecFinder %8.6f %3i %3i %8.6f", x, j, m_A[j]->m_iGroup, m_A[j]->xm_BalanceScl);
         }
 
       m_HfSpecd=m_GS.SetRequirements(m_I, m_A, m_NPri);
@@ -2962,96 +2977,101 @@ CToleranceBlock GSModel::sm_TolPwr(TBF_BothSys, "GMT:PowerFinder", 0, 1.0e-9, 10
 
 //--------------------------------------------------------------------------
 
-bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, double HfSpecdInitial, int * I, GSIOThermal ** A, int NPri)
+bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int * I, GSIOThermal ** A, int NPri)
   {
   bool Solved    = false;
   bool GoFwd     = false;
-  bool CoolSpecd = HfSpecReqd <= HfSpecdStreams;
-  int nGroups   = 0;
-  int LastSpecd = -1;
-  int iPrevPriority = 0;
-
-  for (int j = 0;j<NPri; j++)
+  if (!sm_TolPwr.ConvergedVV(HfSpecReqd, HfSpecdStreams))
     {
-    GSIOThermal & Aj = *A[j];
-    if (Aj.Mode(this)<GST_TFreeDiff)
-      {
-      LastSpecd=j;
-      if (CoolSpecd && Aj.m_DeltaT>0 || !CoolSpecd && Aj.m_DeltaT<0)
-        {
+    bool CoolSpecd = HfSpecReqd <= HfSpecdStreams;
+    int nGroups   = 0;
+    int LastSpecd = -1;
+    int iPrevPriority = 0;
 
-        switch (m_eCorrection)
+    for (int j = 0;j<NPri; j++)
+      {
+      GSIOThermal & Aj = *A[j];
+      if (Aj.Mode(this)<GST_TFreeDiff)
+        {
+        LastSpecd=j;
+        if (CoolSpecd && Aj.m_DeltaT>0 || !CoolSpecd && Aj.m_DeltaT<0)
           {
-          case eForward:
-            GoFwd=true;
-          case eReverse:
-            Aj.m_iGroup=nGroups;
-            nGroups++;
-            break;
-          case eForwardGroups:
-            GoFwd=true;
-          case eReverseGroups:
+
+          switch (m_eCorrection)
             {
-            // Do Those with the same priority as a group;
-            if (j==0 || A[j]->Priority(this)!=iPrevPriority)
+            case eForward:
+              GoFwd=true;
+            case eReverse:
+              Aj.m_iGroup=nGroups;
               nGroups++;
-            Aj.m_iGroup=nGroups-1;
-            break;
+              break;
+            case eForwardGroups:
+              GoFwd=true;
+            case eReverseGroups:
+              {
+              // Do Those with the same priority as a group;
+              if (j==0 || A[j]->Priority(this)!=iPrevPriority)
+                nGroups++;
+              Aj.m_iGroup=nGroups-1;
+              break;
+              }
+            case eSimultaneous:
+              // All together
+              GoFwd=true;
+              Aj.m_iGroup=0;
+              nGroups=1;
+              break;
             }
-          case eSimultaneous:
-            // All together
-            GoFwd=true;
-            Aj.m_iGroup=0;
-            nGroups=1;
-            break;
+          iPrevPriority=A[j]->Priority(this);
           }
-        iPrevPriority=A[j]->Priority(this);
+        else
+          Aj.m_iGroup=-1;
         }
       else
         Aj.m_iGroup=-1;
-      }
-    else
-      Aj.m_iGroup=-1;
-    } 
+      } 
 
-  if (LastSpecd>=0)
-    {
-    CTSpecFinder SF(*this, I, A, NPri, nGroups, LastSpecd);
-    SF.SetTarget(HfSpecReqd);
+    if (LastSpecd>=0)
+      {
+      CTSpecFinder SF(*this, I, A, NPri, nGroups, LastSpecd);
+      SF.SetTarget(HfSpecReqd);
 
-    bool Started=false;
-    if (GoFwd)
-      {
-      for (int iGrp=0; !Started && iGrp<nGroups; iGrp++)
-        Started=(SF.Start(0, iGrp+1)==RF_OK);
-      }
-    else
-      {
-      for (int iGrp=nGroups-1; !Started && iGrp>=0; iGrp--)
-        Started=(SF.Start(iGrp, nGroups)==RF_OK);
-      }
-
-    if (Started)
-      {
-      if (SF.Solve_Brent()==RF_OK)
+      bool Started=false;
+      if (GoFwd)
         {
-        Solved=true;
+        for (int iGrp=0; !Started && iGrp<nGroups; iGrp++)
+          Started=(SF.Start(0, iGrp+1)==RF_OK);
         }
       else
         {
-        _asm int 3; // should not get here 
+        for (int iGrp=nGroups-1; !Started && iGrp>=0; iGrp--)
+          Started=(SF.Start(iGrp, nGroups)==RF_OK);
         }
+
+      if (Started)
+        {
+        if (SF.Solve_Brent()==RF_OK)
+          {
+          Solved=true;
+          ClrCI(5); 
+          }
+        else
+          SetCI(5); 
+        ClrCI(6); 
+        }
+      else
+        SetCI(6); 
+      ClrCI(7);
       }
     else
-      {
-      _asm int 3; // should not get here 
-      }
+      SetCI(7);
     }
   else
     {
-    _asm int 3; // should not get here 
+    ClrCI(5);
+    ClrCI(6);
+    ClrCI(7);
     }
-
   return true;
   };
 
@@ -3088,7 +3108,8 @@ void GSModel::EvalProductsThermal()
       m_TempIn=Cd.Temp();
       m_PressIn=Cd.Press();
       }
-    A[j]->m_BalanceScl=1.0;
+    A[j]->xm_BalanceScl=1.0;
+    A[j]->m_Achieved=0;
     if (A[j]->Mode(this)>=GST_TFreeDiff)
       NFree++;
     else
@@ -3098,31 +3119,37 @@ void GSModel::EvalProductsThermal()
   m_TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn - m_ChangeNeg) : m_FinalTempMin;
   m_TMax = m_ChangeTst ? Min(m_FinalTempMax, m_TempIn + m_ChangePos) : m_FinalTempMax;
 
-  SetDeltaTemp(I, A, NPri);
-
-  double HfSpecdStreams=SetRequirements(I, A, NPri);
-
-  m_PowerIn=0.0;
-  double HfSpecReqd=0.0;
-  double HfReqdInFreeStreams=HfIn-HfSpecdStreams;
-  if (NFree>0)
+  if (InRange(m_TMin, m_TempIn, m_TMax))
     {
-    double HfFreeStreams=SetFreeStreams(HfReqdInFreeStreams, I, A, NPri);
-    if (m_bAllowHX)
-      m_PowerIn=HfIn-HfFreeStreams;
-    else
-      HfSpecReqd=HfIn-HfFreeStreams;
-    }
-  else if (fabs(HfReqdInFreeStreams)>1e-6)
-    {
-    if (m_bAllowHX)
-      m_PowerIn=HfReqdInFreeStreams;
-    else
-      HfSpecReqd=HfReqdInFreeStreams;
-    }
+    SetDeltaTemp(I, A, NPri);
 
-  CorrectRequirements(HfSpecReqd, HfSpecdStreams, HfSpecdInitial, I,A, NPri);
+    double HfSpecdStreams=SetRequirements(I, A, NPri);
 
+    m_PowerIn=0.0;
+    double HfSpecReqd=0.0;
+    double HfReqdInFreeStreams=HfIn-HfSpecdStreams;
+    if (NFree>0)
+      {
+      double HfFreeStreams=SetFreeStreams(HfReqdInFreeStreams, I, A, NPri);
+      if (m_bAllowHX)
+        m_PowerIn=HfIn-HfFreeStreams;
+      else
+        HfSpecReqd=HfIn-HfFreeStreams;
+      }
+    else if (fabs(HfReqdInFreeStreams)>1e-6)
+      {
+      if (m_bAllowHX)
+        m_PowerIn=HfReqdInFreeStreams;
+      else
+        HfSpecReqd=HfReqdInFreeStreams;
+      }
+
+    CorrectRequirements(HfSpecReqd, HfSpecdStreams, I,A, NPri);
+    
+    ClrCI(8);
+    }
+  else
+    SetCI(8);
   for (int j = 0;j<NPri; j++)
     A[j]->m_TempOut = m_Nd.IOConduit(I[j])->Temp();
 
@@ -3139,13 +3166,14 @@ flag GSModel::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case  1: pS="W\tRequirements not met in 1 stream"; return 1;
-    case  2: pS="W\tRecovery Specification not met";   return 1;
-    case  3: pS="W\tNo Outputs";                       return 1;
+    case  1: pS="W\tRequirements not met in 1 stream";    return 1;
+    case  2: pS="W\tRecovery Specification not met";      return 1;
+    case  3: pS="W\tNo Outputs";                          return 1;
     case  4: pS="W\tConnected outlet pipes should NOT have 'numeric' tags!"; return 1;
-    case  5: pS="W\tThermal Requirements Out of Range";   return 1;
-    case  6: pS="W\tThermal Adjustments Out of Range";    return 1;
-    case  7: pS="W\tPower Requirements Out of Range";     return 1;
+    case  5: pS="W\tThermal Solution not Found";          return 1;
+    case  6: pS="W\tThermal Solution not Started";        return 1;
+    case  7: pS="W\tThermal Solution OverSpecfied";       return 1;
+    case  8: pS="W\tFeed Temperature Out of Range";       return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }

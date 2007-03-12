@@ -199,7 +199,8 @@ class DllImportExport GSIOThermal
     double          m_TempOut;
     bool            m_bLast;
     double          m_DeltaT;
-    double          m_BalanceScl;
+    double          xm_BalanceScl;
+    double          m_Achieved;
 
   };
 
@@ -288,7 +289,7 @@ class DllImportExport GSModel : public TaggedObject
     void           SetDeltaTemp(int * I, GSIOThermal ** A, int NPri);
     double         SetRequirements(int * I, GSIOThermal ** A, int NPri);
     double         SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri);
-    bool           CorrectRequirements(double HfError, double HfSpecdStreams, double HfSpecdInitial, int * I, GSIOThermal ** A, int NPri);
+    bool           CorrectRequirements(double HfError, double HfSpecdStreams, int * I, GSIOThermal ** A, int NPri);
 
     void           EvalProductsThermal();
 #endif
