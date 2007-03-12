@@ -1036,6 +1036,22 @@ bool MTagIOInfo::StrngDataType() { return IsStrngDataType(DataType); };
 
 
 //---------------------------------------------------------------------------
+void MTagIO::FormatAsTagOnly(CString & Tag)
+  {
+  Strng T(Tag);
+  T.LRTrim();
+  Strng sTag,sCnv;
+  TaggedObject::SplitTagCnv(T(), sTag, sCnv);
+  Tag = sTag();
+  }
+void MTagIO::FormatAsTagAndCnv(CString & Tag)
+  {
+  Strng T(Tag);
+  T.LRTrim();
+  Strng sTag,sCnv;
+  TaggedObject::SplitTagCnv(T(), sTag, sCnv);
+  Tag.Format("%s (%s)", sTag(), sCnv());
+  }
 
 void   MTagIO::Open(long EstimatedTagCount)                       { m_pNd->SetTagIOReqd(true, EstimatedTagCount);         };
 void   MTagIO::Close()                                            { m_pNd->SetTagIOReqd(false, 0);                        };

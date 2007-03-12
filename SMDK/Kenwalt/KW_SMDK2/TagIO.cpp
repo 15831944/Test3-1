@@ -121,6 +121,29 @@ void CTagIO::BuildDataFields()
 
 //---------------------------------------------------------------------------
 
+bool CTagIO::AddSubsTag(CString & Tag, LPCSTR NewTag, bool TestParam/* = false*/)
+  {
+  CString OldTag(Tag);
+  Tag = NewTag;
+  TagIO.FormatAsTagOnly(Tag);
+  if (Tag!=OldTag)
+    {//changed...
+    if (Tag.GetLength()>0)
+      {
+      MTagIOInfo TagInfo;
+      const int RetCode = TagIO.GetTagInfo(Tag, TagInfo);
+      if (RetCode==MTagIO_NotFound)
+        Log.Message(MMsg_Warning, "Tag '%s' not found.", Tag);
+      else
+        Log.Message(MMsg_Warning, "Tag '%s' not allowed.", Tag);
+      //TagInfo.CnvIndex;
+      }
+    m_bBuildListRqd = true;
+    return true;
+    }
+  return false;
+  }
+
 bool CTagIO::ExchangeDataFields()
   {
   switch (DX.Handle)
@@ -209,30 +232,21 @@ bool CTagIO::ExchangeDataFields()
     case idDX_GetTagSubsStr1:
       if (DX.HasReqdValue)
         {
-        m_bBuildListRqd = true; //assume changed
-        m_sGetTagSubs1 = DX.String;
-        /*MTagIOInfo TagInfo;
-        const int RetCode = TagIO.GetTagInfo(m_sGetTagSubs1, TagInfo);
-        if (RetCode==MTagIO_OK)
-          {
-          //m_iGetTagSubs1Cnv = TagInfo.CnvIndex;
-          }*/
+        AddSubsTag(m_sGetTagSubs1, DX.String);
         }
       DX.String = m_sGetTagSubs1;
       return true;
     case idDX_GetTagSubsStr2:
       if (DX.HasReqdValue)
         {
-        m_bBuildListRqd = true; //assume changed
-        m_sGetTagSubs2 = DX.String;
+        AddSubsTag(m_sGetTagSubs2, DX.String);
         }
       DX.String = m_sGetTagSubs2;
       return true;
     case idDX_SetTagSubsStr1:
       if (DX.HasReqdValue)
         {
-        m_bBuildListRqd = true; //assume changed
-        m_sSetTagSubs1 = DX.String;
+        AddSubsTag(m_sSetTagSubs1, DX.String);
         }
       DX.String = m_sSetTagSubs1;
       return true;
@@ -240,6 +254,7 @@ bool CTagIO::ExchangeDataFields()
 
   if (m_bSubsActive && m_bBuildListRqd)
     {
+    TagIO.Close();
     TagIO.Open(100);
     m_iGet1 = TagIO.Add(m_sGetTagSubs1, "Tag2Get1", MTIO_Get);
     m_iGet2 = TagIO.Add(m_sGetTagSubs2, "Tag2Get2", MTIO_Get);

@@ -1162,12 +1162,16 @@ long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
   {
   if (ItemTag==NULL || ItemTag[0]==0)
     return -3;
-  if (FindTag(ItemTag)<0)
+  Strng Tg(ItemTag);
+  Tg.LRTrim();
+  if (Tg.Len()==0)
+    return -3;
+  if (FindTag(Tg())<0)
     {
     if (Name && strlen(Name)>0 && FindName(Name)>=0)
       return -2;
 
-    CTagItem * p = new CTagItem(ItemTag, Name, Options);
+    CTagItem * p = new CTagItem(Tg(), Name, Options);
     m_TagMap.SetAt(p->m_sTag, p);
     m_NameMap.SetAt(p->m_sName, p);
     p->m_Var.SetVar(p->m_sFullTag.GetBuffer(), false, NULL, NULL);

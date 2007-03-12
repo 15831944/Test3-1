@@ -484,6 +484,10 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
   public:
     MTagIO(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
 
+    static void     FormatAsTagOnly(CString & Tag);
+    static void     FormatAsTagAndCnv(CString & Tag);
+
+    //------------------------------
     // Section 1: Direct tag access:
 
     //Get value for specified tag
@@ -502,6 +506,7 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
     MTagIOResult    GetTagInfo(LPCSTR Tag, MTagIOInfo & TagInfo);
 
 
+    //---------------------------------------------
     // Section 2: Tag subscription list management:
 
     //Enable and activate TagIO subscription
@@ -511,7 +516,7 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
 
     //return count of IO tags
     long            getCount();
-    //add an IO tag, return index ID if OK, -ve number if error; Options=MTIO_Get, etc
+    //add an IO tag, return index ID if OK, -ve number if error; Options=MTIO_Get, etc; tag values will be in SI units
     long            Add(LPCSTR Tag, LPCSTR Name, long Options);
     //remove all tags in IO list
     void            RemoveAll();
@@ -524,9 +529,9 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
     bool            Remove(long ID);
     //return true if tag is valid and active
     bool            getIsActive(long ID);
-    //return value of IO tag at specified index ID
+    //return value in SI units of IO tag at specified index ID
     double          getDValue(long ID);
-    //set value of IO tag at specified index ID
+    //set value in SI units of IO tag at specified index ID
     void            putDValue(long ID, double Value);
     //return data type of IO tag at specified index ID
     short           getDataType(long ID);

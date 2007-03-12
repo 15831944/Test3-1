@@ -42,6 +42,8 @@ class CTagIO : public MBaseMethod
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              {}; // each Iteration End to calculate Stats relevant to model
 
   protected:
+    bool            AddSubsTag(CString & Tag, LPCSTR NewTag, bool TestParam = false);
+
     bool            m_bOn;
 
     //variables for direct tag set and get
