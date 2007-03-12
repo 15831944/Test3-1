@@ -55,6 +55,7 @@ class CTagIO : public MBaseMethod
 
     //variables for tag subscription
     bool            m_bSubsActive;
+    bool            m_bBuildListRqd;
     CString         m_sGetTagSubs1;
     CString         m_sGetTagSubs2;
     CString         m_sSetTagSubs1;
