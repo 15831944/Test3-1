@@ -11792,7 +11792,7 @@ flag CFlwSolver::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestMode
     Info.Name=p->ClassId();
     Info.Desc=p->Desc();
     Info.ShortDesc=p->ShortDesc();
-    Info.DefTag=p->DefaultTag();
+    Info.TagInitialID=p->TagInitialID();
     return true;
     }
   return false;
@@ -13698,7 +13698,7 @@ flag CFlwSolver::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
   while (pPair)
     {
     CTagRefsMapItem *pMI=pPair->value;
-    CTagRefStatusWord W=pMI->GetStatusWord();
+    CTagRefStatus   W=pMI->GetStatusWord();
     //dbgpln("Test : %04x %s %s", W, (W & FFM_HasMultiSetCnts)?"Multi":"     ",(LPCTSTR)pMI->m_sTag);
     if (W & FFM_HasMultiSetCnts)
       {
@@ -15298,9 +15298,9 @@ int CFlwSolver::FE_GetNodeBalanceInfo(CNodeBalanceInfo & Balance, CNodeAuditInfo
 
 //--------------------------------------------------------------------------
 
-CTagRefStatusWord CFlwSolver::GetTagRefStatus(LPCTSTR Tag)
+CTagRefStatus CFlwSolver::GetTagRefStatus(LPCTSTR Tag)
   {
-  CTagRefStatusWord W=FFM_Off;
+  CTagRefStatus W=FFM_Off;
   if (Tag)
     {
     Strng S(Tag);

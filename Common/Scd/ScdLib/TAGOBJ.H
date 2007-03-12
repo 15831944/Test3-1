@@ -7,6 +7,7 @@
 
 //---------------------------------------------------------------------------
 
+#include "scdver.h"
 #include "datacnvs.h"
 #include "fixedit.h"
 #include "errorlog.h"
@@ -222,7 +223,7 @@ struct GlblTopologyChg
 class CTagRefStatusFnHook
   {
   public:
-    virtual CTagRefStatusWord GetTagRefStatus(LPCTSTR Tag)=0;
+    virtual CTagRefStatus GetTagRefStatus(LPCTSTR Tag)=0;
   };
 
 //---------------------------------------------------------------------------
@@ -476,6 +477,238 @@ class DllImportExport CFieldMonitorTO
 #endif
 
 //===========================================================================
+//
+//
+//
+//===========================================================================
+
+#if WITHEQUIPSPECS        
+
+class DllImportExport CTOCustomData
+  {
+  public:
+    class DllImportExport CDataSet
+      {
+      public:
+        class DllImportExport CField
+          {
+          public:
+            CField(TagObjClass * pClass, int Index);
+            ~CField();
+
+            bool          Load(CProfINIFile & SCO, LPCSTR FieldDefn);
+            void          BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pOwner);
+
+          public:
+            TagObjClass * m_pClass;
+            int           m_iIndex;
+
+            Strng         m_sSym;
+            Strng         m_sTag;
+            byte          m_iType;
+            Strng         m_sDefaultValue;
+            DDEF_Flags    m_iOptions;
+            CCnvIndex     m_iCnv;
+            Strng         m_sCnvText;
+          };
+
+      public:
+        CDataSet(TagObjClass * pClass);
+        ~CDataSet();
+
+        bool          Load(CProfINIFile & SCO, LPCSTR DataSetName);
+        void          Clear();
+
+        int           FieldCount()     { return m_Fields.GetCount(); };
+        CField      & Field(int i)     { return *(m_Fields[i]); };
+
+      public:
+        TagObjClass * m_pClass;
+        Strng         m_sName;
+        Strng         m_sDspName;
+        Strng         m_sDspNameTag;
+        CArray<CField*, CField*> m_Fields;
+      };
+
+  public:
+    CTOCustomData(TagObjClass * pClass);
+    ~CTOCustomData();
+
+    bool              Load(CProfINIFile & SCO);
+    void              Clear();
+    DDBValueLstMem  * DDBSetNames() { return &m_DDBDataSets; };
+
+    int               DataSetCount()      { return m_DataSets.GetCount(); };
+    CDataSet &        DataSet(int i)      { return *(m_DataSets[i]); };
+
+    void              BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner);
+    void              BuildDataDefnData(DataDefnBlk & DDB, TaggedObject * pOwner);
+    flag              DataXchg(DataChangeBlk &DCB, TaggedObject * pOwner);
+
+    void              DbgDump();
+
+  protected:
+    TagObjClass     * m_pClass;
+    CArray<CDataSet*, CDataSet*> m_DataSets;
+    DDBValueLstMem    m_DDBDataSets;
+
+  };
+
+//===========================================================================
+
+class DllImportExport CTOSelectData
+  {
+  public:
+
+    static const int MaxTOSelectDataSetDepth = 5;
+    
+    static const byte VS_None    = 0x00;
+    static const byte VS_Set     = 0x01;
+    static const byte VS_Changed = 0x02;
+    static const byte VS_Reset   = 0x04; // ?? To Defaults
+
+  public:
+    class DllImportExport CDataSet
+      {
+      public:
+        class DllImportExport CField
+          {
+          public:
+            CField(TagObjClass * pClass, int Index);
+            ~CField();
+
+            bool          Load(CProfINIFile & SCO, LPCSTR FieldDefn);
+            //void          BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pOwner);
+
+          public:
+            TagObjClass * m_pClass;
+            int           m_iIndex;
+
+            Strng         m_sName;
+            byte          m_iType;
+            Strng         m_sDstPartTag;
+            CCnvIndex     m_iCnv;
+            Strng         m_sCnvText;
+            Strng         m_sDefaultValue;
+
+          };
+
+      public:
+        class DllImportExport CRecord
+          {
+          public:
+            CRecord(TagObjClass * pClass, int Index);
+            ~CRecord();
+
+            bool          Load(CProfINIFile & SCO, LPCSTR FieldDefn);
+            //void          BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pOwner);
+
+          public:
+            TagObjClass * m_pClass;                     
+            int           m_iIndex;
+
+            CArray<Strng, Strng&> m_Values;
+          };
+
+      public:
+        CDataSet(TagObjClass * m_pClass, CTOSelectData * p);
+        ~CDataSet();
+
+        bool          Load(CProfINIFile & SCO, LPCSTR DataSetName);
+        void          Clear();
+
+        int           FieldCount()        { return m_Fields.GetCount(); };
+        CField      & Field(int i)        { return *(m_Fields[i]); };
+
+        int           RecordCount()       { return m_Records.GetCount(); };
+        CRecord     & Record(int i)       { return *(m_Records[i]); };
+
+        DDBValueLstMem * DDBRecordSlct() { return &m_DDBRecords; };
+
+        void          BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner, int Level);
+        flag          DataXchg(DataChangeBlk &DCB, TaggedObject * pOwner, int Level);
+
+        flag          ChangeSelection(bool ForFiling, int SelectedRecord, TaggedObject * pOwner);
+
+      public:
+        TagObjClass     * m_pClass;
+        CTOSelectData   * m_pSelect;
+        Strng             m_sName;
+        Strng             m_sDspName;
+        Strng             m_sDspNameTag;
+        Strng             m_sDisplayFld;
+        Strng             m_sDisplayCnvTxt;
+        Strng             m_sOrderByFld;
+
+        int               m_iDisplayFld;
+        int               m_iOrderByFld;
+        int               m_iChildTblFld;
+
+        int               m_iSelectedRecord;
+
+        CDataSet        * m_pChildDS;
+
+        CArray<CField*, CField*> m_Fields;
+        CArray<CRecord*, CRecord*> m_Records;
+        DDBValueLstMem    m_DDBRecords;
+      };
+    
+    class CTagStatus
+      {
+      public:
+        Strng         m_Tag1;
+        Strng         m_Tag2;
+        byte          m_Status;
+      };
+
+  public:
+    CTOSelectData(TagObjClass * pClass);
+
+    bool              Load(CProfINIFile & SCO);
+    void              Clear();
+    
+    CDataSet        * AddDataSet(CProfINIFile & SCO, LPSTR Table);
+    CDataSet        * FindDataSet(LPSTR Table);
+
+    int               DataSetCount()   { return m_DataSets.GetCount(); };
+    CDataSet        & DataSet(int i)   { return *(m_DataSets[i]); };
+    int               TagStatusListCount() { return m_TagStatusList.GetCount(); };
+
+    void              BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner);
+    //void              BuildDataDefnData(DataDefnBlk & DDB, TaggedObject * pOwner);
+    flag              DataXchg(DataChangeBlk &DCB, TaggedObject * pOwner);
+
+    void              SetTagValueStatus(LPSTR Tag1, LPSTR Tag2, CTagValueStatus TagStatus);
+    CTagValueStatus   GetTagValueStatus(LPSTR Tag);
+
+    flag              GetClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status);
+
+    void              DbgDump();
+
+  protected:
+    TagObjClass     * m_pClass;
+    CDataSet        * m_pRootDS;
+    CArray<CDataSet*, CDataSet*> m_DataSets;
+
+    CList<CTagStatus*, CTagStatus*> m_TagStatusList;
+    CMap<LPSTR, LPSTR, CTagStatus*, CTagStatus*> m_TagStatusMap;
+  
+  };
+
+//===========================================================================
+
+class DllImportExport CTODefaultData
+  {
+  public:
+     CTODefaultData();
+
+  protected:
+    ;
+
+  };
+#endif
+
+//===========================================================================
 
 //typedef TaggedObject *(*pTagObjConstruct)(pchar, pchar, short);
 
@@ -493,13 +726,13 @@ class DllImportExport TagObjClass
   friend class CClassLicenseOptions;
 
   public:
-    TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_);
+    TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_);
     virtual ~TagObjClass();
     static void    DumpAll();
     virtual void   Clear();
     static void    ClearAll();
 
-    static TagObjClass * AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pDefTag_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_);
+    static TagObjClass * AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pTagInitialID_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_);
 
     static TagObjClass* FindClassName(pchar ClassName_);
     static TagObjClass* FindClassId(pchar ClassId_, flag fWithVersion=True, LPCTSTR SubClass=NULL);
@@ -567,9 +800,10 @@ class DllImportExport TagObjClass
     short          IdNo()                                      { return iId; };
     short          GroupIdNo()                                 { return iGrpId; };
 
-    pchar          DrwGroup()                                  { return sDrwGroup(); };
-    pchar          DefaultTag()                                { return sDefaultTag(); };
-    pchar          TagComment()                                { return sTagComment(); };
+    LPSTR          DrwGroup()                                  { return sDrwGroup(); };
+    LPSTR          TagInitialID()                              { return m_sTagInitialID(); };
+    LPSTR          TagFormat()                                 { return m_sTagFormat.GetLength()>0 ? m_sTagFormat() : sm_sTagFormat(); };
+    LPSTR          TagComment()                                { return sTagComment(); };
 
     flag           Selectable();
     void           SetSelectable(flag Select)                  { m_bSelectable=Select; };
@@ -594,6 +828,16 @@ class DllImportExport TagObjClass
     DWORD          Instances()                                 { return nInstances; };
     DWORD          InstancesMax()                              { return nInstancesMax; };
 
+#if WITHCLASSOPTIONS
+    flag           CreateClassOptions(LPCSTR File);
+    flag           ReadClassOptions(LPCSTR Path);
+#endif
+
+#if WITHEQUIPSPECS
+    CTOCustomData *CustomData() { return m_CustomData.DataSetCount()>0 ? &m_CustomData:NULL; };
+    CTOSelectData *SelectData() { return m_SelectData.DataSetCount()>0 ? &m_SelectData:NULL; };
+#endif
+
   protected:
     static TagObjClass* pFirstClass;
     static short   iNIds;
@@ -612,7 +856,9 @@ class DllImportExport TagObjClass
     Strng          sDesc;
     Strng          sTagComment;
     Strng          sDrwGroup;
-    Strng          sDefaultTag;
+    Strng          m_sTagInitialID;
+    Strng          m_sTagFormat;
+    static Strng   sm_sTagFormat;
     TagObjClass*   pNxtClass;
 
     dword          dwCategory; //flags for category/grouping/licensing
@@ -649,6 +895,11 @@ class DllImportExport TagObjClass
     CFieldMonitorTOCls m_Monitor;
 #endif
 
+#if WITHEQUIPSPECS        
+    static bool    m_bEquipSpecs;
+    CTOCustomData  m_CustomData;
+    CTOSelectData  m_SelectData;
+#endif
   };
 
 inline Strng GetClassIdNoVersion(LPCTSTR pClass)
@@ -775,16 +1026,24 @@ typedef const long XID;
 #define PwrXID(i)     ((i)+(XID) 110000000)
 #define SMDKXID(i)    ((i)+(XID) 200000000)
 
-XID xidTag           = SysXID(1);
-XID xidParent        = SysXID(2);
-XID xidEqDesc        = SysXID(3);
-XID xidEqMemo        = SysXID(4);
-XID xidEqIdStr       = SysXID(5);
-XID xidEqLocation    = SysXID(6);
-XID xidEqLink        = SysXID(7);
-XID xidEqGUID        = SysXID(8);
-XID xidEqRepKey      = SysXID(9);
-XID xidPrimaryCfg    = SysXID(10);
+XID xidTag                 = SysXID(1);
+XID xidParent              = SysXID(2);
+XID xidEqDesc              = SysXID(3);
+XID xidEqMemo              = SysXID(4);
+XID xidEqIdStr             = SysXID(5);
+XID xidEqLocation          = SysXID(6);
+XID xidEqLink              = SysXID(7);
+XID xidEqGUID              = SysXID(8);
+XID xidEqRepKey            = SysXID(9);
+XID xidPrimaryCfg          = SysXID(10);
+
+XID xidTOSelectString0     = SysXID(100);
+XID xidTOSelectString1     = SysXID(101);
+XID xidTOSelectString2     = SysXID(102);
+XID xidTOSelectString3     = SysXID(103);
+XID xidTOSelectString4     = SysXID(104);
+
+XID xidTOCustomDataSelect  = SysXID(110);
 
 //const int  MaxFullObjTagTmp = 10;
 
@@ -1070,6 +1329,14 @@ class DllImportExport TaggedObject : public ConditionBlk
     CFieldMonitorTOCls & ClassMonitor()     { return Class()->m_Monitor; }
 #endif
 
+#if WITHEQUIPSPECS
+    void           SetCustomDataIndex(int i);
+    int            GetCustomDataIndex();
+    CTOCustomData::CDataSet* CustomDataSelected();
+    CTOCustomData *CustomData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_CustomData.DataSetCount()>0 ? &m_pClass->m_CustomData:NULL; };
+    CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
+#endif
+
   protected:
     Strng           m_sTag;
     Strng           m_sPrefix;
@@ -1144,6 +1411,9 @@ protected:
 #if WITHTAGMONITOR
     CFieldMonitorTO m_Monitor;
 #endif
+    
+    int             m_iCustomData;
+    CArray<void*, void*> m_CustomData;
 
 //  byte           iSolveMode;
     flag            bObjModified;
@@ -1858,7 +2128,7 @@ class DllImportExport TagAccessBlk
     TABOptions          dwOptions;
     char              * m_pPrevValues;
     dword               m_lPrevValues;
-    CTagRefStatusWord   m_PrevXRefStatus;
+    CTagRefStatus       m_PrevXRefStatus;
     DDBShortcut         m_Shortcut;
 
   public:
@@ -1918,7 +2188,7 @@ class DllImportExport CCOMObjManagerRoot
       TaggedObject * ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
       TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
       virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask); \
+      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask); \
       Obj##ClassDef(); \
     }; \
   extern DllImportExport Obj##ClassDef Obj##Class;
@@ -1927,7 +2197,7 @@ class DllImportExport CCOMObjManagerRoot
   DEFINE_TAGOBJDERIVED(Obj, TagObjClass)
 
 
-#define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask, Base) \
+#define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, Base) \
 TaggedObject * Obj##ClassDef::ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrp(pClass, pSubClass, pTag, pAttach, eAttach); }; \
 TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
@@ -1940,22 +2210,22 @@ TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObjec
     pn->SetSubClass(pSubClass);                      \
   return pn;                                         \
   }; \
-Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask) \
-  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pDefTag_, dwCat, pShortDesc_, pDesc_, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
-  Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask) \
+  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat, pShortDesc_, pDesc_, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
+  Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef Obj##Class;
 
-#define IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+#define IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
-#define IMPLEMENT_TAGOBJSUB(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+#define IMPLEMENT_TAGOBJSUB(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
-#define IMPLEMENT_TAGOBJDERIVED(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, Base) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, 0xffffffff, Base)
+#define IMPLEMENT_TAGOBJDERIVED(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, Base) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, Base)
 
-#define IMPLEMENT_TAGOBJSLCT(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask, TagObjClass)
+#define IMPLEMENT_TAGOBJSLCT(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, TagObjClass)
 
 // --------------------------------------------------------------------------
 
@@ -1967,7 +2237,7 @@ Obj##ClassDef Obj##Class;
       TaggedObject * ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
       TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
       virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask); \
+      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask); \
       Obj##ClassDef(); \
       virtual flag EditorExists() {return 1;}; \
       virtual pFxdEdtBookRef ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj); \
@@ -1978,7 +2248,7 @@ Obj##ClassDef Obj##Class;
   DEFINE_TAGOBJEDTDERIVED(Obj, TagObjClass)
 
 
-#define IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, Edt, ShortDesc, Desc, SelectMask, Base) \
+#define IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, Edt, ShortDesc, Desc, SelectMask, Base) \
 TaggedObject * Obj##ClassDef::ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrp(pGroup, pSubClass, pTag, pAttach, eAttach); }; \
 TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
@@ -1993,19 +2263,19 @@ TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObjec
   };  \
 pFxdEdtBookRef Obj##ClassDef::ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) \
   { return ::new Edt(pView_, (Obj*)pObj); }; \
-Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask) \
-  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pDefTag_, dwCat, pShortDesc, pDesc, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
-Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc, SelectMask) { sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask) \
+  : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat, pShortDesc, pDesc, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
+Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask) { sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef Obj##Class;
 
-#define IMPLEMENT_TAGOBJEDT(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, 0xffffffff, TagObjClass)
+#define IMPLEMENT_TAGOBJEDT(Obj, Grp, ClassId, Version, TagInitialID, Cat, Edt, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", TagInitialID, Cat, Edt, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
-#define IMPLEMENT_TAGOBJEDTDERIVED(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc, Base) \
-  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, 0xffffffff, Base)
+#define IMPLEMENT_TAGOBJEDTDERIVED(Obj, Grp, ClassId, Version, TagInitialID, Cat, Edt, ShortDesc, Desc, Base) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", TagInitialID, Cat, Edt, ShortDesc, Desc, 0xffffffff, Base)
 
-#define IMPLEMENT_TAGOBJEDTSLCT(Obj, Grp, ClassId, Version, DefTag, Cat, Edt, ShortDesc, Desc, SelectMask) \
-  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", DefTag, Cat, Edt, ShortDesc, Desc, SelectMask, TagObjClass)
+#define IMPLEMENT_TAGOBJEDTSLCT(Obj, Grp, ClassId, Version, TagInitialID, Cat, Edt, ShortDesc, Desc, SelectMask) \
+  IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, "Edit", TagInitialID, Cat, Edt, ShortDesc, Desc, SelectMask, TagObjClass)
 
 
 #define IMPLEMENT_BUILDDATADEFNGLOBAL(Obj)                                            \

@@ -932,6 +932,7 @@
 #define IDC_SLV_PINRQD                  24558
 #define IDC_ODE_METH                    24558
 #define IDC_RUN_EMPTYSPILLS             24558
+#define IDM_ACC_ALLOWEDITSPECS          24559
 #define IDC_ODE_STEP                    24559
 #define IDC_TXTMESSAGE                  24559
 #define IDB_FILELISTIMGS                24559

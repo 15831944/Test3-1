@@ -1342,12 +1342,20 @@ void CPkDataItem::AppendNElements(DDEF_NElements nElems)
 
 //------------------------------------------------------------------------
 
-void CPkDataItem::AppendXRefStatus(CTagRefStatusWord S)
+#if WITHEQUIPSPECS
+void CPkDataItem::AppendItemStatus(CTagRefStatus S, CTagValueStatus V)
+#else
+void CPkDataItem::AppendItemStatus(CTagRefStatus S)
+#endif
   {
   TSTCONTENTSCLEAR(m_wContents, PDI_XRefStatus);
   m_wContents|=PDI_XRefStatus;
   memcpy(CurrentPtr(), &S, sizeof(S));
   m_wSize+=sizeof(S);
+#if WITHEQUIPSPECS
+  memcpy(CurrentPtr(), &V, sizeof(V));
+  m_wSize+=sizeof(V);
+#endif
   };
 
 //------------------------------------------------------------------------
@@ -1469,7 +1477,7 @@ void* CPkDataItem::AddressOf(word what)
   if (what == PDI_CnvInfo)          {
                                     return (char*)p;
                                     }
-  if (m_wContents & PDI_CnvInfo)      { 
+  if (m_wContents & PDI_CnvInfo)    { 
                                     p+=sizeof(CCnvIndex); // Skip CnvIndex
                                     p+=strlen(p)+1;       // Skip CnvStr
                                     p+=strlen(p)+1;       // Skip CnvFam
@@ -1479,10 +1487,14 @@ void* CPkDataItem::AddressOf(word what)
   if (m_wContents & PDI_NElements)    p+=sizeof(DDEF_NElements);
   
   if (what == PDI_XRefStatus)       return (char*)p;
-  if (m_wContents & PDI_XRefStatus)   p+=sizeof(CTagRefStatusWord);
-
+  if (m_wContents & PDI_XRefStatus) {
+                                    p+=sizeof(CTagRefStatus);
+#if WITHEQUIPSPECS
+                                    p+=sizeof(CTagValueStatus);
+#endif
+                                    } 
   if (what == PDI_Range)            return (char*)p;
-  if (m_wContents & PDI_Range)        { 
+  if (m_wContents & PDI_Range)      { 
                                     PkDataUnion* pUn=(PkDataUnion*)p;
                                     p+=pUn->Size();
                                     PkDataUnion* pUx=(PkDataUnion*)p;
@@ -1819,16 +1831,34 @@ DDEF_NElements CPkDataItem::NElements()
 
 //------------------------------------------------------------------------
 
-CTagRefStatusWord CPkDataItem::GetTagRefStatus()
+CTagRefStatus CPkDataItem::GetTagRefStatus()
   {
   if ((m_wContents & PDI_XRefStatus)==0) 
     return 0;
   
   char*p=(char*)AddressOf(PDI_XRefStatus);
-  CTagRefStatusWord Status=*((CTagRefStatusWord*)p);
+  CTagRefStatus Status=*((CTagRefStatus*)p);
 
   return Status;
   };
+
+//------------------------------------------------------------------------
+
+#if WITHEQUIPSPECS
+
+CTagValueStatus CPkDataItem::GetTagValueStatus()
+  {
+  if ((m_wContents & PDI_XRefStatus)==0) 
+    return 0;
+  
+  char*p=(char*)AddressOf(PDI_XRefStatus);
+  p+=sizeof(CTagRefStatus);
+
+  CTagValueStatus Status=*((CTagValueStatus*)p);
+
+  return Status;
+  };
+#endif
 
 //------------------------------------------------------------------------
 
@@ -2265,11 +2295,18 @@ void CPkDataList::dbgDump(flag Full, char* pWhere)
 
     dbgp(pPItem->Value()->IsZero() ? "Z":" ");
 
+#if WITHEQUIPSPECS
+    if (pPItem->Contains(PDI_XRefStatus))
+      dbgp("{%02x.%02x}", pPItem->GetTagRefStatus(), pPItem->GetTagValueStatus());
+    else
+      dbgp("       ");
+#else
     if (pPItem->Contains(PDI_XRefStatus))
       dbgp("{%02x}", pPItem->GetTagRefStatus());
     else
       dbgp("    ");
-    
+#endif
+
     if (pPItem->Contains(PDI_Tag))
       if (strlen(pPItem->SymStr())>0)
         dbgp(" '%s' ('%s')",pPItem->SymOrTag(), pPItem->TagStr());

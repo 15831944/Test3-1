@@ -328,7 +328,7 @@ class DllImportExport CTagRefsMapItem
       { 
       m_bErrorDone=false; 
       };
-    CTagRefStatusWord GetStatusWord();
+    CTagRefStatus GetStatusWord();
     DEFINE_SPARES(CTagRefsMapItem);
   };
 

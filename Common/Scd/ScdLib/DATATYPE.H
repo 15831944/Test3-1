@@ -10,6 +10,7 @@
   #include <afxtempl.h> // "xafxtempl.h"
 #endif
 
+#include "scdver.h"
 #include "..\..\..\SMDK\Include\md_share0.h"
 #include "..\..\..\SMDK\Include\md_share2.h"
 #include "scdtempl.h"
@@ -94,6 +95,7 @@ const TABOptions TABOpt_ForScenario      = DDEF_NOSCENARIO;
 const TABOptions TABOpt_ForViewConstruct = 0x0000000001000000;
 const TABOptions TABOpt_Exists           = 0x0000000002000000;
 const TABOptions TABOpt_XRefStatus       = 0x0000000004000000;
+const TABOptions TABOPT_ValueStatus      = 0x0000000008000000;
                                                
 const TABOptions TABOpt_ValCnvs          = 0x0000000010000000;
 const TABOptions TABOpt_StrList          = 0x0000000020000000;
@@ -882,7 +884,11 @@ inline flag PkDataUnion::Equal(PkDataUnion &V)
   };
 // --------------------------------------------------------------------------
 
-typedef UCHAR CTagRefStatusWord;
+typedef UCHAR CTagRefStatus;
+
+#if WITHEQUIPSPECS
+typedef UCHAR CTagValueStatus;
+#endif
 
 // --------------------------------------------------------------------------
 
@@ -963,12 +969,6 @@ class DllImportExport CPkDataItemOld;
 class DllImportExport CPkDataItem 
   {
   public:
-    word           m_wContents;
-    word           m_wSize;
-    word           m_wMaxSize;
-    char           m_Data[4];
-
-  public:
     CPkDataItem();
     virtual ~CPkDataItem();
     void Clear();
@@ -991,7 +991,11 @@ class DllImportExport CPkDataItem
     void           AppendTagOfParent( char * pTag);
     void           AppendCnvInfo( CCnvIndex iCnv, char * pCnvTxt, char *pCnvFam);
     void           AppendNElements( DDEF_NElements nElems);
-    void           AppendXRefStatus( CTagRefStatusWord S);
+#if WITHEQUIPSPECS
+    void           AppendItemStatus( CTagRefStatus S, CTagValueStatus V);
+#else
+    void           AppendItemStatus( CTagRefStatus S);
+#endif
     void           AppendRange( DataUnion &DMin, DataUnion &DMax);
     void           AppendStrListItem( char * pStr, long Index, flag Indexed, pword &pStrLstLen);
     void           AppendDescription( char * pDesc);
@@ -1016,7 +1020,10 @@ class DllImportExport CPkDataItem
     char*          Description();
     char*          TagComment();
     DDEF_NElements NElements();
-    CTagRefStatusWord GetTagRefStatus();
+    CTagRefStatus  GetTagRefStatus();
+#if WITHEQUIPSPECS
+    CTagValueStatus GetTagValueStatus();
+#endif
     flag           GetRange(DataUnion &DMin, DataUnion &DMax);
     flag           GetRange(pPkDataUnion &pDMin, pPkDataUnion &pDMax);
     CCnvIndex      CnvIndex();
@@ -1038,6 +1045,11 @@ class DllImportExport CPkDataItem
     LPSTR          SkipAStr(LPSTR p);
     inline LPSTR   CurrentPtr() { return &m_Data[m_wSize]; }
 
+  public:
+    word           m_wContents;
+    word           m_wSize;
+    word           m_wMaxSize;
+    char           m_Data[4];
   };
 
 // --------------------------------------------------------------------------

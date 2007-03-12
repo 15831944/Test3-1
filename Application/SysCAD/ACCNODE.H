@@ -125,7 +125,10 @@ class AccNdData
                     m_fIsRowsEnd:1,
                     m_IsLastDataCol:1;
     int             m_iMatrixCol;
-    UCHAR           m_Markers;    
+    CTagRefStatus   m_Markers;    
+#if WITHEQUIPSPECS
+    CTagValueStatus m_ValStatus;    
+#endif
     Strng_List      ValLst;
 
     ObjectAttribute *pObjAttr;

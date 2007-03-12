@@ -753,7 +753,7 @@ SpQuality* SpModel::QualityPtr(int No, flag NewIt)
       pQ=pQ->NextClassInGrp();
 
     ASSERT(pQ);
-    Quals[q].m_pQ=(SpQuality*)pQ->Construct(NULL, pQ->DefaultTag(), this, TOA_Embedded);
+    Quals[q].m_pQ=(SpQuality*)pQ->Construct(NULL, pQ->TagInitialID(), this, TOA_Embedded);
     Quals[q].m_pQP=GetQualityPersonality(Quals[q].m_pQ);  // ask Spmodel for the personality
     Quals[q].m_pQ->m_iQualIndex=q;
     nQuals=Max( nQuals, (byte)(q+1));
@@ -794,7 +794,7 @@ SpQuality* SpModel::QualityPtr(char* RqdQuality, flag NewIt)
     ASSERT(q<MaxSpQualities);
     if (!Quals[q].Exists() && NewIt)
       {
-      Quals[q].m_pQ=(SpQuality*)pQ->Construct(NULL, pQ->DefaultTag(), this, TOA_Embedded);
+      Quals[q].m_pQ=(SpQuality*)pQ->Construct(NULL, pQ->TagInitialID(), this, TOA_Embedded);
       Quals[q].m_pQP=GetQualityPersonality(Quals[q].m_pQ);  // ask Spmodel for the personality;
       nQuals=Max( nQuals, (byte)(q+1));
       m_bScan4EquilRqd4HEval=true;

@@ -97,7 +97,7 @@ class RequestModelInfoRec
   {
   public:
     Strng Class;
-    Strng DefTag;
+    Strng TagInitialID;
     Strng Desc;
     Strng ShortDesc;
     Strng MdlLibName;

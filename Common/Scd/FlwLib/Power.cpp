@@ -204,7 +204,7 @@ bool CAirSupply::SetPower(CPwrLoad * pLoad)
 //
 //===========================================================================
 
-//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc)
+//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc)
 IMPLEMENT_TAGOBJ(CPwrUser, "PwrUser", "PwrUser", "1", "Power", "P", 0, "PwrUser", "PwrUser");
 
 CPwrUser::CPwrUser(TagObjClass *pClass_, char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach):
@@ -695,7 +695,7 @@ CETermStrip *CPwrUser::TermStrip()
 //
 //===========================================================================
 
-//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc)
+//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc)
 IMPLEMENT_TAGOBJ(CPwrUserSocket, "PwrUserSocket", "PwrUserSocket", "1", "Power", "P", 0, "PwrUserSocket", "PwrUserSocket");
 
 CPwrUserSocket::CPwrUserSocket(TagObjClass *pClass_, char *TagIn, TaggedObject *pAttach, TagObjAttachment eAttach):

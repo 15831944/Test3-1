@@ -35,6 +35,8 @@ class DllImportExport GDIBlkCfg
     COLORREF       crTextError[2];
     COLORREF       crTxtBackError;
     COLORREF       crTxtBackSelect;
+    COLORREF       crTxtBackRmtData;
+    COLORREF       crTxtBackRmtChgd;
     COLORREF       crTxtBack;
     COLORREF       crTxtFore;
     COLORREF       crTxtEdgeLight;
@@ -105,6 +107,8 @@ class DllImportExport GDIBlk
     COLORREF       crTextError[2];
     COLORREF       crTxtBackError;
     COLORREF       crTxtBackSelect;
+    COLORREF       crTxtBackRmtData;
+    COLORREF       crTxtBackRmtChgd;
     COLORREF       crTxtBack;
     COLORREF       crTxtFore;
     COLORREF       crTxtEdgeLight;
@@ -124,6 +128,8 @@ class DllImportExport GDIBlk
     CBrush*        pBrushTxtBack;
     CBrush*        pBrushTxtBackError;
     CBrush*        pBrushTxtBackSelect;
+    CBrush*        pBrushTxtBackRmtData;
+    CBrush*        pBrushTxtBackRmtChgd;
     CBrush*        pBrushTxtEdgeLight;
     CBrush*        pBrushTxtEdgeDark;
     CPen*          pPenTxtBord;

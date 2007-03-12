@@ -56,7 +56,7 @@ STDMETHODIMP CScdNodeClass::get_DefaultTag(BSTR *pVal)
   dllSCD_COMENTRYGET(eScdNodeCodes, pVal)
     {
     CHECK_SFE_OK;
-    SCD_Copy2BSTR(pVal, m_pNodeClass->DefaultTag());
+    SCD_Copy2BSTR(pVal, m_pNodeClass->TagInitialID());
     }
   SCD_COMEXIT
   }

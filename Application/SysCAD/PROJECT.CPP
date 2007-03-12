@@ -974,6 +974,7 @@ CUniqueTagRulesBlk::CUniqueTagRulesBlk(LPCTSTR pMdlName, LPCTSTR pBase, char Sep
   if (p)
     MdlName.SetLength(p-MdlName());
   //
+    
   m_Base= PF.RdStr(MdlTagRules, MdlName(), (LPTSTR)pBase);
   Strng S(SepChar);
   S=PF.RdStr(MdlTagRules, "SepChar", S());
@@ -1203,6 +1204,9 @@ void CProjectSettings::ClearSettings()
   m_bAccAutoSaveOn=0;
   m_bAccUpdateOnRun=1;
   m_bAccHistoryInfoVis=0;
+#if WITHEQUIPSPECS
+  m_bAccAllowEditSpecs=0;
+#endif
 
   m_sDefGrpLib      = "$BaseCfgFiles\\GroupLibrary.MDB";
   m_sGrfFrameName   = "Extents-A3";
@@ -1726,6 +1730,9 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
   m_bAccAutoSaveOn = (PF.RdLong("Access", "AutoSaveOn", m_bAccAutoSaveOn) != 0);
   m_bAccUpdateOnRun = (PF.RdLong("Access", "UpdateOnRun", m_bAccUpdateOnRun) != 0);
   m_bAccHistoryInfoVis = (PF.RdLong("Access", "HistoryInfoVis", m_bAccHistoryInfoVis) != 0);
+#if WITHEQUIPSPECS
+  m_bAccAllowEditSpecs = (PF.RdLong("Access", "AllowEditSpecs ", m_bAccAllowEditSpecs) != 0);
+#endif
 
   //LoadColours(PF);
 
@@ -1958,6 +1965,9 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   PF.WrLong("Access", "AutoSaveOn", m_bAccAutoSaveOn);
   PF.WrLong("Access", "UpdateOnRun", m_bAccUpdateOnRun);
   PF.WrLong("Access", "HistoryInfoVis", m_bAccHistoryInfoVis);
+#if WITHEQUIPSPECS
+  PF.WrLong("Access", "AllowEditSpecs ", m_bAccAllowEditSpecs);
+#endif
 
 #if WITHNETSERVER
   PF.WrLong("NetWorkManager", "ServerEnabled", pCS_Mngr->ServerEnabled());
@@ -5617,6 +5627,99 @@ CString ReadProjectSet()
 
 //===========================================================================
 
+#if WITHCLASSOPTIONS        
+void CProject::LoadClassOptions()
+  {
+  for (TagObjClass *p=TagObjClass::FirstClass(); p; p=p->NextClass())
+    {
+    CString Path(CfgFiles());
+    Path+="Classes";
+    p->ReadClassOptions(Path);
+    }
+  };
+#endif
+
+#if WITHEQUIPSPECS
+flag CProject::SaveClassVariableStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+="VarStatus.svs";
+  FILE *h=fopen(Fn, "wt");
+  if (h)
+    {
+    for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+      {
+      Strng Tag1,Tag2;
+      CTagValueStatus Status;
+      POSITION Pos=NULL;
+      bool FirstTag=true;
+      while (pClass->SelectData()->GetClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+        {
+        if (FirstTag)
+          {
+          FirstTag=true;
+          fprintf(h, "[%s]", pClass->ClassId());
+          }
+        fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
+        }
+      }
+    fprintf(h, "[]");
+    fclose(h);
+    return true;
+    }
+  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for write", Fn);
+  return false;
+  };
+flag CProject::LoadClassVariableStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+="VarStatus.svs";
+  FILE *h=fopen(Fn, "rt");
+  if (h)
+    {
+    TagObjClass *pCurrentClass=NULL;
+    char Buff[4096];
+    char * pLn=fgets(Buff, sizeof(Buff), h);
+    while (pLn)
+      {
+      CSVColArray Col;
+      int iQuote=0;
+      int NToks=ParseCSVTokens(pLn, Col, iQuote, ",=");
+      if (NToks>0)
+        {
+        if (Col[0][0]=='[', Col[0][strlen(Col[0])-1]==']')
+          {
+          Strng ClassId(Col[0]);
+          ClassId.LRTrim("[]");
+          pCurrentClass=TagObjClass::FindClassId(ClassId());
+          }
+        else if (pCurrentClass)
+          {
+          LPSTR Tag1=Col[0];
+          LPSTR Tag2=Col[1];
+          if (strlen(Tag2)==0)
+            Tag2=NULL;
+          CTagValueStatus Status=(CTagValueStatus)SafeAtoL(Col[2],0);
+          pCurrentClass->SelectData()->SetTagValueStatus(Tag1, Tag2, Status);
+          }
+        else
+          {
+          LogError("Project", 0, "Cannot set %s status", Col[0]);
+          }
+        }
+      pLn=fgets(Buff, sizeof(Buff), h);
+      }
+    fclose(h);
+    return true;
+    }
+  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for read", Fn);
+  return false;
+  };
+
+#endif
+
+//===========================================================================
+
 void CProject::PutSettings()
   {
   dbgpln("--------------------- CProject::PutSettings");
@@ -5943,6 +6046,10 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
       m_pFlwLib=&m_FlwLib;
 
+#if WITHCLASSOPTIONS        
+      LoadClassOptions();
+#endif
+
       //if (IsOldProject)
       PutSettings();
 
@@ -6031,6 +6138,9 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         goto DoneFailed;
       else
         {
+#if WITHEQUIPSPECS
+        LoadClassVariableStatus(PrjFiles());
+#endif
 
         ASSERT(_CrtCheckMemory());
 
@@ -7408,6 +7518,10 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
       }
 
     gs_pPrj->DoSaveDB(XDBFormat(), Opts, PrjFiles(), (bDoingSaveAs||bDoingSaveAsNV ? m_sPrevPrjFiles() : NULL));
+
+#if WITHEQUIPSPECS
+    SaveClassVariableStatus(PrjFiles());
+#endif
 
     CDlgBusy::SetLine(3, "Saving Window Layout");
     SaveWindowLayout();

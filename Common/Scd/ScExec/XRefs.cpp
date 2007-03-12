@@ -1062,14 +1062,14 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestPara
 
 IMPLEMENT_SPARES(CTagRefsMapItem, 1000);
 
-CTagRefStatusWord CTagRefsMapItem::GetStatusWord()
+CTagRefStatus CTagRefsMapItem::GetStatusWord()
   {
   //int dbg=0;
   //if (_stricmp(m_sTag, "MW_SR4_SEPARATION.GM.IOs.[M30P133].Splt.Other(Ru)")==0)// ||
   ////    _stricmp(m_sTag, "P105b.Stats.Reset_Stats")==0)
   //  { dbg=1; }
 
-  CTagRefStatusWord W=FFM_Off;
+  CTagRefStatus W=FFM_Off;
   POSITION Pos=m_pTagRefs.GetHeadPosition();
   while (Pos)
     { 

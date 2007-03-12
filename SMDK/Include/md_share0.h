@@ -28,7 +28,7 @@ const DDEF_Flags DDEF_HIDEIFZERO          = 0x0000000080000000;
 
 const DDEF_Flags DDEF_PARAMCONSTRUCT      = 0x0000000100000000;
 const DDEF_Flags DDEF_WRITEPROTECT        = 0x0000000200000000;
-const DDEF_Flags DDEF_TAGPARM             = 0x0000000400000000; 
+const DDEF_Flags DDEF_TAGPARM             = 0x0000000400000000;
 const DDEF_Flags DDEF_FUNCTPARM           = 0x0000000800000000;
 const DDEF_Flags DDEF_AFFECTSSTRUCT       = 0x0000001000000000;
 const DDEF_Flags DDEF_KEEPHISTORY         = 0x0000002000000000;
@@ -70,7 +70,7 @@ const long NM_All          = eScdNet_Probal|eScdNet_Dynamic;
 const long SM_Direct       = eScdSolve_Direct;
 const long SM_Inline       = eScdSolve_Inline;
 const long SM_Buffered     = eScdSolve_Buffered;
-//const long SM_Inline       = 0x00000008;              
+//const long SM_Inline       = 0x00000008;
 
 // Third Octet
 const long HM_None         = eScdHeat_None;
@@ -79,7 +79,7 @@ const long HM_Full         = eScdHeat_Full;
 
 // Fourth & Fifth Octets
 // Link Flw Modes
-const long LFM_Xfer         = eScdFlow_Xfer;   
+const long LFM_Xfer         = eScdFlow_Xfer;
 const long LFM_Simple       = eScdFlow_Simple;
 const long LFM_Linear       = eScdFlow_Linear;
 const long LFM_Full         = eScdFlow_Full;
@@ -95,9 +95,9 @@ const long SM_DynBoth       = SM_Inline | SM_Buffered;
 const long SM_All           = SM_Direct | SM_Inline | SM_Buffered;
 const long HM_All           = HM_None | HM_Reduced | HM_Full;
 
-const long NSHM_All         = NM_All | SM_All | HM_All;       
+const long NSHM_All         = NM_All | SM_All | HM_All;
 
-const long MODEVISIBLE      = eScdFlow_ModeVisible;       
+const long MODEVISIBLE      = eScdFlow_ModeVisible;
 
 // ----------------------------------------------------------------------
 // DataTypes
@@ -131,10 +131,11 @@ const unsigned char tt_Element_E   = 26;
 const unsigned char tt_Object_E    = 27;
 const unsigned char tt_Array_E     = 28;
 const unsigned char tt_Blob        = 29;
+const unsigned char tt_Table       = 30;
 
 typedef struct {unsigned char t; LPCTSTR Str;} TagObjTypeStruct;
-const TagObjTypeStruct TagObjTypeNames[] = 
-  { 
+const TagObjTypeStruct TagObjTypeNames[] =
+  {
     { tt_NULL,      "NULL" },
     { tt_Bool,      "Bool" },
     { tt_Bit,       "Bit" },
@@ -165,6 +166,7 @@ const TagObjTypeStruct TagObjTypeNames[] =
     { tt_Object_E,  ">" },
     { tt_Array_E,   "]" },
     { tt_Blob,      "BLOB" },
+    { tt_Table,     "Table" },
     { tt_NULL,      NULL}
   };
 

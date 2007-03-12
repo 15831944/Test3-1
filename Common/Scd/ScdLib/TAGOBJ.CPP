@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <limits.h>
 
+#include "scdver.h"
 #include "sc_defs.h"
 #define  __TAGOBJ_CPP
 #include "datacnvs.h"
@@ -238,7 +239,12 @@ flag TagObjClass::Selectable()
 
 TagObjClass* TagObjClass::pFirstClass=NULL;
 short TagObjClass::iNIds=0;
-static flag dbgXYFn=0;
+
+Strng TagObjClass::sm_sTagFormat("%ID%_%3i");
+
+#if WITHEQUIPSPECS        
+bool TagObjClass::m_bEquipSpecs=true;
+#endif
 
 LONG TagObjClassLock=-1;
 
@@ -249,9 +255,13 @@ char* TagObjClass::BaseClassId() { return sBaseClassId(); };
 
 // -------------------------------------------------------------------------
 
-TagObjClass::TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pDefTag_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_)
+TagObjClass::TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_) 
+#if WITHEQUIPSPECS
+: m_CustomData(this),
+m_SelectData(this)
+#endif
   {
-dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, pSubClassId_, pShortDesc_, pDesc_);
+  dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, pSubClassId_, pShortDesc_, pDesc_);
 
   ASSERT(pClassId_!=NULL);
   // Must Have A Name
@@ -356,7 +366,8 @@ dbgpln("%-25s %-25s %-25s %-25s %-25s %-25s ", pClassName_, pGroup_, pClassId_, 
     }
 
   sDrwGroup=pDrwGroup_;
-  sDefaultTag=pDefTag_;
+  m_sTagInitialID=pTagInitialID_;
+  m_sTagFormat="";
   m_bLicenseOK=1;
   m_bLicErrNoted=0;
   m_bCreateIfNotLicensed=true;// CNM false;
@@ -442,9 +453,9 @@ TagObjClass::~TagObjClass()
 
 //---------------------------------------------------------------------------
 
-TagObjClass *  TagObjClass::AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pDefTag_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_)
+TagObjClass *  TagObjClass::AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pTagInitialID_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_)
   {
-  TagObjClass * p= new TagObjClass(pClassName_, NULL, pGroup_, pClassId_, pVersion_, pDrwGroup_, pDefTag_, dwCat_, pShortDesc_, pDesc_, dwSelectMask_);
+  TagObjClass * p= new TagObjClass(pClassName_, NULL, pGroup_, pClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat_, pShortDesc_, pDesc_, dwSelectMask_);
 
   p->sMdlLibName="A User Lib";
 
@@ -478,7 +489,7 @@ void TagObjClass::DumpAll()
       p->iId, p->sClassName(), p->sClassId(), p->iGrpId, p->sGroup(),
       p->Selectable() ? "s" : "-", p->m_bLicenseOK? "l" : "-",
       p->CatIsDynamic() ? "d" : "-", p->CatIsProBal() ? "p" : "-",
-      p->sMdlLibName(), p->sDefaultTag());
+      p->sMdlLibName(), p->m_sTagInitialID());
     p=p->pNxtClass;
     }
   dbgpln("===================== ======================== = ================ ===== ================ ===========");
@@ -816,6 +827,926 @@ void TagObjClass::GetSDescValueLst(char * GroupName, DDBValueLstMem & DDB0, char
       break;
     }
   }
+
+//---------------------------------------------------------------------------
+
+#if WITHCLASSOPTIONS
+
+const char* DefaultSCO =
+";--- SysCAD Class Options file ---\n"
+"\n"
+"[Options]\n"
+";Use : %ID%, %PAGE%, %AREA%, %SRC%, %DST% ........\n"
+"TagInitialID       =\n"
+";todo TagFormat          =\n"
+"\n"
+"DefaultProbalValues   = Defaults0 \n"
+"DefaultDynamicValues  = Defaults1 \n"
+"\n"
+";CustomDataTables      = CustomDataTags0,CustomDataTags2  ;allow multiple sets of user tags\n"
+";SelectionTable        = Selection0                       ;do we want to allow multiple selections\n"
+";ReportTables          = Report0,Report1                  ;allow multiple selections\n"
+"\n"
+";=========================================================================\n"
+"\n"
+"[Defaults1]\n"
+";values set on model create\n"
+"Description = Defaults for Dynamic\n"
+";Field0 = Eqn.Name,     Darcy DP,     ,\n"
+";Field1 = Eqn.Rqd_Len,  100,            m,\n"
+"\n"
+"[Defaults0]\n"
+";values set on model create\n"
+"Description = Defaults for ProBal\n"
+";Field0 = ,     ,     ,\n"
+"\n"
+"\n"
+";;=========================================================================\n"
+";\n"
+";[CustomDataTags0]\n"
+";;custom data (this would go on a separate tab page \"CD\")\n"
+";;       Symbol,   Tag,            Type,   DefaultValue, Options,      Conversion\n"
+";Field0, MaxDesQm, MaxDesignFlow,  double, 10.0,         ParamStopped, Qm(t/h)\n"
+";Field1, MinDesQm, MinDesignFlow,  double, 0.0 ,         ParamStopped, Qm(t/h)\n"
+";\n"
+";[CustomDataTags1]\n"
+";;       Symbol,   Tag,            Type,   DefaultValue, Options,      Conversion\n"
+";Field0, ExtraDesc, ,  Str, "",         ,\n"
+"\n"
+";=========================================================================\n"
+"\n"
+";[Selection0]\n"
+";;        PartialTag,   InsertDefault,  Cnv\n"
+";SelectName = PipeSpecification\n"
+";\n"
+";Field0 = Eqn.Name,     Darcy DP,     ,\n"
+";Field1 = Eqn.Rqd_Len,  100,            m,\n"
+";Field2 = Eqn.Diam,     10,             cm,\n"
+";Field3 = CD.MaxDesQm,  15,             t/h,\n"
+";\n"
+";;         Select,          Field0,     Field1,  Field2,  Field3\n"
+";Select0=  Short Pipe,   Darcy DP,  10,      0.2,  8\n"
+";Select1=  Medium Pipe,  Darcy DP,  100,     0.2,  12  \n"
+";Select2=  Long Pipe,    Darcy DP,  1000,    0.4,  16  \n"
+";\n"
+";[Selection1]\n"
+";SelectName = ?\n"
+";Select= ???\n"
+";;       PartTag,      InsertDefault,\n"
+";Field0= ? \n"
+";Field1= ? \n"
+";Field2= ?\n"
+";\n"
+";Select0=  \n"
+";Select1=  \n"
+";Select2=  \n"
+"\n"
+";=========================================================================\n"
+"\n"
+";[DBSelection0]\n"
+";SelectName = PipeSpecification\n"
+";DBSource = .\\CfgFiles\\Catalogs\\Pipes.mdb\n"
+";Table  =  Pipes\n"
+";SQLSelect = Some SQL select statement\n"
+";;       FieldName,    Type?,    Cnv,\n"
+";Select = PartNumber,  STR,      ,\n"
+";Field0 = CD.PartNumber, STR,    ,\n"
+";Field1 = PipeLength,  R8,       m,\n"
+";Field2 = Diameter,    R8,       mm,\n"
+"\n"
+";=========================================================================\n"
+"\n"
+";[Report0]\n"
+";ReportName=Simple\n"
+";;       Tag,         PartTag,      Cnvs,\n"
+";Field0= Mass flow,   Qm,     , t/h\n"
+";\n"
+";[Report1]\n"
+";ReportName=Complex\n"
+";;       Tag,         PartTag,      Cnvs,\n"
+";Field0= Mass flow,   Qm,     , t/h\n"
+";Field1= FlwEquation, Eqn.Name,     , \n"
+";Field2= Length,      Eqn.Rqd_Len,  m, \n"
+";Field3= Diameter,    Eqn.Diam,     mm, \n"
+"\n"
+";=========================================================================\n"
+"\n";
+const int DefaultSCOLen = strlen(DefaultSCO);
+
+flag TagObjClass::CreateClassOptions(LPCSTR File)
+  {
+  FILE* f = fopen(File, "wt");
+  if (f)
+    {
+    fwrite(DefaultSCO, sizeof(char), DefaultSCOLen, f);
+    fclose(f);
+
+    CProfINIFile SCO(File);
+    SCO.WrStr("Options", "TagInitialID",      m_sTagInitialID()?m_sTagInitialID():"");
+    SCO.WrStr("Options", "TagFormat",         m_sTagFormat()?m_sTagFormat():"");
+    return true;
+    }
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+flag TagObjClass::ReadClassOptions(LPCSTR Path)
+  {
+  Strng Fn(Path);
+  Strng E;
+  
+  CProfINIFile Cfg(CfgFile());
+  
+  if (Cfg.RdInt("ClassOptions", sClassIdNV(), 0)==0)
+    return false;
+
+  if (!FnCreatePath((LPSTR)Path, E))
+    return false;
+
+  Fn.FnCheckEndBSlash();
+  Fn+=sClassIdNV;
+  Fn.FnCheckExtension(".sco");
+  dbgpln("LoadClassOptions: %-25s %s", sClassIdNV(), Fn);
+  if (!FileExists(Fn()))
+    {
+    //CProfINIFile Cfg(CfgFile());
+    //for (int i=0; ; i++)
+    //  {
+    //  Field
+    //  }
+
+    CreateClassOptions(Fn());
+    }
+
+  if (FileExists(Fn()))
+    {
+    CProfINIFile SCO(Fn());
+    m_sTagInitialID = SCO.RdStr("Options", "TagInitialID", m_sTagInitialID()?m_sTagInitialID():"");
+    m_sTagFormat    = SCO.RdStr("Options", "TagFormat", m_sTagFormat()?m_sTagFormat():"");
+    m_sTagInitialID.LRTrim();
+    m_sTagFormat.LRTrim();
+    
+#if WITHEQUIPSPECS
+    m_CustomData.Load(SCO);
+    m_SelectData.Load(SCO);
+#endif
+    return true;
+    }
+  return false;
+  };
+#endif
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+#if WITHEQUIPSPECS
+
+CTOCustomData::CDataSet::CField::CField(TagObjClass * pClass, int Index) : \
+m_pClass(pClass), m_iIndex(Index)
+  {
+  m_iType     = tt_NULL;
+  m_iOptions  = 0;
+  m_iCnv      = 0;
+  //  int           m_iCnv;
+  };
+CTOCustomData::CDataSet::CField::~CField()
+  {
+  };
+
+static struct {LPCSTR m_Str; DDEF_Flags m_Mask; } gs_OptionStrs[]=
+  {
+    {"NOCOMPARE",         DDEF_NOCOMPARE},
+    {"NAN_OK",            DDEF_NAN_OK},
+    {"NONDB",             DDEF_NONDB},
+    {"NOFILE",            DDEF_NOFILE},
+    {"NOVIEW",            DDEF_NOVIEW},
+    {"NOSNAPSHOT",        DDEF_NOSNAPSHOT},
+    {"NOSCENARIO",        DDEF_NOSCENARIO},
+    {"CHECKBOX",          DDEF_CHECKBOX},
+    {"PARAMSTOPPED",      DDEF_PARAMSTOPPED},
+    {"PARAM",             DDEF_PARAM},
+    {"RESULT",            DDEF_RESULT},
+    {"SETONCHANGE",       DDEF_SETONCHANGE},
+    {"HIDDEN",            DDEF_HIDDEN},
+    {"HIDEIFZERO",        DDEF_HIDEIFZERO},
+    {"PARAMCONSTRUCT",    DDEF_PARAMCONSTRUCT},
+    {"TAGPARM",           DDEF_TAGPARM},
+    {"KEEPHISTORY",       DDEF_KEEPHISTORY},
+    {},
+  };
+
+bool CTOCustomData::CDataSet::CField::Load(CProfINIFile & SCO, LPCSTR FieldDefn)
+  {
+  Strng FieldDefnMem(FieldDefn);
+  CSVColArray C;
+  int iQuote=0;
+  int NToks=ParseCSVTokens((LPSTR)FieldDefn,C, iQuote);
+  if (NToks>=5)
+    {
+    m_sSym        = C[0];
+    m_sTag        = C[1];
+    m_iType       = tt_StringType(C[2]);
+    if (m_iType==tt_NULL)
+      LogError(m_pClass->ClassId(), 0, "CustomData Bad Type String:%s", C[2]);
+    m_sDefaultValue = C[3];
+    
+    m_iOptions    = 0;
+
+    CSVColArray CO;
+    int iCOQuote=0;
+    int NOpts=ParseCSVTokens(C[4], CO, iCOQuote, "|");
+    if (NOpts>0)
+      {
+      for (int o=0; o<NOpts; o++)
+        {
+        for (int i=0; gs_OptionStrs[i].m_Str; i++)
+          {
+          if (stricmp(CO[o], gs_OptionStrs[i].m_Str)==0)
+            {
+            m_iOptions |= gs_OptionStrs[i].m_Mask;
+            break;
+            }
+          }
+        }
+      }
+
+    if (NToks>=5 && strlen(C[5])>0)
+      {
+      CSVColArray CC;
+      int iCQuote=0;
+      int NCnvs=ParseCSVFunction(C[5], CC, iCQuote);
+      if (NCnvs==2)
+        {
+        m_iCnv = gs_CnvsMngr.FindCnv(CC[0]);
+        if (m_iCnv<0)
+          LogError(m_pClass->ClassId(), 0, "CustomData Bad Cnv Family:%s", CC[0]);
+        if (Cnvs[m_iCnv]->Find(CC[1]))
+          m_sCnvText=CC[1];
+        else
+          LogError(m_pClass->ClassId(), 0, "CustomData Bad Cnv:%s", CC[1]);
+        }
+      else
+        LogError(m_pClass->ClassId(), 0, "CustomData Bad Cnv String:%s", C[5]);
+      }
+    else
+      {
+      m_iCnv        = 0;
+      m_sCnvText    = "";
+      }
+    return true;
+    }
+  LogError(m_pClass->ClassId(), 0, "CustomData Bad Field Defn : %s", FieldDefnMem());
+  return false;
+  };
+
+inline LPSTR NotNull(Strng &X) { return X()?X():""; };
+void CTOCustomData::CDataSet::CField::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pOwner)
+  {
+  switch (m_iType)
+    {
+    case tt_Double:
+      DDB.Double(NotNull(m_sTag), NotNull(m_sSym), m_iCnv, NotNull(m_sCnvText), (double*)pOwner->m_CustomData[m_iIndex],   pOwner, m_iOptions);
+      break;
+    case tt_Strng:
+      DDB.String(NotNull(m_sTag), NotNull(m_sSym), m_iCnv, NotNull(m_sCnvText), (Strng*)pOwner->m_CustomData[m_iIndex],   pOwner, m_iOptions);
+      break;
+    default:
+      _asm int 3;
+    }
+  };
+
+//===========================================================================
+
+static Strng EnsureTagOK(LPSTR DspName)
+  {
+  Strng X(DspName);
+  for (int i=0; i<X.GetLength(); i++)
+    {
+    if (isalnum(X[i])==0)   
+      X[i]='_';
+    }
+  return X;
+  };
+
+CTOCustomData::CDataSet::CDataSet(TagObjClass * pClass) : \
+m_pClass(pClass)  
+  { 
+  };
+
+CTOCustomData::CDataSet::~CDataSet()
+  { 
+  Clear(); 
+  };
+
+bool CTOCustomData::CDataSet::Load(CProfINIFile & SCO, LPCSTR DataSetName)
+  {
+  m_sName=DataSetName;
+
+  Strng Section("Custom.");
+  Section+=DataSetName;
+
+  m_sDspName     = SCO.RdStr(Section(), "Name", DataSetName);
+  m_sDspNameTag  = EnsureTagOK(m_sDspName());
+
+  Strng Entry;
+  for (int f=0; ; f++)
+    {
+    Entry.Set("Field.%i", f);
+    Strng Defn=SCO.RdStr(Section(), Entry(), "");
+    if (Defn.GetLength()>0)
+      {
+      m_Fields.Add(new CField(m_pClass, f));
+      m_Fields[f]->Load(SCO, Defn());
+      }
+    else
+      break;
+    }
+  if (f==0)
+    {
+    LogError(m_pClass->ClassId(), 0, "CustomData DataSet is Empty : %s", m_sName());
+    return false;
+    }
+  return true;
+  }
+
+void CTOCustomData::CDataSet::Clear()
+  {
+  for (int i=0; i<m_Fields.GetCount(); i++)
+    delete m_Fields[i];
+  };
+
+//===========================================================================
+
+CTOCustomData::CTOCustomData(TagObjClass * pClass) : \
+m_pClass(pClass)
+  {
+  };
+CTOCustomData::~CTOCustomData()
+  {
+  Clear();
+  };
+
+bool CTOCustomData::Load(CProfINIFile & SCO)
+  {
+  Clear();
+  Strng Sets=SCO.RdStr("Options", "CustomDataTables");
+  if (Sets.GetLength()==0)
+    return true;
+
+  m_DDBDataSets.Add(0, " ");
+  CSVColArray C;
+  int iQuote=0;
+  int NSets=ParseCSVTokens(Sets(),C, iQuote);
+  if (NSets>0)
+    {
+    bool OK=true;
+    for (int s=0; s<NSets; s++)
+      {
+      CDataSet *p = new CDataSet(m_pClass);
+      if (p->Load(SCO, C[s]))
+        {
+        m_DataSets.Add(p);
+        m_DDBDataSets.Add(s+1, p->m_sDspName());
+        }
+      else
+        {
+        delete p;
+        };
+      }
+    DbgDump();
+    return true;
+    }
+  DbgDump();
+  return false;
+  }
+
+void CTOCustomData::Clear()
+  {
+  for (int i=0; i<m_DataSets.GetCount(); i++)
+    delete m_DataSets[i];
+  m_DDBDataSets.Empty();
+  };
+
+void CTOCustomData::BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner)
+  {
+  DDB.Long      ("CustomData",        "", DC_, "", xidTOCustomDataSelect,  pOwner, isParm|SetOnChange, DDBSetNames());
+  //CTOCustomData::CDataSet &DataSet = *pOwner->CustomDataSelected();
+  //DDB.Page("CD", DDB_RqdPage);
+  //Strng Tbl(m_pClass->ClassIdNoVersion());
+  //Tbl+="_CD";
+  //if (DDB.BeginObject(pOwner, "CD", Tbl()))
+  //  {
+  //  for (int f=0; f<DataSet.FieldCount(); f++)
+  //    DataSet.Field(f).BuildDataDefn(DDB, pOwner);
+  //  }
+  //DDB.EndObject();
+  };
+
+void CTOCustomData::BuildDataDefnData(DataDefnBlk & DDB, TaggedObject * pOwner)
+  {
+  if (pOwner->CustomDataSelected())
+    {
+    CTOCustomData::CDataSet &DataSet = *pOwner->CustomDataSelected();
+    DDB.Page("CD", DDB_RqdPage);
+    Strng Tbl(m_pClass->ClassIdNoVersion());
+    Tbl+="_CD";
+    if (DDB.BeginObject(pOwner, "CD", Tbl()))
+      {
+      for (int f=0; f<DataSet.FieldCount(); f++)
+        DataSet.Field(f).BuildDataDefn(DDB, pOwner);
+      }
+    DDB.EndObject();
+    }
+  };
+
+flag CTOCustomData::DataXchg(DataChangeBlk &DCB, TaggedObject * pOwner)
+  {
+  switch (DCB.lHandle)
+    {
+    case xidTOCustomDataSelect:
+      if (DCB.rL)
+        pOwner->SetCustomDataIndex(*DCB.rL);
+      DCB.L=pOwner->GetCustomDataIndex();
+      return 1;
+    default:;
+    }
+  
+  return 0;
+  };
+
+void CTOCustomData::DbgDump()
+  {
+  dbgpln("======================================================================== CustomData:%s", m_pClass->ClassId());
+  for (int i=0; i<m_DataSets.GetCount(); i++)
+    {
+    CDataSet & DS=*m_DataSets[i];
+    dbgpln("----------------------- %s %s", DS.m_sName(), DS.m_sDspName());
+    for (int f=0; f<DS.m_Fields.GetCount(); f++)
+      {
+      CDataSet::CField &F=*DS.m_Fields[f];
+      Strng Cnv;
+      Cnv.Set(F.m_iCnv>0?"%s(%s)":" ", Cnvs[F.m_iCnv]->Fam(), F.m_sCnvText()?F.m_sCnvText():"");
+      dbgpln("Fld:%3i) %-15s %-15s %-10s %s", f, F.m_sTag()?F.m_sTag():"", F.m_sSym()?F.m_sSym():"", tt_TypeString(F.m_iType), Cnv());
+      }
+    }
+  };
+
+//========================================================================
+//
+//
+//
+//========================================================================
+
+CTOSelectData::CDataSet::CField::CField(TagObjClass * pClass, int Index) : \
+m_pClass(pClass), m_iIndex(Index)
+  {
+  m_iType    = -1;
+  m_sCnvText = "";
+  };
+CTOSelectData::CDataSet::CField::~CField()
+  {
+  };
+
+bool CTOSelectData::CDataSet::CField::Load(CProfINIFile & SCO, LPCSTR FieldDefn)
+  {
+  Strng FieldDefnMem(FieldDefn);
+  CSVColArray C;
+  int iQuote=0;
+  int NToks=ParseCSVTokens((LPSTR)FieldDefn,C, iQuote);
+  if (NToks>=4)
+    {
+    m_sName       = C[0];
+    if (strlen(C[1])>0)
+      {
+      m_iType = tt_StringType(C[1]);
+      if (m_iType==tt_NULL)
+        LogError(m_pClass->ClassId(), 0, "SelectData Bad Type String:%s", C[2]);
+      }
+    else
+      m_iType = tt_NULL;
+
+    m_sDstPartTag   = (NToks>=3 ? C[2]:"");
+    m_sCnvText      = (NToks>=4 ? C[3]:"");
+    m_sDefaultValue = (NToks>=5 ? C[4]:"");
+
+    m_iCnv          = 0; // still to be discovered
+    return true;
+    }
+
+  LogError(m_pClass->ClassId(), 0, "SelectData Bad Field Defn : %s", FieldDefnMem());
+  return false;
+  };
+
+//===========================================================================
+
+CTOSelectData::CDataSet::CRecord::CRecord(TagObjClass * pClass, int Index) :\
+m_pClass(pClass), m_iIndex(Index)
+  {
+  };
+
+CTOSelectData::CDataSet::CRecord::~CRecord()
+  {
+  };
+
+bool CTOSelectData::CDataSet::CRecord::Load(CProfINIFile & SCO, LPCSTR FieldDefn)
+  {
+  CSVColArray C;
+  int iQuote=0;
+  int NToks=ParseCSVTokens((LPSTR)FieldDefn,C, iQuote);
+  for (int f=0; f<NToks; f++)
+    m_Values.Add(Strng(C[f]));
+
+  return false;
+  };
+
+//===========================================================================
+
+CTOSelectData::CDataSet::CDataSet(TagObjClass * pClass, CTOSelectData *pSelect) : \
+m_pClass(pClass), m_pSelect(pSelect)
+  {
+  m_pChildDS    = NULL;
+  m_iDisplayFld = -1;
+  m_iOrderByFld = -1;
+  m_iChildTblFld = -1;
+  m_iSelectedRecord = -1;
+  };
+
+CTOSelectData::CDataSet::~CDataSet()
+  { 
+  Clear(); 
+  };
+
+bool CTOSelectData::CDataSet::Load(CProfINIFile & SCO, LPCSTR DataSetName)
+  {
+  m_sName=DataSetName;
+
+  Strng Section("Select.");
+  Section+=DataSetName;
+
+  m_sDspName        = SCO.RdStr(Section(), "Name",       DataSetName );
+  m_sDspNameTag     = EnsureTagOK(m_sDspName());
+
+  Strng Dsp = SCO.RdStr(Section(), "Display",    "");
+
+  CSVColArray CO;
+  int iCOQuote=0;
+  int NOpts=ParseCSVTokens(Dsp(), CO, iCOQuote);
+  m_sDisplayFld     = NOpts>0 ? CO[0]:"";
+  m_sDisplayCnvTxt  = NOpts>1 ? CO[1]:"";
+  m_sOrderByFld     = SCO.RdStr(Section(), "OrderBy",    "");
+
+  m_iDisplayFld     = -1;
+  m_iOrderByFld     = -1;
+  m_iChildTblFld    = -1;
+ 
+  Strng Entry;
+  for (int f=0; ; f++)
+    {
+    Entry.Set("Field.%i", f);
+    Strng Defn=SCO.RdStr(Section(), Entry(), "");
+    if (Defn.GetLength()>0)
+      {
+      m_Fields.Add(new CField(m_pClass, f));
+      m_Fields[f]->Load(SCO, Defn());
+      if (m_Fields[f]->m_sName.XStrICmp(m_sDisplayFld)==0)
+        m_iDisplayFld = f;
+      if (m_Fields[f]->m_sName.XStrICmp(m_sOrderByFld)==0)
+        m_iOrderByFld = f;
+
+      }
+    else
+      break;
+    }
+  if (f==0)
+    {
+    LogError(m_pClass->ClassId(), 0, "SelectData No Fields : %s", m_sName());
+    return false;
+    }
+
+  if (m_iDisplayFld<0)
+    m_iDisplayFld = 0;
+  if (m_iOrderByFld<0)
+    m_iOrderByFld = 0;
+
+  m_DDBRecords.Empty();
+  m_DDBRecords.Add(0, " ");
+  for (int r=0; ; r++)
+    {
+    Entry.Set("Record.%i", r);
+    Strng Defn=SCO.RdStr(Section(), Entry(), "");
+    if (Defn.GetLength()>0)
+      {
+      m_Records.Add(new CRecord(m_pClass, r));
+      m_Records[r]->Load(SCO, Defn());
+      m_DDBRecords.Add(r+1, m_Records[r]->m_Values[m_iDisplayFld]()); // Sort Later
+      }
+    else
+      break;
+    }
+
+  // Load Dependant Tables 
+  for (int f=0; f<m_Fields.GetCount(); f++)
+    {
+    if (m_Fields[f]->m_iType==tt_Table)
+      {
+      m_iChildTblFld= f;
+      for (int r=0; r<m_Records.GetCount(); r++)
+        {
+        if (m_Records[r]->m_Values[f].GetLength()>0)
+          m_pSelect->AddDataSet(SCO, m_Records[r]->m_Values[f]());
+        }
+      }
+    }
+
+  return true;
+  }
+
+void CTOSelectData::CDataSet::Clear()
+  {
+  for (int i=0; i<m_Fields.GetCount(); i++)
+    delete m_Fields[i];
+  for (int i=0; i<m_Records.GetCount(); i++)
+    delete m_Records[i];
+  m_DDBRecords.Empty();
+  m_iSelectedRecord=-1;
+  };
+
+void CTOSelectData::CDataSet::BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner, int Level)
+  {
+  DDB.Long(m_sDspNameTag(),      "", DC_, "", xidTOSelectString0+Level,  pOwner, isParm|SetOnChange, &m_DDBRecords);
+  if (m_pChildDS)
+    m_pChildDS->BuildDataDefnHead(DDB, pOwner, Level+1);
+  }
+
+flag CTOSelectData::CDataSet::DataXchg(DataChangeBlk & DCB, TaggedObject * pOwner, int Level)
+  {
+  if (DCB.lHandle==(xidTOSelectString0+Level))
+    {
+    if (DCB.rL)
+      {
+      ChangeSelection(DCB.ForFileSnpScn()!=0, (*DCB.rL)-1, pOwner);
+      }
+    DCB.L=m_iSelectedRecord+1;
+    return 1;
+    }
+
+  if (m_pChildDS && m_pChildDS->DataXchg(DCB, pOwner, Level+1))
+    return 1;
+
+  return 0;
+  }
+
+flag CTOSelectData::CDataSet::ChangeSelection(bool ForFiling, int SelectedRecord, TaggedObject * pOwner)
+  {
+  m_iSelectedRecord=SelectedRecord;
+  dbgpln("Change Selection ---- %s", m_sDspName());
+  dbgindent(2);
+  if (m_iSelectedRecord>=0)
+    {
+    CRecord &R = *m_Records[m_iSelectedRecord];
+    bool ChildDone=false;
+    for (int f=0; f<m_Fields.GetCount(); f++)
+      {
+      CField & F=*m_Fields[f];
+      if (F.m_iType==tt_Table)
+        {
+        if (!ChildDone)
+          {
+          Strng ChildTableName  = R.m_Values[f];
+          m_pChildDS            = m_pSelect->FindDataSet(ChildTableName());
+          ChildDone             = m_pChildDS!=NULL;
+          dbgpln("Select    %-20s %s", F.m_sName(), ChildTableName());
+          }
+        }
+      else if (!ForFiling && F.m_sDstPartTag.GetLength()>0)
+        {
+        Strng FullTag;
+        FullTag.Set("%s.%s", pOwner->FullObjTag(), F.m_sDstPartTag());
+        dbgpln("Set       %-20s %-30s = %s", F.m_sName(), FullTag(), R.m_Values[f]());
+        //        pOwner->PutDefinedData()
+
+        CPkDataList GetList;
+        pOwner->GetDefinedData(FullTag(), GetList, NSHM_All|TABOpt_ForView|TABOpt_AllInfo, NULL);
+        if (GetList.GetCount()>0)
+          {
+          CPkDataItem &I=*GetList.FirstItem();
+          F.m_iType     = I.Type();
+          F.m_iCnv      = I.CnvIndex();
+          //F.m_sCnvText  = I.CnvTxt();
+
+          CPkDataList PutList;
+          CPkDataIter Iter;
+          PkDataUnion PData;
+          if (IsFloatData(F.m_iType))
+            {
+            PData.SetTypeDouble(tt_Double, Cnvs[F.m_iCnv]->Normal(SafeAtoF(R.m_Values[f]()), F.m_sCnvText()));  
+            }
+          else
+            PData.SetTypeString(tt_Generic, R.m_Values[f]());  
+
+          PutList.SetDataValue(FullTag(), 0, PData);
+          pOwner->PutDefinedData(FullTag(), PutList, Iter, TABOpt_ForView|TABOPT_ValueStatus, NULL);
+          //pOwner->SelectData()->SetTagValueStatus(FullTag(), NULL, VS_Set);
+          }
+        }
+      }
+    }
+  else
+    {
+    // Leave all Fields or Reset to Defaults
+    m_pChildDS=NULL;
+    }
+  dbgindent(-2);
+  return true;
+  }
+
+//===========================================================================
+
+CTOSelectData::CTOSelectData(TagObjClass * pClass) : \
+m_pClass(pClass)
+  {
+  m_pRootDS = NULL;
+  //m_TagStatusMap.InitHashTable(FindNextPrimeNumber(500));
+  };
+
+bool CTOSelectData::Load(CProfINIFile & SCO)
+  {
+  Clear();
+  Strng Table;
+  Table=SCO.RdStr("Options", "SelectDataTable");
+  if (Table.GetLength()==0)
+    return true;
+
+  m_pRootDS = AddDataSet(SCO, Table());
+  DbgDump();
+  return m_pRootDS!=NULL;
+  };
+
+CTOSelectData::CDataSet * CTOSelectData::AddDataSet(CProfINIFile & SCO, LPSTR Table)
+  {
+  CDataSet *p=FindDataSet(Table);
+  if (p)
+    return p;
+
+  p = new CDataSet(m_pClass, this);
+  if (p->Load(SCO, Table))
+    {
+    m_DataSets.Add(p);
+    return p;
+    }
+  delete p;
+  return NULL;
+  };
+
+CTOSelectData::CDataSet * CTOSelectData::FindDataSet(LPSTR Table)
+  {
+  for (int d=0; d<m_DataSets.GetCount(); d++)
+    {
+    if (m_DataSets[d]->m_sName.XStrICmp(Table)==0)
+      return m_DataSets[d];
+    }
+  return NULL;
+  };
+
+void CTOSelectData::Clear()
+  {
+  for (int i=0; i<m_DataSets.GetCount(); i++)
+    delete m_DataSets[i];
+
+  POSITION Pos=m_TagStatusList.GetHeadPosition();
+  while (Pos)
+    {
+    delete m_TagStatusList.GetNext(Pos);
+    }
+  };
+
+void CTOSelectData::BuildDataDefnHead(DataDefnBlk & DDB, TaggedObject * pOwner)
+  {
+  if (m_pRootDS)
+    {
+    m_pRootDS->BuildDataDefnHead(DDB, pOwner, 0);
+    //DDB.String      ("Manufacturer",      "", DC_, "", xidTOSelectString0,  pOwner, isParm);
+  //DDB.String      ("Chris_Pipes",       "", DC_, "", xidTOSelectString1,  pOwner, isParm);
+  //CTOCustomData::CDataSet &DataSet = *pOwner->CustomDataSelected();
+  //DDB.Page("CD", DDB_RqdPage);
+  //Strng Tbl(m_pClass->ClassIdNoVersion());
+  //Tbl+="_CD";
+  //if (DDB.BeginObject(pOwner, "CD", Tbl()))
+  //  {
+  //  for (int f=0; f<DataSet.FieldCount(); f++)
+  //    DataSet.Field(f).BuildDataDefn(DDB, pOwner);
+  //  }
+  //DDB.EndObject();
+    }
+  };
+
+flag CTOSelectData::DataXchg(DataChangeBlk &DCB, TaggedObject * pOwner)
+  {
+  if (m_pRootDS->DataXchg(DCB, pOwner, 0))
+    return 1;
+  
+  return 0;
+  };
+
+void CTOSelectData::SetTagValueStatus(LPSTR Tag1, LPSTR Tag2, byte TagStatus)
+  {
+  CTagStatus *p;
+  if (m_TagStatusMap.Lookup(Tag1, p))
+    {
+    p->m_Status=TagStatus;
+    return;
+    }
+  if (Tag2 && m_TagStatusMap.Lookup(Tag2, p))
+    {
+    p->m_Status=TagStatus;
+    return;
+    }
+
+  p = new CTagStatus;
+  p->m_Tag1   = Tag1;
+  if (Tag2)
+    p->m_Tag2   = Tag2;
+  p->m_Status = TagStatus;
+
+  if ((INT_PTR)m_TagStatusMap.GetHashTableSize()<m_TagStatusList.GetCount())
+    {
+    //Rebuild
+    m_TagStatusMap.RemoveAll();
+    m_TagStatusMap.InitHashTable(FindNextPrimeNumber(m_TagStatusList.GetCount()+500));
+
+    POSITION Pos=m_TagStatusList.GetHeadPosition();
+    while (Pos)
+      {
+      CTagStatus *x = m_TagStatusList.GetNext(Pos);
+      m_TagStatusMap.SetAt(x->m_Tag1(), x);
+      if (x->m_Tag2())
+        m_TagStatusMap.SetAt(x->m_Tag2(), x);
+      }
+    }
+  m_TagStatusList.AddTail(p);
+  m_TagStatusMap.SetAt(p->m_Tag1(), p);
+  if (p->m_Tag2())
+    m_TagStatusMap.SetAt(p->m_Tag2(), p);
+
+  //m_TagStatusMap.InitHashTable(FindNextPrimeNumber(500));
+  };
+byte CTOSelectData::GetTagValueStatus(LPSTR FullTag)
+  {
+  CTagStatus *p;
+  if (m_TagStatusMap.Lookup(FullTag, p))
+    {
+    return p->m_Status;
+    }
+  return VS_None;
+  };
+
+
+flag CTOSelectData::GetClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status)
+  {
+  if (Pos==NULL)
+    Pos=m_TagStatusList.GetHeadPosition();
+
+  CTagStatus *p=m_TagStatusList.GetNext(Pos);
+  if (p)
+    {
+    Tag1=p->m_Tag1;
+    Tag2=p->m_Tag2;
+    Status=p->m_Status;
+    return true;
+    }
+  return false;
+  };
+
+void CTOSelectData::DbgDump()
+  {
+  dbgpln("======================================================================== SelectData:%s", m_pClass->ClassId());
+  for (int i=0; i<m_DataSets.GetCount(); i++)
+    {
+    CDataSet & DS=*m_DataSets[i];
+    dbgpln("----------------------- %s %s", DS.m_sName(), DS.m_sDspName());
+    for (int f=0; f<DS.m_Fields.GetCount(); f++)
+      {
+      CDataSet::CField &F=*DS.m_Fields[f];
+      Strng Cnv;
+      Cnv.Set(F.m_iCnv>0?"%s(%s)":" ", Cnvs[F.m_iCnv]->Fam(), F.m_sCnvText()?F.m_sCnvText():"");
+      dbgpln("Fld:%3i) %-15s %-10s %s %-25s %s", f, F.m_sName(), tt_TypeString(F.m_iType), Cnv(), F.m_sDstPartTag()?F.m_sDstPartTag():"", F.m_sDefaultValue()?F.m_sDefaultValue():"");
+      }
+    for (int r=0; r<DS.m_Records.GetCount(); r++)
+      {
+      CDataSet::CRecord &R=*DS.m_Records[r];
+      dbgp("Rec%3i) ", r);
+      for (int f=0; f<R.m_Values.GetCount(); f++)
+        dbgp("%15s,",R.m_Values[f]()?R.m_Values[f]():"");
+      dbgpln("");
+      }
+    }
+  };
+
+#endif
 
 //===========================================================================
 //
@@ -1413,6 +2344,8 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   pNxtAttachment=NULL;
 
   AttachMeToObj(pAttach, eAttach);
+
+  m_iCustomData=-1;
 
   m_fActive=true;
   m_fActiveHold=false;
@@ -2592,6 +3525,23 @@ flag TaggedObject::PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkD
     DDB.EndBlock();
 
     DDB.Close();
+
+//#if WITHEQUIPSPECS
+//    if (/*(TABOPT_SelectStatus&Opts) &&*/ SelectData())
+//      {
+//      if (DataObj.GetCount()==1)
+//        {
+//        CPkDataItem *p=DataObj.FirstItem();
+//        if (stricmp(p->TagStr(), FullItemTag)==0)
+//          {
+//          if (TABOPT_ValueStatusSet&Opts)
+//            SelectData()->SetTagStatus(FullItemTag, CTOSelectData::VS_Set);
+//          else if (SelectData()->GetTagStatus(FullItemTag)==CTOSelectData::VS_Set)
+//            SelectData()->SetTagStatus(FullItemTag, CTOSelectData::VS_Reset);
+//          }
+//        }
+//      }
+//#endif
     return True;
     }
   DDB.Close();
@@ -2860,6 +3810,72 @@ int TaggedObject::CountAllCIs(int MaxNo, dword RqdFlags)
     }
   return n;
   };
+
+//---------------------------------------------------------------------------
+
+#if WITHEQUIPSPECS
+
+void TaggedObject::SetCustomDataIndex(int i)
+  {
+  CTOCustomData::CDataSet * pDataSet;
+  pDataSet = CustomDataSelected();
+
+  if (pDataSet)
+    {
+    for (int f=0; f<pDataSet->FieldCount(); f++)
+      {
+      CTOCustomData::CDataSet::CField & Fld=pDataSet->Field(f);
+      switch (Fld.m_iType)
+        {
+        case tt_Double:
+          delete (double*)m_CustomData[f];
+          break;
+        case tt_Strng:
+          delete (Strng*)m_CustomData[f];
+          break;
+        default:
+          _asm int 3;
+        }
+      }
+    }
+
+  m_iCustomData=i-1; 
+  pDataSet = CustomDataSelected();
+  if (pDataSet)
+    {
+    m_CustomData.SetSize(pDataSet->FieldCount());
+
+    for (int f=0; f<pDataSet->FieldCount(); f++)
+      {
+      CTOCustomData::CDataSet::CField & Fld=pDataSet->Field(f);
+      switch (Fld.m_iType)
+        {
+        case tt_Double:
+          m_CustomData[f] = (void*)(new double(Cnvs[Fld.m_iCnv]->Normal(SafeAtoF(Fld.m_sDefaultValue), Fld.m_sCnvText())));
+          break;
+        case tt_Strng:
+          m_CustomData[f] = (void*)(new Strng(Fld.m_sDefaultValue));
+          break;
+        default:
+          _asm int 3;
+        }
+      }
+    }
+  else
+    m_CustomData.SetSize(0);
+  };
+
+int TaggedObject::GetCustomDataIndex()
+  {
+  return m_iCustomData+1; 
+  };
+
+CTOCustomData::CDataSet* TaggedObject::CustomDataSelected()
+  {
+  return m_iCustomData>=0 && m_pClass->m_CustomData.DataSetCount()>0 ? &m_pClass->m_CustomData.DataSet(m_iCustomData):NULL; 
+  };
+
+#endif
 
 //========================================================================
 //
@@ -5193,29 +6209,113 @@ DDEF_Flags DataDefnBlk::CurrentFlags()
   }
 
 //---------------------------------------------------------------------------
+#if WITHEQUIPSPECS
 
-#define TRYAPPENDXREFSTATUS                                          \
-if (dwOptions&TABOpt_XRefStatus)                                     \
-  {                                                                  \
-  CTagRefStatusWord W=0;                                             \
-  long CurrentTagLen=Nest[lCallLevel-1].m_CurrentTagLen;             \
-                                                                     \
-  m_sCurrentTag.SetLength(CurrentTagLen);                            \
-  if (pTag[0])  /*strlen(pTag)>0)*/                                  \
-    {                                                                \
-    m_sCurrentTag+=pTag;                                             \
-    W=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());             \
-    m_sCurrentTag.SetLength(CurrentTagLen);                          \
-    }                                                                \
-  if (pSym[0])  /*strlen(pSym)>0)*/                                  \
-    {                                                                \
-    m_sCurrentTag+=pSym;                                             \
-    W|=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());            \
-    m_sCurrentTag.SetLength(CurrentTagLen);                          \
-    }                                                                \
-                                                                     \
-  m_pItem->AppendXRefStatus(W);                                      \
+#define TRYAPPENDSTATUS                                                     \
+if (dwOptions&(TABOpt_XRefStatus|TABOPT_ValueStatus))                       \
+  {                                                                         \
+  CTagRefStatus W=0;                                                        \
+  CTagValueStatus S=0;                                                      \
+  long CurrentTagLen=Nest[lCallLevel-1].m_CurrentTagLen;                    \
+                                                                            \
+  m_sCurrentTag.SetLength(CurrentTagLen);                                   \
+  if (pTag[0])                                                              \
+    {                                                                       \
+    m_sCurrentTag+=pTag;                                                    \
+    if (dwOptions&TABOpt_XRefStatus)                                        \
+      W=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                  \
+    if (dwOptions&TABOPT_ValueStatus)                                       \
+      S=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());       \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                 \
+    }                                                                       \
+  else if (pSym[0])                                                         \
+    {                                                                       \
+    m_sCurrentTag+=pSym;                                                    \
+    if (dwOptions&TABOpt_XRefStatus)                                        \
+      W|=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                 \
+    if (dwOptions&TABOPT_ValueStatus)                                       \
+      S|=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());      \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                 \
+    }                                                                       \
+  m_pItem->AppendItemStatus(W, S);                                          \
   }
+
+#else
+
+#define TRYAPPENDSTATUS                                                     \
+if (dwOptions&(TABOpt_XRefStatus|TABOPT_ValueStatus))                       \
+  {                                                                         \
+  CTagRefStatus W=0;                                                        \
+  long CurrentTagLen=Nest[lCallLevel-1].m_CurrentTagLen;                    \
+                                                                            \
+  m_sCurrentTag.SetLength(CurrentTagLen);                                   \
+  if (pTag[0])  /*strlen(pTag)>0)*/                                         \
+    {                                                                       \
+    m_sCurrentTag+=pTag;                                                    \
+    if (dwOptions&TABOpt_XRefStatus)                                        \
+      W=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                  \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                 \
+    }                                                                       \
+  if (pSym[0])  /*strlen(pSym)>0)*/                                         \
+    {                                                                       \
+    m_sCurrentTag+=pSym;                                                    \
+    if (dwOptions&TABOpt_XRefStatus)                                        \
+      W|=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                 \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                 \
+    }                                                                       \
+  m_pItem->AppendItemStatus(W);                                             \
+  }
+
+#endif
+
+//---------------------------------------------------------------------------
+
+#if WITHEQUIPSPECS
+
+#define TRYSETSTATUS                                                                                        \
+if (m_pRootObj->SelectData())                                                                               \
+  {                                                                                                         \
+  bool DoingSet = (dwOptions&(TABOPT_ValueStatus))!=0;                                                      \
+  long CurrentTagLen=Nest[lCallLevel-1].m_CurrentTagLen;                                                    \
+  m_sCurrentTag.SetLength(CurrentTagLen);                                                                   \
+  if (pTag[0] && pSym[0])                                                                                   \
+    {                                                                                                       \
+    Strng Tag(m_sCurrentTag), Sym(m_sCurrentTag);                                                           \
+    Tag+=pTag;                                                                                              \
+    Sym+=pSym;                                                                                              \
+    CTagValueStatus S=m_pRootObj->SelectData()->GetTagValueStatus(Tag());                                   \
+    if (DoingSet)                                                                                           \
+      m_pRootObj->SelectData()->SetTagValueStatus(Tag(), Sym(), CTOSelectData::VS_Set);                     \
+    else if (S & CTOSelectData::VS_Set)                                                                     \
+      m_pRootObj->SelectData()->SetTagValueStatus(Tag(), Sym(), S | CTOSelectData::VS_Changed);             \
+    }                                                                                                       \
+  else if (pTag[0])                                                                                         \
+    {                                                                                                       \
+    m_sCurrentTag+=pTag;                                                                                    \
+    CTagValueStatus S=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());                         \
+    if (DoingSet)                                                                                           \
+      m_pRootObj->SelectData()->SetTagValueStatus(m_sCurrentTag(), NULL, CTOSelectData::VS_Set);            \
+    else if (S & CTOSelectData::VS_Set)                                                                     \
+      m_pRootObj->SelectData()->SetTagValueStatus(m_sCurrentTag(), NULL, S | CTOSelectData::VS_Changed);    \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                                                 \
+    }                                                                                                       \
+  else if (pSym[0])                                                                                         \
+    {                                                                                                       \
+    m_sCurrentTag+=pSym;                                                                                    \
+    CTagValueStatus S=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());                         \
+    if (DoingSet)                                                                                           \
+      m_pRootObj->SelectData()->SetTagValueStatus(m_sCurrentTag(), NULL, CTOSelectData::VS_Set);            \
+    else if (S & CTOSelectData::VS_Set)                                                                     \
+      m_pRootObj->SelectData()->SetTagValueStatus(m_sCurrentTag(), NULL, S | CTOSelectData::VS_Changed);    \
+    m_sCurrentTag.SetLength(CurrentTagLen);                                                                 \
+    }                                                                                                       \
+  }
+
+#else
+
+#define TRYSETSTATUS                                                                                        \
+
+#endif
 
 //---------------------------------------------------------------------------
 
@@ -5232,7 +6332,7 @@ void DataDefnBlk::DoBool()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetBool(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt, pCnvFam);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5250,6 +6350,7 @@ void DataDefnBlk::DoBool()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutBool(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5288,7 +6389,7 @@ void DataDefnBlk::DoChar()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetChar(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5306,6 +6407,7 @@ void DataDefnBlk::DoChar()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutChar(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5390,7 +6492,7 @@ void DataDefnBlk::DoByte()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetByte(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
 
@@ -5409,6 +6511,7 @@ void DataDefnBlk::DoByte()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutByte(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  //flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5448,7 +6551,7 @@ void DataDefnBlk::DoWord()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetWord(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5466,6 +6569,7 @@ void DataDefnBlk::DoWord()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutWord(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5504,7 +6608,7 @@ void DataDefnBlk::DoDWord()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetDWord(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5522,6 +6626,7 @@ void DataDefnBlk::DoDWord()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutDWord(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5560,7 +6665,7 @@ void DataDefnBlk::DoInt()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetInt(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5578,6 +6683,7 @@ void DataDefnBlk::DoInt()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutInt(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5616,7 +6722,7 @@ void DataDefnBlk::DoShort()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetShort(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5634,6 +6740,7 @@ void DataDefnBlk::DoShort()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutShort(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5672,7 +6779,7 @@ void DataDefnBlk::DoLong()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetLong(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, True);
       }
@@ -5690,6 +6797,7 @@ void DataDefnBlk::DoLong()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutLong(dwOptions, *PkData.Value());//, pValueLst);
+        TRYSETSTATUS;
         //if (PkData.Type()!=tt_Generic)
         //  {
         //  flag ValuesExist=PkData.GetStrList(ValueLst);
@@ -5728,7 +6836,7 @@ void DataDefnBlk::DoFloat()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetFloat(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       }
     case DDBTask_FndData:
       {
@@ -5744,6 +6852,7 @@ void DataDefnBlk::DoFloat()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutFloat(dwOptions, *PkData.Value());
+        TRYSETSTATUS;
         if (fSetShortcut)
           pShortcut->Set(this, m_pFullItemTag, m_pRootObj->CurrentDataVersion());
         }
@@ -5772,7 +6881,7 @@ void DataDefnBlk::DoDouble()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetDouble(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       }
     case DDBTask_FndData:
       {
@@ -5788,6 +6897,7 @@ void DataDefnBlk::DoDouble()
         {
         CPkDataItem &PkData=*(pMsgItem->pItem);
         PutDouble(dwOptions, *PkData.Value());
+        TRYSETSTATUS;
         if (fSetShortcut)// && (iFlags&0x40000000)==0)
           pShortcut->Set(this, m_pFullItemTag, m_pRootObj->CurrentDataVersion());
         }
@@ -5816,7 +6926,7 @@ void DataDefnBlk::DoString()
       PkDataUnion DataValue;
       DDEF_Flags XtraFlags=GetString(dwOptions, DataValue);
       m_pItem->AppendDataValue(/*m_pList->GetInfo(),*/ dwOptions, pTag, pSym, XtraFlags|CurrentFlags(), DataValue, iCnv, pCnvTxt);
-      TRYAPPENDXREFSTATUS;
+      TRYAPPENDSTATUS;
       if (fStrList && pValueLst)
         m_pItem->AppendValueLst(/*m_pList->GetInfo(), */pValueLst, False);
       }
@@ -5835,6 +6945,7 @@ void DataDefnBlk::DoString()
         CPkDataItem &PkData=*(pMsgItem->pItem);
         //flag ValuesExist=PkData.GetStrList(ValueLst);
         PutString(dwOptions, *PkData.Value());//, pValueLst);//ValuesExist ? &ValueLst : NULL);
+        TRYSETSTATUS;
         if (fSetShortcut)
           pShortcut->Set(this, m_pFullItemTag, m_pRootObj->CurrentDataVersion());
         }
@@ -6300,7 +7411,7 @@ flag TagAccessBlk::GetDefinedData(CPkDataList &DataObj, TABOptions Opts)
 
       CPkDataItem * pItem = DataObj.FirstItem();
       PkDataUnion * pData = pItem->Value();
-      CTagRefStatusWord SW=pItem->GetTagRefStatus();
+      CTagRefStatus SW=pItem->GetTagRefStatus();
       dword Sz=pData->Size();
       if (Sz>m_lPrevValues)
         {

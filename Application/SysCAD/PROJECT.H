@@ -438,6 +438,9 @@ class DllImportExport CProjectSettings
                   m_bRunOptEmptySpills,
                   m_bRunOptResetStats,   
                   m_bRunOptOnceOnly;    
+#if WITHEQUIPSPECS
+    flag          m_bAccAllowEditSpecs;
+#endif
 
     int           m_GrfBehaviour,
                   m_TrndBehaviour;
@@ -645,6 +648,13 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     char*          ChkPrjFileName(char *pPrjPath);
     flag           SetPrjCfgFile(CProfINIFile & PF, Strng &NewModelCfg, CModelInfo & Info);
     flag           CheckPrjCfgFile(CProfINIFile & PF, bool & Do_NotOpenMsg);
+
+#if WITHCLASSOPTIONS        
+    void           LoadClassOptions();
+    flag           SaveClassVariableStatus(LPCSTR Path);
+    flag           LoadClassVariableStatus(LPCSTR Path);
+#endif
+
     void           PutSettings();
     void           GetSettings();
 

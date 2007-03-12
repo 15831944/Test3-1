@@ -106,8 +106,8 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     virtual CTNode*     FindChildTag(pchar pTag);
   };
 
-#define IMPLEMENT_NODE(ClassName, Name, Version, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, "Node", Name, Version, DefTag, Cat, ShortDesc, Desc)
+#define IMPLEMENT_NODE(ClassName, Name, Version, TagInitialID, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJ(ClassName, "Node", Name, Version, TagInitialID, Cat, ShortDesc, Desc)
 
 // ===========================================================================
 

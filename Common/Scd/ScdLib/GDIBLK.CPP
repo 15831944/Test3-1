@@ -36,6 +36,8 @@ GDIBlkCfg::GDIBlkCfg(pchar pName_)
   crTextError[1]    = RGB(0xff, 0x00, 0x00);
   crTxtBackError    = RGB(0xc0, 0xc0, 0xc0);
   crTxtBackSelect   = RGB(0x00, 0x00, 0x80);
+  crTxtBackRmtData  = RGB(0x00, 0xc0, 0x00);
+  crTxtBackRmtChgd  = RGB(0xc0, 0xc0, 0x00);
   crTxtFore         = RGB(0xff, 0xff, 0xff);
   crTxtBack         = RGB(0xc0, 0xc0, 0xc0);
   crTxtEdgeLight    = RGB(0xe0, 0xe0, 0xe0);
@@ -166,6 +168,8 @@ GDIBlkCfg& GDIBlkCfg::operator=(const GDIBlkCfg &S)
   crTextError[1]    = S.crTextError[1];
   crTxtBackError    = S.crTxtBackError;
   crTxtBackSelect   = S.crTxtBackSelect;
+  crTxtBackRmtData  = S.crTxtBackRmtData;
+  crTxtBackRmtChgd  = S.crTxtBackRmtChgd;
   crTxtFore         = S.crTxtFore;
   crTxtBack         = S.crTxtBack;
   crTxtEdgeLight    = S.crTxtEdgeLight;
@@ -290,6 +294,8 @@ void GDIBlk::Clear()
     delete         pBrushTxtBack;
     delete         pBrushTxtBackError;
     delete         pBrushTxtBackSelect;
+    delete         pBrushTxtBackRmtData;
+    delete         pBrushTxtBackRmtChgd;
     delete         pBrushTxtEdgeLight;
     delete         pBrushTxtEdgeDark;
     delete         pPenTxtBord;
@@ -388,6 +394,8 @@ flag GDIBlk::Create(pGDIBlkCfg pGBC_, /*pFxdEdtView pView_,*/ CWnd* pWnd_, CDC* 
   crTextError[1]     = /*MakeColor(*/pGBC->crTextError[1];
   crTxtBackError     = /*MakeColor(*/pGBC->crTxtBackError;
   crTxtBackSelect    = /*MakeColor(*/pGBC->crTxtBackSelect;
+  crTxtBackRmtData   = /*MakeColor(*/pGBC->crTxtBackRmtData;
+  crTxtBackRmtChgd   = /*MakeColor(*/pGBC->crTxtBackRmtChgd;
   crTxtBack          = /*MakeColor(*/pGBC->crTxtBack/*, fForPrinter)*/;
   crTxtFore          = /*MakeColor(*/pGBC->crTxtFore/*, fForPrinter)*/;          
   crTxtEdgeLight     = /*MakeColor(*/pGBC->crTxtEdgeLight/*, fForPrinter)*/;
@@ -407,6 +415,8 @@ flag GDIBlk::Create(pGDIBlkCfg pGBC_, /*pFxdEdtView pView_,*/ CWnd* pWnd_, CDC* 
   pBrushTxtBack       = new CBrush(crTxtBack);
   pBrushTxtBackError  = new CBrush(/*pDC_->GetNearestColor*/(crTxtBackError));
   pBrushTxtBackSelect = new CBrush(/*pDC_->GetNearestColor*/(crTxtBackSelect));
+  pBrushTxtBackRmtData= new CBrush(/*pDC_->GetNearestColor*/(crTxtBackRmtData));
+  pBrushTxtBackRmtChgd= new CBrush(/*pDC_->GetNearestColor*/(crTxtBackRmtChgd));
   pBrushTxtEdgeLight  = new CBrush(pDC_->GetNearestColor(crTxtEdgeLight));
   pBrushTxtEdgeDark   = new CBrush(pDC_->GetNearestColor(crTxtEdgeDark));
   pPenTxtBord         = new CPen(PS_SOLID, EdgeW,  crTxtBord);

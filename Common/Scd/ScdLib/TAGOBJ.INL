@@ -15,8 +15,12 @@ INLINE void DDBDataInfo::GetDefinedData(TABOptions Opts, CPkDataList & List/*PkD
     List.Item.AppendValueLst(/*pInfo,*/ pValueLst, True);
   if ((Opts & TABOpt_XRefStatus) && m_psFullItemTag)
     {
-    CTagRefStatusWord W=gs_TagRefGlblFn->GetTagRefStatus((*m_psFullItemTag)());
-    List.Item.AppendXRefStatus(/*pInfo,*/ W);
+    CTagRefStatus W=gs_TagRefGlblFn->GetTagRefStatus((*m_psFullItemTag)());
+#if WITHEQUIPSPECS
+    List.Item.AppendItemStatus(/*pInfo,*/ W, 0);
+#else
+    List.Item.AppendItemStatus(/*pInfo,*/ W);
+#endif
     }
   List.AdvanceWrite();
   };

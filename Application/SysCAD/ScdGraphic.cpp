@@ -137,7 +137,7 @@ STDMETHODIMP CScdGraphic::AddUnit(BSTR bsTag, double X, double Y, double Z, BSTR
       CB.NdScl.Y=YScale;
       CB.NdScl.Z=YScale;
       CB.Rotate=(float)Rotation;
-      CB.ATagBase=MInfo.DefTag();
+      CB.ATagBase=MInfo.TagInitialID();
       if (Symbol && strchr(Symbol, ':'))
         CB.ASymbol=Symbol;
       else
@@ -250,7 +250,7 @@ STDMETHODIMP CScdGraphic::AddLinkA(BSTR bsTag, VARIANT Points3D)
 #pragma chCHECKIT(NBNBNB Why is this not called as per example COM&ATL3.0 pg465)
         // SafeArrayDestroy(pSA);
 
-        CB.ATagBase=MInfo.DefTag();
+        CB.ATagBase=MInfo.TagInitialID();
         CB.ASymbol=MInfo.DrwGroup();
         CB.ASymbol+=":default";
   
@@ -300,7 +300,7 @@ STDMETHODIMP CScdGraphic::AddLinkM(BSTR bsTag, eScdLinkDrawMethods Method)
       CB.iLineMethod=Method;
       CB.NVerts=-1;
 
-      CB.ATagBase=MInfo.DefTag();
+      CB.ATagBase=MInfo.TagInitialID();
       CB.ASymbol=MInfo.DrwGroup();
       CB.ASymbol+=".default";
     

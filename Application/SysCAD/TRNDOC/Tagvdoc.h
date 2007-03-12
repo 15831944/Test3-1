@@ -160,7 +160,7 @@ class CTagVwSlot
     GCVar*         pFunctVar;
     CnvAttribute   Cnv;
     FmtAttribute   Fmt;
-    CTagRefStatusWord m_XRefStatus;
+    CTagRefStatus  m_XRefStatus;
 
     CTagVwSlot();
     ~CTagVwSlot();

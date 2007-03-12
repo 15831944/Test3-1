@@ -54,7 +54,7 @@ MUnitDefBase::~MUnitDefBase()
 void MUnitDefBase::SetDefaultTag(LPCTSTR DefTag, bool AddUsrPrefix)
   {
   ASSERT(m_pClassDef!=NULL);
-  m_pClassDef->sDefaultTag=DefTag;
+  m_pClassDef->m_sTagInitialID=DefTag;
   m_AddUsrPrefix=AddUsrPrefix;
   }
 

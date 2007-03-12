@@ -698,7 +698,7 @@ flag CSfeSrvrBase::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestMo
     Info.Class=p->ClassId();
     Info.Desc=p->Desc();
     Info.ShortDesc=p->ShortDesc();
-    Info.DefTag=p->DefaultTag();
+    Info.TagInitialID=p->TagInitialID();
     Info.MdlLibName=p->MdlLibName();
     Info.Group=p->Group();
     Info.DrwGroup=p->DrwGroup();
@@ -723,7 +723,7 @@ flag CSfeSrvrBase::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec &
     Info.Class=p->ClassId();
     Info.Desc=p->Desc();
     Info.ShortDesc=p->ShortDesc();
-    Info.DefTag=p->DefaultTag();
+    Info.TagInitialID=p->TagInitialID();
     Info.MdlLibName=p->MdlLibName();
     Info.Group=p->Group();
     Info.DrwGroup=p->DrwGroup();

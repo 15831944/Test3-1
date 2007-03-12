@@ -395,6 +395,7 @@ BEGIN_MESSAGE_MAP(AccNodeWnd, FxdEdtView)
   ON_COMMAND_RANGE(IDM_ACC_COPYBLK_0, IDM_ACC_COPYBLK_19, OnAccOptions)
   ON_COMMAND_RANGE(IDM_ACC_PASTEBLK_0, IDM_ACC_PASTEBLK_19, OnAccOptions)
   ON_COMMAND_RANGE(IDM_ACC_SHOWGROUPS, IDM_ACC_SPAREOPTION9, OnAccOptions)
+  ON_COMMAND_RANGE(IDM_ACC_ALLOWEDITSPECS, IDM_ACC_ALLOWEDITSPECS, OnAccOptions)
   ON_COMMAND(IDM_ACC_CUTTAG,     OnAccCutTag)
   ON_COMMAND(IDM_ACC_CUTVAL,     OnAccCutVal)
   ON_COMMAND(IDM_ACC_COPYTAG,    OnAccCopyTag)
@@ -540,11 +541,38 @@ void AccNodeWnd::OnDrawLine(rGDIBlk GB, int PgNo, int RowNo)
 
           CPen* OldPen = DC.SelectObject(GB.pPenTxtBord);
           CBrush* OldBrush = NULL;
-          COLORREF OldBk = DC.SetBkColor(GB.crGrfBack);
+          COLORREF OldBk = 0;
+
           //int Recx = x2+1;//iMarginWidth;
           //int Recy = y1+4;
           if (fi>=0 && Flds[fi].pData)
             {
+            COLORREF BackColor=0;
+#if WITHEQUIPSPECS
+            CTagValueStatus Stat=Flds[fi].pData->m_ValStatus;
+            if (Stat & CTOSelectData::VS_Changed)
+              BackColor = GB.crTxtBackRmtChgd;
+            else if (Stat & CTOSelectData::VS_Set)
+              BackColor = GB.crTxtBackRmtData;
+            else
+#endif
+              BackColor = GB.crGrfBack;
+
+            OldBk = DC.SetBkColor(BackColor);
+
+#if WITHEQUIPSPECS
+            if (Stat & (CTOSelectData::VS_Changed|CTOSelectData::VS_Set))
+              {
+              CRect TrndR(x2, y1, Fld->Xe(GB), Fld->Ye(GB));
+              CBrush Brush(BackColor);
+              if (OldBrush)
+                DC.SelectObject(&Brush);
+              else
+                OldBrush = DC.SelectObject(&Brush);
+              DC.Rectangle(TrndR);
+              }
+#endif
+
             if (fAllFldsVis)
               {
               if (!Flds[fi].fIsTreeVis)
@@ -681,7 +709,7 @@ flag AccNodeWnd::LoadAccessData()
     m_pMyFrm->SetWindowText(WndTitle());
     
     TABOptions ForXtra=0;//(fAllFldsVis?TABOpt_ForFile|TABOpt_ForSnapShot|TABOpt_ForScenario:0);
-    CXM_ObjectTag ObjTag(TryNdTag(), ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
+    CXM_ObjectTag ObjTag(TryNdTag(), TABOPT_ValueStatus|ForXtra|TABOpt_AllInfo|TABOpt_ForView|TABOpt_XRefStatus);
     ObjData.Clear();
 
     ObjRoute.Clear();
@@ -751,6 +779,9 @@ flag AccNodeWnd::LoadAccessData()
         d.sTagComment = pPItem->TagComment();
         d.sDesc       = pPItem->Description();
         d.m_Markers   = pPItem->GetTagRefStatus();
+#if WITHEQUIPSPECS
+        d.m_ValStatus = pPItem->GetTagValueStatus();
+#endif
 
         d.fHasNANOK   = IsFloatData(d.iType) && ((d.iFlags&NAN_OK)!=0);
         d.fHasNANStr=false;
@@ -1164,7 +1195,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
     {
     flag DoWrite=0;
 
-    CXM_ObjectData ObjData(0, TABOpt_ForView);
+    CXM_ObjectData ObjData(0, /*TABOPT_ValueStatus|*/TABOpt_ForView);
     if (NData>0 && SaveIt)
       {
       CPkDataIter Iter;
@@ -2847,7 +2878,12 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             int VWidth = 2;
 #endif
             FxdEdtFld* pFld=SetDesc(LnNo,NameBuff(), -(Id_FldParms+fi), DWidth, 3, TagComStr());
-            pFld->fUnderLine=true;
+            pFld->m_fUnderLine=true;
+#if WITHEQUIPSPECS
+            //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
+            //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
+#endif
+
             if (d.sFullTag())
               SetTag(d.sFullTag());
             SetMarkerFlags(d.m_Markers);
@@ -2881,7 +2917,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               f.ValFld=SetButton(LnNo, NameBuff(),  Id_FldBtns+fi, Min(NamW+ValW, Max(BASICWIDTH, NameBuff.Length()+2)), 0, "");
               }
             }
+#if WITHEQUIPSPECS
+          else if (d.fIsParam && ((d.m_ValStatus&(CTOSelectData::VS_Set|CTOSelectData::VS_Set))==0 || gs_pPrj->m_bAccAllowEditSpecs))
+#else
           else if (d.fIsParam)
+#endif
             {
             if (DoingMatrix)
               {
@@ -2891,7 +2931,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             else
               {
               FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-              pFld->fUnderLine=true;
+              pFld->m_fUnderLine=true;
+#if WITHEQUIPSPECS
+              //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
+              //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
+#endif
               if (d.sFullTag())
                 SetTag(d.sFullTag(), d.Cnv.Text());
 
@@ -2905,6 +2949,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             //char*pSep=DoingMatrix?"":d.fHasNANStr?"  ":" ";
             char*pSep=!DoingMatrix || d.m_IsLastDataCol?"  ":"";
             f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep);
+
             if (d.iFlags & DDEF_FUNCTPARM)
               {
               SetBigStrLength(1024);
@@ -2945,7 +2990,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           else if (d.fMultiStrng)
             {
             FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-            pFld->fUnderLine=true;
+            pFld->m_fUnderLine=true;
+#if WITHEQUIPSPECS
+            //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
+            //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
+#endif
             if (d.sFullTag())
               SetTag(d.sFullTag());
 
@@ -2962,7 +3011,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (!DoingMatrix)
               {
               FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
-              pFld->fUnderLine=true;
+              pFld->m_fUnderLine=true;
+#if WITHEQUIPSPECS
+              //pFld->m_fRmtData = (d.m_ValStatus&CTOSelectData::VS_Set)!=0;
+              //pFld->m_fRmtChgd = (d.m_ValStatus&CTOSelectData::VS_Changed)!=0;
+#endif
               if (d.sFullTag())
                 SetTag(d.sFullTag(), d.Cnv.Text());
 
@@ -3455,13 +3508,16 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         CMenu Menu;
         Menu.CreatePopupMenu();
 
-        Menu.AppendMenu(MF_STRING, IDM_ACC_ALLFIELDS,     "&All Fields");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_DISPLAYTAGS,   "&Display Tags");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_HIDEIFZERO,    "Hide &Zeros");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_SHOWGROUPS,    "Show Groups");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_AUTOSAVE,      "A&uto Save");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_UPDATEONRUN,   "Update on &Run");
-        Menu.AppendMenu(MF_STRING, IDM_ACC_HISTORYINFO,   "&Historian/Archive Status");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_ALLFIELDS,       "&All Fields");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_DISPLAYTAGS,     "&Display Tags");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_HIDEIFZERO,      "Hide &Zeros");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_SHOWGROUPS,      "Show Groups");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_AUTOSAVE,        "A&uto Save");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_UPDATEONRUN,     "Update on &Run");
+        Menu.AppendMenu(MF_STRING, IDM_ACC_HISTORYINFO,     "&Historian/Archive Status");
+#if WITHEQUIPSPECS
+        Menu.AppendMenu(MF_STRING, IDM_ACC_ALLOWEDITSPECS,  "Allow Edit of E&quip Specs");
+#endif
         FmtAttribute::SetCmdIndex(IDM_ACC_FMT1);
         fGlobalFmtMenu=1;
         CMenu FormatMenu2;
@@ -3504,7 +3560,11 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           Menu.CheckMenuItem(IDM_ACC_UPDATEONRUN, MF_BYCOMMAND|MF_CHECKED);
         if (gs_pPrj && gs_pPrj->m_bAccHistoryInfoVis)
           Menu.CheckMenuItem(IDM_ACC_HISTORYINFO, MF_BYCOMMAND|MF_CHECKED);
-        
+#if WITHEQUIPSPECS
+        if (gs_pPrj && gs_pPrj->m_bAccAllowEditSpecs)
+          Menu.CheckMenuItem(IDM_ACC_ALLOWEDITSPECS, MF_BYCOMMAND|MF_CHECKED);
+#endif
+
         //Menu.AppendMenu(MF_STRING, IDM_ACC_FINDTAG, s());
         //Menu.AppendMenu(MF_STRING, IDM_ACC_MDLHELP, "Model &Help");
 
@@ -4374,6 +4434,21 @@ void AccNodeWnd::OnAccOptions(UINT Id)
         ShowDefWndTitle();
         }
       break;
+#if WITHEQUIPSPECS
+    case IDM_ACC_ALLOWEDITSPECS:
+      if (gs_pPrj)
+        gs_pPrj->m_bAccAllowEditSpecs=!gs_pPrj->m_bAccAllowEditSpecs;
+      if (CloseAccessData(false, false, false))
+        {
+        ClearFlds(false);
+
+        LoadAccessData();
+        MeasureFields();//, false);
+        DoRebuild();
+        ShowDefWndTitle();
+        }
+      break;
+#endif
     case IDM_ACC_QUICKVIEW:
       {
       TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), tt_NULL, NdTag(), "", NULL, NULL);

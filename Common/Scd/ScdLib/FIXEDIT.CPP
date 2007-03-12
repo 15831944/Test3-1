@@ -96,7 +96,9 @@ FxdEdtFld::FxdEdtFld(pFxdEdtView pView_, FxdEdtRow* pRow_, int BlkId_, int Field
   fSelected=0;
   fSelectable=1;
   fProtected=0;
-  fUnderLine=0;
+  m_fUnderLine=0;
+  m_fRmtData=0;
+  m_fRmtChgd=0;
   m_MarksChgd=0;
   m_Marks=0;
   fFixedPos=pView->fFixedPos;
@@ -234,6 +236,10 @@ void FxdEdtFld::Write(rGDIBlk GB, flag WithEdge, flag FullDraw)
     }
   else if (fInError)
     pBackBrush=GB.pBrushTxtBackError;
+  else if (m_fRmtChgd)
+    pBackBrush=GB.pBrushTxtBackRmtChgd;
+  else if (m_fRmtData)
+    pBackBrush=GB.pBrushTxtBackRmtData;
   else if (fEditable)
     pBackBrush=GB.pBrushTxtFore;
   else
@@ -265,7 +271,7 @@ void FxdEdtFld::Write(rGDIBlk GB, flag WithEdge, flag FullDraw)
     dc.FillRect(&TxtBck, pBackBrush);
     }
 
-  if (fUnderLine)
+  if (m_fUnderLine)
     {
     CPen LnPen(PS_SOLID, 0, RGB(0xB0,0xB0,0xB0));
     CPen *OldPen=dc.SelectObject(&LnPen);

@@ -2476,6 +2476,23 @@ void FlwNode::BuildDataDefnAreaIOs_OnOff(DataDefnBlk & DDB)
 
 void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
   {
+#if WITHEQUIPSPECS
+  if (CustomData())
+    CustomData()->BuildDataDefnData(DDB, this);
+#endif
+
+//?
+//     CTOCustomData::CDataSet &DataSet = *CustomDataSelected();
+//    DDB.Page("CD", DDB_RqdPage);
+//    Strng Tbl(Class()->ClassIdNoVersion());
+//    Tbl+="_CD";
+//    if (DDB.BeginObject(this, "CD", Tbl()))
+//      {
+//      for (int f=0; f<DataSet.FieldCount(); f++)
+//        DataSet.Field(f).BuildDataDefn(DDB, this);
+//      }
+//    DDB.EndObject();
+//    }
   CTNode::BuildCommonEndDefn(DDB);
 #if WITHNODEPROCS
   if (m_ProcsAllowed && m_ProcsReqd)
@@ -2977,8 +2994,15 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
     DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateDynStatsRunInit,  this, isParm|noFileAtAll|InitHidden);
     DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateEmptySpillTargets,this, isParm|noFileAtAll|InitHidden);
     */
-    }
+    }    
 
+#if WITHEQUIPSPECS
+  if (SelectData())
+    SelectData()->BuildDataDefnHead(DDB, this);
+
+  if (CustomData())
+    CustomData()->BuildDataDefnHead(DDB, this);
+#endif
   }
 
 //--------------------------------------------------------------------------
@@ -3448,6 +3472,14 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       return 1;
     DCB.dwUserInfo=UI;
     }
+
+#if WITHEQUIPSPECS
+  if (SelectData() && SelectData()->DataXchg(DCB, this))
+    return 1;
+
+  if (CustomData() && CustomData()->DataXchg(DCB, this))
+    return 1;
+#endif
 
   if (DataXchgDefnAreaIOs(DCB))
     return 1;
@@ -9780,7 +9812,7 @@ void CMacroMdlBase::Deactivate()
 //
 //==========================================================================
 
-//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc)
+//IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc)
 IMPLEMENT_TAGOBJ(CMacroMdl, "CMacroMdl", "CMacroMdl", "", "", "FG", TOC_SYSTEM, "FlowNodeGrp", "Long Descriptor")
 
 CMacroMdl::CMacroMdl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :

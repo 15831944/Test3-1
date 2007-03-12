@@ -454,8 +454,8 @@ typedef CSCDPtrListIterWithPos<CADObjectList, pCADObject> CADObjectIterPos;
 //===========================================================================
 
 #define ADObjectGrp "ADObject"
-#define IMPLEMENT_ADOBJECT(ClassName, Name, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJ(ClassName, ADObjectGrp, Name, Version, DrwGroup, DefTag, Cat, ShortDesc, Desc); 
+#define IMPLEMENT_ADOBJECT(ClassName, Name, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJ(ClassName, ADObjectGrp, Name, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc); 
 
 // ==========================================================================
 
@@ -679,7 +679,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     DEFINE_CI(CFlwSolver, FlwNode, 16);
 
     // CTagRefStatusFnHook override
-    CTagRefStatusWord GetTagRefStatus(LPCTSTR Tag);
+    CTagRefStatus  GetTagRefStatus(LPCTSTR Tag);
 
   public:
     SDBObject      SDBObj;

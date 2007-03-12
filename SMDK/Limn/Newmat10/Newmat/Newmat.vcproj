@@ -38,7 +38,9 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Copy"
+				CommandLine="copy .\dbg\newmat.lib .\lib\newmat.lib"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

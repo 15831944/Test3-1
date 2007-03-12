@@ -134,7 +134,7 @@ int CModelListHelper::BuildList(LPCTSTR SectName, char* pGroup, CComboBox* pCB, 
         pCB->AddString(pSlctText);
       Desc.Set("%s:%s", pSlctText, (MInfo.Desc() ? MInfo.Desc() : "No Description Available"));
       m_ModelDescLst.Append(Desc());
-      m_ModelBaseTagLst.Append(MInfo.DefTag());
+      m_ModelBaseTagLst.Append(MInfo.TagInitialID());
       m_ModelClassLst.Append(MInfo.Class());
       m_ModelDrwGroupLst.Append(MInfo.DrwGroup());
 
@@ -144,7 +144,7 @@ int CModelListHelper::BuildList(LPCTSTR SectName, char* pGroup, CComboBox* pCB, 
         for (int Pass=0; Pass<4; Pass++)
           {
           Strng Path;
-          Path.Set("%s%s.*.%s", Pass<2?BaseGrfSymbolFiles():GrfSymbolFiles(), MInfo.DefTag(), Pass%2==0?"DXF":"BMP");
+          Path.Set("%s%s.*.%s", Pass<2?BaseGrfSymbolFiles():GrfSymbolFiles(), MInfo.TagInitialID(), Pass%2==0?"DXF":"BMP");
           WIN32_FIND_DATA fd;
           HANDLE H = FindFirstFile(Path(), &fd);
           bool AllDone = (H==INVALID_HANDLE_VALUE);
@@ -153,7 +153,7 @@ int CModelListHelper::BuildList(LPCTSTR SectName, char* pGroup, CComboBox* pCB, 
             Strng Folder, Src, Dst;
             Folder.Set("%s%s", BaseGrfSymbolFiles(), MInfo.DrwGroup());
             Src.Set("%s%s", BaseGrfSymbolFiles(), fd.cFileName);
-            Dst.Set("%s%s\\%s", BaseGrfSymbolFiles(), MInfo.DrwGroup(), &fd.cFileName[MInfo.DefTag.Length()+1]);
+            Dst.Set("%s%s\\%s", BaseGrfSymbolFiles(), MInfo.DrwGroup(), &fd.cFileName[MInfo.TagInitialID.Length()+1]);
             dbgpln("MOVE %-60s >> %s", Src(), Dst());
 
             Strng E;
