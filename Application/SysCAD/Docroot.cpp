@@ -193,6 +193,7 @@ void DocRoot::SetPathName(LPCTSTR pszPathName, BOOL bAddToMRU/* = TRUE*/)
   Strng T;
   T.FnExt((pchar)pszPathName);
   CDocument::SetPathName(pszPathName, (_stricmp(T() ? T():"", ".spj")==0));
+  CExploreScd::RefreshIt(true);
   }
 
 //---------------------------------------------------------------------------

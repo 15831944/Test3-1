@@ -194,9 +194,6 @@ void CGrfDoc::SetPathName( const char* pszPathName )
   strcpy(t, T);
   strcat(t, ".FLW");
   FCB.EO_ChangeName(t);
-//  strcpy(t, T);
-//  strcat(t, ".INS");
-//  ICB.EO_ChangeName(t);
   }
 
 //---------------------------------------------------------------------------
