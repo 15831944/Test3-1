@@ -14,6 +14,8 @@
 #include "project.h"
 #include "scd_wm.h"
 #include "msgwnd.h"
+#include "explorescd.h"
+
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -140,6 +142,7 @@ void CChangeTag::OnOK()
           Txt.Set("Tag %s is referenced by the acrhiver and cannot be changed while solving", OldTag());
           break;
         case EOCT_DONE:
+          CExploreScd::RefreshIt(true); 
           gs_AccessWnds.CloseAccessData(-1, False, False, True);
           gs_AccessWnds.CloseWnd(-1);
           for (int a=0; a<NAccessWnds; a++)

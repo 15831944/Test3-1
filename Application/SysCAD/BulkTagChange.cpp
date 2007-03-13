@@ -11,6 +11,7 @@
 #include "dbgmngr.h"
 #include "scdver.h"
 #include "nrecipe.h"
+#include "explorescd.h"
 
 extern "C" 
   {
@@ -1731,6 +1732,9 @@ void CBulkTagChange::OnBnClickedApply()
 
   UpdateChangeCounts();
   LoadTagList();
+  
+  CExploreScd::RefreshIt(true); 
+  CExploreScd::ChkRefreshIt(); 
   }
 
 int CBulkTagChange::SetATag(LPCTSTR OldTag, LPCTSTR NewTag)

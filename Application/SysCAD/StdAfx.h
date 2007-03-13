@@ -30,6 +30,7 @@
 #include <comdef.h>        
 #import "c:\program files\common files\system\ado\msado15.dll" rename("EOF", "adEOF") no_implementation
 #import "c:\Program Files\Common Files\system\ado\msadox.dll" no_implementation
+#import "..\scdlib\vbscript.tlb" no_namespace rename("RGB","rgb")
 
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>			// MFC support for Windows Common Controls
