@@ -5649,18 +5649,21 @@ flag CProject::SaveClassVariableStatus(LPCSTR Path)
     {
     for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
       {
-      Strng Tag1,Tag2;
-      CTagValueStatus Status;
-      POSITION Pos=NULL;
-      bool FirstTag=true;
-      while (pClass->SelectData()->GetClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+      if (pClass->SelectData())
         {
-        if (FirstTag)
+        Strng Tag1,Tag2;
+        CTagValueStatus Status;
+        POSITION Pos=NULL;
+        bool FirstTag=true;
+        while (pClass->SelectData()->GetClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
           {
-          FirstTag=true;
-          fprintf(h, "[%s]", pClass->ClassId());
+          if (FirstTag)
+            {
+            FirstTag=true;
+            fprintf(h, "[%s]", pClass->ClassId());
+            }
+          fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
           }
-        fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
         }
       }
     fprintf(h, "[]");
@@ -5674,6 +5677,8 @@ flag CProject::LoadClassVariableStatus(LPCSTR Path)
   {
   CString Fn(Path);
   Fn+="VarStatus.svs";
+  if (!FileExists(Fn))
+    return true;
   FILE *h=fopen(Fn, "rt");
   if (h)
     {
@@ -5687,7 +5692,9 @@ flag CProject::LoadClassVariableStatus(LPCSTR Path)
       int NToks=ParseCSVTokens(pLn, Col, iQuote, ",=");
       if (NToks>0)
         {
-        if (Col[0][0]=='[', Col[0][strlen(Col[0])-1]==']')
+        if (strcmp(Col[0], "[]")==0)
+          break; // last entry
+        else if (Col[0][0]=='[', Col[0][strlen(Col[0])-1]==']')
           {
           Strng ClassId(Col[0]);
           ClassId.LRTrim("[]");
