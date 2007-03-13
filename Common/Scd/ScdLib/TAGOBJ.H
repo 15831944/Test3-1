@@ -681,7 +681,8 @@ class DllImportExport CTOSelectData
     void              SetTagValueStatus(LPSTR Tag1, LPSTR Tag2, CTagValueStatus TagStatus);
     CTagValueStatus   GetTagValueStatus(LPSTR Tag);
 
-    flag              GetClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status);
+    flag              GetFirstClassVariableStatusEntry(POSITION & Pos);
+    flag              GetNextClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status);
 
     void              DbgDump();
 

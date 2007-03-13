@@ -1704,18 +1704,22 @@ byte CTOSelectData::GetTagValueStatus(LPSTR FullTag)
   return VS_None;
   };
 
+flag CTOSelectData::GetFirstClassVariableStatusEntry(POSITION & Pos)
+  {
+  Pos=m_TagStatusList.GetHeadPosition();
+  return (Pos!=NULL);
+  }
 
-flag CTOSelectData::GetClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status)
+flag CTOSelectData::GetNextClassVariableStatusEntry(POSITION & Pos, Strng &Tag1, Strng &Tag2, CTagValueStatus & Status)
   {
   if (Pos==NULL)
-    Pos=m_TagStatusList.GetHeadPosition();
-
+    return false;
   CTagStatus *p=m_TagStatusList.GetNext(Pos);
   if (p)
     {
-    Tag1=p->m_Tag1;
-    Tag2=p->m_Tag2;
-    Status=p->m_Status;
+    Tag1    = p->m_Tag1;
+    Tag2    = p->m_Tag2;
+    Status  = p->m_Status;
     return true;
     }
   return false;
