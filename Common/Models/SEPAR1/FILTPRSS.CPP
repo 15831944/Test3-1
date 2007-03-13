@@ -398,10 +398,14 @@ double CSolidsFracFnd::Function(double x)
     CakeOut.QSetM(Fd, som_Sol, GEZ(MSol - MSol2Filt), POut);
 
     double Mwash = Wash.QMass(som_Liq);
+    double TotLiq = Mwash + Fd.QMass(som_Liq); // CNM - #289
     double solwash = Wash.QMass(som_Sol);
     washSF = solwash / GTZ(Mwash + solwash);
 
     double MLiq2Cake = (RqdCakeMoist * (MSol + solwash - MSol2Filt))/GTZ(1.0 - RqdCakeMoist);
+    
+    MLiq2Cake = Range(0.0, MLiq2Cake, TotLiq); // CNM - #289
+    
     double Filt2Cake = MLiq2Cake * (1.0 - RqdWashEff);
     double Wash2Cake = MLiq2Cake - Filt2Cake;
     double MLiq2Filt = MLiq - Filt2Cake;
