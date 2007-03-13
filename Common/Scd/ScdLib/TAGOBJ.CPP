@@ -6224,7 +6224,7 @@ if (dwOptions&(TABOpt_XRefStatus|TABOPT_ValueStatus))                       \
     m_sCurrentTag+=pTag;                                                    \
     if (dwOptions&TABOpt_XRefStatus)                                        \
       W=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                  \
-    if (dwOptions&TABOPT_ValueStatus)                                       \
+    if (dwOptions&TABOPT_ValueStatus && m_pRootObj->SelectData())           \
       S=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());       \
     m_sCurrentTag.SetLength(CurrentTagLen);                                 \
     }                                                                       \
@@ -6233,7 +6233,7 @@ if (dwOptions&(TABOpt_XRefStatus|TABOPT_ValueStatus))                       \
     m_sCurrentTag+=pSym;                                                    \
     if (dwOptions&TABOpt_XRefStatus)                                        \
       W|=gs_TagRefGlblFn->GetTagRefStatus(m_sCurrentTag());                 \
-    if (dwOptions&TABOPT_ValueStatus)                                       \
+    if (dwOptions&TABOPT_ValueStatus && m_pRootObj->SelectData())           \
       S|=m_pRootObj->SelectData()->GetTagValueStatus(m_sCurrentTag());      \
     m_sCurrentTag.SetLength(CurrentTagLen);                                 \
     }                                                                       \
