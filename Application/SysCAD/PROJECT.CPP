@@ -1258,7 +1258,6 @@ void CProjectSettings::ClearSettings()
   //bDrvChanged=0;
   //bArcChanged=0;
   //bDocChanged=0;
-  //bLoadBusy=0;
   m_bConfigBusy=0;
 
   m_bDefaultRecordIt=1;
@@ -2649,10 +2648,10 @@ void CProject::GetSplitInfo(CProfINIFile& PF, CWnd* w, pchar Section, int &Split
 
 //---------------------------------------------------------------------------
 
-void CProject::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMain)//, CProfINIFile & PF)
+void CProject::SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag ToUser)//, CProfINIFile & PF)
   {
   CProfINIFile PF;
-  if (TheMain)
+  if (ToUser)
     {
     PF.SetProfFilename(ScdPFUser.Filename());
     PF.SetUseRegistry(ScdPFUser);
@@ -2711,13 +2710,13 @@ void CProject::SaveWindowLayout()
 
   // Main Wnd is always first in WL;
   ScdPFUser.WrInt("General", "WindowCount", 1);
-  SaveOneWindow(0, WL.Wnds[0].m_sName, WL.Wnds[0].pWnd, true);//ScdPFUser);
+  SaveOneWindow(0, WL.Wnds[0].m_sName, WL.Wnds[0].pWnd, false);//ScdPFUser);
 
   PF.WrInt("General", "WindowCount", 0);
   for (int i=1; i<WndCount; i++)
-    SaveOneWindow(i-1, WL.Wnds[i].m_sName, WL.Wnds[i].pWnd, false);//PF);
+    SaveOneWindow(i, WL.Wnds[i].m_sName, WL.Wnds[i].pWnd, false);//PF);
 
-  PF.WrInt("General", "WindowCount", WndCount-1);
+  PF.WrInt("General", "WindowCount", WndCount);
   PF.WrInt("General", "MsgWindowSplit", CMsgWindow::GetSplitPos());
 
   //save Z-Order...
@@ -2880,7 +2879,7 @@ flag CProject::PutFrameInfo(CProfINIFile& PF, CWnd* w, pchar Section, Strng& s, 
 
 void CProject::RestoreMainWindow()
   {
-  RestoreOneWindow(CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
+  RestoreOneWindow(CWindowLists::MainWndTitle, AfxGetMainWnd(), false);
 
   CProfINIFile PF(PrjFile());
   if (PrjFileVerNo() > 3)
@@ -2919,11 +2918,11 @@ void CProject::RestoreMainWindow()
 
 //---------------------------------------------------------------------------
 
-void CProject::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, flag FullRestore)
+void CProject::RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag FromUser, flag FullRestore)
   {
 
   CProfINIFile PF;
-  if (TheMain)
+  if (FromUser)
     {
     PF.SetProfFilename(ScdPFUser.Filename());
     PF.SetUseRegistry(ScdPFUser);
@@ -5651,18 +5650,14 @@ flag CProject::SaveClassVariableStatus(LPCSTR Path)
       {
       if (pClass->SelectData())
         {
-        Strng Tag1,Tag2;
-        CTagValueStatus Status;
         POSITION Pos=NULL;
-        bool FirstTag=true;
-        while (pClass->SelectData()->GetClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+        if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
           {
-          if (FirstTag)
-            {
-            FirstTag=true;
-            fprintf(h, "[%s]", pClass->ClassId());
-            }
-          fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
+          fprintf(h, "[%s]", pClass->ClassId());
+          Strng Tag1,Tag2;
+          CTagValueStatus Status;
+          while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
           }
         }
       }

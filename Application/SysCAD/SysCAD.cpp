@@ -2122,7 +2122,7 @@ int CSysCADApp::ShutDown()
   {
   if (gs_pPrj->ShutDown())
     {
-    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, m_pMainWnd, true);
+    //CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, m_pMainWnd, true);
     CTrndInfo::ShutDown();
     //CRptTagLists::ShutDown();
     CMsgWindow::ShutDown();

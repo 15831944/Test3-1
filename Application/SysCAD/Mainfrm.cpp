@@ -1105,7 +1105,7 @@ flag CMainFrame::RecordTag(LPCTSTR Tag, flag RecordingOn)
 
 void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
   {
-  if (gs_pPrj && gs_pPrj->bDoingLoad)//gs_pPrj->LoadBusy())
+  if (gs_pPrj && gs_pPrj->bDoingLoad)
     return;
 
   CMDIFrameWnd::OnActivate(nState, pWndOther, bMinimized);
@@ -1115,12 +1115,12 @@ void CMainFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 
 void CMainFrame::OnActivateApp(BOOL bActive, DOTNETHTASK hTask)
   {
-  if (gs_pPrj && gs_pPrj->bDoingLoad)//gs_pPrj->LoadBusy())
+  if (gs_pPrj && gs_pPrj->bDoingLoad)
     return;
 
   CMDIFrameWnd::OnActivateApp(bActive, (DWORD)hTask);
 
-  if (gs_pPrj && gs_pPrj->bDoingLoad)//gs_pPrj->LoadBusy())
+  if (gs_pPrj && gs_pPrj->bDoingLoad)
     return;
 
   //if (pExec)
@@ -3608,8 +3608,8 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
   {
   CMDIFrameWnd::OnSize(nType, cx, cy);
 
-  if (CProject::sm_SysCADInited)
-    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
+  if (CProject::sm_SysCADInited && !gs_pPrj->bDoingLoad)
+    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), gs_ProjectOpenFlag==0);
   }
 
 //---------------------------------------------------------------------------
@@ -3619,8 +3619,8 @@ void CMainFrame::OnMove(int x, int y)
   CMDIFrameWnd::OnMove(x, y);
   CExploreScd::MainWndMovedTo(x,y);
 
-  if (CProject::sm_SysCADInited)
-    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), true);
+  if (CProject::sm_SysCADInited && !gs_pPrj->bDoingLoad)
+    CProject::SaveOneWindow(0, CWindowLists::MainWndTitle, AfxGetMainWnd(), gs_ProjectOpenFlag==0);
   }
 
 //---------------------------------------------------------------------------

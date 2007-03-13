@@ -481,7 +481,6 @@ class DllImportExport CProjectSettings
                      m_bFlashTrend,        //True if trend must flash when cursor over trend line
                      m_bShowNewTrndLineDlg;//True if tag trending options dialog must be shown for a new trended tag
                    
-    //flag             bLoadBusy,          //Flag Set to indicate that a Project Load is in Progress
     flag             m_bConfigBusy;        //Flag set to indicate project config window open
                    
     Strng            m_sIOMarshalName;     //IOMarshal name
@@ -556,84 +555,9 @@ const dword FTO_FindNext         = 0x00000020;
 class DllImportExport CProject : public CExecObj, public CProjectSettings
   {
   public:
-    static bool   sm_fOpenAltCfg;
-    static bool   sm_SysCADInited;
-
-  public:
-    flag          bHstOK,
-                  bCommsOpen,
-                  bTimeChanged,
-                  bHstChanged,
-                  bDocChanged,
-                  bDrvOpen,
-                  bDrvChanged,
-                  bNetOpen,
-                  bNetChanged,
-                  bForceSaveAsNV,       //set to True to force the next save to be save as New Version
-                  bDoingLoad,           //set to True if currently loading
-                  bDoingSaveAs,         //set to True if the current save is a project save as
-                  bDoingSaveAsWithName, //set to True if the current saveas must use name specd
-                  bDoingSaveAsNV,       //set to True if the current save is a project save as New Version
-                  bChangedGrfMenu,      //has the graphics menu been altered
-                  bChangedRuntimeMenu,  //has the menu been altered for run-time license
-                  bDoGrfAutoAccess,     //temp flag used when finding tag in graphics
-                  bBusyAnalysing,       //Indicates an analysis is busy
-                  bArcOpen,
-                  bArcChanged,
-                  bIOMOpen,
-                  bIOMChanged;
-    
-    Strng          m_sPrevPrjFile;        //previously used project file, for project save as
-    Strng          m_sPrevPrjFiles;       //previously used project files, for project save as
-
-    static PrjLoadTypes sm_LoadTypeRqst; // Used to remeber what type of load is reqd
-    flag           bCmdSuccess;        //was last new,open,save,close command successful
-
-    CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
-    flag           bLoadBusy;           //Flag Set to indicate that a Project Load is in Progress
-
-    CStringArray   m_MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
-
-    Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
-
-    Strng          m_OldPrjName;        // Name when last loaded
-    Strng          m_OldPrjFiles;       // Path when last loaded
-
-    Strng          m_RmtCpyFolder;
-    CFile          m_RmtCpyLock;
-
-    struct tPrjSave
-      {
-      flag m_bRqstNew;
-      flag m_bIsNewPrj;
-      }            m_Save;
-
-    BOOL           m_DlgCopyHist;
-    BOOL           m_DlgCopy[6];
-
-    CDDESrvrHelper*pDDESrvr;           
-
-    CString        m_sNewPrjCfg;
-    CString        m_sNewPrjPath;
-    BOOL           m_bWithVersion;
-    BOOL           m_bRemoveOld;
-
-    bool           ShowStatus();
-    void           SetShowStatus(bool On);
-    bool           ShowEditStatus();
-    void           SetShowEditStatus(bool On);
-
-  public:
-    SFEFlwLib      m_FlwLib, *m_pFlwLib;
-    SFEMdlLibArray MdlLibs;
-
-#if SYSCAD10
-    CNETServer   * m_pCLRSrvr;
-#endif
-  public:
-
     CProject();
     ~CProject();
+
     void           Clear();
     void           SetTagMonitor();
     void           InitColours();
@@ -686,10 +610,10 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           OnFileSavescenario();
     void           OnFileLoadscenario();
 
-    static void    SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag TheMain);//, CProfINIFile & PF);
+    static void    SaveOneWindow(int iNo, LPCTSTR pWindowName, CWnd* pWnd, flag ToUser);//, CProfINIFile & PF);
     void           SaveWindowLayout();
     void           RestoreMainWindow();
-    static void    RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag TheMain, flag FullRestore=true);
+    static void    RestoreOneWindow(LPCTSTR pWindowName, CWnd* pWnd, flag FromUser, flag FullRestore=true);
     void           RestoreWindowZOrder();
     
     void           SetNewPrjCfg(LPCTSTR Cfg) { m_sNewPrjCfg = Cfg; };
@@ -756,12 +680,11 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 #endif
 
     inline flag    LoadBusy() { return bLoadBusy; }; // Flag Set to indicate when a Project Load is in Progress
-//    inline void    SetEngine(char* pEngineName) { sModelCfg = pEngineName; }; //assumes only one model library is used
 
     SFEFlwLib     *FlwLib() { return m_pFlwLib; };
 
-    int           ClearSelectedNodes();
-    int           BuildSelectedNodeList(Strng_List & List);
+    int            ClearSelectedNodes();
+    int            BuildSelectedNodeList(Strng_List & List);
 
 
 
@@ -787,40 +710,115 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     virtual flag   EO_Stopping(flag fBeginStopping);
 
   public:
-    flag          ModelsAttached();
-    pNodeGrfInfo  GetNodeDrawings();
-    pchar         RequestModelDLLPath();
-    pchar         RequestModelDLLTag();
-    flag          RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info);
-    flag          RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
-    flag          RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
-    flag          RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
-    flag          RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
-    flag          RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
-    int           RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
-    int           RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
-    int           RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
-    //int           RequestXRefInfoChg();
-    flag          RequestModelClassId(pchar pTag, Strng & ClassId);
-    flag          RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
-    flag          FlwModelExists(pchar pTag);
-    flag          TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);
+    flag           ModelsAttached();
+    pNodeGrfInfo   GetNodeDrawings();
+    pchar          RequestModelDLLPath();
+    pchar          RequestModelDLLTag();
+    flag           RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info);
+    flag           RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
+    flag           RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
+    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
+    flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
+    int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
+    int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
+    //int            RequestXRefInfoChg();
+    flag           RequestModelClassId(pchar pTag, Strng & ClassId);
+    flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
+    flag           FlwModelExists(pchar pTag);
+    flag           TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);
 
-    int           GetRctInfo(CRctBlkInformation & RctInfo);
-    int           SetRctInfo(LPCTSTR NodeTag);
+    int            GetRctInfo(CRctBlkInformation & RctInfo);
+    int            SetRctInfo(LPCTSTR NodeTag);
 
-    int           GetNodeWiring(CNodeWiring &NodeWiring);
-    int           GetLinkWiring(CLinkWiring &LinkWiring);
-    int           SetLinkWiring(CLinkWiring &LinkWiring);
+    int            GetNodeWiring(CNodeWiring &NodeWiring);
+    int            GetLinkWiring(CLinkWiring &LinkWiring);
+    int            SetLinkWiring(CLinkWiring &LinkWiring);
 
-    int           AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag);
-    int           DeleteNodeModel(pchar Tag);
-    int           AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
-    int           AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
-    int           DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
-    int           AddConnect(pchar Src, pchar Dst);
-    int           DisConnect(pchar Src, pchar Dst);
+    int            AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag);
+    int            DeleteNodeModel(pchar Tag);
+    int            AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int            AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int            DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
+    int            AddConnect(pchar Src, pchar Dst);
+    int            DisConnect(pchar Src, pchar Dst);
 
+  public:
+    static bool    sm_fOpenAltCfg;
+    static bool    sm_SysCADInited;
+
+  public:
+    flag           bHstOK,
+                   bCommsOpen,
+                   bTimeChanged,
+                   bHstChanged,
+                   bDocChanged,
+                   bDrvOpen,
+                   bDrvChanged,
+                   bNetOpen,
+                   bNetChanged,
+                   bForceSaveAsNV,       //set to True to force the next save to be save as New Version
+                   bDoingLoad,           //set to True if currently loading
+                   bDoingSaveAs,         //set to True if the current save is a project save as
+                   bDoingSaveAsWithName, //set to True if the current saveas must use name specd
+                   bDoingSaveAsNV,       //set to True if the current save is a project save as New Version
+                   bChangedGrfMenu,      //has the graphics menu been altered
+                   bChangedRuntimeMenu,  //has the menu been altered for run-time license
+                   bDoGrfAutoAccess,     //temp flag used when finding tag in graphics
+                   bBusyAnalysing,       //Indicates an analysis is busy
+                   bArcOpen,
+                   bArcChanged,
+                   bIOMOpen,
+                   bIOMChanged;
+    
+    Strng          m_sPrevPrjFile;        //previously used project file, for project save as
+    Strng          m_sPrevPrjFiles;       //previously used project files, for project save as
+
+    static PrjLoadTypes sm_LoadTypeRqst; // Used to remeber what type of load is reqd
+    flag           bCmdSuccess;        //was last new,open,save,close command successful
+
+    CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
+    flag           bLoadBusy;           //Flag Set to indicate that a Project Load is in Progress
+
+    CStringArray   m_MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
+
+    Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
+
+    Strng          m_OldPrjName;        // Name when last loaded
+    Strng          m_OldPrjFiles;       // Path when last loaded
+
+    Strng          m_RmtCpyFolder;
+    CFile          m_RmtCpyLock;
+
+    struct tPrjSave
+      {
+      flag m_bRqstNew;
+      flag m_bIsNewPrj;
+      }            m_Save;
+
+    BOOL           m_DlgCopyHist;
+    BOOL           m_DlgCopy[6];
+
+    CDDESrvrHelper*pDDESrvr;           
+
+    CString        m_sNewPrjCfg;
+    CString        m_sNewPrjPath;
+    BOOL           m_bWithVersion;
+    BOOL           m_bRemoveOld;
+
+    bool           ShowStatus();
+    void           SetShowStatus(bool On);
+    bool           ShowEditStatus();
+    void           SetShowEditStatus(bool On);
+
+  public:
+    SFEFlwLib      m_FlwLib, *m_pFlwLib;
+    SFEMdlLibArray MdlLibs;
+
+#if SYSCAD10
+    CNETServer   * m_pCLRSrvr;
+#endif
   };
 
 extern DllImportExport CProject * gs_pPrj;
