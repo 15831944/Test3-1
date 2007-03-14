@@ -193,6 +193,7 @@ class CXTPage : public CXTTreeInfo
     HTREEITEM       m_hPage;
     int             m_iType;
     CGrfDoc*        m_pGrfDoc;
+    //CTagVwDoc*      m_pTrendDoc;
 
     Strng_List        m_GrfTagList;
     Strng_List        m_NoModelList;
@@ -254,8 +255,10 @@ class CExploreScd : public CDialog
     void RemovePageFromTree(CXTPage * pPage);
     void DumpAll(LPCTSTR Where);
 
-    void DeletePage(CXTPage * pPage);
-    void RenamePage(CXTPage * pPage);
+    void DeleteGraphicPage(CXTPage * pPage);
+    void RenameGraphicPage(CXTPage * pPage);
+    void DeleteTrendPage(CXTPage * pPage);
+    void RenameTrendPage(CXTPage * pPage);
 
     void CopyTagList2Clipboard(HTREEITEM hRootItem, int DoLevelCount, LPCTSTR Header, CString & LineHeader, CString & Buffer, bool TopLevel=true);
 
@@ -340,6 +343,8 @@ class CExploreScd : public CDialog
     static const int ODC_Select = 3;
 
     void         OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where);
+    void         CollectsBulkTags(HTREEITEM hTagOwner, int Level, CStringList &Tags);
+    void         DoBulkTagChange(HTREEITEM hTagOwner, int Level);
 
     DECLARE_MESSAGE_MAP()
   public:
