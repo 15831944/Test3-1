@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="ks.SKOMdls"
 	ProjectGUID="{B87E14C4-8107-4286-999C-713816E2D602}"
-	SccProjectName="Perforce Project"
-	SccAuxPath=""
-	SccLocalPath="..\..\.."
-	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform

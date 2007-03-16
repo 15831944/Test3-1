@@ -4,8 +4,6 @@
 	Version="7.10"
 	Name="us.TS_ModelLib"
 	ProjectGUID="{5DFEDF05-1F07-44B9-83BB-265184E3F5D9}"
-	SccProjectName=""
-	SccLocalPath=""
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform

@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="us.TTechCAR"
 	ProjectGUID="{43165012-873E-4CCE-AEFF-7FB9A8C572B0}"
-	SccProjectName="Perforce Project"
-	SccAuxPath=""
-	SccLocalPath="..\..\.."
-	SccProvider="MSSCCI:Perforce SCM"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
