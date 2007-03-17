@@ -57,7 +57,7 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
     for (int k = 0; k < NSpcs(); k++)
       {
       if (k>0) Es+=",";
-      Es+=Spcs[k].SpcName();
+      Es+=Spcs[k].m_SpcName();
       }
     if (Es.Length()>40)
       {
@@ -69,10 +69,10 @@ void CR_Src::BuildDataDefn(DataDefnBlk & DDB)
 
     for (k = 0; k < NSpcs(); k++)
       {
-      Strng Spc(Spcs[k].SpcName());
+      Strng Spc(Spcs[k].m_SpcName());
       if (PrjFileVerNo()<22)
         Spc+=".Dmnd";
-      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Demand, this, isResult|0);
+      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSrcMs, this, isResult|0);
       }
 
     if (!HeatSkipMethod())
@@ -97,7 +97,7 @@ flag CR_Src::DataXchg(DataChangeBlk & DCB)
       for (int k = 0; k < NSpcs(); k++)
         {
         if (k>0) m_DispEqnStr+=", ";
-        m_DispEqnStr+=Spcs[k].SpcName();
+        m_DispEqnStr+=Spcs[k].m_SpcName();
         }
       DCB.pC = m_DispEqnStr();
       return 1;
@@ -106,18 +106,23 @@ flag CR_Src::DataXchg(DataChangeBlk & DCB)
       DCB.D=0.0;
       for (i = 0; i < NSpcs(); i++) 
         {
-        int SpcId=Spcs[i].SpcId;
-        DCB.D+=Spcs[i].Demand*SDB[SpcId].msHf(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
+        int SpcId=Spcs[i].m_SpcId;
+        DCB.D+=Spcs[i].m_Demand/RB.m_TimeIncAtSolve*SDB[SpcId].msHf(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
         }
       return 1;
     case xidRCTSrcHs:
       DCB.D=0.0;
       for (i = 0; i < NSpcs(); i++) 
         {
-        int SpcId=Spcs[i].SpcId;
-        DCB.D+=Spcs[i].Demand*SDB[SpcId].msHs(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
+        int SpcId=Spcs[i].m_SpcId;
+        DCB.D+=Spcs[i].m_Demand/RB.m_TimeIncAtSolve*SDB[SpcId].msHs(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
         }
       return 1;
+    default:
+      if (DCB.lHandle>=xidRCTSrcMs && DCB.lHandle<xidRCTSrcMs+NSpcs())
+        {
+        DCB.D=Spcs[DCB.lHandle-xidRCTSrcMs].m_Demand/RB.m_TimeIncAtSolve;
+        }
     }
 
   return 0;
@@ -153,7 +158,7 @@ void CR_Src::dbgDump(pchar pTitle)
   {
   dbgp("%s",pTitle);
   for (int k = 0; k < NSpcs(); k++)
-    dbgp("%s %3.1f %s",k>0 ? "+" : " ", Spcs[k].Demand,Spcs[k].SpcName());
+    dbgp("%s %3.1f %s",k>0 ? "+" : " ", Spcs[k].m_Demand,Spcs[k].m_SpcName());
   dbgpln("");
   };
 
@@ -163,11 +168,11 @@ flag CR_Src::ParseTerm(CR_SrcTerm &Term)
   {
   CRCTTokenFile &TF=*RB.pTkns;
   Strng Tkn(TF.NextToken());
-  Term.SpcName=Tkn();
-  Term.SpcId=SDB.Find(Term.SpcName());
-  if (Term.SpcId<0)
-    CReactionBlock::Error(&RB, 'B', 3, Term.SpcName());
-  return (Term.SpcId>=0);
+  Term.m_SpcName=Tkn();
+  Term.m_SpcId=SDB.Find(Term.m_SpcName());
+  if (Term.m_SpcId<0)
+    CReactionBlock::Error(&RB, 'B', 3, Term.m_SpcName());
+  return (Term.m_SpcId>=0);
   }
 
 //---------------------------------------------------------------------------
@@ -233,7 +238,7 @@ LPCTSTR CR_Src::GetRctString(dword Options)
       {
       if (i>0)
         m_AsString+=", ";
-      m_AsString+= Spcs[i].SpcName();
+      m_AsString+= Spcs[i].m_SpcName();
       }
     }
   return m_AsString;
@@ -272,7 +277,7 @@ void CR_Src::SrcSnkStart()
   AddMoles*=1000.0;
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    int SpcId=Spcs[i].m_SpcId;
     RB.Moles.VValue[SpcId]+=AddMoles;
 #if dbgReaction
     if (dbgRctSrcSnks())
@@ -295,15 +300,15 @@ void CR_Src::SrcSnkEnd(CRctSolveBlk & RSB)//SpMArray &dMass, double &dHeat)
 #endif
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    int SpcId=Spcs[i].m_SpcId;
     double Remainder=RB.Moles[SpcId]-AddMoles;
-    Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
+    Spcs[i].m_Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
     RB.Moles.VValue[SpcId]=Max(0.0, Remainder);
-    Spcs[i].Demand*=SDB[SpcId].MoleWt();
-    RSB.dMass.VValue[SpcId]+=Spcs[i].Demand;
+    Spcs[i].m_Demand*=SDB[SpcId].MoleWt();
+    RSB.dMass.VValue[SpcId]+=Spcs[i].m_Demand;
 #if dbgReaction
     if (dbgRctSrcSnks())
-      dbgpln("Src End   : %14.6f %14.6f %14.6f %s", AddMoles, RB.Moles.VValue[SpcId], Spcs[i].Demand, SDB[SpcId].SymOrTag());
+      dbgpln("Src End   : %14.6f %14.6f %14.6f %s", AddMoles, RB.Moles.VValue[SpcId], Spcs[i].m_Demand, SDB[SpcId].SymOrTag());
 #endif
     }
   RSB.m_Hf_FdT=totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
@@ -324,7 +329,7 @@ void CR_Src::SrcSnkAdjust(SpMArray & M)//SpMArray &dMass, double &dHeat)
 #endif
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    int SpcId=Spcs[i].m_SpcId;
     double Remainder=M[SpcId]-AddMoles;
     //Spcs[i].Demand=(Remainder>=0.0) ? 0.0 : -Remainder;
     M.VValue[SpcId]=Max(0.0, Remainder);
@@ -353,7 +358,7 @@ void CR_Src::GetMsAGData(CMSJoin & AG)
 flag CR_Src::CpsOK()
   {
   for (int i = 0; i < NSpcs(); i++) 
-    if (!SDB[Spcs[i].SpcId].CpOK())
+    if (!SDB[Spcs[i].m_SpcId].CpOK())
       return false;
   return true;
   }
@@ -363,7 +368,7 @@ flag CR_Src::CpsOK()
 flag CR_Src::HfsOK()
   {
   for (int i = 0; i < NSpcs(); i++) 
-    if (!SDB[Spcs[i].SpcId].H25OK())
+    if (!SDB[Spcs[i].m_SpcId].H25OK())
       return false;
   return true;
   };
@@ -384,8 +389,8 @@ double CR_Src::totDHf(SpModel *Mdl, double T, double P)
   double dHf=0;
   for (int i = 0; i < NSpcs(); i++) 
     {
-    const int SpcId=Spcs[i].SpcId;
-    dHf+=Spcs[i].Demand*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
+    const int SpcId=Spcs[i].m_SpcId;
+    dHf+=Spcs[i].m_Demand*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
     }
   return dHf;
   };
@@ -428,7 +433,7 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
     for (int k = 0; k < NSpcs(); k++)
       {
       if (k>0) Es+=",";
-      Es+=Spcs[k].SpcName();
+      Es+=Spcs[k].m_SpcName();
       }
     if (Es.Length()>40)
       {
@@ -440,10 +445,10 @@ void CR_Snk::BuildDataDefn(DataDefnBlk & DDB)
 
     for (k = 0; k < NSpcs(); k++)
       {
-      Strng Spc(Spcs[k].SpcName());
+      Strng Spc(Spcs[k].m_SpcName());
       if (PrjFileVerNo()<22)
         Spc+=".Excs";
-      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  &Spcs[k].Excess, this, isResult|0);
+      DDB.Double(Spc(),   "",        DC_Qm,     "kg/s",  xidRCTSnkMs, this, isResult|0);
       }
 
     if (!HeatSkipMethod())
@@ -468,7 +473,7 @@ flag CR_Snk::DataXchg(DataChangeBlk & DCB)
       for (int k = 0; k < NSpcs(); k++)
         {
         if (k>0) m_DispEqnStr+=", ";
-        m_DispEqnStr+=Spcs[k].SpcName();
+        m_DispEqnStr+=Spcs[k].m_SpcName();
         }
       DCB.pC = m_DispEqnStr();
       return 1;
@@ -478,18 +483,23 @@ flag CR_Snk::DataXchg(DataChangeBlk & DCB)
       DCB.D=0.0;
       for (i = 0; i < NSpcs(); i++) 
         {
-        int SpcId=Spcs[i].SpcId;
-        DCB.D+=Spcs[i].Excess*SDB[SpcId].msHf(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
+        int SpcId=Spcs[i].m_SpcId;
+        DCB.D+=Spcs[i].m_Excess/RB.m_TimeIncAtSolve*SDB[SpcId].msHf(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
         }
       return 1;
     case xidRCTSnkHs:
       DCB.D=0.0;
       for (i = 0; i < NSpcs(); i++) 
         {
-        int SpcId=Spcs[i].SpcId;
-        DCB.D+=Spcs[i].Excess*SDB[SpcId].msHs(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
+        int SpcId=Spcs[i].m_SpcId;
+        DCB.D+=Spcs[i].m_Excess/RB.m_TimeIncAtSolve*SDB[SpcId].msHs(RB.Fidelity(), RB.m_TempKFeed, RB.m_Press, RB.Ovr(), RB.MassArray());
         }
       return 1;
+    default:
+      if (DCB.lHandle>=xidRCTSnkMs && DCB.lHandle<xidRCTSnkMs+NSpcs())
+        {
+        DCB.D=Spcs[DCB.lHandle-xidRCTSnkMs].m_Excess/RB.m_TimeIncAtSolve;
+        }
     }
   return 0;
   };
@@ -524,7 +534,7 @@ void CR_Snk::dbgDump(pchar pTitle)
   {
   dbgp("%s",pTitle);
   for (int k = 0; k < NSpcs(); k++)
-    dbgp("%s %3.1f %s",k>0 ? "+" : " ", Spcs[k].Excess,Spcs[k].SpcName());
+    dbgp("%s %3.1f %s",k>0 ? "+" : " ", Spcs[k].m_Excess,Spcs[k].m_SpcName());
   dbgpln("");
   };
 
@@ -541,24 +551,24 @@ flag CR_Snk::ParseTerm(CR_SnkTerm &Term)
     if (i==Tkn.Length())
       {
       //Term.Value=atof(Tkn());
-      Term.SpcName=TF.NextToken();
+      Term.m_SpcName=TF.NextToken();
       }
     else
       {
       //Term.Value=atof(Tkn.Left(i));
-      Term.SpcName=Tkn.Right(Tkn.Length()-i);
+      Term.m_SpcName=Tkn.Right(Tkn.Length()-i);
       }
     }
   else
     {
     //Term.Value=1.0;
-    Term.SpcName=Tkn();
+    Term.m_SpcName=Tkn();
     }
-  Term.SpcId=SDB.Find(Term.SpcName());
-  if (Term.SpcId<0)
-    CReactionBlock::Error(&RB, 'B', 3, Term.SpcName());
+  Term.m_SpcId=SDB.Find(Term.m_SpcName());
+  if (Term.m_SpcId<0)
+    CReactionBlock::Error(&RB, 'B', 3, Term.m_SpcName());
 
-  return (Term.SpcId>=0);
+  return (Term.m_SpcId>=0);
   }
 
 //---------------------------------------------------------------------------
@@ -621,7 +631,7 @@ LPCTSTR CR_Snk::GetRctString(dword Options)
       {
       if (i>0)
         m_AsString+=", ";
-      m_AsString+= Spcs[i].SpcName();
+      m_AsString+= Spcs[i].m_SpcName();
       }
     }
   return m_AsString;
@@ -653,11 +663,11 @@ void CR_Snk::SrcSnkEnd(CRctSolveBlk & RSB)//SpMArray &dMass, double &dHeat)
   {
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
-    Spcs[i].Excess=RB.Moles[SpcId];
+    int SpcId=Spcs[i].m_SpcId;
+    Spcs[i].m_Excess=RB.Moles[SpcId];
     RB.Moles.VValue[SpcId]=0.0;
-    Spcs[i].Excess*=SDB[SpcId].MoleWt();
-    RSB.dMass.VValue[SpcId]+=Spcs[i].Excess;
+    Spcs[i].m_Excess*=SDB[SpcId].MoleWt();
+    RSB.dMass.VValue[SpcId]+=Spcs[i].m_Excess;
     }
   RSB.m_Hf_FdT=totDHf(RB.Model, RB.m_TempKFeed, RB.m_Press);
   RSB.m_Hf_PrT=totDHf(RB.Model, RB.m_TempKProd, RB.m_Press);
@@ -669,7 +679,7 @@ void CR_Snk::SrcSnkAdjust(SpMArray & M)//SpMArray &dMass, double &dHeat)
   {
   for (int i = 0; i < NSpcs(); i++) 
     {
-    int SpcId=Spcs[i].SpcId;
+    int SpcId=Spcs[i].m_SpcId;
     M.VValue[SpcId]=0.0;
     }
   }
@@ -685,7 +695,7 @@ void CR_Snk::GetMsAGData(CMSJoin & AG)
 flag CR_Snk::CpsOK()
   {
   for (int i = 0; i < NSpcs(); i++) 
-    if (!SDB[Spcs[i].SpcId].CpOK())
+    if (!SDB[Spcs[i].m_SpcId].CpOK())
       return false;
   return true;
   }
@@ -695,7 +705,7 @@ flag CR_Snk::CpsOK()
 flag CR_Snk::HfsOK()
   {
   for (int i = 0; i < NSpcs(); i++) 
-    if (!SDB[Spcs[i].SpcId].H25OK())
+    if (!SDB[Spcs[i].m_SpcId].H25OK())
       return false;
   return true;
   };
@@ -716,8 +726,8 @@ double CR_Snk::totDHf(SpModel *Mdl, double T, double P)
   double dHf=0;
   for (int i=0; i < NSpcs(); i++) 
     {
-    const int SpcId=Spcs[i].SpcId;
-    dHf+=Spcs[i].Excess*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
+    const int SpcId=Spcs[i].m_SpcId;
+    dHf+=Spcs[i].m_Excess*SDB[SpcId].msHf(RB.Fidelity(), T, P, RB.Ovr(), RB.MassArray());
     }
   return dHf;
   };

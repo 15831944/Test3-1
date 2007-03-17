@@ -581,7 +581,6 @@ class DllImportExport CReactionBase : public CBlockEvalBase
       m_pNd=pAttach; 
       fEnabled=bOn=0; 
       m_bIsSurgeType=IsSurgeType; 
-      m_dTimeInc=0;
       sm_AllRBs.AddTail(this);
       };
     ~CReactionBase() 
@@ -661,7 +660,6 @@ class DllImportExport CReactionBase : public CBlockEvalBase
     FlwNode       *m_pNd;
     //Strng          m_sRBTag;
     bool           m_bIsSurgeType;
-    double         m_dTimeInc;
   
   public:
     static CList<CReactionBase*, CReactionBase*> sm_AllRBs;

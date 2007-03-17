@@ -22,15 +22,17 @@
 XID xidRCTSrcHf       = RctXID(100);
 XID xidRCTSrcHs       = RctXID(101);
 XID xidRCTSrcReaction = RctXID(102);
-XID xidRCTSnkHf       = RctXID(105);
-XID xidRCTSnkHs       = RctXID(106);
-XID xidRCTSnkReaction = RctXID(107);
+XID xidRCTSnkHf       = RctXID(103);
+XID xidRCTSnkHs       = RctXID(104);
+XID xidRCTSnkReaction = RctXID(105);
 XID xidRCTHXAmbTemp   = RctXID(110);
 XID xidRCTHXTFrac     = RctXID(111);
 XID xidRCTHXTargetT   = RctXID(112);
 XID xidRCTHXPwr       = RctXID(113);
 XID xidRCTHXRqdFinalT = RctXID(114);
 XID xidRCTHXElectEff  = RctXID(115);
+XID xidRCTSrcMs       = RctXID(200);
+XID xidRCTSnkMs       = RctXID(300);
 
 //===========================================================================
 //
@@ -45,38 +47,39 @@ _FWDDEF(CR_Src);
 class DllImportExport CR_SrcTerm
   {
   public:
-    Strng        SpcName;
-    double       Demand;
-    int          SpcId;
-
     CR_SrcTerm()
       {
-      SpcName="";
-      Demand=0.0;
-      SpcId=-1;
+      m_SpcName="";
+      m_Demand=0.0;
+      m_SpcId=-1;
       }
     CR_SrcTerm(char * Name, double StMoles, int Id)
       {
-      SpcName=Name;
-      Demand=StMoles;
-      SpcId=Id;
-      if (SpcId<0)
+      m_SpcName=Name;
+      m_Demand=StMoles;
+      m_SpcId=Id;
+      if (m_SpcId<0)
         CReactionBlock::Error(NULL, 'B', 0, Name);
       };
 
     CR_SrcTerm(char * Name, double Val)
       {
-      SpcName=Name;
-      Demand=Val;
-      SpcId=SDB.Find(Name);
-      if (SpcId<0)
+      m_SpcName=Name;
+      m_Demand=Val;
+      m_SpcId=SDB.Find(Name);
+      if (m_SpcId<0)
         CReactionBlock::Error(NULL, 'B', 0, Name);
       };
     void Zero() 
       {
-      Demand=0;
+      m_Demand=0;
       };
-  };
+
+  public:
+    Strng        m_SpcName;
+    double       m_Demand;
+    int          m_SpcId;
+ };
 
 class CR_SrcTermArray : public CArray <CR_SrcTerm, CR_SrcTerm&> 
   {
@@ -158,37 +161,38 @@ _FWDDEF(CR_Snk);
 class DllImportExport CR_SnkTerm
   {
   public:
-    Strng        SpcName;
-    double       Excess;
-    int          SpcId;
-
     CR_SnkTerm()
       {
-      SpcName="";
-      Excess=0.0;
-      SpcId=-1;
+      m_SpcName="";
+      m_Excess=0.0;
+      m_SpcId=-1;
       }
     CR_SnkTerm(char * Name, double StMoles, int Id)
       {
-      SpcName=Name;
-      Excess=StMoles;
-      SpcId=Id;
-      if (SpcId<0)
+      m_SpcName=Name;
+      m_Excess=StMoles;
+      m_SpcId=Id;
+      if (m_SpcId<0)
         CReactionBlock::Error(NULL, 'B', 0, Name);
       };
 
     CR_SnkTerm(char * Name, double Val)
       {
-      SpcName=Name;
-      Excess=Val;
-      SpcId=SDB.Find(Name);
-      if (SpcId<0)
+      m_SpcName=Name;
+      m_Excess=Val;
+      m_SpcId=SDB.Find(Name);
+      if (m_SpcId<0)
         CReactionBlock::Error(NULL, 'B', 0, Name);
       };
     void   Zero()
       {
-      Excess=0;
+      m_Excess=0;
       };
+
+  public:
+    Strng        m_SpcName;
+    double       m_Excess;
+    int          m_SpcId;
   };
 
 class CR_SnkTermArray : public CArray <CR_SnkTerm, CR_SnkTerm&> 
