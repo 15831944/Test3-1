@@ -130,6 +130,8 @@ class DllImportExport CDVector
     flag Mult(CDVector &v);
     flag Div(CDVector &v);
     flag Load(rCVMLoadHelper H, CCnvIndex CnvDC=DC_);
+    flag Save(rCVMLoadHelper H);
+    flag CopyToClipboard();
     flag operator==(const CDVector &v);
     CDVector& operator=(const CDVector &v);
     double Normalise();
@@ -269,6 +271,8 @@ class DllImportExport CDMatrix
                         flag Retain = False);
     //flag GaussInvert();
     flag Load(rCVMLoadHelper H, dword BlankFlag=0);
+    flag Save(rCVMLoadHelper H);
+    flag CopyToClipboard();
     CDMatrix& operator=(const CDMatrix &m);
     flag operator==(const CDMatrix &m);
     void dbgDump( pchar Desc = "");

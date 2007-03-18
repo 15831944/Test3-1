@@ -448,6 +448,47 @@ flag CDVector::Load(rCVMLoadHelper H, //Helper class with all the options set
   }
 
 // -------------------------------------------------------------------------
+
+flag CDVector::Save(rCVMLoadHelper H)
+  {
+  m_Err = VMErrFileOpen;
+  if (H.FName[0]==0)
+    {
+    return false;
+    }
+  CFileException e;
+  CStdioFile File;
+  if (!File.Open(H.FName, CFile::modeCreate | CFile::modeWrite, &e) )
+    {
+    return false;
+    }
+
+  m_Err = 0;
+  CString V;
+  for (long i=0; i<m_Len; i++)
+    {
+    V.Format("%.12f\n", m_d[i]);
+    File.WriteString(V);
+    }
+  File.Close();
+  return true;
+  }
+
+// -------------------------------------------------------------------------
+
+flag CDVector::CopyToClipboard()
+  {
+  CString Buff, V;
+  for (long i=0; i<m_Len; i++)
+    {
+    V.Format("%.12f\r\n", m_d[i]);
+    Buff += V;
+    }
+  CopyTextToClipboard(Buff);
+  return true;
+  }
+
+// -------------------------------------------------------------------------
 /*#F:Makes the vector a copy of the supplied vector.*/
 CDVector& CDVector::operator=(const CDVector &v)
   {
@@ -1910,6 +1951,57 @@ dbgpln("=== %s", f.GetWholeLine());
   m_Err = VMErrFileOpen;
   return False;
 **/
+  }
+
+// -------------------------------------------------------------------------
+
+flag CDMatrix::Save(rCVMLoadHelper H)
+  {
+  m_Err = VMErrFileOpen;
+  if (H.FName[0]==0)
+    {
+    return false;
+    }
+  CFileException e;
+  CStdioFile File;
+  if (!File.Open(H.FName, CFile::modeCreate | CFile::modeWrite, &e) )
+    {
+    return false;
+    }
+
+  m_Err = 0;
+  CString Buff, V;
+  for (long i=0; i<m_Rows; i++)
+    {
+    Buff = "";
+    for (long j=0; j<m_Cols; j++)
+      {
+      V.Format(j>0 ? ",%.12f" : "%.12f", m_d[i][j]);
+      Buff += V;
+      }
+    Buff += "\n";
+    File.WriteString(Buff);
+    }
+  File.Close();
+  return true;
+  }
+
+// -------------------------------------------------------------------------
+
+flag CDMatrix::CopyToClipboard()
+  {
+  CString Buff, V;
+  for (long i=0; i<m_Rows; i++)
+    {
+    for (long j=0; j<m_Cols; j++)
+      {
+      V.Format(j>0 ? "\t%.12f" : "%.12f", m_d[i][j]);
+      Buff += V;
+      }
+    Buff += "\r\n";
+    }
+  CopyTextToClipboard(Buff);
+  return true;
   }
 
 // -------------------------------------------------------------------------

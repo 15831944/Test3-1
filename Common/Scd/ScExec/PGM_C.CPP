@@ -1806,6 +1806,8 @@ const short Idf_ArrayIncAt = 5;
 const short Idf_ArrayDecAt = 6;
 const short Idf_ArraySetAll = 7;
 const short Idf_ArrayLoad = 8;
+const short Idf_ArraySave = 9;
+const short Idf_ArrayClipboard = 10;
 
 //---------------------------------------------------------------------------
 
@@ -1819,6 +1821,8 @@ GCArray::GCArray(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "Array", VarClassDef
   AddFunct(IB, "DecAt", 2, False, Idf_ArrayDecAt);
   AddFunct(IB, "SetAll", 1, False, Idf_ArraySetAll);
   AddFunct(IB, "Load", 1, True, Idf_ArrayLoad);
+  AddFunct(IB, "Save", 1, True, Idf_ArraySave);
+  AddFunct(IB, "CopyToClipboard", 0, False, Idf_ArrayClipboard);
   }
 
 //---------------------------------------------------------------------------
@@ -1921,6 +1925,24 @@ double GCArray::CallFunct(rGCInsMngr IB, void* pSubClass, short FunctId, pGCClas
         return dGCfalse;
       break;
       }
+    case Idf_ArraySave:
+      {
+      CVMLoadHelper H;
+      strcpy(H.FName, IB.GetSParm());
+      if (((pCDVector)pSubClass)->Save(H))
+        return dGCtrue;
+      else
+        return dGCfalse;
+      break;
+      }
+    case Idf_ArrayClipboard:
+      {
+      if (((pCDVector)pSubClass)->CopyToClipboard())
+        return dGCtrue;
+      else
+        return dGCfalse;
+      break;
+      }
     default:
       ASSERT(FALSE);  //function not defined
     }
@@ -1999,6 +2021,8 @@ const short Idf_MatrixIncAt = 6;
 const short Idf_MatrixDecAt = 7;
 const short Idf_MatrixSetAll = 8;
 const short Idf_MatrixLoad = 9;
+const short Idf_MatrixSave = 10;
+const short Idf_MatrixClipboard = 11;
 
 //---------------------------------------------------------------------------
 
@@ -2013,6 +2037,8 @@ GCMatrix::GCMatrix(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "Matrix", VarClass
   AddFunct(IB, "DecAt", 3, False, Idf_MatrixDecAt);
   AddFunct(IB, "SetAll", 1, False, Idf_MatrixSetAll);
   AddFunct(IB, "Load", 1, True, Idf_MatrixLoad);
+  AddFunct(IB, "Save", 1, True, Idf_MatrixSave);
+  AddFunct(IB, "CopyToClipboard", 0, False, Idf_MatrixClipboard);
   }
 
 //---------------------------------------------------------------------------
@@ -2150,6 +2176,25 @@ double GCMatrix::CallFunct(rGCInsMngr IB, void* pSubClass, short FunctId, pGCCla
       Strng Fn = IB.GetSParm();
       strcpy(H.FName, Fn());
       if (((pCDMatrix)pSubClass)->Load(H))
+        return dGCtrue;
+      else
+        return dGCfalse;
+      break;
+      }
+    case Idf_MatrixSave:
+      {
+      CVMLoadHelper H;
+      Strng Fn = IB.GetSParm();
+      strcpy(H.FName, Fn());
+      if (((pCDMatrix)pSubClass)->Save(H))
+        return dGCtrue;
+      else
+        return dGCfalse;
+      break;
+      }
+    case Idf_MatrixClipboard:
+      {
+      if (((pCDMatrix)pSubClass)->CopyToClipboard())
         return dGCtrue;
       else
         return dGCfalse;

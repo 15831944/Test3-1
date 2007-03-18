@@ -10281,10 +10281,12 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Text  ("");
       DDB.Text  ("Project...");
       DDB.String("PrjName",         "", DC_,       "", xidPrjName,         this, isResult|noFile|noScenario|noSnap);
+      DDB.String("PrjFolder",       "", DC_,       "", xidPrjFiles,        this, isResult|noFile|noScenario|noSnap);
       DDB.String("PrjFile",         "", DC_,       "", xidPrjFile,         this, isResult|noFile|noScenario|noSnap);
       DDB.String("CfgFile",         "", DC_,       "", xidCfgFile,         this, isResult|noFile|noScenario|noSnap);
+      DDB.Text  ("");
       DDB.String("DateAndTime",     "", DC_,       "", xidGenDateAndTime,  this, isResult|noFile|noScenario|noSnap);
-      DDB.Double("Time1970",        "", DC_Time,  "s", xidGenTime1970,     this, isResult|noFile|noScenario|noSnap);
+      DDB.Double("Time1970",        "", DC_Time,  "s", xidGenTime1970,     this, InitHidden|isResult|noFile|noScenario|noSnap);
       }
     DDB.EndStruct();
 
