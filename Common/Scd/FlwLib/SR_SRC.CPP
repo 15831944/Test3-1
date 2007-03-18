@@ -122,6 +122,7 @@ flag CR_Src::DataXchg(DataChangeBlk & DCB)
       if (DCB.lHandle>=xidRCTSrcMs && DCB.lHandle<xidRCTSrcMs+NSpcs())
         {
         DCB.D=Spcs[DCB.lHandle-xidRCTSrcMs].m_Demand/RB.m_TimeIncAtSolve;
+        return 1;
         }
     }
 
@@ -499,6 +500,7 @@ flag CR_Snk::DataXchg(DataChangeBlk & DCB)
       if (DCB.lHandle>=xidRCTSnkMs && DCB.lHandle<xidRCTSnkMs+NSpcs())
         {
         DCB.D=Spcs[DCB.lHandle-xidRCTSnkMs].m_Excess/RB.m_TimeIncAtSolve;
+        return 1;
         }
     }
   return 0;
