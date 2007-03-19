@@ -40,8 +40,8 @@
 #define WithSimpleBleed       0  /*not ready for release*/
 #define WITHNODETAGIO         1  /*currently cannot be switched off due to link errors*/
 #define WITHNODEPROCS         0  /*not ready for release*/
-#define WITHCLASSOPTIONS      01
-#define WITHEQUIPSPECS        (01 && WITHCLASSOPTIONS)
+#define WITHCLASSOPTIONS      0
+#define WITHEQUIPSPECS        (0 && WITHCLASSOPTIONS)
 
 #define WithPGMTagChange      0
 
