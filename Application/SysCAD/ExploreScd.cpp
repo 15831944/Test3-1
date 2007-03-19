@@ -111,14 +111,14 @@ CXTTreeInfo(TrID_Class, &m_sClassId)
   m_hClassItem=NULL;
   m_nCount=0;
   m_nSelected=0;
-  m_Tags.SetSize(0, 128);
+  xm_Tags.SetSize(0, 128);
   };
 
 CXTClass::~CXTClass() 
   {
-  for (int i=0; i<m_Tags.GetCount(); i++)
-    delete m_Tags[i];
-  m_Tags.SetSize(0, 128);
+  for (int i=0; i<xm_Tags.GetCount(); i++)
+    delete xm_Tags[i];
+  xm_Tags.SetSize(0, 128);
   };
 
 //---------------------------------------------------------------------------
@@ -144,7 +144,56 @@ CXTPage::~CXTPage()
   m_TagHs.SetSize(0, 128);
   };
 
+//===========================================================================
+
+CExpTreeCtrl::~CExpTreeCtrl()
+  {
+  }
+
 //---------------------------------------------------------------------------
+
+BEGIN_MESSAGE_MAP(CExpTreeCtrl, CTreeCtrl)
+  //{{AFX_MSG_MAP(CExpTreeCtrl)
+  ON_WM_RBUTTONDOWN()
+  ON_WM_LBUTTONDOWN()
+  ON_WM_RBUTTONUP()
+  ON_WM_LBUTTONUP()
+  //}}AFX_MSG_MAP
+END_MESSAGE_MAP()
+
+//---------------------------------------------------------------------------
+
+void CExpTreeCtrl::OnRButtonDown(UINT nFlags, CPoint point) 
+  {
+  CTreeCtrl::OnRButtonDown(nFlags, point);
+  }
+
+//---------------------------------------------------------------------------
+
+void CExpTreeCtrl::OnLButtonDown(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("OnLButtonDown>>");
+  CTreeCtrl::OnLButtonDown(nFlags, point);
+  //dbgpln("<<OnLButtonDown");
+  }
+
+//---------------------------------------------------------------------------
+
+void CExpTreeCtrl::OnRButtonUp(UINT nFlags, CPoint point) 
+  {
+  CTreeCtrl::OnRButtonUp(nFlags, point);
+  }
+
+//---------------------------------------------------------------------------
+
+void CExpTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point) 
+  {
+  //dbgpln("OnLButtonUp>>");
+  CTreeCtrl::OnLButtonUp(nFlags, point);
+  //dbgpln("<<OnLButtonUp");
+  }
+
+//===========================================================================
 
 CExploreScd * CExploreScd::sm_pTheWnd=NULL;
 BOOL CExploreScd::sm_bDoRefresh=false;
@@ -176,6 +225,8 @@ m_OtherTitle(TrID_OtherHdr, "...")
   m_TrendCount=0;
 
   m_ChangeBusy=0;
+
+  m_hPrevSel=NULL;
 
   Create(CExploreScd::IDD, pParent);
   }
@@ -629,6 +680,12 @@ BOOL CExploreScd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
   return CDialog::OnNotify(wParam, lParam, pResult);
   }
 
+//BOOL CExploreScd::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult)
+//  {
+//
+//  BOOL CExploreScd::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult)
+//  }
+
 //---------------------------------------------------------------------------
 
 void CExploreScd::GetRawTags()
@@ -752,6 +809,20 @@ void CExploreScd::GetRawPages(bool ChangesOK)
 
       CXTPage *pPage=new CXTPage(this, PgType2TrIDs[WL.Wnds[i].iType], PgId(), PgName());
       pPage->m_iType=WL.Wnds[i].iType;
+      
+      WINDOWPLACEMENT WP;
+      WP.length=sizeof(WP);
+      WL.Wnds[i].pWnd->GetWindowPlacement(&WP);
+
+      switch (WP.showCmd)
+        {
+        case SW_MINIMIZE:
+        case SW_HIDE:
+          {
+          int xxx=0;
+          }
+        }
+
       pPage->m_InUse=true;
 
 #if dbgAdd   
@@ -960,8 +1031,8 @@ void CExploreScd::SortAll()
     for (int i=0; i<m_Classes.GetCount(); i++)
       {
       CXTClass &Cl=*m_Classes[i];
-      if (Cl.m_Tags.GetCount())
-        HpSort(Cl.m_Tags.GetCount(), (void**)&Cl.m_Tags[0], HpTagTest);
+      if (Cl.xm_Tags.GetCount())
+        HpSort(Cl.xm_Tags.GetCount(), (void**)&Cl.xm_Tags[0], HpTagTest);
       }
     }
 
@@ -2156,18 +2227,21 @@ void CExploreScd::ArrangeWindows(int RqdLayoutStyle/*=-1*/)
 
 //--------------------------------------------------------------------------
 
-void CExploreScd::ActivateWndByName(LPCTSTR Txt)
+void CExploreScd::ActivateWnd(LPCTSTR Txt, CWnd *pToActivate)
   {
-  CWindowLists WL;
-  if (WL.BuildSingleList()<0)
-    return;
+  if (pToActivate==NULL)
+    {
+    CWindowLists WL;
+    if (WL.BuildSingleList()<0)
+      return;
 
-  const int Index = WL.Find(255, (char*)(const char*)Txt);
-  if (Index<0) 
-    return;
+    const int Index = WL.Find(255, (char*)(const char*)Txt);
+    if (Index<0) 
+      return;
 
-  ASSERT(Index>=0);
-  CWnd *pToActivate=WL.Wnds[Index].pWnd;
+    ASSERT(Index>=0);
+    pToActivate=WL.Wnds[Index].pWnd;
+    }
   if (pToActivate)
     {
     if (pToActivate->IsKindOf(RUNTIME_CLASS(CMDIChildWnd)))
@@ -2294,9 +2368,13 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
   {
   LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 
+  //dbgpln("OnDoClicks  %3i %5i", m_ChangeBusy, pNMTreeView->action);
+
   HTREEITEM hSel = m_Tree.GetSelectedItem();
-  if (m_ChangeBusy==0 &&  hSel && m_Tree.GetItemData(hSel)!=0 && 
-    (pNMTreeView->action==TVC_BYMOUSE || pNMTreeView->action==TVC_BYKEYBOARD))
+  if (m_ChangeBusy==0 && hSel && m_Tree.GetItemData(hSel)!=0 && 
+    (pNMTreeView->action==TVC_BYMOUSE || 
+     pNMTreeView->action==TVC_BYKEYBOARD ||
+     hSel==m_hPrevSel))
     {
     int Id=reinterpret_cast<CXTTreeInfo*>((void*)m_Tree.GetItemData(hSel))->m_Id;
     switch (Id)
@@ -2305,20 +2383,20 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
         {
         CString Txt = m_Tree.GetItemText(hSel);
         Txt+=".scg";
-        ActivateWndByName(Txt);
+        ActivateWnd(Txt);
         break;
         }
       case TrID_Trend:
         {
         CString Txt = m_Tree.GetItemText(hSel);
         Txt+=".trn";
-        ActivateWndByName(Txt);
+        ActivateWnd(Txt);
         break;
         }
       case TrID_Other:
         {
         CString Txt = m_Tree.GetItemText(hSel);
-        ActivateWndByName(Txt);
+        ActivateWnd(Txt);
         break;
         }
       case TrID_Node: // NOdes
@@ -2346,30 +2424,43 @@ void CExploreScd::OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where)
         }
       }
     }
+  m_hPrevSel=hSel;
   ShowWindow(SW_RESTORE);//SW_SHOWNORMAL);
   m_Tree.SetFocus();
   *pResult = 0;
   }
 
-void CExploreScd::CollectsBulkTags(HTREEITEM hTagOwner, int Level, CStringList &Tags)
+void CExploreScd::CollectsBulkTags(HTREEITEM hTagOwner, int Level, CStringList &MarkTags)
   {
   HTREEITEM h=m_Tree.GetNextItem(hTagOwner, TVGN_CHILD);
   while (h)
     {
     CString S=m_Tree.GetItemText(h);
     if (Level==0)
-      Tags.AddTail(S);
+      MarkTags.AddTail(S);
     else
-      CollectsBulkTags(h, Level-1, Tags);
+      CollectsBulkTags(h, Level-1, MarkTags);
     h=m_Tree.GetNextItem(h, TVGN_NEXT);
     }
   }
 
-void CExploreScd::DoBulkTagChange(HTREEITEM hTagOwner, int Level)
+void CExploreScd::DoBulkTagChange(HTREEITEM hTagCheckTags, Strng_List * pAllTags, CXTTagArray *pAllXTags, int Level)
   {
-  CStringList Tags;
-  CollectsBulkTags(hTagOwner, Level, Tags);
-  CBulkTagChange Dlg(&Tags, this);
+  CStringList MarkTags;
+  CStringList CheckTags;
+  CollectsBulkTags(hTagCheckTags, Level, CheckTags);
+  if (pAllXTags)
+    {
+    for (int i=0; i<pAllXTags->GetCount(); i++)
+      MarkTags.AddTail((*pAllXTags)[i]->m_sTag);
+    }
+  else
+    {
+    for (Strng *p=pAllTags ? pAllTags->First():NULL; p; p=p->Next())
+      MarkTags.AddTail(p->Str());
+    }
+
+  CBulkTagChange Dlg(&MarkTags, &CheckTags, true, this);
   if (Dlg.DoModal())
     {
     }
@@ -2377,12 +2468,16 @@ void CExploreScd::DoBulkTagChange(HTREEITEM hTagOwner, int Level)
 
 void CExploreScd::OnNMClickTree(NMHDR *pNMHDR, LRESULT *pResult)
   {
+  dbgpln("OnNMClickTree>>");
   OnDoClicks(pNMHDR, pResult, 0);
+  dbgpln("<<OnNMClickTree");
   }
 
 void CExploreScd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
   {
+  dbgpln("OnTvnSelchangedTree>>");
   OnDoClicks(pNMHDR, pResult, ODC_Select);
+  dbgpln("<<OnTvnSelchangedTree");
   }
 
 void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
@@ -2454,7 +2549,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             break;
             }
           case 105:
-            DoBulkTagChange(m_hClassItem, 1);
+            DoBulkTagChange(m_hClassItem, NULL, &m_Tags, 1);
             break;
           case 108:
             if (gs_pPrj->m_GrfBehaviour == WB_Coincident)
@@ -2529,7 +2624,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         switch (RetCd)
           {
           case 105:
-            DoBulkTagChange(m_hClassItem, 1);
+            DoBulkTagChange(m_hClassItem, NULL, &m_Tags, 1);
             break;
           case 130:
             CopyTagList2Clipboard(m_hClassItem, 0, "Class", CString(""), CString(""));
@@ -2558,7 +2653,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         switch (RetCd)
           {
           case 105:
-            DoBulkTagChange(m_hNodesItem, 0);//m_hNodesItem);
+            DoBulkTagChange(m_hNodesItem, NULL, &m_Tags, 0);//m_hNodesItem);
             break;
           case 130:
             CopyTagList2Clipboard(m_hNodesItem, 0, "Tag", CString(""), CString(""));
@@ -2572,6 +2667,11 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         CXTPage *pPage;
         if (m_PageMap.Lookup(Txt, pPage))
           {
+          POSITION pos = pPage->m_pGrfDoc->GetFirstViewPosition();
+          CView* pFirstView = pPage->m_pGrfDoc->GetNextView( pos );
+          CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+          ActivateWnd(NULL, pGWnd->GetParent());
+
           CMenu Menu;
           Menu.CreatePopupMenu();
           CString S;
@@ -2620,7 +2720,7 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
               break;
               }
             case 105:
-              DoBulkTagChange(pPage->m_hPage, 0);
+              DoBulkTagChange(pPage->m_hPage, &pPage->m_GrfTagList, NULL, 0);
               break;
             case 108:
               if (gs_pPrj->m_GrfBehaviour == WB_Coincident)
@@ -2632,9 +2732,11 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             case 121:
             case 122:
               {
-              POSITION pos = pPage->m_pGrfDoc->GetFirstViewPosition();
-              CView* pFirstView = pPage->m_pGrfDoc->GetNextView( pos );
-              CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+
+              //POSITION pos = pPage->m_pGrfDoc->GetFirstViewPosition();
+              //CView* pFirstView = pPage->m_pGrfDoc->GetNextView( pos );
+              //CGrfWnd* pGWnd = (CGrfWnd*)pFirstView;
+              //ActivateWnd(NULL, pGWnd->GetParent());
               pGWnd->CopyBMPtoClipBoard(RetCd-121);
               break;
               }
@@ -2653,6 +2755,9 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
         CXTPage *pPage;
         if (m_PageMap.Lookup(Txt, pPage))
           {
+          //ActivateWnd(NULL, pGWnd->GetParent());
+
+
           CMenu Menu;
           Menu.CreatePopupMenu();
 
@@ -2705,30 +2810,36 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
       case TrID_Class: // NOdes
         {
         CString Txt = m_Tree.GetItemText(hSel);
-        CString S;
-        CMenu Menu;
-        Menu.CreatePopupMenu();
-        S.Format("Class %s", Txt); 
-        Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
-        Menu.AppendMenu(MF_SEPARATOR, 99);
-        Menu.AppendMenu(MF_STRING, 105, "Bulk Tag Change");
-        Menu.AppendMenu(MF_SEPARATOR, 99);
-        Menu.AppendMenu(MF_STRING, 130, "Copy Tag List to Clipboard");
-
-        CPoint curPoint;
-        GetCursorPos(&curPoint);
-
-        int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
-        Menu.DestroyMenu();                                           
-        switch (RetCd)
+        CXTClass *pClass;
+        if (m_ClassMap.Lookup(Txt, pClass))
           {
-          case 105:
-            DoBulkTagChange(hSel, 0);
-            break;
-          case 130:
-            CopyTagList2Clipboard(hSel, 0, "Tag", CString(""), CString(""));
-            break;
+          CString S;
+          CMenu Menu;
+          Menu.CreatePopupMenu();
+          S.Format("Class %s", Txt); 
+          Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
+          Menu.AppendMenu(MF_SEPARATOR, 99);
+          Menu.AppendMenu(MF_STRING, 105, "Bulk Tag Change");
+          Menu.AppendMenu(MF_SEPARATOR, 99);
+          Menu.AppendMenu(MF_STRING, 130, "Copy Tag List to Clipboard");
+
+          CPoint curPoint;
+          GetCursorPos(&curPoint);
+
+          int RetCd=Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON|TPM_RETURNCMD, curPoint.x, curPoint.y, this);
+          Menu.DestroyMenu();                                           
+          switch (RetCd)
+            {
+            case 105:                
+              DoBulkTagChange(hSel, &pClass->xm_TagList, NULL, 0);
+              break;
+            case 130:
+              CopyTagList2Clipboard(hSel, 0, "Tag", CString(""), CString(""));
+              break;
+            }
           }
+        else
+          ASSERT_ALWAYS(FALSE, "Bad Class Lookup", __FILE__, __LINE__);
         break;
         }
       case TrID_Node: // NOdes
@@ -2751,8 +2862,6 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             Menu.AppendMenu(MF_STRING, 110+i, S);
             }
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 103, "XRefs");
-        //Menu.AppendMenu(MF_SEPARATOR, 99);
-          //Menu.AppendMenu(MF_STRING, 130, "Copy Graphic List to Clipboard");
 
           CPoint curPoint;
           GetCursorPos(&curPoint);
@@ -2763,9 +2872,6 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
             {
             case 102: gs_AccessWnds.AccessNode(-1, Txt); break;
             case 103: ; break;
-            case 105:
-              DoBulkTagChange(hSel, 0);
-              break;
             default:
               {
               if (RetCd>=110 && RetCd<110+pTag->m_Pages.GetCount())
@@ -2804,7 +2910,7 @@ void CExploreScd::OnNMDblclkTree(NMHDR *pNMHDR, LRESULT *pResult)
       case TrID_Other:
         {
         CString Txt = m_Tree.GetItemText(hSel);
-        ActivateWndByName(Txt);
+        ActivateWnd(Txt);
         break;
         }
       case TrID_Node: // NOdes

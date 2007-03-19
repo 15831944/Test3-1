@@ -956,7 +956,7 @@
 #define IDR_MDICLIENT_MENU              24563
 #define IDC_GRFAUTOACCESS               24563
 #define IDC_PRJNUMERICSTARTOK           24563
-#define IDC_SHOWPAGES                   24563
+#define IDC_VIEWPAGES                   24563
 #define IDC_ANIMATIONON                 24564
 #define IDC_PVSHOWUNITS                 24564
 #define IDD_MERGEDLG                    24564
@@ -1254,8 +1254,9 @@
 #define IDC_PF_ENVLIST                  25505
 #define IDC_STATUS                      25506
 #define IDC_PF_FILELIST                 25506
-#define IDC_STATICSHOW                  25509
+#define IDC_STATICVIEW                  25509
 #define IDC_STATICOPTS                  25510
+#define IDC_STATICSHOW                 25510
 #define IDC_MSGLIST                     25511
 #define IDM_CTRL_VIEW                   25513
 #define IDD_TRNDPRINTDLG                25514
@@ -1563,14 +1564,14 @@
 #define IDC_CLASSCOUNT                  25725
 #define IDC_PAGECOUNT                   25726
 #define IDC_TAGCOUNT                    25727
-#define IDC_MARKEDONLY                  25728
+#define IDC_ANDMARKED                  25728
 #define IDC_CHANGECOUNT                 25729
 #define IDC_ADJUSTCOUNT                 25730
 #define IDC_APPLYCOUNT                  25731
 #define IDC_LIST2                       25732
 #define IDC_APPLYLOG                    25732
 #define IDC_APPLYPROGRESS               25733
-#define IDC_SHOWCLASSES                 25734
+#define IDC_VIEWCLASSES                 25734
 #define IDC_DUPLICATECOUNT              25735
 #define IDC_IMPORTCOUNT                 25736
 #define IDC_STATICFILTER                25737
@@ -1609,6 +1610,9 @@
 #define IDC_ARCML_TIMETIME              25763
 #define ID_GOTO2                        25763
 #define ID_GOACCESS                     25763
+#define IDC_SHOWUNSELECTED              25763
+#define IDC_SHOWUNMARKED                25764
+#define IDC_SHOWUNCHECKED               25765
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -2000,7 +2004,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25598
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25763
+#define _APS_NEXT_CONTROL_VALUE         25764
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

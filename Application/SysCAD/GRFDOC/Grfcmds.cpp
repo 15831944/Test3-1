@@ -7777,7 +7777,7 @@ void GrfCmdBlk::DoBulkTagChange()
   
       RemoveToolbar();
 
-      CBulkTagChange Dlg(&Tags, pGWnd);
+      CBulkTagChange Dlg(&Tags, NULL, false, pGWnd);
       if (Dlg.DoModal())
         {
         }

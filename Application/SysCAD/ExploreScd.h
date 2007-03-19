@@ -64,7 +64,7 @@ enum
   TrID_TrendHdr, TrID_Trend, 
   TrID_OtherHdr, TrID_Other, 
   TrID_NodeHdr, TrID_Node, 
-  TrID_ClassHdr, TrID_Class, 
+  TrID_ClassHdr, TrID_Class
   //TrID_LostGrfHdr, TrID_LostGrf,
   //TrID_LostMdlHdr, TrID_LostMdl,
   };
@@ -172,7 +172,8 @@ class CXTClass : public CXTTreeInfo
     int             m_nCount;
     int             m_nSelected;
 
-    CXTTagHPairArray  m_Tags;
+    Strng_List        xm_TagList;
+    CXTTagHPairArray  xm_Tags;
 
   };
 
@@ -201,6 +202,23 @@ class CXTPage : public CXTTreeInfo
     CXTTagHPairMap    m_TagHMap;
   };
 
+class CExpTreeCtrl : public CTreeCtrl
+  {
+  public:
+    CExpTreeCtrl() {};
+    virtual ~CExpTreeCtrl();
+    //{{AFX_VIRTUAL(CCustomTreeCtrl)
+    //}}AFX_VIRTUAL
+  protected:
+    //{{AFX_MSG(CExpTreeCtrl)
+    afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+    afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+    afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+    afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
+  };
+
 class CExploreScd : public CDialog
   {
   DECLARE_DYNAMIC(CExploreScd)
@@ -226,6 +244,7 @@ class CExploreScd : public CDialog
   protected:
     virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
     virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+    //virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
 
     void InitTags();
 
@@ -248,7 +267,7 @@ class CExploreScd : public CDialog
 
     bool LoadTagTree(bool DoKbdTest);
     //void LoadTagItem(CXTTag & Tg, bool UpdateTag=false);
-    void ActivateWndByName(LPCTSTR Txt);
+    void ActivateWnd(LPCTSTR Txt, CWnd *pToActivate=NULL);
     void AddTagToTree(CXTTag *pTag, CXTTag *pPrev);
     void RemoveTagFromTree(CXTTag * pTag);
     void AddPageToTree(CXTPage * pPage);
@@ -277,7 +296,7 @@ class CExploreScd : public CDialog
     static BOOL           sm_bUseScdExplorer;
     static BOOL           sm_bInited;
 
-    CTreeCtrl             m_Tree;
+    CExpTreeCtrl          m_Tree;
     CComboBox             m_TagFilterRule;
     CEdit                 m_TagFilter;
 
@@ -304,6 +323,7 @@ class CExploreScd : public CDialog
     HTREEITEM             m_hNodesItem;
     //HTREEITEM             m_hLostGrfItem;
     //HTREEITEM             m_hLostMdlItem;
+    HTREEITEM             m_hPrevSel;
 
     BOOL                  m_bGraphExpanded;
     BOOL                  m_bTrendExpanded;
@@ -344,7 +364,7 @@ class CExploreScd : public CDialog
 
     void         OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where);
     void         CollectsBulkTags(HTREEITEM hTagOwner, int Level, CStringList &Tags);
-    void         DoBulkTagChange(HTREEITEM hTagOwner, int Level);
+    void         DoBulkTagChange(HTREEITEM hTagCheckTags, Strng_List * pAllTags, CXTTagArray *pAllXTags, int Level);
 
     DECLARE_MESSAGE_MAP()
   public:

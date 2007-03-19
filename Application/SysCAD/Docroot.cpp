@@ -110,6 +110,7 @@ void DocRoot::OnActivate(flag bActivate)
     //gs_pCmd->CloseCommandBlksTo(gs_pBaseCmds);
     gs_pCmd->SetFocus();
     }
+  //CExploreScd::RefreshIt(false);
   }
 
 //---------------------------------------------------------------------------

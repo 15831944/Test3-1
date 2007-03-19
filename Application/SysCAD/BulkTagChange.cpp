@@ -44,19 +44,26 @@ const byte TrkSep2      = 0x40;
 
 static struct { UINT m_ID; byte m_TrkTL; byte m_TrkBR; } const CtrlIDs[]=//CtrlIDCount]= 
   {
+    { IDC_TAGCHECKS                  , TrkSep0   |TrkTop    , TrkSep0   |TrkTop     },
+    { IDC_TAGCOUNT                   , TrkSep0   |TrkTop    , TrkSep0   |TrkTop     },
     { IDC_TAGLIST                    , TrkLeft   |TrkTop    , TrkSep0   |TrkBottom  },
-    { IDC_SHOWALLTAGS                , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
-    { IDC_MARKEDONLY                 , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
-    { IDC_TAGCHECKS                  , TrkSep0   |TrkBottom , TrkSep0   |TrkBottom  },
-    { IDC_TAGCOUNT                   , TrkSep0   |TrkBottom , TrkSep0   |TrkBottom  },
 
+    { IDC_CLASSCHECKS                , TrkSep1   |TrkTop    , TrkSep1   |TrkTop},
+    { IDC_CLASSCOUNT                 , TrkSep1   |TrkTop    , TrkSep1   |TrkTop},
     { IDC_CLASSIDS                   , TrkSep0   |TrkTop    , TrkSep1   |TrkBottom  },
-    { IDC_CLASSCHECKS                , TrkSep1   |TrkBottom , TrkSep1   |TrkBottom  },
-    { IDC_CLASSCOUNT                 , TrkSep1   |TrkBottom , TrkSep1   |TrkBottom  },
 
+    { IDC_PAGECHECKS                 , TrkRight  |TrkTop    , TrkRight  |TrkTop     },
+    { IDC_PAGECOUNT                  , TrkRight  |TrkTop    , TrkRight  |TrkTop     },
     { IDC_PAGES                      , TrkSep1   |TrkTop    , TrkRight  |TrkBottom  },
-    { IDC_PAGECHECKS                 , TrkRight  |TrkBottom , TrkRight  |TrkBottom  },
-    { IDC_PAGECOUNT                  , TrkRight  |TrkBottom , TrkRight  |TrkBottom  },
+
+    { IDC_STATICSHOW                 , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+    { IDC_SHOWUNMARKED               , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+    { IDC_SHOWUNCHECKED              , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+    { IDC_SHOWUNSELECTED             , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+
+    { IDC_STATICVIEW                 , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+    { IDC_VIEWCLASSES                , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
+    { IDC_VIEWPAGES                  , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
 
     { IDC_TAGFILTERRULE              , TrkLeft   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_TAGFILTER                  , TrkLeft   |TrkBottom , TrkSep2   |TrkBottom  },
@@ -64,6 +71,7 @@ static struct { UINT m_ID; byte m_TrkTL; byte m_TrkBR; } const CtrlIDs[]=//CtrlI
     { IDC_TAGREPLACE                 , TrkLeft   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_FILTOPTIONS                , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_FINDOPTIONS                , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
+    { IDC_ANDMARKED                  , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_REPLACEOPTIONS             , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_DOREPLACE                  , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
     { IDC_UNDOREPLACE                , TrkSep2   |TrkBottom , TrkSep2   |TrkBottom  },
@@ -98,9 +106,6 @@ static struct { UINT m_ID; byte m_TrkTL; byte m_TrkBR; } const CtrlIDs[]=//CtrlI
     { IDOK                           , TrkRight  |TrkBottom , TrkRight  |TrkBottom  },
     { IDCANCEL                       , TrkRight  |TrkBottom , TrkRight  |TrkBottom  },
 
-    { IDC_SHOWCLASSES                , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
-    { IDC_STATICSHOW                 , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
-    { IDC_SHOWPAGES                  , TrkLeft   |TrkBottom , TrkLeft   |TrkBottom  },
   };
 
 const int CtrlIDCount = sizeof(CtrlIDs)/sizeof(CtrlIDs[0]);
@@ -246,7 +251,7 @@ BOOL CBTCItem::SetReqd(bool IgnoreCheck)
   {
   return ((m_Checked || IgnoreCheck) &&
     m_pClassId->m_Checked && 
-    (!m_Dlg.m_MarkedOnly || m_Marked) && 
+    (!m_Dlg.m_AndMarked || m_Marked) && 
     m_Selected &&
     PageChecked()); 
   };
@@ -295,7 +300,10 @@ void CBTCItem::ChangeSetReqd(eDoItTerms Term, BOOL On)
 
 BOOL CBTCItem::ShowIt()
   {
-  return m_Dlg.m_ShowAllTags || SetReqd();
+  //return m_Dlg.m_ShowAllTags || SetReqd();
+  return (m_Marked || m_Dlg.m_ShowUnMarked) && 
+         (m_Checked || m_Dlg.m_ShowUnChecked) && 
+         (m_Selected || m_Dlg.m_ShowUnSelected);//SetReqd();
   };
 
 // ==========================================================================
@@ -317,7 +325,7 @@ CBTCPage::CBTCPage(CBulkTagChange * Dlg, LPCTSTR PageId) : m_Dlg(*Dlg)
 // CBulkTagChange dialog
 
 IMPLEMENT_DYNAMIC(CBulkTagChange, CDialog)
-CBulkTagChange::CBulkTagChange(CStringList * pMarkedTags, CWnd* pParent /*=NULL*/) : \
+CBulkTagChange::CBulkTagChange(CStringList * pMarkedTags, CStringList * pCheckedTags, BOOL DoingSubset, CWnd* pParent /*=NULL*/) : \
 CDialog(CBulkTagChange::IDD, pParent),
 m_InPlaceEdit(this),
 m_TagList(this)
@@ -325,7 +333,11 @@ m_TagList(this)
   m_SetWhat=-1;
   m_Inited=false;
   m_Loading=false;
-  m_MarkedOnly=false;
+  m_DoingSubset=DoingSubset;
+  m_AndMarked=false;
+  m_ShowUnMarked=false;
+  m_ShowUnChecked=false;
+  m_ShowUnSelected=false;
   m_pMarkedTags=pMarkedTags;
   if (m_pMarkedTags)
     {
@@ -336,6 +348,18 @@ m_TagList(this)
       {
       CString & S=m_pMarkedTags->GetNext(Pos);
       m_MarkedTagMap.SetAt(S, Pos);
+      }
+    }
+  m_pCheckedTags=pCheckedTags;
+  if (m_pCheckedTags)
+    {
+    m_CheckedTagMap.InitHashTable(FindNextPrimeNumber((UINT)(m_pCheckedTags->GetCount()*1.18)));
+
+    POSITION Pos=m_pCheckedTags->GetHeadPosition();
+    while (Pos)
+      {
+      CString & S=m_pCheckedTags->GetNext(Pos);
+      m_CheckedTagMap.SetAt(S, Pos);
       }
     }
 
@@ -364,13 +388,12 @@ void CBulkTagChange::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_CLASSIDS, m_ClassList);
   DDX_Control(pDX, IDC_DOREPLACE, m_ReplaceBtn);
   DDX_Control(pDX, IDC_DUPLICATECOUNT, m_DuplicateCount);
-  DDX_Control(pDX, IDC_MARKEDONLY, m_MarkedOnlyBtn);
+  DDX_Control(pDX, IDC_ANDMARKED, m_AndMarkedBtn);
   DDX_Control(pDX, IDC_PAGECHECKS, m_PageChecks);
   DDX_Control(pDX, IDC_PAGECOUNT, m_PageCount);
   DDX_Control(pDX, IDC_PAGES, m_PageList);
-  DDX_Control(pDX, IDC_SHOWALLTAGS, m_ShowAllBtn);
-  DDX_Control(pDX, IDC_SHOWCLASSES, m_ShowClassesBtn);
-  DDX_Control(pDX, IDC_SHOWPAGES, m_ShowPagesBtn);
+  DDX_Control(pDX, IDC_VIEWCLASSES, m_ShowClassesBtn);
+  DDX_Control(pDX, IDC_VIEWPAGES, m_ShowPagesBtn);
   DDX_Control(pDX, IDC_TAGCHECKS, m_TagChecks);
   DDX_Control(pDX, IDC_TAGCOUNT, m_TagCount);
   DDX_Control(pDX, IDC_TAGFILTER, m_TagFilter);
@@ -383,17 +406,19 @@ void CBulkTagChange::DoDataExchange(CDataExchange* pDX)
   DDX_Control(pDX, IDC_STATICAPPLICATION, m_StaticApply);
   DDX_Control(pDX, IDC_STATICCLIP, m_StaticClip);
   DDX_Control(pDX, IDC_IMPORTCOUNT, m_ImportCount);
+  DDX_Control(pDX, IDC_SHOWUNMARKED, m_ShowUnMarkedBtn);
+  DDX_Control(pDX, IDC_SHOWUNCHECKED, m_ShowUnCheckedBtn);
+  DDX_Control(pDX, IDC_SHOWUNSELECTED, m_ShowUnSelectedBtn);
   }
 
 BEGIN_MESSAGE_MAP(CBulkTagChange, CDialog)
   ON_BN_CLICKED(IDC_APPLY, OnBnClickedApply)
   ON_BN_CLICKED(IDC_CLASSCHECKS, OnBnClickedClasschecks)
   ON_BN_CLICKED(IDC_DOREPLACE, OnBnClickedDoreplace)
-  ON_BN_CLICKED(IDC_MARKEDONLY, OnBnClickedMarkedonly)
+  ON_BN_CLICKED(IDC_ANDMARKED, OnBnClickedMarkedonly)
   ON_BN_CLICKED(IDC_PAGECHECKS, OnBnClickedPagechecks)
-  ON_BN_CLICKED(IDC_SHOWALLTAGS, OnBnClickedShowalltags)
-  ON_BN_CLICKED(IDC_SHOWCLASSES, OnBnClickedShowclasses)
-  ON_BN_CLICKED(IDC_SHOWPAGES, OnBnClickedShowpages)
+  ON_BN_CLICKED(IDC_VIEWCLASSES, OnBnClickedShowclasses)
+  ON_BN_CLICKED(IDC_VIEWPAGES, OnBnClickedShowpages)
   ON_BN_CLICKED(IDC_TAGCHECKS, OnBnClickedTagchecks)
   ON_BN_CLICKED(IDC_UNDOREPLACE, OnBnClickedUndoreplace)
   ON_BN_CLICKED(IDOK, OnBnClickedOk)
@@ -416,6 +441,9 @@ BEGIN_MESSAGE_MAP(CBulkTagChange, CDialog)
   ON_BN_CLICKED(IDC_FILTOPTIONS, OnBnClickedFiltoptions)
   ON_BN_CLICKED(IDC_EXPORT, OnBnClickedExport)
   ON_BN_CLICKED(IDC_IMPORT, OnBnClickedImport)
+  ON_BN_CLICKED(IDC_SHOWUNMARKED, &CBulkTagChange::OnBnClickedShowunmarked)
+  ON_BN_CLICKED(IDC_SHOWUNCHECKED, &CBulkTagChange::OnBnClickedShowunchecked)
+  ON_BN_CLICKED(IDC_SHOWUNSELECTED, &CBulkTagChange::OnBnClickedShowunselected)
 END_MESSAGE_MAP()
 
 
@@ -471,7 +499,8 @@ static int HpTagTest(void * p, void * q)
       case ColNumberClass   : Cmp=_stricmp(r1->m_pClassId->m_sClassId, r2->m_pClassId->m_sClassId); break;
       case ColNumberCurrent : Cmp=_stricmp(r1->m_sCurrent, r2->m_sCurrent); break;
       case ColNumberReplace : Cmp=_stricmp(r1->GetString(ColNumberReplace), r2->GetString(ColNumberReplace)); break;
-      case ColNumberStatus  : Cmp=_stricmp(r1->m_sStatus, r2->m_sStatus); break;
+      case ColNumberStatus  : Cmp=_stricmp(r1->m_sStatus, r2->m_sStatus);   break;
+      case ColNumberPage    : Cmp=_stricmp(r1->m_sPages, r2->m_sPages);     break;
       }
     Cmp*=iDir;
     if (Cmp)
@@ -545,6 +574,12 @@ void CBulkTagChange::BuildTags()
         pItem->m_Marked=m_MarkedTagMap.Lookup(pTag->Str(), Pos);
         }
 
+      if (m_pCheckedTags)
+        {
+        POSITION Pos;
+        pItem->m_Checked=m_CheckedTagMap.Lookup(pTag->Str(), Pos);
+        }
+
       m_Tags.Add(pItem);
       m_TagMap.SetAt(pItem->m_sCurrent, pItem);
       MonitorAdd(pItem, pItem->SetReqd());
@@ -552,6 +587,7 @@ void CBulkTagChange::BuildTags()
     }
   // This info is no longer needed - and becomes incorrect after an apply.
   m_MarkedTagMap.RemoveAll();
+  m_CheckedTagMap.RemoveAll();
 
 
   if (gs_pPrj->AllGrfLoaded())
@@ -1036,22 +1072,47 @@ BOOL CBulkTagChange::OnInitDialog()
 
   m_TagFilter.SetWindowText(PF.RdStr("BulkTagChange", "TagFilter", ""));
 
-  m_ShowAllBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowAll", 0));
+  //if (m_DoingSubset)
+  //  m_ShowAllBtn.SetCheck(0);
+  //else
+  //  m_ShowAllBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowAll", 0));
+
+  m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnMarked", 1)!=0); 
+  m_ShowUnCheckedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnChecked", 1)!=0);
+  m_ShowUnSelectedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnSelected", 1)!=0);
+
+  bool AllMarked = (m_Tags.GetCount() == m_pMarkedTags->GetCount());
   if (m_pMarkedTags)
-    m_MarkedOnlyBtn.SetCheck(PF.RdLong("BulkTagChange", "MarkedOnly", 1));
+    {
+    if (m_DoingSubset)
+      {
+      m_AndMarkedBtn.SetCheck(0);
+      //m_ShowUnMarkedBtn.SetCheck(0);
+      }
+    else
+      {
+      m_AndMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "MarkedOnly", 1));
+      //m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnMarked", 1));
+      }
+    }
   else
     {
-    m_MarkedOnlyBtn.SetCheck(0);
-    m_MarkedOnlyBtn.EnableWindow(0);
+    m_AndMarkedBtn.SetCheck(0);
+    m_AndMarkedBtn.EnableWindow(0);
+    m_ShowUnMarkedBtn.SetCheck(1);
+    m_ShowUnMarkedBtn.EnableWindow(0);
     }
 
   m_Find.SetWindowText(PF.RdStr("BulkTagChange", "FindString", "^"));
   m_Replace.SetWindowText(PF.RdStr("BulkTagChange", "ReplaceString", ""));
-  m_bCaseSens=PF.RdInt("BulkTagChange", "CaseSensitive", 0)!=0;
-  m_bCaseSens=false; // force it
+  m_bCaseSens       =PF.RdInt("BulkTagChange", "CaseSensitive", 0)!=0;
+  m_bCaseSens       =false; // force it
 
-  m_ShowAllTags=m_ShowAllBtn.GetCheck()!=0;
-  m_MarkedOnly=m_MarkedOnlyBtn.GetCheck()!=0;
+  m_AndMarked      = m_AndMarkedBtn.GetCheck()!= 0;
+
+  m_ShowUnSelected  = m_ShowUnSelectedBtn.GetCheck()!= 0;
+  m_ShowUnMarked    = m_ShowUnMarkedBtn.GetCheck()!= 0;
+  m_ShowUnChecked   = m_ShowUnCheckedBtn.GetCheck()!= 0;
 
   //int ColLen[ColCount];
   m_TagList.SetExtendedStyle(m_TagList.GetExtendedStyle()|LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES|LVS_EX_CHECKBOXES);
@@ -1109,9 +1170,10 @@ BOOL CBulkTagChange::OnInitDialog()
     }
   m_SepInit[0]=(int)(0.5*(m_CtrlRcts[CtrlIDIndex(IDC_TAGLIST)].right+m_CtrlRcts[CtrlIDIndex(IDC_CLASSIDS)].left));
   m_SepInit[1]=(int)(0.5*(m_CtrlRcts[CtrlIDIndex(IDC_CLASSIDS)].right+m_CtrlRcts[CtrlIDIndex(IDC_PAGES)].left));
-  m_SepInit[2]=(int)(0.5*(m_CtrlRcts[CtrlIDIndex(IDC_STATICCLIP)].right+m_CtrlRcts[CtrlIDIndex(IDC_STATICAPPLICATION)].left));
+  m_SepInit[2]=(int)(0.5*(m_CtrlRcts[CtrlIDIndex(IDC_STATICFILTER)].right+m_CtrlRcts[CtrlIDIndex(IDC_STATICAPPLICATION)].left));
+  m_SepInit[3]=(int)(0.5*(m_CtrlRcts[CtrlIDIndex(IDC_STATICCLIP)].right+m_CtrlRcts[CtrlIDIndex(IDC_STATICAPPLICATION)].left));
 
-  for (int i=0; i<3; i++)
+  for (int i=0; i<4; i++)
     m_SepPos[i]=(1000*m_SepInit[i])/m_ClientRctInit.Width();
 
   m_InPlaceEditItem=-1;
@@ -1314,10 +1376,14 @@ void CBulkTagChange::SaveProfile()
   PF.WrStr("BulkTagChange", "TagFilter", S);
 
   //PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb);
-  PF.WrLong("BulkTagChange", "ShowAll", m_ShowAllBtn.GetCheck());
-  if (m_pMarkedTags)
-    PF.WrLong("BulkTagChange", "MarkedOnly", m_MarkedOnlyBtn.GetCheck());
+  //if (!m_DoingSubset)
+  //  PF.WrLong("BulkTagChange", "ShowAll", m_ShowAllBtn.GetCheck());
+  if (m_pMarkedTags && !m_DoingSubset)
+    PF.WrLong("BulkTagChange", "MarkedOnly", m_AndMarkedBtn.GetCheck());
 
+  PF.WrLong("BulkTagChange", "ShowUnMarked", m_ShowUnMarkedBtn.GetCheck());
+  PF.WrLong("BulkTagChange", "ShowUnChecked", m_ShowUnCheckedBtn.GetCheck());
+  PF.WrLong("BulkTagChange", "ShowUnSelected", m_ShowUnSelectedBtn.GetCheck());
 
   CString FindStr, ReplaceStr;
   m_Find.GetWindowText(FindStr);
@@ -1473,18 +1539,32 @@ bool CBulkTagChange::DoChecks()
 
 //--------------------------------------------------------------------------
 
-void CBulkTagChange::OnBnClickedShowalltags()
-  {
-  m_ShowAllTags=m_ShowAllBtn.GetCheck();
-  LoadTagList();
-  }
-
 void CBulkTagChange::OnBnClickedMarkedonly()
   {
-  m_MarkedOnly=m_MarkedOnlyBtn.GetCheck();
+  m_AndMarked=m_AndMarkedBtn.GetCheck();
   LoadTagList();
   }
 
+void CBulkTagChange::OnBnClickedShowunselected()
+  {
+  m_ShowUnSelected=m_ShowUnSelectedBtn.GetCheck();
+  LoadTagList();
+  }
+
+void CBulkTagChange::OnBnClickedShowunmarked()
+  {
+  m_ShowUnMarked=m_ShowUnMarkedBtn.GetCheck();
+  LoadTagList();
+  }
+
+
+void CBulkTagChange::OnBnClickedShowunchecked()
+  {
+  m_ShowUnChecked=m_ShowUnCheckedBtn.GetCheck();
+  LoadTagList();
+  }
+
+//--------------------------------------------------------------------------
 
 void CBulkTagChange::OnLvnItemchangedTaglist(NMHDR *pNMHDR, LRESULT *pResult)
   {
@@ -1503,7 +1583,7 @@ void CBulkTagChange::OnLvnItemchangedTaglist(NMHDR *pNMHDR, LRESULT *pResult)
 
       if (Chk!=pItem->m_Checked)
         {
-        if (m_ShowAllTags)
+        if (0)//m_ShowAllTags)
           m_TagList.Update(i);
         else
           LoadTagList();
@@ -1846,6 +1926,7 @@ void CBulkTagChange::OnHdnItemclickTaglist(NMHDR *pNMHDR, LRESULT *pResult)
     case ColNumberCurrent:
     case ColNumberReplace:
     case ColNumberStatus:
+    case ColNumberPage:
       {
       for (int i=0; i<m_SortOrder.GetSize() && m_SortOrder[i]<ColCount; i++)
         if (abs(m_SortOrder[i])==ColIndex)
@@ -2006,8 +2087,8 @@ void CBulkTagChange::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
   if (!m_Inited)
     return;
 
-  lpMMI->ptMinTrackSize.x = (3*m_ClientRctInit.Width())/4;
-  lpMMI->ptMinTrackSize.y = (3*m_ClientRctInit.Height())/4;
+  lpMMI->ptMinTrackSize.x = (4*m_ClientRctInit.Width())/5;
+  lpMMI->ptMinTrackSize.y = (4*m_ClientRctInit.Height())/5;
   }
 
 void CBulkTagChange::OnSize(UINT nType, int cx, int cy)

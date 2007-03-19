@@ -190,7 +190,7 @@ class CBulkTagChange : public CDialog
   DECLARE_DYNAMIC(CBulkTagChange)
 
   public:
-    CBulkTagChange(CStringList * pMarkedTags=NULL, CWnd* pParent = NULL);   // standard constructor
+    CBulkTagChange(CStringList * pMarkedTags=NULL, CStringList * pCheckedTags=NULL, BOOL DoingSubset=false, CWnd* pParent = NULL);   // standard constructor
     virtual ~CBulkTagChange();
 
     // Dialog Data
@@ -254,8 +254,7 @@ class CBulkTagChange : public CDialog
     CBTCListCtrl    m_TagList;
     CListCtrl       m_PageList;
     CListCtrl       m_ClassList;
-    CButton         m_ShowAllBtn;
-    CButton         m_MarkedOnlyBtn;
+    CButton         m_AndMarkedBtn;
     CEdit           m_TagFilter;
     CComboBox       m_TagFilterRule;
     CEdit           m_Find;
@@ -281,9 +280,16 @@ class CBulkTagChange : public CDialog
     CStatic         m_ImportCount;
     CStatic         m_StaticApply;
     CStatic         m_StaticClip;
+    CButton         m_ShowUnMarkedBtn;
+    CButton         m_ShowUnCheckedBtn;
+    CButton         m_ShowUnSelectedBtn;
 
-    BOOL            m_ShowAllTags;
-    BOOL            m_MarkedOnly;
+    BOOL            m_DoingSubset;
+    BOOL            m_AndMarked;
+    BOOL            m_ShowUnSelected;
+    BOOL            m_ShowUnChecked;
+    BOOL            m_ShowUnMarked;
+
     BOOL            m_Loading;
     int             m_ClassColWidth;
     int             m_PageColWidth;
@@ -305,6 +311,9 @@ class CBulkTagChange : public CDialog
     CStringList   * m_pMarkedTags;
     CMap <LPCTSTR, LPCTSTR, POSITION, POSITION> m_MarkedTagMap;
 
+    CStringList   * m_pCheckedTags;
+    CMap <LPCTSTR, LPCTSTR, POSITION, POSITION> m_CheckedTagMap;
+
     CArray <CBTCItem*, CBTCItem*> m_Tags;
     CMap <LPCTSTR, LPCTSTR,  CBTCItem*, CBTCItem*> m_TagMap;
 
@@ -319,8 +328,8 @@ class CBulkTagChange : public CDialog
     CArray<CRect, CRect&> m_CtrlRcts;
     bool                  m_Inited;
     int                   m_SetWhat;
-    int                   m_SepPos[3];
-    int                   m_SepInit[3];
+    int                   m_SepPos[4];
+    int                   m_SepInit[4];
 
   public:
     CArray <int, int> m_SortOrder;
@@ -332,7 +341,6 @@ class CBulkTagChange : public CDialog
     afx_msg void OnLvnItemchangedTaglist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedClassids(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedPages(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnBnClickedShowalltags();
     afx_msg void OnBnClickedMarkedonly();
     afx_msg void OnBnClickedTagchecks();
     afx_msg void OnBnClickedClasschecks();
@@ -356,4 +364,7 @@ class CBulkTagChange : public CDialog
     afx_msg void OnBnClickedFiltoptions();
     afx_msg void OnBnClickedExport();
     afx_msg void OnBnClickedImport();
+    afx_msg void OnBnClickedShowunselected();
+    afx_msg void OnBnClickedShowunmarked();
+    afx_msg void OnBnClickedShowunchecked();
 };
