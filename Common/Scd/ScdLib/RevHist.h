@@ -2772,10 +2772,23 @@ Build 123 : 21 February 2007
                faster dialog load time.
 1550 12/03/07: (#36) Changes and improvements to new SMDK MTagIO class.
 1553 12/03/07: (#785) Revert back to VS2003 because of solver speed.
+1557 13/03/07: (#36) More changes and improvements to new SMDK MTagIO class.
+1559 13/03/07: (#757) Improvements for setting GM stream exit temperatures.
+1560 13/03/07: (#780) Added temperature difference option to GMT.
+1561 13/03/07: (#782) Preliminary implementation for class options and equipment specification.
+1562 13/03/07: (#289) Fix for FilterPress mass balance error.
+1566 14/03/07: (#732) Window and toolbar positions correct when opening second SysCAD copy.
+1567 14/03/07: (#625) Trend or graphics name in explorer window is now updated after name change.
+1568 14/03/07: (#577) Tag in explorer window is now updated after change tag.
+1569 15/03/07: (#550) Improved explorer window right click context popup menu.
+1572 18/03/07: (#790) Fix in dynmaic for reaction display of msXfr for source or sink.
+1573 18/03/07: (#791) For PGM array and matrix class added method Save(Filename) and CopyToClipboard().
+1576 19/03/07: Bulk tag change improvements when accessed from the explorer window.
+1577 20/03/07: (#748) Improvements for access window when PGM PageLabel is used.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1553
+#define SCD_PATCH_SVN    1577
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

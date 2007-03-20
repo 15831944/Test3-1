@@ -181,22 +181,35 @@ const word idmPGMData          = idmPGMArrayWatch+MaxPGMArrayWatch; // Keep ever
 
 //--------------------------------------------------------------------------
 
-void GControl::CountWatchedVars(pGCVar VarList, int & Count)
+void GControl::CountWatchedVars(pGCVar VarList, int & TagCount, int & LineCount, int & PageCount)
   {
   pGCVar pVar = VarList;
   while (pVar)
     {
     if (pVar->Watched())
-      Count++;
+      {
+      if (pVar->WhatAmI()==VarLabel)
+        {
+        if (pVar->m_flags & VarPageLabel)
+          PageCount++;
+        else
+          LineCount++;
+        }
+      else
+        {
+        TagCount++;
+        LineCount++;
+        }
+      }
     if (pVar->WhatAmI()==VarClass && !(pVar->m_flags & VarClassDefn))
-      CountWatchedVars(((pGCClassVar)pVar)->m_pVarList, Count);
+      CountWatchedVars(((pGCClassVar)pVar)->m_pVarList, TagCount, LineCount, PageCount);
     pVar = pVar->Next();
     }
   }
 
 //--------------------------------------------------------------------------
 
-void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList, int Lvl, int &nPg, int &nOnPg, flag ForceNewPage, int MaxPerPage)
+void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList, int Lvl, int &nPg, int &nOnPg, flag ForceNewPage, int MaxPerPage, bool UserPages, int &SubPg, char PgPrefix)
   {
   Strng Tag;
   char HdTag[512];
@@ -211,106 +224,109 @@ void GControl::DDBAddWatchedVars(DataDefnBlk & DDB, pchar pHdTag, pGCVar VarList
     if (pVar->Watched())
       {
       CSingleLock Lock(&m_VarDataSect, true);
-      int nUseData = m_nVarData;
-      m_nVarData++;
-      if (m_nVarData>=m_nMaxVarData)
-        SetMaxVarData(m_nMaxVarData+16);
+      int nUseData = -1;
+      if (pVar->WhatAmI()!=VarLabel)
+        {
+        nUseData = m_nVarData;
+        m_nVarData++;
+        if (m_nVarData>=m_nMaxVarData)
+          SetMaxVarData(m_nMaxVarData+16);
+        m_VarData[nUseData] = pVar;
+        }
       char S[256];
       if (ForceNewPage || (Lvl==0 && nOnPg>MaxPerPage && pVar->WhatAmI()!=VarLabel))
         {
+        if (UserPages)
+          {
+          SubPg++;
+          sprintf(S, "%c%i", PgPrefix, SubPg);
+          }
+        else
+          {
+          sprintf(S, "Data:%i", nPg+1);
+          }
         ForceNewPage = 0;
-        sprintf(S, "Data:%i",nPg+1);
         DDB.Page(S, DDB_RqdPage);
         nOnPg = 0;
         nPg++;
         }
       nOnPg++;
 
-      char LabelBuff[512];
-      m_VarData[nUseData] = pVar;
-      Tag.Set("%s%s", HdTag, pVar->Name());
-      //const DDEF_Flags flgs = ((!pVar->ReadOnly() ? 0 : isParm) | noFile);
-      const DDEF_Flags flgs = ((pVar->ReadOnly() ? 0 : isParm) | noFile);
-      if (pVar->m_pWatchInfo)
+      if (pVar->WhatAmI()==VarLabel)
         {
-        switch (pVar->WhatAmI())
+        char LabelBuff[512];
+        if (pVar->m_flags & VarPageLabel)
           {
-          case VarTag   :
-          case VarDouble: 
-            DDB.Double(Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs|NAN_OK);
-            DDB.Range(pVar->m_pWatchInfo->dMin, pVar->m_pWatchInfo->dMax);
-            DDB.Description(pVar->m_pWatchInfo->sDesc()); 
-            break;
-          case VarLong  :
-          case VarByte  : 
-            DDB.Long  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
-            DDB.Range((long)pVar->m_pWatchInfo->dMin, (long)pVar->m_pWatchInfo->dMax);
-            DDB.Description(pVar->m_pWatchInfo->sDesc()); 
-            break;
-          case VarBit   : 
-            DDB.Bool  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
-            DDB.Range((byte)pVar->m_pWatchInfo->dMin, (byte)pVar->m_pWatchInfo->dMax);
-            DDB.Description(pVar->m_pWatchInfo->sDesc()); 
-            break;
-          case VarStr   : 
-            DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
-            break;
-          case VarLabel :
-            {
-            if (pVar->m_flags & VarPageLabel)
-              {
-              DDB.Page(pVar->GetStrVal(LabelBuff), DDB_RqdPage);
-              nOnPg = 0;
-              nPg++;
-              }
-            else
-              {
-              DDB.Text(pVar->GetStrVal(LabelBuff)); 
-              }
-            break;
-            }
+          DDB.Page(pVar->GetStrVal(LabelBuff), DDB_RqdPage);
+          SubPg = 1;
+          PgPrefix = LabelBuff[0];
+          nOnPg = 0;
+          nPg++;
+          }
+        else
+          {
+          DDB.Text(pVar->GetStrVal(LabelBuff)); 
           }
         }
       else
         {
-        switch(pVar->WhatAmI())
+        Tag.Set("%s%s", HdTag, pVar->Name());
+        //const DDEF_Flags flgs = ((!pVar->ReadOnly() ? 0 : isParm) | noFile);
+        const DDEF_Flags flgs = ((pVar->ReadOnly() ? 0 : isParm) | noFile);
+        if (pVar->m_pWatchInfo)
           {
-          case VarTag   :
-          case VarDouble: 
-            DDB.Double(Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs|NAN_OK);
-            break;
-          case VarLong  :
-          case VarByte  : 
-            DDB.Long  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
-            break;
-          case VarBit   : 
-            DDB.Bool  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
-            break;
-          case VarStr   : 
-            DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
-            break;
-          case VarLabel : 
+          switch (pVar->WhatAmI())
             {
-            if (pVar->m_flags & VarPageLabel)
-              {
-              DDB.Page(pVar->GetStrVal(LabelBuff), DDB_RqdPage);
-              nOnPg = 0;
-              nPg++;
-              }
-            else
-              {
-              DDB.Text(pVar->GetStrVal(LabelBuff)); 
-              }
-            break;
+            case VarTag   :
+            case VarDouble: 
+              DDB.Double(Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs|NAN_OK);
+              DDB.Range(pVar->m_pWatchInfo->dMin, pVar->m_pWatchInfo->dMax);
+              DDB.Description(pVar->m_pWatchInfo->sDesc()); 
+              break;
+            case VarLong  :
+            case VarByte  : 
+              DDB.Long  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
+              DDB.Range((long)pVar->m_pWatchInfo->dMin, (long)pVar->m_pWatchInfo->dMax);
+              DDB.Description(pVar->m_pWatchInfo->sDesc()); 
+              break;
+            case VarBit   : 
+              DDB.Bool  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
+              DDB.Range((byte)pVar->m_pWatchInfo->dMin, (byte)pVar->m_pWatchInfo->dMax);
+              DDB.Description(pVar->m_pWatchInfo->sDesc()); 
+              break;
+            case VarStr   : 
+              DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
+              break;
+            }
+          }
+        else
+          {
+          switch(pVar->WhatAmI())
+            {
+            case VarTag   :
+            case VarDouble: 
+              DDB.Double(Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs|NAN_OK);
+              break;
+            case VarLong  :
+            case VarByte  : 
+              DDB.Long  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
+              break;
+            case VarBit   : 
+              DDB.Bool  (Tag(), "", pVar->CnvIndex(), pVar->CnvTxt(), idmPGMData+nUseData, this, flgs);
+              break;
+            case VarStr   : 
+              DDB.String(Tag(), "", DC_, "", idmPGMData+nUseData, this, flgs); 
+              break;
             }
           }
         }
       }
+
     if (pVar->WhatAmI()==VarClass && !(pVar->m_flags & VarClassDefn))
       {
       Tag.Set("%s%s", HdTag, pVar->Name());
       flag ForcePg = (Lvl==0 && nOnPg>MaxPerPage);
-      DDBAddWatchedVars(DDB, Tag(), ((pGCClassVar)pVar)->m_pVarList, Lvl+1, nPg, nOnPg, ForcePg, MaxPerPage);
+      DDBAddWatchedVars(DDB, Tag(), ((pGCClassVar)pVar)->m_pVarList, Lvl+1, nPg, nOnPg, ForcePg, MaxPerPage, UserPages, SubPg, PgPrefix);
       }
     pVar = pVar->Next();
     }
@@ -396,12 +412,24 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   m_nVarData = 0;
   int nPg = 0;
   int nOnPg = 20;
+  int nSubPg = 0;
   int nTtlCnt = 0;
-  CountWatchedVars(PgmMngr.m_pVarList, nTtlCnt); 
+  int nLineCnt = 0;
+  int nPgCnt = 0;
+  CountWatchedVars(PgmMngr.m_pVarList, nTtlCnt, nLineCnt, nPgCnt);
   SetMaxVarData(Max(32, nTtlCnt));
-  const int MaxPerPage = Max(30, (int)(nTtlCnt/(MaxAccWndTabPages-1)));
+  int MaxPerPage = 30;
+  if (nPgCnt>0)
+    {//user defined pages, increase max tags per page
+    nOnPg = 30;
+    MaxPerPage = Max(50, (int)(nTtlCnt/(MaxAccWndTabPages-1)));
+    }
+  else
+    {//old style, no user pages
+    MaxPerPage = Max(30, (int)(nTtlCnt/(MaxAccWndTabPages-1)));
+    }
   //now add the watched variables..
-  DDBAddWatchedVars(DDB, "", PgmMngr.m_pVarList, 0, nPg, nOnPg, 0, MaxPerPage);
+  DDBAddWatchedVars(DDB, "", PgmMngr.m_pVarList, 0, nPg, nOnPg, 0, MaxPerPage, (nPgCnt>0), nSubPg, 'D');
 
   //now add 'special' watched array variables..
   if (PgmMngr.m_ExtraWatchArray.GetSize()>0)

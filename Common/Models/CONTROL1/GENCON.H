@@ -50,9 +50,9 @@ class GControl : public FlwNode//, GCXRefHelper
 
   private:
     void           SetMaxVarData(long NewSize);
-    void           DDBAddWatchedVars(DataDefnBlk& DDB, char* pHdTag, pGCVar VarList, int Lvl, int &nPg, int &nOnPg, flag ForceNewPage, int MaxPerPage);
+    void           DDBAddWatchedVars(DataDefnBlk& DDB, char* pHdTag, pGCVar VarList, int Lvl, int &nPg, int &nOnPg, flag ForceNewPage, int MaxPerPage, bool UserPages, int &SubPg, char PgPrefix);
     void           DDBAddArrayWatchedVars(DataDefnBlk & DDB, int &nPg, int MaxPerPage);
-    void           CountWatchedVars(pGCVar VarList, int & Count);
+    void           CountWatchedVars(pGCVar VarList, int & TagCount, int & LineCount, int & PageCount);
     flag           LoadPGM(char* pPGMName, flag WithDebug);
 
   public:
