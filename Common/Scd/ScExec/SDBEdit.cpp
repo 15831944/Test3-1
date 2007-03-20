@@ -2274,25 +2274,26 @@ BOOL CSDBSpecie::BuildRowList(char * PositionAt)
       Strng FixedCompName;
       if (strValue.vt!=VT_NULL && strchr(OLE2T(V_BSTR(&strValue)), '$')==0)
         {
+        Rows().SetSize(i+1, 128);
+        RowItem & Ri = Rows()[i];
         CompName=OLE2T(V_BSTR(&strValue));
         CheckSymbolName(CompName(), FixedCompName);
-        Rows().SetSize(i+1, 128);
-        Rows()[i].Comp=FixedCompName();//V_BSTR(&strValue);
+        Ri.Comp=FixedCompName();//V_BSTR(&strValue);
 
-         strValue=Recordset()->Fields->GetItem(StrPhase)->Value;
+        strValue=Recordset()->Fields->GetItem(StrPhase)->Value;
         if (strValue.vt==VT_NULL)
           LogWarning("SDBEdit", 0, "%s Occurrence missing", FixedCompName());
-        Rows()[i].Occ=(strValue.vt==VT_NULL) ? "?": OLE2T(V_BSTR(&strValue));
+        Ri.Occ=(strValue.vt==VT_NULL) ? "?": OLE2T(V_BSTR(&strValue));
         
-         strValue=Recordset()->Fields->GetItem(StrTs)->Value;
+        strValue=Recordset()->Fields->GetItem(StrTs)->Value;
         if (strValue.vt==VT_NULL)
           LogWarning("SDBEdit", 0, "%s Start temperature missing", FixedCompName());
-        Rows()[i].Ts=(strValue.vt==VT_NULL) ? 273.0f : (strValue.vt==VT_R4) ? V_R4(&strValue) : (float)SafeAtoF(OLE2T(V_BSTR(&strValue)));
+        Ri.Ts=(strValue.vt==VT_NULL) ? 273.0f : (strValue.vt==VT_R4) ? V_R4(&strValue) : (float)SafeAtoF(OLE2T(V_BSTR(&strValue)));
         
-         strValue=Recordset()->Fields->GetItem(StrTe)->Value;
+        strValue=Recordset()->Fields->GetItem(StrTe)->Value;
         if (strValue.vt==VT_NULL)
           LogWarning("SDBEdit", 0, "%s End temperature missing", FixedCompName());
-        Rows()[i].Te=(strValue.vt==VT_NULL) ? Rows()[i].Ts+100.0f : (strValue.vt==VT_R4) ? V_R4(&strValue) : (float)SafeAtoF(OLE2T(V_BSTR(&strValue)));
+        Ri.Te=(strValue.vt==VT_NULL) ? Rows()[i].Ts+100.0f : (strValue.vt==VT_R4) ? V_R4(&strValue) : (float)SafeAtoF(OLE2T(V_BSTR(&strValue)));
         i++;
         }
       else
@@ -2303,7 +2304,8 @@ BOOL CSDBSpecie::BuildRowList(char * PositionAt)
         try
           {
           //Recordset()->Edit();
-          strValue.SetString(FixedCompName(), VT_BSTRT);
+          //strValue.SetString(FixedCompName(), VT_BSTRT);
+          strValue.SetString(FixedCompName(), VT_BSTR);
           Recordset()->Fields->GetItem(StrCompound)->Value=strValue;
           Recordset()->Update();
           }

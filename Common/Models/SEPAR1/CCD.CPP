@@ -78,6 +78,8 @@ static IOAreaRec CcdIOAreaList[] =
 	 {"Wash Water",    "WashWater" , ioidWW,   LIO_In1 , nc_MLnk, 1, 10, IOPipeEntry, 1.0f},
    {"Ccd Overflow",  "OverFlow"  , ioidOF,   LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry, (float)0.98},
    {"Ccd Underflow", "UnderFlow" , ioidUF,   LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f},
+    SPILL2AREA("Spills", IOId_Spill2Area),
+    VENT2AREA("Vents",   IOId_Vent2Area),
    {NULL}};
 
 static double Drw_CCD[] = { DD_Poly, 0,-8, -16,-1, -16,2, 16,2, 16,-1, 0,-8, -20,-8,
