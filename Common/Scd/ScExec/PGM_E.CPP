@@ -20,6 +20,8 @@
 #include "pgm_elec.h"
 //#include "optoff.h"
 
+#include <fstream>
+
 #if WITHDEBUGNEW
 #ifdef new
 #undef new
@@ -4017,6 +4019,20 @@ void PGMParseFailure(char* pTxt, DWORD ErrNo, void* p)
 
 //---------------------------------------------------------------------------
 
+bool fileExists(const std::string& fileName)
+{
+  std::fstream fin;
+  fin.open(fileName.c_str(),std::ios::in);
+  if( fin.is_open() )
+  {
+    fin.close();
+    return true;
+  }
+  fin.close();
+  return false;
+}
+
+
 flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* ParseBuff, flag AddingCode/*=False*/, int FirstInsBlkSize/*=4096*/, int NextInsBlkSize/*=2048*/)
   {
   ASSERT(GCDef::m_pFirst != NULL);
@@ -4071,16 +4087,66 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
     m_DbgMngr.sPgmName = "Buffer";
     m_pH->m_pTknParser = new CTokenParser(True, True);
     m_pH->m_pTknParser->SetFarBuffer(ParseBuff);
+    m_pH->m_pTknParser->SetLineEnd("\n"); // otherwise netline returns entire buffer.
     }
   else
     {
     if (strpbrk(fullFileName, ":\\")==NULL)
       strcpy(Fn, PrjFiles());
     strcat(Fn, fullFileName);
-    m_DbgMngr.sPgmName = Fn;
-    while (m_DbgMngr.sPgmName.Find('\\')>=0)
-      m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
-    m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+
+    Strng realFn;
+    realFn.FnExpand(Fn);
+    char* rFn = realFn.Str();
+
+
+    if (fileExists(rFn))
+    {
+      m_DbgMngr.sPgmName = Fn;
+      while (m_DbgMngr.sPgmName.Find('\\')>=0)
+        m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
+      m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+    }
+    else
+    {
+      strcat(rFn, ".x");
+      std::fstream fin;
+      fin.open(rFn, std::ios::in|std::ios::binary);
+      if (fin.is_open())
+      {
+        fin.seekg(0, std::ios_base::end);
+        int length = fin.tellg();
+        fin.seekg(0, std::ios_base::beg);
+
+        ParseBuff = new char[length];
+        fin.read(ParseBuff, length);
+        fin.close();
+
+        int count = fin.gcount();
+        ParseBuff[count] = 71;
+
+        for (int i=count-1; i>0; i--) // decrypt the buffer.
+        {
+          ParseBuff[i] ^= ParseBuff[i+1];
+        }
+
+        ParseBuff[count] = 0;
+      }
+      else
+      {
+        // What error response should go here?  From above, perhaps we should just give up and
+        // send the known bad filename to CTokenParser...  Doing that for now.
+        m_DbgMngr.sPgmName = Fn;
+        while (m_DbgMngr.sPgmName.Find('\\')>=0)
+          m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
+        m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+      }
+
+      m_DbgMngr.sPgmName = "Buffer";
+      m_pH->m_pTknParser = new CTokenParser(True, True);
+      m_pH->m_pTknParser->SetFarBuffer(ParseBuff);
+      m_pH->m_pTknParser->SetLineEnd("\n"); // otherwise netline returns entire buffer.
+    }
     }
 
   m_pH->m_pTknParser->SetSeperators("+-*/^;,= \t()<>!\"[]{}$#@\v\f");

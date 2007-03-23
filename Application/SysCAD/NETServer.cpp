@@ -638,7 +638,7 @@ ref class CNETServerThread
       {
         char* dest = new char[tag->Length+1];
         strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(tag)))));
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)dest);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)dest);
 
         ArrayList^ list = gcnew ArrayList();
         // Generate list of properties at this level in properties tree.
