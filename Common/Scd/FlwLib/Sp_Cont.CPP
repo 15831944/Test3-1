@@ -3599,7 +3599,7 @@ void SpVectorObj::BuildDataDefn(DataDefnBlk &DDB)
         case SVT_Specie:
           {
           int iSp=I.SVIndex();
-          DDB.Double(I.FullTag(), I.FullTag(), MyiCnv, MysCnv, Info.xid/*+iSp*/, SpHandle2(0, iSp), this, isParm|NAN_OK|DDEF_ISSPECIE);
+          DDB.Double(I.FullTag(), I.FullSym(), MyiCnv, MysCnv, Info.xid/*+iSp*/, SpHandle2(0, iSp), this, isParm|NAN_OK|DDEF_ISSPECIE);
           break;
           }
         case SVT_Attribute:
@@ -3610,7 +3610,7 @@ void SpVectorObj::BuildDataDefn(DataDefnBlk &DDB)
             Handle=xidAttrViews+(Info.xid-xidSpFirst);
           else
             Handle=xidAttrSimple;
-          DDB.Double(I.FullTag(), I.FullTag(), MyiCnv, MysCnv, Handle, SpHandle2(0, iAt), this, isParm|NAN_OK|DDEF_ISSPECIEATT);
+          DDB.Double(I.FullTag(), I.FullSym(), MyiCnv, MysCnv, Handle, SpHandle2(0, iAt), this, isParm|NAN_OK|DDEF_ISSPECIEATT);
           break;
           }
         case SVT_Calculation:
