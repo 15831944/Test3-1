@@ -474,7 +474,6 @@ void AlcoaBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
   //DDB.Double("TOOC@T",        "",   DC_Conc,  "g/L",     xidSlurryTOOC,          this,  isResult|noFile|noSnap|InitHidden);
   DDB.Double("TOC@T",         "",   DC_Conc,  "g/L",     xidSlurryTOC,           this,  isResult|noFile|noSnap|InitHidden);
   DDB.Double("SolidsConcT",   "",   DC_Conc,  "g/L",     xidSlurrySolidsConc,    this,  isResult|noFile);
-  DDB.Double("BoilPtElev",    "",   DC_dT,    "C",       xidBayerBPE,            this,  isResult|noFile);
   
   DDB.Text("");
   DDB.Text("Bayer Liquor Precipitation Values @ Temp");
@@ -485,6 +484,9 @@ void AlcoaBayer::BuildDataDefn_Vars(DataDefnBlk & DDB)
   DDB.Double("IonicStrength", "I",  DC_,      "",        xidIonicStrength,       this,  isResult|noFile|noSnap|InitHidden);
   DDB.Double("OxalateEq",     "",     DC_Conc,  "g/L",   xidOxalateEquilibrium,  this,  isResult|noFile|noSnap|InitHidden);
 
+  DDB.Text("");
+  DDB.Text("Other");
+  DDB.Double("BoilPtElev",    "",   DC_dT,    "C",       xidBayerBPE,            this,  isResult|noFile);
   DDB.Text("");
   DDB.Text("Other Alcoa Values @ 25");
   DDB.Double("Actual_NaOx/TA", "",    DC_,    "",        xidActualNaOx_to_TA,    this,  isResult|noFile|noSnap);
@@ -527,7 +529,7 @@ flag AlcoaBayer::DataXchg(DataChangeBlk & DCB)
     case xidSlurrySolidsConc:      DCB.D=SolidsConc(Temp()); return 1;
     case xidSlurrySolidsConc25:    DCB.D=SolidsConc(C_2_K(25.0)); return 1;
     case xidSlurryFreeCaustic25:   DCB.D=FreeCaustic(C_2_K(25.0)); return 1;
-    case xidBayerBPE:              DCB.D=BoilPtElev(Temp()); return 1;
+    case xidBayerBPE:              DCB.D=BoilingPtElevation(Press()); return 1;//BoilPtElev(Temp()); return 1;WRONG
 
     case xidOrganateConc25:        DCB.D=OrganateConc(); return 1;
     case xidTotalOrgConc25:        DCB.D=TotalOrganics(); return 1;
@@ -1292,10 +1294,18 @@ double AlcoaBayer::Na2SO4toC()
 
 double AlcoaBayer::BoilingPtElevation(double P_, CSysVector * pMA)
   {
-  double T_=Temp();
-  double BPE=BoilPtElev(T_, pMA);
-  //return BPE;
-  return Max(0.0, BPE);
+  if (0)
+    {
+    double A=SaturationT(P_, pMA);
+    double B=PureSaturationT(P_, pMA);
+    dbgpln("SMBayer::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
+    }
+  return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
+
+  //double T_=Temp();
+  //double BPE=BoilPtElev(T_, pMA);
+  ////return BPE;
+  //return Max(0.0, BPE);
   }
 
 //---------------------------------------------------------------------------
@@ -1545,13 +1555,16 @@ double AlcoaBayer::TotalSodium(CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double AlcoaBayer::SaturationP(double T_, CSysVector * pMA)
+double AlcoaBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
 
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
+
+  if (iSatComp>=0)
+    return SpModelEx::SaturationP(T_, &MA, iSatComp);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationP(T_, &MA);
@@ -1591,12 +1604,15 @@ double AlcoaBayer::SaturationP(double T_, CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double AlcoaBayer::SaturationT(double P_, CSysVector * pMA)
+double AlcoaBayer::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
+
+  if (iSatComp>=0)
+    return SpModelEx::SaturationT(P_, &MA, iSatComp);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationT(P_, &MA);

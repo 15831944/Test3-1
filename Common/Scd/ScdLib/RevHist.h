@@ -2786,10 +2786,11 @@ Build 123 : 21 February 2007
 1576 19/03/07: Bulk tag change improvements when accessed from the explorer window.
 1577 20/03/07: (#748) Improvements for access window when PGM PageLabel is used.
 1578 20/03/07: (#792) Fix for importing specie data from HSC with name with '(' and ')'.
+1579 23/03/07: (#796) .
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1578
+#define SCD_PATCH_SVN    1579
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
