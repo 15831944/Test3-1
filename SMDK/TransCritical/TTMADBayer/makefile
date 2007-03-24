@@ -1,4 +1,4 @@
-SYSCAD=90
+SYSCAD=91
 SYSCADDIR=C:\SysCAD$(SYSCAD)\bin
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
