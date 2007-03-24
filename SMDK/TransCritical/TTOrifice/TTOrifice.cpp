@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-03-07 05:05:01 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-03-09 05:21:46 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -26,6 +26,8 @@ static MSpeciePtr  spWaterVapor    (InitTest, "H2O(g)", false);
 
 const long idIn  = 0;
 const long idOut  = 1;
+
+const int idDX_Description = 1;
 
 class CFlashSolver;
 
@@ -276,6 +278,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("VaporFraction", "", &dxVapor, MF_RESULT, MC_Frac("%"));
   DD.Double("SlipDensity", "", &dSlipDensity, MF_RESULT, MC_Rho);
   DD.Text("Valve and Entry Characteristics");
+  DD.String("State", "ValveState", idDX_Description, MF_RESULT);
 
   DD.Double ("PipeD", "", &dPipe, MF_PARAMETER, MC_L("mm"));
   DD.Double ("PipeVelocity", "", &dPipeVelocity, MF_RESULT, MC_Ldt("m/s"));
@@ -345,8 +348,13 @@ void CTTOrifice::BuildDataFields()
   
   for (int i=0; i<30; i++) {
     Tg.Format("Density %3d", i);
-    DD.Double((char*)(const char*)Tg, "", dRhoData+i, MF_RESULT, MC_Rho);
+    DD.Double((char*)(const char*)Tg, "", dRhoData+i, MF_RESULT|MF_NO_FILING, MC_Rho);
+    
+    //DD.Text((char*)(const char*)Tg, MF_STARTROW);
+    //DD.Double("", "", dRhoData+i, MF_RESULT|MF_NO_FILING, MC_None);
+    //DD.Double("", "", dPData+i, MF_RESULT|MF_ENDROWS|MF_NO_FILING, MC_None);
   }
+
 #endif
 
   
@@ -402,6 +410,22 @@ double CTTOrifice::ValveCv()
 
 
 
+bool CTTOrifice::ExchangeDataFields()
+{
+  switch (DX.Handle)
+    {
+    case idDX_Description:
+      //if (DX.HasReqdValue)
+      //m_sDesc=DX.String;
+      DX.String=(LPCSTR)m_sDesc;
+      return true;
+    }
+  return false;
+}
+
+
+
+
 void CTTOrifice::EvalProducts()
 {
   try           
@@ -450,7 +474,9 @@ void CTTOrifice::EvalProducts()
 
       dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
       if (dPOrificeIn - dPValve < dFlashP && bControlValve) {
-	Log.SetCondition(true, 0, MMsg_Warning, "Flashing in Valve");
+	m_sDesc.Format("Flashing In Valve");
+      } else {
+	m_sDesc.Format("Valve OK");
       }
 	
 
@@ -495,7 +521,6 @@ void CTTOrifice::EvalProducts()
       dHomogMassChokeVelocity = criticalFlow(OutStream, SFM_Homo);
 
 #ifdef TTDEBUG   // Flash densities...
-      double dPData[30];
       mstmp = InStream;
       SlipFlow s1(m_lSlipMode);
       dPMax = dFlashP;

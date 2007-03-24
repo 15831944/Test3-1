@@ -31,7 +31,7 @@ class CTTOrifice : public MBaseMethod
 
     virtual void    Init();
     virtual void    BuildDataFields();
-    //    virtual bool    ExchangeDataFields();
+    virtual bool    ExchangeDataFields();
     virtual bool    ConfigureJoins();
     virtual bool    EvalJoinPressures();
     virtual void    EvalProducts();
@@ -46,6 +46,7 @@ class CTTOrifice : public MBaseMethod
     double HNEFlash(MStream, double, double alpha = 2.0, double flashmax = 0.14);
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
+    CString         m_sDesc;
     bool bOn;     // Bypass if not...
     bool bPassThru;    // If on, pass stream through unaltered
     bool bControlValve;  // Include control valve dP
@@ -106,6 +107,7 @@ class CTTOrifice : public MBaseMethod
     double dPCritEst;
     double dPMin, dPMax, dBeta;
     double dRhoData[30];
+    double dPData[30];
 #endif
 
   };
