@@ -18,7 +18,7 @@
 #include "executiv.h"
 #include "tagdb.h"
 #include "pgm_elec.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 #include <fstream>
 
@@ -4102,6 +4102,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
 
     if (fileExists(EncryptedFn()))
       {//FIRST look for encrypted file
+      LogNote(m_pXRM ? m_pXRM->GetOwnerTag() : "???", 0, "Load:%s", EncryptedFn());
       std::fstream fin;
       fin.open(EncryptedFn(), std::ios::in|std::ios::binary);
       if (fin.is_open())
@@ -4110,7 +4111,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
         int length = fin.tellg();
         fin.seekg(0, std::ios_base::beg);
 
-        ParseBuff = new char[length];
+        ParseBuff = new char[length+1];
         fin.read(ParseBuff, length);
         fin.close();
 
