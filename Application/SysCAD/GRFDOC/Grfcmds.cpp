@@ -6375,7 +6375,7 @@ void GrfCmdBlk::DoSelect()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_GOTO, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_MARK|SUB_TAG_GOTO, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;
@@ -6484,7 +6484,7 @@ void GrfCmdBlk::DoFind()
         {
         char* pTxt = new char[strlen(b999[0])+1];
         strcpy(pTxt, b999[0]);
-        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_GOTO, (LPARAM)pTxt);
+        ScdMainWnd()->PostMessage(WMU_TAGACTION, gs_pPrj->bDoGrfAutoAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS: SUB_TAG_MARK|SUB_TAG_GOTO, (LPARAM)pTxt);
         }
       }
     gs_pPrj->bDoGrfAutoAccess = 0;

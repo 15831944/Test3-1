@@ -4602,7 +4602,7 @@ void AccNodeWnd::OnAccMenu(UINT id)
         switch (id)
           {
           case IDM_ACC_ACCESSTAG_0: wp = SUB_TAG_MARK|SUB_TAG_ACCESS;  break;
-          case IDM_ACC_FINDTAG_0  : wp = SUB_TAG_GOTO;    break;
+          case IDM_ACC_FINDTAG_0  : wp = SUB_TAG_MARK|SUB_TAG_GOTO;    break;
           case IDM_ACC_MDLHELP_0  : wp = SUB_TAG_MDLHELP; break;
           }
         char* pTxt = new char[sLastSelected[Index].GetLength()+1];

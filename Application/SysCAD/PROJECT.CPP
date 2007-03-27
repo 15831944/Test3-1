@@ -3949,7 +3949,7 @@ void CProject::CloseDDEManager(BOOL ForExit/*=FALSE*/)
 
 //---------------------------------------------------------------------------
 
-bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, DXF_ENTITY &pTagInsert, DXF_ENTITY &pTagAttr,int & DocNotLoadedCnt)
+bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, DXF_ENTITY &pTagInsert, DXF_ENTITY &pTagAttr,int & DocNotLoadedCnt, Strng & TagFound)
   {
   //Strng Cmd("\x1b");
   //gs_pCmd->ProcessAStr(Cmd()); //Ensure there are no half complete commands
@@ -3964,11 +3964,16 @@ bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, 
 
   //CWaitMsgCursor Wait(Buff);
   DocNotLoadedCnt = 0;
-  Strng sFindTagMem(sFindTag);
+
+  // strip off 'extra info'
+  char * p=sFindTag.XStrRChr(' ');
+  if (p)
+    sFindTag.SetLength(p-sFindTag());
+
+  // trim tag and find until 'only the node tag'
   for (int iPass=0; iPass<10; iPass++)
     {
-    sFindTag=sFindTagMem;
-    for (int i=0; i<iPass; i++)
+    if (iPass>0)
       {
       char * p=sFindTag.XStrRChr('.');
       if (p)
@@ -3976,6 +3981,7 @@ bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, 
       else
         return false;
       }
+
     for (int iTemp=iGraphTemplate; iTemp<=iVisioTemplate; iTemp++)
       {
       if (ScdApp()->TemplateExists(iTemp))
@@ -3995,6 +4001,7 @@ bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, 
               if (pGrfDoc->FindTag(sFindTag(), pTagInsert, pTagAttr))
                 {
                 pGrfDocFound=pGrfDoc;
+                TagFound=sFindTag;
                 return true;
                 }
               }
@@ -4008,7 +4015,7 @@ bool FindTagInGraphic(LPCSTR FindTag, LPSTR GraphPage, CGrfDoc * &pGrfDocFound, 
 
 //---------------------------------------------------------------------------
 
-bool FindTagInTrend(LPCSTR FindTag, LPSTR TrendPage, int TrendLineNo, CTagVwDoc* &pTrendDocFound)
+bool FindTagInTrend(LPCSTR FindTag, LPSTR TrendPage, int TrendLineNo, CTagVwDoc* &pTrendDocFound, Strng & TagFound)
   {
   pTrendDocFound=NULL;
 
@@ -4017,11 +4024,15 @@ bool FindTagInTrend(LPCSTR FindTag, LPSTR TrendPage, int TrendLineNo, CTagVwDoc*
   if (sTrendPage.GetLength()>0)
     sTrendPage.FnName();
 
-  Strng sFindTagMem(sFindTag);
+  // strip off 'extra info'
+  char * p=sFindTag.XStrRChr(' ');
+  if (p)
+    sFindTag.SetLength(p-sFindTag());
+
+  // trim tag and find until 'only the node tag'
   for (int iPass=0; iPass<10; iPass++)
     {
-    sFindTag=sFindTagMem;
-    for (int i=0; i<iPass; i++)
+    if (iPass>0)
       {
       char * p=sFindTag.XStrRChr('.');
       if (p)
@@ -4029,6 +4040,7 @@ bool FindTagInTrend(LPCSTR FindTag, LPSTR TrendPage, int TrendLineNo, CTagVwDoc*
       else
         return false;
       }
+
     for (int iTemp=iTrendTemplate; iTemp<=iControlTemplate; iTemp++)
       {
       if (ScdApp()->TemplateExists(iTemp))
@@ -4045,6 +4057,7 @@ bool FindTagInTrend(LPCSTR FindTag, LPSTR TrendPage, int TrendLineNo, CTagVwDoc*
             if (pTrendDoc->FindTag(sFindTag(), iLine, true))
               {
               pTrendDocFound=pTrendDoc;
+              TagFound=sFindTag;
               return true;
               }
             }
@@ -4115,12 +4128,13 @@ flag CProject::FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, int TrndLineNo
     DXF_ENTITY pTagInsert=NULL;
     DXF_ENTITY pTagAttr=NULL;
     int DocNotLoadedCnt=0;
-    Found = FindTagInGraphic(sFindTag(), sGraphPage(), pGrfDocFound, pTagInsert, pTagAttr, DocNotLoadedCnt);
+    Strng TagFound;
+    Found = FindTagInGraphic(sFindTag(), sGraphPage(), pGrfDocFound, pTagInsert, pTagAttr, DocNotLoadedCnt, TagFound);
 
     if (Found)
       {
-      pGrfDocFound->FindTagComplete(sFindTag(), pTagInsert, pTagAttr, Options);
-      pStatusBar->SetMsg("Tag '%s' found", sFindTag());
+      pGrfDocFound->FindTagComplete(TagFound(), pTagInsert, pTagAttr, Options);
+      pStatusBar->SetMsg("Tag '%s' found", TagFound());
       }
     else
       {
@@ -4139,9 +4153,10 @@ flag CProject::FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, int TrndLineNo
 
     CTagVwDoc* pTrndDoc;
     int iLine=TrndLineNo-1;
-    if (FindTagInTrend(sFindTag(), sTrendPage(), TrndLineNo, pTrndDoc))
+    Strng TagFound;
+    if (FindTagInTrend(sFindTag(), sTrendPage(), TrndLineNo, pTrndDoc, TagFound))
       {
-      pStatusBar->SetMsg("'%s' found on line %d in %s", sFindTag(), iLine, pTrndDoc->GetTitle());
+      pStatusBar->SetMsg("'%s' found on line %d in %s", TagFound(), iLine, pTrndDoc->GetTitle());
       }
     else
       {
