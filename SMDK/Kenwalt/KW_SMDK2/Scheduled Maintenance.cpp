@@ -16,14 +16,14 @@ static double Drw_SchedMaint[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2.,
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(ScheduledMaintenance, "Scheduled Maintenance", DLL_GroupName)
+DEFINE_CONTROL_UNIT(ScheduledMaintenance, "Scheduled Events", DLL_GroupName)
 
 void ScheduledMaintenance_UnitDef::GetOptions()
 {
-	SetDefaultTag("SM");
-	SetDrawing("Tank", Drw_SchedMaint);
-	SetTreeDescription("Demo:Scheduled Maintenance");
-	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
+	SetDefaultTag("SE");
+	SetDrawing("Control", Drw_SchedMaint);
+	SetTreeDescription("Control:Scheduled Events");
+	SetModelSolveMode(MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
 };
 
@@ -104,25 +104,21 @@ void ScheduledMaintenance::BuildDataFields()
 		DD.ArrayElementStart(i);
 		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
 
-		DD.Double ("Desired Period", "DT", &tasks.at(i).dDesiredPeriod, MF_PARAMETER, MC_Time(""));
-		DD.Double ("Period", "T", &tasks.at(i).dPeriod, MF_RESULT, MC_Time(""));
-		DD.Double ("Offset", "T0", &tasks.at(i).dOffset, MF_PARAM_STOPPED, MC_Time(""));
-		DD.Double ("Desired Downtime", "DTd", &tasks.at(i).dDesiredDowntime, MF_PARAMETER, MC_Time(""));
-		DD.Double ("Downtime", "Td", &tasks.at(i).dDowntime, MF_RESULT, MC_Time(""));
-
+		DD.Double ("RequiredPeriod", "RqdPeriod", &tasks.at(i).dDesiredPeriod, MF_PARAMETER, MC_Time("h"));
+		DD.Double ("", "Offset", &tasks.at(i).dOffset, MF_PARAM_STOPPED, MC_Time("h"));
+		DD.Double ("", "RqdInactivePeriod", &tasks.at(i).dDesiredDowntime, MF_PARAMETER, MC_Time("h"));
+		DD.Double ("ActiveValueToSet", "ActiveVal", &tasks.at(i).dOnValue, MF_PARAMETER);
+		DD.Double ("InactiveValueToSet", "InactiveVal", &tasks.at(i).dOffValue, MF_PARAMETER);
+		DD.String ("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
 		DD.Text("");
-		DD.String("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
+		DD.Text("Results");
+		DD.Double ("", "Period", &tasks.at(i).dPeriod, MF_RESULT, MC_Time("h"));
+		DD.Double ("", "InactivePeriod", &tasks.at(i).dDowntime, MF_RESULT, MC_Time("h"));
 		if (tasks.at(i).nTagID < 0)
 			DD.Text("Tag Not Found");
-		DD.Show(tasks.at(i).nTagID >= 0);
-		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i).dOnValue, MF_PARAMETER);
-		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i).dOffValue, MF_PARAMETER);
-		DD.Show();
-
-		DD.Text("");
-		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
-		DD.Double("Total Downtime", "TDown", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time(""));
-		DD.Double("Next Shutdown", "Tls", &tasks.at(i).dNextShutdown, MF_RESULT, MC_Time(""));
+		DD.Bool("Active", "", &tasks.at(i).bRunning, MF_RESULT);
+		DD.Double("", "TtlInactiveTime", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time("h"));
+		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i).dNextShutdown, MF_RESULT, MC_Time("h"));
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}

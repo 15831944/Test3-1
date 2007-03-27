@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     encBuffer = new char[count];
 
-    for (int i=count-1; i>0; i--) // decrypt the buffer.
+    for (int i=count-1; i>=0; i--) // decrypt the buffer.
     {
       encBuffer[i] = textBuffer[i] ^ textBuffer[i+1];
     }

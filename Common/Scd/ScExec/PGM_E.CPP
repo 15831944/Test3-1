@@ -18,7 +18,7 @@
 #include "executiv.h"
 #include "tagdb.h"
 #include "pgm_elec.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #include <fstream>
 
@@ -4095,25 +4095,17 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
       strcpy(Fn, PrjFiles());
     strcat(Fn, fullFileName);
 
-    Strng realFn;
+    Strng realFn,EncryptedFn;
     realFn.FnExpand(Fn);
-    char* rFn = realFn.Str();
+    EncryptedFn = realFn;
+    EncryptedFn += ".x";
 
-
-    if (fileExists(rFn))
-    {
-      m_DbgMngr.sPgmName = Fn;
-      while (m_DbgMngr.sPgmName.Find('\\')>=0)
-        m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
-      m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
-    }
-    else
-    {
-      strcat(rFn, ".x");
+    if (fileExists(EncryptedFn()))
+      {//FIRST look for encrypted file
       std::fstream fin;
-      fin.open(rFn, std::ios::in|std::ios::binary);
+      fin.open(EncryptedFn(), std::ios::in|std::ios::binary);
       if (fin.is_open())
-      {
+        {
         fin.seekg(0, std::ios_base::end);
         int length = fin.tellg();
         fin.seekg(0, std::ios_base::beg);
@@ -4125,28 +4117,31 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
         int count = fin.gcount();
         ParseBuff[count] = 71;
 
-        for (int i=count-1; i>0; i--) // decrypt the buffer.
-        {
+        for (int i=count-1; i>=0; i--) // decrypt the buffer.
+          {
           ParseBuff[i] ^= ParseBuff[i+1];
-        }
+          }
 
         ParseBuff[count] = 0;
-      }
+        m_DbgMngr.sPgmName = "Buffer";
+        m_pH->m_pTknParser = new CTokenParser(True, True);
+        m_pH->m_pTknParser->SetFarBuffer(ParseBuff);
+        m_pH->m_pTknParser->SetLineEnd("\n"); // otherwise netline returns entire buffer.
+        }
       else
-      {
-        // What error response should go here?  From above, perhaps we should just give up and
-        // send the known bad filename to CTokenParser...  Doing that for now.
-        m_DbgMngr.sPgmName = Fn;
-        while (m_DbgMngr.sPgmName.Find('\\')>=0)
-          m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
-        m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+        {
+        // What error response should go here?
+        m_StateLine[0] = "Error opening encrypted file";
+        return true;//False;
+        }
       }
-
-      m_DbgMngr.sPgmName = "Buffer";
-      m_pH->m_pTknParser = new CTokenParser(True, True);
-      m_pH->m_pTknParser->SetFarBuffer(ParseBuff);
-      m_pH->m_pTknParser->SetLineEnd("\n"); // otherwise netline returns entire buffer.
-    }
+    else
+      {//assume normal pgm
+      m_DbgMngr.sPgmName = Fn;
+      while (m_DbgMngr.sPgmName.Find('\\')>=0)
+        m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
+      m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+      }
     }
 
   m_pH->m_pTknParser->SetSeperators("+-*/^;,= \t()<>!\"[]{}$#@\v\f");

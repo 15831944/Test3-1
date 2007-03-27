@@ -103,6 +103,7 @@ class GControl : public FlwNode//, GCXRefHelper
     FILETIME        m_EditTime[TP_MaxTtlIncludeFiles];             //time editor scheduled
     
     flag            bOn;                  //must the pgm be executed etc
+    flag            bEncrypt;             //expect encrypted pgm
     flag            bAutoReload;          // AutoReload ?
     flag            bReloadReqd;          //
     flag            bWithDBG;             //

@@ -102,6 +102,7 @@ GControl::GControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   fActiveHoldOK_Dyn=true;
   sPGMName = "";
   bOn = 1;
+  bEncrypt = 0;
   m_VarData = NULL;
   m_nMaxVarData = 0;
   SetMaxVarData(32L);
@@ -362,10 +363,8 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text(" ");
   DDB.String("PGM_Name",     "", DC_,    "",    idmPGMName,               this, isParm|SetOnChange);
   DDB.String("PGM_Path",     "", DC_,    "",    idmPGMPath,               this, noFileAtAll);
-  DDB.CheckBoxBtn("On",         "", DC_, "",    &bOn,                     this, isParmStopped, DDBYesNo);
-//DDB.CheckBoxBtn("Flag1",         "", DC_, "",    &bFlag1,                     this, isParm);
-//DDB.CheckBoxBtn("Bool1",         "", DC_, "",    &bBool1,                     this, isParm);
-//DDB.Bool("Bool2",         "", DC_, "",    &bBool2,                     this, isParm);
+  DDB.CheckBoxBtn("On",      "", DC_,    "",    &bOn,                     this, isParmStopped, DDBYesNo);
+  //DDB.CheckBoxBtn("Encrypt", "", DC_,    "",    &bEncrypt,                this, isParmStopped, DDBYesNo);
   DDB.CheckBoxBtn("AutoReload", "", DC_, "",    &bAutoReload,             this, isParm, DDBOnOff);
   DDB.String("State",        "", DC_,    "",    &PgmMngr.m_StateLine[0],  this, noSnap|noFile);
   DDB.Text("Error:");
@@ -375,9 +374,11 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String("Msg_4",        "", DC_,    "",    &PgmMngr.m_StateLine[4],  this, noSnap|noFile);
   DDB.Text(" ");
   // These buttons should follow the PGMName
-  DDB.Button("Edit_PGM",     "", DC_,    "",    idmEditPGMBtn,            this, isParm);
+  if (!bEncrypt)
+    DDB.Button("Edit_PGM",     "", DC_,    "",    idmEditPGMBtn,            this, isParm);
   DDB.Button("Reload_PGM",   "", DC_,    "",    idmReloadPGMBtn,          this, isParm);
-  DDB.Button("Browse_PGM",   "", DC_,    "",    idmBrowsePGMBtn,          this, isParm);
+  if (!bEncrypt)
+    DDB.Button("Browse_PGM",   "", DC_,    "",    idmBrowsePGMBtn,          this, isParm);
   DDB.Button("Check_tags",   "", DC_,    "",    idmTagCheckBtn,           this, isParmStopped);
 
   // #744 Allow editting of Includes
