@@ -227,7 +227,7 @@ class DllImportExport CNodeTagIOList
         //short             m_iDataType;
         long              m_lIdNo;
         bool              m_bValid;
-
+        bool              m_bInUse;
         CTgFnIoVar        m_Var;
 
         double            m_DblValue;
@@ -284,8 +284,12 @@ class DllImportExport CNodeTagIOList
     void            GetAllValues(bool CallGetNearXRefs);
     void            SetAllValues(bool CallSetNearXRefs);
 
-  protected:
+  private:
+    void            UpdateList();
+
     FlwNode       * m_pNd;
+                             
+    long            m_nCount;
 
     CArray<CTagItem*, CTagItem*> m_Items;
     CMap<LPCSTR, LPCSTR, CTagItem*, CTagItem*> m_TagMap;

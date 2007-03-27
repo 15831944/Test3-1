@@ -4446,7 +4446,7 @@ class DllImportExport FlwNode : public CTNode
 #if WITHNODETAGIO
     bool              m_TagIOReqd;   // 
     CNodeTagIOList  * m_pTagIO;
-    long              m_EstTagCount;
+    //long              m_EstTagCount;
 #endif
 
     CClosureInfoArray m_Closure;

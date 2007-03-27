@@ -190,7 +190,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 101; //CNM  11/09/2006 Force Fixes to Archiver
 //const int LatestPrjFileVer = 102; //KGA  27/11/2006 Changes to status colours
 //const int LatestPrjFileVer = 103; //CNM  24/01/2007 Changes Saturation Pressure
-const int LatestPrjFileVer = 104; //CNM  07/02/2007 Changes to Shell & Tube IO
+//const int LatestPrjFileVer = 104; //CNM  07/02/2007 Changes to Shell & Tube IO
+const int LatestPrjFileVer = 105; //CNM  23/03/2007 SpVector::Tagging/Symbols changed
 
 //===========================================================================
 //
@@ -6388,7 +6389,9 @@ flag CProject::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL
     (PrjFileVerNoAsLoaded()<68 && PrjFileVerNo()>=68) ||
     (PrjFileVerNoAsLoaded()<69 && PrjFileVerNo()>=69) ||
     (PrjFileVerNoAsLoaded()<73 && PrjFileVerNo()>=73) ||
-    (PrjFileVerNoAsLoaded()<76 && PrjFileVerNo()>=76) /* TOElementTagDigitCnt() Changed*/) 
+    (PrjFileVerNoAsLoaded()<76 && PrjFileVerNo()>=76) || /* TOElementTagDigitCnt() Changed*/
+    (PrjFileVerNoAsLoaded()<105 && PrjFileVerNo()>=105) /* SpVector::Tagging/Symbols changed*/
+    ) 
     if (!bDoingSaveAs && !bDoingSaveAsNV)
       {
       LogWarning("Project", LF_Exclamation, "File format change:\n\nSaveAs or Save Version required");

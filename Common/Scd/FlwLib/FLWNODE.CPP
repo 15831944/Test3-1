@@ -2046,7 +2046,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
 #if WITHNODETAGIO
   m_TagIOReqd   = false;
   m_pTagIO      = NULL;
-  m_EstTagCount = -1;
+  //m_EstTagCount = -1;
 #endif
 
   InitializeCriticalSectionAndSpinCount(&m_LockSect, 4000);
@@ -2094,6 +2094,8 @@ FlwNode::~FlwNode()
     S.Format("Node %s still connected to Area", FullObjTag());
     ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S, __FILE__, __LINE__);
     }
+
+  delete m_pTagIO;
 
   if (stricmp(Class()->Group(), FlwUnitGrp)==0)
     gs_License.BumpNodeCount(-1, FullObjTag());
@@ -3949,19 +3951,18 @@ void FlwNode::SetProcsReqd(bool Reqd)
 
 #if WITHNODETAGIO
 
-void FlwNode::SetTagIOReqd(bool Reqd, long EstTagCount)
-  {
+void FlwNode::SetTagIOReqd(bool Reqd, long MaxTagCount)
+  {              
   m_TagIOReqd = Reqd;
-  if (!m_TagIOReqd || (m_EstTagCount != EstTagCount))
-    {
-    delete m_pTagIO;
-    m_pTagIO=NULL;
-    }
+  //if (!m_TagIOReqd || (m_EstTagCount != EstTagCount))
+  //  {
+  //  delete m_pTagIO;
+  //  m_pTagIO=NULL;
+  //  }
   if (m_TagIOReqd && m_pTagIO==NULL)
-    {
-    m_pTagIO = new CNodeTagIOList(this, EstTagCount);
-    }
-  m_EstTagCount = EstTagCount;
+    m_pTagIO = new CNodeTagIOList(this, MaxTagCount);
+    
+  //m_EstTagCount = EstTagCount;
   };
 
 #endif
@@ -9738,7 +9739,14 @@ void FlwNode::UnlinkAllXRefs()
 #endif
 #if WITHNODETAGIO
   if (TagIOOn())
+    {
     m_pTagIO->UnlinkAllXRefs();
+    if (!m_TagIOReqd && m_pTagIO)
+      {
+      delete m_pTagIO;
+      m_pTagIO=NULL;
+      }
+    }
 #endif
   //PgmMngr.UnlinkAllXRefs();
   CNodeXRefMngr::UnlinkAllXRefs();

@@ -50,6 +50,8 @@ CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitD
   m_iGet1 = -1;
   m_iGet2 = -1;
   m_iSet1 = -1;
+
+  TagIO.Open(100);
   }
 
 //---------------------------------------------------------------------------
@@ -133,15 +135,23 @@ bool CTagIO::AddSubsTag(CString & Tag, LPCSTR NewTag, bool TestParam/* = false*/
     {//changed...
     if (Tag.GetLength()>0)
       {
-      MTagIOInfo TagInfo;
-      const int RetCode = TagIO.GetTagInfo(Tag, TagInfo);
-      if (RetCode==MTagIO_NotFound)
-        Log.Message(MMsg_Warning, "Tag '%s' not found.", Tag);
-      else
-        Log.Message(MMsg_Warning, "Tag '%s' not allowed.", Tag);
-      //TagInfo.CnvIndex;
+        MTagIOInfo TagInfo;
+        const int RetCode = TagIO.GetTagInfo(Tag, TagInfo);
+        switch (RetCode)
+        {
+        case MTagIO_OK:
+          break;
+        case MTagIO_NotFound:
+          Log.Message(MMsg_Warning, "Tag '%s' not found.", Tag);
+          break;
+        default:
+          Log.Message(MMsg_Warning, "Tag '%s' not allowed.", Tag);
+          break;
+          //TagInfo.CnvIndex;
+        }
       }
     m_bBuildListRqd = true;
+    //MyTagsHaveChanged();
     return true;
     }
   return false;
@@ -267,10 +277,17 @@ bool CTagIO::ExchangeDataFields()
       return true;
     }
 
+  return false;
+  }
+
+//---------------------------------------------------------------------------
+
+bool CTagIO::ValidateDataFields()
+  {
   if (m_bSubsActive && m_bBuildListRqd)
     {
-    TagIO.Close();
-    TagIO.Open(100);
+    //TagIO.Close();
+    TagIO.RemoveAll();
     m_iGet1 = TagIO.Add(m_sGetTagSubs1, "Tag2Get1", MTIO_Get);
     m_iGet2 = TagIO.Add(m_sGetTagSubs2, "Tag2Get2", MTIO_Get);
     m_iSet1 = TagIO.Add(m_sSetTagSubs1, "Tag2Put1", MTIO_Set);
@@ -282,13 +299,6 @@ bool CTagIO::ExchangeDataFields()
       Log.Message(MMsg_Error, "Error with SetTag1");
     m_bBuildListRqd = false;
     }
-  return false;
-  }
-
-//---------------------------------------------------------------------------
-
-bool CTagIO::ValidateDataFields()
-  {
   return true;
   }
 

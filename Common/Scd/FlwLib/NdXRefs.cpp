@@ -1087,12 +1087,14 @@ CNodeTagIOList::CTagItem::CTagItem(LPCSTR Tag, LPCSTR Name, long Options) : m_Va
   m_DblValue     = dNAN;//0.0;
   m_lIdNo        = -1;
   m_bValid       = false; 
+  m_bInUse       = false; 
   }
 
 //---------------------------------------------------------------------------
 
 CNodeTagIOList::CTagItem::~CTagItem()
   {
+  //m_Var.UnlinkXRefs();
   }
 
 //===========================================================================
@@ -1104,17 +1106,20 @@ CNodeTagIOList::CTagItem::~CTagItem()
 CNodeTagIOList::CNodeTagIOList(FlwNode * pNd, long EstTagCount)
   {
   m_pNd=pNd;
+  m_nCount=0;
   m_TagMap.InitHashTable(FindNextPrimeNumber(EstTagCount));
   m_NameMap.InitHashTable(FindNextPrimeNumber(EstTagCount));
   m_Items.SetSize(0,16);
   
   m_bShowTags=false;
+  dbgpln("CNodeTagIOList::CTOR");
   }
 
 //---------------------------------------------------------------------------
 
 CNodeTagIOList::~CNodeTagIOList()
   {
+  dbgpln("CNodeTagIOList::DTOR");
   RemoveAll();
   }
 
@@ -1127,9 +1132,9 @@ void CNodeTagIOList::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Text(" ");
     for (int i=0; i<m_Items.GetCount(); i++)
       {
-      if (m_Items[i])
+      CTagItem *p=m_Items[i];
+      if (p && p->m_bInUse)
         {
-        CTagItem *p=m_Items[i];
         DWORD Opts=(p->m_lOptions & (MTIO_Parm|MTIO_Set))==(MTIO_Parm|MTIO_Set) ? isParm : 0;
         DDB.Double((LPSTR)p->Name(), "", p->CnvIndex(), (LPSTR)p->CnvText(), &p->m_DblValue, m_pNd, Opts|NAN_OK|noFileAtAll);
         if (m_bShowTags)
@@ -1166,10 +1171,34 @@ long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
   Tg.LRTrim();
   if (Tg.Len()==0)
     return -3;
-  if (FindTag(Tg())<0)
+  long TgIndex=FindTag(Tg());
+  long NmIndex=(Name && strlen(Name)>0 ? FindName(Name) : -1);
+
+  if (TgIndex>=0)
     {
-    if (Name && strlen(Name)>0 && FindName(Name)>=0)
-      return -2;
+    if (NmIndex>=0 && NmIndex!=TgIndex)
+      return -4;
+
+    CTagItem * p = m_Items[TgIndex];
+    if (!p->m_bInUse)
+      {
+      p->m_bInUse = true; 
+      m_nCount++;
+      m_pNd->MyTagsHaveChanged();
+
+      m_TagMap.SetAt(p->m_sTag, p);
+      m_NameMap.SetAt(p->m_sName, p);
+      p->m_Var.SetVar(p->m_sFullTag.GetBuffer(), false, NULL, NULL);
+      }
+    return TgIndex;
+    }
+  else
+    {
+    if (NmIndex>=0)
+      {
+      if (m_Items[NmIndex]->m_bInUse)
+        return -2;
+      }
 
     CTagItem * p = new CTagItem(Tg(), Name, Options);
     m_TagMap.SetAt(p->m_sTag, p);
@@ -1183,11 +1212,17 @@ long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
         m_Items[i]=p;
         p->m_lIdNo=i;
         p->m_bValid = true; 
+        p->m_bInUse = true; 
+        m_nCount++;
+        m_pNd->MyTagsHaveChanged();
         return i;
         }
       }
     p->m_lIdNo=m_Items.Add(p);
     p->m_bValid = true;
+    p->m_bInUse = true; 
+    m_nCount++;
+    m_pNd->MyTagsHaveChanged();
     return m_Items.GetCount()-1;
     }
   return -1;
@@ -1200,36 +1235,101 @@ bool CNodeTagIOList::Remove(long Index)
   if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
     {
     CTagItem * pRemove = m_Items[Index];
-    m_Items[Index]=NULL;
+    if (pRemove->m_bInUse)
+      {
+      pRemove->m_bInUse=false;
+      m_nCount--;
+      m_pNd->MyTagsHaveChanged();
+      }
 
-    CTagItem * p;
-    if (m_TagMap.Lookup(pRemove->m_sTag, p))
-      m_TagMap.RemoveKey(pRemove->m_sTag);
-    if (m_NameMap.Lookup(pRemove->m_sName, p))
-      m_NameMap.RemoveKey(pRemove->m_sName);
+    //CTagItem * pRemove = m_Items[Index];
+    //m_Items[Index]=NULL;
+
+    ////if (pRemove)
+    ////  pRemove->m_Var.UnlinkXRefs();
+
+    //CTagItem * p;
+    //if (m_TagMap.Lookup(pRemove->m_sTag, p))
+    //  m_TagMap.RemoveKey(pRemove->m_sTag);
+    //if (m_NameMap.Lookup(pRemove->m_sName, p))
+    //  m_NameMap.RemoveKey(pRemove->m_sName);
  
-    delete pRemove;
+    //delete pRemove;
     return true;
     }
   return false;
   }
+
 
 //---------------------------------------------------------------------------
 
 void CNodeTagIOList::RemoveAll()
   {
   for (int i=0; i<m_Items.GetCount(); i++)
-    delete m_Items[i];
-  m_Items.SetSize(0,16);
-  m_TagMap.RemoveAll();
-  m_NameMap.RemoveAll();
+    {
+    CTagItem * pRemove = m_Items[i];
+    if (pRemove && pRemove->m_bInUse)
+      {
+      pRemove->m_bInUse=false;
+      m_nCount--;
+      m_pNd->MyTagsHaveChanged();
+      }
+    }
+  
+  //delete m_Items[i];
+  //m_Items.SetSize(0,16);
+  //m_TagMap.RemoveAll();
+  //m_NameMap.RemoveAll();
+  };
+
+//---------------------------------------------------------------------------
+
+void CNodeTagIOList::UpdateList()
+  {
+  int n=0;
+  for (int i=0; i<m_Items.GetCount(); i++)
+    {
+    if (m_Items[i])
+      {
+      if (m_Items[i]->m_bInUse)
+        {
+        n++;
+        }
+      else
+        {
+        CTagItem * pRemove = m_Items[i];
+        m_Items[i]=NULL;
+
+        //if (pRemove)
+        //  pRemove->m_Var.UnlinkXRefs();
+
+        CTagItem * p;
+        if (m_TagMap.Lookup(pRemove->m_sTag, p))
+          m_TagMap.RemoveKey(pRemove->m_sTag);
+        if (m_NameMap.Lookup(pRemove->m_sName, p))
+          m_NameMap.RemoveKey(pRemove->m_sName);
+   
+        delete pRemove;
+        }
+      };
+    }
+
+  if (n!=m_nCount)
+    {
+    int xxx=0;
+    };
+  
+  //delete m_Items[i];
+  //m_Items.SetSize(0,16);
+  //m_TagMap.RemoveAll();
+  //m_NameMap.RemoveAll();
   };
 
 //---------------------------------------------------------------------------
 
 long CNodeTagIOList::GetCount()
   {
-  return m_TagMap.GetCount();
+  return m_nCount;//m_TagMap.GetCount();
   };
 
 //---------------------------------------------------------------------------
@@ -1348,25 +1448,24 @@ void   CNodeTagIOList::SetDValue(LPCSTR Tag, double Value, bool UseCnv)   { SetD
 
 int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
   {
-  if (1)
+  dbgpln("CNodeTagIOList::UpdateXRefLists");
+  //FnMngrClear();
+  int FunctNo = 0;
+  for (int i=0; i<m_Items.GetCount(); i++)
     {
-    //FnMngrClear();
-    int FunctNo = 0;
-    for (int i=0; i<m_Items.GetCount(); i++)
+    CTagItem *p=m_Items[i];
+    if (p && p->m_bValid)
       {
-      if (m_Items[i])
+      int RetCode = p->m_Var.UpdateXRef(p, (p->m_lOptions & MTIO_Set)!=0, true /*Always Get the latest*/, 
+        FunctNo, m_pNd, -1, p->Tag(), p->Name(), "CNodeTagList:Output", Results);
+      if (RetCode!=BXR_OK)
         {
-        CTagItem *p=m_Items[i];
-        int RetCode = p->m_Var.UpdateXRef(p, (p->m_lOptions & MTIO_Set)!=0, true /*Always Get the latest*/, 
-                                          FunctNo, m_pNd, -1, p->Tag(), p->Name(), "CNodeTagList:Output", Results);
-        if (RetCode!=BXR_OK)
-          {
-          p->m_bValid = 0;
-          }
+        p->m_bValid = 0;
         }
       }
-    //FnMngrTryUpdateXRefLists(Results);
     }
+  //FnMngrTryUpdateXRefLists(Results);
+
   return Results.m_nMissing;
   }
 
@@ -1374,6 +1473,7 @@ int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
 
 void CNodeTagIOList::UnlinkAllXRefs()
   {
+  dbgpln("CNodeTagIOList::UnlinkAllXRefs");
   //FnMngrClear();
   //FnMngrTryUnlinkAllXRefs();
   for (int i=0; i<m_Items.GetCount(); i++)
@@ -1382,6 +1482,7 @@ void CNodeTagIOList::UnlinkAllXRefs()
       m_Items[i]->m_Var.UnlinkXRefs();
     }
 
+  UpdateList();
   //CNodeXRefMngr::UnlinkAllXRefs();
   };
 
@@ -1476,7 +1577,7 @@ void CNodeTagIOList::GetAllValues(bool CallGetNearXRefs)
     for (int i=0; i<m_Items.GetCount(); i++)
       {
       CTagItem * p=m_Items[i];
-      if (p && (p->m_lOptions & MTIO_Get))
+      if (p && p->m_bInUse && p->m_bValid && (p->m_lOptions & MTIO_Get))
         p->m_Var.GetValue(p->m_DblValue, true);//(p->m_lOptions &MTIO_SICnv)!=0);
       }
     }
@@ -1491,7 +1592,7 @@ void CNodeTagIOList::SetAllValues(bool CallSetNearXRefs)
     for (int i=0; i<m_Items.GetCount(); i++)
       {
       CTagItem * p=m_Items[i];
-      if (p && (p->m_lOptions & MTIO_Set))
+      if (p && p->m_bInUse && (p->m_lOptions & MTIO_Set))
         p->m_Var.PutValue(p->m_DblValue, true);
       }
 
