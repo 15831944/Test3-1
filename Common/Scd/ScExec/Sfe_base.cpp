@@ -985,8 +985,9 @@ static char *KenwaltDLLs[]=
   "rtts.dll",
 
   // temporary
+  "control3.dll",
   "sko.dll",
-  "ilukaunits.dll",
+  //"ilukaunits.dll",
   "alumina2.dll",
   "heatxch2.dll",
   

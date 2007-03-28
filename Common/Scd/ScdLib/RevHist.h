@@ -2786,14 +2786,16 @@ Build 123 : 21 February 2007
 1576 19/03/07: Bulk tag change improvements when accessed from the explorer window.
 1577 20/03/07: (#748) Improvements for access window when PGM PageLabel is used.
 1578 20/03/07: (#792) Fix for importing specie data from HSC with name with '(' and ')'.
-1579 23/03/07: (#796) .
+1579 23/03/07: (#796) Fix for specie tag names in pipe exit image. NOTE: This forces a project save as.
 1583 23/03/07: Client bayer model (Hatch Alcoa) BPE fix.
 1587 27/03/07: (#36) SMDK MTagIO fixes.
 1589 27/03/07: (#798) Preliminary implementation of PGM obfuscation.
+1590 28/03/07: (#800) Find tag fix.
+1591 28/03/07: (#697) Added new Control3.DLL. This has a new "Scheduled Events" model.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1589
+#define SCD_PATCH_SVN    1591
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

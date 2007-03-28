@@ -197,11 +197,16 @@ static double DefaultDrawing[] = { DD_Poly, -5,-5, -5,5, 5,5, 5,-5, -5,-5, DD_En
 MTransferUnitDefBase::MTransferUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks) :
   MUnitDefBase(WithDevelopementChecks)
   {
-  if (stricmp(DLL,"ilukaunits")==0)
+  if (stricmp(DLL,"control3")==0)
     {
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
                        "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_STD_KENWALT, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
     }
+  /*else if (stricmp(DLL,"ilukaunits")==0)
+    {
+    m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
+                       "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_STD_KENWALT, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+    }*/
   else if (stricmp(DLL,"alumina2")==0)
     {
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
