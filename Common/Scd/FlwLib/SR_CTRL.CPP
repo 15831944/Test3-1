@@ -1201,7 +1201,12 @@ void CEC_MSFinalFrac::Clear()
 void CEC_MSFinalFrac::Parse(CRCTTokenFile &TF)
   {
   Clear();
-  m_AsTotal=TF.TokenIs("Total");
+  if (TF.TokenIs("Total"))
+    m_AsTotal = true;
+  else if (TF.TokenIs("Phase"))
+    m_AsTotal = false;
+  else
+    m_AsTotal = false; //default
   ParseExtent(TF);
   m_Spc.m_Name=TF.NextToken();
   TF.CheckToken("=");
@@ -1360,7 +1365,12 @@ void CEC_MLFinalFrac::Clear()
 void CEC_MLFinalFrac::Parse(CRCTTokenFile &TF)
   {
   Clear();
-  m_AsTotal=TF.TokenIs("Total");
+  if (TF.TokenIs("Total"))
+    m_AsTotal = true;
+  else if (TF.TokenIs("Phase"))
+    m_AsTotal = false;
+  else
+    m_AsTotal = false; //default
   ParseExtent(TF);
   m_Spc.m_Name=TF.NextToken();
   TF.CheckToken("=");
