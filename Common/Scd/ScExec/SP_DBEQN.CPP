@@ -1154,10 +1154,6 @@ double SDBE_Shomate_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_Vp: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
-  // friend class CComponent; 
-  // // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a,b,c,d;
@@ -1207,10 +1203,6 @@ double SDBE_Vp::AtT(double T)
 class SDBE_VpKPa: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
-  // friend class CComponent; 
-  // // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a,b,c,d;
@@ -1261,10 +1253,6 @@ double SDBE_VpKPa::AtT(double T)
 class SDBE_VpAtm: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
-  // friend class CComponent; 
-  // // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a,b,c,d;
@@ -1304,6 +1292,54 @@ double SDBE_VpAtm::AtT(double T)
   double P=Pow(10.0, a/T+b*log10(T)+c*T+d);    
   //dbgpln("T, P %10.4f(%10.4f) %10.4f", T, K2C(T), P); 
   return P*gs_StdPress;
+  }
+
+// ==========================================================================
+//     Antoine Vapor Pressure Equation ln P = A - B/(T+C)
+//     Data from Prausnitz collection
+//     T in \deg K, P is in mmHg
+// ===========================================================================
+
+class SDBE_VpAnt: protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+
+  protected:
+    double         a,b,c;
+
+    SDBE_VpAnt(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
+    virtual ~SDBE_VpAnt() {};
+    static const char * Name() { return "VpAnt"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual void Copy(CSpDBEqn* p) { SDBE_VpAnt*pc=(SDBE_VpAnt*)p; a=pc->a; b=pc->b; c=pc->c; };
+    
+    virtual double AtT(double T); 
+  };
+
+//---------------------------------------------------------------------------
+
+int SDBE_VpAnt::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+  {
+  if (strlen(Cols[2])==0) 
+    {
+    a=1.0;
+    b=c=0.0;
+    return 2;
+    }
+  a=SpDB_TokenValue(Cols[0], 1.0);
+  b=SpDB_TokenValue(Cols[1], 0.0);
+  c=SpDB_TokenValue(Cols[2], 0.0);
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+double SDBE_VpAnt::AtT(double T)
+  { 
+  //if (!VpOk) return 0.0;
+  T=Range(1.0, T, TCrit());
+  return exp(a-b/(T+c))*0.1333224; // mmHg to kPa
   }
 
 // ==========================================================================
@@ -1827,30 +1863,35 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       pn=SDBE_HTE_Cp::Name();
       p=new SDBE_HTE_Cp(pSpD);
       }
-    else if (_stricmp(Str, SDBE_Shomate_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_Shomate_Cp::Name())==0)
       {
       pn=SDBE_Shomate_Cp::Name();
       p=new SDBE_Shomate_Cp(pSpD);
       }
-    else if (_stricmp(Str, SDBE_QAL_Cp::Name())==0) 
+    else if (_stricmp(Str, SDBE_QAL_Cp::Name())==0)
       {
       pn=SDBE_QAL_Cp::Name();
       p=new SDBE_QAL_Cp(pSpD);
       }
-    else if (_stricmp(Str, SDBE_Vp::Name())==0) 
+    else if (_stricmp(Str, SDBE_Vp::Name())==0)
       {
       pn=SDBE_Vp::Name();
       p=new SDBE_Vp(pSpD);
       }
-    else if (_stricmp(Str, SDBE_VpKPa::Name())==0) 
+    else if (_stricmp(Str, SDBE_VpKPa::Name())==0)
       {
       pn=SDBE_VpKPa::Name();
       p=new SDBE_VpKPa(pSpD);
       }
-    else if (_stricmp(Str, SDBE_VpAtm::Name())==0) 
+    else if (_stricmp(Str, SDBE_VpAtm::Name())==0)
       {
       pn=SDBE_VpAtm::Name();
       p=new SDBE_VpAtm(pSpD);
+      }
+    else if (_stricmp(Str, SDBE_VpAnt::Name())==0)
+      {
+      pn=SDBE_VpAnt::Name();
+      p=new SDBE_VpAnt(pSpD);
       }
 
 #if WithIAFH2OMdl

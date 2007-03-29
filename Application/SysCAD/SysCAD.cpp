@@ -618,11 +618,12 @@ BOOL CSysCADApp::InitIniFile()
     char UName[4096];
     ULONG Len=sizeof(UName)-1;
     BOOL GotIt=GetUserNameEx(NameSamCompatible, &UName[0], &Len);
-    ASSERT_ALWAYS(GotIt, "NameSamCompatible not available", __FILE__, __LINE__);
-
-      char * pName=strchr(UName, '\\');
+    if (!GotIt)
+      strcpy(UName, "Unknown\\Unknown");
+    //ASSERT_ALWAYS(GotIt, "NameSamCompatible not available", __FILE__, __LINE__);
+    char * pName=strchr(UName, '\\');
     ASSERT_ALWAYS(pName!=NULL, "Bad User Name ", __FILE__, __LINE__);
-      CString UFn, MFn;
+    CString UFn, MFn;
     UFn.Format("%sSysCAD.User.%s.ini", BaseCfgFiles(), pName+1);
     MFn.Format("%sSysCAD.Machine.ini", BaseCfgFiles());
     ScdPFUser.SetProfFilename(UFn);

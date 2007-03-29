@@ -2792,10 +2792,11 @@ Build 123 : 21 February 2007
 1589 27/03/07: (#798) Preliminary implementation of PGM obfuscation.
 1590 28/03/07: (#800) Find tag fix.
 1591 28/03/07: (#697) Added new Control3.DLL. This has a new "Scheduled Events" model.
+1592 29/03/07: (#802) Add Antoine vapour pressure equation for specie database "VpAnt(a,b,c)"
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1591
+#define SCD_PATCH_SVN    1592
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
