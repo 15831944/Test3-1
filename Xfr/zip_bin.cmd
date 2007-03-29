@@ -40,7 +40,7 @@ wzzip -a %fn2% ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll ..\bin\md
 wzzip -a %fn2% ..\bin\scddesrvr.dll ..\bin\scdif.dll ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll
 wzzip -a %fn2% ..\bin\scdslv.dll ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
 wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll ..\bin\unzip32.dll 
-wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll
+wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll ..\bin\control3.dll
 
 wzzip -a %fn2% ..\bin\regall.cmd ..\bin\syscad91.tlb ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
 wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
@@ -132,7 +132,6 @@ wzzip -a %fn2% ..\bin\csiro_units.dll
 wzzip -a %fn2% ..\bin\Alumina2.dll
 wzzip -a %fn2% ..\bin\HeatXch2.dll
 wzzip -a %fn2% ..\bin\ttgas.dll
-wzzip -a %fn2% ..\bin\control3.dll
 rem plus all the client DLLs
 wzzip -a %fn2% ..\bin\alcanspm.dll 
 wzzip -a %fn2% ..\bin\alcanusr.dll ..\bin\alcanbayer.dll

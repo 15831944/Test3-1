@@ -197,17 +197,12 @@ static double DefaultDrawing[] = { DD_Poly, -5,-5, -5,5, 5,5, 5,-5, -5,-5, DD_En
 MTransferUnitDefBase::MTransferUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks) :
   MUnitDefBase(WithDevelopementChecks)
   {
-  if (stricmp(DLL,"control3")==0)
-    {
-    m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
-                       "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_STD_KENWALT, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
-    }
-  /*else if (stricmp(DLL,"ilukaunits")==0)
+  /*if (stricmp(DLL,"ilukaunits")==0)
     {
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
                        "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_STD_KENWALT, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
     }*/
-  else if (stricmp(DLL,"alumina2")==0)
+  if (stricmp(DLL,"alumina2")==0)
     {
     m_pClassDef=new CTransferMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
                        "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_GRP_ALUMINA|TOC_ALUMINA, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
@@ -324,8 +319,16 @@ TagObjClass(pClassName, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup, 
 MControlUnitDefBase::MControlUnitDefBase(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR ShortDesc, LPCTSTR DLL, bool WithDevelopementChecks) :
   MUnitDefBase(WithDevelopementChecks)
   {
-  m_pClassDef= new CControlMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
-    "Ctrl", "C", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+  if (stricmp(DLL,"control3")==0)
+    {
+    m_pClassDef=new CControlMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion, 
+                       "Ctrl", "C", TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+    }
+  else
+    {
+    m_pClassDef= new CControlMethodClassDef((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
+                      "Ctrl", "C", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_DYNAMICFULL|TOC_GRP_GENERAL|TOC_SMDKRUNTIME, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+    }
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 

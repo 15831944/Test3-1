@@ -2793,10 +2793,12 @@ Build 123 : 21 February 2007
 1590 28/03/07: (#800) Find tag fix.
 1591 28/03/07: (#697) Added new Control3.DLL. This has a new "Scheduled Events" model.
 1592 29/03/07: (#802) Add Antoine vapour pressure equation for specie database "VpAnt(a,b,c)"
+1593 29/03/07: (#805) Remove incorrect error message when using 'Phase' keyword for FinalFraction reaction extent option.
+1594 29/03/07: (#697) Improvements to scheduled events model.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1592
+#define SCD_PATCH_SVN    1594
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
