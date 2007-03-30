@@ -1295,54 +1295,6 @@ double SDBE_VpAtm::AtT(double T)
   }
 
 // ==========================================================================
-//     Antoine Vapor Pressure Equation ln P = A - B/(T+C)
-//     Data from Prausnitz collection
-//     T in \deg K, P is in mmHg
-// ===========================================================================
-
-class SDBE_VpAnt: protected CSpDBEqn
-  {
-  friend class CSpDBEqn; 
-
-  protected:
-    double         a,b,c;
-
-    SDBE_VpAnt(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
-    virtual ~SDBE_VpAnt() {};
-    static const char * Name() { return "VpAnt"; };
-    virtual const char * VName() { return Name(); };
-    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_VpAnt*pc=(SDBE_VpAnt*)p; a=pc->a; b=pc->b; c=pc->c; };
-    
-    virtual double AtT(double T); 
-  };
-
-//---------------------------------------------------------------------------
-
-int SDBE_VpAnt::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
-  {
-  if (strlen(Cols[2])==0) 
-    {
-    a=1.0;
-    b=c=0.0;
-    return 2;
-    }
-  a=SpDB_TokenValue(Cols[0], 1.0);
-  b=SpDB_TokenValue(Cols[1], 0.0);
-  c=SpDB_TokenValue(Cols[2], 0.0);
-  return 0;
-  }
-
-//---------------------------------------------------------------------------
-
-double SDBE_VpAnt::AtT(double T)
-  { 
-  //if (!VpOk) return 0.0;
-  T=Range(1.0, T, TCrit());
-  return exp(a-b/(T+c))*0.1333224; // mmHg to kPa
-  }
-
-// ==========================================================================
 //     Antoine Vapor Pressure Equation ln P = A - B/(T+C), with range limits
 //     Data from Prausnitz collection
 //     T in \deg K, P is in mmHg
@@ -1352,7 +1304,7 @@ double SDBE_VpAnt::AtT(double T)
 
 enum {CalcMiller, CalcAntoine, CalcBoth};
 
-class SDBE_VpAntR: protected CSpDBEqn
+class SDBE_VpAnt: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
   protected:
@@ -1361,12 +1313,12 @@ class SDBE_VpAntR: protected CSpDBEqn
     int iCalcType;
     double avpCalc(double T){return exp(a-b/(T+c))*0.1333224;};
     double milCalc(double T);  
-    SDBE_VpAntR(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
-    virtual ~SDBE_VpAntR() {};
-    static const char * Name() { return "VpAntR"; };
+    SDBE_VpAnt(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
+    virtual ~SDBE_VpAnt() {};
+    static const char * Name() { return "VpAnt"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_VpAntR*pc=(SDBE_VpAntR*)p; 
+    virtual void Copy(CSpDBEqn* p) { SDBE_VpAnt*pc=(SDBE_VpAnt*)p; 
          a=pc->a; b=pc->b; c=pc->c; tmin=pc->tmin; tmax=pc->tmax; };
     
     virtual double AtT(double T); 
@@ -1374,7 +1326,7 @@ class SDBE_VpAntR: protected CSpDBEqn
 
 //---------------------------------------------------------------------------
 
-double SDBE_VpAntR::milCalc(double T) 
+double SDBE_VpAnt::milCalc(double T) 
 {
   double tr=T/TCrit();
   double lnprsat0=5.92714-6.09648/tr-1.28862*Log(tr)+.169347*Pow(tr, 6);
@@ -1384,7 +1336,7 @@ double SDBE_VpAntR::milCalc(double T)
 
 //---------------------------------------------------------------------------
 
-int SDBE_VpAntR::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+int SDBE_VpAnt::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[0])==0) // No data given, fall back to Miller curve 
     {
@@ -1445,7 +1397,7 @@ int SDBE_VpAntR::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
 
 //---------------------------------------------------------------------------
 
-double SDBE_VpAntR::AtT(double T)
+double SDBE_VpAnt::AtT(double T)
   { 
   T=Range(1.0, T, TCrit());
   switch (iCalcType)
@@ -2018,11 +1970,6 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       {
       pn=SDBE_VpAnt::Name();
       p=new SDBE_VpAnt(pSpD);
-      }
-    else if (_stricmp(Str, SDBE_VpAntR::Name())==0)
-      {
-      pn=SDBE_VpAntR::Name();
-      p=new SDBE_VpAntR(pSpD);
       }
 
 #if WithIAFH2OMdl

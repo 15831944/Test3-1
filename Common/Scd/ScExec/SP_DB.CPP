@@ -993,9 +993,9 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     DataLo.m_dTRef=C_2_K(25.0);
 
     DataLo.m_bVpOK=(Values[ColNo].GetLength()>0);
-    DataLo.m_pVp[0]=DataLo.m_bVpOK ? CSpDBEqn::Construct(&DataLo, (char*)(const char*)Values[ColNo]) : NULL;
-    //    m_pVp[0]=CSpDBEqn::Construct(&DataLo, fVpOK ? (char*)(const char*)Values[ColNo] : "0.0");
-    ColNo++;
+    // parsing of Vp equation moved down so that crit consts are valid
+    const int VpColNo=ColNo++; 
+
     m_bPcOK=(Values[ColNo].GetLength()>0);
     m_dPc=m_bPcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0)*1000.0 : dNAN; // Critical Pressure mPa to kPa
     m_bTcOK=(Values[ColNo].GetLength()>0);
@@ -1004,6 +1004,12 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     m_dVc=m_bVcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0) : dNAN;        // Critical Volume
     m_bAcOK=(Values[ColNo].GetLength()>0);
     m_dAc=m_bAcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0) : dNAN;        // Acentricity
+
+    DataLo.m_pVp[0]=DataLo.m_bVpOK ? CSpDBEqn::Construct(&DataLo, (char*)(const char*)Values[VpColNo]) : NULL;
+
+    //if (DataLo.m_bVpOK && !m_bTcOK)
+    //  LogWarning("SpecieDB", 0, "Critical Temperature for '%s' not defined (required for vapour pressure)", pC->SymOrTag());
+
     if (m_SDB.m_iOC_MolecularDiam>=0)
       m_dMd=SpDB_TokenValue((char*)(const char*)Values[m_SDB.m_iOC_MolecularDiam], dNAN); // Molecular Diam
     else
