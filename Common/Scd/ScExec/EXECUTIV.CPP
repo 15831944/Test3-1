@@ -1456,6 +1456,9 @@ CExecutive::CExecutive() :
   m_sHstTaglistFolder            =  PrjFiles();
 
   m_pSolver                      = NULL;
+
+  m_nReportsToDo                 = 0;
+  m_hReportsDone                 = CreateEvent(NULL, false, false, NULL);
   };
 
 //---------------------------------------------------------------------------
@@ -1473,6 +1476,7 @@ CExecutive::~CExecutive()
 
   CloseHandle(m_hAppIdleDone);
   CloseHandle(m_hStopSleep);
+  CloseHandle(m_hReportsDone);
 
   DeleteCriticalSection(&csExecLock);
   DeleteCriticalSection(&csTimerLock);
@@ -2644,6 +2648,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         {
         Objs_Exec[EInx]->EO_StepDone(TimeCB(), m_bStepExecuted);
         }
+      ProcessReportRequests();
       m_bStepExecuted=false;
       PostCmd(0, EXM_DOTEST);
       break;
@@ -7937,6 +7942,40 @@ flag CExecutive::XCloseTransaction(CExecObj *pEO)
 
 void CExecutive::SetSelfConnect(CExecObj *pClnt/*=NULL*/, CExecObj *pSrvr/*=NULL*/)
   {
+  };
+
+//---------------------------------------------------------------------------
+
+void CExecutive::AddReportRequest(CXM_OleExcelReport* pRpt) 
+  {
+  LockExec(); 
+  m_ReportList.AddTail(pRpt); 
+  m_nReportsToDo++; 
+  UnlockExec(); 
+  };
+void CExecutive::OneReportComplete()
+  {
+  LockExec(); 
+  if (--m_nReportsToDo==0)
+    ::SetEvent(m_hReportsDone);
+  UnlockExec(); 
+  };
+
+int CExecutive::ProcessReportRequests()
+  {
+  // already in exc loop
+  int n=0;
+  while (m_ReportList.GetCount())
+    {
+    n++;
+    CXM_OleExcelReport * pRpt=m_ReportList.RemoveHead();
+
+    ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pRpt);
+    };
+
+  if (n)
+    ::WaitForSingleObject(m_hReportsDone, 10*60*1000); // 10 mins
+  return n;
   };
 
 //---------------------------------------------------------------------------

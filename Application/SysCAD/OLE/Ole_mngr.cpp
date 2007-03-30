@@ -69,7 +69,7 @@ DWORD COleExec::EO_Message(CXMsgLst &XM, CXM_Route &Route)
                                                       (byte)gs_pPrj->m_bRptExcelUpdateLinks, 
                                                       (byte)gs_pPrj->m_bRptExcelSaveOnComplete);
         pOleThread->AddQueueItem(pReportMngr);
-        PostThreadMessage(dwThreadId, wm_SyscadOleCommand, MAKEWPARAM(OLE_DOAUTOITEM, (WORD)0), (LPARAM)pReportMngr);
+        PostThreadMessage(dwThreadId, wm_SyscadOleCommand, MAKEWPARAM(OLE_DOAUTOITEM, (WORD)(p->FromExecutive?1:0)), (LPARAM)pReportMngr);
         break;
         }    
       case XM_QueryRow:
@@ -311,6 +311,7 @@ BOOL COleThread::PreTranslateMessage(MSG* pMsg)
   if (pMsg->message==wm_SyscadOleCommand)
     {
     WORD Cmd = LOWORD(pMsg->wParam);
+    WORD FromExecutive= HIWORD(pMsg->wParam);
     switch (Cmd)
       {
       case OLE_DOAUTOITEM:
@@ -344,6 +345,8 @@ BOOL COleThread::PreTranslateMessage(MSG* pMsg)
         Unlock();
         COleInfoMsg* pMsg = new COleInfoMsg(iQueueCnt);
         pOleInfoWnd->SendMessage(WMU_OLEINFOUPDATE, 0, (LPARAM)pMsg);
+        if (FromExecutive)
+          gs_Exec.OneReportComplete();
         if (iQueueCnt==0 && !bQuitNow)
           ScdMainWnd()->PostMessage(WMU_OLEINFOUPDATE, 0, 0); //send message after LAST report
         break;

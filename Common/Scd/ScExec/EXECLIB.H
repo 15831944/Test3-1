@@ -777,9 +777,10 @@ class DllImportExport CXM_OleExcelReport : public CXM_Header
     short          iOpt;
     short          iReportNamePos;
     CScdCOCmdBlk *pComCmdBlk; //CNM
+    BOOL           FromExecutive;
     char           cBuff[MaxCXMsgLstSize-sizeof(CXM_Header)-100 /*Space for data members*/];
 
-    CXM_OleExcelReport(CScdCOCmdBlk *ComCmdBlk, char* FileName, char* ReportName, short Opt);
+    CXM_OleExcelReport(CScdCOCmdBlk *ComCmdBlk, char* FileName, char* ReportName, short Opt, BOOL FromExec=false);
     char* FileName() { return cBuff; };
     char* ReportName() { return &cBuff[iReportNamePos]; };
     CScdCOCmdBlk *ComCmdBlk() { return pComCmdBlk; };; // CNM

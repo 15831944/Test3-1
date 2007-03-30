@@ -482,9 +482,10 @@ void ScheduleTask::ExecMcr()
   if (FileExists(Fn()))
     {
     sMcrStatus = "Ok";
-    CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, Fn(), sMcrName(), iMcrType);
-    //AfxGetMainWnd()->SendMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
-    ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+    gs_Exec.AddReportRequest(new CXM_OleExcelReport(NULL, Fn(), sMcrName(), iMcrType, TRUE));
+    //CXM_OleExcelReport* pXB = new CXM_OleExcelReport(NULL, Fn(), sMcrName(), iMcrType);
+    ////AfxGetMainWnd()->SendMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
+    //ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_GENERATEOLEREPORT, (LPARAM)pXB);
     }
   else
     sMcrStatus = "Specified file not found!";

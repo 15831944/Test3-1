@@ -1008,10 +1008,11 @@ CXM_DrvShowTagInfo::CXM_DrvShowTagInfo(char * Tag, WORD DrvOptMask)
 
 //===========================================================================
 
-CXM_OleExcelReport::CXM_OleExcelReport(CScdCOCmdBlk *ComCmdBlk, char* FileName, char* ReportName, short Opt)
+CXM_OleExcelReport::CXM_OleExcelReport(CScdCOCmdBlk *ComCmdBlk, char* FileName, char* ReportName, short Opt, BOOL FromExec)
   {
   iOpt = Opt;
   pComCmdBlk=ComCmdBlk;
+  FromExecutive=FromExec;
   strcpy(cBuff, FileName);
   iReportNamePos=strlen(FileName)+1;
   int RepNameLen=0;

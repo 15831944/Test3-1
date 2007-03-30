@@ -1253,6 +1253,13 @@ class DllImportExport CExecutive : public ConditionBlk
 
     void           SetDBFormat(int Fmt) { m_DBFormat=Fmt; };
     int            DBFormat() { return m_DBFormat; };
+
+
+    void           AddReportRequest(CXM_OleExcelReport* pRpt); 
+    void           OneReportComplete();
+    int            ProcessReportRequests();
+
+
   public:
     CEOExecReturn  ThrdRet[MaxXObjects];
 
@@ -1373,6 +1380,10 @@ class DllImportExport CExecutive : public ConditionBlk
     CStopWatch     m_Clock;
     double         m_ClockEstToGo;   // RealTime ToGo
     double         m_ClockEstTotal;  // RealTime Ttl
+
+    CList<CXM_OleExcelReport*, CXM_OleExcelReport* > m_ReportList;
+    long           m_nReportsToDo;
+    HANDLE         m_hReportsDone;
 
   public:
 
