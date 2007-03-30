@@ -1343,6 +1343,132 @@ double SDBE_VpAnt::AtT(double T)
   }
 
 // ==========================================================================
+//     Antoine Vapor Pressure Equation ln P = A - B/(T+C), with range limits
+//     Data from Prausnitz collection
+//     T in \deg K, P is in mmHg
+//     If T is in range, use Antoine Equation, otherwise use calculation from
+//     critical constants
+// ===========================================================================
+
+enum {CalcMiller, CalcAntoine, CalcBoth};
+
+class SDBE_VpAntR: protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  protected:
+    double a,b,c, tmin, tmax;
+    double TOverlap;
+    int iCalcType;
+    double avpCalc(double T){return exp(a-b/(T+c))*0.1333224;};
+    double milCalc(double T);  
+    SDBE_VpAntR(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
+    virtual ~SDBE_VpAntR() {};
+    static const char * Name() { return "VpAntR"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual void Copy(CSpDBEqn* p) { SDBE_VpAntR*pc=(SDBE_VpAntR*)p; 
+         a=pc->a; b=pc->b; c=pc->c; tmin=pc->tmin; tmax=pc->tmax; };
+    
+    virtual double AtT(double T); 
+  };
+
+//---------------------------------------------------------------------------
+
+double SDBE_VpAntR::milCalc(double T) 
+{
+  double tr=T/TCrit();
+  double lnprsat0=5.92714-6.09648/tr-1.28862*Log(tr)+.169347*Pow(tr, 6);
+  double lnprsat1=15.2518-15.6875/tr-13.4721*Log(tr)+.43577*Pow(tr, 6);
+  return PCrit()*exp(lnprsat0+ACent()*lnprsat1); 
+}
+
+//---------------------------------------------------------------------------
+
+int SDBE_VpAntR::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+  {
+  if (strlen(Cols[0])==0) // No data given, fall back to Miller curve 
+    {
+    if (PcOK() && TcOK() && AcOK())
+      { // Need Acentric factor and critical T, P
+	    iCalcType = CalcMiller;
+	    return 0;
+      }
+    else 
+      {
+	    iCalcType = CalcAntoine;
+	    a=1.0, b=c=0.0, tmin=1.0, tmax=100.0;
+	    return 2;
+      }
+    }
+  
+  // Three constants given, apply Antoine without check
+  if (strlen(Cols[2])>0 && strlen(Cols[3])==0)  
+    {
+    a=SpDB_TokenValue(Cols[0], 1.0);
+    b=SpDB_TokenValue(Cols[1], 0.0);
+    c=SpDB_TokenValue(Cols[2], 0.0);
+    iCalcType = CalcAntoine;
+    return 0;
+    }
+  
+  if (strlen(Cols[4])>0)
+    {
+    if (PcOK() && TcOK() && AcOK()) 
+      { // Full version with range checking...
+	    a=SpDB_TokenValue(Cols[0], 1.0);
+	    b=SpDB_TokenValue(Cols[1], 0.0);
+	    c=SpDB_TokenValue(Cols[2], 0.0);
+	    tmin = SpDB_TokenValue(Cols[3], 0.0);
+	    tmax = SpDB_TokenValue(Cols[4], 0.0);
+      iCalcType = CalcBoth;
+
+      // Check for discontinuity and find overlap range....
+	    static const double deltaT = 0.1;
+	    const double avpd = avpCalc(tmax);
+	    const double mild = milCalc(tmax);
+	    const double avps = (avpd - avpCalc(tmax-deltaT))/deltaT;
+	    const double mils = (milCalc(tmax+deltaT)-mild)/deltaT;
+	    const double deltaPv = fabs(mild-avpd);   // The discontinuity
+	    const double dTa = deltaPv/GTZ(avps);   // Overlap intervals
+	    const double dTm = deltaPv/GTZ(mils);
+	    TOverlap = tmax + dTm+dTa;
+	    if (TOverlap>TCrit()) 
+        TOverlap=TCrit(); // Just in case
+	    return 0;
+      } 
+    }
+
+	iCalcType = CalcAntoine;
+	a=1.0, b=c=0.0, tmin=1.0, tmax=100.0;
+	return 2;
+  }
+
+//---------------------------------------------------------------------------
+
+double SDBE_VpAntR::AtT(double T)
+  { 
+  T=Range(1.0, T, TCrit());
+  switch (iCalcType)
+    {
+    case CalcMiller:        // Critical Constants Calculation
+      return milCalc(T);  
+    case CalcAntoine:      // Antoine Calculation
+      return avpCalc(T);   
+    case CalcBoth:         // Overlap
+      if (T <= tmax)
+        return avpCalc(T);
+      if (T >= TOverlap)
+        return milCalc(T);
+      else 
+        {
+        const double alpha=(T-tmax)/(TOverlap-tmax);
+        return (1-alpha)*avpCalc(T)+alpha*milCalc(T);
+        }
+    }
+  return 0;
+  }
+
+// ==========================================================================
 //
 //
 //
@@ -1892,6 +2018,11 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       {
       pn=SDBE_VpAnt::Name();
       p=new SDBE_VpAnt(pSpD);
+      }
+    else if (_stricmp(Str, SDBE_VpAntR::Name())==0)
+      {
+      pn=SDBE_VpAntR::Name();
+      p=new SDBE_VpAntR(pSpD);
       }
 
 #if WithIAFH2OMdl

@@ -287,6 +287,10 @@ class DllImportExport CSpDBEqn
     double         TCrit();
     double         VCrit();
     double         ACent();
+    bool           PcOK();
+    bool           TcOK();
+    bool           VcOK();
+    bool           AcOK();
     double         MolarVolume();
     double         MolecularDiam();
 
@@ -1452,6 +1456,10 @@ inline double     CSpDBEqn::PCrit()            { return m_pData->m_pSp->PCrit();
 inline double     CSpDBEqn::TCrit()            { return m_pData->m_pSp->TCrit();       };
 inline double     CSpDBEqn::VCrit()            { return m_pData->m_pSp->VCrit();       };
 inline double     CSpDBEqn::ACent()            { return m_pData->m_pSp->ACent();       };
+inline bool       CSpDBEqn::PcOK()             { return m_pData->m_pSp->PcOK();        };
+inline bool       CSpDBEqn::TcOK()             { return m_pData->m_pSp->TcOK();        };
+inline bool       CSpDBEqn::VcOK()             { return m_pData->m_pSp->VcOK();        };
+inline bool       CSpDBEqn::AcOK()             { return m_pData->m_pSp->AcOK();        };
 inline double     CSpDBEqn::MolarVolume()      { return m_pData->m_pSp->MolarVolume(); };
 inline double     CSpDBEqn::MolecularDiam()    { return m_pData->m_pSp->MolecularDiam(); };
 

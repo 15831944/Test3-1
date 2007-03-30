@@ -2795,10 +2795,11 @@ Build 123 : 21 February 2007
 1592 29/03/07: (#802) Add Antoine vapour pressure equation for specie database "VpAnt(a,b,c)"
 1593 29/03/07: (#805) Remove incorrect error message when using 'Phase' keyword for FinalFraction reaction extent option.
 1594 29/03/07: (#697) Improvements to scheduled events model.
+1595 30/03/07: (#802) Add revised Antoine vapour pressure equation for specie database "VpAntR(a,b,c,min,max)"
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1594
+#define SCD_PATCH_SVN    1595
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
