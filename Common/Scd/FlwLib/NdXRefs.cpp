@@ -1088,6 +1088,7 @@ CNodeTagIOList::CTagItem::CTagItem(LPCSTR Tag, LPCSTR Name, long Options) : m_Va
   m_lIdNo        = -1;
   m_bValid       = false; 
   m_bInUse       = false; 
+  m_bValueValid  = false;
   }
 
 //---------------------------------------------------------------------------
@@ -1204,6 +1205,8 @@ long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
     m_TagMap.SetAt(p->m_sTag, p);
     m_NameMap.SetAt(p->m_sName, p);
     p->m_Var.SetVar(p->m_sFullTag.GetBuffer(), false, NULL, NULL);
+
+    p->m_bValueValid = false;
 
     for (int i=0; i<m_Items.GetCount(); i++)
       {
@@ -1431,6 +1434,7 @@ void   CNodeTagIOList::SetDValue(long Index, double Value, bool UseCnv)
       CXRefItem * pXRef=pItem->m_Var.m_pXRef;
       pItem->m_DblValue = Cnvs[pXRef->m_iCnvIndex]->Normal(Value, pXRef->m_sCnv());
       } 
+    pItem->m_bValueValid=true;
     }
   }
 
@@ -1456,8 +1460,11 @@ int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
     CTagItem *p=m_Items[i];
     if (p && p->m_bValid)
       {
-      int RetCode = p->m_Var.UpdateXRef(p, (p->m_lOptions & MTIO_Set)!=0, true /*Always Get the latest*/, 
-        FunctNo, m_pNd, -1, p->Tag(), p->Name(), "CNodeTagList:Output", Results);
+      CString XXX;
+      XXX.Format("Xr[%i]", i);
+      bool DoingSet = (p->m_lOptions & MTIO_Set)!=0;
+      int RetCode = p->m_Var.UpdateXRef(p, DoingSet, !DoingSet,//true /*Always Get the latest*/, 
+        FunctNo, m_pNd, -1, p->Name(),p->Name(), "CNodeTagList:Output", Results);
       if (RetCode!=BXR_OK)
         {
         p->m_bValid = 0;
@@ -1578,7 +1585,10 @@ void CNodeTagIOList::GetAllValues(bool CallGetNearXRefs)
       {
       CTagItem * p=m_Items[i];
       if (p && p->m_bInUse && p->m_bValid && (p->m_lOptions & MTIO_Get))
+        {
         p->m_Var.GetValue(p->m_DblValue, true);//(p->m_lOptions &MTIO_SICnv)!=0);
+        p->m_bValueValid = true;
+        }
       }
     }
   };
@@ -1592,8 +1602,11 @@ void CNodeTagIOList::SetAllValues(bool CallSetNearXRefs)
     for (int i=0; i<m_Items.GetCount(); i++)
       {
       CTagItem * p=m_Items[i];
-      if (p && p->m_bInUse && (p->m_lOptions & MTIO_Set))
+      if (p && p->m_bInUse && p->m_bValueValid && (p->m_lOptions & MTIO_Set))
+        {
         p->m_Var.PutValue(p->m_DblValue, true);
+        p->m_bValueValid = false;
+        }
       }
 
     if (CallSetNearXRefs)

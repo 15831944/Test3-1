@@ -571,20 +571,30 @@ bool CXRefItem::GetNearXRefValue()
       }
     if (m_TAB.IsNumData())
       {
-      m_Value.m_dValue=m_TAB.GetDouble();
-      IncGets();
-      m_Lcl.IncSets();
+      double V(m_TAB.GetDouble());
+      if (V!=m_Value.m_dValue)
+        {
+        m_Value.m_dValue=V;
+        IncGets();
+        m_Lcl.IncSets();
+        }
       }
     else if (m_TAB.IsStrng())
       {
-      m_Value.m_sValue=m_TAB.GetString();
-      IncGets();
-      m_Lcl.IncSets();
+      Strng S(m_TAB.GetString());
+      if (S!=m_Value.m_sValue)
+        {
+        m_Value.m_sValue=S;
+        IncGets();
+        m_Lcl.IncSets();
+        }
       }
     #if dbgXRefs
     if (dbgGet(RefTag()))
-      dbgpln("Xfer Near Get    %s :                {%2i   /%4i}{%2i:%2i/%4i%s} <-- %16.5f %-20s -> %s", 
-             GetPtrStr(this), m_nGets, m_nGetsTot, m_Lcl.m_nSets, m_Lcl.m_nResets, m_Lcl.m_nSetsTot, m_Lcl.m_bIsFnTerm?"F":" ", 
+      dbgpln("Xfer Near Get    %s : %3s %3s        "
+             "{%2i   /%4i}{%2i:%2i/%4i%s} <-- %16.5f %-20s -> %s", 
+             GetPtrStr(this), m_bMustGet?"Get":"   ", m_bMustSet?"Set":"   ",
+             m_nGets, m_nGetsTot, m_Lcl.m_nSets, m_Lcl.m_nResets, m_Lcl.m_nSetsTot, m_Lcl.m_bIsFnTerm?"F":" ", 
              m_Value.m_dValue, m_sRefTag(), m_sRmtTag());
     #endif
     return true;
@@ -1069,11 +1079,13 @@ CTagRefStatus CTagRefsMapItem::GetStatusWord()
   ////    _stricmp(m_sTag, "P105b.Stats.Reset_Stats")==0)
   //  { dbg=1; }
 
+  dbgpln("CTagRefsMapItem::GetStatusWord %s", m_sTag);
   CTagRefStatus W=FFM_Off;
   POSITION Pos=m_pTagRefs.GetHeadPosition();
   while (Pos)
     { 
     CTagRef * pRef=m_pTagRefs.GetNext(Pos);
+
     if (pRef->m_bMustSet)
       {
       if (W & FFM_HasSet)
@@ -1094,6 +1106,9 @@ CTagRefStatus CTagRefsMapItem::GetStatusWord()
       W|=FFM_HasGetCnt;
     if (!pRef->IsNdActive())
       W|=FFM_HasInactive;
+
+    dbgpln("  = %08x %s %2i %s %2i %s -> %s ", W, pRef->m_bMustGet?"Get":"   ", pRef->m_nGets, 
+      pRef->m_bMustSet?"Set":"   ", pRef->m_nSets, pRef->m_sRefTag(), pRef->m_sRmtTag());
     }
 
   if (W & FFM_HasMultiSets)

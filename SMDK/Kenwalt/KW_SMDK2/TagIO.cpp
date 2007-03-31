@@ -38,14 +38,14 @@ CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitD
   //default values...
   m_bOn       = true;
 
-  m_dGetValue = dNAN;
+  m_dGetValue = 0.0;//dNAN;
   m_dSetValue = 0.0;
 
 
   m_bSubsActive = false;
   m_bBuildListRqd = true;
-  m_dGetValueSubs1 = dNAN;
-  m_dGetValueSubs2 = dNAN;
+  m_dGetValueSubs1 = 0.0;//dNAN;
+  m_dGetValueSubs2 = 0.0;//dNAN;
   m_dSetValueSubs1 = 0.0;
   m_iGet1 = -1;
   m_iGet2 = -1;

@@ -228,6 +228,7 @@ class DllImportExport CNodeTagIOList
         long              m_lIdNo;
         bool              m_bValid;
         bool              m_bInUse;
+        bool              m_bValueValid;
         CTgFnIoVar        m_Var;
 
         double            m_DblValue;
