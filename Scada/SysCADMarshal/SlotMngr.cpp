@@ -1260,8 +1260,12 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
           {
           int I=pNew->m_lSrcInx;
           if (I>=0 && I<m_Links.GetSize())
+            {
             //CurrentV=m_Links[I]->FullValue();
             Direction=m_Links[I]->m_iLastChgDirn;
+            if (Direction==0 && Refresh)
+              Direction=m_Links[I]->FullValue().ChangeDirectionInit();
+            }
           else
             ReportError("AppendChange", 0, "Change %i has Bad Link Index %i <0 or >%i ", pNew->m_dwNumber, I, m_Links.GetSize()-1);
           break;
@@ -1270,8 +1274,12 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
           {
           int I=pNew->m_lSrcInx;
           if (I>=0 && I<m_Slots.GetSize())
+            {
             //CurrentV=m_Slots[I]->FullValue();
             Direction=m_Slots[I]->m_iLastChgDirn;
+            if (Direction==0 && Refresh)
+              Direction=m_Slots[I]->FullValue().ChangeDirectionInit();
+            }
           else
             ReportError("AppendChange", 0, "Change %i has Bad Slot Index %i <0 or >%i ", pNew->m_dwNumber, I, m_Slots.GetSize()-1);
           break;
@@ -1291,22 +1299,25 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
           int n=DBA.GetCount();
           for (int i=0; i<n; i++)
             {
-
-            CDelayBlockItem &DB = DBA[i];
-            CChangeItem * pChg=new CChangeItem(Src, SrcI, Dst, DstI, -1, TransID, FullValue, OverrideHold, Refresh);
-            pChg->m_vValue=DB.m_Value;
-            AddDelayedChange(pChg, DB.m_dwTime);
+            if (!Refresh || (i==n-1))
+              {
+              CDelayBlockItem &DB = DBA[i];
+              CChangeItem * pChg=new CChangeItem(Src, SrcI, Dst, DstI, -1, TransID, FullValue, OverrideHold, Refresh);
+              pChg->m_vValue=DB.m_Value;
+              AddDelayedChange(pChg, Refresh ? 0:DB.m_dwTime);
+              }
             }
           }
         else
           {
           // Ignore;
+          int Dummy=0;
           }
         delete pNew; // done with this
         }
       else
         {
-        if (Direction!=0)
+        if (Direction!=0 || Refresh)
           {
           DWORD Timer;
           if (Direction<0)// && pDelay->m_dwTimeFall)
@@ -1314,11 +1325,12 @@ void CSlotMngr::AppendChange(eConnSrcDst Src, long SrcI, eConnSrcDst Dst, long D
           else
             Timer = pDelay->m_OnRise[0].m_dwTime; 
 
-          AddDelayedChange(pNew, Timer);
+          AddDelayedChange(pNew, Refresh ? 0:Timer);
           }
         else
           {
           // Ignore;
+          int Dummy=0;
           }
         }
       }

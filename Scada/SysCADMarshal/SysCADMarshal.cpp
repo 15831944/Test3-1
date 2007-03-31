@@ -165,6 +165,8 @@ BOOL CSysCADMarshalApp::InitInstance(void)
   _Module.UpdateRegistryFromResource(IDR_SYSCADMARSHAL, TRUE);
   _Module.RegisterServer(TRUE);
 
+  InitVersionStuff();
+
   // Check to see if launched as OLE server
   // Always register class objects so that we connect to them
   if(1)//cmdInfo.m_bRunEmbedded || cmdInfo.m_bRunAutomated)
@@ -264,6 +266,7 @@ public:
   //{{AFX_VIRTUAL(CAboutDlg)
 protected:
   virtual void DoDataExchange(CDataExchange *pDX);  // DDX/DDV support
+  virtual BOOL OnInitDialog();
   //}}AFX_VIRTUAL
 // Implementation
 protected:
@@ -293,6 +296,32 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
+BOOL CAboutDlg::OnInitDialog()
+  {
+  CDialog::OnInitDialog();
+
+  // fill SysCAD version number etc
+  Strng s;
+  SetDlgItemText(IDC_SYSCAD_VERSION, FullVersion());
+  SetDlgItemText(IDC_ACOPYRIGHT, CopyrightNotice());
+  SetDlgItemText(IDC_ACOMPANY, FullCompany());
+  s.Set("Build date: %s", BuildDate());
+  SetDlgItemText(IDC_BUILDDATE, s());
+  s.Set("Distributed by %s", FullCompany2());
+  SetDlgItemText(IDC_ACOMPANY2, s());
+  SetDlgItemText(IDC_WEBLOCATION, "www.SysCAD.net");
+  /*if (strlen(SCD_PATCHNOTE)>0)
+    {
+    if (strlen(SCD_PATCHDATE)>0)
+      s.Set("%s  (%s)", SCD_PATCHNOTE, SCD_PATCHDATE);
+    else
+      s.Set("%s", SCD_PATCHNOTE);
+    }
+  else*/
+    s = "";
+  SetDlgItemText(IDC_PATCH, s());
+  return TRUE;  // return TRUE  unless you set the focus to a control
+  }
 // App command to run the dialog
 void CSysCADMarshalApp::OnAppAbout(void)
   {

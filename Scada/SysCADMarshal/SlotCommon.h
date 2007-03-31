@@ -384,6 +384,22 @@ class CFullValue
         }
       return 0;
       }
+    int ChangeDirectionInit()
+      {
+      switch (Type())
+        {
+        case VT_R4  : { double X=(m_vValue.fltVal     - 0); return X>0?1:-1 ;}
+        case VT_R8  : { double X=(m_vValue.dblVal     - 0); return X>0?1:-1 ;}
+        case VT_I1  : { long X=((long)m_vValue.cVal   - 0); return X>0?1:-1 ;};
+        case VT_I2  : { long X=((long)m_vValue.iVal   - 0); return X>0?1:-1 ;};
+        case VT_I4  : { long X=((long)m_vValue.lVal   - 0); return X>0?1:-1 ;};
+        case VT_UI1 : { long X=((long)m_vValue.bVal   - 0); return X>0?1:-1 ;};
+        case VT_UI2 : { long X=((long)m_vValue.uiVal  - 0); return X>0?1:-1 ;};
+        case VT_UI4 : { long X=((long)m_vValue.ulVal  - 0); return X>0?1:-1 ;};
+        case VT_BOOL: { return m_vValue.boolVal!=0?1:-1; };
+        }
+      return 0;
+      }
 
   };
 

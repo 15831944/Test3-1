@@ -61,6 +61,15 @@
 #define IDC_SETFILTERED                 1032
 #define IDC_SETSELECTED                 1033
 #define IDC_SETGROUPS                   1034
+#define IDC_SYSCAD_VERSION              20116
+#define IDC_BUILDDATE                   20117
+#define IDC_PATCH                       20118
+#define IDI_LOGO                        24525
+#define IDI_LOGO1                       24526
+#define IDC_ACOMPANY                    24527
+#define IDC_ACOPYRIGHT                  24528
+#define IDC_ACOMPANY2                   24529
+#define IDC_WEBLOCATION                 24530
 #define ID_CONFIGURATION_LOADDB         32771
 #define ID_CONFIGURATION_ADDDB          32772
 #define ID_VIEW_STATISTICS              32783
@@ -82,7 +91,7 @@
 #define ID_ACCELERATOR32810             32810
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1

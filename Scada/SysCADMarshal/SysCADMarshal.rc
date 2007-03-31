@@ -30,6 +30,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\SysCADMarshal.ico"
 IDR_SCDMARTYPE          ICON                    "res\\SysCADMarshalDoc.ico"
+IDI_LOGO                ICON                    "res\\LOGO.ICO"
+IDI_LOGO1               ICON                    "res\\logo1.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -81,7 +83,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -129,7 +131,7 @@ BEGIN
         MENUITEM "Simulate &Mode\tCtrl+Shft+S", ID_MODE_SIMULATE, CHECKED
         MENUITEM SEPARATOR
         MENUITEM "Set &Values\tCtrl+Shft+V",    ID_EDIT_SETVALUES
-        MENUITEM "&Refresh Devices\tCtrl+Shft+R", 
+        MENUITEM "&Refresh Devices\tCtrl+Shft+R",
                                                 ID_CONFIGURATION_REFRESHDEVICES
 
     END
@@ -145,7 +147,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS 
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F5,          ID_VIEW_REFRESH,        VIRTKEY, NOINVERT
@@ -163,11 +165,11 @@ BEGIN
     VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
     VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    "V",            ID_EDIT_SETVALUES,      VIRTKEY, SHIFT, CONTROL, 
+    "V",            ID_EDIT_SETVALUES,      VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
-    "S",            ID_MODE_SIMULATE,       VIRTKEY, SHIFT, CONTROL, 
+    "S",            ID_MODE_SIMULATE,       VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
-    "R",            ID_CONFIGURATION_REFRESHDEVICES, VIRTKEY, SHIFT, CONTROL, 
+    "R",            ID_CONFIGURATION_REFRESHDEVICES, VIRTKEY, SHIFT, CONTROL,
                                                     NOINVERT
 END
 
@@ -177,17 +179,23 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+IDD_ABOUTBOX DIALOGEX 0, 0, 255, 102
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About SysCAD Marshal"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "SysCAD Marshal for SysCAD 9.1",IDC_STATIC,40,10,119,8,
-                    SS_NOPREFIX
-    LTEXT           "Copyright (C) Kenwalt 2003 - 2006",IDC_STATIC,40,25,119,
-                    8
-    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+    ICON            IDI_LOGO,IDC_STATIC,230,52,20,20
+    DEFPUSHBUTTON   "OK",IDOK,210,7,40,14
+    LTEXT           "(Full Version)",IDC_SYSCAD_VERSION,55,18,150,8
+    LTEXT           "(Build Date)",IDC_BUILDDATE,55,28,150,8
+    LTEXT           "(www)",IDC_WEBLOCATION,54,44,165,8
+    LTEXT           "(Copyright)",IDC_ACOPYRIGHT,54,54,165,8
+    LTEXT           "(Company)",IDC_ACOMPANY,54,64,165,8
+    LTEXT           "(Company2)",IDC_ACOMPANY2,54,74,165,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,0,86,255,1
+    CTEXT           "Warning: This program is copyright protected.",IDC_STATIC,0,91,255,8
+    LTEXT           "SysCADMarshal for:",IDC_STATIC,55,7,139,8
 END
 
 
@@ -236,14 +244,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 228
+        RIGHTMARGIN, 248
         TOPMARGIN, 7
-        BOTTOMMARGIN, 48
+        BOTTOMMARGIN, 95
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -262,23 +270,23 @@ IDR_SCDMARSHAL          REGISTRY                "ScdMarshal.rgs"
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDP_OLE_INIT_FAILED     "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "SysCADMarshal\n\nSysCADMarshal\nSysCADMarshal Files (*.scm)\n.scm\nSysCADMarshal.Document\nSysCADMarshal Document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "SysCADMarshal"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -288,7 +296,7 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_SLOTS      "Slt:XXXXXXX"
     ID_INDICATOR_LINKS      "Lnk:XXXXXXX"
@@ -297,7 +305,7 @@ BEGIN
     ID_INDICATOR_HOLDS      "Hld:XXXXXXX"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -310,13 +318,13 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -336,18 +344,18 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -362,7 +370,7 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_CONFIGURATON    "Toggle the view configuration columns on/off\nView Configuration Columns"
     ID_VIEW_HEXADECIMAL     "Toggle the view in Hex format on/off\nView Hex format\n"
@@ -372,19 +380,19 @@ BEGIN
     ID_MONITOR              "Monitor Value Changes\nMonitor Changes"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_CONFIGURATION_LOADDB "Reload the configuration database\nReload Cfg DBase"
     ID_VIEW_STATISTICS      "Toggle the view statistics columns on/off\nView statistics Columns"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -395,13 +403,13 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
 END
@@ -457,7 +465,7 @@ BEGIN
 END
 
 IDD_FINDIT DIALOGEX 0, 0, 418, 70
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | 
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE |
     WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW
 CAPTION "Filter"
@@ -466,33 +474,33 @@ BEGIN
     PUSHBUTTON      "Done",IDOK,357,50,54,12
     DEFPUSHBUTTON   "Apply",ID_FILTERON,357,7,54,12
     PUSHBUTTON      "Remove",ID_FILTEROFF,357,29,54,12
-    COMBOBOX        IDC_FILTERTAG,6,20,93,100,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_FILTERTAG,6,20,93,100,CBS_DROPDOWN | WS_VSCROLL |
                     WS_TABSTOP
-    COMBOBOX        IDC_FILTERSIMTAG,103,20,93,100,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_FILTERSIMTAG,103,20,93,100,CBS_DROPDOWN | WS_VSCROLL |
                     WS_TABSTOP
-    COMBOBOX        IDC_FILTEROPCTAG,199,20,93,100,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_FILTEROPCTAG,199,20,93,100,CBS_DROPDOWN | WS_VSCROLL |
                     WS_TABSTOP
-    COMBOBOX        IDC_FILTERTYPE,295,20,53,100,CBS_DROPDOWN | WS_VSCROLL | 
+    COMBOBOX        IDC_FILTERTYPE,295,20,53,100,CBS_DROPDOWN | WS_VSCROLL |
                     WS_TABSTOP
-    COMBOBOX        IDC_HOW,7,50,93,41,CBS_DROPDOWNLIST | WS_VSCROLL | 
+    COMBOBOX        IDC_HOW,7,50,93,41,CBS_DROPDOWNLIST | WS_VSCROLL |
                     WS_TABSTOP
     CONTROL         "And's",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     123,39,54,12
-    CONTROL         "Ignore Case",IDC_IGNORECASE,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Ignore Case",IDC_IGNORECASE,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,123,52,54,12
     LTEXT           "Marshal Tag",IDC_STATIC,6,7,93,12,SS_CENTERIMAGE
     LTEXT           "Simulator Tag",IDC_STATIC,103,7,93,12,SS_CENTERIMAGE
     LTEXT           "OPC Tag",IDC_STATIC,199,7,93,12,SS_CENTERIMAGE
     LTEXT           "Type",IDC_STATIC,295,7,53,12,SS_CENTERIMAGE
     LTEXT           "Interpretation",IDC_STATIC,7,36,47,12,SS_CENTERIMAGE
-    CONTROL         "Errors Only",IDC_ERRORSONLY,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Errors Only",IDC_ERRORSONLY,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,199,39,79,12
-    CONTROL         "Holds Only",IDC_HOLDSONLY,"Button",BS_AUTOCHECKBOX | 
+    CONTROL         "Holds Only",IDC_HOLDSONLY,"Button",BS_AUTOCHECKBOX |
                     WS_TABSTOP,199,52,78,12
 END
 
 IDD_SETVALUES DIALOGEX 0, 0, 207, 147
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION |
     WS_SYSMENU
 CAPTION "Set Values"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -503,12 +511,12 @@ BEGIN
                     13,57,42,11
     CONTROL         "Filtered",IDC_SETFILTERED,"Button",BS_AUTORADIOBUTTON,
                     13,70,42,11
-    CONTROL         "Selected",IDC_SETSELECTED,"Button",BS_AUTORADIOBUTTON | 
+    CONTROL         "Selected",IDC_SETSELECTED,"Button",BS_AUTORADIOBUTTON |
                     WS_DISABLED,13,85,42,11
-    CONTROL         "Groups",IDC_SETGROUPS,"Button",BS_AUTORADIOBUTTON | 
+    CONTROL         "Groups",IDC_SETGROUPS,"Button",BS_AUTORADIOBUTTON |
                     WS_DISABLED,13,99,42,11
     PUSHBUTTON      "Done",IDOK,7,126,51,14
-    CONTROL         "",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | 
+    CONTROL         "",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT |
                     WS_DISABLED | WS_BORDER | WS_TABSTOP,64,7,136,133
     GROUPBOX        "Which",IDC_STATIC,7,47,51,66
 END
@@ -520,7 +528,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_SLOTCONFIG, DIALOG
     BEGIN
@@ -555,18 +563,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"

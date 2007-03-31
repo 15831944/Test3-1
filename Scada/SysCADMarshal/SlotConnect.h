@@ -421,7 +421,7 @@ class CSlotConnect
     bool         m_bValid;     // Address OK
     bool         m_bIsSet;     //is this a Set
     bool         m_bIsGet;     //is this a Get
-    bool         m_bInvert;    //perform a logical not before set or get
+    bool         m_bInvert;       //perform a logical not before set or get
 
     CDelayBlock  m_Delay;
     
@@ -436,6 +436,7 @@ class CSlotConnect
     CCdBlk      *m_pCdBlk;      //pointer to CodeBlock (either this or m_pSlot)
     GCVar       *m_pCdBlkVar;   //pointer to CodeBlock variable
     bool         m_bCdBlkVarFlt;
+    bool         m_bConnect1Done; //the first change has been forced thru
 
     CSlotConnect(LPCSTR pTag, /*LPCSTR pCnvTxt,*/ bool IsSet, bool Inv);
     ~CSlotConnect(); 
