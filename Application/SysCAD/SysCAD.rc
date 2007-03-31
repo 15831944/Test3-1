@@ -4412,8 +4412,9 @@ BEGIN
     ID_INDICATOR_1          "_______________"
     ID_INDICATOR_2          "___________"
     ID_INDICATOR_3          "_________________"
-    ID_INDICATOR_4          "______"
+    ID_INDICATOR_4          "________"
     ID_INDICATOR_5          "______"
+    ID_INDICATOR_6          "______"
 END
 
 STRINGTABLE 

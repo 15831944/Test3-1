@@ -398,7 +398,7 @@ const short Idf_PID2Init = 2;
 
 //---------------------------------------------------------------------------
 
-GCPID2::GCPID2(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "PID2", VarClassDefn)
+GCPID2::GCPID2(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "PID2", VarClassDefn)
   {
   //all variables added here are automatically saved and restored when neccessary
   AddVar(IB, "On",      &GCByte);
@@ -921,7 +921,7 @@ const short Idf_PID3Init = 2;
 
 //---------------------------------------------------------------------------
 
-GCPID3::GCPID3(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "PID3", VarClassDefn)
+GCPID3::GCPID3(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "PID3", VarClassDefn)
   {
   //all variables added here are automatically saved and restored when neccessary
   AddVar(IB, "On",      &GCByte);
@@ -1505,7 +1505,7 @@ const short Idf_PID4Init = 2;
 
 //---------------------------------------------------------------------------
 
-GCPID4::GCPID4(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "PID4", VarClassDefn)
+GCPID4::GCPID4(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "PID4", VarClassDefn)
   {
   //all variables added here are automatically saved and restored when neccessary
   AddVar(IB, "On",      &GCByte);
@@ -1737,7 +1737,7 @@ const short Idf_TimeGMTSplit = 2;
 
 //---------------------------------------------------------------------------
 
-GCTime::GCTime(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "TimeClass", VarClassDefn)
+GCTime::GCTime(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "TimeClass", VarClassDefn)
   {
   AddVar(IB, "HSec",   &GCByte, VarConst);
   AddVar(IB, "Sec",    &GCByte, VarConst);
@@ -1811,7 +1811,7 @@ const short Idf_ArrayClipboard = 10;
 
 //---------------------------------------------------------------------------
 
-GCArray::GCArray(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "Array", VarClassDefn)
+GCArray::GCArray(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "Array", VarClassDefn)
   {
   AddFunct(IB, "SetLen", 1, False, Idf_ArraySetLen);
   AddFunct(IB, "GetLen", 0, False, Idf_ArrayGetLen);
@@ -2026,7 +2026,7 @@ const short Idf_MatrixClipboard = 11;
 
 //---------------------------------------------------------------------------
 
-GCMatrix::GCMatrix(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "Matrix", VarClassDefn)
+GCMatrix::GCMatrix(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "Matrix", VarClassDefn)
   {
   AddFunct(IB, "SetSize", 2, False, Idf_MatrixSetSize);
   AddFunct(IB, "GetRowCount", 0, False, Idf_MatrixGetRowCount);

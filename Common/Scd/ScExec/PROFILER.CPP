@@ -469,7 +469,7 @@ const short Idf_ProfCont = 9;
 
 //---------------------------------------------------------------------------
 
-GCProfiler::GCProfiler(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "PROFILER", VarClassDefn)
+GCProfiler::GCProfiler(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "PROFILER", VarClassDefn)
   {
   AddFunct(IB, "Load", 1, True, Idf_ProfLoad); //Load(filename)
   AddFunct(IB, "SetOptions", 3, False, Idf_ProfOptions); //SetOptions(Column, WrapArround, Linear)

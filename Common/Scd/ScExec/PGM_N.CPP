@@ -24,7 +24,7 @@ const short Idf_NoiseGetVal = 6;
 
 //---------------------------------------------------------------------------
 
-GCNoise::GCNoise(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "NOISE", VarClassDefn)
+GCNoise::GCNoise(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "NOISE", VarClassDefn)
   {
   AddVar(IB, "Output",    &GCDouble, VarConst);
   AddVar(IB, "Mean",      &GCDouble);

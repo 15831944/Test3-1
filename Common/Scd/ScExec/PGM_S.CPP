@@ -49,7 +49,7 @@ enum
 
 //---------------------------------------------------------------------------
 
-GCSDB::GCSDB(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "GlblSDB", VarClassDefn)
+GCSDB::GCSDB(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "GlblSDB", VarClassDefn)
   {
   AddVar  (IB, "Fidelity",      &GCLong);        
   

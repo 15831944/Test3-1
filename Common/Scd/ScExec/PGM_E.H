@@ -237,6 +237,7 @@ class CGExecContext
       }
   };
     
+class GCVarMap : public CMap<LPCSTR, LPCSTR, GCVar*, GCVar*> {};
 
 class DllImportExport GCInsMngr
   {
@@ -273,10 +274,10 @@ class DllImportExport GCInsMngr
     void           StdCheck(pchar Tkn);
     double         ParseNumber();
     void           AddArrayWatch(pGCClassVar pClassVar, bool ReadOnly, int index0, int index1);
-    void           DoConstructArray(rGCDef Def, pGCVar &pVarList, pchar pVarName, int Cnt);
-    void           DoConstructVars(rGCDef Def, pGCVar &pVarList);
+    void           DoConstructArray(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap, pchar pVarName, int Cnt);
+    void           DoConstructVars(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap);
     void           DoConstructExprssn( flag ExpectStr = False);
-    GCFunctVar*    DoConstructFnt(pGCVar &pVarList);
+    GCFunctVar*    DoConstructFnt(pGCVar &pVarList, GCVarMap * pVarMap);
     GCVar*         DoConstructTag(char Terminate);
     void           DoConstructParms( int ParmCount, 
                                      flag ExpectStr = False,
@@ -331,6 +332,7 @@ class DllImportExport GCInsMngr
     int            m_iNextInsBlkSize;   //size of all succesive memory blocks to be allocated for instruction code
     CArray<GCArrayWatch*, GCArrayWatch*> m_ExtraWatchArray; //array of special watch variables
     GCVar*         m_pVarList;          //pointer to first var in list of variables
+    GCVarMap       m_VarMap;            //pointer to first var in list of variables
     GCVar*         m_pOnInitialiseVar;  //pointer to Initialise Flag
     GCVar*         m_pOnStartVar;       //pointer to Start Flag
     GCVar*         m_pOnTerminateVar;   //pointer to Start Flag
@@ -412,7 +414,7 @@ class GCDef
     GCDef(pchar Name_);
   public:
     virtual pGCIns Construct(GCInsMngr &IB) = 0;
-    virtual GCVar* ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags) { ASSERT(FALSE); return NULL; };
+    virtual GCVar* ConstructVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) { ASSERT(FALSE); return NULL; };
     static  pGCDef Find(pchar pName);
     pchar          Name() { return m_pName;};
     pGCDef         Next() { return m_pNext;};
@@ -484,9 +486,11 @@ class DllImportExport GCVar
   friend class GCInsMngr;
   protected:
     GCVar( pGCVar &pFirstVar,
+           GCVarMap * pVarMap,
            pchar pName, 
            DWORD flags);
     GCVar*         m_pNext;   //points to next var in linked list
+    GCVarMap     * m_pVarMap;
     pchar          m_pName;   //points to identifier name
   public:
     virtual ~GCVar();
@@ -550,8 +554,8 @@ inline long GetAsLong(double d)
 class DllImportExport GCDoubleVar : public GCVar
   {
   public:
-    GCDoubleVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0.0 ;};
-    GCDoubleVar(pGCVar &pFirstVar, pchar pName, DWORD flags, double d) : GCVar(pFirstVar, pName, flags) { m_var = d ;};
+    GCDoubleVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = 0.0 ;};
+    GCDoubleVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, double d) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = d ;};
     double         m_var;
     char           WhatAmI() { return VarDouble; };                               
     pchar          GetStrVal(pchar Buff) { Valid(m_var) ? sprintf(Buff, "%.12g", m_var) : sprintf(Buff, "*"); return Buff; };
@@ -575,8 +579,8 @@ class DllImportExport GCDoubleVar : public GCVar
 class DllImportExport GCLongVar : public GCVar
   {
   public:
-    GCLongVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags)  { m_var = 0; };
-    GCLongVar(pGCVar &pFirstVar, pchar pName, DWORD flags, long l) : GCVar(pFirstVar, pName, flags) { m_var = l ;};
+    GCLongVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags)  { m_var = 0; };
+    GCLongVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, long l) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = l ;};
     long           m_var;
     char           WhatAmI() { return VarLong; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%d", m_var); return Buff; };
@@ -600,8 +604,8 @@ class DllImportExport GCLongVar : public GCVar
 class DllImportExport GCByteVar : public GCVar
   {
   public:
-    GCByteVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
-    GCByteVar(pGCVar &pFirstVar, pchar pName, DWORD flags, unsigned char c) : GCVar(pFirstVar, pName, flags) { m_var = c ;};
+    GCByteVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = 0; };
+    GCByteVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, unsigned char c) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = c ;};
     unsigned char  m_var;
     char           WhatAmI() { return VarByte; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%d", m_var); return Buff; };
@@ -625,8 +629,8 @@ class DllImportExport GCByteVar : public GCVar
 class DllImportExport GCBitVar : public GCVar
   {
   public:
-    GCBitVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = 0; };
-    GCBitVar(pGCVar &pFirstVar, pchar pName, DWORD flags, flag b) : GCVar(pFirstVar, pName, flags) { m_var = b ;};
+    GCBitVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = 0; };
+    GCBitVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, flag b) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = b ;};
     flag           m_var;
     char           WhatAmI() { return VarBit; };
     pchar          GetStrVal(pchar Buff) { m_var ? sprintf(Buff, "True") : sprintf(Buff, "False"); return Buff; };
@@ -651,8 +655,8 @@ class DllImportExport GCBitVar : public GCVar
 class DllImportExport GCStrVar : public GCVar
   {
   public:
-    GCStrVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var = ""; };
-    GCStrVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pName, flags) { m_var = p; };
+    GCStrVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = ""; };
+    GCStrVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var = p; };
     Strng m_var;
     char           WhatAmI() { return VarStr; };
     pchar          GetStrVal(pchar Buff) { sprintf(Buff, "%s", m_var() ? m_var() : ""); return Buff; };
@@ -693,7 +697,7 @@ class DllImportExport GCStrVar : public GCVar
 class DllImportExport GCTagVar : public GCVar
   {
   public:
-    GCTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags);
+    GCTagVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags);
     virtual ~GCTagVar();   
 
     char           WhatAmI() { return VarTag; };                               
@@ -749,8 +753,8 @@ class DllImportExport GCTagVar : public GCVar
 class DllImportExport GCLabelVar : public GCVar
   {
   public:
-    GCLabelVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) { m_var=""; };
-    GCLabelVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pName, flags) { m_var=p; };
+    GCLabelVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var=""; };
+    GCLabelVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, pchar p) : GCVar(pFirstVar, pVarMap, pName, flags) { m_var=p; };
     Strng m_var;
 
     char           WhatAmI() { return VarLabel; };
@@ -793,7 +797,7 @@ class DllImportExport GCLabelVar : public GCVar
 class DllImportExport GCStrTagVar : public GCTagVar
   {
   public:
-    GCStrTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCTagVar(pFirstVar, pName, flags)
+    GCStrTagVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCTagVar(pFirstVar, pVarMap, pName, flags)
       {
       m_bStrTag=1;
       };
@@ -826,7 +830,7 @@ class DllImportExport GCStrTagVar : public GCTagVar
 class DllImportExport GCFunctVar : public GCVar
   {
   public:
-    GCFunctVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCFunctVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) 
       { m_var = 0.0; m_pVarList = NULL; m_pFntIPos = NULL; m_bStrParms = False; };
     virtual ~GCFunctVar();
     double  m_var;
@@ -834,6 +838,7 @@ class DllImportExport GCFunctVar : public GCVar
     pGCIns  m_pFntIPos;  // address of the function (PGM functions)
     short   m_FunctId;    // id of function (C++ functions)
     GCVar * m_pVarList;  // variables used in function class
+    GCVarMap  m_VarMap;  // map of variables used in function class
     flag   m_bStrParms;   // True if all the parameters are strings
     
     char           WhatAmI() { return VarFunct; };                               
@@ -858,13 +863,14 @@ class DllImportExport GCFunctVar : public GCVar
 class DllImportExport GCClassVar : public GCVar
   {
   public:
-    GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCClassVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) 
       { m_pVarList = NULL; m_pRefClass = NULL; m_pSubClass = NULL; m_pParentClass = NULL; };
-    GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pGCClassVar pRefClass);
+    GCClassVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, pGCClassVar pRefClass);
     virtual ~GCClassVar();
     void           CopyClass();
     void           DestroySubClass();
     GCVar*         m_pVarList;// variables (and functions) in class
+    GCVarMap       m_VarMap;  // map of variables used in function class
     GCClassVar*    m_pRefClass;//if this is not used as a class defenition, then this is the instance of the class and the variable points to the instance of the class defenition
     pvoid          m_pSubClass;//if this class refers to a PGM coded class then this is null, otherwise points to the instance of the c++ class
     GCClassVar*    m_pParentClass;//null if at top level, pointer to parent class if this class is a data member of a class
@@ -941,9 +947,9 @@ class DllImportExport GCClassVar : public GCVar
 class DllImportExport GCArrayVar : public GCVar
   {
   public:
-    GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags) 
+    GCArrayVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) 
       { m_pClassRefVar = NULL; m_iArrayLen = 0; };
-    GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen);
+    GCArrayVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen);
     virtual ~GCArrayVar();
     GCClassVar*    m_pClassRefVar; // pointer to reference class for the array
     int            m_iArrayLen;    // array length
@@ -1025,12 +1031,12 @@ class GC##Name##Def : public GCDef                            \
       {m_defFlags = DefLHS | DefDataType;  };                 \
     virtual pGCIns Construct(GCInsMngr &IB)                   \
       { if (IB.m_pH->m_pFunctVar)                             \
-          IB.DoConstructVars(*this, IB.m_pH->m_pFunctVar->m_pVarList);  \
+          IB.DoConstructVars(*this, IB.m_pH->m_pFunctVar->m_pVarList, &IB.m_pH->m_pFunctVar->m_VarMap);  \
         else                                                  \
-          IB.DoConstructVars(*this, IB.m_pVarList);           \
+          IB.DoConstructVars(*this, IB.m_pVarList, &IB.m_VarMap);           \
         return NULL; };                                       \
-    virtual GCVar* ConstructVar(GCVar* &pFirstVar, pchar pName, DWORD flags)    \
-      { return new GC##Name##Var(pFirstVar, pName, flags); }  \
+    virtual GCVar* ConstructVar(GCVar* &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags)    \
+      { return new GC##Name##Var(pFirstVar, pVarMap, pName, flags); }  \
    };                                                         \
                                                               \
 extern GC##Name##Def GC##Name;

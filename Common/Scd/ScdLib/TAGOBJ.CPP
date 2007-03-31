@@ -7321,7 +7321,16 @@ void TagAccessBlk::Init(TaggedObject *pSrchRoot_, pchar Tag_, TABOptions Opts, T
 
 flag TagAccessBlk::LoadAddress(flag FndShortcut)
   {
-  static int DoDbg=0;
+  CStopWatch SW(true);
+#define MyDBG 0
+#if MyDBG
+  static int DoDbg=01;
+  int iDbg=0;
+  DDBShortcutVersion SV;
+  DWORD dwCV, dwGV;
+  if (DoDbg)
+    dbglock();
+#endif
   //dbgpln("                         LoadAddress %s", pFullItemTag);
 
   bool ReMapTried=false;
@@ -7330,30 +7339,37 @@ flag TagAccessBlk::LoadAddress(flag FndShortcut)
     {
     if (!m_Shortcut.fOK)
       {
-      if (DoDbg)
-        dbgpln("LoadAddress - !OK                                      %s", sTag());
+#if MyDBG 
+      if (DoDbg)                           
+        iDbg=1;
+#endif
       pAccObj=NULL;
       }
     else if (!m_Shortcut.TestShortcut(m_pTagFound, m_Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion()))
       {
+#if MyDBG 
       if (DoDbg)
-        dbgpln("LoadAddress - Bad          %6i?%6i:%6i?%6i %s",
-          m_Shortcut.DataVer.dwDataVerObj, m_Shortcut.m_pRootObj/*pThis*/->CurrentDataVersion(),
-          m_Shortcut.DataVer.dwDataVerGlbl, TaggedObject::dwGlblDataVerNo,
-          sTag());
+        {
+        iDbg=2;
+        SV=m_Shortcut.DataVer;
+        dwCV=m_Shortcut.m_pRootObj->CurrentDataVersion();
+        dwGV=TaggedObject::dwGlblDataVerNo;
+        }
+#endif
       pAccObj=NULL;
       }
     }
+#if MyDBG 
   else
     {
     if (DoDbg)
-      dbgpln("LoadAddress - Find it                                  %s", sTag());
+      iDbg=3;
     }
+#endif
 
 ReTry:
   if (pAccObj==NULL )
     {
-    CStopWatch SW(true);
     m_Shortcut.fOK=False;
     Ok=0;
     int MinTagLen=0;
@@ -7378,7 +7394,6 @@ ReTry:
         Ok=1;
       MinTagLen=ObjTagLen+1;
       }
-    m_LoadAddress.Add(SW);
     }
 
 Failed:
@@ -7393,7 +7408,28 @@ Failed:
       goto ReTry;
       }
     }
-
+#if MyDBG 
+  if (DoDbg)
+    {
+    switch (iDbg)                           
+      {
+      case 1: 
+        dbgpln("LoadAddress - !OK ReFind                               %12.3f %s", SW.LapTime()*1e6, sTag());
+        break;
+      case 2:
+        dbgpln("LoadAddress - Bad ReFind   %6i?%6i:%6i?%6i %12.3f %s",
+          SV.dwDataVerObj, dwCV, SV.dwDataVerGlbl, dwGV, SW.LapTime()*1e6,
+          sTag());
+        break;
+      case 3:
+        dbgpln("LoadAddress - Find it                                  %12.3f %s", SW.LapTime()*1e6, sTag());
+        break;
+      }
+    dbgunlock();
+    }
+#endif
+  
+  m_LoadAddress.Add(SW);
   return Ok;
   }
 

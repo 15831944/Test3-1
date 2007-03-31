@@ -1320,7 +1320,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     // ConditionBlk Overides
     DEFINE_CI(TaggedObject, ConditionBlk, 8);
     char *          CBTag()                 { return FullObjTag(); };
-    void            CBChanged()             { StructureChanged(this); };
+    void            CBChanged()             { /*StructureChanged(this);*/ };
     flag            GetAllCIs(Strng_List & L, int MaxNo=100);
     void            ClrAllCIs();
     int             CountAllCIs(int MaxNo=1, dword RqdFlags=0);

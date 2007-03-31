@@ -304,8 +304,9 @@ static UINT BASED_CODE indicators[] =
   ID_INDICATOR_1,   // graphics position/SysCAD simulation time
   ID_INDICATOR_2,   // state: stopped/starting/building/step size
   ID_INDICATOR_3,   // number of iterations
-  ID_INDICATOR_4,   // used sometimes
+  ID_INDICATOR_4,   // oper status
   ID_INDICATOR_5,   // used sometimes
+  ID_INDICATOR_6,   // used sometimes
   };
 
 //---------------------------------------------------------------------------
@@ -2404,7 +2405,7 @@ void CMainFrame::DockControlBarRelative(CToolBar* Bar, CToolBar* RelativeTo, fla
 
 void CMainFrame::UpdateStatusBar()
   {
-  int nIndicators = 4;
+  int nIndicators = 5;
   StatusBarDriverIndicator = -1;
   StatusBarCmdIndicator = -1;
   UINT nID,nStyle;
@@ -3677,6 +3678,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
   const char* StatusRotate = "/-\\|";
 
   CXM_TimeControl & CB=*(CXM_TimeControl*)lParam;
+  const int ExecStateIndex = gs_Exec.StateIndex();
   if (gs_Exec.Busy())
     {
     const int IsDynMode=DefNetDynamicMode();
@@ -3718,45 +3720,103 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
       {//do nothing indicator updated elsewhere
       }
 
-    const int ExecStateIndex = gs_Exec.StateIndex();
-    switch (ExecStateIndex)
-      {
-      case 2: //ProBal solving...
-        break; //do nothing indicator updated elsewhere
-      case 1: //Idling...
-        Buff2.Format("Idling %c", StatusRotate[IdlingCnt++]);
-        if (IdlingCnt>3)
-          IdlingCnt=0;
-        pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
-        break;
-      case 3: ////Dynamic running...
-        if (CB.m_bSyncWithClock)
-          pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
-        else
-          {
-          if (Progress<0.0)
-            {
-            if (CB.m_StepSize>3600.0)
-              Buff2.Format("StepSize:%.3gh", CB.m_StepSize.Seconds/3600.0);
-            else
-              Buff2.Format("StepSize:%.4g", CB.m_StepSize.Seconds);
-            }
-          else
-            Buff2.Format("%.2f%%", Progress*100.0);
+    //switch (ExecStateIndex)
+    //  {
+    //  case 2: //ProBal solving...
+    //    break; //do nothing indicator updated elsewhere
+    //  case 1: //Idling...
+    //    Buff2.Format("Idling %c", StatusRotate[IdlingCnt++]);
+    //    if (IdlingCnt>3)
+    //      IdlingCnt=0;
+    //    pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
+    //    break;
+    //  case 3: ////Dynamic running...
+    //    if (CB.m_bSyncWithClock)
+    //      pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
+    //    else
+    //      {
+    //      if (Progress<0.0)
+    //        {
+    //        if (CB.m_StepSize>3600.0)
+    //          Buff2.Format("StepSize:%.3gh", CB.m_StepSize.Seconds/3600.0);
+    //        else
+    //          Buff2.Format("StepSize:%.4g", CB.m_StepSize.Seconds);
+    //        }
+    //      else
+    //        Buff2.Format("%.2f%%", Progress*100.0);
 
-          pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
-          }
-        break;
-      default:
-        pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
-        break;
+    //      pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
+    //      }
+    //    break;
+    //  default:
+    //    //pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
+    //    break;
+    //  }
+
+    if (0 && gs_Exec.Waiting())
+      {
+      Buff2.Format("Idling %c", StatusRotate[IdlingCnt++]);
+      if (IdlingCnt>3)
+        IdlingCnt=0;
+      pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
       }
+    else if (gs_Exec.SolvingPB())
+      {
+      //do nothing indicator updated elsewhere
+      }
+    else
+      {
+      if (CB.m_bSyncWithClock)
+        pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
+      else
+        {
+        if (Progress<0.0)
+          {
+          if (CB.m_StepSize>3600.0)
+            Buff2.Format("StepSize:%.3gh", CB.m_StepSize.Seconds/3600.0);
+          else
+            Buff2.Format("StepSize:%.4g", CB.m_StepSize.Seconds);
+          }
+        else
+          Buff2.Format("%.2f%%", Progress*100.0);
+
+        pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
+        }
+      }
+
+      
+    //  case 3: ////Dynamic running...
+    //    if (CB.m_bSyncWithClock)
+    //      pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
+    //    else
+    //      {
+    //      if (Progress<0.0)
+    //        {
+    //        if (CB.m_StepSize>3600.0)
+    //          Buff2.Format("StepSize:%.3gh", CB.m_StepSize.Seconds/3600.0);
+    //        else
+    //          Buff2.Format("StepSize:%.4g", CB.m_StepSize.Seconds);
+    //        }
+    //      else
+    //        Buff2.Format("%.2f%%", Progress*100.0);
+
+    //      pStatusBar->UpdateIndicator(2, Buff2.GetBuffer(0), true);
+    //      }
+    //    break;
+    //  default:
+    //    //pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(ExecStateIndex), true);
+    //    break;
+    //  }
+
+    pStatusBar->UpdateIndicator(4, gs_Exec.StateDesc(ExecStateIndex), true);
     }
   else
     {
     pStatusBar->UpdateIndicator(1, "", true);
     //pStatusBar->UpdateIndicator(2, gs_Exec.StateDesc(), true);
     pStatusBar->UpdateIndicator(2, "Stopped", true);
+    pStatusBar->UpdateIndicator(4, gs_Exec.StateDesc(ExecStateIndex), true);
+    //pStatusBar->UpdateIndicator(4, "", true);
     }
 
   CMdlValueShow::UpdateAll();

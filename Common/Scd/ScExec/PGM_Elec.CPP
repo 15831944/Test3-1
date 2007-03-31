@@ -56,7 +56,7 @@ GCETerminalBase::~GCETerminalBase()
 
 //==========================================================================
 
-GCETerminal::GCETerminal(GCInsMngr & IB) : GCClassVar(IB.m_pVarList, "Terminal", VarClassDefn)
+GCETerminal::GCETerminal(GCInsMngr & IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "Terminal", VarClassDefn)
   {
   AddVar  (IB, "Id",     &GCLong, VarConst);
   //AddVar  (IB, "Volts",     &GCDouble);
@@ -132,7 +132,7 @@ GCTermStripBase::~GCTermStripBase()
 
 //==========================================================================
 
-GCTermStrip::GCTermStrip(GCInsMngr & IB) : GCClassVar(IB.m_pVarList, "TerminalStrip", VarClassDefn)
+GCTermStrip::GCTermStrip(GCInsMngr & IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "TerminalStrip", VarClassDefn)
   {
   AddVar  (IB, "Id",       &GCLong, VarConst);
   //AddFunct(IB, "Index",        0, False, Idf_Index     );

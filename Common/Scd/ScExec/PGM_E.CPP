@@ -22,6 +22,8 @@
 
 #include <fstream>
 
+#define WITHVARMAP 01
+
 #if WITHDEBUGNEW
 #ifdef new
 #undef new
@@ -131,7 +133,7 @@ _FWDDEF(GCLblDef)
 //---------------------------------------------------------------------------
 long GCTagVar::m_nXRefNumber=0;
 
-GCTagVar::GCTagVar(pGCVar &pFirstVar, pchar pName, DWORD flags) : GCVar(pFirstVar, pName, flags)
+GCTagVar::GCTagVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags)
   {
 //static
   //m_bDynTag=0;
@@ -1025,7 +1027,7 @@ pGCIns GCConstVarDef::Construct(GCInsMngr & IB)
   pGCVar pVar = IB.m_pVarList->Find(Tkn);
   if (pVar)
     IB.Err(ErrBuild, 102);
-  pVar = pDef->ConstructVar(IB.m_pVarList, Tkn, VarConst);
+  pVar = pDef->ConstructVar(IB.m_pVarList, &IB.m_VarMap, Tkn, VarConst);
   strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
   if (Tkn[0] != '=')
     IB.Err(ErrBuild, 103);
@@ -1073,8 +1075,8 @@ class GCTagDef : public GCDef
     { m_defFlags = DefLHS | DefExp; };
   virtual pGCIns Construct(GCInsMngr & IB)
     { IB.DoConstructTag(']'); return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCTagVar(pFirstVar, pName, flags); }
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags)
+    { return new GCTagVar(pFirstVar, pVarMap, pName, flags); }
   };
 GCTagDef GCTag;
 
@@ -1087,8 +1089,8 @@ class GCStrTagDef : public GCDef
     { m_defFlags = DefLHS | DefExp/* | DefRetStr*/; };
   virtual pGCIns Construct(GCInsMngr & IB)
     { IB.DoConstructTag(']'); return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCStrTagVar(pFirstVar, pName, flags); }
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags)
+    { return new GCStrTagVar(pFirstVar, pVarMap, pName, flags); }
   };
 GCStrTagDef GCStrTag;
 
@@ -1233,8 +1235,8 @@ class GCClassDef : public GCDef
   GCClassDef() : GCDef("Class")
     { m_defFlags = DefLHS; };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCClassVar(pFirstVar, pName, flags); }
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags)
+    { return new GCClassVar(pFirstVar, pVarMap, pName, flags); }
   };
 
 GCClassDef GCClass;
@@ -1266,8 +1268,8 @@ class GCClassDecDef : public GCDef
   public:
   GCClassDecDef() : GCDef("#ClassDec#") { };
   virtual pGCIns Construct(GCInsMngr & IB) { return NULL; };
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCClassVar(pFirstVar, pName, flags, m_pClassVar); };
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags)
+    { return new GCClassVar(pFirstVar, pVarMap, pName, flags, m_pClassVar); };
   GCClassVar* m_pClassVar;
   };
 
@@ -1630,16 +1632,16 @@ pGCIns GCTextLabelDef::Construct(GCInsMngr & IB)
     if ((strcmp(Tkn,")")==0) || (strcmp(Tkn,",") == 0))
       {//blank line
       if (IB.m_pH->m_pClassVar)
-        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, Lbl, 0);
+        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, &IB.m_pH->m_pClassVar->m_VarMap, Lbl, 0);
       else
-        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch);
+        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, &IB.m_VarMap, Lbl, VarPgmWatch);
 	    }
     else
       {
       if (IB.m_pH->m_pClassVar)
-        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, Lbl, 0, Tkn);
+        GCVar* pLabel = new GCLabelVar(IB.m_pH->m_pClassVar->m_pVarList, &IB.m_pH->m_pClassVar->m_VarMap, Lbl, 0, Tkn);
       else
-        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch, Tkn);
+        GCVar* pLabel = new GCLabelVar(IB.m_pVarList, &IB.m_VarMap, Lbl, VarPgmWatch, Tkn);
       strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
       if ((strcmp(Tkn,")")!=0) && (strcmp(Tkn,",")!=0))
         IB.Err(ErrBuild, 107);
@@ -1678,7 +1680,7 @@ pGCIns GCPageLabelDef::Construct(GCInsMngr & IB)
   strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
   if (strcmp(Tkn,")")==0)
     {//blank line
-    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch|VarPageLabel, "..");
+    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, &IB.m_VarMap, Lbl, VarPgmWatch|VarPageLabel, "..");
     }
   else
     {
@@ -1686,7 +1688,7 @@ pGCIns GCPageLabelDef::Construct(GCInsMngr & IB)
       sprintf(Tkn, "..");
     else if (strlen(Tkn)>60)
       Tkn[60] = 0;
-    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, Lbl, VarPgmWatch|VarPageLabel, Tkn);
+    GCLabelVar* pLabel = new GCLabelVar(IB.m_pVarList, &IB.m_VarMap, Lbl, VarPgmWatch|VarPageLabel, Tkn);
     strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
     if (strcmp(Tkn,")")!=0)
       IB.Err(ErrBuild, 107);
@@ -1757,8 +1759,8 @@ class GCFunctDef : public GCDef
   GCFunctDef() : GCDef("Function")
     { m_defFlags = DefLHS; };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCFunctVar(pFirstVar, pName, flags); }
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap *pVarMap, pchar pName, DWORD flags)
+    { return new GCFunctVar(pFirstVar, pVarMap, pName, flags); }
   };
 
 GCFunctDef GCFunct;
@@ -1776,9 +1778,9 @@ pGCIns GCFunctDef::Construct(GCInsMngr & IB)
     pTempIns = IB.m_pIPtr;
   pGCFunctVar pFunctVar;
   if (IB.m_pH->m_pClassVar)
-    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pH->m_pClassVar->m_pVarList);
+    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pH->m_pClassVar->m_pVarList, &IB.m_pH->m_pClassVar->m_VarMap);
   else
-    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pVarList);
+    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pVarList, &IB.m_VarMap);
   pFunctVar->m_pFntIPos = pTempIns;
   if (IB.m_bDoDebug)
     GCEnterFnt.Construct(IB);
@@ -1798,8 +1800,8 @@ class GCStrFunctDef : public GCDef
   public:
   GCStrFunctDef() : GCDef("StrFunction") { m_defFlags = (DefLHS | DefRetStr); };
   virtual pGCIns Construct(GCInsMngr & IB);
-  virtual pGCVar ConstructVar(pGCVar &pFirstVar, pchar pName, DWORD flags)
-    { return new GCFunctVar(pFirstVar, pName, flags); };
+  virtual pGCVar ConstructVar(pGCVar &pFirstVar, GCVarMap *pVarMap, pchar pName, DWORD flags)
+    { return new GCFunctVar(pFirstVar, pVarMap, pName, flags); };
   };
 
 GCStrFunctDef GCStrFunct;
@@ -1817,9 +1819,9 @@ pGCIns GCStrFunctDef::Construct(GCInsMngr & IB)
     pTempIns = IB.m_pIPtr;
   pGCFunctVar pFunctVar;
   if (IB.m_pH->m_pClassVar)
-    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pH->m_pClassVar->m_pVarList);
+    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pH->m_pClassVar->m_pVarList, &IB.m_pH->m_pClassVar->m_VarMap);
   else
-    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pVarList);
+    pFunctVar = (pGCFunctVar)IB.DoConstructFnt(IB.m_pVarList, &IB.m_VarMap);
   pFunctVar->m_flags |= VarStrFunct; //NB
   pFunctVar->m_pFntIPos = pTempIns;
   if (IB.m_bDoDebug)
@@ -2637,7 +2639,8 @@ pGCIns GCCnvInfoDef::Construct(GCInsMngr & IB)
 //---------------------------------------------------------------------------
 
 GCVar::GCVar( pGCVar &pFirstVar,
-              pchar pName,
+              GCVarMap * pVarMap,
+              pchar pName, 
               DWORD flags)
   {
   m_flags = flags;
@@ -2656,12 +2659,17 @@ GCVar::GCVar( pGCVar &pFirstVar,
     }
   else
     pFirstVar = this;
+  m_pVarMap=pVarMap;
+  if (m_pVarMap)
+    m_pVarMap->SetAt(m_pName, this);
   }
 
 //---------------------------------------------------------------------------
 
 GCVar::~GCVar()
   {
+  if (m_pVarMap)
+    m_pVarMap->RemoveKey(m_pName);
   delete []m_pName;
   if (m_pWatchInfo)
     delete m_pWatchInfo;
@@ -2771,7 +2779,13 @@ pGCVar GCVar::FindTag(pchar pName)
 
 pGCVar GCVar::FindTagByType(pchar pName, char TagType)
   {
+  //CNM/KGA the VarList should also be mapped
   pGCVar pVar = this;
+#if WITHVARMAP 
+  if (m_pVarMap->Lookup(pName, pVar) && pVar->WhatAmI()==TagType)
+    return pVar;
+#endif
+  //try the length limited
   size_t n = strlen(pName);
   while (pVar && (pVar->WhatAmI()!=TagType || strlen(pVar->m_pName)!=n || _strnicmp(pName,pVar->m_pName,n) != 0))
     pVar = pVar->m_pNext;
@@ -2852,6 +2866,7 @@ pchar GCLabelVar::GetDesc(pchar Buff, flag Short)
 GCFunctVar::~GCFunctVar()
   {
   //destruct all vars in the function...
+  m_VarMap.RemoveAll();
   pGCVar pVar = m_pVarList;
   while (pVar)
     {
@@ -2860,15 +2875,17 @@ GCFunctVar::~GCFunctVar()
     pVar = Nextp;
     }
   m_pVarList = NULL;
+
   }
 
 //===========================================================================
 
-GCClassVar::GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pGCClassVar pRefClass)
-  : GCVar(pFirstVar, pName, flags)
+GCClassVar::GCClassVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, pGCClassVar pRefClass)
+  : GCVar(pFirstVar, pVarMap, pName, flags)
   {
   m_pSubClass = NULL;
   m_pVarList = NULL;
+  m_VarMap.InitHashTable(51);
   m_pRefClass = pRefClass;
   m_pParentClass = NULL;
   m_pRefClass->m_flags |= VarClassUsed;
@@ -2880,6 +2897,7 @@ GCClassVar::GCClassVar(pGCVar &pFirstVar, pchar pName, DWORD flags, pGCClassVar 
 GCClassVar::~GCClassVar()
   {
   //destruct all vars in the class...
+  m_VarMap.RemoveAll();
   pGCVar pVar = m_pVarList;
   while (pVar)
     {
@@ -2903,45 +2921,46 @@ void GCClassVar::CopyClass()
     switch (pVar->WhatAmI())
       {
       case VarDouble:
-        pV = GCDouble.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pV = GCDouble.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         break;
       case VarLong:
-        pV = GCLong.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pV = GCLong.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         break;
       case VarByte:
-        pV = GCByte.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pV = GCByte.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         break;
       case VarBit:
-        pV = GCBit.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pV = GCBit.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         break;
       case VarStr:
-        pV = GCStr.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pV = GCStr.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         break;
       case VarFunct:
         {
-        pGCFunctVar pFntVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pGCFunctVar pFntVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         pFntVar->m_Parms = ((pGCFunctVar)pVar)->m_Parms;
         pFntVar->m_pFntIPos = ((pGCFunctVar)pVar)->m_pFntIPos;
         pFntVar->m_pVarList = NULL;
+        pFntVar->m_VarMap.InitHashTable(51);
         pGCVar pTmpVar = ((pGCFunctVar)pVar)->m_pVarList;
         while (pTmpVar)
           {
           switch (pTmpVar->WhatAmI())
             {
             case VarDouble:
-              GCDouble.ConstructVar(pFntVar->m_pVarList, pTmpVar->Name(), 0);
+              GCDouble.ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, pTmpVar->Name(), 0);
               break;
             case VarLong:
-              GCLong.ConstructVar(pFntVar->m_pVarList, pTmpVar->Name(), 0);
+              GCLong.ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, pTmpVar->Name(), 0);
               break;
             case VarByte:
-              GCByte.ConstructVar(pFntVar->m_pVarList, pTmpVar->Name(), 0);
+              GCByte.ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, pTmpVar->Name(), 0);
               break;
             case VarBit:
-              GCBit.ConstructVar(pFntVar->m_pVarList, pTmpVar->Name(), 0);
+              GCBit.ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, pTmpVar->Name(), 0);
               break;
             case VarStr:
-              GCStr.ConstructVar(pFntVar->m_pVarList, pTmpVar->Name(), 0);
+              GCStr.ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, pTmpVar->Name(), 0);
               break;
             default:
               VERIFY(FALSE);
@@ -2957,9 +2976,10 @@ void GCClassVar::CopyClass()
         }
       case VarClass:
         {
-        pGCClassVar pClassVar = (pGCClassVar)GCClass.ConstructVar(m_pVarList, pVar->Name(), 0);
+        pGCClassVar pClassVar = (pGCClassVar)GCClass.ConstructVar(m_pVarList, &m_VarMap, pVar->Name(), 0);
         pClassVar->m_pRefClass = ((pGCClassVar)pVar)->m_pRefClass;
         pClassVar->m_pVarList = NULL;
+        pClassVar->m_VarMap.InitHashTable(51);
         pClassVar->m_pSubClass = NULL;
         pClassVar->m_pParentClass = this;
         pClassVar->CopyClass();
@@ -2970,7 +2990,7 @@ void GCClassVar::CopyClass()
         char Buff[512];
         char Lbl[32];
         sprintf(Lbl, "%s_%d", pVar->Name(), TxtLblCnt++);
-        GCVar* pLabel = new GCLabelVar(m_pVarList, Lbl, VarPgmWatch, pVar->GetStrVal(Buff));
+        GCVar* pLabel = new GCLabelVar(m_pVarList, &m_VarMap, Lbl, VarPgmWatch, pVar->GetStrVal(Buff));
         break;
         }
       case VarArray:
@@ -3136,7 +3156,7 @@ pGCVar GCClassVar::AddVar( GCInsMngr & IB,
   pGCVar pVar = GetVarByName(pName);
   if (pVar)
     IB.Err(ErrBuild, 102);
-  pVar = pDef->ConstructVar(m_pVarList, pName, 0);
+  pVar = pDef->ConstructVar(m_pVarList, &m_VarMap, pName, 0);
   return pVar;
   }
 
@@ -3152,7 +3172,7 @@ pGCVar GCClassVar::AddFunct( GCInsMngr & IB,
   pGCVar pVar = GetVarByName(pName);
   if (pVar)
     IB.Err(ErrBuild, 102);
-  pGCFunctVar pFunctVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, pName, StrRet ? VarStrFunct:0);
+  pGCFunctVar pFunctVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, &m_VarMap, pName, StrRet ? VarStrFunct:0);
   pFunctVar->m_Parms = TtlParmCount;
   pFunctVar->m_bStrParms = StrParms;
   pFunctVar->m_FunctId = FunctId;
@@ -3245,7 +3265,7 @@ void GCClassVar::SaveVal(FilingControlBlock &FCB,
 
 //===========================================================================
 
-GCArrayVar::GCArrayVar(pGCVar &pFirstVar, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen) : GCVar(pFirstVar, pName, flags)
+GCArrayVar::GCArrayVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags, GCClassVar* pClassRefVar, int ArrayLen) : GCVar(pFirstVar, pVarMap, pName, flags)
   {
   m_pClassRefVar = pClassRefVar;
   m_iArrayLen = ArrayLen;
@@ -3378,6 +3398,7 @@ GCInsMngr::GCInsMngr(LPCTSTR pFnExt)
   m_pIPtr          = NULL;
   m_FntStackPos    = -1;
   m_pVarList       = NULL;
+  m_VarMap.InitHashTable(501);
   m_pXRM           = NULL;
   m_pOnInitialiseVar = NULL;
   m_pOnStartVar    = NULL;
@@ -3597,22 +3618,22 @@ void GCInsMngr::ConstructConstants()
   {
   //Hard Coded Constants -----
   //new GCLongVar(m_pVarList, "PGM_SIZE", 0, 0);
-  new GCDoubleVar(m_pVarList, "PI", VarConst, 3.141592653589793238462643);
-  new GCDoubleVar(m_pVarList, "NAN", VarConst, dNAN);
-  new GCDoubleVar(m_pVarList, "LargeResistance", VarConst, LargeElecRes);
-  new GCBitVar(m_pVarList, "TRUE", VarConst, bGCtrue);
-  new GCBitVar(m_pVarList, "FALSE", VarConst, bGCfalse);
-  m_pOnInitialiseVar = new GCBitVar(m_pVarList, "OnInitialise", VarConst, bGCfalse);
-  m_pOnStartVar = new GCBitVar(m_pVarList, "OnStart", VarConst, bGCfalse);
-  m_pOnTerminateVar = new GCBitVar(m_pVarList, "OnTerminate", VarConst, bGCfalse);
-  m_pRunMode = new GCLongVar/*ByteVar*/(m_pVarList, "RunMode", VarConst, 0);
-  m_pHeatMode = new GCLongVar/*ByteVar*/(m_pVarList, "HeatMode", VarConst, 0);
-  m_pOnLoadedVar = new GCBitVar(m_pVarList, "OnLoaded", VarConst, bGCfalse);
-  m_pOnEmptyVar = new GCBitVar(m_pVarList, "OnEmpty", VarConst, bGCfalse);
-  m_pOnPresetVar = new GCBitVar(m_pVarList, "OnPreset", VarConst, bGCfalse);
-  m_pModelTagVar = new GCStrVar(m_pVarList, "ModelTag", VarConst, "?");
-  m_pStopVar = new GCBitVar(m_pVarList, "StopSimulation", 0, 0);
-  m_pPauseVar = new GCBitVar(m_pVarList, "PauseSimulation", 0, 0);
+  new GCDoubleVar(m_pVarList, &m_VarMap, "PI", VarConst, 3.141592653589793238462643);
+  new GCDoubleVar(m_pVarList, &m_VarMap, "NAN", VarConst, dNAN);
+  new GCDoubleVar(m_pVarList, &m_VarMap, "LargeResistance", VarConst, LargeElecRes);
+  new GCBitVar(m_pVarList, &m_VarMap, "TRUE", VarConst, bGCtrue);
+  new GCBitVar(m_pVarList, &m_VarMap, "FALSE", VarConst, bGCfalse);
+  m_pOnInitialiseVar = new GCBitVar(m_pVarList, &m_VarMap, "OnInitialise", VarConst, bGCfalse);
+  m_pOnStartVar = new GCBitVar(m_pVarList, &m_VarMap, "OnStart", VarConst, bGCfalse);
+  m_pOnTerminateVar = new GCBitVar(m_pVarList, &m_VarMap, "OnTerminate", VarConst, bGCfalse);
+  m_pRunMode = new GCLongVar/*ByteVar*/(m_pVarList, &m_VarMap, "RunMode", VarConst, 0);
+  m_pHeatMode = new GCLongVar/*ByteVar*/(m_pVarList, &m_VarMap, "HeatMode", VarConst, 0);
+  m_pOnLoadedVar = new GCBitVar(m_pVarList, &m_VarMap, "OnLoaded", VarConst, bGCfalse);
+  m_pOnEmptyVar = new GCBitVar(m_pVarList, &m_VarMap, "OnEmpty", VarConst, bGCfalse);
+  m_pOnPresetVar = new GCBitVar(m_pVarList, &m_VarMap, "OnPreset", VarConst, bGCfalse);
+  m_pModelTagVar = new GCStrVar(m_pVarList, &m_VarMap, "ModelTag", VarConst, "?");
+  m_pStopVar = new GCBitVar(m_pVarList, &m_VarMap, "StopSimulation", 0, 0);
+  m_pPauseVar = new GCBitVar(m_pVarList, &m_VarMap, "PauseSimulation", 0, 0);
   //Hard coded classes -----
   DefinePGMClasses(*this);
 
@@ -3784,7 +3805,8 @@ pGCVar GCInsMngr::FindVar(pchar Tkn, short &VarIndex, VarLocation &eVarLoc)
 pGCVar GCInsMngr::TryAddDynTag(char* Tag, bool ForGet, bool IsString)
   {
   pGCVar pDummyVarList = NULL;
-  pGCVar pVar = (IsString ? GCStrTag.ConstructVar(pDummyVarList, Tag, 0) : GCTag.ConstructVar(pDummyVarList, Tag, 0));
+  GCVarMap * pDummyVarMap= NULL;
+  pGCVar pVar = (IsString ? GCStrTag.ConstructVar(pDummyVarList, pDummyVarMap, Tag, 0) : GCTag.ConstructVar(pDummyVarList, pDummyVarMap, Tag, 0));
   //pVar->m_flags |= ForGet ? VarTagIn : VarTagOut;//(VarTagIn | VarTagOut); //don't know if it is in or out so set both
   //kga 12/12/2002 : line above doesn't work if there is a getdyntag and setdyntag for the same variable in the same pgm
 
@@ -3810,6 +3832,8 @@ pGCVar GCInsMngr::TryAddDynTag(char* Tag, bool ForGet, bool IsString)
       }
     else
       m_pVarList = pVar;
+    pVar->m_pVarMap=&m_VarMap;
+    m_VarMap.SetAt(pVar->m_pName, pVar);
 
     //dbgpln("TryAddDynTag : RequestUpdateXRefLists %s", Tag);
 
@@ -4860,7 +4884,7 @@ void GCInsMngr::Build( pGCDef pExitDef,
             {
             if (m_pH->m_iInsSet==DefSolverSet)
               {//assume it is an external tag
-              pVar = GCTag.ConstructVar(m_pVarList, Tkn, 0);
+              pVar = GCTag.ConstructVar(m_pVarList, &m_VarMap, Tkn, 0);
               pVar->m_flags |= VarTagOut;
               m_pH->AddToTagStack(*this, pVar, "");
               }
@@ -4921,9 +4945,9 @@ void GCInsMngr::Build( pGCDef pExitDef,
             {//construct instances of classes
             GCClassDec.m_pClassVar = (pGCClassVar)pVar;
             if (m_pH->m_pFunctVar)
-              DoConstructVars(GCClassDec, m_pH->m_pFunctVar->m_pVarList); //in function scope
+              DoConstructVars(GCClassDec, m_pH->m_pFunctVar->m_pVarList, &m_pH->m_pFunctVar->m_VarMap); //in function scope
             else
-              DoConstructVars(GCClassDec, m_pVarList); //in global scope
+              DoConstructVars(GCClassDec, m_pVarList, &m_VarMap); //in global scope
             }
           else
             {
@@ -6079,24 +6103,24 @@ void GCInsMngr::AddArrayWatch(pGCClassVar pClassVar, bool ReadOnly, int index0, 
 
 //---------------------------------------------------------------------------
 
-void GCInsMngr::DoConstructArray(rGCDef Def, pGCVar &pVarList, pchar pVarName, int Cnt)
+void GCInsMngr::DoConstructArray(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap, pchar pVarName, int Cnt)
   {
   GCClassVar* pClassVar = NULL;
   if (&Def==&GCClassDec)
     pClassVar = GCClassDec.m_pClassVar;//(GCClassDec*)(&Def)->m_pClassVar;
-  GCArrayVar* pArrayVar = new GCArrayVar(pVarList, pVarName, 0, pClassVar, Cnt);
+  GCArrayVar* pArrayVar = new GCArrayVar(pVarList, pVarMap, pVarName, 0, pClassVar, Cnt);
   Strng Tg;
   for (int i=0; i<Cnt; i++)
     {
     Tg.Set("%s[%d]", pVarName, i);
-    GCVar* pVar = Def.ConstructVar(pVarList, Tg(), 0);
+    GCVar* pVar = Def.ConstructVar(pVarList, pVarMap, Tg(), 0);
     pArrayVar->m_pVars[i] = pVar;
     }
   }
 
 //---------------------------------------------------------------------------
 
-void GCInsMngr::DoConstructVars(rGCDef Def, pGCVar &pVarList)
+void GCInsMngr::DoConstructVars(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap)
   {
   char Tkn[MaxTknMemSize];
   Tkn[MaxTknSize] = 0;
@@ -6127,12 +6151,12 @@ void GCInsMngr::DoConstructVars(rGCDef Def, pGCVar &pVarList)
       strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
       if (strcmp(Tkn,"]") != 0)
         Err(ErrBuild, 162);
-      DoConstructArray(Def, pVarList, VarName(), Cnt);
+      DoConstructArray(Def, pVarList, pVarMap, VarName(), Cnt);
       pVar = NULL;
       strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
       }
     else
-      pVar = Def.ConstructVar(pVarList, VarName(), 0);
+      pVar = Def.ConstructVar(pVarList, pVarMap, VarName(), 0);
     flag SpecTkn = ((strcmp(Tkn,"*")==0) || (strcmp(Tkn,"@")==0) || (strcmp(Tkn,"(")==0));
     if (IsArray && SpecTkn)
       Err(ErrBuild, 164);
@@ -6171,7 +6195,7 @@ void GCInsMngr::DoConstructVars(rGCDef Def, pGCVar &pVarList)
 
 //---------------------------------------------------------------------------
 
-pGCFunctVar GCInsMngr::DoConstructFnt(pGCVar &pVarList)
+pGCFunctVar GCInsMngr::DoConstructFnt(pGCVar &pVarList, GCVarMap * pVarMap)
   {
   if (m_pH->m_pFunctVar)
     Err(ErrBuild, 126);
@@ -6187,7 +6211,7 @@ pGCFunctVar GCInsMngr::DoConstructFnt(pGCVar &pVarList)
   if (pVar)
     Err(ErrBuild, 102);
   StdCheck(Tkn);
-  pGCFunctVar pFntVar = (pGCFunctVar)GCFunct.ConstructVar(pVarList, Tkn, 0);
+  pGCFunctVar pFntVar = (pGCFunctVar)GCFunct.ConstructVar(pVarList, pVarMap, Tkn, 0);
   m_pH->m_pFunctVar = pFntVar;
   //m_pTempVar = (pGCVar)pFntVar; //??????
   //get parameters...
@@ -6223,7 +6247,7 @@ pGCFunctVar GCInsMngr::DoConstructFnt(pGCVar &pVarList)
       if (pVar)
         Err(ErrBuild, 102);
       StdCheck(Tkn);
-      pVar = pDef->ConstructVar(pFntVar->m_pVarList, Tkn, 0);
+      pVar = pDef->ConstructVar(pFntVar->m_pVarList, &pFntVar->m_VarMap, Tkn, 0);
       ParmList[parms] = pVar;
       //ByRefList[parms] = ByRef;
       parms++;
@@ -6677,7 +6701,7 @@ void GCInsMngr::DoConstructExprssn(flag ExpectStr)
               {
               pVar = m_pVarList->FindTagByType(Tkn, VarTag);
               if (pVar == NULL)
-                pVar = GCTag.ConstructVar(m_pVarList, Tkn, 0);
+                pVar = GCTag.ConstructVar(m_pVarList, &m_VarMap, Tkn, 0);
               m_pH->AddToTagStack(*this, pVar, "");
               }
             else
@@ -6848,7 +6872,7 @@ pGCVar GCInsMngr::DoConstructTag(char Terminate)
     Err(ErrBuild, 145);
   pGCVar pVar = m_pVarList->FindTagByType(WrkTag(), VarTag);
   if (pVar == NULL)
-    pVar = GCTag.ConstructVar(m_pVarList, WrkTag(), 0);
+    pVar = GCTag.ConstructVar(m_pVarList, &m_VarMap, WrkTag(), 0);
   ASSERT(pVar);
   if (m_sFldName.Length()>0)
     ((GCTagVar*)pVar)->SetFldName(m_sFldName());
@@ -6966,7 +6990,7 @@ void GCInsMngr::DoConstructClass()
     Err(ErrBuild, 102);
   pGCDef pDef = NULL;
   StdCheck(Tkn);
-  GCClassVar* pClassVar = new GCClassVar(m_pVarList, Tkn, VarClassDefn);
+  GCClassVar* pClassVar = new GCClassVar(m_pVarList, &m_VarMap, Tkn, VarClassDefn);
   m_pH->m_pClassVar = pClassVar; //all functions for this user defined class will know their 'class scope'
   while (pDef != &GCEndClass)
     {
@@ -6981,7 +7005,7 @@ void GCInsMngr::DoConstructClass()
           (_stricmp(m_pH->m_pClassVar->Name(),pVar->Name())!=0))
         {
         GCClassDec.m_pClassVar = (pGCClassVar)pVar;
-        DoConstructVars(GCClassDec, pClassVar->m_pVarList); //construct instances of classes
+        DoConstructVars(GCClassDec, pClassVar->m_pVarList, &pClassVar->m_VarMap); //construct instances of classes
         }
       else
         Err(ErrBuild, 132);
@@ -6991,7 +7015,7 @@ void GCInsMngr::DoConstructClass()
       if (pDef == &GCEndClass)
         break;
       if (pDef->m_defFlags & DefDataType)
-        DoConstructVars((*pDef), pClassVar->m_pVarList);
+        DoConstructVars((*pDef), pClassVar->m_pVarList, &pClassVar->m_VarMap);
       else if (pDef == &GCFunct || pDef == &GCStrFunct)
         pDef->Construct(*this);
       else if (pDef == &GCTextLabel)

@@ -1373,7 +1373,7 @@ CExecutive::CExecutive() :
 
   PBTmCB.m_EqnCB.Cfg.InitProBal();
 
-  wState                         =  EXF_Stopped;
+  dwState                        =  EXF_Stopped;
 
   fDoingPB                       = false;
 
@@ -1930,7 +1930,7 @@ void CExecutive::DoTimer()
 
 //---------------------------------------------------------------------------
 
-void CExecutive::UpdateDisplays(flag ForceUpd, flag ColoursChgd)
+void CExecutive::UpdateDisplays(flag OnlyStatusLine,  flag ForceUpd, flag ColoursChgd)
   {
   //dbgpln("CExecutive::UpdateDisplays");
   //return ;
@@ -1939,11 +1939,12 @@ void CExecutive::UpdateDisplays(flag ForceUpd, flag ColoursChgd)
     ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, 0, (long)&TimeCB());
 
   XFlushAppMsgQ();
-//static AppDoIdleFn    pAppDoIdleFn=NULL;
-
-  for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
-    if (Objs_Reg[EInx]->bExec & EODisplayUpdate)
-      Objs_Reg[EInx]->EO_DisplayUpdate(ForceUpd, ColoursChgd, TimeCB());
+  if (!OnlyStatusLine)
+    {
+    for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
+      if (Objs_Reg[EInx]->bExec & EODisplayUpdate)
+        Objs_Reg[EInx]->EO_DisplayUpdate(ForceUpd, ColoursChgd, TimeCB());
+    }
   }
 
 //---------------------------------------------------------------------------
@@ -1990,11 +1991,11 @@ void CExecutive::DumpMsgHistory()
 
 flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
   {
-  //wState|=EXF_Busy;
+  //dwState|=EXF_Busy;
   if (fDoingPB)
-    wState|=EXF_SolvingPB;
+    dwState|=EXF_SolvingPB;
   else
-    wState&=(~EXF_SolvingPB);
+    dwState&=(~EXF_SolvingPB);
 
   if (!Reset && (ScnState==Scn_Complete) && !ReStartIfScnComplete)
     {
@@ -2048,6 +2049,7 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     case RRM_Current:
       break;
     }
+  UpdateStateDisplay(EXF_PreStart, 0);
 
   if (ScnStartupRequired())
     {
@@ -2103,7 +2105,7 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
         FullFilename += File();
         KeepHistoryFile(FullFilename());
         }
-      }
+      }           
 
     SetStopTimeEtc(true);
     }
@@ -2135,6 +2137,9 @@ flag CExecutive::ResetRunState(bool Reset, LPARAM lParam)
     UpdateState(UO_StopAgain, Scn_Off, Scn_Ignore);
 
   SetStopTimeEtc(false);//true);
+
+  UpdateStateDisplay(0, EXF_PreStart);
+
 
   return OKToGo;
   }
@@ -2172,12 +2177,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
     bListRebuildReqd?"R":".",
     bListUpdateReqd?"U":".",
 
-    EXM_MSGS[XCMD(Cmd)], wState, pEO ? pEO->Name() : "");
+    EXM_MSGS[XCMD(Cmd)], dwState, pEO ? pEO->Name() : "");
     }
   else if (dbgExecSeq())
     {
     dbgpln("%20s Exec::                                    %s %08x   App.%s",
-           TheTime.Format(TD_DaysJoined|TD_Time), EXM_MSGS[XCMD(Cmd)], wState, pEO ? pEO->Name() : "");
+           TheTime.Format(TD_DaysJoined|TD_Time), EXM_MSGS[XCMD(Cmd)], dwState, pEO ? pEO->Name() : "");
     }
   #endif
 
@@ -2344,8 +2349,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       //XSW.StepBegin();
       XSW.m_swStart.ReStart();
 
-      wState&=(~EXF_StartError);
-      wState|=EXF_Busy;
+      dwState&=(~EXF_StartError);
+      dwState|=EXF_Busy;
       
       bWorkDone=false;
       bTimerExpired=false;
@@ -2367,7 +2372,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       //  if (ValidTime(TimeCB().m_TimeToStop) && TimeCB().m_Time>=TimeCB().m_TimeToStop)
       //    {
       //    LogWarning("Executive", 0, "Stop Time <= Current Time");
-      //    wState&=~EXF_Busy;
+      //    dwState&=~EXF_Busy;
       //    break;
       //    }
 
@@ -2375,8 +2380,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       //ConfigureArchive();
 
-      wState|=EXF_Starting;
-      wState&=~EXF_Stopped;
+      dwState|=EXF_Starting;
+      dwState&=~EXF_Stopped;
 
 //      if (TimeCB().m_bRealTime)
 //        iTimerId=::SetTimer(NULL, 0, (DWORD)(TimeCB().m_StepSizeMaxMS()/TimeCB().m_dRealTimeMult), NULL);
@@ -2393,7 +2398,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       break;
 
     case EXM_QUERYTIMES:
+      #if dbgExecutive
+      if (dbgExecSeqTm1())
+        TagAccessBlk::ResetTimers();
+      #endif
       XSW.m_swQuery.ReStart();
+      UpdateStateDisplay(EXF_QueryTime, 0);
       if (bRegistrationListtoChange)
         FixRegistrations();
       if (QueryStartExec())
@@ -2413,6 +2423,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         PostCmd(0, EXM_STOPNOIO);
         m_bSendStopEvent=true;
         }
+      UpdateStateDisplay(0, EXF_QueryTime);
       XSW.m_swQuery.Stop();
       break;
 
@@ -2420,8 +2431,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       XSW.m_swBuild.ReStart();
       if (bListRebuildReqd)
         {
-        wState|=EXF_Building;
-        UpdateDisplays();
+        UpdateStateDisplay(EXF_Building, 0);
         ClearDataLists();
         ConfigureHistorian();
         BuildDataLists();
@@ -2429,19 +2439,14 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         bListUpdateReqd=0;
         for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
           Objs_Exec[EInx]->bReadAllData=1;
-        wState&=(~EXF_Building);
-        UpdateDisplays();
         }
       else if (bListUpdateReqd)
         {
-        wState|=EXF_Updating;
-        UpdateDisplays();
+        UpdateStateDisplay(EXF_Updating, 0);
         UpdateDataLists();
         bListUpdateReqd=0;
         for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
           Objs_Exec[EInx]->bReadAllData=1;
-        wState&=(~EXF_Updating);
-        UpdateDisplays();
         }
 
 //      if (TimeCB().m_bRealTime && iTimerId==0)
@@ -2457,10 +2462,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         Objs_Exec[EInx]->SetEOTime(TheTime);
       //m_TimeStarted=TheTime; //reset incase start time was changed
       XSW.m_swBuild.Stop();
+      UpdateStateDisplay(0, EXF_Building|EXF_Updating);
       PostCmd(0, EXM_DOREADALL);
       break;
 
     case EXM_DOREADALL:
+      UpdateStateDisplay(EXF_ReadingAll, 0);
       XSW.m_swRead.ReStart();
       StartThreads(EORead_Thread, EXM_READALL);
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
@@ -2473,6 +2480,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       lExecThreadsDone++;
       if ((lExecThreadsDone==lExecThreadsBusy))
         {
+        UpdateStateDisplay(0, EXF_ReadingAll);
         XSW.m_swRead.Stop();
         #if dbgExecutive
         if (dbgExecSeqTm1())
@@ -2497,6 +2505,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         PostCmd(0, EXM_DOREADALL);
         break;
         }
+      UpdateStateDisplay(EXF_Reading, 0);
       XSW.m_swRead.ReStart();
       StartThreads(EORead_Thread, EXM_READ);
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
@@ -2511,6 +2520,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       if ((lExecThreadsDone==lExecThreadsBusy))
         {
         XSW.m_swRead.Stop();
+        UpdateStateDisplay(0, EXF_Reading);
         #if dbgExecutive
         if (dbgExecSeqTm1())
           {
@@ -2528,6 +2538,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
     case EXM_DOWRITEALL:
       XSW.m_swWrite.ReStart();
+      UpdateStateDisplay(EXF_WritingAll, 0);
       StartThreads(EOWrite_Thread, EXM_WRITEALL);
       for (EInx=0; EInx<Objs_Exec.GetSize(); EInx++)
         {
@@ -2553,6 +2564,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       if (lExecThreadsDone==lExecThreadsBusy)
         {
         XSW.m_swWrite.Stop();
+        UpdateStateDisplay(0, EXF_Writing|EXF_WritingAll);
         #if dbgExecutive
         if (dbgExecSeqTm1())
           {
@@ -2655,7 +2667,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
     case EXM_DOTEST:
       {
-      wState|=EXF_BetweenSteps;
+      dwState|=EXF_BetweenSteps;
       if (bDoAppActivate)
         DoAppActivate();
       if (eRqdState!=MSA_Null)
@@ -2689,11 +2701,11 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         XSW.StepBegin();
         }
 
-      wState&=(~EXF_BetweenSteps);
+      dwState&=(~EXF_BetweenSteps);
 
-      wState&=(~EXF_Starting);
-      wState&=(~EXF_StartError);
-      wState|=EXF_Running;
+      dwState&=(~EXF_Starting);
+      dwState&=(~EXF_StartError);
+      dwState|=EXF_Running;
 
       flag DoEndPause=!bPauseReqd;
 
@@ -2704,7 +2716,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           {
           XSW.m_swStep.Stop();
           XSW.m_swRun.Stop();
-          wState|=EXF_Waiting;
+          dwState|=EXF_Waiting;
           }
 
         if (Waiting() && !m_bDidPauseWork)
@@ -2721,7 +2733,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
             if (!LockExecWaiting())
               ::WaitForSingleObject(m_hAppIdleDone, 1000);
             m_bDidPauseWork=true;
-            wState|=EXF_Paused;
+            dwState|=EXF_Paused;
             UpdateDisplays();
             if (SolvingPB())
               {
@@ -2806,7 +2818,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       if (DoEndPause && Waiting())
         {
-        wState&=(~EXF_Waiting);
+        dwState&=(~EXF_Waiting);
         bStepReqd=false;
         if (m_bDidPauseWork)
           {
@@ -2815,7 +2827,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
             dbgpln("---- End   Pause : COMPLETE");
           #endif
           m_bDidPauseWork=false;
-          wState&=(~EXF_Paused);
+          dwState&=(~EXF_Paused);
           if (1)
             {
             UpdateDisplays();
@@ -3001,6 +3013,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           if (dbgExecSeqTm())
             dbgpln("Work Done          ---- [@%12.4f]",gs_TimeSW.Time());
           #endif
+          UpdateStateDisplay(EXF_Waiting, 0);
           }
         LeaveCriticalSection(&csTimerLock);
         }
@@ -3010,6 +3023,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       break;
 
     case EXM_BUMPTIME:
+      UpdateStateDisplay(0, EXF_Waiting);
       gs_swExecute.Start();
       if (TimeCB().m_bRealTime)
         {
@@ -3110,8 +3124,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
     case EXM_STOPNOIO:
 
       XSW.m_swStop.ReStart();
-      wState&=(~EXF_Running);
-      wState|=EXF_Stopping;
+      dwState&=(~EXF_Running);
+      dwState|=EXF_Stopping;
       UpdateDisplays();
       for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
         Objs_Reg[RInx]->EO_Stopping(true);
@@ -3134,7 +3148,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       //bHoldAdv =false;
 
-      //wState|=EXF_Stopped;
+      //dwState|=EXF_Stopped;
       if (iTimerId)
         {
         ::KillTimer(NULL, iTimerId);
@@ -3145,7 +3159,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
       if (SolvingPB())
         {
-        wState&=(~EXF_SolvingPB);
+        dwState&=(~EXF_SolvingPB);
         if (pSolveTool)
           pSolveTool->TermProblem();
         pSolveTool=NULL;
@@ -3161,9 +3175,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       if (bDoGlblResultValidity)
         DoGlblResultValidity();
 
-      //wState&=(~(EXF_Stopping));
-      //wState&=(~(EXF_Busy));
-      //wState|=EXF_Stopped;
+      //dwState&=(~(EXF_Stopping));
+      //dwState&=(~(EXF_Busy));
+      //dwState|=EXF_Stopped;
 
       if (Cmd==EXM_STOP)
         {
@@ -3205,9 +3219,9 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
 
     case EXM_STOPPED:
 
-      wState&=(~(EXF_Stopping));
-      wState&=(~(EXF_Busy));
-      wState|=EXF_Stopped;
+      dwState&=(~(EXF_Stopping));
+      dwState&=(~(EXF_Busy));
+      dwState|=EXF_Stopped;
 
       for (RInx=0; RInx<Objs_Reg.GetSize(); RInx++)
         Objs_Reg[RInx]->EO_Stopping(false);
@@ -3422,7 +3436,7 @@ flag CExecutive::QueryStartExec()
 
   if (!OK)
     {
-    wState|=EXF_StartError;
+    dwState|=EXF_StartError;
     char buff[512];
     strcpy(buff, "Startup Failure:Bad Times");
     while (nBad>0)
@@ -3451,7 +3465,7 @@ flag CExecutive::QueryStartExec()
     else
       {
       //AfxMessageBox("Startup Failure\nNo TimeBase Generator", MB_ICONEXCLAMATION|MB_OK);
-      wState|=EXF_StartError;
+      dwState|=EXF_StartError;
       LogError("SysCAD", LF_Exclamation, "Startup Failure\nNo TimeBase Generator");
       return false;
       }
@@ -3477,7 +3491,7 @@ flag CExecutive::QueryStartExec()
       strcat(buff, pBad[--nBad]->sName());
       }
     LogError("SysCAD", LF_Exclamation, buff);*/
-    wState|=EXF_StartError;
+    dwState|=EXF_StartError;
     ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCREFRESHSAVE, (LPARAM)0);
     LogError("SysCAD", LF_Exclamation, "Startup Failure!  (see preceding messages)");
     return false;
@@ -3643,38 +3657,64 @@ bool CExecutive::KeepHistoryFile(char* pFilename)
 //---------------------------------------------------------------------------
 
 const pchar StateDescs [] =
-  { "Stopped",
-    "Idling",
-    "Solving",
-    "Running",
-    "Building",
-    "Updating",
-    "Starting",
-    "Stopping",
+  { "",
+    "Wait",//Idling",
+    "Solve",
+    "Execute",
+    "BuildIO",
+    "Update",
+    "Start",
+    "Stop",
+    "Initial",
+    "Read",
+    "Write",
+    "ReadAll",
+    "WriteAll",
+    ".", //EXF_BetweenSteps
+    "ERROR", 
+    "PreStart", 
     "???" };
 
 int CExecutive::StateIndex()
   {
-  if (wState & EXF_Building)
+  if (dwState & EXF_StartError)
+    return 14;
+  if (dwState & EXF_Building)
     return 4;
-  else if (wState & EXF_Updating)
+  if (dwState & EXF_QueryTime)
+    return 8;
+  if (dwState & EXF_Reading)
+    return 9;
+  if (dwState & EXF_Writing)
+    return 10;
+  if (dwState & EXF_ReadingAll)
+    return 11;
+  if (dwState & EXF_WritingAll)
+    return 12;
+  if (dwState & EXF_Updating)
     return 5;
-  else if (wState & EXF_Starting)
-    return 6;
-  else if (wState & EXF_Stopping)
+  if (dwState & EXF_Stopping)
     return 7;
-  else if (wState & EXF_Stopped)
-    return 0;
-  else if (wState & EXF_Paused)
+  if (dwState & EXF_Paused)
     return 1;
-  else if (Busy())
+  if (dwState & EXF_Waiting)
+    return 1;
+  if (dwState & EXF_BetweenSteps)
+    return 13;
+  if (dwState & EXF_PreStart)
+    return 15;
+  if (dwState & EXF_Starting)
+    return 6;
+  if (dwState & EXF_Stopped)
+    return 0;
+  if (Busy())
     {
-    if (wState & EXF_SolvingPB)
+    if (dwState & EXF_SolvingPB)
       return 2;
     else
       return 3;
     }
-  return 8;
+  return 16;
   }
 
 //---------------------------------------------------------------------------
@@ -3703,15 +3743,15 @@ const word EXF_SolvingPB      = 0x00000100;
 const word EXF_Busy           = 0x00000200;
 const word EXF_BetweenSteps   = 0x00000400;
 const word EXF_StartError     = 0x00000800;
-inline flag   CExecutive::Starting()                    { return (wState & EXF_Starting)!=0;};
-inline flag   CExecutive::StartError()                  { return (wState & EXF_StartError)!=0;};
-inline flag   CExecutive::Running()                     { return (wState & EXF_Running)!=0;};
-inline flag   CExecutive::Stopping()                    { return (wState & EXF_Stopping)!=0;};
-inline flag   CExecutive::Busy()                        { return (wState & EXF_Busy)!=0;}; //starting OR running OR stopping OR paused
-inline flag   CExecutive::SolvingPB()                   { return (wState & EXF_SolvingPB)!=0;}; //in ProBal mode
-inline flag   CExecutive::Waiting()                     { return (wState & EXF_Waiting)!=0;};
-inline flag   CExecutive::Paused()                      { return (wState & EXF_Paused)!=0;};
-inline flag   CExecutive::BetweenSteps()                { return (wState & EXF_BetweenSteps)!=0;};
+inline flag   CExecutive::Starting()                    { return (dwState & EXF_Starting)!=0;};
+inline flag   CExecutive::StartError()                  { return (dwState & EXF_StartError)!=0;};
+inline flag   CExecutive::Running()                     { return (dwState & EXF_Running)!=0;};
+inline flag   CExecutive::Stopping()                    { return (dwState & EXF_Stopping)!=0;};
+inline flag   CExecutive::Busy()                        { return (dwState & EXF_Busy)!=0;}; //starting OR running OR stopping OR paused
+inline flag   CExecutive::SolvingPB()                   { return (dwState & EXF_SolvingPB)!=0;}; //in ProBal mode
+inline flag   CExecutive::Waiting()                     { return (dwState & EXF_Waiting)!=0;};
+inline flag   CExecutive::Paused()                      { return (dwState & EXF_Paused)!=0;};
+inline flag   CExecutive::BetweenSteps()                { return (dwState & EXF_BetweenSteps)!=0;};
 inline flag   CExecutive::AutomationBusy()              { return bAutomationBusy;};
 inline flag   CExecutive::Filing()                      { return (eFileWhat!=EF_Null);};
 inline double CExecutive::Time()                        { return TimeCB().m_Time;};
@@ -3722,7 +3762,7 @@ inline double CExecutive::RealTimeMult()                { return TimeCB().m_Real
 inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
 inline DWORD  CExecutive::LoopCount()                   { return m_dwLoopCount; };
 
-inline flag   CExecutive::Stopped()                     { return (wState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused*/
+inline flag   CExecutive::Stopped()                     { return (dwState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused*/
 
 //---------------------------------------------------------------------------
 
@@ -4125,7 +4165,7 @@ ExecCoupling CExecutive::SetCoupling(ExecCoupling XC)
 //      { ASSERT_ALWAYS((RunMds&HM_All) == HM_Full,     "Multiple Heat Modes", __FILE__, __LINE__); }
 //    }
 //
-//  if (wState&EXF_Busy)
+//  if (dwState&EXF_Busy)
 //    return;
 //
 //  if ((TaggedObject::GlblRunModes()&RunMdsMsk)==(RunMds&RunMdsMsk))
@@ -4151,7 +4191,7 @@ ExecCoupling CExecutive::SetCoupling(ExecCoupling XC)
 void CExecutive::SetDefNetMode(long Mode)
   {
   dbgpln("SetDefNetMode %s", GlblMode2LPTSTR(Mode, NM_All, eGM_Name));
-  if (wState&EXF_Busy)
+  if (dwState&EXF_Busy)
     return;
 
   if (DefNetMode()==(Mode&NM_All))
@@ -4184,7 +4224,7 @@ void CExecutive::SetDefNetMode(LPCTSTR RunMds)
 //
 //void CExecutive::SetDynMode(byte NewDynMode)
 //  {
-//  if (wState&EXF_Busy)
+//  if (dwState&EXF_Busy)
 //    return;
 //
 //  if (TaggedObject::GlblRunModes()==DYNMODE)

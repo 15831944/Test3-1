@@ -44,12 +44,22 @@ struct MarksInfo
   POINT    m_Pt[5];
   COLORREF m_Col; 
   };
+#define HALFARROWS 01
+
 MarksInfo Marks[] = 
   {
-    {true, false, true,  false, false,  3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x7f ,0xff ,0x00)  },  // GetXRef
-    {true, true,  true,  false, true,   3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x7f ,0xff ,0x00)  },  // GetXRefCnt
-    {true, false, false, false, false,  3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // SetXRef
-    {true, true,  false, false, true,   3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // SetXRefCnt
+#if HALFARROWS 
+    {true, false, true,  false, true,   3, {{0,2}, {4,2}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRef
+#else
+    {true, false, true,  false, false,  3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRef
+#endif
+    {true, true,  true,  false, true,   3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRefCnt
+#if HALFARROWS 
+    {true, false, false, false, true,   3, {{0,6}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRef
+#else
+    {true, false, false, false, false,  3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRef
+#endif
+    {true, true,  false, false, true,   3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCnt
     {false,true,  false, true,  false,  3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCntMulti
     {true, true,  false, true,  true,   3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCntMulti
     {true, true,  false, false, true,   3, {{2,4}, {2,8}, {6,6},    {},   {}}, RGB(0xff ,0x00 ,0xff)  },  // Reset

@@ -749,18 +749,24 @@ struct MsgHistoryRec
 //
 //===========================================================================
 
-const word EXF_Stopped        = 0x00000001;
-const word EXF_Running        = 0x00000002;
-const word EXF_Starting       = 0x00000004;
-const word EXF_Stopping       = 0x00000008;
-const word EXF_Building       = 0x00000010;
-const word EXF_Updating       = 0x00000020;
-const word EXF_Waiting        = 0x00000040;
-const word EXF_Paused         = 0x00000080;
-const word EXF_SolvingPB      = 0x00000100;
-const word EXF_Busy           = 0x00000200;
-const word EXF_BetweenSteps   = 0x00000400;
-const word EXF_StartError     = 0x00000800;
+const DWORD EXF_Stopped        = 0x00000001;
+const DWORD EXF_Running        = 0x00000002;
+const DWORD EXF_Starting       = 0x00000004;
+const DWORD EXF_Stopping       = 0x00000008;
+const DWORD EXF_Building       = 0x00000010;
+const DWORD EXF_Updating       = 0x00000020;
+const DWORD EXF_Waiting        = 0x00000040;
+const DWORD EXF_Paused         = 0x00000080;
+const DWORD EXF_SolvingPB      = 0x00000100;
+const DWORD EXF_Busy           = 0x00000200;
+const DWORD EXF_BetweenSteps   = 0x00000400;
+const DWORD EXF_StartError     = 0x00000800;
+const DWORD EXF_QueryTime      = 0x00001000;
+const DWORD EXF_Reading        = 0x00002000;
+const DWORD EXF_Writing        = 0x00004000;
+const DWORD EXF_PreStart       = 0x00008000;
+const DWORD EXF_ReadingAll     = 0x00002000;
+const DWORD EXF_WritingAll     = 0x00004000;
 
 const long MaxMvAvgPts=100;
 
@@ -985,7 +991,13 @@ class DllImportExport CExecutive : public ConditionBlk
 
     flag           StartThreads(byte ThrdFlag, UINT Cmd, word Extra=0);
     LONG           PostCmd(CExecObj *pSrcEO, word Cmd, LONG lParam=0, CExecObj *pEO=NULL, word Extra=0);
-    void           UpdateDisplays(flag ForceUpd=false, flag ColoursChgd=false);
+    void           UpdateDisplays(flag OnlyStatusLine=false,  flag ForceUpd=false, flag ColoursChgd=false);
+    void           UpdateStateDisplay(DWORD StateOn, DWORD StateOff)
+      {
+      dwState|=StateOn;
+      dwState&=~StateOff;
+      UpdateDisplays(true);
+      }
     void           SetStopTimeEtc(bool ForceIt);
     void           UpdateState(UpdateOps Op, eScnState RqdManState, eScnState RqdScnState);
     void           DoOneExecMessage(UINT wParam, LONG lParam);
@@ -1204,7 +1216,7 @@ class DllImportExport CExecutive : public ConditionBlk
     
     UINT           TimerId() { return iTimerId; };
     flag           DoingPB() { return fDoingPB; };
-    word           State() { return wState; };
+    DWORD          State() { return dwState; };
     int            StateIndex();
     char*          StateDesc(int index);
     char*          StateDesc();
@@ -1288,7 +1300,7 @@ class DllImportExport CExecutive : public ConditionBlk
     
     CExecObj     * m_pSolver;            // A Shortcut to the solver at runtime
 
-    word           wState;
+    DWORD          dwState;
 
     flag           bActive;
     flag           bStopReqd;
@@ -1405,15 +1417,15 @@ class DllImportExport CExecutive : public ConditionBlk
 inline void   CExecutive::SetAppIdleDone()              { ::SetEvent(m_hAppIdleDone); };
 inline void   CExecutive::SetStopSleep()                { ::SetEvent(m_hStopSleep); };
 
-inline flag   CExecutive::Starting()                    { return (wState & EXF_Starting)!=0;};
-inline flag   CExecutive::StartError()                  { return (wState & EXF_StartError)!=0;};
-inline flag   CExecutive::Running()                     { return (wState & EXF_Running)!=0;};
-inline flag   CExecutive::Stopping()                    { return (wState & EXF_Stopping)!=0;};
-inline flag   CExecutive::Busy()                        { return (wState & EXF_Busy)!=0;}; //starting OR running OR stopping OR paused
-inline flag   CExecutive::SolvingPB()                   { return (wState & EXF_SolvingPB)!=0;}; //in ProBal mode
-inline flag   CExecutive::Waiting()                     { return (wState & EXF_Waiting)!=0;};
-inline flag   CExecutive::Paused()                      { return (wState & EXF_Paused)!=0;};
-inline flag   CExecutive::BetweenSteps()                { return (wState & EXF_BetweenSteps)!=0;};
+inline flag   CExecutive::Starting()                    { return (dwState & EXF_Starting)!=0;};
+inline flag   CExecutive::StartError()                  { return (dwState & EXF_StartError)!=0;};
+inline flag   CExecutive::Running()                     { return (dwState & EXF_Running)!=0;};
+inline flag   CExecutive::Stopping()                    { return (dwState & EXF_Stopping)!=0;};
+inline flag   CExecutive::Busy()                        { return (dwState & EXF_Busy)!=0;}; //starting OR running OR stopping OR paused
+inline flag   CExecutive::SolvingPB()                   { return (dwState & EXF_SolvingPB)!=0;}; //in ProBal mode
+inline flag   CExecutive::Waiting()                     { return (dwState & EXF_Waiting)!=0;};
+inline flag   CExecutive::Paused()                      { return (dwState & EXF_Paused)!=0;};
+inline flag   CExecutive::BetweenSteps()                { return (dwState & EXF_BetweenSteps)!=0;};
 inline flag   CExecutive::AutomationBusy()              { return bAutomationBusy;};
 inline flag   CExecutive::Filing()                      { return (eFileWhat!=EF_Null);};
 inline flag   CExecutive::SyncWithClock()               { return TimeCB().m_bSyncWithClock;};
@@ -1422,7 +1434,7 @@ inline double CExecutive::RealTimeMult()                { return TimeCB().m_Real
 //inline long   CExecutive::MaxRunSteps()                 { return TimeCB().m_nMaxSteps;};
 inline DWORD  CExecutive::LoopCount()                   { return m_dwLoopCount; };
 
-inline flag   CExecutive::Stopped()                     { return (wState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused
+inline flag   CExecutive::Stopped()                     { return (dwState & EXF_Busy)==0;}; //starting OR running OR stopping OR paused
 
 //=========================================================================
 
@@ -1469,7 +1481,7 @@ inline int  XDBFormat()           { return gs_Exec.DBFormat();     };
 
 inline CXStopWatches  & XSW(bool ForDisp=true) { return ForDisp ? gs_Exec.XSWDsp : gs_Exec.XSW; };
 
-inline void XUpdateDisplays(flag ForceUpd, flag ColoursChgd) { gs_Exec.UpdateDisplays(ForceUpd, ColoursChgd); };
+inline void XUpdateDisplays(flag ForceUpd, flag ColoursChgd) { gs_Exec.UpdateDisplays(false, ForceUpd, ColoursChgd); };
 //inline void XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) { gs_Exec.SetModelState(RqdState, RqdTags); };
 
 //=========================================================================

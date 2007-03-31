@@ -1448,7 +1448,7 @@ const short Idf_QuadEqnAddMeas = 1;
 
 //---------------------------------------------------------------------------
 
-GCQuadEqn::GCQuadEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "QuadEqn", VarClassDefn)
+GCQuadEqn::GCQuadEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "QuadEqn", VarClassDefn)
   {
   AddVar(IB, "Output",      &GCDouble, VarConst);
   AddVar(IB, "Scale",       &GCDouble);
@@ -1546,7 +1546,7 @@ const short Idf_CircEqnAddMeas = 1;
 
 //---------------------------------------------------------------------------
 
-GCCircEqn::GCCircEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "CircLoadEqn", VarClassDefn)
+GCCircEqn::GCCircEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "CircLoadEqn", VarClassDefn)
   {
   AddVar(IB, "Output",      &GCDouble, VarConst);
   AddVar(IB, "Scale",       &GCDouble);
@@ -1646,7 +1646,7 @@ const short Idf_PartEqnAddMeas = 1;
 
 //---------------------------------------------------------------------------
 
-GCPartEqn::GCPartEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "PartSizeEqn", VarClassDefn)
+GCPartEqn::GCPartEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "PartSizeEqn", VarClassDefn)
   {
   AddVar(IB, "Output",      &GCDouble, VarConst);
   AddVar(IB, "Scale",       &GCDouble);
@@ -1766,7 +1766,7 @@ const short Idf_AveEqnAddMeas = 1;
 
 //---------------------------------------------------------------------------
 
-GCAveEqn::GCAveEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, "AveSizeEqn", VarClassDefn)
+GCAveEqn::GCAveEqn(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "AveSizeEqn", VarClassDefn)
   {
   AddVar(IB, "Output",      &GCDouble, VarConst);
   AddVar(IB, "Scale",       &GCDouble);

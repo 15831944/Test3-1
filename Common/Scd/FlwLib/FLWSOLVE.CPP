@@ -3968,6 +3968,15 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       if (m_ProcSigFlwGrf.TearDirect()>0)
         SetUpTearLinks(m_ProcSigFlwGrf.TearNodeList());
 
+#if 01
+      // Corrected Version
+      FindTOSequenceStart(Which);
+      BuildTOSequence(Which);
+      SummariseTOSequence(Which);
+      InitTearConvergence(EqnCB());
+      m_fProcTOSeqValid=true;
+#else
+      // Incorrect Version (Slow)
       m_fProcTOSeqValid=FindTOSequenceStart(Which);
       if (m_fProcTOSeqValid)
         {
@@ -3975,6 +3984,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
         SummariseTOSequence(Which);
         InitTearConvergence(EqnCB());
         }
+#endif
       }
     }
 
@@ -4085,12 +4095,19 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       if (m_CtrlSigFlwGrf.TearDirect()>0)
         SetUpTearCLinks(m_CtrlSigFlwGrf.TearNodeList());
 
+#if 01
+      FindTOSequenceStart(Which);
+      BuildTOSequence(Which);
+      SummariseTOSequence(Which);
+      m_fCtrlTOSeqValid=true;
+#else
       m_fCtrlTOSeqValid=FindTOSequenceStart(Which);
       if (m_fCtrlTOSeqValid)
         {
         BuildTOSequence(Which);
         SummariseTOSequence(Which);
         }
+#endif
       }
     }
   if (0 && DoDump)
@@ -15313,7 +15330,7 @@ CTagRefStatus CFlwSolver::GetTagRefStatus(LPCTSTR Tag)
       W=pMapItem->GetStatusWord();
       #if dbgFlwSolve
       if (dbgXRefStatus())
-        dbgpln("FE_GetTagRefStatus: %04x %s", W, Tag);
+        dbgpln("GetTagRefStatus: %04x %s", W, Tag);
       #endif
       return W;
       }
@@ -15321,7 +15338,7 @@ CTagRefStatus CFlwSolver::GetTagRefStatus(LPCTSTR Tag)
 
   #if dbgFlwSolve
   if (dbgXRefStatus())
-    dbgpln("FE_GetTagRefStatus:    - %s", Tag);
+    dbgpln("GetTagRefStatus:    - %s", Tag);
   #endif
   return W;
   };
