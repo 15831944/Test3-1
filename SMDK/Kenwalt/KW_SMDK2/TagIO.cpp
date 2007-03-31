@@ -288,15 +288,15 @@ bool CTagIO::ValidateDataFields()
     {
     //TagIO.Close();
     TagIO.RemoveAll();
-    m_iGet1 = TagIO.Add(m_sGetTagSubs1, "Tag2Get1", MTIO_Get);
-    m_iGet2 = TagIO.Add(m_sGetTagSubs2, "Tag2Get2", MTIO_Get);
-    m_iSet1 = TagIO.Add(m_sSetTagSubs1, "Tag2Put1", MTIO_Set);
+    m_iGet1 = TagIO.Add(m_sGetTagSubs1, "GetValue1", MTIO_Get);
+    m_iGet2 = TagIO.Add(m_sGetTagSubs2, "GetValue2", MTIO_Get);
+    m_iSet1 = TagIO.Add(m_sSetTagSubs1, "SetValue1", MTIO_Set);
     if (m_iGet1<0 && m_iGet1!=-3)
-      Log.Message(MMsg_Error, "Error with GetTag1 (%s)", m_sGetTagSubs1);
+      Log.Message(MMsg_Error, "Error with GetTagSubs1 (%s)", m_sGetTagSubs1);
     if (m_iGet2<0 && m_iGet2!=-3)
-      Log.Message(MMsg_Error, "Error with GetTag2");
+      Log.Message(MMsg_Error, "Error with GetTagSubs1 (%s)", m_sGetTagSubs2);
     if (m_iSet1<0 && m_iSet1!=-3)
-      Log.Message(MMsg_Error, "Error with SetTag1");
+      Log.Message(MMsg_Error, "Error with SetTagSubs1 (%s)", m_sSetTagSubs1);
     m_bBuildListRqd = false;
     }
   return true;

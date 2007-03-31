@@ -1164,16 +1164,18 @@ flag CNodeTagIOList::ValidateData(ValidateDataBlk & VDB)
 
 //---------------------------------------------------------------------------
 
-long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
+long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR ItemName, long Options)
   {
   if (ItemTag==NULL || ItemTag[0]==0)
     return -3;
   Strng Tg(ItemTag);
+  Strng Name;
+  Name.Set("%s.%s", m_pNd->FullObjTag(), ItemName);
   Tg.LRTrim();
   if (Tg.Len()==0)
     return -3;
   long TgIndex=FindTag(Tg());
-  long NmIndex=(Name && strlen(Name)>0 ? FindName(Name) : -1);
+  long NmIndex=(Name.GetLength()>0 ? FindName(Name()) : -1);
 
   if (TgIndex>=0)
     {
@@ -1201,7 +1203,7 @@ long CNodeTagIOList::Add(LPCSTR ItemTag, LPCSTR Name, long Options)
         return -2;
       }
 
-    CTagItem * p = new CTagItem(Tg(), Name, Options);
+    CTagItem * p = new CTagItem(Tg(), Name(), Options);
     m_TagMap.SetAt(p->m_sTag, p);
     m_NameMap.SetAt(p->m_sName, p);
     p->m_Var.SetVar(p->m_sFullTag.GetBuffer(), false, NULL, NULL);
@@ -1460,11 +1462,11 @@ int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
     CTagItem *p=m_Items[i];
     if (p && p->m_bValid)
       {
-      CString XXX;
-      XXX.Format("Xr[%i]", i);
+      CString ID;
+      ID.Format("%s [%s]", m_pNd->FullObjTag(), p->Name());
       bool DoingSet = (p->m_lOptions & MTIO_Set)!=0;
       int RetCode = p->m_Var.UpdateXRef(p, DoingSet, !DoingSet,//true /*Always Get the latest*/, 
-        FunctNo, m_pNd, -1, p->Name(),p->Name(), "CNodeTagList:Output", Results);
+        FunctNo, m_pNd, -1, p->Name(),ID, "CNodeTagList:Output", Results);
       if (RetCode!=BXR_OK)
         {
         p->m_bValid = 0;
