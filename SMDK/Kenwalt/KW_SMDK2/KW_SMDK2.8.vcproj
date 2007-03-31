@@ -576,6 +576,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Stats.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -649,6 +653,10 @@
 			</File>
 			<File
 				RelativePath=".\Scheduled Maintenance.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Stats.h"
 				>
 			</File>
 			<File
