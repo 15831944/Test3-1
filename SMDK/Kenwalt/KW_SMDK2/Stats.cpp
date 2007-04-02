@@ -78,7 +78,7 @@ const long idDX_HistoMax = 6;
 
 void SingleVarStats::BuildDataFields()
 {
-	DD.Bool("Logging","Logging", &bOn, MF_PARAMETER);
+	DD.CheckBox("Logging","Logging", &bOn, MF_PARAMETER);
 	DD.String("StatTag", "StatTag", idDX_Tag, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
 	DD.Double("Histogram Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER);
@@ -91,7 +91,7 @@ void SingleVarStats::BuildDataFields()
 	DD.Double("Standard Deviation", "StdDev", &dStdDev, MF_RESULT);
 	DD.Double("Minimum", "Min", &dMin, MF_RESULT);
 	DD.Double("Maximum", "Max", &dMax, MF_RESULT);
-	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT);
+	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
 
 	DD.Text("");
 
@@ -123,10 +123,6 @@ void SingleVarStats::BuildDataFields()
 			DD.Double("Val","Val", &(*iterator), MF_RESULT);
 			DD.ArrayElementEnd();
 		}
-		DD.ArrayElementStart(j);
-		DD.Double("Val", "Val", &(*endIterator), MF_RESULT);
-		DD.ArrayElementEnd();
-		DD.ArrayEnd();
 	}*/
 	DD.Show(true);
 }
@@ -265,7 +261,12 @@ void SingleVarStats::RecalculateStats(double newEntry)
 	if (lRecordCount <= 1)
 		dStdDev = dNAN;
 	else
-		dStdDev = sqrt((dSumX2 - lRecordCount * dAverage * dAverage)/(lRecordCount - 1));
+	{
+		if (dSumX2 - lRecordCount * dAverage * dAverage > 0) //If we are logging a zero std dev. parameter, rounding errors can cause an exception
+			dStdDev = sqrt((dSumX2 - lRecordCount * dAverage * dAverage)/(lRecordCount - 1));
+		else
+			dStdDev = 0;
+	}
 
 	// Update histogram
 	for (int i = 0; i < lHistoCount + 2; i++)
@@ -336,6 +337,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 	switch (Wnd.m_eTask)
 	{
 	case MGT_Create:
+		Wnd.m_pWnd->SetWindowPos(NULL, 0, 0, 200, 200, SWP_NOMOVE | SWP_NOZORDER);
 		break;
 	case MGT_Size:
 		Wnd.m_pWnd->Invalidate();
@@ -350,7 +352,6 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SetTextColor(Green);
 		CPen penWhite(PS_SOLID, 0, White);
 		CPen penGreen(PS_SOLID, 0, Green);
-		CPen* oldPen = Wnd.m_pPaintDC->SelectObject(&penGreen);
 		int nTextSize = Wnd.m_TextSize.y;
 		int nBorderSpace = nTextSize;
 		int nTextSpace = 4;
@@ -363,10 +364,13 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			nAxesBottom = Wnd.m_ClientRect.bottom - (nBorderSpace + 2 * nTextSize + nTextSpace + nAxesSpace),
 			nAxesLeft = nBorderSpace + nTextSize + nTextSpace + nAxesSpace,
 			nAxesRight = Wnd.m_ClientRect.right - (nBorderSpace);
+		if (nAxesBottom - nAxesTop <= 0 || nAxesRight - nAxesLeft <= 0)
+			break;
 		POINT axes[] = { 
 			{nAxesLeft, nAxesTop},
 			{nAxesLeft, nAxesBottom},
 			{nAxesRight, nAxesBottom} };
+		CPen* oldPen = Wnd.m_pPaintDC->SelectObject(&penGreen);
 		Wnd.m_pPaintDC->Polyline(axes, 3);
 		int nArrowSize = 3;
 		POINT ArrowTop[] = {
@@ -408,12 +412,12 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			Wnd.m_pPaintDC->Polyline(Checkline, 2);
 			
 			CString value;
-			if (pHistoBucketBorders[i] < 0.1 && pHistoBucketBorders[i] > -0.1)
-				value.Format("%.2e", pHistoBucketBorders[i]);
-			if (pHistoBucketBorders[i] < 1)
+			if (pHistoBucketBorders[i] < 100) //Because the %.2g formatting doesn't work like it should
 				value.Format("%.2g", pHistoBucketBorders[i]);
+			else if (pHistoBucketBorders[i] < 1E4)
+				value.Format("%.0f", pHistoBucketBorders[i]);
 			else
-				value.Format("%.1g", pHistoBucketBorders[i]);
+				value.Format("%.1e", pHistoBucketBorders[i]);
 
 			if (nAxesLeft + (int)(i * blockWidth) - lastLabel > Wnd.m_pPaintDC->GetTextExtent(value).cx / 2 + minSpace)
 			{
@@ -424,7 +428,11 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		xLabel.Format("Value");
+		CString units = TagIO.getCnvText(lTagID);
+		if (lTagID > 0 && strcmp(units, "") != 0)
+			xLabel.Format("Value (%s)", units);
+		else
+			xLabel.Format("Value");
 		yLabel.Format("Count");
 		
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_CENTER);
