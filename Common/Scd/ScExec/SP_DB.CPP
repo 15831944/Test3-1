@@ -8367,7 +8367,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
         p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex  =  SpVwPhMaskIndex_Phase0+p->m_iPhInx;
         p->m_ViewBasisRules[SVVB_Occ].m_bEditable         = (CntSpcsOcc[p->m_iOccInx]>1);
         p->m_ViewBasisRules[SVVB_Phase].m_bEditable       = (CntSpcsPh[p->m_iPhInx]>1);
-        if (1)
+        if (0)
           {
           dbgpln("Spc   %3i %s %08x %08x %3i %3i %-5s %-5s %s",
             iCfg, "   ", p->m_iOccMsk, p->m_iPhMsk, p->m_iOccInx, p->m_iPhInx,
@@ -8401,7 +8401,7 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
           p->m_ViewBasisRules[SVVB_Occ].m_iSpVwMaskIndex    =  SpVwPhMaskIndex_Solid+p->m_iOccInx;
           p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex  =  SpVwPhMaskIndex_Phase0+p->m_iPhInx;
           }
-        if (1)
+        if (0)
           {
           dbgpln("Calc  %3i %s %08x %08x %3i %3i %-5s %-5s %s",
             iCfg, "   ", p->m_iOccMsk, p->m_iPhMsk, p->m_iOccInx, p->m_iPhInx,
