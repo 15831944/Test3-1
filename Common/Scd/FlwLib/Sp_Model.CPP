@@ -2087,17 +2087,19 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
       {
       if (RqdVw!=iView)
         continue;
-      for (eScdSVViewBasis ii=iBasis0; ii<=iBasisN; ii++)
-        if (ViewInfo.m_Basis[ii].m_Basis==iViewBasis)
+      for (eScdSVViewBasis iBasis=iBasis0; iBasis<=iBasisN; iBasis++)
+        {
+        if (ViewInfo.m_Basis[iBasis].m_Basis==iViewBasis)
           {
-          iBasis0=ii;
-          iBasisN=ii;
+          iBasis0=iBasis;
+          iBasisN=iBasis;
           }
-        if (iBasis0!=iBasisN)
-          {
-          iBasis0=SVVB_All;
-          iBasisN=SVVB_All;
-          }
+        }
+      if (iBasis0!=iBasisN)
+        {
+        iBasis0=SVVB_All;
+        iBasisN=SVVB_All;
+        }
       }
 
     DDEF_Flags NewVis=OldVis;
@@ -2213,13 +2215,13 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
         {
         const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
 
-        for (eScdSVViewBasis ii=iBasis0; ii<=iBasisN; ii++)
+        for (eScdSVViewBasis iBasis=iBasis0; iBasis<=iBasisN; iBasis++)
           {
-          eScdSVViewBasis RqdVwBasis=ViewInfo.m_Basis[ii].m_Basis;
-          //const CSV_ViewCnv * Cnv=SpViewCnv(ii, RqdVwBasis, );
+          eScdSVViewBasis RqdVwBasis=ViewInfo.m_Basis[iBasis].m_Basis;
+          //const CSV_ViewCnv * Cnv=SpViewCnv(iBasis, RqdVwBasis, );
           byte LPh=GetViewBasis(DDB.ForFiling()?SVForce_Lcl:SVForce_None);
           Strng Ttl(ViewInfo.Nm);
-          Ttl+=ViewInfo.m_Basis[ii].m_Txt;
+          Ttl+=ViewInfo.m_Basis[iBasis].m_Txt;
           DDB.SetVisibility(NewVis);
 
           //DDB.Page(ViewInfo.Nm, DDB_RqdPage);//DDB_OptPage);
@@ -2280,14 +2282,14 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
                 {
                 DDB.Text("(*) Not applied , *+ Apply None, *- Apply All");
                 }
-              for (int ii=i0; ii<iN; ii++)
+              for (int iii=i0; iii<iN; iii++)
                 {
                 int i;
                 switch (BlkPass)
                   {
-                  case 0: i=SVI.Cfg(ii)->CfgIndex(); break;
-                  case 1: i=SVI.Spc(ii)->CfgIndex(); break;
-                  case 2: i=SVI.Att(ii)->CfgIndex(); break;
+                  case 0: i=SVI.Cfg(iii)->CfgIndex(); break;
+                  case 1: i=SVI.Spc(iii)->CfgIndex(); break;
+                  case 2: i=SVI.Att(iii)->CfgIndex(); break;
                   }
                 CSysVecItem &SVCfg=*SVI.Cfg(i);
 
@@ -2411,14 +2413,14 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
       case SVV_AsElemConc25:
         {
         const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
-        for (int ii=iBasis0; ii<=iBasisN; ii++)
+        for (int iBasis=iBasis0; iBasis<=iBasisN; iBasis++)
           {
-          int RqdVwBasis=ViewInfo.m_Basis[ii].m_Basis;
+          int RqdVwBasis=ViewInfo.m_Basis[iBasis].m_Basis;
           const CSV_ViewCnv * Cnv=ViewInfo.Cnvs[0];
           DDEF_Flags FlagsE= FlagsV&~isParm;
           Strng Ttl(ViewInfo.Nm);
           //Ttl+=SVV_Name[RqdVwBasis];
-          Ttl+=ViewInfo.m_Basis[ii].m_Txt;
+          Ttl+=ViewInfo.m_Basis[iBasis].m_Txt;
           //DDB.Page(ViewInfo.Nm, DDB_RqdPage);//DDB_OptPage);
           if (nBlks>1)
             {
@@ -2468,13 +2470,13 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
       case SVV_AsCompConc25:
         {
         const CSV_ViewInfo & ViewInfo=gs_ViewInfo[RqdVw];
-        for (int ii=iBasis0; ii<=iBasisN; ii++)
+        for (int iBasis=iBasis0; iBasis<=iBasisN; iBasis++)
           {
-          int RqdVwBasis=ViewInfo.m_Basis[ii].m_Basis;
+          int RqdVwBasis=ViewInfo.m_Basis[iBasis].m_Basis;
           const CSV_ViewCnv * Cnv=ViewInfo.Cnvs[0];
           DDEF_Flags FlagsC= Flags&~isParm;
           Strng Ttl(ViewInfo.Nm);
-          Ttl+=ViewInfo.m_Basis[ii].m_Txt;
+          Ttl+=ViewInfo.m_Basis[iBasis].m_Txt;
           //DDB.Page(ViewInfo.Nm, DDB_RqdPage);
           if (nBlks>1)
             {

@@ -8244,14 +8244,32 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
             CSysVecFnSymbol &T=Fn.m_Tkns[t];
             switch (T.m_iSym)
               {
+              //case SFS_SVIndex:
+              //  OccMsk|=SVI.Img(T.m_iValue)-OccMask();
+              //  PhMsk|=SVI.Img(T.m_iValue)->PhaseMask();
+              //  break;
+              //case SFS_CfgIndex:
+              //  OccMsk|=SVI.Cfg(T.m_iValue)->OccMask();
+              //  PhMsk|=SVI.Cfg(T.m_iValue)->PhaseMask();
+              //  break;
+
               case SFS_SVIndex:
-                OccMsk|=SVI.Img(T.m_iValue)->OccMask();
+              case SFS_CfgIndex:
+                {
+                int ot=SVI.Img(T.m_iValue)->OccInx();
+                OccInx=(OccInx==-2 || OccInx==ot) ? ot : -1;
+                switch (ot)
+                  {
+                  case BOT_Solid:   OccMsk|=som_Sol; break;
+                  case BOT_Liquid:  OccMsk|=som_Liq; break;
+                  case BOT_Gas:     OccMsk|=som_Gas; break;
+                  }
+
+                int ph=SVI.Img(T.m_iValue)->PhaseInx();
+                PhInx=(PhInx==-2 || PhInx==ph) ? ph : -1;
                 PhMsk|=SVI.Img(T.m_iValue)->PhaseMask();
                 break;
-              case SFS_CfgIndex:
-                OccMsk|=SVI.Cfg(T.m_iValue)->OccMask();
-                PhMsk|=SVI.Cfg(T.m_iValue)->PhaseMask();
-                break;
+                }
               }
             }
           int xxx=0;
@@ -8351,8 +8369,8 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
         p->m_ViewBasisRules[SVVB_Phase].m_bEditable       = (CntSpcsPh[p->m_iPhInx]>1);
         if (1)
           {
-          dbgpln("Spc   %3i %s %3i %3i %-5s %-5s %s ----------------------------------------------------",
-            iCfg, "   ", p->m_iOccInx, p->m_iPhInx,
+          dbgpln("Spc   %3i %s %08x %08x %3i %3i %-5s %-5s %s",
+            iCfg, "   ", p->m_iOccMsk, p->m_iPhMsk, p->m_iOccInx, p->m_iPhInx,
             (LPCTSTR)sm_SpVwPhMask[p->m_ViewBasisRules[SVVB_Occ].m_iSpVwMaskIndex].m_Sym,
             (LPCTSTR)sm_SpVwPhMask[p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex].m_Sym,
             p->FullTag());
@@ -8370,8 +8388,8 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
         p->m_ViewBasisRules[SVVB_Phase].m_bEditable = p->CalcType() == SVCT_IPhSum;
 
         p->m_ViewBasisRules[SVVB_All].m_bUsed       = p->CalcType() <= SVCT_Total;
-        p->m_ViewBasisRules[SVVB_Occ].m_bUsed       = p->CalcType() >= SVCT_PhSum && p->CalcType()  <= SVCT_PhTotal;
-        p->m_ViewBasisRules[SVVB_Phase].m_bUsed     = p->CalcType() >= SVCT_IPhSum && p->CalcType() <= SVCT_IPhTotal;
+        p->m_ViewBasisRules[SVVB_Occ].m_bUsed       = p->CalcType() == SVCT_General || p->CalcType() >= SVCT_PhSum && p->CalcType()  <= SVCT_PhTotal;
+        p->m_ViewBasisRules[SVVB_Phase].m_bUsed     = p->CalcType() == SVCT_General || p->CalcType() >= SVCT_IPhSum && p->CalcType() <= SVCT_IPhTotal;
 
         if (p->CalcType() >= SVCT_PhSum)
           {
@@ -8382,6 +8400,14 @@ bool CSysVecInfo::Finalise(CDBInitRec &CDBI)
           {
           p->m_ViewBasisRules[SVVB_Occ].m_iSpVwMaskIndex    =  SpVwPhMaskIndex_Solid+p->m_iOccInx;
           p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex  =  SpVwPhMaskIndex_Phase0+p->m_iPhInx;
+          }
+        if (1)
+          {
+          dbgpln("Calc  %3i %s %08x %08x %3i %3i %-5s %-5s %s",
+            iCfg, "   ", p->m_iOccMsk, p->m_iPhMsk, p->m_iOccInx, p->m_iPhInx,
+            (LPCTSTR)sm_SpVwPhMask[p->m_ViewBasisRules[SVVB_Occ].m_iSpVwMaskIndex].m_Sym,
+            (LPCTSTR)sm_SpVwPhMask[p->m_ViewBasisRules[SVVB_Phase].m_iSpVwMaskIndex].m_Sym,
+            p->FullTag());
           }
 
         break;
