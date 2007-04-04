@@ -2306,9 +2306,10 @@ void DefinePGMClasses(rGCInsMngr IB)
     // Electrical Stuff    
     new GCETerminal(IB);
     new GCTermStrip(IB);
-    // Specie DB
-    new GCSDB(IB);
-
+    
+    // Specie DB & create an instance thereof
+    new GCClassVar(IB.m_pVarList, &IB.m_VarMap, "SDB", 0, new GCSDB(IB));
+  
     #ifdef PMC
     //optimiser equations used at PMC 1995...
     new GCQuadEqn(IB);
