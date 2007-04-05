@@ -366,6 +366,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath=".\Bivariate Stats.cpp">
+			</File>
+			<File
 				RelativePath="KW_SMDK2.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
@@ -404,6 +407,9 @@
 			</File>
 			<File
 				RelativePath=".\Scheduled Maintenance.cpp">
+			</File>
+			<File
+				RelativePath=".\Stats.cpp">
 			</File>
 			<File
 				RelativePath="StdAfx.cpp">
@@ -457,6 +463,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath=".\Bivariate Stats.h">
+			</File>
+			<File
 				RelativePath="KW_SMDK2.h">
 			</File>
 			<File
@@ -464,6 +473,9 @@
 			</File>
 			<File
 				RelativePath=".\Scheduled Maintenance.h">
+			</File>
+			<File
+				RelativePath=".\Stats.h">
 			</File>
 			<File
 				RelativePath="StdAfx.h">

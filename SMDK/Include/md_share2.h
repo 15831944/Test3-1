@@ -35,8 +35,8 @@ const MD_Flags MF_NanOK         = MF_NAN_OK;           //for floating point fiel
 const MD_Flags MF_Button        = MF_BUTTON;           //for bool fields, Present a button
 //const MD_Flags MF_ISRESULT      = MF_ISRESULT;       // this is a calculated field which goes invalid on any change
 const MD_Flags MF_HideIfZero    = MF_HIDEIFZERO;       // hide this field if it is zero
-const MD_Flags MF_StartRow      = MF_STARTROW;         // Put this and subsequent values on the same row until MF_StartRow or MF_EndRows
-const MD_Flags MF_EndRows       = MF_ENDROWS;          // Marks end of row mode
+const MD_Flags MF_StartRow      = MF_STARTROW;         // Put this and subsequent values on the same row until next MF_StartRow or MF_EndRows
+const MD_Flags MF_EndRows       = MF_ENDROWS;          // Marks end of row mode. Only required for last entry on last row.
 
 // ======================================================================
 // Data Definitions for Text equivalents of Integral Values
@@ -357,10 +357,12 @@ extern DllImportExport MCnv MC_ElectVA  ; //Electrical VA (V*A)     : kVA
 extern DllImportExport MCnv MC_Humidity ; //Specific Humidity       : kg(l)/kg(v)
 extern DllImportExport MCnv MC_Accel    ; //Acceleration            : m/s^2
 extern DllImportExport MCnv MC_ThermDiff; //Thermal Diffusivity     : m^2/s
-
 extern DllImportExport MCnv MC_Money    ; //Money                   : Base
 extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base/s
 
+//"special" time string conversions:
+extern DllImportExport MCnv MC_TimeStr  ; //Time String             : s
+extern DllImportExport MCnv MC_dTimeStr ; //Time String Difference  : s
 
 /* Class MCnvs: Helper class for accessing collection of engineering conversions.*/
 class DllImportExport MCnvs

@@ -608,12 +608,12 @@ void CCnvsMngr::Init()
     DC_Humidity = AddSI("Humidity" , "kg(l)/kg(v)" , "Specific Humidity"            ,    0.0 ,            0.01, false);
     DC_Accel    = AddSI("Accel"    , "m/s^2"      , "Acceleration"                  ,    0.0 ,            1.0, false);
     DC_ThermDiff= AddSI("ThermDiff", "m^2/s"      , "Thermal Diffusivity"           ,    0.0 ,            1.0, false);
+    DC_Money    = AddSI("Money"    , "Base"       , "Money in Base"                 ,    0.0 ,         1000.0, false);
+    DC_MoneyFlow= AddSI("MoneyFlow", "Base/s"     , "Money Flow in Base/s"          ,    0.0 ,         1000.0, false);
 
-    DC_TimeStr  = AddSI("TimeStr"  , "s"          , "TimeString"                    ,    0.0 ,         3600.0, false);
-    DC_dTimeStr = AddSI("dTimeStr" , "s"          , "dTimeString"                   ,    0.0 ,         3600.0, false);
-
-    DC_Money      = AddSI("Money"      , "Base"      , "Money in Base"                ,    0.0 ,         1000.0, false);
-    DC_MoneyFlow  = AddSI("MoneyFlow"  , "Base/s"    , "Money Flow in Base/s"         ,    0.0 ,         1000.0, false);
+    //"special" time string conversions:
+    DC_TimeStr  = AddSI("TimeStr"  , "s"          , "Time String"                   ,    0.0 ,         3600.0, false);
+    DC_dTimeStr = AddSI("TimeStrDiff" , "s"       , "Time String Difference"        ,    0.0 ,         3600.0, false);
 
     //NB: ensure new cnvs are added to SMDK (md_share2.h and md_defn.cpp)!
 

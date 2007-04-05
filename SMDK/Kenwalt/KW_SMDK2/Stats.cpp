@@ -438,7 +438,8 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_CENTER);
 		Wnd.m_pPaintDC->TextOut((nAxesLeft + nAxesRight) / 2, Wnd.m_ClientRect.bottom - nBorderSpace, xLabel);
 		
-		int oldMode = Wnd.m_pPaintDC->SetGraphicsMode(GM_ADVANCED);
+#if (_MSC_VER >= 1400)
+		int oldMode = Wnd.m_pPaintDC->->SetGraphicsMode(GM_ADVANCED);
 		XFORM rotation = {
 			0, -1,
 			1, 0,
@@ -455,6 +456,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		Wnd.m_pPaintDC->SetWorldTransform(&identity);
 		Wnd.m_pPaintDC->SetGraphicsMode(oldMode);
+#endif
 	}
 	return true;
 }

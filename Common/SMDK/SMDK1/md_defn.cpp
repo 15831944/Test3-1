@@ -142,6 +142,8 @@ MCnv MC_Accel    ;
 MCnv MC_ThermDiff;
 MCnv MC_Money    ;
 MCnv MC_MoneyFlow;
+MCnv MC_TimeStr  ;
+MCnv MC_dTimeStr ;
 
 //===========================================================================
 //
@@ -658,6 +660,8 @@ bool MInitialise()
     MC_ThermDiff.m_Index  = (DC_ThermDiff);
     MC_Money.m_Index      = (DC_Money)    ;
     MC_MoneyFlow.m_Index  = (DC_MoneyFlow);
+    MC_TimeStr.m_Index    = (DC_TimeStr)  ;
+    MC_dTimeStr.m_Index   = (DC_dTimeStr) ;
 
     gs_MVDefn.Initialise();
     gs_PSDDefns.Initialise();

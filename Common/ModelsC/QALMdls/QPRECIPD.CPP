@@ -52,8 +52,8 @@ static IOAreaRec QPrecipIOAreaList[] =
    {"Overflow", "Overflow", ioid_Product   , LIO_Out,    nc_MLnk, 1,  1,     0, (float)0.9},
    {"SecFeed",  "SecFeed",  ioid_SecFeed   , LIO_In ,    nc_MLnk, 0, 10,     0, 1.0f},
    {"Side",     "Side",     ioid_SecProduct, LIO_Out,    nc_MLnk, 0,  1,     0, (float)0.5},
-    SPILL2AREA("Spills",  IOId_Spill2Area),
-    VENT2AREA("Vents",    IOId_Vent2Area),
+    SPILL2AREA,
+    VENT2AREA,
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
