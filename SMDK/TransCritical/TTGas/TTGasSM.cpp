@@ -33,7 +33,7 @@ enum GM_GasStateEqn { GM_Ideal,  GM_SRK, GM_PR,GM_BWR };
 
 // Global/Static data
 
-
+static const double deltaT = .1;    /// \Delta T for derivative calculations
 
 
 
@@ -75,26 +75,6 @@ bool TTGasSM::ValidateDataFields()
   return OK;
   }
 
-double TTGasSM::get_MWT(MArray *pMA) {
-
-  double mw = MoleWt(); //doesn't this work???
-
-  MArray MA(pMA ? *pMA : this);
-  int im = Methane.Index;
-  MA.Normalise();
-  Log.Message(MMsg_Error, "get_MWT, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
-  MA.Normalise();
-  Log.Message(MMsg_Error, "get_MWT, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
-  long   SpecieCount=gs_MVDefn.Count();
-  double mtot=0.0, mwtot=0.0;
-  for (int i=0; i<SpecieCount; i++) {
-    //mtot += MA[i];
-    mwtot += MA[i]*gs_MVDefn[i].MolecularWt();
-  }
-  if (mwtot==0.0) return 20.0;
-  return mwtot;
-  //return MoleWt();
-}
 
 //---------------------------------------------------------------------------
 
@@ -103,9 +83,7 @@ double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
   MArray MA(pMA ? *pMA : this);
   
   int im = Methane.Index;
-  Log.Message(MMsg_Error, "get_Density, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
   MA.Normalise();
-  Log.Message(MMsg_Error, "get_Density, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
 
 
   double MSol=MA.MassFrac(MP_Sol);
@@ -141,47 +119,25 @@ double TTGasSM::get_Density(long Phases, double T, double P, MArray *pMA)
 
 
 
-double TTGasSM::HRes(double T_K, double p_kPa) {
-    
-  SRKn(T_K, p_kPa);
+double TTGasSM::HRes(double T_K, double p_kPa) {   
+  GasZ(T_K, p_kPa);
   return m_dHRes;
 }
 
 double TTGasSM::SRes(double  T_K, double p_kPa) {
-
-  MArray MA(this);
-
-  int im = Methane.Index;
-  Log.Message(MMsg_Error, "Sres, Pre Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
-  MA.Normalise();
-  Log.Message(MMsg_Error, "Sres, Post Normal Methane %8.2f Total %8.2f", MA[im], MA.Mass());
-
-
-  SRKn(T_K, p_kPa);
+  GasZ(T_K, p_kPa);
   return m_dSRes;
 }
 
 
-double TTGasSM::GasEnthalpy(double T, double P) 
-{
-  MArray MA(this);
 
-
-  return MSpModelBase::get_msEnthalpy(MP_Gas, T, P, &MA)+HRes(T, P);
-}
-
-
-double TTGasSM::GasEntropy(double T, double P) 
-{
-  MArray MA(this);
-  return MSpModelBase::get_msEntropy(MP_Gas, T, P, &MA)+SRes(T, P);
-}
 
 
 
 double TTGasSM::GasZ(double T, double P) {
   switch (sm_iGasModel)  {
   case GM_Ideal:
+    m_dHRes = m_dSRes = 0.0;
     return 1.0;
   case  GM_SRK: 
   case GM_PR: 
@@ -199,13 +155,14 @@ double TTGasSM::SRKn(double T, double P, MArray *pMA)
   
 
   long   SpecieCount=gs_MVDefn.Count();
-  const long MAXCOMP = 40;
 
   double alpha[MAXCOMP], tr[MAXCOMP];
   double m[MAXCOMP], wi, ac[MAXCOMP], b[MAXCOMP];
+  double aiaQ[MAXCOMP], bib[MAXCOMP];
   double bb = 0, aca = 0;
   double beta=0.0;
   double A, B;
+  double c1=0.0, c2 = 0.0;
   for (int i=0; i<SpecieCount; i++) {
     double tc = gs_MVDefn[i].TCritical();
     double pc = gs_MVDefn[i].PCritical();
@@ -215,10 +172,14 @@ double TTGasSM::SRKn(double T, double P, MArray *pMA)
     wi = gs_MVDefn[i].Acentricity();
     m[i] = 0.480 + wi*(1.574-.176*wi);
     alpha[i] = 1+m[i]*(1-sqrt(tr[i]));
+    aiaQ[i] = tc*alpha[i]/sqrt(pc);
+    bib[i] = tc/pc;
   }
   
   for (int i=0; i<SpecieCount; i++) {
     double yi = MA[i];
+    c1 += yi*aiaQ[i];
+    c2 += yi*bib[i];
     if (yi==0.0) continue;
     bb += yi*b[i];
     for (int j=0; j<SpecieCount; j++)  {
@@ -229,31 +190,47 @@ double TTGasSM::SRKn(double T, double P, MArray *pMA)
       beta += tmp*((1+m[i])*alpha[j]+(1+m[j])*alpha[i]);
     }
   }
-  beta /= 2.0;
   
+  beta /= 2.0;
+  if (fabs(bb) <= 1.0e-3) {
+    m_dHRes = m_dSRes = 0.0;
+    return 1.0;
+  }
+
+  for (int i=0; i<SpecieCount; i++) {
+    bib[i] /= c2;
+    aiaQ[i] /= c1;
+  }
   A = aca*P/Sqr(R_c*T);
   B = bb*P/R_c/T;
   double z[3];
   int nr = cubic(-1.0, A-B*(1+B), -A*B, z);
+  in3RootRgn = (nr>1) ? true : false;
   double ZZ = z[0];
-  double mwt = get_MWT(NULL);
+  double mwt = MoleWt();
   m_dHRes = (beta/bb*log(1+B/ZZ)+R_c*T*(1-ZZ))/mwt; // Reduced Enthalpy, kJ/kMol
-  double lnPhi = ZZ - 1 - log(ZZ - B) - A / B * log(1 + B / ZZ);
-  m_dSRes = R_c/mwt*lnPhi + m_dHRes/T ;
-  
-  
+  phiV1 = ZZ - 1 - log(ZZ - B) - A / B * log(1 + B / ZZ);
+  m_dSRes = R_c/mwt*phiV1 + m_dHRes/T ;
+  phiL1 = in3RootRgn ? z[2] - 1 - log(z[2] - B) - A / B * log(1 + B / z[2]) : phiV1;
+  double zz;
+  for (int i=0; i<SpecieCount; i++) {
+    if (in3RootRgn) {
+      zz = z[2];
+      phiL[i] = bib[i]*(zz-1)-log(zz-B)-A/B*(2*aiaQ[i]-bib[i])*log(1+B/zz);
+      zz = z[0];
+      phiV[i] = bib[i]*(zz-1)-log(zz-B)-A/B*(2*aiaQ[i]-bib[i])*log(1+B/zz);
+    } else {
+      zz = z[0];
+      phiV[i] = phiL[i] = bib[i]*(zz-1)-log(zz-B)-A/B*(2*aiaQ[i]-bib[i])*log(1+B/zz);
+    }
+  }
   return z[0];
 }
 
 
 
-//---------------------------------------------------------------------------
 
-double TTGasSM::GasCpCalc(double Tk, double Pbar)
-{
-  MArray MA(this);
-  return MSpModelBase::get_msCp(MP_Gas, Tk, 1.0, &MA);
-}
+
 
 
 //---------------------------------------------------------------------------
@@ -261,24 +238,27 @@ double TTGasSM::GasCpCalc(double Tk, double Pbar)
 double TTGasSM::get_msEnthalpy(long Phases, double T, double P, MArray *pMA)
   {
   MArray MA(pMA ? (*pMA) : this);
-  return MSpModelBase::get_msEnthalpy(Phases, T, P, pMA);
+  return MSpModelBase::get_msEnthalpy(Phases, T, P, pMA) - (Phases & MP_Gas ? HRes(T, P) : 0.0);
   }
 
 //---------------------------------------------------------------------------
 
 double TTGasSM::get_msEntropy(long Phases, double T, double P, MArray *pMA)
   {
-  return MSpModelBase::get_msEntropy(Phases, T, P, pMA);
+  return MSpModelBase::get_msEntropy(Phases, T, P, pMA) - (Phases & MP_Gas ? SRes(T, P) : 0.0);
   }
 
 //---------------------------------------------------------------------------
 
-double TTGasSM::get_msCp(long Phases, double T, double P, MArray *pMA)
-  {
+double TTGasSM::get_msCp(long Phases, double T, double P, MArray *pMA) {
   MArray MA(pMA ? (*pMA) : this);
-  return MSpModelBase::get_msCp(MP_Gas, T, P, pMA);
+  
+  double baseCp = MSpModelBase::get_msCp(Phases, T, P, pMA);
+  if (Phases & MP_Gas) {
+    baseCp -= (HRes(T+deltaT, P)-HRes(T, P))/deltaT;
   }
-
+  return baseCp;
+}
 //---------------------------------------------------------------------------
 // Dew Point Calculation
 double TTGasSM::get_SaturationT(double P, MArray *pMA)
@@ -328,6 +308,7 @@ enum {
   idGasCp,
   idGasViscosity,
   idGasConductivity,
+  idThreeRootRegion,
   idMPI_EndOfProps };
 
 //---------------------------------------------------------------------------
@@ -347,6 +328,7 @@ static MPropertyInfo::MStringValueP SVGM[]={
   {0}};
 
 
+    return d.result
 
 #define MP_RN   MP_Result|MP_NoFiling
 #define MP_RNH  MP_Result|MP_NoFiling|MP_InitHidden
@@ -392,6 +374,8 @@ long TTGasSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
       Info.Set(ePT_Double,    "", "Viscosity",MC_Conc, "g/L",    0, 0,  MP_RN,    "Viscosity @T,P"); return Inx;
     case idGasConductivity:
       Info.Set(ePT_Double,    "", "Conductivity",MC_Conc, "g/L",    0, 0,  MP_RN,    "Conductivity @T,P"); return Inx;
+    case idThreeRootRegion:
+      Info.Set(ePT_Bool,"", "ThreeRootRgn",    MC_, "",    0, 0,    MP_RN | MP_CheckBox, ""); return Inx;
 
     case idMPI_EndOfProps : return MPI_EndOfProps;    
 
@@ -433,13 +417,14 @@ void TTGasSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*=NA
     {
       GV(GasModel, sm_i);
       GVAL2(DefineGas, fDoCalc);
-      GVAL2(GasMWT, get_MWT(NULL));
-      GVAL2(GasZ, SRKn(T, P, NULL));
+      GVAL2(GasMWT, MoleWt());
+      GVAL2(GasZ, GasZ(T, P));
       GVALFTP(HRes);
       GVALFTP(SRes);
       GVAL(RqdMWT);
       GVALFTP(GasDensity);
       GVAL2(NormalDensity, NormalDensity());
+      GVAL2(ThreeRootRegion, in3RootRgn);
     default: Value=0.0; return;
     }
   }
@@ -507,3 +492,35 @@ int cubic(double a1, double a2, double a3, double x[])
 	return 3;                          // Three real roots
     }                                      
 }
+/************
+fugacity (self, t, p, phase=None):
+        bib=[0.0]*self.nComp
+        aiaQ=[0.0]*self.nComp
+        c1=c2=0.0
+        for i in range(self.nComp):
+            g=self.gasList[i]
+            tci= g.tc 
+            pci= g.pc
+            bib[i]=tci/pci
+            m = 0.48 + g.wac * (1.574 - 0.176 * g.wac)
+            alphaQ = (1 + m * (1 - sqrt(t/tci)))
+            aiaQ[i]=tci*alphaQ/sqrt(pci)
+            c1+=self.x[i]*aiaQ[i]
+            c2+=self.x[i]*bib[i]
+        A=0.42747*p/(t*t)*c1*c1
+        B=0.08664*p/t*c2
+        z=cubic(-1., A - B * (1 + B), -A * B)
+        print z
+        for i in range(0, self.nComp):
+            bib[i]/=c2
+            aiaQ[i]/=c1
+        if phase:
+            z=z[1][-1]
+        else:
+            z=z[1][0]
+        result=[]
+        for i in range(0, self.nComp):
+            lnPHI=bib[i]*(z-1)-log(z-B)-A/B*(2*aiaQ[i]-bib[i])*log(1+B/z)
+            result.append(exp(lnPHI))
+        return result
+******************/

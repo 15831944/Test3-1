@@ -7,10 +7,17 @@
 #include "md_headers.h"
 #include <vector>
 
+
+#define MAXCOMP 40
+
 class TTGasSM; // forward declare
 int cubic(double a1, double a2, double a3, double x[]);
 
 //===========================================================================
+
+enum {phaseVap, phaseLiq};
+
+
 
 
 class TTGasSM : public MSpModelBase
@@ -28,8 +35,11 @@ class TTGasSM : public MSpModelBase
     double dRqdMWT;
     double m_dHRes;  // Save these when doing basic compressibility calc
     double m_dSRes;
+
+    double phiL1, phiV1;   // Single component fugacities
+    double phiL[MAXCOMP], phiV[MAXCOMP];
+    bool in3RootRgn;
     
-   
 
     static     CArray <int, int> LclParm;
   
@@ -50,11 +60,9 @@ class TTGasSM : public MSpModelBase
     double          get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
     double          get_SaturationT(double P, MArray *pMA);
     
-    double get_MWT(MArray *pMA);
     double idealCp(double T);
     double SRKn(double T, double P, MArray *pMA=NULL);
 
-  
     double HRes(double T, double P);
     double GRes(double T, double P);
     double SRes(double T, double P);
@@ -62,9 +70,7 @@ class TTGasSM : public MSpModelBase
     double Pc();
     
     double GasZ(double, double);
-    double GasCpCalc(double T, double P);
-    double GasEnthalpy(double T, double P);
-    double GasEntropy(double T, double P);
+
 
 
     // Define accessable "properties"
@@ -79,9 +85,12 @@ class TTGasSM : public MSpModelBase
     DDEF_Flags      FixSpEditFlags(DDEF_Flags Flags, int iSpid, bool AsParms);
 
   public:
-    //Other properties
-    double GasDensity(double T, double P) {return P*get_MWT(NULL)/(R_c*GTZ(T)*GasZ(T,P));}
-    double NormalDensity() {return 101.325/8.3143*get_MWT(NULL)/273.15;} // Density at atmospheric pressure and 0C
+    //Other properties  
+    // Fugacity coefficient for component i
+    double Phi(int i, int ph = phaseVap) {return (ph==phaseVap) ? phiV[i] : phiL[i];}
+    double GasDensity(double T, double P) {return P*MoleWt()/(R_c*GTZ(T)*GasZ(T,P));}
+ // Density at atmospheric pressure and 0C...
+    double NormalDensity() {return 101.325/8.3143*MoleWt()/273.15;}
   };
 
 #endif
