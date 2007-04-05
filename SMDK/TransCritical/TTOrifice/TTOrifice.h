@@ -17,6 +17,8 @@ SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM, SFM_Frozen, SFM_Default};
 
 enum OpMode {OM_Simple, OM_Full};
 
+static const int idDX_Desc1 = 1;
+static const int idDX_Desc2 = 2;
 
 
 double dcf(double);
@@ -46,7 +48,6 @@ class CTTOrifice : public MBaseMethod
     double HNEFlash(MStream, double, double alpha = 2.0, double flashmax = 0.14);
   protected:
     MVLEBlk         m_VLE;    // Vapor-Liquid equilibrium
-    CString         m_sDesc;
     bool bOn;     // Bypass if not...
     bool bPassThru;    // If on, pass stream through unaltered
     bool bControlValve;  // Include control valve dP
@@ -102,12 +103,16 @@ class CTTOrifice : public MBaseMethod
     double dValveData[11];  // Data for control valve, Cv at data points
     double dValveCv;  // Valve Cv at position
 
+    CString         m_sDesc1;
+    CString         m_sDesc2;
+
 #ifdef TTDEBUG
     double d_rEst;
     double dPCritEst;
     double dPMin, dPMax, dBeta;
     double dRhoData[30];
     double dPData[30];
+    double x_1, y_1, x_2, y_2;
 #endif
 
   };
