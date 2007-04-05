@@ -56,6 +56,7 @@ typedef DWORD DDEF_NElements;
 #define isTag               DDEF_TAGPARM
 #define isFunct             DDEF_FUNCTPARM
 #define isResult            DDEF_RESULT
+#define hasNoGrf            DDEF_TAGNOGRF
 #define noFile              DDEF_NOFILE
 #define noView              DDEF_NOVIEW
 #define noSnap              DDEF_NOSNAPSHOT

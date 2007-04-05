@@ -543,13 +543,14 @@ class DllImportExport CProjectSettings
 
 //===========================================================================
 // FindTagOptions
-const dword FTO_Null             = 0x00000000;
-const dword FTO_DoAccess         = 0x00000001;
-const dword FTO_MoveCursor       = 0x00000002;
-const dword FTO_HighliteKwik     = 0x00000004;
-const dword FTO_HighliteSlow     = 0x00000008;
-const dword FTO_NoErrDlg         = 0x00000010;
-const dword FTO_FindNext         = 0x00000020;
+const dword FTO_Null               = 0x00000000;
+const dword FTO_DoAccess           = 0x00000001;
+const dword FTO_MoveCursor         = 0x00000002;
+const dword FTO_HighliteKwik       = 0x00000004;
+const dword FTO_HighliteSlow       = 0x00000008;
+const dword FTO_NoErrDlg           = 0x00000010;
+const dword FTO_FindNext           = 0x00000020;
+const dword FTO_SkipNoGraphicsErr  = 0x00000040;
 
 //_FWDDEF(CProject)
 class DllImportExport CProject : public CExecObj, public CProjectSettings

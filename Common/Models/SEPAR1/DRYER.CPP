@@ -61,8 +61,8 @@ static IOAreaRec DryerIOAreaList[] =
   {{"Dryer Feed",          "Feed"      , ioidFd,   LIO_In0 ,    nc_MLnk, 1, 20, 0, 1.0f},
    {"Evaporated Moisture", "Moisture"  , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  0, (float)0.4},
    {"Dried Solids",        "Cake"      , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  0, 0.0f},
-   SPILL2AREA("Spills", IOId_Spill2Area),
-   VENT2AREA("Vents",   IOId_Vent2Area),
+   SPILL2AREA,
+   VENT2AREA,
    {NULL}};
 
 /*#G:This provides the default drawing of the Dryer.*/

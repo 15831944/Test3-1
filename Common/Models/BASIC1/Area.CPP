@@ -22,11 +22,11 @@
 
 static IOAreaRec CAreaIOAreaList[] =
   {
-    {"SpillIO",   "SpillIO",  IOId_AreaSpillI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
-    {"VentIO",    "VentIO",   IOId_AreaVentI,   LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
-    {"LeakIO",    "LeakIO",   IOId_AreaLeakI,   LIO_InOut,  nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
-    {"MakeupIO",  "MakeupIO", IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
-    {"BleedIO",   "BleedIO",  IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"SpillIO",   "Spls",   IOId_AreaSpillI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
+    {"VentIO",    "Vnts",   IOId_AreaVentI,   LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
+    {"LeakIO",    "Leak",  IOId_AreaLeakI,   LIO_InOut,  nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"Makeup",    "MUs",    IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"Bleed",     "BLs",    IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     {NULL}
   };
 
@@ -83,7 +83,7 @@ flag CArea::DataXchg(DataChangeBlk & DCB)
 
 static IOAreaRec MakeupSrcIOAreaList[] =
   {
-    {"MakeupIO",  "MakeupIO", IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"MakeupIO",  "Mu", IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     //{"BleedIO",   "BleedIO",  IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     //{"SpillIO",   "SpillIO",  IOId_AreaSpillI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
     //{"VentIO",    "VentIO",   IOId_AreaVentI,   LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
@@ -192,7 +192,7 @@ flag MakeupSrc::CIStrng(int No, pchar & pS)
 static IOAreaRec BleedSnkIOAreaList[] =
   {
     //{"MakeupIO",  "MakeupIO", IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
-    {"BleedIO",   "BleedIO",  IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"BleedIO",   "Bl",  IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     //{"SpillIO",   "SpillIO",  IOId_AreaSpillI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
     //{"VentIO",    "VentIO",   IOId_AreaVentI,   LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
     //{"LeakIO",    "LeakIO",   IOId_AreaLeakI,   LIO_InOut,  nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},

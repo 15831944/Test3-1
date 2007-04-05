@@ -100,6 +100,7 @@
 #define SUB_TAG_MDLHELP                      0x0040
 #define SUB_TAG_COPYBLK                      0x0080
 #define SUB_TAG_ACCREFRESHSAVE               0x0100
+#define SUB_TAG_NOGRAPHICS                   0x0200
 
 //#define SUB_TAG_FIND_NOERRDLG                 (SUB_TAG_FIND                     |SUB_TAG_NOERRDLG                   )
 //#define SUB_TAG_FIND_KWIK                     (SUB_TAG_FIND                                            |SUB_TAG_KWIK)

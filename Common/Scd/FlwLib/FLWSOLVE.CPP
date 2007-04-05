@@ -10037,6 +10037,13 @@ TaggedObject * CFlwSolver::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagL
   if (pObj)
     return pObj;
 
+  CConnect * pConn=FlwNode::FindConnect(pSrchTag, SrchAll, ObjTagLen, MinTagLen);
+  if (pConn)
+    {
+    pObj=dynamic_cast<TaggedObject*>(pConn);
+    return pObj;
+    }
+
   pObj=TearVarBlk::staticFindObjTag(pSrchTag, SrchAll, ObjTagLen, MinTagLen);
   if (pObj)
     return pObj;

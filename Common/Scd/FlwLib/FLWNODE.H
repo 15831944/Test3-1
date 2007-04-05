@@ -469,6 +469,7 @@ XID xidRmtTagConnd      = MdlBsXID(5204);
 XID xidDrctQm           = MdlBsXID(5205);
 XID xidDrctEnable       = MdlBsXID(5206);
 XID xidConnectState     = MdlBsXID(5207);
+XID xidFlangeTag        = MdlBsXID(5208);
 
 enum eDirectIO
   {
@@ -1423,37 +1424,35 @@ class DllImportExport CConnect : public CSFGNodeInfo
     CRITICAL_SECTION m_LockSect;
 
   public:
-    dword          m_dwID;
-    flag           m_fIsEvalSeqStart;
-    FlwNode*       m_pNdSrc;
-    FlwNode*       m_pNdDst;
-    int            m_iIOSrc;
-    int            m_iIODst;
-
     CConnect(dword ID);
     virtual ~CConnect();
 
     void           Lock() { EnterCriticalSection(&m_LockSect); };
     void           UnLock() { LeaveCriticalSection(&m_LockSect); };
     // Utilities
-    void           ClrConnection() { m_pNdSrc=m_pNdDst=NULL; };
-    void           SetConnection(FlwNode* pNdSrc_, int iIOSrc_, FlwNode* pNdDst_, int iIODst_)
-                               { m_pNdSrc=pNdSrc_; m_iIOSrc=iIOSrc_; m_pNdDst=pNdDst_; m_iIODst=iIODst_; };
-    void           AdjustConnection(FlwNode* This, int By)
-                               { if (m_pNdSrc==This)
-                                   m_iIOSrc=m_iIOSrc+By;
-                                 else
-                                   m_iIODst=m_iIODst+By; };
-    flag           Connected() { return (m_pNdSrc!=NULL); };
+    void           ClrConnection();
+    void           SetConnection(FlwNode* pNdSrc_, int iIOSrc_, FlwNode* pNdDst_, int iIODst_);
+    void           AdjustConnection(FlwNode* This, int By);
+    flag           Connected()                  { return (m_pNdSrc!=NULL); };
+    void           SetIsEvalSeqStart(flag On)   { m_fIsEvalSeqStart=On; };
+    flag           IsEvalSeqStart()             { return m_fIsEvalSeqStart; };
 
-    void           SetIsEvalSeqStart(flag On) { m_fIsEvalSeqStart=On; };
-    flag           IsEvalSeqStart() { return m_fIsEvalSeqStart; };
-
+    void           FixTag();
     char *         FullTag();
 
     // CSFGNodeInfo Overides
     virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullTag(); };
     virtual CSFGNodeInfo * SFGNodePtr() { return this;};
+
+
+  public:
+    dword          m_dwID;
+    flag           m_fIsEvalSeqStart;
+    FlwNode*       m_pNdSrc;
+    FlwNode*       m_pNdDst;
+    int            m_iIOSrc;
+    int            m_iIODst;
+    Strng          m_FullTag;
   };
 
 // =========================================================================
@@ -1519,11 +1518,25 @@ const int MaxFlangeQs = 2;
 const int MaxMSRqd    = 5;
 #endif
 
-class DllImportExport CFlange : public TearPosBlk, public CConnect
+DEFINE_TAGOBJ(CFlange)
+class DllImportExport CFlange : public TearPosBlk, public CConnect, public TaggedObject
   {
+  //DEFINE_MEMSTATS(CFlange)
+  //public:
+  //  CFlange(bool MustDelete=false);
+  //  virtual ~CFlange();
+
+
   public:
-    CFlange(bool MustDelete=false);
+    CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CFlange();
+
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual pchar  Tag(pchar ReqdTag=NULL);
+
 
     // Tear Flanges - to Break Recycles
     void           SetTearType(byte Type, FlwNode* pNd);
@@ -1775,21 +1788,21 @@ DllImportExport IOAreaRec TwoIOAreaListWithBS[];
 DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 
 #define MAKEUP2AREA() /*==MaxNdMakeups*/                                                                                                         \
-  {"", "Makeup1", IOId_Makeup2Area,   LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Makeup2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Makeup3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Makeup4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Makeup5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-
+  {"", "MU1", IOId_Makeup2Area,   LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "MU2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "MU3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "MU4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+         
 #define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                          \
-  {"", "Bleed1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Bleed2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Bleed3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Bleed4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "Bleed5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+  {"", "BL1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "BL2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "BL3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "BL4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
+  {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 
-#define SPILL2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-#define VENT2AREA(Tg,Id)   {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+#define SPILL2AREA         {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+#define VENT2AREA          {"", "Vnt",   IOId_Vent2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
 #define LEAKS2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide|IOEqnsHide|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup}
 
 const int MaxIOList       = 32000;
@@ -3405,6 +3418,9 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   DataXchgDefnAreaIOs(DataChangeBlk & DCB);
     virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
 
+     // CTNode override
+    virtual pchar  Tag(pchar ReqdTag=NULL);
+  
     FlwNode*       InsertRoot(char * TagIn);
     FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1);
@@ -3430,6 +3446,11 @@ class DllImportExport FlwNode : public CTNode
     void           RequestGlobalReconnect();
     void           DoGlobalDisconnect();
     void           DoGlobalConnect();
+
+    static void    RemoveFromConnects(LPSTR ConnTag); 
+    static void    AddToConnects(LPSTR ConnTag, CConnect * pConnect); 
+    static flag    FindConnect(LPSTR ConnTag, CConnect * pConnect); 
+    static CConnect * FindConnect(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
 
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
@@ -4456,6 +4477,9 @@ class DllImportExport FlwNode : public CTNode
     CMap<CString, LPCTSTR, SpConduit*, SpConduit*> WrkConduits;
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;
 
+    //static CArray<CConnect*, CConnect*> sm_Connects;
+    static CMap<LPSTR, LPSTR, CConnect*, CConnect*> sm_ConnectsMap;
+   
     CRITICAL_SECTION m_LockSect;
 
 

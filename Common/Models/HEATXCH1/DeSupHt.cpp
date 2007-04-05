@@ -24,8 +24,8 @@ static IOAreaRec DeSuperHeaterIOAreaList[] =
   {{"",   "SteamIn",    ioidSteamIn,  LIO_In0,     nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
   {"",    "FeedLiquor", ioidFeedLiq,  LIO_In1,     nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
   {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOOptsHide|IOPipeJoin|IOGRP(1)}, //IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
-  SPILL2AREA("Spills", IOId_Spill2Area),
-  VENT2AREA("Vents",   IOId_Vent2Area),
+  SPILL2AREA,
+  VENT2AREA,
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 XID xid_DegSuperHeat  = MdlBsXID(4505);

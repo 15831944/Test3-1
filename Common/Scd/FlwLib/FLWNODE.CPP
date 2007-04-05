@@ -290,8 +290,8 @@ IOAreaRec TwoIOAreaList[] =
 IOAreaRec TwoIOAreaListWithS[] =
   {
     TWOIOSTD,
-    SPILL2AREA("Spills", IOId_Spill2Area),
-    //VENT2AREA("Vents",   IOId_Vent2Area),
+    SPILL2AREA,
+    //VENT2AREA,
     {NULL}
   };
 IOAreaRec TwoIOAreaListWithL[] =
@@ -304,8 +304,8 @@ IOAreaRec TwoIOAreaListWithL[] =
 IOAreaRec TwoIOAreaListWithSL[] =
   {
     TWOIOSTD,
-    SPILL2AREA("Spills", IOId_Spill2Area),
-    //VENT2AREA("Vents",   IOId_Vent2Area),
+    SPILL2AREA,
+    //VENT2AREA,
     LEAKS2AREA("LeaksI", IOId_2IOLeakI),
     LEAKS2AREA("LeaksO", IOId_2IOLeakO),
     {NULL}
@@ -313,8 +313,8 @@ IOAreaRec TwoIOAreaListWithSL[] =
 IOAreaRec TwoIOAreaListWithSV[] =
   {
     TWOIOSTD,
-    SPILL2AREA("Spills", IOId_Spill2Area),
-    VENT2AREA("Vents",   IOId_Vent2Area),
+    SPILL2AREA,
+    VENT2AREA,
     //LEAKS2AREA("LeaksI", IOId_2IOLeakI),
     //LEAKS2AREA("LeaksO", IOId_2IOLeakO),
     {NULL}
@@ -322,14 +322,14 @@ IOAreaRec TwoIOAreaListWithSV[] =
 IOAreaRec TwoIOAreaListWithBS[] =
   {
     TWOIOSTD,
-    SPILL2AREA("Spills", IOId_Spill2Area),
+    SPILL2AREA,
     BLEED2AREA(),
     {NULL}
   };
 IOAreaRec TwoIOAreaListWithMBS[] =
   {
     TWOIOSTD,
-    SPILL2AREA("Spills", IOId_Spill2Area),
+    SPILL2AREA,
     MAKEUP2AREA(),
     BLEED2AREA(),
     {NULL}
@@ -350,6 +350,92 @@ IOAreaRec TwoIOAreaListWithMBS[] =
   for (iQ=0, pQC=TagObjClass::FindGroupId(SpQuality::GroupName);   \
        pSQC=dynamic_cast<SQTagObjClass *>(pQC), pQC!=NULL;         \
        iQ++, pQC=pQC->NextClassInGrp())
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+pchar FlwNode::Tag(pchar ReqdTag) 
+  { 
+  CTNode::Tag(ReqdTag);
+  //rename all connections
+  // for all connects 
+  //   connect[i]->FixTag()
+  return CTNode::Tag(); 
+  };
+
+//--------------------------------------------------------------------------
+
+void FlwNode::RemoveFromConnects(LPSTR ConnTag)
+  {
+  if (ConnTag)
+    {
+    sm_ConnectsMap.RemoveKey(ConnTag);
+    dbgpln("<<< %s", ConnTag);
+    }
+  }; 
+void FlwNode::AddToConnects(LPSTR ConnTag, CConnect * pConnect)
+  {
+  if (sm_ConnectsMap.GetHashTableSize()<1000)
+    {
+    //sm_Connects.SetSize(0, 256);
+    sm_ConnectsMap.InitHashTable(5001);
+    }
+  sm_ConnectsMap.SetAt(ConnTag, pConnect);
+  dbgpln(">>> %s", ConnTag);
+  }; 
+
+//--------------------------------------------------------------------------
+
+CConnect * FlwNode::FindConnect(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen)
+  {
+  if (pSrchTag==NULL)
+    return NULL;
+
+  ObjTagLen=0;
+  int P1=0,L=0;
+  CConnect * pRet=NULL;
+  flag Looking=1;
+
+  // Look for tag while expanding the 
+  // length of the SrchTag until found or not
+  int NDots=0;
+  //flag MoveDown=0;
+  while (Looking)// && !MoveDown)
+    {
+    SCDFullTag SrchTag;
+    strcpy(SrchTag, &pSrchTag[P1]);
+    char * pDot=strchr(&SrchTag[MinTagLen], '.');
+    for (int d=0; pDot && (d<NDots) ; d++)
+      pDot=strchr(pDot+1, '.');
+    if (pDot)
+      *pDot=0; // Truncate @ Dot
+    CConnect * p;
+    if (sm_ConnectsMap.Lookup(SrchTag, p))
+      {
+      // Move down a level and search it
+      //ObjTagLen=P1;
+      ObjTagLen=P1+strlen(SrchTag);
+      P1+=strlen(SrchTag);
+      if (pSrchTag[P1]=='.')
+        P1++;
+      pRet=p;
+      //MoveDown=1;
+      Looking=(strlen(&pSrchTag[P1])>0);
+      NDots=0;
+      MinTagLen=0;
+      }
+    else if (pDot) // More Tag to search
+      NDots++;
+    else    // End Of Tag & Not Found
+      Looking=0;
+    }
+
+  //ObjTagLen=P1;
+  return pRet;
+  };
 
 //===========================================================================
 //
@@ -381,24 +467,72 @@ CConnect::~CConnect()
   {
   DeleteCriticalSection(&m_LockSect);
   };
+// --------------------------------------------------------------------------
+                   
+void  CConnect::ClrConnection() 
+  { 
+  m_pNdSrc=m_pNdDst=NULL; 
+  FixTag();
+  };
+void  CConnect::SetConnection(FlwNode* pNdSrc_, int iIOSrc_, FlwNode* pNdDst_, int iIODst_)
+  {
+  m_pNdSrc=pNdSrc_; 
+  m_iIOSrc=iIOSrc_; 
+  m_pNdDst=pNdDst_; 
+  m_iIODst=iIODst_; 
+  FixTag();
+  }
+void CConnect::FixTag()
+  {
+  if (m_FullTag())
+    FlwNode::RemoveFromConnects(m_FullTag()); 
+
+  if (m_pNdSrc && m_pNdDst)
+    {
+    //m_FullTag=m_pNdSrc->FullIOTag(OId_NodeIO, m_pNdSrc->IODescNo_Self(m_iIOSrc), TU_IndividuallyUnique, false);
+    //m_FullTag+="/";
+    //m_FullTag+=m_pNdDst->FullIOTag(OId_NodeIO, m_pNdDst->IODescNo_Self(m_iIODst), TU_IndividuallyUnique, false);
+    m_FullTag.Set("%s[%s]/%s[%s]",
+      m_pNdSrc->FullObjTag(),
+      m_pNdSrc->IODesc_Self(m_iIOSrc)->IOName(),
+      m_pNdDst->FullObjTag(),
+      m_pNdDst->IODesc_Self(m_iIODst)->IOName());
+    //m_FullTag+="/";
+    //m_FullTag+=m_pNdDst->FullIOTag(OId_NodeIO, m_pNdDst->IODescNo_Self(m_iIODst), TU_IndividuallyUnique, false);
+    }
+  else
+    m_FullTag="";
+
+  if (m_FullTag())
+    FlwNode::AddToConnects(m_FullTag(), this); 
+  };
+void CConnect::AdjustConnection(FlwNode* This, int By)
+  {
+  if (m_pNdSrc==This)
+    m_iIOSrc=m_iIOSrc+By;
+  else
+    m_iIODst=m_iIODst+By; 
+  };
 
 char * CConnect::FullTag()
   {
-  const int FullTagBuffLen = 512;//1024;
-  static char FullTagBuff[4][FullTagBuffLen];
-  static int  FullTagInX=-1;
+  //const int FullTagBuffLen = 512;//1024;
+  //static char FullTagBuff[4][FullTagBuffLen];
+  //static int  FullTagInX=-1;
 
-  FullTagInX=(FullTagInX+1)%4;
-  FullTagBuff[FullTagInX][0]=0;
-  if (m_pNdSrc)
-    strcpy(FullTagBuff[FullTagInX], m_pNdSrc->FullObjTag());
-  strcat(FullTagBuff[FullTagInX], "//");
-  if (m_pNdDst)
-    strcat(FullTagBuff[FullTagInX], m_pNdDst->FullObjTag());
+  //FullTagInX=(FullTagInX+1)%4;
+  //FullTagBuff[FullTagInX][0]=0;
+  //if (m_pNdSrc)
+  //  strcpy(FullTagBuff[FullTagInX], m_pNdSrc->FullObjTag());
+  //strcat(FullTagBuff[FullTagInX], "//");
+  //if (m_pNdDst)
+  //  strcat(FullTagBuff[FullTagInX], m_pNdDst->FullObjTag());
 
-  ASSERT(strlen(FullTagBuff[FullTagInX])<FullTagBuffLen);
-  return FullTagBuff[FullTagInX];
+  //ASSERT(strlen(FullTagBuff[FullTagInX])<FullTagBuffLen);
+  //return FullTagBuff[FullTagInX];
+  return m_FullTag();
   };
+
 
 //===========================================================================
 //
@@ -571,13 +705,17 @@ void FlangeTearVarBlk::OnEditDestroy()
 byte CFlange::iMkUpOKCurr=0;
 byte CFlange::iMkUpOKNext=0;
 
-CFlange::CFlange(bool MustDelete) :
+IMPLEMENT_TAGOBJ(CFlange, "Flange", "Flange", "", "", "Flng", TOC_SYSTEM, "FlangeGroup", "")
+
+CFlange::CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
+//CFlange::CFlange(bool MustDelete) :
+  TaggedObject(pClass_, TagIn, pAttach, eAttach),
   TearPosBlk(TT_NoTear),
   CConnect(Connect_Flange)
   {
   //InitializeCriticalSection(&ConnectLockSect);
   m_Attachments=0;
-  m_bMustDelete=MustDelete;
+  m_bMustDelete=false;//MustDelete;
 
   m_Datum=0.0;
   m_DeltaZ=0.0;
@@ -632,6 +770,41 @@ CFlange::~CFlange()
 #endif
 
   //DeleteCriticalSection(&ConnectLockSect);
+  };
+
+// --------------------------------------------------------------------------
+
+pchar CFlange::Tag(pchar ReqdTag)
+  {
+  return FullTag();
+  };
+
+// --------------------------------------------------------------------------
+
+void CFlange::BuildDataDefn(DataDefnBlk & DDB)
+  {
+  DDB.BeginStruct(this);
+
+  DDB.Object(ConduitIO(), this, "Q");
+  DDB.EndStruct();
+  };
+
+// --------------------------------------------------------------------------
+
+flag CFlange::DataXchg(DataChangeBlk & DCB)
+  {
+  if (ConduitIO()->DataXchg(DCB))
+    return 1;
+  return 0;
+  };
+
+// --------------------------------------------------------------------------
+
+flag CFlange::ValidateData(ValidateDataBlk & VDB)
+  {
+  if (!ConduitIO()->ValidateData(VDB))
+    return false;
+  return true;
   };
 
 // --------------------------------------------------------------------------
@@ -1906,6 +2079,9 @@ long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_AuditOption     = Audit_Off;
 bool gs_FSIdleRequested = false;
+
+//CArray<CConnect*, CConnect*> FlwNode::sm_Connects;
+CMap<LPSTR, LPSTR, CConnect*, CConnect*> FlwNode::sm_ConnectsMap;
 
 // --------------------------------------------------------------------------
 
@@ -5852,7 +6028,9 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, /*CFlange* pF, C
           pF=Info[i].p->GetFlange(Info[i].Id);
         if (!pF)
           {
-          pF=new CFlange(true);
+          // pF = new CFlange(true);
+          pF = (CFlange*)CFlangeClass.Construct("Flange" ,"SomeFlng" ,NULL , TOA_Free);// new CFlange(true);
+          pF->m_bMustDelete=true;
           }
         else
           {
@@ -5963,7 +6141,11 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
         for (int i=0; !pF && i<2; i++)
           pF=Info[i].p->GetFlange(Info[i].Id);
         if (!pF)
-          pF=new CFlange(true);
+          {
+          //pF=new CFlange(true);
+          pF= (CFlange*)CFlangeClass.Construct("Flange" ,"SomeFlng" ,NULL , TOA_Free);// new CFlange(true);
+          pF->m_bMustDelete=true;
+          }
         }
       CTerminal *pT = NULL;
       if (dwClass0&nc_CLnk)
@@ -10613,7 +10795,9 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   //  delete m_pSum;
   if (HasConduit && (m_pFlng == NULL))
     {
-    m_pFlng         = new CFlange;
+    //m_pFlng         = new CFlange;
+    m_pFlng = (CFlange*)CFlangeClass.Construct("Flange" ,"SomeFlng" ,NULL , TOA_Free);
+    m_pFlng->m_bMustDelete=false;
     m_pSum          = &m_pFlng->m_Sum;
     m_bDeleteSum    = false;
     }
@@ -10669,7 +10853,7 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR T
         {TOD_Disconected , "Disconected"    },
         {0}
       };
-
+    DDB.String  ("Flange",             "",       DC_,      "",   xidFlangeTag,    m_pNd, isResult|isTag|hasNoGrf);
     DDB.Byte    ("Connect",            "",       DC_,      "",   xidConnectState, m_pNd, 0, DDBConnected);
     //DDB.String  ("Area",        "",       DC_,      "",       xidRmtTagConnd,  m_pNd, 0);
     //DDB.TagComment(m_sAreaSrc());
@@ -10739,6 +10923,10 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       DCB.pC=(LPTSTR)TargetStr(DCB.ForFileSnpScn()!=0);
       return 1;
 
+    case xidFlangeTag:
+      DCB.pC=m_pFlng ? m_pFlng->Tag():"";
+      return 1;
+    
     case xidRmtTagConnd:
       DCB.pC=m_pRmt.m_sTag();
       return 1;

@@ -58,8 +58,8 @@ const byte ioid_Product      = 1;
 static IOAreaRec PrecipIOAreaList[] =
   {{"Feed",     "Feed",      ioid_Feed    , LIO_In0 ,    nc_MLnk, 1, 20,     0, 1.0f},
    {"Product", "Product",    ioid_Product , LIO_Out0,    nc_MLnk, 1,  1,     0, (float)0.5},
-   SPILL2AREA("Spills", IOId_Spill2Area),
-   VENT2AREA("Vents",   IOId_Vent2Area),
+   SPILL2AREA,
+   VENT2AREA,
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

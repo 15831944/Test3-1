@@ -91,8 +91,8 @@ XID xidBalance          = ModelXID(4003);
 static IOAreaRec BeltCnvIOAreaList[] =
   {{"Feeds",        "Feed"     , idFeed, LIO_In0 ,    nc_MLnk, 0, 20, IOSetXfer|IOGRP(0)},
    {"Products",     "Prod"     , idProd, LIO_Out0,    nc_MLnk, 0, 20, IOSetXfer|IOGRP(0)},
-   SPILL2AREA("Spills", IOId_Spill2Area),
-   VENT2AREA("Vents",   IOId_Vent2Area),
+   SPILL2AREA,
+   VENT2AREA,
    {"ElecSupply",    "ElecIn",      EIOId_Supply, LIO_In , nc_ELnk, 0,50},
    {NULL}}; //This lists the areas of the model where links can be attached.
 

@@ -64,8 +64,8 @@ static IOAreaRec WasherIOAreaList[] =
     {"Washer Overflow",  "OverFlow"  , ioidOF,   LIO_Out0, nc_MLnk, 1, 1, IOPipeEntry, (float)0.98},
     {"Washer Underflow", "UnderFlow" , ioidUF,   LIO_Out1, nc_MLnk, 1, 1, IOPipeEntry, 0.0f},
     {"",                 "Vent"      , ioidVent, LIO_Out , nc_MLnk, 0, 1, IOPipeEntry, 1.0f},
-    SPILL2AREA("Spills", IOId_Spill2Area),
-    VENT2AREA("Vents",   IOId_Vent2Area),
+    SPILL2AREA,
+    VENT2AREA,
     {NULL}
   };
 

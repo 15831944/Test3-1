@@ -158,8 +158,8 @@ static IOAreaRec FlashTankIOAreaList[] =
 #if WITHNONCONDENSABLES
   {"NonCond Vent", "NonCondVent",ioidFT_NCVent, LIO_Out, nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
 #endif
-  SPILL2AREA("Spills", IOId_Spill2Area),
-  VENT2AREA("Vents",   IOId_Vent2Area),
+  SPILL2AREA,
+  VENT2AREA,
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 

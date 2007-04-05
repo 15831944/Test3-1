@@ -3644,7 +3644,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
               char* pTxt = NULL;
               pTxt = new char[sLastSelected[0].GetLength()+1];
               strcpy(pTxt, (LPSTR)(LPCSTR)sLastSelected[0]);
-              ScdMainWnd()->PostMessage(WMU_TAGACTION, TryAccess ? SUB_TAG_MARK|SUB_TAG_ACCESS : SUB_TAG_MARK, (LPARAM)pTxt);
+              ScdMainWnd()->PostMessage(WMU_TAGACTION, (TryAccess ? SUB_TAG_ACCESS : 0)|SUB_TAG_MARK|SUB_TAG_NOGRAPHICS, (LPARAM)pTxt);
               }
             }
           }

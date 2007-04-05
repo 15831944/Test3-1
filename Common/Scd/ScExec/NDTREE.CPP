@@ -154,7 +154,7 @@ TaggedObject * CTNode::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, 
       pRet=SrchRoot;
       }
   
-    CTNode* p=NULL;
+    //CTNode* p=NULL;
     flag Looking=1;
 
     // Look for tag while expanding the 

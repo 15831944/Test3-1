@@ -378,8 +378,8 @@ static IOAreaRec TankIOAreaList[] =
     {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1)},
     {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1)},
     {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1)},
-    SPILL2AREA("Spills", IOId_Spill2Area),
-    VENT2AREA("Vents",   IOId_Vent2Area),
+    SPILL2AREA,
+    VENT2AREA,
     MAKEUP2AREA(),
     BLEED2AREA(),
     {NULL}
