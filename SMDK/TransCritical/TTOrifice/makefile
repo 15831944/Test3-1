@@ -12,13 +12,8 @@ PRECIP_OBJ = precip.obj
 OBJS = TTFT.obj TTOrifice.obj utils.obj
 LIBS = SMDK1.lib scdlib.lib
 
-ifeq ($(SYSCAD),91)
- IDIR = "..\..\smdk\Include"
- LDIR = "..\..\smdk\bin\rls"
-else
- IDIR = "..\..\include"
- LDIR = "..\..\bin\rls"
-endif
+IDIR = "..\..\smdk\Include"
+LDIR = "..\..\smdk\bin\rls"
 
 
 
