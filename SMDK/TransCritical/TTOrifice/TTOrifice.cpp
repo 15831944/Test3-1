@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-04-03 08:38:58 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-04-10 06:04:20 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -279,6 +279,7 @@ void CTTOrifice::BuildDataFields()
 
   DD.String("OPMode", "OPMode", idDX_Desc1, MF_RESULT);
   DD.String("EntryCond", "EntryCond", idDX_Desc2, MF_RESULT);
+  DD.String("ValveCond", "ValveCond", idDX_Desc3, MF_RESULT);
 
   DD.Double ("PipeD", "", &dPipe, MF_PARAMETER, MC_L("mm"));
   DD.Double ("PipeVelocity", "", &dPipeVelocity, MF_RESULT, MC_Ldt("m/s"));
@@ -288,6 +289,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
   DD.Double("OrificeHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
+  DD.Double("PipePressureDrop", "", &dPPipe, MF_RESULT, MC_P("kPa"));
   DD.Show(bControlValve);
   DD.Double("ValvePosition", "", &dValvePosition, MF_PARAMETER, MC_Frac("%"));
   DD.Double("ValveK", "", &dValveK, MF_RESULT, MC_None);
@@ -446,7 +448,7 @@ void CTTOrifice::EvalProducts()
       dPipeVelocity = InStream.Volume()/area;
       dGIn = dMassFlow1/area;
 
-      double dP1 = .5*dEntryK*Sqr(dGIn)/den/1000.;   // Pipe dP up to valve/orifice
+      dPPipe = .5*dEntryK*Sqr(dGIn)/den/1000.;   // Pipe dP up to valve/orifice
       if (bControlValve) {
 	dValveCv = ValveCv();
 	if (dValveCv > 1.0) {
@@ -455,12 +457,15 @@ void CTTOrifice::EvalProducts()
 	} else {
 	  bValveFlash = true;
 	}
-      } else dPValve=0.0;
+      } 
+      else dPValve=0.0;
 
-      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dP1;
-      if (dPOrificeIn - dPValve < dFlashP && bControlValve) {
-	Log.SetCondition(true, 0, MMsg_Warning, "Flashing in Valve");
-      }
+      dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dPPipe;
+      if (dPOrificeIn - dPValve < dFlashP && bControlValve) 
+	m_sDesc3 = "Flashing";
+      else
+	m_sDesc3 = "Single Phase"; 
+       
 	
 
       dPOrificeIn -= dPValve;
@@ -775,6 +780,9 @@ bool CTTOrifice::ExchangeDataFields()
       return true;
     case idDX_Desc2:
       DX.String=(LPCSTR) m_sDesc2;
+      return true;
+    case idDX_Desc3:
+      DX.String=(LPCSTR) m_sDesc3;
       return true;
     }
   return false;

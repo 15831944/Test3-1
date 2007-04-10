@@ -17,9 +17,8 @@ SFM_Baro,  SFM_Mood,  SFM_Wall,  SFM_HNEM, SFM_Frozen, SFM_Default};
 
 enum OpMode {OM_Simple, OM_Full};
 
-static const int idDX_Desc1 = 1;
-static const int idDX_Desc2 = 2;
 
+enum {idDX_Desc1,idDX_Desc2,idDX_Desc3 }; 
 
 double dcf(double);
 double betaCoeff(double *pdata, double* rhodata, int n);
@@ -88,6 +87,7 @@ class CTTOrifice : public MBaseMethod
     double dPCritical;  // Critical Pressure in orifice choke flow
     double dPOutActual;
     double dPValve;         // (Variable) Pressure drop in valve
+    double dPPipe;          // Pressure drop up to valve
     double dValvePosition;  // Position of valve, 0-100%
     double dSinglePhaseDP;
     double dValvePressureDrop;
@@ -105,6 +105,7 @@ class CTTOrifice : public MBaseMethod
 
     CString         m_sDesc1;
     CString         m_sDesc2;
+    CString         m_sDesc3;  // Valve Condition
 
 #ifdef TTDEBUG
     double d_rEst;
