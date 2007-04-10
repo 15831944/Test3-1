@@ -328,7 +328,6 @@ static MPropertyInfo::MStringValueP SVGM[]={
   {0}};
 
 
-    return d.result
 
 #define MP_RN   MP_Result|MP_NoFiling
 #define MP_RNH  MP_Result|MP_NoFiling|MP_InitHidden
