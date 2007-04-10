@@ -73,6 +73,9 @@ void CLimnStream::CFeed::ValidateData(CArray<double, double> & Data)
 //
 //===========================================================================
 
+long CLimnStream::sm_GlblId=0;
+
+
 IMPLEMENT_SPECIEQUALITY(CLimnStream, "LimnStream", "Limn Stream", "Limn Stream Description", DLL_GroupName)
 
 CLimnStream::CLimnStream(TaggedObject * pNd)
@@ -98,7 +101,7 @@ CLimnStream::CLimnStream(TaggedObject * pNd)
 
   if (DoDbg)
     {
-    Dbg.PrintLn("CLimnStream::CLimnStream");
+    Dbg.PrintLn("CLimnStream::[%6i] CTOR", (m_Id=sm_GlblId++));
     //Dump();
     }
   }
@@ -109,7 +112,7 @@ CLimnStream::~CLimnStream()
   {
   delete m_pFeed;
   if (DoDbg)
-    Dbg.PrintLn("CLimnStream::~CLimnStream");
+    Dbg.PrintLn("CLimnStream::[%6i] DTOR", m_Id);
   }
 
 //---------------------------------------------------------------------------
@@ -909,7 +912,7 @@ void CLimnStream::AddDiscrete(MVector &V2, MSpQualityBase * pQual2, double Sgn_,
 
 void CLimnStream::Dump(LPCTSTR Where, DWORD What) 
   {
-  if (What)
+  if (0 && What)
     {
     Dbg.Lock();
     Dbg.PrintLn("Dump %s ----------------------------------------- %s : %s", m_bIsMassForm?"MassForm":"FracForm", Where, Tag);

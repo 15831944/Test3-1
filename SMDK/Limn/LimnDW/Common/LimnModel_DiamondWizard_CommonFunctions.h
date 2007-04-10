@@ -167,7 +167,7 @@ class CLimn_ModelData_Access
           {
           m_Base.m_Data[i] *= m_Base.m_Defs[i]->m_Scale; 
 #ifdef LIMNDW
-          gs_Dbg.PrintLn("Scale   :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+          //gs_Dbg.PrintLn("Scale   :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
 #endif // LIMNDW
           }
         }
@@ -180,7 +180,7 @@ class CLimn_ModelData_Access
           {
           m_Base.m_Data[i] /= m_Base.m_Defs[i]->m_Scale;
 #ifdef LIMNDW
-          gs_Dbg.PrintLn("UnScale :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
+          //gs_Dbg.PrintLn("UnScale :%-25s %10.4f %10.4f", m_Base.m_Defs[i]->m_Tag, m_Base.m_Data[i], m_Base.m_Defs[i]->m_Scale );
 #endif // LIMNDW
           }
         }

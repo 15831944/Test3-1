@@ -246,7 +246,7 @@ int _Model_DiamondWizard_DualEfficiencyCurve (int nRows,
 				Product3[idx] = strmOversize[idx] ;
 
 			switch( streamUS )
-			{
+			{ 
 			case 2:
 				for ( idx = 0 ; idx < nComponents ; idx++ )
 				{
@@ -264,7 +264,12 @@ int _Model_DiamondWizard_DualEfficiencyCurve (int nRows,
 			}
 			break;
 		}	
-			
+		
+		delete[] strmOversize ;
+		delete[] strmTopDeckUS;
+		delete[] strmMids;
+		delete[] strmUndersize;
+
 		return 0 ;
 	}
 	else

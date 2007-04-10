@@ -382,6 +382,9 @@ m_SelectData(this)
   m_bIsCOMClass=false;
   m_sProgID="";
 
+  m_nInstances = 0;
+  m_nInstancesMax = 0;
+
 //  m_pPropertyMap=NULL;
 
   #if dbgConstructObj

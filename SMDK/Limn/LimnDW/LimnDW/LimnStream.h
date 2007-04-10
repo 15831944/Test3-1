@@ -144,6 +144,9 @@ class CLimnStream : public MSpQualityBase
 
     CArray<double, double&> m_Results;
 
+    long                    m_Id;
+    static long             sm_GlblId;
+
     static CString          sm_sBaseTag;
     static double           sm_BaseCarats;
     static double           sm_BaseRevenue;

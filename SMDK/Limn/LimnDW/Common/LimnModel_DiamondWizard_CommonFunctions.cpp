@@ -371,6 +371,7 @@ bool CLimn_ModelData_Base::ExchangeDataFields(MDataChange & DX)
 #ifdef LIMNDW  //////////////////SysCAD data exchange class method implementations
 void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
   {
+  const int ArrayDbg=0;
 
   DD.Text("Parameters...");
   //DD.Text("");
@@ -438,7 +439,8 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
           //Cls.Format("DW_%s",D.m_Class);
           DD.ArrayBegin(D.m_Class, D.m_Tag, D.m_ArrayLen,0);
 
-          gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
+          if (ArrayDbg)
+            gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
           }
 
         if (InArray)
@@ -447,7 +449,9 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
             DD.ArrayElementStart(D.m_iIndex, FS);
           else
             DD.ArrayElementStart(D.m_sIndex, FS);
-          gs_Dbg.PrintLn("ArrayEle  %s %i %s", D.m_Tag, D.m_iIndex, D.m_sIndex);
+          if (ArrayDbg)
+            gs_Dbg.PrintLn("ArrayEle  %s %i %s", D.m_Tag, D.m_iIndex, D.m_sIndex);
+          
           CString S;
           //S.Format("%s[%s]", D.m_Tag, D.m_Index);
           //S=D.m_Index;
@@ -469,7 +473,8 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
         if (D.m_ArrayEnd)
           {
           DD.ArrayEnd(0);
-          gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
+          if (ArrayDbg)
+            gs_Dbg.PrintLn("ArrayEnd   %s %s <<<<<<<<<<<", "", "");
           InArray=false;
           }
         }

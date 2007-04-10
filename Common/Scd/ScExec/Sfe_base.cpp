@@ -3455,15 +3455,20 @@ flag SFEMdlLibArray::UnLoadFlwDLLs(flag DoTerminate)
 #if HEAP_SPARES
     StkSparesList::ClearAll();
 #endif
-
-
-    //delete pFlwLib;
-    //pFlwLib=NULL;
+    if (0)
+      {
+      dbgpln("============================================================");
+      dbgpln("Class            Instances - Before UnLoad");
+      for (TagObjClass *p=TagObjClass::FirstClass(); p; p=p->NextClass())
+        dbgpln("%-30.30s  %5i",p->ShortDesc() ? p->ShortDesc() : p->ClassId(), p->Instances()); //p is sometimes invalid pointer! (eg after DLL failed to load because of dependent DLL)
+      dbgpln("============================================================");
+      }
 
     for (int i=Cnt-1; i>=0; i--)
       {
       CDlgBusy::SetLine(1, "UnLoading Models :\n\n%s : %s", CfgName(),ElementAt(i)->sMdlDLLName());
-      ::AfxTrace(_T("UnLoading Models : %s : %s\n"), _T(CfgName()),_T(ElementAt(i)->sMdlDLLName()));//_T("%s"), _T(sz))
+      ::AfxTrace(_T("UnLoading Models : %s : %s\n"), _T(CfgName()),_T(ElementAt(i)->sMdlDLLName()));
+      dbgpln("UnLoading Models : %s : %s", _T(CfgName()),_T(ElementAt(i)->sMdlDLLName()));
       ElementAt(i)->UnLoad();
       Sleep(200);
       if (i>0)
@@ -3474,9 +3479,11 @@ flag SFEMdlLibArray::UnLoadFlwDLLs(flag DoTerminate)
         }
       }
 
+    dbgpln("============================================================");
     dbgpln("Class            Instances");
     for (TagObjClass *p=TagObjClass::FirstClass(); p; p=p->NextClass())
       dbgpln("%-30.30s  %5i",p->ShortDesc() ? p->ShortDesc() : p->ClassId(), p->Instances()); //p is sometimes invalid pointer! (eg after DLL failed to load because of dependent DLL)
+    dbgpln("============================================================");
 
     RemoveAll();
     //pFlwLib=NULL;

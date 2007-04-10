@@ -1101,7 +1101,7 @@ CCall2MSpQuals::CCall2MSpQuals(pTagObjClass pClass_, pchar Tag_, pTaggedObject p
 
 CCall2MSpQuals::~CCall2MSpQuals()
   {
-
+  delete m_pUserQual;
   }
 
 //---------------------------------------------------------------------------

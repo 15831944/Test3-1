@@ -824,10 +824,10 @@ class DllImportExport TagObjClass
     static void    GetClassValueLst(char * GroupName, DDBValueLstMem & DDB0, char * Value0=NULL, DWORD SelectMask=0xffffffff);
     static void    GetSDescValueLst(char * GroupName, DDBValueLstMem & DDB0, char * Value0=NULL, DWORD SelectMask=0xffffffff);
 
-    void           IncInstances()                              { nInstances++; nInstancesMax=Max(nInstancesMax,nInstances); };
-    void           DecInstances()                              { nInstances--; };
-    DWORD          Instances()                                 { return nInstances; };
-    DWORD          InstancesMax()                              { return nInstancesMax; };
+    void           IncInstances()                              { m_nInstances++; m_nInstancesMax=Max(m_nInstancesMax,m_nInstances); };
+    void           DecInstances()                              { m_nInstances--; };
+    DWORD          Instances()                                 { return m_nInstances; };
+    DWORD          InstancesMax()                              { return m_nInstancesMax; };
 
 #if WITHCLASSOPTIONS
     flag           CreateClassOptions(LPCSTR File);
@@ -881,8 +881,8 @@ class DllImportExport TagObjClass
                    bFlagged, //temp flag
                    fDuplicateExists;
 
-    DWORD          nInstances;
-    DWORD          nInstancesMax;
+    DWORD          m_nInstances;
+    DWORD          m_nInstancesMax;
     DWORD          dwSelectMask;
 
     const type_info * m_pTypeId;
