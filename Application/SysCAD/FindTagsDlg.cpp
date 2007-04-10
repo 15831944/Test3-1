@@ -12,7 +12,7 @@
 #include "scdver.h"
 #include "nrecipe.h"
 #include "tagvdoc.h"
-
+                                                        
 extern "C" 
   {
 #include "grldefs.h"
@@ -33,6 +33,18 @@ static void CALLBACK DoTimer(HWND hWnd, UINT nMsg, UINT_PTR idEvent, DWORD dwTim
   {
   ASSERT_ALWAYS(CFindTagsDlg::gs_pDlg && CFindTagsDlg::gs_pDlg->m_hWnd==hWnd, "CFindTagsDlg - Bad DoTimer", __FILE__, __LINE__);
   CFindTagsDlg::gs_pDlg->ProcessTimer(idEvent);
+  }
+
+
+//--------------------------------------------------------------------------
+
+CString TrimIt(LPCTSTR Tag, LPCTSTR Separ)
+  {
+  CString X(Tag);
+  int i=X.Find(Separ);
+  if (i>=0)
+    X = X.Left(i);
+  return X;
   }
 
 //=========================================================================
@@ -741,7 +753,15 @@ void CFindTagsDlg::LoadTagTree()
         }
       }
     }
+
   m_TagTree.UnlockWindowUpdate();
+
+  HTREEITEM hTop=m_TagTree.GetFirstVisibleItem();
+  if (hTop)
+    {
+    m_TagTree.SetItemState(hTop, TVIS_SELECTED, TVIS_SELECTED);
+    m_TagName = TrimIt(m_TagTree.GetItemText(hTop), " (");
+    }
   };
 
 //--------------------------------------------------------------------------
@@ -812,17 +832,6 @@ void CFindTagsDlg::SaveProfile()
   m_TagFilter.GetWindowText(S);
   PF.WrStr("FindTags", "TagFilter", S);
   };
-
-//--------------------------------------------------------------------------
-
-CString TrimIt(LPCTSTR Tag, LPCTSTR Separ)
-  {
-  CString X(Tag);
-  int i=X.Find(Separ);
-  if (i>=0)
-    X = X.Left(i);
-  return X;
-  }
 
 //--------------------------------------------------------------------------
 
