@@ -226,9 +226,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   DDB.Visibility();
   DDB.Text   ("");
- 
-  static Strng X1("MakeupSrc_2[Mu]/TNK_1[ML1].Q");
-  DDB.String("xxxxx",              "", DC_,   "",     &X1,      this, isResult|isTag);
 
   DDB.Text   ("Flow Conditions");
   DDB.Double("",              "QmPrvPB",  DC_Qm,   "kg/s",   xidFEQmPrvPB,     this, isResult|noView|NAN_OK);

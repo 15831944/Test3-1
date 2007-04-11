@@ -95,6 +95,7 @@ const int idDX_Description = idDX_Tag+maxElements;
 const int idDX_OutputVal = idDX_Description+maxElements;
 
 //---------------------------------------------------------------------------
+//double x_1,x_2,y_1,y_2;
 
 void ScheduledEvents::BuildDataFields()
 {
@@ -140,7 +141,12 @@ void ScheduledEvents::BuildDataFields()
 		DD.ArrayElementEnd();
 	}
 	DD.ArrayEnd();
-  DD.Text("------------------------------------------------------------");
+  /*DD.Text("------------------------------------------------------------");
+  DD.Text("Matrix");
+  DD.Double("X1", "", &x_1, MF_RESULT|MF_NO_FILING|MF_STARTROW, MC_None);
+  DD.Double("X2", "", &x_2, MF_RESULT|MF_NO_FILING, MC_None);
+  DD.Double("Y1", "", &y_1, MF_RESULT|MF_NO_FILING|MF_STARTROW, MC_None);
+  DD.Double("Y2", "", &y_2, MF_RESULT|MF_NO_FILING|MF_ENDROWS, MC_None);*/
 }
 
 //---------------------------------------------------------------------------
@@ -346,4 +352,12 @@ void ScheduledEvents::SetSize(long size)
 
 //---------------------------------------------------------------------------
 
+void ScheduledEvents::SetState(MStatesToSet SS)
+  {
+  MBaseMethod::SetState(SS);
+  if (SS==MSS_DynStatsRunInit)
+    Reset();
+  }
+
+//---------------------------------------------------------------------------
 

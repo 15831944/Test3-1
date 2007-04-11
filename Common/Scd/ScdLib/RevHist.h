@@ -2796,11 +2796,20 @@ Build 123 : 21 February 2007
 1593 29/03/07: (#805) Remove incorrect error message when using 'Phase' keyword for FinalFraction reaction extent option.
 1594 29/03/07: (#697) Improvements to scheduled events model.
 1595 30/03/07: (#802) Add revised Antoine vapour pressure equation for specie database "VpAntR(a,b,c,min,max)"
-1597 30/03/07: (#806) ..
+1597 30/03/07: (#806) Improved the scheduled events model so that the solver pauses while an Excel report is generated.
+1598 31/03/07: Speed improvement for rebuilding tag references between models and controllers.
+1599 31/03/07: (#803) Improved SysCAD Marshal initialisation, at load force the get/set logic.
+1602 31/03/07: (#807) Improved SMDK MTagIO functionality.
+1605  3/04/07: For user display specie calculations in cfg file, fixed calculation when displaying concentration views.
+1607  4/04/07: (#643) Implemented a PGM class 'SDB' to give direct access to specie database. (eg SDB.SpecieCount(); etc)
+1608  5/04/07: (#810) Preliminary implementation to provide access window for "direct" links for example link between makeup block and makeup source.
+1614  5/04/07: (#643) Improved PGM class 'SDB' (eg SDB.MolecularWt(index); SDB.FindSpecie("H2O(l)"); etc)
+1618 10/04/07: (#776) Find tag improvements.
+
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1615
+#define SCD_PATCH_SVN    1621
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

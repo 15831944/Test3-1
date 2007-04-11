@@ -44,9 +44,10 @@ class ScheduledEvents : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
-    virtual bool	ValidateDataFields();
+    virtual bool    ValidateDataFields();
 
-    virtual bool PreStartCheck();
+    virtual bool    PreStartCheck();
+    virtual void    SetState(MStatesToSet SS);
 
     //virtual void    EvalProducts();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run

@@ -95,7 +95,7 @@ void SingleVarStats::BuildDataFields()
 
 	DD.Text("");
 
-	DD.StructBegin("Histogram");
+	//DD.StructBegin("Histogram");
 	DD.ArrayBegin("Histogram Buckets", "Buckets", lHistoCount + 2);	
 	for (int i = 0; i < lHistoCount + 2; i++)
 	{
@@ -106,7 +106,7 @@ void SingleVarStats::BuildDataFields()
 		DD.ArrayElementEnd();
 	}
 	DD.ArrayEnd();
-	DD.StructEnd();
+	//DD.StructEnd();
 
 	DD.Show(false);
 	DD.Double("SumX2", "SumX2", &dSumX2, MF_RESULT);
