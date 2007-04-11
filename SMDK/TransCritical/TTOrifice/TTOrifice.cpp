@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-04-10 06:04:20 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-04-11 00:48:45 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -229,7 +229,8 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dSlipDensity=dInletDensity=1000.0;
   dDensityCorrection=0.0;
   dFlashP=dPin=dPout=dPOrificeIn=dPCritical=dSatP=dPOutActual=StdP;
-  dMassFlow=dMassFlow1=dMassFlow2=dMassFlow3=dMassFlow4=0.0;
+  dMassFlow=dMassFlow1=dMassFlow2=dMassFlow3=dMassFlow4=dMassFlow5 = 0.0;
+  dFlowDamping = 10.0;
   dMassVelocity=0.0;
   dPValve = 0.0;
   dValveData[0] = 300;
@@ -318,6 +319,9 @@ void CTTOrifice::BuildDataFields()
   DD.Double("MassFlow2", "", &dMassFlow2, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlow3", "", &dMassFlow3, MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlow4", "", &dMassFlow4, MF_RESULT, MC_Qm("kg/s"));
+  DD.Double("FlowDamping", "", &dFlowDamping, MF_PARAMETER, MC_None);
+  DD.Double("MassFlow5", "", &dMassFlow5, MF_RESULT, MC_Qm("kg/s"));
+
   DD.Double("MassVelocity", "", &dMassVelocity, MF_RESULT|MF_INIT_HIDDEN, MC_None);
   DD.Double("PCritical", "", &dPCritical, MF_RESULT, MC_P("kPa"));
   DD.Double("SinglePhaseDP", "", &dSinglePhaseDP, MF_RESULT, MC_P("kPa"));
@@ -422,6 +426,7 @@ void CTTOrifice::EvalProducts()
     FlwIOs.AddMixtureIn_Id(InStream, idIn);
 
     dDensityCorrection = bAmiraCorrection ? dcf(K2C(InStream.T)) : 1.0;
+    if (dFlowDamping < 1.0) dFlowDamping = 1.0;
 
     const double Pi = FlwIOs[FlwIOs.First[idIn]].Stream.getP(); //get pressure of input stream 
     bool bValveFlash = false;
@@ -504,6 +509,9 @@ void CTTOrifice::EvalProducts()
 
       if (bPassThru)
 	dPOutActual = dPin;
+
+      dMassFlow5 = 1./dFlowDamping*dMassFlow4 + (1.-1/dFlowDamping)*dMassFlow5;
+
 
       dxVapor = OutStream.Mass(MP_Gas)/OutStream.Mass();
       dFlashdT = InStream.T - OutStream.T;

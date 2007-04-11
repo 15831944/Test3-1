@@ -79,6 +79,8 @@ class CTTOrifice : public MBaseMethod
     double dMassFlow2;
     double dMassFlow3;
     double dMassFlow4;
+    double dMassFlow5;
+    double dFlowDamping;
     double dSatP;
     double dTin;
     double dLevel;     // Inlet hydrostatic level
