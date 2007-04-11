@@ -469,7 +469,7 @@ int cubic(double a1, double a2, double a3, double x[])
 	    return 1;                     // Single root of order 3
 	} else {
 	    x[0] = 2*sqrt(Q)-a1/3;
-	    x[1] = -sqrt(Q)-a1/3;
+	    x[1] = x[2] = -sqrt(Q)-a1/3;
 	    return 2;                     //  Two Real roots, one of order 2
 
 	}
