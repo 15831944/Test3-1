@@ -50,7 +50,7 @@ class DllImportExport MakeupSrc : public MN_Area
     DEFINE_CI(MakeupSrc, MN_Area, 2);
 
   protected:
-    CompositionFetchHelper CF;
+    CompositionFetchHelper m_CF;
   };
 
 DEFINE_TAGOBJ(BleedSnk);

@@ -309,8 +309,8 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String ("",           "Connected_To", DC_, "", xidConnectedTag,  this, DDEF_WRITEPROTECT|isTag);
   DDB.Bool   ("Connected",  "",             DC_, "", &fCrossConnected, this, DDEF_WRITEPROTECT, DDB2);
 
-  CF.m_bAllowFlow = ((SSMode&SSM_ConstP)==0);
-  CF.BuildDataDefn(DDB);
+  m_CF.m_bAllowFlow = ((SSMode&SSM_ConstP)==0);
+  m_CF.BuildDataDefn(DDB);
 
   if (!NetProbalMethod())
     {

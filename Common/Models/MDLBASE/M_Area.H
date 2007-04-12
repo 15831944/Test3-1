@@ -42,26 +42,33 @@ const byte CFWhatPress      = 0x02;
 const byte CFWhatFlow       = 0x04;
 const byte CFWhatComp       = 0x08;
 
+const byte CFH_OK           = 0;
+const byte CFH_BadTag       = 1;
+const byte CFH_ZeroFlow     = 2;
+
 class DllImportExport CompositionFetchHelper
   {
+  public:
+    CompositionFetchHelper(MdlNode* pMdl);
+    void   BuildDataDefn(DataDefnBlk & DDB);
+    flag   DataXchg(DataChangeBlk & DCB, SpImage & Contents);
+    int    ChangeTag(pchar pOldTag, pchar pNewTag);
+    byte   EvalDiscrete(SpImage & Contents);
+    byte   DoFetch(SpImage & Contents);
+
   public:
     MdlNode*       m_pMdl;
     SpConduit *    m_pCdOther;
     bool           m_bAllowFlow;
     byte           m_iCFWhen;
     byte           m_iCFWhat;
+    bool           m_bCFWarnOnZero;
     Strng          m_sCFTag;
     double         m_dCFRatio;
+    CArray<flag, flag&> m_CFQualsOn;
+    
     static int     sm_nCFQuals;
     static CArray<Strng, Strng&> sm_CFQualsNm;
-    CArray<flag, flag&> m_CFQualsOn;
-
-    CompositionFetchHelper(MdlNode* pMdl);
-    void   BuildDataDefn(DataDefnBlk & DDB);
-    flag   DataXchg(DataChangeBlk & DCB, SpImage & Contents);
-    int    ChangeTag(pchar pOldTag, pchar pNewTag);
-    bool   EvalDiscrete(SpImage & Contents);
-    bool   DoFetch(SpImage & Contents);
   };
 
 // ==========================================================================

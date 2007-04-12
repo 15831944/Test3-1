@@ -106,13 +106,13 @@ IMPLEMENT_MODELUNIT(MakeupSrc, "MakeupSrc", "1", Drw_MakeupSrc, "MakeupSrc", "Ma
 
 MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Area(pClass_, TagIn, pAttach, eAttach),
-  CF(this)
+  m_CF(this)
   {
   AttachIOAreas(MakeupSrcIOAreaList);
   m_Content.SetView(SVV_AsMassFrac);
 
-  CF.m_bAllowFlow = false;
-  CF.m_iCFWhat &= ~CFWhatFlow;
+  m_CF.m_bAllowFlow = false;
+  m_CF.m_iCFWhat &= ~CFWhatFlow;
 
   static const BDDSpecies_Blk sbImage[]=
     {
@@ -137,7 +137,7 @@ void MakeupSrc::PrepareDefinedData()
 
 void MakeupSrc::BuildDataDefn(DataDefnBlk & DDB)
   {
-  CF.BuildDataDefn(DDB);
+  m_CF.BuildDataDefn(DDB);
   MN_Area::BuildDataDefn(DDB, BDDAO_Flows|BDDAO_Totals|BDDAO_Contents|BDDAO_SrcSnk|BDDAO_MULinks);
   }
 
@@ -147,7 +147,7 @@ flag MakeupSrc::DataXchg(DataChangeBlk & DCB)
   {
   if (MN_Area::DataXchg(DCB)) 
     return 1;
-  if (CF.DataXchg(DCB, m_Content)) 
+  if (m_CF.DataXchg(DCB, m_Content)) 
     return 1;
 
   return 0;
@@ -157,7 +157,7 @@ flag MakeupSrc::DataXchg(DataChangeBlk & DCB)
 
 int MakeupSrc::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
-  CF.ChangeTag(pOldTag, pNewTag);
+  m_CF.ChangeTag(pOldTag, pNewTag);
   return MN_Area::ChangeTag(pOldTag, pNewTag);
   }
 
@@ -165,8 +165,10 @@ int MakeupSrc::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 void MakeupSrc::EvalDiscrete()
   {
-  bool OK = CF.EvalDiscrete(m_Content);
-  SetCI(1, !OK);
+  byte Ret=m_CF.EvalDiscrete(m_Content);
+  SetCI(1, Ret==CFH_BadTag);
+  SetCI(2, Ret==CFH_ZeroFlow);
+
   MN_Area::EvalDiscrete();
   }
 
@@ -178,6 +180,7 @@ flag MakeupSrc::CIStrng(int No, pchar & pS)
   switch (No-CBContext())
     {
     case 1: pS="E\tFetch tag not found (valid examples: P_1.Qi or X_1.QFeed)"; return 1;
+    case 2: pS="W\tFetch not completed due to ZeroFlow in Source"; return 1;
     default:
       return MN_Area::CIStrng(No, pS);
     }

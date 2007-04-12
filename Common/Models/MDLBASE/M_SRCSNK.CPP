@@ -21,7 +21,7 @@ m_VLE(this, VLEF_TPFlash),
 m_Src(eDIO_Src, this, false, true, "Source"), 
 m_Snk(eDIO_Snk, this, false, true, "Sink"),
 m_BlkEval(this, NULL, NULL, NULL, NULL, NULL),
-CF(this)
+m_CF(this)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
   //Initialise();
@@ -60,7 +60,7 @@ CF(this)
 
   SetAllowedModes(false, NM_All|SM_Direct|SM_Inline/*|SM_Buffered*/|HM_All);
 
-  CF.m_pCdOther = &Flows;
+  m_CF.m_pCdOther = &Flows;
 
   //Contents.SetSQCreateOK(true);
   ////Contents.SetSQRemoveOK(true);
@@ -97,7 +97,7 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
         {
         SSMode=*DCB.rB;
         if (SSMode & SSM_ConstP)
-          CF.m_iCFWhat &= ~CFWhatFlow;
+          m_CF.m_iCFWhat &= ~CFWhatFlow;
         }
       DCB.B=SSMode;
       return 1;
@@ -186,7 +186,7 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_BlkEval.DataXchg(DCB))
     return 1;
-  if (CF.DataXchg(DCB, Contents))
+  if (m_CF.DataXchg(DCB, Contents))
     return 1;
   if (DCB.dwUserInfo==1 && m_Src.DataXchg(DCB))
     return 1;
@@ -416,7 +416,7 @@ int MN_SrcSnk::ChangeTag(pchar pOldTag, pchar pNewTag)
   if (sConnectTag.XStrICmp(pOldTag)==0)
     sConnectTag=pNewTag;
 
-  CF.ChangeTag(pOldTag, pNewTag);
+  m_CF.ChangeTag(pOldTag, pNewTag);
 
   return MdlNode::ChangeTag(pOldTag, pNewTag);
   };
@@ -1280,8 +1280,9 @@ void MN_SrcSnk::EvalDiscrete()
       }
     }
 
-  bool OK = CF.EvalDiscrete(Contents);
-  SetCI(1, !OK);
+  byte Ret=m_CF.EvalDiscrete(Contents);
+  SetCI(1, Ret==CFH_BadTag);
+  SetCI(2, Ret==CFH_ZeroFlow);
 
   //if (!NetProbalMethod())
     {
@@ -1320,11 +1321,11 @@ void MN_SrcSnk::EvalDiscrete()
 
   const double P = Contents.Press();
   if (fCrossConnected || InRange(CDB.MinP, P, CDB.MaxP))
-    ClrCI(2);
+    ClrCI(3);
   else if (InRange(CDB.MinP*0.95, P, CDB.MaxP*1.3))
-    SetCI(2, "N\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
+    SetCI(3, "N\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
   else
-    SetCI(2, "W\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
+    SetCI(3, "W\tRequired pressure %.1fkPa out of project range (%g to %g)", P, CDB.MinP, CDB.MaxP);
   }
 
 // --------------------------------------------------------------------------
@@ -1589,7 +1590,8 @@ flag MN_SrcSnk::CIStrng(int No, pchar & pS)
   switch (No-CBContext())
     {
     case 1: pS="E\tFetch tag not found (valid examples: P_1.Qi or X_1.QFeed)"; return 1;
-    case 2: pS="W\tRequired pressure out of project range"; return 1;
+    case 2: pS="W\tFetch not completed due to ZeroFlow in Source"; return 1;
+    case 3: pS="W\tRequired pressure out of project range"; return 1;
     default:
       return MdlNode::CIStrng(No, pS);
     }

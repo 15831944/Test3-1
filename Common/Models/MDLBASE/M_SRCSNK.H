@@ -166,7 +166,7 @@ class DllImportExport MN_SrcSnk : public MdlNode
     CVLEBase       m_VLE;
     byte           iVLEOpt;
 
-    CompositionFetchHelper CF;
+    CompositionFetchHelper m_CF;
 
 //    flag           fOutFlwIsInFlw;
     byte           iRevFlw;

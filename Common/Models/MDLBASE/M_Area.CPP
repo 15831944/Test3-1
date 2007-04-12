@@ -31,6 +31,7 @@ CompositionFetchHelper::CompositionFetchHelper(MdlNode* pMdl)
   m_bAllowFlow=true;
   m_iCFWhen=CFWhenOff;
   m_iCFWhat=CFWhatComp|CFWhatTemp|CFWhatPress;
+  m_bCFWarnOnZero=true;
   m_sCFTag="";
   m_dCFRatio=1.0;
   if (sm_nCFQuals<0)
@@ -86,6 +87,7 @@ void CompositionFetchHelper::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  ("Composition Fetch");
   DDB.Byte  ("CF.When",    "", DC_, "", xidCFWhen,     m_pMdl, isParm|SetOnChange, DDBFetchOp);
   DDB.Byte  ("CF.What",    "", DC_, "", &m_iCFWhat,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
+  DDB.CheckBox("CF.WarnOnZeroSrc",    "", DC_, "", &m_bCFWarnOnZero,    m_pMdl, isParm|SetOnChange, DDBFetchWhat);
 
   if (m_iCFWhat&CFWhatComp)
     {
@@ -159,28 +161,30 @@ int CompositionFetchHelper::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 // -------------------------------------------------------------------------
 
-bool CompositionFetchHelper::EvalDiscrete(SpImage & Contents)
+byte CompositionFetchHelper::EvalDiscrete(SpImage & Contents)
   {
-  bool OK = true;
+  byte Ret=CFH_OK;
   switch (m_iCFWhen)
     {
     case CFWhenOnceOff:
-      OK = DoFetch(Contents);
-      if (!OK)
+      Ret = DoFetch(Contents);
+      if (Ret==CFH_BadTag)
+        {
         LogError(m_pMdl->FullObjTag(), 0, "Fetch tag '%s' not valid", m_sCFTag());
-      OK = true;
+        Ret=CFH_OK;
+        }
       m_iCFWhen = CFWhenOff;
       break;
     case CFWhenContinuous:
-      OK = DoFetch(Contents);
+      Ret = DoFetch(Contents);
       break;
     }
-  return OK;
+  return Ret;
   }
 
 // -------------------------------------------------------------------------
 
-bool CompositionFetchHelper::DoFetch(SpImage & Contents)
+byte CompositionFetchHelper::DoFetch(SpImage & Contents)
   {
   SpContainer * pCn=NULL;
   SpConduit * pCd=NULL;
@@ -214,50 +218,64 @@ bool CompositionFetchHelper::DoFetch(SpImage & Contents)
 
   if (pCd)
     {
-    if (m_iCFWhat&CFWhatComp)
+    if (pCd->QMass()<=SmallPosFlow)
       {
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-      Contents.Copy(*pCd);
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, false);
-      Contents.MArray().Normalise();
-      Contents.Model()->SetMassScale(1);
+      return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
       }
-    if (m_iCFWhat&CFWhatTemp)
-      Contents.m_T_Rqd=pCd->Temp();
-    if (m_iCFWhat&CFWhatPress)
-      Contents.SetPRqdTo(pCd->Press());
-    if (m_iCFWhat&CFWhatFlow)
+    else
       {
-      switch (Contents.QMode())
+      if (m_iCFWhat&CFWhatComp)
         {
-        case SPI_QModeQm:  Contents.SetQmRqdTo(pCd->QMass()*m_dCFRatio, true, false); break;
-        case SPI_QModeQv:  Contents.SetQvRqdTo(pCd->QVolume()*m_dCFRatio, true, false); break;
-        case SPI_QModeNQv: Contents.SetNQvRqdTo(pCd->QNVolume()*m_dCFRatio, true, false); break;
+        for (int i=0; i<sm_nCFQuals; i++)
+          pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+        Contents.Copy(*pCd);
+        for (int i=0; i<sm_nCFQuals; i++)
+          pCd->SetQualityHoldCopy(i, false);
+        Contents.MArray().Normalise();
+        Contents.Model()->SetMassScale(1);
+        }
+      if (m_iCFWhat&CFWhatTemp)
+        Contents.m_T_Rqd=pCd->Temp();
+      if (m_iCFWhat&CFWhatPress)
+        Contents.SetPRqdTo(pCd->Press());
+      if (m_iCFWhat&CFWhatFlow)
+        {
+        switch (Contents.QMode())
+          {
+          case SPI_QModeQm:  Contents.SetQmRqdTo(pCd->QMass()*m_dCFRatio, true, false); break;
+          case SPI_QModeQv:  Contents.SetQvRqdTo(pCd->QVolume()*m_dCFRatio, true, false); break;
+          case SPI_QModeNQv: Contents.SetNQvRqdTo(pCd->QNVolume()*m_dCFRatio, true, false); break;
+          }
         }
       }
     }
   else if (pCn)
     {
-    if (m_iCFWhat&CFWhatComp)
+    if (pCn->Mass()<=1e-10)
       {
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-      Contents.Copy(*pCn, pCn->Press());
-      for (int i=0; i<sm_nCFQuals; i++)
-        pCd->SetQualityHoldCopy(i, false);
+      return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
       }
-    if (m_iCFWhat&CFWhatTemp)
-      Contents.m_T_Rqd=pCn->Temp();
-    if (m_iCFWhat&CFWhatPress)
-      Contents.SetPRqdTo(pCn->Press());
+    else
+      {
+      if (m_iCFWhat&CFWhatComp)
+        {
+        for (int i=0; i<sm_nCFQuals; i++)
+          pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+        Contents.Copy(*pCn, pCn->Press());
+        for (int i=0; i<sm_nCFQuals; i++)
+          pCd->SetQualityHoldCopy(i, false);
+        }
+      if (m_iCFWhat&CFWhatTemp)
+        Contents.m_T_Rqd=pCn->Temp();
+      if (m_iCFWhat&CFWhatPress)
+        Contents.SetPRqdTo(pCn->Press());
+      }
     }
   else
     {
-    return false;
+    return CFH_BadTag;
     }
-  return true;
+  return CFH_OK;
   }
 
 //==========================================================================
