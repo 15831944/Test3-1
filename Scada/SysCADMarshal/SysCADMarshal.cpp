@@ -491,10 +491,16 @@ LRESULT CSysCADMarshalApp::OnUpdateStatus(WPARAM wParam, LPARAM lParam)
     S.Format("Que:%i/%i", pSB->m_dwDelays, pSB->m_dwChanges);   pMain->m_wndStatusBar.SetPaneText(4, S);  
     //S.Format("Tot:%i Slt:%i,%i Lnk:%i,%i OPC:%i,(i:%i,f:%i,x:%i)%s",    
     //  pSB->m_dwTotChgs,
-    S.Format("Slt:%i,%i Lnk:%i,%i OPC:%i,(i:%i,f:%i,x:%i)%s",    
-      pSB->m_nScdSlotChgsIn,   pSB->m_nScdSlotChgsOut,
-      pSB->m_nScdLinkChgsIn,   pSB->m_nScdLinkChgsOut,
-      pSB->m_nDeviceChgsIn,    pSB->m_nDeviceChgsOutInt, pSB->m_nDeviceChgsOutFlt, pSB->m_nFltWritesSkip,
+    //S.Format("Slt:%i,%i Lnk:%i,%i OPC:%i,(i:%i,f:%i,x:%i)%s",    
+    //  pSB->m_nScdSlotChgsIn,   pSB->m_nScdSlotChgsOut,
+    //  pSB->m_nScdLinkChgsIn,   pSB->m_nScdLinkChgsOut,
+    //  pSB->m_nDeviceChgsIn,    pSB->m_nDeviceChgsOutInt, pSB->m_nDeviceChgsOutFlt, pSB->m_nFltWritesSkip,
+    //  SW
+    //  );                            
+
+    S.Format("OPC Rd:%i, Wr(i:%i, f:%i, s:%i)%s",    
+      pSB->m_nDeviceChgsIn,   
+      pSB->m_nDeviceChgsOutInt, pSB->m_nDeviceChgsOutFlt, pSB->m_nFltWritesSkip,
       SW
       );
     

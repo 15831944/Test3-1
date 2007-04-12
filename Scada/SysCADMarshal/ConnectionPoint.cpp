@@ -40,6 +40,26 @@ STDMETHODIMP COPC_Callback::OnDataChange
       {
       long hClient=clienthandles[index];
       
+      switch (values[index].vt)
+        {
+        case VT_R8:
+          if (!Valid(values[index].dblVal))
+            {
+            values[index].dblVal=0;
+            LogError("Marshal",0,"Bad Double Value received from OPC");
+            }
+          break;
+        case VT_R4:
+          if (!Valid(values[index].fltVal))
+            {
+            values[index].fltVal=0;
+            LogError("Marshal",0,"Bad Single Value received from OPC");
+            }
+          break;
+        }
+
+      //?MAKE_INVALIDFLTOPCRASH();
+
       CFullValue FV(values[index], quality[index], time[index]);
       gs_SlotMngr.AppendChange(eCSD_Device, -1, eCSD_Slot, hClient, Transid, FV, NULL);
       gs_SlotMngr.m_Stats.m_nDeviceChgsIn++;

@@ -220,14 +220,17 @@ class CSlotConnOp_Profile : public CSlotConnOp_Base
       {
       delete m_pXY;
       };
-    virtual double Exec(double d, double DeltaTime) { return d; };
+    virtual double Exec(double d, double DeltaTime) 
+      {
+      return d; 
+      };
     virtual bool   IsConditioning() { return true; };
     virtual double DoConditioning(double d, double DeltaTime)
       {
-      //if (m_bReverse)
-      //  d = m_pXY->Y2X(d); 
-      //else
-      //  d = m_pXY->X2Y(d); 
+      if (m_bReverse)
+        d = m_pXY->Y2X(d); 
+      else
+        d = m_pXY->X2Y(d); 
       return d;
       };
   };

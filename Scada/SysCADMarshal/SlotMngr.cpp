@@ -1999,9 +1999,7 @@ void CSlotMngr::MessageHandler()
 
 UINT CSlotMngr::staticMessageHandler(LPVOID pMngr)
   {
-  //SCDTRY_THREAD
   ((CSlotMngr*)pMngr)->MessageHandler();
-  //SCDCATCH_THREAD("CSlotMngr::staticMessageHandler")
   return 0;
   }
 

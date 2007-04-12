@@ -1078,9 +1078,10 @@ CSlotConnect * CSlot::ParseConnFunction(LPSTR pConn)
     if (f[2]==NULL || strlen(f[2])==0)
       SetError(1, "Invalid Filename '%s'", f[2] ? f[2] : "");
     CSlotConnPrf * pProfile=new CSlotConnPrf;
-    CString Fn=gs_SlotMngr.m_Cfg.m_sCfgFile;
+    Strng Fn=gs_SlotMngr.m_Cfg.m_sCfgFile;
+    Fn.FnDrivePath();
     Fn+=f[2];
-    long err=pProfile->Parse(Fn);
+    long err=pProfile->Parse(Fn());
     if (err==0)
       {
       TheConn=AddGetConnect(f[1], false);//, CCS_Profile, 1.0);//, pProfile);

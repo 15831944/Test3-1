@@ -152,11 +152,11 @@ double CSlotConnPrf::X2Y(double X)
   double Y=0;
   long i0, i1, inc;
   i0=0;
-  i1=m_Points.GetUpperBound();
+  i1=m_Points.GetUpperBound()-1;
   inc=1;
 
-  for (int i=i0; i0!=i1; i+=inc)
-    if (X<m_Points[i].X)
+  for (int i=i0; i<i1; i+=inc)
+    if (X<=m_Points[i].X)
       break;
 
   CSlotConnPrfPt & Pt0=m_Points[i];
@@ -186,7 +186,7 @@ double CSlotConnPrf::Y2X(double Y)
     inc=1;
     }
   for (int i=i0; i!=i1; i+=inc)
-    if (Y<m_Points[i].Y)
+    if (Y<=m_Points[i].Y)
       break;
 
   CSlotConnPrfPt & Pt0=m_Points[i];
