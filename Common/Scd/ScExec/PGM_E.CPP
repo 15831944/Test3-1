@@ -368,13 +368,13 @@ END_CODE(Iif);
 
 pGCIns GCIifDef::Construct(GCInsMngr & IB)
   {
-  IB.DoConstructParms(1, False, True, False); //expression
+  IB.DoConstructParms(1, 0x0, True, False); //expression
   IB.m_pH->m_bBreakLine = 1;
   pGCIns pIns = new(IB) GCIifIns;
-  IB.DoConstructParms(1, False, False, False); //TruePart
+  IB.DoConstructParms(1, 0x0, False, False); //TruePart
   pGCJmpIns pJmpIns = (pGCJmpIns)GCJmp.Construct(IB);
   ((pGCIifIns)pIns)->m_pFalseJmpPos = IB.m_pIPtr;
-  IB.DoConstructParms(1, False, False, True); //FalsePart
+  IB.DoConstructParms(1, 0x0, False, True); //FalsePart
   pJmpIns->m_pJmpPos = IB.m_pIPtr;
   return pIns;
   }
@@ -1850,7 +1850,7 @@ END_CODE(RefArray);
 pGCIns GCRefArrayDef::Construct(GCInsMngr & IB)
   {
 /*  pGCClassVar pClassVar = (pGCClassVar)IB.m_pH->m_pTempVar;
-  IB.DoConstructParms(1, false, true, true);
+  IB.DoConstructParms(1, 0x0, true, true);
   pGCIns pIns = new(IB) GCRefArrayIns;
   ((pGCRefArrayIns)pIns)->m_pClassVar = pClassVar;
   ((pGCRefArrayIns)pIns)->index = -1;
@@ -1917,14 +1917,14 @@ END_CODE(CallFnt);
 pGCIns GCCallFntDef::Construct(GCInsMngr & IB)
   {
   pGCFunctVar pFntVar = (pGCFunctVar)IB.m_pH->m_pTempVar;
-  if (pFntVar->m_Parms==0 || pFntVar->m_bStrParms || pFntVar->m_pVarList==NULL)
-    IB.DoConstructParms(pFntVar->m_Parms, pFntVar->m_bStrParms);
+  if (pFntVar->m_Parms==0 || pFntVar->m_dwStrParmMask || pFntVar->m_pVarList==NULL)
+    IB.DoConstructParms(pFntVar->m_Parms, pFntVar->m_dwStrParmMask);
   else
     {
     pGCVar pVar = pFntVar->m_pVarList;
     for (int i=0; i<pFntVar->m_Parms; i++)
       {
-      IB.DoConstructParms(1, (pVar->WhatAmI()==VarStr), (i==0), (i==pFntVar->m_Parms-1));
+      IB.DoConstructParms(1, (pVar->WhatAmI()==VarStr)?0x1:0x0, (i==0), (i==pFntVar->m_Parms-1));
       pVar = pVar->Next();
       }
     }
@@ -2029,7 +2029,7 @@ pGCIns GCSetTagDef::Construct(GCInsMngr & IB)
   strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
   if (Tkn[0] != ',')
     IB.Err(ErrBuild, 106);
-  IB.DoConstructParms(1, False, False);
+  IB.DoConstructParms(1, 0x0, False);
   pGCIns pIns = new(IB) GCSetTagIns;
   ((GCSetTagIns*)pIns)->m_pVar = (GCTagVar*)pVar;
   ((GCSetTagIns*)pIns)->m_sCnvTxt = IB.m_pH->m_sTempCnvTxt[IB.m_pH->m_iTempTagPos--];
@@ -2113,8 +2113,8 @@ END_CODE(SetDynTag)
 
 pGCIns GCSetDynTagDef::Construct(GCInsMngr &IB)
   {
-  IB.DoConstructParms(1, True, True, False); //tag
-  IB.DoConstructParms(1, False, False); //value
+  IB.DoConstructParms(1, 0x1, True, False); //tag
+  IB.DoConstructParms(1, 0x0, False); //value
   pGCIns pIns = new(IB) GCSetDynTagIns;
   ((GCSetDynTagIns*)pIns)->m_iLineNo = IB.m_pH->GetCurLineNo();
   return pIns;
@@ -2206,7 +2206,7 @@ END_CODE(GetDynTag)
 
 pGCIns GCGetDynTagDef::Construct(GCInsMngr & IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   pGCIns pIns = new(IB) GCGetDynTagIns;
   ((GCGetDynTagIns*)pIns)->m_iLineNo = IB.m_pH->GetCurLineNo();
   return pIns;
@@ -2298,7 +2298,7 @@ END_CODE(SetDynStrTag)
 
 pGCIns GCSetDynStrTagDef::Construct(GCInsMngr &IB)
   {
-  IB.DoConstructParms(2, True); //tag,value
+  IB.DoConstructParms(2, 0xff); //tag,value
   pGCIns pIns = new(IB) GCSetDynStrTagIns;
   ((GCSetDynStrTagIns*)pIns)->m_iLineNo = IB.m_pH->GetCurLineNo();
   return pIns;
@@ -2378,7 +2378,7 @@ END_CODE(GetDynStrTag)
 
 pGCIns GCGetDynStrTagDef::Construct(GCInsMngr & IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0xff);
   pGCIns pIns = new(IB) GCGetDynStrTagIns;
   ((GCGetDynStrTagIns*)pIns)->m_iLineNo = IB.m_pH->GetCurLineNo();
   return pIns;
@@ -2477,7 +2477,7 @@ END_CODE(CnvVal)
 
 pGCIns GCCnvValDef::Construct(GCInsMngr & IB)
   {
-  IB.DoConstructParms(1, False, True, False);
+  IB.DoConstructParms(1, 0x0, True, False);
   char Tkn[MaxTknMemSize];
   Tkn[MaxTknSize] = 0;
   strncpy(Tkn, IB.m_pH->m_pTknParser->NextToken(), MaxTknSize);
@@ -2970,7 +2970,7 @@ void GCClassVar::CopyClass()
           }
         //pFntVar->m_pVarList = ((pGCFunctVar)pVar)->m_pVarList; //this caused a MAJOR subtle bug for functions in class instances !!!
         pFntVar->m_FunctId = ((pGCFunctVar)pVar)->m_FunctId;
-        pFntVar->m_bStrParms = ((pGCFunctVar)pVar)->m_bStrParms;
+        pFntVar->m_dwStrParmMask = ((pGCFunctVar)pVar)->m_dwStrParmMask;
         pFntVar->m_flags = pVar->m_flags;
         break;
         }
@@ -3165,7 +3165,7 @@ pGCVar GCClassVar::AddVar( GCInsMngr & IB,
 pGCVar GCClassVar::AddFunct( GCInsMngr & IB,
                              pchar pName,
                              short TtlParmCount,
-                             flag StrParms,
+                             dword StrParmMask,
                              short FunctId,
                              flag StrRet)
   {
@@ -3174,7 +3174,7 @@ pGCVar GCClassVar::AddFunct( GCInsMngr & IB,
     IB.Err(ErrBuild, 102);
   pGCFunctVar pFunctVar = (pGCFunctVar)GCFunct.ConstructVar(m_pVarList, &m_VarMap, pName, StrRet ? VarStrFunct:0);
   pFunctVar->m_Parms = TtlParmCount;
-  pFunctVar->m_bStrParms = StrParms;
+  pFunctVar->m_dwStrParmMask = StrParmMask;
   pFunctVar->m_FunctId = FunctId;
   return (pGCVar)pFunctVar;
   }
@@ -6884,7 +6884,7 @@ pGCVar GCInsMngr::DoConstructTag(char Terminate)
 //---------------------------------------------------------------------------
 
 void GCInsMngr::DoConstructParms( int ParmCount,
-                                  flag ExpectStr,
+                                  dword StrParmMask,
                                   flag StartExpected,
                                   flag EndExpected)
   {
@@ -6902,7 +6902,8 @@ void GCInsMngr::DoConstructParms( int ParmCount,
     if (dbgLoad())
       dbgpln("Parm:%d", i);
     #endif
-    DoConstructExprssn(ExpectStr);
+    DoConstructExprssn((StrParmMask&0x0001)!=0);
+    StrParmMask = StrParmMask>>1;
     if (i < ParmCount || !EndExpected)
       {
       strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);

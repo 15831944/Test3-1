@@ -845,7 +845,7 @@ START_CODE(StrCat)
 MID_CODE(StrCat,"STRCAT",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, True);
+  IB.DoConstructParms(2, 0xff);
   return new(IB) GCStrCatIns;
   };
 END_CODE(StrCat)
@@ -865,7 +865,7 @@ START_CODE(StrCat2)
 MID_CODE(StrCat2,"STRCAT2",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(3, True);
+  IB.DoConstructParms(3, 0xff);
   return new(IB) GCStrCat2Ins;
   };
 END_CODE(StrCat2)
@@ -886,7 +886,7 @@ START_CODE(StrCat3)
 MID_CODE(StrCat3,"STRCAT3",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(4, True);
+  IB.DoConstructParms(4, 0xff);
   return new(IB) GCStrCat3Ins;
   };
 END_CODE(StrCat3)
@@ -908,7 +908,7 @@ START_CODE(StrCat4)
 MID_CODE(StrCat4,"STRCAT4",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(5, True);
+  IB.DoConstructParms(5, 0xff);
   return new(IB) GCStrCat4Ins;
   };
 END_CODE(StrCat4)
@@ -931,7 +931,7 @@ START_CODE(StrCat5)
 MID_CODE(StrCat5,"STRCAT5",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(6, True);
+  IB.DoConstructParms(6, 0xff);
   return new(IB) GCStrCat5Ins;
   };
 END_CODE(StrCat5)
@@ -955,7 +955,7 @@ START_CODE(StrStr)
 MID_CODE(StrStr,"STRSTR",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, True);
+  IB.DoConstructParms(2, 0xff);
   return new(IB) GCStrStrIns;
   };
 END_CODE(StrStr)
@@ -976,7 +976,7 @@ START_CODE(StrCmp)
 MID_CODE(StrCmp,"STRCMP",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, True);
+  IB.DoConstructParms(2, 0xff);
   return new(IB) GCStrCmpIns;
   };
 END_CODE(StrCmp)
@@ -996,7 +996,7 @@ START_CODE(StriCmp)
 MID_CODE(StriCmp,"STRICMP",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, True);
+  IB.DoConstructParms(2, 0xff);
   return new(IB) GCStriCmpIns;
   };
 END_CODE(StriCmp)
@@ -1016,8 +1016,8 @@ START_CODE(Left)
 MID_CODE(Left,"LEFT",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True, True, False);
-  IB.DoConstructParms(1, False, False, True);
+  IB.DoConstructParms(1, 0x1, True, False);
+  IB.DoConstructParms(1, 0x0, False, True);
   return new(IB) GCLeftIns;
   };
 END_CODE(Left)
@@ -1037,8 +1037,8 @@ START_CODE(Right)
 MID_CODE(Right,"RIGHT",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True, True, False);
-  IB.DoConstructParms(1, False, False, True);
+  IB.DoConstructParms(1, 0x1, True, False);
+  IB.DoConstructParms(1, 0x0, False, True);
   return new(IB) GCRightIns;
   };
 END_CODE(Right)
@@ -1058,8 +1058,8 @@ START_CODE(Mid)
 MID_CODE(Mid,"MID",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True, True, False);
-  IB.DoConstructParms(2, False, False, True);
+  IB.DoConstructParms(1, 0x1, True, False);
+  IB.DoConstructParms(2, 0x0, False, True);
   return new(IB) GCMidIns;
   };
 END_CODE(Mid)
@@ -1080,7 +1080,7 @@ START_CODE(StrLen)
 MID_CODE(StrLen,"STRLEN",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCStrLenIns;
   };
 END_CODE(StrLen)
@@ -1099,7 +1099,7 @@ START_CODE(StrUpr)
 MID_CODE(StrUpr,"STRUPR",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCStrUprIns;
   };
 END_CODE(StrUpr)
@@ -1119,7 +1119,7 @@ START_CODE(StrLwr)
 MID_CODE(StrLwr,"STRLWR",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCStrLwrIns;
   };
 END_CODE(StrLwr)
@@ -1139,7 +1139,7 @@ START_CODE(IntStr)
 MID_CODE(IntStr,"IntStr",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, False);
+  IB.DoConstructParms(2, 0x0);
   return new(IB) GCIntStrIns;
   };
 END_CODE(IntStr)
@@ -1160,7 +1160,7 @@ START_CODE(IntToStr)
 MID_CODE(IntToStr,"IntToStr",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, False);
+  IB.DoConstructParms(1, 0x0);
   return new(IB) GCIntToStrIns;
   };
 END_CODE(IntToStr)
@@ -1180,7 +1180,7 @@ START_CODE(StrToInt)
 MID_CODE(StrToInt,"StrToInt",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCStrToIntIns;
   };
 END_CODE(StrToInt)
@@ -1201,7 +1201,7 @@ START_CODE(FltStr)
 MID_CODE(FltStr,"FltStr",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(3, False);
+  IB.DoConstructParms(3, 0x0);
   return new(IB) GCFltStrIns;
   };
 END_CODE(FltStr)
@@ -1223,7 +1223,7 @@ START_CODE(FltToStr)
 MID_CODE(FltToStr,"FltToStr",DefExp | DefRetStr,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, False);
+  IB.DoConstructParms(1, 0x0);
   return new(IB) GCFltToStrIns;
   };
 END_CODE(FltToStr)
@@ -1243,7 +1243,7 @@ START_CODE(StrToFlt)
 MID_CODE(StrToFlt,"StrToFlt",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCStrToFltIns;
   };
 END_CODE(StrToFlt)
@@ -1264,7 +1264,7 @@ START_CODE(AlphaToNum)
 MID_CODE(AlphaToNum,"AlphaToNum",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCAlphaToNumIns;
   };
 END_CODE(AlphaToNum)
@@ -1289,7 +1289,7 @@ START_CODE(IsAlpha)
 MID_CODE(IsAlpha,"IsAlpha",DefExp,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCIsAlphaIns;
   };
 END_CODE(IsAlpha)
@@ -1315,7 +1315,7 @@ START_CODE(LogNote)
 MID_CODE(LogNote,"LogNote",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCLogNoteIns;
   };
 END_CODE(LogNote)
@@ -1335,7 +1335,7 @@ START_CODE(LogError)
 MID_CODE(LogError,"LogError",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCLogErrorIns;
   };
 END_CODE(LogError)
@@ -1355,8 +1355,8 @@ START_CODE(ConditionNote)
 MID_CODE(ConditionNote,"ConditionNote",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, False, True, False);
-  IB.DoConstructParms(1, True, False, True);
+  IB.DoConstructParms(2, 0x0, True, False);
+  IB.DoConstructParms(1, 0x1, False, True);
   return new(IB) GCConditionNoteIns;
   };
 END_CODE(ConditionNote)
@@ -1378,8 +1378,8 @@ START_CODE(ConditionError)
 MID_CODE(ConditionError,"ConditionError",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(2, False, True, False);
-  IB.DoConstructParms(1, True, False, True);
+  IB.DoConstructParms(2, 0x0, True, False);
+  IB.DoConstructParms(1, 0x1, False, True);
   return new(IB) GCConditionErrorIns;
   };
 END_CODE(ConditionError)
@@ -1401,7 +1401,7 @@ START_CODE(LogEvent)
 MID_CODE(LogEvent,"LogEvent",DefLHS,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCLogEventIns;
   };
 END_CODE(LogEvent)
@@ -1424,7 +1424,7 @@ START_CODE(MsgBox)
 MID_CODE(MsgBox,"MsgBox",DefLHS/* | DefExp*/,0)
 virtual pGCIns Construct(rGCInsMngr IB)
   {
-  IB.DoConstructParms(1, True);
+  IB.DoConstructParms(1, 0x1);
   return new(IB) GCMsgBoxIns;
   };
 END_CODE(MsgBox)

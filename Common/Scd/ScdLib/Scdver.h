@@ -42,6 +42,7 @@
 #define WITHNODEPROCS         0  /*not ready for release*/
 #define WITHCLASSOPTIONS      0
 #define WITHEQUIPSPECS        (0 && WITHCLASSOPTIONS)
+#define WITHEXTENDPGMSDB      1
 
 #define WithPGMTagChange      0
 

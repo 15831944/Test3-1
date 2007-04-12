@@ -182,125 +182,126 @@ void CCElementDataBase::Init()
   m_Data.SetSize(0);
 
   //Term();
-  m_Data.Add(CElementD("H",  1.00794      ));
-  m_Data.Add(CElementD("He", 4.00206      ));
-  m_Data.Add(CElementD("Li", 6.941        ));
-  m_Data.Add(CElementD("Be", 9.012182     ));
-  m_Data.Add(CElementD("B",  10.811       ));
-  m_Data.Add(CElementD("C",  12.011       ));
-  m_Data.Add(CElementD("N",  14.00674     ));
-  m_Data.Add(CElementD("O",  15.9994      ));
-  m_Data.Add(CElementD("F",  18.9984032   ));
-  m_Data.Add(CElementD("Ne", 20.1797      ));
-  m_Data.Add(CElementD("Na", 22.989768    ));
-  m_Data.Add(CElementD("Mg", 24.3050      ));
-  m_Data.Add(CElementD("Al", 26.981539    ));
-  m_Data.Add(CElementD("Si", 28.0855      ));
-  m_Data.Add(CElementD("P",  30.97362     ));
-  m_Data.Add(CElementD("S",  32.066       ));
-  m_Data.Add(CElementD("Cl", 35.4527      ));
-  m_Data.Add(CElementD("Ar", 39.948       ));
-  m_Data.Add(CElementD("K",  39.0983      ));
-  m_Data.Add(CElementD("Ca", 40.078       ));
-  m_Data.Add(CElementD("Sc", 44.955910    ));
-  m_Data.Add(CElementD("Ti", 47.88        ));
-  m_Data.Add(CElementD("V",  50.9415      ));
-  m_Data.Add(CElementD("Cr", 51.9961      ));
-  m_Data.Add(CElementD("Mn", 54.93085     ));
-  m_Data.Add(CElementD("Fe", 55.847       ));
-  m_Data.Add(CElementD("Co", 58.9332      ));
-  m_Data.Add(CElementD("Ni", 58.6934      ));
-  m_Data.Add(CElementD("Cu", 63.546       ));
-  m_Data.Add(CElementD("Zn", 65.39        ));
-  m_Data.Add(CElementD("Ga", 69.723       ));
-  m_Data.Add(CElementD("Ge", 72.61        ));
-  m_Data.Add(CElementD("As", 74.92159     ));
-  m_Data.Add(CElementD("Se", 78.96        ));
-  m_Data.Add(CElementD("Br", 79.904       ));
-  m_Data.Add(CElementD("Kr", 83.80        ));
-  m_Data.Add(CElementD("Rb", 85.4678      ));
-  m_Data.Add(CElementD("Sr", 87.62        ));
-  m_Data.Add(CElementD("Y",  88.90585     ));
-  m_Data.Add(CElementD("Zr", 91.224       ));
-  m_Data.Add(CElementD("Nb", 92.90638     ));
-  m_Data.Add(CElementD("Mo", 95.94        ));
-  m_Data.Add(CElementD("Tc", 98.0         ));
-  m_Data.Add(CElementD("Ru", 101.07       ));
-  m_Data.Add(CElementD("Rh", 102.9055     ));
-  m_Data.Add(CElementD("Pd", 106.42       ));
-  m_Data.Add(CElementD("Ag", 107.8682     ));
-  m_Data.Add(CElementD("Cd", 112.411      ));
-  m_Data.Add(CElementD("In", 114.818      ));
-  m_Data.Add(CElementD("Sn", 118.71       ));
-  m_Data.Add(CElementD("Sb", 121.757      ));
-  m_Data.Add(CElementD("Te", 127.6        ));
-  m_Data.Add(CElementD("I",  126.90447    ));
-  m_Data.Add(CElementD("Xe", 131.29       ));
-  m_Data.Add(CElementD("Cs", 132.90543    ));
-  m_Data.Add(CElementD("Ba", 137.327      ));
-  m_Data.Add(CElementD("La", 138.9055     ));
-  m_Data.Add(CElementD("Ce", 140.12       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Pr", 140.907      )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Nd", 144.24       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Pm", 145.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Sm", 150.35       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Eu", 151.96       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Gd", 157.25       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Tb", 158.924      )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Dy", 162.50       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Ho", 164.930      )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Er", 167.26       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Tm", 168.934      )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Yb", 173.04       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Lu", 174.97       )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Hf", 178.49       ));
-  m_Data.Add(CElementD("Ta", 180.9479     ));
-  m_Data.Add(CElementD("W",  183.84       ));
-  m_Data.Add(CElementD("Re", 186.207      ));
-  m_Data.Add(CElementD("Os", 190.23       ));
-  m_Data.Add(CElementD("Ir", 192.22       ));
-  m_Data.Add(CElementD("Pt", 195.08       ));
-  m_Data.Add(CElementD("Au", 196.96654    ));
-  m_Data.Add(CElementD("Hg", 200.59       ));
-  m_Data.Add(CElementD("Tl", 204.3833     ));
-  m_Data.Add(CElementD("Pb", 207.2        ));
-  m_Data.Add(CElementD("Bi", 208.98037    ));
-  m_Data.Add(CElementD("Po", 208.9824     ));
-  m_Data.Add(CElementD("At", 209.9871     ));
-  m_Data.Add(CElementD("Rn", 222.0176     ));
-  m_Data.Add(CElementD("Fr", 223.0197     ));
-  m_Data.Add(CElementD("Ra", 226.0254     ));
-  m_Data.Add(CElementD("Ac", 227.0278     ));
-  m_Data.Add(CElementD("Th", 232.0381     ));
-  m_Data.Add(CElementD("Pa", 231.03588    ));
-  m_Data.Add(CElementD("U",  238.0289     ));
-  m_Data.Add(CElementD("Np", 237.048      ));
-  m_Data.Add(CElementD("Pu", 244.0642     ));
-  m_Data.Add(CElementD("Am", 243.0614     ));
-  m_Data.Add(CElementD("Cm", 247.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Bk", 247.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Cf", 249.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Es", 254.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Fm", 253.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Md", 256.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("No", 253.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD("Lr", 257.0        )); // from elec eng hand book (Siemens)
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
-  m_Data.Add(CElementD(NULL, 0.0          ));
+  m_Data.Add(CElementD("H",     1,   1.00794    ));
+  m_Data.Add(CElementD("He",    2,   4.00206    ));
+  m_Data.Add(CElementD("Li",    3,   6.941      ));
+  m_Data.Add(CElementD("Be",    4,   9.012182   ));
+  m_Data.Add(CElementD("B",     5,  10.811      ));
+  m_Data.Add(CElementD("C",     6,  12.011      ));
+  m_Data.Add(CElementD("N",     7,  14.00674    ));
+  m_Data.Add(CElementD("O",     8,  15.9994     ));
+  m_Data.Add(CElementD("F",     9,  18.9984032  ));
+  m_Data.Add(CElementD("Ne",   10,  20.1797     ));
+  m_Data.Add(CElementD("Na",   11,  22.989768   ));
+  m_Data.Add(CElementD("Mg",   12,  24.3050     ));
+  m_Data.Add(CElementD("Al",   13,  26.981539   ));
+  m_Data.Add(CElementD("Si",   14,  28.0855     ));
+  m_Data.Add(CElementD("P",    15,  30.97362    ));
+  m_Data.Add(CElementD("S",    16,  32.066      ));
+  m_Data.Add(CElementD("Cl",   17,  35.4527     ));
+  m_Data.Add(CElementD("Ar",   18,  39.948      ));
+  m_Data.Add(CElementD("K",    19,  39.0983     ));
+  m_Data.Add(CElementD("Ca",   20,  40.078      ));
+  m_Data.Add(CElementD("Sc",   21,  44.955910   ));
+  m_Data.Add(CElementD("Ti",   22,  47.88       ));
+  m_Data.Add(CElementD("V",    23,  50.9415     ));
+  m_Data.Add(CElementD("Cr",   24,  51.9961     ));
+  m_Data.Add(CElementD("Mn",   25,  54.93085    ));
+  m_Data.Add(CElementD("Fe",   26,  55.847      ));
+  m_Data.Add(CElementD("Co",   27,  58.9332     ));
+  m_Data.Add(CElementD("Ni",   28,  58.6934     ));
+  m_Data.Add(CElementD("Cu",   29,  63.546      ));
+  m_Data.Add(CElementD("Zn",   30,  65.39       ));
+  m_Data.Add(CElementD("Ga",   31,  69.723      ));
+  m_Data.Add(CElementD("Ge",   32,  72.61       ));
+  m_Data.Add(CElementD("As",   33,  74.92159    ));
+  m_Data.Add(CElementD("Se",   34,  78.96       ));
+  m_Data.Add(CElementD("Br",   35,  79.904      ));
+  m_Data.Add(CElementD("Kr",   36,  83.80       ));
+  m_Data.Add(CElementD("Rb",   37,  85.4678     ));
+  m_Data.Add(CElementD("Sr",   38,  87.62       ));
+  m_Data.Add(CElementD("Y",    39,  88.90585    ));
+  m_Data.Add(CElementD("Zr",   40,  91.224      ));
+  m_Data.Add(CElementD("Nb",   41,  92.90638    ));
+  m_Data.Add(CElementD("Mo",   42,  95.94       ));
+  m_Data.Add(CElementD("Tc",   43,  98.0        ));
+  m_Data.Add(CElementD("Ru",   44, 101.07       ));
+  m_Data.Add(CElementD("Rh",   45, 102.9055     ));
+  m_Data.Add(CElementD("Pd",   46, 106.42       ));
+  m_Data.Add(CElementD("Ag",   47, 107.8682     ));
+  m_Data.Add(CElementD("Cd",   48, 112.411      ));
+  m_Data.Add(CElementD("In",   49, 114.818      ));
+  m_Data.Add(CElementD("Sn",   50, 118.71       ));
+  m_Data.Add(CElementD("Sb",   51, 121.757      ));
+  m_Data.Add(CElementD("Te",   52, 127.6        ));
+  m_Data.Add(CElementD("I",    53, 126.90447    ));
+  m_Data.Add(CElementD("Xe",   54, 131.29       ));
+  m_Data.Add(CElementD("Cs",   55, 132.90543    ));
+  m_Data.Add(CElementD("Ba",   56, 137.327      ));
+  m_Data.Add(CElementD("La",   57, 138.9055     ));
+  m_Data.Add(CElementD("Ce",   58, 140.12       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Pr",   59, 140.907      )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Nd",   60, 144.24       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Pm",   61, 145.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Sm",   62, 150.35       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Eu",   63, 151.96       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Gd",   64, 157.25       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Tb",   65, 158.924      )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Dy",   66, 162.50       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Ho",   67, 164.930      )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Er",   68, 167.26       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Tm",   69, 168.934      )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Yb",   70, 173.04       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Lu",   71, 174.97       )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Hf",   72, 178.49       ));
+  m_Data.Add(CElementD("Ta",   73, 180.9479     ));
+  m_Data.Add(CElementD("W",    74, 183.84       ));
+  m_Data.Add(CElementD("Re",   75, 186.207      ));
+  m_Data.Add(CElementD("Os",   76, 190.23       ));
+  m_Data.Add(CElementD("Ir",   77, 192.22       ));
+  m_Data.Add(CElementD("Pt",   78, 195.08       ));
+  m_Data.Add(CElementD("Au",   79, 196.96654    ));
+  m_Data.Add(CElementD("Hg",   80, 200.59       ));
+  m_Data.Add(CElementD("Tl",   81, 204.3833     ));
+  m_Data.Add(CElementD("Pb",   82, 207.2        ));
+  m_Data.Add(CElementD("Bi",   83, 208.98037    ));
+  m_Data.Add(CElementD("Po",   84, 208.9824     ));
+  m_Data.Add(CElementD("At",   85, 209.9871     ));
+  m_Data.Add(CElementD("Rn",   86, 222.0176     ));
+  m_Data.Add(CElementD("Fr",   87, 223.0197     ));
+  m_Data.Add(CElementD("Ra",   88, 226.0254     ));
+  m_Data.Add(CElementD("Ac",   89, 227.0278     ));
+  m_Data.Add(CElementD("Th",   90, 232.0381     ));
+  m_Data.Add(CElementD("Pa",   91, 231.03588    ));
+  m_Data.Add(CElementD("U",    92, 238.0289     ));
+  m_Data.Add(CElementD("Np",   93, 237.048      ));
+  m_Data.Add(CElementD("Pu",   94, 244.0642     ));
+  m_Data.Add(CElementD("Am",   95, 243.0614     ));
+  m_Data.Add(CElementD("Cm",   96, 247.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Bk",   97, 247.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Cf",   98, 249.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Es",   99, 254.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Fm",  100, 253.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Md",  101, 256.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("No",  102, 253.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD("Lr",  103, 257.0        )); // from elec eng hand book (Siemens)
+  m_Data.Add(CElementD(NULL,  104,   0.0        ));
+  m_Data.Add(CElementD(NULL,  105,   0.0        ));
+  m_Data.Add(CElementD(NULL,  106,   0.0        ));
+  m_Data.Add(CElementD(NULL,  107,   0.0        ));
+  m_Data.Add(CElementD(NULL,  108,   0.0        ));
+  m_Data.Add(CElementD(NULL,  109,   0.0        ));
+  m_Data.Add(CElementD(NULL,  110,   0.0        ));
+  m_Data.Add(CElementD(NULL,  111,   0.0        ));
+  m_Data.Add(CElementD(NULL,  112,   0.0        ));
+  m_Data.Add(CElementD(NULL,  113,   0.0        ));
+  m_Data.Add(CElementD(NULL,  114,   0.0        ));
+  m_Data.Add(CElementD(NULL,  115,   0.0        ));
+  m_Data.Add(CElementD(NULL,  116,   0.0        ));
+  m_Data.Add(CElementD(NULL,  117,   0.0        ));
+  m_Data.Add(CElementD(NULL,  118,   0.0        ));
+  m_Data.Add(CElementD(NULL,  119,   0.0        ));
+
 
   for (m_iNo=0; m_Data[m_iNo].Name!=NULL; m_iNo++)
     {
@@ -406,16 +407,17 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           m_Data[m_iNo].fAllocdMem=true;
           m_Data[m_iNo].Name=new char[El.Length()+1];
           strcpy(m_Data[m_iNo].Name, El());
+          m_Data[m_iNo].AtmNo=m_iNo+1;
           m_Data[m_iNo].AtmWt=SafeAtoF(Wt());
           m_Data[m_iNo].SpComp= new CompFracArray;
           Ok=(m_Data[m_iNo].AtmWt>=0.5);
           m_iNo++;
           }
         if (Ok && Find(El())<0)
-		  {
+          {
           LogError("SpecieDB", 0, "Invalid element '%s' or molecular weight not specified for pseudo element '%s' eg Or1(100)", El(), El());
           Ok=false;
-		  }
+          }
         if (Ok)
           {
           ElDefRet+=El();
@@ -9638,4 +9640,3 @@ void DumpSysVec(bool Start, LPSTR Hd, CSysVector & Vec)
 //
 //
 // ==========================================================================
-

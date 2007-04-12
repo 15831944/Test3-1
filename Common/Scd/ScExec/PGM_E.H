@@ -280,7 +280,7 @@ class DllImportExport GCInsMngr
     GCFunctVar*    DoConstructFnt(pGCVar &pVarList, GCVarMap * pVarMap);
     GCVar*         DoConstructTag(char Terminate);
     void           DoConstructParms( int ParmCount, 
-                                     flag ExpectStr = False,
+                                     dword StrParmMask = 0x0,
                                      flag StartExpected = True,
                                      flag EndExpected = True);
     void           DoConstructVarCnv(GCVar* pVar);
@@ -831,7 +831,7 @@ class DllImportExport GCFunctVar : public GCVar
   {
   public:
     GCFunctVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD flags) : GCVar(pFirstVar, pVarMap, pName, flags) 
-      { m_var = 0.0; m_pVarList = NULL; m_pFntIPos = NULL; m_bStrParms = False; };
+      { m_var = 0.0; m_pVarList = NULL; m_pFntIPos = NULL; m_dwStrParmMask = 0x0; };
     virtual ~GCFunctVar();
     double  m_var;
     short   m_Parms;      // number of parameters for fnt
@@ -839,7 +839,7 @@ class DllImportExport GCFunctVar : public GCVar
     short   m_FunctId;    // id of function (C++ functions)
     GCVar * m_pVarList;  // variables used in function class
     GCVarMap  m_VarMap;  // map of variables used in function class
-    flag   m_bStrParms;   // True if all the parameters are strings
+    dword   m_dwStrParmMask;   // True if all the parameters are strings
     
     char           WhatAmI() { return VarFunct; };                               
     pchar          GetStrVal(pchar Buff) { Valid(m_var) ? sprintf(Buff, "%.12g", m_var) : sprintf(Buff, "*"); return Buff; };
@@ -936,7 +936,7 @@ class DllImportExport GCClassVar : public GCVar
     GCVar*         AddFunct( GCInsMngr &IB,
                              pchar pName,
                              short TtlParmCount,
-                             flag StrParms,
+                             dword StrParmMask,
                              short FunctId,
                              flag StrRet=false);
     int            GetVarCount();

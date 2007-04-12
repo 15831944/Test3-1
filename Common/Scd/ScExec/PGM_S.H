@@ -18,6 +18,19 @@
 
 //===========================================================================
 
+class GCEDB : public GCClassVar
+  {
+  public:
+    GCEDB(rGCInsMngr IB);
+    virtual void Init(pGCClassVar pClassVar);
+    virtual void Done(pGCClassVar pClassVar);
+    virtual double CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassVar pClassVar);
+    virtual void OnSave(FilingControlBlock &FCB, pvoid pSubClass);
+    virtual flag OnLoad(FilingControlBlock &FCB, pvoid pSubClass);
+  };
+
+//===========================================================================
+
 class GCSDB : public GCClassVar
   {
   public:

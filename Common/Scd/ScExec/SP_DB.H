@@ -205,6 +205,7 @@ class CElementD
   {
   public:
     pchar            Name;
+    int              AtmNo;
     double           AtmWt;
     CompFracArray   *SpComp;
     flag             fAllocdMem;
@@ -212,13 +213,15 @@ class CElementD
     CElementD()
       {
       Name=NULL;
+      AtmNo=0;
       AtmWt=1.0;
       SpComp=NULL;
       fAllocdMem=false;
       }
-    CElementD(pchar  pName, double AtomicWt)
+    CElementD(pchar  pName, int AtomicNo, double AtomicWt)
       {
       Name=pName;
+      AtmNo=AtomicNo;
       AtmWt=AtomicWt;
       SpComp=NULL;
       fAllocdMem=false;

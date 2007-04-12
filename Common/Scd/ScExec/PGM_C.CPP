@@ -1820,8 +1820,8 @@ GCArray::GCArray(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "Array
   AddFunct(IB, "IncAt", 2, False, Idf_ArrayIncAt);
   AddFunct(IB, "DecAt", 2, False, Idf_ArrayDecAt);
   AddFunct(IB, "SetAll", 1, False, Idf_ArraySetAll);
-  AddFunct(IB, "Load", 1, True, Idf_ArrayLoad);
-  AddFunct(IB, "Save", 1, True, Idf_ArraySave);
+  AddFunct(IB, "Load", 1, 0x0001, Idf_ArrayLoad);
+  AddFunct(IB, "Save", 1, 0x0001, Idf_ArraySave);
   AddFunct(IB, "CopyToClipboard", 0, False, Idf_ArrayClipboard);
   }
 
@@ -2036,8 +2036,8 @@ GCMatrix::GCMatrix(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "Mat
   AddFunct(IB, "IncAt", 3, False, Idf_MatrixIncAt);
   AddFunct(IB, "DecAt", 3, False, Idf_MatrixDecAt);
   AddFunct(IB, "SetAll", 1, False, Idf_MatrixSetAll);
-  AddFunct(IB, "Load", 1, True, Idf_MatrixLoad);
-  AddFunct(IB, "Save", 1, True, Idf_MatrixSave);
+  AddFunct(IB, "Load", 1, 0x0001, Idf_MatrixLoad);
+  AddFunct(IB, "Save", 1, 0x0001, Idf_MatrixSave);
   AddFunct(IB, "CopyToClipboard", 0, False, Idf_MatrixClipboard);
   }
 
@@ -2307,7 +2307,8 @@ void DefinePGMClasses(rGCInsMngr IB)
     new GCETerminal(IB);
     new GCTermStrip(IB);
     
-    // Specie DB & create an instance thereof
+    // Element & Specie DB & create an instance thereof
+    new GCClassVar(IB.m_pVarList, &IB.m_VarMap, "EDB", 0, new GCEDB(IB));
     new GCClassVar(IB.m_pVarList, &IB.m_VarMap, "SDB", 0, new GCSDB(IB));
   
     #ifdef PMC
