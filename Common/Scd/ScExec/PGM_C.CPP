@@ -2308,7 +2308,9 @@ void DefinePGMClasses(rGCInsMngr IB)
     new GCTermStrip(IB);
     
     // Element & Specie DB & create an instance thereof
+    #if WITHEXTENDPGMSDB 
     new GCClassVar(IB.m_pVarList, &IB.m_VarMap, "EDB", 0, new GCEDB(IB));
+    #endif
     new GCClassVar(IB.m_pVarList, &IB.m_VarMap, "SDB", 0, new GCSDB(IB));
   
     #ifdef PMC

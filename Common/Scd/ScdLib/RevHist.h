@@ -2805,11 +2805,14 @@ Build 123 : 21 February 2007
 1608  5/04/07: (#810) Preliminary implementation to provide access window for "direct" links for example link between makeup block and makeup source.
 1614  5/04/07: (#643) Improved PGM class 'SDB' (eg SDB.MolecularWt(index); SDB.FindSpecie("H2O(l)"); etc)
 1618 10/04/07: (#776) Find tag improvements.
+1624 12/04/07: (#643) Added SpElemMoles(SpIndex, EleName) to PGM SDB class.
+1625 12/04/07: (#814) Fix for composition fetch when source has no mass.
+1626 12/04/07: (#635) Added ElemAtmWeight(EleName) to PGM SDB class to return atomic weight of specified element.
 
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1621
+#define SCD_PATCH_SVN    1626
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

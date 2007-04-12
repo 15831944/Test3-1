@@ -16,6 +16,8 @@
 //
 //===========================================================================
 
+#if WITHEXTENDPGMSDB
+
 class CLclEDB
   {
   public:
@@ -156,7 +158,8 @@ flag GCEDB::OnLoad(FilingControlBlock &FCB, pvoid pSubClass)
     }
   return True;
   }
-  
+#endif
+
 //===========================================================================
 //
 //
@@ -220,6 +223,7 @@ enum
   Idf_SDB_SpElemAtmWeight,     
   Idf_SDB_SpElemIndexS,        
   Idf_SDB_SpElemUnitsS,        
+  Idf_SDB_ElemAtmWeight,        
   };
 
 //---------------------------------------------------------------------------
@@ -259,16 +263,16 @@ GCSDB::GCSDB(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "GlblSDB",
   AddFunct(IB, "SpIsLiquid",          1, 0x0000, Idf_SDB_IsLiquid);              // SpIsLiquid         (SpIndex)
   AddFunct(IB, "SpIsGas",             1, 0x0000, Idf_SDB_IsGas);                 // SpIsGas            (SpIndex)
 
-  AddFunct(IB, "SpMolecularWt",       1, 0x0000, Idf_SDB_MolecularWt);           // MolecularWt        (SpIndex)
-  AddFunct(IB, "SpDensity",           3, 0x0000, Idf_SDB_Density);               // Density            (SpIndex, temp, press)
-  AddFunct(IB, "SpmlHf",              3, 0x0000, Idf_SDB_mlHf);                  // mlHf               (SpIndex, temp, press)
-  AddFunct(IB, "SpmsHf",              3, 0x0000, Idf_SDB_msHf);                  // msHf               (SpIndex, temp, press)
-  AddFunct(IB, "SpmlHz",              3, 0x0000, Idf_SDB_mlHz);                  // mlHz               (SpIndex, temp, press)
-  AddFunct(IB, "SpmsHz",              3, 0x0000, Idf_SDB_msHz);                  // msHz               (SpIndex, temp, press)
-  AddFunct(IB, "SpmlHs",              3, 0x0000, Idf_SDB_mlHs);                  // mlHs               (SpIndex, temp, press)
-  AddFunct(IB, "SpmsHs",              3, 0x0000, Idf_SDB_msHs);                  // msHs               (SpIndex, temp, press)
-  AddFunct(IB, "SpVapourP",           2, 0x0000, Idf_SDB_VapourP);               // VapourP            (SpIndex, temp)
-  AddFunct(IB, "SpVapourT",           2, 0x0000, Idf_SDB_VapourT);               // VapourT            (SpIndex, temp)
+  AddFunct(IB, "SpMolecularWt",       1, 0x0000, Idf_SDB_MolecularWt);           // SpMolecularWt        (SpIndex)
+  AddFunct(IB, "SpDensity",           3, 0x0000, Idf_SDB_Density);               // SpDensity            (SpIndex, temp, press)
+  AddFunct(IB, "SpmlHf",              3, 0x0000, Idf_SDB_mlHf);                  // SpmlHf               (SpIndex, temp, press)
+  AddFunct(IB, "SpmsHf",              3, 0x0000, Idf_SDB_msHf);                  // SpmsHf               (SpIndex, temp, press)
+  AddFunct(IB, "SpmlHz",              3, 0x0000, Idf_SDB_mlHz);                  // SpmlHz               (SpIndex, temp, press)
+  AddFunct(IB, "SpmsHz",              3, 0x0000, Idf_SDB_msHz);                  // SpmsHz               (SpIndex, temp, press)
+  AddFunct(IB, "SpmlHs",              3, 0x0000, Idf_SDB_mlHs);                  // SpmlHs               (SpIndex, temp, press)
+  AddFunct(IB, "SpmsHs",              3, 0x0000, Idf_SDB_msHs);                  // SpmsHs               (SpIndex, temp, press)
+  AddFunct(IB, "SpVapourP",           2, 0x0000, Idf_SDB_VapourP);               // SpVapourP            (SpIndex, temp)
+  AddFunct(IB, "SpVapourT",           2, 0x0000, Idf_SDB_VapourT);               // SpVapourT            (SpIndex, temp)
 
 #if WITHEXTENDPGMSDB 
   // examples for H20
@@ -279,8 +283,12 @@ GCSDB::GCSDB(rGCInsMngr IB) : GCClassVar(IB.m_pVarList, &IB.m_VarMap, "GlblSDB",
   AddFunct(IB, "SpElemAtmWeight",     2, 0x0000, Idf_SDB_SpElemAtmWeight);       // SpElemAtmWeight    (SpIndex, EleIndex)  - Atomic Wt of element N in Sp : (0) returns 1.00794, (1) returns 15.9994)
   AddFunct(IB, "SpElemIndexS",        2, 0x0002, Idf_SDB_SpElemIndexS);          // SpElemIndexS       (SpIndex, EleName)   - Find element in Sp           : ("H") returns 0, ("O") returns 1, ("N") returns -1;
 #endif
-  AddFunct(IB, "SpElemUnitsS",        2, 0x0002, Idf_SDB_SpElemUnitsS);          // SpElemUnitsS       (SpIndex, EleName)   - Find element moles in Sp  : ("H") returns 2, ("O") returns 1, ("N") returns 0;
+  AddFunct(IB, "SpElemMoles",         2, 0x0002, Idf_SDB_SpElemUnitsS);          // SpElemMoles        (SpIndex, EleName)   - return element moles in Sp  : ("H") returns 2, ("O") returns 1, ("N") returns 0;
 
+  AddFunct(IB, "ElemAtmWeight",       1, 0x0001, Idf_SDB_ElemAtmWeight);         // ElemAtmWeight      (EleName)            - return element atomic weight, 0 if invalid
+
+
+  //AddFunct(IB, "SpElemUnitsS",        2, 0x0002, Idf_SDB_SpElemUnitsS);          // SpElemUnitsS       (SpIndex, EleName)   - Find element moles in Sp  : ("H") returns 2, ("O") returns 1, ("N") returns 0;
   }
 
 //---------------------------------------------------------------------------
@@ -586,6 +594,7 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
       return 0;
       }
 
+#if WITHEXTENDPGMSDB 
     case Idf_SDB_SpElemCount:
       {
       int iSp=IB.GetLParm();
@@ -645,6 +654,7 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
         }
       return -1;
       }
+#endif
     case Idf_SDB_SpElemUnitsS:
       {
       CString Ele=IB.GetSParm();
@@ -659,6 +669,14 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
           }
         }
       return 0;
+      }
+
+    case Idf_SDB_ElemAtmWeight:
+      {
+      int iEle= EDB.Find(IB.GetSParm());
+      if (iEle>=0 && iEle<EDB.Count())
+        return EDB[iEle].AtmWt;
+      return 0.0;
       }
 
     default:

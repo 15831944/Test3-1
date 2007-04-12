@@ -16,8 +16,11 @@
   #define DllImportExport
 #endif
 
+#define WITHEXTENDPGMSDB      0
+
 //===========================================================================
 
+#if WITHEXTENDPGMSDB 
 class GCEDB : public GCClassVar
   {
   public:
@@ -28,7 +31,7 @@ class GCEDB : public GCClassVar
     virtual void OnSave(FilingControlBlock &FCB, pvoid pSubClass);
     virtual flag OnLoad(FilingControlBlock &FCB, pvoid pSubClass);
   };
-
+#endif
 //===========================================================================
 
 class GCSDB : public GCClassVar
