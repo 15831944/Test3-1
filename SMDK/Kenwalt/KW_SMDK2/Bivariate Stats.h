@@ -19,6 +19,8 @@
   #define DllImportExport
 #endif
 
+//#define MVS_KEEP_RECORD
+
 //---------------------------------------------------------------------------
 
 using namespace std;
@@ -50,6 +52,8 @@ class BivarStats : public MBaseMethod
     virtual void    EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All); // each Iteration - To calculate required control actions
     //virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              ; // each Iteration End to calculate Stats relevant to model
+
+	virtual void SetState(MStatesToSet SS);
 	
 	virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
 	virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
@@ -71,13 +75,14 @@ class BivarStats : public MBaseMethod
 	double dMin[2];
 	double dMax[2];
 	long* pHistoBucketCounts;
-	//double* pHistoBucketBorders;
 	long lRecordCount;
 
 	double dSumX[2];
 	double dSumX2[2];
 	double dSumXY;
+#ifdef MVS_KEEP_RECORD
 	list<ValuePair> cRecord;
+#endif
 
 	void Reset();
 	void RecalculateStats(double newEntry1, double newEntry2);

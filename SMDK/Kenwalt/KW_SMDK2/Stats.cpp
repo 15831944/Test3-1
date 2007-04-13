@@ -112,8 +112,8 @@ void SingleVarStats::BuildDataFields()
 	DD.Double("SumX2", "SumX2", &dSumX2, MF_RESULT);
 	DD.Double("sumX", "SumX", &dSumX, MF_RESULT);
 
-	//TODO: Investigate a better method to store the record.
-	/*if (cRecord.size() > 0)
+#ifdef SVS_KEEP_RECORD
+	if (cRecord.size() > 0 && DD.ForFiling)
 	{
 		DD.ArrayBegin("Record", "Record", lRecordCount);
 		list<double>::iterator endIterator = cRecord.end();
@@ -123,7 +123,22 @@ void SingleVarStats::BuildDataFields()
 			DD.Double("Val","Val", &(*iterator), MF_RESULT);
 			DD.ArrayElementEnd();
 		}
-	}*/
+	}
+#else
+	if (DD.ForFiling)
+	{
+		DD.Long("Underrange", "UR", &lUnderrange, MF_RESULT);
+		DD.Long("Overrange", "OR", &lOverrange, MF_RESULT);
+		DD.ArrayBegin("HisResHistogram", "HiResHistogram", HI_RES_HISTO);
+		for (int i = 0; i < HI_RES_HISTO; i++)
+		{
+			DD.ArrayElementStart(i);
+			DD.Long("Count", "Count", lHiResHistoBuckets + i, MF_RESULT);
+			DD.ArrayElementEnd();
+		}
+		DD.ArrayEnd();
+	}
+#endif
 	DD.Show(true);
 }
 
@@ -169,6 +184,10 @@ bool SingleVarStats::ExchangeDataFields()
 		if (DX.HasReqdValue)
 		{
 			dHistoMax = DX.Double;
+#ifndef SVS_KEEP_RECORD
+			lUnderrange = lOverrange = 0;
+			ZeroMemory(lHiResHistoBuckets, HI_RES_HISTO * sizeof (long));
+#endif
 			RecalculateHistoBuckets();
 		}
 		DX.Double = dHistoMax;
@@ -177,6 +196,10 @@ bool SingleVarStats::ExchangeDataFields()
 		if (DX.HasReqdValue)
 		{
 			dHistoMin = DX.Double;
+#ifndef SVS_KEEP_RECORD
+			lUnderrange = lOverrange = 0;
+			ZeroMemory(lHiResHistoBuckets, HI_RES_HISTO * sizeof (long));
+#endif
 			RecalculateHistoBuckets();
 		}
 		DX.Double = dHistoMin;
@@ -185,9 +208,11 @@ bool SingleVarStats::ExchangeDataFields()
 		if (DX.HasReqdValue)	//Should only be called on initilisation
 		{
 			lRecordCount = DX.Long;
+#ifdef SVS_KEEP_RECORD
 			cRecord.clear();
 			for (int i = 0; i < lRecordCount; i++)
 				cRecord.push_back(0);
+#endif
 		}
 		DX.Long = lRecordCount;
 		return true;
@@ -199,6 +224,10 @@ bool SingleVarStats::ValidateDataFields()
 {
 	if (lHistoCount < 1)
 		lHistoCount = 1;
+#ifndef SVS_KEEP_RECORD
+	if (lHistoCount > HI_RES_HISTO / 4)	//Factor of four to stop aliasing effects.
+		lHistoCount = HI_RES_HISTO / 4;
+#endif
 	return true;
 }
 
@@ -237,7 +266,12 @@ void SingleVarStats::Reset()
 	dStdDev = dNAN;
 	dAverage = dNAN;
 	lRecordCount = 0;
+#ifdef SVS_KEEP_RECORD
 	cRecord.clear();
+#else
+	lUnderrange = lOverrange = 0;
+	ZeroMemory(lHiResHistoBuckets, HI_RES_HISTO * sizeof(long));
+#endif
 	dSumX = dSumX2 = 0;
 	RecalculateHistoBuckets();
 }
@@ -252,7 +286,16 @@ void SingleVarStats::RecalculateStats(double newEntry)
 
 	// Update records
 	lRecordCount++;
+#ifdef SVS_KEEP_RECORD
 	cRecord.push_back(newEntry);
+#else
+	if (newEntry < dHistoMin)
+		lUnderrange++;
+	else if (newEntry > dHistoMax)
+		lOverrange++;
+	else if (dHistoMax > dHistoMin)	//If max == min, we get divide by zero exception.
+		lHiResHistoBuckets[(int)((newEntry - dHistoMin) / (dHistoMax - dHistoMin) * HI_RES_HISTO)]++;
+#endif
 	dSumX += newEntry;
 	dSumX2 += newEntry * newEntry;
 
@@ -279,6 +322,7 @@ void SingleVarStats::RecalculateStats(double newEntry)
 
 void SingleVarStats::RecalculateHistoBuckets()
 {
+	//TODO: Need to keep higher res histogram, and recalculate from that
 	if (pHistoBucketBorders != NULL)
 		delete[] pHistoBucketBorders;
 	if (pHistoBucketCounts != NULL)
@@ -289,8 +333,8 @@ void SingleVarStats::RecalculateHistoBuckets()
 	pHistoBucketBorders[0] = - numeric_limits<double>::infinity();
 	pHistoBucketBorders[lHistoCount + 2] = numeric_limits<double>::infinity();
 	pHistoBucketCounts = new long[lHistoCount + 2];
-	for (int i = 0; i < lHistoCount + 2; i++)
-		pHistoBucketCounts[i] = 0;
+	ZeroMemory(pHistoBucketCounts, (lHistoCount + 2) * sizeof(long));
+#ifdef SVS_KEEP_RECORD
 	double newEntry;
 	list<double>::const_iterator endIterator = cRecord.end();
 	for (list<double>::const_iterator iterator = cRecord.begin(); iterator != endIterator; iterator++)
@@ -303,16 +347,27 @@ void SingleVarStats::RecalculateHistoBuckets()
 				break;
 			}
 	}
-	if (cRecord.size() > 0)
+#else
+	pHistoBucketCounts[0] = lUnderrange;
+	pHistoBucketCounts[lHistoCount + 1] = lOverrange;
+	int dispHisto = 1;
+	double step = (dHistoMax - dHistoMin) / HI_RES_HISTO;
+	if (step != 0)
 	{
-		newEntry = *endIterator;
-		for (int i = 0; i < lHistoCount + 2; i++)
-			if (!(newEntry > pHistoBucketBorders[i+1]))
+		for (int i = 0; i < HI_RES_HISTO; i++)
+		{
+			if (dHistoMin + i * step >= pHistoBucketBorders[dispHisto + 1])	//We start filling the next histobucket.
+				dispHisto++;
+			if (dHistoMin + (i + 1) * step <= pHistoBucketBorders[dispHisto + 1])	//The entire hi res bucket fits into the low res bucket
+				pHistoBucketCounts[dispHisto] += lHiResHistoBuckets[i];
+			else															//The hi res bucket is counted in both the current low res bucket, and the next.
 			{
-				pHistoBucketCounts[i]++;
-				break;
+				pHistoBucketCounts[dispHisto] += (long)(lHiResHistoBuckets[i] * (pHistoBucketBorders[dispHisto + 1] - (dHistoMin + i * step)) / step);
+				pHistoBucketCounts[dispHisto + 1] += (long)(lHiResHistoBuckets[i] * (dHistoMin + (i + 1) * step - pHistoBucketBorders[dispHisto + 1]) / step);
 			}
+		}
 	}
+#endif
 
 	//InvalidateHistogram();
 }
@@ -356,13 +411,18 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		int nBorderSpace = nTextSize;
 		int nTextSpace = 4;
 		int nAxesSpace = 4;
+#if (_MSC_VER >= 1400)
 		int nTopSpace = nBorderSpace + nTextSize;
+		int nAxesLeft = nBorderSpace + nTextSize + nTextSpace + nAxesSpace;
+#else
+		int nTopSpace = nBorderSpace + nTextSize + nAxesSpace;
+		int nAxesLeft = nBorderSpace + nAxesSpace;
+#endif
 		int nCheckSize = nAxesSpace - 1;
 		int minSpace = 10;
 		//Draw axes:
 		int nAxesTop = nTopSpace,
 			nAxesBottom = Wnd.m_ClientRect.bottom - (nBorderSpace + 2 * nTextSize + nTextSpace + nAxesSpace),
-			nAxesLeft = nBorderSpace + nTextSize + nTextSpace + nAxesSpace,
 			nAxesRight = Wnd.m_ClientRect.right - (nBorderSpace);
 		if (nAxesBottom - nAxesTop <= 0 || nAxesRight - nAxesLeft <= 0)
 			break;
@@ -439,7 +499,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->TextOut((nAxesLeft + nAxesRight) / 2, Wnd.m_ClientRect.bottom - nBorderSpace, xLabel);
 		
 #if (_MSC_VER >= 1400)
-		int oldMode = Wnd.m_pPaintDC->->SetGraphicsMode(GM_ADVANCED);
+		int oldMode = Wnd.m_pPaintDC->SetGraphicsMode(GM_ADVANCED);
 		XFORM rotation = {
 			0, -1,
 			1, 0,
@@ -456,7 +516,17 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		Wnd.m_pPaintDC->SetWorldTransform(&identity);
 		Wnd.m_pPaintDC->SetGraphicsMode(oldMode);
+#else
+		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_LEFT);
+		Wnd.m_pPaintDC->TextOut(nAxesLeft, nBorderSpace, yLabel);
 #endif
 	}
 	return true;
+}
+
+void SingleVarStats::SetState(MStatesToSet SS)
+{
+	MBaseMethod::SetState(SS);
+	if (SS == MSS_DynStatsRunInit)
+		Reset();
 }

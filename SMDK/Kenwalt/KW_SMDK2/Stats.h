@@ -19,37 +19,8 @@
   #define DllImportExport
 #endif
 
-//---------------------------------------------------------------------------
-
-/*struct DoubleItem
-{
-public:
-	double val;
-	doubleItem* next;
-}
-
-struct DoubleIterator
-{
-public:
-	DoubleIterator operator++(DoubleIterator iterator);
-	double operator*(DoubleIterator iterator);
-	double* Value();
-protected:
-	DoubleItem* item;
-}
-
-class DoubleList
-{
-public:
-	DoubleList();
-	~DoubleList();
-	void AddValue(double Value);
-	doubleIterator getStart();
-	doubleIterator getEnd();
-protected:
-	doubleItem* start;
-	doubleItem* end;
-}*/
+//#define SVS_KEEP_RECORD
+#define HI_RES_HISTO 200
 
 using namespace std;
 
@@ -72,6 +43,8 @@ class SingleVarStats : public MBaseMethod
     virtual void    EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All); // each Iteration - To calculate required control actions
     //virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              ; // each Iteration End to calculate Stats relevant to model
+
+	virtual void SetState(MStatesToSet SS);
 	
 	virtual bool GetModelGraphic(CMdlGraphicArray &Grfs);
 	virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
@@ -95,7 +68,12 @@ class SingleVarStats : public MBaseMethod
 
 	double dSumX;
 	double dSumX2;
+#ifdef SVS_KEEP_RECORD
 	list<double> cRecord;
+#else
+	long lHiResHistoBuckets[HI_RES_HISTO];
+	long lUnderrange, lOverrange;
+#endif
 
 	void Reset();
 	void RecalculateStats(double newEntry);

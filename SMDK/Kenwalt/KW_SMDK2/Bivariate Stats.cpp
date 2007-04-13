@@ -39,7 +39,7 @@ BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
 	dHistoMaxX = dHistoMaxY = 0;
 	lHistoCount = 20;
 	lRecordCount = 0;
-	graphType = GT_SCATTER;
+	graphType = GT_DENSITY;
 
 	//pHistoBucketBorders = NULL;
 	pHistoBucketCounts = NULL;
@@ -93,7 +93,9 @@ void BivarStats::BuildDataFields()
 	DD.Double("Graph x Maximum", "GraphMaxx", idDX_HistoMaxX, MF_PARAMETER);
 	DD.Double("Graph y Minimum", "GraphMiny", idDX_HistoMinY, MF_PARAMETER);
 	DD.Double("Graph y Maximum", "GraphMaxy", idDX_HistoMaxY, MF_PARAMETER);
+#ifdef MVS_KEEP_RECORD
 	DD.Long("GraphType", "GraphType", (long*)&graphType, MF_PARAMETER, GraphValues);
+#endif
 
 	DD.Text("");
 	DD.Double("Correlation", "Corr", &dCorrelation, MF_RESULT);
@@ -133,20 +135,24 @@ void BivarStats::BuildDataFields()
 	DD.Double("SumX_1", "SumX_1", dSumX, MF_RESULT);
 	DD.Double("SumX_2", "SumX_2", dSumX + 1, MF_RESULT);
 
-	//TODO: Investigate a better method to store the record.
-	/*if (cRecord.size() > 0)
+#ifdef MVS_KEEP_RECORD
+	if (DD.ForFiling)
 	{
-		DD.ArrayBegin("Record", "Record", lRecordCount);
-		list<ValuePair>::iterator endIterator = cRecord.end();
-		int j = 0;
-		for (list<ValuePair>::iterator iterator = cRecord.begin(); iterator != endIterator; iterator++) {
-			DD.ArrayElementStart(j++);
-			DD.Double("Val1","Val1", &(iterator->v1), MF_RESULT);
-			DD.Double("Val2","Val2", &(iterator->v2), MF_RESULT);
-			DD.ArrayElementEnd();
+		if (cRecord.size() > 0)
+		{
+			DD.ArrayBegin("Record", "Record", lRecordCount);
+			list<ValuePair>::iterator endIterator = cRecord.end();
+			int j = 0;
+			for (list<ValuePair>::iterator iterator = cRecord.begin(); iterator != endIterator; iterator++) {
+				DD.ArrayElementStart(j++);
+				DD.Double("Val1","Val1", &(iterator->v1), MF_RESULT);
+				DD.Double("Val2","Val2", &(iterator->v2), MF_RESULT);
+				DD.ArrayElementEnd();
+			}
+			DD.ArrayEnd();
 		}
-		DD.ArrayEnd();
-	}*/
+	}
+#endif
 	DD.Show(true);
 }
 
@@ -205,10 +211,12 @@ bool BivarStats::ExchangeDataFields()
 		if (DX.HasReqdValue)	//Should only be called on initilisation
 		{
 			lRecordCount = DX.Long;
+#ifdef MVS_KEEP_RECORD
 			cRecord.clear();
 			ValuePair zero = {0,0};
 			for (int i = 0; i < lRecordCount; i++)
 				cRecord.push_back(zero);
+#endif
 		}
 		DX.Long = lRecordCount;
 		return true;
@@ -259,7 +267,9 @@ void BivarStats::Reset()
 	dAverage[0] = dAverage[1] = dNAN;
 	dCorrelation = dNAN;
 	lRecordCount = 0;
+#ifdef MVS_KEEP_RECORD
 	cRecord.clear();
+#endif
 	dSumX[0] = dSumX[1] = dSumX2[0] = dSumX2[1] = dSumXY = 0;
 	RecalculateHistoBuckets();
 }
@@ -289,8 +299,10 @@ void BivarStats::RecalculateStats(double newEntry1, double newEntry2)
 	
 	// Update records
 	lRecordCount++;
+#ifdef MVS_KEEP_RECORD
 	ValuePair newPair = {newEntry1, newEntry2};
 	cRecord.push_back(newPair);
+#endif
 
 
 	for (int i = 0; i < 2; i++)
@@ -337,6 +349,7 @@ void BivarStats::RecalculateHistoBuckets()
 	pHistoBucketCounts = new long[lHistoCount * lHistoCount];
 	for (int i = 0; i < lHistoCount * lHistoCount; i++)
 		pHistoBucketCounts[i] = 0;
+#ifdef MVS_KEEP_RECORD
 	list<ValuePair>::const_iterator endIterator = cRecord.end();
 	for (list<ValuePair>::const_iterator iterator = cRecord.begin(); iterator != endIterator; iterator++)
 	{
@@ -348,6 +361,7 @@ void BivarStats::RecalculateHistoBuckets()
 				(int)((newEntry2 - dHistoMinY) / (dHistoMaxY - dHistoMinY) * lHistoCount) * lHistoCount
 				+ (int)((newEntry1 - dHistoMinX) / (dHistoMaxX - dHistoMinX) * lHistoCount)]++;
 	}
+#endif
 }
 
 bool BivarStats::GetModelGraphic(CMdlGraphicArray & Grfs)
@@ -405,6 +419,7 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		//DrawData:
 		if (graphType == GT_SCATTER)
 		{
+#ifdef MVS_KEEP_RECORD
 			list<ValuePair>::iterator endIterator = cRecord.end();
 			for (list<ValuePair>::iterator iterator = cRecord.begin(); iterator != endIterator; iterator++)
 			{
@@ -417,6 +432,7 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 					Wnd.m_pPaintDC->SetPixel(pt, White);
 				}
 			}
+#endif
 		}
 		else //We are drawing a density plot...
 		{
@@ -481,4 +497,11 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, sTag[0]);
 	}
 	return true;
+}
+
+void BivarStats::SetState(MStatesToSet SS)
+{
+	MBaseMethod::SetState(SS);
+	if (SS == MSS_DynStatsRunInit)
+		Reset();
 }
