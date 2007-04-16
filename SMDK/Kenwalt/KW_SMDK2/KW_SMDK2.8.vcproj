@@ -642,6 +642,10 @@
 				RelativePath=".\TagIO.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Tailings Graphic.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -673,6 +677,10 @@
 			</File>
 			<File
 				RelativePath=".\TagIO.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Tailings Graphic.h"
 				>
 			</File>
 		</Filter>
