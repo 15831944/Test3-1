@@ -77,8 +77,9 @@ class DllImportExport CXRefValue
   public:
     CXRefValue();
 
-    double            m_dValue; //for numerical tags
-    Strng             m_sValue; //for string tags
+    MTagIOValue       m_TagValue;
+    //double            xm_dValue; //for numerical tags
+    //Strng             m_sValue; //for string tags
     bool              m_bChanged;
     bool              m_bTouched;
     bool              m_bWasTouched;
@@ -87,7 +88,8 @@ class DllImportExport CXRefValue
     long              m_lForceCount;  // <0 continual force, =0 No Force, >0 Force for N iterations
 
 #if WithIOChgMonitor     
-    double            m_dValMem;
+    MTagIOValue       m_TagValueMem;
+    //double            m_dValMem;
 #endif
 
   };
@@ -217,7 +219,8 @@ class DllImportExport CXRefItem : public CTagRef, public CSFGNodeInfo
     CTNode      * SrcNd() const;
     CTNode      * DstNd() const;
 
-    double        TheValue() const   { return m_Value.m_dValue; };
+    //double        TheValue() const   { return m_Value.xm_dValue; };
+    const MTagIOValue & TagValue() const   { return m_Value.m_TagValue; };
     bool          HasChanged() const { return m_Value.m_bChanged;};
     bool          Touched() const    { return m_Value.m_bTouched;};
     void          ClearChanged()     { m_Value.m_bChanged=false; };

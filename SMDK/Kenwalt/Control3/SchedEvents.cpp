@@ -180,7 +180,7 @@ bool ScheduledEvents::ExchangeDataFields()
         curTag = TagIO.FindName(name);
   			if (curTag >= 0)
 				  TagIO.Remove(curTag);
-				tasks.at(task).nTagID = TagIO.Add(DX.String, name, MTIO_Set);
+				tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
 			}
 
 		}
@@ -263,9 +263,9 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 				if (tasks.at(i).nTagID >= 0)
 				{
 					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
-						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOnValue;
+            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOnValue;
 					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
-						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOffValue;
+						TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOffValue;
 				}
 				tasks.at(i).bRunning = bNowRunning;
 

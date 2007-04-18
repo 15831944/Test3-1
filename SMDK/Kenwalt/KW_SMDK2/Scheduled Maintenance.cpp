@@ -151,14 +151,15 @@ bool ScheduledMaintenance::ExchangeDataFields()
 			else
 			{
 				TagIO.Remove(TagIO.FindName(name));
-				tasks.at(task).nTagID = TagIO.Add(DX.String, name, MTIO_Set);
+				tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
 			}
 
 			if (tasks.at(task).nTagID >= 0)
 			{
 				tasks.at(task).dOffValue = 0;
 				double dTemp;
-				TagIO.SetTag(DX.String, dTemp);
+				_asm int 3; // CNM fix next line 
+        //TagIO.SetTag(DX.String, dTemp);
 				tasks.at(task).dOnValue = dTemp;
 			}
 		}
@@ -234,9 +235,9 @@ void ScheduledMaintenance::EvalCtrlActions(eScdCtrlTasks Tasks)
 				if (tasks.at(i).nTagID >= 0)
 				{
 					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
-						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOnValue;
+            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOnValue;
 					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
-						TagIO.DValue[tasks.at(i).nTagID] = tasks.at(i).dOffValue;
+            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOffValue;
 				}
 				tasks.at(i).bRunning = bNowRunning;
 

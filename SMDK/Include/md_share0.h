@@ -49,6 +49,7 @@ const DDEF_Flags DDEF_ISSPECIECALC        = 0x0010000000000000;
 const DDEF_Flags DDEF_STARTROW            = 0x0020000000000000;
 const DDEF_Flags DDEF_ENDROWS             = 0x0040000000000000;
 const DDEF_Flags DDEF_TAGNOGRF            = 0x0080000000000000;
+const DDEF_Flags DDEF_TAGCASESENS         = 0x0100000000000000;
 
 //                                            6 5  4 3  2 1
 //                                            0628406284062840

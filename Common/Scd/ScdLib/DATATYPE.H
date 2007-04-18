@@ -248,7 +248,7 @@ class DllImportExport flt16        // NBNB No virtual methods
   {
   public:
     word Exp:4, Mant:11, Sgn:1;
-    operator       double();
+    operator       double() const;
     flt16          operator=(double v);
     static void    Test();
   };
@@ -257,6 +257,34 @@ class DllImportExport flt16        // NBNB No virtual methods
 
 class DllImportExport DataUnionCom // NBNB No virtual methods
   {
+  public:
+    DataUnionCom() {iType=tt_NULL; iStatus=ds_OK; bSpare=0; };
+
+    byte           Type() const { return iType; };
+    byte           Status() const { return iStatus; };
+    void           SetStatus(byte Status) { iStatus=Status; };
+    word           Size() const;
+    word           TypeSize() const;
+    flag           IsNAN() const;
+    flag           IsZero() const;
+
+    void           Set(DataUnionCom &V);
+
+    flag           Equal(DataUnionCom &V);
+    flag           EqualNANOK(DataUnionCom &V);
+
+    long           GetLong() const;
+    long           GetLong(CCnvIndex iCnv, char*pCnvTxt) const;
+    void           PutLong(long L);
+    void           PutLong(long L, CCnvIndex iCnv, char*pCnvTxt);
+    double         GetDouble() const;
+    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt) const;
+    void           PutDouble(double D);
+    void           PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt);
+    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL) const;
+    
+    flag           SetTypeString(byte Type, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL);
+
   public:
     byte          iType:5, iStatus:2, bSpare:1;
     union 
@@ -275,34 +303,6 @@ class DllImportExport DataUnionCom // NBNB No virtual methods
       pchar        pChar;
       short        Len;    // Length of PkString
       };
-
-  public:
-    DataUnionCom() {iType=tt_NULL; iStatus=ds_OK; bSpare=0; };
-
-    byte           Type() { return iType; };
-    byte           Status() { return iStatus; };
-    void           SetStatus(byte Status) { iStatus=Status; };
-    word           Size();
-    word           TypeSize();
-    flag           IsNAN();
-    flag           IsZero();
-
-    void           Set(DataUnionCom &V);
-
-    flag           Equal(DataUnionCom &V);
-    flag           EqualNANOK(DataUnionCom &V);
-
-    long           GetLong();
-    long           GetLong(CCnvIndex iCnv, char*pCnvTxt);
-    void           PutLong(long L);
-    void           PutLong(long L, CCnvIndex iCnv, char*pCnvTxt);
-    double         GetDouble();
-    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt);
-    void           PutDouble(double D);
-    void           PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt);
-    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL);
-    
-    flag           SetTypeString(byte Type, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL);
   };
 
 // --------------------------------------------------------------------------
@@ -324,7 +324,7 @@ class DllImportExport DataUnion : public DataUnionCom // NBNB No virtual methods
 
     ~DataUnion()        { Clear(); };
 
-    word           Size();
+    word           Size() const;
 
     void           Clear() {if (iType==tt_pChar) delete [] pChar; iType=tt_NULL;};
                    
@@ -348,15 +348,15 @@ class DllImportExport DataUnion : public DataUnionCom // NBNB No virtual methods
     flag           EqualNANOK(DataUnion &V);
     flag           EqualNANOK(PkDataUnion &V);
 
-    long           GetLong();
-    long           GetLong(CCnvIndex iCnv, char*pCnvTxt);
+    long           GetLong() const;
+    long           GetLong(CCnvIndex iCnv, char*pCnvTxt) const;
     void           PutLong(long L);
     void           PutLong(long L, CCnvIndex iCnv, char*pCnvTxt);
-    double         GetDouble();
-    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt);
+    double         GetDouble() const;
+    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt) const;
     void           PutDouble(double D);
     void           PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt);
-    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL);
+    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL) const;
 
     flag           SetTypeString(byte Type, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL);
     void           SetTypeDouble(byte Type, double d) {Clear(); iType = Type; PutDouble(d); }; 
@@ -388,7 +388,7 @@ class DllImportExport PkDataUnion : public DataUnionCom // NBNB No virtual metho
     PkDataUnion(pchar  V) {iType=tt_pChar; StringSet(V);};
     PkDataUnion(byte iType, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL) { SetTypeString(iType, pStrData, iCnv, pCnvTxt); };
 
-    word           Size();
+    word           Size() const;
 
     void           Set(byte   V) {iType=tt_Byte; iStatus=ds_OK; Byte=V;};
     void           Set(word   V) {iType=tt_Word; iStatus=ds_OK; Word=V;};
@@ -411,15 +411,15 @@ class DllImportExport PkDataUnion : public DataUnionCom // NBNB No virtual metho
     flag           Equal(PkDataUnion &V);
 
 
-    long           GetLong();
-    long           GetLong(CCnvIndex iCnv, char*pCnvTxt);
+    long           GetLong() const;
+    long           GetLong(CCnvIndex iCnv, char*pCnvTxt) const;
     void           PutLong(long L);
     void           PutLong(long L, CCnvIndex iCnv, char*pCnvTxt);
-    double         GetDouble();
-    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt);
+    double         GetDouble() const;
+    double         GetDouble(CCnvIndex iCnv, char*pCnvTxt) const;
     void           PutDouble(double D);
     void           PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt);
-    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL);
+    char*          GetString(char*IFmt="%i", char*FFmt="%g", CCnvIndex iCnv=0, char*pCnvTxt=NULL) const;
     
     flag           SetTypeString(byte Type, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL);
     void           SetTypeDouble(byte Type, double d) { iType = Type; PutDouble(d); }; 
@@ -427,22 +427,51 @@ class DllImportExport PkDataUnion : public DataUnionCom // NBNB No virtual metho
     void           SetTypeLong(byte Type, long l) { iType = Type; PutLong(l); }; 
     void           SetTypeLong(byte Type, long l, CCnvIndex iCnv, char*pCnvTxt) { iType = Type; PutLong(l, iCnv, pCnvTxt); }; 
 
+
+    MTagIOType     TagType() const
+      {
+      switch (iType)
+        {
+        case tt_Byte: 
+        case tt_Word: 
+        case tt_DWord: 
+        case tt_Int: 
+        case tt_Char: 
+        case tt_Short: 
+        case tt_Long:
+          return MTagType_Long; 
+        
+        case tt_Flt16: 
+        case tt_Float: 
+        case tt_Double: 
+          return MTagType_Double; 
+        
+        case tt_pChar: 
+        case tt_ppChar: 
+        case tt_Strng: 
+          return MTagType_String;
+        
+        default:
+          return MTagType_Null;
+        }
+      }
+
   public:
     char           StringBuff[DataItemBuffSize];
 
-    char *         String();
+    char *         String() const;
     void           StringSet(char * s);
-    int            StringSize();
+    int            StringSize() const;
 
     void *         Blob();
     void           BlobSet(void * s, short iBlobLen);
-    int            BlobSize();
+    int            BlobSize() const;
 
   };
 
 //------------------------------------------------------------------------
 
-inline word DataUnion::Size()
+inline word DataUnion::Size() const
   {
   if (IsStrng(iType))
     return sizeof(pChar)+sizeof(byte);
@@ -524,7 +553,7 @@ inline flag DataUnion::EqualNANOK(PkDataUnion &V)
 
 //------------------------------------------------------------------------
 
-inline long DataUnion::GetLong()
+inline long DataUnion::GetLong() const
   {
   if (IsStrng(iType))
     {
@@ -535,7 +564,7 @@ inline long DataUnion::GetLong()
     return DataUnionCom::GetLong();
   };
 
-inline long DataUnion::GetLong(CCnvIndex iCnv, char*pCnvTxt)
+inline long DataUnion::GetLong(CCnvIndex iCnv, char*pCnvTxt) const
   {
   if (IsStrng(iType))
     {
@@ -570,7 +599,7 @@ inline void DataUnion::PutLong(long L, CCnvIndex iCnv, char*pCnvTxt)
 
 //------------------------------------------------------------------------
 
-inline double DataUnion::GetDouble()
+inline double DataUnion::GetDouble() const
   {
   if (IsStrng(iType))
     {
@@ -581,7 +610,7 @@ inline double DataUnion::GetDouble()
     return DataUnionCom::GetDouble();
   };
 
-inline double DataUnion::GetDouble(CCnvIndex iCnv, char*pCnvTxt)
+inline double DataUnion::GetDouble(CCnvIndex iCnv, char*pCnvTxt) const
   {
   if (IsStrng(iType))
     {
@@ -616,7 +645,7 @@ inline void DataUnion::PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt)
 
 //------------------------------------------------------------------------
 
-inline char* DataUnion::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/)
+inline char* DataUnion::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/) const
   {
   if (IsStrng(iType))
     return pChar;
@@ -641,7 +670,7 @@ inline flag DataUnion::SetTypeString(byte iTypeRqd, char*pStrData, CCnvIndex iCn
 
 //========================================================================
 
-inline char * PkDataUnion::String()     
+inline char * PkDataUnion::String() const
   { 
   return (char*)&Len+sizeof(Len);
   };
@@ -665,7 +694,7 @@ inline void PkDataUnion::StringSet(char * s)
 
 //------------------------------------------------------------------------
 
-inline int PkDataUnion::StringSize() 
+inline int PkDataUnion::StringSize() const
   { 
   return sizeof(Len)+Len+1; 
   };
@@ -688,14 +717,14 @@ inline void PkDataUnion::BlobSet(void * s, short iBlobLen)
 
 //------------------------------------------------------------------------
 
-inline int PkDataUnion::BlobSize() 
+inline int PkDataUnion::BlobSize() const 
   { 
   return sizeof(Len)+Len+1; 
   };
 
 //------------------------------------------------------------------------
 
-inline word PkDataUnion::Size()
+inline word PkDataUnion::Size()  const
   {
   if (IsStrng(iType) || IsStructure(iType) || IsLayout(iType) || iType==tt_Generic)
     return StringSize()+sizeof(byte);
@@ -751,7 +780,7 @@ inline void PkDataUnion::Set(PkDataUnion &V)
 
 //------------------------------------------------------------------------
 
-inline long PkDataUnion::GetLong()
+inline long PkDataUnion::GetLong()  const
   {
   if (IsStrng(iType))
     {
@@ -762,7 +791,7 @@ inline long PkDataUnion::GetLong()
     return DataUnionCom::GetLong();
   };
 
-inline long PkDataUnion::GetLong(CCnvIndex iCnv, char*pCnvTxt)
+inline long PkDataUnion::GetLong(CCnvIndex iCnv, char*pCnvTxt)  const
   {
   if (IsStrng(iType))
     {
@@ -797,7 +826,7 @@ inline void PkDataUnion::PutLong(long L, CCnvIndex iCnv, char*pCnvTxt)
 
 //------------------------------------------------------------------------
 
-inline double PkDataUnion::GetDouble()
+inline double PkDataUnion::GetDouble() const
   {
   if (IsStrng(iType) || IsBlob(iType))
     {
@@ -808,7 +837,7 @@ inline double PkDataUnion::GetDouble()
     return DataUnionCom::GetDouble();
   };
 
-inline double PkDataUnion::GetDouble(CCnvIndex iCnv, char*pCnvTxt)
+inline double PkDataUnion::GetDouble(CCnvIndex iCnv, char*pCnvTxt) const
   {
   if (IsStrng(iType) || IsBlob(iType))
     {
@@ -843,7 +872,7 @@ inline void PkDataUnion::PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt)
 
 //------------------------------------------------------------------------
 
-inline char* PkDataUnion::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/)
+inline char* PkDataUnion::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/) const
   {
   if (IsStrng(iType) || IsStructure(iType) || IsLayout(iType) || iType==tt_Generic)
     {

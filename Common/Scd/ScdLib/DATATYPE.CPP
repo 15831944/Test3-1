@@ -10,6 +10,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 #include "sc_defs.h"
 #define  __DATATYPE_CPP
@@ -74,7 +75,7 @@ flt16 flt16::operator=(double v)
 
 //------------------------------------------------------------------------
 
-flt16::operator double() 
+flt16::operator double() const
   { 
   int e=Exp-ExpOff; 
   double v=(Mant+0.5)/2048.0; 
@@ -286,7 +287,7 @@ void DDBValueLstMem::SaveToCSV(Strng &S, bool QuoteBlanks)
 //
 //===========================================================================
 
-word DataUnionCom::Size()
+word DataUnionCom::Size() const
   {
   switch (iType)
     {
@@ -311,7 +312,7 @@ word DataUnionCom::Size()
 
 //------------------------------------------------------------------------
 
-word DataUnionCom::TypeSize()
+word DataUnionCom::TypeSize() const
   {
   switch (iType)
     {
@@ -335,7 +336,7 @@ word DataUnionCom::TypeSize()
 
 //------------------------------------------------------------------------
 
-flag DataUnionCom::IsNAN()
+flag DataUnionCom::IsNAN() const
   {
   switch (iType)
     {
@@ -375,7 +376,7 @@ void DataUnionCom::Set(DataUnionCom &V)
 
 //------------------------------------------------------------------------
 
-flag DataUnionCom::IsZero()
+flag DataUnionCom::IsZero() const
   {
   switch (iType)
     {
@@ -475,7 +476,7 @@ flag DataUnionCom::EqualNANOK(DataUnionCom &V)
 
 //------------------------------------------------------------------------
 
-long DataUnionCom::GetLong()
+long DataUnionCom::GetLong() const
   {
   switch (iType)
     {
@@ -499,7 +500,7 @@ long DataUnionCom::GetLong()
 
 //------------------------------------------------------------------------
 
-long DataUnionCom::GetLong(CCnvIndex iCnv, char*pCnvTxt)
+long DataUnionCom::GetLong(CCnvIndex iCnv, char*pCnvTxt) const
   {
   switch (iType)
     {
@@ -571,7 +572,7 @@ void DataUnionCom::PutLong(long L, CCnvIndex iCnv, char*pCnvTxt)
 
 //------------------------------------------------------------------------
 
-double DataUnionCom::GetDouble()
+double DataUnionCom::GetDouble() const
   {
   switch (iType)
     {
@@ -594,7 +595,7 @@ double DataUnionCom::GetDouble()
 
 //------------------------------------------------------------------------
 
-double DataUnionCom::GetDouble(CCnvIndex iCnv, char*pCnvTxt)
+double DataUnionCom::GetDouble(CCnvIndex iCnv, char*pCnvTxt) const
   {
   switch (iType)
     {
@@ -668,7 +669,7 @@ void DataUnionCom::PutDouble(double D, CCnvIndex iCnv, char*pCnvTxt)
 char GetStringBuffer[2048];
 int GetStringBufferPos=0;
 
-char* DataUnionCom::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/)
+char* DataUnionCom::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex iCnv/*=0*/, char*pCnvTxt/*=NULL*/) const
   {
   char*p = &GetStringBuffer[GetStringBufferPos];
   switch (iType)
@@ -2383,4 +2384,200 @@ void CPkDataList::dbgDump(flag Full, char* pWhere)
     dbgpln("");
   };
 
+//=========================================================================
+//
+//
+//
+//=========================================================================
+
+MTagIOValue::MTagIOValue()                 
+  { 
+  m_TIOType = MTagType_Null;   
+  };
+MTagIOValue::MTagIOValue(long L)
+  { 
+  m_TIOType = MTagType_Long;    
+  m_Long = L; 
+  };
+MTagIOValue::MTagIOValue(double D)
+  { 
+  m_TIOType = MTagType_Double;  
+  m_Double = D; 
+  };
+MTagIOValue::MTagIOValue(LPCSTR S)
+  { 
+  m_TIOType = MTagType_String;  
+  m_String = S; 
+  };
+
+MTagIOValue::MTagIOValue(const MTagIOValue & V)
+  {
+  m_TIOType  = V.m_TIOType;
+  switch (m_TIOType)
+    {
+    case MTagType_Long: m_Long      = V.m_Long;   break;
+    case MTagType_Double: m_Double  = V.m_Double; break;
+    case MTagType_String: m_String  = V.m_String; break;
+    }
+  };
+
+MTagIOValue::~MTagIOValue()                 { };
+
+MTagIOValue & MTagIOValue::operator=(const MTagIOValue & V)
+  {
+  m_TIOType  = V.m_TIOType;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   m_Long    = V.m_Long;   break;
+    case MTagType_Double: m_Double  = V.m_Double; break;
+    case MTagType_String: m_String  = V.m_String; break;
+    }
+  return *this;
+  };
+MTagIOValue & MTagIOValue::operator=(const PkDataUnion & V)
+  {
+  m_TIOType  = V.TagType();
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   m_Long    = V.GetLong();   break;
+    case MTagType_Double: m_Double  = V.GetDouble(); break;
+    case MTagType_String: m_String  = V.GetString(); break;
+    }
+  return *this;
+  };
+bool MTagIOValue::operator==(const MTagIOValue & V)
+  {
+  if (m_TIOType  != V.m_TIOType)
+    return false;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   return m_Long   == V.m_Long;   
+    case MTagType_Double: 
+      {
+      bool Valid1=Valid(m_Double);
+      bool Valid2=Valid(V.m_Double);
+      return (Valid1 && Valid2 && (m_Double==V.m_Double)) || (Valid1==Valid2);
+      }
+    case MTagType_String: return m_String == V.m_String; 
+    }
+  return false;
+  };
+bool MTagIOValue::operator!=(const MTagIOValue & V)
+  {
+  if (m_TIOType  != V.m_TIOType)
+    return true;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   return m_Long   != V.m_Long;   
+    case MTagType_Double: return m_Double != V.m_Double; 
+      {
+      bool Valid1=Valid(m_Double);
+      bool Valid2=Valid(V.m_Double);
+      return (Valid1 && Valid2 && (m_Double!=V.m_Double)) || (Valid1!=Valid2);
+      }
+    case MTagType_String: return m_String != V.m_String; 
+    }
+  return true;
+  };
+
+MTagIOType   MTagIOValue::getTIOType() const        { return m_TIOType; };
+void         MTagIOValue::putTIOType(MTagIOType T)  { m_TIOType=T; };
+long         MTagIOValue::getLong() const           
+  { 
+  switch (m_TIOType)
+    {
+    case MTagType_Long: return m_Long; 
+    case MTagType_Double: return (long)Range(double(LONG_MIN), m_Double, double(LONG_MAX)); 
+    case MTagType_String: return SafeAtoL(m_String, 0); 
+    };
+  return 0;
+  }
+void         MTagIOValue::putLong(long L)
+  {
+  m_TIOType=MTagType_Long;
+  m_Long=L;
+  };
+double       MTagIOValue::getDoubleSI() const 
+  { 
+  double d=0.0;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   d=m_Long;                break;
+    case MTagType_Double: d=m_Double;              break;
+    case MTagType_String: d=SafeAtoF(m_String, 0); break;
+    };
+  return d;
+  }
+void         MTagIOValue::putDoubleSI(double D)       
+  { 
+  m_TIOType=MTagType_Double; 
+  m_Double=D; 
+  };
+double       MTagIOValue::getDoubleCnv(const MCnv * pCnv) const 
+  { 
+  double d=0.0;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   d=m_Long;                break;
+    case MTagType_Double: d=m_Double;              break;
+    case MTagType_String: d=SafeAtoF(m_String, 0); break;
+    };
+  
+  if (pCnv)
+    d= Cnvs[pCnv->Index]->Human(d, (LPSTR)pCnv->Text); 
+  
+  return d;
+  }
+void         MTagIOValue::putDoubleCnv(const MCnv * pCnv, double D)       
+  { 
+  if (pCnv)
+    D= Cnvs[pCnv->Index]->Normal(D, (LPSTR)pCnv->Text); 
+  
+  m_TIOType=MTagType_Double; 
+  m_Double=D; 
+  };
+LPCSTR       MTagIOValue::getString() const         
+  { 
+  switch (m_TIOType)
+    {
+    case MTagType_Long: 
+      //return m_Long; 
+    case MTagType_Double: //return m_Double; 
+      _asm int 3;
+      return "???";
+    case MTagType_String: return m_String; 
+    };
+  return 0;
+  }
+void         MTagIOValue::putString(LPCSTR S)
+  {
+  m_TIOType=MTagType_String;
+  m_String=S;
+  };
+
+void MTagIOValue::Reset()
+  {
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   m_Long    = 0;   break;
+    case MTagType_Double: m_Double  = 0.0; break;
+    case MTagType_String: m_String  = "";  break;
+    }
+  };
+CString MTagIOValue::AsString() const       
+  { 
+  CString S;
+  switch (m_TIOType)
+    {
+    case MTagType_Long:   S.Format("%i", m_Long);     break;   
+    case MTagType_Double: S.Format("%.5f", m_Double); break;
+    case MTagType_String: S=m_String;                 break;
+    }
+  return S; 
+  };
+
+//=========================================================================
+//
+//                                                          //
+//=========================================================================
 

@@ -452,6 +452,9 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
           if (ArrayDbg)
             gs_Dbg.PrintLn("ArrayEle  %s %i %s", D.m_Tag, D.m_iIndex, D.m_sIndex);
           
+          //if (m_iCol==0)
+          //  DD.Text("XXXXXX");  
+
           CString S;
           //S.Format("%s[%s]", D.m_Tag, D.m_Index);
           //S=D.m_Index;

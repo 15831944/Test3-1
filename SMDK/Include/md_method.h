@@ -29,9 +29,11 @@ class MReactionBlk;
 class MMethodUtility;
 class MProbalPCtrl;
 class MUnitDefBase;
+class MTagIO;
 
 // remote forward's
 class MdlNode;
+class PkDataUnion; 
 class DataDefnBlk;
 class DataChangeBlk;
 class ValidateDataBlk;
@@ -52,6 +54,9 @@ class CFT_Mixer;
 class CMacroMdl;
 class CMacroMdlBase;
 class CRqdPressCtrl;
+
+class CNodeTagIOItem; 
+class CNodeTagIOList;
 
 //---------------------------------------------------------------------------
 /* Class MInOutDefStruct : Used to Setup definition of IO (input/output) ports to a model.
@@ -458,66 +463,129 @@ class DllImportExport MCtrlIOs : public MBaseMethodCommonRef
    list where tags are continuously updated.
 */
 
-class DllImportExport MTagIOInfo
+class DllImportExport MTagIOItem//Info
   {
   public:
-    MTagIOInfo() { Clear(); };
-    void Clear();
+    MTagIOItem(MTagIO & TagIO, CNodeTagIOItem *pItem=NULL);
+    ~MTagIOItem();
 
-    bool NumDataType();
-    bool IntDataType();
-    bool FloatDataType();
-    bool StrngDataType();
+    MTagIOResult    CheckTag();
+    MTagIOResult    ReadValue();
+    MTagIOResult    WriteValue();
 
-    bool IsParam() { return (Flags & MF_PARAMETER)!=0; };
+    LPCSTR          getTag();
+    void            putTag(LPCSTR Tag);
+
+    bool            getNumDataType();
+    bool            getIntDataType();
+    bool            getFloatDataType();
+    bool            getStrngDataType();
+            
+    short           getDataType(); 
+    MD_Flags        getIOFlags();  
+    MCnv            getCnv();      
+
+
+    //return true if tag is valid (Tag Exists & CnvTxt is acceptable)
+    bool            getIsValid();
+    //return true if tag is valid and active
+    bool            getIsActive();
+    
+    //return value IO tag
+    long            getLong();
+    //set value of IO tag
+    void            putLong(long Value);
+    //return value in SI units of IO tag
+    double          getDoubleSI();
+    //set value SI units of IO tag
+    void            putDoubleSI(double Value);
+    //return value in SI units of IO tag
+    double          getDoubleCnv(LPCSTR Cnv=NULL);
+    //set value SI units of IO tag
+    void            putDoubleCnv(double Value, LPCSTR Cnv=NULL);
+    //return value IO tag
+    LPCSTR          getString();
+    //set value of IO tag
+    void            puttring(LPCSTR Value);
+    
+    //return data type of IO tag
+    //short           getDataType();
+    //return conversion index of IO tag
+    short           getCnvIndex();
+    //return conversion text of IO tag
+    LPCSTR          getCnvText();
+    //return true IO tag is a Get 
+    bool            getIsGet();
+    //return true IO tag is a Set 
+    bool            getIsSet();
+    //return true IO tag is a Parameter 
+    bool            getIsParm();
+
+    __declspec(property(get=getNumDataType))                  bool          NumDataType;
+    __declspec(property(get=getIntDataType))                  bool          IntDataType;
+    __declspec(property(get=getFloatDataType))                bool          FloatDataType;
+    __declspec(property(get=getStrngDataType))                bool          StrngDataType;
+    __declspec(property(get=getIsParam))                      bool          IsParam; 
+    __declspec(property(get=getDataType))                     short         DataType;
+    __declspec(property(get=getFlags))                        MD_Flags      Flags;    
+    __declspec(property(get=getCnv))                          MCnv          Cnv;      
+    __declspec(property(get=getTag,put=putTag))               LPCSTR        Tag;      
+
+
+    __declspec(property(get=getLong,put=putLong))             long          Long;
+    __declspec(property(get=getDoubleSI,put=putDoubleSI))     double        DoubleSI;
+    __declspec(property(get=getDoubleCnv,put=putDoubleCnv))   double        DoubleCnv[];
+    __declspec(property(get=getString,put=putString))         LPCSTR        String;
+
+    __declspec(property(get=getIsActive))                     bool          IsActive;
+    __declspec(property(get=getDataType))                     short         DataType;
+    __declspec(property(get=getCnvIndex))                     short         CnvIndex;
+    __declspec(property(get=getCnvText))                      LPCSTR        CnvText;
+
+    __declspec(property(get=getCnv))                          MCnv          Cnv;
+    __declspec(property(get=getIOFlags))                      MD_Flags      IOFlags;
+    __declspec(property(get=getIsGet))                        bool          IsGet;
+    __declspec(property(get=getIsSet))                        bool          IsSet;
+    __declspec(property(get=getIsParm))                       bool          IsParm;
+    __declspec(property(get=getValue))                        MTagIOValue & Value;
+
 
   public:
-    unsigned char DataType;
-    short CnvIndex;
-    MD_Flags Flags;
-  };
+    MTagIO          * m_pTagIO;
+    CNodeTagIOItem  * m_pItem;
+    bool              m_bOwnsItem;
 
-enum MTagIOResult { MTagIO_OK, MTagIO_NotSpecified, MTagIO_NotFound, MTagIO_BadDataType, MTagIO_NotAllowed, MTagIO_ReadOnly, MTagIO_WriteFail };
+  };
 
 class DllImportExport MTagIO : public MBaseMethodCommonRef
   {
   public:
     MTagIO(MBaseMethodCommon *pCom) : MBaseMethodCommonRef(pCom) {};
 
-    static void     FormatAsTagOnly(CString & Tag);
-    static void     FormatAsTagAndCnv(CString & Tag);
-
-    //------------------------------
-    // Section 1: Direct tag access:
-
-    //Get value for specified tag
-    MTagIOResult    GetTag(LPCSTR Tag, double & Value);
-    //Get value for specified tag
-    MTagIOResult    GetTag(LPCSTR Tag, long & Value);
-    //Get value for specified tag
-    MTagIOResult    GetTag(LPCSTR Tag, CString & Value);
-    //Set value for specified tag
-    MTagIOResult    SetTag(LPCSTR Tag, double Value);
-    //Set value for specified tag
-    MTagIOResult    SetTag(LPCSTR Tag, long Value);
-    //Set value for specified tag
-    MTagIOResult    SetTag(LPCSTR Tag, LPCSTR Value);
-    //Check if tag is valid and return tag information
-    MTagIOResult    GetTagInfo(LPCSTR Tag, MTagIOInfo & TagInfo);
-
+    static CString FormatAsTagOnly(const CString & Tag);
+    static CString FormatAsTagAndCnv(const CString & Tag);
+    static LPCSTR ResultString(MTagIOResult Res);
 
     //---------------------------------------------
     // Section 2: Tag subscription list management:
 
     //Enable and activate TagIO subscription
-    void            Open(long EstimatedTagCount);
+    void            Open(long TagCount);
     //Disable and stop TagIO subscription
     void            Close();
+    // must used in ValidateDataFields - returns false when TagIOValidation must NOT occur
+    bool            ValidateReqd();
+    // must used to bracket Sets' etc
+    bool            StartValidateDataFields(long TagCount=-1);
+    bool            EndValidateDataFields();
+
+    MTagIOItem    * operator[](int ID);
+    MTagIOItem    * operator[](LPCSTR TagStr);
 
     //return count of IO tags
     long            getCount();
     //add an IO tag, return index ID if OK, -ve number if error; Options=MTIO_Get, etc; tag values will be in SI units
-    long            Add(LPCSTR Tag, LPCSTR Name, long Options);
+    long            Set(long ID, LPCSTR Tag, LPCSTR Name, long Options);
     //remove all tags in IO list
     void            RemoveAll();
     //find index ID of specified Tag
@@ -527,37 +595,14 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
 
     //remove IO tag at specified index ID
     bool            Remove(long ID);
-    //return true if tag is valid and active
-    bool            getIsActive(long ID);
-    //return value in SI units of IO tag at specified index ID
-    double          getDValue(long ID);
-    //set value in SI units of IO tag at specified index ID
-    void            putDValue(long ID, double Value);
-    //return data type of IO tag at specified index ID
-    short           getDataType(long ID);
-    //return conversion index of IO tag at specified index ID
-    short           getCnvIndex(long ID);
-    //return options of IO tag at specified index ID
-    long            getOptions(long ID);
-    //return tag of IO tag at specified index ID
-    LPCSTR          getTag(long ID);
-    //return fulltag of IO tag at specified index ID
-    LPCSTR          getFullTag(long ID);
-    //return conversion text of IO tag at specified index ID
-    LPCSTR          getCnvText(long ID);
-                    
 
     __declspec(property(get=getCount))                          long       Count;
 
-    __declspec(property(get=getDValue,put=putDValue))           double     DValue[];
 
-    __declspec(property(get=getIsActive))                       bool       IsActive[];
-    __declspec(property(get=getDataType))                       short      DataType[];
-    __declspec(property(get=getCnvIndex))                       short      CnvIndex[];
-    __declspec(property(get=getOptions))                        long       Options[];
-    __declspec(property(get=getTag))                            LPCSTR     Tag[];
-    __declspec(property(get=getFullTag))                        LPCSTR     FullTag[];
-    __declspec(property(get=getCnvText))                        LPCSTR     CnvText[];
+  protected:
+    void SetSize(long TagCount);
+
+    CArray<MTagIOItem*, MTagIOItem*>m_Items;
 
   };
 

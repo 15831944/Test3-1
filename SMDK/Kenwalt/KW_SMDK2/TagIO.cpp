@@ -33,7 +33,9 @@ void CTagIO_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
+CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
+  m_GetItem(TagIO),
+  m_SetItem(TagIO)
   {
   //default values...
   m_bOn       = true;
@@ -47,11 +49,11 @@ CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitD
   m_dGetValueSubs1 = 0.0;//dNAN;
   m_dGetValueSubs2 = 0.0;//dNAN;
   m_dSetValueSubs1 = 0.0;
-  m_iGet1 = -1;
-  m_iGet2 = -1;
-  m_iSet1 = -1;
+  //m_iGet1 = -1;
+  //m_iGet2 = -1;
+  //m_iSet1 = -1;
 
-  TagIO.Open(100);
+  TagIO.Open(3);
   }
 
 //---------------------------------------------------------------------------
@@ -69,15 +71,20 @@ bool CTagIO::PreStartCheck()
 
 //---------------------------------------------------------------------------
 
-const int idDX_GetTagStr  = 1;
-const int idDX_GetTagButton = 2;
-const int idDX_GetTagInfoButton = 3;
-const int idDX_PutTagStr = 4;
-const int idDX_SetTagButton = 5;
-const int idDX_TagSubscriptionOn = 10;
-const int idDX_GetTagSubsStr1 = 11;
-const int idDX_GetTagSubsStr2 = 12;
-const int idDX_SetTagSubsStr1 = 13;
+enum 
+  {
+  idDX_GetTagStr = 1,
+  idDX_GetTagButton,
+  //idDX_GetTagValue,
+  idDX_GetTagInfoButton,
+  idDX_PutTagStr,
+  idDX_SetTagButton,
+  //idDX_SetTagValue, 
+  idDX_TagSubscriptionOn,
+  idDX_GetTagSubsStr1,
+  idDX_GetTagSubsStr2,
+  idDX_SetTagSubsStr1
+  };
 
 const int maxElements = 80;
 
@@ -89,17 +96,18 @@ void CTagIO::BuildDataFields()
   DD.Text(" ");
   DD.Text("----------------------------------------");
   DD.Text("Example of GetTag and SetTag...");
+#if 01
   DD.String("GetTag", "", idDX_GetTagStr, MF_PARAMETER);
-  DD.Button("GetTagInfo", "", idDX_GetTagInfoButton);
+  DD.Button("GetTagInfo",  "", idDX_GetTagInfoButton);
   DD.Button("GetValueNow", "", idDX_GetTagButton);
-  DD.Double("GetValue", "", &m_dGetValue, MF_RESULT|MF_NanOK, m_GetCnv);
-  DD.Text((LPCSTR)m_sGetStatus);
+  DD.Double("GetValue",    "", &m_dGetValue, MF_RESULT|MF_NanOK);
+  DD.Text(m_sGetStatus);
   DD.Text(" ");
   DD.String("PutTag", "", idDX_PutTagStr, MF_PARAMETER);
-  DD.Double("ValueToSet", "", &m_dSetValue, MF_PARAMETER|MF_NanOK, m_SetCnv);
+  DD.Double("ValueToSet", "", &m_dSetValue, MF_PARAMETER|MF_NanOK);
   DD.Button("SetValueNow", "", idDX_SetTagButton);
-  DD.Text((LPCSTR)m_sSetStatus);
-  
+  DD.Text(m_sSetStatus);
+#endif
 
   DD.Text(" ");
   DD.Text(" ");
@@ -108,53 +116,17 @@ void CTagIO::BuildDataFields()
   DD.CheckBox("TagSubscriptionOn", "", idDX_TagSubscriptionOn, MF_PARAMETER);
   DD.String("GetTagSubs1", "", idDX_GetTagSubsStr1, MF_PARAMETER);
   DD.String("GetTagSubs2", "", idDX_GetTagSubsStr2, MF_PARAMETER);
-  DD.Show(m_iGet1>=0);
-  MCnv Cnv;
-  if (m_bSubsActive && m_iGet1>=0)
-    Cnv.m_Index = TagIO.CnvIndex[m_iGet1]; //unfortunatly this is not valid until a solve
-  DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, Cnv);
-  DD.Show(m_iGet2>=0);
-  if (m_bSubsActive && m_iGet2>=0)
-    Cnv.m_Index = TagIO.CnvIndex[m_iGet2];
-  DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, Cnv);
+
+  DD.Show(TagIO[0]->IsActive);
+  DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, TagIO[0]->Cnv);
+
+  DD.Show(TagIO[1]->IsActive);
+  DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, TagIO[1]->Cnv);
+
+  DD.Show();
   DD.String("SetTagSubs1", "", idDX_SetTagSubsStr1, MF_PARAMETER);
-  DD.Show(m_iSet1>=0);
-  if (m_bSubsActive && m_iSet1>=0)
-    Cnv.m_Index = TagIO.CnvIndex[m_iSet1];
-  DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, Cnv);
-  }
-
-//---------------------------------------------------------------------------
-
-bool CTagIO::AddSubsTag(CString & Tag, LPCSTR NewTag, bool TestParam/* = false*/)
-  {
-  CString OldTag(Tag);
-  Tag = NewTag;
-  TagIO.FormatAsTagOnly(Tag);
-  if (Tag!=OldTag)
-    {//changed...
-    if (Tag.GetLength()>0)
-      {
-        MTagIOInfo TagInfo;
-        const int RetCode = TagIO.GetTagInfo(Tag, TagInfo);
-        switch (RetCode)
-        {
-        case MTagIO_OK:
-          break;
-        case MTagIO_NotFound:
-          Log.Message(MMsg_Warning, "Tag '%s' not found.", Tag);
-          break;
-        default:
-          Log.Message(MMsg_Warning, "Tag '%s' not allowed.", Tag);
-          break;
-          //TagInfo.CnvIndex;
-        }
-      }
-    m_bBuildListRqd = true;
-    //MyTagsHaveChanged();
-    return true;
-    }
-  return false;
+  DD.Show(TagIO[2]->IsActive);//m_iSet1>=0);
+  DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, TagIO[2]->Cnv);
   }
 
 //---------------------------------------------------------------------------
@@ -165,71 +137,59 @@ bool CTagIO::ExchangeDataFields()
     {
     case idDX_GetTagStr:
       if (DX.HasReqdValue)
-        {
-        m_sGetTag = DX.String;
-        TagIO.FormatAsTagAndCnv(m_sGetTag);
-        MTagIOInfo TagInfo;
-        const int RetCode = TagIO.GetTagInfo(m_sGetTag, TagInfo);
-        if (RetCode==MTagIO_OK)
-          m_GetCnv.m_Index = TagInfo.CnvIndex;
-        }
-      DX.String = m_sGetTag;
+        m_GetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String);
+      DX.String = m_GetItem.Tag;
       return true;
     case idDX_GetTagInfoButton:
 		  if (DX.HasReqdValue && DX.Bool)
         {
-        MTagIOInfo TagInfo;
-        const int RetCode = TagIO.GetTagInfo(m_sGetTag, TagInfo);
-        switch (RetCode)
+        MTagIOResult RetCode = m_GetItem.CheckTag();
+        if (RetCode==MTagIO_OK)
           {
-          case MTagIO_OK: m_sGetStatus.Format("Tag OK: DataType:%d(%s)  CnvIndex:%d(%s)  Flags:%d", TagInfo.DataType, TagObjTypeNames[TagInfo.DataType].Str, TagInfo.CnvIndex, "todo"/*gs_Cnvs[TagInfo.CnvIndex].Name*/, TagInfo.Flags); break;
-          case MTagIO_NotSpecified: m_sGetStatus = "Tag not specified."; break;
-          case MTagIO_NotFound: m_sGetStatus = "Tag not found."; break;
-          case MTagIO_NotAllowed: m_sGetStatus = "Tag not allowed."; break;
+          m_sGetStatus.Format("Tag OK: DataType:%d(%s)  CnvIndex:%d(%s)  Flags:%x", 
+                            m_GetItem.DataType,
+                            TagObjTypeNames[m_GetItem.DataType].Str, 
+                            m_GetItem.Cnv.m_Index, 
+                            gs_Cnvs.Name(m_GetItem.Cnv), 
+                            m_GetItem.IOFlags); 
           }
+        else
+          m_sGetStatus = TagIO.ResultString(RetCode);
         Log.Message(MMsg_Error, m_sGetStatus);
         }
   		DX.Bool = false;
       return true;
     case idDX_PutTagStr:
       if (DX.HasReqdValue)
-        {
-        m_sSetTag = DX.String;
-        TagIO.FormatAsTagAndCnv(m_sSetTag);
-        MTagIOInfo TagInfo;
-        const int RetCode = TagIO.GetTagInfo(m_sSetTag, TagInfo);
-        if (RetCode==MTagIO_OK)
-          m_SetCnv.m_Index = TagInfo.CnvIndex;
-        }
-      DX.String = m_sSetTag;
+        m_SetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String);
+      DX.String = m_SetItem.Tag;
       return true;
     case idDX_GetTagButton:
 		  if (DX.HasReqdValue && DX.Bool)
         {
-        int RetCode = TagIO.GetTag(m_sGetTag, m_dGetValue);
+        MTagIOResult RetCode = m_GetItem.ReadValue();
         if (RetCode==MTagIO_OK)
           {
-          m_sGetStatus.Format("Retrieved %s", m_sGetTag);
+          m_dGetValue = m_GetItem.DoubleCnv;
+          m_sGetStatus.Format("Retrieved %s SI:%.2f Cnv:%.2f", m_GetItem.Tag, m_GetItem.DoubleSI, m_GetItem.DoubleCnv);
           }
         else
-          {
-          m_sGetStatus.Format("Error %d", RetCode);
-          }
+          m_sGetStatus.Format("Error %s", TagIO.ResultString(RetCode));
         }
   		DX.Bool = false;
       return true;
     case idDX_SetTagButton:
 		  if (DX.HasReqdValue && DX.Bool)
         {
-        int RetCode = TagIO.SetTag(m_sSetTag, m_dSetValue);
+        MTagIOResult RetCode = m_SetItem.CheckTag();
         if (RetCode==MTagIO_OK)
           {
-          m_sSetStatus.Format("Set %s", m_sSetTag);
+          m_SetItem.DoubleCnv = m_dSetValue;
+          RetCode = m_SetItem.WriteValue();
+          m_sSetStatus.Format("Written %s", TagIO.ResultString(RetCode));
           }
         else
-          {
-          m_sSetStatus.Format("Error %d", RetCode);
-          }
+          m_sSetStatus.Format("Error %s", TagIO.ResultString(RetCode));
         }
   		DX.Bool = false;
       return true;
@@ -245,35 +205,24 @@ bool CTagIO::ExchangeDataFields()
             m_bBuildListRqd = true;
           }
         else
-          {
           TagIO.Close();
-          m_iGet1 = -1;
-          m_iGet2 = -1;
-          m_iSet1 = -1;
-          }
         }
       DX.Bool=m_bSubsActive;
       return true;
     case idDX_GetTagSubsStr1:
       if (DX.HasReqdValue)
-        {
-        AddSubsTag(m_sGetTagSubs1, DX.String);
-        }
-      DX.String = m_sGetTagSubs1;
+        TagIO[0]->Tag=DX.String;
+      DX.String = TagIO[0]->Tag;
       return true;
     case idDX_GetTagSubsStr2:
       if (DX.HasReqdValue)
-        {
-        AddSubsTag(m_sGetTagSubs2, DX.String);
-        }
-      DX.String = m_sGetTagSubs2;
+        TagIO[1]->Tag=DX.String;
+      DX.String = TagIO[1]->Tag;
       return true;
     case idDX_SetTagSubsStr1:
       if (DX.HasReqdValue)
-        {
-        AddSubsTag(m_sSetTagSubs1, DX.String);
-        }
-      DX.String = m_sSetTagSubs1;
+        TagIO[2]->Tag=DX.String;
+      DX.String = TagIO[2]->Tag;
       return true;
     }
 
@@ -284,19 +233,22 @@ bool CTagIO::ExchangeDataFields()
 
 bool CTagIO::ValidateDataFields()
   {
-  if (m_bSubsActive && m_bBuildListRqd)
+  if (TagIO.ValidateReqd() && m_bSubsActive)
     {
-    //TagIO.Close();
-    TagIO.RemoveAll();
-    m_iGet1 = TagIO.Add(m_sGetTagSubs1, "GetValue1", MTIO_Get);
-    m_iGet2 = TagIO.Add(m_sGetTagSubs2, "GetValue2", MTIO_Get);
-    m_iSet1 = TagIO.Add(m_sSetTagSubs1, "SetValue1", MTIO_Set);
-    if (m_iGet1<0 && m_iGet1!=-3)
-      Log.Message(MMsg_Error, "Error with GetTagSubs1 (%s)", m_sGetTagSubs1);
-    if (m_iGet2<0 && m_iGet2!=-3)
-      Log.Message(MMsg_Error, "Error with GetTagSubs1 (%s)", m_sGetTagSubs2);
-    if (m_iSet1<0 && m_iSet1!=-3)
-      Log.Message(MMsg_Error, "Error with SetTagSubs1 (%s)", m_sSetTagSubs1);
+
+    if (TagIO.StartValidateDataFields())
+      {
+      if (TagIO.Set(0, NULL, "GetValue1", MTagIO_Get)>0)
+        m_dGetValueSubs1 = TagIO[0]->DoubleSI;
+      if (TagIO.Set(1, NULL, "GetValue2", MTagIO_Get)>0)
+        m_dGetValueSubs2 = TagIO[1]->DoubleSI;
+      if (TagIO.Set(2, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0)
+        {
+        m_dSetValueSubs1 = TagIO[2]->DoubleSI;
+        }
+      }
+    TagIO.EndValidateDataFields();
+    
     m_bBuildListRqd = false;
     }
   return true;
@@ -325,12 +277,12 @@ void CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)
       if (m_bSubsActive)
         {
         //get/set the values
-        if (m_iGet1>=0)
-          m_dGetValueSubs1 = TagIO.DValue[m_iGet1]; //always as SI units
-        if (m_iGet2>=0)
-          m_dGetValueSubs2 = TagIO.DValue[m_iGet2]; //always as SI units
-        if (m_iSet1>=0)
-          TagIO.DValue[m_iSet1] = m_dSetValueSubs1; //always as SI units
+        if (TagIO[0]->IsActive)
+          m_dGetValueSubs1 = TagIO[0]->DoubleSI; //always as SI units
+        if (TagIO[1]->IsActive)
+          m_dGetValueSubs2 = TagIO[1]->DoubleSI; //always as SI units
+        if (TagIO[2]->IsActive)
+          TagIO[2]->DoubleSI = m_dSetValueSubs1; //always as SI units
         }
       }
     catch (MMdlException &ex)

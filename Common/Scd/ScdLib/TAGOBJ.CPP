@@ -2361,6 +2361,8 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   fActiveHoldOK_PB=true;
   fActiveHoldOK_Dyn=false;
 
+  m_bFileIOBusy=false;
+
   fDoDbgBrk=False; // For debugging purposes
 
   m_pgpTO=NULL;
@@ -3507,6 +3509,8 @@ flag TaggedObject::PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkD
   DDB.Open(this, FullItemTag, DDBTask_PutData, Opts, pShortcut);
   if (DDB.Analyse(Iter))
     {
+    m_bFileIOBusy=(Opts & (TABOpt_ForFile|TABOpt_ForScenario|TABOpt_ForSnapShot))!=0;
+    
     DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
     DDB.Page(Tag(),DDB_RqdPage);
     BuildCommonStartDefn(DDB);
@@ -3549,6 +3553,8 @@ flag TaggedObject::PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkD
 //        }
 //      }
 //#endif
+    
+    m_bFileIOBusy=false;
     return True;
     }
   DDB.Close();
@@ -5637,14 +5643,14 @@ DDBPkListItem * DataDefnBlk::FindChildItem(int MsgItemLevel, char *pTag, char * 
   int BadType=-1;
 
   DDBPkListItem *pChild=NULL;
-  // First look for Sym - Then Tag
+  // First look for Sym - Then Tag                                                              Problems  
   if (pSym && strlen(pSym)>0)
     {
     UINT uHash = HashValue(pSym)%DDBHashMax;
     pChild=(*pParent->pMap)[uHash];
     while (pChild)
       {
-      if (_stricmp(pSym, pChild->pTag)==0)
+      if ((iFlags&DDEF_TAGCASESENS) ?  strcmp(pSym, pChild->pTag)==0 : _stricmp(pSym, pChild->pTag)==0)
         {
         if ((pChild->iType==iType) || ((pChild->iType==tt_Generic) && (IsData(iType))))
           return pChild;
@@ -5665,7 +5671,8 @@ DDBPkListItem * DataDefnBlk::FindChildItem(int MsgItemLevel, char *pTag, char * 
     pChild=(*pParent->pMap)[uHash];
     while (pChild)
       {
-      if (_stricmp(pTag, pChild->pTag)==0)
+      if ((iFlags&DDEF_TAGCASESENS) ?  strcmp(pTag, pChild->pTag)==0 : _stricmp(pTag, pChild->pTag)==0)
+      //if (_stricmp(pTag, pChild->pTag)==0)
         {
         if ((pChild->iType==iType) || ((pChild->iType==tt_Generic) && (IsData(iType))))
           return pChild;
@@ -7532,6 +7539,47 @@ void TagAccessBlk::ClearDDBLists()
   }
 
 //---------------------------------------------------------------------------
+
+MTagIOValue TagAccessBlk::GetTagValue(LPSTR pRqdCnvText)
+  {
+  if (m_Shortcut.fOK)
+    {
+    PkDataUnion DataValue;
+    m_Shortcut.GetValue(dwOptions, DataValue);
+    if (!pRqdCnvText)
+      pRqdCnvText=sCnvTxt();
+    if (::IsIntData(DataValue.Type()))
+      return MTagIOValue(DataValue.GetLong());
+    if (::IsFloatData(DataValue.Type()))
+      return MTagIOValue(DataValue.GetDouble(pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText));
+    if (::IsStrng(DataValue.Type()))
+      return MTagIOValue(DataValue.GetString());
+    //return DataValue.GetDouble(pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText);
+    }
+  return MTagIOValue(0.0);
+  };
+
+int TagAccessBlk::PutTagValue(MTagIOValue V, LPSTR pRqdCnvText)
+  {
+  if (m_Shortcut.fOK)
+    {
+    if (!pRqdCnvText)
+      pRqdCnvText=sCnvTxt();
+    PkDataUnion DataValue;
+    switch (V.TIOType)
+      {
+      case MTagType_Long:    DataValue.SetTypeLong(m_Shortcut.iType, V.Long); break;
+      case MTagType_Double:  DataValue.SetTypeDouble(m_Shortcut.iType, V.DoubleSI, pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText); break;
+      case MTagType_String:  DataValue.SetTypeString(m_Shortcut.iType, (LPSTR)V.String); break;
+      }
+    //DataValue.SetTypeDouble(m_Shortcut.iType, D, pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText);
+    
+    m_Shortcut.PutValue(dwOptions, DataValue);
+    ValidateDataBlk VDB;
+    return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
+    }
+  return TOData_NotFound;
+  };
 
 double TagAccessBlk::GetDouble(char * pRqdCnvText)
   {

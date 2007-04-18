@@ -114,12 +114,94 @@ inline bool IsStrngDataType(unsigned char iType)   { return (iType>=MDT_pChar &&
 //
 //
 // ======================================================================
+
+#undef DllImportExport
+#if defined(__DATATYPE_CPP)
+#define DllImportExport __declspec(dllexport)
+#elif !defined(SCDLIB)
+#define DllImportExport __declspec(dllimport)
+#else
+#define DllImportExport
+#endif
+
 // MTagIO constants for options used in class MTagIO see md_method.h
-enum { MTIO_Int, MTIO_Double, MTIO_String };
-const long MTIO_Get       = 0x00000001;
-const long MTIO_Set       = 0x00000002;
-const long MTIO_Parm      = 0x00000004;
-const long MTIO_SICnv     = 0x00000008;
+//enum { MTagIO_Int, MTagIO_Double, MTagIO_String };
+const long MTagIO_Get         = 0x00000001;
+const long MTagIO_Set         = 0x00000002;
+const long MTagIO_Parm        = 0x00000004;
+const long MTagIO_HoldChecks  = 0x00000008;
+
+enum MTagIOType
+  {
+  MTagType_Null, 
+  MTagType_Long, 
+  MTagType_Double, 
+  MTagType_String, 
+  };                           
+
+enum MTagIOResult
+  {
+  MTagIO_OK               = -1, 
+  MTagIO_NotSpecified     = -2,      
+  MTagIO_NotFound         = -3,      
+  MTagIO_BadDataType      = -4,      
+  MTagIO_NotAllowed       = -5,      
+  MTagIO_ReadOnly         = -6,      
+  MTagIO_BadCnv           = -7, 
+  MTagIO_WriteFail        = -8,       
+  MTagIO_NoSpace          = -9,  
+  MTagIO_InternalError    = -10, 
+  MTagIO_GlblConnectBusy  = -11,
+  MTagIO_FileIOBusy       = -12
+  };                           
+         
+class PkDataUnion;
+class MCnv;
+class DllImportExport MTagIOValue
+  {
+  public:
+    MTagIOValue();
+    MTagIOValue(long L);
+    MTagIOValue(double D);
+    MTagIOValue(LPCSTR S);
+    MTagIOValue(const MTagIOValue & V);
+    ~MTagIOValue();
+
+    MTagIOValue & operator=(const MTagIOValue & V);
+    MTagIOValue & operator=(const PkDataUnion & V);
+    
+    bool operator==(const MTagIOValue & V);
+    bool operator!=(const MTagIOValue & V);
+
+    MTagIOType  getTIOType() const;
+    void        putTIOType(MTagIOType T);
+    long        getLong() const;
+    void        putLong(long L);
+    double      getDoubleSI() const;
+    void        putDoubleSI(double D);
+    double      getDoubleCnv(const MCnv * pCnv) const;
+    void        putDoubleCnv(const MCnv * pCnv, double D);
+    LPCSTR      getString() const;
+    void        putString(LPCSTR S);
+
+    void        Reset();
+    CString     AsString() const;
+
+    __declspec(property(get=getTIOType,put=putTIOType))             MTagIOType    TIOType;      
+    __declspec(property(get=getLong,put=putLong))                   long          Long;      
+    __declspec(property(get=getDoubleSI,put=putDoubleSI))           double        DoubleSI;      
+    __declspec(property(get=getDoubleCnv,put=putDoubleCnv))         double        DoubleCnv[];      
+    __declspec(property(get=getString,put=putString))               LPCSTR        String;      
+
+  protected:
+    MTagIOType      m_TIOType;
+
+    long            m_Long;      
+    double          m_Double;      
+    LPCSTR          m_String;      
+    //PkDataUnion  * m_pData;
+    //PkDataUnion  * m_pData;
+  };
 
 // ======================================================================
 
@@ -261,20 +343,26 @@ class DllImportExport MPropertyValue
 #undef DllImportExport
 #if defined(__MD_DEFN_CPP)
 #define DllImportExport __declspec(dllexport)
-#elif !defined(SCDLIB)
+#elif !defined(SMDK1)
 #define DllImportExport __declspec(dllimport)
 #else
 #define DllImportExport
 #endif
 
 /* Class MCnv: Engineering conversion.*/
-class DllImportExport MCnv
+class /*DllImportExport*/ MCnv
   {
   public:
-    MCnv()                          { m_Index=0; m_Txt=""; };
-    MCnv & operator()(LPCTSTR Txt)  { m_Txt=Txt; return *this; };
-    operator short()                { return m_Index; };
-    operator long()                 { return m_Index; };
+    MCnv(short Index=0, LPCTSTR Txt="")   { m_Index=Index; m_Txt=Txt; };
+    MCnv & operator()(LPCTSTR Txt)        { m_Txt=Txt; return *this; };
+    operator short() const                { return m_Index; };
+    operator long()  const                { return m_Index; };
+
+    CCnvIndex getIndex() const            { return m_Index; };
+    LPCTSTR   getText() const             { return m_Txt;  };
+
+    __declspec(property(get=getIndex))     CCnvIndex Index;
+    __declspec(property(get=getText))      LPCTSTR   Text;
 
   public://protected:
     short    m_Index;
@@ -373,11 +461,13 @@ class DllImportExport MCnvs
     //return number of Cnvs
     int     Count();
     //return index of specified conversion family name
-    short   FindPrimary(LPCTSTR Name);
+    MCnv    FindPrimary(LPCTSTR Name);
     //return scale for specified conversion
     double  Scale(const MCnv & Cnv);
     //return offset for specified conversion
     double  Offset(const MCnv & Cnv);
+    //return Name for specified conversion
+    LPCTSTR Name(const MCnv & Cnv);
 
     //try create a valid conversion for the suplied string
     bool    Create(LPCTSTR NameCnv, MCnv & Cnv);

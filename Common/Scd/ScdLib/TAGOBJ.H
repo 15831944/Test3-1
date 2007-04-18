@@ -1434,6 +1434,8 @@ protected:
     static Strng    sRepFieldNameChars; // Fields may contain these but they will be replaced
     //static CSArray sRepFieldNameChars;
 
+    flag            m_bFileIOBusy;
+
   protected:
     TagObjClass*   m_pClass;
 
@@ -2109,6 +2111,8 @@ class DllImportExport TagAccessBlk
     CCnvIndex      CnvIndex()       { return m_Shortcut.fOK ? m_Shortcut.iCnv : 0; };
     DDEF_Flags     Flags()          { return m_Shortcut.fOK ? m_Shortcut.iFlags : 0; };
 
+    MTagIOValue    GetTagValue(LPSTR pRqdCnvText=NULL);
+    int            PutTagValue(MTagIOValue V, LPSTR pRqdCnvText=NULL);
     double         GetDouble(char * pRqdCnvText=NULL);
     long           GetLong();
     int            PutDouble(double D, char * pRqdCnvText=NULL);

@@ -161,7 +161,7 @@ bool SingleVarStats::ExchangeDataFields()
 			{
 				if (lTagID >= 0)
 					TagIO.Remove(lTagID);
-				lTagID = TagIO.Add(DX.String, "TagToGet", MTIO_Get);
+				lTagID = TagIO.Set(-1, DX.String, "TagToGet", MTagIO_Get);
 			}
 			Reset();
 		}
@@ -237,7 +237,7 @@ void SingleVarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 	{
 		if (lTagID < 0 || !bOn)
 			return;
-		double dVal = TagIO.DValue[lTagID];
+    double dVal = TagIO[lTagID]->DoubleSI;
 		RecalculateStats(dVal);
 		//InvalidateHistogram();
 	}
@@ -488,7 +488,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		CString units = TagIO.getCnvText(lTagID);
+		CString units = TagIO[lTagID]->CnvText;
 		if (lTagID > 0 && strcmp(units, "") != 0)
 			xLabel.Format("Value (%s)", units);
 		else

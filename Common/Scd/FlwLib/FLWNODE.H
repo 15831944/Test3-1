@@ -4311,14 +4311,16 @@ class DllImportExport FlwNode : public CTNode
     bool           fSolutionBusy,
                    fHasFiles,
                    fIntegralDone, // Set if EvalIntegral has done its Job - Just zero derivs
-                   fValidateDataComplete, // A Check
                    fActiveInMacroMdl, // A Check
                    fEvalImpCalled, // A Check
                    fEvalProductsSurgeCalled, // A Check
                    fEvalProductsCalled, // A Check
                    fEvalPressSensReqd, // Must Call EvalPressSens if set
                    fSolutionForRoot,
-                   fElecConnsDone;
+                   fElecConnsDone,
+                   m_fValidateDataComplete, // A Check
+                   m_fGlobalConnectBusy, // set true during Global Connect
+                   m_fRevalidate;        // Set true (by TagIO) to request a ReValidation
 
     int            m_nJoins, m_nRqdJoins;
     int            m_nLinks, m_nRqdLinks;

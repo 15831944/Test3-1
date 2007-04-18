@@ -1687,7 +1687,7 @@ SW.Start();
 dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
 #endif
 
-    p->fValidateDataComplete=false;
+    p->m_fValidateDataComplete=false;
     ValidateDataBlk VDB;
     if (!p->ValidateDefinedData(VDB))
       {
@@ -1696,7 +1696,7 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
       }
     else
       p->ClrCI(17);
-    if (!p->fValidateDataComplete && !p->bHoldValidateData)
+    if (!p->m_fValidateDataComplete && !p->bHoldValidateData)
       LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
 
     for (int i=0; i<p->NoFlwIOs(); i++)
@@ -11183,6 +11183,8 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
     GetObj_All(p);
     while (p)
       {
+      p->m_fGlobalConnectBusy=true;
+      
       for (int io=0; io<p->NoIOs(); io++)
         {
         if (p->m_dwType & (nc_MLnk))
@@ -11251,16 +11253,14 @@ DeleteIt:
     p=NULL;
     while (GetObj_All(p))
       {
-      p->fValidateDataComplete=false;
+      p->m_fValidateDataComplete=false;
+      p->m_fRevalidate=false;
 
       ValidateDataBlk VDB(false);
       bool OK=(p->ValidateDefinedData(VDB)!=0);
       p->SetCI(17, !OK);
 
-      if (!OK)
-        { int xxx=0; };
-
-      if (!p->fValidateDataComplete && !p->bHoldValidateData)
+      if (!p->m_fValidateDataComplete && !p->bHoldValidateData)
         LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
       }
 
@@ -11318,10 +11318,36 @@ DeleteIt:
 
     SHOWPROGRESS(1, "DoGlobalLinks 8");
 
+
     fGlblLinksDone=true;
+  
+    if (1)
+      {
+      p=NULL;
+      while (GetObj_All(p))
+        {
+        p->m_fGlobalConnectBusy=false;
+        p->m_fValidateDataComplete=false;
+        if (p->m_fRevalidate)
+          {
+          ValidateDataBlk VDB(false);
+          bool OK=(p->ValidateDefinedData(VDB)!=0);
+          p->SetCI(17, !OK);
+
+          if (!p->m_fValidateDataComplete && !p->bHoldValidateData)
+            LogError(p->FullObjTag(), 0, "Incomplete ValidateData");
+          }
+        p->m_fRevalidate=false;
+        }
+      }
+
+
     //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
     SHOWPROGRESS(1, "GlobalLinksDone");
+
+
+
     }
   }
 

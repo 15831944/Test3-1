@@ -701,7 +701,17 @@ class DllImportExport GCTagVar : public GCVar
     virtual ~GCTagVar();   
 
     char           WhatAmI() { return VarTag; };                               
-    pchar          GetStrVal(pchar Buff) { Valid(m_pXRef->TheValue()) ? sprintf(Buff, "%.12g", m_pXRef->TheValue()) : sprintf(Buff, "*"); return Buff; };
+    pchar          GetStrVal(pchar Buff) 
+      { 
+      const MTagIOValue & V=m_pXRef->TagValue();
+      switch (V.TIOType) 
+        {
+        case MTagType_Long:    sprintf(Buff, "%i", V.Long);                           return Buff; 
+        case MTagType_Double:  sprintf(Buff, Valid(V.DoubleSI)? "%.12g":"*", V.DoubleSI); return Buff; 
+        case MTagType_String:  sprintf(Buff, "%s", V.String);                         return Buff; 
+        }
+      return strcpy(Buff, "???"); 
+      }
 
     double         getD() { return m_pXRef->GetXRefValue();};
     long           getL() { double d = Range((double)LONG_MIN, m_pXRef->GetXRefValue(), (double)LONG_MAX); return (long)d; };

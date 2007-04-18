@@ -158,7 +158,7 @@ class DllImportExport CNodeProcedures
     CCriticalSection m_VarDataSect;
 
     HANDLE          m_hProcess[TP_MaxTtlIncludeFiles];             //process handle for the editor
-    DWORD           m_dwProcessId[TP_MaxTtlIncludeFiles];          //process ID for the editor
+    DWORD           m_dwProcessId[TP_MaxTtlIncludeFiles];          //process Id for the editor
     FILETIME        m_EditTime[TP_MaxTtlIncludeFiles];             //time editor scheduled
 
     flag            m_bOn;                  //must the pgm be executed etc
@@ -190,93 +190,91 @@ class DllImportExport CNodeProcedures
 
 #if WITHNODETAGIO
 
-// Moved to md_share4.h
-//enum { TIO_Int, TIO_Double, TIO_String };
-//const long TIO_Get       = 0x00000001;
-//const long TIO_Set       = 0x00000002;
-//const long TIO_Parm      = 0x00000004;
-//const long TIO_SICnv     = 0x00000008;
+class CNodeTagIOList; 
+class DllImportExport CNodeTagIOItem : public CXRefStatus
+  {
+  friend class CNodeTagIOList;
+  friend class MTagIOItem;
+  friend class MTagIO;
+  public:
+    CNodeTagIOItem(FlwNode * pNd, bool Subscribed, LPCSTR Tag="", LPCSTR Name="", long IOFlags=0);
+    ~CNodeTagIOItem();
+
+    LPCSTR            TagOnly()       { return m_sTagOnly; };
+    void              SetTag(LPCSTR NewTag);
+    
+    MTagIOResult      CheckTag();
+    MTagIOResult      ReadValue();
+    MTagIOResult      WriteValue();
+
+    LPCSTR            Name()        { return m_sName; };
+    byte              DataType()    { return m_iTypeRead; };
+    CCnvIndex         CnvIndex()    { return m_iCnvRead; };
+    LPCSTR            CnvText()     { return m_sCnv; };
+    MCnv              Cnv()         { return MCnv(CnvIndex(), CnvText()); }
+    bool              IsActive()    { return m_bInUse && IsXRefActive(); };
+    long              IOFlags()     { return m_IOFlags; };
+    DDEF_Flags        TagFlags()    { return m_TagFlags;  };
+    LPCSTR            FullTag()     { return m_sFullTag; };
+
+    //CXRefStatus Override
+    bool              IsXRefActive() const { return m_bValid;  };
+
+  protected:
+    FlwNode         * m_pNd;
+
+    CString           m_sFullTag;
+    CString           m_sTagOnly;
+    CString           m_sCnv;
+    byte              m_iTypeRead; 
+    CCnvIndex         m_iCnvRead; 
+    CString           m_sName;
+    long              m_IOFlags;
+    DDEF_Flags        m_TagFlags;
+    long              m_lIdNo;
+    bool              m_bValid;
+    bool              m_bInUse;
+    bool              m_bValueValid;
+    bool              m_bSubscribed;
+    CTgFnIoVar        m_Var;
+
+    MTagIOValue       m_Value;
+  };
 
 class DllImportExport CNodeTagIOList
   {
-  public:
-
-    class CTagItem : public CXRefStatus
-      {
-      public:
-        CTagItem(LPCSTR Tag, LPCSTR Name, long Options);
-        ~CTagItem();
-
-        LPCSTR        Tag()       { return m_sTag; };
-        LPCSTR        Cnv()       { return m_sCnv; };
-        LPCSTR        FullTag()   { return m_sFullTag; };
-        LPCSTR        Name()      { return m_sName; };//if (m_Name.GetLength()>0) return m_sName; CString S; S.Format("Tag%03i", m_IdNo); return S; };
-        byte          DataType()  { return m_Var.m_pXRef ? m_Var.m_pXRef->m_iType : tt_NULL; };
-        CCnvIndex     CnvIndex()  { return m_Var.m_pXRef ? m_Var.m_pXRef->m_iCnvIndex : 0; };
-        LPCSTR        CnvText()   { return m_Var.m_pXRef ? m_Var.m_pXRef->m_sCnv() : ""; };
-
-        //CXRefStatus Override
-        bool IsXRefActive() const    { return m_bValid;  };
-
-      public:
-        CString           m_sTag;
-        CString           m_sCnv;
-        CString           m_sFullTag;
-        CString           m_sName;
-        long              m_lOptions;
-        //short             m_iDataType;
-        long              m_lIdNo;
-        bool              m_bValid;
-        bool              m_bInUse;
-        bool              m_bValueValid;
-        CTgFnIoVar        m_Var;
-
-        double            m_DblValue;
-      };
+  friend class CNodeTagIOItem;
+  friend class MTagIOItem;
+  friend class MTagIO;
 
   public:
-    CNodeTagIOList(FlwNode * pNd, long EstTagCount);
+    CNodeTagIOList(FlwNode * pNd, long TagCount=-1);
     ~CNodeTagIOList();
 
     void            BuildDataDefn(DataDefnBlk & DDB);
     flag            DataXchg(DataChangeBlk & DCB);
     flag            ValidateData(ValidateDataBlk & VDB);
+    bool            ValidateReqd();
+    bool            StartValidate(long TagCount);
+    bool            EndValidate();
 
     int             ChangeTag(pchar pOldTag, pchar pNewTag);
     int             DeleteTag(pchar pDelTag);
 
+    void            SetSize(long TagCount);
     long            Count()                  { return m_Items.GetCount(); };
-    CTagItem &      operator[](int ID)    { return *m_Items[ID]; } 
     
-    long            Add(LPCSTR ItemTag, LPCSTR Name, long Options);        // returns >=0 ID, < 0 Errors
-    bool            Remove(long ID);
+    CNodeTagIOItem *operator[](int Id)       { return m_Items[Id]; } 
+    CNodeTagIOItem *operator[](LPCSTR IDTag) { int i=FindTag(IDTag); return i>=0 ? m_Items[i] : NULL; } 
+    
+    long            Set(long Id, LPCSTR ItemTag, LPCSTR Name, long IOFlags);        // returns >=0 Id, < 0 Errors
+    bool            Remove(long Id);
     bool            Remove(LPCSTR ItemTag);
     void            RemoveAll();
     long            GetCount();
 
     long            FindTag(LPCSTR ItemTag);
     long            FindName(LPCSTR Name);
-
-    bool            IsActive(long ID);
-    short           GetDataType(long ID);
-    short           GetCnvIndex(long ID);
-    long            GetOptions(long ID);
-    LPCSTR          GetTag(long ID);
-    LPCSTR          GetFullTag(long ID);
-    LPCSTR          GetCnvText(long ID);
-
-    double          GetDValue(long ID, bool UseCnv=false);
-    void            SetDValue(long ID, double Value, bool UseCnv=false);
-
-    bool            IsActive(LPCSTR Tag);
-    short           GetDataType(LPCSTR Tag);
-    short           GetCnvIndex(LPCSTR Tag);
-    long            GetOptions(LPCSTR Tag);
-    LPCSTR          GetFullTag(LPCSTR Tag);
-    LPCSTR          GetCnvText(LPCSTR Tag);
-
-    double          GetDValue(LPCSTR Tag, bool UseCnv=false);
-    void            SetDValue(LPCSTR Tag, double Value, bool UseCnv=false);
 
     int             UpdateXRefLists(CXRefBuildResults & Results);
     void            UnlinkAllXRefs();
@@ -285,17 +283,20 @@ class DllImportExport CNodeTagIOList
     void            GetAllValues(bool CallGetNearXRefs);
     void            SetAllValues(bool CallSetNearXRefs);
 
-  private:
+    static LPCSTR   ResultString(MTagIOResult Res);
+
+  protected:
     void            UpdateList();
 
     FlwNode       * m_pNd;
                              
     long            m_nCount;
 
-    CArray<CTagItem*, CTagItem*> m_Items;
-    CMap<LPCSTR, LPCSTR, CTagItem*, CTagItem*> m_TagMap;
-    CMap<LPCSTR, LPCSTR, CTagItem*, CTagItem*> m_NameMap;
+    CArray<CNodeTagIOItem*, CNodeTagIOItem*> m_Items;
+    CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_TagMap;
+    CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_NameMap;
 
+    bool            m_bValidateReqd;
     bool            m_bShowTags;
   };
 

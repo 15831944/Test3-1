@@ -44,24 +44,24 @@ struct MarksInfo
   POINT    m_Pt[5];
   COLORREF m_Col; 
   };
-#define HALFARROWS 01
+#define HALFARROWS 0 
 
 MarksInfo Marks[] = 
   {
 #if HALFARROWS 
-    {true, false, true,  false, true,   3, {{0,2}, {4,2}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRef
+    {true, false, true,  false, true,   3, {{0,2}, {4,2}, {4,0},    {},   {}}, RGB(0x7f ,0xff ,0x00)  },  // GetXRef
 #else
-    {true, false, true,  false, false,  3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRef
+    {true, false, true,  false, false,  3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x7f ,0xff ,0x00)  },  // GetXRef
 #endif
-    {true, true,  true,  false, true,   3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x00 ,0x00 ,0xff)  },  // GetXRefCnt
+    {true, true,  true,  false, true,   3, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x7f ,0xff ,0x00)  },  // GetXRefCnt
 #if HALFARROWS 
-    {true, false, false, false, true,   3, {{0,6}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRef
+    {true, false, false, false, true,   3, {{0,6}, {0,8}, {4,6},    {},   {}}, RGB(0x00, 0x00 ,0xff)  },  // SetXRef
 #else
-    {true, false, false, false, false,  3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRef
+    {true, false, false, false, false,  3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0x00, 0x00 ,0xff)  },  // SetXRef
 #endif
-    {true, true,  false, false, true,   3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCnt
-    {false,true,  false, true,  false,  3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCntMulti
-    {true, true,  false, true,  true,   3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff ,0x00 ,0x00)  },  // SetXRefCntMulti
+    {true, true,  false, false, true,   3, {{0,4}, {0,8}, {4,6},    {},   {}}, RGB(0x00, 0x00 ,0xff)  },  // SetXRefCnt
+    {false,true,  false, true,  false,  3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff, 0x00 ,0x00)  },  // SetXRefCntMulti
+    {true, true,  false, true,  true,   3, {{4,4}, {4,8}, {8,6},    {},   {}}, RGB(0xff, 0x00 ,0x00)  },  // SetXRefCntMulti
     {true, true,  false, false, true,   3, {{2,4}, {2,8}, {6,6},    {},   {}}, RGB(0xff ,0x00 ,0xff)  },  // Reset
     {true, true,  true,  false, true,   0, {{0,2}, {4,4}, {4,0},    {},   {}}, RGB(0x00 ,0xff ,0x80)  },  // InActive
   };
@@ -197,7 +197,7 @@ void FxdEdtFld::DrawMark(rGDIBlk GB, int iMark, bool InActiveColour)
 
     COLORREF Colour=InActiveColour ? RGB(0x00 ,0xff ,0xff) : I.m_Col;
     CBrush MrkBrush(Colour);
-    CPen MrkPen(PS_SOLID, 0, Colour);
+    CPen MrkPen(PS_SOLID, 0, RGB(0x00 ,0x00 ,0x00));//Colour);
     CPen *OldPen=dc.SelectObject(&MrkPen);
     if (I.m_Fill)
       {

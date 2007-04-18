@@ -2185,7 +2185,9 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   #endif
 
   fActiveInMacroMdl=false;
-  fValidateDataComplete=false;
+  m_fValidateDataComplete=false;
+  m_fGlobalConnectBusy=false;
+  m_fRevalidate=false;
 
   WrkConduits.InitHashTable(7);
 
@@ -4135,9 +4137,14 @@ void FlwNode::SetTagIOReqd(bool Reqd, long MaxTagCount)
   //  delete m_pTagIO;
   //  m_pTagIO=NULL;
   //  }
-  if (m_TagIOReqd && m_pTagIO==NULL)
-    m_pTagIO = new CNodeTagIOList(this, MaxTagCount);
-    
+  if (m_TagIOReqd)
+    {
+    if (m_pTagIO==NULL)
+      m_pTagIO = new CNodeTagIOList(this, MaxTagCount);
+    else
+      m_pTagIO->SetSize(MaxTagCount);
+    }
+
   //m_EstTagCount = EstTagCount;
   };
 
@@ -4147,7 +4154,7 @@ void FlwNode::SetTagIOReqd(bool Reqd, long MaxTagCount)
 
 flag FlwNode::ValidateData(ValidateDataBlk & VDB)
   {
-  fValidateDataComplete=True;
+  m_fValidateDataComplete=True;
   flag OK=ValidateDataAreaIOs(VDB);
   
   for (int i=0; i<NoFlwIOs(); i++)
@@ -7862,7 +7869,7 @@ void FlwNode::TraceChanges()
       if (dbgTraceChanges())
         dbgpln("                             XRef : %10.2f %s", CXRef(io)->m_Value.m_Chg.Val(0), CXRef(io)->SFGNodeTag());
       #endif
-      CXRef(io)->m_Value.m_Chg.Set(CXRef(io)->TheValue());
+      CXRef(io)->m_Value.m_Chg.Set(CXRef(io)->TagValue().DoubleSI);
       }
     }
   };
@@ -7971,7 +7978,7 @@ void FlwNode::MonitorPreEvalProducts()
     for (int i=0; i<NoXRefs2Me(); i++)
       {
       CXRefItem *pRef=CXRef(i);
-      pRef->m_Value.m_dValMem=pRef->TheValue();
+      pRef->m_Value.m_TagValueMem=pRef->TagValue();
       }
 
     for (i=0; i<NoFlwIOs(); i++)
@@ -8097,7 +8104,8 @@ void FlwNode::MonitorPostEvalProducts()
       }
     //dbgpln("");
 
-
+#if STILLTODO
+    _asm int 3;
     #define DBGIT(A,B,IO,T)  \
       {   \
       if (fabs((B-A)/GTZ(Max(fabs(A), fabs(B))))>dbgDumpChangeTol()*1.0e-6) \
@@ -8114,11 +8122,12 @@ void FlwNode::MonitorPostEvalProducts()
         {
         CXRefItem *pRef=CXRef(i);
         if (Valid(pRef->m_Value.m_dValMem))
-          DBGIT(pRef->m_Value.m_dValMem, pRef->TheValue(),  "In        :", pRef->SFGNodeTag(this))
+          DBGIT(pRef->m_Value.m_TagValueMem.AsString(), pRef->TheValue(),  "In        :", pRef->SFGNodeTag(this))
         else
           DBGITX(pRef->m_Value.m_dValMem, pRef->TheValue(), "In        :", pRef->SFGNodeTag(this));
         }
       }
+
     for (i=0; i<NoXRefs2Me(); i++)
       {
       if (CXRef_SrcNd(i)==this)
@@ -8133,6 +8142,7 @@ void FlwNode::MonitorPostEvalProducts()
 
     #undef DBGIT
     #undef DBGITX
+#endif
 
     dbgunlock();
     }

@@ -162,9 +162,15 @@ int MCnvs::Count()
   return gs_CnvsMngr.CnvCnt();
   }
 
-short MCnvs::FindPrimary(LPCTSTR Name)
+MCnv MCnvs::FindPrimary(LPCTSTR Name)
   {
-  return gs_CnvsMngr.FindCnv((char*)Name);
+  int i=gs_CnvsMngr.FindCnv((char*)Name);
+
+  MCnv Cnv;
+  Cnv.m_Index=i;
+  Cnv.m_Txt=Cnvs[i]->Txt();
+
+  return Cnv;
   }
 
 bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
@@ -212,6 +218,16 @@ double MCnvs::Offset(const MCnv & Cnv)
   if (Cnv.m_Index>0)
     gs_Log.Message(MMsg_Error, "Bad Conversion '%s' for '%s'", Cnv.m_Txt, gs_CnvsMngr.SICnv(Cnv.m_Index)->Fam());
   return 1.0;
+  }
+
+LPCTSTR MCnvs::Name(const MCnv & Cnv)
+  {
+  CDataCnv * p= Cnvs[Cnv.m_Index];
+  if (p)
+    return p->SICnv()->Fam();
+  if (Cnv.m_Index>0)
+    gs_Log.Message(MMsg_Error, "Bad Conversion '%s' for '%s'", Cnv.m_Txt, gs_CnvsMngr.SICnv(Cnv.m_Index)->Fam());
+  return "?";
   }
 
 //===========================================================================

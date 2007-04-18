@@ -237,8 +237,8 @@ void BivarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 	{
 		if (lTagID[0] < 0 || lTagID[1] < 0 || !bOn)
 			return;
-		double dVal1 = TagIO.DValue[lTagID[0]];
-		double dVal2 = TagIO.DValue[lTagID[1]];
+    double dVal1 = TagIO[lTagID[0]]->DoubleSI;
+    double dVal2 = TagIO[lTagID[1]]->DoubleSI;
 		RecalculateStats(dVal1, dVal2);
 	}
 	catch (MMdlException &ex)
@@ -289,7 +289,7 @@ void BivarStats::SetTag(int n, CString newValue)
 			TagIO.Remove(lTagID[n]);
 		CString name;
 		name.Format("TagToGet%d", n);
-		lTagID[n] = TagIO.Add(DX.String, name, MTIO_Get);
+		lTagID[n] = TagIO.Set(-1, DX.String, name, MTagIO_Get);
 	}
 }
 
