@@ -100,7 +100,7 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Fd("Fd", this, TOA_Free)
   {
   AttachIOAreas(FilterPressIOAreaList);
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
 
   iRqdFiltMethod  = FSM_SolToFiltFrac;
   RqdFiltSolConc  = 1.0;
@@ -250,7 +250,7 @@ void FilterPress::SetState(eScdMdlStateActs RqdState)
 
 void FilterPress::ConfigureJoins()
   {
-  Init_NoJoins(1);
+  Init_NoJoins(2);
   int iWashings = IOWithId_Self(ioidWashings);
   if (iWashings < 0)
     fFilt2Washings=False;
@@ -284,8 +284,18 @@ void FilterPress::ConfigureJoins()
           else
             SetIO_Closed(i, 0);
           break;
-        default:
+
+        case ioidFeed:    
+        case ioidWash:    
+        //case ioidFiltrate:
+        //case ioidCake:    
+        //case ioidWashings:
+        case ioidVent:    
           SetIO_Join(i, 0);
+          break;
+
+        default:
+          SetIO_Join(i, 1);
           break;
         }
       }
