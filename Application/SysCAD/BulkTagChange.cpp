@@ -1066,22 +1066,22 @@ BOOL CBulkTagChange::OnInitDialog()
   m_TagFilterRule.AddString(eFilterRuleNames[eFRWildCard]);
   m_TagFilterRule.AddString(eFilterRuleNames[eFRRegExp]);
 
-  S=PF.RdStr("BulkTagChange", "TagFilterRule", eFilterRuleNames[eFRContains]);
+  S=PF.RdStr("BulkTagChange.1", "TagFilterRule", eFilterRuleNames[eFRContains]);
   if (m_TagFilterRule.SelectString(-1, S)<0)
     m_TagFilterRule.SelectString(-1, eFilterRuleNames[eFRContains]);
 
-  m_TagFilter.SetWindowText(PF.RdStr("BulkTagChange", "TagFilter", ""));
+  m_TagFilter.SetWindowText(PF.RdStr("BulkTagChange.1", "TagFilter", ""));
 
   //if (m_DoingSubset)
   //  m_ShowAllBtn.SetCheck(0);
   //else
-  //  m_ShowAllBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowAll", 0));
+  //  m_ShowAllBtn.SetCheck(PF.RdLong("BulkTagChange.1", "ShowAll", 0));
 
-  m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnMarked", 1)!=0); 
-  m_ShowUnCheckedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnChecked", 1)!=0);
-  m_ShowUnSelectedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnSelected", 1)!=0);
+  m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange.1", "ShowUnMarked", 1)!=0); 
+  m_ShowUnCheckedBtn.SetCheck(PF.RdLong("BulkTagChange.1", "ShowUnChecked", 1)!=0);
+  m_ShowUnSelectedBtn.SetCheck(PF.RdLong("BulkTagChange.1", "ShowUnSelected", 1)!=0);
 
-  bool AllMarked = (m_Tags.GetCount() == m_pMarkedTags->GetCount());
+  bool AllMarked = m_pMarkedTags && (m_Tags.GetCount() == m_pMarkedTags->GetCount());
   if (m_pMarkedTags)
     {
     if (m_DoingSubset)
@@ -1091,8 +1091,8 @@ BOOL CBulkTagChange::OnInitDialog()
       }
     else
       {
-      m_AndMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "MarkedOnly", 1));
-      //m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange", "ShowUnMarked", 1));
+      m_AndMarkedBtn.SetCheck(PF.RdLong("BulkTagChange.1", "MarkedOnly", 1));
+      //m_ShowUnMarkedBtn.SetCheck(PF.RdLong("BulkTagChange.1", "ShowUnMarked", 1));
       }
     }
   else
@@ -1103,9 +1103,9 @@ BOOL CBulkTagChange::OnInitDialog()
     m_ShowUnMarkedBtn.EnableWindow(0);
     }
 
-  m_Find.SetWindowText(PF.RdStr("BulkTagChange", "FindString", "^"));
-  m_Replace.SetWindowText(PF.RdStr("BulkTagChange", "ReplaceString", ""));
-  m_bCaseSens       =PF.RdInt("BulkTagChange", "CaseSensitive", 0)!=0;
+  m_Find.SetWindowText(PF.RdStr("BulkTagChange.1", "FindString", "^"));
+  m_Replace.SetWindowText(PF.RdStr("BulkTagChange.1", "ReplaceString", ""));
+  m_bCaseSens       =PF.RdInt("BulkTagChange.1", "CaseSensitive", 0)!=0;
   m_bCaseSens       =false; // force it
 
   m_AndMarked      = m_AndMarkedBtn.GetCheck()!= 0;
@@ -1123,7 +1123,7 @@ BOOL CBulkTagChange::OnInitDialog()
     S.Format("ColWidth.%s", ColHeadName[i]);
     LPCTSTR Nm=(i==ColNumberMark) ? (m_pMarkedTags?"    ":"  "): ColHeadName[i];
     int hw=m_TagList.GetStringWidth(Nm)+15;
-    int cw=PF.RdInt("BulkTagChange", S, ColWide[i]);
+    int cw=PF.RdInt("BulkTagChange.1", S, ColWide[i]);
     switch (i)
       {
       case ColNumberMark:   cw=hw;                              break;  
@@ -1192,7 +1192,7 @@ BOOL CBulkTagChange::OnInitDialog()
     CBTCClass &Cl=*m_Classes[i];
     CString S;
     S.Format("Class.%s", Cl.m_sClassId);
-    Cl.m_Checked = PF.RdInt("BulkTagChange", S, Cl.m_Checked?1:0)!=0;
+    Cl.m_Checked = PF.RdInt("BulkTagChange.1", S, Cl.m_Checked?1:0)!=0;
     }
 
   for (int i=0; i<m_Pages.GetCount(); i++)
@@ -1200,7 +1200,7 @@ BOOL CBulkTagChange::OnInitDialog()
     CBTCPage &Pg=*m_Pages[i];
     CString S;
     S.Format("Page.%s", Pg.m_sPageId);
-    Pg.m_Checked = PF.RdInt("BulkTagChange", S, Pg.m_Checked?1:0)!=0;
+    Pg.m_Checked = PF.RdInt("BulkTagChange.1", S, Pg.m_Checked?1:0)!=0;
     }
 
 
@@ -1218,13 +1218,15 @@ BOOL CBulkTagChange::OnInitDialog()
   GetClientRect(&Rct);
   ClientToScreen(&Rct);
   //ClientToScreen(&Rct);
-  m_SepPos[0]= PF.RdInt("BulkTagChange", "Separator1", m_SepPos[0]);
-  m_SepPos[1]= PF.RdInt("BulkTagChange", "Separator2", m_SepPos[1]);
-  m_SepPos[2]= PF.RdInt("BulkTagChange", "Separator3", m_SepPos[2]);
-  int xPos = PF.RdInt("BulkTagChange", "XPos", -10000);//Rct.left);
-  int yPos = PF.RdInt("BulkTagChange", "YPos", Rct.top);
-  int CW = PF.RdInt("BulkTagChange", "Width", Rct.Width());
-  int CH = PF.RdInt("BulkTagChange", "Height", Rct.Height());
+  m_SepPos[0]= PF.RdInt("BulkTagChange.1", "Separator1", m_SepPos[0]);
+  m_SepPos[1]= PF.RdInt("BulkTagChange.1", "Separator2", m_SepPos[1]);
+  m_SepPos[2]= PF.RdInt("BulkTagChange.1", "Separator3", m_SepPos[2]);
+  m_SepPos[3]= PF.RdInt("BulkTagChange.1", "Separator4", m_SepPos[3]);
+
+  int xPos = PF.RdInt("BulkTagChange.1", "XPos", -10000);//Rct.left);
+  int yPos = PF.RdInt("BulkTagChange.1", "YPos", Rct.top);
+  int CW = PF.RdInt("BulkTagChange.1", "Width", Rct.Width());
+  int CH = PF.RdInt("BulkTagChange.1", "Height", Rct.Height());
 
   if (xPos>-10000)
     {
@@ -1346,13 +1348,14 @@ void CBulkTagChange::SaveProfile()
   CRect Rct;
   GetWindowRect(&Rct);
 
-  PF.WrInt("BulkTagChange", "Separator1", m_SepPos[0]);
-  PF.WrInt("BulkTagChange", "Separator2", m_SepPos[1]);
-  PF.WrInt("BulkTagChange", "Separator3", m_SepPos[2]);
-  PF.WrInt("BulkTagChange", "XPos", Rct.left);
-  PF.WrInt("BulkTagChange", "YPos", Rct.top);
-  PF.WrInt("BulkTagChange", "Width", Rct.Width());
-  PF.WrInt("BulkTagChange", "Height", Rct.Height());
+  PF.WrInt("BulkTagChange.1", "Separator1", m_SepPos[0]);
+  PF.WrInt("BulkTagChange.1", "Separator2", m_SepPos[1]);
+  PF.WrInt("BulkTagChange.1", "Separator3", m_SepPos[2]);
+  PF.WrInt("BulkTagChange.1", "Separator4", m_SepPos[3]);
+  PF.WrInt("BulkTagChange.1", "XPos", Rct.left);
+  PF.WrInt("BulkTagChange.1", "YPos", Rct.top);
+  PF.WrInt("BulkTagChange.1", "Width", Rct.Width());
+  PF.WrInt("BulkTagChange.1", "Height", Rct.Height());
 
   for (int i=0; i<ColCount; i++)
     {
@@ -1367,37 +1370,37 @@ void CBulkTagChange::SaveProfile()
         //default:              w;  break;
       }
 
-    PF.WrInt("BulkTagChange", S, w);
+    PF.WrInt("BulkTagChange.1", S, w);
     }
 
   m_TagFilterRule.GetWindowText(S);
-  PF.WrStr("BulkTagChange", "TagFilterRule", S);
+  PF.WrStr("BulkTagChange.1", "TagFilterRule", S);
   m_TagFilter.GetWindowText(S);
-  PF.WrStr("BulkTagChange", "TagFilter", S);
+  PF.WrStr("BulkTagChange.1", "TagFilter", S);
 
   //PF.WrStr("NeutralGroup", "Database", m_sDatabaseSymb);
   //if (!m_DoingSubset)
-  //  PF.WrLong("BulkTagChange", "ShowAll", m_ShowAllBtn.GetCheck());
+  //  PF.WrLong("BulkTagChange.1", "ShowAll", m_ShowAllBtn.GetCheck());
   if (m_pMarkedTags && !m_DoingSubset)
-    PF.WrLong("BulkTagChange", "MarkedOnly", m_AndMarkedBtn.GetCheck());
+    PF.WrLong("BulkTagChange.1", "MarkedOnly", m_AndMarkedBtn.GetCheck());
 
-  PF.WrLong("BulkTagChange", "ShowUnMarked", m_ShowUnMarkedBtn.GetCheck());
-  PF.WrLong("BulkTagChange", "ShowUnChecked", m_ShowUnCheckedBtn.GetCheck());
-  PF.WrLong("BulkTagChange", "ShowUnSelected", m_ShowUnSelectedBtn.GetCheck());
+  PF.WrLong("BulkTagChange.1", "ShowUnMarked", m_ShowUnMarkedBtn.GetCheck());
+  PF.WrLong("BulkTagChange.1", "ShowUnChecked", m_ShowUnCheckedBtn.GetCheck());
+  PF.WrLong("BulkTagChange.1", "ShowUnSelected", m_ShowUnSelectedBtn.GetCheck());
 
   CString FindStr, ReplaceStr;
   m_Find.GetWindowText(FindStr);
   m_Replace.GetWindowText(ReplaceStr);
-  PF.WrStr("BulkTagChange", "FindString", FindStr);
-  PF.WrStr("BulkTagChange", "ReplaceString", ReplaceStr);
-  PF.WrInt("BulkTagChange", "CaseSensitive", m_bCaseSens?1:0);
+  PF.WrStr("BulkTagChange.1", "FindString", FindStr);
+  PF.WrStr("BulkTagChange.1", "ReplaceString", ReplaceStr);
+  PF.WrInt("BulkTagChange.1", "CaseSensitive", m_bCaseSens?1:0);
 
   for (int i=0; i<m_Classes.GetCount(); i++)
     {
     CBTCClass &Cl=*m_Classes[i];
     CString S;
     S.Format("Class.%s", Cl.m_sClassId);
-    PF.WrInt("BulkTagChange", S, Cl.m_Checked?1:0);
+    PF.WrInt("BulkTagChange.1", S, Cl.m_Checked?1:0);
     }
 
   for (int i=0; i<m_Pages.GetCount(); i++)
@@ -1405,7 +1408,7 @@ void CBulkTagChange::SaveProfile()
     CBTCPage &Pg=*m_Pages[i];
     CString S;
     S.Format("Page.%s", Pg.m_sPageId);
-    PF.WrInt("BulkTagChange", S, Pg.m_Checked?1:0);
+    PF.WrInt("BulkTagChange.1", S, Pg.m_Checked?1:0);
     }
   }
 
