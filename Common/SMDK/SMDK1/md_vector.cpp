@@ -443,12 +443,14 @@ MStream::MStream()
 
 //---------------------------------------------------------------------------
 
-MStream::MStream(const MStream &Cn)
+MStream::MStream(const MStream &Cd)
   {
   m_pMethod=NULL;
   m_pCd=NULL;
   m_bOwned=false;
-  Attach(Cn);
+  //Attach(Cn);
+  Allocate();
+  *this=Cd;
   }
 
 //---------------------------------------------------------------------------
@@ -663,6 +665,7 @@ MContainer::MContainer()
   m_pMethod=NULL;
   m_pCn=NULL;
   m_bOwned=false;
+  Allocate();
   }
 
 //---------------------------------------------------------------------------
@@ -672,7 +675,9 @@ MContainer::MContainer(const MContainer &Cn)
   m_pMethod=NULL;
   m_pCn=NULL;
   m_bOwned=false;
-  Attach(Cn);
+  //Attach(Cn);
+  Allocate();
+  *this=Cn;
   }
 
 //---------------------------------------------------------------------------
@@ -799,6 +804,14 @@ void MContainer::CheckAttached()
 MContainer & MContainer::operator*=(const double &D)
   {
   m_pCn->pModel->ScaleMass(som_ALL, D);
+  return *this;
+  };
+
+//---------------------------------------------------------------------------
+
+MContainer& MContainer::operator=(const MContainer & S)
+  {
+  Cn.Copy(S.Cn);
   return *this;
   };
 

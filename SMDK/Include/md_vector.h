@@ -500,7 +500,7 @@ class DllImportExport MContainer : public MVector
     MContainer(MBaseMethod * Method, LPCSTR Tag, MVector &V);
     ~MContainer();
 
-    void          Allocate(LPCSTR Tag, LPCSTR SpMdlId=NULL);
+    void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
     void          Allocate(LPCSTR Tag, MVector &V);
     void          Attach(const MContainer &Cn);
     void          Attach(SpContainer *pCn);
