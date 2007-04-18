@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
     int count = fin.gcount();
     textBuffer[count] = 71; // 71 is like our password for this decryption...
 
-    encBuffer = new char[count];
+    encBuffer = new char[count+1];
 
     for (int i=count-1; i>=0; i--) // decrypt the buffer.
     {
