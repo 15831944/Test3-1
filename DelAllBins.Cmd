@@ -20,6 +20,7 @@ dir rls /s /b >> delallbins.tmp
 dir dbg8 /s /b >> delallbins.tmp
 dir rdb8 /s /b >> delallbins.tmp
 dir rls8 /s /b >> delallbins.tmp
+dir distribution8 /s /b >> delallbins.tmp
 
 for /f "eol=; tokens=1* delims=, " %%i in (delallbins.tmp) do rd /s /q %%i
 del delallbins.tmp
