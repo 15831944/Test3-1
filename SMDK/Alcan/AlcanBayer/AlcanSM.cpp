@@ -1471,7 +1471,7 @@ void CAlcanSM::InputCalcs(bool DoIt, double T_)
           }
         WaterUsed=M[Water];
         
-        if (FindingConc)
+        if (FindingConc && WantSolids)
           {
           double PrevSF=dRqd_SolFrac;
           DensL=Density25*1000;

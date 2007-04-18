@@ -1112,9 +1112,9 @@ void ASMBayer::DoInputCalcs()
         }
       WaterUsed=VValue[Water.LiqPhInx()];
       
-      if (FindingConc)
+      if (FindingConc && WantSolids)
         {
-        double PrevSF=dRqd_SolFrac;
+        const double PrevSF=dRqd_SolFrac;
         DensL=Density25*1000;
         DensS=SpModel::Rho(som_Sol, C_2_K(25.0), P);
         dRqd_SolFrac=Max(0.0, (dRqd_SolConc*DensS)/(dRqd_SolConc*DensS + DensL*DensS - DensL*dRqd_SolConc));
