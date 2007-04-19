@@ -538,11 +538,9 @@ class DllImportExport MTagIOItem//Info
     __declspec(property(get=getString,put=putString))         LPCSTR        String;
 
     __declspec(property(get=getIsActive))                     bool          IsActive;
-    __declspec(property(get=getDataType))                     short         DataType;
     __declspec(property(get=getCnvIndex))                     short         CnvIndex;
     __declspec(property(get=getCnvText))                      LPCSTR        CnvText;
 
-    __declspec(property(get=getCnv))                          MCnv          Cnv;
     __declspec(property(get=getIOFlags))                      MD_Flags      IOFlags;
     __declspec(property(get=getIsGet))                        bool          IsGet;
     __declspec(property(get=getIsSet))                        bool          IsSet;

@@ -2807,12 +2807,18 @@ Build 123 : 21 February 2007
 1618 10/04/07: (#776) Find tag improvements.
 1624 12/04/07: (#643) Added SpElemMoles(SpIndex, EleName) to PGM SDB class.
 1625 12/04/07: (#814) Fix for composition fetch when source has no mass.
-1626 12/04/07: (#635) Added ElemAtmWeight(EleName) to PGM SDB class to return atomic weight of specified element.
+1626 12/04/07: Minor Marshal improvements.
+1627 12/04/07: (#635) Added ElemAtmWeight(EleName) to PGM SDB class to return atomic weight of specified element.
+1630 18/04/07: Fix for crash in Alcan Bayer model feed calculator.
+1634 18/04/07: Fix for bulk tag change dialog.
+1635 18/04/07: (#807) SMDK MTagIO rearrangement and improvements.
+1637 18/04/07: Cursor fixes for Vista.
+1639 18/04/07: (#636) Correct deep copy implementation of SMDK MStream and MContainer.
 
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1626
+#define SCD_PATCH_SVN    1639
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
