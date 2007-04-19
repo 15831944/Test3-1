@@ -1450,6 +1450,7 @@ void CJoinRec::Clear()
   fIsPumpNd         = false;
   fIsMkup           = false;
   fIsAudit          = false;
+  fIsDirect         = false;
   //fHasVolume        = 0;
   fHasQmAux         = false;
   Dirn              = 0;
@@ -4441,6 +4442,7 @@ void FlwNode::SetIO_Open(int i, int iJoinId, flag Damped, eEvalSeqStart ESS, byt
   Joins[iJoinId].m_iFlwPh_Rqd = FlwPhasesAllowed;
   Joins[iJoinId].fIsMkup = false;
   Joins[iJoinId].fIsAudit = false;
+  Joins[iJoinId].fIsDirect = false;
   //Joins[iJoinId].m_iFlwPh_Act = FPh_UnKnown;
   };
 
@@ -4489,6 +4491,7 @@ void FlwNode::SetIO_Direct(int i, int iJoinId)
   int Id=IOId_Self(i);
   Joins[iJoinId].fIsMkup = IsMakeupIOId(Id);
   Joins[iJoinId].fIsAudit = false;//IsAuditIOId(Id);
+  Joins[iJoinId].fIsDirect = true;
 
   if (0)
     dbgpln("FlwNode::SetIO_Direct %3i %3i %i %s", i, iJoinId, IsMakeupIOId(Id), Tag());
@@ -4534,6 +4537,7 @@ void FlwNode::SetIO_Closed(int i, int iJoinId)
   Joins[iJoinId].m_iFlwPh_Rqd=FPh_None;
   Joins[iJoinId].fIsMkup = false;
   Joins[iJoinId].fIsAudit = false;
+  Joins[iJoinId].fIsDirect = false;
   //Joins[iJoinId].m_iFlwPh_Act=FPh_UnKnown;
   };
 
@@ -4578,6 +4582,7 @@ void FlwNode::SetIO_Join(int i, int iJoinId, eEvalSeqStart ESS, byte FlwPhasesAl
   Joins[iJoinId].m_iFlwPh_Rqd = FlwPhasesAllowed;
   Joins[iJoinId].fIsMkup = false;
   Joins[iJoinId].fIsAudit = false;
+  Joins[iJoinId].fIsDirect = false;
   //Joins[iJoinId].m_iFlwPh_Act = FPh_UnKnown;
   };
 
@@ -4917,6 +4922,14 @@ void FlwNode::PostConfigureJoins()
       {
       m_nAuditJoins++;
       }
+//    else if (J.fIsAudit)
+//    const int IOId_Spill2Area     = SpillIOId(500);
+//const int IOId_Vent2Area      = VentIOId(500);
+//const int IOId_LeakI2Area     = LeakIOId(500);
+//const int IOId_LeakO2Area     = LeakIOId(501);
+//const int IOId_Makeup2Area    = MakeupIOId(500);
+//const int IOId_Bleed2Area     = BleedIOId(500);
+//
     else
       {
       m_nProcessJoins++;

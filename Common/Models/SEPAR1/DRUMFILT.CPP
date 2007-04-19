@@ -60,11 +60,11 @@ const byte ioidVent = 4;
 
 static IOAreaRec DrumFiltIOAreaList[] =
   {
-    {"Filter Feed", "Feed",     ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry, 1.0f,  {0,0,0,0}, 0, &PipeEntryGroup},
-    {"Wash Water",  "Wash",     ioidWs,           LIO_In1,  nc_MLnk, 0, 5,  IOPipeEntry, 1.0f,  {0,0,0,0}, 0, &PipeEntryGroup},
-    {"Filtrate",    "Filtrate", ioidFt,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry, 0.98f, {0,0,0,0}, 0, &PipeEntryGroup},
-    {"Filter Cake", "Cake",     ioidFC,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f,  {0,0,0,0}, 0, &NullFlwGroup},
-    {"",            "Vent",     ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, 1.0f},
+    {"Filter Feed", "Feed",     ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry,           1.0f,  {0,0,0,0}, 0, &PipeEntryGroup},
+    {"Wash Water",  "Wash",     ioidWs,           LIO_In1,  nc_MLnk, 0, 5,  IOPipeEntry,           1.0f,  {0,0,0,0}, 0, &PipeEntryGroup},
+    {"Filtrate",    "Filtrate", ioidFt,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSetXfer, 0.98f, {0,0,0,0}, 0, &PipeEntryGroup},
+    {"Filter Cake", "Cake",     ioidFC,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSetXfer, 0.0f,  {0,0,0,0}, 0, &NullFlwGroup},
+    {"",            "Vent",     ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, 1.0f},
     SPILL2AREA,
     VENT2AREA,
     {NULL}

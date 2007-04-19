@@ -70,10 +70,10 @@ static IOAreaRec FilterPressIOAreaList[] =
   {
     {"Filter Press Feed", "Feed",       ioidFeed,         LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry, 1.0f},
     {"Wash Water",        "WashWater",  ioidWash,         LIO_In1,  nc_MLnk, 0, 5,  IOPipeEntry, 1.0f},
-    {"Filtrate",          "Filtrate",   ioidFiltrate,     LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry, (float)0.98},
-    {"Solids",            "Cake",       ioidCake,         LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f},
-    {"Washings",          "Washings",   ioidWashings,     LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, (float)0.98},
-    {"",                  "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, 1.0f},
+    {"Filtrate",          "Filtrate",   ioidFiltrate,     LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSetXfer, (float)0.98},
+    {"Solids",            "Cake",       ioidCake,         LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSetXfer, 0.0f},
+    {"Washings",          "Washings",   ioidWashings,     LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, (float)0.98},
+    {"",                  "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, 1.0f},
     //SPILL2AREA,
     VENT2AREA,
     {NULL}
@@ -100,7 +100,9 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Fd("Fd", this, TOA_Free)
   {
   AttachIOAreas(FilterPressIOAreaList);
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*/SM_Buffered|HM_All);
+
+  // SM_Buffered to be restored
+  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
 
   iRqdFiltMethod  = FSM_SolToFiltFrac;
   RqdFiltSolConc  = 1.0;
@@ -255,7 +257,7 @@ void FilterPress::ConfigureJoins()
   if (iWashings < 0)
     fFilt2Washings=False;
   int i;
-  if (NetMethod()==NM_Probal || SolveMethod()!=SM_Buffered)
+  if (NetMethod()==NM_Probal)// || SolveMethod()!=SM_Buffered)
     {
     for (i=0; (i<NoProcessIOs()); i++)
       SetIO_Join(i, 0);
@@ -264,40 +266,45 @@ void FilterPress::ConfigureJoins()
     {
     for (i=0; (i<NoProcessIOs()); i++)
       {
-      switch (IOId_Self(i))
+      if (IsMLnkIOId(IOId_Self(i)))
         {
-        case ioidFiltrate:
-          if (!fFilt2Washings && !fDischarge)
-            SetIO_Join(i, 0);
-          else
-            SetIO_Closed(i, 0);
-          break;
-        case ioidWashings:
-          if (fFilt2Washings && !fDischarge)
-            SetIO_Join(i, 0);
-          else
-            SetIO_Closed(i, 0);
-          break;
-        case ioidCake:
-          if (fDischarge)
-            SetIO_Join(i, 0);
-          else
-            SetIO_Closed(i, 0);
-          break;
+        switch (IOId_Self(i))
+          {
+          case ioidFiltrate:
+            if (!fFilt2Washings && !fDischarge)
+              SetIO_Open(i, 0, false, ESS_Denied);
+            else
+              SetIO_Closed(i, 0);
+            break;
+          case ioidWashings:
+            if (fFilt2Washings && !fDischarge)
+              SetIO_Open(i, 0, false, ESS_Denied);
+            else
+              SetIO_Closed(i, 0);
+            break;
+          case ioidCake:
+            if (fDischarge)
+              SetIO_Open(i, 0, false, ESS_Denied);
+            else
+              SetIO_Closed(i, 0);
+            break;
 
-        case ioidFeed:    
-        case ioidWash:    
-        //case ioidFiltrate:
-        //case ioidCake:    
-        //case ioidWashings:
-        case ioidVent:    
-          SetIO_Join(i, 0);
-          break;
+          case ioidFeed:    
+          case ioidWash:    
+            //case ioidFiltrate:
+            //case ioidCake:    
+            //case ioidWashings:
+          case ioidVent:    
+            SetIO_Join(i, 0);
+            break;
 
-        default:
-          SetIO_Join(i, 1);
-          break;
+          default:
+            _asm int 3;
+            break;
+          }
         }
+      else
+        SetIO_Direct(i,1);
       }
     }
   }

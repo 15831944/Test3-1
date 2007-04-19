@@ -8568,6 +8568,7 @@ void CNetBlk::DumpJoinList()
             if (J.fIsAccLnk) S+="AccLnk ";
             if (J.fIsMkup)   S+="Makeup ";
             if (J.fIsAudit)  S+="Audit ";
+            if (J.fIsDirect)  S+="Direct";
             dbgp("  %2i] %-20s ",j,S());
             }
           else

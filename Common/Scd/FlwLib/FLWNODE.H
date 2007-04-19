@@ -2656,6 +2656,7 @@ class DllImportExport CJoinRec
                     fIsPumpNd,
                     fIsMkup,
                     fIsAudit,
+                    fIsDirect,
                     fVolPrsFX,
                     fVolIsSmall,
                     //m_fVFlowAllowed,
