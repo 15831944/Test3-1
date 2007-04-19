@@ -406,7 +406,7 @@
 				RelativePath=".\Random Failure.cpp">
 			</File>
 			<File
-				RelativePath=".\Scheduled Maintenance.cpp">
+				RelativePath=".\SchedEvents.cpp">
 			</File>
 			<File
 				RelativePath=".\Stats.cpp">
@@ -475,7 +475,7 @@
 				RelativePath=".\Random Failure.h">
 			</File>
 			<File
-				RelativePath=".\Scheduled Maintenance.h">
+				RelativePath=".\SchedEvents.h">
 			</File>
 			<File
 				RelativePath=".\Stats.h">

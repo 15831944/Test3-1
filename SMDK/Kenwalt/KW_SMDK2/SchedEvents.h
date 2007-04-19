@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __SCHEDULED_MAINTENANCE_H
-#define  __SCHEDULED_MAINTENANCE_H
+#ifndef  __SCHEDEVENTS_H
+#define  __SCHEDEVENTS_H
 
 #ifndef __MD_HEADERS_H
 #include "md_headers.h"
@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#ifdef __SCHEDULED_MAINTEANCE_CPP
+#ifdef __SCHEDEVENTS_CPP
   #define DllImportExport __declspec(dllexport)
 #elif !defined(SMDKDemoU)
   #define DllImportExport __declspec(dllimport)
@@ -26,27 +26,28 @@ struct MaintVariables
   {
   public:
     double dDesiredDowntime, dDowntime;
-	double dDesiredPeriod, dPeriod;
-	double dOffset, dNextShutdown;
+    double dDesiredPeriod, dPeriod;
+    double dOffset, dNextShutdown;
     CString sDescription;
 
-	CString sTag; int nTagID;
-	double dOnValue, dOffValue;
-    
+    CString sTag; int nTagID;
+    double dOnValue, dOffValue;
+
     bool bRunning;
     double dTotalDowntime, dBackedUpDowntime;
   };
 
-class ScheduledMaintenance : public MBaseMethod
+class ScheduledEvents : public MBaseMethod
   {
   public:
-    ScheduledMaintenance(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+    ScheduledEvents(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
-	virtual bool	ValidateDataFields();
+    virtual bool    ValidateDataFields();
 
-	virtual bool PreStartCheck();
+    virtual bool    PreStartCheck();
+    virtual void    SetState(MStatesToSet SS);
 
     //virtual void    EvalProducts();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run
@@ -59,12 +60,13 @@ class ScheduledMaintenance : public MBaseMethod
     bool bOn;
 
     double dCurrentTime;
-	bool bForceIntegralPeriod, bForceIntegralDowntime;
+    bool bForceIntegralPeriod;
+    bool bForceIntegralDowntime;
     std::vector<MaintVariables> tasks;
 
     void SetSize(long size);
-	void Reset();
-	void RevalidateParameters();
+    void Reset();
+	  void RevalidateParameters();
   };
 
 #endif
