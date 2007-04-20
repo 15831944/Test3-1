@@ -35,28 +35,27 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Accessibility" />
     <Reference Include="ActiproSoftware.Shared, Version=1.0.77.0, Culture=neutral, PublicKeyToken=36ff2196ab5654b9">
       <Private>True</Private>
     </Reference>
     <Reference Include="ActiproSoftware.UIStudio.Bar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=be939c973e8cb8a6">
       <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\Program Files\Actipro Software\UIStudio\v2.0.0062\ActiproSoftware.UIStudio.Bar.dll</HintPath>
     </Reference>
     <Reference Include="ActiproSoftware.UIStudio.Dock, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b8cb261a99c7b23b">
       <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\Program Files\Actipro Software\UIStudio\v2.0.0062\ActiproSoftware.UIStudio.Dock.dll</HintPath>
     </Reference>
+    <Reference Include="ActiproSoftware.UIStudio.NavigationBar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b14901ad955fb079" />
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5">
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
-    <Reference Include="PresentationDesignDeveloper, Version=0.0.4030.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\Microsoft Visual Studio 8\Common7\IDE\Cider\PresentationDesignDeveloper.DLL</HintPath>
-    </Reference>
     <Reference Include="PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="SmartPropertyGrid, Version=2.0.0.0, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
+    <Reference Include="SmartPropertyGrid, Version=2.2.0.30, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files\VisualHint\Smart PropertyGrid.Net eval\bin\SmartPropertyGrid.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\Program Files\VisualHint\Smart PropertyGrid.Net eval\bin\.Net 2.0\SmartPropertyGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
