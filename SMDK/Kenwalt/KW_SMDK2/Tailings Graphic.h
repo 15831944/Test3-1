@@ -9,7 +9,7 @@
 #include "md_headers.h"
 #endif
 
-#include <list>
+#include <vector>
 
 #ifdef __TAILINGS_GRAPHIC_CPP
   #define DllImportExport __declspec(dllexport)
@@ -22,6 +22,8 @@
 using namespace std;
 
 //---------------------------------------------------------------------------
+
+enum InterpolationMethods {IM_Linear};
 
 class TailingsGraphic : public MBaseMethod
   {
@@ -36,7 +38,7 @@ class TailingsGraphic : public MBaseMethod
 
     //virtual void    EvalProducts();
     //virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All); // each Start of Run
-    //virtual void    EvalCtrlActions(eScdCtrlTasks Tasks=CO_All)   ; // each Iteration - To apply result of control
+    virtual void    EvalCtrlActions(eScdCtrlTasks Tasks=CO_All)   ; // each Iteration - To apply result of control
     //virtual void    EvalCtrlStrategy(eScdCtrlTasks Tasks=CO_All); // each Iteration - To calculate required control actions
     //virtual void    EvalCtrlTerminate(eScdCtrlTasks Tasks=CO_All)           {}; // each End of Run
     //virtual void    EvalStatistics(eScdCtrlTasks Tasks=CO_All)              ; // each Iteration End to calculate Stats relevant to model
@@ -47,9 +49,37 @@ class TailingsGraphic : public MBaseMethod
 	virtual bool OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &gfx);
 
   protected:
-    double dTopArea, dBottomArea;
-	double dMaxCapacity, dFluidVolume, dSedimentVolume;
-	bool bOverflowing;
+	//User entered data:
+	CString sTankName;
+	double dMoistFrac, dSatConc, dEvapRate, dRainRate;
+	int nDataPointCount;
+	vector<double> vInterpolationHeights, vInterpolationAreas;
+	InterpolationMethods eIntMethod;
+	
+	//Model calculated data:
+    //double dTopArea;
+	double dMaxCapacity;
+	vector<double> vVolumeLookup;
+	double dFluidLevel, dSolidLevel, dFSA;
+
+	//Data read from the tank:
+	MTagIOItem FluidMassItem, SolidMassItem;
+	double dFluidMass, dSolidMass;
+	MTagIOItem ConcItem;
+	double dConc;
+	MTagIOItem VolItem, LiquidDensityItem;
+
+	//Functions:
+	void SetIntPtCount(int count);
+	void SortInterpolationPoints();
+	void RecalculateVolumes();
+	void RecalculateLevels();
+	double CalcLevel(double volume);
+	double CalcArea(double height);
+
+	void SetTags();
+
+	POINT* GetDamPoints(double damHeight, CRect insideRect, int& ptCount);
   };
 
 #endif

@@ -576,10 +576,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Scheduled Maintenance.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Stats.cpp"
 				>
 			</File>
@@ -661,10 +657,6 @@
 			</File>
 			<File
 				RelativePath=".\Random Failure.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Scheduled Maintenance.h"
 				>
 			</File>
 			<File
