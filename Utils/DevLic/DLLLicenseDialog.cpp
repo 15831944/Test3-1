@@ -6,7 +6,7 @@
 #include <math.h>
 #include <float.h>
 #include "scribble.h"
-#include "DevLic.h"
+#include "LinkSMDK.h"
 #include "DLLLicenseDialog.h"
 
 #ifdef _DEBUG

@@ -119,14 +119,14 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Kenwalt (Pty) Ltd"
-            VALUE "FileDescription", "Developers Licensing Utility"
+            VALUE "FileDescription", "Link SMDK DLL Utility"
             VALUE "FileVersion", "1, 1, 0, 0"
-            VALUE "InternalName", "DevLic"
-            VALUE "LegalCopyright", "Copyright (C) 2003-2006"
+            VALUE "InternalName", "LinkSMDK"
+            VALUE "LegalCopyright", "Copyright (C) 2003-2007"
             VALUE "LegalTrademarks", "SysCAD"
-            VALUE "OriginalFilename", "DevLic.exe"
-            VALUE "ProductName", "Developers Licensing Utility"
-            VALUE "ProductVersion", "1, 1, 0, 0"
+            VALUE "OriginalFilename", "LinkSMDK.exe"
+            VALUE "ProductName", "Link SMDK DLL"
+            VALUE "ProductVersion", "3, 0, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
@@ -233,7 +233,7 @@ BEGIN
     "LANGUAGE 9, 1\r\n"
     "#pragma code_page(1252)\r\n"
     "#endif //_WIN32\r\n"
-    "#include ""res\\DevLic.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""res\\LinkSMDK.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#endif\r\n"
     "\0"
@@ -249,7 +249,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\DevLic.ico"
+IDR_MAINFRAME           ICON                    "res\\LinkSMDK.ico"
 IDI_LOGO                ICON                    "res\\logo.ico"
 #endif    // English (Australia) resources
 /////////////////////////////////////////////////////////////////////////////
@@ -271,7 +271,7 @@ IDI_LOGO                ICON                    "res\\logo.ico"
 LANGUAGE 9, 1
 #pragma code_page(1252)
 #endif //_WIN32
-#include "res\DevLic.rc2"  // non-Microsoft Visual C++ edited resources
+#include "res\LinkSMDK.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"         // Standard components
 #endif
 

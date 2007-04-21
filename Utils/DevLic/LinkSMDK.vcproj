@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="x4.DevLic"
+	Name="x4.LinkSMDK"
 	ProjectGUID="{141EF00B-B83A-4189-A728-CDBEAFA181CB}"
 	Keyword="MFCProj">
 	<Platforms>
@@ -207,35 +207,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath="DevLic.cpp">
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Distribution|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="DevLic.rc">
-			</File>
-			<File
 				RelativePath="DLLLicenseDialog.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -286,6 +257,12 @@
 						Optimization="2"
 						PreprocessorDefinitions=""/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\LinkSMDK.cpp">
+			</File>
+			<File
+				RelativePath=".\LinkSMDK.rc">
 			</File>
 			<File
 				RelativePath="Scribble.cpp">
@@ -347,16 +324,16 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="CRYPKEY.H">
-			</File>
-			<File
-				RelativePath="DevLic.h">
+				RelativePath=".\CRYPKEY.6525.H">
 			</File>
 			<File
 				RelativePath="DLLLicenseDialog.h">
 			</File>
 			<File
 				RelativePath="LicDlg.h">
+			</File>
+			<File
+				RelativePath=".\LinkSMDK.h">
 			</File>
 			<File
 				RelativePath="Resource.h">
@@ -382,7 +359,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\Crp32d60.lib">
+			RelativePath=".\CRP32M60.6525.LIB">
 		</File>
 	</Files>
 	<Globals>

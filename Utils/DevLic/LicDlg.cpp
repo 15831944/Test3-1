@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "DevLic.h"
+#include "LinkSMDK.h"
 #include "LicDlg.h"
 #include "DLLLicenseDialog.h"
 #include ".\licdlg.h"
@@ -157,7 +157,7 @@ extern CDevLicApp theApp;
 //  if (bForcedLoc)
 //    s = sForcedLoc;
 //  else
-  s = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+  s = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
   sprintf(Buff, "Location : %s", s.GetLength()>0 ? (const char*)s : "Not Set");
   SetDlgItemText(IDC_LOCATION_TXT, Buff);
@@ -238,7 +238,7 @@ void CDevLicDlg::OnInit()
 
   CString s;
 
-  s = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+  s = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
 //  sprintf(Buff, "Location : %s", (Lic.GetAppPath() ? Lic.GetAppPath() : "current"));
 //  SetDlgItemText(IDC_LOCATION_TXT, Buff);
@@ -254,7 +254,7 @@ void CDevLicDlg::OnLocation()
 
   // Retrieve the License Path from the ini file
   if ( Dlg.m_AppPath == "" )
-    Dlg.m_AppPath = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+    Dlg.m_AppPath = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
   if (Dlg.DoModal()==IDOK)
   {
@@ -263,7 +263,7 @@ void CDevLicDlg::OnLocation()
   }
 
   // Store the License Path in the ini file    
-  AppPF.WrStr("Developers License 2.0", "SMDK License Location", Dlg.m_AppPath);
+  AppPF.WrStr("Developers License 3.0", "SMDK License Location", Dlg.m_AppPath);
 
   char Buff[1024];
   sprintf(Buff, "Location : %s", Dlg.m_AppPath.GetLength()>0 ? (const char*)Dlg.m_AppPath : "Not Set");
@@ -287,7 +287,7 @@ void CDevLicDlg::OnButtonDll()
 {
 extern CDevLicApp theApp;
   // Get the latest License Location
-  theApp.sLicenseLoc = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+  theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
   // Check for valid license
   if ( theApp.CheckLicense() )
@@ -298,7 +298,7 @@ extern CDevLicApp theApp;
 
     // Retrieve the DLLName from the ini file
     if ( Dlg.m_DllName == "" )
-      Dlg.m_DllName = AppPF.RdStr("Developers License 2.0", "SMDK DLL Name" , "");
+      Dlg.m_DllName = AppPF.RdStr("Developers License 3.0", "SMDK DLL Name" , "");
 
     UpdateData(false);
 
@@ -309,7 +309,7 @@ extern CDevLicApp theApp;
 	
     // Store the DLLName in the ini file
     if ( Dlg.m_DllName != "" )
-      AppPF.WrStr("Developers License 2.0", "SMDK DLL Name", Dlg.m_DllName);
+      AppPF.WrStr("Developers License 3.0", "SMDK DLL Name", Dlg.m_DllName);
 
     UpdateData(false);
   }
@@ -325,7 +325,7 @@ void CDevLicDlg::OnLaunchLicense()
 {
 extern CDevLicApp theApp;
   // Get the latest License Location
-  theApp.sLicenseLoc = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+  theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
   CString KWA = theApp.sLicenseLoc;
   KWA += "kwa.exe";
   CFileStatus Status;
@@ -377,7 +377,7 @@ void CDevLicDlg::OnCheckLicense()
 {
 extern CDevLicApp theApp;
   // Get the latest License Location
-  theApp.sLicenseLoc = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+  theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
   // Check for valid license
   if ( theApp.CheckLicense() )

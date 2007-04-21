@@ -12,7 +12,7 @@
 #include "LinkSMDK.h"
 #include "LicDlg.h"
 #include "Scribble.h"
-#include "crypkey.h"
+#include "crypkey.6525.h"
 #include "winsvc.h"
 #include "math.h"
 #include "float.h"
@@ -32,9 +32,12 @@ static char THIS_FILE[] = __FILE__;
 
 //===========================================================================
 
-//for kwa.exe
-#define CK_USER_KEY   "DE5E 81ED E83A 12EB 817E B523 1B"
-#define CK_MASTER_KEY "E89D 55C4 4D68 EEA4 3A2D D38E D1AD 0C8B 66E8 0C8B DD43"
+//for syscad.exe
+#define CK_USER_KEY   "DE5E 81ED E83A 12EB 81D2 C0FA 1B"
+#define CK_MASTER_KEY "b4135aa5ec82997f53c5efcd0567ae710af3de57c4a72a798183\
+b5ea90b391591a6c2f8863b89b2b7be27bd2553e3e2557d2bec1daad173a09bf256da1e7d92\
+b9bb0377dbc5e431d7fbb95ba17d8806560be6355949e144dc84cd8e72f2732c8aa3048874f\
+75de558a920b0454c75c047574aa890d2423bef09575995f30d05"
 
 const DWORD CK_SMDK_Mask10 = 0x4000000;         // The 26th bit
 const DWORD CK_SMDK_Mask20Units = 0x2000000;    // The 25th bit
@@ -42,8 +45,8 @@ const DWORD CK_SMDK_Mask20Props = 0x1000000;    // The 24th bit
 
 const int CK_NetworkChecktime = 900;
 
-char* CK_KeyFile = "kwa.exe";
-char* CK_AppName = "KWA";
+char* CK_KeyFile = "syscad.exe";
+char* CK_AppName = "SysCAD";
 
 //---------------------------------------------------------------------------
 
@@ -148,10 +151,10 @@ BOOL CDevLicApp::InitInstance()
   // Check to see if we can initialise License
 
   if ( sLicenseLoc == "" )
-    sLicenseLoc = AppPF.RdStr("Developers License 2.0", "SMDK License Location" , "");
+    sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
   if ( sDLLName == "" )
-    sDLLName = AppPF.RdStr("Developers License 2.0", "SMDK DLL Name" , "");;
+    sDLLName = AppPF.RdStr("Developers License 3.0", "SMDK DLL Name" , "");;
 
 
   // Developers License Exists - We can continue
