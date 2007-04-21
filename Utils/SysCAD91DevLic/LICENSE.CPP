@@ -84,7 +84,12 @@ struct CK_OptionDetails
   bool fNormallyShow;
   };
 
-CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
+//require off    : 0,1,2,3,6,12,13,20,21
+//require on     : 19
+//SMDK units     : 14
+//SMDK properties: 15
+
+/*CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
 {
   {  0, "Solver Mode: ProBal", true },
   {  1, "Solver Mode: Dynamic Transfer (Flow)", true },
@@ -119,7 +124,7 @@ CK_OptionDetails CK_OptionNames[CK_NoOfOptions] =
 char* CK_LevelNames[2] =
   { "Trial",
     "Normal"
-    };
+    };*/
 
 //===========================================================================
 //=== Generic Code...
@@ -543,6 +548,8 @@ CLicense::CLicense()
   bDidInitCrypkey = 0;
   bMultiUserFailure = 0;
   bLicensed = 0;
+  bSMDK_Units = 0;
+  bSMDK_Props = 0;
   bDemoMode = 0;
   bTrialMode = 0;
   bTrialFailed = 0;
@@ -702,13 +709,16 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   ASSERT(bDidInitCrypkey);
   CWaitCursor Wait;
   bLicensed = 0;
+  bSMDK_Units = 0;
+  bSMDK_Props = 0;
   bMultiUserFailure = 0;
   dwOpLevel = 0;
   iDaysLeft = 0;
   int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
-char bbb[1024];
-sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%d)", err, dwOpLevel);
-AfxMessageBox(bbb);
+dwOpLevel=0x00021000 | 0x00010000;
+//char bbb[1024];
+//sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%08x)", err, dwOpLevel);
+//AfxMessageBox(bbb);
 
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
@@ -717,7 +727,7 @@ AfxMessageBox(bbb);
     //generate some random numbers - this can be done any way you like
     //random1 = time(NULL);
     //random2 = random1*time(NULL);
-    ULONG random1 = (time(NULL)<<2)*3;
+    ULONG random1 = (time(NULL)<<2)*5;
     ULONG random2 = random1*time(NULL)*rand();
     ULONG result1 = Challenge32(CK_COMPANYNUM, CK_PASSNUM/2, random1, random2);
     ULONG result2 = CKChallenge32(random1, random2);
@@ -726,14 +736,25 @@ AfxMessageBox(bbb);
       Error("Security Failure.  Challenge function failed");
       return FALSE;
       }
-    bLicensed = 1;
-    DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
-    bTrialMode = 0;//((dwOpLevel & dw)==CK_TrialLevel);
-    iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
-    bDemoMode = 0;
-    CWinApp* pApp = AfxGetApp();
-    if (pApp)
-      pApp->WriteProfileInt("License", "InDemoMode", bDemoMode);
+
+    bool SMDK_Err = CheckSMDK();
+    if (SMDK_Err)
+      {
+      dwOpLevel = 0;
+      Error("License error. Invalid options");
+      return FALSE;
+      }
+    else
+      {
+      bLicensed = 1;
+      DWORD dw = (DWORD)pow(2.0, CK_NumDefinedLevels) - 1;
+      bTrialMode = 0;//((dwOpLevel & dw)==CK_TrialLevel);
+      iDaysLeft = (Get1RestInfo(1)==0) ? CK_InfiniteDays : Get1RestInfo(2) - Get1RestInfo(3);
+      bDemoMode = 0;
+      CWinApp* pApp = AfxGetApp();
+      if (pApp)
+        pApp->WriteProfileInt("License", "InDemoMode", bDemoMode);
+      }
     return TRUE;
     }
   else
@@ -808,7 +829,17 @@ BOOL CLicense::QuickCheck(UCHAR CheckLevel/*=0*/)
     }
 
   if (err==0 && OtherErr==0)
-    bLicensed = 1;
+    {
+    bool SMDK_Err = CheckSMDK();
+    if (SMDK_Err)
+      {
+      dwOpLevel = 0;
+      Error("License error. Invalid options");
+      return FALSE;
+      }
+    else
+      bLicensed = 1;
+    }
   else
     {
     dwOpLevel = 0;
@@ -820,6 +851,37 @@ BOOL CLicense::QuickCheck(UCHAR CheckLevel/*=0*/)
     return FALSE;
     }
   return TRUE;
+  }
+
+//---------------------------------------------------------------------------
+
+BOOL CLicense::CheckSMDK()
+  {
+  //require off    : 0,1,2,3,6,12,13,20,21
+  //require on     : 19
+  //SMDK units     : 14
+  //SMDK properties: 15
+  /*DWORD msk = (DWORD)pow(2.0, 31-0) |
+                (DWORD)pow(2.0, 31-1) |
+                (DWORD)pow(2.0, 31-2) |
+                (DWORD)pow(2.0, 31-3) |
+                (DWORD)pow(2.0, 31-6) |
+                (DWORD)pow(2.0, 31-12) |
+                (DWORD)pow(2.0, 31-13) |
+                (DWORD)pow(2.0, 31-20) |
+                (DWORD)pow(2.0, 31-21);*/
+  bSMDK_Units = 0;
+  bSMDK_Props = 0;
+  bool LicBitErr = ((dwOpLevel | 0xf20c0c00)!=0); //require off : 0,1,2,3,6,12,13,20,21
+  if (!LicBitErr)
+    LicBitErr = ((dwOpLevel & 0x00001000)!=0x00001000); //require on : 19
+  if (!LicBitErr)
+    {
+    bSMDK_Units = ((dwOpLevel & 0x00020000)!=0x00020000);
+    bSMDK_Props = ((dwOpLevel & 0x00010000)!=0x00010000);
+    LicBitErr = (!bSMDK_Units && !bSMDK_Props);
+    }
+  return (!LicBitErr);
   }
 
 //---------------------------------------------------------------------------
@@ -1689,7 +1751,7 @@ BOOL CLicenseInfoDlg::OnInitDialog()
   Item.stateMask = 0;
   Item.cchTextMax = 0;
   Item.iImage = 0;
-  for (int i=0; i<CK_NoOfOptions; i++)
+  /*for (int i=0; i<CK_NoOfOptions; i++)
     {
     DWORD msk = (DWORD)pow(2.0, 31-CK_OptionNames[i].iBitNumber);
     bool IsYes = ((Lic.OpLevel() & msk)!=0);
@@ -1701,7 +1763,18 @@ BOOL CLicenseInfoDlg::OnInitDialog()
       Item.pszText = (IsYes ? "Yes" : "No");
       m_List.SetItem(&Item);
       }
-    }
+    }*/
+  int j = m_List.InsertItem(0, "SMDK Units");
+  Item.iItem = j;
+  Item.iSubItem = 1;
+  Item.pszText = (Lic.SMDK_Units() ? "Yes" : "No");
+  m_List.SetItem(&Item);
+  j = m_List.InsertItem(1, "SMDK Properties");
+  Item.iItem = j;
+  Item.iSubItem = 1;
+  Item.pszText = (Lic.SMDK_Props() ? "Yes" : "No");
+  m_List.SetItem(&Item);
+
   sprintf(Buff, "License Information   [ %s ]", (const char*)LicUserVer);
   SetWindowText(Buff);
   //UpdateData(FALSE);
