@@ -5,32 +5,7 @@
  *PROGRAM :- CrypKey Software Licensing System
  *LINKS   :- To any application that needs real protection
  *AUTHOR  :- James McCartney
- *COPYRTS :- Kenonic Controls, Calgary, Alberta
- *CREATED :- Feb 12, 1992
- *REVISED :- 08-11-92 [JSM]
-               get_authorization(): must pass it a ptr to a long to get
-                 the level
-               init_crypkey(): returns 0 if ok, -1 if failure
-               save_site_key(): one more error check - filewrite failure
-             20-11-92 [JSM]
-               added get_num_copies(),
-               regisiter_site(), transfer_out(), transfer_in()
-               added return code defines for last 3 functions above
-             04-01-93 [JSM]
-               added return codes for init_crypkey()
-             17-08-94 [JSM]
-               made this a version specifically for DLL
-             25-05-95 [DJF]
-               added an extra possible branch in
-               #defining 'far' for use under Win32 ('s' and NT)
-             28-08-95 [DJF]
-               changed ckChalenge() support Win32;
-               get_authorization2() added for languages that cannot
-               pass integers by reference instead of by value;
-               added extra error checks for init_crypkey();
-               added two extra general errors
-             28-05-96 [JSM]
-               made changes to add RTT error codes to the system
+ *COPYRTS :- CrypKey (Canada) Inc.
  **************************************************************************/
 #ifndef CRYPKEY_H____
 #define CRYPKEY_H____
@@ -97,6 +72,10 @@ extern "C" {
                                      //Or older version is already running
 #define THUNK_BLOCKED        -109 // THUNK dll is being used but not released
                                   //  by another app
+#define NETWORK_BAD_CRC      -110
+#define INIT_NOT_CALLED      -111 //all functions require init to be called
+#define EASYLIC_OPERATION_NOT_ALLOWED -112
+
 
 /** return codes for init_crypkey() **/
 #define INIT_OK                      0
@@ -121,6 +100,12 @@ extern "C" {
 #define INIT_THUNK16_DDL_TAMPERED   -18  // only on Win32 (size)
 #define INIT_THUNK32_DDL_UNKNOWN_ERR   -19  // only on Win32
 #define INIT_THUNK16_DDL_UNKNOWN_ERR   -20  // only on Win32
+#define INIT_PRE_V6_MASTERKEY        -21 //only Win32
+#define INIT_NGN_VERSION_OUTDATED   -22 //
+#define INIT_NGN_FILE_NOT_FOUND     -23 //only Win32
+#define INIT_DRIVER_FAILED_OR_BUSY -24 
+
+
 
 /** return codes for get authorization() **/
 #define AUTH_OK                  0
@@ -149,6 +134,9 @@ extern "C" {
 #define AUTH_NETWORK_NOT_ALLOWED -19
 #define AUTH_RSTFILE_WRITE_PROTECT -20
 #define AUTH_TIME_CLOCK_TAMPERING  -21
+#define KEY_BAD_LOCATION        -22
+#define AUTH_NGN_VERSION_OUTDATED -23
+#define AUTH_INVALID_STATIC_KEY -24
 
 /** return codes for get_site_code() **/
 #define GSC_OK                       0
@@ -161,6 +149,7 @@ extern "C" {
 #define SITE_KEY_ENTRY_CRC_FAIL    -2
 #define SITE_KEY_FILEWRITE_FAILURE -3
 #define SITE_KEY_NO_LICENSE_TO_ADD_TO -4
+#define SITE_KEY_WRONG_ADD_ON_TYPE    -5
 
 /** return codes for register_transfer() **/
 #define REG_OK                             0
@@ -212,6 +201,7 @@ extern "C" {
 #define DT_COULDNOT_WRITE_SITEKEYFILE   -6
 #define DT_SOURCE_WRITE_PROTECTED       -7
 #define DT_SOURCE_SAME_AS_TARGET        -8
+#define DT_TARGET_HAS_LICENSE           -9
 
 /** return codes for AquireLicense **/
 #define AL_OK                            0
@@ -271,6 +261,29 @@ extern "C" {
 #define KL_CRYPKEY_NOT_AUTHORIZED  -2
 #define KL_LICENSE_WRITE_PROTECTED -3
 
+// HDSN Codes
+#define HDSN_ERR_OK                    0
+#define HDSN_ERR_MULTIPLE_SCSI         -1
+#define HDSN_ERR_FAILURE               -2
+#define HDSN_ERR_BLANK_SERIAL          -3
+#define HDSN_ERR_NULL_SERIAL           -4
+#define HDSN_ERR_REPEATING_SERIAL      -5
+#define HDSN_ERR_NON_STANDARD_SERIAL   -6
+#define HDSN_ERR_DRIVE_NOT_SUPPORTED   -7
+#define HDSN_ERR_CALL_FAILURE          -8
+#define HDSN_ERR_REMOVABLE_DRIVE       -9
+#define HDSN_ERR_VXD_ERROR            -10
+#define HDSN_ERR_NO_ASPI              -11
+#define HDSN_ERR_SCSI_DRIVE           -12
+#define HDSN_ERR_UNSUPPORTED_OS       -13
+#define HDSN_ERR_KMD_NOT_LOADED       -14
+#define HDSN_ERR_RING_0_MODIFIED      -15
+#define HDSN_ERR_16BIT_WIN9x_UNSUPPORTED -16
+#define HDSN_ERR_CODE_STUBBED_OUT       -17
+#define HDSN_ERR_OUTDATED_NT_DRIVER     -18
+#define HDSN_ERR_SYSFAIL	            -19
+#define UNKNOWN_HDSN_ERRCODE            -20
+
 /** function codes for get1_rest_info() **/
 #define G1_OUT_OF_RANGE              -1
 
@@ -304,7 +317,8 @@ extern "C" {
 #define EXP_RTT_ERR             9  // readyToTry() errorcodes
 #define EXP_KL_ERR              10  // readyToTry() errorcodes
 #define EXP_AL_ERR              11  // AquireLicense() errorcodes
-#define EXP_FLS_ERR             12  // FloatingLicenseSnapshot() errorcodes
+#define EXP_HDSN_ERR            12  //GetDrivePermanentSerialData()
+#define EXP_FLS_ERR             13  // FloatingLicenseSnapshot() errorcodes
 
 /************************ Structures *************************************/
 typedef unsigned short ID;
@@ -386,6 +400,7 @@ unsigned long FUNCTYPE get_level(int numDefineOpts);
 
 //New names for above functions + some new ones
 int FUNCTYPE AcquireLicense(char *licensePath);
+int FUNCTYPE CrypkeyBuildNum(void);
 int FUNCTYPE crypkeyVersion(void);
 int FUNCTYPE DirectTransfer(char far *target);
 void FUNCTYPE EndCrypkey(void);
@@ -396,6 +411,7 @@ int FUNCTYPE FloatingLicenseSnapshot(unsigned long bufSize,
 int FUNCTYPE Get1RestInfo(int which);
 int FUNCTYPE GetAuthorization(unsigned long *level, int decrement);
 int FUNCTYPE GetAuthorization2(int decrement);
+int FUNCTYPE GetDrivePermanentSerialData(char *model, char *serial, char *firmware);
 unsigned long FUNCTYPE GetLevel(int numDefineOpts);
 unsigned short FUNCTYPE GetNetHandle(void);
 int FUNCTYPE GetNumCopies(void);
@@ -405,6 +421,7 @@ int FUNCTYPE GetRestrictionInfo(int far *authopt, ULONG far *start_date, int far
 int FUNCTYPE GetSiteCode(char far *site_code);
 char * FUNCTYPE GetSiteCode2(void);
 int FUNCTYPE InitCrypkey(char far *filepath, char far *masterkey, char far *userkey, int allow_floppy, unsigned network_max_checktime);
+int FUNCTYPE IsEasyLicense(void);
 int FUNCTYPE readyToTry(unsigned long authlevel, int numDays);
 int FUNCTYPE readyToTryDays(unsigned long authlevel, int numDays, int version, int copies);
 int FUNCTYPE readyToTryRuns(unsigned long authlevel, int numRuns, int version, int copies);
@@ -421,6 +438,12 @@ int FUNCTYPE TransferOut(char far *target);
 #define setNetHandle SetNetHandle
 #define CrypkeyVersion crypkeyVersion
 #define CKChallenge ckChallenge
+
+#define MAX_CUSTOM_BYTES 500
+int FUNCTYPE GetCustomInfoBytes(unsigned char * bpDataArray); //pointer to 500 byte output buffer
+int FUNCTYPE SetCustomInfoBytes(unsigned char * bpDataArray); //pointer to 500 byte input buffer
+
+
 
 #ifdef __cplusplus
 }
