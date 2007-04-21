@@ -21,8 +21,6 @@ const MD_Flags MF_NAN_OK        = DDEF_NAN_OK;         //for floating point fiel
 const MD_Flags MF_BUTTON        = DDEF_BUTTON;         //for bool fields, Present a button
 //const MD_Flags MF_ISRESULT      = DDEF_RESULT;       // this is a calculated field which goes invalid on any change
 const MD_Flags MF_HIDEIFZERO    = DDEF_HIDEIFZERO;     // hide this field if it is zero
-const MD_Flags MF_STARTROW      = DDEF_STARTROW;       // Put this and subsequent values on the same row until MF_StartRow or MF_EndRows
-const MD_Flags MF_ENDROWS       = DDEF_ENDROWS;        // Marks end of row mode
 
 const MD_Flags MF_Result        = MF_RESULT;           //result field in access window
 const MD_Flags MF_Parameter     = MF_PARAMETER;        //input field in access window
@@ -35,8 +33,6 @@ const MD_Flags MF_NanOK         = MF_NAN_OK;           //for floating point fiel
 const MD_Flags MF_Button        = MF_BUTTON;           //for bool fields, Present a button
 //const MD_Flags MF_ISRESULT      = MF_ISRESULT;       // this is a calculated field which goes invalid on any change
 const MD_Flags MF_HideIfZero    = MF_HIDEIFZERO;       // hide this field if it is zero
-const MD_Flags MF_StartRow      = MF_STARTROW;         // Put this and subsequent values on the same row until next MF_StartRow or MF_EndRows
-const MD_Flags MF_EndRows       = MF_ENDROWS;          // Marks end of row mode. Only required for last entry on last row.
 
 // ======================================================================
 // Data Definitions for Text equivalents of Integral Values
@@ -93,6 +89,11 @@ const unsigned char MDT_Strng       = tt_Strng       ;
 const unsigned char MDT_RqdPage     = tt_RqdPage     ;
 const unsigned char MDT_OptPage     = tt_OptPage     ;
 const unsigned char MDT_Column      = tt_Column      ;
+const unsigned char MDT_Grid        = tt_Grid        ;
+const unsigned char MDT_Grid_E      = tt_Grid_E      ;
+const unsigned char MDT_ColHdr      = tt_ColHdr      ;
+const unsigned char MDT_RowHdr      = tt_RowHdr      ;
+const unsigned char MDT_RowStart    = tt_RowStart    ;
 const unsigned char MDT_Text        = tt_Text        ;
 const unsigned char MDT_Struct      = tt_Struct      ;
 const unsigned char MDT_Element     = tt_Element     ;

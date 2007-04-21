@@ -2283,8 +2283,9 @@ void CPkDataList::dbgDump(flag Full, char* pWhere)
       if ((F&DDEF_DRIVERTAG       )!=0) S+="D";
       if ((F&DDEF_HIDEIFZERO      )!=0) S+="Z";
       if ((F&DDEF_CHILDMASK       )!=0) S+="+";
-      if ((F&DDEF_STARTROW        )!=0) S+="[";
-      if ((F&DDEF_ENDROWS         )!=0) S+="]";
+      //if ((F&DDEF_STARTMATRIX     )!=0) S+="#";
+      //if ((F&DDEF_STARTROW        )!=0) S+="[";
+      //if ((F&DDEF_ENDMATRIX       )!=0) S+="]";
 
       dbgp(" <%-8s>",S.Buffer());
       /**/

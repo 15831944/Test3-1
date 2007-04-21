@@ -353,16 +353,19 @@ void CTTOrifice::BuildDataFields()
   DD.Double ("PCriticalEst", "", &dPCritEst, MF_RESULT, MC_P);
 
 
-  DD.Text("Results");
+  DD.MatrixStart("Results");
 
   for (int i=0; i<30; i++) {
-    DD.Double("X1", "", &x_1, MF_RESULT|MF_NO_FILING|MF_STARTROW, MC_None);
+    
+    DD.BeginMatrixElement(
+    DD.Double("X1", "", &x_1, MF_RESULT|MF_NO_FILING/*|MF_STARTROW*/, MC_None);
     
     Tg.Format("Density %3d", i);
     DD.Double((char*)(const char*)Tg, "", dRhoData+i, MF_RESULT | MF_NO_FILING , MC_None);
     Tg.Format("P %3d", i);
-    DD.Double((char*)(const char*)Tg, "", dPData+i, MF_RESULT | MF_NO_FILING | (i==29 ? MF_ENDROWS: 0), MC_None);
+    DD.Double((char*)(const char*)Tg, "", dPData+i, MF_RESULT | MF_NO_FILING /*| (i==29 ? MF_ENDROWS: 0)*/, MC_None);
   }
+  DD.MatrixEnd();
 #endif
 
   

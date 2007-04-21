@@ -1842,6 +1842,19 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     void           Page(pchar Nm, DDBPages PageIs = DDB_OptPage, DDEF_Flags Flags=0);
     void           Text(pchar Txt, DDEF_Flags Flags=0);
 
+    flag           BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWide, pchar ColHdr, pchar RowHdr, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    //flag           BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    void           EndMatrixElement(DDEF_Flags Flags=0);
+    void           EndMatrix(DDEF_Flags Flags=0);
+ 
+    flag           BeginGrid(pchar Text, int MaxCols, int MaxRows);
+    void           ColumnHeader(pchar Text, int Width, int Gap, int Justification);
+    void           RowHeader(pchar Text);
+    void           RowStart(pchar Text="");
+    void           EndGrid(pchar Text="");
+
     // Helper Functions
     void           Add_OnOff(pchar pTag, pflag pOn, /*flag bOffisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
     void           Add_YesNo(pchar pTag, pflag pYes, /*flag bNoisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
@@ -1955,6 +1968,8 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
       long              nElem;
       long              iIndex;
       bool              m_ElementClosed;
+      long              m_MaxCols;
+      long              m_PrevRow;
       }               AInfo[MAXSTRUCTNESTING];
 
 #if DoDDBChecks

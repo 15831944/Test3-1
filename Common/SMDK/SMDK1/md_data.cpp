@@ -198,6 +198,56 @@ void MDataDefn::ArrayEnd(MD_Flags Flags)
   m_pCommon->m_pDDB->EndArray(Flags);
   };
 
+void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, MD_Flags Flags)
+  {
+  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, DDB_NoPage, Flags);
+  };
+
+void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags)
+  {
+  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, ColWidth, (LPSTR)ColHdr, (LPSTR)RowHdr, DDB_NoPage, Flags);
+  };
+
+//void MDataDefn::MatrixElementStart(LPCSTR sColIndex, LPCSTR sRowIndex, MD_Flags Flags)
+//  {
+//  m_pCommon->m_pDDB->BeginMatrixElement(m_pCommon->m_pTO, (LPSTR)sIndex, NULL, -1, DDB_NoPage, (Flags));
+//  };
+void MDataDefn::MatrixElementStart(long iColIndex, long iRowIndex, MD_Flags Flags)
+  {
+  m_pCommon->m_pDDB->BeginMatrixElement(m_pCommon->m_pTO, iColIndex, iRowIndex, NULL, -1, DDB_NoPage, Flags);
+  };
+void MDataDefn::MatrixElementEnd(MD_Flags Flags)
+  {
+  m_pCommon->m_pDDB->EndMatrixElement(Flags);
+  };
+void MDataDefn::MatrixEnd(MD_Flags Flags)
+  {
+  m_pCommon->m_pDDB->EndMatrix(Flags);
+  };
+
+
+void MDataDefn::GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows)
+  {
+  m_pCommon->m_pDDB->BeginGrid((LPSTR)GridNameText, MaxCols, MaxRows);
+  };
+void MDataDefn::ColumnHeader(LPCSTR ColHdrText, long Width, long Gap, long Justification)
+  {
+  m_pCommon->m_pDDB->ColumnHeader((LPSTR)ColHdrText, Width, Gap, Justification);
+  };
+void MDataDefn::RowHeader(LPCSTR RowHdrText)
+  {
+  m_pCommon->m_pDDB->RowHeader((LPSTR)RowHdrText);
+  };
+void MDataDefn::RowStart()
+  {
+  m_pCommon->m_pDDB->RowStart("");
+  };
+void MDataDefn::GridEnd()
+  {
+  m_pCommon->m_pDDB->EndGrid("");
+  };
+
+
 bool MDataDefn::getForNDB()           { return m_pCommon->m_pDDB->ForNDB()!=0;           };
 bool MDataDefn::getForFiling()        { return m_pCommon->m_pDDB->ForFiling()!=0;        };
 bool MDataDefn::getForView()          { return m_pCommon->m_pDDB->ForView()!=0;          };
@@ -205,7 +255,6 @@ bool MDataDefn::getForView()          { return m_pCommon->m_pDDB->ForView()!=0; 
 bool MDataDefn::getForSnapShot()      { return m_pCommon->m_pDDB->ForSnapShot()!=0;      };
 bool MDataDefn::getForScenario()      { return m_pCommon->m_pDDB->ForScenario()!=0;      };
 bool MDataDefn::getForFileSnpScn()    { return m_pCommon->m_pDDB->ForFileSnpScn()!=0;    };
-
 
 //---------------------------------------------------------------------------
 //

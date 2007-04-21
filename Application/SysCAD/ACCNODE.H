@@ -121,10 +121,11 @@ class AccNdData
                     fArchived:1,
                     m_iChildLvl:2,
                     m_fNxtIsChild:1,
-                    m_fIsRowStart:1,
-                    m_fIsRowsEnd:1,
+                    m_fIsGridStart:1, 
+                    m_fIsGridRowStart:1,
+                    m_fIsGridEnd:1,
                     m_IsLastDataCol:1;
-    int             m_iMatrixCol;
+    int             m_iGridCol;
     CTagRefStatus   m_Markers;    
 #if WITHEQUIPSPECS
     CTagValueStatus m_ValStatus;    

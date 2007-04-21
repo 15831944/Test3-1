@@ -6175,6 +6175,247 @@ void DataDefnBlk::EndArray(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, DDBPages PageIs, DDEF_Flags BlkFlags)
+  {
+  flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
+
+  AInfo[iADepth].m_MaxCols=MaxCols;
+  AInfo[iADepth].m_PrevRow=-1;
+
+  BeginGrid(Tag, MaxCols, MaxRows);
+
+  return Ret;
+  };
+
+//---------------------------------------------------------------------------
+
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWide, pchar ColHdr, pchar RowHdr, DDBPages PageIs, DDEF_Flags BlkFlags)
+  {
+  flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
+
+  AInfo[iADepth].m_MaxCols=MaxCols;
+  AInfo[iADepth].m_PrevRow=-1;
+
+  BeginGrid(Tag, MaxCols, MaxRows);
+
+  Strng S;
+  ColumnHeader(Tag,ColWide,0,-1);
+  for (int i=0; i<MaxCols; i++)
+    ColumnHeader(S.Set("%s[%i]", ColHdr?ColHdr:"", i), ColWide, 0, 1);
+  for (int i=0; i<MaxRows; i++)
+    RowHeader(S.Set("%s[%i]", RowHdr?RowHdr:"", i));
+
+  return Ret;
+  };
+
+//---------------------------------------------------------------------------
+
+flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags Flags)
+  {
+  if (iRowIndex > AInfo[iADepth].m_PrevRow)
+    {
+    AInfo[iADepth].m_PrevRow=iRowIndex;
+    };
+
+  return BeginElement(Obj, iColIndex+(iRowIndex*AInfo[iADepth].m_MaxCols), TagComment, UserInfo, PageIs, Flags);
+  };
+
+//---------------------------------------------------------------------------
+
+//flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
+//  {
+//  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::EndMatrixElement(DDEF_Flags Flags)
+  {
+  EndElement(Flags);
+  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::EndMatrix(DDEF_Flags Flags)
+  {
+  EndGrid("");
+  EndArray(Flags /*| DDEF_ENDMATRIX*/);
+  };
+
+//---------------------------------------------------------------------------
+
+flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows)
+  {
+  if (eTask==DDBTask_GetData)
+    {
+    if (fAllInfo && GetReqdLayout())
+      {
+      if (fWriting)
+        m_pList->AdvanceWrite();
+      fWriting=True;
+      m_pItem->AppendLayout(tt_Grid, Text, CurrentFlags());
+      }
+    }
+
+  return true;
+  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::ColumnHeader(pchar Text, int Width, int Gap, int Justification)
+  {
+  if (eTask==DDBTask_GetData)
+    {
+    if (fAllInfo && GetReqdLayout())
+      {
+      if (fWriting)
+        m_pList->AdvanceWrite();
+      fWriting=True;
+
+      Strng T(Text);
+      if (Width>0)
+        {
+        T.LRTrim();
+        if (T.GetLength()>Width)
+          T.SetLength(Width); // trunc if neccessary
+        //if (Justification<0)
+          T.RPad(Width);      
+        //else if (Justification>0)
+        //  T.LPad(Width);      
+        //else
+        //  {
+        //  int Len=T.GetLength();
+        //  int RightSpc=(Width-Len)/2;
+        //  T.LPad(Len+RightSpc);      
+        //  T.RPad(Width);      
+        //  }
+        }
+      T+="\t";
+      int L=T.GetLength()+Gap;
+      T.RPad(L);      // lengthen if neccessary
+      T.SetLength(L); // trunc if neccessary
+      T+="\t";
+      T+=Justification<0?"<":Justification>0?">":"";
+      T+="\t";
+
+      m_pItem->AppendLayout(tt_ColHdr, T(), CurrentFlags());
+      }
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::RowHeader(pchar Text)
+  {
+  if (eTask==DDBTask_GetData)
+    {
+    if (fAllInfo && GetReqdLayout())
+      {
+      if (fWriting)
+        m_pList->AdvanceWrite();
+      fWriting=True;
+      m_pItem->AppendLayout(tt_RowHdr, Text, CurrentFlags());
+      }
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::RowStart(pchar Text)
+  {
+  if (eTask==DDBTask_GetData)
+    {
+    if (fAllInfo && GetReqdLayout())
+      {
+      if (fWriting)
+        m_pList->AdvanceWrite();
+      fWriting=True;
+      m_pItem->AppendLayout(tt_RowStart, Text, CurrentFlags());
+      }
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+void DataDefnBlk::EndGrid(pchar Text)
+  {
+  if (eTask==DDBTask_GetData)
+    {
+    if (fAllInfo && GetReqdLayout())
+      {
+      if (fWriting)
+        m_pList->AdvanceWrite();
+      fWriting=True;
+      m_pItem->AppendLayout(tt_Grid_E, Text, CurrentFlags());
+      }
+    }
+  };
+
+//---------------------------------------------------------------------------
+
+//INLINE void DataDefnBlk::ColumnHeader(pchar Txt, int Width, int Gap, DDEF_Flags Flags)
+//  {
+//  iFlags=Nest[lCallLevel].dwDefaultFlags|Flags;
+//  switch (eTask)
+//    {
+//    case DDBTask_GetData:
+//      {
+//      if (fAllInfo && GetReqdLayout())//iFlags))
+//        {
+//        if (fWriting)
+//          m_pList->AdvanceWrite();//pPItem);
+//        fWriting=True;
+//        //m_pItem->Clear();
+//        m_pItem->AppendLayout(/*pDataObj->GetInfo(),*/ tt_ColHdr, Txt, CurrentFlags());
+//        }
+//      break;
+//      }
+//    case DDBTask_PutData:
+//      {
+//      //if (PutReqdItem(pTag, pSym))
+//      //  {
+//      //  // ???????????????????????????????????????
+//      //          
+//      //  pDataObj->AdvanceRead(rpPItem);
+//      //  }
+//      break;
+//      }
+//    };
+//  };
+//
+//
+//INLINE void DataDefnBlk::RowHeader(pchar Txt, DDEF_Flags Flags)
+//  {
+//  iFlags=Nest[lCallLevel].dwDefaultFlags|Flags;
+//  switch (eTask)
+//    {
+//    case DDBTask_GetData:
+//      {
+//      if (fAllInfo && GetReqdLayout())//iFlags))
+//        {
+//        if (fWriting)
+//          m_pList->AdvanceWrite();//pPItem);
+//        fWriting=True;
+//        //m_pItem->Clear();
+//        m_pItem->AppendLayout(/*pDataObj->GetInfo(),*/ tt_RowHdr, Txt, CurrentFlags());
+//        }
+//      break;
+//      }
+//    case DDBTask_PutData:
+//      {
+//      //if (PutReqdItem(pTag, pSym))
+//      //  {
+//      //  // ???????????????????????????????????????
+//      //          
+//      //  pDataObj->AdvanceRead(rpPItem);
+//      //  }
+//      break;
+//      }
+//    };
+//  };
+
+
+//---------------------------------------------------------------------------
+
 DDEF_Flags DataDefnBlk::Visibility(DDEF_Flags ModeFlags, flag ViewVisible, flag FileVisible, flag SnapVisible, flag ScenVisible)
   {
   DDEF_Flags & dwDefaultFlags=Nest[lCallLevel].dwDefaultFlags;

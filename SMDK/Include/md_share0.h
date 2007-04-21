@@ -46,10 +46,11 @@ const DDEF_Flags DDEF_CHILDMASK           = 0x0003000000000000;
 const DDEF_Flags DDEF_ISSPECIE            = 0x0004000000000000;
 const DDEF_Flags DDEF_ISSPECIEATT         = 0x0008000000000000;
 const DDEF_Flags DDEF_ISSPECIECALC        = 0x0010000000000000;
-const DDEF_Flags DDEF_STARTROW            = 0x0020000000000000;
-const DDEF_Flags DDEF_ENDROWS             = 0x0040000000000000;
-const DDEF_Flags DDEF_TAGNOGRF            = 0x0080000000000000;
-const DDEF_Flags DDEF_TAGCASESENS         = 0x0100000000000000;
+//const DDEF_Flags DDEF_STARTMATRIX         = 0x0020000000000000;
+//const DDEF_Flags DDEF_STARTROW            = 0x0040000000000000;
+//const DDEF_Flags DDEF_ENDMATRIX           = 0x0080000000000000;
+const DDEF_Flags DDEF_TAGNOGRF            = 0x0100000000000000;
+const DDEF_Flags DDEF_TAGCASESENS         = 0x0200000000000000;
 
 //                                            6 5  4 3  2 1
 //                                            0628406284062840
@@ -122,17 +123,22 @@ const unsigned char tt_Strng       = 16;
 const unsigned char tt_RqdPage     = 17;
 const unsigned char tt_OptPage     = 18;
 const unsigned char tt_Column      = 19;
-const unsigned char tt_Text        = 20;
-const unsigned char tt_Struct      = 21;
-const unsigned char tt_Element     = 22;
-const unsigned char tt_Object      = 23;
-const unsigned char tt_Array       = 24;
-const unsigned char tt_Struct_E    = 25;
-const unsigned char tt_Element_E   = 26;
-const unsigned char tt_Object_E    = 27;
-const unsigned char tt_Array_E     = 28;
-const unsigned char tt_Blob        = 29;
-const unsigned char tt_Table       = 30;
+const unsigned char tt_Grid        = 20;
+const unsigned char tt_Grid_E      = 21;
+const unsigned char tt_ColHdr      = 22;
+const unsigned char tt_RowHdr      = 23;
+const unsigned char tt_RowStart    = 24;
+const unsigned char tt_Text        = 25;
+const unsigned char tt_Struct      = 26;
+const unsigned char tt_Element     = 27;
+const unsigned char tt_Object      = 28;
+const unsigned char tt_Array       = 29;
+const unsigned char tt_Struct_E    = 30;
+const unsigned char tt_Element_E   = 31;
+const unsigned char tt_Object_E    = 32;
+const unsigned char tt_Array_E     = 33;
+const unsigned char tt_Blob        = 34;
+const unsigned char tt_Table       = 35;
 
 typedef struct {unsigned char t; LPCTSTR Str;} TagObjTypeStruct;
 const TagObjTypeStruct TagObjTypeNames[] =
@@ -157,6 +163,11 @@ const TagObjTypeStruct TagObjTypeNames[] =
     { tt_RqdPage,   "RqdPage" },
     { tt_OptPage,   "OptPage" },
     { tt_Column,    "Column" },
+    { tt_Grid,      "Grid<" },
+    { tt_Grid_E,    "Grid>" },
+    { tt_ColHdr,    "ColHdr" },
+    { tt_RowHdr,    "RowHdr" },
+    { tt_RowStart,  "Row<" },
     { tt_Text,      "Text" },
     { tt_Struct,    "{" },
     { tt_Element,   "(" },

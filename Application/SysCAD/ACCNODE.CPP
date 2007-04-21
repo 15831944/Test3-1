@@ -44,9 +44,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgDataReadWrite    0
-#define dbgANW              0
-#define dbgDumpObject       0
-#define dbgBld              0        
+#define dbgANW              01
+#define dbgDumpObject       01
+#define dbgBld              01        
 
 #define CHECKBOXESRIGHT     0
 #define BASICWIDTH          20 /*14*/
@@ -213,10 +213,11 @@ void AccNdData::Init()
   m_Markers       = 0;
   m_iChildLvl     = 0;
   m_fNxtIsChild   = 0;
-  m_fIsRowStart   = 0;
-  m_fIsRowsEnd    = 0;
+  m_fIsGridStart  = 0;
+  m_fIsGridRowStart = 0;
+  m_fIsGridEnd    = 0;
   m_IsLastDataCol = 0;
-  m_iMatrixCol    = -1;
+  m_iGridCol      = -1;
   ValLst.Clear();   
   iViewIndex=-1;
 
@@ -735,7 +736,7 @@ flag AccNodeWnd::LoadAccessData()
 
     ObjClassId="";
 
-    int iMatrixCol=-1;
+    int iGridCol=-1;
     CPkDataIter Iter;
     int ReportedMaxFieldsError = 0;
     flag FirstPage=1;
@@ -804,29 +805,30 @@ flag AccNodeWnd::LoadAccessData()
         
         d.m_iChildLvl   = (d.iFlags & DDEF_CHILDMASK) >> DDEF_CHILDSHIFT;
         d.m_fNxtIsChild = 0;
-        
-        d.m_fIsRowStart = (d.iFlags & DDEF_STARTROW)!=0;
-        d.m_fIsRowsEnd  = (d.iFlags & DDEF_ENDROWS)!=0;
-        d.m_IsLastDataCol = 0;
 
-        if (d.m_fIsRowStart)
+        d.m_fIsGridStart    = (d.iType==tt_Grid);
+        d.m_fIsGridRowStart = (d.iType==tt_RowStart);
+        d.m_fIsGridEnd      = (d.iType==tt_Grid_E);
+        d.m_IsLastDataCol  = 0;
+
+        if (d.m_fIsGridRowStart)
           {
-          iMatrixCol=0;
+          iGridCol=0;
           iRowStartData=iNo;
           }
-        if (iMatrixCol>=0)
+        if (iGridCol>=0)
           {
-          d.m_iMatrixCol=iMatrixCol;
+          d.m_iGridCol=iGridCol;
           if (IsData(d.iType)) 
             {
-            iMatrixCol++;
+            iGridCol++;
             for (int i=iRowStartData; i<iNo; i++)
               Data[i].m_IsLastDataCol = 0;
             d.m_IsLastDataCol = 1;
             }
           }
-        if (d.m_fIsRowsEnd)
-          iMatrixCol=-1;
+        if (d.m_fIsGridEnd)
+          iGridCol=-1;
 
         if (d.m_iChildLvl && IsData(Data[iNo-1].iType) && Data[iNo-1].m_iChildLvl<d.m_iChildLvl)
           {
@@ -2367,19 +2369,13 @@ void AccNodeWnd::MeasureFields()//, flag FullNames)
     if (f.HasData())
       {
       AccNdData &d=Data[i];
-      if (d.m_fIsRowStart)
+      if (d.m_fIsGridRowStart)
         InARow=true;
       if (d.fIsData)
         {
         if (InARow)
           {
-          //NW=f.sTagText.Length()+d.m_iChildLvl;
-          //if (f.fUseComment && !d.fHasCheck)
-          //  NW+=2+Data[f.iUseComment].sTagComment.Length();
-          //CW=d.Cnv.TextLength()+2;
           MW=d.sValue.Length();
-          //if (d.fIsStrng && d.fIsParam)
-          //  VW=Max(VW, 20);
           }
         else
           {
@@ -2392,7 +2388,7 @@ void AccNodeWnd::MeasureFields()//, flag FullNames)
             VW=Max(VW, 20);
           }
         }
-      if (d.m_fIsRowsEnd)
+      if (d.m_fIsGridEnd)
         InARow=false;
       }
     NamW=Max(NamW, 1+NW);
@@ -2504,10 +2500,26 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
   CRect CRect;
   GetClientRect(&CRect);
   int LinesVis=CRect.Height()/ScrGB.RowHgt();
-  bool DoingMatrix=false;
-  bool StartOfMatrix=false;
-  bool WasDoingMatrix=false;
-  int  iMatrixCol=0;
+  bool DoingGrid=false;
+  bool StartOfGrid=false;
+
+  int nColHdrs=0;
+  struct 
+    {
+    int     m_Width;
+    int     m_Gap;
+    int     m_Just;
+    Strng   m_sTxt;
+    } ColHdrs[256];
+
+  int nRowHdrs=0;
+  struct 
+    {
+    Strng   m_sTxt;
+    } RowHdrs[256];
+
+  int iGridRow=0;
+  int iGridCol=0;
 
   for (int fi = 0; (fi < NFlds); fi++ )
     {
@@ -2516,20 +2528,63 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
     AccNdData & d=f();//Data[fi];
     flag IsPage=false;
     
-    if (d.m_fIsRowStart)
+    switch (f.iType)
       {
-      StartOfMatrix=!DoingMatrix;
-      DoingMatrix=true;
-      iMatrixCol=0;
-      if (!StartOfMatrix)
+      case tt_Grid:
+        {
+        StartOfGrid=true;
+        DoingGrid=true;
+        nColHdrs=0;
+        nRowHdrs=0;
+        iGridRow=-1;
+        iGridCol=0;
+
+        break;
+        }
+      case tt_RowStart:
+        {
         LnNo++;
+        iGridCol=0;
+        iGridRow++;
+        break;
+        }
+      case tt_ColHdr:
+        {
+        Strng S(f.sTagText());
+        char * pW=S.XStrChr('\t');
+        char * pG=strchr(pW+1,'\t');
+        char * pJ=pG+1;
+        int Wide=pW-S();
+        int Gap=(pG>pW) ? pG-pW-1: 0;
+        S.SetLength(Wide);
+        ColHdrs[nColHdrs].m_Width=Wide;
+        ColHdrs[nColHdrs].m_Gap=Gap;
+        ColHdrs[nColHdrs].m_Just=(*pJ=='<'?0:*pJ=='>'?2:0);
+        ColHdrs[nColHdrs].m_sTxt=S;
+        nColHdrs++;
+        break;
+        }
+      case tt_RowHdr:
+        {
+        Strng S(f.sTagText());
+        RowHdrs[nRowHdrs].m_sTxt=S;
+        nRowHdrs++;
+        break;
+        }
+      case tt_Grid_E:
+        {
+        StartOfGrid=false;
+        DoingGrid=false;
+        LnNo++;
+        break;
+        }
       }
 
     if (dbgBld)
-      dbgpln("%4i %4i %-10s %s %s %3i %s %s %s %s", 
+      dbgpln("%4i %4i %-10s %s %s %s %3i %s %s %s %s", 
               fi, LnNo, tt_TypeString(d.iType), 
-              d.m_fIsRowStart?"S":" ", d.m_fIsRowsEnd?"E":" ", d.m_iMatrixCol, d.m_IsLastDataCol?"Last":"    ",   
-              DoingMatrix?"Dm":"  ", StartOfMatrix?"Sm":"  ", d.sSymOrTag());
+              d.m_fIsGridStart?"[":" ", d.m_fIsGridRowStart?">":" ", d.m_fIsGridEnd?"]":" ", d.m_iGridCol, d.m_IsLastDataCol?"Last":"    ",   
+              DoingGrid?"Dm":"  ", StartOfGrid?"Sm":"  ", d.sSymOrTag());
     switch (f.iType)
       {
       case tt_OptPage:
@@ -2552,9 +2607,9 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               if (ThisVisInTree)
                 {
                 AccNdData &d = Data[nf.iData];
-                if (d.m_iMatrixCol<0)
+                if (d.m_iGridCol<0)
                   LnsToNxtPg++;
-                else if (d.m_iMatrixCol==0 && IsData(d.iType))
+                else if (d.m_iGridCol==0 && IsData(d.iType))
                   LnsToNxtPg++;
                 }
               }
@@ -2593,8 +2648,6 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
     if (IsPage)
       {
-      //while (LnNo<RqdPgLen)
-      //  SetSpace(LnNo++,50);
       NoPageYet=0;
       RqdPgLen=2;
       int l=0;
@@ -2644,7 +2697,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
     //dbgpln("                                              XXXX");
 
-    if (((f.fIsData || f.iType==tt_Text) && (NewObjRef || FirstFieldOnPage/* || DoingMatrix*/)))
+    if (((f.fIsData || f.iType==tt_Text) && (NewObjRef || FirstFieldOnPage/* || DoingGrid*/)))
       {
       flag ObjTagVisInTree=ThisVisInTree || fAllFldsVis;
       if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
@@ -2657,70 +2710,51 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
       if (ObjTagVisInTree)
         {
-        if (dbgBld)
-          dbgpln("                                              %s %s %i", 
-                   DoingMatrix?"Dm":"  ", WasDoingMatrix?"WasDm":"     ", iMatrixCol);
-        if (DoingMatrix)
+        if (DoingGrid)
           {
-          //if (iMatrixCol==0)
-          //  {
-          //  //Strng T(ObjRefTag());
-          //  //if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
-          //  //  AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
-          //  //T+="...";
-          //  //int FldNo=0;
-          //  //if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
-          //  //  {
-          //  //  SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
-          //  //  FldNo=ObjRefFldNo;
-          //  //  ObjRefFldNo=-1;
-          //  //  }
-          //  //else
-          //  SetSpace(LnNo,1);
-          //  SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-          //  SetDesc(LnNo,"",-1,NamW/*+ValW+CnvW*/,0," ");
+          if (StartOfGrid)
+            {
+            StartOfGrid=false;
+            if (iGridCol==0)
+              {
+              SetSpace(LnNo,1);//+d.m_iChildLvl*2);
+              SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+  
+              for (int i=0; i<=nColHdrs; i++)
+                {
+                Strng Gap;
+                Gap.RPad(ColHdrs[i].m_Gap);
+                SetDesc(LnNo,ColHdrs[i].m_sTxt(),-1, ColHdrs[i].m_Width, ColHdrs[i].m_Just, Gap());
+                }
+              LnNo++;
+              }
 
-          //  //FirstFieldOnPage=0;
-          //  //NewObjRef=0;
-          //  //LnNo++;
-          //  }
+            }
           }
         else
           {
-          if (WasDoingMatrix)
+          if (dbgBld)
+            dbgpln("                                              ADD %s ... ", ObjRefTag());
+          Strng T(ObjRefTag());
+          if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
+            AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
+          T+="...";
+          int FldNo=0;
+          if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
             {
-            if (dbgBld)
-              dbgpln("                                              ADD Blank ");
-            SetSpace(LnNo,1);
-            SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-            SetDesc(LnNo,"",-1,NamW,0," ");
+            SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
+            FldNo=ObjRefFldNo;
+            ObjRefFldNo=-1;
             }
           else
-            {
-            if (dbgBld)
-              dbgpln("                                              ADD %s ... ", ObjRefTag());
-            Strng T(ObjRefTag());
-            if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fUseComment)
-              AppendTagComment(T, Flds[ObjRefFldNo]().sTagComment);
-            T+="...";
-            int FldNo=0;
-            if (ObjRefFldNo>=0 && Flds[ObjRefFldNo].fIsTreeNd)
-              {
-              SetTreeNd(LnNo, !Flds[ObjRefFldNo].fIsTreeVis,  Id_TreeNdBtn+ObjRefFldNo, 1, 0, "");
-              FldNo=ObjRefFldNo;
-              ObjRefFldNo=-1;
-              }
-            else
-              SetSpace(LnNo,1);
-            SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-            SetDesc(LnNo,T(),-((int)Id_FldParms+FldNo),NamW+ValW+CnvW,0," ");
-            }
+            SetSpace(LnNo,1);
+          SetDesc(LnNo," ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
+          SetDesc(LnNo,T(),-((int)Id_FldParms+FldNo),NamW+ValW+CnvW,0," ");
 
           FirstFieldOnPage=0;
           NewObjRef=0;
           LnNo++;
           }
-        WasDoingMatrix=DoingMatrix;
         }
       }
 
@@ -2749,7 +2783,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         ValStr=d.sValue;
         WdtAdj=0;
         int VW=ValW, XVW=0;
-        if (DoingMatrix)
+        if (DoingGrid)
           {
           if (VW>MATRIXWIDTH)
             {
@@ -2794,7 +2828,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               default        : WdtAdj=0; break;
               }
             }
-          else // if (d.ValLst.Length()>0)
+          else 
             {
             VW=BASICWIDTH;
             WdtAdj=0;
@@ -2808,7 +2842,6 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             ValStr.RPad(VW+WdtAdj);
             }
 
-          //Strng NameBuff(d.sDesc.Length()>0?"?":" ");
           Strng NameBuff;//(" ");
           NameBuff.Set(" %*.*s", d.m_iChildLvl,d.m_iChildLvl, ".......");
           if (d.fHasCheck)
@@ -2834,30 +2867,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             }
           int TagComLen=TagComStr.GetLength();
 
-          //if (StartOfMatrix && iMatrixCol==0)
-          //  {
-          //  if (f.fIsTreeNd)
-          //    SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
-          //  else
-          //    SetSpace(LnNo,1);
-          //  SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
-
-          //  Strng T(f.sTagText());
-          //  if (T.IsNotEmpty() && f.fPadDash)
-          //    {
-          //    char c=T[0];
-          //    c=isalnum(c)!=0 ? '-' : c;
-          //    T.LRPad(f.sTagText.Length()+2, ' '); // Force 1 Space on Each Side
-          //    T.LRPad(f.sTagText.Length()+2, c); // Force C On on Each Side
-          //    T.LRPad((int)NamW, c);
-          //    }
-          //  f.ValFld=SetDesc(LnNo,T(),-((int)Id_FldParms+fi),FldW,3," ");
-          //  f.ValFld->SetItalic();
-          //  LnNo++;
-          //  FirstFieldOnPage=0;
-          //  }
-          
-          if (!DoingMatrix || iMatrixCol==0)
+          if (!DoingGrid || iGridCol==0)
             {
             if (0 && d.m_fNxtIsChild)
               SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
@@ -2923,10 +2933,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           else if (d.fIsParam)
 #endif
             {
-            if (DoingMatrix)
+            if (DoingGrid)
               {
-              if (iMatrixCol==0)
-                SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
+              if (iGridCol==0)
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,nColHdrs>0?ColHdrs[0].m_Width:RowHdrs[iGridRow].m_sTxt.GetLength(),0," ");
               }
             else
               {
@@ -2945,10 +2955,17 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             if (dbgBld)
               dbgpln("                                              %3i %3i '%s' ", VW, WdtAdj, ValStr());
 
-            const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
-            //char*pSep=DoingMatrix?"":d.fHasNANStr?"  ":" ";
-            char*pSep=!DoingMatrix || d.m_IsLastDataCol?"  ":"";
-            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep);
+            if (DoingGrid)
+              {
+              int FldW = ColHdrs[iGridCol+1].m_Width;
+              Strng Sep;
+              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[iGridCol+1].m_Gap);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep());
+              }
+            else
+              {
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ");
+              }
 
             if (d.iFlags & DDEF_FUNCTPARM)
               {
@@ -2969,6 +2986,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
                 }
               }
 
+            const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
             if (HasTag)
               {
               if (GDIBlk::LowRes())
@@ -2984,7 +3002,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
                 SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
                 }
               }
-            if (!DoingMatrix || d.m_IsLastDataCol)
+            if (!DoingGrid || d.m_IsLastDataCol)
               SetDesc(LnNo, "", Id_FldCnvs+fi, 20, 0);          
             }
           else if (d.fMultiStrng)
@@ -3008,7 +3026,13 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             }
           else
             {
-            if (!DoingMatrix)
+            if (DoingGrid)
+              {
+              if (iGridCol==0)
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,nColHdrs>0?ColHdrs[0].m_Width:RowHdrs[iGridRow].m_sTxt.GetLength(),0," ");
+                //SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
+              }
+            else
               {
               FxdEdtFld* pFld=SetDesc(LnNo, NameBuff(), -(Id_FldParms+fi), NamW+WdtAdj-TagComLen, 3, TagComStr());
               pFld->m_fUnderLine=true;
@@ -3022,10 +3046,19 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               SetMarkerFlags(d.m_Markers);
               }
             const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
-            //char*pSep=DoingMatrix?"":" ";
-            char*pSep=!DoingMatrix || d.m_IsLastDataCol?"  ":"";
-            f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, pSep, false);
 
+            if (DoingGrid)
+              {
+              int FldW = ColHdrs[iGridCol+1].m_Width;
+              Strng Sep;
+              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[iGridCol+1].m_Gap);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep(), false);
+              }
+            else
+              {
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, VW-WdtAdj, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, "  ", false);
+              }
+            
             if (HasTag)
               {
               if (GDIBlk::LowRes())
@@ -3041,7 +3074,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
                 SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
                 }
               }
-            if (!DoingMatrix)
+            if (!DoingGrid)
               SetDesc(LnNo, "", Id_FldCnvs+fi, 20,0);
             }
 
@@ -3053,7 +3086,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
             }
 
-          if (!DoingMatrix)
+          if (!DoingGrid)
             LnNo++;
           FirstFieldOnPage=0;
           break;
@@ -3126,14 +3159,13 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         break;
       case tt_NULL: break;
       }
-    if (DoingMatrix && f.fIsData)
-      iMatrixCol++;
-    if (d.m_fIsRowsEnd)
+    if (DoingGrid && f.fIsData)
+      iGridCol++;
+    if (d.m_fIsGridEnd)
       {
-      DoingMatrix=false;
+      DoingGrid=false;
       LnNo++;
       }
-    StartOfMatrix=false;
     }
 
   if (1)

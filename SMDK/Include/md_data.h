@@ -102,7 +102,7 @@ enum MDDPages {MDD_NoPage, MDD_RqdPage, MDD_OptPage};
 class DllImportExport MDataDefn : public MBaseDataCommonRef
   {
   public:
-    MDataDefn(MBaseDataCommon *pCom) : MBaseDataCommonRef(pCom)/*, m_pDDB(pCom->m_pDDB)*/ { };
+    MDataDefn(MBaseDataCommon *pCom) : MBaseDataCommonRef(pCom) { };
 
   public:
     void    Double  (LPCSTR Tag, LPCSTR Sym, double* Data, MD_Flags Flags, MCnv & Cnv = MC_);              //add a double (direct memory reference)
@@ -148,6 +148,27 @@ class DllImportExport MDataDefn : public MBaseDataCommonRef
     //end structure marker
     void    ArrayEnd(MD_Flags Flags=0);
 
+    //begin matrix for a group of tags using pName as part of tag for next 'dot' level. - Includes gridding of the Display
+    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, MD_Flags Flags=0);
+    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags=0);
+    //element markers
+    void    MatrixElementStart(long iColIndex, long iRowIndex, MD_Flags Flags=0);
+    //void    MatrixElementStart(LPCSTR sColIndex, LPCSTR sRowIndex, MD_Flags Flags=0);
+    void    MatrixElementEnd(MD_Flags Flags=0);
+    //end structure marker
+    void    MatrixEnd(MD_Flags Flags=0);
+
+    // marks the start of the grid
+    void    GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows);
+    // column header  Width in chars, post gap chars, Justification <0:Left,0:Centre,>0:Right
+    void    ColumnHeader(LPCSTR ColHdrText, long Width=10, long Gap=0, long Justification=1);
+    // adds a row header at the bigging of the line 
+    void    RowHeader(LPCSTR RowHdrText);
+    //forces the next item to start a new row
+    void    RowStart();
+    // marks the end of the grid
+    void    GridEnd();
+
     bool    getForNDB();           //retrieve flag
     bool    getForFiling();        //retrieve flag
     bool    getForView();          //retrieve flag
@@ -162,8 +183,6 @@ class DllImportExport MDataDefn : public MBaseDataCommonRef
     __declspec(property(get=getForScenario))            bool    ForScenario;
     __declspec(property(get=getForFileSnpScn))          bool    ForFileSnpScn;
 
-  //protected:
-  //  DataDefnBlk       * &m_pDDB;
   };
 
 /* Class MDataChange: Helper class used for setting and/or retrieving tags as
