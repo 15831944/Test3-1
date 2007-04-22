@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-04-11 00:48:45 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-04-12 02:49:07 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -438,7 +438,9 @@ void CTTOrifice::EvalProducts()
     OutStream = InStream;
     dInletDensity = InStream.Density(MP_Liq);
     SlipFlow s1(m_lSlipMode);
-    if (bOn) {
+    dMassFlow1 = InStream.Mass();
+
+    if (bOn && dMassFlow1>0.0) {
       //same parameter sanity checks
       dPipe = Max(dPipe, 1.0e-6);
       dEntryK = Max(dEntryK, 1.0e-9);
@@ -452,7 +454,6 @@ void CTTOrifice::EvalProducts()
       double area = CircleArea(dPipe);
       double oarea = CircleArea(dOut);
       dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
-      dMassFlow1 = InStream.Mass();
       dPipeVelocity = InStream.Volume()/area;
       dGIn = dMassFlow1/area;
 
@@ -472,31 +473,17 @@ void CTTOrifice::EvalProducts()
       if (dPOrificeIn - dPValve < dFlashP && bControlValve) 
 	m_sDesc3 = "Flashing";
       else
-	m_sDesc3 = "Single Phase"; 
-       
-	
-
+	m_sDesc3 = "Single Phase";
       dPOrificeIn -= dPValve;
-      
-
       m_sDesc2 = (dPOrificeIn<dFlashP) ? "Two Phase" : "Single Phase";
-      
-	
-
       dSatP = m_VLE.SaturationP(InStream, InStream.T);
       dTin = InStream.T;
       MStream mstmp;
       mstmp = InStream;
-
-
-      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout); 
-
-
+      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/oarea)/den/1000.;
       dMassFlow2 = dMassVelocity*oarea; 
       dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*oarea;
-
-
       if (dPCritical>dPout)  {   // Choked Flow
         dMassFlow4 = dMassFlow3;
 	m_sDesc1="Choked";
@@ -547,8 +534,6 @@ void CTTOrifice::EvalProducts()
       double dG2 = dGIn*dGIn + 2*den*(dPin-dFlashP)*1000.;
       d_rEst = pow((dBeta+1)/(2*dBeta)/(1.-(dBeta-1)*dG2/(2000.*dFlashP*den)), 1.0/(dBeta-1));
       dPCritEst = d_rEst*dFlashP;
-
-	  
 #endif
 
 

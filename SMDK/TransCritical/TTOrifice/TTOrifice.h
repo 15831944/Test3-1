@@ -8,7 +8,7 @@
 #include "md_headers.h"
 #endif
 
-/**/ #define TTDEBUG
+//**/ #define TTDEBUG
 
 //---------------------------------------------------------------------------
 
