@@ -872,13 +872,13 @@ BOOL CLicense::CheckSMDK()
                 (DWORD)pow(2.0, 31-21);*/
   bSMDK_Units = 0;
   bSMDK_Props = 0;
-  bool LicBitErr = ((dwOpLevel | 0xf20c0c00)!=0); //require off : 0,1,2,3,6,12,13,20,21
+  bool LicBitErr = ((dwOpLevel & 0xf20c0c00)!=0); //require off : 0,1,2,3,6,12,13,20,21
   if (!LicBitErr)
     LicBitErr = ((dwOpLevel & 0x00001000)!=0x00001000); //require on : 19
   if (!LicBitErr)
     {
-    bSMDK_Units = ((dwOpLevel & 0x00020000)!=0x00020000);
-    bSMDK_Props = ((dwOpLevel & 0x00010000)!=0x00010000);
+    bSMDK_Units = ((dwOpLevel & 0x00020000)==0x00020000);
+    bSMDK_Props = ((dwOpLevel & 0x00010000)==0x00010000);
     LicBitErr = (!bSMDK_Units && !bSMDK_Props);
     }
   return (!LicBitErr);

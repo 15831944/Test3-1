@@ -150,7 +150,7 @@ BOOL CDevLicDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-extern CDevLicApp theApp;
+extern CLinkSMDKApp theApp;
 
   CString s;
   char Buff[1024];
@@ -285,7 +285,7 @@ void CDevLicDlg::OnUpdateLocation(CCmdUI* pCmdUI)
 
 void CDevLicDlg::OnButtonDll() 
 {
-extern CDevLicApp theApp;
+extern CLinkSMDKApp theApp;
   // Get the latest License Location
   theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
@@ -323,11 +323,11 @@ extern CDevLicApp theApp;
 
 void CDevLicDlg::OnLaunchLicense() 
 {
-extern CDevLicApp theApp;
+extern CLinkSMDKApp theApp;
   // Get the latest License Location
   theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
   CString KWA = theApp.sLicenseLoc;
-  KWA += "kwa.exe";
+  KWA += "SysCAD.exe";
   CFileStatus Status;
   if (CFile::GetStatus((LPCTSTR)KWA, Status))
     {
@@ -338,7 +338,7 @@ extern CDevLicApp theApp;
     si.wShowWindow = SW_SHOWDEFAULT;
     BOOL b = CreateProcess(NULL, (char*)(const char*)KWA, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if (!b)
-      AfxMessageBox("Unable to start kwa.exe");
+      AfxMessageBox("Unable to start SysCAD.exe");
     else
       {
       int Cnt = 0;
@@ -351,7 +351,7 @@ extern CDevLicApp theApp;
         GetExitCodeProcess(pi.hProcess, &ExitCode);
         }
       if (Cnt>=500000)
-        AfxMessageBox("Error: not waiting for kwa.exe to exit!");
+        AfxMessageBox("Error: not waiting for SysCAD.exe to exit!");
       if (ExitCode)
         {
         Sleep(200);
@@ -365,7 +365,7 @@ extern CDevLicApp theApp;
   else
     {
     char Buff[512];
-    sprintf(Buff, "Unable to find 'kwa.exe' at '%s'\nEnter correct location", (const char*)theApp.sLicenseLoc);
+    sprintf(Buff, "Unable to find 'SysCAD.exe' at '%s'\nEnter correct location", (const char*)theApp.sLicenseLoc);
     AfxMessageBox(Buff);
     }
 	
@@ -375,7 +375,7 @@ extern CDevLicApp theApp;
 
 void CDevLicDlg::OnCheckLicense() 
 {
-extern CDevLicApp theApp;
+extern CLinkSMDKApp theApp;
   // Get the latest License Location
   theApp.sLicenseLoc = AppPF.RdStr("Developers License 3.0", "SMDK License Location" , "");
 
@@ -395,7 +395,7 @@ extern CDevLicApp theApp;
 
 void CDevLicDlg::OnBnClickedClipboardcopy()
   {
-  const char* buff = "\"..\\..\\devlic.exe\" /q /f:\"$(TargetPath)\"";
+  const char* buff = "\"..\\..\\linksmdk.exe\" /q /f:\"$(TargetPath)\"";
   if (OpenClipboard())
     {
     if (EmptyClipboard())

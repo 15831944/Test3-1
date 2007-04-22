@@ -50,27 +50,27 @@ char* CK_AppName = "SysCAD";
 
 //---------------------------------------------------------------------------
 
-BEGIN_MESSAGE_MAP(CDevLicApp, CWinApp)
-  //{{AFX_MSG_MAP(CDevLicApp)
+BEGIN_MESSAGE_MAP(CLinkSMDKApp, CWinApp)
+  //{{AFX_MSG_MAP(CLinkSMDKApp)
   //}}AFX_MSG
   ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
-// CDevLicApp construction
+// CLinkSMDKApp construction
 
-CDevLicApp::CDevLicApp()
+CLinkSMDKApp::CLinkSMDKApp()
   {
   }
 
 //---------------------------------------------------------------------------
-// The one and only CDevLicApp object
+// The one and only CLinkSMDKApp object
 
-CDevLicApp theApp;
+CLinkSMDKApp theApp;
 
 //---------------------------------------------------------------------------
 
-BOOL CDevLicApp::InitInstance()
+BOOL CLinkSMDKApp::InitInstance()
   {
   // Standard initialization
   // If you are not using these features and wish to reduce the size
@@ -142,7 +142,6 @@ BOOL CDevLicApp::InitInstance()
         bQuiet = true;
         }
 
-
       p = strtok(NULL, " \n");
       }
     }
@@ -179,7 +178,7 @@ BOOL CDevLicApp::InitInstance()
     CString sReason;
     if (FileExists) 
       {
-      if (CheckLicense() )
+      if (CheckLicense())
         {
         if ( CScribble::ReadScribble(sDLLName) )
           {
@@ -253,7 +252,7 @@ BOOL CDevLicApp::InitInstance()
 
 //---------------------------------------------------------------------------
 
-bool CDevLicApp::CheckLicense()
+bool CLinkSMDKApp::CheckLicense()
   {
   CWaitCursor Wait;
   char Buff[_MAX_PATH];
@@ -264,16 +263,34 @@ bool CDevLicApp::CheckLicense()
     {
     DWORD dwOpLevel = 0;
     err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
+dwOpLevel=0x00021000 | 0x00010000;
     EndCrypkey();
 
     if (err==0) //check this only if we think we are authorized
       {
-
+#if OldMethod
       if ( ((dwOpLevel & CK_SMDK_Mask20Units) != 0) || ((dwOpLevel & CK_SMDK_Mask20Props) != 0) )
         {
         return(true);
         }
+#else
+      bool bSMDK_Units = 0;
+      bool bSMDK_Props = 0;
+      bool LicBitErr = ((dwOpLevel & 0xf20c0c00)!=0); //require off : 0,1,2,3,6,12,13,20,21
+      if (!LicBitErr)
+        LicBitErr = ((dwOpLevel & 0x00001000)!=0x00001000); //require on : 19
+      if (!LicBitErr)
+        {
+        bSMDK_Units = ((dwOpLevel & 0x00020000)==0x00020000);
+        bSMDK_Props = ((dwOpLevel & 0x00010000)==0x00010000);
+        LicBitErr = (!bSMDK_Units && !bSMDK_Props);
+        }
 
+      if (!LicBitErr)
+        {//return true if any type of valid developer license is found
+        return true;
+        }
+#endif
       }
 
     }

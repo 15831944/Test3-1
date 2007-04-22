@@ -26,49 +26,49 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+IDD_ABOUTBOX DIALOGEX 0, 0, 246, 57
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Developers Licensing Utility"
+CAPTION "Link SMDK DLL Utility"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
-    LTEXT           "Developers Licensing Utility",IDC_STATIC,40,10,133,8,
-                    SS_NOPREFIX
-    LTEXT           "Copyright (C) 2003-2006  Kenwalt",IDC_STATIC,40,25,119,
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,21,20
+    LTEXT           "Utility to Link SMDK DLL  (requires Developer's License)",
+                    IDC_STATIC,40,10,189,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2003-2007  Kenwalt",IDC_STATIC,40,25,119,
                     8
-    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+    DEFPUSHBUTTON   "OK",IDOK,189,36,50,14,WS_GROUP
 END
 
-IDD_SCDLIC_DIALOG DIALOGEX 0, 0, 307, 174
+IDD_SCDLIC_DIALOG DIALOGEX 0, 0, 331, 174
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
     WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Developers License Utility"
+CAPTION "Link SMDK DLL Utility"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     LTEXT           "Location:",IDC_STATIC,5,5,30,8
-    LTEXT           "(Location)",IDC_LOCATION_TXT,45,5,250,8
-    PUSHBUTTON      "Change Location...",IDC_LOCATION,5,20,75,14
-    PUSHBUTTON      "Developers License...",IDC_LAUNCH_SCDLic,85,20,75,14
-    PUSHBUTTON      "Check License...",IDC_CHECKLICENSE,165,20,75,14
-    DEFPUSHBUTTON   "OK",IDOK,245,20,50,14
-    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,40,300,1
-    LTEXT           "(CommandLine)",IDC_CMDLINE_TXT,5,45,300,8
-    PUSHBUTTON      "Apply License to File",IDC_BUTTON_DLL,20,55,215,20
-    ICON            IDI_LOGO,IDC_STATIC,275,55,20,20
-    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,5,80,300,1
-    LTEXT           "Command line options:",IDC_STATIC,6,84,290,8
+    LTEXT           "(Location)",IDC_LOCATION_TXT,45,5,283,8
+    PUSHBUTTON      "Change Location...",IDC_LOCATION,3,21,84,14
+    PUSHBUTTON      "Developers License...",IDC_LAUNCH_SCDLic,99,21,84,14
+    PUSHBUTTON      "Check License...",IDC_CHECKLICENSE,189,21,84,14
+    DEFPUSHBUTTON   "OK",IDOK,277,21,50,14
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,40,326,1
+    LTEXT           "(CommandLine)",IDC_CMDLINE_TXT,3,45,328,8
+    PUSHBUTTON      "Apply License to File",IDC_BUTTON_DLL,20,55,223,20
+    ICON            IDI_LOGO,IDC_STATIC,302,55,21,20
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKRECT,3,80,328,1
+    LTEXT           "Command line options:",IDC_STATIC,6,84,325,8
     LTEXT           "/q (or Q) = quiet mode (no dialog shown)",IDC_STATIC,6,
-                    96,290,8
+                    96,325,8
     LTEXT           "/f:""path and file"" (or F) = full path and name of file to license",
-                    IDC_STATIC,6,108,290,8
+                    IDC_STATIC,6,108,325,8
     LTEXT           "/l:""developers license location"" (or L) = folder containing developers license  (Optional)",
-                    IDC_STATIC,6,120,290,8
-    LTEXT           "Example: DevLic /q /f:""c:\\syscad90\\bin\\UserMethods.dll""",
-                    IDC_STATIC,6,132,294,8
-    LTEXT           "C++ 'Build Events | Post-Build Event' Command Line example: ""..\\..\\devlic.exe"" /q /f:""$(TargetPath)""",
-                    IDC_STATIC,6,144,300,8
-    PUSHBUTTON      "Copy to Clipboard",IDC_CLIPBOARDCOPY,234,156,63,14
+                    IDC_STATIC,6,120,325,8
+    LTEXT           "Example: LinkSMDK /q /f:""c:\\syscad91\\bin\\UserMethods.dll""",
+                    IDC_STATIC,6,132,325,8
+    LTEXT           "C++ 'Build Events | Post-Build Event' Command Line example: ""..\\..\\linksmdk.exe"" /q /f:""$(TargetPath)""",
+                    IDC_STATIC,6,144,325,8
+    PUSHBUTTON      "Copy to Clipboard",IDC_CLIPBOARDCOPY,267,157,63,14
 END
 
 IDD_CK_LOCATIONDLG DIALOG  0, 0, 282, 58
@@ -102,8 +102,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,1,0,0
- PRODUCTVERSION 1,1,0,0
+ FILEVERSION 3,0,0,0
+ PRODUCTVERSION 3,0,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -120,12 +120,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Kenwalt (Pty) Ltd"
             VALUE "FileDescription", "Link SMDK DLL Utility"
-            VALUE "FileVersion", "1, 1, 0, 0"
+            VALUE "FileVersion", "3, 0, 0, 0"
             VALUE "InternalName", "LinkSMDK"
             VALUE "LegalCopyright", "Copyright (C) 2003-2007"
             VALUE "LegalTrademarks", "SysCAD"
             VALUE "OriginalFilename", "LinkSMDK.exe"
-            VALUE "ProductName", "Link SMDK DLL"
+            VALUE "ProductName", "Link SMDK DLL Utility"
             VALUE "ProductVersion", "3, 0, 0, 0"
         END
     END
@@ -147,15 +147,15 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 228
+        RIGHTMARGIN, 239
         TOPMARGIN, 7
-        BOTTOMMARGIN, 48
+        BOTTOMMARGIN, 50
     END
 
     IDD_SCDLIC_DIALOG, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 305
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 307
         TOPMARGIN, 7
         BOTTOMMARGIN, 171
     END
@@ -178,17 +178,17 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_ABOUTBOX            "&About Developers Licensing Utility..."
+    IDS_ABOUTBOX            "&About Link SMDK DLL Utility..."
 END
 
 STRINGTABLE 
 BEGIN
-    IDR_MAINFRAME           "Developers License"
+    IDR_MAINFRAME           "Link SMDK DLL"
 END
 
 STRINGTABLE 
 BEGIN
-    AFX_IDS_APP_TITLE       "Developers License"
+    AFX_IDS_APP_TITLE       "Link SMDK DLL"
 END
 
 #endif    // English (U.S.) resources

@@ -15,7 +15,9 @@
 // Put whatever we like in here as the scribble routine will write
 // the whole data structure as a series of bytes. It knows the number
 // of bytes to read or write using the sizeof function
+#define OldMethod 0
 
+#if OldMethod
 struct ScribbleRecordV1_0
 {
   // Scrible DevLic Version Number
@@ -26,6 +28,19 @@ struct ScribbleRecordV1_0
   long          spare;
   unsigned char filename[15]; // for now, Up to 15 chars of DLL Filename
 };
+#else
+struct ScribbleRecordV1_1
+{
+  // Scrible DevLic Version Number
+  unsigned short major;
+  unsigned short minor;
+  char           minorchar;
+  unsigned short build;
+  unsigned short spare1;
+  long           spare2;
+  unsigned char filename[15]; // for now, Up to 15 chars of DLL Filename
+};
+#endif
 
 class CScribble  
 {
@@ -33,6 +48,7 @@ public:
 	static unsigned short ver_major;
 	static unsigned short ver_minor;
 	static char           ver_minorchar;
+  static unsigned short ver_build;
 
 	static bool ReadScribble( CString &fname );
 	static bool AddScribble( CString &fname , bool Replace );

@@ -13,9 +13,11 @@ static char THIS_FILE[]=__FILE__;
 // This data will be retrieved to determine which ScibbleRecord
 // data structure to read back.
 
-unsigned short CScribble::ver_major = 2;
+unsigned short CScribble::ver_major = 3;
 unsigned short CScribble::ver_minor = 0;
-char CScribble::ver_minorchar = 'b';
+char CScribble::ver_minorchar = 'a';
+unsigned short CScribble::ver_build = 124; //NB: This must match the build number from SysCAD
+
 const int ver_infosize = sizeof(CScribble::ver_major) + sizeof(CScribble::ver_minor) + sizeof(CScribble::ver_minorchar);
 
 //===========================================================================
@@ -44,7 +46,13 @@ bool CScribble::AddScribble(CString &fname, bool Replace)
 {
   FILE* f;
   fpos_t pos;
+#if OldMethod
   struct ScribbleRecordV1_0 write_buff;
+  const long RecSize = sizeof(struct ScribbleRecordV1_0);
+#else
+  struct ScribbleRecordV1_1 write_buff;
+  const long RecSize = sizeof(struct ScribbleRecordV1_1);
+#endif
   int i;
   LPTSTR lpsz = new TCHAR[fname.GetLength()+1];
   _tcscpy(lpsz, fname);
@@ -57,7 +65,13 @@ bool CScribble::AddScribble(CString &fname, bool Replace)
     write_buff.major = ver_major;
     write_buff.minor = ver_minor;
     write_buff.minorchar = ver_minorchar;
+#if OldMethod
     write_buff.spare = 0L;
+#else
+    write_buff.build = ver_build;
+    write_buff.spare1 = 0;
+    write_buff.spare2 = 0L;
+#endif
 
     // If in replacement mode we adjust the file position to
     // the beginning of the existing record. The caller must use
@@ -66,7 +80,7 @@ bool CScribble::AddScribble(CString &fname, bool Replace)
     {
       fseek( f, 0 , SEEK_END );
       fgetpos( f, &pos );
-      pos = pos - sizeof(struct ScribbleRecordV1_0) - ver_infosize;
+      pos = pos - RecSize - ver_infosize;
       fsetpos( f , &pos );
     }
 
@@ -82,12 +96,12 @@ bool CScribble::AddScribble(CString &fname, bool Replace)
     strncpy((char*)&write_buff.filename[0],"123456789012345",15);
     strncpy((char*)&write_buff.filename[0],fname_nopath,15);
 
-    // Shift each byte in filename by 3 bits
+    // Shift each byte in filename by 3 bits (should get smarter, use crc or something from from last 100 chars of file or similar)
     for ( i=0;i<15;i++)
       write_buff.filename[i] = write_buff.filename[i] << 3;
 
     // Write scribble record buffer
-    fwrite( (const void*)&write_buff, sizeof(struct ScribbleRecordV1_0), 1, f );
+    fwrite( (const void*)&write_buff, RecSize, 1, f );
 
     // Write the scribble version data as the last 2+2+1 bytes
     fwrite( (const void*)&ver_major, sizeof(unsigned short), 1, f );
@@ -100,9 +114,13 @@ bool CScribble::AddScribble(CString &fname, bool Replace)
 
     // Check that we actually wrote the file OK
     if ( ReadScribble(fname) )
+      {
       return true;
+      }
     else
+      {
       return false;
+      }
   }
   else
   {
@@ -117,8 +135,15 @@ bool CScribble::ReadScribble(CString &fname)
 {
   FILE* f;
   fpos_t pos;
+#if OldMethod
   struct ScribbleRecordV1_0 write_buff;
   struct ScribbleRecordV1_0 read_buff;
+  const long RecSize = sizeof(struct ScribbleRecordV1_0);
+#else
+  struct ScribbleRecordV1_1 write_buff;
+  struct ScribbleRecordV1_1 read_buff;
+  const long RecSize = sizeof(struct ScribbleRecordV1_1);
+#endif
   int i;
   unsigned short lver_major, lver_minor1, lver_minor2;
   LPTSTR lpsz = new TCHAR[fname.GetLength()+1];
@@ -166,9 +191,9 @@ bool CScribble::ReadScribble(CString &fname)
     // Read Scribble record to the buffer
     fseek( f, 0 , SEEK_END );
     fgetpos( f, &pos );
-    pos = pos - sizeof(struct ScribbleRecordV1_0) - ver_infosize;
+    pos = pos - RecSize - ver_infosize;
     fsetpos( f , &pos );
-    fread( &read_buff, sizeof(struct ScribbleRecordV1_0), 1, f );
+    fread( &read_buff, RecSize, 1, f );
 
     // Close the file and return
     fclose(f);
@@ -177,7 +202,10 @@ bool CScribble::ReadScribble(CString &fname)
     // Compare on a byte basis as we want extra info past
     // the null terminated string
     for ( i=0;i<15;i++)
-      if ( write_buff.filename[i] != read_buff.filename[i] ) return false;
+      if ( write_buff.filename[i] != read_buff.filename[i] )
+        {
+        return false;
+        }
 
     // Found matching license
     return true;
