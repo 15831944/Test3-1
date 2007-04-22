@@ -1,1 +1,0 @@
-..\smdk\devlic.exe /q /f:"..\..\syscad90\bin\Alumina2.dll"

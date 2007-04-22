@@ -1,4 +1,4 @@
-; c:\program\mingw\bin\dlltool --base-file c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca00932.base --output-exp amira.exp --dllname amira.dll --output-def amira.def --exclude-symbol=DllMainCRTStartup@12 --def c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca00932.def
+; c:\program\mingw\bin\dlltool --base-file c:\DOCUME~1\RODNEY~1\LOCALS~1\Temp/cca04028.base --output-exp amira.exp --dllname amira.dll --output-def amira.def --exclude-symbol=DllMainCRTStartup@12 --def c:\DOCUME~1\RODNEY~1\LOCALS~1\Temp/cca04028.def
 EXPORTS
 	ac_ @ 1 ; 
 	bayer_ @ 2 ; 
