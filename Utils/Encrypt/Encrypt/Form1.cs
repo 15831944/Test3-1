@@ -68,10 +68,10 @@ namespace Encrypt
           if (EncryptRCTFilesCheckBox.Checked)
             files.Add(file);
 
-        //Debugging...
-        if (Path.GetExtension(file).ToLower() != ".x")
-          if (file.Contains("Scd_Mdls.Mdb"))
+        if (Path.GetExtension(file).ToLower() == ".dxf")
+          if (EncryptRCTFilesCheckBox.Checked)
             files.Add(file);
+
       }
     }
 

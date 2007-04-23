@@ -407,6 +407,24 @@ class DllImportExport CSysCADLicense : public CLicense
 
 extern DllImportExport CSysCADLicense gs_License;
 
+class DllImportExport CEncryptNDemos
+{
+public:
+  int encryptedPGM;
+  int encryptedRCT;
+
+  bool isDemo;
+
+  CEncryptNDemos(); 
+  ~CEncryptNDemos(); 
+
+  void CheckForDemo(char* projectFolder);
+
+  bool IsEncrypted();
+};
+
+extern DllImportExport CEncryptNDemos gs_EncryptNDemos;
+
 #undef DllImportExport 
 
 //===========================================================================

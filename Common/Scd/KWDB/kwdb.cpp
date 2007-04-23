@@ -17,6 +17,8 @@
 #include <oledberr.h>
 //#include "optoff.h"
 
+#include "licbase.h"
+
 //#pragma chCHECKIT(temporary)
 //#pragma warning chCHECKIT(temporary)
 
@@ -130,7 +132,16 @@ BOOL KWDatabase::OpenDB(long DBFmt,
       CString S;
       S.Format(DBConnectOpenString(DBFmt), lpszName);
       //m_pCat->ActiveCollection(_bstr_t(S));
-      m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
+      try
+      {
+        m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
+      }
+      catch(_com_error)
+      {
+        S.AppendFormat("Jet OLEDB:Database Password=test;");
+        m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
+        gs_EncryptNDemos.encryptedPGM = true;
+      }
       m_pCat->PutActiveConnection(_variant_t((IDispatch*)m_pCnn));
 
       BuildFieldDefMap();//this can take a "long" time!
@@ -1274,9 +1285,19 @@ BOOL KWDatabase::CompactDB(long DBFmt,
     JRO::IJetEnginePtr pJet=JRO::IJetEnginePtr(__uuidof(JRO::JetEngine));
 
     CString SO, SN;
-    SO.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
-    SN.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
-    pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
+    try
+    {
+      SO.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
+      SN.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
+      pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
+    }
+    catch(_com_error)
+    {
+      SO.AppendFormat("Jet OLEDB:Database Password=test;");
+      SN.AppendFormat("Jet OLEDB:Database Password=test;");
+      pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
+    }
+
     pJet.Release();
     return TRUE;
     }

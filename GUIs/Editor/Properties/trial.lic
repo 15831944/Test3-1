@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Licenses>
+	<License signature="NDshYxuZU6AItpErkVdJioGA9C9fEVrz6Xuic4lUWugRsSBwGbUCFsaHlZkpSu3XunmUHyJ9Zg3yfV9f1KFi2Bm4+f9g91YtrDoEszS7ZmvBn9d1HY/kEGnQAAmCWevZ4yooEUeQkuJ9au5JnFHbOk96G9EL0+5pbilbhBuso3o=" version="2.0" assemblyName="SmartPropertyGrid">
+		<Expires>2106-11-30T00:00:00</Expires>
+		<SerialNumber>AC8D4DD0-E2B5-41F2-9E55-8DE4A90A36B2</SerialNumber>
+		<Limits>
+			<Limit type="Trial" terms="" purchaseUrl="http://www.visualhint.com/index.php/propertygrid/store" infoUrl="http://www.visualhint.com/index.php/propertygrid/spgnet" bitmapResource="VisualHint.SmartPropertyGrid.xheo.jpg,SmartPropertyGrid" useGui="true" usePurchaseGui="false" duration="30" showRegisterIfAvailable="false" />
+		</Limits>
+		<Values>
+			<Value key="__XL_PRO" value="TRUE" />
+		</Values>
+	</License>
+</Licenses>

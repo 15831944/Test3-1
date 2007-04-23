@@ -552,7 +552,7 @@
 		/>
 		<AssemblyReference
 			RelativePath="..\..\Bin\Protocol.dll"
-			AssemblyName="Interface, Version=4.2.0.28260, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
+			AssemblyName="Protocol, Version=4.2.0.28260, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"

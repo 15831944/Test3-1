@@ -44,6 +44,57 @@ DXF_FILE file ;
     DX_FILE_STATUS(file) = DXF_FILE_INIT ;
 }
 
+FILE* fopenEnc(char* filename, char* mode)
+{
+  long length;
+  char* buffer;
+  int i;
+  char* filenamex;
+
+  FILE* file;
+
+  i = strlen(filename);
+
+  filenamex = MALLOC(strlen(filename)+3, char);
+  strcpy(filenamex, filename);
+  strcat(filenamex, ".x");
+
+  file = fopen ( filenamex, mode ) ; 
+
+  FREE(filenamex);
+
+  if (file != NULL) // could open encrypted file.
+  {
+    //decrypt it.
+    fseek(file, 0, SEEK_END);
+    length = ftell(file);
+    rewind(file);
+
+    buffer = MALLOC(length+1,char);
+    fread(buffer, 1, length, file);
+    fclose(file);
+
+    buffer[length] = 71;
+
+    for (i=length-1; i>=0; i--) // decrypt the buffer.
+      buffer[i] ^= buffer[i+1];
+
+    file = tmpfile();
+
+    fwrite(buffer, 1, length, file);
+
+    FREE(buffer);
+
+    rewind(file);
+  }
+  else // just open the normal one.
+  {
+    file = fopen ( filename, mode ) ; 
+  }
+
+  return file;
+
+}
 
 /*-------------------------------------------------------------------------*/
 BBS_PUBLIC DXF_FILE dxf_fopen ( filename, mode )
@@ -66,7 +117,11 @@ DXF_FILE_MODE mode ;
     DX_FILE_TYPE(file) = mode ; 
     DX_FILE_ENT_LAYER_SET(file,NULL);
     if ( mode & DXF_READ ) {
-        DX_FILE_HANDLE(file) = fopen ( filename, "rb" ) ; 
+
+      { // pkh stuff
+        DX_FILE_HANDLE(file) = fopenEnc(filename, "rb");
+      }
+
         if ( DX_FILE_HANDLE(file) == NULL ) {
             dx0_strfree(DX_FILE_ENT_LAYER_PTR(file));
             DX_FREE_FILE ( file ) ;

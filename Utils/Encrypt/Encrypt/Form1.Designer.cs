@@ -33,6 +33,7 @@ namespace Encrypt
           this.CreateBackupCheckBox = new System.Windows.Forms.CheckBox();
           this.EncryptPGMFilesCheckBox = new System.Windows.Forms.CheckBox();
           this.EncryptRCTFilesCheckBox = new System.Windows.Forms.CheckBox();
+          this.EncryptDXFFiles = new System.Windows.Forms.CheckBox();
           this.SuspendLayout();
           // 
           // ProgressBar
@@ -94,6 +95,18 @@ namespace Encrypt
           this.EncryptRCTFilesCheckBox.Text = "Encrypt RCT Files";
           this.EncryptRCTFilesCheckBox.UseVisualStyleBackColor = true;
           // 
+          // EncryptDXFFiles
+          // 
+          this.EncryptDXFFiles.AutoSize = true;
+          this.EncryptDXFFiles.Checked = true;
+          this.EncryptDXFFiles.CheckState = System.Windows.Forms.CheckState.Checked;
+          this.EncryptDXFFiles.Location = new System.Drawing.Point(12, 92);
+          this.EncryptDXFFiles.Name = "EncryptDXFFiles";
+          this.EncryptDXFFiles.Size = new System.Drawing.Size(110, 17);
+          this.EncryptDXFFiles.TabIndex = 5;
+          this.EncryptDXFFiles.Text = "Encrypt DXF Files";
+          this.EncryptDXFFiles.UseVisualStyleBackColor = true;
+          // 
           // EncryptProjectForm
           // 
           this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -101,6 +114,7 @@ namespace Encrypt
           this.AutoSize = true;
           this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
           this.ClientSize = new System.Drawing.Size(147, 230);
+          this.Controls.Add(this.EncryptDXFFiles);
           this.Controls.Add(this.EncryptRCTFilesCheckBox);
           this.Controls.Add(this.EncryptPGMFilesCheckBox);
           this.Controls.Add(this.CreateBackupCheckBox);
@@ -121,6 +135,7 @@ namespace Encrypt
       private System.Windows.Forms.CheckBox CreateBackupCheckBox;
       private System.Windows.Forms.CheckBox EncryptPGMFilesCheckBox;
       private System.Windows.Forms.CheckBox EncryptRCTFilesCheckBox;
+      private System.Windows.Forms.CheckBox EncryptDXFFiles;
     }
 }
 

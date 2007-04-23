@@ -3753,3 +3753,26 @@ You could also exclude CrypKey functions by using #ifdef to determine process ex
 configuration: #ifdef _DEBUG intializeWithOutCrypKey(); #else initializeWithCrypKey(); #endif 
 
   */
+
+CEncryptNDemos::CEncryptNDemos()
+{
+  encryptedPGM = 0;
+  encryptedRCT = 0;
+
+  isDemo = FALSE;
+}
+
+CEncryptNDemos::~CEncryptNDemos()
+{
+}
+
+void CEncryptNDemos::CheckForDemo(char* projectFolder)
+{
+}
+
+bool CEncryptNDemos::IsEncrypted()
+{
+  return (encryptedPGM||encryptedRCT);
+}
+
+CEncryptNDemos gs_EncryptNDemos;
