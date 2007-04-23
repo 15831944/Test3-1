@@ -706,9 +706,9 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   dwOpLevel = 0;
   iDaysLeft = 0;
   int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
-char bbb[1024];
-sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%d)", err, dwOpLevel);
-AfxMessageBox(bbb);
+//char bbb[1024];
+//sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%d)", err, dwOpLevel);
+//AfxMessageBox(bbb);
 
   //Use the challenge function to check the library is not an impostor
   //This only needs to be done if you are using the DLL
