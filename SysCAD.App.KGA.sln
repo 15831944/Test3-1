@@ -173,7 +173,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20.SysCADMarshal_ps", "Scad
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "60.SMDK1", "Common\SMDK\SMDK1\SMDK1.vcproj", "{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
 	ProjectSection(ProjectDependencies) = postProject
-		{E9D95605-468F-4F4E-A368-DB1A5695A124} = {E9D95605-468F-4F4E-A368-DB1A5695A124}
 		{141EF00B-B83A-4189-A728-CDBEAFA181CB} = {141EF00B-B83A-4189-A728-CDBEAFA181CB}
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 		{8C5BFF90-6FED-4C82-9495-1FCF8802F52A} = {8C5BFF90-6FED-4C82-9495-1FCF8802F52A}
@@ -253,17 +252,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ks.SKOSpMdls", "SMDK\Simutr
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x4.DevLic", "Utils\DevLic\DevLic.vcproj", "{141EF00B-B83A-4189-A728-CDBEAFA181CB}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.BATC_Bayer", "SMDK\Worsley\BATC_Bayer\BATC_Bayer.vcproj", "{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06} = {AFA10940-2CDE-4B7B-85AC-B8644E838A06}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x2.KWA", "Utils\KWA\KWA.vcproj", "{E9D95605-468F-4F4E-A368-DB1A5695A124}"
-	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x1.SysCAD91Lic", "Utils\syscad91Lic\syscad91lic.vcproj", "{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}"
@@ -353,6 +344,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ks.Control3", "SMDK\Kenwalt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "us.PosnEquip", "SMDK\PosnEquip2\PosnEquip\PosnEquip.vcproj", "{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x6.LinkSMDK", "Utils\DevLic\LinkSMDK.vcproj", "{141EF00B-B83A-4189-A728-CDBEAFA181CB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "x5.SysCAD91DevLic", "Utils\SysCAD91DevLic\syscad91devlic.vcproj", "{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -1164,17 +1163,6 @@ Global
 		{900669D1-8CDE-443C-81A8-B21526701CE4}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
 		{900669D1-8CDE-443C-81A8-B21526701CE4}.SMDK_Debug.ActiveCfg = SMDK_Debug|Win32
 		{900669D1-8CDE-443C-81A8-B21526701CE4}.SMDK_Debug.Build.0 = SMDK_Debug|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug.ActiveCfg = Debug|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug - Full.ActiveCfg = Debug|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Distribution.ActiveCfg = Distribution|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Distribution.Build.0 = Distribution|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release - Full.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Full.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Marshal.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg_Small.ActiveCfg = Release|Win32
-		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.SMDK_Debug.ActiveCfg = Debug|Win32
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.Debug.ActiveCfg = Debug|Win32
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.Debug.Build.0 = Debug|Win32
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.Debug - Full.ActiveCfg = Debug|Win32
@@ -1194,26 +1182,6 @@ Global
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.SMDK_Debug.ActiveCfg = SMDK_Debug|Win32
 		{C6CFD7FE-C67E-437D-9EBF-F37F4BB379B0}.SMDK_Debug.Build.0 = SMDK_Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Debug.ActiveCfg = Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Debug.Build.0 = Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Debug - Full.ActiveCfg = Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Debug - Full.Build.0 = Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Distribution.ActiveCfg = Distribution|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Distribution.Build.0 = Distribution|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release - Full.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release - Full.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg Full.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg Full.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg Marshal.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg Marshal.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg_Small.ActiveCfg = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.Release_Dbg_Small.Build.0 = Release|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.SMDK_Debug.ActiveCfg = Debug|Win32
-		{E9D95605-468F-4F4E-A368-DB1A5695A124}.SMDK_Debug.Build.0 = Debug|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug.ActiveCfg = Debug|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug - Full.ActiveCfg = Debug|Win32
 		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Distribution.ActiveCfg = Distribution|Win32
@@ -1630,8 +1598,8 @@ Global
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug.Build.0 = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug - Full.ActiveCfg = Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Debug - Full.Build.0 = Debug|Win32
-		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.ActiveCfg = Debug|Win32
-		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.Build.0 = Debug|Win32
+		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.ActiveCfg = Distribution|Win32
+		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Distribution.Build.0 = Distribution|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release.ActiveCfg = Release|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release.Build.0 = Release|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release - Full.ActiveCfg = Release|Win32
@@ -1646,6 +1614,46 @@ Global
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.SMDK_Debug.ActiveCfg = SMDK_Debug|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.SMDK_Debug.Build.0 = SMDK_Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug.ActiveCfg = Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug.Build.0 = Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug - Full.ActiveCfg = Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Debug - Full.Build.0 = Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Distribution.ActiveCfg = Distribution|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Distribution.Build.0 = Distribution|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release - Full.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release - Full.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Full.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Full.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Marshal.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg Marshal.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg_Small.ActiveCfg = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.Release_Dbg_Small.Build.0 = Release|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{141EF00B-B83A-4189-A728-CDBEAFA181CB}.SMDK_Debug.Build.0 = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug.ActiveCfg = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug.Build.0 = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug - Full.ActiveCfg = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Debug - Full.Build.0 = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Distribution.ActiveCfg = Distribution|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Distribution.Build.0 = Distribution|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release.ActiveCfg = Release|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release.Build.0 = Release|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release - Full.ActiveCfg = Release|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release - Full.Build.0 = Release|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg.ActiveCfg = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg.Build.0 = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Full.ActiveCfg = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Full.Build.0 = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Marshal.ActiveCfg = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg Marshal.Build.0 = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg_Small.ActiveCfg = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.Release_Dbg_Small.Build.0 = Release_Dbg|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.SMDK_Debug.ActiveCfg = Debug|Win32
+		{19EB7266-EDF8-455B-8E82-54E0AF7C94BB}.SMDK_Debug.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		Common\BldCopyCOMDll-H.Cmd = Common\BldCopyCOMDll-H.Cmd

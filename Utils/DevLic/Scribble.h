@@ -15,7 +15,7 @@
 // Put whatever we like in here as the scribble routine will write
 // the whole data structure as a series of bytes. It knows the number
 // of bytes to read or write using the sizeof function
-#define OldMethod 0
+#define OldMethod 1
 
 #if OldMethod
 struct ScribbleRecordV1_0

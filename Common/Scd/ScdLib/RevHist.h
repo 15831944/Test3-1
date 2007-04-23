@@ -2814,11 +2814,14 @@ Build 123 : 21 February 2007
 1635 18/04/07: (#807) SMDK MTagIO rearrangement and improvements.
 1637 18/04/07: Cursor fixes for Vista.
 1639 18/04/07: (#636) Correct deep copy implementation of SMDK MStream and MContainer.
+1642 19/04/07: Changes to filter press and drum filter for full dynamic.
+1649 21/04/07: (#818) Preliminary implementation of new developer license utility.
+1653 21/04/07: (#813) SMDK tables for access window.
 
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1639
+#define SCD_PATCH_SVN    1653
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

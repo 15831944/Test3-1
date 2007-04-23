@@ -263,7 +263,7 @@ bool CLinkSMDKApp::CheckLicense()
     {
     DWORD dwOpLevel = 0;
     err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
-dwOpLevel=0x00021000 | 0x00010000;
+//dwOpLevel=0x00021000 | 0x00010000;
     EndCrypkey();
 
     if (err==0) //check this only if we think we are authorized

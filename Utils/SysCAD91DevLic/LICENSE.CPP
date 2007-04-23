@@ -715,7 +715,6 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
   dwOpLevel = 0;
   iDaysLeft = 0;
   int err = GetAuthorization(&dwOpLevel, 0); //check authorization, use up 0 runs
-dwOpLevel=0x00021000 | 0x00010000;
 //char bbb[1024];
 //sprintf(bbb, "GetAuthorization:%d  (dwOpLevel:%08x)", err, dwOpLevel);
 //AfxMessageBox(bbb);

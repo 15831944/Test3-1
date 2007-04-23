@@ -127,6 +127,7 @@ set fn2=%fn%_Kenwalt.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\scdplcopcsrv.dll ..\bin\plc5.exe
 wzzip -a %fn2% ..\bin\kw_smdk1.dll
+wzzip -a %fn2% ..\bin\kw_smdk2.dll
 wzzip -a %fn2% ..\bin\demousr.dll ..\bin\demospusr.dll ..\bin\demoalspusr.dll
 wzzip -a %fn2% ..\bin\csiro_units.dll
 wzzip -a %fn2% ..\bin\Alumina2.dll
