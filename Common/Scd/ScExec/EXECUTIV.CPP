@@ -7348,7 +7348,7 @@ void CExecutive::PrepareMergeChangeTags(CMergeProjectsInfo& MPI)
         }
       FirstTest = false;
       }
-    if (RenameAgain && !MPI.PostFlags[i])
+    if (RenameAgain && !MPI.PostFlags[j])
       {
       MPI.PostFlags[j] = RenameAgain;
       MPI.iSlaveExtraChngCnt++;
