@@ -44,9 +44,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
 #define dbgDataReadWrite    0
-#define dbgANW              01
-#define dbgDumpObject       01
-#define dbgBld              01        
+#define dbgANW              0
+#define dbgDumpObject       0
+#define dbgBld              0        
 
 #define CHECKBOXESRIGHT     0
 #define BASICWIDTH          20 /*14*/

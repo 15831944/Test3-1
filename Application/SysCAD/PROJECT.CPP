@@ -191,7 +191,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 102; //KGA  27/11/2006 Changes to status colours
 //const int LatestPrjFileVer = 103; //CNM  24/01/2007 Changes Saturation Pressure
 //const int LatestPrjFileVer = 104; //CNM  07/02/2007 Changes to Shell & Tube IO
-const int LatestPrjFileVer = 105; //CNM  23/03/2007 SpVector::Tagging/Symbols changed
+//const int LatestPrjFileVer = 105; //CNM  23/03/2007 SpVector::Tagging/Symbols changed
+const int LatestPrjFileVer = 106; //CNM  23/04/2007 DataUnionCom changes - reopen of old historian files
 
 //===========================================================================
 //

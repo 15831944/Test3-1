@@ -662,6 +662,14 @@ flag CSlot::Save(CFile & F, long SlotNo)
 
 //---------------------------------------------------------------------------
 
+static void FixDataUnion(DataUnion & Val)
+  {
+  byte iType = Val.iType; 
+  byte iStat = Val.iStatus;
+  Val.iType = iType & 0x01f; // only the lowest 5 bits
+  Val.iStatus = ((iType & 0x020) >> 5) | (iStat << 1) ; // top bit of iType shifted into lowest bit pos and iSTat
+  }
+
 flag CSlot::Load(CFile & F, long SlotNo)
   {
   unsigned long Pos=sizeof(HD_Hist) + SlotNo * HD_SlotSpace;
@@ -673,6 +681,14 @@ flag CSlot::Load(CFile & F, long SlotNo)
     }
   F.Seek(Pos, CFile::begin);
   F.Read((void*)&(Data), sizeof(HD_SlotInfo));
+
+  // Fix for changes made to layout of DataUnion
+  if (PrjFileVerNo()<106)
+    {
+    FixDataUnion(Data.PrevActualVal);
+    FixDataUnion(Data.PrevMeasVal);
+    FixDataUnion(Data.PrevSaveVal);
+    }
 
   // cnm a KLUDGE the contents of these do not get saved correctly if they are strings.
   if (IsStrng(Data.VarTyp))

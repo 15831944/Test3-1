@@ -258,7 +258,7 @@ class DllImportExport flt16        // NBNB No virtual methods
 class DllImportExport DataUnionCom // NBNB No virtual methods
   {
   public:
-    DataUnionCom() {iType=tt_NULL; iStatus=ds_OK; bSpare=0; };
+    DataUnionCom() {iType=tt_NULL; iStatus=ds_OK; };
 
     byte           Type() const { return iType; };
     byte           Status() const { return iStatus; };
@@ -286,7 +286,7 @@ class DllImportExport DataUnionCom // NBNB No virtual methods
     flag           SetTypeString(byte Type, char*pStrData, CCnvIndex iCnv=0, char*pCnvTxt=NULL);
 
   public:
-    byte          iType:5, iStatus:2, bSpare:1;
+    byte           iType:6, iStatus:2;
     union 
       {
       //byte         Bit; 

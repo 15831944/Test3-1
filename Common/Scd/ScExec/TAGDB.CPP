@@ -104,6 +104,7 @@ static struct {byte iType; ADOX::DataTypeEnum dbType; int dbSize; } TypeMap [] =
     { tt_Grid_E      , ADOX::adError/*-1*/,       0               },
     { tt_ColHdr      , ADOX::adError/*-1*/,       0               },
     { tt_RowHdr      , ADOX::adError/*-1*/,       0               },
+    { tt_RowStart    , ADOX::adError/*-1*/,       0               },
     { tt_Text        , ADOX::adVarWChar,          255             },
     { tt_Struct      , ADOX::adError/*-1*/,       0               },
     { tt_Element     , ADOX::adError/*-1*/,       0               },
