@@ -1217,6 +1217,10 @@ flag CSpecie::CopyDataForMultiFidelity()
 
 //---------------------------------------------------------------------------
 
+const double DefaultLimitFrac = 0.8;
+const double DefaultPureValue = 1000;
+const bool   DefaultDoWarn    = true;
+
 int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCorr, char* pCpCorr, char* pSoluble, char* pHeatOfMix)
   {
   ASSERT_ALWAYS(iSId==iSolvent, "iSId!=iSolvent", __FILE__, __LINE__);
@@ -1232,10 +1236,11 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
       }
     }
 
+  bool HasLimit=false;
   CSpDBEqn * pDensCorrFn = NULL;
-  double LimitFrac  = 0.8;
-  double PureValue  = 1000;
-  bool   DoWarn     = true;
+  double LimitFrac  = DefaultLimitFrac;
+  double PureValue  = DefaultPureValue;
+  bool   DoWarn     = DefaultDoWarn;
   int Count=strlen(pDensCorr);
   if (pDensCorr && strlen(pDensCorr)>0)
     {
@@ -1262,8 +1267,9 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
           int N=ParseCSVFunction(Str(), Cols);
           if (N==4)
             {
-            LimitFrac=SafeAtoF(Cols[1], 0.8);
-            PureValue=SafeAtoF(Cols[2], 1000);
+            HasLimit=true;
+            LimitFrac=SafeAtoF(Cols[1], DefaultLimitFrac);
+            PureValue=SafeAtoF(Cols[2], DefaultPureValue);
             DoWarn=!(stricmp(Cols[3], "Off")==0);
             int xxx=0;
             }
@@ -1282,11 +1288,15 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
         iChar++;
       }
     }
+  if (pDensCorrFn && !HasLimit)
+    Ret=5;
+
   double DensCorrZero  = pDensCorrFn ? pDensCorrFn->AtT(0.0) : 0.0;
 
   SDB[iSoluteA].m_pDensCalc = new CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn);
 
   m_DensCorrs.Add(CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn));
+
 DensOK:
 
   for (int i=0; i<m_CpCorrs.GetSize(); i++)
@@ -3210,8 +3220,11 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
               //LogError("SpecieDB", 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               LogError("SpecieDB", 0, "Bad Limit Info for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
+            case 5:
+              LogError("SpecieDB", 0, "No Limit set for DensCorrFn for Specie %s in solvent %s Assuming:Limit(%.2f, %.1f, %s)", 
+                pSoluteA, pSolvent, DefaultLimitFrac, DefaultPureValue, DefaultDoWarn?"ON":"OFF");
+              break;
             }
-
           }
         }
       else
