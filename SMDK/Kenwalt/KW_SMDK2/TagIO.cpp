@@ -86,7 +86,11 @@ enum
   idDX_SetTagSubsStr1
   };
 
-const int maxElements = 80;
+const int maxCols=3;
+const int maxRows=4;
+
+const int idDX_XY = idDX_SetTagSubsStr1+10;
+const int idDX_AB = idDX_XY+(maxCols*maxRows);
 
 //---------------------------------------------------------------------------
 
@@ -127,12 +131,73 @@ void CTagIO::BuildDataFields()
   DD.String("SetTagSubs1", "", idDX_SetTagSubsStr1, MF_PARAMETER);
   DD.Show(TagIO[2]->IsActive);//m_iSet1>=0);
   DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, TagIO[2]->Cnv);
+
+#if 0
+  //Example for matrix / grid
+  DD.Show();
+  DD.Page("TableExample");
+  DD.Text("------------------------------------------------------------");
+  DD.Text("Matrix");
+  DD.MatrixBegin("ScdXY", "XY", maxCols, maxRows, 8, "X", "Y", 0);
+
+  for (int y=0; y<maxRows; y++)
+    {
+    DD.RowStart();
+    for (int x=0; x<maxCols; x++)
+      {
+  		DD.MatrixElementStart(x, y);
+      DD.Double("X", "", idDX_XY+x+(y*maxCols), MF_RESULT|MF_NO_FILING, MC_None);
+      }
+    }
+
+  DD.MatrixEnd();
+                           
+  DD.Text("------------------------------------------------------------");
+  DD.Text("Grid");
+  
+  DD.GridBegin("AB", maxCols, maxRows);
+
+  CString Txt;
+  DD.ColumnHeader("A\\B", 5, 1, 0);
+  for (int x=0; x<maxCols; x++)
+    {
+    Txt.Format("B%i", x);
+    DD.ColumnHeader(Txt, 9, 1);
+    }
+
+  for (int y=0; y<maxRows; y++)
+    {
+    Txt.Format("A%i", y);
+    DD.RowHeader(Txt);
+    DD.RowStart();
+    for (int x=0; x<maxCols; x++)
+      {
+      Txt.Format("AB[%i][%i]", x,y);
+      DD.Double(Txt, "", idDX_AB+x+(y*maxCols), MF_PARAMETER|MF_NO_FILING, MC_None);
+      }
+    }
+
+  DD.GridEnd();
+
+  DD.Text("------------------------------------------------------------");
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 bool CTagIO::ExchangeDataFields()
   {
+  if (DX.Handle >= idDX_XY && DX.Handle < idDX_XY + maxCols*maxRows)
+    {
+    DX.Double  = DX.Handle - idDX_XY; 
+    return true;
+    }
+  if (DX.Handle >= idDX_AB && DX.Handle < idDX_AB + maxCols*maxRows)
+    {
+    DX.Double  = 100+DX.Handle - idDX_AB; 
+    return true;
+    }
+
   switch (DX.Handle)
     {
     case idDX_GetTagStr:

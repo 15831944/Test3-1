@@ -88,19 +88,13 @@ void ScheduledEvents::Reset()
 
 const int maxElements = 20;
 
-const int maxCols=3;
-const int maxRows=4;
-
 const int idDX_Count = 1;
 const int idDX_Reset = 2;
 const int idDX_Tag = 50;
 const int idDX_Description = idDX_Tag+maxElements;
 const int idDX_OutputVal = idDX_Description+maxElements;
-const int idDX_XY = idDX_OutputVal+maxElements;
-const int idDX_AB = idDX_XY+maxElements;
 
 //---------------------------------------------------------------------------
-//double x_1,x_2,y_1,y_2;
 
 void ScheduledEvents::BuildDataFields()
 {
@@ -146,72 +140,12 @@ void ScheduledEvents::BuildDataFields()
 		DD.ArrayElementEnd();
 	}
 	DD.ArrayEnd();
-  
-  DD.Text("------------------------------------------------------------");
-  DD.Text("Matrix");
-  //DD.Double("X1", "", &x_1, MF_RESULT|MF_NO_FILING|MF_STARTROW, MC_None);
-  //DD.Double("X2", "", &x_2, MF_RESULT|MF_NO_FILING, MC_None);
-  //DD.Double("Y1", "", &y_1, MF_RESULT|MF_NO_FILING|MF_STARTROW, MC_None);
-  //DD.Double("Y2", "", &y_2, MF_RESULT|MF_NO_FILING|MF_ENDROWS, MC_None);
-
-  DD.MatrixBegin("ScdXY", "XY", maxCols, maxRows, 8, "X", "Y", 0);
-
-  for (int y=0; y<maxRows; y++)
-    {
-    DD.RowStart();
-    for (int x=0; x<maxCols; x++)
-      {
-  		DD.MatrixElementStart(x, y);
-      DD.Double("X", "", idDX_XY+x+(y*maxCols), MF_RESULT|MF_NO_FILING/*|MF_STARTROW*/, MC_None);
-      }
-    }
-
-  DD.MatrixEnd();
-                           
-  DD.Text("------------------------------------------------------------");
-  DD.Text("Grid");
-  
-  DD.GridBegin("AB", maxCols, maxRows);
-
-  CString Txt;
-  DD.ColumnHeader("A\\B", 5, 1, 0);
-  for (int x=0; x<maxCols; x++)
-    {
-    Txt.Format("B%i", x);
-    DD.ColumnHeader(Txt, 9, 1);
-    }
-
-  for (int y=0; y<maxRows; y++)
-    {
-    Txt.Format("A%i", y);
-    DD.RowHeader(Txt);
-    DD.RowStart();
-    for (int x=0; x<maxCols; x++)
-      {
-      Txt.Format("AB[%i][%i]", x,y);
-      DD.Double(Txt, "", idDX_AB+x+(y*maxCols), MF_PARAMETER|MF_NO_FILING/*|MF_STARTROW*/, MC_None);
-      }
-    }
-
-  DD.GridEnd();
-  
 }
 
 //---------------------------------------------------------------------------
 
 bool ScheduledEvents::ExchangeDataFields()
 {
-  if (DX.Handle >= idDX_XY && DX.Handle < idDX_XY + maxCols*maxRows)
-	{
-  DX.Double  = DX.Handle - idDX_XY; 
-  return true;
-	}
-  if (DX.Handle >= idDX_AB && DX.Handle < idDX_AB + maxCols*maxRows)
-	{
-  DX.Double  = 100+DX.Handle - idDX_AB; 
-  return true;
-	}
-
   if (DX.Handle >= idDX_Description && DX.Handle < idDX_Description + maxElements)
 	{
     const int task = DX.Handle - idDX_Description;
