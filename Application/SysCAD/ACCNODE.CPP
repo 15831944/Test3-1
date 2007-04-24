@@ -2572,14 +2572,16 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         ColHdrs[0].m_Gap=0;
         for (int ii=1; ii<sizeof(ColHdrs)/sizeof(ColHdrs[0]); ii++)
           {
-          ColHdrs[ii].m_sTxt.Set(MaxCols==1?" ":MaxRows>1?"[ ,%2i]":"[%2i]", ii-1);
+          //ColHdrs[ii].m_sTxt.Set(MaxCols==1?" ":MaxRows>1?"[ ,%2i]":"[%2i]", ii-1);
+          ColHdrs[ii].m_sTxt.Set(MaxCols==1?" ":MaxRows>1?",%2i]":"[%2i]", ii-1);
           ColHdrs[ii].m_Width=ColWide;
           ColHdrs[ii].m_Just=2;
           ColHdrs[ii].m_Gap=DefGap;
           }
 
         for (int ii=0; ii<sizeof(RowHdrs)/sizeof(RowHdrs[0]); ii++)
-          RowHdrs[ii].m_sTxt.Set(MaxCols>1?"[%2i, ]":"[%2i]", ii);
+          //RowHdrs[ii].m_sTxt.Set(MaxCols>1?"[%2i, ]":"[%2i]", ii);
+          RowHdrs[ii].m_sTxt.Set(MaxCols>1?"[%2i,":"[%2i]", ii);
 
         break;
         }
