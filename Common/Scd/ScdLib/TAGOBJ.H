@@ -180,6 +180,7 @@ class DllImportExport FilingControlBlock
     char* XName() { return sXName(); };
     char* ObjTag() { return sObjTag(); };
     flag SaveAs() { return bSaveAs; };
+    char* OldPrjFiles() { return xm_sOldPrjFiles(); };
     flag CreateObj() { return bCreateObj; };
     void InitialiseForRead(HANDLE File, DWORD StartPos, DWORD EndPos);
     void InitialiseForWrite(HANDLE File, DWORD StartPos);

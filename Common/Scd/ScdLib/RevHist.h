@@ -2816,14 +2816,15 @@ Build 123 : 21 February 2007
 1639 18/04/07: (#636) Correct deep copy implementation of SMDK MStream and MContainer.
 1642 19/04/07: Changes to filter press and drum filter for full dynamic.
 1649 21/04/07: (#818) Preliminary implementation of new developer license utility.
-1660 23/04/07: (#?) Encryption of pgm updated; and rct and dxf encryption implemented.
+1660 23/04/07: (#798) Encryption of pgm updated; and rct and dxf encryption implemented.
 1662 23/04/07: (#813) SMDK tables for access window, preliminary implementation.
-1663 23/04/07: (#819) SMDK tables for access window.
-
+1663 23/04/07: (#819) Fix for project merge for duplicate tags.
+1665 23/04/07: (#820) Display warning message when density correction limit assumed.
+1666 24/04/07: (#815) Fix for edit PGM after project save-version or save-as.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1663
+#define SCD_PATCH_SVN    1666
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

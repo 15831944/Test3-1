@@ -9,7 +9,7 @@
 #include "pgm_e.h"
 #include "gencon.h"
 #include "scd_wm.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
 
@@ -389,11 +389,13 @@ void GControl::BuildDataDefn(DataDefnBlk & DDB)
       {
       Strng Fn, Tg;
       Fn.FnName(PgmMngr.m_FilesUsed[i]());
+      Strng Sym("Edit_");
+      Sym += Fn;
       if (i==0)
         Tg = "Edit Main pgm";
       else
         Tg.Set("Edit include %d", i);
-      DDB.Button(Tg(),         Fn(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
+      DDB.Button(Tg(),         Sym(),   DC_,    "",    idmEditFileBtn+i,            this, isParm);
       }
     DDB.String("NewInclude",   "",       DC_,      "",    idmEditFileNameNew,            this, isParm|SetOnChange|noFileAtAll);
     if (m_sEditFileNameNew.GetLength()>0)
@@ -721,21 +723,8 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
         {
         if (DCB.rB && (*DCB.rB!=0))
           {
-          int inc=DCB.lHandle-idmEditFileBtn;
-          Strng FileName=PgmMngr.m_FilesUsed[inc];
-          //EditTime.dwLowDateTime=0;
-          //EditTime.dwHighDateTime=0; 
-          //if (sPGMName.Length()==0)
-          //  {
-          //  sPGMName=FnDefaultControlsFolder();
-          //  sPGMName+=Tag();
-          //  sPGMName+=".pgm";
-          //  if (FileExists(sPGMName()))
-          //    {
-          //    LoadPGM(sPGMName(), bWithDBG);
-          //    }
-          //  }
-          //Strng FileName(sPGMName());
+          const int inc=DCB.lHandle-idmEditFileBtn;
+          Strng FileName=(inc==0 ? sPGMName() : PgmMngr.m_FilesUsed[inc]);
           Strng FullFilename;
           int RetCode = DCB.DoEditBtn(m_hProcess[inc], m_dwProcessId[inc], "", FileName(), "pgm", &FullFilename, true);
           if (RetCode==-1)
@@ -1027,7 +1016,25 @@ flag GControl::GetOtherData(FilingControlBlock &FCB)
       }
     }
   
-  return PgmMngr.SaveScenario(FCB);
+  flag OK = PgmMngr.SaveScenario(FCB);
+
+  if (FCB.SaveAs())
+    {//need to correct the files used list after a save-as or save-version!
+    for (int i=0; i<PgmMngr.m_FilesUsed.GetSize(); i++)
+      {
+      int pos = PgmMngr.m_FilesUsed[i].Find(FCB.OldPrjFiles());
+      if (pos>=0)
+        {
+        Strng s;
+        if (pos>0)
+          s = PgmMngr.m_FilesUsed[i].Left(pos);
+        s += FCB.Root();
+        s += PgmMngr.m_FilesUsed[i].Mid(pos + strlen(FCB.OldPrjFiles()), 1024);
+        PgmMngr.m_FilesUsed[i] = s;
+        }
+      }
+    }
+  return OK;
   }
 
 //--------------------------------------------------------------------------
