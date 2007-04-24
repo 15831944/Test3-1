@@ -17,6 +17,8 @@
 #include "badliclocation.h"
 //#include "optoff.h"
 
+#include "crc32static.h"
+
 #define dbgLicenseState 0
 #define dbgLicenseTimer 0
 
@@ -3766,8 +3768,50 @@ CEncryptNDemos::~CEncryptNDemos()
 {
 }
 
+void CRCFiles(Strng folder, Strng extension, DWORD &dwCrc32)
+{
+  Strng Tmp=folder;
+  Tmp+="*.*";
+
+  WIN32_FIND_DATA fd;
+  HANDLE H = FindFirstFile(Tmp(), &fd);
+  flag AllDone = (H==INVALID_HANDLE_VALUE);
+  while (!AllDone)
+  {
+    if ((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0) 
+    {
+      if ((_stricmp(fd.cFileName, ".")!=0)&&(_stricmp(fd.cFileName, "..")!=0))
+      {
+        Strng temp = folder;
+        temp += fd.cFileName;
+        temp += "\\";
+        CRCFiles(temp, extension(), dwCrc32);
+      }
+    }
+    else
+    {
+      Strng temp = &fd.cFileName[strlen(fd.cFileName)-strlen(extension())];
+      if (_stricmp(temp.Lower(), extension())==0)
+      {
+        Tmp=folder;
+        Tmp+=fd.cFileName;
+
+        CCrc32Static::FileCrc32Streams(Tmp(), dwCrc32);
+      }
+    }
+    AllDone = !FindNextFile(H, &fd);
+  }
+  FindClose(H);
+}
+
 void CEncryptNDemos::CheckForDemo(char* projectFolder)
 {
+  if (true) // demo.dat exists
+  {
+    DWORD dwCrc32 = 0xFFFFFF;
+
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dxf", dwCrc32);
+  }
 }
 
 bool CEncryptNDemos::IsEncrypted()

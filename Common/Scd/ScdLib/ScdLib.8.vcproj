@@ -566,6 +566,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Crc32Static.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DATAATTR.CPP"
 				>
 			</File>
@@ -803,7 +807,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Common.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CommsSrvrBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Crc32Static.h"
 				>
 			</File>
 			<File
