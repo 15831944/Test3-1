@@ -473,7 +473,7 @@ class DllImportExport MN_Lnk : public MdlNode
 #endif
     byte           m_iFlwPhaseRqd;
 
-    double         dMkUpRqd;
+    double         m_dMkUpRqd;
 
     double         DeltaZ;
     double         TotalArea;

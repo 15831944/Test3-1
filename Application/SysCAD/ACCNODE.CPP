@@ -5018,7 +5018,13 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
                       XMenu.AppendMenu(MF_SEPARATOR);
                       XMenu.AppendMenu(MF_STRING, IDM_ACC_ACCESSTAG_0+iTag, "&Access");
                       XMenu.AppendMenu(MF_STRING, IDM_ACC_FINDTAG_0+iTag,   "&Find");
+#if 1
+                      if (FirstOne)
+                        Menu.AppendMenu(MF_SEPARATOR);
+                      Menu.AppendMenu(MF_POPUP|0, (unsigned int)XMenu.m_hMenu, s);
+#else
                       Menu.AppendMenu(MF_POPUP|(FirstOne?MF_MENUBARBREAK:0), (unsigned int)XMenu.m_hMenu, s);
+#endif
                       FirstOne=false;
                       iTag++;
                       }

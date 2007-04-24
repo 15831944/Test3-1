@@ -166,7 +166,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   //DDB.Visibility(NM_Probal|SM_All|HM_All);
   //DDB.Double ("Qm_MakeUp",     "",         DC_Qm,   "kg/s",   &dMkUpRqd,        this, isParm|NAN_OK);
   DDB.Visibility(NM_Probal|SM_All|HM_All);
-  DDB.Double ("Qm_MakeUp",       "", DC_Qm, "kg/s", &dMkUpRqd,        this, isParm|NAN_OK);
+  DDB.Double ("Qm_MakeUp",       "", DC_Qm, "kg/s", &m_dMkUpRqd,        this, isParm|NAN_OK);
   //DDB.Double ("Qm_MakeUpAvail",  "", DC_Qm, "kg/s", xidIO_MkUpAvail0, this, isResult|InitHidden|NAN_OK);
   //DDB.Double ("Qm_MakeUpReqd",   "", DC_Qm, "kg/s", xidIO_MkUpReqd0,  this, isResult|InitHidden|NAN_OK);
   //DDB.Double ("Qm_MakeUpAvail1", "", DC_Qm, "kg/s", xidIO_MkUpAvail1, this, isResult|InitHidden|noView|NAN_OK);

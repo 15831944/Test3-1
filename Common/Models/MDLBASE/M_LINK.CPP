@@ -715,7 +715,7 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
 #endif
   fHasSlope=False;
 
-  dMkUpRqd = dNAN;
+  m_dMkUpRqd = dNAN;
 
   m_bWithOP=false;
 
@@ -3213,12 +3213,12 @@ void MN_Lnk::EvalPBMakeUpReqd(long JoinMask)
   int iIn=IO_In(0) ? 0 : 1;
   int iOut=(iIn+1)%2;
   double Rqd=IOFlange(iOut)->MakeUpReqd();
-  if (Valid(dMkUpRqd))
+  if (Valid(m_dMkUpRqd))
     {
     if (Valid(Rqd))
-      IOFlange(iIn)->SetMakeUpReqd(Max(dMkUpRqd, Rqd));
+      IOFlange(iIn)->SetMakeUpReqd(Max(m_dMkUpRqd, Rqd));
     else
-      IOFlange(iIn)->SetMakeUpReqd(dMkUpRqd);
+      IOFlange(iIn)->SetMakeUpReqd(m_dMkUpRqd);
     }
   else
     IOFlange(iIn)->SetMakeUpReqd(Rqd);
