@@ -809,7 +809,8 @@ flag AccNodeWnd::LoadAccessData()
         d.m_fIsGridStart    = (d.iType==tt_Grid);
         d.m_fIsGridRowStart = (d.iType==tt_RowStart);
         d.m_fIsGridEnd      = (d.iType==tt_Grid_E);
-        d.m_IsLastDataCol  = 0;
+        d.m_IsLastDataCol   = 0;
+        d.m_iGridCol        = -1;
 
         if (d.m_fIsGridRowStart)
           {
@@ -2503,6 +2504,11 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
   bool DoingGrid=false;
   bool StartOfGrid=false;
 
+  int MaxCols=1;
+  int MaxRows=1;
+  int DefGap=1;
+  Strng GridTxt;
+
   int nColHdrs=0;
   struct 
     {
@@ -2538,6 +2544,39 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         nRowHdrs=0;
         iGridRow=-1;
         iGridCol=0;
+
+        Strng S(f.sTagText());
+        char * pT = S();
+        char * pC = pT ? strchr(pT+1,'\t'):"1";
+        char * pR = pT&&pC ? strchr(pC+1,'\t'):"1";
+        char * pG = pT&&pC&&pR ? strchr(pR+1,'\t'):"0";
+        int Wide=pC ? pC-S():1;
+        MaxCols=SafeAtoL(pC,1);
+        MaxRows=SafeAtoL(pR,1);
+        DefGap=SafeAtoL(pR,0);
+        
+        if (pC==NULL)
+          S=" ";
+        GridTxt=S;
+        
+        Wide=Max(Wide,MaxCols>1 ? 7:5);
+        GridTxt.SetLength(Wide);
+        GridTxt.LPad(Wide);
+
+        ColHdrs[0].m_sTxt=GridTxt;
+        ColHdrs[0].m_Width=GridTxt.Len();
+        ColHdrs[0].m_Just=0;
+        ColHdrs[0].m_Gap=0;
+        for (int ii=1; ii<sizeof(ColHdrs)/sizeof(ColHdrs[0]); ii++)
+          {
+          ColHdrs[ii].m_sTxt.Set(MaxRows>1?"[ ,%2i]":"[%2i]", ii-1);
+          ColHdrs[ii].m_Width=8;
+          ColHdrs[ii].m_Just=2;
+          ColHdrs[ii].m_Gap=DefGap;
+          }
+
+        for (int ii=0; ii<sizeof(RowHdrs)/sizeof(RowHdrs[0]); ii++)
+          RowHdrs[ii].m_sTxt.Set(MaxCols>1?"[%2i, ]":"[%2i]", ii);
 
         break;
         }
@@ -2575,6 +2614,8 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         {
         StartOfGrid=false;
         DoingGrid=false;
+        MaxCols=0;
+        MaxRows=0;
         LnNo++;
         break;
         }
@@ -2720,7 +2761,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
               SetSpace(LnNo,1);//+d.m_iChildLvl*2);
               SetDesc(LnNo,"  ",Id_ViewIndex,fAllFldsVis ? 3 : 2,0,"");
   
-              for (int i=0; i<=nColHdrs; i++)
+              for (int i=0; i<=MaxCols; i++)
                 {
                 Strng Gap;
                 Gap.RPad(ColHdrs[i].m_Gap);
@@ -2867,7 +2908,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             }
           int TagComLen=TagComStr.GetLength();
 
-          if (!DoingGrid || iGridCol==0)
+          if (!DoingGrid || d.m_iGridCol==0)
             {
             if (0 && d.m_fNxtIsChild)
               SetTreeNd(LnNo, !f.fIsTreeVis,  Id_TreeNdBtn+fi, 1, 0, "");
@@ -2935,8 +2976,8 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             {
             if (DoingGrid)
               {
-              if (iGridCol==0)
-                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,nColHdrs>0?ColHdrs[0].m_Width:RowHdrs[iGridRow].m_sTxt.GetLength(),0," ");
+              if (d.m_iGridCol==0)
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
               }
             else
               {
@@ -2957,10 +2998,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
             if (DoingGrid)
               {
-              int FldW = ColHdrs[iGridCol+1].m_Width;
+              int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
               Strng Sep;
-              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[iGridCol+1].m_Gap);
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep());
+              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep()?Sep():"");
               }
             else
               {
@@ -3028,8 +3069,8 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
             {
             if (DoingGrid)
               {
-              if (iGridCol==0)
-                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,nColHdrs>0?ColHdrs[0].m_Width:RowHdrs[iGridRow].m_sTxt.GetLength(),0," ");
+              if (d.m_iGridCol==0)
+                SetDesc(LnNo,RowHdrs[iGridRow].m_sTxt(),-1,ColHdrs[0].m_Width,0,"");
                 //SetDesc(LnNo, "", -1, NamW+WdtAdj, 3, "");
               }
             else
@@ -3049,10 +3090,10 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
             if (DoingGrid)
               {
-              int FldW = ColHdrs[iGridCol+1].m_Width;
+              int FldW = ColHdrs[d.m_iGridCol+1].m_Width;
               Strng Sep;
-              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[iGridCol+1].m_Gap);
-              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep(), false);
+              Sep.LPad(d.m_IsLastDataCol?2:ColHdrs[d.m_iGridCol+1].m_Gap);
+              f.ValFld=SetData(LnNo, ValStr(), Id_FldParms+fi, FldW, (d.fIsStrng && !IsTimeCnv(d.Cnv.Index()))?0:2, Sep()?Sep():"", false);
               }
             else
               {

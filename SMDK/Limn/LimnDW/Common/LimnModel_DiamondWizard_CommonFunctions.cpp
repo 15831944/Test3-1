@@ -376,7 +376,9 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
   DD.Text("Parameters...");
   //DD.Text("");
 
+  CString GridTxt;
   bool InArray=false;
+  bool GridBusy=false;
   int m_ColCount=0;
   int m_ValCount=0;
   int m_iCol=0;
@@ -409,18 +411,19 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
           }
         Txt+=H.m_Text;
         DD.Page(H.m_Text, true);
-        DD.Text(Txt);
+        GridTxt=D.m_Tag;
+        //DD.Text(Txt);
         }
 
       if (!D.m_Hide)
         {
         MD_Flags F=MF_PARAMETER;
-        MD_Flags FS=0;
-        MD_Flags FE=0;
+        bool StartRow=false;
+        bool EndRows=false;
         if (m_ValCount>0)
           {
           if (m_iCol==0)
-            FS=MF_StartRow;
+            StartRow=true;
           if (++m_iCol>=m_ColCount)
             {
             m_iCol=0;
@@ -428,7 +431,7 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
             }
           if (--m_ValCount==0)
             {
-            FE=MF_EndRows;
+            EndRows=true;
             }
           }
 
@@ -443,12 +446,21 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
             gs_Dbg.PrintLn("ArrayBegin %s %s %i >>>>>>>>>>>", D.m_Class, D.m_Tag, D.m_ArrayLen);
           }
 
+        if (StartRow)
+          {
+          if (!GridBusy)
+            {
+            DD.GridBegin(GridTxt, m_ColCount, m_ValCount/m_ColCount);
+            GridBusy=true;
+            }
+          DD.GridRowStart();
+          }
         if (InArray)
           {
           if (D.m_iIndex>=0)
-            DD.ArrayElementStart(D.m_iIndex, FS);
+            DD.ArrayElementStart(D.m_iIndex, 0);
           else
-            DD.ArrayElementStart(D.m_sIndex, FS);
+            DD.ArrayElementStart(D.m_sIndex, 0);
           if (ArrayDbg)
             gs_Dbg.PrintLn("ArrayEle  %s %i %s", D.m_Tag, D.m_iIndex, D.m_sIndex);
           
@@ -463,16 +475,22 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
             DD.Bool  (S, "",  1+i,  F);
           else
             DD.Double(S, "",  1+i,  F, D.m_Cnv);
-          DD.ArrayElementEnd(FE);
+          
+          DD.ArrayElementEnd(0);
           }
         else
           {
           if (D.m_IsBool)
-            DD.Bool  (D.m_Tag, "",  1+i,  F|FS|FE);
+            DD.Bool  (D.m_Tag, "",  1+i,  F);
           else
-            DD.Double(D.m_Tag, "",  1+i,  F|FS|FE, D.m_Cnv);
+            DD.Double(D.m_Tag, "",  1+i,  F, D.m_Cnv);
           }
-        
+        if (EndRows)
+          {
+          DD.GridEnd();
+          GridBusy=false;
+          }
+
         if (D.m_ArrayEnd)
           {
           DD.ArrayEnd(0);

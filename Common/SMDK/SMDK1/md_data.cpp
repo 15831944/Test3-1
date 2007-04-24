@@ -198,14 +198,14 @@ void MDataDefn::ArrayEnd(MD_Flags Flags)
   m_pCommon->m_pDDB->EndArray(Flags);
   };
 
-void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, MD_Flags Flags)
+void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, long Gap, MD_Flags Flags)
   {
-  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, DDB_NoPage, Flags);
+  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, ColWidth, Gap, DDB_NoPage, Flags);
   };
 
-void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags)
+void MDataDefn::MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, long Gap, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags)
   {
-  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, ColWidth, (LPSTR)ColHdr, (LPSTR)RowHdr, DDB_NoPage, Flags);
+  m_pCommon->m_pDDB->BeginMatrix(m_pCommon->m_pTO, (LPSTR)pName, (LPSTR)pClassName, ColCount, RowCount, ColWidth, Gap, (LPSTR)ColHdr, (LPSTR)RowHdr, DDB_NoPage, Flags);
   };
 
 //void MDataDefn::MatrixElementStart(LPCSTR sColIndex, LPCSTR sRowIndex, MD_Flags Flags)
@@ -226,19 +226,19 @@ void MDataDefn::MatrixEnd(MD_Flags Flags)
   };
 
 
-void MDataDefn::GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows)
+void MDataDefn::GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows, long ColWidth, long DefaultGap)
   {
-  m_pCommon->m_pDDB->BeginGrid((LPSTR)GridNameText, MaxCols, MaxRows);
+  m_pCommon->m_pDDB->BeginGrid((LPSTR)GridNameText, MaxCols, MaxRows, ColWidth, DefaultGap);
   };
-void MDataDefn::ColumnHeader(LPCSTR ColHdrText, long Width, long Gap, long Justification)
+void MDataDefn::GridColumnHeader(LPCSTR ColHdrText, long Width, long Gap, long Justification)
   {
   m_pCommon->m_pDDB->ColumnHeader((LPSTR)ColHdrText, Width, Gap, Justification);
   };
-void MDataDefn::RowHeader(LPCSTR RowHdrText)
+void MDataDefn::GridRowHeader(LPCSTR RowHdrText)
   {
   m_pCommon->m_pDDB->RowHeader((LPSTR)RowHdrText);
   };
-void MDataDefn::RowStart()
+void MDataDefn::GridRowStart()
   {
   m_pCommon->m_pDDB->RowStart("");
   };

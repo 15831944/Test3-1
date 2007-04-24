@@ -6175,33 +6175,33 @@ void DataDefnBlk::EndArray(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
 
   AInfo[iADepth].m_MaxCols=MaxCols;
   AInfo[iADepth].m_PrevRow=-1;
 
-  BeginGrid(Tag, MaxCols, MaxRows);
+  BeginGrid(Tag, MaxCols, MaxRows, ColWidth, Gap);
 
   return Ret;
   };
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWide, pchar ColHdr, pchar RowHdr, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, pchar ColHdr, pchar RowHdr, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
 
   AInfo[iADepth].m_MaxCols=MaxCols;
   AInfo[iADepth].m_PrevRow=-1;
 
-  BeginGrid(Tag, MaxCols, MaxRows);
+  BeginGrid(Tag, MaxCols, MaxRows, ColWidth, Gap);
 
   Strng S;
-  ColumnHeader(Tag,ColWide,0,-1);
+  ColumnHeader(Tag,ColWidth,0,-1);
   for (int i=0; i<MaxCols; i++)
-    ColumnHeader(S.Set("%s[%i]", ColHdr?ColHdr:"", i), ColWide, 0, 1);
+    ColumnHeader(S.Set("%s[%i]", ColHdr?ColHdr:"", i), ColWidth, Gap, 1);
   for (int i=0; i<MaxRows; i++)
     RowHeader(S.Set("%s[%i]", RowHdr?RowHdr:"", i));
 
@@ -6243,7 +6243,7 @@ void DataDefnBlk::EndMatrix(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows)
+flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows, int Width, int Gap)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6252,7 +6252,10 @@ flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows)
       if (fWriting)
         m_pList->AdvanceWrite();
       fWriting=True;
-      m_pItem->AppendLayout(tt_Grid, Text, CurrentFlags());
+
+      Strng T;
+      T.Set("%s\t%i\t%i\t%i\t%i\t", Text, MaxCols, MaxRows, Width, Gap);
+      m_pItem->AppendLayout(tt_Grid, T(), CurrentFlags());
       }
     }
 

@@ -132,17 +132,17 @@ void CTagIO::BuildDataFields()
   DD.Show(TagIO[2]->IsActive);//m_iSet1>=0);
   DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, TagIO[2]->Cnv);
 
-#if 0
+#if 01
   //Example for matrix / grid
   DD.Show();
   DD.Page("TableExample");
   DD.Text("------------------------------------------------------------");
   DD.Text("Matrix");
-  DD.MatrixBegin("ScdXY", "XY", maxCols, maxRows, 8, "X", "Y", 0);
+  DD.MatrixBegin("ScdXY", "XY", maxCols, maxRows, 8, 0, "X", "Y", 0);
 
   for (int y=0; y<maxRows; y++)
     {
-    DD.RowStart();
+    DD.GridRowStart();
     for (int x=0; x<maxCols; x++)
       {
   		DD.MatrixElementStart(x, y);
@@ -158,18 +158,18 @@ void CTagIO::BuildDataFields()
   DD.GridBegin("AB", maxCols, maxRows);
 
   CString Txt;
-  DD.ColumnHeader("A\\B", 5, 1, 0);
+  DD.GridColumnHeader("A\\B", 5, 1, 0);
   for (int x=0; x<maxCols; x++)
     {
     Txt.Format("B%i", x);
-    DD.ColumnHeader(Txt, 9, 1);
+    DD.GridColumnHeader(Txt, 9, 1);
     }
 
   for (int y=0; y<maxRows; y++)
     {
     Txt.Format("A%i", y);
-    DD.RowHeader(Txt);
-    DD.RowStart();
+    DD.GridRowHeader(Txt);
+    DD.GridRowStart();
     for (int x=0; x<maxCols; x++)
       {
       Txt.Format("AB[%i][%i]", x,y);

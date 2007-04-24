@@ -149,8 +149,8 @@ class DllImportExport MDataDefn : public MBaseDataCommonRef
     void    ArrayEnd(MD_Flags Flags=0);
 
     //begin matrix for a group of tags using pName as part of tag for next 'dot' level. - Includes gridding of the Display
-    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, MD_Flags Flags=0);
-    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags=0);
+    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth=10, long Gap=0, MD_Flags Flags=0);
+    void    MatrixBegin(LPCSTR pClassName, LPCSTR pName, long ColCount, long RowCount, long ColWidth, long Gap, LPCSTR ColHdr, LPCSTR RowHdr, MD_Flags Flags=0);
     //element markers
     void    MatrixElementStart(long iColIndex, long iRowIndex, MD_Flags Flags=0);
     //void    MatrixElementStart(LPCSTR sColIndex, LPCSTR sRowIndex, MD_Flags Flags=0);
@@ -159,13 +159,13 @@ class DllImportExport MDataDefn : public MBaseDataCommonRef
     void    MatrixEnd(MD_Flags Flags=0);
 
     // marks the start of the grid
-    void    GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows);
+    void    GridBegin(LPCSTR GridNameText, long MaxCols, long MaxRows, long ColWidth=10, long Gap=0);
     // column header  Width in chars, post gap chars, Justification <0:Left,0:Centre,>0:Right
-    void    ColumnHeader(LPCSTR ColHdrText, long Width=10, long Gap=0, long Justification=1);
+    void    GridColumnHeader(LPCSTR ColHdrText, long ColWidth=10, long Gap=0, long Justification=1);
     // adds a row header at the bigging of the line 
-    void    RowHeader(LPCSTR RowHdrText);
+    void    GridRowHeader(LPCSTR RowHdrText);
     //forces the next item to start a new row
-    void    RowStart();
+    void    GridRowStart();
     // marks the end of the grid
     void    GridEnd();
 
