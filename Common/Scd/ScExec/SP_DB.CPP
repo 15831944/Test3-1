@@ -3578,11 +3578,11 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     {
     CPhaseInfo & Ph = m_PhInfo[phi];
     if (Ph.m_Sym=="s")
-      Ph.m_Tag="Solids";
+      Ph.m_Tag="Solid";
     else if (Ph.m_Sym=="l")
-      Ph.m_Tag="Liquids";
+      Ph.m_Tag="Liquid";
     else if (Ph.m_Sym=="g")
-      Ph.m_Tag="Gasses";
+      Ph.m_Tag="Gas";                                             
     }
 
   //Find Phase Tags
