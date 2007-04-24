@@ -1,3 +1,4 @@
-; dlltool --base-file C:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca00432.base --output-exp f77dll.exp --dllname f77dll.dll --output-def f77dll.def --exclude-symbol=DllMainCRTStartup@12 --def C:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca00432.def
+; c:\program\mingw\bin\dlltool --base-file c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca01112.base --output-exp f77dll.exp --dllname f77dll.dll --output-def f77dll.def --exclude-symbol=DllMainCRTStartup@12 --def c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca01112.def
 EXPORTS
-	dll_double_square_f77__ @ 1 ; 
+	dllarray_ @ 1 ; 
+	dll_double_square_f77__ @ 2 ; 

@@ -1,4 +1,4 @@
-all:	dll
+all:	lib
 
 
 
@@ -12,3 +12,11 @@ dll:
 lib:
 	g77 -shared -o amira.dll bayer.for -Wl,--output-def,amira.def,--out-implib,libamira.a
 	lib /machine:i386 /def:amira.def
+	cp amira.dll "c:/syscad91/bin"      # for syscad
+	cp amira.dll "c:/windows/system32"  #for python etc
+	cp amira.lib ../TTAmira
+
+
+exceldll:
+	g77 -shared -mrtd -o amiraxl.dll bayer.for
+	cp amiraxl.dll "c:/program files/microsoft office/office"

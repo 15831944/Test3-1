@@ -1,125 +1,124 @@
-; c:\program\mingw\bin\dlltool --base-file c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca01404.base --output-exp amira.exp --dllname amira.dll --output-def amira.def --exclude-symbol=DllMainCRTStartup@12 --def c:\DOCUME~1\RODSTE~1\LOCALS~1\Temp/cca01404.def
 EXPORTS
-	ac_ @ 1 ; 
-	bayer_ @ 2 ; 
-	beta0na2co3_ @ 3 ; 
-	beta0na2so4_ @ 4 ; 
-	beta0naac_ @ 5 ; 
-	beta0naaloh4_ @ 6 ; 
-	beta0nacl_ @ 7 ; 
-	beta0nacllow_ @ 8 ; 
-	beta0naf_ @ 9 ; 
-	beta0naform_ @ 10 ; 
-	beta0nahco3_ @ 11 ; 
-	beta0naoh_ @ 12 ; 
-	beta0naohvk_ @ 13 ; 
-	beta1na2co3_ @ 14 ; 
-	beta1na2so4_ @ 15 ; 
-	beta1naac_ @ 16 ; 
-	beta1naaloh4_ @ 17 ; 
-	beta1nacl_ @ 18 ; 
-	beta1naf_ @ 19 ; 
-	beta1naform_ @ 20 ; 
-	beta1nahco3_ @ 21 ; 
-	beta1naoh_ @ 22 ; 
-	beta1naohv_ @ 23 ; 
-	beta2naaloh4_ @ 24 ; 
-	beta2naoh_ @ 25 ; 
-	bpsln_ @ 26 ; 
-	cappa_ @ 27 ; 
-	compin_ @ 28 ; 
-	compout_ @ 29 ; 
-	cp0na2co3_ @ 30 ; 
-	cp0na2so4_ @ 31 ; 
-	cp0naac_ @ 32 ; 
-	cp0naaloh4_ @ 33 ; 
-	cp0nacl_ @ 34 ; 
-	cp0naform_ @ 35 ; 
-	cp0naoh_ @ 36 ; 
-	cp_ @ 37 ; 
-	cphina2co3_ @ 38 ; 
-	cphina2so4_ @ 39 ; 
-	cphinaac_ @ 40 ; 
-	cphinaaloh4_ @ 41 ; 
-	cphinacl_ @ 42 ; 
-	cphinacllow_ @ 43 ; 
-	cphinaform_ @ 44 ; 
-	cphinahco3_ @ 45 ; 
-	cphinaoh_ @ 46 ; 
-	cphinaohvk_ @ 47 ; 
-	cphxx_ @ 48 ; 
-	cpsxx_ @ 49 ; 
-	cpxp_ @ 50 ; 
-	csav_ @ 51 DATA ; 
-	dnsh2o1_ @ 52 ; 
-	dnsh2o_ @ 53 ; 
-	filerd_ @ 54 ; 
-	g0h2o_ @ 55 ; 
-	g0na2co3_ @ 56 ; 
-	g0na2so4_ @ 57 ; 
-	g0naac_ @ 58 ; 
-	g0naaloh4_ @ 59 ; 
-	g0nacl_ @ 60 ; 
-	g0naf_ @ 61 ; 
-	g0naform_ @ 62 ; 
-	g0nahco3_ @ 63 ; 
-	g0naoh_ @ 64 ; 
-	gaq_ @ 65 ; 
-	gh2ovap_ @ 66 ; 
-	gsol_ @ 67 ; 
-	hscpxx2_ @ 68 ; 
-	hscpxx_ @ 69 ; 
-	init_ @ 70 ; 
-	models_ @ 71 ; 
-	na2co3_ @ 72 DATA ; 
-	na2so4_ @ 73 DATA ; 
-	naac_ @ 74 DATA ; 
-	naaloh4_ @ 75 DATA ; 
-	nacl_ @ 76 DATA ; 
-	naform_ @ 77 DATA ; 
-	nahco3_ @ 78 DATA ; 
-	naoh_ @ 79 DATA ; 
-	parval_ @ 80 ; 
-	pboil_ @ 81 ; 
-	prph2o_ @ 82 ; 
-	prpsln_ @ 83 ; 
-	psat1_ @ 84 ; 
-	psat_ @ 85 ; 
-	ptzfnc_ @ 86 ; 
-	ptzgxs_ @ 87 ; 
-	ptzpar_ @ 88 ; 
-	sbhm_ @ 89 ; 
-	setemp_ @ 90 ; 
-	setmol_ @ 91 ; 
-	setpst_ @ 92 ; 
-	sgas_ @ 93 ; 
-	sgib_ @ 94 ; 
-	sibhm_ @ 95 ; 
-	sigib_ @ 96 ; 
-	sihept_ @ 97 ; 
-	siko_ @ 98 ; 
-	simira_ @ 99 ; 
-	sinacl_ @ 100 ; 
-	sinaf_ @ 101 ; 
-	sinatr_ @ 102 ; 
-	sipdhl_ @ 103 ; 
-	sithen_ @ 104 ; 
-	sither_ @ 105 ; 
-	sko_ @ 106 ; 
-	snaf_ @ 107 ; 
-	snaox_ @ 108 ; 
-	solby_ @ 109 ; 
-	sthen_ @ 110 ; 
-	tboil_ @ 111 ; 
-	test1_ @ 112 ; 
-	thdta_ @ 113 DATA ; 
-	thinit_ @ 114 ; 
-	tsat_ @ 115 ; 
-	v0xp_ @ 116 ; 
-	v_ @ 117 ; 
-	vgas_ @ 118 ; 
-	volh2o25_ @ 119 ; 
-	vxp_ @ 120 ; 
-	xcph_ @ 121 ; 
-	xcps_ @ 122 ; 
-	xhgcp_ @ 123 ; 
+    ac_ @1
+    bayer_ @2
+    beta0na2co3_ @3
+    beta0na2so4_ @4
+    beta0naac_ @5
+    beta0naaloh4_ @6
+    beta0nacl_ @7
+    beta0nacllow_ @8
+    beta0naf_ @9
+    beta0naform_ @10
+    beta0nahco3_ @11
+    beta0naoh_ @12
+    beta0naohvk_ @13
+    beta1na2co3_ @14
+    beta1na2so4_ @15
+    beta1naac_ @16
+    beta1naaloh4_ @17
+    beta1nacl_ @18
+    beta1naf_ @19
+    beta1naform_ @20
+    beta1nahco3_ @21
+    beta1naoh_ @22
+    beta1naohv_ @23
+    beta2naaloh4_ @24
+    beta2naoh_ @25
+    bpsln_ @26
+    cappa_ @27
+    compin_ @28
+    compout_ @29
+    cp0na2co3_ @30
+    cp0na2so4_ @31
+    cp0naac_ @32
+    cp0naaloh4_ @33
+    cp0nacl_ @34
+    cp0naform_ @35
+    cp0naoh_ @36
+    cp_ @37
+    cphina2co3_ @38
+    cphina2so4_ @39
+    cphinaac_ @40
+    cphinaaloh4_ @41
+    cphinacl_ @42
+    cphinacllow_ @43
+    cphinaform_ @44
+    cphinahco3_ @45
+    cphinaoh_ @46
+    cphinaohvk_ @47
+    cphxx_ @48
+    cpsxx_ @49
+    cpxp_ @50
+    csav_ @51 DATA
+    dnsh2o1_ @52
+    dnsh2o_ @53
+    filerd_ @54
+    g0h2o_ @55
+    g0na2co3_ @56
+    g0na2so4_ @57
+    g0naac_ @58
+    g0naaloh4_ @59
+    g0nacl_ @60
+    g0naf_ @61
+    g0naform_ @62
+    g0nahco3_ @63
+    g0naoh_ @64
+    gaq_ @65
+    gh2ovap_ @66
+    gsol_ @67
+    hscpxx2_ @68
+    hscpxx_ @69
+    init_ @70
+    models_ @71
+    na2co3_ @72 DATA
+    na2so4_ @73 DATA
+    naac_ @74 DATA
+    naaloh4_ @75 DATA
+    nacl_ @76 DATA
+    naform_ @77 DATA
+    nahco3_ @78 DATA
+    naoh_ @79 DATA
+    parval_ @80
+    pboil_ @81
+    prph2o_ @82
+    prpsln_ @83
+    psat1_ @84
+    psat_ @85
+    ptzfnc_ @86
+    ptzgxs_ @87
+    ptzpar_ @88
+    sbhm_ @89
+    setemp_ @90
+    setmol_ @91
+    setpst_ @92
+    sgas_ @93
+    sgib_ @94
+    sibhm_ @95
+    sigib_ @96
+    sihept_ @97
+    siko_ @98
+    simira_ @99
+    sinacl_ @100
+    sinaf_ @101
+    sinatr_ @102
+    sipdhl_ @103
+    sithen_ @104
+    sither_ @105
+    sko_ @106
+    snaf_ @107
+    snaox_ @108
+    solby_ @109
+    sthen_ @110
+    tboil_ @111
+    test1_ @112
+    thdta_ @113 DATA
+    thinit_ @114
+    tsat_ @115
+    v0xp_ @116
+    v_ @117
+    vgas_ @118
+    volh2o25_ @119
+    vxp_ @120
+    xcph_ @121
+    xcps_ @122
+    xhgcp_ @123

@@ -92,7 +92,7 @@ bayer_.argtypes = [
                    POINTER(c_double),    #  I_c25,
                    POINTER(c_double),    #  P_sat,
                    POINTER(c_long),      #  NOutComp,     INTEGER!
-                   c_char_p,             #  OutCompName,
+#                   c_char_p,             #  OutCompName,
                    POINTER(c_double),    #  Comp_molkg,
                    POINTER(c_double),    #  Comp_molL,
                    POINTER(c_double),    #  Comp_molL25,
@@ -102,7 +102,7 @@ bayer_.argtypes = [
                    POINTER(c_double),    #  TC,
                    POINTER(c_double),    #  TA,
                    POINTER(c_long),      #  NOC,          INTEGER!
-                   c_char_p,             #  OCName,
+#                   c_char_p,             #  OCName,
                    POINTER(c_double),    #  OC,
                    POINTER(c_double),    #  TempSat,
                    POINTER(c_double),    #  BPE,
@@ -116,13 +116,13 @@ bayer_.argtypes = [
                    POINTER(c_double),    #  Phi,
                    POINTER(c_double),    #  Aw,
                    POINTER(c_long),      #  NGamma,      INTEGER!
-                   c_char_p,             #  GammaName,
+#                   c_char_p,             #  GammaName,
                    POINTER(c_double),    #  Gamma,
                    POINTER(c_long),      #  NSI,         INTEGER!
-                   c_char_p,             #  SIName,
+#                   c_char_p,             #  SIName,
                    POINTER(c_double),    #  SI,
                    POINTER(c_long),      #  NSol,        INTEGER!
-                   c_char_p,             #  SolName,
+#                   c_char_p,             #  SolName,
                    POINTER(c_double),    #  SolML,
                    POINTER(c_double)     #  Solmkg
                    ]
@@ -142,16 +142,15 @@ class AmiraBayer:
         
 
         # Exported Character Arrays
-        self.OutCompName = create_string_buffer(20*12)
-        self.OCName = create_string_buffer(20*3)
-        self.GammaName = create_string_buffer(20*13)
-        self.SIName = create_string_buffer(20*11)
-        self.SolName = create_string_buffer(20*7)
+#        self.OutCompName = create_string_buffer(20*12)
+#        self.OCName = create_string_buffer(20*3)
+#        self.GammaName = create_string_buffer(20*13)
+#        self.SIName = create_string_buffer(20*11)
+#        self.SolName = create_string_buffer(20*7)
 
         # Exported double Arrays
         self.Comp_molkg    = (c_double*12)()    
         self.Comp_molL     = (c_double*12)()
-
         self.Comp_molL25   = (c_double*12)()
         self.Comp_mpercent = (c_double*12)()
         self.Comp_gL       = (c_double*12)()
@@ -159,33 +158,11 @@ class AmiraBayer:
         self.OC            = (c_double*2)()
         self.SI            = (c_double*10)()
         self.SolML         = (c_double*6)()
-
         self.Solmkg        = (c_double*6)()
         
         # Exported doubles
-        self.I_m = c_double()
-        self.I_c = c_double()
-        self.I_c25 = c_double()
-        self.P_Sat = c_double()
-        self.Al2O3 = c_double()
-        self.TC = c_double()
-        self.TA = c_double()
-        self.TempSat = c_double()
-        self.BPE = c_double()
 
-
-        self.Cp_Liq   = c_double()    
-        self.Cp_H2O   = c_double()    
-        self.Rho_Liq  = c_double()   
-        self.Rho_H2O  = c_double()   
-        self.Cp_phi   = c_double()           
-
-        self.V_phi    = c_double()     
-        self.Cp_LiqH2O= c_double() 
-        self.Phi      = c_double()       
-        self.Aw       = c_double()        
-
-        # Exported longs
+        # Exported longs  !!!!!!!! These are actually imports, and *fixed* 
         self.NOutComp = c_long(9)
         self.NOC = c_long(2)
         self.NGamma = c_long(12)
@@ -204,7 +181,7 @@ class AmiraBayer:
             self.I_c25,    #  I_c25,
             self.P_Sat,    #  P_sat, % (p, ab.P_Sat.value, ab.I_c25.value)))
             self.NOutComp,      #  NOutComp,     INTEGER!
-            self.OutCompName,             #  OutCompName,
+ #           self.OutCompName,             #  OutCompName,
             self.Comp_molkg   ,    #  Comp_molkg,
             self.Comp_molL    ,    #  Comp_molL,
             self.Comp_molL25  ,    #  Comp_molL25,
@@ -215,7 +192,7 @@ class AmiraBayer:
             self.TC,       #  TC,
             self.TA,       #  TA,
             self.NOC,      #  NOC,          INTEGER!
-            self.OCName,   #  OCName,
+#            self.OCName,   #  OCName,
             self.OC,       #  OC,
             self.TempSat,  #  TempSat,
             self.BPE,      #  BPE,
@@ -229,13 +206,13 @@ class AmiraBayer:
             self.Phi       ,    #  Phi,
             self.Aw        ,    #  Aw,        
             self.NGamma,      #  NGamma,      INTEGER!
-            self.GammaName ,             #  GammaName,
+#            self.GammaName ,             #  GammaName,
             self.Gamma,    #  Gamma,
             self.NSI,      #  NSI,         INTEGER!
-            self.SIName,             #  SIName,
+#            self.SIName,             #  SIName,
             self.SI,    #  SI,
             self.NSol,      #  NSol,        INTEGER!
-            self.SolName,             #  SolName,
+#            self.SolName,             #  SolName,
             self.SolML,    #  SolML,
             self.Solmkg     #  Solmkg
             )

@@ -1,8 +1,8 @@
       SUBROUTINE BAYER(TempC,InUnits,Pressure,NInComp,InComp,
-     >I_m,I_c,I_c25,P_sat,NOutComp,OutCompName,Comp_molkg,Comp_molL,
-     >Comp_molL25,Comp_mpercent,Comp_gL,Al2O3,TC,TA,NOC,OCName,OC,
+     >I_m,I_c,I_c25,P_sat,NOutComp,Comp_molkg,Comp_molL,
+     >Comp_molL25,Comp_mpercent,Comp_gL,Al2O3,TC,TA,NOC,OC,
      >TempSat,BPE,Cp_Liq,Cp_H2O,Rho_Liq,Rho_H2O,Cp_phi,V_phi,Cp_LiqH2O,
-     >Phi,Aw,NGamma,GammaName,Gamma,NSI,SIName,SI,NSol,SolName,SolML,
+     >Phi,Aw,NGamma,Gamma,NSI,SI,NSol,SolML,
      >Solmkg)
 C     ******************************************************************
 
@@ -35,7 +35,7 @@ C                                NaF
 C                            for InUnits = 2,3,6,7:
 C                                Al2O3
 C                                Na2O
-C                                Al(OH)3
+C                                Al(O        self.NOutComp = c_long(9)
 C                                NaOH
 C                                NaCl
 C                                Na2CO3
@@ -153,14 +153,13 @@ C      DLL_EXPORT :: BAYER
      >Comp_molL25(NOutComp),Comp_mpercent(NOutComp),
      >Comp_gL(NOutComp),OC(NOC),CMX(NOutComp)
      
-      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
-     >SIName(NSI),SolName(NSol)
+C      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
+C     >SIName(NSI),SolName(NSol)
       
       IDC = InUnits
       
       CALL INIT(NInComp,NOutComp,NOC,NGamma,NSI,NSol,W,TR,P0,IDC,
-     >PLO,PHI,TLO,THI,TSAVE,PSAVE,OutCompName,OCName,GammaName,SIName,
-     >SolName)
+     >PLO,PHI,TLO,THI,TSAVE,PSAVE)
 
 
       CALL MODELS
@@ -211,14 +210,13 @@ C      DLL_EXPORT :: BAYER
       
       
       SUBROUTINE INIT(NInComp,NOutComp,NOC,NGamma,NSI,NSol,W,TR,P0,IDC,
-     >PLO,PHI,TLO,THI,TSAVE,PSAVE,OutCompName,OCName,GammaName,SIName,
-     >SolName)
+     >PLO,PHI,TLO,THI,TSAVE,PSAVE)
  
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       DIMENSION W(NInComp+5)
         
-      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
-     >SIName(NSI),SolName(NSol)
+C      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
+C     >SIName(NSI),SolName(NSol)
       
       TR = 2.9815D2
       P0 = 1.D0
@@ -247,49 +245,11 @@ C          Permitted P and T ranges
       TLO = -2.D1
       THI = 3.0D2
 
-      OutCompName(1) = 'Al(OH)3'
-      OutCompName(2) = 'NaOH'
-      OutCompName(3) = 'NaCl'
-      OutCompName(4) = 'Na2CO3'
-      OutCompName(5) = 'Na2SO4'
-      OutCompName(6) = 'Na Oxalate'
-      OutCompName(7) = 'Na Acetate'
-      OutCompName(8) = 'Na Formate'
-      OutCompName(9) = 'NaF'
-      
-      OCName(1) = 'Na Acetate'
-      OCName(2) = 'Na Formate'
-      
-      GammaName(2) = 'Na+'
-      GammaName(3) = 'OH-'
-      GammaName(4) = 'HCO3-'
-      GammaName(5) = 'CO3-2'
-      GammaName(6) = 'Cl-'
-      GammaName(7) = 'SO4-2'
-      GammaName(8) = 'Al(OH)4-'
-      GammaName(9) = 'C2O4-2'
-      GammaName(10) = 'CH3COO-'
-      GammaName(11) = 'HCOO-'
-      GammaName(12) = 'F-'
 
-      SIName(1) = 'NaCl'
-      SIName(2) = 'Na2SO4'
-      SIName(3) = 'Na2SO4.10H2O'
-      SIName(4) = 'Na2CO3.10H2O'
-      SIName(5) = 'Na2CO3.7H2O'
-      SIName(6) = 'Na2CO3.H2O'
-      SIName(7) = 'Al(OH)3'
-      SIName(8) = 'AlOOH'
-      SIName(9) = 'NaF'
-      SIName(10) = 'Na3FSO4'
-      
-      SolName(1) = 'Al(OH)3'
-      SolName(2) = 'AlOOH'
-      SolName(3) = 'Na2SO4'
-      SolName(4) = 'Na2C2O4'
-      SolName(5) = 'NaF'
-      SolName(6) = 'Na3FSO4'
 
+C      Deleted all this stuff to set component names...
+C      OutCompName(1) = 'Al(OH)3'
+C
       RETURN
       END
  

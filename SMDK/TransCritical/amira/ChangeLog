@@ -1,0 +1,13 @@
+2007-04-23  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* Bayer.for (BAYER): Modifications proposed to Bayer.for:
+	1. Remove all string stuff, this just returns character names for
+	the various species, and these are different to the SysCAD ones
+	anyway, so they are no use to anyone.
+	 - OutCompName
+	 - OCName
+	 - GammaName
+	 - SIName
+	 - SolName
+	 (INIT): Deleted string settings of these
+
