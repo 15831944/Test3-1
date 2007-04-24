@@ -2506,6 +2506,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
   int MaxCols=1;
   int MaxRows=1;
+  int ColWide=1;
   int DefGap=1;
   Strng GridTxt;
 
@@ -2549,11 +2550,13 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         char * pT = S();
         char * pC = pT ? strchr(pT+1,'\t'):"1";
         char * pR = pT&&pC ? strchr(pC+1,'\t'):"1";
-        char * pG = pT&&pC&&pR ? strchr(pR+1,'\t'):"0";
+        char * pW = pT&&pC&&pR ? strchr(pR+1,'\t'):"10";
+        char * pG = pT&&pC&&pR&&pW ? strchr(pW+1,'\t'):"0";
         int Wide=pC ? pC-S():1;
         MaxCols=SafeAtoL(pC,1);
         MaxRows=SafeAtoL(pR,1);
-        DefGap=SafeAtoL(pR,0);
+        ColWide=SafeAtoL(pW,10);
+        DefGap=SafeAtoL(pG,0);
         
         if (pC==NULL)
           S=" ";
@@ -2569,8 +2572,8 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
         ColHdrs[0].m_Gap=0;
         for (int ii=1; ii<sizeof(ColHdrs)/sizeof(ColHdrs[0]); ii++)
           {
-          ColHdrs[ii].m_sTxt.Set(MaxRows>1?"[ ,%2i]":"[%2i]", ii-1);
-          ColHdrs[ii].m_Width=8;
+          ColHdrs[ii].m_sTxt.Set(MaxCols==1?" ":MaxRows>1?"[ ,%2i]":"[%2i]", ii-1);
+          ColHdrs[ii].m_Width=ColWide;
           ColHdrs[ii].m_Just=2;
           ColHdrs[ii].m_Gap=DefGap;
           }

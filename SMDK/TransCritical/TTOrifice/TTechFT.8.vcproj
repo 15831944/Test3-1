@@ -575,6 +575,14 @@
 			<File
 				RelativePath="..\TTCommon\utils.cpp"
 				>
+				<FileConfiguration
+					Name="Release_Dbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

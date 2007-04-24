@@ -450,7 +450,7 @@ void CLimn_ModelData_Base::BuildDataFields(MDataDefn & DD)
           {
           if (!GridBusy)
             {
-            DD.GridBegin(GridTxt, m_ColCount, m_ValCount/m_ColCount);
+            DD.GridBegin(GridTxt, m_ColCount, m_ValCount/m_ColCount, 10, 0);
             GridBusy=true;
             }
           DD.GridRowStart();
