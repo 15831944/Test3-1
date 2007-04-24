@@ -20,6 +20,10 @@ namespace Encrypt
     String project3 = null;
     String project4 = null;
 
+    int numberPGM = 0;
+    int numberRCT = 0;
+    int numberDXF = 0;
+
     public EncryptProjectForm()
     {
       InitializeComponent();
@@ -61,8 +65,11 @@ namespace Encrypt
         {
           DirectoryInfo original = new DirectoryInfo(path);
           DirectoryInfo backup = new DirectoryInfo(path + ".backup");
+
+          ProgressBar.Style = ProgressBarStyle.Marquee;
           try { CopyBackup(original, backup); }
           catch { MessageBox.Show("Backup failed, cancelling encrypt."); backupFailed = true; }
+          ProgressBar.Style = ProgressBarStyle.Continuous;
         }
 
         if ((isProjectFolder)&&(!backupFailed))
@@ -140,9 +147,16 @@ namespace Encrypt
           {
             Encrypt(file);
             ProgressBar.Value++;
+            toolStripStatusLabel1.Text = "Encrypting " + file;
           }
 
           ProgressBar.Value = 0;
+          toolStripStatusLabel1.Text = "Completed:  " + numberPGM + " PGM Files, "
+                                                      + numberRCT + " RCT Files, "
+                                                      + numberDXF + " DXF Files.";
+          numberPGM = 0;
+          numberRCT = 0;
+          numberDXF = 0;
         }
       }
     }
@@ -154,6 +168,7 @@ namespace Encrypt
       foreach (FileInfo file in original.GetFiles())
       {
         file.CopyTo(Path.Combine(backup.ToString(), file.Name), true);
+        ProgressBar.PerformLayout();
       }
 
       foreach (DirectoryInfo directory in original.GetDirectories())
@@ -177,15 +192,24 @@ namespace Encrypt
       {
         if (Path.GetExtension(file).ToLower() == ".pgm")
           if (EncryptPGMFilesCheckBox.Checked)
+          {
             files.Add(file);
+            numberPGM++;
+          }
 
         if (Path.GetExtension(file).ToLower() == ".rct")
           if (EncryptRCTFilesCheckBox.Checked)
+          {
             files.Add(file);
+            numberRCT++;
+          }
 
         if (Path.GetExtension(file).ToLower() == ".dxf")
           if (EncryptRCTFilesCheckBox.Checked)
+          {
             files.Add(file);
+            numberDXF++;
+          }
 
       }
     }
@@ -251,5 +275,9 @@ namespace Encrypt
       ProjectListBox.SelectedIndex = 0;
     }
 
+    private void ProjectListBox_DoubleClick(object sender, EventArgs e)
+    {
+      EncryptProjectButton_Click(sender, e);
+    }
   }
 }

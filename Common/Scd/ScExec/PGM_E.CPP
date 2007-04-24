@@ -4122,7 +4122,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
     Strng realFn,EncryptedFn;
     realFn.FnExpand(Fn);
     EncryptedFn = realFn;
-    EncryptedFn += ".x";
+    EncryptedFn += ".xxx";
 
     if (fileExists(EncryptedFn()))
       {//FIRST look for encrypted file
@@ -5969,7 +5969,10 @@ void GCInsMngr::Err(char Code, int errNo, pchar ErrMsg)
         sprintf(Buff0, "Line:%d  File:%s  Symbol:%s", m_pH->GetCurLineNo(), s2(), m_pH->m_pTknParser->GetCurToken());
         }
       else
+      {
+        const char* temp = m_pH->m_pTknParser->GetCurToken();
         sprintf(Buff0, "Line:%d  Symbol:%s", m_pH->GetCurLineNo(), m_pH->m_pTknParser->GetCurToken());
+      }
       m_StateLine[Line++] = Buff0;
       sprintf(Buff0, "%s", m_pH->m_pTknParser->GetWholeLine());
       m_StateLine[Line++] = Buff0;

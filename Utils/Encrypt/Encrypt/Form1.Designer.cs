@@ -36,13 +36,18 @@ namespace Encrypt
           this.EncryptDXFFiles = new System.Windows.Forms.CheckBox();
           this.ProjectListBox = new System.Windows.Forms.ListBox();
           this.ProjectsLabel = new System.Windows.Forms.Label();
+          this.EncryptGroupBox = new System.Windows.Forms.GroupBox();
+          this.StatusStrip = new System.Windows.Forms.StatusStrip();
+          this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+          this.EncryptGroupBox.SuspendLayout();
+          this.StatusStrip.SuspendLayout();
           this.SuspendLayout();
           // 
           // ProgressBar
           // 
           this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
-          this.ProgressBar.Location = new System.Drawing.Point(12, 186);
+          this.ProgressBar.Location = new System.Drawing.Point(12, 254);
           this.ProgressBar.Maximum = 0;
           this.ProgressBar.Name = "ProgressBar";
           this.ProgressBar.Size = new System.Drawing.Size(476, 11);
@@ -54,7 +59,7 @@ namespace Encrypt
           // 
           this.EncryptProjectButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
-          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 142);
+          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 209);
           this.EncryptProjectButton.Name = "EncryptProjectButton";
           this.EncryptProjectButton.Size = new System.Drawing.Size(476, 23);
           this.EncryptProjectButton.TabIndex = 1;
@@ -64,9 +69,10 @@ namespace Encrypt
           // 
           // CreateBackupCheckBox
           // 
+          this.CreateBackupCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
           this.CreateBackupCheckBox.Checked = true;
           this.CreateBackupCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-          this.CreateBackupCheckBox.Location = new System.Drawing.Point(12, 12);
+          this.CreateBackupCheckBox.Location = new System.Drawing.Point(391, 28);
           this.CreateBackupCheckBox.Name = "CreateBackupCheckBox";
           this.CreateBackupCheckBox.Size = new System.Drawing.Size(97, 17);
           this.CreateBackupCheckBox.TabIndex = 2;
@@ -78,11 +84,11 @@ namespace Encrypt
           this.EncryptPGMFilesCheckBox.AutoSize = true;
           this.EncryptPGMFilesCheckBox.Checked = true;
           this.EncryptPGMFilesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-          this.EncryptPGMFilesCheckBox.Location = new System.Drawing.Point(142, 12);
+          this.EncryptPGMFilesCheckBox.Location = new System.Drawing.Point(6, 16);
           this.EncryptPGMFilesCheckBox.Name = "EncryptPGMFilesCheckBox";
-          this.EncryptPGMFilesCheckBox.Size = new System.Drawing.Size(113, 17);
+          this.EncryptPGMFilesCheckBox.Size = new System.Drawing.Size(74, 17);
           this.EncryptPGMFilesCheckBox.TabIndex = 3;
-          this.EncryptPGMFilesCheckBox.Text = "Encrypt PGM Files";
+          this.EncryptPGMFilesCheckBox.Text = "PGM Files";
           this.EncryptPGMFilesCheckBox.UseVisualStyleBackColor = true;
           // 
           // EncryptRCTFilesCheckBox
@@ -90,11 +96,11 @@ namespace Encrypt
           this.EncryptRCTFilesCheckBox.AutoSize = true;
           this.EncryptRCTFilesCheckBox.Checked = true;
           this.EncryptRCTFilesCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-          this.EncryptRCTFilesCheckBox.Location = new System.Drawing.Point(261, 12);
+          this.EncryptRCTFilesCheckBox.Location = new System.Drawing.Point(86, 16);
           this.EncryptRCTFilesCheckBox.Name = "EncryptRCTFilesCheckBox";
-          this.EncryptRCTFilesCheckBox.Size = new System.Drawing.Size(111, 17);
+          this.EncryptRCTFilesCheckBox.Size = new System.Drawing.Size(72, 17);
           this.EncryptRCTFilesCheckBox.TabIndex = 4;
-          this.EncryptRCTFilesCheckBox.Text = "Encrypt RCT Files";
+          this.EncryptRCTFilesCheckBox.Text = "RCT Files";
           this.EncryptRCTFilesCheckBox.UseVisualStyleBackColor = true;
           // 
           // EncryptDXFFiles
@@ -102,11 +108,11 @@ namespace Encrypt
           this.EncryptDXFFiles.AutoSize = true;
           this.EncryptDXFFiles.Checked = true;
           this.EncryptDXFFiles.CheckState = System.Windows.Forms.CheckState.Checked;
-          this.EncryptDXFFiles.Location = new System.Drawing.Point(378, 12);
+          this.EncryptDXFFiles.Location = new System.Drawing.Point(164, 16);
           this.EncryptDXFFiles.Name = "EncryptDXFFiles";
-          this.EncryptDXFFiles.Size = new System.Drawing.Size(110, 17);
+          this.EncryptDXFFiles.Size = new System.Drawing.Size(71, 17);
           this.EncryptDXFFiles.TabIndex = 5;
-          this.EncryptDXFFiles.Text = "Encrypt DXF Files";
+          this.EncryptDXFFiles.Text = "DXF Files";
           this.EncryptDXFFiles.UseVisualStyleBackColor = true;
           // 
           // ProjectListBox
@@ -115,32 +121,59 @@ namespace Encrypt
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectListBox.FormattingEnabled = true;
           this.ProjectListBox.HorizontalScrollbar = true;
-          this.ProjectListBox.Location = new System.Drawing.Point(12, 67);
+          this.ProjectListBox.Location = new System.Drawing.Point(12, 108);
           this.ProjectListBox.Name = "ProjectListBox";
-          this.ProjectListBox.Size = new System.Drawing.Size(476, 69);
+          this.ProjectListBox.Size = new System.Drawing.Size(476, 95);
           this.ProjectListBox.TabIndex = 6;
+          this.ProjectListBox.DoubleClick += new System.EventHandler(this.ProjectListBox_DoubleClick);
           // 
           // ProjectsLabel
           // 
           this.ProjectsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectsLabel.AutoSize = true;
-          this.ProjectsLabel.Location = new System.Drawing.Point(12, 51);
+          this.ProjectsLabel.Location = new System.Drawing.Point(12, 92);
           this.ProjectsLabel.Name = "ProjectsLabel";
           this.ProjectsLabel.Size = new System.Drawing.Size(48, 13);
           this.ProjectsLabel.TabIndex = 7;
           this.ProjectsLabel.Text = "Projects:";
           // 
+          // EncryptGroupBox
+          // 
+          this.EncryptGroupBox.Controls.Add(this.EncryptPGMFilesCheckBox);
+          this.EncryptGroupBox.Controls.Add(this.EncryptRCTFilesCheckBox);
+          this.EncryptGroupBox.Controls.Add(this.EncryptDXFFiles);
+          this.EncryptGroupBox.Location = new System.Drawing.Point(15, 12);
+          this.EncryptGroupBox.Name = "EncryptGroupBox";
+          this.EncryptGroupBox.Size = new System.Drawing.Size(238, 43);
+          this.EncryptGroupBox.TabIndex = 9;
+          this.EncryptGroupBox.TabStop = false;
+          this.EncryptGroupBox.Text = "Encrypt";
+          // 
+          // StatusStrip
+          // 
+          this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
+          this.StatusStrip.Location = new System.Drawing.Point(0, 269);
+          this.StatusStrip.Name = "StatusStrip";
+          this.StatusStrip.Size = new System.Drawing.Size(500, 22);
+          this.StatusStrip.SizingGrip = false;
+          this.StatusStrip.TabIndex = 10;
+          // 
+          // toolStripStatusLabel1
+          // 
+          this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+          this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
+          // 
           // EncryptProjectForm
           // 
           this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
           this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-          this.ClientSize = new System.Drawing.Size(500, 209);
+          this.ClientSize = new System.Drawing.Size(500, 291);
+          this.Controls.Add(this.StatusStrip);
+          this.Controls.Add(this.EncryptGroupBox);
           this.Controls.Add(this.ProjectsLabel);
           this.Controls.Add(this.ProjectListBox);
-          this.Controls.Add(this.EncryptDXFFiles);
-          this.Controls.Add(this.EncryptRCTFilesCheckBox);
-          this.Controls.Add(this.EncryptPGMFilesCheckBox);
           this.Controls.Add(this.CreateBackupCheckBox);
           this.Controls.Add(this.EncryptProjectButton);
           this.Controls.Add(this.ProgressBar);
@@ -149,6 +182,10 @@ namespace Encrypt
           this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
           this.Text = "Encrypt Project";
           this.Load += new System.EventHandler(this.EncryptProjectForm_Load);
+          this.EncryptGroupBox.ResumeLayout(false);
+          this.EncryptGroupBox.PerformLayout();
+          this.StatusStrip.ResumeLayout(false);
+          this.StatusStrip.PerformLayout();
           this.ResumeLayout(false);
           this.PerformLayout();
 
@@ -164,6 +201,9 @@ namespace Encrypt
       private System.Windows.Forms.CheckBox EncryptDXFFiles;
       private System.Windows.Forms.ListBox ProjectListBox;
       private System.Windows.Forms.Label ProjectsLabel;
+      private System.Windows.Forms.GroupBox EncryptGroupBox;
+      private System.Windows.Forms.StatusStrip StatusStrip;
+      private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

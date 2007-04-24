@@ -5,6 +5,8 @@
 #ifndef __TKNPARS_H
 #define __TKNPARS_H
 
+#include <sstream>
+
 #ifdef __TKNPARS_CPP
   #define DllImportExport DllExport
 #elif !defined(SCDLIB)
@@ -51,10 +53,13 @@ class DllImportExport CTokenFileInfo
 
   protected:
     void SetFileName(char* FileName);
+    void DecryptToBuffer(Strng encFnFull);
+    bool OpenFile(Strng FnFull);
     BOOL Open();              
     void Close();             
     BOOL CheckForInclude();
     void SetParameters();
+    char* ssgets(int k);
     void NextLine();
     BOOL AtEOF() { return bAtEOF; };
 
@@ -65,6 +70,8 @@ class DllImportExport CTokenFileInfo
     CTokenParser* pParser;                     //
     CString       sIncludeChars;               //Characters after which an include file is given
     FILE*         File[TP_MaxIncludeFiles];       //Pointer to array of text file handles being read
+    char*         m_Buffer[TP_MaxIncludeFiles];//Pointer to array of buffers
+    std::stringstream* m_SS[TP_MaxIncludeFiles];
     CString       FileNames[TP_MaxIncludeFiles];  //File names of the text files currently being parsed
     FILETIME      FileTimes[TP_MaxIncludeFiles];  //File modify times of the text files currently being parsed
     WORD          FileLineNo[TP_MaxIncludeFiles]; //Current line number for the files being parsed

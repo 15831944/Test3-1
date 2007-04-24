@@ -18,6 +18,9 @@
 #endif
 
 #include "tknparse.h"
+#include "licbase.h"
+
+#include <fstream>
 
 //==========================================================================
 /*#f:Constructer for token file parser. The file name is the only required parameter.
@@ -88,6 +91,60 @@ void CTokenFile::SetIncludeChars(char* pNewIncludeChars)
   m_IncludeChars = pNewIncludeChars;
 };  
 
+void CTokenFile::DecryptToBuffer(Strng encFnFull)
+{
+  fclose(m_File[m_FileIndex]);
+
+  std::fstream fin;
+  fin.open(encFnFull(), std::ios::in|std::ios::binary);
+  if (fin.is_open())
+  {
+    fin.seekg(0, std::ios_base::end);
+    int length = fin.tellg();
+    fin.seekg(0, std::ios_base::beg);
+
+    m_Buffer[m_FileIndex] = new char[length+1];
+    fin.read(m_Buffer[m_FileIndex], length);
+    fin.close();
+
+    int count = fin.gcount();
+    m_Buffer[m_FileIndex][count] = 71;
+
+    for (int i=count-1; i>=0; i--) // decrypt the buffer.
+    {
+      m_Buffer[m_FileIndex][i] ^= m_Buffer[m_FileIndex][i+1];
+    }
+
+    m_Buffer[m_FileIndex][count] = 0;
+  }
+  fin.close();
+
+  m_SS[m_FileIndex] = new std::stringstream(m_Buffer[m_FileIndex]);
+
+  m_File[m_FileIndex] = fopen(encFnFull(), "rt");
+}
+
+bool CTokenFile::OpenFile(Strng FnFull)
+{
+  Strng encFnFull;
+  encFnFull = FnFull;
+  encFnFull.Append(".x");
+  m_File[m_FileIndex] = fopen(encFnFull(), "rt");
+  if (m_File[m_FileIndex] == NULL)
+  { // Encrypted file nonexistent.
+    m_Buffer[m_FileIndex] = NULL;
+    m_File[m_FileIndex] = fopen(FnFull(), "rt");
+    if (m_File[m_FileIndex] == NULL)
+      return False;
+  }
+  else
+  { // Encrypted file found.
+    gs_EncryptNDemos.encryptedPGM = true;
+    DecryptToBuffer(encFnFull);
+  }
+  return true;
+}
+
 //----------------------------------------------------------------------------
 /*#F:Opens the primary file for parsing.#R:True if successfully opened.*/
 flag CTokenFile::Open()
@@ -112,11 +169,12 @@ flag CTokenFile::Open()
   Fn.FnContract();
 
   m_AllFileNames[m_IncFileCnt++] = Fn();
-  m_File[m_FileIndex] = fopen(FnFull(), "rt");
-  if (m_File[m_FileIndex] == NULL)
-    return False;
+
+  bool result = OpenFile(FnFull);
+
   FnModifyTime(FnFull(), m_AllFileTimes[m_IncFileCnt-1]);
-  return True;
+  
+  return result;
 };
 
 //----------------------------------------------------------------------------
@@ -240,9 +298,11 @@ const char* CTokenFile::NextToken()
                   m_LineNo--;
                   m_FileLineNo[m_FileIndex] = 0;
 
-                  m_File[m_FileIndex] = fopen(FnFull(), "rt");
-                  if (m_File[m_FileIndex]!=NULL)
-                    Failed = False;
+                  Failed = !OpenFile(FnFull);
+
+                  //m_File[m_FileIndex] = fopen(FnFull(), "rt");
+                  //if (m_File[m_FileIndex]!=NULL)
+                  //  Failed = False;
 
                   FnModifyTime(FnFull(), m_FileTimes[m_FileIndex]);
                   if (m_IncFileCnt<=MaxTtlIncludeFiles)
@@ -349,7 +409,9 @@ const char* CTokenFile::GetNextLine()
       Fn.FnContract();
 
       VERIFY(m_FileIndex<MaxIncludeFiles);
-      m_File[m_FileIndex] = fopen(FnFull(),"rt");
+      
+      OpenFile(FnFull);
+      //m_File[m_FileIndex] = fopen(FnFull(),"rt");
       m_FileNames[m_FileIndex]=Fn();
 
       FnModifyTime(FnFull(), m_FileTimes[m_FileIndex]);
@@ -428,6 +490,21 @@ Strng CTokenFile::SkipToSeperator() const
   return m_TokenLine.SpanExcluding(m_SeperatorSet);
 };
 
+char* CTokenFile::ssgets(int k)
+{
+  char* p = NULL;
+
+  if (!(m_SS[m_FileIndex]->eof()))
+  {
+    p = new char[sizeof(m_Line) - 1 - k];
+    m_SS[m_FileIndex]->getline(p, sizeof(m_Line) - 1 - k);
+
+    char* match = strchr(p, 13);
+    if (match != NULL) match[0] = 0; // handle strange line-end characters.
+  }
+
+  return p; // will be null if at eof...
+}
 //----------------------------------------------------------------------------
 /*#F:Reads the next line from the file.*/
 void CTokenFile::NextLine()
@@ -441,7 +518,15 @@ void CTokenFile::NextLine()
       strrev(m_Back);
       strncpy(m_Line, m_Back, k);
       }
-    char* p = fgets((char*)&m_Line[k], sizeof(m_Line) - 1 - k, m_File[m_FileIndex]);
+
+    char* p = NULL;
+    if (m_Buffer[m_FileIndex] == NULL) // No buffer -- reading straight from file.
+      p = fgets((char*)&m_Line[k], sizeof(m_Line) - 1 - k, m_File[m_FileIndex]);
+    else // we've got a buffer, use that instead.
+    {
+      p = ssgets(k);
+    }
+
     if (p == NULL)
       {
       if (m_FileIndex > 0)

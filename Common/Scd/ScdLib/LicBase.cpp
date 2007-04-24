@@ -3808,9 +3808,19 @@ void CEncryptNDemos::CheckForDemo(char* projectFolder)
 {
   if (true) // demo.dat exists
   {
-    DWORD dwCrc32 = 0xFFFFFF;
+    DWORD dwCrc32_dxf = 0xFFFFFF;
+    DWORD dwCrc32_rct = 0xFFFFFF;
+    DWORD dwCrc32_pgm = 0xFFFFFF;
+    DWORD dwCrc32_mdb = 0xFFFFFF;
+    DWORD dwCrc32_trn = 0xFFFFFF;
+    DWORD dwCrc32_dat = 0xFFFFFF;
 
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dxf", dwCrc32);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dxf", dwCrc32_dxf);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".rct", dwCrc32_rct);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".pgm", dwCrc32_pgm);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".mdb", dwCrc32_mdb);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".trn", dwCrc32_trn);
+    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dat", dwCrc32_dat);
   }
 }
 

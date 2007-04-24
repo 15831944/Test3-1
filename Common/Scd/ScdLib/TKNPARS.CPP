@@ -6,6 +6,9 @@
 #define __TKNPARS_CPP
 #include "sc_defs.h"    
 #include "tknpars.h"
+#include "licbase.h"
+
+#include <fstream>
 
 //==========================================================================
 
@@ -42,6 +45,62 @@ void CTokenFileInfo::SetParameters()
   iIncFileCnt = 0;
   }
 
+void CTokenFileInfo::DecryptToBuffer(Strng encFnFull)
+{
+  fclose(File[iFileIndex]);
+
+  std::fstream fin;
+  fin.open(encFnFull(), std::ios::in|std::ios::binary);
+  if (fin.is_open())
+  {
+    fin.seekg(0, std::ios_base::end);
+    int length = fin.tellg();
+    fin.seekg(0, std::ios_base::beg);
+
+    m_Buffer[iFileIndex] = new char[length+1];
+    fin.read(m_Buffer[iFileIndex], length);
+    fin.close();
+
+    int count = fin.gcount();
+    m_Buffer[iFileIndex][count] = 71;
+
+    for (int i=count-1; i>=0; i--) // decrypt the buffer.
+    {
+      m_Buffer[iFileIndex][i] ^= m_Buffer[iFileIndex][i+1];
+    }
+
+    m_Buffer[iFileIndex][count] = 0;
+  }
+  fin.close();
+
+  m_SS[iFileIndex] = new std::stringstream(m_Buffer[iFileIndex]);
+
+  File[iFileIndex] = fopen(encFnFull(), "rt");
+}
+
+bool CTokenFileInfo::OpenFile(Strng FnFull)
+{
+  gs_EncryptNDemos.CheckForDemo(NULL);
+
+  Strng encFnFull;
+  encFnFull = FnFull;
+  encFnFull.Append(".x");
+  File[iFileIndex] = fopen(encFnFull(), "rt");
+  if (File[iFileIndex] == NULL)
+  { // Encrypted file nonexistent.
+    m_Buffer[iFileIndex] = NULL;
+    File[iFileIndex] = fopen(FnFull(), "rt");
+    if (File[iFileIndex] == NULL)
+      return False;
+  }
+  else
+  { // Encrypted file found.
+    gs_EncryptNDemos.encryptedPGM = true;
+    DecryptToBuffer(encFnFull);
+  }
+  return true;
+}
+
 //----------------------------------------------------------------------------
 /*#F:Opens the primary file for parsing.#R:True if successfully opened.*/
 BOOL CTokenFileInfo::Open()
@@ -57,14 +116,19 @@ BOOL CTokenFileInfo::Open()
     }*/
   
   AllFileNames[iIncFileCnt] = FnO;
-  File[iFileIndex] = fopen((const char*)FnO, "rt");
+    
+  Strng FnFull = FnO;
+  bool result = OpenFile(FnFull);
+  //File[iFileIndex] = fopen((const char*)FnO, "rt");
+
   FnModifyTime((char*)(const char*)FnO, FileTimes[iFileIndex]);
   AllFileTimes[iIncFileCnt]=FileTimes[iFileIndex];
   iIncFileCnt++;
 
-  if (File[iFileIndex] == NULL)
-    return FALSE;
-  return TRUE;
+  return result;
+  //if (File[iFileIndex] == NULL)
+  //  return FALSE;
+  //return TRUE;
   }
 
 //----------------------------------------------------------------------------
@@ -76,6 +140,7 @@ void CTokenFileInfo::Close()
     if (File[i] != NULL)
       {
       fclose(File[i]);
+      delete m_Buffer[i];
       File[i] = NULL;
       }
     }
@@ -140,13 +205,16 @@ BOOL CTokenFileInfo::CheckForInclude()
                 }
 
               FnFull.FnSearchExpand(Fn(), bFnPlaces);
+
               Fn.FnContract();
               FileName=Fn();
 
               FileNames[iFileIndex] = Fn();
               pParser->wLineNo--;
               FileLineNo[iFileIndex] = 0;
-              File[iFileIndex] = fopen(FnFull(), "rt");
+
+              Failed = OpenFile(FnFull);
+              //File[iFileIndex] = fopen(FnFull(), "rt");
 
               FnModifyTime(FnFull(), FileTimes[iFileIndex]);
               if (iIncFileCnt<TP_MaxTtlIncludeFiles)
@@ -156,9 +224,7 @@ BOOL CTokenFileInfo::CheckForInclude()
                 iIncFileCnt++;
                 }
 
-              if (File[iFileIndex]!=NULL)
-                Failed = FALSE;
-              else
+              if (Failed)
                 ErrNo = 2;//cannot open file
               }
             else
@@ -176,6 +242,31 @@ BOOL CTokenFileInfo::CheckForInclude()
   return FALSE;
   }
 
+
+char* CTokenFileInfo::ssgets(int k)
+{
+  //char* p = NULL;
+
+  if (!(m_SS[iFileIndex]->eof()))
+  {
+    //p = new char[sizeof(pParser->Line) - 1 - k];
+    m_SS[iFileIndex]->getline((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k);
+
+    // handle different line-end characters.
+    char* match = strchr((char*)&(pParser->Line[k]), 13);
+    while (match != NULL)
+    {
+      match[0] = 10; 
+      match = strchr((char*)&(pParser->Line[k]), 13);
+    }
+  }
+
+  //if (m_SS[iFileIndex]->eof())
+  //  fseek(File[iFileIndex], 0, SEEK_END); // testing -- this will put the File at eof as well...
+  // but this doesn't work either!!!
+
+  return (char*)&(pParser->Line[k]); // will be null if at eof...
+}
 //----------------------------------------------------------------------------
 
 void CTokenFileInfo::NextLine()
@@ -189,13 +280,24 @@ void CTokenFileInfo::NextLine()
       strrev(Back);
       strncpy(pParser->Line, Back, k);
       }
-    char* p = fgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k, File[iFileIndex]);
+    
+    char* p = NULL;
+    if (m_Buffer[iFileIndex] == NULL) // No buffer -- reading straight from file.
+      p = fgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k, File[iFileIndex]);
+    else // we've got a buffer, use that instead.
+    {
+      p = ssgets(k);
+    }
+
+    //char* p = fgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k, File[iFileIndex]);
+    
     if (p==NULL)
       {
       if (iFileIndex>0)
         {
         pParser->wLineNo--;
         fclose(File[iFileIndex]);
+        delete m_Buffer[iFileIndex];
         File[iFileIndex] = NULL;
         iFileIndex--;
         NextLine();

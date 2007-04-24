@@ -5,6 +5,8 @@
 #ifndef __TKNPARSE_H
 #define __TKNPARSE_H
 
+#include <sstream>
+
 #ifdef __TKNPARSE_CPP
   #define DllImportExport DllExport
 #elif !defined(SCDLIB)
@@ -51,6 +53,8 @@ public:
               flag nUseIncludes = True);
   ~CTokenFile();          
     
+  void DecryptToBuffer(Strng encFnFull);
+  bool OpenFile(Strng FnFull);
   flag Open();              
   void Close();             
   char* GetWhiteSpaceChars() { return &m_WhiteSpaceSet[0]; };
@@ -129,6 +133,7 @@ public:
 
 protected:
   void SetParameters();
+  char* ssgets(int k);
   void NextLine();
   void SkipWhiteSpace();
   //char* SkipToSeperator();
@@ -148,6 +153,8 @@ protected:
   WORD m_SeperatorSetLen;         //Number of chars in seperator set
   flag m_NewLine;                 //Flag set True if just starting new line
   FILE* m_File[MaxIncludeFiles];  //Pointer to array of text file handles being read
+  char* m_Buffer[MaxIncludeFiles];//Pointer to array of buffers
+  std::stringstream* m_SS[MaxIncludeFiles];
   Strng m_FileNames[MaxIncludeFiles];    //File names of the text files currently being parsed
   FILETIME m_FileTimes[MaxIncludeFiles];    //File times of the text files currently being parsed
   WORD m_FileLineNo[MaxIncludeFiles];    //Current line number for the files being parsed
