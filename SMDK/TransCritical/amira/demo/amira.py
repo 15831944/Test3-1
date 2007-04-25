@@ -115,6 +115,7 @@ bayer_.argtypes = [
 
 
 class AmiraBayer:
+
     def __init__(self, Temp_C, Pressure_kPa, InUnits=3):
 
         # Parameters
@@ -193,7 +194,7 @@ class AmiraBayer:
 
             self.NOutComp,      #  NOutComp,     INTEGER!
             self.Comp_molkg   ,    #  Comp_molkg,
-            self.Comp_molL    ,    #  Comp_molL,
+            self.Comp_molL    ,    #  Comp_molL,mol/kg     
             self.Comp_molL25  ,    #  Comp_molL25,
             self.Comp_mpercent,    #  Comp_mpercent,
             self.Comp_gL      ,    #  Comp_gL,             RETURN
@@ -275,14 +276,12 @@ class MyMain(GenericMain):
         print res
         for i, x in enumerate(res[2:]):
             ab.InComp[i] = 100.*x
-
-
         print t
         ab.Temp_C = t-273.15
         ab.Pressure_kPa = p
 
         for x in ab.InComp:
-            print x
+            print x    
         ab.bayer()
         self.extractDPData()
 
@@ -301,7 +300,6 @@ class MyMain(GenericMain):
         self.of.appendText((ostr7 % tuple([x for x in ab.Comp_mpercent[:9]])))
         self.of.appendText((ostr8 % tuple([x for x in ab.Comp_gL[:9]])))
         self.of.appendText("")
-
 
 
 
