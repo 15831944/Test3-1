@@ -373,7 +373,7 @@ void FlwNode::RemoveFromConnects(LPSTR ConnTag)
   if (ConnTag)
     {
     sm_ConnectsMap.RemoveKey(ConnTag);
-    dbgpln("<<< %s", ConnTag);
+    dbgpln("<<<Connects: %s", ConnTag);
     }
   }; 
 void FlwNode::AddToConnects(LPSTR ConnTag, CConnect * pConnect)
@@ -384,7 +384,7 @@ void FlwNode::AddToConnects(LPSTR ConnTag, CConnect * pConnect)
     sm_ConnectsMap.InitHashTable(5001);
     }
   sm_ConnectsMap.SetAt(ConnTag, pConnect);
-  dbgpln(">>> %s", ConnTag);
+  dbgpln(">>>Connects: %s", ConnTag);
   }; 
 
 //--------------------------------------------------------------------------
@@ -2082,7 +2082,7 @@ long gs_AuditOption     = Audit_Off;
 bool gs_FSIdleRequested = false;
 
 //CArray<CConnect*, CConnect*> FlwNode::sm_Connects;
-CMap<LPSTR, LPSTR, CConnect*, CConnect*> FlwNode::sm_ConnectsMap;
+CConnectsMap FlwNode::sm_ConnectsMap;
 
 // --------------------------------------------------------------------------
 

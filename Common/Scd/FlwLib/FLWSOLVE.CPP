@@ -11664,6 +11664,31 @@ class CLTHelp
     void TagLoopSetEnd(FlwNode *p)
       {
       }
+
+    CConnectsMap::CPair * ConnLoopGetStart(CConnectsMap::CPair *p)
+      {      
+      if (p==NULL)
+        p = FlwNode::sm_ConnectsMap.PGetFirstAssoc( );
+      else
+        p = FlwNode::sm_ConnectsMap.PGetNextAssoc( p );
+
+      if (p)
+        {
+        if (m_DoingAll)
+          m_pS=new Strng(p->value->FullTag());
+        else
+          m_pS=m_TagList.Find(p->value->FullTag());
+        }
+
+      return p;
+      };
+    void ConnLoopGetEnd(CConnectsMap::CPair *p, int i)
+      {
+      m_pS->SetIndex(i);
+      if (m_DoingAll)
+        m_TagList.Append(m_pS);
+      };
+
   };
 
 //--------------------------------------------------------------------------
@@ -11674,69 +11699,70 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
 
   CLTHelp LTH(this,TagList);
 
-  FlwNode *p=NULL;
+  FlwNode *pNd=NULL;
+  CConnectsMap::CPair *pCn=NULL;
   int i;
   switch (Act)
     {
     case FETOp_GetActive:
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          i=p->GetActive();
+          i=pNd->GetActive();
           N++;
-          LTH.TagLoopGetEnd(p, i);
+          LTH.TagLoopGetEnd(pNd, i);
           }
         }
       break;
     case FETOp_GetHold:
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          if (p->GetActiveHoldOK())
-            i=p->GetActiveHold();
+          if (pNd->GetActiveHoldOK())
+            i=pNd->GetActiveHold();
           else
             i=-1;
           N++;
-          LTH.TagLoopGetEnd(p, i);
+          LTH.TagLoopGetEnd(pNd, i);
           }
         }
       break;
     case FETOp_SetActive:
       UnDoGlobalLinks();
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          p->SetActive(LTH.m_pS->Index()!=0);
+          pNd->SetActive(LTH.m_pS->Index()!=0);
           N++;
-          LTH.TagLoopSetEnd(p);
+          LTH.TagLoopSetEnd(pNd);
           }
         }
       TryDoGlobalLinks();
       break;
     case FETOp_SetHold:
       UnDoGlobalLinks();
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          p->SetActiveHold(LTH.m_pS->Index()!=0);
+          pNd->SetActiveHold(LTH.m_pS->Index()!=0);
           N++;
-          LTH.TagLoopSetEnd(p);
+          LTH.TagLoopSetEnd(pNd);
           }
         }
       TryDoGlobalLinks();
       break;
     case FETOp_MarkPrsNets:
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          MarkFlwNodesPressNetwork(p);
+          MarkFlwNodesPressNetwork(pNd);
           N++;
-          LTH.TagLoopSetEnd(p);
+          LTH.TagLoopSetEnd(pNd);
           }
         }
       break;
@@ -11749,17 +11775,49 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
     case FETOp_MrkCrit3:
       break;
     case FETOp_ClrMarked:
-      while (p=LTH.TagLoopGetStart(p))
+      while (pNd=LTH.TagLoopGetStart(pNd))
         {
         if (LTH.m_pS)
           {
-          p->fMarked=false;
+          pNd->fMarked=false;
           N++;
-          LTH.TagLoopSetEnd(p);
+          LTH.TagLoopSetEnd(pNd);
           }
         }
       break;
+    case FETOp_GetActiveConns:
+      while (pCn=LTH.ConnLoopGetStart(pCn))
+        {
+        if (LTH.m_pS)
+          {
+          CConnect * p = pCn->value;
+          //pCn->fMarked=false;
+          if (p->m_pNdSrc->GetActive())
+            {
+            int IOId = p->m_pNdSrc->IOId_Self(p->m_iIOSrc);
+            if (IsMLnkIOId(IOId))
+              i=1;
+            else if (IsMakeupIOId(IOId))
+              i=2;
+            else if (IsBleedIOId(IOId))
+              i=3;
+            else if (IsSpillIOId(IOId))
+              i=4;
+            else if (IsVentIOId(IOId))
+              i=5;
+            else if (IsLeakIOId(IOId))
+              i=6;
+            else
+              i=7;
+            }
+          else
+            i=0;
 
+          N++;
+          LTH.ConnLoopGetEnd(pCn, i);
+          }
+        }
+      break;
     default:
       {
       }

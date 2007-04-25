@@ -993,6 +993,7 @@ enum FE_TagOps
   FETOp_MrkCrit2,
   FETOp_MrkCrit3,
   FETOp_ClrMarked,
+  FETOp_GetActiveConns,
 
   };
 

@@ -3346,6 +3346,7 @@ class CFlwNodeIndex
   };
 
 class CFlwNodeIndexList : public CList <CFlwNodeIndex, CFlwNodeIndex&> {};
+class CConnectsMap      : public CMap<LPSTR, LPSTR, CConnect*, CConnect*> {};
 
 class DllImportExport FlwNode : public CTNode
   {
@@ -4481,7 +4482,7 @@ class DllImportExport FlwNode : public CTNode
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;
 
     //static CArray<CConnect*, CConnect*> sm_Connects;
-    static CMap<LPSTR, LPSTR, CConnect*, CConnect*> sm_ConnectsMap;
+    static CConnectsMap sm_ConnectsMap;
    
     CRITICAL_SECTION m_LockSect;
 
