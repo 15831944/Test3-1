@@ -8,10 +8,73 @@
 #include <vector>
 
 
-double g0h2o_(double*, double *);
+extern "C" double g0h2o_(double*, double *);
+
+extern "C" void bayer_(        // In all its glory
+                   double*,    //  TempC,
+                   const long*,//  InUnits,            INTEGER!
+                   double*,    //  Pressure,
+                   const long*,//  NInComp,            INTEGER!
+                   double*,    //  InComp,             ARRAY*11
+		   double*,    //  DPDATA
+                   const long*,      //  NOutComp,     INTEGER!
+                   double*,    //  Comp_molkg,         ARRAY
+                   double*,    //  Comp_molL,          ARRAY
+                   double*,    //  Comp_molL25,        ARRAY
+                   double*,    //  Comp_mpercent,      ARRAY
+                   double*,    //  Comp_gL,            ARRAY
+                   const long*,      //  NOC,          INTEGER!
+                   double*,    //  OC,                 ARRAY
+                   const long*,      //  NGamma,      INTEGER!
+                   double*,    //  Gamma,             ARRAY
+                   const long*,      //  NSI,         INTEGER!
+                   double*,    //  SI,                ARRAY
+                   const long*,      //  NSol,        INTEGER!
+                   double*,    //  SolML,             ARRAY
+                   double*     //  Solmkg             ARRAY
+
+		   );
+
+
+const static long InUnits = 3;
+const static long NInComp = 9;
+
+const static long NOutComp = 9;
+const static long NOC = 2;
+const static long NGamma = 12;
+const static long NSI = 10;
+const static long NSol = 6;
+
+
+
+// Indices into the dpData array...
+enum {
+    iI_m ,
+    iI_c ,
+    iI_c25 ,
+    iP_sat ,
+    iAl2O3 ,
+    iTC ,
+    iTA ,
+    iTempSat ,
+    iBPE ,
+    iCp_Liq   ,    
+    iCp_H2O   ,    
+    iRho_Liq  ,   
+    iRho_H2O  ,   
+    iCp_phi   ,           
+    iV_phi    ,     
+    iCp_LiqH2O, 
+    iPhi      ,       
+    iAw
+};
+
+
+
+
 
 double G0H2O(double P, double T) {
-  return g0h2o_(&P, &T);  // Amira test function
+  return g0h2o_(&P, &T);  // Amira test: Gibbs free energy for water...
 }
 
 
@@ -32,11 +95,52 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double                 m_dbgtotHf;
 #endif
 
+
+    // These are the Amira variables that get passed back by the function
+    double Comp_molkg    [12];    
+    double Comp_molL     [12];
+    double Comp_molL25   [12];
+    double Comp_mpercent [12];
+    double Comp_gL       [12];
+    double Gamma         [12];
+    double OC            [2];
+    double SI            [10];
+    double SolML         [6 ];
+    double Solmkg        [6 ];
+
+    // This is all of the double precision results...
+    double dpData[18];
+    
+
+    /*
+    double I_m ;
+    double I_c ;
+    double I_c25 ;
+    double P_sat ;
+    double Al2O3 ;
+    double TC ;
+    double TA ;
+    double TempSat ;
+    double BPE ;
+    double Cp_Liq   ;    
+    double Cp_H2O   ;    
+    double Rho_Liq  ;   
+    double Rho_H2O  ;   
+    double Cp_phi   ;           
+    double V_phi    ;     
+    double Cp_LiqH2O; 
+    double Phi      ;       
+    double Aw       ;        
+    */
+
+
+
+
   public:
     AmiraBayer(TaggedObject *pNd);
     ~AmiraBayer();
     void RecalcAmira();
-    
+    void Bayer(double, double, double*);
 
     bool            ValidateDataFields();
 

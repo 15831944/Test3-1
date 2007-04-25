@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-04-22 06:40:36 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-04-25 04:09:00 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -48,9 +48,9 @@ MSpeciePtr   SodiumChloride    (InitTest, "NaCl(l)",       false);
 MSpeciePtr   SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
 MSpeciePtr   SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
 MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
-MSpeciePtr   SodiumSilicate    (InitTest, "Na2SiO3(l)",    false); 
-MSpeciePtr   Organics          (InitTest, "Na2C5.2O7.2(l)", false); //organic
-MSpeciePtr   OccSoda           (InitTest, "NaOH*(s)",       false);
+//MSpeciePtr   SodiumSilicate    (InitTest, "Na2SiO3(l)",    false); 
+//MSpeciePtr   Organics          (InitTest, "Na2C5.2O7.2(l)", false); //organic
+//MSpeciePtr   OccSoda           (InitTest, "NaOH*(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al[OH]3(s)", false);
 MSpeciePtr   AluminaSolid      (InitTest, "Al2O3(s)",      false);
 
@@ -136,7 +136,7 @@ double AmiraBayer::get_Density(long Phases, double T, double P, MArray *pMA)
     {
     CheckConverged(pMA);
 
-    Dl = 1.0;
+    Dl = dpData[iRho_Liq];
     }
 
   return DUMPIT0("Density", DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA));
@@ -549,7 +549,7 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
     GVALF(TOStoTOC);
 
     case idBoilPtElev	: Value=BoilPtElev(MArray(this), P);        return; 
-    case idG0H2o : Value = G0H2O(P/100., T-273.15); return;
+    case idG0H2o : Value = G0H2O(P/100., T); return;
       GVALF(LVolume25);
       GVALF(SLVolume25);
       GVALF(OrganateConc25);
@@ -973,8 +973,53 @@ void AmiraBayer::CheckConverged(MArray *pMA)
 
 void AmiraBayer::RecalcAmira() 
 {
+
+
+  //Bayer(300., 100., )
+
   return;
 }
+
+
+
+
+
+
+void AmiraBayer::Bayer(double T_K, double p_kPa, double *x) {
+  double TempC = T_K-273.15;
+  double Pressure = p_kPa/100.;
+  double InComp[NInComp];
+  for (int i=0; i<NInComp; i++) 
+    InComp[i] = x[i]*100.;
+  bayer_(
+	 /*double*, */  &TempC,
+	 /*long*,   */  &InUnits,     
+	 /*double*, */  &Pressure,
+	 /*long*,   */  &NInComp,     
+	 /*double*, */  InComp,      
+	 /*double*  */  dpData,
+
+	 /*long*,   */  &NOutComp,    
+	 /*double*, */  Comp_molkg,
+	 /*double*, */  Comp_molL,
+	 /*double*, */  Comp_molL25,
+	 /*double*, */  Comp_mpercent,
+	 /*double*, */  Comp_gL,
+	 /*long*,   */  &NOC,         
+	 /*double*, */  OC,
+	 /*long*,   */  &NGamma,      
+	 /*double*, */  Gamma,
+	 /*long*,   */  &NSI,         
+	 /*double*, */  SI,
+	 /*long*,   */  &NSol,        
+	 /*double*, */  SolML,
+	 /*double*  */  Solmkg
+	 );
+}
+
+
+
+
 
 
 

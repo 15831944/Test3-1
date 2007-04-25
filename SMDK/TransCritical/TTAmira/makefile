@@ -32,7 +32,7 @@ all: TTAmira.dll
 
 
 TTAmira.dll: $(OBJS)
-	link /OUT:"$(SYSCADDIR)\TTAmira.dll" $(LFLAGS) /PDB:".\Rls/TTAmira.pdb" /IMPLIB:".\Rls/TTAmira.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) amira.lib amira.exp
+	link /OUT:"$(SYSCADDIR)\TTAmira.dll" $(LFLAGS) /PDB:".\Rls/TTAmira.pdb" /IMPLIB:".\Rls/TTAmira.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) amira.lib
 	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\TTAmira.dll"
 
 
