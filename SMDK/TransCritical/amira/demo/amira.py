@@ -161,6 +161,16 @@ class AmiraBayer:
         self.Solmkg        = (c_double*6)()
         
         # Exported doubles
+        # Exported doubles
+        self.I_m = c_double()
+        self.I_c = c_double()
+        self.I_c25 = c_double()
+        self.P_Sat = c_double()
+        self.Al2O3 = c_double()
+        self.TC = c_double()
+        self.TA = c_double()
+        self.TempSat = c_double()
+        self.BPE = c_double()
         self.Cp_Liq   = c_double()    
         self.Cp_H2O   = c_double()    
         self.Rho_Liq  = c_double()   
