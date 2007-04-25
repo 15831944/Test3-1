@@ -161,8 +161,17 @@ class AmiraBayer:
         self.Solmkg        = (c_double*6)()
         
         # Exported doubles
+        self.Cp_Liq   = c_double()    
+        self.Cp_H2O   = c_double()    
+        self.Rho_Liq  = c_double()   
+        self.Rho_H2O  = c_double()   
+        self.Cp_phi   = c_double()           
+        self.V_phi    = c_double()     
+        self.Cp_LiqH2O= c_double() 
+        self.Phi      = c_double()       
+        self.Aw       = c_double()        
 
-        # Exported longs  !!!!!!!! These are actually imports, and *fixed* 
+        # Exported longs
         self.NOutComp = c_long(9)
         self.NOC = c_long(2)
         self.NGamma = c_long(12)
