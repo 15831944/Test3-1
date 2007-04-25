@@ -87,42 +87,27 @@ bayer_.argtypes = [
                    POINTER(c_double),    #  Pressure,
                    POINTER(c_long),      #  NInComp,      INTEGER!
                    POINTER(c_double),    #  InComp,       ARRAY*11
-                   POINTER(c_double),    #  I_m,
-                   POINTER(c_double),    #  I_c,
-                   POINTER(c_double),    #  I_c25,
-                   POINTER(c_double),    #  P_sat,
+                   
+                   POINTER(c_double),    #  DPDATA        <-- All random return stuff
+
+
                    POINTER(c_long),      #  NOutComp,     INTEGER!
-#                  c_char_p,             #  OutCompName,
                    POINTER(c_double),    #  Comp_molkg,
                    POINTER(c_double),    #  Comp_molL,
                    POINTER(c_double),    #  Comp_molL25,
                    POINTER(c_double),    #  Comp_mpercent,
                    POINTER(c_double),    #  Comp_gL,
-                   POINTER(c_double),    #  Al2O3,
-                   POINTER(c_double),    #  TC,
-                   POINTER(c_double),    #  TA,
+
                    POINTER(c_long),      #  NOC,          INTEGER!
-#                   c_char_p,             #  OCName,
                    POINTER(c_double),    #  OC,
-                   POINTER(c_double),    #  TempSat,
-                   POINTER(c_double),    #  BPE,
-                   POINTER(c_double),    #  Cp_Liq,
-                   POINTER(c_double),    #  Cp_H2O,
-                   POINTER(c_double),    #  Rho_Liq,
-                   POINTER(c_double),    #  Rho_H2O,
-                   POINTER(c_double),    #  Cp_phi,
-                   POINTER(c_double),    #  V_phi,
-                   POINTER(c_double),    #  Cp_LiqH2O,
-                   POINTER(c_double),    #  Phi,
-                   POINTER(c_double),    #  Aw,
+
                    POINTER(c_long),      #  NGamma,      INTEGER!
-#                   c_char_p,             #  GammaName,
                    POINTER(c_double),    #  Gamma,
+
                    POINTER(c_long),      #  NSI,         INTEGER!
-#                   c_char_p,             #  SIName,
                    POINTER(c_double),    #  SI,
+
                    POINTER(c_long),      #  NSol,        INTEGER!
-#                   c_char_p,             #  SolName,
                    POINTER(c_double),    #  SolML,
                    POINTER(c_double)     #  Solmkg
                    ]
@@ -161,26 +146,33 @@ class AmiraBayer:
         self.SolML         = (c_double*6)()
 
         self.Solmkg        = (c_double*6)()
+
+        
         
         # Exported doubles
-        self.I_m = c_double()
-        self.I_c = c_double()
-        self.I_c25 = c_double()
-        self.P_Sat = c_double()
-        self.Al2O3 = c_double()
-        self.TC = c_double()
-        self.TA = c_double()
-        self.TempSat = c_double()
-        self.BPE = c_double()
-        self.Cp_Liq   = c_double()    
-        self.Cp_H2O   = c_double()    
-        self.Rho_Liq  = c_double()   
-        self.Rho_H2O  = c_double()   
-        self.Cp_phi   = c_double()           
-        self.V_phi    = c_double()     
-        self.Cp_LiqH2O= c_double() 
-        self.Phi      = c_double()       
-        self.Aw       = c_double()        
+##         self.I_m       = c_double()
+##         self.I_c       = c_double()
+##         self.I_c25     = c_double()
+##         self.P_Sat     = c_double()
+##         self.Al2O3     = c_double()
+##         self.TC        = c_double()
+##         self.TA        = c_double()
+##         self.TempSat   = c_double()
+##         self.BPE       = c_double()
+##         self.Cp_Liq    = c_double()    
+##         self.Cp_H2O    = c_double()    
+##         self.Rho_Liq   = c_double()   
+##         self.Rho_H2O   = c_double()   
+##         self.Cp_phi    = c_double()           
+##         self.V_phi     = c_double()     
+##         self.Cp_LiqH2O = c_double() 
+##         self.Phi       = c_double()       
+##         self.Aw        = c_double()        
+        # Replaced by....
+
+        self.DPDATA = (c_double*18)()
+
+
 
         # Exported longs
         self.NOutComp = c_long(9)
@@ -196,43 +188,26 @@ class AmiraBayer:
             c_double(self.Pressure_kPa/100.),    #  Pressure,
             c_long(9),    #  NInComp,      INTEGER!
             self.InComp,    #  InComp,       ARRAY*11
-            self.I_m,    #  I_m,
-            self.I_c,    #  I_c,
-            self.I_c25,    #  I_c25,
-            self.P_Sat,    #  P_sat, % (p, ab.P_Sat.value, ab.I_c25.value)))
+
+            self.DPDATA, 
+
             self.NOutComp,      #  NOutComp,     INTEGER!
-#            self.OutCompName,             #  OutCompName,
             self.Comp_molkg   ,    #  Comp_molkg,
             self.Comp_molL    ,    #  Comp_molL,
             self.Comp_molL25  ,    #  Comp_molL25,
             self.Comp_mpercent,    #  Comp_mpercent,
             self.Comp_gL      ,    #  Comp_gL,             RETURN
 
-            self.Al2O3,    #  Al2O3,
-            self.TC,       #  TC,
-            self.TA,       #  TA,
             self.NOC,      #  NOC,          INTEGER!
-#            self.OCName,   #  OCName,
             self.OC,       #  OC,
-            self.TempSat,  #  TempSat,
-            self.BPE,      #  BPE,
-            self.Cp_Liq    ,    #  Cp_Liq,
-            self.Cp_H2O    ,    #  Cp_H2O,
-            self.Rho_Liq   ,    #  Rho_Liq,
-            self.Rho_H2O   ,    #  Rho_H2O,
-            self.Cp_phi    ,    #  Cp_phi,
-            self.V_phi     ,    #  V_phi,
-            self.Cp_LiqH2O ,    #  Cp_LiqH2O,
-            self.Phi       ,    #  Phi,
-            self.Aw        ,    #  Aw,        
+
             self.NGamma,      #  NGamma,      INTEGER!
-#            self.GammaName ,             #  GammaName,
             self.Gamma,    #  Gamma,
+
             self.NSI,      #  NSI,         INTEGER!
-#            self.SIName,             #  SIName,
             self.SI,    #  SI,
+
             self.NSol,      #  NSol,        INTEGER!
-#            self.SolName,             #  SolName,
             self.SolML,    #  SolML,
             self.Solmkg     #  Solmkg
             )
@@ -266,6 +241,29 @@ class MyMain(GenericMain):
 
 
 
+    def extractDPData(self):
+        dat = [x for x in ab.DPDATA]
+        self.I_m       = dat[0 ]
+        self.I_c       = dat[1 ]
+        self.I_c25     = dat[2 ]
+        self.P_Sat     = dat[3 ]
+        self.Al2O3     = dat[4 ]
+        self.TC        = dat[5 ]
+        self.TA        = dat[6 ]
+        self.TempSat   = dat[7 ]
+        self.BPE       = dat[8 ]
+        self.Cp_Liq    = dat[9 ]    
+        self.Cp_H2O    = dat[10]    
+        self.Rho_Liq   = dat[11]   
+        self.Rho_H2O   = dat[12]   
+        self.Cp_phi    = dat[13]           
+        self.V_phi     = dat[14]     
+        self.Cp_LiqH2O = dat[15] 
+        self.Phi       = dat[16]       
+        self.Aw        = dat[17]        
+                               
+                               
+
        
 
     def test(self):
@@ -278,6 +276,7 @@ class MyMain(GenericMain):
         for i, x in enumerate(res[2:]):
             ab.InComp[i] = 100.*x
 
+
         print t
         ab.Temp_C = t-273.15
         ab.Pressure_kPa = p
@@ -285,17 +284,16 @@ class MyMain(GenericMain):
         for x in ab.InComp:
             print x
         ab.bayer()
+        self.extractDPData()
 
-        print ab.P_Sat.value, ab.TempSat.value, ab.NSol.value, ab.NSI.value
-        print ab.Cp_H2O.value, ab.Rho_H2O.value, ab.Phi.value
 
         # print repr(ab.OutCompName.raw)
         for x in ab.Comp_mpercent:
             pass
 
 
-        self.of.appendText((ostr1 % (t, ab.I_m.value, ab.I_c.value)))
-        self.of.appendText((ostr2 % (p, ab.P_Sat.value, ab.I_c25.value)))
+        self.of.appendText((ostr1 % (t,    self.I_m, self.I_c)))
+        self.of.appendText((ostr2 % (p,    self.P_Sat, self.I_c25)))
         self.of.appendText(ostr3)
         self.of.appendText((ostr4 % tuple([x for x in ab.Comp_molkg[:9]])))
         self.of.appendText((ostr5 % tuple([x for x in ab.Comp_molL[:9]])))

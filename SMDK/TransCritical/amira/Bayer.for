@@ -1,9 +1,22 @@
       SUBROUTINE BAYER(TempC,InUnits,Pressure,NInComp,InComp,
-     >I_m,I_c,I_c25,P_sat,NOutComp,Comp_molkg,Comp_molL,
-     >Comp_molL25,Comp_mpercent,Comp_gL,Al2O3,TC,TA,NOC,OC,
-     >TempSat,BPE,Cp_Liq,Cp_H2O,Rho_Liq,Rho_H2O,Cp_phi,V_phi,Cp_LiqH2O,
-     >Phi,Aw,NGamma,Gamma,NSI,SI,NSol,SolML,
-     >Solmkg)
+     $     DPDATA, 
+     $     NOutComp, Comp_molkg, Comp_molL,
+     $     Comp_molL25, Comp_mpercent, Comp_gL,
+     $     NOC,OC,
+     $     NGamma,Gamma,
+     $     NSI,SI,
+     $     NSol, SolML, Solmkg)
+
+
+C
+C      Original call...
+C
+C      SUBROUTINE BAYER(TempC,InUnits,Pressure,NInComp,InComp,
+C     >I_m,I_c,I_c25,P_sat,NOutComp,Comp_molkg,Comp_molL,
+C     >Comp_molL25,Comp_mpercent,Comp_gL,Al2O3,TC,TA,NOC,OC,
+C     >TempSat,BPE,Cp_Liq,Cp_H2O,Rho_Liq,Rho_H2O,Cp_phi,V_phi,Cp_LiqH2O,
+C     >Phi,Aw,NGamma,Gamma,NSI,SI,NSol,SolML,
+C     >Solmkg)
 C     ******************************************************************
 
 C   Purpose:  TO CALCULATE THE THERMODYNAMIC PROPERTIES OF BAYER LIQUORS
@@ -80,7 +93,7 @@ C             Comp_molL25 - Concentrations of output components (mol/L, at 25 C)
 C             Comp_mpercent - Concentrations of output components (mass percent)
 C             Comp_gL - Concentrations of output components (g/L, at 25 C)
 C             Al2O3 - g/L, at 25 C
-C             TC - [NaOH], g/L Na2CO3 eq., at 25 C
+C             TC - [NaOH], g/L Na2     $     NOC,OC,
 C             TA - [NaOH] + [Na2CO3], g/L Na2CO3 eq., at 25 C
 C             NOC - # of organic components
 C             OCName - Names of organic components
@@ -143,7 +156,10 @@ C             Solmkg - Solubility in mol/kg Solmkg(1) to Solmkg(6)
 C      DLL_EXPORT :: BAYER
      
       COMMON /CSAV/ PSAVE, RTSAVE, TSAVE
-      DOUBLE PRECISION InComp(NInComp+2),I_m,I_c,I_c25
+      DOUBLE PRECISION InComp(NInComp+2), I_m, I_c, I_c25
+
+
+
       
       DIMENSION X(NGamma),GAMMA(NGamma),SI(NSI),SolML(NSol),Solmkg(NSol)
       DIMENSION W(NInComp+5),CI(NInComp),CWI(NInComp+2),CMXI(NInComp),
@@ -153,6 +169,34 @@ C      DLL_EXPORT :: BAYER
      >Comp_molL25(NOutComp),Comp_mpercent(NOutComp),
      >Comp_gL(NOutComp),OC(NOC),CMX(NOutComp)
      
+C     Replaced the mishmash of variables in which data is returned by
+C     a single array, which will contain all these. This is
+C     EQUIVALENCED back to the original variables.
+C     
+
+      DIMENSION DPLDATA(18), DPDATA(18)
+      EQUIVALENCE (DPLDATA( 1),   I_m      )
+      EQUIVALENCE (DPLDATA( 2),   I_c      )
+      EQUIVALENCE (DPLDATA( 3),   I_c25    )
+      EQUIVALENCE (DPLDATA( 4),   P_Sat    )
+      EQUIVALENCE (DPLDATA( 5),   Al2O3    )
+      EQUIVALENCE (DPLDATA( 6),   TC       )
+      EQUIVALENCE (DPLDATA( 7),   TA       )
+      EQUIVALENCE (DPLDATA( 8),   TempSat  )
+      EQUIVALENCE (DPLDATA( 9),   BPE      )
+      EQUIVALENCE (DPLDATA(10),   Cp_Liq   )
+      EQUIVALENCE (DPLDATA(11),   Cp_H2O   )
+      EQUIVALENCE (DPLDATA(12),   Rho_Liq  )
+      EQUIVALENCE (DPLDATA(13),   Rho_H2O  )
+      EQUIVALENCE (DPLDATA(14),   Cp_phi   )
+      EQUIVALENCE (DPLDATA(15),   V_phi    )
+      EQUIVALENCE (DPLDATA(16),   Cp_LiqH2O)
+      EQUIVALENCE (DPLDATA(17),   Phi      )
+      EQUIVALENCE (DPLDATA(18),   Aw       )
+
+
+
+
 C      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
 C     >SIName(NSI),SolName(NSol)
       
@@ -203,6 +247,13 @@ C     >SIName(NSI),SolName(NSol)
 
       CALL SOLBY(NGAMMA,NInComp,InUnits,VH2O25,T,P,TR,P0,X,Comp_molkg,
      >Comp_molL25,V25,NSol,SolML,Solmkg)
+
+
+C     COPY THE LOCAL EQUIVALENCED STUFF BACK TO THE DUMMY ARGUMENT
+      DO 10, I=1,18
+ 10      DPDATA(I) = DPLDATA(I)
+
+
 
       RETURN
       END
