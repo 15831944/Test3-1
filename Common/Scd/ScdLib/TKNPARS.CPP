@@ -80,6 +80,8 @@ void CTokenFileInfo::DecryptToBuffer(Strng encFnFull)
 
 bool CTokenFileInfo::OpenFile(Strng FnFull)
 {
+#define CNMSKIP 1
+#if !CNMSKIP
   gs_EncryptNDemos.CheckForDemo(NULL);
 
   Strng encFnFull;
@@ -88,16 +90,19 @@ bool CTokenFileInfo::OpenFile(Strng FnFull)
   File[iFileIndex] = fopen(encFnFull(), "rt");
   if (File[iFileIndex] == NULL)
   { // Encrypted file nonexistent.
+#endif
     m_Buffer[iFileIndex] = NULL;
     File[iFileIndex] = fopen(FnFull(), "rt");
     if (File[iFileIndex] == NULL)
       return False;
+#if !CNMSKIP
   }
   else
   { // Encrypted file found.
     gs_EncryptNDemos.encryptedPGM = true;
     DecryptToBuffer(encFnFull);
   }
+#endif
   return true;
 }
 
@@ -213,7 +218,7 @@ BOOL CTokenFileInfo::CheckForInclude()
               pParser->wLineNo--;
               FileLineNo[iFileIndex] = 0;
 
-              Failed = OpenFile(FnFull);
+              Failed = !OpenFile(FnFull);
               //File[iFileIndex] = fopen(FnFull(), "rt");
 
               FnModifyTime(FnFull(), FileTimes[iFileIndex]);

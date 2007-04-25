@@ -569,6 +569,9 @@
 				RelativePath=".\CommsSrvrBase.cpp">
 			</File>
 			<File
+				RelativePath=".\Crc32Static.cpp">
+			</File>
+			<File
 				RelativePath=".\DATAATTR.CPP">
 			</File>
 			<File
@@ -741,7 +744,13 @@
 				RelativePath=".\CnvFormatDlg.h">
 			</File>
 			<File
+				RelativePath=".\Common.h">
+			</File>
+			<File
 				RelativePath=".\CommsSrvrBase.h">
+			</File>
+			<File
+				RelativePath=".\Crc32Static.h">
 			</File>
 			<File
 				RelativePath=".\DataAttr.H">
