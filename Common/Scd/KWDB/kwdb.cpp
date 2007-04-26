@@ -129,17 +129,19 @@ BOOL KWDatabase::OpenDB(long DBFmt,
       m_pCnn=ADODB::_ConnectionPtr(__uuidof(ADODB::Connection));
       m_pCat=ADOX::_CatalogPtr(__uuidof (ADOX::Catalog));
 
-      CString S;
-      S.Format(DBConnectOpenString(DBFmt), lpszName);
       //m_pCat->ActiveCollection(_bstr_t(S));
       try
       {
+        CString S;
+        S.Format(DBConnectOpenString(DBFmt), lpszName);
         m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
       }
       catch(_com_error)
       {
-        S.AppendFormat("Jet OLEDB:Database Password=test;");
-        m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
+        CString Spass;
+        Spass.Format(DBConnectOpenString(DBFmt), lpszName);
+        Spass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
+        m_pCnn->Open(_bstr_t(Spass), "", "", ADODB::adConnectUnspecified);
         gs_EncryptNDemos.encryptedPGM = true;
       }
       m_pCat->PutActiveConnection(_variant_t((IDispatch*)m_pCnn));
@@ -1284,18 +1286,21 @@ BOOL KWDatabase::CompactDB(long DBFmt,
     {
     JRO::IJetEnginePtr pJet=JRO::IJetEnginePtr(__uuidof(JRO::JetEngine));
 
-    CString SO, SN;
     try
     {
+      CString SO, SN;
       SO.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
       SN.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
       pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
     }
-    catch(_com_error)
+    catch(_com_error & e)
     {
-      SO.AppendFormat("Jet OLEDB:Database Password=test;");
-      SN.AppendFormat("Jet OLEDB:Database Password=test;");
-      pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
+      CString SOpass, SNpass;
+      SOpass.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
+      SNpass.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
+      SOpass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
+      SNpass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
+      pJet->CompactDatabase(_bstr_t(SOpass), _bstr_t(SNpass));
     }
 
     pJet.Release();

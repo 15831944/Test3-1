@@ -80,7 +80,7 @@ void CTokenFileInfo::DecryptToBuffer(Strng encFnFull)
 
 bool CTokenFileInfo::OpenFile(Strng FnFull)
 {
-  gs_EncryptNDemos.CheckForDemo(NULL);
+  //gs_EncryptNDemos.CheckForDemo(NULL);
 
   Strng encFnFull;
   encFnFull = FnFull;

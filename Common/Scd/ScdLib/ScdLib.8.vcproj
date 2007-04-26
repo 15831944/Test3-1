@@ -566,10 +566,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Crc32Static.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\DATAATTR.CPP"
 				>
 			</File>
@@ -807,15 +803,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Common.h"
-				>
-			</File>
-			<File
 				RelativePath=".\CommsSrvrBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Crc32Static.h"
 				>
 			</File>
 			<File
@@ -1506,6 +1494,71 @@
 		<Filter
 			Name="Other SCC"
 			>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\Common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\Crc32Static.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Marshal|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\Crc32Static.h"
+				>
+			</File>
 			<File
 				RelativePath=".\vbscript.tlb"
 				>

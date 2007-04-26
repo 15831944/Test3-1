@@ -17,7 +17,8 @@
 #include "badliclocation.h"
 //#include "optoff.h"
 
-#include "crc32static.h"
+#include "..\..\utils\DemoDat\crc32static.h"
+#include "..\..\utils\DemoDat\CalculateDemoKey.h"
 
 #include <iostream>
 #include <fstream>
@@ -3831,40 +3832,7 @@ void CEncryptNDemos::CheckForDemo(char* projectFolder)
     demodat.open(demoFile(), ios::in);
     demodat.read(reinterpret_cast<char *>(&dwCrc32test), sizeof(DWORD));
 
-    DWORD dwCrc32_dxf = 0xD5452A29;
-    DWORD dwCrc32_rct = 0x33CAEEBF;
-    DWORD dwCrc32_pgm = 0x6E5415D4;
-    DWORD dwCrc32_mdb = 0x6A0696B1;
-    DWORD dwCrc32_trn = 0x4F4AEE73;
-    DWORD dwCrc32_dat = 0xDF3297AC;
-
-    DWORD multiplier_dxf = 0x2BAE3564;
-    DWORD multiplier_rct = 0x76777938;
-    DWORD multiplier_pgm = 0x2DCD0605;
-    DWORD multiplier_mdb = 0xEFA6BF10;
-    DWORD multiplier_trn = 0xBD367A8F;
-    DWORD multiplier_dat = 0xD4F8A26A;
-
-    CRCFiles(PrjFiles(), ".dxf", dwCrc32_dxf);
-    CRCFiles(PrjFiles(), ".rct", dwCrc32_rct);
-    CRCFiles(PrjFiles(), ".pgm", dwCrc32_pgm);
-    CRCFiles(PrjFiles(), ".mdb", dwCrc32_mdb);
-    CRCFiles(PrjFiles(), ".trn", dwCrc32_trn);
-    CRCFiles(PrjFiles(), ".dat", dwCrc32_dat);
-
-    CRCFiles(PrjFiles(), ".dxf.x", dwCrc32_dxf);
-    CRCFiles(PrjFiles(), ".rct.x", dwCrc32_rct);
-    CRCFiles(PrjFiles(), ".pgm.x", dwCrc32_pgm);
-    CRCFiles(PrjFiles(), ".mdb.x", dwCrc32_mdb);
-    CRCFiles(PrjFiles(), ".trn.x", dwCrc32_trn);
-    CRCFiles(PrjFiles(), ".dat.x", dwCrc32_dat);
-
-    DWORD dwCrc32 =    dwCrc32_dxf * multiplier_dxf
-                     ^ dwCrc32_rct * multiplier_rct
-                     ^ dwCrc32_pgm * multiplier_pgm
-                     ^ dwCrc32_mdb * multiplier_mdb
-                     ^ dwCrc32_trn * multiplier_trn
-                     ^ dwCrc32_dat * multiplier_dat;
+    DWORD dwCrc32 = CalculateDemoKey::DoCalculateDemoKey(PrjFiles());
 
     if (dwCrc32==dwCrc32test)
       isDemo = true;

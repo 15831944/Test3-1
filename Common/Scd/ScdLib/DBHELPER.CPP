@@ -22,9 +22,9 @@ static char THIS_FILE[] = __FILE__;
 static CDBConnect ls_DBConnects[]=
   {
     {"Access 97",     "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';",
-                      "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';Jet OLEDB:Engine Type=4"},
+                      "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';Jet OLEDB:Engine Type=4;"},
     {"Access 2000",   "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';",
-                      "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';Jet OLEDB:Engine Type=5"},
+                      "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';Jet OLEDB:Engine Type=5;"},
     {"Excel",         "Provider='Microsoft.JET.OLEDB.4.0';Data source = '%s';",
                       "Provider='Microsoft.Jet.OLEDB.4.0';Data Source = '%s';Extended Properties = 'Excel 8.0';" /*HDR=No;*/},
   };
