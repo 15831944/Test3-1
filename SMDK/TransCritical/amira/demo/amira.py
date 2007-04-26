@@ -19,10 +19,10 @@ import entry
 
 from ctypes import *
 try:
-    alib = CDLL('amira')
-except:
-    WindowsError, err
-
+    alib = WinDLL('amiraxl')
+except WindowsError, err:
+    print "cant find dll"
+    
 
 s1Entries = [
     ["Temperature", "C", "100."],

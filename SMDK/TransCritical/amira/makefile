@@ -23,3 +23,5 @@ lib:
 exceldll:
 	g77 -shared -mrtd -o amiraxl.dll bayer.for
 	cp amiraxl.dll "c:/program files/microsoft office/office"
+	cp amiraxl.dll "c:/windows/system32"
+	cp amiraxl.dll "c:/devel/python"
