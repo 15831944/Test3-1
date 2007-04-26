@@ -571,6 +571,13 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
     void            Open(long TagCount);
     //Disable and stop TagIO subscription
     void            Close();
+    //return count of IO tags
+    long            getCount();
+    //sets/return Active state of IO tags
+    bool            getActive();
+    //return count of IO tags
+    void            putActive(bool On);
+    
     // must used in ValidateDataFields - returns false when TagIOValidation must NOT occur
     bool            ValidateReqd();
     // must used to bracket Sets' etc
@@ -580,8 +587,6 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
     MTagIOItem    * operator[](int ID);
     MTagIOItem    * operator[](LPCSTR TagStr);
 
-    //return count of IO tags
-    long            getCount();
     //add an IO tag, return index ID if OK, -ve number if error; Options=MTIO_Get, etc; tag values will be in SI units
     long            Set(long ID, LPCSTR Tag, LPCSTR Name, long Options);
     //remove all tags in IO list
@@ -595,6 +600,7 @@ class DllImportExport MTagIO : public MBaseMethodCommonRef
     bool            Remove(long ID);
 
     __declspec(property(get=getCount))                          long       Count;
+    __declspec(property(get=getActive,put=putActive))           bool       Active;
 
 
   protected:

@@ -40,18 +40,12 @@ CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitD
   //default values...
   m_bOn       = true;
 
-  m_dGetValue = 0.0;//dNAN;
+  m_dGetValue = 0.0;
   m_dSetValue = 0.0;
 
-
-  m_bSubsActive = false;
-  m_bBuildListRqd = true;
-  m_dGetValueSubs1 = 0.0;//dNAN;
-  m_dGetValueSubs2 = 0.0;//dNAN;
+  m_dGetValueSubs1 = 0.0;
+  m_dGetValueSubs2 = 0.0;
   m_dSetValueSubs1 = 0.0;
-  //m_iGet1 = -1;
-  //m_iGet2 = -1;
-  //m_iSet1 = -1;
 
   TagIO.Open(3);
   }
@@ -261,18 +255,8 @@ bool CTagIO::ExchangeDataFields()
 
     case idDX_TagSubscriptionOn:
       if (DX.HasReqdValue)
-        {
-        bool Prev = m_bSubsActive;
-        m_bSubsActive = DX.Bool;
-        if (m_bSubsActive)
-          {
-          if (Prev!=m_bSubsActive)
-            m_bBuildListRqd = true;
-          }
-        else
-          TagIO.Close();
-        }
-      DX.Bool=m_bSubsActive;
+        TagIO.Active = DX.Bool;
+      DX.Bool=TagIO.Active;//m_bSubsActive;
       return true;
     case idDX_GetTagSubsStr1:
       if (DX.HasReqdValue)
@@ -298,7 +282,7 @@ bool CTagIO::ExchangeDataFields()
 
 bool CTagIO::ValidateDataFields()
   {
-  if (TagIO.ValidateReqd() && m_bSubsActive)
+  if (TagIO.ValidateReqd())// && m_bSubsActive)
     {
 
     if (TagIO.StartValidateDataFields())
@@ -313,8 +297,7 @@ bool CTagIO::ValidateDataFields()
         }
       }
     TagIO.EndValidateDataFields();
-    
-    m_bBuildListRqd = false;
+   
     }
   return true;
   }
@@ -339,7 +322,7 @@ void CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)
     {
     try
       {
-      if (m_bSubsActive)
+      if (TagIO.Active)//m_bSubsActive)
         {
         //get/set the values
         if (TagIO[0]->IsActive)

@@ -51,27 +51,14 @@ class CTagIO : public MBaseMethod
     MTagIOItem      m_SetItem;
     double          m_dGetValue;
     double          m_dSetValue;
-    //MCnv            m_GetCnv;
-    //MCnv            m_SetCnv;
-    //CString         m_sGetTag;
-    //CString         m_sSetTag;
-    
+
     CString         m_sGetStatus;
     CString         m_sSetStatus;
 
-
     //variables for tag subscription
-    bool            m_bSubsActive;
-    bool            m_bBuildListRqd;
-    //CString         m_sGetTagSubs1;
-    //CString         m_sGetTagSubs2;
-    //CString         m_sSetTagSubs1;
     double          m_dGetValueSubs1;
     double          m_dGetValueSubs2;
     double          m_dSetValueSubs1;
-    //int             m_iGet1;
-    //int             m_iGet2;
-    //int             m_iSet1;
   };
 
 #endif

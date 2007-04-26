@@ -2252,7 +2252,6 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_pProcs      = NULL;
 #endif
 #if WITHNODETAGIO
-  m_TagIOReqd   = false;
   m_pTagIO      = NULL;
   //m_EstTagCount = -1;
 #endif
@@ -2709,7 +2708,7 @@ void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
     m_pProcs->BuildDataDefn(DDB);
 #endif
 #if WITHNODETAGIO
-  if (m_TagIOReqd)
+  if (m_pTagIO)
     m_pTagIO->BuildDataDefn(DDB);
 #endif
   }
@@ -3702,7 +3701,7 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     return 1;
 #endif
 #if WITHNODETAGIO
-  if (m_TagIOReqd && m_pTagIO->DataXchg(DCB))
+  if (m_pTagIO && m_pTagIO->DataXchg(DCB))
     return 1;
 #endif
 
@@ -4159,24 +4158,38 @@ void FlwNode::SetProcsReqd(bool Reqd)
 
 #if WITHNODETAGIO
 
-void FlwNode::SetTagIOReqd(bool Reqd, long MaxTagCount)
+void FlwNode::OpenTagIO(long MaxTagCount)
   {              
-  m_TagIOReqd = Reqd;
-  //if (!m_TagIOReqd || (m_EstTagCount != EstTagCount))
-  //  {
-  //  delete m_pTagIO;
-  //  m_pTagIO=NULL;
-  //  }
-  if (m_TagIOReqd)
+  if (MaxTagCount>0)
     {
     if (m_pTagIO==NULL)
       m_pTagIO = new CNodeTagIOList(this, MaxTagCount);
     else
       m_pTagIO->SetSize(MaxTagCount);
+    m_TagIOActive=true;
     }
-
-  //m_EstTagCount = EstTagCount;
+  else
+    {
+    delete m_pTagIO;
+    m_TagIOActive=false;
+    }
   };
+
+void FlwNode::CloseTagIO()
+  {              
+  delete m_pTagIO;
+  m_TagIOActive=false;
+  };
+
+bool FlwNode::SetTagIOActive(bool On)
+  {
+  if (gs_Exec.Stopped())
+    {
+    m_TagIOActive=On; 
+    return true;
+    };
+  return false;
+  }
 
 #endif
 
@@ -4209,7 +4222,7 @@ flag FlwNode::ValidateData(ValidateDataBlk & VDB)
     OK=false;
 #endif
 #if WITHNODETAGIO
-  if (m_TagIOReqd && !m_pTagIO->ValidateData(VDB))
+  if (m_TagIOActive && !m_pTagIO->ValidateData(VDB))
     OK=false;
 #endif
 
@@ -9945,7 +9958,7 @@ bool FlwNode::TestXRefListActive()
 #elif (WITHNODEPROCS)
   return SetXRefListActive(!GetActiveHold() && (ProcsOn(NPM_Any) && m_pProcs->On())); 
 #elif (WITHNODETAGIO)
-  return SetXRefListActive(!GetActiveHold() && TagIOOn());
+  return SetXRefListActive(!GetActiveHold() && TagIOActive());
 #else
   return false;
 #endif
@@ -9960,7 +9973,7 @@ int FlwNode::UpdateXRefLists(CXRefBuildResults & Results)
     m_pProcs->m_ProcMngr.UpdateXRefLists(Results);
 #endif
 #if WITHNODETAGIO
-  if (TagIOOn())
+  if (TagIOActive())
     m_pTagIO->UpdateXRefLists(Results);
 #endif
   return Results.m_nMissing;
@@ -9975,14 +9988,9 @@ void FlwNode::UnlinkAllXRefs()
     m_pProcs->m_ProcMngr.UnlinkAllXRefs();
 #endif
 #if WITHNODETAGIO
-  if (TagIOOn())
+  if (TagIOActive())
     {
     m_pTagIO->UnlinkAllXRefs();
-    if (!m_TagIOReqd && m_pTagIO)
-      {
-      delete m_pTagIO;
-      m_pTagIO=NULL;
-      }
     }
 #endif
   //PgmMngr.UnlinkAllXRefs();
@@ -10002,7 +10010,7 @@ void FlwNode::BeforeNode(long ProcIDMask)
 #endif
  
 #if WITHNODETAGIO
-  if (TagIOOn())
+  if (TagIOActive())
     m_pTagIO->GetAllValues(true);
 #endif
  }
@@ -10016,7 +10024,7 @@ void FlwNode::BeforeNode(long ProcIDMask)
 void FlwNode::AfterNode(long ProcIDMask)
   {
 #if WITHNODETAGIO
-  if (TagIOOn())
+  if (TagIOActive())
     m_pTagIO->SetAllValues(true);
 #endif
 

@@ -1156,7 +1156,7 @@ LPCSTR MTagIO::ResultString(MTagIOResult Res)
 
 void   MTagIO::Open(long TagCount)                       
   {
-  m_pNd->SetTagIOReqd(true, TagCount);
+  m_pNd->OpenTagIO(TagCount);
   SetSize(TagCount);
   };
 
@@ -1172,8 +1172,19 @@ void MTagIO::SetSize(long TagCount)
 
 void   MTagIO::Close()                                      
   { 
-  m_pNd->SetTagIOReqd(false, 0);      
+  m_pNd->CloseTagIO();      
   };
+
+bool MTagIO::getActive()
+  {
+  return m_pNd->TagIOActive();
+  };
+void MTagIO::putActive(bool On)
+  {
+  m_pNd->SetTagIOActive(On);
+  };
+
+
 bool   MTagIO::ValidateReqd()                                      
   { 
   return m_pNd->m_pTagIO->ValidateReqd();

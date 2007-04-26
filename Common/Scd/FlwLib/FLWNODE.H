@@ -4290,12 +4290,15 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
 #if WITHNODETAGIO
-    void           SetTagIOReqd(bool Reqd, long EstTagCount);
-    bool           GetTagIOReqd()               { return m_TagIOReqd;  };
-    bool           TagIOOn()                    { return m_TagIOReqd && true; };
+    void           OpenTagIO(long EstTagCount);
+    void           CloseTagIO();
+    bool           TagIOActive()                    { return m_pTagIO && m_TagIOActive; };
+    bool           SetTagIOActive(bool On);
 #else
-    bool           GetTagIOReqd()               { return false; };
-    bool           TagIOOn()                    { return false; };
+    void           OpenTagIO(long EstTagCount)      { };
+    void           CloseTagIO()                     { };
+    bool           TagIOActive()                    { return false; };
+    bool           SetTagIOActive(bool On)          { };
 #endif
 
 #if (WITHNODEPROCS || WITHNODETAGIO)
@@ -4469,8 +4472,8 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
 #if WITHNODETAGIO
-    bool              m_TagIOReqd;   // 
     CNodeTagIOList  * m_pTagIO;
+    bool              m_TagIOActive;
     //long              m_EstTagCount;
 #endif
 
