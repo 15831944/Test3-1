@@ -3776,8 +3776,8 @@ void CRCFiles(char* folder, char* extension, DWORD &dwCrc32)
 {
   size_t len = strlen(folder)+4;
   char* Tmp= new char[len];
-  strcpy_s(Tmp, len, folder);
-  strcat_s(Tmp, len, "*.*");
+  strcpy(Tmp, folder);
+  strcat(Tmp, "*.*");
 
   WIN32_FIND_DATA fd;
   HANDLE H = FindFirstFile(Tmp, &fd);
@@ -3790,9 +3790,9 @@ void CRCFiles(char* folder, char* extension, DWORD &dwCrc32)
       {
         size_t len = strlen(folder)+strlen(fd.cFileName)+2;
         char* temp = new char[len];
-        strcpy_s(temp, len, folder);
-        strcat_s(temp, len, fd.cFileName);
-        strcat_s(temp, len, "\\");
+        strcpy(temp, folder);
+        strcat(temp, fd.cFileName);
+        strcat(temp, "\\");
         CRCFiles(temp, extension, dwCrc32);
       }
     }
@@ -3800,14 +3800,14 @@ void CRCFiles(char* folder, char* extension, DWORD &dwCrc32)
     {
       size_t len = strlen(extension)+1;
       char* temp = new char[len];
-      strcpy_s(temp, len, &fd.cFileName[strlen(fd.cFileName)-strlen(extension)]);
-      _strlwr_s(temp, len);
+      strcpy(temp, &fd.cFileName[strlen(fd.cFileName)-strlen(extension)]);
+      _strlwr(temp);
       if (_stricmp(temp, extension)==0)
       {
         size_t len = strlen(folder)+strlen(fd.cFileName)+2;
         char* Tmp = new char[len];
-        strcpy_s(Tmp, len, folder);
-        strcat_s(Tmp, len, fd.cFileName);
+        strcpy(Tmp, folder);
+        strcat(Tmp, fd.cFileName);
 
         CCrc32Static::FileCrc32Streams(Tmp, dwCrc32);
       }
