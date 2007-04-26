@@ -28,7 +28,6 @@ namespace Encrypt
         /// </summary>
         private void InitializeComponent()
         {
-          this.ProgressBar = new System.Windows.Forms.ProgressBar();
           this.EncryptProjectButton = new System.Windows.Forms.Button();
           this.CreateBackupCheckBox = new System.Windows.Forms.CheckBox();
           this.EncryptPGMFilesCheckBox = new System.Windows.Forms.CheckBox();
@@ -39,29 +38,18 @@ namespace Encrypt
           this.EncryptGroupBox = new System.Windows.Forms.GroupBox();
           this.StatusStrip = new System.Windows.Forms.StatusStrip();
           this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+          this.ProgressToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
           this.EncryptGroupBox.SuspendLayout();
           this.StatusStrip.SuspendLayout();
           this.SuspendLayout();
-          // 
-          // ProgressBar
-          // 
-          this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                      | System.Windows.Forms.AnchorStyles.Right)));
-          this.ProgressBar.Location = new System.Drawing.Point(12, 254);
-          this.ProgressBar.Maximum = 0;
-          this.ProgressBar.Name = "ProgressBar";
-          this.ProgressBar.Size = new System.Drawing.Size(476, 11);
-          this.ProgressBar.Step = 1;
-          this.ProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-          this.ProgressBar.TabIndex = 0;
           // 
           // EncryptProjectButton
           // 
           this.EncryptProjectButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
-          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 209);
+          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 180);
           this.EncryptProjectButton.Name = "EncryptProjectButton";
-          this.EncryptProjectButton.Size = new System.Drawing.Size(476, 23);
+          this.EncryptProjectButton.Size = new System.Drawing.Size(380, 23);
           this.EncryptProjectButton.TabIndex = 1;
           this.EncryptProjectButton.Text = "Encrypt Project";
           this.EncryptProjectButton.UseVisualStyleBackColor = true;
@@ -72,7 +60,7 @@ namespace Encrypt
           this.CreateBackupCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
           this.CreateBackupCheckBox.Checked = true;
           this.CreateBackupCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-          this.CreateBackupCheckBox.Location = new System.Drawing.Point(391, 28);
+          this.CreateBackupCheckBox.Location = new System.Drawing.Point(295, 28);
           this.CreateBackupCheckBox.Name = "CreateBackupCheckBox";
           this.CreateBackupCheckBox.Size = new System.Drawing.Size(97, 17);
           this.CreateBackupCheckBox.TabIndex = 2;
@@ -121,9 +109,9 @@ namespace Encrypt
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectListBox.FormattingEnabled = true;
           this.ProjectListBox.HorizontalScrollbar = true;
-          this.ProjectListBox.Location = new System.Drawing.Point(12, 108);
+          this.ProjectListBox.Location = new System.Drawing.Point(12, 79);
           this.ProjectListBox.Name = "ProjectListBox";
-          this.ProjectListBox.Size = new System.Drawing.Size(476, 95);
+          this.ProjectListBox.Size = new System.Drawing.Size(380, 95);
           this.ProjectListBox.TabIndex = 6;
           this.ProjectListBox.DoubleClick += new System.EventHandler(this.ProjectListBox_DoubleClick);
           // 
@@ -132,7 +120,7 @@ namespace Encrypt
           this.ProjectsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectsLabel.AutoSize = true;
-          this.ProjectsLabel.Location = new System.Drawing.Point(12, 92);
+          this.ProjectsLabel.Location = new System.Drawing.Point(12, 63);
           this.ProjectsLabel.Name = "ProjectsLabel";
           this.ProjectsLabel.Size = new System.Drawing.Size(48, 13);
           this.ProjectsLabel.TabIndex = 7;
@@ -153,10 +141,11 @@ namespace Encrypt
           // StatusStrip
           // 
           this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ProgressToolStripProgressBar,
             this.toolStripStatusLabel1});
-          this.StatusStrip.Location = new System.Drawing.Point(0, 269);
+          this.StatusStrip.Location = new System.Drawing.Point(0, 206);
           this.StatusStrip.Name = "StatusStrip";
-          this.StatusStrip.Size = new System.Drawing.Size(500, 22);
+          this.StatusStrip.Size = new System.Drawing.Size(404, 22);
           this.StatusStrip.SizingGrip = false;
           this.StatusStrip.TabIndex = 10;
           // 
@@ -165,18 +154,24 @@ namespace Encrypt
           this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
           this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
           // 
+          // ProgressToolStripProgressBar
+          // 
+          this.ProgressToolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+          this.ProgressToolStripProgressBar.Name = "ProgressToolStripProgressBar";
+          this.ProgressToolStripProgressBar.Size = new System.Drawing.Size(100, 16);
+          this.ProgressToolStripProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+          // 
           // EncryptProjectForm
           // 
           this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
           this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-          this.ClientSize = new System.Drawing.Size(500, 291);
+          this.ClientSize = new System.Drawing.Size(404, 228);
           this.Controls.Add(this.StatusStrip);
           this.Controls.Add(this.EncryptGroupBox);
           this.Controls.Add(this.ProjectsLabel);
           this.Controls.Add(this.ProjectListBox);
           this.Controls.Add(this.CreateBackupCheckBox);
           this.Controls.Add(this.EncryptProjectButton);
-          this.Controls.Add(this.ProgressBar);
           this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
           this.Name = "EncryptProjectForm";
           this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -193,8 +188,7 @@ namespace Encrypt
 
         #endregion
 
-      private System.Windows.Forms.ProgressBar ProgressBar;
-      private System.Windows.Forms.Button EncryptProjectButton;
+        private System.Windows.Forms.Button EncryptProjectButton;
       private System.Windows.Forms.CheckBox CreateBackupCheckBox;
       private System.Windows.Forms.CheckBox EncryptPGMFilesCheckBox;
       private System.Windows.Forms.CheckBox EncryptRCTFilesCheckBox;
@@ -204,6 +198,7 @@ namespace Encrypt
       private System.Windows.Forms.GroupBox EncryptGroupBox;
       private System.Windows.Forms.StatusStrip StatusStrip;
       private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+      private System.Windows.Forms.ToolStripProgressBar ProgressToolStripProgressBar;
     }
 }
 

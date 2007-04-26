@@ -66,10 +66,10 @@ namespace Encrypt
           DirectoryInfo original = new DirectoryInfo(path);
           DirectoryInfo backup = new DirectoryInfo(path + ".backup");
 
-          ProgressBar.Style = ProgressBarStyle.Marquee;
+          ProgressToolStripProgressBar.Style = ProgressBarStyle.Marquee;
           try { CopyBackup(original, backup); }
           catch { MessageBox.Show("Backup failed, cancelling encrypt."); backupFailed = true; }
-          ProgressBar.Style = ProgressBarStyle.Continuous;
+          ProgressToolStripProgressBar.Style = ProgressBarStyle.Continuous;
         }
 
         if ((isProjectFolder)&&(!backupFailed))
@@ -133,24 +133,24 @@ namespace Encrypt
           ProjectListBox.Items.Add("Other...");
           ProjectListBox.SelectedIndex = 0;
 
-          ProgressBar.Value = 0;
+          ProgressToolStripProgressBar.Value = 0;
 
           ArrayList files = new ArrayList();
 
           GetFiles(path, files);
 
-          ProgressBar.Minimum = 0;
-          ProgressBar.Maximum = files.Count + 1;
-          ProgressBar.Value = 1;
+          ProgressToolStripProgressBar.Minimum = 0;
+          ProgressToolStripProgressBar.Maximum = files.Count + 1;
+          ProgressToolStripProgressBar.Value = 1;
 
           foreach (string file in files)
           {
             Encrypt(file);
-            ProgressBar.Value++;
+            ProgressToolStripProgressBar.Value++;
             toolStripStatusLabel1.Text = "Encrypting " + file;
           }
 
-          ProgressBar.Value = 0;
+          ProgressToolStripProgressBar.Value = 0;
           toolStripStatusLabel1.Text = "Completed:  " + numberPGM + " PGM Files, "
                                                       + numberRCT + " RCT Files, "
                                                       + numberDXF + " DXF Files.";
@@ -168,7 +168,6 @@ namespace Encrypt
       foreach (FileInfo file in original.GetFiles())
       {
         file.CopyTo(Path.Combine(backup.ToString(), file.Name), true);
-        ProgressBar.PerformLayout();
       }
 
       foreach (DirectoryInfo directory in original.GetDirectories())
