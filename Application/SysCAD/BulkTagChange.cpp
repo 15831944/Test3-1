@@ -247,13 +247,19 @@ BOOL CBTCItem::PageChecked()
   return false;
   }
 
-BOOL CBTCItem::SetReqd(bool IgnoreCheck)
+BOOL CBTCItem::SetReqd(BOOL UnChecked, BOOL UnSelected, BOOL UnMarked)
   {
-  return ((m_Checked || IgnoreCheck) &&
-    m_pClassId->m_Checked && 
-    (!m_Dlg.m_AndMarked || m_Marked) && 
-    m_Selected &&
-    PageChecked()); 
+  return 
+    (
+    (m_Checked || UnChecked) &&
+    (!m_Dlg.m_AndMarked || m_Marked || UnMarked) && 
+    ((m_pClassId->m_Checked && PageChecked() && m_Selected) || UnSelected)
+    ); 
+  };
+
+BOOL CBTCItem::ShowIt()
+  {
+  return SetReqd(m_Dlg.m_ShowUnChecked, m_Dlg.m_ShowUnSelected, m_Dlg.m_ShowUnMarked);
   };
 
 void CBTCItem::SaveSetReqd()
@@ -298,13 +304,6 @@ void CBTCItem::ChangeSetReqd(eDoItTerms Term, BOOL On)
     }
   };
 
-BOOL CBTCItem::ShowIt()
-  {
-  //return m_Dlg.m_ShowAllTags || SetReqd();
-  return (m_Marked || m_Dlg.m_ShowUnMarked) && 
-         (m_Checked || m_Dlg.m_ShowUnChecked) && 
-         (m_Selected || m_Dlg.m_ShowUnSelected);//SetReqd();
-  };
 
 // ==========================================================================
 

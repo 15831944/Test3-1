@@ -548,6 +548,9 @@
 				RelativePath=".\BadLicLocation.cpp">
 			</File>
 			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.cpp">
+			</File>
+			<File
 				RelativePath=".\CBSPLINE.CPP">
 			</File>
 			<File
@@ -569,7 +572,7 @@
 				RelativePath=".\CommsSrvrBase.cpp">
 			</File>
 			<File
-				RelativePath=".\Crc32Static.cpp">
+				RelativePath="..\..\..\Utils\DemoDat\Crc32Static.cpp">
 			</File>
 			<File
 				RelativePath=".\DATAATTR.CPP">
@@ -726,6 +729,9 @@
 				RelativePath=".\BadLicLocation.h">
 			</File>
 			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.h">
+			</File>
+			<File
 				RelativePath=".\CbSpline.h">
 			</File>
 			<File
@@ -744,13 +750,13 @@
 				RelativePath=".\CnvFormatDlg.h">
 			</File>
 			<File
-				RelativePath=".\Common.h">
+				RelativePath="..\..\..\Utils\DemoDat\Common.h">
 			</File>
 			<File
 				RelativePath=".\CommsSrvrBase.h">
 			</File>
 			<File
-				RelativePath=".\Crc32Static.h">
+				RelativePath="..\..\..\Utils\DemoDat\Crc32Static.h">
 			</File>
 			<File
 				RelativePath=".\DataAttr.H">

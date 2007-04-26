@@ -56,7 +56,7 @@ class CBTCItem : public CBTCRepSeq
 
 
     BOOL        PageChecked();
-    BOOL        SetReqd(bool IgnoreCheck=false);
+    BOOL        SetReqd(BOOL UnChecked=false, BOOL UnSelected=false, BOOL UnMarked=false);
     void        ChangeSetReqd(eDoItTerms Term, BOOL On);
     void        SaveSetReqd();
     void        TestSetReqd();
