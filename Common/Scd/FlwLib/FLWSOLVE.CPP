@@ -10005,6 +10005,12 @@ flag CFlwSolver::Term()
       }
     }
 
+  // CHeck all connects removed
+  if (FlwNode::sm_ConnectsMap.GetCount()>0)
+    {
+    dbgpln("Connects: %i NOT REMOVED", FlwNode::sm_ConnectsMap.GetCount());
+    }
+
   m_pPlantArea=NULL;
 
   SfeInitClass* p=SfeInitClass::First();

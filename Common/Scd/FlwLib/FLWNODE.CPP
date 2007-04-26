@@ -368,23 +368,52 @@ pchar FlwNode::Tag(pchar ReqdTag)
 
 //--------------------------------------------------------------------------
 
+#define DBGCONNECTS 0
+
 void FlwNode::RemoveFromConnects(LPSTR ConnTag)
   {
   if (ConnTag)
     {
+#if DBGCONNECTS
+    CConnectsMap::CPair *pX=sm_ConnectsMap.PLookup(ConnTag);
+    dbgpln("Connects::Rem[%5i] @0x%08x %s", sm_ConnectsMap.GetCount()-1, pX, ConnTag);
+#endif
+
     sm_ConnectsMap.RemoveKey(ConnTag);
-    dbgpln("<<<Connects: %s", ConnTag);
+
+#if DBGCONNECTS
+    if (FlwNode::sm_ConnectsMap.GetCount()<10)
+      {
+      dbgp("Connects TOGO:");
+      CConnectsMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
+      while (pX)
+        {
+        dbgp(", @0x%08x %s", pX, pX->key);
+        pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
+        }
+      dbgpln("");
+      }
+#endif
     }
   }; 
+
 void FlwNode::AddToConnects(LPSTR ConnTag, CConnect * pConnect)
   {
+#if DBGCONNECTS
   if (sm_ConnectsMap.GetHashTableSize()<1000)
     {
+    dbgpln("Connects::INITHASHTABLE");
     //sm_Connects.SetSize(0, 256);
     sm_ConnectsMap.InitHashTable(5001);
     }
+#endif
   sm_ConnectsMap.SetAt(ConnTag, pConnect);
-  dbgpln(">>>Connects: %s", ConnTag);
+  
+#if DBGCONNECTS
+  CConnectsMap::CPair *pX=sm_ConnectsMap.PLookup(ConnTag);
+  dbgpln("Connects::Add[%5i] @0x%08x %s", sm_ConnectsMap.GetCount()-1, pX, ConnTag);
+#endif
+
   }; 
 
 //--------------------------------------------------------------------------
@@ -6334,11 +6363,14 @@ int FlwNode::Connect(IOInfo &Info1, IOInfo &Info2, CFlange* pF, CTerminal * pT, 
 CFlange* FlwNode::DisConnect(int IONo)
   {
   CFlange* pF = IOFlange(IONo);
-  FlwNode* Rmt = Nd_Rmt(IONo);
- 
   if (pF)
     pF->ClrConnection();
 
+  CTerminal *pT=Ctrl_Terminal(IONo);
+  if (pT)
+    pT->ClrConnection();
+
+  FlwNode* Rmt = Nd_Rmt(IONo);
   if (Rmt)
     {
     int RmtIONo=IOIONo_Rmt(IONo);
