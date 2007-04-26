@@ -165,7 +165,7 @@ flag CTokenFile::Open()
   else
     Fn=FnO;
 
-  FnFull.FnSearchExpand(Fn(), m_bPlaces);
+  FnFull.FnSearchExpand(Fn(), m_bPlaces, AF_PrjFiles);
   Fn.FnContract();
 
   m_AllFileNames[m_IncFileCnt++] = Fn();

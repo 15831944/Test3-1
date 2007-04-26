@@ -19,9 +19,13 @@
 
 #include "crc32static.h"
 
+#include <iostream>
+#include <fstream>
+
 #define dbgLicenseState 0
 #define dbgLicenseTimer 0
 
+using namespace std;
 
 
 #if CK_LICENSINGON
@@ -3768,35 +3772,44 @@ CEncryptNDemos::~CEncryptNDemos()
 {
 }
 
-void CRCFiles(Strng folder, Strng extension, DWORD &dwCrc32)
+void CRCFiles(char* folder, char* extension, DWORD &dwCrc32)
 {
-  Strng Tmp=folder;
-  Tmp+="*.*";
+  size_t len = strlen(folder)+4;
+  char* Tmp= new char[len];
+  strcpy_s(Tmp, len, folder);
+  strcat_s(Tmp, len, "*.*");
 
   WIN32_FIND_DATA fd;
-  HANDLE H = FindFirstFile(Tmp(), &fd);
-  flag AllDone = (H==INVALID_HANDLE_VALUE);
+  HANDLE H = FindFirstFile(Tmp, &fd);
+  bool AllDone = (H==INVALID_HANDLE_VALUE);
   while (!AllDone)
   {
     if ((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0) 
     {
       if ((_stricmp(fd.cFileName, ".")!=0)&&(_stricmp(fd.cFileName, "..")!=0))
       {
-        Strng temp = folder;
-        temp += fd.cFileName;
-        temp += "\\";
-        CRCFiles(temp, extension(), dwCrc32);
+        size_t len = strlen(folder)+strlen(fd.cFileName)+2;
+        char* temp = new char[len];
+        strcpy_s(temp, len, folder);
+        strcat_s(temp, len, fd.cFileName);
+        strcat_s(temp, len, "\\");
+        CRCFiles(temp, extension, dwCrc32);
       }
     }
     else
     {
-      Strng temp = &fd.cFileName[strlen(fd.cFileName)-strlen(extension())];
-      if (_stricmp(temp.Lower(), extension())==0)
+      size_t len = strlen(extension)+1;
+      char* temp = new char[len];
+      strcpy_s(temp, len, &fd.cFileName[strlen(fd.cFileName)-strlen(extension)]);
+      _strlwr_s(temp, len);
+      if (_stricmp(temp, extension)==0)
       {
-        Tmp=folder;
-        Tmp+=fd.cFileName;
+        size_t len = strlen(folder)+strlen(fd.cFileName)+2;
+        char* Tmp = new char[len];
+        strcpy_s(Tmp, len, folder);
+        strcat_s(Tmp, len, fd.cFileName);
 
-        CCrc32Static::FileCrc32Streams(Tmp(), dwCrc32);
+        CCrc32Static::FileCrc32Streams(Tmp, dwCrc32);
       }
     }
     AllDone = !FindNextFile(H, &fd);
@@ -3806,21 +3819,55 @@ void CRCFiles(Strng folder, Strng extension, DWORD &dwCrc32)
 
 void CEncryptNDemos::CheckForDemo(char* projectFolder)
 {
-  if (true) // demo.dat exists
-  {
-    DWORD dwCrc32_dxf = 0xFFFFFF;
-    DWORD dwCrc32_rct = 0xFFFFFF;
-    DWORD dwCrc32_pgm = 0xFFFFFF;
-    DWORD dwCrc32_mdb = 0xFFFFFF;
-    DWORD dwCrc32_trn = 0xFFFFFF;
-    DWORD dwCrc32_dat = 0xFFFFFF;
+  WIN32_FIND_DATA fd;
+  Strng demoFile;
+  demoFile.FnExpand("$Prj\\demo.dat");
 
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dxf", dwCrc32_dxf);
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".rct", dwCrc32_rct);
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".pgm", dwCrc32_pgm);
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".mdb", dwCrc32_mdb);
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".trn", dwCrc32_trn);
-    CRCFiles("C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-01.spf\\", ".dat", dwCrc32_dat);
+  if (FileExists(demoFile(), fd)) // demo.dat exists
+  {
+    DWORD dwCrc32test = 0x00000000;
+
+    ifstream demodat;
+    demodat.open(demoFile(), ios::in);
+    demodat.read(reinterpret_cast<char *>(&dwCrc32test), sizeof(DWORD));
+
+    DWORD dwCrc32_dxf = 0xD5452A29;
+    DWORD dwCrc32_rct = 0x33CAEEBF;
+    DWORD dwCrc32_pgm = 0x6E5415D4;
+    DWORD dwCrc32_mdb = 0x6A0696B1;
+    DWORD dwCrc32_trn = 0x4F4AEE73;
+    DWORD dwCrc32_dat = 0xDF3297AC;
+
+    DWORD multiplier_dxf = 0x2BAE3564;
+    DWORD multiplier_rct = 0x76777938;
+    DWORD multiplier_pgm = 0x2DCD0605;
+    DWORD multiplier_mdb = 0xEFA6BF10;
+    DWORD multiplier_trn = 0xBD367A8F;
+    DWORD multiplier_dat = 0xD4F8A26A;
+
+    CRCFiles(PrjFiles(), ".dxf", dwCrc32_dxf);
+    CRCFiles(PrjFiles(), ".rct", dwCrc32_rct);
+    CRCFiles(PrjFiles(), ".pgm", dwCrc32_pgm);
+    CRCFiles(PrjFiles(), ".mdb", dwCrc32_mdb);
+    CRCFiles(PrjFiles(), ".trn", dwCrc32_trn);
+    CRCFiles(PrjFiles(), ".dat", dwCrc32_dat);
+
+    CRCFiles(PrjFiles(), ".dxf.x", dwCrc32_dxf);
+    CRCFiles(PrjFiles(), ".rct.x", dwCrc32_rct);
+    CRCFiles(PrjFiles(), ".pgm.x", dwCrc32_pgm);
+    CRCFiles(PrjFiles(), ".mdb.x", dwCrc32_mdb);
+    CRCFiles(PrjFiles(), ".trn.x", dwCrc32_trn);
+    CRCFiles(PrjFiles(), ".dat.x", dwCrc32_dat);
+
+    DWORD dwCrc32 =    dwCrc32_dxf * multiplier_dxf
+                     ^ dwCrc32_rct * multiplier_rct
+                     ^ dwCrc32_pgm * multiplier_pgm
+                     ^ dwCrc32_mdb * multiplier_mdb
+                     ^ dwCrc32_trn * multiplier_trn
+                     ^ dwCrc32_dat * multiplier_dat;
+
+    if (dwCrc32==dwCrc32test)
+      isDemo = true;
   }
 }
 
