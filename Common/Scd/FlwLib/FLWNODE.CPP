@@ -785,7 +785,7 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
-  DDB.Object(ConduitIO(), this, "Q");
+  DDB.Object(ConduitIO(), this, "Qo"); //Name this 'Qo' instead of ('Q') so that it is same as pipe.Qo (Useful for mixed report of streams and flange models)
   DDB.EndStruct();
   };
 

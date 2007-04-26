@@ -2821,10 +2821,17 @@ Build 123 : 21 February 2007
 1663 23/04/07: (#819) Fix for project merge for duplicate tags.
 1665 23/04/07: (#820) Display warning message when density correction limit assumed.
 1666 24/04/07: (#815) Fix for edit PGM after project save-version or save-as.
+1674 24/04/07: (#813) Improved SMDK tables for access window.
+1675 24/04/07: (#817) Improved visibility for makeup demand to show src & dst demand.
+1676 24/04/07: Changed names of individual phases (Solids-->Solid, etc)
+1684 25/04/07: Cursor fixes for Vista.
+1687 25/04/07: (#810) Improved Direct IO visibility (access window)
+1692 23/04/07: (#798) Encryption of pgm, etc updated.
+1695 25/04/07: (#810) Tweak direct IO visibility (access window)
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1666
+#define SCD_PATCH_SVN    1695
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*
