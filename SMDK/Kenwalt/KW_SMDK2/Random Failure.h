@@ -27,13 +27,16 @@ enum PDFType { PDFType_Constant, PDFType_Exponential, PDFType_Normal };
 struct FailureVariables
   {
   public:
+	FailureVariables(MTagIO& TagIO);
+	~FailureVariables();
+
     double dAvgDowntime, dDowntimeStdDev;
 	double dAvgUptime, dUptimeStdDev;
     CString sDescription;
     PDFType eFailureType;
 	PDFType eRepairType;
 
-	CString sTag; int nTagID;
+	MTagIOItem* tagItem;
 	double dOnValue, dOffValue;
     
 	double dNextFailure;	//When the task will next fail
@@ -66,14 +69,15 @@ class RandomFailure : public MBaseMethod
     bool bOn;
 
     double dCurrentTime;
-    std::vector<FailureVariables> tasks;
+    std::vector<FailureVariables*> tasks;
 
     void SetSize(long size);
 	void Reset();
 	void RevalidateDataFields();
+	bool CheckTags();
 
-	void FailItem(FailureVariables* task);
-	void RepairItem(FailureVariables* task);
+	void FailItem(FailureVariables& task);
+	void RepairItem(FailureVariables& task);
 	double CalculateEvent(PDFType ePDF, double dAverage, double dStdDev);
   };
 

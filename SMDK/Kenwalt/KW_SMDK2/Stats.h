@@ -52,8 +52,7 @@ class SingleVarStats : public MBaseMethod
   protected:
     bool bOn;
 
-    CString sTag;
-	long lTagID;
+    MTagIOItem tagItem;
 	double dHistoMin;
 	double dHistoMax;
 	long lHistoCount;

@@ -28,12 +28,11 @@ void SingleVarStats_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
+SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
+	tagItem(TagIO)
 {
 	//default values...
-	lTagID = -1;
 	bOn = true;
-	sTag = "";
 	dHistoMin = 0;
 	dHistoMax = 0;
 	lHistoCount = 10;
@@ -43,8 +42,6 @@ SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 	pHistoBucketCounts = NULL;
 
 	Reset();
-
-	TagIO.Open(20);
 }
 
 //---------------------------------------------------------------------------
@@ -57,7 +54,11 @@ void SingleVarStats::Init()
 
 bool SingleVarStats::PreStartCheck()
 {
-	return true;
+	if (!tagItem.IsGet)
+	{
+		m_sErrorMsg = "Cannot get tag";
+		return false;
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -149,23 +150,10 @@ bool SingleVarStats::ExchangeDataFields()
 	case (idDX_Tag):
 		if (DX.HasReqdValue)
 		{
-			sTag = DX.String;
-
-			int curTag = TagIO.FindTag(DX.String);
-			if (curTag >= 0)
-			{
-				DX.String = sTag;
-				return true;
-			}
-			else
-			{
-				if (lTagID >= 0)
-					TagIO.Remove(lTagID);
-				lTagID = TagIO.Set(-1, DX.String, "TagToGet", MTagIO_Get);
-			}
+			tagItem.Tag = DX.String;
 			Reset();
 		}
-		DX.String = sTag;
+		DX.String = tagItem.Tag;
 		return true;
 	case (idDX_Reset):
 		if (DX.HasReqdValue && DX.Bool == true)
@@ -225,7 +213,7 @@ bool SingleVarStats::ValidateDataFields()
 	if (lHistoCount < 1)
 		lHistoCount = 1;
 #ifndef SVS_KEEP_RECORD
-	if (lHistoCount > HI_RES_HISTO / 4)	//Factor of four to stop aliasing effects.
+	if (lHistoCount > HI_RES_HISTO / 4)	//(arbitrary) Factor of four to stop aliasing effects.
 		lHistoCount = HI_RES_HISTO / 4;
 #endif
 	return true;
@@ -235,11 +223,10 @@ void SingleVarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 {
 	try
 	{
-		if (lTagID < 0 || !bOn)
+		if (!tagItem.IsGet || !bOn)
 			return;
-    double dVal = TagIO[lTagID]->DoubleSI;
+		double dVal = tagItem.DoubleSI;
 		RecalculateStats(dVal);
-		//InvalidateHistogram();
 	}
 	catch (MMdlException &ex)
 	{
@@ -322,7 +309,6 @@ void SingleVarStats::RecalculateStats(double newEntry)
 
 void SingleVarStats::RecalculateHistoBuckets()
 {
-	//TODO: Need to keep higher res histogram, and recalculate from that
 	if (pHistoBucketBorders != NULL)
 		delete[] pHistoBucketBorders;
 	if (pHistoBucketCounts != NULL)
@@ -368,8 +354,6 @@ void SingleVarStats::RecalculateHistoBuckets()
 		}
 	}
 #endif
-
-	//InvalidateHistogram();
 }
 
 bool SingleVarStats::GetModelGraphic(CMdlGraphicArray & Grfs)
@@ -488,8 +472,8 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		CString units = TagIO[lTagID]->CnvText;
-		if (lTagID > 0 && strcmp(units, "") != 0)
+		CString units = tagItem.IsGet ? tagItem.CnvText : "";
+		if (strcmp(units, "") != 0)
 			xLabel.Format("Value (%s)", units);
 		else
 			xLabel.Format("Value");

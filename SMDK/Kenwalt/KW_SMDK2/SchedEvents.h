@@ -21,16 +21,16 @@
 
 //---------------------------------------------------------------------------
 
-
 struct MaintVariables
   {
   public:
+	MaintVariables(MTagIO& TagIO);
     double dDesiredDowntime, dDowntime;
     double dDesiredPeriod, dPeriod;
     double dOffset, dNextShutdown;
     CString sDescription;
 
-    CString sTag; int nTagID;
+	MTagIOItem *tagItem;
     double dOnValue, dOffValue;
 
     bool bRunning;
@@ -62,11 +62,12 @@ class ScheduledEvents : public MBaseMethod
     double dCurrentTime;
     bool bForceIntegralPeriod;
     bool bForceIntegralDowntime;
-    std::vector<MaintVariables> tasks;
+    std::vector<MaintVariables*> tasks;
 
     void SetSize(long size);
     void Reset();
-	  void RevalidateParameters();
+	void RevalidateParameters();
+	bool CheckTags();
   };
 
 #endif

@@ -10,6 +10,8 @@
 
 #define MIN(a, b) (a < b ? a : b)
 #define MAX(a, b) (a > b ? a : b)
+#define BOUND(n, lo, hi) (n < lo ? lo : (n > hi ? hi : n))
+
 #define TAG_OK(item) (item.CheckTag() == MTagIO_OK || item.CheckTag() == MTagIO_ReadOnly)
 
 //====================================================================================
@@ -48,13 +50,14 @@ TailingsGraphic::TailingsGraphic(MUnitDefBase * pUnitDef, TaggedObject * pNd) : 
 	vInterpolationHeights.push_back(1);
 	vInterpolationAreas.resize(2, 1);
 	vVolumeLookup.resize(2);
+	SortInterpolationPoints();
 
 	eIntMethod = IM_Linear;
 
 	dFluidLevel = dSolidLevel = dFSA = 0;
 	dFluidMass = dSolidMass = 0;
 
-	RecalculateVolumes();
+	RecalculateVolumes(); //This is called simply to ensure that it has been called once, and so the arrays are in the proper state for any other function.
 }
 
 //---------------------------------------------------------------------------
@@ -67,7 +70,14 @@ void TailingsGraphic::Init()
 
 bool TailingsGraphic::PreStartCheck()
 {
-	return true;
+	RecalculateVolumes();
+	if (!RecalculateLevels())
+	{
+		m_sErrorMsg = "Invalid Tank Name";
+		return false;
+	}
+	else
+		return true;
 }
 
 //---------------------------------------------------------------------------
@@ -144,7 +154,7 @@ bool TailingsGraphic::ExchangeDataFields()
 				vInterpolationHeights.at(DX.Handle - idDX_InterpolationHeight) = 0;
 			else
 				vInterpolationHeights.at(DX.Handle - idDX_InterpolationHeight) = DX.Double;
-			//SortInterpolationPoints();
+			SortInterpolationPoints();
 			RecalculateVolumes();
 			RecalculateLevels();
 		}
@@ -159,6 +169,7 @@ bool TailingsGraphic::ExchangeDataFields()
 				vInterpolationAreas.at(DX.Handle - idDX_InterpolationArea) = 0;
 			else
 				vInterpolationAreas.at(DX.Handle - idDX_InterpolationArea) = DX.Double;
+			SortInterpolationPoints();	//Because an update is needed.
 			RecalculateVolumes();
 			RecalculateLevels();
 		}
@@ -193,24 +204,29 @@ bool TailingsGraphic::ValidateDataFields()
 void TailingsGraphic::SortInterpolationPoints()
 {
 	//We need a stable sort of a relatively small dataset, which should not be called too often.
-	//So I think a bubble sort is acceptable.
-	//Given we should only have one element out of place at any point in time, this should work.
 	bool changed = true;
-	while (changed)
-	{
-		changed = false;
-		for (int i = 0; i < nDataPointCount - 1; i++)
-			if (vInterpolationHeights.at(i) > vInterpolationHeights.at(i + 1))
-			{
-				changed = true;
-				double tH = vInterpolationHeights.at(i);
-				vInterpolationHeights.at(i) = vInterpolationHeights.at(i + 1);
-				vInterpolationHeights.at(i + 1) = tH;
+	vSortedHeights.clear();
+	vSortedAreas.clear();
+	
+	vSortedHeights.push_back(0);
+	vSortedAreas.push_back(vInterpolationAreas.at(0));
 
-				double tA = vInterpolationAreas.at(i);
-				vInterpolationAreas.at(i) = vInterpolationAreas.at(i + 1);
-				vInterpolationAreas.at(i + 1) = tA;
-			}
+	//We can use an insertion sort on a vector (even though this is inefficient), since it should be a small dataset, mostly ordered, and a seldom called function.
+	for (int i = 1; i < nDataPointCount; i++)
+	{
+		double h = vInterpolationHeights.at(i),
+			a = vInterpolationAreas.at(i);
+		vector<double>::iterator hIterator = vSortedHeights.begin();
+		vector<double>::iterator aIterator = vSortedAreas.begin();
+		while (hIterator != vSortedHeights.end() && *hIterator <= h)
+		{
+			hIterator++;
+			aIterator++;
+		}
+		/*hIterator--;
+		aIterator--;*/
+		vSortedHeights.insert(hIterator, h);
+		vSortedAreas.insert(aIterator, a);
 	}
 }
 
@@ -238,7 +254,7 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 	switch (Wnd.m_eTask)
 	{
 	case MGT_Create:
-		Wnd.m_pWnd->SetWindowPos(NULL, 0, 0, 300, 150, SWP_NOMOVE | SWP_NOZORDER);
+		Wnd.m_pWnd->SetWindowPos(NULL, 0, 0, 300, 250, SWP_NOMOVE | SWP_NOZORDER);
 		break;
 	case MGT_Size:
 		Wnd.m_pWnd->Invalidate();
@@ -255,31 +271,37 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		CPen penGreen(PS_SOLID, 0, Green);
 		int nTextSize = Wnd.m_TextSize.y;
 		int nBorderSpace = nTextSize;
+		double dFlowFrac = 0.2;
 		double dOverflowFrac = 0.07;
 		double dOutYFrac = 0.15;
 		double dOutXFrac = 0.2;
 
-		CRect rect = Wnd.m_ClientRect;
-		rect.top += nBorderSpace;
-		rect.bottom -= nBorderSpace;
+		CRect topRect = Wnd.m_ClientRect;
+		topRect.left += nBorderSpace; topRect.top += nBorderSpace;
+		topRect.bottom -= nBorderSpace; topRect.right -= nBorderSpace;
+		topRect.bottom = topRect.top + topRect.Height() * dFlowFrac;
 
-		double maxHeight = vInterpolationHeights.back();
+		CRect lowerRect = Wnd.m_ClientRect;
+		lowerRect.top = topRect.bottom;
+		lowerRect.bottom -= nBorderSpace;
+
+		double maxHeight = vSortedHeights.back();
 		if (maxHeight == 0) return true;
 
 		CRect insideRect;
-			insideRect.left = rect.left + rect.Width() * dOutXFrac;
-			insideRect.top = rect.top + rect.Height() * dOverflowFrac;
-			insideRect.right = rect.right - rect.Width() * dOutXFrac;
-			insideRect.bottom = rect.bottom;
+			insideRect.left = lowerRect.left + lowerRect.Width() * dOutXFrac;
+			insideRect.top = lowerRect.top + lowerRect.Height() * dOverflowFrac;
+			insideRect.right = lowerRect.right - lowerRect.Width() * dOutXFrac;
+			insideRect.bottom = lowerRect.bottom;
 
 		//Draw dam shape:
 		int ptCount;
 		POINT* insidePts = GetDamPoints(maxHeight, insideRect, ptCount);
 		POINT* Dam = new POINT[2 + ptCount];
-		Dam[0].x = rect.left; Dam[1 + ptCount].x = rect.right;
-		Dam[0].y = Dam[1 + ptCount].y = rect.top + rect.Height() * (dOverflowFrac + dOutYFrac);
+		Dam[0].x = lowerRect.left; Dam[1 + ptCount].x = lowerRect.right;
+		Dam[0].y = Dam[1 + ptCount].y = lowerRect.top + lowerRect.Height() * (dOverflowFrac + dOutYFrac);
 		memcpy(Dam + 1, insidePts, ptCount * sizeof(POINT));
-		delete[] insidePts; //Do we have to worry about destructors at all?
+		delete[] insidePts;
 		
 		CPen damPen(PS_SOLID, 3, Grey);
 		CPen* oldPen = Wnd.m_pPaintDC->SelectObject(&damPen);
@@ -290,9 +312,17 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SelectObject(nullPen);
 
 		//Draw fluid:
+		BYTE pureR = 172, pureG = 174, pureB = 248;
+		BYTE satR = 255, satG = 0, satB = 0;
 		POINT* fluid = GetDamPoints(dFluidLevel, insideRect, ptCount);
 
-		CBrush fluidBrush(Blue);
+		//A dSatConc of zero means just display pure water...
+		double concFrac = dSatConc >= 0 ? BOUND(dConc / dSatConc, 0, 1) : 0;
+		COLORREF fluidColour = RGB(
+			pureR * (1 - concFrac) + satR * concFrac,
+			pureG * (1 - concFrac) + satG * concFrac,
+			pureB * (1 - concFrac) + satB * concFrac);
+		CBrush fluidBrush(fluidColour);
 		CBrush* oldBrush = Wnd.m_pPaintDC->SelectObject(&fluidBrush);
 		Wnd.m_pPaintDC->Polygon(fluid, ptCount);
 		delete[] fluid;
@@ -309,18 +339,82 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		{
 			Wnd.m_pPaintDC->SelectObject(&fluidBrush);
 			POINT overflowLeft[] = {
-				{rect.left, rect.top + rect.Height() * (dOverflowFrac + dOutYFrac)},
-				{rect.left + rect.Width() * dOutXFrac, rect.top + rect.Height() * dOverflowFrac},
-				{rect.left + rect.Width() * dOutXFrac, rect.top},
-				{rect.left, rect.top + rect.Height() * dOutYFrac}};
+				{lowerRect.left, lowerRect.top + lowerRect.Height() * (dOverflowFrac + dOutYFrac)},
+				{lowerRect.left + lowerRect.Width() * dOutXFrac, lowerRect.top + lowerRect.Height() * dOverflowFrac},
+				{lowerRect.left + lowerRect.Width() * dOutXFrac, lowerRect.top},
+				{lowerRect.left, lowerRect.top + lowerRect.Height() * dOutYFrac}};
 			POINT overflowRight[] = {
-				{rect.right, rect.top + rect.Height() * (dOverflowFrac + dOutYFrac)},
-				{rect.right - rect.Width() * dOutXFrac, rect.top + rect.Height() * dOverflowFrac},
-				{rect.right - rect.Width() * dOutXFrac, rect.top},
-				{rect.right, rect.top + rect.Height() * dOutYFrac}};
+				{lowerRect.right, lowerRect.top + lowerRect.Height() * (dOverflowFrac + dOutYFrac)},
+				{lowerRect.right - lowerRect.Width() * dOutXFrac, lowerRect.top + lowerRect.Height() * dOverflowFrac},
+				{lowerRect.right - lowerRect.Width() * dOutXFrac, lowerRect.top},
+				{lowerRect.right, lowerRect.top + lowerRect.Height() * dOutYFrac}};
 				Wnd.m_pPaintDC->Polygon(overflowLeft, 4);
 				Wnd.m_pPaintDC->Polygon(overflowRight, 4);
 		}*/
+
+		//Draw arrows:
+		int nArrowSize = 8;
+		//Evaporation:
+		CPen arrowPen(PS_SOLID, 2, Blue);
+		Wnd.m_pPaintDC->SelectObject(arrowPen);
+		if (dRainRate > 0)
+		{
+			for (int i = 1; i < 4; i++)
+			{
+				POINT Arrow1[] = {
+					{topRect.left + i * topRect.Width() / 10, topRect.top},
+					{topRect.left + (i + 1) * topRect.Width() / 10, topRect.bottom}};
+				POINT Arrow2[] = {
+					{topRect.left + (i + 1) * topRect.Width() / 10 - nArrowSize + 1, topRect.bottom},
+					{topRect.left + (i + 1) * topRect.Width() / 10 + 1, topRect.bottom},
+					{topRect.left + (i + 1) * topRect.Width() / 10 + 1, topRect.bottom - nArrowSize}};
+
+				Wnd.m_pPaintDC->Polyline(Arrow1, 2);
+				Wnd.m_pPaintDC->Polyline(Arrow2, 3);
+			}
+			Wnd.m_pPaintDC->SetTextAlign(TA_CENTER | TA_TOP);
+			CString rainString;
+			rainString.Format("Rainfall: %.2f kg/s", dRainRate);
+			CSize txtSize = Wnd.m_pPaintDC->GetTextExtent(rainString);
+			Wnd.m_pPaintDC->FillSolidRect(
+				topRect.left + topRect.Width() / 4 - txtSize.cx / 2 - 1,
+				topRect.CenterPoint().y - nTextSize / 2 - 1,
+				txtSize.cx + 2, txtSize.cy + 2,
+				Black);
+			Wnd.m_pPaintDC->TextOut(
+				topRect.left + topRect.Width() / 4,
+				topRect.CenterPoint().y - nTextSize / 2,
+				rainString);
+		}
+		if (dEvapRate > 0)
+		{
+			for (int i = 6; i < 9; i++)
+			{
+				POINT Arrow1[] = {
+					{topRect.left + i * topRect.Width() / 10, topRect.bottom},
+					{topRect.left + (i + 1) * topRect.Width() / 10, topRect.top}};
+				POINT Arrow2[] = {
+					{topRect.left + (i + 1) * topRect.Width() / 10 - nArrowSize + 1, topRect.top},
+					{topRect.left + (i + 1) * topRect.Width() / 10 + 1, topRect.top},
+					{topRect.left + (i + 1) * topRect.Width() / 10 + 1, topRect.top + nArrowSize}};
+
+				Wnd.m_pPaintDC->Polyline(Arrow1, 2);
+				Wnd.m_pPaintDC->Polyline(Arrow2, 3);
+			}
+			Wnd.m_pPaintDC->SetTextAlign(TA_CENTER | TA_TOP);
+			CString evapString;
+			evapString.Format("Evaporation: %.2f kg/s", dEvapRate);
+			CSize txtSize = Wnd.m_pPaintDC->GetTextExtent(evapString);
+			Wnd.m_pPaintDC->FillSolidRect(
+				topRect.left + 3 * topRect.Width() / 4 - txtSize.cx / 2 - 1,
+				topRect.CenterPoint().y - nTextSize / 2 - 1,
+				txtSize.cx + 2, txtSize.cy + 2,
+				Black);
+			Wnd.m_pPaintDC->TextOut(
+				topRect.left + 3 * topRect.Width() / 4,
+				topRect.CenterPoint().y - nTextSize / 2,
+				evapString);
+		}
 
 		Wnd.m_pPaintDC->SelectObject(oldBrush);
 		Wnd.m_pPaintDC->SelectObject(oldPen);
@@ -330,12 +424,12 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 POINT* TailingsGraphic::GetDamPoints(double damHeight, CRect insideRect, int& ptCount)
 {
-	double maxHeight = vInterpolationHeights.back();
+	double maxHeight = vSortedHeights.back();
 	
 	double maxArea = 0;
 	for (int i = 0; i < nDataPointCount; i++)
-		if (vInterpolationAreas.at(i) > maxArea)
-			maxArea = vInterpolationAreas.at(i);
+		if (vSortedAreas.at(i) > maxArea)
+			maxArea = vSortedAreas.at(i);
 	if (maxArea == 0)
 	{
 		POINT* nullRet = new POINT[2];
@@ -347,7 +441,7 @@ POINT* TailingsGraphic::GetDamPoints(double damHeight, CRect insideRect, int& pt
 	}
 
 	int c = 0;
-	while (damHeight > vInterpolationHeights.at(c))
+	while (damHeight > vSortedHeights.at(c))
 		c++;
 	c++;
 	
@@ -356,10 +450,10 @@ POINT* TailingsGraphic::GetDamPoints(double damHeight, CRect insideRect, int& pt
 
 	for (int i = 0; i < c; i++)
 	{
-		int Afactor = 0.5 * insideRect.Width() * vInterpolationAreas.at(i) / maxArea;
+		int Afactor = 0.5 * insideRect.Width() * vSortedAreas.at(i) / maxArea;
 		ret[c - 1 - i].x = insideRect.CenterPoint().x - Afactor;
 		ret[c   +   i].x = insideRect.CenterPoint().x + Afactor;
-		ret[c - 1 - i].y = ret[c + i].y = insideRect.bottom - insideRect.Height() * vInterpolationHeights.at(i) / maxHeight;
+		ret[c - 1 - i].y = ret[c + i].y = insideRect.bottom - insideRect.Height() * vSortedHeights.at(i) / maxHeight;
 	}
 
 	//Final points are interpolated:
@@ -367,14 +461,14 @@ POINT* TailingsGraphic::GetDamPoints(double damHeight, CRect insideRect, int& pt
 		return ret;
 
 	ret[0].y = ret[2 * c - 1].y = insideRect.bottom - insideRect.Height() * damHeight / maxHeight;
-	double heightDiff = damHeight - vInterpolationHeights.at(c - 2);
+	double heightDiff = damHeight - vSortedHeights.at(c - 2);
 	double Agrad;
-	if (vInterpolationHeights.at(c - 1) == vInterpolationHeights.at(c - 2))
+	if (vSortedHeights.at(c - 1) == vSortedHeights.at(c - 2))
 		Agrad = 0; //The easy way to avoid divide by zero errors.
 	else
-		Agrad = (vInterpolationAreas.at(c - 1) - vInterpolationAreas.at(c - 2)) / (vInterpolationHeights.at(c - 1) - vInterpolationHeights.at(c - 2));
+		Agrad = (vSortedAreas.at(c - 1) - vSortedAreas.at(c - 2)) / (vSortedHeights.at(c - 1) - vSortedHeights.at(c - 2));
 
-	double AatH = vInterpolationAreas.at(c - 2) + heightDiff * Agrad;
+	double AatH = vSortedAreas.at(c - 2) + heightDiff * Agrad;
 	int Afactor2 = 0.5 * insideRect.Width() * AatH / maxArea;
 	ret[0].x = insideRect.CenterPoint().x - Afactor2;
 	ret[2 * c - 1].x = insideRect.CenterPoint().x + Afactor2;
@@ -396,10 +490,12 @@ void TailingsGraphic::SetIntPtCount(int count)
 	if (count > MaxIntPoints)
 		count = MaxIntPoints;
 	
-	double topHeight = vInterpolationHeights.back();
-	double topArea = vInterpolationAreas.back();
+	double topHeight = vSortedHeights.back();
+	double topArea = vSortedAreas.back();
 	vInterpolationHeights.resize(count, topHeight);
 	vInterpolationAreas.resize(count, topArea);
+	vSortedHeights.resize(count, topHeight);
+	vSortedAreas.resize(count, topHeight);
 	vVolumeLookup.resize(count);
 
 	nDataPointCount = count;
@@ -407,9 +503,6 @@ void TailingsGraphic::SetIntPtCount(int count)
 
 void TailingsGraphic::RecalculateVolumes()
 {
-	int sH = vInterpolationHeights.size();
-	int sA = vInterpolationAreas.size();
-	int sV = vVolumeLookup.size();
 	double curVol = 0;
 	vVolumeLookup.at(0) = 0;
 	switch (eIntMethod)
@@ -417,7 +510,7 @@ void TailingsGraphic::RecalculateVolumes()
 	case IM_Linear:
 		for (int i = 0; i < nDataPointCount - 1; i++)
 		{
-			curVol += 0.5 * (vInterpolationAreas.at(i) + vInterpolationAreas.at(i + 1)) * (vInterpolationHeights.at(i + 1) - vInterpolationHeights.at(i));
+			curVol += 0.5 * (vSortedAreas.at(i) + vSortedAreas.at(i + 1)) * (vSortedHeights.at(i + 1) - vSortedHeights.at(i));
 			vVolumeLookup.at(i + 1) = curVol;
 		}
 		break;
@@ -428,7 +521,7 @@ void TailingsGraphic::RecalculateVolumes()
 double TailingsGraphic::CalcLevel(double volume)
 {
 	if (volume >= dMaxCapacity)
-		return vInterpolationHeights.back();
+		return vSortedHeights.back();
 	if (volume <= 0)
 		return 0;
 	int i = 0;
@@ -436,58 +529,58 @@ double TailingsGraphic::CalcLevel(double volume)
 		i++;
 	i--;	//But because it's easier to think as extrapolating up, I'm going to decrement it.
 
-	if (vInterpolationHeights.at(i + 1) == vInterpolationHeights.at(i)) //Although this should be impossible.
-		return vInterpolationHeights.at(i);
+	if (vSortedHeights.at(i + 1) == vSortedHeights.at(i)) //Although this should be impossible.
+		return vSortedHeights.at(i);
 
 	switch (eIntMethod)
 	{
 	case IM_Linear:
 	default:
 		double deltaV = volume - vVolumeLookup.at(i);
-		double A0 = vInterpolationAreas.at(i);
+		double A0 = vSortedAreas.at(i);
 		
-		double Agrad = (vInterpolationAreas.at(i + 1) - vInterpolationAreas.at(i)) / (vInterpolationHeights.at(i + 1) - vInterpolationHeights.at(i));
+		double Agrad = (vSortedAreas.at(i + 1) - vSortedAreas.at(i)) / (vSortedHeights.at(i + 1) - vSortedHeights.at(i));
 
 		if (Agrad != 0)
-			return vInterpolationHeights.at(i) + (-A0 + sqrt(A0 * A0 + 4 * Agrad * deltaV)) / (2 * Agrad);
+			return vSortedHeights.at(i) + (-A0 + sqrt(A0 * A0 + 4 * Agrad * deltaV)) / (2 * Agrad);
 		else if (A0 != 0)
-			return vInterpolationHeights.at(i) + deltaV / A0;
+			return vSortedHeights.at(i) + deltaV / A0;
 		else
-			return vInterpolationHeights.at(i); //Well I go no idea how A0 can be zero. But It's easier to simply make sure we never divide by zero.
+			return vSortedHeights.at(i); //Well I go no idea how A0 can be zero. But It's easier to simply make sure we never divide by zero.
 	}
 }
 
 double TailingsGraphic::CalcArea(double height)
 {
-	if (height >= vInterpolationHeights.back())
-		return vInterpolationAreas.back();
+	if (height >= vSortedHeights.back())
+		return vSortedAreas.back();
 	if (height <= 0)
-		return vInterpolationAreas.at(0);
+		return vSortedAreas.at(0);
 	int i = 0;
-	while (vInterpolationHeights.at(i) < height)
+	while (vSortedHeights.at(i) < height)
 		i++;
 	i--;
 
-	if (vInterpolationHeights.at(i + 1) == vInterpolationHeights.at(i)) //Although this should be impossible.
-		return vInterpolationAreas.at(i);
+	if (vSortedHeights.at(i + 1) == vSortedHeights.at(i)) //Although this should be impossible.
+		return vSortedAreas.at(i);
 
 	switch (eIntMethod)
 	{
 	case IM_Linear:
 	default:
-		double deltaH = height - vInterpolationHeights.at(i);
-		double Agrad = (vInterpolationAreas.at(i + 1) - vInterpolationAreas.at(i)) / (vInterpolationHeights.at(i + 1) - vInterpolationHeights.at(i));
-		return vInterpolationAreas.at(i) + deltaH * Agrad;
+		double deltaH = height - vSortedHeights.at(i);
+		double Agrad = (vSortedAreas.at(i + 1) - vSortedAreas.at(i)) / (vSortedHeights.at(i + 1) - vSortedHeights.at(i));
+		return vSortedAreas.at(i) + deltaH * Agrad;
 	}
 }
 
-void TailingsGraphic::RecalculateLevels()
+bool TailingsGraphic::RecalculateLevels()
 {
 	if (!TAG_OK(LiquidDensityItem)) //If we can't get these critical values, no point even trying.
-		return;
-	if (!TAG_OK(VolItem)) return;
-	if (!TAG_OK(FluidMassItem)) return;
-	if (!TAG_OK(SolidMassItem)) return;
+		return false;
+	if (!TAG_OK(VolItem)) return false;
+	if (!TAG_OK(FluidMassItem)) return false;
+	if (!TAG_OK(SolidMassItem)) return false;
 
 	dFluidMass = FluidMassItem.DoubleSI;
 	dSolidMass = SolidMassItem.DoubleSI;
@@ -502,4 +595,5 @@ void TailingsGraphic::RecalculateLevels()
 	dFluidLevel = CalcLevel(dTotalVol);
 	dSolidVol = CalcLevel(dSolidVol);
 	dFSA = CalcArea(dFluidLevel);
+	return true;
 }

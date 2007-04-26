@@ -28,13 +28,11 @@ void BivarStats_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
+BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
+	tagItem0(TagIO), tagItem1(TagIO)
 {
 	//default values...
-	lTagID[0] = lTagID[1] = -1;
 	bOn = true;
-	sTag[0] = "";
-	sTag[1] = "";
 	dHistoMinX = dHistoMinY= 0;
 	dHistoMaxX = dHistoMaxY = 0;
 	lHistoCount = 20;
@@ -45,8 +43,6 @@ BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMetho
 	pHistoBucketCounts = NULL;
 
 	Reset();
-
-	TagIO.Open(2);
 }
 
 //---------------------------------------------------------------------------
@@ -100,16 +96,18 @@ void BivarStats::BuildDataFields()
 	DD.Text("");
 	DD.Double("Correlation", "Corr", &dCorrelation, MF_RESULT);
 	DD.Text("Variable 1");
-	DD.Double("Average", "Avg1", dAverage, MF_RESULT);
-	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT);
-	DD.Double("Minimum", "Min1", dMin, MF_RESULT);
-	DD.Double("Maximum", "Max1", dMax, MF_RESULT);
+	MCnv Var1Cnv = tagItem0.IsGet ? tagItem0.Cnv : MC_;
+	DD.Double("Average", "Avg1", dAverage, MF_RESULT, Var1Cnv);
+	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT, Var1Cnv);
+	DD.Double("Minimum", "Min1", dMin, MF_RESULT, Var1Cnv);
+	DD.Double("Maximum", "Max1", dMax, MF_RESULT, Var1Cnv);
 	DD.Text("");
 	DD.Text("Variable 2");
-	DD.Double("Average", "Avg2", dAverage + 1, MF_RESULT);
-	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT);
-	DD.Double("Minimum", "Min2", dMin + 1, MF_RESULT);
-	DD.Double("Maximum", "Max2", dMax + 1, MF_RESULT);
+	MCnv Var2Cnv = tagItem1.IsGet ? tagItem1.Cnv : MC_;
+	DD.Double("Average", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);
+	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT, Var2Cnv);
+	DD.Double("Minimum", "Min2", dMin + 1, MF_RESULT, Var2Cnv);
+	DD.Double("Maximum", "Max2", dMax + 1, MF_RESULT, Var2Cnv);
 	DD.Text("");
 	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
 
@@ -130,10 +128,13 @@ void BivarStats::BuildDataFields()
 	}
 	DD.ArrayEnd();
 
-	DD.Double("SumX2_1", "SumX2_1", dSumX2, MF_RESULT);
-	DD.Double("SumX2_2", "SumX2_2", dSumX2 + 1, MF_RESULT);
-	DD.Double("SumX_1", "SumX_1", dSumX, MF_RESULT);
-	DD.Double("SumX_2", "SumX_2", dSumX + 1, MF_RESULT);
+	if (DD.ForFiling)
+	{
+		DD.Double("SumX2_1", "SumX2_1", dSumX2, MF_RESULT);
+		DD.Double("SumX2_2", "SumX2_2", dSumX2 + 1, MF_RESULT);
+		DD.Double("SumX_1", "SumX_1", dSumX, MF_RESULT);
+		DD.Double("SumX_2", "SumX_2", dSumX + 1, MF_RESULT);
+	}
 
 #ifdef MVS_KEEP_RECORD
 	if (DD.ForFiling)
@@ -162,10 +163,18 @@ bool BivarStats::ExchangeDataFields()
 	{
 		if (DX.HasReqdValue)
 		{
-			SetTag(DX.Handle - idDX_Tag, DX.String);
+			switch (DX.Handle - idDX_Tag)
+			{
+			case 0:	tagItem0.Tag = DX.String; break;
+			case 1: tagItem1.Tag = DX.String; break;
+			}
 			Reset();
 		}
-		DX.String = sTag[DX.Handle - idDX_Tag];
+		switch (DX.Handle - idDX_Tag)
+		{
+		case 0:	DX.String = tagItem0.Tag; break;
+		case 1: DX.String = tagItem1.Tag; break;
+		}
 		return true;
 	}
 	switch (DX.Handle)
@@ -235,10 +244,10 @@ void BivarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 {
 	try
 	{
-		if (lTagID[0] < 0 || lTagID[1] < 0 || !bOn)
+		if (!tagItem0.IsGet || !tagItem1.IsGet)
 			return;
-    double dVal1 = TagIO[lTagID[0]]->DoubleSI;
-    double dVal2 = TagIO[lTagID[1]]->DoubleSI;
+		double dVal1 = tagItem0.DoubleSI;
+		double dVal2 = tagItem1.DoubleSI;
 		RecalculateStats(dVal1, dVal2);
 	}
 	catch (MMdlException &ex)
@@ -272,25 +281,6 @@ void BivarStats::Reset()
 #endif
 	dSumX[0] = dSumX[1] = dSumX2[0] = dSumX2[1] = dSumXY = 0;
 	RecalculateHistoBuckets();
-}
-
-void BivarStats::SetTag(int n, CString newValue)
-{
-	sTag[n] = newValue;
-
-	int curTag = TagIO.FindTag(sTag[n]);
-	if (curTag >= 0)
-	{
-		lTagID[n] = curTag; //This could cause leaks, but it's unlikely and minor enough to leave.
-	}
-	else
-	{
-		if (lTagID[n] >= 0 && lTagID[0] != lTagID[1])
-			TagIO.Remove(lTagID[n]);
-		CString name;
-		name.Format("TagToGet%d", n);
-		lTagID[n] = TagIO.Set(-1, DX.String, name, MTagIO_Get);
-	}
 }
 
 void BivarStats::RecalculateStats(double newEntry1, double newEntry2)
@@ -408,7 +398,7 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		CPen penGreen(PS_SOLID, 0, Green);
 
 		CPen* oldPen = Wnd.m_pPaintDC->SelectObject(&penGreen);
-		int xLabelWidth = Wnd.m_pPaintDC->GetTextExtent(sTag[0]).cx;
+		int xLabelWidth = Wnd.m_pPaintDC->GetTextExtent(tagItem0.Tag).cx;
 		int nAxesLeft = nBorderSpace,
 			nAxesTop = nBorderSpace + nTextSize + nAxesSpace + nArrowSize,
 			nAxesBottom = Wnd.m_ClientRect.bottom - nBorderSpace,
@@ -492,9 +482,9 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		//Draw labels:
 		Wnd.m_pPaintDC->SetTextColor(Green);
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_LEFT);
-		Wnd.m_pPaintDC->TextOut(AxesCross.x, nAxesTop - nArrowSize - nAxesSpace, sTag[1]);
+		Wnd.m_pPaintDC->TextOut(AxesCross.x, nAxesTop - nArrowSize - nAxesSpace, tagItem1.Tag);
 		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_LEFT);
-		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, sTag[0]);
+		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, tagItem0.Tag);
 	}
 	return true;
 }

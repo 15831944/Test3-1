@@ -35,7 +35,7 @@ RandomFailure::RandomFailure(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 	//default values...
 	bOn = true;
 
-	TagIO.Open(20);
+	//TagIO.Open(20);
 
 	dCurrentTime = 0;
 }
@@ -50,6 +50,7 @@ void RandomFailure::Init()
 
 bool RandomFailure::PreStartCheck()
 {
+	CheckTags();
 	return true;
 }
 
@@ -67,12 +68,12 @@ void RandomFailure::Reset()
 	dCurrentTime = 0;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		tasks.at(i).bRunning = true;
-		tasks.at(i).dTotalDowntime = 0;
-		tasks.at(i).dBackedUpDowntime = 0;
-		tasks.at(i).dNextFailure = -1;
-		tasks.at(i).dRepairsDone = -1;
-		tasks.at(i).lFailureCount = 0;
+		tasks.at(i)->bRunning = true;
+		tasks.at(i)->dTotalDowntime = 0;
+		tasks.at(i)->dBackedUpDowntime = 0;
+		tasks.at(i)->dNextFailure = -1;
+		tasks.at(i)->dRepairsDone = -1;
+		tasks.at(i)->lFailureCount = 0;
 	}
 }
 
@@ -99,7 +100,7 @@ void RandomFailure::BuildDataFields()
 	DD.Long ("Count", "", idDX_Count, MF_PARAMETER | MF_SET_ON_CHANGE);
 	DD.Text("");
 	DD.Double("TotalTime", "T(tot)", &dCurrentTime, MF_RESULT, MC_Time(""));
-	DD.Button("Reset All", "", idDX_Reset, MF_PARAMETER);
+	DD.Button("Reset_All", "", idDX_Reset, MF_PARAMETER);
 	DD.Text("");
 
 	DD.ArrayBegin("Maintenance_Tasks", "Task", tasks.size());
@@ -110,34 +111,31 @@ void RandomFailure::BuildDataFields()
 
 		DD.ArrayElementStart(i);
 		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
-		DD.Long ("Failure PDF", "FPDF", (long*)&tasks.at(i).eFailureType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
-		DD.Long ("Repair PDF", "RPDF", (long*)&tasks.at(i).eRepairType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
+		DD.Long ("Failure_PDF", "FPDF", (long*)&tasks.at(i)->eFailureType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
+		DD.Long ("Repair_PDF", "RPDF", (long*)&tasks.at(i)->eRepairType, MF_PARAMETER | MF_SET_ON_CHANGE, DDB2);
 
-		DD.Double ("Average Uptime", "Tu", &tasks.at(i).dAvgUptime, MF_PARAMETER, MC_Time(""));
-		if (tasks.at(i).eFailureType != PDFType_Exponential)
-			DD.Double ("Uptime StdDev", "Tus", &tasks.at(i).dUptimeStdDev, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Average_Uptime", "Tu", &tasks.at(i)->dAvgUptime, MF_PARAMETER, MC_Time(""));
+		if (tasks.at(i)->eFailureType != PDFType_Exponential)
+			DD.Double ("Uptime_StdDev", "Tus", &tasks.at(i)->dUptimeStdDev, MF_PARAMETER, MC_Time(""));
 		else
-			DD.Double ("Uptime StdDev", "Tus", &tasks.at(i).dAvgUptime, MF_RESULT, MC_Time(""));
+			DD.Double ("Uptime_StdDev", "Tus", &tasks.at(i)->dAvgUptime, MF_RESULT, MC_Time(""));
 
-		DD.Double ("Average Downtime", "Td", &tasks.at(i).dAvgDowntime, MF_PARAMETER, MC_Time(""));
-		if (tasks.at(i).eRepairType != PDFType_Exponential)
-			DD.Double ("Downtime StdDev", "Tds", &tasks.at(i).dDowntimeStdDev, MF_PARAMETER, MC_Time(""));
+		DD.Double ("Average_Downtime", "Td", &tasks.at(i)->dAvgDowntime, MF_PARAMETER, MC_Time(""));
+		if (tasks.at(i)->eRepairType != PDFType_Exponential)
+			DD.Double ("Downtime_StdDev", "Tds", &tasks.at(i)->dDowntimeStdDev, MF_PARAMETER, MC_Time(""));
 		else
-			DD.Double ("Downtime StdDev", "Tds", &tasks.at(i).dAvgDowntime, MF_RESULT, MC_Time(""));
+			DD.Double ("Downtime_StdDev", "Tds", &tasks.at(i)->dAvgDowntime, MF_RESULT, MC_Time(""));
 
 		DD.Text("");
-		DD.String("TagToSet", "TagToSet", idDX_Tag, MF_PARAMETER | MF_SET_ON_CHANGE);
-		if (tasks.at(i).nTagID < 0)
-			DD.Text("Tag Not Found");
-		DD.Show(tasks.at(i).nTagID >= 0);
-		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i).dOnValue, MF_PARAMETER);
-		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i).dOffValue, MF_PARAMETER);
-		DD.Show();
+		DD.String("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
+		MCnv TagCnv = (tasks.at(i)->tagItem->Tag != "" && tasks.at(i)->tagItem->CheckTag() == MTagIO_OK) ? tasks.at(i)->tagItem->Cnv : MC_;
+		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
+		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 
 		DD.Text("");
-		DD.Bool("Running", "", &tasks.at(i).bRunning, MF_RESULT);
-		DD.Double("Total Downtime", "TDown", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time(""));
-		DD.Long("Failure Count", "Nf", &tasks.at(i).lFailureCount, MF_RESULT);
+		DD.Bool("Running", "", &tasks.at(i)->bRunning, MF_RESULT);
+		DD.Double("Total_Downtime", "TDown", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time(""));
+		DD.Long("Failure_Count", "Nf", &tasks.at(i)->lFailureCount, MF_RESULT);
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}
@@ -151,8 +149,8 @@ bool RandomFailure::ExchangeDataFields()
 	if (0 <= DX.Handle - idDX_Description && DX.Handle - idDX_Description < tasks.size())
 	{
 		if (DX.HasReqdValue)
-		  tasks.at(DX.Handle - idDX_Description).sDescription = DX.String;
-		DX.String = tasks.at(DX.Handle - idDX_Description).sDescription;
+		  tasks.at(DX.Handle - idDX_Description)->sDescription = DX.String;
+		DX.String = tasks.at(DX.Handle - idDX_Description)->sDescription;
 		return true;
 	}
 	if (0 <= DX.Handle - idDX_Tag && DX.Handle - idDX_Tag < tasks.size())
@@ -160,29 +158,9 @@ bool RandomFailure::ExchangeDataFields()
 		int task = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
-			tasks.at(task).sTag = DX.String;
-			CString name;
-			name.Format("TagToSet%x", task);
-
-			int curTag = TagIO.FindTag(DX.String);
-			if (curTag >= 0)
-				tasks.at(task).nTagID = curTag;
-			else
-			{
-				TagIO.Remove(TagIO.FindName(name));
-				tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
-			}
-
-			if (tasks.at(task).nTagID >= 0)
-			{
-				tasks.at(task).dOffValue = 0;
-				double dTemp;
-				_asm int 3; // CNM fix next line 
-				//TagIO.SetTag(DX.String, dTemp);
-				tasks.at(task).dOnValue = dTemp;
-			}
+			tasks.at(task)->tagItem->Tag = DX.String;
 		}
-		DX.String = tasks.at(task).sTag;
+		DX.String = tasks.at(task)->tagItem->Tag;
 		return true;
 	}
 	if (DX.Handle == idDX_Count)
@@ -213,16 +191,19 @@ bool RandomFailure::ValidateDataFields()
 {
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i).dAvgDowntime < 0)
-			tasks.at(i).dAvgDowntime = 0;
-		if (tasks.at(i).dAvgUptime < 0)
-			tasks.at(i).dAvgUptime = 0;
-		if (tasks.at(i).dDowntimeStdDev < 0)
-			tasks.at(i).dDowntimeStdDev = 0;
-		if (tasks.at(i).dUptimeStdDev < 0)
-			tasks.at(i).dUptimeStdDev = 0;
-		if (tasks.at(i).dAvgDowntime + tasks.at(i).dAvgUptime == 0)	//This will result in an infinite loop...
+		if (tasks.at(i)->dAvgDowntime < 0)
+			tasks.at(i)->dAvgDowntime = 0;
+		if (tasks.at(i)->dAvgUptime < 0)
+			tasks.at(i)->dAvgUptime = 0;
+		if (tasks.at(i)->dDowntimeStdDev < 0)
+			tasks.at(i)->dDowntimeStdDev = 0;
+		if (tasks.at(i)->dUptimeStdDev < 0)
+			tasks.at(i)->dUptimeStdDev = 0;
+		if (tasks.at(i)->dAvgDowntime + tasks.at(i)->dAvgUptime == 0)	//This will result in an infinite loop...
+		{
+			m_sErrorMsg.Format("Task %i has period of zero", i);
 			return false;
+		}
 	}
 	return true;
 }
@@ -232,10 +213,10 @@ void RandomFailure::RevalidateDataFields()
 	ValidateDataFields();
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i).dDowntimeStdDev > tasks.at(i).dAvgDowntime)
-			tasks.at(i).dDowntimeStdDev = tasks.at(i).dAvgDowntime;
-		if (tasks.at(i).dUptimeStdDev > tasks.at(i).dAvgUptime)
-			tasks.at(i).dUptimeStdDev = tasks.at(i).dAvgUptime;
+		if (tasks.at(i)->dDowntimeStdDev > tasks.at(i)->dAvgDowntime)
+			tasks.at(i)->dDowntimeStdDev = tasks.at(i)->dAvgDowntime;
+		if (tasks.at(i)->dUptimeStdDev > tasks.at(i)->dAvgUptime)
+			tasks.at(i)->dUptimeStdDev = tasks.at(i)->dAvgUptime;
 	}
 }
 
@@ -249,43 +230,43 @@ void RandomFailure::EvalCtrlActions(eScdCtrlTasks Tasks)
 	{
 		if (!bOn)
 		{
-			tasks.at(i).bRunning = true;
+			tasks.at(i)->bRunning = true;
 		}
 		else
 			try
 			{
 				while (true)
 				{
-					if (tasks.at(i).dRepairsDone < 0)	//Item is running
+					if (tasks.at(i)->dRepairsDone < 0)	//Item is running
 					{
-						if (tasks.at(i).dNextFailure < 0)	//Item has not been initialized
-							RepairItem(&tasks.at(i));
-						if (tasks.at(i).dNextFailure < dCurrentTime)	//Item will go down in this iteration
-							FailItem(&tasks.at(i));
+						if (tasks.at(i)->dNextFailure < 0)	//Item has not been initialized
+							RepairItem(*tasks.at(i));
+						if (tasks.at(i)->dNextFailure < dCurrentTime)	//Item will go down in this iteration
+							FailItem(*tasks.at(i));
 						else
 							break;
 					}
 					else								//Item is being repaired
 					{
-						if (tasks.at(i).dRepairsDone < dCurrentTime)	//Item will be repaired in this iteration
-							RepairItem(&tasks.at(i));
+						if (tasks.at(i)->dRepairsDone < dCurrentTime)	//Item will be repaired in this iteration
+							RepairItem(*tasks.at(i));
 						else
 							break;
 					}
 				}
-				bool bNowRunning = tasks.at(i).dBackedUpDowntime < getDeltaTime();
-				if (tasks.at(i).nTagID >= 0)
+				bool bNowRunning = tasks.at(i)->dBackedUpDowntime < getDeltaTime();
+				if (tasks.at(i)->tagItem->IsSet)
 				{
-					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
-            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOnValue;
-					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
-            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOffValue;
+					if (bNowRunning &! tasks.at(i)->bRunning)			//Task is starting up again, set tag to OnValue
+						tasks.at(i)->tagItem->DoubleSI = tasks.at(i)->dOnValue;
+					if (!bNowRunning && tasks.at(i)->bRunning)			//Task is shutting down, set tag to 0
+						tasks.at(i)->tagItem->DoubleSI  = tasks.at(i)->dOffValue;
 				}
-				tasks.at(i).bRunning = bNowRunning;
-				if (!tasks.at(i).bRunning)
+				tasks.at(i)->bRunning = bNowRunning;
+				if (!tasks.at(i)->bRunning)
 				{
-					tasks.at(i).dTotalDowntime += getDeltaTime();
-					tasks.at(i).dBackedUpDowntime -= getDeltaTime();
+					tasks.at(i)->dTotalDowntime += getDeltaTime();
+					tasks.at(i)->dBackedUpDowntime -= getDeltaTime();
 				}
 			}
 			catch (MMdlException &ex)
@@ -310,25 +291,25 @@ void RandomFailure::EvalCtrlActions(eScdCtrlTasks Tasks)
 
 //---------------------------------------------------------------------------
 
-void RandomFailure::FailItem(FailureVariables* task)
+void RandomFailure::FailItem(FailureVariables& task)
 {
-	double dRepairPeriod = CalculateEvent(task->eRepairType, task->dAvgDowntime, task->dDowntimeStdDev);
-	task->dRepairsDone = task->dNextFailure + dRepairPeriod;
-	task->dBackedUpDowntime += dRepairPeriod;
-	task->lFailureCount++;
-	task->dNextFailure = -1;	//NextFailure = -1 implies the item is currently failed.
+	double dRepairPeriod = CalculateEvent(task.eRepairType, task.dAvgDowntime, task.dDowntimeStdDev);
+	task.dRepairsDone = task.dNextFailure + dRepairPeriod;
+	task.dBackedUpDowntime += dRepairPeriod;
+	task.lFailureCount++;
+	task.dNextFailure = -1;	//NextFailure = -1 implies the item is currently failed.
 }
 
 //---------------------------------------------------------------------------
 
-void RandomFailure::RepairItem(FailureVariables* task)
+void RandomFailure::RepairItem(FailureVariables& task)
 {
-	double dUpPeriod = CalculateEvent(task->eFailureType, task->dAvgUptime, task->dUptimeStdDev);
-	if (task->dRepairsDone < 0)	//This should only be called on the first iteration
-		task->dNextFailure = dCurrentTime - getDeltaTime() + dUpPeriod;
+	double dUpPeriod = CalculateEvent(task.eFailureType, task.dAvgUptime, task.dUptimeStdDev);
+	if (task.dRepairsDone < 0)	//This should only be called on the first iteration
+		task.dNextFailure = dCurrentTime - getDeltaTime() + dUpPeriod;
 	else
-		task->dNextFailure = task->dRepairsDone + dUpPeriod;
-	task->dRepairsDone = -1;
+		task.dNextFailure = task.dRepairsDone + dUpPeriod;
+	task.dRepairsDone = -1;
 }
 
 //---------------------------------------------------------------------------
@@ -377,32 +358,59 @@ void RandomFailure::SetSize(long size)
 	if (size > tasks.size()) //We want to add elements
 		for (int i = tasks.size(); i < size; i++)
 		{
-			FailureVariables newTask;
-			newTask.bRunning = true;
-			newTask.dAvgDowntime =24 * 3600;
-			newTask.dDowntimeStdDev = 24 * 3600;
-			newTask.dAvgUptime = 30 * 24 * 3600;
-			newTask.dUptimeStdDev = 10 * 24 * 3600;
-			
-			newTask.dNextFailure = -1;
-			newTask.dRepairsDone = -1;
-
-			newTask.dBackedUpDowntime = 0;
-			newTask.dTotalDowntime = 0;
-			newTask.lFailureCount = 0;
-			newTask.eFailureType = PDFType_Constant;
-			newTask.eRepairType = PDFType_Constant;
-
-			newTask.nTagID = -1;
-			newTask.sTag = "";
+			FailureVariables* newTask = new FailureVariables(TagIO);
 			tasks.push_back(newTask);
 		}
 	if (size < tasks.size())  //We want to remove elements
 		for (int i = tasks.size() - 1; i >= size; i--)
 		{
+			delete tasks.back();
 			tasks.pop_back();
 		}
 }
 
+bool RandomFailure::CheckTags()
+{
+	std::vector<FailureVariables*>::iterator it = tasks.begin();
+	bool ret = true;
+	int i = 0;
+	for (; it != tasks.end(); it++)
+	{
+		if ((*it)->tagItem->Tag != "" && !(*it)->tagItem->IsSet)
+		{
+			CString warning;
+			warning.Format("Task %i does not have a valid tag", i);
+			Log.Message(MMsg_Warning, warning);
+			ret = false;
+		}
+		i++;
+	}
+	return ret;
+}
 
+FailureVariables::FailureVariables(MTagIO& TagIO)
+{
+	tagItem = new MTagIOItem(TagIO);
+	bRunning = true;
+	dAvgDowntime =24 * 3600;
+	dDowntimeStdDev = 24 * 3600;
+	dAvgUptime = 30 * 24 * 3600;
+	dUptimeStdDev = 10 * 24 * 3600;
+	
+	dNextFailure = -1;
+	dRepairsDone = -1;
 
+	dBackedUpDowntime = 0;
+	dTotalDowntime = 0;
+	lFailureCount = 0;
+	eFailureType = PDFType_Constant;
+	eRepairType = PDFType_Constant;
+
+	dOnValue = 1; dOffValue = 0;
+	tagItem->Tag = "bleh";
+}
+
+FailureVariables::~FailureVariables()
+{
+	delete tagItem;
+}

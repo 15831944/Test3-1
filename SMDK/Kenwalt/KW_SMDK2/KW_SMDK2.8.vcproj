@@ -576,6 +576,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SchedEvents.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Stats.cpp"
 				>
 			</File>
@@ -635,10 +639,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TagIO.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Tailings Graphic.cpp"
 				>
 			</File>
@@ -657,6 +657,10 @@
 			</File>
 			<File
 				RelativePath=".\Random Failure.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SchedEvents.h"
 				>
 			</File>
 			<File

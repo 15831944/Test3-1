@@ -54,6 +54,7 @@ class TailingsGraphic : public MBaseMethod
 	double dMoistFrac, dSatConc, dEvapRate, dRainRate;
 	int nDataPointCount;
 	vector<double> vInterpolationHeights, vInterpolationAreas;
+	vector<double> vSortedHeights, vSortedAreas;
 	InterpolationMethods eIntMethod;
 	
 	//Model calculated data:
@@ -73,7 +74,7 @@ class TailingsGraphic : public MBaseMethod
 	void SetIntPtCount(int count);
 	void SortInterpolationPoints();
 	void RecalculateVolumes();
-	void RecalculateLevels();
+	bool RecalculateLevels();
 	double CalcLevel(double volume);
 	double CalcArea(double height);
 
