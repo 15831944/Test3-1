@@ -21,8 +21,9 @@ static double Drw_TagIO[] =
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(CTagIO, "TagIO", DLL_GroupName)
-void CTagIO_UnitDef::GetOptions()
+DEFINE_CONTROL_UNIT(CTagGetAndSetExample, "TagIO", DLL_GroupName)
+
+void CTagGetAndSetExample_UnitDef::GetOptions()
   {
   SetDefaultTag("TIO");
   SetDrawing("TagIO", Drw_TagIO);
@@ -33,7 +34,7 @@ void CTagIO_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
+CTagGetAndSetExample::CTagGetAndSetExample(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
   m_GetItem(TagIO),
   m_SetItem(TagIO)
   {
@@ -47,18 +48,18 @@ CTagIO::CTagIO(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitD
   m_dGetValueSubs2 = 0.0;
   m_dSetValueSubs1 = 0.0;
 
-  TagIO.Open(3);
+  TagIO.Open(3); //there will be three subscription tags
   }
 
 //---------------------------------------------------------------------------
 
-void CTagIO::Init()
+void CTagGetAndSetExample::Init()
   {
   }
 
 //---------------------------------------------------------------------------
 
-bool CTagIO::PreStartCheck()
+bool CTagGetAndSetExample::PreStartCheck()
   {
   return true;
   }
@@ -88,7 +89,7 @@ const int idDX_AB = idDX_XY+(maxCols*maxRows);
 
 //---------------------------------------------------------------------------
 
-void CTagIO::BuildDataFields()
+void CTagGetAndSetExample::BuildDataFields()
   {
   DD.CheckBox("On",       "", &m_bOn,         MF_PARAMETER);
   DD.Text(" ");
@@ -179,7 +180,7 @@ void CTagIO::BuildDataFields()
 
 //---------------------------------------------------------------------------
 
-bool CTagIO::ExchangeDataFields()
+bool CTagGetAndSetExample::ExchangeDataFields()
   {
   if (DX.Handle >= idDX_XY && DX.Handle < idDX_XY + maxCols*maxRows)
     {
@@ -196,12 +197,12 @@ bool CTagIO::ExchangeDataFields()
     {
     case idDX_GetTagStr:
       if (DX.HasReqdValue)
-        m_GetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String);
+        m_GetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String); //force correct formating for user entry of a tag
       DX.String = m_GetItem.Tag;
       return true;
     case idDX_GetTagInfoButton:
 		  if (DX.HasReqdValue && DX.Bool)
-        {
+        {//example for retrieving and displaying information about a tag
         MTagIOResult RetCode = m_GetItem.CheckTag();
         if (RetCode==MTagIO_OK)
           {
@@ -220,12 +221,12 @@ bool CTagIO::ExchangeDataFields()
       return true;
     case idDX_PutTagStr:
       if (DX.HasReqdValue)
-        m_SetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String);
+        m_SetItem.Tag = TagIO.FormatAsTagAndCnv(DX.String); //force correct formating for user entry of a tag
       DX.String = m_SetItem.Tag;
       return true;
     case idDX_GetTagButton:
 		  if (DX.HasReqdValue && DX.Bool)
-        {
+        {//example of direct (once off) retrieval of tag value
         MTagIOResult RetCode = m_GetItem.ReadValue();
         if (RetCode==MTagIO_OK)
           {
@@ -239,7 +240,7 @@ bool CTagIO::ExchangeDataFields()
       return true;
     case idDX_SetTagButton:
 		  if (DX.HasReqdValue && DX.Bool)
-        {
+        {//example of direct (once off) setting of tag value
         MTagIOResult RetCode = m_SetItem.CheckTag();
         if (RetCode==MTagIO_OK)
           {
@@ -253,10 +254,11 @@ bool CTagIO::ExchangeDataFields()
   		DX.Bool = false;
       return true;
 
+
     case idDX_TagSubscriptionOn:
       if (DX.HasReqdValue)
         TagIO.Active = DX.Bool;
-      DX.Bool=TagIO.Active;//m_bSubsActive;
+      DX.Bool=TagIO.Active;
       return true;
     case idDX_GetTagSubsStr1:
       if (DX.HasReqdValue)
@@ -280,20 +282,20 @@ bool CTagIO::ExchangeDataFields()
 
 //---------------------------------------------------------------------------
 
-bool CTagIO::ValidateDataFields()
+bool CTagGetAndSetExample::ValidateDataFields()
   {
-  if (TagIO.ValidateReqd())// && m_bSubsActive)
-    {
-
+  if (TagIO.ValidateReqd())
+    {//only check the IO subscription tags if required and if allowed
     if (TagIO.StartValidateDataFields())
       {
-      if (TagIO.Set(0, NULL, "GetValue1", MTagIO_Get)>0)
+      if (TagIO.Set(0, NULL, "GetValue1", MTagIO_Get)>0) //try subscribe (read) to this tag
         m_dGetValueSubs1 = TagIO[0]->DoubleSI;
-      if (TagIO.Set(1, NULL, "GetValue2", MTagIO_Get)>0)
+      if (TagIO.Set(1, NULL, "GetValue2", MTagIO_Get)>0) //try subscribe (read) to this tag
         m_dGetValueSubs2 = TagIO[1]->DoubleSI;
-      if (TagIO.Set(2, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0)
+
+      if (TagIO.Set(2, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0) //try subscribe (write) to this tag
         {
-        m_dSetValueSubs1 = TagIO[2]->DoubleSI;
+        m_dSetValueSubs1 = TagIO[2]->DoubleSI; //get the initial value from the tag
         }
       }
     TagIO.EndValidateDataFields();
@@ -304,31 +306,34 @@ bool CTagIO::ValidateDataFields()
 
 //---------------------------------------------------------------------------
 
-void CTagIO::EvalCtrlInitialise(eScdCtrlTasks Tasks)
+void CTagGetAndSetExample::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   { 
   }
 
 //---------------------------------------------------------------------------
 
-void CTagIO::EvalCtrlActions(eScdCtrlTasks Tasks)    
+void CTagGetAndSetExample::EvalCtrlActions(eScdCtrlTasks Tasks)    
   { 
   }
 
 //---------------------------------------------------------------------------
 
-void CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)   
+void CTagGetAndSetExample::EvalCtrlStrategy(eScdCtrlTasks Tasks)   
   { 
   if (m_bOn) 
     {
     try
       {
       if (TagIO.Active)//m_bSubsActive)
-        {
-        //get/set the values
+        {//tag subscriptions for this model are active; must always get/set values
+        
+        //get the values of the active (valid) individual get (read) subscription tags
         if (TagIO[0]->IsActive)
           m_dGetValueSubs1 = TagIO[0]->DoubleSI; //always as SI units
         if (TagIO[1]->IsActive)
           m_dGetValueSubs2 = TagIO[1]->DoubleSI; //always as SI units
+
+        //set the values of the active (valid) individual set (write) subscription tags
         if (TagIO[2]->IsActive)
           TagIO[2]->DoubleSI = m_dSetValueSubs1; //always as SI units
         }
@@ -355,7 +360,7 @@ void CTagIO::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 
 //---------------------------------------------------------------------------
 
-void CTagIO::EvalCtrlTerminate(eScdCtrlTasks Tasks)
+void CTagGetAndSetExample::EvalCtrlTerminate(eScdCtrlTasks Tasks)
   {
   }
 

@@ -2827,11 +2827,15 @@ Build 123 : 21 February 2007
 1684 25/04/07: Cursor fixes for Vista.
 1687 25/04/07: (#810) Improved Direct IO visibility (access window)
 1692 23/04/07: (#798) Encryption of pgm, etc updated.
-1695 25/04/07: (#810) Tweak direct IO visibility (access window)
+1695 25/04/07: (#810) Tweak direct IO visibility.
+1697 26/04/07: (#821) Fix for crash on projects with control links.
+1698 26/04/07: (#822) Fix for filter for bulk tag change.
+...1699 26/04/07: (#807) SMDK MTagIO improvements.
+
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1695
+#define SCD_PATCH_SVN    1701
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

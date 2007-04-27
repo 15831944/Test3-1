@@ -9,7 +9,7 @@
 #include "pgm_e.h"
 #include "gencon.h"
 #include "scd_wm.h"
-#include "optoff.h"
+//#include "optoff.h"
 
 // To stop nagging LoaderLock assert issues, turn off Managed Debugging Assistants->LoaderLock from the Debug->Exceptions menu.
 

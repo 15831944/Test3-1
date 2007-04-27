@@ -980,6 +980,16 @@
 				RelativePath=".\vbscript.tlb">
 			</File>
 		</Filter>
+		<Filter
+			Name="Other (Non SCC)"
+			Filter="">
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\Utils\DemoDat\CalculateDemoKey.h">
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 		<Global
