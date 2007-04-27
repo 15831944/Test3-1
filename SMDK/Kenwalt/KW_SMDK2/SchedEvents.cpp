@@ -40,6 +40,8 @@ void ScheduledEvents_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
+const int maxElements = 20;
+
 ScheduledEvents::ScheduledEvents(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
 	//default values...
@@ -47,6 +49,7 @@ ScheduledEvents::ScheduledEvents(MUnitDefBase * pUnitDef, TaggedObject * pNd) : 
 	dCurrentTime = 0.0;
 	bForceIntegralPeriod = true;
 	bForceIntegralDowntime = false;
+	TagIO.Open(maxElements);
 }
 
 //---------------------------------------------------------------------------
@@ -86,8 +89,6 @@ void ScheduledEvents::Reset()
 
 //---------------------------------------------------------------------------
 
-const int maxElements = 20;
-
 const int idDX_Count = 1;
 const int idDX_Reset = 2;
 const int idDX_Tag = 50;
@@ -122,7 +123,7 @@ void ScheduledEvents::BuildDataFields()
 		DD.Double ("RequiredPeriod", "RqdPeriod", &tasks.at(i)->dDesiredPeriod, MF_PARAMETER, MC_Time("h"));
 		DD.Double ("", "Offset", &tasks.at(i)->dOffset, MF_PARAM_STOPPED, MC_Time("h"));
 		DD.Double ("", "RqdInactivePeriod", &tasks.at(i)->dDesiredDowntime, MF_PARAMETER, MC_Time("h"));
-		MCnv TagCnv = tasks.at(i)->tagItem->IsSet ? tasks.at(i)->tagItem->Cnv : MC_;
+		MCnv TagCnv = TagIO[i]->IsActive ? TagIO[i]->Cnv : MC_;
 		DD.Double ("ActiveValueToSet", "ActiveVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
 		DD.Double ("InactiveValueToSet", "InactiveVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 		DD.String ("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
@@ -130,7 +131,7 @@ void ScheduledEvents::BuildDataFields()
 		DD.Text("Results...");
 		DD.Double ("", "Period", &tasks.at(i)->dPeriod, MF_RESULT, MC_Time("h"));
 		DD.Double ("", "InactivePeriod", &tasks.at(i)->dDowntime, MF_RESULT, MC_Time("h"));
-		if (!tasks.at(i)->tagItem->IsSet)
+		if (!TagIO[i]->IsActive)
 			DD.Text("Tag Not Valid");
 		DD.Bool("Active", "", &tasks.at(i)->bRunning, MF_RESULT);
 		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING, TagCnv);
@@ -141,7 +142,6 @@ void ScheduledEvents::BuildDataFields()
 		DD.ArrayElementEnd();
 	}
 	DD.ArrayEnd();
- 
 }
 
 //---------------------------------------------------------------------------
@@ -162,9 +162,9 @@ bool ScheduledEvents::ExchangeDataFields()
 		const int task = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
-			tasks.at(task)->tagItem->Tag = DX.String;
+			TagIO[task]->Tag = DX.String;
 		}
-		DX.String = tasks.at(task)->tagItem->Tag;
+		DX.String = TagIO[task]->Tag;
 		return true;
 	}
 	if (DX.Handle >= idDX_OutputVal && DX.Handle < idDX_OutputVal + maxElements)
@@ -240,12 +240,12 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 					tasks.at(i)->dNextShutdown += tasks.at(i)->dPeriod;
 				}
 				bool bNowRunning = tasks.at(i)->dBackedUpDowntime <= 0;
-				if (tasks.at(i)->tagItem->IsSet)
+				if (TagIO[i]->IsActive)
 				{
 					if (bNowRunning &! tasks.at(i)->bRunning)			//Task is starting up again, set tag to OnValue
-						tasks.at(i)->tagItem->DoubleSI = tasks.at(i)->dOnValue;
+						TagIO[i]->DoubleSI = tasks.at(i)->dOnValue;
 					if (!bNowRunning && tasks.at(i)->bRunning)			//Task is shutting down, set tag to 0
-						tasks.at(i)->tagItem->DoubleSI = tasks.at(i)->dOffValue;
+						TagIO[i]->DoubleSI = tasks.at(i)->dOffValue;
 				}
 				tasks.at(i)->bRunning = bNowRunning;
 
@@ -306,9 +306,11 @@ void ScheduledEvents::SetSize(long size)
 	if (size > tasks.size()) //We want to add elements
 		for (int i = tasks.size(); i < size; i++)
 		{
-			MaintVariables* newTask = new MaintVariables(TagIO);
-			
+			MaintVariables* newTask = new MaintVariables();
 			tasks.push_back(newTask);
+			CString name;
+			name.Format("Task%i", i);
+			TagIO.Set(i, NULL, name, MTagIO_Set);
 		}
 	if (size < tasks.size())  //We want to remove elements
 		for (int i = tasks.size() - 1; i >= size; i--)
@@ -331,26 +333,27 @@ void ScheduledEvents::SetState(MStatesToSet SS)
 
 bool ScheduledEvents::CheckTags()
 {
-	std::vector<MaintVariables*>::iterator it = tasks.begin();
 	bool ret = true;
-	int i = 0;
-	for (; it != tasks.end(); it++)
+	if (TagIO.ValidateReqd())
 	{
-		if ((*it)->tagItem->Tag != "" && !(*it)->tagItem->IsSet)
+		TagIO.StartValidateDataFields();
+		for (int i = 0; i < tasks.size(); i++)
 		{
-			CString warning;
-			warning.Format("Task %i does not have a valid tag", i);
-			Log.Message(MMsg_Warning, warning);
-			ret = false;
+			if (TagIO[i]->Tag != "" && !TagIO[i]->IsActive)
+			{
+				CString warning;
+				warning.Format("Task %i does not have a valid tag", i);
+				Log.Message(MMsg_Warning, warning);
+				ret = false;
+			}
 		}
-		i++;
+		TagIO.EndValidateDataFields();
 	}
 	return ret;
 }
 
-MaintVariables::MaintVariables(MTagIO& TagIO)
+MaintVariables::MaintVariables()
 {
-	tagItem = new MTagIOItem(TagIO);
 	bRunning = true;
 	dDesiredDowntime = 3600;
 	dOffset = 0.0;

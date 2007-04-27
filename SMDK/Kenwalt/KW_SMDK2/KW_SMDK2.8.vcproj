@@ -639,10 +639,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\TagIO.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Tailings Graphic.cpp"
 				>
 			</File>

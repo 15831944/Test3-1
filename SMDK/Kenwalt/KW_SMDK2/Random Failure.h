@@ -27,8 +27,7 @@ enum PDFType { PDFType_Constant, PDFType_Exponential, PDFType_Normal };
 struct FailureVariables
   {
   public:
-	FailureVariables(MTagIO& TagIO);
-	~FailureVariables();
+	FailureVariables();
 
     double dAvgDowntime, dDowntimeStdDev;
 	double dAvgUptime, dUptimeStdDev;
@@ -36,7 +35,6 @@ struct FailureVariables
     PDFType eFailureType;
 	PDFType eRepairType;
 
-	MTagIOItem* tagItem;
 	double dOnValue, dOffValue;
     
 	double dNextFailure;	//When the task will next fail
