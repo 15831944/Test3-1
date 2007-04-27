@@ -140,7 +140,7 @@ BOOL KWDatabase::OpenDB(long DBFmt,
       {
         CString Spass;
         Spass.Format(DBConnectOpenString(DBFmt), lpszName);
-        Spass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
+        Spass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
         m_pCnn->Open(_bstr_t(Spass), "", "", ADODB::adConnectUnspecified);
         gs_EncryptNDemos.encryptedPGM = true;
       }
@@ -1298,8 +1298,8 @@ BOOL KWDatabase::CompactDB(long DBFmt,
       CString SOpass, SNpass;
       SOpass.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
       SNpass.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
-      SOpass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
-      SNpass.AppendFormat("Jet OLEDB:Database Password=oneverylongpassword;");
+      SOpass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
+      SNpass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
       pJet->CompactDatabase(_bstr_t(SOpass), _bstr_t(SNpass));
     }
 
