@@ -36,8 +36,6 @@ RandomFailure::RandomFailure(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 	//default values...
 	bOn = true;
 
-	TagIO.Open(maxElements);
-
 	dCurrentTime = 0;
 }
 
@@ -127,7 +125,7 @@ void RandomFailure::BuildDataFields()
 
 		DD.Text("");
 		DD.String("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAM_STOPPED | MF_SET_ON_CHANGE);
-		MCnv TagCnv = (TagIO[i]->Tag != "" && TagIO[i]->CheckTag() == MTagIO_OK) ? TagIO[i]->Cnv : MC_;
+		MCnv TagCnv = (tasks.at(i)->tagSubs.Tag != "" && tasks.at(i)->tagSubs.CheckTag() == MTagIO_OK) ? tasks.at(i)->tagSubs.Cnv : MC_;
 		DD.Double("OnValueToSet", "TagOnVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
 		DD.Double("OffValueToSet", "TagOffVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 
@@ -157,9 +155,9 @@ bool RandomFailure::ExchangeDataFields()
 		int task = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
-			TagIO[task]->Tag = DX.String;
+			tasks.at(task)->tagSubs.Tag = DX.String;
 		}
-		DX.String = TagIO[task]->Tag;
+		DX.String = tasks.at(task)->tagSubs.Tag;
 		return true;
 	}
 	if (DX.Handle == idDX_Count)
@@ -254,12 +252,12 @@ void RandomFailure::EvalCtrlActions(eScdCtrlTasks Tasks)
 					}
 				}
 				bool bNowRunning = tasks.at(i)->dBackedUpDowntime < getDeltaTime();
-				if (TagIO[i]->IsActive)
+				if (tasks.at(i)->tagSubs.IsActive)
 				{
 					if (bNowRunning &! tasks.at(i)->bRunning)			//Task is starting up again, set tag to OnValue
-						TagIO[i]->DoubleSI = tasks.at(i)->dOnValue;
+						tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOnValue;
 					if (!bNowRunning && tasks.at(i)->bRunning)			//Task is shutting down, set tag to 0
-						TagIO[i]->DoubleSI  = tasks.at(i)->dOffValue;
+						tasks.at(i)->tagSubs.DoubleSI  = tasks.at(i)->dOffValue;
 				}
 				tasks.at(i)->bRunning = bNowRunning;
 				if (!tasks.at(i)->bRunning)
@@ -357,18 +355,18 @@ void RandomFailure::SetSize(long size)
 	if (size > tasks.size()) //We want to add elements
 		for (int i = tasks.size(); i < size; i++)
 		{
-			FailureVariables* newTask = new FailureVariables();
+			FailureVariables* newTask = new FailureVariables(TagIO);
 			tasks.push_back(newTask);
 			CString name;
 			name.Format("Task%i", i);
-			TagIO.Set(i, NULL, name, MTagIO_Set);
+			newTask->tagSubs.Configure(i, NULL, name, MTagIO_Set);
 		}
 	if (size < tasks.size())  //We want to remove elements
 		for (int i = tasks.size() - 1; i >= size; i--)
 		{
 			delete tasks.back();
 			tasks.pop_back();
-			TagIO.Remove(i);
+			//TagIO.Remove(i);
 		}
 }
 
@@ -377,7 +375,7 @@ bool RandomFailure::CheckTags()
 	bool ret = true;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (TagIO[i]->Tag != "" && !TagIO[i]->IsActive)
+		if (tasks.at(i)->tagSubs.Tag != "" && !tasks.at(i)->tagSubs.IsActive)
 		{
 			CString warning;
 			warning.Format("Task %i does not have a valid tag", i);
@@ -388,7 +386,7 @@ bool RandomFailure::CheckTags()
 	return ret;
 }
 
-FailureVariables::FailureVariables()
+FailureVariables::FailureVariables(MTagIO & TagIO) : tagSubs(TagIO)
 {
 	bRunning = true;
 	dAvgDowntime =24 * 3600;

@@ -64,11 +64,11 @@ class TailingsGraphic : public MBaseMethod
 	double dFluidLevel, dSolidLevel, dFSA;
 
 	//Data read from the tank:
-	MTagIOItem FluidMassItem, SolidMassItem;
+  MTagIODirect FluidMassItem, SolidMassItem;
 	double dFluidMass, dSolidMass;
-	MTagIOItem ConcItem;
+	MTagIODirect ConcItem;
 	double dConc;
-	MTagIOItem VolItem, LiquidDensityItem;
+	MTagIODirect VolItem, LiquidDensityItem;
 
 	//Functions:
 	void SetIntPtCount(int count);

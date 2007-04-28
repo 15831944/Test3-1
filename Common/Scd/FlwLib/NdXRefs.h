@@ -202,12 +202,16 @@ class DllImportExport CNodeTagIOItem : public CXRefStatus
 
     LPCSTR            TagOnly()       { return m_sTagOnly; };
     void              SetTag(LPCSTR NewTag);
+
+    long              Configure(long UserHandle, LPCSTR ItemTag, LPCSTR ItemName, long IOFlags);
     
     MTagIOResult      CheckTag();
     MTagIOResult      ReadValue();
     MTagIOResult      WriteValue();
 
     LPCSTR            Name()        { return m_sName; };
+    long              IdNo()        { return m_lIdNo; };
+    long            & UserHandle()  { return m_lUserHandle; };
     byte              DataType()    { return m_iTypeRead; };
     CCnvIndex         CnvIndex()    { return m_iCnvRead; };
     LPCSTR            CnvText()     { return m_sCnv; };
@@ -222,6 +226,8 @@ class DllImportExport CNodeTagIOItem : public CXRefStatus
 
   protected:
     FlwNode         * m_pNd;
+    CNodeTagIOList  * m_pTagIO;
+    POSITION          m_MyPos;
 
     CString           m_sFullTag;
     CString           m_sTagOnly;
@@ -232,6 +238,7 @@ class DllImportExport CNodeTagIOItem : public CXRefStatus
     long              m_IOFlags;
     DDEF_Flags        m_TagFlags;
     long              m_lIdNo;
+    long              m_lUserHandle;
     bool              m_bValid;
     bool              m_bInUse;
     bool              m_bValueValid;
@@ -248,33 +255,35 @@ class DllImportExport CNodeTagIOList
   friend class MTagIO;
 
   public:
-    CNodeTagIOList(FlwNode * pNd, long TagCount=-1);
+    CNodeTagIOList(FlwNode * pNd);
     ~CNodeTagIOList();
 
     void            BuildDataDefn(DataDefnBlk & DDB);
     flag            DataXchg(DataChangeBlk & DCB);
     flag            ValidateData(ValidateDataBlk & VDB);
     bool            ValidateReqd();
-    bool            StartValidate(long TagCount);
+    bool            StartValidate();
     bool            EndValidate();
 
     int             ChangeTag(pchar pOldTag, pchar pNewTag);
     int             DeleteTag(pchar pDelTag);
 
-    void            SetSize(long TagCount);
+    //void            SetSize(long TagCount);
     long            Count()                  { return m_Items.GetCount(); };
     
-    CNodeTagIOItem *operator[](int Id)       { return m_Items[Id]; } 
-    CNodeTagIOItem *operator[](LPCSTR IDTag) { int i=FindTag(IDTag); return i>=0 ? m_Items[i] : NULL; } 
+    //CNodeTagIOItem *operator[](int Id)       { return m_Items[Id]; } 
+    //CNodeTagIOItem *operator[](LPCSTR IDTag) { int i=FindTag(IDTag); return i>=0 ? m_Items[i] : NULL; } 
     
-    long            Set(long Id, LPCSTR ItemTag, LPCSTR Name, long IOFlags);        // returns >=0 Id, < 0 Errors
-    bool            Remove(long Id);
-    bool            Remove(LPCSTR ItemTag);
+    void            Add(CNodeTagIOItem * pItem);        
+    void            Remove(CNodeTagIOItem * pItem);        
+    //long            ConfigurSet(long Id, LPCSTR ItemTag, LPCSTR Name, long IOFlags);        // returns >=0 Id, < 0 Errors
+    //bool            Remove(long Id);
+    //bool            Remove(LPCSTR ItemTag);
     void            RemoveAll();
-    long            GetCount();
+    //long            GetCount();
 
-    long            FindTag(LPCSTR ItemTag);
-    long            FindName(LPCSTR Name);
+    //long            FindTag(LPCSTR ItemTag);
+    //long            FindName(LPCSTR Name);
 
     int             UpdateXRefLists(CXRefBuildResults & Results);
     void            UnlinkAllXRefs();
@@ -291,10 +300,14 @@ class DllImportExport CNodeTagIOList
     FlwNode       * m_pNd;
                              
     long            m_nCount;
+    long            m_lIdCount;
 
-    CArray<CNodeTagIOItem*, CNodeTagIOItem*> m_Items;
-    CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_TagMap;
-    CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_NameMap;
+    //long            m_nBaseCount;
+    //CArray<CNodeTagIOItem*, CNodeTagIOItem*> m_Items;
+    CList<CNodeTagIOItem*, CNodeTagIOItem*> m_Items;
+    //CMap<CNodeTagIOItem*, CNodeTagIOItem*, POSITION, POSITION> m_PosMap;
+    //CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_TagMap;
+    //CMap<LPCSTR, LPCSTR, CNodeTagIOItem*, CNodeTagIOItem*> m_NameMap;
 
     bool            m_bValidateReqd;
     bool            m_bShowTags;

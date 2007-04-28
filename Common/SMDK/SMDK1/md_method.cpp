@@ -1032,19 +1032,19 @@ long MCtrlIOs::getNoCtrlIOs() { return m_pNd->NoCIOs(); };
 
 //---------------------------------------------------------------------------
 
-MTagIOItem::MTagIOItem(MTagIO & TagIO, CNodeTagIOItem *pItem)
+MTagIOItem::MTagIOItem(MTagIO & TagIO, bool ForSubscription)//, CNodeTagIOItem *pItem)
   { 
   m_pTagIO = &TagIO; 
-  if (pItem==NULL)
-    {
-    m_pItem = new CNodeTagIOItem(m_pTagIO->m_pNd, false);
+  //if (pItem)
+  //  {
+  //  m_pItem=pItem; 
+  //  m_bOwnsItem=false;
+  //  }
+  //else
+  //  {
+    m_pItem = new CNodeTagIOItem(m_pTagIO->m_pNd, ForSubscription);
     m_bOwnsItem=true;
-    }
-  else
-    {
-    m_pItem=pItem; 
-    m_bOwnsItem=false;
-    }
+  //  }
   };
 
 MTagIOItem::~MTagIOItem()
@@ -1057,7 +1057,6 @@ bool   MTagIOItem::getNumDataType()         { return IsNumDataType((byte)getData
 bool   MTagIOItem::getIntDataType()         { return IsIntDataType((byte)getDataType());       };
 bool   MTagIOItem::getFloatDataType()       { return IsFloatDataType((byte)getDataType());     };
 bool   MTagIOItem::getStrngDataType()       { return IsStrngDataType((byte)getDataType());     };
-bool   MTagIOItem::getIsActive()            { return m_pItem ? m_pItem->IsActive():false;      };
 short  MTagIOItem::getDataType()            { return m_pItem ? m_pItem->DataType():tt_NULL;    };
 short  MTagIOItem::getCnvIndex()            { return m_pItem ? m_pItem->CnvIndex():0;          };
 LPCSTR MTagIOItem::getTag()                 { return m_pItem ? m_pItem->FullTag():"";          };
@@ -1112,16 +1111,37 @@ void   MTagIOItem::puttring(LPCSTR Value)
     m_pItem->m_bValueValid=true;
     }; 
   };
-  
-MCnv   MTagIOItem::getCnv()                 { return m_pItem ? MCnv(m_pItem->CnvIndex(), m_pItem->CnvText()) : MCnv(0,"");   };
-MD_Flags MTagIOItem::getIOFlags()           { return m_pItem ? m_pItem->IOFlags():0;                          };
-bool   MTagIOItem::getIsGet()               { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Get)!=0:false;     };
-bool   MTagIOItem::getIsSet()               { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Set)!=0:false;     };
-bool   MTagIOItem::getIsParm()              { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Parm)!=0:false;    };
 
-MTagIOResult MTagIOItem::CheckTag()         { return m_pItem->CheckTag();   };
-MTagIOResult MTagIOItem::ReadValue()        { return m_pItem->ReadValue();  };
-MTagIOResult MTagIOItem::WriteValue()       { return m_pItem->WriteValue(); };
+long MTagIOItem::getUserHandle()              { return m_pItem ? m_pItem->m_lUserHandle:-1;     };
+void MTagIOItem::putUserHandle(long Handle)   { if (m_pItem) m_pItem->m_lUserHandle=Handle;     };
+
+MCnv   MTagIOItem::getCnv()                   { return m_pItem ? MCnv(m_pItem->CnvIndex(), m_pItem->CnvText()) : MCnv(0,"");   };
+MD_Flags MTagIOItem::getIOFlags()             { return m_pItem ? m_pItem->IOFlags():0;          };
+
+MTagIOResult MTagIOItem::CheckTag()           { return m_pItem->CheckTag();   };
+
+//---------------------------------------------------------------------------
+
+MTagIODirect::MTagIODirect(MTagIO & TagIO) : MTagIOItem(TagIO, false) { };
+MTagIODirect::~MTagIODirect()         { };
+
+MTagIOResult MTagIODirect::ReadValue()    { return m_pItem->ReadValue();  };
+MTagIOResult MTagIODirect::WriteValue()   { return m_pItem->WriteValue(); };
+
+//---------------------------------------------------------------------------
+
+MTagIOSubscription::MTagIOSubscription(MTagIO & TagIO) : MTagIOItem(TagIO, true) { };
+MTagIOSubscription::~MTagIOSubscription()                                        { };
+
+long MTagIOSubscription::Configure(long UserHandle, LPCSTR ItemTag, LPCSTR Name, long Options)     
+  {
+  return m_pItem->Configure(UserHandle, ItemTag, Name, Options);
+  };       
+
+bool   MTagIOSubscription::getIsActive()          { return m_pItem ? m_pItem->IsActive():false;      };
+bool   MTagIOSubscription::getIsGet()             { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Get)!=0:false;     };
+bool   MTagIOSubscription::getIsSet()             { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Set)!=0:false;     };
+bool   MTagIOSubscription::getIsParm()            { return m_pItem ? (m_pItem->IOFlags()&MTagIO_Parm)!=0:false;    };
 
 //---------------------------------------------------------------------------
 
@@ -1147,82 +1167,25 @@ CString MTagIO::FormatAsTagAndCnv(const CString & Tag)
     STag=sTag();
   return STag;
   }
-LPCSTR MTagIO::ResultString(MTagIOResult Res)
-  {
-  return CNodeTagIOList::ResultString(Res);
-  }
 
 //---------------------------------------------------------------------------
 
-void   MTagIO::Open(long TagCount)                       
-  {
-  m_pNd->OpenTagIO(TagCount);
-  SetSize(TagCount);
-  };
+LPCSTR MTagIO::ResultString(MTagIOResult Res)                     { return CNodeTagIOList::ResultString(Res);         }
 
-void MTagIO::SetSize(long TagCount)
-  {
-  for (int i=TagCount; i<m_Items.GetSize(); i++)
-    delete m_Items[i];
-  int iStart=m_Items.GetSize();
-  m_Items.SetSize(TagCount);
-  for (int i=iStart; i<m_Items.GetSize(); i++)
-    m_Items[i]= new MTagIOItem(*this, (*m_pNd->m_pTagIO)[i]);
-  }; 
+//---------------------------------------------------------------------------
 
-void   MTagIO::Close()                                      
-  { 
-  m_pNd->CloseTagIO();      
-  };
-
-bool MTagIO::getActive()
-  {
-  return m_pNd->TagIOActive();
-  };
-void MTagIO::putActive(bool On)
-  {
-  m_pNd->SetTagIOActive(On);
-  };
-
-
-bool   MTagIO::ValidateReqd()                                      
-  { 
-  return m_pNd->m_pTagIO->ValidateReqd();
-  };
-
-bool MTagIO::StartValidateDataFields(long TagCount)
-  {
-  return m_pNd->m_pTagIO->StartValidate(TagCount);
-  };
-bool MTagIO::EndValidateDataFields()
-  {
-  return m_pNd->m_pTagIO->EndValidate();
-  };
-
-long   MTagIO::Set(long ID, LPCSTR ItemTag, LPCSTR Name, long Options)     
-  { 
-  return m_pNd->m_pTagIO->Set(ID, ItemTag, Name, Options);  
-  };       
-bool   MTagIO::Remove(long ID)                                    { return m_pNd->m_pTagIO->Remove(ID);                   };
-void   MTagIO::RemoveAll()                                        { return m_pNd->m_pTagIO->RemoveAll();                  };
-long   MTagIO::getCount()                                         { return m_pNd->m_pTagIO->GetCount();                   };
+void MTagIO::Open()                                               { m_pNd->OpenTagIO();                                                 };
+void MTagIO::Close()                                              { m_pNd->CloseTagIO();                                                };
+void MTagIO::Add(MTagIOSubscription * pItem)                      { if (m_pNd->m_pTagIO) m_pNd->m_pTagIO->Add(pItem->m_pItem);          }; 
+void MTagIO::Remove(MTagIOSubscription * pItem)                   { if (m_pNd->m_pTagIO) m_pNd->m_pTagIO->Remove(pItem->m_pItem);       }; 
+bool MTagIO::getActive()                                          { return m_pNd->TagIOActive();                                        };
+void MTagIO::putActive(bool On)                                   { if (m_pNd->m_pTagIO) m_pNd->SetTagIOActive(On);                     };
+bool MTagIO::ValidateReqd()                                       { return m_pNd->m_pTagIO ? m_pNd->m_pTagIO->ValidateReqd() : false;   };
+bool MTagIO::StartValidateDataFields()                            { return m_pNd->m_pTagIO ? m_pNd->m_pTagIO->StartValidate() : false;  };
+bool MTagIO::EndValidateDataFields()                              { return m_pNd->m_pTagIO ? m_pNd->m_pTagIO->EndValidate() : false;    };
+void MTagIO::RemoveAll()                                          { if (m_pNd->m_pTagIO) m_pNd->m_pTagIO->RemoveAll();                  };
+long MTagIO::getCount()                                           { return m_pNd->m_pTagIO ? m_pNd->m_pTagIO->Count() : 0;              };
                                                                                             
-long   MTagIO::FindTag(LPCSTR ItemTag)                            { return m_pNd->m_pTagIO->FindTag(ItemTag);             };
-long   MTagIO::FindName(LPCSTR Name)                              { return m_pNd->m_pTagIO->FindName(Name);               };
-                                                                                            
-MTagIOItem * MTagIO::operator[](int ID)
-  {
-  if (ID>=0 && ID <m_Items.GetCount())
-    return m_Items[ID];
-  return NULL;
-  };
-
-MTagIOItem * MTagIO::operator[](LPCSTR TagStr)
-  {
-  int id=FindTag(TagStr);
-  return id>=0 ? m_Items[id]:NULL;
-  };
-
 //===========================================================================
 
 #endif

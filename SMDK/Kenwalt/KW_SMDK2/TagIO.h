@@ -45,12 +45,16 @@ class CTagGetAndSetExample : public MBaseMethod
     bool            m_bOn;
 
     //variables for direct tag set and get
-    MTagIOItem      m_GetItem;
-    MTagIOItem      m_SetItem;
+    MTagIODirect    m_GetItem;
+    MTagIODirect    m_SetItem;
     double          m_dGetValue;
     double          m_dSetValue;
     CString         m_sGetStatus;
     CString         m_sSetStatus;
+
+    MTagIOSubscription    m_GetSubs1;
+    MTagIOSubscription    m_GetSubs2;
+    MTagIOSubscription    m_SetSubs1;
 
     //variables for tag subscription
     double          m_dGetValueSubs1;

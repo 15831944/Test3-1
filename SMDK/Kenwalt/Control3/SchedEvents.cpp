@@ -47,7 +47,6 @@ ScheduledEvents::ScheduledEvents(MUnitDefBase * pUnitDef, TaggedObject * pNd) : 
 	dCurrentTime = 0.0;
   bForceIntegralPeriod = true;
   bForceIntegralDowntime = false;
-	TagIO.Open(10);
 }
 
 //---------------------------------------------------------------------------
@@ -129,8 +128,8 @@ void ScheduledEvents::BuildDataFields()
 		DD.Text("Results...");
 		DD.Double ("", "Period", &tasks.at(i).dPeriod, MF_RESULT, MC_Time("h"));
 		DD.Double ("", "InactivePeriod", &tasks.at(i).dDowntime, MF_RESULT, MC_Time("h"));
-		if (tasks.at(i).nTagID < 0)
-			DD.Text("Tag Not Found");
+    if (!tasks.at(i).subsTag.IsActive)
+			DD.Text("Tag Not Active");
 		DD.Bool("Active", "", &tasks.at(i).bRunning, MF_RESULT);
 		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING);
 		DD.Text("");
@@ -165,16 +164,18 @@ bool ScheduledEvents::ExchangeDataFields()
 			CString name;
 			name.Format("TagToSet%x", task);
 
-			int curTag = TagIO.FindTag(DX.String);
-			if (curTag >= 0)
-				tasks.at(task).nTagID = curTag;
-			else
-			{
-        curTag = TagIO.FindName(name);
-  			if (curTag >= 0)
-				  TagIO.Remove(curTag);
-				tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
-			}
+			//int curTag = TagIO.FindTag(DX.String);
+			//if (curTag >= 0)
+			//	tasks.at(task).nTagID = curTag;
+			//else
+			//{
+   //     curTag = TagIO.FindName(name);
+  	//		if (curTag >= 0)
+			//	  TagIO.Remove(curTag);
+			//	tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
+			//}
+
+      tasks.at(task).subsTag.Configure(-1, DX.String, name, MTagIO_Set);
 
 		}
 		DX.String = tasks.at(task).sTag;
@@ -253,12 +254,12 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 					tasks.at(i).dNextShutdown += tasks.at(i).dPeriod;
 				}
 				bool bNowRunning = tasks.at(i).dBackedUpDowntime <= 0;
-				if (tasks.at(i).nTagID >= 0)
+				//if (tasks.at(i).nTagID >= 0)
 				{
 					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
-            TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOnValue;
+            tasks.at(i).subsTag.DoubleSI = tasks.at(i).dOnValue;
 					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
-						TagIO[tasks.at(i).nTagID]->DoubleSI = tasks.at(i).dOffValue;
+						tasks.at(i).subsTag.DoubleSI = tasks.at(i).dOffValue;
 				}
 				tasks.at(i).bRunning = bNowRunning;
 
@@ -319,14 +320,14 @@ void ScheduledEvents::SetSize(long size)
 	if (size > tasks.size()) //We want to add elements
 		for (int i = tasks.size(); i < size; i++)
 		{
-			MaintVariables newTask;
+			MaintVariables newTask(TagIO);
 			newTask.bRunning = true;
 			newTask.dDesiredDowntime = 3600;
 			newTask.dOffset = 0.0;
 			newTask.dDesiredPeriod = 24 * 3600;
 			newTask.dTotalDowntime = 0.0;
 			newTask.sTag = "";
-			newTask.nTagID = -1;
+			//newTask.nTagID = -1;
       newTask.dOnValue = 1.0;
       newTask.dOffValue = 0.0;
       newTask.dDowntime = newTask.dDesiredDowntime;

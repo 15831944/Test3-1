@@ -59,6 +59,7 @@ bool SingleVarStats::PreStartCheck()
 		m_sErrorMsg = "Cannot get tag";
 		return false;
 	}
+  return true;
 }
 
 //---------------------------------------------------------------------------

@@ -36,7 +36,10 @@ void CTagGetAndSetExample_UnitDef::GetOptions()
 
 CTagGetAndSetExample::CTagGetAndSetExample(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
   m_GetItem(TagIO),
-  m_SetItem(TagIO)
+  m_SetItem(TagIO),
+  m_GetSubs1(TagIO),
+  m_GetSubs2(TagIO),
+  m_SetSubs1(TagIO)
   {
   //default values...
   m_bOn       = true;
@@ -47,8 +50,6 @@ CTagGetAndSetExample::CTagGetAndSetExample(MUnitDefBase * pUnitDef, TaggedObject
   m_dGetValueSubs1 = 0.0;
   m_dGetValueSubs2 = 0.0;
   m_dSetValueSubs1 = 0.0;
-
-  TagIO.Open(3); //there will be three subscription tags
   }
 
 //---------------------------------------------------------------------------
@@ -116,16 +117,16 @@ void CTagGetAndSetExample::BuildDataFields()
   DD.String("GetTagSubs1", "", idDX_GetTagSubsStr1, MF_PARAMETER);
   DD.String("GetTagSubs2", "", idDX_GetTagSubsStr2, MF_PARAMETER);
 
-  DD.Show(TagIO[0]->IsActive);
-  DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, TagIO[0]->Cnv);
+  DD.Show(m_GetSubs1.IsActive);
+  DD.Double("GetValue1", "", &m_dGetValueSubs1, MF_RESULT|MF_NanOK, m_GetSubs1.Cnv);
 
-  DD.Show(TagIO[1]->IsActive);
-  DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, TagIO[1]->Cnv);
+  DD.Show(m_GetSubs2.IsActive);
+  DD.Double("GetValue2", "", &m_dGetValueSubs2, MF_RESULT|MF_NanOK, m_GetSubs2.Cnv);
 
   DD.Show();
   DD.String("SetTagSubs1", "", idDX_SetTagSubsStr1, MF_PARAMETER);
-  DD.Show(TagIO[2]->IsActive);//m_iSet1>=0);
-  DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, TagIO[2]->Cnv);
+  DD.Show(m_SetSubs1.IsActive);//m_iSet1>=0);
+  DD.Double("SetValue1", "", &m_dSetValueSubs1, MF_PARAMETER|MF_NanOK, m_SetSubs1.Cnv);
 
 #if 01
   //Example for matrix / grid
@@ -262,18 +263,18 @@ bool CTagGetAndSetExample::ExchangeDataFields()
       return true;
     case idDX_GetTagSubsStr1:
       if (DX.HasReqdValue)
-        TagIO[0]->Tag=DX.String;
-      DX.String = TagIO[0]->Tag;
+        m_GetSubs1.Tag=DX.String;
+      DX.String = m_GetSubs1.Tag;
       return true;
     case idDX_GetTagSubsStr2:
       if (DX.HasReqdValue)
-        TagIO[1]->Tag=DX.String;
-      DX.String = TagIO[1]->Tag;
+        m_GetSubs2.Tag=DX.String;
+      DX.String = m_GetSubs2.Tag;
       return true;
     case idDX_SetTagSubsStr1:
       if (DX.HasReqdValue)
-        TagIO[2]->Tag=DX.String;
-      DX.String = TagIO[2]->Tag;
+        m_SetSubs1.Tag=DX.String;
+      DX.String = m_SetSubs1.Tag;
       return true;
     }
 
@@ -285,18 +286,15 @@ bool CTagGetAndSetExample::ExchangeDataFields()
 bool CTagGetAndSetExample::ValidateDataFields()
   {
   if (TagIO.ValidateReqd())
-    {//only check the IO subscription tags if required and if allowed
+    {                                    //only check the IO subscription tags if required and if allowed
     if (TagIO.StartValidateDataFields())
       {
-      if (TagIO.Set(0, NULL, "GetValue1", MTagIO_Get)>0) //try subscribe (read) to this tag
-        m_dGetValueSubs1 = TagIO[0]->DoubleSI;
-      if (TagIO.Set(1, NULL, "GetValue2", MTagIO_Get)>0) //try subscribe (read) to this tag
-        m_dGetValueSubs2 = TagIO[1]->DoubleSI;
-
-      if (TagIO.Set(2, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0) //try subscribe (write) to this tag
-        {
-        m_dSetValueSubs1 = TagIO[2]->DoubleSI; //get the initial value from the tag
-        }
+      if (m_GetSubs1.Configure(10, NULL, "GetValue1", MTagIO_Get)>0)  //try subscribe (read) to this tag
+        m_dGetValueSubs1 = m_GetSubs1.DoubleSI;
+      if (m_GetSubs2.Configure(33, NULL, "GetValue2", MTagIO_Get)>0)  //try subscribe (read) to this tag
+        m_dGetValueSubs2 = m_GetSubs2.DoubleSI;
+      if (m_SetSubs1.Configure(44, NULL, "SetValue1", MTagIO_Set|MTagIO_Parm)>0) //try subscribe (write) to this tag
+        m_dSetValueSubs1 = m_SetSubs1.DoubleSI;                         //get the initial value from the tag
       }
     TagIO.EndValidateDataFields();
    
@@ -328,14 +326,12 @@ void CTagGetAndSetExample::EvalCtrlStrategy(eScdCtrlTasks Tasks)
         {//tag subscriptions for this model are active; must always get/set values
         
         //get the values of the active (valid) individual get (read) subscription tags
-        if (TagIO[0]->IsActive)
-          m_dGetValueSubs1 = TagIO[0]->DoubleSI; //always as SI units
-        if (TagIO[1]->IsActive)
-          m_dGetValueSubs2 = TagIO[1]->DoubleSI; //always as SI units
-
-        //set the values of the active (valid) individual set (write) subscription tags
-        if (TagIO[2]->IsActive)
-          TagIO[2]->DoubleSI = m_dSetValueSubs1; //always as SI units
+        if (m_GetSubs1.IsActive)
+          m_dGetValueSubs1 = m_GetSubs1.DoubleSI; //always as SI units
+        if (m_GetSubs2.IsActive)
+          m_dGetValueSubs2 = m_GetSubs2.DoubleSI; //always as SI units
+        if (m_SetSubs1.IsActive)
+          m_SetSubs1.DoubleSI = m_dSetValueSubs1; //always as SI units
         }
       }
     catch (MMdlException &ex)

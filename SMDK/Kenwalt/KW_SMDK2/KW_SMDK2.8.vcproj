@@ -578,6 +578,13 @@
 			<File
 				RelativePath=".\SchedEvents.cpp"
 				>
+				<FileConfiguration
+					Name="Release_Dbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Stats.cpp"
@@ -637,6 +644,10 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\TagIO.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.cpp"

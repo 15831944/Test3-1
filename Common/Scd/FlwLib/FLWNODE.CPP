@@ -4158,27 +4158,20 @@ void FlwNode::SetProcsReqd(bool Reqd)
 
 #if WITHNODETAGIO
 
-void FlwNode::OpenTagIO(long MaxTagCount)
+void FlwNode::OpenTagIO()
   {              
-  if (MaxTagCount>0)
+  if (gs_Exec.Stopped())
     {
     if (m_pTagIO==NULL)
-      m_pTagIO = new CNodeTagIOList(this, MaxTagCount);
-    else
-      m_pTagIO->SetSize(MaxTagCount);
+      m_pTagIO = new CNodeTagIOList(this);
     m_TagIOActive=true;
-    }
-  else
-    {
-    delete m_pTagIO;
-    m_TagIOActive=false;
     }
   };
 
 void FlwNode::CloseTagIO()
   {              
-  delete m_pTagIO;
-  m_TagIOActive=false;
+  if (gs_Exec.Stopped())
+    m_TagIOActive=false;
   };
 
 bool FlwNode::SetTagIOActive(bool On)

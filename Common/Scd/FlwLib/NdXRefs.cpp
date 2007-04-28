@@ -1068,9 +1068,19 @@ int CNodeProcedures::DeleteTag(pchar pDelTag)
 
 #if WITHNODETAGIO
 
-CNodeTagIOItem::CNodeTagIOItem(FlwNode *pNd/*CNodeTagIOList * pIOList*/, bool Subscribed, LPCSTR Tag, LPCSTR Name, long IOFlags) : m_Var(BXO_Blank)
+CNodeTagIOItem::CNodeTagIOItem(FlwNode *pNd, bool Subscribed, LPCSTR Tag, LPCSTR Name, long IOFlags) : m_Var(BXO_Blank)
   {
-  m_pNd = pNd;
+  m_pNd          = pNd;
+  m_bSubscribed  = Subscribed;
+
+  if (pNd->m_pTagIO==NULL)
+    pNd->OpenTagIO();
+
+  m_pTagIO       = pNd->m_pTagIO;
+  m_MyPos        = NULL;
+
+  m_lIdNo        = m_pTagIO->m_lIdCount++;
+  m_lUserHandle  = 0;
 
   m_iTypeRead    = tt_NULL;
   m_iCnvRead     = 0;
@@ -1080,19 +1090,22 @@ CNodeTagIOItem::CNodeTagIOItem(FlwNode *pNd/*CNodeTagIOList * pIOList*/, bool Su
   m_sName        = Name;
   if (m_sName.GetLength()==0) 
     m_sName.Format("Tag%03i", m_lIdNo);
+  
   m_IOFlags      = IOFlags;
 
-  m_lIdNo        = -1;
   m_bValid       = false; 
   m_bInUse       = false; 
   m_bValueValid  = false;
-  m_bSubscribed  = Subscribed;
+  if (m_bSubscribed)
+    m_pTagIO->Add(this);
   }
 
 //---------------------------------------------------------------------------
 
 CNodeTagIOItem::~CNodeTagIOItem()
   {
+  if (m_bSubscribed)
+    m_pTagIO->Remove(this);
   }
 
 //---------------------------------------------------------------------------
@@ -1101,10 +1114,6 @@ void CNodeTagIOItem::SetTag(LPCSTR NewTag)
   {
   if (NewTag && strlen(NewTag)>0)
     {
-    if (m_bSubscribed)
-      m_pNd->m_pTagIO->Remove(m_sTagOnly);
-  
-
     Strng sTag, sCnv;
     TaggedObject::SplitTagCnv((LPSTR)NewTag, sTag, sCnv);
     
@@ -1125,9 +1134,38 @@ void CNodeTagIOItem::SetTag(LPCSTR NewTag)
     m_sCnv         = sCnv();
 
     if (m_bSubscribed)
-      m_pNd->m_pTagIO->m_bValidateReqd=true;
+      m_pTagIO->m_bValidateReqd=true;
     }
   };
+
+//---------------------------------------------------------------------------
+
+long CNodeTagIOItem::Configure(long UserHandle, LPCSTR ItemTag, LPCSTR ItemName, long IOFlags)
+  {
+  m_lUserHandle= UserHandle;
+  m_bValid = false;
+
+  if (ItemTag && ItemTag[0])
+    SetTag(ItemTag);
+    //pItm->m_sTag=ItemTag;
+
+  m_IOFlags = IOFlags;
+  m_sName        = ItemName;
+
+  MTagIOResult  Res=CheckTag();
+  if (Res==MTagIO_OK)
+    {
+    if (!m_bInUse)
+      {
+      m_bInUse = true; 
+      m_pTagIO->m_nCount++;
+      m_pNd->MyTagsHaveChanged();
+
+      m_Var.SetVar(m_sTagOnly.GetBuffer(), false, NULL, NULL);
+      }
+    }
+  return Res;
+  }
 
 //---------------------------------------------------------------------------
 
@@ -1252,13 +1290,11 @@ MTagIOResult CNodeTagIOItem::WriteValue()
 //
 //===========================================================================
 
-CNodeTagIOList::CNodeTagIOList(FlwNode * pNd, long TagCount)
+CNodeTagIOList::CNodeTagIOList(FlwNode * pNd)
   {
   m_pNd=pNd;
   m_nCount=0;
-  m_TagMap.InitHashTable(FindNextPrimeNumber(TagCount));
-  m_NameMap.InitHashTable(FindNextPrimeNumber(TagCount));
-  SetSize(TagCount); 
+  m_lIdCount=0;
   
   m_bShowTags=false;
   m_bValidateReqd=true;
@@ -1271,21 +1307,7 @@ CNodeTagIOList::~CNodeTagIOList()
   {
   dbgpln("CNodeTagIOList::DTOR");
   RemoveAll();
-  SetSize(0);
   }
-
-//---------------------------------------------------------------------------
-
-void CNodeTagIOList::SetSize(long TagCount)
-  {
-  for (int i=TagCount; i<m_Items.GetSize(); i++)
-    delete m_Items[i];
-  int iStart=m_Items.GetSize();
-  m_Items.SetSize(TagCount);
-  for (int i=iStart; i<m_Items.GetSize(); i++)
-    m_Items[i]= new CNodeTagIOItem(m_pNd, true);
-  m_bValidateReqd=true;
-  }; 
 
 //---------------------------------------------------------------------------
 
@@ -1294,9 +1316,10 @@ void CNodeTagIOList::BuildDataDefn(DataDefnBlk & DDB)
   if (DDB.BeginObject(m_pNd, "TagIO", "NdTagIO", 0, DDB_RqdPage))
     {
     DDB.Text(" ");
-    for (int i=0; i<m_Items.GetCount(); i++)
+    POSITION Pos=m_Items.GetHeadPosition();
+    while (Pos)
       {
-      CNodeTagIOItem *p=m_Items[i];
+      CNodeTagIOItem *p=m_Items.GetNext(Pos);
       if (p && p->m_bInUse)
         {
         DWORD Opts=(p->m_IOFlags & (MTagIO_Parm|MTagIO_Set))==(MTagIO_Parm|MTagIO_Set) ? isParm : 0;
@@ -1326,7 +1349,7 @@ flag CNodeTagIOList::ValidateData(ValidateDataBlk & VDB)
   return true;
   };
 
-bool CNodeTagIOList::StartValidate(long TagCount)
+bool CNodeTagIOList::StartValidate()
   {
   return true;
   };
@@ -1335,7 +1358,6 @@ bool CNodeTagIOList::EndValidate()
   m_bValidateReqd=false;
   return true;
   };
-
 
 bool CNodeTagIOList::ValidateReqd()
   {
@@ -1353,94 +1375,41 @@ bool CNodeTagIOList::ValidateReqd()
 
 //---------------------------------------------------------------------------
 
-long CNodeTagIOList::Set(long Id, LPCSTR ItemTag, LPCSTR ItemName, long IOFlags)
+void CNodeTagIOList::Add(CNodeTagIOItem * pItem)
   {
-  long TgIndex=Id;
-  if (TgIndex<0)
-    {
-    if (ItemTag && ItemTag[0])
-      TgIndex=FindTag(ItemTag);
-  
-    if (TgIndex<0)
-      {
-      // Find a Gap
-      for (int i=0; i<m_Items.GetCount(); i++)
-        {
-        if (!m_Items[i]->m_bInUse)
-          {
-          TgIndex=i;
-          break;
-          }
-        }
-      }
-    }
+  ASSERT(pItem->m_MyPos==NULL);
 
-  if (TgIndex<0)
-    return MTagIO_NoSpace;
-
-  CNodeTagIOItem * pItm = m_Items[TgIndex];
-
-  pItm->m_lIdNo = TgIndex;
-  pItm->m_bValid = false;
-
-  if (ItemTag && ItemTag[0])
-    pItm->SetTag(ItemTag);
-    //pItm->m_sTag=ItemTag;
-
-  pItm->m_IOFlags = IOFlags;
-  pItm->m_sName        = ItemName;
-
-  MTagIOResult  Res=pItm->CheckTag();
-  if (Res==MTagIO_OK)
-    {
-    if (!pItm->m_bInUse)
-      {
-      pItm->m_bInUse = true; 
-      m_nCount++;
-      m_pNd->MyTagsHaveChanged();
-
-      m_TagMap.SetAt(pItm->m_sTagOnly, pItm);
-      m_NameMap.SetAt(pItm->m_sName, pItm);
-      pItm->m_Var.SetVar(pItm->m_sTagOnly.GetBuffer(), false, NULL, NULL);
-
-      //pItm->m_iTypeRead    = pItm->m_iTypeRead;
-      //pItm->m_iCnvRead     = pItm->m_iCnvRead;
-      }
-
-    return TgIndex;
-    }
-  return Res;
-  }
+  m_bValidateReqd=true;
+  pItem->m_MyPos=m_Items.AddTail(pItem);
+  };        
 
 //---------------------------------------------------------------------------
 
-bool CNodeTagIOList::Remove(long Index)
+void CNodeTagIOList::Remove(CNodeTagIOItem * pItem)
   {
-  if (Index>=0 && Index<m_Items.GetCount() && m_Items[Index]!=NULL)
-    {
-    CNodeTagIOItem * pRemove = m_Items[Index];
-    if (pRemove->m_bInUse)
-      {
-      pRemove->m_bInUse=false;
-      m_nCount--;
-      m_pNd->MyTagsHaveChanged();
-      }
-    
-    m_bValidateReqd=true;
-   
-    return true;
-    }
-  return false;
-  }
+  ASSERT(pItem->m_MyPos!=NULL);
 
+  m_bValidateReqd=true;
+  //pItem->m_lIdNo=m_Items.GetCount();
+  m_Items.RemoveAt(pItem->m_MyPos);
+         pItem->m_MyPos=NULL;
+
+  if (pItem && pItem->m_bInUse)
+    {
+    pItem->m_bInUse=false;
+    m_nCount--;
+    m_pNd->MyTagsHaveChanged();
+    }
+  };        
 
 //---------------------------------------------------------------------------
 
 void CNodeTagIOList::RemoveAll()
   {
-  for (int i=0; i<m_Items.GetCount(); i++)
+  POSITION Pos=m_Items.GetHeadPosition();
+  while (Pos)
     {
-    CNodeTagIOItem * pRemove = m_Items[i];
+    CNodeTagIOItem *pRemove =m_Items.GetNext(Pos);
     if (pRemove && pRemove->m_bInUse)
       {
       pRemove->m_bInUse=false;
@@ -1458,48 +1427,15 @@ void CNodeTagIOList::UpdateList()
 
 //---------------------------------------------------------------------------
 
-long CNodeTagIOList::GetCount()
-  {
-  return m_nCount;//m_TagMap.GetCount();
-  };
-
-//---------------------------------------------------------------------------
-
-long CNodeTagIOList::FindTag(LPCSTR ItemTag)
-  {
-  CNodeTagIOItem * p;
-  if (m_TagMap.Lookup(ItemTag, p))
-    return p->m_lIdNo;
-  return -1;
-  }
-
-//---------------------------------------------------------------------------
-
-long CNodeTagIOList::FindName(LPCSTR Name)
-  {
-  CNodeTagIOItem * p;
-  if (m_NameMap.Lookup(Name, p))
-    return p->m_lIdNo;
-  return -1;
-  }
-
-//---------------------------------------------------------------------------
-
-bool   CNodeTagIOList::Remove(LPCSTR ItemTag)
-  {
-  return Remove(FindTag(ItemTag));
-  }
-
-//---------------------------------------------------------------------------
-
 int CNodeTagIOList::UpdateXRefLists(CXRefBuildResults & Results)
   {
   dbgpln("CNodeTagIOList::UpdateXRefLists");
   //FnMngrClear();
   int FunctNo = 0;
-  for (int i=0; i<m_Items.GetCount(); i++)
+  POSITION Pos=m_Items.GetHeadPosition();
+  while (Pos)
     {
-    CNodeTagIOItem *p=m_Items[i];
+    CNodeTagIOItem *p=m_Items.GetNext(Pos);
     if (p && p->m_bValid)
       {
       CString Id;
@@ -1525,10 +1461,11 @@ void CNodeTagIOList::UnlinkAllXRefs()
   dbgpln("CNodeTagIOList::UnlinkAllXRefs");
   //FnMngrClear();
   //FnMngrTryUnlinkAllXRefs();
-  for (int i=0; i<m_Items.GetCount(); i++)
+  POSITION Pos=m_Items.GetHeadPosition();
+  while (Pos)
     {
-    if (m_Items[i])
-      m_Items[i]->m_Var.UnlinkXRefs();
+    CNodeTagIOItem *p=m_Items.GetNext(Pos);
+    p->m_Var.UnlinkXRefs();
     }
 
   UpdateList();
@@ -1539,101 +1476,49 @@ void CNodeTagIOList::UnlinkAllXRefs()
 
 void CNodeTagIOList::EvalCtrlInitialise(eScdCtrlTasks Tasks)
   {
-  //if (Tasks&CO_InitPrf)
-  //  {
-  //  for (int i=0; i<iCount; i++)
-  //    //DataBlk[i]->DoLoad();
-  //    DataBlk[i]->Prof.StartAll(ICGetTime());
-  //  }
   };
-
-//--------------------------------------------------------------------------
-
-//void CNodeTagIOList::EvalCtrlStrategy(eScdCtrlTasks Tasks)
-//  {
-//  if (1)//XRefListActive() && ICGetTimeInc() > 0.0)
-//    {
-//    //GetNearXRefValues();
-//
-//    //if (FnMngrPresent())
-//    //  {
-//    //  //solve npr functions...
-//    //  CGExecContext ECtx(this);
-//    //  ECtx.dIC_Time = ICGetTime();
-//    //  ECtx.dIC_dTime = ICGetTimeInc();
-//    //  ECtx.OnStart = bAboutToStart;
-//    //  ECtx.HoldNearXRefXfer=true;
-//    //  FnMngr().Execute(ECtx);
-//    //  bAboutToStart = 0;
-//    //  if (ECtx.DoXStop)
-//    //    {
-//    //    LogError(Tag(), 0, "SysCAD stopped by function");
-//    //    ExecObj()->XStop();
-//    //    }
-//    //  if (ECtx.DoXIdle)
-//    //    {
-//    //    LogError(Tag(), 0, "SysCAD paused by function");
-//    //    ExecObj()->XIdle();
-//    //    }
-//    //  }
-//
-//    for (int i=0; i<m_Items.GetCount(); i++)
-//      {
-//      if (m_Items[i])
-//        {
-//        CTagItem * p=m_Items[i];
-//        //if (Valid(p->ColData[j]->m_dOutput) || !HasNANFlag(p->ColData[j]->m_dOutput, NF_Free))
-//        p->m_Var.PutValue(p->m_DblValue);
-//        }
-//      }
-//    //SetNearXRefValues();
-//    }
-//  }
 
 //--------------------------------------------------------------------------
 
 void CNodeTagIOList::GetAllValues(bool CallGetNearXRefs)
   {
-  if (1)//XRefListActive() && ICGetTimeInc() > 0.0)
+  if (CallGetNearXRefs)
     {
-    if (CallGetNearXRefs)
-      {
-      m_pNd->GetNearXRefValues();
+    m_pNd->GetNearXRefValues();
 
-      //if (FnMngrPresent())
-      //  {
-      //  //solve npr functions...
-      //  CGExecContext ECtx(this);
-      //  ECtx.dIC_Time = ICGetTime();
-      //  ECtx.dIC_dTime = ICGetTimeInc();
-      //  ECtx.OnStart = bAboutToStart;
-      //  ECtx.HoldNearXRefXfer=true;
-      //  FnMngr().Execute(ECtx);
-      //  bAboutToStart = 0;
-      //  if (ECtx.DoXStop)
-      //    {
-      //    LogError(Tag(), 0, "SysCAD stopped by function");
-      //    ExecObj()->XStop();
-      //    }
-      //  if (ECtx.DoXIdle)
-      //    {
-      //    LogError(Tag(), 0, "SysCAD paused by function");
-      //    ExecObj()->XIdle();
-      //    }
-      //  }
-      }
+    //if (FnMngrPresent())
+    //  {
+    //  //solve npr functions...
+    //  CGExecContext ECtx(this);
+    //  ECtx.dIC_Time = ICGetTime();
+    //  ECtx.dIC_dTime = ICGetTimeInc();
+    //  ECtx.OnStart = bAboutToStart;
+    //  ECtx.HoldNearXRefXfer=true;
+    //  FnMngr().Execute(ECtx);
+    //  bAboutToStart = 0;
+    //  if (ECtx.DoXStop)
+    //    {
+    //    LogError(Tag(), 0, "SysCAD stopped by function");
+    //    ExecObj()->XStop();
+    //    }
+    //  if (ECtx.DoXIdle)
+    //    {
+    //    LogError(Tag(), 0, "SysCAD paused by function");
+    //    ExecObj()->XIdle();
+    //    }
+    //  }
+    }
 
-    for (int i=0; i<m_Items.GetCount(); i++)
+  POSITION Pos=m_Items.GetHeadPosition();
+  while (Pos)
+    {
+    CNodeTagIOItem *p=m_Items.GetNext(Pos);
+    if (p && p->m_bInUse && p->m_bValid && (p->m_IOFlags & MTagIO_Get))
       {
-      CNodeTagIOItem * p=m_Items[i];
-      if (p && p->m_bInUse && p->m_bValid && (p->m_IOFlags & MTagIO_Get))
-        {
-        //p->m_Value.Set(*p->m_Var.GetValue());
-        double D;
-        p->m_Var.GetValue(D, true);//(p->m_lOptions &MTIO_SICnv)!=0);
-        p->m_Value.DoubleSI=D;
-        p->m_bValueValid = true;
-        }
+      double D;
+      p->m_Var.GetValue(D, true);//(p->m_lOptions &MTIO_SICnv)!=0);
+      p->m_Value.DoubleSI=D;
+      p->m_bValueValid = true;
       }
     }
   };
@@ -1642,21 +1527,19 @@ void CNodeTagIOList::GetAllValues(bool CallGetNearXRefs)
 
 void CNodeTagIOList::SetAllValues(bool CallSetNearXRefs)
   {
-  if (1)//XRefListActive() && ICGetTimeInc() > 0.0)
+  POSITION Pos=m_Items.GetHeadPosition();
+  while (Pos)
     {
-    for (int i=0; i<m_Items.GetCount(); i++)
+    CNodeTagIOItem *p=m_Items.GetNext(Pos);
+    if (p && p->m_bInUse && p->m_bValueValid && (p->m_IOFlags & MTagIO_Set))
       {
-      CNodeTagIOItem * p=m_Items[i];
-      if (p && p->m_bInUse && p->m_bValueValid && (p->m_IOFlags & MTagIO_Set))
-        {
-        p->m_Var.PutValue(p->m_Value.DoubleSI, true);
-        p->m_bValueValid = false;
-        }
+      p->m_Var.PutValue(p->m_Value.DoubleSI, true);
+      p->m_bValueValid = false;
       }
-
-    if (CallSetNearXRefs)
-      m_pNd->SetNearXRefValues();
     }
+
+  if (CallSetNearXRefs)
+    m_pNd->SetNearXRefValues();
   };
 
 //--------------------------------------------------------------------------

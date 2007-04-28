@@ -24,12 +24,14 @@
 struct MaintVariables
   {
   public:
-	MaintVariables();
+	MaintVariables(MTagIO & TagIO);
+
     double dDesiredDowntime, dDowntime;
     double dDesiredPeriod, dPeriod;
     double dOffset, dNextShutdown;
     CString sDescription;
 
+    MTagIOSubscription tagSubs;
     double dOnValue, dOffValue;
 
     bool bRunning;

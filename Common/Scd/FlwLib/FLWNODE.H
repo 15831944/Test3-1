@@ -4290,12 +4290,12 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
 #if WITHNODETAGIO
-    void           OpenTagIO(long EstTagCount);
+    void           OpenTagIO();
     void           CloseTagIO();
     bool           TagIOActive()                    { return m_pTagIO && m_TagIOActive; };
     bool           SetTagIOActive(bool On);
 #else
-    void           OpenTagIO(long EstTagCount)      { };
+    void           OpenTagIO()                      { };
     void           CloseTagIO()                     { };
     bool           TagIOActive()                    { return false; };
     bool           SetTagIOActive(bool On)          { };

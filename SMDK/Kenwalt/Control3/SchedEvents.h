@@ -25,12 +25,18 @@
 struct MaintVariables
   {
   public:
+    MaintVariables(MTagIO & TagIO) : subsTag(TagIO)
+      {
+      }
+
     double dDesiredDowntime, dDowntime;
     double dDesiredPeriod, dPeriod;
     double dOffset, dNextShutdown;
     CString sDescription;
 
-    CString sTag; int nTagID;
+    CString sTag; 
+    //int nTagID;
+    MTagIOSubscription subsTag;
     double dOnValue, dOffValue;
 
     bool bRunning;
