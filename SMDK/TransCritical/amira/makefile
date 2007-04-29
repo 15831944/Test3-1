@@ -12,7 +12,7 @@ dll:
 
 # Export Library with _cdecl DLL
 lib:
-	g77 -shared -o amira.dll bayer.for -Wl,--output-def,amira.def,--out-implib,libamira.a
+	g77 -shared -mrtd -o amira.dll bayer.for -Wl,--output-def,amira.def,--out-implib,libamira.a
 	lib /machine:i386 /def:amira.def
 	cp amira.dll "c:/syscad91/bin"      # for syscad
 	cp amira.dll "c:/windows/system32"  #for python etc
