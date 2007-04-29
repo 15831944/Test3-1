@@ -25,7 +25,6 @@
 class SysCADSystemHelper
   {
   public:
-
 	  SysCADSystemHelper();
 
 	  static bool SysCADSizeDataToSystem(MIPSD &PSD,RioTintoTS::PStreamInfo1 SizInfo);
@@ -36,7 +35,6 @@ class SysCADSystemHelper
 	  static void PopulateMaterialInfo(MBaseMethod &M, RioTintoTS::PStreamInfo1 MatInfo);
 
   protected:
- 
   };
 
 //---------------------------------------------------------------------------
@@ -50,24 +48,19 @@ enum ParameterType { parREAL, parINT, parBOOL , parSELLIST };
 //---------------------------------------------------------------------------
 
 struct Parameter
-
 {
-	char* name;				    // Parameter Name to Display on Pages
+	char* name;				// Parameter Name to Display on Pages
 	ParameterType type;
-	char* value;			    // Value in string format
+	char* value;			// Value in string format
 	unsigned long flags;	// Flags specifying how param should be displayed
-	void* ptr;				    // Used to point to storage for paramater
-
+	void* ptr;				// Used to point to storage for paramater
 };
 
 //---------------------------------------------------------------------------
 
 class SysCADParams
-
 {
-
 public:
-
 	static void InitParams(struct Parameter* p, int n, double val[] );
 	static void BuildDataFields(struct Parameter* p, int n, MBaseMethod* m,double val[]);
 	static void BuildDataFieldsAutoName(struct Parameter* p, int n,MBaseMethod* m,char* base,double val[]);
@@ -77,11 +70,8 @@ public:
 //---------------------------------------------------------------------------
 
 class SysCADParamsA
-
 {
-
 public:
-
   SysCADParamsA();
   SysCADParamsA(struct Parameter* p, int n );
   ~SysCADParamsA();
@@ -93,6 +83,29 @@ public:
 private:
   double* val;  // Storage for parameters
   int npars;    // Number of parameters
+};
+
+//---------------------------------------------------------------------------
+
+class SysCADParamsTable
+{
+public:
+  SysCADParamsTable();
+  //SysCADParamsA(struct Parameter* p, int n );
+  ~SysCADParamsTable();
+  void InitParams(char* TableName_, char* Col0Name_, char* Col1Name_, int RowCount);
+  void BuildDataFields(MDataDefn &DD);
+
+  void SetData(double* d);
+  void GetData(double* d);
+
+private:
+  double* val;  // Storage for parameters
+  char* TableName;
+  char* Col0Name;
+  char* Col1Name;
+  int nrows;    // Number of rows for parameters
+  int ncols;    // Number of columns
 };
 
 //---------------------------------------------------------------------------

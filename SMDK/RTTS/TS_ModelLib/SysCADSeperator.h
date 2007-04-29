@@ -9,6 +9,7 @@
 #include "md_headers.h"
 #endif
 
+#include "SysCADSystemHelper.h"
 #include "EfficiencySeperator.h"
 #include "LoadBasedSeperator.h"
 #include "PartitionSeperator.h"

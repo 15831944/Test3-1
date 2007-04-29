@@ -12,7 +12,7 @@
 //             Load Based Screen
 //====================================================================================
 
-    CSeperator_LoadBased::CSeperator_LoadBased()
+CSeperator_LoadBased::CSeperator_LoadBased()
 	{
 
 	// Construct the Persistent System Feed Data
@@ -104,10 +104,37 @@
 	 m_dBottomX=0.0;		//  user custom factor
 	 m_dBottomV=0.0;		//  screen load %
 
+	const int nRows = 19;
+	static double AArray [ nRows ] [ 2 ] = 
+	{
+//          S       A	
+//      Screen    Basic
+//      Opening Capacity
+        { 0    ,   0.0 },
+		{ 1    ,   1.1 },
+		{ 2    ,   2.0 },
+		{ 3    ,   3.0 },
+		{ 4    ,   3.9 },
+		{ 5    ,   4.8 },
+		{ 6.35 ,   5.9 },
+		{ 8    ,   7.0 },
+		{ 10   ,   8.2 },
+		{ 12   ,   9.4 },
+		{ 15   ,  10.7 },
+		{ 18   ,  12.0 },
+		{ 22   ,  13.4 },
+		{ 26   ,  14.6 },
+		{ 30   ,  15.8 },
+		{ 40   ,  18.2 },
+		{ 75   ,  25.0 },
+		{ 160  ,  41.5 },
+		{ 500  , 107.5 }, };
+	 m_A.InitParams("A", "Sz", "Ar", 19);
+	 m_A.SetData((double*)&AArray);
+
 	}
 
 	void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
-	
 	{ 
 
 	static MDDValueLst DDAppetureShape[]={
@@ -237,8 +264,10 @@
 	 DB.Double("V"				, "", &m_dBottomV			, MF_PARAMETER ,  MC_None);
 	DB.StructEnd();
 
-	DB.ObjectEnd();
+	DB.Page("Tables");
+	m_A.BuildDataFields(DB);
 
+	DB.ObjectEnd();
 	}
 
 //====================================================================================

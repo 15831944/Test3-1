@@ -128,6 +128,8 @@ protected:
  	double m_TopDeckParams[13];
 	double m_BottomDeckParams[13];
 
+    SysCADParamsTable m_A;
+
 };
 
 #endif

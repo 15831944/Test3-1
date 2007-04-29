@@ -71,11 +71,10 @@ enum
   {
   idDX_GetTagStr = 1,
   idDX_GetTagButton,
-  //idDX_GetTagValue,
   idDX_GetTagInfoButton,
   idDX_PutTagStr,
   idDX_SetTagButton,
-  //idDX_SetTagValue, 
+
   idDX_TagSubscriptionOn,
   idDX_GetTagSubsStr1,
   idDX_GetTagSubsStr2,
@@ -93,10 +92,10 @@ const int idDX_AB = idDX_XY+(maxCols*maxRows);
 void CTagGetAndSetExample::BuildDataFields()
   {
   DD.CheckBox("On",       "", &m_bOn,         MF_PARAMETER);
+
   DD.Text(" ");
   DD.Text("----------------------------------------");
   DD.Text("Example of GetTag and SetTag...");
-#if 01
   DD.String("GetTag", "", idDX_GetTagStr, MF_PARAMETER);
   DD.Button("GetTagInfo",  "", idDX_GetTagInfoButton);
   DD.Button("GetValueNow", "", idDX_GetTagButton);
@@ -107,7 +106,6 @@ void CTagGetAndSetExample::BuildDataFields()
   DD.Double("ValueToSet", "", &m_dSetValue, MF_PARAMETER|MF_NanOK);
   DD.Button("SetValueNow", "", idDX_SetTagButton);
   DD.Text(m_sSetStatus);
-#endif
 
   DD.Text(" ");
   DD.Text(" ");
@@ -330,6 +328,8 @@ void CTagGetAndSetExample::EvalCtrlStrategy(eScdCtrlTasks Tasks)
           m_dGetValueSubs1 = m_GetSubs1.DoubleSI; //always as SI units
         if (m_GetSubs2.IsActive)
           m_dGetValueSubs2 = m_GetSubs2.DoubleSI; //always as SI units
+
+		//set the values of the active (valid) individual set (write) subscription tags
         if (m_SetSubs1.IsActive)
           m_SetSubs1.DoubleSI = m_dSetValueSubs1; //always as SI units
         }

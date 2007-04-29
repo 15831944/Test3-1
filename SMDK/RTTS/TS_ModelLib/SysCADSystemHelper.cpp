@@ -2,7 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-
 #include "stdafx.h"
 #define  __SysCADSystemHelper_CPP
 #include "SysCADSystemHelper.h"
@@ -778,7 +777,6 @@ for (i = 0 ; i < n ; i++ )
 //====================================================================================
 
 void SysCADParamsA::BuildDataFieldsAutoName(struct Parameter* p, int n,MBaseMethod* m,char* base)
-
 {
 
 int i;
@@ -820,7 +818,6 @@ for (i = 0 ; i < n ; i++ )
 }
 
 void SysCADParamsA::BuildDataFields(struct Parameter* p, int n,MBaseMethod* m)
-
 {
 
 int i;
@@ -858,3 +855,90 @@ for (i = 0 ; i < n ; i++ )
 
 //====================================================================================
 
+SysCADParamsTable::SysCADParamsTable()
+  {
+  val = NULL;
+  nrows = 0;
+  ncols = 0;
+  }
+
+SysCADParamsTable::~SysCADParamsTable()
+  {
+  if (val != NULL)
+    delete []val;
+ }
+
+void SysCADParamsTable::InitParams(char* TableName_, char* Col0Name_, char* Col1Name_, int RowCount)
+  {
+  TableName = TableName_;
+  Col0Name = Col0Name_;
+  Col1Name = Col1Name_;
+  nrows = RowCount;
+  ncols = 2;
+  const long n = nrows*ncols;
+
+  if (val != NULL)
+    delete []val;
+  val = new double[n];
+
+  for (int i=0 ; i<n ; i++ )
+    {
+    val[i] = 0.0;
+	}
+  }
+
+void SysCADParamsTable::BuildDataFields(MDataDefn &DD)
+  {
+  /*DD.MatrixBegin(TableName, TableName, ncols, nrows, 8, 0, "X", "Y", 0);
+  for (int r=0; r<nrows; r++)
+    {
+    DD.GridRowStart();
+    DD.MatrixElementStart(0, r);
+    for (int c=0; c<ncols; c++)
+      {
+      DD.Double(c==0 ? Col0Name : Col1Name, "", &(val[r*ncols+c]), MF_RESULT|MF_NO_FILING, MC_None);
+      }
+    }
+  DD.MatrixEnd();*/
+
+  DD.Text("------------------------------------------------------------");
+  DD.GridBegin(TableName, ncols, nrows);
+
+  CString Txt,T1;
+  Txt.Format("%s//%s", Col0Name, Col1Name);
+  DD.GridColumnHeader(Txt, 5, 0, 0);
+  DD.GridColumnHeader(Col0Name, 9, 0);
+  DD.GridColumnHeader(Col1Name, 9, 0);
+
+  for (int r=0; r<nrows; r++)
+    {
+    T1.Format("_%02i_", r);
+    DD.GridRowHeader(T1); //does not work!!!
+    DD.GridRowStart();
+    for (int c=0; c<ncols; c++)
+      {
+      Txt.Format("%s[%i].%s", TableName, r, c==0 ? Col0Name : Col1Name);
+      DD.Double(Txt, "", &(val[r*ncols+c]), MF_PARAMETER|MF_NO_FILING, MC_None);
+      }
+    }
+
+  DD.GridEnd();
+  }
+
+void SysCADParamsTable::SetData(double* d)
+  {
+  const long n = nrows*ncols;
+  for (int i=0 ; i<n; i++)
+    {
+    val[i] = d[i];
+	}
+  }
+
+void SysCADParamsTable::GetData(double* d)
+  {
+  const long n = nrows*ncols;
+  for (int i=0 ; i<n; i++)
+    {
+    d[i] = val[i];
+	}
+  }
