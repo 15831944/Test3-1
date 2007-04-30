@@ -14,13 +14,12 @@
 #define  __GSMODEL_CPP
 #include "m_base.h"
 #include "gsmodel.h"
-
-#include "errorlog.h"
-#include "dbgmngr.h"
+//#include "optoff.h"
 
 #define dbgGSModel       WITHDEBUG
 
 #if dbgGSModel
+#include "dbgmngr.h"
 static CDbgMngr dbgEvalDerivs      ("GenModel",  "XXX");
 #endif
 

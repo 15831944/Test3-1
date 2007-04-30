@@ -9,7 +9,6 @@
 #include "pgm_e.h"
 #include "xrefs.h"
 #include "ndtree.h"
-#include "dbgmngr.h"
 //#include "optoff.h"
 
 //===========================================================================
@@ -21,6 +20,7 @@
 #define dbgXRefs     (WITHDEBUG)
 
 #if dbgXRefs
+#include "dbgmngr.h"
 static CDbgMngr dbgConstructTagRef  ("XRefs",  "ConstructTagRef");
 static CDbgMngr dbgConstructXRef    ("XRefs",  "ConstructXRef");
 static CDbgMngr dbgConstructXRef1   ("XRefs",  "ConstructXRef1");
@@ -389,12 +389,13 @@ void CXRefItem::CopyToLcl()
   m_Lcl.m_sRefID    = m_sRmtID;
   m_Lcl.m_sRmtTag   = m_sRefTag;
   m_Lcl.m_sRmtID    = m_sRefID;
-  m_Lcl.m_bMustGet  = m_bMustSet;
-  m_Lcl.m_bMustSet  = m_bMustGet;
   m_Lcl.m_iCnvIndex = m_iCnvIndex;
   m_Lcl.m_sCnv      = m_sCnv;
   m_Lcl.m_iType     = m_iType;
   m_Lcl.m_pOwner    = m_pOwner;
+  //Note: MustGet and MustSet are reversed. (Is this intentional? and Why?)
+  m_Lcl.m_bMustGet  = m_bMustSet;
+  m_Lcl.m_bMustSet  = m_bMustGet;
   };
 
 //--------------------------------------------------------------------------

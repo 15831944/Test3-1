@@ -2830,12 +2830,13 @@ Build 123 : 21 February 2007
 1695 25/04/07: (#810) Tweak direct IO visibility.
 1697 26/04/07: (#821) Fix for crash on projects with control links.
 1698 26/04/07: (#822) Fix for filter for bulk tag change.
-...1699 26/04/07: (#807) SMDK MTagIO improvements.
+1706 28/04/07: (#807) SMDK MTagIO restructuring and improvements.
+1713 30/04/07: (#830) Fix for incorrect strings sometimes being returned for GetDynStrTag in PGM.
 
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1701
+#define SCD_PATCH_SVN    1713
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

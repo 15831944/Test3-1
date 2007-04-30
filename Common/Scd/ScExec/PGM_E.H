@@ -110,7 +110,7 @@ const DWORD VarSetNotify   = 0x00000100; //if the variable is set must the PGM c
 const DWORD VarGetNotify   = 0x00000200; //if the variable is read must the PGM class be notified
 const DWORD VarStrFunct    = 0x00000400; //if the variable is a FunctVar that returns a Str
 const DWORD VarDynTag      = 0x00000800; //CNM - moved m_bDynTag
-const DWORD VarDynTagOK    = 0x00001000; //
+const DWORD VarDynTagOK    = 0x00001000; //is the dynamic tag OK (ie found and legal)
 const DWORD VarArrayClass  = 0x00002000; //is this an array class
 const DWORD VarMatrixClass = 0x00004000; //is this a matrix class
 const DWORD VarClassUsed   = 0x00008000; //is this class defn used
@@ -747,7 +747,8 @@ class DllImportExport GCTagVar : public GCVar
     CCnvIndex      m_iCnvIndex;
     flag           //m_bDynTag:1, 
                    m_bOnlyAllowGet:1,
-                   m_bAllowSetAtInit:1, 
+                   m_bAllowSetAtInit:1,
+                   //m_bXrefFound:1,
                    m_bTempDynTag:1,
                    m_bStrTag:1;
     CXRefItem    * m_pXRef;

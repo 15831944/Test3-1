@@ -4039,7 +4039,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
       {
       Strng Nm;
       DDB.Text("IO Tags");
-      DDB.Short ("IOCount",  "",  DC_   , "",        xidIO_Count,         this, isResult|noFileAtAll|InitHidden);
+      DDB.Short ("IOCount",  "",  DC_   , "",        xidIO_Count,         this, isResult|noFileAtAll);
       DDB.Short ("IOInputCount",  "InCnt",  DC_   , "",        xidIO_InCnt,         this, isResult|noFileAtAll|InitHidden);
       int Cnt = 0;
       for (int i=0; i<NoFlwIOs(); i++)

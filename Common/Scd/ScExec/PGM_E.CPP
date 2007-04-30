@@ -22,7 +22,7 @@
 
 #include <fstream>
 
-#define WITHVARMAP 01
+#define WITHVARMAP 1
 
 #if WITHDEBUGNEW
 #ifdef new
@@ -141,6 +141,7 @@ GCTagVar::GCTagVar(pGCVar &pFirstVar, GCVarMap * pVarMap, pchar pName, DWORD fla
   m_bOnlyAllowGet=0;
   m_bAllowSetAtInit=0;
   m_bStrTag=0;
+  //m_bXrefFound=0;
   m_iCnvIndex=0;
   m_pXRef=NULL;
   m_pFldName=NULL;
@@ -2230,7 +2231,7 @@ void GCGetDynTagIns::Exec(GCInsMngr & IB)
   else
     {
     TaggedObject::SplitTagCnv(Tag(), WrkTag, WrkCnvTxt);
-    pGCVar pVar = IB.m_pVarList->FindTagByType(WrkTag(), VarTag);
+    GCVar* pVar = IB.m_pVarList->FindTagByType(WrkTag(), VarTag);
     if (pVar == NULL)
       {//try find new dyn tag and get its value
       pVar = IB.TryAddDynTag(WrkTag(), true, false);
@@ -2255,17 +2256,21 @@ void GCGetDynTagIns::Exec(GCInsMngr & IB)
       if (WrkCnvTxt.Length()>0)
         {//check engineering units...
         GCTagVar* pTagVar = (GCTagVar*)pVar;
-        if (pTagVar->m_iCnvIndex==DC_)
-          {
-          Strng s;
-          s.Set("%s has no defined engineering units.  Line:%d", pTagVar->Name(), m_iLineNo);
-          IB.Err(ErrOtherRuntime, 12, s());
-          }
-        else if (gs_CnvsMngr.FindSecCnv(pTagVar->m_iCnvIndex, WrkCnvTxt())==NULL)
-          {
-          Strng s;
-          s.Set("Tag:%s  (%s) is not a valid unit for %s.  Line:%d", pTagVar->Name(), WrkCnvTxt(), Cnvs[pTagVar->m_iCnvIndex]->Fam(), m_iLineNo);
-          IB.Err(ErrOtherRuntime, 12, s());
+        //if (pTagVar->m_bXrefFound)
+        if (pTagVar->m_flags & VarDynTagOK)
+          {//only check and complain about cnv units if the tag was found!
+          if (pTagVar->m_iCnvIndex==DC_)
+            {
+            Strng s;
+            s.Set("%s has no defined engineering units.  Line:%d", pTagVar->Name(), m_iLineNo);
+            IB.Err(ErrOtherRuntime, 12, s());
+            }
+          else if (gs_CnvsMngr.FindSecCnv(pTagVar->m_iCnvIndex, WrkCnvTxt())==NULL)
+            {
+            Strng s;
+            s.Set("Tag:%s  (%s) is not a valid unit for %s.  Line:%d", pTagVar->Name(), WrkCnvTxt(), Cnvs[pTagVar->m_iCnvIndex]->Fam(), m_iLineNo);
+            IB.Err(ErrOtherRuntime, 12, s());
+            }
           }
         IB.m_dCalcStack[++IB.m_iCalcPos] = Cnvs[pTagVar->m_iCnvIndex]->Human(pVar->getD(), WrkCnvTxt());
 #if dbgGenCon
@@ -2402,7 +2407,7 @@ void GCGetDynStrTagIns::Exec(GCInsMngr & IB)
   else
     {
     TaggedObject::SplitTagCnv(Tag(), WrkTag, WrkCnvTxt);
-    pGCVar pVar = IB.m_pVarList->FindTagByType(WrkTag(), VarTag);
+    GCVar* pVar = IB.m_pVarList->FindTagByType(WrkTag(), VarTag);
     if (pVar == NULL)
       {//try find new dyn tag and get its value
       pVar = IB.TryAddDynTag(WrkTag(), true, true);
@@ -2780,7 +2785,7 @@ pGCVar GCVar::FindTag(pchar pName)
 pGCVar GCVar::FindTagByType(pchar pName, char TagType)
   {
   //CNM/KGA the VarList should also be mapped
-  pGCVar pVar = this;
+  GCVar* pVar = this;
 #if WITHVARMAP 
   if (m_pVarMap->Lookup(pName, pVar) && pVar->WhatAmI()==TagType)
     return pVar;
@@ -5084,6 +5089,8 @@ int GCInsMngr::UpdateXRef(pGCVar pVar)
       }
     #endif
     }
+
+  //pTagVar->m_bXrefFound = ((RetCode & FXR_Found) ? 1 : 0);
 
   return RetCode;
   }
