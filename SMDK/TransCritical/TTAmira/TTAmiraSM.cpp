@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-04-25 04:09:00 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-04-30 06:59:17 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -45,11 +45,12 @@ MSpeciePtr   Water             (InitTest, "H2O(l)",        false);
 MSpeciePtr   Alumina           (InitTest, "NaAl[OH]4(l)",  false);
 MSpeciePtr   CausticSoda       (InitTest, "NaOH(l)",       false);
 MSpeciePtr   SodiumChloride    (InitTest, "NaCl(l)",       false);
+//MSpeciePtr   SodiumFluoride    (InitTest, "NaF(l)",       false);
 MSpeciePtr   SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
 MSpeciePtr   SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
 MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
 //MSpeciePtr   SodiumSilicate    (InitTest, "Na2SiO3(l)",    false); 
-//MSpeciePtr   Organics          (InitTest, "Na2C5.2O7.2(l)", false); //organic
+MSpeciePtr   Organics          (InitTest, "Na2C5.2O7.2(l)", false); //organic
 //MSpeciePtr   OccSoda           (InitTest, "NaOH*(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al[OH]3(s)", false);
 MSpeciePtr   AluminaSolid      (InitTest, "Al2O3(s)",      false);
@@ -77,9 +78,6 @@ MSpeciePtr   Steam             (InitTest, "H2O(g)",        true);
 AmiraBayer::AmiraBayer(TaggedObject *pNd)
   {
   MInitialise(); // this must be called to initialise the SMDK library if neccessary
-  //if (!hAmiraDLL)
-  //hAmiraDLL = LoadLibrary("amira");
-  
 
   }
 
@@ -135,7 +133,7 @@ double AmiraBayer::get_Density(long Phases, double T, double P, MArray *pMA)
   if (FLiq>1.0e-9)
     {
     CheckConverged(pMA);
-
+    Bayer(T, P, MA);
     Dl = dpData[iRho_Liq];
     }
 
@@ -985,12 +983,44 @@ void AmiraBayer::RecalcAmira()
 
 
 
-void AmiraBayer::Bayer(double T_K, double p_kPa, double *x) {
+void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   double TempC = T_K-273.15;
   double Pressure = p_kPa/100.;
   double InComp[NInComp];
-  for (int i=0; i<NInComp; i++) 
-    InComp[i] = x[i]*100.;
+
+  MA.Normalise();
+
+    
+  double x = MA[CausticSoda];
+  double y = MA[Alumina];
+
+  InComp[0] = InComp[1] = 0.0;
+  InComp[2] = 78./118.*y*100.;      // Al[OH]3    
+  InComp[3] = (0/118.*y+x)*100.;    // NaOH       
+  InComp[4] = MA[SodiumChloride]*100.;   // NaCl       
+  InComp[5] = MA[SodiumCarbonate]*100.;  // Na2CO3     
+  InComp[6] = MA[SodiumSulphate]*100.;   //  Na2SO4     
+  InComp[8] = MA[SodiumOxalate]*100.;    //  Na2C2O4    
+  InComp[10] = 0.0; // MA[SodiumFluoride]*100.;    //  NaF        
+
+  const double acetate = 0.88*MA[Organics]*100.;
+  const double formate = 0.12*MA[Organics]*100.;
+
+  
+  InComp[7] = acetate;      //  NaAcetate  
+  InComp[9] = formate;	    //  NaFormate  
+
+
+
+
+
+
+
+
+
+
+  
+
   bayer_(
 	 /*double*, */  &TempC,
 	 /*long*,   */  &InUnits,     

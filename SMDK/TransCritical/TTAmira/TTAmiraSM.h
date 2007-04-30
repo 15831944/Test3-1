@@ -15,24 +15,23 @@ extern "C" void bayer_(        // In all its glory
                    const long*,//  InUnits,            INTEGER!
                    double*,    //  Pressure,
                    const long*,//  NInComp,            INTEGER!
-                   double*,    //  InComp,             ARRAY*11
+                   double*,    //  InComp,             ARRAY*11 (5)
 		   double*,    //  DPDATA
                    const long*,      //  NOutComp,     INTEGER!
                    double*,    //  Comp_molkg,         ARRAY
                    double*,    //  Comp_molL,          ARRAY
-                   double*,    //  Comp_molL25,        ARRAY
+                   double*,    //  Comp_molL25,        ARRAY  (10)
                    double*,    //  Comp_mpercent,      ARRAY
                    double*,    //  Comp_gL,            ARRAY
                    const long*,      //  NOC,          INTEGER!
                    double*,    //  OC,                 ARRAY
-                   const long*,      //  NGamma,      INTEGER!
+                   const long*,      //  NGamma,      INTEGER! (15)
                    double*,    //  Gamma,             ARRAY
                    const long*,      //  NSI,         INTEGER!
                    double*,    //  SI,                ARRAY
                    const long*,      //  NSol,        INTEGER!
-                   double*,    //  SolML,             ARRAY
-                   double*     //  Solmkg             ARRAY
-
+                   double*,    //  SolML,             ARRAY (20)
+                   double*     //  Solmkg             ARRAY (21)
 		   );
 
 
@@ -108,39 +107,15 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double SolML         [6 ];
     double Solmkg        [6 ];
 
-    // This is all of the double precision results...
+    // This is all of the double precision results... add additional elements as needed
     double dpData[18];
     
-
-    /*
-    double I_m ;
-    double I_c ;
-    double I_c25 ;
-    double P_sat ;
-    double Al2O3 ;
-    double TC ;
-    double TA ;
-    double TempSat ;
-    double BPE ;
-    double Cp_Liq   ;    
-    double Cp_H2O   ;    
-    double Rho_Liq  ;   
-    double Rho_H2O  ;   
-    double Cp_phi   ;           
-    double V_phi    ;     
-    double Cp_LiqH2O; 
-    double Phi      ;       
-    double Aw       ;        
-    */
-
-
-
 
   public:
     AmiraBayer(TaggedObject *pNd);
     ~AmiraBayer();
     void RecalcAmira();
-    void Bayer(double, double, double*);
+    void Bayer(double, double, MArray &);
 
     bool            ValidateDataFields();
 
