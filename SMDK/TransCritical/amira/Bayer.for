@@ -18,7 +18,6 @@ C     >TempSat,BPE,Cp_Liq,Cp_H2O,Rho_Liq,Rho_H2O,Cp_phi,V_phi,Cp_LiqH2O,
 C     >Phi,Aw,NGamma,Gamma,NSI,SI,NSol,SolML,
 C     >Solmkg)
 C     ******************************************************************
-
 C   Purpose:  TO CALCULATE THE THERMODYNAMIC PROPERTIES OF BAYER LIQUORS
 C             USING THE PITZER MODEL.  BAYER version 5.0 (06/11/06)
 C   Import:   TempC - Temperature (deg C)
@@ -3462,50 +3461,7 @@ C
       VP(1) = 1677.2839D0
       VP(2) = -37008.039D0
       VP(3) = -312.872D0
-      VP(4) = 0.89310395D0      SUBROUTINE INIT(NInComp,NOutComp,NOC,NGamma,NSI,NSol,W,TR,P0,IDC,
-     >PLO,PHI,TLO,THI,TSAVE,PSAVE)
- 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      DIMENSION W(NInComp+5)
-        
-C      CHARACTER*20 OutCompName(NOutComp),OCName(NOC),GammaName(NGamma),
-C     >SIName(NSI),SolName(NSol)
-      
-      TR = 2.9815D2
-      P0 = 1.D0
-      TSAVE = TR
-      PSAVE = P0
-
-      W(1) = 18.0153D0
-      W(2) = 101.9613D0
-      W(3) = 61.9789D0
-      W(4) = 78.0036D0
-      W(5) = 39.9971D0
-      W(6) = 58.4427D0
-      W(7) = 105.9887D0
-      W(8) = 142.0432D0
-      W(9) = 133.9985D0
-      W(10) = 82.0344D0
-      W(11) = 68.0075D0
-      W(12) = 41.9882D0
-      W(13) = 24.0220D0
-      W(14) = 12.0110D0
-
-C          Permitted P and T ranges
-
-      PLO = 1.D-3 
-      PHI = 3.D2
-      TLO = -2.D1
-      THI = 3.0D2
-
-
-
-C      Deleted all this stuff to set component names...
-C      OutCompName(1) = 'Al(OH)3'
-C
-      RETURN
-      END
-
+      VP(4) = 0.89310395D0      
       VP(5) = -0.00043830501D0
       VP(6) = 24.506482D0
       VP(7) = 2.27D2
