@@ -199,7 +199,7 @@ class DllImportExport MTagIOValue
 
     long            m_Long;      
     double          m_Double;      
-    LPCSTR          m_String;      
+    CString         m_String;      
     //PkDataUnion  * m_pData;
     //PkDataUnion  * m_pData;
   };
