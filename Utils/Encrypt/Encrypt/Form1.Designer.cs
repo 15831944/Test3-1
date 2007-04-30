@@ -37,17 +37,21 @@ namespace Encrypt
           this.ProjectsLabel = new System.Windows.Forms.Label();
           this.EncryptGroupBox = new System.Windows.Forms.GroupBox();
           this.StatusStrip = new System.Windows.Forms.StatusStrip();
-          this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
           this.ProgressToolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+          this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+          this.SaveOptionsGroupBox = new System.Windows.Forms.GroupBox();
+          this.AllowSaveCheckBox = new System.Windows.Forms.CheckBox();
+          this.AllowExcelReportsCheckBox = new System.Windows.Forms.CheckBox();
           this.EncryptGroupBox.SuspendLayout();
           this.StatusStrip.SuspendLayout();
+          this.SaveOptionsGroupBox.SuspendLayout();
           this.SuspendLayout();
           // 
           // EncryptProjectButton
           // 
           this.EncryptProjectButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
-          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 180);
+          this.EncryptProjectButton.Location = new System.Drawing.Point(12, 267);
           this.EncryptProjectButton.Name = "EncryptProjectButton";
           this.EncryptProjectButton.Size = new System.Drawing.Size(380, 23);
           this.EncryptProjectButton.TabIndex = 1;
@@ -109,9 +113,9 @@ namespace Encrypt
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectListBox.FormattingEnabled = true;
           this.ProjectListBox.HorizontalScrollbar = true;
-          this.ProjectListBox.Location = new System.Drawing.Point(12, 79);
+          this.ProjectListBox.Location = new System.Drawing.Point(12, 143);
           this.ProjectListBox.Name = "ProjectListBox";
-          this.ProjectListBox.Size = new System.Drawing.Size(380, 95);
+          this.ProjectListBox.Size = new System.Drawing.Size(380, 108);
           this.ProjectListBox.TabIndex = 6;
           this.ProjectListBox.DoubleClick += new System.EventHandler(this.ProjectListBox_DoubleClick);
           // 
@@ -120,7 +124,7 @@ namespace Encrypt
           this.ProjectsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                       | System.Windows.Forms.AnchorStyles.Right)));
           this.ProjectsLabel.AutoSize = true;
-          this.ProjectsLabel.Location = new System.Drawing.Point(12, 63);
+          this.ProjectsLabel.Location = new System.Drawing.Point(12, 127);
           this.ProjectsLabel.Name = "ProjectsLabel";
           this.ProjectsLabel.Size = new System.Drawing.Size(48, 13);
           this.ProjectsLabel.TabIndex = 7;
@@ -143,29 +147,61 @@ namespace Encrypt
           this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ProgressToolStripProgressBar,
             this.toolStripStatusLabel1});
-          this.StatusStrip.Location = new System.Drawing.Point(0, 206);
+          this.StatusStrip.Location = new System.Drawing.Point(0, 293);
           this.StatusStrip.Name = "StatusStrip";
           this.StatusStrip.Size = new System.Drawing.Size(404, 22);
           this.StatusStrip.SizingGrip = false;
           this.StatusStrip.TabIndex = 10;
+          // 
+          // ProgressToolStripProgressBar
+          // 
+          this.ProgressToolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+          this.ProgressToolStripProgressBar.Name = "ProgressToolStripProgressBar";
+          this.ProgressToolStripProgressBar.Size = new System.Drawing.Size(400, 16);
+          this.ProgressToolStripProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
           // 
           // toolStripStatusLabel1
           // 
           this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
           this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
           // 
-          // ProgressToolStripProgressBar
+          // SaveOptionsGroupBox
           // 
-          this.ProgressToolStripProgressBar.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-          this.ProgressToolStripProgressBar.Name = "ProgressToolStripProgressBar";
-          this.ProgressToolStripProgressBar.Size = new System.Drawing.Size(100, 16);
-          this.ProgressToolStripProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+          this.SaveOptionsGroupBox.Controls.Add(this.AllowExcelReportsCheckBox);
+          this.SaveOptionsGroupBox.Controls.Add(this.AllowSaveCheckBox);
+          this.SaveOptionsGroupBox.Location = new System.Drawing.Point(15, 61);
+          this.SaveOptionsGroupBox.Name = "SaveOptionsGroupBox";
+          this.SaveOptionsGroupBox.Size = new System.Drawing.Size(238, 43);
+          this.SaveOptionsGroupBox.TabIndex = 11;
+          this.SaveOptionsGroupBox.TabStop = false;
+          this.SaveOptionsGroupBox.Text = "Save Options";
+          // 
+          // AllowSaveCheckBox
+          // 
+          this.AllowSaveCheckBox.AutoSize = true;
+          this.AllowSaveCheckBox.Location = new System.Drawing.Point(6, 19);
+          this.AllowSaveCheckBox.Name = "AllowSaveCheckBox";
+          this.AllowSaveCheckBox.Size = new System.Drawing.Size(79, 17);
+          this.AllowSaveCheckBox.TabIndex = 0;
+          this.AllowSaveCheckBox.Text = "Allow Save";
+          this.AllowSaveCheckBox.UseVisualStyleBackColor = true;
+          // 
+          // AllowExcelReportsCheckBox
+          // 
+          this.AllowExcelReportsCheckBox.AutoSize = true;
+          this.AllowExcelReportsCheckBox.Location = new System.Drawing.Point(86, 19);
+          this.AllowExcelReportsCheckBox.Name = "AllowExcelReportsCheckBox";
+          this.AllowExcelReportsCheckBox.Size = new System.Drawing.Size(120, 17);
+          this.AllowExcelReportsCheckBox.TabIndex = 0;
+          this.AllowExcelReportsCheckBox.Text = "Allow Excel Reports";
+          this.AllowExcelReportsCheckBox.UseVisualStyleBackColor = true;
           // 
           // EncryptProjectForm
           // 
           this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
           this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-          this.ClientSize = new System.Drawing.Size(404, 228);
+          this.ClientSize = new System.Drawing.Size(404, 315);
+          this.Controls.Add(this.SaveOptionsGroupBox);
           this.Controls.Add(this.StatusStrip);
           this.Controls.Add(this.EncryptGroupBox);
           this.Controls.Add(this.ProjectsLabel);
@@ -181,6 +217,8 @@ namespace Encrypt
           this.EncryptGroupBox.PerformLayout();
           this.StatusStrip.ResumeLayout(false);
           this.StatusStrip.PerformLayout();
+          this.SaveOptionsGroupBox.ResumeLayout(false);
+          this.SaveOptionsGroupBox.PerformLayout();
           this.ResumeLayout(false);
           this.PerformLayout();
 
@@ -199,6 +237,9 @@ namespace Encrypt
       private System.Windows.Forms.StatusStrip StatusStrip;
       private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
       private System.Windows.Forms.ToolStripProgressBar ProgressToolStripProgressBar;
+      private System.Windows.Forms.GroupBox SaveOptionsGroupBox;
+      private System.Windows.Forms.CheckBox AllowExcelReportsCheckBox;
+      private System.Windows.Forms.CheckBox AllowSaveCheckBox;
     }
 }
 

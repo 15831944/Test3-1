@@ -67,6 +67,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MEncryptDatConfig\MEncryptDatConfig.vcproj">
+      <Project>{A6C7B00A-B177-4FBC-9107-83A60772B8BD}</Project>
+      <Name>MEncryptDatConfig</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

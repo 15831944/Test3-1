@@ -62,11 +62,15 @@ void CTokenFileInfo::DecryptToBuffer(Strng encFnFull)
     fin.close();
 
     int count = fin.gcount();
-    m_Buffer[iFileIndex][count] = 71;
+    m_Buffer[iFileIndex][count] = (char)length;
+
+    int seed = length;
 
     for (int i=count-1; i>=0; i--) // decrypt the buffer.
     {
-      m_Buffer[iFileIndex][i] ^= m_Buffer[iFileIndex][i+1];
+      seed *= 1103515245;
+      seed += 12345; // add some deterministic noise to the system.
+      m_Buffer[iFileIndex][i] = m_Buffer[iFileIndex][i] ^ m_Buffer[iFileIndex][i+1] ^ i ^ seed;
     }
 
     m_Buffer[iFileIndex][count] = 0;
@@ -80,7 +84,7 @@ void CTokenFileInfo::DecryptToBuffer(Strng encFnFull)
 
 bool CTokenFileInfo::OpenFile(Strng FnFull)
 {
-  //gs_EncryptNDemos.CheckForDemo(NULL);
+  gs_EncryptNDemos.CheckForDemo(NULL);
 
   Strng encFnFull;
   encFnFull = FnFull;

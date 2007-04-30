@@ -4145,11 +4145,15 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
         fin.close();
 
         int count = fin.gcount();
-        ParseBuff[count] = 71;
+        ParseBuff[count] = (char)length;
+
+        int seed = length;
 
         for (int i=count-1; i>=0; i--) // decrypt the buffer.
           {
-          ParseBuff[i] ^= ParseBuff[i+1];
+          seed *= 1103515245;
+          seed += 12345; // add some deterministic noise to the system.
+          ParseBuff[i] = ParseBuff[i] ^ ParseBuff[i+1] ^ i ^ seed;
           }
 
         ParseBuff[count] = 0;
@@ -4170,7 +4174,7 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
       m_DbgMngr.sPgmName = Fn;
       while (m_DbgMngr.sPgmName.Find('\\')>=0)
         m_DbgMngr.sPgmName = m_DbgMngr.sPgmName.Mid(m_DbgMngr.sPgmName.Find('\\') + 1, 1024);
-      m_pH->m_pTknParser = new CTokenParser(Places, Fn, True, True, True);
+      m_pH->m_pTknParser = new CTokenParser(Places, realFn(), True, True, True);
       }
     }
 

@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "DemoDat.h"
+//#include "DemoDatConfig.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,6 +30,8 @@ using namespace std;
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 {
 	int nRetCode = 0;
+
+  //DemoDatConfig config = InitialiseDemoDatConfig();
 
 	// initialize MFC and print and error on failure
 	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))

@@ -108,11 +108,15 @@ void CTokenFile::DecryptToBuffer(Strng encFnFull)
     fin.close();
 
     int count = fin.gcount();
-    m_Buffer[m_FileIndex][count] = 71;
+    m_Buffer[m_FileIndex][count] = (char)length;
+
+    int seed = length; 
 
     for (int i=count-1; i>=0; i--) // decrypt the buffer.
     {
-      m_Buffer[m_FileIndex][i] ^= m_Buffer[m_FileIndex][i+1];
+      seed *= 1103515245;
+      seed += 12345; // add some deterministic noise to the system.
+      m_Buffer[m_FileIndex][i] = m_Buffer[m_FileIndex][i] ^ m_Buffer[m_FileIndex][i+1] ^ i ^ seed;
     }
 
     m_Buffer[m_FileIndex][count] = 0;

@@ -50,6 +50,7 @@ FILE* fopenEnc(char* filename, char* mode)
   char* buffer;
   int i;
   char* filenamex;
+  int seed ;
 
   FILE* file;
 
@@ -74,10 +75,16 @@ FILE* fopenEnc(char* filename, char* mode)
     fread(buffer, 1, length, file);
     fclose(file);
 
-    buffer[length] = 71;
+    buffer[length] = (char)length;
+
+    seed = length;
 
     for (i=length-1; i>=0; i--) // decrypt the buffer.
-      buffer[i] ^= buffer[i+1];
+    {
+      seed *= 1103515245;
+      seed += 12345; // add some deterministic noise to the system.
+      buffer[i] = buffer[i] ^ buffer[i+1] ^ i ^ seed;
+    }
 
     file = tmpfile();
 

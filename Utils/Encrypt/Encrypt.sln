@@ -3,16 +3,38 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Encrypt", "Encrypt\Encrypt.csproj", "{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MEncryptDatConfig", "MEncryptDatConfig\MEncryptDatConfig.vcproj", "{A6C7B00A-B177-4FBC-9107-83A60772B8BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F15D17ED-2C64-4C71-9E2C-5F4EE94C5CE7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Debug|Win32.Build.0 = Debug|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Release|Any CPU.ActiveCfg = Release|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Release|Win32.ActiveCfg = Release|Win32
+		{A6C7B00A-B177-4FBC-9107-83A60772B8BD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

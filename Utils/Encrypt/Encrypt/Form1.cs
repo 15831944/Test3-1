@@ -8,6 +8,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections;
 
+using MEncryptDatConfigNS;
+
 using Microsoft.Win32;
 
 namespace Encrypt
@@ -23,6 +25,8 @@ namespace Encrypt
     int numberPGM = 0;
     int numberRCT = 0;
     int numberDXF = 0;
+
+    MEncryptDatConfig config = new MEncryptDatConfig();
 
     public EncryptProjectForm()
     {
@@ -158,6 +162,15 @@ namespace Encrypt
           numberRCT = 0;
           numberDXF = 0;
         }
+
+        if (EncryptPGMFilesCheckBox.Checked) config.SetFlag(config.FlagPGMEncrypted(), 1); else config.SetFlag(config.FlagPGMEncrypted(), 0);
+        if (EncryptRCTFilesCheckBox.Checked) config.SetFlag(config.FlagRCTEncrypted(), 1); else config.SetFlag(config.FlagRCTEncrypted(), 0);
+        if (EncryptPGMFilesCheckBox.Checked) config.SetFlag(config.FlagDXFEncrypted(), 1); else config.SetFlag(config.FlagDXFEncrypted(), 0);
+
+        if (AllowSaveCheckBox.Checked) config.SetFlag(config.FlagAllowSave(), 1); else config.SetFlag(config.FlagAllowSave(), 0);
+        if (AllowExcelReportsCheckBox.Checked) config.SetFlag(config.FlagAllowSave(), 1); else config.SetFlag(config.FlagAllowSave(), 0);
+
+        config.Save(path + "\\" + "Encrypt.dat");
       }
     }
 
@@ -225,12 +238,18 @@ namespace Encrypt
         byte[] textByteArray = new byte[length + 1];
         byte[] encByteArray = new byte[length + 1];
 
-        textByteArray[length] = 71;
+        textByteArray[length] = (byte)length;
         length = fileStream.Read(textByteArray, 0, length);
         fileStream.Close();
 
+        int seed = length;
+
         for (int i = length - 1; i >= 0; i--)
-          encByteArray[i] = (byte)(textByteArray[i] ^ textByteArray[i + 1]);
+        {
+          seed *= 1103515245;
+          seed += 12345; // add some deterministic noise to the system.
+          encByteArray[i] = (byte)(textByteArray[i] ^ textByteArray[i + 1] ^ i ^ seed);
+        }
 
         String filex = file + ".x";
         FileStream fileStreamx = File.Open(filex, FileMode.Create);
