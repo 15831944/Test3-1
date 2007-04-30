@@ -179,7 +179,7 @@ class DllImportExport GSIOThermal
     GSIOThermal &   operator=(GSIOThermal & A);
 
     byte            Mode(GSModel * Mdl);
-    byte            Priority(GSModel * Mdl) { return Mode(Mdl)<GST_TFreeDiff ? m_iPriority : Mode(Mdl)==GST_TFreeDiff ? 254 : 255; };
+    byte            Priority(GSModel * Mdl);
 
   public:
     byte            m_IONo;
@@ -421,10 +421,6 @@ class DllImportExport GSModelBase
 
 inline byte GSIOAlpha::QmMode(GSModel &  Mdl) { return (m_iQmMode==GSA_QmDefault) ? Mdl.m_iQmMode: m_iQmMode; };
 inline byte GSIOAlpha::MkMode(GSModel &  Mdl) { return (m_iMkMode==GSA_MkDefault) ? Mdl.m_iMkMode: m_iMkMode; };
-
-// ---------------------------------------------------------------------------
-
-inline byte GSIOThermal::Mode(GSModel * Mdl) { return m_bLast && !Mdl->m_bAllowHX ? GST_TFree : m_iMode; };
 
 // =========================================================================
 

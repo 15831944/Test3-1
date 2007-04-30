@@ -1957,13 +1957,18 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
 //
 //--------------------------------------------------------------------------
 
-template <class T> void SortPriority(GSModel * Mdl, T & IOA, int IOsSize)
+template <class T> void SortPriority(GSModel * Mdl, T & IOA, int IOsSize, LPCSTR Txt)
   {
+  //dbgpln("================");
+  //for (int j=0; j<IOsSize; j++)
+  //  dbgpln("A %s %4i %4i", Txt, IOA[j].Priority(Mdl), IOA[j].Mode(Mdl));
+
   bool FixRqd = false;
   for (int j=0; j<IOsSize && !FixRqd; j++)
     FixRqd = (IOA[j].Priority(Mdl)!=AutoPriority && IOA[j].Priority(Mdl)>=IOsSize-1);
   if (FixRqd)
     {
+    //dbgpln("  Fix");
     int LastLow = -1;
     bool Fnd = true;
     while (Fnd)
@@ -2026,10 +2031,15 @@ void GSModel::CheckConfig()
         }
       if (m_Nd.LnkFlowDefinedOut(m_IOs[i]))
         m_NProds++;
+      else
+        {
+        m_IOAlpha[i].m_iPriority=AutoPriority;
+        m_IOThermal[i].m_iPriority=AutoPriority;
+        }
       }
 
-    SortPriority(this, m_IOAlpha, IOsSize);
-    SortPriority(this, m_IOThermal, IOsSize);
+    SortPriority(this, m_IOAlpha, IOsSize, "Split");
+    SortPriority(this, m_IOThermal, IOsSize, "Therm");
 
     ////fix priority numbers...
     //bool FixRqd = false;
@@ -2607,13 +2617,32 @@ void GSIOThermal::BuildDataDefnOrdPri(DataDefnBlk &DDB, GSModel & Mdl)
 
   DDBValueLstMem DDBP;
   DDBP.Add(AutoPriority, "Auto");
-  for (int i=0; i<Mdl.m_IOs.GetSize()-1; i++)
+  DDEF_Flags Flags=0;
+  if (Mode(&Mdl)<GST_TFreeDiff)
     {
-    StrVal.Set("%i", i+1);
-    DDBP.Add(i, StrVal());
+    Flags=isParm;
+    for (int i=0; i<Mdl.m_IOs.GetSize()-1; i++)
+      {
+      StrVal.Set("%i", i+1);
+      DDBP.Add(i, StrVal());
+      }
     }
-  DDB.Byte   ("",             "Priority",   DC_,    "",     &m_iPriority,       &Mdl, isParm, DDBP());
+  DDB.Byte   ("",             "Priority",   DC_,    "",     &m_iPriority,       &Mdl, Flags, DDBP());
   }
+
+// ---------------------------------------------------------------------------
+
+byte GSIOThermal::Priority(GSModel * Mdl)
+  { 
+  return Mode(Mdl)<GST_TFreeDiff ? m_iPriority : Mode(Mdl)==GST_TFreeDiff ?  AutoPriority-2: AutoPriority-1; 
+  };
+
+// ---------------------------------------------------------------------------
+
+byte GSIOThermal::Mode(GSModel * Mdl) 
+  { 
+  return m_iMode; 
+  };
 
 //--------------------------------------------------------------------------
 //
@@ -2734,6 +2763,12 @@ flag GSModel::ValidateDataThermal(ValidateDataBlk & VDB)
   m_ChangeNeg    = GEZ(m_ChangeNeg);
   m_ChangePos    = GEZ(m_ChangePos);
 
+
+  const int IOsSize = m_IOs.GetSize();
+  //SortPriority(this, m_IOAlpha, IOsSize, "Split");
+
+  SortPriority(this, m_IOThermal, IOsSize, "Therm");
+
   flag OK=1;
   int I[MaxIOList+1];
   GSIOThermal * A[MaxIOList+1];
@@ -2796,6 +2831,8 @@ int GSModel::FindIOEvalPriorityThermal(int *I, GSIOThermal **A)
     int ia=I[j];
     A[j]->m_iOrder=j+1;
     A[j]->m_bLast=(j==NOrd-1);
+    if (j==NOrd-1 && !m_bAllowHX)
+      A[j]->m_iMode=GST_TFree;
     A[j]->m_Desc.Set("%s:%s", m_Nd.IODesc_Self(m_IOs[ia])->IOName(), m_Nd.Nd_Rmt(m_IOs[ia])->Tag());
     }
 
