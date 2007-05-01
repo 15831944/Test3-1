@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-04-12 02:49:07 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-01 05:39:13 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -229,6 +229,7 @@ m_VLE(this, VLEF_QPFlash, "VLE")
   dSlipDensity=dInletDensity=1000.0;
   dDensityCorrection=0.0;
   dFlashP=dPin=dPout=dPOrificeIn=dPCritical=dSatP=dPOutActual=StdP;
+  dPOrificeOut = dOrificeHead = dOLevel = 0.0;
   dMassFlow=dMassFlow1=dMassFlow2=dMassFlow3=dMassFlow4=dMassFlow5 = 0.0;
   dFlowDamping = 10.0;
   dMassVelocity=0.0;
@@ -287,8 +288,10 @@ void CTTOrifice::BuildDataFields()
   DD.Double ("OrificeDiameter", "", &dOut, MF_PARAMETER, MC_L("mm"));
   DD.Double ("OrificeInletD", "", &dIn, MF_PARAMETER|MF_INIT_HIDDEN, MC_L("mm"));
   DD.Double ("OrificeThickness", "", &dThick, MF_PARAMETER|MF_INIT_HIDDEN, MC_L("mm"));
-  DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));  
+  DD.Double("InletLevel", "", &dLevel, MF_PARAMETER, MC_L("m"));
+  DD.Double("OutletLevel", "", &dOLevel, MF_PARAMETER, MC_L("m"));
   DD.Double("OrificeHead", "", &dOrificeHead, MF_PARAMETER, MC_L("m"));
+  DD.Double("OutletHead", "", &dOutletHead, MF_PARAMETER, MC_L("m"));  
   DD.Double("EntryK", "", &dEntryK, MF_PARAMETER, MC_None);
   DD.Double("PipePressureDrop", "", &dPPipe, MF_RESULT, MC_P("kPa"));
   DD.Show(bControlValve);
@@ -297,6 +300,7 @@ void CTTOrifice::BuildDataFields()
   DD.Double("ValvePressureDrop", "", &dPValve, MF_RESULT, MC_P("kPa"));
   DD.Show();
   DD.Double("OrificeEntryPressure", "", &dPOrificeIn, MF_RESULT, MC_P("kPa"));
+  DD.Double("OrificeDischPressure", "", &dPOrificeOut, MF_RESULT, MC_P("kPa"));
 
 
   DD.Text("Stream Data");
@@ -470,6 +474,8 @@ void CTTOrifice::EvalProducts()
       else dPValve=0.0;
 
       dPOrificeIn = Pi + (dLevel+dOrificeHead) * 9.81*den/1000.-dPPipe;
+      dPOrificeOut = dPout + (dOLevel+dOutletHead)*9.81*den/1000.;
+
       if (dPOrificeIn - dPValve < dFlashP && bControlValve) 
 	m_sDesc3 = "Flashing";
       else
@@ -480,11 +486,11 @@ void CTTOrifice::EvalProducts()
       dTin = InStream.T;
       MStream mstmp;
       mstmp = InStream;
-      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPout);
+      dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPOrificeOut);
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/oarea)/den/1000.;
       dMassFlow2 = dMassVelocity*oarea; 
       dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*oarea;
-      if (dPCritical>dPout)  {   // Choked Flow
+      if (dPCritical>dPOrificeOut)  {   // Choked Flow
         dMassFlow4 = dMassFlow3;
 	m_sDesc1="Choked";
 	dPOutActual = dPCritical;

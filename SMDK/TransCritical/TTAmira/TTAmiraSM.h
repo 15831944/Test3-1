@@ -12,37 +12,41 @@ extern "C" double g0h2o_(double*, double *);
 
 extern "C" void bayer_(        // In all its glory
                    double*,    //  TempC,
-                   const long*,//  InUnits,            INTEGER!
+                    const long*,//  InUnits,            INTEGER!
                    double*,    //  Pressure,
-                   const long*,//  NInComp,            INTEGER!
+                    const long*,//  NInComp,            INTEGER!
                    double*,    //  InComp,             ARRAY*11 (5)
 		   double*,    //  DPDATA
-                   const long*,      //  NOutComp,     INTEGER!
+                    const long*,      //  NOutComp,     INTEGER!
                    double*,    //  Comp_molkg,         ARRAY
                    double*,    //  Comp_molL,          ARRAY
                    double*,    //  Comp_molL25,        ARRAY  (10)
                    double*,    //  Comp_mpercent,      ARRAY
                    double*,    //  Comp_gL,            ARRAY
-                   const long*,      //  NOC,          INTEGER!
+                    const long*,      //  NOC,          INTEGER!
                    double*,    //  OC,                 ARRAY
-                   const long*,      //  NGamma,      INTEGER! (15)
+                    const long*,      //  NGamma,      INTEGER! (15)
                    double*,    //  Gamma,             ARRAY
-                   const long*,      //  NSI,         INTEGER!
+                    const long*,      //  NSI,         INTEGER!
                    double*,    //  SI,                ARRAY
-                   const long*,      //  NSol,        INTEGER!
+                    const long*,      //  NSol,        INTEGER!
                    double*,    //  SolML,             ARRAY (20)
                    double*     //  Solmkg             ARRAY (21)
 		   );
 
 
-const static long InUnits = 3;
-const static long NInComp = 9;
 
-const static long NOutComp = 9;
-const static long NOC = 2;
-const static long NGamma = 12;
-const static long NSI = 10;
-const static long NSol = 6;
+
+const static  long InUnits = 3;
+const static  long NInComp = 9;
+const static  long NOutComp = 9;
+const static  long NOC = 2;
+const static  long NGamma = 12;
+const static  long NSI = 10;
+const static  long NSol = 6;
+
+
+
 
 
 
@@ -96,13 +100,13 @@ class AmiraBayer : public MSpModelBase, public MIBayer
 
 
     // These are the Amira variables that get passed back by the function
-    double Comp_molkg    [12];    
-    double Comp_molL     [12];
-    double Comp_molL25   [12];
-    double Comp_mpercent [12];
-    double Comp_gL       [12];
-    double Gamma         [12];
+    double Comp_molkg    [9];    
+    double Comp_molL     [9];
+    double Comp_molL25   [9];
+    double Comp_mpercent [9];
+    double Comp_gL       [9];
     double OC            [2];
+    double Gamma         [12];
     double SI            [10];
     double SolML         [6 ];
     double Solmkg        [6 ];

@@ -243,12 +243,3 @@ def main():
 main()
 
 
-Al[OH]3    
-NaOH       
-NaCl       
-Na2CO3     
-Na2SO4     
-NaAcetate  
-Na2C2O4    
-NaFormate  
-NaF        

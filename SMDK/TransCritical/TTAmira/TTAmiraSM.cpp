@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-04-30 06:59:17 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-01 03:54:20 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -526,9 +526,9 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
     GVALFT(SodaConc);
     GVALFT(SodiumCarbonateConc);
 
-    GVAL2(CausticConc25, 101.);
-    GVAL2(AluminaConc25, 102.);
-    GVAL2(SodaConc25, 103.);
+    GVAL2(CausticConc25, dpData[iTC]);
+    GVAL2(AluminaConc25, dpData[iAl2O3]);
+    GVAL2(SodaConc25, dpData[iTA]);
     GVAL2(CarbonateConc25, 104.);
     GVAL2(NaClConc25, 105.);
     GVAL2(NaSO4Conc25, 106.);
@@ -606,7 +606,7 @@ double AmiraBayer::CausticConc(double T_, MArray *pMA)
   {
   CheckConverged(pMA);
 
-  return 100.;
+  return dpData[iTC];
   }
 
 //---------------------------------------------------------------------------
@@ -622,7 +622,7 @@ double AmiraBayer::AluminaConc(double T_)
   {
   CheckConverged();
 
-  return 50.;
+  return dpData[iAl2O3];
   }
 
 //---------------------------------------------------------------------------
@@ -630,8 +630,7 @@ double AmiraBayer::AluminaConc(double T_)
 double AmiraBayer::SodaConc(double T_)
   {
   CheckConverged();
-
-  return 200.;
+  return dpData[iTA];
   }
 
 //---------------------------------------------------------------------------
@@ -738,8 +737,9 @@ double AmiraBayer::FreeCaustic(double T_)
 double AmiraBayer::AtoC(MArray *pMA)
   {
   CheckConverged(pMA);
-
-  return .75;
+  if (dpData[iTC]==0.0)
+    return 0.0;
+  return dpData[iAl2O3]/dpData[iTC];
   }
 
 //---------------------------------------------------------------------------
@@ -986,17 +986,16 @@ void AmiraBayer::RecalcAmira()
 void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   double TempC = T_K-273.15;
   double Pressure = p_kPa/100.;
-  double InComp[NInComp];
+  double InComp[12];
 
   MA.Normalise();
 
-    
   double x = MA[CausticSoda];
   double y = MA[Alumina];
 
   InComp[0] = InComp[1] = 0.0;
   InComp[2] = 78./118.*y*100.;      // Al[OH]3    
-  InComp[3] = (0/118.*y+x)*100.;    // NaOH       
+  InComp[3] = (40/118.*y+x)*100.;    // NaOH       
   InComp[4] = MA[SodiumChloride]*100.;   // NaCl       
   InComp[5] = MA[SodiumCarbonate]*100.;  // Na2CO3     
   InComp[6] = MA[SodiumSulphate]*100.;   //  Na2SO4     
@@ -1005,21 +1004,9 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
 
   const double acetate = 0.88*MA[Organics]*100.;
   const double formate = 0.12*MA[Organics]*100.;
-
   
   InComp[7] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
-
-
-
-
-
-
-
-
-
-
-  
 
   bayer_(
 	 /*double*, */  &TempC,
@@ -1028,7 +1015,6 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
 	 /*long*,   */  &NInComp,     
 	 /*double*, */  InComp,      
 	 /*double*  */  dpData,
-
 	 /*long*,   */  &NOutComp,    
 	 /*double*, */  Comp_molkg,
 	 /*double*, */  Comp_molL,
@@ -1045,6 +1031,8 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
 	 /*double*, */  SolML,
 	 /*double*  */  Solmkg
 	 );
+
+
 }
 
 

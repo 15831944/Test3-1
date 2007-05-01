@@ -74,6 +74,7 @@ class CTTOrifice : public MBaseMethod
     double dPin;
     double dPout;
     double dPOrificeIn;
+    double dPOrificeOut;
     double dMassFlow;
     double dMassFlow1;
     double dMassFlow2;
@@ -84,7 +85,9 @@ class CTTOrifice : public MBaseMethod
     double dSatP;
     double dTin;
     double dLevel;     // Inlet hydrostatic level
+    double dOLevel;    // Outlet hydrostatic head 
     double dOrificeHead;  // Additional level drop to orifice inlet
+    double dOutletHead;
     double dMassVelocity;
     double dPCritical;  // Critical Pressure in orifice choke flow
     double dPOutActual;
