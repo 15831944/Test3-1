@@ -31,6 +31,41 @@ s1Entries = [
     ["NaF        ", "%", "0"]
     ]
 
+s2Entries = [
+["I_m      "     , ".", "0"],
+["I_c      "     , ".", "0"],
+["I_c25    "     , ".", "0"],
+["P_Sat    "     , ".", "0"],
+["Al2O3    "     , ".", "0"],
+["TC       "     , ".", "0"],
+["TA       "     , ".", "0"],
+["TempSat  "     , ".", "0"],
+["BPE      "     , ".", "0"],
+["Cp_Liq   "     , ".", "0"],
+["Cp_H2O   "     , ".", "0"],
+["Rho_Liq  "     , ".", "0"],
+["Rho_H2O  "     , ".", "0"],
+["Cp_phi   "     , ".", "0"],
+["V_phi    "     , ".", "0"],
+["Cp_LiqH2O"     , ".", "0"],
+["Phi      "     , ".", "0"],
+["Aw       "     , ".", "0"]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -39,9 +74,9 @@ syscadNames = ["H2O", "NaOH", "Na2CO3", "NaAl[OH]4", "Na2C5.2O7.2", "Na2C2O4", "
 
 
 # Format Strings for display
-ostr1 =   "t =  %8.2f C       I_m =  %8.4f mol/kg      I_c(t, p) =  %8.4f mol/L"
+ostr1 =   "t =  %8.2f C         I_m =  %8.4f mol/kg      I_c(t, p) =  %8.4f mol/L"
 ostr2 =   "p =  %8.2f bar     p_sat =    %8.3f bar       I_c(25 C) =  %8.4f mol/L"
-ostr3 =   "Conc. units  Al(OH)3 NaOH  NaCl   Na2CO3  Na2SO4    NaOx    NaAc   NaForm  NaF"
+ostr3 =   "Conc. units   Al(OH)3    NaOH    NaCl  Na2CO3  Na2SO4    NaOx    NaAc  NaForm     NaF"
 ostr4 =   "mol/kg       %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
 ostr5 =   "mol/L (t,p)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
 ostr6 =   "mol/L (25C)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
@@ -154,6 +189,9 @@ class MyMain(GenericMain):
         self.s0=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8)
         self.s0.disable("Na2O")
         self.s0.disable("Al2O3")
+        Label(f, text="Results").pack(anchor="w")
+        self.s1=entry.EntryFrame(f, s2Entries, lWidth=16, eWidth=8)
+        self.s1.disable()
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)
         Button(f1, text="Plot", command=self.test).pack(side=LEFT, fill=X, expand=1)
@@ -216,7 +254,8 @@ class MyMain(GenericMain):
         
         atxt((ostr1 % (t,    self.I_m, self.I_c)))
         atxt((ostr2 % (p,    self.P_Sat, self.I_c25)))
-        atxt(ostr3)
+        atxt(""); atxt(ostr3)
+        atxt("---------------------------------------------")
         atxt((ostr4 % tuple([x for x in ab.Comp_molkg[:9]])))
         atxt((ostr5 % tuple([x for x in ab.Comp_molL[:9]])))
         atxt((ostr6 % tuple([x for x in ab.Comp_molL25[:9]])))
@@ -225,6 +264,8 @@ class MyMain(GenericMain):
         atxt("")
         for x in dpnames:
             atxt("%10s     %f" % (x, self.__dict__[x]))
+            self.s1[x] = self.__dict__[x]
+        atxt("")
 
 def main():
     global app
@@ -237,7 +278,7 @@ def main():
     root.iconify()
     root.update()
     root.deiconify()
-    root.geometry("900x600-5+5")
+    root.geometry("900x700-5+5")
     root.mainloop()
 
 main()
