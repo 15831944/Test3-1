@@ -13,71 +13,79 @@ namespace MEncryptDatConfigNS {
   public:
     EncryptDatConfig *encryptDatConfig;
 
-    int FlagPGMEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
-    int FlagRCTEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
-    int FlagDXFEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
-    int FlagAllowSave()         { return encryptDatConfig->FlagAllowSave;         }
-    int FlagAllowExcelReports() { return encryptDatConfig->FlagAllowExcelReports; }
+    unsigned short FlagPGMEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
+    unsigned short FlagRCTEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
+    unsigned short FlagDXFEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
+    unsigned short FlagAllowSave()         { return encryptDatConfig->FlagAllowSave;         }
+    unsigned short FlagAllowExcelReports() { return encryptDatConfig->FlagAllowExcelReports; }
 
-    MEncryptDatConfig()
+    MEncryptDatConfig() { encryptDatConfig = new EncryptDatConfig(); }
+
+    unsigned short EncryptionVersion() { return encryptDatConfig->EncryptionVersion; }
+
+    unsigned short BuildSysCADVersion() { return encryptDatConfig->BuildSysCADVersion; }
+    unsigned short BuildSysCADBuild() { return encryptDatConfig->BuildSysCADBuild; }
+
+    unsigned short LoSysCADVersion() { return encryptDatConfig->LoSysCADVersion; }
+    unsigned short LoSysCADBuild() { return encryptDatConfig->LoSysCADBuild; }
+
+    unsigned short HiSysCADVersion() { return encryptDatConfig->HiSysCADVersion; }
+    unsigned short HiSysCADBuild() { return encryptDatConfig->HiSysCADBuild; }
+
+    String^ MACAddress(int idx)
     {
-      encryptDatConfig = new EncryptDatConfig();
+      String^ macAddress;
+      for (size_t i=0; i<strlen(encryptDatConfig->MACAddress[idx]); i++)
+      {
+        macAddress += encryptDatConfig->MACAddress[idx][i];
+      }
+      return macAddress;
     }
 
-    int EncryptionVersion()
+    void SetMACAddress(int idx, String^ macAddress)
     {
-      return encryptDatConfig->EncryptionVersion;
+      char* s = new char[macAddress->Length+1];
+      int i;
+
+      for (i=0; i<macAddress->Length; i++)
+      {
+        s[i] = (char)macAddress[i];
+      }
+
+      s[i] = 0;
+
+      strcpy_s(encryptDatConfig->MACAddress[idx], encryptDatConfig->MACAddressLength-1, s);
     }
 
-    int BuildSysCADVersion()
+
+    String^ Password()
     {
-      return encryptDatConfig->BuildSysCADVersion;
+      String^ password;
+      for (size_t i=0; i<strlen(encryptDatConfig->Password); i++)
+      {
+        password += encryptDatConfig->Password[i];
+      }
+      return password;
     }
 
-    int BuildSysCADBuild()
+    void SetPassword(String^ password)
     {
-      return encryptDatConfig->BuildSysCADBuild;
+      char* s = new char[password->Length+1];
+      int i;
+
+      for (i=0; i<password->Length; i++)
+      {
+        s[i] = (char)password[i];
+      }
+
+      s[i] = 0;
+
+      strcpy_s(encryptDatConfig->Password, encryptDatConfig->PasswordLength-1, s);
     }
 
-    int LoSysCADVersion()
-    {
-      return encryptDatConfig->LoSysCADVersion;
-    }
-
-    int LoSysCADBuild()
-    {
-      return encryptDatConfig->LoSysCADBuild;
-    }
-
-    int HiSysCADVersion()
-    {
-      return encryptDatConfig->HiSysCADVersion;
-    }
-
-    int HiSysCADBuild()
-    {
-      return encryptDatConfig->HiSysCADBuild;
-    }
-
-    int FlagCount()
-    {
-      return FLAGCOUNT;
-    }
-
-    int* Flags()
-    {
-      return encryptDatConfig->Flags;
-    }
-
-    int Flag(int i)
-    {
-      return encryptDatConfig->Flags[i];
-    }
-
-    void SetFlag(int i, int value)
-    {
-      encryptDatConfig->Flags[i] = value;
-    }
+    unsigned short FlagCount() { return encryptDatConfig->FlagCount; }
+    unsigned short Flag(int i) { return encryptDatConfig->Flag[i]; }
+    void SetFlag(int i, int value) { encryptDatConfig->Flag[i] = value; }
 
     void Load(String^ filename)
     {
@@ -110,6 +118,5 @@ namespace MEncryptDatConfigNS {
 
       delete s;
     }
-
   };
 }

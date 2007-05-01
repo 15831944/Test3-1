@@ -5,29 +5,37 @@
 #include "..\..\..\Common\Scd\ScdLib\Scdver.h"
 #include "..\..\..\Common\Scd\ScdLib\RevHist.h"
 
-#define FLAGCOUNT 64
-#define BUFFERSIZE (FLAGCOUNT + 7) // Must be FLAGCOUNT + (number of int parameters).
-
 class EncryptDatConfig
 {
 public:
-  static const int FlagPGMEncrypted      = 0;
-  static const int FlagRCTEncrypted      = 1;
-  static const int FlagDXFEncrypted      = 2;
-  static const int FlagAllowSave         = 3;
-  static const int FlagAllowExcelReports = 4;
+  static const short FlagCount = 64;
+  static const short PasswordLength = 65; // maximum password length 64 chars and ending null.
+  static const short MACAddressLength = 13; // mac address is specified by 12 characters and ending null -- no ':' or '.'
+  static const short MACAddressCount = 10; // up to 10 mac addresses allowed.
+  static const short BufferSize = FlagCount + 7 * 2 + PasswordLength + MACAddressLength * MACAddressCount;
+    // Must be FlagCount + (number of int parameters) + (size of password in char / 2) + (mac address length * number of mac addresses / 2).
 
-  int EncryptionVersion;
+  static const short FlagPGMEncrypted      = 0;
+  static const short FlagRCTEncrypted      = 1;
+  static const short FlagDXFEncrypted      = 2;
+  static const short FlagAllowSave         = 3;
+  static const short FlagAllowExcelReports = 4;
 
-  int BuildSysCADVersion;
-  int LoSysCADVersion;
-  int HiSysCADVersion;
+  unsigned short EncryptionVersion;
 
-  int BuildSysCADBuild;
-  int LoSysCADBuild;
-  int HiSysCADBuild;
+  unsigned short BuildSysCADVersion;
+  unsigned short LoSysCADVersion;
+  unsigned short HiSysCADVersion;
 
-  int *Flags;
+  unsigned short BuildSysCADBuild;
+  unsigned short LoSysCADBuild;
+  unsigned short HiSysCADBuild;
+
+  char MACAddress[MACAddressCount][MACAddressLength];
+
+  char Password[PasswordLength];
+
+  char Flag[FlagCount];
 
   EncryptDatConfig();
 
@@ -46,19 +54,31 @@ EncryptDatConfig::EncryptDatConfig()
   LoSysCADVersion = 0;
   LoSysCADBuild = 0;
 
-  HiSysCADVersion = INT_MAX;
-  HiSysCADBuild = INT_MAX;
+  HiSysCADVersion = SHRT_MAX;
+  HiSysCADBuild = SHRT_MAX;
 
-  Flags = new int[FLAGCOUNT];
+  for (int i=0; i<FlagCount; i++)
+    Flag[i] = 0; // Clear all flags.
 
-  for (int i=0; i<FLAGCOUNT; i++)
-    Flags[i] = 0;
+  // Explicitly set specific default flags.
+  Flag[FlagPGMEncrypted] = 1;
+  Flag[FlagRCTEncrypted] = 1;
+  Flag[FlagDXFEncrypted] = 1;
+  Flag[FlagAllowSave] = 0;
+  Flag[FlagAllowExcelReports] = 0;
+
+  for (int i=0; i<PasswordLength; i++)
+    Password[i] = 0;
+
+  for (int i=0; i<MACAddressCount; i++)
+    for (int j=0; j<MACAddressLength; j++)
+      MACAddress[i][j] = 0;
 }
 
 void EncryptDatConfig::Load(char* filename)
 {
-  int *buffera;
-  int *bufferb;
+  unsigned char *buffera;
+  unsigned char *bufferb;
   int length;
 
   std::fstream fin;
@@ -69,9 +89,9 @@ void EncryptDatConfig::Load(char* filename)
     length = fin.tellg()/2;
     fin.seekg(0, std::ios_base::beg);
 
-    buffera = new int[length+1];
-    bufferb = new int[length+1];
-    fin.read(reinterpret_cast<char*>(buffera), length);
+    buffera = new unsigned char[length+1];
+    bufferb = new unsigned char[length+1];
+    fin.read((char*)buffera, length);
     fin.close();
 
     buffera[length] = length;
@@ -82,29 +102,46 @@ void EncryptDatConfig::Load(char* filename)
     {
       seed *= 1103515245;
       seed += 12345; // add some deterministic noise to the system.
-      bufferb[i] = buffera[i] ^ buffera[i+1] ^ i ^ seed;
+      bufferb[i] = buffera[i] ^ buffera[i+1] ^ (unsigned char)i ^ (unsigned char)seed;
     }
 
-    if (length >= BUFFERSIZE) // only do this if there is enough data from the file.
+    if (length = BufferSize) // only do this if there is the right amount of data in the file.
     {
       int bufferIdx = 0;
 
-      EncryptionVersion = bufferb[bufferIdx++];
+      EncryptionVersion =  bufferb[bufferIdx++]*256;
+      EncryptionVersion += bufferb[bufferIdx++];
 
-      BuildSysCADVersion = bufferb[bufferIdx++];
-      BuildSysCADBuild = bufferb[bufferIdx++];
 
-      LoSysCADVersion = bufferb[bufferIdx++];
-      LoSysCADBuild = bufferb[bufferIdx++];
+      BuildSysCADVersion =  bufferb[bufferIdx++]*256;
+      BuildSysCADVersion += bufferb[bufferIdx++];
 
-      HiSysCADVersion = bufferb[bufferIdx++];
-      HiSysCADBuild = bufferb[bufferIdx++];
+      BuildSysCADBuild =  bufferb[bufferIdx++]*256;
+      BuildSysCADBuild += bufferb[bufferIdx++];
 
-      delete Flags;
-      Flags = new int[FLAGCOUNT];
 
-      for (int i=0; i<FLAGCOUNT; i++)
-        Flags[i] = bufferb[bufferIdx++];
+      LoSysCADVersion =  bufferb[bufferIdx++]*256;
+      LoSysCADVersion += bufferb[bufferIdx++];
+
+      LoSysCADBuild =  bufferb[bufferIdx++]*256;
+      LoSysCADBuild += bufferb[bufferIdx++];
+
+
+      HiSysCADVersion =  bufferb[bufferIdx++]*256;
+      HiSysCADVersion += bufferb[bufferIdx++];
+
+      HiSysCADBuild =  bufferb[bufferIdx++]*256;
+      HiSysCADBuild += bufferb[bufferIdx++];
+
+      for (int i=0; i<FlagCount; i++)
+        Flag[i] = bufferb[bufferIdx++];
+
+      for (int i=0; i<PasswordLength; i++)
+        Password[i] = bufferb[bufferIdx++];;
+
+      for (int i=0; i<MACAddressCount; i++)
+        for (int j=0; j<MACAddressLength; j++)
+          MACAddress[i][j] = bufferb[bufferIdx++];;
     }
 
     delete buffera;
@@ -114,40 +151,60 @@ void EncryptDatConfig::Load(char* filename)
 
 void EncryptDatConfig::Save(char* filename)
 {
-  int *buffer = new int[BUFFERSIZE+1];
+  unsigned char *buffer = new unsigned char[BufferSize+1];
 
   int bufferIdx = 0;
 
-  buffer[bufferIdx++] = EncryptionVersion;
+  buffer[bufferIdx++] = EncryptionVersion / 256;
+  buffer[bufferIdx++] = EncryptionVersion % 256;
 
-  buffer[bufferIdx++] = BuildSysCADVersion;
-  buffer[bufferIdx++] = BuildSysCADBuild;
 
-  buffer[bufferIdx++] = LoSysCADVersion;
-  buffer[bufferIdx++] = LoSysCADBuild;
+  buffer[bufferIdx++] = BuildSysCADVersion / 256;
+  buffer[bufferIdx++] = BuildSysCADVersion % 256;
+   
+  buffer[bufferIdx++] = BuildSysCADBuild / 256;
+  buffer[bufferIdx++] = BuildSysCADBuild % 256;
 
-  buffer[bufferIdx++] = HiSysCADVersion;
-  buffer[bufferIdx++] = HiSysCADBuild;
 
-  for (int i=0; i<FLAGCOUNT; i++)
-    buffer[bufferIdx++] = Flags[i];
+  buffer[bufferIdx++] = LoSysCADVersion / 256;
+  buffer[bufferIdx++] = LoSysCADVersion % 256;
+  
+  buffer[bufferIdx++] = LoSysCADBuild / 256;
+  buffer[bufferIdx++] = LoSysCADBuild % 256;
 
-  buffer[BUFFERSIZE] = BUFFERSIZE;
 
-  int seed = BUFFERSIZE; 
+  buffer[bufferIdx++] = HiSysCADVersion / 256;
+  buffer[bufferIdx++] = HiSysCADVersion % 256;
+  
+  buffer[bufferIdx++] = HiSysCADBuild / 256;
+  buffer[bufferIdx++] = HiSysCADBuild % 256;
 
-  for (int i=BUFFERSIZE-1; i>=0; i--) // decrypt the buffer.
+  for (int i=0; i<FlagCount; i++)
+    buffer[bufferIdx++] = Flag[i];
+
+  for (int i=0; i<PasswordLength; i++)
+    buffer[bufferIdx++] = Password[i];
+
+  for (int i=0; i<MACAddressCount; i++)
+    for (int j=0; j<MACAddressLength; j++)
+      buffer[bufferIdx++] = MACAddress[i][j];
+
+  buffer[BufferSize] = (unsigned char)BufferSize;
+
+  int seed = BufferSize; 
+
+  for (int i=BufferSize-1; i>=0; i--) // decrypt the buffer.
   {
     seed *= 1103515245;
     seed += 12345; // add some deterministic noise to the system.
-    buffer[i] = buffer[i] ^ buffer[i+1] ^ i ^ seed;
+    buffer[i] = buffer[i] ^ buffer[i+1] ^ (unsigned char)i ^ (unsigned char)seed;
   }
 
   std::fstream fout;
   fout.open(filename, std::ios::out|std::ios::binary);
   if (fout.is_open())
   {    
-    fout.write((char*)buffer, BUFFERSIZE*2);
+    fout.write((char*)buffer, BufferSize*2);
     fout.close();
   }
 
