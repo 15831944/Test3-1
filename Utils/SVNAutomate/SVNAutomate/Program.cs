@@ -61,10 +61,10 @@ namespace SVNAutomate
       if (error.Length>0)
       {
         Console.WriteLine("Unable to run SVN command (have you installed the commandline subversion client?): " + error);
-        return -1;
+        return 1;
       }
 
-      int errorLevel = -1;
+      int errorLevel = 1;
 
       try
       {
@@ -99,11 +99,13 @@ namespace SVNAutomate
         if (errorLevel != 0)
         {
           Console.WriteLine("Unable to find revision number:\n" + info);
+          return 1;
         }
       }
       catch (Exception e)
       {
         Console.WriteLine("Unable to process XML: " + e.Message + "\n" + info);
+        return 1;
       }
 
       return errorLevel;
