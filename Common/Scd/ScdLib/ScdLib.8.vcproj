@@ -129,6 +129,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -233,6 +234,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -334,6 +336,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -437,6 +440,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
