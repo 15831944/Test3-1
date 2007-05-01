@@ -3126,7 +3126,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
 
           if (d.sFullTag())
             SetTag(d.sFullTag(), d.Cnv.Text());
-          if (!d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0))
+          if (!DoingGrid && !d.fHasButton || d.fHasCheck || (d.ValLst.Length()>0))
             {
             NameBuff.Trim();
             FldDelta[PgNo]=Max(FldDelta[PgNo], (NameBuff.Length()+TagComLen+2)-NamW);
