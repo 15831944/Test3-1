@@ -2838,7 +2838,6 @@ Build 123 : 21 February 2007
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1717
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

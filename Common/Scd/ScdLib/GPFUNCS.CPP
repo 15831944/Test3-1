@@ -14,6 +14,7 @@
 #include "errorlog.h"
 #include "FnOptDlg.h"
 #include "revhist.h"
+#include "svn.h"
 #include "scdverlic.h"
 #include <locale.h>
 

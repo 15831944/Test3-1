@@ -27,6 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -980,6 +981,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\svn.h"
 				>
 			</File>
 			<File
