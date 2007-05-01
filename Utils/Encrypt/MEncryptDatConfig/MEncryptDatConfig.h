@@ -55,6 +55,8 @@ namespace MEncryptDatConfigNS {
       s[i] = 0;
 
       strcpy_s(encryptDatConfig->MACAddress[idx], encryptDatConfig->MACAddressLength-1, s);
+
+      delete s;
     }
 
 
@@ -81,6 +83,8 @@ namespace MEncryptDatConfigNS {
       s[i] = 0;
 
       strcpy_s(encryptDatConfig->Password, encryptDatConfig->PasswordLength-1, s);
+
+      delete s;
     }
 
     unsigned short FlagCount() { return encryptDatConfig->FlagCount; }
@@ -100,6 +104,8 @@ namespace MEncryptDatConfigNS {
       s[i] = 0;
 
       encryptDatConfig->Load(s);
+
+      delete s;
     }
 
     void Save(String^ filename)
