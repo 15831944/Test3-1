@@ -605,7 +605,7 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
           }
         Strng FileName(sPGMName());
         Strng FullFilename;
-        int RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm", &FullFilename, true);
+        int RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm", &FullFilename, true, FnDefaultControlsFolder()());
         if (RetCode==-1)
           {
           FILE* f = fopen(FullFilename(), "wt");
@@ -614,6 +614,9 @@ flag GControl::DataXchg(DataChangeBlk & DCB)
             fwrite(DefaultPGM, sizeof(char), DefaultPGMLen, f);
             fclose(f);
             }
+          sPGMName = FullFilename();
+          sPGMName.FnContract();
+          FileName = sPGMName();
           RetCode = DCB.DoEditBtn(m_hProcess[0], m_dwProcessId[0], "", FileName(), "pgm");
           }
         if (RetCode==0)

@@ -1433,9 +1433,8 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
           sRCTName+=".rct";
           }
         Strng FileName(sRCTName());
-        //FileName.FnExpand();
         Strng FullFilename;
-        int RetCode = DCB.DoEditBtn(hEditProcess, dwEditProcessId, "", FileName(), "rct", &FullFilename, true);
+        int RetCode = DCB.DoEditBtn(hEditProcess, dwEditProcessId, "", FileName(), "rct", &FullFilename, true, FnDefaultReactionsFolder()());
         if (RetCode==-1)
           {
           FILE* f = fopen(FullFilename(), "wt");
@@ -1456,6 +1455,9 @@ flag CReactionBlock::DataXchg(DataChangeBlk & DCB)//, pTaggedObject pOwnObj)
             fwrite(DefaultRCT2, sizeof(char), DefaultRCT2Len, f);
             fclose(f);
             }
+          sRCTName = FullFilename();
+          sRCTName.FnContract();
+          FileName = sRCTName();
           RetCode = DCB.DoEditBtn(hEditProcess, dwEditProcessId, "", FileName(), "rct");
           }
         if (RetCode==0)

@@ -7967,7 +7967,7 @@ void DataChangeBlk::DoBrowseBtn(char* ext, char* FileDesc, Strng& Path, Strng& F
 
 //--------------------------------------------------------------------------
 
-int DataChangeBlk::DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext/*=NULL*/, Strng* pFullFilename/*=NULL*/, bool CheckExists/*=false*/)
+int DataChangeBlk::DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext/*=NULL*/, Strng* pFullFilename/*=NULL*/, bool CheckExists/*=false*/, char* SubFolder/*=NULL*/)
   {
   int RetCode;
   if (File && strlen(File)>0)
@@ -7995,7 +7995,10 @@ int DataChangeBlk::DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, c
       Pth.FnDrivePath();
       if (Pth.Len()==0)
         {//if path isn't specified, assume project folder
-        Pth=PrjFiles();
+        if (SubFolder)
+          Pth=SubFolder;
+        else
+          Pth=PrjFiles();
         Pth+=Fn();
         Fn=Pth();
         }

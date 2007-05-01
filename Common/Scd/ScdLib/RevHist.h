@@ -2795,7 +2795,7 @@ Build 123 : 21 February 2007
 1592 29/03/07: (#802) Add Antoine vapour pressure equation for specie database "VpAnt(a,b,c)"
 1593 29/03/07: (#805) Remove incorrect error message when using 'Phase' keyword for FinalFraction reaction extent option.
 1594 29/03/07: (#697) Improvements to scheduled events model.
-1595 30/03/07: (#802) Add revised Antoine vapour pressure equation for specie database "VpAntR(a,b,c,min,max)"
+1595 30/03/07: (#802) Extended Antoine vapour pressure equation for specie database "VpAnt(a,b,c,min,max)"
 1597 30/03/07: (#806) Improved the scheduled events model so that the solver pauses while an Excel report is generated.
 1598 31/03/07: Speed improvement for rebuilding tag references between models and controllers.
 1599 31/03/07: (#803) Improved SysCAD Marshal initialisation, at load force the get/set logic.
@@ -2832,11 +2832,13 @@ Build 123 : 21 February 2007
 1698 26/04/07: (#822) Fix for filter for bulk tag change.
 1706 28/04/07: (#807) SMDK MTagIO restructuring and improvements.
 1713 30/04/07: (#830) Fix for incorrect strings sometimes being returned for GetDynStrTag in PGM.
-
+1715 30/04/07: (#798) Encryption of projects extended to store options, etc in encrypt,dat.
+1716 30/04/07: (#825) Fix for thermal split where there are more than two input streams.
+1717  1/05/07: (#795) File is now created in correct subfolder for edit button for new rct or pgm.
 
 ------------------------------
 //Latest release information:*/
-#define SCD_PATCH_SVN    1713
+#define SCD_PATCH_SVN    1717
 #define SCD_PATCHDATE    SCD_COMPILE_DT
 
 /*

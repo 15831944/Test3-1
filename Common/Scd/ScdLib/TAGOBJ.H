@@ -957,7 +957,7 @@ class DllImportExport DataChangeBlk
 
     //helpers...
     static void    DoBrowseBtn(char* ext, char* FileDesc, Strng& Path, Strng& File);
-    static int     DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext=NULL, Strng* pFullFilename=NULL, bool CheckExists=false);
+    static int     DoEditBtn(HANDLE& hProcess, DWORD& dwProcessId, char* Path, char* File, char* ext=NULL, Strng* pFullFilename=NULL, bool CheckExists=false, char* SubFolder=NULL);
 
   public:
     DDBDataInfo *  pDataInfo;
