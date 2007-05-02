@@ -8,7 +8,7 @@ namespace SVNAutomate
 {
   class Program
   {
-    static string RunSVN(string argument, out string output)
+    static int RunSVN(string argument, out string output)
     {
       System.Diagnostics.Process proc = new System.Diagnostics.Process();
       proc.EnableRaisingEvents = false;
@@ -30,23 +30,22 @@ namespace SVNAutomate
         proc.StartInfo.FileName = "C:\\Program Files\\Subversion\\bin\\svn.exe";
         proc.StartInfo.Arguments = argument;
         proc.Start();
-        proc.WaitForExit();
+        proc.WaitForExit(10000);
 
         output = proc.StandardOutput.ReadToEnd();
         string error = proc.StandardError.ReadToEnd();
 
-        proc.Start();
-
-        if (error.Length > 0)
+        if (proc.ExitCode != 0)
         {
-          return error;
+          Console.WriteLine("Unable to run SVN command (have you installed the commandline subversion client?): " + error);
         }
 
-        return proc.ExitCode.ToString();
+        return proc.ExitCode;
       }
       catch (Exception e)
       {
-        return e.Message;
+        Console.WriteLine("Exception occurred in SVN process execution: " + e.Message);
+        return 1;
       }
     }
 
@@ -58,11 +57,10 @@ namespace SVNAutomate
       //exitCode = RunSVN("update --non-interactive", out update);
       //exitCode = RunSVN("log  --non-interactive --xml --limit 10", out log);
 
-      string error = RunSVN("info  --non-interactive --xml", out info);
-      if (error.Length>0)
+      int error = RunSVN("info  --non-interactive --xml", out info);
+      if (error != 0)
       {
-        Console.WriteLine("Unable to run SVN command (have you installed the commandline subversion client?): " + error);
-        return 1;
+        return error;
       }
 
       int errorLevel = 1;
