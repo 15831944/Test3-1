@@ -29,8 +29,8 @@ namespace SVNAutomate
       {
         proc.StartInfo.FileName = "C:\\Program Files\\Subversion\\bin\\svn.exe";
         proc.StartInfo.Arguments = argument;
-        proc.WaitForExit();
         proc.Start();
+        proc.WaitForExit();
 
         output = proc.StandardOutput.ReadToEnd();
         string error = proc.StandardError.ReadToEnd();
