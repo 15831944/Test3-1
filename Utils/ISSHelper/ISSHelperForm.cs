@@ -21,7 +21,8 @@ namespace ISSHelper
     private void SetBaseFolderButton_Click(object sender, EventArgs e)
     {
       RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Kenwalt\\SysCAD\\ISSHelper");
-      baseFolderBrowserDialog.SelectedPath = registryKey.GetValue("BaseFolder") as string;
+      if (registryKey != null)
+        baseFolderBrowserDialog.SelectedPath = registryKey.GetValue("BaseFolder") as string;
 
       if (baseFolderBrowserDialog.ShowDialog() == DialogResult.OK)
       {
