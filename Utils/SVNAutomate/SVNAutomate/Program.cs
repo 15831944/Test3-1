@@ -51,6 +51,32 @@ namespace SVNAutomate
 
     static int Main(string[] args)
     {
+      bool forceUpdate = false; // don't update unless there is a change by default.
+      bool didUpdate = false;
+      string fileName = "svn.h"; // create svn.h in the current directory by default.
+      string filePath = "";
+
+      foreach (string arg in args)
+      {
+        if (arg.StartsWith("/")) // an option.
+        {
+          if (arg.EndsWith("force"))
+            forceUpdate = true;
+        }
+        else // not an option, last non-option will end up in fileName.
+          fileName = arg;
+      }
+
+      try
+      {
+        filePath = Path.GetFullPath(fileName);
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine("Filename can't be mapped to full path: " + fileName);
+        return 1;
+      }
+
       string info;
 
       // Other svn parameters of note:
@@ -93,11 +119,11 @@ namespace SVNAutomate
 
         try
         { // load current svn.h into current_svn_h.
-          FileStream fileStream = new FileStream("svn.h", FileMode.Open);
+          FileStream fileStream = new FileStream(fileName, FileMode.Open);
           StreamReader streamReader = new StreamReader(fileStream);
           while (!streamReader.EndOfStream)
           {
-          current_svn_h += streamReader.ReadLine() + "\n";
+            current_svn_h += streamReader.ReadLine() + "\n";
           }
           streamReader.Close();
           fileStream.Close();
@@ -106,18 +132,37 @@ namespace SVNAutomate
         {
         }
 
-        if (current_svn_h.Trim() != svn_h.Trim())
+        if ((!forceUpdate)&&(current_svn_h.Trim() != svn_h.Trim()))
         {
-          FileStream fileStream = new FileStream("svn.h", FileMode.Create);
-          StreamWriter streamWriter = new StreamWriter(fileStream);
-          streamWriter.Write(svn_h);
-          streamWriter.Close();
-          fileStream.Close();
+          try
+          {
+            FileStream fileStream = new FileStream(filePath, FileMode.Create);
+            StreamWriter streamWriter = new StreamWriter(fileStream);
+            streamWriter.Write(svn_h);
+            didUpdate = true;
+            streamWriter.Close();
+            fileStream.Close();
+          }
+          catch(Exception e)
+          {
+            Console.WriteLine("Exception occurred in SVN process execution: " + e.Message);
+            return 1;
+          }
         }
+
         if (errorLevel != 0)
         {
           Console.WriteLine("Unable to find revision number:\n" + info);
           return 1;
+        }
+        else
+        {
+          if (didUpdate)
+            Console.WriteLine("Updated/created file: " + fileName + "\n  (Full path expansion: " + filePath + ")");
+          else
+            Console.WriteLine("No changes, didn't update file: " + fileName + "\n  (Full path expansion: " + filePath + ")");
+
+          return 0;
         }
       }
       catch (Exception e)
@@ -125,8 +170,6 @@ namespace SVNAutomate
         Console.WriteLine("Unable to process XML: " + e.Message + "\n" + info);
         return 1;
       }
-
-      return errorLevel;
     }
   }
 }

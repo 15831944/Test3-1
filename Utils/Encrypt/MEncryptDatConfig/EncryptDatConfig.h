@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "..\..\..\Common\Scd\ScdLib\Scdver.h"
+#include "..\..\..\Common\Scd\ScdLib\svn.h"
 #include "..\..\..\Common\Scd\ScdLib\RevHist.h"
 
 class EncryptDatConfig
