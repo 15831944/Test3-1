@@ -1,15 +1,10 @@
-import sys
-sys.path.append("c:/devel/python")
 
 from Tkinter import *
-from generic import GenericMain, TestMenu, OutputFrame, font3
+import tkMessageBox
+from generic import GenericMain, OutputFrame, font3
 import entry
 from ctypes import *
 
-try:
-    alib = CDLL('amira')
-except WindowsError, err:
-    print "cant find dll"
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
@@ -32,45 +27,56 @@ s1Entries = [
     ]
 
 s2Entries = [
-["I_m      "     , ".", "0"],
-["I_c      "     , ".", "0"],
-["I_c25    "     , ".", "0"],
-["P_Sat    "     , ".", "0"],
-["Al2O3    "     , ".", "0"],
-["TC       "     , ".", "0"],
-["TA       "     , ".", "0"],
-["TempSat  "     , ".", "0"],
-["BPE      "     , ".", "0"],
-["Cp_Liq   "     , ".", "0"],
-["Cp_H2O   "     , ".", "0"],
-["Rho_Liq  "     , ".", "0"],
-["Rho_H2O  "     , ".", "0"],
-["Cp_phi   "     , ".", "0"],
-["V_phi    "     , ".", "0"],
-["Cp_LiqH2O"     , ".", "0"],
-["Phi      "     , ".", "0"],
-["Aw       "     , ".", "0"]]
+    ["I_m      "     , ".", "0"],
+    ["I_c      "     , ".", "0"],
+    ["I_c25    "     , ".", "0"],
+    ["P_Sat    "     , ".", "0"],
+    ["Al2O3    "     , ".", "0"],
+    ["TC       "     , ".", "0"],
+    ["TA       "     , ".", "0"],
+    ["TempSat  "     , ".", "0"],
+    ["BPE      "     , ".", "0"],
+    ["Cp_Liq   "     , ".", "0"],
+    ["Cp_H2O   "     , ".", "0"],
+    ["Rho_Liq  "     , ".", "0"],
+    ["Rho_H2O  "     , ".", "0"],
+    ["Cp_phi   "     , ".", "0"],
+    ["V_phi    "     , ".", "0"],
+    ["Cp_LiqH2O"     , ".", "0"],
+    ["Phi      "     , ".", "0"],
+    ["Aw       "     , ".", "0"]]
 
 
+syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
 
 
+syscadEx = '''
+Example: select the following text and try again...
 
+P_HT_out.Qo.H2O(l) (kg/s)	225.58
+P_HT_out.Qo.NaAl[OH]4(l) (kg/s)	114.58
+P_HT_out.Qo.NaCl(l) (kg/s)	0.98
+P_HT_out.Qo.NaOH(l) (kg/s)	10.69
+P_HT_out.Qo.Na2C2O4(l) (kg/s)	0.86
+P_HT_out.Qo.Na2C5.2O7.2(l) (kg/	15.90
+P_HT_out.Qo.Na2CO3(l) (kg/s)	5.26
+P_HT_out.Qo.Na2SO4(l) (kg/s)	0.14
+'''
 
+solnames = '                Al(OH)3    AlOOH   Na2SO4  Na2C2O4      NaF  Na3FSO4'
 
-
-
-
-
-
-
-
-
-
-
-
-
-syscadNames = ["H2O", "NaOH", "Na2CO3", "NaAl[OH]4", "Na2C5.2O7.2", "Na2C2O4", "NaCl", "Na2SiO3", "Na2SO4"]
-
+sinames = [
+'NaCl         ',
+'Na2SO4       ',
+'Na2SO4.10H2O ',
+'Na2CO3.10H2O ',
+'Na2CO3.7H2O  ',
+'Na2CO3.H2O   ',
+'Al(OH)3      ',
+'AlOOH        ',
+'NaF          ',
+'Na3FSO4'
+]
 
 
 # Format Strings for display
@@ -83,15 +89,34 @@ ostr6 =   "mol/L (25C)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
 ostr7 =   "mass-%%      %8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f"
 ostr8 =   "g/L (25C)  %8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f"
 
-bayer_ = alib.bayer_    # Main routine in Amira Library
-bayer_.restype = None
-bayer_.argtypes = [
+ostrs = [
+"                  A            C            S            OC           OC",
+"                              NaOH     NaOH+Na2CO3   Na acetate   Na formate",
+"g/L (25 C)    %8.2f     %8.2f     %8.2f      %8.2f   %8.2f",
+"A/C = %6.3f   (Al2O3 eq)  (Na2CO3 eq)  (Na2CO3 eq)     (C eq)       (C eq)",
+"Thermodynamic properties of the aqueous phase       B.p. =%8.2fC (%+7.2fK)",
+"Cp_sln = %8.2f kJ/kgK       rho_sln = %8.2f kg/m^3",
+"Cp_H2O = %8.2f kJ/kgK       rho_H2O = %8.2f kg/m^3",
+"Cp_phi = %8.2f J/K/mol       V_phi =  %8.3f cm3 mol-1",
+"Cp_sln = %8.2f kJ/kgK/ (g H2O)-1"
+]
+
+
+
+
+def dllSetup():
+    global bayer_
+    try:
+        alib = CDLL('amira')
+        bayer_ = alib.bayer_    # Main routine in Amira Library
+        bayer_.restype = None
+        bayer_.argtypes = [
                    POINTER(c_double),    #  TempC,
                    POINTER(c_long),      #  InUnits,      INTEGER!
                    POINTER(c_double),    #  Pressure,
                    POINTER(c_long),      #  NInComp,      INTEGER!
                    POINTER(c_double),    #  InComp,       ARRAY*11
-                   
+
                    POINTER(c_double),    #  DPDATA        <-- All random return stuff
 
                    POINTER(c_long),      #  NOutComp,     INTEGER!
@@ -114,6 +139,39 @@ bayer_.argtypes = [
                    POINTER(c_double),    #  SolML,
                    POINTER(c_double)     #  Solmkg
                    ]
+
+
+
+    except WindowsError, err:
+        tkMessageBox.showerror("Missing dll","Need to install amira.dll")
+
+
+
+class TestMenu:
+    def __init__(self):
+        self.menuList = []
+
+    def mainMenuBar(self, w):
+        mm=Menu(w)  # main menu
+        self.mm=mm
+        self.menuList.append(Menu(mm, tearoff=0))
+        mm.add_cascade(label="File", menu=self.menuList[0],
+                       underline=0)
+        
+        m=self.menuList[0]  #0
+        m.add_command(label="Open...", state=DISABLED, 
+                      accelerator="Ctrl+O")
+        m.add_command(label="Save", state=DISABLED)
+        m.add_command(label="Save As...",
+                      accelerator="Ctrl+S", state=DISABLED)
+        m.add_separator()
+        m.add_command(label="Print Setup...", state=DISABLED)
+        m.add_command(label="Print", state=DISABLED)
+        m.add_separator()
+        m.add_command(label="Exit", command=done) #-command done
+
+
+        return mm
 
 
 
@@ -194,12 +252,14 @@ class MyMain(GenericMain):
         self.s1.disable()
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)
-        Button(f1, text="Plot", command=self.test).pack(side=LEFT, fill=X, expand=1)
+        Button(f1, text="Calculate", command=self.test).pack(side=LEFT, fill=X, expand=1)
         Button(f1, text="SysCAD", command=self.getSysCAD).pack(side=LEFT, fill=X, expand=1)
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
         self.of=OutputFrame(canvasFrame, font=font3)
+
+
 
     def extractDPData(self):
         dat = [x for x in ab.DPDATA]
@@ -208,7 +268,14 @@ class MyMain(GenericMain):
 
 
     def getSysCAD(self):
-        s = [l.split() for l in self.of.getSelection().splitlines()]
+        try:
+            sel = self.of.getSelection()
+        except:
+            tkMessageBox.showerror("Selection Invalid","Select SysCAD data\nfrom text window")
+            self.of.appendText(syscadEx)
+            return
+         
+        s = [l.split() for l in sel.splitlines()]
         cdic = {}
         for x in syscadNames:
             cdic[x] = 0.0
@@ -233,7 +300,6 @@ class MyMain(GenericMain):
             self.s0[x] = cdic[x]
         self.s0["NaFormate"] = cdic["Na2C5.2O7.2"]/2.
         self.s0["NaAcetate"] = cdic["Na2C5.2O7.2"]/2.
-        
             
 
 
@@ -250,6 +316,11 @@ class MyMain(GenericMain):
         ab.Pressure_kPa = p
         ab.bayer()
         self.extractDPData()
+        for x in dpnames:
+            self.s1[x] = self.__dict__[x]
+            
+        self.of.clearText()
+
         atxt = self.of.appendText
         
         atxt((ostr1 % (t,    self.I_m, self.I_c)))
@@ -262,13 +333,33 @@ class MyMain(GenericMain):
         atxt((ostr7 % tuple([x for x in ab.Comp_mpercent[:9]])))
         atxt((ostr8 % tuple([x for x in ab.Comp_gL[:9]])))
         atxt("")
-        for x in dpnames:
-            atxt("%10s     %f" % (x, self.__dict__[x]))
-            self.s1[x] = self.__dict__[x]
+        atxt(ostrs[0]); atxt(ostrs[1])
+        atxt(ostrs[2] % (self.Al2O3, self.TC, self.TA, ab.OC[0], ab.OC[1]))
+        try:
+            ac = self.Al2O3/self.TC
+        except:
+            ac = 0.0
+        atxt(ostrs[3] % ac)
+        atxt(ostrs[4] % (self.TempSat, self.BPE))
+        atxt(ostrs[5] % (self.Cp_Liq, 1000.*self.Rho_Liq))
+        atxt(ostrs[6] % (self.Cp_H2O, 1000.*self.Rho_H2O))
+        atxt(ostrs[7] % (self.Cp_phi, self.V_phi))
+        atxt(ostrs[8] % self.Cp_LiqH2O)
+        atxt("\nSaturation Indices")
+        atxt("".join(sinames[:5]))
+        atxt(("%-13.5f"*5) % tuple([x for x in ab.SI[:5]]))
+        atxt("".join(sinames[5:]))
+        atxt(("%-13.5f"*5) % tuple([x for x in ab.SI[5:]]))
+        atxt("\nSolubilities")
+        atxt(solnames)
+        atxt(("Solubility M  " + "%9.4f"*6) % tuple([x for x in ab.SolML]))
+        atxt(("Solubility mgk" + "%9.4f"*6) % tuple([x for x in ab.Solmkg]))
         atxt("")
 
+
+
 def main():
-    global app
+    global app, bayer_, root, done
     def done():
         root.destroy()
     root=Tk()
@@ -279,6 +370,7 @@ def main():
     root.update()
     root.deiconify()
     root.geometry("900x700-5+5")
+    dllSetup()
     root.mainloop()
 
 main()
