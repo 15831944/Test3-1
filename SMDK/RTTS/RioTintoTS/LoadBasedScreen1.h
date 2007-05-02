@@ -52,6 +52,9 @@ public:
     Vector ModelOutput;         // vector of model calculated values
     Vector PartitionCurve;      // calculated partition curve
 
+	double* pAArray;
+	double* pBArray;
+
 private:
 
 	// Model Dimensions
@@ -106,6 +109,7 @@ private:
     double K;
     double L;
     double X;                   // Custom area factor
+
 
     // Model calculated values
 

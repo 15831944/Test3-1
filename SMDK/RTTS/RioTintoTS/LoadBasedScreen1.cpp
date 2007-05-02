@@ -165,6 +165,8 @@ LoadBasedScreen1::LoadBasedScreen1( )
     // Create new product stream objects 
     Undersize = PFlowStream1( new FlowStream1 );
     Oversize  = PFlowStream1( new FlowStream1 );
+	pAArray = NULL;
+	pBArray = NULL;
 }
 
 
@@ -178,6 +180,8 @@ LoadBasedScreen1::LoadBasedScreen1( )
 LoadBasedScreen1::~LoadBasedScreen1( )
 {
 	/* void */
+	pAArray = NULL;
+	pBArray = NULL;
 }
 
 
@@ -607,8 +611,8 @@ double LoadBasedScreen1::CalculateA( double S )
 
 	double A = 0;
 
-	const int nRows = 19;
 
+	const int nRows = 19;
 	static double AArray [ nRows ] [ 2 ] = 
 	
 	{
@@ -635,7 +639,8 @@ double LoadBasedScreen1::CalculateA( double S )
 		{ 160  ,  41.5 },
 		{ 500  , 107.5 }, };
         
-    Matrix AMatrix( nRows, 2, *AArray );
+	double* p = (pAArray ? pAArray : *AArray);
+    Matrix AMatrix( nRows, 2, p );
 	CubicSpline ASpline;
 
 	ASpline.SetSpline ( AMatrix.column(0), AMatrix.column(1) );

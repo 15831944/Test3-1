@@ -93,17 +93,21 @@ public:
   SysCADParamsTable();
   //SysCADParamsA(struct Parameter* p, int n );
   ~SysCADParamsTable();
-  void InitParams(char* TableName_, char* Col0Name_, char* Col1Name_, int RowCount);
+  void InitParams(char* TableName_, char* Col0Name_, char* Col0Desc_, char* Col1Name_, char* Col1Desc_, int RowCount);
   void BuildDataFields(MDataDefn &DD);
 
   void SetData(double* d);
   void GetData(double* d);
+  double* Val() { return val; };
 
 private:
   double* val;  // Storage for parameters
+  double dResult;
   char* TableName;
   char* Col0Name;
+  char* Col0Desc;
   char* Col1Name;
+  char* Col1Desc;
   int nrows;    // Number of rows for parameters
   int ncols;    // Number of columns
 };

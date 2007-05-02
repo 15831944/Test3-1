@@ -129,6 +129,7 @@ protected:
 	double m_BottomDeckParams[13];
 
     SysCADParamsTable m_A;
+	SysCADParamsTable m_B;
 
 };
 

@@ -104,9 +104,10 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	 m_dBottomX=0.0;		//  user custom factor
 	 m_dBottomV=0.0;		//  screen load %
 
-	const int nRows = 19;
-	static double AArray [ nRows ] [ 2 ] = 
-	{
+//-----------------------------------------------------------------------
+    const int nRowsA = 19;
+	static double AArray [nRowsA][2] = 
+	  {
 //          S       A	
 //      Screen    Basic
 //      Opening Capacity
@@ -129,10 +130,28 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 		{ 75   ,  25.0 },
 		{ 160  ,  41.5 },
 		{ 500  , 107.5 }, };
-	 m_A.InitParams("A", "Sz", "Ar", 19);
-	 m_A.SetData((double*)&AArray);
+	m_A.InitParams("A", "S", "Screen Opening", "A", "Basic Capacity", nRowsA);
+	m_A.SetData((double*)&AArray);
 
-	}
+
+    const int nRowsB = 7;
+	static double BArray[nRowsB][2] = 
+	{
+//       Fract       B	
+//      Oversize  Oversize
+//      in Feed    Factor
+        { 0.00  ,  1.60 },
+		{ 0.50  ,  1.00 },
+		{ 0.80  ,  0.64 },
+		{ 0.85  ,  0.56 },
+		{ 0.90  ,  0.44 },
+		{ 0.95  ,  0.24 },
+		{ 1.00  ,  0.00 }, };
+	m_B.InitParams("B", "Frac", "Oversize in Feed", "B", "Oversize Factor", nRowsB);
+	m_B.SetData((double*)&BArray);
+	
+
+  }
 
 	void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
 	{ 
@@ -266,6 +285,7 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 
 	DB.Page("Tables");
 	m_A.BuildDataFields(DB);
+	m_B.BuildDataFields(DB);
 
 	DB.ObjectEnd();
 	}
@@ -293,7 +313,7 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 
       if ( bInit && !IsNothing(l_PSD))
 	    {
-	      bInit = false;
+	    bInit = false;
 
         // Copy the Sieve Data Sizing Info
         SysCADSystemHelper::SysCADSizeDataToSystem(l_PSD, MatInfo);
@@ -346,6 +366,12 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 
 			}
         }
+
+		TopDeckScreen.pAArray = m_A.Val();
+        if ( bTwoDecks )
+        {
+		BottomDeckScreen.pAArray = m_A.Val();
+		}
 
         // Create the Feed Stream. Use SetConfig after initialisation
         // if we need to change anything. We need to initialise here
