@@ -87,14 +87,33 @@ namespace SVNAutomate
                        "//" + "\n" + "\n" +
           //                       "#ifndef __SVN_H" + "\n" +
           //                       "#define __SVN_H" + "\n" + "\n" +
-                       "#define SCD_PATCH_SVN " + revision;
+                       "#define SCD_PATCH_SVN " + revision + "\n"; // _must_ have a trailing \n for the comaprison below to work.
 
-        FileStream fileStream = new FileStream("svn.h", FileMode.Create);
-        StreamWriter streamWriter = new StreamWriter(fileStream);
-        streamWriter.Write(svn_h);
-        streamWriter.Close();
-        fileStream.Close();
+        String current_svn_h = "";
 
+        try
+        { // load current svn.h into current_svn_h.
+          FileStream fileStream = new FileStream("svn.h", FileMode.Open);
+          StreamReader streamReader = new StreamReader(fileStream);
+          while (!streamReader.EndOfStream)
+          {
+          current_svn_h += streamReader.ReadLine() + "\n";
+          }
+          streamReader.Close();
+          fileStream.Close();
+        }
+        catch(Exception) // no file or some other error.
+        {
+        }
+
+        if (current_svn_h != svn_h)
+        {
+          FileStream fileStream = new FileStream("svn.h", FileMode.Create);
+          StreamWriter streamWriter = new StreamWriter(fileStream);
+          streamWriter.Write(svn_h);
+          streamWriter.Close();
+          fileStream.Close();
+        }
         if (errorLevel != 0)
         {
           Console.WriteLine("Unable to find revision number:\n" + info);
