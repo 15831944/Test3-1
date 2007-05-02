@@ -87,7 +87,7 @@ namespace SVNAutomate
                        "//" + "\n" + "\n" +
           //                       "#ifndef __SVN_H" + "\n" +
           //                       "#define __SVN_H" + "\n" + "\n" +
-                       "#define SCD_PATCH_SVN " + revision + "\n"; // _must_ have a trailing \n for the comaprison below to work.
+                       "#define SCD_PATCH_SVN " + revision;
 
         String current_svn_h = "";
 
@@ -106,7 +106,7 @@ namespace SVNAutomate
         {
         }
 
-        if (current_svn_h != svn_h)
+        if (current_svn_h.Trim() != svn_h.Trim())
         {
           FileStream fileStream = new FileStream("svn.h", FileMode.Create);
           StreamWriter streamWriter = new StreamWriter(fileStream);
