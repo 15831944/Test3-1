@@ -347,6 +347,111 @@ bool Model430A::Initialize(  PStreamInfo1       inConfig,
     //return false;
 }
 
+//====================================================================
+/* TRANRL3.F -- translated by f2c (version 20050501).
+   You must link the resulting object file with libf2c:
+	on Microsoft Windows system, link with libf2c.lib;
+	on Linux or Unix systems, link with .../path/to/libf2c.a -lm
+	or, if you install libf2c.a in a standard place, with -lf2c -lm
+	-- in that order, at the end of the command line, as in
+		cc *.o -lf2c -lm
+	Source for libf2c is in /netlib/f2c/libf2c.zip, e.g.,
+
+		http://www.netlib.org/f2c/libf2c.zip
+*/
+
+/* ---- Convert sizing from one sieve series to another ------------------------- */
+int tranrl3_(double *size1, double *rdist1, double *size2, double *rdist2)
+  {
+  /* System generated locals */
+  short s__1;
+
+  /* Local variables */
+  static short i__, j;
+  static double x, y;
+  static short n1, n2;
+  static double x1, x2, y1, y2;
+  static double cdist1[90], cdist2[90], csize1[90], csize2[90], rdist1_a__[90]; //was 32, changed to 50, then 90
+  
+  /* Parameter adjustments */
+  --rdist2;
+  --size2;
+  --rdist1;
+  --size1;
+
+  // Extract size distribution lengths
+  n1 = (short) size1[1];
+  n2 = (short) size2[1];
+
+  // Convert SIZE1/FEED to cummulative distribution
+  csize1[n1 - 1] = 0.;
+  cdist1[n1 - 1] = 0.;
+  for (i__ = (short)(n1 - 1); i__ >= 1; --i__)
+    {
+    csize1[i__ - 1] = size1[i__ + 2];
+    cdist1[i__ - 1] = cdist1[i__] + rdist1[i__ + 1];
+    }
+  // Interpolate CSIZE2/CDIST2 from CSIZE1/CDIST1
+  csize2[n2 - 1] = 0.;
+  cdist2[n2 - 1] = 0.;
+  j = n1;
+  x1 = csize1[j - 1];
+  x2 = csize1[j - 2];
+  y1 = cdist1[j - 1];
+  y2 = cdist1[j - 2];
+  for (i__ = (short) (n2 - 1); i__ >= 1; --i__) 
+    {
+    x = size2[i__ + 2];
+	  while(! (x >= x1 && x <= x2) && j > 2) 
+      {
+      j = (short) (j - 1);
+      x1 = csize1[j - 1];
+      x2 = csize1[j - 2];
+      y1 = cdist1[j - 1];
+      y2 = cdist1[j - 2];
+      }
+    if (x >= x2) 
+      {
+	    y = y2;
+	    } 
+    else if (j > 0) 
+      {
+	    y = y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+	    }
+    else
+      {
+	    y = 0.;
+	    }
+	  cdist2[i__ - 1] = y;
+    }
+
+  // Convert CSIZE2/CDIST2 to retained in RDIST2
+
+  // Testing
+  rdist1_a__[0] = rdist1[1];
+  s__1 = (short) (n1 - 1);
+  for (i__ = 2; i__ <= s__1; ++i__) 
+    {
+	  rdist1_a__[i__ - 1] = cdist1[i__ - 2] - cdist1[i__ - 1];
+    }
+  rdist1_a__[n1 - 1] = cdist1[i__ - 2];
+  // Testing
+
+  /* MRW - Corrected Conversion backk to intervals */
+  /* RDIST2(1) = RDIST1(1) */
+  /* DO I=2,N2-1 */
+  /*    RDIST2(I) = CDIST2(I) - CDIST2(I+1) */
+  /* END DO */
+  /* RDIST2(N2) = CDIST2(I) */
+  rdist2[1] = rdist1[1];
+  s__1 = (short) (n2 - 1);
+  for (i__ = 2; i__ <= s__1; ++i__) 
+    {
+	  rdist2[i__] = cdist2[i__ - 2] - cdist2[i__ - 1];
+    }
+  rdist2[n2] = cdist2[i__ - 2];
+  return 0;
+  }
 
 //-- Calculate the Model430A for a given feed -------------------------------
 
@@ -431,8 +536,8 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
 		// based on the top size
         for( j=0; j<nType_; j++ )
 	    {
-			tranrl3( &SIZE[0], &( AMFEED[j][0] ) ,
-				     &SIZE_MAPPED[0], &( AMFEED_MAPPED[j][0] ) );
+			//tranrl3( &SIZE[0], &( AMFEED[j][0] ), &SIZE_MAPPED[0], &( AMFEED_MAPPED[j][0] ) );
+      tranrl3_( &SIZE[0], &( AMFEED[j][0] ), &SIZE_MAPPED[0], &( AMFEED_MAPPED[j][0] ) );
 		}
 
 
@@ -468,10 +573,8 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
        for( j=0; j<nType_; j++ )
 	   {
 
-			tranrl3( &SIZE_MAPPED[0], &( AMDISC_MAPPED[j][0] ) ,
-				     &SIZE[0], &( AMDISC[j][0] ) );
-			//tranrl3( &SIZE_MAPPED[0], &( AMFEED_MAPPED[j][0] ) ,
-			//	     &SIZE[0], &( AMDISC[j][0] ) );
+			//tranrl3( &SIZE_MAPPED[0], &( AMDISC_MAPPED[j][0] ), &SIZE[0], &( AMDISC[j][0] ) );
+      tranrl3_( &SIZE_MAPPED[0], &( AMDISC_MAPPED[j][0] ), &SIZE[0], &( AMDISC[j][0] ) );
 
 			// For some reason which I (MRW) do not have time to debug at this stage
 			// discharge mass is slightly out so for now just normalise so the feed mass is

@@ -23,39 +23,37 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	//
 	// Default Parameters
 	//
+  m_dTopApperture		= 0.012;
+  m_dTopLength			=  5.0;
+  m_dTopAngle			=  3.14/9.0;// 20 deg
+  m_dTopWidth			=  5.0;
+  m_dTopOpenFraction		=  1.0;
+  m_dTopBulkDensity		=  2000;//kg/m^3
+  m_bTopWetScreening		=  false;
+  m_lTopAppetureShape	=  1;
+  m_lTopMediaType		=  1;
+  m_lTopDeckLocation		=  1;
+  m_bTopGravel			=  false;
+  m_dTopCustomFactor		=  1.0;
+  m_dTopWaterSplitToUS	=  0.0;
 
-	 m_dTopApperture		= 0.012;
-	 m_dTopLength			=  5.0;
-	 m_dTopAngle			=  3.14/9.0;// 20 deg
-	 m_dTopWidth			=  5.0;
-	 m_dTopOpenFraction		=  1.0;
-	 m_dTopBulkDensity		=  2000;//kg/m^3
-	 m_bTopWetScreening		=  false;
-     m_lTopAppetureShape	=  1;
-	 m_lTopMediaType		=  1;
-	 m_lTopDeckLocation		=  1;
-	 m_bTopGravel			=  false;
-     m_dTopCustomFactor		=  1.0;
-	 m_dTopWaterSplitToUS	=  0.0;
-
-	 m_dBottomApperture		= 0.0121;
-	 m_dBottomLength		=  5.0;
-	 m_dBottomAngle			=  3.14/9.0;// 20 deg
-	 m_dBottomWidth			=  5.0;
-	 m_dBottomOpenFraction	=  1.0;
-	 m_dBottomBulkDensity	=  2000;// kg/m^3
-	 m_bBottomWetScreening	=  false;
-     m_lBottomAppetureShape	=  1;
-	 m_lBottomMediaType		=  1;
-	 m_lBottomDeckLocation	=  1;
-	 m_bBottomGravel		=  false;
-     m_dBottomCustomFactor	=  1.0;
-	 m_dBottomWaterSplitToUS=  0.0;
+  m_dBottomApperture		= 0.0121;
+  m_dBottomLength		=  5.0;
+  m_dBottomAngle			=  3.14/9.0;// 20 deg
+  m_dBottomWidth			=  5.0;
+  m_dBottomOpenFraction	=  1.0;
+  m_dBottomBulkDensity	=  2000;// kg/m^3
+  m_bBottomWetScreening	=  false;
+  m_lBottomAppetureShape	=  1;
+  m_lBottomMediaType		=  1;
+  m_lBottomDeckLocation	=  1;
+  m_bBottomGravel		=  false;
+  m_dBottomCustomFactor	=  1.0;
+  m_dBottomWaterSplitToUS=  0.0;
 
 	 //
 	 // Default Outputs
 	 //
-
 	 m_dTopQF=0.0;		//  total tph of feed
 	 m_dTopFeed_OS=0.0;	//  fraction of feed > apperture
 	 m_dTopFeed_US=0.0;	//  fraction of feed < apperture
@@ -105,9 +103,9 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	 m_dBottomV=0.0;		//  screen load %
 
 //-----------------------------------------------------------------------
-    const int nRowsA = 19;
-	static double AArray [nRowsA][2] = 
-	  {
+  const int nRowsA = 19;
+  static double AArray [ nRowsA ] [ 2 ] = 
+	{
 //          S       A	
 //      Screen    Basic
 //      Opening Capacity
@@ -134,8 +132,8 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	m_A.SetData((double*)&AArray);
 
 
-    const int nRowsB = 7;
-	static double BArray[nRowsB][2] = 
+	const int nRowsB = 7;
+	static double BArray [ nRowsB ] [ 2 ] = 
 	{
 //       Fract       B	
 //      Oversize  Oversize
@@ -150,6 +148,66 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	m_B.InitParams("B", "Frac", "Oversize in Feed", "B", "Oversize Factor", nRowsB);
 	m_B.SetData((double*)&BArray);
 	
+
+  const int nRowsC = 18;
+  static double CArray [ nRowsC ] [ 2 ] = 
+    {
+//      Fract of    C	
+//     Feed < S/2
+//                Factor
+        { 0.00 ,  0.70 },
+        { 0.25 ,  1.00 },
+        { 0.30 ,  1.06 },
+        { 0.35 ,  1.13 },
+        { 0.40 ,  1.21 },
+        { 0.45 ,  1.30 },
+        { 0.50 ,  1.40 },
+        { 0.55 ,  1.52 },
+        { 0.60 ,  1.67 },
+        { 0.65 ,  1.85 },
+        { 0.70 ,  2.05 },
+        { 0.75 ,  2.26 },
+        { 0.80 ,  2.50 },
+        { 0.85 ,  2.75 },
+        { 0.90 ,  3.20 },
+        { 0.95 ,  4.00 },
+        { 0.98 ,  6.00 },
+        { 1.00 , 10.00 }, };
+	m_C.InitParams("C", "Frac", "Feed < S/2", "C", "Factor", nRowsC);
+	m_C.SetData((double*)&CArray);
+
+
+	const int nRowsE = 10;
+	static double EArray [ nRowsE ] [ 2 ] = 
+	{
+//        S          E	
+//     Screen  Wet Screening
+//     Opening    Factor
+#ifdef OLD
+        { 0    ,   1.0 },
+		{ 1    ,   1.5 },
+		{ 3    ,   2.0 },
+		{ 5    ,   2.0 },
+		{ 8    ,   1.6 },
+		{ 11   ,   1.4 },
+		{ 17   ,   1.2 },
+		{ 22   ,   1.1 },
+		{ 35   ,   1.0 },
+		{ 40   ,   1.0 }, };
+#endif
+        { 0    ,   2.88 },
+		{ 1    ,   3.0 },
+		{ 3    ,   3.0 },
+		{ 5    ,   2.95 },
+		{ 8    ,   2.93 },
+		{ 11   ,   2.88 },
+		{ 17   ,   2.73 },
+		{ 22   ,   2.63 },
+		{ 35   ,   1.88 },
+		{ 40   ,   1.00 }, };
+	m_E.InitParams("E", "S", "Screen Opening", "E", "Wet Screening Factor", nRowsE);
+	m_E.SetData((double*)&EArray);
+
 
   }
 
@@ -176,298 +234,296 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 		{2,   "Bottom"},
 		{0}};
 
-
 	DB.ObjectBegin("TS_LoadSep", "LoadBasedScreen");
 
+  // SysCAD Tag Name convention ==> no spaces between words
+  // Use MF_VISIBLE to make parameters invisible
 
-    // SysCAD Tag Name convention ==> no spaces between words
-    // Use MF_VISIBLE to make parameters invisible
+  DB.Text("");
+  DB.Text("Load Based Screen");
 
-	DB.Text("Load Based Screen");
+  //
+  // Parameters
+  //
+  DB.StructBegin("Top" );
+  DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Length"       , "", &m_dTopLength         , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Width"        , "", &m_dTopWidth          , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Angle"        , "", &m_dTopAngle          , MF_PARAMETER | MF_INIT_HIDDEN ,  MC_Ang("deg"));
+  DB.Double("OpenFraction" , "", &m_dTopOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
+  DB.Double("BulkDensity"  , "", &m_dTopBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
+  DB.Bool  ("WetScreening" , "", &m_bTopWetScreening   , MF_PARAMETER  );
+  DB.Long  ("AppetureShape", "", &m_lTopAppetureShape  , MF_PARAMETER, DDAppetureShape);
+  DB.Long  ("MediaType"    , "", &m_lTopMediaType      , MF_PARAMETER, DDMediaType);
+  DB.Long  ("DeckLocation" , "", &m_lTopDeckLocation   , MF_PARAMETER, DDDeckLocation);
+  DB.Bool  ("Gravel"       , "", &m_bTopGravel         , MF_PARAMETER  );
+  DB.Double("CustomFactor" , "", &m_dTopCustomFactor   , MF_PARAMETER ,  MC_None);
+  DB.Double("WaterSplitToUS","", &m_dTopWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
+  DB.StructEnd();
 
-	//
-	// Parameters
-	//
+  DB.Text("");
+  DB.StructBegin("Bottom" );
+  DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Length"       , "", &m_dBottomLength         , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Width"        , "", &m_dBottomWidth          , MF_PARAMETER ,  MC_L("mm"));
+  DB.Double("Angle"        , "", &m_dBottomAngle          , MF_PARAMETER | MF_INIT_HIDDEN,  MC_Ang("deg"));
+  DB.Double("OpenFraction" , "", &m_dBottomOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
+  DB.Double("BulkDensity"  , "", &m_dBottomBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
+  DB.Bool  ("WetScreening" , "", &m_bBottomWetScreening   , MF_PARAMETER  );
+  DB.Long  ("AppetureShape", "", &m_lBottomAppetureShape  , MF_PARAMETER, DDAppetureShape);
+  DB.Long  ("MediaType"    , "", &m_lBottomMediaType      , MF_PARAMETER, DDMediaType);
+  DB.Long  ("DeckLocation" , "", &m_lBottomDeckLocation   , MF_PARAMETER, DDDeckLocation);
+  DB.Bool  ("Gravel"       , "", &m_bBottomGravel         , MF_PARAMETER  );
+  DB.Double("CustomFactor" , "", &m_dBottomCustomFactor   , MF_PARAMETER ,  MC_None);
+  DB.Double("WaterSplitToUS","", &m_dBottomWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
+  DB.StructEnd();
 
-	//DB.StructBegin("TS_Top", "Top" );
-	DB.StructBegin("Top" );
-	DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Length"       , "", &m_dTopLength         , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Width"        , "", &m_dTopWidth          , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Angle"        , "", &m_dTopAngle          , MF_PARAMETER | MF_INIT_HIDDEN ,  MC_Ang("deg"));
-	DB.Double("OpenFraction" , "", &m_dTopOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
-	DB.Double("BulkDensity"  , "", &m_dTopBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
-	DB.Bool  ("WetScreening" , "", &m_bTopWetScreening   , MF_PARAMETER  );
-    DB.Long  ("AppetureShape", "", &m_lTopAppetureShape  , MF_PARAMETER, DDAppetureShape);
-    DB.Long  ("MediaType"    , "", &m_lTopMediaType      , MF_PARAMETER, DDMediaType);
-    DB.Long  ("DeckLocation" , "", &m_lTopDeckLocation   , MF_PARAMETER, DDDeckLocation);
-	DB.Bool  ("Gravel"       , "", &m_bTopGravel         , MF_PARAMETER  );
-	DB.Double("CustomFactor" , "", &m_dTopCustomFactor   , MF_PARAMETER ,  MC_None);
-	DB.Double("WaterSplitToUS","", &m_dTopWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
-	DB.StructEnd();
+  DB.Page("Regr1");
+	DB.ObjectBegin("TS_LoadSep_Regr", "Regr"); //force this into separate data table in database
+  m_A.BuildDataFields(DB);
+  m_B.BuildDataFields(DB);
+  DB.Page("Regr2");
+  m_C.BuildDataFields(DB);
+  m_E.BuildDataFields(DB);
+  DB.ObjectEnd();
 
-	//DB.StructBegin("TS_Bottom", "Bottom" );
-	DB.StructBegin("Bottom" );
-	DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Length"       , "", &m_dBottomLength         , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Width"        , "", &m_dBottomWidth          , MF_PARAMETER ,  MC_L("mm"));
-	DB.Double("Angle"        , "", &m_dBottomAngle          , MF_PARAMETER | MF_INIT_HIDDEN,  MC_Ang("deg"));
-	DB.Double("OpenFraction" , "", &m_dBottomOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
-	DB.Double("BulkDensity"  , "", &m_dBottomBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
-	DB.Bool  ("WetScreening" , "", &m_bBottomWetScreening   , MF_PARAMETER  );
-    DB.Long  ("AppetureShape", "", &m_lBottomAppetureShape  , MF_PARAMETER, DDAppetureShape);
-    DB.Long  ("MediaType"    , "", &m_lBottomMediaType      , MF_PARAMETER, DDMediaType);
-    DB.Long  ("DeckLocation" , "", &m_lBottomDeckLocation   , MF_PARAMETER, DDDeckLocation);
-	DB.Bool  ("Gravel"       , "", &m_bBottomGravel         , MF_PARAMETER  );
-	DB.Double("CustomFactor" , "", &m_dBottomCustomFactor   , MF_PARAMETER ,  MC_None);
-	DB.Double("WaterSplitToUS","", &m_dBottomWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
+  //
+  // Outputs
+  //
+  DB.Page("Results");
 
-	DB.StructEnd();
+  DB.StructBegin("TopRes" );
+  DB.Double("QF"			, "", &m_dTopQF			, MF_RESULT ,  MC_None);
+  DB.Double("Feed_OS"	, "", &m_dTopFeed_OS, MF_RESULT ,  MC_None);
+  DB.Double("Feed_US"	, "", &m_dTopFeed_US, MF_RESULT ,  MC_None);
+  DB.Double("Feed_HSperture"	, "", &m_dTopFeed_HS	, MF_RESULT ,  MC_None);
+  DB.Double("QU"			, "", &m_dTopQU			, MF_RESULT ,  MC_None);
+  DB.Double("QO"			, "", &m_dTopQO			, MF_RESULT ,  MC_None);
+  DB.Double("S"				, "", &m_dTopS			, MF_RESULT ,  MC_None);
+  DB.Double("T"				, "", &m_dTopT			, MF_RESULT ,  MC_None);
+  DB.Double("AF"			, "", &m_dTopAF			, MF_RESULT ,  MC_None);
+  DB.Double("D5"			, "", &m_dTopD50		, MF_RESULT ,  MC_None);
+  DB.Double("A"				, "", &m_dTopA			, MF_RESULT ,  MC_None);
+  DB.Double("B"				, "", &m_dTopB			, MF_RESULT ,  MC_None);
+  DB.Double("C"				, "", &m_dTopC			, MF_RESULT ,  MC_None);
+  DB.Double("D"				, "", &m_dTopD			, MF_RESULT ,  MC_None);
+  DB.Double("E"				, "", &m_dTopE			, MF_RESULT ,  MC_None);
+  DB.Double("F"				, "", &m_dTopF			, MF_RESULT ,  MC_None);
+  DB.Double("G"				, "", &m_dTopG			, MF_RESULT ,  MC_None);
+  DB.Double("H"				, "", &m_dTopH			, MF_RESULT ,  MC_None);
+  DB.Double("J"				, "", &m_dTopJ			, MF_RESULT ,  MC_None);
+  DB.Double("K"				, "", &m_dTopK			, MF_RESULT ,  MC_None);
+  DB.Double("L"				, "", &m_dTopL			, MF_RESULT ,  MC_None);
+  DB.Double("X"				, "", &m_dTopX			, MF_RESULT ,  MC_None);
+  DB.Double("V"				, "", &m_dTopV			, MF_RESULT ,  MC_None);
+  DB.StructEnd();
 
-	//
-	// Outputs
-	//
-    DB.Page("Results");
+  DB.Text("");
+  DB.StructBegin("BottomRes"  );
+  DB.Double("QF"			, "", &m_dBottomQF			, MF_RESULT ,  MC_None);
+  DB.Double("Feed_OS"	, "", &m_dBottomFeed_OS		, MF_RESULT ,  MC_None);
+  DB.Double("Feed_US"	, "", &m_dBottomFeed_US		, MF_RESULT ,  MC_None);
+  DB.Double("Feed_HSperture"	, "", &m_dBottomFeed_HS		, MF_RESULT ,  MC_None);
+  DB.Double("QU"			, "", &m_dBottomQU		, MF_RESULT ,  MC_None);
+  DB.Double("QO"			, "", &m_dBottomQO		, MF_RESULT ,  MC_None);
+  DB.Double("S"				, "", &m_dBottomS			, MF_RESULT ,  MC_None);
+  DB.Double("T"				, "", &m_dBottomT			, MF_RESULT ,  MC_None);
+  DB.Double("AF"			, "", &m_dBottomAF		, MF_RESULT ,  MC_None);
+  DB.Double("D5"			, "", &m_dBottomD50		, MF_RESULT ,  MC_None);
+  DB.Double("A"				, "", &m_dBottomA			, MF_RESULT ,  MC_None);
+  DB.Double("B"				, "", &m_dBottomB			, MF_RESULT ,  MC_None);
+  DB.Double("C"				, "", &m_dBottomC			, MF_RESULT ,  MC_None);
+  DB.Double("D"				, "", &m_dBottomD			, MF_RESULT ,  MC_None);
+  DB.Double("E"				, "", &m_dBottomE			, MF_RESULT ,  MC_None);
+  DB.Double("F"				, "", &m_dBottomF			, MF_RESULT ,  MC_None);
+  DB.Double("G"				, "", &m_dBottomG			, MF_RESULT ,  MC_None);
+  DB.Double("H"				, "", &m_dBottomH			, MF_RESULT ,  MC_None);
+  DB.Double("J"				, "", &m_dBottomJ			, MF_RESULT ,  MC_None);
+  DB.Double("K"				, "", &m_dBottomK			, MF_RESULT ,  MC_None);
+  DB.Double("L"				, "", &m_dBottomL			, MF_RESULT ,  MC_None);
+  DB.Double("X"				, "", &m_dBottomX			, MF_RESULT ,  MC_None);
+  DB.Double("V"				, "", &m_dBottomV			, MF_RESULT ,  MC_None);
+  DB.StructEnd();
 
-	//DB.StructBegin("TS_TopRes", "TopRes" );
-	 DB.StructBegin("TopRes" );
-	 DB.Double("QF"				, "", &m_dTopQF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_OS"		, "", &m_dTopFeed_OS	, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_US"		, "", &m_dTopFeed_US	, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_HSperture"	, "", &m_dTopFeed_HS	, MF_PARAMETER ,  MC_None);
-	 DB.Double("QU"				, "", &m_dTopQU			, MF_PARAMETER ,  MC_None);
-	 DB.Double("QO"				, "", &m_dTopQO			, MF_PARAMETER ,  MC_None);
-	 DB.Double("S"				, "", &m_dTopS			, MF_PARAMETER ,  MC_None);
-	 DB.Double("T"				, "", &m_dTopT			, MF_PARAMETER ,  MC_None);
-	 DB.Double("AF"				, "", &m_dTopAF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("D5"				, "", &m_dTopD50		, MF_PARAMETER ,  MC_None);
-	 DB.Double("A"				, "", &m_dTopA			, MF_PARAMETER ,  MC_None);
-	 DB.Double("B"				, "", &m_dTopB			, MF_PARAMETER ,  MC_None);
-	 DB.Double("C"				, "", &m_dTopC			, MF_PARAMETER ,  MC_None);
-	 DB.Double("D"				, "", &m_dTopD			, MF_PARAMETER ,  MC_None);
-	 DB.Double("E"				, "", &m_dTopE			, MF_PARAMETER ,  MC_None);
-	 DB.Double("F"				, "", &m_dTopF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("G"				, "", &m_dTopG			, MF_PARAMETER ,  MC_None);
-	 DB.Double("H"				, "", &m_dTopH			, MF_PARAMETER ,  MC_None);
-	 DB.Double("J"				, "", &m_dTopJ			, MF_PARAMETER ,  MC_None);
-	 DB.Double("K"				, "", &m_dTopK			, MF_PARAMETER ,  MC_None);
-	 DB.Double("L"				, "", &m_dTopL			, MF_PARAMETER ,  MC_None);
-	 DB.Double("X"				, "", &m_dTopX			, MF_PARAMETER ,  MC_None);
-	 DB.Double("V"				, "", &m_dTopV			, MF_PARAMETER ,  MC_None);
-	DB.StructEnd();
-
-	//DB.StructBegin("TS_BottomRes", "BottomRes" );
-	 DB.StructBegin("BottomRes"  );
-	 DB.Double("QF"				, "", &m_dBottomQF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_OS"		, "", &m_dBottomFeed_OS		, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_US"		, "", &m_dBottomFeed_US		, MF_PARAMETER ,  MC_None);
-	 DB.Double("Feed_HSperture"	, "", &m_dBottomFeed_HS		, MF_PARAMETER ,  MC_None);
-	 DB.Double("QU"				, "", &m_dBottomQU			, MF_PARAMETER ,  MC_None);
-	 DB.Double("QO"				, "", &m_dBottomQO			, MF_PARAMETER ,  MC_None);
-	 DB.Double("S"				, "", &m_dBottomS			, MF_PARAMETER ,  MC_None);
-	 DB.Double("T"				, "", &m_dBottomT			, MF_PARAMETER ,  MC_None);
-	 DB.Double("AF"				, "", &m_dBottomAF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("D5"				, "", &m_dBottomD50			, MF_PARAMETER ,  MC_None);
-	 DB.Double("A"				, "", &m_dBottomA			, MF_PARAMETER ,  MC_None);
-	 DB.Double("B"				, "", &m_dBottomB			, MF_PARAMETER ,  MC_None);
-	 DB.Double("C"				, "", &m_dBottomC			, MF_PARAMETER ,  MC_None);
-	 DB.Double("D"				, "", &m_dBottomD			, MF_PARAMETER ,  MC_None);
-	 DB.Double("E"				, "", &m_dBottomE			, MF_PARAMETER ,  MC_None);
-	 DB.Double("F"				, "", &m_dBottomF			, MF_PARAMETER ,  MC_None);
-	 DB.Double("G"				, "", &m_dBottomG			, MF_PARAMETER ,  MC_None);
-	 DB.Double("H"				, "", &m_dBottomH			, MF_PARAMETER ,  MC_None);
-	 DB.Double("J"				, "", &m_dBottomJ			, MF_PARAMETER ,  MC_None);
-	 DB.Double("K"				, "", &m_dBottomK			, MF_PARAMETER ,  MC_None);
-	 DB.Double("L"				, "", &m_dBottomL			, MF_PARAMETER ,  MC_None);
-	 DB.Double("X"				, "", &m_dBottomX			, MF_PARAMETER ,  MC_None);
-	 DB.Double("V"				, "", &m_dBottomV			, MF_PARAMETER ,  MC_None);
-	DB.StructEnd();
-
-	DB.Page("Tables");
-	m_A.BuildDataFields(DB);
-	m_B.BuildDataFields(DB);
-
-	DB.ObjectEnd();
+  DB.ObjectEnd();
 	}
 
 //====================================================================================
 
-	void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
-	                         MStream &Product1,
+void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
+               MStream &Product1,
 							 MStream &Product2,
 							 MStream &Product3,
 							 bool    bTwoDecks,
 							 bool    bInit)
 	
-	{ 
-	// Get info on Size Distribution
-    MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
-    if (IsNothing(l_PSD))
+  { 
+  // Get info on Size Distribution
+  MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
+  if (IsNothing(l_PSD))
+    {
+    return; //Why do we get here!!!
+    }
+  long    l_SizeCount      = l_PSD.getSizeCount();
+  long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
+
+  if ( bInit && !IsNothing(l_PSD))
+    {
+    bInit = false;
+
+    // Copy the Sieve Data Sizing Info
+    SysCADSystemHelper::SysCADSizeDataToSystem(l_PSD, MatInfo);
+
+    // Copy Material Information from database
+    // For now we just set up n components
+    // The MineralInfo data will come from a database
+    MatInfo->SetNumberOfMinerals( l_PSD.PSDVectorCount );
+
+    // Initialize Top Deck
+    m_TopDeckParams[0] =  m_dTopApperture*1000.0;
+    m_TopDeckParams[1] =  m_dTopLength;
+    m_TopDeckParams[2] =  m_dTopWidth;
+    m_TopDeckParams[3] =  m_dTopAngle*3.14/9.0;
+    m_TopDeckParams[4] =  m_dTopOpenFraction;
+    m_TopDeckParams[5] =  m_dTopBulkDensity/1000.0;
+    m_TopDeckParams[6] =  m_bTopWetScreening;
+    m_TopDeckParams[7] =  m_lTopAppetureShape;
+    m_TopDeckParams[8] =  m_lTopMediaType;
+    m_TopDeckParams[9] =  m_lTopDeckLocation;
+    m_TopDeckParams[10] =  m_bTopGravel;
+    m_TopDeckParams[11] =  m_dTopCustomFactor;
+    m_TopDeckParams[12] =  m_dTopWaterSplitToUS;
+    RioTintoTS::VectorView ParamVec(m_TopDeckParams,13,1);
+    if (TopDeckScreen.Initialize(MatInfo,ParamVec) == false)
       {
-      int xx=0;
-      return; //Why do we get here!!!
-      }
-    long    l_SizeCount      = l_PSD.getSizeCount();
-    long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
-
-
-      if ( bInit && !IsNothing(l_PSD))
-	    {
-	    bInit = false;
-
-        // Copy the Sieve Data Sizing Info
-        SysCADSystemHelper::SysCADSizeDataToSystem(l_PSD, MatInfo);
-
-        // Copy Material Information from database
-        // For now we just set up n components
-        // The MineralInfo data will come from a database
-        MatInfo->SetNumberOfMinerals( l_PSD.PSDVectorCount );
-
-        // Initialize Top Deck
- 
-		m_TopDeckParams[0] =  m_dTopApperture*1000.0;
-		m_TopDeckParams[1] =  m_dTopLength;
-		m_TopDeckParams[2] =  m_dTopWidth;
-		m_TopDeckParams[3] =  m_dTopAngle*3.14/9.0;
-		m_TopDeckParams[4] =  m_dTopOpenFraction;
-		m_TopDeckParams[5] =  m_dTopBulkDensity/1000.0;
-		m_TopDeckParams[6] =  m_bTopWetScreening;
-		m_TopDeckParams[7] =  m_lTopAppetureShape;
-		m_TopDeckParams[8] =  m_lTopMediaType;
-		m_TopDeckParams[9] =  m_lTopDeckLocation;
-		m_TopDeckParams[10] =  m_bTopGravel;
-		m_TopDeckParams[11] =  m_dTopCustomFactor;
-		m_TopDeckParams[12] =  m_dTopWaterSplitToUS;
-        RioTintoTS::VectorView ParamVec(m_TopDeckParams,13,1);
-        if (TopDeckScreen.Initialize(MatInfo,ParamVec) == false)
-		{
-
-		}
-
-        if ( bTwoDecks )
-        {
-			// TO DO
-			m_BottomDeckParams[0]  =  m_dBottomApperture*1000.0; // m to mm
-			m_BottomDeckParams[1]  =  m_dBottomLength;
-			m_BottomDeckParams[2]  =  m_dBottomWidth;
-			m_BottomDeckParams[3]  =  m_dBottomAngle*3.14/9.0; // rads to deg
-			m_BottomDeckParams[4]  =  m_dBottomOpenFraction;
-			m_BottomDeckParams[5]  =  m_dBottomBulkDensity/1000.0; // kg to t
-			m_BottomDeckParams[6]  =  m_bBottomWetScreening;
-			m_BottomDeckParams[7]  =  m_lBottomAppetureShape;
-			m_BottomDeckParams[8]  =  m_lBottomMediaType;
-			m_BottomDeckParams[9]  =  m_lBottomDeckLocation;
-			m_BottomDeckParams[10] =  m_bBottomGravel;
-			m_BottomDeckParams[11] =  m_dBottomCustomFactor;
-			m_BottomDeckParams[12] =  m_dBottomWaterSplitToUS;
-            RioTintoTS::VectorView ParamVec(m_BottomDeckParams,13,1);
-            if ( BottomDeckScreen.Initialize(MatInfo,ParamVec) == false )
-			{
-
-			}
-        }
-
-		TopDeckScreen.pAArray = m_A.Val();
-        if ( bTwoDecks )
-        {
-		BottomDeckScreen.pAArray = m_A.Val();
-		}
-
-        // Create the Feed Stream. Use SetConfig after initialisation
-        // if we need to change anything. We need to initialise here
-        // because we get the size information from the Feed stream
-        FeedStream = RioTintoTS::FlowStream1::Create( MatInfo  );
       }
 
-      if (!IsNothing(l_PSD))
-	  {
-        // Copy the input size data to the system feed stream solids
-        SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
-        SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
-
-        // Execute the Top Deck Model
-        TopDeckScreen.CalculateModel( FeedStream );
-
-        if ( bTwoDecks )
+    if ( bTwoDecks )
+      {
+      // TO DO
+      m_BottomDeckParams[0]  =  m_dBottomApperture*1000.0; // m to mm
+      m_BottomDeckParams[1]  =  m_dBottomLength;
+      m_BottomDeckParams[2]  =  m_dBottomWidth;
+      m_BottomDeckParams[3]  =  m_dBottomAngle*3.14/9.0; // rads to deg
+      m_BottomDeckParams[4]  =  m_dBottomOpenFraction;
+      m_BottomDeckParams[5]  =  m_dBottomBulkDensity/1000.0; // kg to t
+      m_BottomDeckParams[6]  =  m_bBottomWetScreening;
+      m_BottomDeckParams[7]  =  m_lBottomAppetureShape;
+      m_BottomDeckParams[8]  =  m_lBottomMediaType;
+      m_BottomDeckParams[9]  =  m_lBottomDeckLocation;
+      m_BottomDeckParams[10] =  m_bBottomGravel;
+      m_BottomDeckParams[11] =  m_dBottomCustomFactor;
+      m_BottomDeckParams[12] =  m_dBottomWaterSplitToUS;
+      RioTintoTS::VectorView ParamVec(m_BottomDeckParams,13,1);
+      if ( BottomDeckScreen.Initialize(MatInfo,ParamVec) == false )
         {
-            // Execute the Top Deck Model
-            BottomDeckScreen.CalculateModel( TopDeckScreen.Undersize );
         }
+      }
 
-        // Copy the output size data to the SysCAD output streams
-        if (!bTwoDecks)
-        {
-            SysCADSystemHelper::SystemSolidsToSysCAD(Product1,TopDeckScreen.Oversize);
-            SysCADSystemHelper::SystemSolidsToSysCAD(Product3,TopDeckScreen.Undersize);
-            SysCADSystemHelper::SystemLiquidToSysCAD(Product1,TopDeckScreen.Oversize);
-            SysCADSystemHelper::SystemLiquidToSysCAD(Product3,TopDeckScreen.Undersize);
-        }
-        else
-        {
-            SysCADSystemHelper::SystemSolidsToSysCAD(Product1,TopDeckScreen.Oversize);
-            SysCADSystemHelper::SystemSolidsToSysCAD(Product2,BottomDeckScreen.Oversize);
-            SysCADSystemHelper::SystemSolidsToSysCAD(Product3,BottomDeckScreen.Undersize);
-            SysCADSystemHelper::SystemLiquidToSysCAD(Product1,TopDeckScreen.Oversize);
-            SysCADSystemHelper::SystemLiquidToSysCAD(Product2,BottomDeckScreen.Oversize);
-            SysCADSystemHelper::SystemLiquidToSysCAD(Product3,BottomDeckScreen.Undersize);
-        }
+    TopDeckScreen.pAArray = m_A.Val();
+    TopDeckScreen.pBArray = m_B.Val();
+    TopDeckScreen.pCArray = m_C.Val();
+    TopDeckScreen.pEArray = m_E.Val();
+    if ( bTwoDecks )
+      {
+      BottomDeckScreen.pAArray = m_A.Val();
+      BottomDeckScreen.pBArray = m_B.Val();
+      BottomDeckScreen.pCArray = m_C.Val();
+      BottomDeckScreen.pEArray = m_E.Val();
+      }
 
-		// Copy outputs
-		m_dTopQF		= TopDeckScreen.ModelOutput[0];
-		m_dTopFeed_OS	= TopDeckScreen.ModelOutput[1];
-		m_dTopFeed_US	= TopDeckScreen.ModelOutput[2];
-		m_dTopFeed_HS	= TopDeckScreen.ModelOutput[3];
-		m_dTopQU		= TopDeckScreen.ModelOutput[4];
-		m_dTopQO		= TopDeckScreen.ModelOutput[5];
-		m_dTopS			= TopDeckScreen.ModelOutput[6];
-		m_dTopT			= TopDeckScreen.ModelOutput[7];
-		m_dTopAF		= TopDeckScreen.ModelOutput[8];
-		m_dTopD50		= TopDeckScreen.ModelOutput[9];
-		m_dTopA			= TopDeckScreen.ModelOutput[10];
-		m_dTopB			= TopDeckScreen.ModelOutput[11];
-		m_dTopC			= TopDeckScreen.ModelOutput[12];
-		m_dTopD			= TopDeckScreen.ModelOutput[13];
-		m_dTopE			= TopDeckScreen.ModelOutput[14];
-		m_dTopF			= TopDeckScreen.ModelOutput[15];
-		m_dTopG			= TopDeckScreen.ModelOutput[16];
-		m_dTopH			= TopDeckScreen.ModelOutput[17];
-		m_dTopJ			= TopDeckScreen.ModelOutput[18];
-		m_dTopK			= TopDeckScreen.ModelOutput[19];
-		m_dTopL			= TopDeckScreen.ModelOutput[20];
-		m_dTopX			= TopDeckScreen.ModelOutput[21];
-		m_dTopV			= TopDeckScreen.ModelOutput[22];
+    // Create the Feed Stream. Use SetConfig after initialisation
+    // if we need to change anything. We need to initialise here
+    // because we get the size information from the Feed stream
+    FeedStream = RioTintoTS::FlowStream1::Create( MatInfo  );
+    }
 
-        if ( bTwoDecks )
-        {
 
-		m_dBottomQF			= BottomDeckScreen.ModelOutput[0];
-		m_dBottomFeed_OS	= BottomDeckScreen.ModelOutput[1];
-		m_dBottomFeed_US	= BottomDeckScreen.ModelOutput[2];
-		m_dBottomFeed_HS	= BottomDeckScreen.ModelOutput[3];
-		m_dBottomQU			= BottomDeckScreen.ModelOutput[4];
-		m_dBottomQO			= BottomDeckScreen.ModelOutput[5];
-		m_dBottomS			= BottomDeckScreen.ModelOutput[6];
-		m_dBottomT			= BottomDeckScreen.ModelOutput[7];
-		m_dBottomAF			= BottomDeckScreen.ModelOutput[8];
-		m_dBottomD50		= BottomDeckScreen.ModelOutput[9];
-		m_dBottomA			= BottomDeckScreen.ModelOutput[10];
-		m_dBottomB			= BottomDeckScreen.ModelOutput[11];
-		m_dBottomC			= BottomDeckScreen.ModelOutput[12];
-		m_dBottomD			= BottomDeckScreen.ModelOutput[13];
-		m_dBottomE			= BottomDeckScreen.ModelOutput[14];
-		m_dBottomF			= BottomDeckScreen.ModelOutput[15];
-		m_dBottomG			= BottomDeckScreen.ModelOutput[16];
-		m_dBottomH			= BottomDeckScreen.ModelOutput[17];
-		m_dBottomJ			= BottomDeckScreen.ModelOutput[18];
-		m_dBottomK			= BottomDeckScreen.ModelOutput[19];
-		m_dBottomL			= BottomDeckScreen.ModelOutput[20];
-		m_dBottomX			= BottomDeckScreen.ModelOutput[21];
-		m_dBottomV			= BottomDeckScreen.ModelOutput[22];
+  if (!IsNothing(l_PSD))
+    {
+    // Copy the input size data to the system feed stream solids
+    SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
+    SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
 
-		}
+    // Execute the Top Deck Model
+    TopDeckScreen.CalculateModel( FeedStream );
 
-	  }
+    if ( bTwoDecks )
+      {
+      // Execute the Top Deck Model
+      BottomDeckScreen.CalculateModel( TopDeckScreen.Undersize );
+      }
 
-	}
+    // Copy the output size data to the SysCAD output streams
+    if (!bTwoDecks)
+      {
+      SysCADSystemHelper::SystemSolidsToSysCAD(Product1,TopDeckScreen.Oversize);
+      SysCADSystemHelper::SystemSolidsToSysCAD(Product3,TopDeckScreen.Undersize);
+      SysCADSystemHelper::SystemLiquidToSysCAD(Product1,TopDeckScreen.Oversize);
+      SysCADSystemHelper::SystemLiquidToSysCAD(Product3,TopDeckScreen.Undersize);
+      }
+    else
+      {
+      SysCADSystemHelper::SystemSolidsToSysCAD(Product1,TopDeckScreen.Oversize);
+      SysCADSystemHelper::SystemSolidsToSysCAD(Product2,BottomDeckScreen.Oversize);
+      SysCADSystemHelper::SystemSolidsToSysCAD(Product3,BottomDeckScreen.Undersize);
+      SysCADSystemHelper::SystemLiquidToSysCAD(Product1,TopDeckScreen.Oversize);
+      SysCADSystemHelper::SystemLiquidToSysCAD(Product2,BottomDeckScreen.Oversize);
+      SysCADSystemHelper::SystemLiquidToSysCAD(Product3,BottomDeckScreen.Undersize);
+      }
+
+    // Copy outputs
+    m_dTopQF		= TopDeckScreen.ModelOutput[0];
+    m_dTopFeed_OS	= TopDeckScreen.ModelOutput[1];
+    m_dTopFeed_US	= TopDeckScreen.ModelOutput[2];
+    m_dTopFeed_HS	= TopDeckScreen.ModelOutput[3];
+    m_dTopQU		= TopDeckScreen.ModelOutput[4];
+    m_dTopQO		= TopDeckScreen.ModelOutput[5];
+    m_dTopS			= TopDeckScreen.ModelOutput[6];
+    m_dTopT			= TopDeckScreen.ModelOutput[7];
+    m_dTopAF		= TopDeckScreen.ModelOutput[8];
+    m_dTopD50		= TopDeckScreen.ModelOutput[9];
+    m_dTopA			= TopDeckScreen.ModelOutput[10];
+    m_dTopB			= TopDeckScreen.ModelOutput[11];
+    m_dTopC			= TopDeckScreen.ModelOutput[12];
+    m_dTopD			= TopDeckScreen.ModelOutput[13];
+    m_dTopE			= TopDeckScreen.ModelOutput[14];
+    m_dTopF			= TopDeckScreen.ModelOutput[15];
+    m_dTopG			= TopDeckScreen.ModelOutput[16];
+    m_dTopH			= TopDeckScreen.ModelOutput[17];
+    m_dTopJ			= TopDeckScreen.ModelOutput[18];
+    m_dTopK			= TopDeckScreen.ModelOutput[19];
+    m_dTopL			= TopDeckScreen.ModelOutput[20];
+    m_dTopX			= TopDeckScreen.ModelOutput[21];
+    m_dTopV			= TopDeckScreen.ModelOutput[22];
+
+    if ( bTwoDecks )
+      {
+      m_dBottomQF			= BottomDeckScreen.ModelOutput[0];
+      m_dBottomFeed_OS	= BottomDeckScreen.ModelOutput[1];
+      m_dBottomFeed_US	= BottomDeckScreen.ModelOutput[2];
+      m_dBottomFeed_HS	= BottomDeckScreen.ModelOutput[3];
+      m_dBottomQU			= BottomDeckScreen.ModelOutput[4];
+      m_dBottomQO			= BottomDeckScreen.ModelOutput[5];
+      m_dBottomS			= BottomDeckScreen.ModelOutput[6];
+      m_dBottomT			= BottomDeckScreen.ModelOutput[7];
+      m_dBottomAF			= BottomDeckScreen.ModelOutput[8];
+      m_dBottomD50		= BottomDeckScreen.ModelOutput[9];
+      m_dBottomA			= BottomDeckScreen.ModelOutput[10];
+      m_dBottomB			= BottomDeckScreen.ModelOutput[11];
+      m_dBottomC			= BottomDeckScreen.ModelOutput[12];
+      m_dBottomD			= BottomDeckScreen.ModelOutput[13];
+      m_dBottomE			= BottomDeckScreen.ModelOutput[14];
+      m_dBottomF			= BottomDeckScreen.ModelOutput[15];
+      m_dBottomG			= BottomDeckScreen.ModelOutput[16];
+      m_dBottomH			= BottomDeckScreen.ModelOutput[17];
+      m_dBottomJ			= BottomDeckScreen.ModelOutput[18];
+      m_dBottomK			= BottomDeckScreen.ModelOutput[19];
+      m_dBottomL			= BottomDeckScreen.ModelOutput[20];
+      m_dBottomX			= BottomDeckScreen.ModelOutput[21];
+      m_dBottomV			= BottomDeckScreen.ModelOutput[22];
+      }
+    }
+  }
 
 //====================================================================================

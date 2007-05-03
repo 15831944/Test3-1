@@ -141,18 +141,6 @@ namespace
     };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 /****************************************************************************
@@ -161,16 +149,24 @@ namespace
 *
 ****************************************************************************/
 LoadBasedScreen1::LoadBasedScreen1( )
-{
-    // Create new product stream objects 
-    Undersize = PFlowStream1( new FlowStream1 );
-    Oversize  = PFlowStream1( new FlowStream1 );
-	pAArray = NULL;
-	pBArray = NULL;
-}
+  {
+  // Create new product stream objects 
+  Undersize = PFlowStream1( new FlowStream1 );
+  Oversize  = PFlowStream1( new FlowStream1 );
 
-
-    
+  pAArray = NULL;
+  pBArray = NULL;
+  pCArray = NULL;
+  pDArray = NULL;
+  pEArray = NULL;
+  pGArray = NULL;
+  pHArray = NULL;
+  pJArray = NULL;
+  pKArray = NULL;
+  pLArray = NULL;
+  pXArray = NULL;
+  }
+   
 
 /****************************************************************************
 *
@@ -178,12 +174,20 @@ LoadBasedScreen1::LoadBasedScreen1( )
 *
 ****************************************************************************/
 LoadBasedScreen1::~LoadBasedScreen1( )
-{
-	/* void */
-	pAArray = NULL;
-	pBArray = NULL;
-}
-
+  {
+  /* void */
+  pAArray = NULL;
+  pBArray = NULL;
+  pCArray = NULL;
+  pDArray = NULL;
+  pEArray = NULL;
+  pGArray = NULL;
+  pHArray = NULL;
+  pJArray = NULL;
+  pKArray = NULL;
+  pLArray = NULL;
+  pXArray = NULL;
+  }
 
 
 /****************************************************************************
@@ -239,90 +243,87 @@ LoadBasedScreen1::~LoadBasedScreen1( )
 *		  ParamVec[12]: Water Recovery of Undersize
 *
 ****************************************************************************/
-bool LoadBasedScreen1::Initialize
-( 
-    PStreamInfo1   Config,
-    VectorView&    ParamVec
-)
-{
-    // get count of material types from MatInfo
-    nType = Config->nType();
-	
-	// determine number of sizes from SizInfo
-    nSize = Config->nSize();
+bool LoadBasedScreen1::Initialize( PStreamInfo1   Config, VectorView&    ParamVec )
+  {
+  // get count of material types from MatInfo
+  nType = Config->nType();
 
-    // determine number of paramaters
-    int nParam = ParamVec.size();
+  // determine number of sizes from SizInfo
+  nSize = Config->nSize();
 
-    // ensure at least one type and two sizes
-    if( nType<1 || nSize <2 )
-        goto initFailed;
+  // determine number of paramaters
+  int nParam = ParamVec.size();
 
-    // ensure parameter vector has 11 elements
-    //if( nParam != 11 )
-    //    goto initFailed;
-    // ensure parameter vector has 13 elements
-    if( nParam != 13 )
-        goto initFailed;
+  // ensure at least one type and two sizes
+  if( nType<1 || nSize <2 )
+    goto initFailed;
 
-    // set local vector/matrix to correct dimension
-    Sizes.resize( nSize );
-    PartitionCurve.resize( nSize );
-    CombRetSizing.resize( nSize );
-    PartitionCurve.resize( nSize );
-    CombOS.resize( nSize );
-    CombUS.resize( nSize );
-    ModelOutput.resize( 23 );
+  // ensure parameter vector has 11 elements
+  //if( nParam != 11 )
+  //    goto initFailed;
+  // ensure parameter vector has 13 elements
+  if( nParam != 13 )
+    goto initFailed;
 
-    // set screen product streams to correct dimension
-    Oversize->SetConfig( Config );
-    Undersize->SetConfig( Config );
+  // set local vector/matrix to correct dimension
+  Sizes.resize( nSize );
+  PartitionCurve.resize( nSize );
+  CombRetSizing.resize( nSize );
+  PartitionCurve.resize( nSize );
+  CombOS.resize( nSize );
+  CombUS.resize( nSize );
+  ModelOutput.resize( 23 );
 
-    // extract sieve sizes
-    Sizes = Config->GetSizes();
+  // set screen product streams to correct dimension
+  Oversize->SetConfig( Config );
+  Undersize->SetConfig( Config );
 
-    // unpack parameters from ParamVec
+  // extract sieve sizes
+  Sizes = Config->GetSizes();
 
-	Apperture		    =       ParamVec[ 0];
-	Length				=		ParamVec[ 1];
-	Width				=		ParamVec[ 2];
-	Angle				=	    ParamVec[ 3];
-	OpenFraction		=	    ParamVec[ 4];
-	BulkDensity			=	    ParamVec[ 5];
-	WetScreening		= (int) ParamVec[ 6];
-	AppertureShape		= (int) ParamVec[ 7];
-	MediaType			= (int) ParamVec[ 8];
-	DeckLocation		= (int) ParamVec[ 9];
-	GravelCorrection	= (int) ParamVec[10];
-	CustomAreaFactor	=		ParamVec[11];	
-	WaterSplitToUS		=		ParamVec[12];	
-	
-	S   = Apperture;
-    AF  = Length * Width;
-    OA  = OpenFraction;
-    F   = BulkDensity;
-    WS  = WetScreening;
-    OT  = AppertureShape;
-    ST  = MediaType;
-    DL  = DeckLocation;
-    FT  = GravelCorrection;
-    CF  = CustomAreaFactor;
-	WR  = WaterSplitToUS;
+  // unpack parameters from ParamVec
 
-     // indicate success
-    return true;
+  Apperture		    =       ParamVec[ 0];
+  Length				=		ParamVec[ 1];
+  Width				=		ParamVec[ 2];
+  Angle				=	    ParamVec[ 3];
+  OpenFraction		=	    ParamVec[ 4];
+  BulkDensity			=	    ParamVec[ 5];
+  WetScreening		= (int) ParamVec[ 6];
+  AppertureShape		= (int) ParamVec[ 7];
+  MediaType			= (int) ParamVec[ 8];
+  DeckLocation		= (int) ParamVec[ 9];
+  GravelCorrection	= (int) ParamVec[10];
+  CustomAreaFactor	=		ParamVec[11];	
+  WaterSplitToUS		=		ParamVec[12];	
 
-initFailed:
+  S   = Apperture;
+  AF  = Length * Width;
+  OA  = OpenFraction;
+  F   = BulkDensity;
+  WS  = WetScreening;
+  OT  = AppertureShape;
+  ST  = MediaType;
+  DL  = DeckLocation;
+  FT  = GravelCorrection;
+  CF  = CustomAreaFactor;
+  WR  = WaterSplitToUS;
 
-    // initialization failed - set default values
+  // indicate success
+  return true;
 
-    nSize = 0;
-    nType = 0;
-    // etc
+  initFailed:
 
-    // indicate failure
-    return false;
-}
+  // initialization failed - set default values
+
+  nSize = 0;
+  nType = 0;
+  // etc
+
+  // indicate failure
+  return false;
+  }
+
 
 /****************************************************************************
 *
@@ -366,235 +367,244 @@ initFailed:
 ****************************************************************************/
 //##ModelId=40A1898902EF
 bool LoadBasedScreen1::CalculateModel( PFlowStream1 FeedStream )
-{
-    // Local Variables
+  {
+  // Local Variables
+  int i = 0;
+  int j = 0;
+  double ScaleFactor = 0.00;
+  double Denom = 0.00;
 
-    int i = 0;
-    int j = 0;
-    double ScaleFactor = 0.00;
-	double Denom = 0.00;
+  Vector CombCPPSizing ( nSize );
+  CubicSpline FeedSpline;    
 
-    Vector CombCPPSizing ( nSize );
-    CubicSpline FeedSpline;    
-    
-	MatrixView FeedSolids      = FeedStream->AccessSolidsMatrix( );
-	
-    MatrixView OversizeSolids  = Oversize->AccessSolidsMatrix( );
-	
-    MatrixView UndersizeSolids = Undersize->AccessSolidsMatrix( );
-	
-    // Ensure correct shape feed matrix
+  MatrixView FeedSolids      = FeedStream->AccessSolidsMatrix( );
 
-    if( FeedSolids.rowCount() != nSize )
-        goto calcFailed;
+  MatrixView OversizeSolids  = Oversize->AccessSolidsMatrix( );
 
-    if( FeedSolids.columnCount() != nType ) 
-        goto calcFailed;
+  MatrixView UndersizeSolids = Undersize->AccessSolidsMatrix( );
 
-    // Calculate total feed flow rate (solids)
-    
-    QF = FeedSolids.sum( );
+  // Ensure correct shape feed matrix
 
-    // Convert feed matrix into single component size distribution
+  if( FeedSolids.rowCount() != nSize )
+    goto calcFailed;
 
-    for( i = 0; i < nSize; i++ )
-        CombRetSizing[ i ] = (FeedSolids.row(i)).sum();
-	
-	if(fabs(QF)<1e-8)
-		ScaleFactor = 0.00;
-	else ScaleFactor = 1/QF;
+  if( FeedSolids.columnCount() != nType ) 
+    goto calcFailed;
 
-    // Scale single component distribution to cumulative sizing
-    //  scaled to fraction basis: ie. 1 passes top-size
+  // Calculate total feed flow rate (solids)
 
-    CombCPPSizing[ nSize - 1 ] = 0;
-    for( i = nSize - 2; i >=0; i-- )
-        CombCPPSizing[ i ] = CombCPPSizing[i + 1] + ( CombRetSizing[i + 1] * ScaleFactor );
+  QF = FeedSolids.sum( );
 
-    // Construct cubic spline passing through cumulative curve    
-    
-    FeedSpline.SetSpline( Sizes, CombCPPSizing );
+  // Convert feed matrix into single component size distribution
 
-    // Use cubic spline to get fraction passing half apperture size
+  for( i = 0; i < nSize; i++ )
+    CombRetSizing[ i ] = (FeedSolids.row(i)).sum();
 
-    Feed_HS = FeedSpline.CalculateY( S/2 );
+  if (fabs(QF)<1e-8)
+    ScaleFactor = 0.00;
+  else 
+    ScaleFactor = 1/QF;
 
-    // Use spline to get fraction passing apperture size    
+  // Scale single component distribution to cumulative sizing
+  //  scaled to fraction basis: ie. 1 passes top-size
 
-    U = Feed_US = FeedSpline.CalculateY( S );
-    Feed_OS = 1 - Feed_US;
+  CombCPPSizing[ nSize - 1 ] = 0;
+  for( i = nSize - 2; i >=0; i-- )
+    CombCPPSizing[ i ] = CombCPPSizing[i + 1] + ( CombRetSizing[i + 1] * ScaleFactor );
 
-    // Calculate area factors for this screen
+  // Construct cubic spline passing through cumulative curve    
 
-    A = CalculateA( S );
-    B = CalculateB( Feed_OS );
-    C = CalculateC( Feed_HS );
-    D = CalculateD( DL );
-    E = CalculateE( WS, S );
-    H = CalculateH( OT );
-    J = CalculateJ( ST, S, OA );
-    K = CalculateK( FT );
-    L = CalculateL();
-    X = CalculateX( CF );
+  FeedSpline.SetSpline( Sizes, CombCPPSizing );
 
-    // Calculate denominator of load equation - ensure not zero
+  // Use cubic spline to get fraction passing half apperture size
 
-    Denom = A * B * C * D * E * F * H * J * K * L * AF * X;
-	if(fabs(Denom)<1e-8)
-		Denom = 1e-8;
+  Feed_HS = FeedSpline.CalculateY( S/2 );
 
-    // Calculate load
+  // Use spline to get fraction passing apperture size    
 
-    V = ( 90 * QF * U ) / ( Denom );
+  U = Feed_US = FeedSpline.CalculateY( S );
+  Feed_OS = 1 - Feed_US;
 
-    // Calculate efficiency that matches this load
+  // Calculate area factors for this screen
 
-    T = CalculateT( V );
+  A = CalculateA( S );
+  B = CalculateB( Feed_OS );
+  C = CalculateC( Feed_HS );
+  D = CalculateD( DL );
+  E = CalculateE( WS, S );
+  H = CalculateH( OT );
+  J = CalculateJ( ST, S, OA );
+  K = CalculateK( FT );
+  L = CalculateL();
+  X = CalculateX( CF );
 
-    // Calculate factor G
+  // Calculate denominator of load equation - ensure not zero
 
-    G = ( V * T ) / 90;
+  Denom = A * B * C * D * E * F * H * J * K * L * AF * X;
+  if (fabs(Denom)<1e-8)
+    Denom = 1e-8;
 
-    // calculate flow to undersize at this efficiency
+  // Calculate load
 
-    QU = QF * U * T;
+  V = ( 90 * QF * U ) / ( Denom );
 
-    // Solve for D50 that matches the undersize flow
+  // Calculate efficiency that matches this load
 
-    D50 = zbrent( S * 0.1, S * 0.99, TOLERANCE );
+  T = CalculateT( V );
 
-    // Calculate splitting of feed water to products
+  // Calculate factor G
 
-    Undersize->SetLiquidMass( FeedStream->GetLiquidMass() * WR );
-	Oversize->SetLiquidMass( FeedStream->GetLiquidMass() * (1-WR) );
+  G = ( V * T ) / 90;
 
-    // Calculate splitting of solids components to products 
+  // calculate flow to undersize at this efficiency
 
-    for( i=0; i<nType; i++ )
+  QU = QF * U * T;
+
+  // Solve for D50 that matches the undersize flow
+
+  D50 = zbrent( S * 0.1, S * 0.99, TOLERANCE );
+
+  // Calculate splitting of feed water to products
+
+  Undersize->SetLiquidMass( FeedStream->GetLiquidMass() * WR );
+  Oversize->SetLiquidMass( FeedStream->GetLiquidMass() * (1-WR) );
+
+  // Calculate splitting of solids components to products 
+
+  for( i=0; i<nType; i++ )
     {
-        for( j=0; j<nSize; j++ )
-        {
-            double feed = FeedSolids[j][i];
+    for( j=0; j<nSize; j++ )
+      {
+      double feed = FeedSolids[j][i];
 
-            OversizeSolids[j][i] = feed * PartitionCurve[j];
-            UndersizeSolids[j][i] = feed * ( 1 - PartitionCurve[j] );
-			
-        }
-    }
-	
-    // Setup model output vector
+      OversizeSolids[j][i] = feed * PartitionCurve[j];
+      UndersizeSolids[j][i] = feed * ( 1 - PartitionCurve[j] );
+      }
+   }
 
-    ModelOutput[0]  = QF;
-    ModelOutput[1]  = Feed_OS;
-    ModelOutput[2]  = Feed_US;
-    ModelOutput[3]  = Feed_HS;
-    ModelOutput[4]  = QU;
-    ModelOutput[5]  = QF - QU;
-    ModelOutput[6]  = S;
-    ModelOutput[7]  = T;
-    ModelOutput[8]  = AF;
-    ModelOutput[9]  = D50;
-    ModelOutput[10] = A;
-    ModelOutput[11] = B;
-    ModelOutput[12] = C;
-    ModelOutput[13] = D;
-    ModelOutput[14] = E;
-    ModelOutput[15] = F;
-    ModelOutput[16] = G;
-    ModelOutput[17] = H;
-    ModelOutput[18] = J;
-    ModelOutput[19] = K;
-    ModelOutput[20] = L;
-    ModelOutput[21] = X;
-    ModelOutput[22] = V;
+  // Setup model output vector
 
-    // Indicate success
+  ModelOutput[0]  = QF;
+  ModelOutput[1]  = Feed_OS;
+  ModelOutput[2]  = Feed_US;
+  ModelOutput[3]  = Feed_HS;
+  ModelOutput[4]  = QU;
+  ModelOutput[5]  = QF - QU;
+  ModelOutput[6]  = S;
+  ModelOutput[7]  = T;
+  ModelOutput[8]  = AF;
+  ModelOutput[9]  = D50;
+  ModelOutput[10] = A;
+  ModelOutput[11] = B;
+  ModelOutput[12] = C;
+  ModelOutput[13] = D;
+  ModelOutput[14] = E;
+  ModelOutput[15] = F;
+  ModelOutput[16] = G;
+  ModelOutput[17] = H;
+  ModelOutput[18] = J;
+  ModelOutput[19] = K;
+  ModelOutput[20] = L;
+  ModelOutput[21] = X;
+  ModelOutput[22] = V;
 
-    return true;
+  // Indicate success
+  return true;
 
-calcFailed:
+  calcFailed:
 
-    // Indicate failure
+  // Indicate failure
+  return false;
+  }
 
-    return false;
-}
 
 //##ModelId=40A1898A0368
 double LoadBasedScreen1::QUError( double d50 )
-{
-    CalculatePartition( Sizes, CombRetSizing, S, d50, PartitionCurve, CombOS, CombUS );
-
-    return CombUS.sum() - QU;
-}
+  {
+  CalculatePartition( Sizes, CombRetSizing, S, d50, PartitionCurve, CombOS, CombUS );
+  return CombUS.sum() - QU;
+  }
 
 //##ModelId=40A1898A037C
 double LoadBasedScreen1::zbrent( double x1, double x2, double TOLERANCE)
-{
-	int iter;
-	double a=x1,b=x2,c=x2,d,e,min1,min2;
-	double fa=QUError(a),fb=QUError(b),fc,p,q,r,s,tol1,xm;
+  {
+  int iter;
+  double a=x1,b=x2,c=x2,d,e,min1,min2;
+  double fa=QUError(a),fb=QUError(b),fc,p,q,r,s,tol1,xm;
 
-	if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0))
-	{
-		// error
-	}
+  if ((fa > 0.0 && fb > 0.0) || (fa < 0.0 && fb < 0.0))
+    {
+    // error
+    }
 
-	fc=fb;
-	for (iter=1;iter<=ITMAX;iter++) {
-		if ((fb > 0.0 && fc > 0.0) || (fb < 0.0 && fc < 0.0)) {
-			c=a;
-			fc=fa;
-			e=d=b-a;
-		}
-		if (fabs(fc) < fabs(fb)) {
-			a=b;
-			b=c;
-			c=a;
-			fa=fb;
-			fb=fc;
-			fc=fa;
-		}
-		tol1=2.0*EPS*fabs(b)+0.5*TOLERANCE;
-		xm=0.5*(c-b);
-		if (fabs(xm) <= tol1 || fb == 0.0) return b;
-		if (fabs(e) >= tol1 && fabs(fa) > fabs(fb)) {
-			s=fb/fa;
-			if (a == c) {
-				p=2.0*xm*s;
-				q=1.0-s;
-			} else {
-				q=fa/fc;
-				r=fb/fc;
-				p=s*(2.0*xm*q*(q-r)-(b-a)*(r-1.0));
-				q=(q-1.0)*(r-1.0)*(s-1.0);
-			}
-			if (p > 0.0) q = -q;
-			p=fabs(p);
-			min1=3.0*xm*q-fabs(tol1*q);
-			min2=fabs(e*q);
-			if (2.0*p < (min1 < min2 ? min1 : min2)) {
-				e=d;
-				d=p/q;
-			} else {
-				d=xm;
-				e=d;
-			}
-		} else {
-			d=xm;
-			e=d;
-		}
-		a=b;
-		fa=fb;
-		if (fabs(d) > tol1)
-			b += d;
-		else
-			b += SIGN(tol1,xm);
-		fb=QUError(b);
-	}
-//	only arrive here if max. iteration is exceeded;
-	return 0.0;
-}
-
+  fc=fb;
+  for (iter=1;iter<=ITMAX;iter++) 
+    {
+    if ((fb > 0.0 && fc > 0.0) || (fb < 0.0 && fc < 0.0)) 
+      {
+	    c=a;
+	    fc=fa;
+	    e=d=b-a;
+      }
+    if (fabs(fc) < fabs(fb)) 
+      {
+	    a=b;
+	    b=c;
+	    c=a;
+	    fa=fb;
+	    fb=fc;
+	    fc=fa;
+      }
+    tol1=2.0*EPS*fabs(b)+0.5*TOLERANCE;
+    xm=0.5*(c-b);
+    if (fabs(xm) <= tol1 || fb == 0.0) return b;
+    if (fabs(e) >= tol1 && fabs(fa) > fabs(fb)) 
+      {
+	    s=fb/fa;
+	    if (a == c) 
+        {
+		    p=2.0*xm*s;
+		    q=1.0-s;
+	      }
+      else 
+        {
+		    q=fa/fc;
+		    r=fb/fc;
+		    p=s*(2.0*xm*q*(q-r)-(b-a)*(r-1.0));
+		    q=(q-1.0)*(r-1.0)*(s-1.0);
+	      }
+	    if (p > 0.0) 
+        q = -q;
+	    p=fabs(p);
+	    min1=3.0*xm*q-fabs(tol1*q);
+	    min2=fabs(e*q);
+	    if (2.0*p < (min1 < min2 ? min1 : min2)) 
+        {
+		    e=d;
+		    d=p/q;
+	      }
+      else 
+        {
+		    d=xm;
+		    e=d;
+	      }
+      }
+    else 
+      {
+	    d=xm;
+	    e=d;
+      }
+    a=b;
+    fa=fb;
+    if (fabs(d) > tol1)
+	    b += d;
+    else
+	    b += SIGN(tol1,xm);
+    fb=QUError(b);
+    }
+  //	only arrive here if max. iteration is exceeded;
+  return 0.0;
+  }
 
 
 /********************************
@@ -606,15 +616,11 @@ double LoadBasedScreen1::zbrent( double x1, double x2, double TOLERANCE)
 // Calculate Paramater A for LoadBasedScreen1
 //##ModelId=40A1898A017D
 double LoadBasedScreen1::CalculateA( double S )
+  {
+  double A = 0;
 
-{
-
-	double A = 0;
-
-
-	const int nRows = 19;
-	static double AArray [ nRows ] [ 2 ] = 
-	
+  const int nRowsA = 19;
+  static double AArray [ nRowsA ] [ 2 ] = 
 	{
 //          S       A	
 //      Screen    Basic
@@ -639,18 +645,16 @@ double LoadBasedScreen1::CalculateA( double S )
 		{ 160  ,  41.5 },
 		{ 500  , 107.5 }, };
         
-	double* p = (pAArray ? pAArray : *AArray);
-    Matrix AMatrix( nRows, 2, p );
-	CubicSpline ASpline;
+  double* p = (pAArray ? pAArray : *AArray);
+  Matrix AMatrix( nRowsA, 2, p );
+  CubicSpline ASpline;
 
-	ASpline.SetSpline ( AMatrix.column(0), AMatrix.column(1) );
+	ASpline.SetSpline( AMatrix.column(0), AMatrix.column(1) );
 
 	A = ASpline.CalculateY ( S );
 	
 	return A;
-
-}
-
+  }
 
 /********************************
 *								*
@@ -661,14 +665,11 @@ double LoadBasedScreen1::CalculateA( double S )
 // Calculate Paramater B for LoadBasedScreen1
 //##ModelId=40A1898A0191
 double LoadBasedScreen1::CalculateB( double FractOS )
-
-{	
+  {	
 	double B = 0;
 
-	const int nRows = 7;
-
-	static double BArray [ nRows ] [ 2 ] = 
-
+	const int nRowsB = 7;
+	static double BArray [ nRowsB ] [ 2 ] = 
 	{
 //       Fract       B	
 //      Oversize  Oversize
@@ -681,13 +682,13 @@ double LoadBasedScreen1::CalculateB( double FractOS )
 		{ 0.95  ,  0.24 },
 		{ 1.00  ,  0.00 }, };
 
-	Matrix BMatrix( nRows, 2, *BArray );
+  double* p = (pBArray ? pBArray : *BArray);
+	Matrix BMatrix( nRowsB, 2, p );
 	CubicSpline BSpline;
 
 	BSpline.SetSpline ( BMatrix.column(0), BMatrix.column(1) );
 
 	B = BSpline.CalculateY ( FractOS );
-    
     
 //	Vector TempSplineVec( nRows );
 
@@ -696,8 +697,7 @@ double LoadBasedScreen1::CalculateB( double FractOS )
 //	B = SPNV3( nRows, BMatrix.column(0), BMatrix.column(1), TempSplineVec, FractOS );
 
 	return B;
-
-}
+  }
 
 
 /********************************
@@ -709,14 +709,11 @@ double LoadBasedScreen1::CalculateB( double FractOS )
 // Calculate Paramater C for LoadBasedScreen1
 //##ModelId=40A1898A019B
 double LoadBasedScreen1::CalculateC( double FractHS )
+  {
+  double C = 0;
 
-{
-    double C = 0;
-
-    const int nRows = 18;
-
-    static double CArray [ nRows ] [ 2 ] = 
-
+  const int nRowsC = 18;
+  static double CArray [ nRowsC ] [ 2 ] = 
     {
 //      Fract of    C	
 //     Feed < S/2
@@ -740,7 +737,8 @@ double LoadBasedScreen1::CalculateC( double FractHS )
         { 0.98 ,  6.00 },
         { 1.00 , 10.00 }, };
 
-	Matrix CMatrix( nRows, 2, *CArray );
+  double* p = (pCArray ? pCArray : *CArray);
+	Matrix CMatrix( nRowsC, 2, p );
 	CubicSpline CSpline;
 
 	CSpline.SetSpline ( CMatrix.column(0), CMatrix.column(1) );
@@ -754,8 +752,7 @@ double LoadBasedScreen1::CalculateC( double FractHS )
 //	C = SPNV3( nRows, CMatrix.column(0), CMatrix.column(1), TempSplineVec, FractHS );
 
 	return C;
-
-}
+  }
 
 
 /************************************
@@ -767,27 +764,24 @@ double LoadBasedScreen1::CalculateC( double FractHS )
 // Calculate Paramater D for LoadBasedScreen1
 //##ModelId=40A1898A01AF
 double LoadBasedScreen1::CalculateD( int DL )
-
-{
+  {
 	double D = 0;
-
-                            // DECK LOCATION
-    if  ( DL == 1 )         // Top Deck & Grizzly
-        D = 1.0;
-    else if ( DL == 2 )     // Second Deck
-        D = 0.9;
-    else if ( DL == 3 )     // Third Deck
-    	D = 0.8;
-    else if ( DL == 4 )     // Fourth Deck
-    	D = 0.7;
-    else if ( DL == 5 )     // Grizzly
-        D = 1.0;
-    else
-        D = 1.0;			// Set default as Top Deck (1.0)
+                          // DECK LOCATION
+  if  ( DL == 1 )         // Top Deck & Grizzly
+    D = 1.0;
+  else if ( DL == 2 )     // Second Deck
+    D = 0.9;
+  else if ( DL == 3 )     // Third Deck
+  	D = 0.8;
+  else if ( DL == 4 )     // Fourth Deck
+  	D = 0.7;
+  else if ( DL == 5 )     // Grizzly
+    D = 1.0;
+  else
+    D = 1.0;			// Set default as Top Deck (1.0)
     
 	return D;
-	
-}
+  }
 
 
 /********************************
@@ -799,14 +793,11 @@ double LoadBasedScreen1::CalculateD( int DL )
 // Calculate Paramater E for LoadBasedScreen1
 //##ModelId=40A1898A01B9
 double LoadBasedScreen1::CalculateE( int WS, double S )
-
-{
+  {
 	double E = 0;
 
-	const int nRows = 10;
-
-	static double EArray [ nRows ] [ 2 ] = 
-	
+	const int nRowsE = 10;
+	static double EArray [ nRowsE ] [ 2 ] = 
 	{
 //        S          E	
 //     Screen  Wet Screening
@@ -834,27 +825,23 @@ double LoadBasedScreen1::CalculateE( int WS, double S )
 		{ 35   ,   1.88 },
 		{ 40   ,   1.00 }, };
 
-    if ( WS == 0)
-    
-	{
-        E = 1;
+  if ( WS == 0)
+    {
+    E = 1.0;
     }
-    
-    else
-    
-	{
-	    Matrix EMatrix( nRows, 2, *EArray );
-	    CubicSpline ESpline;
+  else
+    {
+    double* p = (pEArray ? pEArray : *EArray);
+    Matrix EMatrix( nRowsE, 2, p );
+    CubicSpline ESpline;
 
-	    ESpline.SetSpline ( EMatrix.column(0), EMatrix.column(1) );
+    ESpline.SetSpline ( EMatrix.column(0), EMatrix.column(1) );
 
-	    E = ESpline.CalculateY ( S );
-    
-	}
+    E = ESpline.CalculateY ( S );
+    }
 
 	return E;	
-
-}
+  }
 
 
 /****************************************
@@ -866,16 +853,11 @@ double LoadBasedScreen1::CalculateE( int WS, double S )
 // Calculate Paramater G for LoadBasedScreen1
 //##ModelId=40A1898A01CE
 double LoadBasedScreen1::CalculateG( double V, double T )
-
-{
-
+  {
 	double G = 0;
-
 	G = ( V * T ) / 90;
-
 	return G;
-
-}
+  }
 
 
 /********************************
@@ -887,29 +869,27 @@ double LoadBasedScreen1::CalculateG( double V, double T )
 // Calculate Paramater H for LoadBasedScreen1
 //##ModelId=40A1898A01EB
 double LoadBasedScreen1::CalculateH( int OT )
-
-{
+  {
 	double H = 0;
                                // SHAPE OF OPENING
-    if  ( OT == 1 )            // Round Opening
-        H = 0.80;
-    else if ( OT == 2 )        // Square Opening
-	    H = 1.00;
-    else if ( OT == 3 )        // Slot 2/1 Opening
-	    H = 1.05;
-    else if ( OT == 4 )        // Slot 3/1 Opening
-	    H = 1.10;
-    else if ( OT == 5 )        // Slot 4/1 Opening
-        H = 1.15;
-    else if ( OT == 6 )        // Slot 5/1 Opening
-        H = 1.20;
-    else if ( OT == 7 )        // Grizzly
-        H = 1.25;
-    else
-        H = 1.00;              // default Square
-    return H;
-
-}
+  if  ( OT == 1 )            // Round Opening
+    H = 0.80;
+  else if ( OT == 2 )        // Square Opening
+	  H = 1.00;
+  else if ( OT == 3 )        // Slot 2/1 Opening
+	  H = 1.05;
+  else if ( OT == 4 )        // Slot 3/1 Opening
+	  H = 1.10;
+  else if ( OT == 5 )        // Slot 4/1 Opening
+    H = 1.15;
+  else if ( OT == 6 )        // Slot 5/1 Opening
+    H = 1.20;
+  else if ( OT == 7 )        // Grizzly
+    H = 1.25;
+  else
+    H = 1.00;              // default Square
+  return H;
+  }
 
 
 /********************************
@@ -921,21 +901,17 @@ double LoadBasedScreen1::CalculateH( int OT )
 // Calculate Paramater J for LoadBasedScreen1
 //##ModelId=40A1898A01F6
 double LoadBasedScreen1::CalculateJ( int ST, double S, double OA )
-
-{
-
+  {
 	double J = 0;
-    double TOA = 0;                   // Table open area
+  double TOA = 0;                   // Table open area
 
-    if ( ST < 1 )
-        ST = 4;                       // default is Polyurethane
-    if (ST > 4)
-        ST = 4;                       // default is Polyurethane
+  if ( ST < 1 )
+    ST = 4;                       // default is Polyurethane
+  if (ST > 4)
+    ST = 4;                       // default is Polyurethane
 
-	const int nRows = 9;
-
-	static double JArray [ nRows ] [ 5 ] = 
-
+	const int nRowsJ = 9;
+	static double JArray [ nRowsJ ] [ 5 ] = 
 	{
 //        S       1  	 2      3       4        <-- ST
 //     Screen   Steel  Steel  Rubber Polyurethane
@@ -950,19 +926,18 @@ double LoadBasedScreen1::CalculateJ( int ST, double S, double OA )
         {  80  , 0.75 , 0.65 , 0.50 , 0.55 },
         { 160  , 0.75 , 0.65 , 0.50 , 0.55 }, };
 
-    Matrix JMatrix( nRows, 5, *JArray );
-    CubicSpline JSpline;
+  Matrix JMatrix( nRowsJ, 5, *JArray );
+  CubicSpline JSpline;
 
-    JSpline.SetSpline ( JMatrix.column(0), JMatrix.column(ST) );
+  JSpline.SetSpline ( JMatrix.column(0), JMatrix.column(ST) );
 
-    TOA = JSpline.CalculateY ( S );
-    
+  TOA = JSpline.CalculateY ( S );
 
-    J = OA/TOA;
+
+  J = OA/TOA;
 
 	return J;
-
-}
+  }
 
 
 /********************************
@@ -974,21 +949,17 @@ double LoadBasedScreen1::CalculateJ( int ST, double S, double OA )
 // Calculate Paramater K for LoadBasedScreen1
 //##ModelId=40A1898A0213
 double LoadBasedScreen1::CalculateK( int FT )
-
-{
-	
+  {
 	double K = 0;
                               // FEED MATERIAL
-    if  ( FT == 1 )           // Rock
-        K = 1.00; 
-    else if ( FT == 2 )       // Gravel
-	    K = 1.25;
-    else
-        K = 1.00;             // default Rock
-
-    return K;
-
-}
+  if  ( FT == 1 )           // Rock
+    K = 1.00; 
+  else if ( FT == 2 )       // Gravel
+	  K = 1.25;
+  else
+    K = 1.00;             // default Rock
+  return K;
+  }
 
 
 /********************************
@@ -1000,16 +971,12 @@ double LoadBasedScreen1::CalculateK( int FT )
 // Calculate Paramater L for LoadBasedScreen1
 //##ModelId=40A1898A021E
 double LoadBasedScreen1::CalculateL()
-
-{
-	
+  {
 	double L = 0;
-
-    L = 1.00;             // This will decrease if feed includes clay, soil or recycling material
-                          //  or the feed humidity is >3% and screen opening is <25 mm.
-    return L;
-
-}
+  L = 1.00;             // This will decrease if feed includes clay, soil or recycling material
+                        //  or the feed humidity is >3% and screen opening is <25 mm.
+  return L;
+  }
 
 
 /********************************
@@ -1021,18 +988,16 @@ double LoadBasedScreen1::CalculateL()
 // Calculate Paramater X for LoadBasedScreen1
 //##ModelId=40A1898A0227
 double LoadBasedScreen1::CalculateX( double CF )
+  {
+  double X = 0;
 
-{
+  if ( fabs (CF) < 1E-8 )
+    X = 1.00;
+  else 
+    X = CF;
 
-	double X = 0;
-
-    if ( fabs (CF) < 1E-8 )
-        X = 1.00;
-    else X = CF;
-
-    return X;   
-
-}
+  return X;   
+  }
 
 
 /********************************
@@ -1044,102 +1009,99 @@ double LoadBasedScreen1::CalculateX( double CF )
 // Calculate Paramater T for LoadBasedScreen1
 //##ModelId=40A1898A0232
 double LoadBasedScreen1::CalculateT( double V )
+  {
+  double T = 0;
 
-{
-    double T = 0;
+  // Dry Screening Efficiency Curve
+  // Light loading sees drop off in efficiency
+  // Why? DT to expand
+  // Where do these numbers come from ? DT to expand
+  const int nDryRows = 11;
+  static double TDryArray [ nDryRows ] [ 2 ] = 
+  {
+  //          V        T	
+  //        Load   Efficiency
+      {  000.0 , 0.90 },
+      {  062.5 , 0.95 },
+      {  075.0 , 0.95 },
+      {  100.0 , 0.90 },
+      {  450.0 , 0.50 },
+      {  500.0 , 0.45 },
+      {  562.5 , 0.40 },
+      {  642.9 , 0.35 },
+      {  750.0 , 0.30 },
+      {  900.0 , 0.25 },
+      { 1125.0 , 0.20 }, };
 
-    // Dry Screening Efficiency Curve
-    // Light loading sees drop off in efficiency
-	// Why? DT to expand
-    // Where do these numbers come from ? DT to expand
-	const int nDryRows = 11;
-    static double TDryArray [ nDryRows ] [ 2 ] = 
+  const int nWetRows = 22;
 
-    {
-//          V        T	
-//        Load   Efficiency
-        {  000.0 , 0.90 },
-        {  062.5 , 0.95 },
-        {  075.0 , 0.95 },
-        {  100.0 , 0.90 },
-        {  450.0 , 0.50 },
-        {  500.0 , 0.45 },
-        {  562.5 , 0.40 },
-        {  642.9 , 0.35 },
-        {  750.0 , 0.30 },
-        {  900.0 , 0.25 },
-        { 1125.0 , 0.20 }, };
+  // Wet Screening Efficiency Curve
+  // Light loading sees 100% efficiency
+  // Why DT to expand
+  // Where do these numbers come from ? DT to expand
+  static double TWetArray [ nWetRows ] [ 2 ] = 
 
-   const int nWetRows = 22;
+  {
+  //          V        T	
+  //        Load   Efficiency
+  /*	{ 10	, 	.9917317  },
+  { 20	, 	.9927046  },
+  { 30	, 	.9910998  },
+  { 39.3	, 	.9871216  },
+  { 50	, 	.9776228  },
+  { 60.5	, 	.963927	  },
+  { 66.3	, 	.9553783  },
+  { 75	, 	.9416755  },
+  { 90	, 	.9167897  },
+  { 100	 ,	.9001193  },
+  { 110	 ,	.8838962  },
+  { 120	 ,	.8684178  },
+  { 130	 ,	.853857	  },
+  { 138.9	 ,	.8417114  },
+  { 144.1	 ,	.8349535  },
+  { 150.9	 ,	.8264498  },
+  { 157	 ,	.8190873  },
+  { 169	 ,	.8050404  },
+  { 184.5	 ,	.7866662  },
+  { 200	 ,	.7659365  },
+  { 210	 ,	.7499636  }};*/
 
-   // Wet Screening Efficiency Curve
-   // Light loading sees 100% efficiency
-   // Why DT to expand
-   // Where do these numbers come from ? DT to expand
-   static double TWetArray [ nWetRows ] [ 2 ] = 
+  { 10	, 	.997  },
+  { 20	, 	.996  },
+  { 30	, 	.99   },
+  { 39.3	, 	.982  },
+  { 50	, 	.98   },
+  { 63	, 	.96	  },
+  { 75	, 	.95   },
+  { 80	, 	.942  },
+  { 90	, 	.923  },
+  { 100	 ,	.90   },
+  { 110	 ,	.887  },
+  { 120	 ,	.873  },
+  { 130	 ,	.862  },
+  { 140	 ,	.849  },
+  { 150	 ,	.837  },
+  { 160	 ,	.827  },
+  { 170	 ,	.813  },
+  { 179.2	 ,	.801  },
+  { 190	 ,	.785  },
+  { 200	 ,	.77   },
+  { 210	 ,	.755  },
+  { 300    ,  .6    }};
 
-    {
-//          V        T	
-//        Load   Efficiency
-	/*	{ 10	, 	.9917317  },
-		{ 20	, 	.9927046  },
-		{ 30	, 	.9910998  },
-		{ 39.3	, 	.9871216  },
-		{ 50	, 	.9776228  },
-		{ 60.5	, 	.963927	  },
-		{ 66.3	, 	.9553783  },
-		{ 75	, 	.9416755  },
-		{ 90	, 	.9167897  },
-		{ 100	 ,	.9001193  },
-		{ 110	 ,	.8838962  },
-		{ 120	 ,	.8684178  },
-		{ 130	 ,	.853857	  },
-		{ 138.9	 ,	.8417114  },
-		{ 144.1	 ,	.8349535  },
-		{ 150.9	 ,	.8264498  },
-		{ 157	 ,	.8190873  },
-		{ 169	 ,	.8050404  },
-		{ 184.5	 ,	.7866662  },
-		{ 200	 ,	.7659365  },
-		{ 210	 ,	.7499636  }};*/
+  Matrix TWetMatrix( nWetRows, 2, *TWetArray );
+  Matrix TDryMatrix( nWetRows, 2, *TDryArray );
+  CubicSpline TSpline;
 
-		{ 10	, 	.997  },
-		{ 20	, 	.996  },
-		{ 30	, 	.99   },
-		{ 39.3	, 	.982  },
-		{ 50	, 	.98   },
-		{ 63	, 	.96	  },
-		{ 75	, 	.95   },
-		{ 80	, 	.942  },
-		{ 90	, 	.923  },
-		{ 100	 ,	.90   },
-		{ 110	 ,	.887  },
-		{ 120	 ,	.873  },
-		{ 130	 ,	.862  },
-		{ 140	 ,	.849  },
-		{ 150	 ,	.837  },
-		{ 160	 ,	.827  },
-		{ 170	 ,	.813  },
-		{ 179.2	 ,	.801  },
-		{ 190	 ,	.785  },
-		{ 200	 ,	.77   },
-		{ 210	 ,	.755  },
-		{ 300    ,  .6    }};
+  if (WetScreening==true)
+    TSpline.SetSpline ( TWetMatrix.column(0), TWetMatrix.column(1) );
+  else
+    TSpline.SetSpline ( TDryMatrix.column(0), TDryMatrix.column(1) );
 
-    Matrix TWetMatrix( nWetRows, 2, *TWetArray );
-    Matrix TDryMatrix( nWetRows, 2, *TDryArray );
-    CubicSpline TSpline;
+  T = TSpline.CalculateY ( V );
 
-	if (WetScreening==true)
-		TSpline.SetSpline ( TWetMatrix.column(0), TWetMatrix.column(1) );
-	else
-		TSpline.SetSpline ( TDryMatrix.column(0), TDryMatrix.column(1) );
-
-    T = TSpline.CalculateY ( V );
-    
-    return T;
-
-}
+  return T;
+  }
 
 
 /********************************

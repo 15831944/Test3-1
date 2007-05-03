@@ -914,7 +914,7 @@ void SysCADParamsTable::BuildDataFields(MDataDefn &DD)
   DD.GridBegin(TableName, ncols, nrows);
 
   Txt.Format("%s//%s", Col0Name, Col1Name);
-  DD.GridColumnHeader(Txt, 4, 0, 0);
+  DD.GridColumnHeader(Txt, 6, 0, 0);
   DD.GridColumnHeader(Col0Name, 10, 0);
   DD.GridColumnHeader(Col1Name, 10, 0);
 

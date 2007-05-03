@@ -52,8 +52,17 @@ public:
     Vector ModelOutput;         // vector of model calculated values
     Vector PartitionCurve;      // calculated partition curve
 
-	double* pAArray;
-	double* pBArray;
+    double* pAArray;
+    double* pBArray;
+    double* pCArray;
+    double* pDArray;
+    double* pEArray;
+    double* pGArray;
+    double* pHArray;
+    double* pJArray;
+    double* pKArray;
+    double* pLArray;
+    double* pXArray;
 
 private:
 
