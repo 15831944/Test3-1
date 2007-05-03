@@ -102,6 +102,8 @@ CMdlGraphicWnd::CMdlGraphicWnd(eMdlGraphicTasks Task, CWnd * Wnd, CRect ClientRe
   m_bReturn     = false;
   };
 
+//---------------------------------------------------------------------------
+
 CMdlGraphic::CMdlGraphic()
   {
   m_iIndex    = 0;
@@ -126,9 +128,6 @@ CMdlGraphic::CMdlGraphic(int Index, eMdlGraphicTypes Type, bool Enabled, LPCSTR 
   m_fEnabled  = Enabled;
   strcpy(m_cName, Name);
   };
-
-
-//class DllImportExport CMdlGraphicArray : public CArray<CMdlGraphic, CMdlGraphic&> {};
 
 //===========================================================================
 //

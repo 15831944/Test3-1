@@ -750,7 +750,7 @@ LRESULT CMainFrame::OnUpdateMainWnd(WPARAM wParam, LPARAM lParam)
     ScdMainWnd()->PostMessage(WMU_CMDDONE, ComCmd_LoadProject, 0); //let script cmd mngr know cmd is complete
   if (wParam==SUB_UPDMAIN_PRJLOADED && gs_pPrj)
     {
-    dbgpln("TODO - FIx Modes");
+    //dbgpln("TODO - Fix Modes");
 
     //if (gs_Exec.GlblDynFullMode() && !gs_License.AllowDynamicFull())
     //  {

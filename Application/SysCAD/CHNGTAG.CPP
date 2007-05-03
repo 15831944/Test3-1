@@ -80,6 +80,9 @@ END_MESSAGE_MAP()
 
 void CChangeTag::OnOK() 
   {
+  if (m_ReadOnly)
+    CDialog::OnOK();
+
   //gs_pAccWnd->CloseAccessData(False, False, True);
   //gs_pAccWnd->CloseWnd();
   UpdateData(TRUE);
@@ -193,10 +196,39 @@ BOOL CChangeTag::OnInitDialog()
       UpdateData(FALSE);
       }
     }
+
+  m_ReadOnly=false;
+  Strng WrkTag(m_OldTag);
+  WrkTag+=".Type";
+  CXM_ObjectTag ObjTag(WrkTag(), TABOpt_ValCnvsOnce);
+  CXM_ObjectData ObjData;
+  CXM_Route Route;
+  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+    {
+    CPkDataItem * pItem = ObjData.FirstItem();
+    if (IsStrng(pItem->Type()))
+      {
+      PkDataUnion &V=*pItem->Value();
+      Strng TheType = pItem->Value()->GetString("", "", 0, "");
+      m_ReadOnly = (TheType.XStrICmp("CFlange")==0);
+      };
+    }
+  else
+    {
+    }
+
+  if (m_ReadOnly)
+    m_NewTag=m_OldTag;
+
   if (m_NewTag.GetLength()>0)
     {
     GetDlgItem(IDC_NEWTAG)->SetFocus();
     ((CEdit*)GetDlgItem(IDC_NEWTAG))->SetSel(0, -1);
+    if (m_ReadOnly)
+      {
+      GetDlgItem(IDC_OLDTAG)->EnableWindow(false);
+      GetDlgItem(IDC_NEWTAG)->EnableWindow(false);
+      }
     return False;
     }
   UpdateDialogControls(this, FALSE);

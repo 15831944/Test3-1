@@ -471,13 +471,6 @@ XID xidDrctEnable       = MdlBsXID(5206);
 XID xidConnectState     = MdlBsXID(5207);
 XID xidFlangeTag        = MdlBsXID(5208);
 
-enum eDirectIO
-  {
-    eDIO_Spill, eDIO_Vent, eDIO_Leak,                   // Real IOs
-    eDIO_Makeup, eDIO_Bleed,
-    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete        // Direct
-  };
-
 enum eDIOConnectSelects
   {
   eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
@@ -3402,7 +3395,7 @@ class DllImportExport FlwNode : public CTNode
 
     //CJoinRec & DynJoins(int i) { return Joins[i]; };
 
-    virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
+    virtual void   BuildCommonStartDefn(DataDefnBlk & DDB, Strng & AltTag);
     virtual void   BuildSystemDefn_FB(bool IsLink, LPTSTR Tg, int i, int fe, DWORD UI, FlwBlk & FB, DataDefnBlk & DDB);
     virtual void   BuildCommonEndDefn(DataDefnBlk & DDB);
 
@@ -4052,6 +4045,8 @@ class DllImportExport FlwNode : public CTNode
 
     virtual flag   GetModelGraphic(CMdlGraphicArray & Grfs) { return false; };
     virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return false; };
+
+    virtual flag   GetModelAssocGraphics(CMdlAssocGraphicList & Grfs);
 
     virtual void   PreConfigureJoins();
     virtual void   ConfigureJoins()                         {};

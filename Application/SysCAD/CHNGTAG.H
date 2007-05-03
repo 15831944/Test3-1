@@ -37,6 +37,8 @@ class CChangeTag : public CDialog
     afx_msg BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnUpdateOK(CCmdUI* pCmdUi);
     DECLARE_MESSAGE_MAP()
+  
+    bool m_ReadOnly;
   };
 
 //===========================================================================

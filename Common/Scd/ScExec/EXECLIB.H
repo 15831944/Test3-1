@@ -245,7 +245,7 @@ class DllImportExport CXM_Route : public CXM_Header
     long           NoNodes();
     //flag           SameRoute(CXM_Route &Other);
     flag           operator==(CXM_Route& Other);
-    CXM_Route&      operator=(CXM_Route& Other);
+    CXM_Route&     operator=(CXM_Route& Other);
 
     flag           AcrossNetwork() { return bAcrossNetwork; };
     void           SetAcrossNetwork(flag On) { bAcrossNetwork=On; };

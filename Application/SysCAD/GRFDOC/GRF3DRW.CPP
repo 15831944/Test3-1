@@ -687,6 +687,79 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
   return false;
   }
 
+//---------------------------------------------------------------------------
+  
+flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsX)
+  {
+  DML_ITEM it;
+  DXF_ENTITY e;
+  flag WorkReqd = 0;
+  WALK_ENTITY_LIST(InsertLst, it, e)
+    {
+    DML_LIST l1 = DXF_INSERT_ATTRS(e);
+    if (l1)
+      {
+      DML_ITEM it1;
+      DXF_ENTITY e1;
+      DXF_ENTITY eIsAssoc=NULL;
+
+      WALK_ENTITY_LIST(l1, it1, e1)
+        {
+        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"AssocWith"))
+          {
+
+          dbgpln("AssocWith = %s", DXF_ATTRIB_VALUE_GET(e1));
+
+          eIsAssoc=e1;
+          break;
+          }
+        }
+
+      WALK_ENTITY_LIST(l1, it1, e1)
+        {
+        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))
+          {
+          LPTSTR Tag=DXF_ATTRIB_VALUE_GET(e1);
+          dbgpln("Tag       = %s", Tag); 
+          CMdlAssocGraphicMapItem GI;
+          if (Map.Lookup(Tag, GI))
+            {
+            dbgpln("Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
+            if (eIsAssoc)
+              {
+              WorkReqd= 1;
+              GI.m_pG->m_AssocGrfs[GI.m_Index].m_bExists=true;
+              }
+            else 
+              {
+              ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
+              WorkReqd= 1;
+              GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eAddMissing, GI.m_pG, -1, DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], e));
+              }
+            }
+          else //if (eIsAssoc)
+            {
+            // Item not found - remove it if assoc grfs
+            dbgpln("Missing ");
+            if (eIsAssoc)
+              {
+              LPCTSTR NdTag=DXF_ATTRIB_VALUE_GET(eIsAssoc);
+              dbgpln("Delete @ %s", NdTag);
+              CMdlAssocGraphicMapItem GIa;
+              if (Map.Lookup(NdTag, GIa)) // if main node is in the map then delete the assoc grrfs
+                {
+                GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, e));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  return WorkReqd;
+  };   
+
 //----------------------------------------------------------------------------
 
 void PopulateTagInfo(DXF_Drawing * pDrawing, DXF_ENTITY insert, DXF_ENTITY tag, CGrfTagInfo & GTI, DML_LIST &style)
@@ -1996,7 +2069,7 @@ CGrfLayer * LayerCollection::Find(pchar LayerName)
   return l;
   }
 
-//----------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 void LayerCollection::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
@@ -2025,6 +2098,17 @@ flag LayerCollection::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_EN
       return true;
     }
   return false;
+  }
+
+//---------------------------------------------------------------------------
+
+flag LayerCollection::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsX)
+  {
+  flag WorkReqd =0;
+  CGrfLayer * l = NULL;
+  WALK_LAYERS(Layers,NULL, l)
+    WorkReqd |= l->UpdateModelAssocGraphics(Grfs, Map, GrfsX);
+  return WorkReqd;
   }
 
 //----------------------------------------------------------------------------
@@ -2573,6 +2657,26 @@ C3_CURVE LayerCollection::Add_Circle(PT3 pt, REAL r, PT3 zaxis)
   if (l)
     {
     PLine = c3d_circle(pt,r,zaxis);
+    dml_append_data(l->CurveLst, PLine);
+    }
+  return PLine;
+  }
+
+//----------------------------------------------------------------------------
+
+C3_CURVE LayerCollection::Add_Circle(PT3 pt1, PT3 pt2, PT3 pt3)
+  {
+  if (gs_hDXF)
+    {
+    //fprintf(gs_hDXF, "0\nCIRCLE\n  5\n%i\n  8\n0\n 10\n%.18f\n 20\n%.18f\n 30\n%.18f\n 40\n%.18f\n",gs_DBHandle++, pt[0], pt[1], pt[2], r);
+    }
+  C3_CURVE PLine = NULL;
+  CGrfLayer * l=Find(CurLayer);
+  if (!l)
+    l = Append(Drawing->FindLayerDef(CurLayer));
+  if (l)
+    {
+    PLine = c3d_arc_3pts(pt1,pt2,pt3);
     dml_append_data(l->CurveLst, PLine);
     }
   return PLine;
@@ -3965,6 +4069,73 @@ flag DXF_Drawing::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY
     pLay = pLay->Nxt;
     }
   return NULL;
+  }
+
+// ---------------------------------------------------------------------------
+
+flag DXF_Drawing::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  {
+  CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> GrfsX;
+  //change tag for models...
+  
+  int WorkReqd = 0;
+  CGrfLayer * pLay = Layers;
+  while (pLay)
+    {
+    WorkReqd |= pLay->UpdateModelAssocGraphics(Grfs, Map, GrfsX);
+    pLay = pLay->Nxt;
+    }
+
+  pDsp->Open();
+
+  POSITION Pos=GrfsX.GetHeadPosition();
+  while (Pos)
+    {
+    CMdlAssocGraphicX & GX = GrfsX.GetNext(Pos);
+    CMdlAssocGraphic  & G = *GX.m_pAssGrf;
+    switch (GX.m_eAction)
+      {
+      case CMdlAssocGraphicX::eAddMissing:
+        {
+        for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
+          {
+          CMdlAssocGraphic::CItem & I = G.m_AssocGrfs[i];
+          if (!I.m_bExists)
+            {
+            switch (I.m_eType)
+              {
+              case eDIO_Spill:
+              case eDIO_Vent:
+                if (G.m_bIsLnk)
+                  break;
+              case eDIO_Makeup:
+                {
+                PT3 pt;
+                pt[0] = GX.m_NdX;
+                pt[1] = GX.m_NdY;
+                pt[2] = 0.0;
+
+                DXF_ENTITY Ins = Add_AssocGrf(I.m_eType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
+                pDsp->Draw(Ins, -1);
+                break;
+                }
+              }
+            }
+          }
+        break;
+        }
+      case CMdlAssocGraphicX::eDelete:
+        {
+        pDsp->Draw(GX.m_Entity, GrfHelper.GR_BACKGROUND);
+        Drawing->Delete(GX.m_Entity);
+        break;
+        }
+      }
+    }
+
+  pDsp->Close();
+
+  return WorkReqd;
   }
 
 // ---------------------------------------------------------------------------
@@ -8637,6 +8808,146 @@ void DXF_Drawing::AlignSelectedInserts(pViewport vp)
     vp->Draw(xxx,-1);
     }
   while( p = vp->NextSelectedEntity());
+  }
+
+//---------------------------------------------------------------------------
+
+struct CSym { bool m_Circle; bool m_IsStart; bool m_Done; PT3 m_Pt; };
+static CSym MakeupSym[] =
+  {
+    {1, 0, 0,   {    -8 ,   1.5 }, },
+    {0, 0, 0,   {  -9.5 ,     0 }, },
+    {0, 0, 0,   {    -8 ,  -1.5 }, },
+    {0, 1, 0,   {    -8 ,  -1.5 }, },
+    {0, 0, 0,   {    -5 ,  -1.5 }, },
+    {0, 0, 0,   {  -3.5 ,     0 }, },
+    {0, 0, 0,   {    -5 ,   1.5 }, },
+    {0, 0, 0,   {    -8 ,   1.5 }, },
+    {0, 1, 0,   {  -3.5 ,     0 }, },
+    {0, 0, 0,   {    -2 ,     0 }, },
+    {0, 0, 1,                      },
+  };
+static CSym SpillSym[] =
+  {                                                     
+    {0, 1, 0,   {     2 ,     0 }, },
+    {0, 0, 0,   {     6 ,     0 }, },
+    {0, 0, 0,   {     6 ,    -2 }, },
+    {0, 1, 0,   {     4 ,    -2 }, },
+    {0, 0, 0,   {     6 ,    -4 }, },
+    {0, 0, 0,   {     6 ,    -6 }, },
+    {0, 1, 0,   {     8 ,    -2 }, },
+    {0, 0, 0,   {     6 ,    -4 }, },
+    {0, 0, 1,                      },
+  };
+static CSym VentSym[] =
+  {
+    {0, 1, 0,   {     2 ,     0 }, },
+    {0, 0, 0,   {     6 ,     0 }, },
+    {0, 0, 0,   {     6 ,     3 }, },
+    {0, 1, 0,   {     4 ,     3 }, },
+    {0, 0, 0,   {     6 ,     5 }, },
+    {0, 0, 0,   {     8 ,     3 }, },
+    {0, 0, 1,                      },
+  };
+
+DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
+  {
+  pBlock  AssGrf;
+  DXF_ENTITY InsSym;
+  //REAL c_rad = 7.0;
+  REAL t_hgt = 1.5;
+  //REAL llength = 0.6*c_rad;
+  Pt_3f AssocGrfPos;
+
+  Pt_3f AssTagPos;
+  Pt_3f zero;
+  Attr_Settings Atag(50,DXF_ATTRIB_INVIS,t_hgt,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+
+  DML_LIST Lst=dml_create_list();
+  DML_LIST EmptyLst=dml_create_list();
+  dml_insert_after(Lst, NULL, OwnerEntity);
+  C3_BOX_S Bnds ;                      
+  GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
+  
+
+  dml_free_list(Lst);
+  dml_free_list(EmptyLst);
+
+  CGrfLayer * l=Find(CurLayer);
+  if (!l)
+    l = Append(Drawing->FindLayerDef(CurLayer));
+  if (l)
+    {
+    LPSTR BlockName=NULL;
+    CSym * pSym=NULL;
+    switch (Type)
+      {
+      case eDIO_Makeup:
+        {
+        BlockName="MAKEUP_ASSOCGRF";
+        pSym=MakeupSym;
+        AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1], pt[2]);
+        AssTagPos.Set(0.0, 4.0, 0.0);
+        AssTagPos = AssTagPos+ AssocGrfPos;                                          
+        break;
+        }
+      case eDIO_Spill:
+        {
+        BlockName="SPILL_ASSOCGRF";
+        pSym=SpillSym;
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.minpt[1], pt[2]);
+        AssTagPos.Set(0.0, 2.0, 0.0);
+        AssTagPos = AssTagPos+ AssocGrfPos;                                          
+        break;
+        }
+      case eDIO_Vent:
+        {
+        BlockName="VENT_ASSOCGRF";
+        pSym=VentSym;
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
+        AssTagPos.Set(0.0, -2.0, 0.0);
+        AssTagPos = AssTagPos+ AssocGrfPos;                                          
+        break;
+        }
+      }
+    
+    if (pSym)
+      {
+      AssGrf = Blocks.Find(BlockName);
+      if (!AssGrf)
+        {
+        //    num = Blocks.FindUnique(BlockName,0);
+        //(void)sprintf(name,"ILOOP_%d",num);
+
+        AssGrf = Add_Block(BlockName,zero.p());
+        C3_CURVE cc = NULL;
+        while (!pSym->m_Done)
+          {
+          if (pSym->m_Circle)
+            {
+            AssGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt,(pSym+2)->m_Pt);
+            pSym+=3;
+            }
+          else if (pSym->m_IsStart)
+            {
+            cc = AssGrf->Add_PLine_Start(pSym->m_Pt);
+            pSym++;
+            }
+          else
+            {
+            AssGrf->Add_PLine_Vertex(cc,pSym->m_Pt);
+            pSym++;
+            }
+          }
+        }
+      }
+
+    InsSym = Create_Insert(BlockName, AssocGrfPos, GR_LIGHTCYAN);
+
+    Add_Insert_Attrib(InsSym,"Tag",        (LPSTR)TagStr,        AssTagPos.p(), Atag);
+    Add_Insert_Attrib(InsSym,"AssocWith",  (LPSTR)NdTagStr,      AssTagPos.p(), Atag);
+    }
+  return InsSym;
   }
 
 //---------------------------------------------------------------------------

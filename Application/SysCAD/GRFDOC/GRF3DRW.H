@@ -443,6 +443,39 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 
 //---------------------------------------------------------------------------
 
+class DllImportExport CMdlAssocGraphicX
+  {
+  public:
+    enum eActions { eNull, eAddMissing, eKeep, eDelete };
+    CMdlAssocGraphicX()
+      {
+      m_eAction        = eNull; 
+      m_pAssGrf        = NULL;
+      m_iAssoc         = 0;
+      m_NdX            = 0;
+      m_NdY            = 0;
+      m_Entity         = NULL;
+      };
+    CMdlAssocGraphicX(eActions eAction, CMdlAssocGraphic * pAssGrf, int iAssoc, double NdX, double NdY, DXF_ENTITY Entity)
+      {
+      m_eAction        = eAction;
+      m_pAssGrf        = pAssGrf;
+      m_iAssoc         = iAssoc;
+      m_NdX            = NdX;
+      m_NdY            = NdY;
+      m_Entity         = Entity;
+      };
+
+  public:
+
+    eActions            m_eAction;
+    CMdlAssocGraphic  * m_pAssGrf;
+    int                 m_iAssoc;
+    double              m_NdX;
+    double              m_NdY;
+    DXF_ENTITY          m_Entity;
+  };
+
 class CGrfLayer
   {
   public:
@@ -464,6 +497,7 @@ class CGrfLayer
     void             CollectTags(Strng_List & TagList);
     void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag             UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsFound);   
     
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);
@@ -539,6 +573,7 @@ class LayerCollection
     C3_CURVE         Add_Arc(PT3 pts, PT3 ptm, PT3 pte);
     C3_CURVE         Add_Circle(PT3 pt, REAL r){ PT3 a; a[0] = 0.0; a[1] = 0.0; a[2] = 1.0; return Add_Circle(pt,r,a); };
     C3_CURVE         Add_Circle(PT3 pt, REAL r, PT3 z);
+    C3_CURVE         Add_Circle(PT3 pt1, PT3 pt2, PT3 pt3);
 
     DXF_ENTITY       Add_Insert_Attrib(DXF_ENTITY Insert, pchar Tag, pchar Value,
                                        PT3 Pt, Attr_Settings &Set);
@@ -585,6 +620,7 @@ class LayerCollection
     void             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag             UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsFound);   
   };
 
 //---------------------------------------------------------------------------
@@ -686,6 +722,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     void              CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
     void              CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA);
     flag              FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
+    flag              UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);   
 
     DML_LIST          SelectNearbyCurves(PT3 p,REAL tol);
     DML_LIST          SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);
@@ -746,6 +783,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     long              AddNodeGrfInfo(pNodeGrfInfo pNGI);
     flag              GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs, Strng_List &IOL);
+    DXF_ENTITY        Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTag, LPCSTR Tag, DXF_ENTITY OwnerEntity);
     DXF_ENTITY        Add_PidBubble(CEntInView* ent,PT3 pt,Pt_SLW pta,pchar loop_id,pchar area_id,pchar equip_isa,pchar loop_type);
     DXF_ENTITY        Add_Unit(Viewport * vp, Pt_3f &CTagPt, flag CTagPtOK, pchar equip_name, pchar Tag, pchar BlockName, pchar ModelName, Attr_Settings &Tag_Attr_Set);
     DXF_ENTITY        Add_Instr(Viewport * vp);

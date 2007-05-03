@@ -1201,7 +1201,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     dword CurrentDataVersion()               { return dwObjDataVerNo; };// | (wGlblDataVerNo<<16);};
 
     // Utilities
-    virtual void    BuildCommonStartDefn(DataDefnBlk &DDB);
+    virtual void    BuildCommonStartDefn(DataDefnBlk &DDB, Strng & AltTag);
     virtual void    BuildCommonEndDefn(DataDefnBlk &DDB) {};
     virtual void    BuildSystemDefn(DataDefnBlk &DDB) {};
     short           IdNo()                   { return m_pClass->iId; };

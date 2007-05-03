@@ -485,7 +485,7 @@ void AccNodeWnd::SetCurrentPage()
 
 void AccNodeWnd::ShowDefWndTitle()
   {
-  WndTitle.Set("Access - %s", NdTag()); 
+  WndTitle.Set("Access - %s", m_NdTag()); 
   m_pMyFrm->SetWindowText(WndTitle()); 
   }
 
@@ -696,8 +696,8 @@ flag AccNodeWnd::LoadAccessData()
   int iLastDot=-1;
   for (;;)
     {
-    TryNdTag=NdTag;
-    for (int i=iLastDot+1; i<NdTag.GetLength(); i++)
+    TryNdTag=m_NdTag;
+    for (int i=iLastDot+1; i<m_NdTag.GetLength(); i++)
       {
       if (TryNdTag[i]=='.')
         {
@@ -715,14 +715,14 @@ flag AccNodeWnd::LoadAccessData()
 
     ObjRoute.Clear();
     Ok = (XReadTaggedItem(ObjTag, ObjData, ObjRoute)!=0);
-    if (Ok || (TryNdTag.GetLength()==NdTag.GetLength()))
+    if (Ok || (TryNdTag.GetLength()==m_NdTag.GetLength()))
       break;
     }
 
     //LogNote("Acc", 0, "XRead %s", SW.MinSecHunDesc(sSWTmp));
   if (Ok)
     {
-    NdTag=TryNdTag;
+    m_NdTag=TryNdTag;
     fLastSaveInvalid=0;
     #if dbgDumpObject
     ObjRoute.dbgDump("Access : Load");
@@ -1102,8 +1102,8 @@ flag AccNodeWnd::LoadAccessData()
 
       if (d.sRefTag.Length()<=0)
         d.sFullTag=" ";
-      else if (di>0 || d.fHasButton)//NdTag.Length()>0)
-        d.sFullTag.Set("%s.%s", NdTag(), d.sRefTag());
+      else if (di>0 || d.fHasButton)//m_NdTag.Length()>0)
+        d.sFullTag.Set("%s.%s", m_NdTag(), d.sRefTag());
       else
         d.sFullTag.Set("%s",d.sRefTag());
 
@@ -1213,7 +1213,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
           if (f.fIsEdtObj)
             {
             ObjEdit[f.iObjNo]->GetDataStart();
-            ObjInst[f.iObjNo]->GetDefinedData(f.sSymOrTag()/*NdTag()*/, ObjData.List, TABOpt_AllInfo|TABOpt_ForView|NSHM_All/*|TABOpt_CnvInfo*/, /*pPItem,*/ NULL);
+            ObjInst[f.iObjNo]->GetDefinedData(f.sSymOrTag()/*m_NdTag()*/, ObjData.List, TABOpt_AllInfo|TABOpt_ForView|NSHM_All/*|TABOpt_CnvInfo*/, /*pPItem,*/ NULL);
             ObjEdit[f.iObjNo]->GetDataDone();
             DoWrite=1;
             }
@@ -1285,11 +1285,11 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
       switch (XWriteTaggedItem(ObjData, ObjRoute))
         {
         case TOData_NotFound :
-          LogError("Access", 0/*LF_Exclamation*/, "%s not found", NdTag());
+          LogError("Access", 0/*LF_Exclamation*/, "%s not found", m_NdTag());
           break;
         case TOData_InvalidData :
           fLastSaveInvalid=1;
-          LogError(NdTag(), 0/*LF_Exclamation*/, "Invalid data");
+          LogError(m_NdTag(), 0/*LF_Exclamation*/, "Invalid data");
           OK=1;
           break;
         case TOData_OK:
@@ -1299,6 +1299,8 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
         }
       if (gs_pTheSFELib)
         gs_pTheSFELib->SetLoadAllModelStatus();
+
+      //gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
       //XCloseTransaction();
       }
     else
@@ -2087,7 +2089,7 @@ void AccNodeWnd::SaveNdHist()
 //ss      rAccNdFld f = Flds[NFlds];
 //ss      f.pData      = NULL;
 //ss      f.iData      = -1;
-//ss      f.sTagText   = LD.PageNo==0 ? NdTag() : C[2];
+//ss      f.sTagText   = LD.PageNo==0 ? m_NdTag() : C[2];
 //ss      f.iType      = (strstr(C[0], "r")) ? tt_RqdPage : tt_OptPage;
 //ss      f.fIsData    = false;
 //ss      f.iLvl       = 0;
@@ -2722,7 +2724,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
       Strng NextPageTab;
       if (PgNo==0)
         StartPage(IsPage ? ObjClassId() : "Page 1", false);
-      else if (PgNo<3 && strnicmp(f.sTagText(), NdTag(), NdTag.Len())==0)
+      else if (PgNo<3 && strnicmp(f.sTagText(), m_NdTag(), m_NdTag.Len())==0)
         {
         NextPageTab = ObjClassId();
         NextPageTab += "..";
@@ -3186,7 +3188,7 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           {
           ObjRefFldNo=fi;
           int di=Flds[fi].iData;
-          ObjRefTag="";//NdTag(); dont even put Unit Tag in Desc
+          ObjRefTag="";//m_NdTag(); dont even put Unit Tag in Desc
           for (int i=1; i <= di; i++) // start at 1 to skip  UnitTag
             if (Data[i].iEndFld>0)
               if (Data[i].iEndFld>fi)
@@ -3452,11 +3454,11 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         Strng Tg;
         RequestModelIOConnRec ConnInfo;
         RequestModelIOInfoRec IOInfo;
-        for (int i=0; gs_pTheSFELib->RequestModelIOConn(NdTag(), i, ConnInfo); i++)
+        for (int i=0; gs_pTheSFELib->RequestModelIOConn(m_NdTag(), i, ConnInfo); i++)
           if (!ConnInfo.fIsDirectConnect && ((ConnInfo.iDirn<0 && (EI.FieldId==Id_Next)) ||
                                            (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev))))
             {
-            if (gs_pTheSFELib->RequestModelIOInfoById(NdTag(), ConnInfo.iId, IOInfo))
+            if (gs_pTheSFELib->RequestModelIOInfoById(m_NdTag(), ConnInfo.iId, IOInfo))
               Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
             else
               Tg=ConnInfo.Tag();
@@ -3510,7 +3512,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
       case Id_GetBtn:
         {
         CWaitCursor Wait;
-        WndTitle.Set("%s - %s", EI.FieldId==Id_SetBtn ? "Saving" : "Loading", NdTag());
+        WndTitle.Set("%s - %s", EI.FieldId==Id_SetBtn ? "Saving" : "Loading", m_NdTag());
         m_pMyFrm->SetWindowText(WndTitle());
         flag DoSaveIt = (EI.FieldId==Id_SetBtn);
         if (0)
@@ -3522,7 +3524,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
             else
               {
               Strng Msg;
-              Msg.Set(" Save changes made in access window for '%s' ? ", NdTag());
+              Msg.Set(" Save changes made in access window for '%s' ? ", m_NdTag());
               if (AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNO)==IDYES)
                 DoSaveIt = true;
               }
@@ -3556,7 +3558,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         OnAccOptions(IDM_ACC_CHANGETAG);
         break;
       case Id_FindBtn:
-        sLastSelected[0] = NdTag();
+        sLastSelected[0] = m_NdTag();
         OnAccMenu(IDM_ACC_FINDTAG_0);
         break;
       case Id_PrintBtn:
@@ -3841,7 +3843,7 @@ void AccNodeWnd::ClearFlds(flag SaveCnvs)
 flag AccNodeWnd::RefreshData(flag SaveIt)
   {
   //dbgpln("AccNodeWnd::RefreshData(%s)", SaveIt ? "Save":"");
-  if (NdTag.Length()>0)
+  if (m_NdTag.Length()>0)
     if (CloseAccessData(SaveIt, false, false))
       {
       ClearFlds(SaveIt);
@@ -3898,7 +3900,7 @@ flag AccNodeWnd::AnyFldsOrDataChanged()
 
 flag AccNodeWnd::CloseAccess()
   {
-  //TRACE1("AccessNode %s\n", NdTag());
+  //TRACE1("AccessNode %s\n", m_NdTag());
   CMDIChildWnd *gs_pAccFrame=(CMDIChildWnd *)GetParent();
   ASSERT(gs_pAccFrame->IsKindOf(RUNTIME_CLASS(CMDIChildWnd)));
 
@@ -3914,7 +3916,7 @@ flag AccNodeWnd::CloseAccess()
     else
       {
       Strng Msg;
-      Msg.Set(" Save changes made in access window for '%s' ? ", NdTag());
+      Msg.Set(" Save changes made in access window for '%s' ? ", m_NdTag());
       Ret=AfxMessageBox(Msg(), MB_ICONQUESTION|MB_YESNOCANCEL);
       }
     }
@@ -3923,7 +3925,7 @@ flag AccNodeWnd::CloseAccess()
     CWaitCursor Wait;
     if (Ret==IDYES)
       {
-      WndTitle.Set("Saving - %s", NdTag());
+      WndTitle.Set("Saving - %s", m_NdTag());
       gs_pAccFrame->SetWindowText(WndTitle());
       }
 
@@ -4004,19 +4006,19 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
       pAttr->FieldFmt("GlblFmt",   GlblFmt);
       }
 
-    NdTag.Set(RqdNdTag());
+    m_NdTag.Set(RqdNdTag());
     ObjRoute.Clear();
 
     if (!fKeepNdHist)
       {
       for (int i=0; i<NdHistList.GetSize(); i++)
-        if (NdHistList[i].XStrICmp(NdTag)==0)
+        if (NdHistList[i].XStrICmp(m_NdTag)==0)
           {
           NdHistList.RemoveAt(i);
           break;
           }
 
-      NdHistList.InsertAt(0, NdTag);
+      NdHistList.InsertAt(0, m_NdTag);
       if (NdHistList.GetSize()>MaxNdHistListSize)
         NdHistList.SetSize(MaxNdHistListSize);
       
@@ -4025,14 +4027,14 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
     fKeepNdHist=0;
 
     #if dbgDataReadWrite
-    dbgpln("Get Data From %s", NdTag());
+    dbgpln("Get Data From %s", m_NdTag());
     #endif
 
     LoadAccessData();
     if (NData<=0)
-      LogError("Access", 0, "Tag not found:%s", NdTag());
+      LogError("Access", 0, "Tag not found:%s", m_NdTag());
     if (NData<0 && NFlds>0)
-      LogError("Access", 0, "Empty Specsheet:%s", NdTag());
+      LogError("Access", 0, "Empty Specsheet:%s", m_NdTag());
 
     MeasureFields();//, false);
 
@@ -4367,55 +4369,55 @@ void AccNodeWnd::OnAccView(UINT Id)
             }
           case IDM_ACC_VIEW0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_ARCHIVE0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ADDTOARCHIVE, (long)(IB));
             break;
             }
           case IDM_ACC_CUSTOM0:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_OFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_HISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLOFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLHISTORYOFF, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLON:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYON, (long)(IB));
             break;
             }
           case IDM_ACC_HISTORY_ALLMDLOFF:
             {
-            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+            TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
             ScdMainWnd()->PostMessage(WMU_CMD, SUB_CMD_ALLMDLHISTORYOFF, (long)(IB));
             break;
             }
@@ -4448,7 +4450,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       break;
     case IDM_ACC_CHANGETAG:
       {
-      CChangeTag ChgTag(NdTag(), true);
+      CChangeTag ChgTag(m_NdTag(), true);
       ChgTag.DoModal();
       }
       break;
@@ -4458,7 +4460,7 @@ void AccNodeWnd::OnAccOptions(UINT Id)
 #if WITHDOCUMENTATIONLINK
     case IDM_ACC_DOCUMENT:
 //MSWORD        ?
-      //gs_pPrj->Document(NdTag());
+      //gs_pPrj->Document(m_NdTag());
       break;
 #endif
 #if WITHSPECSHEETS
@@ -4529,13 +4531,13 @@ void AccNodeWnd::OnAccOptions(UINT Id)
 #endif
     case IDM_ACC_QUICKVIEW:
       {
-      TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), tt_NULL, NdTag(), "", NULL, NULL);
+      TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), tt_NULL, m_NdTag(), "", NULL, NULL);
       ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 1, (long)(IB));
       }
       break;
     case IDM_ACC_COPYBLK_0:
       {
-      CCopyTagBlkDlg CopyBlkDlg(this, ObjClassId(), NdTag());
+      CCopyTagBlkDlg CopyBlkDlg(this, ObjClassId(), m_NdTag());
       CopyBlkDlg.DoModal();
       }
       break;
@@ -4620,27 +4622,27 @@ void AccNodeWnd::OnAccEmptyPreset(UINT Id)
   switch (Id)
     {
     case IDM_ACC_PBINITNODE:
-      SL.Append(NdTag());
+      SL.Append(m_NdTag());
     //case IDM_ACC_PBINITALL:
       Op=MSA_PBInit;
       break;
     case IDM_ACC_EMPTYNODE:
-      SL.Append(NdTag());
+      SL.Append(m_NdTag());
     case IDM_ACC_EMPTYALL:
       Op=MSA_Empty;
       break;
     case IDM_ACC_ZEROFLOWSNODE:
-      SL.Append(NdTag());
+      SL.Append(m_NdTag());
     case IDM_ACC_ZEROFLOWSALL:
       Op=MSA_ZeroFlows;
       break;
     case IDM_ACC_PRESETNODE:
-      SL.Append(NdTag());
+      SL.Append(m_NdTag());
     case IDM_ACC_PRESETALL:
       Op=MSA_PreSet;
       break;
     case IDM_ACC_RESETSTATSNODE:
-      SL.Append(NdTag());
+      SL.Append(m_NdTag());
     //case IDM_ACC_RESETSTATSALL:
       Op=MSA_DynStatsRunInit;
       break;
@@ -5049,7 +5051,7 @@ flag AccNodeWnd::DoRButtonUp(UINT nFlags, CPoint point)
     GetWindowRect(&WRect);
     RBPoint.x = WRect.left+point.x;
     RBPoint.y = WRect.top+point.y;
-    sLastSelected[0] = NdTag();
+    sLastSelected[0] = m_NdTag();
     Strng s;
     CMenu Menu;
     Menu.CreatePopupMenu();
@@ -5315,7 +5317,7 @@ flag AccNodeWnd::DoKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
                 {
                 case VK_F6:
                   {
-                  TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
+                  TagInfoBlk * IB = new TagInfoBlk(ObjClassId(), d.iType, m_NdTag(), d.sRefTag(), &d.Cnv, &d.Fmt);
                   ScdMainWnd()->PostMessage(WMU_ADDTOQUICKVIEW, 0, (long)(IB));
                   break;
                   }
@@ -5547,7 +5549,7 @@ int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
     if (NdHistList[i].Len()==len && _strnicmp(NdHistList[i](), pDelTag, len)==0)
       NdHistList.RemoveAt(i);
     }
-  if (NdTag.Len()==len && _strnicmp(NdTag(), pDelTag, len)==0)
+  if (m_NdTag.Len()==len && _strnicmp(m_NdTag(), pDelTag, len)==0)
     {
     /*gs_pAccWnd->*/CloseAccessData(false, true, true);
     /*gs_pAccWnd->*/CloseWnd();

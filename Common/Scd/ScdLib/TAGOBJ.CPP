@@ -3301,23 +3301,26 @@ LPCSTR TaggedObject::EqpGUID()
 
 //---------------------------------------------------------------------------
 
-void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
+void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB, Strng & AltTag)
   {
-  DDB.String      ("Tag",         "", DC_,   "", xidTag,              this, 0|DDEF_WRITEPROTECT);//InitHidden);// temporary isParm);
-  DDB.String      ("Parent",      "", DC_,   "", xidParent,           this, 0|DDEF_WRITEPROTECT|InitHidden);
+  if (AltTag())
+    DDB.String      ("Tag",         "", DC_,   "", &AltTag,                this, 0|DDEF_WRITEPROTECT);
+  else
+    DDB.String      ("Tag",         "", DC_,   "", xidTag,                this, 0|DDEF_WRITEPROTECT);
+  DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT|InitHidden);
   DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
-  DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId, this, 0|DDEF_WRITEPROTECT|InitHidden);
-  DDB.String      ("PrimaryCfg",  "", DC_, "", xidPrimaryCfg,         this, 0|InitHidden);
-  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,           this, isParm);
-  DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,           this, isParm|InitHidden);
-  DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,          this, isParm|InitHidden);
-  DDB.String      ("EqpLocation", "", DC_,"", xidEqLocation,          this, isParm|InitHidden);
-  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,           this, isParmConstruct|InitHidden);
-  DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,           this, isParmConstruct|InitHidden);
-  DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,         this, isParm|InitHidden);
+  DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId,   this, 0|DDEF_WRITEPROTECT|InitHidden);
+  DDB.String      ("PrimaryCfg",  "", DC_,   "", xidPrimaryCfg,         this, 0|InitHidden);
+  DDB.String      ("EqpDesc",     "", DC_,   "", xidEqDesc,             this, isParm);
+  DDB.String      ("EqpMemo",     "", DC_,   "", xidEqMemo,             this, isParm|InitHidden);
+  DDB.String      ("EqpIdStr",    "", DC_,   "", xidEqIdStr,            this, isParm|InitHidden);
+  DDB.String      ("EqpLocation", "", DC_,   "", xidEqLocation,         this, isParm|InitHidden);
+  DDB.String      ("EqpGUID",     "", DC_,   "", xidEqGUID,             this, isParmConstruct|InitHidden);
+  DDB.Long        ("EqpLink",     "", DC_,   "", xidEqLink,             this, isParmConstruct|InitHidden);
+  DDB.Long        ("ReportKey",   "", DC_,   "", xidEqRepKey,           this, isParm|InitHidden);
   if (dbgtestfileopen())
-    DDB.CheckBoxBtn ("DbgBrk", "", DC_,   "", &fDoDbgBrk,          this, isParm);
-  DDB.CheckBoxBtn ("SkipSnapLoad", "", DC_, "", &bSkipSnapLoad,    this, isParm|InitHidden|noFileAtAll);
+    DDB.CheckBoxBtn ("DbgBrk",    "", DC_,   "", &fDoDbgBrk,            this, isParm);
+  DDB.CheckBoxBtn ("SkipSnapLoad","", DC_,   "", &bSkipSnapLoad,        this, isParm|InitHidden|noFileAtAll);
   //DDB.WriteProtect();
   }
 
@@ -3327,7 +3330,11 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {
-    case xidTag       : DCB.pC=Tag(DCB.rpC); return 1;
+    case xidTag       : 
+      if (DCB.rpC)
+        Tag(DCB.rpC); 
+      DCB.pC=Tag(); 
+      return 1;
     case xidParent    : DCB.pC=TagOfParent(); return 1;
     case xidEqDesc    : if (DCB.rpC) m_sEqDesc=DCB.rpC; DCB.pC=m_sEqDesc(); return 1;
     case xidEqMemo    : if (DCB.rpC) m_sEqMemo=DCB.rpC; DCB.pC=m_sEqMemo(); return 1;
@@ -3409,7 +3416,7 @@ flag TaggedObject::FndDefinedData(char * FullItemTag, TABOptions Opts, pDDBShort
 
   DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
   DDB.Page(Tag(),DDB_RqdPage);
-  BuildCommonStartDefn(DDB);
+  BuildCommonStartDefn(DDB, Strng(Tag()));
   DDB.SuppressNextBlock();
   BuildDataDefn(DDB);
   BuildCommonEndDefn(DDB);
@@ -3466,7 +3473,7 @@ flag TaggedObject::GetDefinedData(char * FullItemTag, CPkDataList &DataObj, TABO
 
   DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
   DDB.Page(Tag(),DDB_RqdPage);
-  BuildCommonStartDefn(DDB);
+  BuildCommonStartDefn(DDB, Strng(Tag()));
   DDB.SuppressNextBlock();
   BuildDataDefn(DDB);
   BuildCommonEndDefn(DDB);
@@ -3513,7 +3520,7 @@ flag TaggedObject::PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkD
     
     DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
     DDB.Page(Tag(),DDB_RqdPage);
-    BuildCommonStartDefn(DDB);
+    BuildCommonStartDefn(DDB, Strng(Tag()));
     DDB.SuppressNextBlock();
     BuildDataDefn(DDB);
     BuildCommonEndDefn(DDB);

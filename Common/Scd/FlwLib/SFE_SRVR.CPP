@@ -469,6 +469,16 @@ flag CSfeSrvr::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGra
   return SfeFS->EO_OperateModelGraphic(Tag, Wnd, Grf); 
   };
 
+flag CSfeSrvr::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  { 
+  return SfeFS->EO_GetModelAssocGraphics(Tag, Grfs); 
+  };
+
+flag CSfeSrvr::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  { 
+  return SfeFS->EO_UpdateModelAssocGraphics(Grfs, Map); 
+  };
+
 void CSfeSrvr::EO_OnAppActivate(BOOL bActive)
   {
   if (SfeFS)

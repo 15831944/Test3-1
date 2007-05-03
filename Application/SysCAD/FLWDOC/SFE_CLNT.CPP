@@ -502,6 +502,11 @@ flag SFEFlwLib::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
 flag SFEFlwLib::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
   { FENTER(false) pSfe->EO_OperateModelGraphic(Tag, Wnd, Grf); FLEAVE};
 
+flag SFEFlwLib::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  { FENTER(false) pSfe->EO_GetModelAssocGraphics(Tag, Grfs); FLEAVE};
+flag SFEFlwLib::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  { FENTER(false) pSfe->EO_UpdateModelAssocGraphics(Grfs, Map); FLEAVE};
+
 
 //flag SFEFlwLib::EO_SolutionReqd()
 //   { return pSfe==NULL ? false : pSfe->EO_SolutionReqd();  };

@@ -315,6 +315,13 @@ flag CGrfWnd::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
 
 //---------------------------------------------------------------------------
 
+flag CGrfWnd::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)   
+  { 
+  return Dsp.Vp1->Drw->UpdateModelAssocGraphics(Grfs, Map);
+  };
+
+//---------------------------------------------------------------------------
+
 int CGrfWnd::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
   {
   return EOCT_NOTFOUND;

@@ -1103,12 +1103,14 @@ class DllImportExport CSfeSrvrBase
     virtual flag         FE_TestModelTagUnique(pchar pTag)                                     { return 0; };
 
     virtual void         EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)      { };
-    virtual flag         EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)                 { return 0; };
-    virtual flag         EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)                       { return 0; };
+    virtual flag         EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)                { return 0; };
+    virtual flag         EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)                      { return 0; };
 
-    virtual flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)               { return 0; };
-    virtual flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)          { return 0; };
+    virtual flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)              { return 0; };
+    virtual flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return 0; };
 
+    virtual flag         EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)   { return 0; };
+    virtual flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map) { return 0; };
 
     virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)          { return 0; };
 

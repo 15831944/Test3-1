@@ -586,6 +586,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
+    flag           EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag           EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
+
     // Executiv Overrides
     void           EO_OnAppActivate(BOOL bActive);
     flag           EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);

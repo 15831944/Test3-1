@@ -3049,9 +3049,9 @@ static DDBValueLst SolutionStrsN[]={
   {-1, ActiveHold_Str},
   {0}};
 
-void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
+void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB, Strng & AltTag)
   {
-  CTNode::BuildCommonStartDefn(DDB);
+  CTNode::BuildCommonStartDefn(DDB, AltTag);
 
   //DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";
@@ -7400,6 +7400,37 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
+flag FlwNode::GetModelAssocGraphics(CMdlAssocGraphicList & Grfs)
+  {
+  if (NoRealDirectIOs()>0)
+    {
+    CMdlAssocGraphic G;
+    G.m_sNdTag    = FullObjTag();
+    G.m_bIsLnk    = IsLnk()!=0;
+    Grfs.AddTail(G);
+    CMdlAssocGraphic &GT=Grfs.GetTail();
+
+    for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
+      {
+      CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
+      if (D.Connected)
+        {
+        CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
+
+        CMdlAssocGraphic::CItem I;
+        I.m_eType     = D.Type;
+        I.m_sTag = pC->FullTag();
+
+        GT.m_AssocGrfs.Add(I);
+        }
+      //dbgpln("%2i %2i %s", iDir, D.m_eType, pC->FullTag());
+      }
+    }
+  return true;
+  };
+
+//--------------------------------------------------------------------------
+
 double FlwNode::ContainerMeanPress(IOP_RhoH_Info & Info, double POffset)
   {
   SpContainer & Cn=Info.Cn;
@@ -11256,6 +11287,10 @@ void CDirectFlwIO::GlobalConnectFinal()
     m_iMyConnectedIO=m_pNd->IOWithId_Self(m_iLclDIOId);
     ASSERT(m_iMyConnectedIO>=0);
     }
+
+  //dbgpln("Final: %-20s %5i %5i %-20s %-20s %-20s ", 
+  //  m_pNd->Tag(), m_iLclDIOId, m_iMyConnectedIO, 
+  //  m_sTag(), m_pFlng?m_pFlng->FullTag():"-", m_pFlng?m_pFlng->FullObjTag():"-");
   };
 
 // -------------------------------------------------------------------------

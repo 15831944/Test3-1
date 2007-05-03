@@ -6333,6 +6333,8 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
           FnLocalFilesDifferentClear();
           }
 
+        gs_Exec.MaintainModelAssocGraphics(NULL);
+
         WriteProjectSet();
 
         // Old version now loaded - Remember Old Version

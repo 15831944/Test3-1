@@ -121,6 +121,7 @@ class DllImportExport CMdlGraphicWnd
     BOOL              m_bReturn;
   };
 
+// ----------------------------------------------------------------------
 
 class DllImportExport CMdlGraphic
   {

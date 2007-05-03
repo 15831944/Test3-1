@@ -2067,7 +2067,7 @@ void CExploreScd::UpdateSelectDisplay()
   else
     m_NodeTitle.m_pStr->Format("Nodes (%i of %i)", m_nTagsSelected, m_Tags.GetCount());
 
-  if (m_nFlowsSelected==m_Tags.GetCount())
+  if (m_nFlowsSelected==m_Flows.GetCount())
     m_FlowTitle.m_pStr->Format("Flows (%i)", m_Flows.GetCount());
   else
     m_FlowTitle.m_pStr->Format("Flows (%i of %i)", m_nFlowsSelected, m_Flows.GetCount());

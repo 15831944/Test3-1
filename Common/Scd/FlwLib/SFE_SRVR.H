@@ -138,6 +138,10 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
+    flag         EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
+
+
     //flag         EO_SolutionReqd();
     //int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl);
     //int          EO_StepSolution(EqnSlvCtrlBlk & EQCtrl);

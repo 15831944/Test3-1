@@ -11347,13 +11347,11 @@ DeleteIt:
         }
       }
 
+    gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
 
     //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
     SHOWPROGRESS(1, "GlobalLinksDone");
-
-
-
     }
   }
 
@@ -12797,6 +12795,38 @@ flag CFlwSolver::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlG
     return p->OperateModelGraphic(Wnd, Grf);
   return false;
   };
+
+flag CFlwSolver::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  {
+  Grfs.RemoveAll();
+  if (Tag)
+    {
+    int ObjTagLen=0;
+    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+    if (p)
+      {
+      return p->GetModelAssocGraphics(Grfs);
+      }
+    return false;
+    }
+
+  for (FlwNode * p = NULL; GetObj_All(p); )
+    {
+    p->GetModelAssocGraphics(Grfs);
+    }
+  return true;
+  };
+
+flag CFlwSolver::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  {
+  //_asm int 3;
+  //int ObjTagLen=0;
+  //FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  //if (p)
+  //  return p->OperateModelGraphic(Wnd, Grf);
+  return false;
+  };
+
 
 //--------------------------------------------------------------------------
 

@@ -165,6 +165,9 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
+    flag           EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grf);
+    flag           EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grf, CMdlAssocGraphicMap & Map);
+
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
     // CExecObj Overrides

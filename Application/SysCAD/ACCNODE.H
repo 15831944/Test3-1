@@ -243,7 +243,7 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     flag           AnyFldsOrDataChanged();
 
     void           ShowDefWndTitle();
-    char*          CurTag() { return NdTag(); };
+    char*          CurTag() { return m_NdTag(); };
 
   protected:
     void           MeasureFields();
@@ -359,7 +359,7 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     static FmtAttribute GlblFmt;
   // Attributes
   protected:
-    Strng          NdTag;
+    Strng          m_NdTag;
     Strng          WndTitle;
     CXM_Route       ObjRoute;
 

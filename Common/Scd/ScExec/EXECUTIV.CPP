@@ -4842,6 +4842,82 @@ flag CExecutive::OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGrap
 
 //---------------------------------------------------------------------------
 
+flag CExecutive::GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  {
+  if (m_pSolver)
+    {
+    m_pSolver->LockXO();
+    flag Ret=m_pSolver->EO_GetModelAssocGraphics(Tag, Grfs);
+    m_pSolver->UnlockXO();
+    return Ret;
+    }
+
+  for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+    {
+    CExecObj *a=Objs_Reg[OInx];
+    a->LockXO();
+    if (a->EO_GetModelAssocGraphics(Tag, Grfs))
+      {
+      a->UnlockXO();
+      return true;
+      }
+    a->UnlockXO();
+    }
+  return false;
+  };
+
+flag CExecutive::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  {
+  //if (m_pSolver)
+  //  {
+  //  m_pSolver->LockXO();
+  //  flag Ret=m_pSolver->EO_UpdateModelAssocGraphics(Tag, Grf);
+  //  m_pSolver->UnlockXO();
+  //  return Ret;
+  //  }
+
+  for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
+    {
+    CExecObj *a=Objs_Reg[OInx];
+    a->LockXO();
+    a->EO_UpdateModelAssocGraphics(Grfs, Map);
+    a->UnlockXO();
+    }
+  return true;
+  };
+
+flag CExecutive::MaintainModelAssocGraphics(LPCTSTR Tag)
+  {
+  dbgpln("MaintainModelAssocGraphics====================");
+
+  CMdlAssocGraphicList Grfs;
+  if (GetModelAssocGraphics(Tag, Grfs))
+    {
+    CMdlAssocGraphicMap Map;
+    Map.InitHashTable(Max(10L, long(Grfs.GetCount()*1.20)));
+    POSITION Pos=Grfs.GetHeadPosition(); 
+    while (Pos)
+      {
+      CMdlAssocGraphic * pG=&Grfs.GetNext(Pos);
+      Map.SetAt((LPTSTR)(LPCTSTR)pG->m_sNdTag, CMdlAssocGraphicMapItem(pG,-1)); 
+      for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
+        Map.SetAt((LPTSTR)(LPCTSTR)pG->m_AssocGrfs[i].m_sTag, CMdlAssocGraphicMapItem(pG,i)); 
+
+      if (1)
+        {
+        dbgpln("UpdateAssocGrf: %s", pG->m_sNdTag);
+        for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
+          dbgpln("  %2i %s", pG->m_AssocGrfs[i].m_eType, pG->m_AssocGrfs[i].m_sTag);
+        }
+      }
+
+    return UpdateModelAssocGraphics(Grfs, Map);
+    }
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
 flag CExecutive::XFindObject(CExecObj *pEO, pchar pName, CXM_Route &Route, flag AllowSelf)
   {
   LockExec();
@@ -8639,6 +8715,65 @@ void CEventLog::LogEvent(LPCTSTR Tag, LPCTSTR Msg)
   //    }
   //  }
   }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+CMdlAssocGraphic::CMdlAssocGraphic()
+  {
+  //m_eType         = eDIO_Spill;
+  //m_iIOId         = 0;
+  //m_iIOIndex      = 0;
+  m_bIsLnk        = false;
+  };
+
+
+CMdlAssocGraphic::CMdlAssocGraphic(const CMdlAssocGraphic & V)
+  {
+  m_bIsLnk    = V.m_bIsLnk;
+  m_sNdTag    = V.m_sNdTag;
+  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  };
+   
+CMdlAssocGraphic &CMdlAssocGraphic::operator=(const CMdlAssocGraphic & V)
+  {
+  m_bIsLnk    = V.m_bIsLnk;
+  m_sNdTag    = V.m_sNdTag;
+
+  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  return *this;
+  };
+
+BOOL CMdlAssocGraphic::operator==(const CMdlAssocGraphic & V)
+  {
+  if (m_sNdTag != V.m_sNdTag ||  m_bIsLnk != V.m_bIsLnk)
+    return false;
+  if (m_AssocGrfs.GetSize()!=V.m_AssocGrfs.GetSize())
+    return false;
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    if (m_AssocGrfs[i]!=V.m_AssocGrfs[i])
+      return false;
+  return true;
+  };
+
+bool operator==(const CMdlAssocGraphic & V1, const CMdlAssocGraphic & V2)
+  {
+  if (V1.m_sNdTag != V2.m_sNdTag ||  V1.m_bIsLnk != V2.m_bIsLnk)
+    return false;
+  if (V1.m_AssocGrfs.GetSize()!=V2.m_AssocGrfs.GetSize())
+    return false;
+  for (int i=0; i<V2.m_AssocGrfs.GetSize(); i++)
+    if (V1.m_AssocGrfs[i]!=V2.m_AssocGrfs[i])
+      return false;
+  return true;
+  };
 
 //===========================================================================
 
