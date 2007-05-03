@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
