@@ -58,6 +58,12 @@ bool RandomFailure::PreStartCheck()
 void RandomFailure::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 {
 	Reset();
+	for (int i = 0; i < tasks.size(); i++)
+		if (tasks.at(i)->TagSubs.IsActive)
+			if (tasks.at(i)->bRunning)
+				tasks.at(i)->TagSubs.DoubleSI = tasks.at(i)->dOnValue;
+			else
+				tasks.at(i)->TagSubs.DoubleSI = tasks.at(i)->dOffValue;
 }
 
 //---------------------------------------------------------------------------

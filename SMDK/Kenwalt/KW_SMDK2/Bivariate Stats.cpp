@@ -166,15 +166,15 @@ bool BivarStats::ExchangeDataFields()
 		{
 			switch (var)
 			{
-			case 0: tagSubs0.Tag = DX.String;
-			case 1: tagSubs1.Tag = DX.String;
+			case 0: tagSubs0.Tag = DX.String; break;
+			case 1: tagSubs1.Tag = DX.String; break;
 			}
 			Reset();
 		}
 		switch (var)
 		{
-		case 0: DX.String = tagSubs0.Tag;
-		case 1: DX.String = tagSubs1.Tag;
+		case 0: DX.String = tagSubs0.Tag; break;
+		case 1: DX.String = tagSubs1.Tag; break;
 		}
 		return true;
 	}
@@ -494,7 +494,7 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_LEFT);
 		Wnd.m_pPaintDC->TextOut(AxesCross.x, nAxesTop - nArrowSize - nAxesSpace, tagSubs1.Tag);
 		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_LEFT);
-		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, tagSubs1.Tag);
+		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, tagSubs0.Tag);
 	}
 	return true;
 }

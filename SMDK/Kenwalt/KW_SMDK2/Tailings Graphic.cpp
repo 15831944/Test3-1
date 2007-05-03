@@ -34,14 +34,9 @@ void TailingsGraphic_UnitDef::GetOptions()
 //---------------------------------------------------------------------------
 
 TailingsGraphic::TailingsGraphic(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
-	FluidMassItem(TagIO), SolidMassItem(TagIO),
-	ConcItem(TagIO), VolItem(TagIO), LiquidDensityItem(TagIO)
+	FluidMassSubs(TagIO), SolidMassSubs(TagIO),
+	ConcSubs(TagIO), VolSubs(TagIO), LiquidDensitySubs(TagIO)
 {
-	FluidMassItem.Tag = "bleh";
-	SolidMassItem.Tag = "bleh";
-	ConcItem.Tag = "bleh";
-	VolItem.Tag = "bleh";
-	LiquidDensityItem.Tag = "bleh";
 	dMoistFrac = 0;
 	dSatConc = 1;
 	dEvapRate = dRainRate = 0;
@@ -71,13 +66,7 @@ void TailingsGraphic::Init()
 bool TailingsGraphic::PreStartCheck()
 {
 	RecalculateVolumes();
-	if (!RecalculateLevels())
-	{
-		m_sErrorMsg = "Invalid Tank Name";
-		return false;
-	}
-	else
-		return true;
+	return RecalculateLevels();
 }
 
 //---------------------------------------------------------------------------
@@ -86,6 +75,7 @@ const int MaxIntPoints = 100;
 
 const int idDX_TankString = 1;
 const int idDX_DataPointCount = 2;
+const int idDX_ConcSpecies = 3;
 const int idDX_InterpolationHeight = MaxIntPoints;
 const int idDX_InterpolationArea = 2 * MaxIntPoints;
 
@@ -100,6 +90,7 @@ void TailingsGraphic::BuildDataFields()
 	//liquid mass, solid mass, concentrations, densities.
 	DD.String("Tank", "", idDX_TankString, MF_PARAMETER);
 	DD.Double("Moisture_Fraction", "", &dMoistFrac, MF_PARAMETER, MC_Frac);
+	DD.String("Aqueous_Species", "", idDX_ConcSpecies, MF_PARAMETER);
 	DD.Double("Saturation_Concentration", "", &dSatConc, MF_PARAMETER, MC_Conc);
 	DD.Double("Evaporation_Rate", "", &dEvapRate, MF_PARAMETER, MC_Qm);
 	DD.Double("Rainfall_Rate", "", &dRainRate, MF_PARAMETER, MC_Qm);
@@ -176,6 +167,23 @@ bool TailingsGraphic::ExchangeDataFields()
 		DX.Double = vInterpolationAreas.at(DX.Handle - idDX_InterpolationArea);
 		return true;
 	}
+	if (DX.Handle == idDX_ConcSpecies)
+	{
+		if (DX.HasReqdValue)
+		{
+			CString str1 = DX.String;
+			int nt;
+			CString str2 = str1.MakeReverse().Tokenize(".", nt);
+			sConcSpecies = str2.MakeReverse(); //The somewhat complicated way to get everything AFTER the last '.'
+
+			if (sConcSpecies.GetLength() > 0 && 
+				(sConcSpecies.GetLength() < 4 || sConcSpecies.Right(4) != "(aq)"))
+				sConcSpecies.Append("(aq)");
+		}
+		DX.String = sConcSpecies;
+		SetTags();
+		return true;
+	}
 	return false;
 }
 
@@ -184,20 +192,43 @@ void TailingsGraphic::SetTags()
 	CString temp;
 	int i = 0;
 	sTankName = sTankName.Tokenize(".", i);
+
 	temp.Format("%s%s", sTankName, ".Content.Liquids");
-	FluidMassItem.Tag = temp;
+	FluidMassSubs.Tag = temp;
+
 	temp.Format("%s%s", sTankName, ".Content.Solids");
-	SolidMassItem.Tag = temp;
+	SolidMassSubs.Tag = temp;
+
 	temp.Format("%s%s", sTankName, ".Content.Vt");
-	VolItem.Tag = temp;
+	VolSubs.Tag = temp;
+
 	temp.Format("%s%s", sTankName, ".Content.LRho");
-	LiquidDensityItem.Tag = temp;
+	LiquidDensitySubs.Tag = temp;
+
+	temp.Format("%s%s%s", sTankName, ".Content.", sConcSpecies);
+	ConcSubs.Tag = temp;
 
 	RecalculateLevels();
 }
 
 bool TailingsGraphic::ValidateDataFields()
 {
+	if (dMoistFrac < 0) dMoistFrac = 0;
+	if (dEvapRate < 0) dEvapRate = 0;
+	if (dRainRate < 0) dRainRate = 0;
+	if (dSatConc < 0) dSatConc = 0;
+	if (TagIO.ValidateReqd())
+	{
+		if (TagIO.StartValidateDataFields())
+		{
+			FluidMassSubs.Configure(0, NULL, "FluidMassTag", MTagIO_Get);
+			SolidMassSubs.Configure(1, NULL, "SolidMassTag", MTagIO_Get);
+			ConcSubs.Configure(2, NULL, "ConcTag", MTagIO_Get);
+			VolSubs.Configure(3, NULL, "VolTag", MTagIO_Get);
+			LiquidDensitySubs.Configure(4, NULL, "LiquidDensityTag", MTagIO_Get);
+		}
+		TagIO.EndValidateDataFields();
+	}
 	return true;
 }
 
@@ -312,7 +343,7 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SelectObject(nullPen);
 
 		//Draw fluid:
-		BYTE pureR = 172, pureG = 174, pureB = 248;
+		BYTE pureR = 0, pureG = 0, pureB = 255;
 		BYTE satR = 255, satG = 0, satB = 0;
 		POINT* fluid = GetDamPoints(dFluidLevel, insideRect, ptCount);
 
@@ -329,7 +360,7 @@ bool TailingsGraphic::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 				
 		//Draw sediment:
 		POINT* sediment = GetDamPoints(dSolidLevel, insideRect, ptCount);
-		CBrush sedimentBrush(HS_DIAGCROSS, Brown);
+		CBrush sedimentBrush(Brown);
 		Wnd.m_pPaintDC->SelectObject(&sedimentBrush);
 		Wnd.m_pPaintDC->Polygon(sediment, ptCount);
 		delete[] sediment;
@@ -576,24 +607,32 @@ double TailingsGraphic::CalcArea(double height)
 
 bool TailingsGraphic::RecalculateLevels()
 {
-	if (!TAG_OK(LiquidDensityItem)) //If we can't get these critical values, no point even trying.
+	if (!LiquidDensitySubs.IsActive) //If we can't get these critical values, no point even trying.
 		return false;
-	if (!TAG_OK(VolItem)) return false;
-	if (!TAG_OK(FluidMassItem)) return false;
-	if (!TAG_OK(SolidMassItem)) return false;
+	if (!VolSubs.IsActive) return false;
+	if (!FluidMassSubs.IsActive) return false;
+	if (!SolidMassSubs.IsActive) return false;
 
-	dFluidMass = FluidMassItem.DoubleSI;
-	dSolidMass = SolidMassItem.DoubleSI;
-	//dConc = TAG_OK(ConcItem) ? ConcItem.DoubleSI : 0;
+	dFluidMass = FluidMassSubs.DoubleSI;
+	dSolidMass = SolidMassSubs.DoubleSI;
 
-	double dTotalVol = VolItem.DoubleSI;
-	double dFluidDensity = LiquidDensityItem.DoubleSI;
+	double dTotalVol = VolSubs.DoubleSI;
+	double dFluidDensity = LiquidDensitySubs.DoubleSI;
 
-	double dFreeFluidVol = MAX(0, (dFluidMass - dSolidMass * dMoistFrac) / MAX(0.1, dFluidDensity));
+	double dFluidVol = dFluidDensity > 0 ? dFluidMass / dFluidDensity : 0;
+	if (dFluidVol > 0)
+	{
+		dConc = ConcSubs.IsActive ? ConcSubs.DoubleSI : 0;
+		dConc /= dFluidVol;
+	}
+	else
+		dConc = 0;
+
+	double dFreeFluidVol = dFluidDensity > 0 ? MAX(0, (dFluidMass - dSolidMass * dMoistFrac) / dFluidDensity) : 0;
 	double dSolidVol = dTotalVol - dFreeFluidVol;
 
 	dFluidLevel = CalcLevel(dTotalVol);
-	dSolidVol = CalcLevel(dSolidVol);
-	dFSA = CalcArea(dFluidLevel);
+	dSolidLevel = CalcLevel(dSolidVol);
+	dFSA = dFreeFluidVol > 0 ? CalcArea(dFluidLevel) : 0;
 	return true;
 }

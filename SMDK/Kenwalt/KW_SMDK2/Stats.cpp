@@ -29,7 +29,7 @@ void SingleVarStats_UnitDef::GetOptions()
 //---------------------------------------------------------------------------
 
 SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
-	tagItem(TagIO)
+	tagSubs(TagIO)
 {
 	//default values...
 	bOn = true;
@@ -54,12 +54,12 @@ void SingleVarStats::Init()
 
 bool SingleVarStats::PreStartCheck()
 {
-	if (!tagItem.IsGet)
+	if (!tagSubs.IsActive)
 	{
 		m_sErrorMsg = "Cannot get tag";
 		return false;
 	}
-  return true;
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -151,10 +151,10 @@ bool SingleVarStats::ExchangeDataFields()
 	case (idDX_Tag):
 		if (DX.HasReqdValue)
 		{
-			tagItem.Tag = DX.String;
+			tagSubs.Tag = DX.String;
 			Reset();
 		}
-		DX.String = tagItem.Tag;
+		DX.String = tagSubs.Tag;
 		return true;
 	case (idDX_Reset):
 		if (DX.HasReqdValue && DX.Bool == true)
@@ -211,6 +211,12 @@ bool SingleVarStats::ExchangeDataFields()
 
 bool SingleVarStats::ValidateDataFields()
 {
+	if (TagIO.ValidateReqd())
+	{
+		if (TagIO.StartValidateDataFields())
+			tagSubs.Configure(0, NULL, "Variable", MTagIO_Get);
+		TagIO.EndValidateDataFields();
+	}
 	if (lHistoCount < 1)
 		lHistoCount = 1;
 #ifndef SVS_KEEP_RECORD
@@ -224,9 +230,9 @@ void SingleVarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 {
 	try
 	{
-		if (!tagItem.IsGet || !bOn)
+		if (!tagSubs.IsActive || !bOn)
 			return;
-		double dVal = tagItem.DoubleSI;
+		double dVal = tagSubs.DoubleSI;
 		RecalculateStats(dVal);
 	}
 	catch (MMdlException &ex)
@@ -473,7 +479,7 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		CString units = tagItem.IsGet ? tagItem.CnvText : "";
+		CString units = tagSubs.IsActive ? tagSubs.CnvText : "";
 		if (strcmp(units, "") != 0)
 			xLabel.Format("Value (%s)", units);
 		else

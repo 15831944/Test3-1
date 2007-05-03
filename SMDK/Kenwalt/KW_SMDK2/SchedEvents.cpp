@@ -72,6 +72,12 @@ bool ScheduledEvents::PreStartCheck()
 void ScheduledEvents::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 {
 	Reset();
+	for (int i = 0; i < tasks.size(); i++)
+		if (tasks.at(i)->tagSubs.IsActive)
+			if (tasks.at(i)->bRunning)
+				tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOnValue;
+			else
+				tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOffValue;
 }
 
 //---------------------------------------------------------------------------
@@ -200,6 +206,17 @@ bool ScheduledEvents::ExchangeDataFields()
 
 bool ScheduledEvents::ValidateDataFields()
 {
+	if (TagIO.ValidateReqd())
+	{
+		if (TagIO.StartValidateDataFields())
+			for (int i = 0; i < tasks.size(); i++)
+			{
+				CString name;
+				name.Format("Task%i", i);
+				tasks.at(i)->tagSubs.Configure(i, NULL, name, MTagIO_Set);
+			}
+		TagIO.EndValidateDataFields();
+	}
 	for (int i = 0; i < tasks.size(); i++)
 	{
 		if (tasks.at(i)->dOffset < 0)
@@ -309,9 +326,6 @@ void ScheduledEvents::SetSize(long size)
 		{
 			MaintVariables* newTask = new MaintVariables(TagIO);
 			tasks.push_back(newTask);
-			CString name;
-			name.Format("Task%i", i);
-			newTask->tagSubs.Configure(i, NULL, name, MTagIO_Set);
 		}
 	if (size < tasks.size())  //We want to remove elements
 		for (int i = tasks.size() - 1; i >= size; i--)
@@ -335,20 +349,15 @@ void ScheduledEvents::SetState(MStatesToSet SS)
 bool ScheduledEvents::CheckTags()
 {
 	bool ret = true;
-	if (TagIO.ValidateReqd())
+	for (int i = 0; i < tasks.size(); i++)
 	{
-		TagIO.StartValidateDataFields();
-		for (int i = 0; i < tasks.size(); i++)
+		if (tasks.at(i)->tagSubs.Tag != "" && !tasks.at(i)->tagSubs.IsActive)
 		{
-			if (tasks.at(i)->tagSubs.Tag != "" && !tasks.at(i)->tagSubs.IsActive)
-			{
-				CString warning;
-				warning.Format("Task %i does not have a valid tag", i);
-				Log.Message(MMsg_Warning, warning);
-				ret = false;
-			}
+			CString warning;
+			warning.Format("Task %i does not have a valid tag", i);
+			Log.Message(MMsg_Warning, warning);
+			ret = false;
 		}
-		TagIO.EndValidateDataFields();
 	}
 	return ret;
 }

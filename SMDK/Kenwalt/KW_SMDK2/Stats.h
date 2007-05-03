@@ -52,7 +52,8 @@ class SingleVarStats : public MBaseMethod
   protected:
     bool bOn;
 
-  MTagIOSubscription tagItem;
+	MTagIOSubscription tagSubs;
+
 	double dHistoMin;
 	double dHistoMax;
 	long lHistoCount;
