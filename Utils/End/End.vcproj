@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="End"
+	Name="ut.End"
 	ProjectGUID="{9110F8C0-3DB3-4431-8AFD-5EBFC0EC3AB6}"
 	RootNamespace="End"
 	>
