@@ -2834,7 +2834,8 @@ Build 123 : 21 February 2007
 1713 30/04/07: (#830) Fix for incorrect strings sometimes being returned for GetDynStrTag in PGM.
 1715 30/04/07: (#798) Encryption of projects extended to store options, etc in encrypt,dat.
 1716 30/04/07: (#825) Fix for thermal split where there are more than two input streams.
-1717  1/05/07: (#795) File is now created in correct subfolder for edit button for new rct or pgm.
+1719  1/05/07: (#795) File is now created in correct subfolder for edit button for new rct or pgm.
+1725  1/05/07: (#813) Improved SMDK tables for access window.
 
 ------------------------------
 //Latest release information:*/

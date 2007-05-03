@@ -67,7 +67,8 @@
 				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\SMDK\svnAutomate.exe ..\..\common\scd\scdlib\svn.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -136,7 +137,8 @@
 				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\SMDK\svnAutomate.exe ..\..\common\scd\scdlib\svn.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -208,7 +210,8 @@
 				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\SMDK\svnAutomate.exe ..\..\common\scd\scdlib\svn.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -277,7 +280,8 @@
 				CommandLine="..\..\common\BldCopyCOMExe.Cmd ..\..  $(TargetName)  $(OutDir)"
 				ExcludedFromBuild="FALSE"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\SMDK\svnAutomate.exe ..\..\common\scd\scdlib\svn.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool

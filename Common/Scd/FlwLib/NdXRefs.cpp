@@ -1147,12 +1147,11 @@ long CNodeTagIOItem::Configure(long UserHandle, LPCSTR ItemTag, LPCSTR ItemName,
 
   if (ItemTag && ItemTag[0])
     SetTag(ItemTag);
-    //pItm->m_sTag=ItemTag;
 
   m_IOFlags = IOFlags;
-  m_sName        = ItemName;
+  m_sName = ItemName;
 
-  MTagIOResult  Res=CheckTag();
+  MTagIOResult Res=CheckTag();
   if (Res==MTagIO_OK)
     {
     if (!m_bInUse)
@@ -1171,14 +1170,16 @@ long CNodeTagIOItem::Configure(long UserHandle, LPCSTR ItemTag, LPCSTR ItemName,
 
 MTagIOResult CNodeTagIOItem::CheckTag()
   {
-
   if (m_sName.GetLength()==0) 
     m_sName.Format("Tag%03i", m_lIdNo);
 
   if (m_pNd->m_fGlobalConnectBusy)
     return MTagIO_GlblConnectBusy;
 
-  m_bValid       = false;
+  m_bValid = false;
+
+  if (m_sTagOnly.GetLength()==0)
+    return MTagIO_NotSpecified;
 
   CXM_Route ObjRoute;
   CXM_ObjectTag ObjTag((LPSTR)(LPCSTR)m_sTagOnly, TABOpt_ValCnvs);

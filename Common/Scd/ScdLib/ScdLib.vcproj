@@ -60,7 +60,8 @@
 				Description="Copy Files for SMDK"
 				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\svnAutomate.exe"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -133,7 +134,8 @@
 				Description="Copy Files for SMDK"
 				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\svnAutomate.exe"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -199,7 +201,8 @@
 				Description="Copy Files for SMDK"
 				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\svnAutomate.exe"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -266,7 +269,8 @@
 				Description="Copy Files for SMDK"
 				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCPreBuildEventTool"
+				CommandLine="..\..\..\SMDK\svnAutomate.exe"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
