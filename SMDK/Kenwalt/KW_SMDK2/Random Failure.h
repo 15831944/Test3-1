@@ -35,7 +35,7 @@ struct FailureVariables
     PDFType eFailureType;
 	PDFType eRepairType;
 
-	MTagIOSubscription tagSubs;
+	MTagIOSubscription TagSubs;
 
   double dOnValue, dOffValue;
     

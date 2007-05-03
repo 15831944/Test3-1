@@ -63,7 +63,7 @@ class BivarStats : public MBaseMethod
 
 	GraphType graphType;
 
-  MTagIOSubscription tagItem0, tagItem1;
+	MTagIOSubscription tagSubs0, tagSubs1;
 	double dHistoMinX, dHistoMinY;
 	double dHistoMaxX, dHistoMaxY;
 	long lHistoCount;
@@ -86,7 +86,6 @@ class BivarStats : public MBaseMethod
 	void Reset();
 	void RecalculateStats(double newEntry1, double newEntry2);
 	void RecalculateHistoBuckets();
-	void SetTag(int n, CString newValue);
   };
 
 #endif

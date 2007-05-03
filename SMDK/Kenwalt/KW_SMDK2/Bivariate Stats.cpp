@@ -29,7 +29,7 @@ void BivarStats_UnitDef::GetOptions()
 //---------------------------------------------------------------------------
 
 BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
-	tagItem0(TagIO), tagItem1(TagIO)
+	tagSubs0(TagIO), tagSubs1(TagIO)
 {
 	//default values...
 	bOn = true;
@@ -55,7 +55,7 @@ void BivarStats::Init()
 
 bool BivarStats::PreStartCheck()
 {
-	return true;
+	return tagSubs0.IsActive && tagSubs1.IsActive;
 }
 
 //---------------------------------------------------------------------------
@@ -96,14 +96,14 @@ void BivarStats::BuildDataFields()
 	DD.Text("");
 	DD.Double("Correlation", "Corr", &dCorrelation, MF_RESULT);
 	DD.Text("Variable 1");
-	MCnv Var1Cnv = tagItem0.IsGet ? tagItem0.Cnv : MC_;
+	MCnv Var1Cnv = tagSubs0.IsGet ? tagSubs0.Cnv : MC_;
 	DD.Double("Average", "Avg1", dAverage, MF_RESULT, Var1Cnv);
 	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT, Var1Cnv);
 	DD.Double("Minimum", "Min1", dMin, MF_RESULT, Var1Cnv);
 	DD.Double("Maximum", "Max1", dMax, MF_RESULT, Var1Cnv);
 	DD.Text("");
 	DD.Text("Variable 2");
-	MCnv Var2Cnv = tagItem1.IsGet ? tagItem1.Cnv : MC_;
+	MCnv Var2Cnv = tagSubs1.IsGet ? tagSubs1.Cnv : MC_;
 	DD.Double("Average", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);
 	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT, Var2Cnv);
 	DD.Double("Minimum", "Min2", dMin + 1, MF_RESULT, Var2Cnv);
@@ -111,23 +111,23 @@ void BivarStats::BuildDataFields()
 	DD.Text("");
 	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
 
-	DD.Show(false);
-	DD.ArrayBegin("Histogram Rows", "Rows", lHistoCount);	
+	DD.Page("Histogram");
+	DD.MatrixBegin("Histogram", "Histogram", lHistoCount, lHistoCount, 6, 0);	
 	for (int i = 0; i < lHistoCount; i++)
 	{
-		DD.ArrayElementStart(i);
-		DD.ArrayBegin("Histogram Buckets", "Buckets", lHistoCount);
+		DD.GridRowStart();
 		for (int j = 0; j < lHistoCount; j++)
 		{
-			DD.ArrayElementStart(j);
-			DD.Long("Count", "Count", pHistoBucketCounts + i * lRecordCount + j, MF_RESULT);
-			DD.ArrayElementEnd(j);
+			DD.MatrixElementStart(j, i);
+			CString name;
+			name.Format("Count[%i][%i]", i, j);
+			DD.Long(name, "", &pHistoBucketCounts[i * lHistoCount + j], MF_RESULT);
+			DD.MatrixElementEnd();
 		}
-		DD.ArrayEnd();
-		DD.ArrayElementEnd();
 	}
-	DD.ArrayEnd();
+	DD.MatrixEnd();
 
+	DD.Show(false);
 	if (DD.ForFiling)
 	{
 		DD.Double("SumX2_1", "SumX2_1", dSumX2, MF_RESULT);
@@ -161,19 +161,20 @@ bool BivarStats::ExchangeDataFields()
 {
 	if (DX.Handle == idDX_Tag || DX.Handle == idDX_Tag + 1)
 	{
+		const int var = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
-			switch (DX.Handle - idDX_Tag)
+			switch (var)
 			{
-			case 0:	tagItem0.Tag = DX.String; break;
-			case 1: tagItem1.Tag = DX.String; break;
+			case 0: tagSubs0.Tag = DX.String;
+			case 1: tagSubs1.Tag = DX.String;
 			}
 			Reset();
 		}
-		switch (DX.Handle - idDX_Tag)
+		switch (var)
 		{
-		case 0:	DX.String = tagItem0.Tag; break;
-		case 1: DX.String = tagItem1.Tag; break;
+		case 0: DX.String = tagSubs0.Tag;
+		case 1: DX.String = tagSubs1.Tag;
 		}
 		return true;
 	}
@@ -235,6 +236,15 @@ bool BivarStats::ExchangeDataFields()
 
 bool BivarStats::ValidateDataFields()
 {
+	if (TagIO.ValidateReqd())
+	{
+		if (TagIO.StartValidateDataFields())
+		{
+			tagSubs0.Configure(0, NULL, "Variable0", MTagIO_Get);
+			tagSubs1.Configure(1, NULL, "Variable1", MTagIO_Get);
+		}
+		TagIO.EndValidateDataFields();
+	}
 	if (lHistoCount < 1)
 		lHistoCount = 1;
 	return true;
@@ -244,10 +254,10 @@ void BivarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 {
 	try
 	{
-		if (!tagItem0.IsGet || !tagItem1.IsGet)
+		if (!tagSubs0.IsActive || !tagSubs1.IsActive || !bOn)
 			return;
-		double dVal1 = tagItem0.DoubleSI;
-		double dVal2 = tagItem1.DoubleSI;
+		double dVal1 = tagSubs0.DoubleSI;
+		double dVal2 = tagSubs1.DoubleSI;
 		RecalculateStats(dVal1, dVal2);
 	}
 	catch (MMdlException &ex)
@@ -398,7 +408,7 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		CPen penGreen(PS_SOLID, 0, Green);
 
 		CPen* oldPen = Wnd.m_pPaintDC->SelectObject(&penGreen);
-		int xLabelWidth = Wnd.m_pPaintDC->GetTextExtent(tagItem0.Tag).cx;
+		int xLabelWidth = Wnd.m_pPaintDC->GetTextExtent(tagSubs0.Tag).cx;
 		int nAxesLeft = nBorderSpace,
 			nAxesTop = nBorderSpace + nTextSize + nAxesSpace + nArrowSize,
 			nAxesBottom = Wnd.m_ClientRect.bottom - nBorderSpace,
@@ -482,9 +492,9 @@ bool BivarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		//Draw labels:
 		Wnd.m_pPaintDC->SetTextColor(Green);
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_LEFT);
-		Wnd.m_pPaintDC->TextOut(AxesCross.x, nAxesTop - nArrowSize - nAxesSpace, tagItem1.Tag);
+		Wnd.m_pPaintDC->TextOut(AxesCross.x, nAxesTop - nArrowSize - nAxesSpace, tagSubs1.Tag);
 		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_LEFT);
-		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, tagItem0.Tag);
+		Wnd.m_pPaintDC->TextOut(nAxesRight + nArrowSize + nAxesSpace, AxesCross.y, tagSubs1.Tag);
 	}
 	return true;
 }
