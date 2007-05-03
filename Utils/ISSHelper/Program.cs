@@ -14,7 +14,7 @@ namespace ISSHelper
     {
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new iSSHelperForm());
+      Application.Run(new ISSHelperForm());
     }
   }
 }
