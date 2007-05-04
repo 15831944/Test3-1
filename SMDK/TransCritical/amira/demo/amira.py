@@ -1,4 +1,3 @@
-
 from Tkinter import *
 import tkMessageBox
 from generic import GenericMain, OutputFrame, font3
@@ -26,29 +25,9 @@ s1Entries = [
     ["NaF        ", "%", "0"]
     ]
 
-s2Entries = [
-    ["I_m      "     , ".", "0"],
-    ["I_c      "     , ".", "0"],
-    ["I_c25    "     , ".", "0"],
-    ["P_Sat    "     , ".", "0"],
-    ["Al2O3    "     , ".", "0"],
-    ["TC       "     , ".", "0"],
-    ["TA       "     , ".", "0"],
-    ["TempSat  "     , ".", "0"],
-    ["BPE      "     , ".", "0"],
-    ["Cp_Liq   "     , ".", "0"],
-    ["Cp_H2O   "     , ".", "0"],
-    ["Rho_Liq  "     , ".", "0"],
-    ["Rho_H2O  "     , ".", "0"],
-    ["Cp_phi   "     , ".", "0"],
-    ["V_phi    "     , ".", "0"],
-    ["Cp_LiqH2O"     , ".", "0"],
-    ["Phi      "     , ".", "0"],
-    ["Aw       "     , ".", "0"]]
 
-
+s2Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
 syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
-
 
 syscadEx = '''
 Example: select the following text and try again...
@@ -262,8 +241,7 @@ class MyMain(GenericMain):
 
 
     def extractDPData(self):
-        dat = [x for x in ab.DPDATA]
-        for x, y in zip(dpnames, dat):
+        for x, y in zip(dpnames, ab.DPDATA):
             self.__dict__[x] = y
 
 
@@ -276,9 +254,7 @@ class MyMain(GenericMain):
             return
          
         s = [l.split() for l in sel.splitlines()]
-        cdic = {}
-        for x in syscadNames:
-            cdic[x] = 0.0
+        cdic = {}.fromkeys(syscadNames, 0.0)
         tot = 0.0
         for lis in s:
             qty = float(lis[2])
@@ -327,11 +303,11 @@ class MyMain(GenericMain):
         atxt((ostr2 % (p,    self.P_Sat, self.I_c25)))
         atxt(""); atxt(ostr3)
         atxt("---------------------------------------------")
-        atxt((ostr4 % tuple([x for x in ab.Comp_molkg[:9]])))
-        atxt((ostr5 % tuple([x for x in ab.Comp_molL[:9]])))
-        atxt((ostr6 % tuple([x for x in ab.Comp_molL25[:9]])))
-        atxt((ostr7 % tuple([x for x in ab.Comp_mpercent[:9]])))
-        atxt((ostr8 % tuple([x for x in ab.Comp_gL[:9]])))
+        atxt((ostr4 % tuple(ab.Comp_molkg[:9])))
+        atxt((ostr5 % tuple(ab.Comp_molL[:9])))
+        atxt((ostr6 % tuple(ab.Comp_molL25[:9])))
+        atxt((ostr7 % tuple(ab.Comp_mpercent[:9])))
+        atxt((ostr8 % tuple(ab.Comp_gL[:9])))
         atxt("")
         atxt(ostrs[0]); atxt(ostrs[1])
         atxt(ostrs[2] % (self.Al2O3, self.TC, self.TA, ab.OC[0], ab.OC[1]))
@@ -347,13 +323,13 @@ class MyMain(GenericMain):
         atxt(ostrs[8] % self.Cp_LiqH2O)
         atxt("\nSaturation Indices")
         atxt("".join(sinames[:5]))
-        atxt(("%-13.5f"*5) % tuple([x for x in ab.SI[:5]]))
+        atxt(("%-13.5f"*5) % tuple(ab.SI[:5]))
         atxt("".join(sinames[5:]))
-        atxt(("%-13.5f"*5) % tuple([x for x in ab.SI[5:]]))
+        atxt(("%-13.5f"*5) % tuple(ab.SI[5:]))
         atxt("\nSolubilities")
         atxt(solnames)
-        atxt(("Solubility M  " + "%9.4f"*6) % tuple([x for x in ab.SolML]))
-        atxt(("Solubility mgk" + "%9.4f"*6) % tuple([x for x in ab.Solmkg]))
+        atxt(("Solubility M  " + "%9.4f"*6) % tuple(ab.SolML))
+        atxt(("Solubility mgk" + "%9.4f"*6) % tuple(ab.Solmkg))
         atxt("")
 
 
@@ -374,5 +350,3 @@ def main():
     root.mainloop()
 
 main()
-
-
