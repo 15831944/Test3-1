@@ -14,8 +14,8 @@ namespace MEncryptDatConfigNS {
     EncryptDatConfig *encryptDatConfig;
 
     unsigned short FlagPGMEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
-    unsigned short FlagRCTEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
-    unsigned short FlagDXFEncrypted()      { return encryptDatConfig->FlagPGMEncrypted;      }
+    unsigned short FlagRCTEncrypted()      { return encryptDatConfig->FlagRCTEncrypted;      }
+    unsigned short FlagDXFEncrypted()      { return encryptDatConfig->FlagDXFEncrypted;      }
     unsigned short FlagAllowSave()         { return encryptDatConfig->FlagAllowSave;         }
     unsigned short FlagAllowExcelReports() { return encryptDatConfig->FlagAllowExcelReports; }
 

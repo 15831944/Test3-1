@@ -35,8 +35,8 @@ namespace Encrypt
       config.Load("Encrypt.dat");
 
       if (config.Flag(config.FlagPGMEncrypted()) != 0) EncryptPGMFilesCheckBox.Checked = true; else EncryptPGMFilesCheckBox.Checked = false;
-      if (config.Flag(config.FlagPGMEncrypted()) != 0) EncryptRCTFilesCheckBox.Checked = true; else EncryptRCTFilesCheckBox.Checked = false;
-      if (config.Flag(config.FlagPGMEncrypted()) != 0) EncryptDXFFilesCheckBox.Checked = true; else EncryptDXFFilesCheckBox.Checked = false;
+      if (config.Flag(config.FlagRCTEncrypted()) != 0) EncryptRCTFilesCheckBox.Checked = true; else EncryptRCTFilesCheckBox.Checked = false;
+      if (config.Flag(config.FlagDXFEncrypted()) != 0) EncryptDXFFilesCheckBox.Checked = true; else EncryptDXFFilesCheckBox.Checked = false;
 
       if (config.Flag(config.FlagAllowSave()) != 0) AllowSaveCheckBox.Checked = true; else AllowSaveCheckBox.Checked = false;
       if (config.Flag(config.FlagAllowExcelReports()) != 0) AllowExcelReportsCheckBox.Checked = true; else AllowExcelReportsCheckBox.Checked = false;
@@ -61,159 +61,199 @@ namespace Encrypt
       PasswordTextBox.Text = config.Password();
     }
 
+    static bool encrypting = false;
+
     private void EncryptProjectButton_Click(object sender, EventArgs e)
     {
-      String path = null;
-      Boolean backupFailed = false;
-      Boolean isProjectFolder = false;
+      EncryptProjectButton.Enabled = false;
+      ProjectListBox.Enabled = false;
 
-      if (ProjectListBox.SelectedIndex == ProjectListBox.Items.Count-1)
-      { // 'Other...' chosen...
-        String filename = null; 
-        
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Project file|*.spj";
-        openFileDialog.FilterIndex = 1;
-
-        if (openFileDialog.ShowDialog() == DialogResult.OK)
-          filename = openFileDialog.FileName;
-
-        if (filename != null)
-          path = Path.GetDirectoryName(filename);
-      }
-      else
+      if (!encrypting)
       {
-        path = ProjectListBox.Items[ProjectListBox.SelectedIndex] as String;
-      }
+        encrypting = true;
 
-      if (path != null)
-      {
-        FileInfo projectFile = new FileInfo(Path.Combine(path, "Project.spj"));
-        isProjectFolder = projectFile.Exists;
-        if (!isProjectFolder)
-          MessageBox.Show("Not a project folder, cancelling encrypt.");
+        String path = null;
+        Boolean backupFailed = false;
+        Boolean isProjectFolder = false;
 
-        if ((isProjectFolder)&&(CreateBackupCheckBox.Checked))
+        if (ProjectListBox.SelectedIndex == ProjectListBox.Items.Count - 1)
+        { // 'Other...' chosen...
+          String filename = null;
+
+          OpenFileDialog openFileDialog = new OpenFileDialog();
+          openFileDialog.Filter = "Project file|*.spj";
+          openFileDialog.FilterIndex = 1;
+
+          if (openFileDialog.ShowDialog() == DialogResult.OK)
+            filename = openFileDialog.FileName;
+
+          if (filename != null)
+            path = Path.GetDirectoryName(filename);
+        }
+        else
         {
-          DirectoryInfo original = new DirectoryInfo(path);
-          DirectoryInfo backup = new DirectoryInfo(path + ".backup");
-
-          ProgressToolStripProgressBar.Style = ProgressBarStyle.Marquee;
-          try { CopyBackup(original, backup); }
-          catch { MessageBox.Show("Backup failed, cancelling encrypt."); backupFailed = true; }
-          ProgressToolStripProgressBar.Style = ProgressBarStyle.Continuous;
+          path = ProjectListBox.Items[ProjectListBox.SelectedIndex] as String;
         }
 
-        if ((isProjectFolder)&&(!backupFailed))
+        if (path != null)
         {
-          RegistryKey recentProjectsKey = null;
-          try
-          {
-            recentProjectsKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\Encrypt\\RecentProjects");
-          }
-          catch { }
+          FileInfo projectFile = new FileInfo(Path.Combine(path, "Project.spj"));
+          isProjectFolder = projectFile.Exists;
+          if (!isProjectFolder)
+            MessageBox.Show("Not a project folder, cancelling encrypt.");
 
-          if (project0 == path)
-          { // current project is mose recent already, nothing to do.
-          }
-          else if (project1 == path)
+          if ((isProjectFolder) && (CreateBackupCheckBox.Checked))
           {
-            project1 = project0;
-            project0 = path;
-          }
-          else if (project2 == path)
-          {
-            project2 = project1;
-            project1 = project0;
-            project0 = path;
-          }
-          else if (project3 == path)
-          {
-            project3 = project2;
-            project2 = project1;
-            project1 = project0;
-            project0 = path;
-          }
-          else
-          {
-            project4 = project3;
-            project3 = project2;
-            project2 = project1;
-            project1 = project0;
-            project0 = path;
+            DirectoryInfo original = new DirectoryInfo(path);
+            DirectoryInfo backup = new DirectoryInfo(path + ".backup");
+
+            if (DirectoryIsEncrypted(original))
+            {
+              MessageBox.Show("Directory is already encrypted."); backupFailed = true;
+            }
+            else
+            {
+              ProgressToolStripProgressBar.Style = ProgressBarStyle.Marquee;
+              try { CopyBackup(original, backup); }
+              catch { MessageBox.Show("Backup failed, cancelling encrypt."); backupFailed = true; }
+              ProgressToolStripProgressBar.Style = ProgressBarStyle.Continuous;
+            }
           }
 
-          if (recentProjectsKey != null)
+          if ((isProjectFolder) && (!backupFailed))
           {
+            RegistryKey recentProjectsKey = null;
             try
             {
-              if (project0 != null) recentProjectsKey.SetValue("0", project0);
-              if (project1 != null) recentProjectsKey.SetValue("1", project1);
-              if (project2 != null) recentProjectsKey.SetValue("2", project2);
-              if (project3 != null) recentProjectsKey.SetValue("3", project3);
-              if (project4 != null) recentProjectsKey.SetValue("4", project4);
+              recentProjectsKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\Encrypt\\RecentProjects");
             }
             catch { }
+
+            if (project0 == path)
+            { // current project is mose recent already, nothing to do.
+            }
+            else if (project1 == path)
+            {
+              project1 = project0;
+              project0 = path;
+            }
+            else if (project2 == path)
+            {
+              project2 = project1;
+              project1 = project0;
+              project0 = path;
+            }
+            else if (project3 == path)
+            {
+              project3 = project2;
+              project2 = project1;
+              project1 = project0;
+              project0 = path;
+            }
+            else
+            {
+              project4 = project3;
+              project3 = project2;
+              project2 = project1;
+              project1 = project0;
+              project0 = path;
+            }
+
+            if (recentProjectsKey != null)
+            {
+              try
+              {
+                if (project0 != null) recentProjectsKey.SetValue("0", project0);
+                if (project1 != null) recentProjectsKey.SetValue("1", project1);
+                if (project2 != null) recentProjectsKey.SetValue("2", project2);
+                if (project3 != null) recentProjectsKey.SetValue("3", project3);
+                if (project4 != null) recentProjectsKey.SetValue("4", project4);
+              }
+              catch { }
+            }
+
+            ProjectListBox.Items.Clear();
+            if (project0 != null) ProjectListBox.Items.Add(project0);
+            if (project1 != null) ProjectListBox.Items.Add(project1);
+            if (project2 != null) ProjectListBox.Items.Add(project2);
+            if (project3 != null) ProjectListBox.Items.Add(project3);
+            if (project4 != null) ProjectListBox.Items.Add(project4);
+            ProjectListBox.Items.Add("Other...");
+            ProjectListBox.SelectedIndex = 0;
+
+            ProgressToolStripProgressBar.Value = 0;
+
+            ArrayList files = new ArrayList();
+
+            GetFiles(path, files);
+
+            ProgressToolStripProgressBar.Minimum = 0;
+            ProgressToolStripProgressBar.Maximum = files.Count + 1;
+            ProgressToolStripProgressBar.Value = 1;
+
+            foreach (string file in files)
+            {
+              Encrypt(file);
+              ProgressToolStripProgressBar.Value++;
+              toolStripStatusLabel1.Text = "Encrypting " + file;
+            }
+
+            ProgressToolStripProgressBar.Value = 0;
+            toolStripStatusLabel1.Text = "Completed:  " + numberPGM + " PGM Files, "
+                                                        + numberRCT + " RCT Files, "
+                                                        + numberDXF + " DXF Files.";
+            numberPGM = 0;
+            numberRCT = 0;
+            numberDXF = 0;
+
+            if (EncryptPGMFilesCheckBox.Checked) config.SetFlag(config.FlagPGMEncrypted(), 1); else config.SetFlag(config.FlagPGMEncrypted(), 0);
+            if (EncryptRCTFilesCheckBox.Checked) config.SetFlag(config.FlagRCTEncrypted(), 1); else config.SetFlag(config.FlagRCTEncrypted(), 0);
+            if (EncryptDXFFilesCheckBox.Checked) config.SetFlag(config.FlagDXFEncrypted(), 1); else config.SetFlag(config.FlagDXFEncrypted(), 0);
+
+            if (AllowSaveCheckBox.Checked) config.SetFlag(config.FlagAllowSave(), 1); else config.SetFlag(config.FlagAllowSave(), 0);
+            if (AllowExcelReportsCheckBox.Checked) config.SetFlag(config.FlagAllowExcelReports(), 1); else config.SetFlag(config.FlagAllowExcelReports(), 0);
+
+            config.SetMACAddress(0, MACAddress01TextBox.Text);
+            config.SetMACAddress(1, MACAddress02TextBox.Text);
+            config.SetMACAddress(2, MACAddress03TextBox.Text);
+            config.SetMACAddress(3, MACAddress04TextBox.Text);
+            config.SetMACAddress(4, MACAddress05TextBox.Text);
+            config.SetMACAddress(5, MACAddress06TextBox.Text);
+            config.SetMACAddress(6, MACAddress07TextBox.Text);
+            config.SetMACAddress(7, MACAddress08TextBox.Text);
+            config.SetMACAddress(8, MACAddress09TextBox.Text);
+            config.SetMACAddress(9, MACAddress10TextBox.Text);
+
+            config.SetPassword(PasswordTextBox.Text);
+
+            config.Save(path + "\\" + "Encrypt.dat");
+            config.Save("Encrypt.dat");
           }
-
-          ProjectListBox.Items.Clear();
-          if (project0 != null) ProjectListBox.Items.Add(project0);
-          if (project1 != null) ProjectListBox.Items.Add(project1);
-          if (project2 != null) ProjectListBox.Items.Add(project2);
-          if (project3 != null) ProjectListBox.Items.Add(project3);
-          if (project4 != null) ProjectListBox.Items.Add(project4);
-          ProjectListBox.Items.Add("Other...");
-          ProjectListBox.SelectedIndex = 0;
-
-          ProgressToolStripProgressBar.Value = 0;
-
-          ArrayList files = new ArrayList();
-
-          GetFiles(path, files);
-
-          ProgressToolStripProgressBar.Minimum = 0;
-          ProgressToolStripProgressBar.Maximum = files.Count + 1;
-          ProgressToolStripProgressBar.Value = 1;
-
-          foreach (string file in files)
-          {
-            Encrypt(file);
-            ProgressToolStripProgressBar.Value++;
-            toolStripStatusLabel1.Text = "Encrypting " + file;
-          }
-
-          ProgressToolStripProgressBar.Value = 0;
-          toolStripStatusLabel1.Text = "Completed:  " + numberPGM + " PGM Files, "
-                                                      + numberRCT + " RCT Files, "
-                                                      + numberDXF + " DXF Files.";
-          numberPGM = 0;
-          numberRCT = 0;
-          numberDXF = 0;
-
-          if (EncryptPGMFilesCheckBox.Checked) config.SetFlag(config.FlagPGMEncrypted(), 1); else config.SetFlag(config.FlagPGMEncrypted(), 0);
-          if (EncryptRCTFilesCheckBox.Checked) config.SetFlag(config.FlagRCTEncrypted(), 1); else config.SetFlag(config.FlagRCTEncrypted(), 0);
-          if (EncryptDXFFilesCheckBox.Checked) config.SetFlag(config.FlagDXFEncrypted(), 1); else config.SetFlag(config.FlagDXFEncrypted(), 0);
-
-          if (AllowSaveCheckBox.Checked) config.SetFlag(config.FlagAllowSave(), 1); else config.SetFlag(config.FlagAllowSave(), 0);
-          if (AllowExcelReportsCheckBox.Checked) config.SetFlag(config.FlagAllowExcelReports(), 1); else config.SetFlag(config.FlagAllowExcelReports(), 0);
-
-          config.SetMACAddress(0, MACAddress01TextBox.Text);
-          config.SetMACAddress(1, MACAddress02TextBox.Text);
-          config.SetMACAddress(2, MACAddress03TextBox.Text);
-          config.SetMACAddress(3, MACAddress04TextBox.Text);
-          config.SetMACAddress(4, MACAddress05TextBox.Text);
-          config.SetMACAddress(5, MACAddress06TextBox.Text);
-          config.SetMACAddress(6, MACAddress07TextBox.Text);
-          config.SetMACAddress(7, MACAddress08TextBox.Text);
-          config.SetMACAddress(8, MACAddress09TextBox.Text);
-          config.SetMACAddress(9, MACAddress10TextBox.Text);
-
-          config.SetPassword(PasswordTextBox.Text);
-          
-          config.Save(path + "\\" + "Encrypt.dat");
-          config.Save("Encrypt.dat");
         }
+        encrypting = false;
       }
+
+      ProjectListBox.Enabled = true;
+      EncryptProjectButton.Enabled = true;
+    }
+
+    private bool DirectoryIsEncrypted(DirectoryInfo original)
+    {
+      foreach (FileInfo file in original.GetFiles())
+      {
+        if (Path.GetExtension(file.ToString()).ToLower() == ".x")
+          return true;
+      }
+
+      bool isEncrypted = false;
+
+      foreach (DirectoryInfo directory in original.GetDirectories())
+      {
+        DirectoryInfo subOriginal = new DirectoryInfo(Path.Combine(original.ToString(), directory.Name));
+        isEncrypted &= DirectoryIsEncrypted(subOriginal);
+      }
+
+      return isEncrypted;
     }
 
     private void CopyBackup(DirectoryInfo original, DirectoryInfo backup)
@@ -222,7 +262,8 @@ namespace Encrypt
 
       foreach (FileInfo file in original.GetFiles())
       {
-        file.CopyTo(Path.Combine(backup.ToString(), file.Name), true);
+        if (Path.GetExtension(file.ToString()).ToLower() != ".x")
+          file.CopyTo(Path.Combine(backup.ToString(), file.Name), true);
       }
 
       foreach (DirectoryInfo directory in original.GetDirectories())
@@ -259,7 +300,7 @@ namespace Encrypt
           }
 
         if (Path.GetExtension(file).ToLower() == ".dxf")
-          if (EncryptRCTFilesCheckBox.Checked)
+          if (EncryptDXFFilesCheckBox.Checked)
           {
             files.Add(file);
             numberDXF++;

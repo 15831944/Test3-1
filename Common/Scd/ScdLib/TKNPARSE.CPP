@@ -494,20 +494,17 @@ Strng CTokenFile::SkipToSeperator() const
   return m_TokenLine.SpanExcluding(m_SeperatorSet);
 };
 
-char* CTokenFile::ssgets(int k)
+char* CTokenFile::ssgets(char* buf, int maxCount)
 {
-  char* p = NULL;
-
   if (!(m_SS[m_FileIndex]->eof()))
   {
-    p = new char[sizeof(m_Line) - 1 - k];
-    m_SS[m_FileIndex]->getline(p, sizeof(m_Line) - 1 - k);
-
-    char* match = strchr(p, 13);
-    if (match != NULL) match[0] = 0; // handle strange line-end characters.
+    m_SS[m_FileIndex]->getline(buf, maxCount);
   }
 
-  return p; // will be null if at eof...
+  char* match = strchr(buf, 13);
+  if (match != NULL) match[0] = 0; // handle strange line-end characters.
+
+  return buf;
 }
 //----------------------------------------------------------------------------
 /*#F:Reads the next line from the file.*/
@@ -528,7 +525,7 @@ void CTokenFile::NextLine()
       p = fgets((char*)&m_Line[k], sizeof(m_Line) - 1 - k, m_File[m_FileIndex]);
     else // we've got a buffer, use that instead.
     {
-      p = ssgets(k);
+      p = ssgets((char*)&m_Line[k], sizeof(m_Line) - 1 - k);
     }
 
     if (p == NULL)

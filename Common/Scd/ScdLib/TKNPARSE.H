@@ -133,7 +133,7 @@ public:
 
 protected:
   void SetParameters();
-  char* ssgets(int k);
+  char* ssgets(char* buf, int maxCount);
   void NextLine();
   void SkipWhiteSpace();
   //char* SkipToSeperator();

@@ -59,7 +59,7 @@ class DllImportExport CTokenFileInfo
     void Close();             
     BOOL CheckForInclude();
     void SetParameters();
-    char* ssgets(int k);
+    char* ssgets(char* buf, int maxCount);
     void NextLine();
     BOOL AtEOF() { return bAtEOF; };
 

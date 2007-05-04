@@ -247,29 +247,17 @@ BOOL CTokenFileInfo::CheckForInclude()
   }
 
 
-char* CTokenFileInfo::ssgets(int k)
+char* CTokenFileInfo::ssgets(char* buf, int maxCount)
 {
-  //char* p = NULL;
-
   if (!(m_SS[iFileIndex]->eof()))
   {
-    //p = new char[sizeof(pParser->Line) - 1 - k];
-    m_SS[iFileIndex]->getline((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k);
-
-    // handle different line-end characters.
-    char* match = strchr((char*)&(pParser->Line[k]), 13);
-    while (match != NULL)
-    {
-      match[0] = 10; 
-      match = strchr((char*)&(pParser->Line[k]), 13);
-    }
+    m_SS[iFileIndex]->getline(buf, maxCount);
   }
 
-  //if (m_SS[iFileIndex]->eof())
-  //  fseek(File[iFileIndex], 0, SEEK_END); // testing -- this will put the File at eof as well...
-  // but this doesn't work either!!!
+  char* match = strchr(buf, 13);
+  if (match != NULL) match[0] = 0; // handle strange line-end characters.
 
-  return (char*)&(pParser->Line[k]); // will be null if at eof...
+  return buf;
 }
 //----------------------------------------------------------------------------
 
@@ -290,7 +278,7 @@ void CTokenFileInfo::NextLine()
       p = fgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k, File[iFileIndex]);
     else // we've got a buffer, use that instead.
     {
-      p = ssgets(k);
+      p = ssgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k);
     }
 
     //char* p = fgets((char*)&(pParser->Line[k]), sizeof(pParser->Line) - 1 - k, File[iFileIndex]);
