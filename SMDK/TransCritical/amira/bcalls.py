@@ -1,128 +1,47 @@
-afns = [
-"PARVAL",
-"GAQ",
-"GSOL",
-"STHEN",
-"SKO",
-"SNAF",
-"SNAOX",
-"SGIB",
-"SBHM",
-"SITHEN",
-"SINACL",
-"SINAF",
-"SIKO",
-"SIGIB",
-"SIBHM",
-"SIMIRA",
-"SINATR",
-"SIHEPT",
-"SITHER",
-"V",
-"VGAS",
-"SGAS",
-"CP",
-"TBOIL",
-"PBOIL",
-"PSAT1",
-"SIPDHL",
-"CP0NAOH",
-"CP0NAALOH4",
-"CP0NACL",
-"CP0NAAC",
-"CP0NAFORM",
-"CP0NA2CO3",
-"CP0NA2SO4",
-"VXP",
-"V0XP",
-"CPXP",
-"HSCPXX",
-"HSCPXX2",
-"CPHXX",
-"CPSXX",
-"XHGCP",
-"XCPH",
-"XCPS",
-"G0H2O",
-"DNSH2O",
-"GH2OVAP",
-"PSAT",
-"TSAT",
-"G0NACL",
-"BETA0NACL",
-"BETA1NACL",
-"CPHINACL",
-"BETA0NACLlow",
-"CPHINACLlow",
-"G0NAOH",
-"CAPPA",
-"DNSH2O1",
-"BETA0NAOH",
-"BETA0NAOHVK",
-"BETA1NAOH",
-"BETA1NAOHV",
-"BETA2NAOH",
-"CPHINAOH",
-"CPHINAOHVK",
-"G0NA2SO4",
-"BETA0NA2SO4",
-"BETA1NA2SO4",
-"CPHINA2SO4",
-"G0NAHCO3",
-"BETA0NAHCO3",
-"BETA1NAHCO3",
-"CPHINAHCO3",
-"G0NA2CO3",
-"BETA0NA2CO3",
-"BETA1NA2CO3",
-"CPHINA2CO3",
-"G0NAALOH4",
-"BETA0NAALOH4",
-"BETA1NAALOH4",
-"BETA2NAALOH4",
-"CPHINAALOH4",
-"G0NAAC",
-"BETA0NAAC",
-"BETA1NAAC",
-"CPHINAAC",
-"G0NAFORM",
-"BETA0NAFORM",
-"BETA1NAFORM",
-"CPHINAFORM",
-"G0NAF",
-"BETA0NAF",
-"BETA1NAF"
-]
+import re
 
+subre = re.compile("SUBROUTINE\W*(\w*)")
+funre = re.compile("FUNCTION\W*(\w*)")
+restr = "\W(%s)\("
+sfre = re.compile("(?:SUBROUTINE|FUNCTION)\W*(\w*)") 
 
-asubs = [
-"BAYER",
-"INIT",
-"VOLH2O25",
-"SETEMP",
-"SETPST",
-"PRPH2O",
-"PRPSLN",
-"SOLBY",
-"BPSLN",
-"SETMOL",
-"CompIn",
-"CompOut",
-"FILERD",
-"AC",
-"PTZFNC",
-"PTZGXS",
-"PTZPAR",
-"MODELS"]
-
-
-
-    
 f = open("bayer.for")
+afuns = [m.group(1) for m in [funre.search(line) for line in f] if m]
+f.seek(0)
+asubs = [m.group(1) for m in [subre.search(line) for line in f] if m]
+f.seek(0)
+u = [re.compile( (restr % x) ) for x in afns]
+        
+subn = None
+callList = set()
+
+def op():
+    if subn and callList:
+        print subn, " -> {", ", ".join(callList), "};" 
 
 
 for line in f:
-    if "SUBROUTINE" in line:
-        print line
-        
+    if line.startswith("C"):
+        continue
+    m = sfre.search(line)
+    if m:
+        op()
+        subn = m.group(1)
+        callList.clear()
+        continue
+
+    if "CALL" in line:
+        for x in asubs:
+            if x in line:
+                callList.add(x)
+            
+    for x in u:
+        m = x.search(line)
+        if m:
+            callList.add(m.group(1))
+
+op()
+
 f.close()
+
+

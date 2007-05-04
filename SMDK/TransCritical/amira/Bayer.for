@@ -11,7 +11,7 @@
 C
 C      Original call...
 C
-C      SUBROUTINE BAYER(TempC,InUnits,Pressure,NInComp,InComp,
+C      SUBRO BAYER(TempC,InUnits,Pressure,NInComp,InComp,
 C     >I_m,I_c,I_c25,P_sat,NOutComp,Comp_molkg,Comp_molL,
 C     >Comp_molL25,Comp_mpercent,Comp_gL,Al2O3,TC,TA,NOC,OC,
 C     >TempSat,BPE,Cp_Liq,Cp_H2O,Rho_Liq,Rho_H2O,Cp_phi,V_phi,Cp_LiqH2O,
@@ -6999,12 +6999,3 @@ C
       RETURN
       END
 
-
-
-      DOUBLE PRECISION FUNCTION TEST1(PXX, IY, PZZ)
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      
-      TEST1 = PXX + IY + LOG(PZZ)
-
-      RETURN
-      END
