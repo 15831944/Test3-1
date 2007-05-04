@@ -31,6 +31,9 @@ typedef ObjectPtr<Model430A> PModel430A;
 *   UnitModel that for the JK style AS/AG model.
 *
 ****************************************************************************/
+const int MaxFortranMatType = 10;
+const int MaxFortranSizes = 50;
+
 class TS_API Model430A
 {
 
@@ -89,32 +92,30 @@ public:
 
     // Interface to FORTRAN code
 
-	double UNIT[501];           // UNIT parameter vector
-    double SIZE[50];            // GSIM sizing vector
-    double SIZE_MAPPED[50];     // GSIM sizing vector mapped to represent size range of feed
-    long   NTYPE;               // Number of ore types
-    double ORESG[10];           // Specific gravity of each mineral
-    double Param_A[10];         // T10-Ecs parameter A
-    double Param_b[10];         // T10-Ecs parameter b
-    double Param_ta[10];        // Abrasion parmeter ta
-    double BSIZING[50];         // Ball size distribution
+    double UNIT[501];                     // UNIT parameter vector
+    double SIZE[MaxFortranSizes];         // GSIM sizing vector
+    double SIZE_MAPPED[MaxFortranSizes];  // GSIM sizing vector mapped to represent size range of feed
+    long   NTYPE;                         // Number of ore types
+    double ORESG[MaxFortranMatType];      // Specific gravity of each mineral
+    double Param_A[MaxFortranMatType];    // T10-Ecs parameter A
+    double Param_b[MaxFortranMatType];    // T10-Ecs parameter b
+    double Param_ta[MaxFortranMatType];   // Abrasion parmeter ta
+    double BSIZING[MaxFortranSizes];      // Ball size distribution
     long   NSPR;                // Number of spline knots
     double RSIZE[20];           // Spline knot - size
     double RSP[20];             // Spline knot - breakage rate
-    double AMFEED[10][50];      // Mill feed sizing
-    double AMDISC[10][50];      // Mill product sizing
-    double AMFEED_MAPPED[10][50];// Mill feed sizing (mapped to size distribution that covers to top size in feed)
-    double AMDISC_MAPPED[10][50];// Mill product sizing
-    double AMLOAD[10][50];      // Mill load sizing
-    double BLOAD[50];           // Ball load
-    double TAIL[10][50];        // ??
-    double D[50];               // Discharge rate x size
-    double R[50];               // Breakage rate x size
-    double AMDATA[10][50];      // Appearance function output
+    double AMFEED[MaxFortranMatType][MaxFortranSizes];      // Mill feed sizing
+    double AMDISC[MaxFortranMatType][MaxFortranSizes];      // Mill product sizing
+    double AMFEED_MAPPED[MaxFortranMatType][MaxFortranSizes];// Mill feed sizing (mapped to size distribution that covers to top size in feed)
+    double AMDISC_MAPPED[MaxFortranMatType][MaxFortranSizes];// Mill product sizing
+    double AMLOAD[MaxFortranMatType][MaxFortranSizes];      // Mill load sizing
+    double BLOAD[MaxFortranSizes];           // Ball load
+    double TAIL[MaxFortranMatType][MaxFortranSizes];        // ??
+    double D[MaxFortranSizes];               // Discharge rate x size
+    double R[MaxFortranSizes];               // Breakage rate x size
+    double AMDATA[MaxFortranMatType][MaxFortranSizes];      // Appearance function output
     double OUTPUT[20];
  
-
-
 };
 
 }

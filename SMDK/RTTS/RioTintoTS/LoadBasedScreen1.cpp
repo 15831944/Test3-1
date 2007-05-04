@@ -4,7 +4,6 @@
 
 using namespace RioTintoTS;
 
-
           
 
 /****************************************************************************
@@ -157,14 +156,9 @@ LoadBasedScreen1::LoadBasedScreen1( )
   pAArray = NULL;
   pBArray = NULL;
   pCArray = NULL;
-  pDArray = NULL;
   pEArray = NULL;
-  pGArray = NULL;
-  pHArray = NULL;
-  pJArray = NULL;
-  pKArray = NULL;
-  pLArray = NULL;
-  pXArray = NULL;
+  pTdArray = NULL;
+  pTwArray = NULL;
   }
    
 
@@ -175,18 +169,12 @@ LoadBasedScreen1::LoadBasedScreen1( )
 ****************************************************************************/
 LoadBasedScreen1::~LoadBasedScreen1( )
   {
-  /* void */
   pAArray = NULL;
   pBArray = NULL;
   pCArray = NULL;
-  pDArray = NULL;
   pEArray = NULL;
-  pGArray = NULL;
-  pHArray = NULL;
-  pJArray = NULL;
-  pKArray = NULL;
-  pLArray = NULL;
-  pXArray = NULL;
+  pTdArray = NULL;
+  pTwArray = NULL;
   }
 
 
@@ -243,7 +231,7 @@ LoadBasedScreen1::~LoadBasedScreen1( )
 *		  ParamVec[12]: Water Recovery of Undersize
 *
 ****************************************************************************/
-bool LoadBasedScreen1::Initialize( PStreamInfo1   Config, VectorView&    ParamVec )
+bool LoadBasedScreen1::Initialize( PStreamInfo1 Config, VectorView& ParamVec )
   {
   // get count of material types from MatInfo
   nType = Config->nType();
@@ -283,19 +271,19 @@ bool LoadBasedScreen1::Initialize( PStreamInfo1   Config, VectorView&    ParamVe
 
   // unpack parameters from ParamVec
 
-  Apperture		    =       ParamVec[ 0];
-  Length				=		ParamVec[ 1];
-  Width				=		ParamVec[ 2];
-  Angle				=	    ParamVec[ 3];
-  OpenFraction		=	    ParamVec[ 4];
-  BulkDensity			=	    ParamVec[ 5];
-  WetScreening		= (int) ParamVec[ 6];
+  Apperture		      = ParamVec[ 0];
+  Length				    =	ParamVec[ 1];
+  Width				      =	ParamVec[ 2];
+  Angle				      =	ParamVec[ 3];
+  OpenFraction		  =	ParamVec[ 4];
+  BulkDensity			  =	ParamVec[ 5];
+  WetScreening		  = (int) ParamVec[ 6];
   AppertureShape		= (int) ParamVec[ 7];
-  MediaType			= (int) ParamVec[ 8];
-  DeckLocation		= (int) ParamVec[ 9];
+  MediaType			    = (int) ParamVec[ 8];
+  DeckLocation		  = (int) ParamVec[ 9];
   GravelCorrection	= (int) ParamVec[10];
-  CustomAreaFactor	=		ParamVec[11];	
-  WaterSplitToUS		=		ParamVec[12];	
+  CustomAreaFactor	=	ParamVec[11];	
+  WaterSplitToUS		=	ParamVec[12];	
 
   S   = Apperture;
   AF  = Length * Width;
@@ -324,6 +312,21 @@ bool LoadBasedScreen1::Initialize( PStreamInfo1   Config, VectorView&    ParamVe
   return false;
   }
 
+void LoadBasedScreen1::SetWaterSplitToUS(double WSUS)
+  {
+  WaterSplitToUS = WSUS;
+  WR  = WaterSplitToUS;
+  }
+
+void LoadBasedScreen1::InitializeRegr(double* A_, double* B_, double* C_, double* E_, double* Td_, double* Tw_)
+  {
+  pAArray = A_;
+  pBArray = B_;
+  pCArray = C_;
+  pEArray = E_;
+  pTdArray = Td_;
+  pTwArray = Tw_;
+  }
 
 /****************************************************************************
 *
@@ -1089,8 +1092,10 @@ double LoadBasedScreen1::CalculateT( double V )
   { 210	 ,	.755  },
   { 300    ,  .6    }};
 
-  Matrix TWetMatrix( nWetRows, 2, *TWetArray );
-  Matrix TDryMatrix( nWetRows, 2, *TDryArray );
+  double* pw = (pTwArray ? pTwArray : *TWetArray);
+  double* pd = (pTdArray ? pTdArray : *TDryArray);
+  Matrix TWetMatrix( nWetRows, 2, pw );
+  Matrix TDryMatrix( nWetRows, 2, pd );
   CubicSpline TSpline;
 
   if (WetScreening==true)

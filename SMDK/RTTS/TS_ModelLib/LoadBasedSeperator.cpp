@@ -209,11 +209,83 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 	m_E.SetData((double*)&EArray);
 
 
+  // Dry Screening Efficiency Curve
+  const int nDryRows = 11;
+  static double TDryArray [ nDryRows ] [ 2 ] = 
+  {
+  //          V        T	
+  //        Load   Efficiency
+      {  000.0 , 0.90 },
+      {  062.5 , 0.95 },
+      {  075.0 , 0.95 },
+      {  100.0 , 0.90 },
+      {  450.0 , 0.50 },
+      {  500.0 , 0.45 },
+      {  562.5 , 0.40 },
+      {  642.9 , 0.35 },
+      {  750.0 , 0.30 },
+      {  900.0 , 0.25 },
+      { 1125.0 , 0.20 }, };
+	m_Td.InitParams("Td", "V", "Load", "T", "Dry Efficiency", nDryRows);
+	m_Td.SetData((double*)&TDryArray);
+
+
+  // Wet Screening Efficiency Curve
+  const int nWetRows = 22;
+  static double TWetArray [ nWetRows ] [ 2 ] = 
+  {
+  //          V        T	
+  //        Load   Efficiency
+  /*	{ 10	, 	.9917317  },
+  { 20	, 	.9927046  },
+  { 30	, 	.9910998  },
+  { 39.3	, 	.9871216  },
+  { 50	, 	.9776228  },
+  { 60.5	, 	.963927	  },
+  { 66.3	, 	.9553783  },
+  { 75	, 	.9416755  },
+  { 90	, 	.9167897  },
+  { 100	 ,	.9001193  },
+  { 110	 ,	.8838962  },
+  { 120	 ,	.8684178  },
+  { 130	 ,	.853857	  },
+  { 138.9	 ,	.8417114  },
+  { 144.1	 ,	.8349535  },
+  { 150.9	 ,	.8264498  },
+  { 157	 ,	.8190873  },
+  { 169	 ,	.8050404  },
+  { 184.5	 ,	.7866662  },
+  { 200	 ,	.7659365  },
+  { 210	 ,	.7499636  }};*/
+
+  { 10	, 	.997  },
+  { 20	, 	.996  },
+  { 30	, 	.99   },
+  { 39.3	, 	.982  },
+  { 50	, 	.98   },
+  { 63	, 	.96	  },
+  { 75	, 	.95   },
+  { 80	, 	.942  },
+  { 90	, 	.923  },
+  { 100	 ,	.90   },
+  { 110	 ,	.887  },
+  { 120	 ,	.873  },
+  { 130	 ,	.862  },
+  { 140	 ,	.849  },
+  { 150	 ,	.837  },
+  { 160	 ,	.827  },
+  { 170	 ,	.813  },
+  { 179.2	 ,	.801  },
+  { 190	 ,	.785  },
+  { 200	 ,	.77   },
+  { 210	 ,	.755  },
+  { 300    ,  .6    }};
+	m_Tw.InitParams("Tw", "V", "Load", "T", "Wet Efficiency", nWetRows);
+	m_Tw.SetData((double*)&TWetArray);
   }
 
-	void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
+void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
 	{ 
-
 	static MDDValueLst DDAppetureShape[]={
 		{1,   "Round"},
 		{2,   "Square"},
@@ -221,14 +293,12 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 		{4,   "Slot 3:1"},
 		{5,   "Slot 4:1"},
 		{0}};
-
 	static MDDValueLst DDMediaType[]={
 		{1,   "Wire"},
 		{2,   "Plate"},
 		{3,   "Rubber"},
 		{4,   "Poly"},
 		{0}};
-
 	static MDDValueLst DDDeckLocation[]={
 		{1,   "Top"},
 		{2,   "Bottom"},
@@ -246,35 +316,35 @@ CSeperator_LoadBased::CSeperator_LoadBased()
   // Parameters
   //
   DB.StructBegin("Top" );
-  DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Length"       , "", &m_dTopLength         , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Width"        , "", &m_dTopWidth          , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Angle"        , "", &m_dTopAngle          , MF_PARAMETER | MF_INIT_HIDDEN ,  MC_Ang("deg"));
-  DB.Double("OpenFraction" , "", &m_dTopOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
-  DB.Double("BulkDensity"  , "", &m_dTopBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
-  DB.Bool  ("WetScreening" , "", &m_bTopWetScreening   , MF_PARAMETER  );
-  DB.Long  ("AppetureShape", "", &m_lTopAppetureShape  , MF_PARAMETER, DDAppetureShape);
-  DB.Long  ("MediaType"    , "", &m_lTopMediaType      , MF_PARAMETER, DDMediaType);
-  DB.Long  ("DeckLocation" , "", &m_lTopDeckLocation   , MF_PARAMETER, DDDeckLocation);
-  DB.Bool  ("Gravel"       , "", &m_bTopGravel         , MF_PARAMETER  );
-  DB.Double("CustomFactor" , "", &m_dTopCustomFactor   , MF_PARAMETER ,  MC_None);
+  DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Length"       , "", &m_dTopLength         , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Width"        , "", &m_dTopWidth          , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Angle"        , "", &m_dTopAngle          , MF_PARAM_STOPPED | MF_INIT_HIDDEN ,  MC_Ang("deg"));
+  DB.Double("OpenFraction" , "", &m_dTopOpenFraction   , MF_PARAM_STOPPED ,  MC_Frac("%"));
+  DB.Double("BulkDensity"  , "", &m_dTopBulkDensity    , MF_PARAM_STOPPED ,  MC_Rho("t/m^3"));
+  DB.Bool  ("WetScreening" , "", &m_bTopWetScreening   , MF_PARAM_STOPPED  );
+  DB.Long  ("AppetureShape", "", &m_lTopAppetureShape  , MF_PARAM_STOPPED, DDAppetureShape);
+  DB.Long  ("MediaType"    , "", &m_lTopMediaType      , MF_PARAM_STOPPED, DDMediaType);
+  DB.Long  ("DeckLocation" , "", &m_lTopDeckLocation   , MF_PARAM_STOPPED, DDDeckLocation);
+  DB.Bool  ("Gravel"       , "", &m_bTopGravel         , MF_PARAM_STOPPED  );
+  DB.Double("CustomFactor" , "", &m_dTopCustomFactor   , MF_PARAM_STOPPED ,  MC_None);
   DB.Double("WaterSplitToUS","", &m_dTopWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
   DB.StructEnd();
 
   DB.Text("");
   DB.StructBegin("Bottom" );
-  DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Length"       , "", &m_dBottomLength         , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Width"        , "", &m_dBottomWidth          , MF_PARAMETER ,  MC_L("mm"));
-  DB.Double("Angle"        , "", &m_dBottomAngle          , MF_PARAMETER | MF_INIT_HIDDEN,  MC_Ang("deg"));
-  DB.Double("OpenFraction" , "", &m_dBottomOpenFraction   , MF_PARAMETER ,  MC_Frac("%"));
-  DB.Double("BulkDensity"  , "", &m_dBottomBulkDensity    , MF_PARAMETER ,  MC_Rho("t/m^3"));
-  DB.Bool  ("WetScreening" , "", &m_bBottomWetScreening   , MF_PARAMETER  );
-  DB.Long  ("AppetureShape", "", &m_lBottomAppetureShape  , MF_PARAMETER, DDAppetureShape);
-  DB.Long  ("MediaType"    , "", &m_lBottomMediaType      , MF_PARAMETER, DDMediaType);
-  DB.Long  ("DeckLocation" , "", &m_lBottomDeckLocation   , MF_PARAMETER, DDDeckLocation);
-  DB.Bool  ("Gravel"       , "", &m_bBottomGravel         , MF_PARAMETER  );
-  DB.Double("CustomFactor" , "", &m_dBottomCustomFactor   , MF_PARAMETER ,  MC_None);
+  DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Length"       , "", &m_dBottomLength         , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Width"        , "", &m_dBottomWidth          , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Angle"        , "", &m_dBottomAngle          , MF_PARAM_STOPPED | MF_INIT_HIDDEN,  MC_Ang("deg"));
+  DB.Double("OpenFraction" , "", &m_dBottomOpenFraction   , MF_PARAM_STOPPED ,  MC_Frac("%"));
+  DB.Double("BulkDensity"  , "", &m_dBottomBulkDensity    , MF_PARAM_STOPPED ,  MC_Rho("t/m^3"));
+  DB.Bool  ("WetScreening" , "", &m_bBottomWetScreening   , MF_PARAM_STOPPED  );
+  DB.Long  ("AppetureShape", "", &m_lBottomAppetureShape  , MF_PARAM_STOPPED, DDAppetureShape);
+  DB.Long  ("MediaType"    , "", &m_lBottomMediaType      , MF_PARAM_STOPPED, DDMediaType);
+  DB.Long  ("DeckLocation" , "", &m_lBottomDeckLocation   , MF_PARAM_STOPPED, DDDeckLocation);
+  DB.Bool  ("Gravel"       , "", &m_bBottomGravel         , MF_PARAM_STOPPED  );
+  DB.Double("CustomFactor" , "", &m_dBottomCustomFactor   , MF_PARAM_STOPPED ,  MC_None);
   DB.Double("WaterSplitToUS","", &m_dBottomWaterSplitToUS , MF_PARAMETER ,  MC_Frac("%"));
   DB.StructEnd();
 
@@ -285,6 +355,9 @@ CSeperator_LoadBased::CSeperator_LoadBased()
   DB.Page("Regr2");
   m_C.BuildDataFields(DB);
   m_E.BuildDataFields(DB);
+  DB.Page("Regr3");
+  m_Td.BuildDataFields(DB);
+  m_Tw.BuildDataFields(DB);
   DB.ObjectEnd();
 
   //
@@ -320,9 +393,9 @@ CSeperator_LoadBased::CSeperator_LoadBased()
 
   DB.Text("");
   DB.StructBegin("BottomRes"  );
-  DB.Double("QF"			, "", &m_dBottomQF			, MF_RESULT ,  MC_None);
-  DB.Double("Feed_OS"	, "", &m_dBottomFeed_OS		, MF_RESULT ,  MC_None);
-  DB.Double("Feed_US"	, "", &m_dBottomFeed_US		, MF_RESULT ,  MC_None);
+  DB.Double("QF"			, "", &m_dBottomQF		, MF_RESULT ,  MC_None);
+  DB.Double("Feed_OS"	, "", &m_dBottomFeed_OS, MF_RESULT ,  MC_None);
+  DB.Double("Feed_US"	, "", &m_dBottomFeed_US, MF_RESULT ,  MC_None);
   DB.Double("Feed_HSperture"	, "", &m_dBottomFeed_HS		, MF_RESULT ,  MC_None);
   DB.Double("QU"			, "", &m_dBottomQU		, MF_RESULT ,  MC_None);
   DB.Double("QO"			, "", &m_dBottomQO		, MF_RESULT ,  MC_None);
@@ -394,7 +467,7 @@ void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
     m_TopDeckParams[11] =  m_dTopCustomFactor;
     m_TopDeckParams[12] =  m_dTopWaterSplitToUS;
     RioTintoTS::VectorView ParamVec(m_TopDeckParams,13,1);
-    if (TopDeckScreen.Initialize(MatInfo,ParamVec) == false)
+    if (TopDeckScreen.Initialize(MatInfo, ParamVec) == false)
       {
       }
 
@@ -415,21 +488,15 @@ void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
       m_BottomDeckParams[11] =  m_dBottomCustomFactor;
       m_BottomDeckParams[12] =  m_dBottomWaterSplitToUS;
       RioTintoTS::VectorView ParamVec(m_BottomDeckParams,13,1);
-      if ( BottomDeckScreen.Initialize(MatInfo,ParamVec) == false )
+      if ( BottomDeckScreen.Initialize(MatInfo, ParamVec) == false )
         {
         }
       }
 
-    TopDeckScreen.pAArray = m_A.Val();
-    TopDeckScreen.pBArray = m_B.Val();
-    TopDeckScreen.pCArray = m_C.Val();
-    TopDeckScreen.pEArray = m_E.Val();
+    TopDeckScreen.InitializeRegr(m_A.Val(), m_B.Val(), m_C.Val(), m_E.Val(), m_Td.Val(), m_Tw.Val());
     if ( bTwoDecks )
       {
-      BottomDeckScreen.pAArray = m_A.Val();
-      BottomDeckScreen.pBArray = m_B.Val();
-      BottomDeckScreen.pCArray = m_C.Val();
-      BottomDeckScreen.pEArray = m_E.Val();
+      BottomDeckScreen.InitializeRegr(m_A.Val(), m_B.Val(), m_C.Val(), m_E.Val(), m_Td.Val(), m_Tw.Val());
       }
 
     // Create the Feed Stream. Use SetConfig after initialisation
@@ -444,6 +511,12 @@ void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
     // Copy the input size data to the system feed stream solids
     SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
     SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
+
+    TopDeckScreen.SetWaterSplitToUS(m_dTopWaterSplitToUS);
+    if ( bTwoDecks )
+      {
+      BottomDeckScreen.SetWaterSplitToUS(m_dBottomWaterSplitToUS);
+      }
 
     // Execute the Top Deck Model
     TopDeckScreen.CalculateModel( FeedStream );

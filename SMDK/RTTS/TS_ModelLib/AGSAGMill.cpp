@@ -394,115 +394,122 @@ void CMill_AGSAG::EvalProducts(MBaseMethod &M,
 	
 { 
 #if WithFortranModel430
-	// Get info on Size Distribution
-    MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
-    if (IsNothing(l_PSD))
+  // Get info on Size Distribution
+  MIPSD & l_PSD=*Feed.FindIF<MIPSD>();
+  if (IsNothing(l_PSD))
+    {
+    return; //Why do we get here!!!
+    }
+  long    l_SizeCount      = l_PSD.getSizeCount();
+  long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
+
+
+  if ( bInit && !IsNothing(l_PSD))
+    {
+    bInit = false;
+
+    // Copy the Sieve Data Sizing Info
+    SysCADSystemHelper::SysCADSizeDataToSystem(l_PSD, MatInfo);
+
+    // Copy Material Information from database
+    // For now we just set up n components
+    // The MineralInfo data will come from a database
+    MatInfo->SetNumberOfMinerals( l_PSD.PSDVectorCount );
+    SysCADSystemHelper::PopulateMaterialInfo(M, MatInfo);
+
+		// Initialize Rod Mill           
+		
+		/*Config->SAG_NumMills*/				m_Params[0]		= 1;       
+		/*Config->SAG_Diameter*/				m_Params[1]		= m_iDiametersim;         
+		/*Config->SAG_Length*/					m_Params[ 2]	= m_iBellyLengthsim;
+		/*Config->SAG_Trunion_D*/				m_Params[ 3]	= m_iFeedTrunionDiasim;
+		/*Config->SAG_Feed_Cone_Angle*/			m_Params[ 4]	= m_iFeedConeAnglesim;
+		/*Config->SAG_Disch_Cone_Angle*/		m_Params[ 5]	= m_iDischargeConeAnglesim;
+		/*Config->SAG_Grate_Size*/				m_Params[ 6]	= m_ixgsim*1000.0;//mm
+		/*Config->SAG_Fine_Size*/				m_Params[ 7]	= m_ixmsim*1000.0;//mm
+		/*Config->SAG_Grate_OAF*/				m_Params[ 8]	= m_iGrateOpenAreasim;
+		/*Config->SAG_PP_OAF*/					m_Params[ 9]	= m_iPebblePortOpenAreasim;
+		/*Config->SAG_PP_Size*/					m_Params[ 10]	= m_iPebblePortSizesim*1000.0;//mm
+		/*Config->SAG_Mean_Radial_Position*/	m_Params[ 11]	= m_iMeanRelRadialPossim;
+		/*Config->SAG_Fr_CriticalSpeed*/		m_Params[ 12]	= m_iFracCriticalSpeedsim;
+		/*Config->SAG_Ball_Load_by_Volume*/		m_Params[ 13]	= m_iBallLoadsim;
+		/*Config->SAG_No_Load_Power*/			m_Params[ 14]   = m_iNoLoadPower;
+		/*Config->SAG_Feed_Solids_Density*/		m_Params[ 15]   = 0.0; // Need to add parameter for this D T option
+
+		/*Parameters->SAG_No_of_Knots*/			m_Params[ 16]   = 5;        
+
+ 		/*Parameters->SAG_Spline_Size_Knots.resize(Parameters->SAG_No_of_Knots);*/
+ 		/*Parameters->SAG_Breakage_Rates.resize(Parameters->SAG_No_of_Knots);*/
+		/*Parameters->SAG_Spline_Size_Knots[0]*/	m_Params[ 17] = m_iKnot1*1000.0; //mm
+		/*Parameters->SAG_Spline_Size_Knots[1]*/	m_Params[ 18] = m_iKnot2*1000.0; //mm
+		/*Parameters->SAG_Spline_Size_Knots[2]*/	m_Params[ 19] = m_iKnot3*1000.0; //mm
+		/*Parameters->SAG_Spline_Size_Knots[3]*/	m_Params[ 20] = m_iKnot4*1000.0; //mm
+		/*Parameters->SAG_Spline_Size_Knots[4]*/	m_Params[ 21] = m_iKnot5*1000.0; //mm
+
+		/*Parameters->SAG_Breakage_Rates[0]*/		m_Params[ 22] = m_iRate1sim; 
+		/*Parameters->SAG_Breakage_Rates[1]*/		m_Params[ 23] = m_iRate2sim; 
+		/*Parameters->SAG_Breakage_Rates[2]*/		m_Params[ 24] = m_iRate3sim; 
+		/*Parameters->SAG_Breakage_Rates[3]*/		m_Params[ 25] = m_iRate4sim; 
+		/*Parameters->SAG_Breakage_Rates[4]*/		m_Params[ 26] = m_iRate5sim; 
+
+		/*Parameters->SAG_Disch_Coeff*/				m_Params[ 27] = m_iDischargeCoeffsim;
+		/*Parameters->SAG_Param_M1*/				m_Params[ 28] = m_im1sim;
+		/*Parameters->SAG_Param_M2*/				m_Params[ 29] = m_im2sim;
+		/*Parameters->SAG_Coarse_Factor*/			m_Params[ 30] = m_iCoarseFactorsim;
+		/* design load ??? */
+		/*Parameters->SAG_Charge_Porosity*/			m_Params[ 31] = m_iPorositysim;
+		/*Parameters->SAG_Net_Power_Factor*/		m_Params[ 32] = m_iPowerAdjustsim;
+
+		/*BallCharge->Ball_SG*/						m_Params[ 33] = m_iBallSGsim/1000.0;// t/m3
+		/*BallCharge->Ball_TopSize*/				m_Params[ 34] = m_iBallTopSizesim*1000.0; // mm
+		/*BallCharge->Ball_Size1*/					m_Params[ 35] = m_iBallSize1sim*100.0; //%
+		/*BallCharge->Ball_Size2*/					m_Params[ 36] = m_iBallSize2sim*100.0; //%
+		/*BallCharge->Ball_Size3*/					m_Params[ 37] = m_iBallSize3sim*100.0; //%
+		/*BallCharge->Ball_Size4*/					m_Params[ 38] = m_iBallSize4sim*100.0; //%
+
+
+		RioTintoTS::VectorView ParamVec(m_Params,39,1);
+		Mill.Initialize(MatInfo, ParamVec);
+
+    if (MatInfo->nSize()>MaxFortranSizes)
       {
-      int xx=0;
-      return; //Why do we get here!!!
+      M.Log.Message(MMsg_Error, "Too many size intervals for Model430 (max allowed %d)", MaxFortranSizes);
       }
-    long    l_SizeCount      = l_PSD.getSizeCount();
-    long    l_PSDVectorCount = l_PSD.getPSDVectorCount();
-
-
-      if ( bInit && !IsNothing(l_PSD))
-	    {
-	      bInit = false;
-
-			// Copy the Sieve Data Sizing Info
-            SysCADSystemHelper::SysCADSizeDataToSystem(l_PSD, MatInfo);
-
-			// Copy Material Information from database
-			// For now we just set up n components
-			// The MineralInfo data will come from a database
-			MatInfo->SetNumberOfMinerals( l_PSD.PSDVectorCount );
-			SysCADSystemHelper::PopulateMaterialInfo(M,MatInfo);
-
-
-			// Initialize Rod Mill           
-			
-			/*Config->SAG_NumMills*/				m_Params[0]		= 1;       
-			/*Config->SAG_Diameter*/				m_Params[1]		= m_iDiametersim;         
-			/*Config->SAG_Length*/					m_Params[ 2]	= m_iBellyLengthsim;
-			/*Config->SAG_Trunion_D*/				m_Params[ 3]	= m_iFeedTrunionDiasim;
-			/*Config->SAG_Feed_Cone_Angle*/			m_Params[ 4]	= m_iFeedConeAnglesim;
-			/*Config->SAG_Disch_Cone_Angle*/		m_Params[ 5]	= m_iDischargeConeAnglesim;
-			/*Config->SAG_Grate_Size*/				m_Params[ 6]	= m_ixgsim*1000.0;//mm
-			/*Config->SAG_Fine_Size*/				m_Params[ 7]	= m_ixmsim*1000.0;//mm
-			/*Config->SAG_Grate_OAF*/				m_Params[ 8]	= m_iGrateOpenAreasim;
-			/*Config->SAG_PP_OAF*/					m_Params[ 9]	= m_iPebblePortOpenAreasim;
-			/*Config->SAG_PP_Size*/					m_Params[ 10]	= m_iPebblePortSizesim*1000.0;//mm
-			/*Config->SAG_Mean_Radial_Position*/	m_Params[ 11]	= m_iMeanRelRadialPossim;
-			/*Config->SAG_Fr_CriticalSpeed*/		m_Params[ 12]	= m_iFracCriticalSpeedsim;
-			/*Config->SAG_Ball_Load_by_Volume*/		m_Params[ 13]	= m_iBallLoadsim;
-			/*Config->SAG_No_Load_Power*/			m_Params[ 14]   = m_iNoLoadPower;
-			/*Config->SAG_Feed_Solids_Density*/		m_Params[ 15]   = 0.0; // Need to add parameter for this D T option
-
-			/*Parameters->SAG_No_of_Knots*/			m_Params[ 16]   = 5;        
-
- 			/*Parameters->SAG_Spline_Size_Knots.resize(Parameters->SAG_No_of_Knots);*/
- 			/*Parameters->SAG_Breakage_Rates.resize(Parameters->SAG_No_of_Knots);*/
-			/*Parameters->SAG_Spline_Size_Knots[0]*/	m_Params[ 17] = m_iKnot1*1000.0; //mm
-			/*Parameters->SAG_Spline_Size_Knots[1]*/	m_Params[ 18] = m_iKnot2*1000.0; //mm
-			/*Parameters->SAG_Spline_Size_Knots[2]*/	m_Params[ 19] = m_iKnot3*1000.0; //mm
-			/*Parameters->SAG_Spline_Size_Knots[3]*/	m_Params[ 20] = m_iKnot4*1000.0; //mm
-			/*Parameters->SAG_Spline_Size_Knots[4]*/	m_Params[ 21] = m_iKnot5*1000.0; //mm
-
-			/*Parameters->SAG_Breakage_Rates[0]*/		m_Params[ 22] = m_iRate1sim; 
-			/*Parameters->SAG_Breakage_Rates[1]*/		m_Params[ 23] = m_iRate2sim; 
-			/*Parameters->SAG_Breakage_Rates[2]*/		m_Params[ 24] = m_iRate3sim; 
-			/*Parameters->SAG_Breakage_Rates[3]*/		m_Params[ 25] = m_iRate4sim; 
-			/*Parameters->SAG_Breakage_Rates[4]*/		m_Params[ 26] = m_iRate5sim; 
-
-			/*Parameters->SAG_Disch_Coeff*/				m_Params[ 27] = m_iDischargeCoeffsim;
-			/*Parameters->SAG_Param_M1*/				m_Params[ 28] = m_im1sim;
-			/*Parameters->SAG_Param_M2*/				m_Params[ 29] = m_im2sim;
-			/*Parameters->SAG_Coarse_Factor*/			m_Params[ 30] = m_iCoarseFactorsim;
-			/* design load ??? */
-			/*Parameters->SAG_Charge_Porosity*/			m_Params[ 31] = m_iPorositysim;
-			/*Parameters->SAG_Net_Power_Factor*/		m_Params[ 32] = m_iPowerAdjustsim;
-
-			/*BallCharge->Ball_SG*/						m_Params[ 33] = m_iBallSGsim/1000.0;// t/m3
-			/*BallCharge->Ball_TopSize*/				m_Params[ 34] = m_iBallTopSizesim*1000.0; // mm
-			/*BallCharge->Ball_Size1*/					m_Params[ 35] = m_iBallSize1sim*100.0; //%
-			/*BallCharge->Ball_Size2*/					m_Params[ 36] = m_iBallSize2sim*100.0; //%
-			/*BallCharge->Ball_Size3*/					m_Params[ 37] = m_iBallSize3sim*100.0; //%
-			/*BallCharge->Ball_Size4*/					m_Params[ 38] = m_iBallSize4sim*100.0; //%
-
-
-			RioTintoTS::VectorView ParamVec(m_Params,39,1);
-			Mill.Initialize(MatInfo,ParamVec);
-			// Create the Feed Stream. Use SetConfig after initialisation
-			// if we need to change anything. We need to initialise here
-			// because we get the size information from the Feed stream
-			FeedStream = RioTintoTS::FlowStream1::Create( MatInfo );
+    if (MatInfo->nType()>MaxFortranMatType)
+      {
+      M.Log.Message(MMsg_Error, "Too many material types for Model430 (max allowed %d)", MaxFortranMatType);
       }
 
-      if (!IsNothing(l_PSD))
+		// Create the Feed Stream. Use SetConfig after initialisation
+		// if we need to change anything. We need to initialise here
+		// because we get the size information from the Feed stream
+		FeedStream = RioTintoTS::FlowStream1::Create( MatInfo );
+    }
+
+  if (!IsNothing(l_PSD))
 	  {
+    // Copy the input size data to the system feed stream solids
+    SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
+    SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
 
-        // Copy the input size data to the system feed stream solids
-        SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
-        SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
+    // Execute the Top Deck Model
+    Mill.CalculateModel( FeedStream );
 
-        // Execute the Top Deck Model
-        Mill.CalculateModel( FeedStream );
+    // Map TS model product to SysCAD product
+    SysCADSystemHelper::SystemSolidsToSysCAD(Product,Mill.Discharge);
+    SysCADSystemHelper::SystemLiquidToSysCAD(Product,Mill.Discharge);
 
-		// Map TS model product to SysCAD product
-        SysCADSystemHelper::SystemSolidsToSysCAD(Product,Mill.Discharge);
-        SysCADSystemHelper::SystemLiquidToSysCAD(Product,Mill.Discharge);
-
-		// Set display outputs
-		m_oAverageSizeTop20		= Mill.out_ModelOutput[6];
-		m_oMillPulpLoad			= Mill.out_ModelOutput[17];
-#ifdef NEVER
-		mo_MCSim				= Mill.ModelOutput[0];
-		mo_F90Sim				= Mill.ModelOutput[1];
-		mo_Out_ChangeNStages	= Mill.ModelOutput[2];
-		mo_NBreakageStagesSim	= Mill.ModelOutput[3];
-		for (int i = 0; i < 31 ; i++ )
-			mo_S[i] = Mill.ModelOutput[4+i];
-#endif
+    // Set display outputs
+    m_oAverageSizeTop20		= Mill.out_ModelOutput[6];
+    m_oMillPulpLoad			= Mill.out_ModelOutput[17];
+    #ifdef NEVER
+    mo_MCSim				= Mill.ModelOutput[0];
+    mo_F90Sim				= Mill.ModelOutput[1];
+    mo_Out_ChangeNStages	= Mill.ModelOutput[2];
+    mo_NBreakageStagesSim	= Mill.ModelOutput[3];
+    for (int i = 0; i < 31 ; i++ )
+	    mo_S[i] = Mill.ModelOutput[4+i];
+    #endif
 
 	  }
 #endif

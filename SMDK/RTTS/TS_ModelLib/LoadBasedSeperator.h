@@ -130,6 +130,8 @@ protected:
   SysCADParamsTable m_B;
   SysCADParamsTable m_C;
   SysCADParamsTable m_E;
+  SysCADParamsTable m_Td;
+  SysCADParamsTable m_Tw;
 
 };
 
