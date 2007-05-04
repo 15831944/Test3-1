@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-01 03:54:20 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-01 08:25:35 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -134,7 +134,7 @@ double AmiraBayer::get_Density(long Phases, double T, double P, MArray *pMA)
     {
     CheckConverged(pMA);
     Bayer(T, P, MA);
-    Dl = dpData[iRho_Liq];
+    Dl = dpData[iRho_Liq]*1000.;
     }
 
   return DUMPIT0("Density", DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA));
@@ -146,7 +146,7 @@ double AmiraBayer::LiqCpCalc(MArray & MA, double Tc)
   {
   CheckConverged(&MA);
 
-  return 4.184;
+  return dpData[iCp_Liq];
   }
 
 double AmiraBayer::LiqHCalc(MArray & MA, double Tc)
@@ -254,9 +254,7 @@ double AmiraBayer::get_SaturationP(double T, MArray *pMa)
 
 double AmiraBayer::BoilPtElev(MArray & MA, double P)
   {
-
-  double PureSatT = MSpModelBase::get_SaturationT(P, &MA);
-  return DUMPIT1("BoilPtElev", get_SaturationT(P, &MA)  -  PureSatT, P);
+  return dpData[iBPE];
   }
 
 //---------------------------------------------------------------------------
@@ -1002,11 +1000,20 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   InComp[8] = MA[SodiumOxalate]*100.;    //  Na2C2O4    
   InComp[10] = 0.0; // MA[SodiumFluoride]*100.;    //  NaF        
 
+
+
+
+
   const double acetate = 0.88*MA[Organics]*100.;
   const double formate = 0.12*MA[Organics]*100.;
   
   InComp[7] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
+
+//   Log.Message(MMsg_Warning, "T, P, .... %f %f %f %f %f %f", TempC, Pressure, InComp[2], InComp[3], InComp[4],
+//	      InComp[5], InComp[6], InComp[7]);
+//
+
 
   bayer_(
 	 /*double*, */  &TempC,
