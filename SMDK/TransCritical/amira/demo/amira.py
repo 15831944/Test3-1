@@ -148,8 +148,6 @@ class TestMenu:
         m.add_command(label="Print", state=DISABLED)
         m.add_separator()
         m.add_command(label="Exit", command=done) #-command done
-
-
         return mm
 
 
@@ -299,8 +297,8 @@ class MyMain(GenericMain):
 
         atxt = self.of.appendText
         
-        atxt((ostr1 % (t,    self.I_m, self.I_c)))
-        atxt((ostr2 % (p,    self.P_Sat, self.I_c25)))
+        atxt((ostr1 % (t-273.15,    self.I_m, self.I_c)))
+        atxt((ostr2 % (p/100.,    self.P_Sat, self.I_c25)))
         atxt(""); atxt(ostr3)
         atxt("---------------------------------------------")
         atxt((ostr4 % tuple(ab.Comp_molkg[:9])))
