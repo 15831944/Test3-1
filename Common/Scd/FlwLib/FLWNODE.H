@@ -1616,6 +1616,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect, public Tagge
     void           ClrMakeUpAvail()                 { iMkUpAvlOK=0; dMkUpAvl=dNAN; };
 #endif
 
+    virtual dword  ModelStatus();
+
     virtual CSFGNodeInfo * SFGNodePtr()             { return this;};
 
     CAreaSum    & getSum()                          { return m_Sum; };
@@ -4448,8 +4450,6 @@ class DllImportExport FlwNode : public CTNode
 #if NDSTOPWATCHES
     FNdSWs         *pSWs;
 #endif
-
-    dword             dwPrevStatus;
 
     byte              m_iEvalPosn;
     Strng             m_sEvalOrder;

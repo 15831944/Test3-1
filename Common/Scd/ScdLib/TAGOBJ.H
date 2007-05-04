@@ -1326,6 +1326,8 @@ class DllImportExport TaggedObject : public ConditionBlk
     void            ClrAllCIs();
     int             CountAllCIs(int MaxNo=1, dword RqdFlags=0);
 
+    virtual dword   ModelStatus() { return 0; };
+
 #if WITHTAGMONITOR
     CFieldMonitorTO & Monitor()             { return m_Monitor; }
     CFieldMonitorTOCls & ClassMonitor()     { return Class()->m_Monitor; }
@@ -1436,6 +1438,9 @@ protected:
     //static CSArray sRepFieldNameChars;
 
     flag            m_bFileIOBusy;
+
+    dword           m_dwPrevStatus;
+
 
   protected:
     TagObjClass*   m_pClass;

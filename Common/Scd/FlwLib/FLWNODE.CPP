@@ -1401,6 +1401,32 @@ void CFlange::ClrMakeUpReqd()
   };
 #endif
 
+dword  CFlange::ModelStatus()
+  {
+  dword Status=0;
+
+  if (FlwNode::GetStatusAsStopped())
+    {
+    Status = FNS_LNoFlw;
+    }
+  else
+    {
+    SpConduit * pCd=Conduit(true);
+    if (pCd->QMass()>UsableMass)
+      {
+      Status |= FNS_LFlwP;
+      if (pCd->MassFrac(som_Gas)>FlwNode::m_dStatusVapTestFrac)
+        Status |= FNS_LFlwVap;
+      else if (pCd->MassFrac(som_Sol)>FlwNode::m_dStatusSolTestFrac)
+        Status |= FNS_LFlwSol;
+      }
+    else
+      Status |= FNS_LNoFlw;
+    }
+
+  return Status;
+  }
+
 //===========================================================================
 //
 //
@@ -2220,8 +2246,6 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_fRevalidate=false;
 
   WrkConduits.InitHashTable(7);
-
-  dwPrevStatus = 0xffffffff;
 
   //m_iProcOrder=iNotInEvalOrder;
   m_iCtrlOrder=iNotInEvalOrder ;

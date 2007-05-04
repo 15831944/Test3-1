@@ -2378,6 +2378,10 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
   RpcStringFree(&psEqGUID);
 
   m_lReportKey=0;
+
+  m_dwPrevStatus = 0xffffffff;
+
+
   }
 
 //---------------------------------------------------------------------------

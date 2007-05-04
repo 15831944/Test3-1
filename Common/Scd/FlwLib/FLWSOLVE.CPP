@@ -12056,15 +12056,10 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
     }
 
   int i=0;
-  for (FlwNode * p = NULL; GetObj_All(p); i++)
+  for (FlwNode * p = NULL; GetObj_All(p); )
     {
     if (i>=Status.GetSize())
-      { // size it up
-      int n=0;
-      for (FlwNode * p1 = NULL; GetObj_All(p1); )
-        n++;
-      Status.SetSize(n);
-      }
+      Status.SetSize(i+256);
 
     char * pTag=p->FullObjTag();
     if (pTag)
@@ -12072,9 +12067,29 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
       Status[i].m_Tag=p->FullObjTag();
       Status[i].m_dwFlags=p->ModelStatus();
       //dbgpln("** Get %8x  %8x %s", p->dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-      p->dwPrevStatus=Status[i].m_dwFlags;
+      p->m_dwPrevStatus=Status[i].m_dwFlags;
+      i++;
       }
     }
+
+  CConnectsMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
+  while (pX)
+    {
+    CFlange * pF=dynamic_cast<CFlange*>(pX->value);
+    if (pF)
+      {
+      if (i>=Status.GetSize())
+        Status.SetSize(i+256);
+
+      Status[i].m_Tag=pX->key;
+      Status[i].m_dwFlags=pF->ModelStatus();
+      pF->m_dwPrevStatus=Status[i].m_dwFlags;
+      i++;
+      }
+
+    pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
+    }
+
   if (i<Status.GetSize())
     Status.SetSize(i); // size it down
     
@@ -12094,9 +12109,23 @@ int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
   for (FlwNode * p = NULL; (Cnt != MaxTest) && GetObj_All(p); )
     {
     //dbgpln("** Tst %8x  %8x %s", p->dwPrevStatus, p->ModelStatus(), p->FullObjTag());
-    if (p->dwPrevStatus!=p->ModelStatus())
+    if (p->m_dwPrevStatus!=p->ModelStatus())
       Cnt++;
     }
+
+  CConnectsMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
+  while (pX && (Cnt != MaxTest))
+    {
+    CFlange * pF=dynamic_cast<CFlange*>(pX->value);
+    if (pF)
+      {
+      if (pF->m_dwPrevStatus!=pF->ModelStatus())
+        Cnt++;
+      }
+
+    pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
+    }
+
   return Cnt;
   }
 
