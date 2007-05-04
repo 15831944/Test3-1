@@ -298,8 +298,8 @@ class MyMain(GenericMain):
         self.s0["Al[OH]3"] = 78./118.*cdic["NaAl[OH]4"]
         for x in ["Na2CO3", "Na2C2O4", "NaCl", "Na2SO4"]:
             self.s0[x] = cdic[x]
-        self.s0["NaFormate"] = cdic["Na2C5.2O7.2"]/2.
-        self.s0["NaAcetate"] = cdic["Na2C5.2O7.2"]/2.
+        self.s0["NaFormate"] = 0.12*cdic["Na2C5.2O7.2"]
+        self.s0["NaAcetate"] = 0.88*cdic["Na2C5.2O7.2"]
             
 
 
