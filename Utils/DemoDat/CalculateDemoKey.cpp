@@ -65,6 +65,22 @@ void CalculateDemoKey::CRCFiles(char* folder, char* extension, DWORD &dwCrc32)
   FindClose(H);
 }
 
+void CalculateDemoKey::CalculateKey(char* folder, char* extension, DWORD multiplier, DWORD& key)
+{
+  CRCFiles(folder, extension, key);
+
+  key *= 1103515245; key += 12345;
+
+  char* xExtension = new char[strlen(extension)+3];
+  strcpy(xExtension, extension);
+  strcat(xExtension, ".x");
+
+  CRCFiles(folder, xExtension, key);
+
+  key *= 1103515245; key += 12345;
+  
+}
+
 DWORD CalculateDemoKey::DoCalculateDemoKey(char* folder)
 {    
   DWORD dwCrc32_dxf = 0xD5452A29;
@@ -81,19 +97,12 @@ DWORD CalculateDemoKey::DoCalculateDemoKey(char* folder)
   DWORD multiplier_trn = 0xBD367A8F;
   DWORD multiplier_dat = 0xD4F8A26A;
 
-  CRCFiles(folder, ".dxf", dwCrc32_dxf);
-  CRCFiles(folder, ".rct", dwCrc32_rct);
-  CRCFiles(folder, ".pgm", dwCrc32_pgm);
-  CRCFiles(folder, ".mdb", dwCrc32_mdb);
-  CRCFiles(folder, ".trn", dwCrc32_trn);
-  CRCFiles(folder, ".dat", dwCrc32_dat);
-
-  CRCFiles(folder, ".dxf.x", dwCrc32_dxf);
-  CRCFiles(folder, ".rct.x", dwCrc32_rct);
-  CRCFiles(folder, ".pgm.x", dwCrc32_pgm);
-  CRCFiles(folder, ".mdb.x", dwCrc32_mdb);
-  CRCFiles(folder, ".trn.x", dwCrc32_trn);
-  CRCFiles(folder, ".dat.x", dwCrc32_dat);
+  CalculateKey(folder, ".dxf", multiplier_dxf, dwCrc32_dxf);
+  CalculateKey(folder, ".rct", multiplier_rct, dwCrc32_rct);
+  CalculateKey(folder, ".pgm", multiplier_pgm, dwCrc32_pgm);
+  CalculateKey(folder, ".mdb", multiplier_mdb, dwCrc32_mdb);
+  CalculateKey(folder, ".trn", multiplier_trn, dwCrc32_trn);
+  CalculateKey(folder, ".dat", multiplier_dat, dwCrc32_dat);
 
   return   dwCrc32_dxf * multiplier_dxf
          ^ dwCrc32_rct * multiplier_rct
