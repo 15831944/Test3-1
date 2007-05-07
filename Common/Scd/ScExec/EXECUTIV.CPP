@@ -4844,6 +4844,7 @@ flag CExecutive::OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGrap
 
 flag CExecutive::GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
   {
+#if WITHASSOCGRAPHICS
   if (m_pSolver)
     {
     m_pSolver->LockXO();
@@ -4863,6 +4864,7 @@ flag CExecutive::GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
       }
     a->UnlockXO();
     }
+#endif
   return false;
   };
 
@@ -4876,6 +4878,7 @@ flag CExecutive::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssoc
   //  return Ret;
   //  }
 
+#if WITHASSOCGRAPHICS
   for (int OInx=0; OInx<Objs_Reg.GetSize(); OInx++)
     {
     CExecObj *a=Objs_Reg[OInx];
@@ -4883,11 +4886,13 @@ flag CExecutive::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssoc
     a->EO_UpdateModelAssocGraphics(Grfs, Map);
     a->UnlockXO();
     }
+#endif
   return true;
   };
 
 flag CExecutive::MaintainModelAssocGraphics(LPCTSTR Tag)
   {
+#if WITHASSOCGRAPHICS
   dbgpln("MaintainModelAssocGraphics====================");
 
   CMdlAssocGraphicList Grfs;
@@ -4913,6 +4918,7 @@ flag CExecutive::MaintainModelAssocGraphics(LPCTSTR Tag)
 
     return UpdateModelAssocGraphics(Grfs, Map);
     }
+#endif
   return false;
   };
 
