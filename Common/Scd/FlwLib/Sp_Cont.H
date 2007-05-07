@@ -1326,10 +1326,10 @@ class DllImportExport SpImage : public SpModelOwner
 
     double         PartialPress(SpecieIter & Ids, double T, double P=dNAN)         { return pModel->PartialPress(Ids, T, P);};
     double         PartialPress(int SpIncIds, int SpExcIds, double P=dNAN)         { return pModel->PartialPress(SpIncIds, SpExcIds, Temp(), P);};
-    double         PartialPressC(int CmpIncIds, int CmpExcIds, double P=dNAN)      { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp(), P);};
+    double         PartialPressC(int CmpIncIds, int CmpExcIds, double P=dNAN)      { return pModel->PartialPressC(CmpIncIds, CmpExcIds, Temp(), P);};
     double         PartialPressFrac(SpecieIter & Ids, double T, double P=dNAN)     { return pModel->PartialPressFrac(Ids, T, P);};
     double         PartialPressFrac(int SpIncIds, int SpExcIds, double P=dNAN)     { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp(), P);};
-    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)  { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp(), P);};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)  { return pModel->PartialPressFracC(CmpIncIds, CmpExcIds, Temp(), P);};
 
     void           SetTempPress(double T_, double P_)            { pModel->SetTempPress(T_, P_);};
     void           SetTemp(double T)                             { pModel->SetTemp(T); };

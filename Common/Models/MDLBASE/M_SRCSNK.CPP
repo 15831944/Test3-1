@@ -327,7 +327,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
           double PPress0=-1;
           for (int Iter=0; ; Iter++)
             {
-            double PPress = Contents.PartialPressC(m_VLE.FlashCmpIndex(), 01, PRequired());
+            double PPress = Contents.PartialPressC(m_VLE.FlashCmpIndex(), -1, PRequired());
             if (fabs(PPress-PPress0)<1e-6)
               break;
             if (Iter>50)
