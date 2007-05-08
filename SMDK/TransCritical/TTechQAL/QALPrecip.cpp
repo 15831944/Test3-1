@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2006-05-04 11:45:44 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-08 06:14:15 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -327,7 +327,6 @@ void CPrecipitator::EvalPrecipRates(MStream & Prod, double T)
       if (dtm < deltaT) deltaT = dtm;
     }
   }
-  WATCH(deltaT);
 
   double sumar = 0.0, sumv = 0.0, sumn = 0.0;
   for (int i=0; i<nClasses; i++) {
@@ -341,9 +340,6 @@ void CPrecipitator::EvalPrecipRates(MStream & Prod, double T)
   }
   double newVol = PI/6*sumv*DIST_CORR*1.0e-18;
 
-  WATCH(m_dVol);
-  WATCH(newVol);
-  WATCH(m_dSolidsOut-m_dSolidsIn);
 
   xo[0] = x[0]; xo[1]=x[1]; xo[2]=x[2]; xo[3]=x[3];
   m_dSolidsOut = newVol*Tank.Mass()*2420;     //Tank.Density(MP_Sol);
@@ -819,7 +815,6 @@ double CPrecipitator::GrowthRate() {
   }
   dGrowthYield = m_dArea*dGrowthRate/2*2420;   // kg hydrate /s /kg slurry
   
-  WATCH(dGrowthYield);
   return dGrowthRate;
 }
 
@@ -979,10 +974,6 @@ double QALPSD::getFrac(int i)
 
 QALPSD::QALPSD(MStream &s) 
 {  
-
-  /*#ifdef TTDEBUG
-  dbg.tcltk_init();
-  #endif*/
 
   MIPSD & sP = s.IF<MIPSD>(false);
   double &THAMass      = s.MassVector[spTHA];         // Al[OH]3(s)

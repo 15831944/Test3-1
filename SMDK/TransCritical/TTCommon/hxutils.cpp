@@ -1,4 +1,4 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "hxutils.h"
 #define pi 3.1415926535
 
