@@ -25,6 +25,22 @@ s1Entries = [
     ["NaF        ", "%", "0"]
     ]
 
+s3Entries = [
+    ["Temperature", "C", "100."],
+    ["Pressure   ", "bar", "10."],
+    ["Al2O3      ", "gpl", "220"],
+    ["TC         ", "gpl", "250"],
+    ["NaCl       ", "gpl", "0"],
+    ["TA         ", "gpl", "0"],
+    ["Na2SO4     ", "gpl", "0"],
+    ["Na Oxalate ", "gpl", "0"], 
+    ["NaAcetate  ", "gpl", "0"],
+    ["NaFormate  ", "gpl", "0"],
+    ["NaF        ", "gpl", "0"]
+    ]
+
+
+
 
 s2Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
 syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
@@ -221,11 +237,13 @@ class MyMain(GenericMain):
     def activateApp(self):
         f = Frame(self.baseFrame)
         Label(f, text="Data").pack(anchor="w")
-        self.s0=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8)
+        self.s0=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8, relief=RIDGE, bd=2)
+        self.s0.pack(side=TOP)
         self.s0.disable("Na2O")
         self.s0.disable("Al2O3")
         Label(f, text="Results").pack(anchor="w")
-        self.s1=entry.EntryFrame(f, s2Entries, lWidth=16, eWidth=8)
+        self.s1=entry.EntryFrame(f, s2Entries, lWidth=16, eWidth=8, relief=RIDGE, bd=2)
+        self.s1.pack(side=TOP)
         self.s1.disable()
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)

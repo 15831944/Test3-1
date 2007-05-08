@@ -44,29 +44,30 @@ except:
     print "Unable to open input file"
 
 
-
-#def op():
-#    if subn and callList:
-#        print subn, " -> {", ", ".join(callList), "};" 
+os = []
+def op():
+    if subn and callList:
+        print subn, " -> {", "; ".join(callList), "};" 
 
 for line in f:
     if line.startswith("//"):
         continue
     m = s1fre.search(line)
     if m:
-##        op()
-        print m.group(1), m.group(2)
-        subn = m.group(1)
+        op()
+        os.append ("%s %s" % ( m.group(1), m.group(2)))
+        subn = m.group(2)
         callList.clear()
         continue
 
             
-##    for x in u:
-##        m = x.search(line)
-##        if m:
-##            callList.add(m.group(1))
+    for x in u:
+        m = x.search(line)
+        if m:
+            callList.add(m.group(1))
 
-#op()
+op()
+for x in os: print x
 
 f.close()
 

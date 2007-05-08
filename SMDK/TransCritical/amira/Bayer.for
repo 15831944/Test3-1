@@ -47,7 +47,7 @@ C                                NaF
 C                            for InUnits = 2,3,6,7:
 C                                Al2O3
 C                                Na2O
-C                                Al(O        self.NOutComp = c_long(9)
+C                                Al(OH)3
 C                                NaOH
 C                                NaCl
 C                                Na2CO3
@@ -136,7 +136,7 @@ C                      SIName(6) = 'Na2CO3.H2O'
 C                      SIName(7) = 'Al(OH)3'
 C                      SIName(8) = 'AlOOH'
 C                      SIName(9) = 'NaF'
-C                      SIName(10) = 'Na3FSO4'
+C                      SIName(10) ='Na3FSO4'
 C             SI - Saturation indices: SI(1) to SI(10)
 C             NSol - # of solids whose solubilities are calculated: NSol = 6
 C             SolName - Names of solids whose solubilities are calculated: 
@@ -155,6 +155,7 @@ C             Solmkg - Solubility in mol/kg Solmkg(1) to Solmkg(6)
 C      DLL_EXPORT :: BAYER
      
       COMMON /CSAV/ PSAVE, RTSAVE, TSAVE
+      COMMON /ERRM/ IERR
       DOUBLE PRECISION InComp(NInComp+2), I_m, I_c, I_c25
 
 
@@ -231,8 +232,11 @@ C     >SIName(NSI),SolName(NSol)
 
       
       CALL PRPH2O(NGamma,T,P,CpH2Okg,Cp_H2O,Rho_H2O,VH2O,BpH2O)
-
-
+      
+      IF (IERR.GT.0) THEN
+         InUnits = IERR
+         RETURN
+      ENDIF
       
       CALL CompIn(NGAMMA,T,P,TR,P0,IDC,NInComp,InComp,W,VH2O25,VH2O,C)
             
@@ -1027,6 +1031,8 @@ c      pause
       
       DOUBLE PRECISION FUNCTION STHEN(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
+
       DIMENSION X(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1072,12 +1078,16 @@ C      IF (F*FMID.GE.0) STOP 'Problem in STHEN'
          ENDIF
 10010 CONTINUE
       STOP 'STHEN DID NOT CONVERGE'
+      
+
       END               
          
       
 
       DOUBLE PRECISION FUNCTION SKO(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
+
       DIMENSION X(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1153,6 +1163,7 @@ C      IF (F*FMID.GE.0) STOP 'Problem in SKO'
 
       DOUBLE PRECISION FUNCTION SNAF(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
       DIMENSION X(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1205,6 +1216,7 @@ C      IF (F*FMID.GE.0) STOP 'Problem in SNAF'
       DOUBLE PRECISION FUNCTION SNAOX(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       COMMON /CSAV/ PSAVE, RTSAVE, TSAVE
+      COMMON /ERRM/ IERR
       DIMENSION X(NGAMMA),GAMMA(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1261,6 +1273,7 @@ C      IF (F*FMID.GE.0) STOP 'Problem in SNAOX'
 
       DOUBLE PRECISION FUNCTION SGIB(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
       DIMENSION X(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1317,6 +1330,7 @@ C      IF (F*FMID.GE.0) STOP 'Problem in SGIB'
 
       DOUBLE PRECISION FUNCTION SBHM(NGAMMA,P,T,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
       DIMENSION X(NGAMMA)
       
       PARAMETER (S1 = 1.D-8)
@@ -1629,6 +1643,7 @@ C      units: J/(K mol)
       DOUBLE PRECISION FUNCTION TBOIL(NGAMMA,P,X)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       COMMON /CSAV/ PSAVE, RTSAVE, TSAVE
+      COMMON /ERRM/ IERR
       DIMENSION X(NGAMMA),GAMMA(NGAMMA)
       
       PARAMETER (JMAX = 100)
@@ -1674,6 +1689,7 @@ C      units: J/(K mol)
       
       DOUBLE PRECISION FUNCTION PBOIL(T)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      COMMON /ERRM/ IERR
 
 C ...  Calculates saturated vapour pressure of pure H2O from Gibbs energies
       
