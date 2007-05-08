@@ -1,3 +1,8 @@
+2007-05-08  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* TTCARPrecip.cpp: Replaced SetF() with full deep copy to carry
+	property information to cooling water outlet...
+
 2006-10-26  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* CARTubeDigester.cpp: Fixup of LMTD calculation for

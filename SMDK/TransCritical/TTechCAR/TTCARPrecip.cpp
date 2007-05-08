@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-03-07 06:03:25 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-08 02:23:42 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -827,10 +827,6 @@ void CPrecipitator::EvalProducts()
     m_bEvapConnected = (iEvapIndex>=0);
 
 
-
-//     MStream CoolIn;
-//     MStream &CoolOut = FlwIOs[FlwIOs.First[idCoolO]].Stream;
-//     MStream &Evap1 = FlwIOs[FlwIOs.First[idEvap]].Stream;
     Evap.SetF(Feed, MP_All, 0.0);
     
     Prod = Feed;
@@ -894,7 +890,8 @@ void CPrecipitator::EvalProducts()
       }
       if (iCoolType==COOL_INTERNAL && bCoolOut && bCoolIn && iCoolMethod==COOL_Hx) {
 	MStream &CoolOut = FlwIOs[iCoolOutIndex].Stream;
-	CoolOut.SetF(CoolIn, MP_All, 1.0);
+	CoolOut = CoolIn;
+	// CoolOut.SetF(CoolIn, MP_All, 1.0);
 	if (m_bCoolerOn)
 	  CoolOut.T = m_dCoolWaterTout;
 	else
@@ -929,8 +926,7 @@ void CPrecipitator::EvalProducts()
       dSolPrecip = 0.0;
       if (iCoolType==COOL_INTERNAL && bCoolOut && bCoolIn && iCoolMethod==COOL_Hx) {
 	MStream &CoolOut = FlwIOs[iCoolOutIndex].Stream;
-	CoolOut.SetF(CoolIn, MP_All, 1.0);
-	CoolOut.T = CoolIn.T;
+	CoolOut = CoolIn;
 	m_dCoolWaterTout = CoolIn.T;
 	m_dCoolRate = 0.0;
       }
