@@ -19,8 +19,8 @@ s0Entries = [
     ["NaCl       ", "%", "0"],
     ["Na2CO3     ", "%", "0"],
     ["Na2SO4     ", "%", "0"],       
+    ["NaOxalate    ", "%", "0"],
     ["NaAcetate  ", "%", "0"],
-    ["Na2C2O4    ", "%", "0"],
     ["NaFormate  ", "%", "0"],
     ["NaF        ", "%", "0"]
     ]
@@ -31,9 +31,9 @@ s2Entries = [
     ["Al2O3      ", "gpl", "220"],
     ["TC         ", "gpl", "250"],
     ["NaCl       ", "gpl", "0"],
-    ["TA         ", "gpl", "0"],
+    ["TA         ", "gpl", "250"],
     ["Na2SO4     ", "gpl", "0"],
-    ["Na Oxalate ", "gpl", "0"], 
+    ["NaOxalate ", "gpl", "0"], 
     ["NaAcetate  ", "gpl", "0"],
     ["NaFormate  ", "gpl", "0"],
     ["NaF        ", "gpl", "0"]
@@ -199,9 +199,13 @@ class AmiraBayer:
         self.NSol = c_long(6)
         
     def bayer(self):
+        print self.InUnits
+        for x in self.InComp:
+            print x
+            
         bayer_(
             c_double(self.Temp_C),    #  TempC,
-            c_long(3),      #  InUnits,      INTEGER!
+            c_long(self.InUnits),      #  InUnits,      INTEGER!
             c_double(self.Pressure_kPa/100.),    #  Pressure,
             c_long(9),    #  NInComp,      INTEGER!
             self.InComp,    #  InComp,       ARRAY*11
@@ -239,12 +243,12 @@ class MyMain(GenericMain):
         Label(f, text="Data", font=font0).pack(anchor="w")
 
         self.rbp = IntVar()
-        self.rbp.set(0)
+        self.rbp.set(3)
         frb = Frame(f)  # Frame for radiobuttons
         Label(frb, text="Mass %").grid(row=0, column=0, sticky="w")
-        Radiobutton(frb, variable=self.rbp, value=0, takefocus=False).grid(row=0,column=1, sticky="e")
+        Radiobutton(frb, variable=self.rbp, value=3, takefocus=False).grid(row=0,column=1, sticky="e")
         Label(frb, text="gpl@25").grid(row=0, column=2, sticky = "w")
-        Radiobutton(frb, variable=self.rbp, value=1, takefocus=False).grid(row=0,column=3, sticky="e")
+        Radiobutton(frb, variable=self.rbp, value=11, takefocus=False).grid(row=0,column=3, sticky="e")
         frb.columnconfigure(0, weight=2)
         frb.columnconfigure(1, weight=1)
         frb.columnconfigure(2, weight=2)
@@ -276,7 +280,7 @@ class MyMain(GenericMain):
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
-        if et==1:
+        if et==11:
             self.s0.pack_forget()
             self.s2.pack()
         else:
@@ -325,13 +329,25 @@ class MyMain(GenericMain):
 
                                
     def test(self):
-        s = self.s0
+        calcType = self.rbp.get()
+        if calcType==3:
+            s = self.s0
+        else:
+            s = self.s2
+        
         t  = s["Temp"]
         p = s["Press"]
 
         res = s.getValues()
-        for i, x in enumerate(res[2:]):
-            ab.InComp[i] = 100.*x
+        ab.InUnits = calcType
+        if calcType==3:
+            ab.InComp[0]=ab.InComp[1]=0.0
+            for i, x in enumerate(res[2:]):
+                ab.InComp[i+2] = 100.*x
+        else:
+            for i, x in enumerate(res[2:]):
+                ab.InComp[i] = x
+        
         ab.Temp_C = t-273.15
         ab.Pressure_kPa = p
         ab.bayer()
