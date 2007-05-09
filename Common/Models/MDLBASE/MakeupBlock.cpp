@@ -1083,9 +1083,10 @@ flag CMeasInfo::ValidateData(ValidateDataBlk & VDB, CXBlk_MUFeed &Blk)
       m_Species.SetSize(0);
       for (int i=0; i<m_Comps.GetCount(); i++)
         {
-        for (int j=0; j<CDB[i].NSpecies(); j++)
+        int c=m_Comps[i];
+        for (int j=0; j<CDB[c].NSpecies(); j++)
           {
-          int s=CDB[i].iSpecie(j);
+          int s=CDB[c].iSpecie(j);
           m_Species.Add(s);
           }
         }
