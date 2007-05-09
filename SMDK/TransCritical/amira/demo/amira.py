@@ -1,6 +1,6 @@
 from Tkinter import *
 import tkMessageBox
-from generic import GenericMain, OutputFrame, font3
+from generic import GenericMain, OutputFrame, font0, font3
 import entry
 from ctypes import *
 
@@ -9,11 +9,11 @@ dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
            "V_phi",  "Cp_LiqH2O",  "Phi", "Aw"]
 
-s1Entries = [
+s0Entries = [
     ["Temperature", "C", "100."],
     ["Pressure   ", "bar", "10."],
-    ["Al2O3      ", "%", "0"],
-    ["Na2O       ", "%", "0"],
+##    ["Al2O3      ", "%", "0"],
+##    ["Na2O       ", "%", "0"],
     ["Al[OH]3    ", "%", "10"],
     ["NaOH       ", "%", "20"],  
     ["NaCl       ", "%", "0"],
@@ -25,7 +25,7 @@ s1Entries = [
     ["NaF        ", "%", "0"]
     ]
 
-s3Entries = [
+s2Entries = [
     ["Temperature", "C", "100."],
     ["Pressure   ", "bar", "10."],
     ["Al2O3      ", "gpl", "220"],
@@ -42,7 +42,7 @@ s3Entries = [
 
 
 
-s2Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
+s1Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
 syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
 
 syscadEx = '''
@@ -236,13 +236,31 @@ class MyMain(GenericMain):
 
     def activateApp(self):
         f = Frame(self.baseFrame)
-        Label(f, text="Data").pack(anchor="w")
-        self.s0=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
-        self.s0.pack(side=TOP)
-        self.s0.disable("Na2O")
-        self.s0.disable("Al2O3")
-        Label(f, text="Results").pack(anchor="w")
-        self.s1=entry.EntryFrame(f, s2Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+        Label(f, text="Data", font=font0).pack(anchor="w")
+
+        self.rbp = IntVar()
+        self.rbp.set(0)
+        frb = Frame(f)  # Frame for radiobuttons
+        Label(frb, text="Mass %").grid(row=0, column=0, sticky="w")
+        Radiobutton(frb, variable=self.rbp, value=0, takefocus=False).grid(row=0,column=1, sticky="e")
+        Label(frb, text="gpl@25").grid(row=0, column=2, sticky = "w")
+        Radiobutton(frb, variable=self.rbp, value=1, takefocus=False).grid(row=0,column=3, sticky="e")
+        frb.columnconfigure(0, weight=2)
+        frb.columnconfigure(1, weight=1)
+        frb.columnconfigure(2, weight=2)
+        frb.columnconfigure(3, weight=1)
+        frb.pack(side=TOP, anchor="nw", fill='x')
+
+        f0 = Frame(f)
+        self.s0=entry.EntryFrame(f0, s0Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+        self.s0.pack()
+##        self.s0.disable("Na2O")
+##        self.s0.disable("Al2O3")
+        self.s2=entry.EntryFrame(f0, s2Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+
+        f0.pack(side=TOP)
+        Label(f, text="Results", font=font0).pack(anchor="w")
+        self.s1=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
         self.s1.pack(side=TOP)
         self.s1.disable()
         f1 = Frame(f)
@@ -253,7 +271,17 @@ class MyMain(GenericMain):
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
         self.of=OutputFrame(canvasFrame, font=font3)
+        self.rbp.trace("w", self.doEntryType)
 
+
+    def doEntryType(self, foo, bar, baz):
+        et = self.rbp.get()
+        if et==1:
+            self.s0.pack_forget()
+            self.s2.pack()
+        else:
+            self.s2.pack_forget()
+            self.s0.pack()
 
 
     def extractDPData(self):
