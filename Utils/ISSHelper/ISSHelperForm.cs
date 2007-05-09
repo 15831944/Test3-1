@@ -39,6 +39,7 @@ namespace ISSHelper
         registryKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\ISSHelper");
         registryKey.SetValue("BaseFolder", baseFolderBrowserDialog.SelectedPath);
 
+        foldersCheckedListBox.Items.Add(".");
         foreach (string directory in Directory.GetDirectories(baseFolderBrowserDialog.SelectedPath))
         {
           foldersCheckedListBox.Items.Add(directory);
@@ -73,13 +74,21 @@ namespace ISSHelper
 
     public void ListSubFolders(string baseFolder, string folder, ref string result)
     {
-      foreach (string directory in Directory.GetDirectories(folder))
+      if (folder != ".")
       {
-        string localPath = directory.Remove(0, baseFolder.Length + 1);
-        result += "Source: " + localPath + "\\*; DestDir: {app}\\" + localPath + "; Flags: replacesameversion" + Environment.NewLine;
-        ListSubFolders(baseFolder, directory, ref result);
-        Application.DoEvents();
+        if (Directory.GetFiles(folder).Length > 0)
+        {
+          string localPath = folder.Remove(0, baseFolder.Length + 1);
+          result += "Source: " + localPath + "\\*; DestDir: {app}\\" + localPath + "; Flags: replacesameversion" + Environment.NewLine;
+        }
+        foreach (string directory in Directory.GetDirectories(folder))
+        {
+          ListSubFolders(baseFolder, directory, ref result);
+          Application.DoEvents();
+        }
       }
+      else
+        result += "Source: *; DestDir: {app}; Flags: replacesameversion" + Environment.NewLine;
     }
 
     private void ISSHelperForm_FormClosing(object sender, FormClosingEventArgs e)
