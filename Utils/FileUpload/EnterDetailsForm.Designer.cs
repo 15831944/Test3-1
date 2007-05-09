@@ -44,14 +44,14 @@ namespace BasecampAPI
       this.usernameTextBox.Location = new System.Drawing.Point(76, 67);
       this.usernameTextBox.Name = "usernameTextBox";
       this.usernameTextBox.Size = new System.Drawing.Size(204, 20);
-      this.usernameTextBox.TabIndex = 1;
+      this.usernameTextBox.TabIndex = 4;
       // 
       // siteTextBox
       // 
       this.siteTextBox.Location = new System.Drawing.Point(76, 41);
       this.siteTextBox.Name = "siteTextBox";
       this.siteTextBox.Size = new System.Drawing.Size(204, 20);
-      this.siteTextBox.TabIndex = 0;
+      this.siteTextBox.TabIndex = 3;
       // 
       // passwordTextBox
       // 
@@ -59,7 +59,7 @@ namespace BasecampAPI
       this.passwordTextBox.Name = "passwordTextBox";
       this.passwordTextBox.PasswordChar = '*';
       this.passwordTextBox.Size = new System.Drawing.Size(204, 20);
-      this.passwordTextBox.TabIndex = 2;
+      this.passwordTextBox.TabIndex = 5;
       // 
       // Instruction
       // 
@@ -103,7 +103,7 @@ namespace BasecampAPI
       this.okButton.Location = new System.Drawing.Point(124, 133);
       this.okButton.Name = "okButton";
       this.okButton.Size = new System.Drawing.Size(75, 23);
-      this.okButton.TabIndex = 4;
+      this.okButton.TabIndex = 1;
       this.okButton.Text = "OK";
       this.okButton.UseVisualStyleBackColor = true;
       // 
@@ -113,7 +113,7 @@ namespace BasecampAPI
       this.cancelButton.Location = new System.Drawing.Point(205, 133);
       this.cancelButton.Name = "cancelButton";
       this.cancelButton.Size = new System.Drawing.Size(75, 23);
-      this.cancelButton.TabIndex = 5;
+      this.cancelButton.TabIndex = 2;
       this.cancelButton.Text = "Cancel";
       this.cancelButton.UseVisualStyleBackColor = true;
       // 

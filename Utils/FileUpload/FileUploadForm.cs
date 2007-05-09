@@ -20,7 +20,7 @@ namespace FileUpload
     Dictionary<string, int> projects = null;
     Dictionary<string, int> categories = null;
     Dictionary<string, int> companies = null;
-    Dictionary<string, Dictionary<string, int>> people = null;
+    Dictionary<string, int> people = null;
 
     public FileUploadForm(API api, Dictionary<string, int> projects, Dictionary<string, int> companies)
     {
@@ -35,7 +35,17 @@ namespace FileUpload
 
       RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Kenwalt\\SysCAD\\FileUpload");
       if (registryKey != null)
+      {
         projectsListBox.SelectedItem = registryKey.GetValue("SelectedProject") as string;
+        SetNotificationList(registryKey.GetValue("NotificationList") as string);
+        //category done later after we have the category list.
+        //notification save needs to be added.
+        descriptionTextBox.Text = registryKey.GetValue("Description") as string;
+        nameTextBox.Text = registryKey.GetValue("Name") as string;
+        filenameTextBox.Text = registryKey.GetValue("Filename") as string;
+      }
+
+      EnableForm(true);
     }
 
     private void projectsListBox_SelectedValueChanged(object sender, EventArgs e)
@@ -43,73 +53,165 @@ namespace FileUpload
       categoriesListBox.Items.Clear();
       notificationListTreeView.Nodes.Clear();
 
-      foreach (Control control in Controls)
-        control.Enabled = false;
-      Enabled = false;
+      EnableForm(false);
 
       Application.DoEvents();
 
-      RegistryKey registryKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\FileUpload");
-      registryKey.SetValue("SelectedProject", projectsListBox.SelectedItem as string);
-
       // Get upload categories.
       {
-        categories = api.GetAttachmentCategoryList(projects[projectsListBox.SelectedItem as string]);
+        categories = api.GetCategoryList(projects[projectsListBox.SelectedItem as string]);
 
         foreach (string category in categories.Keys)
           categoriesListBox.Items.Add(category);
 
-        registryKey = Registry.CurrentUser.OpenSubKey("Kenwalt\\SysCAD\\FileUpload");
+        RegistryKey registryKey = Registry.CurrentUser.OpenSubKey("Kenwalt\\SysCAD\\FileUpload");
         if (registryKey != null)
-          categoriesListBox.SelectedItem = registryKey.GetValue("SelectedAttachmentCategory") as string;
+          categoriesListBox.SelectedItem = registryKey.GetValue("SelectedCategory") as string;
       }
 
       Application.DoEvents();
 
       // Build person tree.
       {
-        people = new Dictionary<string, Dictionary<string, int>>();
+        people = new Dictionary<string, int>();
         foreach (string company in companies.Keys)
         {
           TreeNode companyNode = notificationListTreeView.Nodes.Add(company);
 
-          people.Add(company, api.GetPersonList(projects[projectsListBox.SelectedItem as string], companies[company]));
+          Dictionary<string, int> companyPeople = api.GetPersonList(projects[projectsListBox.SelectedItem as string], companies[company]);
 
-          foreach (string person in people[company].Keys)
+          foreach (string person in companyPeople.Keys)
           {
+            people.Add(person, companyPeople[person]);
             companyNode.Nodes.Add(person);
           }
+
+          companyNode.Expand();
         }
       }
 
-      Enabled = true;
-      foreach (Control control in Controls)
-        control.Enabled = true;
+      EnableForm(true);
     }
 
-    private void categoriesListBox_SelectedValueChanged(object sender, EventArgs e)
+    private void EnableForm(bool enabled)
     {
-      RegistryKey registryKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\FileUpload");
-      registryKey.SetValue("SelectedAttachmentCategory", categoriesListBox.SelectedItem as string);
+      Enabled = enabled;
+      
+      foreach (Control control in Controls)
+        control.Enabled = true;
+
+      try
+      {
+        if (!(new FileInfo(filenameTextBox.Text).Exists))
+          filenameTextBox.Text = "";
+      }
+      catch (Exception)
+      {
+        filenameTextBox.Text = "";
+      }
+
+      if ((filenameTextBox.Text.Length == 0)||
+          (projectsListBox.SelectedItem == null)||
+          (categoriesListBox.SelectedItem == null))
+        uploadButton.Enabled = false;
     }
 
     private void uploadButton_Click(object sender, EventArgs e)
     {
-      foreach (Control control in Controls)
-        control.Enabled = false;
-      Enabled = false;
+      EnableForm(false);
 
-      string fileName = "c:\\svn.h";
+      RegistryKey registryKey = Registry.CurrentUser.CreateSubKey("Kenwalt\\SysCAD\\FileUpload");
+      
+      registryKey.SetValue("SelectedProject", projectsListBox.SelectedItem as string);
+      registryKey.SetValue("SelectedCategory", categoriesListBox.SelectedItem as string);
+      string[] notificationList = GetNotificationList();
+      registryKey.SetValue("NotificationList", string.Join(":", notificationList));
+      registryKey.SetValue("Description", descriptionTextBox.Text);
+      registryKey.SetValue("Name", nameTextBox.Text);
+      registryKey.SetValue("Filename", filenameTextBox.Text);
 
-      string fileID = api.UploadFile(fileName);
+      string fileID = api.UploadFile(filenameTextBox.Text);
+
+      int[] notificationIDList = new int[notificationList.Length];
+      for (int i = 0; i < notificationList.Length; i++)
+        notificationIDList[i] = people[notificationList[i]];
 
       api.CreateMessage(projects[projectsListBox.SelectedItem as string],
                         categories[categoriesListBox.SelectedItem as string],
-                        Path.GetFileName(fileName), descriptionTextBox.Text, fileID);
+                        notificationIDList,
+                        Path.GetFileName(filenameTextBox.Text), 
+                        descriptionTextBox.Text, 
+                        nameTextBox.Text,
+                        fileID);
 
-      Enabled = true;
-      foreach (Control control in Controls)
-        control.Enabled = true;
+      EnableForm(true);
+    }
+
+    private void SetNotificationList(string notificationString)
+    {
+      string[] notificationList = notificationString.Split(':');
+
+      ArrayList selectedNodes = new ArrayList();
+
+      foreach (TreeNode companyNode in notificationListTreeView.Nodes)
+      {
+        foreach (TreeNode node in companyNode.Nodes)
+        {
+          foreach (string person in notificationList)
+          {
+            if (node.Text == person)
+            selectedNodes.Add(node);
+          }
+        }
+      }
+        notificationListTreeView.SelectedNodes = selectedNodes;
+    }
+
+    private string[] GetNotificationList()
+    {
+      string[] notificationList = new string[notificationListTreeView.SelectedNodes.Count];
+
+      for (int i = 0; i < notificationListTreeView.SelectedNodes.Count; i++)
+      {
+        TreeNode node = notificationListTreeView.SelectedNodes[i] as TreeNode;
+        if (node.Nodes.Count == 0) // node is a person, not a company.
+        {
+          notificationList[i] = node.Text;
+        }
+      }
+
+      return notificationList;
+    }
+
+    private void setFilenameButton_Click(object sender, EventArgs e)
+    {
+      OpenFileDialog openFileDialog = new OpenFileDialog();
+
+      openFileDialog.CheckFileExists = true;
+      openFileDialog.CheckPathExists = true;
+      openFileDialog.FileName = filenameTextBox.Text;
+
+      if (openFileDialog.ShowDialog() == DialogResult.OK)
+      {
+        filenameTextBox.Text = openFileDialog.FileName;
+
+        EnableForm(true);
+      }
+    }
+
+    private void projectsListBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      EnableForm(true);
+    }
+
+    private void categoriesListBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      EnableForm(true);
+    }
+
+    private void descriptionTextBox_TextChanged(object sender, EventArgs e)
+    {
+      EnableForm(true);
     }
   }
 }

@@ -118,7 +118,7 @@ namespace BasecampAPI
       return companies;
     }
 
-    public Dictionary<string, int> GetAttachmentCategoryList(int projectID)
+    public Dictionary<string, int> GetCategoryList(int projectID)
     {
       Dictionary<string, int> categories = new Dictionary<string, int>();
 
@@ -263,51 +263,62 @@ namespace BasecampAPI
       return fileID;
     }
 
-    public void CreateMessage(int project, int category, string fileName, string body, string fileID)
+    public void CreateMessage(int projectID, int categoryID, int[] notificationIDList, string fileName, string description, string name, string fileID)
     {
-      HttpWebRequest request = WebRequest.Create("https://" + site + "/projects/"+project+"/msg/create") as HttpWebRequest;
+      HttpWebRequest request = WebRequest.Create("https://" + site + "/projects/"+projectID+"/msg/create") as HttpWebRequest;
       //HttpWebRequest request = WebRequest.Create("https://kenwalt.updatelog.com/projects/351146/msg/create") as HttpWebRequest;
       request.Method = "POST";
       request.Credentials = new NetworkCredential(username, password);
       request.ContentType = "application/xml";
       request.Accept = "application/xml";
 
-      byte[] byteData = UTF8Encoding.UTF8.GetBytes(
+      if (description.Length == 0)
+        description = fileName;
+
+      if (name.Length == 0)
+        name = fileName;
+
+      string requestString =
         "<request>" +
           "<post>" +
             "<category-id>" +
-              category +
+              categoryID +
             "</category-id>" +
             "<title>" +
               fileName +
             "</title>" +
             "<body>" +
-              body +
+              description +
             "</body>" +
-          "</post>" +
+          "</post>";
+
+      foreach (int notifyID in notificationIDList)
+      {
+        requestString +=
           "<notify>" +
-            "498444" +
-          "</notify>" +
-          "<notify>" +
-            "498448" +
-          "</notify>" +
+            notifyID +
+          "</notify>";
+      }
+      requestString +=          
           "<attachments>" +
             "<name>" +
-              "svn.h" +
+              name +
             "</name>" +
-            "<file>" + 
-              "<file>" + 
-                fileID + 
-              "</file>" + 
-              "<content-type>" + 
-                "application/octet-stream" + 
-              "</content-type>" + 
-              "<original_filename>" + 
-                fileName + 
-              "</original_filename>" + 
-            "</file>" + 
-          "</attachments>" + 
-        "</request>");
+            "<file>" +
+              "<file>" +
+                fileID +
+              "</file>" +
+              "<content-type>" +
+                "application/octet-stream" +
+              "</content-type>" +
+              "<original_filename>" +
+                fileName +
+              "</original_filename>" +
+            "</file>" +
+          "</attachments>" +
+        "</request>";
+      
+      byte[] byteData = UTF8Encoding.UTF8.GetBytes(requestString);
 
       request.ContentLength = byteData.Length;
       request.GetRequestStream().Write(byteData, 0, byteData.Length);
