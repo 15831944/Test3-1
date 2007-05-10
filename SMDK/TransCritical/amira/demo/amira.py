@@ -7,7 +7,7 @@ from ctypes import *
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
-           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw"]
+           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT"]
 
 s0Entries = [
     ["Temperature", "C", "100."],
@@ -45,8 +45,7 @@ s2Entries = [
 s1Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
 syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
 
-syscadEx = '''
-Example: select the following text and try again...
+syscadEx ='''Example: select the following text and try again...
 
 XPG_1.Content.H2O(l) (%)	60.32
 XPG_1.Content.NaAl[OH]4(l) (%)	30.64
@@ -58,20 +57,23 @@ XPG_1.Content.Na2CO3(l) (%)	1.41
 XPG_1.Content.Na2SO4(l) (%)	0.04
 '''
 
+helpTxt = '''Edit the individual fields and press the calculate button.
+
+Data may also be edited as text directly in this text window.
 
 
+Paste SysCAD data into the text area and press SysCAD button
+This will parse the data and calculate mass fractions of each
+species present.
 
+Each line is parsed to search for standard species, and if found, will look for a
+number at the end of the line. Thus
 
+H2O  4
+NaCl 1
 
-
-
-
-
-
-
-
-
-
+will give a 20% saline solution.
+'''
 
 
 solnames = '                Al(OH)3    AlOOH   Na2SO4  Na2C2O4      NaF  Na3FSO4'
@@ -166,8 +168,10 @@ class TestMenu:
         mm=Menu(w)  # main menu
         self.mm=mm
         self.menuList.append(Menu(mm, tearoff=0))
+        self.menuList.append(Menu(mm, tearoff=0))
         mm.add_cascade(label="File", menu=self.menuList[0],
                        underline=0)
+        mm.add_cascade(label="Help", menu=self.menuList[1])
         
         m=self.menuList[0]  #0
         m.add_command(label="Open...", state=DISABLED, 
@@ -180,6 +184,8 @@ class TestMenu:
         m.add_command(label="Print", state=DISABLED)
         m.add_separator()
         m.add_command(label="Exit", command=done) #-command done
+        self.menuList[1].add_command(label="Help")
+        
         return mm
 
 
@@ -205,7 +211,7 @@ class AmiraBayer:
         self.SI            = (c_double*10)()
         self.SolML         = (c_double*6)()
         self.Solmkg        = (c_double*6)()
-        self.DPDATA = (c_double*18)() # Catchall for doubles...
+        self.DPDATA = (c_double*20)() # Catchall for doubles...
 
         # Exported longs
         self.NOutComp = c_long(9)
@@ -287,12 +293,13 @@ class MyMain(GenericMain):
         f1.pack(side = LEFT, fill=X, expand=1)
         Button(f1, text="Calculate", command=self.test).pack(side=LEFT, fill=X, expand=1)
         Button(f1, text="SysCAD", command=self.getSysCAD).pack(side=LEFT, fill=X, expand=1)
+        Button(f1, text="Data", command=self.getPlotLine).pack(side=LEFT, fill=X, expand=1)
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
         self.of=OutputFrame(canvasFrame, font=font3)
         self.rbp.trace("w", self.doEntryType)
-
+        self.menus.menuList[1].entryconfig(0, command=self.doHelp)
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
@@ -302,6 +309,12 @@ class MyMain(GenericMain):
         else:
             self.s2.pack_forget()
             self.s0.pack()
+
+
+
+    def doHelp(self):
+        self.of.clearText()
+        self.of.appendText(helpTxt)
 
 
     def extractDPData(self):
@@ -316,22 +329,26 @@ class MyMain(GenericMain):
             tkMessageBox.showerror("Selection Invalid","Select SysCAD data\nfrom text window")
             self.of.appendText(syscadEx)
             return
-         
-        s = [l.split() for l in sel.splitlines()]
+
+        self.rbp.set(3)
+        s = sel.splitlines()
         cdic = {}.fromkeys(syscadNames, 0.0)
         tot = 0.0
-        for lis in s:
-            qty = float(lis[2])
-            tot += qty
-            scspec = lis[0]
+        for line in s:
             for x in syscadNames:
-                if x in scspec:
-                    cdic[x] = qty
+                if x in line:
+                    lis = line.split()
+                    try:
+                        qty = float(lis[-1])
+                        tot+=qty
+                        cdic[x] = qty
+                    except:
+                        pass
                     break
-
-        print tot
-        for x in cdic.keys():
-            cdic[x] /= tot
+                
+        if tot>0.0:
+            for x in cdic.keys():
+                cdic[x] /= tot
         for s,v in cdic.iteritems():
             print s, v
         self.s0["NaOH"] = cdic["NaOH"]+40./118.*cdic["NaAl[OH]4"]
@@ -343,6 +360,18 @@ class MyMain(GenericMain):
         self.s0["NaAcetate"] = 0.88*cdic["Na2C5.2O7.2"]
             
 
+    def getPlotLine(self):
+        try:
+            sel = self.of.getSelection()
+        except:
+            sel = self.of.getAll()
+
+
+        lis = [x.strip() for x in sel.split(',')]
+        print lis
+        
+        
+        
 
                                
     def test(self):
