@@ -111,15 +111,14 @@ EXPORTS
     solby_ @110
     sthen_ @111
     tboil_ @112
-    test1_ @113
-    thdta_ @114 DATA
-    thinit_ @115
-    tsat_ @116
-    v0xp_ @117
-    v_ @118
-    vgas_ @119
-    volh2o25_ @120
-    vxp_ @121
-    xcph_ @122
-    xcps_ @123
-    xhgcp_ @124
+    thdta_ @113 DATA
+    thinit_ @114
+    tsat_ @115
+    v0xp_ @116
+    v_ @117
+    vgas_ @118
+    volh2o25_ @119
+    vxp_ @120
+    xcph_ @121
+    xcps_ @122
+    xhgcp_ @123

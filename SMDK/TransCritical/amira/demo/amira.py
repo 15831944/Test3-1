@@ -48,15 +48,31 @@ syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , 
 syscadEx = '''
 Example: select the following text and try again...
 
-P_HT_out.Qo.H2O(l) (kg/s)	225.58
-P_HT_out.Qo.NaAl[OH]4(l) (kg/s)	114.58
-P_HT_out.Qo.NaCl(l) (kg/s)	0.98
-P_HT_out.Qo.NaOH(l) (kg/s)	10.69
-P_HT_out.Qo.Na2C2O4(l) (kg/s)	0.86
-P_HT_out.Qo.Na2C5.2O7.2(l) (kg/	15.90
-P_HT_out.Qo.Na2CO3(l) (kg/s)	5.26
-P_HT_out.Qo.Na2SO4(l) (kg/s)	0.14
+XPG_1.Content.H2O(l) (%)	60.32
+XPG_1.Content.NaAl[OH]4(l) (%)	30.64
+XPG_1.Content.NaCl(l) (%)	0.26
+XPG_1.Content.NaOH(l) (%)	2.86
+XPG_1.Content.Na2C2O4(l) (%)	0.23
+XPG_1.Content.Na2C5.2O7.2(l) (%)	4.25
+XPG_1.Content.Na2CO3(l) (%)	1.41
+XPG_1.Content.Na2SO4(l) (%)	0.04
 '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 solnames = '                Al(OH)3    AlOOH   Na2SO4  Na2C2O4      NaF  Na3FSO4'
 
@@ -320,8 +336,9 @@ class MyMain(GenericMain):
             print s, v
         self.s0["NaOH"] = cdic["NaOH"]+40./118.*cdic["NaAl[OH]4"]
         self.s0["Al[OH]3"] = 78./118.*cdic["NaAl[OH]4"]
-        for x in ["Na2CO3", "Na2C2O4", "NaCl", "Na2SO4"]:
+        for x in ["Na2CO3", "NaCl", "Na2SO4"]:
             self.s0[x] = cdic[x]
+        self.s0["NaOxalate"] = cdic["Na2C2O4"]
         self.s0["NaFormate"] = 0.12*cdic["Na2C5.2O7.2"]
         self.s0["NaAcetate"] = 0.88*cdic["Na2C5.2O7.2"]
             
