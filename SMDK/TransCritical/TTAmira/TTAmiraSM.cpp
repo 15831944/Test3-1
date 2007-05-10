@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-01 08:25:35 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-09 04:48:51 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -997,7 +997,7 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   InComp[4] = MA[SodiumChloride]*100.;   // NaCl       
   InComp[5] = MA[SodiumCarbonate]*100.;  // Na2CO3     
   InComp[6] = MA[SodiumSulphate]*100.;   //  Na2SO4     
-  InComp[8] = MA[SodiumOxalate]*100.;    //  Na2C2O4    
+  InComp[7] = MA[SodiumOxalate]*100.;    //  Na2C2O4    
   InComp[10] = 0.0; // MA[SodiumFluoride]*100.;    //  NaF        
 
 
@@ -1007,7 +1007,7 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   const double acetate = 0.88*MA[Organics]*100.;
   const double formate = 0.12*MA[Organics]*100.;
   
-  InComp[7] = acetate;      //  NaAcetate  
+  InComp[8] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
 
 //   Log.Message(MMsg_Warning, "T, P, .... %f %f %f %f %f %f", TempC, Pressure, InComp[2], InComp[3], InComp[4],
