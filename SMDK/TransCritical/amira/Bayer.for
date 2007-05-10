@@ -194,6 +194,7 @@ C
       EQUIVALENCE (DPLDATA(17),   Phi      )
       EQUIVALENCE (DPLDATA(18),   Aw       )
       EQUIVALENCE (DPLDATA(19),   V25      )
+      EQUIVALENCE (DPLDATA(20),   WT      )
 
 
 
@@ -254,7 +255,7 @@ C     >SIName(NSI),SolName(NSol)
 
 
 C     COPY THE LOCAL EQUIVALENCED STUFF BACK TO THE DUMMY ARGUMENT
-      DO 10, I=1,19
+      DO 10, I=1,20
  10      DPDATA(I) = DPLDATA(I)
 
 
