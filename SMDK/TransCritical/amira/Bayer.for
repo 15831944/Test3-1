@@ -174,7 +174,7 @@ C     a single array, which will contain all these. This is
 C     EQUIVALENCED back to the original variables.
 C     
 
-      DIMENSION DPLDATA(18), DPDATA(18)
+      DIMENSION DPLDATA(19), DPDATA(19)
       EQUIVALENCE (DPLDATA( 1),   I_m      )
       EQUIVALENCE (DPLDATA( 2),   I_c      )
       EQUIVALENCE (DPLDATA( 3),   I_c25    )
@@ -193,6 +193,7 @@ C
       EQUIVALENCE (DPLDATA(16),   Cp_LiqH2O)
       EQUIVALENCE (DPLDATA(17),   Phi      )
       EQUIVALENCE (DPLDATA(18),   Aw       )
+      EQUIVALENCE (DPLDATA(19),   V25      )
 
 
 
@@ -253,7 +254,7 @@ C     >SIName(NSI),SolName(NSol)
 
 
 C     COPY THE LOCAL EQUIVALENCED STUFF BACK TO THE DUMMY ARGUMENT
-      DO 10, I=1,18
+      DO 10, I=1,19
  10      DPDATA(I) = DPLDATA(I)
 
 
