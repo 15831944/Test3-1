@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-09 04:48:51 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-10 03:27:21 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -663,12 +663,14 @@ double AmiraBayer::SodiumOxalateConc(double T_)
 double AmiraBayer::SolidsConc(double T_)
   {
   const double mt=Mass(MP_Sol);
+  //  Log.Message(MMsg_Warning, "SolidsConc");
   return (mt>=UsableMass) ? mt/GTZ(Mass(MP_SL))*get_Density(MP_SL, T_, Pressure, NULL) : 0.0;
   }
 
 double AmiraBayer::SolidsConc25()
   {
   const double mt=Mass(MP_Sol);
+  // Log.Message(MMsg_Warning, "SolidsConc25");
   return (mt>=UsableMass) ? mt/GTZ(Mass(MP_SL))*get_Density(MP_SL, C_2_K(25.0), Pressure, NULL) : 0.0;
   }
 
@@ -812,12 +814,15 @@ double AmiraBayer::AluminaConcSat(double T_)
 double AmiraBayer::LVolume25()
   {
   const double mt=Mass(MP_Liq);
+  Log.Message(MMsg_Warning, "LVolume25");
+
   return ((mt>=UsableMass) ? (mt / get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL)) : 0.0);
   }
 
 double AmiraBayer::SLVolume25()
   {
   const double mt=Mass(MP_SL);
+  Log.Message(MMsg_Warning, "SLVolume25");
   return ((mt>=UsableMass) ? (mt / get_Density(MP_SL, C_2_K(25.0), Pressure, NULL)) : 0.0);
   }
 
@@ -825,11 +830,13 @@ double AmiraBayer::SLVolume25()
 
 double AmiraBayer::LDensity25()
   {
+  Log.Message(MMsg_Warning, "LDensity25");
   return (get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL));
   }
 
 double AmiraBayer::SLDensity25()
   {
+  Log.Message(MMsg_Warning, "SLDensity25");
   return (get_Density(MP_SL, C_2_K(25.0), Pressure, NULL));
   }
 
@@ -1010,7 +1017,10 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   InComp[8] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
 
-//   Log.Message(MMsg_Warning, "T, P, .... %f %f %f %f %f %f", TempC, Pressure, InComp[2], InComp[3], InComp[4],
+  Log.Message(MMsg_Warning, "Bayer Density Call...T %8.2f P %8.2f", TempC, Pressure);
+  
+
+	      //, InComp[2], InComp[3], InComp[4],
 //	      InComp[5], InComp[6], InComp[7]);
 //
 
