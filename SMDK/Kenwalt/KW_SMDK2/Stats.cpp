@@ -11,8 +11,18 @@
 
 //====================================================================================
 
-//TODO: A Proper icon
-static double Drw_Stats[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,2., MDrw_End };
+static double Drw_Stats[] = 
+  { MDrw_Poly, -4.0,4.0, -4.0,-4.0, 4.0,-4.0,
+    MDrw_Poly, -3.6,-4.0, -3.6,2.0,  -3.2,2.0,  -3.2,-4.0,
+    MDrw_Poly, -2.7,-4.0, -2.7,-1.5, -2.3,-1.5, -2.3,-4.0, 
+    MDrw_Poly, -1.8,-4.0, -1.8,-3.1, -1.4,-3.1, -1.4,-4.0,
+    MDrw_Poly, -0.9,-4.0, -0.9,-3.1, -0.5,-3.1, -0.5,-4.0,
+    MDrw_Poly, 0.0,-4.0, 0.0,3.8,  0.4,3.8,  0.4,-4.0,
+    MDrw_Poly, 0.9,-4.0, 0.9,-2.5, 1.3,-2.5, 1.3,-4.0,
+    MDrw_Poly, 1.8,-4.0, 1.8,-1.1, 2.2,-1.1, 2.2,-4.0,
+    MDrw_Poly, 2.7,-4.0, 2.7,-1.5, 3.1,-1.5, 3.1,-4.0,
+    MDrw_Poly, 3.6,-4.0, 3.6,1.2, 4.0,1.2, 4.0,-4.0,
+    MDrw_End };
 
 //---------------------------------------------------------------------------
 
@@ -102,8 +112,8 @@ void SingleVarStats::BuildDataFields()
 	for (int i = 0; i < lHistoCount + 2; i++)
 	{
 		DD.ArrayElementStart(i);
-		DD.Double("Minimum", "Min", pHistoBucketBorders + i, MF_RESULT);
-		DD.Double("Maximum", "Max", pHistoBucketBorders + i + 1, MF_RESULT);
+		DD.Double("Minimum", "Min", pHistoBucketBorders + i, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN);
+		DD.Double("Maximum", "Max", pHistoBucketBorders + i + 1, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN);
 		DD.Long("Count", "Count", pHistoBucketCounts + i, MF_RESULT);
 		DD.ArrayElementEnd();
 	}
