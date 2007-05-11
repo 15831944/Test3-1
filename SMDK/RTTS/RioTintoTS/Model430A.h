@@ -33,6 +33,7 @@ typedef ObjectPtr<Model430A> PModel430A;
 ****************************************************************************/
 const int MaxFortranMatType = 10;
 const int MaxFortranSizes = 50;
+const int MaxOriginalSizes = MaxFortranSizes+30;
 
 class TS_API Model430A
 {
@@ -93,7 +94,7 @@ public:
     // Interface to FORTRAN code
 
     double UNIT[501];                     // UNIT parameter vector
-    double SIZE[MaxFortranSizes];         // GSIM sizing vector
+    double SIZE[MaxOriginalSizes];        // GSIM sizing vector
     double SIZE_MAPPED[MaxFortranSizes];  // GSIM sizing vector mapped to represent size range of feed
     long   NTYPE;                         // Number of ore types
     double ORESG[MaxFortranMatType];      // Specific gravity of each mineral
@@ -104,8 +105,8 @@ public:
     long   NSPR;                // Number of spline knots
     double RSIZE[20];           // Spline knot - size
     double RSP[20];             // Spline knot - breakage rate
-    double AMFEED[MaxFortranMatType][MaxFortranSizes];      // Mill feed sizing
-    double AMDISC[MaxFortranMatType][MaxFortranSizes];      // Mill product sizing
+    double AMFEED[MaxFortranMatType][MaxOriginalSizes];      // Mill feed sizing
+    double AMDISC[MaxFortranMatType][MaxOriginalSizes];      // Mill product sizing
     double AMFEED_MAPPED[MaxFortranMatType][MaxFortranSizes];// Mill feed sizing (mapped to size distribution that covers to top size in feed)
     double AMDISC_MAPPED[MaxFortranMatType][MaxFortranSizes];// Mill product sizing
     double AMLOAD[MaxFortranMatType][MaxFortranSizes];      // Mill load sizing

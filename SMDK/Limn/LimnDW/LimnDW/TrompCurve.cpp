@@ -6,7 +6,7 @@
 #define  __TROMPCURVE_CPP
 #include "trompcurve.h"
 #include "limnstream.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 #define DoDbg 0 /*x7*/
 

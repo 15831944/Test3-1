@@ -6,7 +6,7 @@
 #include "materialmerge.h"
 #include <string>
 #include <vector>
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 

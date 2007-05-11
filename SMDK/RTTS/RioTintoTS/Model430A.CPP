@@ -1,5 +1,5 @@
 //-- Model430A.cpp ----------------------------------------------------------
-#pragma optimize("", off)
+//#pragma optimize("", off)
 #include "Model430A.h"
 #include "CubicSpline.h"
 
@@ -59,11 +59,11 @@ extern "C"
 
     void __stdcall tranrl3
     (
-        double* SIZE1, 
-		double* RDIST1,
-		double* SIZE2,
- 	    double* RDIST2
-	);
+      double* SIZE1, 
+      double* RDIST1,
+      double* SIZE2,
+      double* RDIST2
+  	);
 
 }
 
@@ -156,9 +156,9 @@ bool Model430A::Initialize(PStreamInfo1 inConfig, const VectorView&  ParamVec )
   Config->SAG_Diameter				= ParamVec[ 1];                // UNIT(12)
   Config->SAG_Length					= ParamVec[ 2];                // UNIT(13)
   Config->SAG_Trunion_D				= ParamVec[ 3];                // UNIT(58)
-  Config->SAG_Feed_Cone_Angle			= ParamVec[ 4];		           // UNIT(59)
-  Config->SAG_Disch_Cone_Angle		= ParamVec[ 5];                // UNIT(60)
-  Config->SAG_Grate_Size				= ParamVec[ 6];                // UNIT(14)
+  Config->SAG_Feed_Cone_Angle	= ParamVec[ 4];		           // UNIT(59)
+  Config->SAG_Disch_Cone_Angle	= ParamVec[ 5];                // UNIT(60)
+  Config->SAG_Grate_Size			= ParamVec[ 6];                // UNIT(14)
   Config->SAG_Fine_Size				= ParamVec[ 7];                // UNIT(15)
   Config->SAG_Grate_OAF				= ParamVec[ 8];                // UNIT(61)
   Config->SAG_PP_OAF					= ParamVec[ 9];                // UNIT(16)
@@ -254,10 +254,10 @@ bool Model430A::Initialize(PStreamInfo1 inConfig, const VectorView&  ParamVec )
     out_R.resize( nSiz );
 
     // Setup sizing vector for jK routines
-    SIZE[0] = nSiz;
+    SIZE[0] = nSize_;
     SIZE[1] = 0.0;
     //VectorView Sizes = config_->GetSizes();
-    for( i=0; i<nSiz; i++ )
+    for( i=0; i<nSize_; i++ )
       SIZE[i+2] = Sizes[i];
     NTYPE = nTyp;
 
@@ -351,13 +351,12 @@ int tranrl3_(double *size1, double *rdist1, double *size2, double *rdist2)
   {
   short s;
 
-  /* Local variables */
-  const short MaxLen = MaxFortranSizes + 30; //allow the other series to be larger
+  const short MaxLen = MaxOriginalSizes;
   short i, j;
   double x, y;
   short n1, n2;
   double x1, x2, y1, y2;
-  double cdist1[MaxLen], cdist2[MaxLen], csize1[MaxLen], csize2[MaxLen]; //was 32, changed to 50
+  double cdist1[MaxLen], cdist2[MaxLen], csize1[MaxLen], csize2[MaxLen];
   
   /* Parameter adjustments */
   --rdist2;
@@ -466,14 +465,13 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
     for( j=1; j<nTyp; j++ ) // Initialise Liquids to 0
       AMFEED[j][0] = 0;
 
-//double amfeedTtl[MaxFortranMatType],amfeedTtlMapped[MaxFortranMatType];
+//double amfeedTtl[MaxFortranMatType+20],amfeedTtlMapped[MaxFortranMatType];
     for( j=0; j<nTyp; j++ )
       {
 //amfeedTtl[j] = 0.0;
-      for( i=1; i<nSiz; i++ )
+      for( i=1; i<nSize_; i++ )
         {
         AMFEED[j][i] = Solids[i][j];
-//AMFEED_MAPPED[j][i] = 0.0;
 //amfeedTtl[j] += Solids[i][j];
         }
       }
@@ -504,7 +502,7 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
     for( j=0; j<nTyp; j++ )
       {
       // Work out the top size
-      for( i=1; i<nSiz; i++ )
+      for( i=1; i<nSize_; i++ )
         {
         if ( AMFEED[j][i] > 0.0 )
           break;
@@ -524,7 +522,7 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
     SIZE_MAPPED[0] = 31;
     SIZE_MAPPED[1] = SIZE[1];
     SIZE_MAPPED[2] = TS;
-    for (i = 3 ; i < 32; i++)
+    for (i=3; i<32; i++)
       SIZE_MAPPED[i] = SIZE_MAPPED[i-1]/sqrt(2.0);
 
 
@@ -569,7 +567,7 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
     for( j=0; j<nTyp; j++ )
       {
       //tranrl3( &SIZE_MAPPED[0], &( AMDISC_MAPPED[j][0] ), &SIZE[0], &( AMDISC[j][0] ) );
-      tranrl3_( &SIZE_MAPPED[0], &( AMDISC_MAPPED[j][0] ), &SIZE[0], &( AMDISC[j][0] ) );
+      tranrl3_( &SIZE_MAPPED[0], &(AMDISC_MAPPED[j][0]), &SIZE[0], &(AMDISC[j][0]) );
 
       // For some reason which I (MRW) do not have time to debug at this stage
       // discharge mass is slightly out so for now just normalise so the feed mass is
@@ -577,12 +575,12 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
       double FeedSum = 0.0;
       double DischargeSum = 0.0;
       double CorrectionFactor = 1.0;
-      for( i=1; i<nSiz; i++ )
+      for( i=1; i<nSize_; i++ )
         {
         FeedSum += AMFEED[j][i];
         DischargeSum += AMDISC[j][i];
         }
-      if (DischargeSum > 0.0 )
+      if (DischargeSum > 0.0)
         {
         CorrectionFactor = FeedSum/DischargeSum;
         for( i=1; i<nSiz; i++ )
@@ -602,12 +600,10 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
       Discharge->SetLiquidMass(AMDISC[0][0]);
       //Load->SetLiquidMass(AMLOAD[0][0]);
 
-      for( i=1; i<nSiz; i++ )
+      for( i=1; i<nSize_; i++ )
         {
         DischSolids[i][j] = AMDISC[j][i];
-        //
         // Need to map Load Solids as well
-        // 
         //LoadSolids[i][j]  = AMLOAD[j][i];
         }
       }
@@ -616,14 +612,14 @@ bool Model430A::CalculateModel( PFlowStream1 FeedStream )
     // interface into our exported values
 
     // Breakage/Discharge rates
-    for( i=0; i<nSiz; i++ )
+    for (i=0; i<nSiz; i++ )
       {
       out_D[i] = D[i];
       out_R[i] = R[i];
       }
 
     // Output vector
-    for( i=0; i<20; i++ )
+    for (i=0; i<20; i++)
       {
       out_ModelOutput[i] = OUTPUT[i];
       }

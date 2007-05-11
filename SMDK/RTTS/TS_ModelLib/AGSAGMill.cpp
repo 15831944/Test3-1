@@ -6,7 +6,7 @@
 #define  __AGSAGMill_CPP
 #include "SysCADSystemHelper.h"
 #include "AGSAGMill.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 //             AGSAG Mill
@@ -453,14 +453,14 @@ void CMill_AGSAG::EvalProducts(MBaseMethod &M,
 		/*Parameters->SAG_Breakage_Rates[4]*/		m_Params[ 26] = m_iRate5sim; 
 
 		/*Parameters->SAG_Disch_Coeff*/				m_Params[ 27] = m_iDischargeCoeffsim;
-		/*Parameters->SAG_Param_M1*/				m_Params[ 28] = m_im1sim;
-		/*Parameters->SAG_Param_M2*/				m_Params[ 29] = m_im2sim;
+		/*Parameters->SAG_Param_M1*/				  m_Params[ 28] = m_im1sim;
+		/*Parameters->SAG_Param_M2*/				  m_Params[ 29] = m_im2sim;
 		/*Parameters->SAG_Coarse_Factor*/			m_Params[ 30] = m_iCoarseFactorsim;
 		/* design load ??? */
 		/*Parameters->SAG_Charge_Porosity*/			m_Params[ 31] = m_iPorositysim;
 		/*Parameters->SAG_Net_Power_Factor*/		m_Params[ 32] = m_iPowerAdjustsim;
 
-		/*BallCharge->Ball_SG*/						m_Params[ 33] = m_iBallSGsim/1000.0;// t/m3
+		/*BallCharge->Ball_SG*/						  m_Params[ 33] = m_iBallSGsim/1000.0;// t/m3
 		/*BallCharge->Ball_TopSize*/				m_Params[ 34] = m_iBallTopSizesim*1000.0; // mm
 		/*BallCharge->Ball_Size1*/					m_Params[ 35] = m_iBallSize1sim*100.0; //%
 		/*BallCharge->Ball_Size2*/					m_Params[ 36] = m_iBallSize2sim*100.0; //%
@@ -471,13 +471,13 @@ void CMill_AGSAG::EvalProducts(MBaseMethod &M,
 		RioTintoTS::VectorView ParamVec(m_Params,39,1);
 		Mill.Initialize(MatInfo, ParamVec);
 
-    if (MatInfo->nSize()>MaxFortranSizes)
+    if (MatInfo->nSize()>MaxOriginalSizes)
       {
-      M.Log.Message(MMsg_Error, "Too many size intervals for Model430 (max allowed %d)", MaxFortranSizes);
+      M.Log.Message(MMsg_Error, "Too many size intervals for Mill model (max allowed %d)", MaxOriginalSizes);
       }
     if (MatInfo->nType()>MaxFortranMatType)
       {
-      M.Log.Message(MMsg_Error, "Too many material types for Model430 (max allowed %d)", MaxFortranMatType);
+      M.Log.Message(MMsg_Error, "Too many material types with PSD for Mill model (max allowed %d)", MaxFortranMatType);
       }
 
 		// Create the Feed Stream. Use SetConfig after initialisation
