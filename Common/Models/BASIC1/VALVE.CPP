@@ -241,7 +241,7 @@ void Valve_GP::BuildDataDefn(DataDefnBlk &DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_WithPVConst);
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }

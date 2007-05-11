@@ -2276,7 +2276,7 @@ void FlwSlvBlk::SetUpTearLinks(CSFGNodeInfoList & TearNodeList)//CFlangeList & T
               pTearFlng->RqdTearType()==TT_SystemTear ? "Sys":"   ")),
              pTearFlng->TearPriority(),
              pTearFlng->fIsBuffered ? "Buff":"    ",
-             pTearFlng->FullTag());
+             pTearFlng->Tag());
       //dbgpln("Tear - %s > %s [%s]", pTear->Tag(),pTear->Nd_Rmt(in)->Tag(), p->Tag());
 #endif
     }
@@ -11679,9 +11679,9 @@ class CLTHelp
       if (p)
         {
         if (m_DoingAll)
-          m_pS=new Strng(p->value->FullTag());
+          m_pS=new Strng(p->value->Tag());
         else
-          m_pS=m_TagList.Find(p->value->FullTag());
+          m_pS=m_TagList.Find(p->value->Tag());
         }
 
       return p;
@@ -11796,7 +11796,7 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
           {
           CConnect * p = pCn->value;
           //pCn->fMarked=false;
-          if (p->m_pNdSrc->GetActive())
+          if (p->m_pNdSrc && p->m_pNdSrc->GetActive())
             {
             int IOId = p->m_pNdSrc->IOId_Self(p->m_iIOSrc);
             if (IsMLnkIOId(IOId))
@@ -12066,7 +12066,9 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
       {
       Status[i].m_Tag=p->FullObjTag();
       Status[i].m_dwFlags=p->ModelStatus();
-      //dbgpln("** Get %8x  %8x %s", p->dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+      
+      //dbgpln("**Nd Get %8x  %8x %s", p->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+      
       p->m_dwPrevStatus=Status[i].m_dwFlags;
       i++;
       }
@@ -12076,6 +12078,7 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
   while (pX)
     {
     CFlange * pF=dynamic_cast<CFlange*>(pX->value);
+    
     if (pF)
       {
       if (i>=Status.GetSize())
@@ -12083,6 +12086,9 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
 
       Status[i].m_Tag=pX->key;
       Status[i].m_dwFlags=pF->ModelStatus();
+
+      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+
       pF->m_dwPrevStatus=Status[i].m_dwFlags;
       i++;
       }
@@ -12220,6 +12226,50 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
         }
       return true;
       }
+    }
+  return false;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+  {
+  int ObjTagLen=0;
+
+  if (Set)
+    {
+    POSITION Pos=Msks.GetHeadPosition();
+    while (Pos)
+      {
+      CModelAssocGraphicMask & Msk=Msks.GetNext(Pos);
+      FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)(LPCSTR)Msk.m_Tag, false, ObjTagLen, 0));
+      if (p)
+        {
+        p->SetAssocGraphicShowClass(Msk.m_ClassShow);
+        p->SetAssocGraphicShow(Msk.m_TagShow);
+        p->SetAssocGraphicHide(Msk.m_TagHide);
+        }
+      }
+    return true;
+    }
+  else if (NdTag)
+    {
+    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)NdTag, false, ObjTagLen, 0));
+    if (p)
+      {
+      CModelAssocGraphicMask Msk(NdTag, p->AssocGraphicShowClass(), p->AssocGraphicShow(), p->AssocGraphicHide());
+      Msks.AddTail(Msk);
+      return true;
+      }
+    }
+  else
+    {
+    for (FlwNode * p = NULL; GetObj_All(p); )
+      {
+      CModelAssocGraphicMask Msk(p->FullObjTag(), p->AssocGraphicShowClass(), p->AssocGraphicShow(), p->AssocGraphicHide());
+      Msks.AddTail(Msk);
+      }
+    return true;
     }
   return false;
   }
@@ -12433,7 +12483,15 @@ void CFlwSolver::FE_SetSpModelFixupStrategy(long Strategy)
 flag CFlwSolver::FE_TestModelTagUnique(pchar pTag)
   {
   int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  TaggedObject * p=dynamic_cast<TaggedObject *>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+
+  if (p)
+    return false;
+
+  CConnect * pConn=FlwNode::FindConnect(pTag, false, ObjTagLen, 0);
+  if (pConn)
+    p=dynamic_cast<TaggedObject*>(pConn);
+
   return (p==NULL);
   };
 
@@ -12825,7 +12883,7 @@ flag CFlwSolver::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlG
   return false;
   };
 
-flag CFlwSolver::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+flag CFlwSolver::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
   {
   Grfs.RemoveAll();
   if (Tag)
@@ -12834,14 +12892,14 @@ flag CFlwSolver::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Gr
     FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
     if (p)
       {
-      return p->GetModelAssocGraphics(Grfs);
+      return p->EO_RequestModelAssocGraphics(Grfs);
       }
     return false;
     }
 
   for (FlwNode * p = NULL; GetObj_All(p); )
     {
-    p->GetModelAssocGraphics(Grfs);
+    p->EO_RequestModelAssocGraphics(Grfs);
     }
   return true;
   };
@@ -12868,7 +12926,15 @@ int CFlwSolver::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
   if (TaggedObject::TestIfReservedTag(pNewTag))
     return EOCT_RESERVED;
   int ObjTagLen=0;
-  FlwNode * p=(FlwNode *)CTNode::FindObjTag(pOldTag, false, ObjTagLen, 0);
+  TaggedObject * p=CTNode::FindObjTag(pOldTag, false, ObjTagLen, 0);
+  
+  if (p==NULL)
+    {
+    CConnect * pConn=FlwNode::FindConnect(pOldTag, false, ObjTagLen, 0);
+    if (pConn)
+      p=dynamic_cast<TaggedObject*>(pConn);
+    }
+
   if (p==NULL)
     return EOCT_NOTFOUND;
   if (_stricmp("FlwSolve", p->ClassId())==0)
@@ -12885,23 +12951,40 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   if (!FE_TestModelTagUnique(pNewTag))
     return EOCT_DUPLICATE;
   int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pOldTag, false, ObjTagLen, 0));
-  if (p==NULL)
+  TaggedObject * pTO=CTNode::FindObjTag(pOldTag, false, ObjTagLen, 0);
+
+  if (pTO==NULL)
+    {
+    CConnect * pConn=FlwNode::FindConnect(pOldTag, false, ObjTagLen, 0);
+    if (pConn)
+      pTO=dynamic_cast<TaggedObject*>(pConn);
+    }
+
+  if (pTO==NULL)
     return EOCT_FAILED;
   if (TaggedObject::TestIfReservedTag(pOldTag))
     return EOCT_RESERVED;
 
   UnDoGlobalLinks();
-  p->Tag(pNewTag); //changes the tag in the solver
+
+  pTO->Tag(pNewTag); //changes the tag in the solver
 
   //ask all models if they want to do anything internally for the change tag...
-  p=NULL;
+  FlwNode * p=NULL;
   while (GetObj_All(p))
     {
     if (!p->Internal)
       p->ChangeTag(pOldTag, pNewTag);
     }
 
+  return EOCT_DONE;
+  }
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {
+  TryDoGlobalLinks();// reconnect tags so that graphics status will be found
   return EOCT_DONE;
   }
 
@@ -12942,6 +13025,14 @@ int CFlwSolver::EO_DeleteTag(pchar pDelTag)
     return EODT_DONE;
     }
   return EODT_FAILED;
+  }
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::EO_DeleteTagDone(pchar pDelTag)
+  {
+  TryDoGlobalLinks();
+  return EODT_DONE;
   }
 
 //--------------------------------------------------------------------------

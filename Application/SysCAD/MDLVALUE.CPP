@@ -1671,7 +1671,8 @@ void CMdlValueShow::UpdateAll()
     CAddRequestPtr A=gs_RTLCom.m_ValueAddPtrs.RemoveHead();
     if (gs_RTLCom.m_iClear==0)
       Add(A->m_Tag(), A->m_X, A->m_Y, A->m_Pinned, A->m_Append, A->m_pParent);
-    dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
+    if (dbgValueShow)
+      dbgpln("                             ADD   >>>>>>> %s", A->m_Tag());
     //    P->DoTheAddByMsg(A);
     delete A;
     }

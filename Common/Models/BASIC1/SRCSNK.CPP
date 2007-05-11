@@ -336,7 +336,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   DDB.Object(&Flows, this, NULL, NULL, DDB_RqdPage);
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };  

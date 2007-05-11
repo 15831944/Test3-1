@@ -446,7 +446,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     //void           DoShutDown();
     //void           DoDebug();
 
-    DXF_ENTITY     AddUnitDrawing(pchar TagBase,pchar DrawTyp, pchar ModelTyp, pchar Tag,
+    DXF_ENTITY     AddUnitDrawing(pchar TagBase,pchar DrawTyp, pchar ModelTyp, pchar Tag, pchar AssocTag,
                                   Pt_3f Pt, Pt_3f Scl, float Rotate,
                                   flag CompleteBlock,
                                   Attr_Settings &ASet = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"),

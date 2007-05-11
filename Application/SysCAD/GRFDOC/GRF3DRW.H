@@ -65,6 +65,11 @@ const byte MSStyle_Dots     = 4;
 
 //---------------------------------------------------------------------------
 
+const LPTSTR TagAttribStr = "Tag";
+const LPTSTR AssocTagAttribStr = "AssocTag";
+
+//---------------------------------------------------------------------------
+
 class CGrfHelper
   {
   public:
@@ -446,7 +451,7 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 class DllImportExport CMdlAssocGraphicX
   {
   public:
-    enum eActions { eNull, eAddMissing, eKeep, eDelete };
+    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eDelete };
     CMdlAssocGraphicX()
       {
       m_eAction        = eNull; 
@@ -580,7 +585,7 @@ class LayerCollection
 
 
     DXF_ENTITY       Create_Insert(pchar Typ, Pt_3f Pt,int Color = -1, Pt_3f Scl = Pt_3f(1.0,1.0,1.0), REAL Rot = 0.0,
-                                pchar TagValue = (pchar)NULL, Pt_3f TagPt = Pt_3f(0.0,0.0,0.0),
+                                pchar TagValue = (pchar)NULL, pchar AssocTagValue =  (char*)NULL, Pt_3f TagPt = Pt_3f(0.0,0.0,0.0),
                                 Attr_Settings &Set = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"));
 
     //DXF_ENTITY       Create_Insert(pchar Typ, PT3 Pt, int Color, PT3 Scl, REAL Rot );
@@ -783,7 +788,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     long              AddNodeGrfInfo(pNodeGrfInfo pNGI);
     flag              GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs, Strng_List &IOL);
-    DXF_ENTITY        Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTag, LPCSTR Tag, DXF_ENTITY OwnerEntity);
+    DXF_ENTITY        Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTag, LPCSTR Tag, DXF_ENTITY OwnerEntity);
     DXF_ENTITY        Add_PidBubble(CEntInView* ent,PT3 pt,Pt_SLW pta,pchar loop_id,pchar area_id,pchar equip_isa,pchar loop_type);
     DXF_ENTITY        Add_Unit(Viewport * vp, Pt_3f &CTagPt, flag CTagPtOK, pchar equip_name, pchar Tag, pchar BlockName, pchar ModelName, Attr_Settings &Tag_Attr_Set);
     DXF_ENTITY        Add_Instr(Viewport * vp);
@@ -882,20 +887,21 @@ class Viewport
     void            TestDynamicList();
     void            PrintDynamicList();
 
-    CEntInView*      FindEntInView4Entity(DXF_ENTITY e);
-    CEntInView*      SelectClosestEntity(Pt_SLW pt, BOOL& AlreadySelected, double MaxDist=1.0e30);
-    CEntInView*      SelectClosestEntity(Pt_SLW cpoint, double MaxDist=1.0e30);
+    CEntInView*     FindEntInView4Entity(DXF_ENTITY e);
+    CEntInView*     SelectClosestEntity(Pt_SLW pt, BOOL& AlreadySelected, double MaxDist=1.0e30);
+    CEntInView*     SelectClosestEntity(Pt_SLW cpoint, double MaxDist=1.0e30);
+    void            SelectAssocEntities();
     int             SelectClosestEntities(Pt_SLW cpoint, CEntInView** pEntLst, double* DistList, int MaxCnt, double MaxDist=1.0e30);
-    CEntInView*      SelectEntity(CEntInView* best);
+    CEntInView*     SelectEntity(CEntInView* best);
     void            SelectEntitiesInBox(Pt_SLW start,Pt_SLW end);
-    CEntInView*      SelectLocOnEntity(Pt_SLW start,PT3 p);
+    CEntInView*     SelectLocOnEntity(Pt_SLW start,PT3 p);
     void            SelectEntitiesInCrossBox(Pt_SLW start,Pt_SLW end);
     void            ClearAllEntity();
     void            DeSelectEntity(CEntInView*);
-    CEntInView*      FirstSelectedEntity();
-    CEntInView*      NextSelectedEntity();
-    CEntInView*      PrevSelectedEntity();
-    CEntInView*      LastSelectedEntity();
+    CEntInView*     FirstSelectedEntity();
+    CEntInView*     NextSelectedEntity();
+    CEntInView*     PrevSelectedEntity();
+    CEntInView*     LastSelectedEntity();
 
     flag            EntityIsSelectable(DXF_ENTITY e,C3_CURVE c);
     inline void     AddSelectionEntityList(long entity_type) { SelectOnEntity |= entity_type; };

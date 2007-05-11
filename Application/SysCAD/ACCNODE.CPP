@@ -1300,7 +1300,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
       if (gs_pTheSFELib)
         gs_pTheSFELib->SetLoadAllModelStatus();
 
-      //gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
+      gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
       //XCloseTransaction();
       }
     else
@@ -5539,6 +5539,13 @@ int AccNodeWnd::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   return EOCT_DONE;
   }
 
+//--------------------------------------------------------------------------
+
+int AccNodeWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {
+  return EOCT_DONE;
+  }
+
 //---------------------------------------------------------------------------
 
 int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
@@ -5554,6 +5561,13 @@ int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
     /*gs_pAccWnd->*/CloseAccessData(false, true, true);
     /*gs_pAccWnd->*/CloseWnd();
     }
+  return EODT_DONE;
+  }
+
+//---------------------------------------------------------------------------
+
+int AccNodeWnd::EO_DeleteTagDone(pchar pDelTag)
+  {
   return EODT_DONE;
   }
 

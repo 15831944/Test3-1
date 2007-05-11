@@ -379,10 +379,26 @@ int CSfeSrvr::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
   return SfeFS->RequestTagRefInfo(Tag, Refs);
   };
 
+flag CSfeSrvr::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+  { 
+  return SfeFS->RequestModelAssocGraphicsMasks(Set, NdTag, Msks);
+  };
+
+flag CSfeSrvr::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  { 
+  return SfeFS->EO_RequestModelAssocGraphics(Tag, Grfs); 
+  };
+
+flag CSfeSrvr::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+  { 
+  return SfeFS->EO_UpdateModelAssocGraphics(Grfs, Map); 
+  };
+
 //int CSfeSrvr::RequestXRefInfoChg()
 //  {
 //  return SfeFS->RequestXRefInfoChg();
 //  };
+
 
 int CSfeSrvr::FE_GetRctInfo(CRctBlkInformation & RctInfo)
   {
@@ -469,16 +485,6 @@ flag CSfeSrvr::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGra
   return SfeFS->EO_OperateModelGraphic(Tag, Wnd, Grf); 
   };
 
-flag CSfeSrvr::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  { 
-  return SfeFS->EO_GetModelAssocGraphics(Tag, Grfs); 
-  };
-
-flag CSfeSrvr::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
-  { 
-  return SfeFS->EO_UpdateModelAssocGraphics(Grfs, Map); 
-  };
-
 void CSfeSrvr::EO_OnAppActivate(BOOL bActive)
   {
   if (SfeFS)
@@ -500,6 +506,11 @@ int CSfeSrvr::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   return SfeFS->EO_ChangeTag(pOldTag, pNewTag); 
   };
 
+int CSfeSrvr::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {
+  return SfeFS->EO_ChangeTagDone(pOldTag, pNewTag); 
+  };
+
 int CSfeSrvr::EO_QueryDeleteTag(pchar pDelTag)
   {
   return SfeFS->EO_QueryDeleteTag(pDelTag); 
@@ -508,6 +519,11 @@ int CSfeSrvr::EO_QueryDeleteTag(pchar pDelTag)
 int CSfeSrvr::EO_DeleteTag(pchar pDelTag)
   {
   return SfeFS->EO_DeleteTag(pDelTag); 
+  };
+
+int CSfeSrvr::EO_DeleteTagDone(pchar pDelTag)
+  {
+  return SfeFS->EO_DeleteTagDone(pDelTag); 
   };
 
 int CSfeSrvr::EO_CanClose(Strng_List & Problems)

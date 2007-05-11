@@ -558,9 +558,11 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
-    //int            RequestXRefInfoChg();
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
+    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+
+    //int            RequestXRefInfoChg();
 
     flag           FE_TestModelTagUnique(pchar pTag);
     
@@ -586,7 +588,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
-    flag           EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
     flag           EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
 
     // Executiv Overrides
@@ -594,8 +596,10 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
     int            EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     int            EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    int            EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     int            EO_QueryDeleteTag(pchar pDelTag);
     int            EO_DeleteTag(pchar pDelTag);
+    int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);

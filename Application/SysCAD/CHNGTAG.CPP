@@ -198,24 +198,24 @@ BOOL CChangeTag::OnInitDialog()
     }
 
   m_ReadOnly=false;
-  Strng WrkTag(m_OldTag);
-  WrkTag+=".Type";
-  CXM_ObjectTag ObjTag(WrkTag(), TABOpt_ValCnvsOnce);
-  CXM_ObjectData ObjData;
-  CXM_Route Route;
-  if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
-    {
-    CPkDataItem * pItem = ObjData.FirstItem();
-    if (IsStrng(pItem->Type()))
-      {
-      PkDataUnion &V=*pItem->Value();
-      Strng TheType = pItem->Value()->GetString("", "", 0, "");
-      m_ReadOnly = (TheType.XStrICmp("CFlange")==0);
-      };
-    }
-  else
-    {
-    }
+  //Strng WrkTag(m_OldTag);
+  //WrkTag+=".Type";
+  //CXM_ObjectTag ObjTag(WrkTag(), TABOpt_ValCnvsOnce);
+  //CXM_ObjectData ObjData;
+  //CXM_Route Route;
+  //if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+  //  {
+  //  CPkDataItem * pItem = ObjData.FirstItem();
+  //  if (IsStrng(pItem->Type()))
+  //    {
+  //    PkDataUnion &V=*pItem->Value();
+  //    Strng TheType = pItem->Value()->GetString("", "", 0, "");
+  //    m_ReadOnly = (TheType.XStrICmp("CFlange")==0);
+  //    };
+  //  }
+  //else
+  //  {
+  //  }
 
   if (m_ReadOnly)
     m_NewTag=m_OldTag;

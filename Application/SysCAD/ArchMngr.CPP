@@ -3834,6 +3834,13 @@ int CArchiveManager::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CArchiveManager::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {//a tag has been changed, ...
+  return EOCT_DONE;
+  }
+
+//---------------------------------------------------------------------------
+
 int CArchiveManager::EO_QueryDeleteTag(pchar pDelTag)
   {//will I allow the tag to be deleted...
   /*int SlotNo = FindChanForTag(pOldTag);
@@ -3847,6 +3854,13 @@ int CArchiveManager::EO_QueryDeleteTag(pchar pDelTag)
 int CArchiveManager::EO_DeleteTag(pchar pDelTag)
   {//a tag has been deleted, ...
   return EODT_NOTFOUND;
+  }
+
+//---------------------------------------------------------------------------
+
+int CArchiveManager::EO_DeleteTagDone(pchar pDelTag)
+  {//a tag has been deleted, ...
+  return EODT_DONE;
   }
 
 //---------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 #include "renamepagedlg.h"
 #include "slvcfg.h"
 #include "bulktagchange.h"
+#include "chngtag.h"
 
 extern "C" 
   {
@@ -3300,6 +3301,8 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
           Menu.AppendMenu(MF_SEPARATOR, 99);
           Menu.AppendMenu(MF_STRING, 102, "Access");
+          Menu.AppendMenu(MF_STRING, 104, "Change Tag ...");
+          Menu.AppendMenu(MF_SEPARATOR, 99);
   
           for (int i=0; i<pTag->m_Pages.GetCount(); i++)
             {
@@ -3315,8 +3318,17 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.DestroyMenu();                                           
           switch (RetCd)
             {
-            case 102: gs_AccessWnds.AccessNode(-1, Txt); break;
-            case 103: ; break;
+            case 102: 
+              gs_AccessWnds.AccessNode(-1, Txt); 
+              break;
+            case 103: 
+              break;
+            case 104:
+              {
+              CChangeTag ChgTag((LPSTR)(LPCSTR)Txt, true);
+              ChgTag.DoModal();
+              break;
+              }
             default:
               {
               if (RetCd>=110 && RetCd<110+pTag->m_Pages.GetCount())
@@ -3349,6 +3361,9 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           Menu.AppendMenu(MF_STRING|MF_GRAYED, 100, S);
           Menu.AppendMenu(MF_SEPARATOR, 99);
           Menu.AppendMenu(MF_STRING, 102, "Access");
+          Menu.AppendMenu(MF_STRING, 104, "Change Tag ...");
+          //Menu.AppendMenu(MF_SEPARATOR, 99);
+  
   
           //for (int i=0; i<pTag->m_Pages.GetCount(); i++)
           //  {
@@ -3365,6 +3380,12 @@ void CExploreScd::OnNMRclickTree(NMHDR *pNMHDR, LRESULT *pResult)
           switch (RetCd)
             {
             case 102: gs_AccessWnds.AccessNode(-1, Txt); break;
+            case 104:
+              {
+              CChangeTag ChgTag((LPSTR)(LPCSTR)Txt, true);
+              ChgTag.DoModal();
+              break;
+              }
             //case 103: ; break;
             //default:
             //  {

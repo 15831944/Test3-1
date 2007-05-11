@@ -299,7 +299,7 @@ class CTODirectPtr
           m_Ptr=dynamic_cast<TYPE*>(p);
           if (m_Ptr==NULL)
             {
-            pTaggedObject p1=p->pAttachments;
+            TaggedObject * p1=p->pAttachments;
             while (p1)
               {
               Strng S=p1->PrefixTag();
@@ -595,6 +595,7 @@ class DllImportExport CDirectFlwIO
     int           m_iLclIOId;
     int           m_NdSignImp;
 
+    //Strng         m_sFlngTag;
     CFlange     * m_pFlng;
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
@@ -1301,7 +1302,6 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
     flag           m_fDebugIt;
 
     byte           m_iRegulator;
-    //double         m_dRegValue;
 
     int            m_iFxdPOrder;
     sint           PrevDirn;
@@ -1363,8 +1363,8 @@ class DllImportExport FlangeTearVarBlk : public TearVarBlk
     FmtAttribute TFmt, PFmt, QFmt;
 
   public:
-    FlangeTearVarBlk(pTagObjClass pClass_, char * Tag_, pTaggedObject pAttach, TagObjAttachment eAttach);
-    FlangeTearVarBlk(char * Tag_, pTaggedObject pAttach);
+    FlangeTearVarBlk(TagObjClass * pClass_, char * Tag_, TaggedObject * pAttach, TagObjAttachment eAttach);
+    FlangeTearVarBlk(char * Tag_, TaggedObject * pAttach);
     virtual ~FlangeTearVarBlk();
 
     void DoConstruct();
@@ -1410,15 +1410,24 @@ const PMU_OPTIONS PMU_SLRatio_Rho  = 0x00000020;
 const dword Connect_Terminal = 1;
 const dword Connect_Flange   = 2;
 
-class DllImportExport CConnect : public CSFGNodeInfo
+//enum eConnectRefs { eNdRefNone, eNdRefSrc, eNdRefDst };
+
+class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
   {
   protected:
     DEFINE_MEMSTATS(CConnect )
     CRITICAL_SECTION m_LockSect;
 
   public:
-    CConnect(dword ID);
+    CConnect(dword ID, TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~CConnect();
+
+    // TaggedObject...
+    virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   DataXchg(DataChangeBlk & DCB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
 
     void           Lock() { EnterCriticalSection(&m_LockSect); };
     void           UnLock() { LeaveCriticalSection(&m_LockSect); };
@@ -1430,12 +1439,11 @@ class DllImportExport CConnect : public CSFGNodeInfo
     void           SetIsEvalSeqStart(flag On)   { m_fIsEvalSeqStart=On; };
     flag           IsEvalSeqStart()             { return m_fIsEvalSeqStart; };
 
-    void           FixTag();
-    char *         FullTag();
+    void           FixTag(LPCSTR ReqdTag=NULL, bool TagFixed=false);
 
     // CSFGNodeInfo Overides
-    virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullTag(); };
-    virtual CSFGNodeInfo * SFGNodePtr() { return this;};
+    virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullObjTag(); };
+    virtual CSFGNodeInfo * SFGNodePtr()         { return this;};
 
 
   public:
@@ -1445,7 +1453,10 @@ class DllImportExport CConnect : public CSFGNodeInfo
     FlwNode*       m_pNdDst;
     int            m_iIOSrc;
     int            m_iIODst;
-    Strng          m_FullTag;
+    FlwNode*       m_pRefNd;
+
+  private:
+    bool           m_bTagFixed;
   };
 
 // =========================================================================
@@ -1455,16 +1466,16 @@ class DllImportExport CTerminal : public CConnect
   protected:
 
   public:
-    int            m_Attachments;
-
-    flag           m_fInTerminalList;
-    flag           m_fIsTear;
-
-    CTerminal();
+    CTerminal(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~CTerminal();
 
     flag           IsTear() { return m_fIsTear; };
     void           SetIsTear(flag On) { m_fIsTear=On; };
+
+  public:
+    int            m_Attachments;
+    flag           m_fInTerminalList;
+    flag           m_fIsTear;
   };
 
 typedef CSCDList <CTerminal*, CTerminal*> CTerminalList;
@@ -1482,26 +1493,60 @@ class DllImportExport CCtrlData
 
 // =========================================================================
 
-class DllImportExport CCtrlTermX : public CCtrlData, public CTerminal { };
-
-// =========================================================================
-
-class DllImportExport CETerminalX : /*public CElecConduit,*/ public CTerminal
+DEFINE_TAGOBJ(CCtrlTermX) 
+class DllImportExport CCtrlTermX : public CCtrlData, public CTerminal 
   {
   public:
-    CETerminalX()
-      {
-      };
-    CETerminalX(CETermStripDefn & Terms)
-      {
-//ELEC       m_TStrip.PutName(Terms.Name());
-//ELEC       m_TStrip.SetWireNames(Terms);
-      };
+    CCtrlTermX(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual ~CCtrlTermX();
+
+    //virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    //virtual flag   DataXchg(DataChangeBlk & DCB);
+    //virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    //virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
   };
 
 // =========================================================================
 
-class DllImportExport CAirTermX : /*public CAirConduit,*/ public CTerminal { };
+DEFINE_TAGOBJ(CElecTermX) 
+class DllImportExport CElecTermX : public CTerminal
+  {
+  public:
+    CElecTermX(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual ~CElecTermX();
+
+    //virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    //virtual flag   DataXchg(DataChangeBlk & DCB);
+    //virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    //virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
+    //CElecTermX()
+    //  {
+    //  };
+//    CElecTermX(CETermStripDefn & Terms)
+//      {
+////ELEC       m_TStrip.PutName(Terms.Name());
+////ELEC       m_TStrip.SetWireNames(Terms);
+//      };
+  };
+
+// =========================================================================
+
+DEFINE_TAGOBJ(CAirTermX) 
+class DllImportExport CAirTermX : public CCtrlData, public CTerminal 
+  {
+  public:
+    CAirTermX(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual ~CAirTermX();
+
+    //virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    //virtual flag   DataXchg(DataChangeBlk & DCB);
+    //virtual flag   ValidateData(ValidateDataBlk & VDB);
+
+    //virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
+  };
+
 
 // =========================================================================
 
@@ -1512,7 +1557,7 @@ const int MaxMSRqd    = 5;
 #endif
 
 DEFINE_TAGOBJ(CFlange)
-class DllImportExport CFlange : public TearPosBlk, public CConnect, public TaggedObject
+class DllImportExport CFlange : public TearPosBlk, public CConnect//, public TaggedObject
   {
   //DEFINE_MEMSTATS(CFlange)
   //public:
@@ -1521,14 +1566,14 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect, public Tagge
 
 
   public:
-    CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    CFlange(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~CFlange();
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual pchar  Tag(pchar ReqdTag=NULL);
+    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
 
 
     // Tear Flanges - to Break Recycles
@@ -1539,7 +1584,7 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect, public Tagge
     void           ClrTearImage(FlwNode* pNd);
 
     // Tear Pos Block overrides
-    virtual TearVarBlk* CreateVarBlk(char * Tag, pTaggedObject pAttach);
+    virtual TearVarBlk* CreateVarBlk(char * Tag, TaggedObject * pAttach);
     byte           TearVarType();
     void           SetTearInitEstUsage(byte iEu);
     //flag           TearAdvanceReqd();
@@ -2839,7 +2884,7 @@ class DllImportExport CMacroMdl : public TaggedObject
   DEFINE_MEMSTATS(CMacroMdl)
 
   public:
-    CMacroMdl(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    CMacroMdl(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~CMacroMdl();
 
     virtual void   BuildDataDefn(DataDefnBlk & DDB) {};
@@ -3348,7 +3393,7 @@ class DllImportExport FlwNode : public CTNode
   DEFINE_MEMSTATS(FlwNode)
 
   public:
-    FlwNode(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    FlwNode(TagObjClass * pClass_, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~FlwNode();
 
 
@@ -3405,7 +3450,7 @@ class DllImportExport FlwNode : public CTNode
     void           BuildDataDefnElevation(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
-    static  pchar  TypeString(DWORD Type, Strng & TypeStr);
+    static  LPSTR  TypeString(DWORD Type, Strng & TypeStr);
     virtual char *  TypeString(Strng & TypeStr, flag Clr=1);
     virtual CFlwEqnPtr * GetSystemDefnFlwEqn(int i, Strng *Tg)    { return NULL; };
     virtual long   CheckDataRanges(bool CheckIO)                  { return 0; };
@@ -3416,10 +3461,10 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
 
      // CTNode override
-    virtual pchar  Tag(pchar ReqdTag=NULL);
+    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
   
     FlwNode*       InsertRoot(char * TagIn);
-    FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1);
     int            ConnectIOTag(FlwNode* s, char * IOTag1, FlwNode* d, char * IOTag2, IOInfoBlk *pInfo=NULL);
 
@@ -3447,7 +3492,7 @@ class DllImportExport FlwNode : public CTNode
     static void    RemoveFromConnects(LPSTR ConnTag); 
     static void    AddToConnects(LPSTR ConnTag, CConnect * pConnect); 
     static flag    FindConnect(LPSTR ConnTag, CConnect * pConnect); 
-    static CConnect * FindConnect(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
+    static CConnect * FindConnect(LPSTR pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
 
     virtual void   PostConnect(int IONo);
     virtual void   PreDisConnect(int IONo);
@@ -3990,7 +4035,7 @@ class DllImportExport FlwNode : public CTNode
 
     virtual long   NodeFlwTask(NodeFlwTasks Task);
 
-    FlwNode*       CreateFlwNode(char * Class, char * SubClass, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    FlwNode*       CreateFlwNode(char * Class, char * SubClass, char * TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     char *          FindFlwNodeIdIndexed(char * pGroup, int iIndex);
     char *          FindFlwNodeDescIndexed(char * pGroup, int iIndex);
     char *          FindFlwNodeShortDescIndexed(char * pGroup, int iIndex);
@@ -4048,7 +4093,7 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   GetModelGraphic(CMdlGraphicArray & Grfs) { return false; };
     virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return false; };
 
-    virtual flag   GetModelAssocGraphics(CMdlAssocGraphicList & Grfs);
+    virtual flag   EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs);
 
     virtual void   PreConfigureJoins();
     virtual void   ConfigureJoins()                         {};
@@ -4482,8 +4527,7 @@ class DllImportExport FlwNode : public CTNode
     //static CArray<CConnect*, CConnect*> sm_Connects;
     static CConnectsMap sm_ConnectsMap;
    
-    CRITICAL_SECTION m_LockSect;
-
+    CRITICAL_SECTION  m_LockSect;
 
   };
 

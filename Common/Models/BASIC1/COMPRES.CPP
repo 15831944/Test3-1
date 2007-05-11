@@ -170,7 +170,7 @@ void GasPump_GP::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text("");
   m_FTB.BuildDataDefn(DDB, "Thermal", NULL, DDB_RqdPage, FEOF_ShowPVConst);
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }

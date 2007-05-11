@@ -2500,6 +2500,12 @@ int CHistorian::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CHistorian::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {  return EOCT_DONE;
+  }
+
+//---------------------------------------------------------------------------
+
 int CHistorian::EO_CanClose(Strng_List & Problems)
   {
   if (pQueryList)

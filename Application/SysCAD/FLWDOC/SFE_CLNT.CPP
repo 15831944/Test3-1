@@ -473,6 +473,9 @@ int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
   };
 int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
    { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
+
+flag SFEFlwLib::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+   { FENTER(true) pSfe->RequestModelAssocGraphicsMasks(Set, NdTag, Msks); FLEAVE};
 //int SFEFlwLib::RequestXRefInfoChg()
 //   { IENTER(false) pSfe->RequestXRefInfoChg(); ILEAVE};
 flag SFEFlwLib::FE_TestModelTagUnique(pchar pTag)
@@ -502,8 +505,8 @@ flag SFEFlwLib::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
 flag SFEFlwLib::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
   { FENTER(false) pSfe->EO_OperateModelGraphic(Tag, Wnd, Grf); FLEAVE};
 
-flag SFEFlwLib::EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  { FENTER(false) pSfe->EO_GetModelAssocGraphics(Tag, Grfs); FLEAVE};
+flag SFEFlwLib::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  { FENTER(false) pSfe->EO_RequestModelAssocGraphics(Tag, Grfs); FLEAVE};
 flag SFEFlwLib::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
   { FENTER(false) pSfe->EO_UpdateModelAssocGraphics(Grfs, Map); FLEAVE};
 
@@ -529,16 +532,29 @@ int  SFEFlwLib::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
   { IENTER(false) pSfe->EO_QueryChangeTag(pOldTag, pNewTag); ILEAVE };
 int  SFEFlwLib::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   { 
-  SetLoadAllModelStatus();
+  //SetLoadAllModelStatus();
   IENTER(false) pSfe->EO_ChangeTag(pOldTag, pNewTag);
+  ILEAVE
+  };
+int  SFEFlwLib::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  { 
+  SetLoadAllModelStatus();
+  IENTER(false) pSfe->EO_ChangeTagDone(pOldTag, pNewTag);
   ILEAVE
   };
 int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
   { IENTER(false) pSfe->EO_QueryDeleteTag(pDelTag); ILEAVE };
 int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   {
-  SetLoadAllModelStatus();
+  //SetLoadAllModelStatus();
   IENTER(false) pSfe->EO_DeleteTag(pDelTag);
+  //CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+int  SFEFlwLib::EO_DeleteTagDone(pchar pDelTag)
+  {
+  SetLoadAllModelStatus();
+  IENTER(false) pSfe->EO_DeleteTagDone(pDelTag);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -706,6 +722,8 @@ int SFEFlwLib::FE_LoadAllModelStatus()
         m_nStatusColourChgs++;
       m_MdlStatus[i].m_iColour=Colour;
       m_MdlStatus[i].m_iAColour=OvrColour;
+      m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
+      
       m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
       }
 

@@ -228,6 +228,7 @@ class CDriverManager : public CExecObj, public CDriverManagerBase, public CNodeX
     virtual flag   EO_EndLoad(FilingControlBlock &FCB);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     virtual int    EO_QueryDeleteTag(pchar pDelTag);
     virtual int    EO_DeleteTag(pchar pDelTag);
     virtual void   EO_OnAppActivate(BOOL bActive);

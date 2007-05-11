@@ -162,6 +162,47 @@ typedef struct
 
 typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData);
 
+class CModelAssocGraphicMask
+  {
+  public:
+    CModelAssocGraphicMask()
+      {
+      m_ClassShow = 0;
+      m_TagShow   = 0;
+      m_TagHide   = 0;
+      };
+    CModelAssocGraphicMask(LPCSTR Tag, dword Class, dword Show, dword Hide)
+      {
+      m_Tag       = Tag;
+      m_ClassShow = Class;
+      m_TagShow   = Show;
+      m_TagHide   = Hide;
+      };
+    CModelAssocGraphicMask(const CModelAssocGraphicMask & V)
+      {
+      m_Tag       = V.m_Tag;
+      m_ClassShow = V.m_ClassShow;
+      m_TagShow   = V.m_TagShow;
+      m_TagHide   = V.m_TagHide;
+      };
+    CModelAssocGraphicMask & operator=(const CModelAssocGraphicMask & V)
+      {
+      m_Tag       = V.m_Tag;
+      m_ClassShow = V.m_ClassShow;
+      m_TagShow   = V.m_TagShow;
+      m_TagHide   = V.m_TagHide;
+      return *this;
+      };
+
+  public:
+    CString   m_Tag;
+    dword     m_ClassShow;
+    dword     m_TagShow;
+    dword     m_TagHide;
+  } ;
+
+class CModelAssocGraphicMasks : public CList<CModelAssocGraphicMask, CModelAssocGraphicMask&> {};
+
 // ==========================================================================
 //
 //
@@ -1083,6 +1124,7 @@ class DllImportExport CSfeSrvrBase
     virtual int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status) { return 0; };
     virtual int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest) { return 0; };
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };
+    virtual flag         RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks) { return 0; };
     //virtual int          RequestXRefInfoChg() { return 0; };
 
     virtual int          FE_GetRctInfo(CRctBlkInformation & RctInfo)                           { return 0; };
@@ -1109,7 +1151,7 @@ class DllImportExport CSfeSrvrBase
     virtual flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)              { return 0; };
     virtual flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return 0; };
 
-    virtual flag         EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)   { return 0; };
+    virtual flag         EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)   { return 0; };
     virtual flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map) { return 0; };
 
     virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)          { return 0; };
@@ -1118,8 +1160,10 @@ class DllImportExport CSfeSrvrBase
     virtual flag         EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)     { return 0; };
     virtual int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)                       { return 0; };
     virtual int          EO_ChangeTag(pchar pOldTag, pchar pNewTag)                            { return 0; };
+    virtual int          EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)                        { return 0; };
     virtual int          EO_QueryDeleteTag(pchar pDelTag)                                      { return 0; };
     virtual int          EO_DeleteTag(pchar pDelTag)                                           { return 0; };
+    virtual int          EO_DeleteTagDone(pchar pDelTag)                                           { return 0; };
     virtual int          EO_CanClose(Strng_List & Problems)                                    { return 0; };
 
     virtual void         EO_SetSolveMode()                                                     { };

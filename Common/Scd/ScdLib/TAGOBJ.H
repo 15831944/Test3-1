@@ -717,6 +717,43 @@ class DllImportExport CTODefaultData
 typedef flag (*fn_BuildDataDefnGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB);
 typedef flag (*fn_DataXchgGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB);
 
+//===========================================================================
+
+enum eAssocGrfTypes
+  {
+    eAG_None,
+    eAG_Spill, eAG_Vent, eAG_Leak,                   // Real IOs
+    eAG_Makeup, eAG_Bleed,
+    eAG_Src, eAG_Snk, eAG_Accum, eAG_Deplete,        // Direct
+    eGA_RB,
+  };
+
+const dword AGM_Spill  = 0x00000001;
+const dword AGM_Vent   = 0x00000002;
+const dword AGM_Leak   = 0x00000004;
+const dword AGM_Makeup = 0x00000008;
+const dword AGM_Bleed  = 0x00000010;
+
+const dword AGM_RB     = 0x00000020;
+
+const dword AGM_Set    = 0x40000000;
+const dword AGM_Inited = 0x80000000;
+
+inline dword AssocGraphicMask(eAssocGrfTypes AGType)
+  {
+  switch (AGType)
+    {
+    case eAG_Makeup: return AGM_Makeup;
+    case eAG_Bleed:  return AGM_Bleed;
+    case eAG_Spill:  return AGM_Spill;
+    case eAG_Vent:   return AGM_Vent;
+    case eAG_Leak:   return AGM_Leak;
+    }
+  return 0;
+  };
+
+//===========================================================================
+
 // MInitialiseTest moved to md_share3.h
 
 class DllImportExport TagObjClass
@@ -806,6 +843,21 @@ class DllImportExport TagObjClass
     LPSTR          TagInitialID()                              { return m_sTagInitialID(); };
     LPSTR          TagFormat()                                 { return m_sTagFormat.GetLength()>0 ? m_sTagFormat() : sm_sTagFormat(); };
     LPSTR          TagComment()                                { return sTagComment(); };
+
+    dword          AssocGraphicOnMask(dword Reqd=0xffffffff)      { return m_AssocGraphicOnMask & Reqd; }       
+    void           SetAssocGraphicOnMask(dword Reqd, dword Mask)  
+      { 
+      Mask = Mask & ~(AGM_Inited|AGM_Set);
+      m_AssocGraphicOnMask = (m_AssocGraphicOnMask & ~Mask) | (Mask & Reqd); 
+      }       
+    void           InitAssocGraphicOnMask(flag PBMode, dword PBReqd, dword DynReqd)
+      {
+      if ((m_AssocGraphicOnMask&AGM_Inited)==0) 
+        {
+        dword Reqd=(PBMode ? PBReqd : DynReqd);
+        m_AssocGraphicOnMask=(AGM_Inited|Reqd);
+        }
+      }       
 
     flag           Selectable();
     void           SetSelectable(flag Select)                  { m_bSelectable=Select; };
@@ -902,6 +954,8 @@ class DllImportExport TagObjClass
     CTOCustomData  m_CustomData;
     CTOSelectData  m_SelectData;
 #endif
+
+    dword          m_AssocGraphicOnMask;
   };
 
 inline Strng GetClassIdNoVersion(LPCTSTR pClass)
@@ -1341,6 +1395,15 @@ class DllImportExport TaggedObject : public ConditionBlk
     CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
 #endif
 
+    void           InitAssocGraphicOnMask(dword PBReqd, dword DynReqd)         { return Class()->InitAssocGraphicOnMask(NetProbalMethod(), PBReqd, DynReqd);    }       
+    bool           AssocGraphicOn(eAssocGrfTypes AGType);                       
+    dword          AssocGraphicShowClass(dword Mask=0xffffffff)                { return Class()->AssocGraphicOnMask(Mask);                                      }       
+    void           SetAssocGraphicShowClass(dword Reqd, dword Mask=0xffffffff) { return Class()->SetAssocGraphicOnMask(Reqd, Mask);                             }       
+    dword          AssocGraphicShow(dword Mask=0xffffffff)                     { return m_AssocGraphicShow & Mask;                                              }       
+    void           SetAssocGraphicShow(dword Reqd, dword Mask=0xffffffff)      { m_AssocGraphicShow = m_AssocGraphicShow&~Mask | Mask&Reqd;                     }       
+    dword          AssocGraphicHide(dword Mask=0xffffffff)                     { return m_AssocGraphicHide & Mask;                                              }       
+    void           SetAssocGraphicHide(dword Reqd, dword Mask=0xffffffff)      { m_AssocGraphicHide = m_AssocGraphicHide&~Mask | Mask&Reqd;                     }       
+
   protected:
     Strng           m_sTag;
     Strng           m_sPrefix;
@@ -1441,6 +1504,8 @@ protected:
 
     dword           m_dwPrevStatus;
 
+    dword           m_AssocGraphicShow; 
+    dword           m_AssocGraphicHide; 
 
   protected:
     TagObjClass*   m_pClass;

@@ -11,6 +11,7 @@
 #include "dynmseg.h"
 #include "sfe_clnt.h"
 #include "project.h"
+#include "scdtempl.h"
 #ifndef __FE_CONST_H
 #include "..\flwlib\fe_const.h"
 #endif
@@ -25,17 +26,19 @@ extern "C"
   }
 
 
-#define dbgCNM          0
-#define dbgcolor        0
-#define dbgdxf          0
-#define dbgdxfget       0
-#define dbgdxfadd       0
-#define dbgdxfdraw      0
-#define dbgdxfgetb      0
-#define dbgclosestc     0
-#define dbgBlk          0
-#define dbgexplode      0
-#define dbgLineExport   0
+#define dbgCNM            0
+#define dbgcolor          0
+#define dbgdxf            0
+#define dbgdxfget         0
+#define dbgdxfadd         0
+#define dbgdxfdraw        0
+#define dbgdxfgetb        0
+#define dbgclosestc       0
+#define dbgBlk            0
+#define dbgexplode        0
+#define dbgLineExport     0
+#define dbgAssocGrf       0
+#define dbgTagManagement  0
 
 
 const double MaxBigDim = 1.0e4;
@@ -583,11 +586,42 @@ void CGrfLayer::Clear()
   dml_clear_list(OtherLst);
   }
 
+#if dbgTagManagement  
+void DumpInsertList(LPCSTR Name, DML_LIST InsertLst)
+  {
+  if (1)
+    {
+    DML_ITEM it;
+    DXF_ENTITY e;
+    WALK_ENTITY_LIST(InsertLst, it, e)
+      {
+      DML_LIST l1 = DXF_INSERT_ATTRS(e);
+      if (l1)
+        {
+        DML_ITEM it1;
+        DXF_ENTITY e1;
+        WALK_ENTITY_LIST(l1, it1, e1)
+          {
+          dbgpln("%s: 0x%08x %-30s : %s ", Name, e1,
+            DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
+            DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
+          }
+        }
+      }
+    }
+  }
+#endif
+
 //----------------------------------------------------------------------------
 
 flag CGrfLayer::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
   flag TagChngd = 0;
+
+#if dbgTagManagement  
+  DumpInsertList("AAA", InsertLst);
+#endif
+
   DML_ITEM it;
   DXF_ENTITY e;
   WALK_ENTITY_LIST(InsertLst, it, e)
@@ -599,19 +633,28 @@ flag CGrfLayer::ChangeTag(pchar pOldTag, pchar pNewTag)
       DXF_ENTITY e1;
       WALK_ENTITY_LIST(l1, it1, e1)
         {
-        //dbgpln("%-30s : %s ",
-        //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
-        //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
-
-        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag") &&
+#if dbgTagManagement
+        dbgpln("ChangeTags: 0x%08x %-30s : %s ", e1,
+               DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
+               DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
+#endif
+        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr) &&
           DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
           {
+#if dbgTagManagement
+          dbgpln(" >> %s -> %s", pOldTag, pNewTag);
+#endif
           DXF_ATTRIB_VALUE_SET(e1, pNewTag);
           TagChngd = 1;
           }
         }
       }
     }
+
+#if dbgTagManagement  
+  DumpInsertList("BBB", InsertLst);
+#endif
+
   return TagChngd;
   }
 
@@ -619,6 +662,10 @@ flag CGrfLayer::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 void CGrfLayer::CollectTags(Strng_List & TagList)
   {
+#if dbgTagManagement  
+  DumpInsertList("EEE", InsertLst);
+#endif
+
   DML_ITEM it;
   DXF_ENTITY e;
   //dbgpln("=========");
@@ -631,14 +678,19 @@ void CGrfLayer::CollectTags(Strng_List & TagList)
       DXF_ENTITY e1;
       WALK_ENTITY_LIST(l1, it1, e1)
         {
-        //dbgpln("%-30s : %s ",
-        //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
-        //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
-
-        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))// &&
+#if dbgTagManagement
+        dbgpln("CollectTags: 0x%08x %-30s : %s ", e1,
+               DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
+               DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
+#endif
+        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr))// &&
           //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
           {
           //DXF_ATTRIB_VALUE_SET(e1,pNewTag);
+          if (strlen(DXF_ATTRIB_VALUE_GET(e1))==0)
+            {
+            int xxx=0;
+            }
           TagList.Append(DXF_ATTRIB_VALUE_GET(e1));
           }
         }
@@ -666,7 +718,7 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
         //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
         //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
 
-        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))// &&
+        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr))// &&
           //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
           {
           if (stricmp(DXF_ATTRIB_VALUE_GET(e1), Tag)==0)
@@ -688,75 +740,91 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
   }
 
 //---------------------------------------------------------------------------
-  
+ 
 flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsX)
   {
+#if dbgTagManagement  
+  DumpInsertList("CCC", InsertLst);
+#endif
+
   DML_ITEM it;
-  DXF_ENTITY e;
+  DXF_ENTITY eInsert;
   flag WorkReqd = 0;
-  WALK_ENTITY_LIST(InsertLst, it, e)
+  WALK_ENTITY_LIST(InsertLst, it, eInsert)
     {
-    DML_LIST l1 = DXF_INSERT_ATTRS(e);
+    DML_LIST l1 = DXF_INSERT_ATTRS(eInsert);
     if (l1)
       {
-      DML_ITEM it1;
-      DXF_ENTITY e1;
-      DXF_ENTITY eIsAssoc=NULL;
+      //DML_ITEM it1;
+      //DXF_ENTITY e1;
 
-      WALK_ENTITY_LIST(l1, it1, e1)
+      //      WALK_ENTITY_LIST(l1, it1, e1)
+      //        {
+      //        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),AssocTagAttribStr))
+      //          {
+      //#if dbgAssocGrf
+      //          dbgpln("AssocTag 0x%08x = %s", e1, DXF_ATTRIB_VALUE_GET(e1));
+      //#endif
+      //          eIsAssoc=e;
+      //          break;
+      //          }
+      //        }
+
+      DXF_ENTITY eTag=Find_Attr(eInsert, TagAttribStr);
+      if (eTag)
         {
-        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"AssocWith"))
+        LPTSTR Tag=DXF_ATTRIB_VALUE_GET(eTag);
+        DXF_ENTITY eAssoc=Find_Attr(eInsert, AssocTagAttribStr);
+#if dbgAssocGrf
+        dbgpln("ModelAssocGraphics Tag 0x%08x      = %s", eTag, Tag); 
+#endif                               
+        CMdlAssocGraphicMapItem GI;
+        if (Map.Lookup(Tag, GI))
           {
-
-          dbgpln("AssocWith = %s", DXF_ATTRIB_VALUE_GET(e1));
-
-          eIsAssoc=e1;
-          break;
-          }
-        }
-
-      WALK_ENTITY_LIST(l1, it1, e1)
-        {
-        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),"Tag"))
-          {
-          LPTSTR Tag=DXF_ATTRIB_VALUE_GET(e1);
-          dbgpln("Tag       = %s", Tag); 
-          CMdlAssocGraphicMapItem GI;
-          if (Map.Lookup(Tag, GI))
+#if dbgAssocGrf
+          dbgpln("                   Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
+#endif
+          if (eAssoc)
             {
-            dbgpln("Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
-            if (eIsAssoc)
+            CMdlAssocGraphic::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
+            WorkReqd= 1;
+            I.m_bExists=true;
+            if (!I.m_bShowIt)
               {
-              WorkReqd= 1;
-              GI.m_pG->m_AssocGrfs[GI.m_Index].m_bExists=true;
-              }
-            else 
-              {
-              ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
-              WorkReqd= 1;
-              GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eAddMissing, GI.m_pG, -1, DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], e));
+#if dbgAssocGrf
+              dbgpln("                   Delete @ %s", Tag);
+#endif
+              GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, eInsert));
               }
             }
-          else //if (eIsAssoc)
+          else //if (I.m_bShowIt)
             {
-            // Item not found - remove it if assoc grfs
-            dbgpln("Missing ");
-            if (eIsAssoc)
-              {
-              LPCTSTR NdTag=DXF_ATTRIB_VALUE_GET(eIsAssoc);
-              dbgpln("Delete @ %s", NdTag);
-              CMdlAssocGraphicMapItem GIa;
-              if (Map.Lookup(NdTag, GIa)) // if main node is in the map then delete the assoc grrfs
-                {
-                GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, e));
-                }
-              }
+            //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
+            WorkReqd= 1;
+            GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+            }
+          }
+        else //if (eIsAssoc)
+          {
+          // Item not found - remove it if assoc grfs
+#if dbgAssocGrf
+          dbgpln("                   Missing ");
+#endif
+          if (eAssoc)
+            {
+#if dbgAssocGrf
+            dbgpln("                   Delete @ %s", Tag);
+#endif
+            GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, eInsert));
             }
           }
         }
       }
     }
 
+#if dbgTagManagement  
+  DumpInsertList("DDD", InsertLst);
+#endif
   return WorkReqd;
   };   
 
@@ -842,13 +910,13 @@ void CGrfLayer::CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagI
   DXF_ENTITY e;
   WALK_ENTITY_LIST(InsertLst, it, e)
     {
-    char* pv = Find_Attr_Value(e, "Tag");
+    char* pv = Find_Attr_Value(e, TagAttribStr);
     if (pv || AllInserts)
       {
       CGrfTagInfo GTI;
       GTI.m_sTag = pv ? pv:"NULL";
       GTI.m_bHasTag = pv!=NULL;
-      PopulateTagInfo(pDrawing, e, Find_Attr(e, "Tag"), GTI, Drawing->StyleLst);
+      PopulateTagInfo(pDrawing, e, Find_Attr(e, TagAttribStr), GTI, Drawing->StyleLst);
       GTIA.Add(GTI);
       }
     }
@@ -1096,7 +1164,7 @@ DXF_ENTITY CGrfLayer::Find_Tagged_Insert(pchar Val)
   WALK_ENTITY_LIST(InsertLst, it, e)
     {
     pchar v;
-    if( Val && (v = Find_Attr_Value(e,"Tag")) && !strcmp(Val,v))
+    if( Val && (v = Find_Attr_Value(e,TagAttribStr)) && !strcmp(Val,v))
       return e;
     }
   return NULL;
@@ -2949,7 +3017,7 @@ DXF_ENTITY LayerCollection::Add_Insert_Attrib(DXF_ENTITY Insert, pchar Tag, pcha
 //----------------------------------------------------------------------------
 
 DXF_ENTITY LayerCollection::Create_Insert(pchar Typ, Pt_3f Pt_,int Color, Pt_3f Scl_, REAL Rot,
-                                          pchar TagValue, Pt_3f TagPt_, Attr_Settings &Set)
+                                          pchar TagValue, pchar AssocTagValue, Pt_3f TagPt_, Attr_Settings &Set)
   {
   PT3 Pt,Scl,TagPt;
 
@@ -2996,7 +3064,14 @@ DXF_ENTITY LayerCollection::Create_Insert(pchar Typ, Pt_3f Pt_,int Color, Pt_3f 
 
       PT3 Ptt;
       c3v_add(Pt, TagPt, Ptt);
-      if( TagValue)DXF_ENTITY t = Add_Insert_Attrib(Insert, "Tag", TagValue, Ptt, Set);
+      if( TagValue)
+        {
+        DXF_ENTITY t = Add_Insert_Attrib(Insert, TagAttribStr, TagValue, Ptt, Set);
+        }
+      if( AssocTagValue)
+        {
+        DXF_ENTITY a = Add_Insert_Attrib(Insert, AssocTagAttribStr, AssocTagValue, Ptt, Set);
+        }
       //      20, 1.5, ptt, 0.0,
       //                                       (Show ? 0 : Attrib_InVisible), ColorTag, Text_Cntrd);
       dml_append_data(l->InsertLst, Insert);
@@ -4095,31 +4170,24 @@ flag DXF_Drawing::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAsso
     CMdlAssocGraphic  & G = *GX.m_pAssGrf;
     switch (GX.m_eAction)
       {
-      case CMdlAssocGraphicX::eAddMissing:
+      case CMdlAssocGraphicX::eAddNdAssocGrfs:
         {
         for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
           {
           CMdlAssocGraphic::CItem & I = G.m_AssocGrfs[i];
-          if (!I.m_bExists)
+          if (!I.m_bExists && I.m_bShowIt)
             {
-            switch (I.m_eType)
-              {
-              case eDIO_Spill:
-              case eDIO_Vent:
-                if (G.m_bIsLnk)
-                  break;
-              case eDIO_Makeup:
-                {
-                PT3 pt;
-                pt[0] = GX.m_NdX;
-                pt[1] = GX.m_NdY;
-                pt[2] = 0.0;
+            PT3 pt;
+            pt[0] = GX.m_NdX;
+            pt[1] = GX.m_NdY;
+            pt[2] = 0.0;
 
-                DXF_ENTITY Ins = Add_AssocGrf(I.m_eType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
-                pDsp->Draw(Ins, -1);
-                break;
-                }
-              }
+            DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
+            pDsp->Draw(Ins, -1);
+            }
+          else if (I.m_bExists && !I.m_bShowIt)
+            {
+            // Will Delete below;
             }
           }
         break;
@@ -5547,7 +5615,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
     item->pKenwalta = (void *)l->EntityInvalidate();
     }
 
-  if (DXF_ENTITY_IS_INSERT(e) && item->pKenwalta == NULL )
+  if (DXF_ENTITY_IS_INSERT(e) && item->pKenwalta == NULL)
     {
     pBlock b;
     b = Blocks.Find(DXF_INSERT_BLOCK_GET(e));
@@ -7062,7 +7130,7 @@ DXF_ENTITY DXF_Drawing::Create_Fill_Block(CExecObj *pDb, DXF_ENTITY Insert, pcha
       {
       WALK_ENTITY_LIST(pLay->InsertLst, item, entity)
         {
-        pchar eTag   = Find_Attr_Value(entity, "Tag");
+        pchar eTag   = Find_Attr_Value(entity, TagAttribStr);
         pchar eBlock = DXF_INSERT_BLOCK_GET(entity);
         pchar iBlock = DXF_INSERT_BLOCK_GET(Insert);
 
@@ -7099,7 +7167,7 @@ DXF_ENTITY DXF_Drawing::Create_Fill_Block(CExecObj *pDb, DXF_ENTITY Insert, pcha
     }
   else
     {
-    pchar eTag = Find_Attr_Value(Insert, "Tag");  ASSERT(eTag);
+    pchar eTag = Find_Attr_Value(Insert, TagAttribStr);  ASSERT(eTag);
     //remove all attributes...
     Remove_Attr(Insert, "FILLTAG");
     Remove_Attr(Insert, "FILLVAR");
@@ -7154,7 +7222,7 @@ DXF_ENTITY DXF_Drawing::Delete_Fill_Block(DXF_ENTITY Insert, flag ApplyToAll)
       {
       WALK_ENTITY_LIST(pLay->InsertLst, item, entity)
         {
-        pchar eTag   = Find_Attr_Value(entity, "Tag");
+        pchar eTag   = Find_Attr_Value(entity, TagAttribStr);
         pchar eBlock = DXF_INSERT_BLOCK_GET(entity);
         pchar iBlock = DXF_INSERT_BLOCK_GET(Insert);
 
@@ -8739,7 +8807,7 @@ DXF_ENTITY DXF_Drawing::Add_Unit(pViewport vp, Pt_3f &CTagPt, flag CTagPtOK, pch
   if (!CTagPtOK)
     CTagPt=bpos;
 
-  Add_Insert_Attrib(ins,"Tag",       Tag          ,CTagPt.p(), AttrVis);
+  Add_Insert_Attrib(ins,TagAttribStr,       Tag          ,CTagPt.p(), AttrVis);
   //bpos.Set(CTagPt.x(),CTagPt.y()-4.0,CTagPt.z());
   //Add_Insert_Attrib(ins,"EQUIP_ID",  equip_name   ,CTagPt.p(), AttrInVis);
   //CTagPt.Set(CTagPt.x(),CTagPt.y()-4.0,CTagPt.z());
@@ -8850,7 +8918,7 @@ static CSym VentSym[] =
     {0, 0, 1,                      },
   };
 
-DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
+DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
   {
   pBlock  AssGrf;
   DXF_ENTITY InsSym;
@@ -8868,7 +8936,6 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LP
   dml_insert_after(Lst, NULL, OwnerEntity);
   C3_BOX_S Bnds ;                      
   GetBounds(&Bnds, EmptyLst, Lst, EmptyLst);
-  
 
   dml_free_list(Lst);
   dml_free_list(EmptyLst);
@@ -8882,7 +8949,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LP
     CSym * pSym=NULL;
     switch (Type)
       {
-      case eDIO_Makeup:
+      case eAG_Makeup:
         {
         BlockName="MAKEUP_ASSOCGRF";
         pSym=MakeupSym;
@@ -8891,7 +8958,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LP
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
         }
-      case eDIO_Spill:
+      case eAG_Spill:
         {
         BlockName="SPILL_ASSOCGRF";
         pSym=SpillSym;
@@ -8900,7 +8967,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LP
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
         }
-      case eDIO_Vent:
+      case eAG_Vent:
         {
         BlockName="VENT_ASSOCGRF";
         pSym=VentSym;
@@ -8944,8 +9011,10 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eDirectIO Type, PT3 pt, LPCSTR NdTagStr, LP
 
     InsSym = Create_Insert(BlockName, AssocGrfPos, GR_LIGHTCYAN);
 
-    Add_Insert_Attrib(InsSym,"Tag",        (LPSTR)TagStr,        AssTagPos.p(), Atag);
-    Add_Insert_Attrib(InsSym,"AssocWith",  (LPSTR)NdTagStr,      AssTagPos.p(), Atag);
+    Add_Insert_Attrib(InsSym,TagAttribStr,        (LPSTR)TagStr,        AssTagPos.p(), Atag);
+    Add_Insert_Attrib(InsSym,AssocTagAttribStr,  (LPSTR)NdTagStr,      AssTagPos.p(), Atag);
+
+    
     }
   return InsSym;
   }

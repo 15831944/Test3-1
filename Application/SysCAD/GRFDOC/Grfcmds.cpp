@@ -31,6 +31,8 @@
 #include "neutralgrf.h"
 #include "neutralmdl.h"
 #include "bulktagchange.h"
+#include "assocgrftag.h"
+
 //#include "optoff.h"
                         
 #ifdef _DEBUG
@@ -1138,7 +1140,7 @@ char * GrfCmdBlk::DoToggleItem(char *pTag)
     {
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
     pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 2500.0); // 50.0
     CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
     pDsp->Vp1->ClrSelectionAllList();
@@ -1146,7 +1148,7 @@ char * GrfCmdBlk::DoToggleItem(char *pTag)
     if (pEnt && pEnt->EntityPtr())
       {
       DXF_ENTITY e = pEnt->EntityPtr();
-      pTag = Attr_Value(Find_Attr(e, "Tag"));
+      pTag = Attr_Value(Find_Attr(e, TagAttribStr));
       }
     }
 
@@ -1182,7 +1184,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     {
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
     pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 2500.0); // 50.0
     CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
     pDsp->Vp1->ClrSelectionAllList();
@@ -1190,7 +1192,7 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
     if (pEnt && pEnt->EntityPtr())
       {
       DXF_ENTITY e = pEnt->EntityPtr();
-      pTag = Attr_Value(Find_Attr(e, "Tag"));
+      pTag = Attr_Value(Find_Attr(e, TagAttribStr));
       }
     }
 
@@ -1249,10 +1251,13 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
 #endif
     Menu.AppendMenu(MF_STRING, 104,  "Change Tag ...");
     Menu.AppendMenu(MF_STRING, 105,  "Data Transfer ...");
+    Menu.AppendMenu(MF_STRING, 107,  "Associated Graphics ...");
+    Menu.AppendMenu(MF_SEPARATOR, -1);
     Menu.AppendMenu(MF_STRING, 101,  "Empty");
     Menu.AppendMenu(MF_STRING, 102,  "Zero Flows");
     Menu.AppendMenu(MF_STRING|(DefNetDynamicMode()?0:MF_GRAYED), 103,  "Preset");
     Menu.AppendMenu(MF_STRING/*|(TaggedObject::NetDynamicMethod()?0:MF_GRAYED)*/, 119,  "Reset Stats");
+    Menu.AppendMenu(MF_SEPARATOR, -1);
     Menu.AppendMenu(MF_STRING|(DoWire?0:MF_GRAYED), 130,  "Wiring");
     AuditMenu.CreatePopupMenu();
     Menu.AppendMenu(MF_POPUP, (UINT)AuditMenu.m_hMenu, "Mass && Energy Audit");
@@ -1291,6 +1296,12 @@ char * GrfCmdBlk::DoActionMenu(char *pTag)
       break;
     case 100:
       break;
+    case 107:
+      {
+      CAssocGrfTag Dlg(pTag);
+      Dlg.DoModal();
+      break;
+      }
     case 101:
     case 102:
     case 103:
@@ -1482,7 +1493,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
     {
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
     pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 2500.0); // 50.0
     CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
     pDsp->Vp1->ClrSelectionAllList();
@@ -1490,7 +1501,7 @@ char * GrfCmdBlk::DoAccessMenu(char *pTag)
     if (pEnt && pEnt->EntityPtr())
       {
       DXF_ENTITY e = pEnt->EntityPtr();
-      pTag = Attr_Value(Find_Attr(e, "Tag"));
+      pTag = Attr_Value(Find_Attr(e, TagAttribStr));
       }
     }
 
@@ -1715,7 +1726,7 @@ void GrfCmdBlk::DoObjectAccess()
         // Why was this restriction here CNM : if (!gs_pCmd->CtrlDown())
           pDsp->Vp1->ClearAllEntity();
         pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-        pDsp->Vp1->AddSelectionAttribList("Tag");
+        pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
         pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 25.0); // 50.0
         CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
         pDsp->Vp1->ClrSelectionAllList();
@@ -1723,7 +1734,7 @@ void GrfCmdBlk::DoObjectAccess()
         if (pEnt && pEnt->EntityPtr())
           {
           DXF_ENTITY e = pEnt->EntityPtr();
-          pTag = Attr_Value(Find_Attr(e, "Tag"));
+          pTag = Attr_Value(Find_Attr(e, TagAttribStr));
           }
         }
       ScreenPoint.x=(int)pDsp->CurrentPt.Screen.X+5;
@@ -1917,7 +1928,7 @@ void GrfCmdBlk::DoConfig()
       case EX_MOUSE_LUP :
         {
         CWaitCursor Wait;
-        pchar pTag = Attr_Value(pDrw->ClosestAttr("Tag", pDsp->CurrentPt));
+        pchar pTag = Attr_Value(pDrw->ClosestAttr(TagAttribStr, pDsp->CurrentPt));
         if (pTag)
           gs_AccessWnds.AccessNode(-1, pTag);//, Noun == 1, AccSelect, False);
         else
@@ -2104,7 +2115,7 @@ void GrfCmdBlk::DoInsert()
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
 
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
+            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
             if (CB->e)
               {
               pDsp->Draw(CB->e, -1);
@@ -2242,6 +2253,7 @@ void GrfCmdBlk::DoChangeUnit()
             CWaitMsgCursor Wait("Changing entities");
             pMdlDlg->CompleteForUse(false);
             ATag = pMdlDlg->m_Tag();
+            Strng AssocTag;
 
             int DeletesFailedCnt = 0;
             int MdlDeletes = 0;
@@ -2257,14 +2269,16 @@ void GrfCmdBlk::DoChangeUnit()
               if (e && pDrw->Exists(e))
                 {
                 if (DXF_ENTITY_IS_INSERT(e))
-                  {
+                  {                                   
+                  AssocTag = Find_Attr_Value(e, AssocTagAttribStr);
+                  
                   Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
                   pDsp->SetCPtWorld(Pos, Pt1);
                   }
                 pchar pTag;
                 if (0)//DelMdl)
                   {
-                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                     {
                     CMdlValueSet::Clear();
                     int RetCode = gs_Exec.DeleteTag(pTag);
@@ -2314,7 +2328,10 @@ void GrfCmdBlk::DoChangeUnit()
             //pDsp->Show_Dig_Point(Pt1);
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
+            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), 
+              CB->ATag(), AssocTag(),
+              CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
+            
             pDsp->Draw(CB->e, -1);
 
             pDsp->Vp1->ClearAllEntity();
@@ -2419,13 +2436,13 @@ void GrfCmdBlk::DoChangeUnit()
             DXF_ENTITY e=p->EntityPtr();
             if (e && DXF_ENTITY_IS_INSERT(e))
               {
-              char * pTag = Find_Attr_Value(e, "Tag");
+              char * pTag = Find_Attr_Value(e, TagAttribStr);
               char * pSymbol = DXF_INSERT_BLOCK_GET(e);
               double XScl=DXF_INSERT_X_SCALE(e);
               double YScl=DXF_INSERT_Y_SCALE(e);
               //double XScl=DXF_INSERT_Z_SCALE(e);
               double Rot=DXF_INSERT_ROT_ANG(e);
-              bool TagHidden = (Find_Attr_AFlags(e, "Tag") & DXF_ATTRIB_INVIS )!=0;
+              bool TagHidden = (Find_Attr_AFlags(e, TagAttribStr) & DXF_ATTRIB_INVIS )!=0;
 
 
               Pos.Set(DXF_INSERT_PT(e)[0], DXF_INSERT_PT(e)[1], DXF_INSERT_PT(e)[2]);
@@ -2576,7 +2593,7 @@ void GrfCmdBlk::DoChangeUnit()
                 pchar pTag;
                 if (0)//DelMdl)
                   {
-                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+                  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                     {
                     CMdlValueSet::Clear();
                     int RetCode = gs_Exec.DeleteTag(pTag);
@@ -2614,7 +2631,7 @@ void GrfCmdBlk::DoChangeUnit()
 
             //pDsp->Show_Dig_Point(Pt1);
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
-            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
+            CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->Scl, CB->Rotate, True, Tag_Attr_Set);
             pDsp->Draw(CB->e, -1);
 
             pDsp->Vp1->ClearAllEntity();
@@ -3250,7 +3267,7 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
 
   Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
 
-  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
+  CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
     pDsp->Draw(CB->e, -1);
 
@@ -3299,8 +3316,8 @@ bool GrfCmdBlk::DoInsertLinkGrf(CConnectBlk* CB, bool SkipTagTest)
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->ClrSelectionAllList();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
-    char *a1[] = { "Tag",    (pchar)NULL };
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
+    char *a1[] = { TagAttribStr,    (pchar)NULL };
     char *b1[] = { CB->SrcTag(), (pchar)NULL };
     pDrw->SelectInsertsOnAttrCombo(NULL, a1, b1, NULL);
     CEntInView* p = pDsp->Vp1->FirstSelectedEntity();
@@ -3316,8 +3333,8 @@ bool GrfCmdBlk::DoInsertLinkGrf(CConnectBlk* CB, bool SkipTagTest)
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->ClrSelectionAllList();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
-    char *a2[] = { "Tag",    (pchar)NULL };
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
+    char *a2[] = { TagAttribStr,    (pchar)NULL };
     char *b2[] = { CB->DstTag(), (pchar)NULL };
     pDrw->SelectInsertsOnAttrCombo(NULL, a2, b2, NULL);
     p = pDsp->Vp1->FirstSelectedEntity();
@@ -3360,8 +3377,8 @@ bool GrfCmdBlk::DoInsertLinkGrf(CLineDrawHelper & LDH, char* SrcTag, char* DstTa
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->ClrSelectionAllList();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
-    char *a1[] = { "Tag",    (pchar)NULL };
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
+    char *a1[] = { TagAttribStr,    (pchar)NULL };
     char *b1[] = { SrcTag, (pchar)NULL };
     pDrw->SelectInsertsOnAttrCombo(NULL, a1, b1, NULL);
     CEntInView* p = pDsp->Vp1->FirstSelectedEntity();
@@ -3377,8 +3394,8 @@ bool GrfCmdBlk::DoInsertLinkGrf(CLineDrawHelper & LDH, char* SrcTag, char* DstTa
     pDsp->Vp1->ClearAllEntity();
     pDsp->Vp1->ClrSelectionAllList();
     pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-    pDsp->Vp1->AddSelectionAttribList("Tag");
-    char *a2[] = { "Tag",    (pchar)NULL };
+    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
+    char *a2[] = { TagAttribStr,    (pchar)NULL };
     char *b2[] = { DstTag, (pchar)NULL };
     pDrw->SelectInsertsOnAttrCombo(NULL, a2, b2, NULL);
     p = pDsp->Vp1->FirstSelectedEntity();
@@ -3599,7 +3616,7 @@ CEntInView* GrfCmdBlk::GetClosest(Pt_SLW CurrentPt, flag FindLink, Strng& Tag)
     if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
       {
       DXF_ENTITY e = p->EntityPtr();
-      Tag = Find_Attr_Value(e, "Tag");
+      Tag = Find_Attr_Value(e, TagAttribStr);
       if (Tag())
         {
         int RetCode = CheckEntity(Tag());
@@ -4190,7 +4207,7 @@ void GrfCmdBlk::DoMoveLink()
             }
           else
             ArrowScale = ArrowScl;
-          bFlag1 = ((Attr_AFlags(Find_Attr(OldEntity, "Tag"))&Attrib_InVisible)!=0);
+          bFlag1 = ((Attr_AFlags(Find_Attr(OldEntity, TagAttribStr))&Attrib_InVisible)!=0);
           Strng TagMod;
           pGWnd->SetCursor();
           TagMod.Set(",%s ", LnkTag());
@@ -4230,7 +4247,7 @@ void GrfCmdBlk::DoMoveLink()
           {
           if (OldEntity)
             {//delete previous...
-            //char * pTag = Attr_Value(Find_Attr(OldEntity, "Tag"));
+            //char * pTag = Attr_Value(Find_Attr(OldEntity, TagAttribStr));
             pDsp->Draw(OldEntity, GrfHelper.GR_BACKGROUND);
             pDrw->Delete(OldEntity);
             }
@@ -4420,7 +4437,7 @@ void GrfCmdBlk::DoConstructSymbol()
           p = pDsp->Vp1->FirstSelectedEntity();
           while (p)
             {
-            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
               {
               if (pFndFst==NULL)
                 pFndFst = p;
@@ -4440,7 +4457,7 @@ void GrfCmdBlk::DoConstructSymbol()
             nEntSelects++;
             if (sm_pCnsDlg)
               {
-              char* pUnitTag = Find_Attr_Value(pEnt1->EntityPtr(), "Tag");
+              char* pUnitTag = Find_Attr_Value(pEnt1->EntityPtr(), TagAttribStr);
               sm_pCnsDlg->SetTag(pUnitTag);
               }
             }
@@ -4459,7 +4476,7 @@ void GrfCmdBlk::DoConstructSymbol()
           {
           pDsp->Vp1->ClrSelectionAllList();
           CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
-          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
             {
             pEnt1 = p;
             //pDsp->Vp1->DeSelectEntity(p);
@@ -4723,7 +4740,7 @@ void GrfCmdBlk::DoConstructUnit()
           p = pDsp->Vp1->FirstSelectedEntity();
           while (p)
             {
-            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
               pDsp->Vp1->DeSelectEntity(p);
             else
               nEntSelects++;
@@ -4744,7 +4761,7 @@ void GrfCmdBlk::DoConstructUnit()
           {
           pDsp->Vp1->ClrSelectionAllList();
           CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
-          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
             {
             pDsp->Vp1->DeSelectEntity(p);
             //p = NULL;//try again
@@ -5078,7 +5095,7 @@ void GrfCmdBlk::DoConstructLink()
           p = pDsp->Vp1->FirstSelectedEntity();
           while (p)
             {
-            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+            if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
               pDsp->Vp1->DeSelectEntity(p);
             else
               nEntSelects++;
@@ -5100,7 +5117,7 @@ void GrfCmdBlk::DoConstructLink()
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
           CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
-          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), "Tag"))
+          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && Find_Attr_Value(p->EntityPtr(), TagAttribStr))
             {
             pDsp->Vp1->DeSelectEntity(p);
             //p = NULL; //try again
@@ -5440,7 +5457,7 @@ void GrfCmdBlk::DoConstructTie()
                 Pt_3f Scl(1.0, 1.0, 1.0);
                 float Rotate = (float)0.0;
                 Tag_Attr_Set.Flags = DXF_ATTRIB_INVIS; // Force It Off
-                DXF_ENTITY pEnt = AddUnitDrawing("", GrfSymb(), AClass(), ATag(), Pos, Scl, Rotate, True, Tag_Attr_Set);
+                DXF_ENTITY pEnt = AddUnitDrawing("", GrfSymb(), AClass(), ATag(), NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
                 Like = pEnt;
                 if (pEnt)
                   {
@@ -5637,7 +5654,7 @@ void GrfCmdBlk::DoTranslate()
             {
             pDsp->Vp1->ClrSelectionAllList();
             //pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            //pDsp->Vp1->AddSelectionAttribList("Tag");
+            //pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             CEntInView* pEnt = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
             if (pEnt && pEnt->EntityPtr())
               {
@@ -5812,7 +5829,7 @@ void GrfCmdBlk::DoMoveEntity()
               pDsp->Vp1->ClearAllEntity();
               pDsp->Vp1->ClrSelectionAllList();
               //pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-              //pDsp->Vp1->AddSelectionAttribList("Tag");
+              //pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
               pEnt1 = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
               if (pEnt1)
                 {
@@ -5821,10 +5838,11 @@ void GrfCmdBlk::DoMoveEntity()
                 Pt1 = pDsp->CurrentPt;
                 Pt3 = Pt1;
                 }
+              pDsp->Vp1->SelectAssocEntities();
               }
             else
               {//move the selected entity...
-              if (Like)
+              if (0)//Like)
                 {
                 pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
                 pDrw->TranslateEntity(Like, pDsp->StartPt.World, pDsp->CurrentPt.World);
@@ -5883,6 +5901,7 @@ void GrfCmdBlk::DoMoveEntity()
           else
             pDsp->Vp1->SelectEntitiesInCrossBox(pDsp->StartPt, pDsp->EndPt);
           bFlag2 = 1;
+          pDsp->Vp1->SelectAssocEntities();
           pGWnd->SetCursor(IDC_POS);
           break;
         }
@@ -6251,7 +6270,7 @@ void GrfCmdBlk::DoSelect()
           pDsp->Vp1->ClearAllEntity();
           pDsp->Vp1->ClrSelectionAllList();
           pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-          pDsp->Vp1->AddSelectionAttribList("Tag");
+          pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
           pDrw->SelectInsertsOnAttrCombo(NULL, a999, b999, NULL);
           break;
         case 7 : // Goto a specific tag entered from command window
@@ -6290,20 +6309,20 @@ void GrfCmdBlk::DoSelect()
           {
           pDsp->Vp1->ClrSelectionAllList();
           pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-          pDsp->Vp1->AddSelectionAttribList("Tag");
+          pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
           CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
           char* pUnitTag;
-          if (p && p->EntityPtr() && (pUnitTag = Find_Attr_Value(p->EntityPtr(), "Tag")))
+          if (p && p->EntityPtr() && (pUnitTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr)))
             {
             RequestModelIOConnRec Info;
             int i = 0;
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
 
             while (gs_pPrj->RequestModelIOConn(pUnitTag, i++, Info))
               {
-              char* a[] = { "Tag", (char*)NULL };
+              char* a[] = { TagAttribStr, (char*)NULL };
               char* b[] = { Info.Tag(), (char*)NULL };
               pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
               }
@@ -6849,7 +6868,7 @@ void GrfCmdBlk::DoExplode()
               BOOL Ok = true;
               if (DoMdl && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                 {
-                pchar pTag = Find_Attr_Value(p->EntityPtr(), "Tag");
+                pchar pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr);
                 if (pTag)
                   {
                   RequestModelIOConnRec Info;
@@ -6902,7 +6921,7 @@ void GrfCmdBlk::DoExplode()
           if (e)
             {
             int ok = 0;
-            pchar pTag = Find_Attr_Value(e, "Tag");
+            pchar pTag = Find_Attr_Value(e, TagAttribStr);
             if (pTag)
               {
               ok=1;
@@ -6942,13 +6961,13 @@ void GrfCmdBlk::DoExplode()
                   RequestModelIOConnRec Info;
                   pDsp->Vp1->ClrSelectionAllList();
                   pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-                  pDsp->Vp1->AddSelectionAttribList("Tag");
+                  pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
                   int i = 0;
                   while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
                     {
                     if (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0)
                       {
-                      char *a[] = { "Tag",    (pchar)NULL };
+                      char *a[] = { TagAttribStr,    (pchar)NULL };
                       char *b[] = { Info.Tag(), (pchar)NULL };
                       pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
                       }
@@ -7387,7 +7406,7 @@ void GrfCmdBlk::DoHelpUnit()
           CEntInView* p = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
           pchar pTag;
 
-          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), "Tag")))
+          if (p && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr)))
             {
             char* pTxt = new char[strlen(pTag)+1];
             strcpy(pTxt, pTag);
@@ -7506,7 +7525,7 @@ void GrfCmdBlk::DoDelete()
               BOOL Ok = true;
               if (DelMdl && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                 {
-                pchar pTag = Find_Attr_Value(p->EntityPtr(), "Tag");
+                pchar pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr);
                 if (pTag)
                   {
                   RequestModelIOConnRec Info;
@@ -7550,20 +7569,38 @@ void GrfCmdBlk::DoDelete()
         while (p)
           {
           pchar pTag;
-          if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), "Tag")))
+          if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr)))
             {
             RequestModelIOConnRec Info;
             int i = 0;
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
               {
               if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
                 {
-                char *a[] = { "Tag",    (pchar)NULL };
+                char *a[] = { TagAttribStr,    (pchar)NULL };
                 char *b[] = { Info.Tag(), (pchar)NULL };
                 pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
+                }
+              }
+            
+            CMdlAssocGraphicList Grfs;
+            if (gs_pPrj->EO_RequestModelAssocGraphics(pTag, Grfs))
+              {
+              POSITION Pos=Grfs.GetHeadPosition();
+              while (Pos)
+                {
+                CMdlAssocGraphic & G=Grfs.GetNext(Pos);
+              //if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
+              //  {
+                for (int g=0; g<G.m_AssocGrfs.GetCount(); g++)
+                  {
+                  char *a[] = { TagAttribStr,                                    (pchar)NULL };
+                  char *b[] = { (LPTSTR)(LPCTSTR)G.m_AssocGrfs[g].m_sTag, (pchar)NULL };
+                  pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
+                  }
                 }
               }
             }
@@ -7594,17 +7631,21 @@ void GrfCmdBlk::DoDelete()
           {
           pchar pTag;
           if (DelMdl)
-            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
               {
               CMdlValueSet::Clear();
-              int RetCode = gs_Exec.DeleteTag(pTag);
-              if (RetCode!=EODT_DONE)
+
+              if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
                 {
-                LogError(pTag, 0, "Model not deleted");
-                DeletesFailedCnt++;
+                int RetCode = gs_Exec.DeleteTag(pTag);
+                if (RetCode!=EODT_DONE)
+                  {
+                  LogError(pTag, 0, "Model not deleted");
+                  DeletesFailedCnt++;
+                  }
+                else
+                  MdlDeletes++;
                 }
-              else
-                MdlDeletes++;
 
               /*int err = gs_pPrj->DeleteNodeModel(pTag);
               if (err)
@@ -7764,7 +7805,7 @@ void GrfCmdBlk::DoBulkTagChange()
           pchar pTag;
           if (DelMdl)
             {
-            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
               {
               CMdlValueSet::Clear();
               dbgpln("ChangeTag %s", pTag);
@@ -8102,7 +8143,7 @@ void GrfCmdBlk::DoSaveGroup()
                 BOOL Ok = true;
                 if (SaveMdl && p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()))
                   {
-                  pchar pTag = Find_Attr_Value(p->EntityPtr(), "Tag");
+                  pchar pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr);
                   if (pTag)
                     {
                     RequestModelIOConnRec Info;
@@ -8147,18 +8188,18 @@ void GrfCmdBlk::DoSaveGroup()
         //while (p)
         //  {
         //  pchar pTag;
-        //  if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), "Tag")))
+        //  if (p->EntityPtr() && DXF_ENTITY_IS_INSERT(p->EntityPtr()) && (pTag = Find_Attr_Value(p->EntityPtr(), TagAttribStr)))
         //    {
         //    RequestModelIOConnRec Info;
         //    int i = 0;
         //    pDsp->Vp1->ClrSelectionAllList();
         //    pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-        //    pDsp->Vp1->AddSelectionAttribList("Tag");
+        //    pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
         //    while (gs_pPrj->RequestModelIOConn(pTag, i++, Info))
         //      {
         //      if (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0)
         //        {
-        //        char *a[] = { "Tag",    (pchar)NULL };
+        //        char *a[] = { TagAttribStr,    (pchar)NULL };
         //        char *b[] = { Info.Tag(), (pchar)NULL };
         //        pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
         //        }
@@ -8203,7 +8244,7 @@ void GrfCmdBlk::DoSaveGroup()
           pchar pTag;
           if (SaveMdl)
             {
-            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
               {
               CMdlValueSet::Clear();
               Dlg.AddTag(pTag);
@@ -8775,7 +8816,7 @@ void GrfCmdBlk::ShowAttrs(DXF_ENTITY Ins, flag Tags)
   int n = 1;
   while (TAtt)
     {
-    if (Tags == Attr_Is(TAtt, "Tag"))
+    if (Tags == Attr_Is(TAtt, TagAttribStr))
       {
       if (Valid(Size))
         {
@@ -8827,7 +8868,7 @@ void GrfCmdBlk::HideAttrs(DXF_ENTITY Ins, flag Tags)
   DXF_ENTITY TAtt = First_Ent(Attr_List(Ins), EntInfo);
   while (TAtt)
     {
-    if (Tags == Attr_Is(TAtt, "Tag"))
+    if (Tags == Attr_Is(TAtt, TagAttribStr))
       Hide_Attr(TAtt);
     TAtt = Next_Ent(EntInfo);
     }
@@ -8843,7 +8884,7 @@ void GrfCmdBlk::MoveAttrs(DXF_ENTITY Ins, flag Tags, Pt_3f Delta)
   //int n = 1; //set n=1 for top left reference
   while (TAtt)
     {
-    if (Tags == Attr_Is(TAtt, "Tag"))
+    if (Tags == Attr_Is(TAtt, TagAttribStr))
       {
       Attr_Pt(TAtt)[0] = Insert_BasePt(Ins)[0] + Delta.X;
       Attr_Pt(TAtt)[1] = Insert_BasePt(Ins)[1] + Delta.Y - (n * (Attr_Size(TAtt)));
@@ -8861,7 +8902,7 @@ DXF_ENTITY GrfCmdBlk::FirstAttr(DXF_ENTITY Ins, flag Tags)
   DXF_ENTITY TAtt = First_Ent(Attr_List(Ins), EntInfo);
   while (TAtt)
     {
-    if (Tags == Attr_Is(TAtt, "Tag"))
+    if (Tags == Attr_Is(TAtt, TagAttribStr))
       return TAtt;
     TAtt = Next_Ent(EntInfo);
     }
@@ -9079,7 +9120,7 @@ void GrfCmdBlk::DoUpdateTags()
                     if (e && pDrw->Exists(e))
                       {
                       pchar pTag;
-                      if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, "Tag")))
+                      if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
                         sprintf(Buff, "%s : Select tag annotation position", pTag);
                       }
                     pTagsDlg->SetDescription(Buff);
@@ -9218,11 +9259,11 @@ void GrfCmdBlk::DoCreateFill()
             {//dig on model to get tag...
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             CEntInView* pEnt = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
             if (pEnt && pEnt->EntityPtr())
               {
-              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), "Tag");
+              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), TagAttribStr);
               TheInsert = pEnt->EntityPtr();
               ATag = TagV;
               if (pFillDlg)
@@ -9234,7 +9275,7 @@ void GrfCmdBlk::DoCreateFill()
             {//dig nearest entity for dynamic fill area...
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             PT3 Pos;
             CEntInView* pEnt = pDsp->Vp1->SelectLocOnEntity(pDsp->CurrentPt, Pos);
             if (pEnt)
@@ -9594,11 +9635,11 @@ void GrfCmdBlk::DoCreateBars()
             {// Select another tagged ent
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             CEntInView* pEnt = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
             if (pEnt)
               {
-              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), "Tag");
+              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), TagAttribStr);
               if (TagReq.Find(TagV)==NULL)
                 {
                 TagReq.Append(TagV);
@@ -9611,7 +9652,7 @@ void GrfCmdBlk::DoCreateBars()
             {// set position of dynamic bars
             pDsp->Vp1->ClrSelectionAllList();
             //pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            //pDsp->Vp1->AddSelectionAttribList("Tag");
+            //pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             if (Like)
               {
               pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
@@ -9944,11 +9985,11 @@ void GrfCmdBlk::DoCreateTogg()
             {// Select another tagged ent
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             CEntInView* pEnt = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
             if (pEnt)
               {
-              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), "Tag");
+              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), TagAttribStr);
               if (TagReq.Find(TagV)==NULL)
                 {
                 TagReq.Append(TagV);
@@ -10234,11 +10275,11 @@ void GrfCmdBlk::DoNewCreateAnno()
             {// Select another tagged ent
             pDsp->Vp1->ClrSelectionAllList();
             pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-            pDsp->Vp1->AddSelectionAttribList("Tag");
+            pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
             CEntInView* pEnt = pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt);
             if (pEnt)
               {
-              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), "Tag");
+              pchar TagV = Find_Attr_Value(pEnt->EntityPtr(), TagAttribStr);
               if (TagReq.Find(TagV)==NULL)
                 {
                 TagReq.Append(TagV);
@@ -10854,7 +10895,7 @@ void GrfCmdBlk::DoCfgLayers()
 
 //===========================================================================
 
-DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Tag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet, Pt_3f * TagPt)
+DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* ModelTyp, char* Tag, char* AssocTag, Pt_3f Pt, Pt_3f Scl, float Rotate, flag CompleteBlock, Attr_Settings &ASet, Pt_3f * TagPt)
   {
   if (DrawTyp_==NULL)
     DrawTyp_="??";
@@ -10930,8 +10971,9 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
       Scl.X, Scl.Y, Pt.X, Pt.Y, Ptt.X, Ptt.Y, (LPCTSTR)DrawBlockName, Tag);
     #endif
 
-    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Tag, Ptt, ASet);
-    pDrw->GetBounds();
+    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Tag, AssocTag, Ptt, ASet);
+    if (AssocTag)
+          pDrw->GetBounds();
     return e;
     }
   else
@@ -11009,7 +11051,7 @@ DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Tag,
   sprintf(nm, "%s_%d", KernalName, Max(1, unum));
 
   pBlock b = pDrw->Add_Block(nm, basept.p());
-  DXF_ENTITY a = b->Add_Attrib_Defn("Tag", "Tag ", "*", basept.p(), ASet);
+  DXF_ENTITY a = b->Add_Attrib_Defn(TagAttribStr, "Tag ", "*", basept.p(), ASet);
   vpt.Zero();
   C3_CURVE p = b->Add_PLine_Start(vpt.p());
   vpt.Set(-1., 0.2, 0.);
@@ -11047,7 +11089,7 @@ DXF_ENTITY GrfCmdBlk::AddLink(pchar Typ, pchar Tag,
       Link = b->Add_PLine_Start(ptmp.p());
     }
 
-  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE/*GR_LIGHTCYAN*/, sc, 0.0, Tag, ptt, ASet);
+  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE/*GR_LIGHTCYAN*/, sc, 0.0, Tag, NULL, ptt, ASet);
 
   if (Typ)
     {
@@ -11112,7 +11154,7 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   LDH.m_pBlock = pDrw->Add_Block(nm, basept.p());
   //add tag...
   Tag_Attr_Set.Flags = (LDH.ShowTag() ? 0 : DXF_ATTRIB_INVIS);
-  DXF_ENTITY a = LDH.m_pBlock->Add_Attrib_Defn("Tag", "Tag ", "*", basept.p(), Tag_Attr_Set);
+  DXF_ENTITY a = LDH.m_pBlock->Add_Attrib_Defn(TagAttribStr, "Tag ", "*", basept.p(), Tag_Attr_Set);
   //DXF_ENTITY_THICKNESS(a) = LDH.LineWidth();
   //add arrows...
   LDH.AddArrows(0);
@@ -11126,7 +11168,7 @@ DXF_ENTITY GrfCmdBlk::AddLinkDrawing(CLineDrawHelper & LDH)
   Attr_Settings SetMem=Tag_Attr_Set;
   Tag_Attr_Set.Size*=LDH.m_TagScale.X;
   Tag_Attr_Set.Rot=LDH.TagRotation();
-  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), ptt, Tag_Attr_Set);
+  DXF_ENTITY newinsert = pDrw->Create_Insert(nm, LDH.m_InsertPt, GR_WHITE/*GR_LIGHTCYAN*/, sc, LDH.TagRotation(), (LPTSTR)LDH.Tag(), NULL, ptt, Tag_Attr_Set);
   DXF_ENTITY_THICKNESS(newinsert) = LDH.LineWidth();
   Tag_Attr_Set=SetMem;
   return newinsert;
@@ -11156,7 +11198,7 @@ flag GrfCmdBlk::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar p
   while (Ins)
     {
     DXF_ENTITY TAtt = First_Ent(Attr_List(Ins), EntInfo);
-    if (TAtt && Attr_Is(TAtt, "Tag"))
+    if (TAtt && Attr_Is(TAtt, TagAttribStr))
       {
       pchar pAttr=Attr_Value(TAtt);
       if (_stricmp(pTag, pAttr) == 0)
@@ -11440,7 +11482,7 @@ void GrfCmdBlk::Do3DImport()
         Pos[0]=x0;
         Pos[1]=y0;
         Pos[2]=z0;
-        pEnt = AddUnitDrawing("", (char*)(const char*)AClass, (char*)(const char*)AClass, (char*)(const char*)ATag, Pos, Scl, Rotate, True, Tag_Attr_Set);
+        pEnt = AddUnitDrawing("", (char*)(const char*)AClass, (char*)(const char*)AClass, (char*)(const char*)ATag, NULL, Pos, Scl, Rotate, True, Tag_Attr_Set);
         if (pEnt)
           {
           pDsp->Draw(pEnt, -1);
@@ -11475,7 +11517,7 @@ void GrfCmdBlk::Do3DImport()
     f = new CTokenParser(0, InFileName2(), TRUE, TRUE, FALSE);
     if (f->Start())
       {
-      char *a[] = { "Tag",    (pchar)NULL };
+      char *a[] = { TagAttribStr,    (pchar)NULL };
       CEntInView* pEn0;
       CEntInView* pEn1;
       DXF_ENTITY en;

@@ -576,8 +576,13 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 
 #if WITHCLASSOPTIONS        
     void           LoadClassOptions();
-    flag           SaveClassVariableStatus(LPCSTR Path);
     flag           LoadClassVariableStatus(LPCSTR Path);
+    flag           SaveClassVariableStatus(LPCSTR Path);
+#endif
+
+#if WITHASSOCGRAPHICS
+    flag           LoadAssocGraphicsStatus(LPCSTR Path);
+    flag           SaveAssocGraphicsStatus(LPCSTR Path);
 #endif
 
     void           PutSettings();
@@ -727,6 +732,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     //int            RequestXRefInfoChg();
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
+    flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+
     flag           FlwModelExists(pchar pTag);
     flag           TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);
 

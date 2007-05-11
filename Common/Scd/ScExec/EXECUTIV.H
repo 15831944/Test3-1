@@ -339,51 +339,53 @@ class DllImportExport CMdlAssocGraphic
       public:
         CItem() 
           { 
-          m_eType   = eDIO_Spill; 
+          m_eAGType   = eAG_None; 
+          m_bShowIt = true;
           m_bExists = false;
           }
         CItem(const CItem & V) 
           { 
-          m_eType = V.m_eType;
-          m_sTag  = V.m_sTag;
+          m_eAGType   = V.m_eAGType;
+          m_sTag    = V.m_sTag;
+          m_bShowIt = V.m_bShowIt;
           m_bExists = V.m_bExists; 
           }
         CItem& operator=(const CItem & V) 
           { 
-          m_eType = V.m_eType;
-          m_sTag  = V.m_sTag;
+          m_eAGType   = V.m_eAGType;
+          m_sTag    = V.m_sTag;
+          m_bShowIt = V.m_bShowIt;
           m_bExists = V.m_bExists; 
           return *this;
           }
         bool operator==(const CItem & V) 
           { 
-          return m_eType == V.m_eType && m_sTag == V.m_sTag;
+          return (m_eAGType == V.m_eAGType) && (m_sTag == V.m_sTag) && (m_bShowIt == V.m_bShowIt);
           }
         bool operator!=(const CItem & V) 
           { 
-          return m_eType != V.m_eType || m_sTag != V.m_sTag;
+          return (m_eAGType != V.m_eAGType) || (m_sTag != V.m_sTag) || (m_bShowIt != V.m_bShowIt);
           }
 
       public:
-        eDirectIO         m_eType;
+        eAssocGrfTypes    m_eAGType;
         CString           m_sTag;
+        bool              m_bShowIt;
         // Working Vars
         bool              m_bExists; 
       };
 
   public:
-    //eDirectIO         m_eType;
-    //int               m_iIOId;
-    //int               m_iIOIndex;
     CString           m_sNdTag;
     bool              m_bIsLnk;
     CArray<CItem,CItem&> m_AssocGrfs;
-    //CString           m_sAssocTag;
   };
 
 bool operator==(const CMdlAssocGraphic & V1, const CMdlAssocGraphic & V2);
-inline bool operator==(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) { return V1.m_eType == V2.m_eType && V1.m_sTag == V2.m_sTag; }
-inline bool operator!=(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) { return V1.m_eType != V2.m_eType || V1.m_sTag != V2.m_sTag; }
+inline bool operator==(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) 
+  { return (V1.m_eAGType == V2.m_eAGType) && (V1.m_sTag == V2.m_sTag) && (V1.m_bShowIt == V2.m_bShowIt); }
+inline bool operator!=(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) 
+  { return (V1.m_eAGType != V2.m_eAGType) || (V1.m_sTag != V2.m_sTag) || (V1.m_bShowIt != V2.m_bShowIt); }
 
 class DllImportExport CMdlAssocGraphicList : public CList<CMdlAssocGraphic, CMdlAssocGraphic & > {};
 class CMdlAssocGraphicMapItem 
@@ -393,7 +395,7 @@ class CMdlAssocGraphicMapItem
     CMdlAssocGraphic* m_pG; 
     int m_Index; 
   };
-class DllImportExport CMdlAssocGraphicMap  : public CMap<LPCTSTR, LPCTSTR, CMdlAssocGraphicMapItem, CMdlAssocGraphicMapItem&> {};
+class DllImportExport CMdlAssocGraphicMap  : public CMap<LPTSTR, LPTSTR, CMdlAssocGraphicMapItem, CMdlAssocGraphicMapItem&> {};
 
 //===========================================================================
 
@@ -511,8 +513,10 @@ class DllImportExport CExecObj
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info) { return False; };
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)      { return EOCT_NOTFOUND; };
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag)           { return EOCT_NOTFOUND; };
+    virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)       { return EOCT_DONE;     };
     virtual int    EO_QueryDeleteTag(pchar pDelTag)                     { return EODT_NOTFOUND; };
     virtual int    EO_DeleteTag(pchar pDelTag)                          { return EODT_NOTFOUND; };
+    virtual int    EO_DeleteTagDone(pchar pDelTag)                          { return EODT_NOTFOUND; };
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
 
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
@@ -524,7 +528,7 @@ class DllImportExport CExecObj
     virtual flag   EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf)                        { return false; };
     virtual flag   EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)   { return false; };
     
-    virtual flag   EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)      { return false; };
+    virtual flag   EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)      { return false; };
     virtual flag   EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)   { return false; };
 
     //virtual flag   EO_SolutionReqd()                                    { return False; };
@@ -1290,7 +1294,7 @@ class DllImportExport CExecutive : public ConditionBlk
 
     flag           GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs);
     flag           OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-    flag           GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag           RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
     flag           UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
     flag           MaintainModelAssocGraphics(LPCTSTR Tag);
 

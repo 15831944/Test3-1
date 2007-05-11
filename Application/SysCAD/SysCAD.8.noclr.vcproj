@@ -836,6 +836,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\AssocGrfTag.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BASECMDS.CPP"
 				>
 				<FileConfiguration
@@ -5558,6 +5562,10 @@
 			</File>
 			<File
 				RelativePath=".\ArchMngr.H"
+				>
+			</File>
+			<File
+				RelativePath=".\AssocGrfTag.h"
 				>
 			</File>
 			<File

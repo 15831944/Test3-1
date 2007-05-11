@@ -204,7 +204,7 @@ void FilterPress::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   }

@@ -5658,40 +5658,13 @@ void CProject::LoadClassOptions()
   };
 #endif
 
+//---------------------------------------------------------------------------
+
 #if WITHEQUIPSPECS
-flag CProject::SaveClassVariableStatus(LPCSTR Path)
-  {
-  CString Fn(Path);
-  Fn+="VarStatus.svs";
-  FILE *h=fopen(Fn, "wt");
-  if (h)
-    {
-    for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
-      {
-      if (pClass->SelectData())
-        {
-        POSITION Pos=NULL;
-        if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
-          {
-          fprintf(h, "[%s]", pClass->ClassId());
-          Strng Tag1,Tag2;
-          CTagValueStatus Status;
-          while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
-            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
-          }
-        }
-      }
-    fprintf(h, "[]");
-    fclose(h);
-    return true;
-    }
-  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for write", Fn);
-  return false;
-  };
 flag CProject::LoadClassVariableStatus(LPCSTR Path)
   {
   CString Fn(Path);
-  Fn+="VarStatus.svs";
+  Fn+="Scd_VarStatus.ini";
   if (!FileExists(Fn))
     return true;
   FILE *h=fopen(Fn, "rt");
@@ -5736,6 +5709,142 @@ flag CProject::LoadClassVariableStatus(LPCSTR Path)
     }
   LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for read", Fn);
   return false;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProject::SaveClassVariableStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+="Scd_VarStatus.ini";
+  FILE *h=fopen(Fn, "wt");
+  if (h)
+    {
+    for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+      {
+      if (pClass->SelectData())
+        {
+        POSITION Pos=NULL;
+        if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
+          {
+          fprintf(h, "[%s]", pClass->ClassId());
+          Strng Tag1,Tag2;
+          CTagValueStatus Status;
+          while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
+          }
+        }
+      }
+    fprintf(h, "[]");
+    fclose(h);
+    return true;
+    }
+  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for write", Fn);
+  return false;
+  };
+
+#endif
+
+//===========================================================================
+
+#if WITHASSOCGRAPHICS
+flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
+  {
+  bool SetsDone=false;
+  CString Fn(Path);
+  Fn+="Scd_GrfStatus.ini";
+  CProfINIFile PF(Fn);
+
+  CString Entry;
+  Strng   ReqdS;
+  dword   Reqd;
+  for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+    {
+    ReqdS=PF.RdStr("Classes", pClass->ClassIdNoVersion(), "");
+    if (ReqdS.GetLength()>0)
+      {
+      Reqd=0;
+      if (sscanf(ReqdS(), "%x", &Reqd))
+        {
+        pClass->SetAssocGraphicOnMask(Reqd, 0xffffffff);
+        SetsDone=true;
+        }
+      }
+    }
+
+  int n=0;
+  CModelAssocGraphicMasks Msks;
+  for (int n=0; ; n++)
+    {
+    Entry.Format("Tg%05i", n);
+    ReqdS=PF.RdStr("Tags", Entry, "");
+    if (ReqdS.GetLength()>0)
+      {
+      int Quote=0;
+      CSVColArray C;
+      int NToks=ParseCSVTokens(ReqdS(), C, Quote); 
+      if (NToks==3)
+        {
+        dword Show;
+        dword Hide;
+        if (sscanf(C[1], "%x", &Show) && sscanf(C[2], "%x", &Hide))
+          {
+          Msks.AddTail(CModelAssocGraphicMask(C[0], 0, Show, Hide));
+          }
+        }
+      }
+    else
+      break;
+    }
+
+  if (Msks.GetCount()>0)
+    {
+    if (RequestModelAssocGraphicsMasks(true, NULL, Msks))
+      {
+      SetsDone=true;
+      }
+    }
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+="Scd_GrfStatus.ini";
+  CProfINIFile PF(Fn);
+  CString Entry, Value;
+
+  PF.WrSection("Classes", "");
+  for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+    {
+    if (pClass->AssocGraphicOnMask() & AGM_Inited)
+      {
+      Value.Format("%08x", pClass->AssocGraphicOnMask());
+      PF.WrStr("Classes", pClass->ClassIdNoVersion(), Value);
+      }
+    }
+
+
+  PF.WrSection("Tags", "");
+  int n=0;
+  CModelAssocGraphicMasks Msks;
+  if (RequestModelAssocGraphicsMasks(false, NULL, Msks))
+    {
+    POSITION Pos=Msks.GetHeadPosition();
+    while (Pos)
+      {
+      CModelAssocGraphicMask & Msk = Msks.GetNext(Pos);
+      if (Msk.m_TagShow || Msk.m_TagHide)
+        {
+        Entry.Format("Tg%05i", n++);
+        Value.Format("%s,%08x,%08x", Msk.m_Tag, Msk.m_TagShow, Msk.m_TagHide);
+        PF.WrStr("Tags", Entry, Value);
+        }
+      }
+    }
+  return true;
   };
 
 #endif
@@ -6160,6 +6269,11 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         goto DoneFailed;
       else
         {
+
+#if WITHASSOCGRAPHICS
+        LoadAssocGraphicsStatus(PrjFiles());
+#endif
+
 #if WITHEQUIPSPECS
         LoadClassVariableStatus(PrjFiles());
 #endif
@@ -7549,6 +7663,10 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
     SaveClassVariableStatus(PrjFiles());
 #endif
 
+#if WITHASSOCGRAPHICS
+    SaveAssocGraphicsStatus(PrjFiles());
+#endif
+
     CDlgBusy::SetLine(3, "Saving Window Layout");
     SaveWindowLayout();
     CDlgBusy::SetLine(3, CompactPrj());
@@ -8444,6 +8562,22 @@ int CProject::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
   { 
   return FlwLib()!=NULL ? FlwLib()->RequestTagRefInfo(Tag, Refs) : 0;
   };
+
+//---------------------------------------------------------------------------
+
+flag CProject::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+  { 
+  return FlwLib()!=NULL ? FlwLib()->EO_RequestModelAssocGraphics(Tag, Grfs) : 0;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProject::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+  { 
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGraphicsMasks(Set, NdTag, Msks) : 0;
+  };
+
+
 
 //---------------------------------------------------------------------------
 

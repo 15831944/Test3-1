@@ -8,6 +8,8 @@
 #define IDEXPORT                        3
 #define ID_NEXT                         3
 #define ID_CREATENEXT                   3
+#define IDCANCEL3                       3
+#define IDAPPLY                         3
 #define IDB_BROWSEINIFILE               4
 #define ID_BROWSE2                      4
 #define ID_APPLY                        4
@@ -1256,7 +1258,7 @@
 #define IDC_PF_FILELIST                 25506
 #define IDC_STATICVIEW                  25509
 #define IDC_STATICOPTS                  25510
-#define IDC_STATICSHOW                 25510
+#define IDC_STATICSHOW                  25510
 #define IDC_MSGLIST                     25511
 #define IDM_CTRL_VIEW                   25513
 #define IDD_TRNDPRINTDLG                25514
@@ -1416,6 +1418,7 @@
 #define IDD_DIALOG4                     25597
 #define IDD_RENAMEPAGE                  25597
 #define IDR_SCDIOMARSHAL                25598
+#define IDD_ASSOCGRAPHICS_TAG           25598
 #define IDR_SCDTAGFIXUP                 25599
 #define IDC_TABTREE                     25600
 #define IDC_INPLACEEDIT                 25600
@@ -1564,7 +1567,7 @@
 #define IDC_CLASSCOUNT                  25725
 #define IDC_PAGECOUNT                   25726
 #define IDC_TAGCOUNT                    25727
-#define IDC_ANDMARKED                  25728
+#define IDC_ANDMARKED                   25728
 #define IDC_CHANGECOUNT                 25729
 #define IDC_ADJUSTCOUNT                 25730
 #define IDC_APPLYCOUNT                  25731
@@ -1613,6 +1616,27 @@
 #define IDC_SHOWUNSELECTED              25763
 #define IDC_SHOWUNMARKED                25764
 #define IDC_SHOWUNCHECKED               25765
+#define IDC_TAG_FRAME                   25772
+#define IDC_TAG_FRAME2                  25773
+#define IDC_CLASS_FRAME                 25773
+#define IDC_CLASS_SHOW0                 25800
+#define IDC_CLASS_SHOW1                 25801
+#define IDC_CLASS_SHOW2                 25802
+#define IDC_CLASS_SHOW3                 25803
+#define IDC_CLASS_SHOW4                 25804
+#define IDC_CLASS_SHOW5                 25805
+#define IDC_TAG_SHOW0                   25820
+#define IDC_TAG_SHOW1                   25821
+#define IDC_TAG_SHOW2                   25822
+#define IDC_TAG_SHOW3                   25823
+#define IDC_TAG_SHOW4                   25824
+#define IDC_TAG_SHOW5                   25825
+#define IDC_TAG_HIDE0                   25840
+#define IDC_TAG_HIDE1                   25841
+#define IDC_TAG_HIDE2                   25842
+#define IDC_TAG_HIDE3                   25843
+#define IDC_TAG_HIDE4                   25844
+#define IDC_TAG_HIDE5                   25845
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400
@@ -2002,9 +2026,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        25598
+#define _APS_NEXT_RESOURCE_VALUE        25599
 #define _APS_NEXT_COMMAND_VALUE         30516
-#define _APS_NEXT_CONTROL_VALUE         25764
+#define _APS_NEXT_CONTROL_VALUE         25773
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
 #endif

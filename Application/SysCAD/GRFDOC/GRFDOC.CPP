@@ -366,13 +366,13 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
   //  //CString DocTitle = pGWnd->GetDocument()->GetTitle();
   //  LogNote("GrfCmds", 0, "%s has been found on %s.", Tag, (const char*)GetTitle());//DocTitle);
   //  }
-  char * TagTagList[] =   { "Tag", (pchar)NULL  };
+  char * TagTagList[] =   { TagAttribStr, (pchar)NULL  };
   char * ValueTagList[] = { Tag, (pchar)NULL     };
 
   GCB.pDrw->pDsp->Vp1->ClearAllEntity();
   GCB.pDrw->pDsp->Vp1->ClrSelectionAllList();
   GCB.pDrw->pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
-  GCB.pDrw->pDsp->Vp1->AddSelectionAttribList("Tag");
+  GCB.pDrw->pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
 
 
   IRegExpPtr *pRE=NULL;//(gs_pPrj->m_bGrfRegExpOn) ? new IRegExpPtr("VBScript.RegExp") : NULL;
@@ -619,7 +619,7 @@ int CGrfDoc::GetSelectedTags(Strng_List & Lst)
     DXF_ENTITY e = p->EntityPtr();
     if (e)
       {
-      pchar pTag = Find_Attr_Value(e, "Tag");
+      pchar pTag = Find_Attr_Value(e, TagAttribStr);
       if (pTag)
         Lst.Append(pTag);
       }

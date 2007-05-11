@@ -197,6 +197,7 @@ class DllImportExport CHistorian
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     virtual int    EO_CanClose(Strng_List & Problems);
 #else
   private:

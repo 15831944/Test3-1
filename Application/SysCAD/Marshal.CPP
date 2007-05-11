@@ -1597,6 +1597,13 @@ int CIOMarshal::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CIOMarshal::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {//a tag has been changed, ...
+  return EOCT_NOTFOUND;
+  }
+
+//---------------------------------------------------------------------------
+
 int CIOMarshal::EO_QueryDeleteTag(pchar pDelTag)
   {//will I allow the tag to be deleted...
 //  /*int SlotNo = FindChanForTag(pOldTag);
@@ -1608,6 +1615,13 @@ int CIOMarshal::EO_QueryDeleteTag(pchar pDelTag)
 //---------------------------------------------------------------------------
 
 int CIOMarshal::EO_DeleteTag(pchar pDelTag)
+  {//a tag has been deleted, ...
+  return EODT_NOTFOUND;
+  }
+
+//---------------------------------------------------------------------------
+
+int CIOMarshal::EO_DeleteTagDone(pchar pDelTag)
   {//a tag has been deleted, ...
   return EODT_NOTFOUND;
   }

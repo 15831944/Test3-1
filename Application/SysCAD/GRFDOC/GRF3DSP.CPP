@@ -349,6 +349,48 @@ int Viewport::SelectClosestEntities(Pt_SLW pt, CEntInView** pEntLst, double* Dis
 
 //---------------------------------------------------------------------------
 
+void Viewport::SelectAssocEntities()
+  {
+  CEntInView*  p = FirstSelectedEntity();
+  while (p)
+    {
+    DXF_ENTITY e=p->EntityPtr();
+    // Only Move AssocTag rel to Tag - NOT the reverse
+    //char * pAssocTag=Find_Attr_Value(e, AssocTagAttribStr);
+    char * pAssocTag=NULL;
+
+    if (pAssocTag)
+      {
+      for (CEntInView* p1 = disp_list; p1; p1=p1->GetNextValue())
+        {
+        DXF_ENTITY e1=p1->EntityPtr();
+        char * pTag = e1!=NULL ? Find_Attr_Value(e1, "Tag") : NULL;
+
+        if (pTag && stricmp(pAssocTag, pTag)==0)
+          SelectEntity(p1);
+        }
+      }
+    else 
+      {
+      char * pTag=Find_Attr_Value(e, "Tag");
+      if (pTag)
+        {
+        for (CEntInView* p1 = disp_list; p1; p1=p1->GetNextValue())
+          {
+          DXF_ENTITY e1=p1->EntityPtr();
+          char * pAssocTag = e1!=NULL ? Find_Attr_Value(e1, AssocTagAttribStr) : NULL;
+
+          if (pAssocTag && stricmp(pAssocTag, pTag)==0)
+            SelectEntity(p1);
+          }
+        }
+      }
+    p=NextSelectedEntity();
+    }
+  };
+
+//---------------------------------------------------------------------------
+
 CEntInView* Viewport::SelectLocOnEntity(Pt_SLW pt,PT3 pos)
   {
   double      mdis = 1.0e30;

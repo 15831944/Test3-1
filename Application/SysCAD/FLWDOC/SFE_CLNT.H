@@ -138,6 +138,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 //    int            RequestXRefInfoChg();
+    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     int            FE_GetRctInfo(CRctBlkInformation & RctInfo);
     int            FE_SetRctInfo(LPCTSTR NodeTag);
@@ -165,7 +166,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
-    flag           EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grf);
+    flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grf);
     flag           EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grf, CMdlAssocGraphicMap & Map);
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
@@ -175,8 +176,10 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
     int            EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     int            EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    int            EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     int            EO_QueryDeleteTag(pchar pDelTag);
     int            EO_DeleteTag(pchar pDelTag);
+    int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
     void           EO_SetSolveMode();

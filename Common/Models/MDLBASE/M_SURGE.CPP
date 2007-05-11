@@ -47,6 +47,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //pQFeed=NULL;
   //pQProd=NULL;
   AttachClassInfo(nc_Process,NULL, &PipeEntryGroup);
+  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed|AGM_Spill|AGM_Vent|AGM_Leak);
+
   Contents.SetStateAction(IE_Integrate);
   m_EqThermals.SetStateAction(IE_Integrate);
   if (!SolveBufferedMethod())

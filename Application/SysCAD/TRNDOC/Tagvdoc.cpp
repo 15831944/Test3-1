@@ -3213,6 +3213,13 @@ int CTagVwDoc::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CTagVwDoc::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {//a tag has been changed, change trend view...
+  return EOCT_DONE;
+  }
+
+//---------------------------------------------------------------------------
+
 int CTagVwDoc::EO_QueryDeleteTag(pchar pDelTag)
   {//will I allow the tag to be deleted...
   return EODT_NOTFOUND; 
@@ -3248,6 +3255,13 @@ int CTagVwDoc::EO_DeleteTag(pchar pDelTag)
     }
   */
   return RetCode;
+  }
+
+//---------------------------------------------------------------------------
+
+int CTagVwDoc::EO_DeleteTagDone(pchar pDelTag)
+  {//a tag has been deleted, ...
+  return EODT_DONE;
   }
 
 //---------------------------------------------------------------------------

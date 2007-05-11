@@ -791,7 +791,7 @@ void CMultiStorage::BuildDataDefn(DataDefnBlk & DDB)
   //  }
   //DDB.EndArray();
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };

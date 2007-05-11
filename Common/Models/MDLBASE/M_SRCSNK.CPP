@@ -24,6 +24,9 @@ m_BlkEval(this, NULL, NULL, NULL, NULL, NULL),
 m_CF(this)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
+
+  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed|AGM_Spill|AGM_Vent|AGM_Leak);
+
   //Initialise();
   fConnectionOn   = true;
   fConnectInitiator = false;

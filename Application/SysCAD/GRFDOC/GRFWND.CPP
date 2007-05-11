@@ -351,6 +351,28 @@ int CGrfWnd::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CGrfWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
+  {
+  ////change tag for annotation blocks...
+  //if (Dsp.Vp1->Drw->ChangeTag_NewAnnotation_Block(pOldTag, pNewTag))
+  //  {
+  //  PostMessage(WMU_DOGRFCMD, ID_GRF_RefreshAnnotation, 0);
+  //  }
+  ////change tag for models...
+  //if (Dsp.ChangeTag(pOldTag, pNewTag))
+  //  {
+  //  Dsp.Open();
+  //  GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+  //  GCB.pDrw->EntityInvalidate();
+  //  Invalidate(True);
+  //  Dsp.Close();
+  //  }
+
+  return EOCT_DONE;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CGrfWnd::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;

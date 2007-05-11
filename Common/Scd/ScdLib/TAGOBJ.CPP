@@ -385,6 +385,8 @@ m_SelectData(this)
   m_nInstances = 0;
   m_nInstancesMax = 0;
 
+  m_AssocGraphicOnMask = 0;
+
 //  m_pPropertyMap=NULL;
 
   #if dbgConstructObj
@@ -2381,6 +2383,8 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAtta
 
   m_dwPrevStatus = 0xffffffff;
 
+  m_AssocGraphicShow=0; 
+  m_AssocGraphicHide=0; 
 
   }
 
@@ -3325,7 +3329,11 @@ void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB, Strng & AltTag)
   if (dbgtestfileopen())
     DDB.CheckBoxBtn ("DbgBrk",    "", DC_,   "", &fDoDbgBrk,            this, isParm);
   DDB.CheckBoxBtn ("SkipSnapLoad","", DC_,   "", &bSkipSnapLoad,        this, isParm|InitHidden|noFileAtAll);
-  //DDB.WriteProtect();
+  //if (DDB.ForFiling())
+  //  {
+  //  DDB.DWord     ("AssocGrfShow", "", DC_,   "", &m_AssocGraphicShow,  this, isParm|SetOnChange);
+  //  DDB.DWord     ("AssocGrfHide", "", DC_,   "", &m_AssocGraphicHide,  this, isParm|SetOnChange);
+  //  }
   }
 
 //---------------------------------------------------------------------------
@@ -3900,6 +3908,25 @@ CTOCustomData::CDataSet* TaggedObject::CustomDataSelected()
   };
 
 #endif
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool TaggedObject::AssocGraphicOn(eAssocGrfTypes AGType)
+  {
+  dword Mask=AssocGraphicMask(AGType);
+
+  if (AssocGraphicHide(Mask))
+    return false;
+  if (AssocGraphicShow(Mask))
+    return true;
+  if (AssocGraphicShowClass(Mask))
+    return true;
+  return false;
+  };
 
 //========================================================================
 //

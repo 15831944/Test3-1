@@ -29,6 +29,8 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MXfer,NULL);
+  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed/*|AGM_Spill|AGM_Vent|AGM_Leaks*/);
+
   Joins.SetSize(1);
   m_NetworkIsolator=false;
   m_Accumulator=NULL;

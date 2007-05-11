@@ -111,6 +111,8 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
     int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
+    flag         RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+
     //int          RequestXRefInfoChg();
 
     int          FE_GetRctInfo(CRctBlkInformation & RctInfo);
@@ -138,9 +140,8 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
-    flag         EO_GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
+    flag         EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
     flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
-
 
     //flag         EO_SolutionReqd();
     //int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl);
@@ -152,8 +153,10 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
     int          EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     int          EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    int          EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     int          EO_QueryDeleteTag(pchar pDelTag);
     int          EO_DeleteTag(pchar pDelTag);
+    int          EO_DeleteTagDone(pchar pDelTag);
     int          EO_CanClose(Strng_List & Problems);
 
     void         EO_SetSolveMode();

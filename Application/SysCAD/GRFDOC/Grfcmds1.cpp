@@ -889,7 +889,7 @@ DXF_ENTITY CNF_Contents::AddSymbol(GrfCmdBlk & GCB, pDXF_Drawing pDrw,
       iv++;
       }
     }
-  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE, sc, 0.0, Tag, ptt, Tag_Attr_Set);
+  newinsert = pDrw->Create_Insert(nm, pti, GR_WHITE, sc, 0.0, Tag, NULL, ptt, Tag_Attr_Set);
 
   return newinsert;
   }

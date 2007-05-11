@@ -38,6 +38,7 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   dDuty=0.0; //actual
 
   AttachClassInfo(nc_MBst, NULL, &NullFlwGroup);
+  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed|AGM_Spill|AGM_Vent|AGM_Leak);
 
   m_FEP.SetFlowModeSrc(this, false);
   }

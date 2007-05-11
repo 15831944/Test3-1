@@ -511,7 +511,7 @@ void BeltCnv2::BuildDataDefn(DataDefnBlk & DDB)
   if (m_fShowProfile)
     DDB.Object(&m_Q.Profile(), this);
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };

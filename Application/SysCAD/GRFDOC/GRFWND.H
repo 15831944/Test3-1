@@ -23,6 +23,7 @@
 extern CString MakeValidBlockName(LPTSTR BlockName);
 //extern Strng MakeValidSymbolName(LPTSTR SymbolName);
 
+
 //===========================================================================
 
 enum DynamicWnd_Mode {DW_Edit, DW_Access, DW_Zoom, DW_Graphics, DW_Report};
@@ -130,6 +131,7 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual flag   EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
 
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);

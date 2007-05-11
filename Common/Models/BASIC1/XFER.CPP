@@ -171,7 +171,7 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
     }
 
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };

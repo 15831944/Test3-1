@@ -551,7 +551,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  BuildDataDefnAreaIOs(DDB);
+  //BuildDataDefnAreaIOs(DDB);
 
   DDB.EndStruct();
   };

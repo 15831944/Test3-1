@@ -4065,7 +4065,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
     }
   else
     {
-    DDB.Page("Audit", DDB_RqdPage);
+    //DDB.Page("Audit", DDB_RqdPage);
     }
 
   if (OrigPrjFileVerNo()<81 && !DDB.ForFileSnpScn())

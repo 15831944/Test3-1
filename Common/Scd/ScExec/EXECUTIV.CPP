@@ -26,6 +26,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #define EXECMAINTHREAD
 
+#define dbgAssocGrfs      0
 #define dbgExecutive  (1 || WITHDEBUG)
 
 #if dbgExecutive
@@ -1713,6 +1714,7 @@ flag CExecutive::FixRegistrations()
 
 int CExecutive::ChangeTag(pchar pOldTag, pchar pNewTag)
   {
+  dbgpln("------------------------------------------- Change Tag %s -> %s", pOldTag, pNewTag);
   if (pOldTag==NULL || pNewTag==NULL || pOldTag[0]==0 || pNewTag[0]==0)
     return EOCT_NULLTAG;
   if (_stricmp(pOldTag, pNewTag)==0)
@@ -1750,6 +1752,13 @@ int CExecutive::ChangeTag(pchar pOldTag, pchar pNewTag)
       }
     }
 
+  if (Err==EOCT_DONE)
+    {
+    for (OInx=0; OInx<Size; OInx++)
+      Objs_Reg[OInx]->EO_ChangeTagDone(pOldTag, pNewTag);
+    }
+
+  dbgpln("------------------------------------------- Change Tag Done");
   return Err;
   }
 
@@ -1757,6 +1766,8 @@ int CExecutive::ChangeTag(pchar pOldTag, pchar pNewTag)
 
 int CExecutive::DeleteTag(pchar pDelTag)
   {
+  dbgpln("------------------------------------------- Delete Tag %s", pDelTag);
+  
   if (pDelTag==NULL || pDelTag[0]==0)
     return EODT_NULLTAG;
   if (TaggedObject::TestValidTagDot(pDelTag)>0)
@@ -1789,6 +1800,14 @@ int CExecutive::DeleteTag(pchar pDelTag)
       Err = EODT_FAILED;
       }
     }
+
+  if (Err == EODT_DONE)
+    {
+    for (OInx=0; OInx<Size; OInx++)
+      Objs_Reg[OInx]->EO_DeleteTagDone(pDelTag);
+    }
+
+  dbgpln("------------------------------------------- Delete Tag Done");
 
   return Err;
   }
@@ -4842,13 +4861,13 @@ flag CExecutive::OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGrap
 
 //---------------------------------------------------------------------------
 
-flag CExecutive::GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
+flag CExecutive::RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
   {
 #if WITHASSOCGRAPHICS
   if (m_pSolver)
     {
     m_pSolver->LockXO();
-    flag Ret=m_pSolver->EO_GetModelAssocGraphics(Tag, Grfs);
+    flag Ret=m_pSolver->EO_RequestModelAssocGraphics(Tag, Grfs);
     m_pSolver->UnlockXO();
     return Ret;
     }
@@ -4857,7 +4876,7 @@ flag CExecutive::GetModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
     {
     CExecObj *a=Objs_Reg[OInx];
     a->LockXO();
-    if (a->EO_GetModelAssocGraphics(Tag, Grfs))
+    if (a->EO_RequestModelAssocGraphics(Tag, Grfs))
       {
       a->UnlockXO();
       return true;
@@ -4893,10 +4912,11 @@ flag CExecutive::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssoc
 flag CExecutive::MaintainModelAssocGraphics(LPCTSTR Tag)
   {
 #if WITHASSOCGRAPHICS
+#if dbgAssocGrfs
   dbgpln("MaintainModelAssocGraphics====================");
-
+#endif
   CMdlAssocGraphicList Grfs;
-  if (GetModelAssocGraphics(Tag, Grfs))
+  if (RequestModelAssocGraphics(Tag, Grfs))
     {
     CMdlAssocGraphicMap Map;
     Map.InitHashTable(Max(10L, long(Grfs.GetCount()*1.20)));
@@ -4908,12 +4928,11 @@ flag CExecutive::MaintainModelAssocGraphics(LPCTSTR Tag)
       for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
         Map.SetAt((LPTSTR)(LPCTSTR)pG->m_AssocGrfs[i].m_sTag, CMdlAssocGraphicMapItem(pG,i)); 
 
-      if (1)
-        {
-        dbgpln("UpdateAssocGrf: %s", pG->m_sNdTag);
-        for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
-          dbgpln("  %2i %s", pG->m_AssocGrfs[i].m_eType, pG->m_AssocGrfs[i].m_sTag);
-        }
+#if dbgAssocGrfs
+      dbgpln("UpdateAssocGrf: %s", pG->m_sNdTag);
+      for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
+        dbgpln("  %2i %s", pG->m_AssocGrfs[i].m_eAGType, pG->m_AssocGrfs[i].m_sTag);
+#endif    
       }
 
     return UpdateModelAssocGraphics(Grfs, Map);

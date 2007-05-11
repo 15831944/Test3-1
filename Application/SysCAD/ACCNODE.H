@@ -347,7 +347,9 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     virtual flag   EO_EndPause(CXM_TimeControl &CB);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
+    virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     virtual int    EO_DeleteTag(pchar pDelTag);
+    virtual int    EO_DeleteTagDone(pchar pDelTag);
 
     flag BuildDataMessage(long DataIndex, Strng & Tag, Strng & RefTag, Strng & BlkName, CXM_ObjectData &ObjData);
     void SendDataMessage(CXM_ObjectTag &ObjTag, CXM_ObjectData &ObjData);
