@@ -1,9 +1,10 @@
 from Tkinter import *
 import tkMessageBox
-from generic import GenericMain, OutputFrame, font0, font3
+from generic import GenericMain, OutputFrame, font3
 import entry
 from ctypes import *
 
+font0 = ("Helvetica", "10", "bold")
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
@@ -40,6 +41,9 @@ s2Entries = [
     ]
 
 
+s0Vars = [x[0].strip() for x in s0Entries]
+inSpecies = s0Vars[2:]
+             
 
 
 s1Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
@@ -73,6 +77,19 @@ H2O  4
 NaCl 1
 
 will give a 20% saline solution.
+
+Properties may also be calculated over a range. Thus to see how the specific heat varies
+between 200C and 300C, highlight
+
+Cp_Liq, Temperature, 200, 300, 10
+
+and press "Data"
+
+Any of the result variables (Im, Temp_Sat, BPE etc) can be chosen to plot against any of
+the data variables, for example:
+
+BPE, NaCl, 0, 2, .2
+
 '''
 
 
@@ -95,7 +112,8 @@ sinames = [
 # Format Strings for display
 ostr1 =   "t =  %8.2f C         I_m =  %8.4f mol/kg      I_c(t, p) =  %8.4f mol/L"
 ostr2 =   "p =  %8.2f bar     p_sat =    %8.3f bar       I_c(25 C) =  %8.4f mol/L"
-ostr3 =   "Conc. units   Al(OH)3    NaOH    NaCl  Na2CO3  Na2SO4    NaOx    NaAc  NaForm     NaF"
+ostr3 =   "\nConc. units   Al(OH)3    NaOH    NaCl  Na2CO3  Na2SO4    NaOx    NaAc  NaForm     NaF"\
+          "\n---------------------------------------------------------------------------------------"
 ostr4 =   "mol/kg       %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
 ostr5 =   "mol/L (t,p)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
 ostr6 =   "mol/L (25C)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
@@ -115,6 +133,10 @@ ostrs = [
 ]
 
 
+
+
+def frange(start, stop, step):
+    return [float(start+i*step) for i in range(int((stop-start)/step) + 1)]
 
 
 def dllSetup():
@@ -192,15 +214,16 @@ class TestMenu:
 
 class AmiraBayer:
 
-    def __init__(self, Temp_C, Pressure_kPa, InUnits=3):
+    def __init__(self, Temp_C, Pressure_bar, InUnits=3):
 
         # Parameters
         self.Temp_C = Temp_C
-        self.Pressure_kPa = Pressure_kPa
+        self.Pressure_bar = Pressure_bar
         self.InComp = (c_double*11)()
         self.InUnits = InUnits
 
         # Exported double Arrays
+        self.P = c_double()
         self.Comp_molkg    = (c_double*12)()    
         self.Comp_molL     = (c_double*12)()
         self.Comp_molL25   = (c_double*12)()
@@ -220,15 +243,21 @@ class AmiraBayer:
         self.NSI = c_long(10)
         self.NSol = c_long(6)
         
+    def fromDic(self, dic):
+        self.Temp_C = dic["Temperature"]
+        self.Pressure_bar = dic["Pressure"]
+        self.InComp[0]=self.InComp[1]=0.0
+        for i, x in enumerate(inSpecies):
+            self.InComp[i+2] = dic[x]
+        self.bayer()
+
     def bayer(self):
-        print self.InUnits
-        for x in self.InComp:
-            print x
-            
+        self.P.value = self.Pressure_bar
+        
         bayer_(
             c_double(self.Temp_C),    #  TempC,
             c_long(self.InUnits),      #  InUnits,      INTEGER!
-            c_double(self.Pressure_kPa/100.),    #  Pressure,
+            self.P,    #  Pressure,
             c_long(9),    #  NInComp,      INTEGER!
             self.InComp,    #  InComp,       ARRAY*11
 
@@ -254,7 +283,7 @@ class AmiraBayer:
             self.SolML,    #  SolML,
             self.Solmkg     #  Solmkg
             )
-
+        
 
 ab = AmiraBayer(100, 200)
 
@@ -268,13 +297,17 @@ class MyMain(GenericMain):
         self.rbp.set(3)
         frb = Frame(f)  # Frame for radiobuttons
         Label(frb, text="Mass %").grid(row=0, column=0, sticky="w")
-        Radiobutton(frb, variable=self.rbp, value=3, takefocus=False).grid(row=0,column=1, sticky="e")
+        Radiobutton(frb, variable=self.rbp, value=3, takefocus=False).grid(row=0,column=1,sticky="e")
         Label(frb, text="gpl@25").grid(row=0, column=2, sticky = "w")
-        Radiobutton(frb, variable=self.rbp, value=11, takefocus=False).grid(row=0,column=3, sticky="e")
-        frb.columnconfigure(0, weight=2)
-        frb.columnconfigure(1, weight=1)
-        frb.columnconfigure(2, weight=2)
-        frb.columnconfigure(3, weight=1)
+        Radiobutton(frb, variable=self.rbp, value=11, takefocus=False).grid(row=0,column=3,sticky="e")
+        Label(frb, text="Sat Mass %").grid(row=1, column=0, sticky="w")
+        Radiobutton(frb, variable=self.rbp, value=2, takefocus=False).grid(row=1,column=1,sticky="e")
+        Label(frb, text="Sat gpl@25").grid(row=1, column=2, sticky = "w")
+        Radiobutton(frb, variable=self.rbp, value=10, takefocus=False).grid(row=1,column=3,sticky="e")
+
+
+        for x in range(4):
+            frb.columnconfigure(x, weight=2-(x%2))
         frb.pack(side=TOP, anchor="nw", fill='x')
 
         f0 = Frame(f)
@@ -291,25 +324,35 @@ class MyMain(GenericMain):
         self.s1.disable()
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)
-        Button(f1, text="Calculate", command=self.test).pack(side=LEFT, fill=X, expand=1)
-        Button(f1, text="SysCAD", command=self.getSysCAD).pack(side=LEFT, fill=X, expand=1)
-        Button(f1, text="Data", command=self.getPlotLine).pack(side=LEFT, fill=X, expand=1)
+        Button(f1, text="Calculate", command=self.test).grid(sticky="ew")
+        Button(f1, text="SysCAD", command=self.getSysCAD).grid(row=0, column=1,sticky="ew")
+        Button(f1, text="Data", command=self.getPlotLine).grid(row=0, column=2,sticky="ew")
+        for x in range(3):
+            f1.columnconfigure(x, weight=1)
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
-        self.of=OutputFrame(canvasFrame, font=font3)
+        self.of=OutputFrame(canvasFrame, font=font3, width=100)
         self.rbp.trace("w", self.doEntryType)
         self.menus.menuList[1].entryconfig(0, command=self.doHelp)
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
-        if et==11:
+        if et==11 or et==10:
             self.s0.pack_forget()
             self.s2.pack()
         else:
             self.s2.pack_forget()
             self.s0.pack()
-
+        if et==2:
+            self.s0.disable("Pressure")
+        elif et==3:
+            self.s0.enable("Pressure")
+        elif et==10:
+            self.s2.disable("Pressure")
+        elif et==11:
+            self.s2.enable("Pressure")
+        
 
 
     def doHelp(self):
@@ -349,8 +392,6 @@ class MyMain(GenericMain):
         if tot>0.0:
             for x in cdic.keys():
                 cdic[x] /= tot
-        for s,v in cdic.iteritems():
-            print s, v
         self.s0["NaOH"] = cdic["NaOH"]+40./118.*cdic["NaAl[OH]4"]
         self.s0["Al[OH]3"] = 78./118.*cdic["NaAl[OH]4"]
         for x in ["Na2CO3", "NaCl", "Na2SO4"]:
@@ -366,17 +407,41 @@ class MyMain(GenericMain):
         except:
             sel = self.of.getAll()
 
-
+        ldic = {}
         lis = [x.strip() for x in sel.split(',')]
-        print lis
+        if len(lis)<5:
+            return
+        iv = lis[1]
+        if iv not in s0Vars:
+            print "iv not in s0Vars"
+            return
+        dv = lis[0]
+        if dv not in dpnames:
+            print "dv not in dpnames"
+            return
+        try:
+            vals = frange(float(lis[2]), float(lis[3]), float(lis[4]))
+        except:
+            print "frange failure"
+            return
+        for x in inSpecies:
+            ldic[x] = self.s0[x]*100.
+        ldic["NaF"]=self.s0["NaF "]
+        ldic["Temperature"] = self.s0["Temperature"]-273.15
+        ldic["Pressure"] = self.s0["Pressure"]/100.
         
-        
-        
-
+        self.of.appendText(iv+"  " + dv)
+        ab.InUnits = self.rbp.get()
+        for x in vals:
+            ldic[iv] = x
+            ab.fromDic(ldic)
+            self.extractDPData()
+            self.of.appendText("%f  %f" % (x, self.__dict__[dv]))
+       
                                
     def test(self):
         calcType = self.rbp.get()
-        if calcType==3:
+        if calcType in (2,3):
             s = self.s0
         else:
             s = self.s2
@@ -386,7 +451,7 @@ class MyMain(GenericMain):
 
         res = s.getValues()
         ab.InUnits = calcType
-        if calcType==3:
+        if calcType in (2,3):
             ab.InComp[0]=ab.InComp[1]=0.0
             for i, x in enumerate(res[2:]):
                 ab.InComp[i+2] = 100.*x
@@ -395,7 +460,7 @@ class MyMain(GenericMain):
                 ab.InComp[i] = x
         
         ab.Temp_C = t-273.15
-        ab.Pressure_kPa = p
+        ab.Pressure_bar = p/100.
         ab.bayer()
         self.extractDPData()
         for x in dpnames:
@@ -403,12 +468,14 @@ class MyMain(GenericMain):
             
         self.of.clearText()
 
+
+        if calcType in (2,10):
+            p = s["Pressure"]=ab.P.value*100.
         atxt = self.of.appendText
         
         atxt((ostr1 % (t-273.15,    self.I_m, self.I_c)))
         atxt((ostr2 % (p/100.,    self.P_Sat, self.I_c25)))
-        atxt(""); atxt(ostr3)
-        atxt("---------------------------------------------")
+        atxt(ostr3)
         atxt((ostr4 % tuple(ab.Comp_molkg[:9])))
         atxt((ostr5 % tuple(ab.Comp_molL[:9])))
         atxt((ostr6 % tuple(ab.Comp_molL25[:9])))
@@ -451,7 +518,7 @@ def main():
     root.iconify()
     root.update()
     root.deiconify()
-    root.geometry("900x700-5+5")
+    root.geometry("-5+5")
     dllSetup()
     root.mainloop()
 

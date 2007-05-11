@@ -16,6 +16,7 @@ lib:
 	lib /machine:i386 /def:amira.def
 	cp amira.dll "c:/syscad91/bin"      # for syscad
 	cp amira.dll "c:/windows/system32"  #for python etc
+	cp amira.dll ./demo
 	cp amira.lib ../TTAmira
 
 

@@ -174,7 +174,7 @@ C     a single array, which will contain all these. This is
 C     EQUIVALENCED back to the original variables.
 C     
 
-      DIMENSION DPLDATA(19), DPDATA(19)
+      DIMENSION DPLDATA(20), DPDATA(20)
       EQUIVALENCE (DPLDATA( 1),   I_m      )
       EQUIVALENCE (DPLDATA( 2),   I_c      )
       EQUIVALENCE (DPLDATA( 3),   I_c25    )
