@@ -1,0 +1,1 @@
+c:\python25\python asetup.py py2exe
