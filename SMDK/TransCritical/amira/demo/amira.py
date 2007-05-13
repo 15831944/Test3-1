@@ -8,7 +8,7 @@ font0 = ("Helvetica", "10", "bold")
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
-           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT"]
+           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT", "H", "S"]
 
 s0Entries = [
     ["Temperature", "C", "100."],
@@ -234,7 +234,7 @@ class AmiraBayer:
         self.SI            = (c_double*10)()
         self.SolML         = (c_double*6)()
         self.Solmkg        = (c_double*6)()
-        self.DPDATA = (c_double*20)() # Catchall for doubles...
+        self.DPDATA = (c_double*22)() # Catchall for doubles...
 
         # Exported longs
         self.NOutComp = c_long(9)

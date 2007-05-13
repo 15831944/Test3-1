@@ -174,7 +174,8 @@ C     a single array, which will contain all these. This is
 C     EQUIVALENCED back to the original variables.
 C     
 
-      DIMENSION DPLDATA(20), DPDATA(20)
+      DIMENSION DPLDATA(22), DPDATA(22)
+
       EQUIVALENCE (DPLDATA( 1),   I_m      )
       EQUIVALENCE (DPLDATA( 2),   I_c      )
       EQUIVALENCE (DPLDATA( 3),   I_c25    )
@@ -194,7 +195,9 @@ C
       EQUIVALENCE (DPLDATA(17),   Phi      )
       EQUIVALENCE (DPLDATA(18),   Aw       )
       EQUIVALENCE (DPLDATA(19),   V25      )
-      EQUIVALENCE (DPLDATA(20),   WT      )
+      EQUIVALENCE (DPLDATA(20),   WT       )
+      EQUIVALENCE (DPLDATA(21),   H        )
+      EQUIVALENCE (DPLDATA(22),   S        )
 
 
 
@@ -250,12 +253,14 @@ C     >SIName(NSI),SolName(NSol)
      >RHO_Liq,Cp_phi,V_phi,Cp_LiqH2O,TempSat,BPE,Gamma,Aw,Phi,NSI,SI,
      >P_sat)
 
+      CALL HSCALC(NGAMMA,T,P,X,WT, H, S)
+
       CALL SOLBY(NGAMMA,NInComp,InUnits,VH2O25,T,P,TR,P0,X,Comp_molkg,
      >Comp_molL25,V25,NSol,SolML,Solmkg)
 
 
 C     COPY THE LOCAL EQUIVALENCED STUFF BACK TO THE DUMMY ARGUMENT
-      DO 10, I=1,20
+      DO 10, I=1,22
  10      DPDATA(I) = DPLDATA(I)
 
 
@@ -414,6 +419,22 @@ C ...  Set P to P
 
       RETURN
       END
+
+      
+      SUBROUTINE HSCALC(NGAMMA,T,P,X,WT, H, S)
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      DIMENSION X(NGAMMA)
+      DT = 0.1
+      TH = T + DT
+      TL = T - DT
+      S = -(GAQ(NGAMMA,P,TH,X)-GAQ(NGAMMA,P,TL,X))/(2.D2*DT)
+      S = S/WT
+      H =  GAQ(NGAMMA,P,T,X)+T*S
+      H = H/WT
+      RETURN
+      END
+
+
 
 
 
@@ -1583,7 +1604,8 @@ C      unit: dm3
 
       RETURN
       END
-      
+
+
             
             
       DOUBLE PRECISION FUNCTION VGAS(P,T)

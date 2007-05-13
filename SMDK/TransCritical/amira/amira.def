@@ -67,58 +67,59 @@ EXPORTS
     gaq_ @66
     gh2ovap_ @67
     gsol_ @68
-    hscpxx2_ @69
-    hscpxx_ @70
-    init_ @71
-    models_ @72
-    na2co3_ @73 DATA
-    na2so4_ @74 DATA
-    naac_ @75 DATA
-    naaloh4_ @76 DATA
-    nacl_ @77 DATA
-    naform_ @78 DATA
-    nahco3_ @79 DATA
-    naoh_ @80 DATA
-    parval_ @81
-    pboil_ @82
-    prph2o_ @83
-    prpsln_ @84
-    psat1_ @85
-    psat_ @86
-    ptzfnc_ @87
-    ptzgxs_ @88
-    ptzpar_ @89
-    sbhm_ @90
-    setemp_ @91
-    setmol_ @92
-    setpst_ @93
-    sgas_ @94
-    sgib_ @95
-    sibhm_ @96
-    sigib_ @97
-    sihept_ @98
-    siko_ @99
-    simira_ @100
-    sinacl_ @101
-    sinaf_ @102
-    sinatr_ @103
-    sipdhl_ @104
-    sithen_ @105
-    sither_ @106
-    sko_ @107
-    snaf_ @108
-    snaox_ @109
-    solby_ @110
-    sthen_ @111
-    tboil_ @112
-    thdta_ @113 DATA
-    thinit_ @114
-    tsat_ @115
-    v0xp_ @116
-    v_ @117
-    vgas_ @118
-    volh2o25_ @119
-    vxp_ @120
-    xcph_ @121
-    xcps_ @122
-    xhgcp_ @123
+    hscalc_ @69
+    hscpxx2_ @70
+    hscpxx_ @71
+    init_ @72
+    models_ @73
+    na2co3_ @74 DATA
+    na2so4_ @75 DATA
+    naac_ @76 DATA
+    naaloh4_ @77 DATA
+    nacl_ @78 DATA
+    naform_ @79 DATA
+    nahco3_ @80 DATA
+    naoh_ @81 DATA
+    parval_ @82
+    pboil_ @83
+    prph2o_ @84
+    prpsln_ @85
+    psat1_ @86
+    psat_ @87
+    ptzfnc_ @88
+    ptzgxs_ @89
+    ptzpar_ @90
+    sbhm_ @91
+    setemp_ @92
+    setmol_ @93
+    setpst_ @94
+    sgas_ @95
+    sgib_ @96
+    sibhm_ @97
+    sigib_ @98
+    sihept_ @99
+    siko_ @100
+    simira_ @101
+    sinacl_ @102
+    sinaf_ @103
+    sinatr_ @104
+    sipdhl_ @105
+    sithen_ @106
+    sither_ @107
+    sko_ @108
+    snaf_ @109
+    snaox_ @110
+    solby_ @111
+    sthen_ @112
+    tboil_ @113
+    thdta_ @114 DATA
+    thinit_ @115
+    tsat_ @116
+    v0xp_ @117
+    v_ @118
+    vgas_ @119
+    volh2o25_ @120
+    vxp_ @121
+    xcph_ @122
+    xcps_ @123
+    xhgcp_ @124
