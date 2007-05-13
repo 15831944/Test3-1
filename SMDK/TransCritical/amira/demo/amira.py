@@ -10,6 +10,11 @@ dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
            "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT", "H", "S"]
 
+dpdnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
+           "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
+           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "H", "S"]
+
+
 s0Entries = [
     ["Temperature", "C", "100."],
     ["Pressure   ", "bar", "10."],
@@ -46,7 +51,7 @@ inSpecies = s0Vars[2:]
              
 
 
-s1Entries = [[("%-10s" % x), ".", "0"] for x in dpnames]
+s1Entries = [[("%-10s" % x), ".", "0"] for x in dpdnames]
 syscadNames = ["H2O", "NaAl[OH]4", "NaCl", "Na2C2O4", "Na2C5.2O7.2", "Na2CO3" , "Na2SO4", "NaOH"]
 
 syscadEx ='''Example: select the following text and try again...
@@ -188,12 +193,16 @@ class TestMenu:
 
     def mainMenuBar(self, w):
         mm=Menu(w)  # main menu
+        self.acv = IntVar()
+        self.acv.set(0)
         self.mm=mm
+        self.menuList.append(Menu(mm, tearoff=0))
         self.menuList.append(Menu(mm, tearoff=0))
         self.menuList.append(Menu(mm, tearoff=0))
         mm.add_cascade(label="File", menu=self.menuList[0],
                        underline=0)
-        mm.add_cascade(label="Help", menu=self.menuList[1])
+        mm.add_cascade(label="Options", menu=self.menuList[1])
+        mm.add_cascade(label="Help", menu=self.menuList[2])
         
         m=self.menuList[0]  #0
         m.add_command(label="Open...", state=DISABLED, 
@@ -206,7 +215,10 @@ class TestMenu:
         m.add_command(label="Print", state=DISABLED)
         m.add_separator()
         m.add_command(label="Exit", command=done) #-command done
-        self.menuList[1].add_command(label="Help")
+        self.menuList[1].add_checkbutton(label="AutoClear",
+                          variable=self.acv, onvalue=1, offvalue=0) 
+
+        self.menuList[2].add_command(label="Help")
         
         return mm
 
@@ -311,15 +323,15 @@ class MyMain(GenericMain):
         frb.pack(side=TOP, anchor="nw", fill='x')
 
         f0 = Frame(f)
-        self.s0=entry.EntryFrame(f0, s0Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+        self.s0=entry.EntryFrame(f0, s0Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
         self.s0.pack()
 ##        self.s0.disable("Na2O")
 ##        self.s0.disable("Al2O3")
-        self.s2=entry.EntryFrame(f0, s2Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+        self.s2=entry.EntryFrame(f0, s2Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
 
         f0.pack(side=TOP)
         Label(f, text="Results", font=font0).pack(anchor="w")
-        self.s1=entry.EntryFrame(f, s1Entries, lWidth=16, eWidth=8, relief=GROOVE, bd=2)
+        self.s1=entry.EntryFrame(f, s1Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
         self.s1.pack(side=TOP)
         self.s1.disable()
         f1 = Frame(f)
@@ -334,7 +346,7 @@ class MyMain(GenericMain):
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
         self.of=OutputFrame(canvasFrame, font=font3, width=100)
         self.rbp.trace("w", self.doEntryType)
-        self.menus.menuList[1].entryconfig(0, command=self.doHelp)
+        self.menus.menuList[2].entryconfig(0, command=self.doHelp)
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
@@ -463,10 +475,10 @@ class MyMain(GenericMain):
         ab.Pressure_bar = p/100.
         ab.bayer()
         self.extractDPData()
-        for x in dpnames:
+        for x in dpdnames:
             self.s1[x] = self.__dict__[x]
-            
-        self.of.clearText()
+        if self.menus.acv.get():
+            self.of.clearText()
 
 
         if calcType in (2,10):
