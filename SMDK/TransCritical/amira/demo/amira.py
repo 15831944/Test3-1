@@ -344,7 +344,7 @@ class MyMain(GenericMain):
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
-        self.of=OutputFrame(canvasFrame, font=font3, width=100)
+        self.of=OutputFrame(canvasFrame, font=font3, width=200)
         self.rbp.trace("w", self.doEntryType)
         self.menus.menuList[2].entryconfig(0, command=self.doHelp)
 
@@ -448,7 +448,7 @@ class MyMain(GenericMain):
             ldic[iv] = x
             ab.fromDic(ldic)
             self.extractDPData()
-            self.of.appendText("%f  %f" % (x, self.__dict__[dv]))
+            self.of.appendText("%f\t%f" % (x, self.__dict__[dv]))
        
                                
     def test(self):
@@ -530,7 +530,7 @@ def main():
     root.iconify()
     root.update()
     root.deiconify()
-    root.geometry("-5+5")
+    root.geometry("900x900-5+5")
     dllSetup()
     root.mainloop()
 
