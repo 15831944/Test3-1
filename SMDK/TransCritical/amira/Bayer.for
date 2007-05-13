@@ -427,9 +427,9 @@ C ...  Set P to P
       DT = 0.1
       TH = T + DT
       TL = T - DT
-      S = -(GAQ(NGAMMA,P,TH,X)-GAQ(NGAMMA,P,TL,X))/(2.D2*DT)
-      S = S/WT
+      S = -(GAQ(NGAMMA,P,TH,X)-GAQ(NGAMMA,P,TL,X))/(2*DT)
       H =  GAQ(NGAMMA,P,T,X)+T*S
+      S = S/WT
       H = H/WT
       RETURN
       END
