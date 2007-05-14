@@ -1,3 +1,16 @@
+2007-05-14  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* Bayer.for (HSCALC): Added HSCALC subroutine to calculate entropy
+	and enthalpy for Bayer Liquor.
+	Implemented call in main bayer routine.
+	Added H and S to DPDATA return values
+	
+2007-05-12  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* Bayer.for (BAYER): Added WT and V25 to DPDATA return values.
+	
+	
+
 2007-04-25  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* Bayer.for (BAYER): All the return reals are now in a single

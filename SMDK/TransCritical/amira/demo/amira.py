@@ -5,15 +5,13 @@ import entry
 from ctypes import *
 
 font0 = ("Helvetica", "10", "bold")
+font4 = ("Courier", "8", "bold")
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
            "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT", "H", "S"]
 
-dpdnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
-           "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
-           "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "H", "S"]
-
+dpdnames = dpnames    ##[:-4]+dpnames[-2:]
 
 s0Entries = [
     ["Temperature", "C", "100."],
@@ -130,7 +128,7 @@ ostrs = [
 "                              NaOH     NaOH+Na2CO3   Na acetate   Na formate",
 "g/L (25 C)    %8.2f     %8.2f     %8.2f      %8.2f   %8.2f",
 "A/C = %6.3f   (Al2O3 eq)  (Na2CO3 eq)  (Na2CO3 eq)     (C eq)       (C eq)",
-"Thermodynamic properties of the aqueous phase       B.p. =%8.2fC (%+7.2fK)",
+"       B.p. =%8.2fC (%+7.2fK)",
 "Cp_sln = %8.2f kJ/kgK       rho_sln = %8.2f kg/m^3",
 "Cp_H2O = %8.2f kJ/kgK       rho_H2O = %8.2f kg/m^3",
 "Cp_phi = %8.2f J/K/mol       V_phi =  %8.3f cm3 mol-1",
@@ -189,22 +187,20 @@ def dllSetup():
 
 class TestMenu:
     def __init__(self):
-        self.menuList = []
+        self.menuDic = {}
 
     def mainMenuBar(self, w):
         mm=Menu(w)  # main menu
         self.acv = IntVar()
         self.acv.set(0)
+        self.dsi = BooleanVar()
+        self.dsi.set(False)
         self.mm=mm
-        self.menuList.append(Menu(mm, tearoff=0))
-        self.menuList.append(Menu(mm, tearoff=0))
-        self.menuList.append(Menu(mm, tearoff=0))
-        mm.add_cascade(label="File", menu=self.menuList[0],
-                       underline=0)
-        mm.add_cascade(label="Options", menu=self.menuList[1])
-        mm.add_cascade(label="Help", menu=self.menuList[2])
+        for x  in ["File", "Options", "Help"]:
+            self.menuDic[x] = Menu(mm, tearoff=0)
+            mm.add_cascade(label=x, menu=self.menuDic[x])
         
-        m=self.menuList[0]  #0
+        m=self.menuDic["File"]  #0
         m.add_command(label="Open...", state=DISABLED, 
                       accelerator="Ctrl+O")
         m.add_command(label="Save", state=DISABLED)
@@ -215,11 +211,12 @@ class TestMenu:
         m.add_command(label="Print", state=DISABLED)
         m.add_separator()
         m.add_command(label="Exit", command=done) #-command done
-        self.menuList[1].add_checkbutton(label="AutoClear",
+        self.menuDic["Options"].add_checkbutton(label="AutoClear",
                           variable=self.acv, onvalue=1, offvalue=0) 
+        self.menuDic["Options"].add_checkbutton(label="Solubilities",
+                          variable=self.dsi) 
 
-        self.menuList[2].add_command(label="Help")
-        
+        self.menuDic["Help"].add_command(label="Help")
         return mm
 
 
@@ -336,17 +333,19 @@ class MyMain(GenericMain):
         self.s1.disable()
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)
-        Button(f1, text="Calculate", command=self.test).grid(sticky="ew")
+        Button(f1, text="Calculate", command=self.test, underline=0).grid(sticky="ew")
         Button(f1, text="SysCAD", command=self.getSysCAD).grid(row=0, column=1,sticky="ew")
-        Button(f1, text="Data", command=self.getPlotLine).grid(row=0, column=2,sticky="ew")
+        Button(f1, text="Data", command=self.getPlotLine,
+               underline=0).grid(row=0, column=2,sticky="ew")
         for x in range(3):
             f1.columnconfigure(x, weight=1)
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
         self.of=OutputFrame(canvasFrame, font=font3, width=200)
+        self.of.txt.tag_config("b", font=font4)
         self.rbp.trace("w", self.doEntryType)
-        self.menus.menuList[2].entryconfig(0, command=self.doHelp)
+        self.menus.menuDic["Help"].entryconfig(0, command=self.doHelp)
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
@@ -487,35 +486,37 @@ class MyMain(GenericMain):
         
         atxt((ostr1 % (t-273.15,    self.I_m, self.I_c)))
         atxt((ostr2 % (p/100.,    self.P_Sat, self.I_c25)))
-        atxt(ostr3)
+        atxt(ostr3, None, "b")
         atxt((ostr4 % tuple(ab.Comp_molkg[:9])))
         atxt((ostr5 % tuple(ab.Comp_molL[:9])))
         atxt((ostr6 % tuple(ab.Comp_molL25[:9])))
         atxt((ostr7 % tuple(ab.Comp_mpercent[:9])))
         atxt((ostr8 % tuple(ab.Comp_gL[:9])))
         atxt("")
-        atxt(ostrs[0]); atxt(ostrs[1])
+        atxt(ostrs[0], None, "b"); atxt(ostrs[1], None, "b")
         atxt(ostrs[2] % (self.Al2O3, self.TC, self.TA, ab.OC[0], ab.OC[1]))
         try:
             ac = self.Al2O3/self.TC
         except:
             ac = 0.0
         atxt(ostrs[3] % ac)
+        atxt("Thermodynamic Properties of the aqueous phase", 1, "b")
         atxt(ostrs[4] % (self.TempSat, self.BPE))
         atxt(ostrs[5] % (self.Cp_Liq, 1000.*self.Rho_Liq))
         atxt(ostrs[6] % (self.Cp_H2O, 1000.*self.Rho_H2O))
         atxt(ostrs[7] % (self.Cp_phi, self.V_phi))
         atxt(ostrs[8] % self.Cp_LiqH2O)
-        atxt("\nSaturation Indices")
-        atxt("".join(sinames[:5]))
-        atxt(("%-13.5f"*5) % tuple(ab.SI[:5]))
-        atxt("".join(sinames[5:]))
-        atxt(("%-13.5f"*5) % tuple(ab.SI[5:]))
-        atxt("\nSolubilities")
-        atxt(solnames)
-        atxt(("Solubility M  " + "%9.4f"*6) % tuple(ab.SolML))
-        atxt(("Solubility mgk" + "%9.4f"*6) % tuple(ab.Solmkg))
-        atxt("")
+        if self.menus.dsi.get():
+            atxt("\nSaturation Indices", None, "b")
+            atxt("".join(sinames[:5]))
+            atxt(("%-13.5f"*5) % tuple(ab.SI[:5]))
+            atxt("".join(sinames[5:]))
+            atxt(("%-13.5f"*5) % tuple(ab.SI[5:]))
+            atxt("\nSolubilities", None, "b")
+            atxt(solnames)
+            atxt(("Solubility M  " + "%9.4f"*6) % tuple(ab.SolML))
+            atxt(("Solubility mgk" + "%9.4f"*6) % tuple(ab.Solmkg))
+            atxt("")
 
 
 
@@ -526,6 +527,13 @@ def main():
     root=Tk()
     root.protocol("WM_DELETE_WINDOW", done)
     app=MyMain(root, TestMenu())
+    def atst(foo, bar=None):
+        app.test()
+    def agpl(foo, bar=None):
+        app.getPlotLine()
+
+    root.bind("<Alt-c>", atst)
+    root.bind("<Alt-d>", agpl)
     root.title("Amira Bayer Calculations")
     root.iconify()
     root.update()
