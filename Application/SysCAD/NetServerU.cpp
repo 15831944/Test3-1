@@ -2,7 +2,7 @@
 #include "grfdoc.h"
 #include "msgwnd.h"
 
-#include "NetServerU.h"
+//#include "NetServerU.h"
 #include "flwnode.h"
 
 //========================================================================
@@ -155,6 +155,7 @@ void CNETServerU::Add(CNSGuidItem * pGuid)
 
 void CNETServerU::LoadItems()
   {
+  CWaitMsgCursor Wait("9->10");
   m_PrjName = PrjName(); //gs_pPrj->
 
   CDocTemplate & Template = ScdApp()->GraphTemplate();
@@ -296,6 +297,179 @@ void CNETServerU::LoadItems()
     }
   };
 
+
+  static CString FixSymbol(LPCTSTR m_sSymbol, LPCTSTR m_sClassID)
+  {
+  // Unit Symbols
+  CString Sym=m_sSymbol;
+  Sym=Sym.Trim();
+  if (Sym=="" || Sym.CompareNoCase("default")==0)
+    Sym=m_sClassID;
+  if ((Sym.GetLength()>0) && (Sym.Find(':')<0) && (strlen(m_sClassID)>0))
+    {
+    TagObjClass * pTagObjC = TagObjClass::FindClassId((LPTSTR)m_sClassID);
+    if (pTagObjC==NULL)
+      pTagObjC = TagObjClass::FindClassName((LPTSTR)m_sClassID);
+    if (pTagObjC)
+      {
+      CString S(pTagObjC->DrwGroup());
+      S+=":";
+      Sym=S+Sym;
+      }
+    }
+  return Sym;
+  }
+
+//---------------------------------------------------------------------------
+
+
+  void CNETServerU::SaveItems(CGrfDoc * pDoc)
+  {
+
+  CWaitMsgCursor Wait("10->9");
+
+  try
+    { 
+    POSITION pos = m_Guids.GetHeadPosition();
+    for (int i=0; i<m_Guids.GetCount(); i++)
+    {
+      CNSGuidItem* pGuid = m_Guids.GetAt(pos);
+      if (!pGuid->m_IsLink)
+      {
+        CNSMdlNode* pMdlNode = dynamic_cast<CNSMdlNode *>(pGuid);
+        CNSGrfNode* pGrfNode = pMdlNode->m_pGrfs[0];
+
+        if (pDoc)
+          {
+          //todo check if parms are legal!!!
+          CInsertBlk CB; 
+          CB.ATag=AdjustTag(pMdlNode->m_Tag);
+          CB.AClass="Inserts";//m_pIn->m_sClassID;
+          CB.Pt.World.X=pGrfNode->m_Left;
+          CB.Pt.World.Y=pGrfNode->m_Top;
+          CB.Pt.World.Z=0.0;
+          CB.GrpScl.X=pGrfNode->m_Width;
+          CB.GrpScl.Y=pGrfNode->m_Height;
+          CB.GrpScl.Z=0.0;
+          CB.Rotate=pGrfNode->m_Rotation;
+          //CB.ATagBase=MInfo.DefTag();
+
+          // Unit Symbols
+          CB.ASymbol=FixSymbol(pMdlNode->m_ClassID, pMdlNode->m_ClassID);
+          //ImportSymbol(pMdlNode->m_ClassID, false);
+
+          Attr_Settings &rASet=pDoc->GCB.Tag_Attr_Set;
+          Attr_Settings ASet=rASet;
+          
+
+          if (!Valid(pGrfNode->m_TagLeft))
+            {
+            pGrfNode->m_TagLeft=CB.Pt.World.X;
+            pGrfNode->m_TagTop=CB.Pt.World.Y;
+            }
+
+          pDoc->GCB.Tag_InsertPt.X=pGrfNode->m_TagLeft;
+          pDoc->GCB.Tag_InsertPt.Y=pGrfNode->m_TagTop;
+          pDoc->GCB.Tag_InsertPt.Z=0.0;
+          pDoc->GCB.HideTag=false;
+          rASet.XScl=pGrfNode->m_TagWidth;
+          rASet.Rot=pGrfNode->m_Rotation;
+
+          //ImportSymbol(CB.ASymbol(), false);
+          pDoc->GCB.DoInsertNodeGrf(&CB, true);
+          rASet=ASet;
+          }
+      }
+      }
+    }
+  catch(_com_error & e)
+    {
+    LogError("GraphicslNDB", LF_Exclamation, "Cannot open and read query while reading GraphicsLinks\n%ld:%s : %s", e.Error(), (LPCTSTR)e.Source(), (LPCTSTR)e.Description());
+    }
+
+  ////(b) links...
+  ////SQL = "SELECT * FROM GraphicsLinkLines ORDER BY Page, Tag, SequenceNo";
+  //try
+  //  { 
+  //  SQL.Format("SELECT * FROM [GraphicsLinkLines] WHERE [Group] = '%s' ORDER BY [Tag], [SequenceNo]", m_sGroup);
+
+  //  m_pLl->OpenQuery(NULL, SQL, 0/*dbReadOnly*/);
+  //  ADODB::_RecordsetPtr llrs = m_pLl->Recordset();
+  //  if (!llrs->adEOF)
+  //    llrs->MoveFirst();
+  //  Strng PrevTag;
+
+  //  int PrevSeqNo;
+  //  Pt_3f Pt;
+  //  CLineDrawHelper LDH;
+  //  LDH.SetLineMethod(LDM_Direct); //todo user option
+  //  LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
+  //  LDH.SetArrowScale(2.5*(m_Scale.m_X+m_Scale.m_Y+m_Scale.m_Z)/3); //todo user option
+  //  LDH.SetShowTag(false); //todo user option
+  //  while (!llrs->adEOF)
+  //    {
+  //    m_pLl->Read();
+  //    if (PrevTag.GetLength()>0 && _stricmp(m_pLl->m_sTag, PrevTag())!=0)
+  //      {
+  //      pDoc->GCB.DoInsertLinkGrf(LDH, NULL, NULL, true);
+  //      PrevTag="";
+  //      }
+  //    if (PrevTag.GetLength()==0)
+  //      {
+  //      PrevSeqNo = m_pLl->m_lSeqNo;
+  //      LDH.InitPoints();
+  //      PrevTag = m_pLl->m_sTag;
+  //      CString Tg = AdjustTag(m_pLl->m_sTag);
+  //      //LDH.SetTag((char*)(LPCSTR)Tg);
+
+  //      CString LSQL;                                                           
+  //      LSQL.Format("SELECT * FROM [GraphicsLinks] WHERE [Tag] = '%s' AND [Group] = '%s'", m_pLl->m_sTag, m_sGroup);
+  //      m_pLk->OpenQuery(NULL, LSQL, 0/*dbReadOnly*/);
+  //      ADODB::_RecordsetPtr llks = m_pLk->Recordset();
+  //      if (!llks->adEOF)
+  //        llks->MoveFirst();
+  //      if (!llks->adEOF)
+  //        {
+  //        m_pLk->Read();
+
+  //        if (!Valid(m_pLk->m_TagPt.m_X))
+  //          {
+  //          m_pLk->m_TagPt.m_X=m_pLk->m_Insert.m_X;
+  //          m_pLk->m_TagPt.m_Y=m_pLk->m_Insert.m_Y;
+  //          m_pLk->m_TagPt.m_Z=m_pLk->m_Insert.m_Z;
+  //          }
+
+  //        LDH.SetShowTag(m_pLk->m_TagVisible!=0);
+  //        LDH.SetTag(Tg, m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+  //        LDH.SetTagProps(m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+  //        }
+  //      else
+  //        {
+  //        LDH.SetShowTag(FALSE);
+  //        LDH.SetTag(Tg);
+  //        }
+  //      }
+
+  //    Pt.Set(m_pLl->m_Vertex.m_X*m_Scale.m_X+m_Move.m_X, 
+  //           m_pLl->m_Vertex.m_Y*m_Scale.m_Y+m_Move.m_Y, 
+  //           m_pLl->m_Vertex.m_Z*m_Scale.m_Z+m_Move.m_Z);
+  //    LDH.AddPoint(Pt, m_pLl->m_lSeqNo-PrevSeqNo>1 ? LPT_Break : LPT_Line);
+  //    PrevSeqNo = m_pLl->m_lSeqNo;
+  //    llrs->MoveNext();
+  //    }
+  //  pDoc->GCB.DoInsertLinkGrf(LDH, NULL, NULL, true);
+
+  //  Close();
+  //  }
+  //catch(_com_error & e)
+  //  {
+  //  LogError("GraphicslNDB", LF_Exclamation, "Cannot open and read query while reading GraphicsLinks\n%ld:%s : %s", e.Error(), (LPCTSTR)e.Source(), (LPCTSTR)e.Description());
+  //  Close();
+  //  return 0;
+  //  }
+  };
+
+  
 void CNETServerU::UpdateItems()
   {
   };

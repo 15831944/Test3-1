@@ -51,8 +51,10 @@
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5">
       <Private>True</Private>
     </Reference>
-    <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
-    <Reference Include="PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="PureComponents.TreeViewV2, Version=2.0.118.0, Culture=neutral, PublicKeyToken=9e8cf5e0f26e5512">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\PureComponents\TreeViewV2\bin\PureComponents.TreeViewV2.dll</HintPath>
+    </Reference>
     <Reference Include="SmartPropertyGrid, Version=2.2.0.30, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\VisualHint\Smart PropertyGrid.Net eval\bin\.Net 2.0\SmartPropertyGrid.dll</HintPath>
@@ -66,8 +68,6 @@
     <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationProvider, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GraphicPropertyGrid.cs">
@@ -162,10 +162,6 @@
       <Project>{77CCAE13-E283-4677-B227-D39E75BA48EC}</Project>
       <Name>Overview</Name>
       <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\TreeView\PureComponents TreeView VS2005 SRC.csproj">
-      <Project>{07620E7A-1355-41BB-A084-B72B24401F4B}</Project>
-      <Name>PureComponents TreeView VS2005 SRC</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

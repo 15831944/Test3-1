@@ -27,6 +27,8 @@ namespace SysCAD.Protocol
 
     private ServiceProtocol.StepHandler serviceGraphicStepHandler = null;
 
+    private ServiceProtocol.SyncHandler serviceGraphicSyncHandler = null;
+
     private ServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
     private ServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
     private ServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
@@ -57,6 +59,13 @@ namespace SysCAD.Protocol
         try
         {
           if (serviceGraphicStepHandler != null) serviceGraphic.Step -= serviceGraphicStepHandler;
+        }
+        catch (InvalidOperationException) { }
+
+
+        try
+        {
+          if (serviceGraphicSyncHandler != null) serviceGraphic.Sync -= serviceGraphicSyncHandler;
         }
         catch (InvalidOperationException) { }
 
@@ -246,6 +255,8 @@ namespace SysCAD.Protocol
 
         serviceGraphicStepHandler = new ServiceProtocol.StepHandler(ServiceGraphicStep);
 
+        serviceGraphicSyncHandler = new ServiceProtocol.SyncHandler(ServiceGraphicSync);
+
         serviceGraphicItemCreatedHandler = new ServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphicItemModifiedHandler = new ServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
         serviceGraphicItemDeletedHandler = new ServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
@@ -263,6 +274,8 @@ namespace SysCAD.Protocol
 
         serviceGraphic.Step += serviceGraphicStepHandler;
 
+        serviceGraphic.Sync += serviceGraphicSyncHandler;
+
         serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
         serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
         serviceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
@@ -276,7 +289,7 @@ namespace SysCAD.Protocol
         serviceGraphic.ThingDeleted += serviceGraphicThingDeletedHandler;
 
 
-        Sync();
+        Syncxxx();
 
         connectionError = "";
         return true;
@@ -288,7 +301,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void Sync()
+    public void Syncxxx()
     {
       MemoryStream memoryStream;
       BinaryFormatter bf = new BinaryFormatter();
@@ -319,6 +332,12 @@ namespace SysCAD.Protocol
     public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)
     {
       OnStep(eventId, step, time);
+    }
+
+
+    public void ServiceGraphicSync(Int64 eventId)
+    {
+      OnSync(eventId);
     }
 
 

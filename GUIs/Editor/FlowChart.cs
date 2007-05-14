@@ -54,7 +54,7 @@ namespace SysCAD.Editor
       get { return state; }
     }
 
-    public FlowChart FCFlowChart
+    public FlowChart FlowChart
     {
       get { return fcFlowChart; }
     }
@@ -81,6 +81,7 @@ namespace SysCAD.Editor
       state.ConnectGraphic(
         new ClientProtocol.StateChangedHandler(fcFlowChart_StateChanged),
         new ClientProtocol.StepHandler(fcFlowChart_Step),
+        new ClientProtocol.SyncHandler(fcFlowChart_Sync),
         new ClientProtocol.ItemCreatedHandler(fcFlowChart_ItemCreated),
         new ClientProtocol.ItemModifiedHandler(fcFlowChart_ItemModified),
         new ClientProtocol.ItemDeletedHandler(fcFlowChart_ItemDeleted),
@@ -123,6 +124,23 @@ namespace SysCAD.Editor
       fcFlowChart.ValidityChecks = true;
       fcFlowChart.Visible = true;
       fcFlowChart.Enabled = true;
+    }
+
+    internal void UnSetProject()
+    {
+      state.DisconnectGraphic(
+          fcFlowChart_StateChanged,
+          fcFlowChart_Step,
+          fcFlowChart_Sync,
+          fcFlowChart_ItemCreated,
+          fcFlowChart_ItemModified,
+          fcFlowChart_ItemDeleted,
+          fcFlowChart_LinkCreated,
+          fcFlowChart_LinkModified,
+          fcFlowChart_LinkDeleted,
+          fcFlowChart_ThingCreated,
+          fcFlowChart_ThingModified,
+          fcFlowChart_ThingDeleted);
     }
 
 
@@ -194,8 +212,8 @@ namespace SysCAD.Editor
       {
         if ((box.Visible) && (box.Tag is Thing))
         {
-          Thing thing = box.Tag as Thing;
-          box.Image = State.GetImage(thing.GraphicThing, fcFlowChart);
+          //Thing thing = box.Tag as Thing;
+          //box.Image = State.GetImage(thing.GraphicThing, fcFlowChart);
         }
       }
     }
@@ -322,6 +340,11 @@ namespace SysCAD.Editor
     private void fcFlowChart_Step(Int64 eventId, Int64 step, DateTime time)
     {
       state.Step(step, time);
+    }
+
+    private void fcFlowChart_Sync(Int64 eventId)
+    {
+      form1.LoadProject(state.ClientProtocol, state.Config);
     }
 
     private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -1343,7 +1366,7 @@ namespace SysCAD.Editor
           graphicThing.Angle = box.RotationAngle;
         }
 
-        box.Image = State.GetImage(graphicThing, fcFlowChart);
+        //box.Image = State.GetImage(graphicThing, fcFlowChart);
       }
 
       form1.GraphicPropertyGrid.Refresh();
@@ -1536,7 +1559,7 @@ namespace SysCAD.Editor
       Thing thing = (hoverBox.Tag as Thing);
       GraphicThing graphicThing = thing.GraphicThing;
 
-      hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
+      //hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
     }
 
     private void EditThing(object sender, EventArgs e)
@@ -1561,7 +1584,7 @@ namespace SysCAD.Editor
         graphicThing.MirrorX,
         graphicThing.MirrorY))
       {
-        hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
+        //hoverBox.Image = State.GetImage(graphicThing, fcFlowChart);
       }
       
 

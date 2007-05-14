@@ -45,6 +45,7 @@ namespace SVNAutomate
       catch (Exception e)
       {
         Console.WriteLine("Exception occurred in SVN process execution: " + e.Message);
+        Console.WriteLine("Have you installed the commandline subversion client?");
         return 1;
       }
     }

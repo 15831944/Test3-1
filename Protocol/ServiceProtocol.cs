@@ -259,6 +259,13 @@ namespace SysCAD.Protocol
     }
 
 
+    public void DoSync()
+    {
+      eventId++;
+      OnSync(eventId);
+    }
+
+
     public void DoItemCreated(Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       if (!graphicItems.ContainsKey(guid))

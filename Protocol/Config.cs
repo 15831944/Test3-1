@@ -97,7 +97,7 @@ namespace SysCAD.Protocol
     }
 
 
-    public void Sync()
+    public void Syncxxx()
     {
       MemoryStream memoryStream;
       System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();

@@ -38,7 +38,7 @@ namespace SysCAD.Editor
       get { return barManager1; }
       set { barManager1 = value; }
     }
-    
+
     public EditorForm()
     {
       //String testXaml = State.PreprocessXaml("test [[Test tag, 0, 5, #0, #ffffff, Linear, Hex]] test some more");
@@ -62,7 +62,7 @@ namespace SysCAD.Editor
         dockManager1.LoadToolWindowLayoutFromFile("Recent.layout");
       }
       catch (FileNotFoundException) { }
-      
+
       (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
     }
@@ -225,7 +225,7 @@ namespace SysCAD.Editor
     public void CopyToClipboard()
     {
       // create clones of selected items
-      ClientProtocol data = copySelection(frmFlowChart.FCFlowChart);
+      ClientProtocol data = copySelection(frmFlowChart.FlowChart);
 
       DataFormats.Format format =
            DataFormats.GetFormat("Kenwalt.GraphicData");
@@ -241,10 +241,10 @@ namespace SysCAD.Editor
       CopyToClipboard();
 
       // that returns the active composite if somebody has already created one
-      CompositeCmd composite = frmFlowChart.FCFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+      CompositeCmd composite = frmFlowChart.FlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
 
       // delete selected items
-      frmFlowChart.State.Remove(frmFlowChart.FCFlowChart);
+      frmFlowChart.State.Remove(frmFlowChart.FlowChart);
 
       if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
       {
@@ -307,7 +307,7 @@ namespace SysCAD.Editor
               graphicThing.Y += dy;
               frmFlowChart.NewGraphicThing(tvNavigation.SelectedNode.FullPath, graphicThing);
             }
-            
+
             //// that returns the active composite if somebody has already created one
             //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
 
@@ -401,7 +401,7 @@ namespace SysCAD.Editor
     {
       barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
       barManager1.Commands["CreateItem.ModelType"].Enabled = false;
-      frmFlowChart.FCFlowChart.Behavior = BehaviorType.CreateArrow;
+      frmFlowChart.FlowChart.Behavior = BehaviorType.CreateArrow;
     }
 
     private void ModeCreateNode()
@@ -415,7 +415,7 @@ namespace SysCAD.Editor
     {
       barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
       barManager1.Commands["CreateItem.ModelType"].Enabled = false;
-      frmFlowChart.FCFlowChart.Behavior = BehaviorType.Modify;
+      frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
       (barManager1.Commands["Mode.Modify"] as BarButtonCommand).Checked = true;
       (barManager1.Commands["Mode.CreateNode"] as BarButtonCommand).Checked = false;
       (barManager1.Commands["Mode.CreateLink"] as BarButtonCommand).Checked = false;
@@ -425,7 +425,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.State.SelectItems = true;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
-      
+
       frmFlowChart.State.SelectLinks = false;
       ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
 
@@ -471,7 +471,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.State.ShowLinks = ((IBarCheckableCommand)barManager1.Commands["View.ShowLinks"]).Checked;
 
-      foreach (Arrow arrow in frmFlowChart.FCFlowChart.Arrows)
+      foreach (Arrow arrow in frmFlowChart.FlowChart.Arrows)
       {
         bool visible = true;
         Item origin = arrow.Origin.Tag as Item;
@@ -500,10 +500,10 @@ namespace SysCAD.Editor
 
       foreach (Item item in frmFlowChart.State.Items)
       {
-          item.Text.Visible = frmFlowChart.State.ShowTags;
+        item.Text.Visible = frmFlowChart.State.ShowTags;
       }
 
-      frmFlowChart.FCFlowChart.Invalidate();
+      frmFlowChart.FlowChart.Invalidate();
     }
 
     private void ViewZoomToVisible()
@@ -520,7 +520,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.FCFlowChart.ZoomOut();
+      frmFlowChart.FlowChart.ZoomOut();
 
       frmFlowChart.SetSizes();
     }
@@ -529,7 +529,7 @@ namespace SysCAD.Editor
     {
       frmFlowChart.FixDocExtents();
 
-      frmFlowChart.FCFlowChart.ZoomIn();
+      frmFlowChart.FlowChart.ZoomIn();
 
       frmFlowChart.SetSizes();
     }
@@ -539,7 +539,7 @@ namespace SysCAD.Editor
       switch (runState)
       {
         case BaseProtocol.RunStates.Edit:
-          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
           barManager1.Commands["Mode.CreateNode"].Enabled = false;
           barManager1.Commands["Mode.CreateLink"].Enabled = false;
 
@@ -548,7 +548,7 @@ namespace SysCAD.Editor
           tvNavigation.AllowArranging = false;
           break;
         case BaseProtocol.RunStates.Run:
-          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
           barManager1.Commands["Mode.CreateNode"].Enabled = false;
           barManager1.Commands["Mode.CreateLink"].Enabled = false;
 
@@ -556,7 +556,7 @@ namespace SysCAD.Editor
           tvNavigation.AllowArranging = false;
           break;
         case BaseProtocol.RunStates.Idle:
-          frmFlowChart.fcFlowChart.Behavior = BehaviorType.Modify;
+          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
           barManager1.Commands["Mode.CreateNode"].Enabled = false;
           barManager1.Commands["Mode.CreateLink"].Enabled = false;
 
@@ -565,119 +565,83 @@ namespace SysCAD.Editor
           break;
         default:
           throw new Exception("Unknown RunState: " + runState.ToString());
-          break;
       }
     }
+
+    private delegate void SetProjectBasedButtonsDelegate(bool projectExists);
 
     private void SetProjectBasedButtons(bool projectExists)
     {
-      barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
-      barManager1.Commands["File.Print"].Enabled = projectExists;
-      barManager1.Commands["File.Close"].Enabled = projectExists;
-      barManager1.Commands["View.ZoomIn"].Enabled = projectExists;
-      barManager1.Commands["View.ZoomOut"].Enabled = projectExists;
-      barManager1.Commands["View.ZoomToVisible"].Enabled = projectExists;
-      barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
-      barManager1.Commands["View.ShowModels"].Enabled = projectExists;
-      barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
-      barManager1.Commands["View.ShowLinks"].Enabled = projectExists;
-      barManager1.Commands["View.ShowTags"].Enabled = projectExists;
-      barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
-      barManager1.Commands["Selection.SelectLinks"].Enabled = projectExists;
-      barManager1.Commands["CreateItem.ModelType"].Enabled = projectExists;
-      barManager1.Commands["Mode.Modify"].Enabled = projectExists;
-      barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
-      barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
-      barManager1.Commands["Edit.Cut"].Enabled = projectExists;
-      barManager1.Commands["Edit.Copy"].Enabled = projectExists;
-      barManager1.Commands["Edit.Paste"].Enabled = projectExists;
-
-      barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
-      barManager1.Commands["CreateItem.ModelType"].Enabled = false;
-
-      if (frmFlowChart != null)
+      if (InvokeRequired)
       {
-        frmFlowChart.State.SelectItems = true;
-        frmFlowChart.State.SelectLinks = false;
+        BeginInvoke(new SetProjectBasedButtonsDelegate(SetProjectBasedButtons), new object[] { projectExists });
       }
+      else
+      {
+        barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
+        barManager1.Commands["File.Print"].Enabled = projectExists;
+        barManager1.Commands["File.Close"].Enabled = projectExists;
+        barManager1.Commands["View.ZoomIn"].Enabled = projectExists;
+        barManager1.Commands["View.ZoomOut"].Enabled = projectExists;
+        barManager1.Commands["View.ZoomToVisible"].Enabled = projectExists;
+        barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
+        barManager1.Commands["View.ShowModels"].Enabled = projectExists;
+        barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
+        barManager1.Commands["View.ShowLinks"].Enabled = projectExists;
+        barManager1.Commands["View.ShowTags"].Enabled = projectExists;
+        barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
+        barManager1.Commands["Selection.SelectLinks"].Enabled = projectExists;
+        barManager1.Commands["CreateItem.ModelType"].Enabled = projectExists;
+        barManager1.Commands["Mode.Modify"].Enabled = projectExists;
+        barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
+        barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
+        barManager1.Commands["Edit.Cut"].Enabled = projectExists;
+        barManager1.Commands["Edit.Copy"].Enabled = projectExists;
+        barManager1.Commands["Edit.Paste"].Enabled = projectExists;
 
-      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
-      ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
+        barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
+        barManager1.Commands["CreateItem.ModelType"].Enabled = false;
+
+        if (frmFlowChart != null)
+        {
+          frmFlowChart.State.SelectItems = true;
+          frmFlowChart.State.SelectLinks = false;
+        }
+
+        ((IBarCheckableCommand)barManager1.Commands["Selection.SelectItems"]).Checked = true;
+        ((IBarCheckableCommand)barManager1.Commands["Selection.SelectLinks"]).Checked = false;
+      }
     }
+
+    private delegate void FileCloseProjectDelegate();
 
     private void FileCloseProject()
     {
-      SetProjectBasedButtons(false);
+      if (InvokeRequired)
+      {
+        BeginInvoke(new FileCloseProjectDelegate(FileCloseProject), new object[] { });
+      }
+      else
+      {
+        SetProjectBasedButtons(false);
 
-      frmFlowChart.Close();
-      tvNavigation.Clear();
-      ovOverview.Document = null;
+        frmFlowChart.UnSetProject();
+
+        frmFlowChart.Close();
+        tvNavigation.Clear();
+        ovOverview.Document = null;
+      }
     }
 
     private void FileOpenProject()
     {
-      // Close the one selected first.
-      if (frmFlowChart != null)
-        FileCloseProject();
-
       OpenProjectForm openProjectForm = new OpenProjectForm();
 
       if (openProjectForm.ShowDialog(this) == DialogResult.OK)
       {
-        openProjectForm.ClientProtocol.Connect();
-        openProjectForm.Config.Sync();
-
         openProjectForm.Close();
-        Refresh();
 
-        frmFlowChart = new FrmFlowChart(this);
-
-        SuspendLayout();
-        frmFlowChart.SuspendLayout();
-        frmFlowChart.FCFlowChart.SuspendLayout();
-        tvNavigation.SuspendLayout();
-
-        frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-
-        frmFlowChart.MdiParent = this;
-        frmFlowChart.Text = openProjectForm.ClientProtocol.Name;
-
-        frmFlowChart.SetProject(openProjectForm.ClientProtocol, openProjectForm.Config, tvNavigation);
-        
-        ovOverview.Document = frmFlowChart.FCFlowChart;
-
-        frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
-
-        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Clear();
-        foreach (ModelStencil modelStencil in frmFlowChart.State.ModelStencils)
-        {
-          (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
-        }
-        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
-
-        SetProjectBasedButtons(true);
-
-        frmFlowChart.Show();
-
-        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
-        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
-
-        tvNavigation.ClearNodeSelection();
-        foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
-        {
-          node.Select();
-          SelectSubNodes(node);
-        }
-
-        ViewShowModels();
-
-        tvNavigation.ResumeLayout(true);
-        frmFlowChart.FCFlowChart.ResumeLayout(true);
-        frmFlowChart.ResumeLayout(true);
-        ResumeLayout(true);
-
-        frmFlowChart.ZoomToVisible();
+        LoadProject(openProjectForm.ClientProtocol, openProjectForm.Config);
       }
     }
 
@@ -776,13 +740,13 @@ namespace SysCAD.Editor
     {
       graphicPropertyGrid.Clear();
 
-      frmFlowChart.FCFlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart.FlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
 
       if (!frmFlowChart.State.SelectItems)
       {
-        if (frmFlowChart.FCFlowChart.Selection.Boxes.Count > 1)
+        if (frmFlowChart.FlowChart.Selection.Boxes.Count > 1)
         {
-          BoxCollection boxCollection = frmFlowChart.FCFlowChart.Selection.Boxes.Clone();
+          BoxCollection boxCollection = frmFlowChart.FlowChart.Selection.Boxes.Clone();
           foreach (Box box in boxCollection)
           {
             box.Selected = false;
@@ -792,9 +756,9 @@ namespace SysCAD.Editor
 
       if (!frmFlowChart.State.SelectLinks)
       {
-        if (frmFlowChart.FCFlowChart.Selection.Arrows.Count > 1)
+        if (frmFlowChart.FlowChart.Selection.Arrows.Count > 1)
         {
-          ArrowCollection arrowCollection = frmFlowChart.FCFlowChart.Selection.Arrows.Clone();
+          ArrowCollection arrowCollection = frmFlowChart.FlowChart.Selection.Arrows.Clone();
           foreach (Arrow arrow in arrowCollection)
           {
             arrow.Selected = false;
@@ -824,9 +788,9 @@ namespace SysCAD.Editor
         }
       }
 
-      if (frmFlowChart.FCFlowChart.ActiveObject is Arrow)
+      if (frmFlowChart.FlowChart.ActiveObject is Arrow)
       {
-        Arrow activeArrow = frmFlowChart.FCFlowChart.ActiveObject as Arrow;
+        Arrow activeArrow = frmFlowChart.FlowChart.ActiveObject as Arrow;
         GraphicLink graphicLink = frmFlowChart.State.GraphicLink(activeArrow);
         if (graphicLink != null)
         {
@@ -834,9 +798,9 @@ namespace SysCAD.Editor
         }
       }
 
-      if (frmFlowChart.FCFlowChart.ActiveObject is Box)
+      if (frmFlowChart.FlowChart.ActiveObject is Box)
       {
-        Box activeBox = frmFlowChart.FCFlowChart.ActiveObject as Box;
+        Box activeBox = frmFlowChart.FlowChart.ActiveObject as Box;
         GraphicItem graphicItem = frmFlowChart.State.GraphicItem(activeBox);
         if (graphicItem != null)
         {
@@ -883,7 +847,7 @@ namespace SysCAD.Editor
         }
       }
 
-      frmFlowChart.FCFlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
     }
 
     private void tvNavigation_NodeMouseClick(EventArgs e, PureComponents.TreeView.Node oNode)
@@ -900,7 +864,7 @@ namespace SysCAD.Editor
     {
       tvNavigation.ClearNodeSelection();
 
-      foreach (MindFusion.FlowChartX.ChartObject chartObject in frmFlowChart.fcFlowChart.Objects)
+      foreach (MindFusion.FlowChartX.ChartObject chartObject in frmFlowChart.FlowChart.Objects)
         chartObject.Visible = false;
 
       RePathNodes(oNode);
@@ -933,5 +897,73 @@ namespace SysCAD.Editor
     //  oldParent = oNode.Parent;
     //  oldIndex = oNode.Index;
     //}
+
+    private delegate void LoadProjectDelegate(ClientProtocol clientProtocol, Config config);
+
+    public void LoadProject(ClientProtocol clientProtocol, Config config)
+    {
+      if (InvokeRequired)
+      {
+        BeginInvoke(new LoadProjectDelegate(LoadProject), new object[] { clientProtocol, config });
+      }
+      else
+      {
+        // Close the one selected.
+        if (frmFlowChart != null)
+          FileCloseProject();
+
+        clientProtocol.Connect();
+        config.Syncxxx();
+
+        Refresh();
+
+        frmFlowChart = new FrmFlowChart(this);
+
+        SuspendLayout();
+        frmFlowChart.SuspendLayout();
+        frmFlowChart.FlowChart.SuspendLayout();
+        tvNavigation.SuspendLayout();
+
+        frmFlowChart.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+
+        frmFlowChart.MdiParent = this;
+        frmFlowChart.Text = clientProtocol.Name;
+
+        frmFlowChart.SetProject(clientProtocol, config, tvNavigation);
+
+        ovOverview.Document = frmFlowChart.FlowChart;
+
+        frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+
+        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Clear();
+        foreach (ModelStencil modelStencil in frmFlowChart.State.ModelStencils)
+        {
+          (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
+        }
+        (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
+
+        SetProjectBasedButtons(true);
+
+        frmFlowChart.Show();
+
+        tvNavigation.ClearNodeSelection();
+        foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
+        {
+          node.Select();
+          SelectSubNodes(node);
+        }
+
+        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
+        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
+
+        tvNavigation.ResumeLayout(true);
+        frmFlowChart.FlowChart.ResumeLayout(true);
+        frmFlowChart.ResumeLayout(true);
+        ResumeLayout(true);
+
+        frmFlowChart.ZoomToVisible();
+      }
+    }
   }
 }

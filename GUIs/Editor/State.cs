@@ -8,15 +8,15 @@ using SysCAD;
 using System.Collections;
 using System.Drawing.Drawing2D;
 
-using System.Windows;
-using System.Windows.Controls;
+//using System.Windows;
+//using System.Windows.Controls;
 
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+//using System.Windows.Data;
+//using System.Windows.Documents;
+//using System.Windows.Media;
+//using System.Windows.Media.Imaging;
+//using System.Windows.Media.Animation;
+//using System.Windows.Shapes;
 using System.IO;
 using System.Xml;
 using System.Text.RegularExpressions; 
@@ -365,8 +365,8 @@ namespace SysCAD.Editor
 
         if (renderImage)
         {
-          box.Image = GetImage(graphicThing, flowchart);
-          box.ImageAlign = ImageAlign.Stretch;
+          //box.Image = GetImage(graphicThing, flowchart);
+          //box.ImageAlign = ImageAlign.Stretch;
         }
 
         box.Visible = isVisible;
@@ -395,41 +395,41 @@ namespace SysCAD.Editor
     }
 
 
-    public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
-    {
-      StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
-      XmlReader xr = new XmlTextReader(sr);
+//    public static System.Drawing.Image GetImage(GraphicThing graphicThing, FlowChart flowchart)
+//    {
+//      StringReader sr = new StringReader(PreprocessXaml(graphicThing.Xaml));
+//      XmlReader xr = new XmlTextReader(sr);
 
-      System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
+//      System.Drawing.Rectangle clientRect = flowchart.DocToClient(graphicThing.BoundingRect);
 
-      Viewbox viewbox = new Viewbox();
-      viewbox.Stretch = Stretch.Fill;
-      viewbox.Child = System.Windows.Markup.XamlReader.Load(xr) as System.Windows.Controls.Canvas;
-      viewbox.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
-      viewbox.Arrange(new Rect(0, 0, clientRect.Width, clientRect.Height));
-      viewbox.UpdateLayout();
+//      Viewbox viewbox = new Viewbox();
+//      viewbox.Stretch = Stretch.Fill;
+//      viewbox.Child = System.Windows.Markup.XamlReader.Load(xr) as System.Windows.Controls.Canvas;
+//      viewbox.Measure(new System.Windows.Size(clientRect.Width, clientRect.Height));
+//      viewbox.Arrange(new Rect(0, 0, clientRect.Width, clientRect.Height));
+//      viewbox.UpdateLayout();
       
-      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, 96, 96, PixelFormats.Default);
-      renderTargetBitmap.Render(viewbox);
+//      RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(clientRect.Width, clientRect.Height, 96, 96, PixelFormats.Default);
+//      renderTargetBitmap.Render(viewbox);
 
-      MemoryStream stream = new MemoryStream();
-      {
-        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-        pngBitmapEncoder.Save(stream);
-      }
+//      MemoryStream stream = new MemoryStream();
+//      {
+//        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+//        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+//        pngBitmapEncoder.Save(stream);
+//      }
 
-      {
-        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
-        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-        FileStream fileStream = new FileStream("c:\\test.png", FileMode.Create);
-        pngBitmapEncoder.Save(fileStream);
-        fileStream.Flush();
-        fileStream.Close();
-      }
+//      {
+//        PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+//        pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+//        FileStream fileStream = new FileStream("c:\\test.png", FileMode.Create);
+//        pngBitmapEncoder.Save(fileStream);
+//        fileStream.Flush();
+//        fileStream.Close();
+//      }
 
-      return System.Drawing.Image.FromStream(stream);
-    }
+//      return System.Drawing.Image.FromStream(stream);
+//    }
 
     public static String PreprocessXaml(String xaml)
     {
@@ -1135,6 +1135,7 @@ namespace SysCAD.Editor
     internal void ConnectGraphic(
       ClientProtocol.StateChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
+      ClientProtocol.SyncHandler syncHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
@@ -1148,6 +1149,8 @@ namespace SysCAD.Editor
       clientProtocol.StateChanged += stateChangedHandler;
 
       clientProtocol.Step += stepHandler;
+
+      clientProtocol.Sync += syncHandler;
 
       clientProtocol.ItemCreated += itemCreatedHandler;
       clientProtocol.ItemModified += itemModifiedHandler;
@@ -1166,6 +1169,7 @@ namespace SysCAD.Editor
     internal void DisconnectGraphic(
       ClientProtocol.StateChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
+      ClientProtocol.SyncHandler syncHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
@@ -1179,6 +1183,8 @@ namespace SysCAD.Editor
       clientProtocol.StateChanged -= stateChangedHandler;
 
       clientProtocol.Step -= stepHandler;
+
+      clientProtocol.Sync -= syncHandler;
 
       clientProtocol.ItemCreated -= itemCreatedHandler;
       clientProtocol.ItemModified -= itemModifiedHandler;

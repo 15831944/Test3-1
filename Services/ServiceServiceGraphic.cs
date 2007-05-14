@@ -12,7 +12,7 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
 
-namespace SysCAD.Interface
+namespace SysCAD.Protocol
 {
   [Serializable]
   public class ServiceServiceGraphic : ServiceGraphic

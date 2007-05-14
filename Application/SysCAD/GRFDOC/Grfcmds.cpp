@@ -1134,6 +1134,12 @@ void AddMenuItems(bool ConfigOnly , CMenu &Menu, CMdlGraphicArray & Grfs, CArray
 
 //---------------------------------------------------------------------------
 
+void GrfCmdBlk::DoModify(char *pTag, float angle, float x, float y, float width, float height, int follColor, bool mirrorX, bool mirrorY) 
+{
+}
+
+//---------------------------------------------------------------------------
+
 char * GrfCmdBlk::DoToggleItem(char *pTag)
   {
   if (pTag==NULL)
@@ -5740,7 +5746,7 @@ void GrfCmdBlk::DoMoveEntity()
   {
   //SETVNT("MOve", "ENtity", "@ IWin CWin ; Redraw", 1, (CmdFn)&GrfCmdBlk::DoMoveEntity, EF_Edit);
   enum MID { MID_Dig=1, MID_IWin, MID_CWin, MID_Next, MID_Redraw };
-  pDsp->Open();
+    pDsp->Open();
   switch (When)
     {
     case EX_MODIFIER_RDY :

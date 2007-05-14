@@ -27,7 +27,7 @@
 
 //pkh#if !_MANAGED
 
-#ifndef __cplusplus_cli // not used in CLR 
+//#ifndef __cplusplus_cli // not used in CLR 
  
 inline DWORD FPP_EnableExceptions()                               
   { 
@@ -52,7 +52,7 @@ inline DWORD FPP_RestoreExceptions(DWORD CW)
   };
 //pkh#endif
 
-#endif
+//#endif
 
 //extern double Normal (int size, double *vector);
 DllExport double Pow(double base, int exponent);

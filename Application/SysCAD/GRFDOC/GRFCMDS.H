@@ -339,6 +339,8 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     //static void    CalcLicUnits();
     int            CheckEntity(char* pTag);
 
+    void           DoModify(char *pTag, float angle, float x, float y, float width, float height, int follColor, bool mirrorX, bool mirrorY) ;
+
     char *         DoToggleItem(char *pTag);
     char *         DoActionMenu(char *pTag);
     char *         DoAccessMenu(char *pTag);

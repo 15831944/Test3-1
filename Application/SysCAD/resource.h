@@ -1766,6 +1766,8 @@
 #define ID_TREND_REFRESH                30156
 #define ID_TREND_REFRESHALL             30157
 #define ID_TREND_SLOTS                  30158
+#define ID_FILE_10_9                    30164
+#define ID_FILE_9_10                    30165
 #define ID_FILE_DUMMYDELETE             30166
 #define ID_FILE_DUMMYMODIFY             30167
 #define ID_FILE_DUMMYINSERT             30168

@@ -1337,6 +1337,8 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         DeleteMenuItem(ID_FILE_DUMMYINSERT);
         DeleteMenuItem(ID_FILE_DUMMYMODIFY);
         DeleteMenuItem(ID_FILE_DUMMYDELETE);
+        DeleteMenuItem(ID_FILE_10_9);
+        DeleteMenuItem(ID_FILE_9_10);
         #endif
         //DeleteMenuItem(ID_GRF_ZoomIso);
         DeleteMenuItem(ID_FILE_DUMMY);

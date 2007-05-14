@@ -12,7 +12,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Collections.Generic;

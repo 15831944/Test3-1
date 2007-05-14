@@ -49,6 +49,8 @@ namespace SysCAD.Protocol
 
     public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
 
+    public delegate void SyncHandler(Int64 eventId);
+
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
@@ -69,6 +71,7 @@ namespace SysCAD.Protocol
 
     public StepHandler Step;
 
+    public SyncHandler Sync;
 
     public ItemCreatedHandler ItemCreated;
     public ItemModifiedHandler ItemModified;
@@ -105,6 +108,19 @@ namespace SysCAD.Protocol
         try
         {
           Step(eventId, step, time);
+        }
+        catch (SocketException) { }
+      }
+    }
+
+
+    public void OnSync(Int64 eventId)
+    {
+      if (Sync != null)
+      {
+        try
+        {
+          Sync(eventId);
         }
         catch (SocketException) { }
       }

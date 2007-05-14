@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scdver.h"
+#include "neutralcommon.h"
 
 //========================================================================
 
@@ -40,6 +41,11 @@ class CNSGrfNode  : public CNSGrfItem
 	float			  m_Top;
 	float			  m_Width;
 	float			  m_Height;
+
+	float			  m_TagLeft;
+	float			  m_TagTop;
+	float			  m_TagWidth;
+	float			  m_TagHeight;
 
     float             m_Rotation;
 
@@ -157,7 +163,7 @@ class CNSMdlLink  : public CNSGuidItem
 
 //========================================================================
 
-class CNETServerU
+class CNETServerU : public CNeutralGroupTagEditor
   {
   public:
     CNETServerU(void);
@@ -165,6 +171,7 @@ class CNETServerU
     ~CNETServerU(void);
 
     void LoadItems();
+    void SaveItems(CGrfDoc * pDoc);
     void UpdateItems();
     void Startup();
     void Shutdown();

@@ -397,6 +397,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -526,6 +528,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -717,6 +721,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -794,6 +800,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1006,6 +1014,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1218,6 +1228,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1474,6 +1486,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1688,6 +1702,8 @@ BEGIN
         MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
         MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
         MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
+        MENUITEM "9->10",                       ID_FILE_9_10
+        MENUITEM "10->9",                       ID_FILE_10_9
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW

@@ -178,12 +178,16 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_FILE_DUMMYINSERT, DummyInsert)
   ON_COMMAND(ID_FILE_DUMMYMODIFY, DummyModify)
   ON_COMMAND(ID_FILE_DUMMYDELETE, DummyDelete)
+  ON_COMMAND(ID_FILE_9_10, Dummy9_10)
+  ON_COMMAND(ID_FILE_10_9, Dummy10_9)
 #endif
   ON_COMMAND(ID_FILE_NEW, OnFileNew)
 #ifdef SYSCAD10
   ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYINSERT, OnUpdateDummyInsert)
   ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYMODIFY, OnUpdateDummyModify)
   ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYDELETE, OnUpdateDummyDelete)
+  ON_UPDATE_COMMAND_UI(ID_FILE_9_10, OnUpdateDummy9_10)
+  ON_UPDATE_COMMAND_UI(ID_FILE_10_9, OnUpdateDummy10_9)
 #endif
   ON_UPDATE_COMMAND_UI(ID_FILE_NEW, OnUpdateFileNew)
   ON_UPDATE_COMMAND_UI(ID_FILE_OPEN, OnUpdateFileOpen)
@@ -2771,6 +2775,16 @@ void CSysCADApp::DummyDelete()
     gs_pPrj->m_pCLRSrvr->DeleteLink(5, "ce429210-aff1-11db-abbd-0800200c9a66");
     gs_pPrj->m_pCLRSrvr->DeleteLink(6, "ce429211-aff1-11db-abbd-0800200c9a66");
   }
+
+void CSysCADApp::Dummy9_10()
+  {
+    gs_pPrj->m_pCLRSrvr->Update9_10();
+  }
+
+void CSysCADApp::Dummy10_9()
+  {
+    gs_pPrj->m_pCLRSrvr->Update10_9();
+  }
 #endif
 
 void CSysCADApp::OnFileNew()
@@ -2822,6 +2836,16 @@ void CSysCADApp::OnUpdateDummyModify(CCmdUI* pCmdUI)
   }
 
 void CSysCADApp::OnUpdateDummyDelete(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
+  }
+
+void CSysCADApp::OnUpdateDummy9_10(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
+  }
+
+void CSysCADApp::OnUpdateDummy10_9(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
   }
