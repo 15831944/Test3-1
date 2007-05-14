@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-10 03:27:21 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-14 05:44:51 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -153,7 +153,7 @@ double AmiraBayer::LiqHCalc(MArray & MA, double Tc)
   {
   CheckConverged(&MA);
 
-  return  4.184*(Tc-273.15);
+  return  dpData[iH];
   }
 
 
@@ -190,7 +190,7 @@ double AmiraBayer::get_msEnthalpy(long Phases, double T, double P, MArray *pMA)
 
 double AmiraBayer::get_msEntropy(long Phases, double T, double P, MArray *pMA)
   {
-  return MSpModelBase::get_msEntropy(Phases, T, P, pMA);
+  return dpData[iS];
   }
 
 //---------------------------------------------------------------------------
@@ -814,7 +814,7 @@ double AmiraBayer::AluminaConcSat(double T_)
 double AmiraBayer::LVolume25()
   {
   const double mt=Mass(MP_Liq);
-  Log.Message(MMsg_Warning, "LVolume25");
+  //Log.Message(MMsg_Warning, "LVolume25");
 
   return ((mt>=UsableMass) ? (mt / get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL)) : 0.0);
   }
@@ -822,7 +822,7 @@ double AmiraBayer::LVolume25()
 double AmiraBayer::SLVolume25()
   {
   const double mt=Mass(MP_SL);
-  Log.Message(MMsg_Warning, "SLVolume25");
+  //Log.Message(MMsg_Warning, "SLVolume25");
   return ((mt>=UsableMass) ? (mt / get_Density(MP_SL, C_2_K(25.0), Pressure, NULL)) : 0.0);
   }
 
@@ -830,13 +830,13 @@ double AmiraBayer::SLVolume25()
 
 double AmiraBayer::LDensity25()
   {
-  Log.Message(MMsg_Warning, "LDensity25");
-  return (get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL));
+    //Log.Message(MMsg_Warning, "LDensity25");
+  return dpData[iWT]/GTZ(dpData[iV25]);
   }
 
 double AmiraBayer::SLDensity25()
   {
-  Log.Message(MMsg_Warning, "SLDensity25");
+    //Log.Message(MMsg_Warning, "SLDensity25");
   return (get_Density(MP_SL, C_2_K(25.0), Pressure, NULL));
   }
 
@@ -1017,7 +1017,7 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
   InComp[8] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
 
-  Log.Message(MMsg_Warning, "Bayer Density Call...T %8.2f P %8.2f", TempC, Pressure);
+  //Log.Message(MMsg_Warning, "Bayer Density Call...T %8.2f P %8.2f", TempC, Pressure);
   
 
 	      //, InComp[2], InComp[3], InComp[4],
