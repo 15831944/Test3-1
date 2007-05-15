@@ -1394,7 +1394,7 @@ class QPRootFnd : public MRootFinderBase
       double OtherPP=0;
       if (pMdlL->SaturationMethod()==SMFM_PartialP)
         OtherPP=(pMdlV ? pMdlV : pMdlL)->PartialPress(VLE.OtherVapSp, pMdlL->Temp(), m_P);
-      double Ts = Min(m_TMx, pMdlL->SaturationT(Max(1.0, m_P-OtherPP)-m_ApproachT));
+      double Ts = Min(m_TMx, pMdlL->SaturationT(Max(1.0, m_P-OtherPP)-m_ApproachT, NULL, VLE.m_vi));
       double h, t;
       if (x<0.0)
         t=m_TMn+(Ts-m_TMn)*(x+1.0); // Map -1<=x<=0 on to TMn to T
