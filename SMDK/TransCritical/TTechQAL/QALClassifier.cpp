@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2006-11-01 11:53:07 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-15 21:52:35 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
 
@@ -337,8 +337,9 @@ void QALClassifier::EvalProducts() {
 	// so that if unexpected errors happen
 	// the model still balances.
 	// Check whether this incorporates properties as well...
-
+	QO0 = QI;
 	QO0.SetF(QI, MP_All, 0.5);
+	QO1 = QI;
 	QO1.SetF(QI, MP_All, 0.5);
 
 	MIBayer & QIB=QI.IF<MIBayer>(false);    // Does the mud stream have Bayer properties

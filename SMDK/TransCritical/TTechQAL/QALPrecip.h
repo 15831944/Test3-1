@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2006-04-20 17:01:48 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-15 06:36:14 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -56,7 +56,7 @@ static const double MW_C = 12.01;
 static  const double Alpha = MW_Alumina/MW_THA;
 
 const static int qVal = 1;
-const static int nClasses = 28;
+const static int nClasses = 21;
 const double t0 = 323.15;  // Reference temperature for kinetic rate
 const double bayerRefTemp = 273.15+25.0;   // Bayer liquor reference temperature
 const double DIST_CORR = .72137298;
@@ -68,9 +68,6 @@ double wtSub45(MStream &);
 
 
 const double D[] = {
-  1.0, 
-  1.25992104989,
-  1.58740105197 ,
   2.0 ,
   2.51984209979 ,
   3.17480210394 ,
@@ -92,10 +89,6 @@ const double D[] = {
   128.0 ,
   161.269894387 ,
   203.187334652 ,
-  256.0 ,
-  322.539788773 ,
-  406.374669304 ,
-  512.0 
 };
 
 
@@ -324,7 +317,7 @@ class CPrecipitator : public MBaseMethod, CPrecip
 
   double n[nClasses+1];         // Numbers for bulk slurry in precipitator
   double m_dVol, m_dArea, m_dNumber;  // Tank Numbers
-  double NewN[nClasses+1];
+  double NewN[nClasses +1];
   double m_dSolidsIn;
   double m_dSolidsOut;
   

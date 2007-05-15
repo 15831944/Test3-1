@@ -1,17 +1,19 @@
 from Tkinter import *
 import tkMessageBox
-from generic import GenericMain, OutputFrame, font3
+from generic import GenericMain, OutputFrame
+import re
 import entry
 from ctypes import *
 
-font0 = ("Helvetica", "10", "bold")
-font4 = ("Courier", "8", "bold")
+font0 = "Helvetica 10 bold"
+font3 = "Courier 8"
+font4 = "Courier 8 bold"
     
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
            "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT", "H", "S"]
 
-dpdnames = dpnames    ##[:-4]+dpnames[-2:]
+dpdnames = dpnames[:-4]+dpnames[-2:]
 
 s0Entries = [
     ["Temperature", "C", "100."],
@@ -81,18 +83,22 @@ NaCl 1
 
 will give a 20% saline solution.
 
-Properties may also be calculated over a range. Thus to see how the specific heat varies
-between 200C and 300C, highlight
+Properties may also be calculated over a range. Thus to see how the specific heat and
+density vary between 200C and 300C, highlight the following line (you can highlight a
+line by triple clicking on it):
 
-Cp_Liq, Temperature, 200, 300, 10
+Cp_Liq, Rho_Liq for Temperature in 200, 300, 10
 
 and press "Data"
 
 Any of the result variables (Im, Temp_Sat, BPE etc) can be chosen to plot against any of
-the data variables, for example:
+the data variables (Temperature, Concentrations), for example:
 
-BPE, NaCl, 0, 2, .2
+BPE for NaCl in 0, 1, .2
 
+Options Menu: AutoClear  - toggle clearing of text screen after each calculation
+              Solubility - toggle solubilities and solubility indices display
+              Activities - toggle activities display
 '''
 
 
@@ -113,15 +119,15 @@ sinames = [
 
 
 # Format Strings for display
-ostr1 =   "t =  %8.2f C         I_m =  %8.4f mol/kg      I_c(t, p) =  %8.4f mol/L"
-ostr2 =   "p =  %8.2f bar     p_sat =    %8.3f bar       I_c(25 C) =  %8.4f mol/L"
-ostr3 =   "\nConc. units   Al(OH)3    NaOH    NaCl  Na2CO3  Na2SO4    NaOx    NaAc  NaForm     NaF"\
-          "\n---------------------------------------------------------------------------------------"
-ostr4 =   "mol/kg       %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
-ostr5 =   "mol/L (t,p)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
-ostr6 =   "mol/L (25C)  %8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f%8.4f"
-ostr7 =   "mass-%%      %8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f%8.3f"
-ostr8 =   "g/L (25C)  %8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f%8.2f"
+ostr1 = "t =  %8.2f C         I_m =  %8.4f mol/kg      I_c(t, p) =  %8.4f mol/L"
+ostr2 = "p =  %8.2f bar     p_sat =    %8.3f bar       I_c(25 C) =  %8.4f mol/L"
+ostr3 = "\nConc. units   Al(OH)3    NaOH    NaCl  Na2CO3  Na2SO4    NaOx    NaAc  NaForm     NaF\n"+\
+        "-"*85
+ostr4 = "mol/kg       " +"%8.4f"*9
+ostr5 = "mol/L (t,p)  " +"%8.4f"*9
+ostr6 = "mol/L (25C)  " +"%8.4f"*9
+ostr7 = "mass-%%       " +"%8.3f"*9
+ostr8 = "g/L (25C)    " +"%8.2f"*9
 
 ostrs = [
 "                  A            C            S            OC           OC",
@@ -322,8 +328,6 @@ class MyMain(GenericMain):
         f0 = Frame(f)
         self.s0=entry.EntryFrame(f0, s0Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
         self.s0.pack()
-##        self.s0.disable("Na2O")
-##        self.s0.disable("Al2O3")
         self.s2=entry.EntryFrame(f0, s2Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
 
         f0.pack(side=TOP)
@@ -342,7 +346,7 @@ class MyMain(GenericMain):
         f.pack(side=LEFT, anchor=NW)
         canvasFrame=Frame(self.baseFrame)
         canvasFrame.pack(side=LEFT, fill=BOTH, expand=YES)
-        self.of=OutputFrame(canvasFrame, font=font3, width=200)
+        self.of=OutputFrame(canvasFrame, font=font3, width=90)
         self.of.txt.tag_config("b", font=font4)
         self.rbp.trace("w", self.doEntryType)
         self.menus.menuDic["Help"].entryconfig(0, command=self.doHelp)
@@ -416,38 +420,55 @@ class MyMain(GenericMain):
         try:
             sel = self.of.getSelection()
         except:
-            sel = self.of.getAll()
+            tkMessageBox.showerror("Selection Invalid","Select line\nfrom text window")
+            
 
         ldic = {}
-        lis = [x.strip() for x in sel.split(',')]
-        if len(lis)<5:
-            return
-        iv = lis[1]
+        lre = re.compile("(.*)\Wfor\W(.*)\Win(.*)")
+        res = lre.search(sel)
+        if res:
+            print res.group(0)
+            print res.group(1)
+            print res.group(2)
+            print res.group(3)
+        iv = res.group(2).strip()
         if iv not in s0Vars:
-            print "iv not in s0Vars"
+            print "%s not in s0Vars" % iv
             return
-        dv = lis[0]
-        if dv not in dpnames:
-            print "dv not in dpnames"
-            return
+        dv = [x.strip() for x in res.group(1).split(',')]
+        for x in dv:
+            if x not in dpnames:
+                print "%s not in dpnames" % x
+                return
         try:
-            vals = frange(float(lis[2]), float(lis[3]), float(lis[4]))
+            rnge = [float(x.strip()) for x in res.group(3).split(',')]
+            print rnge
+            vals = frange(*rnge)
         except:
-            print "frange failure"
+            print "frange failure", res.group(3)
             return
+
         for x in inSpecies:
             ldic[x] = self.s0[x]*100.
         ldic["NaF"]=self.s0["NaF "]
         ldic["Temperature"] = self.s0["Temperature"]-273.15
         ldic["Pressure"] = self.s0["Pressure"]/100.
-        
-        self.of.appendText(iv+"  " + dv)
         ab.InUnits = self.rbp.get()
+
+        os = "\n%12s" % iv
+        for x in dv:
+            os+="%12s" % x
+            
+        self.of.appendText(os)
+
         for x in vals:
             ldic[iv] = x
             ab.fromDic(ldic)
             self.extractDPData()
-            self.of.appendText("%f\t%f" % (x, self.__dict__[dv]))
+            os = "%12.3f" % x
+            for x in dv:
+                os += "%12.3f" % self.__dict__[x]
+            self.of.appendText(os)
        
                                
     def test(self):
@@ -528,6 +549,7 @@ def main():
     root.protocol("WM_DELETE_WINDOW", done)
     app=MyMain(root, TestMenu())
     def atst(foo, bar=None):
+        print foo, bar
         app.test()
     def agpl(foo, bar=None):
         app.getPlotLine()
@@ -538,7 +560,7 @@ def main():
     root.iconify()
     root.update()
     root.deiconify()
-    root.geometry("900x900-5+5")
+    root.geometry("-5+5")
     dllSetup()
     root.mainloop()
 

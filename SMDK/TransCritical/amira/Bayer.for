@@ -425,9 +425,7 @@ C ...  Set P to P
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       DIMENSION X(NGAMMA)
       DT = 0.1
-      TH = T + DT
-      TL = T - DT
-      S = -(GAQ(NGAMMA,P,TH,X)-GAQ(NGAMMA,P,TL,X))/(2*DT)
+      S = -(GAQ(NGAMMA,P,T+DT,X)-GAQ(NGAMMA,P,T-DT,X))/(2*DT)
       H =  GAQ(NGAMMA,P,T,X)+T*S
       S = S/WT
       H = H/WT

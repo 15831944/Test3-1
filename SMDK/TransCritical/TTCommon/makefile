@@ -5,7 +5,7 @@ OBJS =  sthx.obj hxutils.obj precip.obj utils.obj
 LFLAGS = /INCREMENTAL /NOLOGO /DEBUG user32.lib
 
 
-all: ttdbg.obj dbgtest.exe ttcommon.lib
+all:  ttcommon.lib
 
 client.exe: client.cpp
 	cl client.cpp wsock32.lib

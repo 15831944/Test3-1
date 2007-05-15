@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-08 06:14:15 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-15 06:25:44 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -28,8 +28,6 @@ static MSpeciePtr  spBoundSoda     (InitTest, "NaOH*(s)", false);
 static MSpeciePtr  spOrganics      (InitTest, "Na2C5.2O7.2(l)", false);
 static MSpeciePtr  spBoundOrganics (InitTest, "Na2C5.2O7.2*(s)", false);
 static MSpeciePtr  spOxalate       (InitTest, "Na2C2O4(s)", false);
-
-
 
 
 enum PrecipMethod {GRM_Fixed, GRM_White, GRM_CAR_QAL, GRM_TTTest};
@@ -633,7 +631,8 @@ void CPrecipitator::EvalProducts()
       alreadySolved = true;
 
     } else  {   // Just tidy up and put some sensible stuff in the results...
-
+       Log.Message(MMsg_Warning, "Offline or stream not OK");
+      
     }
   }
   catch (MMdlException &e)
@@ -983,7 +982,8 @@ QALPSD::QALPSD(MStream &s)
   
   //dbg.log("solids content %12.7f", solidsContent);
 
-double sumar = 0.0, sumv=0.0, sumn=0.0;
+  double sumar = 0.0, sumv=0.0, sumn=0.0;
+  int nClasses=sP.getSizeCount();
   for (int i = 0; i<nClasses; i++) {
     double D = sP.getSize(i)*1.0e6;
     double D2 = Sqr(D/*[i]*/);
