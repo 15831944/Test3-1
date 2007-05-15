@@ -1,8 +1,8 @@
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800 /I C:/Tcl/Include
 
-OBJS = ttdbg.obj sthx.obj hxutils.obj precip.obj utils.obj
+OBJS =  sthx.obj hxutils.obj precip.obj utils.obj
 
-LFLAGS = /INCREMENTAL /NOLOGO /DEBUG  c:/Tcl/lib/Tcl84.lib  c:/Tcl/lib/Tk84.lib user32.lib
+LFLAGS = /INCREMENTAL /NOLOGO /DEBUG user32.lib
 
 
 all: ttdbg.obj dbgtest.exe ttcommon.lib

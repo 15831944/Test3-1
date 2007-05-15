@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //   New Precipitation model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-08 00:48:45 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-15 04:31:15 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 //#include "stdafx.h"
@@ -10,6 +10,7 @@
 //#pragma optimize("", off)
 
 double CPrecip::m_dConvergenceLimit = 1.0e-8;
+
 
 
 CPrecip::CPrecip()
