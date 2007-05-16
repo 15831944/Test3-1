@@ -1066,7 +1066,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
         ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
         HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
-        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To);
+        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To, m_VLE.FlashCmpIndex());
 
 //        ColdSd.m_pCd->Model()->ClrStatesOK();
 //        ColdSd.m_pCd->Model()->EquilibrateAll();
@@ -1080,7 +1080,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=HotSd.m_pCd->SaturationP(CoCurrent ? HotSd.Ti : ColdSd.Ti);
+        m_FTC.m_dMinSatPress=HotSd.m_pCd->SaturationP(CoCurrent ? HotSd.Ti : ColdSd.Ti, m_VLE.FlashCmpIndex());
 
         HotSd.AddByPassLiquor();
 
@@ -1388,7 +1388,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
         HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To);
         ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
-        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
+        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To, m_VLE.FlashCmpIndex());
 
 //        HotSd.m_pCd->Model()->ClrStatesOK();
 //        HotSd.m_pCd->Model()->EquilibrateAll();
@@ -1403,7 +1403,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=ColdSd.m_pCd->SaturationP(CoCurrent ? ColdSd.Ti : HotSd.Ti);
+        m_FTC.m_dMinSatPress=ColdSd.m_pCd->SaturationP(CoCurrent ? ColdSd.Ti : HotSd.Ti, m_VLE.FlashCmpIndex());
 
         //ColdSd.AddByPassLiquor();
 

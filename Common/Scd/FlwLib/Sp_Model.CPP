@@ -7996,29 +7996,34 @@ double SpModel::Press()
   }
 
 // --------------------------------------------------------------------------
+// For All Partial Pressure calcs assume that 
+// in the limit as MassOfGas tends to 0.0
+// that the Partial Pressure tends to P
 
 double SpModel::PartialPress(SpecieIter &Ids, double T, double P)
   {
   TestHStatesOK();
 
   double PPart=0;
-  if (1)//m_bClosed && !m_bPressAsSet)
-    {
-    if (!Valid(P))
-      P=Press();
-    double Vol1=0;
-    double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
-    for (int i=-1; Ids.Loop(i); )
-      Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-    // Assume Linear Relationship - Ideal Gas;
-    PPart=P*Vol1/GTZ(VolA);
-    //if (PPart<20.0)
-    //  {
-    //  //Limit Lowest Pressure up by 1 kPa at 0 kPa prop to press below 20.0 kPa
-    //  PPart+=1.0*(20.0-PPart)/20.0;
-    //  }
+  if (!Valid(P))
+    P=Press();
+
+  double msVol1=0;
+  double Mass1=0;
+  for (int i=-1; Ids.Loop(i); )
+    {
+    Mass1 += m_M[i];
+    msVol1 += SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
     }
+  double MassA = Mass(som_Gas);
+  double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+
+  // Assume Linear Relationship - Ideal Gas;
+  if (MassA>Mass1)
+    PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
+  else
+    PPart=P;
 
   return PPart;
   }
@@ -8036,32 +8041,40 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T, double P)
   if (0)
     dbgpln("SpModel::PartialPress T:%12.4f P:%12.4f", T, P);
 
-  if (1)//m_bClosed && !m_bPressAsSet)
+  if (IncIds>=0 )
     {
-    if (IncIds>=0 )
-      {
-      double Vol1 = m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-      // Assume Linear Relationship - Ideal Gas;
-      PPart=P*Vol1/GTZ(VolA);
-      }
+    double Mass1 = m_M[IncIds];
+    double MassA = Mass(som_Gas);
+    double msVol1 = SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+    double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+    // Assume Linear Relationship - Ideal Gas;
+    if (MassA>Mass1)
+      PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
     else
+      PPart=P;
+    }
+  else
+    {
+    SpecieIter I(som_Gas);
+    double msVol1=0;
+    double Mass1=0;
+    for (int i=-1; I.Loop(i); )
       {
-      SpecieIter I(som_Gas);
-      for (int i=-1; I.Loop(i); )
+      if (i!=ExcIds)
         {
-        if (i!=ExcIds)
-          {
-          double Vol1 = m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-          double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-          // Assume Linear Relationship - Ideal Gas;
-          PPart+=P*Vol1/GTZ(VolA);
-          if (0)
-            dbgpln("   %3i) V1:%12.4f Va:%12.4f PP:%12.4f (PPart:%12.4f) %s", 
-             i, Vol1, VolA, P*Vol1/GTZ(VolA), PPart, SDB[i].SymOrTag());
-          }
+        Mass1 += m_M[i];
+        msVol1 += SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+        // Assume Linear Relationship - Ideal Gas;
         }
       }
+    double MassA = Mass(som_Gas);
+    double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+
+    // Assume Linear Relationship - Ideal Gas;
+    if (MassA>Mass1)
+      PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
+    else
+      PPart=P;
     }
 
   return PPart;
@@ -8086,20 +8099,24 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
   {
   TestHStatesOK();
 
-  double Pf=0;
-  if (1)//m_bClosed && !m_bPressAsSet)
+  if (!Valid(P))
+    P=Press();
+
+  double Pf=1.0;
+
+  double msVol1=0;
+  double Mass1=0;
+  for (int i=-1; Ids.Loop(i); )
     {
-    if (!Valid(P))
-      P=Press();
-    double Vol1=0;
-    double VolA= SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-
-    for (int i=-1; Ids.Loop(i); )
-      Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-
-    // Assume Linear Relationship - Ideal Gas;
-    Pf=Vol1/GTZ(VolA);
+    Mass1 += m_M[i];
+    msVol1 += SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
     }
+  double MassA = Mass(som_Gas);
+  double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+
+  // Assume Linear Relationship - Ideal Gas;
+  if (MassA>Mass1)
+    Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
 
   return Pf;
   }
@@ -8109,33 +8126,44 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
 double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
   {
   TestHStatesOK();
-
+             
   if (!Valid(P))
     P=Press();
-  double Pf=0;
-  if (1)//m_bClosed && !m_bPressAsSet)
-    {
-    if (IncIds>=0 )
-      {           
-      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-      double Vol1 = m_M[IncIds]*SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
 
-      // Assume Linear Relationship - Ideal Gas;
-      Pf=Vol1/GTZ(VolA);
-      }
-    else
-      {
-      double Vol1 = 0;
-      double VolA = SDB.Volume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
-      SpecieIter I(som_Gas);
-      for (int i=-1; I.Loop(i); )
-        {
-        if (i!=ExcIds)
-          Vol1 += m_M[i]*SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
-        }
-      Pf=Vol1/GTZ(VolA);
-      }
+  double Pf=1.0;
+
+  if (IncIds>=0 )
+    {
+    double Mass1 = m_M[IncIds];
+    double MassA = Mass(som_Gas);
+    double msVol1 = SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+    double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+    // Assume Linear Relationship - Ideal Gas;
+    if (MassA>Mass1)
+      Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
     }
+  else
+    {
+    SpecieIter I(som_Gas);
+    double msVol1=0;
+    double Mass1=0;
+    for (int i=-1; I.Loop(i); )
+      {
+      if (i!=ExcIds)
+        {
+        Mass1 += m_M[i];
+        msVol1 += SDB[i].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
+        // Assume Linear Relationship - Ideal Gas;
+        }
+      }
+    double MassA = Mass(som_Gas);
+    double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
+
+    // Assume Linear Relationship - Ideal Gas;
+    if (MassA>Mass1)
+      Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
+    }
+
   return Pf;
   }
 
@@ -8149,7 +8177,7 @@ double SpModel::PartialPressFracC(int CmpIncIds, int CmpExcIds, double T, double
     SpIncIds=CDB[CmpIncIds].VapPhInx();
   if (CmpExcIds>=0)
     SpExcIds=CDB[CmpExcIds].VapPhInx();
-  return PartialPress(SpIncIds, SpExcIds, T, P);
+  return PartialPressFrac(SpIncIds, SpExcIds, T, P);
   }
 
 // --------------------------------------------------------------------------
@@ -8496,6 +8524,9 @@ LPTSTR SpModel::SaturationMethodUsed()
 
 double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   {
+  if (iSatComp<0 && m_pVLE && m_pVLE->Enabled())
+    iSatComp=m_pVLE->FlashCmpIndex();
+
   if (iSatComp>=0)
     {
     //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "SatComp", T_, CDB[iSatComp].VapourP(m_iFidelity, T_), FullObjTag());
@@ -8530,6 +8561,9 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, int iSatComp)
 
 double SpModel::SaturationTotalP(double T_, CSysVector * pMA, int iSatComp)
   {
+  if (iSatComp<0 && m_pVLE && m_pVLE->Enabled())
+    iSatComp=m_pVLE->FlashCmpIndex();
+
   //if (m_iSatMethod==SMFM_PartialP)
   //  return SaturationP(T_, pMA, iSatComp);
 
@@ -8590,6 +8624,9 @@ CToleranceBlock SatTFnd::s_Tol(TBF_BothSys, "SpModel:SatTFnd", 0, 1.0e-9, 100, T
 
 double SpModel::SaturationT(double P_, CSysVector * pMA, int iSatComp)
   {
+  if (iSatComp<0 && m_pVLE && m_pVLE->Enabled())
+    iSatComp=m_pVLE->FlashCmpIndex();
+
   CSysVector & MA = pMA==NULL ? MArray() : *pMA;
   double TRet=Std_T;
   bool Set4=false;

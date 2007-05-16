@@ -1137,9 +1137,9 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
 
   m_Po=m_Pi;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCd->SaturationT(FlashPressOut());
+    m_SatT = pCd->SaturationT(FlashPressOut(), pCd->FlashVapIndex());
   else
-    m_SatT = pCd->SaturationT(m_Po);
+    m_SatT = pCd->SaturationT(m_Po, pCd->FlashVapIndex());
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;

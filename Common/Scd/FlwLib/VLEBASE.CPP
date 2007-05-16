@@ -852,8 +852,8 @@ void CVLEBase::MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty,
 int CVLEBase::GetVLEData(CVLEDataArray & Array)                                  { return Enabled() ? m_pVLE->GetVLEData(Array) : 0;          };
 double CVLEBase::CondensableFrac(SpConduit *Ql, SpConduit *Qv)                   { return Enabled() ? m_pVLE->CondensableFrac(Ql, Qv) : dNAN; };
 double CVLEBase::CondensableFrac(SpContainer *Cn)                                { return Enabled() ? m_pVLE->CondensableFrac(Cn) : dNAN;     };
-double CVLEBase::SaturationP(SpModel *pMdl, double Temp, CSysVector * pMA)       { return Enabled() ? pMdl->SaturationP(Temp, pMA) : dNAN;    };
-double CVLEBase::SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA) { return Enabled() ? pMdl->SaturationTotalP(Temp, pMA) : dNAN; };
+double CVLEBase::SaturationP(SpModel *pMdl, double Temp, CSysVector * pMA)       { return Enabled() ? pMdl->SaturationP(Temp, pMA, FlashCmpIndex()) : dNAN;    };
+double CVLEBase::SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA) { return Enabled() ? pMdl->SaturationTotalP(Temp, pMA, FlashCmpIndex()) : dNAN; };
 
 //int CVLEBase::SaturationMethod(SpModel * pMdl)                                   { return Enabled() ? pMdl->SaturationMethod() : SMFM_Default; };
 double CVLEBase::ApproachTemp()                                                  { return Enabled() && (m_iFlags&VLEF_ApproachTempOn) ? m_pVLE->ApproachTemp() : 0.0; };
@@ -1997,7 +1997,7 @@ class QTsRootFnd : public MRootFinderBase
       if (xxx)
         {
         dbgpln("  QTsRoot\t%14.10f\t%14.6f\t%14.6f\t%14.6f\t%14.6g\t%14.6f", 
-          K_2_C(Ts),VLE.Mt,P,dTarget,h-dTarget, pMdlL->totHf(som_ALL, Ts, pMdlL->SaturationP(Ts), pMdlL->pMArray()));
+          K_2_C(Ts),VLE.Mt,P,dTarget,h-dTarget, pMdlL->totHf(som_ALL, Ts, pMdlL->SaturationP(Ts, 0, VLE.FlashCmpIndex()), pMdlL->pMArray()));
         }
       return h;
       };
