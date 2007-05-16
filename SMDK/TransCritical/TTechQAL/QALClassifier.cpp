@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-15 21:52:35 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-16 05:22:04 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
 
@@ -323,181 +323,188 @@ void QALClassifier::BuildDataFields()
 
 void QALClassifier::EvalProducts() {
 
-    try {
-	dTankArea = PI*dTankDiameter*dTankDiameter/4.0;
-	FlwIOs.AddMixtureIn_Id(QI, 0);
-	drhoSol = QI.Density(MP_Sol);
-	dSolidsFlow = QI.MassFlow(MP_Sol);
+  try {
+    dTankArea = PI*dTankDiameter*dTankDiameter/4.0;
+    FlwIOs.AddMixtureIn_Id(QI, 0);
+    drhoSol = QI.Density(MP_Sol);
+    dSolidsFlow = QI.MassFlow(MP_Sol);
 
-	MStream & QO0 = FlwIOs[FlwIOs.First[1]].Stream;  // Product stream 1 -overflow
-	MStream & QO1 = FlwIOs[FlwIOs.First[2]].Stream;  // Product stream 2 -mud underflow
-
-
-	// Set the outlet streams to the inlet streams (pass through) 
-	// so that if unexpected errors happen
-	// the model still balances.
-	// Check whether this incorporates properties as well...
-	QO0 = QI;
-	QO0.SetF(QI, MP_All, 0.5);
-	QO1 = QI;
-	QO1.SetF(QI, MP_All, 0.5);
-
-	MIBayer & QIB=QI.IF<MIBayer>(false);    // Does the mud stream have Bayer properties
-	if (IsNothing(QIB)) {//Bayer properties interface not present
-	    Log.Message(MMsg_Warning, "No Bayer Properties present... cannot continue");
-	    return;
-	}
+    MStream & QO0 = FlwIOs[FlwIOs.First[1]].Stream;  // Product stream 1 -overflow
+    MStream & QO1 = FlwIOs[FlwIOs.First[2]].Stream;  // Product stream 2 -mud underflow
 
 
-	dS_i = QIB.SolidsConc(bayerRefTemp);    // need this for various stuff later.
+    // Set the outlet streams to the inlet streams (pass through) 
+    // so that if unexpected errors happen
+    // the model still balances.
+    // Check whether this incorporates properties as well...
+    QO0 = QI;
+    QO0.SetF(QI, MP_All, 0.5);
+    QO1 = QI;
+    QO1.SetF(QI, MP_All, 0.5);
 
-	if (bStdFn) {   // Standard Functionality - doesnt need PSD
-	  double x, y;
-	  switch (iStdMode) {
-	  case 0: 
-	    y = dSR;
-	    x = (drhoSol-dS_u)/(drhoSol-dS_i)*dS_i/dS_u*y;
-	    if (x>1) x=1;
-	    break;
-	  case 1: 
-	    x = (dS_i-dS_o)*(drhoSol-dS_u)/((dS_u-dS_o)*(drhoSol-dS_i));
-	    y = (dS_i-dS_o)*dS_u/((dS_u-dS_o)*dS_i);
-	    break;
-	  case 2:
-	    y = dFuR/QI.VolumeFlow(MP_All,bayerRefTemp)*dS_u/dS_i;
-	    x = y*dS_i/dS_u*(drhoSol-dS_u)/(drhoSol-dS_i);
-	    break;
-	  }
-	  if (x<0.) x=0.;
-	  if (x>1.) x=1.;
-	  if (y<0.) y=0.;
-	  if (y>1.) y=1.;	      
-	  QO1.SetF(QI, MP_Liq, x);
-	  QO1.AddF(QI, MP_Sol, y);
-	  QO0.SetF(QI, MP_Liq, 1-x);
-	  QO0.AddF(QI, MP_Sol, 1-y);
-  
-	} else {   // PSD Model
-	  MIPSD & MudPSD = QI.IF<MIPSD>(false);   /// Does the mud stream have PSD...
-	  if (IsNothing(MudPSD)) {
-	    Log.Message(MMsg_Warning, "No PSD Properties present... cannot continue");
-	    return;
-	  }
-	  dWtFr45 = wtSub45(QI);	// Initialize to input value
-	  switch(iMode) {
-	  case 0:   /// Specified underflow solids - here use built in solver to find root...
-	    {
-	    if (dS_i >= dS_u) { // All liquor will still give solids reqd in underflow
-	      Log.Message(MMsg_Warning, "Inlet Solids greater than reqd underflow solids");
-	      return;
-	    } else {
-	      if (!iOSplit) {
-		dMaxLSplit = (drhoSol-dS_u)/(drhoSol-dS_i)*dS_i/dS_u;
-	      } else {
-		CMaxLSplitFn f(QI, dS_u);
-		f.SetTarget(0);
-		f.Start(0,1);
-		f.Solve_Brent();
-		dMaxLSplit = f.Result();
-	      }
-	    }
-	    
-	    
-	    PSDSolverFn f(*this);
-	    f.SetTarget(0);
-	    f.Start(.01, dMaxLSplit-1.0e-6);
-	    f.Solve_Brent();
-	    double dfux = f.Result();
-	    dUnderflowSolids = EvalBalance(dfux); 
-	    break;
-	    }
-	    
-	  case 1:   // Specified underflow flow  - in this case use iteration
-	    {
-	      
-	    double r = dFuR/QI.VolumeFlow();   // Start by dividing the flows 
-	    QUnderflow.SetF(QI, MP_All, r);    // as required approximately
-	    QOverflow.SetF(QI, MP_All, 1-r);
-	    doSolidsUnderflow();
-	    break;
-	    }
-	    
-	  }
-	  QO0.SetF(QOverflow, MP_All, 1.0);
-	  QO1.SetF(QUnderflow, MP_All, 1.0);
+    if (dSolidsFlow < 1.0e-6) {
+      Log.Message(MMsg_Warning, "No solids in Feed");
+      return;
+    }
+    
 
-	}
 
-	///  Now do the environmental heat loss:
-
-	double T1;
-	double HO0 = QO0.totHf(MP_All);
-	double HO1 = QO1.totHf(MP_All);
-	switch (iThermalLossMethod)
-	    {
-	    case THL_None: 
-		dThermalLoss = 0.0;
-		dThermTempDrop = 0.0;
-		break;
-	    case THL_TempDrop: 
-		QO0.putT(QO0.T-dTempDropRqd);
-		QO1.putT(QO1.T-dTempDropRqd);
-		dThermalLoss = HO0 + HO1 - QO0.totHf(MP_All) - QO1.totHf(MP_All);
-		dThermTempDrop = dTempDropRqd;
-		break;
-	    case THL_FixedHeatFlow: 
-		T1 = QI.T; {
-		    double a1 = QO0.MassFlow()/QI.MassFlow();
-		    QO0.Set_totHf(HO0-dThermalLossRqd*a1);
-		    QO1.Set_totHf(HO1-dThermalLossRqd*(1-a1));
-		    dThermalLoss = dThermalLossRqd;
-		    dThermTempDrop = T1-QO0.T; } 
-		break;
-	    case THL_HeatFlowFrac:
-		T1 = QI.T;
-		double dT=T1-AmbientTemp();
-		double dH0 = dT*dThermalLossO;
-		double dH1 = dT*dThermalLossU;
-		QO0.Set_totHf(HO0-dH0);
-		QO1.Set_totHf(HO1-dH1);
-		dThermalLoss = dH0+dH1;
-		dThermTempDrop = T1-QO0.T;
-		break;			
-
-	
-	    }
-
-#ifdef TTDEBUG
-	displayPSD(QI,3);
-	displayStream(QI, 0);
-	displayStream(QO0, 1);
-	displayStream(QO1, 2);
-
-	displayPSD(QOverflow, 4);
-	displayPSD(QUnderflow, 5);
-#endif
-
-	//get display values...
-	//dProdQm1 = QO1.MassFlow();
+    MIBayer & QIB=QI.IF<MIBayer>(false);    // Does the mud stream have Bayer properties
+    if (IsNothing(QIB)) {//Bayer properties interface not present
+      Log.Message(MMsg_Warning, "No Bayer Properties present... cannot continue");
+      return;
     }
 
-    catch (MMdlException &e)
+
+    dS_i = QIB.SolidsConc(bayerRefTemp);    // need this for various stuff later.
+
+    if (bStdFn) {   // Standard Functionality - doesnt need PSD
+      double x, y;
+      switch (iStdMode) {
+      case 0: 
+	y = dSR;
+	x = (drhoSol-dS_u)/(drhoSol-dS_i)*dS_i/dS_u*y;
+	if (x>1) x=1;
+	break;
+      case 1: 
+	x = (dS_i-dS_o)*(drhoSol-dS_u)/((dS_u-dS_o)*(drhoSol-dS_i));
+	y = (dS_i-dS_o)*dS_u/((dS_u-dS_o)*dS_i);
+	break;
+      case 2:
+	y = dFuR/QI.VolumeFlow(MP_All,bayerRefTemp)*dS_u/dS_i;
+	x = y*dS_i/dS_u*(drhoSol-dS_u)/(drhoSol-dS_i);
+	break;
+      }
+      if (x<0.) x=0.;
+      if (x>1.) x=1.;
+      if (y<0.) y=0.;
+      if (y>1.) y=1.;	      
+      QO1.SetF(QI, MP_Liq, x);
+      QO1.AddF(QI, MP_Sol, y);
+      QO0.SetF(QI, MP_Liq, 1-x);
+      QO0.AddF(QI, MP_Sol, 1-y);
+  
+    } else {   // PSD Model
+      MIPSD & MudPSD = QI.IF<MIPSD>(false);   /// Does the mud stream have PSD...
+      if (IsNothing(MudPSD)) {
+	Log.Message(MMsg_Warning, "No PSD Properties present... cannot continue");
+	return;
+      }
+      dWtFr45 = wtSub45(QI);	// Initialize to input value
+      switch(iMode) {
+      case 0:   /// Specified underflow solids - here use built in solver to find root...
 	{
-	    Log.Message(MMsg_Error, e.Description);
+	  if (dS_i >= dS_u) { // All liquor will still give solids reqd in underflow
+	    Log.Message(MMsg_Warning, "Inlet Solids greater than reqd underflow solids");
+	    return;
+	  } else {
+	    if (!iOSplit) {
+	      dMaxLSplit = (drhoSol-dS_u)/(drhoSol-dS_i)*dS_i/dS_u;
+	    } else {
+	      CMaxLSplitFn f(QI, dS_u);
+	      f.SetTarget(0);
+	      f.Start(0,1);
+	      f.Solve_Brent();
+	      dMaxLSplit = f.Result();
+	    }
+	  }
+	    
+	    
+	  PSDSolverFn f(*this);
+	  f.SetTarget(0);
+	  f.Start(.01, dMaxLSplit-1.0e-6);
+	  f.Solve_Brent();
+	  double dfux = f.Result();
+	  dUnderflowSolids = EvalBalance(dfux); 
+	  break;
 	}
-    catch (MFPPException &e)
+	    
+      case 1:   // Specified underflow flow  - in this case use iteration
 	{
-	    e.ClearFPP();
-	    Log.Message(MMsg_Error, e.Description);
+	      
+	  double r = dFuR/QI.VolumeFlow();   // Start by dividing the flows 
+	  QUnderflow.SetF(QI, MP_All, r);    // as required approximately
+	  QOverflow.SetF(QI, MP_All, 1-r);
+	  doSolidsUnderflow();
+	  break;
 	}
-    catch (MSysException &e)
-	{
-	    Log.Message(MMsg_Error, e.Description);
-	}
-    catch (...)
-	{
-	    Log.Message(MMsg_Error, "Some Unknown Exception occured");
-	}
+	    
+      }
+      QO0.SetF(QOverflow, MP_All, 1.0);
+      QO1.SetF(QUnderflow, MP_All, 1.0);
+
+    }
+
+    ///  Now do the environmental heat loss:
+
+    double T1;
+    double HO0 = QO0.totHf(MP_All);
+    double HO1 = QO1.totHf(MP_All);
+    switch (iThermalLossMethod)
+      {
+      case THL_None: 
+	dThermalLoss = 0.0;
+	dThermTempDrop = 0.0;
+	break;
+      case THL_TempDrop: 
+	QO0.putT(QO0.T-dTempDropRqd);
+	QO1.putT(QO1.T-dTempDropRqd);
+	dThermalLoss = HO0 + HO1 - QO0.totHf(MP_All) - QO1.totHf(MP_All);
+	dThermTempDrop = dTempDropRqd;
+	break;
+      case THL_FixedHeatFlow: 
+	T1 = QI.T; {
+	  double a1 = QO0.MassFlow()/QI.MassFlow();
+	  QO0.Set_totHf(HO0-dThermalLossRqd*a1);
+	  QO1.Set_totHf(HO1-dThermalLossRqd*(1-a1));
+	  dThermalLoss = dThermalLossRqd;
+	  dThermTempDrop = T1-QO0.T; } 
+	break;
+      case THL_HeatFlowFrac:
+	T1 = QI.T;
+	double dT=T1-AmbientTemp();
+	double dH0 = dT*dThermalLossO;
+	double dH1 = dT*dThermalLossU;
+	QO0.Set_totHf(HO0-dH0);
+	QO1.Set_totHf(HO1-dH1);
+	dThermalLoss = dH0+dH1;
+	dThermTempDrop = T1-QO0.T;
+	break;			
+
+	
+      }
+
+#ifdef TTDEBUG
+    displayPSD(QI,3);
+    displayStream(QI, 0);
+    displayStream(QO0, 1);
+    displayStream(QO1, 2);
+
+    displayPSD(QOverflow, 4);
+    displayPSD(QUnderflow, 5);
+#endif
+
+    //get display values...
+    //dProdQm1 = QO1.MassFlow();
+  }
+
+  catch (MMdlException &e)
+    {
+      Log.Message(MMsg_Error, e.Description);
+    }
+  catch (MFPPException &e)
+    {
+      e.ClearFPP();
+      Log.Message(MMsg_Error, e.Description);
+    }
+  catch (MSysException &e)
+    {
+      Log.Message(MMsg_Error, e.Description);
+    }
+  catch (...)
+    {
+      Log.Message(MMsg_Error, "Some Unknown Exception occured");
+    }
 }
 
 // A single loop of the calcs, given a split of the incoming liquid 'x' to underflow.

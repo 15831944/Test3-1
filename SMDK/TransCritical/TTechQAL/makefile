@@ -1,4 +1,4 @@
-#   Time-stamp: <2007-05-15 04:43:04 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-05-16 01:51:08 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -58,7 +58,7 @@ QALHeater.obj : QALHeater.cpp QALHeater.h
 QALHeaterU.obj : QALHeaterU.cpp QALHeater.h
 QALPump.obj : QALPump.cpp QALPump.h
 QALPipe.obj : QALPipe.cpp QALPipe.h
-QALPrecip.obj : QALPrecip.cpp QALPrecip.h qaldata.cpp
+QALPrecip.obj : QALPrecip.cpp QALPrecip.h
 TTechQAL.obj : TTechQAL.cpp TTechQAL.h
 
 
