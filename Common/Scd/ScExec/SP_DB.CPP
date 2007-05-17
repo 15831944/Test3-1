@@ -5356,6 +5356,20 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         }
       }
 
+    if (1)
+      {
+      dbgpln("Components:");
+      for (int i=0; i<CDB.No(); i++)
+        {
+        dbgpln("%3i %-20s", i, CDB[i].SymOrTag());
+        }
+      dbgpln("Species:");
+      for (int i=0; i<SDB.Count(); i++)
+        {
+        dbgpln("%3i %-20s %-20s", i, SDB[i].Sym(), SDB[i].Tag());
+        }
+      }
+
 #if dbgBuildSDB
     if (dbgBuildLoops())
       {

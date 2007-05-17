@@ -1137,9 +1137,9 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
 
   m_Po=m_Pi;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCd->SaturationT(FlashPressOut(), pCd->FlashVapIndex());
+    m_SatT = pCd->SaturationT(FlashPressOut(), pCd->FlashCmpIndex());
   else
-    m_SatT = pCd->SaturationT(m_Po, pCd->FlashVapIndex());
+    m_SatT = pCd->SaturationT(m_Po, pCd->FlashCmpIndex());
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1172,9 +1172,9 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   m_Po=m_Pi;
   //m_SatT = pCn->SaturationT(FlashPressOut());
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCn->SaturationT(FlashPressOut());
+    m_SatT = pCn->SaturationT(FlashPressOut(), pCn->FlashCmpIndex());
   else
-    m_SatT = pCn->SaturationT(m_Po);
+    m_SatT = pCn->SaturationT(m_Po, pCn->FlashCmpIndex());
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
