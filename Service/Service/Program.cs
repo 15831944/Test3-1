@@ -10,25 +10,29 @@ namespace Service
     /// The main entry point for the application.
     /// </summary>
     [STAThread]
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
-      String projectFilename;
+      String projectPath;
       String configPath;
 
       if (args.Length == 2)
       {
-        projectFilename = args[0];
+        projectPath = args[0];
         configPath = args[1];
       }
       else
       {
-        projectFilename = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-00.spf\\Project.spj";
+        projectPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-00.spf\\";
         configPath = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\BaseFiles\\";
+        // return -1; // Die gracefully when started with incorrect number of parameters.
+        // TODO: Handle other failures gracefully (e.g. no *.10 files, no config files.)
       }
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new ServiceTemporaryWindow(projectFilename, configPath));
+      Application.Run(new ServiceTemporaryWindow(projectPath, configPath));
+
+      return 0;
     }
   }
 }

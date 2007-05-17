@@ -15,7 +15,7 @@ namespace Service
 {
   public partial class ServiceTemporaryWindow : Form
   {
-    private String projectFilename;
+    private String projectPath;
     private String configPath;
     private String stencilPath;
 
@@ -607,16 +607,81 @@ namespace Service
 
     bool EngineLoad(EngineServiceProtocol clientEngineServiceProtocol)
     {
-      // Loads the 10 data structure from disk.
-      throw new NotImplementedException("The method or operation is not implemented.");
-      return true;
+      try
+      {
+        Dictionary<Guid, GraphicLink> tempGraphicLinks;
+        Dictionary<Guid, GraphicItem> tempGraphicItems;
+        Dictionary<Guid, GraphicThing> tempGraphicThings;
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamReader streamRdr = new StreamReader(projectPath + "GraphicLinks.10");
+          Stream stream = streamRdr.BaseStream;
+          tempGraphicLinks = (Dictionary<Guid, GraphicLink>)sf.Deserialize(stream);
+          stream.Close();
+        }
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamReader streamRdr = new StreamReader(projectPath + "GraphicItems.10");
+          Stream stream = streamRdr.BaseStream;
+          tempGraphicItems = (Dictionary<Guid, GraphicItem>)sf.Deserialize(stream);
+          stream.Close();
+        }
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamReader streamRdr = new StreamReader(projectPath + "GraphicThings.10");
+          Stream stream = streamRdr.BaseStream;
+          tempGraphicThings = (Dictionary<Guid, GraphicThing>)sf.Deserialize(stream);
+          stream.Close();
+        }
+
+        graphicLinks = tempGraphicLinks;
+        graphicItems = tempGraphicItems;
+        graphicThings = tempGraphicThings;
+
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
     }
 
     bool EngineSave(EngineServiceProtocol clientEngineServiceProtocol)
     {
-      // Saves the 10 data structure to disk.
-      throw new NotImplementedException("The method or operation is not implemented.");
-      return true;
+      try
+      {
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicLinks.10");
+          Stream stream = streamWriter.BaseStream;
+          sf.Serialize(stream, graphicLinks);
+          stream.Close();
+        }
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicItems.10");
+          Stream stream = streamWriter.BaseStream;
+          sf.Serialize(stream, graphicItems);
+          stream.Close();
+        }
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicThings.10");
+          Stream stream = streamWriter.BaseStream;
+          sf.Serialize(stream, graphicThings);
+          stream.Close();
+        }
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
     }
 
     bool EngineChangeState(EngineServiceProtocol clientEngineServiceProtocol, Int64 requestID, BaseProtocol.RunStates runState)
@@ -915,14 +980,14 @@ namespace Service
     
     
     
-    public ServiceTemporaryWindow(String projectFilename, String configPath)
+    public ServiceTemporaryWindow(String projectPath, String configPath)
     {
       InitializeComponent();
 
-      this.projectFilename = projectFilename;
+      this.projectPath = projectPath;
       this.configPath = configPath;
 
-      name = Path.GetFileNameWithoutExtension(projectFilename);
+      name = Path.GetFileNameWithoutExtension(projectPath);
       stencilPath = configPath + "Stencils\\";
 
 

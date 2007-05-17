@@ -129,6 +129,15 @@ namespace SysCAD.Protocol
     }
 
 
+    public bool Load()
+    {
+      return serviceGraphic.Load();
+    }
+
+    public bool Save()
+    {
+      return serviceGraphic.Save();
+    }
 
     public bool ChangeState(out Int64 requestId, RunStates runState)
     {

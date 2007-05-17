@@ -12,6 +12,7 @@ using System.Runtime.Remoting.Channels;
 using System.Collections;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Drawing.Drawing2D;
+using System.Runtime.Serialization.Formatters.Soap;
 
 namespace SysCAD.Protocol
 {
@@ -273,16 +274,6 @@ namespace SysCAD.Protocol
 
 
 
-
-    public void DoLoad()
-    {
-      OnLoad();
-    }
-
-    public void DoSave()
-    {
-      OnSave();
-    }
 
     public void DoStateChanged(Int64 requestId, RunStates runState)
     {

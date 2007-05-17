@@ -45,9 +45,6 @@ namespace SysCAD.Protocol
 
 
 
-    public delegate void LoadHandler();
-    public delegate void SaveHandler();
-
     public delegate void StateChangedHandler(Int64 eventId, Int64 requestId, RunStates runState);
 
     public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
@@ -68,10 +65,6 @@ namespace SysCAD.Protocol
     public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
     public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
 
-
-
-    public LoadHandler Load;
-    public SaveHandler Save;
 
     public StateChangedHandler StateChanged;
 
@@ -94,30 +87,6 @@ namespace SysCAD.Protocol
     public ThingDeletedHandler ThingDeleted;
 
 
-
-    public void OnLoad()
-    {
-      if (Load != null)
-      {
-        try
-        {
-          Load();
-        }
-        catch (SocketException) { }
-      }
-    }
-
-    public void OnSave()
-    {
-      if (Save != null)
-      {
-        try
-        {
-          Save();
-        }
-        catch (SocketException) { }
-      }
-    }
 
     public void OnStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
     {
