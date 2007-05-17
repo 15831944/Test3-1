@@ -1299,7 +1299,7 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     QResult().QCopy(*HotSd.m_pCd, HotSd.m_Pi);
 
     // update data
-    HotSd.SetInput(HotSd.m_pCdIn, QResult(), HotSd.m_Pi, HotSd.m_pEHX, HotSd.m_pRB, HotSd.dFinalTEst, HotSd.fPreReact);
+    HotSd.SetInput(HotSd.m_pCdIn, QResult(), HotSd.m_Pi, NULL, HotSd.m_pEHX, HotSd.m_pRB, HotSd.dFinalTEst, HotSd.fPreReact);
 
     CSysVector & AR=QResult().MArray();
     CSysVector & AI=QInitial.MArray();
@@ -1372,7 +1372,7 @@ void CHXBlock1::EvalProductsDynFCSurge(FlwNode* pNd, bool PriIsHot)
     double ql2=QResult().QMass(som_SL);
     double qv3=QInitial.QMass(som_Gas);
     double ql3=QInitial.QMass(som_SL);
-    HotSd.MeasureHXDataCd(NULL);
+    HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
     ColdSd.m_SatP  = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
     ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
@@ -1470,7 +1470,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
         {
         // Vents & Bypasses
         HotSd.SendGasToVent(false);
-        HotSd.MeasureHXDataCd(NULL);
+        HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
         // Do Reactions Etc
 
@@ -1511,7 +1511,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
         // Vents & Bypasses
         HotSd.KeepByPassLiquor(HotSd.m_Pi);
         HotSd.SendGasToVent(true);
-        HotSd.MeasureHXDataCd(NULL);
+        HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
         // Do Reactions Etc
         StkSpConduit QMemS("QMemS", chLINEID(), pNd);
@@ -1597,7 +1597,7 @@ void CHXBlock1::EvalProducts(FlwNode* pNd, flag MixVentBack)
             CHXBlock::ClrCI(1);
 
           HotSd.m_pCd->QCopy(QMemS());
-          HotSd.MeasureHXDataCd(NULL);
+          HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
           double VentFlow=CondenseAll(False, false, HotSd, ColdSd);//, HotSdI, ColdSdI, False);
           // No Vent Flow
@@ -2536,7 +2536,7 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         {
         SpConduit & CdOut=*IOConduit(m_HXJ.P.IOFlwOut());
         PriPIn=SigmaQInPMin(CdOut, som_ALL, ioidPIn, ioidPIn);//Out);
-        m_HX.SetPrimary(NULL, CdOut, PriPIn);
+        m_HX.SetPrimary(NULL, CdOut, PriPIn, NULL);
         }
       else
         m_HX.ClrPrimary();
@@ -2547,7 +2547,7 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         {
         SpConduit & CdOut=*IOConduit(m_HXJ.S.IOFlwOut());
         SecPIn=SigmaQInPMin(CdOut, som_ALL, ioidSIn, ioidSIn);//som_Gas);
-        m_HX.SetSecondary(NULL, CdOut, SecPIn, m_EHX());
+        m_HX.SetSecondary(NULL, CdOut, SecPIn, NULL, m_EHX());
         }
       else
         m_HX.ClrSecondary();
@@ -2684,16 +2684,16 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
     }
 
   if (m_iPriSgMd==HXSM_Shell)
-    m_HX.SetPrimary(&m_HXJ.P.Qi(), *m_pPriSg, som_Gas, 1.0, m_pPriSg->Press(), &m_HXJ.P.Qi());
+    m_HX.SetPrimary(&m_HXJ.P.Qi(), *m_pPriSg, som_Gas, 1.0, m_pPriSg->Press(), &m_HX.m_VLE.FlashDefn(), &m_HXJ.P.Qi());
   else if (m_HXJ.PriIsJoined() && m_HXJ.PriConnected())
-    m_HX.SetPrimary(&m_HXJ.P.Qi(), m_HXJ.P.Qo(), PressInP);
+    m_HX.SetPrimary(&m_HXJ.P.Qi(), m_HXJ.P.Qo(), PressInP, NULL);
   else
     m_HX.ClrPrimary();
 
   if (m_iSecSgMd==HXSM_Shell)
-    m_HX.SetSecondary(&m_HXJ.S.Qi(), *m_pSecSg, som_Gas, 1.0, m_pSecSg->Press(), &m_HXJ.S.Qi());
+    m_HX.SetSecondary(&m_HXJ.S.Qi(), *m_pSecSg, som_Gas, 1.0, m_pSecSg->Press(), &m_HX.m_VLE.FlashDefn(), &m_HXJ.S.Qi());
   else if (m_HXJ.SecIsJoined() && m_HXJ.SecConnected())
-    m_HX.SetSecondary(&m_HXJ.S.Qi(), m_HXJ.S.Qo(), PressInS);
+    m_HX.SetSecondary(&m_HXJ.S.Qi(), m_HXJ.S.Qo(), PressInS, NULL);
   else
     m_HX.ClrSecondary();
 

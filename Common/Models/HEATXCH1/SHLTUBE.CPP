@@ -752,10 +752,10 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
       case STHX_LiquorLiquor:
       case STHX_LiquorGas:
       case STHX_GasGas:
-        {
+        {                        
         // Vents & Bypasses
         //HotSd.SendGasToVent(false);
-        HotSd.MeasureHXDataCd(NULL);
+        HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
 
         // Do Reactions Etc
@@ -841,7 +841,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         HotSd.KeepByPassLiquor(HotSd.m_Pi);
         //HotSd.MeasureHXDataCd(NULL);
         HotSd.SendGasToVent(true);
-        HotSd.MeasureHXDataCd(NULL);
+        HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
         // Do Reactions Etc
         StkSpConduit QMemS("QMemS", chLINEID(), pNd);
@@ -975,7 +975,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
             }
 
           HotSd.m_pCd->QCopy(QMemS());
-          HotSd.MeasureHXDataCd(NULL);
+          HotSd.MeasureHXDataCd(NULL, &m_VLE.FlashDefn());
 
           double VentFlow=CondenseAll(HotSd, ColdSd, HotSdI, ColdSdI, CA_LimitDuty);
           // No Vent Flow
@@ -1066,7 +1066,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
         ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
         HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
-        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To, m_VLE.FlashCmpIndex());
+        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To, &m_VLE.FlashDefn());
 
 //        ColdSd.m_pCd->Model()->ClrStatesOK();
 //        ColdSd.m_pCd->Model()->EquilibrateAll();
@@ -1080,7 +1080,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=HotSd.m_pCd->SaturationP(CoCurrent ? HotSd.Ti : ColdSd.Ti, m_VLE.FlashCmpIndex());
+        m_FTC.m_dMinSatPress=HotSd.m_pCd->SaturationP(CoCurrent ? HotSd.Ti : ColdSd.Ti, &m_VLE.FlashDefn());
 
         HotSd.AddByPassLiquor();
 
@@ -1388,7 +1388,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
         HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To);
         ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
-        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To, m_VLE.FlashCmpIndex());
+        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To, &m_VLE.FlashDefn());
 
 //        HotSd.m_pCd->Model()->ClrStatesOK();
 //        HotSd.m_pCd->Model()->EquilibrateAll();
@@ -1403,7 +1403,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=ColdSd.m_pCd->SaturationP(CoCurrent ? ColdSd.Ti : HotSd.Ti, m_VLE.FlashCmpIndex());
+        m_FTC.m_dMinSatPress=ColdSd.m_pCd->SaturationP(CoCurrent ? ColdSd.Ti : HotSd.Ti, &m_VLE.FlashDefn());
 
         //ColdSd.AddByPassLiquor();
 
@@ -1999,7 +1999,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
         const int idPri = m_HXJ.P.IOFlwOut();
         SpConduit & CdOut=*IOConduit(idPri);
         double TubePIn=SigmaQInPMin(CdOut, som_ALL, ioidST_TubeIn, ioidST_TubeIn);//Out);
-        HX.SetPrimary(NULL, CdOut, TubePIn);
+        HX.SetPrimary(NULL, CdOut, TubePIn, NULL);
         }
       else
         HX.ClrPrimary();
@@ -2010,7 +2010,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
         ShellPIn=SigmaQInPMin(CdOut, som_ALL, ioidST_ShellIn, ioidST_ShellIn);//som_Gas);
         if (SolveInlineMethod() && pHXST->m_iRqdOpMode==STHX_FullyCondensing)
           ShellPIn = CdOut.SaturationTotalP(CdOut.Temp()); //temp kludge
-        HX.SetSecondary(NULL, CdOut, ShellPIn, m_EHX());
+        HX.SetSecondary(NULL, CdOut, ShellPIn, &pHXST->m_VLE.FlashDefn(), m_EHX());
         }
       else
         HX.ClrSecondary();
@@ -2114,13 +2114,13 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
       //  {
       //  //rSpConduit CdOut=*IOConduit(m_HXJ.P.IOFlwOut());
       //  //double TubePIn=SigmaQInPMin(CdOut, som_ALL, ioidPIn, ioidPIn);//Out);
-      HX.SetPrimary(NULL, m_HXJ.P.Qo(), PressInP);
+      HX.SetPrimary(NULL, m_HXJ.P.Qo(), PressInP, NULL);
       //  }
       //else
       //  HX.ClrPrimary();
 
       //if (pSecSg)
-      HX.SetSecondary(NULL, Shell, som_Gas, 0.5, Shell.Press());
+      HX.SetSecondary(NULL, Shell, som_Gas, 0.5, Shell.Press(), &pHXST->m_VLE.FlashDefn());
       //else if (m_HXJ.SecIsJoined() && m_HXJ.SecConnected())
       //  {
       //  //rSpConduit CdOut=*IOConduit(m_HXJ.S.IOFlwOut());

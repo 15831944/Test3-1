@@ -5356,6 +5356,30 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         }
       }
 
+    m_DDBFlashable.Add(CDB.No(), "<Default>");
+    m_FlashCmps.SetSize(CDB.No());
+    m_FlashCmpsI.SetSize(CDB.No());
+    for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+      {
+      int c=CDB.m_Flashable[i];
+      m_DDBFlashable.Add(c, CDB[c].SymOrTag());
+      m_FlashCmps[c]=CDB[c].SymOrTag();
+      m_FlashCmpsI[c]="<";
+      m_FlashCmpsI[c]+=CDB[c].SymOrTag();
+      m_FlashCmpsI[c]+=">";
+      }
+
+    m_DDBFlashMethods.Add(SMFM_Default,      "<Default>");
+    m_DDBFlashMethods.Add(SMFM_PartialP,     "PartialP");
+    m_DDBFlashMethods.Add(SMFM_TotalP,       "TotalP");
+    m_DDBFlashMethods.Add(SMFM_Undefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
+
+    m_FlashMethods.SetAtGrow(SMFM_PartialP,  "PartialP");
+    m_FlashMethods.SetAtGrow(SMFM_TotalP,    "TotalP");
+    m_FlashMethodsI.SetAtGrow(SMFM_PartialP, "<PartialP>");
+    m_FlashMethodsI.SetAtGrow(SMFM_TotalP,   "<TotalP>");
+
+
     if (1)
       {
       dbgpln("Components:");

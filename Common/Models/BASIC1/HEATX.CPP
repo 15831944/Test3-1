@@ -292,7 +292,7 @@ void HeatXchg::EvalProducts(CNodeEvalIndex & NEI)
       {
       SpConduit & CdOut=*IOConduit(m_HXJ.P.IOFlwOut());
       double PriPIn=SigmaQInPMin(CdOut, som_ALL, Id_2_Mask(idPIn)|Id_2_Mask(idPOut));//Out);
-      HX.SetPrimary(NULL, CdOut, PriPIn);
+      HX.SetPrimary(NULL, CdOut, PriPIn, NULL);
       }
     //if (HXB.SdP.FTC.Active())
     //  for (int i=0; i<NIOs; i++)
@@ -306,7 +306,7 @@ void HeatXchg::EvalProducts(CNodeEvalIndex & NEI)
       {
       SpConduit & CdOut=*IOConduit(m_HXJ.S.IOFlwOut());
       double SecPIn=SigmaQInPMin(CdOut, som_ALL, Id_2_Mask(idSIn));//Out);
-      HX.SetSecondary(NULL, CdOut, SecPIn);
+      HX.SetSecondary(NULL, CdOut, SecPIn, NULL);
       //HXB.SdS.MeasureFeeds(this, *IOConduit(m_HXJ.S.ioOut), idSIn, idSOut);
       }
     }

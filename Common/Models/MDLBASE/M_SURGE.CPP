@@ -584,7 +584,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
 
       if (HX())
         {
-        HX.SetPrimary(NULL, Contents, som_ALL, 1.0, Contents.Press());
+        HX.SetPrimary(NULL, Contents, som_ALL, 1.0, Contents.Press(), NULL);
         if (NIOsWithId_Self(IOId_HX)>=2)
           {
           for (int ioOut1 = IOWithId_Self(IOId_HX); ioOut1<NoFlwIOs(); ioOut1++)
@@ -593,7 +593,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
           if (ioOut1<NoFlwIOs())
             {
             SigmaQInPMin(*IOConduit(ioOut1), som_ALL, IOId_HX, IOId_HX);
-            HX.SetSecondary(NULL, *IOConduit(ioOut1), IOP_Self(ioOut1));
+            HX.SetSecondary(NULL, *IOConduit(ioOut1), IOP_Self(ioOut1), NULL);
             }
           }
 

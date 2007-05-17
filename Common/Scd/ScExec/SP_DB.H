@@ -1323,10 +1323,68 @@ class CPhaseInfo
 
 // ===========================================================================
 
-const sint SMFM_Default     = -1;
-const sint SMFM_PartialP    = 0;
-const sint SMFM_TotalP      = 1;
-const sint SMFM_Undefined   = 2;
+const int SMFM_Default     = -1;
+const int SMFM_PartialP    = 0;
+const int SMFM_TotalP      = 1;
+const int SMFM_Undefined   = 2;
+
+class CSaturationDefn
+  {
+  public:
+    CSaturationDefn() 
+      {
+      m_iMethod    = SMFM_Default;
+      m_iCmpIndex  = -1;
+      };
+    CSaturationDefn(CSaturationDefn * pSatDefn) 
+      {
+      if (pSatDefn)
+        {
+        m_iMethod    = pSatDefn->m_iMethod;
+        m_iCmpIndex  = pSatDefn->m_iCmpIndex;
+        }
+      else
+        {
+        m_iMethod    = SMFM_Default;
+        m_iCmpIndex  = -1;
+        }
+      };
+    CSaturationDefn(int Method, int CmpIndex) 
+      {
+      m_iMethod   = Method;
+      m_iCmpIndex = CmpIndex;
+      };
+    CSaturationDefn(const CSaturationDefn & V) 
+      {
+      m_iMethod   = V.m_iMethod;
+      m_iCmpIndex = V.m_iCmpIndex;
+      };
+    CSaturationDefn & operator=(const CSaturationDefn & V) 
+      {
+      m_iMethod   = V.m_iMethod;
+      m_iCmpIndex = V.m_iCmpIndex;
+      return *this;
+      };
+
+    int Method()
+      {
+      //if (m_iMethod==SMFM_Default)
+      //  return MdlMethod;
+      return m_iMethod;
+      }
+    LPCSTR MethodStr();
+      //{
+      //int i=Method(MdlMethod);
+
+      //return "???";
+      //}
+    int  CmpIndex() { return m_iCmpIndex; };
+
+  protected:
+    int  m_iMethod;
+    int  m_iCmpIndex;
+  };
+
 
 class DllImportExport CComponentDataBase
   {
@@ -1373,6 +1431,7 @@ class DllImportExport CComponentDataBase
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
     
+    CSaturationDefn DefFlashDefn()     { return CSaturationDefn(m_DefFlashMethod, m_DefFlashCmpIndex); }
     int            DefFlashMethod()    { return m_DefFlashMethod; };
     int            DefFlashCmpIndex()  { return m_DefFlashCmpIndex; };
     int            DefFlashLiqIndex()  { return m_DefFlashLiqIndex; };
@@ -1435,6 +1494,14 @@ class DllImportExport CComponentDataBase
     int                   m_DefFlashLiqIndex;
     int                   m_DefFlashVapIndex;
 
+
+    DDBValueLstMem        m_DDBFlashable;
+    CArray<Strng, Strng>  m_FlashCmps;
+    CArray<Strng, Strng>  m_FlashCmpsI;
+
+    DDBValueLstMem        m_DDBFlashMethods;
+    CArray<Strng, Strng>  m_FlashMethods;
+    CArray<Strng, Strng>  m_FlashMethodsI;
 
   public:
     DDBValueLstMem        DDBCompList;

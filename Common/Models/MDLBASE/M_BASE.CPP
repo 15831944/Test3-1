@@ -498,8 +498,8 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
   flag HX_PreReact = (pHX && NetProbalMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
   if (HX_PreReact)
     {
-    pHX->SetPrimary(NULL, *Sd1, S1.dPress);
-    pHX->SetSecondary(NULL, *Sd2, S2.dPress);
+    pHX->SetPrimary(NULL, *Sd1, S1.dPress, NULL);
+    pHX->SetSecondary(NULL, *Sd2, S2.dPress, NULL);
     pHX->EvalProducts();
     }
 
@@ -508,8 +508,8 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
 
   if (pHX && !HX_PreReact)
     {
-    pHX->SetPrimary(NULL, *Sd1, S1.dPress);
-    pHX->SetSecondary(NULL, *Sd2, S2.dPress);
+    pHX->SetPrimary(NULL, *Sd1, S1.dPress, NULL);
+    pHX->SetSecondary(NULL, *Sd2, S2.dPress, NULL);
     pHX->EvalProducts();
     }
 

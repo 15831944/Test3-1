@@ -969,20 +969,19 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual void   SetDebug(flag DbgOn_);
 
-    virtual int    FlashCmpIndex();
-    virtual int    FlashLiqIndex();
-    virtual int    FlashVapIndex();
     virtual LPTSTR FlashDescription();
+    virtual void   SetFlashDescription(LPCSTR Desc);
 
     virtual LPTSTR SaturationDescription();
     virtual int    SaturationCmpIndex();
     virtual int    SaturationMethod();
-    virtual LPTSTR SaturationMethodUsed();
-    virtual double SaturationTotalP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
-    virtual double SaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1);
-    virtual double SaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1);
-    virtual double PureSaturationP(double T, CSysVector * pMA=NULL, int iSatComp=-1)               { return SpModel::SaturationP(T, pMA, iSatComp);};
-    virtual double PureSaturationT(double P, CSysVector * pMA=NULL, int iSatComp=-1)               { return SpModel::SaturationT(P, pMA, iSatComp);};
+    int            SaturationLiqIndex();
+    int            SaturationVapIndex();
+    virtual double SaturationTotalP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
+    virtual double SaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
+    virtual double SaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
+    virtual double PureSaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL)               { return SpModel::SaturationP(T, pMA, pSat);};
+    virtual double PureSaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL)               { return SpModel::SaturationT(P, pMA, pSat);};
     virtual double BoilingPtElevation(double P_, CSysVector * pMA=NULL);
 
     //virtual long   InitialisePropertyMap(CPropertyMap * pParentMap);
@@ -1165,16 +1164,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     int            m_iSatCmp;
     sint           m_iSatMethodRqd;
     sint           m_iSatMethod;
-
-    static DDBValueLstMem       sm_DDBFlashable;
-    static CArray<Strng, Strng> sm_FlashCmps;
-    static CArray<Strng, Strng> sm_FlashCmpsI;
-
-    static DDBValueLstMem       sm_DDBFlashMethods;
-    static CArray<Strng, Strng> sm_FlashMethods;
-    static CArray<Strng, Strng> sm_FlashMethodsI;
-
-    static bool                 sm_FlashInited;
+    Strng          m_sFlashDesc;
 
     byte           nQuals;
     SpQualInfo     *Quals;

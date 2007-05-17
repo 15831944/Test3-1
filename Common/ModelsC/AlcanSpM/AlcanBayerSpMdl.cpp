@@ -2053,7 +2053,7 @@ double ASMBayer::TotalSodium(CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double ASMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
+double ASMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
@@ -2061,8 +2061,9 @@ double ASMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (iSatComp>=0)
-    return SpModelEx::SaturationP(T_, &MA, iSatComp);
+  //if (iSatComp>=0)
+  if (pSatDefn && pSatDefn->CmpIndex()>=0)
+    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationP(T_, &MA);
@@ -2101,15 +2102,16 @@ double ASMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
 
 //---------------------------------------------------------------------------
 
-double ASMBayer::SaturationT(double P_, CSysVector * pMA, int iSatComp)
+double ASMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   // After Dewey - Light Metals 1981 p 185
   // Employs gram-ion calculation method - see also BpElev
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (iSatComp>=0)
-    return SpModelEx::SaturationT(P_, &MA, iSatComp);
+  //if (iSatComp>=0)
+  if (pSatDefn && pSatDefn->CmpIndex()>=0)
+    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationT(P_, &MA);

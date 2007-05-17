@@ -40,9 +40,11 @@ _FWDDEF(CVLEBlock);
 //
 //============================================================================
 
-XID xidVLEEnable    = MdlBsXID(2000);
-XID xidVLEEqnNm     = MdlBsXID(2001);
-XID xidVLENettVapQm = MdlBsXID(2002);
+XID xidVLEEnable        = MdlBsXID(2000);
+XID xidVLEEqnNm         = MdlBsXID(2001);
+XID xidVLENettVapQm     = MdlBsXID(2002);
+XID xidVLEFlashMethod   = MdlBsXID(2003);
+XID xidVLEFlashComp     = MdlBsXID(2004);
 
 //============================================================================
 
@@ -89,6 +91,8 @@ class DllImportExport CVLEBlock : public TaggedObject
     CVLEBlock(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~CVLEBlock();
 
+    virtual CSaturationDefn FlashDefn() { return CSaturationDefn(FlashMethod(), FlashCmpIndex()); };
+    virtual int    FlashMethod()=0;
     virtual int    FlashCmpIndex()=0;
     virtual int    FlashLiqIndex()=0;
     virtual int    FlashVapIndex()=0;
@@ -106,9 +110,6 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual int    GetVLEData(CVLEDataArray & Array)                                                      { return 0; }; 
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv)                                          { return dNAN; };
     virtual double CondensableFrac(SpContainer*Cn)                                                        { return dNAN; };
-    virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA)                        { return dNAN; };
-    virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA)                               { return dNAN; };
-    //virtual int    SaturationMethod(SpModel * pMdl)=0;
 
     virtual double ApproachTemp()=0;
 
@@ -159,6 +160,8 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
+    virtual CSaturationDefn FlashDefn();
+    virtual int    FlashMethod();
     virtual int    FlashCmpIndex();
     virtual int    FlashLiqIndex();
     virtual int    FlashVapIndex();
@@ -179,9 +182,6 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual int    GetVLEData(CVLEDataArray & Array);
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
-    virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA);
-    virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA);
-    //virtual int    SaturationMethod(SpModel * pMdl);
 
     virtual double ApproachTemp();
     virtual bool   ApproachTempOn() { return (m_iFlags & VLEF_ApproachTempOn)!=0; }
@@ -285,6 +285,7 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
+    virtual int    FlashMethod();
     virtual int    FlashCmpIndex();
     virtual int    FlashLiqIndex();
     virtual int    FlashVapIndex();
@@ -303,7 +304,6 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual double CondensableFrac(SpContainer*Cn);
     virtual double SaturationTotalP(SpModel * pMdl, double Temp, CSysVector * pMA);
     virtual double SaturationP(SpModel * pMdl, double Temp, CSysVector * pMA);
-    //virtual int    SaturationMethod(SpModel * pMdl);
 
     virtual double ApproachTemp();
 
@@ -327,8 +327,8 @@ class DllImportExport CVLEVapPress : public CVLEBlock
 
     SpecieIter     OtherVapSp;
 
-    //long           m_iMethod;
-    long           m_iCmpNo, m_li, m_vi;
+    long           m_iFlashMethod;
+    long           m_iCmpNoReqd, m_iCmpNo, m_iLiqNo, m_iVapNo;
     double         Mt,Ht,Vf;
     long           m_iState;
     byte           m_fModelSatP;
@@ -414,6 +414,7 @@ class DllImportExport CVLERootK : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
+    virtual int    FlashMethod()   { return SMFM_Undefined; };
     virtual int    FlashCmpIndex() { return -1; };
     virtual int    FlashLiqIndex() { return -1; };
     virtual int    FlashVapIndex() { return -1; };
@@ -430,8 +431,6 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual int    GetVLEData(CVLEDataArray & Array);
 
     virtual flag   HasTPEnvelope() { return True;};
-
-    //virtual int    SaturationMethod(SpModel * pMdl) { return SMFM_Undefined; };
 
     virtual double ApproachTemp()  { return 0.0; };
 

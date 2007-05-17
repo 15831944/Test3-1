@@ -1435,13 +1435,14 @@ double QSMBayer::BoilingPtElevation(double P_, CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double QSMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
+double QSMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (iSatComp>=0)
-    return SpModelEx::SaturationP(T_, &MA, iSatComp);
+  //if (iSatComp>=0)
+  if (pSatDefn && pSatDefn->CmpIndex()>=0)
+    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   if (sm_iQBMVer==QBM_Original)
     {
@@ -1491,13 +1492,13 @@ double QSMBayer::SaturationP(double T_, CSysVector * pMA, int iSatComp)
 
 //---------------------------------------------------------------------------
 
-double QSMBayer::SaturationT(double P_, CSysVector * pMA, int iSatComp)
+double QSMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (iSatComp>=0)
-    return SpModelEx::SaturationT(P_, &MA, iSatComp);
+  if (pSatDefn && pSatDefn->CmpIndex()>=0)
+    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
   if (sm_iQBMVer==QBM_Original)
     {

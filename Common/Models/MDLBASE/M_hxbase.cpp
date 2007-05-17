@@ -1108,7 +1108,7 @@ flag CHXSide::DataXchg(DataChangeBlk & DCB)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::MeasureHXDataCd(SpConduit * pCd)
+void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
   {
   if (pCd==NULL)
     pCd=m_pCd;
@@ -1120,8 +1120,9 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
   Ci = In->totCp();
   Cp = pCd->msCp();
   Qm = pCd->QMass();
-  if (pCd->SaturationMethod()==SMFM_PartialP)
-    m_PPFrac = pCd->PartialPressFrac(pCd->FlashVapIndex(), -1);
+
+  if (pFlashDefn && pFlashDefn->Method()/*pCd->SaturationMethod()*/==SMFM_PartialP)
+    m_PPFrac = pCd->PartialPressFrac(pCd->SaturationVapIndex(), -1);
   else
     m_PPFrac = 1;
 
@@ -1137,9 +1138,9 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
 
   m_Po=m_Pi;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCd->SaturationT(FlashPressOut(), pCd->FlashCmpIndex());
+    m_SatT = pCd->SaturationT(FlashPressOut());
   else
-    m_SatT = pCd->SaturationT(m_Po, pCd->FlashCmpIndex());
+    m_SatT = pCd->SaturationT(m_Po);
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1148,7 +1149,7 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::MeasureHXDataCn(SpContainer * pCn)
+void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
   {
   if (pCn==NULL)
     pCn=m_pCn;
@@ -1160,8 +1161,8 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  if (pCn->SaturationMethod()==SMFM_PartialP)
-    m_PPFrac = pCn->PartialPressFrac(pCn->FlashVapIndex(), -1);
+  if (pFlashDefn && pFlashDefn->Method()/*pCn->SaturationMethod()*/==SMFM_PartialP)
+    m_PPFrac = pCn->PartialPressFrac(pCn->SaturationVapIndex(), -1);
   else
     m_PPFrac = 1.0;
 
@@ -1171,10 +1172,11 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
 #endif
   m_Po=m_Pi;
   //m_SatT = pCn->SaturationT(FlashPressOut());
+  _asm int 3;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCn->SaturationT(FlashPressOut(), pCn->FlashCmpIndex());
+    m_SatT = pCn->SaturationT(FlashPressOut());
   else
-    m_SatT = pCn->SaturationT(m_Po, pCn->FlashCmpIndex());
+    m_SatT = pCn->SaturationT(m_Po);
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1183,7 +1185,7 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn)
 
 //--------------------------------------------------------------------------
 
-void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst)
+void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, double CnFraction, double PIn, CSaturationDefn * pFlashDefn, SpConduit * pFeed, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst)
   {
   fConnected=1;
   m_pCdIn=pCdIn;
@@ -1203,12 +1205,12 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpContainer& rCn, PhMask CnPhase, doubl
   
   dFinalTEst=FinalTEst;
 
-  MeasureHXDataCd(m_pWrkCd);
+  MeasureHXDataCd(m_pWrkCd, pFlashDefn);
   }
 
 //--------------------------------------------------------------------------
 
-void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact)
+void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CSaturationDefn * pFlashDefn, CEnvironHX * EHX, CReactionBlock * RB, double FinalTEst, bool PreReact)
   {
   fConnected=1;
   fPreReact=PreReact;
@@ -1228,7 +1230,7 @@ void CHXSide::SetInput(SpConduit *pCdIn, SpConduit & Cd, double PIn, CEnvironHX 
 
   dFinalTEst=FinalTEst;
 
-  MeasureHXDataCd(m_pCd);
+  MeasureHXDataCd(m_pCd, pFlashDefn);
 
   }
 
@@ -1285,7 +1287,7 @@ double CHXSide::KeepByPassLiquor(double Press)
       {
       m_pByPass->QSetM(*m_pCd, som_SL, QmByPass, Press);
       m_pCd->QAdjustQmTo(som_SL, 0.0);
-      MeasureHXDataCd(NULL);
+      MeasureHXDataCd(NULL, NULL);
       }
     else
       m_pByPass->QZero();
