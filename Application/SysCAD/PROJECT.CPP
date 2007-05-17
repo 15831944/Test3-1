@@ -6462,8 +6462,12 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 #if SYSCAD10
     if (01)//pkh && OK)
       {
+			// TODO: These need to be changed the the correct values.
+			char* projectPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-00.spf\\";
+			char* configPath = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\BaseFiles\\";
+
       m_pCLRSrvr = new CNETServer;
-      m_pCLRSrvr->Startup();
+      m_pCLRSrvr->Startup(projectPath, projectPath);
       }
     else
       m_pCLRSrvr = NULL;
