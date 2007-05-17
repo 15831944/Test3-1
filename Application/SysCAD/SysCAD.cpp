@@ -175,19 +175,13 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_PROJECT_SAVEALL, OnProjectSaveall)
   ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
 #ifdef SYSCAD10
-  ON_COMMAND(ID_FILE_DUMMYINSERT, DummyInsert)
-  ON_COMMAND(ID_FILE_DUMMYMODIFY, DummyModify)
-  ON_COMMAND(ID_FILE_DUMMYDELETE, DummyDelete)
-  ON_COMMAND(ID_FILE_9_10, Dummy9_10)
-  ON_COMMAND(ID_FILE_10_9, Dummy10_9)
+  ON_COMMAND(ID_FILE_Load, DummyLoad)
+  ON_COMMAND(ID_FILE_Save, DummySave)
 #endif
   ON_COMMAND(ID_FILE_NEW, OnFileNew)
 #ifdef SYSCAD10
-  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYINSERT, OnUpdateDummyInsert)
-  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYMODIFY, OnUpdateDummyModify)
-  ON_UPDATE_COMMAND_UI(ID_FILE_DUMMYDELETE, OnUpdateDummyDelete)
-  ON_UPDATE_COMMAND_UI(ID_FILE_9_10, OnUpdateDummy9_10)
-  ON_UPDATE_COMMAND_UI(ID_FILE_10_9, OnUpdateDummy10_9)
+  ON_UPDATE_COMMAND_UI(ID_FILE_Load, OnUpdateDummyLoad)
+  ON_UPDATE_COMMAND_UI(ID_FILE_Save, OnUpdateDummySave)
 #endif
   ON_UPDATE_COMMAND_UI(ID_FILE_NEW, OnUpdateFileNew)
   ON_UPDATE_COMMAND_UI(ID_FILE_OPEN, OnUpdateFileOpen)
@@ -2708,82 +2702,14 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 #ifdef SYSCAD10
 
-bool alreadyMoved = false;
-
-void CSysCADApp::DummyInsert()
+void CSysCADApp::DummyLoad()
   {
-    PKRectangleF boundingRect1 = { 0.0,  0.0, 20.0, 20.0};
-    PKRectangleF boundingRect2 = {30.0,  0.0, 20.0, 20.0};
-    PKRectangleF boundingRect3 = { 0.0, 30.0, 20.0, 20.0};
-    PKRectangleF boundingRect4 = {30.0, 30.0, 20.0, 20.0};
-    gs_pPrj->m_pCLRSrvr->CreateItem(1, "5CC47868-AF4E-11DB-9259-AFCD56D89593", "One", "Dummy/", "Tank-1", "Tank-1", boundingRect1, 0.0, 0, 0, false, false);
-    gs_pPrj->m_pCLRSrvr->CreateItem(2, "08C8768E-AF5C-11DB-A0C1-F05655D89593", "Two", "Dummy/", "Tank-1", "Tank-1", boundingRect2, 0.0, 0, 0, false, false);
-    gs_pPrj->m_pCLRSrvr->CreateItem(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593", "Three", "Dummy/", "Tank-1", "Tank-1", boundingRect3, 0.0, 0, 0, false, false);
-    gs_pPrj->m_pCLRSrvr->CreateItem(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593", "Four", "Dummy/", "Tank-1", "Tank-1", boundingRect4, 0.0, 0, 0, false, false);
-
-    PKPointF controlPoints12[10] = {{20.0,  5.0}, {25.0,  5.0}, {25.0, 15.0}, {30.0, 15.0}};
-    PKPointF controlPoints34[10] = {{20.0, 35.0}, {25.0, 35.0}, {25.0, 45.0}, {30.0, 45.0}};
-    gs_pPrj->m_pCLRSrvr->CreateLink(5, "ce429210-aff1-11db-abbd-0800200c9a66", "One-Two", "Pipe-1", "5CC47868-AF4E-11DB-9259-AFCD56D89593", "08C8768E-AF5C-11DB-A0C1-F05655D89593", "Side", "Feed", controlPoints12, 4);
-    gs_pPrj->m_pCLRSrvr->CreateLink(6, "ce429211-aff1-11db-abbd-0800200c9a66", "Three-Four", "Pipe-1", "0D2CA98E-AF5C-11DB-B82F-F15655D89593", "1109E6DE-AF5C-11DB-8B86-F35655D89593", "Side", "Feed", controlPoints34, 4);
+    gs_pPrj->m_pCLRSrvr->Load();
   }
 
-void CSysCADApp::DummyModify()
+void CSysCADApp::DummySave()
   {
-    if (!alreadyMoved)
-    {
-      PKRectangleF boundingRect1 = { 0.0,  0.0, 20.0, 40.0};
-      PKRectangleF boundingRect2 = {30.0,  0.0, 20.0, 40.0};
-      PKRectangleF boundingRect3 = { 0.0, 60.0, 20.0, 40.0};
-      PKRectangleF boundingRect4 = {30.0, 60.0, 20.0, 40.0};
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(1, "5CC47868-AF4E-11DB-9259-AFCD56D89593", boundingRect1);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(2, "08C8768E-AF5C-11DB-A0C1-F05655D89593", boundingRect2);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593", boundingRect3);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593", boundingRect4);
-
-      PKPointF controlPoints12[10] = {{20.0,  5.0}, {25.0,  5.0}, {25.0, 35.0}, {30.0, 35.0}};
-      PKPointF controlPoints34[10] = {{20.0, 65.0}, {25.0, 65.0}, {25.0, 95.0}, {30.0, 95.0}};
-      gs_pPrj->m_pCLRSrvr->ModifyLinkControlPoints(5, "ce429210-aff1-11db-abbd-0800200c9a66", controlPoints12, 4);
-      gs_pPrj->m_pCLRSrvr->ModifyLinkControlPoints(6, "ce429211-aff1-11db-abbd-0800200c9a66", controlPoints34, 4);
-    }
-    else
-    {
-      PKRectangleF boundingRect1 = { 0.0,  0.0, 20.0, 20.0};
-      PKRectangleF boundingRect2 = {30.0,  0.0, 20.0, 20.0};
-      PKRectangleF boundingRect3 = { 0.0, 30.0, 20.0, 20.0};
-      PKRectangleF boundingRect4 = {30.0, 30.0, 20.0, 20.0};
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(1, "5CC47868-AF4E-11DB-9259-AFCD56D89593", boundingRect1);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(2, "08C8768E-AF5C-11DB-A0C1-F05655D89593", boundingRect2);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593", boundingRect3);
-      gs_pPrj->m_pCLRSrvr->ModifyItemBoundingRect(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593", boundingRect4);
-
-      PKPointF controlPoints12[10] = {{20.0,  5.0}, {25.0,  5.0}, {25.0, 15.0}, {30.0, 15.0}};
-      PKPointF controlPoints34[10] = {{20.0, 35.0}, {25.0, 35.0}, {25.0, 45.0}, {30.0, 45.0}};
-      gs_pPrj->m_pCLRSrvr->ModifyLinkControlPoints(5, "ce429210-aff1-11db-abbd-0800200c9a66", controlPoints12, 4);
-      gs_pPrj->m_pCLRSrvr->ModifyLinkControlPoints(6, "ce429211-aff1-11db-abbd-0800200c9a66", controlPoints34, 4);
-    }
-
-    alreadyMoved = !alreadyMoved;
-  }
-
-void CSysCADApp::DummyDelete()
-  {
-    gs_pPrj->m_pCLRSrvr->DeleteItem(1, "5CC47868-AF4E-11DB-9259-AFCD56D89593");
-    gs_pPrj->m_pCLRSrvr->DeleteItem(2, "08C8768E-AF5C-11DB-A0C1-F05655D89593");
-    gs_pPrj->m_pCLRSrvr->DeleteItem(3, "0D2CA98E-AF5C-11DB-B82F-F15655D89593");
-    gs_pPrj->m_pCLRSrvr->DeleteItem(4, "1109E6DE-AF5C-11DB-8B86-F35655D89593");
-
-    gs_pPrj->m_pCLRSrvr->DeleteLink(5, "ce429210-aff1-11db-abbd-0800200c9a66");
-    gs_pPrj->m_pCLRSrvr->DeleteLink(6, "ce429211-aff1-11db-abbd-0800200c9a66");
-  }
-
-void CSysCADApp::Dummy9_10()
-  {
-    gs_pPrj->m_pCLRSrvr->Update9_10();
-  }
-
-void CSysCADApp::Dummy10_9()
-  {
-    gs_pPrj->m_pCLRSrvr->Update10_9();
+    gs_pPrj->m_pCLRSrvr->Save();
   }
 #endif
 
@@ -2825,27 +2751,12 @@ void CSysCADApp::OnUpdateFileNew(CCmdUI* pCmdUI)
   }
 
 #ifdef SYSCAD10
-void CSysCADApp::OnUpdateDummyInsert(CCmdUI* pCmdUI)
+void CSysCADApp::OnUpdateDummyLoad(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
   }
 
-void CSysCADApp::OnUpdateDummyModify(CCmdUI* pCmdUI)
-  {
-  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
-  }
-
-void CSysCADApp::OnUpdateDummyDelete(CCmdUI* pCmdUI)
-  {
-  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
-  }
-
-void CSysCADApp::OnUpdateDummy9_10(CCmdUI* pCmdUI)
-  {
-  pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
-  }
-
-void CSysCADApp::OnUpdateDummy10_9(CCmdUI* pCmdUI)
+void CSysCADApp::OnUpdateDummySave(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));
   }

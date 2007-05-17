@@ -19,6 +19,8 @@ namespace NetServer
     ConfigData m_Config;
     String m_StencilPath;
     ServiceProtocol serviceProtocol;
+    String filename = null;
+    String baseCfgFiles = null;
 
 
   void CreateConnects()
@@ -285,12 +287,12 @@ namespace NetServer
 
     private void LogNote(string p, int p_2, string p_3, int p_4, string p_5)
     {
-      throw new Exception("The method or operation is not implemented.");
+      Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + p_4 + " : " + p_5);
     }
 
     private void LogNote(string p, int p_2, string p_3)
     {
-      throw new Exception("The method or operation is not implemented.");
+      Console.WriteLine(p + " : " + p_2 + " : " + p_3);
     }
 
   void MarshalConfig()
@@ -625,7 +627,7 @@ namespace NetServer
     return list;
   }
 
-  void MarshalServiceInterface()
+  public void MarshalServiceInterface(String filename)
   {
     ServiceProtocol.ChangeStateHandler changeState = new ServiceProtocol.ChangeStateHandler(ChangeState);
 
@@ -653,7 +655,7 @@ namespace NetServer
 
     serviceProtocol = new ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, modifyThingPath, deleteThing, portCheck, propertyListCheck);
 
-    String filename = PrjName(); //gs_pPrj.
+    //String filename = PrjName(); //gs_pPrj.
 
     RemotingServices.Marshal(serviceProtocol, filename);
     m_Config.ProjectList.Add(filename);
@@ -662,20 +664,19 @@ namespace NetServer
 
     private void LogNote(string p, int p_2, string p_3, string filename)
     {
-      throw new Exception("The method or operation is not implemented.");
+      Console.WriteLine(p + " : " + p_2 + " : " + p_3 + " : " + filename);
+
     }
 
-    private string PrjName()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
-
-  void Startup()
+  public void Startup(string filename, string baseCfgFiles)
   {
+    this.filename = filename;
+    this.baseCfgFiles = baseCfgFiles;
+
     LogNote("CNETServerThread", 0, "Startup");
 
     m_Config = new ConfigData();
-    m_StencilPath = BaseCfgFiles();
+    m_StencilPath = baseCfgFiles;
     m_StencilPath = m_StencilPath + "Stencils\\";
 
     //m_pUnmanaged = new CNETServerU;
@@ -685,16 +686,11 @@ namespace NetServer
     Console.WriteLine("Startup");
     CreateConnects();
     GetStencils();
-    MarshalServiceInterface();
+    MarshalServiceInterface(filename);
     MarshalConfig();
 
     LoadItems();
   }
-
-    private string BaseCfgFiles()
-    {
-      throw new Exception("The method or operation is not implemented.");
-    }
 
   void Shutdown()
   {
@@ -708,7 +704,7 @@ namespace NetServer
   void LoadItems()
   {
     //CWaitMsgCursor Wait("9.10");
-    String filename = PrjName(); //gs_pPrj.
+    //String filename = filename; //gs_pPrj.
 
     //CDocTemplate & Template = ScdApp().GraphTemplate();
 
@@ -958,7 +954,7 @@ namespace NetServer
       //It should have been filled properly at project load...
 
     //CWaitMsgCursor Wait("10.9");
-    String filename = PrjName(); //gs_pPrj.
+    //String filename = PrjName(); //gs_pPrj.
 
     //CDocTemplate & Template = ScdApp().GraphTemplate();
 

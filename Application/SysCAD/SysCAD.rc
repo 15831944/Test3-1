@@ -393,12 +393,8 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save"                       ID_FILE_Save
         POPUP "New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -524,12 +520,8 @@ IDR_VISIOGRF MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -717,12 +709,8 @@ IDR_VISIOGRF_CNTR_IP MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -796,12 +784,8 @@ IDR_TRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1010,12 +994,8 @@ IDR_CTRENDVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1224,12 +1204,8 @@ IDR_GRFVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1482,12 +1458,8 @@ IDR_PRJVIEW MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW
@@ -1698,12 +1670,8 @@ IDR_WNDLIST_TMPL MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Dummy",                       ID_FILE_DUMMY
-        MENUITEM "Dummy Insert",                ID_FILE_DUMMYINSERT
-        MENUITEM "Dummy Modify",                ID_FILE_DUMMYMODIFY
-        MENUITEM "Dummy Delete",                ID_FILE_DUMMYDELETE
-        MENUITEM "9->10",                       ID_FILE_9_10
-        MENUITEM "10->9",                       ID_FILE_10_9
+        MENUITEM "Load",                       ID_FILE_Load
+        MENUITEM "Save",                       ID_FILE_Save
         POPUP "&New"
         BEGIN
             MENUITEM "&Project ...",                ID_PROJECT_NEW

@@ -64,6 +64,9 @@
     <Compile Include="BaseProtocol.cs" />
     <Compile Include="Bezier.cs" />
     <Compile Include="ClientProtocol.cs" />
+    <Compile Include="ClientServiceProtocol.cs" />
+    <Compile Include="EngineProtocol.cs" />
+    <Compile Include="EngineServiceProtocol.cs" />
     <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
@@ -80,7 +83,6 @@
     <Compile Include="ARectangleF.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ModelProperty.cs" />
-    <Compile Include="ServiceProtocol.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
     <Compile Include="ThingStencil.cs" />

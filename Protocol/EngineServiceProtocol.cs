@@ -16,35 +16,41 @@ using System.Drawing.Drawing2D;
 namespace SysCAD.Protocol
 {
   [Serializable]
-  public sealed class ServiceProtocol : BaseProtocol
+  public sealed class EngineServiceProtocol : BaseProtocol
   {
     private Int64 requestId;
     private Int64 eventId;
 
-    public delegate bool ChangeStateHandler(ServiceProtocol serviceProtocol, Int64 requestId, RunStates runState);
+    public delegate bool LoadHandler(EngineServiceProtocol engineServiceProtocol);
+    public delegate bool SaveHandler(EngineServiceProtocol engineServiceProtocol);
 
-    public delegate void GetPropertyValuesHandler(ServiceProtocol serviceProtocol, Int64 requestId, ref ArrayList propertyList);
-    public delegate void GetSubTagsHandler(ServiceProtocol serviceProtocol, Int64 requestId, String propertyPath, out ArrayList propertyList);
+    public delegate bool ChangeStateHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, RunStates runState);
 
-    public delegate bool CreateItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemPathHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String path);
-    public delegate bool DeleteItemHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
+    public delegate void GetPropertyValuesHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, ref ArrayList propertyList);
+    public delegate void GetSubTagsHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, String propertyPath, out ArrayList propertyList);
 
-    public delegate bool CreateLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool ModifyLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool DeleteLinkHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
+    public delegate bool CreateItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemPathHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String path);
+    public delegate bool DeleteItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
 
-    public delegate bool CreateThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingPathHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid, String path);
-    public delegate bool DeleteThingHandler(ServiceProtocol serviceProtocol, Int64 requestId, Guid guid);
+    public delegate bool CreateLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool ModifyLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool DeleteLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
 
-    public delegate PortStatus PortCheckHandler(ServiceProtocol serviceProtocol, Guid itemGuid, Anchor anchor);
+    public delegate bool CreateThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingPathHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String path);
+    public delegate bool DeleteThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
 
-    public delegate ArrayList PropertyListHandler(ServiceProtocol serviceProtocol, Guid guid, String tag, String path);
+    public delegate PortStatus PortCheckHandler(EngineServiceProtocol engineServiceProtocol, Guid itemGuid, Anchor anchor);
+
+    public delegate ArrayList PropertyListHandler(EngineServiceProtocol engineServiceProtocol, Guid guid, String tag, String path);
 
 
+
+    private LoadHandler loadHandler;
+    private SaveHandler saveHandler;
 
     private ChangeStateHandler changeStateHandler;
 
@@ -69,13 +75,24 @@ namespace SysCAD.Protocol
 
     private PropertyListHandler propertyListHandler;
 
-    public ServiceProtocol(
+    public EngineServiceProtocol(String name,
+      Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
+      LoadHandler loadHandler, SaveHandler saveHandler,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
+      this.Name = name;
+
+      this.graphicLinks = graphicLinks;
+      this.graphicItems = graphicItems;
+      this.graphicThings = graphicThings;
+
+      this.loadHandler = loadHandler;
+      this.saveHandler = saveHandler;
+
       this.changeStateHandler = changeStateHandler;
 
       this.getPropertyValuesHandler = getPropertyValuesHandler;
@@ -98,6 +115,16 @@ namespace SysCAD.Protocol
       this.portCheckHandler = portCheckHandler;
 
       this.propertyListHandler = propertyListHandler;
+    }
+
+    public bool Load()
+    {
+      return loadHandler(this);
+    }
+
+    public bool Save()
+    {
+      return saveHandler(this);
     }
 
     public bool ChangeState(out Int64 requestId, RunStates runState)
@@ -244,6 +271,18 @@ namespace SysCAD.Protocol
       return propertyListHandler(this, guid, tag, path);
     }
 
+
+
+
+    public void DoLoad()
+    {
+      OnLoad();
+    }
+
+    public void DoSave()
+    {
+      OnSave();
+    }
 
     public void DoStateChanged(Int64 requestId, RunStates runState)
     {

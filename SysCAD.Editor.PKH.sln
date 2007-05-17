@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowChart.NET", "GUIs\FlowC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Overview", "GUIs\FlowChart.NET\Overview\Overview.csproj", "{77CCAE13-E283-4677-B227-D39E75BA48EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "Protocol\70.Protocol.csproj", "{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "Protocol\70.Protocol.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,26 +103,26 @@ Global
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77CCAE13-E283-4677-B227-D39E75BA48EC}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.BETA Release|Any CPU.Build.0 = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Distribution|Any CPU.ActiveCfg = Distribution|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Distribution|Any CPU.Build.0 = Distribution|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Release Marshal|Any CPU.ActiveCfg = Release Marshal|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Release Marshal|Any CPU.Build.0 = Release Marshal|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Standard|Any CPU.ActiveCfg = Distribution|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Standard|Any CPU.Build.0 = Distribution|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.BETA Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Distribution|Any CPU.ActiveCfg = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Distribution|Any CPU.Build.0 = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release Marshal|Any CPU.ActiveCfg = Release Marshal|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release Marshal|Any CPU.Build.0 = Release Marshal|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.ActiveCfg = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Standard|Any CPU.Build.0 = Distribution|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

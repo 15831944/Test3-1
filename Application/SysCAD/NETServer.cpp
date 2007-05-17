@@ -74,8 +74,7 @@ public:
 ref class CNETServerThread
 {
 public:
-
-  ServiceProtocol ^ serviceProtocol;
+	EngineProtocol ^ engineProtocol;
 
   CNETServerThread()
   {
@@ -347,363 +346,13 @@ public:
     RemotingServices::Marshal(m_Config, "Global");
   }
 
-  bool ChangeState(ServiceProtocol^ serviceProtocol, Int64 requestID, BaseProtocol::RunStates runState)
-  {
-    if (true) // Decide whether to allow runstate change
-    { // We're going to do it.
-      // Change the runstate.
-
-      // Raise event(s).
-      serviceProtocol->DoStateChanged(requestID, runState);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  void GetPropertyValues(ServiceProtocol^ serviceProtocol, Int64 requestID, ArrayList^% propertyList)
-  {
-    // Return modified ArrayList with tag details included.
-  }
-
-  void GetSubTags(ServiceProtocol^ serviceProtocol, Int64 requestID, String^ propertyPath, ArrayList^% propertyList)
-  {
-    Random^ random = gcnew Random();
-
-    // Return ArrayList with tag details included.
-    for (int i=0; i<10; i++)
-    {
-      StringBuilder^ builder = gcnew StringBuilder();
-      System::Char ch;
-      int n = random->Next(5, 10);
-      for (int i = 0; i < n; i++)
-      {
-        ch = Convert::ToChar(random->Next(33, 126));
-        builder->Append(ch);
-      }
-      switch (random->Next(0, 3))
-      {
-      case 0:
-        propertyList->Add(gcnew ModelProperty(builder->ToString(), gcnew Int64(random->Next())));
-        break;
-      case 1:
-        propertyList->Add(gcnew ModelProperty(builder->ToString(), gcnew Double(random->NextDouble())));
-        break;
-      case 2:
-        propertyList->Add(gcnew ModelProperty(builder->ToString(), builder->ToString()));
-        break;
-      case 3:
-        propertyList->Add(gcnew ModelProperty(builder->ToString(), Color::FromArgb(random->Next())));
-        break;
-      }
-    }
-  }
-
-
-  void Sync(ServiceProtocol^ serviceProtocol, Int64 requestID)
-  {
-    serviceProtocol->Sync(requestID);
-  }
-
-  bool CreateItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
-  {
-    // Need to check for runstate here, and decide if we'll fire DoItemCreated.
-    // This is required in case a rogue client tries to create an item even when not supposed to.
-    // This applies to all three create*, and all three delete* events.
-    if (true) // Decide whether to create an item.
-    { // We're going to do it.
-      // Create the item.
-
-      // Raise event(s).
-      serviceProtocol->DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
-  {
-    if (true) // Decide whether to modify an item.
-    { // We're going to do it.
-
-      // Modify the item.
-
-      // Need to get hold of a valid pDoc pointer... *********
-
-      //Individual changes would go something like this: *********
-      //int length = tag->Length;
-      //wchar_t * tagwc = (wchar_t*)(void*)Marshal::StringToHGlobalUni(tag);
-
-      //char * tagc = (char *)malloc(length+1);
-      //tagc[length] = 0;
-      //for (int i=0; i<length; i++)
-      //  tagc[i] = (char)tagwc[i];
-
-      //pDoc->GCB.DoModify(tagc, 
-      //                    angle,
-      //                    boundingRect, 
-      //                    fillColor,
-      //                    fillMode,
-      //                    mirrorX,
-      //                    mirrorY);
-
-      // Raise event(s).
-      serviceProtocol->DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyItemBoundingRect(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, RectangleF boundingRect)
-  {
-    if (true) // Decide whether to modify an item.
-    { // We're going to do it.
-      // Modify the item.
-
-      // Raise event(s).
-      serviceProtocol->DoItemBoundingRectModified(requestID, guid, boundingRect);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyItemPath(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ path)
-  {
-    if (true) // Decide whether to modify an item.
-    { // We're going to do it.
-      // Modify the item.
-
-      // Raise event(s).
-      serviceProtocol->DoItemPathModified(requestID, guid, path);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool DeleteItem(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
-  {
-    if (true) // Decide whether to delete an item.
-    { // We're going to do it.
-      // Delete the item.
-
-      // Raise event(s).
-      serviceProtocol->DoItemDeleted(requestID, guid);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool CreateLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
-  {
-    if (true) // Decide whether to create an link.
-    { // We're going to do it.
-      // Create the item.
-
-      // Raise event(s).
-      serviceProtocol->DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ classID, Guid origin, Guid destination, String^ originPort, String^ destinationPort, Generic::List<PointF>^ controlPoints)
-  {
-    if (true) // Decide whether to modify an link.
-    { // We're going to do it.
-      // Modify the item.
-
-      // Raise event(s).
-      serviceProtocol->DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyLinkControlPoints(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, Generic::List<PointF>^ controlPoints)
-  {
-    if (true) // Decide whether to modify an item.
-    { // We're going to do it.
-      // Modify the item.
-
-      // Raise event(s).
-      serviceProtocol->DoLinkControlPointsModified(requestID, guid, controlPoints);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool DeleteLink(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
-  {
-    if (true) // Decide whether to delete an link.
-    { // We're going to do it.
-      // Delete the item.
-
-      // Raise event(s).
-      serviceProtocol->DoLinkDeleted(requestID, guid);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool CreateThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
-  {
-    if (true) // Decide whether to create an Thing.
-    { // We're going to do it.
-      // Create the Thing.
-
-      // Raise event(s).
-      serviceProtocol->DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
-  {
-    if (true) // Decide whether to modify an Thing.
-    { // We're going to do it.
-      // Modify the Thing.
-
-      // Raise event(s).
-      serviceProtocol->DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool ModifyThingPath(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid, String^ path)
-  {
-    if (true) // Decide whether to modify an item.
-    { // We're going to do it.
-      // Modify the item.
-
-      // Raise event(s).
-      serviceProtocol->DoThingPathModified(requestID, guid, path);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  bool DeleteThing(ServiceProtocol^ serviceProtocol, Int64 requestID, Guid guid)
-  {
-    if (true) // Decide whether to delete an Thing.
-    { // We're going to do it.
-      // Delete the Thing.
-
-      // Raise event(s).
-      serviceProtocol->DoThingDeleted(requestID, guid);
-
-      return true;
-    }
-    else
-    { // We're not going to do it.
-      return false;
-    }
-  }
-
-  PortStatus PortCheck(ServiceProtocol^ serviceProtocol, Guid guid, Anchor^ anchor)
-  {
-    //		CNSGuidItem * pGuid = new CNSGuidItem();
-    //		pGuid->m_Guid = guid;
-    //		m_pUnmanaged->m_Guids.AddTail(null);
-    //		CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.Find(guid);
-    //		CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(guid);
-    return PortStatus::Available;
-  }
-
-  ArrayList^ PropertyListCheck(ServiceProtocol^ serviceProtocol, Guid guid, String^ tag, String^ path)
-  {
-    char* dest = new char[tag->Length+1];
-    strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(tag)))));
-    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)dest);
-
-    ArrayList^ list = gcnew ArrayList();
-    // Generate list of properties at this level in properties tree.
-    return list;
-  }
-
   void MarshalServiceInterface()
   {
-    ServiceProtocol::ChangeStateHandler^ changeState = gcnew ServiceProtocol::ChangeStateHandler(this, &CNETServerThread::ChangeState);
-
-    ServiceProtocol::GetPropertyValuesHandler^ getPropertyValues = gcnew ServiceProtocol::GetPropertyValuesHandler(this, &CNETServerThread::GetPropertyValues);
-    ServiceProtocol::GetSubTagsHandler^ getSubTags = gcnew ServiceProtocol::GetSubTagsHandler(this, &CNETServerThread::GetSubTags);
-
-    ServiceProtocol::CreateItemHandler^ createItem = gcnew ServiceProtocol::CreateItemHandler(this, &CNETServerThread::CreateItem);
-    ServiceProtocol::ModifyItemHandler^ modifyItem = gcnew ServiceProtocol::ModifyItemHandler(this, &CNETServerThread::ModifyItem);
-    ServiceProtocol::ModifyItemPathHandler^ modifyItemPath = gcnew ServiceProtocol::ModifyItemPathHandler(this, &CNETServerThread::ModifyItemPath);
-    ServiceProtocol::DeleteItemHandler^ deleteItem = gcnew ServiceProtocol::DeleteItemHandler(this, &CNETServerThread::DeleteItem);
-
-    ServiceProtocol::CreateLinkHandler^ createLink = gcnew ServiceProtocol::CreateLinkHandler(this, &CNETServerThread::CreateLink);
-    ServiceProtocol::ModifyLinkHandler^ modifyLink = gcnew ServiceProtocol::ModifyLinkHandler(this, &CNETServerThread::ModifyLink);
-    ServiceProtocol::DeleteLinkHandler^ deleteLink = gcnew ServiceProtocol::DeleteLinkHandler(this, &CNETServerThread::DeleteLink);
-
-    ServiceProtocol::CreateThingHandler^ createThing = gcnew ServiceProtocol::CreateThingHandler(this, &CNETServerThread::CreateThing);
-    ServiceProtocol::ModifyThingHandler^ modifyThing = gcnew ServiceProtocol::ModifyThingHandler(this, &CNETServerThread::ModifyThing);
-    ServiceProtocol::ModifyThingPathHandler^ modifyThingPath = gcnew ServiceProtocol::ModifyThingPathHandler(this, &CNETServerThread::ModifyThingPath);
-    ServiceProtocol::DeleteThingHandler^ deleteThing = gcnew ServiceProtocol::DeleteThingHandler(this, &CNETServerThread::DeleteThing);
-
-    ServiceProtocol::PortCheckHandler^ portCheck = gcnew ServiceProtocol::PortCheckHandler(this, &CNETServerThread::PortCheck);
-
-    ServiceProtocol::PropertyListHandler^ propertyListCheck = gcnew ServiceProtocol::PropertyListHandler(this, &CNETServerThread::PropertyListCheck);
-
-
-    serviceProtocol = gcnew ServiceProtocol(changeState, getPropertyValues, getSubTags, createItem, modifyItem, modifyItemPath, deleteItem, createLink, modifyLink, deleteLink, createThing, modifyThing, modifyThingPath, deleteThing, portCheck, propertyListCheck);
+    engineProtocol = gcnew EngineProtocol();
 
     String^ filename = gcnew String(PrjName()); //gs_pPrj->
 
-    RemotingServices::Marshal(serviceProtocol, filename);
+    RemotingServices::Marshal(engineProtocol, filename);
     m_Config->ProjectList->Add(filename);
     LogNote("Srvr", 0, "Added project %s to ProjectList.", filename);
   };
@@ -893,7 +542,7 @@ public:
               for (int i=0; i<LPA.GetSize(); i++)
                 graphicLink->ControlPoints->Add(PointF(LPA[i].x, -LPA[i].y));
 
-              serviceProtocol->graphicLinks->Add(graphicLink->Guid, graphicLink);
+              engineProtocol->graphicLinks->Add(graphicLink->Guid, graphicLink);
             }
             else if (TagTyp==1)// || TagTyp==0)
             {
@@ -918,7 +567,7 @@ public:
                   RectangleF(left, top, width, height),
                   rotation);
 
-                serviceProtocol->graphicItems->Add(graphicItem->Guid, graphicItem);
+                engineProtocol->graphicItems->Add(graphicItem->Guid, graphicItem);
               }
               else
               {
@@ -953,7 +602,7 @@ public:
     }
 
     {
-      for each (GraphicLink^ graphicLink in serviceProtocol->graphicLinks->Values)
+      for each (GraphicLink^ graphicLink in engineProtocol->graphicLinks->Values)
       {
         PointF offset = PointF::Empty;
         {
@@ -963,9 +612,9 @@ public:
           Guid destination = graphicLink->Destination;
 
           if (origin != Guid::Empty)
-            path = serviceProtocol->graphicItems[origin]->Path;
+            path = engineProtocol->graphicItems[origin]->Path;
           else if (destination != Guid::Empty)
-            path = serviceProtocol->graphicItems[destination]->Path;
+            path = engineProtocol->graphicItems[destination]->Path;
 
           if (path->Length>0)
             offset = pageOffset[path];
@@ -1099,7 +748,7 @@ char wide_to_narrow(wchar_t w)
               //for (int i=0; i<LPA.GetSize(); i++)
               //  graphicLink->ControlPoints->Add(PointF(LPA[i].x, -LPA[i].y));
 
-              //serviceProtocol->graphicLinks->Add(graphicLink->Guid, graphicLink);
+              //engineProtocol->graphicLinks->Add(graphicLink->Guid, graphicLink);
             }
             else if (TagTyp==1)// || TagTyp==0)
             {
@@ -1107,7 +756,7 @@ char wide_to_narrow(wchar_t w)
 
               if (tag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
               {
-                GraphicItem^ graphicItem = serviceProtocol->graphicItems[guid];
+                GraphicItem^ graphicItem = engineProtocol->graphicItems[guid];
 
                 // This is the code for converting the String->char*, 
                 // and then the dummy call to modify the item.  *********
@@ -1194,18 +843,14 @@ char wide_to_narrow(wchar_t w)
 
 
 
-  void Update9_10()
+  void Load()
   {
-    serviceProtocol->graphicItems->Clear();
-    serviceProtocol->graphicLinks->Clear();
-    serviceProtocol->graphicThings->Clear();
-    LoadItems();
-    serviceProtocol->Sync(0);
+    engineProtocol->Load();
   };
 
-  void Update10_9()
+  void Save()
   {
-    SaveItems();
+    engineProtocol->Save();
   };
   
 protected:
@@ -1252,83 +897,18 @@ void CNETServer::Shutdown()
   LogNote("CNETServer", 0, "Shutdown");
 };
 
-
-void CNETServer::Sync(__int64 requestID)
+void CNETServer::Load()
 {
-  LogNote("CNETServer", 0, "Sync");
+  LogNote("CNETServer", 0, "Load");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Sync(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID);
+  CNETServerThreadGlbl::gs_SrvrThread->Load();
 };
 
-
-void CNETServer::CreateItem(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, LPCTSTR model, LPCTSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY)
+void CNETServer::Save()
 {
-  LogNote("CNETServer", 0, "CreateItem");
+  LogNote("CNETServer", 0, "Save");
 
-  CNETServerThreadGlbl::gs_SrvrThread->CreateItem(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(path), gcnew Model(gcnew String(model)), gcnew Shape(gcnew String(stencil)), RectangleF(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h), angle, System::Drawing::Color::FromArgb(fillColor), System::Drawing::Drawing2D::FillMode(fillMode), mirrorX, mirrorY);   
-};
-
-
-void CNETServer::CreateLink(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR classID, LPCTSTR origin, LPCTSTR destination, LPCTSTR originPort, LPCTSTR destinationPort, PKPointF controlPoints[], int controlPointsLength)
-{
-  LogNote("CNETServer", 0, "CreateLink");
-
-  Generic::List<PointF>^ controlPointsList = gcnew Generic::List<PointF>();
-
-  for (int i=0; i<controlPointsLength; i++)
-    controlPointsList->Add(PointF(controlPoints[i].x, controlPoints[i].y));
-
-  CNETServerThreadGlbl::gs_SrvrThread->CreateLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), gcnew String(tag), gcnew String(classID), Guid(gcnew String(origin)), Guid(gcnew String(destination)), gcnew String(originPort), gcnew String(destinationPort), controlPointsList);
-};
-
-
-void CNETServer::ModifyItemBoundingRect(__int64 requestID, LPCTSTR guid, PKRectangleF boundingRect)
-{
-  LogNote("CNETServer", 0, "ModifyItemBoundingRect");
-
-  CNETServerThreadGlbl::gs_SrvrThread->ModifyItemBoundingRect(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), RectangleF(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h));
-};
-
-
-void CNETServer::ModifyLinkControlPoints(__int64 requestID, LPCTSTR guid, PKPointF controlPoints[], int controlPointsLength)
-{
-  LogNote("CNETServer", 0, "ModifyItemBoundingRect");
-
-  Generic::List<PointF>^ controlPointsList = gcnew Generic::List<PointF>();
-
-  for (int i=0; i<controlPointsLength; i++)
-    controlPointsList->Add(PointF(controlPoints[i].x, controlPoints[i].y));
-
-  CNETServerThreadGlbl::gs_SrvrThread->ModifyLinkControlPoints(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)), controlPointsList);
-};
-
-
-void CNETServer::DeleteItem(__int64 requestID, LPCTSTR guid)
-{
-  LogNote("CNETServer", 0, "DeleteItem");
-
-  CNETServerThreadGlbl::gs_SrvrThread->DeleteItem(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)));
-};
-
-void CNETServer::DeleteLink(__int64 requestID, LPCTSTR guid)
-{
-  LogNote("CNETServer", 0, "DeleteLink");
-
-  CNETServerThreadGlbl::gs_SrvrThread->DeleteLink(CNETServerThreadGlbl::gs_SrvrThread->serviceProtocol, requestID, Guid(gcnew String(guid)));
-};
-
-void CNETServer::Update9_10()
-{
-  LogNote("CNETServer", 0, "DeleteLink");
-
-  CNETServerThreadGlbl::gs_SrvrThread->Update9_10();
-};
-
-void CNETServer::Update10_9()
-{
-  LogNote("CNETServer", 0, "DeleteLink");
-
-  CNETServerThreadGlbl::gs_SrvrThread->Update10_9();
+  CNETServerThreadGlbl::gs_SrvrThread->Save();
 };
 
 
