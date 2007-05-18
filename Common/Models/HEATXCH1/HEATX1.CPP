@@ -1913,9 +1913,9 @@ void HeatXchg1::BuildDataDefn(DataDefnBlk & DDB)
   if (m_MyPrjFileVerNo<46 && PrjFileVerNo()>=46)
     {
     if (m_pPriSg)
-      m_pPriSg->Tag(PSrgTags[m_iPriSgMd]);
+      m_pPriSg->SetTag(PSrgTags[m_iPriSgMd]);
     if (m_pSecSg)
-      m_pSecSg->Tag(SSrgTags[m_iSecSgMd]);
+      m_pSecSg->SetTag(SSrgTags[m_iSecSgMd]);
     }
   m_MyPrjFileVerNo=PrjFileVerNo();
 

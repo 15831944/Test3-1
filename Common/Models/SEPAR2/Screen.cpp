@@ -1722,7 +1722,7 @@ void Screen::ConnectionsChanged()
     nDecks++;
   if (IOWithId_Self(ioidOS)>=0)
     nDecks++;
-  TopDeck.Tag("TopDeck");
+  TopDeck.SetTag("TopDeck");
   StructureChanged(this);
   };
 

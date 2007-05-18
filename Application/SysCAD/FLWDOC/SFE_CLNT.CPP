@@ -724,7 +724,7 @@ int SFEFlwLib::FE_LoadAllModelStatus()
       m_MdlStatus[i].m_iAColour=OvrColour;
       m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
       
-      m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
+      //m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
       }
 
     m_nMdlStatusLoads++;

@@ -172,6 +172,7 @@ static DDBValueLst DDBXfCapOpt[]={
 
 void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   {
+  dbgpln("Pipe::BuildDataDefn  %s", m_sTag());
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
 
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
@@ -888,7 +889,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
         Img.iViewBlkSize=sizeof(sbImageM);
         break;
       }
-    Img.Tag("QEst");
+    Img.SetTag("QEst");
     DDB.Object(IOFlange(0)->TearImage(), this, "QEst", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
     Img.pViewBlk=pBlk;
     Img.iViewBlkSize=BlkSize;
@@ -900,11 +901,11 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     if (IOConduitIn(0))
       {
       DDB.Visibility(NSHM_All);
-      IOConduitIn(0)->Tag("QiI");
+      IOConduitIn(0)->SetTag("QiI");
       DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
       DDB.Visibility(NSHM_All);
       }
-    IOConduit(0)->Tag("Qi");
+    IOConduit(0)->SetTag("Qi");
     DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
     }
 
@@ -929,12 +930,12 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   if (NoFlwIOs() >= 2)
     {
-    IOConduit(1)->Tag("Qo");
+    IOConduit(1)->SetTag("Qo");
     DDB.Object(IOConduit(1), this, "Qo", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
     if (IOConduitIn(1))
       {
       DDB.Visibility(NSHM_All);
-      IOConduitIn(1)->Tag("QoI");
+      IOConduitIn(1)->SetTag("QoI");
       DDB.Object(IOConduitIn(1), this, "QoI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
       DDB.Visibility(NSHM_All);
       }
@@ -959,6 +960,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
 flag Pipe::DataXchg(DataChangeBlk & DCB)
   {
+  dbgpln("Pipe::DataXchg %12i %12i %s", DCB.lHandle, DCB.dwUserInfo, m_sTag());
   if (DCB.dwUserInfo==3 && m_FEP.DataXchg(DCB))
     return true;
   if (NoFlwIOs()>=2 && DCB.dwUserInfo==4 && IOFB(0,1)->DataXchg(DCB))

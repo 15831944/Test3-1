@@ -407,7 +407,8 @@ class PIDControl : public FlwNode
     void           Sort();
     void           FixIOTags();
   public:
-    virtual pchar  Tag(pchar ReqdTag=NULL);
+    virtual LPSTR  Tag();
+    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
     
     void           PostConnect(int IONo);
     void           PreDisConnect(int IONo);

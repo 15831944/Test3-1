@@ -131,7 +131,7 @@ TaggedObject * CCOMObjManager::Construct(TagObjClass *pClass, LPCTSTR pRqdTag, T
 
   TaggedObject* pTO=(TaggedObject*)pRP;
   pTO->SetClass(pClass);
-  pTO->Tag((LPTSTR)pRqdTag);
+  pTO->SetTag((LPTSTR)pRqdTag);
   pTO->AttachMeToObj(pAttach, eAttach);
 
   GIScdTaggedObject*pgpTO=new GIScdTaggedObject;

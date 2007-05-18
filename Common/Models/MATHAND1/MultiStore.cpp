@@ -1003,7 +1003,7 @@ void CMultiStorage::SetPileCount(short N)
 
   for (int p=0; p<m_Store.GetSize(); p++)
     {
-    m_Store[p].Tag("Content");
+    m_Store[p].SetTag("Content");
     Strng S;
     S.Set("Store.[%i]",p);
     m_Store[p].Prefix(S());

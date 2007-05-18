@@ -561,21 +561,21 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
     if (IOConduitIn(0))
       {
       DDB.Visibility(NSHM_All, True);
-      IOConduitIn(0)->Tag("QiI");
+      IOConduitIn(0)->SetTag("QiI");
       DDB.Object(IOConduitIn(0), this, "QiI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
       DDB.Visibility(NSHM_All);
       }
-    IOConduit(0)->Tag("Qi");
+    IOConduit(0)->SetTag("Qi");
     DDB.Object(IOConduit(0), this, "Qi", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
     }
   if (NoFlwIOs() >= 2)
     {
-    IOConduit(1)->Tag("Qo");
+    IOConduit(1)->SetTag("Qo");
     DDB.Object(IOConduit(1), this, "Qo", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
     if (IOConduitIn(1))
       {
       DDB.Visibility(NSHM_All, True);
-      IOConduitIn(1)->Tag("QoI");
+      IOConduitIn(1)->SetTag("QoI");
       DDB.Object(IOConduitIn(1), this, "QoI", Nd_Rmt(1)->FullObjTag(), DDB_RqdPage);
       DDB.Visibility(NSHM_All);
       }
@@ -584,7 +584,7 @@ void Duct::BuildDataDefn(DataDefnBlk &DDB)
   if ((NoFlwIOs()>=1) && IOFlange(0) && IOFlange(0)->TearImageExists())
     {
     DDB.Visibility(NSHM_All, IOFlange(0)->RqdTearType()>=TT_ManualTear);
-    IOFlange(0)->TearImage()->Tag("QEst");
+    IOFlange(0)->TearImage()->SetTag("QEst");
     DDB.Object(IOFlange(0)->TearImage(), this, "QEst", Nd_Rmt(0)->FullObjTag(), DDB_RqdPage);
     DDB.Visibility();
     }

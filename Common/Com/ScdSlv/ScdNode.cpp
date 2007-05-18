@@ -43,7 +43,7 @@ STDMETHODIMP CScdNode::put_Tag(BSTR newVal)
     CHECK_TOPO_OK;
 
     SCD_LclStr(Tag, newVal);
-    m_pNode->Tag((LPTSTR)Tag);
+    m_pNode->SetTag((LPTSTR)Tag);
     }
   SCD_COMEXIT
   }

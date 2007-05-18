@@ -83,7 +83,7 @@ C3DFn::C3DFn(C3DFn& Fn) :
   TaggedObject(Fn.m_pClass, "", Fn.pAttachedTo, Fn.eAttachment)
   {
   Strng s = Fn.m_sTag;
-  TaggedObject::Tag(s());
+  TaggedObject::SetTag(s());
   CopyFunction(Fn);
   pM = C3DModel::Create(this, Fn.pM->ClassId());
   }   

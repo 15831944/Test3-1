@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="ks.Alumina2"
 	ProjectGUID="{FF82849A-4691-46A3-BEFD-D84E3CD0B429}"
+	RootNamespace="ks.Alumina2"
 	Keyword="MFCProj"
 	>
 	<Platforms>

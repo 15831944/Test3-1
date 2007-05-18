@@ -451,9 +451,13 @@ void PIDControl::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
     }
   };
 
-pchar PIDControl::Tag(pchar ReqdTag) 
+LPSTR PIDControl::Tag() 
   { 
-  FlwNode::Tag(ReqdTag);
+  return FlwNode::Tag(); 
+  };
+LPSTR PIDControl::SetTag(LPSTR ReqdTag, bool AllowEmptyTag) 
+  { 
+  FlwNode::SetTag(ReqdTag, AllowEmptyTag);
   if (ReqdTag) 
     FixIOTags(); 
   return FlwNode::Tag(); 

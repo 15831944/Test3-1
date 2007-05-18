@@ -1759,9 +1759,9 @@ flag MN_Lnk::ValidateData(ValidateDataBlk & VDB)
     UpdateSamples();
 
     if (m_PFI.CnExists)
-      m_PFI.Cn.Tag("Cn");
+      m_PFI.Cn.SetTag("Cn");
     if (m_PFI.PfExists)
-      m_PFI.Pf.Tag("Pf");
+      m_PFI.Pf.SetTag("Pf");
     }
 
   flag ImageRqd=GetActiveHold() || SrcSnk.bKeepImage;

@@ -57,7 +57,8 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
     pchar               TagOfParent() { return MyParent ? MyParent->Tag() : NULL; };
 
-    virtual pchar       Tag(pchar ReqdTag=NULL);
+    virtual LPSTR       Tag();
+    virtual LPSTR       SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
 
     CTNode*             Insert(CTNode*p, char IsInternal=1);
     CTNode*             Parent() { return MyParent;};

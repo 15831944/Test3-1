@@ -1687,15 +1687,6 @@ CTgFnIoVar & CTgFnIoVar::operator=(CTgFnIoVar & X)
 
 //--------------------------------------------------------------------------
 
-//void CTgFnIoVar::Init(BOOL AllowFunct, BOOL AllowBlank, int ioId)
-//  {
-//  m_bAllowFunct = AllowFunct;
-//  bAllowBlank = AllowBlank;
-//  m_ioId = ioId;
-//  }
-
-//--------------------------------------------------------------------------
-
 void CTgFnIoVar::Clear()
   {
   sVar = "";

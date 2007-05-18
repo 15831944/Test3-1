@@ -469,7 +469,9 @@ XID xidRmtTagConnd      = MdlBsXID(5204);
 XID xidDrctQm           = MdlBsXID(5205);
 XID xidDrctEnable       = MdlBsXID(5206);
 XID xidConnectState     = MdlBsXID(5207);
-XID xidFlangeTag        = MdlBsXID(5208);
+XID xidDIOFlangeTag     = MdlBsXID(5208);
+XID xidDIOFlngSrcTag    = MdlBsXID(5209);
+XID xidDIOFlngDstTag    = MdlBsXID(5210);
 
 enum eDIOConnectSelects
   {
@@ -595,7 +597,7 @@ class DllImportExport CDirectFlwIO
     int           m_iLclIOId;
     int           m_NdSignImp;
 
-    //Strng         m_sFlngTag;
+    Strng         m_sReqdConnTag;
     CFlange     * m_pFlng;
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
@@ -1405,6 +1407,18 @@ const PMU_OPTIONS PMU_Blocking     = 0x00000008;
 const PMU_OPTIONS PMU_SLRatio      = 0x00000010;
 const PMU_OPTIONS PMU_SLRatio_Rho  = 0x00000020;
 
+// ----------------------------------------------------------
+
+struct DllImportExport IOInfo
+  {
+  int              OId;
+  FlwNode*         p;
+  int              AreaInx;
+  int              Id;
+  int              IOIndex;
+  };
+typedef IOInfo IOInfoBlk[2];
+
 // =========================================================================
 
 const dword Connect_Terminal = 1;
@@ -1427,13 +1441,14 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
+    //virtual LPSTR  Tag();
+    //virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
 
     void           Lock() { EnterCriticalSection(&m_LockSect); };
     void           UnLock() { LeaveCriticalSection(&m_LockSect); };
     // Utilities
     void           ClrConnection();
-    void           SetConnection(FlwNode* pNdSrc_, int iIOSrc_, FlwNode* pNdDst_, int iIODst_);
+    void           SetConnection(const IOInfo & IOSrc, const IOInfo & IODst);
     void           AdjustConnection(FlwNode* This, int By);
     flag           Connected()                  { return (m_pNdSrc!=NULL); };
     void           SetIsEvalSeqStart(flag On)   { m_fIsEvalSeqStart=On; };
@@ -1453,7 +1468,11 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     FlwNode*       m_pNdDst;
     int            m_iIOSrc;
     int            m_iIODst;
+    int            m_iIdSrc;
+    int            m_iIdDst;
     FlwNode*       m_pRefNd;
+    //Strng          m_sRefIOTg;
+    POSITION       m_ListPosn;
 
   private:
     bool           m_bTagFixed;
@@ -1550,6 +1569,10 @@ class DllImportExport CAirTermX : public CCtrlData, public CTerminal
 
 // =========================================================================
 
+XID xidFlangeTag     = MdlBsXID(5500);
+XID xidFlngSrcTag    = MdlBsXID(5501);
+XID xidFlngDstTag    = MdlBsXID(5502);
+
 const int MaxFlangeQs = 2;
 
 #if DOPB_FILT_RESULTS
@@ -1573,8 +1596,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
-    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
-
+    virtual LPSTR  Tag();
+    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
 
     // Tear Flanges - to Break Recycles
     void           SetTearType(byte Type, FlwNode* pNd);
@@ -2189,18 +2212,6 @@ extern DllImportExport CFlwEqnGrp GasPumpGroup;
 extern DllImportExport CFlwEqnGrp SizeChangeGroup;
 extern DllImportExport CFlwEqnGrp Leak2AreaGroup;
 extern DllImportExport CFlwEqnGrp Vlv4PortGroup;
-
-// ----------------------------------------------------------
-
-struct DllImportExport IOInfo
-  {
-  int              OId;
-  FlwNode*         p;
-  int              AreaInx;
-  int              Id;
-  int              IOIndex;
-  };
-typedef IOInfo IOInfoBlk[2];
 
 // ---------------------------------------------------------------------------
 
@@ -3386,7 +3397,8 @@ class CFlwNodeIndex
   };
 
 class CFlwNodeIndexList : public CList <CFlwNodeIndex, CFlwNodeIndex&> {};
-class CConnectsMap      : public CMap<LPSTR, LPSTR, CConnect*, CConnect*> {};
+class CConnectMap      : public CMap<LPSTR, LPSTR, CConnect*, CConnect*> {};
+class CConnectList     : public CList<CConnect*, CConnect*> {};
 
 class DllImportExport FlwNode : public CTNode
   {
@@ -3461,12 +3473,13 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
 
      // CTNode override
-    virtual LPSTR  Tag(LPSTR ReqdTag=NULL);
+    virtual LPSTR  Tag();
+    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
   
     FlwNode*       InsertRoot(char * TagIn);
     FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
-    int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1);
-    int            ConnectIOTag(FlwNode* s, char * IOTag1, FlwNode* d, char * IOTag2, IOInfoBlk *pInfo=NULL);
+    int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1, char * ConnectTag=NULL);
+    int            ConnectIOTag(FlwNode* s, char * IOTag1, FlwNode* d, char * IOTag2, IOInfoBlk *pInfo=NULL, char * ConnectTag=NULL);
 
     flag           FindIOTag(char * TagIn, int OId_Rqd, IOInfo &Info);
     int            Attach(int LIONo, FlwNode* R, int RIONo,
@@ -3489,8 +3502,10 @@ class DllImportExport FlwNode : public CTNode
     void           DoGlobalDisconnect();
     void           DoGlobalConnect();
 
-    static void    RemoveFromConnects(LPSTR ConnTag); 
-    static void    AddToConnects(LPSTR ConnTag, CConnect * pConnect); 
+    static void    AddToConnectList(CConnect * pConnect); 
+    static void    RemoveFromConnectList(CConnect * pConnect); 
+    static void    AddToConnectMap(LPSTR ConnTag, CConnect * pConnect); 
+    static void    RemoveFromConnectMap(LPSTR ConnTag); 
     static flag    FindConnect(LPSTR ConnTag, CConnect * pConnect); 
     static CConnect * FindConnect(LPSTR pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
 
@@ -3576,6 +3591,13 @@ class DllImportExport FlwNode : public CTNode
     flag           Placed(int i)          { return IOFB(i,0)->m_bPlaced; };
     flag           Placed_Rmt(int i)      { return IOFB_Rmt(i,0)->m_bPlaced; };
     
+    CConnect      *IOConnect(int i)
+      {
+      if(m_IOs[i].pFlng) return dynamic_cast<CConnect*>(m_IOs[i].pFlng); 
+      if(m_IOs[i].m_pTerm) return dynamic_cast<CConnect*>(m_IOs[i].m_pTerm); 
+      return NULL;                                    
+      };
+
     CFlange       *IOFlange(int i)        { return m_IOs[i].pFlng; };
     CFlange       *IOFlangeTst(int i)     { return (m_IOs.GetCount() && (i >=0 && i < NoFlwIOs())) ? m_IOs[i].pFlng : NULL; };
     CAreaSum      *IOAreaSum(int i)       { return &IOFlange(i)->Sum; };
@@ -4525,7 +4547,8 @@ class DllImportExport FlwNode : public CTNode
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;
 
     //static CArray<CConnect*, CConnect*> sm_Connects;
-    static CConnectsMap sm_ConnectsMap;
+    static CConnectMap sm_ConnectMap;
+    static CConnectList sm_ConnectList;
    
     CRITICAL_SECTION  m_LockSect;
 

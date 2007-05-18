@@ -191,9 +191,9 @@ flag MN_SrcSnk::DataXchg(DataChangeBlk & DCB)
     return 1;
   if (m_CF.DataXchg(DCB, Contents))
     return 1;
-  if (DCB.dwUserInfo==1 && m_Src.DataXchg(DCB))
+  if (DCB.dwUserInfo==1 && /*m_Src*/P_RegB.DataXchg(DCB))
     return 1;
-  if (DCB.dwUserInfo==2 && m_Snk.DataXchg(DCB))
+  if (DCB.dwUserInfo==2 && /*m_Snk*/T_RegB.DataXchg(DCB))
     return 1;
 
   switch (DCB.dwUserInfo)

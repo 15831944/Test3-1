@@ -1859,7 +1859,7 @@ CReaction *CReactionBlock::AddReaction(CReaction *pRct)
   ASSERT_ALWAYS(nPermReacts==NAll(), "Bad Permanent Reactions", __FILE__, __LINE__);
 
   RTag.Set("R%i",nPermReacts+1);
-  pRct->Tag(RTag());
+  pRct->SetTag(RTag());
   pRct->EqnIDNo=nPermReacts;
 
   All.Add(pRct);

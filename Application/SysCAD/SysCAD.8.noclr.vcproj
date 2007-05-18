@@ -838,6 +838,14 @@
 			<File
 				RelativePath=".\AssocGrfTag.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAsManaged="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\BASECMDS.CPP"

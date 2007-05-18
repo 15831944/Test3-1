@@ -95,6 +95,7 @@
 #define TimingStats            NDSTOPWATCHES
 
 static CDbgMngr dbgBuildOrder         ("FlwSolve",  "BuildOrd");
+
 #if WithIOChgMonitor
 static CDbgMngr dbgDumpChanges        ("FlwNode",   "DumpChanges");
 static CDbgMngr dbgDumpChangesIn      ("FlwNode",   "DumpChangesIn");
@@ -110,6 +111,7 @@ static CDbgMngr dbgEvalOrdChg         ("FlwSolve",  "EvalOrd-Chg");
 static CDbgMngr dbgEvalOrdChgIO       ("FlwSolve",  "EvalOrd-ChgIO");
 static CDbgMngr dbgEvalOrdFind        ("FlwSolve",  "EvalOrd-Find");
 static CDbgMngr dbgEvalOrdSummary     ("FlwSolve",  "EvalOrd-Summary");
+static CDbgMngr dbgGlobalLinks        ("FlwSolve",  "GlobalLinks");
 static CDbgMngr dbgMacroMdls          ("FlwSolve",  "MacroMdls");
 static CDbgMngr dbgMacroMdls1         ("FlwSolve",  "MacroMdls1");
 static CDbgMngr dbgMemoryUse          ("FlwSolve",  "MemoryUse");
@@ -10006,10 +10008,10 @@ flag CFlwSolver::Term()
     }
 
   // CHeck all connects removed
-  if (FlwNode::sm_ConnectsMap.GetCount()>0)
-    {
-    dbgpln("Connects: %i NOT REMOVED", FlwNode::sm_ConnectsMap.GetCount());
-    }
+  if (FlwNode::sm_ConnectList.GetCount()>0)
+    dbgpln("Connects: %i NOT REMOVED From List", FlwNode::sm_ConnectList.GetCount());
+  if (FlwNode::sm_ConnectMap.GetCount()>0)
+    dbgpln("Connects: %i NOT REMOVED From MAP", FlwNode::sm_ConnectMap.GetCount());
 
   m_pPlantArea=NULL;
 
@@ -11180,6 +11182,11 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
     if (fGlblLinksDone)
       return;
 
+    #if (dbgFlwSolve)
+    if (dbgGlobalLinks())
+      dbgpln("DoGlobalLinks - Start ---------------------------------");
+    #endif
+
     STARTPROGRESS;
     SHOWPROGRESS(10, "DoGlobalLinks");
     
@@ -11352,6 +11359,11 @@ DeleteIt:
     //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
     SHOWPROGRESS(1, "GlobalLinksDone");
+
+    #if (dbgFlwSolve)
+    if (dbgGlobalLinks())
+      dbgpln("DoGlobalLinks - Done  ---------------------------------");
+    #endif
     }
   }
 
@@ -11366,6 +11378,12 @@ void CFlwSolver::UnDoGlobalLinks()
 
   if (GlobalLinksBusy())
     return;
+
+  #if (dbgFlwSolve)
+  if (dbgGlobalLinks())
+    dbgpln("UnDoGlobalLinks - Start ---------------------------------");
+  #endif
+
 
   STARTPROGRESS;
   SHOWPROGRESS(10, "UnDoGlobalLinks 1");
@@ -11449,6 +11467,11 @@ void CFlwSolver::UnDoGlobalLinks()
     p->RemoveAllXRefs();
     }
   SHOWPROGRESS(1, "UndoGlobalLinksDone");
+
+  #if (dbgFlwSolve)
+  if (dbgGlobalLinks())
+    dbgpln("UnDoGlobalLinks - Done  ---------------------------------");
+  #endif
 
   fGlblLinksDone=false;
   }
@@ -11669,29 +11692,59 @@ class CLTHelp
       {
       }
 
-    CConnectsMap::CPair * ConnLoopGetStart(CConnectsMap::CPair *p)
-      {      
-      if (p==NULL)
-        p = FlwNode::sm_ConnectsMap.PGetFirstAssoc( );
-      else
-        p = FlwNode::sm_ConnectsMap.PGetNextAssoc( p );
+    CConnect * ConnLoopGetStart(POSITION &Pos, CConnect * pPrev)
+      {   
+      CConnect *p=NULL;
+      if (pPrev==NULL)
+        Pos = FlwNode::sm_ConnectList.GetHeadPosition();
+      if (Pos)
+        p = FlwNode::sm_ConnectList.GetNext(Pos);
 
       if (p)
         {
-        if (m_DoingAll)
-          m_pS=new Strng(p->value->Tag());
-        else
-          m_pS=m_TagList.Find(p->value->Tag());
+        //LPSTR pTag=p->Tag();
+        //if (pTag && strlen(pTag)>0)
+        //  {
+          if (m_DoingAll)
+            m_pS=new Strng(p->Tag());
+          else
+            m_pS=m_TagList.Find(p->Tag());
+        //  }
         }
 
       return p;
       };
-    void ConnLoopGetEnd(CConnectsMap::CPair *p, int i)
+    void ConnLoopGetEnd(CConnect *p, int i)
       {
+      //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
       m_pS->SetIndex(i);
       if (m_DoingAll)
         m_TagList.Append(m_pS);
       };
+
+    //CConnectMap::CPair * ConnLoopGetStart(CConnectMap::CPair *p)
+    //  {      
+    //  if (p==NULL)
+    //    p = FlwNode::sm_ConnectsMap.PGetFirstAssoc( );
+    //  else
+    //    p = FlwNode::sm_ConnectsMap.PGetNextAssoc( p );
+
+    //  if (p)
+    //    {
+    //    if (m_DoingAll)
+    //      m_pS=new Strng(p->value->Tag());
+    //    else
+    //      m_pS=m_TagList.Find(p->value->Tag());
+    //    }
+
+    //  return p;
+    //  };
+    //void ConnLoopGetEnd(CConnectMap::CPair *p, int i)
+    //  {
+    //  m_pS->SetIndex(i);
+    //  if (m_DoingAll)
+    //    m_TagList.Append(m_pS);
+    //  };
 
   };
 
@@ -11704,7 +11757,8 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
   CLTHelp LTH(this,TagList);
 
   FlwNode *pNd=NULL;
-  CConnectsMap::CPair *pCn=NULL;
+  CConnect *pCn=NULL;
+  POSITION Pos=NULL;
   int i;
   switch (Act)
     {
@@ -11790,15 +11844,15 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
         }
       break;
     case FETOp_GetActiveConns:
-      while (pCn=LTH.ConnLoopGetStart(pCn))
+      {
+      while (pCn=LTH.ConnLoopGetStart(Pos, pCn))
         {
         if (LTH.m_pS)
           {
-          CConnect * p = pCn->value;
           //pCn->fMarked=false;
-          if (p->m_pNdSrc && p->m_pNdSrc->GetActive())
+          if (pCn->m_pNdSrc && pCn->m_pNdSrc->GetActive())
             {
-            int IOId = p->m_pNdSrc->IOId_Self(p->m_iIOSrc);
+            int IOId = pCn->m_pNdSrc->IOId_Self(pCn->m_iIOSrc);
             if (IsMLnkIOId(IOId))
               i=1;
             else if (IsMakeupIOId(IOId))
@@ -11818,10 +11872,11 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
             i=0;
 
           N++;
-          LTH.ConnLoopGetEnd(pCn, i);
           }
+        LTH.ConnLoopGetEnd(pCn, i);
         }
       break;
+      }
     default:
       {
       }
@@ -12074,27 +12129,47 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
       }
     }
 
-  CConnectsMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
-  while (pX)
+  POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
+  while (Pos)
     {
-    CFlange * pF=dynamic_cast<CFlange*>(pX->value);
-    
-    if (pF)
+    CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
+    CFlange * pF=dynamic_cast<CFlange*>(pCn);
+    if (i>=Status.GetSize())
+      Status.SetSize(i+256);
+
+    LPSTR t=pCn->Tag();
+    if (t && strlen(t)>0)
       {
-      if (i>=Status.GetSize())
-        Status.SetSize(i+256);
-
-      Status[i].m_Tag=pX->key;
+      Status[i].m_Tag=t;
       Status[i].m_dwFlags=pF->ModelStatus();
-
-      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-
       pF->m_dwPrevStatus=Status[i].m_dwFlags;
       i++;
       }
+    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
 
-    pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
     }
+
+  //CConnectMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
+  //while (pX)
+  //  {
+  //  CFlange * pF=dynamic_cast<CFlange*>(pX->value);
+  //  
+  //  if (pF)
+  //    {
+  //    if (i>=Status.GetSize())
+  //      Status.SetSize(i+256);
+
+  //    Status[i].m_Tag=pX->key;
+  //    Status[i].m_dwFlags=pF->ModelStatus();
+
+  //    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+
+  //    pF->m_dwPrevStatus=Status[i].m_dwFlags;
+  //    i++;
+  //    }
+
+  //  pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
+  //  }
 
   if (i<Status.GetSize())
     Status.SetSize(i); // size it down
@@ -12119,18 +12194,33 @@ int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
       Cnt++;
     }
 
-  CConnectsMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
-  while (pX && (Cnt != MaxTest))
+  POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
+  while (Pos)
     {
-    CFlange * pF=dynamic_cast<CFlange*>(pX->value);
-    if (pF)
+    CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
+    CFlange * pF=dynamic_cast<CFlange*>(pCn);
+    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+
+    LPSTR t=pCn->Tag();
+    if (t && strlen(t)>0)
       {
       if (pF->m_dwPrevStatus!=pF->ModelStatus())
         Cnt++;
       }
-
-    pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
     }
+
+  //CConnectMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
+  //while (pX && (Cnt != MaxTest))
+  //  {
+  //  CFlange * pF=dynamic_cast<CFlange*>(pX->value);
+  //  if (pF)
+  //    {
+  //    if (pF->m_dwPrevStatus!=pF->ModelStatus())
+  //      Cnt++;
+  //    }
+
+  //  pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
+  //  }
 
   return Cnt;
   }
@@ -12967,7 +13057,7 @@ int CFlwSolver::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
 
   UnDoGlobalLinks();
 
-  pTO->Tag(pNewTag); //changes the tag in the solver
+  pTO->SetTag(pNewTag); //changes the tag in the solver
 
   //ask all models if they want to do anything internally for the change tag...
   FlwNode * p=NULL;
@@ -14416,6 +14506,20 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
           DU.SetTypeLong(tt_Long, j);
           List.SetDataValue(/*pPItem,*/ "DstIONo", DU);
 
+          CConnect *pConn=NULL;
+          switch (pass)
+            {
+            case 0:  pConn=dynamic_cast<CConnect*>(pSelf->IOFlange(i)); break;
+            case 1:  pConn=dynamic_cast<CConnect*>(pSelf->Ctrl_Terminal(i)); break;
+            //case 2:  pConn=dynamic_cast<CConnect*>(pSelf->IOFlange(i)); break;
+            //case 3:  pConn=dynamic_cast<CConnect*>(pSelf->IOFlange(i)); break;
+            }
+          if (pConn)
+            {
+            DU.SetTypeString(tt_Strng, pConn->Tag());
+            List.SetDataValue(/*pPItem,*/ "ConnectTag", DU);
+            }
+
           List.SetStructureE(/*pPItem,*/ StructEndType(tt_Object), CTag());
 
           //CXM_ObjectData *pOD= new CXM_ObjectData(0, 0, &List);
@@ -14573,9 +14677,11 @@ Done:;
           {
           if (FCB.Type()==TOF_DBase || !pObj->bSkipSnapLoad)
             {
+            dbgpln("TAB:Fnd");
             TagAccessBlk TAB(this, pItem->SymOrTag(), TABOpt_ForFile|TABOpt_AllInfo, TU_IndividuallyUnique);
             if (TAB.LoadAddress(true))
               {
+              dbgpln("   :Put");
               TAB.PutDefinedData(pData->List);
               TAB.ClearDDBLists();
               //Loaded=true;
@@ -14649,6 +14755,7 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
       #endif
       pchar pSrc=NULL;
       pchar pDst=NULL;
+      pchar pConnectTag=NULL;
       int SIONo=-1;
       int DIONo=-1;
 
@@ -14659,6 +14766,8 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
           pSrc=pItem->Value()->GetString();
         else if (_stricmp(pTag, "Dst")==0)
           pDst=pItem->Value()->GetString();
+        else if (_stricmp(pTag, "ConnectTag")==0)
+          pConnectTag=pItem->Value()->GetString();
         // Renamed InIONo to SrcIONo
         else if (_stricmp(pTag, "SrcIONo")==0 || _stricmp(pTag, "InIONo")==0 || _stricmp(pTag, "DstIONo")==0)
           {
@@ -14680,7 +14789,7 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
         pItem=pData->NextItem(Iter);// Skip to Next
         }
 
-      ConnectTag(m_pRoot, pSrc, pDst, SIONo, DIONo);
+      ConnectTag(m_pRoot, pSrc, pDst, SIONo, DIONo, pConnectTag);
       #if dbgTraceMemState1
             dbgMemoryState("Connect       ");
       #endif

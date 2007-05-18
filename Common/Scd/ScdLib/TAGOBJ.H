@@ -107,7 +107,7 @@ DllImportExport void DevelopementChecksOff();
 //===========================================================================
 // From xTaggedData
 
-const pchar TagSeparator=".";
+const LPSTR TagSeparator=".";
 const  int   SCDPartTagLen    = 64;
 const  int   SCDFullTagLen    = 255;
 
@@ -320,8 +320,8 @@ class DllImportExport DDBDataInfo
     byte            iType;
     DDEF_Flags      iFlags;
     CCnvIndex       iCnv;
-    pchar           pCnvTxt;
-    pchar           pCnvFam;
+    LPSTR           pCnvTxt;
+    LPSTR           pCnvFam;
     TaggedObject    *pThis;
     TaggedObject    *m_pRootObj;
 
@@ -371,7 +371,7 @@ class DllImportExport DDBShortcut : public DDBDataInfo
     //DDBShortcut() { m_bCurrentComplete=true; pFullItemTag=&m_sCurrentTag; fOK=False; };
     DDBShortcut & operator=(const DDBShortcut & X);
     void          Clear() { fOK=False; };
-    void          Set(DDBDataInfo * pDI,  pchar FullItemTag, dword CurDataVer);
+    void          Set(DDBDataInfo * pDI,  LPSTR FullItemTag, dword CurDataVer);
     flag          TestShortcut(char *FullItemTag, dword ObjectVersion);
   };
 
@@ -712,7 +712,7 @@ class DllImportExport CTODefaultData
 
 //===========================================================================
 
-//typedef TaggedObject *(*pTagObjConstruct)(pchar, pchar, short);
+//typedef TaggedObject *(*pTagObjConstruct)(LPSTR, LPSTR, short);
 
 typedef flag (*fn_BuildDataDefnGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataDefnBlk & DDB);
 typedef flag (*fn_DataXchgGlobal)(TagObjClass *pClass, TaggedObject * pOwner, DataChangeBlk & DCB);
@@ -765,7 +765,7 @@ class DllImportExport TagObjClass
   friend class CClassLicenseOptions;
 
   public:
-    TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_);
+    TagObjClass(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat_, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask_);
     virtual ~TagObjClass();
     static void    DumpAll();
     virtual void   Clear();
@@ -773,38 +773,38 @@ class DllImportExport TagObjClass
 
     static TagObjClass * AddCOMClass(char* pProgID, char* pClassName_, char* pGroup_, char* pClassId_, char* pVersion_, char* pDrwGroup_, char* pTagInitialID_, dword dwCat_, char* pShortDesc_, char* pDesc_, DWORD dwSelectMask_);
 
-    static TagObjClass* FindClassName(pchar ClassName_);
-    static TagObjClass* FindClassId(pchar ClassId_, flag fWithVersion=True, LPCTSTR SubClass=NULL);
-    static TagObjClass* FindGroupId(pchar GroupId_);
-    static TagObjClass* FindClassIndexed(pchar GroupId_, int iIndex);
-    TagObjClass*   FindGrpClassId(pchar ClassId_);
+    static TagObjClass* FindClassName(LPSTR ClassName_);
+    static TagObjClass* FindClassId(LPSTR ClassId_, flag fWithVersion=True, LPCTSTR SubClass=NULL);
+    static TagObjClass* FindGroupId(LPSTR GroupId_);
+    static TagObjClass* FindClassIndexed(LPSTR GroupId_, int iIndex);
+    TagObjClass*   FindGrpClassId(LPSTR ClassId_);
     void           GetShortDesc(Strng &S);
-    TagObjClass*   FindGrpShortDesc(pchar ShortDescd_);
+    TagObjClass*   FindGrpShortDesc(LPSTR ShortDescd_);
     TagObjClass*   FindDuplicateClassId(TagObjClass* pStartAt);
-    static TaggedObject * Construct(pchar pGroup_, pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
-    static flag    EditorExists(pchar pGroup_, pchar pClassId_, pchar pTag);
+    static TaggedObject * Construct(LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    static flag    EditorExists(LPSTR pGroup_, LPSTR pClassId_, LPSTR pTag);
 
-    TaggedObject *  ConstructGrp(pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
-    TaggedObject *  ConstructGrpDesc(pchar pClassId_, pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    TaggedObject *  ConstructGrp(LPSTR pClassId_, LPSTR pSubClassId, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    TaggedObject *  ConstructGrpDesc(LPSTR pClassId_, LPSTR pSubClassId, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
 
-    virtual TaggedObject * Construct(pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
+    virtual TaggedObject * Construct(LPSTR pSubClassId, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach);
 
     virtual pFxdEdtBookRef ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) {return NULL;};
     virtual flag   EditorExists() {return 0;};
 
-    pchar          ProgID()                                    { return m_sProgID(); };
-    pchar          ClassName()                                 { return sClassName(); };
-    pchar          ClassId()                                   { return sClassId(); };
-    pchar          SubClassId() ;//                            { return strchr(sClassId(), '.'); };
-    pchar          BaseClassId() ;//                           { return strchr(sClassId(), '.'); };
-    pchar          TableId()                                   { return sTableId(); };
-    pchar          MdlLibName()                                { return sMdlLibName(); };
+    LPSTR          ProgID()                                    { return m_sProgID(); };
+    LPSTR          ClassName()                                 { return sClassName(); };
+    LPSTR          ClassId()                                   { return sClassId(); };
+    LPSTR          SubClassId() ;//                            { return strchr(sClassId(), '.'); };
+    LPSTR          BaseClassId() ;//                           { return strchr(sClassId(), '.'); };
+    LPSTR          TableId()                                   { return sTableId(); };
+    LPSTR          MdlLibName()                                { return sMdlLibName(); };
     void           SetMdlLibName(LPCTSTR Name)                 { sMdlLibName=Name; };
     int            ClassIdLenNoVersion()                       { return iClassIdLenNoVersion; };
-    pchar          ClassIdNoVersion()                          { return sClassIdNV(); };
-    pchar          Group()                                     { return sGroup(); };
-    pchar          Desc()                                      { return sDesc(); };
-    pchar          ShortDesc()                                 { return sShortDesc(); };
+    LPSTR          ClassIdNoVersion()                          { return sClassIdNV(); };
+    LPSTR          Group()                                     { return sGroup(); };
+    LPSTR          Desc()                                      { return sDesc(); };
+    LPSTR          ShortDesc()                                 { return sShortDesc(); };
     void           SetSubConstruct(MSubConstructBaseDef * P)   { m_pSubConstruct=P; };
     MSubConstructBaseDef * SubConstruct()                      { return m_pSubConstruct; };
 #if WITHTAGMONITOR
@@ -1033,7 +1033,7 @@ class DllImportExport DataChangeBlk
       long         L;
       float        F;
       double       D;
-      pchar        pC;
+      LPSTR        pC;
       void *       pBlob;
       };
     union {
@@ -1147,20 +1147,21 @@ class DllImportExport TaggedObject : public ConditionBlk
   friend class DDBDataInfo;
 
   public:
-    TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject * pAttach, TagObjAttachment eAttach);
+    TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject * pAttach, TagObjAttachment eAttach);
     virtual ~TaggedObject();
 
     void            AttachMeToObj(TaggedObject * pObj, TagObjAttachment eAttach);
     void            DetachMeFromOwner();
-    virtual pchar   Tag(pchar ReqdTag=NULL);
-    pchar           Prefix(pchar ReqdPrefix=NULL);
+    virtual LPSTR   Tag();
+    virtual LPSTR   SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
+    LPSTR           Prefix(LPSTR ReqdPrefix=NULL);
     Strng           PrefixTag();
-    static int      TagCmp(pchar pTag, pchar pSrchTag, int MinTagLen=0);
-    static int      TagCmpFn(pchar pTag, pchar pSrchTag, int MinTagLen=0);
-    static void     ValidateTag(rStrng S);
-    static void     ValidateTagDot(rStrng S);
-    static flag     ValidateTagChanged(rStrng S);
-    static flag     ValidateTagDotChanged(rStrng S);
+    static int      TagCmp(LPSTR pTag, LPSTR pSrchTag, int MinTagLen=0);
+    static int      TagCmpFn(LPSTR pTag, LPSTR pSrchTag, int MinTagLen=0);
+    static void     ValidateTag(Strng & S);
+    static void     ValidateTagDot(Strng & S);
+    static flag     ValidateTagChanged(Strng & S);
+    static flag     ValidateTagDotChanged(Strng & S);
     static int      TestValidTag(char* pTag, int NumStartBad, int NumBad);
     static int      TestValidTagDot(char* pTag, int NumStartBad, int NumBad);
     static int      TestValidTag(char* pTag) { return TestValidTag(pTag, NumericStartingTagsBad, NumericTagsBad); };
@@ -1168,7 +1169,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     static flag     CheckNonNumericTagChr(char c);
     static void     SetBadFieldNameChars(char* pBad, char * pRep);
     static int      TestValidFieldName(char* pTag);
-    //static void     ValidateFieldName(rStrng S);
+    //static void     ValidateFieldName(Strng & S);
     static flag     TestIfReservedTag(char* pTag);
 
     // Overridables
@@ -1231,13 +1232,13 @@ class DllImportExport TaggedObject : public ConditionBlk
     flag            ValidateDefinedData(ValidateDataBlk &VDB);
     flag            UnValidatedData()        { return bUnValidatedData; };
 
-    virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
+    virtual TaggedObject * FindObjTag(LPSTR pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
     virtual void    SetFullObjTag();
     virtual char *  FullObjTag();
     virtual char *  FullObjTag(Strng &S, flag What/*=TOA_All*/);
-    virtual pchar   TagOfParent()            { return "."; };
+    virtual LPSTR   TagOfParent()            { return "."; };
     static void     StructureChanged(TaggedObject * pObj);
-    pchar           BaseTag()                { return pAttachedTo ? pAttachedTo->BaseTag() : Tag(); };
+    LPSTR           BaseTag()                { return pAttachedTo ? pAttachedTo->BaseTag() : Tag(); };
     virtual void    MyTagsHaveChanged(bool FirstOne=true);
 
     template <class T> T* FindObjOfType(T * X)
@@ -1259,10 +1260,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     virtual void    BuildCommonEndDefn(DataDefnBlk &DDB) {};
     virtual void    BuildSystemDefn(DataDefnBlk &DDB) {};
     short           IdNo()                   { return m_pClass->iId; };
-    pchar           ClassId()                { return m_pClass->sClassId(); };
-    pchar           SubClassId()             { return m_pClass->SubClassId(); };
-    pchar           BaseClassId()            { return m_pClass->BaseClassId(); };
-    pchar           Group()                  { return m_pClass->sGroup(); };
+    LPSTR           ClassId()                { return m_pClass->sClassId(); };
+    LPSTR           SubClassId()             { return m_pClass->SubClassId(); };
+    LPSTR           BaseClassId()            { return m_pClass->BaseClassId(); };
+    LPSTR           Group()                  { return m_pClass->sGroup(); };
     TagObjClass*    Class()                  { return m_pClass; };
     void            SetClass(TagObjClass*pClass)
       {
@@ -1270,9 +1271,9 @@ class DllImportExport TaggedObject : public ConditionBlk
       if (SubClassId())
         SetSubClass(SubClassId());
       };
-    virtual void    SetSubClass(pchar pSubClass)  { /*m_sSubClass=pSubClass*/; };
-    pchar           Desc()                   { return m_pClass->sDesc(); };
-    pchar           ShortDesc()              { return m_pClass->sShortDesc(); };
+    virtual void    SetSubClass(LPSTR pSubClass)  { /*m_sSubClass=pSubClass*/; };
+    LPSTR           Desc()                   { return m_pClass->sDesc(); };
+    LPSTR           ShortDesc()              { return m_pClass->sShortDesc(); };
     Strng &         TagRef()                 { return m_sTag; };
     Strng &         PrefixRef()              { return m_sPrefix; };
 
@@ -1648,8 +1649,8 @@ class DllImportExport DDBTagMap : public CMap <char *, char *, DDBShortcut*, DDB
     static DDBTagMap *Get() { return new DDBTagMap; };
     void      Free() { delete this; };
 #endif
-    void AddShortcut(pchar pFullItemTag, byte iType, dword dwDataVer, pchar pTag, CCnvIndex iCnv, pchar pCnv, void * pData, TaggedObject * pThis, DDEF_Flags Flags);
-    void AddShortcut(pchar pFullItemTag, byte iType, dword dwDataVer, pchar pTag, CCnvIndex iCnv, pchar pCnv, long lHandle, long lHandle2, TaggedObject * pThis, DDEF_Flags Flags);
+    void AddShortcut(LPSTR pFullItemTag, byte iType, dword dwDataVer, LPSTR pTag, CCnvIndex iCnv, LPSTR pCnv, void * pData, TaggedObject * pThis, DDEF_Flags Flags);
+    void AddShortcut(LPSTR pFullItemTag, byte iType, dword dwDataVer, LPSTR pTag, CCnvIndex iCnv, LPSTR pCnv, long lHandle, long lHandle2, TaggedObject * pThis, DDEF_Flags Flags);
   };
 
 //---------------------------------------------------------------------------
@@ -1731,178 +1732,178 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     DDBPkListItem *  FindChildItem(int MsgItemLevel, char *pTag, char *pSym);
     void           dbgItem(DDBPkListItem &Item);
 
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Button(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Button(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Button(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Button(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
 
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); };
-    void           CheckBox(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+    void           CheckBox(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
       { CheckBox(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
 
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
 
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); }
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           CheckBoxBtn(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           CheckBoxBtn(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { CheckBoxBtn(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
 
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
 
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL)
       { Bool(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLst, pDesc); }
-    void           Bool  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
+    void           Bool  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, bool* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL)
       { Bool(Tag, Sym, Cnv, CnvTxt, (flag*)Data, This, Flags, ValueLstMem, pDesc); }
-    void           Bool(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Bool(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, flag* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Bool(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Bool(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Bool(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Bool(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
 
-    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Char  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Char(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Char  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Char  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Char  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Char  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Char(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, char* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Char(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Char(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Char(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Char(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (char Min, char Max);
 
-    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Byte  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Byte(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Byte  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Byte  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Byte  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Byte  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Byte(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, byte* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Byte(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Byte(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Byte(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Byte(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (byte Min, byte Max);
 
-    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Word  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Word(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Word  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Word  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Word  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Word  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Word(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, word* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Word(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Word(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Word(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Word(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (word Min, word Max);
 
-    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           DWord (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           DWord(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, dword* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           DWord (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           DWord (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, dword*Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           DWord (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           DWord (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           DWord(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, dword* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { DWord(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           DWord(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           DWord(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { DWord(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (dword Min, dword Max);
 
-    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Int   (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Int(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, int* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Int   (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Int   (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, int* Data,  TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Int   (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Int   (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Int(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, int* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Int(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Int(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Int(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Int(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (int Min, int Max);
 
-    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Short (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, short* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, short* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Short (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Short(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, short* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Short(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Short(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Short(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Short(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (short Min, short Max);
 
-    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           Long  (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           Long  (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           Long(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Long(Tag, Sym, Cnv, CnvTxt, Data, This, Flags, (DDBValueLst*)NULL, pDesc); }
-    void           Long(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
+    void           Long(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR pDesc)
       { Long(Tag, Sym, Cnv, CnvTxt, Handle, This, Flags, (DDBValueLst *)NULL, pDesc); }
     void           Range (long Min, long Max);
 
-    void           Float (pchar Tag, pchar Sym, CCnvFamily * CnvFam, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Float (pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Float (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Float (pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, float* Data,TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Float (LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
     void           Range (float Min, float Max);
 
-    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    //void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    //void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
-    void           Double(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    //void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, LPCTSTR NANStr=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvFamily * CnvFam, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, double* Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
+    void           Double(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * NANStrLst=NULL, LPCTSTR pDesc=NULL);
     void           Range (double Min, double Max);
 
-    void           FnDouble(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBFnParms * ParmDefs, LPCTSTR pDesc=NULL);
+    void           FnDouble(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBFnParms * ParmDefs, LPCTSTR pDesc=NULL);
 
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
-    void           String(pchar Tag, pchar Sym, CCnvIndex Cnv, pchar CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, pStrng Data, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLst * ValueLst=NULL, LPCTSTR pDesc=NULL);
+    void           String(LPSTR Tag, LPSTR Sym, CCnvIndex Cnv, LPSTR CnvTxt, long Handle, long Handle2, TaggedObject * This, DDEF_Flags Flags, DDBValueLstMem * ValueLstMem, LPCTSTR pDesc=NULL);
 
-    void           Blob(pchar Tag, void *Data, word Size, TaggedObject * This);
-    void           Blob(pchar Tag, long Handle, TaggedObject * This);
+    void           Blob(LPSTR Tag, void *Data, word Size, TaggedObject * This);
+    void           Blob(LPSTR Tag, long Handle, TaggedObject * This);
 
-    //void           StrValue(pchar pStr);
-    //void           IndexedStrValue(int iVal, pchar pStr);
+    //void           StrValue(LPSTR pStr);
+    //void           IndexedStrValue(int iVal, LPSTR pStr);
     void           Description(LPCTSTR pStr);
-    void           TagComment(pchar pStr);
+    void           TagComment(LPSTR pStr);
 
     void           SuppressNextBlock() {bBlkSuppressed[iBlkDepth]=1;};
-    flag           BeginStruct(TaggedObject * Obj, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    flag           BeginStruct(TaggedObject * Obj, LPSTR Tag=NULL, LPSTR TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
     void           EndStruct();
-    flag           BeginObject(TaggedObject * Obj, pchar Tag=NULL, pchar ObjectId=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    flag           BeginObject(TaggedObject * Obj, LPSTR Tag=NULL, LPSTR ObjectId=NULL, LPSTR TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
     void           EndObject();
-    flag           BeginArray(TaggedObject * Obj, pchar Tag, pchar ClassName, int Len_, long Handle=0, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    flag           BeginElement(TaggedObject * Obj, int iElementIndex, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    flag           BeginElement(TaggedObject * Obj, LPCTSTR pElementTag, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginArray(TaggedObject * Obj, LPSTR Tag, LPSTR ClassName, int Len_, long Handle=0, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginElement(TaggedObject * Obj, int iElementIndex, LPSTR TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginElement(TaggedObject * Obj, LPCTSTR pElementTag, LPSTR TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
     void           EndElement(DDEF_Flags BlkFlags = 0);
     void           EndArray(DDEF_Flags BlkFlags = 0);
     void           PushUserInfo(dword UserInfo=0, TaggedObject * This=NULL);
     void           PopUserInfo();
-    void           Object(TaggedObject * Obj, TaggedObject * This, pchar Tag=NULL, pchar TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
+    void           Object(TaggedObject * Obj, TaggedObject * This, LPSTR Tag=NULL, LPSTR TagComment=NULL, DDBPages PageIs = DDB_OptPage, dword UserInfo=-1, DDEF_Flags BlkFlags=0);
     char *         BlockTag() { return Nest[lCallLevel-1].pTag; }
     DDEF_Flags     Visibility(DDEF_Flags ModeFlags=NSHM_All, flag ViewVisible=TRUE, flag FileVisible=TRUE, flag SnapVisible=TRUE, flag ScenVisible=TRUE);
     DDEF_Flags     GetVisibility();
@@ -1910,25 +1911,25 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
 
     void           Add_PropertyMap(CPropertyMap & Map, ULONG WhichProps, flag AsParms, long iBaseHandle, CPropertyBase * pPropBase, TaggedObject * pTgObj);
 
-    void           Page(pchar Nm, DDBPages PageIs = DDB_OptPage, DDEF_Flags Flags=0);
-    void           Text(pchar Txt, DDEF_Flags Flags=0);
+    void           Page(LPSTR Nm, DDBPages PageIs = DDB_OptPage, DDEF_Flags Flags=0);
+    void           Text(LPSTR Txt, DDEF_Flags Flags=0);
 
-    flag           BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    flag           BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, pchar ColHdr, pchar RowHdr, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    flag           BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
-    //flag           BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, pchar TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginMatrix(TaggedObject * Obj, LPSTR Tag, LPSTR ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginMatrix(TaggedObject * Obj, LPSTR Tag, LPSTR ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, LPSTR ColHdr, LPSTR RowHdr, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    flag           BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, LPSTR TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
+    //flag           BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, LPSTR TagComment=NULL, dword UserInfo=-1, DDBPages PageIs=DDB_NoPage, DDEF_Flags BlkFlags=0);
     void           EndMatrixElement(DDEF_Flags Flags=0);
     void           EndMatrix(DDEF_Flags Flags=0);
  
-    flag           BeginGrid(pchar Text, int MaxCols, int MaxRows, int Width, int Gap);
-    void           ColumnHeader(pchar Text, int Width, int Gap, int Justification);
-    void           RowHeader(pchar Text);
-    void           RowStart(pchar Text="");
-    void           EndGrid(pchar Text="");
+    flag           BeginGrid(LPSTR Text, int MaxCols, int MaxRows, int Width, int Gap);
+    void           ColumnHeader(LPSTR Text, int Width, int Gap, int Justification);
+    void           RowHeader(LPSTR Text);
+    void           RowStart(LPSTR Text="");
+    void           EndGrid(LPSTR Text="");
 
     // Helper Functions
-    void           Add_OnOff(pchar pTag, pflag pOn, /*flag bOffisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
-    void           Add_YesNo(pchar pTag, pflag pYes, /*flag bNoisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
+    void           Add_OnOff(LPSTR pTag, pflag pOn, /*flag bOffisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
+    void           Add_YesNo(LPSTR pTag, pflag pYes, /*flag bNoisBlank,*/ TaggedObject * pOwn, dword Flags=isParm);
 
     flag           ForNDB()         { return (dwOptions&TABOpt_ForNDB)!=0; };
     flag           ForFiling()      { return (dwOptions&TABOpt_ForFile)!=0; };
@@ -1953,8 +1954,8 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
 
   private:
     flag           BeginBlock(byte iType_,  TaggedObject * pObj,
-                              pchar pTag, pchar pClassName, pchar pSubClassName, pchar pPrimaryCfg,
-                              pchar pTagOfParent, pchar pTagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress);
+                              LPSTR pTag, LPSTR pClassName, LPSTR pSubClassName, LPSTR pPrimaryCfg,
+                              LPSTR pTagOfParent, LPSTR pTagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress);
     void           EndBlock(DDEF_Flags BlkFlags = 0);
 
     DDEF_Flags     CurrentFlags();
@@ -1963,9 +1964,9 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     flag           GetReqdItem();
     flag           GetReqdItemFn();
     flag           GetReqdLayout();
-    flag           GetReqdBlock(flag & SearchingTag, pchar &pSrchTag);
+    flag           GetReqdBlock(flag & SearchingTag, LPSTR &pSrchTag);
     flag           PutReqdItem();
-    flag           PutReqdBlock(flag & SearchingTag, pchar &pSrchTag);
+    flag           PutReqdBlock(flag & SearchingTag, LPSTR &pSrchTag);
 
     void           DoBool();
     void           DoChar();
@@ -2035,7 +2036,7 @@ class DllImportExport DataDefnBlk  : public DDBDataInfo
     byte              iADepth;
     struct
       {
-      pchar             pClass;
+      LPSTR             pClass;
       long              nElem;
       long              iIndex;
       bool              m_ElementClosed;
@@ -2176,12 +2177,12 @@ class DllImportExport TagAccessBlk
   {
   public :
     TagAccessBlk();
-    TagAccessBlk(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    TagAccessBlk(TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
     ~TagAccessBlk();
 
     TagAccessBlk& operator=(const TagAccessBlk&X);
 
-    void           Init(TaggedObject * pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    void           Init(TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
     flag           LoadAddress(flag FndShortcut=True);
 
     flag           GetDefinedData(CPkDataList &DataObj, TABOptions Opts);
@@ -2212,7 +2213,7 @@ class DllImportExport TagAccessBlk
   public:
     byte                Ok:1, bAllowChangeTest:1, bChanged:1;
     TagUniqueness       eUnique;
-    pchar               m_pTagFound;
+    LPSTR               m_pTagFound;
     Strng               sTag, sCnvTxt, sCnvFam;
     TaggedObject      * pSrchRoot;
     TaggedObject      * pAccObj;
@@ -2258,7 +2259,7 @@ class DllImportExport CCOMObjManagerRoot
     //AddClassCCOMObjManagerRoot * gs_Manager;
 
 #if 0
-    virtual TaggedObject * Construct(LPCTSTR ProgID, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
+    virtual TaggedObject * Construct(LPCTSTR ProgID, LPSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
 #endif
     virtual TaggedObject * Construct(TagObjClass *pClass, LPCTSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)=0;
     virtual void Destroy(TaggedObject * pObj)=0;
@@ -2276,10 +2277,10 @@ class DllImportExport CCOMObjManagerRoot
   class DllImportExport Obj##ClassDef : public Base \
     { \
     public: \
-      TaggedObject * ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask); \
+      TaggedObject * ConstructGroup(LPSTR pClass, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      TaggedObject * ConstructGroupDesc(LPSTR pShortDesc, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      virtual TaggedObject * Construct(LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask); \
       Obj##ClassDef(); \
     }; \
   extern DllImportExport Obj##ClassDef Obj##Class;
@@ -2289,11 +2290,11 @@ class DllImportExport CCOMObjManagerRoot
 
 
 #define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, Base) \
-TaggedObject * Obj##ClassDef::ConstructGroup(pchar pClass, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::ConstructGroup(LPSTR pClass, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrp(pClass, pSubClass, pTag, pAttach, eAttach); }; \
-TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::ConstructGroupDesc(LPSTR pShortDesc, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); }; \
-TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::Construct(LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { \
   p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
   SetTypeId(&typeid(*pn));                           \
@@ -2301,7 +2302,7 @@ TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObjec
     pn->SetSubClass(pSubClass);                      \
   return pn;                                         \
   }; \
-Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask) \
+Obj##ClassDef::Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask) \
   : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat, pShortDesc_, pDesc_, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
   Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef Obj##Class;
@@ -2325,10 +2326,10 @@ Obj##ClassDef Obj##Class;
   class DllImportExport Obj##ClassDef : public Base \
     { \
     public: \
-      TaggedObject * ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      TaggedObject * ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      virtual TaggedObject * Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
-      Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask); \
+      TaggedObject * ConstructGroup(LPSTR pGroup, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      TaggedObject * ConstructGroupDesc(LPSTR pShortDesc, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      virtual TaggedObject * Construct(LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach); \
+      Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc, LPSTR pDesc, DWORD dwSelectMask); \
       Obj##ClassDef(); \
       virtual flag EditorExists() {return 1;}; \
       virtual pFxdEdtBookRef ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj); \
@@ -2340,11 +2341,11 @@ Obj##ClassDef Obj##Class;
 
 
 #define IMPLEMENT_TAGOBJEDTSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, Edt, ShortDesc, Desc, SelectMask, Base) \
-TaggedObject * Obj##ClassDef::ConstructGroup(pchar pGroup, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::ConstructGroup(LPSTR pGroup, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrp(pGroup, pSubClass, pTag, pAttach, eAttach); }; \
-TaggedObject * Obj##ClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::ConstructGroupDesc(LPSTR pShortDesc, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrpDesc(pShortDesc, pSubClass, pTag, pAttach, eAttach); }; \
-TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
+TaggedObject * Obj##ClassDef::Construct(LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { \
   p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
   SetTypeId(&typeid(*pn));                           \
@@ -2354,7 +2355,7 @@ TaggedObject * Obj##ClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObjec
   };  \
 pFxdEdtBookRef Obj##ClassDef::ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) \
   { return ::new Edt(pView_, (Obj*)pObj); }; \
-Obj##ClassDef::Obj##ClassDef(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat, pchar pShortDesc, pchar pDesc, DWORD dwSelectMask) \
+Obj##ClassDef::Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc, LPSTR pDesc, DWORD dwSelectMask) \
   : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat, pShortDesc, pDesc, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask) { sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef Obj##Class;

@@ -419,6 +419,7 @@ BuildDataDefn for objects used by the model.*/
 
 void CTank::BuildDataDefn(DataDefnBlk & DDB)
   {
+  dbgpln("CTank::BuildDataDefn  %s", m_sTag());
   Contents.SetSQFlags(SQF_Editable, true);//why does setting this flag above in constructor not work?
   DDB.BeginStruct(this);
 
@@ -560,6 +561,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
 flag CTank::DataXchg(DataChangeBlk & DCB)
   {
+  dbgpln("CTank::DataXchg %12i %12i %s", DCB.lHandle, DCB.dwUserInfo, m_sTag());
   if (MN_Surge::DataXchg(DCB)) 
     return 1;
   if (m_VLE.DataXchg(DCB))

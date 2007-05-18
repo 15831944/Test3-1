@@ -140,7 +140,8 @@ class CTransmitter : public FlwNode
     void           Sort();
     void           FixIOTags();
   public:
-    virtual pchar  Tag(pchar ReqdTag=NULL);
+    virtual LPSTR  Tag();
+    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
     
     virtual void   Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg);
     virtual void   BuildDataDefn(DataDefnBlk & DDB);

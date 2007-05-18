@@ -146,7 +146,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
       DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd, m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
-      if (m_SrcIO.Enabled)
+      if (m_SrcIO.Enabled && !DDB.ForFileSnpScn())
         {
         //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
         m_SrcIO.BuildDataDefn(DDB, NULL, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
@@ -182,7 +182,7 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
         if (*DCB.rB)
           {
           Open(*DCB.rB);
-          m_pMakeupB->Tag(Name());
+          m_pMakeupB->SetTag(Name());
           }
         else
           Close();
@@ -197,7 +197,7 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
         if (pC)
           {
           Open(pC);
-          m_pMakeupB->Tag(Name());
+          m_pMakeupB->SetTag(Name());
           }
         else
           Close();
@@ -213,7 +213,7 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
 
 int CMakeupBase::ChangeTag(char * pOldTag, char * pNewTag)
   {
-  if (stricmp(m_SrcIO.Target(), pOldTag)==0)
+  if (m_SrcIO.Target() && stricmp(m_SrcIO.Target(), pOldTag)==0)
     m_SrcIO.SetTarget(pNewTag);
   return EOCT_DONE;
   };

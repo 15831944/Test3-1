@@ -461,9 +461,13 @@ void CTransmitter::ResetData(flag Complete)
 
 //--------------------------------------------------------------------------
 
-pchar CTransmitter::Tag(pchar ReqdTag) 
+LPSTR CTransmitter::Tag() 
   { 
-  FlwNode::Tag(ReqdTag);
+  return FlwNode::Tag(); 
+  };
+LPSTR CTransmitter::SetTag(LPSTR ReqdTag, bool AllowEmptyTag) 
+  { 
+  FlwNode::SetTag(ReqdTag, AllowEmptyTag);
   if (ReqdTag) 
     FixIOTags(); 
   return FlwNode::Tag(); 

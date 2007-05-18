@@ -456,9 +456,13 @@ void CActuator::ResetData(flag Complete)
 
 //--------------------------------------------------------------------------
 
-pchar CActuator::Tag(pchar ReqdTag) 
+LPSTR CActuator::Tag() 
   { 
-  FlwNode::Tag(ReqdTag);
+  return FlwNode::Tag(); 
+  };
+LPSTR CActuator::SetTag(LPSTR ReqdTag, bool AllowEmptyTag) 
+  { 
+  FlwNode::SetTag(ReqdTag, AllowEmptyTag);
   if (ReqdTag) 
     FixIOTags(); 
   return FlwNode::Tag(); 

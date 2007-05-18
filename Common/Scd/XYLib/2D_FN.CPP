@@ -115,7 +115,7 @@ C2DFn::C2DFn(C2DFn& Fn) :
   pCollectDataFn=NULL;
   pCollectDataPtr=NULL;
   Strng s = Fn.Tag();
-  TaggedObject::Tag(s());
+  TaggedObject::SetTag(s());
   CopyFunction(Fn);
   pM = C2DModel::Create(this, Fn.pM->ClassId());
   }

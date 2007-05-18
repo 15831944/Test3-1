@@ -440,7 +440,7 @@ flag CMMFlashTrain::PBInitialise()
     }
 
   T2.Set("%s_FT", T1());
-  Tag(T2());
+  SetTag(T2());
 
   #if dbgModels   
   if (dbgFlashTrain())

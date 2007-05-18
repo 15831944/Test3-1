@@ -116,7 +116,12 @@ void CTNode::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-pchar CTNode::Tag(pchar ReqdTag)
+LPSTR CTNode::Tag()
+  {
+  return TaggedObject::Tag();
+  }
+
+LPSTR CTNode::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
   {
   if (DoLookUp)
     {
@@ -124,16 +129,17 @@ pchar CTNode::Tag(pchar ReqdTag)
     if (ReqdTag && pMap)
       {
       pMap->RemoveKey(TaggedObject::Tag());
-      pchar p=TaggedObject::Tag(ReqdTag);
+      pchar p=TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
       pMap->SetAt(TaggedObject::Tag(), this);
       return p;
       }
     else
-      return TaggedObject::Tag(ReqdTag);
+      return TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
     }
   else
-    return TaggedObject::Tag(ReqdTag);
+    return TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
   }
+
 
 //--------------------------------------------------------------------------
 

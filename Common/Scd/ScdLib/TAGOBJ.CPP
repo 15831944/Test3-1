@@ -208,13 +208,13 @@ CGlobalInterfaceTable g_GIT;
 //
 //========================================================================
 
-const pchar OtherReservedTags [] =
+const LPSTR OtherReservedTags [] =
   {
   PlantModelTag
   };
 const int OtherReservedTagsCnt = sizeof(OtherReservedTags)/sizeof(OtherReservedTags[0]);
 
-const pchar DollarReservedTags [] =
+const LPSTR DollarReservedTags [] =
   {
   "$PB",
   "$Dyn",
@@ -255,7 +255,7 @@ char* TagObjClass::BaseClassId() { return sBaseClassId(); };
 
 // -------------------------------------------------------------------------
 
-TagObjClass::TagObjClass(pchar pClassName_, pchar pGroup_, pchar pClassId_, pchar pSubClassId_, pchar pVersion_, pchar pDrwGroup_, pchar pTagInitialID_, dword dwCat_, pchar pShortDesc_, pchar pDesc_, DWORD dwSelectMask_) 
+TagObjClass::TagObjClass(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat_, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask_) 
 #if WITHEQUIPSPECS
 : m_CustomData(this),
 m_SelectData(this)
@@ -504,7 +504,7 @@ void TagObjClass::DumpAll()
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindClassName(pchar ClassName_)
+TagObjClass* TagObjClass::FindClassName(LPSTR ClassName_)
   {
   StartupLock.Lock();
   TagObjClass* p=pFirstClass;
@@ -516,7 +516,7 @@ TagObjClass* TagObjClass::FindClassName(pchar ClassName_)
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindClassId(pchar ClassId_, flag fWithVersion/*=True*/, LPCTSTR SubClass/*=NULL*/)
+TagObjClass* TagObjClass::FindClassId(LPSTR ClassId_, flag fWithVersion/*=True*/, LPCTSTR SubClass/*=NULL*/)
   {
   StartupLock.Lock();
   TagObjClass* p=pFirstClass;
@@ -562,7 +562,7 @@ Done:
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindGroupId(pchar GroupId_)
+TagObjClass* TagObjClass::FindGroupId(LPSTR GroupId_)
   {
   StartupLock.Lock();
   TagObjClass* p=pFirstClass;
@@ -574,7 +574,7 @@ TagObjClass* TagObjClass::FindGroupId(pchar GroupId_)
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex)
+TagObjClass* TagObjClass::FindClassIndexed(LPSTR GroupId_, int iIndex)
   {
   iIndex++;
   StartupLock.Lock();
@@ -597,7 +597,7 @@ TagObjClass* TagObjClass::FindClassIndexed(pchar GroupId_, int iIndex)
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindGrpClassId(pchar ClassId_)
+TagObjClass* TagObjClass::FindGrpClassId(LPSTR ClassId_)
   {
   TagObjClass* p=pFirstClassInGrp;
   while (p && strcmpi(p->sClassId(), ClassId_)!=0)
@@ -616,7 +616,7 @@ void TagObjClass::GetShortDesc(Strng &S)
 
 // -------------------------------------------------------------------------
 
-TagObjClass* TagObjClass::FindGrpShortDesc(pchar ShortDesc_)
+TagObjClass* TagObjClass::FindGrpShortDesc(LPSTR ShortDesc_)
   {
   Strng S;
   TagObjClass* p=pFirstClassInGrp;
@@ -650,7 +650,7 @@ TagObjClass* TagObjClass::FindDuplicateClassId(TagObjClass* pStartAt)
 
 //---------------------------------------------------------------------------
 
-TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubClassId, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
+TaggedObject *TagObjClass::Construct(LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId, LPSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
   {
   TagObjClass* pC=FindClassId(pClassId_); //ClassId's MUST be unique system wide
   TaggedObject *pO=NULL;
@@ -682,7 +682,7 @@ TaggedObject *TagObjClass::Construct(pchar pGroup_, pchar pClassId_, pchar pSubC
 
 //---------------------------------------------------------------------------
 
-TaggedObject *TagObjClass::ConstructGrp(pchar pClassId_, pchar pSubClassId, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
+TaggedObject *TagObjClass::ConstructGrp(LPSTR pClassId_, LPSTR pSubClassId, LPSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
   {
   TagObjClass* pC=FindGrpClassId(pClassId_);
   TaggedObject *pO=NULL;
@@ -716,7 +716,7 @@ TaggedObject *TagObjClass::ConstructGrp(pchar pClassId_, pchar pSubClassId, pcha
 
 //---------------------------------------------------------------------------
 
-TaggedObject *TagObjClass::ConstructGrpDesc(pchar pShortDesc_, pchar pSubClassId, pchar pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
+TaggedObject *TagObjClass::ConstructGrpDesc(LPSTR pShortDesc_, LPSTR pSubClassId, LPSTR pRqdTag, TaggedObject *pAttach, TagObjAttachment eAttach)
   {
   TagObjClass* pC=FindGrpShortDesc(pShortDesc_);
   TaggedObject *pO=NULL;
@@ -743,7 +743,7 @@ TaggedObject *TagObjClass::ConstructGrpDesc(pchar pShortDesc_, pchar pSubClassId
 
 //---------------------------------------------------------------------------
 
-TaggedObject *TagObjClass::Construct(pchar pSubClassId, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
+TaggedObject *TagObjClass::Construct(LPSTR pSubClassId, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
   {
   if (pSubClassId && strlen(pSubClassId))
     {
@@ -757,7 +757,7 @@ TaggedObject *TagObjClass::Construct(pchar pSubClassId, pchar pTag, TaggedObject
 
 //---------------------------------------------------------------------------
 
-flag TagObjClass::EditorExists(pchar pGroup_, pchar pClassId_, pchar pRqdTag)
+flag TagObjClass::EditorExists(LPSTR pGroup_, LPSTR pClassId_, LPSTR pRqdTag)
   {
   TagObjClass* pC=FindClassId(pClassId_);
   if (pC)
@@ -1778,7 +1778,7 @@ INLINE DDBShortcut & DDBShortcut::operator=(const DDBShortcut & X)
   return *this;
   }
 
-INLINE void DDBShortcut::Set(DDBDataInfo * pDI, pchar FullItemTag, dword CurDataVer)
+INLINE void DDBShortcut::Set(DDBDataInfo * pDI, LPSTR FullItemTag, dword CurDataVer)
   {
   *(DDBDataInfo*)this=*pDI;
   fOK=True;
@@ -2316,7 +2316,7 @@ GlblTopologyChg TaggedObject::GlblTopoChg = {NULL, 0};
 //
 //===========================================================================
 
-TaggedObject::TaggedObject(TagObjClass* pClass_, pchar Tag_, TaggedObject *pAttach, TagObjAttachment eAttach)
+TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAttach, TagObjAttachment eAttach)
 #if WITHTAGMONITOR
 : m_Monitor(this)
 #endif
@@ -3091,20 +3091,29 @@ void TaggedObject::DetachMeFromOwner()
 
 // -------------------------------------------------------------------------
 
-pchar TaggedObject::Tag(pchar ReqdTag)
+LPSTR TaggedObject::Tag()
+  {
+  return m_sTag.Length()==0 ? "" : m_sTag();
+  }
+
+// -------------------------------------------------------------------------
+
+LPSTR TaggedObject::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
   {
   ASSERT(pAttachedTo!=NULL || eAttachment>TOA_Unknown);
-  if (ReqdTag)
+  if (ReqdTag || AllowEmptyTag)
     {
+    if (ReqdTag==NULL)
+      ReqdTag="";
+
     char buff[512];
     strcpy(buff, ReqdTag);
-    pchar p = strchr(buff, ' ');
+    LPSTR p = strchr(buff, ' ');
     if (p)
       *p=0;
     if (m_sTag.XStrCmp(buff)!=0)
       {
       m_sTag=buff;
-//      wObjDataVerNo++;
       StructureChanged(this);
       }
     SetFullObjTag();
@@ -3114,14 +3123,14 @@ pchar TaggedObject::Tag(pchar ReqdTag)
 
 // -------------------------------------------------------------------------
 
-pchar TaggedObject::Prefix(pchar ReqdPrefix)
+LPSTR TaggedObject::Prefix(LPSTR ReqdPrefix)
   {
   ASSERT(pAttachedTo!=NULL || eAttachment>TOA_Unknown);
   if (ReqdPrefix)
     {
     char buff[512];
     strcpy(buff, ReqdPrefix);
-    pchar p = strchr(buff, ' ');
+    LPSTR p = strchr(buff, ' ');
     if (p)
       *p=0;
     if (m_sPrefix.XStrCmp(buff)!=0)
@@ -3150,7 +3159,7 @@ Strng TaggedObject::PrefixTag()
   }
 //---------------------------------------------------------------------------
 
-int TaggedObject::TagCmp(pchar pTag, pchar pSrchTag, int MinTagLen)
+int TaggedObject::TagCmp(LPSTR pTag, LPSTR pSrchTag, int MinTagLen)
   {
   if (pSrchTag==NULL || pTag==NULL)
     return 0;
@@ -3172,7 +3181,7 @@ int TaggedObject::TagCmp(pchar pTag, pchar pSrchTag, int MinTagLen)
 
 //---------------------------------------------------------------------------
 
-int TaggedObject::TagCmpFn(pchar pTag, pchar pSrchTag, int MinTagLen)
+int TaggedObject::TagCmpFn(LPSTR pTag, LPSTR pSrchTag, int MinTagLen)
   {
   if (pSrchTag==NULL || pTag==NULL)
     return 0;
@@ -3194,7 +3203,7 @@ int TaggedObject::TagCmpFn(pchar pTag, pchar pSrchTag, int MinTagLen)
 
 //---------------------------------------------------------------------------
 
-TaggedObject *TaggedObject::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen)
+TaggedObject *TaggedObject::FindObjTag(LPSTR pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen)
   {
   return NULL;
   }
@@ -3205,7 +3214,7 @@ TaggedObject *TaggedObject::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTag
 //Strng TaggedObject::FullObjTagTmp[MaxFullObjTagTmp];
 //int   TaggedObject::FullObjTagTmpNo=0;
 
-//pchar TaggedObject::FullObjTag(byte What, flag SelfCall)
+//LPSTR TaggedObject::FullObjTag(byte What, flag SelfCall)
 //  {
 //  CSingleLock Lk(&FTOSect, TRUE);
 //  ASSERT(pAttachedTo!=NULL || eAttachment>TOA_Unknown);
@@ -3344,7 +3353,7 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
     {
     case xidTag       : 
       if (DCB.rpC)
-        Tag(DCB.rpC); 
+        SetTag(DCB.rpC); 
       DCB.pC=Tag(); 
       return 1;
     case xidParent    : DCB.pC=TagOfParent(); return 1;
@@ -3791,7 +3800,7 @@ flag TaggedObject::TestIfReservedTag(char* pTag)
 
 //---------------------------------------------------------------------------
 
-flag TaggedObject::CIStrng(int No, pchar & pS)
+flag TaggedObject::CIStrng(int No, LPSTR & pS)
   {
   // NB check CBCount is large enough.
   switch (No-CBContext())
@@ -5303,7 +5312,7 @@ flag DataDefnBlk::GetReqdLayout()
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::GetReqdBlock(flag & SearchingTag, pchar &pSrchTag)
+flag DataDefnBlk::GetReqdBlock(flag & SearchingTag, LPSTR &pSrchTag)
   {
   if (!Nest[lCallLevel].fSearching && !Nest[lCallLevel].fWantAll)
     {
@@ -5390,7 +5399,7 @@ flag DataDefnBlk::PutReqdItem()
 
 //------------------------------------------------------------------------
 
-flag DataDefnBlk::PutReqdBlock(flag & SearchingTag, pchar &pSrchTag)
+flag DataDefnBlk::PutReqdBlock(flag & SearchingTag, LPSTR &pSrchTag)
   {
   SearchingTag=False;
   flag WantItem=False;
@@ -5781,8 +5790,8 @@ void DataDefnBlk::dbgItem(DDBPkListItem &Item)
 //--------------------------------------------------------------------------
 
 flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
-                             pchar Tag, pchar ClassName, pchar SubClassName, pchar pSubClassName,
-                             pchar TagOfParent, pchar TagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress)
+                             LPSTR Tag, LPSTR ClassName, LPSTR SubClassName, LPSTR pSubClassName,
+                             LPSTR TagOfParent, LPSTR TagComment, dword UserInfo, long NElems, DDEF_Flags BlkFlags, dword RetAddress)
   {
   //CHKSTUFF0()
   VERIFY(iBlkDepth<sizeof(bBlkSuppressed));
@@ -5812,7 +5821,7 @@ flag DataDefnBlk::BeginBlock(byte Type, TaggedObject *Obj,
 #endif
 
   // In anticipation
-  pchar &pSrchTag =Nest[lCallLevel+1].pSrchTag;
+  LPSTR &pSrchTag =Nest[lCallLevel+1].pSrchTag;
   flag &fSearching=Nest[lCallLevel+1].fSearching;
 
   pSrchTag=Nest[lCallLevel].pSrchTag;
@@ -6013,10 +6022,10 @@ void DataDefnBlk::EndBlock(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginStruct(TaggedObject *Obj, pchar Tag, pchar TagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginStruct(TaggedObject *Obj, LPSTR Tag, LPSTR TagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
-  pchar pS= Tag ? Tag : Obj->Tag();
+  LPSTR pS= Tag ? Tag : Obj->Tag();
   flag SearchingTag=BeginBlock(tt_Struct, Obj, pS, NULL, NULL, NULL, NULL, TagComment, UserInfo, 0, BlkFlags, asmRetAddress);
   if (!bBlkSuppressed[iBlkDepth-1] && Nest[lCallLevel-1].fBlockReqd)
     Page(pS, PageIs);
@@ -6032,10 +6041,10 @@ void DataDefnBlk::EndStruct()
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginObject(TaggedObject *Obj, pchar Tag, pchar ObjectId, pchar TagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginObject(TaggedObject *Obj, LPSTR Tag, LPSTR ObjectId, LPSTR TagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
-  pchar pS= Tag ? Tag : Obj->Tag();
+  LPSTR pS= Tag ? Tag : Obj->Tag();
   flag SearchingTag=BeginBlock(tt_Object, Obj, pS, ObjectId, NULL, NULL, NULL, TagComment, UserInfo, 0, BlkFlags, asmRetAddress);
   if (!bBlkSuppressed[iBlkDepth-1] && Nest[lCallLevel-1].fBlockReqd)
     Page(pS, PageIs);
@@ -6083,10 +6092,10 @@ void DataDefnBlk::PopUserInfo()
 
 //------------------------------------------------------------------------
 
-void DataDefnBlk::Object(TaggedObject *Obj, TaggedObject *This, pchar Tag, pchar pTagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
+void DataDefnBlk::Object(TaggedObject *Obj, TaggedObject *This, LPSTR Tag, LPSTR pTagComment, DDBPages PageIs, dword UserInfo, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
-  pchar pS= Tag ? Tag : Obj->Tag();
+  LPSTR pS= Tag ? Tag : Obj->Tag();
   flag SearchingTag=BeginBlock(tt_Object, Obj, pS,
                                Obj->m_pClass->sClassId(), Obj->SubClassId(), Obj->GetPrimaryCfg(),
                                NULL, pTagComment, UserInfo, 0, BlkFlags, asmRetAddress);
@@ -6103,7 +6112,7 @@ void DataDefnBlk::Object(TaggedObject *Obj, TaggedObject *This, pchar Tag, pchar
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginArray(TaggedObject *pObj, pchar pTag, pchar pClassName, int nElem, long Handle, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginArray(TaggedObject *pObj, LPSTR pTag, LPSTR pClassName, int nElem, long Handle, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
   flag SearchingTag=BeginBlock(tt_Array, pObj, pTag, pClassName, NULL, NULL, NULL, NULL, -1, nElem, BlkFlags, asmRetAddress);
@@ -6111,7 +6120,7 @@ flag DataDefnBlk::BeginArray(TaggedObject *pObj, pchar pTag, pchar pClassName, i
     {
     if (PageIs!=DDB_NoPage)
       {
-      pchar pS= pTag ? pTag : pObj->Tag();
+      LPSTR pS= pTag ? pTag : pObj->Tag();
       Page(pS, PageIs);
       }
     if ((eTask==DDBTask_PutData) && (Handle>0))
@@ -6143,7 +6152,7 @@ flag DataDefnBlk::BeginArray(TaggedObject *pObj, pchar pTag, pchar pClassName, i
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, LPSTR TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
   if (!AInfo[iADepth].m_ElementClosed && AInfo[iADepth].iIndex>=0)
@@ -6157,7 +6166,7 @@ flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, pchar TagC
     {
     if (PageIs!=DDB_NoPage)
       {
-      pchar pS= cElementTag ? cElementTag : pObj->Tag();
+      LPSTR pS= cElementTag ? cElementTag : pObj->Tag();
       Page(pS, PageIs);
       }
     }
@@ -6167,7 +6176,7 @@ flag DataDefnBlk::BeginElement(TaggedObject *pObj, int iElementIndex, pchar TagC
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginElement(TaggedObject *pObj, LPCTSTR pElementTag, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginElement(TaggedObject *pObj, LPCTSTR pElementTag, LPSTR TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   CHKSTUFF0();
   if (!AInfo[iADepth].m_ElementClosed && AInfo[iADepth].iIndex>=0)
@@ -6213,7 +6222,7 @@ void DataDefnBlk::EndArray(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, LPSTR Tag, LPSTR ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
 
@@ -6227,7 +6236,7 @@ flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, in
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, pchar ColHdr, pchar RowHdr, DDBPages PageIs, DDEF_Flags BlkFlags)
+flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, LPSTR Tag, LPSTR ClassName, int MaxCols, int MaxRows, int ColWidth, int Gap, LPSTR ColHdr, LPSTR RowHdr, DDBPages PageIs, DDEF_Flags BlkFlags)
   {
   flag Ret=BeginArray(Obj, Tag, ClassName, MaxCols*MaxRows, -1, PageIs, BlkFlags/*|DDEF_STARTMATRIX*/);
 
@@ -6248,7 +6257,7 @@ flag DataDefnBlk::BeginMatrix(TaggedObject * Obj, pchar Tag, pchar ClassName, in
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags Flags)
+flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRowIndex, LPSTR TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags Flags)
   {
   if (iRowIndex > AInfo[iADepth].m_PrevRow)
     {
@@ -6260,7 +6269,7 @@ flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, int iColIndex, int iRow
 
 //---------------------------------------------------------------------------
 
-//flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, pchar TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
+//flag DataDefnBlk::BeginMatrixElement(TaggedObject * Obj, LPCTSTR pColTag, LPCTSTR pRowTag, LPSTR TagComment, dword UserInfo, DDBPages PageIs, DDEF_Flags BlkFlags)
 //  {
 //  };
 
@@ -6281,7 +6290,7 @@ void DataDefnBlk::EndMatrix(DDEF_Flags Flags)
 
 //---------------------------------------------------------------------------
 
-flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows, int Width, int Gap)
+flag DataDefnBlk::BeginGrid(LPSTR Text, int MaxCols, int MaxRows, int Width, int Gap)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6302,7 +6311,7 @@ flag DataDefnBlk::BeginGrid(pchar Text, int MaxCols, int MaxRows, int Width, int
 
 //---------------------------------------------------------------------------
 
-void DataDefnBlk::ColumnHeader(pchar Text, int Width, int Gap, int Justification)
+void DataDefnBlk::ColumnHeader(LPSTR Text, int Width, int Gap, int Justification)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6345,7 +6354,7 @@ void DataDefnBlk::ColumnHeader(pchar Text, int Width, int Gap, int Justification
 
 //---------------------------------------------------------------------------
 
-void DataDefnBlk::RowHeader(pchar Text)
+void DataDefnBlk::RowHeader(LPSTR Text)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6361,7 +6370,7 @@ void DataDefnBlk::RowHeader(pchar Text)
 
 //---------------------------------------------------------------------------
 
-void DataDefnBlk::RowStart(pchar Text)
+void DataDefnBlk::RowStart(LPSTR Text)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6377,7 +6386,7 @@ void DataDefnBlk::RowStart(pchar Text)
 
 //---------------------------------------------------------------------------
 
-void DataDefnBlk::EndGrid(pchar Text)
+void DataDefnBlk::EndGrid(LPSTR Text)
   {
   if (eTask==DDBTask_GetData)
     {
@@ -6393,7 +6402,7 @@ void DataDefnBlk::EndGrid(pchar Text)
 
 //---------------------------------------------------------------------------
 
-//INLINE void DataDefnBlk::ColumnHeader(pchar Txt, int Width, int Gap, DDEF_Flags Flags)
+//INLINE void DataDefnBlk::ColumnHeader(LPSTR Txt, int Width, int Gap, DDEF_Flags Flags)
 //  {
 //  iFlags=Nest[lCallLevel].dwDefaultFlags|Flags;
 //  switch (eTask)
@@ -6424,7 +6433,7 @@ void DataDefnBlk::EndGrid(pchar Text)
 //  };
 //
 //
-//INLINE void DataDefnBlk::RowHeader(pchar Txt, DDEF_Flags Flags)
+//INLINE void DataDefnBlk::RowHeader(LPSTR Txt, DDEF_Flags Flags)
 //  {
 //  iFlags=Nest[lCallLevel].dwDefaultFlags|Flags;
 //  switch (eTask)
@@ -6729,7 +6738,7 @@ void DataDefnBlk::DoChar()
 
 //---------------------------------------------------------------------------
 
-//void DataDefnBlk::IndexedStrValue(int iVal, pchar pStr)
+//void DataDefnBlk::IndexedStrValue(int iVal, LPSTR pStr)
 //  {
 //  if (eTask==DDBTask_GetData && Nest[lCallLevel].fReqd)
 //    {
@@ -7336,14 +7345,14 @@ void DataDefnBlk::ParseParms(DDBFnParms * ParmDefs)
 
 //------------------------------------------------------------------------
 
-void DataDefnBlk::Add_OnOff(pchar pTag, pflag pOn, TaggedObject *pOwn, dword Flags)
+void DataDefnBlk::Add_OnOff(LPSTR pTag, pflag pOn, TaggedObject *pOwn, dword Flags)
   {
   Bool("",    pTag,  DC_,    "",     pOn,     pOwn, Flags, DDBOnOff);
   }
 
 //---------------------------------------------------------------------------
 
-void DataDefnBlk::Add_YesNo(pchar pTag, pflag pYes, TaggedObject *pOwn, dword Flags)
+void DataDefnBlk::Add_YesNo(LPSTR pTag, pflag pYes, TaggedObject *pOwn, dword Flags)
   {
   Bool("",    pTag,  DC_,    "",     pYes,     pOwn, Flags, DDBYesNo);
   }
@@ -7540,7 +7549,7 @@ TagAccessBlk::TagAccessBlk()
 
 //--------------------------------------------------------------------------
 
-TagAccessBlk::TagAccessBlk(TaggedObject *pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
+TagAccessBlk::TagAccessBlk(TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
   {
   //pTag = NULL;
   m_pPrevValues=NULL;
@@ -7590,7 +7599,7 @@ TagAccessBlk& TagAccessBlk::operator=(const TagAccessBlk&X)
 
 //--------------------------------------------------------------------------
 
-void TagAccessBlk::Init(TaggedObject *pSrchRoot_, pchar Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
+void TagAccessBlk::Init(TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
   {
   TaggedObject::SplitTagCnv(Tag_, sTag, sCnvTxt);
   pSrchRoot=pSrchRoot_;

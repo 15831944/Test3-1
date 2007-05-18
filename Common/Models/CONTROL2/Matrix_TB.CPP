@@ -42,7 +42,7 @@ CMatrixTB::CMatrixTB(CMatrixTB& Fn) :
   TaggedObject(Fn.m_pClass, "", Fn.pAttachedTo, Fn.eAttachment)
   {
   Strng s = Fn.TagRef();
-  TaggedObject::Tag(s());
+  TaggedObject::SetTag(s());
 
   }
 
