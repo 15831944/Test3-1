@@ -14,7 +14,7 @@ afuns = [m.group(1) for m in [funre.search(line) for line in f] if m]
 f.seek(0)
 asubs = [m.group(1) for m in [subre.search(line) for line in f] if m]
 f.seek(0)
-u = [re.compile( (restr % x) ) for x in afns]
+u = [re.compile( (restr % x) ) for x in afuns]
         
 subn = None
 callList = set()
