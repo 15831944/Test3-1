@@ -157,8 +157,8 @@ class DllImportExport AlcoaBayer : public SMBayerBase
 	  virtual double RefTemp() { return C_2_K(0.0); };
     virtual double msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
     virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
-    virtual double SaturationP(double T_, CSysVector * pMA=NULL, int iSatComp=-1);
-    virtual double SaturationT(double P_, CSysVector * pMA=NULL, int iSatComp=-1);
+    virtual double SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatDefn=NULL);
+    virtual double SaturationT(double P_, CSysVector * pMA=NULL, CSaturationDefn * pSatDefn=NULL);
     virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
     virtual double SpecieConc(double T_, int iSpNo, PhMask PhaseM);
 	  virtual double PhaseConc(double T_, PhMask Ph, PhMask PhaseM=som_ALL);
