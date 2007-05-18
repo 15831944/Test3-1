@@ -74,7 +74,7 @@ byte AlcoaBayer::sm_iFeedCalcMethod = FCM_Original;
 // ==========================================================================
 
 flag     CConcentrations::NaFactorOK=0;
-SpVector CConcentrations::NaFactor(0.0);
+SpVector CConcentrations::NaFactor(0);
 
 CConcentrations::CConcentrations(AlcoaBayer *pMdl) 
   { 

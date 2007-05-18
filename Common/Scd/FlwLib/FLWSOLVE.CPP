@@ -14677,11 +14677,9 @@ Done:;
           {
           if (FCB.Type()==TOF_DBase || !pObj->bSkipSnapLoad)
             {
-            dbgpln("TAB:Fnd");
             TagAccessBlk TAB(this, pItem->SymOrTag(), TABOpt_ForFile|TABOpt_AllInfo, TU_IndividuallyUnique);
             if (TAB.LoadAddress(true))
               {
-              dbgpln("   :Put");
               TAB.PutDefinedData(pData->List);
               TAB.ClearDDBLists();
               //Loaded=true;

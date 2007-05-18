@@ -498,7 +498,7 @@ class DllImportExport CDirectFlwIO
     void          InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, int LclIOId);
 
     void          Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo);
-    void          BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR Tag, DDBPages PgOpt, dword UserInfo, DWORD Options);
+    void          BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPSTR TagPrefix*/, LPSTR Tag, DDBPages PgOpt, dword UserInfo, DWORD Options);
     flag          DataXchg(DataChangeBlk & DCB);
     flag          ValidateData(ValidateDataBlk & VDB);
 

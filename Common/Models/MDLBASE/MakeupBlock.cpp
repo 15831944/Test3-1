@@ -149,7 +149,7 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
       if (m_SrcIO.Enabled && !DDB.ForFileSnpScn())
         {
         //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
-        m_SrcIO.BuildDataDefn(DDB, NULL, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+        m_SrcIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
         }
 
       if (m_pMakeupB)

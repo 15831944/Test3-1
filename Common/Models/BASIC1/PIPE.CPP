@@ -172,7 +172,6 @@ static DDBValueLst DDBXfCapOpt[]={
 
 void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   {
-  dbgpln("Pipe::BuildDataDefn  %s", m_sTag());
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
 
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
@@ -960,7 +959,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
 flag Pipe::DataXchg(DataChangeBlk & DCB)
   {
-  dbgpln("Pipe::DataXchg %12i %12i %s", DCB.lHandle, DCB.dwUserInfo, m_sTag());
   if (DCB.dwUserInfo==3 && m_FEP.DataXchg(DCB))
     return true;
   if (NoFlwIOs()>=2 && DCB.dwUserInfo==4 && IOFB(0,1)->DataXchg(DCB))

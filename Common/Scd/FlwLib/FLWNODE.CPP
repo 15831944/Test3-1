@@ -373,8 +373,8 @@ LPSTR FlwNode::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
 
 //--------------------------------------------------------------------------
 
-#define DBGCONNECTS    01
-#define DBGCONNECTMAP  01
+#define DBGCONNECTS    0
+#define DBGCONNECTMAP  0
 #define DBGCONNECTLIST 0
 #define DBGCONNECTADD  0
 
@@ -2911,14 +2911,17 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
   for (int i=0; !Enabled && i<m_AttachedDirectIOs.GetCount(); i++)
     Enabled=m_AttachedDirectIOs[i]->Enabled;
 
-  dbgpln("FlwNode::BuildDataDefnAreaIOs %s", m_sTag());
-
   if (/*NetDynamicMethod() &&*/ Enabled)
     {
     DDB.Visibility();
     DDB.Page("DirectIO", DDB_RqdPage);
-    for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
-      m_AttachedDirectIOs[i]->BuildDataDefn(DDB, "DIO", NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+
+    if (DDB.BeginArray(this, "DIO", "DirectIO", Joins.GetSize(), 0, DDB_NoPage))
+      {
+      for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+        m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+      }
+    DDB.EndArray();
     }
   };
 
@@ -2980,7 +2983,6 @@ void FlwNode::BuildCommonEndDefn(DataDefnBlk & DDB)
 
 flag FlwNode::DataXchgDefnAreaIOs(DataChangeBlk & DCB)
   {
-  dbgpln("FlwNode::DataXchgDefnAreaIOs %12i %12i %s", DCB.lHandle, DCB.dwUserInfo, FullObjTag());
   for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
     {
     if (DCB.dwUserInfo==99500+i)
@@ -3897,8 +3899,6 @@ static char IOTagTmp[256];
 
 flag FlwNode::DataXchg(DataChangeBlk & DCB)
   {
-  dbgpln("FlwNode::DataXchg            %12i %12i %s", DCB.lHandle, DCB.dwUserInfo, FullObjTag());
-
   if (DCB.dwUserInfo & UIIOFlag)
     {
     DWORD UI=DCB.dwUserInfo&(~UIIOFlag);
@@ -11068,7 +11068,7 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
 
 //--------------------------------------------------------------------------
 
-#define dbgDIOList 1
+#define dbgDIOList 0
 
 void CDirectFlwIO::ManageNdDirectIOs(bool AddIt)
   {
@@ -11198,20 +11198,26 @@ void CDirectFlwIO::Add_OnOff(DataDefnBlk &DDB, dword Flags, dword UserInfo)
 
 //--------------------------------------------------------------------------
 
-void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR Tag, DDBPages PgOpt, DWORD UserInfo, DWORD Options)
+void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefix*/, LPSTR Tag, DDBPages PgOpt, DWORD UserInfo, DWORD Options)
   {
-  dbgpln("CDirectFlwIO::BuildDataDefn %12i %s", UserInfo, m_sTag());
-
   if (!DDB.ForFileSnpScn() && !Enabled)
     return;
-  CString XTag;
-  if (TagPrefix)
+
+  flag DoIt=false;
+  switch (Type)
     {
-    XTag = TagPrefix;
-    XTag += ".";
+    case tt_Struct:
+      DoIt=DDB.BeginStruct(m_pNd, Tag?Tag:m_sTag(), NULL, PgOpt, UserInfo);
+      break;
+    case tt_Element:
+      DoIt=DDB.BeginElement(m_pNd, Tag?Tag:m_sTag(), NULL, UserInfo, PgOpt);
+      break;
+    default:
+      _asm int 3;
+      break;
     }
-  XTag += Tag ? Tag:m_sTag();
-  if (DDB.BeginObject(m_pNd, XTag.GetBuffer(), "DirectedIO", NULL, PgOpt, UserInfo))
+
+  if (DoIt)
     {
     DDB.String  (m_sRmtTypeName(),     "",       DC_,      "",       xidRmtTag,       m_pNd, isParmStopped|isTag);
 
@@ -11225,8 +11231,6 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR T
         {TOD_Disconected , "Disconnected"   },
         {0}
       };
-
-    dbgpln("CDirectFlwIO::Build %-20s %s", m_sTag(), XTag.GetBuffer());
 
     DDB.String  ("Flange",             "",       DC_,      "",   xidDIOFlangeTag,    m_pNd, (DDB.ForFileSnpScn()?isParm:0/*isResult*/)|isTag/*|hasNoGrf*/);
     if (!DDB.ForFileSnpScn())
@@ -11248,7 +11252,15 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, LPCTSTR TagPrefix, LPCTSTR T
     if (!m_bIsXfer)
       m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, m_pNd, NULL, UserInfo);
     }
-  DDB.EndObject();
+
+  switch (Type)
+    {
+    case tt_Struct:
+      DDB.EndStruct();
+      break;
+    case tt_Element:
+      break;
+    }
   };
 
 //--------------------------------------------------------------------------
@@ -11283,8 +11295,6 @@ LPCTSTR CDirectFlwIO::TargetStr(flag ForFiling)
 
 flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
   {
-  dbgpln("CDirectFlwI::DataX %-20s ", m_sTag());
-  
   if (/*DCB.dwUserInfo==1 &&*/ m_FEP.DataXchg(DCB))
     return 1;
   switch (DCB.lHandle)

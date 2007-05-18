@@ -143,7 +143,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
 
       if (m_SnkIO.Enabled && !DDB.ForFileSnpScn())
         {
-        m_SnkIO.BuildDataDefn(DDB, NULL, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
+        m_SnkIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
         }
 
       if (m_pBleedB)
