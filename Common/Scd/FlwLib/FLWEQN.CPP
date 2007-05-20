@@ -276,8 +276,9 @@ CFlwEqn::CFlwEqn(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObj
   m_FlwRqd.m_PressQm    = 1000;
   m_FlwRqd.m_PressQv    = 1;
 
-  m_FlwRqd.m_BatchMethod = BO_None;
-  m_FlwRqd.m_RqdMBatch  = dNAN;
+  m_FlwRqd.m_BatchMethod  = BO_None;
+  m_FlwRqd.m_RqdMBatch    = dNAN;
+  m_FlwRqd.m_RqdMBatchTtl = 0.0;
   };
 
 flag CFlwEqn::DataXchg(DataChangeBlk & DCB)
@@ -1095,6 +1096,7 @@ void CFlwEqnPtr::BuildDataDefn(long DDOptions, DataDefnBlk & DDB, pTaggedObject 
           DDEF_Flags Vis=DDB.Visibility(NSHM_All, FlwRqd().m_BatchMethod==BO_TotalMass);
           DDB.Double ("M.Batch",         "",             DC_M,    "kg",    xidFlwEqnMBatch, pOwnObj, isParm|NAN_OK, DDBNAN_NotSpecd);
           DDB.Double ("M.BatchAddition", "",             DC_M,    "kg",    xidFlwEqnIncMBatch, pOwnObj, isParm|noFileAtAll);
+          DDB.Double ("M.BatchTtl",      "",             DC_M,    "kg",    xidFlwEqnMBatchTtl, pOwnObj, isResult|InitHidden);
           DDB.Text("");
           DDB.Visibility(Vis);
           }
@@ -1296,12 +1298,23 @@ flag CFlwEqnPtr::DataXchg(DataChangeBlk & DCB)
         }
       DCB.D=Eqn()->m_FlwRqd.m_RqdMBatch;
       return 1;
+    case xidFlwEqnMBatchTtl:
+      if (DCB.rD)
+        {
+        CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
+        FR.m_RqdMBatchTtl=*DCB.rD;
+        }
+      DCB.D=Eqn()->m_FlwRqd.m_RqdMBatchTtl;
+      return 1;
     case xidFlwEqnIncMBatch:
       if (DCB.rD)
         {
         CFlwEqnFlwRqd &FR=Eqn()->m_FlwRqd;
         if (Valid(FR.m_RqdMBatch))
+          {
+          FR.m_RqdMBatchTtl+=*DCB.rD;
           FR.m_RqdMBatch+=*DCB.rD;
+          }
         else
           FR.m_RqdMBatch=0.0;
         }

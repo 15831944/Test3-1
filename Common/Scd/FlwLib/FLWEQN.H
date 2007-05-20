@@ -70,12 +70,13 @@ XID xidFlwEqnQvReqd         = FlwXID(10025);
 XID xidFlwEqnBatchMethod    = FlwXID(10026);
 XID xidFlwEqnMBatch         = FlwXID(10027);
 XID xidFlwEqnIncMBatch      = FlwXID(10028);
-XID xidFlwEqnQmRqdCapacity  = FlwXID(10029);
-XID xidFlwEqnQmMinCapacity  = FlwXID(10030);
-XID xidFlwEqnQmMaxCapacity  = FlwXID(10031);
-XID xidFlwEqnQvRqdCapacity  = FlwXID(10032);
-XID xidFlwEqnQvMinCapacity  = FlwXID(10033);
-XID xidFlwEqnQvMaxCapacity  = FlwXID(10034);
+XID xidFlwEqnMBatchTtl      = FlwXID(10029);
+XID xidFlwEqnQmRqdCapacity  = FlwXID(10030);
+XID xidFlwEqnQmMinCapacity  = FlwXID(10031);
+XID xidFlwEqnQmMaxCapacity  = FlwXID(10032);
+XID xidFlwEqnQvRqdCapacity  = FlwXID(10033);
+XID xidFlwEqnQvMinCapacity  = FlwXID(10034);
+XID xidFlwEqnQvMaxCapacity  = FlwXID(10035);
 
 //XID xidFlwEqnPressOn        = FlwXID(10040);
 XID xidFlwEqnNomDP          = FlwXID(10041);
@@ -394,6 +395,7 @@ class DllImportExport CFlwEqnFlwRqd
 
     long          m_BatchMethod;
     double        m_RqdMBatch;
+    double        m_RqdMBatchTtl;
 
   };
 

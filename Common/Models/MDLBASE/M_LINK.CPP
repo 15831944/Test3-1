@@ -2111,6 +2111,7 @@ void MN_Lnk::SetState(eScdMdlStateActs RqdState)
     case MSA_DynStatsRunInit:
       if (pStats)
         pStats->ResetStats();
+      m_FEP.FlwRqd().m_RqdMBatchTtl = 0.0;
       break;
     }
   };
