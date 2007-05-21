@@ -482,11 +482,14 @@ extern DllImportExport Strng gs_DirectFlwIOTagDefault;
 
 //---------------------------------------------------------------------------
 
-const DWORD DFIO_ShowQm = 0x00000001;
+const DWORD DFIO_ShowQm     = 0x00000001;
+const DWORD DFIO_ShowSrcTag = 0x00000002;
+const DWORD DFIO_ShowDstTag = 0x00000004;
 
 class DllImportExport CDirectFlwIO
   {
   friend class FlwNode;
+  friend class CConnect;
   public:
 
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
@@ -597,8 +600,9 @@ class DllImportExport CDirectFlwIO
     int           m_iLclIOId;
     int           m_NdSignImp;
 
-    Strng         m_sReqdConnTag;
+    Strng         m_sConnTagMem;
     CFlange     * m_pFlng;
+
     CAreaSum    * m_pSum;
     bool          m_bDeleteSum;
     flag          m_EvalFlowEquationsReturn; 
@@ -1455,6 +1459,7 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     flag           IsEvalSeqStart()             { return m_fIsEvalSeqStart; };
 
     void           FixTag(LPCSTR ReqdTag=NULL, bool TagFixed=false);
+    void           InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName);
 
     // CSFGNodeInfo Overides
     virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullObjTag(); };
@@ -1470,8 +1475,9 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     int            m_iIODst;
     int            m_iIdSrc;
     int            m_iIdDst;
-    FlwNode*       m_pRefNd;
-    //Strng          m_sRefIOTg;
+    
+    Strng          m_sRefIOTg;
+    
     POSITION       m_ListPosn;
 
   private:

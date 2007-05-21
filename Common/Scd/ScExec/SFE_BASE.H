@@ -33,20 +33,21 @@ const dword nc_Parent     = 0x00000002;
 const dword nc_StandAlone = 0x00000004;
 const dword nc_Audit      = 0x00000008;
 
-const dword nc_Process    = eScdNodeType_Process;// 0x00000010; // Process Classes
-const dword nc_MXfer      = eScdNodeType_MXfer  ;// 0x00000020;
-const dword nc_MSrcSnk    = eScdNodeType_MSrcSnk;// 0x00000040;
-const dword nc_MLnk       = eScdNodeType_MLnk   ;// 0x00000080;
-const dword nc_MBst       = eScdNodeType_MBst   ;// 0x00000100;
-                                                
-const dword nc_Control    = eScdNodeType_Control;// 0x00001000; // Conrol Classes
-const dword nc_CLnk       = eScdNodeType_CLnk   ;// 0x00002000;
-                                                    
-const dword nc_Elec       = eScdNodeType_Elec   ;// 0x00010000; // Power Transmission Classes
-const dword nc_ELnk       = eScdNodeType_ELnk   ;// 0x00020000; 
-const dword nc_HLnk       = eScdNodeType_HLnk   ;// 0x00040000;
-const dword nc_ALnk       = eScdNodeType_ALnk   ;// 0x00080000;
-const dword nc_Cbl        = eScdNodeType_Cbl    ;// 0x00100000;
+const dword nc_Process    = eScdNodeType_Process  ;// 0x00000010; // Process Classes
+const dword nc_MXfer      = eScdNodeType_MXfer    ;// 0x00000020;
+const dword nc_MSrcSnk    = eScdNodeType_MSrcSnk  ;// 0x00000040;
+const dword nc_MLnk       = eScdNodeType_MLnk     ;// 0x00000080;
+const dword nc_MBst       = eScdNodeType_MBst     ;// 0x00000100;
+const dword nc_MkupBled   = eScdNodeType_MkupBled ;// 0x00000200;
+
+const dword nc_Control    = eScdNodeType_Control  ;// 0x00001000; // Conrol Classes
+const dword nc_CLnk       = eScdNodeType_CLnk     ;// 0x00002000;
+                                                      
+const dword nc_Elec       = eScdNodeType_Elec     ;// 0x00010000; // Power Transmission Classes
+const dword nc_ELnk       = eScdNodeType_ELnk     ;// 0x00020000; 
+const dword nc_HLnk       = eScdNodeType_HLnk     ;// 0x00040000;
+const dword nc_ALnk       = eScdNodeType_ALnk     ;// 0x00080000;
+const dword nc_Cbl        = eScdNodeType_Cbl      ;// 0x00100000;
 
 #define FlwUnitGrp  "FlwUnit"
 #define FlwLinkGrp  "FlwLink"

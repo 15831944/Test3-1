@@ -42,6 +42,7 @@ typedef enum eScdNodeTypes
   eScdNodeType_MSrcSnk    = 0x00000040,
   eScdNodeType_MLnk       = 0x00000080,
   eScdNodeType_MBst       = 0x00000100,
+  eScdNodeType_MkupBled   = 0x00000200,
 
   eScdNodeType_Control    = 0x00001000, // Conrol Classes
   eScdNodeType_CLnk       = 0x00002000,

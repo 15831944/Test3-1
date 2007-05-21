@@ -109,6 +109,7 @@ MakeupSrc::MakeupSrc(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_CF(this)
   {
   AttachIOAreas(MakeupSrcIOAreaList);
+  //AttachClassInfo(nc_MSrcSnk|nc_Audit|nc_MkupBled,NULL);
   m_Content.SetView(SVV_AsMassFrac);
 
   m_CF.m_bAllowFlow = false;
@@ -219,6 +220,7 @@ BleedSnk::BleedSnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   MN_Area(pClass_, TagIn, pAttach, eAttach)
   {
   AttachIOAreas(BleedSnkIOAreaList);
+  //AttachClassInfo(nc_MSrcSnk|nc_Audit|nc_MkupBled,NULL);
   m_Content.SetView(SVV_AsMassFrac);  
   m_bForceAudit=true;
   }

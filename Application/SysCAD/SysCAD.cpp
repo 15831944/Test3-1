@@ -1960,7 +1960,9 @@ BOOL CSysCADApp::InitInstance()
   BOOL Ret=FALSE;
   _set_se_translator(XcpTranslateFunction);                        
   DWORD FPP_State=_controlfp(0,0);                                 
+#if _RELEASE
   try                                                              
+#endif
     {                                                              
     /* clear any outstanding exceptions */                         
     _clearfp();                                                    
@@ -1971,6 +1973,7 @@ BOOL CSysCADApp::InitInstance()
 
     FPP_RestoreExceptions(FPP_State);                             
     }       
+#if _RELEASE
   catch (MSysException e)                                         
     {                                                             
     _clearfp();                                                   
@@ -2006,14 +2009,18 @@ BOOL CSysCADApp::InitInstance()
     AfxMessageBox("Unknown Exception Occurred - During Initialise", MB_OK);                                       
     gs_License.Exit();
     }
+#endif
   return Ret;
   };
+
 int CSysCADApp::ExitInstance()
   {
   int Ret=0;
   _set_se_translator(XcpTranslateFunction);                        
   DWORD FPP_State=_controlfp(0,0);                                 
+#if _RELEASE
   try                                                              
+#endif
     {                                                              
     /* clear any outstanding exceptions */                         
     _clearfp();                                                    
@@ -2024,6 +2031,7 @@ int CSysCADApp::ExitInstance()
   
     FPP_RestoreExceptions(FPP_State);                             
     }       
+#if _RELEASE
   catch (MSysException e)                                         
     {                                                             
     _clearfp();                                                   
@@ -2059,6 +2067,7 @@ int CSysCADApp::ExitInstance()
     AfxMessageBox("Unknown Exception Occurred - During Exit", MB_OK);                                       
     gs_License.Exit();
     }
+#endif
   return Ret;
   };
 
@@ -2469,7 +2478,9 @@ int CSysCADApp::Run( )
   int Ret=0;
   _set_se_translator(XcpTranslateFunction);                        
   DWORD FPP_State=_controlfp(0,0);                                 
+#if _RELEASE
   try                                                              
+#endif
     {                                                              
     /* clear any outstanding exceptions */                         
     _clearfp();                                                    
@@ -2480,6 +2491,7 @@ int CSysCADApp::Run( )
 
     FPP_RestoreExceptions(FPP_State);                             
     }       
+#if _RELEASE
   catch (MSysException e)                                         
     {                                                             
     _clearfp();                                                   
@@ -2534,7 +2546,7 @@ int CSysCADApp::Run( )
 
     gs_License.Exit();
     }
-
+#endif
   return Ret;
   }
 

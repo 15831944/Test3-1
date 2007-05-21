@@ -367,6 +367,7 @@ void MN_Area::ResetData(flag Complete)
 
 // -------------------------------------------------------------------------
 
+#define WithGrid 0
 void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
   {
   Strng S;
@@ -416,21 +417,44 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
     DDB.Visibility();
     if (DDB.BeginStruct(this, "MU", NULL, DDB_RqdPage))
       {
+      int RowCount=0;
+      for (int i=0; i<NoFlwIOs(); i++)
+        {
+        if (IOId_Self(i)==IOId_AreaMakeupO)
+          RowCount++;
+        }
+
       DDB.Long("Count", "", DC_, "", xidMUCount, this, isResult|noFileAtAll);
+#if WithGrid 
+      DDB.BeginGrid("Makeups", 2, RowCount, 10,0);
+      DDB.ColumnHeader("    ", 4, 0, 0);
+      DDB.ColumnHeader("Flange", 20, 0, 0);
+      DDB.ColumnHeader("DstTag",    20, 0, 0);
+      DDB.ColumnHeader("Qm",     12, 0, 0);
+#endif
       if (DDB.BeginArray(this, "Out", NULL, DDB_NoPage))
         {
+        Strng Hdr;
         int j=0;
         for (int i=0; i<NoFlwIOs(); i++)
           {
           if (IOId_Self(i)==IOId_AreaMakeupO)
             {
+#if WithGrid 
+            DDB.RowHeader(Hdr.Set("[%i]", j));
+            DDB.RowStart();
+#endif
             DDB.BeginElement(this, j++);
-            DDB.String("Flange", "", DC_,   "",     xidMUTags,  i, this, isResult|noFileAtAll|isTag);
-            DDB.Double("Qm",     "", DC_Qm, "kg/s", xidMUFlows, i, this, isResult|noFileAtAll);
+            DDB.String("Flange", "", DC_,   "",     xidMUFlange,   i, this, isResult|noFileAtAll|isTag);
+            DDB.String("DstTag", "", DC_,   "",     xidMUDstTag,   i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",     "", DC_Qm, "kg/s", xidMUFlows,    i, this, isResult|noFileAtAll);
             }
           }
         }
       DDB.EndArray();
+#if WithGrid 
+      DDB.EndGrid();
+#endif
       DDB.Double("Total", "", DC_Qm, "kg/s", xidMUTotal, this, isResult|noFileAtAll);
       }
     DDB.EndStruct();
@@ -450,8 +474,9 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
           if (IOId_Self(i)==IOId_AreaBleedI)
             {
             DDB.BeginElement(this, j++);
-            DDB.String("Tagy", "", DC_,   "",     xidBLTags,  i, this, isResult|noFileAtAll|isTag);
-            DDB.Double("Qm",  "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+            DDB.String("Flange", "", DC_,   "",     xidBLFlange,  i, this, isResult|noFileAtAll|isTag);
+            DDB.String("SrcTag", "", DC_,   "",     xidBLSrcTag,  i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",     "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
             }
           }
         }
@@ -722,9 +747,11 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
       DCB.L=j;
       return 1;
       }
-    case xidMUTags:
-      DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
+    case xidMUFlange:
       DCB.pC=IOFlange(DCB.lHandle2)->FullObjTag();
+      return 1;
+    case xidMUDstTag:
+      DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
       return 1;
     case xidMUFlows:
       DCB.D=IOQm_Out(DCB.lHandle2);
@@ -747,7 +774,10 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
       DCB.L=j;
       return 1;
       }
-    case xidBLTags:
+    case xidBLFlange:
+      DCB.pC=IOFlange(DCB.lHandle2)->FullObjTag();
+      return 1;
+    case xidBLSrcTag:
       DCB.pC=Nd_Rmt(DCB.lHandle2)->FullObjTag();
       return 1;
     case xidBLFlows:

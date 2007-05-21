@@ -160,11 +160,13 @@ XID xidIO_CopyAdtHeatTotal    = MdlBsXID(5489);
 XID xidMUCount                = MdlBsXID(10000);
 XID xidMUFlows                = MdlBsXID(10001);
 XID xidMUTotal                = MdlBsXID(20000);
-XID xidMUTags                 = MdlBsXID(20001);
+XID xidMUFlange               = MdlBsXID(20001);
+XID xidMUDstTag               = MdlBsXID(20002);
 XID xidBLCount                = MdlBsXID(30000);
 XID xidBLFlows                = MdlBsXID(30001);
 XID xidBLTotal                = MdlBsXID(40000);
-XID xidBLTags                 = MdlBsXID(40001);
+XID xidBLFlange               = MdlBsXID(40001);
+XID xidBLSrcTag               = MdlBsXID(40002);
                                           
 // ==========================================================================
 

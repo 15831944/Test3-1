@@ -141,7 +141,7 @@ void CBleedBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment, 
       TagObjClass::GetSDescValueLst(CBleedBlock::GroupName, DDB0);
       DDB.String  ("Model",      "",       DC_    , "",      xidAdjustMdlNm  , m_pNd,m_fFixed ? 0 : isParm|SetOnChange, DDB0());
 
-      if (m_SnkIO.Enabled && !DDB.ForFileSnpScn())
+      if (m_SnkIO.Enabled && (!DDB.ForFileSnpScn()))// || PrjFileVerNo()<107))
         {
         m_SnkIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, DFIO_ShowQm);
         }

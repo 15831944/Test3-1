@@ -11705,10 +11705,18 @@ class CLTHelp
         //LPSTR pTag=p->Tag();
         //if (pTag && strlen(pTag)>0)
         //  {
+        if (p->Tag())
+          {
           if (m_DoingAll)
             m_pS=new Strng(p->Tag());
           else
             m_pS=m_TagList.Find(p->Tag());
+          }
+        else
+          {
+          m_pS=NULL;
+          int xxx=0;
+          }
         //  }
         }
 
@@ -11716,10 +11724,17 @@ class CLTHelp
       };
     void ConnLoopGetEnd(CConnect *p, int i)
       {
-      //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
-      m_pS->SetIndex(i);
-      if (m_DoingAll)
-        m_TagList.Append(m_pS);
+      if (m_pS)
+        {
+        //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
+        m_pS->SetIndex(i);
+        if (m_DoingAll)
+          m_TagList.Append(m_pS);
+        }
+      else
+        {
+        int xxx=0;
+        }
       };
 
     //CConnectMap::CPair * ConnLoopGetStart(CConnectMap::CPair *p)
@@ -11752,6 +11767,8 @@ class CLTHelp
 
 int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
   {
+  TryDoGlobalLinks();
+
   int N=0;
 
   CLTHelp LTH(this,TagList);
@@ -11847,6 +11864,7 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
       {
       while (pCn=LTH.ConnLoopGetStart(Pos, pCn))
         {
+        dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
         if (LTH.m_pS)
           {
           //pCn->fMarked=false;
@@ -12134,19 +12152,21 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
     {
     CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
     CFlange * pF=dynamic_cast<CFlange*>(pCn);
-    if (i>=Status.GetSize())
-      Status.SetSize(i+256);
-
-    LPSTR t=pCn->Tag();
-    if (t && strlen(t)>0)
+    if (pF)
       {
-      Status[i].m_Tag=t;
-      Status[i].m_dwFlags=pF->ModelStatus();
-      pF->m_dwPrevStatus=Status[i].m_dwFlags;
-      i++;
-      }
-    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+      if (i>=Status.GetSize())
+        Status.SetSize(i+256);
 
+      LPSTR t=pCn->Tag();
+      if (t && strlen(t)>0)
+        {
+        Status[i].m_Tag=t;
+        Status[i].m_dwFlags=pF->ModelStatus();
+        pF->m_dwPrevStatus=Status[i].m_dwFlags;
+        i++;
+        }
+      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+      }
     }
 
   //CConnectMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
@@ -12199,13 +12219,16 @@ int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
     {
     CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
     CFlange * pF=dynamic_cast<CFlange*>(pCn);
-    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-
-    LPSTR t=pCn->Tag();
-    if (t && strlen(t)>0)
+    if (pF)
       {
-      if (pF->m_dwPrevStatus!=pF->ModelStatus())
-        Cnt++;
+      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+
+      LPSTR t=pCn->Tag();
+      if (t && strlen(t)>0)
+        {
+        if (pF->m_dwPrevStatus!=pF->ModelStatus())
+          Cnt++;
+        }
       }
     }
 

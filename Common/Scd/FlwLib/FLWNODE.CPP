@@ -619,6 +619,9 @@ void  CConnect::ClrConnection()
     SetTag("", true);
     }
   };
+
+// --------------------------------------------------------------------------
+
 void  CConnect::SetConnection(const IOInfo & IOSrc, const IOInfo & IODst)
   {
   m_pNdSrc=IOSrc.p; 
@@ -630,9 +633,10 @@ void  CConnect::SetConnection(const IOInfo & IOSrc, const IOInfo & IODst)
   FixTag();
   }
 
+// --------------------------------------------------------------------------
+
 void CConnect::FixTag(LPCSTR ReqdTag, bool TagFixed)
   {
-  //Strng OldTag(Tag());
   Strng NewTag(Tag());
   
   if (ReqdTag && strlen(ReqdTag)>0)
@@ -643,40 +647,7 @@ void CConnect::FixTag(LPCSTR ReqdTag, bool TagFixed)
 
   if (!m_bTagFixed)
     {
-    if (m_pRefNd)
-      {
-      //if (m_sRefIOTg())
-      //  NewTag.Set("%s[%s]",m_pRefNd->FullObjTag(), m_sRefIOTg()?m_sRefIOTg():"???");
-      //else 
-      if (m_pRefNd==m_pNdSrc)
-        {
-        int IONo=1+m_iIOSrc-m_pNdSrc->IOWithId_Self(m_iIdSrc);
-        NewTag.Set("%s<%s%i>",m_pNdSrc->FullObjTag(), m_pNdSrc->IODesc_Self(m_iIOSrc)->IOName(), IONo);
-        }
-      else if (m_pRefNd==m_pNdDst)
-        {
-        int IONo=1+m_iIODst-m_pNdDst->IOWithId_Self(m_iIdDst);
-        NewTag.Set("%s<%s%i>",m_pNdDst->FullObjTag(), m_pNdDst->IODesc_Self(m_iIODst)->IOName(), IONo);
-        //NewTag.Set("%s[%s]", m_pNdDst->FullObjTag(), m_pNdDst->IODesc_Self(m_iIODst)->IOName());
-        }
-      else if (m_pNdSrc && m_pNdDst)
-        NewTag.Set("%s[%s]/%s[%s]", m_pNdSrc->FullObjTag(), m_pNdSrc->IODesc_Self(m_iIOSrc)->IOName(), m_pNdDst->FullObjTag(), m_pNdDst->IODesc_Self(m_iIODst)->IOName());
-      else
-        NewTag="???";
-      }
-    else
-      NewTag="????";
-    //if (m_pNdSrc && m_pNdDst)
-    //  {
-    //  if (m_pRefNd==m_pNdSrc)
-    //    NewTag.Set("%s[%s]",m_pNdSrc->FullObjTag(), m_pNdSrc->IODesc_Self(m_iIOSrc)->IOName());
-    //  else if (m_pRefNd==m_pNdDst)
-    //    NewTag.Set("%s[%s]", m_pNdDst->FullObjTag(), m_pNdDst->IODesc_Self(m_iIODst)->IOName());
-    //  else
-    //    NewTag.Set("%s[%s]/%s[%s]", m_pNdSrc->FullObjTag(), m_pNdSrc->IODesc_Self(m_iIOSrc)->IOName(), m_pNdDst->FullObjTag(), m_pNdDst->IODesc_Self(m_iIODst)->IOName());
-    //  }
-    //else
-    //  NewTag="";
+    NewTag=m_sRefIOTg();
     }
 
   if (NewTag.XStrICmp(Tag())!=0)
@@ -690,6 +661,117 @@ void CConnect::FixTag(LPCSTR ReqdTag, bool TagFixed)
   
   };
 
+// --------------------------------------------------------------------------
+
+static inline bool TestEqual(dword Type, dword Mask)   {   return ((Type & Mask) == Mask); }
+static inline long ExtractIndexFromTag(LPSTR Tag)
+  {
+  int iLen=strlen(Tag);
+  LPCSTR pOpen=strchr(Tag, '<');
+  if (pOpen)
+    {
+    LPCSTR pClose=pOpen+1;
+    while (((pClose-Tag)<iLen) && (*pClose!='>') && isdigit(*pClose))
+      pClose++;
+    if (*pClose=='>')
+      return SafeAtoL((pOpen+1), 0);
+    }
+  return 0;
+  }
+
+// --------------------------------------------------------------------------
+
+#define dbgInitConnId 0
+
+void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName)
+  {
+  FlwNode * p=NULL;
+  if (pRmtNd)
+    {
+    dword LclType = pNd->m_dwType;
+    dword RmtType = pRmtNd->m_dwType;
+#if dbgInitConnId
+    dbgp("InitConnId: 0x%08x %s 0x%08x > %s 0x%08x", this, pNd->Tag(), LclType, pRmtNd->Tag(), RmtType);
+    if ((stricmp(pNd->Tag(), "P_1")==0) && (stricmp(pRmtNd->Tag(), "PlantARea")==0))
+      { int xxx=0; };
+#endif
+    if (TestEqual(LclType, nc_Process) || TestEqual(LclType, nc_MXfer))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_Process) || TestEqual(RmtType, nc_MXfer))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MSrcSnk) && !TestEqual(LclType, nc_Audit))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MSrcSnk) && !TestEqual(RmtType, nc_Audit))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MBst))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MBst))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MLnk))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MLnk))
+      p=pRmtNd;    
+    else if (TestEqual(LclType, nc_MSrcSnk|nc_MkupBled))
+      p=pNd;
+    else if (TestEqual(RmtType, nc_MSrcSnk|nc_MkupBled))
+      p=pRmtNd;
+    else if (TestEqual(LclType, nc_MSrcSnk|nc_Audit))
+      p=pRmtNd; // Other End
+    else if (TestEqual(RmtType, nc_MSrcSnk|nc_Audit))
+      p=pNd;    // Other End
+    else
+      p=pNd;
+    }
+  else
+    {
+#if dbgInitConnId
+    dbgp("InitConnId: 0x%08x %s", this, pNd->Tag());
+#endif
+    p=pNd;
+    }  
+
+#if dbgInitConnId
+  dbgp("  [%s] ", p->Tag());
+#endif
+
+  long iNext=0;
+  // Must use m_IOs - NoFlwIOs does not return the correct values until all connections are made
+  for (int i=0; i<p->m_IOs.GetCount(); i++)
+    {
+    CConnect *pC=p->IOConnect(i);
+    if (pC)
+      {
+      LPSTR Tag=p->IOConnect(i)->m_sRefIOTg();
+      if (Tag)
+        iNext=Max(iNext, ExtractIndexFromTag(Tag));
+      }
+    }
+  for (int i=0; i<p->m_AttachedDirectIOs.GetCount(); i++)
+    {
+    CDirectFlwIO *pDIO=p->m_AttachedDirectIOs[i];
+    LPSTR pTag=NULL;
+    if (pDIO->HasConduit)
+      pTag=pDIO->Flange.FullObjTag();
+    else
+      pTag=pDIO->m_sConnTagMem();
+    if (pTag)
+      iNext=Max(iNext, ExtractIndexFromTag(pTag));
+    }
+  iNext++;
+
+  if (DIOName)
+    m_sRefIOTg.Set("%s<%i>%s",p->FullObjTag(), iNext, DIOName);
+  else
+    {
+    m_sRefIOTg.Set("%s<%i>%s",p->FullObjTag(), iNext, p==pNd ? IOName : IONameRmt);
+    }
+#if dbgInitConnId
+  dbgpln("    = %s", m_sRefIOTg());
+#endif
+  };
+
+// --------------------------------------------------------------------------
+
 void CConnect::AdjustConnection(FlwNode* This, int By)
   {
   if (m_pNdSrc==This)
@@ -697,6 +779,8 @@ void CConnect::AdjustConnection(FlwNode* This, int By)
   else
     m_iIODst=m_iIODst+By; 
   };
+
+// --------------------------------------------------------------------------
 
 void CConnect::BuildDataDefn(DataDefnBlk & DDB)
   {
@@ -2915,11 +2999,18 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
     {
     DDB.Visibility();
     DDB.Page("DirectIO", DDB_RqdPage);
-
-    if (DDB.BeginArray(this, "DIO", "DirectIO", Joins.GetSize(), 0, DDB_NoPage))
+    //if (PrjFileVerNo()<107)
+    //  {
+    //  for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+    //    m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Object, "DIO", DDB_NoPage, 99500+i, DFIO_ShowQm);
+    //  }
+    //else
       {
-      for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
-        m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm);
+      if (DDB.BeginArray(this, "DIO", PrjFileVerNo()<107 ? "DirectedIO":"DirectIO", Joins.GetSize(), 0, DDB_NoPage))
+        {
+        for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+          m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
+        }
       }
     DDB.EndArray();
     }
@@ -6344,6 +6435,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
     if (!ConnExists && Ret==0)
       {
       CFlange *pF = NULL;
+      bool DoInitConn=false;
       if (dwClass0&nc_MLnk)
         {
         for (int i=0; !pF && i<2; i++)
@@ -6352,11 +6444,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
           {
           pF                = (CFlange*)CFlangeClass.Construct("Flange" ,"" ,NULL , TOA_Free);// new CFlange(true);
           pF->m_bMustDelete = true;
-          pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
-          if (ConnectTag)
-            pF->FixTag(ConnectTag, true);
-          else
-            pF->FixTag();
+          DoInitConn=true;
           }
         else
           {
@@ -6384,7 +6472,18 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
         }
       else if (dwClass0&nc_ALnk)
         pT=(CAirTermX*)CAirTermXClass.Construct("AirTermX" ,"ATermTag" ,NULL , TOA_Free);// 
+      
       Ret = Connect(Info[0], Info[1], pF, pT, RqdIONo1, RqdIONo2);
+      if (pF && DoInitConn)
+        {
+        pF->InitConnId(Info[0].p, Info[0].p->IODesc_Self(Info[0].IOIndex)->IOName(0), 
+                       Info[1].p, Info[1].p->IODesc_Self(Info[1].IOIndex)->IOName(0), NULL);
+        //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
+        if (ConnectTag)
+          pF->FixTag(ConnectTag, true);
+        else
+          pF->FixTag();
+        }
       }
     else if (Ret==0)
       {
@@ -6462,6 +6561,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
     if (!ConnExists && Ret==0)
       {
       CFlange *pF = NULL;
+      bool DoInitConn=false;
       if (dwClass0&nc_MLnk)
         {
         for (int i=0; !pF && i<2; i++)
@@ -6471,11 +6571,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
           //pF=new CFlange(true);
           pF= (CFlange*)CFlangeClass.Construct("Flange" ,"" ,NULL , TOA_Free);// new CFlange(true);
           pF->m_bMustDelete=true;
-          pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
-          if (ConnectTag)
-            pF->FixTag(ConnectTag, true);
-          else
-            pF->FixTag();
+          DoInitConn=true;
           }
         }
       CTerminal *pT = NULL;
@@ -6503,6 +6599,18 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
       dbgpln(" .d %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
       Ret=Connect(Info[0], Info[1], pF, pT);
+
+      if (pF && DoInitConn)
+        {
+        pF->InitConnId(Info[0].p, Info[0].p->IODesc_SelfId(Info[0].Id)->IOName(0), 
+          Info[1].p, Info[1].p->IODesc_SelfId(Info[1].Id)->IOName(0), NULL);
+        //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
+        if (ConnectTag)
+          pF->FixTag(ConnectTag, true);
+        else
+          pF->FixTag();
+        }
+
 #if dbgKwikConnect
       dbgpln(" .e %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
 #endif
@@ -11164,7 +11272,8 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
     {
     m_pFlng                 = (CFlange*)CFlangeClass.Construct("Flange" ,""/*()*/ ,NULL , TOA_Free);
     m_pFlng->m_bMustDelete  = false;
-    m_pFlng->m_pRefNd       = m_pNd;
+    m_pFlng->InitConnId(m_pNd, NULL, NULL, NULL, m_sTag());
+    //m_pFlng->m_pRefNd       = m_pNd;
     //m_pFlng->m_sRefIOTg     = FlngTag;
     m_pFlng->FixTag();
 
@@ -11212,6 +11321,9 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
     case tt_Element:
       DoIt=DDB.BeginElement(m_pNd, Tag?Tag:m_sTag(), NULL, UserInfo, PgOpt);
       break;
+    case tt_Object:
+      DoIt=DDB.BeginObject(m_pNd, Tag ? Tag:m_sTag(), "DirectedIO", NULL, PgOpt, UserInfo);
+      break;
     default:
       _asm int 3;
       break;
@@ -11235,19 +11347,18 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
     DDB.String  ("Flange",             "",       DC_,      "",   xidDIOFlangeTag,    m_pNd, (DDB.ForFileSnpScn()?isParm:0/*isResult*/)|isTag/*|hasNoGrf*/);
     if (!DDB.ForFileSnpScn())
       {
-      DDB.String  ("SrcNode",            "",       DC_,      "",   xidDIOFlngSrcTag,   m_pNd, isResult|isTag);
-      DDB.String  ("DstNode",            "",       DC_,      "",   xidDIOFlngDstTag,   m_pNd, isResult|isTag);
+      if (Options&DFIO_ShowSrcTag)
+        DDB.String  ("SrcTag",            "",       DC_,      "",   xidDIOFlngSrcTag,   m_pNd, isResult|isTag);
+      if (Options&DFIO_ShowDstTag)
+        DDB.String  ("DstTag",            "",       DC_,      "",   xidDIOFlngDstTag,   m_pNd, isResult|isTag);
       DDB.Byte    ("Connect",            "",       DC_,      "",   xidConnectState,    m_pNd, 0, DDBConnected);
       }
-    //DDB.String  ("Area",        "",       DC_,      "",       xidRmtTagConnd,  m_pNd, 0);
-    //DDB.TagComment(m_sAreaSrc());
     if (!m_bIsXfer)
       DDB.Double  ("Opening",   "",       DC_Frac,  "%",      &m_Opening,        m_pNd, isParm);
-    //DDB.Text("");
+
     if (Options&DFIO_ShowQm)
       DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,    "kg/s",  xidDrctQm,         m_pNd, isResult);
-    //DDB.Double  ("VolFlowOut",  "QvOut",  DC_Qv,    "L/s",   xidDrctQv,         m_pNd, isResult);
-    //DDB.Double  ("NVolFlowOut", "NQvOut", DC_NQv,   "NL/s",  xidDrctNQv,        m_pNd, isResult);
+
     DDB.Text("");
     if (!m_bIsXfer)
       m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, m_pNd, NULL, UserInfo);
@@ -11259,6 +11370,9 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
       DDB.EndStruct();
       break;
     case tt_Element:
+      break;
+    case tt_Object:
+      DDB.EndObject();
       break;
     }
   };
@@ -11321,10 +11435,10 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
         if (m_pFlng)
           m_pFlng->SetTag(DCB.rpC);
         else
-          m_sReqdConnTag = DCB.rpC;
+          m_sConnTagMem = DCB.rpC;
         }
 
-      DCB.pC=m_pFlng ? m_pFlng->Tag():m_sReqdConnTag();
+      DCB.pC=m_pFlng ? m_pFlng->Tag():m_sConnTagMem();
       return 1;
 
     case xidDIOFlngSrcTag:
@@ -11529,9 +11643,17 @@ flag CDirectFlwIO::GlobalConnect()
     dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
     #endif
     IOInfoBlk Info;
-    if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].IOName(), m_pRmt, NdIORmt[iI].IOName(), &Info, m_sReqdConnTag())==0)
+    if (m_pNd->ConnectIOTag(m_pNd, NdIOLcl[iO].IOName(), m_pRmt, NdIORmt[iI].IOName(), &Info, m_sConnTagMem())==0)
       {
-      m_sReqdConnTag="";
+      if (m_sConnTagMem.Len()==0)
+        {
+        m_pFlng->InitConnId(m_pNd, NdIOLcl[iO].IOName(), 
+                            m_pRmt, NdIORmt[iI].IOName(), NULL);
+        }
+      else
+        {
+        m_sConnTagMem="";
+        }
       m_iMyConnectedIO = Info[0].IOIndex;
       int iEnvConnectedIO = Info[1].IOIndex;
       m_pNd->SetIOAutoConnect(m_iMyConnectedIO, true);
@@ -11568,11 +11690,8 @@ flag CDirectFlwIO::GlobalDisConnect()
     if (m_iMyConnectedIO>=0)
       {
       int io=m_pNd->IOWithId_Self(m_iLclDIOId);
-      m_sReqdConnTag=m_pNd->IOConnect(io)->Tag();
+      m_sConnTagMem = m_pNd->IOConnect(io)->Tag();
       m_pNd->DisConnect(io);
-      //m_iMyConnectedIO);
-      //m_sReqdConnTag=m_pNd->IOConnect(m_iMyConnectedIO)->Tag();
-      //m_pNd->DisConnect(m_iMyConnectedIO/*m_pNd->IOWithId_Self(m_iLclDIOId)*/);//m_iMyConnectedIO);
       m_iMyConnectedIO=-1;
       }
     }

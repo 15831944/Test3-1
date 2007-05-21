@@ -146,10 +146,17 @@ void CMakeupBase::BuildDataDefn(DataDefnBlk &DDB, char* pTag, char* pTagComment,
       TagObjClass::GetSDescValueLst(CMakeupBlock::GroupName, DDB0);
       DDB.String  ("Model",      "",       DC_    , "",      xidMakeupMdlNm  , m_pNd, m_fFixed ? 0 : isParmStopped|SetOnChange, DDB0());
 
-      if (m_SrcIO.Enabled && !DDB.ForFileSnpScn())
+      if (m_SrcIO.Enabled)
         {
-        //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
-        m_SrcIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+        if (PrjFileVerNo()<107)
+          {
+          m_SrcIO.BuildDataDefn(DDB, tt_Object, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+          }
+        else if (!DDB.ForFileSnpScn())// || PrjFileVerNo()<107))
+          {
+          //m_SrcIO.BuildDataDefn(DDB, NULL, DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+          m_SrcIO.BuildDataDefn(DDB, tt_Struct, "DIO", DDB_NoPage, UserInfo+102, 0);//DFIO_ShowQm);
+          }
         }
 
       if (m_pMakeupB)
@@ -1669,10 +1676,10 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dMeas       = dNAN;
     m_dSetPoint   = GetSetPoint();
     m_dResult     = dNAN;
-    ClrCI(1);
-    ClrCI(2);
-    ClrCI(3);
-    ClrCI(4);
+
+    for (int i=1; i<=11; i++)
+      ClrCI(i);
+
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
     }
@@ -1800,6 +1807,13 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
       Temp_Mixture,
       };
 
+    enum eLoFeed
+      {
+      LF_Ignore,
+      LF_StopMakeUp,
+      //LF_HoldMeasure,
+      };
+
     Strng           m_MyTag;
     eSource         m_eSource;
     double          m_QmMin;
@@ -1862,6 +1876,9 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     double          m_dTempKFeed;
     double          m_dTempKMakeup;
     double          m_dTempKProd;
+
+    eLoFeed         m_eLoFeedOpt;
+    double          m_LoFeedQm;
 
     Strng_List      m_ErrorLst;
 
@@ -1946,6 +1963,9 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_dTempKFeed  = C2K(0.0);
   m_dTempKMakeup= C2K(0.0);
   m_dTempKProd  = C2K(0.0);
+ 
+  m_eLoFeedOpt= LF_Ignore;
+  m_LoFeedQm  = 1.0;
   }
 
 //--------------------------------------------------------------------------
@@ -2098,6 +2118,14 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
       {}
     };
 
+  static DDBValueLst DDBLoFeed[] =
+    {                         
+      {LF_Ignore,           "Ignore"            },
+      {LF_StopMakeUp,       "StopMakeup"        },
+      //{LF_HoldMeasure,      "HoldAtLo"          },
+      {}
+    };
+
   const bool MassBasis = (m_eType==Type_MassFrac || m_eType==Type_MassFlow || m_eType==Type_MassRatio || m_eType==Type_MassMult);
   const bool VolBasis  = (m_eType==Type_VolumeFrac || m_eType==Type_VolumeFlow || m_eType==Type_VolumeRatio || m_eType==Type_VolumeMult);
   const bool NVolBasis = (m_eType==Type_NVolumeFrac || m_eType==Type_NVolumeFlow || m_eType==Type_NVolumeRatio || m_eType==Type_NVolumeMult);
@@ -2247,6 +2275,11 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
   DDB.Long       ("", "Source",           DC_,  "", (long*)&m_eSource,  this, isParm|SetOnChange, DDBSource);
   DDB.Double     ("QmMin", "",            DC_Qm, "kg/s", &m_QmMin, this, isParm);
   DDB.Double     ("QmMax", "",            DC_Qm, "kg/s", &m_QmMax, this, isParm);
+
+  DDB.Long       ("LoFeed.Options", "",   DC_,   "", (long*)&m_eLoFeedOpt, this, isParm|SetOnChange, DDBLoFeed);
+  DDB.Visibility (NSHM_All, m_eLoFeedOpt >LF_Ignore);
+  DDB.Double     ("LoFeed.Qm", "",        DC_Qm, "kg/s", &m_LoFeedQm, this, isParm);
+  DDB.Visibility ();
 
   static DDBValueLst DDBTemp[] = 
     {
@@ -2902,19 +2935,23 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dTempKFeed = QPrd.Temp();
     const double HzIn = QPrd.totHz();
 
+    bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
+
     StkSpConduit QIn("QIn", "MkUp", pNd);
     QIn().QCopy(QPrd);
 
     m_dMeas     = GetMeasVal(QIn(), QPrd);
     m_dFeedAct  = GetFlowValue(QIn());
 
-    bool CIsOn[7]={false,false,false,false,false,false,false};
+    bool CIsOn[8]={false,false,false,false,false,false,false};
+
     if (m_eSelect>=Slct_Specie)
       CIsOn[6]=(m_Species.GetCount()==0);
     else 
       CIsOn[5]=(m_Phases==0);
 
-    if (!CIsOn[5] && !CIsOn[6])
+    CIsOn[7]=StopMakeUp;
+    if (!StopMakeUp && !CIsOn[5] && !CIsOn[6])
       {
       SpConduit &QSrc=SrcIO.Cd;
 
@@ -2988,12 +3025,14 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       {
       m_dTempKMakeup = C2K(0.0);
       m_dQvMakeup = 0.0; 
+      SrcIO.Cd.QZero();
+      SrcIO.Sum.ZeroFlows();
       }
 
     if (!CIsOn[1])
       ClrCI(1);
 
-    for (int i=2; i<=6; i++)
+    for (int i=2; i<=7; i++)
       SetCI(i, CIsOn[i]);
 
     m_dSetPoint   = GetSetPoint();
@@ -3025,10 +3064,10 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     m_dSetPoint   = GetSetPoint();
     m_dResult     = dNAN;
     m_dHeatFlow   = 0.0;
-    ClrCI(1);
-    ClrCI(2);
-    ClrCI(3);
-    ClrCI(4);
+
+    for (int i=1; i<=7; i++)
+      ClrCI(i);
+
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
     }
@@ -3056,6 +3095,7 @@ flag CXBlk_MUSimple::CIStrng(int No, pchar & pS)
     case  4: pS="E\tMakeup has No Effect"; return 1;
     case  5: pS="E\tNo Phase Selected for Measurement"; return 1;
     case  6: pS="E\tNo Species Selected for Measurement"; return 1;
+    case  7: pS="W\tLow Feed - Makeup Stopped"; return 1;
     default:
       return CXBlk_MUSimple::CIStrng(No, pS);
     }

@@ -164,6 +164,7 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
 // 
 // ===========================================================================
 
+#if _RELEASE
 #define SCDTRY_THREAD                                               \
   /* Get Old fpControl */                                           \
   _set_se_translator(XcpTranslateFunction);                         \
@@ -215,11 +216,29 @@ inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )
     /*throw;*/                                                      \
     }
 
+#else
+
+#define SCDTRY_THREAD                                               \
+  /* Get Old fpControl */                                           \
+  _set_se_translator(XcpTranslateFunction);                         \
+  DWORD FPP_State=_controlfp(0,0);                                  \
+    {                                                               \
+    /* clear any outstanding exceptions */                          \
+    _clearfp();                                                     \
+    /* Set New fpControl */                                         \
+    _controlfp(_EM_DENORMAL|_EM_UNDERFLOW|_EM_INEXACT, _MCW_EM);
+
+
+#define SCDCATCH_THREAD(WhereStr)                                   \
+    FPP_RestoreExceptions(FPP_State);                               \
+    }                                                    
+
+#endif
 
 // ===========================================================================
 // 
 // ===========================================================================
-
+  
 #define SCDTRY                                                        \
     try
 
