@@ -32,6 +32,7 @@ using namespace System::Runtime::Remoting::Channels::Tcp;
 using namespace System::Data;
 using namespace System::Data::OleDb;
 using namespace System::Drawing;
+using namespace System::Diagnostics;
 
 using namespace SysCAD::Protocol;
 using namespace System::Runtime::Serialization::Formatters;
@@ -64,11 +65,30 @@ public:
   {
     LogNote("CNETServerThread", 0, "Startup");
 
-		// TODO: Shell execute Service with parameters projectPath & configPath.
+		try
+		{
+			Directory^ d;
+			String^ a = d->ToString();
 
+			// Shell execute Service with parameters projectPath & configPath.
+			Process ^proc = gcnew Process();
+			proc->EnableRaisingEvents = false;
+			proc->StartInfo->FileName = "..\Service\Service\bin\Debug\Service.exe";
+			proc->StartInfo->Arguments = "http://www.microsoft.com";
+			proc->Start();
+			proc->WaitForExit();
+		}
+		catch (Exception ^e)
+		{
+			// Handle this exception here, basically means the app didn't exist.
+		}
+
+
+		// Connect to config data.
     config = gcnew Config;
     config->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global"));
 
+		// Connect to graphic data.
 		protocol = gcnew EngineProtocol;
 		protocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global/project"));
   };

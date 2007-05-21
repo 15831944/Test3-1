@@ -4422,7 +4422,7 @@ void CTagVwDocC::PreloadSlots()
     DS[iSlot++].SetTag(LoopTag(), "PlantDelay");
     DS[iSlot++].SetTag(LoopTag(), "PlantPeriod");
     DS[iSlot++].SetTag(LoopTag(), "PIDGain");
-    DS[iSlot++].SetTag(LoopTag(), "PIDIc");
+     DS[iSlot++].SetTag(LoopTag(), "PIDIc");
     DS[iSlot++].SetTag(LoopTag(), "PIDDc");
 
     DS[iSlot++].SetTag(pHeadTag, "MinSettleCount");
