@@ -325,6 +325,9 @@
 				RelativePath=".\ArchMngr.CPP">
 			</File>
 			<File
+				RelativePath=".\AssocGrfTag.cpp">
+			</File>
+			<File
 				RelativePath=".\BASECMDS.CPP">
 			</File>
 			<File
@@ -756,6 +759,9 @@
 			</File>
 			<File
 				RelativePath=".\ArchMngr.H">
+			</File>
+			<File
+				RelativePath=".\AssocGrfTag.h">
 			</File>
 			<File
 				RelativePath=".\BASECMDS.H">
