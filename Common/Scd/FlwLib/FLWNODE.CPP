@@ -3407,9 +3407,9 @@ static DDBValueLst SolutionStrsN[]={
   {-1, ActiveHold_Str},
   {0}};
 
-void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB, Strng & AltTag)
+void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   {
-  CTNode::BuildCommonStartDefn(DDB, AltTag);
+  CTNode::BuildCommonStartDefn(DDB);
 
   //DDB.Text(" ");
   LPTSTR AreaTag=PrjFileVerNo()<96 ? "Location":"PlantArea";

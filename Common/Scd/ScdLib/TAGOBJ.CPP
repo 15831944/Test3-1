@@ -3318,12 +3318,9 @@ LPCSTR TaggedObject::EqpGUID()
 
 //---------------------------------------------------------------------------
 
-void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB, Strng & AltTag)
+void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
   {
-  if (AltTag())
-    DDB.String      ("Tag",         "", DC_,   "", &AltTag,                this, 0|DDEF_WRITEPROTECT);
-  else
-    DDB.String      ("Tag",         "", DC_,   "", xidTag,                this, 0|DDEF_WRITEPROTECT);
+  DDB.String      ("Tag",         "", DC_,   "", xidTag,                this, 0|DDEF_WRITEPROTECT);
   DDB.String      ("Parent",      "", DC_,   "", xidParent,             this, 0|DDEF_WRITEPROTECT|InitHidden);
   DDB.String      ("Type",        "", DC_,   "", &m_pClass->sClassName, this, 0|DDEF_WRITEPROTECT);
   DDB.String      ("ClassId",     "", DC_,   "", &m_pClass->sClassId,   this, 0|DDEF_WRITEPROTECT|InitHidden);
@@ -3437,7 +3434,7 @@ flag TaggedObject::FndDefinedData(char * FullItemTag, TABOptions Opts, pDDBShort
 
   DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
   DDB.Page(Tag(),DDB_RqdPage);
-  BuildCommonStartDefn(DDB, Strng(Tag()));
+  BuildCommonStartDefn(DDB);
   DDB.SuppressNextBlock();
   BuildDataDefn(DDB);
   BuildCommonEndDefn(DDB);
@@ -3494,7 +3491,7 @@ flag TaggedObject::GetDefinedData(char * FullItemTag, CPkDataList &DataObj, TABO
 
   DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
   DDB.Page(Tag(),DDB_RqdPage);
-  BuildCommonStartDefn(DDB, Strng(Tag()));
+  BuildCommonStartDefn(DDB);
   DDB.SuppressNextBlock();
   BuildDataDefn(DDB);
   BuildCommonEndDefn(DDB);
@@ -3541,7 +3538,7 @@ flag TaggedObject::PutDefinedData(char * FullItemTag, CPkDataList &DataObj, CPkD
     
     DDB.BeginBlock(tt_Object, this, Tag(), ClassId(), SubClassId(), GetPrimaryCfg(), TagOfParent(), NULL, 0, 0, 0, 0x0);
     DDB.Page(Tag(),DDB_RqdPage);
-    BuildCommonStartDefn(DDB, Strng(Tag()));
+    BuildCommonStartDefn(DDB);
     DDB.SuppressNextBlock();
     BuildDataDefn(DDB);
     BuildCommonEndDefn(DDB);

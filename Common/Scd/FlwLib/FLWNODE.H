@@ -3460,7 +3460,7 @@ class DllImportExport FlwNode : public CTNode
 
     //CJoinRec & DynJoins(int i) { return Joins[i]; };
 
-    virtual void   BuildCommonStartDefn(DataDefnBlk & DDB, Strng & AltTag);
+    virtual void   BuildCommonStartDefn(DataDefnBlk & DDB);
     virtual void   BuildSystemDefn_FB(bool IsLink, LPTSTR Tg, int i, int fe, DWORD UI, FlwBlk & FB, DataDefnBlk & DDB);
     virtual void   BuildCommonEndDefn(DataDefnBlk & DDB);
 
