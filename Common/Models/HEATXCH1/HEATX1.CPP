@@ -464,6 +464,7 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
     if (m_dDuty>m_dMaxFlDuty)
       {
       double VentFrac=(m_dDuty-m_dMaxFlDuty)/GTZ(m_dDuty);
+      VentFrac=Range(0.0, VentFrac, 1.0);  // CNM
       // Adjust for what existed
       VentFrac = VentFrac*(1.0-OrigVapFrac);
       m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
