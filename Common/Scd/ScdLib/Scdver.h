@@ -80,9 +80,10 @@
 
 // --------------------------------------------------------------------------
 //information when a Build is released
-#define SCD_BUILD_SVN    1489                 /* SVN when Build is first released */
-#define SCD_BUILD_NUM    123                  /* Build number*/
-#define SCD_BUILD_DATE   "20 February 2007"   /* Date when Build is first released */
+//#define SCD_BUILD_SVN    1489                 /* SVN when Build 123 first released */
+#define SCD_BUILD_SVN    1810                 /* SVN when Build 124 first released */
+#define SCD_BUILD_NUM    124                  /* Build number*/
+#define SCD_BUILD_DATE   "22 May 2007"   /* Date when Build is first released */
 
 //compile information
 #define SCD_COMPILE_DT   __DATE__
