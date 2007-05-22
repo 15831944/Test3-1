@@ -77,20 +77,20 @@ XID xidElemMolWt = ModelXID(1000) + 21*MaxSpecies;
 XID xidExtraProp = ModelXID(1000) + 22*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after xidExtraProp for MaxExtraProps*MaxSpecies !!!
 
-DDBFnParms Parms0[]   = { {tt_NULL}}; 
-DDBFnParms Parms00[]  = { {tt_Long,   (DC_),  "",    0    }, 
-                          {tt_NULL}}; 
-DDBFnParms Parms1[]   = { {tt_Double, (DC_T), "C",  Std_T}, 
-                          {tt_Long,   (DC_),  "",    0    }, 
-                          {tt_NULL}}; 
-DDBFnParms Parms11[]  = { {tt_Double, (DC_P), "kPa",  Std_P}, 
-                          {tt_Long,   (DC_),  "",    0    }, 
-                          {tt_NULL}}; 
-DDBFnParms Parms2[]   = { {tt_Double, (DC_T), "C",  Std_T}, 
-                          {tt_Double, (DC_P), "kPa", Std_P}, 
-                          {tt_Long,   (DC_),  "",    0    }, 
-                          {tt_NULL}}; 
-
+//DDBFnParms Parms0[]   = { {tt_NULL}}; 
+//DDBFnParms Parms00[]  = { {tt_Long,   (DC_),  "",    0    }, 
+//                          {tt_NULL}}; 
+//DDBFnParms Parms1[]   = { {tt_Double, (DC_T), "C",  Std_T}, 
+//                          {tt_Long,   (DC_),  "",    0    }, 
+//                          {tt_NULL}}; 
+//DDBFnParms Parms11[]  = { {tt_Double, (DC_P), "kPa",  Std_P}, 
+//                          {tt_Long,   (DC_),  "",    0    }, 
+//                          {tt_NULL}}; 
+//DDBFnParms Parms2[]   = { {tt_Double, (DC_T), "C",  Std_T}, 
+//                          {tt_Double, (DC_P), "kPa", Std_P}, 
+//                          {tt_Long,   (DC_),  "",    0    }, 
+//                          {tt_NULL}}; 
+//
 void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
   {
   if (DDB.BeginStruct(this))
@@ -99,7 +99,36 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBoxBtn("MassBasis",  "", DC_, "",  &m_bShowMs  ,  this, isParm);
     DDB.Double("DisplayT",    "", DC_T, "C",    &m_dDisplayT,  this, isParm);
     DDB.Double("DisplayP",    "", DC_P, "kPa",  &m_dDisplayP,  this, isParm);
-    
+
+    DDBFnParms Parms0[]   = 
+      { 
+        {tt_NULL                                }
+      }; 
+    DDBFnParms Parms00[]  = 
+      { 
+        {tt_Long,   (DC_),  "",    0            }, 
+        {tt_NULL                                }
+      }; 
+    DDBFnParms Parms1[]   = 
+      {
+        {tt_Double, (DC_T), "C",   m_dDisplayT  }, 
+        {tt_Long,   (DC_),  "",    0            }, 
+        {tt_NULL                                }
+      }; 
+    DDBFnParms Parms11[]  = 
+      { 
+        {tt_Double, (DC_P), "kPa", m_dDisplayP  }, 
+        {tt_Long,   (DC_),  "",    0            }, 
+        {tt_NULL                                }
+      }; 
+    DDBFnParms Parms2[]   = 
+      {
+        {tt_Double, (DC_T), "C",   m_dDisplayT  }, 
+        {tt_Double, (DC_P), "kPa", m_dDisplayP  }, 
+        {tt_Long,   (DC_),  "",    0            }, 
+        {tt_NULL                                }
+      }; 
+
     DDB.Visibility(NSHM_All, TRUE, FALSE, FALSE, FALSE);
     for (int i=0; i<SDB.Count(); i++) 
       {

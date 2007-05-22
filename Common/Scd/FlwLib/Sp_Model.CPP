@@ -8364,12 +8364,13 @@ void SpModel::SetDebug(flag DbgOn_)
 
 double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
   {
-  //  if (SatPressCompV()>=0 && SatPressCompL()>=0)
-  if (CDB.DefFlashCmpIndex()>=0)
+  int iV=SaturationVapIndex();
+  int iL=SaturationLiqIndex();
+  if (iV>=0 && iL>=0)
     {
     CSysVector &MA = (pMA==NULL ? MArray() : *pMA);
-    double H0=CDB.DefFlashVapDesc().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
-    double H1=CDB.DefFlashLiqDesc().msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
+    double H0=SDB[iV].msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
+    double H1=SDB[iL].msHf(m_iFidelity, T, P, &m_Ovr, MA.SVData());
     return H0-H1;
     }
   return 0.0;
@@ -8458,10 +8459,12 @@ double SpModel::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
     return CDB[m_AutoVLE.m_iCmp].VapourP(m_iFidelity, T_);
     }
 
-  if (CDB.DefFlashCmpIndex()>=0)
+  int iCmp=SaturationCmpIndex();
+  //if (CDB.DefFlashCmpIndex()>=0)
+  if (iCmp>=0)
     {
     //dbgpln("SpModel::SaturationP %-20s T:%12.4f = %12.f %s", "DefFlash", T_, CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_), FullObjTag());
-    return CDB.DefFlashCmpDesc().VapourP(m_iFidelity, T_);
+    return CDB[iCmp].VapourP(m_iFidelity, T_);
     }
 
   dbgpln("SpModel::SaturationP = No Calculation");

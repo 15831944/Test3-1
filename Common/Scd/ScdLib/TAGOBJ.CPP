@@ -5290,8 +5290,8 @@ flag DataDefnBlk::GetReqdItemFn()
       WantItem=True;//(strlen(Nest[lCallLevel].pSrchTag)==0);
       }
     }
-//  if (Pos==0 && Nest[lCallLevel].fWantAll)
-//    WantItem=True;
+  if (Pos==0 && Nest[lCallLevel].fWantAll)
+    WantItem=True;
   return WantItem && GetReqdFlags();
   }
 
