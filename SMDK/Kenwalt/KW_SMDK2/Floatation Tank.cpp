@@ -105,7 +105,7 @@ void FloatationTank::BuildDataFields()
 		for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		{
 			DD.ArrayElementStart(i);
-			DD.Long("Compound", "", idDX_SecondaryIndex + i, MF_PARAM_STOPPED | MF_NO_FILING | MF_SET_ON_CHANGE, &vSecondaryMDDLists.at(i).at(0));
+			DD.Long("Compound", "", idDX_SecondaryIndex + i, MF_PARAM_STOPPED | MF_NO_FILING | MF_SET_ON_CHANGE, gs_MVDefn.DDSolSpList());
 			DD.String("CompoundStr", "", idDX_SecondaryName + i, MF_PARAM_STOPPED | MF_NO_VIEW);
 			DD.Double("Recovery", "", idDX_SecondaryReqRecovery + i, MF_PARAMETER, MC_Frac("%"));
 			DD.ArrayElementEnd();
@@ -208,7 +208,7 @@ bool FloatationTank::ExchangeDataFields()
 			{
 				vSecondaryIndices.at(index) = tmp;
 				UpdateOtherIndices();
-				UpdateMDDLists();
+				//UpdateMDDLists();
 			}
 			else
 				Log.Message(MMsg_Warning, "Secondary Compound (%s) not found in specie database or not solid", DX.String);  
@@ -223,7 +223,7 @@ bool FloatationTank::ExchangeDataFields()
 		{
 			vSecondaryIndices.at(index) = DX.Long;
 			UpdateOtherIndices();
-			UpdateMDDLists();
+			//UpdateMDDLists();
 		}
 		DX.Long = vSecondaryIndices.at(index);
 		return true;
@@ -400,7 +400,7 @@ void FloatationTank::UpdatePrimaryIndices()
 					vPrimaryIndices.push_back(i);
 			}
 	}
-	UpdateMDDLists();
+	//UpdateMDDLists();
 	UpdateOtherIndices();
 }
 
@@ -411,7 +411,7 @@ void FloatationTank::UpdatePrimaryIndices()
 //If they are a primary, or if they are a different secondary.
 //The MDD lists will be created in SetSecondaryCount, so we will merely set flags at this point.
 //This is somewhat inefficent - the number of iterations is n^2 * c, where n is the secondary count and c is the element count.
-void FloatationTank::UpdateMDDLists()
+/*void FloatationTank::UpdateMDDLists()
 {
 	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		for (unsigned int j = 0; j < vSecondaryMDDLists.at(i).size(); j++)
@@ -433,7 +433,7 @@ void FloatationTank::UpdateMDDLists()
 				}
 			}
 		}
-}
+}*/
 
 void FloatationTank::SetSecondaryCount(int newSize)
 {
@@ -443,7 +443,7 @@ void FloatationTank::SetSecondaryCount(int newSize)
 	if (newSize <= vSecondaryIndices.size()) //Easy - just delete things. 'cept we need to do memory management...
 	{
 		vSecondaryIndices.resize(newSize);
-		vSecondaryMDDLists.resize(newSize);
+		//vSecondaryMDDLists.resize(newSize);
 		vSecondaryRecoveries.resize(newSize);
 		vReqSecondaryRecoveries.resize(newSize);
 	}
@@ -455,7 +455,7 @@ void FloatationTank::SetSecondaryCount(int newSize)
 		if (i == gs_MVDefn.Count())
 			i = 0;
 		vSecondaryIndices.resize(newSize, firstSolid);
-		vector<MDDValueLst> MDDVector;
+		/*vector<MDDValueLst> MDDVector;
 		if (vSecondaryMDDLists.size() > 0)
 			MDDVector = vSecondaryMDDLists.at(0);
 		else
@@ -466,24 +466,13 @@ void FloatationTank::SetSecondaryCount(int newSize)
 				MDDVector.push_back(gs_MVDefn.DDSolSpList()[i]);
 			}
 			while (gs_MVDefn.DDSolSpList()[i++].m_pStr != 0);
-				
-			/*for (int i = 0; i < gs_MVDefn.Count(); i++)
-				if (gs_MVDefn[i].IsSolid())
-				{
-					int s = strlen(gs_MVDefn[i].Symbol())+1;
-					LPSTR sym = new char[s];
-					strcpy_s(sym,s, gs_MVDefn[i].Symbol());
-					MDDValueLst newVal = {i, sym};
-					MDDVector.push_back(newVal);
-				}
-			MDDValueLst terminator = {0};
-			MDDVector.push_back(terminator);*/
 		}
-		vSecondaryMDDLists.resize(newSize, MDDVector);
+		vSecondaryMDDLists.resize(newSize, MDDVector);*/
 		vSecondaryRecoveries.resize(newSize, 0.0); //Maybe this shouldn't be zero. Something to think about...
 		vReqSecondaryRecoveries.resize(newSize, 0.0);
 	}
-	UpdateMDDLists();
+	//UpdateMDDLists();
+	UpdateOtherIndices();
 }
 
 void FloatationTank::UpdateOtherIndices()

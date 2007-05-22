@@ -47,7 +47,7 @@ class FloatationTank : public MBaseMethod
 	CString				sPrimariesFound;
 
 	vector<int>			vSecondaryIndices;
-	vector<vector<MDDValueLst>> vSecondaryMDDLists;
+	//vector<vector<MDDValueLst>> vSecondaryMDDLists;
 	vector<double>		vSecondaryRecoveries, vReqSecondaryRecoveries;
 
 	vector<int>			vOtherIndices; //Keep it as a class variable to allow optimization.
@@ -57,7 +57,7 @@ class FloatationTank : public MBaseMethod
 
 	void UpdatePrimaryIndices();
 	void UpdateOtherIndices();
-	void UpdateMDDLists();
+	//void UpdateMDDLists();
 	void SetSecondaryCount(int newSize);
   };
 
