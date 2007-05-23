@@ -1,4 +1,4 @@
-#   Time-stamp: <2007-05-16 01:51:08 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-05-22 23:21:34 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -21,7 +21,9 @@ OBJS = 	QALClassifier.obj   \
 	QALPump.obj \
 	QALPipe.obj \
 	QALCyclone.obj \
-	QALPrecip.obj
+	QALPrecip.obj \
+	QALPSD.obj \
+	QALDynPrecip.obj
 #	precip.obj \
 #	hxutils.obj \
 #	STHx.obj \
@@ -59,6 +61,10 @@ QALHeaterU.obj : QALHeaterU.cpp QALHeater.h
 QALPump.obj : QALPump.cpp QALPump.h
 QALPipe.obj : QALPipe.cpp QALPipe.h
 QALPrecip.obj : QALPrecip.cpp QALPrecip.h
+QALPSD.obj: QALPSD.cpp QALPSD.h
+QALDynPrecip.obj : QALDynPrecip.cpp QALDynPrecip.h
+
+
 TTechQAL.obj : TTechQAL.cpp TTechQAL.h
 
 

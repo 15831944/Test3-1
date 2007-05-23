@@ -1,17 +1,17 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-05-23 01:13:16 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-22 23:41:19 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
-#ifndef  __QALPRECIP_H
-#define  __QALPRECIP_H
+#ifndef  __QALDYNPRECIP_H
+#define  __QALDYNPRECIP_H
 
 #ifndef __MD_HEADERS_H
 #include "md_headers.h"
 #endif
 
-#ifdef __QALPRECIP_CPP
+#ifdef __QALDYNPRECIP_CPP
   #define DllImportExport __declspec(dllexport)
 #elif !defined(SMDKDemoU)
   #define DllImportExport __declspec(dllimport)
@@ -28,15 +28,7 @@
 #include "..\TTCommon\hor.h"
 
 
-//**/ #define TTDEBUG
 
-
-
-#ifdef TTDEBUG
-#include "..\TTCommon\ttdbg.h"
-#else
-#include "..\TTCommon\ttnodbg.h"
-#endif
 
 
 
@@ -69,14 +61,13 @@ double wtSub45(MStream &);
 
 
 
-
-class CPrecipitator : public MBaseMethod, CPrecip
+class CDynPrecipitator : public MBaseMethod, CPrecip
 {
  public:
 
 
-  CPrecipitator(MUnitDefBase *pUnitDef,TaggedObject * pNd);
-  virtual ~CPrecipitator(void);
+  CDynPrecipitator(MUnitDefBase *pUnitDef,TaggedObject * pNd);
+  virtual ~CDynPrecipitator(void);
 
   void Init();
   void BuildDataFields();
@@ -289,10 +280,6 @@ class CPrecipitator : public MBaseMethod, CPrecip
 
   long lPBType;   // PSD Model 0: none, 1: SSA, 2: PSD
 
-#ifdef TTDEBUG
-    bool bTTDebug;
-    TTDbg dbg;
-#endif
 
 
 

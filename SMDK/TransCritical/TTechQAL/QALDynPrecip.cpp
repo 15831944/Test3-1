@@ -1,21 +1,18 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-22 23:24:35 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-23 03:58:13 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
 
 #include "stdafx.h"
 #define  __QALPRECIP_CPP
-#include "qalprecip.h"
+#include "qaldynprecip.h"
 
 
 
-static MInitialiseTest InitTest("Precip");
+static MInitialiseTest InitTest("DynPrecip");
 
-
-//static MSpeciePtr  spAlumina       (InitTest, "NaAl[OH]4(l)", false);
-//static MSpeciePtr  spTHA           (InitTest, "Al[OH]3(s)", false);
 
 static MSpeciePtr  spAlumina       (InitTest, "NaAl[OH]4(l)", false);
 static MSpeciePtr  spWater         (InitTest, "H2O(l)", false);
@@ -50,46 +47,6 @@ enum ThermalHeatLossMethods {THL_None, THL_TempDrop, THL_FixedHeatFlow, THL_Ambi
 
 ///  Utility Class for heat exchanger
 
-static double LMTD(double TbTi, double TbTo, double ShTi, double ShTo)
-{
-  double gttd = ShTo - TbTi;
-  double lttd = ShTi - TbTo;
-  return (gttd==lttd) ? gttd : (gttd-lttd)/log(GTZ(fabs(gttd))/(GTZ(fabs(lttd))));
-}
-
-
-
-class CCoolerFn : public MRootFinder
-  {
-  public:
-    CCoolerFn(double _UA, MStream &TubeI, MStream &ShellI, MStream &TubeO, MStream &ShellO) : 
-      MRootFinder("Basic Hx calc" ,s_Tol),
-      UA(_UA), m_TubeI(TubeI), m_ShellI(ShellI), m_TubeO(TubeO), m_ShellO(ShellO) 
-      {
-      }
-    double Function(double TubeTOut) 
-      {           
-
-      double q = m_TubeI.totHz(MP_All, TubeTOut)-m_TubeI.totHz(MP_All);
-      m_TubeO.Set_totHz(m_TubeI.totHz()+q);
-      m_ShellO.Set_totHz(m_ShellI.totHz()-q);
-      double lmtd=LMTD(m_TubeI.T, TubeTOut, m_ShellI.T , m_ShellO.T);
-      double qp = UA*lmtd;
-      return q-qp;
-      };
-
-  public:
-    MStream &m_TubeI;
-    MStream &m_ShellI;
-    MStream &m_TubeO;
-    MStream &m_ShellO;
-    //  double Duty;
-
-    double UA;
-    static MToleranceBlock s_Tol;
-  };
-
-MToleranceBlock CCoolerFn::s_Tol(TBF_Both, "Precip:Simple", 0.00005, 0, 100);
 
 
 
@@ -105,20 +62,20 @@ static MInOutDefStruct s_IODefs[]=
     { NULL },
   };
 
-double Drw_CPrecipitator[] = 
+double Drw_CDynPrecipitator[] = 
   { 
     MDrw_Poly, -5,10, -5,-10, 5,-10, 5,10,
     MDrw_End 
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(CPrecipitator, "Precipitator", DLL_GroupName)
+DEFINE_TRANSFER_UNIT(CDynPrecipitator, "DynPrecipitator", DLL_GroupName)
 
-void CPrecipitator_UnitDef::GetOptions()
+void CDynPrecipitator_UnitDef::GetOptions()
 {
   SetDefaultTag("PC");
-  SetDrawing("Tank", Drw_CPrecipitator);
-  SetTreeDescription("QAL:Precipitator");
+  SetDrawing("Tank", Drw_CDynPrecipitator);
+  SetTreeDescription("QAL:DynamicPrecipitator");
   SetDescription("TODO: QAL PB Model");
   SetModelSolveMode(MSolveMode_All);
   SetModelGroup(MGroup_Alumina);
@@ -128,17 +85,9 @@ void CPrecipitator_UnitDef::GetOptions()
 //---------------------------------------------------------------------------
 
 
-double calcVol(double *N) {
-  double v = 0.0;
-  for (int i=0; i<nClasses; i++) {
-    v += pow(D[i], 3)*N[i];
-  }
-  return v;
-}
 
 
-
-CPrecipitator::CPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :  
+CDynPrecipitator::CDynPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :  
   MBaseMethod(pUnitDef, pNd)
 {   //default values...
 
@@ -200,7 +149,7 @@ CPrecipitator::CPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
 
 //---------------------------------------------------------------------------
 
-CPrecipitator::~CPrecipitator()
+CDynPrecipitator::~CDynPrecipitator()
 {
 //   delete[] x;
 //   delete[] xo;
@@ -209,21 +158,16 @@ CPrecipitator::~CPrecipitator()
 }
 
 
-bool CPrecipitator::ValidateDataFields()
+bool CDynPrecipitator::ValidateDataFields()
   {//ensure parameters are within expected ranges
   return true;
   }
 
 //---------------------------------------------------------------------------
 
-void CPrecipitator::Init()
+void CDynPrecipitator::Init()
 {
   SetIODefinition(s_IODefs);
-#ifdef TTDEBUG
-  dbg.tcltk_init();
-#endif
-
-
 }
 
 //---------------------------------------------------------------------------
@@ -235,7 +179,7 @@ void CPrecipitator::Init()
 
 
 // Modified for NaAl[OH]4 as primary species.
-void CPrecipitator::AdjustMasses(MStream & Prod)
+void CDynPrecipitator::AdjustMasses(MStream & Prod)
 {
   double &InAluminaMass  = Feed.MassVector[spAlumina];     // NaAl[OH]4(l)
   double &InWaterMass    = Feed.MassVector[spWater];       // H2O
@@ -276,7 +220,7 @@ void CPrecipitator::AdjustMasses(MStream & Prod)
   
 
 
-void CPrecipitator::AdjustT(MStream &Prod) 
+void CDynPrecipitator::AdjustT(MStream &Prod) 
 {
 
   double dHeatIn = Feed.totHz();
@@ -300,7 +244,7 @@ void CPrecipitator::AdjustT(MStream &Prod)
 
 
 
-void CPrecipitator::AdjustSSA(MStream &Prod) 
+void CDynPrecipitator::AdjustSSA(MStream &Prod) 
 {
 }
 
@@ -314,7 +258,7 @@ void CPrecipitator::AdjustSSA(MStream &Prod)
 // Takes the product composition and calculates rates from this
 // Rates (in kg/s) are put into global x
 //---------------------------------------------------------------------------
-void CPrecipitator::EvalPrecipRates(MStream & Prod, double T) 
+void CDynPrecipitator::EvalPrecipRates(MStream & Prod, double T) 
 {
   
   PBRates();
@@ -358,130 +302,15 @@ void CPrecipitator::EvalPrecipRates(MStream & Prod, double T)
 // m_dTotThermalLoss is the total thermal loss, 
 //---------------------------------------------------------------------------
 
-void CPrecipitator::EvalLosses(MStream & Prod)
+void CDynPrecipitator::EvalLosses(MStream & Prod)
 {
-  double T = Prod.T;
-  double TA = AmbientTemp();
-  /// Heat Loss to internal cooling, eg Barriquands
-  if (!m_bCoolerOn && iCoolMethod==COOL_Hx) {
-    m_dLiquorTout = Prod.T;
-    m_dLMTD = 0.0;
-    m_dCoolWaterTout = CoolIn.T;
-  }
-  m_dIntCoolRate=0.0;
-  if (m_bCoolerOn && iCoolType==COOL_INTERNAL && bCoolIn && iCoolMethod == COOL_Hx ) {
-    MStream TubeIn;
-    MStream TubeOut;
-    MStream CoolOut;
-    if (m_bByVolFlow) 
-      m_dCoolFlow = m_dIntCoolVolFlow*Prod.Density();
-    else
-      m_dIntCoolVolFlow = m_dCoolFlow/Prod.Density();
-
-    TubeIn.SetM(Prod, MP_All, m_dCoolFlow);
-    TubeOut.SetF(TubeIn, MP_All, 1.0); 
-    CoolOut.SetF(CoolIn, MP_All, 1.0);
-
-    if (TubeIn.MassFlow()>0 && CoolIn.MassFlow()>0) {
-
-	m_dUA=m_dCoolArea*m_dCoolHTC;
-	CCoolerFn Fn(m_dUA, TubeIn, CoolIn, TubeOut, CoolOut);
-
-	double TubeOutT;
-	double MxTbOutT=TubeIn.T;// No Transfer
-	double MnTbOutT=CoolIn.T+0.001;
- 	double qShell=-CoolIn.totHz()+CoolOut.totHz(MP_All, TubeIn.T);
- 	double qTube= -TubeIn.totHz(MP_All, CoolIn.T)+TubeIn.totHz();
-      
-	if (qShell<qTube) // Limited By Shell - Tube TOut Limited
-	  MnTbOutT=MxTbOutT - (qShell)/GTZ(qTube)*(MxTbOutT-MnTbOutT);
-
-      switch (Fn.FindRoot(0, MnTbOutT, MxTbOutT)) {
-      case RF_OK:       TubeOutT = Fn.Result();   break;
-      case RF_LoLimit:  TubeOutT = MnTbOutT;      break;
-      case RF_HiLimit:  TubeOutT = MxTbOutT;      break;
-      default: 
-	Log.Message(MMsg_Error, "TubeOutT not found - RootFinder:%s", Fn.ResultString(Fn.Error())); 
-	TubeOutT=Fn.Result();
-	break;
-      }
-      TubeOut.T = TubeOutT;
-      m_dIntCoolRate = TubeIn.totHz() - TubeOut.totHz();
-      m_dCoolWaterTout = CoolOut.T;
-      m_dCoolWaterTin = CoolIn.T;
-      m_dCoolWaterFlow = CoolIn.Mass();
-      m_dCoolWaterFlowVol = CoolIn.Volume();
-      m_dLiquorTout = TubeOut.T;
-      m_dLMTD=fabs(LMTD(TubeIn.T, TubeOut.T, CoolIn.T, CoolOut.T));
-    }
-
-
-
-  }
-    
-  if (iCoolType==COOL_INTERNAL && iCoolMethod == COOL_dQ ) {
-    m_dIntCoolRate = m_dCooldQ;
-  }
-  
-
-
-
-
-
-
-  switch (iCoolType) {
-  case COOL_NONE:
-    m_dCoolRate = 0;
-    break;
-  case COOL_EXTERNAL:
-    m_dCoolRate = m_dExtCoolRate;    // kW
-    break;
-  case COOL_INTERNAL:
-  /// Heat Loss to internal cooling, eg draft tube coolers
-    m_dCoolRate = m_dIntCoolRate;
-    break;
-  }
-  
-
-  /// Evaporation Rate
-  switch (iEvapMethod) {
-  case EVAP_dT:
-    m_dEvapRate = m_dEvapRateK*(T-TA);       // kg/s
-    x[3] = m_dEvapRate;
-    break;
-  case EVAP_FIXED:
-    x[3] = m_dEvapRate;
-    break;
-  case EVAP_NONE:
-    x[3] = 0;
-    m_dEvapRate = 0.0;
-    
-  }  
-
-  /// Evaporative Heat Loss ... need to fix this up using stream enthalpies
-  m_dEvapThermalLoss = 2300*m_dEvapRate;   // kW...
-
-
-  /// Heat Loss to ambient cooling
-  m_dEnvironmentLoss = 0.0;
-  switch (iThermalLossMethod) {
-  case THL_Ambient:
-    m_dEnvironmentLoss = (T-TA)*dThermalLossAmbient;  //kW
-    break;
-  case THL_FixedHeatFlow:
-    m_dEnvironmentLoss = dThermalLossRqd;
-    break;
-  }
-  
-  m_dTotThermalLoss = m_dEnvironmentLoss + m_dEvapThermalLoss + m_dCoolRate;
-  
 
   
 }
 
-void CPrecipitator::AdjustPSD(MStream & Prod) 
+void CDynPrecipitator::AdjustPSD(MStream & Prod) 
 {
-  putN(Prod);  
+
 }
 
 
@@ -491,34 +320,9 @@ void CPrecipitator::AdjustPSD(MStream & Prod)
 //
 //------------------------------------------------------------------------
 
-bool CPrecipitator::ConvergenceTest() 
-{
-  double xmag = (x[0]*x[0]+x[1]*x[1]+x[2]*x[2]);
-  double err = (Sqr(x[0]-xo[0]) + Sqr(x[1]-xo[1]) +Sqr(x[2]-xo[2]))/GTZ(xmag);
-  //double err = 0.0;
-  double nn=0;
-  double nt =0;
-  for (int i=0; i<nClasses; i++) {
-    if (NewN[i]==0 && n[i]==0)
-      {}
-    else
-      err += Sqr((NewN[i]-n[i])/GTZ(NewN[i]+n[i]));
-	//    nn+= Sqr(NewN[i]);
-	//    nt+= Sqr(NewN[i]-n[i]);
-    
-  }
-  // err += nt/GTZ(nn);
-  for (int i=0; i<nClasses; i++) n[i] = NewN[i];
-
-  
-  if (err < m_dConvergenceLimit) 
-    return true;
-  else
-    return false;
-}
 
 
-void CPrecipitator::DoResults(MStream & Prod)
+void CDynPrecipitator::DoResults(MStream & Prod)
 {
   //m_dNuclN = m_PSDin.getN()-m_PSD.getN();
   
@@ -562,7 +366,7 @@ void CPrecipitator::DoResults(MStream & Prod)
 
 
 
-void CPrecipitator::EvalProducts()
+void CDynPrecipitator::EvalProducts()
   {
   try {
     x[0] = x[1] = x[2] = x[3] = 0.0;
@@ -658,7 +462,7 @@ void CPrecipitator::EvalProducts()
 
 
 
-void CPrecipitator::ClosureInfo(MClosureInfo & CI)
+void CDynPrecipitator::ClosureInfo(MClosureInfo & CI)
   {//ensure heat balance
   if (CI.DoFlows())
     {
@@ -669,7 +473,7 @@ void CPrecipitator::ClosureInfo(MClosureInfo & CI)
 
 
 
-void CPrecipitator::DoPrecip(MStream & Prod)
+void CDynPrecipitator::DoPrecip(MStream & Prod)
 {
 
   bool converged = false;
@@ -688,7 +492,7 @@ void CPrecipitator::DoPrecip(MStream & Prod)
     
     //    AdjustSSA(Prod);      /// Adjust SSA
     //AdjustPSD(Prod);      /// Adjust PSD
-    converged = ConvergenceTest();   //// Final convergence test  
+    converged = true;   //// Final convergence test  
     Iter++;    
   }
   if (Iter==m_lItermax) {/// Convergence Failure, automatically increase damping and iterations???
@@ -703,7 +507,7 @@ void CPrecipitator::DoPrecip(MStream & Prod)
 
 // Precalculate Agglomeration Kernel and bin split factors
 
-void CPrecipitator::AgglomKernel() {
+void CDynPrecipitator::AgglomKernel() {
   for (int i=0; i<nClasses; i++) {
     for (int j=0; j<=i; j++) {
       beta[i][j] = beta[j][i] = exp(-(D[i]*D[i]+D[j]*D[j])/1600.);
@@ -712,7 +516,7 @@ void CPrecipitator::AgglomKernel() {
   }
 }
   
-void CPrecipitator::BinFactors() {
+void CDynPrecipitator::BinFactors() {
   int k;
   double alpha = 2;
   double a1 = alpha-1;
@@ -730,7 +534,7 @@ void CPrecipitator::BinFactors() {
 
 
 
-void CPrecipitator::displayPSD(MStream &ms, int scrn)
+void CDynPrecipitator::displayPSD(MStream &ms, int scrn)
 {
   MIPSD & mpsd = ms.IF<MIPSD>(false);   /// Does the mud stream have PSD...
   int ic = mpsd.getSizeCount();
@@ -757,7 +561,7 @@ void CPrecipitator::displayPSD(MStream &ms, int scrn)
 
 // Ilievski Correlation (1991)
 // Note this uses Caustic as Na2O
-double CPrecipitator::AgglomRate() {
+double CDynPrecipitator::AgglomRate() {
   double ssat = m_dSSat/(MW_Na2O/(2*MW_NaOH));   // Caustic as Na2O
   dAgglomRate =  5.0e-10*pow(ssat, 4)/3600;
   return dAgglomRate;
@@ -765,7 +569,7 @@ double CPrecipitator::AgglomRate() {
 
 
 // Just the White method ala CAR for the moment...
-double CPrecipitator::GrowthRate() {
+double CDynPrecipitator::GrowthRate() {
   const  double T = Tank.T;
 
   switch (iGrowthRateMethod) {
@@ -818,7 +622,7 @@ double CPrecipitator::GrowthRate() {
 
 // Misra 1970
 
-double CPrecipitator::NucleationRate() {
+double CDynPrecipitator::NucleationRate() {
   if (iGrowthRateMethod==GRM_CAR_QAL) {
     MIBayer & TankB=Tank.IF<MIBayer>(false);
     const double T = Tank.T;
@@ -851,7 +655,7 @@ double CPrecipitator::NucleationRate() {
 // and destination bin(s)
 
 
-void CPrecipitator::Agglomeration() {
+void CDynPrecipitator::Agglomeration() {
   for (int i=0; i<nClasses-1; i++) {
     // Special case when j=i
     // ie agglomeration of particles of equal sizes.
@@ -877,7 +681,7 @@ void CPrecipitator::Agglomeration() {
 
 // Numbers for Growth
 
-void CPrecipitator::Growth()
+void CDynPrecipitator::Growth()
 {
   for (int i = 1; i<nClasses-1; i++) {
     double g = n[i]*AREA_CORR/DIST_CORR*dGrowthRate/D[i]*1.0e6*dGrowthRateFactor;
@@ -886,20 +690,20 @@ void CPrecipitator::Growth()
   }
 }
 
-void CPrecipitator::Nucleation()
+void CDynPrecipitator::Nucleation()
 {
   Ndot[1] += dNuclRate*dNuclRateFactor;
   dNuclYield = PI/6.*pow(D[1],3)*2420*dNuclRate*dNuclRateFactor*1.0e-18/3600;
 }
 
-void CPrecipitator::Attrition() {}
-void CPrecipitator::AttritionRate() {}
+void CDynPrecipitator::Attrition() {}
+void CDynPrecipitator::AttritionRate() {}
 
 
 /// Calculate all the particle balance rates...
 /// Ndot[i] ... rate of change of n[i], #/s/kg
 
-void CPrecipitator::PBRates() 
+void CDynPrecipitator::PBRates() 
 {
   for (int i=0; i<nClasses; i++) Ndot[i] = (Feed.Mass()*fpsd.getN(i) - Tank.Mass()*n[i])/(Tank.Density()*dTankVol);
 
@@ -950,8 +754,7 @@ void CPrecipitator::PBRates()
 
 
 
-
-void CPrecipitator::getN(MStream &s)
+void CDynPrecipitator::getN(MStream &s)
 {  
   QALPSD p(s);
   for (int i=0; i<nClasses; i++) n[i] = p.getN(i);
@@ -962,7 +765,7 @@ void CPrecipitator::getN(MStream &s)
 }          // Fetch all the numbers to local N, return total
 
 
-void CPrecipitator::putN(MStream &s)
+void CDynPrecipitator::putN(MStream &s)
 {
   MIPSD & sP = s.IF<MIPSD>(false);
   
@@ -987,7 +790,7 @@ void CPrecipitator::putN(MStream &s)
 
 
 
-void CPrecipitator::BuildDataFields()
+void CDynPrecipitator::BuildDataFields()
 {
   static MDDValueLst DDB1[]={
     {GRM_Fixed,   "Fixed" },

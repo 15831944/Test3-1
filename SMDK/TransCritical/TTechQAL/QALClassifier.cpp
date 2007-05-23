@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-16 05:22:04 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-23 05:53:47 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
 
@@ -324,13 +324,15 @@ void QALClassifier::BuildDataFields()
 void QALClassifier::EvalProducts() {
 
   try {
-    dTankArea = PI*dTankDiameter*dTankDiameter/4.0;
     FlwIOs.AddMixtureIn_Id(QI, 0);
+    MStream & QO0 = FlwIOs[FlwIOs.First[1]].Stream;  // Product stream 1 -overflow
+    MStream & QO1 = FlwIOs[FlwIOs.First[2]].Stream;  // Product stream 2 -mud underflow
+
+
+    dTankArea = CircleArea(dTankDiameter);
     drhoSol = QI.Density(MP_Sol);
     dSolidsFlow = QI.MassFlow(MP_Sol);
 
-    MStream & QO0 = FlwIOs[FlwIOs.First[1]].Stream;  // Product stream 1 -overflow
-    MStream & QO1 = FlwIOs[FlwIOs.First[2]].Stream;  // Product stream 2 -mud underflow
 
 
     // Set the outlet streams to the inlet streams (pass through) 
@@ -346,7 +348,9 @@ void QALClassifier::EvalProducts() {
       Log.Message(MMsg_Warning, "No solids in Feed");
       return;
     }
-    
+
+    if (dS_x > dS_u) 
+      Log.Message(MMsg_Warning, "Compression Solids greater than UFlow Solids");
 
 
     MIBayer & QIB=QI.IF<MIBayer>(false);    // Does the mud stream have Bayer properties
@@ -412,7 +416,7 @@ void QALClassifier::EvalProducts() {
 	    
 	  PSDSolverFn f(*this);
 	  f.SetTarget(0);
-	  f.Start(.01, dMaxLSplit-1.0e-6);
+	  f.Start(1.0e-6, dMaxLSplit-1.0e-6);
 	  f.Solve_Brent();
 	  double dfux = f.Result();
 	  dUnderflowSolids = EvalBalance(dfux); 
@@ -667,6 +671,7 @@ double QALClassifier::fRf()
 {
 	double fi = QI.VolumeFlow(MP_All, bayerRefTemp);
 	double susx = dS_u/dS_x;
+	if (susx>1.0) susx=1.0;
 	return susx*(1.-dS_x/drhoSol)/(fi/dFu*(1-dS_i/drhoSol)+susx-1.);
 }
 
@@ -674,6 +679,7 @@ double QALClassifier::fVcom()    // Volume of compression zone
 {
 	double vol = dFu*dS_u/(dS_x*dk_c)*log((dS_cp-dS_x)/(dS_cp-dS_u));
 	if (vol > dTankVolume) vol = dTankVolume;
+	if (vol < 0.0) vol = 0.0;
 	return vol;
 }
 
