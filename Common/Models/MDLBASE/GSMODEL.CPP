@@ -29,11 +29,12 @@ XID xidGSModelOn     = MdlBsXID(1000);
 XID xidGSOperation   = MdlBsXID(1001);
 XID xidGSThermal     = MdlBsXID(1002);
 XID xidGSPhMethSpec  = MdlBsXID(1003);
+XID xidGSThermCnd    = MdlBsXID(1004);
 XID xidGSMDmndSplts  = MdlBsXID(2000);                        // Keep MaxIOList Spare
 XID xidGSMSpcSplts   = xidGSMDmndSplts+MaxIOList;             // Keep MaxSpecies*MaxIOs Spare
 XID xidGSPhSplts     = xidGSMSpcSplts+MaxSpecies*MaxIOList;   // Keep MaxSpecies*MaxIOs Spare
-XID xidGSTermMode    = xidGSPhSplts+MaxPhases*MaxIOList;      // Keep MaxSpecies*MaxIOs Spare
-XID xidLast          = xidGSTermMode+MaxIOList;               // Keep MaxIOs Spare
+XID xidGSThermMode   = xidGSPhSplts+MaxPhases*MaxIOList;      // Keep MaxSpecies*MaxIOs Spare
+XID xidLast          = xidGSThermMode+MaxIOList;               // Keep MaxIOs Spare
 
 //============================================================================
 //
@@ -2665,6 +2666,7 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
   DDB.Visibility();
   DDB.Text("");
   DDB.Double     ("Feed.Temp",        "Feed.T", DC_T,   "C",    &m_TempIn,       this, isResult);
+  DDB.String     ("Condition",        "", DC_,   "",     xidGSThermCnd,              this, isResult);
   DDB.CheckBoxBtn("AllowHX",          "", DC_,    "",     &m_bAllowHX,     this, isParm|SetOnChange);
   DDB.Visibility(NSHM_All,  m_bAllowHX);
   DDB.Double     ("PowerInput",       "", DC_Pwr, "kW",   &m_PowerIn,      this, 0);
@@ -2712,7 +2714,7 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
           {0}
         };
 
-      DDB.Byte   ("",             "Mode",   DC_,    "",     xidGSTermMode+A[j]->m_IONo,         this, CfgAble ? (isParm | SetOnChange) : 0, DDB0);
+      DDB.Byte   ("",             "Mode",   DC_,    "",     xidGSThermMode+A[j]->m_IONo,         this, CfgAble ? (isParm | SetOnChange) : 0, DDB0);
 
       DDB.Visibility(NSHM_All, A[j]->Mode(this)==GST_TReqd);
       DDB.Double ("", "TempReqd", DC_T,  "C", &A[j]->m_TempReqd, this, CfgAble ? isParm : 0);
@@ -2731,7 +2733,8 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
 
       DDB.Double ("", "TempOut",  DC_T,    "C", &A[j]->m_TempOut,    this, 0);
       //DDB.Double ("", "BalXX",    DC_Frac, "%", &A[j]->m_BalanceScl, this, 0);
-      DDB.Double ("", "Achieved", DC_Frac, "%", &A[j]->m_Achieved, this, 0);
+      DDB.String ("", "Result",   DC_,     "",  &A[j]->m_sResult,  this, isResult);
+      DDB.Double ("", "Achieved", DC_Frac, "%", &A[j]->m_Achieved, this, isResult|InitHidden);
       }
     }
   DDB.EndArray();
@@ -2741,9 +2744,35 @@ void GSModel::BuildDataDefnThermal(DataDefnBlk &DDB)
 
 flag GSModel::DataXchgThermal(DataChangeBlk & DCB)
   {
-  if (DCB.lHandle>=xidGSTermMode && DCB.lHandle<xidGSTermMode+MaxIOList)
+  switch (DCB.lHandle)
     {
-    int IONo = DCB.lHandle-xidGSTermMode;
+    case xidGSThermCnd:
+      {
+      m_sThermCnd="";
+      Strng_List L;
+      GetAllCIs(L);
+      int i=0;
+      for (pStrng p= L.First();p; p=L.Next())
+        {
+        if (i++>0)
+          m_sThermCnd+="\n";
+        char *ps=p->Str();
+        char *pt=strchr(ps, '\t');
+        m_sThermCnd+=pt ? (pt+1) : ps;
+        }
+      if (i>0)
+        DCB.dwRetFlags=DDEF_INERROR;
+      else
+        m_sThermCnd="OK";
+
+      DCB.pC=m_sThermCnd();
+      return 1;
+      }
+    }
+
+  if (DCB.lHandle>=xidGSThermMode && DCB.lHandle<xidGSThermMode+MaxIOList)
+    {
+    int IONo = DCB.lHandle-xidGSThermMode;
     if (DCB.rB)
       m_IOThermal[IONo].m_iMode = *DCB.rB;
     DCB.B = m_IOThermal[IONo].Mode(this);
@@ -3151,6 +3180,7 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
       }
     A[j]->xm_BalanceScl=1.0;
     A[j]->m_Achieved=0;
+    A[j]->m_sResult="";
     if (A[j]->Mode(this)>=GST_TFreeDiff)
       NFree++;
     }
@@ -3193,8 +3223,17 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
   else
     SetCI(8);
   for (int j = 0;j<NPri; j++)
+    {
     A[j]->m_TempOut = m_Nd.IOConduit(I[j])->Temp();
-
+    SpConduit & Cd = *m_Nd.IOConduit(I[j]);
+    if (Cd.QMass()<SmallPosFlow)
+      {
+      Cd.SetTemp(m_TempIn);
+      A[j]->m_sResult="No Flow";
+      }
+    else
+      A[j]->m_sResult.Set("%.2f%% of Target", A[j]->m_Achieved*100.0);
+    }
   }
 
 //--------------------------------------------------------------------------

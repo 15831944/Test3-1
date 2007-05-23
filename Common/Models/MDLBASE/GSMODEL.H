@@ -201,7 +201,7 @@ class DllImportExport GSIOThermal
     double          m_DeltaT;
     double          xm_BalanceScl;
     double          m_Achieved;
-
+    Strng           m_sResult;
   };
 
 typedef CArray   <GSIOThermal, GSIOThermal&> GSIOThermalArray;
@@ -337,6 +337,7 @@ class DllImportExport GSModel : public TaggedObject
     double              m_ChangeNeg;
     double              m_ChangePos;
     byte                m_eCorrection;
+    Strng               m_sThermCnd;
     //double              m_HfError;
     //int                 m_NPri;
     //int                 m_NFree;
