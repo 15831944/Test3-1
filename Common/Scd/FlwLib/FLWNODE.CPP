@@ -2995,7 +2995,7 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
   for (int i=0; !Enabled && i<m_AttachedDirectIOs.GetCount(); i++)
     Enabled=m_AttachedDirectIOs[i]->Enabled;
 
-  if (/*NetDynamicMethod() &&*/ Enabled)
+  if ((DDB.ForFileSnpScn() || NetDynamicMethod()) && Enabled)
     {
     DDB.Visibility();
     DDB.Page("DirectIO", DDB_RqdPage);
