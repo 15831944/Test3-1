@@ -7,10 +7,10 @@ using System.Runtime.Remoting.Lifetime;
 using System.Drawing;
 using System.Threading;
 
-using System.Runtime.Remoting.Channels.Ipc;
-using System.Runtime.Remoting.Channels;
+//using System.Runtime.Remoting.Channels.Ipc;
+//using System.Runtime.Remoting.Channels;
 using System.Collections;
-using System.Runtime.Remoting.Channels.Tcp;
+//using System.Runtime.Remoting.Channels.Tcp;
 using System.Drawing.Drawing2D;
 using System.Runtime.Serialization.Formatters.Soap;
 

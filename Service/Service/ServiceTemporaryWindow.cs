@@ -9,7 +9,10 @@ using System.Windows.Forms;
 using SysCAD.Protocol;
 using System.Collections;
 using System.IO;
+using System.Runtime.Remoting.Channels;
 using System.Runtime.Serialization.Formatters.Soap;
+using System.Runtime.Remoting.Channels.Ipc;
+using System.Runtime.Remoting;
 
 namespace Service
 {
@@ -980,21 +983,38 @@ namespace Service
     
     
     
-    public ServiceTemporaryWindow(String projectPath, String configPath)
+    public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
     {
       InitializeComponent();
 
+
+
+      System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
+      serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
+
+      BinaryClientFormatterSinkProvider clientProv = new BinaryClientFormatterSinkProvider();
+
+      Hashtable ipcProps = new Hashtable();
+      ipcProps["portName"] = "SysCAD.Service";
+      //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
+      IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
+      ChannelServices.RegisterChannel(ipcChannel, false);
+
+
+      
       this.projectPath = projectPath;
       this.configPath = configPath;
+      this.stencilPath = stencilPath;
 
       name = Path.GetFileNameWithoutExtension(projectPath);
-      stencilPath = configPath + "Stencils\\";
 
 
       configData = new ConfigData();
-
       GetStencils(configData);
       configData.ProjectList.Add(name);
+      RemotingServices.Marshal(configData, "Global");
+
+
 
       ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ClientChangeState);
 
@@ -1028,6 +1048,8 @@ namespace Service
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
                                                               clientDeleteThing, clientPortCheck, clientPropertyListCheck);
 
+
+      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
 
 
       EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
@@ -1065,6 +1087,7 @@ namespace Service
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
                                                               engineDeleteThing, enginePortCheck, enginePropertyListCheck);
 
+      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
     }
   }
 }

@@ -14,23 +14,25 @@ namespace Service
     {
       String projectPath;
       String configPath;
+      String stencilPath;
 
       if (args.Length == 2)
       {
         projectPath = args[0];
         configPath = args[1];
+        //stencilPath = args[2]; /;/ hard-code this until we work out where to get the value.
       }
       else
       {
         projectPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-00.spf\\";
-        configPath = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\BaseFiles\\";
-        // return -1; // Die gracefully when started with incorrect number of parameters.
-        // TODO: Handle other failures gracefully (e.g. no *.10 files, no config files.)
+        configPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\CfgFiles\\";
       }
+
+      stencilPath = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\BaseFiles\\";
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new ServiceTemporaryWindow(projectPath, configPath));
+      Application.Run(new ServiceTemporaryWindow(projectPath, configPath, stencilPath));
 
       return 0;
     }
