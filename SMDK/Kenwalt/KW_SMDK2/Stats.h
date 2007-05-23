@@ -53,6 +53,9 @@ class SingleVarStats : public MBaseMethod
     bool bOn;
 
 	MTagIOSubscription tagSubs;
+	MCnv TagCnv;
+
+	CString sGraphUnit;
 
 	double dHistoMin;
 	double dHistoMax;

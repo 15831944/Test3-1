@@ -51,6 +51,8 @@ SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 	pHistoBucketBorders = NULL;
 	pHistoBucketCounts = NULL;
 
+	TagCnv = MC_;
+
 	Reset();
 }
 
@@ -87,23 +89,40 @@ const long idDX_HistoCount = 3;
 const long idDX_RecordCount = 4;
 const long idDX_HistoMin = 5;
 const long idDX_HistoMax = 6;
+const long idDX_GraphUnits = 7;
 
 void SingleVarStats::BuildDataFields()
 {
+	//Test Stuff:
+	/*int count = gs_Cnvs.Count();
+	CString name = gs_Cnvs.Name(TagCnv);
+	double offset = gs_Cnvs.Offset(TagCnv);
+	double scale = gs_Cnvs.Scale(TagCnv);
+	bool create = gs_Cnvs.Create("kPa", TagCnv);*/
+	//MCnv FindPrimary = gs_Cnvs.FindPrimary("Pressure");
+	//End Test Stuff
+
 	DD.CheckBox("Logging","Logging", &bOn, MF_PARAMETER);
 	DD.String("StatTag", "StatTag", idDX_Tag, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
-	DD.Double("Histogram Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER);
-	DD.Double("Histogram Maximum", "HistoMax", idDX_HistoMax, MF_PARAMETER);
+	DD.Double("Histogram Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER, TagCnv);
+	DD.Double("Histogram Maximum", "HistoMax", idDX_HistoMax, MF_PARAMETER, TagCnv);
 	DD.Long("Histogram Buckets", "HistoCount", idDX_HistoCount, MF_PARAMETER | MF_SET_ON_CHANGE);
+	DD.String("Graph_Units", "", idDX_GraphUnits, MF_PARAMETER);
 
 	DD.Text("");
 
-	DD.Double("Average", "Avg", &dAverage, MF_RESULT);
-	DD.Double("Standard Deviation", "StdDev", &dStdDev, MF_RESULT);
-	DD.Double("Minimum", "Min", &dMin, MF_RESULT);
-	DD.Double("Maximum", "Max", &dMax, MF_RESULT);
+	DD.Double("Average", "Avg", &dAverage, MF_RESULT, TagCnv);
+	MCnv StdDevCnv = TagCnv;
+	if (TagCnv.Index == MC_T.Index)
+		StdDevCnv = MC_dT;
+	if (TagCnv.Index == MC_P.Index)
+		StdDevCnv = MC_DP;
+	DD.Double("Standard Deviation", "StdDev", &dStdDev, MF_RESULT, StdDevCnv);
+	DD.Double("Minimum", "Min", &dMin, MF_RESULT, TagCnv);
+	DD.Double("Maximum", "Max", &dMax, MF_RESULT, TagCnv);
 	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
+	DD.Text((CString)"TagCnv: " + TagCnv.Text);
 
 	DD.Text("");
 
@@ -112,8 +131,8 @@ void SingleVarStats::BuildDataFields()
 	for (int i = 0; i < lHistoCount + 2; i++)
 	{
 		DD.ArrayElementStart(i);
-		DD.Double("Minimum", "Min", pHistoBucketBorders + i, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN);
-		DD.Double("Maximum", "Max", pHistoBucketBorders + i + 1, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN);
+		DD.Double("Minimum", "Min", pHistoBucketBorders + i, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN, TagCnv);
+		DD.Double("Maximum", "Max", pHistoBucketBorders + i + 1, MF_RESULT | MF_NO_FILING | MF_INIT_HIDDEN, TagCnv);
 		DD.Long("Count", "Count", pHistoBucketCounts + i, MF_RESULT);
 		DD.ArrayElementEnd();
 	}
@@ -215,6 +234,11 @@ bool SingleVarStats::ExchangeDataFields()
 		}
 		DX.Long = lRecordCount;
 		return true;
+	case idDX_GraphUnits:
+		if (DX.HasReqdValue)
+			sGraphUnit = DX.String;
+		DX.String = sGraphUnit;
+		return true;
 	}
 	return false;
 }
@@ -227,6 +251,7 @@ bool SingleVarStats::ValidateDataFields()
 			tagSubs.Configure(0, NULL, "Variable", MTagIO_Get);
 		TagIO.EndValidateDataFields();
 	}
+	TagCnv = tagSubs.IsActive ? tagSubs.Cnv : MC_;
 	if (lHistoCount < 1)
 		lHistoCount = 1;
 #ifndef SVS_KEEP_RECORD
@@ -408,6 +433,8 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->SetTextColor(Green);
 		CPen penWhite(PS_SOLID, 0, White);
 		CPen penGreen(PS_SOLID, 0, Green);
+		CPen penRed(PS_SOLID, 0, Red);
+		CBrush brushRed(Red);
 		int nTextSize = Wnd.m_TextSize.y;
 		int nBorderSpace = nTextSize;
 		int nTextSpace = 4;
@@ -454,14 +481,31 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			if (pHistoBucketCounts[i] > MaxCount) MaxCount = pHistoBucketCounts[i];
 		int FullScale = (int)(MaxCount * 1.1);
 		int nAxesHeight = nAxesBottom - nAxesTop;
-		Wnd.m_pPaintDC->SelectObject(&penWhite);
+		Wnd.m_pPaintDC->SelectObject(&penRed);
+		CBrush* oldBrush = Wnd.m_pPaintDC->SelectObject(&brushRed);
 		if (MaxCount > 0)
 			for (int i = 0; i < lHistoCount + 2; i++)
+			{
+				if (i == 1)	{
+					Wnd.m_pPaintDC->SelectObject(&penWhite);
+					Wnd.m_pPaintDC->SelectObject(oldBrush);
+				}
+				if (i == lHistoCount - 1) {
+					Wnd.m_pPaintDC->SelectObject(&penRed);
+					Wnd.m_pPaintDC->SelectObject(&brushRed);
+				}
 				Wnd.m_pPaintDC->Rectangle(
 					nAxesLeft + (int)(i*blockWidth),		nAxesBottom - nAxesHeight * pHistoBucketCounts[i] / FullScale, 
 					nAxesLeft + (int)((i+1)*blockWidth),	nAxesBottom);
+			}			
+		Wnd.m_pPaintDC->SelectObject(&penWhite);
+		Wnd.m_pPaintDC->SelectObject(oldBrush);
 
 		//Draw checks and axis values:
+		TagCnv.m_Txt = sGraphUnit;
+		double offset = gs_Cnvs.Offset(TagCnv);
+		double scale = gs_Cnvs.Scale(TagCnv);
+
 		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_CENTER);
 		Wnd.m_pPaintDC->SelectObject(&penGreen);
 		int lastLabel = 0;
@@ -474,11 +518,11 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			
 			CString value;
 			if (pHistoBucketBorders[i] < 100) //Because the %.2g formatting doesn't work like it should
-				value.Format("%.2g", pHistoBucketBorders[i]);
+				value.Format("%.2g", pHistoBucketBorders[i] * scale + offset);
 			else if (pHistoBucketBorders[i] < 1E4)
-				value.Format("%.0f", pHistoBucketBorders[i]);
+				value.Format("%.0f", pHistoBucketBorders[i] * scale + offset);
 			else
-				value.Format("%.1e", pHistoBucketBorders[i]);
+				value.Format("%.1e", pHistoBucketBorders[i] * scale + offset);
 
 			if (nAxesLeft + (int)(i * blockWidth) - lastLabel > Wnd.m_pPaintDC->GetTextExtent(value).cx / 2 + minSpace)
 			{
@@ -486,12 +530,13 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 				lastLabel = nAxesLeft + (int)(i * blockWidth) + Wnd.m_pPaintDC->GetTextExtent(value).cx / 2;
 			}
 		}
+		Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((0.5) * blockWidth), nAxesBottom + nAxesSpace + nTextSize, "UR");
+		Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((lHistoCount + 1.5) * blockWidth), nAxesBottom + nAxesSpace + nTextSize, "OR");
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		CString units = tagSubs.IsActive ? tagSubs.CnvText : "";
-		if (strcmp(units, "") != 0)
-			xLabel.Format("Value (%s)", units);
+		if (strcmp(TagCnv.Text, "") != 0)
+			xLabel.Format("Value (%s)", TagCnv.Text);
 		else
 			xLabel.Format("Value");
 		yLabel.Format("Count");

@@ -85,10 +85,14 @@ void BivarStats::BuildDataFields()
 	DD.String("StatTag1", "StatTag1", idDX_Tag, MF_PARAM_STOPPED);
 	DD.String("StatTag2", "StatTag2", idDX_Tag + 1, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
-	DD.Double("Graph x Minimum", "GraphMinx", idDX_HistoMinX, MF_PARAMETER);
-	DD.Double("Graph x Maximum", "GraphMaxx", idDX_HistoMaxX, MF_PARAMETER);
-	DD.Double("Graph y Minimum", "GraphMiny", idDX_HistoMinY, MF_PARAMETER);
-	DD.Double("Graph y Maximum", "GraphMaxy", idDX_HistoMaxY, MF_PARAMETER);
+
+	MCnv Var1Cnv = tagSubs0.IsActive ? tagSubs0.Cnv : MC_;
+	MCnv Var2Cnv = tagSubs1.IsActive ? tagSubs1.Cnv : MC_;
+
+	DD.Double("Graph x Minimum", "GraphMinx", idDX_HistoMinX, MF_PARAMETER, Var1Cnv);
+	DD.Double("Graph x Maximum", "GraphMaxx", idDX_HistoMaxX, MF_PARAMETER, Var1Cnv);
+	DD.Double("Graph y Minimum", "GraphMiny", idDX_HistoMinY, MF_PARAMETER, Var2Cnv);
+	DD.Double("Graph y Maximum", "GraphMaxy", idDX_HistoMaxY, MF_PARAMETER, Var2Cnv);
 #ifdef MVS_KEEP_RECORD
 	DD.Long("GraphType", "GraphType", (long*)&graphType, MF_PARAMETER, GraphValues);
 #endif
@@ -96,16 +100,24 @@ void BivarStats::BuildDataFields()
 	DD.Text("");
 	DD.Double("Correlation", "Corr", &dCorrelation, MF_RESULT);
 	DD.Text("Variable 1");
-	MCnv Var1Cnv = tagSubs0.IsGet ? tagSubs0.Cnv : MC_;
 	DD.Double("Average", "Avg1", dAverage, MF_RESULT, Var1Cnv);
-	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT, Var1Cnv);
+	MCnv Var1DeltaCnv = Var1Cnv;
+	if (Var1Cnv.Index == MC_T.Index)
+		Var1DeltaCnv = MC_dT;
+	if (Var1Cnv.Index == MC_P.Index)
+		Var1DeltaCnv = MC_DP;
+	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT, Var1DeltaCnv);
 	DD.Double("Minimum", "Min1", dMin, MF_RESULT, Var1Cnv);
 	DD.Double("Maximum", "Max1", dMax, MF_RESULT, Var1Cnv);
 	DD.Text("");
 	DD.Text("Variable 2");
-	MCnv Var2Cnv = tagSubs1.IsGet ? tagSubs1.Cnv : MC_;
 	DD.Double("Average", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);
-	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT, Var2Cnv);
+	MCnv Var2DeltaCnv = Var2Cnv;
+	if (Var2Cnv.Index == MC_T.Index)
+		Var2DeltaCnv = MC_dT;
+	if (Var2Cnv.Index == MC_P.Index)
+		Var2DeltaCnv = MC_DP;
+	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT, Var2DeltaCnv);
 	DD.Double("Minimum", "Min2", dMin + 1, MF_RESULT, Var2Cnv);
 	DD.Double("Maximum", "Max2", dMax + 1, MF_RESULT, Var2Cnv);
 	DD.Text("");
