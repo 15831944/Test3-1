@@ -379,15 +379,15 @@ class DllImportExport MdlNode : public FlwNode
   XID xidIO_QmBalanceTotal      = MdlBsXID(77);
   XID xidIO_QmBalanceTotalRel   = MdlBsXID(78);
 
-  XID xidIO_HzTotalIn           = MdlBsXID(80);
-  XID xidIO_HzTotalOut          = MdlBsXID(81);
-  XID xidIO_HzNett              = MdlBsXID(82);
-  XID xidIO_HzBalance           = MdlBsXID(83);
-  XID xidIO_HzBalanceRel        = MdlBsXID(84);
-  XID xidIO_HzNettTotal         = MdlBsXID(85);
-  //XID xidIO_HzNettTotalRel      = MdlBsXID(86);
-  XID xidIO_HzBalanceTotal      = MdlBsXID(87);
-  XID xidIO_HzBalanceTotalRel   = MdlBsXID(88);
+  XID xidIO_HfTotalIn           = MdlBsXID(80);
+  XID xidIO_HfTotalOut          = MdlBsXID(81);
+  XID xidIO_HfNett              = MdlBsXID(82);
+  XID xidIO_HfBalance           = MdlBsXID(83);
+  XID xidIO_HfBalanceRel        = MdlBsXID(84);
+  XID xidIO_HfNettTotal         = MdlBsXID(85);
+  //XID xidIO_HfNettTotalRel      = MdlBsXID(86);
+  XID xidIO_HfBalanceTotal      = MdlBsXID(87);
+  XID xidIO_HfBalanceTotalRel   = MdlBsXID(88);
 
   XID xidIO_LnkCount            = MdlBsXID(100);
   XID xidIO_DirCount            = MdlBsXID(101);
@@ -477,12 +477,12 @@ class DllImportExport MdlNode : public FlwNode
   XID xidIO_StreamTag0          = MdlBsXID(200+0*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_IoQm0               = MdlBsXID(200+1*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_DrQm0               = MdlBsXID(200+2*MaxIOList); // Leave 'MaxIOList' Ids After this
-  XID xidIO_IoHz0               = MdlBsXID(200+3*MaxIOList); // Leave 'MaxIOList' Ids After this
-  XID xidIO_DrHz0               = MdlBsXID(200+4*MaxIOList); // Leave 'MaxIOList' Ids After this
+  XID xidIO_IoHf0               = MdlBsXID(200+3*MaxIOList); // Leave 'MaxIOList' Ids After this
+  XID xidIO_DrHf0               = MdlBsXID(200+4*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_IoQmTotal0          = MdlBsXID(200+5*MaxIOList); // Leave 'MaxIOList' Ids After this
   XID xidIO_DrQmTotal0          = MdlBsXID(200+6*MaxIOList); // Leave 'MaxIOList' Ids After this
-  XID xidIO_IoHzTotal0          = MdlBsXID(200+7*MaxIOList); // Leave 'MaxIOList' Ids After this
-  XID xidIO_DrHzTotal0          = MdlBsXID(200+8*MaxIOList); // Leave 'MaxIOList' Ids After this
+  XID xidIO_IoHfTotal0          = MdlBsXID(200+7*MaxIOList); // Leave 'MaxIOList' Ids After this
+  XID xidIO_DrHfTotal0          = MdlBsXID(200+8*MaxIOList); // Leave 'MaxIOList' Ids After this
   
   XID xidIO_Hgt0                = MdlBsXID(100000+0*MaxIOList);
   XID xidIO_HFrc0               = MdlBsXID(100000+1*MaxIOList);

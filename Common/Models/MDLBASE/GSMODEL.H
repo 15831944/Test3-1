@@ -291,7 +291,7 @@ class DllImportExport GSModel : public TaggedObject
     double         SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri);
     bool           CorrectRequirements(double HfError, double HfSpecdStreams, int * I, GSIOThermal ** A, int NPri);
 
-    void           EvalProductsThermal();
+    void           EvalProductsThermal(SpConduit & Feed);
 #endif
 
   protected:
@@ -408,9 +408,11 @@ class DllImportExport GSModelBase
     void           MakeUpNodeTransferAvail(int JoinId)        { if (Enabled()) m_pGSM->MakeUpNodeTransferAvail(JoinId); };
     void           MakeUpNodeTransferReqd(int JoinId)         { if (Enabled()) m_pGSM->MakeUpNodeTransferReqd(JoinId); };
 
+    double         ExtMassFlowIn()                            { return 0.0; }
+    double         ExtHeatFlowIn()                            { return (Enabled() && m_pGSM->m_bThermal && m_pGSM->m_bAllowHX) ? m_pGSM->m_PowerIn : 0.0; }
   protected:
     flag            m_fEnabled;
-    pGSModel        m_pGSM;
+    GSModel       * m_pGSM;
     MdlNode       * m_pNd;
     int             m_MdlIOId0;
     int             m_MdlIOIdN;

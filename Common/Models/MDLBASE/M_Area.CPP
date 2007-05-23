@@ -518,18 +518,18 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
           DDB.Text(" ");
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
-            DDB.Double ("",   "Spills",       DC_Pwr,   "kJ/s", xidSpillsInHz,    this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Vents",        DC_Pwr,   "kJ/s", xidVentsInHz,     this, isResult|noFile|noSnap);
-            DDB.Double ("",   "LeaksIn",      DC_Pwr,   "kJ/s", xidLeaksInHz,     this, isResult|noFile|noSnap);
-            DDB.Double ("",   "LeaksOut",     DC_Pwr,   "kJ/s", xidLeaksOutHz,    this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Srcs",         DC_Pwr,   "kJ/s", xidSrcsInHz,      this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Snks",         DC_Pwr,   "kJ/s", xidSnksInHz,      this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Makeups",      DC_Pwr,   "kJ/s", xidMakeupsInHz,   this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHz,    this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHz,    this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHz,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance",      DC_Pwr,   "kJ/s", xidNettInHz,      this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",    xidNettInHzRel,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Spills",       DC_Pwr,   "kJ/s", xidSpillsInHf,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Vents",        DC_Pwr,   "kJ/s", xidVentsInHf,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksIn",      DC_Pwr,   "kJ/s", xidLeaksInHf,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksOut",     DC_Pwr,   "kJ/s", xidLeaksOutHf,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Srcs",         DC_Pwr,   "kJ/s", xidSrcsInHf,      this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Snks",         DC_Pwr,   "kJ/s", xidSnksInHf,      this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Makeups",      DC_Pwr,   "kJ/s", xidMakeupsInHf,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHf,    this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHf,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHf,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance",      DC_Pwr,   "kJ/s", xidNettInHf,      this, isResult|noFile|noSnap);
+            //DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",    xidNettInHfRel,   this, isResult|noFile|noSnap);
             }
           DDB.EndStruct();
           }
@@ -567,18 +567,18 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
           DDB.Text(" ");
           if (DDB.BeginStruct(this, "Heat", NULL, DDB_NoPage))
             {
-            DDB.Double ("",   "Spills",       DC_E,     "kJ", xidSpillsInHzSum,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Vents",        DC_E,     "kJ", xidVentsInHzSum,    this, isResult|noFile|noSnap);
-            DDB.Double ("",   "LeaksIn",      DC_E,     "kJ", xidLeaksInHzSum,    this, isResult|noFile|noSnap);
-            DDB.Double ("",   "LeaksOut",     DC_E,     "kJ", xidLeaksOutHzSum,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Srcs",         DC_E,     "kJ", xidSrcsInHzSum,     this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Snks",         DC_E,     "kJ", xidSnksInHzSum,     this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Makeups",      DC_E,     "kJ", xidMakeupsInHzSum,  this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHzSum,   this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHzSum,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHzSum,  this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance",      DC_E,     "kJ", xidNettInHzSum,     this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInHzSumRel,  this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Spills",       DC_E,     "kJ", xidSpillsInHfSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Vents",        DC_E,     "kJ", xidVentsInHfSum,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksIn",      DC_E,     "kJ", xidLeaksInHfSum,    this, isResult|noFile|noSnap);
+            DDB.Double ("",   "LeaksOut",     DC_E,     "kJ", xidLeaksOutHfSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Srcs",         DC_E,     "kJ", xidSrcsInHfSum,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Snks",         DC_E,     "kJ", xidSnksInHfSum,     this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Makeups",      DC_E,     "kJ", xidMakeupsInHfSum,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHfSum,   this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHfSum,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHfSum,  this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Balance",      DC_E,     "kJ", xidNettInHfSum,     this, isResult|noFile|noSnap);
+            //DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInHfSumRel,  this, isResult|noFile|noSnap);
             }
           DDB.EndStruct();
           }
@@ -639,64 +639,64 @@ flag MN_Area::DataXchg(DataChangeBlk & DCB)
     case xidAccumsInCnt :         DCB.L = m_nCounts[AR_AccumI];                return 1;
 
     case xidMakeupsInQm:          DCB.D = m_OvResults.m_Sum[AR_Makeups].FlowMass;    return 1;
-    case xidMakeupsInHz:          DCB.D = m_OvResults.m_Sum[AR_Makeups].FlowHz;      return 1;
+    case xidMakeupsInHf:          DCB.D = m_OvResults.m_Sum[AR_Makeups].FlowHf;      return 1;
     case xidMakeupsInQmSum:       DCB.D = m_OvResults.m_Sum[AR_Makeups].TotalMass;   return 1;
-    case xidMakeupsInHzSum:       DCB.D = m_OvResults.m_Sum[AR_Makeups].TotalHz;     return 1;
+    case xidMakeupsInHfSum:       DCB.D = m_OvResults.m_Sum[AR_Makeups].TotalHf;     return 1;
 
     case xidBleedsInQm:           DCB.D = m_OvResults.m_Sum[AR_Bleeds].FlowMass;     return 1;
-    case xidBleedsInHz:           DCB.D = m_OvResults.m_Sum[AR_Bleeds].FlowHz;       return 1;
+    case xidBleedsInHf:           DCB.D = m_OvResults.m_Sum[AR_Bleeds].FlowHf;       return 1;
     case xidBleedsInQmSum:        DCB.D = m_OvResults.m_Sum[AR_Bleeds].TotalMass;    return 1;
-    case xidBleedsInHzSum:        DCB.D = m_OvResults.m_Sum[AR_Bleeds].TotalHz;      return 1;
+    case xidBleedsInHfSum:        DCB.D = m_OvResults.m_Sum[AR_Bleeds].TotalHf;      return 1;
 
     case xidSpillsInQm:           DCB.D = -m_OvResults.m_Sum[AR_Spills].FlowMass;    return 1;
-    case xidSpillsInHz:           DCB.D = -m_OvResults.m_Sum[AR_Spills].FlowHz;      return 1;
+    case xidSpillsInHf:           DCB.D = -m_OvResults.m_Sum[AR_Spills].FlowHf;      return 1;
     case xidSpillsInQmSum:        DCB.D = -m_OvResults.m_Sum[AR_Spills].TotalMass;   return 1;
-    case xidSpillsInHzSum:        DCB.D = -m_OvResults.m_Sum[AR_Spills].TotalHz;     return 1;
+    case xidSpillsInHfSum:        DCB.D = -m_OvResults.m_Sum[AR_Spills].TotalHf;     return 1;
 
     case xidVentsInQm:            DCB.D = -m_OvResults.m_Sum[AR_Vents].FlowMass;     return 1;
-    case xidVentsInHz:            DCB.D = -m_OvResults.m_Sum[AR_Vents].FlowHz;       return 1;
+    case xidVentsInHf:            DCB.D = -m_OvResults.m_Sum[AR_Vents].FlowHf;       return 1;
     case xidVentsInQmSum:         DCB.D = -m_OvResults.m_Sum[AR_Vents].TotalMass;    return 1;
-    case xidVentsInHzSum:         DCB.D = -m_OvResults.m_Sum[AR_Vents].TotalHz;      return 1;
+    case xidVentsInHfSum:         DCB.D = -m_OvResults.m_Sum[AR_Vents].TotalHf;      return 1;
 
     case xidLeaksInQm:            DCB.D = m_OvResults.m_Sum[AR_LeaksI].FlowMass;      return 1;
-    case xidLeaksInHz:            DCB.D = m_OvResults.m_Sum[AR_LeaksI].FlowHz;        return 1;
+    case xidLeaksInHf:            DCB.D = m_OvResults.m_Sum[AR_LeaksI].FlowHf;        return 1;
     case xidLeaksInQmSum:         DCB.D = m_OvResults.m_Sum[AR_LeaksI].TotalMass;     return 1;
-    case xidLeaksInHzSum:         DCB.D = m_OvResults.m_Sum[AR_LeaksI].TotalHz;       return 1;
+    case xidLeaksInHfSum:         DCB.D = m_OvResults.m_Sum[AR_LeaksI].TotalHf;       return 1;
 
     case xidLeaksOutQm:           DCB.D = -m_OvResults.m_Sum[AR_LeaksO].FlowMass;     return 1;
-    case xidLeaksOutHz:           DCB.D = -m_OvResults.m_Sum[AR_LeaksO].FlowHz;       return 1;
+    case xidLeaksOutHf:           DCB.D = -m_OvResults.m_Sum[AR_LeaksO].FlowHf;       return 1;
     case xidLeaksOutQmSum:        DCB.D = -m_OvResults.m_Sum[AR_LeaksO].TotalMass;    return 1;
-    case xidLeaksOutHzSum:        DCB.D = -m_OvResults.m_Sum[AR_LeaksO].TotalHz;      return 1;
+    case xidLeaksOutHfSum:        DCB.D = -m_OvResults.m_Sum[AR_LeaksO].TotalHf;      return 1;
 
     case xidSrcsInQm:             DCB.D = m_OvResults.m_Sum[AR_Srcs].FlowMass;       return 1;
-    case xidSrcsInHz:             DCB.D = m_OvResults.m_Sum[AR_Srcs].FlowHz;         return 1;
+    case xidSrcsInHf:             DCB.D = m_OvResults.m_Sum[AR_Srcs].FlowHf;         return 1;
     case xidSrcsInQmSum:          DCB.D = m_OvResults.m_Sum[AR_Srcs].TotalMass;      return 1;
-    case xidSrcsInHzSum:          DCB.D = m_OvResults.m_Sum[AR_Srcs].TotalHz;        return 1;
+    case xidSrcsInHfSum:          DCB.D = m_OvResults.m_Sum[AR_Srcs].TotalHf;        return 1;
 
     case xidSnksInQm:             DCB.D = -m_OvResults.m_Sum[AR_Snks].FlowMass;      return 1;
-    case xidSnksInHz:             DCB.D = -m_OvResults.m_Sum[AR_Snks].FlowHz;        return 1;
+    case xidSnksInHf:             DCB.D = -m_OvResults.m_Sum[AR_Snks].FlowHf;        return 1;
     case xidSnksInQmSum:          DCB.D = -m_OvResults.m_Sum[AR_Snks].TotalMass;     return 1;
-    case xidSnksInHzSum:          DCB.D = -m_OvResults.m_Sum[AR_Snks].TotalHz;       return 1;
+    case xidSnksInHfSum:          DCB.D = -m_OvResults.m_Sum[AR_Snks].TotalHf;       return 1;
 
     case xidAccumsInQm:           DCB.D = -m_OvResults.m_Sum[AR_AccumI].FlowMass;       return 1;
-    case xidAccumsInHz:           DCB.D = -m_OvResults.m_Sum[AR_AccumI].FlowHz;         return 1;
+    case xidAccumsInHf:           DCB.D = -m_OvResults.m_Sum[AR_AccumI].FlowHf;         return 1;
     case xidAccumsInQmSum:        DCB.D = -m_OvResults.m_Sum[AR_AccumI].TotalMass;      return 1;
-    case xidAccumsInHzSum:        DCB.D = -m_OvResults.m_Sum[AR_AccumI].TotalHz;        return 1;
+    case xidAccumsInHfSum:        DCB.D = -m_OvResults.m_Sum[AR_AccumI].TotalHf;        return 1;
 
     case xidAccumsOutQm:          DCB.D = m_OvResults.m_Sum[AR_AccumO].FlowMass;       return 1;
-    case xidAccumsOutHz:          DCB.D = m_OvResults.m_Sum[AR_AccumO].FlowHz;         return 1;
+    case xidAccumsOutHf:          DCB.D = m_OvResults.m_Sum[AR_AccumO].FlowHf;         return 1;
     case xidAccumsOutQmSum:       DCB.D = m_OvResults.m_Sum[AR_AccumO].TotalMass;      return 1;
-    case xidAccumsOutHzSum:       DCB.D = m_OvResults.m_Sum[AR_AccumO].TotalHz;        return 1;
+    case xidAccumsOutHfSum:       DCB.D = m_OvResults.m_Sum[AR_AccumO].TotalHf;        return 1;
 
     case xidNettInQm:             DCB.D = m_OvResults.FlowMass();   return 1;
-    case xidNettInHz:             DCB.D = m_OvResults.FlowHz();     return 1;   
+    case xidNettInHf:             DCB.D = m_OvResults.FlowHf();     return 1;   
     case xidNettInQmSum:          DCB.D = m_OvResults.TotalMass();  return 1;  
-    case xidNettInHzSum:          DCB.D = m_OvResults.TotalHz();    return 1;  
+    case xidNettInHfSum:          DCB.D = m_OvResults.TotalHf();    return 1;  
 
     case xidNettInQmRel:          DCB.D = m_OvResults.FlowMass()  / GTZ(m_OvResults.FlowMassMax());   return 1;
-    case xidNettInHzRel:          DCB.D = m_OvResults.FlowHz()    / GTZ(m_OvResults.FlowHzMax());     return 1;
+    case xidNettInHfRel:          DCB.D = m_OvResults.FlowHf()    / GTZ(m_OvResults.FlowHfMax());     return 1;
     case xidNettInQmSumRel:       DCB.D = m_OvResults.TotalMass() / GTZ(m_OvResults.TotalMassMax());  return 1;
-    case xidNettInHzSumRel:       DCB.D = m_OvResults.TotalHz()   / GTZ(m_OvResults.TotalHzMax());    return 1;
+    case xidNettInHfSumRel:       DCB.D = m_OvResults.TotalHf()   / GTZ(m_OvResults.TotalHfMax());    return 1;
 
     case xidIO_CopyAdtAll         :
     case xidIO_CopyAdtMass        :
@@ -1225,7 +1225,7 @@ void MN_Area::EvalAudit(int Pass)
             //if (Nd.Nd_Rmt(io))
             dbgpln("FlowIO:%2i %2s %20s %20s %12s %12s     %-10s : %s", io, "", 
               DbgFltString(Nd.IOAreaSum(io)->FlowMass,7,10), 
-              DbgFltString(Nd.IOAreaSum(io)->FlowHz),
+              DbgFltString(Nd.IOAreaSum(io)->FlowHf),
               "","",Nd.IODesc_Self(io)->IOName(), Nd.Nd_Rmt(io)->FullObjTag());
             }
 #endif
@@ -1243,9 +1243,9 @@ void MN_Area::EvalAudit(int Pass)
 #if dbgAreas
             if (dbgCalculations() || dbgCalculationsDbg() && DNd.DoDbgBrk())
               {
-              //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Cd.QMass(),7,10), DbgFltString(D.Cd.FlowHz()), D.Tag, TheNd->FullObjTag());
+              //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Cd.QMass(),7,10), DbgFltString(D.Cd.FlowHf()), D.Tag, TheNd->FullObjTag());
               dbgpln("DrctIO:%2i %2i %20s %20s %12s %12s     %-10s : %s [%s]", 
-                i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHz), 
+                i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHf), 
                 "", "", D.Tag, DNd.FullObjTag(), DNd.ClassId());
               }
 #endif
@@ -1339,9 +1339,9 @@ void MN_Area::EvalAudit(int Pass)
           //ASSERT_ALWAYS(false, "Area : the following code is still to be checked", __FILE__, __LINE__);
 #if dbgAreas
           if (dbgCalculations() || dbgCalculationsDbg() && DNd.DoDbgBrk())
-            //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Sum.QMass(),7,10), DbgFltString(D.Sum.FlowHz()), D.Tag, TheNd->FullObjTag());
+            //dbgpln("DrctIO:%2i %2i %20s %20s %15s.%s", i, D.Type, DbgFltString(D.Sum.QMass(),7,10), DbgFltString(D.Sum.FlowHf()), D.Tag, TheNd->FullObjTag());
             dbgpln("DrctIO:%2i %2i %20s %20s %12s %12s   %-10s : %s [%s]", 
-            i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHz),
+            i, D.Type, DbgFltString(D.Sum.FlowMass,7,10), DbgFltString(D.Sum.FlowHf),
             "", "", D.Tag, DNd.FullObjTag(), DNd.ClassId());
 #endif
           switch (D.Type)
@@ -1403,7 +1403,7 @@ void MN_Area::EvalAudit(int Pass)
             }
 
           //OvTotalM+=SUMALL(m_Nd, getFlowMass);
-          //OvTotalH+=SUMALL(m_Nd, getFlowHz);
+          //OvTotalH+=SUMALL(m_Nd, getFlowHf);
           }
         }
 
@@ -1437,9 +1437,9 @@ void MN_Area::EvalAudit(int Pass)
               switch (iPass)            
                 {
                 case 0: D=R.m_Sum[j].FlowMass;  break;
-                case 1: D=R.m_Sum[j].FlowHz;    break;
+                case 1: D=R.m_Sum[j].FlowHf;    break;
                 case 2: D=R.m_Sum[j].TotalMass; break;
-                case 3: D=R.m_Sum[j].TotalHz;   break;
+                case 3: D=R.m_Sum[j].TotalHf;   break;
                 }
               dbgp(iPass<=AR_BalanceRel || fabs(D)>1e-30 ? "\t%.20g":"\t", ARSign[j]*D);
               }
@@ -1486,12 +1486,12 @@ static int TestErrorMT(void * p, void * q)
 
 static int TestErrorH(void * p, void * q) 
   { 
-  return (fabs(((CSumResult*)p)->m_Sum[AR_Balance].FlowHz)>fabs(((CSumResult*)q)->m_Sum[AR_Balance].FlowHz));
+  return (fabs(((CSumResult*)p)->m_Sum[AR_Balance].FlowHf)>fabs(((CSumResult*)q)->m_Sum[AR_Balance].FlowHf));
   }
 
 static int TestErrorHT(void * p, void * q) 
   { 
-  return (fabs(((CSumResult*)p)->m_Sum[AR_Balance].TotalHz)>fabs(((CSumResult*)q)->m_Sum[AR_Balance].TotalHz));
+  return (fabs(((CSumResult*)p)->m_Sum[AR_Balance].TotalHf)>fabs(((CSumResult*)q)->m_Sum[AR_Balance].TotalHf));
   }
 
 void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
@@ -1566,11 +1566,11 @@ void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
             }
           case 2: 
             {
-            double &B = Res.m_Sum[AR_Balance].m_FlowHz;
-            double &R = Res.m_Sum[AR_BalanceRel].m_FlowHz;
-            double F = Res.FlowHz();  
-            double I = Res.m_Sum[AR_LnksI].FlowHz;  
-            double O = Res.m_Sum[AR_LnksO].FlowHz;  
+            double &B = Res.m_Sum[AR_Balance].m_FlowHf;
+            double &R = Res.m_Sum[AR_BalanceRel].m_FlowHf;
+            double F = Res.FlowHf();  
+            double I = Res.m_Sum[AR_LnksI].FlowHf;  
+            double O = Res.m_Sum[AR_LnksO].FlowHf;  
             B = I-O+F;
             double Mx=Max(fabs(I), fabs(O));
             if (fabs(B)<1e-14*Mx)
@@ -1580,11 +1580,11 @@ void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
             }
           case 3: 
             {
-            double &B = Res.m_Sum[AR_Balance].m_TotalHz;
-            double &R = Res.m_Sum[AR_BalanceRel].m_TotalHz;
-            double F = Res.TotalHz();  
-            double I = Res.m_Sum[AR_LnksI].TotalHz;  
-            double O = Res.m_Sum[AR_LnksO].TotalHz;  
+            double &B = Res.m_Sum[AR_Balance].m_TotalHf;
+            double &R = Res.m_Sum[AR_BalanceRel].m_TotalHf;
+            double F = Res.TotalHf();  
+            double I = Res.m_Sum[AR_LnksI].TotalHf;  
+            double O = Res.m_Sum[AR_LnksO].TotalHf;  
             B = I-O+F;
             double Mx=Max(fabs(I), fabs(O));
             if (fabs(B)<1e-14*Mx)
@@ -1599,8 +1599,8 @@ void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
       //  dbgpln("B: %16.3f %16.3f %16.3f %16.3f %s", 
       //    Results[iNd]->m_Sum[AR_Balance].FlowMass,  
       //    Results[iNd]->m_Sum[AR_Balance].TotalMass, 
-      //    Results[iNd]->m_Sum[AR_Balance].FlowHz,    
-      //    Results[iNd]->m_Sum[AR_Balance].TotalHz,   
+      //    Results[iNd]->m_Sum[AR_Balance].FlowHf,    
+      //    Results[iNd]->m_Sum[AR_Balance].TotalHf,   
       //    Results[iNd]->m_pNd->FullObjTag());
 
       switch (iPass)            
@@ -1614,8 +1614,8 @@ void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
       //  dbgpln("A: %16.3f %16.3f %16.3f %16.3f %s", 
       //    Results[iNd]->m_Sum[AR_Balance].FlowMass,  
       //    Results[iNd]->m_Sum[AR_Balance].TotalMass, 
-      //    Results[iNd]->m_Sum[AR_Balance].FlowHz,    
-      //    Results[iNd]->m_Sum[AR_Balance].TotalHz,   
+      //    Results[iNd]->m_Sum[AR_Balance].FlowHf,    
+      //    Results[iNd]->m_Sum[AR_Balance].TotalHf,   
       //    Results[iNd]->m_pNd->FullObjTag());
 
       for (iNd=0; iNd<Results.GetSize(); iNd++)
@@ -1630,8 +1630,8 @@ void MN_Area::GetBalanceReport(CNodeAuditInfo & Audit)
             {
             case 0: D=Res.m_Sum[j].FlowMass;  break;
             case 1: D=Res.m_Sum[j].TotalMass; break;
-            case 2: D=Res.m_Sum[j].FlowHz;    break;
-            case 3: D=Res.m_Sum[j].TotalHz;   break;
+            case 2: D=Res.m_Sum[j].FlowHf;    break;
+            case 3: D=Res.m_Sum[j].TotalHf;   break;
             }
           S.AppendFormat(iPass<=AR_BalanceRel || fabs(D)>1e-30 ? "\t%.20g":"\t", ARSign[j]*D);
           }

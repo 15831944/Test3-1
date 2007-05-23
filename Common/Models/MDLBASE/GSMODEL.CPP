@@ -2546,7 +2546,7 @@ void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
 
 #if (WITHTHERMAL) 
   if (m_bThermal)
-    EvalProductsThermal();
+    EvalProductsThermal(Sd);
 #endif
   }
 
@@ -2756,7 +2756,7 @@ flag GSModel::DataXchgThermal(DataChangeBlk & DCB)
 
 flag GSModel::ValidateDataThermal(ValidateDataBlk & VDB)
   {
-  if (!m_bAllowHX)
+  if (!m_bThermal || !m_bAllowHX)
     m_PowerIn = 0.0;
   m_FinalTempMin = Max(1.0, m_FinalTempMin  );
   m_FinalTempMax = Range(m_FinalTempMin, m_FinalTempMax, C2K(10000.0));
@@ -2865,7 +2865,7 @@ void GSModel::SetDeltaTemp(int * I, GSIOThermal ** A, int NPri)
 
 double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
   {
-  double HfReqdSpec=0;
+  double HzReqdSpec=0;
   for (int j = 0;j<NPri; j++)
     {
     GSIOThermal & Aj = *A[j];
@@ -2877,10 +2877,10 @@ double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
       Aj.m_Achieved = (TSet-m_TempIn)/NZ(Aj.m_DeltaT);
 
       Cd.SetTempPress(TSet, m_PressIn);
-      HfReqdSpec += Cd.totHz ();
+      HzReqdSpec += Cd.totHz ();
       }
     }
-  return HfReqdSpec;
+  return HzReqdSpec;
   }
 
 //--------------------------------------------------------------------------
@@ -3019,6 +3019,9 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
   bool GoFwd     = false;
   if (!sm_TolPwr.ConvergedVV(HfSpecReqd, HfSpecdStreams))
     {
+    if (m_Nd.fDoDbgBrk)
+      { int xxx=0; };
+
     bool CoolSpecd = HfSpecReqd <= HfSpecdStreams;
     int nGroups   = 0;
     int LastSpecd = -1;
@@ -3113,9 +3116,14 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsThermal()  
+void GSModel::EvalProductsThermal(SpConduit & CdFeed)  
   {
-  dbgpln("GSModel::EvalProductsThermal");
+  //dbgpln("GSModel::EvalProductsThermal");
+
+  double HzIn=CdFeed.totHz();
+
+  if (m_Nd.fDoDbgBrk)
+    { int xxx=0; };
 
   if (!m_bAllowHX)
     m_PowerIn = 0.0;
@@ -3132,12 +3140,9 @@ void GSModel::EvalProductsThermal()
   m_PressIn      = StdP;
 
   int NFree=0;
-  double HfIn=0.0;
-  double HfSpecdInitial=0.0;
   for (int j = 0;j<NPri; j++)
     {
     SpConduit & Cd = *m_Nd.IOConduit(I[j]);
-    HfIn+=Cd.totHz ();
     if (Cd.QMass()>BigFlow)
       {
       BigFlow=Cd.QMass();
@@ -3148,8 +3153,6 @@ void GSModel::EvalProductsThermal()
     A[j]->m_Achieved=0;
     if (A[j]->Mode(this)>=GST_TFreeDiff)
       NFree++;
-    else
-      HfSpecdInitial+=Cd.totHz ();
     }
 
   m_TMin = m_ChangeTst ? Max(m_FinalTempMin, m_TempIn - m_ChangeNeg) : m_FinalTempMin;
@@ -3159,28 +3162,31 @@ void GSModel::EvalProductsThermal()
     {
     SetDeltaTemp(I, A, NPri);
 
-    double HfSpecdStreams=SetRequirements(I, A, NPri);
+    double HzSpecdStreams=SetRequirements(I, A, NPri);
 
     m_PowerIn=0.0;
-    double HfSpecReqd=0.0;
-    double HfReqdInFreeStreams=HfIn-HfSpecdStreams;
+    double HzSpecReqd=0.0;
+    double HzReqdInFreeStreams=HzIn-HzSpecdStreams;
     if (NFree>0)
       {
-      double HfFreeStreams=SetFreeStreams(HfReqdInFreeStreams, I, A, NPri);
+      double HzFreeStreams=SetFreeStreams(HzReqdInFreeStreams, I, A, NPri);
       if (m_bAllowHX)
-        m_PowerIn=HfIn-HfFreeStreams;
+        m_PowerIn=HzFreeStreams-HzIn;
       else
-        HfSpecReqd=HfIn-HfFreeStreams;
+        HzSpecReqd=HzIn-HzFreeStreams;
       }
-    else if (fabs(HfReqdInFreeStreams)>1e-6)
+    else if (fabs(HzReqdInFreeStreams)>1e-6)
       {
       if (m_bAllowHX)
-        m_PowerIn=HfReqdInFreeStreams;
+        {
+        m_PowerIn=-HzReqdInFreeStreams;
+        HzSpecReqd=HzIn+m_PowerIn;
+        }
       else
-        HfSpecReqd=HfReqdInFreeStreams;
+        HzSpecReqd=HzReqdInFreeStreams;
       }
 
-    CorrectRequirements(HfSpecReqd, HfSpecdStreams, I,A, NPri);
+    CorrectRequirements(HzSpecReqd, HzSpecdStreams, I,A, NPri);
     
     ClrCI(8);
     }

@@ -31,8 +31,11 @@ extern "C"
 CFindTagsDlg * CFindTagsDlg::gs_pDlg=NULL;
 static void CALLBACK DoTimer(HWND hWnd, UINT nMsg, UINT_PTR idEvent, DWORD dwTime ) 
   {
-  ASSERT_ALWAYS(CFindTagsDlg::gs_pDlg && CFindTagsDlg::gs_pDlg->m_hWnd==hWnd, "CFindTagsDlg - Bad DoTimer", __FILE__, __LINE__);
-  CFindTagsDlg::gs_pDlg->ProcessTimer(idEvent);
+  if (CFindTagsDlg::gs_pDlg)
+    {
+    ASSERT_ALWAYS(CFindTagsDlg::gs_pDlg && CFindTagsDlg::gs_pDlg->m_hWnd==hWnd, "CFindTagsDlg - Bad DoTimer", __FILE__, __LINE__);
+    CFindTagsDlg::gs_pDlg->ProcessTimer(idEvent);
+    }
   }
 
 

@@ -377,8 +377,8 @@ class DllImportExport CAreaSum
     void          Integrate(double TimeInc);
 
     bool          getDoArray() const            { return sm_eAction==SumArray; }
-    double        getFlowHz() const             { return m_FlowHz; }
-    void          putFlowHz(double H)           { m_FlowHz=H; }
+    double        getFlowHf() const             { return m_FlowHf; }
+    void          putFlowHf(double H)           { m_FlowHf=H; }
     double        getFlowMass() const           { return m_FlowMass; }
     void          putFlowMass(double M)         { m_FlowMass=M; }
     CSysVector  & getFlowArray()                { if (DoArray && !m_pFlowArray) m_pFlowArray=new SpMArray; return *m_pFlowArray; }
@@ -386,31 +386,31 @@ class DllImportExport CAreaSum
     void          putTotalMass(double M)        { m_TotalMass=M; }
     double        getTotalMassInc() const       { return m_TotalMassInc; }
     void          putTotalMassInc(double M)     { m_TotalMassInc=M; }
-    double        getTotalHz() const            { return m_TotalHz; }
-    void          putTotalHz(double H)          { m_TotalHz=H; }
-    double        getTotalHzInc() const         { return m_TotalHzInc; }
-    void          putTotalHzInc(double H)       { m_TotalHzInc=H; }
+    double        getTotalHf() const            { return m_TotalHf; }
+    void          putTotalHf(double H)          { m_TotalHf=H; }
+    double        getTotalHfInc() const         { return m_TotalHfInc; }
+    void          putTotalHfInc(double H)       { m_TotalHfInc=H; }
     CSysVector  & getTotalArray()               { if (DoArray && !m_pTotalArray) m_pTotalArray=new SpMArray; return *m_pTotalArray; }
 
     _declspec(property(get=getDoArray))                             bool          DoArray;
-    _declspec(property(get=getFlowHz,put=putFlowHz))                double        FlowHz;
+    _declspec(property(get=getFlowHf,put=putFlowHf))                double        FlowHf;
     _declspec(property(get=getFlowMass,put=putFlowMass))            double        FlowMass;
     _declspec(property(get=getFlowArray))                           CSysVector  & FlowArray;
     _declspec(property(get=getTotalMass,put=putTotalMass))          double        TotalMass;
     _declspec(property(get=getTotalMassInc,put=putTotalMassInc))    double        TotalMassInc;
-    _declspec(property(get=getTotalHz,put=putTotalHz))              double        TotalHz;
-    _declspec(property(get=getTotalHzInc,put=putTotalHzInc))        double        TotalHzInc;
+    _declspec(property(get=getTotalHf,put=putTotalHf))              double        TotalHf;
+    _declspec(property(get=getTotalHfInc,put=putTotalHfInc))        double        TotalHfInc;
     _declspec(property(get=getTotalArray))                          CSysVector  & TotalArray;
 
   protected:
-    double          m_FlowHz;
+    double          m_FlowHf;
     double          m_FlowMass;
     SpMArray      * m_pFlowArray;
 
     double          m_TotalMass;
     double          m_TotalMassInc;
-    double          m_TotalHz;
-    double          m_TotalHzInc;
+    double          m_TotalHf;
+    double          m_TotalHfInc;
     SpMArray      * m_pTotalArray;
   };
 
@@ -447,7 +447,7 @@ class DllImportExport CExternAuditCalc : public CAreaSum
   public:
     CExternAuditCalc(FlwNode * pNd);
     ~CExternAuditCalc();
-    void Complete(int Instance, CReactionBase * pRB);
+    void Complete(int Instance, CReactionBase * pRB, double ExtMassIn=0.0, double ExtPwrIn=0.0);
 
     bool            InUse()         { return m_LastInstance>=0; };
     //double          Mass()          { return m_Mass; };

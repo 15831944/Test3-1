@@ -10704,13 +10704,13 @@ CAreaSum::eSumAction CAreaSum::sm_eAction=CAreaSum::SumMass;
 
 CAreaSum::CAreaSum()
   {
-  m_FlowHz        = 0;
+  m_FlowHf        = 0;
   m_FlowMass      = 0;
   m_pFlowArray    = NULL;
   m_TotalMass     = 0;
   m_TotalMassInc  = 0;
-  m_TotalHz       = 0;
-  m_TotalHzInc    = 0;
+  m_TotalHf       = 0;
+  m_TotalHfInc    = 0;
   m_pTotalArray   = NULL;
   };
 
@@ -10725,7 +10725,7 @@ CAreaSum::~CAreaSum()
 void CAreaSum::ZeroFlows()
   {
   m_FlowMass = 0;
-  m_FlowHz = 0;
+  m_FlowHf = 0;
   if (DoArray)
     FlowArray.Zero();
   };
@@ -10734,8 +10734,8 @@ void CAreaSum::ZeroTotals()
   {
   m_TotalMass = 0;
   m_TotalMassInc = 0;
-  m_TotalHz = 0;
-  m_TotalHzInc = 0;
+  m_TotalHf = 0;
+  m_TotalHfInc = 0;
   if (DoArray)
     TotalArray.Zero();
   };
@@ -10743,7 +10743,7 @@ void CAreaSum::ZeroTotals()
 void CAreaSum::ZeroTotalIncs()
   {
   m_TotalMassInc = 0;
-  m_TotalHzInc = 0;
+  m_TotalHfInc = 0;
   };
 
 //--------------------------------------------------------------------------
@@ -10751,14 +10751,14 @@ void CAreaSum::ZeroTotalIncs()
 void CAreaSum::Set(CAreaSum & C)
   {
   m_FlowMass = C.FlowMass;
-  m_FlowHz = C.FlowHz;
+  m_FlowHf = C.FlowHf;
   if (DoArray)
     FlowArray.Set(C.FlowArray);
 
   m_TotalMass     = C.TotalMass;
   m_TotalMassInc  = C.TotalMassInc;
-  m_TotalHz       = C.TotalHz;
-  m_TotalHzInc    = C.TotalHzInc;
+  m_TotalHf       = C.TotalHf;
+  m_TotalHfInc    = C.TotalHfInc;
   if (DoArray)
     TotalArray.Set(C.TotalArray);
   };
@@ -10766,7 +10766,7 @@ void CAreaSum::Set(CAreaSum & C)
 void CAreaSum::Set(SpModel & C)
   {
   m_FlowMass = C.Mass();
-  m_FlowHz = C.totHz();
+  m_FlowHf = C.totHf();
   if (DoArray)
     FlowArray.Set(C.MArray());
   };
@@ -10774,16 +10774,16 @@ void CAreaSum::Set(SpModel & C)
 void CAreaSum::Set(SpQueue & Q)
   {
   m_FlowMass=0;
-  m_FlowHz=0;
+  m_FlowHf=0;
   if (DoArray)
     FlowArray.Zero();
-  Q.AddTotals(m_FlowMass, m_FlowHz, DoArray ? &FlowArray : NULL);
+  Q.AddTotals(m_FlowMass, m_FlowHf, DoArray ? &FlowArray : NULL);
   };
 
 void CAreaSum::Set(CSysVector & V, double totHz)
   {
   m_FlowMass = V.Mass();
-  m_FlowHz = FlowHz;
+  m_FlowHf = FlowHf;
   if (DoArray)
     FlowArray.Set(V);
   };
@@ -10793,12 +10793,12 @@ void CAreaSum::Set(CSysVector & V, double totHz)
 void CAreaSum::Add(CAreaSum & C)
   {
   m_FlowMass += C.FlowMass;
-  m_FlowHz += C.FlowHz;
+  m_FlowHf += C.FlowHf;
   if (DoArray)
     FlowArray.Add(C.FlowArray, som_ALL);
 
   m_TotalMass += C.TotalMassInc;
-  m_TotalHz += C.TotalHzInc;
+  m_TotalHf += C.TotalHfInc;
   if (DoArray)
     TotalArray.Add(C.TotalArray, som_ALL);
   };
@@ -10806,20 +10806,20 @@ void CAreaSum::Add(CAreaSum & C)
 void CAreaSum::Add(SpModel & C)
   {
   m_FlowMass += C.Mass();
-  m_FlowHz += C.totHz();
+  m_FlowHf += C.totHf();
   if (DoArray)
     FlowArray.Add(C.MArray(), som_ALL);
   };
 
 void CAreaSum::Add(SpQueue & Q)
   {
-  Q.AddTotals(m_FlowMass, m_FlowHz, DoArray ? &FlowArray : NULL);
+  Q.AddTotals(m_FlowMass, m_FlowHf, DoArray ? &FlowArray : NULL);
   };
 
-void CAreaSum::Add(CSysVector & V, double FlowHz)
+void CAreaSum::Add(CSysVector & V, double FlowHf)
   {
   m_FlowMass += V.Mass();
-  m_FlowHz += FlowHz;
+  m_FlowHf += FlowHf;
   if (DoArray)
     FlowArray.Add(V, som_ALL);
   };
@@ -10830,8 +10830,8 @@ void CAreaSum::Integrate(double TimeInc)
   {
   m_TotalMassInc=m_FlowMass*TimeInc;
   m_TotalMass+=m_TotalMassInc;
-  m_TotalHzInc=m_FlowHz*TimeInc;
-  m_TotalHz+=m_TotalHzInc;
+  m_TotalHfInc=m_FlowHf*TimeInc;
+  m_TotalHf+=m_TotalHfInc;
   if (DoArray)
     {
     INCOMPLETECODE(__FILE__, __LINE__)
@@ -10972,16 +10972,16 @@ void CDirectAccCalc::DoComplete(int Instance)
       m_Out.Sum.FlowMass=-dM;
       }
 
-    double dH=(m_Out.Sum.FlowHz-m_In.Sum.FlowHz)/TimeInc;
+    double dH=(m_Out.Sum.FlowHf-m_In.Sum.FlowHf)/TimeInc;
     if (dH>=0)
       {
-      m_In.Sum.FlowHz=dH;
-      m_Out.Sum.FlowHz=0;
+      m_In.Sum.FlowHf=dH;
+      m_Out.Sum.FlowHf=0;
       }
     else
       {
-      m_In.Sum.FlowHz=0;
-      m_Out.Sum.FlowHz=-dH;
+      m_In.Sum.FlowHf=0;
+      m_Out.Sum.FlowHf=-dH;
       }
     }
 
@@ -10991,8 +10991,8 @@ void CDirectAccCalc::DoComplete(int Instance)
     dbgpln("AccCalc::Complete === %20s %20s %20s %20s %s",
       DbgFltString(m_In.Sum.FlowMass,7,6),
       DbgFltString(m_Out.Sum.FlowMass,7,6),
-      DbgFltString(m_In.Sum.FlowHz),
-      DbgFltString(m_Out.Sum.FlowHz),
+      DbgFltString(m_In.Sum.FlowHf),
+      DbgFltString(m_Out.Sum.FlowHf),
       m_Nd.FullObjTag());
     }
   #endif
@@ -11017,7 +11017,7 @@ CExternAuditCalc::~CExternAuditCalc()
   {
   };
 
-void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB)
+void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB, double ExtMassIn, double ExtPwrIn)
   {
   if (Instance==0)
     {
@@ -11037,9 +11037,12 @@ void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB)
     m_FlowMass+=pRB->MsSumSrc()->Mass()/TimeInc;
     m_FlowMass-=pRB->MsSumSnk()->Mass()/TimeInc;
 
-    m_FlowHz+=pRB->HsSumPwr()/TimeInc;
-    m_FlowHz+=pRB->HsSumHX()/TimeInc;
+    m_FlowHf+=pRB->HsSumPwr()/TimeInc;
+    m_FlowHf+=pRB->HsSumHX()/TimeInc;
     }
+
+  m_FlowMass += ExtMassIn;
+  m_FlowHf   += ExtPwrIn;
 
   #if dbgFlwNode
   if (dbgAccCalcs())
@@ -11047,8 +11050,8 @@ void CExternAuditCalc::Complete(int Instance, CReactionBase * pRB)
     dbgpln("AdtCalc::Complete === %20s %20s %20s %20s %s",
       DbgFltString(FlowMass,7,6),
       DbgFltString(FlowMass,7,6),
-      DbgFltString(FlowHz),
-      DbgFltString(FlowHz),
+      DbgFltString(FlowHf),
+      DbgFltString(FlowHf),
       m_Nd.FullObjTag());
     }
   #endif

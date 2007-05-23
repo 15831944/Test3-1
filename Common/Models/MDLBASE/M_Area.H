@@ -89,64 +89,64 @@ XID xidSnksInCnt              = MdlBsXID(5007);
 XID xidAccumsInCnt            = MdlBsXID(5008);
 
 XID xidMakeupsInQm            = MdlBsXID(5021);
-XID xidMakeupsInHz            = MdlBsXID(5022);
+XID xidMakeupsInHf            = MdlBsXID(5022);
 XID xidMakeupsInQmSum         = MdlBsXID(5023);
-XID xidMakeupsInHzSum         = MdlBsXID(5024);
+XID xidMakeupsInHfSum         = MdlBsXID(5024);
 
 XID xidBleedsInQm             = MdlBsXID(5031);
-XID xidBleedsInHz             = MdlBsXID(5032);
+XID xidBleedsInHf             = MdlBsXID(5032);
 XID xidBleedsInQmSum          = MdlBsXID(5033);
-XID xidBleedsInHzSum          = MdlBsXID(5034);
+XID xidBleedsInHfSum          = MdlBsXID(5034);
                                          
 XID xidSpillsInQm             = MdlBsXID(5041);
-XID xidSpillsInHz             = MdlBsXID(5042);
+XID xidSpillsInHf             = MdlBsXID(5042);
 XID xidSpillsInQmSum          = MdlBsXID(5043);
-XID xidSpillsInHzSum          = MdlBsXID(5044);
+XID xidSpillsInHfSum          = MdlBsXID(5044);
                                          
 XID xidVentsInQm              = MdlBsXID(5051);
-XID xidVentsInHz              = MdlBsXID(5052);
+XID xidVentsInHf              = MdlBsXID(5052);
 XID xidVentsInQmSum           = MdlBsXID(5053);
-XID xidVentsInHzSum           = MdlBsXID(5054);
+XID xidVentsInHfSum           = MdlBsXID(5054);
                                          
 XID xidLeaksInQm              = MdlBsXID(5061);
-XID xidLeaksInHz              = MdlBsXID(5062);
+XID xidLeaksInHf              = MdlBsXID(5062);
 XID xidLeaksInQmSum           = MdlBsXID(5063);
-XID xidLeaksInHzSum           = MdlBsXID(5064);
+XID xidLeaksInHfSum           = MdlBsXID(5064);
                                          
 XID xidLeaksOutQm             = MdlBsXID(5071);
-XID xidLeaksOutHz             = MdlBsXID(5072);
+XID xidLeaksOutHf             = MdlBsXID(5072);
 XID xidLeaksOutQmSum          = MdlBsXID(5073);
-XID xidLeaksOutHzSum          = MdlBsXID(5074);
+XID xidLeaksOutHfSum          = MdlBsXID(5074);
                                          
 XID xidSrcsInQm               = MdlBsXID(5081);
-XID xidSrcsInHz               = MdlBsXID(5082);
+XID xidSrcsInHf               = MdlBsXID(5082);
 XID xidSrcsInQmSum            = MdlBsXID(5083);
-XID xidSrcsInHzSum            = MdlBsXID(5084);
+XID xidSrcsInHfSum            = MdlBsXID(5084);
                                          
 XID xidSnksInQm               = MdlBsXID(5091);
-XID xidSnksInHz               = MdlBsXID(5092);
+XID xidSnksInHf               = MdlBsXID(5092);
 XID xidSnksInQmSum            = MdlBsXID(5093);
-XID xidSnksInHzSum            = MdlBsXID(5094);
+XID xidSnksInHfSum            = MdlBsXID(5094);
                                 
 XID xidAccumsInQm             = MdlBsXID(5101);
-XID xidAccumsInHz             = MdlBsXID(5102);
+XID xidAccumsInHf             = MdlBsXID(5102);
 XID xidAccumsInQmSum          = MdlBsXID(5103);
-XID xidAccumsInHzSum          = MdlBsXID(5104);
+XID xidAccumsInHfSum          = MdlBsXID(5104);
                                          
 XID xidAccumsOutQm            = MdlBsXID(5111);
-XID xidAccumsOutHz            = MdlBsXID(5112);
+XID xidAccumsOutHf            = MdlBsXID(5112);
 XID xidAccumsOutQmSum         = MdlBsXID(5113);
-XID xidAccumsOutHzSum         = MdlBsXID(5114);
+XID xidAccumsOutHfSum         = MdlBsXID(5114);
                                          
 XID xidNettInQm               = MdlBsXID(5201);
-XID xidNettInHz               = MdlBsXID(5202);
+XID xidNettInHf               = MdlBsXID(5202);
 XID xidNettInQmSum            = MdlBsXID(5203);
-XID xidNettInHzSum            = MdlBsXID(5204);
+XID xidNettInHfSum            = MdlBsXID(5204);
 
 XID xidNettInQmRel            = MdlBsXID(5211);
-XID xidNettInHzRel            = MdlBsXID(5212);
+XID xidNettInHfRel            = MdlBsXID(5212);
 XID xidNettInQmSumRel         = MdlBsXID(5213);
-XID xidNettInHzSumRel         = MdlBsXID(5214);
+XID xidNettInHfSumRel         = MdlBsXID(5214);
 
 XID xidEnvTRqd                = MdlBsXID(5301);
 XID xidEnvPRqd                = MdlBsXID(5302);
@@ -206,14 +206,14 @@ class DllImportExport CSumResult
         +m_Sum[AR_LeaksI].FlowMass-m_Sum[AR_LeaksO].FlowMass
         +m_Sum[AR_AccumO].FlowMass-m_Sum[AR_AccumI].FlowMass;
       };
-    double FlowHz() 
+    double FlowHf() 
       {
       return 
-        +m_Sum[AR_Srcs].FlowHz-m_Sum[AR_Snks].FlowHz
-        +m_Sum[AR_Makeups].FlowHz-m_Sum[AR_Bleeds].FlowHz
-        -m_Sum[AR_Spills].FlowHz-m_Sum[AR_Vents].FlowHz
-        +m_Sum[AR_LeaksI].FlowHz-m_Sum[AR_LeaksO].FlowHz
-        +m_Sum[AR_AccumO].FlowHz-m_Sum[AR_AccumI].FlowHz;
+        +m_Sum[AR_Srcs].FlowHf-m_Sum[AR_Snks].FlowHf
+        +m_Sum[AR_Makeups].FlowHf-m_Sum[AR_Bleeds].FlowHf
+        -m_Sum[AR_Spills].FlowHf-m_Sum[AR_Vents].FlowHf
+        +m_Sum[AR_LeaksI].FlowHf-m_Sum[AR_LeaksO].FlowHf
+        +m_Sum[AR_AccumO].FlowHf-m_Sum[AR_AccumI].FlowHf;
       };
 
     double TotalMass() 
@@ -225,14 +225,14 @@ class DllImportExport CSumResult
         +m_Sum[AR_LeaksI].TotalMass-m_Sum[AR_LeaksO].TotalMass
         +m_Sum[AR_AccumO].TotalMass-m_Sum[AR_AccumI].TotalMass;
       };
-    double TotalHz() 
+    double TotalHf() 
       {
       return 
-        +m_Sum[AR_Srcs].TotalHz-m_Sum[AR_Snks].TotalHz
-        +m_Sum[AR_Makeups].TotalHz-m_Sum[AR_Bleeds].TotalHz
-        -m_Sum[AR_Spills].TotalHz-m_Sum[AR_Vents].TotalHz
-        +m_Sum[AR_LeaksI].TotalHz-m_Sum[AR_LeaksO].TotalHz
-        +m_Sum[AR_AccumO].TotalHz-m_Sum[AR_AccumI].TotalHz;
+        +m_Sum[AR_Srcs].TotalHf-m_Sum[AR_Snks].TotalHf
+        +m_Sum[AR_Makeups].TotalHf-m_Sum[AR_Bleeds].TotalHf
+        -m_Sum[AR_Spills].TotalHf-m_Sum[AR_Vents].TotalHf
+        +m_Sum[AR_LeaksI].TotalHf-m_Sum[AR_LeaksO].TotalHf
+        +m_Sum[AR_AccumO].TotalHf-m_Sum[AR_AccumI].TotalHf;
       };
 
     double FlowMassMax() 
@@ -244,13 +244,13 @@ class DllImportExport CSumResult
                    +m_Sum[AR_Vents].FlowMass+m_Sum[AR_LeaksO].FlowMass+m_Sum[AR_AccumI].FlowMass)
                  );
       };
-    double FlowHzMax() 
+    double FlowHfMax() 
       {
       return Max(
-                  (+m_Sum[AR_Srcs].FlowHz+m_Sum[AR_Makeups].FlowHz
-                   +m_Sum[AR_LeaksI].FlowHz+m_Sum[AR_AccumO].FlowHz),
-                  (+m_Sum[AR_Snks].FlowHz+m_Sum[AR_Bleeds].FlowHz+m_Sum[AR_Spills].FlowHz
-                   +m_Sum[AR_Vents].FlowHz+m_Sum[AR_LeaksO].FlowHz+m_Sum[AR_AccumI].FlowHz)
+                  (+m_Sum[AR_Srcs].FlowHf+m_Sum[AR_Makeups].FlowHf
+                   +m_Sum[AR_LeaksI].FlowHf+m_Sum[AR_AccumO].FlowHf),
+                  (+m_Sum[AR_Snks].FlowHf+m_Sum[AR_Bleeds].FlowHf+m_Sum[AR_Spills].FlowHf
+                   +m_Sum[AR_Vents].FlowHf+m_Sum[AR_LeaksO].FlowHf+m_Sum[AR_AccumI].FlowHf)
                  );
       };
 
@@ -263,13 +263,13 @@ class DllImportExport CSumResult
                    +m_Sum[AR_Vents].TotalMass+m_Sum[AR_LeaksO].TotalMass+m_Sum[AR_AccumI].TotalMass)
                  );
       };
-    double TotalHzMax() 
+    double TotalHfMax() 
       {
       return Max(
-                  (+m_Sum[AR_Srcs].TotalHz+m_Sum[AR_Makeups].TotalHz
-                   +m_Sum[AR_LeaksI].TotalHz+m_Sum[AR_AccumO].TotalHz),
-                  (+m_Sum[AR_Snks].TotalHz+m_Sum[AR_Bleeds].TotalHz+m_Sum[AR_Spills].TotalHz
-                   +m_Sum[AR_Vents].TotalHz+m_Sum[AR_LeaksO].TotalHz+m_Sum[AR_AccumI].TotalHz)
+                  (+m_Sum[AR_Srcs].TotalHf+m_Sum[AR_Makeups].TotalHf
+                   +m_Sum[AR_LeaksI].TotalHf+m_Sum[AR_AccumO].TotalHf),
+                  (+m_Sum[AR_Snks].TotalHf+m_Sum[AR_Bleeds].TotalHf+m_Sum[AR_Spills].TotalHf
+                   +m_Sum[AR_Vents].TotalHf+m_Sum[AR_LeaksO].TotalHf+m_Sum[AR_AccumI].TotalHf)
                  );
       };
 
