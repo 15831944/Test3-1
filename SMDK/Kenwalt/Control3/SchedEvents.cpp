@@ -40,13 +40,15 @@ void ScheduledEvents_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
+const int maxElements = 20;
+
 ScheduledEvents::ScheduledEvents(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
 	//default values...
 	bOn = true;
 	dCurrentTime = 0.0;
-  bForceIntegralPeriod = true;
-  bForceIntegralDowntime = false;
+	bForceIntegralPeriod = true;
+	bForceIntegralDowntime = false;
 }
 
 //---------------------------------------------------------------------------
@@ -59,6 +61,7 @@ void ScheduledEvents::Init()
 
 bool ScheduledEvents::PreStartCheck()
 {
+	CheckTags(); 
 	return true;
 }
 
@@ -67,6 +70,12 @@ bool ScheduledEvents::PreStartCheck()
 void ScheduledEvents::EvalCtrlInitialise(eScdCtrlTasks Tasks)
 {
 	Reset();
+	for (int i = 0; i < tasks.size(); i++)
+		if (tasks.at(i)->tagSubs.IsActive)
+			if (tasks.at(i)->bRunning)
+				tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOnValue;
+			else
+				tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOffValue;
 }
 
 //---------------------------------------------------------------------------
@@ -76,16 +85,14 @@ void ScheduledEvents::Reset()
 	dCurrentTime = 0.0;
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		tasks.at(i).dBackedUpDowntime = 0.0;
-		tasks.at(i).dNextShutdown = tasks.at(i).dOffset;
-		tasks.at(i).bRunning = true;
-		tasks.at(i).dTotalDowntime = 0.0;
+		tasks.at(i)->dBackedUpDowntime = 0.0;
+		tasks.at(i)->dNextShutdown = tasks.at(i)->dOffset;
+		tasks.at(i)->bRunning = true;
+		tasks.at(i)->dTotalDowntime = 0.0;
 	}
 }
 
 //---------------------------------------------------------------------------
-
-const int maxElements = 20;
 
 const int idDX_Count = 1;
 const int idDX_Reset = 2;
@@ -118,23 +125,24 @@ void ScheduledEvents::BuildDataFields()
 		DD.Text("Requirements...");
 		DD.String("Description", "Desc", idDX_Description + i, MF_PARAMETER);
 
-		DD.Double ("RequiredPeriod", "RqdPeriod", &tasks.at(i).dDesiredPeriod, MF_PARAMETER, MC_Time("h"));
-		DD.Double ("", "Offset", &tasks.at(i).dOffset, MF_PARAM_STOPPED, MC_Time("h"));
-		DD.Double ("", "RqdInactivePeriod", &tasks.at(i).dDesiredDowntime, MF_PARAMETER, MC_Time("h"));
-		DD.Double ("ActiveValueToSet", "ActiveVal", &tasks.at(i).dOnValue, MF_PARAMETER);
-		DD.Double ("InactiveValueToSet", "InactiveVal", &tasks.at(i).dOffValue, MF_PARAMETER);
+		DD.Double ("RequiredPeriod", "RqdPeriod", &tasks.at(i)->dDesiredPeriod, MF_PARAMETER, MC_Time("h"));
+		DD.Double ("", "Offset", &tasks.at(i)->dOffset, MF_PARAM_STOPPED, MC_Time("h"));
+		DD.Double ("", "RqdInactivePeriod", &tasks.at(i)->dDesiredDowntime, MF_PARAMETER, MC_Time("h"));
+    MCnv TagCnv = tasks.at(i)->tagSubs.IsActive ? tasks.at(i)->tagSubs.Cnv : MC_;
+		DD.Double ("ActiveValueToSet", "ActiveVal", &tasks.at(i)->dOnValue, MF_PARAMETER, TagCnv);
+		DD.Double ("InactiveValueToSet", "InactiveVal", &tasks.at(i)->dOffValue, MF_PARAMETER, TagCnv);
 		DD.String ("TagToSet", "TagToSet", idDX_Tag + i, MF_PARAMETER | MF_SET_ON_CHANGE);
 		DD.Text("");
 		DD.Text("Results...");
-		DD.Double ("", "Period", &tasks.at(i).dPeriod, MF_RESULT, MC_Time("h"));
-		DD.Double ("", "InactivePeriod", &tasks.at(i).dDowntime, MF_RESULT, MC_Time("h"));
-    if (!tasks.at(i).subsTag.IsActive)
-			DD.Text("Tag Not Active");
-		DD.Bool("Active", "", &tasks.at(i).bRunning, MF_RESULT);
-		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING);
+		DD.Double ("", "Period", &tasks.at(i)->dPeriod, MF_RESULT, MC_Time("h"));
+		DD.Double ("", "InactivePeriod", &tasks.at(i)->dDowntime, MF_RESULT, MC_Time("h"));
+		if (!tasks.at(i)->tagSubs.IsActive)
+			DD.Text("Tag Not Valid");
+		DD.Bool("Active", "", &tasks.at(i)->bRunning, MF_RESULT);
+		DD.Double("OutputValue", "Output", idDX_OutputVal + i, MF_RESULT|MF_NO_FILING, TagCnv);
 		DD.Text("");
-		DD.Double("", "TtlInactiveTime", &tasks.at(i).dTotalDowntime, MF_RESULT, MC_Time("h"));
-		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i).dNextShutdown, MF_RESULT, MC_Time("h"));
+		DD.Double("", "TtlInactiveTime", &tasks.at(i)->dTotalDowntime, MF_RESULT, MC_Time("h"));
+		DD.Double("", "TimeToNextInactivePeriod", &tasks.at(i)->dNextShutdown, MF_RESULT, MC_Time("h"));
 		DD.Text("");
 		DD.ArrayElementEnd();
 	}
@@ -145,12 +153,13 @@ void ScheduledEvents::BuildDataFields()
 
 bool ScheduledEvents::ExchangeDataFields()
 {
+
   if (DX.Handle >= idDX_Description && DX.Handle < idDX_Description + maxElements)
 	{
     const int task = DX.Handle - idDX_Description;
 		if (DX.HasReqdValue)
-		  tasks.at(task).sDescription = DX.String;
-		DX.String = tasks.at(task).sDescription;
+		  tasks.at(task)->sDescription = DX.String;
+		DX.String = tasks.at(task)->sDescription;
 		return true;
 	}
 	if (DX.Handle >= idDX_Tag && DX.Handle < idDX_Tag + maxElements)
@@ -158,33 +167,15 @@ bool ScheduledEvents::ExchangeDataFields()
 		const int task = DX.Handle - idDX_Tag;
 		if (DX.HasReqdValue)
 		{
-      //todo if tag is different to previous tag, then format and check if tag is valid
-      //todo should probably only check tags and add them to tagIO later or at startup!!!!!
-			tasks.at(task).sTag = DX.String;
-			CString name;
-			name.Format("TagToSet%x", task);
-
-			//int curTag = TagIO.FindTag(DX.String);
-			//if (curTag >= 0)
-			//	tasks.at(task).nTagID = curTag;
-			//else
-			//{
-   //     curTag = TagIO.FindName(name);
-  	//		if (curTag >= 0)
-			//	  TagIO.Remove(curTag);
-			//	tasks.at(task).nTagID = TagIO.Set(-1, DX.String, name, MTagIO_Set);
-			//}
-
-      tasks.at(task).subsTag.Configure(-1, DX.String, name, MTagIO_Set);
-
+			tasks.at(task)->tagSubs.Tag = DX.String;
 		}
-		DX.String = tasks.at(task).sTag;
+		DX.String = tasks.at(task)->tagSubs.Tag;
 		return true;
 	}
 	if (DX.Handle >= idDX_OutputVal && DX.Handle < idDX_OutputVal + maxElements)
 	{
 		const int task = DX.Handle - idDX_OutputVal;
-    DX.Double = tasks.at(task).bRunning ? tasks.at(task).dOnValue : tasks.at(task).dOffValue;
+		DX.Double = tasks.at(task)->bRunning ? tasks.at(task)->dOnValue : tasks.at(task)->dOffValue;
 		return true;
 	}
 	if (DX.Handle == idDX_Count)
@@ -213,20 +204,31 @@ bool ScheduledEvents::ExchangeDataFields()
 
 bool ScheduledEvents::ValidateDataFields()
 {
+	if (TagIO.ValidateReqd())
+	{
+		if (TagIO.StartValidateDataFields())
+			for (int i = 0; i < tasks.size(); i++)
+			{
+				CString name;
+				name.Format("Task%i", i);
+				tasks.at(i)->tagSubs.Configure(i, NULL, name, MTagIO_Set);
+			}
+		TagIO.EndValidateDataFields();
+	}
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i).dOffset < 0)
-			tasks.at(i).dOffset = 0.0;
+		if (tasks.at(i)->dOffset < 0)
+			tasks.at(i)->dOffset = 0.0;
 
 		if (bForceIntegralPeriod)
-			tasks.at(i).dPeriod = ROUNDBY(tasks.at(i).dDesiredPeriod, getDeltaTime());
+			tasks.at(i)->dPeriod = ROUNDBY(tasks.at(i)->dDesiredPeriod, getDeltaTime());
 		else
-			tasks.at(i).dPeriod = tasks.at(i).dDesiredPeriod;
+			tasks.at(i)->dPeriod = tasks.at(i)->dDesiredPeriod;
 
 		if (bForceIntegralDowntime)
-			tasks.at(i).dDowntime = ROUNDBY(tasks.at(i).dDesiredDowntime, getDeltaTime());
+			tasks.at(i)->dDowntime = ROUNDBY(tasks.at(i)->dDesiredDowntime, getDeltaTime());
 		else
-			tasks.at(i).dDowntime = tasks.at(i).dDesiredDowntime;
+			tasks.at(i)->dDowntime = tasks.at(i)->dDesiredDowntime;
 	}
 	return true;
 }
@@ -238,35 +240,35 @@ void ScheduledEvents::EvalCtrlActions(eScdCtrlTasks Tasks)
 	//TODO: Add support for periods other than Simple.
 	RevalidateParameters();
 
-  dCurrentTime += getDeltaTime();
+	dCurrentTime += getDeltaTime();
 	for (int i = 0; i < tasks.size(); i++)
 	{
 		if (!bOn)
 		{
-			tasks.at(i).bRunning = true;
+			tasks.at(i)->bRunning = true;
 		}
 		else
 			try
 			{
-				if (tasks.at(i).dNextShutdown < dCurrentTime)
+				if (tasks.at(i)->dNextShutdown < dCurrentTime)
 				{
-					tasks.at(i).dBackedUpDowntime += tasks.at(i).dDowntime;
-					tasks.at(i).dNextShutdown += tasks.at(i).dPeriod;
+					tasks.at(i)->dBackedUpDowntime += tasks.at(i)->dDowntime;
+					tasks.at(i)->dNextShutdown += tasks.at(i)->dPeriod;
 				}
-				bool bNowRunning = tasks.at(i).dBackedUpDowntime <= 0;
-				//if (tasks.at(i).nTagID >= 0)
+				bool bNowRunning = tasks.at(i)->dBackedUpDowntime <= 0;
+				if (tasks.at(i)->tagSubs.IsActive)
 				{
-					if (bNowRunning &! tasks.at(i).bRunning)			//Task is starting up again, set tag to OnValue
-            tasks.at(i).subsTag.DoubleSI = tasks.at(i).dOnValue;
-					if (!bNowRunning && tasks.at(i).bRunning)			//Task is shutting down, set tag to 0
-						tasks.at(i).subsTag.DoubleSI = tasks.at(i).dOffValue;
+					if (bNowRunning &! tasks.at(i)->bRunning)			//Task is starting up again, set tag to OnValue
+						tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOnValue;
+					if (!bNowRunning && tasks.at(i)->bRunning)			//Task is shutting down, set tag to 0
+						tasks.at(i)->tagSubs.DoubleSI = tasks.at(i)->dOffValue;
 				}
-				tasks.at(i).bRunning = bNowRunning;
+				tasks.at(i)->bRunning = bNowRunning;
 
-				if (!tasks.at(i).bRunning)
+				if (!tasks.at(i)->bRunning)
 				{
-					tasks.at(i).dTotalDowntime += getDeltaTime();
-					tasks.at(i).dBackedUpDowntime -= getDeltaTime();
+					tasks.at(i)->dTotalDowntime += getDeltaTime();
+					tasks.at(i)->dBackedUpDowntime -= getDeltaTime();
 				}
 			}
 			catch (MMdlException &ex)
@@ -295,18 +297,18 @@ void ScheduledEvents::RevalidateParameters()
 {
 	for (int i = 0; i < tasks.size(); i++)
 	{
-		if (tasks.at(i).dDesiredDowntime > tasks.at(i).dDesiredPeriod)
-			tasks.at(i).dDesiredDowntime = tasks.at(i).dDesiredPeriod;
+		if (tasks.at(i)->dDesiredDowntime > tasks.at(i)->dDesiredPeriod)
+			tasks.at(i)->dDesiredDowntime = tasks.at(i)->dDesiredPeriod;
 
 		if (bForceIntegralDowntime)
-			tasks.at(i).dDowntime = ROUNDBY(tasks.at(i).dDesiredDowntime, getDeltaTime());
+			tasks.at(i)->dDowntime = ROUNDBY(tasks.at(i)->dDesiredDowntime, getDeltaTime());
 		else
-			tasks.at(i).dDowntime = tasks.at(i).dDesiredDowntime;
+			tasks.at(i)->dDowntime = tasks.at(i)->dDesiredDowntime;
 
 		if (bForceIntegralPeriod)
-			tasks.at(i).dPeriod = ROUNDBY(tasks.at(i).dDesiredPeriod, getDeltaTime());
+			tasks.at(i)->dPeriod = ROUNDBY(tasks.at(i)->dDesiredPeriod, getDeltaTime());
 		else
-			tasks.at(i).dPeriod = tasks.at(i).dDesiredPeriod;
+			tasks.at(i)->dPeriod = tasks.at(i)->dDesiredPeriod;
 	}
 }
 
@@ -320,26 +322,13 @@ void ScheduledEvents::SetSize(long size)
 	if (size > tasks.size()) //We want to add elements
 		for (int i = tasks.size(); i < size; i++)
 		{
-			MaintVariables newTask(TagIO);
-			newTask.bRunning = true;
-			newTask.dDesiredDowntime = 3600;
-			newTask.dOffset = 0.0;
-			newTask.dDesiredPeriod = 24 * 3600;
-			newTask.dTotalDowntime = 0.0;
-			newTask.sTag = "";
-			//newTask.nTagID = -1;
-      newTask.dOnValue = 1.0;
-      newTask.dOffValue = 0.0;
-      newTask.dDowntime = newTask.dDesiredDowntime;
-      newTask.dPeriod = newTask.dDesiredDowntime;
-      newTask.dNextShutdown = newTask.dOffset;
-      newTask.dBackedUpDowntime = 0.0;
-
+			MaintVariables* newTask = new MaintVariables(TagIO);
 			tasks.push_back(newTask);
 		}
 	if (size < tasks.size())  //We want to remove elements
 		for (int i = tasks.size() - 1; i >= size; i--)
 		{
+			delete tasks.back();
 			tasks.pop_back();
 		}
 }
@@ -355,3 +344,34 @@ void ScheduledEvents::SetState(MStatesToSet SS)
 
 //---------------------------------------------------------------------------
 
+bool ScheduledEvents::CheckTags()
+{
+	bool ret = true;
+	for (int i = 0; i < tasks.size(); i++)
+	{
+		if (tasks.at(i)->tagSubs.Tag != "" && !tasks.at(i)->tagSubs.IsActive)
+		{
+			CString warning;
+			warning.Format("Task %i does not have a valid tag", i);
+			Log.Message(MMsg_Warning, warning);
+			ret = false;
+		}
+	}
+	return ret;
+}
+
+MaintVariables::MaintVariables(MTagIO & TagIO) : tagSubs(TagIO)
+{
+	//tagItem = new MTagIOSubscription(TagIO);
+	bRunning = true;
+	dDesiredDowntime = 3600;
+	dOffset = 0.0;
+	dDesiredPeriod = 24 * 3600;
+	dTotalDowntime = 0.0;
+	dOnValue = 1.0;
+	dOffValue = 0.0;
+	dDowntime = dDesiredDowntime;
+	dPeriod = dDesiredDowntime;
+	dNextShutdown = dOffset;
+	dBackedUpDowntime = 0.0;
+}

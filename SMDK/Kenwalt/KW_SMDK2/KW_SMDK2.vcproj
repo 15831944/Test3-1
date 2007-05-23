@@ -369,6 +369,9 @@
 				RelativePath=".\Bivariate Stats.cpp">
 			</File>
 			<File
+				RelativePath=".\Floatation Tank.cpp">
+			</File>
+			<File
 				RelativePath="KW_SMDK2.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">
@@ -467,6 +470,9 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath=".\Bivariate Stats.h">
+			</File>
+			<File
+				RelativePath=".\Floatation Tank.h">
 			</File>
 			<File
 				RelativePath="KW_SMDK2.h">
