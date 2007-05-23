@@ -529,6 +529,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Downtime.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Floatation Tank.cpp"
 				>
 			</File>
@@ -650,6 +654,10 @@
 				RelativePath=".\Tailings Graphic.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TimingStructs.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -657,6 +665,10 @@
 			>
 			<File
 				RelativePath=".\Bivariate Stats.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Downtime.h"
 				>
 			</File>
 			<File
@@ -689,6 +701,10 @@
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TimingStructs.h"
 				>
 			</File>
 		</Filter>
