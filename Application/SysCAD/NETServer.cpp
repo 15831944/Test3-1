@@ -153,7 +153,8 @@ public:
 
     // N.B. There are two paths (here and in service.exe) that refer to the full path of the Service.exe
     // (search for /pkh/ and you'll find them.)
-    // (I couldn't find the program path functions you were talking about.)
+    // (I couldn't work out exactly how all the output-path stuff was working,
+    // so I reverted back to a static path for now...)
 
     ///////////////////////////////
     ///////////////////////////////
