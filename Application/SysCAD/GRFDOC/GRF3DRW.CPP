@@ -3446,7 +3446,7 @@ long LayerCollection::TranslateEntitiesInList(pViewport vp,PT3 S1, PT3 S2, PT3 E
     c3v_sub(Ec,Sc,Mv);
     c3v_sub(S2,S1,Sl);
     c3v_sub(E2,E1,El);
-    c3v_set(DoXScl ? El[0]/NZ(Sl[0]) : 1.0 ,DoYScl ? El[1]/NZ(Sl[1]) : 1.0, 1.0, Scl);
+    c3v_set(DoXScl && TstNZ(Sl[0]) ? El[0]/NZ(Sl[0]) : 1.0 ,DoYScl && TstNZ(Sl[1]) ? El[1]/NZ(Sl[1]) : 1.0, 1.0, Scl);
     }
   else
     {
