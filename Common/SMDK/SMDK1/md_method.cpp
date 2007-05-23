@@ -1103,7 +1103,7 @@ LPCSTR MTagIOItem::getString()
   { 
   return m_pItem ? m_pItem->m_Value.String : "???";   
   };
-void   MTagIOItem::puttring(LPCSTR Value)   
+void   MTagIOItem::putString(LPCSTR Value)   
   { 
   if (m_pItem) 
     { 

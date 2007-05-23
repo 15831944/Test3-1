@@ -1051,8 +1051,8 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.BeginStruct(this);
 
   DDB.Text("");
-  DDB.String  ("SrcNode",            "",       DC_,      "",   xidFlngSrcTag,   this, isResult|isTag);
-  DDB.String  ("DstNode",            "",       DC_,      "",   xidFlngDstTag,   this, isResult|isTag);
+  DDB.String  ("SrcTag",            "",       DC_,      "",   xidFlngSrcTag,   this, isResult|isTag);
+  DDB.String  ("DstTag",            "",       DC_,      "",   xidFlngDstTag,   this, isResult|isTag);
   DDB.Text("");
 
   DDB.Object(ConduitIO(), this, "Qo"); //Name this 'Qo' instead of ('Q') so that it is same as pipe.Qo (Useful for mixed report of streams and flange models)

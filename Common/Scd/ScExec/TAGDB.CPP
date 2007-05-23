@@ -138,7 +138,7 @@ class CTagDBMDB : public CTagDBRt, public KWDatabase
     //Strng          sLoadObjType;    //current load objects type (Node or Conn)
     //pCTagDBCSVRec   pLoadTagRec;     //current load record
     //
-    static Strng   sOldFlwSolveTag; // Used when Upgrading odl Projects
+    static Strng   sOldFlwSolveTag; // Used when Upgrading old Projects
     static Strng   sNewFlwSolveTag;
 
     flag           m_DoingConnects;
@@ -484,6 +484,8 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
   dbgpln("%*sObject Start :%s [%s] ",dbgIndent,"",pClass, ThisObjTag()); 
   dbgIndent+=3;  
 #endif
+  //CTagDBase::sCurrTag = ThisObjTag; //used for error reporting if critical error occurs
+  //CTagDBase::sCurrType = ClassNV;
 
   flag IsConn=(_stricmp(pObjType, ConnObjType)==0);
   if (IsConn)
@@ -1044,7 +1046,7 @@ void CTagDBMDB::StartLoadSequence(pchar pObjType)
 
 //------------------------------------------------------------------------
 
-Strng CTagDBMDB::sOldFlwSolveTag; // Used when Upgrading odl Projects
+Strng CTagDBMDB::sOldFlwSolveTag; // Used when Upgrading old Projects
 Strng CTagDBMDB::sNewFlwSolveTag;
 
 //------------------------------------------------------------------------
@@ -1149,6 +1151,8 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
       Class.Set("%s-%s", ClassNV(), ClassVer());
     else
       Class=ClassNV();
+    CTagDBase::sCurrTag = Tag; //used for error reporting if critical error occurs
+    CTagDBase::sCurrType = Class;
     if (ClassNV.XStrICmp("FlwSolve")==0)
       {
       sOldFlwSolveTag=Tag;
@@ -1179,6 +1183,8 @@ int CTagDBMDB::LoadObject(CXM_ObjectData *pObjData, flag CreateOnly)
     ClassVer="";
     Tag=(LPCTSTR)_bstr_t(OTag);
     Class=ClassNV();
+    CTagDBase::sCurrTag = Tag; //used for error reporting if critical error occurs
+    CTagDBase::sCurrType = Class;
     }
 
   int Ret=-1;
@@ -1811,6 +1817,9 @@ ReTry:
 //
 //
 //========================================================================
+
+Strng CTagDBase::sCurrTag;  //Used for error reporting
+Strng CTagDBase::sCurrType; //Used for error reporting
 
 CTagDBase::CTagDBase()
   {

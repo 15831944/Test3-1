@@ -89,8 +89,11 @@ class DllImportExport CTagDBase
   {
   public:
     CTagDBRt      *pDB;
-    long          m_nObjectsSaved;
-    DWORD         m_OpenOpts; 
+    long           m_nObjectsSaved;
+    DWORD          m_OpenOpts; 
+
+    static Strng   sCurrTag;  //Used for error reporting
+    static Strng   sCurrType; //Used for error reporting
 
   public:
     CTagDBase();

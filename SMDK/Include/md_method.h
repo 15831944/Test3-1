@@ -505,7 +505,7 @@ class DllImportExport MTagIOItem
     //return value IO tag
     LPCSTR          getString();
     //set value of IO tag
-    void            puttring(LPCSTR Value);
+    void            putString(LPCSTR Value);
     
     //return conversion index of IO tag
     short           getCnvIndex();

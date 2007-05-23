@@ -5775,57 +5775,68 @@ int CExecutive::DoLoadDBaseLoad(CLoadDBInfo & LDBI)
       CExecObj *r=Objs_Reg[OInx];
       if (LDBI.m_LoadIt[OInx])//r->EO_BeginLoad(FCB))
         {
-        CXMsgLst XM;
-        CStopWatch Elapsed, LOSW, TLOSW;
-
         int n=0;
-        TLOSW.ReStart();
-        LOSW.ReStart();
-        CXM_ObjectData OD(0);
-        while (!LDBI.m_Cancelled && LDBI.m_TagDB.LoadObject(&OD, false)>=0)
+        try
           {
-          SHOWPROGRESS(1, "LoadData")
-          LOSW.Stop();
-          XM.Clear();
-          XM.SetOnHeap(false);
-          if (XM.PackMsg(&OD))
-            {
-            n++;
-            if ((n%Min(n,10))==0)
-              {
-              CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
-              XFlushAppMsgQ();
-              }
-//else CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
-            LDBI.m_Cancelled=CDlgBusy::IsCancelled();
-            #if dbgExecutive
-            if (dbgDBMsgs())
-              XM.dbgDump((flag)dbgFullDBMsgs(), r->sName(), "Load");
-            CStopWatch SWxxx;
-            #endif
-            #if dbgStats
-            SWxxx.Start();
-            #endif
-            TLOSW.Start();
-            r->EO_LoadDefinedData(LDBI.m_FCB, XM);
-            TLOSW.Stop();
-            #if dbgStats
-            //if ((n%10)==0)
-              dbgpln("Load Tm %10.6f TmElapsed %i, %10.5f/Obj", SWxxx.Secs(), n, Elapsed.Secs()/Max(1,n));
-            #endif
-            SHOWPROGRESS(1, "Save Data")
-            }
-          LOSW.Start();
-          }
-        TLOSW.Stop();
-        LOSW.Stop();
-        //TLOSW.Stop();
-        CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+          CXMsgLst XM;
+          CStopWatch Elapsed, LOSW, TLOSW;
 
-        dbgpln("EO_LoadDB %-15s Load      %8.3g = %8.5g/Obj [LO:%8.3f][TLO:%8.3f]",r->sName(), Elapsed.Secs(), Elapsed.Secs()/Max(1,n), LOSW.Secs(), TLOSW.Secs());
+          TLOSW.ReStart();
+          LOSW.ReStart();
+          CXM_ObjectData OD(0);
+          while (!LDBI.m_Cancelled && LDBI.m_TagDB.LoadObject(&OD, false)>=0)
+            {
+            SHOWPROGRESS(1, "LoadData")
+            LOSW.Stop();
+            XM.Clear();
+            XM.SetOnHeap(false);
+            if (XM.PackMsg(&OD))
+              {
+              n++;
+              if ((n%Min(n,10))==0)
+                {
+                CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+                XFlushAppMsgQ();
+                }
+  //else CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+              LDBI.m_Cancelled=CDlgBusy::IsCancelled();
+              #if dbgExecutive
+              if (dbgDBMsgs())
+                XM.dbgDump((flag)dbgFullDBMsgs(), r->sName(), "Load");
+              CStopWatch SWxxx;
+              #endif
+              #if dbgStats
+              SWxxx.Start();
+              #endif
+              TLOSW.Start();
+              r->EO_LoadDefinedData(LDBI.m_FCB, XM);
+              TLOSW.Stop();
+              #if dbgStats
+              //if ((n%10)==0)
+                dbgpln("Load Tm %10.6f TmElapsed %i, %10.5f/Obj", SWxxx.Secs(), n, Elapsed.Secs()/Max(1,n));
+              #endif
+              SHOWPROGRESS(1, "Save Data")
+              }
+            LOSW.Start();
+            }
+          TLOSW.Stop();
+          LOSW.Stop();
+          //TLOSW.Stop();
+          CDlgBusy::SetLine(3, "Loading Object :%i of %i", n, LDBI.m_nObjs);
+          dbgpln("EO_LoadDB %-15s Load      %8.3g = %8.5g/Obj [LO:%8.3f][TLO:%8.3f]",r->sName(), Elapsed.Secs(), Elapsed.Secs()/Max(1,n), LOSW.Secs(), TLOSW.Secs());
+          }
+        catch (...)
+          {
+          Strng S;
+          S.Set("Error loading object %d:%s (%s)", n, LDBI.m_TagDB.sCurrTag(), LDBI.m_TagDB.sCurrType());
+          AfxMessageBox(S());
+          throw;
+          }
         }
       }
     }
+  LDBI.m_TagDB.sCurrTag = "";
+  LDBI.m_TagDB.sCurrType = "";
   LDBI.m_TagDB.Close();
 
   return !LDBI.m_Failed;
