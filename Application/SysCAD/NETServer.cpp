@@ -72,9 +72,12 @@ public:
 			proc->EnableRaisingEvents = false;
 
       String ^ progFiles = gcnew String(ProgFiles());
+      
+      String ^ stencilPath = gcnew String(BaseCfgFiles());
+      stencilPath = stencilPath + "Stencils";
 
 			proc->StartInfo->FileName = progFiles + "Service.exe";
-      proc->StartInfo->Arguments = projectPath + " " + configPath;
+      proc->StartInfo->Arguments = "\" " + projectPath + " \" \" " + configPath + " \" \" " + stencilPath + " \"";
 			proc->Start();
 			//proc->WaitForExit();
 		}
@@ -91,7 +94,7 @@ public:
     while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
     {
       // Basically need to wait until service is ready.
-      Sleep(i*i*i); // Last wait will be 8sec... (i++<10 gies max 1sec)
+      Sleep(i*i*i); // Last wait will be 1sec.
 
       delete config;
       config = gcnew Config;
@@ -107,7 +110,7 @@ public:
     while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
     {
       // Basically need to wait until service is ready.
-      Sleep(i*i*i); // Last wait will be 10sec... (i++<10 gies max 1sec)
+      Sleep(i*i*i); // Last wait will be 1sec.
 
       delete protocol;
       protocol = gcnew EngineProtocol;
@@ -117,7 +120,7 @@ public:
     if (success)
       protocol->Connect();
 
-
+    
     ////////////////////////////////
     ////////////////////////////////
 
@@ -125,6 +128,11 @@ public:
     // The lines above start the Service, connect to it, and sync the data.
     // You can see below the for each that will be needed to read through each item/link/thing.
     // (things are probably not required a the moment.)
+
+    // Obviously these are empty until we 'bootstrap' the values from the current 9 graphics.
+    // The Connect() tries to load the 10 graphics, and if it faile then the Count() of each 
+    // dictionary will be 0.
+    // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
 
     for each (GraphicItem ^ item in protocol->graphicItems->Values)
     {

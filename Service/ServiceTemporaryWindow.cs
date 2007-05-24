@@ -644,10 +644,24 @@ namespace Service
         graphicItems = tempGraphicItems;
         graphicThings = tempGraphicThings;
 
+        if (graphicLinks == null)
+          graphicLinks = new Dictionary<Guid,GraphicLink>();
+        if (graphicItems == null)
+          graphicItems = new Dictionary<Guid,GraphicItem>();
+        if (graphicThings == null)
+          graphicThings = new Dictionary<Guid,GraphicThing>();
+
         return true;
       }
       catch (Exception)
       {
+        if (graphicLinks == null)
+          graphicLinks = new Dictionary<Guid, GraphicLink>();
+        if (graphicItems == null)
+          graphicItems = new Dictionary<Guid, GraphicItem>();
+        if (graphicThings == null)
+          graphicThings = new Dictionary<Guid, GraphicThing>();
+
         return false;
       }
     }
@@ -1009,47 +1023,14 @@ namespace Service
       name = Path.GetFileNameWithoutExtension(projectPath);
 
 
+
+
       configData = new ConfigData();
       GetStencils(configData);
       configData.ProjectList.Add(name);
       RemotingServices.Marshal(configData, "Global");
 
 
-
-      ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ClientChangeState);
-
-      ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(ClientGetPropertyValues);
-      ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(ClientGetSubTags);
-
-      ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(ClientCreateItem);
-      ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ClientModifyItem);
-      ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ClientModifyItemPath);
-      ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(ClientDeleteItem);
-
-      ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(ClientCreateLink);
-      ClientServiceProtocol.ModifyLinkHandler clientModifyLink = new ClientServiceProtocol.ModifyLinkHandler(ClientModifyLink);
-      ClientServiceProtocol.DeleteLinkHandler clientDeleteLink = new ClientServiceProtocol.DeleteLinkHandler(ClientDeleteLink);
-
-      ClientServiceProtocol.CreateThingHandler clientCreateThing = new ClientServiceProtocol.CreateThingHandler(ClientCreateThing);
-      ClientServiceProtocol.ModifyThingHandler clientModifyThing = new ClientServiceProtocol.ModifyThingHandler(ClientModifyThing);
-      ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ClientModifyThingPath);
-      ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(ClientDeleteThing);
-
-      ClientServiceProtocol.PortCheckHandler clientPortCheck = new ClientServiceProtocol.PortCheckHandler(ClientPortCheck);
-
-      ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(ClientPropertyListCheck);
-
-
-      clientClientServiceProtocol = new ClientServiceProtocol(name, 
-                                                              graphicLinks, graphicItems, graphicThings,
-                                                              clientChangeState, clientGetPropertyValues, clientGetSubTags,
-                                                              clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
-                                                              clientCreateLink, clientModifyLink, clientDeleteLink,
-                                                              clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPortCheck, clientPropertyListCheck);
-
-
-      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
 
 
       EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
@@ -1087,7 +1068,46 @@ namespace Service
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
                                                               engineDeleteThing, enginePortCheck, enginePropertyListCheck);
 
+      EngineLoad(engineClientServiceProtocol);
+      
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
+
+
+      
+      ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ClientChangeState);
+
+      ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(ClientGetPropertyValues);
+      ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(ClientGetSubTags);
+
+      ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(ClientCreateItem);
+      ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ClientModifyItem);
+      ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ClientModifyItemPath);
+      ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(ClientDeleteItem);
+
+      ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(ClientCreateLink);
+      ClientServiceProtocol.ModifyLinkHandler clientModifyLink = new ClientServiceProtocol.ModifyLinkHandler(ClientModifyLink);
+      ClientServiceProtocol.DeleteLinkHandler clientDeleteLink = new ClientServiceProtocol.DeleteLinkHandler(ClientDeleteLink);
+
+      ClientServiceProtocol.CreateThingHandler clientCreateThing = new ClientServiceProtocol.CreateThingHandler(ClientCreateThing);
+      ClientServiceProtocol.ModifyThingHandler clientModifyThing = new ClientServiceProtocol.ModifyThingHandler(ClientModifyThing);
+      ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ClientModifyThingPath);
+      ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(ClientDeleteThing);
+
+      ClientServiceProtocol.PortCheckHandler clientPortCheck = new ClientServiceProtocol.PortCheckHandler(ClientPortCheck);
+
+      ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(ClientPropertyListCheck);
+
+
+      clientClientServiceProtocol = new ClientServiceProtocol(name, 
+                                                              graphicLinks, graphicItems, graphicThings,
+                                                              clientChangeState, clientGetPropertyValues, clientGetSubTags,
+                                                              clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
+                                                              clientCreateLink, clientModifyLink, clientDeleteLink,
+                                                              clientCreateThing, clientModifyThing, clientModifyThingPath,
+                                                              clientDeleteThing, clientPortCheck, clientPropertyListCheck);
+
+
+      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
     }
   }
 }

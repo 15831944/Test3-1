@@ -16,19 +16,17 @@ namespace Service
       String configPath;
       String stencilPath;
 
-      if (args.Length == 2)
+      if (args.Length == 3)
       {
-        projectPath = args[0];
-        configPath = args[1];
-        //stencilPath = args[2]; /;/ hard-code this until we work out where to get the value.
+        projectPath = args[0].Trim();
+        configPath = args[1].Trim();
+        stencilPath = args[2].Trim();
       }
       else
       {
-        projectPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\NiCuDemo-00.spf\\";
-        configPath = "C:\\SysCAD91\\Examples\\General Examples\\SS_Nickel\\CfgFiles\\";
+        // Fail to start...
+        return -1;
       }
-
-      stencilPath = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\BaseFiles\\";
 
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
