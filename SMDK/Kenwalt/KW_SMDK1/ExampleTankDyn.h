@@ -19,12 +19,10 @@
 
 //---------------------------------------------------------------------------
 
-DEFINE_SURGEMETHOD(Tank)
-
 class Tank : public MBaseMethod
   {
   public:
-    Tank(TaggedObject * pNd);
+    Tank(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void Init();
     virtual void BuildDataFields();
     virtual bool PreStartCheck(CString & ErrMsg);

@@ -369,6 +369,9 @@
 				RelativePath=".\Bivariate Stats.cpp">
 			</File>
 			<File
+				RelativePath=".\Downtime.cpp">
+			</File>
+			<File
 				RelativePath=".\Floatation Tank.cpp">
 			</File>
 			<File
@@ -472,6 +475,9 @@
 				RelativePath=".\Bivariate Stats.h">
 			</File>
 			<File
+				RelativePath=".\Downtime.h">
+			</File>
+			<File
 				RelativePath=".\Floatation Tank.h">
 			</File>
 			<File
@@ -494,6 +500,12 @@
 			</File>
 			<File
 				RelativePath=".\Tailings Graphic.h">
+			</File>
+			<File
+				RelativePath=".\TimingStructs.cpp">
+			</File>
+			<File
+				RelativePath=".\TimingStructs.h">
 			</File>
 		</Filter>
 		<Filter

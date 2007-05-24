@@ -7,22 +7,41 @@
 #include "exampletankdyn.h"
 
 //====================================================================================
+//define connection ids for convenience
+const int idIn = 0;
+const int idOut = 1;
+
 //define Input/Output connections
-                                         
 static MInOutDefStruct s_IODefs[]=
   {
   //  Desc;             Name;     Id; Rqd; Max; CnId, FracHgt;  Options;
-    { "Top of Tank",    "Top",     0,   0,  10,    0,    1.0f,  MIO_InOut|MIO_Material|MIO_PipeEntry|MIO_ApertureHoriz },
-    { "Side of Tank",   "Side",    1,   0,  10,    0,    0.5f,  MIO_InOut|MIO_Material|MIO_PipeEntry                   },    
-    { "Bottom of Tank", "Base",    2,   0,  10,    0,    0.0f,  MIO_InOut|MIO_Material|MIO_PipeEntry|MIO_ApertureHoriz },
-    { "OverFlow",       "OverFlw", 3,   0,  10,    0,    1.0f,  MIO_InOut|MIO_Material|MIO_PipeEntry                   },
-    { "GasVent",        "GasVent", 4,   0,  10,    0,    1.0f,  MIO_InOut|MIO_Material|MIO_PipeEntry|MIO_GasVent       },
+    { "Input",          "Input",   idIn,   0,  10,    0,    1.0f,  MIO_InOut|MIO_Material|MIO_PipeEntry|MIO_ApertureHoriz },
+    { "Output",         "Output",  idOut,  0,  10,    0,    0.5f,  MIO_InOut|MIO_Material|MIO_PipeEntry                   },
     { NULL },
   };
 
-IMPLEMENT_SURGEMETHOD(Tank, "Tank", "Demo:Tank", "Data", NULL, DLL_GroupName);
+//define default drawing symbol
+static double TankDraw[] = { MDrw_Poly,  -9,8,  -7,-8,  7,-8,  9,8,
+                           MDrw_End};
 
-Tank::Tank(TaggedObject * pNd) : MBaseMethod(pNd)
+//---------------------------------------------------------------------------
+//macro to declare and add the model to the system
+DEFINE_SURGE_UNIT(Tank, "Tank", DLL_GroupName)
+
+void Tank_UnitDef::GetOptions()
+  {
+  SetDefaultTag("TK", true);
+  SetDrawing("Tank", TankDraw);
+  SetTreeDescription("Demo:Tank");
+  SetDescription("Example Dynamic Tank");
+  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow);
+  SetModelGroup(MGroup_General);
+  SetModelLicense(MLicense_Standard);
+  };
+
+//---------------------------------------------------------------------------
+
+Tank::Tank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
   {
   //default values...
   dFeedQm = 0.0;
@@ -34,7 +53,6 @@ Tank::Tank(TaggedObject * pNd) : MBaseMethod(pNd)
 
 void Tank::Init()
   {
-  SetRunModeOptions(MO_Dynamic);
   SetIODefinition(s_IODefs);
   }
 
@@ -45,9 +63,9 @@ void Tank::BuildDataFields()
   DD.Text("Requirements...");
   DD.Text("");
   DD.Text("Results...");
-  DD.Double("FeedQm",  &dFeedQm,     MF_RESULT|MF_NO_FILING, MC_Qm);
-  DD.Double("ProdQm0", &dProdQm0,    MF_RESULT|MF_NO_FILING, MC_Qm);
-  DD.Double("ProdQm1", &dProdQm1,    MF_RESULT|MF_NO_FILING, MC_Qm);
+  DD.Double("FeedQm", "", &dFeedQm,     MF_RESULT|MF_NO_FILING, MC_Qm);
+  DD.Double("ProdQm0", "", &dProdQm0,    MF_RESULT|MF_NO_FILING, MC_Qm);
+  DD.Double("ProdQm1", "", &dProdQm1,    MF_RESULT|MF_NO_FILING, MC_Qm);
   }
 
 //---------------------------------------------------------------------------
@@ -63,11 +81,11 @@ void Tank::EvalProducts()
   {
   //get handles to input and output streams...
   
-  if (IsProBal)
+  if (IsSolveDirect)
     {
     // Get Inputs
     MStream QI;
-    FlwIOs.AddMixtureIn(QI);
+    FlwIOs.AddMixtureIn_Id(QI, idIn); //sum all inputs
 
     // Total Estimated Out 
     double FT=0;
@@ -90,7 +108,7 @@ void Tank::EvalProducts()
     {
     // Get Inputs
     MStream QI;
-    FlwIOs.AddMixtureIn(QI);
+    FlwIOs.AddMixtureIn_Id(QI, idIn); //sum all inputs
 
     // Total Estimated Out 
     double FT=0;

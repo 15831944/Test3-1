@@ -366,6 +366,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath=".\ExampleTankDyn.cpp">
+			</File>
+			<File
 				RelativePath="KW_SMDK1.cpp">
 				<FileConfiguration
 					Name="Release_Dbg|Win32">

@@ -180,6 +180,8 @@ wzzip -a -P -r %fn2% smdk\examples\demoalspusr\*.h smdk\examples\demoalspusr\*.c
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\demoalspusr\demoalspusr.sln
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk1\*.h smdk\kenwalt\kw_smdk1\*.cpp
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk1\kw_smdk1.vcproj vsmdk\kenwalt\kw_smdk1\kw_smdk1.sln
+wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\*.h smdk\kenwalt\kw_smdk2\*.cpp
+wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\kw_smdk2.vcproj vsmdk\kenwalt\kw_smdk2\kw_smdk2.sln
 
 
 @echo off
