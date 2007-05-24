@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service.csproj", "{317F8980-564D-423D-945F-D7A9F4A8043D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "..\..\Protocol\70.Protocol.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "..\Protocol\70.Protocol.csproj", "{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -70,9 +70,10 @@ public:
 			// Shell execute Service with parameters projectPath & configPath.
 			Process ^proc = gcnew Process();
 			proc->EnableRaisingEvents = false;
-      // _MUST_ change this to be a relative path...
-      // (I assume we need to put Service.exe in a bin directory and refer to it there.)
-			proc->StartInfo->FileName = "C:\\Documents and Settings\\pkh\\My Documents\\SysCAD\\Service\\Service\\bin\\Debug\\Service.exe";
+
+      String ^ progFiles = gcnew String(ProgFiles());
+
+			proc->StartInfo->FileName = progFiles + "Service.exe";
       proc->StartInfo->Arguments = projectPath + " " + configPath;
 			proc->Start();
 			//proc->WaitForExit();
@@ -87,9 +88,11 @@ public:
 
     bool success = false;
     int i=0;
-    while ((!success)&&(i++ < 100)) //_MUST_ find a better way to handle this! (but only temporary...)
+    while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
     {
       // Basically need to wait until service is ready.
+      Sleep(i*i*i); // Last wait will be 8sec... (i++<10 gies max 1sec)
+
       delete config;
       config = gcnew Config;
 	    // Connect to config data.
@@ -101,9 +104,11 @@ public:
 
     success = false;
     i=0;
-    while ((!success)&&(i++ < 100)) //_MUST_ find a better way to handle this! (but only temporary...)
+    while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
     {
       // Basically need to wait until service is ready.
+      Sleep(i*i*i); // Last wait will be 10sec... (i++<10 gies max 1sec)
+
       delete protocol;
       protocol = gcnew EngineProtocol;
 	    // Connect to graphic data.
