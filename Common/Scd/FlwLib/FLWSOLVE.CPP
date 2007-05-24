@@ -853,9 +853,9 @@ class CThreadTimer
   public:
     CThreadTimer(int What, int NdSW)
       {
+      m_What=What;
       #if (DOTHREADTIMERTOTAL || DOTHREADTIMERALL)
       m_Total.ReStart();
-      m_What=What;
       m_bComplete=false;
       #if (DOTHREADTIMERALL)
       //m_iThread=-1;
@@ -2649,7 +2649,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
       dbgsep();
       // reset counters
       dbgpln("      [%5s %5s %5s %5s %5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
-        "Pi","Po","PIR","PTr","Pi","Po","PIR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
+        "Pi","Po","PiR","PTr","Pi","Po","PiR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
       for (pass=0; pass<2; pass++)
         {
         long NdCnt=0;
@@ -3180,7 +3180,7 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
       if (DoingProc && (Pass==0) || DoingCtrl && (Pass==1))
         {
         dbgpln("%-40s      Lnks Proc Audt [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ", Pass==0 ? "Process":"Control",
-          "Pi","Po","PIR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
+          "Pi","Po","PiR","PTr","Ci","Co","sCi","sCo","Xi","Xo","sXi","sXo","CiR","CTr");
         long NdCnt=0;
         CNodeEvalIndexIter It(Pass==0 ? ProcTOSequence : CtrlTOSequence);
         CNodeEvalIndex NJ;
@@ -3917,7 +3917,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
         #if dbgFlwSolve
         if (dbgEvalOrdFind())
           {                                                                
-          dbgpln("EvalSeq --------------------------------------------------------------------- %-3s %s",
+          dbgpln("EvalSeq ----------------------------------------------------------------------------------------------------- %-3s %s",
             p->IsLnk()?"Lnk":"", p->FullObjTag());
 
           for (int c=0; c<p->m_Clusters.GetCount(); c++)
@@ -3934,7 +3934,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
               //dbgpln("    %-5s %-6s %-6s %-6s %-6s %-5s %-5s %4i %4i %-10s %-7s          ->%s",
               dbgpln("    IO[%3i] %-5s %-6s %-6s %-6s %-6s %-5s %-5s %-10s %-7s          ->%s",
                 i,
-                OpenNotClosed?"Open":"",
+                OpenNotClosed?"OpenNC":"",
                 p->IO_Closed_Self(i)?"ClsSlf":"",
                 p->IO_Closed_Rmt(i)?"ClsRmt":"",
                 p->IO_Open_Self(i)?"OpnSlf":"",
@@ -3977,7 +3977,7 @@ void FlwSlvBlk::FindTOSequence(byte Flags, byte Which)
       SummariseTOSequence(Which);
       InitTearConvergence(EqnCB());
       m_fProcTOSeqValid=true;
-#else
+#else                                                                10001000  
       // Incorrect Version (Slow)
       m_fProcTOSeqValid=FindTOSequenceStart(Which);
       if (m_fProcTOSeqValid)

@@ -58,12 +58,14 @@ const byte ioidLiq  = 2;
 const byte ioidSol  = 3;
 
 static IOAreaRec DryerIOAreaList[] =
-  {{"Dryer Feed",          "Feed"      , ioidFd,   LIO_In0 ,    nc_MLnk, 1, 20, 0, 1.0f},
-   {"Evaporated Moisture", "Moisture"  , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  0, (float)0.4},
-   {"Dried Solids",        "Cake"      , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  0, 0.0f},
-   SPILL2AREA,
-   VENT2AREA,
-   {NULL}};
+  {
+    {"Dryer Feed",          "Feed"      , ioidFd,   LIO_In0 ,    nc_MLnk, 1, 20, 0,          1.0f},
+    {"Evaporated Moisture", "Moisture"  , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  IOSSDenied, (float)0.4},
+    {"Dried Solids",        "Cake"      , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  IOSSDenied, 0.0f},
+    SPILL2AREA,
+    VENT2AREA,
+    {NULL}
+  };
 
 /*#G:This provides the default drawing of the Dryer.*/
 static double Drw_Dryer[] = { DD_Poly, -15,6, 15,6, 15,-6, -15,-6, -15,6,

@@ -114,12 +114,14 @@ const int ioidOrgOut   = 3;
 const int ioidOverflow = 4;
 
 static IOAreaRec MixerSettlerIOAreaList[] =
-  {{"Aqueous_Inlet",   "AqIn"      , ioidAqIn,      LIO_In0 ,   nc_MLnk, 1, 20, IOOptsHide|IOGRP(1), 0.0f  },
-   {"Aqueous_Outlet",  "AqOut"     , ioidAqOut,     LIO_Out0,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1), 0.75f },
-   {"Organic_Inlet",   "OrgIn"     , ioidOrgIn,     LIO_In1,    nc_MLnk, 1, 20, IOOptsHide|IOGRP(1), 0.0f  },
-   {"Organic_Outlet",  "OrgOut"    , ioidOrgOut,    LIO_Out1,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1), 0.75f },
-   {"OverFlow",        "OverFlw"   , ioidOverflow,  LIO_Out,    nc_MLnk, 0, 10, IOOptsHide|IOGRP(1), 1.0f  },
-   {NULL}};
+  {
+    {"Aqueous_Inlet",   "AqIn"      , ioidAqIn,      LIO_In0 ,   nc_MLnk, 1, 20, IOOptsHide|IOGRP(1),             0.0f  },
+    {"Aqueous_Outlet",  "AqOut"     , ioidAqOut,     LIO_Out0,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1)|IOSSDenied,  0.75f },
+    {"Organic_Inlet",   "OrgIn"     , ioidOrgIn,     LIO_In1,    nc_MLnk, 1, 20, IOOptsHide|IOGRP(1)|IOSSDenied,  0.0f  },
+    {"Organic_Outlet",  "OrgOut"    , ioidOrgOut,    LIO_Out1,   nc_MLnk, 1,  1, IOOptsHide|IOGRP(1),             0.75f },
+    {"OverFlow",        "OverFlw"   , ioidOverflow,  LIO_Out,    nc_MLnk, 0, 10, IOOptsHide|IOGRP(1),             1.0f  },
+    {NULL}
+  };
 
 static double Drw_MixerSettler[] = { DD_Poly, -30, 7, -30, -5, 30, -5, 30, 5, -17, 5, -17, -5, -17, 6,
                             DD_Poly, -23, 11, -24, 11, -24, -2, -26, -2, -26, -4, -20, -4, -20, -2, -23, -2,-23, 11,

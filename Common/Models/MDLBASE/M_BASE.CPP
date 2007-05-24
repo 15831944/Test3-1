@@ -536,12 +536,15 @@ void MdlNode::PreDisConnect(int IONo)
 //--------------------------------------------------------------------------
 
 void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpMArray &S, double Temperature, double Pressure, SpModel * pQualMdl)
-  {
+  {           
+
   if (dwFlags & PMU_IONo)
     {
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       if (dwFlags & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking))
         IO_Self(IOInx).SetPMUOptions(dwFlags);
       //if (dwFlags & PMU_Image)
@@ -581,6 +584,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, PMUImgArray &S, doub
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       if (dwFlags & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking))
         IO_Self(IOInx).SetPMUOptions(dwFlags);
       //if (dwFlags & PMU_Image)
@@ -620,6 +625,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       ASSERT(0);
       }
     }
@@ -643,6 +650,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       SpConduit & Q = *IOConduit(IOInx);
       //if (dwFlags & PMU_Image)
       //  IO_Self(IOInx).SetImage();
@@ -679,6 +688,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       if (dwFlags & PMU_SLRatio)
         {
         double SLRatio=Max(0.0, ReqdValue);
@@ -728,6 +739,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, PhMas
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       ASSERT(0);
       }
     }
@@ -751,6 +764,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, doubl
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       ASSERT_ALWAYS(0, "SetProdMakeup Sol Liq Vap NOT Implemented" , __FILE__, __LINE__);
       }
     }
@@ -777,6 +792,8 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, doubl
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
+      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
       if (dwFlags & PMU_SLRatio)
         {
         IO_Self(IOInx).SetPMUImage();

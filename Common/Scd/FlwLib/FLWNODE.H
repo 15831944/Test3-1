@@ -1988,6 +1988,7 @@ const dword dwIOShwAperture   = 0x02000000;
 const dword dwIOHidden        = 0x04000000;
 const dword dwIOOptsHide      = 0x08000000;
 const dword dwIOEqnsHide      = 0x10000000;
+const dword dwIOSSDenied      = 0x20000000;
 
 //const dword dwIOFlagUser      = 0xff000000;
 
@@ -2011,6 +2012,7 @@ const dword dwIOEqnsHide      = 0x10000000;
 #define IOHidden          dwIOHidden
 #define IOOptsHide        dwIOOptsHide
 #define IOEqnsHide        dwIOEqnsHide
+#define IOSSDenied        dwIOSSDenied
 
 class DllImportExport CAltIOName
   {
@@ -3761,7 +3763,12 @@ class DllImportExport FlwNode : public CTNode
     CJoinCluster * IO_Cluster_Self(int i)                   { int j=m_IOs[i].iClusterId; return j>=0 ? &m_Clusters[j] : NULL; }
     CJoinCluster * IO_Cluster_Rmt(int i)                    { int j=IO_Rmt(i).iClusterId; return j>=0 ? &Nd_Rmt(i)->m_Clusters[j] : NULL; }
 
-    virtual eEvalSeqStart IOEvalSeqStart_Self(int i)        { return IO_Self(i).m_eEvalSeqStart; }
+    virtual eEvalSeqStart IOEvalSeqStart_Self(int i)        
+      { 
+      if ((IODesc_Self(i)->m_dwFlags&dwIOSSDenied) || (IODesc_Rmt(i)->m_dwFlags&dwIOSSDenied))
+        return ESS_Denied;
+      return IO_Self(i).m_eEvalSeqStart; 
+      }
     eEvalSeqStart  IOEvalSeqStart_Rmt(int i)                { return Nd_Rmt(i)->IOEvalSeqStart_Self(IOIONo_Rmt(i)); }
 
     bool           IO_EvalSeqStartOK(int i)

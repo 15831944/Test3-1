@@ -48,10 +48,10 @@ const byte ioidVent = 3;
 
 static IOAreaRec ThickenerIOAreaList[] =
   {
-    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry, 1.0f},
-    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry, (float)0.98},
-    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f},
-    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry, 1.0f},
+    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry           , 1.0f},
+    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied, (float)0.98},
+    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied, 0.0f},
+    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry           , 1.0f},
     SPILL2AREA,
     VENT2AREA,
     MAKEUP2AREA(),
@@ -236,7 +236,7 @@ void Thickener::EvalJoinPressures(long JoinMask)
 class CThickenerOFFnd : public MRootFinderBase
   {
   public:
-    SpConduit &Sd, &Fd, &Co, &Cu;
+    SpConduit &Wrk, &Fd, &Co, &Cu;
     double IntOFSolidsUsed;
     flag bVentErr;
   protected:
@@ -257,10 +257,10 @@ CToleranceBlock CThickenerOFFnd::s_Tol(TBF_Both, "Thickener:Overflow", 0.0, 1.0e
 
 //--------------------------------------------------------------------------
     
-CThickenerOFFnd::CThickenerOFFnd(SpConduit &Sd_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_, 
+CThickenerOFFnd::CThickenerOFFnd(SpConduit &Wrk_, SpConduit &Fd_, SpConduit &Co_, SpConduit &Cu_, SpConduit* pVent_, MN_Surge* pSurge_, 
       double POut_, double RqdUFSolids_, double iRqdOFMethod_) :
   MRootFinderBase("Thicken", s_Tol),//1.0e-8), 
-  Sd(Sd_), Fd(Fd_), Co(Co_), Cu(Cu_)
+  Wrk(Wrk_), Fd(Fd_), Co(Co_), Cu(Cu_)
   {
   pVent = pVent_;
   pSurge = pSurge_;
@@ -278,17 +278,17 @@ double CThickenerOFFnd::Function(double x)
   {
   IntOFSolidsUsed = x;
   
-  Sd.QCopy(Fd);
+  Wrk.QCopy(Fd);
   
-  pSurge->RB.EvalProducts(Sd);
-  pSurge->m_EHX.EvalProducts(Sd);
+  pSurge->RB.EvalProducts(Wrk);
+  pSurge->m_EHX.EvalProducts(Wrk);
 
   //put all vapours (if any) to vent (if present)...
-  const double Qg = Sd.QMass(som_Gas);
+  const double Qg = Wrk.QMass(som_Gas);
   if (Qg>1e-12)
     {
     if (pVent)
-      pVent->QSetM(Sd, som_Gas, Qg, POut);
+      pVent->QSetM(Wrk, som_Gas, Qg, POut);
     else
       bVentErr = true;
     }
@@ -296,18 +296,18 @@ double CThickenerOFFnd::Function(double x)
     pVent->QZero();
 
   // *** NBNBNB A Big Kludge
-  SpModel *pM=Sd.Model();
+  SpModel *pM=Wrk.Model();
   for (int q=0; q<pM->nQuals; q++)
     if (pM->Quals[q].m_pQ)
       pM->Quals[q].m_pQ->Equilibrate();
-  // *** Replace with Sd().EquilibrateQualities();
+  // *** Replace with Wrk().EquilibrateQualities();
   
-  //double HTot = Sd.totHf(); //what about vapours in Sd!!!???!!!
-  //double FT = Sd.Temp();
+  //double HTot = Wrk.totHf(); //what about vapours in Wrk!!!???!!!
+  //double FT = Wrk.Temp();
 
   //after reaction...
-  const double Qs = Sd.QMass(som_Sol);
-  const double Ql = Sd.QMass(som_Liq);
+  const double Qs = Wrk.QMass(som_Sol);
+  const double Ql = Wrk.QMass(som_Liq);
   const double Us = RqdUFSolids;
   const double Os = IntOFSolidsUsed;
 
@@ -332,12 +332,12 @@ double CThickenerOFFnd::Function(double x)
   //  dbgpln(" %18.7e %18.7e %18.7e %18.7e", So, Lo, Su, Lu);
   //  }
 
-//Sd().DumpQualities();
-  Cu.QSetM(Sd, som_Sol, Su, POut);
-  Cu.QAddM(Sd, som_Liq, Lu);
+//Wrk().DumpQualities();
+  Cu.QSetM(Wrk, som_Sol, Su, POut);
+  Cu.QAddM(Wrk, som_Liq, Lu);
 //Cu.DumpQualities();    
-  Co.QSetM(Sd, som_Sol, So, POut);
-  Co.QAddM(Sd, som_Liq, Lo);
+  Co.QSetM(Wrk, som_Sol, So, POut);
+  Co.QAddM(Wrk, som_Liq, Lo);
 //Co.DumpQualities();
 
   /*
@@ -385,10 +385,10 @@ This determines what material should leave through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
+#define dbgShowEval 0
+  
 void Thickener::EvalProducts(CNodeEvalIndex & NEI)
   {
-  StkSpConduit Sd("Sd", chLINEID(), this);
-  StkSpConduit Fd("Fd", chLINEID(), this);
 
   m_RqdOFSolConc = Range(0.0, m_RqdOFSolConc, 5000.0);
   m_RqdOFSolids = Range(0.0, m_RqdOFSolids, 0.99);
@@ -398,6 +398,8 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
     {
     case SM_Direct:
       {
+      StkSpConduit Fd("Fd", chLINEID(), this);
+      StkSpConduit Wrk("Wrk", chLINEID(), this);
       const int iCo = IOWithId_Self(ioidOF);
       const int iCu = IOWithId_Self(ioidUF);
       const int iVent = IOWithId_Self(ioidVent);
@@ -416,7 +418,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       //double POut = AtmosPress(); //force outlet to Atmos P
       double POut = Std_P; //force outlet to Std_P
-      CThickenerOFFnd Fnd(Sd(), Fd(), Co, Cu, pVent, this, POut, m_RqdUFSolids, m_iRqdOFMethod);
+      CThickenerOFFnd Fnd(Wrk(), Fd(), Co, Cu, pVent, this, POut, m_RqdUFSolids, m_iRqdOFMethod);
       m_IntOFSolidsUsed = Valid(m_IntOFSolidsUsed) ? m_IntOFSolidsUsed : m_RqdOFSolids;
       Fnd.SetEstimate(m_IntOFSolidsUsed, 1.0);
       if (m_iRqdOFMethod == OFM_OFSolFrac)
@@ -500,9 +502,21 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Inline:
     case SM_Buffered:
       {
-      //Contents.ZeroDeriv();
-      RB.EvalProducts(Sd());
-      m_EHX.EvalProducts(Sd());
+
+#if dbgShowEval
+      if (fDoDbgBrk)
+        {
+        SpConduit &dbgCo=*IOConduit(ioidOF);
+        SpConduit &dbgCu=*IOConduit(ioidUF);
+        dbgpln("EvalProducts In %15.6f %15.6f %15.6f %15.6f %s", dbgCo.QMass(), dbgCo.MassFrac(som_Liq), dbgCu.QMass(), dbgCu.MassFrac(som_Liq), FullObjTag());
+        }
+#endif
+
+      //StkSpConduit Wrk("Wrk", chLINEID(), this);
+      //SigmaQInPMin(Wrk(), som_ALL, First64IOIds);
+      ////Contents.ZeroDeriv();
+      //RB.EvalProducts(Wrk());
+      //m_EHX.EvalProducts(Wrk());
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);
@@ -534,13 +548,13 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       //put all vapours (if any) to vent (if present)
-      const int iVent = IOWithId_Self(ioidVent);
-      if (iVent>=0)
-        {
-        double Qg = Sd().QMass(som_Gas);
-        SpConduit & Cvent = *IOConduit(iVent);
-        Cvent.QSetM(Sd(), som_Gas, Qg, Std_P);
-        }
+      //const int iVent = IOWithId_Self(ioidVent);
+      //if (iVent>=0)
+      //  {
+      //  double Qg = Wrk().QMass(som_Gas);
+      //  SpConduit & Cvent = *IOConduit(iVent);
+      //  Cvent.QSetM(Wrk(), som_Gas, Qg, Std_P);
+      //  }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
       EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
@@ -555,6 +569,14 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       if (SolveInlineMethod())
         EvalIntegral(NEI);
+#if dbgShowEval
+      if (fDoDbgBrk)
+        {
+        SpConduit &dbgCo=*IOConduit(ioidOF);
+        SpConduit &dbgCu=*IOConduit(ioidUF);
+        dbgpln("EvalProducts Out%15.6f %15.6f %15.6f %15.6f %s", dbgCo.QMass(), dbgCo.MassFrac(som_Liq), dbgCu.QMass(), dbgCu.MassFrac(som_Liq), FullObjTag());
+        }
+#endif
 
       break;
       }

@@ -2745,8 +2745,9 @@ void MN_Lnk::EvalProductsInit(EvalProductsInitTasks Task)
 inline double DiffFrac(double A, double B) { return (A-B)/Max(1.0e-9, Max(fabs(A), fabs(B))); };
 
 //--------------------------------------------------------------------------
-#define WithPoFix 0
-#define DBGCHG    0
+#define WithPoFix   0
+#define DBGCHG      0
+#define dbgShowEval 0
 
 void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
   {
@@ -2842,12 +2843,18 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         }
       else if (SolveInlineMethod() || (SolveBufferedMethod() && (IOFlange(iIn)->TearType()==TT_Break)))
         {
-        //dbgpln("EvalProducts A  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts A  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
         //use IOQOutEst as defined
         if (IOFlange(iIn)->IsTear() &&  /*GlblDynamicMode() &&*/ (Fi.QMass()<=TraceMass) && 
           (IOQInEst>TraceMass) && m_pLastFlw)
           {
-          //dbgpln("EvalProducts B  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts B  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           // Put Something into the flow (ie whatever last flowed through the pipe)
           Fi.QSetM(*m_pLastFlw, som_ALL, IOQInEst);
           FIQm=Fi.QMass();
@@ -2858,14 +2865,17 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         //  {
         //  // this was put in because of closed recycles - it upsets other stuff
         //  //Fi.QScaleMass(som_ALL, IOQInEst/GTZ(Fi.QMass()));
-        //  //dbgpln("EvalProducts C  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+        //  //dbgpln("EvalProducts C  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
         //  }
 
         IOQInEst=(IsUsableMass(FIQm) ? FIQm : 0.0);
         }
       else
         {
-        //dbgpln("EvalProducts D  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts D  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
         // this will not work for an overflow stream (flow limited) which is also a tear stream
         //TODO THIS LINE NEEDS TO BE FIXED FOR FlowLimited lines [overflow stream]
         if (m_PFI.Method!=VFFX_Off)
@@ -2883,7 +2893,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           }
         }
 
-      //dbgpln("EvalProducts E  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+      if (fDoDbgBrk)
+        dbgpln("EvalProducts E  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
       Fi.SetSQFlags(SQF_RemoveOK, false);
       Fo.SetSQFlags(SQF_RemoveOK, true);
@@ -2950,11 +2963,17 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       //  }
       else
         {
-      //dbgpln("EvalProducts F  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts F  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
         // Remember the tear values for initialisation if a System Tear
         if (IOFlange(0)->IsSystemTear())
           {
-      //dbgpln("EvalProducts G  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts G  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           //can this be improved for (!IsUsableMass(IOQInEst)) ...?
           if (!IOFlange(0)->TearImageExists())
             IOFlange(0)->SetTearImage(this);
@@ -2972,7 +2991,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           }
         if (IOFlange(iIn)->IsTear() &&  NetDynamicMethod() && (Fi.QMass()<=TraceMass) && (IOQInEst>TraceMass) && m_pLastFlw)
           {
-      //dbgpln("EvalProducts H  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts H  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           // Put Something into the flow (ie the last conetent)
           Fi.QSetM(*m_pLastFlw, som_ALL, IOQInEst);
           //dbgpln("    <<: %10.2f %10.2f %10.2f %s", Fi.Temp(), Fi.Press(), Fi.QMass(), Fi.FullObjTag());        
@@ -2981,7 +3003,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         Fi.ClrVLEBlk(&m_VLE);
         Fo.SetVLEBlk(&m_VLE);
 
-      //dbgpln("EvalProducts I  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts I  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
         double Ti=Fi.Temp();
         if (IOFlange(0)->IsTear())
           PIn=Fi.Press();
@@ -2990,7 +3015,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         //Fo.QSetF(Fi, som_ALL, 1.0, POut);
         if (DoXfer)
           {
-      //dbgpln("EvalProducts J  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts J  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           const double QmIn = Fi.QMass();
           if (m_FEP.FlwRqd().m_BatchMethod==BO_TotalMass && Valid(m_FEP.FlwRqd().m_RqdMBatch))
             {//reduce required batch amount by actual flow
@@ -3039,7 +3067,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
             }
           else
             {
-      //dbgpln("EvalProducts K  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+            if (fDoDbgBrk)
+              dbgpln("EvalProducts K  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
             Fo.QSetF(Fi, som_ALL, 1.0, POut);
             ClrCI(7);
             ClrCI(8);
@@ -3049,7 +3080,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           }
         else
           {
-      //dbgpln("EvalProducts L  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts L  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           if (0 && NetDynamicMethod())
             Fo.QSetM(Fi, som_ALL, IOQOutEst, PIn);
           else
@@ -3058,12 +3092,18 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         //dbgpln("A2 %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
 
         m_FTB.BeginEvalProducts(Fo);
-      //dbgpln("EvalProducts M  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts M  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
         if (!NetProbalMethod() && !DoXfer)    // Iso thermal etc
           IOFB(iIn,0)->EvalProducts(IOP_Flng(iIn), IOP_Self(iIn), Fo, m_FTB);
         //dbgpln("A3 %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
-      //dbgpln("EvalProducts M1 %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts M1 %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
         if (NetProbalMethod()) // Limit Rates of Temp Change
           {
@@ -3075,20 +3115,32 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
           {
           double VelS=IOFB(0,0)->Velocity();
           double VelE=IOFB(1,0)->Velocity();
-      //dbgpln("EvalProducts M2 %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts M2 %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           IOQOutEst=m_PFI.DoPlugFlowProducts(Fi, Fo, IOQOutEst, IOQOutEst, PIn, POut, VelS, VelE);
-      //dbgpln("EvalProducts M3 %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+          if (fDoDbgBrk)
+            dbgpln("EvalProducts M3 %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
           if (!DoXfer)
             IOFB(iOut,0)->EvalProducts(IOP_Self(iOut), IOP_Flng(iOut), Fo, m_FTB);
           //Fo.SetPress(POut);
           }
         }
       //dbgpln("B  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
-      //dbgpln("EvalProducts N  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+        if (fDoDbgBrk)
+          dbgpln("EvalProducts N  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
       double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
       m_BlkEval.EvalProductsInline(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
-      //dbgpln("EvalProducts R  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+      if (fDoDbgBrk)
+        dbgpln("EvalProducts R  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
       //dbgpln("C  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
 
@@ -3107,7 +3159,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
         }
-      //dbgpln("EvalProducts S  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+      if (fDoDbgBrk)
+        dbgpln("EvalProducts S  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
       //dbgpln("D  %12.3f  %12.3f  %12.3f  %12.3f", Fi.Temp(), Fi.Press(), Fo.Temp(), Fo.Press());
       m_FTB.EndEvalProducts();
@@ -3119,7 +3174,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
       Fo.SetSQFlags(SQF_RemoveOK, false);
       Fi.SetDataSign(IOSign(0));
       Fo.SetDataSign(IOSign(0));
-      //dbgpln("EvalProducts T  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+      if (fDoDbgBrk)
+        dbgpln("EvalProducts T  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
       if (NetDynamicMethod() && (Fi.QMass()>TraceMass))
         {
@@ -3137,7 +3195,10 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
         }
       else
         ClrCI(5);
-      //dbgpln("EvalProducts U  %15.6f %15.6f %s", Fi.QMass(), Fo.QMass(), FullObjTag());
+#if dbgShowEval
+      if (fDoDbgBrk)
+        dbgpln("EvalProducts U  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());
+#endif
 
 #if dbgDumpSpcInfo
       flag Forcedbg=0;

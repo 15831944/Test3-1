@@ -55,13 +55,15 @@ const byte ioidCath = 2;
 const byte ioidVent = 3;
 
 static IOAreaRec ElectroCellIOAreaList[] =
-  {{"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, 0, 1.0f},
-   {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  0, (float)0.8},
-   {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  0, 0.0f},
-   {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1, IOPipeEntry, 1.0f},
-   SPILL2AREA,
-   VENT2AREA,
-   {NULL}};
+  {
+    {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, 0,            1.0f},
+    {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOSSDenied,   (float)0.8},
+    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  0,            0.0f},
+    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry,  1.0f},
+    SPILL2AREA,
+    VENT2AREA,
+    {NULL}
+  };
 
 static double Drw_ECell[] = { DD_Poly, -10,-5, -10,5, -6,5, -6,-5, -2,-5,
                      -2,5, 2,5, 2,-5, 6,-5, 6,5, 10,5, 10,-5,

@@ -68,16 +68,18 @@ const byte ioidwsh2 = 5;
 const byte ioidSW   = 6;
 
 static IOAreaRec CentrifugeMBIOAreaList[] =
-  {{"Centrifuge Feed",   "Feed"       , ioidFd,   LIO_In0 ,    nc_MLnk, 1, 20, 0, 1.0f},
-   {"Filtrate",          "Filtrate"   , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  0, (float)0.4},
-   {"Solids",            "Cake"       , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  0, 0.0f},
-   {"1st Wash Water",    "WashWater1" , ioidwash, LIO_In1,     nc_MLnk, 0, 1,  0, 1.0f},
-   {"First Washings",    "Wash1"      , ioidFW,   LIO_Out ,    nc_MLnk, 0, 1,  0, 1.0f},
-   {"2nd Wash Water",    "WashWater2" , ioidwsh2, LIO_In2,     nc_MLnk, 0, 1,  0, 1.0f},
-   {"Second Washings",   "Wash2"      , ioidSW,   LIO_Out ,    nc_MLnk, 0, 1,  0, 1.0f},
-   SPILL2AREA,
-   VENT2AREA,
-   {NULL}};
+  {
+    {"Centrifuge Feed",   "Feed"       , ioidFd,   LIO_In0 ,    nc_MLnk, 1, 20, 0,          1.0f},
+    {"Filtrate",          "Filtrate"   , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  IOSSDenied, (float)0.4},
+    {"Solids",            "Cake"       , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  IOSSDenied, 0.0f},
+    {"1st Wash Water",    "WashWater1" , ioidwash, LIO_In1,     nc_MLnk, 0, 1,  0,          1.0f},
+    {"First Washings",    "Wash1"      , ioidFW,   LIO_Out ,    nc_MLnk, 0, 1,  0,          1.0f},
+    {"2nd Wash Water",    "WashWater2" , ioidwsh2, LIO_In2,     nc_MLnk, 0, 1,  0,          1.0f},
+    {"Second Washings",   "Wash2"      , ioidSW,   LIO_Out ,    nc_MLnk, 0, 1,  0,          1.0f},
+    SPILL2AREA,
+    VENT2AREA,
+    {NULL}
+  };
 
 static double Drw_CentrifugeMB[] = { DD_Poly, -10,-5, 0,-5, 10,-2, 10,2, 0,5, -10,5, -10,-5,
                             DD_Poly, 0,-5, 0,5,
