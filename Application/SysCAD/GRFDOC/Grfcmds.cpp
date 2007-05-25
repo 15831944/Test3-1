@@ -5848,7 +5848,7 @@ void GrfCmdBlk::DoMoveEntity()
               }
             else
               {//move the selected entity...
-              if (0)//Like)
+              if (Like)
                 {
                 pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
                 pDrw->TranslateEntity(Like, pDsp->StartPt.World, pDsp->CurrentPt.World);
