@@ -1688,7 +1688,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Pres
             A[j]->m_QvCorrs[i]=1.0;
           break;
         default:
-          _asm int 3;
+          //_asm int 3;
           break;
         }
       }
