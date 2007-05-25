@@ -1168,22 +1168,18 @@ void Cyclone::EvalProducts(CNodeEvalIndex & NEI)
                 {
                 if (SpcOSzSol < TonsLimit)
                   {
-                  OSize[0] = 0.0;
-                  USize[0] = UTemp[0] / SpcUSzSol;
-                  for(i=1 ; i<len ; i++)
+                  for(i=0 ; i<len ; i++)
                     {
                     OSize[i] = 0.0;
-                    USize[i] = (UTemp[i] / SpcUSzSol) + USize[i-1];
+                    USize[i] = (UTemp[i] / SpcUSzSol);
                     }
                   }
                 if (SpcUSzSol < TonsLimit)
                   {
-                  OSize[0] = OTemp[0] / SpcOSzSol;
-                  USize[0] = 0.0;
-                  for(i=1 ; i<len ; i++)
+                  for(i=0 ; i<len ; i++)
                     {
+                    OSize[i] = (OTemp[i] / SpcOSzSol);
                     USize[i] = 0.0;
-                    OSize[i] = (OTemp[i] / SpcOSzSol) + OSize[i-1];
                     }
                   }
                 if ((SpcOSzSol > TonsLimit) && (SpcUSzSol > TonsLimit))
