@@ -11864,7 +11864,7 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
       {
       while (pCn=LTH.ConnLoopGetStart(Pos, pCn))
         {
-        dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
+        //dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
         if (LTH.m_pS)
           {
           //pCn->fMarked=false;

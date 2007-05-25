@@ -338,8 +338,8 @@ int SFEFlwLib::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng 
 //  { IENTER(-1) pSfe->FE_DoSolveNet(); ILEAVE };
 int  SFEFlwLib::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
   { 
-  static int XXX=0;
-  dbgpln("XXXXXXXX %i", XXX++);
+  //static int XXX=0;
+  //dbgpln("XXXXXXXX %i", XXX++);
   IENTER(-1) pSfe->FE_TagOperation(Act, TagList); ILEAVE 
   };
 int  SFEFlwLib::FE_SetHoldGlobalLinks(bool On)
