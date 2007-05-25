@@ -17,10 +17,12 @@
 //#include "optoff.h"
 
 #define dbgGSModel       WITHDEBUG
+#define dbgGSModelTerm   (0 && WITHDEBUG)
 
-#if dbgGSModel
+#if dbgGSModelTerm
 #include "dbgmngr.h"
-static CDbgMngr dbgEvalDerivs      ("GenModel",  "XXX");
+//static CDbgMngr dbgEvalDerivs      ("GenModel",  "XXX");
+static CDbgMngr dbgThermal         ("GenModel",  "Thermal");
 #endif
 
 const byte AutoPriority=250/*MaxIOList*/+1;
@@ -42,11 +44,7 @@ XID xidLast          = xidGSThermMode+MaxIOList;               // Keep MaxIOs Sp
 //
 //============================================================================
 
-GSIOAlpha::GSIOAlpha() :
-m_Alphas(*(new GSAlphaArray)),
-m_Splits(*(new GSAlphaArray)),
-m_QmRqds(*(new GSAlphaArray)),
-m_QvRqds(*(new GSAlphaArray))
+GSIOAlpha::GSIOAlpha() 
   {
 
   m_iQmMode=GSA_QmDefault;
@@ -76,17 +74,10 @@ m_QvRqds(*(new GSAlphaArray))
   m_LQvRqd     = 0.0;
   m_VQvRqd     = 0.0;
   for (int i=0; i<MaxPhases; i++)
-    {
     m_PhSplt[i]   = fNAN;
-    m_PhQmRqd[i]  = fNAN;
-    m_PhQvRqd[i]  = fNAN;
-    }
-  for (i=0; i<BOT_Last; i++)
-    {
-    m_bPhSpltHasValid[i]=false;
-    m_bPhQmRqdHasValid[i]=false;
-    m_bPhQvRqdHasValid[i]=false;
-    }
+
+  m_ReqdT=Std_T;
+  m_ReqdP=Std_P;
 
   m_Alphas.SetSize(0, SDB.Count()+1);
   m_Splits.SetSize(0, SDB.Count()+1);
@@ -96,10 +87,6 @@ m_QvRqds(*(new GSAlphaArray))
 
 GSIOAlpha::~GSIOAlpha()
   {
-  delete &m_Alphas;
-  delete &m_Splits;
-  delete &m_QmRqds;
-  delete &m_QvRqds;
   };
 
 // ---------------------------------------------------------------------------
@@ -132,12 +119,10 @@ GSIOAlpha & GSIOAlpha::operator=(GSIOAlpha & A)
   m_SQvRqd     = A.m_SQvRqd;
   m_LQvRqd     = A.m_LQvRqd;
   m_VQvRqd     = A.m_VQvRqd;
+  m_ReqdT      = A.m_ReqdT;
+  m_ReqdP      = A.m_ReqdP;
   for (int i=0; i<MaxPhases; i++)
-    {
     m_PhSplt[i] = A.m_PhSplt[i];
-    m_PhQmRqd[i] = A.m_PhQmRqd[i];
-    m_PhQvRqd[i] = A.m_PhQvRqd[i];
-    }
   m_Alphas.SetSize(A.m_Alphas.GetSize());
   m_Splits.SetSize(A.m_Splits.GetSize());
   m_QmRqds.SetSize(A.m_QmRqds.GetSize());
@@ -312,24 +297,10 @@ flag GSIOAlpha::ValidateData(ValidateDataBlk & VDB, byte PhMethSpec)
   for (int s=0; s<sn; s++)
     Test_Inv_0_1(m_Splits[s]);
 
-  for (i=0; i<BOT_Last; i++)
-    {
-    m_bPhSpltHasValid[i]=false;
-    m_bPhQmRqdHasValid[i]=false;
-    m_bPhQvRqdHasValid[i]=false;
-    }
-
   for (int i=0; i<MaxPhases; i++)
     {
     if (Valid(m_PhSplt[i]))
-      {
       m_PhSplt[i]=Range(0.0, m_PhSplt[i], 1.0);
-      m_bPhSpltHasValid[CDB.PhaseInfo(i).m_eOcc]=true;
-      }
-    if (Valid(m_PhQmRqd[i]))
-      m_bPhQmRqdHasValid[CDB.PhaseInfo(i).m_eOcc]=true;
-    if (Valid(m_PhQvRqd[i]))
-      m_bPhQvRqdHasValid[CDB.PhaseInfo(i).m_eOcc]=true;
     }
   return OK;
   };
@@ -402,6 +373,7 @@ m_IOThermal(*(new GSIOThermalArray))
   m_ChangeNeg     = 50;
   m_ChangePos     = 80;
   m_eCorrection   = eReverse;
+  m_ReqdTValid    = false;
   //m_HfError       = 0;
 #endif
   m_iPhMethSpec=GSPM_Total;
@@ -1070,6 +1042,7 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
   switch (m_iOperation)
     {
     case GSO_MassFracSplit:
+    case GSO_VolumeFracSplit:
       if (DDB.BeginArray(this, "IOs", "GSM_IOs", m_IOs.GetSize(), 0))
         for (j = 0;j<NPri; j++)
           {
@@ -1139,7 +1112,7 @@ void GSModel::BuildDataDefnSplit(DataDefnBlk &DDB)
                   {
                   static const LPSTR Nm[]={"Solids","Liquids",/*"Aqueous",*/"Gasses"};
                   if (m_iPhMethSpec&GSPM_Total)
-                    DDB.Double(Nm[c], "",  DC_Frac, "%",  &A[j]->m_Splt[c],  this, j<NPri-1 ? isParm : 0);
+                    DDB.Double(Nm[c], "",  DC_Frac, "%",  &A[j]->m_SLVSplt[c],  this, j<NPri-1 ? isParm : 0);
                   if (m_iPhMethSpec&GSPM_Individual)
                     {
                     for (int p=0; p<CDB.PhaseCount(); p++)
@@ -1427,10 +1400,13 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
   if (NPri<1)
     return false;
 
+  m_ReqdTValid = false;
+
   // Calculate total output flows in each Output
   switch (m_iOperation)
     {
     case GSO_MassFracSplit:
+    case GSO_VolumeFracSplit:
       {
       double Tot=0.0;
       for (j = 0;j<NPri-1; j++)
@@ -1441,6 +1417,8 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
         Tot+=F;
         }
       A[NPri-1]->m_FracSplit=1.0-Tot;
+      //for (j = 0;j<NPri; j++)
+      //  A[j]->m_QvCorr=1.0;
       }
       break;
     case GSO_MassFlowSplit:
@@ -1458,6 +1436,7 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
         {
         double &F=A[j]->m_Qv;
         F=Valid(F) ? Max(0.0, F) : 0.0;
+        //A[j]->m_QvCorr=1.0;
         }
       }
       break;
@@ -1496,7 +1475,7 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
             PhTot[i]+=F;
             }
           else if (m_iPhMethSpec & GSPM_Total)
-            PhTot[i]+=A[j]->m_Splt[CDB.PhaseInfo(i).m_eOcc];
+            PhTot[i]+=A[j]->m_SLVSplt[CDB.PhaseInfo(i).m_eOcc];
           else
             PhTot[i]+=0.0;
           }
@@ -1506,6 +1485,11 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
       A[NPri-1]->m_VSplt=(1.0-VTot);
       for (int i=0; i<CDB.PhaseCount(); i++)
         A[NPri-1]->m_PhSplt[i]=GEZ(1.0-PhTot[i]); // fix trunc/round errors
+      for (j = 0;j<NPri; j++)
+        {
+        for (int i=0; i<CDB.PhaseCount(); i++)
+          A[j]->m_PhQvCorr[i]=1.0;
+        }
       }
       break;
     case GSO_PhMassFlowSplit:
@@ -1530,6 +1514,8 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
         LF=Valid(LF) ? Max(0.0, LF) : 0.0;
         double &VF=A[j]->m_VQvRqd;
         VF=Valid(VF) ? Max(0.0, VF) : 0.0;
+        for (int p=0; p<MaxPhases; p++)
+          A[j]->m_PhQvCorr[p]=1.0;
         }
       break;
     case GSO_SpMassFracSplit:
@@ -1567,13 +1553,17 @@ flag GSModel::ValidateDataSplit(ValidateDataBlk & VDB)
     case GSO_SpVolumeFlowSplit:
       {
       for (j = 0;j<NPri; j++)
+        {
         A[j]->m_QvRqds.SetSize(SDB.Count());
+        A[j]->m_QvCorrs.SetSize(SDB.Count());
+        }
       for (int s=0; s<SDB.Count(); s++)
         {
         for (j = 0;j<NPri; j++)
           {
           double &F=A[j]->m_QvRqds[s];
           F=Valid(F) ? Max(0.0, F) : 0.0;
+          A[j]->m_QvCorrs[s]=1.0;
           }
         }
       }
@@ -1648,7 +1638,7 @@ int GSModel::FindIOEvalPrioritySplit(int *I, GSIOAlpha **A)
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd)
+void GSModel::EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Press, SpConduit &Sd)
   {
   int I[MaxIOList+1];
   GSIOAlpha * A[MaxIOList+1];
@@ -1663,12 +1653,106 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
   double QmOutAvail=QmInTotal;
   int nShort=0;
 
+  if (!m_ReqdTValid)
+    {
+    m_ReqdTValid=true;
+    for (int j = 0;j<NPri; j++)
+      {
+      GSIOAlpha &Aj=*A[j];
+      Aj.m_ReqdT=Temperature;
+      Aj.m_ReqdP=Press;
+      switch (m_iOperation)
+        {
+        case GSO_MassFracSplit:
+        case GSO_MassFlowSplit:
+        case GSO_VolumeFracSplit:
+        case GSO_VolumeFlowSplit:
+          Aj.m_QvCorr=1.0;
+          break;
+        case GSO_PhMassFlowSplit:
+        case GSO_PhMassFracSplit:
+        case GSO_PhVolumeFlowSplit:
+        case xGSO_PhVolumeFracSplit:
+          Aj.m_SQvCorr=1.0;
+          Aj.m_LQvCorr=1.0;
+          Aj.m_VQvCorr=1.0;
+          for (int i=0; i<CDB.PhaseCount(); i++)
+            A[j]->m_PhQvCorr[i]=1.0;
+          break;
+        case GSO_SpMassFlowSplit:
+        case GSO_SpMassFracSplit:
+          break;
+        case GSO_SpVolumeFlowSplit:
+        case xGSO_SpVolumeFracSplit:
+          for (int i=0; i<SDB.Count(); i++)
+            A[j]->m_QvCorrs[i]=1.0;
+          break;
+        default:
+          _asm int 3;
+          break;
+        }
+      }
+    }
+
   switch (m_iOperation)
     {
+    case GSO_VolumeFracSplit:
+      if (m_bThermal)
+        {
+        bool Converged=false;
+        for (int Iter=100; !Converged && Iter>0; Iter--)
+          {
+          nShort=0;
+          double TotVolume=0.0;
+          for (int j = 0;j<NPri; j++)
+            {
+            GSIOAlpha &Aj=*A[j];
+            SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+            Cd.QSetF(Sd, som_ALL, Aj.m_FracSplit*Aj.m_QvCorr, Sd.Press());
+            Cd.SetTempPress(Aj.m_ReqdT, Aj.m_ReqdP);
+            Aj.m_QvMeas=Cd.QVolume();
+            TotVolume+=Aj.m_QvMeas;
+
+#if dbgGSModelTerm
+            if (m_bThermal && dbgThermal())
+              dbgpln("A: %3i %9.5f%% %9s  %9.7f %12.3f %12.3f %7.2fC", j, Aj.m_FracSplit*100, "", Aj.m_QvCorr, Aj.m_QvMeas*1000, TotVolume*1000, K2C(Aj.m_ReqdT));
+#endif
+            }      
+          TotVolume=GTZ(TotVolume);
+          Converged=true;
+          for (int j = 0;j<NPri; j++)
+            {
+            GSIOAlpha &Aj=*A[j];
+            double MeasSplit=Aj.m_QvMeas/TotVolume;
+            Converged = Converged && fabs(MeasSplit-Aj.m_FracSplit)<1e-6; // TODO
+            if (MeasSplit>1e-6)
+              Aj.m_QvCorr *= Aj.m_FracSplit/GTZ(MeasSplit);
+
+#if dbgGSModelTerm
+            if (m_bThermal && dbgThermal())
+              dbgpln("B: %3i %9.5f%% %9.5f%% %9.7f %12.3f %12.3f", j, Aj.m_FracSplit*100, MeasSplit*100, Aj.m_QvCorr, Aj.m_QvMeas*1000, TotVolume*1000);
+#endif
+            }
+#if dbgGSModelTerm
+          if (m_bThermal && dbgThermal())
+            dbgpln("----------------------------------------------- %i %s", Iter, Converged?"OK":"");
+#endif
+          }
+        if (!Converged)
+          LogError(m_Nd.FullObjTag(), 0, "GM VolumeFracSplit not converging");
+        break;
+        }
+      else
+        {
+        // Fall Thru2 GSO_MassFracSplit
+        }
     case GSO_MassFracSplit:
       {
       for (int j = 0;j<NPri; j++)
-        m_Nd.IOConduit(I[j])->QSetF(Sd, som_ALL, A[j]->m_FracSplit, Sd.Press());
+        {
+        GSIOAlpha &Aj=*A[j];
+        m_Nd.IOConduit(I[j])->QSetF(Sd, som_ALL, Aj.m_FracSplit, Press);
+        }
       }
       break;
     case GSO_MassFlowSplit:
@@ -1694,26 +1778,56 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
       break;
     case GSO_VolumeFlowSplit:
       {
-      double Dens=Sd.Rho();
-      double TotAv=Sd.QMass();
-      double TotRqd=TotAv;
-      for (int j=0; j<NPri-1; j++)
+      bool Converged=false;
+      for (int Iter=100; !Converged && Iter>0; Iter--)
         {
-        SpConduit & Cd=*m_Nd.IOConduit(I[j]);
-        double F=A[j]->m_Qv*Dens;
-        Cd.QSetM(Sd, som_ALL, Min(TotAv, F), Sd.Press());
-        A[j]->m_QvErr=(Cd.QVolume()-A[j]->m_Qv);
-        if (fabs(A[j]->m_QvErr)>1.0e-6)
-          nShort++;
-        TotAv=GEZ(TotAv-F);
-        TotRqd=TotRqd-F;
+        nShort=0;
+        double Dens=Sd.Rho();
+        double TotAv=Sd.QMass();
+        double TotRqd=TotAv;
+        for (int j=0; j<NPri-1; j++)
+          {
+          GSIOAlpha &Aj=*A[j];
+          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+          double F=Aj.m_Qv*Dens*Aj.m_QvCorr;
+          Cd.QSetM(Sd, som_ALL, Min(TotAv, F), Sd.Press());
+          Cd.SetTempPress(Aj.m_ReqdT, Aj.m_ReqdP);
+          Aj.m_QvMeas=Cd.QVolume();
+          Aj.m_QvErr=(Aj.m_QvMeas-Aj.m_Qv);
+          if (fabs(Aj.m_QvErr)>1.0e-6)
+            nShort++;
+          TotAv=GEZ(TotAv-F);
+          TotRqd=TotRqd-F;
+          }
+        m_Nd.IOConduit(I[j])->QSetM(Sd, som_ALL, TotAv, Sd.Press());
+        A[j]->m_QvErr=((TotRqd-TotAv)/GTZ(Dens));
+
+        Converged=true;
+
+        if (!m_bThermal)
+          break;
+
+        for (int j = 0;j<NPri-1; j++)
+          {
+          GSIOAlpha &Aj=*A[j];
+          Converged = Converged && fabs(Aj.m_QvMeas-Aj.m_Qv)<1e-6; // TODO
+          if (Aj.m_QvMeas>1e-6)
+            Aj.m_QvCorr *= Aj.m_Qv/GTZ(Aj.m_QvMeas);
+
+#if dbgGSModelTerm
+          if (m_bThermal && dbgThermal())
+            dbgpln("B: %3i %12.3fL %12.3fL %9.7f ", j, Aj.m_Qv*1000, Aj.m_QvMeas*1000, Aj.m_QvCorr);
+#endif
+          }
+#if dbgGSModelTerm
+        if (m_bThermal && dbgThermal())
+          dbgpln("----------------------------------------------- %i %s", Iter, Converged?"OK":"");
+#endif
         }
-      m_Nd.IOConduit(I[j])->QSetM(Sd, som_ALL, TotAv, Sd.Press());
-      A[j]->m_QvErr=((TotRqd-TotAv)/GTZ(Dens));
-      //if (fabs(A[j]->QmErr)>1.0e-6)
-      //  nShort++;
-      }
+      if (!Converged)
+        LogError(m_Nd.FullObjTag(), 0, "GM VolumeFlowSplit not converging");
       break;
+      }
     case GSO_PhMassFracSplit:
       {
       for (int j = 0;j<NPri; j++)
@@ -1729,7 +1843,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
             int i2=CDB.PhaseLast(c);
             if (SetReqd && i2>=i1)
               {
-              double Splt=Valid(A[j]->m_PhSplt[i1]) ? A[j]->m_PhSplt[i1] : A[j]->m_Splt[c];
+              double Splt=Valid(A[j]->m_PhSplt[i1]) ? A[j]->m_PhSplt[i1] : A[j]->m_SLVSplt[c];
               Splt=Range(0.0, Splt, 1.0);
               Cd.QSetF(Sd, CDB.PhaseInfo(i1).m_PhMsk, Splt, Sd.Press());
               //dbgpln("ISet  %2i %04x %-5.5s %10.4f %10.4f", i1, CDB.PhaseInfo(i1).m_PhMsk, CDB.PhaseInfo(i1).m_Sym(), Splt, Cd.QMass());
@@ -1752,7 +1866,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
               {
               for (int i=i1; i<=i2; i++)
                 {
-                double Splt=Valid(A[j]->m_PhSplt[i]) ? A[j]->m_PhSplt[i] : A[j]->m_Splt[c];
+                double Splt=Valid(A[j]->m_PhSplt[i]) ? A[j]->m_PhSplt[i] : A[j]->m_SLVSplt[c];
                 Splt=Range(0.0, Splt, 1.0);
                 Cd.QAddF(Sd, CDB.PhaseInfo(i).m_PhMsk, Splt);
                 //dbgpln("IAddT %2i %04x %-5.5s %10.4f %10.4f", i, CDB.PhaseInfo(i).m_PhMsk, CDB.PhaseInfo(i).m_Sym(), Splt, Cd.QMass());
@@ -1765,11 +1879,11 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
             static PhMask Which[] = {som_Sol, som_Liq, som_Gas};
             if (SetReqd)
               {
-              Cd.QSetF(Sd, Which[c], Range(0.0, A[j]->m_Splt[c], 1.0), Sd.Press());
+              Cd.QSetF(Sd, Which[c], Range(0.0, A[j]->m_SLVSplt[c], 1.0), Sd.Press());
               SetReqd=false;
               }
             else
-              Cd.QAddF(Sd, Which[c], Range(0.0, A[j]->m_Splt[c], 1.0));
+              Cd.QAddF(Sd, Which[c], Range(0.0, A[j]->m_SLVSplt[c], 1.0));
             }
           }
         }
@@ -1808,39 +1922,84 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
       break;
     case GSO_PhVolumeFlowSplit:
       {
-      double STotAv=Sd.QMass(som_Sol);
-      double LTotAv=Sd.QMass(som_Liq);
-      double VTotAv=Sd.QMass(som_Gas);
-      double TotRqd=STotAv+LTotAv+VTotAv;
-      double SDens=Sd.Rho(som_Sol);
-      double LDens=Sd.Rho(som_Liq);
-      double VDens=Sd.Rho(som_Gas);
-      for (int j=0; j<NPri-1; j++)
+      bool Converged=false;
+      for (int Iter=100; !Converged && Iter>0; Iter--)
         {
-        SpConduit & Cd=*m_Nd.IOConduit(I[j]);
-        double SF=A[j]->m_SQvRqd*SDens;
-        Cd.QSetM(Sd, som_Sol, Min(STotAv, SF), Sd.Press());
-        STotAv=GEZ(STotAv-SF);
-        TotRqd=TotRqd-SF;
-        double LF=A[j]->m_LQvRqd*LDens;
-        Cd.QAddM(Sd, som_Liq, Min(LTotAv, LF));
-        LTotAv=GEZ(LTotAv-LF);
-        TotRqd=TotRqd-LF;
-        double VF=A[j]->m_VQvRqd*VDens;
-        Cd.QAddM(Sd, som_Gas, Min(VTotAv, VF));
-        A[j]->m_QvErr=((Cd.QVolume()-(SF/GTZ(SDens)+LF/GTZ(LDens)+VF/GTZ(VDens))));
-        if (fabs(A[j]->m_QvErr)>1.0e-6)
-          nShort++;
-        VTotAv=GEZ(VTotAv-VF);
-        TotRqd=TotRqd-VF;
+        nShort=0;
+        double STotAv=Sd.QMass(som_Sol);
+        double LTotAv=Sd.QMass(som_Liq);
+        double VTotAv=Sd.QMass(som_Gas);
+        double TotRqd=STotAv+LTotAv+VTotAv;
+        double SDens=Sd.Rho(som_Sol);
+        double LDens=Sd.Rho(som_Liq);
+        double VDens=Sd.Rho(som_Gas);
+        for (int j=0; j<NPri-1; j++)
+          {   
+          GSIOAlpha &Aj=*A[j];
+          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+          double SF=Aj.m_SQvRqd*SDens*Aj.m_SQvCorr;
+          Cd.QSetM(Sd, som_Sol, Min(STotAv, SF), Sd.Press());
+          STotAv=GEZ(STotAv-SF);
+          TotRqd=TotRqd-SF;
+          double LF=Aj.m_LQvRqd*LDens*Aj.m_LQvCorr;
+          Cd.QAddM(Sd, som_Liq, Min(LTotAv, LF));
+          LTotAv=GEZ(LTotAv-LF);
+          TotRqd=TotRqd-LF;
+          double VF=Aj.m_VQvRqd*VDens*Aj.m_VQvCorr;
+          Cd.QAddM(Sd, som_Gas, Min(VTotAv, VF));
+          Aj.m_QvErr=((Cd.QVolume()-(SF/GTZ(SDens)+LF/GTZ(LDens)+VF/GTZ(VDens))));
+          if (fabs(Aj.m_QvErr)>1.0e-6)
+            nShort++;
+          Cd.SetTempPress(Aj.m_ReqdT, Aj.m_ReqdP);
+          VTotAv=GEZ(VTotAv-VF);
+          TotRqd=TotRqd-VF;
+          }
+        GSIOAlpha &Aj=*A[j];
+        SpConduit & Cd=*m_Nd.IOConduit(I[NPri-1]);
+        Cd.QSetM(Sd, som_Sol, STotAv, Sd.Press());
+        Cd.QAddM(Sd, som_Liq, LTotAv);
+        Cd.QAddM(Sd, som_Gas, VTotAv);
+        Cd.SetTempPress(Aj.m_ReqdT, Aj.m_ReqdP);
+
+        //TODO Fix This!
+        A[j]->m_QvErr=(TotRqd-(STotAv+LTotAv+VTotAv));
+
+        Converged=true;
+
+        if (!m_bThermal)
+          break;
+
+        for (int j = 0;j<NPri-1; j++)
+          {
+          GSIOAlpha &Aj=*A[j];
+          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+          double SMeas=Cd.QVolume(som_Sol);
+          Converged = Converged && fabs(SMeas-Aj.m_SQvRqd)<1e-6; // TODO
+          if (SMeas>1e-6)
+            Aj.m_SQvCorr *= Aj.m_SQvRqd/GTZ(SMeas);
+          double LMeas=Cd.QVolume(som_Liq);
+          Converged = Converged && fabs(LMeas-Aj.m_LQvRqd)<1e-6; // TODO
+          if (LMeas>1e-6)
+            Aj.m_LQvCorr *= Aj.m_LQvRqd/GTZ(LMeas);
+          double VMeas=Cd.QVolume(som_Gas);
+          Converged = Converged && fabs(VMeas-Aj.m_VQvRqd)<1e-6; // TODO
+          if (VMeas>1e-6)
+            Aj.m_VQvCorr *= Aj.m_VQvRqd/GTZ(VMeas);
+
+//#if dbgGSModelTerm
+//          if (m_bThermal && dbgThermal())
+//            dbgpln("B: %3i %12.3fL %12.3fL %9.7f ", j, Aj.m_Qv*1000, Aj.m_QvMeas*1000, Aj.m_QvCorr);
+//#endif
+          }
+#if dbgGSModelTerm
+        if (m_bThermal && dbgThermal())
+          dbgpln("----------------------------------------------- %i %s", Iter, Converged?"OK":"");
+#endif
         }
-      m_Nd.IOConduit(I[NPri-1])->QSetM(Sd, som_Sol, STotAv, Sd.Press());
-      m_Nd.IOConduit(I[NPri-1])->QAddM(Sd, som_Liq, LTotAv);
-      m_Nd.IOConduit(I[NPri-1])->QAddM(Sd, som_Gas, VTotAv);
-      //TODO Fix This!
-      A[j]->m_QvErr=(TotRqd-(STotAv+LTotAv+VTotAv));
-      }
+      if (!Converged)
+        LogError(m_Nd.FullObjTag(), 0, "GM PhVolumeFlowSplit not converging");
       break;
+      }
     case GSO_SpMassFracSplit:
       {
       for (int j = 0;j<NPri; j++)
@@ -1855,67 +2014,121 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd
       break;
     case GSO_SpMassFlowSplit:
       {
+      nShort=0;
       for (int j = 0;j<NPri; j++)
         {
         m_Nd.IOConduit(I[j])->QSetM(Sd, som_ALL, 1.0, Press); // Transfer Qualities etc'
         A[j]->m_QmErr=0.0;
         }
-      double TotErr=0.0;
-      for (int s=0; s<SDB.Count(); s++)
-        {
-        double TotAv=Sd.VMass[s];
-        double TotRqd=TotAv;
-        for (j = 0;j<NPri-1; j++)
+        double TotErr=0.0;
+        for (int s=0; s<SDB.Count(); s++)
           {
-          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
-          double F=A[j]->m_QmRqds[s];
-          Cd.SetVMass(s, Cd, Min(TotAv, F));
-          A[j]->m_QmErr+=(Cd.VMass[s]-F);
-          TotAv=GEZ(TotAv-F);
-          TotRqd=TotRqd-F;
+          double TotAv=Sd.VMass[s];
+          double TotRqd=TotAv;
+          for (j = 0;j<NPri-1; j++)
+            {
+            SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+            double F=A[j]->m_QmRqds[s];
+            Cd.SetVMass(s, Cd, Min(TotAv, F));
+            A[j]->m_QmErr+=(Cd.VMass[s]-F);
+            TotAv=GEZ(TotAv-F);
+            TotRqd=TotRqd-F;
+            }
+          m_Nd.IOConduit(I[NPri-1])->SetVMass(s, Sd, TotAv);
+          TotErr+=TotAv-TotRqd;
           }
-        m_Nd.IOConduit(I[NPri-1])->SetVMass(s, Sd, TotAv);
-        TotErr+=TotAv-TotRqd;
-        }
-      for (j = 0;j<NPri-1; j++)
-        if (fabs(A[j]->m_QmErr)>1.0e-6)
-          nShort++;
-      //for (int j = 0;j<NPri; j++)
-      //  m_Nd.IOConduit(I[j])->SetTempPress(Sd.Temp(), Sd.Press());
-      }
+        for (j = 0;j<NPri-1; j++)
+          if (fabs(A[j]->m_QmErr)>1.0e-6)
+            nShort++;
+        //for (int j = 0;j<NPri; j++)
+        //  m_Nd.IOConduit(I[j])->SetTempPress(Sd.Temp(), Sd.Press());
       break;
+      }
     case GSO_SpVolumeFlowSplit:
       {
       for (int j = 0;j<NPri; j++)
         {
-        m_Nd.IOConduit(I[j])->QSetM(Sd, som_ALL, 1.0, Press); // Transfer Qualities etc'
+        if (FirstPass)
+          m_Nd.IOConduit(I[j])->QSetM(Sd, som_ALL, 1.0, Press); // Transfer Qualities etc'
         A[j]->m_QvErr=0.0;
         }
-      double TotErr=0.0;
-      for (int s=0; s<SDB.Count(); s++)
+      bool Converged=false;
+      for (int Iter=100; !Converged && Iter>0; Iter--)
         {
-        double Dens=SDB[s].Density(Sd.Fidelity(), Sd.Temp(), Sd.Press(), NULL, Sd.SVData());
-        double TotAv=Sd.VMass[s];
-        double TotRqd=TotAv;
+        nShort=0;
+        double TotErr=0.0;
+        for (int s=0; s<SDB.Count(); s++)
+          {
+          double TotAv=Sd.VMass[s];
+          double TotRqd=TotAv;
+          for (j = 0;j<NPri-1; j++)
+            {
+            GSIOAlpha &Aj=*A[j];
+            SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+            double Dens=SDB[s].Density(Sd.Fidelity(), Aj.m_ReqdT, Aj.m_ReqdP, NULL, Sd.SVData());
+            double F=Aj.m_QvRqds[s]*Dens;//*Aj.m_QvCorrs[s];
+            //double Dens=SDB[s].Density(Sd.Fidelity(), Aj.m_ReqdT, Aj.m_ReqdP, NULL, Sd.SVData());
+            //double F=Aj.m_QvRqds[s]*Dens;
+            Cd.SetVMass(s, Sd, Min(TotAv, F));
+            Aj.m_QvErr+=((Cd.VMass[s]-F)/GTZ(Dens));
+            TotAv=GEZ(TotAv-F);
+            TotRqd=TotRqd-F;
+            }
+          m_Nd.IOConduit(I[NPri-1])->SetVMass(s, Sd, TotAv);
+          TotErr+=TotAv-TotRqd;
+          }
         for (j = 0;j<NPri-1; j++)
           {
-          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
-          double F=A[j]->m_QvRqds[s]*Dens;
-          Cd.SetVMass(s, Sd, Min(TotAv, F));
-          A[j]->m_QvErr+=((Cd.VMass[s]-F)/GTZ(Dens));
-          TotAv=GEZ(TotAv-F);
-          TotRqd=TotRqd-F;
+          GSIOAlpha &Aj=*A[j];
+          if (fabs(Aj.m_QvErr)>1.0e-6)
+            nShort++;
           }
-        m_Nd.IOConduit(I[NPri-1])->SetVMass(s, Sd, TotAv);
-        TotErr+=TotAv-TotRqd;
+        for (int j = 0;j<NPri; j++)
+          {
+          GSIOAlpha &Aj=*A[j];
+          SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+          Cd.SetTempPress(Aj.m_ReqdT, Aj.m_ReqdP);
+          }
+
+        Converged=true;
+
+        if (!m_bThermal)
+          break;
+
+        CIArray SpIds;
+        SpIds.SetSize(1);
+        for (int s=0; s<SDB.Count(); s++)
+          {
+          //double Dens=SDB[s].Density(Sd.Fidelity(), Sd.Temp(), Sd.Press(), NULL, Sd.SVData());
+          //double TotAv=Sd.VMass[s];
+          //double TotRqd=TotAv;
+          for (int j = 0;j<NPri-1; j++)
+            {
+            GSIOAlpha &Aj=*A[j];
+            SpConduit & Cd=*m_Nd.IOConduit(I[j]);
+            SpIds[0]=s;
+            double SpMeas=Cd.QVolume(SpIds);
+            if (SpMeas>1e-6)
+              {
+              Converged = Converged && fabs(SpMeas-Aj.m_QvRqds[s])<1e-9; // TODO
+              Aj.m_QvCorrs[s] *= Aj.m_QvRqds[s]/GTZ(SpMeas);
+#if dbgGSModelTerm
+              if (m_bThermal && dbgThermal())
+                dbgpln("B: %3i %3i %12.3fL %12.3fL %9.7f %s", s, j, Aj.m_QvRqds[s]*1000, SpMeas*1000, Aj.m_QvCorrs[s],Converged?"OK":"");
+#endif
+              }
+            }
+          }
+#if dbgGSModelTerm
+        if (m_bThermal && dbgThermal())
+          dbgpln("----------------------------------------------- %i %s", Iter, Converged?"OK":"");
+#endif
         }
-      for (j = 0;j<NPri-1; j++)
-        if (fabs(A[j]->m_QvErr)>1.0e-6)
-          nShort++;
-      //for (int j = 0;j<NPri; j++)
-      //  m_Nd.IOConduit(I[j])->SetTempPress(Sd.Temp(), Sd.Press());
-      }
+      if (!Converged)
+        LogError(m_Nd.FullObjTag(), 0, "GM SpVolumeFlowSplit not converging");
+
       break;
+      }
     case GSO_PhaseRecovery:
       {
       PhMask som_Phases[]={som_Sol, som_Liq, som_Gas};
@@ -2042,30 +2255,6 @@ void GSModel::CheckConfig()
     SortPriority(this, m_IOAlpha, IOsSize, "Split");
     SortPriority(this, m_IOThermal, IOsSize, "Therm");
 
-    ////fix priority numbers...
-    //bool FixRqd = false;
-    //for (int j=0; j<IOsSize && !FixRqd; j++)
-    //  FixRqd = (m_IOAlpha[j].m_iPriority!=AutoPriority && m_IOAlpha[j].m_iPriority>=IOsSize-1);
-    //if (FixRqd)
-    //  {
-    //  int LastLow = -1;
-    //  bool Fnd = true;
-    //  while (Fnd)
-    //    {
-    //    int Low = 999;
-    //    int LowIndex = -1;
-    //    for (j=0; j<IOsSize; j++)
-    //      if (m_IOAlpha[j].m_iPriority!=AutoPriority && m_IOAlpha[j].m_iPriority>LastLow && m_IOAlpha[j].m_iPriority<Low)
-    //        Low = m_IOAlpha[j].m_iPriority;
-    //    LastLow++;
-    //    Fnd = (Low!=999);
-    //    if (Fnd)
-    //      for (j=0; j<IOsSize; j++)
-    //        if (m_IOAlpha[j].m_iPriority==Low)
-    //          m_IOAlpha[j].m_iPriority = LastLow;
-    //    }
-    //  }
-
     m_bIOChanges=0;
     }
   }
@@ -2077,24 +2266,6 @@ void GSModel::PrepareDefinedData()
   };
 
 // -------------------------------------------------------------------------
-
-/*void GSModel::PostConnect(int IONo)
-{
-for (int i=0; i<m_IOs.GetSize(); i++)
-if (m_IOs[i]>=IONo)
-break;
-int Id=m_Nd.IOId_Self(IONo);
-if (Id>=IOId0 && Id<=IOIdN)
-{
-m_IOs.InsertAt(i, IONo);
-i++;
-}
-
-for (i ; i<m_IOs.GetSize(); i++)
-m_IOs[i]++;
-m_bIOChanges=1;
-CheckConfig();
-};*/
 
 void GSModel::PostConnect(int IONo)
   {
@@ -2158,19 +2329,6 @@ void GSModel::PostConnect(int IONo)
   };
 
 // -------------------------------------------------------------------------
-
-/*void GSModel::PreDisConnect(int IONo)
-{
-for (int i=0; i<m_IOs.GetSize(); i++)
-if (m_IOs[i]==IONo)
-{
-m_IOs.RemoveAt(i);
-for ( ; i<m_IOs.GetSize(); i++)
-m_IOs[i]--;
-}
-m_bIOChanges=1;
-CheckConfig();
-};*/
 
 void GSModel::PreDisConnect(int IONo)
   {
@@ -2248,13 +2406,16 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
         //      {GSO_V5               ,"V5"},
         {GSO_MassFracSplit    ,"MassFrac"},
         {GSO_MassFlowSplit    ,"MassFlow"},
+        {GSO_VolumeFracSplit  ,"VolumeFrac"},
         {GSO_VolumeFlowSplit  ,"VolumeFlow"},
         {GSO_PhMassFracSplit  ,"Phase_MassFrac"},
         {GSO_PhMassFlowSplit  ,"Phase_MassFlow"},
         {GSO_PhVolumeFlowSplit,"Phase_VolumeFlow"},
+        //{xGSO_PhVolumeFracSplit,"Phase_VolumeFrac"},
         {GSO_SpMassFracSplit  ,"Specie_MassFrac"},
         {GSO_SpMassFlowSplit  ,"Specie_MassFlow"},
         {GSO_SpVolumeFlowSplit,"Specie_VolumeFlow"},
+        //{xGSO_SpVolumeFracSplit,"Specie_VolumeFFrac"},
         {GSO_PhaseRecovery    ,"Phase_Recovery"},
         {0}
       };
@@ -2264,13 +2425,16 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
         //      {GSO_V5               ,"V5"},
         {GSO_MassFracSplit    ,"MassFrac"},
         {GSO_MassFlowSplit    ,"MassFlow"},
+        {GSO_VolumeFracSplit  ,"VolumeFrac"},
         {GSO_VolumeFlowSplit  ,"VolumeFlow"},
         {GSO_PhMassFracSplit  ,"Phase_MassFrac"},
         {GSO_PhMassFlowSplit  ,"Phase_MassFlow"},
         {GSO_PhVolumeFlowSplit,"Phase_VolumeFlow"},
+        //{xGSO_PhVolumeFracSplit,"Phase_VolumeFrac"},
         {GSO_SpMassFracSplit  ,"Specie_MassFrac"},
         {GSO_SpMassFlowSplit  ,"Specie_MassFlow"},
         {GSO_SpVolumeFlowSplit,"Specie_VolumeFlow"},
+        //{xGSO_SpVolumeFracSplit,"Specie_VolumeFFrac"},
         {0}
       };
 
@@ -2288,6 +2452,7 @@ void GSModel::BuildDataDefn(DataDefnBlk &DDB)
         break;
       case GSO_MassFracSplit:
       case GSO_MassFlowSplit:
+      case GSO_VolumeFracSplit:
       case GSO_VolumeFlowSplit:
       case GSO_PhMassFracSplit:
       case GSO_PhMassFlowSplit:
@@ -2328,6 +2493,7 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
           case GSO_V5:
           case GSO_MassFracSplit:
           case GSO_MassFlowSplit:
+          case GSO_VolumeFracSplit:
           case GSO_VolumeFlowSplit:
           case GSO_PhMassFracSplit:
           case GSO_PhMassFlowSplit:
@@ -2380,6 +2546,7 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
       break;
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
+    case GSO_VolumeFracSplit:
     case GSO_VolumeFlowSplit:
     case GSO_PhMassFracSplit:
     case GSO_PhMassFlowSplit:
@@ -2445,6 +2612,7 @@ flag GSModel::ValidateData(ValidateDataBlk & VDB)
       return ValidateDataV5(VDB);
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
+    case GSO_VolumeFracSplit:
     case GSO_VolumeFlowSplit:
     case GSO_PhMassFracSplit:
     case GSO_PhMassFlowSplit:
@@ -2523,32 +2691,52 @@ void GSModel::EvalProducts(long SolveMethod, double Press, SpConduit *pQf, CReac
 
 void GSModel::EvalProductsOut(long SolveMethod, double Press, SpConduit &Sd)
   {
-  switch (m_iOperation)
+  const int MaxIters=20;
+  for (int Iter=MaxIters; Iter>0;Iter--)
     {
-    case GSO_General0:
-      EvalProductsOutGen0(SolveMethod, Press, Sd);
-      break;
-    case GSO_V5:
-      EvalProductsOutV5(SolveMethod, Press, Sd);
-      break;
-    case GSO_MassFracSplit:
-    case GSO_MassFlowSplit:
-    case GSO_VolumeFlowSplit:
-    case GSO_PhMassFracSplit:
-    case GSO_PhMassFlowSplit:
-    case GSO_PhVolumeFlowSplit:
-    case GSO_SpMassFracSplit:
-    case GSO_SpMassFlowSplit:
-    case GSO_SpVolumeFlowSplit:
-    case GSO_PhaseRecovery:
-      EvalProductsOutSplit(SolveMethod, Press, Sd);
-      break;
-    }
+#if dbgGSModelTerm
+    if (m_bThermal && dbgThermal())
+      dbgpln("GSModel::EvalProductsOut ============================================================== %i", Iter);
+#endif
+    switch (m_iOperation)
+      {
+      case GSO_General0:
+        EvalProductsOutGen0(SolveMethod, Press, Sd);
+        break;
+      case GSO_V5:
+        EvalProductsOutV5(SolveMethod, Press, Sd);
+        break;
+      case GSO_MassFracSplit:
+      case GSO_MassFlowSplit:
+      case GSO_VolumeFracSplit:
+      case GSO_VolumeFlowSplit:
+      case GSO_PhMassFracSplit:
+      case GSO_PhMassFlowSplit:
+      case GSO_PhVolumeFlowSplit:
+      case GSO_SpMassFracSplit:
+      case GSO_SpMassFlowSplit:
+      case GSO_SpVolumeFlowSplit:
+      case GSO_PhaseRecovery:
+        EvalProductsOutSplit(SolveMethod, Iter==MaxIters, Press, Sd);
+        break;
+      }
 
 #if (WITHTHERMAL) 
-  if (m_bThermal)
-    EvalProductsThermal(Sd);
+    if (m_bThermal)
+      {
+      if (EvalProductsThermal(Sd))
+        break;
+      }
+    else
+      break;
+#else
+    break;
 #endif
+    }
+  if (Iter==0)
+    {
+    LogError(m_Nd.FullObjTag(), 0, "GMT Not Converging");
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -2901,7 +3089,7 @@ double GSModel::SetRequirements(int * I, GSIOThermal ** A, int NPri)
     if (Aj.Mode(this)<GST_TFreeDiff)
       {
       SpConduit & Cd = *m_Nd.IOConduit(I[j]);
-      double TReqd  = m_TempIn + Aj.m_DeltaT * Aj.xm_BalanceScl;
+      double TReqd  = m_TempIn + Aj.m_DeltaT * Aj.m_BalanceScl;
       double TSet   = Range(m_TMin, TReqd, m_TMax);
       Aj.m_Achieved = (TSet-m_TempIn)/NZ(Aj.m_DeltaT);
 
@@ -3017,8 +3205,8 @@ class CTSpecFinder : public MRootFinderBase
       for (int j = 0;j<=m_LastSpecd; j++)
         {
         //m_GoFwd
-        m_A[j]->xm_BalanceScl=Range(0.0, (x-m_A[j]->m_iGroup), 1.0);
-        dbgpln("CTSpecFinder %8.6f %3i %3i %8.6f", x, j, m_A[j]->m_iGroup, m_A[j]->xm_BalanceScl);
+        m_A[j]->m_BalanceScl=Range(0.0, (x-m_A[j]->m_iGroup), 1.0);
+        dbgpln("CTSpecFinder %8.6f %3i %3i %8.6f", x, j, m_A[j]->m_iGroup, m_A[j]->m_BalanceScl);
         }
 
       m_HfSpecd=m_GS.SetRequirements(m_I, m_A, m_NPri);
@@ -3145,7 +3333,7 @@ bool GSModel::CorrectRequirements(double HfSpecReqd, double HfSpecdStreams, int 
 
 //--------------------------------------------------------------------------
 
-void GSModel::EvalProductsThermal(SpConduit & CdFeed)  
+bool GSModel::EvalProductsThermal(SpConduit & CdFeed)  
   {
   //dbgpln("GSModel::EvalProductsThermal");
 
@@ -3158,15 +3346,15 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
     m_PowerIn = 0.0;
 
   int I[MaxIOList+1];
-  GSIOThermal * A[MaxIOList+1];
-  int NPri=FindIOEvalPriorityThermal(I, A);
+  GSIOThermal * T[MaxIOList+1];
+  int NPri=FindIOEvalPriorityThermal(I, T);
 
   if (NPri<1)
-    return;
+    return true;
 
   double BigFlow = 0;
-  m_TempIn       = StdT;
-  m_PressIn      = StdP;
+  m_TempIn       = CdFeed.Temp();
+  m_PressIn      = CdFeed.Press();
 
   int NFree=0;
   for (int j = 0;j<NPri; j++)
@@ -3175,13 +3363,13 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
     if (Cd.QMass()>BigFlow)
       {
       BigFlow=Cd.QMass();
-      m_TempIn=Cd.Temp();
-      m_PressIn=Cd.Press();
+      //m_TempIn=Cd.Temp();
+      //m_PressIn=Cd.Press();
       }
-    A[j]->xm_BalanceScl=1.0;
-    A[j]->m_Achieved=0;
-    A[j]->m_sResult="";
-    if (A[j]->Mode(this)>=GST_TFreeDiff)
+    T[j]->m_BalanceScl=1.0;
+    T[j]->m_Achieved=0;
+    T[j]->m_sResult="";
+    if (T[j]->Mode(this)>=GST_TFreeDiff)
       NFree++;
     }
 
@@ -3190,16 +3378,16 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
 
   if (InRange(m_TMin, m_TempIn, m_TMax))
     {
-    SetDeltaTemp(I, A, NPri);
+    SetDeltaTemp(I, T, NPri);
 
-    double HzSpecdStreams=SetRequirements(I, A, NPri);
+    double HzSpecdStreams=SetRequirements(I, T, NPri);
 
     m_PowerIn=0.0;
     double HzSpecReqd=0.0;
     double HzReqdInFreeStreams=HzIn-HzSpecdStreams;
     if (NFree>0)
       {
-      double HzFreeStreams=SetFreeStreams(HzReqdInFreeStreams, I, A, NPri);
+      double HzFreeStreams=SetFreeStreams(HzReqdInFreeStreams, I, T, NPri);
       if (m_bAllowHX)
         m_PowerIn=HzFreeStreams-HzIn;
       else
@@ -3216,24 +3404,38 @@ void GSModel::EvalProductsThermal(SpConduit & CdFeed)
         HzSpecReqd=HzReqdInFreeStreams;
       }
 
-    CorrectRequirements(HzSpecReqd, HzSpecdStreams, I,A, NPri);
+    CorrectRequirements(HzSpecReqd, HzSpecdStreams, I,T, NPri);
     
     ClrCI(8);
     }
   else
     SetCI(8);
+
+
+  bool Converged=true;
   for (int j = 0;j<NPri; j++)
     {
-    A[j]->m_TempOut = m_Nd.IOConduit(I[j])->Temp();
     SpConduit & Cd = *m_Nd.IOConduit(I[j]);
+    T[j]->m_TempOut = Cd.Temp();
     if (Cd.QMass()<SmallPosFlow)
       {
       Cd.SetTemp(m_TempIn);
-      A[j]->m_sResult="No Flow";
+      T[j]->m_sResult="No Flow";
       }
     else
-      A[j]->m_sResult.Set("%.2f%% of Target", A[j]->m_Achieved*100.0);
+      T[j]->m_sResult.Set("%.2f%% of Target", T[j]->m_Achieved*100.0);
+
+    if (fabs(m_IOAlpha[T[j]->m_IONo].m_ReqdT-T[j]->m_TempOut)>0.0001)   // to fix
+      Converged=false;
+
+#if dbgGSModelTerm
+    if (m_bThermal && dbgThermal())
+      dbgpln("C: %3i %7.2fC %7.2fC", j, K2C(m_IOAlpha[T[j]->m_IONo].m_ReqdT), K2C(T[j]->m_TempOut));
+#endif
+
+    m_IOAlpha[T[j]->m_IONo].m_ReqdT=T[j]->m_TempOut;
     }
+  return Converged;
   }
 
 //--------------------------------------------------------------------------
@@ -3337,6 +3539,7 @@ byte GSModelBase::QmMode(int iIONo)
       }
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
+    case GSO_VolumeFracSplit:
     case GSO_VolumeFlowSplit:
     case GSO_PhMassFracSplit:
     case GSO_PhMassFlowSplit:
@@ -3385,6 +3588,7 @@ byte GSModelBase::MkMode(int iIONo)
       }
     case GSO_MassFracSplit:
     case GSO_MassFlowSplit:
+    case GSO_VolumeFracSplit:
     case GSO_VolumeFlowSplit:
     case GSO_PhMassFracSplit:
     case GSO_PhMassFlowSplit:

@@ -57,6 +57,9 @@ const byte GSO_PhaseRecovery    = 16;
 const byte GSO_VolumeFlowSplit    = 17;
 const byte GSO_PhVolumeFlowSplit  = 18;
 const byte GSO_SpVolumeFlowSplit  = 19;
+const byte GSO_VolumeFracSplit    = 20;
+const byte xGSO_PhVolumeFracSplit  = 21;
+const byte xGSO_SpVolumeFracSplit  = 22;
 
 // Flow Modes
 const byte GSA_QmDefault        = 0;
@@ -123,6 +126,8 @@ class DllImportExport GSIOAlpha
     double          m_Qm;
     double          m_QmErr;
     double          m_Qv;
+    double          m_QvMeas;
+    double          m_QvCorr;
     double          m_QvErr;
     double          m_FracSplit;
     double          m_DmndSplit;
@@ -140,27 +145,30 @@ class DllImportExport GSIOAlpha
         double          m_LSplt;
         double          m_VSplt;
         };
-      double          m_Splt[3];
+      double          m_SLVSplt[3];
       };
     double          m_PhSplt[MaxPhases];
+    double          m_PhQvCorr[MaxPhases];
                     
     double          m_SQmRqd;
     double          m_LQmRqd;
     double          m_VQmRqd;
-    double          m_PhQmRqd[MaxPhases];
+  
     double          m_SQvRqd;
     double          m_LQvRqd;
     double          m_VQvRqd;
-    double          m_PhQvRqd[MaxPhases];
-                    
-    bool            m_bPhSpltHasValid[BOT_Last];
-    bool            m_bPhQmRqdHasValid[BOT_Last];
-    bool            m_bPhQvRqdHasValid[BOT_Last];
+    double          m_SQvCorr;
+    double          m_LQvCorr;
+    double          m_VQvCorr;
 
-    GSAlphaArray  & m_Alphas;
-    GSAlphaArray  & m_Splits;
-    GSAlphaArray  & m_QmRqds;
-    GSAlphaArray  & m_QvRqds;
+    double          m_ReqdT;
+    double          m_ReqdP;
+
+    GSAlphaArray    m_Alphas;
+    GSAlphaArray    m_Splits;
+    GSAlphaArray    m_QmRqds;
+    GSAlphaArray    m_QvRqds;
+    GSAlphaArray    m_QvCorrs;
 
   };
 
@@ -199,7 +207,7 @@ class DllImportExport GSIOThermal
     double          m_TempOut;
     bool            m_bLast;
     double          m_DeltaT;
-    double          xm_BalanceScl;
+    double          m_BalanceScl;
     double          m_Achieved;
     Strng           m_sResult;
   };
@@ -267,7 +275,7 @@ class DllImportExport GSModel : public TaggedObject
     flag           DataXchgSplit(DataChangeBlk & DCB);
     flag           ValidateDataSplit(ValidateDataBlk & VDB);
     int            FindIOEvalPrioritySplit(int *I, GSIOAlpha**A);//, byte *QmMd, byte *MkMd);
-    void           EvalProductsOutSplit(long SolveMethod, double Press, SpConduit &Sd);
+    void           EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Press, SpConduit &Sd);
     //
     void           PrepareDefinedData();
     void           BuildDataDefn(DataDefnBlk &DDB);
@@ -291,7 +299,7 @@ class DllImportExport GSModel : public TaggedObject
     double         SetFreeStreams(double HfReqdFree, int * I, GSIOThermal ** A, int NPri);
     bool           CorrectRequirements(double HfError, double HfSpecdStreams, int * I, GSIOThermal ** A, int NPri);
 
-    void           EvalProductsThermal(SpConduit & Feed);
+    bool           EvalProductsThermal(SpConduit & Feed);
 #endif
 
   protected:
@@ -338,13 +346,9 @@ class DllImportExport GSModel : public TaggedObject
     double              m_ChangePos;
     byte                m_eCorrection;
     Strng               m_sThermCnd;
-    //double              m_HfError;
-    //int                 m_NPri;
-    //int                 m_NFree;
-    //double              m_HfReqdSpec;
     double              m_TMin;
     double              m_TMax;
-
+    bool                m_ReqdTValid;
   public:
 
     static CToleranceBlock sm_TolPwr;
