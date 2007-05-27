@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-27 17:33:27 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-28 00:16:52 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
