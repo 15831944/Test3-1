@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-25 03:18:41 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-27 17:33:27 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #define  __TTDYNTEST_CPP
 #include "ttdyntest.h"
-
 
 
 static MInitialiseTest InitTest("DynTest");
