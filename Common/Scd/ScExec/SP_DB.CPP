@@ -1156,12 +1156,13 @@ flag CSpecie::FixMissingData(CComponent * pC)
       if (j<=DataLo.m_iLastTPoint)
         { // Yes
         DataLo.m_pVp[i]=CSpDBEqn::Construct(&DataLo, NULL, DataLo.m_pVp[j]);
-        LogNote("SpecieDB", 0, "Vp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
+        if (m_eOcc!=BOT_Solid)
+          LogNote("SpecieDB", 0, "Vp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
         }
       else
         {
         DataLo.m_pVp[i]=CSpDBEqn::Construct(&DataLo, "0.0");
-        //if (eOcc!=BOT_Solid)
+        //if (m_eOcc!=BOT_Solid)
         //  LogNote("SpecieDB", 0, "Vp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSym(), "0"); does this message tell us anything usefull?
         }
       }

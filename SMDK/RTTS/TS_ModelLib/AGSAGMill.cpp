@@ -375,8 +375,8 @@ void CMill_AGSAG::BuildDataFields(MDataDefn &DB)
 
   DB.Page("Ore Load");
   DB.ObjectBegin("AGSAG_OreLoad","OreLoad"); // Table Name, TagName
-  DB.Double("AverageSize_of_Top_20%", "", &m_oAverageSizeTop20, MF_RESULT|InitHidden, MC_L);
-  DB.Double("MillPulpLoad", "", &m_oMillPulpLoad, MF_RESULT|InitHidden, MC_Pwr);//MC_Frac);
+  DB.Double("AverageSize_of_Top_20%", "", &m_oAverageSizeTop20, MF_RESULT, MC_L);
+  DB.Double("MillPulpLoad", "", &m_oMillPulpLoad, MF_RESULT, MC_Pwr);//MC_Frac);
   DB.Double("GrossPower", "", &m_oGrossPower, MF_RESULT, MC_Pwr);
   DB.ObjectEnd();
 

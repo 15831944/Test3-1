@@ -174,7 +174,7 @@ protected:
 	//double m_oChargeDensitysim;		
 	//double m_oVoidFractionsim;		
 	double m_iNoLoadPower;			
-	//double m_oGrossPower;			
+	double m_oGrossPower;			
 	//double m_iMeasuredPower;			
 	//double m_iExpVolTotalLoad;		
 	//double m_oCalVolTotalLoad;		
