@@ -508,9 +508,18 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&SysCAD",                     ID_HELP_SYSCAD
-        MENUITEM "&Models",                     ID_HELP_UserDocs
-        MENUITEM "&PGM language",               ID_HELP_PGMLANGUAGE
+        POPUP "Online"
+        BEGIN
+            MENUITEM "Help Home",                   ID_ONLINE_HOME
+            MENUITEM "User Guide",                  ID_ONLINE_USERGUIDE
+            MENUITEM "Models",                      ID_ONLINE_MODELS
+            MENUITEM "PGM Language",                ID_ONLINE_PGMLANGUAGE
+            MENUITEM SEPARATOR
+            MENUITEM "www.syscad.net",              ID_HELP_WWW_SYSCAD
+            MENUITEM "What's New?",                 ID_ONLINE_WHATSNEW
+        END
+        MENUITEM "Online Help",                 ID_ONLINE_HOME
+        MENUITEM "Offline Help",                ID_OFFLINE_HOME
         MENUITEM SEPARATOR
         MENUITEM "&About SysCAD ...",           ID_APP_ABOUT
     END
@@ -982,9 +991,18 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&SysCAD",                     ID_HELP_SYSCAD
-        MENUITEM "&Models",                     ID_HELP_UserDocs
-        MENUITEM "&PGM language",               ID_HELP_PGMLANGUAGE
+        POPUP "Online"
+        BEGIN
+            MENUITEM "Help Home",                   30520
+            MENUITEM "User Guide",                  30521
+            MENUITEM "Models",                      30522
+            MENUITEM "PGM Language",                30523
+            MENUITEM SEPARATOR
+            MENUITEM "www.syscad.net",              30524
+            MENUITEM "What's New?",                 30525
+        END
+        MENUITEM "Online Help",                 30520
+        MENUITEM "Offline Help",                30526
         MENUITEM SEPARATOR
         MENUITEM "&About SysCAD ...",           ID_APP_ABOUT
     END
@@ -1192,9 +1210,18 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&SysCAD",                     ID_HELP_SYSCAD
-        MENUITEM "&Models",                     ID_HELP_UserDocs
-        MENUITEM "&PGM language",               ID_HELP_PGMLANGUAGE
+        POPUP "Online"
+        BEGIN
+            MENUITEM "Help Home",                   30520
+            MENUITEM "User Guide",                  30521
+            MENUITEM "Models",                      30522
+            MENUITEM "PGM Language",                30523
+            MENUITEM SEPARATOR
+            MENUITEM "www.syscad.net",              30524
+            MENUITEM "What's New?",                 30525
+        END
+        MENUITEM "Online Help",                 30520
+        MENUITEM "Offline Help",                30526
         MENUITEM SEPARATOR
         MENUITEM "&About SysCAD ...",           ID_APP_ABOUT
     END
@@ -1446,9 +1473,18 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&SysCAD",                     ID_HELP_SYSCAD
-        MENUITEM "&Models",                     ID_HELP_UserDocs
-        MENUITEM "&PGM language",               ID_HELP_PGMLANGUAGE
+        POPUP "Online"
+        BEGIN
+            MENUITEM "Help Home",                   30520
+            MENUITEM "User Guide",                  30521
+            MENUITEM "Models",                      30522
+            MENUITEM "PGM Language",                30523
+            MENUITEM SEPARATOR
+            MENUITEM "www.syscad.net",              30524
+            MENUITEM "What's New?",                 30525
+        END
+        MENUITEM "Online Help",                 30520
+        MENUITEM "Offline Help",                30526
         MENUITEM SEPARATOR
         MENUITEM "&About SysCAD ...",           ID_APP_ABOUT
     END
@@ -1624,9 +1660,18 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&SysCAD",                     ID_HELP_SYSCAD
-        MENUITEM "&Models",                     ID_HELP_UserDocs
-        MENUITEM "&PGM language",               ID_HELP_PGMLANGUAGE
+        POPUP "Online"
+        BEGIN
+            MENUITEM "Help Home",                   30520
+            MENUITEM "User Guide",                  30521
+            MENUITEM "Models",                      30522
+            MENUITEM "PGM Language",                30523
+            MENUITEM SEPARATOR
+            MENUITEM "www.syscad.net",              30524
+            MENUITEM "What's New?",                 30525
+        END
+        MENUITEM "Online Help",                 30520
+        MENUITEM "Offline Help",                30526
         MENUITEM SEPARATOR
         MENUITEM "&About SysCAD ...",           ID_APP_ABOUT
     END
@@ -4573,6 +4618,13 @@ BEGIN
     ID_VIEW_EXPLORER        "Open Project Explorer"
     ID_ACTIONS_RUN_STEADY   "Run Dynmaic to Steady state\nSteady State"
     ID_PROJECT_EDIT_SETTINGS "Edit Project Settings\nEdit Settings"
+    ID_ONLINE_HOME          "Online home page for SysCAD Documentation\nOnline Help"
+    ID_ONLINE_USERGUIDE     "Online User Guide documentation\nUser Guide"
+    ID_ONLINE_MODELS        "Online Model documentation\nModel Help"
+    ID_ONLINE_PGMLANGUAGE   "Online PGM (programable language) documentation\nPGM Help"
+    ID_HELP_WWW_SYSCAD      "www.syscad.net"
+    ID_ONLINE_WHATSNEW      "News on what's new in the latest version"
+    ID_OFFLINE_HOME         "Offine home page for SysCAD Documentation\nOffline Help"
 END
 
 STRINGTABLE 

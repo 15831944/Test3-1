@@ -71,6 +71,7 @@
 //===========================================================================
 
 //===========================================================================
+#define Use_WikiHelp 1
 
 #define SECURITY_WIN32
 #include "security.h"
@@ -216,6 +217,7 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_CONTEXT_HELP, OnContextHelp)
   ON_COMMAND(ID_DEFAULT_HELP, OnHelpIndex)
   ON_COMMAND(ID_PROJECT_EDIT_SETTINGS, OnProjectEditSettings)
+  ON_COMMAND_RANGE(ID_ONLINE_HOME, ID_OFFLINE_HOME, OnHelpCommand)
   ON_UPDATE_COMMAND_UI(ID_PROJECT_EDIT_SETTINGS, OnUpdateProjectEditSettings)
 
   //  ON_COMMAND(ID_APP_EXIT, OnAppExit)
@@ -2606,8 +2608,64 @@ BOOL CSysCADApp::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO*
 
 //---------------------------------------------------------------------------
 
+void CSysCADApp::OfflineHelp(char* html)
+  {
+  Strng s(BaseCfgFiles());
+  s += "Help\\";
+  s += html;
+  // Use shell to invoke Web browser on the HTML help file.
+  int iRes = (int)ShellExecute(NULL, "open", s(), NULL, NULL, SW_SHOWNORMAL);
+  }
+
+//---------------------------------------------------------------------------
+
+void CSysCADApp::OnlineHelp(char* html)
+  {
+  // Use shell to invoke Web browser on the HTML help file.
+  int iRes = (int)ShellExecute(NULL, "open", html, NULL, NULL, SW_SHOWNORMAL);
+  }
+
+//---------------------------------------------------------------------------
+
+void CSysCADApp::OnHelpCommand(UINT nID)
+  {
+  switch (nID)
+    {
+    case ID_ONLINE_HOME:
+      OnlineHelp("http://help.syscad.net/index.php");
+      break;
+    case ID_ONLINE_USERGUIDE:
+      OnlineHelp("http://help.syscad.net/index.php/User_Guide");
+      break;
+    case ID_ONLINE_MODELS:
+      OnlineHelp("http://help.syscad.net/index.php/Models");
+      break;
+    case ID_ONLINE_PGMLANGUAGE:
+      OnlineHelp("http://help.syscad.net/index.php/PGMs");
+      break;
+    case ID_HELP_WWW_SYSCAD:
+      OnlineHelp("www.syscad.net");
+      break;
+    case ID_ONLINE_WHATSNEW:
+      OnlineHelp("http://help.syscad.net/index.php/What's_New");
+      break;
+    case ID_OFFLINE_HOME:
+      OfflineHelp("Main_Page.html");
+      break;
+    default:
+      OfflineHelp("Main_Page.html");
+      break;
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 void CSysCADApp::OnHelpSyscad()
   {
+#if Use_WikiHelp
+  //OnlineHelp("x");
+  OfflineHelp("User_Guide.html");
+#else
   if (1)
     {
     Strng s(BaseCfgFiles());
@@ -2625,12 +2683,16 @@ void CSysCADApp::OnHelpSyscad()
     //BOOL b = ::WinHelp(m_pMainWnd->m_hWnd, "syscad.hlp", HELP_CONTENTS, 0);
     BOOL b = ::WinHelp(m_pMainWnd->m_hWnd, s(), HELP_CONTENTS, 0);
     }
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 void CSysCADApp::OnHelpPgm()
   {
+#if Use_WikiHelp
+  OfflineHelp("PGMs.html");
+#else
   if (1)
     {
     Strng s(BaseCfgFiles());
@@ -2647,12 +2709,16 @@ void CSysCADApp::OnHelpPgm()
     s += "pgm.hlp";
     BOOL b = ::WinHelp(m_pMainWnd->m_hWnd, s(), HELP_CONTENTS, 0);
     }
+#endif
   }
 
 //---------------------------------------------------------------------------
 
 void CSysCADApp::OnHelpModels()
   {
+#if Use_WikiHelp
+  OfflineHelp("Models.html");
+#else
   /*HWND HtmlHelp(HWND    hwndCaller,LPCSTR  pszFile,
   UINT    uCommand, DWORD   dwData) ;*/
   //DWORD dw = 0;
@@ -2692,6 +2758,7 @@ void CSysCADApp::OnHelpModels()
     s += "models.hlp";
     BOOL b = ::WinHelp(m_pMainWnd->m_hWnd, s(), HELP_CONTENTS, 0);
     }
+#endif
   }
 
 //---------------------------------------------------------------------------

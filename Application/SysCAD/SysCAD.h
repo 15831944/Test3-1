@@ -195,6 +195,7 @@ class CSysCADApp : public CWinApp
     afx_msg void OnUpdateProjectEditSettings(CCmdUI* pCmdUI);
     //}}AFX_MSG
     afx_msg void OnLicense(UINT nID);
+    afx_msg void OnHelpCommand(UINT nID);
     afx_msg void OnUpdateLicense(CCmdUI* pCmdUI);
     afx_msg BOOL OnOpenRecentFile(UINT nID);
 
@@ -282,6 +283,8 @@ class CSysCADApp : public CWinApp
     CDocument* DocumentNo(int n);
     BOOL SaveAllModified(); // save before exit
 
+    void OfflineHelp(char* html);
+    void OnlineHelp(char* html);
 //    afx_msg void OnAppExit();
 };
 
