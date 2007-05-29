@@ -379,9 +379,9 @@ int CSfeSrvr::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
   return SfeFS->RequestTagRefInfo(Tag, Refs);
   };
 
-flag CSfeSrvr::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+flag CSfeSrvr::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
   { 
-  return SfeFS->RequestModelAssocGraphicsMasks(Set, NdTag, Msks);
+  return SfeFS->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks);
   };
 
 flag CSfeSrvr::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)

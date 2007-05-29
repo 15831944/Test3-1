@@ -236,6 +236,8 @@ class DllImportExport MdlNode : public FlwNode
     virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double SolFrac, double LiqFrac, double VapFrac);
     virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double ReqdValue);
 
+    virtual eEvalSeqStart IOEvalSeqStart_Self(int i);
+
     virtual double SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool PRmt=false, TagObjClass * RqdMdl=NULL);
     virtual double SigmaQInPMin(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool PRmt=false, TagObjClass * RqdMdl=NULL);
     virtual double SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, int IOId1, int IOIdN, bool PRmt=false, TagObjClass * RqdMdl=NULL);

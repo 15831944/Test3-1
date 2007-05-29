@@ -1631,12 +1631,6 @@
 #define IDC_TAG_SHOW3                   25823
 #define IDC_TAG_SHOW4                   25824
 #define IDC_TAG_SHOW5                   25825
-#define IDC_TAG_HIDE0                   25840
-#define IDC_TAG_HIDE1                   25841
-#define IDC_TAG_HIDE2                   25842
-#define IDC_TAG_HIDE3                   25843
-#define IDC_TAG_HIDE4                   25844
-#define IDC_TAG_HIDE5                   25845
 #define IDM_ACC_ACCESSTAG_0             26000
 #define IDM_ACC_FINDTAG_0               26200
 #define IDM_ACC_SELECTTAG_0             26400

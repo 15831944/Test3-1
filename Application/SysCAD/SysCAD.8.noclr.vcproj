@@ -5645,10 +5645,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\exploreimgs.bmp"
-				>
-			</File>
-			<File
 				RelativePath=".\ExploreScd.h"
 				>
 			</File>
@@ -6953,6 +6949,10 @@
 			</File>
 			<File
 				RelativePath=".\res\error.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\exploreimgs.bmp"
 				>
 			</File>
 			<File

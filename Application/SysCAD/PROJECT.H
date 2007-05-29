@@ -733,7 +733,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
     flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
-    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+    flag           RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     flag           FlwModelExists(pchar pTag);
     flag           TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);

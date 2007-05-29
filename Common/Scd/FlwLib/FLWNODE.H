@@ -472,7 +472,7 @@ XID xidConnectState     = MdlBsXID(5207);
 XID xidDIOFlangeTag     = MdlBsXID(5208);
 XID xidDIOFlngSrcTag    = MdlBsXID(5209);
 XID xidDIOFlngDstTag    = MdlBsXID(5210);
-
+XID xidUseStatus        = MdlBsXID(5211);
 enum eDIOConnectSelects
   {
   eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
@@ -1428,8 +1428,6 @@ typedef IOInfo IOInfoBlk[2];
 const dword Connect_Terminal = 1;
 const dword Connect_Flange   = 2;
 
-//enum eConnectRefs { eNdRefNone, eNdRefSrc, eNdRefDst };
-
 class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
   {
   protected:
@@ -1461,6 +1459,17 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     void           FixTag(LPCSTR ReqdTag=NULL, bool TagFixed=false);
     void           InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName);
 
+    void           ClrUseStatus()               { m_iUseStatus=0; };
+    byte           UseStatus()                  { return m_iUseStatus; };
+    byte           SetUseStatus(bool InUse)     
+      { 
+      if (InUse) 
+        m_iUseStatus |= (CUseMsk_InUse|CUseMsk_WasUsed);
+      else
+        m_iUseStatus &= ~CUseMsk_InUse;
+      return m_iUseStatus; 
+      };
+
     // CSFGNodeInfo Overides
     virtual LPCTSTR SFGNodeTag(TaggedObject * pRefTo=NULL) { return FullObjTag(); };
     virtual CSFGNodeInfo * SFGNodePtr()         { return this;};
@@ -1475,6 +1484,7 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     int            m_iIODst;
     int            m_iIdSrc;
     int            m_iIdDst;
+    byte           m_iUseStatus;
     
     Strng          m_sRefIOTg;
     
@@ -3486,8 +3496,8 @@ class DllImportExport FlwNode : public CTNode
   
     FlwNode*       InsertRoot(char * TagIn);
     FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
-    int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1, char * ConnectTag=NULL);
-    int            ConnectIOTag(FlwNode* s, char * IOTag1, FlwNode* d, char * IOTag2, IOInfoBlk *pInfo=NULL, char * ConnectTag=NULL);
+    int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1, char * ConnectTag=NULL, int UseStatus=0);
+    int            ConnectIOTag(FlwNode* s, char * IOTag1, FlwNode* d, char * IOTag2, IOInfoBlk *pInfo=NULL, char * ConnectTag=NULL, int UseStatus=0);
 
     flag           FindIOTag(char * TagIn, int OId_Rqd, IOInfo &Info);
     int            Attach(int LIONo, FlwNode* R, int RIONo,
@@ -3765,10 +3775,13 @@ class DllImportExport FlwNode : public CTNode
 
     virtual eEvalSeqStart IOEvalSeqStart_Self(int i)        
       { 
-      if ((IODesc_Self(i)->m_dwFlags&dwIOSSDenied) || (IODesc_Rmt(i)->m_dwFlags&dwIOSSDenied))
+      if ((IODesc_Self(i)->m_dwFlags&dwIOSSDenied) && NetDynamicMethod() && SolveSurgeMethod())
         return ESS_Denied;
+      //if ((IODesc_Rmt(i)->m_dwFlags&dwIOSSDenied) && Nd_Rmt(i)->NetDynamicMethod() && Nd_Rmt(i)->SolveSurgeMethod())
+      //  return ESS_Denied;
       return IO_Self(i).m_eEvalSeqStart; 
       }
+
     eEvalSeqStart  IOEvalSeqStart_Rmt(int i)                { return Nd_Rmt(i)->IOEvalSeqStart_Self(IOIONo_Rmt(i)); }
 
     bool           IO_EvalSeqStartOK(int i)

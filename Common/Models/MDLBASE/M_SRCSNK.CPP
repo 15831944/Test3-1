@@ -25,7 +25,8 @@ m_CF(this)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
 
-  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed|AGM_Spill|AGM_Vent|AGM_Leak);
+  InitAssocGraphicShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGraphicShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
 
   //Initialise();
   fConnectionOn   = true;

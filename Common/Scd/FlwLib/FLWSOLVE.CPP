@@ -2861,10 +2861,17 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
             {
             #if dbgFlwSolve
             if (dbgBuildOrder())
-              dbgp("  Add %s", pRmt->Tag());
+              dbgp("  ADD %s", pRmt->Tag());
             #endif
             Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask,true));
             // pRmt->m_nFlwIOsInDone=0;
+            }
+          else
+            {
+            #if dbgFlwSolve
+            if (dbgBuildOrder())
+              dbgp("      %s", pRmt->Tag());
+            #endif
             }
           }
         else
@@ -5191,6 +5198,12 @@ void FlwSlvPB::FITPBEvalDiscrete(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     p->EvalFlowInfoEnd();
     p->EvalDiscrete();
+    for (int i=0; i<p->NoFlwIOs(); i++)
+      {
+      //for (int j=0; j<p->NIOFBs(i); j++)
+      //  p->IOFB(i,j)->EvalDiscrete();
+      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+      }
     XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -8295,8 +8308,11 @@ void FlwSlvDyn::FITDiscrete(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     p->EvalFlowInfoEnd();
     p->EvalDiscrete();
     for (int i=0; i<p->NoFlwIOs(); i++)
+      {
       for (int j=0; j<p->NIOFBs(i); j++)
         p->IOFB(i,j)->EvalDiscrete();
+      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+      }
     XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -8462,8 +8478,11 @@ void FlwSlvDyn::EvalAllDiscrete()
       p->EvalFlowInfoEnd();
       p->EvalDiscrete();
       for (int i=0; i<p->NoFlwIOs(); i++)
+        {
         for (int j=0; j<p->NIOFBs(i); j++)
           p->IOFB(i,j)->EvalDiscrete();
+        p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+        }
       XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
       XT.EndLoop();
       }
@@ -11865,33 +11884,28 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
       while (pCn=LTH.ConnLoopGetStart(Pos, pCn))
         {
         //dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
+        
+        int iFlowType=FlwType_Null;
+        int iUseStatus=pCn->UseStatus();
+
         if (LTH.m_pS)
           {
           //pCn->fMarked=false;
           if (pCn->m_pNdSrc && pCn->m_pNdSrc->GetActive())
             {
             int IOId = pCn->m_pNdSrc->IOId_Self(pCn->m_iIOSrc);
-            if (IsMLnkIOId(IOId))
-              i=1;
-            else if (IsMakeupIOId(IOId))
-              i=2;
-            else if (IsBleedIOId(IOId))
-              i=3;
-            else if (IsSpillIOId(IOId))
-              i=4;
-            else if (IsVentIOId(IOId))
-              i=5;
-            else if (IsLeakIOId(IOId))
-              i=6;
-            else
-              i=7;
+            if (IsMLnkIOId(IOId))         iFlowType=FlwType_Proc;
+            else if (IsMakeupIOId(IOId))  iFlowType=FlwType_Makeup;
+            else if (IsBleedIOId(IOId))   iFlowType=FlwType_Bleed;
+            else if (IsSpillIOId(IOId))   iFlowType=FlwType_Spill;
+            else if (IsVentIOId(IOId))    iFlowType=FlwType_Vent;
+            else if (IsLeakIOId(IOId))    iFlowType=FlwType_Leak;
+            else                          iFlowType=FlwType_Other;
             }
-          else
-            i=0;
 
           N++;
           }
-        LTH.ConnLoopGetEnd(pCn, i);
+        LTH.ConnLoopGetEnd(pCn, PackConnect(iFlowType, iUseStatus));
         }
       break;
       }
@@ -12345,11 +12359,11 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+flag CFlwSolver::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
   {
   int ObjTagLen=0;
 
-  if (Set)
+  if (SetClass || SetNode)
     {
     POSITION Pos=Msks.GetHeadPosition();
     while (Pos)
@@ -12358,9 +12372,10 @@ flag CFlwSolver::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAs
       FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)(LPCSTR)Msk.m_Tag, false, ObjTagLen, 0));
       if (p)
         {
-        p->SetAssocGraphicShowClass(Msk.m_ClassShow);
-        p->SetAssocGraphicShow(Msk.m_TagShow);
-        p->SetAssocGraphicHide(Msk.m_TagHide);
+        if (SetClass)
+          p->AssocGraphicShowClass()=Msk.m_ShowClass;
+        if (SetNode)
+          p->AssocGraphicShow()=Msk.m_ShowNode;
         }
       }
     return true;
@@ -12370,7 +12385,7 @@ flag CFlwSolver::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAs
     FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)NdTag, false, ObjTagLen, 0));
     if (p)
       {
-      CModelAssocGraphicMask Msk(NdTag, p->AssocGraphicShowClass(), p->AssocGraphicShow(), p->AssocGraphicHide());
+      CModelAssocGraphicMask Msk(NdTag, p->AssocGraphicShowClass(), p->AssocGraphicShow());
       Msks.AddTail(Msk);
       return true;
       }
@@ -12379,7 +12394,7 @@ flag CFlwSolver::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAs
     {
     for (FlwNode * p = NULL; GetObj_All(p); )
       {
-      CModelAssocGraphicMask Msk(p->FullObjTag(), p->AssocGraphicShowClass(), p->AssocGraphicShow(), p->AssocGraphicHide());
+      CModelAssocGraphicMask Msk(p->FullObjTag(), p->AssocGraphicShowClass(), p->AssocGraphicShow());
       Msks.AddTail(Msk);
       }
     return true;
@@ -14541,6 +14556,8 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
             {
             DU.SetTypeString(tt_Strng, pConn->Tag());
             List.SetDataValue(/*pPItem,*/ "ConnectTag", DU);
+            DU.SetTypeLong(tt_Long, pConn->UseStatus());
+            List.SetDataValue(/*pPItem,*/ "UseStatus", DU);
             }
 
           List.SetStructureE(/*pPItem,*/ StructEndType(tt_Object), CTag());
@@ -14779,6 +14796,7 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
       pchar pConnectTag=NULL;
       int SIONo=-1;
       int DIONo=-1;
+      int UseStatus=0;
 
       while (pItem)
         {
@@ -14789,6 +14807,8 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
           pDst=pItem->Value()->GetString();
         else if (_stricmp(pTag, "ConnectTag")==0)
           pConnectTag=pItem->Value()->GetString();
+        else if (_stricmp(pTag, "UseStatus")==0)
+          UseStatus=pItem->Value()->GetLong();
         // Renamed InIONo to SrcIONo
         else if (_stricmp(pTag, "SrcIONo")==0 || _stricmp(pTag, "InIONo")==0 || _stricmp(pTag, "DstIONo")==0)
           {
@@ -14810,7 +14830,7 @@ flag CFlwSolver::EO_LoadConn(FilingControlBlock &FCB, CXMsgLst &XM)
         pItem=pData->NextItem(Iter);// Skip to Next
         }
 
-      ConnectTag(m_pRoot, pSrc, pDst, SIONo, DIONo, pConnectTag);
+      ConnectTag(m_pRoot, pSrc, pDst, SIONo, DIONo, pConnectTag, UseStatus);
       #if dbgTraceMemState1
             dbgMemoryState("Connect       ");
       #endif

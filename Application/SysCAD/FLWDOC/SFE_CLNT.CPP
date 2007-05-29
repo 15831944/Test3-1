@@ -478,8 +478,8 @@ int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
 int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
    { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
 
-flag SFEFlwLib::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
-   { FENTER(true) pSfe->RequestModelAssocGraphicsMasks(Set, NdTag, Msks); FLEAVE};
+flag SFEFlwLib::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+  { FENTER(true) pSfe->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks); FLEAVE};
 //int SFEFlwLib::RequestXRefInfoChg()
 //   { IENTER(false) pSfe->RequestXRefInfoChg(); ILEAVE};
 flag SFEFlwLib::FE_TestModelTagUnique(pchar pTag)

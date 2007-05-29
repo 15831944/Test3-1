@@ -111,7 +111,7 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
     int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
-    flag         RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+    flag         RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     //int          RequestXRefInfoChg();
 

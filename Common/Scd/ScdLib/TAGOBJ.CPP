@@ -385,9 +385,6 @@ m_SelectData(this)
   m_nInstances = 0;
   m_nInstancesMax = 0;
 
-  m_AssocGraphicOnMask = 0;
-
-//  m_pPropertyMap=NULL;
 
   #if dbgConstructObj
   dbgpln("ConstructClass:%08x %2i %s", this, iId, pShortDesc);
@@ -2383,9 +2380,7 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
 
   m_dwPrevStatus = 0xffffffff;
 
-  m_AssocGraphicShow=0; 
-  m_AssocGraphicHide=0; 
-
+ 
   }
 
 //---------------------------------------------------------------------------
@@ -3921,16 +3916,25 @@ CTOCustomData::CDataSet* TaggedObject::CustomDataSelected()
 //
 //==========================================================================
 
-bool TaggedObject::AssocGraphicOn(eAssocGrfTypes AGType)
+bool TaggedObject::AssocGraphicOn(eAssocGrfTypes AGType, byte UseStatus)
   {
-  dword Mask=AssocGraphicMask(AGType);
+  eAssocGrfShows Shw=AssocGraphicShow()[AGType];
 
-  if (AssocGraphicHide(Mask))
+  if (Shw==eAGS_AsPerClass)
+    Shw=AssocGraphicShowClass()[AGType];
+
+  switch (Shw)
+    {
+    case eAGS_Hide:
     return false;
-  if (AssocGraphicShow(Mask))
+    case eAGS_Show:
     return true;
-  if (AssocGraphicShowClass(Mask))
-    return true;
+    case eAGS_ShowInUse:
+      return (UseStatus&CUseMsk_InUse)!=0;
+    case eAGS_ShowEverUsed:
+      return (UseStatus&(CUseMsk_InUse|CUseMsk_WasUsed))!=0;
+    }      
+
   return false;
   };
 

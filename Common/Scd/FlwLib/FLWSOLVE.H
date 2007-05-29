@@ -560,7 +560,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
-    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+    flag           RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     //int            RequestXRefInfoChg();
 

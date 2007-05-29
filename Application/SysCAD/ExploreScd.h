@@ -2,7 +2,6 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 
-
 // CExploreScd dialog
 
 class CExploreScd;
@@ -86,6 +85,8 @@ enum
   TrID_OtherHdr, TrID_Other, 
   TrID_NodeHdr,  TrID_Node, 
   TrID_FlowHdr,  TrID_Flow, 
+  TrID_MUFlowHdr,  TrID_MUFlow, 
+  TrID_SPFlowHdr,  TrID_SPFlow, 
   TrID_ClassHdr, TrID_Class
   //TrID_LostGrfHdr, TrID_LostGrf,
   //TrID_LostMdlHdr, TrID_LostMdl,
@@ -161,16 +162,19 @@ class CXTFlow : public CXTTreeInfo
   friend class CExploreScd;
 
   public:
-    CXTFlow(CExploreScd * Dlg, LPCTSTR Tag, int FlowType);//, CXTClass * ClassId);
+    CXTFlow(CExploreScd * Dlg, LPCTSTR Tag, int FlowType, int UseStatus);//, CXTClass * ClassId);
     ~CXTFlow();
 
-    int Icon();
+    int             Icon();
+    bool            ShowIt();
+    HTREEITEM       ReqdParentItem();
 
   public:
     CExploreScd   & m_Dlg;
     CString         m_sTag;
     CString         m_sTagLwr;
     int             m_iFlowType;
+    int             m_iUseStatus;
     //CXTClass      * m_pClass;
     BOOL            m_Selected;
     BOOL            m_Marked;
@@ -273,6 +277,8 @@ class CExpTreeCtrl : public CTreeCtrl
 
 class CExploreScd : public CDialog
   {
+  friend class CXTFlow;
+
   DECLARE_DYNAMIC(CExploreScd)
 
   public:
@@ -363,6 +369,8 @@ class CExploreScd : public CDialog
     CXTTreeInfo           m_TrendTitle;
     CXTTreeInfo           m_NodeTitle;
     CXTTreeInfo           m_FlowTitle;
+    CXTTreeInfo           m_MUFlowTitle;
+    CXTTreeInfo           m_SPFlowTitle;
     //CXTTreeInfo           m_LostGrfTitle;
     //CXTTreeInfo           m_LostMdlTitle;
 
@@ -380,6 +388,8 @@ class CExploreScd : public CDialog
     HTREEITEM             m_hClassItem;
     HTREEITEM             m_hNodesItem;
     HTREEITEM             m_hFlowsItem;
+    HTREEITEM             m_hMUFlowsItem;
+    HTREEITEM             m_hSPFlowsItem;
     //HTREEITEM             m_hLostGrfItem;
     //HTREEITEM             m_hLostMdlItem;
     HTREEITEM             m_hPrevSel;
@@ -390,6 +400,8 @@ class CExploreScd : public CDialog
     BOOL                  m_bClassExpanded;
     BOOL                  m_bNodesExpanded;
     BOOL                  m_bFlowsExpanded;
+    BOOL                  m_bMUFlowsExpanded;
+    BOOL                  m_bSPFlowsExpanded;
     //BOOL                  m_bLostGrfExpanded;
     //BOOL                  m_bLostMdlExpanded;
 
@@ -419,6 +431,11 @@ class CExploreScd : public CDialog
 
     CXTFlowArray          m_Flows;
     CXTFlowMap            m_FlowMap;
+
+    byte                  m_iShowWhatFlows;
+    bool                  m_bBranchMU;
+    bool                  m_bBranchSP;
+
     //CXTHTagMap            m_HFlowMap;
 
     HTREEITEM    InsertItem( LPCTSTR lpszItem, int nImage, LPARAM lParam, HTREEITEM hParent, HTREEITEM hInsertAfter=TVI_LAST);
@@ -430,6 +447,7 @@ class CExploreScd : public CDialog
     void         OnDoClicks(NMHDR *pNMHDR, LRESULT *pResult, int Where);
     void         CollectsBulkTags(HTREEITEM hTagOwner, int Level, CStringList &Tags);
     void         DoBulkTagChange(HTREEITEM hTagCheckTags, Strng_List * pAllTags, CXTTagArray *pAllXTags, int Level);
+    void         UpdateFlowBranches(bool AtStart);
 
     DECLARE_MESSAGE_MAP()
   public:

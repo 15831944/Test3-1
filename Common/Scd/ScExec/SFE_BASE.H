@@ -65,6 +65,20 @@ const int NErr_Incompatibleconnections = 2006;
 const int NErr_AlreadyExists           = 2007;
 const int NErr_SelfConnect             = 2008;
 
+const byte FlwType_Null     = 0;
+const byte FlwType_Proc     = 1;
+const byte FlwType_Makeup   = 2;
+const byte FlwType_Bleed    = 3;
+const byte FlwType_Spill    = 4;
+const byte FlwType_Vent     = 5;
+const byte FlwType_Leak     = 6;
+const byte FlwType_Other    = 7;
+
+inline int PackConnect(int iFlowType, int iUseStatus) { return (iFlowType & 0x000000ff) | ((iUseStatus & 0x000000ff)<<8); };
+inline int UnPackConnectFlowType(int W)               { return (W & 0x000000ff); };
+inline int UnPackConnectUseStatus(int W)              { return (W & 0x0000ff00) >> 8; };
+
+
 extern DllImportExport LPCTSTR NErr_String(int iErr);
 
 // ========================================================================
@@ -166,40 +180,34 @@ typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData
 class CModelAssocGraphicMask
   {
   public:
-    CModelAssocGraphicMask()
-      {
-      m_ClassShow = 0;
-      m_TagShow   = 0;
-      m_TagHide   = 0;
-      };
-    CModelAssocGraphicMask(LPCSTR Tag, dword Class, dword Show, dword Hide)
+    CModelAssocGraphicMask(LPCSTR Tag="")
       {
       m_Tag       = Tag;
-      m_ClassShow = Class;
-      m_TagShow   = Show;
-      m_TagHide   = Hide;
+      };
+    CModelAssocGraphicMask(LPCSTR Tag, const CAssocGrfShowArray  & ShowClass, const CAssocGrfShowArray  & ShowNode)
+      {
+      m_Tag       = Tag;
+      m_ShowClass = ShowClass;
+      m_ShowNode  = ShowNode;
       };
     CModelAssocGraphicMask(const CModelAssocGraphicMask & V)
       {
       m_Tag       = V.m_Tag;
-      m_ClassShow = V.m_ClassShow;
-      m_TagShow   = V.m_TagShow;
-      m_TagHide   = V.m_TagHide;
+      m_ShowClass = V.m_ShowClass;
+      m_ShowNode  = V.m_ShowNode;
       };
     CModelAssocGraphicMask & operator=(const CModelAssocGraphicMask & V)
       {
       m_Tag       = V.m_Tag;
-      m_ClassShow = V.m_ClassShow;
-      m_TagShow   = V.m_TagShow;
-      m_TagHide   = V.m_TagHide;
+      m_ShowClass = V.m_ShowClass;
+      m_ShowNode  = V.m_ShowNode;
       return *this;
       };
 
   public:
     CString   m_Tag;
-    dword     m_ClassShow;
-    dword     m_TagShow;
-    dword     m_TagHide;
+    CAssocGrfShowArray  m_ShowClass;
+    CAssocGrfShowArray  m_ShowNode;
   } ;
 
 class CModelAssocGraphicMasks : public CList<CModelAssocGraphicMask, CModelAssocGraphicMask&> {};
@@ -1125,7 +1133,7 @@ class DllImportExport CSfeSrvrBase
     virtual int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status) { return 0; };
     virtual int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest) { return 0; };
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };
-    virtual flag         RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks) { return 0; };
+    virtual flag         RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks) { return 0; };
     //virtual int          RequestXRefInfoChg() { return 0; };
 
     virtual int          FE_GetRctInfo(CRctBlkInformation & RctInfo)                           { return 0; };

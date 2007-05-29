@@ -655,7 +655,9 @@ MN_Lnk::MN_Lnk(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   , m_BlkEval(this, &m_RB, NULL, &m_EHX, &m_VLE, &m_Evap)
   {
   AttachClassInfo(nc_MLnk,NULL);
-  InitAssocGraphicOnMask(AGM_Makeup|AGM_Bleed, AGM_Makeup|AGM_Bleed/*|AGM_Spill|AGM_Vent|AGM_Leaks*/);
+
+  InitAssocGraphicShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGraphicShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
 
   m_RiseRqd=dNAN;
   m_DatumChg=dNAN;

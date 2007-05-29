@@ -252,10 +252,12 @@ LPCTSTR CWindowLists::AccessWndTitle(long i)
   }
 BOOL CWindowLists::WndMaxMode = FALSE;
 
-static char * LayoutFileName = "Scd_Lay.ini";
-static char * RmtBackupZipFileName = "RmtFilesBackup.zip";
+static LPSTR LayoutFileName = "Scd_Lay.ini";
+static LPSTR RmtBackupZipFileName = "RmtFilesBackup.zip";
+static LPSTR GrfStatusFileName = "Scd_GrfStatus.ini";
+static LPSTR VarStatusFileName = "Scd_VarStatus.ini";
 #if WithRmtFile
-static char * RmtFileName = "RmtFiles.Stg";
+static LPSTR RmtFileName = "RmtFiles.Stg";
 #endif
 
 
@@ -4979,11 +4981,14 @@ void CProject::EO_OnAppActivate(BOOL bActive)
 
 flag CProject::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
   {
-#if WithRmtFile
-  const int MaxCnt = 8;
+#if (WithRmtFile && WITHEQUIPSPECS)
+  const int MaxCnt = 10;
+#elif (WithRmtFile || WITHEQUIPSPECS)
+  const int MaxCnt = 9;
 #else
-  const int MaxCnt = 7;
+  const int MaxCnt = 8;
 #endif
+
   switch (Rqst.RQ_Type)
     {
     case RQ_Files:
@@ -5008,9 +5013,20 @@ flag CProject::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
           Info.sData += CCopyBlock::CopyBlkFileName;// defined in copyblk.cpp
         else if (Info.Count()==6)
           Info.sData += RmtBackupZipFileName;
-#if WithRmtFile
         else if (Info.Count()==7)
+          Info.sData += GrfStatusFileName;
+#if WITHEQUIPSPECS
+        else if (Info.Count()==8)
+          Info.sData += VarStatusFileName;
+  #if WithRmtFile
+          else if (Info.Count()==9)
+            Info.sData += RmtFileName;
+  #endif
+#else
+  #if WithRmtFile
+        else if (Info.Count()==8)
           Info.sData += RmtFileName;
+  #endif
 #endif
         Info.sData.FnContract();
         return true;
@@ -5662,10 +5678,43 @@ void CProject::LoadClassOptions()
 //---------------------------------------------------------------------------
 
 #if WITHEQUIPSPECS
+
+flag CProject::SaveClassVariableStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+=VarStatusFileName;
+  FILE *h=fopen(Fn, "wt");
+  if (h)
+    {
+    for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+      {
+      if (pClass->SelectData())
+        {
+        POSITION Pos=NULL;
+        if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
+          {
+          fprintf(h, "[%s]", pClass->ClassId());
+          Strng Tag1,Tag2;
+          CTagValueStatus Status;
+          while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
+            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
+          }
+        }
+      }
+    fprintf(h, "[]");
+    fclose(h);
+    return true;
+    }
+  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for write", Fn);
+  return false;
+  };
+
+//---------------------------------------------------------------------------
+
 flag CProject::LoadClassVariableStatus(LPCSTR Path)
   {
   CString Fn(Path);
-  Fn+="Scd_VarStatus.ini";
+  Fn+=VarStatusFileName;
   if (!FileExists(Fn))
     return true;
   FILE *h=fopen(Fn, "rt");
@@ -5712,65 +5761,92 @@ flag CProject::LoadClassVariableStatus(LPCSTR Path)
   return false;
   };
 
-//---------------------------------------------------------------------------
-
-flag CProject::SaveClassVariableStatus(LPCSTR Path)
-  {
-  CString Fn(Path);
-  Fn+="Scd_VarStatus.ini";
-  FILE *h=fopen(Fn, "wt");
-  if (h)
-    {
-    for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
-      {
-      if (pClass->SelectData())
-        {
-        POSITION Pos=NULL;
-        if (pClass->SelectData()->GetFirstClassVariableStatusEntry(Pos))
-          {
-          fprintf(h, "[%s]", pClass->ClassId());
-          Strng Tag1,Tag2;
-          CTagValueStatus Status;
-          while (pClass->SelectData()->GetNextClassVariableStatusEntry(Pos, Tag1,Tag2, Status))
-            fprintf(h, "%s,%s=%i", Tag1(), Tag2()?Tag2():"", Status);
-          }
-        }
-      }
-    fprintf(h, "[]");
-    fclose(h);
-    return true;
-    }
-  LogError("Project", LF_Exclamation, "Variable Status File ''%s'' not opened for write", Fn);
-  return false;
-  };
-
 #endif
 
 //===========================================================================
 
 #if WITHASSOCGRAPHICS
+
+flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
+  {
+  CString Fn(Path);
+  Fn+=GrfStatusFileName;
+  CProfINIFile PF(Fn);
+  CString Entry, Value;
+
+  int nClasses=0;
+  PF.WrSection("Classes", "");
+  for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+    {
+    if (pClass->AssocGraphicShow().m_bInited)
+      {
+      CAssocGrfShowArray & A = pClass->AssocGraphicShow();
+      Value.Format("%s,%i,%i,%i,%i,%i,%i", pClass->ClassIdNoVersion(), A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
+      Entry.Format("Cl%05i", nClasses++);
+      PF.WrStr("Classes", Entry, Value);
+      }
+    }
+
+
+  int nTags=0;
+  PF.WrSection("Tags", "");
+  CModelAssocGraphicMasks Msks;
+  if (RequestModelAssocGraphicsMasks(false, false, NULL, Msks))
+    {
+    POSITION Pos=Msks.GetHeadPosition();
+    while (Pos)
+      {
+      CModelAssocGraphicMask & Msk = Msks.GetNext(Pos);
+      CAssocGrfShowArray & A = Msk.m_ShowNode;
+      Value.Format("%s,%i,%i,%i,%i,%i,%i", Msk.m_Tag, A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
+      Entry.Format("Tg%05i", nTags++);
+      PF.WrStr("Tags", Entry, Value);
+      }
+    }
+  return true;
+  };
+
+//---------------------------------------------------------------------------
+
 flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
   {
   bool SetsDone=false;
   CString Fn(Path);
-  Fn+="Scd_GrfStatus.ini";
+  Fn+=GrfStatusFileName;
   CProfINIFile PF(Fn);
 
   CString Entry;
   Strng   ReqdS;
-  dword   Reqd;
-  for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
+
+  for (int n=0; ; n++)
     {
-    ReqdS=PF.RdStr("Classes", pClass->ClassIdNoVersion(), "");
+    Entry.Format("Cl%05i", n);
+    ReqdS=PF.RdStr("Classes", Entry, "");
     if (ReqdS.GetLength()>0)
       {
-      Reqd=0;
-      if (sscanf(ReqdS(), "%x", &Reqd))
+      int Quote=0;
+      CSVColArray C;
+      int nToks=ParseCSVTokens(ReqdS(), C, Quote); 
+      if (nToks>1)
         {
-        pClass->SetAssocGraphicOnMask(Reqd, 0xffffffff);
-        SetsDone=true;
+        TagObjClass *pClass=TagObjClass::FindClassId(C[0], false);
+        if (pClass)
+          {
+          CAssocGrfShowArray & A = pClass->AssocGraphicShow();
+          int i=1; 
+          if (i<nToks)        A[eAG_Spill ]  = SafeAtoI(C[i++], A[eAG_Spill ]);
+          if (i<nToks)        A[eAG_Vent  ]  = SafeAtoI(C[i++], A[eAG_Vent  ]);
+          if (i<nToks)        A[eAG_Leak  ]  = SafeAtoI(C[i++], A[eAG_Leak  ]);
+          if (i<nToks)        A[eAG_Makeup]  = SafeAtoI(C[i++], A[eAG_Makeup]);
+          if (i<nToks)        A[eAG_Bleed ]  = SafeAtoI(C[i++], A[eAG_Bleed ]);
+          if (i<nToks)        A[eAG_RB    ]  = SafeAtoI(C[i++], A[eAG_RB    ]);
+
+          SetsDone=true;
+          }
         }
       }
+    else
+      break;
     }
 
   int n=0;
@@ -5783,15 +5859,20 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
       {
       int Quote=0;
       CSVColArray C;
-      int NToks=ParseCSVTokens(ReqdS(), C, Quote); 
-      if (NToks==3)
+      int nToks=ParseCSVTokens(ReqdS(), C, Quote); 
+      if (nToks>0)
         {
-        dword Show;
-        dword Hide;
-        if (sscanf(C[1], "%x", &Show) && sscanf(C[2], "%x", &Hide))
-          {
-          Msks.AddTail(CModelAssocGraphicMask(C[0], 0, Show, Hide));
-          }
+        CModelAssocGraphicMask Msk(C[0]);
+        CAssocGrfShowArray & A = Msk.m_ShowNode;
+        int i=1; 
+        if (i<nToks)        A[eAG_Spill ]  = SafeAtoI(C[i++], A[eAG_Spill ]);
+        if (i<nToks)        A[eAG_Vent  ]  = SafeAtoI(C[i++], A[eAG_Vent  ]);
+        if (i<nToks)        A[eAG_Leak  ]  = SafeAtoI(C[i++], A[eAG_Leak  ]);
+        if (i<nToks)        A[eAG_Makeup]  = SafeAtoI(C[i++], A[eAG_Makeup]);
+        if (i<nToks)        A[eAG_Bleed ]  = SafeAtoI(C[i++], A[eAG_Bleed ]);
+        if (i<nToks)        A[eAG_RB    ]  = SafeAtoI(C[i++], A[eAG_RB    ]);
+
+        Msks.AddTail(Msk);
         }
       }
     else
@@ -5800,52 +5881,12 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
 
   if (Msks.GetCount()>0)
     {
-    if (RequestModelAssocGraphicsMasks(true, NULL, Msks))
+    if (RequestModelAssocGraphicsMasks(false, true, NULL, Msks))
       {
       SetsDone=true;
       }
     }
   return false;
-  };
-
-//---------------------------------------------------------------------------
-
-flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
-  {
-  CString Fn(Path);
-  Fn+="Scd_GrfStatus.ini";
-  CProfINIFile PF(Fn);
-  CString Entry, Value;
-
-  PF.WrSection("Classes", "");
-  for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
-    {
-    if (pClass->AssocGraphicOnMask() & AGM_Inited)
-      {
-      Value.Format("%08x", pClass->AssocGraphicOnMask());
-      PF.WrStr("Classes", pClass->ClassIdNoVersion(), Value);
-      }
-    }
-
-
-  PF.WrSection("Tags", "");
-  int n=0;
-  CModelAssocGraphicMasks Msks;
-  if (RequestModelAssocGraphicsMasks(false, NULL, Msks))
-    {
-    POSITION Pos=Msks.GetHeadPosition();
-    while (Pos)
-      {
-      CModelAssocGraphicMask & Msk = Msks.GetNext(Pos);
-      if (Msk.m_TagShow || Msk.m_TagHide)
-        {
-        Entry.Format("Tg%05i", n++);
-        Value.Format("%s,%08x,%08x", Msk.m_Tag, Msk.m_TagShow, Msk.m_TagHide);
-        PF.WrStr("Tags", Entry, Value);
-        }
-      }
-    }
-  return true;
   };
 
 #endif
@@ -7527,13 +7568,18 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
   CDlgBusy::SetLine(3, CompactPrj());
 
   Strng s;
-  if (bDoingSaveAs && !AllGrfLoaded())
-    {//Copy all DXF files...
-    s = m_sPrevPrjFiles;
-    s += "*.dxf";
+  if (bDoingSaveAs)
+    {
+    CWaitCursor Wait;
     WIN32_FIND_DATA fd;
-    HANDLE H = FindFirstFile(s(), &fd);
-    flag AllDone = (H==INVALID_HANDLE_VALUE);
+    HANDLE H;
+    flag AllDone; 
+
+    // Copy all *.ini files
+    s = m_sPrevPrjFiles;
+    s += "*.ini"; 
+    H = FindFirstFile(s(), &fd);
+    AllDone = (H==INVALID_HANDLE_VALUE);
     while (!AllDone)
       {
       s = m_sPrevPrjFiles;
@@ -7542,6 +7588,23 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
       AllDone = !FindNextFile(H, &fd);
       }
     FindClose(H);
+
+    if (!AllGrfLoaded())
+      {
+      //Copy all DXF files...
+      s = m_sPrevPrjFiles;
+      s += "*.dxf";
+      H = FindFirstFile(s(), &fd);
+      AllDone = (H==INVALID_HANDLE_VALUE);
+      while (!AllDone)
+        {
+        s = m_sPrevPrjFiles;
+        s += fd.cFileName;
+        Copy_File(s(), PrjFiles());
+        AllDone = !FindNextFile(H, &fd);
+        }
+      FindClose(H);
+      }
     }
 
   Strng sPrjBac(PrjFile());
@@ -8277,9 +8340,6 @@ flag CProject::OnProjectSaveas(pchar pPrjPath)
   //  bDoingSaveAs = true;
   MainWnd()->ClosingProject(false);
 
-  //  CPrjSaveAsDlg Dlg(m_sPrevPrjFiles());
-  //  Dlg.m_CopyHist = true;
-
   bCmdSuccess = DoSave(true, pPrjPath, false);
   if (bCmdSuccess)
     {
@@ -8289,33 +8349,15 @@ flag CProject::OnProjectSaveas(pchar pPrjPath)
 #if WITHDRVMAN
     CloseDrvManager();
 #endif
-    Strng s;
-    //Strng PrevRoot = m_sPrevPrjFiles;
-    //PrevRoot = PrevRoot.Left(PrevRoot.Length() - 4);
-    //PrevRoot += '\\';
-    //CPrjSaveAsDlg Dlg(m_sPrevPrjFiles());
-    //Dlg.m_CopyHist = true;
-    //Dlg.DoModal();
-    CWaitCursor Wait;
-    //spj/ini stuff...
-    WIN32_FIND_DATA fd;
-    HANDLE H;
-    s = m_sPrevPrjFiles;
-    s += "*.ini"; // s += "scd_prj.ini";
-    H = FindFirstFile(s(), &fd);
-    flag AllDone = (H==INVALID_HANDLE_VALUE);
-    while (!AllDone)
-      {
-      s = m_sPrevPrjFiles;
-      s += fd.cFileName;
-      Copy_File(s(), PrjFiles());
-      AllDone = !FindNextFile(H, &fd);
-      }
-    FindClose(H);
     //historian...
     Strng DstHstDir(gs_HstMngr.sHstDataDir);
     DstHstDir.FnExpand();
     DstHstDir.FnClearEndBSlash();
+
+    Strng s;
+    CWaitCursor Wait;
+    WIN32_FIND_DATA fd;
+    HANDLE H;
 
     s = m_sPrevPrjFiles;
     s += gs_HstMngr.sHistorianName();
@@ -8573,9 +8615,9 @@ flag CProject::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & 
 
 //---------------------------------------------------------------------------
 
-flag CProject::RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
+flag CProject::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
   { 
-  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGraphicsMasks(Set, NdTag, Msks) : 0;
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks) : 0;
   };
 
 

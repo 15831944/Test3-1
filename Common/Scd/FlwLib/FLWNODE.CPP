@@ -6389,7 +6389,7 @@ int FlwNode::Detach(int IONo)
 
 //--------------------------------------------------------------------------
 
-int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, int RqdIONo2, char * ConnectTag)
+int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, int RqdIONo2, char * ConnectTag, int UseStatus)
   {
   int          Ret=0;
   IOInfo       Info[2];
@@ -6483,6 +6483,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
           pF->FixTag(ConnectTag, true);
         else
           pF->FixTag();
+        pF->m_iUseStatus=UseStatus;
         }
       }
     else if (Ret==0)
@@ -6505,7 +6506,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
 
 //--------------------------------------------------------------------------
 
-int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, IOInfoBlk *pInfo, char * ConnectTag)
+int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, IOInfoBlk *pInfo, char * ConnectTag, int UseStatus)
   {
   if (0)
     dbgpln("ConnectIOTag %25s.%-15s %25s.%-15s @ %s", s->FullObjTag(), IOTag1, d->FullObjTag(), IOTag2, FullObjTag());
@@ -6609,6 +6610,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
           pF->FixTag(ConnectTag, true);
         else
           pF->FixTag();
+        pF->m_iUseStatus=UseStatus;
         }
 
 #if dbgKwikConnect
@@ -7786,7 +7788,7 @@ flag FlwNode::EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs)
             ASSERT_ALWAYS(false,"Uncatered for DIO Type", __FILE__, __LINE__);
           }
         I.m_sTag = pC->Tag();
-        I.m_bShowIt = AssocGraphicOn(I.m_eAGType);
+        I.m_bShowIt = AssocGraphicOn(I.m_eAGType, pC->UseStatus());
 
         GT.m_AssocGrfs.Add(I);
 #if dbgAssocGrfs 
@@ -11360,7 +11362,10 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
       DDB.Double  ("Opening",   "",       DC_Frac,  "%",      &m_Opening,        m_pNd, isParm);
 
     if (Options&DFIO_ShowQm)
-      DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,    "kg/s",  xidDrctQm,         m_pNd, isResult);
+      DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
+
+    if (DDB.ForFileSnpScn())
+      DDB.Byte    ("UseStatus",   "",  DC_,         "",       xidUseStatus,         m_pNd, isResult);
 
     DDB.Text("");
     if (!m_bIsXfer)
@@ -11460,6 +11465,12 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
     case xidConnectState:
       DCB.B=m_pRmt.ConnectState();
       return 1;
+    case xidUseStatus:
+      if (DCB.rB && m_pFlng)
+        m_pFlng->m_iUseStatus = *DCB.rB;
+      DCB.B = m_pFlng ? m_pFlng->m_iUseStatus:0;
+      return 1;
+
     //case xidDrctQv:
     //  DCB.D=Sum.totMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QVolume() : Cd.QVolume() : 0);
     //  return 1;

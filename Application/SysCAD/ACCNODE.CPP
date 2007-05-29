@@ -33,6 +33,7 @@
 #include ".\accnode.h"
 #include "helpinfo.h"
 #include "sp_db.h"
+#include "explorescd.h"
 
 #include "ole_base.h"
 #include "oleexcel.h"
@@ -5471,6 +5472,7 @@ flag AccNodeWnd::EO_Starting(flag fBeginStarting)
     SendOrPostMessage(this, !gs_TheRunMngr.AutomationBusy(), WMU_ACCREFRESHCANCEL);
     COrdWindow::Refresh();
     CWirePanelWindow::Refresh();
+    CExploreScd::RefreshIt(true);
     }
   return true;
   };
@@ -5485,6 +5487,7 @@ flag AccNodeWnd::EO_Stopping(flag fBeginStopping)
     COrdWindow::Refresh();
     CStatsWindow::Refresh();
     CWirePanelWindow::Refresh();
+    CExploreScd::RefreshIt(true);
     }
   return true;
   };
@@ -5507,6 +5510,7 @@ flag AccNodeWnd::EO_BeginPause(CXM_TimeControl &CB)
     COrdWindow::Refresh();
     CStatsWindow::Refresh();
     CWirePanelWindow::Refresh();
+    CExploreScd::RefreshIt(true);
     }
   return true;
   }

@@ -138,7 +138,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 //    int            RequestXRefInfoChg();
-    flag           RequestModelAssocGraphicsMasks(bool Set, LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+    flag           RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     int            FE_GetRctInfo(CRctBlkInformation & RctInfo);
     int            FE_SetRctInfo(LPCTSTR NodeTag);

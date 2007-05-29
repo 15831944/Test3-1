@@ -3514,6 +3514,28 @@ double MdlNode::GetSVolFrac(SpContainer & Cn,
 
   return SVolFrac;
   }
+
+//--------------------------------------------------------------------------
+
+eEvalSeqStart MdlNode::IOEvalSeqStart_Self(int i)
+  {
+  CHgtOrdInfo *pHO=IOHgtOrder(i);
+  if (pHO)
+    {
+    if ((IOIdMask_Self(i) & pHO->m_dwIOIdMask)!=0)
+      {
+      if (((IOExitRule(i)&IOER_Lvl)==0) && NetDynamicMethod() && SolveSurgeMethod())
+        return ESS_Denied;
+      }
+
+    SpContainer &Cn=pHO->Container();
+    if (Cn.m_MixSet.On())
+      return ESS_Denied;
+    }
+
+  return FlwNode::IOEvalSeqStart_Self(i);
+  };
+
 //--------------------------------------------------------------------------
 
 void MdlNode::DoIOGetNetProps_Surge(int IONo, double Qm)

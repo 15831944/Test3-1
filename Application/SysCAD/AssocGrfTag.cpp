@@ -42,6 +42,23 @@ BEGIN_MESSAGE_MAP(CAssocGrfTag, CDialog)
   ON_BN_CLICKED(IDAPPLY, &CAssocGrfTag::OnBnClickedApply)
 END_MESSAGE_MAP()
 
+static const int Ids[] = 
+  {
+  IDC_CLASS_SHOW0,
+  IDC_CLASS_SHOW1,
+  IDC_CLASS_SHOW2,
+  IDC_CLASS_SHOW3,
+  IDC_CLASS_SHOW4,
+  //IDC_CLASS_SHOW5,
+  IDC_TAG_SHOW0,
+  IDC_TAG_SHOW1,
+  IDC_TAG_SHOW2,
+  IDC_TAG_SHOW3,
+  IDC_TAG_SHOW4,
+  //IDC_TAG_SHOW5,
+  -1,
+  };
+
 BOOL CAssocGrfTag::OnInitDialog()
   {
   CDialog::OnInitDialog();
@@ -51,33 +68,38 @@ BOOL CAssocGrfTag::OnInitDialog()
     GetDlgItem(IDC_CLASS_FRAME)->SetWindowText(ClassId());
   GetDlgItem(IDC_TAG_FRAME)->SetWindowText(m_NdTag);
   
+  for (int i=0; Ids[i]>0; i++)
+    {
+    CComboBox * pBox=(CComboBox *)GetDlgItem(Ids[i]);
+
+    if (Ids[i]>=IDC_TAG_SHOW0)
+      pBox->AddString(" ");
+    
+    pBox->AddString("Hide");
+    pBox->AddString("Show");
+    pBox->AddString("In Use");
+    pBox->AddString("Ever Used");
+    }
+
   CModelAssocGraphicMasks Msks;
-  if (gs_pPrj->RequestModelAssocGraphicsMasks(false, (LPSTR)(LPCSTR)m_NdTag, Msks))
+  if (gs_pPrj->RequestModelAssocGraphicsMasks(false, false, (LPSTR)(LPCSTR)m_NdTag, Msks))
     {
     CModelAssocGraphicMask & Msk=Msks.GetHead();
 
-    CheckDlgButton(IDC_CLASS_SHOW0, (Msk.m_ClassShow & AGM_Makeup)?1:0);
-    CheckDlgButton(IDC_CLASS_SHOW1, (Msk.m_ClassShow & AGM_Bleed)?1:0);
-    CheckDlgButton(IDC_CLASS_SHOW2, (Msk.m_ClassShow & AGM_Spill)?1:0);
-    CheckDlgButton(IDC_CLASS_SHOW3, (Msk.m_ClassShow & AGM_Vent)?1:0);
-    CheckDlgButton(IDC_CLASS_SHOW4, (Msk.m_ClassShow & AGM_Leak)?1:0);
-    CheckDlgButton(IDC_CLASS_SHOW5, (Msk.m_ClassShow & AGM_RB)?1:0);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW0))->SetCurSel(Msk.m_ShowClass[eAG_Makeup]-1);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW1))->SetCurSel(Msk.m_ShowClass[eAG_Bleed]-1);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW2))->SetCurSel(Msk.m_ShowClass[eAG_Spill]-1);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW3))->SetCurSel(Msk.m_ShowClass[eAG_Vent]-1);
+    ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW4))->SetCurSel(Msk.m_ShowClass[eAG_Leak]-1);
+    //((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->SetCurSel(Msk.m_ShowClass[eAG_RB]-1);
 
-    CheckDlgButton(IDC_TAG_SHOW0, (Msk.m_TagShow & AGM_Makeup)?1:0);
-    CheckDlgButton(IDC_TAG_SHOW1, (Msk.m_TagShow & AGM_Bleed)?1:0);
-    CheckDlgButton(IDC_TAG_SHOW2, (Msk.m_TagShow & AGM_Spill)?1:0);
-    CheckDlgButton(IDC_TAG_SHOW3, (Msk.m_TagShow & AGM_Vent)?1:0);
-    CheckDlgButton(IDC_TAG_SHOW4, (Msk.m_TagShow & AGM_Leak)?1:0);
-    CheckDlgButton(IDC_TAG_SHOW5, (Msk.m_TagShow & AGM_RB)?1:0);
-
-    CheckDlgButton(IDC_TAG_HIDE0, (Msk.m_TagHide & AGM_Makeup)?1:0);
-    CheckDlgButton(IDC_TAG_HIDE1, (Msk.m_TagHide & AGM_Bleed)?1:0);
-    CheckDlgButton(IDC_TAG_HIDE2, (Msk.m_TagHide & AGM_Spill)?1:0);
-    CheckDlgButton(IDC_TAG_HIDE3, (Msk.m_TagHide & AGM_Vent)?1:0);
-    CheckDlgButton(IDC_TAG_HIDE4, (Msk.m_TagHide & AGM_Leak)?1:0);
-    CheckDlgButton(IDC_TAG_HIDE5, (Msk.m_TagHide & AGM_RB)?1:0);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW0))->SetCurSel(Msk.m_ShowNode[eAG_Makeup]);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW1))->SetCurSel(Msk.m_ShowNode[eAG_Bleed]);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW2))->SetCurSel(Msk.m_ShowNode[eAG_Spill]);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW3))->SetCurSel(Msk.m_ShowNode[eAG_Vent]);
+    ((CComboBox *)GetDlgItem(IDC_TAG_SHOW4))->SetCurSel(Msk.m_ShowNode[eAG_Leak]);
+    //((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->SetCurSel(Msk.m_ShowNode[eAG_RB]);
     }
-
 
   ShowWindow(SW_SHOW);
   UpdateDialogControls(this, FALSE);
@@ -99,33 +121,26 @@ void CAssocGrfTag::OnCancel()
 
 void CAssocGrfTag::OnBnClickedApply()
   {
-  CModelAssocGraphicMask Msk(m_NdTag,0,0,0);
+  CModelAssocGraphicMask Msk(m_NdTag);
 
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW0) ? AGM_Makeup:0;
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW1) ? AGM_Bleed:0;
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW2) ? AGM_Spill:0;
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW3) ? AGM_Vent:0;
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW4) ? AGM_Leak:0;
-  Msk.m_ClassShow |= IsDlgButtonChecked(IDC_CLASS_SHOW5) ? AGM_RB:0;
+  Msk.m_ShowClass[eAG_Makeup] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW0))->GetCurSel()+1;
+  Msk.m_ShowClass[eAG_Bleed ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW1))->GetCurSel()+1;
+  Msk.m_ShowClass[eAG_Spill ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW2))->GetCurSel()+1;
+  Msk.m_ShowClass[eAG_Vent  ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW3))->GetCurSel()+1;
+  Msk.m_ShowClass[eAG_Leak  ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW4))->GetCurSel()+1;
+  //Msk.m_ShowClass[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW5))->GetCurSel()+1;
 
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW0) ? AGM_Makeup:0;
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW1) ? AGM_Bleed:0;
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW2) ? AGM_Spill:0;
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW3) ? AGM_Vent:0;
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW4) ? AGM_Leak:0;
-  Msk.m_TagShow |= IsDlgButtonChecked(IDC_TAG_SHOW5) ? AGM_RB:0;
-
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE0) ? AGM_Makeup:0;
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE1) ? AGM_Bleed:0;
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE2) ? AGM_Spill:0;
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE3) ? AGM_Vent:0;
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE4) ? AGM_Leak:0;
-  Msk.m_TagHide |= IsDlgButtonChecked(IDC_TAG_HIDE5) ? AGM_RB:0;
+  Msk.m_ShowNode[eAG_Makeup] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW0))->GetCurSel();
+  Msk.m_ShowNode[eAG_Bleed ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW1))->GetCurSel();
+  Msk.m_ShowNode[eAG_Spill ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW2))->GetCurSel();
+  Msk.m_ShowNode[eAG_Vent  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW3))->GetCurSel();
+  Msk.m_ShowNode[eAG_Leak  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW4))->GetCurSel();
+  //Msk.m_ShowNode[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->GetCurSel();
 
   CModelAssocGraphicMasks Msks;
   Msks.AddTail(Msk);
 
-  if (gs_pPrj->RequestModelAssocGraphicsMasks(true, NULL, Msks))
+  if (gs_pPrj->RequestModelAssocGraphicsMasks(true, true, NULL, Msks))
     {
     gs_Exec.MaintainModelAssocGraphics(NULL);
     }
