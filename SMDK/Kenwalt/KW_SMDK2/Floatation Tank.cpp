@@ -330,10 +330,11 @@ void FloatationTank::EvalProducts()
 	for (unsigned int i = 0; i < vOtherIndices.size(); i++)
 		dOtherMassIn += QI.M[vOtherIndices.at(i)];
 
+	int liNoGrade = 0;
 	double dTotalReqImpurities = dPrimaryMassConc * (1.0 / dReqPrimaryGrade - 1.0);
 	if (dTotalReqImpurities < dSecondaryMassConc) //If this is the case, we will put in no more impurities.
 	{
-		Log.Message(MMsg_Error, "Secondary products prevent required primary grade");
+		Log.SetCondition(true, liNoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
 		dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc);
 	}
 	else
@@ -341,7 +342,7 @@ void FloatationTank::EvalProducts()
 		double dReqOtherMassOut = dTotalReqImpurities - dSecondaryMassConc;
 		if (dReqOtherMassOut > dOtherMassIn)
 		{
-			Log.Message(MMsg_Error, "Not enough unspecified input mass to achieve required primary grade");
+			Log.SetCondition(true, liNoGrade, MMsg_Warning, "Not enough unspecified input mass to achieve required primary grade");
 			dReqOtherMassOut = dOtherMassIn;
 			dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc + dOtherMassIn);
 		}
