@@ -385,6 +385,7 @@ m_SelectData(this)
   m_nInstances = 0;
   m_nInstancesMax = 0;
 
+  m_AssocGraphicShowInited=false;
 
   #if dbgConstructObj
   dbgpln("ConstructClass:%08x %2i %s", this, iId, pShortDesc);

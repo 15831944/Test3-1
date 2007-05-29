@@ -5778,7 +5778,7 @@ flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
   PF.WrSection("Classes", "");
   for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
     {
-    if (pClass->AssocGraphicShow().m_bInited)
+    if (pClass->AssocGraphicShowInited())
       {
       CAssocGrfShowArray & A = pClass->AssocGraphicShow();
       Value.Format("%s,%i,%i,%i,%i,%i,%i", pClass->ClassIdNoVersion(), A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);

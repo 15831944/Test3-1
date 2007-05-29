@@ -744,14 +744,13 @@ const byte CUseMsk_Exists   = 0x80;
 class CAssocGrfShowArray 
   {
   public:
-    CAssocGrfShowArray()                                          { memset(m_Show, 0, eAG_Last); m_bInited=false; }
-    CAssocGrfShowArray(const CAssocGrfShowArray & V)              { memcpy(m_Show, V.m_Show, eAG_Last); m_bInited = m_bInited||V.m_bInited; }
-    CAssocGrfShowArray & operator=(const CAssocGrfShowArray & V)  { memcpy(m_Show, V.m_Show, eAG_Last); m_bInited = m_bInited||V.m_bInited; return *this; }
+    CAssocGrfShowArray()                                          { memset(m_Show, 0, eAG_Last); }
+    CAssocGrfShowArray(const CAssocGrfShowArray & V)              { memcpy(m_Show, V.m_Show, eAG_Last); }
+    CAssocGrfShowArray & operator=(const CAssocGrfShowArray & V)  { memcpy(m_Show, V.m_Show, eAG_Last); return *this; }
     byte & operator [](eAssocGrfTypes i)                          { return m_Show[i]; }
 
   public:
     byte     m_Show[eAG_Last];
-    bool     m_bInited;
   };
 
 //===========================================================================
@@ -846,11 +845,11 @@ class DllImportExport TagObjClass
     LPSTR          TagComment()                                { return sTagComment(); };
 
     CAssocGrfShowArray & AssocGraphicShow()                    { return m_AssocGraphicShow; }       
-    void           SetAssocGraphicShow(eAssocGrfTypes Type, eAssocGrfShows Show)  { m_AssocGraphicShow[Type] = Show; }       
+    bool           AssocGraphicShowInited()                    { return m_AssocGraphicShowInited; } 
 
     void           InitAssocGraphicShowPB(flag PBMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
       {
-      if (PBMode && !m_AssocGraphicShow.m_bInited)
+      if (PBMode && !m_AssocGraphicShowInited)
         {
         m_AssocGraphicShow[eAG_Spill] = Spill;
         m_AssocGraphicShow[eAG_Vent] = Vent;
@@ -858,12 +857,12 @@ class DllImportExport TagObjClass
         m_AssocGraphicShow[eAG_Makeup] = Makeup;
         m_AssocGraphicShow[eAG_Bleed] = Bleed;
         m_AssocGraphicShow[eAG_RB] = RB;
-        m_AssocGraphicShow.m_bInited=true;
+        m_AssocGraphicShowInited=true;
         }
       }
     void           InitAssocGraphicShowDyn(flag DynMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
       {
-      if (DynMode && !m_AssocGraphicShow.m_bInited)
+      if (DynMode && !m_AssocGraphicShowInited)
         {
         m_AssocGraphicShow[eAG_Spill] = Spill;
         m_AssocGraphicShow[eAG_Vent] = Vent;
@@ -871,7 +870,7 @@ class DllImportExport TagObjClass
         m_AssocGraphicShow[eAG_Makeup] = Makeup;
         m_AssocGraphicShow[eAG_Bleed] = Bleed;
         m_AssocGraphicShow[eAG_RB] = RB;
-        m_AssocGraphicShow.m_bInited=true;
+        m_AssocGraphicShowInited=true;
         }
       }
 
@@ -972,6 +971,7 @@ class DllImportExport TagObjClass
 #endif
 
     CAssocGrfShowArray  m_AssocGraphicShow;//
+    bool                m_AssocGraphicShowInited;//
     //dword          m_AssocGraphicOnMask;
   };
 
@@ -1413,8 +1413,6 @@ class DllImportExport TaggedObject : public ConditionBlk
     CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
 #endif
 
-    //void           InitAssocGraphicOnMask(dword PBReqd, dword DynReqd)         { return Class()->InitAssocGraphicOnMask(NetProbalMethod(), PBReqd, DynReqd);    }       
-
     void           InitAssocGraphicShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
       { Class()->InitAssocGraphicShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
     void           InitAssocGraphicShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
@@ -1422,13 +1420,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     
     bool           AssocGraphicOn(eAssocGrfTypes AGType, byte UseStatus);                       
     CAssocGrfShowArray & AssocGraphicShowClass()                                 { return Class()->AssocGraphicShow();      }       
-    void           SetAssocGraphicShowClass(const CAssocGrfShowArray & Show)     { Class()->m_AssocGraphicShow=Show;        }       
     CAssocGrfShowArray & AssocGraphicShow()                                      { return m_AssocGraphicShow;               }       
-    void           SetAssocGraphicShow(const CAssocGrfShowArray & Show)          { m_AssocGraphicShow=Show;                 }       
-    //dword          AssocGraphicShow(dword Mask=0xffffffff)                     { return m_AssocGraphicShow & Mask;                                              }       
-    //void           SetAssocGraphicShow(dword Reqd, dword Mask=0xffffffff)      { m_AssocGraphicShow = m_AssocGraphicShow&~Mask | Mask&Reqd;                     }       
-    //dword          AssocGraphicHide(dword Mask=0xffffffff)                     { return m_AssocGraphicHide & Mask;                                              }       
-    //void           SetAssocGraphicHide(dword Reqd, dword Mask=0xffffffff)      { m_AssocGraphicHide = m_AssocGraphicHide&~Mask | Mask&Reqd;                     }       
 
   protected:
     Strng           m_sTag;
