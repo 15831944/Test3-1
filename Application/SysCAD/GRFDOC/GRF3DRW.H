@@ -1027,6 +1027,8 @@ class DllImportExport Grf3D_Display
                     bPrinting:1;
     HDC             my_HDC;
     HDC             HDC_List[10];
+    HDC             HDC_Prev[10];
+    GR_COLOR        COLOR_Prev[10];
     flag            OwnsDC[10];
 
     CWnd*           TheWnd;

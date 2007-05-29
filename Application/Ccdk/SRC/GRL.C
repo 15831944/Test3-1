@@ -33,6 +33,21 @@
 #include <windows.h>
 #include <stdio.h>
 
+
+#define dbgPoly 0
+
+#if dbgPoly 
+static FILE* dbgFile=NULL;
+static long dbgID=0;
+
+BOOL dbgOpen()
+  {
+  if (dbgFile==NULL)
+    dbgFile=fopen("D:\\Temp\\dbgGrf.txt", "wt");
+  return dbgFile!=NULL;
+  }
+#endif
+
 //#include "optoff.h"
 
 #define xdbggrl
@@ -315,6 +330,11 @@ add_vector_buffer(REAL xx0,REAL yy0,REAL xx1,REAL yy1)
    //    return;
    //}
 
+#if dbgPoly 
+   if (dbgOpen())
+     fprintf(dbgFile, "AVB %7.2f,%7.2f   %7.2f,%7.2f\n", xx0, yy0, xx1, yy1);
+#endif
+
 
    x0 = (float)xx0;
    y0 = (float)yy0; // mhm *8192 gone
@@ -471,6 +491,14 @@ int mypolypolyline(int xoff,int yoff,LONGPOINT *p,short *t,DWORD *np, DWORD nnp,
   fprintf(dbgf, "mypolypolyline %5i %10.2f %3i", GRL_COLOR, GRL_THICKNESS, GRL_THICKNESSINDEX);
   #endif
 
+#if dbgPoly 
+  if (dbgFile)
+    {
+    fprintf(dbgFile, "=============================== ID=%i\n", dbgID++);
+    fprintf(dbgFile, "  xoff   = %5i\n", xoff);
+    fprintf(dbgFile, "  yoff   = %5i\n", yoff);
+    }
+#endif
 
 //const byte MSStyle_Off      = 0;
 //const byte MSStyle_Solid    = 1;
@@ -495,6 +523,7 @@ int mypolypolyline(int xoff,int yoff,LONGPOINT *p,short *t,DWORD *np, DWORD nnp,
     //sm_hBrushes.InitHashTable(512);
     BrushesOK=1;
     }
+  nxx=0;
   for(i=0;i<nnp;i++)
     nxx+=np[i];
   if (nxx>lmppb)           /*cnm*/
@@ -673,7 +702,20 @@ int mypolypolyline(int xoff,int yoff,LONGPOINT *p,short *t,DWORD *np, DWORD nnp,
       {
       grl_set_color(col,0);
       //grl_set_thickness(thickness); temp
+
+#if dbgPoly 
+      if (dbgFile)
+        {
+        int xx;
+        fprintf(dbgFile, "--------------- n=%i col=%i\n", (int)np[i], col);
+        for (xx=0; xx<(int)np[i]; xx++)
+          fprintf(dbgFile, "  %8.2f,%8.2f   = %5i,%i\n", p[k+xx].x, p[k+xx].y, (mppb+k)[xx].x, (mppb+k)[xx].y);
+        fflush(dbgFile);
+        }
+#endif
+
       Polyline(win_HDC,mppb+k,(int)np[i]);
+
       *colordrwn=col;
       }
     *ovrcolordrwn=ovrcol;

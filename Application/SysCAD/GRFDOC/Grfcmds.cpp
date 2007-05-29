@@ -7637,6 +7637,7 @@ void GrfCmdBlk::DoDelete()
           {
           pchar pTag;
           if (DelMdl)
+            {
             if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
               {
               CMdlValueSet::Clear();
@@ -7666,6 +7667,7 @@ void GrfCmdBlk::DoDelete()
               else
                 MdlDeletes++;
               */
+              }
             }
           if (DelSym)
             {

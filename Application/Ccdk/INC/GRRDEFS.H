@@ -31,7 +31,8 @@ extern  void    grr_clip_inside __(( REAL DUMMY0 [2], REAL DUMMY1 [2] )) ;
 extern  REAL    grr_get_max_x __(( void )) ;
 extern  REAL    grr_get_max_y __(( void )) ;
 extern  BOOLEAN grr_init __(( int DUMMY0 , GR_COLOR DUMMY1, int DUMMY2)) ; /*cnm*/
-extern  void    grr_context (HDC hdc);  /*cnm*/
+extern  void    grr_set_context (HDC hdc, GR_COLOR colour);  /*cnm*/
+extern  void    grr_get_context (HDC *hdc, GR_COLOR * color);  /*cnm*/
 extern  void    grr_printing (BOOLEAN printing);  /*kga 22/1/99*/
 extern  void    grr_exit __(( void )) ;
 extern  REAL    grr_get_screen_ratio __(( void )) ;

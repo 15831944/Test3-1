@@ -824,9 +824,10 @@ void CGrfWnd::OnMouseMove(UINT nFlags, CPoint point)
   if (!gs_Exec.Busy())
     {
     char Txt[512];
-    sprintf(Txt, "%7.2f, %7.2f",
-      Range(-9999999.0, Dsp.CurrentPt.World.X, 9999999.0),
-      Range(-9999999.0, Dsp.CurrentPt.World.Y, 9999999.0));
+    if (1)
+      sprintf(Txt, "%7.2f, %7.2f",Range(-9999999.0, Dsp.CurrentPt.World.X, 9999999.0), Range(-9999999.0, Dsp.CurrentPt.World.Y, 9999999.0));
+    else
+      sprintf(Txt, "%i,%i  %.2f,%.2f", point.x, point.y,Range(-9999999.0, Dsp.CurrentPt.World.X, 9999999.0), Range(-9999999.0, Dsp.CurrentPt.World.Y, 9999999.0));
     pStatusBar->UpdateIndicator(1, Txt, FALSE);
     }
   Dsp.Close();

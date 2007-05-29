@@ -1018,6 +1018,8 @@ Grf3D_Display::Grf3D_Display(CWnd* TheWndIn, int XAspect, int YAspect)
   Opens  = 0;
   OwnsDC[Opens]=0;
   HDC_List[Opens]=NULL;
+  HDC_Prev[Opens]=NULL;
+  COLOR_Prev[Opens]=-1;
 
   Cursor = GC_NoCurs;
   CursEnt=NULL;
@@ -1070,8 +1072,10 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
 
   Opens++;
   #if dbgGrfDspOC
-  dbgpln("Grf3D_Display::Open  %4i %08p, %8i  %#10x %#10x", Opens, this, GetCurrentThreadId(), TheWnd, dynamic_cast<CGrfWnd*>(TheWnd));
+  dbgpln("Grf3D_Display::Open  %4i %08p, %8i  %#10x %#10x %#10x", Opens, this, GetCurrentThreadId(), TheWnd, dynamic_cast<CGrfWnd*>(TheWnd), pDC);
   #endif
+
+  grr_get_context(&HDC_Prev[Opens], &COLOR_Prev[Opens]);
 
   OwnsDC[Opens] = (pDC==NULL);
   HDC_List[Opens] = (OwnsDC[Opens] ? GetDC(TheWnd->m_hWnd) : pDC->m_hDC);
@@ -1097,23 +1101,6 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
     else
       XScl=PgAspect/WndAspect;
 
-
-    //Viewport &vp=*CurrentView();
-    //Pt_3f p1, p2;
-    ////PT3 v1;
-    ////REAL w, h, dw, dh, xl, yl, zl;
-
-    //if (CurrentView() && vp.Drw->GetBounds())
-    //  {
-    //  p1.Set(C3_MIN_X(&vp.Drw->Bounds), C3_MIN_Y(&vp.Drw->Bounds));
-    //  p2.Set(C3_MAX_X(&vp.Drw->Bounds), C3_MAX_Y(&vp.Drw->Bounds));
-    //  //c3a_box_init_pt(&vp.ZoomBox, p1.p());
-    //  //c3a_box_append_pt(&vp.ZoomBox, p2.p());
-    //  //w = fabs(C3_MAX_X(&vp.ZoomBox)-C3_MIN_X(&vp.ZoomBox));
-    //  //h = fabs(C3_MAX_Y(&vp.ZoomBox)-C3_MIN_Y(&vp.ZoomBox));
-    //  }
-
-
     SetMapMode(my_HDC, MM_ANISOTROPIC);
     SIZE Size;
     SetWindowExtEx(my_HDC, int(2*m_XAspect*XScl), int(2*m_YAspect*YScl), &Size);
@@ -1132,7 +1119,7 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
     }
 
   #if dbgGrfDspOC
-  dbgpln("                     %4i %4i %8i %8i", m_XAspect, m_YAspect, Rect.right, Rect.bottom);
+  dbgpln("                     %4i %4i %8i %8i %10x", m_XAspect, m_YAspect, Rect.right, Rect.bottom, my_HDC);
   #endif
 
   if (bPrinting)
@@ -1148,7 +1135,7 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
 
 //?  DP_to_Screen_LogicalPix(Msg, my_HDC, vp, CurrentPt.Screen, CurrentPt.Logical, &Cur_VP, CurrentPt.World);
 
-  grr_context(my_HDC);
+  grr_set_context(my_HDC, -1);
   grr_printing(bPrinting);
   grr_init(GR_DETECT, GrfHelper.GR_BACKGROUND, DoPrimaryInit);
   DoPrimaryInit=0;
@@ -1166,7 +1153,7 @@ void Grf3D_Display::Open(CDC* pDC, CRect * pDspRect)
 void Grf3D_Display::Close()
   {
   #if dbgGrfDspOC
-  dbgpln("Grf3D_Display::Close %4i %08p, %8i", Opens, this, GetCurrentThreadId());
+  dbgp("Grf3D_Display::Close %4i %08p, %8i", Opens, this, GetCurrentThreadId());
   #endif
   
   bPrinting = 0;
@@ -1175,10 +1162,20 @@ void Grf3D_Display::Close()
   if (OwnsDC[Opens])
     ReleaseDC(TheWnd->m_hWnd, my_HDC);
 
+  grr_set_context(HDC_Prev[Opens], COLOR_Prev[Opens]);
+
+  #if dbgGrfDspOC
+  dbgp(" %10x", HDC_Prev[Opens]);
+  #endif
+
   Opens--;
   my_HDC = HDC_List[Opens];
-  grr_context(my_HDC);
+  //grr_context(my_HDC);
   grr_printing(bPrinting);
+
+  #if dbgGrfDspOC
+  dbgpln(" %10x", my_HDC);
+  #endif
 
   Dig_Point_List.SetSize(0, 16);
   

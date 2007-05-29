@@ -5728,9 +5728,11 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
       DML_ITEM it1;
       DXF_ENTITY e1;
       if (l1)
-        WALK_ENTITY_LIST(l1, it1, e1)
         {
-        Draw(e1, vp, &boxt, color, Lvl+1, pLay, iLay, item);
+        WALK_ENTITY_LIST(l1, it1, e1)
+          {
+          Draw(e1, vp, &boxt, color, Lvl+1, pLay, iLay, item);
+          }
         }
 
       if (Lvl==1)
@@ -6002,6 +6004,8 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
 void DXF_Drawing::Draw(C3_CURVE c, pViewport vp, C3_BOX box, int color, int Lvl,CGrfLayer * pLay,CGrfLayer * iLay,DML_ITEM item)
   {
   DWORD CW=FPP_DisableExceptions();
+
+//dbgpln("DXF_Drawing::Draw");
 
 #if dbgcolor
   if( pLay && iLay )
