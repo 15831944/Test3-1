@@ -1,5 +1,5 @@
 #   Generic makefile for compiling SMDK using GNU tools and free MS Compilers
-#   Time-stamp: <2007-05-27 18:06:46 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-05-28 03:20:45 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -14,7 +14,7 @@ LFLAGS = /INCREMENTAL:NO /NOLOGO /DLL /DEBUG  $(COMMON)ttcommon.lib
 LIBS = SMDK1.lib scdlib.lib
 
 OBJS = 	TTDynTest.obj   \
-	TTDX.obj
+	TTDynTestUM.obj
 
 
 ifeq ($(SYSCAD),91)
@@ -33,11 +33,12 @@ endif
 
 
 TTDynTest.dll: $(OBJS)
-	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/$(SMDKDLL).pdb" /IMPLIB:".\Rls/$(SMDKDLL).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
+	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/$(SMDKDLL).pdb" \
+	/IMPLIB:".\Rls/$(SMDKDLL).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
 	../../smdk/devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
 
 
-TTDX.obj : TTDX.cpp TTDX.h
+TTDynTestUM.obj : TTDynTestUM.cpp TTDynTestUM.h
 TTDynTest.obj : TTDynTest.cpp TTDynTest.h
 
 
