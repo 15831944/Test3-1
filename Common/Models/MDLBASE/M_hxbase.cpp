@@ -1097,11 +1097,14 @@ void CHXSide::BuildDataDefn(char*Tag, DataDefnBlk & DDB, TaggedObject* pTagObj, 
 
 flag CHXSide::DataXchg(DataChangeBlk & DCB)
   {
-
   switch (DCB.lHandle)
     {
-    case xidHXSd_Desc: DCB.pC = m_pCd?m_pCd->FlashDescription():"";   return 1;
-    case xidHXSd_dT:   DCB.D  = To-Ti;                                return 1;
+    case xidHXSd_Desc: 
+      DCB.pC = m_pCd ? m_pCd->FlashDescription() : ""; 
+      return 1;
+    case xidHXSd_dT: 
+      DCB.D = To-Ti;
+      return 1;
     }
   return 0;
   }

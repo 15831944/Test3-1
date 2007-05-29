@@ -1813,7 +1813,7 @@ flag ShellTube::Set_Sizes()
 
 //--------------------------------------------------------------------------
 
-void   ShellTube::SetState(eScdMdlStateActs RqdState)
+void ShellTube::SetState(eScdMdlStateActs RqdState)
   {
   MdlNode::SetState(RqdState);
   Shell.SetState(RqdState);
@@ -1849,6 +1849,32 @@ bool ShellTube::PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo)
 
   return true;
   };
+
+//--------------------------------------------------------------------------
+
+void ShellTube::PreDisConnect(int IONo)
+  {
+  MdlNode::PreDisConnect(IONo);
+  //Stream may be deleted: Force this for safety of pointers...
+  //don't know if change in primary or secondary, so clear both...
+  HX.ClrPrimary(); 
+  HX.ClrSecondary();
+  }
+
+//--------------------------------------------------------------------------
+
+/*void ShellTube::ConnectionsChanged()
+  {
+  MdlNode::ConnectionsChanged();
+
+  if (!PrjLoadBusy())
+    {
+    //something has changed with connections. Perhaps only needed for delete (PreDisConnect)? Force this for safety of pointers...
+    //don't know if change in primary or secondary, so clear both
+    HX.ClrPrimary(); 
+    HX.ClrSecondary();
+    }
+  }*/
 
 //--------------------------------------------------------------------------
 
