@@ -237,6 +237,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_GRF_ExportDB, OnUpdateExportDB)
   ON_COMMAND(ID_GRF_ImportDB, OnImportDB)
   ON_UPDATE_COMMAND_UI(ID_GRF_ImportDB, OnUpdateImportDB)
+  ON_COMMAND(ID_PROJECT_EDIT_COLOURS, OnProjectEditColours)
+  ON_UPDATE_COMMAND_UI(ID_PROJECT_EDIT_COLOURS, OnUpdateProjectEditColours)
   //}}AFX_MSG_MAP
   ON_UPDATE_COMMAND_UI(ID_WNDW_CASCADE, OnUpdateWindowCmd)
   ON_UPDATE_COMMAND_UI(ID_WNDW_TILE, OnUpdateWindowCmd)
@@ -2533,6 +2535,7 @@ static UINT BASED_CODE ToolbarIds[] =
   ID_VIEW_EXPLORER,
   ID_ACTIONS_RUN_STEADY,
   ID_PROJECT_EDIT_SETTINGS,
+  ID_PROJECT_EDIT_COLOURS,
   };
 
 static UINT BASED_CODE GrfSymbsIds[] =
@@ -2611,6 +2614,8 @@ static UINT BASED_CODE UnknownModeToolBarIds[] = //project loaded
   ID_ACTIONS_STEP,
   ID_ACTIONS_RUN_STEADY,
   ID_ACTIONS_SETUP,
+    ID_SEPARATOR,
+  ID_PROJECT_EDIT_COLOURS
   };
 
 static UINT BASED_CODE TrendToolBarIds[] =
@@ -4201,6 +4206,33 @@ void CMainFrame::OnUpdateActionsSolveNet(CCmdUI* pCmdUI)
   }
 
 //---------------------------------------------------------------------------
+
+void CMainFrame::OnProjectEditColours()
+  {
+  gs_pPrj->SetShowEditStatus(gs_pPrj->ShowEditStatus()?0:1); // Toggle It
+
+  CWindowLists WL;
+  const int WndCount = WL.BuildSingleList();
+
+  for (int i=1; i<WndCount; i++)
+    {
+    if (WL.Wnds[i].pWnd->IsKindOf(RUNTIME_CLASS(CGrfFrameWnd)))
+      WL.Wnds[i].pWnd->Invalidate();
+    }
+
+  AfxGetMainWnd()->RedrawWindow();
+  }
+
+void CMainFrame::OnUpdateProjectEditColours(CCmdUI* pCmdUI)
+  {
+  pCmdUI->Enable(true);
+  pCmdUI->SetCheck(gs_pPrj->ShowEditStatus()?1:0);
+    
+  //pCmdUI->Enable(EnableNotStopped() && (gs_TheRunMngr.RunningDsp()||gs_TheRunMngr.IdlingDsp()||gs_TheRunMngr.Stopped()) && gs_TheRunMngr.m_ComUIActive && !gs_License.Blocked());
+  }
+
+//---------------------------------------------------------------------------
+
 #define WithNewImportExport 0
 #if WithNewImportExport
 #include "grfdoc.h"

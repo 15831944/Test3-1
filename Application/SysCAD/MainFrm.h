@@ -275,6 +275,8 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnUpdateActionsRunPB(CCmdUI* pCmdUI);
     afx_msg void OnActionsRunDyn();
     afx_msg void OnUpdateActionsRunDyn(CCmdUI* pCmdUI);
+    afx_msg void OnProjectEditColours();
+    afx_msg void OnUpdateProjectEditColours(CCmdUI* pCmdUI);
 #if WITHDRVMAN
     afx_msg void OnReloadDriver();
     afx_msg void OnUpdateReloadDriver(CCmdUI* pCmdUI);

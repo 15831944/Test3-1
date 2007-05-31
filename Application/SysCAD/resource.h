@@ -2024,6 +2024,8 @@
 #define ID_HELP_WWW_SYSCAD              30524
 #define ID_ONLINE_WHATSNEW              30525
 #define ID_OFFLINE_HOME                 30526
+#define ID_PROJECT_STATUSCOLOURS        30535
+#define ID_PROJECT_EDIT_COLOURS         30535
 #define IDS_OPENFILELOCAL               61446
 
 // Next default values for new objects
@@ -2031,7 +2033,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        25599
-#define _APS_NEXT_COMMAND_VALUE         30535
+#define _APS_NEXT_COMMAND_VALUE         30536
 #define _APS_NEXT_CONTROL_VALUE         25773
 #define _APS_NEXT_SYMED_VALUE           25602
 #endif
