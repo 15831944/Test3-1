@@ -180,6 +180,31 @@ int _Model_DiamondWizard_WhitenCrusher (int nRows,
 			r.FeedP80() = FeedP80 ;
 			r.FeedTPH() = FeedTPH ;					// put model extra calculations into the Return Data buffer
 		}
+    else
+    {
+      // Pass 'Zero' Feed Straight Thru
+	
+			for ( iSG = 0 ; iSG < nSG ; iSG++ )
+			{
+		    for ( iOSz = 0 ; iOSz < nOSz ; iOSz++ )
+			  {
+		      int iODindex=thisConfig->iODLimnStreamIndex(iOSz, iSG);
+				  Product1[iODindex] = CombinedFeed[iODindex];	
+	          
+          for ( iDSz = 0 ; iDSz < nDSz ; iDSz++ )
+			    {
+					  int iDDindex = thisConfig->iDDLimnStreamIndex(iDSz,iOSz,iSG) ;
+					  Product1[iDDindex] = CombinedFeed[iDDindex];	
+				  }
+        }
+      }
+			
+      idx = thisConfig->iWaterLimnStreamIndex() ;
+			Product1[idx] = CombinedFeed[idx] ;
+
+			idx = thisConfig->iFeSiLimnStreamIndex() ;
+			Product1[idx] = CombinedFeed[idx] ;
+    }
 
  		return 0 ;
 
