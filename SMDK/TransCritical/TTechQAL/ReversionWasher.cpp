@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           Reversion Washer Model 2004 - Transcritical Technologies 
-//   Time-stamp: <2006-11-01 11:55:57 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-31 04:07:34 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $
 //===========================================================================
 
@@ -34,12 +34,12 @@ MToleranceBlock SESolverFn::s_Tol(TBF_Both, "ReversionWasher:Scandrett", 0.00005
 
 static MInOutDefStruct s_IODefs[]=
 {
-	//  Desc;             Name;         Id; Rqd; Max; CnId, FracHgt;  Options;
-	{ "WashWater",          "Feed1",  0,   1,  5,    0,    1.0f,  MIO_In |MIO_Material },
-	{ "Mud Feed",          "Feed2" ,  1,   1,  5,    0,    1.0f,  MIO_In |MIO_Material }, 
-	{ "Overflow",       "Prod1",   2,   1,  1,    0,    1.0f,  MIO_Out|MIO_Material },
-	{ "Underflow",       "Prod2",  3,   1,  1,    0,    1.0f,  MIO_Out|MIO_Material },
-	{ "Side Stream",     "Feed3", 4,  0, 5, 0, 1.0f, MIO_In |MIO_Material },
+	//  Desc;         Name;    Id; Rqd; Max; CnId, FracHgt;  Options;
+	{ "WashWater",    "Feed1",  0,   1,  5,  0,    1.0f,  MIO_In |MIO_Material },
+	{ "Mud Feed",     "Feed2",  1,   1,  5,  0,    1.0f,  MIO_In |MIO_Material }, 
+	{ "Overflow",     "Prod1",  2,   1,  1,  0,    1.0f,  MIO_Out|MIO_Material },
+	{ "Underflow",    "Prod2",  3,   1,  1,  0,    1.0f,  MIO_Out|MIO_Material },
+	{ "Side Stream",  "Feed3",  4,   0,  5,  0,    1.0f,  MIO_In |MIO_Material },
 	{ NULL },
 };
 // NOTE!!!!!!!! Side stream not incorporated yet - contents do not involve in scandrett mixing.
