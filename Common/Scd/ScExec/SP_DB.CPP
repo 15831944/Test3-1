@@ -46,6 +46,7 @@ static long s_doExpressionEval=0;
 
 extern AFX_EXTENSION_MODULE SCExecDLL;
 
+static LPSTR SpecieDBLogHdr = "SpecieDB";
 // ===========================================================================
 //
 //
@@ -127,7 +128,7 @@ void SpDB_ParseTokens(char * Buff, char* C[MaxSPDBCols])
         Buff[i]=0;
         }
       if (Quote)
-        LogError("SpecieDB", 0, "Bad Token - Mismatched Quotes");
+        LogError(SpecieDBLogHdr, 0, "Bad Token - Mismatched Quotes");
 
       for (j=0;C[j] && (j<MaxSPDBCols);j++)
         {
@@ -151,7 +152,22 @@ double FracMeasTolerance = 1.0e-8;
 
 // ==========================================================================
 
-bool CSpDBEqn::bDoTheBreak=0;
+bool CSpDBEqn::m_bDoTheBreak=0;
+
+CSpDBEqn::CSpDBEqn(CSpConstData * pConst, CSpFidelData * pFData)
+  { 
+  m_pConst = pConst;
+  m_pFData = pFData; 
+  };
+CSpDBEqn::~CSpDBEqn()
+  {
+  };
+
+void CSpDBEqn::Attach(CSpConstData *pConst, CSpFidelData *pFData)
+  {
+  m_pConst = pConst;
+  m_pFData = pFData; 
+  };
 
 // ==========================================================================
 //
@@ -370,7 +386,7 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
         {
 		Strng c;
 		c = ElDef[i];
-        LogError("SpecieDB", 0, "Illegal character '%s', Element name must only contain characters and begin with uppercase character.", c());
+        LogError(SpecieDBLogHdr, 0, "Illegal character '%s', Element name must only contain characters and begin with uppercase character.", c());
         Ok=false;
 	    }
 	  if (ElDef[i]=='.')
@@ -395,10 +411,10 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           DoMsg=1;
           }
         if (DoMsg)
-          LogError("SpecieDB", 0, "Pseudo element name '%s' corrected to '%s'", ElOld(), El());
+          LogError(SpecieDBLogHdr, 0, "Pseudo element name '%s' corrected to '%s'", ElOld(), El());
         if (No.Length()==0)
           {
-          LogError("SpecieDB", 0, "Number of Atoms of '%s' in '%s' not specified", El(), ElDef());
+          LogError(SpecieDBLogHdr, 0, "Number of Atoms of '%s' in '%s' not specified", El(), ElDef());
           No="1";
           Ok=false;
           }
@@ -415,7 +431,7 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           }
         if (Ok && Find(El())<0)
           {
-          LogError("SpecieDB", 0, "Invalid element '%s' or molecular weight not specified for pseudo element '%s' eg Or1(100)", El(), El());
+          LogError(SpecieDBLogHdr, 0, "Invalid element '%s' or molecular weight not specified for pseudo element '%s' eg Or1(100)", El(), El());
           Ok=false;
           }
         if (Ok)
@@ -429,7 +445,7 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
     }
   if (!FndOne)
     {
-    LogError("SpecieDB", 0, "Element name must only contain characters and begin with uppercase character, '%s' is invalid", ElDef());
+    LogError(SpecieDBLogHdr, 0, "Element name must only contain characters and begin with uppercase character, '%s' is invalid", ElDef());
     Ok = false;
     }
   if (Ok)
@@ -576,7 +592,7 @@ LPCTSTR OccurenceNames[] =
 //
 // ==========================================================================
 
-CSpecieCommonData::CSpecieCommonData()
+CSpConstData::CSpConstData()
   {
   m_dMoleWt=0;
 
@@ -584,6 +600,8 @@ CSpecieCommonData::CSpecieCommonData()
   m_bTcOK=false;
   m_bVcOK=false;
   m_bAcOK=false;
+  m_bMvOK=false;
+  m_bMdOK=false;
 
   m_dPc=1;
 
@@ -601,9 +619,67 @@ CSpecieCommonData::CSpecieCommonData()
 //
 // ==========================================================================
 
-CSpecieData::CSpecieData()
+CSpCommonData::CSpCommonData()
+  {
+  m_bVpOK = false;
+  m_pVp   = NULL;
+
+  m_pConst = NULL;
+  m_pCmp   = NULL;
+  }
+
+//-----------------------------------------------------------------------
+
+static CToleranceBlock s_VapTTol(TBF_BothSys, "SpecieDB:VapTFnd", 0.0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
+
+class CVapTFndC : public MRootFinderBase
+  {
+  public:
+    CComponent     * m_pC;
+    CSpCommonData  * m_pCom;
+
+    CVapTFndC(CComponent *pC, CSpCommonData *pCom) :
+    MRootFinderBase("CVapTFndC", s_VapTTol)
+      {
+      m_pC=pC;
+      m_pCom=pCom;
+      };
+    LPCTSTR ObjTag() { return (LPCTSTR)m_pC->SymOrTag(); };
+    double Function(double T) { return m_pCom->VapourP(T); };
+  };
+
+//-----------------------------------------------------------------------
+
+double CSpCommonData::VapourT(double P, double dPrvVapT)
+  {
+  if (!VpOK())
+    return 0.0;
+
+  if (!Valid(dPrvVapT))
+    dPrvVapT=373.0;
+  CVapTFndC VapT(m_pCmp, this);
+  VapT.SetTarget(P);
+  VapT.SetLimits(1.0, m_pConst->TCrit());
+  dPrvVapT=Range(1.0, dPrvVapT, m_pConst->TCrit());
+  if (VapT.SolveFromEst(dPrvVapT, 1.0, 50.0)==RF_OK)
+    dPrvVapT=VapT.Result();
+  else
+    LogError("CDB", 0, "VapourT not Converged");
+
+  return dPrvVapT;
+  };
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
+CSpFidelData::CSpFidelData()
   {
   m_pSp=NULL;
+  m_pConst=NULL;
+  m_pCommon=NULL;
   m_bIsCopy=false;
   m_iLastTPoint=0;
   m_dTs[m_iLastTPoint]=0.0;
@@ -616,7 +692,7 @@ CSpecieData::CSpecieData()
     m_pCp[i]    = NULL;
     m_pH[i]     = NULL;
     m_pS[i]     = NULL;
-    m_pVp[i]    = NULL;
+    //m_pVp[i]    = NULL;
     m_dH25[i]   = 0;
     m_dS25[i]   = 0;
     m_dCHf[i]   = 0;
@@ -641,7 +717,7 @@ CSpecieData::CSpecieData()
   m_bCpOK     = false;
   m_bH25OK    = false;
   m_bS25OK    = false;
-  m_bVpOK     = false;
+  //m_bVpOK     = false;
 
   m_iHfBase   = -1;
 
@@ -650,7 +726,7 @@ CSpecieData::CSpecieData()
 
 //---------------------------------------------------------------------------
 
-CSpecieData::~CSpecieData()
+CSpFidelData::~CSpFidelData()
   {
   for (int i=0; i<MaxTPoints; i++)
     {
@@ -660,14 +736,14 @@ CSpecieData::~CSpecieData()
       delete m_pCp[i];
       delete m_pH[i];
       delete m_pS[i];
-      delete m_pVp[i];
+      //delete m_pVp[i];
       }
 
     m_pRho[i]=NULL;
     m_pCp[i]=NULL;
     m_pH[i]=NULL;
     m_pS[i]=NULL;
-    m_pVp[i]=NULL;
+    //m_pVp[i]=NULL;
     }
   }
 
@@ -731,15 +807,75 @@ double CDensCorr::Evaluate(long Fidelity, double T, double P, CSVData M)
   };
 
 // ==========================================================================
+
+CCpCorr::CCpCorr()
+  {
+  m_iSolute     = -1;
+  m_pCpCorrFn   = NULL;
+  m_dCpCorrZero = 0.0;
+  };
+
+CCpCorr::CCpCorr(int Solute, CSpDBEqn *CpCorrFn, double CpCorrZero)
+  {
+  m_iSolute        = Solute;
+  m_pCpCorrFn      = CpCorrFn;
+  m_dCpCorrZero    = CpCorrZero;
+  };
+
+CCpCorr::~CCpCorr()
+  {
+  };
+
+void CCpCorr::Clear()
+  {
+  delete m_pCpCorrFn;
+  m_pCpCorrFn=NULL;
+  };
+
+// ==========================================================================
+
+CSolubility::CSolubility()
+  {
+  m_iSoluteA=-1;
+  m_iSoluteS=-1;
+  m_pSolubleFn=NULL;
+  m_pHeatOfMixFn=NULL;
+  };
+
+CSolubility::CSolubility(int SoluteA, int SoluteS,
+                         CSpDBEqn *SolubleFn, CSpDBEqn *HeatOfMixFn)
+  {
+  m_iSoluteA       = SoluteA;
+  m_iSoluteS       = SoluteS;
+  m_pSolubleFn     = SolubleFn;
+  m_pHeatOfMixFn   = HeatOfMixFn;
+  };
+
+CSolubility::~CSolubility()
+  {
+  };
+
+void CSolubility::Clear()
+  {
+  delete m_pSolubleFn;
+  delete m_pHeatOfMixFn;
+  m_pSolubleFn=NULL;
+  m_pHeatOfMixFn=NULL;
+  };
+
+// ==========================================================================
 //
 //
 //
 // ==========================================================================
 
-CSpecie::CSpecie(CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * pCmpTag): \
+CSpecie::CSpecie(CComponent * pCmp, CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * pCmpTag): \
 m_SDB(SDB),
 m_CDB(CDB),
-m_H2O(H2ODB)
+m_H2O(H2ODB),
+m_Cmp(*pCmp),
+m_Const(*pCmp),
+m_Common(pCmp->m_Common)
   {
   sCmpTag=pCmpTag;
   sTag="";
@@ -753,13 +889,11 @@ m_H2O(H2ODB)
   m_PhMsk=0;
   m_OccMsk=0;
 
-  //  m_dMoleWt=0;
   m_dTsTol=25;
   m_dTeTol=25;
 
   iSId=-1;
   iCId=-1;
-  //  m_iHfBase=-1;
 
   m_bCpOvrMask=0;
   m_bDensOvrMask=0;
@@ -769,7 +903,6 @@ m_H2O(H2ODB)
   pNext=NULL;
   pFirst=NULL;
 
-  //  m_bChecked=false;
   m_bReference=false;
   m_bPrjDB=true;
 
@@ -780,18 +913,12 @@ m_H2O(H2ODB)
   m_bHasCpCorrs=false;
   m_bCpInDirect=false;
 
-  //  m_bPcOK=false;
-  //  m_bTcOK=false;
-  //  m_bVcOK=false;
-  //  m_bAcOK=false;
-  //
-  //  m_dPc=1;
-  //
-  //  m_dPc=1000.0;
-  //  m_dTc=1000.0;
-  //  m_dVc=1.0;
-  //  m_dAc=1.0;
-  //  m_dMv=22.414;
+  m_bVpSpecd = false;
+  m_bTcSpecd = false;
+  m_bPcSpecd = false;
+  m_bVcSpecd = false;
+  m_bAcSpecd = false;
+
   };
 
 //---------------------------------------------------------------------------
@@ -815,28 +942,41 @@ CSpecie::~CSpecie()
 
 //---------------------------------------------------------------------------
 
-void CSpecie::SetData(CSpecieCommonData &C, CSpecieDataArray &D)
+void CSpecie::SetData(CSpCommonDataA &C, CSpFidelDataA &D)
   {
-  *((CSpecieCommonData*)this)=C;
   for (int f=0; f<MaxFidelity; f++)
     {
-    m_Data[f]=D[f];
-    m_Data[f].m_pSp=this;
-    m_Data[f].m_bIsCopy=true;
+    m_Common[f]=C[f];
+    m_Common[f].m_pCmp = &m_Cmp;
+    m_Common[f].m_pConst = &m_Const;
+
+    m_FData[f]=D[f];
+    m_FData[f].m_pSp=this;
+    m_FData[f].m_bIsCopy=true;
+
+    m_FData[f].m_pCommon = &m_Common;
+    m_FData[f].m_pConst = &m_Const;
 
     for (int i=0; i<SpDBEqnCnt; i++)
+      {
       for (int j=0; j<MaxTPoints; j++)
-        if (m_Data[f].m_pEqns[i][j])
-          m_Data[f].m_pEqns[i][j]->m_pData=&m_Data[f];
+        {
+        if (m_FData[f].m_pEqns[i][j])
+          {
+          m_FData[f].m_pEqns[i][j]->m_pConst=&m_Const;
+          m_FData[f].m_pEqns[i][j]->m_pFData=&m_FData[f];
+          }
+        }
+      }
     }
   };
 
 //---------------------------------------------------------------------------
 
-void CSpecieData::AddSpecieTData(CSpecieData * pData)
+void CSpFidelData::AddSpecieTData(CSpFidelData * pFData)
   {
   for (int i=0; i<m_iLastTPoint+1; i++)
-    if (pData->m_dTs[0] < m_dTs[i])
+    if (pFData->m_dTs[0] < m_dTs[i])
       break;
 
   m_iLastTPoint++;
@@ -848,7 +988,6 @@ void CSpecieData::AddSpecieTData(CSpecieData * pData)
     m_pCp[j]    = m_pCp[j-1];
     m_pH[j]     = m_pH[j-1];
     m_pS[j]     = m_pS[j-1];
-    m_pVp[j]    = m_pVp[j-1];
     m_dH25[j]   = m_dH25[j-1];
     m_dS25[j]   = m_dS25[j-1];
     m_dCZRef[j] = m_dCZRef[j-1];
@@ -857,29 +996,26 @@ void CSpecieData::AddSpecieTData(CSpecieData * pData)
     m_dCSf[j]   = m_dCSf[j-1];
     }
 
-  m_dTs[i]=pData->m_dTs[0];
-  m_dTe[i]=pData->m_dTe[0];
+  m_dTs[i]=pFData->m_dTs[0];
+  m_dTe[i]=pFData->m_dTe[0];
 
-  m_pRho[i]   = pData->m_pRho[0];
-  m_pCp[i]    = pData->m_pCp[0];
-  m_pH[i]     = pData->m_pH[0];
-  m_pS[i]     = pData->m_pS[0];
-  m_pVp[i]    = pData->m_pVp[0];
+  m_pRho[i]   = pFData->m_pRho[0];
+  m_pCp[i]    = pFData->m_pCp[0];
+  m_pH[i]     = pFData->m_pH[0];
+  m_pS[i]     = pFData->m_pS[0];
 
-  m_dH25[i]   = pData->m_dH25[0];
-  m_dS25[i]   = pData->m_dS25[0];
-  m_dCZRef[i] = pData->m_dCZRef[0];
-  m_dCdHf[i]  = pData->m_dCdHf[0];
-  m_dCHf[i]   = pData->m_dCHf[0];
-  m_dCSf[i]   = pData->m_dCSf[0];
+  m_dH25[i]   = pFData->m_dH25[0];
+  m_dS25[i]   = pFData->m_dS25[0];
+  m_dCZRef[i] = pFData->m_dCZRef[0];
+  m_dCdHf[i]  = pFData->m_dCdHf[0];
+  m_dCHf[i]   = pFData->m_dCHf[0];
+  m_dCSf[i]   = pFData->m_dCSf[0];
 
-  pData->m_pRho[0]  = NULL;
-  pData->m_pCp[0]   = NULL;
-  pData->m_pH[0]    = NULL;
-  pData->m_pS[0]    = NULL;
-  pData->m_pVp[0]   = NULL;
+  pFData->m_pRho[0]  = NULL;
+  pFData->m_pCp[0]   = NULL;
+  pFData->m_pH[0]    = NULL;
+  pFData->m_pS[0]    = NULL;
 
-  //delete pData;
   };
 
 //---------------------------------------------------------------------------
@@ -900,17 +1036,83 @@ static flag PhaseNamePrimary(int eOcc, LPSTR PhName)
 
 //---------------------------------------------------------------------------
 
+static void AppendErrorMsg(CSpecie *pSp, DWORD Type, LPCTSTR fmt, ...)
+  {
+  char Buff[512];
+  va_list argptr;
+  va_start(argptr,fmt);
+  vsprintf(Buff, fmt, argptr);
+  va_end(argptr);
+
+  //dbgpln("AppendErrorMsg: [0x%08x] %5i %s", pSp, pSp?pSp->m_sVpErrors.Length():-1, Buff);
+
+  if (pSp)
+    {
+    Strng S(Buff);
+    S.SetIndex(Type);
+    pSp->m_sVpErrors.Append(S);
+    }
+  else
+    {
+    switch (Type)
+      {
+      case LogFlag_Fatal:   LogFatal  (SpecieDBLogHdr, 0, "%s", Buff);    break;
+      case LogFlag_Error:   LogError  (SpecieDBLogHdr, 0, "%s", Buff);    break;
+      case LogFlag_Warning: LogWarning(SpecieDBLogHdr, 0, "%s", Buff);    break;
+      case LogFlag_Note:    LogNote   (SpecieDBLogHdr, 0, "%s", Buff);    break;
+      default:
+      _asm int 3;
+      }
+    }
+
+  }
+
+static void ParseAValue(CSpecie *pSp, bool &OK, double & Value, Strng & Str, flag & Specd, double Default, double Scale, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name)
+  {
+  if (StrValue && strlen(StrValue)>0)
+    {
+    if (!OK)
+      {
+      Value=Scale*SpDB_TokenValue((LPSTR)StrValue, Default);
+      Str=StrValue;
+      Specd=true;
+      OK=true;
+      }
+    else if (Str.Len()>0 && Str.XStrICmp(StrValue)!=0)
+      AppendErrorMsg(pSp, LogFlag_Fatal , "%s: %s = '%s' not the same as previous definition", SpName, Name, StrValue);
+    else
+      AppendErrorMsg(pSp, LogFlag_Note, "%s: %s = '%s' ignored (already defined)", SpName, Name, StrValue);
+    }
+  }
+
+static void ParseAnEqn(CSpecie *pSp, bool &OK, CSpDBEqn * & Eqn, Strng & Str, flag & Specd, CSpConstData * pConst, CSpFidelData * pFData, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name)
+  {
+  if (StrValue && strlen(StrValue)>0)
+    {
+    if (!OK)
+      {
+      Eqn=CSpDBEqn::Construct(pConst, pFData, StrValue);
+      Str=StrValue;
+      Specd=true;
+      OK=true;
+      }
+    else if (Str.Len()>0 && Str.XStrICmp(StrValue)!=0)
+      AppendErrorMsg(pSp, LogFlag_Fatal , "%s: %s = '%s' not the same as previous definition", SpName, Name, StrValue);
+    else
+      AppendErrorMsg(pSp, LogFlag_Note, "%s: %s value %s ignored (already defined)", SpName, Name, StrValue);
+    }
+  }
+
 flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*/ flag UseH2OFns)
   {
   m_bPrjDB=true;
 
-  m_Data[0].m_pSp=this;
-  m_Data[1].m_pSp=this;
+  m_FData[0].m_pSp=this;
+  m_FData[1].m_pSp=this;
 
-  CSpecieData & DataLo=m_Data[0];
+  CSpFidelData & DataLo=m_FData[0];
 
   m_sPhaseSym = (const char*)Values[3];
-  m_dMoleWt=pC->m_dMoleWt;
   DataLo.m_dCpCv=1.4;
   Strng Phase = (const char*)Values[4];
   // work around for old projects / databases
@@ -919,19 +1121,22 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
   switch (Phase[0])
     {
-    case 'l' : m_eOcc=BOT_Liquid;  break;
-    case 'v' : m_eOcc= BOT_Gas;    break;
-    case 'g' : m_eOcc= BOT_Gas;    break;
+    case 'l' : m_eOcc = BOT_Liquid;  break;
+    case 'v' : m_eOcc = BOT_Gas;     break;
+    case 'g' : m_eOcc = BOT_Gas;     break;
     case 's' :
-    default  : m_eOcc=BOT_Solid;   break;
+    default  : m_eOcc = BOT_Solid;   break;
     }
   iCId=-1;
 
   int ColNo=5;
   const char* pChecked = (const char*)Values[ColNo++];
+  
+  CString sTs(Values[ColNo++]);
+  CString sTe(Values[ColNo++]);
 
-  DataLo.m_dTs[0]=SafeAtoF((char*)(const char*)Values[ColNo++], DataLo.m_dTs[0]);
-  DataLo.m_dTe[0]=SafeAtoF((char*)(const char*)Values[ColNo++], DataLo.m_dTe[0]);
+  DataLo.m_dTs[0]=SafeAtoF(sTs, DataLo.m_dTs[0]);
+  DataLo.m_dTe[0]=SafeAtoF(sTe, DataLo.m_dTe[0]);
   if (DataLo.m_dTs[0]<50.0)
     DataLo.m_dTs[0] = 50.0;
   if (DataLo.m_dTe[0]<DataLo.m_dTs[0])
@@ -972,11 +1177,11 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
         Strng SU=S;
         SU.Upper();
         if (SU.XStrStr("IDEALGASDENSITY"))
-          S.Set("IdealGasDensity(%.10g)", m_dMoleWt);
+          S.Set("IdealGasDensity(%.10g)", m_Const.m_dMoleWt);
         else if (S.XStrChr('(')==NULL)
           S.Set("LinearGasDensity(%s)", (const char*)Values[ColNo]);
         }
-      DataLo.m_pRho[0]=CSpDBEqn::Construct(&DataLo, S());
+      DataLo.m_pRho[0]=CSpDBEqn::Construct(pC, &DataLo, S());
       }
     ColNo++;
 
@@ -991,35 +1196,48 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
     DataLo.m_pH[0]=NULL;
     DataLo.m_pS[0]=NULL;
-    DataLo.m_pCp[0]=DataLo.m_bCpOK ? CSpDBEqn::Construct(&DataLo, CpS()) : NULL;
+    DataLo.m_pCp[0]=DataLo.m_bCpOK ? CSpDBEqn::Construct(pC, &DataLo, CpS()) : NULL;
     DataLo.m_dTRef=C_2_K(25.0);
 
-    DataLo.m_bVpOK=(Values[ColNo].GetLength()>0);
-    // parsing of Vp equation moved down so that crit consts are valid
-    const int VpColNo=ColNo++; 
+    Strng ID;
+    ID.Set("%s[%s->%s]", pC->SymOrTag(), sTs, sTe);
+    if (m_eOcc!=BOT_Solid)
+      {
+      // parsing of Vp equation moved down so that crit consts are valid
+      const int VpColNo=ColNo++; 
 
-    m_bPcOK=(Values[ColNo].GetLength()>0);
-    m_dPc=m_bPcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0)*1000.0 : dNAN; // Critical Pressure mPa to kPa
-    m_bTcOK=(Values[ColNo].GetLength()>0);
-    m_dTc=m_bTcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1000.0) : dNAN;     // Critical Temp
-    m_bVcOK=(Values[ColNo].GetLength()>0);
-    m_dVc=m_bVcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0) : dNAN;        // Critical Volume
-    m_bAcOK=(Values[ColNo].GetLength()>0);
-    m_dAc=m_bAcOK ? SpDB_TokenValue((char*)(const char*)Values[ColNo++], 1.0) : dNAN;        // Acentricity
+      ParseAValue(this, m_Const.m_bPcOK, m_Const.m_dPc, m_Const.m_sPc, m_bPcSpecd,    1.0, 1000.0, (LPCSTR)Values[ColNo++], ID(), "Critical Pressure");
+      ParseAValue(this, m_Const.m_bTcOK, m_Const.m_dTc, m_Const.m_sTc, m_bTcSpecd, 1000.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Critical Temp");
+      ParseAValue(this, m_Const.m_bVcOK, m_Const.m_dVc, m_Const.m_sVc, m_bVcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Critical Volume");
+      ParseAValue(this, m_Const.m_bAcOK, m_Const.m_dAc, m_Const.m_sAc, m_bAcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Acentricity");
+      
+      ParseAnEqn(this, m_Common[0].m_bVpOK, m_Common[0].m_pVp, m_Common[0].m_sVp, m_bVpSpecd, pC, NULL, (LPCSTR)Values[VpColNo], ID(), "Vapour Pressure");
 
-    DataLo.m_pVp[0]=DataLo.m_bVpOK ? CSpDBEqn::Construct(&DataLo, (char*)(const char*)Values[VpColNo]) : NULL;
+      if (m_Common[0].m_bVpOK && !m_Const.m_bTcOK)
+        AppendErrorMsg(this, LogFlag_Warning, "%s: Critical Temperature not defined (required for vapour pressure)", ID());
+      }
+    else
+      {
+      const int VpColNo=ColNo++; 
+      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Pressure");
+      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Temp");
+      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Critical Volume");
+      if (Values[ColNo++].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Acentricity");
+      if (Values[VpColNo].GetLength()>0)  LogNote(SpecieDBLogHdr, 0, "%s: %s value ignored in Solid Phase", ID(), "Vapour Pressure");
+      }
 
-    //if (DataLo.m_bVpOK && !m_bTcOK)
-    //  LogWarning("SpecieDB", 0, "Critical Temperature for '%s' not defined (required for vapour pressure)", pC->SymOrTag());
+    flag DummySpecd=false;
 
     if (m_SDB.m_iOC_MolecularDiam>=0)
-      m_dMd=SpDB_TokenValue((char*)(const char*)Values[m_SDB.m_iOC_MolecularDiam], dNAN); // Molecular Diam
+      ParseAValue(NULL, m_Const.m_bMdOK, m_Const.m_dMd, m_Const.m_sMd, DummySpecd, dNAN, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolecularDiam], ID(), "Molecular Diam");
     else
-      m_dMd=dNAN;
+      m_Const.m_dMd=dNAN;
+    
     if (m_SDB.m_iOC_MolVol>=0)
-      m_dMv=SpDB_TokenValue((char*)(const char*)Values[m_SDB.m_iOC_MolVol], 22.414);           // Molar Volume - 22.414 is Ideal
+      ParseAValue(NULL, m_Const.m_bMvOK, m_Const.m_dMv, m_Const.m_sMv, DummySpecd, 22.414, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolVol], ID(), "Molar Volume"); // 22.414 is Ideal
     else
-      m_dMv=22.414;
+      m_Const.m_dMv=22.414;
+
     if (m_SDB.m_iOC_CpCv>=0)
       DataLo.m_dCpCv=SpDB_TokenValue((char*)(const char*)Values[m_SDB.m_iOC_CpCv], 1.37);              // Cp/Cv Ratio
     else
@@ -1038,7 +1256,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
   //  if (ActualData && m_sPhaseSym()!=NULL)
   //    {
   //    if (pChecked==NULL || strlen(pChecked)==0) // Checked Column
-  //      LogWarning("SpecieDB", 0, "Specie Data for %s(%s) not Checked", pC->SymOrTag(), m_sPhaseSym());
+  //      LogWarning(SpecieDBLogHdr, 0, "Specie Data for %s(%s) not Checked", pC->SymOrTag(), m_sPhaseSym());
   //    }
 
   //VpOk=(Vpa!=0.0 || Vpb!=0.0 || Vpc!=0.0 || Vpd!=0.0);
@@ -1046,14 +1264,18 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 #if dbgBuildSDB
   if (dbgBuildSpc())
     {
-    dbgp("  Phase   :%-15.15s %-15.15s %-7.7s  T:%10.2f > %10.2f",
-      pC->SymOrTag(), pC->ElDef(), m_sPhaseSym() ? m_sPhaseSym() : "", K_2_C(DataLo.m_dTs[0]), K_2_C(DataLo.m_dTe[0]));
+    dbgp("   DBLine :%-15.15s %-15.15s %-7.7s, Vp0:%-10s Vp1:%-10s",
+      pC->SymOrTag(), pC->ElDef(), m_sPhaseSym() ? m_sPhaseSym() : "",
+      pC->m_Common[0].m_pVp?pC->m_Common[0].m_pVp->VName():"",
+      pC->m_Common[1].m_pVp?pC->m_Common[1].m_pVp->VName():"");
     for (int i=0; i<=DataLo.m_iLastTPoint; i++)
-      dbgpln("%*s %-20s %-20s %08x  %08x %08x  %08x",
+      dbgpln("%*s  T:%10.2f > %10.2f Rho:%-20s Cp:%-20s H:%-20s %08x  %08x %08x",
       i==0?0:78,"",
-      DataLo.m_pRho[i]?DataLo.m_pRho[i]->VName():NULL,
-      DataLo.m_pCp[i]?DataLo.m_pCp[i]->VName():NULL,
-      DataLo.m_pRho[i], DataLo.m_pCp[i], DataLo.m_pH[i], DataLo.m_pVp[i]);
+      K_2_C(DataLo.m_dTs[0]), K_2_C(DataLo.m_dTe[0]),
+      DataLo.m_pRho[i]?DataLo.m_pRho[i]->VName():"",
+      DataLo.m_pCp[i]?DataLo.m_pCp[i]->VName():"",
+      DataLo.m_pH[i]?DataLo.m_pH[i]->VName():"",
+      DataLo.m_pRho[i], DataLo.m_pCp[i], DataLo.m_pH[i]);
     }
 #endif
   return true;
@@ -1061,43 +1283,28 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
 //---------------------------------------------------------------------------
 
-#define FindExistingPtr(XXX, j)                                   \
-  for (j=0; j<=DataLo.m_iLastTPoint; j++)                         \
-  if (XXX[j])                                                   \
-  break;
-
-#define FindExistingValC(XXX, pC, pSpData)                        \
-  {                                                               \
-  pSpData=NULL;                                                   \
-  for (int j=0; j<pC->m_nPhaseData; j++)                          \
-  if (pC->m_PhaseData[j] && Valid(pC->m_PhaseData[j]->XXX))     \
-  {                                                           \
-  pSpData=pC->m_PhaseData[j];                                 \
-  break;                                                      \
-  }                                                           \
-  }
-
-#define FixAValC(XXX, fXXX, YYY, pC, pSpData)                     \
-  {                                                               \
-  FindExistingValC(XXX, pC, pSpData)                              \
-  if (pSpData)                                                    \
-  {                                                             \
-  fXXX=pSpData->fXXX;                                           \
-  XXX=pSpData->XXX;                                             \
-  }                                                             \
-  else                                                            \
-  XXX=YYY;                                                      \
-  }
-
+#define FindExistingPtr(Val, j)                               \
+  for (j=0; j<=DataLo.m_iLastTPoint; j++)                     \
+    {                                                         \
+    if (Val[j])                                               \
+      break;                                                  \
+    }
 
 //---------------------------------------------------------------------------
 
 flag CSpecie::FixMissingData(CComponent * pC)
   {
-  CSpecieData & DataLo=m_Data[0];
+  CSpFidelData & DataLo=m_FData[0];
 
   Strng S;
   int j;
+
+  m_Common[0].m_pCmp = pC;
+  m_Common[0].m_pConst = pC;
+
+  if (m_Common[0].m_pVp==NULL)
+    m_Common[0].m_pVp=CSpDBEqn::Construct(pC, &DataLo, "0.0");
+
   for (int i=0; i<=DataLo.m_iLastTPoint; i++)
     {
     if (DataLo.m_pRho[i]==NULL)
@@ -1106,21 +1313,21 @@ flag CSpecie::FixMissingData(CComponent * pC)
       FindExistingPtr(DataLo.m_pRho, j);
       if (j<=DataLo.m_iLastTPoint)
         { // Yes
-        DataLo.m_pRho[i]=CSpDBEqn::Construct(&DataLo, NULL, DataLo.m_pRho[j]);
+        DataLo.m_pRho[i]=CSpDBEqn::Construct(pC, &DataLo, NULL, DataLo.m_pRho[j]);
         }
       else
         {
         switch (m_eOcc)
           {
           case BOT_Solid:
-            DataLo.m_pRho[i]=CSpDBEqn::Construct(&DataLo, "2000.0");
+            DataLo.m_pRho[i]=CSpDBEqn::Construct(pC, &DataLo, "2000.0");
             break;
           case BOT_Gas:
-            S.Set("IdealGasDensity(%.10g)", pC->MoleWt());    // PV=nrT / PV=RT
-            DataLo.m_pRho[i]=CSpDBEqn::Construct(&DataLo, S());
+            S.Set("IdealGasDensity(%.10g)", m_Const.MoleWt());    // PV=nrT / PV=RT
+            DataLo.m_pRho[i]=CSpDBEqn::Construct(pC, &DataLo, S());
             break;
           default :
-            DataLo.m_pRho[i]=CSpDBEqn::Construct(&DataLo, "1000.0");
+            DataLo.m_pRho[i]=CSpDBEqn::Construct(pC, &DataLo, "1000.0");
             break;
           }
         }
@@ -1133,8 +1340,8 @@ flag CSpecie::FixMissingData(CComponent * pC)
       FindExistingPtr(DataLo.m_pCp, j);
       if (j<=DataLo.m_iLastTPoint)
         { // Yes
-        DataLo.m_pCp[i]=CSpDBEqn::Construct(&DataLo, NULL, DataLo.m_pCp[j]);
-        LogNote("SpecieDB", 0, "Cp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
+        DataLo.m_pCp[i]=CSpDBEqn::Construct(pC, &DataLo, NULL, DataLo.m_pCp[j]);
+        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
         }
       else
         {
@@ -1144,55 +1351,40 @@ flag CSpecie::FixMissingData(CComponent * pC)
           case BOT_Gas: S="1.0"; break;
           default :       S="2.0"; break;
           }
-        LogNote("SpecieDB", 0, "Cp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSym(), S());
+        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSym(), S());
         pC->m_nAssumedCps++;
-        DataLo.m_pCp[i]=CSpDBEqn::Construct(&DataLo, S());
+        DataLo.m_pCp[i]=CSpDBEqn::Construct(pC, &DataLo, S());
         }
       }
 
-    if (DataLo.m_pVp[i]==NULL)
-      {
-      FindExistingPtr(DataLo.m_pVp, j);
-      if (j<=DataLo.m_iLastTPoint)
-        { // Yes
-        DataLo.m_pVp[i]=CSpDBEqn::Construct(&DataLo, NULL, DataLo.m_pVp[j]);
-        if (m_eOcc!=BOT_Solid)
-          LogNote("SpecieDB", 0, "Vp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
-        }
-      else
-        {
-        DataLo.m_pVp[i]=CSpDBEqn::Construct(&DataLo, "0.0");
-        //if (m_eOcc!=BOT_Solid)
-        //  LogNote("SpecieDB", 0, "Vp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSym(), "0"); does this message tell us anything usefull?
-        }
-      }
 
-    if (DataLo.m_pRho[i]) DataLo.m_pRho[i]->m_pData=&DataLo;
-    if (DataLo.m_pCp[i]) DataLo.m_pCp[i]->m_pData=&DataLo;
-    if (DataLo.m_pH[i]) DataLo.m_pH[i]->m_pData=&DataLo;
-    if (DataLo.m_pS[i]) DataLo.m_pS[i]->m_pData=&DataLo;
-    if (DataLo.m_pVp[i]) DataLo.m_pVp[i]->m_pData=&DataLo;
+    if (DataLo.m_pRho[i]) DataLo.m_pRho[i]->m_pConst=pC;
+    if (DataLo.m_pCp[i]) DataLo.m_pCp[i]->m_pConst=pC;
+    if (DataLo.m_pH[i]) DataLo.m_pH[i]->m_pConst=pC;
+    if (DataLo.m_pS[i]) DataLo.m_pS[i]->m_pConst=pC;
+    //if (DataLo.m_pVp[i]) DataLo.m_pVp[i]->m_pFData=&DataLo;
     }
 
-  CSpecie * pSpData=NULL;
-
-  FixAValC(m_dPc, m_bPcOK, 1000., pC, pSpData);
-  FixAValC(m_dTc, m_bTcOK, 1000., pC, pSpData);
-  FixAValC(m_dVc, m_bVcOK, 1., pC, pSpData);
-  FixAValC(m_dAc, m_bAcOK, 1., pC, pSpData);
 
 #if dbgBuildSDB
   if (dbgBuildSpc())
     {
-    dbgp("  Phase   :%-15.15s %-15.15s %-7.7s  T:%10.2f > %10.2f %10.2f %10.2f %10.2f %10.2f",
-      pC->SymOrTag(), pC->ElDef(), m_sPhaseSym() ? m_sPhaseSym() : "",
-      K_2_C(DataLo.m_dTs[0]), K_2_C(DataLo.m_dTe[0]), m_dPc, m_dTc, m_dVc, m_dAc);
+    dbgp("  Specie: %-7.7s %08x %08x   ",//%10.2f %10.2f %10.2f %10.2f",
+      m_sPhaseSym() ? m_sPhaseSym() : "", &m_Const, &m_Common);
     for (int i=0; i<=DataLo.m_iLastTPoint; i++)
-      dbgpln("%*s %-20s %-20s %08x  %08x %08x  %08x",
-      i==0?0:122,"",
-      DataLo.m_pRho[i]?DataLo.m_pRho[i]->VName():NULL,
-      DataLo.m_pCp[i]?DataLo.m_pCp[i]->VName():NULL,
-      DataLo.m_pRho[i], DataLo.m_pCp[i], DataLo.m_pH[i], DataLo.m_pVp[i]);
+      dbgpln("%*s @%08x T:%10.2f > %10.2f %-20s %-20s %-20s Const:%08x  %08x %08x FData:%08x  %08x %08x  ",//%08x",
+      i==0?0:38,"",
+      &DataLo,
+      K_2_C(DataLo.m_dTs[i]), K_2_C(DataLo.m_dTe[i]),
+      DataLo.m_pRho[i]?DataLo.m_pRho[i]->VName():"*Rho*",
+      DataLo.m_pCp[i]?DataLo.m_pCp[i]->VName():"*Cp*",
+      DataLo.m_pH[i]?DataLo.m_pH[i]->VName():"*H*",
+      DataLo.m_pRho[i] ? DataLo.m_pRho[i]->m_pConst:NULL,
+      DataLo.m_pCp[i] ? DataLo.m_pCp[i]->m_pConst:NULL,
+      DataLo.m_pH[i] ? DataLo.m_pH[i]->m_pConst:NULL,
+      DataLo.m_pRho[i] ? DataLo.m_pRho[i]->m_pFData:NULL,
+      DataLo.m_pCp[i] ? DataLo.m_pCp[i]->m_pFData:NULL,
+      DataLo.m_pH[i] ? DataLo.m_pH[i]->m_pFData:NULL);
     }
 #endif
   return true;
@@ -1202,16 +1394,23 @@ flag CSpecie::FixMissingData(CComponent * pC)
 
 flag CSpecie::CopyDataForMultiFidelity()
   {
-  m_Data[0].m_pSp=this;
-  m_Data[1]=m_Data[0];
-  m_Data[1].m_bIsCopy=true;
+  m_Common[1]=m_Common[0];
+
+  m_FData[0].m_pSp=this;
+  m_FData[1]=m_FData[0];
+  m_FData[1].m_bIsCopy=true;
 
   for (int f=0; f<MaxFidelity; f++)
+    {
     for (int i=0; i<SpDBEqnCnt; i++)
+      {
       for (int j=0; j<MaxTPoints; j++)
-        if (m_Data[f].m_pEqns[i][j])
-          m_Data[f].m_pEqns[i][j]->m_pData=&m_Data[f];
-
+        {
+        if (m_FData[f].m_pEqns[i][j])
+          m_FData[f].m_pEqns[i][j]->m_pFData=&m_FData[f];
+        }
+      }
+    }
   flag OK=true;
   return OK;
   };
@@ -1278,7 +1477,7 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
             Ret=4;
           }
         else
-          pDensCorrFn = (pDensCorr && strlen(pDensCorr)>0) ? CSpDBEqn::Construct(&m_Data[0], pDensCorr) : NULL;
+          pDensCorrFn = (pDensCorr && strlen(pDensCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pDensCorr) : NULL;
         Str="";
         //SKipCOmma
         while (iChar<Count && (pDensCorr[iChar]==' ' || pDensCorr[iChar]==','))
@@ -1306,7 +1505,7 @@ DensOK:
       Ret=2;
       goto CpOK;
       }
-  CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Data[0], pCpCorr) : NULL;
+  CSpDBEqn * pCpCorrFn   = (pCpCorr && strlen(pCpCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pCpCorr) : NULL;
   m_bHasCpCorrs   = (pCpCorrFn!=NULL);
   double CpOffSet = m_bHasCpCorrs ? pCpCorrFn->AtT(0.0) : 0.0;
   //m_bHasCpCorrs   = (pCpCorrFn!=NULL); why was this line here?
@@ -1322,7 +1521,7 @@ CpOK:
   CSpDBEqn * pSolubleFn  = NULL;
   if (iSoluteS>=0 && pSoluble && strlen(pSoluble)>0)
     {
-    pSolubleFn = CSpDBEqn::Construct(&m_Data[0], pSoluble);
+    pSolubleFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], pSoluble);
     m_Solubilities.Add(CSolubility(iSoluteA, iSoluteS, pSolubleFn,  NULL));
     }
 SolOK:
@@ -1382,11 +1581,11 @@ double CSpecie::mlHs(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
   if (!m_bCpInDirect)
     {
     int i=FindTIndex(Fidelity, T);
-    X=(m_Data[Fidelity].m_pH[i] ? m_Data[Fidelity].m_pH[i]->AtTP(T, P) : m_Data[Fidelity].m_pCp[i]->Integrate_dT(m_Data[Fidelity].m_dTs[i], T, P));
+    X=(m_FData[Fidelity].m_pH[i] ? m_FData[Fidelity].m_pH[i]->AtTP(T, P) : m_FData[Fidelity].m_pCp[i]->Integrate_dT(m_FData[Fidelity].m_dTs[i], T, P));
     if (M && m_bHasCpCorrs)
       X*=CpCorrFactor(M);
     }
-  X+=m_Data[Fidelity].m_dCZRef[FindTIndex(Fidelity, T)];
+  X+=m_FData[Fidelity].m_dCZRef[FindTIndex(Fidelity, T)];
   return X;
   };
 
@@ -1399,11 +1598,11 @@ double CSpecie::mlHz(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
   double X=0;
   if (!m_bCpInDirect)
     {
-    X=m_Data[Fidelity].mlHf(T, P);
+    X=m_FData[Fidelity].mlHf(T, P);
     if (M && m_bHasCpCorrs)
       X*=CpCorrFactor(M);
     }
-  X+=m_Data[Fidelity].m_dCdHf[FindTIndex(Fidelity, T)];
+  X+=m_FData[Fidelity].m_dCdHf[FindTIndex(Fidelity, T)];
   return X;
   };
 
@@ -1412,15 +1611,15 @@ double CSpecie::mlHz(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
 double CSpecie::mlHf(long Fidelity, double T, double P, SpPropOveride *Ovr, double *M)
   {
   if (Ovr && (Ovr->bUse & m_bCpOvrMask))
-    return m_Data[Fidelity].m_dCHf[m_Data[Fidelity].m_iHfBase]+MoleWt()*Ovr->fCp[m_iOverIndex]*(T-C_2_K(0));
+    return m_FData[Fidelity].m_dCHf[m_FData[Fidelity].m_iHfBase]+MoleWt()*Ovr->fCp[m_iOverIndex]*(T-C_2_K(0));
   double X=0;
   if (!m_bCpInDirect)
     {
-    X=m_Data[Fidelity].mlHf(T, P);
+    X=m_FData[Fidelity].mlHf(T, P);
     if (M && m_bHasCpCorrs)
       X*=CpCorrFactor(M);
     }
-  X+=m_Data[Fidelity].m_dCHf[FindTIndex(Fidelity, T)];
+  X+=m_FData[Fidelity].m_dCHf[FindTIndex(Fidelity, T)];
   return X;
   };
 
@@ -1432,7 +1631,7 @@ double CSpecie::mlCp(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
     return 0.0;
   if (Ovr && (Ovr->bUse & m_bCpOvrMask))
     return MoleWt()*Ovr->fCp[m_iOverIndex];
-  double X=m_Data[Fidelity].mlCp(T, P);
+  double X=m_FData[Fidelity].mlCp(T, P);
   if (M && m_bHasCpCorrs)
     X*=CpCorrFactor(M);
   return X;
@@ -1445,10 +1644,10 @@ double CSpecie::mlSf(long Fidelity, double T, double P, SpPropOveride *Ovr, doub
   if (m_bCpInDirect)
     return 0.0;
   int i=FindTIndex(Fidelity, T);
-  double X=m_Data[Fidelity].mlSf(T,P);
+  double X=m_FData[Fidelity].mlSf(T,P);
   if (M && m_bHasCpCorrs)
     X*=CpCorrFactor(M);
-  X+=m_Data[Fidelity].m_dCSf[i];
+  X+=m_FData[Fidelity].m_dCSf[i];
   return X;
   };
 
@@ -1469,7 +1668,7 @@ double CSpecie::mlCpMean(long Fidelity, double T, double P, double T0, double P0
   if (Ovr && (Ovr->bUse & m_bCpOvrMask))
     return MoleWt()*Ovr->fCp[m_iOverIndex];
   int i=FindTIndex(Fidelity, T);
-  double X=m_Data[Fidelity].m_pCp[i]->AtTP(T, P);
+  double X=m_FData[Fidelity].m_pCp[i]->AtTP(T, P);
   if (M && m_bHasCpCorrs)
     X*=CpCorrFactor(M);
   return X;
@@ -1490,7 +1689,7 @@ ElComp(*(new ElemCompArray))
   Sym=Sym__;
   if (m_CDB.No() == MaxComponents)
     {
-    LogWarning("SpecieDB", 0, "Too Many Species %s", SymOrTag());
+    LogWarning(SpecieDBLogHdr, 0, "Too Many Species %s", SymOrTag());
     return;
     }
 
@@ -1525,17 +1724,6 @@ char * CComponent::SymOrTag()
   //return Sym.Length()>0 ||  ? Sym(): xTag();
   };
 
-//---------------------------------------------------------------------
-
-//int CComponent::FindPhaseDataIndex(double &T)
-//  {
-//  ASSERT(nPhaseData>0);
-//  for (int i=0; i<nPhaseData-1; i++)
-//    if (T<=PhaseData[i]->HiT())
-//      break;
-//  return i;
-//  };
-//
 ////---------------------------------------------------------------------
 //
 int CComponent::FindPhaseDataIndex(char *pPhaseName)
@@ -1549,45 +1737,6 @@ int CComponent::FindPhaseDataIndex(char *pPhaseName)
   };
 
 //-----------------------------------------------------------------------
-
-static CToleranceBlock s_VapTTol(TBF_BothSys, "SpecieDB:VapTFnd", 0.0, 1.0e-9, 100, TBF_Fixed|TBF_UseAbs|TBF_UseRel|TBF_UseMax);
-
-class CVapTFndC : public MRootFinderBase
-  {
-  public:
-    CComponent *pC;
-    long Fidelity;
-
-    CVapTFndC(CComponent *pC_, long Fidelity_) :
-    MRootFinderBase("CVapTFndC", s_VapTTol)
-      {
-      pC=pC_;
-      Fidelity=Fidelity_;
-      };
-    LPCTSTR ObjTag() { return (LPCTSTR)pC->SymOrTag(); };
-    double Function(double T) { return pC->VapourP(Fidelity, T); };
-  };
-
-//-----------------------------------------------------------------------
-
-double CComponent::VapourT(long Fidelity, double P_, double dPrvVapT)
-  {
-  if (!VpOK())
-    return 0.0;
-
-  if (!Valid(dPrvVapT))
-    dPrvVapT=373.0;
-  CVapTFndC VapT(this, Fidelity);
-  VapT.SetTarget(P_);
-  VapT.SetLimits(1.0, TCrit());
-  dPrvVapT=Range(1.0, dPrvVapT, TCrit());
-  if (VapT.SolveFromEst(dPrvVapT, 1.0, 50.0)==RF_OK)
-    dPrvVapT=VapT.Result();
-  else
-    LogError("CDB", 0, "VapourT not Converged");
-
-  return dPrvVapT;
-  };
 
 int CComponent::SolPhInx(LPCSTR PhSym, bool OtherwiseFirst)
   {
@@ -1716,7 +1865,7 @@ void CSpecieDataBase::Add(CSpecie * SD)
   {
   if (m_iNo == MaxSpecies)
     {
-    LogWarning("SpecieDB", 0, "Too Many Species %s", SD->SymOrTag());
+    LogWarning(SpecieDBLogHdr, 0, "Too Many Species %s", SD->SymOrTag());
     //return 0;
     }
 
@@ -2781,7 +2930,7 @@ char * CheckSymbolName(const char * In, Strng & Buff)
     ParensFound=true;
     }
   if (ParensFound)
-    LogWarning("SpecieDB", 0, "Specie name %s changed to %s", TheOldSym(), Buff());
+    LogWarning(SpecieDBLogHdr, 0, "Specie name %s changed to %s", TheOldSym(), Buff());
   return Buff();
   }
 
@@ -2831,12 +2980,12 @@ void CComponentDataBase::Init()
 
 void CComponentDataBase::Term()
   {
-  CSpecieCommonData NullCommonData;
-  CSpecieDataArray NullData;
+  CSpCommonDataA NullCommonDataA;
+  CSpFidelDataA NullData;
   if (m_pWater)
-    m_pWater->SetData(NullCommonData, NullData);
+    m_pWater->SetData(NullCommonDataA, NullData);
   if (m_pSteam)
-    m_pSteam->SetData(NullCommonData, NullData);
+    m_pSteam->SetData(NullCommonDataA, NullData);
 
   for (int i = 0; i < m_iNo; i++)
     {
@@ -2956,9 +3105,17 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               if (!m_EDB.CheckElDef(ElDef))
                 {
                 Ok=false;
-                LogError("SpecieDB", 0, "Invalid Compound Definition '%s' for '%s'.  Each element must begin with uppercase character and end with number eg C1O2 or Ore1(90)", ElDef(), pSym);
+                LogError(SpecieDBLogHdr, 0, "Invalid Compound Definition '%s' for '%s'.  Each element must begin with uppercase character and end with number eg C1O2 or Ore1(90)", ElDef(), pSym);
                 bCDBBad=true;
                 }
+
+#if dbgBuildSDB
+              if (dbgBuildSpc())
+                {
+                dbgpln("========================");
+                dbgp(" %-15s %-25s ",pSym, pTag);
+                }
+#endif
 
               pC = new CComponent(m_SDB, m_CDB, m_H2O, /*pTag,*/ pSym);
               //pC->Name=pComp;
@@ -2966,33 +3123,46 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               pC->m_dMoleWt=0.0;
               Strng Elements, Element;
               GetElements(pC->ElDef, Elements);
+              bool EDone[MaxElements];
+              for (int e=0; e<MaxElements; e++)
+                EDone[e]=false;
               while (Elements.Token(Element, " ,", 0, " ,"))
                 {
                 int e=m_EDB.Find(Element());
                 if (e>=0)
                   {
+                  if (!EDone[e])
+                    {
+
 #if dbgBuildSDB
-                  if (dbgBuildSpc())
-                    dbgp(" %s %g ",Element(), GetElemAmt(pC->ElDef, Element));
+                    if (dbgBuildSpc())
+                      dbgp(" %s %g ",Element(), GetElemAmt(pC->ElDef, Element));
 #endif
-                  double dMoles=GetElemAmt(pC->ElDef, Element);
-                  pC->m_dMoleWt+=m_EDB[e].AtmWt*dMoles;
-                  ElemComp EC(e, dMoles);
-                  pC->ElComp.Add(EC);
+                    double dMoles=GetElemAmt(pC->ElDef, Element);
+                    pC->m_dMoleWt+=m_EDB[e].AtmWt*dMoles;
+                    CElemComp EC(e, dMoles);
+                    pC->ElComp.Add(EC);
+                    EDone[e]=true;
+                    }
+                  else
+                    {
+                    LogError(SpecieDBLogHdr, 0, "%s: Element '%s' referenced more than once in definition", pC->SymOrTag(), Element());
+                    Ok=false;
+                    }
                   }
                 else
-                  LogError("SpecieDB", 0, "Element '%s' not found", Element());
+                  LogError(SpecieDBLogHdr, 0, "Element '%s' not found", Element());
                 }
 #if dbgBuildSDB
               if (dbgBuildSpc())
-                dbgpln("  MoleWt= %g",pC->m_dMoleWt);
+                dbgpln("  MoleWt= %g",pC->MoleWt());
 #endif
               Add(pC);
               }
             }
           if (pC)
             {
-            CSpecie * pSp = new CSpecie(m_SDB, m_CDB, m_H2O, pTag);
+            CSpecie * pSp = new CSpecie(pC, m_SDB, m_CDB, m_H2O, pTag);
             if (pSp->LoadADO(pC, Values, UseH2OFns))
               {
               if (UseH2OFns)
@@ -3019,7 +3189,8 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               if (pSpPh)
                 {
                 // Specie Exists -- append data
-                pSpPh->m_Data[0].AddSpecieTData(pSp->m_Data);
+                pSpPh->m_FData[0].AddSpecieTData(pSp->m_FData);
+                pSpPh->m_sVpErrors.Append(&pSp->m_sVpErrors);
                 delete pSp;
                 }
               else
@@ -3051,16 +3222,16 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
       else
         {
         if (DB.FieldIndex(iOC_S298)<0)
-          LogError("SpecieDB", 0, "Try changing field name 'S°298' to 'S298' in table 'Species' in '%s'", DataFile);
+          LogError(SpecieDBLogHdr, 0, "Try changing field name 'S°298' to 'S298' in table 'Species' in '%s'", DataFile);
         else
-          LogError("SpecieDB", 0, "Incorrect field names: Table 'Species' in '%s'", DataFile);
+          LogError(SpecieDBLogHdr, 0, "Incorrect field names: Table 'Species' in '%s'", DataFile);
         Ok = false;
         }
       DB.Close();
       }
     else
       {
-      LogError("SpecieDB", 0, "Unable to open Table 'Species' in '%s'", DataFile);
+      LogError(SpecieDBLogHdr, 0, "Unable to open Table 'Species' in '%s'", DataFile);
       Ok = false;
       }
 
@@ -3128,8 +3299,8 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
 
           if (strlen(pSolvent)==0 || strlen(pSoluteA)==0)// || strlen(pDCFn)==0)
             {
-            //LogError("SpecieDB", 0, "Bad Data in Table 'Solutions' Line %i", iLine);
-            LogError("SpecieDB", 0, "A Solvent and Solute must be specified in the 'Solutions' table (Line %i)", iLine);
+            //LogError(SpecieDBLogHdr, 0, "Bad Data in Table 'Solutions' Line %i", iLine);
+            LogError(SpecieDBLogHdr, 0, "A Solvent and Solute must be specified in the 'Solutions' table (Line %i)", iLine);
             continue;
             }
 
@@ -3140,46 +3311,46 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
           if (iSolvent<0)
             {
             Bad=true;
-            LogError("SpecieDB", 0, "Solvent %s not found in table 'Solutions' (Line %i)", pSolvent, iLine);
+            LogError(SpecieDBLogHdr, 0, "Solvent %s not found in table 'Solutions' (Line %i)", pSolvent, iLine);
             }
           else if (!m_SDB[iSolvent].IsLiq())
             {
             Bad=true;
-            LogError("SpecieDB", 0, "Solvent %s should be a liquid", pSolvent);
+            LogError(SpecieDBLogHdr, 0, "Solvent %s should be a liquid", pSolvent);
             }
           if (iSoluteA<0)
             {
             Bad=true;
-            LogError("SpecieDB", 0, "Solute %s for Solvent %s not found in table 'Solutions' (Line %i)", pSoluteA, pSolvent, iLine);
+            LogError(SpecieDBLogHdr, 0, "Solute %s for Solvent %s not found in table 'Solutions' (Line %i)", pSoluteA, pSolvent, iLine);
             }
           else if (!m_SDB[iSoluteA].IsLiq())
             {
             Bad=true;
-            LogError("SpecieDB", 0, "Solute %s for Solvent %s should be a liquid", pSoluteA, pSolvent);
+            LogError(SpecieDBLogHdr, 0, "Solute %s for Solvent %s should be a liquid", pSoluteA, pSolvent);
             }
           if (iSolvent>=0 && iSolvent==iSoluteA)
             {
             Bad=true;
-            LogError("SpecieDB", 0, "The Solvent %s cannot be the same as the Solute", pSolvent);
+            LogError(SpecieDBLogHdr, 0, "The Solvent %s cannot be the same as the Solute", pSolvent);
             }
           if (pSolFn && strlen(pSolFn)>0)
             {
             if (iSoluteS<0)
               {
               //Bad=true;
-              LogError("SpecieDB", 0, "OtherPhase %s not found for Solute %s, Solvent %s", pSoluteS, pSoluteA, pSolvent);
+              LogError(SpecieDBLogHdr, 0, "OtherPhase %s not found for Solute %s, Solvent %s", pSoluteS, pSoluteA, pSolvent);
               }
             else if (m_SDB[iSoluteS].IsGas())
               {
               //Bad=true;
               iSoluteS=-1;
-              LogError("SpecieDB", 0, "OtherPhase %s should not be a gas for Solute %s, Solvent %s", pSoluteS, pSoluteA, pSolvent);
+              LogError(SpecieDBLogHdr, 0, "OtherPhase %s should not be a gas for Solute %s, Solvent %s", pSoluteS, pSoluteA, pSolvent);
               }
             }
           if (!Bad && m_SDB[iSoluteA].m_iSolvent>=0)
             {
             Bad=true;
-            LogError("SpecieDB", 0, "Specie %s (for solvent %s) already has a Solvent %s", pSoluteA, pSolvent, m_SDB[m_SDB[iSoluteA].m_iSolvent].SymOrTag());
+            LogError(SpecieDBLogHdr, 0, "Specie %s (for solvent %s) already has a Solvent %s", pSoluteA, pSolvent, m_SDB[m_SDB[iSoluteA].m_iSolvent].SymOrTag());
             }
 
           if (Bad)
@@ -3201,28 +3372,28 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
               else
                 {
                 ASSERT(FALSE); //this error condition should be trapped earlier!!!
-                LogError("SpecieDB", 0, "Specie %s already has a Solvent %s",
+                LogError(SpecieDBLogHdr, 0, "Specie %s already has a Solvent %s",
                   pSoluteA, m_SDB[m_SDB[iSoluteA].m_iSolvent].SymOrTag());
                 }
               break;
               }
             case 1:
-              LogError("SpecieDB", 0, "Bad RelSG Specie %s in solvent %s", pSoluteA, pSolvent);
+              LogError(SpecieDBLogHdr, 0, "Bad RelSG Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
             case 2: // Already Loaded data...
-              //LogWarning("SpecieDB", 0, "DensCorrFn, SolubilityFn or HDilutionFn already loaded for Specie %s in solvent %s", pSoluteA, pSolvent);
-              LogWarning("SpecieDB", 0, "DensCorrFn or CpCorr or SolubilityFn already loaded for Specie %s in solvent %s", pSoluteA, pSolvent);
+              //LogWarning(SpecieDBLogHdr, 0, "DensCorrFn, SolubilityFn or HDilutionFn already loaded for Specie %s in solvent %s", pSoluteA, pSolvent);
+              LogWarning(SpecieDBLogHdr, 0, "DensCorrFn or CpCorr or SolubilityFn already loaded for Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
             case 3:
-              //LogError("SpecieDB", 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
-              LogError("SpecieDB", 0, "No valid data for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              //LogError(SpecieDBLogHdr, 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              LogError(SpecieDBLogHdr, 0, "No valid data for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
             case 4:
-              //LogError("SpecieDB", 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
-              LogError("SpecieDB", 0, "Bad Limit Info for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              //LogError(SpecieDBLogHdr, 0, "No valid data for DensCorrFn, SolubilityFn or HDilutionFn for Specie %s in solvent %s", pSoluteA, pSolvent);
+              LogError(SpecieDBLogHdr, 0, "Bad Limit Info for DensCorrFn or SolubilityFn for Specie %s in solvent %s", pSoluteA, pSolvent);
               break;
             case 5:
-              LogError("SpecieDB", 0, "No Limit set for DensCorrFn for Specie %s in solvent %s Assuming:Limit(%.2f, %.1f, %s)", 
+              LogError(SpecieDBLogHdr, 0, "No Limit set for DensCorrFn for Specie %s in solvent %s Assuming:Limit(%.2f, %.1f, %s)", 
                 pSoluteA, pSolvent, DefaultLimitFrac, DefaultPureValue, DefaultDoWarn?"ON":"OFF");
               break;
             }
@@ -3230,14 +3401,14 @@ flag CComponentDataBase::LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile)
         }
       else
         {
-        LogError("SpecieDB", 0, "Incorrect field names: Table 'Solutions' in '%s'", DataFile);
+        LogError(SpecieDBLogHdr, 0, "Incorrect field names: Table 'Solutions' in '%s'", DataFile);
         Ok = false;
         }
       DB.Close();
       }
     else
       {
-      LogWarning("SpecieDB", 0, "Table 'Solutions' not found in '%s'", DataFile);
+      LogWarning(SpecieDBLogHdr, 0, "Table 'Solutions' not found in '%s'", DataFile);
       }
     }
   return Ok;
@@ -3340,6 +3511,117 @@ void CComponentDataBase::AddSpecieD(int c, CComponent & C, CSpecie * pSpD, int p
 
 //---------------------------------------------------------------------------
 
+flag CComponentDataBase::CheckCommonData()
+  {      
+  bool AllOK=true;
+
+  for (int c=0; c<m_iNo; c++)
+    {
+    CComponent &C=*(CmD[c]);
+    flag HasSol=false;
+    flag HasLiq=false;
+    flag HasGas=false;
+
+    for (int s=0; s<C.m_nPhaseData; s++)
+      {
+      CSpecie &S=*C.m_PhaseData[s];
+      for (int f=0; f<MaxFidelity; f++)
+        {
+        double TLastEnd=S.m_FData[f].m_dTe[0];
+        for (int t=1; t<S.m_FData[f].m_iLastTPoint; t++)
+          {
+          if (fabs(TLastEnd-S.m_FData[f].m_dTs[t])>0.01)
+            {
+            AppendErrorMsg(&S, LogFlag_Fatal, "%s: Temperature Segments not contiguous @ %.2fK cf %.2fK", C.SymOrTag(), TLastEnd, S.m_FData[f].m_dTs[t]);
+            }
+          TLastEnd=S.m_FData[f].m_dTe[t];
+          }
+        }
+      }
+
+    for (int s=0; s<C.m_nPhaseData; s++)
+      {
+      CSpecie &S=*C.m_PhaseData[s];
+      HasSol = HasSol || S.m_eOcc==BOT_Solid;
+      HasLiq = HasLiq || S.m_eOcc==BOT_Liquid;
+      HasGas = HasGas || S.m_eOcc==BOT_Gas;
+      }
+
+    if (HasLiq && HasGas)
+      { // Only One Exists - Ignore Vp Stuff - Set to bad Values ?
+      for (int p=0; p<C.m_nPhaseData; p++)
+        {
+        CSpecie &S = *C.m_PhaseData[p];
+        CSpCommonData &CD = S.m_Common[0];
+
+        if (S.m_eOcc==BOT_Liquid && (S.m_bVpSpecd || S.m_bTcSpecd || S.m_bPcSpecd || S.m_bVcSpecd || S.m_bAcSpecd))
+          {
+          Strng Msg;
+          for (int i=0; i<5; i++)
+            {
+            LPSTR pTxt=NULL;
+            switch (i)
+              {
+              case 0: pTxt = S.m_bVpSpecd ? "VapourP" : NULL;  break;
+              case 1: pTxt = S.m_bTcSpecd ? "Tc"      : NULL;  break;
+              case 2: pTxt = S.m_bPcSpecd ? "Pc"      : NULL;  break;
+              case 3: pTxt = S.m_bVcSpecd ? "Vc"      : NULL;  break;
+              case 4: pTxt = S.m_bAcSpecd ? "Ac"      : NULL;  break;
+              }
+            if (pTxt)
+              {
+              if (Msg.Len()>0)
+                Msg+=", ";
+              Msg+=pTxt;
+              }
+            }
+          AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s found in the Liquid Phase - Expected in the Vapour Phase Only", C.SymOrTag(), Msg());
+          }
+        }
+      }
+
+    if (HasLiq != HasGas)
+      { // Only One Exists - Ignore Vp Stuff - Set to bad Values ?
+      for (int p=0; p<C.m_nPhaseData; p++)
+        {
+        CSpecie &S=*C.m_PhaseData[p];
+
+        for (Strng * pS=S.m_sVpErrors.First(); pS; pS=pS->Next())
+          dbgpln("Ignore %s", (*pS)());
+
+        S.m_sVpErrors.Clear();
+        //for (int f=0; f<MaxFidelity; f++)
+        //  {
+        //  //delete S.m_Common[f].m_pVp;
+        //  //S.m_Common[f].m_pVp=NULL;
+        //  }
+        }
+      }
+
+    for (int p=0; p<C.m_nPhaseData; p++)
+      {
+      CSpecie &S=*C.m_PhaseData[p];
+      for (Strng * pS=S.m_sVpErrors.First(); pS; pS=pS->Next())
+        {
+        switch (pS->Index())
+          {
+          case LogFlag_Fatal:   LogError  (SpecieDBLogHdr, 0, "%s", (*pS)());    AllOK= false;   break;
+          case LogFlag_Error:   LogError  (SpecieDBLogHdr, 0, "%s", (*pS)());                    break;
+          case LogFlag_Warning: LogWarning(SpecieDBLogHdr, 0, "%s", (*pS)());                    break;
+          case LogFlag_Note:    LogNote   (SpecieDBLogHdr, 0, "%s", (*pS)());                    break;
+          default:
+          _asm int 3;
+          }
+        }
+      S.m_sVpErrors.Clear();
+      }
+    }
+
+  return AllOK;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp, CRqdSpList & RqdSpc)
   {
   // Sort Component Names;
@@ -3355,7 +3637,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       c1++;
       }
     else
-      LogError("SpecieDB", 0, "Component '%s' not Found", m_pS->Str());
+      LogError(SpecieDBLogHdr, 0, "Component '%s' not Found", m_pS->Str());
     }
   m_iNo=c1;
   for (int i=0; i<m_iNo; i++)
@@ -3370,6 +3652,24 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (int c=0; c<m_iNo; c++)
     {
     CComponent & C=*(CmD[c]);
+    CSpecie * pSpData=NULL;
+
+    //FixAValC(C.m_dPc, C.m_bPcOK, 1000., CmD[c], C.m_CommonpSpData);
+    //FixAValC(C.m_dTc, C.m_bTcOK, 1000., CmD[c], pSpData);
+    //FixAValC(C.m_dVc, C.m_bVcOK, 1., CmD[c], pSpData);
+    //FixAValC(C.m_dAc, C.m_bAcOK, 1., CmD[c], pSpData);
+
+#if dbgBuildSDB
+  if (dbgBuildSpc())
+    {
+    dbgpln("Component :%-15.15s %-15.15s %10.2f %10.2f %10.2f %10.2f Cnst:%08x Cmn0:%08x Cmn1:%08x Vp0:%-10s Vp1:%-10s",
+      C.SymOrTag(), C.ElDef(), C.m_dPc, C.m_dTc, C.m_dVc, C.m_dAc, 
+      dynamic_cast<CSpConstData*>(&C), &C.m_Common[0], &C.m_Common[1], 
+      C.m_Common[0].m_pVp?C.m_Common[0].m_pVp->VName():"",
+      C.m_Common[1].m_pVp?C.m_Common[1].m_pVp->VName():"");
+    }
+#endif
+
     for (int p=0; p<C.m_nPhaseData; p++)
       C.m_PhaseData[p]->FixMissingData(CmD[c]);
     }
@@ -3381,6 +3681,13 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     C.iCId=c;
     int PrvOcc=BOT_Null;
     int nPhaseInOcc=1;
+
+    for (int f=0; f<MaxFidelity; f++)
+      {
+      if (C.m_Common[f].m_pVp)
+        C.m_Common[f].m_pVp->Attach(&C, NULL);
+      }
+
 
     // Remove Species if out of Temp Range or Component not Required
     for (int p=0; p<C.m_nPhaseData; )
@@ -3394,7 +3701,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         Sp.sSym.Set("%s(%s)", CmD[c]->Sym(), Sp.m_sPhaseSym());
       else
         Sp.sSym="";
-      Sp.m_dMoleWt=C.MoleWt();
+      //Sp.m_dMoleWt=C.MoleWt();
 
       if (Sp.m_eOcc==BOT_Gas)
         {
@@ -3404,17 +3711,27 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
           {
           Strng S;
           for (int f=0; f<MaxFidelity; f++)
+            {
             for (int i=0; i<MaxTPoints; i++)
-              if (Sp.m_Data[f].m_pRho[i] && (&Sp!=m_pSteam || f==0))
+              {
+              for (int e=0; e<SpDBEqnCnt; e++)
+                {
+                if (Sp.m_FData[f].m_pEqns[e][i])
+                  Sp.m_FData[f].m_pEqns[e][i]->Attach(&C, &Sp.m_FData[f]);
+                }
+
+              if (Sp.m_FData[f].m_pRho[i] && (&Sp!=m_pSteam || f==0))
                 {
                 // Change to use IdealGasForms for all Gasses BUT HiFidelity Steam
-                //  delete Sp.m_Data[f].m_pRho[i]; // This data is woned by the H2ODB
+                //  delete Sp.m_FData[f].m_pRho[i]; // This data is woned by the H2ODB
                 S.Set("IdealGasDensity(%.10g)", Sp.MoleWt());
-                Sp.m_Data[f].m_pRho[i]=CSpDBEqn::Construct(&Sp.m_Data[f], S());
+                Sp.m_FData[f].m_pRho[i]=CSpDBEqn::Construct(&Sp.m_Const, &Sp.m_FData[f], S());
                 }
+              }
+            }
           }
         }
-
+      
 #if dbgBuildSDB
       if (dbgBuildSpc())
         dbgp("Specie: %7.2f > %7.2f %-20.20s", K_2_C(C.m_PhaseData[p]->LoT(0)), K_2_C(C.m_PhaseData[p]->HiT(0)), Sp.SymOrTag());
@@ -3434,19 +3751,19 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         if (!RemoveItLst)
           {
           C.m_nDiscarded++;
-          LogNote("SpecieDB", 0, "Specie '%s' discarded (Not in Project Temperature Range)", Sp.Sym());
+          LogNote(SpecieDBLogHdr, 0, "Specie '%s' discarded (Not in Project Temperature Range)", Sp.Sym());
           }
 #if dbgBuildSDB
         if (dbgBuildSpc())
           dbgp(" --- Discard");
 #endif
 
-        CSpecieCommonData NullCommonData;
-        CSpecieDataArray NullData;
+        CSpCommonDataA NullCommonDataA;
+        CSpFidelDataA NullData;
         if (m_pWater==C.m_PhaseData[p])
-          m_pWater->SetData(NullCommonData, NullData);
+          m_pWater->SetData(NullCommonDataA, NullData);
         else if (m_pSteam==C.m_PhaseData[p])
-          m_pSteam->SetData(NullCommonData, NullData);
+          m_pSteam->SetData(NullCommonDataA, NullData);
 
         delete C.m_PhaseData[p];
         C.m_nPhaseData--;
@@ -3550,7 +3867,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         }
       else
         {
-        LogError("SpecieDB", 0, "Too Many Phases");
+        LogError(SpecieDBLogHdr, 0, "Too Many Phases");
         }
       }
     m_PhInfo[ip].m_nSpecies++;
@@ -3710,10 +4027,10 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         if (COk)
           pSb->iCId=iCId;
         else if (!pSb->m_fOpt)
-          LogError("SpecieDB", 0, "Required Specie '%s' not Loaded %s", pSb->m_sSpName(), pSb->m_sFile());
+          LogError(SpecieDBLogHdr, 0, "Required Specie '%s' not Loaded %s", pSb->m_sSpName(), pSb->m_sFile());
         }
       else if (!pSb->m_fOpt)
-        LogError("SpecieDB", 0, "Required Specie '%s' not Loaded %s", C(), pSb->m_sFile());
+        LogError(SpecieDBLogHdr, 0, "Required Specie '%s' not Loaded %s", C(), pSb->m_sFile());
       }
     }
   //int PrvCId=-1;
@@ -3788,7 +4105,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     if (dbgBuildSpc())
       dbgpln("c%4i/s%4i)Cmp:%-15.15s  Spc:%-15.15s  %#08x %3i %3i", c, s, CmD[c]->SymOrTag(), S.SymOrTag(), Msk, S.m_PhInx, S.m_eOcc);
 #endif
-    if (!(S.m_Data[0].m_bChecked || S.m_Data[1].m_bChecked || S.m_bReference))
+    if (!(S.m_FData[0].m_bChecked || S.m_FData[1].m_bChecked || S.m_bReference))
       {
       if (NNotChecked)
         NotCheckedList+=", ";
@@ -3837,7 +4154,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     for (i=0; i<EC.GetSize(); i++)
       {
       int e=EC[i].iENo;
-      CompFrac CF;
+      CCompFrac CF;
       CF.iSpNo=s;
       CF.dMassFrac=EC[i].dMoles*m_EDB[e].AtmWt/C.m_dMoleWt;
       m_EDB[e].SpComp->Add(CF);
@@ -3851,12 +4168,12 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       AssumedCpsList = AssumedCpsList.Left(120);
       AssumedCpsList += "...";
       }
-    LogWarning("SpecieDB", 0, "%i Species have assumed Cps   [ %s ]", nAssumedCps, AssumedCpsList());
+    LogWarning(SpecieDBLogHdr, 0, "%i Species have assumed Cps   [ %s ]", nAssumedCps, AssumedCpsList());
     }
   if (nDiscarded)
-    LogWarning("SpecieDB", 0, "%i Species discarded   [ %s ]", nDiscarded, DiscardedList);
+    LogWarning(SpecieDBLogHdr, 0, "%i Species discarded   [ %s ]", nDiscarded, DiscardedList);
   if (CDBInit.NSpPrj)
-    LogNote("SpecieDB", 0, "%i Species Loaded from %s", CDBInit.NSpPrj, PrjDataFile());
+    LogNote(SpecieDBLogHdr, 0, "%i Species Loaded from %s", CDBInit.NSpPrj, PrjDataFile());
   if (NNotChecked)
     {
     if (NotCheckedList.Len()>110)
@@ -3864,11 +4181,11 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       NotCheckedList = NotCheckedList.Left(110);
       NotCheckedList += "...";
       }
-    LogWarning("SpecieDB", 0/*|LF_Exclamation*/, "%i Species in database not 'checked'.  [ %s ]", NNotChecked, NotCheckedList());
+    LogWarning(SpecieDBLogHdr, 0/*|LF_Exclamation*/, "%i Species in database not 'checked'.  [ %s ]", NNotChecked, NotCheckedList());
     }
   if (m_SDB.m_iNo==0)
     {
-    LogError("SpecieDB", LF_Exclamation, "No Species Loaded");
+    LogError(SpecieDBLogHdr, LF_Exclamation, "No Species Loaded");
     return false;
     }
 
@@ -3880,12 +4197,12 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     if (strpbrk(Ph.m_Sym(), " ,.%()[]{}:\\<>!^\t\n\v\f\r"))
       {
       ROk=false;
-      LogError("SpecieDB", 0, "Illegal character in phase symbol '%s'", Ph.m_Sym());
+      LogError(SpecieDBLogHdr, 0, "Illegal character in phase symbol '%s'", Ph.m_Sym());
       }
     if (strpbrk(Ph.m_Tag(), " ,.%()[]{}:\\<>!^\t\n\v\f\r") && strcmp(Ph.m_Tag(), Ph.m_Sym())!=0)
       {
       ROk=false;
-      LogError("SpecieDB", 0, "Illegal character in phase tag '%s'", Ph.m_Tag());
+      LogError(SpecieDBLogHdr, 0, "Illegal character in phase tag '%s'", Ph.m_Tag());
       }
     }
   if (!ROk)
@@ -3899,13 +4216,13 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     if (prob)
       {
       ROk=false;
-      LogError("SpecieDB", 0, "',' not allowed in specie symbol '%s'", Sp.sSym());
+      LogError(SpecieDBLogHdr, 0, "',' not allowed in specie symbol '%s'", Sp.sSym());
       }
     prob = strchr(Sp.sTag(), ',');
     if (prob)
       {
       ROk=false;
-      LogError("SpecieDB", 0, "',' not allowed in specie tag '%s'", Sp.sTag());
+      LogError(SpecieDBLogHdr, 0, "',' not allowed in specie tag '%s'", Sp.sTag());
       }
     }
   if (!ROk)
@@ -3918,7 +4235,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     CSpecie & Sp=m_SDB[s];
     for (int Fidelity=0; Fidelity<2; Fidelity++)
       {
-      CSpecieData & D=m_SDB[s].m_Data[Fidelity];
+      CSpFidelData & D=m_SDB[s].m_FData[Fidelity];
       for (i=0; i<D.m_iLastTPoint; i++)
         {
         if (D.m_dTe[i] > D.m_dTs[i+1]+0.1)
@@ -3927,7 +4244,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       }
     if (!SOK)
       {
-      LogError("SpecieDB", 0, "Temp Range Overlap %s", Sp.SymOrTag());
+      LogError(SpecieDBLogHdr, 0, "Temp Range Overlap %s", Sp.SymOrTag());
       ROk=false;
       }
     }
@@ -3942,14 +4259,14 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       {
       if (m_SDB[s0].sTag.XStrCmp(m_SDB[s].sTag)==0)
         {
-        LogError("SpecieDB", 0, "Species %s & %s both have Tag = %s", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].sTag());
+        LogError(SpecieDBLogHdr, 0, "Species %s & %s both have Tag = %s", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].sTag());
         ROk=false;
         }
       if (m_SDB[s0].m_sPhaseSym.XStrCmp(m_SDB[s].m_sPhaseSym)==0)
         {
         if (m_SDB[s0].m_OccMsk != m_SDB[s].m_OccMsk)
           {
-          LogError("SpecieDB", 0, "Species %s & %s with the same phase name (%s) can not have different occurences (%s & %s)", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].m_sPhaseSym(), 
+          LogError(SpecieDBLogHdr, 0, "Species %s & %s with the same phase name (%s) can not have different occurences (%s & %s)", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].m_sPhaseSym(), 
             (m_SDB[s0].m_OccMsk==som_Sol ? "s" : m_SDB[s0].m_OccMsk==som_Liq ? "l" : "g"), (m_SDB[s].m_OccMsk==som_Sol ? "s" : m_SDB[s].m_OccMsk==som_Liq ? "l" : "g"));
           ROk=false;
           }
@@ -3966,7 +4283,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     if (p)
       {
       //this message is annoying. Remove?
-      // I Agree - LogNote("SpecieDB", 0, "Removing ' ' from Specie Tag '%s' for use in project", Sp.sTag());
+      // I Agree - LogNote(SpecieDBLogHdr, 0, "Removing ' ' from Specie Tag '%s' for use in project", Sp.sTag());
       for ( ; p; p=Sp.sTag.XStrChr(' '))
         *p='_';
       }
@@ -4066,7 +4383,7 @@ flag CComponentDataBase::LoadBIPs(CDBInitRec & CDBInit, char* FilePath)
 
 //---------------------------------------------------------------------------
 
-double CSpecieData::CalcH(double T, bool AddConst, int iSeg)
+double CSpFidelData::CalcH(double T, bool AddConst, int iSeg)
   {
   double H=0;
   if (iSeg<0)
@@ -4088,7 +4405,7 @@ double CSpecieData::CalcH(double T, bool AddConst, int iSeg)
 
 //---------------------------------------------------------------------------
 
-double CSpecieData::CalcDH(double T1, double T2, int iSeg)
+double CSpFidelData::CalcDH(double T1, double T2, int iSeg)
   {
   double H=0;
   flag Rev=T2<T1;
@@ -4119,7 +4436,7 @@ double CSpecieData::CalcDH(double T1, double T2, int iSeg)
 
 //---------------------------------------------------------------------------
 
-double CSpecieData::CalcS(double T, bool AddConst, int iSeg)
+double CSpFidelData::CalcS(double T, bool AddConst, int iSeg)
   {
   double S=0;
   if (iSeg<0)
@@ -4141,7 +4458,7 @@ double CSpecieData::CalcS(double T, bool AddConst, int iSeg)
 
 //---------------------------------------------------------------------------
 
-double CSpecieData::CalcDS(double T1, double T2, int iSeg)
+double CSpFidelData::CalcDS(double T1, double T2, int iSeg)
   {
   double S=0;
   flag Rev=T2<T1;
@@ -4174,59 +4491,59 @@ double CSpecieData::CalcDS(double T1, double T2, int iSeg)
 
 double CSpecie::msdHIdeal(long Fidelity, double T1, double T2)
   {
-  return m_Data[Fidelity].CalcDH(T1, T2)/MoleWt();
+  return m_FData[Fidelity].CalcDH(T1, T2)/MoleWt();
   };
 
 double CSpecie::msdSIdeal(long Fidelity, double T1, double T2)
   {
-  return m_Data[Fidelity].CalcDS(T1, T2)/MoleWt();
+  return m_FData[Fidelity].CalcDS(T1, T2)/MoleWt();
   };
 
-//-----------------------------------------------------------------------
-
-class CVapTFndS : public MRootFinderBase
-  {
-  public:
-    CSpecie*m_pS;
-    long iFidelity;
-    CVapTFndS(CSpecie*pS_, long Fidelity) :
-    MRootFinderBase("CVapTFndC", s_VapTTol)
-      {
-      m_pS=pS_;
-      iFidelity=Fidelity;
-      };
-    LPCTSTR ObjTag() { return (LPCTSTR)m_pS->SymOrTag(); };//Mdl->FullObjTag(); };
-    double Function(double T) { return m_pS->VapourP(iFidelity, T); };
-  };
-
-
-double CSpecie::VapourT(long Fidelity, double P_)
-  {
-  if (!VpOK())
-    return 0.0;
-
-  double dPrvVapT=Min(373.0, TCrit()-10);
-  CVapTFndS VapT(this, Fidelity);
-  VapT.SetTarget(P_);
-  VapT.SetLimits(1.0, TCrit());
-
-  if (0)
-    {
-    dbgpln("============================ %s", sTag());
-    for (double t=10; t<TCrit()+30; t+=10)
-      dbgpln("                                                      %10.3f %10.3f", t, VapT.Function(t));
-    dbgpln("++++++++++++");
-    }
-  dPrvVapT=Range(1.0, dPrvVapT, TCrit());
-  if (VapT.SolveFromEst(dPrvVapT, 1.0, 10.0)==RF_OK)
-    dPrvVapT=VapT.Result();
-  else
-    LogError("Specie", 0, "%s VapourT not Converged", SymOrTag());
-
-  if (0)
-    dbgpln("++++++++++++");
-  return dPrvVapT;
-  };
+////-----------------------------------------------------------------------
+//
+//class CVapTFndS : public MRootFinderBase
+//  {
+//  public:
+//    CSpecie*m_pS;
+//    long iFidelity;
+//    CVapTFndS(CSpecie*pS_, long Fidelity) :
+//    MRootFinderBase("CVapTFndC", s_VapTTol)
+//      {
+//      m_pS=pS_;
+//      iFidelity=Fidelity;
+//      };
+//    LPCTSTR ObjTag() { return (LPCTSTR)m_pS->SymOrTag(); };//Mdl->FullObjTag(); };
+//    double Function(double T) { return m_pS->VapourP(iFidelity, T); };
+//  };
+//
+//
+//double CSpecie::VapourT(long Fidelity, double P_)
+//  {
+//  if (!VpOK())
+//    return 0.0;
+//
+//  double dPrvVapT=Min(373.0, TCrit()-10);
+//  CVapTFndS VapT(this, Fidelity);
+//  VapT.SetTarget(P_);
+//  VapT.SetLimits(1.0, TCrit());
+//
+//  if (0)
+//    {
+//    dbgpln("============================ %s", sTag());
+//    for (double t=10; t<TCrit()+30; t+=10)
+//      dbgpln("                                                      %10.3f %10.3f", t, VapT.Function(t));
+//    dbgpln("++++++++++++");
+//    }
+//  dPrvVapT=Range(1.0, dPrvVapT, TCrit());
+//  if (VapT.SolveFromEst(dPrvVapT, 1.0, 10.0)==RF_OK)
+//    dPrvVapT=VapT.Result();
+//  else
+//    LogError("Specie", 0, "%s VapourT not Converged", SymOrTag());
+//
+//  if (0)
+//    dbgpln("++++++++++++");
+//  return dPrvVapT;
+//  };
 
 //---------------------------------------------------------------------------
 
@@ -4239,7 +4556,7 @@ double     CSpecie::msVolume(long Fidelity, double T, double P, SpPropOveride *O
   if (m_pDensCalc && M)
     D=m_pDensCalc->Evaluate(Fidelity, T, P, M);
   else
-    D=m_Data[Fidelity].SpRho(T,P);
+    D=m_FData[Fidelity].SpRho(T,P);
 
   return 1.0/GTZ(D);
   }
@@ -4253,7 +4570,7 @@ double     CSpecie::Density(long Fidelity, double T, double P, SpPropOveride *Ov
   if (m_pDensCalc && M)
     D=m_pDensCalc->Evaluate(Fidelity, T, P, M);
   else
-    D=m_Data[Fidelity].SpRho(T,P);
+    D=m_FData[Fidelity].SpRho(T,P);
 
   return D;
   };
@@ -4267,7 +4584,7 @@ double     CSpecie::NmsVolume(long Fidelity, SpPropOveride *Ovr, CSVData M)
   if (m_pDensCalc && M)
     D=m_pDensCalc->Evaluate(Fidelity, Norm_T, Norm_P, M);
   else
-    D=m_Data[Fidelity].SpRho(Norm_T, Norm_P);
+    D=m_FData[Fidelity].SpRho(Norm_T, Norm_P);
 
   return 1.0/GTZ(D);
   };
@@ -4281,7 +4598,7 @@ double     CSpecie::NDensity(long Fidelity, SpPropOveride *Ovr, CSVData M)
   if (m_pDensCalc && M)
     D=m_pDensCalc->Evaluate(Fidelity, Norm_T, Norm_P, M);
   else
-    D=m_Data[Fidelity].SpRho(Norm_T, Norm_P);
+    D=m_FData[Fidelity].SpRho(Norm_T, Norm_P);
 
   return D;
   };
@@ -4356,6 +4673,8 @@ void CSpecie::Dump(LPCTSTR Location, long NPts)
             double p2=m_CDB.MaxP;
 #endif
 
+            t2=Max(t2,t1+10);
+            p2=Max(p2,p1+10);
             if (0) //hard wired pt;
               {
               p1=12748.35-250*4;
@@ -4530,7 +4849,7 @@ flag CComponentDataBase::FixOffsetConstants()
         {
         int i, iSeg;
         CSpecie  &Sp=*C.m_PhaseData[iPh];
-        CSpecieData & D=Sp.m_Data[Fidelity];
+        CSpFidelData & D=Sp.m_FData[Fidelity];
 
         D.m_bHasHFn=(D.m_pH[0]!=NULL);
         D.m_bHasSFn=(D.m_pS[0]!=NULL);
@@ -4538,12 +4857,12 @@ flag CComponentDataBase::FixOffsetConstants()
           {
           if (D.m_bHasHFn!=(D.m_pH[iSeg]!=NULL))
             {
-            LogError("SpecieDB", LF_Exclamation, "Internal:Seg H Functions Different");
+            LogError(SpecieDBLogHdr, LF_Exclamation, "Internal:Seg H Functions Different");
             Bad=true;
             }
           if (D.m_bHasSFn!=(D.m_pS[iSeg]!=NULL))
             {
-            LogError("SpecieDB", LF_Exclamation, "Internal:Seg S Functions Different");
+            LogError(SpecieDBLogHdr, LF_Exclamation, "Internal:Seg S Functions Different");
             Bad=true;
             }
           }
@@ -4558,7 +4877,7 @@ flag CComponentDataBase::FixOffsetConstants()
 
           if (iSeg>D.m_iLastTPoint)
             {
-            //LogError("SpecieDB", LF_Exclamation, "Internal:Ref Seg Not Found");
+            //LogError(SpecieDBLogHdr, LF_Exclamation, "Internal:Ref Seg Not Found");
             //Bad=true;
             if (D.m_dTRef < D.m_dTs[0])
               iSeg=0;
@@ -4566,7 +4885,7 @@ flag CComponentDataBase::FixOffsetConstants()
               iSeg=D.m_iLastTPoint;
             else
               {
-              LogError("SpecieDB", LF_Exclamation, "Internal:Ref Seg Not Found");
+              LogError(SpecieDBLogHdr, LF_Exclamation, "Internal:Ref Seg Not Found");
               Bad=true;
               }
             }
@@ -4640,7 +4959,7 @@ flag CComponentDataBase::FixOffsetConstants()
       for (iPh=0; iPh<C.m_nPhaseData; iPh++)
         {
         CSpecie  &Sp=*C.m_PhaseData[iPh];
-        CSpecieData & D=Sp.m_Data[Fidelity];
+        CSpFidelData & D=Sp.m_FData[Fidelity];
         if (D.m_bHasHFn)
           {
           for (int i=0; i<=D.m_iLastTPoint; i++)
@@ -4681,7 +5000,7 @@ flag CComponentDataBase::FixOffsetConstants()
           for (int iPh=0; iPh<C.m_nPhaseData; iPh++)
             {
             CSpecie  &Sp=*C.m_PhaseData[iPh];
-            CSpecieData  &D=Sp.m_Data[Fidelity];
+            CSpFidelData  &D=Sp.m_FData[Fidelity];
             for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
               {
               double Scl=Pass==0 ? 1/Sp.MoleWt() : 1;
@@ -4727,7 +5046,7 @@ flag CComponentDataBase::FixOffsetConstants()
           for (int iPh=0; iPh<C.m_nPhaseData; iPh++)
             {
             CSpecie  &Sp=*C.m_PhaseData[iPh];
-            CSpecieData  &D=Sp.m_Data[Fidelity];
+            CSpFidelData  &D=Sp.m_FData[Fidelity];
             for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
               {
               double Scl=Pass==0 ? 1/Sp.MoleWt() : 1;
@@ -4765,7 +5084,7 @@ flag CComponentDataBase::FixOffsetConstants()
       for (int iPh=0; iPh<C.m_nPhaseData; iPh++)
         {
         CSpecie  &Sp=*C.m_PhaseData[iPh];
-        CSpecieData  &D=Sp.m_Data[Fidelity];
+        CSpFidelData  &D=Sp.m_FData[Fidelity];
         D.m_dHf0=D.CalcH(ZeroCinK, true);
         if (D.m_dHf0<dHf0Min)
           {
@@ -4776,7 +5095,7 @@ flag CComponentDataBase::FixOffsetConstants()
       for (iPh=0; iPh<C.m_nPhaseData; iPh++)
         {
         CSpecie  &Sp=*C.m_PhaseData[iPh];
-        CSpecieData  &D=Sp.m_Data[Fidelity];
+        CSpFidelData  &D=Sp.m_FData[Fidelity];
 
         D.m_dHfBase0=dHf0Min;
         for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
@@ -4824,7 +5143,7 @@ flag CComponentDataBase::FixOffsetConstants()
           for (int iPh=0; iPh<C.m_nPhaseData; iPh++)
             {
             CSpecie  &Sp=*C.m_PhaseData[iPh];
-            CSpecieData &D=Sp.m_Data[Fidelity];
+            CSpFidelData &D=Sp.m_FData[Fidelity];
             for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
               {
               char Buff[256];
@@ -4868,7 +5187,7 @@ flag CComponentDataBase::FixOffsetConstants()
           for (int iPh=0; iPh<C.m_nPhaseData; iPh++)
             {
             CSpecie  &Sp=*C.m_PhaseData[iPh];
-            CSpecieData &D=Sp.m_Data[Fidelity];
+            CSpFidelData &D=Sp.m_FData[Fidelity];
             for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
               {
               char Buff[256];
@@ -5041,10 +5360,17 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
 
     if (!LoadComponents(CDBInit, PrjDBFn, RqdCmp, RqdSpc))
       {
-      LogError("SpecieDB", LF_Exclamation, "Specie Data not Loaded");
+      LogError(SpecieDBLogHdr, LF_Exclamation, "Specie Data not Loaded");
       bCDBBad=true;
       return false;
       }
+
+    if (!CheckCommonData())
+      {
+      bCDBBad=true;
+      return false;
+      }
+      
 
     if (!BuildSpecies(CDBInit, RqdCmp, RqdSpc))
       {
@@ -5075,7 +5401,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         else if (!pSb->m_fOpt)
           {
           DoneErr=True;
-          LogError("SpecieDB", 0, "Component '%s' not found in Specie Database.\n\nRequired by : %s", pSb->m_sCmpName(), pSb->m_sFile());
+          LogError(SpecieDBLogHdr, 0, "Component '%s' not found in Specie Database.\n\nRequired by : %s", pSb->m_sCmpName(), pSb->m_sFile());
           if (nNotLoaded)
             NotLoadedList+=", ";
           NotLoadedList+=pSb->m_sSpName();
@@ -5093,7 +5419,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
           //  case BOT_Gas:   S+="Vapour"; break;
           //  }
 
-          LogError("SpecieDB", 0, "Specie '%s' %s phase not found in Specie Database.\n\nRequired by : %s", pSb->m_sSpName(), S(), pSb->m_sFile);
+          LogError(SpecieDBLogHdr, 0, "Specie '%s' %s phase not found in Specie Database.\n\nRequired by : %s", pSb->m_sSpName(), S(), pSb->m_sFile);
           if (!DoneErr)
             {
             if (nNotLoaded)
@@ -5115,7 +5441,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         Msg.Set("%i Species required by model DLL files not loaded   [ %s ]", nNotLoaded, NotLoadedList());
         if (PrjFileVerNo()<51 || UseLibDB)
           {//verbose description of possible error...
-          LogError("SpecieDB", 0, Msg());
+          LogError(SpecieDBLogHdr, 0, Msg());
           Msg+="\n\nCheck:\n";
           if (UseLibDB)
             Msg.Append("1) Specie data is no longer loaded from default.mdb, import or edit the\n   required specie data in syscad.mdb located at '%s'\n", PrjDBFn);
@@ -5123,10 +5449,10 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
             Msg.Append("1) Specie data in syscad.mdb located at '%s'\n", PrjDBFn);
           Msg+="2) List of species required in configuration file.";
           AfxMessageBox(Msg());
-          //LogError("SpecieDB", LF_Exclamation, Msg());
+          //LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
           }
         else
-          LogError("SpecieDB", LF_Exclamation, Msg());
+          LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
         bCDBBad=true;
         }
       }
@@ -5149,9 +5475,9 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         }
 
       if (CDBInit.NSpDensCorrPrj)
-        LogNote("SpecieDB", 0, "%i Species have density correction functions (Loaded from %s)", CDBInit.NSpDensCorrPrj, PrjDataFile());
+        LogNote(SpecieDBLogHdr, 0, "%i Species have density correction functions (Loaded from %s)", CDBInit.NSpDensCorrPrj, PrjDataFile());
       if (CDBInit.NSpSolFnPrj)
-        LogNote("SpecieDB", 0, "%i Species have solubility functions (Loaded from %s)", CDBInit.NSpSolFnPrj, PrjDataFile());
+        LogNote(SpecieDBLogHdr, 0, "%i Species have solubility functions (Loaded from %s)", CDBInit.NSpSolFnPrj, PrjDataFile());
       }
 
     // Fix Integration Constants
@@ -5203,13 +5529,13 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
             {
             for (int Fidelity=0; Fidelity<MaxFidelity; Fidelity++)
               {
-              CSpecieData & D=m_SDB[s].m_Data[Fidelity];
+              CSpFidelData & D=m_SDB[s].m_FData[Fidelity];
               for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
                 {
                 double Rho=D.SpRho(D.m_dTs[iSeg]+1.0,Std_P);
                 if (Rho<1.0e-6)
                   {
-                  LogError("SpecieDB", 0, "Bad Density %g %s", Rho, pSp->SymOrTag());
+                  LogError(SpecieDBLogHdr, 0, "Bad Density %g %s", Rho, pSp->SymOrTag());
                   bCDBBad=true;
                   }
                 }
@@ -5224,13 +5550,13 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
                 Enth=pSp->mlHf(Fidelity, T, Std_P, NULL, NULL);
                 if (Enth<PrevEnth)
                   {
-                  LogError("SpecieDB", 0, "Bad Enthalpy : mlH decreases with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
+                  LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH decreases with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
                   bCDBBad=true;
                   break;
                   }
                 if (Enth<=PrevEnth+1.0e-6)
                   {
-                  LogError("SpecieDB", 0, "Bad Enthalpy : mlH increases too slowly with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
+                  LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH increases too slowly with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
                   bCDBBad=true;
                   break;
                   }
@@ -5571,7 +5897,7 @@ int CComponentDataBase::Add(CComponent * CD)
   {
   if (m_iNo == MaxComponents)
     {
-    LogWarning("SpecieDB", 0, "Too Many Components %s", CD->SymOrTag());
+    LogWarning(SpecieDBLogHdr, 0, "Too Many Components %s", CD->SymOrTag());
     return 0;
     }
 

@@ -367,8 +367,8 @@ void CTurbine::EvalProducts(CNodeEvalIndex & NEI)
   dPIn       = Fi->Press();
   dTempIn    = Fi->Temp();
   dVapFracIn = Fi->MassFrac(som_Gas);
-  dSgIn      = SDB[H2Og_i].msSf(Fi->Fidelity(), dTempIn, dPIn, NULL, NULL)-(SDB[H2Og_i].m_Data[Fi->Fidelity()].m_dCSf[0]/SDB[H2Og_i].m_dMoleWt); //entropy
-  dSlIn      = SDB[H2Ol_i].msSf(Fi->Fidelity(), dTempIn, dPIn, NULL, NULL)-(SDB[H2Ol_i].m_Data[Fi->Fidelity()].m_dCSf[0]/SDB[H2Ol_i].m_dMoleWt); //entropy
+  dSgIn      = SDB[H2Og_i].msSf(Fi->Fidelity(), dTempIn, dPIn, NULL, NULL)-(SDB[H2Og_i].m_FData[Fi->Fidelity()].m_dCSf[0]/SDB[H2Og_i].MoleWt()); //entropy
+  dSlIn      = SDB[H2Ol_i].msSf(Fi->Fidelity(), dTempIn, dPIn, NULL, NULL)-(SDB[H2Ol_i].m_FData[Fi->Fidelity()].m_dCSf[0]/SDB[H2Ol_i].MoleWt()); //entropy
   //dCpIn      = Fi->msCp();
   const double SteamQ = Fi->VMass[H2Og_i];
   const double WaterQ = Fi->VMass[H2Ol_i];

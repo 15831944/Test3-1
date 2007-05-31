@@ -238,7 +238,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidmlHs:   DCB.D=SDB[s].mlHs(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmlHz:   DCB.D=SDB[s].mlHz(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmlS:    DCB.D=SDB[s].mlSf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL)-
-                        (SDB[s].m_Data[FIDELITY(2)].m_dCSf[0]); return true;
+                        (SDB[s].m_FData[FIDELITY(2)].m_dCSf[0]); return true;
       case xidmlG:    DCB.D=SDB[s].mlGf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmlCp:   DCB.D=SDB[s].mlCp(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsHf25: DCB.D=SDB[s].msHf(FIDELITY(0), C_2_K(25), 101.325, NULL, NULL); return true;
@@ -246,7 +246,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidmsHs:   DCB.D=SDB[s].msHs(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsHz:   DCB.D=SDB[s].msHz(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsS:    DCB.D=SDB[s].msSf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL)-
-                            (SDB[s].m_Data[FIDELITY(2)].m_dCSf[0]/SDB[s].m_dMoleWt); return true;
+                            (SDB[s].m_FData[FIDELITY(2)].m_dCSf[0]/SDB[s].MoleWt()); return true;
       case xidmsG:    DCB.D=SDB[s].msGf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidmsCp:   DCB.D=SDB[s].msCp(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidRho:   
@@ -987,9 +987,9 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         {
         case Id_Sf1:
           if (rSDBO.m_bShowMs)
-            D=SDB[iSp].msSf(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)-(SDB[iSp].m_Data[rSDBO.m_bHiFidelity?1:0].m_dCSf[0]/SDB[iSp].m_dMoleWt);
+            D=SDB[iSp].msSf(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)-(SDB[iSp].m_FData[rSDBO.m_bHiFidelity?1:0].m_dCSf[0]/SDB[iSp].MoleWt());
           else
-            D=SDB[iSp].mlSf(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)-(SDB[iSp].m_Data[rSDBO.m_bHiFidelity?1:0].m_dCSf[0]);
+            D=SDB[iSp].mlSf(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)-(SDB[iSp].m_FData[rSDBO.m_bHiFidelity?1:0].m_dCSf[0]);
           /*if (rSDBO.m_bShowMs)
             D=SDB[iSp].msSf(rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
           else

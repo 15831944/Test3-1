@@ -5199,11 +5199,7 @@ void FlwSlvPB::FITPBEvalDiscrete(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     p->EvalFlowInfoEnd();
     p->EvalDiscrete();
     for (int i=0; i<p->NoFlwIOs(); i++)
-      {
-      //for (int j=0; j<p->NIOFBs(i); j++)
-      //  p->IOFB(i,j)->EvalDiscrete();
       p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
-      }
     XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5283,6 +5279,8 @@ void FlwSlvPB::EvalAllDiscrete()
     XT.StartLoop(NJ.m_pNd);
     XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     NJ.Nd.EvalDiscrete();
+    for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
+      NJ.Nd.IOFlange(i)->SetUseStatus(NJ.Nd.IOConduit(i)->QMass()>SmallPosFlow);
     XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     XT.EndLoop();
     }

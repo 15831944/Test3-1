@@ -40,6 +40,7 @@ const int CMsgDlgNButtonsB=sizeof(ButtonIdsB)/sizeof(ButtonIdsB[0]);
 
 const int TWd0=60;
 const int TWd1=30;
+const int TWd1a=4;
 const int TWd2=80;
 
 //===========================================================================
@@ -353,18 +354,18 @@ BOOL CMsgWnd::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyl
 
     MsgCtrl.InsertColumn(0, "Source",     LVCFMT_LEFT, 120);
     MsgCtrl.InsertColumn(1, "ID",         LVCFMT_RIGHT, 40);
-    MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 40);
-    MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 32);
-    MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 32);
+    MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 4/*40*/);
+    MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 4/*32*/);
+    MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 4/*32*/);
     MsgCtrl.InsertColumn(5, "Message",    LVCFMT_LEFT, 180);
     MsgCtrl.SetImageList(&m_ImgList ,     LVSIL_SMALL);
     MsgCtrl.SetExtendedStyle(MsgCtrl.GetExtendedStyle()|LVS_EX_FULLROWSELECT);
 
     CndCtrl.InsertColumn(0, "Source",     LVCFMT_LEFT, 120);
     CndCtrl.InsertColumn(1, "ID",         LVCFMT_RIGHT, 40);
-    CndCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 40);
-    CndCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 32);
-    CndCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 32);
+    CndCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 4/*40*/);
+    CndCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 4/*32*/);
+    CndCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 4/*32*/);
     CndCtrl.InsertColumn(5, "Condition",  LVCFMT_LEFT, 180);
     CndCtrl.SetImageList(&m_ImgList ,     LVSIL_SMALL);
     CndCtrl.SetExtendedStyle(CndCtrl.GetExtendedStyle()|LVS_EX_FULLROWSELECT);
@@ -888,9 +889,9 @@ BOOL CMsgWnd::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
       CListCtrl & Ctrl = IsCond ? CndCtrl : MsgCtrl;
       Ctrl.SetColumnWidth(0, Max(TWd0, Ctrl.GetColumnWidth(0)));
       Ctrl.SetColumnWidth(1, Max(TWd1, Ctrl.GetColumnWidth(1)));
-      Ctrl.SetColumnWidth(2, Max(TWd1, Ctrl.GetColumnWidth(2)));
-      Ctrl.SetColumnWidth(3, Max(TWd1, Ctrl.GetColumnWidth(3)));
-      Ctrl.SetColumnWidth(4, Max(TWd1, Ctrl.GetColumnWidth(4)));
+      Ctrl.SetColumnWidth(2, Max(TWd1a, Ctrl.GetColumnWidth(2)));
+      Ctrl.SetColumnWidth(3, Max(TWd1a, Ctrl.GetColumnWidth(3)));
+      Ctrl.SetColumnWidth(4, Max(TWd1a, Ctrl.GetColumnWidth(4)));
       //CRect Rect;
       //Ctrl.GetWindowRect(&Rect);
       Ctrl.SetColumnWidth(5, Max(TWd2, Ctrl.GetColumnWidth(5)));
@@ -1293,9 +1294,9 @@ void CMsgFrm::OnSize(UINT nType, int cx, int cy)
     CCustomListCtrl &Ctrl = *(CCustomListCtrl*)MW.GetDlgItem(i==0 ? IDC_MSGLIST : IDC_CONDLIST);
     Ctrl.SetColumnWidth(0, Max(TWd0, Ctrl.GetColumnWidth(0)));
     Ctrl.SetColumnWidth(1, Max(TWd1, Ctrl.GetColumnWidth(1)));
-    Ctrl.SetColumnWidth(2, Max(TWd1, Ctrl.GetColumnWidth(2)));
-    Ctrl.SetColumnWidth(3, Max(TWd1, Ctrl.GetColumnWidth(3)));
-    Ctrl.SetColumnWidth(4, Max(TWd1, Ctrl.GetColumnWidth(4)));
+    Ctrl.SetColumnWidth(2, Max(TWd1a, Ctrl.GetColumnWidth(2)));
+    Ctrl.SetColumnWidth(3, Max(TWd1a, Ctrl.GetColumnWidth(3)));
+    Ctrl.SetColumnWidth(4, Max(TWd1a, Ctrl.GetColumnWidth(4)));
     //CRect Rect;
     //Ctrl.GetWindowRect(&Rect);
     Ctrl.SetColumnWidth(5, Max(TWd2, Ctrl.GetColumnWidth(5)));
@@ -1428,9 +1429,9 @@ BOOL CMsgDlg::OnInitDialog()
   
   m_MsgCtrl.InsertColumn(0, "Source",     LVCFMT_LEFT, 104);
   m_MsgCtrl.InsertColumn(1, "ID",         LVCFMT_RIGHT, 32);
-  m_MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 34);
-  m_MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 34);
-  m_MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 34);
+  m_MsgCtrl.InsertColumn(2, "Iter",       LVCFMT_RIGHT, 4/*34*/);
+  m_MsgCtrl.InsertColumn(3, "Seq",        LVCFMT_RIGHT, 4/*34*/);
+  m_MsgCtrl.InsertColumn(4, "Call",       LVCFMT_RIGHT, 4/*34*/);
   m_MsgCtrl.InsertColumn(5, "Message",    LVCFMT_LEFT, 356);
   m_MsgCtrl.SetImageList(&m_ImgList ,     LVSIL_SMALL);
 
@@ -1499,9 +1500,9 @@ BOOL CMsgDlg::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
         {
         B = MsgCtrl.SetColumnWidth(0, Max(20, MsgCtrl.GetColumnWidth(0)));
         B = MsgCtrl.SetColumnWidth(1, Max(20, MsgCtrl.GetColumnWidth(1)));
-        B = MsgCtrl.SetColumnWidth(2, Max(20, MsgCtrl.GetColumnWidth(2)));
-        B = MsgCtrl.SetColumnWidth(3, Max(20, MsgCtrl.GetColumnWidth(3)));
-        B = MsgCtrl.SetColumnWidth(4, Max(20, MsgCtrl.GetColumnWidth(4)));
+        B = MsgCtrl.SetColumnWidth(2, Max(4/*20*/, MsgCtrl.GetColumnWidth(2)));
+        B = MsgCtrl.SetColumnWidth(3, Max(4/*20*/, MsgCtrl.GetColumnWidth(3)));
+        B = MsgCtrl.SetColumnWidth(4, Max(4/*20*/, MsgCtrl.GetColumnWidth(4)));
         B = MsgCtrl.SetColumnWidth(5, Max(20, MsgCtrl.GetColumnWidth(5)));
         }
       CRect ErrRect;

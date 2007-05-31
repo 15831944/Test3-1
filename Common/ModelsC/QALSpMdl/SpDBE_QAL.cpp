@@ -177,14 +177,14 @@ QALH2OProps::QALH2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach
   {
   for (int i=0; i<2; i++)
     {
-    m_Liq[i].m_pRho[0] = new QAL_WaterDensity(NULL);
-    m_Liq[i].m_pCp[0]  = new QAL_WaterHeatCapacity(NULL);
-    m_Liq[i].m_pH[0]   = new QAL_WaterEnthalpy(NULL);
-    m_Liq[i].m_pVp[0]  = new QAL_WaterVapourPress(NULL);
-    m_Vap[i].m_pRho[0] = new QAL_SteamDensity(NULL);
-    m_Vap[i].m_pCp[0]  = new QAL_SteamHeatCapacity(NULL);
-    m_Vap[i].m_pH[0]   = new QAL_SteamEnthalpy(NULL);
-    m_Vap[i].m_pVp[0]  = new QAL_WaterVapourPress(NULL);
+    m_Liq[i].m_pRho[0] = new QAL_WaterDensity(NULL, NULL);
+    m_Liq[i].m_pCp[0]  = new QAL_WaterHeatCapacity(NULL, NULL);
+    m_Liq[i].m_pH[0]   = new QAL_WaterEnthalpy(NULL, NULL);
+    m_Vap[i].m_pRho[0] = new QAL_SteamDensity(NULL, NULL);
+    m_Vap[i].m_pCp[0]  = new QAL_SteamHeatCapacity(NULL, NULL);
+    m_Vap[i].m_pH[0]   = new QAL_SteamEnthalpy(NULL, NULL);
+
+    m_Common[i].m_pVp  = new QAL_WaterVapourPress(NULL, NULL);
     }
   }  
     
@@ -197,22 +197,22 @@ QALH2OProps::~QALH2OProps()
     delete m_Liq[i].m_pRho[0];
     delete m_Liq[i].m_pCp[0];
     delete m_Liq[i].m_pH[0];
-    delete m_Liq[i].m_pVp[0];
     delete m_Vap[i].m_pRho[0];
     delete m_Vap[i].m_pCp[0];
     delete m_Vap[i].m_pH[0];
-    delete m_Vap[i].m_pVp[0];
+
+    delete m_Common[i].m_pVp;
 
     m_Liq[i].m_pRho[0]=NULL;
     m_Liq[i].m_pCp[0]=NULL;
     m_Liq[i].m_pH[0]=NULL;
     m_Liq[i].m_pS[0]=NULL;
-    m_Liq[i].m_pVp[0]=NULL;
     m_Vap[i].m_pRho[0]=NULL;
     m_Vap[i].m_pCp[0]=NULL;
     m_Vap[i].m_pH[0]=NULL;
     m_Vap[i].m_pS[0]=NULL;
-    m_Vap[i].m_pVp[0]=NULL;
+
+    m_Common[i].m_pVp=NULL;
     }
   }
 

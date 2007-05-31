@@ -27,7 +27,7 @@ static CDbgMngr dbgBuild("Specie_DB", "Build");
 class SDBE_Const : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -35,7 +35,7 @@ class SDBE_Const : protected CSpDBEqn
   protected:
     double         C;
 
-    SDBE_Const(CSpecieData * Sp) : CSpDBEqn(Sp) { C=0.0;};
+    SDBE_Const(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { C=0.0;};
     virtual ~SDBE_Const() {};
     static const char * Name() { return "Const"; };
     virtual const char * VName() { return Name(); };
@@ -66,7 +66,7 @@ class SDBE_Const : protected CSpDBEqn
 class SDBE_Poly : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -74,7 +74,7 @@ class SDBE_Poly : protected CSpDBEqn
   protected:
     double         a,b,c,d,e,f;
 
-    SDBE_Poly(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=e=f=0.0;};
+    SDBE_Poly(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=0.0;};
     virtual ~SDBE_Poly() {};
     static const char * Name() { return "Poly"; };
     virtual const char * VName() { return Name(); };
@@ -110,7 +110,7 @@ class SDBE_Poly : protected CSpDBEqn
 class SDBE_LinearGasDensity : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -118,7 +118,7 @@ class SDBE_LinearGasDensity : protected CSpDBEqn
   protected:
     double         Rho;
 
-    SDBE_LinearGasDensity(CSpecieData * Sp) : CSpDBEqn(Sp) { Rho=1.0;};
+    SDBE_LinearGasDensity(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { Rho=1.0;};
     virtual ~SDBE_LinearGasDensity() {};
     static const char * Name() { return "LinearGasDensity"; };
     virtual const char * VName() { return Name(); };
@@ -145,7 +145,7 @@ class SDBE_LinearGasDensity : protected CSpDBEqn
 class SDBE_IdealGasDensity : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -153,7 +153,7 @@ class SDBE_IdealGasDensity : protected CSpDBEqn
   protected:
     double         m_dMoleWt;
 
-    SDBE_IdealGasDensity(CSpecieData * Sp) : CSpDBEqn(Sp) { m_dMoleWt=1; };
+    SDBE_IdealGasDensity(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { m_dMoleWt=1; };
     virtual ~SDBE_IdealGasDensity() {};
     static const char * Name() { return "IdealGasDensity"; };
     virtual const char * VName() { return Name(); };
@@ -180,14 +180,14 @@ class SDBE_IdealGasDensity : protected CSpDBEqn
 class SDBE_LiqH2ORho : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
 
   protected:
 
-    SDBE_LiqH2ORho(CSpecieData * Sp) : CSpDBEqn(Sp) { };
+    SDBE_LiqH2ORho(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { };
     virtual ~SDBE_LiqH2ORho() {};
     static const char * Name() { return "LiqH2ORho"; };
     virtual const char * VName() { return Name(); };
@@ -226,7 +226,7 @@ class SDBE_LiqH2ORho : protected CSpDBEqn
 class SDBE_Ts : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -234,7 +234,7 @@ class SDBE_Ts : protected CSpDBEqn
   protected:
     double         a,b,c,d;
 
-    SDBE_Ts(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=0.0;};
+    SDBE_Ts(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_Ts() {};
     static const char * Name() { return "Ts"; };
     virtual const char * VName() { return Name(); };
@@ -268,7 +268,7 @@ class SDBE_Ts : protected CSpDBEqn
 class SDBE_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -276,7 +276,7 @@ class SDBE_Cp : protected CSpDBEqn
   protected:
     double         a;
 
-    SDBE_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=0.0;};
+    SDBE_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=0.0;};
     virtual ~SDBE_Cp() {};
     static const char * Name() { return "Cp"; };
     virtual const char * VName() { return Name(); };
@@ -321,7 +321,7 @@ double SDBE_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_CRC_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -329,7 +329,7 @@ class SDBE_CRC_Cp : protected CSpDBEqn
   protected:
     double         a,b,c,d,lo,hi;
     flag           rng;
-    SDBE_CRC_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    SDBE_CRC_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
     virtual ~SDBE_CRC_Cp() {};
     static const char * Name() { return "CRC_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -338,12 +338,12 @@ class SDBE_CRC_Cp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -384,24 +384,24 @@ double SDBE_CRC_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -438,7 +438,7 @@ double SDBE_CRC_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_CRC1_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -446,7 +446,7 @@ class SDBE_CRC1_Cp : protected CSpDBEqn
   protected:
     double         a,b,c,d,lo,hi;
     flag           rng;
-    SDBE_CRC1_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    SDBE_CRC1_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
     virtual ~SDBE_CRC1_Cp() {};
     static const char * Name() { return "CRC1_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -455,12 +455,12 @@ class SDBE_CRC1_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -501,24 +501,24 @@ double SDBE_CRC1_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -555,7 +555,7 @@ double SDBE_CRC1_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HSC_Cp : protected SDBE_CRC_Cp
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -563,7 +563,7 @@ class SDBE_HSC_Cp : protected SDBE_CRC_Cp
   protected:
 //    double         a,b,c,d,lo,hi;
 //    flag           rng;
-    SDBE_HSC_Cp(CSpecieData * Sp) : SDBE_CRC_Cp(Sp) { };
+    SDBE_HSC_Cp(CSpConstData *pConst, CSpFidelData *Sp) : SDBE_CRC_Cp(pConst, Sp) { };
 //    virtual ~SDBE_CRC_Cp() {};
     static const char * Name() { return "HSC_Cp"; };
 //    virtual const char * VName() { return Name(); };
@@ -572,7 +572,7 @@ class SDBE_HSC_Cp : protected SDBE_CRC_Cp
 //    
 //    virtual double AtT(double T) 
 //      { 
-//      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+//      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
 //      return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
 //      };
 //    virtual double Integrate_dT(double T1, double T2, double P);
@@ -589,7 +589,7 @@ class SDBE_HSC_Cp : protected SDBE_CRC_Cp
 class SDBE_Poly_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -597,7 +597,7 @@ class SDBE_Poly_Cp : protected CSpDBEqn
   protected:
     double         a,b,c,d,lo,hi;
     flag           rng;
-    SDBE_Poly_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    SDBE_Poly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
     virtual ~SDBE_Poly_Cp() {};
     static const char * Name() { return "Poly_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -606,12 +606,12 @@ class SDBE_Poly_Cp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + T * (b + T * (c + T * d));
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return a + T * (b + T * (c + T * d));
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -649,24 +649,24 @@ double SDBE_Poly_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -695,10 +695,215 @@ double SDBE_Poly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 //
 // ===========================================================================
 
+//Poly_Cp used in Appendix A: The Properties of GASES & LIQUIDS Fourth Edition; Robert C. Reid, John M. Prausnitz, Bruce E. Poling; McGraw-Hill;ISBN 0-07-051799-1
+class SDBE_GenPoly_Cp : protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+  // friend class CSpRangeData; 
+  // friend class CComponent; 
+  // friend class CSpecieDataBase;
+  // friend class CComponentDataBase;
+
+  protected:
+    double         c1,p1,c2,p2,c3,p3,c4,p4,lo,hi;
+    flag           rng;
+    SDBE_GenPoly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {c1=p1=c2=p2=c3=p3=c4=p4=lo=hi=0.0;rng=0;};
+    virtual ~SDBE_GenPoly_Cp() {};
+    static const char * Name() { return "GenPoly_Cp"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+    virtual void Copy(CSpDBEqn* p) 
+      { 
+      SDBE_GenPoly_Cp*pc=(SDBE_GenPoly_Cp*)p; 
+      c1=pc->c1; p1=pc->p1; 
+      c2=pc->c2; p2=pc->p2; 
+      c3=pc->c3; p3=pc->p3; 
+      c4=pc->c4; p4=pc->p4; 
+      lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+
+    virtual double AtT(double T) 
+      { 
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      double ret=c1*pow(T, p1);
+      if (c2!=0.0) ret+=c2*pow(T, p2);
+      if (c3!=0.0) ret+=c3*pow(T, p3);
+      if (c4!=0.0) ret+=c4*pow(T, p4);
+      return ret;
+      };
+    virtual double AtTP(double T, double P) 
+      { 
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      double ret=c1*pow(T, p1);
+      if (c2!=0.0) ret+=c2*pow(T, p2);
+      if (c3!=0.0) ret+=c3*pow(T, p3);
+      if (c4!=0.0) ret+=c4*pow(T, p4);
+      return ret;
+      };
+    virtual double Integrate_dT(double T1, double T2, double P);
+    virtual double IntegrateOverT_dT(double T1, double T2, double P);
+  };
+
+//---------------------------------------------------------------------------
+
+int SDBE_GenPoly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
+  {
+  if (strlen(Cols[3])==0) return 2;
+  c1=SpDB_TokenValue(Cols[0], 0.0);
+  p1=SpDB_TokenValue(Cols[1], 1.0);
+  c2=SpDB_TokenValue(Cols[2], 0.0);
+  p2=SpDB_TokenValue(Cols[3], 1.0);
+  c3=SpDB_TokenValue(Cols[4], 0.0);
+  p3=SpDB_TokenValue(Cols[5], 1.0);
+  c4=SpDB_TokenValue(Cols[6], 0.0);
+  p4=SpDB_TokenValue(Cols[7], 1.0);
+  if (strlen(Cols[8])>0 && strlen(Cols[9])>0)
+    {
+    lo=SpDB_TokenValue(Cols[8], C_2_K(25.));
+    hi=SpDB_TokenValue(Cols[9], C_2_K(1000.));
+    rng=1;
+    }
+  return 0;
+  };
+      
+//---------------------------------------------------------------------------
+
+double SDBE_GenPoly_Cp::Integrate_dT(double T1, double T2, double P)
+  {
+  int Sgn=T2<T1 ? -1 : 1; 
+  if (Sgn < 0)
+    Exchange(T2, T1);
+
+  double HCp=0.0;
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
+  
+  if (T2<LoT)
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+  else if (T1>=HiT)
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+  else
+    {
+    // Part Of Curve gets used
+    if (T2>HiT)
+      {
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      T2=HiT;
+      }
+    if (T1<LoT)
+      {
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      T1=LoT;
+      }
+  
+    
+    if (c1!=0.0)
+      {
+      if (p1!=-1.0)
+        HCp = HCp + c1*((pow(T2, p1+1)-pow(T1, p1+1))/(p1+1));
+      else
+        HCp = HCp + c1*(log(T2)-log(T1));
+      }
+    if (c2!=0.0)
+      {
+      if (p2!=-1.0)
+        HCp = HCp + c2*((pow(T2, p2+1)-pow(T1, p2+1))/(p2+1));
+      else
+        HCp = HCp + c2*(log(T2)-log(T1));
+      }
+    if (c3!=0.0)
+      {
+      if (p3!=-1.0)
+        HCp = HCp + c3*((pow(T2, p3+1)-pow(T1, p3+1))/(p3+1));
+      else
+        HCp = HCp + c3*(log(T2)-log(T1));
+      }
+    if (c4!=0.0)
+      {
+      if (p4!=-1.0)
+        HCp = HCp + c4*((pow(T2, p4+1)-pow(T1, p4+1))/(p4+1));
+      else
+        HCp = HCp + c4*(log(T2)-log(T1));
+      }
+    }
+  
+  return HCp;
+  } 
+  
+// --------------------------------------------------------------------------
+
+double SDBE_GenPoly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
+  {
+  int Sgn=T2<T1 ? -1 : 1; 
+  if (Sgn < 0)
+    Exchange(T2, T1);
+
+  double Result=0.0;
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
+  
+  if (T2<LoT)
+    Result = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+  else if (T1>=HiT)
+    Result = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+  else
+    {
+    // Part Of Curve gets used
+    if (T2>HiT)
+      {
+      Result = Result + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      T2=HiT;
+      }
+    if (T1<LoT)
+      {
+      Result = Result + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      T1=LoT;
+      }
+  
+    
+    if (c1!=0.0)
+      {
+      if (p1!=0.0)
+        Result = Result + c1*((pow(T2, p1)-pow(T1, p1))/(p1));
+      else
+        Result = Result + c1*(log(T2)-log(T1));
+      }
+    if (c2!=0.0)
+      {
+      if (p2!=0.0)
+        Result = Result + c2*((pow(T2, p2)-pow(T1, p2))/(p2));
+      else
+        Result = Result + c2*(log(T2)-log(T1));
+      }
+    if (c3!=0.0)
+      {
+      if (p3!=0.0)
+        Result = Result + c3*((pow(T2, p3)-pow(T1, p3))/(p3));
+      else
+        Result = Result + c3*(log(T2)-log(T1));
+      }
+    if (c4!=0.0)
+      {
+      if (p4!=0.0)
+        Result = Result + c4*((pow(T2, p4)-pow(T1, p4))/(p4));
+      else
+        Result = Result + c4*(log(T2)-log(T1));
+      }
+
+    }
+  
+  return Result;
+  }      
+
+// ==========================================================================
+//
+//
+//
+// ===========================================================================
+
 class SDBE_API_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -707,7 +912,7 @@ class SDBE_API_Cp : protected CSpDBEqn
     double          a,b,c,d,e,f,lo,hi;
     flag            rng;
 
-    SDBE_API_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=e=f=lo=hi=0.0;rng=0;};
+    SDBE_API_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=lo=hi=0.0;rng=0;};
     virtual ~SDBE_API_Cp() {};
     static const char * Name() { return "API_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -716,12 +921,12 @@ class SDBE_API_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -732,12 +937,12 @@ class SDBE_API_Cp : protected CSpDBEqn
 int SDBE_API_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[5])==0) return 2;
-  a=SpDB_TokenValue(Cols[0], 1.0) * m_pData->MoleWt();
-  b=SpDB_TokenValue(Cols[1], 0.0) * m_pData->MoleWt();
-  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-3 * m_pData->MoleWt();
-  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6 * m_pData->MoleWt();
-  e=SpDB_TokenValue(Cols[4], 0.0) * 1.0e-9 * m_pData->MoleWt();
-  f=SpDB_TokenValue(Cols[5], 0.0) * 1.0e-13 * m_pData->MoleWt();
+  a=SpDB_TokenValue(Cols[0], 1.0) * m_pFData->MoleWt();
+  b=SpDB_TokenValue(Cols[1], 0.0) * m_pFData->MoleWt();
+  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-3 * m_pFData->MoleWt();
+  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6 * m_pFData->MoleWt();
+  e=SpDB_TokenValue(Cols[4], 0.0) * 1.0e-9 * m_pFData->MoleWt();
+  f=SpDB_TokenValue(Cols[5], 0.0) * 1.0e-13 * m_pFData->MoleWt();
   if (strlen(Cols[6])>0 && strlen(Cols[7])>0)
     {
     lo=SpDB_TokenValue(Cols[6], C_2_K(25.));
@@ -756,24 +961,24 @@ double SDBE_API_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
 
@@ -803,7 +1008,7 @@ double SDBE_API_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HTE_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -812,7 +1017,7 @@ class SDBE_HTE_Cp : protected CSpDBEqn
     double          a,b,c,d,lo,hi;
     flag            rng;
 
-    SDBE_HTE_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    SDBE_HTE_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
     virtual ~SDBE_HTE_Cp() {};
     static const char * Name() { return "HTE_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -821,12 +1026,12 @@ class SDBE_HTE_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -863,24 +1068,24 @@ double SDBE_HTE_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -908,7 +1113,7 @@ double SDBE_HTE_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_QAL_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -916,7 +1121,7 @@ class SDBE_QAL_Cp : protected CSpDBEqn
   protected:
     double         a,b,c,lo,hi;
     flag           rng;
-    SDBE_QAL_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=lo=hi=0.0;rng=0;};
+    SDBE_QAL_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=lo=hi=0.0;rng=0;};
     virtual ~SDBE_QAL_Cp() {};
     static const char * Name() { return "QAL_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -931,13 +1136,13 @@ class SDBE_QAL_Cp : protected CSpDBEqn
 
 double SDBE_QAL_Cp::AtT(double T) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+  T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
 double SDBE_QAL_Cp::AtTP(double T, double P) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+  T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
@@ -946,9 +1151,9 @@ double SDBE_QAL_Cp::AtTP(double T, double P)
 int SDBE_QAL_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[2])==0) return 2;
-  a=SpDB_TokenValue(Cols[0], 1.0) * m_pData->MoleWt();
-  b=SpDB_TokenValue(Cols[1], 0.0) * m_pData->MoleWt();
-  c=SpDB_TokenValue(Cols[2], 0.0) * m_pData->MoleWt();
+  a=SpDB_TokenValue(Cols[0], 1.0) * m_pFData->MoleWt();
+  b=SpDB_TokenValue(Cols[1], 0.0) * m_pFData->MoleWt();
+  c=SpDB_TokenValue(Cols[2], 0.0) * m_pFData->MoleWt();
   if (strlen(Cols[3])>0 && strlen(Cols[4])>0)
     {
     lo=SpDB_TokenValue(Cols[3], C_2_K(25.));
@@ -968,24 +1173,24 @@ double SDBE_QAL_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pData->LoT();
-  double HiT = rng ? hi : m_pData->HiT();
+  double LoT = rng ? lo : m_pFData->LoT();
+  double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -1029,7 +1234,7 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
     double         a,b,c,d,e,lo,hi;
     flag           rng;
 
-    SDBE_Shomate_Cp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=e=lo=hi=0.0;rng=0;};
+    SDBE_Shomate_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=lo=hi=0.0;rng=0;};
     virtual ~SDBE_Shomate_Cp() {};
     static const char * Name() { return "Shomate_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -1043,13 +1248,13 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       }
     virtual double AtTP(double T, double P)
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       };
@@ -1088,26 +1293,26 @@ double SDBE_Shomate_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = (rng ? lo : m_pData->LoT())/1000.0;
-  double HiT = (rng ? hi : m_pData->HiT())/1000.0;
+  double LoT = (rng ? lo : m_pFData->LoT())/1000.0;
+  double HiT = (rng ? hi : m_pFData->HiT())/1000.0;
   T1/=1000.;
   T2/=1000.;
 
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
       T1=LoT;
       }
   
@@ -1158,7 +1363,7 @@ class SDBE_Vp: protected CSpDBEqn
   protected:
     double         a,b,c,d;
 
-    SDBE_Vp(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=0.0;};
+    SDBE_Vp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_Vp() {};
     static const char * Name() { return "Vp"; };
     virtual const char * VName() { return Name(); };
@@ -1207,7 +1412,7 @@ class SDBE_VpKPa: protected CSpDBEqn
   protected:
     double         a,b,c,d;
 
-    SDBE_VpKPa(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=0.0;};
+    SDBE_VpKPa(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_VpKPa() {};
     static const char * Name() { return "VpKPa"; };
     virtual const char * VName() { return Name(); };
@@ -1257,7 +1462,7 @@ class SDBE_VpAtm: protected CSpDBEqn
   protected:
     double         a,b,c,d;
 
-    SDBE_VpAtm(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=d=0.0;};
+    SDBE_VpAtm(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_VpAtm() {};
     static const char * Name() { return "VpAtm"; };
     virtual const char * VName() { return Name(); };
@@ -1313,7 +1518,7 @@ class SDBE_VpAnt: protected CSpDBEqn
     int iCalcType;
     double avpCalc(double T){return exp(a-b/(T+c))*0.1333224;};
     double milCalc(double T);  
-    SDBE_VpAnt(CSpecieData * Sp) : CSpDBEqn(Sp) {a=b=c=0.0;};
+    SDBE_VpAnt(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=0.0;};
     virtual ~SDBE_VpAnt() {};
     static const char * Name() { return "VpAnt"; };
     virtual const char * VName() { return Name(); };
@@ -1430,7 +1635,7 @@ double SDBE_VpAnt::AtT(double T)
 class SDBE_HFC134a_GasCp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
@@ -1438,7 +1643,7 @@ class SDBE_HFC134a_GasCp : protected CSpDBEqn
   protected:
     double         a,b,c;//,lo,hi;
     //flag           rng;
-    SDBE_HFC134a_GasCp(CSpecieData * Sp) : CSpDBEqn(Sp) 
+    SDBE_HFC134a_GasCp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) 
       {
       a=1.94006e1;
       b=2.58531e-1;
@@ -1459,12 +1664,12 @@ class SDBE_HFC134a_GasCp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      //T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double AtTP(double T, double P) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_pData->LoT(), T, m_pData->HiT());
+      //T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1505,24 +1710,24 @@ double SDBE_HFC134a_GasCp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  //double LoT = rng ? lo : m_pData->LoT();
-  //double HiT = rng ? hi : m_pData->HiT();
+  //double LoT = rng ? lo : m_pFData->LoT();
+  //double HiT = rng ? hi : m_pFData->HiT();
   //
   //if (T2<LoT)
-  //  HCp = Sgn*(T2-T1)*m_pData->mlCp(LoT, P);
+  //  HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
   //else if (T1>=HiT)
-  //  HCp = Sgn*(T2-T1)*m_pData->mlCp(HiT, P);
+  //  HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
   //else
     {
     // Part Of Curve gets used
     //if (T2>HiT)
     //  {
-    //  HCp = HCp + Sgn*(T2-HiT)*m_pData->mlCp(HiT, P);
+    //  HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
     //  T2=HiT;
     //  }
     //if (T1<LoT)
     //  {
-    //  HCp = HCp + Sgn*(LoT-T1)*m_pData->mlCp(LoT, P);
+    //  HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
     //  T1=LoT;
     //  }
   
@@ -1553,14 +1758,14 @@ double SDBE_HFC134a_GasCp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HFC134a_Vp: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
 
   protected:
 
-    SDBE_HFC134a_Vp(CSpecieData * Sp) : CSpDBEqn(Sp) {};
+    SDBE_HFC134a_Vp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {};
     virtual ~SDBE_HFC134a_Vp() {};
     static const char * Name() { return "HFC134a_Vp"; };
     virtual const char * VName() { return Name(); };
@@ -1588,14 +1793,14 @@ class SDBE_HFC134a_Vp: protected CSpDBEqn
 class SDBE_HFC134a_LiqRho : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpecieData; 
+  // friend class CSpRangeData; 
   // friend class CComponent; 
   // friend class CSpecieDataBase;
   // friend class CComponentDataBase;
 
   protected:
 
-    SDBE_HFC134a_LiqRho(CSpecieData * Sp) : CSpDBEqn(Sp) { };
+    SDBE_HFC134a_LiqRho(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { };
     virtual ~SDBE_HFC134a_LiqRho() {};
     static const char * Name() { return "HFC134a_LiqRho"; };
     virtual const char * VName() { return Name(); };
@@ -1836,13 +2041,13 @@ SimpleH2OProps::~SimpleH2OProps()
 // ==========================================================================
 
 #if WithIAFH2OMdl
-extern bool TryConstructIAF(CSpecieData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
+extern bool TryConstructIAF(CSpRangeData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
 #endif
 #if WithIF97H2OMdl
-extern bool TryConstructIF97(CSpecieData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
+extern bool TryConstructIF97(CSpConstData * pConst, CSpFidelData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
 #endif
 #if WithNBSH2OMdl
-extern bool TryConstructNBS(CSpecieData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
+extern bool TryConstructNBS(CSpRangeData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBEqn* & p);
 #endif
 
 // ==========================================================================
@@ -1851,13 +2056,13 @@ extern bool TryConstructNBS(CSpecieData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDBE
 //
 // ==========================================================================
 
-CSpDBEqn* CSpDBEqn::ConstructCopy(CSpecieData * pSpPh)
+CSpDBEqn* CSpDBEqn::ConstructCopy(CSpConstData * pConst, CSpFidelData * pSpPh)
   {
   CSpDBEqn *pEqn=pSpPh->m_pRho[pSpPh->m_iLastTPoint];
-  return CSpDBEqn::Construct(pSpPh, NULL, pEqn);
+  return CSpDBEqn::Construct(pConst, pSpPh, NULL, pEqn);
   }
 
-CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/)
+CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const char *pInitString, CSpDBEqn* pCopyFrom/*=NULL*/)
   {
   CSpDBEqn* p=NULL;
   char Str[1024], *Cols[MaxSPDBCols];
@@ -1884,92 +2089,97 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
     if (_stricmp(Str, SDBE_Const::Name())==0) 
       {
       pn=SDBE_Const::Name();
-      p=new SDBE_Const(pSpD);
+      p=new SDBE_Const(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_Poly::Name())==0) 
       {
       pn=SDBE_Poly::Name();
-      p=new SDBE_Poly(pSpD);
+      p=new SDBE_Poly(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_LinearGasDensity::Name())==0) 
       {
       pn=SDBE_LinearGasDensity::Name();
-      p=new SDBE_LinearGasDensity(pSpD);
+      p=new SDBE_LinearGasDensity(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_IdealGasDensity::Name())==0) 
       {
       pn=SDBE_IdealGasDensity::Name();
-      p=new SDBE_IdealGasDensity(pSpD);
+      p=new SDBE_IdealGasDensity(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_LiqH2ORho::Name())==0) 
       {
       pn=SDBE_LiqH2ORho::Name();
-      p=new SDBE_LiqH2ORho(pSpD);
+      p=new SDBE_LiqH2ORho(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_Ts::Name())==0) 
       {
       pn=SDBE_Ts::Name();
-      p=new SDBE_Ts(pSpD);
+      p=new SDBE_Ts(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_CRC_Cp::Name())==0) 
       {
       pn=SDBE_CRC_Cp::Name();
-      p=new SDBE_CRC_Cp(pSpD);
+      p=new SDBE_CRC_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_CRC1_Cp::Name())==0) 
       {
       pn=SDBE_CRC1_Cp::Name();
-      p=new SDBE_CRC1_Cp(pSpD);
+      p=new SDBE_CRC1_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_HSC_Cp::Name())==0) 
       {
       pn=SDBE_HSC_Cp::Name();
-      p=new SDBE_HSC_Cp(pSpD);
+      p=new SDBE_HSC_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_Poly_Cp::Name())==0) 
       {
       pn=SDBE_Poly_Cp::Name();
-      p=new SDBE_Poly_Cp(pSpD);
+      p=new SDBE_Poly_Cp(pConst, pSpD);
+      }
+    else if (_stricmp(Str, SDBE_GenPoly_Cp::Name())==0) 
+      {
+      pn=SDBE_GenPoly_Cp::Name();
+      p=new SDBE_GenPoly_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_API_Cp::Name())==0) 
       {
       pn=SDBE_API_Cp::Name();
-      p=new SDBE_API_Cp(pSpD);
+      p=new SDBE_API_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_HTE_Cp::Name())==0) 
       {
       pn=SDBE_HTE_Cp::Name();
-      p=new SDBE_HTE_Cp(pSpD);
+      p=new SDBE_HTE_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_Shomate_Cp::Name())==0)
       {
       pn=SDBE_Shomate_Cp::Name();
-      p=new SDBE_Shomate_Cp(pSpD);
+      p=new SDBE_Shomate_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_QAL_Cp::Name())==0)
       {
       pn=SDBE_QAL_Cp::Name();
-      p=new SDBE_QAL_Cp(pSpD);
+      p=new SDBE_QAL_Cp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_Vp::Name())==0)
       {
       pn=SDBE_Vp::Name();
-      p=new SDBE_Vp(pSpD);
+      p=new SDBE_Vp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_VpKPa::Name())==0)
       {
       pn=SDBE_VpKPa::Name();
-      p=new SDBE_VpKPa(pSpD);
+      p=new SDBE_VpKPa(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_VpAtm::Name())==0)
       {
       pn=SDBE_VpAtm::Name();
-      p=new SDBE_VpAtm(pSpD);
+      p=new SDBE_VpAtm(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_VpAnt::Name())==0)
       {
       pn=SDBE_VpAnt::Name();
-      p=new SDBE_VpAnt(pSpD);
+      p=new SDBE_VpAnt(pConst, pSpD);
       }
 
 #if WithIAFH2OMdl
@@ -1979,7 +2189,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
 #endif
 
 #if WithIF97H2OMdl
-    else if (TryConstructIF97(pSpD, Str, pn, p))
+    else if (TryConstructIF97(pConst, pSpD, Str, pn, p))
       {
       }
 #endif
@@ -1994,37 +2204,37 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
     else if (_stricmp(Str, SatOnly_WaterDensity::Name())==0) 
       {
       pn=SatOnly_WaterDensity::Name();
-      p=new SatOnly_WaterDensity(pSpD);
+      p=new SatOnly_WaterDensity(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_SteamDensity::Name())==0) 
       {
       pn=SatOnly_SteamDensity::Name();
-      p=new SatOnly_SteamDensity(pSpD);
+      p=new SatOnly_SteamDensity(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_WaterHeatCapacity::Name())==0) 
       {
       pn=SatOnly_WaterHeatCapacity::Name();
-      p=new SatOnly_WaterHeatCapacity(pSpD);
+      p=new SatOnly_WaterHeatCapacity(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_SteamHeatCapacity::Name())==0) 
       {
       pn=SatOnly_SteamHeatCapacity::Name();
-      p=new SatOnly_SteamHeatCapacity(pSpD);
+      p=new SatOnly_SteamHeatCapacity(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_WaterEnthalpy::Name())==0) 
       {
       pn=SatOnly_WaterEnthalpy::Name();
-      p=new SatOnly_WaterEnthalpy(pSpD);
+      p=new SatOnly_WaterEnthalpy(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_SteamEnthalpy::Name())==0) 
       {
       pn=SatOnly_SteamEnthalpy::Name();
-      p=new SatOnly_SteamEnthalpy(pSpD);
+      p=new SatOnly_SteamEnthalpy(pConst, pSpD);
       }
     else if (_stricmp(Str, SatOnly_WaterVapourPress::Name())==0) 
       {
       pn=SatOnly_WaterVapourPress::Name();
-      p=new SatOnly_WaterVapourPress(pSpD);
+      p=new SatOnly_WaterVapourPress(pConst, pSpD);
       }
 #endif
 
@@ -2033,17 +2243,17 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
     else if (_stricmp(Str, SDBE_HFC134a_GasCp::Name())==0) 
       {
       pn=SDBE_HFC134a_GasCp::Name();
-      p=new SDBE_HFC134a_GasCp(pSpD);
+      p=new SDBE_HFC134a_GasCp(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_HFC134a_LiqRho::Name())==0) 
       {
       pn=SDBE_HFC134a_LiqRho::Name();
-      p=new SDBE_HFC134a_LiqRho(pSpD);
+      p=new SDBE_HFC134a_LiqRho(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_HFC134a_Vp::Name())==0) 
       {
       pn=SDBE_HFC134a_Vp::Name();
-      p=new SDBE_HFC134a_Vp(pSpD);
+      p=new SDBE_HFC134a_Vp(pConst, pSpD);
       }
 
 #endif
@@ -2062,7 +2272,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
       LogError("SpecieDB", LF_Exclamation, "Bad CSpDBEqn %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
     pn=SDBE_Const::Name();
     SpDB_ParseTokens(Str, Cols);
-    p=new SDBE_Const(pSpD);
+    p=new SDBE_Const(pConst, pSpD);
     p->Load(Str, Cols);
     }
   
@@ -2072,7 +2282,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
     pn=SDBE_Const::Name();
     strcpy(Str, "Const(1.0,0,0,0)");
     SpDB_ParseTokens(Str, Cols);
-    p=new SDBE_Const(pSpD);
+    p=new SDBE_Const(pConst, pSpD);
     p->Load(Str, Cols);
     }
 
@@ -2088,17 +2298,20 @@ CSpDBEqn* CSpDBEqn::Construct(CSpecieData * pSpD, const char *pInitString, CSpDB
 H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach, TagObjAttachment eAttach)
   : TaggedObject(pClass_, pTag, pAttach, eAttach)
   {
-  m_Common.m_dMoleWt  = 18.01528;
-  m_Common.m_bPcOK    = true;
-  m_Common.m_dPc      = 22.06*1000.0;   // Critical Pressure mPa to kPa
-  m_Common.m_bTcOK    = true;
-  m_Common.m_dTc      = 647.14;         // Critical Temp
-  m_Common.m_bVcOK    = true;
-  m_Common.m_dVc      = 0.0568;         // Critical Volume
-  m_Common.m_bAcOK    = true;
-  m_Common.m_dAc      = 0.3442;         // Acentricity
-  m_Common.m_dMv      = 22.414;         // Molar Volume - 22.414 is Ideal
-  m_Common.m_dMd      = dNAN;           // MolecularDiam
+  //_asm int 3;
+  m_Const.m_dMoleWt  = 18.01528;
+  m_Const.m_bPcOK    = true;
+  m_Const.m_dPc      = 22.06*1000.0;   // Critical Pressure mPa to kPa
+  m_Const.m_bTcOK    = true;
+  m_Const.m_dTc      = 647.14;         // Critical Temp
+  m_Const.m_bVcOK    = true;
+  m_Const.m_dVc      = 0.0568;         // Critical Volume
+  m_Const.m_bAcOK    = true;
+  m_Const.m_dAc      = 0.3442;         // Acentricity
+  m_Const.m_bMvOK    = true;  
+  m_Const.m_dMv      = 22.414;         // Molar Volume - 22.414 is Ideal
+  m_Const.m_bMdOK    = false;           
+  m_Const.m_dMd      = dNAN;           // MolecularDiam
  
   m_Liq[0].m_pSp         = NULL;
   m_Liq[0].m_dTs[0]      = 273.16;
@@ -2117,8 +2330,8 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Liq[0].m_pCp[0]      = NULL;
   m_Liq[0].m_pH[0]       = NULL;
   m_Liq[0].m_pS[0]       = NULL;
-  m_Liq[0].m_bVpOK       = true;
-  m_Liq[0].m_pVp[0]      = NULL;
+  //m_Liq[0].m_bVpOK       = true;
+  //m_Liq[0].m_pVp[0]      = NULL;
   m_Liq[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
                         
   m_Vap[0].m_pSp         = NULL;
@@ -2138,8 +2351,8 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Vap[0].m_pCp[0]      = NULL;
   m_Vap[0].m_pH[0]       = NULL;
   m_Vap[0].m_pS[0]       = NULL;
-  m_Vap[0].m_bVpOK       = true;
-  m_Vap[0].m_pVp[0]      = NULL;
+  //m_Vap[0].m_bVpOK       = true;
+  //m_Vap[0].m_pVp[0]      = NULL;
   m_Vap[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
        
   };
