@@ -340,7 +340,7 @@ class DllImportExport SpConduit : public SpModelOwner
     double         SaturationT(double P, CSaturationDefn * pSatDefn=NULL)         { return pModel->SaturationT(P, NULL, pSatDefn); };
     double         PureSaturationP(double T, CSaturationDefn * pSatDefn=NULL)     { return pModel->PureSaturationP(T, NULL, pSatDefn); };
     double         PureSaturationT(double P, CSaturationDefn * pSatDefn=NULL)     { return pModel->PureSaturationT(P, NULL, pSatDefn); };
-    double         BoilingPtElevation(double P_)                  { return pModel->BoilingPtElevation(P_); };
+    double         BoilingPtElevation(double P_, CSaturationDefn * pSatDefn=NULL) { return pModel->BoilingPtElevation(P_, NULL, pSatDefn); };
 
     double         MassFrac(PhMask PhaseM=som_ALL) {return pModel->MassFrac(PhaseM);};
     double         MoleFrac(PhMask PhaseM=som_ALL) {return pModel->MoleFrac(PhaseM);};
@@ -948,7 +948,7 @@ class DllImportExport SpContainer : public SpModelOwner
     double         SaturationT(double P, CSaturationDefn * pSatDefn=NULL)        { return pModel->SaturationT(P, NULL, pSatDefn); };
     double         PureSaturationP(double T, CSaturationDefn * pSatDefn=NULL)    { return pModel->PureSaturationP(T, NULL, pSatDefn); };
     double         PureSaturationT(double P, CSaturationDefn * pSatDefn=NULL)    { return pModel->PureSaturationT(P, NULL, pSatDefn); };
-    double         BoilingPtElevation(double P_)                 { return pModel->BoilingPtElevation(P_); };
+    double         BoilingPtElevation(double P_, CSaturationDefn * pSatDefn=NULL){ return pModel->BoilingPtElevation(P_, NULL, pSatDefn); };
 
     void           Set_msHs(double H, double P=dNAN, SpModel * pRefMdl=NULL)   { pModel->Set_msHs(H, P, pRefMdl); };
     void           Set_msHz(double H, double P=dNAN, SpModel * pRefMdl=NULL)   { pModel->Set_msHz(H, P, pRefMdl); };
@@ -1352,7 +1352,7 @@ class DllImportExport SpImage : public SpModelOwner
     double         SaturationT(double P, CSaturationDefn * pSatDefn=NULL)        { return pModel->SaturationT(P, NULL, pSatDefn); };
     double         PureSaturationP(double T, CSaturationDefn * pSatDefn=NULL)    { return pModel->PureSaturationP(T, NULL, pSatDefn); };
     double         PureSaturationT(double P, CSaturationDefn * pSatDefn=NULL)    { return pModel->PureSaturationT(P, NULL, pSatDefn); };
-    double         BoilingPtElevation(double P_)                 { return pModel->BoilingPtElevation(P_); };
+    double         BoilingPtElevation(double P_, CSaturationDefn * pSatDefn=NULL){ return pModel->BoilingPtElevation(P_, NULL, pSatDefn); };
 
     double         msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)    { return pModel->msCp(Phase, T_, P_, pMA); };
     double         msCp(PhMask Phase, double T_)                                    { return pModel->msCp(Phase, T_, Press()); };

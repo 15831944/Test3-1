@@ -1947,7 +1947,7 @@ double ASMBayer::Na2SO4toC()
 
 //---------------------------------------------------------------------------
 
-double ASMBayer::BoilingPtElevation(double P_, CSysVector * pMA)
+double ASMBayer::BoilingPtElevation(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   double T_=Temp();
   double BPE=BoilPtElev(T_, pMA);
@@ -2061,17 +2061,13 @@ double ASMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSat
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  //if (iSatComp>=0)
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationP(T_, &MA);
+    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   #if TestBayerForWater
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
-    return SpModelEx::SaturationP(T_, pMA);
+    return SpModelEx::SaturationP(T_, pMA, pSatDefn);
   #endif
 
   //converge...
@@ -2086,7 +2082,7 @@ double ASMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSat
       break;
     BPE = NewBPE;
     }
-  double SatP = SpModelEx::SaturationP(T_-BPE, &MA);
+  double SatP = SpModelEx::SaturationP(T_-BPE, &MA, pSatDefn);
 
   #if dbgModels
   if (dbgSpecies() && DoDbgBrk())
@@ -2109,20 +2105,16 @@ double ASMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSat
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  //if (iSatComp>=0)
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationT(P_, &MA);
+    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
   #if TestBayerForWater
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
-    return SpModelEx::SaturationT(P_, pMA);
+    return SpModelEx::SaturationT(P_, pMA, pSatDefn);
   #endif
 
-  double SatT = SpModelEx::SaturationT(P_, &MA);
+  double SatT = SpModelEx::SaturationT(P_, &MA, pSatDefn);
   double BPE = BoilPtElev(SatT, pMA);
   return SatT+BPE;
   }

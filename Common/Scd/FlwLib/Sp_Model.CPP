@@ -4415,7 +4415,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
                               ) : dNAN;   return 1;
     case xidSMSatPress    : DCB.D = SaturationP(Temp(), NULL);      return 1;
     case xidSMSatPPress   : DCB.D = PartialPressC(SaturationCmpIndex(), -1, Temp());     return 1;
-    case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press());    return 1;
+    case xidSMBoilPtEle   : DCB.D = BoilingPtElevation(Press(), NULL);    return 1;
 
     case xidSMtotHsFn     : DCB.D=totHs(som_ALL, PARM(0), PARM(1), NULL); return true;
     case xidSMtotHzFn     : DCB.D=totHz(som_ALL, PARM(0), PARM(1), NULL); return true;
@@ -7883,18 +7883,18 @@ double SpModel::msdSResidual(PhMask Phase, double T, double P, eScdGasMixingRule
 
 // --------------------------------------------------------------------------
 
-double SpModel::BoilingPtElevation(double P_, CSysVector * pMA)
+double SpModel::BoilingPtElevation(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   if (m_Ovr.bUse & SPO_BPEle)
     return m_Ovr.fBPEle;
 
   if (0)
     {
-    double A=SaturationT(P_, pMA);
-    double B=PureSaturationT(P_, pMA);
+    double A=SaturationT(P_, pMA, pSatDefn);
+    double B=PureSaturationT(P_, pMA, pSatDefn);
     dbgpln("SpModel::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
     }
-  return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
+  return SaturationT(P_, pMA, pSatDefn) - PureSaturationT(P_, pMA, pSatDefn);
   };
 
 // --------------------------------------------------------------------------

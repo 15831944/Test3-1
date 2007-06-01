@@ -1426,10 +1426,10 @@ double QSMBayer::LTotalSodiumConc(CSysVector * pMA)
 
 //---------------------------------------------------------------------------
 
-double QSMBayer::BoilingPtElevation(double P_, CSysVector * pMA)
+double QSMBayer::BoilingPtElevation(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
-  double T1 = SaturationT(P_, pMA);
-  double PureSatT = SpModelEx::SaturationT(P_, pMA);
+  double T1 = SaturationT(P_, pMA, pSatDefn);
+  double PureSatT = SpModelEx::SaturationT(P_, pMA, pSatDefn);
   return (T1-PureSatT)*sm_dBPEFactor; 
   }
 
@@ -1439,10 +1439,6 @@ double QSMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSat
   {
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
-
-  //if (iSatComp>=0)
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   if (sm_iQBMVer==QBM_Original)
     {
@@ -1461,9 +1457,9 @@ double QSMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSat
   else
     {
     if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-      return SpModelEx::SaturationP(T_, &MA);
+      return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
-    double PureSatP = SpModelEx::SaturationP(T_, pMA);
+    double PureSatP = SpModelEx::SaturationP(T_, pMA, pSatDefn);
 
     #if TestBayerForWater
     double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
@@ -1497,9 +1493,6 @@ double QSMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSat
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
-
   if (sm_iQBMVer==QBM_Original)
     {
     LiqConcs25.Converge(MA);
@@ -1520,9 +1513,9 @@ double QSMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSat
   else// if (iQBMVer==QBM_Revised1)
     {
     if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-      return SpModelEx::SaturationT(P_, &MA);
+      return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
-    double PureSatT = SpModelEx::SaturationT(P_, pMA);
+    double PureSatT = SpModelEx::SaturationT(P_, pMA, pSatDefn);
 
     #if TestBayerForWater
     double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s

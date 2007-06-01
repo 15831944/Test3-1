@@ -154,7 +154,7 @@ class DllImportExport SMBayer : public SMBayerBase
     virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
     virtual double SpecieConc(double T_, int iSpNo, PhMask PhaseM);
 	  virtual double PhaseConc(double T_, PhMask Ph, PhMask PhaseM=som_ALL);
-    virtual double BoilingPtElevation(double P_, CSysVector * pMA=NULL);
+    virtual double BoilingPtElevation(double P_, CSysVector * pMA=NULL, CSaturationDefn * pSatDefn=NULL);
     virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL) { return SMBayerBase::DynamicViscosity(Phase, T_, P_, pMA); };
     virtual double ThermalConductivity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL) { return SMBayerBase::ThermalConductivity(Phase, T_, P_, pMA); };
 

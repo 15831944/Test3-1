@@ -1286,16 +1286,16 @@ double SMBayer::Na2SO4toC()
 
 //---------------------------------------------------------------------------
 
-double SMBayer::BoilingPtElevation(double P_, CSysVector * pMA)
+double SMBayer::BoilingPtElevation(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
 
   if (0)
     {
-    double A=SaturationT(P_, pMA);
-    double B=PureSaturationT(P_, pMA);
+    double A=SaturationT(P_, pMA, pSatDefn);
+    double B=PureSaturationT(P_, pMA, pSatDefn);
     dbgpln("SMBayer::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
     }
-  return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
+  return SaturationT(P_, pMA, pSatDefn) - PureSaturationT(P_, pMA, pSatDefn);
 
   //double T_=Temp();
   //double BPE=BoilPtElev(T_, pMA);
@@ -1416,12 +1416,8 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
   CSysVector &MA = (Local ? MArray() : *pMA);
   m_SMFnRanges.SetInRange(eSpFn_SatP, true);
 
-  //if (iSatComp>=0)
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationP(T_, &MA);
+    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   #if TestBayerForWater
   // NB This will introduce a nonlinearity
@@ -1429,7 +1425,7 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
     {
     m_SMFnRanges.SetInRange(eSpFn_SatP, false);
-    return SpModelEx::SaturationP(T_, pMA);
+    return SpModelEx::SaturationP(T_, pMA, pSatDefn);
     }
   #endif
 
@@ -1446,7 +1442,7 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
     BPE = NewBPE;
     }
 
-  double SatP = SpModelEx::SaturationP(T_-BPE, &MA);
+  double SatP = SpModelEx::SaturationP(T_-BPE, &MA, pSatDefn);
   if (0)
     dbgpln("Bayer     SatP = %10.3f %10.3f %10.3f", T_, BPE, SatP);
 
@@ -1472,12 +1468,8 @@ double SMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatD
   CSysVector &MA = (Local ? MArray() : *pMA);
   m_SMFnRanges.SetInRange(eSpFn_SatT, true);
 
-  //if (iSatComp>=0)
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationT(P_, &MA);
+    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
 #if TestBayerForWater
   // NB This will introduce a nonlinearity
@@ -1485,11 +1477,11 @@ double SMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatD
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
     {
     m_SMFnRanges.SetInRange(eSpFn_SatT, false);
-    return SpModelEx::SaturationT(P_, pMA);
+    return SpModelEx::SaturationT(P_, pMA, pSatDefn);
     }
   #endif
 
-  double SatT = SpModelEx::SaturationT(P_, &MA);
+  double SatT = SpModelEx::SaturationT(P_, &MA, pSatDefn);
   double BPE = BoilPtElev(SatT, pMA);
   return SatT+BPE;
   }

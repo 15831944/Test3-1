@@ -1292,15 +1292,15 @@ double AlcoaBayer::Na2SO4toC()
 
 //---------------------------------------------------------------------------
 
-double AlcoaBayer::BoilingPtElevation(double P_, CSysVector * pMA)
+double AlcoaBayer::BoilingPtElevation(double P_, CSysVector * pMA, CSaturationDefn * pSatDefn)
   {
   if (0)
     {
-    double A=SaturationT(P_, pMA);
-    double B=PureSaturationT(P_, pMA);
+    double A=SaturationT(P_, pMA, pSatDefn);
+    double B=PureSaturationT(P_, pMA, pSatDefn);
     dbgpln("SMBayer::BoilingPtElevation %10.3f %10.3f %10.3f %10.3f", P_, A-B, A, B);
     }
-  return SaturationT(P_, pMA) - PureSaturationT(P_, pMA);
+  return SaturationT(P_, pMA, pSatDefn) - PureSaturationT(P_, pMA, pSatDefn);
 
   //double T_=Temp();
   //double BPE=BoilPtElev(T_, pMA);
@@ -1563,17 +1563,14 @@ double AlcoaBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pS
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationP(T_, &MA);
+    return SpModelEx::SaturationP(T_, &MA, pSatDefn);
 
   #if TestBayerForWater
   // NB This will introduce a nonlinearity
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
-    return SpModelEx::SaturationP(T_, pMA);
+    return SpModelEx::SaturationP(T_, pMA, pSatDefn);
   #endif
 
   //converge...
@@ -1588,7 +1585,7 @@ double AlcoaBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pS
       break;
     BPE = NewBPE;
     }
-  double SatP = SpModelEx::SaturationP(T_-BPE, &MA);
+  double SatP = SpModelEx::SaturationP(T_-BPE, &MA, pSatDefn);
 
   #if dbgModels
   if (dbgSpecies() && DoDbgBrk())
@@ -1611,20 +1608,17 @@ double AlcoaBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pS
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
 
-  if (pSatDefn && pSatDefn->CmpIndex()>=0)
-    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
-
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
-    return SpModelEx::SaturationT(P_, &MA);
+    return SpModelEx::SaturationT(P_, &MA, pSatDefn);
 
   #if TestBayerForWater
   // NB This will introduce a nonlinearity
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
-    return SpModelEx::SaturationT(P_, pMA);
+    return SpModelEx::SaturationT(P_, pMA, pSatDefn);
   #endif
 
-  double SatT = SpModelEx::SaturationT(P_, &MA);
+  double SatT = SpModelEx::SaturationT(P_, &MA, pSatDefn);
   double BPE = BoilPtElev(SatT, pMA);
   return SatT+BPE;
   }
