@@ -109,7 +109,7 @@ void FilterPress::BuildDataFields()
 	DD.Double	("Filtrate_Solids", "FiltSolids", &dFiltSolids, MF_RESULT, MC_Frac("%"));
 	DD.Double	("CakeSolidsConc@25", "CakeSolConc25", &dCakeSolConc, MF_RESULT, MC_Conc("g/L"));
 	DD.Double	("FiltrateSolidsConc@25", "FiltSolConc25", &dFiltSolConc, MF_RESULT, MC_Conc("g/L"));
-	DD.Long		("", "WashComp", (long*)&nWashCompSpecie, MF_RESULT, gs_MVDefn.DDLiqSpList());
+	DD.Long		("", "WashComp", (long*)&nWashCompSpecie, MF_PARAMETER, gs_MVDefn.DDLiqSpList());
 	DD.Double	("", "CompWashEff", &dWashCompEff, MF_RESULT, MC_Frac("%"));
 
 	DD.Text		("");
@@ -188,6 +188,8 @@ void FilterPress::EvalProducts()
 		double dFeedSolidMass = QFeed.Mass(MP_Sol);
 		double dFeedLiquidMass = QFeed.Mass(MP_Liq);
 
+		bool bWashingsConnected = FlwIOs.Count[idWashings] > 0;
+
 		//First off: The filtrate & UnwashedCake:
 
 		/*Equations Solved using Mathematica 6.0, under the constrainsts of:
@@ -202,12 +204,12 @@ void FilterPress::EvalProducts()
 		case FM_SolidsToFiltrateFrac:
 			dSolConcConstFac = dReqSolidsToFiltrate;
 			dLiqConcConstFac = dReqSolidsToFiltrate;
-			bTooWet = dFeedSolidMass / (dFeedSolidMass + dFeedLiquidMass) < dReqSolidsToFiltrate;
+			bTooWet = dFeedSolidMass / NZ(dFeedSolidMass + dFeedLiquidMass) < dReqSolidsToFiltrate;
 			break;
 		case FM_FiltrateConc:
-			dSolConcConstFac = dReqFiltSolConc / QFeed.Density(MP_Sol);
-			dLiqConcConstFac= dReqFiltSolConc / QFeed.Density(MP_Liq);
-			bTooWet = dFeedSolidMass / QFeed.Volume(MP_SL) < dReqFiltSolConc;
+			dSolConcConstFac = dReqFiltSolConc / QFeed.Density(MP_Sol, C_2_K(25));
+			dLiqConcConstFac= dReqFiltSolConc / QFeed.Density(MP_Liq, C_2_K(25));
+			bTooWet = dFeedSolidMass / NZ(QFeed.Volume(MP_SL, C_2_K(25))) < dReqFiltSolConc;
 			break;
 		}
 		/*Situations where variables can be out of range:
@@ -221,7 +223,7 @@ void FilterPress::EvalProducts()
 			dFiltSolidFactor = dFiltLiquidFactor = 1;
 			dCakeSolidFactor = dCakeLiquidFactor = 0;
 		}
-		else if (dFeedLiquidMass / (dFeedSolidMass + dFeedLiquidMass) < dReqCakeMoisture)
+		else if (dFeedLiquidMass / NZ(dFeedSolidMass + dFeedLiquidMass) < dReqCakeMoisture)
 		{
 			SetNote(idPressNote, "Input feed too dry: All feed liquids sent to Cake");
 			dFiltSolidFactor = dFiltLiquidFactor = 0;
@@ -230,9 +232,9 @@ void FilterPress::EvalProducts()
 		else
 		{
 			dFiltSolidFactor = (((dFeedLiquidMass * (dReqCakeMoisture - 1) + dFeedSolidMass * dReqCakeMoisture) * dLiqConcConstFac)
-									/ (dReqCakeMoisture * dLiqConcConstFac - (dReqCakeMoisture - 1)*(dSolConcConstFac-1))) / dFeedSolidMass;
+									/ NZ(dReqCakeMoisture * dLiqConcConstFac - (dReqCakeMoisture - 1)*(dSolConcConstFac-1))) / dFeedSolidMass;
 			dFiltLiquidFactor = - (((dFeedLiquidMass * (dReqCakeMoisture - 1) + dFeedSolidMass * dReqCakeMoisture) * (dSolConcConstFac - 1))
-									/ (dReqCakeMoisture * dLiqConcConstFac - (dReqCakeMoisture - 1)*(dSolConcConstFac - 1))) / dFeedLiquidMass;
+									/ NZ(dReqCakeMoisture * dLiqConcConstFac - (dReqCakeMoisture - 1)*(dSolConcConstFac - 1))) / dFeedLiquidMass;
 
 			dCakeSolidFactor = 1 - dFiltSolidFactor;
 			dCakeLiquidFactor = 1 - dFiltLiquidFactor;
@@ -269,10 +271,10 @@ void FilterPress::EvalProducts()
 				break;
 			case FM_FiltrateConc:
 				a = dReqFiltSolConc;
-				rWS = QWashWater.Density(MP_Sol);
-				rWL = QWashWater.Density(MP_Liq);
-				rCS = QUnwashedCake.Density(MP_Sol);
-				rCL = QUnwashedCake.Density(MP_Liq);
+				rWS = QWashWater.Density(MP_Sol, C_2_K(25));
+				rWL = QWashWater.Density(MP_Liq, C_2_K(25));
+				rCS = QUnwashedCake.Density(MP_Sol, C_2_K(25));
+				rCL = QUnwashedCake.Density(MP_Liq, C_2_K(25));
 				break;
 			}
 			/*Possible situations where variables are out of range:
@@ -284,22 +286,34 @@ void FilterPress::EvalProducts()
 			 - Cake should never come in too wet.
 			 */
 			//CO - Cake Out. WO - Washings out.
-			double dWLtoCO = 
-				  (m*(w*CS+WS)*(WS*rCL*rCS*rWL*(a-rWS) + (a*WL*rCL*rCS+(CS*rCL*(a-rCS)+a*CL*rCS)*rWL)*rWS))
-				/ (CS*(m*a*(1-w)*rCS*rWL+rCL*((1-m)*a*rWL+rCS*(m*a*w-(1-m)*rWL)))*rWS
-				+ WS*rCL*rCS*((1-m)*rWL*(a-rWS)+m*a*rWS));
-			if (dWLtoCO > WL) { //Case B
+			double dCLtoCO, dCStoCO, dWStoCO;
+			
+			double dTemp = (WS*rCL*rCS*rWL*(a-rWS)+(a*WL*rCL*rCS+(CS*rCL*(a-rCS)+a*CL*rCS)*rWL)*rWS)
+				/ NZ(CS*(m*a*(1-w)*rCS*rWL+rCL*((1-m)*a*rWL+rCS*(m*a*w-(1-m)*rWL)))*rWS + WS*rCL*rCS*((1-m)*rWL*(a-rWS)+m*a*rWS));
+
+			double dWLtoCO = m * (w*CS + WS) * dTemp;
+			if (dWLtoCO > WL)
+			{ //Case B - not enough wash liquid
+				SetNote(idWashNote, "Not enough wash water: All wash water sent to cake");
+				double dTemp1 = (WS*rCL*rCS*(a-rWS)+(CS*rCL*(a-rCS)+a*CL*rCS)*rWS)
+							/ NZ(CS*((1-m)*rCL*(a-rCS)+m*a*rCS)*rWS + WS*rCS*((1-m)*rCL*(a-rWS) + m*a*rWS));
+
 				dWLtoCO = WL;
-				SetNote(idWashNote, "Not enough wash water: All wash water sent to cake");}
-			double dCLtoCO = 
-				 -(m*(-1+w)*CS*(WS*rCL*rCS*rWL*(a-rWS)+(a*WL*rCL*rCS+(CS*rCL*(a-rCS)+a*CL*rCS)*rWL)*rWS))
-				/ (CS*(m*a*(1-w)*rCS*rWL+rCL*((1-m)*a*rWL+rCS*(m*a*w-(1-m)*rWL)))*rWS
-				+ WS*rCL*rCS*((1-m)*rWL*(a-rWS)+m*a*rWS));
-			if (dCLtoCO > CL) { //Case C
+				dCLtoCO = m * (CS + WS) * dTemp1;
+				dCStoCO = (1-m) * CS * dTemp1;
+				dWStoCO = (1-m) * WS * dTemp1;
+			}
+			else
+			{
+				//dWLtoCO already set.
+				dCLtoCO = m * (1-w) * CS * dTemp;
+				dCStoCO = (1-m) * CS * dTemp;
+				dWStoCO = (1-m) * WS * dTemp;
+			}
+
+			if (dCLtoCO > CL) { //Case C - not enough cake moisture [Can only happen if cake comes in with moisture content v. low.]
 				dCLtoCO = CL;	//Although this results in a lower than required moisture content, well, the cake is comming in drier than required.
 				SetNote(idWashNote, "Cake too dry"); }
-			double dCStoCO = (1-m)/m * 1/(1-w) * dCLtoCO;
-			double dWStoCO = (1-m)/m * dWLtoCO - w * dCStoCO;
 			
 			//Simple Cons of Mass:
 			double dWLtoWO = WL - dWLtoCO;
@@ -314,7 +328,7 @@ void FilterPress::EvalProducts()
 				dWLtoCOFrac=dCLtoCOFrac=dWStoCOFrac=dCStoCOFrac=0;
 				dWLtoWOFrac=dCLtoWOFrac=dWStoWOFrac=dCStoWOFrac=1;
 			}
-			else if ((CL+WL)/(CS+WS+CL+WL) < m)	//Case D, Too Dry: Send everything to cake.
+			else if ((CL+WL)/NZ(CS+WS+CL+WL) < m)	//Case D, Too Dry: Send everything to cake.
 			{
 				SetNote(idWashNote, "Not enough liquid in washing stage. Everything sent to cake");
 				dWLtoCOFrac=dCLtoCOFrac=dWStoCOFrac=dCStoCOFrac=1;
@@ -334,27 +348,57 @@ void FilterPress::EvalProducts()
 				dCStoWOFrac = CS > 0 ? dCStoWO / CS : 0;
 			}
 
-			bool bWashingsConnected = FlwIOs.Count[idWashings] > 0;
-			MStream& QWashingOutput = bWashingsConnected ? FlwIOs[FlwIOs.First[idWashings]].Stream : QFiltrate;
-			if (bWashingsConnected)
-				QWashingOutput.ZeroMass();
+			dWashEfficiency = CL > 0 ? 1 - dCLtoCOFrac : dNAN;
+
+			MStream QWashingOutput = QCake;
+			QWashingOutput.ZeroMass();
+
 			for (int i = 0; i < gs_MVDefn.Count(); i++)
 				if (gs_MVDefn[i].IsSolid())
 				{
-					double dDebug = QWashingOutput.M[i];
-					QWashingOutput.M[i] += QUnwashedCake.M[i] * dCStoWOFrac + QWashWater.M[i] * dWStoWOFrac;
+					QWashingOutput.M[i] = QUnwashedCake.M[i] * dCStoWOFrac + QWashWater.M[i] * dWStoWOFrac;
 					QCake.M[i] = QUnwashedCake.M[i] * dCStoCOFrac + QWashWater.M[i] * dWStoCOFrac;
-					double dDebug2 = QWashingOutput.M[i];
-					double dDebug3 = QUnwashedCake.M[i] * dCStoWOFrac + QWashWater.M[i] * dWStoWOFrac;
-					double diff = dDebug3-dDebug2;
 				}
 				else if (gs_MVDefn[i].IsLiquid())
 				{
-					QWashingOutput.M[i] += QUnwashedCake.M[i] * dCLtoWOFrac + QWashWater.M[i] * dWLtoWOFrac;
+					QWashingOutput.M[i] = QUnwashedCake.M[i] * dCLtoWOFrac + QWashWater.M[i] * dWLtoWOFrac;
 					QCake.M[i] = QUnwashedCake.M[i] * dCLtoCOFrac + QWashWater.M[i] * dWLtoCOFrac;
 				}
-			//TODO: Thermal property managing.
+
+			double dInputHf;
+			
+			MStream* pQWashingOutput;
+			if (bWashingsConnected)
+			{
+				dInputHf = QUnwashedCake.totHf() + QWashWater.totHf();
+				pQWashingOutput = &QWashingOutput;
 			}
+			else
+			{
+				dInputHf = QUnwashedCake.totHf() + QWashWater.totHf() + QFiltrate.totHf();
+				for (int i = 0; i < gs_MVDefn.Count(); i++)
+					QFiltrate.M[i] += QWashingOutput.M[i];
+				pQWashingOutput = &QFiltrate;	//For thermal property managing
+			}
+
+			bool converged = false;
+			for (int i = 0; i < 10 && !converged; i++)
+			{
+				double dOutputHf = QCake.totHf() + pQWashingOutput->totHf();
+
+				double deltaT = -(dOutputHf - dInputHf) / NZ(pQWashingOutput->totCp() + QCake.totCp());
+
+				pQWashingOutput->T += deltaT;
+				QCake.T = pQWashingOutput->T;
+
+				converged = abs(dInputHf - dOutputHf) < 1; //TODO: Check what sort of convergence we require.
+			}
+			if (bWashingsConnected)
+			{
+				MStream& QWashings = FlwIOs[FlwIOs.First[idWashings]].Stream;
+				QWashings = QWashingOutput;
+			}
+		}
 		else
 			QCake = QUnwashedCake;
 
@@ -373,6 +417,24 @@ void FilterPress::EvalProducts()
 			for (int i = 0; i < gs_MVDefn.Count(); i++)
 				if (gs_MVDefn[i].IsGas())
 					QVent.M[i] = QCake.M[i] + QWashWater.M[i];
+		}
+		
+		//Update "Actual" values.
+		dCakeSolids = QCake.MassFrac(MP_Sol);
+		dFiltSolids = QFiltrate.MassFrac(MP_Sol);
+		dCakeSolConc = QCake.Mass(MP_Sol) / NZ(QCake.Volume(MP_All, C_2_K(25.0)));
+		dFiltSolConc = QFiltrate.Mass(MP_Sol) / NZ(QFiltrate.Volume(MP_All, C_2_K(25.0)));
+		if (bWashWaterConnected)
+		{
+			double CFeed = QFeed.SpecieConc(MP_Liq, nWashCompSpecie, C_2_K(25.0));
+			double CCake = QCake.SpecieConc(MP_Liq, nWashCompSpecie, C_2_K(25.0));
+			double CWash = QWashWater.SpecieConc(MP_Liq, nWashCompSpecie, C_2_K(25.0));
+			dWashCompEff = (CFeed - CCake) / NZ(CFeed - CWash);
+		}
+		else
+		{
+			dWashCompEff = 0;
+			dWashEfficiency = 0;
 		}
 	}
   catch (MMdlException &e)
