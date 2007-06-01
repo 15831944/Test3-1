@@ -674,26 +674,10 @@ void CGrfLayer::CollectTags(Strng_List & TagList)
     DML_LIST l1 = DXF_INSERT_ATTRS(e);
     if (l1)
       {
-      DML_ITEM it1;
-      DXF_ENTITY e1;
-      WALK_ENTITY_LIST(l1, it1, e1)
-        {
-#if dbgTagManagement
-        dbgpln("CollectTags: 0x%08x %-30s : %s ", e1,
-               DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
-               DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
-#endif
-        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr))// &&
-          //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
-          {
-          //DXF_ATTRIB_VALUE_SET(e1,pNewTag);
-          if (strlen(DXF_ATTRIB_VALUE_GET(e1))==0)
-            {
-            int xxx=0;
-            }
-          TagList.Append(DXF_ATTRIB_VALUE_GET(e1));
-          }
-        }
+      DXF_ENTITY eTag=Find_Attr(e, TagAttribStr);
+      DXF_ENTITY eAssocTag=Find_Attr(e, AssocTagAttribStr);
+      if (eTag && !eAssocTag)
+        TagList.Append(DXF_ATTRIB_VALUE_GET(eTag));
       }
     }
   }

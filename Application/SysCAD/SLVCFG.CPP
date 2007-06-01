@@ -587,6 +587,7 @@ BOOL CActivePage::OnInitDialog()
     pAT0->NMissing=0;
     pStrng pT=pAT0->TagList.First(); // Skip the first one - FlwSolve
     for (pT=pT->Next(); pT; pT=pT->Next())
+      {
       if (pT->Index()==0)
         {
         pAT0->NMissing++;
@@ -601,6 +602,7 @@ BOOL CActivePage::OnInitDialog()
           m_ActPageList.SetColumnWidth(3, Max(W, Ws));
           }
         }
+      }
     }
 
   // Reload Active status

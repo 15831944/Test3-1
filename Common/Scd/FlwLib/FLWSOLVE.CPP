@@ -11739,9 +11739,9 @@ class CLTHelp
 
       return p;
       };
-    void ConnLoopGetEnd(CConnect *p, int i)
+    void ConnLoopGetEnd(bool DoIt, CConnect *p, int i)
       {
-      if (m_pS)
+      if (DoIt && m_pS)
         {
         //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
         m_pS->SetIndex(i);
@@ -11883,12 +11883,12 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
         {
         //dbgpln("ConnLoop 0x%08x %s", pCn, LTH.m_pS->Str());
         
+        bool DoIt=dynamic_cast<CFlange*>(pCn)!=NULL;
         int iFlowType=FlwType_Null;
         int iUseStatus=pCn->UseStatus();
 
-        if (LTH.m_pS)
+        if (DoIt && LTH.m_pS)
           {
-          //pCn->fMarked=false;
           if (pCn->m_pNdSrc && pCn->m_pNdSrc->GetActive())
             {
             int IOId = pCn->m_pNdSrc->IOId_Self(pCn->m_iIOSrc);
@@ -11900,10 +11900,9 @@ int CFlwSolver::FE_TagOperation(FE_TagOps Act, Strng_List & TagList)
             else if (IsLeakIOId(IOId))    iFlowType=FlwType_Leak;
             else                          iFlowType=FlwType_Other;
             }
-
           N++;
           }
-        LTH.ConnLoopGetEnd(pCn, PackConnect(iFlowType, iUseStatus));
+        LTH.ConnLoopGetEnd(DoIt, pCn, PackConnect(iFlowType, iUseStatus));
         }
       break;
       }
