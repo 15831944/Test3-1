@@ -1516,7 +1516,7 @@ class SDBE_VpAnt: protected CSpDBEqn
     double a,b,c, tmin, tmax;
     double TOverlap;
     int iCalcType;
-    double avpCalc(double T){return exp(a-b/(T+c))*0.1333224;};
+    double avpCalc(double T){return exp(a-b/GTZ(T+c))*0.1333224;};
     double milCalc(double T);  
     SDBE_VpAnt(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=0.0;};
     virtual ~SDBE_VpAnt() {};
