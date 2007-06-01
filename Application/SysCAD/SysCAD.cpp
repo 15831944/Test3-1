@@ -1571,7 +1571,12 @@ BOOL CSysCADApp::DoInitInstance()
     IsWinNT = (VI.dwPlatformId==VER_PLATFORM_WIN32_NT);
     }
 
+#if _RELEASE
   LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
+#else
+  LoadStdProfileSettings(25);  // Load standard INI file options (including MRU)
+#endif
+
   // Allow longer filenames in MRU
   m_pRecentFileList->m_nMaxDisplayLength=80;
 
