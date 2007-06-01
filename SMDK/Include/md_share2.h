@@ -453,25 +453,79 @@ extern DllImportExport MCnv MC_MoneyFlow; //Money Flow              : Base/s
 extern DllImportExport MCnv MC_TimeStr  ; //Time String             : s
 extern DllImportExport MCnv MC_dTimeStr ; //Time String Difference  : s
 
+class MCnvFamily; // forward
+class MCnvs;      // forward
+
+class DllImportExport MCnvItem
+  {
+  public:
+    MCnvItem();
+    MCnvItem(MCnvFamily iFamily, int iItem);
+
+    bool          Valid()      { return m_iFamily>=0 && m_iItem>=0; }
+
+    //return Name for specified conversion
+    LPCTSTR       Name();
+    //return scale for specified conversion
+    double        Scale();
+    //return offset for specified conversion
+    double        Offset();
+
+  protected:
+    CCnvIndex     m_iFamily;
+    int           m_iItem;
+
+  };
+
+class DllImportExport MCnvFamily
+  {
+  public:
+    MCnvFamily(CCnvIndex iFamily=-1);
+
+    bool          Valid()      { return m_iFamily>=0; }
+
+    // return the Primary name
+    LPCTSTR       Name();
+    
+    // return the number of secondary cnv's
+    int           Count();
+    // return the iSecCnv'th secondary cnv
+    MCnvItem      operator[](int iItem);
+
+    //return index of specified conversion secondary name
+    MCnvItem      Find(LPCTSTR Name);
+
+    operator      CCnvIndex()  { return m_iFamily; }
+
+  protected:
+    CCnvIndex   m_iFamily;
+  
+  };
+
 /* Class MCnvs: Helper class for accessing collection of engineering conversions.*/
 class DllImportExport MCnvs
   {
   public:
     MCnvs();    
-    
-    //return number of Cnvs
-    int     Count();
-    //return index of specified conversion family name
-    MCnv    FindPrimary(LPCTSTR Name);
-    //return scale for specified conversion
-    double  Scale(const MCnv & Cnv);
-    //return offset for specified conversion
-    double  Offset(const MCnv & Cnv);
-    //return Name for specified conversion
-    LPCTSTR Name(const MCnv & Cnv);
-
     //try create a valid conversion for the suplied string
-    bool    Create(LPCTSTR NameCnv, MCnv & Cnv);
+    bool          Create(LPCTSTR NameCnv, MCnv & Cnv);
+
+    //return Name for specified conversion
+    LPCTSTR       Name(const MCnv & Cnv);
+    //return scale for specified conversion
+    double        Scale(const MCnv & Cnv);
+    //return offset for specified conversion
+    double        Offset(const MCnv & Cnv);
+
+    //return number of Cnvs
+    int           Count();
+    //return the iPriCnv'th conversion
+    MCnvFamily    operator[](MCnvFamily iFamily);
+
+    //return index of specified conversion family name
+    MCnvFamily    Find(LPCTSTR FamilyName);
+    MCnvItem      Find(LPCTSTR FamilyName, LPCTSTR ItemName);
+
   };
 
 //The global instance of the engineering conversion collection helper class:

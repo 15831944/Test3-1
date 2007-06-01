@@ -151,26 +151,26 @@ MCnv MC_dTimeStr ;
 //
 //===========================================================================
 
-MCnvs gs_Cnvs;
+MCnvItem::MCnvItem()                              { m_iFamily = -1; m_iItem = -1;                   };
+MCnvItem::MCnvItem(MCnvFamily iFamily, int iItem) { m_iFamily = iFamily; m_iItem = iItem;           };
+LPCTSTR   MCnvItem::Name()                        { return (*Cnvs[m_iFamily])[m_iItem]->Txt();      };
+double    MCnvItem::Scale()                       { return (*Cnvs[m_iFamily])[m_iItem]->SclValue(); };
+double    MCnvItem::Offset()                      { return (*Cnvs[m_iFamily])[m_iItem]->OffValue(); };
+
+//---------------------------------------------------------------------------
+
+MCnvFamily::MCnvFamily(CCnvIndex iFamily)         { m_iFamily = iFamily;                        };
+LPCTSTR   MCnvFamily::Name()                      { return Cnvs[m_iFamily]->Txt();              };
+int       MCnvFamily::Count()                     { return Cnvs[m_iFamily]->Count();            };
+MCnvItem  MCnvFamily::operator[](int iItem)       { return MCnvItem(m_iFamily,iItem);           };
+MCnvItem  MCnvFamily::Find(LPCTSTR Name)          { CDataCnv * p=Cnvs[m_iFamily]->Find((LPSTR)Name); return MCnvItem(m_iFamily, p ? p->SecIndex(): -1);  };
+
+//---------------------------------------------------------------------------
+/* Class MCnvs: Helper class for accessing collection of engineering conversions.*/
+//---------------------------------------------------------------------------
 
 MCnvs::MCnvs()
   {
-  }
-
-int MCnvs::Count()
-  {
-  return gs_CnvsMngr.CnvCnt();
-  }
-
-MCnv MCnvs::FindPrimary(LPCTSTR Name)
-  {
-  int i=gs_CnvsMngr.FindCnv((char*)Name);
-
-  MCnv Cnv;
-  Cnv.m_Index=i;
-  Cnv.m_Txt=Cnvs[i]->Txt();
-
-  return Cnv;
   }
 
 bool MCnvs::Create(LPCTSTR NameCnv, MCnv & Cnv)
@@ -229,6 +229,41 @@ LPCTSTR MCnvs::Name(const MCnv & Cnv)
     gs_Log.Message(MMsg_Error, "Bad Conversion '%s' for '%s'", Cnv.m_Txt, gs_CnvsMngr.SICnv(Cnv.m_Index)->Fam());
   return "?";
   }
+
+
+int MCnvs::Count()
+  {
+  return gs_CnvsMngr.CnvCnt();
+  }
+
+
+MCnvFamily MCnvs::operator[](MCnvFamily iPriCnv)
+  {
+  return MCnvFamily(iPriCnv);
+  };
+
+MCnvFamily MCnvs::Find(LPCTSTR FamilyName)
+  {
+  CCnvIndex i=gs_CnvsMngr.FindCnv((char*)FamilyName);
+  return MCnvFamily(i);
+  }
+
+MCnvItem MCnvs::Find(LPCTSTR FamilyName, LPCTSTR ItemName)
+  {
+  CCnvIndex i=gs_CnvsMngr.FindCnv((char*)FamilyName);
+  int j=-1;
+  if (i>=0)
+    {
+    CDataCnv *p=Cnvs[i]->Find((LPSTR)ItemName);
+    if (p)
+      j=p->SecIndex();
+    }
+  return MCnvItem(i, j);
+  };
+
+//---------------------------------------------------------------------------
+
+MCnvs gs_Cnvs;
 
 //===========================================================================
 //
