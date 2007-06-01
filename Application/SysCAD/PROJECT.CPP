@@ -193,7 +193,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 104; //CNM  07/02/2007 Changes to Shell & Tube IO
 //const int LatestPrjFileVer = 105; //CNM  23/03/2007 SpVector::Tagging/Symbols changed
 //const int LatestPrjFileVer = 106; //CNM  23/04/2007 DataUnionCom changes - reopen of old historian files
-const int LatestPrjFileVer = 107; //CNM  18/05/2007 Makeup recovery issues
+//const int LatestPrjFileVer = 107; //CNM  18/05/2007 Makeup recovery issues
+const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
 
 //===========================================================================
 //
@@ -1255,7 +1256,7 @@ void CProjectSettings::ClearSettings()
   m_bRptExcelUpdateLinks=1;
   m_bRptExcelSaveOnComplete=1;
   m_bRptSyscadTags=1;
-  m_dwMdlStatusOptions = MSO_ShowStatus|MSO_ShowRunInEdit;
+  m_dwMdlStatusOptions = MSO_ShowStatus;//|MSO_ShowRunInEdit;
 
   //iOverlayStatusPen=PS_DASH;
   //bTimeChanged=0;
@@ -2336,17 +2337,17 @@ bool CProject::ShowStatus()
 
 void CProject::SetShowEditStatus(bool On)
   {
-  if (On)
-    m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
-  else
+  if (On && DefNetDynamicMode())
     m_dwMdlStatusOptions |= MSO_ShowRunInEdit;
+  else
+    m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
   if (gs_pTheSFELib)
     gs_pTheSFELib->FE_LoadAllModelStatus();
   }
 
 bool CProject::ShowEditStatus()
   {
-  return (m_dwMdlStatusOptions & MSO_ShowRunInEdit)==0;
+  return (m_dwMdlStatusOptions & MSO_ShowRunInEdit)!=0 && DefNetDynamicMode();
   }
 
 //---------------------------------------------------------------------------
@@ -2445,6 +2446,15 @@ void CProject::LoadColours(CProfINIFile & PF)
     m_dwMdlStatusOptions |= MSO_ShowStatus;
   else
     m_dwMdlStatusOptions &= ~MSO_ShowStatus;
+
+  // Old Projects
+  if (PrjFileVerNo()<108)
+    m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
+  
+  // Always off in Probal
+  if (DefNetProbalMode())
+    m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
+
   //iOverlayStatusPen = (byte)PF.RdLong("StatusColours", "GrfOverlayStatusPen", iOverlayStatusPen);
 
   if (PrjFileVerNo()>=94)

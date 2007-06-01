@@ -4337,7 +4337,7 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
     virtual dword  ModelStatus();
-    static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)==0); };
+    static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)!=0); };
     static bool    GetStatus() { return ((m_dwMdlStatusOptions&MSO_ShowStatus)!=0); };
 
     SpConduit *    GetWrkConduit(char *Tag, char *IdStr);

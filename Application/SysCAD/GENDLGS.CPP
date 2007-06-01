@@ -1482,6 +1482,8 @@ BOOL CColourPage::OnInitDialog()
   m_PenStyle[22].SetCurSel(GrfHelper.iShowMdlStatusLFlwVap);
   m_PenStyle[23].SetCurSel(GrfHelper.iShowMdlStatusLFlwSol);
 
+  if (DefNetProbalMode())
+    GetDlgItem(IDC_DISPLAYEDITCOLOURS)->EnableWindow(false);
   UpdateDialogControls(this, FALSE);
   return TRUE;
   }
