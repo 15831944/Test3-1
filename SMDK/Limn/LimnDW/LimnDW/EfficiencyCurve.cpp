@@ -136,6 +136,11 @@ void CEfficiencyCurve::EvalProducts()
         LSO1.Dump("Product1", DoDbg);
         }
       }
+    else
+      {
+      Q0 = QI;
+      Q1 *= 0.0;
+      }
 
     //get display values...
     //dFeedQm = QI.MassFlow();

@@ -150,6 +150,12 @@ void CDualEfficiencyCurve::EvalProducts()
         LSO2.Dump("Unders", DoDbg);
         }
       }
+    else
+      {
+      Q0 = QI;
+      Q1 *= 0.0;
+      Q2 *= 0.0;
+      }
 
     }
   catch (MMdlException &e)

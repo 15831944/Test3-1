@@ -128,6 +128,10 @@ void CGrindingMill::EvalProducts()
       if (DoDbg)
         LSOut.Dump("Product", DoDbg);
       }
+    else
+      {
+      Q0 = QI;
+      }
 
     }
   catch (MMdlException &e)

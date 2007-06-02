@@ -135,6 +135,11 @@ void CWhitenCrusher::EvalProducts()
         Dbg.PrintLn("MassOut B:%10.4f", Q0.MassFlow());
         }
       }
+    else
+      {
+      Q0 = QI;
+      }
+
 
     }
   catch (MMdlException &e)

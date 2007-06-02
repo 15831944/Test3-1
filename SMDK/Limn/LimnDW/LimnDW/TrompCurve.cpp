@@ -136,6 +136,11 @@ void CTrompCurve::EvalProducts()
         LSO1.Dump("Sinks", DoDbg);
         }
       }
+    else
+      {
+      Q0 = QI;
+      Q1 *= 0.0;
+      }
 
     //get display values...
     //dFeedQm = QI.MassFlow();
