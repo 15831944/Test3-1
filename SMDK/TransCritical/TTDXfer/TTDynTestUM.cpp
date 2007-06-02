@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-05-28 03:21:31 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-02 07:24:07 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -13,7 +13,11 @@
 static MInitialiseTest InitTest("DynTest");
 
 
-static MSpeciePtr  spAlumina       (InitTest, "NaAl[OH]4(l)", false);
+static MSpeciePtr  spAlumina     (InitTest, "NaAl[OH]4(l)", false);
+static MSpeciePtr  spWater       (InitTest, "H2O(l)", false);
+static MSpeciePtr  spVapor       (InitTest, "H2O(g)", false);
+
+
 
 enum {idFeed, idUflow, idOflow};
 enum {PB_None, PB_PSD, PB_SSA};
@@ -57,8 +61,10 @@ void CDynTestTank_UnitDef::GetOptions()
 CDynTestTank::CDynTestTank(MUnitDefBase *pUnitDef, TaggedObject * pNd) :  
   MBaseMethod(pUnitDef, pNd)
 {   //default values...
-
+  
+  started = false;
   dDeltaT = 0.0;
+  dTankDiameter = 10;
 }
 
 
@@ -69,7 +75,6 @@ CDynTestTank::CDynTestTank(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
 
 CDynTestTank::~CDynTestTank()
 {
-
 
 }
 
@@ -101,7 +106,6 @@ void CDynTestTank::Init()
 
 
 
-
 void CDynTestTank::EvalProducts()
   {
   try {
@@ -109,14 +113,20 @@ void CDynTestTank::EvalProducts()
     MStream & UFlow = FlwIOs[FlwIOs.First[idUflow]].Stream; //Reference to the output stream
     MStream & OFlow = FlwIOs[FlwIOs.First[idOflow]].Stream; //Reference to the output stream
     
-    //    if (!alreadySolved || UFlow.MassFlow() < 1.0e-3)
-    Tank = Feed;
-      //else
-      //Tank = UFlow;
-    UFlow = Tank;
-    OFlow = Tank;
-    OFlow.SetF(Tank, MP_All, 0.0);
-    UFlow.SetF(Tank, MP_All, 1.0);
+    
+    if (!started) {
+      started = true;
+      Tank = Feed;
+    } else {
+      Tank.AddF(Feed, MP_All, 1.0);
+    }
+
+    
+    
+    UFlow = Feed;
+    OFlow = Feed;
+    OFlow.SetF(Feed, MP_All, 0.0);
+    UFlow.SetF(Feed, MP_All, 1.0);
     dDeltaT = getDeltaTime();
     
 
@@ -142,18 +152,43 @@ void CDynTestTank::EvalProducts()
        lPBType = PB_None;
     }
 
+    long l1 = FeedPSD.getPSDVectorCount();
+    long l2 = FeedPSD.getSizeCount();
+    long l3 = FeedPSD.getSpecieCount(0);
+    long l4 = FeedPSD.getSpecieIndex(0);
+    double s0 = FeedPSD.getSize(0);
+    double s1 = FeedPSD.getSize(1);
+    double b0 = FeedPSD.getBottomSize();
+
+    FeedPSD.ExtractSizes(M, 1.0e6);
+    FeedPSD.ExtractFracVector(F, 0);
+    
 
     Log.SetCondition(lPBType==PB_None, 1, MMsg_Warning, "Bad Feed Stream - No PSD or SSA Property");
 
-    if (IsNothing(FeedB) || IsNothing(FeedPSD)) streamOK = false;
+    //    if (IsNothing(FeedB) || IsNothing(FeedPSD)) streamOK = false;
 
 
     if (bOnline && streamOK) {  // Online and have Bayer and SSA properties...
-    
-
-      
       UFlow = Tank;
-
+      
+      dQmin = Feed.MassFlow();
+      dTankMass = Tank.Mass();
+      dTankVolume = dTankMass/Tank.Density();
+      dTankLevel = dTankVolume/CircleArea(dTankDiameter);
+      if (dTankVolume>dTankVol) {
+	double excess = dTankVolume-dTankVol;
+	UFlow.SetM(Tank, MP_All, excess*Tank.Density());
+	Tank.AdjustMassTo(MP_All, dTankVol*Tank.Density());
+	dTankVolume = dTankVol;
+      } else {
+	UFlow.SetM(Tank, MP_All, 0.0);
+      }
+      dTankMass = Tank.Mass();   // Remaining after adjustment
+      dTin = Feed.T;
+      dTout = Tank.T;
+      
+      
     } else  {   // Just tidy up and put some sensible stuff in the results...
        Log.Message(MMsg_Warning, "Stream Problem...");
       
@@ -179,6 +214,30 @@ void CDynTestTank::EvalProducts()
   }
 
 //--------------------------------------------------------------------------
+
+
+
+// Misra 1970
+
+double CDynTestTank::NucleationRate() {
+    double ssat=m_dSSat;
+    if ( < 0) ssat=0.0;
+    dNuclRate = 5.0e8*pow(ssat,4)*m_dSSA/3600;
+    return dNuclRate;  
+}    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -211,6 +270,7 @@ void CDynTestTank::BuildDataFields()
   DD.Text("");
   DD.Text  ("Requirements");
   DD.Double("TankVol", "",	        &dTankVol         ,MF_PARAMETER, MC_Vol("m^3"));
+  DD.Double("TankDiameter", "",         &dTankDiameter,    MF_PARAMETER, MC_L("m"));
   DD.Double("DeltaT", "dT",   &dDeltaT, MF_RESULT, MC_Time("s"));
   DD.Text  ("");
 
@@ -218,13 +278,16 @@ void CDynTestTank::BuildDataFields()
 
     
   DD.Text  ("Results");         
-  DD.Show();                    
+  DD.Double("TankFluidVolume", "",  &dTankVolume    ,MF_RESULT, MC_Vol("m^3"));
+  DD.Double("TankLevel", "",        &dTankLevel,    MF_RESULT, MC_L("m"));
   DD.Double("Vol_FlowIn", "",       &dQvin          ,MF_RESULT, MC_Qv("L/s"));
   DD.Double("Vol_FlowOut", "",      &dQvout         ,MF_RESULT, MC_Qv("L/s"));
 
-  DD.Double("MassFlowIn", "",       &dQmin          ,MF_RESULT, MC_Qm("t/d"));
+  DD.Double("MassFlowIn", "",       &dQmin          ,MF_RESULT, MC_Qm("kg/s"));
   DD.Double("MassFlowOut", "",      &dQmout         ,MF_RESULT, MC_Qm("t/d"));
+  DD.Double("TankFluidMass", "",    &dTankMass      ,MF_RESULT, MC_M("kg"));
   
+  DD.Double("MassFlowIn1", "",       &dMassInflow1          ,MF_RESULT, MC_Qm("kg/s"));
 
   DD.Double("TempIn", "",           &dTin           ,MF_RESULT, MC_T("C"));
   DD.Double("TempOut", "",          &dTout          ,MF_RESULT, MC_T("C"));

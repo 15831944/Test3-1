@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-05-25 03:12:19 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-02 05:30:44 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -56,10 +56,16 @@ class CDynTestTank : public MBaseMethod
   bool bAgglomOn;
   bool bNuclOn;
   bool bAttritionOn;
+  bool started;
   // Doubles
 
 
-  double dTankVol;
+  double dTankVol;   // Actual volume of tank
+  double dTankVolume; // Volume of fluid in tank
+  double dTankLevel;
+  double dTankDiameter;
+  double dTankHeight;
+  double dTankMass;    // Total Mass of fluid in tank
   double dQvin;
   double dQvout;
   double dQmin;
@@ -67,11 +73,13 @@ class CDynTestTank : public MBaseMethod
   double dTin;   
   double dTout;
   double dDeltaT;    // Timestep for iteration
-   
+  double dMassInflow;
+  double dMassInflow1;
+  
 
-  long lPBType;
+  long lPBType;   // Particle Balance Type
 
-
+  double M[21], F[21];
 };
 
 #endif
