@@ -52,7 +52,7 @@ class CTTOrifice : public MBaseMethod
     bool bControlValve;  // Include control valve dP
     bool bValveLinear;   // Interpolate linearly between data points.
     bool bAmiraCorrection;
-
+    bool bSinglePhase;
     long m_lSlipMode;
     long m_lOpMode;
 
@@ -99,6 +99,9 @@ class CTTOrifice : public MBaseMethod
     double dValveCvOpen;
     double dValveCvClosed;
     double dValveK;
+    double dOrificeK;
+    double dOutletK;
+    double dTotalK;
     double dPipeVelocity;
     double dChokeVelocity;       
     double dHomogChokeVelocity;

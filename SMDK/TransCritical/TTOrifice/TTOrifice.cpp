@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-05-01 05:39:13 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-31 08:10:54 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -210,7 +210,9 @@ MBaseMethod(pUnitDef, pNd),
 m_VLE(this, VLEF_QPFlash, "VLE")
 {
   //set defaults for ALL values...
+  bSinglePhase = false;
   dEntryK = 1.0;
+  dOutletK = 1.0;
   dPipe = 0.4;
   dOut = 0.1;
   dLevel = 5.0;
@@ -269,6 +271,7 @@ void CTTOrifice::BuildDataFields()
   DD.CheckBox("PassThru", "",  &bPassThru, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("LCValve", "",  &bControlValve, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("AmiraCorrection", "",  &bAmiraCorrection, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.CheckBox("SinglePhaseK", "", &bSinglePhase, MF_PARAMETER|MF_SET_ON_CHANGE);
 
   DD.Long  ("SlipModel",    "",     &m_lSlipMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD0);
   DD.Long  ("OpMode",    "",     &m_lOpMode,   MF_PARAMETER|MF_SET_ON_CHANGE, DD1);
@@ -281,7 +284,8 @@ void CTTOrifice::BuildDataFields()
 
   DD.String("OPMode", "OPMode", idDX_Desc1, MF_RESULT);
   DD.String("EntryCond", "EntryCond", idDX_Desc2, MF_RESULT);
-  DD.String("ValveCond", "ValveCond", idDX_Desc3, MF_RESULT);
+  DD.String("ValveCond", "ValveCond", idDX_Desc3, MF_RESULT);	  m_sDesc1="Choked";
+
 
   DD.Double ("PipeD", "", &dPipe, MF_PARAMETER, MC_L("mm"));
   DD.Double ("PipeVelocity", "", &dPipeVelocity, MF_RESULT, MC_Ldt("m/s"));
@@ -297,6 +301,10 @@ void CTTOrifice::BuildDataFields()
   DD.Show(bControlValve);
   DD.Double("ValvePosition", "", &dValvePosition, MF_PARAMETER, MC_Frac("%"));
   DD.Double("ValveK", "", &dValveK, MF_RESULT, MC_None);
+  DD.Double("OrificeK", "", &dOrificeK, MF_RESULT, MC_None);
+  DD.Double("OutletK", "", &dOutletK, MF_PARAMETER, MC_None);
+  DD.Double("TotalK", "", &dTotalK, MF_RESULT, MC_None);
+
   DD.Double("ValvePressureDrop", "", &dPValve, MF_RESULT, MC_P("kPa"));
   DD.Show();
   DD.Double("OrificeEntryPressure", "", &dPOrificeIn, MF_RESULT, MC_P("kPa"));
@@ -457,7 +465,6 @@ void CTTOrifice::EvalProducts()
       double den = InStream.Density();
       double area = CircleArea(dPipe);
       double oarea = CircleArea(dOut);
-      dMassFlow =  area*sqrt(2*den*deltaP/dEntryK);
       dPipeVelocity = InStream.Volume()/area;
       dGIn = dMassFlow1/area;
 
@@ -490,21 +497,34 @@ void CTTOrifice::EvalProducts()
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/oarea)/den/1000.;
       dMassFlow2 = dMassVelocity*oarea; 
       dMassFlow3 = chokeMassVelocity(InStream, dPOrificeIn)*oarea;
-      if (dPCritical>dPOrificeOut)  {   // Choked Flow
-        dMassFlow4 = dMassFlow3;
-	m_sDesc1="Choked";
-	dPOutActual = dPCritical;
-      }
-      else {
-	dMassFlow4 = dMassFlow2;
-	m_sDesc1="NonChoked";
-	dPOutActual = dPout;
-      }
       if (!bPassThru) 
         m_VLE.PFlash(OutStream, dPOutActual);
 
       if (bPassThru)
 	dPOutActual = dPin;
+
+      dOrificeK = Sqr(area/oarea);
+      dTotalK = dEntryK + dValveK+ dOrificeK + dOutletK;
+      dMassFlow =  area*sqrt(2*den*deltaP*1000./dTotalK);
+
+
+      if (bSinglePhase) {
+	dMassFlow4 = dMassFlow;
+	m_sDesc1="SinglePhaseK";
+
+      } else {
+	if (dPCritical>dPOrificeOut)  {   // Choked Flow
+	  dMassFlow4 = dMassFlow3;
+	  m_sDesc1="Choked";
+	  dPOutActual = dPCritical;
+	}
+	else {
+	  dMassFlow4 = dMassFlow2;
+	  m_sDesc1="NonChoked";
+	  dPOutActual = dPout;
+	}
+      }
+      
 
       dMassFlow5 = 1./dFlowDamping*dMassFlow4 + (1.-1/dFlowDamping)*dMassFlow5;
 
