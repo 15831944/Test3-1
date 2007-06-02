@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-02-20 04:33:39 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-05-31 08:55:26 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -212,7 +212,7 @@ m_FTC(this)
   m_dQmVentRqd = 0.0;
   m_dP = 0.0;
 
-
+  m_dDutyDampingFactor = 1.0;
   m_dReactionDamping = 0.0;
   m_dDeltaTOld = 0.0;
  
@@ -291,6 +291,8 @@ void CCARTubeDigester::BuildDataFields()
 
 
   DD.Double("Duty",      "",     &m_dDuty,          MF_RESULT, MC_Pwr("kW"));
+  DD.Double("DampedDuty",      "",     &m_dDampedDuty,  MF_RESULT | MF_INIT_HIDDEN, MC_Pwr("kW"));
+  DD.Double("DutyDampingFactor",      "",     &m_dDutyDampingFactor,  MF_PARAMETER | MF_INIT_HIDDEN, MC_None);
   DD.Show(m_lOpMode);
   DD.Double("Tot.Cond.Duty", "", &m_dTotDuty,  MF_RESULT, MC_Pwr("kW"));
   DD.Show();
@@ -680,7 +682,10 @@ void CCARTubeDigester::DoCondensingHeater(MStream & ShellI, MStream & TubeI,
     //if (fabs(m_FTC.VapourFlowReqd-m_FTC.VapourFlow)>1.0e-4)
   	//	Log.SetCondition(2,MMsg_Warning,"Flash train steam demand not met");
     
+  } else {
+    m_dDuty = m_dTotDuty = 0.0;
   }
+  
 };
 
 
@@ -785,6 +790,8 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
     m_dRMTD = m_dLMTD;
     
   }
+  else 
+    m_dDuty = 0.0;
 };
 
 
@@ -827,7 +834,12 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
     if (TubeO.T > ShellI.T) TubeO.T = ShellI.T;
     m_dRMTD = m_dLMTD = LMTD(TubeI.T, TubeO.T, ShellO.T, ShellO.T);
     
+  } else {
+    
+    m_dTotDuty = m_dDuty = 0.0;
   }
+  
+  
 }
 
 
@@ -906,8 +918,9 @@ void CCARTubeDigester::EvalProducts()
 	m_dQmSS = ShellO.Mass();
 	m_dTheoDuty = m_dUA*m_dLMTD;
 	m_dTheoDutyR = m_dUA*m_dRMTD;
-
-
+	double ad = 1./m_dDutyDampingFactor;
+	if (ad<0.0 || ad>1.0) ad = 1.0;
+	m_dDampedDuty = (1.-ad)*m_dDampedDuty + ad*m_dDuty;
     
 #if (!USEEHXBLK)
 	m_dActualDuty = m_lEnvHxMode ? m_dEnvHeatLoss : 0;

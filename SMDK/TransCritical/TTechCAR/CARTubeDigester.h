@@ -126,6 +126,8 @@ class CCARTubeDigester : public MBaseMethod, CSTHx
     double m_dTotDuty;        // Hx plus environment loss
     double m_dTheoDuty;
     double m_dTheoDutyR;
+    double m_dDutyDampingFactor;
+    double m_dDampedDuty;
     
 
     double m_dLMTDFactor;
