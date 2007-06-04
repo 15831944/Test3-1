@@ -48,10 +48,10 @@ const byte ioidVent = 3;
 
 static IOAreaRec ThickenerIOAreaList[] =
   {
-    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry           , 1.0f},
-    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied, (float)0.98},
-    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied, 0.0f},
-    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry           , 1.0f},
+    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry           ,     1.0f},
+    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     1.0f},
+    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.0f},
+    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,  1.0f},
     SPILL2AREA,
     VENT2AREA,
     MAKEUP2AREA(),
@@ -95,6 +95,8 @@ Thickener::Thickener(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_ActUFSolidsConc25 = 0.0;
   m_ActOFSolidsConc25 = 0.0;
   m_ActUFSolRec   = 0.0;
+  m_CalcUFSolids  = 0.0;
+  m_CalcOFSolids  = 0.0;
   m_bTrackStatus  = true;
   }
 
@@ -114,12 +116,11 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
   BuildDataDefnElevation(DDB);
   DDB.Text    ("");
-  DDB.Double  ("Bed_Height",              "BedHgt",          DC_L,    "m",      &m_ActBedHgt,        this, isResult|0);
 
-  static DDBValueLst DDB0[]={
-    {OFM_OFSolFrac, "OverFlowSolidsFraction"},
-    {OFM_OFSolConc, "OverFlowSolidsConcentration"},
-    {0}};
+  DDBValueLstMem DDB0;
+  DDB0.Add(OFM_OFSolFrac, "OverFlowSolidsFraction");
+  if (NetProbalMethod())
+    DDB0.Add(OFM_OFSolConc, "OverFlowSolidsConcentration");
   DDB.Visibility(NM_All|SM_All|HM_All);
 	DDB.Text    ("");
   DDB.Text    ("Requirements");
@@ -127,13 +128,22 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("RqdBedLevel",      "",                       DC_L,    "m",      &m_RqdBedHgt,        this, isParm);
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.Double  ("Rqd_UnderFlow_Solids",    "RqdUFSolids",     DC_Frac, "%",      &m_RqdUFSolids,      this, isParm);
-  DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &m_iRqdOFMethod,     this, isParm|AffectsStruct, DDB0);
-  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolFrac));
+  DDB.TagComment("@ RqdBedLevel");
+  DDB.Byte    ("OverFlow_Method",         "Method",          DC_,     "",       &m_iRqdOFMethod,     this, isParm|AffectsStruct, DDB0());
+  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolFrac) || NetDynamicMethod());
   DDB.Double  ("Rqd_OverFlow_Solids",     "RqdOFSolids",     DC_Frac, "%",      &m_RqdOFSolids,      this, isParm);
-  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolConc));
+  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolConc) && NetProbalMethod());
   DDB.Double  ("Rqd_OverFlowSolidsConc25","RqdOFSolConc25",  DC_Conc, "g/L",    &m_RqdOFSolConc,     this, isParm);
   DDB.Visibility(NM_All|SM_Direct|HM_All);
   DDB.Double  ("Internal_OF_SolidsUsed",  "IntOFSolidsUsed", DC_Frac, "%",      &m_IntOFSolidsUsed,  this, isParmConstruct|isResult|InitHidden);//|noView);
+
+  DDB.Visibility(NM_Dynamic|SM_Inline|SM_Buffered|HM_All);
+  DDB.Text    ("");
+  DDB.Double  ("Bed_Height",    "BedHgt",           DC_L,     "m",      &m_ActBedHgt,     this, isResult);
+  DDB.Double  ("",              "CalcUFSolids",     DC_Frac,  "%",      &m_CalcUFSolids,  this, isResult);
+  DDB.Visibility(NM_All|SM_All|HM_All, (m_iRqdOFMethod == OFM_OFSolFrac));
+  DDB.Double  ("",              "CalcOFSolids",     DC_Frac,  "%",      &m_CalcOFSolids,  this, isResult);
+  DDB.Text    ("");
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",               "",                DC_,     "",       &m_bShowQFeed,         this, isParm|SetOnChange);
@@ -531,12 +541,12 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
         m_ActBedHgt = (SolMass / (Area * Sol_Rho)) * (1 + Sol_Rho / Liq_Rho * (SolMass / LiqMass));
 
         int OFnLen=OFSolidsFn.GetLen();
-        double ReqdOFSolids = Range(0.0, OFnLen>=2 ? OFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * 0.005, 1.0);
-        double ReqdOFSl     = ReqdOFSolids / GTZ(1.0 - ReqdOFSolids);
+        m_CalcOFSolids   = Range(0.0, OFnLen>=2 ? OFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * m_RqdOFSolids /Max(0.01, m_RqdBedHgt), 1.0);
+        double ReqdOFSl  = m_CalcOFSolids/ GTZ(1.0 - m_CalcOFSolids);
 
         int UFnLen=UFSolidsFn.GetLen();
-        double ReqdUFSolids = Range(0.0, UFnLen>=2 ? UFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * m_RqdUFSolids /Max(0.01, m_RqdBedHgt), 1.0);
-        double ReqdUFSl     = ReqdUFSolids / GTZ(1.0 - ReqdUFSolids);
+        m_CalcUFSolids   = Range(0.0, UFnLen>=2 ? UFSolidsFn.Yx(m_ActBedHgt) : m_ActBedHgt * m_RqdUFSolids /Max(0.01, m_RqdBedHgt), 1.0);
+        double ReqdUFSl  = m_CalcUFSolids / GTZ(1.0 - m_CalcUFSolids);
 
         SetProdMakeup(PMU_IOId | PMU_SLRatio, ioidOF, Contents, ReqdOFSl);
         SetProdMakeup(PMU_IOId | PMU_SLRatio, ioidUF, Contents, ReqdUFSl);
@@ -544,6 +554,8 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       else
         {
         m_ActBedHgt = 0.0;
+        m_CalcUFSolids = 0.0;
+        m_CalcOFSolids = 0.0;
         // Just Operate as a Tank
         }
 
@@ -561,11 +573,18 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);
-      
-      m_UFSolids = IOConduit(IOWithId_Self(ioidUF))->MassFrac(som_Sol);
-      m_OFSolids = IOConduit(IOWithId_Self(ioidOF))->MassFrac(som_Sol);
-      m_ActUFSolidsConc25 = IOConduit(IOWithId_Self(ioidUF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
-      m_ActOFSolidsConc25 = IOConduit(IOWithId_Self(ioidOF))->PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+
+      SpConduit & Co = *IOConduit(IOWithId_Self(ioidOF));
+      SpConduit & Cu = *IOConduit(IOWithId_Self(ioidUF));
+
+      m_UFSolids = Cu.MassFrac(som_Sol);
+      m_OFSolids = Co.MassFrac(som_Sol);
+      m_ActUFSolidsConc25 = Cu.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+      m_ActOFSolidsConc25 = Co.PhaseConc(C_2_K(25.0), som_Sol, som_ALL);
+
+      const double UFSolidsQm = Cu.QMass(som_Sol);
+      const double OFSolidsQm = Co.QMass(som_Sol);
+      m_ActUFSolRec = UFSolidsQm/GTZ(UFSolidsQm+OFSolidsQm);
 
       if (SolveInlineMethod())
         EvalIntegral(NEI);

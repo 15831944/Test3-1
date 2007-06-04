@@ -39,6 +39,9 @@ class Thickener : public MN_Surge
     double         m_RqdOFSolConc; // (MB) Required Overflow Solids Conc @ 25
     double         m_RqdBedHgt;    // (MB) Bed Level at which these occur 
 
+    double         m_CalcUFSolids;
+    double         m_CalcOFSolids;
+
     double         m_IntOFSolidsUsed;
     double         m_UFSolids;   // Achieved Underflow Density
     double         m_OFSolids;   // Achieved Overflow Density(Clarity)

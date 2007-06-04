@@ -38,6 +38,7 @@ class ElectroCell : public MN_Surge
     ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
     virtual ~ElectroCell (){};
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
+    virtual flag   ValidateData(ValidateDataBlk & VDB);
 
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);

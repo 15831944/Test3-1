@@ -56,10 +56,10 @@ const byte ioidVent = 3;
 
 static IOAreaRec ElectroCellIOAreaList[] =
   {
-    {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, 0,            1.0f},
-    {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOSSDenied,   (float)0.8},
-    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  0,            0.0f},
-    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry,  1.0f},
+    {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, IOPipeEntry,                1.0f},
+    {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.8f},
+    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry,                0.0f},
+    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,  1.0f},
     SPILL2AREA,
     VENT2AREA,
     {NULL}
@@ -82,7 +82,7 @@ ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   AttachIOAreas(ElectroCellIOAreaList);
   Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
-  SetAllowedModes(true, NM_All|SM_Direct|/*SM_Inline|*//*SM_Buffered|*/HM_All);
+  SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);
 
   CathMass     = 0.0;
   dCellEff     = 0.9;
@@ -119,16 +119,15 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double ("TempFeed",      "Feed.T",    DC_T,    "C",      &TempKFeed,     this, isResult);//|noFileAtAll);
   DDB.Double  ("FinalT",                "", DC_T,    "C",      &TempKProd,     this, isResult|0);
 
+
   DDB.Text    ("");
   RB.Add_OnOff(DDB);
 
+  DDB.Visibility();
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB, true);
+  BuildDataDefnIOOpts(DDB);
 
-  if (SolveBufferedMethod())
-    RB.SetSurgeType(true); //where is the best place to set this?
-  else
-    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
 
   if (SolveSurgeMethod())
@@ -144,6 +143,17 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.EndStruct();
   };
+
+//--------------------------------------------------------------------------
+
+flag ElectroCell::ValidateData(ValidateDataBlk & VDB)
+  {
+  if (SolveBufferedMethod())
+    RB.SetSurgeType(true); //where is the best place to set this?
+  else
+    RB.SetSurgeType(false);
+  return MdlNode::ValidateData(VDB);
+  }
 
 //--------------------------------------------------------------------------
 
@@ -294,6 +304,7 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
             else
               Met.SetVMass(j, Contents, 0.0);
             }
+          Met.Normalise();
           SetProdMakeup(PMU_IOId |PMU_Image, ioidCath, Met, ETemp, Std_P, Contents.Model());
           }
         }
