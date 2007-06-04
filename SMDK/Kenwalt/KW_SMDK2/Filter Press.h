@@ -24,6 +24,7 @@
 using namespace std;
 
 enum FiltrateMethod { FM_SolidsToFiltrateFrac, FM_FiltrateConc };
+enum WashMethod { WM_ConstantEfficiency, WM_WashRatio };
 
 class FilterPress : public MBaseMethod
 {
@@ -49,9 +50,11 @@ protected:
 	double dReqCakeMoisture;		//[%]
 
 	//Wash Process:
+	WashMethod eWashMethod;
 	double dReqWashEfficiency;		//[%]
 	
 	//Results:
+	double dWashRatio;				//[%]
 	double dWashEfficiency;			//[%]
 	double dCakeSolids;				//[%]
 	double dFiltSolids;				//[%]

@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #define  __FILTER_PRESS_CPP
 #include "Filter Press.h"
+//#include <math>;
 #pragma optimize("", off)
 
 //====================================================================================
@@ -49,6 +50,8 @@ void FilterPress_UnitDef::GetOptions()
 
 FilterPress::FilterPress(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
+	eWashMethod = WM_WashRatio;
+	dWashRatio = 0.0;
 	eFiltrateMethod  = FM_SolidsToFiltrateFrac;
 	dReqFiltSolConc  = 1.0;
 	dReqSolidsToFiltrate = 0.0001;
@@ -85,11 +88,18 @@ enum {	idDX_Filt2Washing = 0 };
 
 void FilterPress::BuildDataFields()
 {
-	DD.Text    ("");
+	
 	static MDDValueLst DDB0[]={
 		{FM_SolidsToFiltrateFrac, "SolidsToFiltrateFraction"},
 		{FM_FiltrateConc, "FiltrateConcentration"},
 		{0}};
+
+	static MDDValueLst DDB1[] = {
+		{WM_ConstantEfficiency, "Constant Efficiency"},
+		{WM_WashRatio, "Based on Wash Ratio"},
+		{0}};
+	DD.Text    ("");
+
 	DD.Text		("Requirements");
 	DD.Long		("Filtrate_Method", "Method", (long*)&eFiltrateMethod, MF_PARAMETER, DDB0 );
 	DD.Show		(eFiltrateMethod == FM_SolidsToFiltrateFrac );
@@ -100,10 +110,17 @@ void FilterPress::BuildDataFields()
 	DD.Show		(eFiltrateMethod == FM_FiltrateConc);
 	DD.Double	("Rqd_FiltrateSolidsConc25","RqdFiltSolConc25", &dReqFiltSolConc, MF_PARAMETER, MC_Conc("g/L"));
 	DD.Show		();
-	DD.Double	("Solids_ToFiltrateUsed", "SolToFiltUsed", &dSolidsToFiltUsed, MF_RESULT | MF_NO_VIEW, MC_Frac("%"));
+	//DD.Double	("Solids_ToFiltrateUsed", "SolToFiltUsed", &dSolidsToFiltUsed, MF_RESULT | MF_NO_VIEW, MC_Frac("%"));
 	DD.Double	("Rqd_Cake_Moisture", "RqdCakeMoist", &dReqCakeMoisture, MF_PARAMETER, MC_Frac("%"));
+	DD.Long		("Wash_Efficiency_Method", "WashEffMeth", (long*)&eWashMethod, MF_PARAMETER, DDB1);
+	DD.Show		(eWashMethod == WM_ConstantEfficiency);
 	DD.Double	("Rqd_Wash_Efficiency", "RqdWashEff", &dReqWashEfficiency, MF_PARAMETER, MC_Frac("%"));
+	DD.Show		(eWashMethod == WM_WashRatio);
+	DD.Double	("Rqd_Single_Pass_Wash_Efficiecny", "RqdSP_WashEff", &dReqWashEfficiency, MF_PARAMETER, MC_Frac("%"));
+	DD.Show		();
+
 	DD.Text		("Results");
+	DD.Double	("Wash_Ratio", "WashRatio", &dWashRatio, MF_RESULT, MC_Frac("%"));
 	DD.Double	("Wash_Efficiency", "WashEff", &dWashEfficiency, MF_RESULT, MC_Frac("%"));
 	DD.Double	("Cake_Solids",	"CakeSolids", &dCakeSolids, MF_RESULT, MC_Frac("%"));
 	DD.Double	("Filtrate_Solids", "FiltSolids", &dFiltSolids, MF_RESULT, MC_Frac("%"));
@@ -140,17 +157,19 @@ bool FilterPress::ExchangeDataFields()
 
 bool FilterPress::PreStartCheck()
 {
-	return true;
+	return FlwIOs.Count[idFeed] > 0
+		&& FlwIOs.Count[idCake] > 0
+		&& FlwIOs.Count[idFiltrate] > 0;
 }
 
 //---------------------------------------------------------------------------
 
 bool FilterPress::ValidateDataFields()
 {
-	dReqSolidsToFiltrate = Range(0.0, dReqSolidsToFiltrate, 1.0);
-	if (dReqFiltSolConc <= 0)
-		dReqFiltSolConc = 0;
-	dReqCakeMoisture = Range(0.0, dReqCakeMoisture, 1.0);
+	//Ranges copied from old FILTPRSS.CPP implementation.
+	dReqSolidsToFiltrate = Range(0.0, dReqSolidsToFiltrate, 0.3);
+	dReqFiltSolConc = Range(0.0, dReqFiltSolConc, 5000.0);
+	dReqCakeMoisture = Range(0.0, dReqCakeMoisture, 0.99);
 	dReqWashEfficiency = Range (0.0, dReqWashEfficiency, 1.0);
 	if (dMembraneRes < 0)
 		dMembraneRes = 0;
@@ -183,7 +202,6 @@ void FilterPress::EvalProducts()
 					QFiltrate	= QFeed;
 		MStream&	QCake		= FlwIOs[FlwIOs.First[idCake]].Stream;
 					QCake		= QFeed;
-		//TODO: Handle zeros.
 
 		double dFeedSolidMass = QFeed.Mass(MP_Sol);
 		double dFeedLiquidMass = QFeed.Mass(MP_Liq);
@@ -263,7 +281,15 @@ void FilterPress::EvalProducts()
 			double CL = QUnwashedCake.Mass(MP_Liq);
 			double a, rWS, rWL, rCS, rCL;
 			double m = dReqCakeMoisture;
-			double w = dReqWashEfficiency;
+			double w;
+			switch (eWashMethod)
+			{
+			case WM_ConstantEfficiency:
+				w = dReqWashEfficiency;
+			case WM_WashRatio:
+				dWashRatio = WL / CL;
+				w = 1 - pow(1-dReqWashEfficiency, dWashRatio);
+			}
 			switch (eFiltrateMethod) {
 			case FM_SolidsToFiltrateFrac:
 				a = dReqSolidsToFiltrate;
@@ -295,13 +321,16 @@ void FilterPress::EvalProducts()
 			if (dWLtoCO > WL)
 			{ //Case B - not enough wash liquid
 				SetNote(idWashNote, "Not enough wash water: All wash water sent to cake");
-				double dTemp1 = (WS*rCL*rCS*(a-rWS)+(CS*rCL*(a-rCS)+a*CL*rCS)*rWS)
-							/ NZ(CS*((1-m)*rCL*(a-rCS)+m*a*rCS)*rWS + WS*rCS*((1-m)*rCL*(a-rWS) + m*a*rWS));
-
+				//double dTemp1 = (WS*rCL*rCS*(a-rWS)+(CS*rCL*(a-rCS)+a*CL*rCS)*rWS)
+				//			/ NZ(CS*((1-m)*rCL*(a-rCS)+m*a*rCS)*rWS + WS*rCS*((1-m)*rCL*(a-rWS) + m*a*rWS));
+				double dTemp1 = 1 / (CS * ((1-m) * rCL * (a-rCS) + m*a*rCS) * rWS + WS * rCS * ((1-m) * rCL * (a-rWS) + m*a*rWS));
+				double dTemp2 = WS * rCL * rCS * (a-rWS) + (CS * rCL * (a-rCS) + a*(CL+WL)*rCS)*rWS;
+				
 				dWLtoCO = WL;
-				dCLtoCO = m * (CS + WS) * dTemp1;
-				dCStoCO = (1-m) * CS * dTemp1;
-				dWStoCO = (1-m) * WS * dTemp1;
+				dCLtoCO = (m*CS*CS*rCL*(a-rCS)*rWS + CS*((-(1-m)*WL*rCL*(a-rCS) + m*a*CL*rCS)*rWS+m*WS*rCL*(rCS*(a-2*rWS)+a*rWS))
+							+ WS*rCS*(-(1-m)*WL*rCL*(a-rWS) + m*(WS*rCL*(a-rWS) + a*CL*rWS))) * dTemp1;
+				dCStoCO = (1-m) * CS * dTemp1 * dTemp2;
+				dWStoCO = (1-m) * WS * dTemp1 * dTemp2;
 			}
 			else
 			{
@@ -461,6 +490,7 @@ bool FilterPress::EvalJoinPressures()
 	return MBaseMethod::EvalJoinPressures();
 	//TODO: Stuff
 }
+
 
 void FilterPress::SetNote(int id, LPCSTR str)
 {
