@@ -185,7 +185,9 @@ class CMdlValueShow : public CDialog
     long           m_TotDeep;
 
     bool           m_bAllowMove;
-  };
+  
+    DWORD          m_LastUpdateTicks; // used to prevent a lockup
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CMdlGraphicShow dialog

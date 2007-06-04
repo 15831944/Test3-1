@@ -572,6 +572,8 @@ CMdlValueShow::CMdlValueShow(char * pTag, /*CMdlAction & Act,*/ int X, int Y, bo
   //}}AFX_DATA_INIT
   Create(CMdlValueShow::IDD, pParent);
   SetWindowText(pTag);
+
+  m_LastUpdateTicks=GetTickCount();
   }
 
 void CMdlValueShow::DoDataExchange(CDataExchange* pDX)
@@ -705,7 +707,11 @@ FNS_Marked;
 void CMdlValueShow::DoTheUpdateByMsg()
   {
   //dbgpln("CMdlValueShow::DoTheUpdateByMsg");
-  PostMessage(WMU_UPDATESHOWWND, 0, 0);
+
+  if ((GetTickCount()>m_LastUpdateTicks+500) || (GetTickCount()<m_LastUpdateTicks))
+    {
+    PostMessage(WMU_UPDATESHOWWND, 0, 0);
+    }
   }
 
 #define BLDSTATE(iTag, iState, Ch, Col)   \
@@ -719,7 +725,10 @@ void CMdlValueShow::DoTheUpdate()
   {
   //dbgpln("CMdlValueShow::DoTheUpdate");
   if (m_nTags<1)
+    {
+    m_LastUpdateTicks=GetTickCount();
     return;
+    }
   SetWindowText(m_nTags>1 ? m_sObjClassId() : m_sTag[0]());
 
   m_TagStr="";
@@ -940,7 +949,7 @@ void CMdlValueShow::DoTheUpdate()
             if (Status & FNS_InActive)
               {
               BLDSTATE(iTag, iState, 'i', GR_MDLSTATUS_INACTIVE)
-              iState++;
+                iState++;
               }
             else
               {
@@ -950,24 +959,24 @@ void CMdlValueShow::DoTheUpdate()
 
               if (Status & FNS_Error)
                 BLDSTATE(iTag, iState, 'e', GR_MDLSTATUS_ERROR) 
-              iState++;
+                iState++;
 
               if (Status & FNS_Warning)
                 BLDSTATE(iTag, iState, 'w', GR_MDLSTATUS_WARNING)
-              iState++;
+                iState++;
 
               if (Status & FNS_Tear)
                 BLDSTATE(iTag, iState, 't', GR_MDLSTATUS_TEAR)
-              iState++;
+                iState++;
 
               if (Status & FNS_MacMdl)
                 BLDSTATE(iTag, iState, 'm', GR_MDLSTATUS_MACMDL)
-              iState++;
+                iState++;
 
               if (Status & FNS_On)
                 BLDSTATE(iTag, iState, '!', GR_MDLSTATUS_ON)
               else if (Status & FNS_Off)
-                BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
+              BLDSTATE(iTag, iState, '.', GR_MDLSTATUS_OFF)
               iState++;
 
               if (Status & (FNS_IsSrc|FNS_NettQmP))
@@ -975,14 +984,14 @@ void CMdlValueShow::DoTheUpdate()
                 if (Status & FNS_IsSrc)
                   BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_ISSRC)
                 else
-                  BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
+                BLDSTATE(iTag, iState, '+', GR_MDLSTATUS_NETTQMP)
                 }
               else if (Status & (FNS_IsSnk|FNS_NettQmN))
                 {
                 if (Status & FNS_IsSnk)
                   BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_ISSNK)
                 else
-                  BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
+                BLDSTATE(iTag, iState, '-', GR_MDLSTATUS_NETTQMN)
                 }
               iState++;
 
@@ -991,26 +1000,26 @@ void CMdlValueShow::DoTheUpdate()
                 if (Status & FNS_UFlw)
                   BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_UFLW)
                 else if (Status & FNS_LFlwVap)
-                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWVAP)
+                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWVAP)
                 else if (Status & FNS_LFlwSol)
-                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWSOL)
+                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWSOL)
                 else if (Status & FNS_LFlwP)
-                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
+                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWP)
                 else
-                  BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
+                BLDSTATE(iTag, iState, 'f', GR_MDLSTATUS_LFLWN)
                 }
               else if (Status & (FNS_UNoFlw|FNS_LNoFlw))
                 {
                 if (Status & FNS_UNoFlw)
                   BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_UNOFLW)
                 else
-                  BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
+                BLDSTATE(iTag, iState, '0', GR_MDLSTATUS_LNOFLW)
                 }
               iState++;
 
               if (Status & FNS_Hold)
                 BLDSTATE(iTag, iState, 'h', GR_MDLSTATUS_INACTIVE)
-              iState++;
+                iState++;
               }
             }
           }
@@ -1020,6 +1029,7 @@ void CMdlValueShow::DoTheUpdate()
 
   long nRemoved=0;
   for (iT=0; iT<MdlValueShowMaxItems; iT++)
+    {
     if (!ItemUsed[iT])
       {
       // Remove Extra Blank Fields
@@ -1055,26 +1065,28 @@ void CMdlValueShow::DoTheUpdate()
       m_CnvStr+=ItemCnv[iT]();
       m_nLines++;
       }
-
-    while (m_nLines<MinShownLines)
+    }
+  while (m_nLines<MinShownLines)
+    {
+    if (m_nLines)
       {
-      if (m_nLines)
-        {
-        m_TagStr+="\r";
-        m_CnvStr+="\r";              
-        for (int iTag=0; iTag<m_nTags; iTag++);
-        m_DataStr[iTag]+="\r";
-        }
-      m_TagStr+=" ";
-      m_CnvStr+=" ";
+      m_TagStr+="\r";
+      m_CnvStr+="\r";              
       for (int iTag=0; iTag<m_nTags; iTag++);
-      m_DataStr[iTag]+=" ";
-      m_nLines++;
+      m_DataStr[iTag]+="\r";
       }
+    m_TagStr+=" ";
+    m_CnvStr+=" ";
+    for (int iTag=0; iTag<m_nTags; iTag++);
+    m_DataStr[iTag]+=" ";
+    m_nLines++;
+    }
 
-    m_bAllowMove=true;
+  m_bAllowMove=true;
 
-    Invalidate();
+  Invalidate();
+
+  m_LastUpdateTicks=GetTickCount();
   }
 
 static COLORREF Colours[]=
