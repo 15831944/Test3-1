@@ -5906,14 +5906,14 @@ flag FlwNode::ConnectionsOK()
       int n=NIOsWithId_Self(pA->m_Id);
       int nm=pA->m_nIORqd;
       int nx=pA->m_nIOMax;
-      dword Grp=(pA->m_dwFlags & dwIOGRP);
+      dword Grp=(pA->m_dwFlags & IOGrp);
       flag DoTest=0;
       if (Grp>0)
         {
         IOAreaRec * pA1=IOAreas;
         while (!DoTest && pA1->m_fValid)
           {
-          if ((Grp==(pA1->m_dwFlags & dwIOGRP)) && (NIOsWithId_Self(pA1->m_Id)>0))
+          if ((Grp==(pA1->m_dwFlags & IOGrp)) && (NIOsWithId_Self(pA1->m_Id)>0))
             DoTest=1;
           pA1++;
           }

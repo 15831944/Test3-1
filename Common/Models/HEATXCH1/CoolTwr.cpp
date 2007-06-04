@@ -29,10 +29,10 @@ const byte ioid_Loss         = 2;
 const byte ioid_Vap          = 3;
 
 static IOAreaRec CoolingTowerIOAreaList[] =
-  {{"Feeds",    "Feed"    , ioid_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-   {"Liquor",   "Liquor"  , ioid_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-   {"LiqLoss",  "LiqLoss" , ioid_Loss , LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-   {"Vapour",   "Vapour"  , ioid_Vap  , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {{"Feeds",    "Feed"    , ioid_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"Liquor",   "Liquor"  , ioid_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"LiqLoss",  "LiqLoss" , ioid_Loss , LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"Vapour",   "Vapour"  , ioid_Vap  , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
    SPILL2AREA,
    VENT2AREA,
    {NULL}}; //This lists the areas of the model where links can be attached.

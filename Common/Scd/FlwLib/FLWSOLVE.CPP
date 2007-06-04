@@ -12032,7 +12032,7 @@ flag CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArr
         Info[i].iGrp=IOGRP(pIO->m_dwFlags);
         Info[i].m_dwType=pIO->m_dwType;
         Info[i].m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-        Info[i].m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
+        Info[i].m_Hidden=(pIO->m_dwFlags&IOHidden)!=0;
         Info[i].m_GrfTarget=pIO->m_GrfTarget;
         }
       }
@@ -12064,7 +12064,7 @@ flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelI
       Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-      Info.m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
+      Info.m_Hidden=(pIO->m_dwFlags&IOHidden)!=0;
       Info.m_GrfTarget=pIO->m_GrfTarget;
       return true;
       }
@@ -12094,7 +12094,7 @@ flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoR
       Info.iGrp=IOGRP(pIO->m_dwFlags);
       Info.m_dwType=pIO->m_dwType;
       Info.m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-      Info.m_Hidden=(pIO->m_dwFlags&dwIOHidden)!=0;
+      Info.m_Hidden=(pIO->m_dwFlags&IOHidden)!=0;
       return true;
       }
     }

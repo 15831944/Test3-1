@@ -25,12 +25,12 @@ const IDMask ShellIOMask=Id_2_Mask(ioid_ShellIn)|
 
 static IOAreaRec FFEvapIOAreaList[] =
   {
-    {"",              "Liquor_In",   ioid_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 10, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].I"},
-    {"",              "Liquor_Out",  ioid_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
-    {"",              "Liquor_Evap", ioid_TubeEvap,  LIO_Out ,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
-    {"",              "Steam",       ioid_ShellIn,   LIO_In1 ,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
-    {"",              "Condensate",  ioid_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
-    {"",              "Shell_Vent",  ioid_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
+    {"",              "Liquor_In",   ioid_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 10, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].I"},
+    {"",              "Liquor_Out",  ioid_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
+    {"",              "Liquor_Evap", ioid_TubeEvap,  LIO_Out ,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iP].O"},
+    {"",              "Steam",       ioid_ShellIn,   LIO_In1 ,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].I"},
+    {"",              "Condensate",  ioid_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
+    {"",              "Shell_Vent",  ioid_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
     SPILL2AREA,
     VENT2AREA,
     {NULL}

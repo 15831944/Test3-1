@@ -1051,7 +1051,8 @@ class DllImportExport SpContainer : public SpModelOwner
 
     void           dbgDump(char * Hdr, flag Vert=1);
 
-    SpConduit &     QOutEst() { if (pQOutEst==NULL) { pQOutEst=new SpConduit("QOut", this, TOA_Free); StructureChanged(this); }; return *pQOutEst; };
+    // This is a Temporary Used with SetOutputFlows 
+    SpConduit &     QOutEst() { if (m_pQOutEst==NULL) { m_pQOutEst=new SpConduit("QOutEst", this, TOA_Free); StructureChanged(this); }; return *m_pQOutEst; };
 
   public:
     void SetSpillEtc(CDirectFlwIO * pSpill, CDirectFlwIO * pVent) 
@@ -1102,7 +1103,7 @@ class DllImportExport SpContainer : public SpModelOwner
     static CSpView  GlblView;
     static long    TotalNo;
     long           MyNo;
-    SpConduit *    pQOutEst;
+    SpConduit *    m_pQOutEst;
     CDirectFlwIO * m_pSpill;
     CDirectFlwIO * m_pVent;
 

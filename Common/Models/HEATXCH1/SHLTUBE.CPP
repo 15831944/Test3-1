@@ -1648,9 +1648,9 @@ static IOAreaRec ShellTubeIOAreaList[] =
   {
     {"",  "TubesIn",    ioidST_TubeIn,    LIO_In0 ,  nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                             1.0f, {0,0,0,0}, AIOTubesIn,   &HeatXDPGroup},
     {"",  "TubesOut",   ioidST_TubeOut,   LIO_Out0,  nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOApertureHoriz,                             0.0f, {0,0,0,0}, AIOTubesOut,  &HeatXDPGroup},
-    {"",  "ShellIn",    ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellIn,   &PipeEntryGroup},
-    {"",  "ShellOut",   ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  0.0f, {0,0,0,0}, AIOShellOut,  &PipeEntryGroup},
-    {"",  "ShellVent",  ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellVent, &PipeEntryGroup},
+    {"",  "ShellIn",    ioidST_ShellIn,   LIO_In1 ,  nc_MLnk, 1, 20, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellIn,   &PipeEntryGroup},
+    {"",  "ShellOut",   ioidST_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz,  0.0f, {0,0,0,0}, AIOShellOut,  &PipeEntryGroup},
+    {"",  "ShellVent",  ioidST_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz,  1.0f, {0,0,0,0}, AIOShellVent, &PipeEntryGroup},
     {NULL}
   };
 

@@ -642,23 +642,12 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
           //static int xx=0;
           //if (xx && (IOSign(i)>0))
           //  m_VLE.PFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
+          if (Cd.QMass()>0)
+            dbgpln("EvalIntegral - AddDeriv Cd      : %14.3f %s > %s", Cd.QMass(), FullObjTag(), Nd_Rmt(i)->FullObjTag());
           Contents.AddDeriv(Cd, IOSign(i), EntR);
           }
         }
       //dbgpln("EvalDerivs   - AddInflow ");
-
-      if (Contents.SpillExists())
-        {
-        //if (Contents.Spill.Cd.QMass()>0)
-        //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", Contents.Spill.Cd.QMass(), FullObjTag());
-        Contents.AddDeriv(Contents.Spill.Cd, -1.0);
-        }
-      if (Contents.VentExists())
-        {
-        //if (Contents.Vent.Cd.QMass()>0)
-        //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
-        Contents.AddDeriv(Contents.Vent.Cd, -1.0);
-        }
 
       //Do Makeup
       int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
@@ -845,20 +834,6 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       }
 
     //dbgpln("EvalIntegral - AddInflow");
-    //Contents.AddInFlowDeriv();
-
-    if (Contents.SpillExists())
-      {
-      //if (Contents.Spill.Cd.QMass()>0)
-      //  dbgpln("EvalIntegral - AddDeriv Overflow: %14.3f %s", Contents.Spill.Cd.QMass(), FullObjTag());
-      Contents.AddDeriv(Contents.Spill.Cd, -1.0);
-      }
-    if (Contents.VentExists())
-      {
-      //if (Contents.Vent.Cd.QMass()>0)
-      //  dbgpln("EvalIntegral - AddDeriv Vent    : %14.3f %s", Contents.Vent.Cd.QMass(), FullObjTag());
-      Contents.AddDeriv(Contents.Vent.Cd, -1.0);
-      }
 
     //Do Makeup
     int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
@@ -998,19 +973,6 @@ void MN_Surge::EvalDiscrete()
       SigmaQOut(Pr, som_ALL, First64IOIds);
       Contents.CompleteMeanResTimeCalcs(Fd, Pr);
       }
-
-    //if (Contents.SpillExists())
-    //  {
-    //  SpDirectCd & O=Contents.OverFlow;
-    //  if (O.QMass()>1e-20)
-    //    dbgpln("EvalDiscrete - AddTotal: %14.3f %s", O.QMass(), Tag());
-    //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
-    //  }
-    //if (Contents.VentExists())
-    //  {
-    //  SpDirectCd & O=Contents.GasVent();
-    //  O.SetTotal(O.Total()+O.QMass()*ICGetTimeInc());
-    //  }
 
     // Qualities
     for (int i = 0;  (i<NoProcessIOs()) && (IOId_Self(i)!=IOId_HX); i++)

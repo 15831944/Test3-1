@@ -871,7 +871,7 @@ m_MixSet(this)
   //dFluxDamping=2.0;
   dLevelSettle=0.0;
   dOverFlowSettle=0.0;
-  pQOutEst=NULL;
+  m_pQOutEst=NULL;
   //pInFlow=NULL;
   //pOverFlow=NULL;
   //pGasVent=NULL;
@@ -928,7 +928,7 @@ m_MixSet(this)
   //dFluxDamping=2.0;
   dLevelSettle=0.0;
   dOverFlowSettle=0.0;
-  pQOutEst=NULL;
+  m_pQOutEst=NULL;
   //pInFlow=NULL;
   //pOverFlow=NULL;
   //pGasVent=NULL;
@@ -974,7 +974,7 @@ SpContainer::~SpContainer()
   pShape->Destroy();
   pModel->Destroy();
 
-  delete pQOutEst;
+  delete m_pQOutEst;
   //delete pInFlow;
   //delete pOverFlow;
   //delete pGasVent;

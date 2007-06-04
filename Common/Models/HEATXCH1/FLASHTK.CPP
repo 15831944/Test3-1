@@ -152,11 +152,11 @@ const byte ioidFT_NCVent       = 3;
 XID   xidFlashDesc             = MdlBsXID(10000);
 
 static IOAreaRec FlashTankIOAreaList[] =
-  {{"Feeds",        "Feed"    , ioidFT_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-  {"Liquor",       "Liquor"  , ioidFT_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 0.0f},
-  {"Vapour",       "Vapour"  , ioidFT_Vap  , LIO_Out1,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {{"Feeds",        "Feed"    , ioidFT_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+  {"Liquor",       "Liquor"  , ioidFT_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+  {"Vapour",       "Vapour"  , ioidFT_Vap  , LIO_Out1,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
 #if WITHNONCONDENSABLES
-  {"NonCond Vent", "NonCondVent",ioidFT_NCVent, LIO_Out, nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
+  {"NonCond Vent", "NonCondVent",ioidFT_NCVent, LIO_Out, nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
 #endif
   SPILL2AREA,
   VENT2AREA,

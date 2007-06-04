@@ -727,9 +727,14 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (NetDynamicMethod())
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, HasModeNear(-1, LFM_Full) && !IsXfer);// || dbgfile());
+    DWORD LSOpts=PrjFileVerNo()<38 ? 0 : noFile|noSnap;
+    dword Flgs0=NoFlwIOs()>=1 ? IODesc_Rmt(0)->m_dwFlags : 0;
+    dword Flgs1=NoFlwIOs()>=2 ? IODesc_Rmt(1)->m_dwFlags : 0;
     DDB.Text   ("Rise/Length", Marker);
     DDB.Double ("PipeLength",     "",       DC_L, "m",  xidFELength,    this, isResult|0|isParmConstruct);
+    DDB.Double ("SrcHF",        "SrcHFrc", DC_Frac, "%",     xidSrcHFrc,     this,   ((Flgs0&IOChgFracHgt)?isParmStopped:0)|LSOpts);
     DDB.Double ("SrcH",           "SrcHgt", DC_L, "m",  xidSrcHgt,      this, isResult|noFile|noSnap);
+    DDB.Double ("DstHF",        "DstHFrc", DC_Frac, "%",     xidDstHFrc,     this,   ((Flgs1&IOChgFracHgt)?isParmStopped:0)|LSOpts);
     DDB.Double ("DstH",           "DstHgt", DC_L, "m",  xidDstHgt,      this, isResult|noFile|noSnap);
     if (PrjFileVerNo()>=100)
       DDB.Double ("Rise",         "",       DC_L, "m",  xidFEDZ,        this, isResult|0|isParmConstruct);
@@ -742,6 +747,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       DDB.Double ("RiseRqd",      "",       DC_L, "m",  &m_RiseRqd,     this, isParmStopped|NAN_OK);
       DDB.Double ("DatumDiff",    "",       DC_L, "m",  &m_DatumChg,    this, isParmStopped|NAN_OK);
       }
+    DDB.Double ("SrcAperture",  "",        DC_Frac, "%",     xidSrcAperture,  this, (Flgs0&IOChgFracHgt&&SolveInlineMethod_Rmt(0)?0:noView)|LSOpts);
+    DDB.Double ("DstAperture",  "",        DC_Frac, "%",     xidDstAperture,  this, (Flgs1&IOChgFracHgt&&SolveInlineMethod_Rmt(1)?0:noView)|LSOpts);
     }
 #endif
 
@@ -752,20 +759,14 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
 
   if (!NetProbalMethod())
     {
-    DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-    DWORD LSOpts=PrjFileVerNo()<38 ? 0 : noFile|noSnap;
-    dword Flgs0=NoFlwIOs()>=1 ? IODesc_Self(0)->m_dwFlags : 0;
-    dword Flgs1=NoFlwIOs()>=2 ? IODesc_Self(1)->m_dwFlags : 0;
-    DDB.Double ("SrcHF",        "SrcHFrc", DC_Frac, "%",     xidSrcHFrc,     this, (Flgs0&IOShwFracHgt?noView:0)|isParmStopped|LSOpts);
-    DDB.Double ("DstHF",        "DstHFrc", DC_Frac, "%",     xidDstHFrc,     this, (Flgs1&IOShwFracHgt?noView:0)|isParmStopped|LSOpts);
-    DDB.Double ("SrcAperture",  "",        DC_Frac, "%",     xidSrcAperture,  this, (Flgs0&IOShwFracHgt&&SolveInlineMethod_Rmt(0)?noView:0)|LSOpts);
-    DDB.Double ("DstAperture",  "",        DC_Frac, "%",     xidDstAperture,  this, (Flgs1&IOShwFracHgt&&SolveInlineMethod_Rmt(1)?noView:0)|LSOpts);
-
+    //DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+    DDB.Text("");
     DDB.CheckBox   ("FwdOnly","",         DC_, "",  &m_fFwdOnly,   this, isParm|SetOnChange);
     }
 
   if (IsPipe)
     {
+    DDB.Text("");
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, m_fFwdOnly);
     DDB.Double ("UDFOpenP",       "",     DC_P, "kPa", xidUDFOpenP   ,this, isParm);
     DDB.Long   ("UDFActionCount", "",     DC_,  "",    xidUDFActCnt  ,this, 0|InitHidden);

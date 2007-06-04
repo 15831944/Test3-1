@@ -15,9 +15,9 @@ const byte ioidSteamOut = 1;
 const byte ioidBlowDown = 2;
 
 static IOAreaRec BoilerIOAreaList[] =
-  {{"",   "FeedLiquor", ioidFeedLiq,  LIO_In0 ,    nc_MLnk, 1, 10,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.1},
-  {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOShwFracHgt|IOShwAperture, 1.0f},
-  {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, (float)0.5},
+  {{"",   "FeedLiquor", ioidFeedLiq,  LIO_In0 ,    nc_MLnk, 1, 10,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, (float)0.1},
+  {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOChgFracHgt|IOChgAperture, 1.0f},
+  {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, (float)0.5},
   SPILL2AREA,
   VENT2AREA,
   {NULL}}; //This lists the areas of the model where links can be attached.

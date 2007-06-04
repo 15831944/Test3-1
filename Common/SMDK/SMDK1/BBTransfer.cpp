@@ -23,16 +23,18 @@ const byte ioidProd2  = 5;
 const byte ioidProd3  = 6;
 const byte ioidProd4  = 7;
 
-static IOAreaRec BBNodeIOAreaList[] = {
-  {"",              "Feed0"    , ioidFeed0, LIO_In0 ,  nc_MLnk, 1, 10, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Feed1"    , ioidFeed1, LIO_In1 ,  nc_MLnk, 0, 10, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Feed2"    , ioidFeed2, LIO_In2 ,  nc_MLnk, 0, 10, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Product0" , ioidProd0, LIO_Out0,  nc_MLnk, 1,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Product1" , ioidProd1, LIO_Out1,  nc_MLnk, 0,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Product2" , ioidProd2, LIO_Out2,  nc_MLnk, 0,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Product3" , ioidProd3, LIO_Out ,  nc_MLnk, 0,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {"",              "Product4" , ioidProd4, LIO_Out ,  nc_MLnk, 0,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
-  {NULL} };
+static IOAreaRec BBNodeIOAreaList[] = 
+  {
+    {"",              "Feed0"    , ioidFeed0, LIO_In0 ,  nc_MLnk, 1, 10, IOIsBuffer|IOGRP(1), 0.0},
+    {"",              "Feed1"    , ioidFeed1, LIO_In1 ,  nc_MLnk, 0, 10, IOIsBuffer|IOGRP(1), 0.0},
+    {"",              "Feed2"    , ioidFeed2, LIO_In2 ,  nc_MLnk, 0, 10, IOIsBuffer|IOGRP(1), 0.0},
+    {"",              "Product0" , ioidProd0, LIO_Out0,  nc_MLnk, 1,  1, IOIsBuffer|IOGRP(1), 0.0},
+    {"",              "Product1" , ioidProd1, LIO_Out1,  nc_MLnk, 0,  1, IOIsBuffer|IOGRP(1), 0.0F},
+    {"",              "Product2" , ioidProd2, LIO_Out2,  nc_MLnk, 0,  1, IOIsBuffer|IOGRP(1), 0.0F},
+    {"",              "Product3" , ioidProd3, LIO_Out ,  nc_MLnk, 0,  1, IOIsBuffer|IOGRP(1), 0.0F},
+    {"",              "Product4" , ioidProd4, LIO_Out ,  nc_MLnk, 0,  1, IOIsBuffer|IOGRP(1), 0.0F},
+    {NULL} 
+  };
 
 //define default graphic symbol
 static double Drw_BBNode[] = { DD_Poly, -8,-7, -8,7, 8,7, 8,-7, -8,-7,

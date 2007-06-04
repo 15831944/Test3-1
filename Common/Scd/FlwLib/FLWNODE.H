@@ -1940,9 +1940,7 @@ class CHgtOrdInfo
       m_dwIOIdMask=0;
       }
 
-    int NOrd() { return Ord.GetSize(); };
-    int NOvr() { return m_Ovr.GetSize(); };
-    int NGas() { return m_Gas.GetSize(); };
+    int NOrd() { return m_Ord.GetSize(); };
 
     SpContainer &Container() { return *m_pCn; };
     SpConduit   &ContentFlw() { return m_FlwCd; };
@@ -1952,10 +1950,8 @@ class CHgtOrdInfo
     IDMask              m_dwIOIdMask;
     SpContainer       * m_pCn;
     SpConduit           m_FlwCd;
-    CArray <int, int>   Ord;
-    CArray <int, int>   Seq;
-    CArray <int, int>   m_Ovr;
-    CArray <int, int>   m_Gas;
+    CArray <int, int>   m_Ord;
+    CArray <int, int>   m_Seq;
   };
 
 class CSrgFlwInfo
@@ -1980,49 +1976,27 @@ enum eEvalSeqStart {ESS_Denied, ESS_Allowed, ESS_Required };
 
 // ----------------------------------------------------------
 
-const dword dwIOGRP           = 0x0000000f;
-const dword dwIOIsBuffer      = 0x00000100;
-const dword dwIOSetXfer       = 0x00000200;
+const dword IOGrp           = 0x0000000f;
+const dword IOIsBuffer      = 0x00000100;
+const dword IOSetXfer       = 0x00000200;
 
-const dword dwIOFlagBase      = 0x00ff0000;
-const dword dwIOOverflow      = 0x00010000;
-const dword dwIOGasVent       = 0x00020000;
-const dword dwIOPipeEntry     = 0x00040000;
-const dword dwIOPipeJoin      = 0x00080000;
-const dword dwIOApertureHoriz = 0x00100000;
-const dword dwIOPassVapours   = 0x00200000;
-const dword dwIOPassLiquids   = 0x00400000;
-const dword dwIOPassSolids    = 0x00800000;
-const dword dwIOShwFracHgt    = 0x01000000;
-const dword dwIOShwAperture   = 0x02000000;
-const dword dwIOHidden        = 0x04000000;
-const dword dwIOOptsHide      = 0x08000000;
-const dword dwIOEqnsHide      = 0x10000000;
-const dword dwIOSSDenied      = 0x20000000;
+const dword IOFlagBase      = 0x00ff0000;
+const dword IOPipeEntry     = 0x00010000;
+const dword IOPipeJoin      = 0x00020000;
+const dword IOApertureHoriz = 0x00040000;
+const dword IOPassVapours   = 0x00080000;
+const dword IOPassLiquids   = 0x00100000;
+const dword IOPassSolids    = 0x00200000;
+const dword IOChgFracHgt    = 0x00400000;
+const dword IOChgAperture   = 0x00800000;
+const dword IOHidden        = 0x01000000;
+const dword IOOptsHide      = 0x02000000;
+const dword IOEqnsHide      = 0x04000000;
+const dword IOSSDenied      = 0x08000000;
 
-//const dword dwIOFlagUser      = 0xff000000;
-
-#define IOGRP(x)          ((x) & dwIOGRP)
-#define IOISBUFFER(x)     (((x) & dwIOIsBuffer)!=0)
-#define IOSetXfer         dwIOSetXfer
-#define IOISSETXFER(x)    (((x) & dwIOSetXfer)!=0)
-#define IOISSETTEAR(x)    (((x) & dwIOSetTear)!=0)
-
-#define IOIsBuffer        dwIOIsBuffer
-#define IOOverflow        dwIOOverflow
-#define IOGasVent         dwIOGasVent
-#define IOPipeEntry       dwIOPipeEntry
-#define IOPipeJoin        dwIOPipeJoin
-#define IOApertureHoriz   dwIOApertureHoriz
-#define IOPassVapours     dwIOPassVapours
-#define IOPassLiquids     dwIOPassLiquids
-#define IOPassSolids      dwIOPassSolids
-#define IOShwFracHgt      dwIOShwFracHgt
-#define IOShwAperture     dwIOShwAperture
-#define IOHidden          dwIOHidden
-#define IOOptsHide        dwIOOptsHide
-#define IOEqnsHide        dwIOEqnsHide
-#define IOSSDenied        dwIOSSDenied
+#define IOGRP(x)          ((x) & IOGrp)
+#define IOISBUFFER(x)     (((x) & IOIsBuffer)!=0)
+#define IOISSETXFER(x)    (((x) & IOSetXfer)!=0)
 
 class DllImportExport CAltIOName
   {
@@ -3715,10 +3689,10 @@ class DllImportExport FlwNode : public CTNode
     //CAirConduit   &AIO_Conduit(int i) const       { return m_IOs[i].AirConduit(); };
     //void           SetAIO_Conduit(int i, const CAirConduit & d) { m_IOs[i].SetAirConduit(d); };
 
-    flag           IOPipeEntry_Self(int i)     { return (IODesc_Self(i)->m_dwFlags & dwIOPipeEntry)!=0; };
-    flag           IOPipeEntry_Rmt(int i)      { return (IODesc_Rmt(i)->m_dwFlags & dwIOPipeEntry)!=0; };
-    flag           IOPipeJoin_Self(int i)      { return (IODesc_Self(i)->m_dwFlags & dwIOPipeJoin)!=0; };
-    flag           IOPipeJoin_Rmt(int i)       { return (IODesc_Rmt(i)->m_dwFlags & dwIOPipeJoin)!=0; };
+    flag           IOPipeEntry_Self(int i)     { return (IODesc_Self(i)->m_dwFlags & IOPipeEntry)!=0; };
+    flag           IOPipeEntry_Rmt(int i)      { return (IODesc_Rmt(i)->m_dwFlags & IOPipeEntry)!=0; };
+    flag           IOPipeJoin_Self(int i)      { return (IODesc_Self(i)->m_dwFlags & IOPipeJoin)!=0; };
+    flag           IOPipeJoin_Rmt(int i)       { return (IODesc_Rmt(i)->m_dwFlags & IOPipeJoin)!=0; };
 
     // EvalSeqStartOK this to be set true if S Transfer sequence is allowed start here
     void           SetIO_Open(int i, int iJoinId, flag Damped, eEvalSeqStart ESS, byte FlwPhasesAllowed = FPh_Default );
@@ -3775,7 +3749,7 @@ class DllImportExport FlwNode : public CTNode
 
     virtual eEvalSeqStart IOEvalSeqStart_Self(int i)        
       { 
-      if ((IODesc_Self(i)->m_dwFlags&dwIOSSDenied) && NetDynamicMethod() && SolveSurgeMethod())
+      if ((IODesc_Self(i)->m_dwFlags&IOSSDenied) && NetDynamicMethod() && SolveSurgeMethod())
         return ESS_Denied;
       //if ((IODesc_Rmt(i)->m_dwFlags&dwIOSSDenied) && Nd_Rmt(i)->NetDynamicMethod() && Nd_Rmt(i)->SolveSurgeMethod())
       //  return ESS_Denied;
@@ -3944,7 +3918,12 @@ class DllImportExport FlwNode : public CTNode
     double         IOAbsFracHgt_Term(int i, double ShapeHeight, double ShapeDatumPt);
     double         IOAbsFracHgt_Term(int i, SpContainer & C) { return IOAbsFracHgt_Term(i, C.ShapeHeight(), C.ShapeDatumPt()); };
     double         IORelFracHgt_Flng(int i, flag Ranged=true) { double F=m_IOs[i].dFracHgt; if (Ranged) F=Range(MinFracHgt[SolveInlineMethod()?1:0], F, MaxFracHgt[SolveInlineMethod()?1:0]); return F; };
-    void           SetIORelFracHgt_Flng(int i, double h)      { m_IOs[i].dFracHgt=h; };
+    void           SetIORelFracHgt_Flng(int i, double h)      
+      { 
+      if ((IODesc_Self(i)->m_dwFlags & IOChgFracHgt)==0)
+        h=IODesc_Self(i)->m_dFracHgt;
+      m_IOs[i].dFracHgt=h; 
+      };
 
     double         IOAperture(int i, flag Ranged=true) { double A=m_IOs[i].dAperture; if (Ranged) A=Range(MinAperture[SolveInlineMethod()?1:0], A, 0.5); return A;};
     void           SetIOAperture(int i, double d)      { m_IOs[i].dAperture=d; };

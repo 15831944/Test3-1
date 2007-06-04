@@ -70,10 +70,10 @@ const byte ioidSI_HotLiq      = 2;
 const byte ioidSI_ESteam      = 3;
 
 static IOAreaRec ContactHeaterIOAreaList[] =
-  {{"Liquor",      "Liquor",     ioidSI_Liq ,   LIO_In0 ,    nc_MLnk, 1,  10, IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture|IOApertureHoriz, 1.0f},
-   {"Steam",       "Steam"  ,    ioidSI_Steam,  LIO_In1 ,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.5f},
-   {"Hot Liquor",  "HotLiquor",  ioidSI_HotLiq, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.5f},
-   {"Excess Steam","ExcessSteam",ioidSI_ESteam, LIO_Out1,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOShwFracHgt|IOShwAperture, 0.98f},
+  {{"Liquor",      "Liquor",     ioidSI_Liq ,   LIO_In0 ,    nc_MLnk, 1,  10, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
+   {"Steam",       "Steam"  ,    ioidSI_Steam,  LIO_In1 ,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, 0.5f},
+   {"Hot Liquor",  "HotLiquor",  ioidSI_HotLiq, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, 0.5f},
+   {"Excess Steam","ExcessSteam",ioidSI_ESteam, LIO_Out1,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, 0.98f},
    SPILL2AREA,
    VENT2AREA,
    {NULL}}; //This lists the areas of the model where links can be attached.

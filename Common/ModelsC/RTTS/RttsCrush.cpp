@@ -510,8 +510,8 @@ const byte ioidFeed   = 0;
 const byte ioidProd   = 1;
 
 static IOAreaRec RTCrusherIOAreaList[] =
-  {{"",              "Feed"      , ioidFeed,  LIO_In ,  nc_MLnk, 1, 20, dwIOIsBuffer|IOGRP(1), 0.0F},
-   {"",              "Product"   , ioidProd,  LIO_Out,  nc_MLnk, 1,  1, dwIOIsBuffer|IOGRP(1), 0.0F},
+  {{"",              "Feed"      , ioidFeed,  LIO_In ,  nc_MLnk, 1, 20, IOIsBuffer|IOGRP(1), 0.0F},
+   {"",              "Product"   , ioidProd,  LIO_Out,  nc_MLnk, 1,  1, IOIsBuffer|IOGRP(1), 0.0F},
    {NULL}};
 
 //define default graphic symbol

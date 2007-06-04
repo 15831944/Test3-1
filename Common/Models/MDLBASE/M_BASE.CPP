@@ -1124,6 +1124,8 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Lf-=dVf;
     }
 
+  //dbgpln("SetOutput ??? [%3i]", IONo);
+
   CSpPropInfo & NP =*IONetProps(IONo);
 
   // Convert VolFrac to MassFracs
@@ -1145,6 +1147,8 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Img.CopyModel(&Cn);
     Img.SetTempPress(Cn.Temp(), Cn.Press());
 
+    //dbgpln("SetOutput Img [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", IONo, Img.MassFrac(som_Sol), Img.MassFrac(som_Liq), Img.MassFrac(som_Gas));
+
     // When would this be needed ???????
     double DensCorr=1;//Img.Rho(som_SL)/GTZ(Contents.Rho(som_SL));
     LVolFrac*=DensCorr;
@@ -1163,6 +1167,9 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
       Fo.QSetM(Img, som_Gas, Qv, IOP_Self(IONo));
       Fo.QAddM(Img, som_SL,  Qs);
       }
+
+    //dbgpln("                    S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Img.MassFrac(som_Sol), Img.MassFrac(som_Liq), Img.MassFrac(som_Gas));
+
     //Fo.SetTemp(Contents.Temp());
     //Fo.CopyModel(Contents.Model());
     }
@@ -1188,6 +1195,7 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Fo.QSetM(Cn, FiltVap, Qv, IOP_Self(IONo));
     Fo.QAddM(Cn, FiltSL, Qs);
     Fo.SetTempPress(Cn.Temp(), Cn.Press());
+
     IO_Self(IONo).SetPMUPassing(False);
     IO_Self(IONo).SetPMUBlocking(False);
     }
@@ -1425,28 +1433,10 @@ void MdlNode::VentVapours(SpContainer &Contents)
 void MdlNode::DoOverflowLinks(CHgtOrdInfo & HO)
   {
   SpContainer &Contents=HO.Container();
-  // Setup Overflow product
-  if (Contents.Spill.Flowing())
-    {
-    if (HO.NOvr()>0)
-      {
-      double QOvr=GTZ(Contents.Spill.Cd.QMass(som_SL));
-      double QOut=0.0;
-      for (int i=0; i<HO.NOvr(); i++)
-        QOut+=IOQmEst_Out(HO.m_Ovr[i]);
-
-      double Scl=Min(1.0, QOvr/GTZ(QOut));
-      for (i=0; i<HO.NOvr(); i++)
-        IOConduit(HO.m_Ovr[i])->QSetM(Contents.Spill.Cd, som_SL, Scl*IOQmEst_Out(HO.m_Ovr[i]), Std_P);
-      Contents.Spill.Cd.QScaleMass(som_ALL, GEZ(1.0-QOut/QOvr));
-      }
-    }
-  else
+  if (!Contents.Spill.Flowing())
     {
     Contents.ClrCI(2);
     Contents.ClrCI(3);
-    for (int i=0; i<HO.NOvr(); i++)
-      IOConduit(HO.m_Ovr[i])->QZero();
     }
   }
 
@@ -1455,33 +1445,10 @@ void MdlNode::DoOverflowLinks(CHgtOrdInfo & HO)
 void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
   {
   SpContainer &Contents=HO.Container();
-  // Setup Gasvent product
-  if (Contents.Vent.Flowing())
-    {
-    if (HO.NGas()>0)
-      {
-      double QGas=GTZ(Contents.Vent.Cd.QMass(som_Gas));
-      double QOut=0.0;
-      for (int i=0; i<HO.NGas(); i++)
-        if (IO_Out(HO.m_Gas[i]))
-          QOut+=IOQmEst_Out(HO.m_Gas[i]);
-
-      double Scl=Min(1.0, QGas/GTZ(QOut));
-      for (i=0; i<HO.NGas(); i++)
-        if (IO_Out(HO.m_Gas[i]))
-          IOConduit(HO.m_Gas[i])->QSetM(Contents.Vent.Cd, som_Gas, Scl*IOQmEst_Out(HO.m_Gas[i]), Std_P);
-      Contents.Vent.Cd.QScaleMass(som_ALL, GEZ(1.0-QOut/QGas));
-      }
-    }
-  else
+  if (!Contents.Vent.Flowing())
     {
     Contents.ClrCI(5);
     Contents.ClrCI(6);
-    for (int i=0; i<HO.NGas(); i++)
-      {
-      const int ii = HO.m_Gas[i];
-        IOConduit(ii)->QZero();
-      }
     }
   }
 
@@ -1582,7 +1549,7 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
 
   for (int j=0; j<HO.NOrd(); j++)
     {
-    int iIONo=HO.Ord[j];
+    int iIONo=HO.m_Ord[j];
     if (!IO_In(iIONo))
       {
       double LVolFrac=IONetProps(iIONo)->LVolFrac();
@@ -1610,11 +1577,6 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
     }
   else if (!Contents.Mixed() && !Contents.Closed())
     {
-    //    if (Contents.Level()>1.0)
-//      {
-//      ASSERT_ALWAYS(FALSE, "INCOMPLETE", __FILE__, __LINE__);
-//      }
-
     if (DoDbgBrk())
       { int xxx=0; };
 
@@ -1628,20 +1590,19 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
 
     GetCnFlows(false, HO, -1, QmSLFeed, QvSLFeed, QvSLOutBelow);
 
-    double Aperture=0.01;
-    double FHgt=1.0-Aperture;
+    double Aperture=0.001;
+    double FHgt=1.00;//-Aperture;
 
     //SpMArray Image;
     double SVolFrac=GetSVolFrac(Contents, -1, Aperture, FHgt, QvSLRqd, QvSLFeed, QvSLOutBelow, NULL);
 
-    if (SVolFrac>1.0e-12) // Got FLow
+    if (SVolFrac>1.0e-12) // Got Flow
       {
       SVolFrac=Range(0.0, SVolFrac, 1.0);
       double Qs=SVolFrac*QmSLRqd;
       ASSERT_RDB(Qs>=0.0, "Why is Qs negative !!!", __FILE__, __LINE__); //kga 10/12/02 ERROR!!! (Set to zero for now)
+      
       Contents.Spill.Cd.QSetM(Contents, som_SL, Max(0.0, Qs), Contents.Press());
-      //Contents.Spill.QSetM(Contents, som_SL, Qs, Contents.Press());
-      //QvActual_SL+=Qs;
       }
     else
       {
@@ -1757,32 +1718,32 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
   double PrevFHgt=0;
   for (int j=0; j<HO.NOrd(); )//j++)
     {
-    int iIONo=HO.Ord[j];
+    int iIONo=HO.m_Ord[j];
     DoneIt[iIONo]=false;
-    if (!IO_In(iIONo) && HO.Seq[j]>HOSeq)
+    if (!IO_In(iIONo) && HO.m_Seq[j]>HOSeq)
       {
           
       #if dbgDerivs
       if (dbgso)
         dbgpln("  IOOut %3i Calc %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
       #endif
-      HOSeq=HO.Seq[j];
+      HOSeq=HO.m_Seq[j];
 
       int j1;
       double FlwDmd=0;
       double CtrlDmd=0;
       bool CtrlNow=false;
-      for (j1=j; j1<HO.NOrd() && HO.Seq[j1]==HOSeq; j1++)
+      for (j1=j; j1<HO.NOrd() && HO.m_Seq[j1]==HOSeq; j1++)
         {
-        if (!IO_In(HO.Ord[j1]))
+        if (!IO_In(HO.m_Ord[j1]))
           {
-          if (iLvlCtrl==HO.Ord[j1])
+          if (iLvlCtrl==HO.m_Ord[j1])
             {
-            CtrlDmd=IOQmEst_Out(HO.Ord[j1]);
+            CtrlDmd=IOQmEst_Out(HO.m_Ord[j1]);
             CtrlNow=true;
             }
           else
-            FlwDmd+=IOQmEst_Out(HO.Ord[j1]);
+            FlwDmd+=IOQmEst_Out(HO.m_Ord[j1]);
           }
         }
 
@@ -1827,25 +1788,25 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
       double FlwScl=Min(1.0, Flw/GTZ(FlwDmd));
       Flw=GTZ(Flw);
 
-      for (j1=j; j1<HO.NOrd() && HO.Seq[j1]==HOSeq; j1++)
-        if (!IO_In(HO.Ord[j1]))  
+      for (j1=j; j1<HO.NOrd() && HO.m_Seq[j1]==HOSeq; j1++)
+        if (!IO_In(HO.m_Ord[j1]))  
           {
-          if (iLvlCtrl==HO.Ord[j1])
+          if (iLvlCtrl==HO.m_Ord[j1])
             {
-            SetOutputFlows(HO, HO.Ord[j1], FlwScl*CtrlFlw/GTZ(CtrlDmd), 0.0);
-            DoneIt[HO.Ord[j1]]=true;
+            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl*CtrlFlw/GTZ(CtrlDmd), 0.0);
+            DoneIt[HO.m_Ord[j1]]=true;
             #if dbgDerivs
             if (dbgso)
-              dbgpln("    %3i = %18.3f %s",HO.Ord[j1],IOQmEst_Out(HO.Ord[j1])*FlwScl, Nd_Rmt(HO.Ord[j1])->FullObjTag());
+              dbgpln("    %3i = %18.3f %s",HO.m_Ord[j1],IOQmEst_Out(HO.m_Ord[j1])*FlwScl, Nd_Rmt(HO.m_Ord[j1])->FullObjTag());
             #endif
             }
           else
             {
-            SetOutputFlows(HO, HO.Ord[j1], FlwScl, 0.0);
-            DoneIt[HO.Ord[j1]]=true;
+            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl, 0.0);
+            DoneIt[HO.m_Ord[j1]]=true;
             #if dbgDerivs
             if (dbgso)
-              dbgpln("    %3i = %18.3f %s",HO.Ord[j1],IOQmEst_Out(HO.Ord[j1])*FlwScl, Nd_Rmt(HO.Ord[j1])->FullObjTag());
+              dbgpln("    %3i = %18.3f %s",HO.m_Ord[j1],IOQmEst_Out(HO.m_Ord[j1])*FlwScl, Nd_Rmt(HO.m_Ord[j1])->FullObjTag());
             #endif
             }
           }
@@ -1866,7 +1827,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
 
   for (int j=0; j<HO.NOrd(); j++)
     {
-    int iIONo=HO.Ord[j];
+    int iIONo=HO.m_Ord[j];
     if (!DoneIt[iIONo])
       {
       if (!IO_In(iIONo))
@@ -3326,8 +3287,8 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       IHgt[i]=-1;
     IHgt[NoFlwIOs()]=-2; // As A Marker - temp
     int Oi=0;
-    int nOvr=0;
-    int nGas=0;
+    //int nOvr=0;
+    //int nGas=0;
 
     byte DoSort;
     do
@@ -3339,23 +3300,13 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
           if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
             {
             IOAreaRec * pA=IODesc_Self(i);
-            if ((pA->m_dwFlags & (IOOverflow|IOGasVent)) && !Cn.Closed())
+            if (IOHgtOrd(i)>=0 && IOHgtOrd(i)<NoFlwIOs())
               {
-              if (pA->m_dwFlags & IOOverflow)
-                HO.m_Ovr.SetAtGrow(nOvr++, i);
-              else // IOGasVent
-                HO.m_Gas.SetAtGrow(nGas++, i);
+              IHgt[IOHgtOrd(i)]=i;
+              ++Oi;
               }
             else
-              {
-              if (IOHgtOrd(i)>=0 && IOHgtOrd(i)<NoFlwIOs())
-                {
-                IHgt[IOHgtOrd(i)]=i;
-                ++Oi;
-                }
-              else
-                DoSort=1;
-              }
+              DoSort=1;
             }
 
       for (i = 0; i < Oi && !DoSort; i++)
@@ -3389,25 +3340,23 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
           SetIOSameHgt((byte)IHgt[i], (i>0) && ((FHgt[IHgt[i]] - FHgt[IHgt[i-1]]) < 1.0e-3));
           //#if dbgModels
           //if (dbg)
-          //  dbgpln(" %2i %2i %2i %6.2f ",i,IHgt[i],IOSameHgt(IHgt[i]), FHgt[IHgt[i]]);
+          //  dbgpln(" %2i %2i %2i %8.4f ",i,IHgt[i],IOSameHgt(IHgt[i]), FHgt[IHgt[i]]);
           //#endif
           }
         }
       }
     while (DoSort);
 
-    HO.Ord.SetSize(Oi);
-    HO.Seq.SetSize(Oi);
-    HO.m_Ovr.SetSize(nOvr);
-    HO.m_Gas.SetSize(nGas);
+    HO.m_Ord.SetSize(Oi);
+    HO.m_Seq.SetSize(Oi);
 
     int HSeq=0;
     for (i = 0; i < Oi; i++)
       {
-      HO.Ord[i]=IHgt[i];
+      HO.m_Ord[i]=IHgt[i];
       if (i>0 && ((FHgt[IHgt[i]] - FHgt[IHgt[i-1]]) >= 1.0e-3))
         HSeq++;
-      HO.Seq[i]=HSeq;
+      HO.m_Seq[i]=HSeq;
       }
 
     #if dbgModels
@@ -3415,12 +3364,9 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       {
       dbgpln("Ord:   i Inx Seq  SH  Height Apertur");
       for (i = 0; i < Oi; i++)
-        dbgpln("Ord: %3i %3i %3i %3i %6.2f%% %6.2f%% %15s %s",
-        i,HO.Ord[i], HO.Seq[i], IOSameHgt((byte)IHgt[i]), FHgt[IHgt[i]]*100, IOAperture(IHgt[i])*100, IODesc_Self(HO.Ord[i])->IOName(), Nd_Rmt(HO.Ord[i])->FullObjTag());
-      for (i = 0; i < HO.NOvr(); i++)
-        dbgpln("Ovr: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Ovr[i], "","","","", IODesc_Self(HO.m_Ovr[i])->IOName(), Nd_Rmt(HO.m_Ovr[i])->FullObjTag());
-      for (i = 0; i < HO.NGas(); i++)
-        dbgpln("Gas: %3i %3i %3s %3s %6s %6s %15s %s", i,HO.m_Gas[i], "","","","", IODesc_Self(HO.m_Gas[i])->IOName(), Nd_Rmt(HO.m_Gas[i])->FullObjTag());
+        dbgpln("Ord: %3i %3i %3i %3i %8.4f%% %8.4f%% %15s %s",
+        i,HO.m_Ord[i], HO.m_Seq[i], IOSameHgt((byte)IHgt[i]), FHgt[IHgt[i]]*100, IOAperture(IHgt[i])*100, 
+        IODesc_Self(HO.m_Ord[i])->IOName(), Nd_Rmt(HO.m_Ord[i])->FullObjTag());
       }
     #endif
     }
@@ -3440,14 +3386,14 @@ void MdlNode::GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &Qm
   int MySeq=MaxIOList;
   for (int j=0; j<HO.NOrd(); j++)
     {
-    int ii=HO.Ord[j];
+    int ii=HO.m_Ord[j];
     if (ii==IONo)
-      MySeq=HO.Seq[j];
+      MySeq=HO.m_Seq[j];
     }
 
   for (int j=0; j<HO.NOrd(); j++)
     {
-    int ii=HO.Ord[j];
+    int ii=HO.m_Ord[j];
     // if IONo<0 then doing Overflow
     if (ii==IONo)
       {
@@ -3465,7 +3411,7 @@ void MdlNode::GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &Qm
       QvSLFeed+=QmIn*(Fp.msVolL()*(1-Fp.VVolFrac())*(1-IOEstL2VOnEntry(ii))+
                       Fp.msVolL()*(Fp.VVolFrac())*IOEstV2LOnEntry(ii));
       }
-    else if ((ii!=IONo) && IO_Out(ii) && (HO.Seq[j]</*=*/MySeq))
+    else if ((ii!=IONo) && IO_Out(ii) && (HO.m_Seq[j]</*=*/MySeq))
       {
       CSpPropInfo &Fp=*IOFlwProps(ii,0);
       double Qm=GetActualQm ? IOQm_Out(ii) : IOQmEst_Out(ii);
@@ -3569,7 +3515,7 @@ void MdlNode::DoIOGetNetProps_Surge(int IONo, double Qm)
     GetCnFlows(false, HO, IONo, QmSLFeed, QvSLFeed, QvSLOutBelow);
 
     double Aperture=IOAperture(IONo, SolveInlineMethod());
-    double FHgt=Range(0.00/*1*/, IOAbsFracHgt_Term(IONo, Cn), 1.0-Aperture);
+    double FHgt=Range(0.0, IOAbsFracHgt_Term(IONo, Cn), 1.0-Aperture);
     // mean Density leaving tank
     double MassTnk=Cn.Mass(som_SL);
     double MassIn=QmSLFeed*ICGetTimeInc();
@@ -3693,10 +3639,11 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
             if (DDB.BeginElement(this, Tg(), D.IOName(), 0, DDB_OptPage, 0))
               {
               DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
-              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOShwFracHgt)?noView:0)|isParmStopped);
-              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOShwAperture || SolveInlineMethod())?noView:0)|isParmStopped);
+              //DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?0:noView)|((D.m_dwFlags&IOOverflow)?0:isParmStopped));
+              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?isParmStopped:0));
               DDB.Double ("Datum",         "Z",    DC_L,        "m",      xidIO_Hgt0+i,         this, isResult|noFile|noSnap);
-              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOShwAperture || SolveInlineMethod())?noView:0)|isResult|noFile|noSnap);
+              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isParmStopped);
+              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isResult|noFile|noSnap);
               DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
               DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
               DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);
@@ -4415,12 +4362,12 @@ flag MdlNode::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 1: pS="N\tOverFlowing";                    return 1;
-    case 2: pS="N\tOverflow Targeted to Self";      return 1;
-    case 3: pS="N\tOverflow Target not Found";      return 1;
-    case 4: pS="N\tGas Venting";                    return 1;
-    case 5: pS="N\tGasVent Targeted to Self";       return 1;
-    case 6: pS="N\tGasVent Target not Found";       return 1;
+    case 1: pS="N\tSpilling";                       return 1;
+    case 2: pS="N\tSpill Targeted to Self";         return 1;
+    case 3: pS="N\tSpill Target not Found";         return 1;
+    case 4: pS="N\tVenting";                        return 1;
+    case 5: pS="N\tVent Targeted to Self";          return 1;
+    case 6: pS="N\tVent Target not Found";          return 1;
     case 7: pS="E\tMass Imbalance";                 return 1;
     case 8: pS="E\tHeat Imbalance";                 return 1;
     case 9: pS="E\tMass and Heat Imbalance";        return 1;
