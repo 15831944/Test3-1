@@ -9807,6 +9807,15 @@ double CSysVector::Normalise()
 
 //--------------------------------------------------------------------------
 
+void CSysVector::SetTo(double Value)
+  {
+  SPMVECTORTIMERLAP(sm_swOther);
+  for (int i=0; i < SVSpcCount(); i++)
+    m_d[i]=Value;
+  };
+
+//--------------------------------------------------------------------------
+
 void CSysVector::SetToOnesAndZeros(flag Invert, double Tol)
   {
   SPMVECTORTIMERLAP(sm_swOther);
@@ -9816,7 +9825,7 @@ void CSysVector::SetToOnesAndZeros(flag Invert, double Tol)
     m_d[i]=(fabs(m_d[i])<=Tol) ? V0 : V1;
   };
 
-//--------------------------------------------------------------------------
+//-------------------------------------------------------------------------- {
 
 void CSysVector::ToMass(CSysVector &MA)
   {

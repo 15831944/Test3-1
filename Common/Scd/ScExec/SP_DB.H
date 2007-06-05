@@ -2225,6 +2225,7 @@ class DllImportExport CSysVector
     //void        CopyPhase(SpVector &MA, PhMask Phase=som_ALL);
     double      Normalise();
     double      Normalise(CSysVector &MA);
+    void        SetTo(double Value);
     void        SetToOnesAndZeros(flag Invert=false, double Tol=ZeroLimit);
     double      Sum(PhMask Phase=som_ALL);
     void        ToMass(CSysVector &MA);

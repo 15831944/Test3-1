@@ -40,6 +40,9 @@ class ElectroCell : public MN_Surge
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
+    virtual void   PostConnect(int IONo);
+    virtual void   PreDisConnect(int IONo);
+
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);
     virtual void   ClosureInfo();

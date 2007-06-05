@@ -364,38 +364,37 @@ void MN_Surge::ConfigureJoins()
   const int JnId_Surge=0;
   const int JnId_HX   =1;
   const int JnId_Spill=2;
-  switch (NetMethod())
+  if (NetProbalMethod() || SolveDirectMethod())
     {
-    case NM_Probal:
-      for (int i=0; i<NoProcessIOs(); i++)
+    for (int i=0; i<NoProcessIOs(); i++)
+      {
+      int Id=IOId_Self(i);
+      if (IsMLnkIOId(Id))
         {
-        int Id=IOId_Self(i);
-        if (IsMLnkIOId(Id))
-          {
-          if (Id<IOId_HX)
-            SetIO_Join(i, JnId_Surge);
-          else
-            SetIO_Join(i, JnId_HX);
-          }
-        }
-      break;
-    case NM_Dynamic:
-      for (int i=0; i<NoProcessIOs(); i++)
-        {
-        int Id=IOId_Self(i);
-        if (IsMLnkIOId(Id))
-          {
-          if (Id<IOId_HX)
-            SetIO_Open(i, JnId_Surge, Contents.Closed() && Contents.NetPressDamp(), SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
-          else
-            SetIO_Join(i, JnId_HX);
-          }
+        if (Id<IOId_HX)
+          SetIO_Join(i, JnId_Surge);
         else
-          SetIO_Direct(i, JnId_Surge);
+          SetIO_Join(i, JnId_HX);
         }
-      for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
-        SetIO_Direct(ii, jj);
-      break;
+      }
+    }   
+  else
+    {
+    for (int i=0; i<NoProcessIOs(); i++)
+      {
+      int Id=IOId_Self(i);
+      if (IsMLnkIOId(Id))
+        {
+        if (Id<IOId_HX)
+          SetIO_Open(i, JnId_Surge, Contents.Closed() && Contents.NetPressDamp(), SolveInlineMethod() ? ESS_Denied : ESS_Allowed);
+        else
+          SetIO_Join(i, JnId_HX);
+        }
+      else
+        SetIO_Direct(i, JnId_Surge);
+      }
+    for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
+      SetIO_Direct(ii, jj);
     }
   };
 
@@ -433,6 +432,7 @@ inlet and outlet of the surge unit.*/
 void MN_Surge::EvalJoinPressures(long JoinMask)
   {
   if (NoFlwIOs()>0)
+    {
     switch (NetMethod())
       {
       case NM_Probal:
@@ -447,7 +447,7 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
         dbgpln("EvalJoinPressures:%s",FullObjTag());
         #endif
 
-        if (JoinMask&1)
+        if (!SolveDirectMethod() && (JoinMask&1))
           {
           if (HasModeNear(0, LFM_Xfer))
             {
@@ -464,8 +464,12 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
               Set_IOP_RhoH_Self(i,Pm,RhoHInfo);
             }
           }
+        else
+          EvalJoinPressure(0);
+
         break;
         }
+      }
     }
   };
 
@@ -643,7 +647,7 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
           //if (xx && (IOSign(i)>0))
           //  m_VLE.PFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
           if (Cd.QMass()>0)
-            dbgpln("EvalIntegral - AddDeriv Cd      : %14.3f %s > %s", Cd.QMass(), FullObjTag(), Nd_Rmt(i)->FullObjTag());
+            dbgpln("EvalIntegral - AddDeriv Cd      : %14.3f %s %s > %s", Cd.QMass(), FullObjTag(), IODesc_Self(i)->IOName(), Nd_Rmt(i)->FullObjTag());
           Contents.AddDeriv(Cd, IOSign(i), EntR);
           }
         }

@@ -1099,13 +1099,13 @@ double MdlNode::SigmaQvOut(PhMask PhaseM, IDMask IOIds)
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac)
+void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac, bool & CheckOutputs)
   {
   SpContainer & Contents=HO.Container();
   SpConduit   & ContentFlw=HO.ContentFlw();
   SpModel     & Cn = *(SolveInlineMethod() ? ContentFlw.Model() : Contents.Model());
 
-  
+
   SpConduit & Fo = *IOConduit(IONo);
   double Vf=VVolFrac;
   double Lf=LVolFrac;
@@ -1147,7 +1147,7 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Img.CopyModel(&Cn);
     Img.SetTempPress(Cn.Temp(), Cn.Press());
 
-    //dbgpln("SetOutput Img [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", IONo, Img.MassFrac(som_Sol), Img.MassFrac(som_Liq), Img.MassFrac(som_Gas));
+    dbgpln("SetOutput Img [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, Img.MassFrac(som_Sol)*100, Img.MassFrac(som_Liq)*100, Img.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
 
     // When would this be needed ???????
     double DensCorr=1;//Img.Rho(som_SL)/GTZ(Contents.Rho(som_SL));
@@ -1168,8 +1168,9 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
       Fo.QAddM(Img, som_SL,  Qs);
       }
 
-    //dbgpln("                    S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Img.MassFrac(som_Sol), Img.MassFrac(som_Liq), Img.MassFrac(som_Gas));
+    dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol)*100, Fo.MassFrac(som_Liq)*100, Fo.MassFrac(som_Gas)*100);
 
+    CheckOutputs=true;
     //Fo.SetTemp(Contents.Temp());
     //Fo.CopyModel(Contents.Model());
     }
@@ -1177,11 +1178,31 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     {
     //dbgpln("  Out %-12.12s : Pass/Block", Nd_Rmt(IONo)->FullObjTag());
     SpMArray FiltSL(*(IOConduit(IONo)->Model()));
-    FiltSL.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking());
-    SpMArray FiltVap(FiltSL);
+    FiltSL.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
+    SpMArray FiltVap(*(IOConduit(IONo)->Model()));
+    FiltVap.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
+
+    //dbgpln("--------------");
+    //for (int i=0; i < SVSpcCount(); i++)
+    //  dbgp("%.2f ", FiltSL.getVValue(i));
+    //dbgpln("");
+    //for (int i=0; i < SVSpcCount(); i++)
+    //  dbgp("%.2f ", FiltVap.getVValue(i));
+    //dbgpln("");
+
     FiltSL.ZeroPhase(som_Gas);
     FiltVap.ZeroPhase(som_SL);
     //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
+
+    //for (int i=0; i < SVSpcCount(); i++)
+    //  dbgp("%.2f ", FiltSL.getVValue(i));
+    //dbgpln("");
+    //for (int i=0; i < SVSpcCount(); i++)
+    //  dbgp("%.2f ", FiltVap.getVValue(i));
+    //dbgpln("");
+
+    dbgpln("SetOutput Flt [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, FiltSL.MassFrac(som_Sol)*100, FiltSL.MassFrac(som_Liq)*100, FiltSL.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
+    dbgpln("                    S:%8.4f%%  L:%8.4f%%  G:%8.4f%% ",  FiltVap.MassFrac(som_Sol)*100, FiltVap.MassFrac(som_Liq)*100, FiltVap.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
 
     double DensCorr=FiltSL.Rho(IOConduit(IONo)->Model()->Fidelity(), som_SL, Cn.Temp(), Cn.Press(), NULL)/GTZ(Cn.Rho(som_SL));
     LVolFrac*=DensCorr;
@@ -1196,8 +1217,12 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Fo.QAddM(Cn, FiltSL, Qs);
     Fo.SetTempPress(Cn.Temp(), Cn.Press());
 
+    dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol), Fo.MassFrac(som_Liq), Fo.MassFrac(som_Gas));
+
     IO_Self(IONo).SetPMUPassing(False);
     IO_Self(IONo).SetPMUBlocking(False);
+
+    CheckOutputs=true;
     }
   else
     {
@@ -1227,17 +1252,51 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
     Fo.SetTempPress(Cn.Temp(), Cn.Press());
     }
 
-  #if dbgDerivs
+#if dbgDerivs
   if (dbgDerivsSrg2() || fDoDbgBrk && dbgDerivsSrg2DbgBrk())
     {
     dbgpln("  <O< %-12.12s : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(),Qs,Qv);
     dbgpln("      %-12.12s : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(),Fo.QMass(som_SL),Fo.QMass(som_Gas));
     dbgpln("   Cn %-12.12s : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(),Cn.Mass(som_SL),Cn.Mass(som_Gas));
-  //  dbgSpFlows("QMTtl", FullObjTag(), Fo,0);
+    //  dbgSpFlows("QMTtl", FullObjTag(), Fo,0);
     }
-  #endif
+#endif
 
   }
+
+//--------------------------------------------------------------------------
+
+void MdlNode::DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed)
+  {
+  SpContainer & Contents=HO.Container();
+  SpConduit   & ContentFlw=HO.ContentFlw();
+  ContentFlw.QSetF(Contents, som_ALL, 1.0/ICGetTimeInc());
+  ContentFlw.QAddF(*pQFeed, som_ALL, 1.0);
+
+  for (int j=0; j<HO.NOrd(); j++)
+    {
+    int iIONo=HO.m_Ord[j];
+    
+    if (!IO_In(iIONo))
+      {
+      SpConduit & Cd=*IOConduit(iIONo);
+      for (int s=0; s<SDB.Count(); s++)
+        {
+        double SpQ            = Cd.VMass[s];
+        double SpQMax         = ContentFlw.VMass[s];
+        if (SpQ>SpQMax)
+          {
+          dbgpln("Limit Spc Out %12.4f >  %12.4f %s", SpQ, SpQMax, SDB[s].SymOrTag());
+          Cd.VValue[s]          = SpQMax;
+          ContentFlw.VValue[s]  = 0.0;
+          }
+        else
+          ContentFlw.VValue[s]  = SpQMax-SpQ;
+        }
+      }
+    }
+
+  };
 
 //--------------------------------------------------------------------------
 
@@ -1411,21 +1470,24 @@ void MdlNode::VentVapours(SpContainer &Contents)
   {
   // Vent Vapours
   flag GasVentNeeded=0;
-  //if (Contents.VentExists())
+  if (1)//Contents.VentExists())
     Contents.Vent.Cd.QZero();
+        
+  if (Contents.Vent.Enabled)
+    {
+    for (int i=0; i<SDB.Count();i++)
+      if (SDB[i].IsGas() && Contents.VMass[i]>1.0e-30)
+        {
+        GasVentNeeded=1;
+        double RqdMass=GEZ(Contents.VMass[i]/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau()));
+        Contents.Vent.Cd.SetVMass(i, Contents, RqdMass);
+        }
 
-  for (int i=0; i<SDB.Count();i++)
-    if (SDB[i].IsGas() && Contents.VMass[i]>1.0e-30)
-      {
-      GasVentNeeded=1;
-      double RqdMass=GEZ(Contents.VMass[i]/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau()));
-      Contents.Vent.Cd.SetVMass(i, Contents, RqdMass);
-      }
-
-  if (GasVentNeeded)
-    Contents.Vent.Cd.SetTempPress(Contents.Temp(), Contents.Press());
-  else
-    Contents.Vent.Cd.QSetTraceMass();
+    if (GasVentNeeded)
+      Contents.Vent.Cd.SetTempPress(Contents.Temp(), Contents.Press());
+    else
+      Contents.Vent.Cd.QSetTraceMass();
+    }
   }
 
 //--------------------------------------------------------------------------
@@ -1547,23 +1609,32 @@ void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed,
     }
   #endif
 
+  bool CheckOutputs=false;
   for (int j=0; j<HO.NOrd(); j++)
     {
     int iIONo=HO.m_Ord[j];
     if (!IO_In(iIONo))
       {
-      double LVolFrac=IONetProps(iIONo)->LVolFrac();
+      double LVolFrac;
       double VVolFrac;
-      if (Contents.Closed())
-        VVolFrac=1.0-LVolFrac;
-      //else if (gs_Environment.StateOK())
-      //  VFrac=1.0-SFrac;
+      if (IORelFracHgt_Flng(iIONo, false)>1.0)
+        {
+        LVolFrac=0.0;
+        VVolFrac=1.0;
+        }
       else
-        VVolFrac=0.0;
-
-      SetOutputFlows(HO, iIONo, LVolFrac, VVolFrac);
+        {
+        LVolFrac=IONetProps(iIONo)->LVolFrac();
+        if (Contents.Closed() || (IO_Self(iIONo).PMUOptions() & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking/*|PMU_SLRatio|PMU_SLRatio_Rho*/)))
+          VVolFrac=1.0-LVolFrac;
+        else
+          VVolFrac=0.0;
+        }
+      SetOutputFlows(HO, iIONo, LVolFrac, VVolFrac, CheckOutputs);
       }
     }
+  if (CheckOutputs)
+    DoCheckOutputs(HO, pQFeed);
 
   //==========================================================
   // still gas & overflows
@@ -1713,6 +1784,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
   int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
   Contents.SetCI(7, pControl && pControl->m_iStreamIndex<0 && pControl->m_bOn && pControl->m_bEnabled);
 
+  bool CheckOutputs=false;
   bool DoneIt[MaxIOList];
   int HOSeq=-1;
   double PrevFHgt=0;
@@ -1793,7 +1865,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
           {
           if (iLvlCtrl==HO.m_Ord[j1])
             {
-            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl*CtrlFlw/GTZ(CtrlDmd), 0.0);
+            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl*CtrlFlw/GTZ(CtrlDmd), 0.0, CheckOutputs);
             DoneIt[HO.m_Ord[j1]]=true;
             #if dbgDerivs
             if (dbgso)
@@ -1802,7 +1874,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
             }
           else
             {
-            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl, 0.0);
+            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl, 0.0, CheckOutputs);
             DoneIt[HO.m_Ord[j1]]=true;
             #if dbgDerivs
             if (dbgso)
@@ -1810,6 +1882,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
             #endif
             }
           }
+      
       #if dbgDerivs
       double CF0=ContentFlw.QMass();
       #endif
@@ -1836,7 +1909,7 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
         if (dbgso)
           dbgpln("  IOOut %3i ZERO %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
         #endif
-        SetOutputFlows(HO, iIONo, 0.0, 0.0/*VVolFrac*/);
+        SetOutputFlows(HO, iIONo, 0.0, 0.0/*VVolFrac*/, CheckOutputs);
         }
       else
         {
@@ -1847,6 +1920,8 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
         }
       }
     }
+  if (CheckOutputs)
+    DoCheckOutputs(HO, pQFeed);
 
   //==========================================================
   // still gas & overflows

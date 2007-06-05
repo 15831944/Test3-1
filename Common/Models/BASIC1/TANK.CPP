@@ -370,11 +370,11 @@ static CAltIOName AIOBase[]  = {{"Base",  90}, {}};
 
 static IOAreaRec TankIOAreaList[] =
   {
-    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0, {0,0,0,0}, AIOTop },
-    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOHidden,        0.5, {0,0,0,0}         },
-    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0, {0,0,0,0}, AIOBase},
-    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry,                                            1.0, {0,0,0,0}         },
-    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOPassVapours,                              1.0, {0,0,0,0}         },
+    {"Input",                      "I",       ioid_Top,         LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz,  1.0f,  {0,0,0,0}, AIOTop },
+    {"Side of Tank",               "Side",    ioid_Side,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOHidden,         0.5f,  {0,0,0,0}         },
+    {"Output",                     "O",       ioid_Base,        LIO_InOut,   nc_MLnk, 0, 20, IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz,  0.0f,  {0,0,0,0}, AIOBase},
+    {"OverFlow",                   "OverFlw", ioid_OverFlw,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry,                                             1.0f,  {0,0,0,0}         },
+    {"GasVent",                    "GasVent", ioid_GasVent,     LIO_Out,     nc_MLnk, 0, 10, IOPipeEntry|IOPassVapours,                              1.05f, {0,0,0,0}         },
     {"Heat Exchange Element",      "HX",      IOId_HX,          LIO_InOut,   nc_MLnk, 2, 20, IOGRP(1)},
     {"Heat Exchange Element In",   "HX_In",   IOId_HX,          LIO_In1,     nc_MLnk, 2, 20, IOGRP(1)},
     {"Heat Exchange Element Out",  "HX_Out",  IOId_HX,          LIO_Out1,    nc_MLnk, 2, 20, IOGRP(1)},

@@ -58,10 +58,10 @@ static IOAreaRec ElectroCellIOAreaList[] =
   {
     {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, IOPipeEntry,                1.0f},
     {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.8f},
-    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry,                0.0f},
-    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,  1.0f},
+    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.0f},
+    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours, 1.05f},
     SPILL2AREA,
-    VENT2AREA,
+//    VENT2AREA,
     {NULL}
   };
 
@@ -79,6 +79,8 @@ IMPLEMENT_MODELUNIT(ElectroCell, "ECell", "", Drw_ECell, "Tank", "EC", TOC_ALL|T
 ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
+  //m_Vent.SysEnable =  false;
+
   AttachIOAreas(ElectroCellIOAreaList);
   Contents.SetClosed(false);
   Contents.SetPreset(&m_Preset, &m_PresetImg);
@@ -154,6 +156,25 @@ flag ElectroCell::ValidateData(ValidateDataBlk & VDB)
     RB.SetSurgeType(false);
   return MdlNode::ValidateData(VDB);
   }
+
+//--------------------------------------------------------------------------
+
+void   ElectroCell::PostConnect(int IONo)
+  {
+  if (IOId_Self(IONo)==ioidVent)
+    m_Vent.SysEnable =  false;
+
+  MN_Surge::PostConnect(IONo);
+  };
+
+void   ElectroCell::PreDisConnect(int IONo)
+  {
+  MN_Surge::PreDisConnect(IONo);
+
+  if (IOId_Self(IONo)==ioidVent)
+    m_Vent.SysEnable =  true;
+
+  };
 
 //--------------------------------------------------------------------------
 
@@ -274,52 +295,30 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       double LiqMass = Contents.Mass(som_Liq);
       double ETemp   = Contents.Temp();
 
-      if (SolMass>1.0e-12 && LiqMass>1.0e-12)
+      // This prevents any solids leaving with the electrolyte.
+      const int ioAn = IOWithId_Self(ioidAn);
+      if (ioAn>=0)
         {
-
-        // This prevents any solids leaving with the electrolyte.
-        const int ioAn = IOWithId_Self(ioidAn);
-        if (ioAn>=0)
-          {
-          SpMArray Rem;
-          Rem.Set(Contents, 0.0, 1.0, 1.0);
-        
-          SetProdMakeup(PMU_IOId |PMU_Image, ioidAn, Rem, ETemp, Std_P, Contents.Model());
-          }
-
-        // This allows the metal and solids to leave in the metal outlet.
-        // Solids other than the plated metal leave as sludge.
-        const int ioCa = IOWithId_Self(ioidCath);
-        if (ioCa>=0)
-          {
-          SpMArray Met;
-          for (int j=0; j<SDB.Count(); j++)
-            {
-            if (SDB[j].IsSol())
-              { 
-              Met.SetVMass(j, Contents, Contents.VMass[j]);
-              if (j == iMetal)
-                CathMass = Contents.VMass[j];
-              }
-            else
-              Met.SetVMass(j, Contents, 0.0);
-            }
-          Met.Normalise();
-          SetProdMakeup(PMU_IOId |PMU_Image, ioidCath, Met, ETemp, Std_P, Contents.Model());
-          }
+        SpMArray Rem;
+        Rem.Set(Contents, 0.0, 1.0, 0.0);
+        SetProdMakeup(PMU_IOId |PMU_Image, ioidAn, Rem, ETemp, Std_P, Contents.Model());
         }
-      else
+
+      // This allows the metal and solids to leave in the metal outlet.
+      // Solids other than the plated metal leave as sludge.
+      const int ioCa = IOWithId_Self(ioidCath);
+      if (ioCa>=0)
         {
-        // Just Operate as a Tank
+        SpMArray Met;
+        Met.Set(Contents, 1.0, 0.0, 0.0);
+        SetProdMakeup(PMU_IOId |PMU_Image, ioidCath, Met, ETemp, Std_P, Contents.Model());
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
       EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
 
       TempKProd=Sd().Temp();
-//      if (NoProcessJoins()>=1)
-//        Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &QSigmaOut, NULL, NULL, NULL);
-      
+
       break;
       }
     }

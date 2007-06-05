@@ -3165,12 +3165,12 @@ flag SpContainer::CIStrng(int No, pchar & pS)
   // NB check CBCount is large enough.
   switch (No-CBContext())
     {
-    case 1: pS="N\tOverFlowing";                        return 1;
-    case 2: pS="E\tOverflow Targeted to Self";          return 1;
-    case 3: pS="E\tOverflow Target xxx not Found";      return 1;
-    case 4: pS="N\tGas Venting";                        return 1;
-    case 5: pS="E\tGasVent Targeted to Self";           return 1;
-    case 6: pS="E\tGasVent Target xxx not Found";       return 1;
+    case 1: pS="N\tSpilling";                           return 1;
+    case 2: pS="E\tSpill Targeted to Self";             return 1;
+    case 3: pS="E\tSpill Target xxx not Found";         return 1;
+    case 4: pS="N\tVenting";                            return 1;
+    case 5: pS="E\tVent Targeted to Self";              return 1;
+    case 6: pS="E\tVent Target xxx not Found";          return 1;
     case 7: pS="E\tStream for level control not set";   return 1;
     case 8: pS="W\tHigh Level";                         return 1;
     case 9: pS="W\tLow Level";                          return 1;

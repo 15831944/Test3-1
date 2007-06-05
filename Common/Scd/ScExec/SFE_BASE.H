@@ -54,6 +54,7 @@ const dword nc_Cbl        = eScdNodeType_Cbl      ;// 0x00100000;
 #define CtrlLinkGrp "CtrlLinkGrp"
 #define ElecLinkGrp "ElecLinkGrp"
 #define AirLinkGrp  "AirLinkGrp"
+#define FlangeGrp   "FlangeGrp"
 
 const int NErr_NotFound                = 2000;
 const int NErr_NoSpace                 = 2001;

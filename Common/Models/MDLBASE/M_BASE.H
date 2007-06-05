@@ -291,7 +291,8 @@ class DllImportExport MdlNode : public FlwNode
     DEFINE_CI(MdlNode, FlwNode, 16);
 
   private:
-    void SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac);
+    void SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac, bool & CheckOutputs);
+    void DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed);
 
   public:
     double         FlowIn;

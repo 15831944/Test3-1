@@ -6223,9 +6223,9 @@ void SpModel::AddMassF(SpModel * C, eSetMass How, double SF, double LF, double V
 
   AddQualities(C, Cm);
 
-  double M0;//=Mass();
-  double M1;//=Cm.Mass();
+  double M0; // calcd below in msHf
   double H0=msHf(som_ALL, Temp(), Press(), NULL, &M0);
+  double M1; // calcd below in msHf
   double H1;
   if (SpModel::iEnthalpyStrategy==SPMES_BestTemp ||
     (int)(C->RefTemp()-RefTemp())) // RefTemp Diff > 1.0
@@ -6249,7 +6249,7 @@ void SpModel::AddMassF(SpModel * C, eSetMass How, double SF, double LF, double V
 
 void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__)
   {
-  DoBreak();
+  //DoBreak();
 
   double Mt=0.0;
   for (int i=0; i < SVSpcCount(); i++)
@@ -6264,9 +6264,9 @@ void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__)
 
   AddQualities(C, Cm);
 
-  double M0;//=Mass();
-  double M1;//=Cm.Mass();
+  double M0; // calcd below in msHf
   double H0=msHf(som_ALL, Temp(), Press(), NULL, &M0);
+  double M1; // calcd below in msHf
   double H1;
   if (SpModel::iEnthalpyStrategy==SPMES_BestTemp ||
     (int)(C->RefTemp()-RefTemp())) // RefTemp Diff > 1.0
