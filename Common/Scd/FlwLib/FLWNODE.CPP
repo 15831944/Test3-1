@@ -966,7 +966,7 @@ void FlangeTearVarBlk::OnEditDestroy()
 byte CFlange::iMkUpOKCurr=0;
 byte CFlange::iMkUpOKNext=0;
 
-IMPLEMENT_TAGOBJ(CFlange, "Flange", "Flange", "", "DirectIO", "Flng", TOC_SYSTEM, "FlangeGroup", "")
+IMPLEMENT_TAGOBJ(CFlange, FlangeGrp, "Flange", "", "DirectIO", "Flng", TOC_SYSTEM, "Flange", "")
 
 CFlange::CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) : \
 TearPosBlk(TT_NoTear),
@@ -1001,6 +1001,8 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
 //  dV2LFrac=dNAN;
 
   m_pTearImg=NULL;
+
+  m_SubTag= "Qo";
 
 #if DOPB_FILT_RESULTS
   for (int i=0; i<MaxMSRqd; i++)
@@ -1055,7 +1057,7 @@ void CFlange::BuildDataDefn(DataDefnBlk & DDB)
   DDB.String  ("DstTag",            "",       DC_,      "",   xidFlngDstTag,   this, isResult|isTag);
   DDB.Text("");
 
-  DDB.Object(ConduitIO(), this, "Qo"); //Name this 'Qo' instead of ('Q') so that it is same as pipe.Qo (Useful for mixed report of streams and flange models)
+  DDB.Object(ConduitIO(), this, m_SubTag()); //Name this 'Qo' instead of ('Q') so that it is same as pipe.Qo (Useful for mixed report of streams and flange models)
   //DDB.EndStruct();
   DDB.EndStruct();
   };
@@ -11278,8 +11280,17 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
     m_pFlng                 = (CFlange*)CFlangeClass.Construct("Flange" ,""/*()*/ ,NULL , TOA_Free);
     m_pFlng->m_bMustDelete  = false;
     m_pFlng->InitConnId(m_pNd, NULL, NULL, NULL, m_sTag());
-    //m_pFlng->m_pRefNd       = m_pNd;
-    //m_pFlng->m_sRefIOTg     = FlngTag;
+    switch (m_eType)
+      {
+      case eDIO_Snk:
+      case eDIO_Makeup:
+      case eDIO_Deplete:
+        m_pFlng->m_SubTag       = "Qi";
+        break;
+      default:
+        m_pFlng->m_SubTag       = "Qo";
+        break;
+      }
     m_pFlng->FixTag();
 
     m_pSum                  = &m_pFlng->m_Sum;

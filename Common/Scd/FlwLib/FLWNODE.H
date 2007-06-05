@@ -1736,6 +1736,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     byte           m_nHoldRqd;
     byte           m_nHoldCnt;
 
+    Strng          m_SubTag;
+
     CPressBlk      PB;
     CSpPropInfo    m_NetProps;
 

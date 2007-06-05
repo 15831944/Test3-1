@@ -663,16 +663,28 @@ void CMdlValueShow::AtStart(char * pTag, int X, int Y, bool Pinned)
 
 struct Defaults {char * Lbl; char * Tag; CCnvIndex CnvTyp; char * CnvTxt;};
 static Defaults StdDefs[]= {    
-  {"Qm",    "Qm",     DC_Qm,    "kg/s"},
-  {"Qv",    "Qv",     DC_Qv,    "m^3/s"},
-  {"T",     "T",      DC_T,     "C"},
-  {"P",     "P",      DC_P,     "kPag"},
-  {"Pi",    "Pi",     DC_P,     "kPag"},
-  {"Po",    "Po",     DC_P,     "kPag"},
-  {"Lvl",   "Lvl",    DC_Frac,  "%"},
-  {"Rho",   "Rho",    DC_Rho,   "kg/m^3"},
-  {"Value", "Value",  DC_Frac,  "%"},
-  {NULL, NULL, DC_, ""}
+  // for Nodes
+  {"Qm",      "Qm",     DC_Qm,    "kg/s"      },
+  {"Qv",      "Qv",     DC_Qv,    "m^3/s"     },
+  {"T",       "T",      DC_T,     "C"         },
+  {"P",       "P",      DC_P,     "kPag"      },
+  {"Pi",      "Pi",     DC_P,     "kPag"      },
+  {"Po",      "Po",     DC_P,     "kPag"      },
+  {"Lvl",     "Lvl",    DC_Frac,  "%"         },
+  {"Rho",     "Rho",    DC_Rho,   "kg/m^3"    },
+  {"Value",   "Value",  DC_Frac,  "%"         },
+  // For Flanges
+  {"Qi.QMt",  "Qi.QMt", DC_Qm,    "kg/s"      },    
+  {"Qi.QVt",  "Qi.QVt", DC_Qv,    "m^3/s"     },
+  {"Qi.T",    "Qi.T",   DC_T,     "C"         },
+  {"Qi.P",    "Qi.P",   DC_P,     "kPag"      },
+  {"Qi.Rho",  "Qi.Rho", DC_Rho,   "kg/m^3"    },
+  {"Qo.QMt",  "Qo.QMt", DC_Qm,    "kg/s"      },    
+  {"Qo.QVt",  "Qo.QVt", DC_Qv,    "m^3/s"     },
+  {"Qo.T",    "Qo.T",   DC_T,     "C"         },
+  {"Qo.P",    "Qo.P",   DC_P,     "kPag"      },
+  {"Qo.Rho",  "Qo.Rho", DC_Rho,   "kg/m^3"    },
+  {NULL, NULL, DC_, ""                        }
   };
 
 /*#if WithQAL
@@ -3550,9 +3562,11 @@ void CRptTagLists::LoadModelType()
       _stricmp(pG, FlwLinkGrp)==0 || 
       _stricmp(pG, CtrlLinkGrp)==0 || 
       _stricmp(pG, ElecLinkGrp)==0 || 
-      _stricmp(pG, AirLinkGrp)==0)
+      _stricmp(pG, AirLinkGrp)==0 || 
+      _stricmp(pG, FlangeGrp)==0)
       {
       Strng CLSID(pTOC->ClassIdNoVersion());
+      dbgpln("------ %-20s %s", pG, CLSID());
       if (m_ModelType.FindString(-1, CLSID())==CB_ERR)
         {
         m_ModelType.AddString(CLSID());
