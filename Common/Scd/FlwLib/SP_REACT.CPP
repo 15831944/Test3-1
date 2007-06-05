@@ -328,7 +328,7 @@ void CReactionBlock::FindElements(Strng &ElemList)
 
   for (int i=0; i < SVSpcCount(); i++)
     {
-    GetElements(CDB[SDB[i].iCId].ElDef, Elms);
+    GetElements(CDB[SDB[i].iCId].m_sElDef, Elms);
     ElemList+=Elms;
     }
   }
@@ -345,7 +345,7 @@ void CReactionBlock::FindElements(CLVector &SpcIDs, Strng &ElemList)
     int SpcID = SpcIDs[i];
     if ((SpcID >= 0))
       {
-      GetElements(CDB[SDB[SpcID].iCId].ElDef, Elms);
+      GetElements(CDB[SDB[SpcID].iCId].m_sElDef, Elms);
       ElemList+=Elms;
       }
     else
@@ -412,7 +412,7 @@ void CReactionBlock::ElementComp(CDMatrix &Bm, Strng &ElemList, int NumElemnts)
     for (int j = 0; j < NumElemnts; j++)
       {
       elm=Element(j, ElemList);
-      Bm(j,i) = GetElemAmt(CDB[SDB[i].iCId].ElDef,elm);
+      Bm(j,i) = GetElemAmt(CDB[SDB[i].iCId].m_sElDef,elm);
       }
   }
 
@@ -427,7 +427,7 @@ void CReactionBlock::ElementComp(CDMatrix &Bm, CLVector &SpcIDs, Strng &ElemList
     for (int j = 0; j < NumElemnts; j++)
       {
       elm=Element(j, ElemList);
-      Bm(j,i) = GetElemAmt(CDB[SDB[SpcID].iCId].ElDef,elm);
+      Bm(j,i) = GetElemAmt(CDB[SDB[SpcID].iCId].m_sElDef,elm);
       }
     }
   }
@@ -464,7 +464,7 @@ void CReactionBlock::GetMolMass(CSysVector &MolMass, CDMatrix &Bm, CLVector &Ele
     {
     for (j = 0; j < ElemIDs.GetLen(); j++)
       {
-      MolMass.VValue[i] += Bm(j,i) * EDB[ElemIDs[j]].AtmWt;
+      MolMass.VValue[i] += Bm(j,i) * EDB[ElemIDs[j]].m_AtmWt;
       #ifdef dbgRCTUtils
       if (Bm(j,i)>1.0e-6)
         dbgpln("m: %2i %12.2f %12.2f %4.4s  %s", ElemIDs[j], EDB[ElemIDs[j]].AtmWt, MolMass[i], EDB[ElemIDs[j]].Name, SDB[i].Name());

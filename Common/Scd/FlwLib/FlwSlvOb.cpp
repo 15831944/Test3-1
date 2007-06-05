@@ -168,7 +168,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
       for (int i=0; i<iElemCnt; i++)
         {
         CElementD &E = EDB[i];
-        Tg.Set("%s.MoleWt", E.Name);
+        Tg.Set("%s.MoleWt", E.m_Name);
         DDB.Double(Tg(), "", DC_, "", xidElemMolWt+i, this, isResult);
         }
       }
@@ -262,7 +262,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
   else if (DCB.lHandle>=xidElemMolWt && DCB.lHandle<xidExtraProp)
     {
     CElementD &E = EDB[DCB.lHandle-xidElemMolWt];
-    DCB.D=E.AtmWt;
+    DCB.D=E.m_AtmWt;
     return true;
     }
   else if (DCB.lHandle>=xidExtraProp && SDB.ExtraProps())
@@ -850,9 +850,9 @@ void SDBObjectEdt::Build()
       CElementD &E = EDB[i];
       Tg.Set("%03d", i+1);
       SetDesc(L, Tg(), -1, 4, 0, "");
-      SetDesc(L, E.Name, -1, iWdElemName, 0, "");
+      SetDesc(L, E.m_Name, -1, iWdElemName, 0, "");
       SetParm(L, "", Id_ElemMoleWt1+i, iWdElemMolWt, 2, "");
-      Tg.Set("$SDB.Elem.%s.MoleWt", E.Name);
+      Tg.Set("$SDB.Elem.%s.MoleWt", E.m_Name);
       SetTag(Tg());
       L++;
       }
@@ -949,7 +949,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       {//elements data
       const int i = (EI.FieldId-Id_ElemMoleWt1);
       CElementD &E = EDB[i];
-      ElFmt.FormatFloat(E.AtmWt, Str);
+      ElFmt.FormatFloat(E.m_AtmWt, Str);
       EI.Fld->fEditable=false;
       }
     }

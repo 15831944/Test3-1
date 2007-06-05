@@ -588,7 +588,7 @@ void CR_VCS::SetUp()
   for (int l=0; l<NSpecies(); l++)
     {
     int s=m_Species[l].SpcId;
-    ElemCompArray &ElComp=CDB[SDB[s].iCId].ElComp;
+    ElemCompArray &ElComp=CDB[SDB[s].iCId].m_ElComp;
     for (int j=0; j<ElComp.GetSize(); j++)
       {
       int e=ElComp[j].iENo;
@@ -617,7 +617,7 @@ void CR_VCS::SetUp()
     else 
       SpPh[SpInx]=CVCSSolver::SolidPhase;
     // Add element stuff
-    ElemCompArray &ElComp=CDB[SDB[s].iCId].ElComp;
+    ElemCompArray &ElComp=CDB[SDB[s].iCId].m_ElComp;
     for (int j=0; j<ElComp.GetSize(); j++)
       {
       int e=ElComp[j].iENo;

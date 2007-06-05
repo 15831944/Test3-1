@@ -2409,11 +2409,13 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
           if (DoBlock)
             {
             for (int i=0; i<EDB.Count(); i++)
-              if (EDB[i].SpComp->GetSize()>0)
-                DDB.Double(EDB[i].Name,"",
+              if (EDB[i].m_SpComp->GetSize()>0)
+                {
+                DDB.Double(EDB[i].m_Name,"",
                 *Cnv->m_pInx, (LPSTR)(LPCSTR)Cnv->m_Txt,
                 ViewInfo.xid, SpHandle2(RqdVwBasis, i), this,
                 isResult|FlagsE|HideIfZero);
+                }
             }
           if (BlkReqd)
             {
@@ -2848,7 +2850,7 @@ flag SpModel::DataXchg_Species(DataChangeBlk & DCB)
                 DoBreak();
               }
 
-            CompFracArray &CF=*(EDB[e].SpComp);
+            CompFracArray &CF=*(EDB[e].m_SpComp);
             int Ns=CF.GetSize();
             DCB.D=0.0;
             if (m_bUsableMass || !DCB.ForView())

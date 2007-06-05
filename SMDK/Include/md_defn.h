@@ -42,10 +42,77 @@ extern DllImportExport long MP_SL;  //solids+liquids
 //---------------------------------------------------------------------------
 
 class MVector;
+class CElementD;
 class CSpecie;
 class CSpecieBlk;
 class SpPropOveride;
 class MArray;
+
+//---------------------------------------------------------------------------
+/* Class MElementDefn: Definition of an element from collection of elements used.*/
+class DllImportExport MElementDefn
+  {
+  friend class MSpecieDefn;
+  friend class MSpecieElement;
+  friend class MSpecieElements;
+  friend class MElementsInUse;
+  friend class MPeriodicTable;
+  protected:
+    //MElementDefn()                    { m_pElem=NULL; };
+    MElementDefn(CElementD * pElement)   { m_pElement=pElement; };
+
+  public:
+    //element symbol of specified index; eg H2O(l)
+    LPCTSTR       Symbol();
+    //element atomic number
+    long          AtomicNumber();
+    //element atomic weight
+    double        AtomicWt();
+
+    long          InUseCount();
+
+  protected:
+    CElementD   * m_pElement;
+  };
+
+//---------------------------------------------------------------------------
+/* Class MSpecieElement: Definition of the amount of an element in a specie.*/
+class DllImportExport MSpecieElement
+  {
+  friend class MSpecieDefn;
+  friend class MSpecieElements;
+  protected:
+    MSpecieElement(CElementD * pElement, double Amount) : m_pElement(pElement), m_Amount(Amount) {};
+
+  public:
+    MElementDefn   Element();
+    double         Amount();
+
+  protected:
+
+    CElementD   *  m_pElement;
+    double         m_Amount;
+
+  };
+
+//---------------------------------------------------------------------------
+/* Class MSpecieElements: Collection the elements in a specie.*/
+
+class DllImportExport MSpecieElements
+  {
+  friend class MSpecieDefn;
+  protected:
+    MSpecieElements(CSpecie * pSpecie);
+
+  public:
+    long          Count();
+    MSpecieElement operator[] (long i);
+
+  protected:
+
+    CSpecie     * m_pSpecie;
+  };
+
 
 //---------------------------------------------------------------------------
 /* Class MSpecieDefn: Definition of a specie from collection of species used.
@@ -71,6 +138,8 @@ class DllImportExport MSpecieDefn
     LPCTSTR       Symbol();
     //specie phase; eg MP_Gas, MP_Liq, MP_Sol
     DWORD         Phase();
+
+    MSpecieElements Elements();
 
     //true if phase is MP_Liq (liquid)
     bool          IsLiquid();
@@ -200,6 +269,34 @@ class DllImportExport MVectorDefn
 
 //The one and only global instance of the Specie Vector Definition:
 extern DllImportExport MVectorDefn gs_MVDefn;
+
+//---------------------------------------------------------------------------
+// An Array of Elements in Use
+class DllImportExport MElementsInUse
+  {
+  public:
+    MElementsInUse() {}
+
+  public:
+    long           Count();
+    MElementDefn   operator[] (long i);
+  };
+
+extern DllImportExport MElementsInUse gs_ElementsInUse;
+
+//---------------------------------------------------------------------------
+// An Array of All Defined Elements 
+class DllImportExport MPeriodicTable
+  {
+  public:
+    MPeriodicTable() {}
+
+  public:
+    long           Count();
+    MElementDefn   operator[] (long i);
+  };
+
+extern DllImportExport MPeriodicTable gs_PeriodicTable;
 
 //---------------------------------------------------------------------------
 /* Class MPSDDefn: Definition of sieve series data. An array of size intervals from smallest to largest.*/

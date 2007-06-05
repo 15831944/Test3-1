@@ -576,11 +576,11 @@ void CMeasInfo::SetUpDDBElems()
       {
       int e=m_Elements[j];
       InList[e]=true;
-      m_DDBElemRem.Add(e, EDB[e].Name);
+      m_DDBElemRem.Add(e, EDB[e].m_Name);
 
       if (NeedsComma)
         m_ElemStr[m_nLastElemStr]+=",";
-      m_ElemStr[m_nLastElemStr]+=EDB[e].Name;
+      m_ElemStr[m_nLastElemStr]+=EDB[e].m_Name;
       if (m_ElemStr[m_nLastElemStr].GetLength()>35)
         {
         m_nLastElemStr++;
@@ -595,7 +595,7 @@ void CMeasInfo::SetUpDDBElems()
     for (int e=0; e<EDB.Count(); e++)
       {
       if (!InList[e])
-        m_DDBElemAdd.Add(e,EDB[e].Name);
+        m_DDBElemAdd.Add(e,EDB[e].m_Name);
       }
     }
 

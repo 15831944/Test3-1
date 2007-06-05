@@ -977,7 +977,7 @@ flag BalanceData::Check()
         BadElementCnt++;
         if (BadElementCnt>1)
           BadElements+=",";
-        BadElements+=EDB[ElemIds[j]].Name;
+        BadElements+=EDB[ElemIds[j]].m_Name;
 
         if (Pass==1)
           {//clearly report the error
@@ -1001,7 +1001,7 @@ flag BalanceData::Check()
           Strng Es;
           R.GetEqnAsString(Es, EAS_Rct);
           //R.SetCI(9, "E\t'%s' balance error. %g:%g (%s:%s) in %s", EDB[ElemIds[j]].Name, RMolSum, PMolSum, LHS(), RHS(), Es());
-          LogError(R.BaseTag(), 0, "Reaction '%s' balance error. %g<=>%g  or  %s<=>%s in '%s'", EDB[ElemIds[j]].Name, RMolSum, PMolSum, LHS(), RHS(), Es());
+          LogError(R.BaseTag(), 0, "Reaction '%s' balance error. %g<=>%g  or  %s<=>%s in '%s'", EDB[ElemIds[j]].m_Name, RMolSum, PMolSum, LHS(), RHS(), Es());
           }
         }
       }

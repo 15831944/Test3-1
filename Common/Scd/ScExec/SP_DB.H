@@ -209,37 +209,37 @@ typedef CArray <CElemComp, CElemComp&> ElemCompArray;
 class CElementD
   {
   public:
-    pchar            Name;
-    int              AtmNo;
-    double           AtmWt;
-    CompFracArray   *SpComp;
-    flag             fAllocdMem;
-
     CElementD()
       {
-      Name=NULL;
-      AtmNo=0;
-      AtmWt=1.0;
-      SpComp=NULL;
-      fAllocdMem=false;
+      m_Name=NULL;
+      m_AtmNo=0;
+      m_AtmWt=1.0;
+      m_SpComp=NULL;
+      m_fAllocdMem=false;
       }
     CElementD(pchar  pName, int AtomicNo, double AtomicWt)
       {
-      Name=pName;
-      AtmNo=AtomicNo;
-      AtmWt=AtomicWt;
-      SpComp=NULL;
-      fAllocdMem=false;
+      m_Name=pName;
+      m_AtmNo=AtomicNo;
+      m_AtmWt=AtomicWt;
+      m_SpComp=NULL;
+      m_fAllocdMem=false;
       };
+
+  public:
+    LPSTR            m_Name;
+    int              m_AtmNo;
+    double           m_AtmWt;
+
+    CompFracArray   *m_SpComp;
+    flag             m_fAllocdMem;
   };
 
 class DllImportExport CCElementDataBase
   {
-  protected:
-    int            m_iNo, m_iNoStart;
-
-    CArray <CElementD, CElementD&> m_Data;
-    //CElementD EDBData[10];
+  friend class MElementsInUse;
+  friend class MPeriodicTable;
+  friend class CComponentDataBase;
   public:
     CCElementDataBase();
     ~CCElementDataBase();
@@ -251,6 +251,12 @@ class DllImportExport CCElementDataBase
     int            Find(const char * pElName);
     flag           CheckElDef(Strng &ElDef);
     int            Count() {return m_iNo;};
+
+  protected:
+    int            m_iNo, m_iNoStart;
+
+    CArray <CElementD, CElementD&> m_Data;
+    CArray <CElementD*, CElementD*> m_InUse;
 
   public:
     DDBValueLstMem        DDBElementList;
@@ -1169,8 +1175,8 @@ class DllImportExport CComponent : public CSpConstData //CSpCommonData
 
   public:
     Strng           Sym;
-    Strng           ElDef;
-    ElemCompArray & ElComp;
+    Strng           m_sElDef;
+    ElemCompArray & m_ElComp;
 
   protected:
     CSpecieDataBase & m_SDB;

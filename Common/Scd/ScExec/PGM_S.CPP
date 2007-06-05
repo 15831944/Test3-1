@@ -662,10 +662,10 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
       if (iSp>=0 && iSp<SDB.Count())
         {
         CComponent &C=CDB[SDB[iSp].iCId];
-        for (int e=0; e<C.ElComp.GetCount(); e++)
+        for (int e=0; e<C.m_ElComp.GetCount(); e++)
           {
-          if (_stricmp(EDB[C.ElComp[e].iENo].Name, Ele)==0)
-            return C.ElComp[e].dMoles; 
+          if (_stricmp(EDB[C.m_ElComp[e].iENo].m_Name, Ele)==0)
+            return C.m_ElComp[e].dMoles; 
           }
         }
       return 0;
@@ -675,7 +675,7 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
       {
       int iEle= EDB.Find(IB.GetSParm());
       if (iEle>=0 && iEle<EDB.Count())
-        return EDB[iEle].AtmWt;
+        return EDB[iEle].m_AtmWt;
       return 0.0;
       }
 

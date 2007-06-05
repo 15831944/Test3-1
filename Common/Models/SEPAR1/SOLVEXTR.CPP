@@ -294,7 +294,7 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
 	Strng S; 
 	for (long k=0;k<EDB.Count() ;k++)
 		{
-		pchar El=EDB[k].Name;
+		pchar El=EDB[k].m_Name;
 		if (El)
 			{
 			S=El;
@@ -794,12 +794,12 @@ double MixerSettler::MetalMass(SpConduit &QIn)
   double SpcMass, MM = 0.0, NumElems = 0.0;
   for (int i=0; i<SDB.Count(); i++)
     {
-    NumElems = GetElemAmt(CDB[SDB[i].iCId].ElDef, PriMetal);
+    NumElems = GetElemAmt(CDB[SDB[i].iCId].m_sElDef, PriMetal);
     
     if (NumElems > 0) 
       {
       SpcMass = QIn.VMass[i];//kg
-      MM += SpcMass * ((NumElems * EDB[EDB.Find(Element)].AtmWt)
+      MM += SpcMass * ((NumElems * EDB[EDB.Find(Element)].m_AtmWt)
 	                     /GTZ(SDB[i].MoleWt()));  
       }
     }
@@ -1327,12 +1327,12 @@ double MixerSettler::MetalConc(SpContainer* WV, SpMArray &Phse, Strng Metal, dou
       {
 	    NumElems=0.0;
       if (Phse[i] > 0.0)
-         NumElems=GetElemAmt(CDB[SDB[i].iCId].ElDef, Metal);
+         NumElems=GetElemAmt(CDB[SDB[i].iCId].m_sElDef, Metal);
 
       if (NumElems > 0) 
         {
         SpcMass=WV->VMass[i];//kg
-        *MetMass+=SpcMass * ((NumElems* EDB[EDB.Find(Element)].AtmWt)
+        *MetMass+=SpcMass * ((NumElems* EDB[EDB.Find(Element)].m_AtmWt)
 	                       /GTZ(SDB[i].MoleWt()));  
         }
       }
@@ -1361,12 +1361,12 @@ double MixerSettler::MetalConc(SpConduit* FlwIn, SpMArray &Phse, Strng Metal, do
      {
      NumElems=0.0;
      if (Phse[i] > 0.0)
-        NumElems=GetElemAmt(CDB[SDB[i].iCId].ElDef, Metal);
+        NumElems=GetElemAmt(CDB[SDB[i].iCId].m_sElDef, Metal);
 
      if (NumElems > 0) 
        {
        SpcMass=FlwIn->VMass[i];//kg/s
-       *MetMass+=SpcMass * ((NumElems* EDB[EDB.Find(Element)].AtmWt)
+       *MetMass+=SpcMass * ((NumElems* EDB[EDB.Find(Element)].m_AtmWt)
 	                       /GTZ(SDB[i].MoleWt()));  
        }
      }

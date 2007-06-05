@@ -971,9 +971,9 @@ CVCSSolver::VCSPath CVCSSolver::ElemAbund(void)
     for (i = 1; i <= m_NC; i++)
       {
       if (m_GAI[i] == 0.0)
-        dbgp("  %2d %-14s    %15.1f  %+.7e  %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i],fabs(m_GA[i] - m_GAI[i]));
+        dbgp("  %2d %-14s    %15.1f  %+.7e  %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i],fabs(m_GA[i] - m_GAI[i]));
       else
-        dbgp("  %2d %-14s    %+15.7e  %+.7e  %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i],fabs(m_GA[i] - m_GAI[i]));
+        dbgp("  %2d %-14s    %+15.7e  %+.7e  %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i],fabs(m_GA[i] - m_GAI[i]));
       }
     }
   #endif
@@ -1402,7 +1402,7 @@ JUMP1:
     {
     #if dbgVCS
     if (dbgElCorr())
-      dbgp("\n %2i %-14s  %+.7e  %+.7e  %+.7e", i, EDB[m_L2ElId[i]].Name, m_SA[i], m_W[i], -m_SA[i]/Max(1.0e-70, m_W[i]));
+      dbgp("\n %2i %-14s  %+.7e  %+.7e  %+.7e", i, EDB[m_L2ElId[i]].m_Name, m_SA[i], m_W[i], -m_SA[i]/Max(1.0e-70, m_W[i]));
     #endif
     xx = -m_SA[i]/Max(1.0e-70, m_W[i]);
     if (par < xx) par = xx;
@@ -1433,7 +1433,7 @@ JUMP1:
     {
     #if dbgVCS
     if (dbgElCorr())
-      dbgp("\n %2i %-14s  W : %+.7e > %+.7e [%+.7e]", i, EDB[m_L2ElId[i]].Name, m_W[i], m_W[i] + par*m_SA[i], par*m_SA[i]);
+      dbgp("\n %2i %-14s  W : %+.7e > %+.7e [%+.7e]", i, EDB[m_L2ElId[i]].m_Name, m_W[i], m_W[i] + par*m_SA[i], par*m_SA[i]);
     #endif
     m_W[i] += par*m_SA[i];
     if (m_W[i]<1.0e-200) // catch rounding
@@ -1451,7 +1451,7 @@ JUMP1:
     ELAB();
     dbgp("\nElemental abundances            Correct       From estimate\n");
     for (i = 1; i <= m_NE; i++)
-      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i]);
+      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i]);
     }
   #endif
   return 0;
@@ -1740,7 +1740,7 @@ void CVCSSolver::ELAB(void)
       m_GA[j] += m_BM[i][j]*m_W[i];
     #if dbgVCS
     if (dbgELAB())
-      dbgp("\n %2i %-14s  GA:%+.7e ", j, EDB[m_L2ElId[j]].Name, m_GA[j]);
+      dbgp("\n %2i %-14s  GA:%+.7e ", j, EDB[m_L2ElId[j]].m_Name, m_GA[j]);
     #endif
     }
   }
@@ -2613,7 +2613,7 @@ void CVCSSolver::InitialiseData(void)
 
     dbgp("\nElemental abundances            Correct       From estimate\n");
     for (i = 1; i <= m_NE; i++)
-      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i]);
+      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i]);
     if (m_IEst == 0)
       dbgp("\nUser estimate of equilibrium");
     else
@@ -2628,7 +2628,7 @@ void CVCSSolver::InitialiseData(void)
     dbgp("\nSpecies         Stan. Chem. Pot.    Equilibrium est.   Formula vector");
     dbgp("\n                                                 ");
     for(int j = 1; j <= m_NE; j++)
-      dbgp("  %3s", EDB[m_L2ElId[j]].Name);
+      dbgp("  %3s", EDB[m_L2ElId[j]].m_Name);
     dbgp(" Phase\n");
 
     for (i = 1; i <= m_M; i++)
@@ -2873,7 +2873,7 @@ CVCSSolver::VCSPath CVCSSolver::DumpChanges(void)
       }
     dbgp("\nElemental abundances            Correct       From estimate\n");
     for (i = 1; i <= m_NE; i++)
-      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i]);
+      dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i]);
     }
   #endif
   #if dbgVCS
@@ -2940,7 +2940,7 @@ void CVCSSolver::prin_immed(void)
   ELAB();
   dbgp("\nElemental abundances            Correct       From estimate\n");
   for (i = 1; i <= m_NE; i++)
-    dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].Name,m_GAI[i],m_GA[i]);
+    dbgp("  %2d %-14s    %+.7e     %+.7e\n",i, EDB[m_L2ElId[i]].m_Name,m_GAI[i],m_GA[i]);
   }
 
 void CVCSSolver::CalcFinalInfo(void)

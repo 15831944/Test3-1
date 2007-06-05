@@ -319,16 +319,16 @@ void CCElementDataBase::Init()
   m_Data.Add(CElementD(NULL,  119,   0.0        ));
 
 
-  for (m_iNo=0; m_Data[m_iNo].Name!=NULL; m_iNo++)
+  for (m_iNo=0; m_Data[m_iNo].m_Name!=NULL; m_iNo++)
     {
-    m_Data[m_iNo].SpComp= new CompFracArray;
-    m_Data[m_iNo].fAllocdMem=false;
+    m_Data[m_iNo].m_SpComp= new CompFracArray;
+    m_Data[m_iNo].m_fAllocdMem=false;
     };
   m_iNoStart=m_iNo;
 
   DDBElementList.Empty();
   for (int e=0; e<m_iNo; e++)
-    DDBElementList.Add(e, m_Data[e].Name);
+    DDBElementList.Add(e, m_Data[e].m_Name);
 
   };
 
@@ -338,11 +338,11 @@ void CCElementDataBase::Term()
   {
   for (int i=0; i<m_iNo; i++)
     {
-    delete m_Data[i].SpComp;
-    if (m_Data[i].fAllocdMem)
+    delete m_Data[i].m_SpComp;
+    if (m_Data[i].m_fAllocdMem)
       {
-      delete m_Data[i].Name;
-      m_Data[i].Name=NULL;
+      delete m_Data[i].m_Name;
+      m_Data[i].m_Name=NULL;
       }
     }
   m_iNo=0;
@@ -359,7 +359,7 @@ CElementD & CCElementDataBase::operator [](int s) {return m_Data[s];};
 int CCElementDataBase::Find(const char * pElName)
   {
   for (word i=0; i<m_iNo; i++)
-    if (strcmp(m_Data[i].Name, pElName)==0)
+    if (strcmp(m_Data[i].m_Name, pElName)==0)
       return i;
   return -1;
   };
@@ -420,13 +420,13 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
           }
         if (Ok && (Find(El())<0) && Wt.Length()>0)
           {
-          m_Data[m_iNo].fAllocdMem=true;
-          m_Data[m_iNo].Name=new char[El.Length()+1];
-          strcpy(m_Data[m_iNo].Name, El());
-          m_Data[m_iNo].AtmNo=m_iNo+1;
-          m_Data[m_iNo].AtmWt=SafeAtoF(Wt());
-          m_Data[m_iNo].SpComp= new CompFracArray;
-          Ok=(m_Data[m_iNo].AtmWt>=0.5);
+          m_Data[m_iNo].m_fAllocdMem=true;
+          m_Data[m_iNo].m_Name=new char[El.Length()+1];
+          strcpy(m_Data[m_iNo].m_Name, El());
+          m_Data[m_iNo].m_AtmNo=m_iNo+1;
+          m_Data[m_iNo].m_AtmWt=SafeAtoF(Wt());
+          m_Data[m_iNo].m_SpComp= new CompFracArray;
+          Ok=(m_Data[m_iNo].m_AtmWt>=0.5);
           m_iNo++;
           }
         if (Ok && Find(El())<0)
@@ -1265,7 +1265,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
   if (dbgBuildSpc())
     {
     dbgp("   DBLine :%-15.15s %-15.15s %-7.7s, Vp0:%-10s Vp1:%-10s",
-      pC->SymOrTag(), pC->ElDef(), m_sPhaseSym() ? m_sPhaseSym() : "",
+      pC->SymOrTag(), pC->m_sElDef(), m_sPhaseSym() ? m_sPhaseSym() : "",
       pC->m_Common[0].m_pVp?pC->m_Common[0].m_pVp->VName():"",
       pC->m_Common[1].m_pVp?pC->m_Common[1].m_pVp->VName():"");
     for (int i=0; i<=DataLo.m_iLastTPoint; i++)
@@ -1684,7 +1684,7 @@ CComponent::CComponent(CSpecieDataBase & m_SDB, CComponentDataBase & CDB, CH2ODa
 m_SDB(SDB),
 m_CDB(CDB),
 m_H2O(H2ODB),
-ElComp(*(new ElemCompArray))
+m_ElComp(*(new ElemCompArray))
   {
   Sym=Sym__;
   if (m_CDB.No() == MaxComponents)
@@ -1713,7 +1713,7 @@ CComponent::~CComponent()
   {
   for (int i=0; i<m_nPhaseData; i++)
     delete m_PhaseData[i];
-  delete &ElComp;
+  delete &m_ElComp;
   };
 
 //---------------------------------------------------------------------
@@ -2670,7 +2670,7 @@ double CSpecieDataBase::HeatOfCombustionHi(long Fidelity, PhMask Phase, double T
   const long iC = 6-1;
 
   int Ns,i;
-  CompFracArray &CFH=*(EDB[iH].SpComp);
+  CompFracArray &CFH=*(EDB[iH].m_SpComp);
   Ns=CFH.GetSize();
   double MH=0;
   for (i=0; i<Ns; i++)
@@ -2680,7 +2680,7 @@ double CSpecieDataBase::HeatOfCombustionHi(long Fidelity, PhMask Phase, double T
       MH+=M[s]*CFH[i].dMassFrac;
     }
 
-  CompFracArray &CFC=*(EDB[iC].SpComp);
+  CompFracArray &CFC=*(EDB[iC].m_SpComp);
   Ns=CFC.GetSize();
   double MC=0;
   for (i=0; i<Ns; i++)
@@ -2709,7 +2709,7 @@ double CSpecieDataBase::HeatOfCombustionLo(long Fidelity, PhMask Phase, double T
   const long iC = 6-1;
 
   int Ns,i;
-  CompFracArray &CFH=*(EDB[iH].SpComp);
+  CompFracArray &CFH=*(EDB[iH].m_SpComp);
   Ns=CFH.GetSize();
   double MH=0;
   for (i=0; i<Ns; i++)
@@ -2719,7 +2719,7 @@ double CSpecieDataBase::HeatOfCombustionLo(long Fidelity, PhMask Phase, double T
       MH+=M[s]*CFH[i].dMassFrac;
     }
 
-  CompFracArray &CFC=*(EDB[iC].SpComp);
+  CompFracArray &CFC=*(EDB[iC].m_SpComp);
   Ns=CFC.GetSize();
   double MC=0;
   for (i=0; i<Ns; i++)
@@ -3119,10 +3119,10 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
 
               pC = new CComponent(m_SDB, m_CDB, m_H2O, /*pTag,*/ pSym);
               //pC->Name=pComp;
-              pC->ElDef=ElDef;
+              pC->m_sElDef=ElDef;
               pC->m_dMoleWt=0.0;
               Strng Elements, Element;
-              GetElements(pC->ElDef, Elements);
+              GetElements(pC->m_sElDef, Elements);
               bool EDone[MaxElements];
               for (int e=0; e<MaxElements; e++)
                 EDone[e]=false;
@@ -3136,12 +3136,12 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
 
 #if dbgBuildSDB
                     if (dbgBuildSpc())
-                      dbgp(" %s %g ",Element(), GetElemAmt(pC->ElDef, Element));
+                      dbgp(" %s %g ",Element(), GetElemAmt(pC->m_sElDef, Element));
 #endif
-                    double dMoles=GetElemAmt(pC->ElDef, Element);
-                    pC->m_dMoleWt+=m_EDB[e].AtmWt*dMoles;
+                    double dMoles=GetElemAmt(pC->m_sElDef, Element);
+                    pC->m_dMoleWt+=m_EDB[e].m_AtmWt*dMoles;
                     CElemComp EC(e, dMoles);
-                    pC->ElComp.Add(EC);
+                    pC->m_ElComp.Add(EC);
                     EDone[e]=true;
                     }
                   else
@@ -3663,7 +3663,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   if (dbgBuildSpc())
     {
     dbgpln("Component :%-15.15s %-15.15s %10.2f %10.2f %10.2f %10.2f Cnst:%08x Cmn0:%08x Cmn1:%08x Vp0:%-10s Vp1:%-10s",
-      C.SymOrTag(), C.ElDef(), C.m_dPc, C.m_dTc, C.m_dVc, C.m_dAc, 
+      C.SymOrTag(), C.m_sElDef(), C.m_dPc, C.m_dTc, C.m_dVc, C.m_dAc, 
       dynamic_cast<CSpConstData*>(&C), &C.m_Common[0], &C.m_Common[1], 
       C.m_Common[0].m_pVp?C.m_Common[0].m_pVp->VName():"",
       C.m_Common[1].m_pVp?C.m_Common[1].m_pVp->VName():"");
@@ -4150,17 +4150,25 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (s=0; s<m_SDB.m_iNo; s++)
     {
     CComponent &C=m_CDB[m_SDB[s].CId()];
-    ElemCompArray &EC=C.ElComp;
+    ElemCompArray &EC=C.m_ElComp;
     for (i=0; i<EC.GetSize(); i++)
       {
       int e=EC[i].iENo;
       CCompFrac CF;
       CF.iSpNo=s;
-      CF.dMassFrac=EC[i].dMoles*m_EDB[e].AtmWt/C.m_dMoleWt;
-      m_EDB[e].SpComp->Add(CF);
+      CF.dMassFrac=EC[i].dMoles*m_EDB[e].m_AtmWt/C.m_dMoleWt;
+      m_EDB[e].m_SpComp->Add(CF);
       }
     }
 
+  // Setup Used Elements List
+  for (int e=0; e<EDB.Count(); e++)
+    {
+    if (EDB[e].m_SpComp->GetCount()>0)
+      EDB.m_InUse.Add(&EDB[e]);
+    }
+
+  //...
   if (nAssumedCps)
     {
     if (AssumedCpsList.Len()>120)
@@ -6152,9 +6160,9 @@ void CSpecie::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=N
     {
     case 0:   Value=Tag();                                return;
     case 1:   Value=Sym();                                return;
-    case 2:   Value=CDB[iCId].ElDef();                    return;
+    case 2:   Value=CDB[iCId].m_sElDef();                 return;
     case 3:   Value=MoleWt();                             return;
-    case 4:   Value=m_sPhaseSym();                          return;
+    case 4:   Value=m_sPhaseSym();                        return;
     case 5:   Value=(long)m_PhMsk;                        return;
     case 6:   Value=LoT(m_lFidelity);                     return;
     case 7:   Value=HiT(m_lFidelity);                     return;
@@ -9975,7 +9983,7 @@ double CSysVector::ElementMass(CIArray & ElementIds, PhMask Phase)
   double tot=0.0;
   for (int ie=0; ie<ElementIds.GetCount(); ie++)
     {
-    CompFracArray &CFH=*(EDB[ie].SpComp);
+    CompFracArray &CFH=*(EDB[ie].m_SpComp);
     int Ns=CFH.GetSize();
     for (int is=0; is<Ns; is++)
       {

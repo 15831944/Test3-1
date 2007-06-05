@@ -405,12 +405,47 @@ long MVectorDefn::Count(DWORD PhMask/*=MP_All*/)
 
 //---------------------------------------------------------------------------
 
+
+MElementDefn MSpecieElement::Element()               { return MElementDefn(m_pElement);  };
+double  MSpecieElement::Amount()                     { return m_Amount;  }
+
+MSpecieElements::MSpecieElements(CSpecie * pSpecie) : m_pSpecie(pSpecie) {};
+long  MSpecieElements::Count()              { return m_pSpecie->m_Cmp.m_ElComp.GetCount(); };
+MSpecieElement MSpecieElements::operator[](long i) 
+  { 
+  CElemComp & EC=m_pSpecie->m_Cmp.m_ElComp[i]; 
+  return MSpecieElement(&EDB[EC.iENo], EC.dMoles); 
+  };
+
+
+//long MSpecieElements::Count()                        { return m_pSpecie->m_Cmp.m_ElComp.GetCount(); };
+//MSpecieElement MSpecieElements::operator[] (long i)  { return m_pSpecie->m_Cmp.m_ElComp[i];         };
+
+//---------------------------------------------------------------------------
+
+//MElementDefn::MElementDefn()
+//      {
+//      m_Elem=NULL;
+//      };
+//    ~MElementDefn()
+//      {
+//      };
+
+LPCTSTR MElementDefn::Symbol()       { return m_pElement->m_Name; };
+long    MElementDefn::AtomicNumber() { return m_pElement->m_AtmNo; };
+double  MElementDefn::AtomicWt()     { return m_pElement->m_AtmWt; };
+long    MElementDefn::InUseCount()   { return m_pElement->m_SpComp->GetCount(); };
+
+//---------------------------------------------------------------------------
+
 LPCTSTR MSpecieDefn::Tag()                      { return (LPCSTR)(m_pSp->Tag()); };
 LPCTSTR MSpecieDefn::Symbol()                   { return (LPCSTR)(m_pSp->Sym()); };
 DWORD   MSpecieDefn::Phase()                    { return m_pSp->m_PhMsk; };
 bool    MSpecieDefn::IsLiquid()                 { return m_pSp->IsLiq()!=0; };
 bool    MSpecieDefn::IsSolid()                  { return m_pSp->IsSol()!=0; };
 bool    MSpecieDefn::IsGas()                    { return m_pSp->IsGas()!=0; };
+
+MSpecieElements MSpecieDefn::Elements()         { return MSpecieElements(m_pSp); };
 
 bool    MSpecieDefn::HasSizeData()              { return m_iPSDDefn>=0; };
 
@@ -509,6 +544,21 @@ MDDValueLst * MVectorDefn::DDVapSpList()      { return SDB.DDBVapSpList.List()  
 MDDValueLst * MVectorDefn::DDVapSpListDash()  { return SDB.DDBVapSpListDash.List(); };
 
 //===========================================================================
+
+long           MElementsInUse::Count()              { return EDB.m_InUse.GetCount(); };
+MElementDefn   MElementsInUse::operator[] (long i)  { return EDB.m_InUse[i];         };
+
+MElementsInUse gs_ElementsInUse;
+
+//---------------------------------------------------------------------------
+
+long           MPeriodicTable::Count()              { return EDB.Count();           };
+MElementDefn   MPeriodicTable::operator[] (long i)  { return MElementDefn(&EDB[i]); };
+
+MPeriodicTable gs_PeriodicTable;
+
+//===========================================================================
+
 
 MPSDDefn::MPSDDefn()
   {

@@ -58,7 +58,7 @@ static void DumpAmt(char * Msg, CDArray & Amt, CCElementDataBase & EDB)
   dbgp("                 %-4.4s",Msg);
   for (int e=0; e<MaxElements; e++)
     if (Amt[e]>0.0)
-      dbgp("%-3s=%6.2f  ",EDB[e].Name, Amt[e]);
+      dbgp("%-3s=%6.2f  ",EDB[e].m_Name, Amt[e]);
   dbgpln("");
   }
 
@@ -181,7 +181,7 @@ static flag MakeSpDefn(Strng & Formula, Strng &Defn, CCElementDataBase & EDB)
   for (int e=0; e<MaxElements; e++)
     if (Amt[e]>0.0)
       {
-      Defn+=EDB[e].Name;
+      Defn+=EDB[e].m_Name;
       A.Set("%.3f",Amt[e]);
       int i=A.Len()-1;
       while (A[i]=='0' && i>0) i--;
@@ -511,7 +511,7 @@ void HSCInfo::UpdateB(CCElementDataBase & EDB, CArray<HSCInfo*,HSCInfo*> & Info,
         if (e>=0)
           {
           double dMoles=GetElemAmt(Defn, Element);
-          dMoleWt+=EDB[e].AtmWt*dMoles;
+          dMoleWt+=EDB[e].m_AtmWt*dMoles;
           }
         else
           LogNote("Import HSC", 0, "Element '%s' not found", Element());
