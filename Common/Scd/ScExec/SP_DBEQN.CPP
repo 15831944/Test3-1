@@ -1151,9 +1151,9 @@ double SDBE_QAL_Cp::AtTP(double T, double P)
 int SDBE_QAL_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[2])==0) return 2;
-  a=SpDB_TokenValue(Cols[0], 1.0) * m_pFData->MoleWt();
-  b=SpDB_TokenValue(Cols[1], 0.0) * m_pFData->MoleWt();
-  c=SpDB_TokenValue(Cols[2], 0.0) * m_pFData->MoleWt();
+  a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
+  b=SpDB_TokenValue(Cols[1], 0.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
+  c=SpDB_TokenValue(Cols[2], 0.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
   if (strlen(Cols[3])>0 && strlen(Cols[4])>0)
     {
     lo=SpDB_TokenValue(Cols[3], C_2_K(25.));

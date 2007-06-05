@@ -372,6 +372,9 @@
 				RelativePath=".\Downtime.cpp">
 			</File>
 			<File
+				RelativePath=".\Filter Press.cpp">
+			</File>
+			<File
 				RelativePath=".\Floatation Tank.cpp">
 			</File>
 			<File
