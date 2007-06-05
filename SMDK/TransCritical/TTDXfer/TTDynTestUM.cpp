@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-06-02 07:24:07 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-05 01:03:55 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -153,13 +153,14 @@ void CDynTestTank::EvalProducts()
     }
 
     long l1 = FeedPSD.getPSDVectorCount();
+
     long l2 = FeedPSD.getSizeCount();
     long l3 = FeedPSD.getSpecieCount(0);
-    long l4 = FeedPSD.getSpecieIndex(0);
+    long PSDSpecie = FeedPSD.getSpecieIndex(0);
     double s0 = FeedPSD.getSize(0);
     double s1 = FeedPSD.getSize(1);
     double b0 = FeedPSD.getBottomSize();
-
+    double sden = gs_MVDefn[PSDSpecie].Density();
     FeedPSD.ExtractSizes(M, 1.0e6);
     FeedPSD.ExtractFracVector(F, 0);
     
@@ -217,14 +218,14 @@ void CDynTestTank::EvalProducts()
 
 
 
-// Misra 1970
+// Misra 1970  Nucleation Rate is in numbers of fine particles per unit area of surface
 
-double CDynTestTank::NucleationRate() {
-    double ssat=m_dSSat;
-    if ( < 0) ssat=0.0;
-    dNuclRate = 5.0e8*pow(ssat,4)*m_dSSA/3600;
-    return dNuclRate;  
-}    
+//double CDynTestTank::NucleationRate() {
+//   double ssat=m_dSSat;
+//   if ( ssat < 0) ssat=0.0;
+//   dNuclRate = 5.0e8*pow(ssat,4)*m_dSSA/3600;
+//   return dNuclRate;	
+//    
 
 
 

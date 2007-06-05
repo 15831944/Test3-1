@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-06-02 05:30:44 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-04 01:30:46 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -43,7 +43,7 @@ class CDynTestTank : public MBaseMethod
   bool ValidateDataFields();
   void EvalProducts();
   //void ClosureInfo(MClosureInfo & CI);
-
+  double NucleationRate();
  protected:
   // Streams 
 
