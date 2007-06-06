@@ -376,7 +376,11 @@ void MN_Surge::ConfigureJoins()
         else
           SetIO_Join(i, JnId_HX);
         }
+      else
+        SetIO_Direct(i, JnId_Surge);
       }
+    for (int ii=NoProcessIOs(), jj=JnId_Surge+1; ii<NoFlwIOs(); ii++, jj++)
+      SetIO_Direct(ii, jj);
     }   
   else
     {
