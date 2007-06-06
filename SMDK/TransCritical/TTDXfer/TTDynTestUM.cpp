@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-06-05 01:03:55 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-06 06:38:18 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -163,6 +163,15 @@ void CDynTestTank::EvalProducts()
     double sden = gs_MVDefn[PSDSpecie].Density();
     FeedPSD.ExtractSizes(M, 1.0e6);
     FeedPSD.ExtractFracVector(F, 0);
+
+
+    MSpecieElements AluminaElements = gs_MVDefn[PSDSpecie].Elements();
+    long ECount = AluminaElements.Count();
+    for (int i=0; i<ECount; i++) {
+      MElementDefn Ele = AluminaElements[i].Element();
+      Log.Message(MMsg_Warning, "Element %4s, AtomNumber = %5ld,    AtomWt = %8.2f", Ele.Symbol(), Ele.AtomicNumber(), Ele.AtomicWt());
+    }      
+      
     
 
     Log.SetCondition(lPBType==PB_None, 1, MMsg_Warning, "Bad Feed Stream - No PSD or SSA Property");
