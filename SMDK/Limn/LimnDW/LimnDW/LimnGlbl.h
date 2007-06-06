@@ -302,10 +302,12 @@ class CDiamondWizardConfigurations
   };
 
 
+class MLog;
+
 extern CDiamondWizardConfiguration gs_DWCfg;
 extern CDiamondWizardConfigurations gs_DWCfgs;
 
-extern int LoadArrayData(LPCTSTR Root, LPCTSTR File, int iSource, LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data);//, MLog & Log);
+extern int LoadArrayData(LPCTSTR Root, LPCTSTR File, int iSource, LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data, MLog * pLog);
 
 
 #ifdef NOT_DEFINED

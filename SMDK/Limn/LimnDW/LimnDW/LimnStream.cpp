@@ -426,10 +426,10 @@ void CLimnStream::ReadData()
   if (!m_bCalculate || m_pFeed==NULL)
     return;
 
-  LoadArrayData("OreSizeFeed",  1.0, 1,               gs_DWCfg.nOreSizes(),      m_pFeed->m_OreSizeFeed);
-  LoadArrayData("DmdSizeFeed",  1.0, 1,               gs_DWCfg.nDiamondSizes(),  m_pFeed->m_DmdSizeFeed);
-  LoadArrayData("DmdSGFeed",    1.0, 1,               gs_DWCfg.nSGs(),           m_pFeed->m_DmdSGFeed);
-  LoadArrayData("Densimetrics", 0.01, gs_DWCfg.nSGs(), gs_DWCfg.nOreSizes(),      m_pFeed->m_Densimetrics);
+  LoadArrayData("OreSizeFeed",  1.0, 1,               gs_DWCfg.nOreSizes(),      m_pFeed->m_OreSizeFeed, &Log);
+  LoadArrayData("DmdSizeFeed",  1.0, 1,               gs_DWCfg.nDiamondSizes(),  m_pFeed->m_DmdSizeFeed, &Log);
+  LoadArrayData("DmdSGFeed",    1.0, 1,               gs_DWCfg.nSGs(),           m_pFeed->m_DmdSGFeed, &Log);
+  LoadArrayData("Densimetrics", 0.01, gs_DWCfg.nSGs(), gs_DWCfg.nOreSizes(),      m_pFeed->m_Densimetrics, &Log);
   int xxx=0;
   }
 
@@ -574,7 +574,7 @@ void CLimnStream::LoadFeed()
 //  return Data.GetCount();
 //  }
 
-int CLimnStream::LoadArrayData(LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data)//, MLog & Log)
+int CLimnStream::LoadArrayData(LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data, MLog * pLog)
   {
   int N=0;
 
@@ -582,7 +582,7 @@ int CLimnStream::LoadArrayData(LPCTSTR RangeName, double Scale, int Cols, int Ro
 
   CFeed &Fd = *m_pFeed;
 
-  return ::LoadArrayData(PrjFiles(), Fd.m_sSrcName, Fd.m_iSource, RangeName, Scale, Cols, Rows, Data);//, Log);
+  return ::LoadArrayData(PrjFiles(), Fd.m_sSrcName, Fd.m_iSource, RangeName, Scale, Cols, Rows, Data, pLog);
 
   //CString Fn(PrjFiles());
   //Fn+=Fd.m_sSrcName;

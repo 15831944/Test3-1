@@ -429,7 +429,7 @@ bool CDiamondWizardConfiguration::Initialise()//LPCTSTR Fn)
     }
 
 
-  LoadArrayData(CfgFiles(), "Default", 0, "Densimetrics", 1.0, m_numSGs, m_numOreSizes, m_ReferenceDensimetrics);//, Log);
+  LoadArrayData(CfgFiles(), "Default", 0, "Densimetrics", 1.0, m_numSGs, m_numOreSizes, m_ReferenceDensimetrics, NULL);
 
   // Do a Whole bunch of checks !!!!!!!!!!
 
@@ -871,7 +871,7 @@ CDiamondWizardConfiguration* CDiamondWizardConfigurations::Update( DWORD ExcelSh
 //
 //===========================================================================
 
-int LoadArrayData(LPCTSTR Root, LPCTSTR File, int iSource, LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data)//, MLog & Log)
+int LoadArrayData(LPCTSTR Root, LPCTSTR File, int iSource, LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data, MLog * pLog)
   {
   int N=0;
 
@@ -905,15 +905,23 @@ int LoadArrayData(LPCTSTR Root, LPCTSTR File, int iSource, LPCTSTR RangeName, do
         }
       else
         {
-        _asm int 3;
-        //Log.Message(MMsg_Error, "CSV File %s not opened", Fn);
+        if (pLog)
+          pLog->Message(MMsg_Error, "CSV File %s not opened", Fn);
+        else
+          {
+          _asm int 3;
+          }
         }
       break;
       }
     case 1: //XLS
       {
-      _asm int 3;
-      //Log.Message(MMsg_Error, "XLS Files not yet implemented");
+      if (pLog)
+        pLog->Message(MMsg_Error, "XLS Files not yet implemented");
+      else
+        {
+        _asm int 3;
+        }
       break;
       }
     }

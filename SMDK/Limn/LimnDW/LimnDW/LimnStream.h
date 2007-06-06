@@ -45,7 +45,7 @@ class CLimnStream : public MSpQualityBase
 
     void           ReadData();
     void           LoadFeed();
-    int            LoadArrayData(LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data);
+    int            LoadArrayData(LPCTSTR RangeName, double Scale, int Cols, int Rows, CArray<double,double> &Data, MLog * pLog);
 
     void           ConvertToMassForm(MVector & M, bool ApplyScale=true);
     void           ConvertToFracForm(MVector & M, bool ApplyScale=true);
