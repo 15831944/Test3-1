@@ -141,13 +141,13 @@ CIORec::CIORec()
 
   iHgtOrd=0;
 
-  dFracHgt=0;
-  dApertureAngle=0;
-  dAperture=0;
-  dEntrainRateA=0;
-  dEntrainRateB=0;
-  dEstV2LOnEntry=0;
-  dEstL2VOnEntry=0;
+  m_dFracHgt=0;
+  m_dApertureAngle=0;
+  m_dAperture=0;
+  m_dEntrainRateA=0;
+  m_dEntrainRateB=0;
+  m_dEstV2LOnEntry=0;
+  m_dEstL2VOnEntry=0;
 
   iExitRule=0;
   m_pImg=NULL;
@@ -198,13 +198,13 @@ CIORec & CIORec::operator=(CIORec &A)
   fConnToRmt       = A.fConnToRmt;
   fAutoConnect     = A.fAutoConnect;
 
-  dFracHgt         = A.dFracHgt;
-  dApertureAngle    = A.dApertureAngle;
-  dAperture         = A.dAperture;
-  dEntrainRateA     = A.dEntrainRateA;
-  dEntrainRateB     = A.dEntrainRateB;
-  dEstV2LOnEntry    = A.dEstV2LOnEntry;
-  dEstL2VOnEntry    = A.dEstL2VOnEntry;
+  m_dFracHgt          = A.m_dFracHgt;
+  m_dApertureAngle    = A.m_dApertureAngle;
+  m_dAperture         = A.m_dAperture;
+  m_dEntrainRateA     = A.m_dEntrainRateA;
+  m_dEntrainRateB     = A.m_dEntrainRateB;
+  m_dEstV2LOnEntry    = A.m_dEstV2LOnEntry;
+  m_dEstL2VOnEntry    = A.m_dEstL2VOnEntry;
 
 
   dV2LQmVFact      = A.dV2LQmVFact;
@@ -6182,13 +6182,13 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     if (pFG)
       io.FBs()[0].AssignFlwEqnGroup(*pFG, pFG->Default(), this);
 
-    io.dFracHgt       = IOAreas[LIONo].m_dFracHgt;
-    io.dAperture      = 0.0;
-    io.dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
-    io.dEntrainRateA  = 0.0;
-    io.dEntrainRateB  = 0.0;
-    io.dEstV2LOnEntry = 0.0,
-    io.dEstL2VOnEntry = 0.0;
+    io.m_dFracHgt       = IOAreas[LIONo].m_dFracHgt;
+    io.m_dAperture      = 0.0;
+    io.m_dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
+    io.m_dEntrainRateA  = 0.0;
+    io.m_dEntrainRateB  = 0.0;
+    io.m_dEstV2LOnEntry = 0.0,
+    io.m_dEstL2VOnEntry = 0.0;
 
     io.iExitRule   = 0;
     io.m_pImg      = NULL;

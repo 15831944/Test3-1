@@ -2145,13 +2145,13 @@ class DllImportExport CIORec
     bool           fEvalSeqWasIn;
     bool           fEvalSeqWasOut;
 
-    double/*float*/dFracHgt,
-                   dApertureAngle,
-                   dAperture,
-                   dEntrainRateA,
-                   dEntrainRateB,
-                   dEstV2LOnEntry,
-                   dEstL2VOnEntry;
+    double/*float*/m_dFracHgt,
+                   m_dApertureAngle,
+                   m_dAperture,
+                   m_dEntrainRateA,
+                   m_dEntrainRateB,
+                   m_dEstV2LOnEntry,
+                   m_dEstL2VOnEntry;
 
     byte           iExitRule;
     SpVectorObj  * m_pImg;
@@ -3919,28 +3919,28 @@ class DllImportExport FlwNode : public CTNode
     double         IOAbsFracHgt_Flng(int i, SpContainer & C) { return IOAbsFracHgt_Flng(i, C.ShapeHeight(), C.ShapeDatumPt()); };
     double         IOAbsFracHgt_Term(int i, double ShapeHeight, double ShapeDatumPt);
     double         IOAbsFracHgt_Term(int i, SpContainer & C) { return IOAbsFracHgt_Term(i, C.ShapeHeight(), C.ShapeDatumPt()); };
-    double         IORelFracHgt_Flng(int i, flag Ranged=true) { double F=m_IOs[i].dFracHgt; if (Ranged) F=Range(MinFracHgt[SolveInlineMethod()?1:0], F, MaxFracHgt[SolveInlineMethod()?1:0]); return F; };
+    double         IORelFracHgt_Flng(int i, flag Ranged=true) { double F=m_IOs[i].m_dFracHgt; if (Ranged) F=Range(MinFracHgt[SolveInlineMethod()?1:0], F, MaxFracHgt[SolveInlineMethod()?1:0]); return F; };
     void           SetIORelFracHgt_Flng(int i, double h)      
       { 
       if ((IODesc_Self(i)->m_dwFlags & IOChgFracHgt)==0)
         h=IODesc_Self(i)->m_dFracHgt;
-      m_IOs[i].dFracHgt=h; 
+      m_IOs[i].m_dFracHgt=h; 
       };
 
-    double         IOAperture(int i, flag Ranged=true) { double A=m_IOs[i].dAperture; if (Ranged) A=Range(MinAperture[SolveInlineMethod()?1:0], A, 0.5); return A;};
-    void           SetIOAperture(int i, double d)      { m_IOs[i].dAperture=d; };
-    double         IOApertureAngle(int i)              { return m_IOs[i].dApertureAngle; };
-    void           SetIOApertureAngle(int i, double d) { m_IOs[i].dApertureAngle=d; };
+    double         IOAperture(int i, flag Ranged=true) { double A=m_IOs[i].m_dAperture; if (Ranged) A=Range(MinAperture[SolveInlineMethod()?1:0], A, 0.5); return A;};
+    void           SetIOAperture(int i, double d)      { m_IOs[i].m_dAperture=d; };
+    double         IOApertureAngle(int i)              { return m_IOs[i].m_dApertureAngle; };
+    void           SetIOApertureAngle(int i, double d) { m_IOs[i].m_dApertureAngle=d; };
 
-    double         IOEntrainRateA(int i)               { return m_IOs[i].dEntrainRateA; };
-    double         IOEntrainRateB(int i)               { return m_IOs[i].dEntrainRateB; };
-    void           SetIOEntrainRateA(int i, double d)  { m_IOs[i].dEntrainRateA=d; };
-    void           SetIOEntrainRateB(int i, double d)  { m_IOs[i].dEntrainRateB=d; };
+    double         IOEntrainRateA(int i)               { return m_IOs[i].m_dEntrainRateA; };
+    double         IOEntrainRateB(int i)               { return m_IOs[i].m_dEntrainRateB; };
+    void           SetIOEntrainRateA(int i, double d)  { m_IOs[i].m_dEntrainRateA=d; };
+    void           SetIOEntrainRateB(int i, double d)  { m_IOs[i].m_dEntrainRateB=d; };
 
-    double         IOEstV2LOnEntry(int i)              { return m_IOs[i].dEstV2LOnEntry; };
-    double         IOEstL2VOnEntry(int i)              { return m_IOs[i].dEstL2VOnEntry; };
-    void           SetIOEstV2LOnEntry(int i, double d) { m_IOs[i].dEstV2LOnEntry=d; };
-    void           SetIOEstL2VOnEntry(int i, double d) { m_IOs[i].dEstL2VOnEntry=d; };
+    double         IOEstV2LOnEntry(int i)              { return m_IOs[i].m_dEstV2LOnEntry; };
+    double         IOEstL2VOnEntry(int i)              { return m_IOs[i].m_dEstL2VOnEntry; };
+    void           SetIOEstV2LOnEntry(int i, double d) { m_IOs[i].m_dEstV2LOnEntry=d; };
+    void           SetIOEstL2VOnEntry(int i, double d) { m_IOs[i].m_dEstL2VOnEntry=d; };
 
     byte           IOExitRule(int i)                   { return m_IOs[i].iExitRule; };
     SpVectorObj  * IOExitImage(int i)                  { return m_IOs[i].m_pImg; };
