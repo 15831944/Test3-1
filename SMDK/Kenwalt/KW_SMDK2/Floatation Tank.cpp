@@ -46,7 +46,7 @@ FloatationTank::FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
   //default values...
 	eSpecType = FTST_ByCompound;
 	vPrimaryIndices.resize(1, 0);
-	sPrimary1 = sPrimary2 = "";
+	nPrimary1 = nPrimary2 = -1;
 	dPrimaryRecovery = dPrimaryGrade = 0.0;
 	dReqPrimaryRecovery = dReqPrimaryGrade = 0.0;
 
@@ -56,9 +56,34 @@ FloatationTank::FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 //---------------------------------------------------------------------------
 
 void FloatationTank::Init()
-  {
-  SetIODefinition(s_IODefs);
-  }
+{
+	SetIODefinition(s_IODefs);
+
+	MDDValueLst blank = {-1, "-"};
+	vSolidElements.push_back(blank);
+	vector<CString> temp;
+	bool* elementSolid = new bool[gs_PeriodicTable.Count() + 1];
+	memset(elementSolid, 0, sizeof(bool) * gs_PeriodicTable.Count() + 1);
+
+	for (int i = 0; i < gs_MVDefn.Count(); i++)
+		if (gs_MVDefn[i].IsSolid())
+		{
+			MSpecieElements curElements = gs_MVDefn[i].Elements();
+			for (int j = 0; j < curElements.Count(); j++)
+				elementSolid[curElements[j].Element().AtomicNumber()] = true;
+		}
+	for (int i = 0; i < gs_PeriodicTable.Count() + 1; i++)
+		if (elementSolid[i])
+		{
+			int dstSize = strlen(gs_PeriodicTable[i - 1].Symbol()) + 1;
+			char* nonConst = new char[dstSize]; //It'll be a memory leak on the order of 300 bytes per model, maximum...
+			strcpy_s(nonConst, dstSize, gs_PeriodicTable[i - 1].Symbol());
+			MDDValueLst cur = { i, nonConst };
+			vSolidElements.push_back(cur);
+		}
+	MDDValueLst term = {0};
+	vSolidElements.push_back(term);
+}
 
 //---------------------------------------------------------------------------
 
@@ -92,8 +117,8 @@ void FloatationTank::BuildDataFields()
 		DD.String("PrimaryStr", "", idDX_PrimaryCompoundStr, MF_PARAM_STOPPED | MF_NO_VIEW); //This allows filing, and automatic setting of this parameter.
 		break;
 	case FTST_ByElement:
-		DD.String("Primary1", "", idDX_PrimaryElement1, MF_PARAM_STOPPED);
-		DD.String("Primary2", "", idDX_PrimaryElement2, MF_PARAM_STOPPED);
+		DD.Long("Primary1", "", idDX_PrimaryElement1, MF_PARAM_STOPPED, &vSolidElements.at(0));
+		DD.Long("Primary2", "", idDX_PrimaryElement2, MF_PARAM_STOPPED, &vSolidElements.at(0));
 	}
 	DD.Double("Primary_Recovery", "", &dReqPrimaryRecovery, MF_PARAMETER, MC_Frac("%"));
 	DD.Double("Primary_Grade", "", &dReqPrimaryGrade, MF_PARAMETER, MC_Frac("%"));
@@ -105,7 +130,7 @@ void FloatationTank::BuildDataFields()
 		for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		{
 			DD.ArrayElementStart(i);
-			DD.Long("Compound", "", idDX_SecondaryIndex + i, MF_PARAM_STOPPED | MF_NO_FILING | MF_SET_ON_CHANGE, gs_MVDefn.DDSolSpList());
+			DD.Long("Compound", "", idDX_SecondaryIndex + i, MF_PARAM_STOPPED | MF_NO_FILING, gs_MVDefn.DDSolSpList());
 			DD.String("CompoundStr", "", idDX_SecondaryName + i, MF_PARAM_STOPPED | MF_NO_VIEW);
 			DD.Double("Recovery", "", idDX_SecondaryReqRecovery + i, MF_PARAMETER, MC_Frac("%"));
 			DD.ArrayElementEnd();
@@ -143,20 +168,18 @@ bool FloatationTank::ExchangeDataFields()
 	case idDX_PrimaryElement1:
 		if (DX.HasReqdValue)
 		{
-			CString tmp = DX.String;
-			sPrimary1 = tmp.Trim();
+			nPrimary1 = DX.Long;
 			UpdatePrimaryIndices();
 		}
-		DX.String = sPrimary1;
+		DX.Long = nPrimary1;
 		return true;
 	case idDX_PrimaryElement2:
 		if (DX.HasReqdValue)
 		{
-			CString tmp = DX.String;
-			sPrimary2 = tmp.Trim();
+			nPrimary2 = DX.Long;
 			UpdatePrimaryIndices();
 		}
-		DX.String = sPrimary2;
+		DX.Long = nPrimary2;
 		return true;
 	case idDX_PrimaryCompoundStr:
 		if (DX.HasReqdValue)
@@ -390,16 +413,24 @@ void FloatationTank::UpdatePrimaryIndices()
 	{
 		vPrimaryIndices.clear();
 		int numSpecies = gs_MVDefn.Count();
-		if (sPrimary1.GetLength() > 0 || sPrimary2.GetLength() > 0) //If both are zero, we have no primary species [Something to worry about some other time]
+		if (nPrimary1 >= 0 || nPrimary2 >= 0) //If both are zero, we have no primary species [Something to worry about some other time]
 			for (int i = 0; i < numSpecies; i++)
-			{
-				CString sym = gs_MVDefn[i].Symbol();
+				if (gs_MVDefn[i].IsSolid())
+				{
+					MSpecieElements elems = gs_MVDefn[i].Elements();
+					bool bContainsP1 = nPrimary1 < 0;
+					bool bContainsP2 = nPrimary2 < 0;	//If the user has selected "-", we discount it
 
-				if (gs_MVDefn[i].IsSolid()
-					&& (sPrimary1.GetLength()==0 || sym.Find(sPrimary1) >= 0) 
-					&& (sPrimary2.GetLength()==0 || sym.Find(sPrimary2) >= 0))
-					vPrimaryIndices.push_back(i);
-			}
+					for (int j = 0; j < elems.Count(); j++)
+					{
+						if (elems[j].Element().AtomicNumber() == nPrimary1)
+							bContainsP1 = true;
+						if (elems[j].Element().AtomicNumber() == nPrimary2)
+							bContainsP2 = true;
+					}
+					if (bContainsP1 && bContainsP2)
+						vPrimaryIndices.push_back(i);
+				}
 	}
 	//UpdateMDDLists();
 	UpdateOtherIndices();

@@ -52,6 +52,8 @@ SingleVarStats::SingleVarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 	pHistoBucketCounts = NULL;
 
 	TagCnv = MC_;
+	TagCnvFamily = gs_Cnvs[TagCnv.Index];
+	nTagCnvUsed = 0;
 
 	Reset();
 }
@@ -89,7 +91,6 @@ const long idDX_HistoCount = 3;
 const long idDX_RecordCount = 4;
 const long idDX_HistoMin = 5;
 const long idDX_HistoMax = 6;
-const long idDX_GraphUnits = 7;
 
 void SingleVarStats::BuildDataFields()
 {
@@ -102,13 +103,32 @@ void SingleVarStats::BuildDataFields()
 	//MCnv FindPrimary = gs_Cnvs.FindPrimary("Pressure");
 	//End Test Stuff
 
+	static vector<MDDValueLst> TagCnvList;
+	for (int i = 0; i < TagCnvList.size(); i++)
+		if (TagCnvList.at(i).m_pStr != NULL)
+			delete[] TagCnvList.at(i).m_pStr;
+	TagCnvList.clear();
+	for (int i = 0; i < TagCnvFamily.Count(); i++)
+	{
+		int dstSize = strlen(TagCnvFamily[i].Name()) + 1;
+		char* nonConst = new char[dstSize];
+		strcpy_s(nonConst, dstSize, TagCnvFamily[i].Name());
+
+		MDDValueLst cur = {i, nonConst};
+		TagCnvList.push_back(cur);
+	}
+	MDDValueLst terminator = {0};
+	TagCnvList.push_back(terminator);
+
 	DD.CheckBox("Logging","Logging", &bOn, MF_PARAMETER);
 	DD.String("StatTag", "StatTag", idDX_Tag, MF_PARAM_STOPPED);
 	DD.Button("Reset", "Reset", idDX_Reset);
 	DD.Double("Histogram Minimum", "HistoMin", idDX_HistoMin, MF_PARAMETER, TagCnv);
 	DD.Double("Histogram Maximum", "HistoMax", idDX_HistoMax, MF_PARAMETER, TagCnv);
 	DD.Long("Histogram Buckets", "HistoCount", idDX_HistoCount, MF_PARAMETER | MF_SET_ON_CHANGE);
-	DD.String("Graph_Units", "", idDX_GraphUnits, MF_PARAMETER);
+	DD.Show(TagCnvList.size() > 1);
+		DD.Long("Graph_Units", "", (long*)&nTagCnvUsed, MF_PARAMETER | MF_SET_ON_CHANGE, &TagCnvList.at(0));
+	DD.Show();
 
 	DD.Text("");
 
@@ -122,11 +142,10 @@ void SingleVarStats::BuildDataFields()
 	DD.Double("Minimum", "Min", &dMin, MF_RESULT, TagCnv);
 	DD.Double("Maximum", "Max", &dMax, MF_RESULT, TagCnv);
 	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
-	DD.Text((CString)"TagCnv: " + TagCnv.Text);
-
 	DD.Text("");
 
 	//DD.StructBegin("Histogram");
+	DD.Page("Histogram");
 	DD.ArrayBegin("Histogram Buckets", "Buckets", lHistoCount + 2);	
 	for (int i = 0; i < lHistoCount + 2; i++)
 	{
@@ -234,11 +253,6 @@ bool SingleVarStats::ExchangeDataFields()
 		}
 		DX.Long = lRecordCount;
 		return true;
-	case idDX_GraphUnits:
-		if (DX.HasReqdValue)
-			sGraphUnit = DX.String;
-		DX.String = sGraphUnit;
-		return true;
 	}
 	return false;
 }
@@ -252,6 +266,8 @@ bool SingleVarStats::ValidateDataFields()
 		TagIO.EndValidateDataFields();
 	}
 	TagCnv = tagSubs.IsActive ? tagSubs.Cnv : MC_;
+	TagCnvFamily = gs_Cnvs[TagCnv.Index];
+
 	if (lHistoCount < 1)
 		lHistoCount = 1;
 #ifndef SVS_KEEP_RECORD
@@ -351,6 +367,9 @@ void SingleVarStats::RecalculateStats(double newEntry)
 
 void SingleVarStats::RecalculateHistoBuckets()
 {
+	if (lHistoCount < 1) lHistoCount = 1;
+	if (lHistoCount > HI_RES_HISTO / 4) lHistoCount = HI_RES_HISTO / 4;
+
 	if (pHistoBucketBorders != NULL)
 		delete[] pHistoBucketBorders;
 	if (pHistoBucketCounts != NULL)
@@ -474,37 +493,49 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		Wnd.m_pPaintDC->Polygon(ArrowTop, 4);
 		Wnd.m_pPaintDC->Polygon(ArrowSide, 4);
 
-		//Draw blocks:
+		//Draw blocks, and % values above blocks.
 		float blockWidth = (float)(nAxesRight - nAxesLeft) / (lHistoCount + 2);
 		int MaxCount = 0;
 		for (int i = 0; i < lHistoCount + 2; i++)
 			if (pHistoBucketCounts[i] > MaxCount) MaxCount = pHistoBucketCounts[i];
 		int FullScale = (int)(MaxCount * 1.1);
 		int nAxesHeight = nAxesBottom - nAxesTop;
-		Wnd.m_pPaintDC->SelectObject(&penRed);
-		CBrush* oldBrush = Wnd.m_pPaintDC->SelectObject(&brushRed);
 		if (MaxCount > 0)
+		{
+			Wnd.m_pPaintDC->SelectObject(&penRed);
+			CBrush* oldBrush = Wnd.m_pPaintDC->SelectObject(&brushRed);
+
+			Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_CENTER);
+
 			for (int i = 0; i < lHistoCount + 2; i++)
 			{
 				if (i == 1)	{
 					Wnd.m_pPaintDC->SelectObject(&penWhite);
 					Wnd.m_pPaintDC->SelectObject(oldBrush);
 				}
-				if (i == lHistoCount - 1) {
+				if (i == lHistoCount + 1) {
 					Wnd.m_pPaintDC->SelectObject(&penRed);
 					Wnd.m_pPaintDC->SelectObject(&brushRed);
 				}
 				Wnd.m_pPaintDC->Rectangle(
-					nAxesLeft + (int)(i*blockWidth),		nAxesBottom - nAxesHeight * pHistoBucketCounts[i] / FullScale, 
+					nAxesLeft + (int)(i*blockWidth),		nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale, 
 					nAxesLeft + (int)((i+1)*blockWidth),	nAxesBottom);
-			}			
-		Wnd.m_pPaintDC->SelectObject(&penWhite);
-		Wnd.m_pPaintDC->SelectObject(oldBrush);
+
+				CString percent; percent.Format("%i%%", (100 * pHistoBucketCounts[i] / MaxCount));
+				Wnd.m_pPaintDC->TextOut(nAxesLeft + (int)((i + 0.5)*blockWidth), nAxesBottom - (nAxesHeight * pHistoBucketCounts[i]) / FullScale - 1, percent);
+			}
+			
+			Wnd.m_pPaintDC->SelectObject(&penWhite);
+			Wnd.m_pPaintDC->SelectObject(oldBrush);
+		}
 
 		//Draw checks and axis values:
-		TagCnv.m_Txt = sGraphUnit;
-		double offset = gs_Cnvs.Offset(TagCnv);
-		double scale = gs_Cnvs.Scale(TagCnv);
+		double offset = 0, scale = 1;
+		if (TagCnvFamily[nTagCnvUsed].Valid())
+		{
+			offset = TagCnvFamily[nTagCnvUsed].Offset();
+			scale = TagCnvFamily[nTagCnvUsed].Scale();
+		}
 
 		Wnd.m_pPaintDC->SetTextAlign(TA_TOP | TA_CENTER);
 		Wnd.m_pPaintDC->SelectObject(&penGreen);
@@ -535,10 +566,11 @@ bool SingleVarStats::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 
 		//Draw labels:
 		CString xLabel, yLabel;
-		if (strcmp(TagCnv.Text, "") != 0)
-			xLabel.Format("Value (%s)", TagCnv.Text);
+		if (TagCnvFamily[nTagCnvUsed].Valid() && strcmp(TagCnvFamily[nTagCnvUsed].Name(), "") != 0)
+			xLabel.Format("Value (%s)", TagCnvFamily[nTagCnvUsed].Name());
 		else
 			xLabel.Format("Value");
+
 		yLabel.Format("Count");
 		
 		Wnd.m_pPaintDC->SetTextAlign(TA_BOTTOM | TA_CENTER);

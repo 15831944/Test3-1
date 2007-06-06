@@ -584,6 +584,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Pie Chart.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Random Failure.cpp"
 				>
 			</File>
@@ -685,6 +689,10 @@
 			</File>
 			<File
 				RelativePath="KW_SMDK2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Pie Chart.h"
 				>
 			</File>
 			<File

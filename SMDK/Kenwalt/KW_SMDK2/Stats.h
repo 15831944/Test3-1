@@ -10,6 +10,7 @@
 #endif
 
 #include <list>
+#include <vector>
 
 #ifdef __STATS_CPP
   #define DllImportExport __declspec(dllexport)
@@ -54,6 +55,8 @@ class SingleVarStats : public MBaseMethod
 
 	MTagIOSubscription tagSubs;
 	MCnv TagCnv;
+	MCnvFamily TagCnvFamily;
+	int nTagCnvUsed;
 
 	CString sGraphUnit;
 
@@ -77,6 +80,8 @@ class SingleVarStats : public MBaseMethod
 	long lHiResHistoBuckets[HI_RES_HISTO];
 	long lUnderrange, lOverrange;
 #endif
+	void SetTag(LPCSTR newTag);
+	vector<MDDValueLst> Cnvs;
 
 	void Reset();
 	void RecalculateStats(double newEntry);
