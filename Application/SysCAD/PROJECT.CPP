@@ -4898,7 +4898,7 @@ flag CProject::FileExport()
   return false;
   }
 //---------------------------------------------------------------------------
-
+#if WithHelpFileList
 void CProject::LoadHelpFileList()
   {
   flag OK = false;
@@ -4963,11 +4963,13 @@ void CProject::LoadHelpFileList()
       m_MdlHelpFileList.Add("Models.hlp");
     }
   }
+#endif
 
 //---------------------------------------------------------------------------
 
 flag CProject::ModelHelp(char* pMdlTxt/*=NULL*/, int HelpIndex/*=0*/)
   {
+#if WithHelpFileList
   ASSERT(HelpIndex<m_MdlHelpFileList.GetSize());
   Strng Result;
   FindDLLOrHlp((char*)(const char*)(m_MdlHelpFileList[HelpIndex]), DllFilesPath(), Result);
@@ -4978,6 +4980,17 @@ flag CProject::ModelHelp(char* pMdlTxt/*=NULL*/, int HelpIndex/*=0*/)
   else
     b = ::WinHelp(AfxGetMainWnd()->m_hWnd, Result(), HELP_PARTIALKEY, (DWORD)pMdlTxt);
   return b;
+#else
+  if (pMdlTxt==NULL || strlen(pMdlTxt)==0)
+    ScdApp()->OnlineHelp("http://help.syscad.net/index.php");
+  else
+    {
+    char Buff[256];
+    sprintf(Buff, "http://help.syscad.net/index.php//Special:Search?search=%s&go=Go", pMdlTxt);
+    ScdApp()->OnlineHelp(Buff);
+    }
+  return 1;
+#endif
   }
 
 //---------------------------------------------------------------------------
@@ -6238,8 +6251,10 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
       SetTagMonitor();
 
+#if WithHelpFileList
       //AfxGetMainWnd()->UpdateWindow();
       LoadHelpFileList();
+#endif
 
       CRptTagLists::StartUp();
 
@@ -8078,7 +8093,9 @@ flag CProject::OnNew()
         PutSettings();
 
         SetTagMonitor();
+#if WithHelpFileList
         LoadHelpFileList();
+#endif
         //if (!bCmdSuccess)
         //  UnLoadFlwDLLs();
 

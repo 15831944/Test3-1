@@ -1174,13 +1174,16 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
   CMDIFrameWnd::OnInitMenu(pMenu);
   if (gs_pPrj && !gs_pPrj->bChangedGrfMenu)
     {
+#if WithHelpFileList
     ASSERT(gs_pPrj->m_MdlHelpFileList.GetSize()<IDM_MDLHELPLAST-IDM_MDLHELPFIRST);
+#endif
     pMenu = GetMenu();
     if (pMenu)
       {
       int k = 1;
       while (pMenu->DeleteMenu(IDM_MDLHELPFIRST+k, MF_BYCOMMAND))
         k++;
+#if WithHelpFileList
       int TopLevel = 0;
       flag Found = False;
       while (!Found && TopLevel<(int)(pMenu->GetMenuItemCount()))
@@ -1221,6 +1224,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         TopLevel++;
         }
       DrawMenuBar();
+#endif
       }
     }
 
@@ -2019,7 +2023,7 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
             if (pTagObj==NULL)
               pTagObj = TagObjClass::FindClassName(Class());
             if (pTagObj)
-              Class = pTagObj->ShortDesc();
+              Class = pTagObj->ClassIdNoVersion();//pTagObj->ShortDesc();
             gs_pPrj->ModelHelp(Class());
             }
           }
@@ -2614,8 +2618,8 @@ static UINT BASED_CODE UnknownModeToolBarIds[] = //project loaded
   ID_ACTIONS_STEP,
   ID_ACTIONS_RUN_STEADY,
   ID_ACTIONS_SETUP,
-    ID_SEPARATOR,
-  ID_PROJECT_EDIT_COLOURS
+//    ID_SEPARATOR,
+//  ID_PROJECT_EDIT_COLOURS
   };
 
 static UINT BASED_CODE TrendToolBarIds[] =

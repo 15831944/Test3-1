@@ -39,6 +39,10 @@
 
 //=========================================================================
 
+#define WithHelpFileList 0
+
+//=========================================================================
+
 //trick MFC code to force it to create property sheet buttons
 #if _MSC_VER==1100
 #define PROPSHEETTRICK0() m_bModeless=0;
@@ -704,7 +708,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           RestoreWnds();
 #endif
     int            PrepareMerge(CMergeProjectsInfo& MPI);
+#if WithHelpFileList
     void           LoadHelpFileList();
+#endif
 
     // ExecObj Overridables
     virtual void   EO_OnAppActivate(BOOL bActive);
@@ -790,7 +796,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     CDocument*     pPrjDoc;            //pointer to one-and-only-one project document
     flag           bLoadBusy;           //Flag Set to indicate that a Project Load is in Progress
 
+#if WithHelpFileList
     CStringArray   m_MdlHelpFileList;    //list of model help files, the first in list is used for context sensitive help
+#endif
 
     Strng          m_LastSnapLoadFn;       // To Test for Prompted Filename when saving
 
