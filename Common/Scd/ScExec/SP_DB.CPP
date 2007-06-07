@@ -3023,6 +3023,11 @@ void CComponentDataBase::Term()
   for (int i=0; i<MaxPhases; i++)
     m_PhInfo[i].Clear();
 
+  m_DefFlashMethod =-1;
+  m_DefFlashCmpIndex =-1;
+  m_DefFlashLiqIndex =-1;
+  m_DefFlashVapIndex =-1;
+
   DDBCompList.Empty();
   DDBCompListMix.Empty();
   DDBCompListMixImg.Empty();
@@ -3031,6 +3036,16 @@ void CComponentDataBase::Term()
   DDBCompListDashMix.Empty();
   DDBCompListDashMixImg.Empty();
   DDBCompListDashVapLiq.Empty();
+
+  m_Flashable.RemoveAll();
+
+  m_DDBFlashable.Empty();
+  m_FlashCmps.RemoveAll();
+  m_FlashCmpsI.RemoveAll();
+
+  m_DDBFlashMethods.Empty();
+  m_FlashMethods.RemoveAll();
+  m_FlashMethodsI.RemoveAll();
   };
 
 //---------------------------------------------------------------------------

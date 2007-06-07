@@ -1299,6 +1299,8 @@ class CPhaseInfo
 
     void Clear()
       {
+      m_Sym="";
+      m_Tag="";
       m_eOcc  = BOT_Solid;
       m_PhMsk = 0;
       m_PhInx  = 0;
