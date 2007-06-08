@@ -30,7 +30,7 @@ class PieChart : public MBaseMethod
     virtual void    Init();
     virtual void    BuildDataFields();
     virtual bool    ExchangeDataFields();
-	//virtual bool	ValidateDataFields();
+	virtual bool	ValidateDataFields();
 
 	//virtual bool PreStartCheck();
 

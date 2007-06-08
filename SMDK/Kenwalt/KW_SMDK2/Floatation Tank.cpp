@@ -55,34 +55,40 @@ FloatationTank::FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 
 //---------------------------------------------------------------------------
 
+static	vector<MDDValueLst>	gs_vSolidElements;
+
+
 void FloatationTank::Init()
 {
 	SetIODefinition(s_IODefs);
 
-	MDDValueLst blank = {-1, "-"};
-	vSolidElements.push_back(blank);
-	vector<CString> temp;
-	bool* elementSolid = new bool[gs_PeriodicTable.Count() + 1];
-	memset(elementSolid, 0, sizeof(bool) * gs_PeriodicTable.Count() + 1);
+	if (gs_vSolidElements.size() == 0)
+	{
+		MDDValueLst blank = {-1, "-"};
+		gs_vSolidElements.push_back(blank);
+		vector<CString> temp;
+		bool* elementSolid = new bool[gs_PeriodicTable.Count() + 1];
+		memset(elementSolid, 0, sizeof(bool) * gs_PeriodicTable.Count() + 1);
 
-	for (int i = 0; i < gs_MVDefn.Count(); i++)
-		if (gs_MVDefn[i].IsSolid())
-		{
-			MSpecieElements curElements = gs_MVDefn[i].Elements();
-			for (int j = 0; j < curElements.Count(); j++)
-				elementSolid[curElements[j].Element().AtomicNumber()] = true;
-		}
-	for (int i = 0; i < gs_PeriodicTable.Count() + 1; i++)
-		if (elementSolid[i])
-		{
-			int dstSize = strlen(gs_PeriodicTable[i - 1].Symbol()) + 1;
-			char* nonConst = new char[dstSize]; //It'll be a memory leak on the order of 300 bytes per model, maximum...
-			strcpy_s(nonConst, dstSize, gs_PeriodicTable[i - 1].Symbol());
-			MDDValueLst cur = { i, nonConst };
-			vSolidElements.push_back(cur);
-		}
-	MDDValueLst term = {0};
-	vSolidElements.push_back(term);
+		for (int i = 0; i < gs_MVDefn.Count(); i++)
+			if (gs_MVDefn[i].IsSolid())
+			{
+				MSpecieElements curElements = gs_MVDefn[i].Elements();
+				for (int j = 0; j < curElements.Count(); j++)
+					elementSolid[curElements[j].Element().AtomicNumber()] = true;
+			}
+		for (int i = 0; i < gs_PeriodicTable.Count() + 1; i++)
+			if (elementSolid[i])
+			{
+				int dstSize = strlen(gs_PeriodicTable[i - 1].Symbol()) + 1;
+				char* nonConst = new char[dstSize]; //It'll be a memory leak on the order of 300 bytes per model, maximum...
+				strcpy_s(nonConst, dstSize, gs_PeriodicTable[i - 1].Symbol());
+				MDDValueLst cur = { i, nonConst };
+				gs_vSolidElements.push_back(cur);
+			}
+		MDDValueLst term = {0};
+		gs_vSolidElements.push_back(term);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -117,8 +123,8 @@ void FloatationTank::BuildDataFields()
 		DD.String("PrimaryStr", "", idDX_PrimaryCompoundStr, MF_PARAM_STOPPED | MF_NO_VIEW); //This allows filing, and automatic setting of this parameter.
 		break;
 	case FTST_ByElement:
-		DD.Long("Primary1", "", idDX_PrimaryElement1, MF_PARAM_STOPPED, &vSolidElements.at(0));
-		DD.Long("Primary2", "", idDX_PrimaryElement2, MF_PARAM_STOPPED, &vSolidElements.at(0));
+		DD.Long("Primary1", "", idDX_PrimaryElement1, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
+		DD.Long("Primary2", "", idDX_PrimaryElement2, MF_PARAM_STOPPED, &gs_vSolidElements.at(0));
 	}
 	DD.Double("Primary_Recovery", "", &dReqPrimaryRecovery, MF_PARAMETER, MC_Frac("%"));
 	DD.Double("Primary_Grade", "", &dReqPrimaryGrade, MF_PARAMETER, MC_Frac("%"));
@@ -141,7 +147,7 @@ void FloatationTank::BuildDataFields()
 	DD.Text("Results...");
 	DD.String("Primaries_Found", "", idDX_PrimariesFound, MF_RESULT | MF_NO_FILING);
 	DD.String("Unspecified_Compounds", "", idDX_Unspecified, MF_RESULT | MF_NO_FILING);
-	DD.Double("Actual_Grade", "", &dPrimaryGrade, MF_RESULT);
+	DD.Double("Actual_Grade", "", &dPrimaryGrade, MF_RESULT, MC_Frac);
 }
 
 //---------------------------------------------------------------------------
@@ -313,77 +319,99 @@ void FloatationTank::EvalProducts()
 		for (unsigned int i = 0; i < vSecondaryRecoveries.size(); i++)
 			vSecondaryRecoveries.at(i) = vReqSecondaryRecoveries.at(i);
 
-    //sum all input streams into a working copy
-	MStream QI;
-	FlwIOs.AddMixtureIn_Id(QI, idFeed);
+		//sum all input streams into a working copy
+		MStream QI;
+		FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
-    //get handles to input and output streams...
-    MStream & QOT = FlwIOs[FlwIOs.First[idTail]].Stream;
-    MStream & QOC = FlwIOs[FlwIOs.First[idConc]].Stream;
+		//get handles to input and output streams...
+		MStream & QOT = FlwIOs[FlwIOs.First[idTail]].Stream;
+		MStream & QOC = FlwIOs[FlwIOs.First[idConc]].Stream;
 
-    // Always initialise the outputs as a copy of the inputs. This ensures all "qualities" are copied.
-    QOT = QI;
-    QOC = QI;
+		// Always initialise the outputs as a copy of the inputs. This ensures all "qualities" are copied.
+		QOT = QI;
+		QOT.ZeroMass();
+		QOC = QI;
+		QOC.ZeroMass();
 
-    //do the work...
-    const int NumSpecies = gs_MVDefn.Count();
+		//do the work...
+		const int NumSpecies = gs_MVDefn.Count();
 
-	//Primaries:
-	double dPrimaryMassConc = 0.0;
-	for (unsigned int i = 0; i < vPrimaryIndices.size(); i++)
-	{
-		double temp = QI.M[vPrimaryIndices.at(i)];
-		dPrimaryMassConc += temp * dReqPrimaryRecovery;
-		QOT.M[vPrimaryIndices.at(i)] = temp * (1 - dReqPrimaryRecovery);
-		QOC.M[vPrimaryIndices.at(i)] = temp * dReqPrimaryRecovery;
-	}
-
-	//Secondaries:
-	double dSecondaryMassConc = 0.0;
-	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
-	{
-		double temp = QI.M[vSecondaryIndices.at(i)];
-		dSecondaryMassConc += temp * vReqSecondaryRecoveries.at(i);
-		QOT.M[vSecondaryIndices.at(i)] = temp * (1 - vReqSecondaryRecoveries.at(i));
-		QOC.M[vSecondaryIndices.at(i)] = temp * vReqSecondaryRecoveries.at(i);
-	}
-
-	//Those not included in either primaries or secondaries.
-	double dOtherMassIn = 0.0;
-	for (unsigned int i = 0; i < vOtherIndices.size(); i++)
-		dOtherMassIn += QI.M[vOtherIndices.at(i)];
-
-	int liNoGrade = 0;
-	double dTotalReqImpurities = dPrimaryMassConc * (1.0 / dReqPrimaryGrade - 1.0);
-	if (dTotalReqImpurities < dSecondaryMassConc) //If this is the case, we will put in no more impurities.
-	{
-		Log.SetCondition(true, liNoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
-		dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc);
-	}
-	else
-	{
-		double dReqOtherMassOut = dTotalReqImpurities - dSecondaryMassConc;
-		if (dReqOtherMassOut > dOtherMassIn)
+		//Primaries:
+		double dPrimaryMassConc = 0.0;
+		double dPrimaryElementConc = 0.0;
+		for (unsigned int i = 0; i < vPrimaryIndices.size(); i++)
 		{
-			Log.SetCondition(true, liNoGrade, MMsg_Warning, "Not enough unspecified input mass to achieve required primary grade");
-			dReqOtherMassOut = dOtherMassIn;
-			dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc + dOtherMassIn);
+			double temp = QI.M[vPrimaryIndices.at(i)];
+			dPrimaryMassConc += temp * dReqPrimaryRecovery;
+			if (eSpecType == FTST_ByElement)
+			{
+				MSpecieElements curElements = gs_MVDefn[vPrimaryIndices.at(i)].Elements();
+				int primaryElement = 0;
+				while (primaryElement < curElements.Count() && curElements[primaryElement].Element().AtomicNumber() != nPrimary1)
+				{
+					int debug1 = curElements[primaryElement].Element().AtomicNumber();
+					LPCSTR debug2 = curElements[primaryElement].Element().Symbol();
+					primaryElement++;
+					
+				}
+				if (primaryElement < curElements.Count())
+					dPrimaryElementConc = temp * dReqPrimaryRecovery * curElements[primaryElement].Amount() * gs_PeriodicTable[nPrimary1 - 1].AtomicWt() / gs_MVDefn[i].MolecularWt();
+			}
+			else
+				dPrimaryElementConc += temp * dPrimaryRecovery;
+
+			QOT.M[vPrimaryIndices.at(i)] = temp * (1 - dReqPrimaryRecovery);
+			QOC.M[vPrimaryIndices.at(i)] = temp * dReqPrimaryRecovery;
 		}
+
+		//Secondaries:
+		double dSecondaryMassConc = 0.0;
+		for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
+		{
+			double temp = QI.M[vSecondaryIndices.at(i)];
+			dSecondaryMassConc += temp * vReqSecondaryRecoveries.at(i);
+			QOT.M[vSecondaryIndices.at(i)] = temp * (1 - vReqSecondaryRecoveries.at(i));
+			QOC.M[vSecondaryIndices.at(i)] = temp * vReqSecondaryRecoveries.at(i);
+		}
+
+		//Those not included in either primaries or secondaries.
+		double dOtherMassIn = 0.0;
 		for (unsigned int i = 0; i < vOtherIndices.size(); i++)
-		{
-			QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / dOtherMassIn;
-			QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / dOtherMassIn);
-		}
-	}
+			dOtherMassIn += QI.M[vOtherIndices.at(i)];
 
-	//Finally: We deal with non-solid species:
-	for (int i = 0; i < gs_MVDefn.Count(); i++)
-	{
-		if (gs_MVDefn[i].IsSolid())
-			continue;
-		QOC.M[i] = QI.M[i] * dReqWaterFrac;
-		QOT.M[i] = QI.M[i] * (1 - dReqWaterFrac);
-	}
+		int liNoGrade = 0;
+		double dTotalReqImpurities = dPrimaryElementConc * 1.0 / dReqPrimaryGrade - dPrimaryMassConc;
+		if (dTotalReqImpurities < dSecondaryMassConc) //If this is the case, we will put in no more impurities.
+		{
+			Log.SetCondition(true, liNoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
+			dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc);
+		}
+		else
+		{
+			double dReqOtherMassOut = dTotalReqImpurities - dSecondaryMassConc;
+			if (dReqOtherMassOut > dOtherMassIn)
+			{
+				Log.SetCondition(true, liNoGrade, MMsg_Warning, "Not enough unspecified input mass to achieve required primary grade");
+				dReqOtherMassOut = dOtherMassIn;
+			}
+			for (unsigned int i = 0; i < vOtherIndices.size(); i++)
+			{
+				QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / dOtherMassIn;
+				QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / dOtherMassIn);
+			}
+		}
+
+		//Finally: We deal with non-solid species:
+		for (int i = 0; i < gs_MVDefn.Count(); i++)
+		{
+			if (gs_MVDefn[i].IsSolid())
+				continue;
+			QOC.M[i] = QI.M[i] * dReqWaterFrac;
+			QOT.M[i] = QI.M[i] * (1 - dReqWaterFrac);
+		}
+
+		dPrimaryGrade = dPrimaryElementConc / QOC.Mass(MP_Sol);
+		dWaterFrac = QOC.Mass(MP_Liq) / QOC.Mass(MP_All);
   }
   catch (MMdlException &e)
     {
@@ -413,7 +441,7 @@ void FloatationTank::UpdatePrimaryIndices()
 	{
 		vPrimaryIndices.clear();
 		int numSpecies = gs_MVDefn.Count();
-		if (nPrimary1 >= 0 || nPrimary2 >= 0) //If both are zero, we have no primary species [Something to worry about some other time]
+		if (nPrimary1 >= 0) //If nPrimary1 is set to '-', we have no primaries.
 			for (int i = 0; i < numSpecies; i++)
 				if (gs_MVDefn[i].IsSolid())
 				{

@@ -79,6 +79,14 @@ bool PieChart::ExchangeDataFields()
 	return false;
 }
 
+bool PieChart::ValidateDataFields()
+{
+	if (dMaxFlow < 0) dMaxFlow = 0;
+	if (dMinTemp < 0) dMinTemp = 0;
+	if (dMaxTemp < dMinTemp) dMaxTemp = 0;
+	return true;
+}
+
 //---------------------------------------------------------------------------
 
 bool PieChart::GetModelGraphic(CMdlGraphicArray & Grfs)
@@ -126,6 +134,11 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		activeRect.right -= nBorderSpace;
 		activeRect.top += nBorderSpace;
 
+		MTagIODirect test(TagIO);
+		test.Tag = sPipeName + ".Qm";
+		if (test.CheckTag() != MTagIO_OK) 
+			Wnd.m_pPaintDC->TextOut(Wnd.m_ClientRect.CenterPoint().x, Wnd.m_ClientRect.CenterPoint().y, "Invalid Pipe Name");
+
 		int radius = activeRect.Width() < activeRect.Height() ? activeRect.Width() /2 : activeRect.Height() / 2;
 		int txtRadius = (int)(.66 * radius);
 		const COLORREF ChartColours[] = {
@@ -136,6 +149,7 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		vector<double> vFractions;
 		vector<CString> vNames;
 
+		double dTotFrac = 0;
 		if (bByCompound)
 		{
 			bool bShowSolids = nPhase == MP_All || nPhase == MP_Sol || nPhase == MP_SL;
@@ -146,14 +160,15 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 				CString compTag = (sPipeName + ".Qi") + gs_MVDefn[i].Symbol();
 				MTagIODirect compItem(TagIO);
 				compItem.Tag = compTag;
-				double dPercentage = compItem.DoubleSI;
+				double dFrac = compItem.DoubleSI;
 				if (((bShowLiquids && gs_MVDefn[i].IsLiquid())
 					|| (bShowSolids && gs_MVDefn[i].IsSolid())
 					|| (bShowVapours && gs_MVDefn[i].IsGas()))
-					&& dPercentage > ZeroLimit)
+					&& dFrac > ZeroLimit)
 				{
 					vNames.push_back(gs_MVDefn[i].Symbol());
-					vFractions.push_back(dPercentage);
+					vFractions.push_back(dFrac);
+					dTotFrac += dFrac;
 				}
 			}
 		}
@@ -183,7 +198,11 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 				vFractions.push_back(dVapourFrac);
 				vNames.push_back("Vapours");
 			}
+			dTotFrac = 1;
 		}
+
+		for (unsigned int i = 0; i < vFractions.size(); i++)
+			vFractions.at(i) /= dTotFrac;
 
 		CPen BlackPen(PS_SOLID, 0, Colours::Black);
 		CBrush TempBrush(Colours::White);

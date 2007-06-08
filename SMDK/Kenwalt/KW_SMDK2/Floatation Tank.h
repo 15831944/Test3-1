@@ -39,7 +39,6 @@ class FloatationTank : public MBaseMethod
 
   protected:
 	FT_SpecType			eSpecType;
-	vector<MDDValueLst>	vSolidElements;
 
     int					nPrimary1, nPrimary2;
 	vector<int>			vPrimaryIndices;
