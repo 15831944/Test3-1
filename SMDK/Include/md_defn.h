@@ -294,6 +294,8 @@ class DllImportExport MPeriodicTable
   public:
     long           Count();
     MElementDefn   operator[] (long i);
+
+    MElementDefn   ByAtmNo(long i)          { return (*this)[i-1]; };
   };
 
 extern DllImportExport MPeriodicTable gs_PeriodicTable;
