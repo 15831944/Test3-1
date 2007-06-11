@@ -116,7 +116,7 @@ void CPressBlk::Init()
 //
 //==========================================================================
 
-void CSpPropInfo::SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, SpMArray * pImage)
+void CSpPropInfo::SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, CSysVector * pImage)
   {
   bool Mv=Md.Mass(som_Gas)>UsableMass;
   bool Ml=Md.Mass(som_SL)>UsableMass;
@@ -136,7 +136,8 @@ void CSpPropInfo::SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, 
     m_dVVolFrac=VVolFrac;
     m_dLVolFrac=LVolFrac;
     }
-//  dVVolFracBal=0;
+  dbgpln("CSpPropInfoVL @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
+    this, K2C(m_dTemp), m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Md.FullObjTag());
   };
 
 //--------------------------------------------------------------------------
@@ -158,6 +159,8 @@ void CSpPropInfo::SetPropInfoX(SpConduit & Cd)
     m_dVVolFrac=Cd.VolFrac(som_Gas, m_dTemp, m_dPress);
     m_dLVolFrac=1.0-m_dVVolFrac;
     }
+  dbgpln("CSpPropInfoX  @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
+    this, K2C(m_dTemp),m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Cd.FullObjTag());
   };
 
 //--------------------------------------------------------------------------
@@ -2123,18 +2126,39 @@ double CFlwBlkBase::StaticHead(CSpPropInfo *pProps)
       CSpPropInfo *p=Properties(pProps);
     //  double X=/*Fill();//*/(1-pProps.dVVolFrac);//.??Fill();//(1.0-dFill);
       double X=(p->NettLVolFrac());
-      // This Equation is really only for Air
       double dRise=Rise();
+      double dMeanP=MeanPress(0);
       double dMeanT=MeanTemp(pProps);
       //double MeanP=0.5*(FlngPB().PMn+NodePB().PMn);
 
-      double RhoHV=Sign(dRise)*(1.0-X)*MeanPress(0)*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
-      double RhoHL=m_fApplyStaticHead ? dRise*X*9.81*p->m_dRhoL/1000.0 : 0.0;
+      // This Equation is really only for Air
+      double RhoHV=Sign(dRise)*dMeanP*(exp(9.81*fabs(dRise)/(287.0*dMeanT))-1.0);
+
+      double RhoHL=m_fApplyStaticHead ? dRise*9.81*p->m_dRhoL/1000.0 : 0.0;
 
       //dbgpln("fb[%4i] nb[%4i]:StaticHead       %12.4f %12.4f @%12.4f = %12.4f",FlngPB().m_iNo, NodePB().m_iNo, FlngPB().PMn, NodePB().PMn, MeanPress(), -(RhoHV+RhoHL));
+      if (0 && m_pAttachedTo && m_pAttachedTo->DoDbgBrk())
+        {
+        double p1=AtmosPress(1583);
+        double p2=AtmosPress(1583+dRise);
+        double d=p2-p1;
 
-      return -(RhoHV+RhoHL);
+        //double P1=FlngPB().PMn;
+        //double P2=NodePB().PMn;
+        //double dP=fabs(P2-P1);
+        //double Px=Max(P2,P1);
+
+        //double YYY=m_fApplyStaticHead ? dRise*9.81*p->m_dRhoV/1000.0 : 0.0;
+
+        double XXX=m_fApplyStaticHead ? dRise*9.81*p->m_dRhoV/1000.0 : 0.0;
+
+        if (fabs(dRise)>1e-12)
+          dbgpln("                                   X:%6.4f dH:%8.4f V[T:%10.4f P:%10.4f = %10.4f] L[Rho:%10.4f = %10.4f]", X, dRise, dMeanT, dMeanP, RhoHV, p->m_dRhoL, RhoHL);
+        }
+
+      return -(RhoHV*(1.0-X)+RhoHL*X);
       }
+
     default:
       return 0.0;
     }
@@ -2304,6 +2328,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
     #endif
     }
 
+  // Must allow for N/O ie fail open
   //if (!On)
   //  Regulation=0;
 

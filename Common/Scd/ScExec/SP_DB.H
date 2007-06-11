@@ -2235,6 +2235,8 @@ class DllImportExport CSysVector
     double      Normalise(CSysVector &MA);
     void        SetTo(double Value);
     void        SetToOnesAndZeros(flag Invert=false, double Tol=ZeroLimit);
+    void        SetToValue(PhMask Phase, double Value=0.0);
+    void        SetToValue(int iSpId, double Value=0.0);
     double      Sum(PhMask Phase=som_ALL);
     void        ToMass(CSysVector &MA);
     void        ToMoles(CSysVector &MA);

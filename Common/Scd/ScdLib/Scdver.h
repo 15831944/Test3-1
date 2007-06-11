@@ -30,7 +30,6 @@
 #define WITHORDEROBJ          1
 #define WITHIOOBJ             1
 #define WITHXMENUS            1
-#define WITHSURGECTRLDOUBLE   1
 #define WITHGRFDOCFRAME       1
 #define WITHAUTOVLE           1
 #define WITHGRFGROUP          1
@@ -82,8 +81,8 @@
 //information when a Build is released
 //#define SCD_BUILD_SVN    1489                 /* SVN when Build 123 first released */
 #define SCD_BUILD_SVN    1810                 /* SVN when Build 124 first released */
-#define SCD_BUILD_NUM    124                  /* Build number*/
-#define SCD_BUILD_DATE   "22 May 2007"   /* Date when Build is first released */
+#define SCD_BUILD_NUM    125                  /* Build number*/
+#define SCD_BUILD_DATE   "8 June 2007"   /* Date when Build is first released */
 
 //compile information
 #define SCD_COMPILE_DT   __DATE__

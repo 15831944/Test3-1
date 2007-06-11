@@ -83,7 +83,6 @@ XID xidFlwEqnNomDP          = FlwXID(10041);
 XID xidFlwEqnNomQm          = FlwXID(10042);
 XID xidFlwEqnNomQv          = FlwXID(10043);
 
-
 XID xidFEArea               = FlwXID(20000+ 0*NxidFEIOs);
 XID xidFELength             = FlwXID(20000+ 1*NxidFEIOs);
 XID xidFEDZ                 = FlwXID(20000+ 2*NxidFEIOs);
@@ -322,7 +321,7 @@ class DllImportExport CSpPropInfo
       m_dLenFraction    = 1.0;
       };
 
-    void SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, SpMArray * pImage);
+    void SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, CSysVector * pImage);
     void SetPropInfoX(SpConduit & Cd);
     
     double RhoL()             { return m_dRhoL; };

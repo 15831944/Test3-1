@@ -70,6 +70,7 @@ class DllImportExport CSzSSA : public SpQuality, public MISSA
     virtual void   ZeroDeriv();
     virtual void   ScaleMass(PhMask PhaseM, double Mult);
     virtual void   ScaleMass(CIArray & SpIds, double Mult);
+    virtual void   ScaleMass(CSysVector  &Scl, double Mult);
     virtual void   SetMassF(CSysVector &M1, SpQuality * pQual2);
     virtual void   AddMassF(CSysVector &M1, SpQuality * pQual2, CSysVector &M2);
     virtual void   SubMassF(CSysVector &M1, SpQuality * pQual2, CSysVector &M2);

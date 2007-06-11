@@ -229,6 +229,7 @@ extern DllImportExport DDBValueLst DDBNAN_Floating[];
 extern DllImportExport DDBValueLst DDBNAN_Ignore[];
 extern DllImportExport DDBValueLst DDBNAN_Off[];
 extern DllImportExport DDBValueLst DDBNAN_AtmosP[];
+extern DllImportExport DDBValueLst DDBNAN_BlkPassP[];
 
 // --------------------------------------------------------------------------
 // All the Packed structures must have packing of 1 byte

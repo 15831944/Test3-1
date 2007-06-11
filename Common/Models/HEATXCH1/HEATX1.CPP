@@ -2789,8 +2789,8 @@ void HeatXchg1::EvalDerivs(CNodeEvalIndex & NEI)
             SpConduit & Cd=*IOConduit(i);
             double FracAbove=(IOAbsFracHgt_Term(i, *m_pCn)-m_pCn->Level())/IOAperture(i);
             FracAbove=Range(0.0, FracAbove, 1.0);
-            double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
-                        (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
+            double EntR=FracAbove*IOEntrainRateSL(i)*Cd.QMass(som_SL)+
+                        (1.0-FracAbove)*IOEntrainRateG(i)*Cd.QMass(som_Gas);
             if (CondOn && (IOSign(i)>0))
               m_HX.m_VLE.PFlash(Cd, m_pCn->Press(), 0.0, VLEF_Null);
 
@@ -2902,8 +2902,8 @@ void HeatXchg1::EvalIntegral(CNodeEvalIndex & NEI)
       SpConduit & Cd=*IOConduit(i);
       double FracAbove=(IOAbsFracHgt_Term(i, Shell)-Shell.Level())/IOAperture(i);
       FracAbove=Range(0.0, FracAbove, 1.0);
-      double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
-                  (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
+      double EntR=FracAbove*IOEntrainRateSL(i)*Cd.QMass(som_SL)+
+                  (1.0-FracAbove)*IOEntrainRateG(i)*Cd.QMass(som_Gas);
       Shell.AddDeriv(Cd, IOSign(i), EntR);
       }
     Shell.AddInFlowDeriv();
@@ -3157,8 +3157,8 @@ dword HeatXchg1::ModelStatus()
 
     double FlwP=ioP>=0 ? IOQm_In(ioP) : 0.0;
     double FlwS=ioS>=0 ? IOQm_In(ioS) : 0.0;
-    //int HasFlw=(fabs(FlwP)>UsableMass && fabs(FlwS)>UsableMass);
-    int HasFlw=(fabs(FlwP)>UsableMass || fabs(FlwS)>UsableMass);
+    //int HasFlw=(fabs(FlwP)>DisplayZeroFlow&& fabs(FlwS)>UsableMass);
+    int HasFlw=(fabs(FlwP)>DisplayZeroFlow || fabs(FlwS)>DisplayZeroFlow);
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
     }
   return Status;

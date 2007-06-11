@@ -2415,7 +2415,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
                 *Cnv->m_pInx, (LPSTR)(LPCSTR)Cnv->m_Txt,
                 ViewInfo.xid, SpHandle2(RqdVwBasis, i), this,
                 isResult|FlagsE|HideIfZero);
-                }
+            }
             }
           if (BlkReqd)
             {
@@ -5876,6 +5876,22 @@ void SpModel::ScaleMass(CIArray & SpIds, double Mult)
 
 // --------------------------------------------------------------------------
 
+void SpModel::ScaleMass(CSysVector & Scl, double Mult)
+  {
+  KeepTemp();
+
+  for (int i=0; i < SVValueCount()/*SDB.No()*/; i++)
+    m_M.VValue[i]=m_M.VValue[i]*Scl[i]*Mult;
+
+  for (int q=0; q<nQuals; q++)
+    if (Quals[q].m_pQ)
+      Quals[q].m_pQ->ScaleMass(Scl, Mult);
+  ClrStatesOK();
+  TESTMASSNOTNEG();
+  };
+
+// --------------------------------------------------------------------------
+
 void SpModel::AdjustMassTo(PhMask Phase, double RqdMass)
   {
   ScaleMass(Phase, RqdMass/GTZ(Mass(Phase)));
@@ -6033,13 +6049,17 @@ void SpModel::SetMassF(SpModel * C, eSetMass How, double SF, double LF, double V
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetMassM(SpModel * C, CSysVector &Filter, double Mass__, double Press)
+void SpModel::SetMassM(SpModel * C, CSysVector &Filter, double Mass__, double Press, bool AsMult)
   {
   double Mt=0.0;
   for (int i=0; i < SVValueCount()/*SDB.No()*/; i++)
     Mt+=Filter[i]*C->m_M[i];
   double Frac=Mass__/GTZ(Mt);
-
+  
+	if (AsMult)
+	{
+  _asm int 3;
+  }
   m_M.Set(C->m_M, som_ALL, Frac, Filter.SVData());
   //for (i=0; i < SVSpcCount(); i++)
   //  M[i]=Frac*Filter[i]*C->M[i];
@@ -6060,13 +6080,21 @@ void SpModel::SetMassM(SpModel * C, CSysVector &Filter, double Mass__, double Pr
 
 // --------------------------------------------------------------------------
 
-void SpModel::SetMassF(SpModel * C, CSysVector &Filter, double Frac, double Press)
+void SpModel::SetMassF(SpModel * C, CSysVector &Filter, double Frac, double Press, bool AsMult)
   {
-  double Ft=0.0;
-  for (int i=0; i < SVSpcCount(); i++)
-    Ft+=Filter[i];
+  if (AsMult)
+    {
+    m_M.Set(C->m_M, som_ALL, Frac, Filter.SVData());
+    }
+  else
+    {
+    double Ft=0.0;
+    for (int i=0; i < SVSpcCount(); i++)
+      Ft+=Filter[i];
+ 
+    m_M.Set(C->m_M, som_ALL, Frac/Ft, Filter.SVData());
+    }
 
-  m_M.Set(C->m_M, som_ALL, Frac/Ft, Filter.SVData());
   //for (i=0; i < SVSpcCount(); i++)
   //  M[i]=Frac*Filter[i]/Ft*C->M[i];
   //for (  ; i < SVAttCount(); i++)
@@ -6249,20 +6277,28 @@ void SpModel::AddMassF(SpModel * C, eSetMass How, double SF, double LF, double V
 
 // --------------------------------------------------------------------------
 
-void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__)
+void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__, bool AsMult)
   {
-  //DoBreak();
-
-  double Mt=0.0;
-  for (int i=0; i < SVSpcCount(); i++)
-    Mt+=Filter[i]*C->m_M[i];
-  double Frac=Mass__/GTZ(Mt);
-
   SpMArray Cm;
-  for (i=0; i < SVSpcCount(); i++)
-    Cm.SetVMass(i, C->m_M, Frac*Filter[i]*C->m_M.VMass[i]);
-  for (i=0; i < SVAttCount(); i++)
-    Cm.VAttr[i]=C->m_M.VAttr[i];
+  if (AsMult)
+    {
+    for (int i=0; i < SVSpcCount(); i++)
+      Cm.SetVMass(i, C->m_M, Filter[i]*C->m_M.VMass[i]);
+    for (int i=0; i < SVAttCount(); i++)
+      Cm.VAttr[i]=C->m_M.VAttr[i];
+    }
+  else
+    {
+    double Mt=0.0;
+    for (int i=0; i < SVSpcCount(); i++)
+      Mt+=Filter[i]*C->m_M[i];
+    double Frac=Mass__/GTZ(Mt);
+
+    for (i=0; i < SVSpcCount(); i++)
+      Cm.SetVMass(i, C->m_M, Frac*Filter[i]*C->m_M.VMass[i]);
+    for (i=0; i < SVAttCount(); i++)
+      Cm.VAttr[i]=C->m_M.VAttr[i];
+    }
 
   AddQualities(C, Cm);
 
@@ -6291,7 +6327,7 @@ void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__)
 
 // --------------------------------------------------------------------------
 
-void SpModel::AddMassF(SpModel * C, CSysVector &Filter, double Frac)
+void SpModel::AddMassF(SpModel * C, CSysVector &Filter, double Frac, bool AsMult)
   {
   double Scl=(Frac>=0.0) ? 1 : -1;
   Frac=fabs(Frac);
@@ -6302,16 +6338,21 @@ void SpModel::AddMassF(SpModel * C, CSysVector &Filter, double Frac)
 
   SpMArray Cm;
 
-  DoBreak();
-
-  double Ft=0.0;
-  for (int i=0; i < SVSpcCount(); i++)
-    Ft+=Filter[i];
-  Ft=GTZ(Ft);
-
-  Cm.Set(C->m_M, som_ALL, Frac/Ft, Filter.SVData());
-  //for (i=0; i < SDB.No(); i++)
-  //  Cm[i]=Frac*Filter[i]/Ft*C->M[i];
+  if (AsMult)
+    {
+    Cm.Set(C->m_M, som_ALL, 1.0, Filter.SVData());
+    }
+  else
+    {
+    double Ft=0.0;
+    for (int i=0; i < SVSpcCount(); i++)
+      Ft+=Filter[i];
+    Ft=GTZ(Ft);
+    _asm int 3;
+    Cm.Set(C->m_M, som_ALL, 1.0, Filter.SVData());
+    //for (i=0; i < SDB.No(); i++)
+    //  Cm[i]=Frac*Filter[i]/Ft*C->M[i];
+    }
 
   AddQualities(C, Cm);
 
@@ -6415,14 +6456,14 @@ void SpModel::SubMassF(SpModel * C, eSetMass How, double SF, double LF, double V
 
 // --------------------------------------------------------------------------
 
-void SpModel::SubMassM(SpModel * C, CSysVector &Filter, double Mass__)
+void SpModel::SubMassM(SpModel * C, CSysVector &Filter, double Mass__, bool AsMult)
   {
   LogError(FullObjTag(), 0, "SpModel::SubMassF - Filter Not tested");
   }
 
 // --------------------------------------------------------------------------
 
-void SpModel::SubMassF(SpModel * C, CSysVector &Filter, double Frac)
+void SpModel::SubMassF(SpModel * C, CSysVector &Filter, double Frac, bool AsMult)
   {
   LogError(FullObjTag(), 0, "SpModel::SubMassF - Filter Not tested");
   double T1=Temp();

@@ -1374,7 +1374,7 @@ MReactionBlk::~MReactionBlk()
   };
 
 bool    MReactionBlk::Open()                      { return m_pRB->Open()!=0; };
-bool    MReactionBlk::Load(LPCTSTR pRCTFn)        { return m_pRB->Load((LPSTR)pRCTFn)!=0; };
+bool    MReactionBlk::Load(LPCTSTR pRCTFn)        { return m_pRB->Load(m_pNd->SolveBufferedMethod(), (LPSTR)pRCTFn)!=0; };
 void    MReactionBlk::Close()                     { m_pRB->Close()   ; };
 void    MReactionBlk::Enable()                    { m_pRB->Enable()  ; };
 void    MReactionBlk::Disable()                   { m_pRB->Disable() ; };

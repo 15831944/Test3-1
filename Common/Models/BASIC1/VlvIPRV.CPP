@@ -321,7 +321,7 @@ flag CIsoPRV ::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
       {
       int i=IOWithId_Self(IOId_2IOOut);
       if (i>=0)
-        FB.SetQmReqd(IOQmEst_Out(i));
+        FB.SetQmReqd(GEZ(IOQmEst_Out(i)));
       else
         FB.SetQmReqd(0);
       }
@@ -457,7 +457,7 @@ dword CIsoPRV ::ModelStatus()
       for (int i=0; i<NoFlwIOs(); i++)
         {
         TFlw+=IOQm_In(i);
-        if (IOConduit(i)->QMass()>UsableMass)
+        if (IOConduit(i)->QMass()>DisplayZeroFlow)
           HasFlw=1;
         }
       Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

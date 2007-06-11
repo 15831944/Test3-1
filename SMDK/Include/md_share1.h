@@ -25,7 +25,9 @@ extern DllImportExport const double ZeroLimit;        //the numerical limit belo
 extern DllImportExport const double UsableMass;
 extern DllImportExport const double TraceMass;
 extern DllImportExport const double SmallMassFrac;
-extern DllImportExport const double DisplayZeroLimit;
+
+extern DllImportExport double DisplayZeroLimit;      // these two are configurable in PlantModel
+extern DllImportExport double DisplayZeroFlow;
 
 // ----------------------------------------------------------------------
 //Useful test and functions:
@@ -42,7 +44,9 @@ template <class T> bool TstLTZ(const T x) { return (x < -(T)ZeroLimit); };      
 template <class T> bool TstNZ(const T x) { return (fabs(x) > (T)ZeroLimit); };              //
 
 template <class T> T Min(const T x, const T y) { return (x < y) ? x : y; };
+template <class T> T Min(const T x, const T y, const T z) { T a = ((x < y) ? x : y); return ((a < z) ? a : z); };
 template <class T> T Max(const T x, const T y) { return (x > y) ? x : y; };
+template <class T> T Max(const T x, const T y, const T z) { T a = ((x > y) ? x : y); return ((a > z) ? a : z); };
 template <class T> T Sqr(const T x) { return (x * x); };
 template <class T> T Sqrt(const T x) { return sqrt(x); };
 template <class T> T Range(const T n, const T x, const T m) { return (x >= n) ? ((x <= m) ? x : m ) : n; };
@@ -80,6 +84,7 @@ const unsigned long NF_Block  = 0x00000010;
 const unsigned long NF_Plus   = 0x00000020;
 const unsigned long NF_Minus  = 0x00000040;
 const unsigned long NF_Star   = 0x00000080;
+const unsigned long NF_Pass   = 0x00000100;
 
 const unsigned long NF_No0    = 0xffffffff;
 const unsigned long NF_No1    = 0x00000001;
@@ -103,6 +108,7 @@ const double dNANMagic_Block  = 1.796e+308;
 const double dNANMagic_Plus   = 1.79701e+308;
 const double dNANMagic_Minus  = 1.79702e+308;
 const double dNANMagic_Star   = 1.79703e+308;
+const double dNANMagic_Pass   = 1.79704e+308;
 
 //FLT_MAX         3.402823466e+38F
 const float fNANMagic_Limit  = 3.400e+38F;
@@ -321,10 +327,10 @@ class MSysException
       {
       m_nCode=n;
       m_nAdd=(unsigned int )a;
-#if _MSC_VER >=1400
-      strncpy_s(m_sName, _countof(m_sName), Name, sizeof(m_sName)-1);
-      strncpy_s(m_sWhere, _countof(m_sWhere), "", sizeof(m_sWhere)-1);
-      strncpy_s(m_sNear, _countof(m_sNear), "", sizeof(m_sNear)-1);
+#if (_MSC_VER >= 1400)
+      strncpy_s(m_sName, _countof(m_sName), Name, _countof(m_sName));
+      strncpy_s(m_sWhere, _countof(m_sWhere), "", _countof(m_sWhere));
+      strncpy_s(m_sNear, _countof(m_sNear), "", _countof(m_sNear));
 #else
       strncpy(m_sName, Name, sizeof(m_sName)-1);
       strncpy(m_sWhere, "", sizeof(m_sWhere)-1);
@@ -359,10 +365,10 @@ class MSysException
       {
       m_nCode=e.m_nCode;
       m_nAdd=e.m_nAdd;
-#if _MSC_VER >=1400
-      strncpy_s(m_sName, _countof(m_sName), e.m_sName, sizeof(m_sName)-1);
-      strncpy_s(m_sWhere, _countof(m_sWhere), Where?Where:"", sizeof(m_sWhere)-1);
-      strncpy_s(m_sNear, _countof(m_sNear), Near?Near:"", sizeof(m_sNear)-1);
+#if (_MSC_VER >= 1400)
+      strncpy_s(m_sName, _countof(m_sName), e.m_sName, _countof(m_sName));
+      strncpy_s(m_sWhere, _countof(m_sWhere), Where?Where:"", _countof(m_sWhere));
+      strncpy_s(m_sNear, _countof(m_sNear), Near?Near:"", _countof(m_sNear));
 #else
       strncpy(m_sName, e.m_sName, sizeof(m_sName)-1);
       strncpy(m_sWhere, Where?Where:"", sizeof(m_sWhere)-1);

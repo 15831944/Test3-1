@@ -254,6 +254,12 @@ void CSzSSA::ScaleMass(CIArray & SpIds, double Mult)
 
 // --------------------------------------------------------------------------
 
+void CSzSSA::ScaleMass(CSysVector  &Scl, double Mult)
+  {
+  };
+
+// --------------------------------------------------------------------------
+
 void CSzSSA::SetMassF(CSysVector &M1, SpQuality * pQual2)
   {
 //dbgpln("SSA:%4d(%d) SetMassF from %d", ID, m_bAllowSet, ((CSzSSA*)pQual2)->ID);

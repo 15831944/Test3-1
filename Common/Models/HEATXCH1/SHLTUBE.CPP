@@ -2129,7 +2129,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
       //  {
       SigmaQInPMin(m_HXJ.S.Qi(), som_ALL, SecIOMask);
       //HX.SetL
-      EvalProducts_SurgeLevel(ShellHgtOrd, &m_HXJ.S.Qi());
+      EvalProducts_SurgeLevel(ShellHgtOrd/*, &m_HXJ.S.Qi()*/);
       //  }
       //else if (m_HXJ.SecIsJoined())
       //  PressInS=Xfer_EvalProductsIn(m_HXJ.S.JoinId(), Joins[m_HXJ.S.JoinId()].Pressure(), &m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL, NULL, NULL);
@@ -2368,8 +2368,8 @@ dword ShellTube::ModelStatus()
 
     double FlwSh=ioSH>=0 ? IOQm_In(ioSH) : 0.0;
     double FlwTb=ioTB>=0 ? IOQm_In(ioTB) : 0.0;
-    //int HasFlw=(fabs(FlwSh)>UsableMass && fabs(FlwTb)>UsableMass);
-    int HasFlw=(fabs(FlwSh)>UsableMass || fabs(FlwTb)>UsableMass);
+    //int HasFlw=(fabs(FlwSh)>DisplayZeroFlow&& fabs(FlwTb)>DisplayZeroFlow);
+    int HasFlw=(fabs(FlwSh)>DisplayZeroFlow || fabs(FlwTb)>DisplayZeroFlow);
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
     }
   return Status;

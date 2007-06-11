@@ -56,10 +56,10 @@ const byte ioidVent = 3;
 
 static IOAreaRec ElectroCellIOAreaList[] =
   {
-    {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, IOPipeEntry,                1.0f},
-    {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.8f},
-    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.0f},
-    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours, 1.05f},
+    {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, IOPipeEntry,                           1.0f},
+    {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied|IOChgFracHgt,   1.0f},
+    {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,                0.0f},
+    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,             1.05f},
     SPILL2AREA,
     VENT2AREA,
     {NULL}
@@ -150,10 +150,7 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
 flag ElectroCell::ValidateData(ValidateDataBlk & VDB)
   {
-  if (SolveBufferedMethod())
-    RB.SetSurgeType(true); //where is the best place to set this?
-  else
-    RB.SetSurgeType(false);
+  //SetIsSurgeType(SolveBufferedMethod());
   return MdlNode::ValidateData(VDB);
   }
 
@@ -301,7 +298,7 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
         {
         SpMArray Rem;
         Rem.Set(Contents, 0.0, 1.0, 0.0);
-        SetProdMakeup(PMU_IOId |PMU_Image, ioidAn, Rem, ETemp, Std_P, Contents.Model());
+        SetProdMakeup(PMU_IOId | PMU_Filter, ioidAn, Rem, ETemp, Std_P, Contents.Model());
         }
 
       // This allows the metal and solids to leave in the metal outlet.
@@ -311,11 +308,11 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
         {
         SpMArray Met;
         Met.Set(Contents, 1.0, 0.0, 0.0);
-        SetProdMakeup(PMU_IOId |PMU_Image, ioidCath, Met, ETemp, Std_P, Contents.Model());
+        SetProdMakeup(PMU_IOId | PMU_Filter, ioidCath, Met, ETemp, Std_P, Contents.Model());
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
+      EvalProducts_SurgeLevel(ContentHgtOrd/*, &m_QFeed*/);
 
       TempKProd=Sd().Temp();
 

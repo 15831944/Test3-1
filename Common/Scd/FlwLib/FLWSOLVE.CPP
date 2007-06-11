@@ -363,12 +363,12 @@ XID xidScnTimeD                       = FlwXID(2221);
 XID xidScnTimeMaxF                    = FlwXID(2222);
 XID xidScnTimeMaxD                    = FlwXID(2223);
 
-XID xidPGMExecTimeOut                 = FlwXID(2222);
-XID xidRandomSeed                     = FlwXID(2223);
+XID xidPGMExecTimeOut                 = FlwXID(2230);
+XID xidRandomSeed                     = FlwXID(2231);
 
-XID xidDIOSpillsVents                 = FlwXID(2230); 
-XID xidDIOLeaks                       = FlwXID(2231);       
-XID xidDIOAudit                       = FlwXID(2232);       
+XID xidDIOSpillsVents                 = FlwXID(2240); 
+XID xidDIOLeaks                       = FlwXID(2241);       
+XID xidDIOAudit                       = FlwXID(2242);       
 
 XID xidProgress                       = FlwXID(2300);
 XID xidClock                          = FlwXID(2301);
@@ -3258,10 +3258,11 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             dbgp("");
 
             dbgp("");
-            dbgp("%-10s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-10s %14s %4i %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(), 
               Nd.NoProcLnkIOs(),
-              Nd.NoProcessIOs(),Nd.NoFlwIOs()-Nd.NoProcessIOs(),
+              Nd.NoProcessIOs(),Nd.NoMaterialIOs(),
+              Nd.NoFlwIOs()-Nd.NoProcessIOs(),
               DotNum(pC ? pC->m_nFlwIOsIn:-1),DotNum(pC ? pC->m_nFlwIOsOut:-1),
               DotNum(pC ? pC->m_nFlwIOsInReqd:-1),DotNum(pC ? (pC->m_nFlwIOsIn-pC->m_nFlwIOsInReqd):-1),
               DotNum(Nd.m_nCtrlIOsIn),DotNum(Nd.m_nCtrlIOsOut),
@@ -10203,6 +10204,11 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
     DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
+    
+    DDB.Text  ("");
+    DDB.Text  ("Display Limits");
+    DDB.Double("ZeroFlow",              "", DC_,     "",  &DisplayZeroFlow,           this, isParmStopped);
+    DDB.Double("Zero",                  "", DC_,     "",  &DisplayZeroLimit,          this, isParmStopped);
 
     //DDB.Text  ("");
     //DDB.Text  ("Information");
@@ -11205,7 +11211,7 @@ void CFlwSolver::DoGlobalLinks(int DoingStart)
     #endif
 
     STARTPROGRESS;
-    SHOWPROGRESS(10, "DoGlobalLinks");
+    SHOWPROGRESS(1, "DoGlobalLinks");
     
     // First Remove Bad Ones
     FlwNode *p=NULL;
@@ -14471,7 +14477,7 @@ flag CFlwSolver::EO_SaveConn(FilingControlBlock &FCB, CXMsgLst &XM)
     if (!pSaveNode->Internal)
       {
       int nios=0;
-      int Start[4] = {0,                          pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
+      int Start[4] = {0,                             pSaveNode->CIO1(), pSaveNode->EIO1(), pSaveNode->AIO1()};
       int End[4] =   {pSaveNode->NoProcLnkIOs(),     pSaveNode->CION(), pSaveNode->EION(), pSaveNode->AION()};
       for (int pass=0; pass<4; pass++)
         {

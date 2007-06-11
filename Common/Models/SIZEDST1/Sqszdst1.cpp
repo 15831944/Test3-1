@@ -1074,6 +1074,15 @@ void SQSzDist1::ScaleMass(CIArray & SpIds, double Mult)
 
 // --------------------------------------------------------------------------
 
+void SQSzDist1::ScaleMass(CSysVector  &Scl, double Mult)
+  {
+  if (Mult < 1.0e-6)
+    ZeroMass();
+  }
+
+
+// --------------------------------------------------------------------------
+
 void SQSzDist1::SetMassF(CSysVector &M1, SpQuality * pQual2)
   {
   OnDataChange();

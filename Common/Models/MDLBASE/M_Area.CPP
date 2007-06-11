@@ -507,8 +507,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_Qm,   "kg/s",  xidBleedsInQm,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_Qm,   "kg/s",  xidAccumsInQm,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Depletion",    DC_Qm,   "kg/s",  xidAccumsOutQm,  this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Balance",      DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Balance.Rel",  DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error",        DC_Qm,   "kg/s",  xidNettInQm,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error.Rel",    DC_Frac, "%",     xidNettInQmRel,  this, isResult|noFile|noSnap); 
             }
           DDB.EndStruct();
           }
@@ -528,8 +528,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_Pwr,   "kJ/s", xidBleedsInHf,    this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_Pwr,   "kJ/s", xidAccumsInHf,    this, isResult|noFile|noSnap);
             DDB.Double ("",   "Depletion",    DC_Pwr,   "kJ/s", xidAccumsOutHf,   this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance",      DC_Pwr,   "kJ/s", xidNettInHf,      this, isResult|noFile|noSnap);
-            //DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",    xidNettInHfRel,   this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Error",        DC_Pwr,   "kJ/s", xidNettInHf,      this, isResult|noFile|noSnap);
+            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",    xidNettInHfRel,   this, isResult|noFile|noSnap);
             }
           DDB.EndStruct();
           }
@@ -556,8 +556,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_M,     "kg", xidBleedsInQmSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_M,     "kg", xidAccumsInQmSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Depletion",    DC_M,     "kg", xidAccumsOutQmSum,  this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Balance",      DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap); 
-            DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error",        DC_M,     "kg", xidNettInQmSum,     this, isResult|noFile|noSnap); 
+            DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInQmSumRel,  this, isResult|noFile|noSnap); 
             }
           DDB.EndStruct();
           }
@@ -577,8 +577,8 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.Double ("",   "Bleeds",       DC_E,     "kJ", xidBleedsInHfSum,   this, isResult|noFile|noSnap); 
             DDB.Double ("",   "Accumulation", DC_E,     "kJ", xidAccumsInHfSum,   this, isResult|noFile|noSnap);
             DDB.Double ("",   "Depletion",    DC_E,     "kJ", xidAccumsOutHfSum,  this, isResult|noFile|noSnap);
-            DDB.Double ("",   "Balance",      DC_E,     "kJ", xidNettInHfSum,     this, isResult|noFile|noSnap);
-            //DDB.Double ("",   "Balance.Rel",  DC_Frac,  "%",  xidNettInHfSumRel,  this, isResult|noFile|noSnap);
+            DDB.Double ("",   "Error",        DC_E,     "kJ", xidNettInHfSum,     this, isResult|noFile|noSnap);
+            //DDB.Double ("",   "Error.Rel",    DC_Frac,  "%",  xidNettInHfSumRel,  this, isResult|noFile|noSnap);
             }
           DDB.EndStruct();
           }
@@ -1764,7 +1764,7 @@ dword  MN_Area::ModelStatus()
   for (int i=0; i<NoFlwIOs(); i++)
     {
     TFlw+=IOQm_In(i);
-    if (IOConduit(i)->QMass()>UsableMass)
+    if (IOConduit(i)->QMass()>DisplayZeroFlow)
       HasFlw=1;
     }
   Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

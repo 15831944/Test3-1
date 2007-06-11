@@ -231,30 +231,31 @@ class DllImportExport SpConduit : public SpModelOwner
 
     void           QSetF(SpModel &M, eSetMass How, double SF, double LF, double VF, double Press);
     void           QSetF(SpModel &M, PhMask PhaseM, double Frac, double Press);
-    void           QSetF(SpModel &M, CSysVector &Filter, double Qm__, double Press);
+    void           QSetF(SpModel &M, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           QSetM(SpModel &M, PhMask PhaseM, double Qm__, double Press);
-    void           QSetM(SpModel &M, CSysVector &Filter, double Qm__, double Press);
+    void           QSetM(SpModel &M, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           QSetF(SpModel &M, PhMask PhaseM, double Frac);
-    void           QSetF(SpModel &M, CSysVector &Filter, double Frac);
+    void           QSetF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult);
 
     void           QSetM(SpModel &M, PhMask PhaseM, double Qm__);
-    void           QSetM(SpModel &M, CSysVector &Filter, double Qm__);
+    void           QSetM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult);
 
     void           QAddF(SpModel &M, PhMask PhaseM, double Frac);
-    void           QAddF(SpModel &M, CSysVector &Filter, double Frac);
+    void           QAddF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult);
 
     void           QAddM(SpModel &M, PhMask PhaseM, double Qm__);
-    void           QAddM(SpModel &M, CSysVector &Filter, double Qm__);
+    void           QAddM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult);
 
     void           QSubF(SpModel &M, PhMask PhaseM, double Frac);
-    void           QSubF(SpModel &M, CSysVector &Filter, double Frac);
+    void           QSubF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult);
 
     void           QSubM(SpModel &M, PhMask PhaseM, double Qm__);
-    void           QSubM(SpModel &M, CSysVector &Filter, double Qm__);
+    void           QSubM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult);
 
     void           QScaleMass(PhMask PhaseM, double Mult) { pModel->ScaleMass(PhaseM, Mult);};
+    void           QScaleMass(CSysVector & Scl, double Mult) { pModel->ScaleMass(Scl, Mult);};
     void           QAdjustQmTo(PhMask PhaseM, double RqdQm) { pModel->AdjustMassTo(PhaseM, RqdQm); };
     void           QSetTraceMass() { pModel->SetTraceMass(); };
 
@@ -439,33 +440,34 @@ XID xidCnPress              = SpcXID(00);
 XID xidCnTemp               = SpcXID(01);
 XID xidCnALevel             = SpcXID(02);
 XID xidCnRLevel             = SpcXID(03);
-//XID xidCnInFlowRate         = SpcXID(17);
-XID xidCnLevelSettle        = SpcXID(18);
-XID xidCnOverFlowTarget     = SpcXID(20);
-XID xidCnOverFlowTotal      = SpcXID(21);
-XID xidCnOverFlowSettle     = SpcXID(22);
-XID xidCnOverFlowRate       = SpcXID(23);
-//XID xidCnOverFlowDiscard    = SpcXID(24);
-XID xidCnGasVentTarget      = SpcXID(26);
-XID xidCnGasVentTotal       = SpcXID(27);
-XID xidCnGasVentRate        = SpcXID(28);
-//XID xidCnGasVentDiscard     = SpcXID(29);
 
-XID xidCnLSetTPL            = SpcXID(32);
-XID xidCnLowestIOPt         = SpcXID(33);
-XID xidCnVentLevel          = SpcXID(34);
-XID xidCnVentPress          = SpcXID(35);
-//XID xidCnVentAction         = SpcXID(36);
+XID xidCnSpillFracHgt       = SpcXID(20);
+XID xidCnSpillTarget        = SpcXID(21);
+XID xidCnSpillTotal         = SpcXID(22);
+XID xidCnSpillRate          = SpcXID(23);
+XID xidCnVentTarget         = SpcXID(24);
+XID xidCnVentTotal          = SpcXID(25);
+XID xidCnVentRate           = SpcXID(26);
 
-XID xidCnTopPRqd            = SpcXID(36);
-XID xidCnIntTests           = SpcXID(37);
-XID xidCnClosed             = SpcXID(38);
-XID xidCnMixed              = SpcXID(39);
-XID xidCnNetworked          = SpcXID(40);
-XID xidCnStatsOn            = SpcXID(41);
-XID xidCnStatsReset         = SpcXID(42);
-XID xidCnStatsLvlAve        = SpcXID(43);
-XID xidCnUseRhoH            = SpcXID(44);
+XID xidCnLSetTPL            = SpcXID(30);
+XID xidCnLowestIOPt         = SpcXID(31);
+XID xidCnVentLevel          = SpcXID(32);
+XID xidCnVentPress          = SpcXID(33);
+
+XID xidCnEntVapVol          = SpcXID(40);
+XID xidCnVFracMM            = SpcXID(41);
+XID xidCnVFracVV            = SpcXID(42);
+XID xidCnSLFracVV           = SpcXID(43);
+
+XID xidCnTopPRqd            = SpcXID(50);
+XID xidCnIntTests           = SpcXID(51);
+XID xidCnClosed             = SpcXID(52);
+XID xidCnMixed              = SpcXID(53);
+XID xidCnNetworked          = SpcXID(54);
+XID xidCnStatsOn            = SpcXID(55);
+XID xidCnStatsReset         = SpcXID(56);
+XID xidCnStatsLvlAve        = SpcXID(57);
+XID xidCnUseRhoH            = SpcXID(58);
 
 // ---------------------------------------
 
@@ -744,15 +746,15 @@ class DllImportExport SpContainer : public SpModelOwner
     double         Level(bool WithEntrainedVap=true)
       {
       double V=pModel->Volume(som_SL);
-      if (WithEntrainedVap && (dVapEntrained>0.0))
-        V+=dVapEntrained/pModel->Mass(som_Gas)*pModel->Volume(som_Gas);
+      if (WithEntrainedVap && (m_dVapEntrained>0.0))
+        V+=Range(0.0, m_dVapEntrained/GTZ(pModel->Mass(som_Gas)), 1.0)*pModel->Volume(som_Gas);
       return pShape->Level(V);
       }
     double         RLevel(bool WithEntrainedVap=true)
       {
       double V=pModel->Volume(som_SL);
-      if (WithEntrainedVap && (dVapEntrained>0.0))
-        V+=dVapEntrained/pModel->Mass(som_Gas)*pModel->Volume(som_Gas);
+      if (WithEntrainedVap && (m_dVapEntrained>0.0))
+        V+=Range(0.0, m_dVapEntrained/GTZ(pModel->Mass(som_Gas)), 1.0)*pModel->Volume(som_Gas);
       return pShape->RLevel(V);
       }
     double         Level(CSysVector * MA, bool WithEntrainedVap=true)
@@ -760,16 +762,16 @@ class DllImportExport SpContainer : public SpModelOwner
       double T=pModel->Temp();
       double P=pModel->Press();
       double V=pModel->Volume(som_SL, T, P, MA);
-      if (WithEntrainedVap && (dVapEntrained>0.0))
-        V+=dVapEntrained/pModel->Mass(som_Gas)*pModel->Volume(som_Gas, T, P, MA);
+      if (WithEntrainedVap && (m_dVapEntrained>0.0))
+        V+=Range(0.0, m_dVapEntrained/GTZ(pModel->Mass(som_Gas)), 1.0)*pModel->Volume(som_Gas, T, P, MA);
       return pShape->Level(V);
       }
     void           GetSLEVImage(CSysVector & M)
       {
       M=MArray();
       double VScl=0.0;
-      if (dVapEntrained>0.0)
-        VScl=dVapEntrained/pModel->Mass(som_Gas);
+      if (m_dVapEntrained>0.0)
+        VScl=m_dVapEntrained/pModel->Mass(som_Gas);
       M.Mult(som_Gas, VScl);
       }
     double         SLEVDensity()
@@ -966,44 +968,44 @@ class DllImportExport SpContainer : public SpModelOwner
     void           SetF(SpConduit & C, PhMask PhaseM, double Frac, double Press);
     void           SetF(SpConduit & C, eSetMass How, double SF, double LF, double VF, double Press);
     void           SetF(SpContainer &C, PhMask PhaseM, double Frac, double Press);
-    void           SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press);
+    void           SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press, bool AsMult);
     void           SetF(SpImage &C, PhMask PhaseM, double Frac, double Press);
-    void           SetF(SpImage &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetF(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           SetM(SpConduit & C, PhMask PhaseM, double Qm__, double Press);
     void           SetM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ, double Press);
     void           SetM(SpContainer &C, PhMask PhaseM, double Qm__, double Press);
-    void           SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
     void           SetM(SpImage &C, PhMask PhaseM, double Qm__, double Press);
-    void           SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           AddF(SpConduit & C, eSetMass How, double SF, double LF, double VF);
     void           AddF(SpConduit & C, PhMask PhaseM, double Frac);
     void           AddF(SpContainer &C, PhMask PhaseM, double Frac);
-    void           AddF(SpContainer &C, CSysVector &Filter, double Frac);
+    void           AddF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult);
     void           AddF(SpImage &C, PhMask PhaseM, double Frac);
-    void           AddF(SpImage &C, CSysVector &Filter, double Frac);
+    void           AddF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult);
 
     void           AddM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ);
     void           AddM(SpConduit & C, PhMask PhaseM, double Qm__);
     void           AddM(SpContainer &C, PhMask PhaseM, double Qm__);
-    void           AddM(SpContainer &C, CSysVector &Filter, double Qm__);
+    void           AddM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult);
     void           AddM(SpImage &C, PhMask PhaseM, double Qm__);
-    void           AddM(SpImage &C, CSysVector &Filter, double Qm__);
+    void           AddM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult);
 
     void           SubF(SpConduit & C, eSetMass How, double SF, double LF, double VF);
     void           SubF(SpConduit & C, PhMask PhaseM, double Frac);
     void           SubF(SpContainer &C, PhMask PhaseM, double Frac);
-    void           SubF(SpContainer &C, CSysVector &Filter, double Frac);
+    void           SubF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult);
     void           SubF(SpImage &C, PhMask PhaseM, double Frac);
-    void           SubF(SpImage &C, CSysVector &Filter, double Frac);
+    void           SubF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult);
 
     void           SubM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ);
     void           SubM(SpConduit & C, PhMask PhaseM, double Qm__);
     void           SubM(SpContainer &C, PhMask PhaseM, double Qm__);
-    void           SubM(SpContainer &C, CSysVector &Filter, double Qm__);
+    void           SubM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult);
     void           SubM(SpImage &C, PhMask PhaseM, double Qm__);
-    void           SubM(SpImage &C, CSysVector &Filter, double Qm__);
+    void           SubM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult);
 
     double         MassFrac(PhMask PhaseM=som_ALL) {return pModel->MassFrac(PhaseM);};
     double         MoleFrac(PhMask PhaseM=som_ALL) {return pModel->MoleFrac(PhaseM);};
@@ -1013,6 +1015,7 @@ class DllImportExport SpContainer : public SpModelOwner
 
     void           SetDebug(flag DbgOn_) {pModel->SetDebug(DbgOn_);};
     void           ScaleMass(PhMask PhaseM, double Mult) { pModel->ScaleMass(PhaseM, Mult);};
+    void           ScaleMass(CSysVector & Scl, double Mult) { pModel->ScaleMass(Scl, Mult);};
     void           SetTraceMass() { pModel->SetTraceMass(); };
 
     void           SaveMass(SpVector & V)    { pModel->SaveMass(V);    };
@@ -1071,12 +1074,18 @@ class DllImportExport SpContainer : public SpModelOwner
 
     double         ResidenceTime(double SigmaQvIn, double SigmaQvOut, PhMask PhaseM);
 
-    double         VapourEntrained() { return dVapEntrained; }; 
-    double         VapourEscapeTau() { return dVapEscapeTau; };
-    double         VapourLiberationTau() { return dVapLiberationTau; };
+    double         VapourEntrained()      { return m_dVapEntrained; }; 
+    double         VapourEscapeTau()      { return m_dVapEscapeTau; };
+    double         VapourLiberationTau()  { return m_dVapLiberationTau; };
 
-//    virtual double MCB_GetVolume();
-//    virtual double MCB_SetVolume(double V);
+    enum  VE_Ctrl { VEC_Off, VEC_VolFrac };
+
+    VE_Ctrl        VapEntrainCtrl()       { return m_eVapEntrainCtrl; };
+    double         VapEntrainVolFrac()    { return m_dVapEntrainVolFrac; };
+
+    double         FreeGasFraction()      { return 1.0-EntrainedGasFraction(); };
+    double         EntrainedGasFraction() { return Range(0.0, VapourEntrained()/GTZ(Mass(som_Gas)), 1.0); };
+
     virtual void   MCB_GetOriginalTP(double &OrigT, double &OrigP);
     virtual void   MCB_OnSetVolume(flag KeepLPT, double OrigT, double OrigP, double OrigVol, double NewVol);
     virtual void   MCB_OnSetVapVolScl(double OrigScl, double NewScl);
@@ -1107,10 +1116,13 @@ class DllImportExport SpContainer : public SpModelOwner
     CDirectFlwIO * m_pSpill;
     CDirectFlwIO * m_pVent;
 
-    double         dVapEntrained;    // Fraction of Vapour Entrained
-    double         dVapEntrainRate;
-    double         dVapEscapeTau;     // Time Constant of Vapour Escaping From Container to Atmosphere
-    double         dVapLiberationTau; // Time Constant of Vapour Leaving the Entrained Phase
+    double         m_dVapEntrained;    // Fraction of Vapour Entrained
+    double         m_dVapEntrainRate;
+    double         m_dVapEscapeTau;     // Time Constant of Vapour Escaping From Container to Atmosphere
+    double         m_dVapLiberationTau; // Time Constant of Vapour Leaving the Entrained Phase
+
+    VE_Ctrl        m_eVapEntrainCtrl;    // Fraction of Vapour Entrained
+    double         m_dVapEntrainVolFrac; // Fraction of Vapour Entrained
 
     CStateArray    m_States;          // Array of Integrators
 
@@ -1130,8 +1142,6 @@ class DllImportExport SpContainer : public SpModelOwner
   public:
     CCnMixSet      m_MixSet;
 
-    double         dLevelSettle;
-    double         dOverFlowSettle;
     dword          dwDisplay;
 
     flag           m_bKeepLPTOnVChange;
@@ -1249,44 +1259,44 @@ class DllImportExport SpImage : public SpModelOwner
     void           SetF(SpConduit & C, PhMask PhaseM, double Frac, double Press);
     void           SetF(SpConduit & C, eSetMass How, double SF, double LF, double VF, double Press);
     void           SetF(SpContainer &C, PhMask PhaseM, double Frac, double Press);
-    void           SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press);
+    void           SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press, bool AsMult);
     void           SetF(SpImage &C, PhMask PhaseM, double Frac, double Press);
-    void           SetF(SpImage &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetF(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           SetM(SpConduit & C, PhMask PhaseM, double Qm__, double Press);
     void           SetM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ, double Press);
     void           SetM(SpContainer &C, PhMask PhaseM, double Qm__, double Press);
-    void           SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
     void           SetM(SpImage &C, PhMask PhaseM, double Qm__, double Press);
-    void           SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press);
+    void           SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult);
 
     void           AddF(SpConduit & C, eSetMass How, double SF, double LF, double VF);
     void           AddF(SpConduit & C, PhMask PhaseM, double Frac);
     void           AddF(SpContainer &C, PhMask PhaseM, double Frac);
-    void           AddF(SpContainer &C, CSysVector &Filter, double Frac);
+    void           AddF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult);
     void           AddF(SpImage &C, PhMask PhaseM, double Frac);
-    void           AddF(SpImage &C, CSysVector &Filter, double Frac);
+    void           AddF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult);
 
     void           AddM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ);
     void           AddM(SpConduit & C, PhMask PhaseM, double Qm__);
     void           AddM(SpContainer &C, PhMask PhaseM, double Qm__);
-    void           AddM(SpContainer &C, CSysVector &Filter, double Qm__);
+    void           AddM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult);
     void           AddM(SpImage &C, PhMask PhaseM, double Qm__);
-    void           AddM(SpImage &C, CSysVector &Filter, double Qm__);
+    void           AddM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult);
 
     void           SubF(SpConduit & C, eSetMass How, double SF, double LF, double VF);
     void           SubF(SpConduit & C, PhMask PhaseM, double Frac);
     void           SubF(SpContainer &C, PhMask PhaseM, double Frac);
-    void           SubF(SpContainer &C, CSysVector &Filter, double Frac);
+    void           SubF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult);
     void           SubF(SpImage &C, PhMask PhaseM, double Frac);
-    void           SubF(SpImage &C, CSysVector &Filter, double Frac);
+    void           SubF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult);
 
     void           SubM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ);
     void           SubM(SpConduit & C, PhMask PhaseM, double Qm__);
     void           SubM(SpContainer &C, PhMask PhaseM, double Qm__);
-    void           SubM(SpContainer &C, CSysVector &Filter, double Qm__);
+    void           SubM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult);
     void           SubM(SpImage &C, PhMask PhaseM, double Qm__);
-    void           SubM(SpImage &C, CSysVector &Filter, double Qm__);
+    void           SubM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult);
 
     double         MassFrac(PhMask PhaseM=som_ALL) {return pModel->MassFrac(PhaseM);};
     double         MoleFrac(PhMask PhaseM=som_ALL) {return pModel->MoleFrac(PhaseM);};
@@ -1606,44 +1616,44 @@ inline void SpConduit::QSetF(SpModel &M, eSetMass How, double SF, double LF, dou
   { CopyModel(&M); pModel->SetMassF(&M, How, SF, LF, VF, Press); };
 inline void SpConduit::QSetF(SpModel &M, PhMask PhaseM, double Frac, double Press)
   { CopyModel(&M); pModel->SetMassF(&M, PhaseM, Frac, Press); };
-inline void SpConduit::QSetF(SpModel &M, CSysVector &Filter, double Frac, double Press)
-  { CopyModel(&M); pModel->SetMassF(&M, Filter, Frac, Press); };
+inline void SpConduit::QSetF(SpModel &M, CSysVector &Filter, double Frac, double Press, bool AsMult)
+  { CopyModel(&M); pModel->SetMassF(&M, Filter, Frac, Press, AsMult); };
 
 inline void SpConduit::QSetM(SpModel &M, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(&M); pModel->SetMassM(&M, PhaseM, Qm__, Press); };
-inline void SpConduit::QSetM(SpModel &M, CSysVector &Filter, double Qm__, double Press)
-  { CopyModel(&M); pModel->SetMassM(&M, Filter, Qm__, Press); };
+inline void SpConduit::QSetM(SpModel &M, CSysVector &Filter, double Qm__, double Press, bool AsMult)
+  { CopyModel(&M); pModel->SetMassM(&M, Filter, Qm__, Press, AsMult); };
 
 inline void SpConduit::QSetF(SpModel &M, PhMask PhaseM, double Frac)
   { CopyModel(&M); pModel->SetMassF(&M, PhaseM, Frac, M.Press()); };
-inline void SpConduit::QSetF(SpModel &M, CSysVector &Filter, double Frac)
-  { CopyModel(&M); pModel->SetMassF(&M, Filter, Frac, M.Press()); };
+inline void SpConduit::QSetF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult)
+  { CopyModel(&M); pModel->SetMassF(&M, Filter, Frac, M.Press(), AsMult); };
 
 inline void SpConduit::QSetM(SpModel &M, PhMask PhaseM, double Qm__)
   { CopyModel(&M); pModel->SetMassM(&M, PhaseM, Qm__, M.Press()); };
-inline void SpConduit::QSetM(SpModel &M, CSysVector &Filter, double Qm__)
-  { CopyModel(&M); pModel->SetMassM(&M, Filter, Qm__, M.Press()); };
+inline void SpConduit::QSetM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult)
+  { CopyModel(&M); pModel->SetMassM(&M, Filter, Qm__, M.Press(), AsMult); };
 
 
 inline void SpConduit::QAddF(SpModel &M, PhMask PhaseM, double Frac)
   { pModel->AddMassF(&M, PhaseM, Frac); };
-inline void SpConduit::QAddF(SpModel &M, CSysVector &Filter, double Frac)
-  { pModel->AddMassF(&M, Filter, Frac); };
+inline void SpConduit::QAddF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->AddMassF(&M, Filter, Frac, AsMult); };
 
 inline void SpConduit::QAddM(SpModel &M, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(&M, PhaseM, Qm__); };
-inline void SpConduit::QAddM(SpModel &M, CSysVector &Filter, double Qm__)
-  { pModel->AddMassM(&M, Filter, Qm__); };
+inline void SpConduit::QAddM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->AddMassM(&M, Filter, Qm__, AsMult); };
 
 inline void SpConduit::QSubF(SpModel &M, PhMask PhaseM, double Frac)
   { pModel->SubMassF(&M, PhaseM, Frac); };
-inline void SpConduit::QSubF(SpModel &M, CSysVector &Filter, double Frac)
-  { pModel->SubMassF(&M, Filter, Frac); };
+inline void SpConduit::QSubF(SpModel &M, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->SubMassF(&M, Filter, Frac, AsMult); };
 
 inline void SpConduit::QSubM(SpModel &M, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(&M, PhaseM, Qm__); };
-inline void SpConduit::QSubM(SpModel &M, CSysVector &Filter, double Qm__)
-  { pModel->SubMassM(&M, Filter, Qm__); };
+inline void SpConduit::QSubM(SpModel &M, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->SubMassM(&M, Filter, Qm__, AsMult); };
 
 // ===========================================================================
 //
@@ -1696,12 +1706,12 @@ inline void SpImage::SetF(SpConduit & C, eSetMass How, double SF, double LF, dou
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), How, SF, LF, VF, Press); pModel->SetMassScale(1.0);};
 inline void SpImage::SetF(SpContainer &C, PhMask PhaseM, double Frac, double Press)
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), PhaseM, Frac, Press); pModel->SetMassScale(1.0);};
-inline void SpImage::SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press)
-  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press); pModel->SetMassScale(1.0);};
+inline void SpImage::SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::SetF(SpImage &C, PhMask PhaseM, double Frac, double Press)
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), PhaseM, Frac, Press); pModel->SetMassScale(1.0);};
-inline void SpImage::SetF(SpImage &C, CSysVector &Filter, double Frac, double Press)
-  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press); pModel->SetMassScale(1.0);};
+inline void SpImage::SetF(SpImage &C, CSysVector &Filter, double Frac, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpImage::SetM(SpConduit & C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
@@ -1709,12 +1719,12 @@ inline void SpImage::SetM(SpConduit & C, eSetMass How, double SQ, double LQ, dou
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), How, SQ, LQ, VQ, Press); pModel->SetMassScale(1.0);};
 inline void SpImage::SetM(SpContainer &C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
-inline void SpImage::SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press)
-  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press); pModel->SetMassScale(1.0);};
+inline void SpImage::SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::SetM(SpImage &C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
-inline void SpImage::SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press)
-  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press); pModel->SetMassScale(1.0);};
+inline void SpImage::SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpImage::AddF(SpConduit & C, eSetMass How, double SF, double LF, double VF)
   { pModel->AddMassF(C.Model(), How, SF, LF, VF); pModel->SetMassScale(1.0);};
@@ -1722,12 +1732,12 @@ inline void SpImage::AddF(SpConduit & C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
 inline void SpImage::AddF(SpContainer &C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpImage::AddF(SpContainer &C, CSysVector &Filter, double Frac)
-  { pModel->AddMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpImage::AddF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->AddMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::AddF(SpImage &C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpImage::AddF(SpImage &C, CSysVector &Filter, double Frac)
-  { pModel->AddMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpImage::AddF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->AddMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 
 
 inline void SpImage::AddM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ)
@@ -1736,12 +1746,12 @@ inline void SpImage::AddM(SpConduit & C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
 inline void SpImage::AddM(SpContainer &C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpImage::AddM(SpContainer &C, CSysVector &Filter, double Qm__)
-  { pModel->AddMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpImage::AddM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->AddMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::AddM(SpImage &C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpImage::AddM(SpImage &C, CSysVector &Filter, double Qm__)
-  { pModel->AddMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpImage::AddM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->AddMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpImage::SubF(SpConduit & C, eSetMass How, double SF, double LF, double VF)
   { pModel->SubMassF(C.Model(), How, SF, LF, VF); pModel->SetMassScale(1.0);};
@@ -1749,12 +1759,12 @@ inline void SpImage::SubF(SpConduit & C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
 inline void SpImage::SubF(SpContainer &C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpImage::SubF(SpContainer &C, CSysVector &Filter, double Frac)
-  { pModel->SubMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpImage::SubF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->SubMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::SubF(SpImage &C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpImage::SubF(SpImage &C, CSysVector &Filter, double Frac)
-  { pModel->SubMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpImage::SubF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->SubMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 
 
 inline void SpImage::SubM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ)
@@ -1763,12 +1773,12 @@ inline void SpImage::SubM(SpConduit & C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
 inline void SpImage::SubM(SpContainer &C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpImage::SubM(SpContainer &C, CSysVector &Filter, double Qm__)
-  { pModel->SubMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpImage::SubM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->SubMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 inline void SpImage::SubM(SpImage &C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpImage::SubM(SpImage &C, CSysVector &Filter, double Qm__)
-  { pModel->SubMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpImage::SubM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->SubMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 
 
 // ===========================================================================
@@ -1783,12 +1793,12 @@ inline void SpContainer::SetF(SpConduit & C, eSetMass How, double SF, double LF,
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), How, SF, LF, VF, Press); pModel->SetMassScale(1.0);};
 inline void SpContainer::SetF(SpContainer &C, PhMask PhaseM, double Frac, double Press)
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), PhaseM, Frac, Press); pModel->SetMassScale(1.0);};
-inline void SpContainer::SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press)
-  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press); pModel->SetMassScale(1.0);};
+inline void SpContainer::SetF(SpContainer &C, CSysVector &Filter, double Frac, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::SetF(SpImage &C, PhMask PhaseM, double Frac, double Press)
   { CopyModel(C.Model()); pModel->SetMassF(C.Model(), PhaseM, Frac, Press); pModel->SetMassScale(1.0);};
-inline void SpContainer::SetF(SpImage &C, CSysVector &Filter, double Frac, double Press)
-  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press); pModel->SetMassScale(1.0);};
+inline void SpContainer::SetF(SpImage &C, CSysVector &Filter, double Frac, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassF(C.Model(), Filter, Frac, Press, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpContainer::SetM(SpConduit & C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
@@ -1796,12 +1806,12 @@ inline void SpContainer::SetM(SpConduit & C, eSetMass How, double SQ, double LQ,
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), How, SQ, LQ, VQ, Press); pModel->SetMassScale(1.0);};
 inline void SpContainer::SetM(SpContainer &C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
-inline void SpContainer::SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press)
-  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press); pModel->SetMassScale(1.0);};
+inline void SpContainer::SetM(SpContainer &C, CSysVector &Filter, double Qm__, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::SetM(SpImage &C, PhMask PhaseM, double Qm__, double Press)
   { CopyModel(C.Model()); pModel->SetMassM(C.Model(), PhaseM, Qm__, Press); pModel->SetMassScale(1.0);};
-inline void SpContainer::SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press)
-  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press); pModel->SetMassScale(1.0);};
+inline void SpContainer::SetM(SpImage &C, CSysVector &Filter, double Qm__, double Press, bool AsMult)
+  { CopyModel(C.Model()); pModel->SetMassM(C.Model(), Filter, Qm__, Press, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpContainer::AddF(SpConduit & C, eSetMass How, double SF, double LF, double VF)
   { pModel->AddMassF(C.Model(), How, SF, LF, VF); pModel->SetMassScale(1.0);};
@@ -1809,12 +1819,12 @@ inline void SpContainer::AddF(SpConduit & C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
 inline void SpContainer::AddF(SpContainer &C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpContainer::AddF(SpContainer &C, CSysVector &Filter, double Frac)
-  { pModel->AddMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpContainer::AddF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->AddMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::AddF(SpImage &C, PhMask PhaseM, double Frac)
   { pModel->AddMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpContainer::AddF(SpImage &C, CSysVector &Filter, double Frac)
-  { pModel->AddMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpContainer::AddF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->AddMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 
 
 inline void SpContainer::AddM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ)
@@ -1823,12 +1833,12 @@ inline void SpContainer::AddM(SpConduit & C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
 inline void SpContainer::AddM(SpContainer &C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpContainer::AddM(SpContainer &C, CSysVector &Filter, double Qm__)
-  { pModel->AddMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpContainer::AddM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->AddMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::AddM(SpImage &C, PhMask PhaseM, double Qm__)
   { pModel->AddMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpContainer::AddM(SpImage &C, CSysVector &Filter, double Qm__)
-  { pModel->AddMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpContainer::AddM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->AddMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 
 inline void SpContainer::SubF(SpConduit & C, eSetMass How, double SF, double LF, double VF)
   { pModel->SubMassF(C.Model(), How, SF, LF, VF); pModel->SetMassScale(1.0);};
@@ -1836,12 +1846,12 @@ inline void SpContainer::SubF(SpConduit & C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
 inline void SpContainer::SubF(SpContainer &C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpContainer::SubF(SpContainer &C, CSysVector &Filter, double Frac)
-  { pModel->SubMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpContainer::SubF(SpContainer &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->SubMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::SubF(SpImage &C, PhMask PhaseM, double Frac)
   { pModel->SubMassF(C.Model(), PhaseM, Frac); pModel->SetMassScale(1.0);};
-inline void SpContainer::SubF(SpImage &C, CSysVector &Filter, double Frac)
-  { pModel->SubMassF(C.Model(), Filter, Frac); pModel->SetMassScale(1.0);};
+inline void SpContainer::SubF(SpImage &C, CSysVector &Filter, double Frac, bool AsMult)
+  { pModel->SubMassF(C.Model(), Filter, Frac, AsMult); pModel->SetMassScale(1.0);};
 
 
 inline void SpContainer::SubM(SpConduit & C, eSetMass How, double SQ, double LQ, double VQ)
@@ -1850,12 +1860,12 @@ inline void SpContainer::SubM(SpConduit & C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
 inline void SpContainer::SubM(SpContainer &C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpContainer::SubM(SpContainer &C, CSysVector &Filter, double Qm__)
-  { pModel->SubMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpContainer::SubM(SpContainer &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->SubMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 inline void SpContainer::SubM(SpImage &C, PhMask PhaseM, double Qm__)
   { pModel->SubMassM(C.Model(), PhaseM, Qm__); pModel->SetMassScale(1.0);};
-inline void SpContainer::SubM(SpImage &C, CSysVector &Filter, double Qm__)
-  { pModel->SubMassM(C.Model(), Filter, Qm__); pModel->SetMassScale(1.0);};
+inline void SpContainer::SubM(SpImage &C, CSysVector &Filter, double Qm__, bool AsMult)
+  { pModel->SubMassM(C.Model(), Filter, Qm__, AsMult); pModel->SetMassScale(1.0);};
 
 // ===========================================================================
 //

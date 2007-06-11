@@ -473,6 +473,8 @@ XID xidDIOFlangeTag     = MdlBsXID(5208);
 XID xidDIOFlngSrcTag    = MdlBsXID(5209);
 XID xidDIOFlngDstTag    = MdlBsXID(5210);
 XID xidUseStatus        = MdlBsXID(5211);
+XID xidDrctOpening      = MdlBsXID(5212);
+XID xidDrctFracHgt      = MdlBsXID(5213);
 enum eDIOConnectSelects
   {
   eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
@@ -482,9 +484,10 @@ extern DllImportExport Strng gs_DirectFlwIOTagDefault;
 
 //---------------------------------------------------------------------------
 
-const DWORD DFIO_ShowQm     = 0x00000001;
-const DWORD DFIO_ShowSrcTag = 0x00000002;
-const DWORD DFIO_ShowDstTag = 0x00000004;
+const DWORD DFIO_ShowQm       = 0x00000001;
+const DWORD DFIO_ShowSrcTag   = 0x00000002;
+const DWORD DFIO_ShowDstTag   = 0x00000004;
+const DWORD DFIO_ShowFracHgt  = 0x00000008;
 
 class DllImportExport CDirectFlwIO
   {
@@ -557,6 +560,10 @@ class DllImportExport CDirectFlwIO
     flag          getHasConduit()           { return m_eType <= eDIO_Bleed; };
     SpConduit   & getConduit();//              { return *m_pFlng->Conduit(false); };
     CFlange     & getFlange()               { return *m_pFlng; };
+    double        getOpening()              { return m_Opening; };
+    void          putOpening(double O)      { m_Opening=O; };
+    double        getFracHgt()              { return m_FracHgt; };
+    void          putFracHgt(double F)      { m_FracHgt=F; };
 
     _declspec(property(get=getEnabled))                     flag          Enabled;
     _declspec(property(get=getSysEnable,put=putSysEnable))  flag          SysEnable;
@@ -571,6 +578,8 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getArea))                        FlwNode     & Area;
     _declspec(property(get=getSum))                         CAreaSum    & Sum;
     _declspec(property(get=getNdSignImplied))               int           NdSignImplied;
+    _declspec(property(get=getOpening, put=putOpening))     double        Opening;
+    _declspec(property(get=getFracHgt, put=putFracHgt))     double        FracHgt;
 
     _declspec(property(get=getHasConduit))                  flag          HasConduit;
     _declspec(property(get=getFlange))                      CFlange     & Flange;
@@ -595,6 +604,7 @@ class DllImportExport CDirectFlwIO
     flag          m_bConnected;
     int           m_iMyConnectedIO;
     double        m_Opening;
+    double        m_FracHgt;
     int           m_iLclDIOId;
     int           m_iRmtDIOId;
     int           m_iLclIOId;
@@ -1404,8 +1414,8 @@ const PMU_DWFLAGS PMU_IOId         = 0x00010000;
 const PMU_DWFLAGS PMU_IONo         = 0x00020000;
 
 typedef PMU_DWFLAGS PMU_OPTIONS;
-const PMU_OPTIONS PMU_Image        = 0x00000001;
-const PMU_OPTIONS PMU_AvlImage     = 0x00000002;
+const PMU_OPTIONS PMU_Filter       = 0x00000001;
+//const PMU_OPTIONS PMU_AvlImage     = 0x00000002;
 const PMU_OPTIONS PMU_Passing      = 0x00000004;
 const PMU_OPTIONS PMU_Blocking     = 0x00000008;
 const PMU_OPTIONS PMU_SLRatio      = 0x00000010;
@@ -1452,9 +1462,9 @@ class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
     void           ClrConnection();
     void           SetConnection(const IOInfo & IOSrc, const IOInfo & IODst);
     void           AdjustConnection(FlwNode* This, int By);
-    flag           Connected()                  { return (m_pNdSrc!=NULL); };
-    void           SetIsEvalSeqStart(flag On)   { m_fIsEvalSeqStart=On; };
-    flag           IsEvalSeqStart()             { return m_fIsEvalSeqStart; };
+    flag           Connected() { return (m_pNdSrc!=NULL); };
+    void           SetIsEvalSeqStart(flag On) { m_fIsEvalSeqStart=On; };
+    flag           IsEvalSeqStart() { return m_fIsEvalSeqStart; };
 
     void           FixTag(LPCSTR ReqdTag=NULL, bool TagFixed=false);
     void           InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName);
@@ -1629,35 +1639,25 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
     //flag           TearAdvanceReqd();
     //flag           TearCnvTestReqd();
     void           TearInitialiseOutputs(double EstimatePortion);
-    void           TearInputs2Outputs();
-    char *         TearGetTag(Strng & RootTag);
-    void           TearGetInputs(TearVarArray & TV);
-    void           TearGetOutputs(TearVarArray & TV);
+    void           TearInputs2Outputs();                                              
+    char *         TearGetTag(Strng & RootTag);                                       
+    void           TearGetInputs(TearVarArray & TV);                                  
+    void           TearGetOutputs(TearVarArray & TV);                                 
     void           TearSetOutputs(TearVarArray & TV);
 
     // Model Config Methods
-    SpConduit*     Conduit(flag fIn)                { if (!fIsBuffered && IsTear()) return fIn ? pQIO : pQIn; return pQIO; };
-    SpConduit*     ConduitIO()                      { return pQIO; };
-    SpConduit*     ConduitIn()                      { return pQIn; };
-    SpConduit*     ConduitMem()                     { if (pQMem==NULL) pQMem = new SpConduit("QMem", NULL, TOA_Free); return pQMem; };
+    SpConduit    * Conduit(flag fIn)                { if (!fIsBuffered && IsTear()) return fIn ? pQIO : pQIn; return pQIO; };
+    SpConduit    * ConduitIO()                      { return pQIO; };
+    SpConduit    * ConduitIn()                      { return pQIn; };
+    SpConduit    * ConduitMem()                     { if (pQMem==NULL) pQMem = new SpConduit("QMem", NULL, TOA_Free); return pQMem; };
 
-    SpVector     * CreatePMUVector();
-    void           DeletePMUVector();
-    SpVector     * PMUVector()                      { return pPMU; };
-    flag           IsPMUImage()                     { return (bPMUOpts & PMU_Image) != 0; };
-    void           SetPMUImage(flag On=true)        { bPMUOpts= On ? (bPMUOpts|PMU_Image) : (bPMUOpts&~PMU_Image); };
-    flag           IsPMUAvlImage()                  { return (bPMUOpts & PMU_AvlImage) != 0; };
-    void           SetPMUAvlImage(flag On=true)     { bPMUOpts= On ? (bPMUOpts|PMU_AvlImage) : (bPMUOpts&~PMU_AvlImage); };
-    flag           IsPMUPassing()                   { return (bPMUOpts & PMU_Passing) != 0; };
-    void           SetPMUPassing(flag On=true)      { bPMUOpts= On ? (bPMUOpts|PMU_Passing) : (bPMUOpts&~PMU_Passing); };
-    flag           IsPMUBlocking()                  { return (bPMUOpts & PMU_Blocking) != 0; };
-    void           SetPMUBlocking(flag On=true)     { bPMUOpts= On ? (bPMUOpts|PMU_Blocking) : (bPMUOpts&~PMU_Blocking); };
-    flag           IsPMUSLRatio()                   { return (bPMUOpts & PMU_SLRatio) != 0; };
-    void           SetPMUSLRatio(flag On=true)      { bPMUOpts= On ? (bPMUOpts|PMU_SLRatio) : (bPMUOpts&~PMU_SLRatio); };
-    flag           IsPMUSLRatio_Rho()               { return (bPMUOpts & PMU_SLRatio_Rho) != 0; };
-    void           SetPMUSLRatio_Rho(flag On=true)  { bPMUOpts= On ? (bPMUOpts|PMU_SLRatio_Rho) : (bPMUOpts&~PMU_SLRatio_Rho); };
-    PMU_OPTIONS    PMUOptions()                     { return bPMUOpts; };
-    void           SetPMUOptions(PMU_OPTIONS Opts)  { bPMUOpts=Opts; };
+    void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)   { m_bPMUOpts = (m_bPMUOpts|OnOpts) & ~OffOpts; };
+    flag           HasPMU(PMU_OPTIONS Opts)                          { return (m_bPMUOpts & Opts) !=0; };
+    CSysVector   * PMUFilter()                                       { if (m_pPMUFilter==NULL) m_pPMUFilter=new SpVector; return m_pPMUFilter; };
+    void           SetPMUValue1(double V)                            { m_PMUValue1=V; };
+    double         PMUValue1()                                       { return m_PMUValue1; };
+    void           SetPMUFilterDens(double V)                        { m_PMUFilterDens=V; };
+    double         PMUFilterDens()                                   { return m_PMUFilterDens; };
 
 #if DOPB_FILT_RESULTS
     SpVector     * MSRqd(int i)                     { if (pMSRqd[i]==NULL) pMSRqd[i]=new SpVector; return pMSRqd[i]; };
@@ -1746,8 +1746,10 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
 #endif
 
     // ProductMakeup
-    SpVector     * pPMU;
-    PMU_OPTIONS    bPMUOpts;
+    SpVector     * m_pPMUFilter;
+    double         m_PMUValue1;
+    PMU_OPTIONS    m_bPMUOpts;
+    double         m_PMUFilterDens;
 
     CAreaSum       m_Sum;
 
@@ -1828,6 +1830,7 @@ const int AreaIOId0       = FlwIOId(9000); // Io into/outof Areas
 
 inline bool IsMLnkIOId(int Id)        { return Id<SpillIOId0;  }
 inline bool IsProcessIOId(int Id)     { return Id<MakeupIOId0; }
+inline bool IsMaterialIOId(int Id)    { return Id<AAAAIOId0; }
 inline bool IsDirectIOId(int Id)      { return InRange(SpillIOId0,  Id, CtrlIOId0  -1);  }
 
 inline bool IsSpillIOId(int Id)       { return InRange(SpillIOId0,  Id, VentIOId0   -1);  };
@@ -1874,7 +1877,7 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
   {"", "MU3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
   {"", "MU4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
   {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-         
+
 #define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                          \
   {"", "BL1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
   {"", "BL2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
@@ -1992,9 +1995,11 @@ const dword IOPassSolids    = 0x00200000;
 const dword IOChgFracHgt    = 0x00400000;
 const dword IOChgAperture   = 0x00800000;
 const dword IOHidden        = 0x01000000;
-const dword IOOptsHide      = 0x02000000;
-const dword IOEqnsHide      = 0x04000000;
-const dword IOSSDenied      = 0x08000000;
+const dword IOOptsHideI     = 0x02000000;
+const dword IOOptsHideO     = 0x04000000;
+const dword IOOptsHide      = (IOOptsHideI|IOOptsHideO);
+const dword IOEqnsHide      = 0x08000000;
+const dword IOSSDenied      = 0x10000000;
 
 #define IOGRP(x)          ((x) & IOGrp)
 #define IOISBUFFER(x)     (((x) & IOIsBuffer)!=0)
@@ -2044,6 +2049,26 @@ class DllImportExport IOAreaRec
 
 // ----------------------------------------------------------
 
+class CIOMFlwDmdRec
+  {
+  public:
+    CIOMFlwDmdRec()
+      {
+      m_MFlwDmd.SetSize(SDB.Count());
+      m_MFlwOut.SetSize(SDB.Count());
+      m_TotalMFlwDmd=0;
+      m_TotalMFlwOut=0;
+      };
+
+    CArray<double, double> m_MFlwDmd;
+    CArray<double, double> m_MFlwOut;
+
+    double                 m_TotalMFlwDmd;
+    double                 m_TotalMFlwOut;
+  };
+
+// ----------------------------------------------------------
+
 class DllImportExport CIORec
   {
   friend class FlwNode;
@@ -2069,32 +2094,20 @@ class DllImportExport CIORec
     SpConduit*     ConduitIO()                      { return pFlng->ConduitIO();};
     SpConduit*     ConduitIn()                      { return pFlng->ConduitIn();};
     SpConduit*     ConduitMem()                     { return pFlng->ConduitMem();};
-    SpVector     * CreatePMUVector()                { return pFlng->CreatePMUVector(); };
-    void           DeletePMUVector()                { pFlng->DeletePMUVector(); };
-    SpVector     * PMUVector()                      { return pFlng->PMUVector(); };
 
+    void           SetPMU(PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)  { pFlng->SetPMU(OnOpts, OffOpts); };
+    flag           HasPMU(PMU_OPTIONS Opts)                         { return pFlng->HasPMU(Opts); };
+    CSysVector   * PMUFilter()                                      { return pFlng->PMUFilter(); };
+    void           SetPMUValue1(double V)                           { pFlng->SetPMUValue1(V); };
+    double         PMUValue1()                                      { return pFlng->PMUValue1(); };
+    void           SetPMUFilterDens(double V)                       { pFlng->SetPMUFilterDens(V); };
+    double         PMUFilterDens()                                  { return pFlng->PMUFilterDens(); };
 
 #if DOPB_FILT_RESULTS
     SpVector     * MSRqd(int i)                     { return pFlng->MSRqd(i); };
     int            NMSRqd()                         { return pFlng->NMSRqd(); };
     void           SetNMSRqd(int n)                 { pFlng->SetNMSRqd(n); };
 #endif
-
-    flag           IsPMUImage()                     { return pFlng->IsPMUImage(); };
-    void           SetPMUImage(flag On=true)        { pFlng->SetPMUImage(On); };
-    flag           IsPMUAvlImage()                  { return pFlng->IsPMUAvlImage(); };
-    void           SetPMUAvlImage(flag On=true)     { pFlng->SetPMUAvlImage(On); };
-    flag           IsPMUPassing()                   { return pFlng->IsPMUPassing(); };
-    void           SetPMUPassing(flag On=true)      { pFlng->SetPMUPassing(On); };
-    flag           IsPMUBlocking()                  { return pFlng->IsPMUBlocking(); };
-    void           SetPMUBlocking(flag On=true)     { pFlng->SetPMUBlocking(On); };
-    flag           IsPMUSLRatio()                   { return pFlng->IsPMUSLRatio(); };
-    void           SetPMUSLRatio(flag On=true)      { pFlng->SetPMUSLRatio(On); };
-    flag           IsPMUSLRatio_Rho()               { return pFlng->IsPMUSLRatio_Rho(); };
-    void           SetPMUSLRatio_Rho(flag On=true)  { pFlng->SetPMUSLRatio_Rho(On); };
-
-    PMU_OPTIONS    PMUOptions()                     { return pFlng->PMUOptions(); };
-    void           SetPMUOptions(PMU_OPTIONS Opts)  { pFlng->SetPMUOptions(Opts); };
 
     flag           V2LReqd()                        { return fV2LReqd; };
 //    double         V2LFactor()                     { return dV2LFactor; };
@@ -2145,11 +2158,11 @@ class DllImportExport CIORec
     bool           fEvalSeqWasIn;
     bool           fEvalSeqWasOut;
 
-    double/*float*/m_dFracHgt,
+    double         m_dFracHgt,
                    m_dApertureAngle,
                    m_dAperture,
-                   m_dEntrainRateA,
-                   m_dEntrainRateB,
+                   m_dEntrainRateSL,
+                   m_dEntrainRateG,
                    m_dEstV2LOnEntry,
                    m_dEstL2VOnEntry;
 
@@ -2169,6 +2182,8 @@ class DllImportExport CIORec
     int            iClusterId;
 
     CSrgFlwInfo    m_Srg;
+
+    CIOMFlwDmdRec * m_pMFlwDmd;
 
     #if WithIOChgMonitor
     CDArray        DataMem;
@@ -3616,10 +3631,13 @@ class DllImportExport FlwNode : public CTNode
     CSrgFlwInfo   *IOSurgeInfo(int i)     { return &m_IOs[i].m_Srg;};
     CHgtOrdInfo   *IOHgtOrder(int i)      { return m_IOs[i].m_Srg.m_pHgtInfo; };
 
-    SpVector     * CreatePMUVector(int i) { return m_IOs[i].CreatePMUVector(); };
-    void           DeletePMUVector(int i) { m_IOs[i].DeletePMUVector(); };
-    SpVector     * PMUVector(int i)       { return m_IOs[i].PMUVector(); };
-
+    void           IOSetPMU(int i, PMU_OPTIONS OnOpts, PMU_OPTIONS OffOpts)   { m_IOs[i].SetPMU(OnOpts, OffOpts); };
+    flag           IOHasPMU(int i, PMU_OPTIONS Opts)                          { return m_IOs[i].HasPMU(Opts); };
+    CSysVector   * IOPMUFilter(int i)                                         { return m_IOs[i].PMUFilter(); };
+    void           IOSetPMUValue1(int i,double Val)                           { m_IOs[i].SetPMUValue1(Val); };
+    double         IOPMUValue1(int i)                                         { return m_IOs[i].PMUValue1(); };
+    void           IOSetPMUFilterDens(int i,double Val)                       { m_IOs[i].SetPMUFilterDens(Val); };
+    double         IOPMUFilterDens(int i)                                     { return m_IOs[i].PMUFilterDens(); };
 
 #if DOPB_FILT_RESULTS
     SpVector      *IOMSRqd(int i, int j)  { return m_IOs[i].MSRqd(j); };
@@ -3932,10 +3950,10 @@ class DllImportExport FlwNode : public CTNode
     double         IOApertureAngle(int i)              { return m_IOs[i].m_dApertureAngle; };
     void           SetIOApertureAngle(int i, double d) { m_IOs[i].m_dApertureAngle=d; };
 
-    double         IOEntrainRateA(int i)               { return m_IOs[i].m_dEntrainRateA; };
-    double         IOEntrainRateB(int i)               { return m_IOs[i].m_dEntrainRateB; };
-    void           SetIOEntrainRateA(int i, double d)  { m_IOs[i].m_dEntrainRateA=d; };
-    void           SetIOEntrainRateB(int i, double d)  { m_IOs[i].m_dEntrainRateB=d; };
+    double         IOEntrainRateSL(int i)              { return m_IOs[i].m_dEntrainRateSL; };
+    double         IOEntrainRateG(int i)               { return m_IOs[i].m_dEntrainRateG; };
+    void           SetIOEntrainRateSL(int i, double d) { m_IOs[i].m_dEntrainRateSL=d; };
+    void           SetIOEntrainRateG(int i, double d)  { m_IOs[i].m_dEntrainRateG=d; };
 
     double         IOEstV2LOnEntry(int i)              { return m_IOs[i].m_dEstV2LOnEntry; };
     double         IOEstL2VOnEntry(int i)              { return m_IOs[i].m_dEstL2VOnEntry; };
@@ -3964,6 +3982,15 @@ class DllImportExport FlwNode : public CTNode
         io.m_pImg=NULL;
         };
       };
+
+    CIOMFlwDmdRec & IOMFlwDmd(int i)
+      {
+      if (!m_IOs[i].m_pMFlwDmd)
+        m_IOs[i].m_pMFlwDmd = new CIOMFlwDmdRec; 
+
+      return *m_IOs[i].m_pMFlwDmd;
+      };  
+
 
     void           SetIOQm_In(int i, double Qm, bool DoRmt=true)     { for (int fe=0; fe<NIOFBs(i); fe++) IOFB(i, fe)->SetQm(Qm);     if (DoRmt) for (fe=0; fe<NIOFBs_Rmt(i); fe++) IOFB_Rmt(i, fe)->SetQm(-Qm);   };
     void           SetIOQm_Out(int i, double Qm, bool DoRmt=true)    { for (int fe=0; fe<NIOFBs(i); fe++) IOFB(i, fe)->SetQm(-Qm);    if (DoRmt) for (fe=0; fe<NIOFBs_Rmt(i); fe++) IOFB_Rmt(i, fe)->SetQm(Qm);    };
@@ -4408,6 +4435,7 @@ class DllImportExport FlwNode : public CTNode
     int            m_nFIOs;
     int            m_nProcLnkIOs;
     int            m_nProcessIOs;
+    int            m_nMaterialIOs;
 
     int            m_nProcDirectIOs;
     int            m_nMkupDirectIOs;
@@ -4419,6 +4447,7 @@ class DllImportExport FlwNode : public CTNode
     long           NoIOs()                { return m_nIOs; };
     long           NoFlwIOs()             { return m_nFIOs; };
     long           NoProcessIOs()         { return m_nProcessIOs; };
+    long           NoMaterialIOs()        { return m_nMaterialIOs; };
     long           NoProcLnkIOs()         { return m_nProcLnkIOs; };
 
     long           NoAttachedDirectIOs()  { return m_AttachedDirectIOs.GetCount(); };

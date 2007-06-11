@@ -862,6 +862,11 @@ class CCall2MSpQuals :   public SpQuality//ModelEx
     virtual void   ZeroDeriv()                          { m_pUserQual->ZeroDeriv(); };
     virtual void   ScaleMass(PhMask Phase, double Mult) { m_pUserQual->ScaleMass(Phase, Mult); };
     virtual void   ScaleMass(CIArray & SpIds, double Mult) { m_pUserQual->ScaleMass(SpIds, Mult); };
+    virtual void   ScaleMass(CSysVector & Scl, double Mult) 
+      {
+      _asm int 3;
+      //m_pUserQual->ScaleMass(Scl, Mult);
+      };
 
     virtual void   SetMassF(CSysVector & M1, SpQuality* pQual2)
       {

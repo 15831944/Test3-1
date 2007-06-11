@@ -869,8 +869,8 @@ m_MixSet(this)
   pModel=(SpModel*)SpModelClass.ConstructGroup(DefaultModel(), NULL, SpModelDefTag, this, TOA_Embedded|TOA_Hidden);
 
   //dFluxDamping=2.0;
-  dLevelSettle=0.0;
-  dOverFlowSettle=0.0;
+  //dLevelSettle=0.0;
+  //dOverFlowSettle=0.0;
   m_pQOutEst=NULL;
   //pInFlow=NULL;
   //pOverFlow=NULL;
@@ -878,11 +878,14 @@ m_MixSet(this)
   m_pSpill=NULL;
   m_pVent=NULL;
 
-  dVapEntrained     = 0.0;
-  dVapEntrainRate   = 0.0;
-  dVapEscapeTau     = 60.0;
-  dVapLiberationTau = 0.0;
+  m_dVapEntrained     = 0.0;
+  m_dVapEntrainRate   = 0.0;
+  m_dVapEscapeTau     = 60.0;
+  m_dVapLiberationTau = 0.0;
 
+  m_eVapEntrainCtrl   = VEC_Off;
+  m_dVapEntrainVolFrac = 0.05;
+  
   pStats = NULL;
   dInitMt = 0.0;
 
@@ -890,7 +893,7 @@ m_MixSet(this)
   SetView(SVV_AsMass);
   SetUsage(SPMU_Mass);
 
-  m_States.Add(&dVapEntrained, &dVapEntrainRate, &dVapEntrained);
+  m_States.Add(&m_dVapEntrained, &m_dVapEntrainRate, &m_dVapEntrained);
   //iVapEntrained=new CStateInt(/*S(),*/ dVapEntrained, dVapEntrainRate, dVapEntrained);//, dwVapEntValid, dwVapEntCmd, 0);
   dwDisplay=SPDF_All;
 
@@ -925,21 +928,18 @@ m_MixSet(this)
   pShape=(SpShape*)SpShapeClass.ConstructGroup(DefaultShape(), NULL, SpShapeDefTag, this, TOA_Embedded|TOA_Hidden);
   pModel=(SpModel*)SpModelClass.ConstructGroup(DefaultModel(), NULL, SpModelDefTag, this, TOA_Embedded|TOA_Hidden);
 
-  //dFluxDamping=2.0;
-  dLevelSettle=0.0;
-  dOverFlowSettle=0.0;
   m_pQOutEst=NULL;
-  //pInFlow=NULL;
-  //pOverFlow=NULL;
-  //pGasVent=NULL;
   m_pSpill=NULL;
   m_pVent=NULL;
 
-  dVapEntrained     = 0.0;
-  dVapEntrainRate   = 0.0;
-  dVapEscapeTau     = 60.0;
-  dVapLiberationTau = 0.0;
+  m_dVapEntrained     = 0.0;
+  m_dVapEntrainRate   = 0.0;
+  m_dVapEscapeTau     = 60.0;
+  m_dVapLiberationTau = 0.0;
 
+  m_eVapEntrainCtrl   = VEC_Off;
+  m_dVapEntrainVolFrac = 0.05;
+  
   pStats = NULL;
   dInitMt = 0.0;
 
@@ -949,7 +949,7 @@ m_MixSet(this)
 
   //Strng S(FullObjTag(), "VapEnt");
   //iVapEntrained=new CStateInt(/*S(),*/ dVapEntrained, dVapEntrainRate, dVapEntrained);//, dwVapEntValid, dwVapEntCmd, 0);
-  m_States.Add(&dVapEntrained, &dVapEntrainRate, &dVapEntrained);
+  m_States.Add(&m_dVapEntrained, &m_dVapEntrainRate, &m_dVapEntrained);
   dwDisplay=SPDF_All;
 
   pPreset=NULL;
@@ -998,10 +998,10 @@ void SpContainer::SetStateAction(IE_Enables E)
   switch (E)
     {
     case IE_Integrate:
-      m_States.Add(&dVapEntrained, &dVapEntrainRate, &dVapEntrained);
+      m_States.Add(&m_dVapEntrained, &m_dVapEntrainRate, &m_dVapEntrained);
       break;
     case IE_SaveState:
-      m_States.Add(&dVapEntrained);
+      m_States.Add(&m_dVapEntrained);
       break;
     default:
       break;
@@ -1139,6 +1139,12 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double  ("VapourNormVol", "VNVt",  DC_NVol, "Nm^3",   xidSMVNVol,    this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SlurryNormVol", "SLNVt", DC_NVol, "Nm^3",   xidSMSLNVol,   this, isResult|noFile|noSnap|InitHidden);
 
+    DDB.Text    ("Entrainment");
+    DDB.Double  ("EntVapourVolume",   "EntVapVol",     DC_Vol, "m^3",   xidCnEntVapVol,  this, isResult|noFile|noSnap|InitHidden);
+    DDB.Double  ("EntVapourFraction", "EntVapFrac",    DC_Frac, "%",    xidCnVFracMM,    this, isResult|noFile|noSnap);
+    DDB.Double  ("EntVapourVolFrac",  "EntVapFracVV",  DC_Frac, "%",    xidCnVFracVV,    this, isResult|noFile|noSnap);
+    //DDB.Double  ("EntSlurryVolFrac",  "EntSLFracVV",  DC_Frac, "%",    xidCnSLFracVV,   this, isResult|noFile|noSnap|InitHidden);
+
     pModel->BuildDataDefn_Vars(DDB);
     pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
     DDB.Text   (" ");
@@ -1186,18 +1192,17 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
         {
         int DoIt;
         if (PrjFileVerNo()>=45)
-          DoIt=DDB.BeginObject(this, "OverFlow", "SpContDirect", NULL, DDB_NoPage, -1, MarkerClosed);
+          DoIt=DDB.BeginObject(this, "Spill", "SpContDirect", NULL, DDB_NoPage, -1, MarkerClosed);
         else
           DoIt=DDB.BeginStruct(this, "OverFlow", "", DDB_NoPage,-1,MarkerClosed);
         if (DoIt)
           {
-          //DDB.CheckBoxBtn("Discard",  "",    DC_, "",           xidCnOverFlowDiscard, this, isParm);
-          DDB.String("Target",        "",    DC_, "",           xidCnOverFlowTarget, this, isParmStopped|isTag|InitHidden);
-          DDB.Double("Settle",        "Tau", DC_Time, "s",      xidCnOverFlowSettle, this, isParm|InitHidden);
-          DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnOverFlowRate,   this, isResult|0);
+          DDB.Double("FracHgt",       "FHgt", DC_Frac, "%",      xidCnSpillFracHgt,   this, isParmStopped);
+          DDB.String("Target",        "",     DC_, "",           xidCnSpillTarget, this, isParmStopped|isTag|InitHidden);
+          DDB.Double("Rate",          "",     DC_Qm,   "kg/s",   xidCnSpillRate,   this, isResult);
           FlwNode *p=FindObjOfType((FlwNode*)NULL);
           if (p && p->AuditOption()>=Audit_Totals)
-            DDB.Double("Total",         "",    DC_M, "kg",        xidCnOverFlowTotal,  this, 0/*isParm*/);
+            DDB.Double("Total",         "",    DC_M, "kg",        xidCnSpillTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
           DDB.EndObject();
@@ -1209,20 +1214,20 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
         {
         int DoIt;
         if (PrjFileVerNo()>=45)
-          DoIt=DDB.BeginObject(this, "GasVent", "SpContDirect", NULL, DDB_NoPage, -1, MarkerClosed);
+          DoIt=DDB.BeginObject(this, "Vent", "SpContDirect", NULL, DDB_NoPage, -1, MarkerClosed);
         else
           DoIt=DDB.BeginStruct(this, "GasVent", "", DDB_NoPage,-1,MarkerClosed);
         if (DoIt)
           {
-          //DDB.Byte  ("Type",          "",    DC_, "",           xidCnGasVentType,   this, isParm|InitHidden, DDB0);
-          //DDB.CheckBoxBtn("Discard",  "",    DC_, "",           xidCnGasVentDiscard, this, isParm);
-          DDB.String("Target",        "",    DC_, "",           xidCnGasVentTarget, this, isParmStopped|isTag|InitHidden);
-          //DDB.Double("Tau",           "",    DC_Time, "s",      xidCnGasVentTau,    this, isParm|InitHidden);
-          DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnGasVentRate,   this, isResult|0);
+          //DDB.Byte  ("Type",          "",    DC_, "",           xidCnVentType,   this, isParm|InitHidden, DDB0);
+          //DDB.CheckBoxBtn("Discard",  "",    DC_, "",           xidCnVentDiscard, this, isParm);
+          DDB.String("Target",        "",    DC_, "",           xidCnVentTarget, this, isParmStopped|isTag|InitHidden);
+          //DDB.Double("Tau",           "",    DC_Time, "s",      xidCnVentTau,    this, isParm|InitHidden);
+          DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidCnVentRate,   this, isResult|0);
 
           FlwNode *p=FindObjOfType((FlwNode*)NULL);
           if (p && p->AuditOption()>=Audit_Totals)
-            DDB.Double("Total",         "",    DC_M, "kg",        xidCnGasVentTotal,  this, 0/*isParm*/);
+            DDB.Double("Total",         "",    DC_M, "kg",        xidCnVentTotal,  this, 0/*isParm*/);
           }
         if (PrjFileVerNo()>=45)
           DDB.EndObject();
@@ -1249,8 +1254,6 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.Visibility(Vis, true);
           LPTSTR Nm2=PrjFileVerNo()<58 ? "MinLevel":"LowestIOPt";
           DDB.Double(Nm2,             "",    DC_Frac, "%",        xidCnLowestIOPt,       this, isParmStopped);
-          if (dwDisplay & SPDF_LevelSeek)
-            DDB.Double("LevelSettle", "",    DC_Time, "s",        xidCnLevelSettle,  this, isParm|InitHidden);
           }
         DDB.EndStruct();
         }
@@ -1260,12 +1263,24 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
         {
         if (DDB.BeginStruct(this, "Vapour", "", DDB_NoPage,-1,MarkerClosed))
           {
-          DDB.Double("EscapeTau",     "",    DC_Time, "s",      &dVapEscapeTau,     this, isParm);
+
+          static DDBValueLst DDBVEC[]=
+            {
+              {VEC_Off,       "Off"     },
+              {VEC_VolFrac,   "VolumeFrac" },
+              {0}
+            };
+
+          DDB.Long("EntrainCtrl",            "",    DC_,     "",    (long*)&m_eVapEntrainCtrl,     this, isParm|SetOnChange, DDBVEC);
+          DDB.Visibility(NSHM_All, m_eVapEntrainCtrl==VEC_VolFrac);
+          DDB.Double("EntrainedVolFrac",     "",    DC_Frac, "%",   &m_dVapEntrainVolFrac,        this, isParm);
+
+          DDB.Visibility();
+          DDB.Double("EscapeTau",            "",    DC_Time, "s",   &m_dVapEscapeTau,     this, isParm);
           DDB.TagComment("ToAtmosphere");
-          //DDB.Visibility(Vis, !pModel->Closed());
-          DDB.Double("LiberationTau", "",    DC_Time, "s",      &dVapLiberationTau, this, isParm);
+          DDB.Double("LiberationTau",        "",    DC_Time, "s",   &m_dVapLiberationTau, this, isParm);
           DDB.TagComment("FromSubsurface");
-          DDB.Double("Entrained",     "",    DC_M,    "kg",      &dVapEntrained,     this, isParm);
+          DDB.Double("Entrained",            "",    DC_M,    "kg",  &m_dVapEntrained,     this, isParm);
           }
         DDB.EndStruct();
         }
@@ -1380,13 +1395,12 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
         }
       DCB.D = RLevel();
       return 1;
-    //case xidCnInFlowRate:
-    //  if (InFlowExists())
-    //    DCB.D=InFlow().QMass();
-    //  else
-    //    DCB.D=0.0;
-    //  return 1;
-    case xidCnOverFlowTarget:
+    case xidCnSpillFracHgt:
+      if (DCB.rD)
+        Spill.FracHgt=*DCB.rD;
+      DCB.D=Spill.FracHgt;
+      return 1;
+    case xidCnSpillTarget:
       if (DCB.rpC!=NULL && (strlen(DCB.rpC)>0))
         Spill.SetTarget(DCB.rpC);
       if (SpillExists())
@@ -1394,7 +1408,7 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
       else
         DCB.pC="";
       return 1;
-    case xidCnOverFlowTotal:
+    case xidCnSpillTotal:
       if (SpillExists())
         {
         //if (DCB.rD)
@@ -1404,23 +1418,13 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
       else
         DCB.D=0.0;
       return 1;
-    case xidCnOverFlowRate:
+    case xidCnSpillRate:
       if (SpillExists())
         DCB.D=Spill.Cd.QMass();
       else
         DCB.D=0.0;
       return 1;
-    //case xidCnOverFlowDiscard:
-    //  ////if (SpillExists())
-    //  //  {
-    //  //  if (DCB.rB)
-    //  //    Spill.SetDiscard(*DCB.rB);
-    //  //  DCB.B=Spill.Discard();
-    //  //  }
-    //  ////else
-    //  ////  DCB.B=0;
-    //  return 1;
-    case xidCnGasVentTarget:
+    case xidCnVentTarget:
       if (DCB.rpC!=NULL && (strlen(DCB.rpC)>0))
         {
         Vent.SetTarget(DCB.rpC);
@@ -1430,7 +1434,7 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
       else
         DCB.pC="";
       return 1;
-    case xidCnGasVentTotal:
+    case xidCnVentTotal:
       if (VentExists())
         {
         //if (DCB.rD)
@@ -1440,37 +1444,12 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
       else
         DCB.D=0.0;
       return 1;
-    case xidCnGasVentRate:
+    case xidCnVentRate:
       if (VentExists())
         DCB.D=Vent.Cd.QMass();
       else
         DCB.D=0.0;
       return 1;
-    //case xidCnGasVentDiscard:
-    //  ////if (VentExists())
-    //  //  {
-    //  //  if (DCB.rB)
-    //  //    Vent.SetDiscard(*DCB.rB);
-    //  //  DCB.B=Vent.Discard();
-    //  //  }
-    //  ////else
-    //  ////  DCB.B=0;
-    //  return 1;
-    case xidCnOverFlowSettle:
-      if (DCB.rD!=NULL)
-        dOverFlowSettle=Range(0.0, *DCB.rD, 10000.0);
-      DCB.D=dOverFlowSettle;
-      return 1;
-    case xidCnLevelSettle:
-      if (DCB.rD!=NULL)
-        dLevelSettle=Range(0.0, *DCB.rD, 10000.0);
-      DCB.D=dLevelSettle;
-      return 1;
-      //    case xidCnVentAction:
-      //      if (DCB.rB)
-      //        pModel->m_bAutoExpand=*DCB.rB;
-      //      DCB.B = pModel->m_bAutoExpand;
-      //      return 1;
     case xidCnVentLevel:
       if (DCB.rD!=NULL)
         {
@@ -1497,6 +1476,32 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
         }
       DCB.D = pModel->MaxPressure();
       return 1;
+
+    case xidCnEntVapVol:
+      DCB.D = Range(0.0, m_dVapEntrained, pModel->Mass(som_Gas))/GTZ(pModel->Rho(som_Gas));
+      return 1;
+    case xidCnVFracMM:
+      {
+      double T=pModel->Mass(som_Gas);
+      double E = Range(0.0, m_dVapEntrained, T);
+      DCB.D = E/GTZ(T);
+      return 1;
+      }
+    case xidCnVFracVV:
+      {
+      double GVol = Range(0.0, m_dVapEntrained, pModel->Mass(som_Gas))/GTZ(pModel->Rho(som_Gas));
+      double SVol = pModel->Volume(som_SL);
+      DCB.D = GVol/GTZ(GVol+SVol);
+      return 1;
+      }
+    case xidCnSLFracVV:
+      {
+      double GVol = Range(0.0, m_dVapEntrained, pModel->Mass(som_Gas))/GTZ(pModel->Rho(som_Gas));
+      double SVol = pModel->Volume(som_SL);
+      DCB.D = SVol/GTZ(GVol+SVol);
+      return 1;
+      }
+
     case xidCnTopPRqd:
       if (DCB.rD)
         {
@@ -2924,9 +2929,7 @@ void CCnMixSet::SetPrfPts(long N)
   for (int i=0; i<N; i++)
     SetPrfPtAt(CCnMixSetPrfPt::ePt, i/(N-1.0));
   };
-//    SetPrfPtAt(CCnMixSetPrfPt::ePt);
-//  {eNull, eBase, eSurface, eIO, ePt};
-//void        SetPrfPtAt(CCnMixSetPrfPt::ePtType ID, m_dHt);
+
 //--------------------------------------------------------------------------
 //
 //
@@ -2998,7 +3001,7 @@ void SpContainer::SetState(eScdMdlStateActs RqdState)
 void SpContainer::ZeroMass()
   {
   pModel->ZeroMass();
-  dVapEntrained=0.0;
+  m_dVapEntrained=0.0;
   };
 
 //--------------------------------------------------------------------------
@@ -3006,7 +3009,7 @@ void SpContainer::ZeroMass()
 void SpContainer::ZeroDeriv()
   {
   pModel->ZeroDeriv();
-  dVapEntrainRate=0.0;
+  m_dVapEntrainRate=0.0;
   };
 
 //--------------------------------------------------------------------------
@@ -3016,15 +3019,15 @@ void SpContainer::Copy(SpContainer& C)
   CopyModel(C.pModel);
   pModel->Copy(C.pModel);
 
-  dVapEntrained     = C.dVapEntrained;
+  m_dVapEntrained     = C.m_dVapEntrained;
 
-  dVapEntrainRate   = C.dVapEntrainRate;
-  dVapEscapeTau     = C.dVapEscapeTau;
-  dVapLiberationTau = C.dVapLiberationTau;
+  m_dVapEntrainRate   = C.m_dVapEntrainRate;
+  m_dVapEscapeTau     = C.m_dVapEscapeTau;
+  m_dVapLiberationTau = C.m_dVapLiberationTau;
 
-  //dFluxDamping      = C.dFluxDamping;
-  dLevelSettle      = C.dLevelSettle;
-  dOverFlowSettle      = C.dOverFlowSettle;
+  m_eVapEntrainCtrl    = C.m_eVapEntrainCtrl;
+  m_dVapEntrainVolFrac = C.m_dVapEntrainVolFrac;
+
   }
 
 //--------------------------------------------------------------------------
@@ -3033,8 +3036,8 @@ void SpContainer::AddDeriv(SpConduit & Flw, double Sgn_, double EntrainRate)
   {
   double d=Flw.QMass();
   pModel->AddDeriv(Flw.Model(), Sgn_);
-  if (Sgn_>0)
-    dVapEntrainRate+=/*Flw.QMass()*/EntrainRate;
+  //if (Sgn_>0)
+  m_dVapEntrainRate+=/*Flw.QMass()*/EntrainRate;
   };
 
 //--------------------------------------------------------------------------
@@ -3051,10 +3054,24 @@ void SpContainer::ApplyDerivs(double dTime, flag DoDbg)
   pModel->ApplyDerivs(dTime, DoDbg);
 
   // Derivative     dVapEntrainRate;
-  dVapEntrained+=dVapEntrainRate*dTime;
-  dVapEntrained-=dVapEntrained*(1.0-exp(-dTime/Max(0.001,dVapLiberationTau)));
+  m_dVapEntrained+=m_dVapEntrainRate*dTime;
+  switch (m_eVapEntrainCtrl)
+    {
+    case VEC_VolFrac:
+      {
+      double GasVol=m_dVapEntrained/GTZ(pModel->Rho(som_Gas));
+      double SLVol=pModel->Volume(som_SL);
+      double GasVolFrac=GasVol/GTZ(GasVol+SLVol);
+      double Diff=(GasVolFrac-m_dVapEntrainVolFrac);
+      m_dVapEntrained-=Diff*m_dVapEntrained;//*pModel->Rho(som_Gas);//*(1.0-exp(-dTime/Max(0.001,m_dVapLiberationTau)));
+      break;
+      }
+    default:
+      m_dVapEntrained-=m_dVapEntrained*(1.0-exp(-dTime/Max(0.001,m_dVapLiberationTau)));
+      break;
+    };
   // Limit to 80 %
-  dVapEntrained=Range(0.0, dVapEntrained, 0.8*Mass(som_Gas));
+  m_dVapEntrained=Range(0.0, m_dVapEntrained, 0.9999999999/*0.8*/*Mass(som_Gas));
   };
 
 //--------------------------------------------------------------------------

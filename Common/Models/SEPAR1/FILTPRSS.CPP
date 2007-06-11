@@ -774,7 +774,7 @@ dword FilterPress::ModelStatus()
     int HasFlw=0;
     for (int i=0; i<NoFlwIOs(); i++)
       {
-      if (IOConduit(i)->QMass()>UsableMass)
+      if (IOConduit(i)->QMass()>DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

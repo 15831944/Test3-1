@@ -339,10 +339,6 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text    ("");
   BuildDataDefnShowIOs(DDB);
 
-  if (SolveBufferedMethod())
-    RB.SetSurgeType(true); //where is the best place to set this?
-  else
-    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
 
   DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms);
@@ -959,9 +955,9 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
           {
           switch (IOId_Self(i))
             {
-            case ioidAqOut : SetProdMakeup(PMU_IOId |PMU_Image, ioidAqOut, Aqs, Tc, Std_P, Aq().Model()); break;
+            case ioidAqOut : SetProdMakeup(PMU_IOId |PMU_Filter, ioidAqOut, Aqs, Tc, Std_P, Aq().Model()); break;
             //case ioidAqOut : SetProdMakeup(PMU_IONo |PMU_Image, i, Aqs, Tc, Std_P, Aq().Model()); break;
-            case ioidOrgOut: SetProdMakeup(PMU_IOId |PMU_Image, ioidOrgOut, Ogs, Tc, Std_P, Og().Model()); break;
+            case ioidOrgOut: SetProdMakeup(PMU_IOId |PMU_Filter, ioidOrgOut, Ogs, Tc, Std_P, Og().Model()); break;
             //default:         SetProdMakeup(PMU_IOId |PMU_Image, i, Mix, Tc, Std_P, Sd().Model()); break;
             }
           }
@@ -1044,8 +1040,8 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
         if (IO_Out(i))
           switch (IOId_Self(i))
             {
-            case ioidAqOut : SetProdMakeup(PMU_IONo |PMU_Image, i, Aqs, Std_T, Std_P, Aq().Model()); break;
-            case ioidOrgOut: SetProdMakeup(PMU_IONo |PMU_Image, i, Orgs, Std_T, Std_P, Og().Model()); break;
+            case ioidAqOut : SetProdMakeup(PMU_IONo |PMU_Filter, i, Aqs, Std_T, Std_P, Aq().Model()); break;
+            case ioidOrgOut: SetProdMakeup(PMU_IONo |PMU_Filter, i, Orgs, Std_T, Std_P, Og().Model()); break;
             //default:       SetProdMakeup(PMU_IONo |PMU_Image, i, Mix, Std_P); break;
             }   
 
@@ -1398,7 +1394,7 @@ dword MixerSettler::ModelStatus()
     int HasFlw=0;        
     for (int i=0; i<NoFlwIOs(); i++)
       {
-      if (IOConduit(i)->QMass()>UsableMass)
+      if (IOConduit(i)->QMass()>DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

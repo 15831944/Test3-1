@@ -2064,6 +2064,8 @@ void CDMatrix::dbgDump( pchar Desc)
           S+="*-";
         if (HasNANFlag(m_d[i][j], NF_Star))
           S+="**";
+        if (HasNANFlag(m_d[i][j], NF_Pass))
+          S+="*Pass";
         if (HasNANFlag(m_d[i][j],NF_All&~(NF_Free|NF_Hold|NF_Pulse)))
           S+="???";
         sprintf(Buff, "%s %11s", Buff, S());

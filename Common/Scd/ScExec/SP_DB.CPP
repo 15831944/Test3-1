@@ -9850,6 +9850,22 @@ void CSysVector::SetToOnesAndZeros(flag Invert, double Tol)
 
 //-------------------------------------------------------------------------- {
 
+void CSysVector::SetToValue(PhMask Phase, double Value)
+  {
+  SpecieIter I(Phase);
+  for (int s=-1; I.Loop(s); )
+    m_d[s]=Value;
+  }
+
+//--------------------------------------------------------------------------
+
+void CSysVector::SetToValue(int iSpId, double Value)
+  {
+  m_d[iSpId]=Value;
+  }
+
+//--------------------------------------------------------------------------
+
 void CSysVector::ToMass(CSysVector &MA)
   {
   for (int i=0; i < SVSpcCount(); i++)

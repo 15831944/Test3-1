@@ -185,6 +185,8 @@ void FmtAttribute::FormatFloat(double dVal, char * Str, short Len, Strng_List * 
         strcpy(Str, "*-");
       else if (HasNANFlag(dVal, NF_Star ))
         strcpy(Str, "**");
+      else if (HasNANFlag(dVal, NF_Pass ))
+        strcpy(Str, "*Pass");
       else
         strcpy(Str, "*");
       }

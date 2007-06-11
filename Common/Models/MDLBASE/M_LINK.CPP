@@ -3586,7 +3586,7 @@ dword MN_Lnk::ModelStatus()
         else if (IOFlange(iOut)->IsTear())
           Status|=FNS_Tear;
         }
-      if (IOQm_In(iIn)>UsableMass)
+      if (IOQm_In(iIn)>DisplayZeroFlow)
         {
         Status |= (iIn==0 ? FNS_LFlwP : FNS_LFlwN);
         if (IOConduit(0)->MassFrac(som_Gas)>m_dStatusVapTestFrac)

@@ -733,8 +733,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Text   ("Rise/Length", Marker);
     DDB.Double ("PipeLength",     "",       DC_L, "m",  xidFELength,    this, isResult|0|isParmConstruct);
     DDB.Double ("SrcHF",        "SrcHFrc", DC_Frac, "%",     xidSrcHFrc,     this,   ((Flgs0&IOChgFracHgt)?isParmStopped:0)|LSOpts);
-    DDB.Double ("SrcH",           "SrcHgt", DC_L, "m",  xidSrcHgt,      this, isResult|noFile|noSnap);
     DDB.Double ("DstHF",        "DstHFrc", DC_Frac, "%",     xidDstHFrc,     this,   ((Flgs1&IOChgFracHgt)?isParmStopped:0)|LSOpts);
+    DDB.Double ("SrcH",           "SrcHgt", DC_L, "m",  xidSrcHgt,      this, isResult|noFile|noSnap);
     DDB.Double ("DstH",           "DstHgt", DC_L, "m",  xidDstHgt,      this, isResult|noFile|noSnap);
     if (PrjFileVerNo()>=100)
       DDB.Double ("Rise",         "",       DC_L, "m",  xidFEDZ,        this, isResult|0|isParmConstruct);

@@ -480,8 +480,8 @@ void MN_Xfer::EvalIntegral(CNodeEvalIndex & NEI)
       Cd=IOConduit(i);
       //double FracAbove=(IOAbsFracHgt_Term(i, Contents)-m_Accumulator->Level())/GTZ(IOAperture(i));
       //FracAbove=Range(0.0, FracAbove, 1.0);
-      double EntR=1.0;//FracAbove*IOEntrainRateA(i)*Cd->QMass(som_SL)+
-      //(1.0-FracAbove)*IOEntrainRateB(i)*Cd->QMass(som_Gas);
+      double EntR=1.0;//FracAbove*IOEntrainRateSL(i)*Cd->QMass(som_SL)+
+      //(1.0-FracAbove)*IOEntrainRateG(i)*Cd->QMass(som_Gas);
       m_Accumulator->AddDeriv(*Cd, IOSign(i), EntR);
 #if dbgMSurge
       if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
@@ -778,7 +778,7 @@ dword MN_Xfer::ModelStatus()
       for (int i=0; i<NoFlwIOs(); i++)
         {
         TFlw+=IOQm_In(i);
-        if (IOConduit(i)->QMass()>UsableMass)
+        if (IOConduit(i)->QMass()>DisplayZeroFlow)
           HasFlw=1;
         }
       Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

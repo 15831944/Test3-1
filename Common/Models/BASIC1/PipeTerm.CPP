@@ -492,14 +492,14 @@ dword  CPipeTerm::ModelStatus()
     {
     Status |= ((m_VPB.On() && m_VPB.ActualPosition(this, &m_FRB)>0.0) ? FNS_On : FNS_Off);
   
-    Status |= (IOConduit(0)->QMass()>UsableMass ? FNS_UFlw : FNS_UNoFlw);
+    Status |= (IOConduit(0)->QMass()>DisplayZeroFlow ? FNS_UFlw : FNS_UNoFlw);
 
     int HasFlw=0;
     double TFlw=0.0;
     for (int i=0; i<NoFlwIOs(); i++)
       {
       TFlw+=IOQm_In(i);
-      if (IOConduit(i)->QMass()>UsableMass)
+      if (IOConduit(i)->QMass()>DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

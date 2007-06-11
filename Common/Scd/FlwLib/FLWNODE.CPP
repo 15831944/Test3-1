@@ -144,8 +144,8 @@ CIORec::CIORec()
   m_dFracHgt=0;
   m_dApertureAngle=0;
   m_dAperture=0;
-  m_dEntrainRateA=0;
-  m_dEntrainRateB=0;
+  m_dEntrainRateSL=0;
+  m_dEntrainRateG=0;
   m_dEstV2LOnEntry=0;
   m_dEstL2VOnEntry=0;
 
@@ -163,10 +163,12 @@ CIORec::CIORec()
   iJoinId=0;
   iJoinConnNo=0;
 
+  m_pMFlwDmd = NULL;
   };
 
 CIORec::~CIORec()
   {
+  delete m_pMFlwDmd;
   delete m_pImg;
   m_pImg=NULL;
   }
@@ -198,13 +200,13 @@ CIORec & CIORec::operator=(CIORec &A)
   fConnToRmt       = A.fConnToRmt;
   fAutoConnect     = A.fAutoConnect;
 
-  m_dFracHgt          = A.m_dFracHgt;
-  m_dApertureAngle    = A.m_dApertureAngle;
-  m_dAperture         = A.m_dAperture;
-  m_dEntrainRateA     = A.m_dEntrainRateA;
-  m_dEntrainRateB     = A.m_dEntrainRateB;
-  m_dEstV2LOnEntry    = A.m_dEstV2LOnEntry;
-  m_dEstL2VOnEntry    = A.m_dEstL2VOnEntry;
+  m_dFracHgt       = A.m_dFracHgt;
+  m_dApertureAngle = A.m_dApertureAngle;
+  m_dAperture      = A.m_dAperture;
+  m_dEntrainRateSL = A.m_dEntrainRateSL;
+  m_dEntrainRateG  = A.m_dEntrainRateG;
+  m_dEstV2LOnEntry = A.m_dEstV2LOnEntry;
+  m_dEstL2VOnEntry = A.m_dEstL2VOnEntry;
 
 
   dV2LQmVFact      = A.dV2LQmVFact;
@@ -229,6 +231,8 @@ CIORec & CIORec::operator=(CIORec &A)
   m_pImg           = A.m_pImg;
   A.m_pImg         = NULL;
 
+  m_pMFlwDmd       = A.m_pMFlwDmd;
+  A.m_pMFlwDmd     = NULL;
   return *this;
   }
 
@@ -988,8 +992,10 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
   pQIn = NULL;
   pQMem= NULL;
 
-  pPMU = NULL;
-  bPMUOpts=0;
+  m_pPMUFilter    = NULL;
+  m_bPMUOpts      = 0;
+  m_PMUFilterDens = dNAN;
+  m_PMUValue1     = dNAN;
 
   dMkUpRqd=dNAN;
   dMkUpRqdLcl=dNAN;
@@ -1018,7 +1024,7 @@ CFlange::~CFlange()
   delete pQIO;
   delete pQIn;
   delete pQMem;
-  delete pPMU;
+  delete m_pPMUFilter;
 
   delete m_pTearImg;
 
@@ -1570,21 +1576,6 @@ void CFlange::TearSetOutputs(TearVarArray & TV)
 
 //===========================================================================
 
-SpVector * CFlange::CreatePMUVector()
-  {
-  if (pPMU==NULL)
-    pPMU=new SpVector;
-  return pPMU;
-  }
-
-void CFlange::DeletePMUVector()
-  {
-  delete pPMU;
-  pPMU=NULL;
-  };
-
-//===========================================================================
-
 void CFlange::ResetMakeUpCntGlbl()
   {
   iMkUpOKCurr=0;
@@ -1666,7 +1657,7 @@ dword  CFlange::ModelStatus()
   else
     {
     SpConduit * pCd=Conduit(true);
-    if (pCd->QMass()>UsableMass)
+    if (pCd->QMass()>DisplayZeroFlow)
       {
       Status |= FNS_LFlwP;
       if (pCd->MassFrac(som_Gas)>FlwNode::m_dStatusVapTestFrac)
@@ -2487,6 +2478,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_nFIOs         = 0;
   m_nProcLnkIOs   = 0;
   m_nProcessIOs   = 0;
+  m_nMaterialIOs  =0;
 
   m_nProcDirectIOs = 0;
   m_nMkupDirectIOs = 0;
@@ -6185,8 +6177,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     io.m_dFracHgt       = IOAreas[LIONo].m_dFracHgt;
     io.m_dAperture      = 0.0;
     io.m_dApertureAngle = (flags & IOApertureHoriz) ? 0.0 : Degs2Rads(90.0);
-    io.m_dEntrainRateA  = 0.0;
-    io.m_dEntrainRateB  = 0.0;
+    io.m_dEntrainRateSL  = 0.0;
+    io.m_dEntrainRateG  = 0.0;
     io.m_dEstV2LOnEntry = 0.0,
     io.m_dEstL2VOnEntry = 0.0;
 
@@ -6221,6 +6213,8 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
       pF->fIsBufferPos=true;
       pF->SetTearPriority(TP_First);
       }
+
+    io.m_pMFlwDmd   = NULL;
     }
   if (pF)
     pF->m_Attachments++;
@@ -6257,13 +6251,17 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
   else
     {
     m_nFIOs++;
-    if (IsProcessIOId(AreaId))
+    if (IsMaterialIOId(AreaId))
       {
-      m_nProcessIOs++;
-      if (IsMLnkIOId(AreaId))
-        m_nProcLnkIOs++;
-      //else
-      //  m_nProcDirectIOs++;
+      m_nMaterialIOs++;
+      if (IsProcessIOId(AreaId))
+        {
+        m_nProcessIOs++;
+        if (IsMLnkIOId(AreaId))
+          m_nProcLnkIOs++;
+        //else
+        //  m_nProcDirectIOs++;
+        }
       }
     //if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
     //  m_nMkupIOs++;
@@ -6353,13 +6351,17 @@ int FlwNode::Detach(int IONo)
   else
     {
     m_nFIOs--;
-    if (IsProcessIOId(AreaId))
+    if (IsMaterialIOId(AreaId))
       {
-      m_nProcessIOs--;
-      if (IsMLnkIOId(AreaId))
-        m_nProcLnkIOs--;
-      //else
-      //  m_nProcDirectIOs--;
+      m_nMaterialIOs--;
+      if (IsProcessIOId(AreaId))
+        {
+        m_nProcessIOs--;
+        if (IsMLnkIOId(AreaId))
+          m_nProcLnkIOs--;
+        //else
+        //  m_nProcDirectIOs--;
+        }
       }
     //if (IsMakeupIOId(AreaId) || IsBleedIOId(AreaId))
     //  m_nMkupIOs--;
@@ -7720,13 +7722,16 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
   for (int i=0; i<NoFlwIOs(); i++)
     {
     IOSurgeInfo(i)->Reset();
-    IONetProps(i)->Reset();
-    for (int j=0; j<NIOFBs(i); j++)
+    if (RqdState==MSA_ZeroFlows)
       {
-      IOFwdFlwProps(i,j)->Reset();
-      IORevFlwProps(i,j)->Reset();
+      IONetProps(i)->Reset();
+      for (int j=0; j<NIOFBs(i); j++)
+        {
+        IOFwdFlwProps(i,j)->Reset();
+        IORevFlwProps(i,j)->Reset();
+        }
       }
-      //      //IOFB(i,j)->ResetData(false);
+//      //IOFB(i,j)->ResetData(false);
 //      //IOFB(i,j)->SetFill(0);
 //      IOFB(i,j)->SetVLFracs(NULL, 0,0);
     IOConduit(i)->SetState(RqdState);
@@ -11177,6 +11182,17 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
   m_pSum            = NULL;
   m_bDeleteSum      = false;
 
+  switch (m_eType)
+    {
+    case eDIO_Spill:
+    case eDIO_Vent:
+      m_FracHgt         = 1.01;
+      break;
+    default:
+      m_FracHgt         = 0.0;
+      break;
+    }
+
   if (Enabled)
     ManageNdDirectIOs(true);
   };
@@ -11370,13 +11386,16 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
       DDB.Byte    ("Connect",            "",       DC_,      "",   xidConnectState,    m_pNd, 0, DDBConnected);
       }
     if (!m_bIsXfer)
-      DDB.Double  ("Opening",   "",       DC_Frac,  "%",      &m_Opening,        m_pNd, isParm);
+      DDB.Double  ("Opening",   "",       DC_Frac,  "%",      xidDrctOpening,    m_pNd, isParm);
+
+    if (Options&DFIO_ShowFracHgt)
+      DDB.Double  ("FracHgt", "FHgt",  DC_Frac,  "%",         xidDrctFracHgt,    m_pNd, isParmStopped);
 
     if (Options&DFIO_ShowQm)
       DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
 
     if (DDB.ForFileSnpScn())
-      DDB.Byte    ("UseStatus",   "",  DC_,         "",       xidUseStatus,         m_pNd, isResult);
+      DDB.Byte    ("UseStatus",   "",  DC_,         "",       xidUseStatus,      m_pNd, isResult);
 
     DDB.Text("");
     if (!m_bIsXfer)
@@ -11469,6 +11488,17 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
     
     case xidRmtTagConnd:
       DCB.pC=m_pRmt.m_sTag();
+      return 1;
+    case xidDrctOpening:
+      if (DCB.rD)
+        Opening=*DCB.rD;
+      DCB.D=Opening;
+      return 1;
+
+    case xidDrctFracHgt:
+      if (DCB.rD)
+        FracHgt=Range(1.0001, *DCB.rD, 2.0);
+      DCB.D=FracHgt;
       return 1;
     case xidDrctQm:
       DCB.D=HasConduit ? Cd.QMass() : Sum.FlowMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QMass() : Cd.QMass() : 0);

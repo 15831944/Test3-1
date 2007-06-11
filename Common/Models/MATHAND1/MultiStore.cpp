@@ -953,7 +953,7 @@ flag CMultiStorage::ValidateData(ValidateDataBlk & VDB)
     for (int p=0; p<m_Store.GetSize(); p++)
       {
       if (m_bReloadReqd && m_sCommonRct())
-        m_StoreRB[p].Load(m_sCommonRct());
+        m_StoreRB[p].Load(SolveBufferedMethod(), m_sCommonRct());
       OK = OK && m_StoreRB[p].ValidateData(VDB);
       }
     m_bReloadReqd=false; 

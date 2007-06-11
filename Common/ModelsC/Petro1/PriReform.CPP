@@ -441,7 +441,7 @@ void PriReform::EvalProductsSurge(CNodeEvalIndex & NEI)
     case SM_Buffered:
       {
       SigmaQInPMin(m_CombFeed, som_ALL, HBMsk);
-      EvalProducts_SurgeLevel(m_HotBoxHgtOrd, &m_CombFeed);
+      EvalProducts_SurgeLevel(m_HotBoxHgtOrd/*, &m_CombFeed*/);
       }
     }
   }
@@ -659,7 +659,7 @@ dword PriReform::ModelStatus()
 
     double FlwP=ioP>=0 ? IOQm_In(ioP) : 0.0;
     double FlwS=ioS>=0 ? IOQm_In(ioS) : 0.0;
-    int HasFlw=(fabs(FlwP)>UsableMass && fabs(FlwS)>UsableMass);
+    int HasFlw=(fabs(FlwP)>DisplayZeroFlow && fabs(FlwS)>DisplayZeroFlow);
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
     }
   return Status;

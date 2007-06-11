@@ -206,10 +206,6 @@ void Washer::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Object(&m_PresetImg, this, NULL, NULL, DDB_RqdPage);
     }
 
-  if (SolveBufferedMethod())
-    RB.SetSurgeType(true); //where is the best place to set this?
-  else
-    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
 
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
@@ -605,7 +601,7 @@ void Washer::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed);
+      EvalProducts_SurgeLevel(ContentHgtOrd/*, &m_QFeed*/);
 
       if (NoProcessJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);

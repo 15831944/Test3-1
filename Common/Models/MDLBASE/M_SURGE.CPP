@@ -543,7 +543,7 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
     {
     dword IOMsk=First64IOIds;
     SigmaQInPMin(m_QFeed, som_ALL, IOMsk);
-    EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
+    EvalProducts_SurgeLevel(ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
 
     if (m_QFeed.QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
       SetCI(1, "High Volume Throughput %.2f%%", 100.0*m_QFeed.QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
@@ -586,7 +586,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
 
       m_BlkEval.EvalProducts(m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
 
-      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
+      EvalProducts_SurgeLevel(ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
       // fall thru
       if (NoProcessJoins()>=2)
@@ -637,41 +637,53 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
 
     if (/*!IntegralDone() &&*/ !GetActiveHold())
       {
-      for (int i = 0; i < NoProcessIOs(); i++)
+      for (int i=0; i<NoMaterialIOs(); i++)
         {
         int Id=IOId_Self(i);
         if (Id!=IOId_HX)
           {
           SpConduit & Cd=*IOConduit(i);
-          double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
-          FracAbove=Range(0.0, FracAbove, 1.0);
-          double EntR=FracAbove*IOEntrainRateA(i)*Cd.QMass(som_SL)+
-            (1.0-FracAbove)*IOEntrainRateB(i)*Cd.QMass(som_Gas);
+          double EntRate;
+          double FracAboveSurface = (IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
+          if (IOQm_In(i)>0)
+            {
+            FracAboveSurface=Range(0.0, FracAboveSurface, 1.0);
+            EntRate = FracAboveSurface*IOEntrainRateSL(i)*Cd.QMass(som_SL)+
+              (1.0-FracAboveSurface)*IOEntrainRateG(i)*Cd.QMass(som_Gas);
+            }
+          else if (IOQm_Out(i)>0)
+            {
+            if (FracAboveSurface<=0)
+              EntRate = -Cd.QMass(som_Gas)*Contents.EntrainedGasFraction();
+            else
+              EntRate = 0.0;
+            }
+          else
+            EntRate = 0.0;
+
           //static int xx=0;
           //if (xx && (IOSign(i)>0))
-          //  m_VLE.PFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
-          if (Cd.QMass()>0)
-            dbgpln("EvalIntegral - AddDeriv Cd      : %14.3f %s %s > %s", Cd.QMass(), FullObjTag(), IODesc_Self(i)->IOName(), Nd_Rmt(i)->FullObjTag());
-          Contents.AddDeriv(Cd, IOSign(i), EntR);
+          //  VLE.PFlash(Cd, Contents.Press(), 0.0, VLEF_Null);
+          Contents.AddDeriv(Cd, IOSign(i), EntRate);
           }
         }
       //dbgpln("EvalDerivs   - AddInflow ");
 
-      //Do Makeup
-      int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
-      if (iMkUp>=0)
-        {
-        for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
-          Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
-        }
+      ////Do Makeup
+      //int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
+      //if (iMkUp>=0)
+      //  {
+      //  for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
+      //    Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
+      //  }
 
-      //Do Bleed
-      int iBleed=IOWithId_Self(IOId_Bleed2Area);
-      if (iBleed>=0)
-        {
-        for ( ;iBleed<NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
-          Contents.AddDeriv(*IOConduit(iBleed), -1.0);
-        }
+      ////Do Bleed
+      //int iBleed=IOWithId_Self(IOId_Bleed2Area);
+      //if (iBleed>=0)
+      //  {
+      //  for ( ;iBleed<NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+      //    Contents.AddDeriv(*IOConduit(iBleed), -1.0);
+      //  }
 
 
       //    CEquipmentThermals
@@ -805,9 +817,11 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       dbgpln(" %s.Contents", FullObjTag());
       }
 #endif
-    for (int i = 0; i < NoProcessIOs(); i++)
+    for (int i=0; i<NoMaterialIOs(); i++)
       {
-      if (IOIdMask_Self(i) & IOMsk)
+      int Id=IOId_Self(i);
+      if (Id!=IOId_HX)
+      //if (IOIdMask_Self(i) & IOMsk)
         {
         SpConduit * Cd;
         if (VLEOn && IO_In(i))
@@ -818,46 +832,80 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
           }
         else
           Cd=IOConduit(i);
-        double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
-        FracAbove=Range(0.0, FracAbove, 1.0);
-        double EntR=FracAbove*IOEntrainRateA(i)*Cd->QMass(som_SL)+
-          (1.0-FracAbove)*IOEntrainRateB(i)*Cd->QMass(som_Gas);
-        Contents.AddDeriv(*Cd, IOSign(i), EntR);
-#if dbgMSurge
+        
+        double EntRate;
+        double FracAboveSurface = (IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
+        if (IOQm_In(i)>0)
+          {
+          FracAboveSurface=Range(0.0, FracAboveSurface, 1.0);
+          EntRate = FracAboveSurface*IOEntrainRateSL(i)*Cd->QMass(som_SL)+
+            (1.0-FracAboveSurface)*IOEntrainRateG(i)*Cd->QMass(som_Gas);
+          }
+        else if (IOQm_Out(i)>0)
+          {
+          if (FracAboveSurface<=0)
+            EntRate = -Cd->QMass(som_Gas)*Contents.EntrainedGasFraction();
+          else
+            EntRate = 0.0;
+          }
+        else
+          EntRate = 0.0;
+
+        //  double EntR=0;
+        //if (IOQm_In(i)>0)
+        //  {
+        //  double FracAbove=(IOAbsFracHgt_Term(i, Contents)-Contents.Level())/GTZ(IOAperture(i));
+        //  FracAbove=Range(0.0, FracAbove, 1.0);
+        //  EntR = FracAbove*IOEntrainRateSL(i)*Cd->QMass(som_SL)+
+        //              (1.0-FracAbove)*IOEntrainRateG(i)*Cd->QMass(som_Gas);
+        //  }
+        //else
+        //  {
+        //  EntR = -Cd->QMass(som_Gas)*Contents.EntrainedGasFraction();
+        //  }
+        
+        Contents.AddDeriv(*Cd, IOSign(i), EntRate);
+
+        #if dbgMSurge
         if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
           {
-          dbgp("dM :IO   > Sgn:%2i EntR:%10.4f CdQm:%10.4f %*s",IOSign(i),EntR,Cd->QMass(),151-39-24,"");
+          dbgp("dM :IO  Cd Sgn:%2i EntR:%10.4f CdQm:%10.4f %*s",IOSign(i),EntRate,Cd->QMass(),151-39-24,"");
+          if (dbgODEOperateSpc())
+            for (int s=0; s<SVValueCount(); s++)
+              dbgp(" %12.5g", Cd->MArray().VValue[s]*ICGetTimeInc());
+          dbgpln(" %s", Nd_Rmt(i)->FullObjTag());
+          dbgp("        Fd %*s",151-24,"");
           if (dbgODEOperateSpc())
             for (int s=0; s<SVValueCount(); s++)
               dbgp(" %12.5g", Contents.pModel->m_DC.m_pFd->m_M[s]*ICGetTimeInc());
           dbgpln(" %s", Nd_Rmt(i)->FullObjTag());
-          dbgp("         < %*s",151-24,"");
+          dbgp("        Pr %*s",151-24,"");
           if (dbgODEOperateSpc())
             for (int s=0; s<SVValueCount(); s++)
               dbgp(" %12.5g", Contents.pModel->m_DC.m_pPr->m_M[s]*ICGetTimeInc());
-          dbgpln(" %s %s", IOQmEst_In(i)?"IN":"", IOQmEst_Out(i)?"Out":"");
+          dbgpln(" %s %s", IOQmEst_In(i)>0?"IN":"", IOQmEst_Out(i)>0?"Out":"");
           }
-#endif
+        #endif
         }
       }
 
     //dbgpln("EvalIntegral - AddInflow");
 
-    //Do Makeup
-    int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
-    if (iMkUp>=0)
-      {
-      for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
-        Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
-      }
+    ////Do Makeup
+    //int iMkUp=IOWithId_Self(IOId_Makeup2Area); 
+    //if (iMkUp>=0)
+    //  {
+    //  for ( ; iMkUp<NoFlwIOs() && IOId_Self(iMkUp)==IOId_Makeup2Area; iMkUp++)
+    //    Contents.AddDeriv(*IOConduit(iMkUp), 1.0);
+    //  }
 
-    //Do Bleed
-    int iBleed=IOWithId_Self(IOId_Bleed2Area);
-    if (iBleed>=0)
-      {
-      for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
-        Contents.AddDeriv(*IOConduit(iBleed), -1.0);
-      }
+    ////Do Bleed
+    //int iBleed=IOWithId_Self(IOId_Bleed2Area);
+    //if (iBleed>=0)
+    //  {
+    //  for ( ;iBleed>=NoFlwIOs() && IOId_Self(iBleed)==IOId_Bleed2Area; iBleed++)
+    //    Contents.AddDeriv(*IOConduit(iBleed), -1.0);
+    //  }
 
 #if dbgMSurge
     if (dbgODEOperate() || dbgODEOperateDbgBrk() && fDoDbgBrk)
@@ -1258,7 +1306,7 @@ dword MN_Surge::ModelStatus()
     for (int i=0; i<NoFlwIOs(); i++)
       {
       TFlw+=IOQm_In(i);
-      if (IOConduit(i)->QMass()>UsableMass)
+      if (IOConduit(i)->QMass()>DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

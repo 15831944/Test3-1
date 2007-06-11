@@ -11,12 +11,12 @@
 
 // ===========================================================================
 
-const double ZeroLimit        = 1.0e-30;//the numerical limit below which all numbers are considered to be zero
-const double UsableMass       = 1.0e-16;
-const double TraceMass        = 0.5e-18;
-const double SmallMassFrac    = 1.0e-30;
-const double DisplayZeroLimit = 1.0e-20;
-
+const double ZeroLimit          = 1.0e-30;//the numerical limit below which all numbers are considered to be zero
+const double UsableMass         = 1.0e-16;
+const double TraceMass          = 0.5e-18;
+const double SmallMassFrac      = 1.0e-30;
+extern double DisplayZeroLimit  = 1.0e-20;
+extern double DisplayZeroFlow   = 1.0e-6;
 
 //const DNanValueUnion DQuietNanValue   = { 0x7fffffffffffffff};
 //const FNanValueUnion FQuietNanValue   = { 0x7fffffff};
@@ -349,7 +349,7 @@ double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
     return SetNANFlag(NF_Free, Val);
   if (_stricmp(Str, "*Hold")==0 || _strnicmp(Str, "*H", 2)==0) 
     return SetNANFlag(NF_Hold, Val);
-  if (_stricmp(Str, "*Pulse")==0 || _strnicmp(Str, "*P", 2)==0) 
+  if (_stricmp(Str, "*Pulse")==0 || _strnicmp(Str, "*Pu", 3)==0) 
     return SetNANFlag(NF_Pulse, Val);
   if (_stricmp(Str, "*Ignore")==0 || _strnicmp(Str, "*I", 2)==0) 
     return SetNANFlag(NF_Ignore, Val);
@@ -361,6 +361,8 @@ double ParseNANFlag(const char * Str, double Val/*=dNAN*/)
     return SetNANFlag(NF_Minus, Val);
   if (_stricmp(Str, "**")==0 || _strnicmp(Str, "**", 2)==0) 
     return SetNANFlag(NF_Star, Val);
+  if (_stricmp(Str, "*Pass")==0 || _strnicmp(Str, "*Pa", 3)==0) 
+    return SetNANFlag(NF_Pass, Val);
   return Val;
   }
 

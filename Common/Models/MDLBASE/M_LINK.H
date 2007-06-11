@@ -237,12 +237,6 @@ XID xidOldQmRqdCapacity   = MdlBsXID(9072);
 XID xidOldQmMinCapacity   = MdlBsXID(9073);
 XID xidOldQmMaxCapacity   = MdlBsXID(9074);
 
-//XID xidSpillDiscard       = MdlBsXID(9070);
-//XID xidSpillTarget        = MdlBsXID(9071);
-//XID xidSpillSettle        = MdlBsXID(9072);
-//XID xidSpillRate          = MdlBsXID(9074);
-//XID xidSpillTotal         = MdlBsXID(9075);
-
 // ==========================================================================
 //
 //

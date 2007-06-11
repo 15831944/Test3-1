@@ -190,9 +190,13 @@ flag CMakeupBase::DataXchg(DataChangeBlk & DCB)
           {
           Open(*DCB.rB);
           m_pMakeupB->SetTag(Name());
+          SetEnable(true);
           }
         else
+          {
           Close();
+          SetEnable(false);
+          }
         }
       DCB.B=OpenStatus();// (Enabled());
       return 1;

@@ -17,25 +17,25 @@
 #define dbgModels        (1 || WITHDEBUG)
 
 #if dbgDerivs
-static CDbgMngr dbgDerivsSrg1             ("Derivatives", "SurgeLevel_1");
-static CDbgMngr dbgDerivsSrg2             ("Derivatives", "SurgeLevel_2");
-static CDbgMngr dbgDerivsSrg3             ("Derivatives", "SurgeLevel_3");
-static CDbgMngr dbgDerivsSrgSetOut        ("Derivatives", "SurgeLevel_SetOut");
-static CDbgMngr dbgDerivsSrgOvr           ("Derivatives", "SurgeLevel_Ovr");
-static CDbgMngr dbgDerivsSrg1DbgBrk       ("Derivatives", "SurgeLevel_1DbgBrk");
-static CDbgMngr dbgDerivsSrg2DbgBrk       ("Derivatives", "SurgeLevel_2DbgBrk");
-static CDbgMngr dbgDerivsSrg3DbgBrk       ("Derivatives", "SurgeLevel_3DbgBrk");
-static CDbgMngr dbgDerivsSrgOvrDbgBrk     ("Derivatives", "SurgeLevel_OvrDbgBrk");
-static CDbgMngr dbgDerivsSrgSetOutDbgBrk  ("Derivatives", "SurgeLevel_SetOutDbgBrk");
-static CDbgMngr dbgDerivsXfer             ("Derivatives", "Xfer");
-static CDbgMngr dbgDerivsFlows            ("Derivatives", "Flows");
+static CDbgMngr dbgDerivsSrg1             ("MBase", "SurgeLevel_1");
+static CDbgMngr dbgDerivsSrg2             ("MBase", "SurgeLevel_2");
+static CDbgMngr dbgDerivsSrg3             ("MBase", "SurgeLevel_3");
+static CDbgMngr dbgDerivsSrgSetOut        ("MBase", "SurgeLevel_SetOut");
+static CDbgMngr dbgDerivsSrgOvr           ("MBase", "SurgeLevel_Ovr");
+static CDbgMngr dbgDerivsSrg1DbgBrk       ("MBase", "SurgeLevel_1DbgBrk");
+static CDbgMngr dbgDerivsSrg2DbgBrk       ("MBase", "SurgeLevel_2DbgBrk");
+static CDbgMngr dbgDerivsSrg3DbgBrk       ("MBase", "SurgeLevel_3DbgBrk");
+static CDbgMngr dbgDerivsSrgOvrDbgBrk     ("MBase", "SurgeLevel_OvrDbgBrk");
+static CDbgMngr dbgDerivsSrgSetOutDbgBrk  ("MBase", "SurgeLevel_SetOutDbgBrk");
+static CDbgMngr dbgDerivsXfer             ("MBase", "Xfer");
+static CDbgMngr dbgDerivsFlows            ("MBase", "Flows");
 #endif
 #if dbgModels
-static CDbgMngr dbgFlowConverge           ("Models",      "FlowConverge");
-static CDbgMngr dbgFlowConvergeDbgBrk     ("Models",      "FlowConvergeDbgBrk");
-static CDbgMngr dbgSetZsValue             ("Models",      "SetZsValue");
-static CDbgMngr dbgSetZsTrace             ("Models",      "SetZsTrace");
-static CDbgMngr dbgSortIOs                ("Models",      "SortIOs");
+static CDbgMngr dbgFlowConverge           ("MBase", "FlowConverge");
+static CDbgMngr dbgFlowConvergeDbgBrk     ("MBase", "FlowConvergeDbgBrk");
+static CDbgMngr dbgSetZsValue             ("MBase", "SetZsValue");
+static CDbgMngr dbgSetZsTrace             ("MBase", "SetZsTrace");
+static CDbgMngr dbgSortIOs                ("MBase", "SortIOs");
 #endif
 
 const double sc_dTSettleRatio = 1.2;
@@ -111,7 +111,7 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     //if (iStreamIndex>=0)
     DDB.Short   ("",   "Stream",      DC_ ,       "",         &m_iStreamIndex,   pNd, isParmStopped, DDBSt());
-#if WITHSURGECTRLDOUBLE 
+
     DDB.Double  ("",   "QmMin",       DC_Qm,      "kg/s",     &m_dQmMin,        pNd, isParm);
     DDB.Double  ("",   "QmMax",       DC_Qm,      "kg/s",     &m_dQmMax,        pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmMinStep",   DC_Qm,      "kg/s",     &m_dQmMinStep,    pNd, isParm|InitHidden);
@@ -119,34 +119,16 @@ void CSurgeControl::BuildDataDefn(DataDefnBlk & DDB, LPCSTR Tag, FlwNode* pNd)
     DDB.Double  ("",   "QmMaxSlewUp", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewUp,  pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmMaxSlewDn", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewDn,  pNd, isParm|NAN_OK);
     DDB.Double  ("",   "QmReqd",      DC_Qm,      "kg/s",     &m_dQmCalc,       pNd, isResult);
-#else
-    DDB.Float   ("",   "QmMin",       DC_Qm,      "kg/s",     &m_dQmMin,        pNd, isParm);
-    DDB.Float   ("",   "QmMax",       DC_Qm,      "kg/s",     &m_dQmMax,        pNd, isParm|NAN_OK);
-    DDB.Float   ("",   "QmMinStep",   DC_Qm,      "kg/s",     &m_dQmMinStep,    pNd, isParm|InitHidden);
-    DDB.Float   ("",   "QmMaxStep",   DC_Qm,      "kg/s",     &m_dQmMaxStep,    pNd, isParm|InitHidden);
-    DDB.Float   ("",   "QmMaxSlewUp", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewUp,  pNd, isParm|NAN_OK);
-    DDB.Float   ("",   "QmMaxSlewDn", DC_QmSlew,  "kg/s/s",   &m_dQmMaxSlewDn,  pNd, isParm|NAN_OK);
-    DDB.Float   ("",   "QmReqd",      DC_Qm,      "kg/s",     &m_dQmCalc,       pNd, isResult);
-#endif
     }
   DDB.EndStruct();
   if (m_bOn && PrjFileVerNo()<83)
     {//correct for bad data
-#if WITHSURGECTRLDOUBLE 
     if (Valid(m_dQmMax) && m_dQmMax>1.0e15)
       m_dQmMax = dNAN;
     if (Valid(m_dQmMaxSlewUp) && m_dQmMaxSlewUp>1.0e15)
       m_dQmMaxSlewUp = dNAN;
     if (Valid(m_dQmMaxSlewDn) && m_dQmMaxSlewDn>1.0e15)
       m_dQmMaxSlewDn = dNAN;
-#else
-    if (Valid(m_dQmMax) && m_dQmMax>1.0e15)
-      m_dQmMax = fNAN;
-    if (Valid(m_dQmMaxSlewUp) && m_dQmMaxSlewUp>1.0e15)
-      m_dQmMaxSlewUp = fNAN;
-    if (Valid(m_dQmMaxSlewDn) && m_dQmMaxSlewDn>1.0e15)
-      m_dQmMaxSlewDn = fNAN;
-#endif
     }
 //  DDB.Text("");
   }
@@ -157,21 +139,15 @@ void CSurgeControl::StartStep()
     m_dQmMax=Max(m_dQmMax, m_dQmMin);         
 
   m_dQmMinStep=m_dQmMin;         
+
   if (Valid(m_dQmMaxSlewDn))
-#if WITHSURGECTRLDOUBLE 
     m_dQmMinStep=Max(m_dQmMinStep, m_dQmCalc-m_dQmMaxSlewDn*ICGetTimeInc());
-#else
-    m_dQmMinStep=Max(m_dQmMinStep, float(m_dQmCalc-m_dQmMaxSlewDn*ICGetTimeInc()));
-#endif
 
   m_dQmMaxStep=m_dQmMax;         
   if (Valid(m_dQmMaxSlewUp))
     {
-#if WITHSURGECTRLDOUBLE 
     m_dQmMaxStep=m_dQmCalc+m_dQmMaxSlewUp*ICGetTimeInc();
-#else
-    m_dQmMaxStep=float(m_dQmCalc+m_dQmMaxSlewUp*ICGetTimeInc());
-#endif
+
     if (Valid(m_dQmMax))
       m_dQmMaxStep=Min(m_dQmMax, m_dQmMaxStep);
     }
@@ -535,7 +511,7 @@ void MdlNode::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpMArray &S, double Temperature, double Pressure, SpModel * pQualMdl)
+void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &S,  double Temperature, double Pressure, SpModel * pQualMdl)
   {           
 
   if (dwFlags & PMU_IONo)
@@ -545,23 +521,14 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpMArray &S, double 
       {
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      if (dwFlags & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking))
-        IO_Self(IOInx).SetPMUOptions(dwFlags);
-      //if (dwFlags & PMU_Image)
-      //  IO_Self(IOInx).SetImage();
-      //else if (dwFlags & PMU_AvlImage)
-      //  IO_Self(IOInx).SetAvlImage();
-      //else if (dwFlags & PMU_Passing)
-      //  IO_Self(IOInx).SetPassing();                        
-      //else if (dwFlags & PMU_Blocking)
-      //  IO_Self(IOInx).SetBlocking();
+   
+      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+        IO_Self(IOInx).SetPMU(dwFlags, 0);
       else
         VERIFY(0);
-      SpConduit & Q = *IOConduit(IOInx);
-      Q.CopyQualities(pQualMdl);
-      for (int k = 0; k < SVSpcCount(); k++)
-        Q.SetVMass(k, Q, S[k]);
-      Q.SetTempPress(Temperature, Pressure);
+      
+      CSysVector & Q = *IOPMUFilter(IOInx);
+      Q = S;
       }
     }
   else if (dwFlags & PMU_IOId)
@@ -577,48 +544,42 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpMArray &S, double 
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, PMUImgArray &S, double Temperature, double Pressure, SpModel * pQualMdl)
-  {
-  if (dwFlags & PMU_IONo)
-    {
-    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
-    if (IO_Out(IOInx))
-      {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
-        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      if (dwFlags & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking))
-        IO_Self(IOInx).SetPMUOptions(dwFlags);
-      //if (dwFlags & PMU_Image)
-      //  IO_Self(IOInx).SetImage();
-      //else if (dwFlags & PMU_AvlImage)
-      //  IO_Self(IOInx).SetAvlImage();
-      //else if (dwFlags & PMU_Passing)
-      //  IO_Self(IOInx).SetPassing();
-      //else if (dwFlags & PMU_Blocking)
-      //  IO_Self(IOInx).SetBlocking();
-      else
-        VERIFY(0);
-      SpConduit & Q = *IOConduit(IOInx);
-      Q.CopyQualities(pQualMdl);
-      for (int k = 0; k < S.GetSize(); k++)
-        Q.SetVMass(k, Q, S[k]);
-      Q.SetTempPress(Temperature, Pressure);
-      }
-    }
-  else if (dwFlags & PMU_IOId)
-    {
-    PMU_DWFLAGS Flags = (dwFlags & ~PMU_IOId) | PMU_IONo;
-    for (int i = 0; i < NoProcessIOs(); i++)
-      if (IOId_Self(i) == IOInx)
-        SetProdMakeup(Flags, i, S, Temperature, Pressure, pQualMdl);
-    }
-  else
-    VERIFY(0); // Must Specify IOInx  or IOId
-}
+//void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, PMUImgArray &S, double Temperature, double Pressure, SpModel * pQualMdl)
+//  {
+//  if (dwFlags & PMU_IONo)
+//    {
+//    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
+//    if (IO_Out(IOInx))
+//      {
+//      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
+//        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
+//
+//      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+//        IO_Self(IOInx).SetPMU(dwFlags, 0);
+//      else
+//        VERIFY(0);
+//
+//      SpConduit & Q = *IOConduit(IOInx);
+//      Q.CopyQualities(pQualMdl);
+//      for (int k = 0; k < S.GetSize(); k++)
+//        Q.SetVMass(k, Q, S[k]);
+//      Q.SetTempPress(Temperature, Pressure);
+//      }
+//    }
+//  else if (dwFlags & PMU_IOId)
+//    {
+//    PMU_DWFLAGS Flags = (dwFlags & ~PMU_IOId) | PMU_IONo;
+//    for (int i = 0; i < NoProcessIOs(); i++)
+//      if (IOId_Self(i) == IOInx)
+//        SetProdMakeup(Flags, i, S, Temperature, Pressure, pQualMdl);
+//    }
+//  else
+//    VERIFY(0); // Must Specify IOInx  or IOId
+//}
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Contents, PhMask PhaseM)
+void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents, PhMask PhaseM)
   {
   if (dwFlags & PMU_IONo)
     {
@@ -627,7 +588,15 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
       {
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      ASSERT(0);
+
+      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+        IO_Self(IOInx).SetPMU(dwFlags, 0);
+      else
+        VERIFY(0);
+
+      CSysVector & Q = *IOPMUFilter(IOInx);
+
+      INCOMPLETECODE(__FILE__, __LINE__);
       }
     }
   else if (dwFlags & PMU_IOId)
@@ -643,7 +612,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Contents, double SolFrac, double LiqFrac, double VapFrac)
+void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents, double SolFrac, double LiqFrac, double VapFrac)
   {
   if (dwFlags & PMU_IONo)
     {
@@ -652,22 +621,17 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
       {
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      SpConduit & Q = *IOConduit(IOInx);
-      //if (dwFlags & PMU_Image)
-      //  IO_Self(IOInx).SetImage();
-      //else if (dwFlags & PMU_AvlImage)
-      //  IO_Self(IOInx).SetAvlImage();
-      //else if (dwFlags & PMU_Passing)
-      //  IO_Self(IOInx).SetPassing();
-      //else if (dwFlags & PMU_Blocking)
-      //  IO_Self(IOInx).SetBlocking();
-      if (dwFlags & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking))
-        IO_Self(IOInx).SetPMUOptions(dwFlags);
+      
+      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+        IO_Self(IOInx).SetPMU(dwFlags, 0);
       else
         VERIFY(0);
-      Q.QSetM(Contents, som_Sol, SolFrac, IOP_Self(IOInx));
-      Q.QAddM(Contents, som_Liq, LiqFrac);
-      Q.QAddM(Contents, som_Gas, VapFrac);
+
+      CSysVector & Q = *IOPMUFilter(IOInx);
+      INCOMPLETECODE(__FILE__, __LINE__);
+      //Q.QSetM(Contents, som_Sol, SolFrac, IOP_Self(IOInx));
+      //Q.QAddM(Contents, som_Liq, LiqFrac);
+      //Q.QAddM(Contents, som_Gas, VapFrac);
       }
     }
   else if (dwFlags & PMU_IOId)
@@ -681,7 +645,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
     VERIFY(0); // Must Specify IOInx  or IOId
   };
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Contents, double ReqdValue)
+void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents, double ReqdValue)
   {
   if (dwFlags & PMU_IONo)
     {
@@ -690,30 +654,37 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
       {
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
+
+      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+        IO_Self(IOInx).SetPMU(dwFlags, 0);
+      else
+        VERIFY(0);
+
       if (dwFlags & PMU_SLRatio)
         {
         double SLRatio=Max(0.0, ReqdValue);
-        IO_Self(IOInx).SetPMUImage();
-        SpConduit & Q = *IOConduit(IOInx);
-        Q.QSetM(Contents, som_Sol, SLRatio, IOP_Self(IOInx));
-        Q.QAddM(Contents, som_Liq, 1.0);
+        IOSetPMU(IOInx, PMU_SLRatio, 0);
+        IOSetPMUValue1(IOInx, SLRatio);
         }
       else if (dwFlags & PMU_SLRatio_Rho)
         {
-        double LRho=Contents.Rho(som_Liq);
-        double SRho=Contents.Rho(som_Sol);
+        INCOMPLETECODE(__FILE__, __LINE__);
+        //  double LRho=Mdl.Rho(som_Liq);
+        //  double SRho=Mdl.Rho(som_Sol);
 
-        TRACE("CHECK THIS FOR MATERIAL AVAILABILITY\n");
-        if (LRho > 1.0e-6 && SRho >= 1.0e-6)
-          {
-          double ReqdRho=Range(Min(LRho, SRho), ReqdValue, Max(LRho, SRho)-1.0e-6);
-          double SLRatio=(ReqdRho*SRho/LRho-SRho)/(SRho-ReqdRho);
-      //      rFlange F = *IOFlange(IOInx);
-          IO_Self(IOInx).SetPMUImage();
-          SpConduit & Q = *IOConduit(IOInx);
-          Q.QSetM(Contents, som_Sol, SLRatio, IOP_Self(IOInx));
-          Q.QAddM(Contents, som_Liq, 1.0);
-          }
+        //  TRACE("CHECK THIS FOR MATERIAL AVAILABILITY\n");
+        //  if (LRho > 1.0e-6 && SRho >= 1.0e-6)
+        //    {
+        //    double ReqdRho=Range(Min(LRho, SRho), ReqdValue, Max(LRho, SRho)-1.0e-6);
+        //    double SLRatio=(ReqdRho*SRho/LRho-SRho)/(SRho-ReqdRho);
+        ////      rFlange F = *IOFlange(IOInx);
+        //    IO_Self(IOInx).SetPMU(PMU_SLRatio_Rho, 0);
+        //    IOSetPMUValue1(IOInx, SLRatio);
+        //    //SpVector & Q = *IOPMUFilter(IOInx);//*IOConduit(IOInx);
+        //    //_asm int 3;
+        //    //Q.QSetM(Mdl, som_Sol, SLRatio, IOP_Self(IOInx));
+        //    //Q.QAddM(Mdl, som_Liq, 1.0);
+        //    }
         }
       else
         VERIFY(0); // Must Specify Valid Option
@@ -732,16 +703,17 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer &Content
 
 //--------------------------------------------------------------------------
 
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, PhMask PhaseM)
+void MdlNode::ClrProdMakeup(PMU_DWFLAGS dwFlags, int IOInx)
   {
   if (dwFlags & PMU_IONo)
     {
     ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
     if (IO_Out(IOInx))
       {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
-        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      ASSERT(0);
+      IO_Self(IOInx).SetPMU(0, dwFlags & ~PMU_IONo);//PMU_Filter|PMU_Passing|PMU_Blocking|PMU_SLRatio|PMU_SLRatio_Rho);
+
+      //INCOMPLETECODE(__FILE__, __LINE__);
+
       }
     }
   else if (dwFlags & PMU_IOId)
@@ -749,99 +721,13 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, PhMas
     PMU_DWFLAGS Flags = (dwFlags & ~PMU_IOId) | PMU_IONo;
     for (int i = 0; i < NoProcessIOs(); i++)
       if (IOId_Self(i) == IOInx)
-        SetProdMakeup(Flags, i, C, PhaseM);
+        ClrProdMakeup(Flags, i);
     }
   else
     VERIFY(0); // Must Specify IOInx  or IOId
-  };
+}
 
 //--------------------------------------------------------------------------
-
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double SolFrac, double LiqFrac, double VapFrac)
-  {
-  if (dwFlags & PMU_IONo)
-    {
-    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
-    if (IO_Out(IOInx))
-      {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
-        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      ASSERT_ALWAYS(0, "SetProdMakeup Sol Liq Vap NOT Implemented" , __FILE__, __LINE__);
-      }
-    }
-  else if (dwFlags & PMU_IOId)
-    {
-    PMU_DWFLAGS Flags = (dwFlags & ~PMU_IOId) | PMU_IONo;
-    for (int i = 0; i < NoProcessIOs(); i++)
-      if (IOId_Self(i) == IOInx)
-        SetProdMakeup(Flags, i, C, SolFrac, LiqFrac, VapFrac);
-    }
-  else
-    VERIFY(0); // Must Specify IOInx  or IOId
-  };
-
-//--------------------------------------------------------------------------
-/*#F:
-This ??
-*/
-
-void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double ReqdValue)
-  {
-  if (dwFlags & PMU_IONo)
-    {
-    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
-    if (IO_Out(IOInx))
-      {
-      if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
-        LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
-      if (dwFlags & PMU_SLRatio)
-        {
-        IO_Self(IOInx).SetPMUImage();
-        SpConduit & Q = *IOConduit(IOInx);
-        double SLRatio=Max(0.0, ReqdValue);
-        Q.QSetM(C, som_Sol, SLRatio, IOP_Self(IOInx));
-        Q.QAddM(C, som_Liq, 1.0);
-        }
-      else if (dwFlags & PMU_SLRatio_Rho)
-        {
-        double LRho=C.Rho(som_Liq);
-        double SRho=C.Rho(som_Sol);
-
-        IO_Self(IOInx).SetPMUImage();
-        SpConduit & Q = *IOConduit(IOInx);
-
-        //TRACE("CHECK THIS FOR MATERIAL AVAILABILITY\n");
-        //dbgpln("CHECK SetProdMakeup(SLRatio) FOR MATERIAL AVAILABILITY\n");
-        if (LRho > 1.0e-6 && SRho >= 1.0e-6)
-          {
-          double ReqdRho=Range(Min(LRho, SRho), ReqdValue, Max(LRho, SRho)-1.0e-6);
-          double SLRatio=Max(0.0, (ReqdRho*SRho/LRho-SRho)/(SRho-ReqdRho));
-      //      rFlange F = *IOFlange(IOInx);
-          Q.QSetM(C, som_Sol, SLRatio, IOP_Self(IOInx));
-          Q.QAddM(C, som_Liq, 1.0);
-          }
-        else
-          Q.QSetM(C, som_ALL, 1.0, IOP_Self(IOInx));
-
-        }
-      else
-        VERIFY(0); // Must Specify Valid Option
-      }
-    }
-  else if (dwFlags & PMU_IOId)
-    {
-    PMU_DWFLAGS Flags = (dwFlags & ~PMU_IOId) | PMU_IONo;
-    for (int i = 0; i < NoProcessIOs(); i++)
-      if (IOId_Self(i) == IOInx)
-        SetProdMakeup(Flags, i, C, ReqdValue);
-    }
-  else
-    VERIFY(0); // Must Specify IOInx  or IOId
-  };
-
-//--------------------------------------------------------------------------
-/*#F:
-*/
 
 double MdlNode::SigmaQInPMax(SpConduit & Qi, PhMask PhaseM, IDMask IOIds, bool PRmt, TagObjClass * RqdMdl)
   {
@@ -1131,126 +1017,127 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
   // Convert VolFrac to MassFracs
   double Qv, Qs;
 
-  if (IO_Self(IONo).IsPMUImage() || IO_Self(IONo).IsPMUAvlImage())
-    {
-    //dbgpln("  Out %-12.12s : Image", Nd_Rmt(IONo)->FullObjTag());
-    IO_Self(IONo).SetPMUImage(False);
-    IO_Self(IONo).SetPMUAvlImage(False);
-    //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
-    SpConduit & Img=Contents.QOutEst();
-    //Contents.QOutEst().ChangeModel(Contents.pModel->ClassId());
-    //CNM bug in MG Glycol Cont : Contents.QOutEst().QCopy(Fo);
+  _asm int 3;
+  //if (IO_Self(IONo).IsPMUImage() || IO_Self(IONo).IsPMUAvlImage())
+  //  {
+  //  //dbgpln("  Out %-12.12s : Image", Nd_Rmt(IONo)->FullObjTag());
+  //  IO_Self(IONo).SetPMUImage(False);
+  //  IO_Self(IONo).SetPMUAvlImage(False);
+  //  //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
+  //  SpConduit & Img=Contents.QOutEst();
+  //  //Contents.QOutEst().ChangeModel(Contents.pModel->ClassId());
+  //  //CNM bug in MG Glycol Cont : Contents.QOutEst().QCopy(Fo);
 
-    // Fetch the image than change model to
-    // same model as in container
-    Img.QCopy(Fo);
-    Img.CopyModel(&Cn);
-    Img.SetTempPress(Cn.Temp(), Cn.Press());
+  //  // Fetch the image than change model to
+  //  // same model as in container
+  //  Img.QCopy(Fo);
+  //  Img.CopyModel(&Cn);
+  //  Img.SetTempPress(Cn.Temp(), Cn.Press());
 
-    dbgpln("SetOutput Img [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, Img.MassFrac(som_Sol)*100, Img.MassFrac(som_Liq)*100, Img.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
+  //  dbgpln("SetOutput Img [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, Img.MassFrac(som_Sol)*100, Img.MassFrac(som_Liq)*100, Img.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
 
-    // When would this be needed ???????
-    double DensCorr=1;//Img.Rho(som_SL)/GTZ(Contents.Rho(som_SL));
-    LVolFrac*=DensCorr;
-    double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    Qv=VMassFrac*IOQmEst_Out(IONo);
-    Qs=LMassFrac*IOQmEst_Out(IONo);
+  //  // When would this be needed ???????
+  //  double DensCorr=1;//Img.Rho(som_SL)/GTZ(Contents.Rho(som_SL));
+  //  LVolFrac*=DensCorr;
+  //  double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  Qv=VMassFrac*IOQmEst_Out(IONo);
+  //  Qs=LMassFrac*IOQmEst_Out(IONo);
 
-    if (Cn.Mixed())
-      {
-      // Level is ignored
-      Fo.QSetM(Img, som_ALL, Qs+Qv, IOP_Self(IONo));
-      }
-    else
-      {
-      Fo.QSetM(Img, som_Gas, Qv, IOP_Self(IONo));
-      Fo.QAddM(Img, som_SL,  Qs);
-      }
+  //  if (Cn.Mixed())
+  //    {
+  //    // Level is ignored
+  //    Fo.QSetM(Img, som_ALL, Qs+Qv, IOP_Self(IONo));
+  //    }
+  //  else
+  //    {
+  //      Fo.QSetM(Img, som_Gas, Qv, IOP_Self(IONo));
+  //      Fo.QAddM(Img, som_SL,  Qs);
+  //      }
 
-    dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol)*100, Fo.MassFrac(som_Liq)*100, Fo.MassFrac(som_Gas)*100);
+  //  dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol)*100, Fo.MassFrac(som_Liq)*100, Fo.MassFrac(som_Gas)*100);
 
-    CheckOutputs=true;
-    //Fo.SetTemp(Contents.Temp());
-    //Fo.CopyModel(Contents.Model());
-    }
-  else if (IO_Self(IONo).IsPMUPassing() || IO_Self(IONo).IsPMUBlocking())
-    {
-    //dbgpln("  Out %-12.12s : Pass/Block", Nd_Rmt(IONo)->FullObjTag());
-    SpMArray FiltSL(*(IOConduit(IONo)->Model()));
-    FiltSL.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
-    SpMArray FiltVap(*(IOConduit(IONo)->Model()));
-    FiltVap.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
+  //  CheckOutputs=true;
+  //  //Fo.SetTemp(Contents.Temp());
+  //  //Fo.CopyModel(Contents.Model());
+  //  }
+  //else if (IO_Self(IONo).IsPMUPassing() || IO_Self(IONo).IsPMUBlocking())
+  //  {
+  //  //dbgpln("  Out %-12.12s : Pass/Block", Nd_Rmt(IONo)->FullObjTag());
+  //  SpMArray FiltSL(*(IOConduit(IONo)->Model()));
+  //  FiltSL.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
+  //  SpMArray FiltVap(*(IOConduit(IONo)->Model()));
+  //  FiltVap.SetToOnesAndZeros(IO_Self(IONo).IsPMUBlocking(), 0.0);
 
-    //dbgpln("--------------");
-    //for (int i=0; i < SVSpcCount(); i++)
-    //  dbgp("%.2f ", FiltSL.getVValue(i));
-    //dbgpln("");
-    //for (int i=0; i < SVSpcCount(); i++)
-    //  dbgp("%.2f ", FiltVap.getVValue(i));
-    //dbgpln("");
+  //  //dbgpln("--------------");
+  //  //for (int i=0; i < SVSpcCount(); i++)
+  //  //  dbgp("%.2f ", FiltSL.getVValue(i));
+  //  //dbgpln("");
+  //  //for (int i=0; i < SVSpcCount(); i++)
+  //  //  dbgp("%.2f ", FiltVap.getVValue(i));
+  //  //dbgpln("");
 
-    FiltSL.ZeroPhase(som_Gas);
-    FiltVap.ZeroPhase(som_SL);
-    //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
+  //  FiltSL.ZeroPhase(som_Gas);
+  //  FiltVap.ZeroPhase(som_SL);
+  //  //TRACE ("MdlNode::SetOutputFlows Take Account of QInEst\n");
 
-    //for (int i=0; i < SVSpcCount(); i++)
-    //  dbgp("%.2f ", FiltSL.getVValue(i));
-    //dbgpln("");
-    //for (int i=0; i < SVSpcCount(); i++)
-    //  dbgp("%.2f ", FiltVap.getVValue(i));
-    //dbgpln("");
+  //  //for (int i=0; i < SVSpcCount(); i++)
+  //  //  dbgp("%.2f ", FiltSL.getVValue(i));
+  //  //dbgpln("");
+  //  //for (int i=0; i < SVSpcCount(); i++)
+  //  //  dbgp("%.2f ", FiltVap.getVValue(i));
+  //  //dbgpln("");
 
-    dbgpln("SetOutput Flt [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, FiltSL.MassFrac(som_Sol)*100, FiltSL.MassFrac(som_Liq)*100, FiltSL.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
-    dbgpln("                    S:%8.4f%%  L:%8.4f%%  G:%8.4f%% ",  FiltVap.MassFrac(som_Sol)*100, FiltVap.MassFrac(som_Liq)*100, FiltVap.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
+  //  dbgpln("SetOutput Flt [%3i] S:%8.4f%%  L:%8.4f%%  G:%8.4f%% %s ", IONo, FiltSL.MassFrac(som_Sol)*100, FiltSL.MassFrac(som_Liq)*100, FiltSL.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
+  //  dbgpln("                    S:%8.4f%%  L:%8.4f%%  G:%8.4f%% ",  FiltVap.MassFrac(som_Sol)*100, FiltVap.MassFrac(som_Liq)*100, FiltVap.MassFrac(som_Gas)*100, Nd_Rmt(IONo)->FullObjTag());
 
-    double DensCorr=FiltSL.Rho(IOConduit(IONo)->Model()->Fidelity(), som_SL, Cn.Temp(), Cn.Press(), NULL)/GTZ(Cn.Rho(som_SL));
-    LVolFrac*=DensCorr;
-    double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    Qv=VMassFrac*IOQmEst_Out(IONo);
-    Qs=LMassFrac*IOQmEst_Out(IONo);
+  //  double DensCorr=FiltSL.Rho(IOConduit(IONo)->Model()->Fidelity(), som_SL, Cn.Temp(), Cn.Press(), NULL)/GTZ(Cn.Rho(som_SL));
+  //  LVolFrac*=DensCorr;
+  //  double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  Qv=VMassFrac*IOQmEst_Out(IONo);
+  //  Qs=LMassFrac*IOQmEst_Out(IONo);
 
-    //Qv=VFrac*Info.QEst[k];//Out[k];
-    //Qs=SFrac*Info.QOut[k];
-    Fo.QSetM(Cn, FiltVap, Qv, IOP_Self(IONo));
-    Fo.QAddM(Cn, FiltSL, Qs);
-    Fo.SetTempPress(Cn.Temp(), Cn.Press());
+  //  //Qv=VFrac*Info.QEst[k];//Out[k];
+  //  //Qs=SFrac*Info.QOut[k];
+  //  Fo.QSetM(Cn, FiltVap, Qv, IOP_Self(IONo));
+  //  Fo.QAddM(Cn, FiltSL, Qs);
+  //  Fo.SetTempPress(Cn.Temp(), Cn.Press());
 
-    dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol), Fo.MassFrac(som_Liq), Fo.MassFrac(som_Gas));
+  //  dbgpln("                  = S:%8.4f%%  L:%8.4f%%  G:%8.4f%%", Fo.MassFrac(som_Sol), Fo.MassFrac(som_Liq), Fo.MassFrac(som_Gas));
 
-    IO_Self(IONo).SetPMUPassing(False);
-    IO_Self(IONo).SetPMUBlocking(False);
+  //  IO_Self(IONo).SetPMUPassing(False);
+  //  IO_Self(IONo).SetPMUBlocking(False);
 
-    CheckOutputs=true;
-    }
-  else
-    {
-    double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
-    Qv=VMassFrac*IOQmEst_Out(IONo);
-    Qs=LMassFrac*IOQmEst_Out(IONo);
+  //  CheckOutputs=true;
+  //  }
+  //else
+  //  {
+  //  double VMassFrac=VVolFrac*NP.AsVMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  double LMassFrac=LVolFrac*NP.AsLMassFrac(VVolFrac, LVolFrac, Cn.Press());
+  //  Qv=VMassFrac*IOQmEst_Out(IONo);
+  //  Qs=LMassFrac*IOQmEst_Out(IONo);
 
-    //dbgpln("  Out %-12.12s : NetProps : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(), NP.m_dLVolFrac, NP.m_dVVolFrac);
+  //  //dbgpln("  Out %-12.12s : NetProps : %14.6gl, %14.6gv", Nd_Rmt(IONo)->FullObjTag(), NP.m_dLVolFrac, NP.m_dVVolFrac);
 
-    if (Contents.Closed())
-      Fo.QSetM(Cn, som_Gas, Qv, IOP_Self(IONo));
-    else
-      {
-      Fo.QRestoreMass(gs_Environment);
-      Fo.SetTempPress(AmbientTemp(), AtmosPress());
-      Fo.QAdjustQmTo(som_ALL, Qv);
-      }
+  //  if (Contents.Closed())
+  //    Fo.QSetM(Cn, som_Gas, Qv, IOP_Self(IONo));
+  //  else
+  //    {
+  //    Fo.QRestoreMass(gs_Environment);
+  //    Fo.SetTempPress(AmbientTemp(), AtmosPress());
+  //    Fo.QAdjustQmTo(som_ALL, Qv);
+  //    }
 
-    Fo.QAddM(Cn, som_SL, Qs);
-    double Qv_=Fo.QMass(som_Gas);
-    double Qs_=Fo.QMass(som_SL);
-    //if (Qv_<0.99*Qv)
-    //  Fo.QAddM(QEstIn, som_Gas, Qv-Qv_);
-    //if (Qs_<0.99*Qs)
-    //  Fo.QAddM(QEstIn, som_SL, Qs-Qs_);
-    Fo.SetTempPress(Cn.Temp(), Cn.Press());
-    }
+  //  Fo.QAddM(Cn, som_SL, Qs);
+  //  double Qv_=Fo.QMass(som_Gas);
+  //  double Qs_=Fo.QMass(som_SL);
+  //  //if (Qv_<0.99*Qv)
+  //  //  Fo.QAddM(QEstIn, som_Gas, Qv-Qv_);
+  //  //if (Qs_<0.99*Qs)
+  //  //  Fo.QAddM(QEstIn, som_SL, Qs-Qs_);
+  //  Fo.SetTempPress(Cn.Temp(), Cn.Press());
+  //  }
 
 #if dbgDerivs
   if (dbgDerivsSrg2() || fDoDbgBrk && dbgDerivsSrg2DbgBrk())
@@ -1516,190 +1403,14 @@ void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
 
 //--------------------------------------------------------------------------
 
-void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, SpConduit * pQFeed, CSurgeControl *pControl)
+void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, CSurgeControl *pControl)
   {
-  if (SolveInlineMethod())
-    {
-    ASSERT_ALWAYS(pQFeed!=NULL, "Inline integral - Feed not supplied", __FILE__, __LINE__);
-    EvalProducts_SurgeLevelInline(HO, pQFeed, pControl);
-    }
-  else
-    EvalProducts_SurgeLevelDeriv(HO, pQFeed, pControl);
+  EvalProducts_SurgeLevel(SolveInlineMethod()!=0, HO, pControl);
   };
 
 //--------------------------------------------------------------------------
 
-void MdlNode::EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HO, SpConduit * pQFeed, CSurgeControl *pControl)
-  {
-  #if dbgDerivs
-  long dbg1=dbgDerivsSrg1(FullObjTag())       || fDoDbgBrk && dbgDerivsSrg1DbgBrk();
-  long dbg2=dbgDerivsSrg2(FullObjTag())       || fDoDbgBrk && dbgDerivsSrg2DbgBrk();
-  long dbg3=dbgDerivsSrg3(FullObjTag())       || fDoDbgBrk && dbgDerivsSrg3DbgBrk();
-  long dbgo=dbgDerivsSrgOvr(FullObjTag())     || fDoDbgBrk && dbgDerivsSrgOvrDbgBrk();
-  long dbgso=dbgDerivsSrgSetOut(FullObjTag()) || fDoDbgBrk && dbgDerivsSrgSetOutDbgBrk();
-  #endif
-
-  SpContainer & Contents=HO.Container();
-  //SpConduit   & ContentFlw=HO.ContentFlw();
-  //ContentFlw.QSetF(Contents, som_ALL, 1.0/ICGetTimeInc());
-  //ContentFlw.QAddF(QFeed, som_ALL, 1.0);
-
-  for (int i = 0; i < NoProcessIOs(); i++)
-    {
-    if ((IOIdMask_Self(i) & HO.m_dwIOIdMask)!=0)
-      {
-      if ((IOExitRule(i)&IOER_Lvl)==0)// && IOFlange(i)->PMUOptions()==0)
-        {
-        byte ER=IOExitRule(i);
-
-        double EntVapFrac=Range(0.0, Contents.VapourEntrained()/GTZ(Contents.Mass(som_Gas)),1.0);
-
-        double SScl=(ER&IOER_Sol) ? 1.0 : 0.0;
-        double LScl=(ER&IOER_Liq) ? 1.0 : 0.0;
-        double VScl=(ER&IOER_Vap) ? 1.0-LScl*EntVapFrac : LScl*EntVapFrac;
-
-        SpMArray Img;
-        Img.Add(Contents, SScl, LScl, VScl);
-
-        if (ER&IOER_Img)
-          {
-          SpVectorObj *IOImg = IOExitImage(i);
-          double ImgTotal=0, IOImgTotal=0; 
-          for (int s=0; s<SDB.Count(); s++)
-            {
-            if (Valid(IOImg->M[s]))
-              {
-              ImgTotal+=Img[s]; 
-              IOImgTotal+=IOImg->M[s]; 
-              Img.SetVMass(s, IOImg->M, IOImg->M[s]);
-              }
-            else if (HasNANFlag(IOImg->M[s], NF_Block))
-              {
-              ImgTotal+=Img[s]; 
-              IOImgTotal+=0; 
-              Img.SetVMass(s, IOImg->M, 0);
-              }
-            }
-          double Scl=ImgTotal/GTZ(IOImgTotal);
-          for (int s=0; s<SDB.Count(); s++)
-            {
-            if (Valid(IOImg->M[s]))
-              Img.SclVMass(s, Scl);
-            else if (HasNANFlag(IOImg->M[s], NF_Block))
-              Img.SclVMass(s, 0);
-            }
-          }
-
-        SetProdMakeup(PMU_IONo|PMU_Image, i, Img, Contents.Temp(), Contents.Press(), Contents.Model());
-        }
-      }
-    }
-
-  //double QmActual_SL=0.0;
-  //double QvActual_SL=0.0;
-
-  #if dbgDerivs
-  if (dbg1)
-    {
-    dbgpln("------- %s.%s", Tag(),Contents.Tag());
-    dbgpln(" ALvl %7.3f%%",Contents.Level()*100) ;
-    dbgpln(" Cntnt%-12.12s : %14.6gl, %14.6gv", "",Contents.Mass(som_SL),Contents.Mass(som_Gas));
-    dbgpln(" QFeed%-12.12s : %14.6gl, %14.6gv", "",pQFeed->QMass(som_SL),pQFeed->QMass(som_Gas));
-    //dbgpln(" Est  %-12.12s : %14.6gl, %14.6gv", "",QInEst.QMass(som_SL),QInEst.QMass(som_Gas));
-    }
-  #endif
-
-  bool CheckOutputs=false;
-  for (int j=0; j<HO.NOrd(); j++)
-    {
-    int iIONo=HO.m_Ord[j];
-    if (!IO_In(iIONo))
-      {
-      double LVolFrac;
-      double VVolFrac;
-      if (IORelFracHgt_Flng(iIONo, false)>1.0)
-        {
-        LVolFrac=0.0;
-        VVolFrac=1.0;
-        }
-      else
-        {
-        LVolFrac=IONetProps(iIONo)->LVolFrac();
-        if (Contents.Closed() || (IO_Self(iIONo).PMUOptions() & (PMU_Image|PMU_AvlImage|PMU_Passing|PMU_Blocking/*|PMU_SLRatio|PMU_SLRatio_Rho*/)))
-          VVolFrac=1.0-LVolFrac;
-        else
-          VVolFrac=0.0;
-        }
-      SetOutputFlows(HO, iIONo, LVolFrac, VVolFrac, CheckOutputs);
-      }
-    }
-  if (CheckOutputs)
-    DoCheckOutputs(HO, pQFeed);
-
-  //==========================================================
-  // still gas & overflows
-
-  if (Contents.Closed()) // GetRid of Overflow Conduit
-    {
-    if (Contents.SpillExists())
-      Contents.Spill.Cd.QSetTraceMass();
-    if (Contents.VentExists())
-      Contents.Vent.Cd.QSetTraceMass();
-    }
-  else if (!Contents.Mixed() && !Contents.Closed())
-    {
-    if (DoDbgBrk())
-      { int xxx=0; };
-
-    double SettleTm=Max(Max(ICGetTimeIncMx()*sc_dTSettleRatio, ICGetSettleTime()), Contents.dOverFlowSettle);
-    double QmSLRqd=Max(1.0e-6, (Contents.Level()-1.0)*Contents.Mass(som_SL)/SettleTm);
-    double QvSLRqd=QmSLRqd/Min_FE_Rho(Contents.SLEVDensity());
-
-    double QmSLFeed=0;      // total Slurry feed into this Vessel
-    double QvSLFeed=0;      // total Slurry feed into this Vessel
-    double QvSLOutBelow=0;  // Slurry leaving affecting this IO
-
-    GetCnFlows(false, HO, -1, QmSLFeed, QvSLFeed, QvSLOutBelow);
-
-    double Aperture=0.001;
-    double FHgt=1.00;//-Aperture;
-
-    //SpMArray Image;
-    double SVolFrac=GetSVolFrac(Contents, -1, Aperture, FHgt, QvSLRqd, QvSLFeed, QvSLOutBelow, NULL);
-
-    if (SVolFrac>1.0e-12) // Got Flow
-      {
-      SVolFrac=Range(0.0, SVolFrac, 1.0);
-      double Qs=SVolFrac*QmSLRqd;
-      ASSERT_RDB(Qs>=0.0, "Why is Qs negative !!!", __FILE__, __LINE__); //kga 10/12/02 ERROR!!! (Set to zero for now)
-      
-      Contents.Spill.Cd.QSetM(Contents, som_SL, Max(0.0, Qs), Contents.Press());
-      }
-    else
-      {
-      if ((Contents.Level()<0.90) && Contents.Closed()) // GetRid of Overflow Conduit
-        Contents.Spill.Cd.QSetTraceMass();
-      else //if (Contents.SpillExists())
-        Contents.Spill.Cd.QZero();
-      }
-
-    if (Contents.Closed())
-      {
-      Contents.Spill.Cd.QSetTraceMass();
-      Contents.Vent.Cd.QSetTraceMass();
-      }
-    else
-      {
-      VentVapours(Contents);
-      DoOverflowLinks(HO);
-      DoGasVentLinks(HO);
-      }
-    }
-  }
-
-//--------------------------------------------------------------------------
-
-void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed, CSurgeControl *pControl)
+void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeControl *pControl)
   {
   #if dbgDerivs
   long dbg1=dbgDerivsSrg1(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg1DbgBrk(FullObjTag());
@@ -1711,72 +1422,120 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
 
   SpContainer & Contents=HO.Container();
   SpConduit   & ContentFlw=HO.ContentFlw();
-  ContentFlw.QSetF(Contents, som_ALL, 1.0/ICGetTimeInc());
-  ContentFlw.QAddF(*pQFeed, som_ALL, 1.0);
+
+  ContentFlw.QZero();
+
+  double EntVapFrac = Contents.EntrainedGasFraction();
+  
+  bool DoSet;
+  if (1)//InLine)
+    {
+    DoSet=false;
+    ContentFlw.QSetF(Contents, som_SL, 1.0/ICGetTimeInc());
+    ContentFlw.QAddF(Contents, som_Gas, Contents.EntrainedGasFraction()/ICGetTimeInc());
+    }
+  else
+    {
+    DoSet=true;
+    }
+
+  for (int i = 0; i < NoMaterialIOs(); i++)
+    {
+    if (IOQm_In(i)>0.0)
+      {
+      if (DoSet)
+        {
+        ContentFlw.QSetF(*IOConduit(i), som_SL, 1.0);
+        DoSet=false;
+        }
+      else
+        ContentFlw.QAddF(*IOConduit(i), som_SL, 1.0);
+      ContentFlw.QAddF(*IOConduit(i), som_Gas, IOEntrainRateG(i));
+
+      //dbgpln(" IOQm %14.6gl, %14.6gv  Qv %14.6gl, %14.6gv %s", 
+      //  IOConduit(i)->QMass(som_SL),IOConduit(i)->QMass(som_Gas), 
+      //  IOConduit(i)->QVolume(som_SL),IOConduit(i)->QVolume(som_Gas),Nd_Rmt(i)->FullObjTag());
+      }
+    }
 
   // DoReaction 
 //TODO EvalProducts_SurgeLevelInline - DoReaction
   if (fDoDbgBrk)
     { int xxx=0; };
 
-  for (int i = 0; i < NoProcessIOs(); i++)
+  for (int i = 0; i < NoMaterialIOs(); i++)
     {
     if ((IOIdMask_Self(i) & HO.m_dwIOIdMask)!=0)
       {
-      if ((IOExitRule(i)&IOER_Lvl)==0)// && IOFlange(i)->PMUOptions()==0)
+      //double EntVapFrac=Range(0.0, Contents.VapourEntrained()/GTZ(Contents.Mass(som_Gas)),1.0);
+      if ((IOExitRule(i)&IOER_Lvl)==0 || TstGTZ(EntVapFrac))// && IOFlange(i)->PMUOptions()==0)
         {
         byte ER=IOExitRule(i);
 
-        double EntVapFrac=Range(0.0, Contents.VapourEntrained()/GTZ(Contents.Mass(som_Gas)),1.0);
-
-        double SScl=(ER&IOER_Sol) ? 1.0 : 0.0;
-        double LScl=(ER&IOER_Liq) ? 1.0 : 0.0;
-        double VScl=(ER&IOER_Vap) ? 1.0-LScl*EntVapFrac : LScl*EntVapFrac;
-
         SpMArray Img;
-        Img.Add(ContentFlw, SScl, LScl, VScl);
+        
+        if ((IOExitRule(i)&IOER_Lvl)==0)
+          {
+          if (ER&IOER_Sol)
+            Img.SetToValue(som_Sol, 1.0);
+
+          if (ER&IOER_Liq)
+            Img.SetToValue(som_Liq, 1.0);
+
+          if (ER&IOER_Vap)
+            Img.SetToValue(som_Gas, 1.0);
+          //else 
+          //  Img.SetToValue(som_Gas, EntVapFrac);
+          }
+        else
+          {
+          Img.SetToValue(som_SL, 1.0);
+          Img.SetToValue(som_Gas, EntVapFrac);
+          }
 
         if (ER&IOER_Img)
           {
-          SpVectorObj *IOImg = IOExitImage(i);
-          double ImgTotal=0, IOImgTotal=0; 
-          for (int s=0; s<SDB.Count(); s++)
-            {
-            if (Valid(IOImg->M[s]))
-              {
-              ImgTotal+=Img[s]; 
-              IOImgTotal+=IOImg->M[s]; 
-              Img.SetVMass(s, IOImg->M, IOImg->M[s]);
-              }
-            else if (HasNANFlag(IOImg->M[s], NF_Block))
-              {
-              ImgTotal+=Img[s]; 
-              IOImgTotal+=0; 
-              Img.ClrVMass(s);
-              }
-            }
-          double Scl=ImgTotal/GTZ(IOImgTotal);
-          for (int s=0; s<SDB.Count(); s++)
-            {
-            if (Valid(IOImg->M[s]))
-              Img.SclVMass(s, Scl);
-            else if (HasNANFlag(IOImg->M[s], NF_Block))
-              Img.ClrVMass(s);
-            }
+          _asm int 3; // may need to go backl
+          //SpVectorObj *IOImg = IOExitImage(i);
+          //double ImgTotal=0, IOImgTotal=0; 
+          //for (int s=0; s<SDB.Count(); s++)
+          //  {
+          //  if (Valid(IOImg->M[s]))
+          //    {
+          //    ImgTotal+=Img[s]; 
+          //    IOImgTotal+=IOImg->M[s]; 
+          //    Img.SetVMass(s, IOImg->M, IOImg->M[s]);
+          //    }
+          //  else if (HasNANFlag(IOImg->M[s], NF_Block))
+          //    {
+          //    ImgTotal+=Img[s]; 
+          //    IOImgTotal+=0; 
+          //    Img.ClrVMass(s);
+          //    }
+          //  }
+          //double Scl=ImgTotal/GTZ(IOImgTotal);
+          //for (int s=0; s<SDB.Count(); s++)
+          //  {
+          //  if (Valid(IOImg->M[s]))
+          //    Img.SclVMass(s, Scl);
+          //  else if (HasNANFlag(IOImg->M[s], NF_Block))
+          //    Img.ClrVMass(s);
+          //  }
           }
 
-        SetProdMakeup(PMU_IONo|PMU_Image, i, Img, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
+        SetProdMakeup(PMU_IONo|PMU_Filter, i, Img, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
         }
+      else             
+        ClrProdMakeup(PMU_IONo|PMU_Filter, i);
       }
     }
 
   #if dbgDerivs
   if (dbg1)
     {
-    dbgpln("------- %s.%s", Tag(),Contents.Tag());
-    dbgpln(" Cntnt%-12.12s : %14.6gl, %14.6gv", "",Contents.Mass(som_SL),Contents.Mass(som_Gas));
-    dbgpln(" QFeed%-12.12s : %14.6gl, %14.6gv", "",pQFeed->QMass(som_SL),pQFeed->QMass(som_Gas));
-    dbgpln(" Qm   %-12.12s : %14.6gl, %14.6gv", "",ContentFlw.QMass(som_SL),ContentFlw.QMass(som_Gas));
+    dbgpln("===================================================== %s.%s", Tag(),Contents.Tag());
+    dbgpln(" CnVol%-12.12s : %14.6gl, %14.6gv", "",Contents.Volume(som_SL),Contents.Volume(som_Gas));
+    //dbgpln(" FdVol%-12.12s : %14.6gl, %14.6gv", "",pQFeed->QVolume(som_SL),pQFeed->QVolume(som_Gas));
     dbgpln(" Qv   %-12.12s : %14.6gl, %14.6gv", "",ContentFlw.QVolume(som_SL),ContentFlw.QVolume(som_Gas));
     }
   #endif
@@ -1784,123 +1543,384 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
   int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
   Contents.SetCI(7, pControl && pControl->m_iStreamIndex<0 && pControl->m_bOn && pControl->m_bEnabled);
 
-  bool CheckOutputs=false;
   bool DoneIt[MaxIOList];
   int HOSeq=-1;
-  double PrevFHgt=0;
-  for (int j=0; j<HO.NOrd(); )//j++)
+  for (int iHO=0; iHO<HO.NOrd(); )//iHO++)
     {
-    int iIONo=HO.m_Ord[j];
+    int iIONo=HO.m_Ord[iHO];
     DoneIt[iIONo]=false;
-    if (!IO_In(iIONo) && HO.m_Seq[j]>HOSeq)
+
+    if (!IO_In(iIONo) && HO.m_Seq[iHO]>HOSeq)
       {
-          
       #if dbgDerivs
       if (dbgso)
-        dbgpln("  IOOut %3i Calc %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+        dbgpln("------------------------------------ IOOut %3i %s >> %s ...",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
       #endif
-      HOSeq=HO.m_Seq[j];
 
-      int j1;
-      double FlwDmd=0;
-      double CtrlDmd=0;
+      HOSeq=HO.m_Seq[iHO];
+
+      double TotalMAvl=0;
+      double TotalVAvl=0;
+      double TotalMDmd=0;
+      double TotalVDmd=0;
+      double TotalVCtrl=0;
+      double TotalQmEst=0;
+
+      double MFlwDmd[MaxSpecies];
+      double MFlwAvl[MaxSpecies];
+
       bool CtrlNow=false;
-      for (j1=j; j1<HO.NOrd() && HO.m_Seq[j1]==HOSeq; j1++)
+
+      int Fidelity=ContentFlw.Fidelity();
+      double Temp=ContentFlw.Temp();
+      double Press=ContentFlw.Press();
+
+      double Dens[MaxSpecies];
+      //double MFrcAvl[MaxSpecies];
+      //double VFrcAvl[MaxSpecies];
+      double VFlwAvl[MaxSpecies];
+      double VFlwDmd[MaxSpecies];
+      double VCtrlDmd[MaxSpecies];
+      for (int s=0; s<SDB.Count(); s++)
         {
-        if (!IO_In(HO.m_Ord[j1]))
+        Dens[s]=GTZ(SDB[s].Density(Fidelity, Temp, Press, NULL, ContentFlw.SVData()));
+        MFlwAvl[s]=ContentFlw.MArray().VMass[s];
+        VFlwAvl[s]=MFlwAvl[s]/Dens[s];
+
+        TotalMAvl+=MFlwAvl[s];
+        TotalVAvl+=VFlwAvl[s];
+
+        MFlwDmd[s]=0.0;
+        VFlwDmd[s]=0.0;
+        VCtrlDmd[s]=0.0;
+
+#if dbgDerivs
+        if (dbgso && (MFlwAvl[s]>ZeroLimit))
+          dbgpln("  CntFlw  MFlwAvl %12.6f VFlwAvl %12.6f %s", MFlwAvl[s], VFlwAvl[s], SDB[s].SymOrTag());
+#endif
+
+        }
+      TotalMAvl=GTZ(TotalMAvl);
+      TotalVAvl=GTZ(TotalVAvl);
+
+      int iHO1;
+      for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+        {
+        int iIONo=HO.m_Ord[iHO1];
+        if (!IO_In(iIONo))
           {
-          if (iLvlCtrl==HO.m_Ord[j1])
+          double QmEst=IOQmEst_Out(iIONo);
+
+          TotalQmEst+=QmEst;
+
+          CIOMFlwDmdRec & IOMFlw = IOMFlwDmd(iIONo);
+          IOMFlw.m_TotalMFlwDmd = 0;
+
+          if (IOHasPMU(iIONo, PMU_SLRatio))
             {
-            CtrlDmd=IOQmEst_Out(HO.m_Ord[j1]);
-            CtrlNow=true;
+            double SLRatioReqd=IOPMUValue1(iIONo);
+
+            double SolMass=ContentFlw.QMass(som_Sol);
+            double LiqMass=ContentFlw.QMass(som_Liq);
+            
+            double SLRatioAct=SolMass/GTZ(LiqMass);
+            double SLRatioFilter = SLRatioReqd/GTZ(SLRatioAct);
+
+            CSysVector & Filter=*IOPMUFilter(iIONo);
+            
+            if (SLRatioFilter<1.0)
+              {
+              Filter.SetToValue(som_Sol, SLRatioFilter);
+              Filter.SetToValue(som_Liq, 1.0);
+              Filter.SetToValue(som_Gas, 0.0);
+              }
+            else
+              {
+              Filter.SetToValue(som_Sol, 1.0);
+              Filter.SetToValue(som_Liq, 1.0/SLRatioFilter);
+              Filter.SetToValue(som_Gas, 0.0);
+              }
+
+            IOSetPMU(iIONo, PMU_Filter, PMU_SLRatio);
+            }
+
+          if (IOHasPMU(iIONo, PMU_Filter))
+            {
+            //double VolOutAvl=0;
+            CSysVector & Filter=*IOPMUFilter(iIONo);
+
+            double MassOutAvl=0;
+            for (int s=0; s<SDB.Count(); s++)
+              MassOutAvl+=MFlwAvl[s]*Filter[s];//QmEst/IOFilterDens(iIONo);
+
+            MassOutAvl=GTZ(MassOutAvl);
+
+            double MassOutEst=IOQmEst_Out(iIONo);
+
+            if (iLvlCtrl==iIONo)
+              {
+              for (int s=0; s<SDB.Count(); s++)
+                {
+                VCtrlDmd[s] = VFlwAvl[s]*Filter[s];//QmEst*ContentFlw /IOFilterDens(iIONo);
+                TotalVCtrl  +=VCtrlDmd[s];
+                }
+              CtrlNow=true;
+              }
+            else
+              {
+              for (int s=0; s<SDB.Count(); s++)
+                {
+                double M    = Filter[s]*MFlwAvl[s]/MassOutAvl*QmEst;
+                double V    = M/Dens[s];
+                IOMFlw.m_MFlwDmd[s]   = M;
+
+#if dbgDerivs
+                if (dbgso && (MFlwAvl[s]>ZeroLimit))
+                  dbgpln("  IOFlw   MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
+#endif
+
+                if (M>ZeroLimit)
+                  {
+                  IOMFlw.m_TotalMFlwDmd += M;
+
+                  MFlwDmd[s]  +=M;
+                  TotalMDmd   +=M;
+                  VFlwDmd[s]  +=V;
+                  TotalVDmd   +=V;
+                  }
+                }
+              }
             }
           else
-            FlwDmd+=IOQmEst_Out(HO.m_Ord[j1]);
-          }
-        }
-
-      double Flw=ContentFlw.QMass(som_SL);
-      double FlwRetBelow=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*(IORelFracHgt_Flng(iIONo)-PrevFHgt)/ICGetTimeIncMx();
-      double FlwRetCtrl=0;
-#if WITHSURGECTRLDOUBLE 
-      double CtrlFlw=0;
-#else
-      float CtrlFlw=0;
-#endif
-      if (iLvlCtrl>=0 && CtrlNow)
-        {
-        switch (pControl->m_iType)
-          {
-          case SC_Level:
-            FlwRetCtrl=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*GEZ(pControl->m_dLevelSPT-IORelFracHgt_Flng(iLvlCtrl))/ICGetTimeInc();
-            break;
-          case SC_Mass:
-            FlwRetCtrl=GEZ(pControl->m_dMassSPT-ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
-            break;
-          case SC_Volume:
-            FlwRetCtrl=ContentFlw.Rho(som_SL)*GEZ(pControl->m_dVolumeSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
-            break;
-          }
-
-#if WITHSURGECTRLDOUBLE 
-        CtrlFlw=GEZ(Flw-(FlwRetBelow+FlwRetCtrl)-FlwDmd);
-#else
-        CtrlFlw=float(GEZ(Flw-(FlwRetBelow+FlwRetCtrl)-FlwDmd));
-#endif
-        CtrlFlw=Max(CtrlFlw, pControl->m_dQmMinStep);
-        if (Valid(pControl->m_dQmMaxStep))
-          CtrlFlw=Min(CtrlFlw, pControl->m_dQmMaxStep);
-        pControl->m_dQmCalc=CtrlFlw;
-        FlwDmd+=CtrlFlw;
-        }
-
-      ContentFlw.QScaleMass(som_SL, GEZ(Flw-FlwRetBelow)/GTZ(Flw));
-      Flw=ContentFlw.QMass(som_SL);
-      
-      double FlwScl=Min(1.0, Flw/GTZ(FlwDmd));
-      Flw=GTZ(Flw);
-
-      for (j1=j; j1<HO.NOrd() && HO.m_Seq[j1]==HOSeq; j1++)
-        if (!IO_In(HO.m_Ord[j1]))  
-          {
-          if (iLvlCtrl==HO.m_Ord[j1])
             {
-            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl*CtrlFlw/GTZ(CtrlDmd), 0.0, CheckOutputs);
-            DoneIt[HO.m_Ord[j1]]=true;
-            #if dbgDerivs
-            if (dbgso)
-              dbgpln("    %3i = %18.3f %s",HO.m_Ord[j1],IOQmEst_Out(HO.m_Ord[j1])*FlwScl, Nd_Rmt(HO.m_Ord[j1])->FullObjTag());
-            #endif
-            }
-          else
-            {
-            SetOutputFlows(HO, HO.m_Ord[j1], FlwScl, 0.0, CheckOutputs);
-            DoneIt[HO.m_Ord[j1]]=true;
-            #if dbgDerivs
-            if (dbgso)
-              dbgpln("    %3i = %18.3f %s",HO.m_Ord[j1],IOQmEst_Out(HO.m_Ord[j1])*FlwScl, Nd_Rmt(HO.m_Ord[j1])->FullObjTag());
-            #endif
+            double MassOutAvl=0;
+            for (int s=0; s<SDB.Count(); s++)
+              MassOutAvl+=MFlwAvl[s];
+
+            MassOutAvl=GTZ(MassOutAvl);
+
+            if (iLvlCtrl==iIONo)
+              {
+              for (int s=0; s<SDB.Count(); s++)
+                {
+                VCtrlDmd[s] = VFlwAvl[s];
+                TotalVCtrl  +=VCtrlDmd[s];
+                }
+              CtrlNow=true;
+              }
+            else
+              {
+              for (int s=0; s<SDB.Count(); s++)
+                {
+                double M    = MFlwAvl[s]/MassOutAvl*QmEst;
+                double V    = M/Dens[s];
+                IOMFlw.m_MFlwDmd[s]   = M;
+#if dbgDerivs
+                if (dbgso && (MFlwAvl[s]>ZeroLimit))
+                  dbgpln("  IOFlw   MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
+#endif
+
+                if (M>ZeroLimit)
+                  {
+                  IOMFlw.m_TotalMFlwDmd += M;
+
+                  MFlwDmd[s]  +=M;
+                  TotalMDmd   +=M;
+                  VFlwDmd[s]  +=V;
+                  TotalVDmd   +=V;
+                  }
+                }
+              }
             }
           }
-      
-      #if dbgDerivs
-      double CF0=ContentFlw.QMass();
-      #endif
-      ContentFlw.QScaleMass(som_SL, GEZ(Flw-FlwScl*FlwDmd)/GTZ(Flw));
-      #if dbgDerivs
+        }
+#if dbgDerivs
       if (dbgso)
-        dbgpln("    ContentFlw %18.6f >> %18.6f", CF0, ContentFlw.QMass());
-      #endif
-      PrevFHgt=IORelFracHgt_Flng(iIONo);
-      j=j1; // 
+        {
+        dbgpln("  TotalQmEst     %15.6f kg/s", TotalQmEst);
+        dbgpln("  TotalVAvl      %15.6f m^3/s", TotalVAvl);
+        dbgpln("  TotalMAvl      %15.6f kg/s", TotalMAvl);
+        dbgpln("  TotalVDmd      %15.6f m^3/s", TotalVDmd);
+        dbgpln("  TotalMDmd      %15.6f kg/s", TotalMDmd);
+        for (int s=0; s<SDB.Count(); s++)
+          {
+          if (VFlwAvl[s]>1e-10)
+            {
+            dbgpln("  Spc Dens %12.6f MFlwAvl %12.6f MFlwDmd %12.6f VFlwAvl %12.6f VFlwDmd %12.6f VCtrlDmd %12.6f %s",
+              Dens[s], MFlwAvl[s], MFlwDmd[s], VFlwAvl[s], VFlwDmd[s], VCtrlDmd[s], SDB[s].SymOrTag());
+            }
+          }
+        }
+#endif
+
+      double VolFlwRetBelow = Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo)/ICGetTimeIncMx();
+
+#if dbgDerivs
+      if (dbgso)
+        {
+        dbgpln("  TotalVAvl       %15.6f m^3/s", TotalVAvl);
+        dbgpln("  VolFlwRetBelow  %15.6f m^3/s", VolFlwRetBelow);
+        dbgpln("  TotalVDmd       %15.6f m^3/s", TotalVDmd);
+        dbgpln("  TotalVCtrl      %15.6f m^3/s", TotalVCtrl);
+        }
+#endif
+
+      if (InLine)
+        {
+        double VolFlwRetCtrl=0;
+        double VolCtrlFlw=0;
+        if (iLvlCtrl>=0 && CtrlNow)
+          {
+          double Dens=IOPMUFilterDens(iIONo); 
+          switch (pControl->m_iType)
+
+            {
+            case SC_Level:
+              VolFlwRetCtrl=Contents.ShapeVolume()*GEZ(pControl->m_dLevelSPT-IORelFracHgt_Flng(iLvlCtrl))/ICGetTimeInc();
+              break;
+            case SC_Mass:
+              VolFlwRetCtrl=GEZ(pControl->m_dMassSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
+              break;
+            case SC_Volume:
+              VolFlwRetCtrl=GEZ(pControl->m_dVolumeSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
+              break;
+            }
+
+          VolCtrlFlw=GEZ(TotalVAvl-(VolFlwRetBelow+VolFlwRetCtrl)-TotalVDmd);
+          VolCtrlFlw=Max(VolCtrlFlw, pControl->m_dQmMinStep/Dens);
+          if (Valid(pControl->m_dQmMaxStep))
+            VolCtrlFlw=Min(VolCtrlFlw, pControl->m_dQmMaxStep/Dens);
+          pControl->m_dQmCalc=VolCtrlFlw*Dens;
+          TotalVDmd+=VolCtrlFlw;
+          }
+        }
+
+      double VolCanLeave = GEZ(TotalVAvl-VolFlwRetBelow);
+      double VolFlwScale = Range(0.0, VolCanLeave/GTZ(TotalVDmd), 1.0);
+
+#if dbgDerivs
+      if (dbgso)
+        {
+        dbgpln("  VolCanLeave     %15.6f m^3/s", VolCanLeave);
+        dbgpln("  VolFlwScale     %15.6f", VolFlwScale);
+        }
+#endif
+
+      for (int iPass=0; iPass<10; iPass++)
+        {
+        for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+          {
+          if (!IO_In(HO.m_Ord[iHO1]))  
+            {
+            int iIONo=HO.m_Ord[iHO1];
+
+            double QmEst=IOQmEst_Out(iIONo);
+#if dbgDerivs
+            if (dbgso)
+              dbgpln("  >>>> %3i) %18.3f %s",iIONo,QmEst, Nd_Rmt(iIONo)->FullObjTag());
+#endif
+
+            if (iLvlCtrl==iIONo)
+              {
+  //            double Dens=IOFilterDens(iIONo);
+
+  //            SetOutputFlows(HO, iIONo, Dens*VolFlwScale*VolCtrlFlw/GTZ(TotalVCtrl), 0.0, /*HasImage ? &DemandScale:*/NULL);
+  //            DoneIt[HO.m_Ord[iHO1]]=true;
+  //#if dbgDerivs
+  //            if (dbgso)
+  //              dbgpln("    %3i = %18.3f %s",iIONo,IOQmEst_Out(iIONo)*VolFlwScale, Nd_Rmt(iIONo)->FullObjTag());
+  //#endif
+              }
+            else
+              {
+              CIOMFlwDmdRec & IOMFlw = IOMFlwDmd(iIONo);  
+              IOMFlw.m_TotalMFlwOut=0;
+              for (int s=0; s<SDB.Count(); s++)
+                {
+                if (IOMFlw.m_MFlwDmd[s]>ZeroLimit)
+                  {
+                  IOMFlw.m_MFlwOut[s] = Min(MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), IOMFlw.m_MFlwDmd[s]*VolFlwScale);;
+                  IOMFlw.m_TotalMFlwOut += IOMFlw.m_MFlwOut[s];
+#if dbgDerivs
+                  if (dbgso)
+                    dbgpln("  SetOut %12.6f = MFlwAvl %9.4f IOMFlwDmd %12.6f MFlwDmd %12.6f X %12.6f %s",
+                    IOMFlw.m_MFlwOut[s], MFlwAvl[s], IOMFlw.m_MFlwDmd[s], MFlwDmd[s], MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), SDB[s].SymOrTag());
+#endif
+                  }
+                else
+                  IOMFlw.m_MFlwOut[s]=0;
+                }
+#if dbgDerivs
+              if (dbgso)
+                dbgpln("  Total FlwOut %12.6f FlwDmd %12.6f", IOMFlw.m_TotalMFlwOut, IOMFlw.m_TotalMFlwDmd);
+#endif
+              }
+            }
+          }
+
+        if (1)
+          {
+          break;
+          }
+        }
+
+#if dbgDerivs
+      double CFA=ContentFlw.QVolume();
+      double CFS=ContentFlw.QVolume(som_Sol);
+      double CFL=ContentFlw.QVolume(som_Liq);
+      double CFV=ContentFlw.QVolume(som_Gas);
+#endif
+      double TotOut[MaxSpecies];
+      for (int s=0; s<SDB.Count(); s++)
+        TotOut[s]=0.0;
+
+      for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+        {
+        if (!IO_In(HO.m_Ord[iHO1]))  
+          {
+          int iIONo=HO.m_Ord[iHO1];
+          CIOMFlwDmdRec & IOMFlw = IOMFlwDmd(iIONo);  
+
+          SpConduit & Fo = *IOConduit(iIONo);
+          Fo.CopyQualities(Contents);
+          for (int s=0; s<SDB.Count(); s++)
+            {
+            Fo.SetVMass(s, Contents, IOMFlw.m_MFlwOut[s]);
+            TotOut[s]+=IOMFlw.m_MFlwOut[s];
+            }
+          Fo.SetTempPress(Contents.Temp(), Contents.Press());
+
+          SetIOQm_Out(iIONo, Fo.QMass());
+          DoneIt[iIONo]=true;
+          }
+        }
+
+
+      for (int s=0; s<SDB.Count(); s++)
+        {
+        ContentFlw.SetVMass(s, ContentFlw, GEZ(ContentFlw.VMass[s]-TotOut[s]));
+        }
+
+      //dbgpln("   <<<<<<<< IMPROVE THIS");
+      //ContentFlw.QScaleMass(som_SL, GEZ(TotalVAvl-VolFlwScale*TotalVDmd)/GTZ(TotalVAvl));
+
+#if dbgDerivs
+      if (dbgso)
+        {
+        dbgpln("    ContentFlw All:%18.6f Sol:%18.6f Liq:%18.6f Gas:%18.6f m^3/s", CFA, CFS, CFL, CFV);        
+        dbgpln("           >>> All:%18.6f Sol:%18.6f Liq:%18.6f Gas:%18.6f m^3/s", ContentFlw.QVolume(), ContentFlw.QVolume(som_Sol), ContentFlw.QVolume(som_Liq), ContentFlw.QVolume(som_Gas));
+        }
+#endif
+
+      iHO=iHO1;
       }
     else
-      j++;
+      iHO++;
     }
 
-  for (int j=0; j<HO.NOrd(); j++)
+  for (int iHO=0; iHO<HO.NOrd(); iHO++)
     {
-    int iIONo=HO.m_Ord[j];
+    int iIONo=HO.m_Ord[iHO];
     if (!DoneIt[iIONo])
       {
       if (!IO_In(iIONo))
@@ -1909,7 +1929,10 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
         if (dbgso)
           dbgpln("  IOOut %3i ZERO %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
         #endif
-        SetOutputFlows(HO, iIONo, 0.0, 0.0/*VVolFrac*/, CheckOutputs);
+        SpConduit & Fo = *IOConduit(iIONo);
+        Fo.QZero();
+        Fo.SetTempPress(Contents.Temp(), Contents.Press());
+        SetIOQm_Out(iIONo, 0.0);
         }
       else
         {
@@ -1920,8 +1943,8 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
         }
       }
     }
-  if (CheckOutputs)
-    DoCheckOutputs(HO, pQFeed);
+  //if (CheckOutputs)
+  //  DoCheckOutputs(HO, pQFeed);
 
   //==========================================================
   // still gas & overflows
@@ -1936,18 +1959,21 @@ void MdlNode::EvalProducts_SurgeLevelInline(CHgtOrdInfo & HO, SpConduit * pQFeed
     if (DoDbgBrk())
       { int xxx=0; };
 
-    double OvFHgt=1.0;
-    double FlwRetBelow=ContentFlw.Rho(som_SL)*Contents.ShapeVolume()*(OvFHgt-PrevFHgt)/ICGetTimeInc();
-    double Flw=ContentFlw.QMass(som_SL);
-    ContentFlw.QScaleMass(som_SL, GEZ(Flw-FlwRetBelow)/GTZ(Flw));
-    Flw=ContentFlw.QMass(som_SL);
+    double SpillFHgt=Contents.Spill.FracHgt;
+    double FlwVolRetBelow=/*ContentFlw.Rho()**/Contents.ShapeVolume()*SpillFHgt/ICGetTimeInc();
+    double FlwVol=ContentFlw.QVolume();
+    ContentFlw.QScaleMass(som_ALL, GEZ(FlwVol-FlwVolRetBelow)/GTZ(FlwVol));
+    double FlwMass=ContentFlw.QMass();
     #if dbgDerivs
     if (dbgo)
-      dbgpln("  Overflow Ret=%18.6f Ovr=%18.6f",FlwRetBelow, Flw);
-    #endif
-    if (Flw>1.0e-12)
       {
-      Contents.Spill.Cd.QSetM(ContentFlw, som_SL, Flw, Contents.Press());
+      dbgpln("  Overflow VolRetBelow=%18.6f OvrVol=%18.6f OvrMass=%18.6f",FlwVolRetBelow, FlwVol, FlwMass);
+      dbgpln("                   Sol=%18.6f    Liq=%18.6f     Gas=%18.6f",ContentFlw.QVolume(som_Sol),ContentFlw.QVolume(som_Liq),ContentFlw.QVolume(som_Gas));
+      }
+#endif
+    if (FlwMass>1.0e-12)
+      {
+      Contents.Spill.Cd.QSetM(ContentFlw, som_ALL, FlwMass, Contents.Press());
       }
     else
       {
@@ -3020,20 +3046,20 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         DCB.D= IOApertureAngle(i);
         return true;
         }
-      else if (DCB.lHandle>=xidIO_EntrainRateA0 && DCB.lHandle<xidIO_EntrainRateA0+NoFlwIOs())
+      else if (DCB.lHandle>=xidIO_EntrainRateSL0 && DCB.lHandle<xidIO_EntrainRateSL0+NoFlwIOs())
         {
-        int i=DCB.lHandle-xidIO_EntrainRateA0;
+        int i=DCB.lHandle-xidIO_EntrainRateSL0;
         if (DCB.rD)
-          SetIOEntrainRateA(i, *DCB.rD);
-        DCB.D= IOEntrainRateA(i);
+          SetIOEntrainRateSL(i, *DCB.rD);
+        DCB.D= IOEntrainRateSL(i);
         return true;
         }
-      else if (DCB.lHandle>=xidIO_EntrainRateB0 && DCB.lHandle<xidIO_EntrainRateB0+NoFlwIOs())
+      else if (DCB.lHandle>=xidIO_EntrainRateG0 && DCB.lHandle<xidIO_EntrainRateG0+NoFlwIOs())
         {
-        int i=DCB.lHandle-xidIO_EntrainRateB0;
+        int i=DCB.lHandle-xidIO_EntrainRateG0;
         if (DCB.rD)
-          SetIOEntrainRateB(i, *DCB.rD);
-        DCB.D= IOEntrainRateB(i);
+          SetIOEntrainRateG(i, Range(0.0, *DCB.rD, 1.0));
+        DCB.D= IOEntrainRateG(i);
         return true;
         }
       else if (DCB.lHandle>=xidIO_ExitRule0 && DCB.lHandle<xidIO_ExitRule0+NoFlwIOs())
@@ -3450,13 +3476,13 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
 
 //--------------------------------------------------------------------------
                      
-void MdlNode::GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &QmSLFeed, double &QvSLFeed, double &QvSLOutBelow)
+void MdlNode::GetCnFlows(CHgtOrdInfo &HO, int IONo, SpConduit & SLFeed, /*SpConduit & QvSLFeed,*/ SpConduit & SLOutBelow)
   {
   SpContainer &Cn=HO.Container();
 
-  QmSLFeed=0;      // total Slurry feed into this Vessel
-  QvSLFeed=0;      // total Slurry feed into this Vessel
-  QvSLOutBelow=0;  // Slurry leaving affecting this IO
+  SLFeed.QZero();      // total Slurry feed into this Vessel
+  //QvSLFeed.QZero();      // total Slurry feed into this Vessel
+  SLOutBelow.QZero();  // Slurry leaving affecting this IO
 
   int MySeq=MaxIOList;
   for (int j=0; j<HO.NOrd(); j++)
@@ -3472,25 +3498,28 @@ void MdlNode::GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &Qm
     // if IONo<0 then doing Overflow
     if (ii==IONo)
       {
-      //MySeq=HO.Seq[j];
+      //MySeq=HO.m_Seq[j];
       }
     else if (IO_In(ii))
       {
-      CSpPropInfo &Fp=*IOFlwProps(ii,0);
+      //CSpPropInfo &Fp=*IOFlwProps(ii,0);
+      CSpPropInfo &Fp=*IONetProps(ii);
       double QmIn;
-      if (GetActualQm)
-        QmIn=IOConduit(ii)->QMass(som_SL);
-      else
-        QmIn=IOFB(ii,0)->m_fInXferNet ? 0.0 : IOQmEst_In(ii);
-      QmSLFeed+=QmIn;
-      QvSLFeed+=QmIn*(Fp.msVolL()*(1-Fp.VVolFrac())*(1-IOEstL2VOnEntry(ii))+
-                      Fp.msVolL()*(Fp.VVolFrac())*IOEstV2LOnEntry(ii));
+      QmIn=IOFB(ii,0)->m_fInXferNet ? IOConduit(ii)->QMass(): IOQmEst_In(ii);
+      SLFeed.QAddM(*IOConduit(ii), som_SL, QmIn*IOConduit(ii)->MassFrac(som_SL));
+
+//dbgpln("SLFeed.QAddM %12.5g %12.5g", QmIn*IOConduit(ii)->MassFrac(som_SL), SLFeed.QMass());
+      //SLFeed+=QmIn*(Fp.msVolL()*(1-Fp.VVolFrac())*(1-IOEstL2VOnEntry(ii))+
+      //                Fp.msVolL()*(Fp.VVolFrac())*IOEstV2LOnEntry(ii));
       }
     else if ((ii!=IONo) && IO_Out(ii) && (HO.m_Seq[j]</*=*/MySeq))
       {
-      CSpPropInfo &Fp=*IOFlwProps(ii,0);
-      double Qm=GetActualQm ? IOQm_Out(ii) : IOQmEst_Out(ii);
-      QvSLOutBelow+=Qm*Fp.msVolL()*(Fp.NettLVolFrac());
+      //CSpPropInfo &Fp=*IOFlwProps(ii,0);
+      CSpPropInfo &Fp=*IONetProps(ii);
+      double Qm=IOQmEst_Out(ii);
+      //SLOutBelow.QAddM(IOQmEst_Out);// //+=Qm*Fp.msVolL()*(Fp.NettLVolFrac());
+      SLOutBelow.QAddM(*IOConduit(ii), som_SL, Qm*Fp.NettLVolFrac());//IOConduit(ii)->MassFrac(som_SL));
+//dbgpln("SLOutBelow.QAddM %12.5g %12.5g", Qm*Fp.NettLVolFrac(), SLOutBelow.QMass());
       }
     }
   }
@@ -3498,8 +3527,8 @@ void MdlNode::GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &Qm
 //--------------------------------------------------------------------------
 
 double MdlNode::GetSVolFrac(SpContainer & Cn,
-                            long IONo, double Aperture, double FHgt, double QvSLRqd,
-                            double QvSLFeed, double QvSLOutBelow,
+                            long IONo, double Aperture, double FHgt, double QvSLRqd, double QvSLMax,
+                            double QvSLFeed, double QvSLTank, double QvSLOutBelow, 
                             SpMArray *pImage)
   {
 
@@ -3509,26 +3538,22 @@ double MdlNode::GetSVolFrac(SpContainer & Cn,
   double AvlLevelEquil=OutB+AvlSFracEquil*Aperture;
 
   double Lvl=Cn.Level();
-  double dT2Target=Max(Max(ICGetTimeIncMx()*sc_dTSettleRatio, ICGetSettleTime()), Cn.dLevelSettle);
+  double SettleRatio=1.01;// Max(ICGetTimeIncMx()*sc_dTSettleRatio, ICGetSettleTime(), Cn.dLevelSettle)/ICGetTimeInc();
   double ShVol=GTZ(Cn.ShapeVolume());
-  double AvgVol=ShVol*Lvl+1.0*dT2Target*(QvSLFeed-QvSLOutBelow);
+  double AvgVol=ShVol*Lvl+SettleRatio*(QvSLFeed-QvSLOutBelow);
   double SVolFrac;
-  if (0)
-    {
-    double VolLocked=ShVol*OutB;
-    double AvlVol=GEZ(AvgVol-VolLocked);
-    double RqdVol=dT2Target*QvSLRqd;
+  double RqdVol=SettleRatio*QvSLRqd;
 
-    double SVolFracCalc=AvlVol/GTZ(RqdVol);
-    SVolFrac=Range(0.0, SVolFracCalc, 1.0);
-    }
-  if (1)
-    {
-    double RqdVol=dT2Target*QvSLRqd;
+  double SVolFracCalc=((AvgVol-ShVol*OutB)/GTZ(RqdVol+ShVol*Aperture));
+  SVolFrac=Range(0.0, SVolFracCalc, 1.0);
+  SVolFrac=Range(0.0, SVolFrac    , QvSLMax/GTZ(SettleRatio*RqdVol));
 
-    double SVolFracCalc=(AvgVol-ShVol*OutB)/GTZ(RqdVol+ShVol*Aperture);
-    SVolFrac=Range(0.0, SVolFracCalc, 1.0);
-    }
+  //dbgpln("RqdVol        %10.6f", RqdVol);
+  //dbgpln("MaxVol        %10.6f", QvSLMax);
+  //dbgpln("AvgVol        %10.6f", AvgVol);
+  //dbgpln("A             %10.6f", AvgVol-ShVol*OutB);
+  //dbgpln("B             %10.6f", RqdVol+ShVol*Aperture);
+  //dbgpln("SVolFracCalc  %10.6f", SVolFracCalc);
 
   if (pImage)
     Cn.m_MixSet.GetImage(FHgt, *pImage);
@@ -3581,49 +3606,114 @@ void MdlNode::DoIOGetNetProps_Surge(int IONo, double Qm)
     double SVolFrac=1.0-VVolFrac;
     IONetProps(IONo)->SetPropInfoVL(Cn, VVolFrac, SVolFrac, NULL);
     }
-  else
+  else if (1)
     {
-    double QmSLFeed=0;      // total Massflw Slurry feed into this Vessel
-    double QvSLFeed=0;      // total Volflw Slurry feed into this Vessel
-    double QvSLOutBelow=0;  // Slurry leaving affecting this IO
+    //double QmSLFeed=0;      // total Massflw Slurry feed into this Vessel
+    //double QvSLFeed=0;      // total Volflw Slurry feed into this Vessel
+    //double QvSLOutBelow=0;  // Slurry leaving affecting this IO
+    SpConduit SLFeed;
+    SpConduit SLTank;
+    SpConduit SLProd;
+    SpConduit SLOutBelow;
 
-    GetCnFlows(false, HO, IONo, QmSLFeed, QvSLFeed, QvSLOutBelow);
+    GetCnFlows(HO, IONo, SLFeed, SLOutBelow);
 
     double Aperture=IOAperture(IONo, SolveInlineMethod());
-    double FHgt=Range(0.0, IOAbsFracHgt_Term(IONo, Cn), 1.0-Aperture);
+    double FHgt=Range(0.0, IOAbsFracHgt_Term(IONo, Cn), 1.0);//-Aperture);
     // mean Density leaving tank
-    double MassTnk=Cn.Mass(som_SL);
-    double MassIn=QmSLFeed*ICGetTimeInc();
-    double DensIn=QmSLFeed/GTZ(QvSLFeed);
-    double Dens=(MassTnk*Cn.SLEVDensity()+MassIn*DensIn)/GTZ(MassTnk+MassIn);
+    double MassTnk;
+    //double MassIn;
+    //double DensIn;
+    double Dens;
+    double ActiveVolFrac=1.0;
+    double TotalVol=0.0;
+    double ActiveVol=0.0;
 
-    double QvSLRqd=Qm/Min_FE_Rho(Dens);
+    double QvSLFeed=0;
+    double QvSLTank=0;
+    double QvSLOutBelow=0;
+    double QvSLMax=0;
+
+    if (IO_Self(IONo).HasPMU(PMU_Filter))
+      {
+      CSysVector &Filter = *IO_Self(IONo).PMUFilter();
+
+      QvSLFeed     = SLFeed.QVolume()*ICGetTimeInc(); 
+      QvSLTank     = Cn.Volume(som_SL); 
+      QvSLOutBelow = SLOutBelow.QVolume()*ICGetTimeInc();
+
+      SLFeed.QScaleMass(Filter, ICGetTimeInc());
+      SLOutBelow.QScaleMass(Filter, ICGetTimeInc());
+      SLTank.QAddF(Cn, Filter, 1.0, true);
+
+      QvSLMax   = SLFeed.QVolume() + SLTank.QVolume();
+
+      MassTnk=SLTank.QMass();
+
+      SLProd.QSetF(SLFeed, som_ALL, 1.0);
+      SLProd.QAddF(SLTank, som_ALL, 1.0);
+
+      Dens=Cn.Rho(som_ALL, Cn.Temp(), Cn.Press(), SLProd);
+
+      int xxx=0;
+      }
+    else
+      {
+      SLFeed.QScaleMass(som_SL, ICGetTimeInc());
+      SLOutBelow.QScaleMass(som_SL, ICGetTimeInc());
+
+      SLTank.QAddF(Cn, som_SL, 1.0);
+      MassTnk=SLTank.QMass();//Cn.MArray()*IO_Self(IONo).PMUFilter()
+
+      SLProd.QSetF(SLFeed, som_SL, 1.0);
+      SLProd.QAddF(SLTank, som_SL, 1.0);
+
+      QvSLFeed     = SLFeed.QVolume(); 
+      QvSLTank     = SLTank.QVolume(); 
+      QvSLOutBelow = SLOutBelow.QVolume();
+
+      QvSLMax   = SLFeed.QVolume() + SLTank.QVolume();
+
+      Dens=Cn.Rho(som_ALL, Cn.Temp(), Cn.Press(), SLProd);
+      int xxx=0;
+      }
+
+    //Dens=10050;
+
+    double QvSLRqd=Qm/Min_FE_Rho(Dens)*ICGetTimeInc();
 
     double SVolFrac;
     if (Cn.m_MixSet.On())
       {
-      SpMArray Image;
-      SVolFrac=GetSVolFrac(Cn, IONo, Aperture, FHgt, QvSLRqd, QvSLFeed, QvSLOutBelow, &Image);
-      IONetProps(IONo)->SetPropInfoVL(Cn, 1-SVolFrac, SVolFrac, &Image);
-      SetProdMakeup(PMU_IONo|PMU_Image, IONo, Image, Cn.Temp(), Cn.Press(), Cn.Model());
+      _asm int 3;
+      //SpMArray Image;
+      //SVolFrac=GetSVolFrac(Cn, IONo, Aperture, FHgt, QvSLRqd, QvSLFeed, QvSLOutBelow, ActiveVolFrac, &Image);
+      //IONetProps(IONo)->SetPropInfoVL(Cn, 1-SVolFrac, SVolFrac, &Image);
+      //IONetProps(IONo)->DbgDump("DoIOGetNetProp B", this, IONo);
+      //SetProdMakeup(PMU_IONo|PMU_Filter, IONo, Image, Cn.Temp(), Cn.Press(), Cn.Model());
       }
     else
       {
-      SVolFrac=GetSVolFrac(Cn, IONo, Aperture, FHgt, QvSLRqd, QvSLFeed, QvSLOutBelow, NULL);
+      SVolFrac=GetSVolFrac(Cn, IONo, Aperture, FHgt, QvSLRqd, QvSLMax, QvSLFeed, QvSLTank, QvSLOutBelow, NULL);
 
       // Correct for Entrained Vapours
       //SFrac*= SLEVMSLfrac;
-      IONetProps(IONo)->SetPropInfoVL(Cn, 1-SVolFrac, SVolFrac, NULL);
+      IONetProps(IONo)->SetPropInfoVL(Cn, 1-SVolFrac, SVolFrac, !IO_In(IONo) ? &IOConduit(IONo)->MArray() : NULL);
       }
 
     #if dbgModels
     if (dbgFlowConverge() || dbgFlowConvergeDbgBrk() && fDoDbgBrk)
       {
       dbglock();
-      dbgp("FHgt%:%9.4f",FHgt*100);
-      dbgp(" Lvl%%:%9.4f", Cn.Level()*100);
-      dbgp(" SLvFd:%13.6g SLvOut:%13.6g SLvRqd:%13.6g Qm:%13.6g", QvSLFeed,QvSLOutBelow,QvSLRqd,Qm);
-      // dbgpln(" Sf:%13.6g : %s", SFrac, DoingIO ? Nd_Rmt(Info.Hgt[io0])->FullObjTag() : "Overflow");
+      dbgp(" FHgt%%:%7.2f", FHgt*100);
+      dbgp(" Lvl%%:%7.2f", Cn.Level()*100);
+      dbgp(" App%%:%7.2f", Aperture*100);
+      dbgp(" VolFd:%13.6g VolTnk:%13.6g", QvSLFeed, QvSLTank);
+      dbgp(" VolOut:%13.6g", QvSLOutBelow);
+      dbgp(" Qm:%13.6g", Qm);
+      dbgp(" Rho:%13.6g", Dens);
+      dbgp(" VolRqd:%13.6g", QvSLRqd);
+      dbgp(" VolMax:%13.6g", QvSLMax);
       dbgpln(" Svf%%:%13.6g : %s", SVolFrac*100, Nd_Rmt(IONo)->FullObjTag());
       dbgunlock();
       }
@@ -3680,54 +3770,83 @@ DDBValueLst DDBExitRules[]={
   {IOER_NoVap,    "Block-Vapours"   },
   {IOER_NoLiq,    "Block-Liquids"   },
   {IOER_NoSol,    "Block-Solids"    },
-  {IOER_ImgVap,   "Image-Vapours"   },
-  {IOER_ImgLiq,   "Image-Liquids"   },
-  {IOER_ImgSol,   "Image-Solids"    },
-  {IOER_ImgNoVap, "Image-NoVapours" },
-  {IOER_ImgNoLiq, "Image-NoLiquids" },
-  {IOER_ImgNoSol, "Image-NoSolids"  },
-  {IOER_ImgAll,   "Image-All"       },
+  // RESTORE CNM
+  //{IOER_ImgVap,   "Image-Vapours"   },
+  //{IOER_ImgLiq,   "Image-Liquids"   },
+  //{IOER_ImgSol,   "Image-Solids"    },
+  //{IOER_ImgNoVap, "Image-NoVapours" },
+  //{IOER_ImgNoLiq, "Image-NoLiquids" },
+  //{IOER_ImgNoSol, "Image-NoSolids"  },
+  //{IOER_ImgAll,   "Image-All"       },
   {0}};
 
-void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB)
+void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
   {
   if (NetDynamicMethod())
     {
     int N=0;
     for (int i=0; i<NoFlwIOs(); i++)
       {
-      if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOOptsHide)==0)
+      if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOOptsHide)!=IOOptsHide)
         N++;
       }
     if (N)
       {
       if (DDB.BeginArray(this, "IOOpts", "NdOpts", NoFlwIOs(), 0, DDB_RqdPage))
         {
-        char*pERTg=PrjFileVerNo()<42?"EntryRule":"ExitRule";
+        //char*pERTg=PrjFileVerNo()<42?"EntryRule":"ExitRule";
         Strng Tg;
         for (int i=0; i<NoFlwIOs(); i++)
           {
-          if (Nd_Rmt(i) && (IODesc_Self(i)->m_dwFlags&IOOptsHide)==0)
+          IOAreaRec & D=*IODesc_Self(i);
+          if (Nd_Rmt(i) && (D.m_dwFlags&IOOptsHide)!=IOOptsHide)
             {
             MAKEIOTG4DDB(Tg, i, 0);
-            IOAreaRec & D=*IODesc_Self(i);
             if (DDB.BeginElement(this, Tg(), D.IOName(), 0, DDB_OptPage, 0))
               {
-              DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
-              //DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?0:noView)|((D.m_dwFlags&IOOverflow)?0:isParmStopped));
-              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?isParmStopped:0));
+              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, (D.m_dwFlags&IOChgFracHgt)?isParmStopped:0);
+              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, (D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0);
+              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0)|isResult|noFile|noSnap);
+//=======
+//              DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
+//              //DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?0:noView)|((D.m_dwFlags&IOOverflow)?0:isParmStopped));
+//              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?isParmStopped:0));
+//>>>>>>> .r1881
               DDB.Double ("Datum",         "Z",    DC_L,        "m",      xidIO_Hgt0+i,         this, isResult|noFile|noSnap);
-              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isParmStopped);
-              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isResult|noFile|noSnap);
-              DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
-              DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
-              DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);
-              DDB.Double ("Liq2VapEst",    "",     DC_Frac,     "%",      xidIO_EstL2V0+i,       this, isParm);
-              if (IOExitRule(i)&IOER_Img)
-                DDB.Object(IOExitImage(i), this, "Image", NULL, DDB_RqdPage, -1, isParm);
+
+              if ((D.m_dwFlags&IOOptsHideI)==0)
+                {
+                DDB.Double ("Entry.EntrainRateV",  "",     DC_Frac,     "%",      xidIO_EntrainRateG0+i, this, isParm);
+                DDB.Double ("Entry.EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateSL0+i, this, isParm);
+                DDB.Double ("Entry.Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm|InitHidden);
+                DDB.Double ("Entry.Liq2VapEst",    "",     DC_Frac,     "%",      xidIO_EstL2V0+i,       this, isParm|InitHidden);
+                }
+
+              if ((D.m_dwFlags&IOOptsHideO)==0)
+                {
+                DDB.Byte   ("Exit.Rule",           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
+
+                if (IOExitRule(i)&IOER_Img)
+                  DDB.Object(IOExitImage(i), this, "Exit.Image", NULL, DDB_RqdPage, -1, isParm);
+                }
+//=======
+//              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isParmStopped);
+//              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isResult|noFile|noSnap);
+//              DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
+//              DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
+//              DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);
+//              DDB.Double ("Liq2VapEst",    "",     DC_Frac,     "%",      xidIO_EstL2V0+i,       this, isParm);
+//              if (IOExitRule(i)&IOER_Img)
+//                DDB.Object(IOExitImage(i), this, "Image", NULL, DDB_RqdPage, -1, isParm);
+//>>>>>>> .r1881
               }
             }
           }
+
+        //if (pBlkEval)
+        //  {
+        //  pBlkEval->BuildDataDefnIOOpt(DDB, this);
+        //  }
         }
       DDB.EndArray();
       }
@@ -3910,8 +4029,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "",  DC_Qm , "kg/s",    xidIO_ExtQm,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Balance",     "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
-                DDB.Double("Balance.Rel", "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_Qm ,   "kg/s",  xidIO_QmBalance,        this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error.Rel",   "", DC_Frac,  "%",     xidIO_QmBalanceRel,     this, isResult|noFile|noSnap|NAN_OK);
                 }
               DDB.EndStruct();
               }
@@ -3952,8 +4071,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "", DC_Pwr , "kJ/s",    xidIO_ExtHs,           this, isResult|noFile|noSnap|NAN_OK);
 
-                DDB.Double("Balance",     "", DC_Pwr , "kJ/s",    xidIO_HfBalance,       this, isResult|noFile|noSnap|NAN_OK);
-                //DDB.Double("Balance.Rel", "", DC_Frac,  "%",      xidIO_HfBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_Pwr , "kJ/s",    xidIO_HfBalance,       this, isResult|noFile|noSnap|NAN_OK);
+                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",      xidIO_HfBalanceRel,    this, isResult|noFile|noSnap|NAN_OK);
                 }
               DDB.EndStruct();
               }
@@ -4002,8 +4121,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",     "",  DC_M , "kg",    xidIO_ExtQmTotal,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Balance",       "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
-                DDB.Double("Balance.Rel",   "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",        "", DC_M , "kg",   xidIO_QmBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error.Rel",     "", DC_Frac, "%",  xidIO_QmBalanceTotalRel,   this, isResult|noFile|noSnap|NAN_OK);
                 }
               DDB.EndStruct();
               }
@@ -4044,8 +4163,8 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
 
                 DDB.Double("External",    "",  DC_E , "kJ",    xidIO_ExtHsTotal,           this, isResult|/*isTag|*/noFile|noSnap);
 
-                DDB.Double("Balance",     "", DC_E , "kJ",    xidIO_HfBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
-                //DDB.Double("Balance.Rel", "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
+                DDB.Double("Error",       "", DC_E , "kJ",    xidIO_HfBalanceTotal,       this, isResult|noFile|noSnap|NAN_OK);
+                //DDB.Double("Error.Rel",   "", DC_Frac,  "%",  xidIO_HzBalanceTotalRel,    this, isResult|noFile|noSnap|NAN_OK);
                 }
               DDB.EndStruct();
               }

@@ -192,10 +192,6 @@ void Thickener::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   m_BlkEval.BuildDataDefn(DDB);
 
-  if (SolveBufferedMethod())
-    RB.SetSurgeType(true); //where is the best place to set this?
-  else
-    RB.SetSurgeType(false);
   RB.BuildDataDefn(DDB);
   m_EHX.BuildDataDefn(DDB);
 
@@ -569,7 +565,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       //  }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd, &m_QFeed, &m_SrgCtrl);
+      EvalProducts_SurgeLevel(ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);

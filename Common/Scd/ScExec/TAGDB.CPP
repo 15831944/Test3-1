@@ -750,6 +750,7 @@ int CTagDBMDB::SaveObj(pchar pObjType, pchar pObjTag, CPkDataList &List, CPkData
                         else if (HasNANFlag(d, NF_Plus  )) KWData[nKWFlds]=dNANMagic_Plus  ;
                         else if (HasNANFlag(d, NF_Minus )) KWData[nKWFlds]=dNANMagic_Minus ;
                         else if (HasNANFlag(d, NF_Star  )) KWData[nKWFlds]=dNANMagic_Star  ;
+                        else if (HasNANFlag(d, NF_Pass  )) KWData[nKWFlds]=dNANMagic_Pass  ;
                         else                               KWData[nKWFlds]=dNANMagic_Signal;
                         }
                       else if (IsQuietNAN(d))
@@ -1750,6 +1751,8 @@ ReTry:
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Minus ));
                         else if (d==dNANMagic_Star ) 
                           DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Star  ));
+                        else if (d==dNANMagic_Pass  ) 
+                          DU.SetTypeDouble(tt_Double, SetNANFlag(NF_Pass  ));
                         else
                           ASSERT_ALWAYS(FALSE, "Bad ValueType for ADODB::adDouble", __FILE__, __LINE__);
                         }

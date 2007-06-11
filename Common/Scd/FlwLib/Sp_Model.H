@@ -370,6 +370,7 @@ class DllImportExport SpQuality : public TaggedObject, public CPropertyBase, pub
     virtual void   ZeroDeriv()=0;
     virtual void   ScaleMass(PhMask Phase, double Mult)=0;
     virtual void   ScaleMass(CIArray & SpIds, double Mult)=0;
+    virtual void   ScaleMass(CSysVector & Scl, double Mult)=0;
 
     virtual void   SetMassF(CSysVector & M1, SpQuality* pQual2)=0;
     virtual void   AddMassF(CSysVector & M1, SpQuality* pQual2, CSysVector & M2)=0;
@@ -920,6 +921,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual void   ZeroDeriv();
     virtual void   ScaleMass(PhMask Phase, double Mult);
     virtual void   ScaleMass(CIArray & SpIds, double Mult);
+    virtual void   ScaleMass(CSysVector & Scl, double Mult);
     virtual void   AdjustMassTo(PhMask Phase, double RqdMass);
     virtual void   AdjustMassTo(CIArray & SpIds, double RqdMass);
     virtual void   SetTraceMass();
@@ -932,24 +934,24 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     void           SetLoMassLimit(double LoMassLimit=0.0) { m_LoMassLimit=LoMassLimit; };
     virtual void   SetMassF(SpModel * Other, PhMask Phase, double Frac, double Press);
     virtual void   SetMassF(SpModel * Other, eSetMass How, double SF__, double LF__, double VF__, double Press);
-    virtual void   SetMassF(SpModel * Other, CSysVector & Filter, double Frac, double Press);
+    virtual void   SetMassF(SpModel * Other, CSysVector & Filter, double Frac, double Press, bool AsMult);
     virtual void   SetMassM(SpModel * Other, PhMask Phase, double Mass__, double Press);
     virtual void   SetMassM(SpModel * Other, eSetMass How, double SM__, double LM__, double VM__, double Press);
-    virtual void   SetMassM(SpModel * Other, CSysVector & Filter, double Mass__, double Press);
+    virtual void   SetMassM(SpModel * Other, CSysVector & Filter, double Mass__, double Press, bool AsMult);
 
     virtual void   AddMassF(SpModel * Other, PhMask Phase, double Frac);
     virtual void   AddMassF(SpModel * Other, eSetMass How, double SF__, double LF__, double VF__);
-    virtual void   AddMassF(SpModel * Other, CSysVector & Filter, double Frac);
+    virtual void   AddMassF(SpModel * Other, CSysVector & Filter, double Frac, bool AsMult);
     virtual void   AddMassM(SpModel * Other, PhMask Phase, double Mass__);
     virtual void   AddMassM(SpModel * Other, eSetMass How, double SM__, double LM__, double VM__);
-    virtual void   AddMassM(SpModel * Other, CSysVector & Filter, double Mass__);
+    virtual void   AddMassM(SpModel * Other, CSysVector & Filter, double Mass__, bool AsMult);
 
     virtual void   SubMassF(SpModel * Other, PhMask Phase, double Frac);
     virtual void   SubMassF(SpModel * Other, eSetMass How, double SF__, double LF__, double VF__);
-    virtual void   SubMassF(SpModel * Other, CSysVector & Filter, double Frac);
+    virtual void   SubMassF(SpModel * Other, CSysVector & Filter, double Frac, bool AsMult);
     virtual void   SubMassM(SpModel * Other, PhMask Phase, double Mass__);
     virtual void   SubMassM(SpModel * Other, eSetMass How, double SM__, double LM__, double VM__);
-    virtual void   SubMassM(SpModel * Other, CSysVector & Filter, double Mass__);
+    virtual void   SubMassM(SpModel * Other, CSysVector & Filter, double Mass__, bool AsMult);
 
     virtual void   Copy(SpModel * Other);
     virtual void   AddDeriv(SpModel * Flw, double Sgn_);//, double FluxDamping);

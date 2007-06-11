@@ -110,6 +110,8 @@ static COld2NewItem gs_Old2New[] =
     {eO2N_Class,  "Pipe-1.Qm_MaxCap",                 ".Flw.Qm.MaxCap",                         ""},
     {eO2N_Class,  "Pipe-1.Qm_Rqd",                    ".Eqn.Qm.Rqd",                            ""},
 
+    {eO2N_Class,  "NdOpts.ExitRule",                   ".Exit.Rule",                             ""},
+
     {eO2N_Class,  "SpConduit.SatT@P",                 ".Saturation.SatT@P",                     ""},
     {eO2N_Class,  "SpConduit.SatP@T",                 ".Saturation.SatP@T",                     ""},
     {eO2N_Class,  "SpConduit.BPE",                    ".Saturation.BPE",                        ""},

@@ -106,6 +106,12 @@ void SQLockup::ScaleMass(CIArray & SpIds, double Mult)
 
 // --------------------------------------------------------------------------
 
+void SQLockup::ScaleMass(CSysVector  &Scl, double Mult)
+  {
+  };
+
+// --------------------------------------------------------------------------
+
 void SQLockup::SetMassF(CSysVector &M1, SpQuality * pQual2)//pSpModel pMdl2, SpQuality * pQual2, CSysVector &Filter, double Frac)
   {
   Lockup=((pSQLockup)pQual2)->Lockup;

@@ -184,16 +184,17 @@ void flt16::Test()
 //
 //===========================================================================
 
-DDBValueLst DDBOnOff[]        = {{False, "Off", MDD_Default}, {True, "On"}, {0}};
-DDBValueLst DDBOnBlank[]      = {{False, " "  }, {True, "On"}, {0}};
+DDBValueLst DDBOnOff[]        = {{False, "Off", MDD_Default}, {True, "On"},  {0}};
+DDBValueLst DDBOnBlank[]      = {{False, " "               }, {True, "On"},  {0}};
 DDBValueLst DDBYesNo[]        = {{False, "No" , MDD_Default}, {True, "Yes"}, {0}};
-DDBValueLst DDBYesBlank[]     = {{False, " "  }, {True, "Yes"}, {0}};
+DDBValueLst DDBYesBlank[]     = {{False, " "               }, {True, "Yes"}, {0}};
 
-DDBValueLst DDBNAN_NotSpecd[] = {{0, "Undefined"},    {1, "0.0 : A Value"},{0}};
-DDBValueLst DDBNAN_Floating[] = {{0, "Floating"},     {1, "0.0 : A Value"}, {0}};
-DDBValueLst DDBNAN_Ignore[]   = {{0, "Ignore"},       {1, "0.0 : A Value"},{0}};
-DDBValueLst DDBNAN_Off[]      = {{0, "Off"},          {1, "0.0 : A Value"},{0}};
+DDBValueLst DDBNAN_NotSpecd[] = {{0, "Undefined"},    {1, "0.0 : A Value"},   {0}};
+DDBValueLst DDBNAN_Floating[] = {{0, "Floating"},     {1, "0.0 : A Value"},   {0}};
+DDBValueLst DDBNAN_Ignore[]   = {{0, "Ignore"},       {1, "0.0 : A Value"},   {0}};
+DDBValueLst DDBNAN_Off[]      = {{0, "Off"},          {1, "0.0 : A Value"},   {0}};
 DDBValueLst DDBNAN_AtmosP[]   = {{0, "Atmospheric"},  {1, "101.35 : A Value"},{0}};
+DDBValueLst DDBNAN_BlkPass[]  = {{0, "Block"},        {1, "Pass"            },{0}};
 
 int DDBAltArrayAddress=0;
 
@@ -712,6 +713,8 @@ char* DataUnionCom::GetString(char*IFmt/*="%i"*/, char*FFmt/*="%g"*/, CCnvIndex 
                        strcpy(p, "*-"); 
                      else if (HasNANFlag(Double, NF_Star))
                        strcpy(p, "**"); 
+                     else if (HasNANFlag(Double, NF_Pass))
+                       strcpy(p, "*Pass"); 
                      else
                        strcpy(p, "*"); 
                      break;

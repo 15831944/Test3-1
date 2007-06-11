@@ -78,7 +78,6 @@ class DllImportExport CSurgeControl
     double    m_dVolumeSPT;     //m^3
     short     m_iStreamIndex;
 
-#if WITHSURGECTRLDOUBLE 
     double    m_dQmCalc;        //kg/s
 
     double    m_dQmMin;         //kg/s
@@ -87,16 +86,6 @@ class DllImportExport CSurgeControl
     double    m_dQmMaxStep;     //kg/s
     double    m_dQmMaxSlewUp;   //kg/s/s
     double    m_dQmMaxSlewDn;   //kg/s/s
-#else
-    float     m_dQmCalc;        //kg/s
-
-    float     m_dQmMin;         //kg/s
-    float     m_dQmMax;         //kg/s
-    float     m_dQmMinStep;     //kg/s
-    float     m_dQmMaxStep;     //kg/s
-    float     m_dQmMaxSlewUp;   //kg/s/s
-    float     m_dQmMaxSlewDn;   //kg/s/s
-#endif
   };
 
 //==========================================================================
@@ -132,14 +121,6 @@ class Xfer_EvalProducts_Info
       pPBP = PBP;
       };
   };
-
-//--------------------------------------------------------------------------
-//
-//
-//
-//--------------------------------------------------------------------------
-
-typedef CArray   <double, double> PMUImgArray;
 
 //--------------------------------------------------------------------------
 //
@@ -219,22 +200,23 @@ class DllImportExport MdlNode : public FlwNode
     virtual void   PreDisConnect(int IONo);
 
     // Arranges Outputs in ascending order of height
-    virtual void   GetCnFlows(bool GetActualQm, CHgtOrdInfo &HO, int IONo, double &QmSLFeed, double &QvSLFeed, double &QvSLOutBelow);
+    virtual void   GetCnFlows(CHgtOrdInfo &HO, int IONo, SpConduit & QSLFeed, SpConduit & QSLOutBelow);
     virtual double GetSVolFrac(SpContainer & Cn,
-                               long IONo, double Aperture, double FHgt, double QvSLRqd,
-                               double QvSLFeed, double QvSLOutBelow,
+                               long IONo, double Aperture, double FHgt, double QvSLRqd, double QvSLMax,
+                               double QvSLFeed, double QvSLTank, double QvSLOutBelow, 
                                SpMArray *pImage);
     virtual void   DoIOGetNetProps_Surge(int i, double Qm);
 
     // Derivative Evaluation Utilities
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpMArray &S, double Temperature, double Pressure, SpModel * pQualMdl);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, PMUImgArray &S, double Temperature, double Pressure, SpModel * pQualMdl);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer & Contents, PhMask PhaseM);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer & Contents, double SolFrac, double LiqFrac, double VapFrac);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpContainer & Contents, double ReqdValue);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, PhMask PhaseM);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double SolFrac, double LiqFrac, double VapFrac);
-    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double ReqdValue);
+    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector & S, double Temperature, double Pressure, SpModel * pQualMdl);
+    //virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector & S, double Temperature, double Pressure, SpModel * pQualMdl);
+    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector & M, PhMask PhaseM);
+    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector & M, double SolFrac, double LiqFrac, double VapFrac);
+    virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector & M, double ReqdValue);
+    virtual void   ClrProdMakeup(PMU_DWFLAGS dwFlags, int IOInx);
+    //virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, PhMask PhaseM);
+    //virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double SolFrac, double LiqFrac, double VapFrac);
+    //virtual void   SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, SpConduit & C, double ReqdValue);
 
     virtual eEvalSeqStart IOEvalSeqStart_Self(int i);
 
@@ -255,11 +237,12 @@ class DllImportExport MdlNode : public FlwNode
 
     void           VentVapours(SpContainer & Contents);
     void           DoOverflowLinks(CHgtOrdInfo & Info);
-    void           DoGasVentLinks(CHgtOrdInfo & Info);
+    void           DoGasVentLinks(CHgtOrdInfo & Info);    
 
-    virtual void   EvalProducts_SurgeLevel(CHgtOrdInfo & HgtOrdInfo, SpConduit * pQFeed, CSurgeControl *pControl=NULL);
-    virtual void   EvalProducts_SurgeLevelInline(CHgtOrdInfo & HgtOrdInfo, SpConduit * pQFeed, CSurgeControl *pControl=NULL);
-    virtual void   EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HgtOrdInfo, SpConduit * pQFeed, CSurgeControl *pControl=NULL);
+    virtual void   EvalProducts_SurgeLevel(CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
+    virtual void   EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
+    //virtual void   EvalProducts_SurgeLevelInline(bool InLine, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
+    //virtual void   EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
     //virtual void   EvalProducts_SurgeLevel(SpContainer & Contents, SpConduit & QInEst, IDMask IOIds, PMUCfgBlk * pPMU=NULL);
     //virtual void   EvalProducts_SurgeImage(SpContainer & Contents, IDMask IOIds);
     virtual void   EvalDerivs_SetQs_Xfer(SpContainer & Contents, IDMask IOIds);
@@ -284,7 +267,7 @@ class DllImportExport MdlNode : public FlwNode
     void           BuildDataDefnIOOptions(DataDefnBlk & DDB);
     void           BuildDataDefnShowIOs(DataDefnBlk & DDB, flag bWithSigma=True);
     void           FillIOIndexList(int JoinId, int *I);
-    void           BuildDataDefnIOOpts(DataDefnBlk & DDB);
+    void           BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval=NULL);
 
     void           SigmaIOFlows(CSigmaIOFlows & Sigma);
 
@@ -491,8 +474,8 @@ class DllImportExport MdlNode : public FlwNode
   XID xidIO_HFrc0               = MdlBsXID(100000+1*MaxIOList);
   XID xidIO_Aperture0           = MdlBsXID(100000+2*MaxIOList);
   XID xidIO_ApertureAng0        = MdlBsXID(100000+3*MaxIOList);
-  XID xidIO_EntrainRateA0       = MdlBsXID(100000+4*MaxIOList);
-  XID xidIO_EntrainRateB0       = MdlBsXID(100000+5*MaxIOList);
+  XID xidIO_EntrainRateSL0      = MdlBsXID(100000+4*MaxIOList);
+  XID xidIO_EntrainRateG0       = MdlBsXID(100000+5*MaxIOList);
   XID xidIO_ExitRule0           = MdlBsXID(100000+6*MaxIOList);
   XID xidIO_EstV2L0             = MdlBsXID(100000+7*MaxIOList);
   XID xidIO_EstL2V0             = MdlBsXID(100000+8*MaxIOList);
