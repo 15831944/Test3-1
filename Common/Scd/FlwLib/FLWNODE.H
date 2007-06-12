@@ -1813,9 +1813,9 @@ const int VentIOId0       = FlwIOId(2000); // Gas to Environment - No Flw Eqns
 const int LeakIOId0       = FlwIOId(3000); // Both to Environment - Flw Eqns
 const int MakeupIOId0     = FlwIOId(4000); // ???
 const int BleedIOId0      = FlwIOId(5000); // ???
-const int AAAAIOId0       = FlwIOId(6000); //
-const int BBBBIOId0       = FlwIOId(7000); //
-const int CCCCIOId0       = FlwIOId(8000); //
+const int AnotherIOId0    = FlwIOId(6000); //
+//const int BBBBIOId0       = FlwIOId(7000); //
+//const int CCCCIOId0       = FlwIOId(8000); //
 const int AreaIOId0       = FlwIOId(9000); // Io into/outof Areas
 
 #define SpillIOId(n)      ( SpillIOId0  + n )
@@ -1823,22 +1823,21 @@ const int AreaIOId0       = FlwIOId(9000); // Io into/outof Areas
 #define LeakIOId(n)       ( LeakIOId0   + n )
 #define MakeupIOId(n)     ( MakeupIOId0 + n )
 #define BleedIOId(n)      ( BleedIOId0  + n )
-#define AAAAIOId(n)       ( AAAAIOId0   + n )
-#define BBBBIOId(n)       ( BBBBIOId0   + n )
-#define CCCCIOId(n)       ( CCCCIOId0   + n )
+//#define AAAAIOId(n)       ( AAAAIOId0   + n )
+//#define BBBBIOId(n)       ( BBBBIOId0   + n )
+//#define CCCCIOId(n)       ( CCCCIOId0   + n )
 #define AreaIOId(n)       ( AreaIOId0   + n )
 
 inline bool IsMLnkIOId(int Id)        { return Id<SpillIOId0;  }
 inline bool IsProcessIOId(int Id)     { return Id<MakeupIOId0; }
-inline bool IsMaterialIOId(int Id)    { return Id<AAAAIOId0; }
+inline bool IsMaterialIOId(int Id)    { return Id<AnotherIOId0; }
 inline bool IsDirectIOId(int Id)      { return InRange(SpillIOId0,  Id, CtrlIOId0  -1);  }
 
 inline bool IsSpillIOId(int Id)       { return InRange(SpillIOId0,  Id, VentIOId0   -1);  };
 inline bool IsVentIOId(int Id)        { return InRange(VentIOId0,   Id, LeakIOId0   -1);  };
 inline bool IsLeakIOId(int Id)        { return InRange(LeakIOId0,   Id, MakeupIOId0   -1);  };
 inline bool IsMakeupIOId(int Id)      { return InRange(MakeupIOId0, Id, BleedIOId0  -1);  };
-inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AAAAIOId0  -1);  };
-//inline bool IsAuditIOId(int Id)       { return false; }//InRange(ABleedIOId0,  Id, AAAAIOId0  -1);  };
+inline bool IsBleedIOId(int Id)       { return InRange(BleedIOId0,  Id, AnotherIOId0  -1);  };
 //..
 inline bool IsAreaIOId(int Id)        { return InRange(AreaIOId0,   Id, CtrlIOId0   -1);  };
 
@@ -4444,11 +4443,11 @@ class DllImportExport FlwNode : public CTNode
     int            m_iEIO1, m_nEIOs;
     int            m_iAIO1, m_nAIOs;
 
+    long           NoProcLnkIOs()         { return m_nProcLnkIOs; };     // Links(Pipes) Only
+    long           NoProcessIOs()         { return m_nProcessIOs; };     // + Spills, Vents, Leaks
+    long           NoMaterialIOs()        { return m_nMaterialIOs; };    // + Makeups, Bleeds 
+    long           NoFlwIOs()             { return m_nFIOs; };           // + Audit
     long           NoIOs()                { return m_nIOs; };
-    long           NoFlwIOs()             { return m_nFIOs; };
-    long           NoProcessIOs()         { return m_nProcessIOs; };
-    long           NoMaterialIOs()        { return m_nMaterialIOs; };
-    long           NoProcLnkIOs()         { return m_nProcLnkIOs; };
 
     long           NoAttachedDirectIOs()  { return m_AttachedDirectIOs.GetCount(); };
     long           NoEnabledDirectIOs()   { return m_EnabledDirectIOs.GetCount(); };

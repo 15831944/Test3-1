@@ -291,7 +291,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   CSpMdlSlct Slct;
   for (int i, ic = 0; (i=I[ic])>=0; ic++)
     {
-    if (i<NoProcessIOs() && IO_In(i))
+    if (i<NoProcLnkIOs() && IO_In(i))
       {
       const double QmIn = IOQm_In(i);
       TotQmIn += QmIn;
@@ -322,7 +322,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   /*const double LoQm=QmIn*(pPC ? (pPC->IgnoreLoQm() ? pPC->LowQmFrac():0.0):pPC->LowQmFracNC());*/
 
   for (ic = 0; (i=I[ic])>=0; ic++)
-    if (i<NoProcessIOs() && IO_In(i)/* && IOConduit(i)->QMass()>=LoQm*/)
+    if (i<NoProcLnkIOs() && IO_In(i)/* && IOConduit(i)->QMass()>=LoQm*/)
       {
       //dbgpln("Add >>>>>>>>>>>");
       #if OnlyCopyValidMass
@@ -352,7 +352,7 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
   if (dbg)
     {
     for (ic = 0; (i=I[ic])>=0; ic++)
-      if (i<NoProcessIOs() && IO_In(i))
+      if (i<NoProcLnkIOs() && IO_In(i))
         {
         char t[128];
         sprintf(t, "%s.%s", FullObjTag(), IODesc_Self(i)->IOName());
@@ -423,7 +423,7 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
     {
     double Qot=0.0;
     for (int i,ic = 0; (i=I[ic])>=0; ic++)
-      if (i<NoProcessIOs() && IO_Out(i))
+      if (i<NoProcLnkIOs() && IO_Out(i))
         Qot += IOQmEst_Out(i);
 
     double QinA=Qo.QMass(som_ALL);
@@ -431,7 +431,7 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
     // What Comes in must go out
     double Scl=Range(0.0, QinA/GTZ(Qot), 1000.0);
     for (ic = 0; (i=I[ic])>=0; ic++)
-      if (i<NoProcessIOs())
+      if (i<NoProcLnkIOs())
         {
         if (IO_Out(i))
           IOConduit(i)->QSetM(Qo, som_ALL, IOQmEst_Out(i)*Scl, Qo.Press());
@@ -516,7 +516,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &S,  doub
 
   if (dwFlags & PMU_IONo)
     {
-    ASSERT(IOInx >=0 && IOInx <NoProcessIOs());
+    ASSERT(IOInx >=0 && IOInx <NoProcLnkIOs());
     if (IO_Out(IOInx))
       {
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)

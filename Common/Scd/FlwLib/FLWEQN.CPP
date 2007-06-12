@@ -136,8 +136,8 @@ void CSpPropInfo::SetPropInfoVL(SpModel & Md, double VVolFrac, double LVolFrac, 
     m_dVVolFrac=VVolFrac;
     m_dLVolFrac=LVolFrac;
     }
-  dbgpln("CSpPropInfoVL @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
-    this, K2C(m_dTemp), m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Md.FullObjTag());
+  //dbgpln("CSpPropInfoVL @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
+  //  this, K2C(m_dTemp), m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Md.FullObjTag());
   };
 
 //--------------------------------------------------------------------------
@@ -159,8 +159,8 @@ void CSpPropInfo::SetPropInfoX(SpConduit & Cd)
     m_dVVolFrac=Cd.VolFrac(som_Gas, m_dTemp, m_dPress);
     m_dLVolFrac=1.0-m_dVVolFrac;
     }
-  dbgpln("CSpPropInfoX  @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
-    this, K2C(m_dTemp),m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Cd.FullObjTag());
+  //dbgpln("CSpPropInfoX  @0x%08x T:%8.2f P:%8.2f RhoV:%8.2f RhoL:%8.2f VFrac:%8.2f SLFrac:%8.2f  %s", 
+  //  this, K2C(m_dTemp),m_dPress, m_dRhoV, m_dRhoL, m_dVVolFrac, m_dLVolFrac, Cd.FullObjTag());
   };
 
 //--------------------------------------------------------------------------
