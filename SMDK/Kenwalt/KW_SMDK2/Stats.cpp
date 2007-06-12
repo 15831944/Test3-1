@@ -112,7 +112,8 @@ void SingleVarStats::BuildDataFields()
 	{
 		int dstSize = strlen(TagCnvFamily[i].Name()) + 1;
 		char* nonConst = new char[dstSize];
-		strcpy_s(nonConst, dstSize, TagCnvFamily[i].Name());
+		//strcpy_s(nonConst, dstSize, TagCnvFamily[i].Name());
+		strcpy(nonConst, TagCnvFamily[i].Name());
 
 		MDDValueLst cur = {i, nonConst};
 		TagCnvList.push_back(cur);

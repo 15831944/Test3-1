@@ -82,7 +82,8 @@ void FloatationTank::Init()
 			{
 				int dstSize = strlen(gs_PeriodicTable[i - 1].Symbol()) + 1;
 				char* nonConst = new char[dstSize]; //It'll be a memory leak on the order of 300 bytes per model, maximum...
-				strcpy_s(nonConst, dstSize, gs_PeriodicTable[i - 1].Symbol());
+				//strcpy_s(nonConst, dstSize, gs_PeriodicTable[i - 1].Symbol());
+				strcpy(nonConst, gs_PeriodicTable[i - 1].Symbol());
 				MDDValueLst cur = { i, nonConst };
 				gs_vSolidElements.push_back(cur);
 			}
