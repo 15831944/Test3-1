@@ -538,7 +538,8 @@ LPTSTR CCall2MSpProps::FlashDescription()
   { 
   if (!m_pUserProps)
     return SpModel::FlashDescription();
-  return "Model";//m_pUserProps->get_SaturationCmpName();
+  m_sFlashDesc="Model";
+  return (LPTSTR)(LPCTSTR)m_sFlashDesc();
   };
 
 //---------------------------------------------------------------------------

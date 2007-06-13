@@ -1362,15 +1362,14 @@ void CVLEVapPress::SetVapFrac(double VapFrac)//, double RqdH)
 
 LPTSTR CVLEVapPress::FlashDescription()
   {
-  static CString X;
-  X="Vp:";
-  X+= (FlashMethod()==SMFM_PartialP) ? "PartialP":"TotalP";
-  X+=":";
+  m_sFlashDesc="Vp:";
+  m_sFlashDesc+= (FlashMethod()==SMFM_PartialP) ? "PartialP":"TotalP";
+  m_sFlashDesc+=":";
   if (m_iCmpNo>=0)
-    X+=CDB[m_iCmpNo].SymOrTag();
+    m_sFlashDesc+=CDB[m_iCmpNo].SymOrTag();
   else 
-    X+="???";
-  return (LPTSTR)(LPCTSTR)X;
+    m_sFlashDesc+="???";
+  return (LPTSTR)(LPCTSTR)m_sFlashDesc();
   };
 
 int    CVLEVapPress::FlashCmpIndex()                    { return m_iCmpNo;      };
@@ -2651,7 +2650,8 @@ void CVLERootK::SetMass()///SpModel &Mdl)
 
 LPTSTR CVLERootK::FlashDescription()
   {
-  return "VLERootK";
+  m_sFlashDesc="VLERootK";
+  return (LPTSTR)(LPCTSTR)m_sFlashDesc();
   };
 
 // -------------------------------------------------------------------------

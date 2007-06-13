@@ -127,6 +127,7 @@ class DllImportExport CVLEBlock : public TaggedObject
     FlwNode        &Nd;
     CDArray         VMixFrac, LMixFrac;
     CVLEBase *      m_pVLEBase;
+    Strng           m_sFlashDesc;
 
   };
 
