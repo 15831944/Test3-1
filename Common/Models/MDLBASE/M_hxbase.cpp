@@ -2416,7 +2416,7 @@ flag HX_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(4);
+  //FE.xSetTempOut(4);
 
   FE.SetDPz(OnePhDPZ);
   m_dDP=DP;

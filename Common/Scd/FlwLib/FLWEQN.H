@@ -1103,8 +1103,8 @@ class DllImportExport CFlwBlkBase : public CFlwBlkData,  public CFlwEqnPtr
     double         VoidFraction()                   { return dVoidFrac; };
     void           SetOnePhPart(double D=dNAN)    { dOnePhPart=D; };
     double         OnePhPart()                      { return dOnePhPart; };
-    void           SetTempOut(double D=dNAN)      { dTempOut=D; };
-    double         TempOut()                        { return dTempOut; };
+    void           xSetTempOut(double D=dNAN)      { dTempOut=D; };
+    double         xTempOut()                        { return dTempOut; };
 
   public:
     static byte    fMomentumOn;

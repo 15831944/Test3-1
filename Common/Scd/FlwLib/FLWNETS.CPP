@@ -2146,6 +2146,11 @@ void CGrpFlwBlk::TraverseGetMode(flag GoFwd, CGrpFlwBlkSD & Src, CGrpFlwBlkSD & 
 
 #define ForceEvalFlow 1
 
+inline int FxdPSign(CPressBlk & SrcPB, CPressBlk & DstPB) 
+  {
+  return DstPB.m_iFxdPOrder>SrcPB.m_iFxdPOrder?1:-1;
+  }
+
 //-------------------------------------------------------------------------
 
 void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrpFlwBlkSD & Src, CGrpFlwBlkSD & Dst, CSpPropInfo *pNetProps, pchar dbgwhere)
@@ -2284,7 +2289,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
             FB.EvalFlowX(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, "p2");
 
           if (!m_fFixedXfer)
-            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*FxdPSign(SrcPB, DstPB);
           else
             FB.m_DPEstFxdQm=0.0;
 
@@ -2325,7 +2330,8 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
             FB.EvalFlow(FET_CalcDP, this, I->m_iSgn*m_PassDirn, m_PassDirn, *I, pNetProps, DstPB.P, "pl");
 
           if (!m_fFixedXfer)
-            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+            //FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*(GoFwd?1:-1);
+            FB.m_DPEstFxdQm=(m_P_HereLnk-SrcPB.PEst)*FxdPSign(SrcPB, DstPB);
           else
             FB.m_DPEstFxdQm=0.0;
   
@@ -2577,7 +2583,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
           SrcPB.P    = P_HereLnk;
           SrcPB.PEst = P_HereLnk;
           SrcPB.PMn  = P_HereLnk;
-          P_HereLnk += FB.m_DPEstFxdQm*(GoFwd?1:-1);
+          P_HereLnk += FB.m_DPEstFxdQm*FxdPSign(SrcPB, DstPB);
 
           if (!I->AtEnd(GoFwd))
             {
@@ -2604,7 +2610,7 @@ void CGrpFlwBlk::TraversePress(eScdFlwEqnTasks Task, double Qm, flag GoFwd, CGrp
           SrcPB.P    = P_HereLnk;
           SrcPB.PEst = P_HereLnk;
           SrcPB.PMn  = P_HereLnk;
-          P_HereLnk += FB.m_DPEstFxdQm*(GoFwd?1:-1);
+          P_HereLnk += FB.m_DPEstFxdQm*FxdPSign(SrcPB, DstPB);
 
           if (!I->AtEnd(GoFwd))
             {
@@ -4420,7 +4426,7 @@ void CSubNetBlk::SolveFxdFBP(CJoinGFBPtr & JG)
     {
     if (Valid(SrcPB.PMax))
       SrcPB.PEst=Min(SrcPB.PEst, (double)SrcPB.PMax);
-    DstPB.PEst=SrcPB.PEst+(FB.m_DPEstFxdQm*(GoFwd?-1:1));
+    DstPB.PEst=SrcPB.PEst+FB.m_DPEstFxdQm*FxdPSign(SrcPB, DstPB);
     if (Valid(DstPB.PMax))
       DstPB.PEst=Min(DstPB.PEst, (double)DstPB.PMax);
     }

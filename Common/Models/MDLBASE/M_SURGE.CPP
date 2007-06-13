@@ -469,7 +469,7 @@ void MN_Surge::EvalJoinPressures(long JoinMask)
             }
           }
         else
-          EvalJoinPressure(0);
+          EvalJoinPressure(0, &m_PCtrl0);
 
         break;
         }

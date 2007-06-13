@@ -969,7 +969,7 @@ void CMultiFlwBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
             case Id_Slip:       DBL   (pFB->SlipRatio());         break;
             case Id_Void:       DBL   (pFB->VoidFraction());      break;
             case Id_OnePh:      DBL   (pFB->OnePhPart());         break;
-            case Id_Temp:       DBL   (pFB->TempOut());           break;
+            case Id_Temp:       DBL   (pFB->xTempOut());           break;
             default :           Str.Set(" ??? %i", EI.FieldId);   break;
             }
           }
@@ -1471,7 +1471,7 @@ double GetAPDSVal(int What, int b, FlwBlk * pFB)
     case 16: return pFB->SlipRatio();
     case 17: return pFB->VoidFraction();
     case 18: return pFB->OnePhPart();
-    case 19: return pFB->TempOut();
+    case 19: return pFB->xTempOut();
     }
   return dNAN;
   }
@@ -2237,7 +2237,7 @@ flag MFCommonBlk::DoFlashLiqAtStart(flag AtEntry, CFlwBlkBase & FE,
   FE.SetSlipRatio(SlipRatio());
   FE.SetVoidFraction(VoidFraction());
   FE.SetOnePhPart(dOnePhPart);
-  FE.SetTempOut(Cd.Temp());
+  FE.xSetTempOut(Cd.Temp());
 
   return true;
   }
@@ -2431,7 +2431,7 @@ flag MFCommonBlk::DoFlashVapAtStart(flag AtEntry, CFlwBlkBase & FE,
   FE.SetSlipRatio(SlipRatio());
   FE.SetVoidFraction(VoidFraction());
   FE.SetOnePhPart(dOnePhPart);
-  FE.SetTempOut(Cd.Temp());
+  FE.xSetTempOut(Cd.Temp());
   return true;
   }
 
@@ -2479,7 +2479,7 @@ flag MFCommonBlk::DoFlash(flag AtEntry, CFlwBlkBase & FE,
   VfOut=Cd.MassFrac(som_Gas);
 
   FE.SetOnePhPart(1.0);
-  FE.SetTempOut(Cd.Temp());
+  FE.xSetTempOut(Cd.Temp());
 
   #if dbgMultiFB
   if (dbgDoFlash())
@@ -2664,7 +2664,7 @@ flag MFB_Pipe::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
 
   ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
@@ -2771,7 +2771,7 @@ flag MFB_InLine::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(1);
+  FE.xSetTempOut(1);
 
   FE.SetDPz(OnePhDPZ); // ?? What about sin(Theta)
   FE.SetDerivsBad(true);
@@ -2786,7 +2786,7 @@ flag MFB_InLine::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
 
   ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
@@ -2888,7 +2888,7 @@ flag MFB_Valve::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBl
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(2);
+  FE.xSetTempOut(2);
 
   FE.SetDPz(OnePhDPZ); // ?? What about sin(Theta)
   FE.SetDerivsBad(true);
@@ -2904,7 +2904,7 @@ flag MFB_Valve::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBl
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
 
   return True;
@@ -3002,7 +3002,7 @@ flag MFB_ExpCon::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(3);
+  FE.xSetTempOut(3);
 
   FE.SetDPz(OnePhDPZ); // ?? What about sin(Theta)
   FE.SetDerivsBad(true);
@@ -3016,7 +3016,7 @@ flag MFB_ExpCon::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwB
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
 
   return True;
@@ -3129,7 +3129,7 @@ flag MFB_EnEx::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(4);
+  FE.xSetTempOut(4);
 
   FE.SetDPz(OnePhDPZ); // ?? What about sin(Theta)
   FE.SetDerivsBad(true);
@@ -3145,7 +3145,7 @@ flag MFB_EnEx::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
 
   ASSERT_ALWAYS(Valid(FE.DPq()) && _finite(FE.DPq()), "Bad Friction Value", __FILE__, __LINE__);
@@ -3253,7 +3253,7 @@ flag MFB_Join::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(5);
+  FE.xSetTempOut(5);
 
   FE.SetDPz(OnePhDPZ); // ?? What about sin(Theta)
   FE.SetDerivsBad(true);
@@ -3267,7 +3267,7 @@ flag MFB_Join::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
       {
       };
     FE.SetVLFracs(NULL, FE.TwoPhCd().MassFrac(som_Gas), FE.TwoPhCd().MassFrac(som_Liq));
-    FE.SetTempOut(FE.TwoPhCd().Temp());
+    FE.xSetTempOut(FE.TwoPhCd().Temp());
     }
   return True;
   };

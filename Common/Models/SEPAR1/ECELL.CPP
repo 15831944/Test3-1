@@ -277,7 +277,14 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       {
       Contents.ZeroDeriv();
       TempKFeed=Sd().Temp();
-      RB.EvalProducts(Sd());
+      if (SolveMethod()==SM_Inline)
+        {
+        RB.EvalProducts(Sd());
+        }
+      else
+        {
+        RB.EvalDerivs(Contents, Sd(), Sd());
+        }
 
       double emf = 0.0;
       if (RB())
@@ -296,9 +303,11 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       const int ioAn = IOWithId_Self(ioidAn);
       if (ioAn>=0)
         {
-        SpMArray Rem;
-        Rem.Set(Contents, 0.0, 1.0, 0.0);
-        SetProdMakeup(PMU_IOId | PMU_Filter, ioidAn, Rem, ETemp, Std_P, Contents.Model());
+        SpMArray AnolyteFilter;
+        //Rem.Set(Contents, 0.0, 1.0, 0.0);
+        AnolyteFilter.SetToValue(som_Sol, 0.0);
+        AnolyteFilter.SetToValue(som_Liq|som_Gas, 1.0);
+        SetProdMakeup(PMU_IOId | PMU_Filter, ioidAn, AnolyteFilter, ETemp, Std_P, Contents.Model());
         }
 
       // This allows the metal and solids to leave in the metal outlet.
@@ -306,9 +315,11 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       const int ioCa = IOWithId_Self(ioidCath);
       if (ioCa>=0)
         {
-        SpMArray Met;
-        Met.Set(Contents, 1.0, 0.0, 0.0);
-        SetProdMakeup(PMU_IOId | PMU_Filter, ioidCath, Met, ETemp, Std_P, Contents.Model());
+        SpMArray MetalFilter;
+        //Met.Set(Contents, 1.0, 0.0, 0.0);
+        MetalFilter.SetToValue(som_Sol, 1.0);
+        MetalFilter.SetToValue(som_Liq|som_Gas, 0.0);
+        SetProdMakeup(PMU_IOId | PMU_Filter, ioidCath, MetalFilter, ETemp, Std_P, Contents.Model());
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);

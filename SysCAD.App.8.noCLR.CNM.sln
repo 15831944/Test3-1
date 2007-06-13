@@ -5103,7 +5103,6 @@ Global
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Distribution|Win32.Build.0 = Debug|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release - Full|Any CPU.ActiveCfg = Release|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release - Full|Mixed Platforms.ActiveCfg = Release|Win32
-		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release - Full|Mixed Platforms.Build.0 = Release|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release - Full|Win32.ActiveCfg = Release|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release - Full|Win32.Build.0 = Release|Win32
 		{2F35127A-4316-44E9-8B7C-04E05CA3C7EE}.Release Marshal|Any CPU.ActiveCfg = Release|Win32

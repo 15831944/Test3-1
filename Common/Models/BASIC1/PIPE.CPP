@@ -291,7 +291,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     //DDB.Double ("Nett_Boost",   "Bst",      DC_DP,   "kPa",   xidNettBoost,  this, isResult|InitHidden|noFile|noSnap);
 
     DDB.Text   (" ");
-    if (NoFlwIOs()>0 && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
+    if (NoFlwIOs()>0 && Nd_Rmt(0) && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
       DDB.Double ("Flange_Press_In", "PiR", DC_P,   "kPag",  xidPInRmt,     this, isResult|noFile|noSnap);
     DDB.Double ("Press_InEst" , "PiEst",    DC_P,   "kPag",  xidPInEst     ,this, isResult|isParmConstruct|InitHidden);
     DDB.Double ("Press_Input",  "Pi",       DC_P,   "kPag",  xidPIn,        this, isResult);
@@ -306,14 +306,14 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double ("Press_Output", "Po",       DC_P,   "kPag",  xidPOut,       this, isResult);
     DDB.TagComment("=");
     DDB.Double ("Press_OutEst", "PoEst",    DC_P,   "kPag",  xidPOutEst    ,this, isResult|isParmConstruct|InitHidden);
-    if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
+    if (NoFlwIOs()>1 && Nd_Rmt(1) && (IOPipeEntry_Rmt(1) || IOPipeJoin_Rmt(1)))
       DDB.Double ("Flange_Press_Out","PoR", DC_P,   "kPag",  xidPOutRmt,    this, isResult|noFile|noSnap);
 
     DDB.Text   (" ");
-    if (NoFlwIOs()>0 && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
+    if (NoFlwIOs()>0 && Nd_Rmt(0) && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
       DDB.Double ("Flange_DP_In", "DPiR",   DC_DP,  "kPa",   xidDPInRmt,     this, isResult|noFile|noSnap);
     DDB.Double   ("Press_Change", "dP",     DC_DP,  "kPa",   xidDPRmt,       this, isResult|noFile|noSnap);
-    if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
+    if (NoFlwIOs()>1 && Nd_Rmt(1) && (IOPipeEntry_Rmt(1) || IOPipeJoin_Rmt(1)))
       DDB.Double ("Flange_DP_Out","DPoR",   DC_DP,  "kPa",   xidDPOutRmt,    this, isResult|noFile|noSnap);
 
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
@@ -332,19 +332,19 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All);
     DDB.Text   (" ");
-    if (NoFlwIOs()>0 && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
+    if (NoFlwIOs()>0 && Nd_Rmt(0) && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
       DDB.Double ("", "Hz@TiR", DC_HMs,  "kJ/kg",  xidHzInRmt,   this, isResult|noFile|noSnap);
     DDB.Double   ("", "Hz@Ti",  DC_HMs,  "kJ/kg",  xidHzIn,      this, isResult|noFile|noSnap);
     DDB.Double   ("", "Hz@To",  DC_HMs,  "kJ/kg",  xidHzOut,     this, isResult|noFile|noSnap);
-    if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
+    if (NoFlwIOs()>1 && Nd_Rmt(1) && (IOPipeEntry_Rmt(1) || IOPipeJoin_Rmt(1)))
       DDB.Double ("", "Hz@ToR", DC_HMs,  "kJ/kg",  xidHzOutRmt,  this, isResult|noFile|noSnap);
 
     DDB.Text   (" ");
-    if (NoFlwIOs()>0 && Nd_Rmt(0) && IOPipeEntry_Rmt(0))
+    if (NoFlwIOs()>0 && Nd_Rmt(0) && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
       DDB.Double ("", "totHz@TiR", DC_Pwr, "kJ/s",  xidtotHzInRmt,   this, isResult|noFile|noSnap);
     DDB.Double   ("", "totHz@Ti",  DC_Pwr, "kJ/s",  xidtotHzIn,      this, isResult|noFile|noSnap);
     DDB.Double   ("", "totHz@To",  DC_Pwr, "kJ/s",  xidtotHzOut,     this, isResult|noFile|noSnap);
-    if (NoFlwIOs()>1 && IOPipeEntry_Rmt(1))
+    if (NoFlwIOs()>1 && Nd_Rmt(1) && (IOPipeEntry_Rmt(1) || IOPipeJoin_Rmt(1)))
       DDB.Double ("", "totHz@ToR", DC_Pwr, "kJ/s",  xidtotHzOutRmt,  this, isResult|noFile|noSnap);
     }
 
@@ -805,7 +805,8 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
       DDBPages Pg=NetProbalMethod() ? DDB_OptPage : DDB_RqdPage;
       if (!DDB.ForFileSnpScn())
         {
-        if (Do0 && IOPipeEntry_Rmt(0))
+        //if (Do0 && IOPipeEntry_Rmt(0))
+        if (Do0 && (IOPipeEntry_Rmt(0) || IOPipeJoin_Rmt(0)))
           {
           IOFB_Rmt(0,0)->BuildDataDefn(FBDDOpt_WithEqn/*All*/, DDB, this, "Src", 1, Pg);
           Pg=DDB_NoPage;
@@ -818,7 +819,7 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
         IOFB(0,1)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "OP", 4, DDB_NoPage);
       if (!DDB.ForFileSnpScn())
         {
-        if (Do1 && IOPipeEntry_Rmt(1))
+        if (Do1 && (IOPipeEntry_Rmt(1) || IOPipeJoin_Rmt(1)))
           IOFB_Rmt(1,0)->BuildDataDefn(FBDDOpt_WithEqn, DDB, this, "Dst", 2, DDB_NoPage);
         }
       }

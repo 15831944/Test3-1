@@ -1412,21 +1412,26 @@ void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, CSurgeControl *pControl)
 
 void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeControl *pControl)
   {
-  #if dbgDerivs
+#if dbgDerivs
   long dbg1=dbgDerivsSrg1(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg1DbgBrk(FullObjTag());
   long dbg2=dbgDerivsSrg2(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg2DbgBrk(FullObjTag());
   long dbg3=dbgDerivsSrg3(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg3DbgBrk(FullObjTag());
   long dbgo=dbgDerivsSrgOvr()           || fDoDbgBrk && dbgDerivsSrgOvrDbgBrk();
   long dbgso=dbgDerivsSrgSetOut(FullObjTag()) || fDoDbgBrk && dbgDerivsSrgSetOutDbgBrk();
-  #endif
+#endif
 
   SpContainer & Contents=HO.Container();
   SpConduit   & ContentFlw=HO.ContentFlw();
 
+#if dbgDerivs
+  if (dbg1)
+    dbgpln("===================================================== %s.%s", Tag(),Contents.Tag());
+#endif
+
   ContentFlw.QZero();
 
   double EntVapFrac = Contents.EntrainedGasFraction();
-  
+
   bool DoSet;
   if (1)//InLine)
     {
@@ -1439,18 +1444,18 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
     DoSet=true;
     }
 
-  for (int i = 0; i < NoMaterialIOs(); i++)
+  for (int iIONo= 0; iIONo< NoMaterialIOs(); iIONo++)
     {
-    if (IOQm_In(i)>0.0)
+    if (IOQm_In(iIONo)>0.0)
       {
       if (DoSet)
         {
-        ContentFlw.QSetF(*IOConduit(i), som_SL, 1.0);
+        ContentFlw.QSetF(*IOConduit(iIONo), som_SL, 1.0);
         DoSet=false;
         }
       else
-        ContentFlw.QAddF(*IOConduit(i), som_SL, 1.0);
-      ContentFlw.QAddF(*IOConduit(i), som_Gas, IOEntrainRateG(i));
+        ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
+      ContentFlw.QAddF(*IOConduit(iIONo), som_Gas, IOEntrainRateG(iIONo));
 
       //dbgpln(" IOQm %14.6gl, %14.6gv  Qv %14.6gl, %14.6gv %s", 
       //  IOConduit(i)->QMass(som_SL),IOConduit(i)->QMass(som_Gas), 
@@ -1459,22 +1464,22 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
     }
 
   // DoReaction 
-//TODO EvalProducts_SurgeLevelInline - DoReaction
+  //TODO EvalProducts_SurgeLevelInline - DoReaction
   if (fDoDbgBrk)
     { int xxx=0; };
 
-  for (int i = 0; i < NoMaterialIOs(); i++)
+  for (int iIONo = 0; iIONo< NoMaterialIOs(); iIONo++)
     {
-    if ((IOIdMask_Self(i) & HO.m_dwIOIdMask)!=0)
+    if ((IOIdMask_Self(iIONo) & HO.m_dwIOIdMask)!=0)
       {
+      byte ER=IOExitRule(iIONo);
       //double EntVapFrac=Range(0.0, Contents.VapourEntrained()/GTZ(Contents.Mass(som_Gas)),1.0);
-      if ((IOExitRule(i)&IOER_Lvl)==0 || TstGTZ(EntVapFrac))// && IOFlange(i)->PMUOptions()==0)
+      if ((ER&IOER_Lvl)==0 || TstGTZ(EntVapFrac))// && IOFlange(i)->PMUOptions()==0)
         {
-        byte ER=IOExitRule(i);
 
         SpMArray Img;
-        
-        if ((IOExitRule(i)&IOER_Lvl)==0)
+
+        if ((ER&IOER_Lvl)==0)
           {
           if (ER&IOER_Sol)
             Img.SetToValue(som_Sol, 1.0);
@@ -1523,22 +1528,33 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
           //  }
           }
 
-        SetProdMakeup(PMU_IONo|PMU_Filter, i, Img, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
+#if dbgDerivs
+        if (dbgso)
+          dbgpln("=========== SetProdMakeup Filter %s > %s",FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+#endif
+
+        SetProdMakeup(PMU_IONo|PMU_Filter, iIONo, Img, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
         }
       else             
-        ClrProdMakeup(PMU_IONo|PMU_Filter, i);
+        {
+        //#if dbgDerivs
+        //if (dbgso)
+        //  dbgpln("=========== ClrProdMakeup Filter %s > %s", FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+        //#endif
+        //ClrProdMakeup(PMU_IONo|PMU_Filter, iIONo);
+        }
       }
     }
 
-  #if dbgDerivs
+#if dbgDerivs
   if (dbg1)
     {
-    dbgpln("===================================================== %s.%s", Tag(),Contents.Tag());
+    //dbgpln("===================================================== %s.%s", Tag(),Contents.Tag());
     dbgpln(" CnVol%-12.12s : %14.6gl, %14.6gv", "",Contents.Volume(som_SL),Contents.Volume(som_Gas));
     //dbgpln(" FdVol%-12.12s : %14.6gl, %14.6gv", "",pQFeed->QVolume(som_SL),pQFeed->QVolume(som_Gas));
     dbgpln(" Qv   %-12.12s : %14.6gl, %14.6gv", "",ContentFlw.QVolume(som_SL),ContentFlw.QVolume(som_Gas));
     }
-  #endif
+#endif
 
   int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
   Contents.SetCI(7, pControl && pControl->m_iStreamIndex<0 && pControl->m_bOn && pControl->m_bEnabled);
@@ -1552,10 +1568,10 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
     if (!IO_In(iIONo) && HO.m_Seq[iHO]>HOSeq)
       {
-      #if dbgDerivs
+#if dbgDerivs
       if (dbgso)
         dbgpln("------------------------------------ IOOut %3i %s >> %s ...",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
-      #endif
+#endif
 
       HOSeq=HO.m_Seq[iHO];
 
@@ -1622,12 +1638,12 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
             double SolMass=ContentFlw.QMass(som_Sol);
             double LiqMass=ContentFlw.QMass(som_Liq);
-            
+
             double SLRatioAct=SolMass/GTZ(LiqMass);
             double SLRatioFilter = SLRatioReqd/GTZ(SLRatioAct);
 
             CSysVector & Filter=*IOPMUFilter(iIONo);
-            
+
             if (SLRatioFilter<1.0)
               {
               Filter.SetToValue(som_Sol, SLRatioFilter);
@@ -1665,6 +1681,10 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
                 TotalVCtrl  +=VCtrlDmd[s];
                 }
               CtrlNow=true;
+#if dbgDerivs
+              if (dbgso)
+                dbgpln("  CtrlNow Filt");
+#endif
               }
             else
               {
@@ -1676,7 +1696,7 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
 #if dbgDerivs
                 if (dbgso && (MFlwAvl[s]>ZeroLimit))
-                  dbgpln("  IOFlw   MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
+                  dbgpln("  IOFlwFt MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
 #endif
 
                 if (M>ZeroLimit)
@@ -1707,6 +1727,10 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
                 TotalVCtrl  +=VCtrlDmd[s];
                 }
               CtrlNow=true;
+#if dbgDerivs
+              if (dbgso)
+                dbgpln("  CtrlNow B");
+#endif
               }
             else
               {
@@ -1822,14 +1846,14 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
             if (iLvlCtrl==iIONo)
               {
-  //            double Dens=IOFilterDens(iIONo);
+              //            double Dens=IOFilterDens(iIONo);
 
-  //            SetOutputFlows(HO, iIONo, Dens*VolFlwScale*VolCtrlFlw/GTZ(TotalVCtrl), 0.0, /*HasImage ? &DemandScale:*/NULL);
-  //            DoneIt[HO.m_Ord[iHO1]]=true;
-  //#if dbgDerivs
-  //            if (dbgso)
-  //              dbgpln("    %3i = %18.3f %s",iIONo,IOQmEst_Out(iIONo)*VolFlwScale, Nd_Rmt(iIONo)->FullObjTag());
-  //#endif
+              //            SetOutputFlows(HO, iIONo, Dens*VolFlwScale*VolCtrlFlw/GTZ(TotalVCtrl), 0.0, /*HasImage ? &DemandScale:*/NULL);
+              //            DoneIt[HO.m_Ord[iHO1]]=true;
+              //#if dbgDerivs
+              //            if (dbgso)
+              //              dbgpln("    %3i = %18.3f %s",iIONo,IOQmEst_Out(iIONo)*VolFlwScale, Nd_Rmt(iIONo)->FullObjTag());
+              //#endif
               }
             else
               {
@@ -1925,10 +1949,10 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
       {
       if (!IO_In(iIONo))
         {
-        #if dbgDerivs
+#if dbgDerivs
         if (dbgso)
           dbgpln("  IOOut %3i ZERO %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
-        #endif
+#endif
         SpConduit & Fo = *IOConduit(iIONo);
         Fo.QZero();
         Fo.SetTempPress(Contents.Temp(), Contents.Press());
@@ -1936,10 +1960,10 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
         }
       else
         {
-        #if dbgDerivs
+#if dbgDerivs
         if (dbgso)
           dbgpln("  IOOut %3i Skip %s %s",iIONo, FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
-        #endif
+#endif
         }
       }
     }
@@ -1964,7 +1988,7 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
     double FlwVol=ContentFlw.QVolume();
     ContentFlw.QScaleMass(som_ALL, GEZ(FlwVol-FlwVolRetBelow)/GTZ(FlwVol));
     double FlwMass=ContentFlw.QMass();
-    #if dbgDerivs
+#if dbgDerivs
     if (dbgo)
       {
       dbgpln("  Overflow VolRetBelow=%18.6f OvrVol=%18.6f OvrMass=%18.6f",FlwVolRetBelow, FlwVol, FlwMass);
@@ -1993,6 +2017,18 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
       VentVapours(Contents);
       DoOverflowLinks(HO);
       DoGasVentLinks(HO);
+      }
+    }
+
+  for (int iIONo = 0; iIONo< NoMaterialIOs(); iIONo++)
+    {
+    if ((IOIdMask_Self(iIONo) & HO.m_dwIOIdMask)!=0)
+      {
+#if dbgDerivs
+      if (dbgso)
+        dbgpln("=========== ClrProdMakeup Filter %s > %s", FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+#endif
+      ClrProdMakeup(PMU_IONo|PMU_Filter, iIONo);
       }
     }
   }

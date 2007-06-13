@@ -969,7 +969,7 @@ flag TE_KFact::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   FE.SetSlipRatio();
   FE.SetVoidFraction();
   FE.SetOnePhPart();
-  FE.SetTempOut(4);
+  //FE.SetTempOut(4);
 
   FE.SetDPz(OnePhDPZ);
 

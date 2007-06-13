@@ -906,7 +906,7 @@ m_MixSet(this)
   m_TopPRqd     = dNAN;
   m_UseRhoH     = true;
 
-  m_HiLvlLimit  = 1.01;
+  m_HiLvlLimit  = 1.02;
   m_LoLvlLimit  = dNAN;
   m_LvlHi       = 0;
   m_LvlLo       = 0; 
