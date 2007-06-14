@@ -1,24 +1,27 @@
+
 using System;
 using System.Drawing;
 using System.Globalization;
 
 namespace SysCAD.Protocol
 {
+
   /// <summary>
   /// Summary description for BezierTemplate.
   /// </summary>
   [Serializable]
   public class Bezier : Element
   {
+
     public float x1;
-    public float y1;
     public float x2;
-    public float y2;
     public float x3;
-    public float y3;
     public float x4;
+    public float y1;
+    public float y2;
+    public float y3;
     public float y4;
-      
+
     public Bezier()
     {
     }
@@ -51,10 +54,10 @@ namespace SysCAD.Protocol
 
     public override String ToString()
     {
-      return "(" + x1.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
-                   y1.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
-                   x2.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
-                   y2.ToString("N2", CultureInfo.InvariantCulture) + ", " + 
+      return "(" + x1.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   y1.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   x2.ToString("N2", CultureInfo.InvariantCulture) + ", " +
+                   y2.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    x3.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    y3.ToString("N2", CultureInfo.InvariantCulture) + ", " +
                    x4.ToString("N2", CultureInfo.InvariantCulture) + ", " +

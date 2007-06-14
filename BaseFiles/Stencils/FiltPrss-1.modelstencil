@@ -147,7 +147,7 @@
 <x>0</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-28" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-34">WashSoln</tag>
@@ -156,7 +156,7 @@
 <x>0</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-29" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-35">Filtrate</tag>
@@ -165,7 +165,7 @@
 <x>100</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-30" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-36">Cake</tag>
@@ -174,7 +174,7 @@
 <x>100</x>
 <y>90</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-31" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-37">Washings</tag>
@@ -183,7 +183,7 @@
 <x>100</x>
 <y>90</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-32" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-38">Vent</tag>
@@ -192,7 +192,7 @@
 <x>50</x>
 <y>-20</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -1,3 +1,4 @@
+
 using System;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.Text;
 
 namespace SysCAD.Protocol
 {
+
   [Serializable]
   [TypeConverter(typeof(ShapeConverter))]
   public class Shape
@@ -17,17 +19,6 @@ namespace SysCAD.Protocol
       this.str = str;
     }
 
-    public static implicit operator Shape(String str)
-    {
-      Shape shape = new Shape(str);
-      return shape;
-    }
-
-    public static implicit operator String(Shape shape)
-    {
-      return shape.str;
-    }
-
     public bool Contains(String substring)
     {
       return str.Contains(substring);
@@ -36,6 +27,17 @@ namespace SysCAD.Protocol
     public override String ToString()
     {
       return str;
+    }
+
+    public static implicit operator String(Shape shape)
+    {
+      return shape.str;
+    }
+
+    public static implicit operator Shape(String str)
+    {
+      Shape shape = new Shape(str);
+      return shape;
     }
   }
 }

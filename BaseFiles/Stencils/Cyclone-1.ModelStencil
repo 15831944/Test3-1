@@ -116,7 +116,7 @@
 <x>50</x>
 <y>0</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-26">OVerflow</tag>
@@ -125,7 +125,7 @@
 <x>50</x>
 <y>10</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-27">Underflow</tag>
@@ -134,7 +134,7 @@
 <x>50</x>
 <y>100</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -85,7 +85,7 @@
 <x>0</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-18" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-25">Filtrate</tag>
@@ -94,7 +94,7 @@
 <x>100</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-19" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-26">Cake</tag>
@@ -103,7 +103,7 @@
 <x>100</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-20" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-27">Washwater</tag>
@@ -112,7 +112,7 @@
 <x>0</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-21" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-28">Wash1</tag>
@@ -121,7 +121,7 @@
 <x>100</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-22" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-29">Washwater2</tag>
@@ -130,7 +130,7 @@
 <x>0</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-23" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-30">Wash2</tag>
@@ -139,7 +139,7 @@
 <x>100</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -1,8 +1,10 @@
+
 using System;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Xml.Serialization;
+
 //using MindFusion.FlowChartX;
 using System.Drawing;
 using System.Collections.Generic;
@@ -10,6 +12,7 @@ using System.Drawing.Drawing2D;
 
 namespace SysCAD.Protocol
 {
+
   /// <summary>
   /// Summary description for Class1.
   /// </summary>
@@ -17,42 +20,48 @@ namespace SysCAD.Protocol
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class GraphicStencil
   {
-    private String tag;
 
-    private ArrayList elements;
-    private ArrayList decorations;
-    private RectangleF textArea;
+    public SizeF defaultSize;
 
     public FillMode fillMode;
-    public SizeF defaultSize;
     public String groupName;
+
+    private ArrayList decorations;
+
+    private ArrayList elements;
+    private String tag;
+    private RectangleF textArea;
 
     public GraphicStencil()
     {
     }
 
-    public String Tag
+    public ArrayList Decorations
     {
-      get { return tag; }
-      set { tag = value; }
+      get { return decorations; }
+
+      set { decorations = value; }
     }
 
     public ArrayList Elements
     {
       get { return elements; }
+
       set { elements = value; }
     }
 
-    public ArrayList Decorations
+    public String Tag
     {
-      get { return decorations; }
-      set { decorations = value; }
+      get { return tag; }
+
+      set { tag = value; }
     }
 
     public RectangleF TextArea
     {
       get { return textArea; }
-      set { textArea = value; }
+
+      private set { textArea = value; }
     }
 
   }

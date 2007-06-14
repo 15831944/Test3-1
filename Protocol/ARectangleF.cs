@@ -39,22 +39,13 @@ using System.Globalization;
 
 namespace SysCAD.Protocol
 {
+
   [Serializable]
   [ComVisible(false)]
   public struct ARectangleF
   {
+
     private float x, y, width, height;
-
-    /// <summary>
-    ///	Empty Shared Field
-    /// </summary>
-    ///
-    /// <remarks>
-    ///	An uninitialized RectangleF Structure.
-    /// </remarks>
-
-    public static readonly ARectangleF Empty;
-
 
     /// <summary>
     ///	FromLTRB Shared Method
@@ -65,7 +56,7 @@ namespace SysCAD.Protocol
     ///	and bottom coordinates.
     /// </remarks>
 
-    public static ARectangleF FromLTRB(float left, float top,
+    private static ARectangleF FromLTRB(float left, float top,
                float right, float bottom)
     {
       return new ARectangleF(left, top, right - left, bottom - top);
@@ -80,7 +71,7 @@ namespace SysCAD.Protocol
     ///	RectangleF by the specified coordinate values.
     /// </remarks>
 
-    public static ARectangleF Inflate(ARectangleF rect,
+    internal static ARectangleF Inflate(ARectangleF rect,
               float x, float y)
     {
       ARectangleF ir = new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
@@ -96,7 +87,7 @@ namespace SysCAD.Protocol
     ///	Inflates the RectangleF by a specified width and height.
     /// </remarks>
 
-    public void Inflate(float width, float height)
+    internal void Inflate(float width, float height)
     {
       x -= width;
       y -= height;
@@ -112,7 +103,7 @@ namespace SysCAD.Protocol
     ///	Inflates the RectangleF by a specified Size.
     /// </remarks>
 
-    public void Inflate(SizeF sz)
+    internal void Inflate(SizeF sz)
     {
       Inflate(sz.Width, sz.Height);
     }
@@ -144,6 +135,7 @@ namespace SysCAD.Protocol
 
     public void Intersect(ARectangleF rect)
     {
+
       if (!IntersectsWith(rect))
       {
         x = 0;
@@ -238,7 +230,6 @@ namespace SysCAD.Protocol
       return new System.Drawing.RectangleF(rect.X, rect.Y, rect.Width, rect.Height);
     }
 
-
     // -----------------------
     // Public Constructors
     // -----------------------
@@ -275,8 +266,6 @@ namespace SysCAD.Protocol
       this.width = width;
       this.height = height;
     }
-
-
 
     /// <summary>
     ///	Bottom Property
@@ -547,6 +536,7 @@ namespace SysCAD.Protocol
 
     public override bool Equals(object obj)
     {
+
       if (!(obj is ARectangleF))
         return false;
 

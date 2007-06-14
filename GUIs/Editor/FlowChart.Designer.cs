@@ -74,7 +74,6 @@ namespace SysCAD.Editor
       this.fcFlowChart.TabIndex = 0;
       this.fcFlowChart.TextRendering = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
       this.fcFlowChart.ArrowModified += new MindFusion.FlowChartX.ArrowMouseEvent(this.fcFlowChart_ArrowModified);
-      this.fcFlowChart.MouseDown += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseDown);
       this.fcFlowChart.DrawArrow += new MindFusion.FlowChartX.ArrowCustomDraw(this.fcFlowChart_DrawArrow);
       this.fcFlowChart.MouseMove += new System.Windows.Forms.MouseEventHandler(this.fcFlowChart_MouseMove);
       this.fcFlowChart.BoxModified += new MindFusion.FlowChartX.BoxMouseEvent(this.fcFlowChartBoxModified);

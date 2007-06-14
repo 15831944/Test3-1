@@ -133,7 +133,7 @@
 <x>10.6951866</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-24" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-29">Liquor_Out</tag>
@@ -142,7 +142,7 @@
 <x>90.90909</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-25" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-30">Steam</tag>
@@ -151,7 +151,7 @@
 <x>20.0534744</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-26" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-31">Condensate</tag>
@@ -160,7 +160,7 @@
 <x>79.94652</x>
 <y>50</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 <a1:Anchor id="ref-27" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-32">Vent</tag>
@@ -169,7 +169,7 @@
 <x>48.12834</x>
 <y>6</y>
 </position>
-<direction xsi:type="xsd:anyType" xsi:null="1"/>
+
 </a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

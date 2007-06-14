@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,40 +12,17 @@ using System.Text.RegularExpressions;
 
 namespace SysCAD.Editor
 {
-  public partial class InsertAnnotationDialog : Form
+
+  internal partial class InsertAnnotationDialog : Form
   {
+    private float defaultHeight;
+
+    private float defaultWidth;
+
     private State state;
 
     private String thingTag;
     private String thingXaml;
-
-    private float defaultWidth;
-    private float defaultHeight;
-
-    public String ThingTag
-    {
-      get { return thingTag; }
-      set { thingTag = value; }
-    }
-
-    public String ThingXaml
-    {
-      get { return thingXaml; }
-      set { thingXaml = value; }
-    }
-
-    public float DefaultWidth
-    {
-      get { return defaultWidth; }
-      set { defaultWidth = value; }
-    }
-
-    public float DefaultHeight
-    {
-      get { return defaultHeight; }
-      set { defaultHeight = value; }
-    }
-
 
     public InsertAnnotationDialog(State state)
     {
@@ -58,6 +36,18 @@ namespace SysCAD.Editor
       }
     }
 
+    private void annotationListBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+      ThingStencil thingStencil = annotationListBox.SelectedItem as ThingStencil;
+      thingXaml = thingStencil.Xaml;
+      thingXaml = Regex.Replace(thingXaml, @"\[\[TAG\]\]", (tagListBox.SelectedItem as Item).Tag);
+
+      defaultWidth = thingStencil.DefaultSize.Width;
+      defaultHeight = thingStencil.DefaultSize.Height;
+
+      okButton.Enabled = true;
+    }
+
     private void tagListBox_SelectedIndexChanged(object sender, EventArgs e)
     {
       okButton.Enabled = false;
@@ -68,6 +58,7 @@ namespace SysCAD.Editor
 
       foreach (ThingStencil thingStencil in state.Config.ThingStencils.Values)
       {
+
         if (thingStencil.Model == model)
         {
           annotationListBox.Items.Add(thingStencil);
@@ -76,16 +67,28 @@ namespace SysCAD.Editor
       }
     }
 
-    private void annotationListBox_SelectedIndexChanged(object sender, EventArgs e)
+    public float DefaultHeight
     {
-      ThingStencil thingStencil = annotationListBox.SelectedItem as ThingStencil;
-      thingXaml = thingStencil.Xaml;
-      thingXaml = Regex.Replace(thingXaml, @"\[\[TAG\]\]", (tagListBox.SelectedItem as Item).Tag);
+      get { return defaultHeight; }
+      set { defaultHeight = value; }
+    }
 
-      defaultWidth = thingStencil.defaultSize.Width;
-      defaultHeight = thingStencil.defaultSize.Height;
+    public float DefaultWidth
+    {
+      get { return defaultWidth; }
+      set { defaultWidth = value; }
+    }
 
-      okButton.Enabled = true;
+    public String ThingTag
+    {
+      get { return thingTag; }
+      set { thingTag = value; }
+    }
+
+    public String ThingXaml
+    {
+      get { return thingXaml; }
+      set { thingXaml = value; }
     }
 
   }

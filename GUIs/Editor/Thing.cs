@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,17 +8,34 @@ using SysCAD.Protocol;
 
 namespace SysCAD.Editor
 {
-  public class Thing
+
+  internal class Thing
   {
-    private Guid guid;
-    private String tag;
     private Box box;
-    private PureComponents.TreeView.Node node;
 
     private GraphicThing graphicThing;
 
-    private bool visible;
+    private Guid guid;
+    private PureComponents.TreeView.Node node;
     private bool selected;
+    private String tag;
+
+    private bool visible;
+
+    public Thing(Guid guid, String tag, Box box, bool visible, GraphicThing graphicThing)
+    {
+      this.guid = guid;
+      this.tag = tag;
+      this.box = box;
+      this.visible = visible;
+      this.graphicThing = graphicThing;
+    }
+
+    public Box Box
+    {
+      get { return box; }
+      set { box = value; }
+    }
 
     public GraphicThing GraphicThing
     {
@@ -30,28 +48,10 @@ namespace SysCAD.Editor
       get { return guid; }
     }
 
-    public String Tag
-    {
-      get { return tag; }
-      set { tag = value; }
-    }
-
     public PureComponents.TreeView.Node Node
     {
       get { return node; }
       set { node = value; }
-    }
-
-    public Box Box
-    {
-      get { return box; }
-      set { box = value; }
-    }
-
-    public bool Visible
-    {
-      get { return visible; }
-      set { visible = value; }
     }
 
     public bool Selected
@@ -60,13 +60,16 @@ namespace SysCAD.Editor
       set { selected = value; }
     }
 
-    public Thing(Guid guid, String tag, Box box, bool visible, GraphicThing graphicThing)
+    public String Tag
     {
-      this.guid = guid;
-      this.tag = tag;
-      this.box = box;
-      this.visible = visible;
-      this.graphicThing = graphicThing;
+      get { return tag; }
+      set { tag = value; }
+    }
+
+    public bool Visible
+    {
+      get { return visible; }
+      set { visible = value; }
     }
 
     //internal void Remove(FlowChart flowChart)

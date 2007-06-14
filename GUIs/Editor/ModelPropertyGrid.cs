@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,15 +11,55 @@ using System.Collections;
 
 namespace SysCAD.Editor
 {
-  class dummyType {} // type to use to distinguish a dummy node.
 
-  public class ModelPropertyGrid : PropertyGrid
+  class dummyType { } // type to use to distinguish a dummy node.
+
+  internal class ModelPropertyGrid : PropertyGrid
   {
+
     private int id = 0;
-    private Int64 requestId;
 
     private ModelItem modelItem = null;
+    private Int64 requestId;
     private State state = null;
+
+    protected override void OnPropertyExpanded(PropertyExpandedEventArgs e)
+    {
+
+      if (e.Expanded == true)
+      {
+        PropertyEnumerator property = e.PropertyEnum;
+
+        if (RemoveDummy(property))
+        {
+          GetSubProperties(property, "What should be the propertyPath -- need to include this in modelitem definition... -- for now: " + modelItem.Guid.ToString());
+        }
+      }
+    }
+
+    protected bool RemoveDummy(PropertyEnumerator property)
+    {
+      bool dummyDeleted = false;
+
+      PropertyEnumerator child = null;
+
+      if (property != null)
+      {
+        child = property.Children.MoveFirst();
+
+        while (child.Property != null)
+        {
+
+          if ((child.Parent == property) && (child.Property.Id == -1))
+          {
+            DeleteProperty(child);
+            dummyDeleted = true;
+          }
+          child = child.MoveNext();
+        }
+      }
+      return dummyDeleted;
+    }
 
     new internal void Clear()
     {
@@ -50,42 +91,6 @@ namespace SysCAD.Editor
         ExpandProperty(propertyEnum, false);
       }
 
-    }
-
-    protected bool RemoveDummy(PropertyEnumerator property)
-    {
-      bool dummyDeleted = false;
-
-      PropertyEnumerator child = null;
-
-      if (property != null)
-      {
-        child = property.Children.MoveFirst();
-
-        while (child.Property != null)
-        {
-          if ((child.Parent == property)&&(child.Property.Id == -1))
-          {
-            DeleteProperty(child);
-            dummyDeleted = true;
-          }
-          child = child.MoveNext();
-        }
-      }
-      return dummyDeleted; 
-    }
-
-    protected override void OnPropertyExpanded(PropertyExpandedEventArgs e)
-    {
-      if (e.Expanded == true)
-      {
-        PropertyEnumerator property = e.PropertyEnum;
-
-        if (RemoveDummy(property))
-        {
-          GetSubProperties(property, "What should be the propertyPath -- need to include this in modelitem definition... -- for now: " + modelItem.Guid.ToString());
-        }
-      }
     }
   }
 }

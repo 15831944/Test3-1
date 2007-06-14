@@ -1,12 +1,15 @@
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace SysCAD.Protocol
 {
+
   [Serializable]
   public class ModelProperty
   {
+
     private String path = null;
     private object state = null;
 
@@ -20,7 +23,6 @@ namespace SysCAD.Protocol
       this.state = state;
     }
 
-
     public String Path
     {
       get { return path; }
@@ -32,7 +34,6 @@ namespace SysCAD.Protocol
       get { return state; }
       set { state = value; }
     }
-
 
   }
 }

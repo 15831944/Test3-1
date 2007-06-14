@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,19 +7,45 @@ using System.Globalization;
 
 namespace SysCAD.Protocol
 {
+
   public class ShapeConverter : StringConverter
   {
+
     private static List<Shape> stencilList = new List<Shape>();
+
+    public static void AddStencil(String stencil)
+    {
+      stencilList.Add(stencil);
+    }
+
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+
+      if (sourceType == typeof(String))
+        return true;
+
+      return base.CanConvertFrom(context, sourceType);
+    }
 
     static public void ClearStencilList()
     {
       stencilList.Clear();
     }
 
-    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-      //true means show a combobox
-      return true;
+      String str = value as String;
+
+      if (str != null)
+        return new Shape(str);
+
+      return base.ConvertFrom(context, culture, value);
+    }
+
+    public override System.ComponentModel.TypeConverter.StandardValuesCollection
+           GetStandardValues(ITypeDescriptorContext context)
+    {
+      return new StandardValuesCollection(stencilList.ToArray());
     }
 
     public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
@@ -28,32 +55,10 @@ namespace SysCAD.Protocol
       return true;
     }
 
-    public override System.ComponentModel.TypeConverter.StandardValuesCollection
-           GetStandardValues(ITypeDescriptorContext context)
+    public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
     {
-      return new StandardValuesCollection(stencilList.ToArray());
-    }
-
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-    {
-      if (sourceType == typeof(String))
-        return true;
-
-      return base.CanConvertFrom(context, sourceType);
-    }
-
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-    {
-      String str = value as String;
-      if (str != null)
-        return new Shape(str);
-
-      return base.ConvertFrom(context, culture, value);
-    }
-
-    public static void AddStencil(String stencil)
-    {
-      stencilList.Add(stencil);
+      //true means show a combobox
+      return true;
     }
   }
 }
