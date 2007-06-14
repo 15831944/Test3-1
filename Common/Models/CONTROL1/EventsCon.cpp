@@ -256,10 +256,45 @@ void EventConInfo::ExecIns(double ICTime)
 //LogNote(pParent->Tag(), 0, "Time:%g   TimePassed:%g", ICTime, dTimePassed);
     while (iCurIndex<iRowCnt && RowData[iCurIndex]->m_dTime<=dTimePassed)
       {
+      /*if (1)
+        {
+        Strng WrkTag,WrkCnv;
+        TaggedObject::SplitTagCnv(RowData[iCurIndex]->m_sOutputTag(), WrkTag, WrkCnv);
+        CXM_ObjectTag ObjTag(WrkTag(), 0);//TABOpt_AllInfoOnce);
+        CXM_ObjectData ObjData;
+        CXM_Route Route;
+        bool Ok = (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route)!=0);
+    
+        if (Ok)
+          {
+          CPkDataItem *pPItem=ObjData.FirstItem();
+          if ((pPItem->Flags() & isParm)!=0)
+            {
+            PkDataUnion DU;
+            byte Type=pPItem->Type();
+            bool IsNum = IsNumData(Type);
+            bool IsStr = IsStrng(Type);
+            DU.SetTypeDouble(Type, RowData[iCurIndex]->m_dOutputVal, pPItem->CnvIndex(), WrkCnv());
+            CXM_ObjectData ObjData(0, 0, WrkTag(), 0, DU);
+        //Ok = (pDoc->XWriteTaggedItem(ObjData, Route)==TOData_OK);
+            Ok = (gs_Exec.XWriteTaggedItem(NULL, ObjData, Route)!=TOData_NotFound);//???
+            //if (Ok)
+            //  gs_Exec.m_Seq.NoteManSet(CExecSequence::VSS_Trend, sTagOnly(), Str, Cnv.Text());
+            }
+          else
+            Ok = 0;
+          }
+        }
+      */
       int Ret = TryWriteTag(pParent->FamilyHead(), RowData[iCurIndex]->m_sOutputTag(), RowData[iCurIndex]->m_dOutputVal);
       if (Ret!=FXR_Found)
         {
-        LogWarning(pParent->Tag(), 0, "Failed to set tag '%s'!", RowData[iCurIndex]->m_sOutputTag());
+        Strng S;
+        if (Ret & FXR_NotFound) S = "Tag not found";
+        else if (Ret & FXR_NotParam) S = "Cannot set this type of tag";
+        else if (Ret & FXR_BadValue) S = "Tag is not a number";// or string";
+        else if (Ret & FXR_ParamStopped) S = "Tag cannot be set while solving";
+        LogWarning(pParent->Tag(), 0, "Failed to set tag '%s' (%s)!", RowData[iCurIndex]->m_sOutputTag(), S());
         }
       else
         {
@@ -273,7 +308,6 @@ void EventConInfo::ExecIns(double ICTime)
             gs_EventLog.LogEvent(pParent->Tag(), Msg);
           }
         }
-
       iCurIndex++;
       }
     }

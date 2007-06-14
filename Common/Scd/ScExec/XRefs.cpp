@@ -1013,7 +1013,7 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestPara
     CCnvIndex iCnvIndex = TAB.CnvIndex();
 
     Ret=FXR_Found;
-    if (!IsNumData(TAB.Type()) && !IsStrng(TAB.Type()))
+    if (!IsNumData(TAB.Type()))// && !IsStrng(TAB.Type())) only NumDataType allowed
       Ret|=FXR_BadValue;
     if ((TAB.Flags() & DDEF_PARAM)==0)
       Ret|=FXR_NotParam;
