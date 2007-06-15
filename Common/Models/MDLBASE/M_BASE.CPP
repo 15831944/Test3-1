@@ -1353,14 +1353,14 @@ inline  double Smooth(double x) { return (x> 0.5) ?  1.0-(2.0*Sqr(1.0-x)) : 2.0*
 
 //--------------------------------------------------------------------------
 
-void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, CSurgeControl *pControl)
-  {
-  EvalProducts_SurgeLevel(SolveInlineMethod()!=0, HO, pControl);
-  };
+//void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, CSurgeControl *pControl)
+//  {
+//  EvalProducts_SurgeLevel(SolveInlineMethod()!=0, HO, pControl);
+//  };
 
 //--------------------------------------------------------------------------
 
-void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeControl *pControl)
+void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & HO, CSurgeControl *pControl)
   {
 #if dbgDerivs
   long dbg1=dbgDerivsSrg1(FullObjTag()) || fDoDbgBrk && dbgDerivsSrg1DbgBrk(FullObjTag());
@@ -1379,6 +1379,9 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
     dbgpln("===================================================== %s.%s", Tag(),Contents.Tag());
 #endif
 
+  if (!InLine && !InEvalProdSurge)
+    return;
+  
   ContentFlw.QZero();
 
   double EntVapFrac = Contents.EntrainedGasFraction();

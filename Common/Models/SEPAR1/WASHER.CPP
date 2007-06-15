@@ -601,7 +601,7 @@ void Washer::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd/*, &m_QFeed*/);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd);
 
       if (NoProcessJoins()>=1)
         Xfer_EvalProducts(0, Joins[0].Pressure(), NULL, &m_QProd, NULL, NULL, NULL);

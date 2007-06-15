@@ -144,25 +144,33 @@ class CJoinCluster
   public:
     CJoinCluster()
       {
-      m_iCluster        = -1;
-      m_iJoinMask       = 0;
-      m_iProcOrder      = iNotInEvalOrder;
-      m_nFlwIOs         = 0;
-      m_nFlwIOsIn       = 0;
-      m_nFlwIOsOut      = 0;
-      m_nFlwIOsInReqd   = 0;
-      m_nFlwIOsInDone   = 0;
+      m_iCluster          = -1;
+      m_iJoinMask         = 0;
+      m_iProcOrder        = iNotInEvalOrder;
+      m_iProcSeq          = iNotInEvalOrder;
+#ifndef _RELEASE
+      m_iProcOrderActual  = iNotInEvalOrder;
+#endif
+      m_nFlwIOs           = 0;
+      m_nFlwIOsIn         = 0;
+      m_nFlwIOsOut        = 0;
+      m_nFlwIOsInReqd     = 0;
+      m_nFlwIOsInDone     = 0;
       };
     CJoinCluster(long Cluster, long JoinMask)
       {
-      m_iCluster        = Cluster;
-      m_iJoinMask       = JoinMask;
-      m_iProcOrder      = iNotInEvalOrder;
-      m_nFlwIOs         = 0;
-      m_nFlwIOsIn       = 0;
-      m_nFlwIOsOut      = 0;
-      m_nFlwIOsInReqd   = 0;
-      m_nFlwIOsInDone   = 0;
+      m_iCluster          = Cluster;
+      m_iJoinMask         = JoinMask;
+      m_iProcOrder        = iNotInEvalOrder;
+      m_iProcSeq          = iNotInEvalOrder;
+#ifndef _RELEASE
+      m_iProcOrderActual  = iNotInEvalOrder;
+#endif
+      m_nFlwIOs           = 0;
+      m_nFlwIOsIn         = 0;
+      m_nFlwIOsOut        = 0;
+      m_nFlwIOsInReqd     = 0;
+      m_nFlwIOsInDone     = 0;
       };
 
     long            NoIOs() { return m_nFlwIOs; };
@@ -172,6 +180,10 @@ class CJoinCluster
     long            m_iCluster;
     long            m_iJoinMask;
     long            m_iProcOrder;
+    long            m_iProcSeq;
+#ifndef _RELEASE
+    long            m_iProcOrderActual;
+#endif
 
     long            m_nFlwIOs;
     long            m_nFlwIOsIn;       // No of FlwIOs in to each node
@@ -180,7 +192,8 @@ class CJoinCluster
     long            m_nFlwIOsInDone;
 
     CIArray         m_IOs;
-    CIArray         m_FlwDependentIOs;
+    CIArray         m_EvalAfterMeIOs;
+    CIArray         m_EvalBeforeMeIOs;
   };
 
 class CJoinClusterArray : public CArray <CJoinCluster, CJoinCluster&> {};
@@ -193,6 +206,11 @@ class CJoinClusterArray : public CArray <CJoinCluster, CJoinCluster&> {};
 //
 //===========================================================================
 
+const int    ST_Undefined = 0;
+const byte   ST_Start     = 1;
+const byte   ST_Depends   = 2;
+const byte   ST_Isolated  = 3;
+
 class CNodeEvalIndex
   {
   public:
@@ -201,13 +219,16 @@ class CNodeEvalIndex
       m_pNd         = NULL;
       m_iCluster    = 0;
       m_iJoinMask   = -1;
+      m_iSeqType    = ST_Undefined;
       m_bInSequence = false;
+
       };
-    CNodeEvalIndex(FlwNode * pNd, long Cluster, long Joins, bool InSequence)
+    CNodeEvalIndex(FlwNode * pNd, long Cluster, long Joins, int SeqType, bool InSequence)
       {
       m_pNd         = pNd;
       m_iCluster    = Cluster;
       m_iJoinMask   = Joins;
+      m_iSeqType    = SeqType;
       m_bInSequence = InSequence;
       };
 
@@ -224,7 +245,9 @@ class CNodeEvalIndex
     FlwNode   * m_pNd;
     long        m_iCluster;
     long        m_iJoinMask;
+    int         m_iSeqType;
     bool        m_bInSequence;
+
   };
 
 template<class CLIST, class ARG_TYPE>
@@ -4542,7 +4565,7 @@ class DllImportExport FlwNode : public CTNode
     //flag           m_InPwrSeq;
     //long           m_lPrevXRefUpdates;
 
-    //CIArray        m_FlwDependentIOs;
+    //CIArray        m_EvalAfterMeIOs;
     CIArray        m_CtrlDependentIOs;
     CIArray        m_PwrDependentIOs;
 
@@ -4559,7 +4582,10 @@ class DllImportExport FlwNode : public CTNode
 
     byte              m_iEvalPosn;
     Strng             m_sEvalOrder;
-    //long             m_iProcOrder;
+    Strng             m_sEvalSeq;
+#ifndef _RELEASE
+    Strng             m_sEvalOrderDiff;
+#endif
     long              m_iCtrlOrder;
     long              iAllIndex;
 
@@ -4636,13 +4662,17 @@ XID xidSolveState                 = FlwXID(12);
 XID xidSysCADActive               = FlwXID(13);
 XID xidSpecSheet                  = FlwXID(14);
 XID xidEvalOrder                  = FlwXID(15);
-XID xidNdCondition                = FlwXID(16);
-XID xidNdConditionCount           = FlwXID(17);
-XID xidSetState                   = FlwXID(18);
-XID xidNdNJoins                   = FlwXID(19);
-XID xidNdNIOs                     = FlwXID(20);
-XID xidMarked                     = FlwXID(21);
-XID xidFlwNdRqdArea               = FlwXID(22);
+XID xidEvalSeq                    = FlwXID(16);
+#ifndef _RELEASE
+XID xidEvalOrderDiff              = FlwXID(17);
+#endif
+XID xidNdCondition                = FlwXID(18);
+XID xidNdConditionCount           = FlwXID(19);
+XID xidSetState                   = FlwXID(20);
+XID xidNdNJoins                   = FlwXID(21);
+XID xidNdNIOs                     = FlwXID(22);
+XID xidMarked                     = FlwXID(23);
+XID xidFlwNdRqdArea               = FlwXID(24);
 
 XID xidSrcIOTag                   = FlwXID(40);
 XID xidDstIOTag                   = FlwXID(41);

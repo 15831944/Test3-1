@@ -2559,7 +2559,6 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
 
   WrkConduits.InitHashTable(7);
 
-  //m_iProcOrder=iNotInEvalOrder;
   m_iCtrlOrder=iNotInEvalOrder ;
   iAllIndex=-1;
   fSolutionForRoot=false;
@@ -3524,7 +3523,11 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   DDB.CheckBoxBtn ("Marked", "", DC_, "", xidMarked,  this, isParm|noFileAtAll|InitHidden);
   if (!fSolutionForRoot)
     {
-    DDB.String      ("EvalOrder",    "", DC_, "", xidEvalOrder,  this, InitHidden);
+    DDB.String      ("EvalOrder",        "", DC_, "", xidEvalOrder,     this, InitHidden);
+    DDB.String      ("EvalSequence",     "", DC_, "", xidEvalSeq,       this, InitHidden);
+#ifndef _RELEASE
+    DDB.String      ("EvalOrderActual",  "", DC_, "", xidEvalOrderDiff, this, InitHidden);
+#endif
     }
 
 
@@ -4199,6 +4202,33 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       DCB.pC=m_sEvalOrder();
       return 1;
       }
+    case xidEvalSeq:
+      {
+      DCB.pC=m_sEvalSeq();
+      return 1;
+      }
+#ifndef _RELEASE
+    case xidEvalOrderDiff:
+      {
+
+      Strng SP, SP1, SC;
+      for (int c=0; c<NClusters(); c++)
+        if (IsProcessSeq() && m_Clusters[c].m_iProcOrder>=0)
+          {
+          if (SP.Length())           
+            {
+            SP1.Set("%s,%i", SP(), m_Clusters[c].m_iProcOrder-m_Clusters[c].m_iProcOrder);
+            SP=SP1;
+            }
+          else
+            SP.Set("%i", m_Clusters[c].m_iProcOrderActual-m_Clusters[c].m_iProcOrder);
+          }
+
+      m_sEvalOrderDiff=SP;
+      DCB.pC=m_sEvalOrderDiff();
+      return 1;
+      }
+#endif
     case xidNdCondition:
       {
       sCndStrng="";

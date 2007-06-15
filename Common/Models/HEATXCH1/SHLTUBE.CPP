@@ -2129,7 +2129,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
       //  {
       SigmaQInPMin(m_HXJ.S.Qi(), som_ALL, SecIOMask);
       //HX.SetL
-      EvalProducts_SurgeLevel(ShellHgtOrd/*, &m_HXJ.S.Qi()*/);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ShellHgtOrd/*, &m_HXJ.S.Qi()*/);
       //  }
       //else if (m_HXJ.SecIsJoined())
       //  PressInS=Xfer_EvalProductsIn(m_HXJ.S.JoinId(), Joins[m_HXJ.S.JoinId()].Pressure(), &m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL, NULL, NULL);

@@ -441,7 +441,7 @@ void PriReform::EvalProductsSurge(CNodeEvalIndex & NEI)
     case SM_Buffered:
       {
       SigmaQInPMin(m_CombFeed, som_ALL, HBMsk);
-      EvalProducts_SurgeLevel(m_HotBoxHgtOrd/*, &m_CombFeed*/);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), true,  m_HotBoxHgtOrd);
       }
     }
   }

@@ -2599,7 +2599,7 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
       {
       m_HX.SetLevel(m_pPriSg->RLevel());
       m_HX.SetCondensableFrac(m_HX.m_VLE.CondensableFrac(m_pPriSg));
-      EvalProducts_SurgeLevel(m_PriHgtOrd, NULL);//m_pPriSg);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), DoSurge, m_PriHgtOrd, NULL);//m_pPriSg);
       }
     else
       SigmaQInPMin(m_HXJ.P.Qi(), som_ALL, PriIOMask);
@@ -2642,7 +2642,7 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
       {
       m_HX.SetLevel(m_pSecSg->RLevel());
       m_HX.SetCondensableFrac(m_HX.m_VLE.CondensableFrac(m_pSecSg));
-      EvalProducts_SurgeLevel(m_SecHgtOrd, NULL);//m_pSecSg);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), DoSurge, m_SecHgtOrd, NULL);//m_pSecSg);
       }
     else
       SigmaQInPMin(m_HXJ.S.Qi(), som_ALL, SecIOMask);

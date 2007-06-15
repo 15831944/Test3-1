@@ -713,6 +713,19 @@ static int NoteNdIOChgsOldWhat=0;
 //
 //===========================================================================
 
+#ifndef _RELEASE
+#define CALC_EVAL_ORDER(NJ) NJ.Nd.m_Clusters[NJ.m_iCluster].m_iProcOrderActual = InterlockedIncrement(&gs_EvalProductsActualCount);
+static long gs_EvalProductsActualCount=0;
+#else
+#define CALC_EVAL_ORDER(Nd) {}
+#endif
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 class CThreadTimer;
 class CThreadTimerAccum
   {
@@ -2404,7 +2417,8 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
       for (int c=0; c<p->NClusters(); c++)
         {
         CJoinCluster &C=p->m_Clusters[c];
-        int NDeps=0;
+        int NAfter=0;
+        int NBefore=0;
         #if dbgFlwSolve
         if (dbgEvalOrdFind())
           dbgpln("FindFlwDependents %s<%i>", p->FullObjTag(),c);
@@ -2425,10 +2439,16 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
             }
           #endif
           
-          if (p->IOEvalSeq_Out(i) && p->Nd_Rmt(i)->GetActive() && !p->IOFlange(i)->IsEvalSeqStart())//!p->IOFlange(i)->IsTear())
-            C.m_FlwDependentIOs.SetAtGrow(NDeps++, i);
+          if (p->Nd_Rmt(i)->GetActive() && !p->IOFlange(i)->IsEvalSeqStart())
+            {
+            if (p->IOEvalSeq_Out(i))
+              C.m_EvalAfterMeIOs.SetAtGrow(NAfter++, i);
+            else if (p->IOEvalSeq_In(i))
+              C.m_EvalBeforeMeIOs.SetAtGrow(NBefore++, i);
+            }
           }
-        C.m_FlwDependentIOs.SetSize(NDeps);
+        C.m_EvalAfterMeIOs.SetSize(NAfter);
+        C.m_EvalBeforeMeIOs.SetSize(NBefore);
         }
       }
 
@@ -2439,7 +2459,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
         {
         CJoinCluster &C=p->m_Clusters[c];
         if (C.m_nFlwIOsInReqd==0 && C.m_nFlwIOsOut>0)
-          m_ProcTOList1.AddTail(CNodeEvalIndex(p,c,-1,true));
+          m_ProcTOList1.AddTail(CNodeEvalIndex(p,c,-1, true,true));
         }
       }
 
@@ -2457,7 +2477,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
           if (dbgEvalOrdFind())
             dbgpln(">>>>>>>>>>>> <%2i>%s",NJ.m_iCluster, NJ.Nd.Tag());
           #endif
-          m_ProcTOList2.AddTail(CNodeEvalIndex(&NJ.Nd,NJ.m_iCluster,-1,false));
+          m_ProcTOList2.AddTail(CNodeEvalIndex(&NJ.Nd,NJ.m_iCluster,-1, ST_Start, false));
           }
         }
       }
@@ -2469,7 +2489,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
           {
           CJoinCluster &C=p->m_Clusters[c];
           if (C.m_nFlwIOsIn==0 && C.m_nFlwIOsOut==0)
-            m_ProcTOList2.AddTail(CNodeEvalIndex(p,c,-1,false));
+            m_ProcTOList2.AddTail(CNodeEvalIndex(p,c,-1,ST_Isolated,false));
           }
         }
       }
@@ -2545,12 +2565,12 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
     // List 2 @ periphery
     for (p = Ctrl.First(); (p); p=Ctrl.Next())
       if (p->CtrlsInReqd()==0 && p->CtrlsOut()>0)
-        m_CtrlTOList1.AddTail(CNodeEvalIndex(p,-1,-1,true));
+        m_CtrlTOList1.AddTail(CNodeEvalIndex(p,-1,-1,ST_Start,true));
     // List 3
     for (p = Ctrl.First(); (p); p=Ctrl.Next())
       {
       if (p->CtrlsIn()==0 && p->CtrlsOut()==0)
-        m_CtrlTOList2.AddTail(CNodeEvalIndex(p,-1,-1,false));
+        m_CtrlTOList2.AddTail(CNodeEvalIndex(p,-1,-1,ST_Isolated,false));
       }
     }
 
@@ -2578,7 +2598,7 @@ flag FlwSlvBlk::FindTOSequenceStart(byte Which)
           for (int c=0; c<p->NClusters(); c++)
             {
             CJoinCluster &C=p->m_Clusters[c];
-            CIArray & PDeps=C.m_FlwDependentIOs;
+            CIArray & PDeps=C.m_EvalAfterMeIOs;
             for (int d=0; d<PDeps.GetSize(); d++)
               {
               FlwNode * pRmt=p->Nd_Rmt(PDeps[d]);
@@ -2803,6 +2823,10 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       for (int c=0; c<p->NClusters(); c++)
         {
         p->m_Clusters[c].m_iProcOrder=iNotInEvalOrder;
+        p->m_Clusters[c].m_iProcSeq=iNotInEvalOrder;
+#ifndef _RELEASE
+        p->m_Clusters[c].m_iProcOrderActual=iNotInEvalOrder;
+#endif
         p->m_Clusters[c].m_nFlwIOsInDone=0;
         }
       }
@@ -2832,7 +2856,32 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
         S.Format("%s already in Evaluation Order", p->Tag());
         ASSERT_ALWAYS(FALSE, (LPTSTR)(LPCTSTR)S, __FILE__, __LINE__);
         }
+
       C.m_iProcOrder=iOrder++;
+      
+      switch (NJ.m_iSeqType)
+        {
+        case ST_Isolated:     
+          {
+          C.m_iProcSeq=0;
+          break;
+          };
+        case ST_Start:     
+          {
+          C.m_iProcSeq=1;
+          break;
+          }
+        case ST_Depends:
+          {
+          C.m_iProcSeq=0;
+          for (int i=0; i<C.m_EvalBeforeMeIOs.GetCount(); i++)
+            {
+            long iSeq=p->IO_Cluster_Rmt(C.m_EvalBeforeMeIOs[i])->m_iProcSeq;
+            C.m_iProcSeq=Max(C.m_iProcSeq, iSeq+1);
+            }
+          break;
+          }
+        }
       ProcTOSequence.AddTail(NJ);
 
       #if dbgFlwSolve
@@ -2841,16 +2890,16 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       #endif
 
       //p->m_nFlwIOsInDone=0;
-      CIArray & Deps=C.m_FlwDependentIOs;
-      for (int d=0; d<Deps.GetSize(); d++)
+      CIArray & After=C.m_EvalAfterMeIOs;
+      for (int d=0; d<After.GetSize(); d++)
         {
         #if dbgFlwSolve
         if (dbgBuildOrder())
-          dbgp("                        %3i %3i ", Deps[d], p->m_IOs[Deps[d]].iClusterId);
+          dbgp("                        %3i %3i ", After[d], p->m_IOs[After[d]].iClusterId);
         #endif
 
-        FlwNode * pRmt=p->Nd_Rmt(Deps[d]);
-        CJoinCluster *pCRmt=p->IO_Cluster_Rmt(Deps[d]);
+        FlwNode * pRmt=p->Nd_Rmt(After[d]);
+        CJoinCluster *pCRmt=p->IO_Cluster_Rmt(After[d]);
         if (pCRmt)
           {
           #if dbgFlwSolve
@@ -2863,7 +2912,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
             if (dbgBuildOrder())
               dbgp("  ADD %s", pRmt->Tag());
             #endif
-            Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask,true));
+            Lst0.AddHead(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask, ST_Depends,true));
             // pRmt->m_nFlwIOsInDone=0;
             }
           else
@@ -2970,7 +3019,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
           pRmt=p->Nd_Rmt(iRmt);
         if (InterlockedIncrement(&(pRmt->m_nCtrlsInDone))==pRmt->CtrlsInReqd())
           {
-          Lst2.AddHead(CNodeEvalIndex(pRmt,-1,-1,true));
+          Lst2.AddHead(CNodeEvalIndex(pRmt,-1,-1, ST_Depends,true));
           //pRmt->m_nCtrlsInDone=0;
           }
         }
@@ -3153,23 +3202,54 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
     for (NJ=It.First(); It.ItemValid(); NJ=It.Next())
       {
       FlwNode & Nd=NJ.Nd;
-      Strng SP, SP1, SC;
-      for (int c=0; c<Nd.NClusters(); c++)
-        if (Nd.IsProcessSeq() && Nd.m_Clusters[c].m_iProcOrder>=0)
+      if (1) // Eval Order Info
+        {
+        Strng SP, SP1, SC;
+        for (int c=0; c<Nd.NClusters(); c++)
           {
-          if (SP.Length())           
+          if (Nd.IsProcessSeq() && Nd.m_Clusters[c].m_iProcOrder>=0)
             {
-            SP1.Set("%s,%i", SP(), Nd.m_Clusters[c].m_iProcOrder);
-            SP=SP1;
+            if (SP.Length())           
+              {
+              SP1.Set("%s,%i", SP(), Nd.m_Clusters[c].m_iProcOrder);
+              SP=SP1;
+              }
+            else
+              SP.Set("Proc:%i", Nd.m_Clusters[c].m_iProcOrder);
             }
-          else
-            SP.Set("Proc:%i", Nd.m_Clusters[c].m_iProcOrder);
           }
-      if (Nd.InPwrCtrlSeq() && NJ.Nd.m_iCtrlOrder>=0)
-        SC.Set("Ctrl:%i", NJ.Nd.m_iCtrlOrder);
-      NJ.Nd.m_sEvalOrder=SP;
-      NJ.Nd.m_sEvalOrder+=" ";
-      NJ.Nd.m_sEvalOrder+=SC;
+        if (Nd.InPwrCtrlSeq() && NJ.Nd.m_iCtrlOrder>=0)
+          SC.Set("Ctrl:%i", NJ.Nd.m_iCtrlOrder);
+        NJ.Nd.m_sEvalOrder=SP;
+        NJ.Nd.m_sEvalOrder+=" ";
+        NJ.Nd.m_sEvalOrder+=SC;
+#ifndef _RELEASE
+        NJ.Nd.m_sEvalOrderDiff="";
+#endif
+        }
+      if (1) // Eval Seq Info
+        {
+        Strng SP, SP1, SC;
+        for (int c=0; c<Nd.NClusters(); c++)
+          {
+          static LPCSTR sSeqType[] = {"Undefined:","Start:","Next:","Isolated:","?","?","?"};
+          if (Nd.IsProcessSeq() && Nd.m_Clusters[c].m_iProcOrder>=0)
+            {
+            if (SP.Length())           
+              {
+              SP1.Set("%s,%s%i", SP(), sSeqType[NJ.m_iSeqType], Nd.m_Clusters[c].m_iProcSeq);
+              SP=SP1;
+              }
+            else
+              SP.Set("%s%i", sSeqType[NJ.m_iSeqType], Nd.m_Clusters[c].m_iProcSeq);
+            }
+          }
+        //if (Nd.InPwrCtrlSeq() && NJ.Nd.m_iCtrlOrder>=0)
+        //  SC.Set("C:%i", NJ.Nd.m_iCtrlOrder);
+        NJ.Nd.m_sEvalSeq=SP;
+        NJ.Nd.m_sEvalSeq+=" ";
+        NJ.Nd.m_sEvalSeq+=SC;
+        }
       }
     }
 
@@ -3258,11 +3338,10 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
             dbgp("");
 
             dbgp("");
-            dbgp("%-10s %14s %4i %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
+            dbgp("%-10s %14s %4i %4i %4i [%5s %5s %5s %5s %3s %3s %3s %3s %3s %3s %3s %3s %3s %3s] ",
               Q1(),Q2(), 
               Nd.NoProcLnkIOs(),
               Nd.NoProcessIOs(),Nd.NoMaterialIOs(),
-              Nd.NoFlwIOs()-Nd.NoProcessIOs(),
               DotNum(pC ? pC->m_nFlwIOsIn:-1),DotNum(pC ? pC->m_nFlwIOsOut:-1),
               DotNum(pC ? pC->m_nFlwIOsInReqd:-1),DotNum(pC ? (pC->m_nFlwIOsIn-pC->m_nFlwIOsInReqd):-1),
               DotNum(Nd.m_nCtrlIOsIn),DotNum(Nd.m_nCtrlIOsOut),
@@ -4961,7 +5040,7 @@ inline static void ProcLoopStart(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, i
         dbglock();
         dbgp("%*s     %3i %3i Rst %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
           C.m_nFlwIOsInDone,C.m_nFlwIOsInReqd, NEI.Nd.Tag());
-        dbgp(" 0x%08x", &C);
+        dbgp(" [%4i]", C.m_iCluster);
         dbgpln("");
         dbgunlock();
         }
@@ -4985,7 +5064,7 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
     //ASSERT(NEI.Nd.NClusters()==0);
     CJoinCluster &C=NEI.Cluster;
     C.m_nFlwIOsInDone=0;
-    CIArray & Deps=C.m_FlwDependentIOs;
+    CIArray & Deps=C.m_EvalAfterMeIOs;
 
     #if dbgFlwSolve
     if (0 && dbgThreadsNodes())
@@ -5004,7 +5083,7 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
           {
           //InterlockedExchange(&pCRmt->m_nFlwIOsInDone, 0);
           //      Iter.AddTail(pRmt);
-          Iter.AddTail(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask,true));
+          Iter.AddTail(CNodeEvalIndex(pRmt, pCRmt->m_iCluster, pCRmt->m_iJoinMask, ST_Depends,true));
          
           #if dbgFlwSolve
           if (dbgThreadsNodes())
@@ -5012,7 +5091,8 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
             dbglock();
             dbgp("%*s %2i) %3i %3i Go  %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "", 
               Deps[d],pCRmt->m_nFlwIOsInDone,pCRmt->m_nFlwIOsInReqd,  pRmt->Tag());
-            dbgp(" 0x%08x", pCRmt);
+            //dbgp(" 0x%08x", pCRmt);
+            dbgp(" [%4i]", pCRmt->m_iCluster);
             dbgpln("");
             dbgunlock();
             }
@@ -5026,7 +5106,8 @@ inline static void ProcLoopEnd(CLkNodeEvalIter & Iter, CNodeEvalIndex & NEI, int
             dbglock();
             dbgp("%*s %2i) %3i %3i +   %s", 18+CFlwSlvThreads::dbgIndent(GetCurrentThreadId()), "",
               Deps[d], pCRmt->m_nFlwIOsInDone,pCRmt->m_nFlwIOsInReqd, pRmt->Tag());
-            dbgp(" 0x%08x", pCRmt);
+            //dbgp(" 0x%08x", pCRmt);
+            dbgp(" [%4i]", pCRmt->m_iCluster);
             dbgpln("");
             dbgunlock();
             }
@@ -5175,6 +5256,7 @@ void FlwSlvPB::FITPBEvalProducts(CLkNodeEvalIter & Iter)
     if (p->fEvalProductsCalled)
       { int xxx=0; };
     p->BeforeNode(NPM_BeforeEvalProducts);
+    CALC_EVAL_ORDER(NJ);
     p->EvalProducts(NJ);
     p->AfterNode(NPM_AfterEvalProducts);
     p->fEvalProductsCalled=true;
@@ -5703,6 +5785,7 @@ int FlwSlvPB::StepSolution(const EqnSlvCtrlBlk & EQCtrl)
         XT.StartLoop(NJ.m_pNd);
         XT.LockDone();//(p, eFITPBEvalProducts, FSW_EvalProducts);
         NJ.Nd.BeforeNode(NPM_BeforeEvalProducts);
+        CALC_EVAL_ORDER(NJ);
         NJ.Nd.EvalProducts(NJ);
         NJ.Nd.AfterNode(NPM_AfterEvalProducts);
         //ASSERT(_CrtCheckMemory());
@@ -7857,6 +7940,7 @@ void FlwSlvDyn::FITEvalProducts(CLkNodeEvalIter & Iter)
       XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
       //dbgpln("---------------------------- %s", p->FullObjTag());
       p->BeforeNode(NPM_BeforeEvalProducts);
+      CALC_EVAL_ORDER(NJ);
       p->EvalProducts(NJ);
       p->AfterNode(NPM_AfterEvalProducts);
       p->fEvalProductsCalled=true;
@@ -7952,7 +8036,7 @@ void FlwSlvDyn::ODEDerivs()
   CFlwNodeIter Ctrl(m_PwrCtrlNds);
   for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
     if (p->NetDynamicMethod())
-      p->EvalDerivs(CNodeEvalIndex(p,-1,-1,false));
+      p->EvalDerivs(CNodeEvalIndex(p,-1,-1,ST_Isolated,false));
   //for (FlwNode * p = Ctrl.First(); (p); p = Ctrl.Next())
   //  if (p->NetDynamicMethod())
   //    p->PostEvalDerivs();
@@ -8113,6 +8197,7 @@ void FlwSlvDyn::ODEDerivs()
             //  }
             XT.LockDone();//(p, eFITEvalProducts, FSW_EvalProducts);
             NJ.Nd.BeforeNode(NPM_BeforeEvalProducts);
+            CALC_EVAL_ORDER(NJ)
             NJ.Nd.EvalProducts(NJ);
             NJ.Nd.AfterNode(NPM_AfterEvalProducts);
             NJ.Nd.fEvalProductsCalled=true;

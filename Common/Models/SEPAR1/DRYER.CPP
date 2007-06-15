@@ -295,7 +295,7 @@ void Dryer::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
-      EvalProducts_SurgeLevel(ContentHgtOrd/*, &m_QFeed*/);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd/*, &m_QFeed*/);
 
       //if (NoProcessJoins()>=1)
       //  Xfer_EvalProducts(0, Joins[0].Pressure(), &QSigmaOut, NULL, NULL, NULL);

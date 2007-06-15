@@ -543,7 +543,7 @@ void MN_Surge::EvalProductsSurge(CNodeEvalIndex & NEI)
     {
     dword IOMsk=First64IOIds;
     SigmaQInPMin(m_QFeed, som_ALL, IOMsk);
-    EvalProducts_SurgeLevel(ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
+    EvalProducts_SurgeLevel(SolveInlineMethod(), true, ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
 
     if (m_QFeed.QVolume()*ICGetTimeInc()>=Contents.Shape()->ApparentVolume())
       SetCI(1, "High Volume Throughput %.2f%%", 100.0*m_QFeed.QVolume()*ICGetTimeInc()/GTZ(Contents.Shape()->ApparentVolume()));
@@ -586,7 +586,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
 
       m_BlkEval.EvalProducts(m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
 
-      EvalProducts_SurgeLevel(ContentHgtOrd, /*&m_QFeed,*/ &m_SrgCtrl);
+      EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd, &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());
       // fall thru
       if (NoProcessJoins()>=2)
