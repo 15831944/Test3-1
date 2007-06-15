@@ -11747,7 +11747,7 @@ class CLTHelp
       };
     void ConnLoopGetEnd(bool DoIt, CConnect *p, int i)
       {
-      if (DoIt && m_pS)
+      if (DoIt && m_pS && m_pS->GetLength()>0)
         {
         //dbgpln("<<<<<<< %i 0x%08x 0x%08x %s", i, p, m_pS, m_pS->Str());
         m_pS->SetIndex(i);
