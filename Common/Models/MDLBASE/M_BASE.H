@@ -235,16 +235,8 @@ class DllImportExport MdlNode : public FlwNode
     virtual void   EvalProductsInit_Node(EvalProductsInitTasks Task, IDMask IOIds);
     virtual void   EvalProductsInit_Link(EvalProductsInitTasks Task);
 
-    void           VentVapours(SpContainer & Contents);
-    void           DoOverflowLinks(CHgtOrdInfo & Info);
-    void           DoGasVentLinks(CHgtOrdInfo & Info);    
-
     virtual void   EvalProducts_SurgeLevel(CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
     virtual void   EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
-    //virtual void   EvalProducts_SurgeLevelInline(bool InLine, CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
-    //virtual void   EvalProducts_SurgeLevelDeriv(CHgtOrdInfo & HgtOrdInfo, CSurgeControl *pControl=NULL);
-    //virtual void   EvalProducts_SurgeLevel(SpContainer & Contents, SpConduit & QInEst, IDMask IOIds, PMUCfgBlk * pPMU=NULL);
-    //virtual void   EvalProducts_SurgeImage(SpContainer & Contents, IDMask IOIds);
     virtual void   EvalDerivs_SetQs_Xfer(SpContainer & Contents, IDMask IOIds);
     virtual void   ClosureInfo();
 

@@ -111,9 +111,9 @@ double CR_EqnControl::ExtentDynamicScale(double K)
           //double y=-log(1.0-GEZ(m_ddFracRate()));
           double Frac;
           if (m_bStablize)
-            Frac=1.0-exp(-GEZ(m_ddFracRate()*RB.CSB()->TimeInc()));
+            Frac=1.0-exp(-GEZ(m_ddFracRate()*RB.DynRateScale()*RB.CSB()->TimeInc()));
           else
-            Frac=Range(0.0, m_ddFracRate()*RB.CSB()->TimeInc(), 1.0);
+            Frac=Range(0.0, m_ddFracRate()*RB.DynRateScale()*RB.CSB()->TimeInc(), 1.0);
           KScl=m_dKStart+(K-m_dKStart)*Range(0.0, Frac, 1.0);
           break;
           }

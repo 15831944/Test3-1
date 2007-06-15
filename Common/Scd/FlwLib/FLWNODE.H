@@ -1946,16 +1946,20 @@ class CHgtOrdInfo
 
     int NOrd() { return m_Ord.GetSize(); };
 
-    SpContainer &Container() { return *m_pCn; };
-    SpConduit   &ContentFlw() { return m_FlwCd; };
+    SpContainer &Container()    { return *m_pCn; };
+    SpConduit   &ContentFlw()   { return m_ContentFlw; };
+    SpConduit   &VapourFlw()    { return m_VapourFlw; };
 
   public:
 
-    IDMask              m_dwIOIdMask;
-    SpContainer       * m_pCn;
-    SpConduit           m_FlwCd;
-    CArray <int, int>   m_Ord;
-    CArray <int, int>   m_Seq;
+    IDMask                    m_dwIOIdMask;
+    SpContainer             * m_pCn;
+    SpConduit                 m_ContentFlw;
+    SpConduit                 m_VapourFlw;
+    CArray <int, int>         m_Ord;
+    CArray <int, int>         m_Seq;
+    CArray <double, double>   m_VolScl;
+    CArray <double, double>   m_SLRho;
   };
 
 class CSrgFlwInfo

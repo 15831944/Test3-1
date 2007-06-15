@@ -1001,7 +1001,12 @@ void MN_Surge::ConvergeStates(CConvergeStateBlk &CSB)
       };
 
     if (!IntegralDone() && !GetActiveHold())
-      m_VLE.VFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+      {
+      if (Contents.Closed())
+        m_VLE.VFlash(Contents, 0.0, VLEF_Null);
+      else
+        m_VLE.PFlash(Contents, AtmosPress(m_Datum), 0.0, VLEF_Null);
+      }
 
     m_EqThermals.ConvergeStates(CSB);
     }

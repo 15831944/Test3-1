@@ -382,6 +382,7 @@ class DllImportExport CReactionBlock : public TaggedObject
     double         EstFinalT()        { return Valid(m_dEstFinalT) ? m_dEstFinalT : m_TempK; };
     CConvergeStateBlk * CSB()         { return m_pCSB; };
     double         TimeIncAtSolve()   { return m_TimeIncAtSolve; };
+    double         DynRateScale()     { return m_DynRateScale; };
 
 
     _declspec(property(get=getModel))         SpModel * Model;
@@ -457,6 +458,8 @@ class DllImportExport CReactionBlock : public TaggedObject
     Strng          m_LoadState;
     Strng          m_RunState;
     Strng          m_LoadError;
+
+    double         m_DynRateScale;
 
     CConvergeStateBlk *m_pCSB;
 

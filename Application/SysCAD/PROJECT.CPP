@@ -194,7 +194,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 105; //CNM  23/03/2007 SpVector::Tagging/Symbols changed
 //const int LatestPrjFileVer = 106; //CNM  23/04/2007 DataUnionCom changes - reopen of old historian files
 //const int LatestPrjFileVer = 107; //CNM  18/05/2007 Makeup recovery issues
-const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
+//const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
+const int LatestPrjFileVer = 109;   //CNM  13/06/2007 SpCOntainer HiLevelLimit tweak
 
 //===========================================================================
 //

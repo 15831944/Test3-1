@@ -54,12 +54,14 @@ const byte ioidAn   = 1;
 const byte ioidCath = 2;
 const byte ioidVent = 3;
 
+static CAltIOName AIOHood[]   = {{"Vent",   90}, {}};
+
 static IOAreaRec ElectroCellIOAreaList[] =
   {
     {"Feed",      "Feed"      , ioidFd,   LIO_In ,  nc_MLnk, 1, 20, IOPipeEntry,                           1.0f},
     {"Anolyte",   "Anolyte"   , ioidAn,   LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied|IOChgFracHgt,   1.0f},
     {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,                0.0f},
-    {"",          "Vent"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,             1.05f},
+    {"",          "Hood"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,             1.05f,  {0,0,0,0}, AIOHood},
     SPILL2AREA,
     VENT2AREA,
     {NULL}
@@ -71,12 +73,12 @@ static double Drw_ECell[] = { DD_Poly, -10,-5, -10,5, -6,5, -6,-5, -2,-5,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(ElectroCell, "ECell", "", Drw_ECell, "Tank", "EC", TOC_ALL|TOC_GRP_SEPAR|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(CElectroCell, "ECell", "", Drw_ECell, "Tank", "EC", TOC_ALL|TOC_GRP_SEPAR|TOC_STD_KENWALT,
                     "Separation:Electrowinning Cell", 
                     "Electrowinning Cell removes metals "
                     "separately from the unit") 
 
-ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
+CElectroCell::CElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
   //m_Vent.SysEnable =  false;
@@ -90,15 +92,15 @@ ElectroCell::ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   dCellEff     = 0.9;
   dPreHeatFrac = 0.0;//0.5;
   dHeatFlow    = 0.0;
-  TempKFeed    = Std_T;
-  TempKProd    = Std_T;
+  m_TempKFeed    = Std_T;
+  m_TempKProd    = Std_T;
   iMetal       = 0;
   };
 
 //--------------------------------------------------------------------------
 /*#F:This provides access to the variables of the model and calls the
 BuildDataDefn for objects used by the model.*/ 
-void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
+void CElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this);
 
@@ -118,8 +120,8 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   //DDB.Double  ("",           "PreHeatFrac", DC_Frac, "%",      &dPreHeatFrac,  this, isParm); //possibly not needed?
   DDB.Double  ("",             "EnergyRqd", DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|noFileAtAll|InitHidden);
   DDB.Double  ("",             "HeatFlow",  DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|0);
-  DDB.Double ("TempFeed",      "Feed.T",    DC_T,    "C",      &TempKFeed,     this, isResult);//|noFileAtAll);
-  DDB.Double  ("FinalT",                "", DC_T,    "C",      &TempKProd,     this, isResult|0);
+  DDB.Double ("TempFeed",      "Feed.T",    DC_T,    "C",      &m_TempKFeed,     this, isResult);//|noFileAtAll);
+  DDB.Double  ("FinalT",                "", DC_T,    "C",      &m_TempKProd,     this, isResult|0);
 
 
   DDB.Text    ("");
@@ -148,7 +150,7 @@ void ElectroCell::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-flag ElectroCell::ValidateData(ValidateDataBlk & VDB)
+flag CElectroCell::ValidateData(ValidateDataBlk & VDB)
   {
   //SetIsSurgeType(SolveBufferedMethod());
   return MdlNode::ValidateData(VDB);
@@ -156,7 +158,7 @@ flag ElectroCell::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-void   ElectroCell::PostConnect(int IONo)
+void   CElectroCell::PostConnect(int IONo)
   {
   if (IOId_Self(IONo)==ioidVent)
     m_Vent.SysEnable =  false;
@@ -164,7 +166,7 @@ void   ElectroCell::PostConnect(int IONo)
   MN_Surge::PostConnect(IONo);
   };
 
-void   ElectroCell::PreDisConnect(int IONo)
+void   CElectroCell::PreDisConnect(int IONo)
   {
   MN_Surge::PreDisConnect(IONo);
 
@@ -175,7 +177,7 @@ void   ElectroCell::PreDisConnect(int IONo)
 
 //--------------------------------------------------------------------------
 
-void ElectroCell::EvalJoinPressures(long JoinMask)
+void CElectroCell::EvalJoinPressures(long JoinMask)
   {
   switch (NetMethod())
     {
@@ -200,7 +202,7 @@ This determines what material should leave through each outlet,
 and rate of change of the contents resulting from the flow, of material, out of each outlet
 of the surge unit.
 */
-void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
+void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
   {
   StkSpConduit Sd("Sd", chLINEID(), this);
   dCellEff     = Range(0.01, dCellEff, 1.0);
@@ -216,9 +218,9 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       SpConduit & Ca = *IOConduit(iCa);
 
       SigmaQInPMin(Sd(), som_ALL, Id_2_Mask(ioidFd));
-      TempKFeed = Sd().Temp();
+      m_TempKFeed = Sd().Temp();
   
-      const double TotHfAtFeedT_Before = Sd().totHf(som_ALL, TempKFeed, Sd().Press());
+      const double TotHfAtFeedT_Before = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
       double emf = dHeatFlow; //use previous value
       double emfPart1 = 0.0;
       if (0)//RB() && Valid(emf) && dPreHeatFrac>0.0) possibly not needed?
@@ -229,7 +231,7 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
         }
 
       RB.EvalProducts(Sd());
-      const double TotHfAtFeedT_After = Sd().totHf(som_ALL, TempKFeed, Sd().Press());
+      const double TotHfAtFeedT_After = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
       
       if (RB())
         {// Input energy from the electrical work applied to the cell...
@@ -248,7 +250,7 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       double Qs = Sd().QMass(som_Sol);
       double Ql = Sd().QMass(som_Liq);
       double Qg = Sd().QMass(som_Gas);
-      TempKProd = Sd().Temp();
+      m_TempKProd = Sd().Temp();
 
       An.QSetM(Sd(), som_Sol, 0.0, Std_P);
       An.QAddM(Sd(), som_Liq, Ql);
@@ -276,14 +278,14 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Buffered:
       {
       Contents.ZeroDeriv();
-      TempKFeed=Sd().Temp();
+      m_TempKFeed=Sd().Temp();
       if (SolveMethod()==SM_Inline)
         {
         RB.EvalProducts(Sd());
         }
       else
         {
-        RB.EvalDerivs(Contents, Sd(), Sd());
+        //RB.EvalDerivs(Contents, Sd(), Sd());
         }
 
       double emf = 0.0;
@@ -325,7 +327,7 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
       EvalProducts_SurgeLevel(ContentHgtOrd/*, &m_QFeed*/);
 
-      TempKProd=Sd().Temp();
+      m_TempKProd=Sd().Temp();
 
       break;
       }
@@ -334,7 +336,50 @@ void ElectroCell::EvalProducts(CNodeEvalIndex & NEI)
 
 //--------------------------------------------------------------------------
 
-void ElectroCell::ClosureInfo()
+void CElectroCell::ConvergeStates(CConvergeStateBlk &CSB)
+  {
+  ASSERT(NetDynamicMethod());
+
+  if (SolveMethod()==SM_Buffered)
+    {
+
+    if (RB())
+      {//only call this code if the surge is actualy used
+      //#if dbgMSurge
+      //if (dbgEvalConverge())
+      //  dbgpln("CElectroCell::ConvergeStates - RB %s", FullObjTag());
+      //#endif
+
+      //double TempKFeed=Contents.Temp();
+      double TotHfAtFeedT_Before = Contents.totHf(som_ALL, m_TempKFeed, Contents.Press());
+
+      Contents.SetMeanResTimeCalcsReqd(true);
+      RB.ConvergeStates(CSB, Contents, Contents.MeanResTimes());
+
+      double TotHfAtFeedT_After = Contents.totHf(som_ALL, m_TempKFeed, Contents.Press());
+
+      double emf = TotHfAtFeedT_After-TotHfAtFeedT_Before;
+      emf = (emf / dCellEff);// * -1.0;
+      Contents.Set_totHf(Contents.totHf() + emf);
+
+      //#if dbgMSurge
+      //if (dbgEvalConverge())
+      //  dbgpln("-------------------------------------- ");
+      //#endif
+      };
+
+    if (!IntegralDone() && !GetActiveHold())
+      m_VLE.VFlash(Contents, 0.0, VLEF_Null);//, NULL, NULL, NULL);
+
+    m_EqThermals.ConvergeStates(CSB);
+    }
+  else
+    MN_Surge::ConvergeStates(CSB);
+  }
+
+//--------------------------------------------------------------------------
+
+void CElectroCell::ClosureInfo()
   { 
   if (m_Closure.DoFlows())
     {

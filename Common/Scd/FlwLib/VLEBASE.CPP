@@ -129,7 +129,7 @@ CGlblStopWatch CVLEBase::sm_swQVDerivs(gs_swFlwSolve,    "VLE", "QVDerivs");
 CGlblStopWatch CVLEBase::sm_swQMVapFlash(gs_swFlwSolve,  "VLE", "MVapFlash");
 #endif
 
-CVLEBase::CVLEBase(pTaggedObject pAttach, dword SelectMask, LPTSTR Name) : 
+CVLEBase::CVLEBase(TaggedObject * pAttach, dword SelectMask, LPTSTR Name) : 
 CBlockEvalBase(BEId_VLE,0,Name) 
   { 
   m_pVLE            = NULL; 
@@ -648,6 +648,59 @@ void CVLEBase::PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, d
 
 //--------------------------------------------------------------------------
 
+void CVLEBase::PFlash(SpContainer &C, double Press, double Duty, dword Flags)
+  {
+  if (Enabled()) 
+    {
+    VLETIMERLAP(sm_swQVFlash);
+
+#if DoDbg
+    double T0=C.Temp();
+    double P0=C.Press();
+    double H0=C.totHf();
+    double MV0=C.Mass(som_Gas);
+    double MSL0=C.Mass(som_SL);
+    SpMArray XXX(*C.Model());
+    if (dbgQVFlash() || dbgQVFlashDbg() && C.DoDbgBrk())
+      dbgpln("VFlash:%s",C.FullObjTag());
+#endif
+
+    if ((Flags&VLEF_HoldFeedMeasure)==0)
+      SaveFeedInfo(true, C);
+
+    m_pVLE->PFlash(C, Press, Duty, Flags);
+
+    if ((Flags&VLEF_HoldProdMeasure)==0)
+      SaveProdInfo(true, C);
+    C.SetFlashDescription(FlashDescription());
+    m_sSatMethod = FlashDescription();
+
+#if DoDbg
+    double T1=C.Temp();
+    double P1=C.Press();
+    double H1=C.totHf();
+    double MV1=C.Mass(som_Gas);
+    double MSL1=C.Mass(som_SL);
+    if (dbgQVFlashChg() || dbgQVFlashChgDbg() && C.DoDbgBrk())
+      {
+      //      dbgpln("VFlash:%s",C.FullObjTag());
+      dbgpln("  T : %14.6f > %14.6f [%+14.6g]",  T0, T1, T1-T0);
+      dbgpln("  P : %14.6f > %14.6f [%+14.6g]",  P0, P1, P1-P0);
+      dbgpln("  H : %14.6g > %14.6g [%+14.6g]",  H0, H1, H1-H0);
+      dbgpln("  Mv: %14.6f > %14.6f [%+14.6g]",  MV0, MV1, (MV1-MV0));
+      dbgpln("  Ml: %14.6f > %14.6f [%+14.6g]",  MSL0, MSL1, (MSL1-MSL0));
+      CSysVector &YYY=C.MArray();
+      for (int i=0; i<SVSpcCount(); i++)
+        if (XXX[i]>1.0e-6 || YYY[i]>1.0e-6)
+          dbgpln("  M : %14.6f > %14.6f [%+14.6g] %s", XXX[i], YYY[i], YYY[i]-XXX[i], SVImg(i).SymOrTag());
+      }
+    int xxx=0;
+#endif
+    }
+  };
+
+//--------------------------------------------------------------------------
+
 void CVLEBase::VFlash(SpContainer &C, double Duty, dword Flags)
   {
   if (Enabled()) 
@@ -709,8 +762,10 @@ void CVLEBase::AddQVDerivs(SpContainer &C, double Duty, dword Flags)
     CSpMdlDerivCtrl &DC=C.pModel->m_DC;
 
     DC.Save(C.pModel);
-    if (1) //Must Test
+    if (C.Closed())
       m_pVLE->VFlash(C, Duty, Flags);
+    else
+      m_pVLE->PFlash(C, AtmosPress(/*m_pNd->m_Datum*/), Duty, Flags);
     //StkSpContainer
     CSysVector &Mxx=C.pModel->MArray();
 
@@ -736,7 +791,10 @@ void CVLEBase::AddQVDerivs(SpContainer &C, double Duty, dword Flags)
     SpMArray MDeriv=C.pModel->MArray();
     double HDeriv=C.pModel->m_msHf*C.pModel->Mass();//+C.pModel->totHf(som_ALL, K2C(0.0), Std_P, C.pModel->pMArray());
 
-    m_pVLE->VFlash(C, Duty, Flags);
+    if (C.Closed())
+      m_pVLE->VFlash(C, Duty, Flags);
+    else
+      m_pVLE->PFlash(C, AtmosPress(/*m_pNd->m_Datum*/), Duty, Flags);
 
 #if DoDbg
     double T1=C.Temp();
@@ -1692,6 +1750,16 @@ void CVLEVapPress::PFlash(SpConduit &Q, double Press, double Duty, dword Flags)
 void CVLEVapPress::PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags)
   { 
   if (Setup(Ql.Model(), Qv.Model())==VLES_OK)
+    {
+    PFlash(Press, Duty, Flags);
+    }
+  };
+
+// -------------------------------------------------------------------------
+
+void CVLEVapPress::PFlash(SpContainer &C, double Press, double Duty, dword Flags)
+  { 
+  if (Setup(C.Model(), NULL)==VLES_OK)
     {
     PFlash(Press, Duty, Flags);
     }
@@ -2816,6 +2884,31 @@ void CVLERootK::PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, 
 
     }
 
+  };
+
+// -------------------------------------------------------------------------
+
+void CVLERootK::PFlash(SpContainer &C, double Press, double Duty, dword Flags)
+  { 
+  if (Setup(C.Model(), NULL)==VLES_OK)
+    {
+    SpModel &Mdl=*C.Model();
+    double Temp=Valid(dPrvTemp) ? dPrvTemp : C.Temp();
+
+    QPFnd QP(this, Press, Ht+Duty);
+    QP.SetTarget(0.0);
+    QP.SetLimits(Std_T-100.0, 1000.0);
+    if (QP.SolveFromEst(Temp, 1.0, 50.0)==RF_OK)
+      {
+      dPrvTemp=QP.Result();
+      ClrCI(4);
+      }
+    else
+      {
+      SetCI(4);
+      //LogError(FullObjTag(), 0, "PFlash Not Converged");
+      };
+    }
   };
 
 // -------------------------------------------------------------------------

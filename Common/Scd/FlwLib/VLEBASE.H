@@ -103,6 +103,7 @@ class DllImportExport CVLEBlock : public TaggedObject
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)                          {};
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags)                           {};
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags)           {};
+    virtual void   PFlash(SpContainer &C, double Press, double Duty, dword Flags)                         {};
     virtual void   VFlash(SpContainer &C, double Duty, dword Flags)                                       {};
     virtual void   AddQVDerivs(SpContainer &C, double Duty, dword Flags)                                  {};
     virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags)                         {};
@@ -176,6 +177,7 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpContainer &C, double Press, double Duty, dword Flags);
     virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
     virtual void   AddQVDerivs(SpContainer &C, double Duty, dword Flags);
     virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
@@ -200,7 +202,7 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     flag            m_fFixed;
     flag            m_fEnabled;
     CVLEBlock *     m_pVLE;
-    pTaggedObject   m_pNd;
+    TaggedObject  * m_pNd;
     dword           m_dwSelectMask;
 
     int             m_iFlags;
@@ -297,6 +299,7 @@ class DllImportExport CVLEVapPress : public CVLEBlock
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpContainer &C, double Press, double Duty, dword Flags);
     virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
     virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
     virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);
@@ -426,6 +429,7 @@ class DllImportExport CVLERootK : public CVLEBlock
     virtual void   TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags);
     virtual void   PFlash(SpConduit &Q, double Press, double Duty, dword Flags);
     virtual void   PFlash(SpConduit &Ql, SpConduit &Qv, double Press, double Duty, dword Flags);
+    virtual void   PFlash(SpContainer &C, double Press, double Duty, dword Flags);
     virtual void   VFlash(SpContainer &C, double Duty, dword Flags);
     virtual void   MVapFlash(SpConduit &Q, double MVap, double Duty, dword Flags);
     virtual void   MVapFlash(SpConduit &Ql, SpConduit &Qv, double MVap, double Duty, dword Flags);    

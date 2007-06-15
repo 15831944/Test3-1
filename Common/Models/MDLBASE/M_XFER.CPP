@@ -287,9 +287,23 @@ void MN_Xfer::ConfigureJoins()
     }
   else
     {
-    Set_NoJoins(1);
-    for (int i=0; i<NoProcessIOs(); i++)
-      SetIO_Join(i, 0);
+    int N=0;
+    for (int i=0; i<NoProcLnkIOs(); i++)
+      {
+      if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
+        N++;
+      }
+
+    Set_NoJoins(N>0 ? 2 : 1);
+    for (int i=0; i<NoProcLnkIOs(); i++)
+      {
+      if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
+        SetIO_Open(i, 1, false, ESS_Denied);
+      else if (NoProcLnkIOs()-N>=2)
+        SetIO_Join(i, 0);
+      else
+        SetIO_Open(i, 0, false, ESS_Denied);
+      }
     }
 
   for (int ii=NoProcessIOs(), jj=1+1; ii<NoFlwIOs(); ii++, jj++)
@@ -350,10 +364,30 @@ void MN_Xfer::EvalJoinPressures(long JoinMask)
       //if (m_PCtrl0.Method())
       if (JoinMask&1)
         {
-        if (HasModeNear(0, LFM_Xfer))
-          EvalJoinPressure(0, &m_PCtrl0);
-        else
+        int N=0;
+        for (int i=0; i<NoProcLnkIOs(); i++)
+          {
+          if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
+            N++;
+          }
+
+        if (NoProcLnkIOs()-N>=2)
           SetJoinPressure(0, JoinP(0), true, true);
+        else
+          {
+          //m_PCtrl0.DoInputs
+            //SetJoinPressure(0, AtmosPress(m_Datum)/* JoinP(0)*/, true, true);
+          //if (HasModeNear(0, LFM_Xfer))
+          EvalJoinPressure(0, &m_PCtrl0);
+          }
+        //else
+        }
+      if (JoinMask&2 && NoProcessJoins()>1)
+        {
+        //if (HasModeNear(1, LFM_Xfer))
+        //  EvalJoinPressure(0, &m_PCtrl0);
+        //else
+        SetJoinPressure(1, AtmosPress(m_Datum)/* JoinP(0)*/, true, true);
         }
       //MdlNode::EvalJoinPressures(JoinMask);
       break;

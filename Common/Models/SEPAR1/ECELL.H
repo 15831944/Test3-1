@@ -22,21 +22,13 @@
 
 //=========================================================================== 
 
-DEFINE_TAGOBJ(ElectroCell);
+DEFINE_TAGOBJ(CElectroCell);
 
-class ElectroCell : public MN_Surge
+class CElectroCell : public MN_Surge
   {
   public:
-    byte           iMetal;
-    double         CathMass;  // Mass of Cathodes
-    double         dCellEff;
-    double         dPreHeatFrac;
-    double         dHeatFlow;
-    double         TempKFeed;
-    double         TempKProd;
-
-    ElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~ElectroCell (){};
+    CElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~CElectroCell (){};
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   ValidateData(ValidateDataBlk & VDB);
 
@@ -45,8 +37,17 @@ class ElectroCell : public MN_Surge
 
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);
+    virtual void   ConvergeStates(CConvergeStateBlk &CSB);
     virtual void   ClosureInfo();
-  private:
+
+  protected:
+    byte           iMetal;
+    double         CathMass;  // Mass of Cathodes
+    double         dCellEff;
+    double         dPreHeatFrac;
+    double         dHeatFlow;
+    double         m_TempKFeed;
+    double         m_TempKProd;
   };
 
 //=========================================================================== 

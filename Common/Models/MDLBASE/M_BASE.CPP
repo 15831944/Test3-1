@@ -1353,56 +1353,6 @@ inline  double Smooth(double x) { return (x> 0.5) ?  1.0-(2.0*Sqr(1.0-x)) : 2.0*
 
 //--------------------------------------------------------------------------
 
-void MdlNode::VentVapours(SpContainer &Contents)
-  {
-  // Vent Vapours
-  flag GasVentNeeded=0;
-  if (1)//Contents.VentExists())
-    Contents.Vent.Cd.QZero();
-        
-  if (Contents.Vent.Enabled)
-    {
-    for (int i=0; i<SDB.Count();i++)
-      if (SDB[i].IsGas() && Contents.VMass[i]>1.0e-30)
-        {
-        GasVentNeeded=1;
-        double RqdMass=GEZ(Contents.VMass[i]/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau()));
-        Contents.Vent.Cd.SetVMass(i, Contents, RqdMass);
-        }
-
-    if (GasVentNeeded)
-      Contents.Vent.Cd.SetTempPress(Contents.Temp(), Contents.Press());
-    else
-      Contents.Vent.Cd.QSetTraceMass();
-    }
-  }
-
-//--------------------------------------------------------------------------
-
-void MdlNode::DoOverflowLinks(CHgtOrdInfo & HO)
-  {
-  SpContainer &Contents=HO.Container();
-  if (!Contents.Spill.Flowing())
-    {
-    Contents.ClrCI(2);
-    Contents.ClrCI(3);
-    }
-  }
-
-//--------------------------------------------------------------------------
-
-void MdlNode::DoGasVentLinks(CHgtOrdInfo & HO)
-  {
-  SpContainer &Contents=HO.Container();
-  if (!Contents.Vent.Flowing())
-    {
-    Contents.ClrCI(5);
-    Contents.ClrCI(6);
-    }
-  }
-
-//--------------------------------------------------------------------------
-
 void MdlNode::EvalProducts_SurgeLevel(CHgtOrdInfo & HO, CSurgeControl *pControl)
   {
   EvalProducts_SurgeLevel(SolveInlineMethod()!=0, HO, pControl);
@@ -1420,8 +1370,9 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
   long dbgso=dbgDerivsSrgSetOut(FullObjTag()) || fDoDbgBrk && dbgDerivsSrgSetOutDbgBrk();
 #endif
 
-  SpContainer & Contents=HO.Container();
-  SpConduit   & ContentFlw=HO.ContentFlw();
+  SpContainer & Contents    = HO.Container();
+  SpConduit   & ContentFlw  = HO.ContentFlw();
+  SpConduit   & VapourFlw   = HO.VapourFlw();
 
 #if dbgDerivs
   if (dbg1)
@@ -1432,39 +1383,23 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
   double EntVapFrac = Contents.EntrainedGasFraction();
 
-  bool DoSet;
-  if (1)//InLine)
-    {
-    DoSet=false;
-    ContentFlw.QSetF(Contents, som_SL, 1.0/ICGetTimeInc());
-    ContentFlw.QAddF(Contents, som_Gas, Contents.EntrainedGasFraction()/ICGetTimeInc());
-    }
-  else
-    {
-    DoSet=true;
-    }
+  ContentFlw.QSetF(Contents, som_SL, 1.0/ICGetTimeInc());
+  ContentFlw.QAddF(Contents, som_Gas, Contents.EntrainedGasFraction()/ICGetTimeInc());
+  VapourFlw.QSetF(Contents, som_Gas, (1.0-Contents.EntrainedGasFraction())/ICGetTimeInc());
 
   for (int iIONo= 0; iIONo< NoMaterialIOs(); iIONo++)
     {
     if (IOQm_In(iIONo)>0.0)
       {
-      if (DoSet)
-        {
-        ContentFlw.QSetF(*IOConduit(iIONo), som_SL, 1.0);
-        DoSet=false;
-        }
-      else
-        ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
+      ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
       ContentFlw.QAddF(*IOConduit(iIONo), som_Gas, IOEntrainRateG(iIONo));
-
-      //dbgpln(" IOQm %14.6gl, %14.6gv  Qv %14.6gl, %14.6gv %s", 
-      //  IOConduit(i)->QMass(som_SL),IOConduit(i)->QMass(som_Gas), 
-      //  IOConduit(i)->QVolume(som_SL),IOConduit(i)->QVolume(som_Gas),Nd_Rmt(i)->FullObjTag());
+      VapourFlw.QAddF(*IOConduit(iIONo), som_Gas, (1.0-IOEntrainRateG(iIONo)));
       }
     }
 
   // DoReaction 
   //TODO EvalProducts_SurgeLevelInline - DoReaction
+
   if (fDoDbgBrk)
     { int xxx=0; };
 
@@ -1834,6 +1769,7 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
         {
         for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
           {
+          HO.m_VolScl[iHO1]=VolFlwScale;
           if (!IO_In(HO.m_Ord[iHO1]))  
             {
             int iIONo=HO.m_Ord[iHO1];
@@ -1916,6 +1852,7 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 
           SetIOQm_Out(iIONo, Fo.QMass());
           DoneIt[iIONo]=true;
+          HO.m_SLRho[iHO1]=Fo.Rho();
           }
         }
 
@@ -1957,6 +1894,8 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
         Fo.QZero();
         Fo.SetTempPress(Contents.Temp(), Contents.Press());
         SetIOQm_Out(iIONo, 0.0);
+        HO.m_VolScl[iHO] = 0.0;
+        HO.m_SLRho[iHO]  = 1.0;
         }
       else
         {
@@ -1967,11 +1906,44 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
         }
       }
     }
-  //if (CheckOutputs)
-  //  DoCheckOutputs(HO, pQFeed);
+
+  // Now add the gasses
+  double VapourQmRqd=0.0;
+  for (int iHO=0; iHO<HO.NOrd(); iHO++)
+    {
+    int iIONo=HO.m_Ord[iHO];
+    if (!IO_In(iIONo))
+      {
+      SpConduit & Fo = *IOConduit(iIONo);
+      double VapQm=GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
+      VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+      VapourQmRqd+=VapQm;
+      }
+    }
+  double VapourScl=Range(0.0, VapourFlw.QMass()/GTZ(VapourQmRqd), 1.0);
+#if dbgDerivs
+  if (dbgso)
+    dbgpln("VapourScl = %14.4f %s", VapourScl, FullObjTag());
+#endif
+  for (int iHO=0; iHO<HO.NOrd(); iHO++)
+    {
+    int iIONo=HO.m_Ord[iHO];
+    if (!IO_In(iIONo))
+      {
+      SpConduit & Fo = *IOConduit(iIONo);
+      double VapQm=VapourScl*GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
+      VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+      Fo.QAddM(VapourFlw, som_ALL, VapQm);
+      VapourFlw.QSubM(Fo, som_ALL, VapQm); // remove this from flow
+#if dbgDerivs
+      if (dbgso)
+        dbgpln(" %14.4f %7.4f %7.2f %s > %s", VapQm, HO.m_VolScl[iHO], HO.m_SLRho[iHO], FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+#endif
+      }
+    }
 
   //==========================================================
-  // still gas & overflows
+  // still vent & spills
 
   if (Contents.Closed()) // GetRid of Overflow Conduit
     {
@@ -1997,13 +1969,13 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
 #endif
     if (FlwMass>1.0e-12)
       {
-      Contents.Spill.Cd.QSetM(ContentFlw, som_ALL, FlwMass, Contents.Press());
+      Contents.Spill.Cd.QSetM(ContentFlw, som_SL, FlwMass, Contents.Press());
       }
     else
       {
       if (/*(Contents.Level()<0.90) &&*/ Contents.Closed()) // GetRid of Overflow Conduit
         Contents.Spill.Cd.QSetTraceMass();
-      else //if (Contents.SpillExists())
+      else
         Contents.Spill.Cd.QZero();
       }
 
@@ -2014,9 +1986,28 @@ void MdlNode::EvalProducts_SurgeLevel(bool InLine, CHgtOrdInfo & HO, CSurgeContr
       }
     else
       {
-      VentVapours(Contents);
-      DoOverflowLinks(HO);
-      DoGasVentLinks(HO);
+      Contents.Vent.Cd.QZero();
+
+      if (Contents.Vent.Enabled)
+        {
+        double RqdQm=GEZ(VapourFlw.QMass()/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau()));
+
+        if (RqdQm>SmallPosFlow)
+          Contents.Vent.Cd.QSetM(VapourFlw, som_Gas, RqdQm, Contents.Press());
+        else
+          Contents.Vent.Cd.QSetTraceMass();
+        }
+
+      if (!Contents.Spill.Flowing())
+        {
+        Contents.ClrCI(2);
+        Contents.ClrCI(3);
+        }
+      if (!Contents.Vent.Flowing())
+        {
+        Contents.ClrCI(5);
+        Contents.ClrCI(6);
+        }
       }
     }
 
@@ -3486,6 +3477,8 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
 
     HO.m_Ord.SetSize(Oi);
     HO.m_Seq.SetSize(Oi);
+    HO.m_VolScl.SetSize(Oi);
+    HO.m_SLRho.SetSize(Oi);
 
     int HSeq=0;
     for (i = 0; i < Oi; i++)

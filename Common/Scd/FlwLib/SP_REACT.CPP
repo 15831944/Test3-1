@@ -301,6 +301,8 @@ void CReactionBlock::Clear(flag fClearMsg, flag ClearAll)
   m_InWhat             = eNull;    
   iReactionState       = RBS_Empty;
 
+  m_DynRateScale       = 1.0;
+
   if (fClearMsg)
     {
     m_LoadState=nPermReacts>0 ? "Only Permanent Reactions" : "No Reactions";
@@ -1022,6 +1024,11 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
     DDB.Visibility();
     DDB.String("RunState",          "",    DC_,     "",      xidRCTRunState,  this, MultiLineStr|noFileAtAll);
     DDB.CheckBoxBtn("StdRefModel",  "",    DC_,     "",      &m_UseStdRefModel, this, isParm);
+
+
+    if (Nd()->SolveSurgeMethod()) 
+      DDB.Double("DynRateScale",           "",    DC_Frac,    "%",     &m_DynRateScale,     this, isParm);
+
     DDB.Visibility(NSHM_All, sm_AllVars!=0);
     //DDB.Double("RefTemp",           "",    DC_T,    "C",     &m_RefTempK,     this, isParm);
     DDB.Double("UsrDefT",           "",    DC_T,    "C",     &m_UsrDefT,      this, isParm);
@@ -1094,7 +1101,6 @@ void CReactionBlock::BuildDataDefn(DataDefnBlk & DDB)//, pTaggedObject pOwnObj, 
       }
 
     //?? Must add the Abs Tol
-
     DDB.Double("CnvTolerance",      "",    DC_Frac, "%", xidRCTdRctTol,   this, isParm);
     DDB.Long  ("MaxIters",          "",    DC_,     "",  xidRCTiMaxIter,  this, isParm);
     DDB.Double("CnvTTolerance",     "",    DC_dT,   "C", xidRCTdRctTTol,  this, isParm);
@@ -1610,6 +1616,8 @@ flag CReactionBlock::ValidateData(ValidateDataBlk & VDB)
     for (int i=0; i<16; i++)
       ClrCI(i);
     }
+
+  m_DynRateScale       = Range(0.001, m_DynRateScale, 1000.0);
 
   return RetOK;
   };

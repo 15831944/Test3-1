@@ -960,7 +960,7 @@ m_MixSet(this)
   m_TopPRqd     = dNAN;
   m_UseRhoH     = true;
 
-  m_HiLvlLimit  = 1.01;
+  m_HiLvlLimit  = 1.02;
   m_LoLvlLimit  = dNAN;
   m_LvlHi       = 0;
   m_LvlLo       = 0; 
@@ -1592,6 +1592,9 @@ flag SpContainer::ValidateData(ValidateDataBlk & VDB)
     OK=OK && pPreset->ValidateData(VDB, *this);
 
   OK = OK && m_MixSet.ValidateData(VDB);
+
+  if (m_HiLvlLimit==1.01 && PrjFileVerNo()<109)
+    m_HiLvlLimit=1.02;
 
   return OK;
   };
