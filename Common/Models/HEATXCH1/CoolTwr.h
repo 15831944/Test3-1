@@ -38,6 +38,7 @@ class DllImportExport CoolingTower : public MN_Surge
     double         dDriftLossFrac;
     double         dRqdLossFrac;
     double         dRqdLossQm;
+    double         dRqdDriftLossFrac;
     double         dEvapFactor;
     long           iCycles;
     double         dMaxEvapFrac;

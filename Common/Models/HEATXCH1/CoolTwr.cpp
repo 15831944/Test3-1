@@ -7,7 +7,7 @@
 #include "flwnode.h"
 #define  __COOLTWR_CPP
 #include "cooltwr.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 //==========================================================================
 
@@ -25,14 +25,16 @@ enum WLM_Methods { WLM_None, WLM_Frac, WLM_Qm, WLM_DriftBlowdown };
 
 const byte ioid_Feed         = 0;
 const byte ioid_Liq          = 1;
-const byte ioid_Loss         = 2;
+const byte ioid_LiqLoss      = 2;
 const byte ioid_Vap          = 3;
+const byte ioid_DriftLoss    = 4;
 
 static IOAreaRec CoolingTowerIOAreaList[] =
-  {{"Feeds",    "Feed"    , ioid_Feed , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
-   {"Liquor",   "Liquor"  , ioid_Liq  , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
-   {"LiqLoss",  "LiqLoss" , ioid_Loss , LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
-   {"Vapour",   "Vapour"  , ioid_Vap  , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
+  {{"Feeds",      "Feed"      , ioid_Feed     , LIO_In0 ,    nc_MLnk, 1, 20, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"Liquor",     "Liquor"    , ioid_Liq      , LIO_Out0,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"LiqLoss",    "LiqLoss"   , ioid_LiqLoss  , LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
+   {"Vapour",     "Vapour"    , ioid_Vap      , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
+   {"DriftLoss",  "DriftLoss" , ioid_DriftLoss, LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
    SPILL2AREA,
    VENT2AREA,
    {NULL}}; //This lists the areas of the model where links can be attached.
@@ -75,6 +77,7 @@ CoolingTower::CoolingTower(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   iCycles          = 5;
   dRqdLossFrac     = 0.02;
   dRqdLossQm       = 10.0;
+  dRqdDriftLossFrac= 0.05;
   dMaxEvapFrac     = 1.0;
   dAirCp           = 0.98;
   dAirDryBulbT     = C2K(25.0);
@@ -162,7 +165,9 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("TempDrop",        "TDrop", DC_dT,   "C",     &dTempDrop,      this, isResult);
   DDB.Double  ("FinalT",               "", DC_T,    "C",     &dFinalT,        this, isResult);
   //DDB.Double  ("HeatFlow",             "", DC_Pwr,  "kW",    &dHeatFlow,      this, isResult); perhaps remove???
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Double  ("HeatTransfer",         "", DC_Pwr,  "kW",    &dDuty,          this, isResult);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("FinalP",               "", DC_P,    "kPag",  &dFinalP,        this, isResult|InitHidden);
   DDB.Text    ("");
   DDB.Text    ("Water Loss/Makeup");
@@ -174,14 +179,15 @@ void CoolingTower::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("RqdLossFrac",          "", DC_Frac, "%",     &dRqdLossFrac,   this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_Qm);
   DDB.Double  ("RqdLossQm",            "", DC_Qm,   "kg/s",  &dRqdLossQm,     this, isParm);
+  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_Frac || iLossMethod==WLM_Qm);
+  DDB.Double  ("FracOfLossToDrift",    "", DC_Frac, "%",     &dRqdDriftLossFrac, this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Merkel);
   DDB.Double  ("EvapFactor",           "", DC_,     "",      &dEvapFactor,    this, isParm);
   DDB.Visibility(NM_Probal|SM_All|HM_All, iMethod==CTM_Simple);
   DDB.Double  ("MaxEvapFrac",          "", DC_Frac, "%",     &dMaxEvapFrac,   this, isParm);
-  DDB.Visibility(NM_Probal|SM_All|HM_All, iLossMethod==WLM_DriftBlowdown);
+  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("DriftLossQm",          "", DC_Qm,   "kg/s",  &dDriftLossQm,   this, isResult);
   DDB.Double  ("BlowdownLossQm",       "", DC_Qm,   "kg/s",  &dBlowdownLossQm,this, isResult);
-  DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Double  ("LossQm",               "", DC_Qm,   "kg/s",  &dLossQm,        this, isResult);
   DDB.Double  ("EvapLossQm",           "", DC_Qm,   "kg/s",  &dEvapLossQm,    this, isResult);
   DDB.Double  ("TotalLossQm",          "", DC_Qm,   "kg/s",  &dTotalLossQm,   this, isResult|InitHidden);
@@ -433,7 +439,9 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       const int si = H2OVap();
       const int ioLiq = IOWithId_Self(ioid_Liq);
       const int ioVap = IOWithId_Self(ioid_Vap);
-      const int ioLoss = IOWithId_Self(ioid_Loss);
+      const int ioLoss = IOWithId_Self(ioid_LiqLoss);
+      const int ioDrift = IOWithId_Self(ioid_DriftLoss);
+      
       SpConduit & Ql=*IOConduit(ioLiq);
       SpConduit & Qv=*IOConduit(ioVap);
       
@@ -518,8 +526,8 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
             RqdLiqTempUsed = QMix().Temp();
             }
           //const double h2 = QMix().totHf();
-          //dDuty = h1-h2;
-          //todo calculate dDuty
+          //dDuty = h1-h2; this gives 0 (as expected)
+          //dDuty is zero because there is no heattransfer with the air
           }
         else
           {
@@ -588,8 +596,11 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
               }
             dApproachT = RqdLiqTemp - dAirWetBulbT;
             }
-         
-          dEvapLossQm = dQmIn * dEvapFactor * (C2F(T1)-C2F(T2));//Evaporation Loss: WLe =  Wc EvapFactor dT
+
+          dEvapFactor = Min(dEvapFactor, 0.1); //prevent user from puting a silly large number for this
+          dEvapLossQm = dQmIn * dEvapFactor * (C2F(T1)-C2F(T2));//Evaporation Loss: WLe =  Wc * EvapFactor * dT
+          dEvapLossQm = Min(dEvapLossQm, QmWaterLiqIn); //limit the amount that can be evaporated
+
 
           RqdLiqTempUsed = RqdLiqTemp;
 
@@ -618,9 +629,24 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
           dEvapLossQm=dQmWaterEvap;
         switch (iLossMethod)
           {
-          case WLM_None: dLossQm = 0.0; break;
-          case WLM_Frac: dLossQm = dQmIn * dRqdLossFrac; break;
-          case WLM_Qm: dLossQm = dRqdLossQm; break;
+          case WLM_None: 
+            dDriftLossQm = 0.0;
+            dBlowdownLossQm = 0.0;
+            dLossQm = 0.0; 
+            break;
+          case WLM_Frac: 
+            dRqdDriftLossFrac = Range(0.0, dRqdDriftLossFrac, 1.0);
+            dRqdLossFrac = Range(0.0, dRqdLossFrac, 0.9);
+            dLossQm = dQmIn * dRqdLossFrac;
+            dDriftLossQm = dLossQm * dRqdDriftLossFrac;
+            dBlowdownLossQm = dLossQm - dDriftLossQm;
+            break;
+          case WLM_Qm: 
+            dRqdDriftLossFrac = Range(0.0, dRqdDriftLossFrac, 1.0);
+            dLossQm = dRqdLossQm;
+            dDriftLossQm = dLossQm * dRqdDriftLossFrac;
+            dBlowdownLossQm = dLossQm - dDriftLossQm;
+            break;
           case WLM_DriftBlowdown:
             dDriftLossQm = dQmIn * dDriftLossFrac;//Drift Loss: WLd = % of water flow
             dBlowdownLossQm = dEvapLossQm/(iCycles-1);//Blowdown Loss: WLb = WLe / (cycles - 1)
@@ -660,24 +686,57 @@ void CoolingTower::EvalProducts(CNodeEvalIndex & NEI)
       Qv.QSetF(QMix(), som_Gas, 1.0);
       Qv.SetPress(POut);
       Qv.SetTemp(RqdLiqTempUsed);
+
+      const double Qsl = QMix().QMass(som_SL);
       if (ioLoss<0)
         {
-        Ql.QSetF(QMix(), som_SL, 1.0);
-        Ql.SetPress(POut);
-        Ql.SetTemp(RqdLiqTempUsed);
+        if (ioDrift<0)
+          {
+          Ql.QSetF(QMix(), som_SL, 1.0);
+          Ql.SetPress(POut);
+          Ql.SetTemp(RqdLiqTempUsed);
+          }
+        else
+          {
+          SpConduit & Qdrift=*IOConduit(ioDrift);
+          const double f = dDriftLossQm/GTZ(Qsl);
+          Ql.QSetF(QMix(), som_SL, 1.0-f);
+          Ql.SetPress(POut);
+          Ql.SetTemp(RqdLiqTempUsed);
+          Qdrift.QCopy(QMix());
+          Qdrift.QSetF(QMix(), som_SL, f);
+          Qdrift.SetPress(POut);
+          Qdrift.SetTemp(RqdLiqTempUsed);
+          }
         }
       else
         {
         SpConduit & Qloss=*IOConduit(ioLoss);
-        const double Qsl = QMix().QMass(som_SL);
         const double f = dLossQm/GTZ(Qsl);
         Ql.QSetF(QMix(), som_SL, 1.0-f);
         Ql.SetPress(POut);
         Ql.SetTemp(RqdLiqTempUsed);
-        Qloss.QCopy(QMix());
-        Qloss.QSetF(QMix(), som_SL, f);
-        Qloss.SetPress(POut);
-        Qloss.SetTemp(RqdLiqTempUsed);
+        if (ioDrift<0)
+          {
+          Qloss.QCopy(QMix());
+          Qloss.QSetF(QMix(), som_SL, f);
+          Qloss.SetPress(POut);
+          Qloss.SetTemp(RqdLiqTempUsed);
+          }
+        else
+          {
+          const double fd = dDriftLossQm/GTZ(Qsl);
+          const double fl = f - fd;
+          SpConduit & Qdrift=*IOConduit(ioDrift);
+          Qdrift.QCopy(QMix());
+          Qdrift.QSetF(QMix(), som_SL, fd);
+          Qdrift.SetPress(POut);
+          Qdrift.SetTemp(RqdLiqTempUsed);
+          Qloss.QCopy(QMix());
+          Qloss.QSetF(QMix(), som_SL, fl);
+          Qloss.SetPress(POut);
+          Qloss.SetTemp(RqdLiqTempUsed);
+          }
         }
 
       //results...
