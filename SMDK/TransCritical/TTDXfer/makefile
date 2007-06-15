@@ -1,5 +1,5 @@
 #   Generic makefile for compiling SMDK using GNU tools and free MS Compilers
-#   Time-stamp: <2007-05-28 03:20:45 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-06-05 03:50:44 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -7,10 +7,10 @@ COMMON = ../TTCommon/
 
 SMDKDLL = TTDynTest
 
-CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /Zi /wd4800 /YX"stdafx.h"
+CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /Zi /wd4800 
 DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" \
           /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS"
-LFLAGS = /INCREMENTAL:NO /NOLOGO /DLL /DEBUG  $(COMMON)ttcommon.lib
+LFLAGS = /INCREMENTAL:NO /NOLOGO /DLL /DEBUG  #$(COMMON)ttcommon.lib
 LIBS = SMDK1.lib scdlib.lib
 
 OBJS = 	TTDynTest.obj   \

@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-06-06 06:38:18 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-07 03:27:40 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -113,6 +113,13 @@ void CDynTestTank::EvalProducts()
     MStream & UFlow = FlwIOs[FlwIOs.First[idUflow]].Stream; //Reference to the output stream
     MStream & OFlow = FlwIOs[FlwIOs.First[idOflow]].Stream; //Reference to the output stream
     
+
+
+    long l1 = Feed.Count();
+    Log.Message(MMsg_Note, "Tag : %s,    Count:   %ld",  UFlow.Tag, l1);
+
+
+
     
     if (!started) {
       started = true;
@@ -152,7 +159,6 @@ void CDynTestTank::EvalProducts()
        lPBType = PB_None;
     }
 
-    long l1 = FeedPSD.getPSDVectorCount();
 
     long l2 = FeedPSD.getSizeCount();
     long l3 = FeedPSD.getSpecieCount(0);
