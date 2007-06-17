@@ -4034,7 +4034,7 @@ void MdlNode::BuildCommonEndDefn(DataDefnBlk &DDB)
                   {
                   Sym.Set("Lnk.%s", Nd_Rmt(iIO)->FullObjTag());
                   Tag.Set("Lnk%i", iIO);
-                  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|/*isTag|*/noFile|noSnap);
+                  DDB.Double(Tag(), Sym(),  DC_Qm , "kg/s",    xidIO_IoQm0+iIO,       this, isResult|isTag|noFile|noSnap);
                   if (ShowIONames)
                     DDB.TagComment(IODesc_Self(iIO)->IOName());
                   }

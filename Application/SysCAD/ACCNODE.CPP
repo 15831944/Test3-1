@@ -3161,6 +3161,25 @@ void AccNodeWnd::Build(int NRows, int NCols, int ColIndent, pvoid BuildData)
           }
         f.ValFld=SetDesc(LnNo,T(),-((int)Id_FldParms+fi),FldW,3," ");
         f.ValFld->SetItalic();
+
+        //TODO: If a text description has DDEF_TAGPARM because it contains a tag, then we want
+        //      the "buttons" to allow user to click on the find tag or access window.
+        //      The code below doesn't work...???
+        /*const flag HasTag = ((d.iFlags & DDEF_TAGPARM) && d.sValue.Len()>0);
+        if (HasTag)
+          {
+          if (GDIBlk::LowRes())
+            {
+            SetBitmapButton1(LnNo, IDB_ACCFIND_LOWRES, Id_FldBtns+fi, 2, 0, "");
+            SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+            }
+          else
+            {
+            SetBitmapButton1(LnNo, IDB_ACCFIND, Id_FldBtns+fi, 2, 0, "");
+            SetBitmapButton1(LnNo, IDB_ACCACCESS_LOWRES, Id_FldBtns+fi, 2, 0, "");
+            }
+          }*/
+
         LnNo++;
         FirstFieldOnPage=0;
         break;
@@ -3693,8 +3712,14 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           if (!IsStrng(d.iType))
             {//assume field tag is tag...
             sLastSelected[0] = d.sSymOrTag();
-            if (sLastSelected[0].GetLength()>3 && strncmp(d.sSymOrTag(), "IO.", 3)==0)
-              sLastSelected[0] = sLastSelected[0].Mid(3, 1024);
+            const int len = sLastSelected[0].GetLength();
+            if (len>3)
+              {
+              if (strncmp(d.sSymOrTag(), "IO.", 3)==0)
+                sLastSelected[0] = sLastSelected[0].Mid(3, 1024);
+              else if (len>4 && strncmp(d.sSymOrTag(), "Lnk.", 4)==0)
+                sLastSelected[0] = sLastSelected[0].Mid(4, 1024);
+              }
             }
           else
             {//assume field data is tag...

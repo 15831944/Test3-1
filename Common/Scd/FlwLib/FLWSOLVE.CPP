@@ -10682,7 +10682,7 @@ void CFlwSolver::BuildDataDefnOld(DataDefnBlk & DDB)
         Nm.Set("T_%02i", i);
 
         DDBValueLst DDB0[] = {{ 0, pT->Tag()}, {1,  "Busy..."}, {0}};
-        DDB.Button(Nm(),   "",  DC_ , "",   xidATearTag,   this, isParm|DDEF_TAGPARM, DDB0);
+        DDB.Button(Nm(),   "",  DC_ , "",   xidATearTag,   this, isParm|isTag, DDB0);
         }
     }
   DDB.EndStruct();
