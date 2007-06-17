@@ -272,6 +272,7 @@ class DllImportExport GCInsMngr
     int            SetBrkPt(int LineNo);
     void           Err(char Code, int errNo, pchar ErrMsg = "");
     void           StdCheck(pchar Tkn);
+    void           CheckReservedTags(pchar Tkn);
     double         ParseNumber();
     void           AddArrayWatch(pGCClassVar pClassVar, bool ReadOnly, int index0, int index1);
     void           DoConstructArray(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap, pchar pVarName, int Cnt);

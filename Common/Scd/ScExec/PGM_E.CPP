@@ -5949,6 +5949,7 @@ void GCInsMngr::Err(char Code, int errNo, pchar ErrMsg)
     case 167 : errDesc = "Array index is not in range."; break;
     case 168 : errDesc = "Cannot exclude watch of this variable."; break;
     case 169 : errDesc = "Exceeded maximum number of PageLabels allowed."; break;
+    case 170 : errDesc = "This symbol not allowed as variable name."; break;
     default: errDesc = "Unknown Error Number";
     };
 
@@ -6054,6 +6055,22 @@ void GCInsMngr::StdCheck(pchar Tkn)
 
 //---------------------------------------------------------------------------
 
+char* ReservedTags[] = { "Tag", "Parent", "Type", "ClassId", "PrimaryCfg", "EqpDesc", "EqpMemo", "EqpIdStr", "EqpLocation", "EqpGUID", "EqpLink", 
+"ReportKey", "SkipSnapLoad", "PlantArea", "AuditLevel", "Active", "Hold", "Marked", "EvalOrder", "EvalSequence", "EvalOrderActual", 
+"Condition", "ConditionCount", "SetState", "PGM_Name", "PGM_Path", "On", "AutoReload", "State", "Msg_1", "Msg_2", "Msg_3", "Msg_4", 
+"Edit_PGM", "Reload_PGM", "Browse_PGM", "Check_tags", "NewInclude", NULL };
+void GCInsMngr::CheckReservedTags(pchar Tkn)
+  {
+  int i = 0;
+  while (ReservedTags[i])
+    {
+    if (stricmp(Tkn, ReservedTags[i++])==0)
+      Err(ErrBuild, 170);
+    }
+  }
+
+//---------------------------------------------------------------------------
+
 double GCInsMngr::ParseNumber()
   {
   char Tkn[MaxTknMemSize];
@@ -6149,6 +6166,8 @@ void GCInsMngr::DoConstructVars(rGCDef Def, pGCVar &pVarList, GCVarMap * pVarMap
     if (pVar)
       Err(ErrBuild, 102);
     StdCheck(Tkn);
+    if (pVarList==m_pVarList && &Def!=&GCClassDec)
+      CheckReservedTags(Tkn); //if in main scope, check var name against reserved symbols (because of main model tags)
     Strng VarName(Tkn);
     strncpy(Tkn, m_pH->m_pTknParser->NextToken(), MaxTknSize);
     flag IsArray = (strcmp(Tkn,"[")==0);
