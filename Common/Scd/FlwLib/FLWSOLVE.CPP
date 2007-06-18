@@ -2822,12 +2822,14 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
       {
       for (int c=0; c<p->NClusters(); c++)
         {
-        p->m_Clusters[c].m_iProcOrder=iNotInEvalOrder;
-        p->m_Clusters[c].m_iProcSeq=iNotInEvalOrder;
-#ifndef _RELEASE
-        p->m_Clusters[c].m_iProcOrderActual=iNotInEvalOrder;
+        CJoinCluster & C=p->m_Clusters[c];
+        C.m_iProcOrder=iNotInEvalOrder;
+        C.m_iProcSeq=iNotInEvalOrder;
+        C.m_iSeqType=ST_Undefined;
+#ifndef _RELEASE  
+        C.m_iProcOrderActual=iNotInEvalOrder;
 #endif
-        p->m_Clusters[c].m_nFlwIOsInDone=0;
+        C.m_nFlwIOsInDone=0;
         }
       }
 
@@ -2859,6 +2861,7 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
 
       C.m_iProcOrder=iOrder++;
       
+      C.m_iSeqType = NJ.m_iSeqType;
       switch (NJ.m_iSeqType)
         {
         case ST_Isolated:     
@@ -2881,6 +2884,8 @@ void FlwSlvBlk::BuildTOSequence(byte Which)
             }
           break;
           }
+        default:
+          C.m_iProcSeq=-1;
         }
       ProcTOSequence.AddTail(NJ);
 
@@ -3202,54 +3207,11 @@ void FlwSlvBlk::SummariseTOSequence(byte Which)
     for (NJ=It.First(); It.ItemValid(); NJ=It.Next())
       {
       FlwNode & Nd=NJ.Nd;
-      if (1) // Eval Order Info
-        {
-        Strng SP, SP1, SC;
-        for (int c=0; c<Nd.NClusters(); c++)
-          {
-          if (Nd.IsProcessSeq() && Nd.m_Clusters[c].m_iProcOrder>=0)
-            {
-            if (SP.Length())           
-              {
-              SP1.Set("%s,%i", SP(), Nd.m_Clusters[c].m_iProcOrder);
-              SP=SP1;
-              }
-            else
-              SP.Set("Proc:%i", Nd.m_Clusters[c].m_iProcOrder);
-            }
-          }
-        if (Nd.InPwrCtrlSeq() && NJ.Nd.m_iCtrlOrder>=0)
-          SC.Set("Ctrl:%i", NJ.Nd.m_iCtrlOrder);
-        NJ.Nd.m_sEvalOrder=SP;
-        NJ.Nd.m_sEvalOrder+=" ";
-        NJ.Nd.m_sEvalOrder+=SC;
+      NJ.Nd.m_sEvalOrder="";
+      NJ.Nd.m_sEvalSeq="";
 #ifndef _RELEASE
-        NJ.Nd.m_sEvalOrderDiff="";
+      NJ.Nd.m_sEvalOrderDiff="";
 #endif
-        }
-      if (1) // Eval Seq Info
-        {
-        Strng SP, SP1, SC;
-        for (int c=0; c<Nd.NClusters(); c++)
-          {
-          static LPCSTR sSeqType[] = {"Undefined:","Start:","Next:","Isolated:","?","?","?"};
-          if (Nd.IsProcessSeq() && Nd.m_Clusters[c].m_iProcOrder>=0)
-            {
-            if (SP.Length())           
-              {
-              SP1.Set("%s,%s%i", SP(), sSeqType[NJ.m_iSeqType], Nd.m_Clusters[c].m_iProcSeq);
-              SP=SP1;
-              }
-            else
-              SP.Set("%s%i", sSeqType[NJ.m_iSeqType], Nd.m_Clusters[c].m_iProcSeq);
-            }
-          }
-        //if (Nd.InPwrCtrlSeq() && NJ.Nd.m_iCtrlOrder>=0)
-        //  SC.Set("C:%i", NJ.Nd.m_iCtrlOrder);
-        NJ.Nd.m_sEvalSeq=SP;
-        NJ.Nd.m_sEvalSeq+=" ";
-        NJ.Nd.m_sEvalSeq+=SC;
-        }
       }
     }
 

@@ -139,6 +139,12 @@ class CNodeTagIOList;
 
 const long iNotInEvalOrder = -999;//LONG_MIN;
 
+// Sequence Types
+const int    ST_Undefined = 0;
+const byte   ST_Start     = 1;
+const byte   ST_Depends   = 2;
+const byte   ST_Isolated  = 3;
+
 class CJoinCluster
   {
   public:
@@ -148,6 +154,7 @@ class CJoinCluster
       m_iJoinMask         = 0;
       m_iProcOrder        = iNotInEvalOrder;
       m_iProcSeq          = iNotInEvalOrder;
+      m_iSeqType          = ST_Undefined;
 #ifndef _RELEASE
       m_iProcOrderActual  = iNotInEvalOrder;
 #endif
@@ -163,6 +170,7 @@ class CJoinCluster
       m_iJoinMask         = JoinMask;
       m_iProcOrder        = iNotInEvalOrder;
       m_iProcSeq          = iNotInEvalOrder;
+      m_iSeqType          = ST_Undefined;
 #ifndef _RELEASE
       m_iProcOrderActual  = iNotInEvalOrder;
 #endif
@@ -181,6 +189,7 @@ class CJoinCluster
     long            m_iJoinMask;
     long            m_iProcOrder;
     long            m_iProcSeq;
+    long            m_iSeqType;
 #ifndef _RELEASE
     long            m_iProcOrderActual;
 #endif
@@ -205,11 +214,6 @@ class CJoinClusterArray : public CArray <CJoinCluster, CJoinCluster&> {};
 //
 //
 //===========================================================================
-
-const int    ST_Undefined = 0;
-const byte   ST_Start     = 1;
-const byte   ST_Depends   = 2;
-const byte   ST_Isolated  = 3;
 
 class CNodeEvalIndex
   {

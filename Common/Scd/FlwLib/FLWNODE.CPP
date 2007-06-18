@@ -4199,11 +4199,45 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
       }
     case xidEvalOrder:
       {
+      m_sEvalOrder="";
+      for (int c=0; c<NClusters(); c++)
+        {
+        CJoinCluster & C = m_Clusters[c];
+        if (IsProcessSeq() && C.m_iProcOrder>=0)
+          {
+          if (m_sEvalOrder.Length())           
+            m_sEvalOrder.Set("%s,%i", m_sEvalOrder(), C.m_iProcOrder);
+          else
+            m_sEvalOrder.Set("Proc:%i", C.m_iProcOrder);
+          }
+        }
+      if (InPwrCtrlSeq() && m_iCtrlOrder>=0)
+        {
+        if (m_sEvalOrder.Length()>0)
+          m_sEvalOrder.Set("%s Ctrl:%i", m_sEvalOrder(), m_iCtrlOrder);
+        else
+          m_sEvalOrder.Set("Ctrl:%i", m_iCtrlOrder);
+        }
+
       DCB.pC=m_sEvalOrder();
       return 1;
       }
     case xidEvalSeq:
       {
+      m_sEvalSeq="";
+      for (int c=0; c<NClusters(); c++)
+        {
+        CJoinCluster & C = m_Clusters[c];
+        static LPCSTR sSeqType[] = {"Undefined:","Start:","Next:","Isolated:","?","?","?"};
+        if (IsProcessSeq() && C.m_iProcOrder>=0)
+          {
+          if (m_sEvalSeq.Length())           
+            m_sEvalSeq.Set("%s,%s%i", m_sEvalSeq(), sSeqType[C.m_iSeqType], C.m_iProcSeq);
+          else
+            m_sEvalSeq.Set("%s%i", sSeqType[C.m_iSeqType], C.m_iProcSeq);
+          }
+        }
+
       DCB.pC=m_sEvalSeq();
       return 1;
       }
