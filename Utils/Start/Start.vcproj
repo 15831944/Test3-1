@@ -48,11 +48,13 @@
 				Name="VCPreBuildEventTool"
 				Description="SVNAutomate -- Update Common\scd\scdlib\svn.h"
 				CommandLine="..\..\SMDK\SVNAutomate.exe ..\..\Common\scd\scdlib\svn.h"
+				ExcludedFromBuild="true"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				CommandLine=""
-				Outputs=""
+				Description="SVNAutomate -- Update Common\scd\scdlib\svn.h"
+				CommandLine="..\..\SMDK\SVNAutomate.exe ..\..\Common\scd\scdlib\svn.h"
+				Outputs="..\..\Common\scd\scdlib\svn.h"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"

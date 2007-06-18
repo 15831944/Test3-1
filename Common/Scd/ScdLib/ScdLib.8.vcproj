@@ -234,7 +234,9 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Update SVN.H"
 				CommandLine="..\..\..\SMDK\SVNAutomate.exe"
+				ExcludedFromBuild="true"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
