@@ -655,6 +655,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\STHx.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\TagIO.cpp"
 				>
 			</File>
@@ -664,6 +668,10 @@
 			</File>
 			<File
 				RelativePath=".\TimingStructs.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TubeDigester.cpp"
 				>
 			</File>
 		</Filter>
@@ -712,6 +720,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\STHx.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TagIO.h"
 				>
 			</File>
@@ -721,6 +733,10 @@
 			</File>
 			<File
 				RelativePath=".\TimingStructs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TubeDigester.h"
 				>
 			</File>
 		</Filter>
