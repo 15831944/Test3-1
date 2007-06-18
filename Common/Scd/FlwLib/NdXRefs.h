@@ -241,6 +241,7 @@ class DllImportExport CNodeTagIOItem : public CXRefStatus
     long              m_lUserHandle;
     bool              m_bValid;
     bool              m_bInUse;
+    bool              m_bTagChanged;
     bool              m_bValueValid;
     bool              m_bSubscribed;
     CTgFnIoVar        m_Var;

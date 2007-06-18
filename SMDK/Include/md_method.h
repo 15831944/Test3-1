@@ -517,6 +517,9 @@ class DllImportExport MTagIOItem
     //return conversion text of IO tag
     void            putUserHandle(long Handle);
 
+    // return the previous result;
+    MTagIOResult    getResult();
+
     __declspec(property(get=getSubsIndex))                    long          SubsIndex;
     
     __declspec(property(get=getNumDataType))                  bool          NumDataType;
@@ -541,12 +544,16 @@ class DllImportExport MTagIOItem
     __declspec(property(get=getUserHandle,put=putUserHandle)) long          UserHandle;
 
     __declspec(property(get=getIOFlags))                      MD_Flags      IOFlags;
+    __declspec(property(get=getResult))                       MTagIOResult  Result;
 
+    // convert a ResultCode into a String
+    static LPCSTR   ResultString(MTagIOResult Res);
 
   public:
     MTagIO          * m_pTagIO;
     CNodeTagIOItem  * m_pItem;
     bool              m_bOwnsItem;
+    MTagIOResult      m_PrevResult;
 
   };
 
@@ -555,11 +562,11 @@ class DllImportExport MTagIOItem
 class DllImportExport MTagIODirect : public MTagIOItem
   {
   public:
-    MTagIODirect(MTagIO & TagIO);
+    MTagIODirect(MTagIO & TagIO, LPCTSTR ReqdTag=NULL);
     virtual ~MTagIODirect();
     
-    MTagIOResult    ReadValue();
-    MTagIOResult    WriteValue();
+    MTagIOResult    ReadValue(bool LogTheError=true);
+    MTagIOResult    WriteValue(bool LogTheError=true);
   };
 
 //===========================================================================

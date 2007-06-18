@@ -34,6 +34,13 @@ PieChart::PieChart(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pU
 	dMaxFlow = 100.0;
 	dMinTemp = C_2_K(-20.0);
 	dMaxTemp = C_2_K(200.0);
+  
+  // TagIO.Open must be called here to Initialise the TagIO infrastructure which needs to be 
+  // done while syscad is stopped. If the first MTagIOItem or MTagIODirect will only be created 
+  // while running then this call is required. If they are created while stopped then their 
+  // constructors will do the Initislisation.
+   
+  TagIO.Open();                                        /*CNM*/
 }
 
 //---------------------------------------------------------------------------
@@ -157,19 +164,25 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			bool bShowVapours = nPhase == MP_All || nPhase == MP_Gas;
 			for (int i = 0; i < gs_MVDefn.Count(); i++)
 			{
-				CString compTag = (sPipeName + ".Qi") + gs_MVDefn[i].Symbol();
-				MTagIODirect compItem(TagIO);
-				compItem.Tag = compTag;
-				double dFrac = compItem.DoubleSI;
-				if (((bShowLiquids && gs_MVDefn[i].IsLiquid())
-					|| (bShowSolids && gs_MVDefn[i].IsSolid())
-					|| (bShowVapours && gs_MVDefn[i].IsGas()))
-					&& dFrac > ZeroLimit)
-				{
-					vNames.push_back(gs_MVDefn[i].Symbol());
-					vFractions.push_back(dFrac);
-					dTotFrac += dFrac;
-				}
+				CString compTag = (sPipeName + ".Qi.") + gs_MVDefn[i].Symbol();         /*CNM*/
+				MTagIODirect compItem(TagIO, compTag);                                  /*CNM*/
+        if (compItem.ReadValue(false)==MTagIO_OK)                               /*CNM*/
+        {                                                                       /*CNM*/
+				  double dFrac = compItem.DoubleSI;
+				  if (((bShowLiquids && gs_MVDefn[i].IsLiquid())
+					  || (bShowSolids && gs_MVDefn[i].IsSolid())
+					  || (bShowVapours && gs_MVDefn[i].IsGas()))
+					  && dFrac > ZeroLimit)
+				  {
+					  vNames.push_back(gs_MVDefn[i].Symbol());
+					  vFractions.push_back(dFrac);
+					  dTotFrac += dFrac;
+          }
+        }                                                                       /*CNM*/
+        else                                                                    /*CNM*/
+        {                                                                       /*CNM*/
+        Log.Message(MMsg_Error, "Tag %s not Read '%s'", compTag, MTagIOItem::ResultString(compItem.Result));   /*CNM*/
+        }                                                                       /*CNM*/
 			}
 		}
 		else
@@ -179,25 +192,28 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			CString gasTag = sPipeName + ".Qi.Vapours";
 			MTagIODirect solidItem(TagIO); solidItem.Tag = solidTag;
 			MTagIODirect liquidItem(TagIO); liquidItem.Tag = liquidTag;
-			MTagIODirect gasItem(TagIO); gasItem.Tag = gasTag;
-			double dSolidFrac = solidItem.DoubleSI;
-			if (dSolidFrac > ZeroLimit)
-			{
-				vFractions.push_back(dSolidFrac);
-				vNames.push_back("Solids");
-			}
-			double dLiquidFrac = liquidItem.DoubleSI;
-			if (dLiquidFrac > ZeroLimit)
-			{
-				vFractions.push_back(dLiquidFrac);
-				vNames.push_back("Liquids");
-			}
-			double dVapourFrac = gasItem.DoubleSI;
-			if (dVapourFrac > ZeroLimit)
-			{
-				vFractions.push_back(dVapourFrac);
-				vNames.push_back("Vapours");
-			}
+			MTagIODirect gasItem(TagIO, gasTag);                                     /*CNM*/
+			if (gasItem.ReadValue(true)==MTagIO_OK)                                  /*CNM*/
+      {                                                                        /*CNM*/
+        double dSolidFrac = solidItem.DoubleSI;
+			  if (dSolidFrac > ZeroLimit)
+			  {
+				  vFractions.push_back(dSolidFrac);
+				  vNames.push_back("Solids");
+			  }
+      }                                                                        /*CNM*/
+			double dLiquidFrac = liquidItem.DoubleSI;                                /*CNM???*/
+			if (dLiquidFrac > ZeroLimit)                                             /*CNM???*/
+			{                                                                        /*CNM???*/
+				vFractions.push_back(dLiquidFrac);                                     /*CNM???*/
+				vNames.push_back("Liquids");                                           /*CNM???*/
+			}                                                                        /*CNM???*/
+			double dVapourFrac = gasItem.DoubleSI;                                   /*CNM???*/
+			if (dVapourFrac > ZeroLimit)                                             /*CNM???*/
+			{                                                                        /*CNM???*/
+				vFractions.push_back(dVapourFrac);                                     /*CNM???*/
+				vNames.push_back("Vapours");                                           /*CNM???*/
+			}                                                                        /*CNM???*/
 			dTotFrac = 1;
 		}
 
@@ -245,18 +261,18 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 		CPen penGreen(PS_SOLID, 0, White);
 		Wnd.m_pPaintDC->SelectObject(&penGreen);
 		CString TempTag = sPipeName + ".T";
-		MTagIODirect TempItem(TagIO);
-		TempItem.Tag = TempTag;
-		double TempFrac = Range(0.0, (TempItem.DoubleSI - dMinTemp) / GTZ(dMaxTemp - dMinTemp), 1.0);
+		MTagIODirect TempItem(TagIO);                                                                  /*CNM???*/
+		TempItem.Tag = TempTag;                                                                        /*CNM???*/
+		double TempFrac = Range(0.0, (TempItem.DoubleSI - dMinTemp) / GTZ(dMaxTemp - dMinTemp), 1.0);  /*CNM???*/
 		int coldR = 0, coldG = 0, coldB = 255;
 		int hotR = 255, hotG = 0, hotB = 0;
 		COLORREF fluidColour = RGB(
 			coldR * (1 - TempFrac) + hotR * TempFrac,
 			coldG * (1 - TempFrac) + hotG * TempFrac,
 			coldB * (1 - TempFrac) + hotB * TempFrac);
-		MTagIODirect FlowItem(TagIO);
-		FlowItem.Tag = sPipeName + ".Qm";
-		double FlowFrac = Range(0.0, FlowItem.DoubleSI / GTZ(dMaxFlow), 1.0);
+		MTagIODirect FlowItem(TagIO);                                                                  /*CNM???*/
+		FlowItem.Tag = sPipeName + ".Qm";                                                              /*CNM???*/
+		double FlowFrac = Range(0.0, FlowItem.DoubleSI / GTZ(dMaxFlow), 1.0);                          /*CNM???*/
 		CRect rectOutline;
 		rectOutline.bottom = Wnd.m_ClientRect.bottom - nBorderSpace;
 		rectOutline.top = Wnd.m_ClientRect.top + nBorderSpace;

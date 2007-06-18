@@ -1085,6 +1085,11 @@ CNodeTagIOItem::CNodeTagIOItem(FlwNode *pNd, bool Subscribed, LPCSTR Tag, LPCSTR
   m_iTypeRead    = tt_NULL;
   m_iCnvRead     = 0;
   
+  m_bTagChanged  = false;
+  m_bValid       = false; 
+  m_bInUse       = false; 
+  m_bValueValid  = false;
+
   SetTag(Tag);
 
   m_sName        = Name;
@@ -1093,9 +1098,6 @@ CNodeTagIOItem::CNodeTagIOItem(FlwNode *pNd, bool Subscribed, LPCSTR Tag, LPCSTR
   
   m_IOFlags      = IOFlags;
 
-  m_bValid       = false; 
-  m_bInUse       = false; 
-  m_bValueValid  = false;
   if (m_bSubscribed)
     m_pTagIO->Add(this);
   }
@@ -1116,7 +1118,8 @@ void CNodeTagIOItem::SetTag(LPCSTR NewTag)
     {
     Strng sTag, sCnv;
     TaggedObject::SplitTagCnv((LPSTR)NewTag, sTag, sCnv);
-    
+   
+    m_bTagChanged = m_sTagOnly.CompareNoCase(sTag())!=0;
     if (m_bSubscribed)
       {
       m_sTagOnly = sTag();
@@ -1154,8 +1157,9 @@ long CNodeTagIOItem::Configure(long UserHandle, LPCSTR ItemTag, LPCSTR ItemName,
   MTagIOResult Res=CheckTag();
   if (Res==MTagIO_OK)
     {
-    if (!m_bInUse)
+    if (!m_bInUse || m_bTagChanged)
       {
+      m_bTagChanged = false;
       m_bInUse = true; 
       m_pTagIO->m_nCount++;
       m_pNd->MyTagsHaveChanged();
@@ -1393,7 +1397,7 @@ void CNodeTagIOList::Remove(CNodeTagIOItem * pItem)
   m_bValidateReqd=true;
   //pItem->m_lIdNo=m_Items.GetCount();
   m_Items.RemoveAt(pItem->m_MyPos);
-         pItem->m_MyPos=NULL;
+  pItem->m_MyPos=NULL;
 
   if (pItem && pItem->m_bInUse)
     {

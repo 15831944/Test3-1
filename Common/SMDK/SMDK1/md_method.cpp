@@ -1035,16 +1035,9 @@ long MCtrlIOs::getNoCtrlIOs() { return m_pNd->NoCIOs(); };
 MTagIOItem::MTagIOItem(MTagIO & TagIO, bool ForSubscription)//, CNodeTagIOItem *pItem)
   { 
   m_pTagIO = &TagIO; 
-  //if (pItem)
-  //  {
-  //  m_pItem=pItem; 
-  //  m_bOwnsItem=false;
-  //  }
-  //else
-  //  {
-    m_pItem = new CNodeTagIOItem(m_pTagIO->m_pNd, ForSubscription);
-    m_bOwnsItem=true;
-  //  }
+  m_pItem = new CNodeTagIOItem(m_pTagIO->m_pNd, ForSubscription);
+  m_bOwnsItem=true;
+  m_PrevResult=MTagIO_OK;
   };
 
 MTagIOItem::~MTagIOItem()
@@ -1118,15 +1111,34 @@ void MTagIOItem::putUserHandle(long Handle)   { if (m_pItem) m_pItem->m_lUserHan
 MCnv   MTagIOItem::getCnv()                   { return m_pItem ? MCnv(m_pItem->CnvIndex(), m_pItem->CnvText()) : MCnv(0,"");   };
 MD_Flags MTagIOItem::getIOFlags()             { return m_pItem ? m_pItem->IOFlags():0;          };
 
-MTagIOResult MTagIOItem::CheckTag()           { return m_pItem->CheckTag();   };
+MTagIOResult MTagIOItem::CheckTag()           { m_PrevResult=m_pItem->CheckTag(); return m_PrevResult; };
+MTagIOResult MTagIOItem::getResult()          { return m_PrevResult; };
+
+LPCSTR MTagIOItem::ResultString(MTagIOResult Res) { return CNodeTagIOList::ResultString(Res); };
 
 //---------------------------------------------------------------------------
 
-MTagIODirect::MTagIODirect(MTagIO & TagIO) : MTagIOItem(TagIO, false) { };
+MTagIODirect::MTagIODirect(MTagIO & TagIO, LPCTSTR ReqdTag) : MTagIOItem(TagIO, false) 
+  { 
+  if (ReqdTag) 
+    Tag=ReqdTag; 
+  };
 MTagIODirect::~MTagIODirect()         { };
 
-MTagIOResult MTagIODirect::ReadValue()    { return m_pItem->ReadValue();  };
-MTagIOResult MTagIODirect::WriteValue()   { return m_pItem->WriteValue(); };
+MTagIOResult MTagIODirect::ReadValue(bool LogTheError)    
+  { 
+  m_PrevResult=m_pItem->ReadValue();
+  if (m_PrevResult!=MTagIO_OK && LogTheError)
+    LogError(m_pTagIO->m_pNd->FullObjTag(), 0, "Error '%s' occurred while Reading '%s'", CNodeTagIOList::ResultString(m_PrevResult), m_pItem->TagOnly());
+  return m_PrevResult;
+  };
+MTagIOResult MTagIODirect::WriteValue(bool LogTheError) 
+  {
+  m_PrevResult= m_pItem->WriteValue(); 
+  if (m_PrevResult!=MTagIO_OK && LogTheError)
+    LogError(m_pTagIO->m_pNd->FullObjTag(), 0, "Error '%s' occurred while Writing '%s'", CNodeTagIOList::ResultString(m_PrevResult), m_pItem->TagOnly());
+  return m_PrevResult;
+  };
 
 //---------------------------------------------------------------------------
 

@@ -69,6 +69,7 @@ class BivarStats : public MBaseMethod
 	long lHistoCount;
 
 	double dCorrelation;
+	double dValue[2];      /*CNM*/
 	double dAverage[2];
 	double dStdDev[2];
 	double dMin[2];

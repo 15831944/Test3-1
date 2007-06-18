@@ -100,26 +100,28 @@ void BivarStats::BuildDataFields()
 	DD.Text("");
 	DD.Double("Correlation", "Corr", &dCorrelation, MF_RESULT);
 	DD.Text("Variable 1");
-	DD.Double("Average", "Avg1", dAverage, MF_RESULT, Var1Cnv);
+	DD.Double("Value1", "Val1", dValue, MF_RESULT, Var1Cnv);                                         /*CNM*/
+	DD.Double("Average1", "Avg1", dAverage, MF_RESULT, Var1Cnv);                                     /*CNM*/
 	MCnv Var1DeltaCnv = Var1Cnv;
 	if (Var1Cnv.Index == MC_T.Index)
 		Var1DeltaCnv = MC_dT;
 	if (Var1Cnv.Index == MC_P.Index)
 		Var1DeltaCnv = MC_DP;
-	DD.Double("Standard Deviation", "StdDev1", dStdDev, MF_RESULT, Var1DeltaCnv);
-	DD.Double("Minimum", "Min1", dMin, MF_RESULT, Var1Cnv);
-	DD.Double("Maximum", "Max1", dMax, MF_RESULT, Var1Cnv);
+	DD.Double("StandardDeviation1", "StdDev1", dStdDev, MF_RESULT, Var1DeltaCnv);                    /*CNM*/
+	DD.Double("Minimum1", "Min1", dMin, MF_RESULT, Var1Cnv);                                         /*CNM*/
+	DD.Double("Maximum1", "Max1", dMax, MF_RESULT, Var1Cnv);                                         /*CNM*/
 	DD.Text("");
 	DD.Text("Variable 2");
-	DD.Double("Average", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);
+	DD.Double("Value2", "Val2", dValue + 1, MF_RESULT, Var1Cnv);                                     /*CNM*/
+	DD.Double("Average2", "Avg2", dAverage + 1, MF_RESULT, Var2Cnv);                                 /*CNM*/
 	MCnv Var2DeltaCnv = Var2Cnv;
 	if (Var2Cnv.Index == MC_T.Index)
 		Var2DeltaCnv = MC_dT;
 	if (Var2Cnv.Index == MC_P.Index)
 		Var2DeltaCnv = MC_DP;
-	DD.Double("Standard Deviation", "StdDev2", dStdDev + 1, MF_RESULT, Var2DeltaCnv);
-	DD.Double("Minimum", "Min2", dMin + 1, MF_RESULT, Var2Cnv);
-	DD.Double("Maximum", "Max2", dMax + 1, MF_RESULT, Var2Cnv);
+	DD.Double("StandardDeviation2", "StdDev2", dStdDev + 1, MF_RESULT, Var2DeltaCnv);                /*CNM*/
+	DD.Double("Minimum2", "Min2", dMin + 1, MF_RESULT, Var2Cnv);                                     /*CNM*/
+	DD.Double("Maximum2", "Max2", dMax + 1, MF_RESULT, Var2Cnv);                                     /*CNM*/
 	DD.Text("");
 	DD.Long("Number of Records", "N", idDX_RecordCount, MF_RESULT | MF_SET_ON_CHANGE);
 
@@ -293,6 +295,7 @@ void BivarStats::EvalCtrlStrategy(eScdCtrlTasks Tasks)
 
 void BivarStats::Reset()
 {
+	dValue[0] = dValue[1] = dNAN;                                                   /*CNM*/
 	dMin[0] = dMin[1] = dMax[0] = dMax[1] = dNAN;
 	dStdDev[0] = dStdDev[1] = dNAN;
 	dAverage[0] = dAverage[1] = dNAN;
@@ -319,6 +322,7 @@ void BivarStats::RecalculateStats(double newEntry1, double newEntry2)
 
 	for (int i = 0; i < 2; i++)
 	{
+    dValue[i]=newEntries[i];                                                      /*CNM*/
 		// Update min and max
 		if (_isnan(dMin[i]) || (dMin[i] > newEntries[i]))
 			dMin[i] = newEntries[i];
