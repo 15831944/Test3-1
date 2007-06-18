@@ -455,8 +455,6 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
   m_BlkEval.Add_OnOff(DDB);  
 
-  DDB.Visibility(NM_Probal|SM_Direct|HM_All);
-  GSM.Add_OnOff(DDB);
   DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
@@ -475,6 +473,8 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
     }
     
   //DDB.Visibility(NM_Dynamic|SM_All|HM_All|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+  DDB.Visibility(NM_Probal|SM_Direct|HM_All);
+  GSM.Add_OnOff(DDB);
   DDB.Visibility(NM_All|SM_All|HM_All);
   DDB.CheckBox("ShowQFeed",         "",  DC_,     "",      &m_bShowQFeed,         this, isParm|SetOnChange);
   DDB.Visibility(NM_Probal|SM_Direct|HM_All);
