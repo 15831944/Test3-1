@@ -293,13 +293,13 @@ void MN_Xfer::ConfigureJoins()
       if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
         N++;
       }
-
-    Set_NoJoins(N>0 ? 2 : 1);
+    bool UseClosedJoin=(NoProcLnkIOs()-N>=2);
+    Set_NoJoins(1);
     for (int i=0; i<NoProcLnkIOs(); i++)
       {
       if (Nd_Rmt(i)->FlowMode()==LFM_Xfer)
-        SetIO_Open(i, 1, false, ESS_Denied);
-      else if (NoProcLnkIOs()-N>=2)
+        SetIO_Open(i, 0, false, ESS_Denied);
+      else if (UseClosedJoin)  // enforce estimated flow mass balance
         SetIO_Join(i, 0);
       else
         SetIO_Open(i, 0, false, ESS_Denied);
