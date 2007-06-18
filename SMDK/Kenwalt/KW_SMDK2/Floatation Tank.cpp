@@ -346,17 +346,25 @@ void FloatationTank::EvalProducts()
 			dPrimaryMassConc += temp * dReqPrimaryRecovery;
 			if (eSpecType == FTST_ByElement)
 			{
+				double dElementMass = gs_PeriodicTable[nPrimary1 - 1].AtomicWt();
 				MSpecieElements curElements = gs_MVDefn[vPrimaryIndices.at(i)].Elements();
 				int primaryElement = 0;
-				while (primaryElement < curElements.Count() && curElements[primaryElement].Element().AtomicNumber() != nPrimary1)
+				while (primaryElement < curElements.Count())
 				{
 					int debug1 = curElements[primaryElement].Element().AtomicNumber();
 					LPCSTR debug2 = curElements[primaryElement].Element().Symbol();
+					if (curElements[primaryElement].Element().AtomicNumber() == nPrimary1)
+					{
+						double amount = curElements[primaryElement].Amount();
+						double molWt = gs_MVDefn[vPrimaryIndices.at(i)].MolecularWt();
+						dPrimaryElementConc += temp * dReqPrimaryRecovery
+							* curElements[primaryElement].Amount() * dElementMass / gs_MVDefn[vPrimaryIndices.at(i)].MolecularWt();
+					}
 					primaryElement++;
 					
 				}
-				if (primaryElement < curElements.Count())
-					dPrimaryElementConc = temp * dReqPrimaryRecovery * curElements[primaryElement].Amount() * gs_PeriodicTable[nPrimary1 - 1].AtomicWt() / gs_MVDefn[i].MolecularWt();
+				//if (primaryElement < curElements.Count())
+					//dPrimaryElementConc += temp * dReqPrimaryRecovery * curElements[primaryElement].Amount() * gs_PeriodicTable[nPrimary1 - 1].AtomicWt() / gs_MVDefn[i].MolecularWt();
 			}
 			else
 				dPrimaryElementConc += temp * dPrimaryRecovery;
