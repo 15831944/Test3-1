@@ -360,7 +360,7 @@ void GasPump_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng &Tg)
 
 //--------------------------------------------------------------------------
 
-bool GasPump_GP::TestXRefListActive() { return SetXRefListActive(m_PSB.On()!=0); }
+bool GasPump_GP::TestXRefListActive() { return SetXRefListActive(!GetActiveHold()/*m_PSB.On()!=0*/); }
 
 //---------------------------------------------------------------------------
 

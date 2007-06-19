@@ -382,7 +382,7 @@ void Pump_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng &Tg)
 
 //--------------------------------------------------------------------------
 
-bool Pump_GP::TestXRefListActive() { return SetXRefListActive(m_PSB.On()!=0); }
+bool Pump_GP::TestXRefListActive() { return SetXRefListActive(!GetActiveHold()/*m_PSB.On()!=0*/); }
 
 //---------------------------------------------------------------------------
 

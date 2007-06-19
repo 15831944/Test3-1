@@ -341,7 +341,7 @@ void Valve_GP::Ctrl_ConnIDStr(int i, Strng & ID, Strng & Tg)
 
 //--------------------------------------------------------------------------
 
-bool Valve_GP::TestXRefListActive() { return SetXRefListActive(m_VPB.On()!=0); }
+bool Valve_GP::TestXRefListActive() { return SetXRefListActive(!GetActiveHold()/*m_VPB.On()!=0*/); }
 
 //---------------------------------------------------------------------------
 
