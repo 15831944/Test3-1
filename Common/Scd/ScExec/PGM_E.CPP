@@ -4474,6 +4474,7 @@ flag GCInsMngr::SaveScenario(FilingControlBlock &FCB)
         case VarFunct:
         case VarArray:
         case VarTag:
+        case VarLabel:
           break;
         case VarDouble:
         case VarLong  :

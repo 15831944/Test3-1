@@ -524,6 +524,7 @@ flag GControl::LoadPGM(char * pPGMName, flag WithDebug)
 
 const char* DefaultPGM =
 ";--- SysCAD General Controller (PGM) program logic file ---\n"
+";--- See http://help.syscad.net/index.php/PGMs for online documentation ---\n"
 "\n"
 ";--- variable declarations ---\n"
 "\n"
@@ -531,11 +532,8 @@ const char* DefaultPGM =
 "if (OnInitialise)\n"
 "  ;--- place logic here for execution before first iteration --- (use SetDynTag in OnInitialise)\n"
 "  \n"
-"elseif (OnTerminate)\n"
-"  ;--- place logic here for execution after last iteration ---\n"
-"  \n"
 "else\n"
-"  ;--- place logic here for normal execution each iteration ---\n"
+"  ;--- place logic here for execution each iteration ---\n"
 "  \n"
 "endif\n"
 "\n"
