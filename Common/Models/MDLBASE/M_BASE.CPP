@@ -655,7 +655,7 @@ void MdlNode::SetProdMakeup(PMU_DWFLAGS dwFlags, int IOInx, CSysVector &Contents
       if (IOEvalSeqStart_Self(IOInx)!=ESS_Denied)
         LogError(FullObjTag(), 0, "IO %s is missing the IOSSDenied Flag", IODesc_Self(IOInx)->IOName());
 
-      if (dwFlags & (PMU_Filter|PMU_Passing|PMU_Blocking))
+      if (dwFlags & (PMU_SLRatio|PMU_SLRatio_Rho))
         IO_Self(IOInx).SetPMU(dwFlags, 0);
       else
         VERIFY(0);

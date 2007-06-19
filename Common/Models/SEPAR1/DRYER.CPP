@@ -63,7 +63,7 @@ static IOAreaRec DryerIOAreaList[] =
     {"Evaporated Moisture", "Moisture"  , ioidLiq,  LIO_Out0,    nc_MLnk, 1, 1,  IOSSDenied, (float)0.4},
     {"Dried Solids",        "Cake"      , ioidSol,  LIO_Out1,    nc_MLnk, 1, 1,  IOSSDenied, 0.0f},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
     {NULL}
   };
 

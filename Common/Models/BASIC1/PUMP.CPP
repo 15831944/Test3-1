@@ -85,7 +85,7 @@ IOAreaRec PumpIOAreaList[] =
     //{"Leak_In",       "LeakI",     IOId_2IOLeakI,  LIO_Out,  nc_MLnk, 0,1, IOOptsHide|IOEqnsHide|IOHidden},
     //{"Leak_Out",      "LeakO",     IOId_2IOLeakO,  LIO_Out,  nc_MLnk, 0,1, IOOptsHide|IOEqnsHide|IOHidden},
     {"",              "Speed",     CIOId_Spd,      LIO_In,   nc_CLnk, 0,1},
-    {"ElecSupply",    "ElecIn",    EIOId_Supply,   LIO_In,   nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, "Supply"},
+    {"ElecSupply",    "ElecIn",    EIOId_Supply,   LIO_In,   nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "Supply"},
     {NULL}
   };
 

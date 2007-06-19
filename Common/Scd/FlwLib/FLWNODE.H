@@ -1898,22 +1898,22 @@ DllImportExport IOAreaRec TwoIOAreaListWithBS[];
 DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 
 #define MAKEUP2AREA() /*==MaxNdMakeups*/                                                                                                         \
-  {"", "MU1", IOId_Makeup2Area,   LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "MU2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "MU3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "MU4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+  {"", "MU1", IOId_Makeup2Area,   LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU2", IOId_Makeup2Area+1, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU3", IOId_Makeup2Area+2, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU4", IOId_Makeup2Area+3, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "MU5", IOId_Makeup2Area+4, LIO_In,   nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
 
 #define BLEED2AREA()  /*==MaxNdBleeds*/                                                                                                          \
-  {"", "BL1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "BL2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "BL3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "BL4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup},  \
-  {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
+  {"", "BL1",  IOId_Bleed2Area,    LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL2",  IOId_Bleed2Area+1,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL3",  IOId_Bleed2Area+2,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
+  {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
 
-#define SPILL2AREA         {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-#define VENT2AREA          {"", "Vnt",   IOId_Vent2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup}
-#define LEAKS2AREA(Tg,Id)  {"", Tg, Id, LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide|IOEqnsHide|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup}
+#define SPILL2AREA           {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
+#define VENT2AREA(DisableId) {"", "Vnt",   IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
+#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide|IOEqnsHide|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
 
 const int MaxIOList       = 32000;
 const int IOPt_MaxJoinId  = MaxIOList-1;
@@ -2068,6 +2068,7 @@ class DllImportExport IOAreaRec
     CRct_Dbl       m_GrfTarget;
     CAltIOName   * m_pAltNames;
     CFlwEqnGrp   * m_pFlwGroup;
+    int            m_DIODisableIfConnd;
     LPTSTR         m_pDefaultTS;  // DefaultTermStrip
     LPTSTR         m_pMapTo;      // Used to Map IO down into contained subnodes - no  models use this currently
     

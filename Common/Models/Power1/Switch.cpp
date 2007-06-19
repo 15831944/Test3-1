@@ -21,8 +21,8 @@ XID xidHtLoad  = PwrXID(1001);
 //==========================================================================
 
 static IOAreaRec IsolatorIOAreaList[] =
-  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrIn"},
-   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrOut"},
+  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrIn"},
+   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrOut"},
   {NULL}};
 
 //==========================================================================
@@ -204,8 +204,8 @@ flag CIsolator::CIStrng(int No, pchar & pS)
 //==========================================================================
 
 static IOAreaRec CctBreakerIOAreaList[] =
-  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrIn"},
-   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrOut"},
+  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrIn"},
+   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrOut"},
    {NULL}};
 
 static double Drw_CctBreaker[] =

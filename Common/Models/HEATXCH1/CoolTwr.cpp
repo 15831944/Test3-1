@@ -36,7 +36,7 @@ static IOAreaRec CoolingTowerIOAreaList[] =
    {"Vapour",     "Vapour"    , ioid_Vap      , LIO_Out ,    nc_MLnk, 1,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f},
    {"DriftLoss",  "DriftLoss" , ioid_DriftLoss, LIO_Out ,    nc_MLnk, 0,  1, IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f},
    SPILL2AREA,
-   VENT2AREA,
+   VENT2AREA(ioid_Vap),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

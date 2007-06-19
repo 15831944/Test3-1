@@ -63,7 +63,7 @@ static IOAreaRec ElectroCellIOAreaList[] =
     {"Cathodes",  "Cathodes"  , ioidCath, LIO_Out,  nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,                0.0f},
     {"",          "Hood"      , ioidVent, LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,             1.05f,  {0,0,0,0}, AIOHood},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(ioidVent),
     {NULL}
   };
 

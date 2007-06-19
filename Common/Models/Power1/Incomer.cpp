@@ -30,8 +30,8 @@ XID xidOn      = PwrXID(1001);
 //==========================================================================
 
 static IOAreaRec IncomerIOAreaList[] =
-  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,1, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrIn"},
-   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,1, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrOut"},
+  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0,1, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrIn"},
+   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0,1, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrOut"},
    {NULL}};
 
 static double Drw_Incomer[] =

@@ -75,7 +75,7 @@ static IOAreaRec ContactHeaterIOAreaList[] =
    {"Hot Liquor",  "HotLiquor",  ioidSI_HotLiq, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, 0.5f},
    {"Excess Steam","ExcessSteam",ioidSI_ESteam, LIO_Out1,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, 0.98f},
    SPILL2AREA,
-   VENT2AREA,
+   VENT2AREA(-1),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

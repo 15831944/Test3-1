@@ -59,7 +59,7 @@ static IOAreaRec PrecipIOAreaList[] =
   {{"Feed",     "Feed",      ioid_Feed    , LIO_In0 ,    nc_MLnk, 1, 20,     0, 1.0f},
    {"Product", "Product",    ioid_Product , LIO_Out0,    nc_MLnk, 1,  1,     0, (float)0.5},
    SPILL2AREA,
-   VENT2AREA,
+   VENT2AREA(-1),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

@@ -318,7 +318,7 @@ IOAreaRec TwoIOAreaListWithSV[] =
   {
     TWOIOSTD,
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
     //LEAKS2AREA("LeaksI", IOId_2IOLeakI),
     //LEAKS2AREA("LeaksO", IOId_2IOLeakO),
     {NULL}
@@ -2941,6 +2941,20 @@ void FlwNode::AttachIOAreas(IOAreaRec * IOAreas_, CFlwEqnGrp * DefFlwEqnGrp, boo
   else
     m_IOAreaLcl.SetSize(0);
 #endif
+
+  if (IOAreas)
+    {
+    for (int d=0; d<m_AttachedDirectIOs.GetCount(); d++)
+      {
+      CDirectFlwIO &D=*m_AttachedDirectIOs[d];
+      for (int i=0; IOArea(i).IODesc(); i++)
+        {
+        IOAreaRec &A=IOArea(i);
+        if (A.m_Id==D.LclDIOId())
+          D.SetLclIOId(A.m_DIODisableIfConnd);
+        }
+      }
+    }
   };
 
 //--------------------------------------------------------------------------

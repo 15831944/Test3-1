@@ -100,7 +100,7 @@ static IOAreaRec BarometricCondenserIOAreaList[] =
    {"Mixture", "Mixture", ioidBC_Mix   , LIO_Out0,   nc_MLnk, 1,  1, IOPipeEntry|IOApertureHoriz|IOChgFracHgt|IOChgAperture, 0.0f},
    {"Vapour",  "Vapour",  ioidBC_Vap   , LIO_Out1,   nc_MLnk, 0,  1, IOPipeEntry|IOApertureHoriz|IOChgFracHgt|IOChgAperture, 1.0f},
    SPILL2AREA,
-   VENT2AREA,
+   VENT2AREA(-1),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

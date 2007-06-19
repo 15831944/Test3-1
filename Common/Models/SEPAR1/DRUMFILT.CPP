@@ -66,7 +66,7 @@ static IOAreaRec DrumFiltIOAreaList[] =
     {"Filter Cake", "Cake",     ioidFC,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSetXfer, 0.0f,  {0,0,0,0}, 0, &NullFlwGroup},
     {"",            "Vent",     ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, 1.0f},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(ioidVent),
     {NULL}
   };
 

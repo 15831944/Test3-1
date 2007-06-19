@@ -32,7 +32,7 @@ static IOAreaRec FFEvapIOAreaList[] =
     {"",              "Condensate",  ioid_ShellOut,  LIO_Out1,  nc_MLnk, 1,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 0.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
     {"",              "Shell_Vent",  ioid_ShellVent, LIO_Out ,  nc_MLnk, 0,  1, IOGRP(2)|IOPipeEntry|IOChgFracHgt|IOChgAperture|IOApertureHoriz, 1.0f, {0,0,0,0}, NULL, &PipeEntryGroup},//, "Side[iS].O"},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
     {NULL}
   };
 

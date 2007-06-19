@@ -79,7 +79,7 @@ static IOAreaRec CcdIOAreaList[] =
    {"Ccd Overflow",  "OverFlow"  , ioidOF,   LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry, (float)0.98},
    {"Ccd Underflow", "UnderFlow" , ioidUF,   LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry, 0.0f},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
    {NULL}};
 
 static double Drw_CCD[] = { DD_Poly, 0,-8, -16,-1, -16,2, 16,2, 16,-1, 0,-8, -20,-8,

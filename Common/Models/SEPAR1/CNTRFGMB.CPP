@@ -77,7 +77,7 @@ static IOAreaRec CentrifugeMBIOAreaList[] =
     {"2nd Wash Water",    "WashWater2" , ioidwsh2, LIO_In2,     nc_MLnk, 0, 1,  0,          1.0f},
     {"Second Washings",   "Wash2"      , ioidSW,   LIO_Out ,    nc_MLnk, 0, 1,  0,          1.0f},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
     {NULL}
   };
 

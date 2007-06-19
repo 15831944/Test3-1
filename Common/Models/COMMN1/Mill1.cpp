@@ -71,7 +71,7 @@ static IOAreaRec MillIOAreaList[] =
   {{"Mill Feed",       "Feed"      , ioidFeed, LIO_In0 ,  nc_MLnk, 1, 20, /*dwIOIsBuffer|*/IOGRP(1), 0.0F},
    {"Mill Discharge",  "Product"   , ioidProd, LIO_Out0,  nc_MLnk, 1,  1, IOSetXfer|IOGRP(1), 0.0F},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(-1),
    {"ElecSupply",    "ElecIn",     EIOId_Supply, LIO_In,   nc_ELnk, 0,50},
    {NULL}};
            

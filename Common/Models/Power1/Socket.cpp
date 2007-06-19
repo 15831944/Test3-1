@@ -22,8 +22,8 @@ XID xidOn      = PwrXID(1001);
 
 static IOAreaRec SocketIOAreaList[] =
   {
-    {"Input",         "In" , ElecIOId(0), LIO_In0, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrIn"},
-    {"Output",        "Out", ElecIOId(1), LIO_Out, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, "PwrOut"},
+    {"Input",         "In" , ElecIOId(0), LIO_In0, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrIn"},
+    {"Output",        "Out", ElecIOId(1), LIO_Out, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "PwrOut"},
     {NULL}
   };
 

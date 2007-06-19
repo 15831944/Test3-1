@@ -19,7 +19,7 @@ static IOAreaRec BoilerIOAreaList[] =
   {"",    "SteamOut",   ioidSteamOut, LIO_Out0,    nc_MLnk, 1,  1,  IOGRP(1)|IOPipeEntry|IOApertureHoriz|IOChgFracHgt|IOChgAperture, 1.0f},
   {"",    "BlowDown",   ioidBlowDown, LIO_Out ,    nc_MLnk, 0,  1,  IOGRP(1)|IOPipeEntry|IOChgFracHgt|IOChgAperture, (float)0.5},
   SPILL2AREA,
-  VENT2AREA,
+  VENT2AREA(-1),
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 

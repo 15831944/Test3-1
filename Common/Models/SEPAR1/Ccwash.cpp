@@ -82,7 +82,7 @@ static IOAreaRec CCWasherIOAreaList[] =
    {"Underflow",  "Underflow" ,   ioidUFlw ,    LIO_Out1, nc_MLnk, 1,  1, IOPipeEntry, (float)0.5},
    {"",           "Vent"        , ioidVent,     LIO_Out , nc_MLnk, 0,  1, IOPipeEntry, 1.0f},
     SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(ioidVent),
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 

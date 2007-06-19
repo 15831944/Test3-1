@@ -26,9 +26,9 @@ XID xidHtLoad   = PwrXID(1006);
 //==========================================================================
 
 static IOAreaRec TwoEIOAreaList[] =
-  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, "Pri"},
+  {{"Input",         "In" , ElecIOId(0), LIO_In0 , nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "Pri"},
    {"Input",         "I"  , ElecIOId(0), LIO_In  , nc_ELnk, 0, 50, 0},
-   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, "Sec"},
+   {"Output",        "Out", ElecIOId(1), LIO_Out0, nc_ELnk, 0, 50, 0, 0.0, {0,0,0,0}, NULL, NULL, -1, "Sec"},
    {"Output",        "O"  , ElecIOId(1), LIO_Out , nc_ELnk, 0, 50, 0},
    {NULL}};
 

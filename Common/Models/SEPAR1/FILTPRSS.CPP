@@ -75,7 +75,7 @@ static IOAreaRec FilterPressIOAreaList[] =
     {"Washings",          "Washings",   ioidWashings,     LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, (float)0.98},
     {"",                  "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOSetXfer, 1.0f},
     //SPILL2AREA,
-    VENT2AREA,
+    VENT2AREA(ioidVent),
     {NULL}
   };
 
@@ -132,7 +132,7 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   bTrackStatus    = 1;
 
   //m_Spill.SetLclIOId(ioid_OverFlw);
-  m_Vent.SetLclIOId(ioidVent);
+  //m_Vent.xSetLclIOId(ioidVent);
 
   Cake.SetStateAction(IE_Integrate);
   };
