@@ -505,6 +505,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\MODEL430.lib"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
