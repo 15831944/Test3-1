@@ -3563,7 +3563,7 @@ void CRptTagLists::LoadModelType()
       _stricmp(pG, CtrlLinkGrp)==0 || 
       _stricmp(pG, ElecLinkGrp)==0 || 
       _stricmp(pG, AirLinkGrp)==0 || 
-      _stricmp(pG, FlangeGrp)==0)
+      _stricmp(pG, DirectLinkGrp)==0)
       {
       Strng CLSID(pTOC->ClassIdNoVersion());
       dbgpln("------ %-20s %s", pG, CLSID());

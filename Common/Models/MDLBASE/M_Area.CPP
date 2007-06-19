@@ -428,7 +428,7 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
 #if WithGrid 
       DDB.BeginGrid("Makeups", 2, RowCount, 10,0);
       DDB.ColumnHeader("    ", 4, 0, 0);
-      DDB.ColumnHeader("Flange", 20, 0, 0);
+      DDB.ColumnHeader("DirectLink", 20, 0, 0);
       DDB.ColumnHeader("DstTag",    20, 0, 0);
       DDB.ColumnHeader("Qm",     12, 0, 0);
 #endif
@@ -445,9 +445,9 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
             DDB.RowStart();
 #endif
             DDB.BeginElement(this, j++);
-            DDB.String("Flange", "", DC_,   "",     xidMUFlange,   i, this, isResult|noFileAtAll|isTag);
-            DDB.String("DstTag", "", DC_,   "",     xidMUDstTag,   i, this, isResult|noFileAtAll|isTag);
-            DDB.Double("Qm",     "", DC_Qm, "kg/s", xidMUFlows,    i, this, isResult|noFileAtAll);
+            DDB.String("DirectLink",  "", DC_,   "",     xidMUFlange,   i, this, isResult|noFileAtAll|isTag);
+            DDB.String("DstTag",      "", DC_,   "",     xidMUDstTag,   i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",          "", DC_Qm, "kg/s", xidMUFlows,    i, this, isResult|noFileAtAll);
             }
           }
         }
@@ -474,9 +474,9 @@ void MN_Area::BuildDataDefn(DataDefnBlk & DDB, dword What)
           if (IOId_Self(i)==IOId_AreaBleedI)
             {
             DDB.BeginElement(this, j++);
-            DDB.String("Flange", "", DC_,   "",     xidBLFlange,  i, this, isResult|noFileAtAll|isTag);
-            DDB.String("SrcTag", "", DC_,   "",     xidBLSrcTag,  i, this, isResult|noFileAtAll|isTag);
-            DDB.Double("Qm",     "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
+            DDB.String("DirectLink",  "", DC_,   "",     xidBLFlange,  i, this, isResult|noFileAtAll|isTag);
+            DDB.String("SrcTag",      "", DC_,   "",     xidBLSrcTag,  i, this, isResult|noFileAtAll|isTag);
+            DDB.Double("Qm",          "", DC_Qm, "kg/s", xidBLFlows, i, this, isResult|noFileAtAll);
             }
           }
         }

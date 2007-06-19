@@ -878,7 +878,7 @@ void FlangeTearVarBlk::DoConstruct()
   TFmt.Set("", 0, 2, 'f');
   QFmt.Set("", 0, 2, 'f');
   iTearTagTyp=TTT_Tear;
-  sGroupTag="Flange";
+  sGroupTag=DirectLinkGrp/*"Flange"*/;
   int NQ=0;
 
   TagObjClass *pQC;
@@ -970,7 +970,7 @@ void FlangeTearVarBlk::OnEditDestroy()
 byte CFlange::iMkUpOKCurr=0;
 byte CFlange::iMkUpOKNext=0;
 
-IMPLEMENT_TAGOBJ(CFlange, FlangeGrp, "Flange", "", "DirectIO", "Flng", TOC_SYSTEM, "Flange", "")
+IMPLEMENT_TAGOBJ(CFlange, DirectLinkGrp, DirectLinkClass, "", "DirectIO", "DLnk", TOC_SYSTEM, "Direct Link", "")
 
 CFlange::CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) : \
 TearPosBlk(TT_NoTear),
@@ -1074,6 +1074,9 @@ flag CFlange::DataXchg(DataChangeBlk & DCB)
   {
   switch (DCB.lHandle)
     {    
+    case xidTag: 
+      DCB.pC=Tag(); 
+      return 1;
     case xidFlngSrcTag: 
       DCB.pC=m_pNdSrc ? m_pNdSrc->FullObjTag():""; 
       return 1;
@@ -6524,7 +6527,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
           pF=Info[i].p->GetFlange(Info[i].Id);
         if (!pF)
           {
-          pF                = (CFlange*)CFlangeClass.Construct("Flange" ,"" ,NULL , TOA_Free);// new CFlange(true);
+          pF                = (CFlange*)CFlangeClass.Construct(DirectLinkClass ,"" ,NULL , TOA_Free);// new CFlange(true);
           pF->m_bMustDelete = true;
           DoInitConn=true;
           }
@@ -6652,7 +6655,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
         if (!pF)
           {
           //pF=new CFlange(true);
-          pF= (CFlange*)CFlangeClass.Construct("Flange" ,"" ,NULL , TOA_Free);// new CFlange(true);
+          pF= (CFlange*)CFlangeClass.Construct(DirectLinkClass ,"" ,NULL , TOA_Free);// new CFlange(true);
           pF->m_bMustDelete=true;
           DoInitConn=true;
           }
@@ -11371,7 +11374,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
 
   if (HasConduit && (m_pFlng == NULL))
     {
-    m_pFlng                 = (CFlange*)CFlangeClass.Construct("Flange" ,""/*()*/ ,NULL , TOA_Free);
+    m_pFlng                 = (CFlange*)CFlangeClass.Construct(DirectLinkClass ,""/*()*/ ,NULL , TOA_Free);
     m_pFlng->m_bMustDelete  = false;
     m_pFlng->InitConnId(m_pNd, NULL, NULL, NULL, m_sTag());
     switch (m_eType)
@@ -11379,7 +11382,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
       case eDIO_Snk:
       case eDIO_Makeup:
       case eDIO_Deplete:
-        m_pFlng->m_SubTag       = "Qi";
+        m_pFlng->m_SubTag       = "Qo";//"Qi"; keep all 'DirectLinks' as Qo
         break;
       default:
         m_pFlng->m_SubTag       = "Qo";
@@ -11454,14 +11457,15 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
         {0}
       };
 
-    DDB.String  ("Flange",             "",       DC_,      "",   xidDIOFlangeTag,    m_pNd, (DDB.ForFileSnpScn()?isParm:0/*isResult*/)|isTag/*|hasNoGrf*/);
+    LPSTR pDIOTag=PrjFileVerNo()>=110?"DirectLink":"Flange";
+    DDB.String  (pDIOTag,                 "",       DC_,      "",   xidDIOFlangeTag,    m_pNd, (DDB.ForFileSnpScn()?isParm:0/*isResult*/)|isTag/*|hasNoGrf*/);
     if (!DDB.ForFileSnpScn())
       {
       if (Options&DFIO_ShowSrcTag)
         DDB.String  ("SrcTag",            "",       DC_,      "",   xidDIOFlngSrcTag,   m_pNd, isResult|isTag);
       if (Options&DFIO_ShowDstTag)
-        DDB.String  ("DstTag",            "",       DC_,      "",   xidDIOFlngDstTag,   m_pNd, isResult|isTag);
-      DDB.Byte    ("Connect",            "",       DC_,      "",   xidConnectState,    m_pNd, 0, DDBConnected);
+        DDB.String  ("DstTag",             "",       DC_,      "",   xidDIOFlngDstTag,   m_pNd, isResult|isTag);
+      DDB.Byte    ("Connect",             "",       DC_,      "",   xidConnectState,    m_pNd, 0, DDBConnected);
       }
     if (!m_bIsXfer)
       DDB.Double  ("Opening",   "",       DC_Frac,  "%",      xidDrctOpening,    m_pNd, isParm);
