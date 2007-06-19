@@ -6264,16 +6264,13 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
     io.m_dEstL2VOnEntry = 0.0;
 
     io.iExitRule   = 0;
+    if (flags & IOBlockSolids)
+      io.iExitRule |= IOER_NoSol;
+    if (flags & IOBlockLiquids)
+      io.iExitRule |= IOER_NoLiq;
+    if (flags & IOBlockVapours)
+      io.iExitRule |= IOER_NoVap;
     io.m_pImg      = NULL;
-    if (flags & IOPassVapours)
-      io.iExitRule |= IOER_Vap;
-    if (flags & IOPassLiquids)
-      io.iExitRule |= IOER_Liq;
-    if (flags & IOPassSolids)
-      io.iExitRule |= IOER_Sol;
-
-    if (io.iExitRule==0)
-      io.iExitRule  = IOER_Lvl;
 
     io.dV2LQmVFact  = 0.0;
     io.dV2LQmLFact  = 0.0;

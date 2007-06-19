@@ -1937,11 +1937,11 @@ const byte LIO_In2      = eScdDirection_In2;
 const byte LIO_In0Out   = eScdDirection_In0Out;
 const byte LIO_InOut0   = eScdDirection_InOut0;
 
-const byte IOER_Vap   = 0x00000001;
-const byte IOER_Liq   = 0x00000002;
-const byte IOER_Sol   = 0x00000004;
-const byte IOER_Img   = 0x00000008;
-const byte IOER_Lvl   = 0x00000010;
+const byte IOER_Lvl   = 0x00;
+const byte IOER_Vap   = 0x01;
+const byte IOER_Liq   = 0x02;
+const byte IOER_Sol   = 0x04;
+const byte IOER_Img   = 0x08;
 
 const byte IOER_All   = IOER_Vap|IOER_Liq|IOER_Sol;
 const byte IOER_NoVap = IOER_Liq|IOER_Sol;
@@ -2019,9 +2019,14 @@ const dword IOFlagBase      = 0x00ff0000;
 const dword IOPipeEntry     = 0x00010000;
 const dword IOPipeJoin      = 0x00020000;
 const dword IOApertureHoriz = 0x00040000;
-const dword IOPassVapours   = 0x00080000;
-const dword IOPassLiquids   = 0x00100000;
-const dword IOPassSolids    = 0x00200000;
+
+const dword IOBlockVapours  = 0x00080000;
+const dword IOBlockLiquids  = 0x00100000;
+const dword IOBlockSolids   = 0x00200000;
+const dword IOPassVapours   = (IOBlockLiquids|IOBlockSolids);
+const dword IOPassLiquids   = (IOBlockVapours|IOBlockSolids);
+const dword IOPassSolids    = (IOBlockVapours|IOBlockLiquids);
+
 const dword IOChgFracHgt    = 0x00400000;
 const dword IOChgAperture   = 0x00800000;
 const dword IOHidden        = 0x01000000;

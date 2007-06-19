@@ -48,10 +48,10 @@ const byte ioidVent = 3;
 
 static IOAreaRec ThickenerIOAreaList[] =
   {
-    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry           ,     1.0f},
-    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     1.0f},
-    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,     0.0f},
-    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,  1.05f},
+    {"Thickener Feed",      "Feed",       ioidFd,           LIO_In0,  nc_MLnk, 1, 20, IOPipeEntry,                              1.0f},
+    {"Thickener Overflow",  "OverFlow",   ioidOF,           LIO_Out0, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied|IOBlockVapours,    1.0f},
+    {"Thickener Underflow", "UnderFlow",  ioidUF,           LIO_Out1, nc_MLnk, 1, 1,  IOPipeEntry|IOSSDenied,                   0.0f},
+    {"",                    "Vent",       ioidVent,         LIO_Out,  nc_MLnk, 0, 1,  IOPipeEntry|IOPassVapours,                1.05f},
     SPILL2AREA,
     VENT2AREA(ioidVent),
     MAKEUP2AREA(),

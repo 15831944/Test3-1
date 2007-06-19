@@ -1411,30 +1411,39 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     if ((IOIdMask_Self(iIONo) & HO.m_dwIOIdMask)!=0)
       {
       byte ER=IOExitRule(iIONo);
+      dword IOFlags=IODesc_Self(iIONo)->m_dwFlags;
+
       //double EntVapFrac=Range(0.0, Contents.VapourEntrained()/GTZ(Contents.Mass(som_Gas)),1.0);
-      if ((ER&IOER_Lvl)==0 || TstGTZ(EntVapFrac))// && IOFlange(i)->PMUOptions()==0)
+      if ((ER&IOER_All) || 
+          (IOFlags&(IOBlockSolids|IOBlockLiquids|IOBlockVapours)) || 
+          TstGTZ(EntVapFrac))
         {
 
-        SpMArray Img;
+        SpMArray Filter;
 
-        if ((ER&IOER_Lvl)==0)
+        if (ER&IOER_All)
           {
           if (ER&IOER_Sol)
-            Img.SetToValue(som_Sol, 1.0);
-
+            Filter.SetToValue(som_Sol, 1.0);
           if (ER&IOER_Liq)
-            Img.SetToValue(som_Liq, 1.0);
-
+            Filter.SetToValue(som_Liq, 1.0);
           if (ER&IOER_Vap)
-            Img.SetToValue(som_Gas, 1.0);
+            Filter.SetToValue(som_Gas, 1.0);
           //else 
-          //  Img.SetToValue(som_Gas, EntVapFrac);
+          //  Filter.SetToValue(som_Gas, EntVapFrac);
           }
         else
           {
-          Img.SetToValue(som_SL, 1.0);
-          Img.SetToValue(som_Gas, EntVapFrac);
+          Filter.SetToValue(som_SL, 1.0);
+          Filter.SetToValue(som_Gas, EntVapFrac);
           }
+
+        if (IOFlags&IOBlockSolids)
+          Filter.SetToValue(som_Sol, 0.0);
+        if (IOFlags&IOBlockLiquids)
+          Filter.SetToValue(som_Liq, 0.0);
+        if (IOFlags&IOBlockVapours)
+          Filter.SetToValue(som_Gas, 0.0);
 
         if (ER&IOER_Img)
           {
@@ -1471,7 +1480,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
           dbgpln("=========== SetProdMakeup Filter %s > %s",FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
 #endif
 
-        SetProdMakeup(PMU_IONo|PMU_Filter, iIONo, Img, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
+        SetProdMakeup(PMU_IONo|PMU_Filter, iIONo, Filter, ContentFlw.Temp(), ContentFlw.Press(), ContentFlw.Model());
         }
       else             
         {
@@ -1911,37 +1920,101 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     }
 
   // Now add the gasses
-  double VapourQmRqd=0.0;
-  for (int iHO=0; iHO<HO.NOrd(); iHO++)
+
+  double TotalVapAvl=VapourFlw.QMass();
+  if (TotalVapAvl>SmallPosFlow)
     {
-    int iIONo=HO.m_Ord[iHO];
-    if (!IO_In(iIONo))
+    double TotalVapRqd=0.0;
+    double VapourQmRqd=0.0;
+    //double SpcVapRqd[MaxSpecies];
+    //double SpcVapAvl[MaxSpecies];
+    double SpcVapFrac[MaxSpecies];
+
+    SpecieIter I(som_Gas);
+    for (int s=-1; I.Loop(s); )
       {
-      SpConduit & Fo = *IOConduit(iIONo);
-      double VapQm=GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
-      VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
-      VapourQmRqd+=VapQm;
+      //SpcVapRqd[s]=0.0;
+      //SpcVapAvl[s]=VapourFlw.MArray().VMass[s];
+      //SpcVapFrac[s]=SpcVapAvl[s]/TotalVapAvl;
+      SpcVapFrac[s]=VapourFlw.MArray().VMass[s]/TotalVapAvl;
       }
-    }
-  double VapourScl=Range(0.0, VapourFlw.QMass()/GTZ(VapourQmRqd), 1.0);
-#if dbgDerivs
-  if (dbgso)
-    dbgpln("VapourScl = %14.4f %s", VapourScl, FullObjTag());
-#endif
-  for (int iHO=0; iHO<HO.NOrd(); iHO++)
-    {
-    int iIONo=HO.m_Ord[iHO];
-    if (!IO_In(iIONo))
+    
+    for (int iHO=0; iHO<HO.NOrd(); iHO++)
       {
-      SpConduit & Fo = *IOConduit(iIONo);
-      double VapQm=VapourScl*GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
-      VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
-      Fo.QAddM(VapourFlw, som_ALL, VapQm);
-      VapourFlw.QSubM(Fo, som_ALL, VapQm); // remove this from flow
-#if dbgDerivs
-      if (dbgso)
-        dbgpln(" %14.4f %7.4f %7.2f %s > %s", VapQm, HO.m_VolScl[iHO], HO.m_SLRho[iHO], FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
-#endif
+      int iIONo=HO.m_Ord[iHO];
+      if (!IO_In(iIONo))
+        {
+        SpConduit & Fo = *IOConduit(iIONo);
+        double VapQm=GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
+        VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+
+        if (IOHasPMU(iIONo, PMU_Filter))
+          {
+          CSysVector & Filter=*IOPMUFilter(iIONo);
+          for (int s=-1; I.Loop(s); )
+            VapourQmRqd+=VapQm*SpcVapFrac[s]*Filter[s];
+            //{
+            //SpcVapRqd[s]+=VapQm*SpcVapFrac[s]*Filter[s];
+            //VapourQmRqd+=SpcVapRqd[s];
+            //}
+          }
+        else
+          {
+          for (int s=-1; I.Loop(s); )
+            VapourQmRqd+=VapQm*SpcVapFrac[s];
+            //{
+            //SpcVapRqd[s]+=VapQm*SpcVapFrac[s];
+            //VapourQmRqd+=SpcVapRqd[s];
+            //}
+          }
+        //VapourQmRqd+=VapQm;
+        }
+      }
+    double VapourScl=Range(0.0, VapourFlw.QMass()/GTZ(VapourQmRqd), 1.0);
+  #if dbgDerivs
+    if (dbgso)
+      dbgpln("VapourScl = %14.4f %s", VapourScl, FullObjTag());
+  #endif
+    for (int iHO=0; iHO<HO.NOrd(); iHO++)
+      {
+      int iIONo=HO.m_Ord[iHO];
+      if (!IO_In(iIONo))
+        {
+        SpConduit & Fo = *IOConduit(iIONo);
+        double VapQm=VapourScl*GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
+        VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+
+        if (IOHasPMU(iIONo, PMU_Filter))
+          {
+          //double VolOutAvl=0;
+          CSysVector & Filter=*IOPMUFilter(iIONo);
+          for (int s=-1; I.Loop(s); )
+          for (int s=-1; I.Loop(s); )
+            {
+            double m=VapQm*SpcVapFrac[s]*Filter[s];
+            Fo.SetVMass(s, Contents, m);
+            VapourFlw.SetVMass(s, VapourFlw, VapourFlw.VMass[s]-m);
+            }
+            //Fo.SetVMass(s, Contents, VapQm*SpcVapFrac[s]*Filter[s]);
+          }
+        else
+          {
+          for (int s=-1; I.Loop(s); )
+            {
+            double m=VapQm*SpcVapFrac[s];
+            Fo.SetVMass(s, Contents, m);
+            VapourFlw.SetVMass(s, VapourFlw, VapourFlw.VMass[s]-m);
+            }
+          //Fo.QAddM(VapourFlw, som_ALL, VapQm);
+          }
+        Fo.SetTempPress(Contents.Temp(), Contents.Press());
+        //Fo.QAddM(VapourFlw, som_ALL, VapQm);
+        //VapourFlw.QSubM(Fo, som_ALL, VapQm); // remove this from flow
+  #if dbgDerivs
+        if (dbgso)
+          dbgpln(" %14.4f %7.4f %7.2f %s > %s", VapQm, HO.m_VolScl[iHO], HO.m_SLRho[iHO], FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+  #endif
+        }
       }
     }
 
@@ -3602,7 +3675,7 @@ eEvalSeqStart MdlNode::IOEvalSeqStart_Self(int i)
     {
     if ((IOIdMask_Self(i) & pHO->m_dwIOIdMask)!=0)
       {
-      if (((IOExitRule(i)&IOER_Lvl)==0) && NetDynamicMethod() && SolveSurgeMethod())
+      if ((IOExitRule(i)&IOER_All) && NetDynamicMethod() && SolveSurgeMethod())
         return ESS_Denied;
       }
 
@@ -3839,11 +3912,6 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
               DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, (D.m_dwFlags&IOChgFracHgt)?isParmStopped:0);
               DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, (D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0);
               DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0)|isResult|noFile|noSnap);
-//=======
-//              DDB.Byte   (pERTg,           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
-//              //DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?0:noView)|((D.m_dwFlags&IOOverflow)?0:isParmStopped));
-//              DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, ((D.m_dwFlags&IOChgFracHgt)?isParmStopped:0));
-//>>>>>>> .r1881
               DDB.Double ("Datum",         "Z",    DC_L,        "m",      xidIO_Hgt0+i,         this, isResult|noFile|noSnap);
 
               if ((D.m_dwFlags&IOOptsHideI)==0)
@@ -3861,16 +3929,6 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
                 if (IOExitRule(i)&IOER_Img)
                   DDB.Object(IOExitImage(i), this, "Exit.Image", NULL, DDB_RqdPage, -1, isParm);
                 }
-//=======
-//              DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isParmStopped);
-//              DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture || SolveInlineMethod())?0:noView)|isResult|noFile|noSnap);
-//              DDB.Double ("EntrainRateV",  "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateB0+i, this, isParm);
-//              DDB.Double ("EntrainRateSL", "",     DC_EntRate,  "%.s/kg", xidIO_EntrainRateA0+i, this, isParm);
-//              DDB.Double ("Vap2LiqEst",    "",     DC_Frac,     "%",      xidIO_EstV2L0+i,       this, isParm);
-//              DDB.Double ("Liq2VapEst",    "",     DC_Frac,     "%",      xidIO_EstL2V0+i,       this, isParm);
-//              if (IOExitRule(i)&IOER_Img)
-//                DDB.Object(IOExitImage(i), this, "Image", NULL, DDB_RqdPage, -1, isParm);
-//>>>>>>> .r1881
               }
             }
           }
