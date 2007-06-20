@@ -2376,8 +2376,16 @@ BOOL CSDBSpecie::LoadRecord(int ItemIndex)
     }
 
   Strng Fnd, Name, X1, X2;
-  X1.Set("%.3f", Rows()[RowIndex].Ts-0.1);
-  X2.Set("%.3f", Rows()[RowIndex].Ts+0.1);
+  //X1.Set("%.3f", Rows()[RowIndex].Ts-0.1);
+  //X2.Set("%.3f", Rows()[RowIndex].Ts+0.1);
+  //20/6/2007: the above two lines cause a failure on French XP version because of different number formating converion to strings.
+  //           1012.15 in english goes to "1012.150"; BUT in french goes to "1 012,150"
+  //           This causes a fault (exception) on the SQL Filter.
+  //           The work around is to use integers.
+  long X1long = long(floor(Rows()[RowIndex].Ts-0.1));
+  long X2long = long(ceil(Rows()[RowIndex].Ts+0.1));
+  X1.Set("%d", X1long);
+  X2.Set("%d", X2long);
   Fnd.Set("[Compound]='%s' AND [Phase]='%s' AND [Ts] >= %s AND [Ts] <= %s",
            Rows()[RowIndex].Comp(), Rows()[RowIndex].Occ(), X1(), X2());
 
@@ -2775,8 +2783,16 @@ BOOL CSDBSpecie::DeleteRecords()
     {
     int RowIndex= m_SpList.GetNextSelectedItem(pos);
     Strng Fnd, Name, X1, X2;
-    X1.Set("%.3f", Rows()[RowIndex].Ts-0.1);
-    X2.Set("%.3f", Rows()[RowIndex].Ts+0.1);
+    //X1.Set("%.3f", Rows()[RowIndex].Ts-0.1);
+    //X2.Set("%.3f", Rows()[RowIndex].Ts+0.1);
+    //20/6/2007: the above two lines cause a failure on French XP version because of different number formating converion to strings.
+    //           1012.15 in english goes to "1012.150"; BUT in french goes to "1 012,150"
+    //           This causes a fault (exception) on the SQL Filter.
+    //           The work around is to use integers.
+    long X1long = long(floor(Rows()[RowIndex].Ts-0.1));
+    long X2long = long(ceil(Rows()[RowIndex].Ts+0.1));
+    X1.Set("%d", X1long);
+    X2.Set("%d", X2long);
     Fnd.Set("[Compound] = '%s' AND [Phase] = '%s' AND [Ts] >= %s AND [Ts] <= %s",
              Rows()[RowIndex].Comp(), Rows()[RowIndex].Occ(), X1(), X2());
     try
