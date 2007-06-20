@@ -1809,6 +1809,13 @@ void FlwSlvBlk::StartSolutionAll()
     {
     p->StartSolution();
     p->InitFlowInfo();
+    
+    p->m_AuditOptionRmt=Audit_Ignore;
+    for (int j=0; j<p->NoFlwIOs(); j++)
+      {
+      p->m_AuditOptionRmt=Max(p->m_AuditOptionRmt, p->Nd_Rmt(j)->m_AuditOption);
+      }
+    
     }
   TIMINGLAP("Start Solution");
 
@@ -10199,6 +10206,8 @@ static DDBValueLst DDBSpillReporting[] = {
   {SpillReports_IdleBoth ,  "On-Both-Idle"},
   {0}};
 static DDBValueLst DDBAuditOptions[] = {
+  {Audit_AllOff,   "AllOff"   },
+  //{-1,             "-------",  MDD_NoSelect},
   {Audit_Off,      "Off"      },
   {Audit_Flows,    "Flows"    },
   {Audit_Totals,   "Totals"   },

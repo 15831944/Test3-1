@@ -2549,6 +2549,7 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   Joins.SetSize(0);
 
   m_AuditOption      = Audit_Ignore;
+  m_AuditOptionRmt   = Audit_Ignore;
   m_ForceAuditOption = Audit_Ignore;
 
   #if NDSTOPWATCHES
@@ -3509,7 +3510,7 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
   if (!fSolutionForRoot)
     {
     DDBValueLstMem DDBModes;
-    GetAuditOptionStrLst(DDBModes, true);
+    GetAuditOptionStrLst(DDB.ForFileSnpScn(), DDBModes);
     DDB.String("AuditLevel",      "", DC_, "", xidAuditReqd,   this, (DDBModes.Length()>1?isParmStopped:0)|SetOnChange|InitHidden, &DDBModes);
     }
 
@@ -4162,8 +4163,8 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
     case xidAuditReqd:
       {
       if (DCB.rpC)
-        SetAuditOptionStr(DCB.rpC);
-      DCB.pC=(LPSTR)GetAuditOptionStr();
+        SetAuditOptionStr(DCB.ForFileSnpScn(), DCB.rpC);
+      DCB.pC=(LPSTR)GetAuditOptionStr(DCB.ForFileSnpScn());
       return 1;
       }
 
@@ -4474,12 +4475,16 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
 
 long FlwNode::AuditOption() 
   { 
+  if (gs_AuditOption==Audit_AllOff)
+    return Audit_Off;
   //return m_ForceAuditOption ? m_ForceAuditOption : m_AuditOption ? m_AuditOption :gs_AuditOption; 
-  return Max(m_ForceAuditOption, Max(m_AuditOption, gs_AuditOption)); 
+  return Max(m_ForceAuditOption, Max(m_AuditOption, m_AuditOptionRmt, gs_AuditOption)); 
   }
 
-LPCSTR FlwNode::GetAuditOptionStr()
+LPCSTR FlwNode::GetAuditOptionStr(flag ForFiling)
   {
+  if (!ForFiling && gs_AuditOption==Audit_AllOff)
+    return "<AllOff>";
   long Opt=Max(m_ForceAuditOption , m_AuditOption);
   switch (Opt)
     {
@@ -4501,65 +4506,52 @@ LPCSTR FlwNode::GetAuditOptionStr()
     }
   return "??";
   }
-long FlwNode::SetAuditOptionStr(LPCSTR Str) 
+long FlwNode::SetAuditOptionStr(flag ForFiling, LPCSTR Str) 
   {
-  if        (stricmp(Str, "Off")==0)     m_AuditOption = Audit_Off;
-  else if   (stricmp(Str, "Flows")==0)   m_AuditOption = Audit_Flows;
-  else if   (stricmp(Str, "Totals")==0)  m_AuditOption = Audit_Totals;
-  else if   (stricmp(Str, "Balance")==0) m_AuditOption = Audit_Balance;
-  else 
+  if  (!ForFiling && stricmp(Str, "<AllOff>")==0) 
     {
-    m_AuditOption = Audit_Ignore;
-    if        (stricmp(Str, "<Off>")==0)     gs_AuditOption = Audit_Off;
-    else if   (stricmp(Str, "<Flows>")==0)   gs_AuditOption = Audit_Flows;
-    else if   (stricmp(Str, "<Totals>")==0)  gs_AuditOption = Audit_Totals;
-    else if   (stricmp(Str, "<Balance>")==0) gs_AuditOption = Audit_Balance;
-    }                 
+    }
+  else
+    {
+    if   (stricmp(Str, "Off")==0)     m_AuditOption = Audit_Off;
+    else if   (stricmp(Str, "Flows")==0)   m_AuditOption = Audit_Flows;
+    else if   (stricmp(Str, "Totals")==0)  m_AuditOption = Audit_Totals;
+    else if   (stricmp(Str, "Balance")==0) m_AuditOption = Audit_Balance;
+    else 
+      {
+      m_AuditOption = Audit_Ignore;
+      if        (stricmp(Str, "<Off>")==0)     gs_AuditOption = Audit_Off;
+      else if   (stricmp(Str, "<Flows>")==0)   gs_AuditOption = Audit_Flows;
+      else if   (stricmp(Str, "<Totals>")==0)  gs_AuditOption = Audit_Totals;
+      else if   (stricmp(Str, "<Balance>")==0) gs_AuditOption = Audit_Balance;
+      }                 
+    }
 
   return AuditOption(); 
   }
 
-void FlwNode::GetAuditOptionStrLst(DDBValueLstMem & Lst, bool ForNode)
+void FlwNode::GetAuditOptionStrLst(flag ForFiling, DDBValueLstMem & Lst)
   {
   Lst.Empty();
 
-  if (ForNode)
+  if (!ForFiling && gs_AuditOption==Audit_AllOff)
+    Lst.Add("<AllOff>");
+  else
     {
     if       (gs_AuditOption == Audit_Off)     Lst.Add("<Off>");     
     else if  (gs_AuditOption == Audit_Flows)   Lst.Add("<Flows>");
     else if  (gs_AuditOption == Audit_Totals)  Lst.Add("<Totals>");  
     else if  (gs_AuditOption == Audit_Balance) Lst.Add("<Balance>");
+
+    if (Lst.Length()>0)
+      Lst.Add("---------");
+
+
+    if (m_ForceAuditOption <= Audit_Off)                  Lst.Add("Off");     
+    if (m_ForceAuditOption <= Audit_Flows)                Lst.Add("Flows");
+    if (m_ForceAuditOption <= Audit_Totals)               Lst.Add("Totals");  
+    //if (m_ForceAuditOption <= Audit_Balance && !ForNode)  Lst.Add("Balance");
     }
-
-  if (Lst.Length()>0)
-    Lst.Add("---------");
-
-  if (m_ForceAuditOption <= Audit_Off)                  Lst.Add("Off");     
-  if (m_ForceAuditOption <= Audit_Flows)                Lst.Add("Flows");
-  if (m_ForceAuditOption <= Audit_Totals)               Lst.Add("Totals");  
-  if (m_ForceAuditOption <= Audit_Balance && !ForNode)  Lst.Add("Balance");
-
-  //if (m_ForceAuditOption>Audit_Ignore)
-  //  {
-  //  if       (m_ForceAuditOption <= Audit_Off)     Lst.Add("Off");     
-  //  else if  (m_ForceAuditOption <= Audit_Flows)   Lst.Add("Flows");
-  //  else if  (m_ForceAuditOption <= Audit_Totals)  Lst.Add("Totals");  
-  //  else if  (m_ForceAuditOption <= Audit_Balance) Lst.Add("Balance");
-  //  }
-  //else
-  //  {
-  //  if (ForNode)
-  //    {
-  //    if       (gs_AuditOption == Audit_Off)     Lst.Add("<Off>");     
-  //    else if  (gs_AuditOption == Audit_Flows)   Lst.Add("<Flows>");
-  //    else if  (gs_AuditOption == Audit_Totals)  Lst.Add("<Totals>");  
-  //    else if  (gs_AuditOption == Audit_Balance) Lst.Add("<Balance>");
-  //    }
-  //  Lst.Add("Off");     
-  //  Lst.Add("Flows");
-  //  Lst.Add("Totals");  
-  //  Lst.Add("Balance");
-  //  }
   };
 
 //--------------------------------------------------------------------------

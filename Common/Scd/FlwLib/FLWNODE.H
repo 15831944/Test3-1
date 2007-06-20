@@ -3227,11 +3227,12 @@ const long SpillReports_IdleUnits = (SpillReports_Idle|SpillReports_Units|SpillR
 const long SpillReports_IdleLinks = (SpillReports_Idle|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
 const long SpillReports_IdleBoth  = (SpillReports_Idle|SpillReports_Units|SpillReports_Links|SpillReports_Msgs|SpillReports_Cnds);
 
-const long Audit_Ignore       = 0;
-const long Audit_Off          = 1;
-const long Audit_Flows        = 2;
-const long Audit_Totals       = 3;
-const long Audit_Balance      = 4;
+const long Audit_AllOff       = 0;
+const long Audit_Ignore       = 1;
+const long Audit_Off          = 2;
+const long Audit_Flows        = 3;
+const long Audit_Totals       = 4;
+const long Audit_Balance      = 5;
 
 // MdlStatusOptions
 const dword MSO_ShowStatus    = 0x00000001;
@@ -4322,9 +4323,9 @@ class DllImportExport FlwNode : public CTNode
 
 
     long           AuditOption();
-    LPCSTR         GetAuditOptionStr();
-    long           SetAuditOptionStr(LPCSTR Str);
-    void           GetAuditOptionStrLst(DDBValueLstMem & Lst, bool ForNode);
+    LPCSTR         GetAuditOptionStr(flag ForFiling);
+    long           SetAuditOptionStr(flag ForFiling, LPCSTR Str);
+    void           GetAuditOptionStrLst(flag ForFiling, DDBValueLstMem & Lst);
 
     // ConditionBlk Override
     DEFINE_CI(FlwNode, CTNode, 40);
@@ -4582,6 +4583,7 @@ class DllImportExport FlwNode : public CTNode
     CJoinClusterArray m_Clusters;
 
     long           m_AuditOption;
+    long           m_AuditOptionRmt;
     long           m_ForceAuditOption;
 
     CExternAuditCalc m_ExtAudit;
