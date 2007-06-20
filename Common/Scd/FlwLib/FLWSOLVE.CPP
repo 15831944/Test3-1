@@ -7726,7 +7726,7 @@ void FlwSlvDyn::FITStates(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     p->LockNode();
     XT.LockDone();//(p, eFITStates, FSW_Null);
     p->EvalState();
-    //p->CheckDataRanges();
+    p->CheckDataRanges(true);
     XT.ExecDone();//Postamble(p, eFITStates, FSW_Null);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -10181,38 +10181,58 @@ TaggedObject * CFlwSolver::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagL
 
 //--------------------------------------------------------------------------
 
-static DDBValueLst DDBEnthStrat[] = {
-  {SPMES_BestTemp,  "Best_Temperature"},
-  {SPMES_ConserveH, "Conserve_Heat"},
-  {0}};
-static DDBValueLst DDBSpMixStrat[] = {
-  {SPMMS_PreBld35,  "Pre_Build_35"},
-  {SPMMS_Bld35,     "Build_35"},
-  {0}};
-static DDBValueLst DDBCloseTest[] = {
-  {CloseTest_Off,         "Off"},
-  {CloseTest_Msgs,        "On-Messages"},
-  {CloseTest_Cnds,        "On-Conditions"},
-  {CloseTest_Both,        "On-Both"},
-  {CloseTest_IdleBoth,    "On-Both-Idle"},
-  {0}};
-static DDBValueLst DDBSpillReporting[] = {
-  {SpillReports_Off,        "Off"},
-  {SpillReports_Msgs ,      "On-Messages"},
-  {SpillReports_Cnds ,      "On-Conditions"},
-  {SpillReports_Both ,      "On-Both"},
-  {SpillReports_IdleUnits,  "On-Both-IdleUnits"},
-  {SpillReports_IdleLinks,  "On-Both-IdleLinks"},
-  {SpillReports_IdleBoth ,  "On-Both-Idle"},
-  {0}};
-static DDBValueLst DDBAuditOptions[] = {
-  {Audit_AllOff,   "AllOff"   },
-  //{-1,             "-------",  MDD_NoSelect},
-  {Audit_Off,      "Off"      },
-  {Audit_Flows,    "Flows"    },
-  {Audit_Totals,   "Totals"   },
-  {Audit_Balance,  "Balance"  },
-  {0}};
+static DDBValueLst DDBEnthStrat[] = 
+  {
+    {SPMES_BestTemp,  "Best_Temperature"},
+    {SPMES_ConserveH, "Conserve_Heat"},
+    {0}
+  };
+static DDBValueLst DDBSpMixStrat[] = 
+  {
+    {SPMMS_PreBld35,  "Pre_Build_35"},
+    {SPMMS_Bld35,     "Build_35"},
+    {0}
+  };
+static DDBValueLst DDBCloseTest[] = 
+  {
+    {CloseTest_Off,         "Off"},
+    {CloseTest_Msgs,        "On-Messages"},
+    {CloseTest_Cnds,        "On-Conditions"},
+    {CloseTest_Both,        "On-Both"},
+    {CloseTest_IdleBoth,    "On-Both-Idle"},
+    {0}
+  };
+static DDBValueLst DDBSpillReporting[] = 
+  {
+    {SpillReports_Off,        "Off"},
+    {SpillReports_Msgs ,      "On-Messages"},
+    {SpillReports_Cnds ,      "On-Conditions"},
+    {SpillReports_Both ,      "On-Both"},
+    {SpillReports_IdleUnits,  "On-Both-IdleUnits"},
+    {SpillReports_IdleLinks,  "On-Both-IdleLinks"},
+    {SpillReports_IdleBoth ,  "On-Both-Idle"},
+    {0}
+  };
+static DDBValueLst DDBAuditOptions[] = 
+  {
+    {Audit_AllOff,   "AllOff"   },
+    //{-1,             "-------",  MDD_NoSelect},
+    {Audit_Off,      "Off"      },
+    {Audit_Flows,    "Flows"    },
+    {Audit_Totals,   "Totals"   },
+    {Audit_Balance,  "Balance"  },
+    {0}
+  };
+
+static DDBValueLst DDBRangeChecks[] = 
+  {
+    {0,                                     "None"    },
+    {RngChk_Temperature,                    "T"       },
+    {RngChk_Density,                        "Rho"     },
+    {RngChk_Temperature|RngChk_Density,     "T,Rho"   },
+    {0}
+  };
+
 
 void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   {
@@ -10260,6 +10280,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
     DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
     DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
+    DDB.Long  ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
     
     DDB.Text  ("");
     DDB.Text  ("Display Limits");

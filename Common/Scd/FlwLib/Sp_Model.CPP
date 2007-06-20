@@ -11,6 +11,8 @@
 #include "executiv.h"
 #include "COMStuff.h"
 #include "vlebase.h"
+#include "vlebase.h"
+#include "flwnode.h"
 //#include "optoff.h"
 
 #define  dbgSoluble   (WITHDEBUG || 1)
@@ -4917,9 +4919,10 @@ long SpModel::CheckDataRanges()
   {
   long NBadTempRanges=0;
   long NBadDensRanges=0;
-  if (HeatSkipMethod())
+  if (HeatSkipMethod() || ((gs_RangeChecks&(RngChk_Temperature|RngChk_Density))==0))
     {
     ClrCI(5);
+    ClrCI(8);
     }
   else
     {
@@ -4939,7 +4942,10 @@ long SpModel::CheckDataRanges()
           {
           CSpecie & D=SDB[s];
           flag BadTemp=false;
-          if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
+          if ((gs_RangeChecks&RngChk_Temperature)==0)
+            {
+            }
+          else if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
             {
             AsWarn=true;
             BadTemp=true;
@@ -4971,7 +4977,10 @@ long SpModel::CheckDataRanges()
               }
             }
 
-          if (SDB[s].HasDensCalc())
+          if ((gs_RangeChecks&RngChk_Density)==0)
+            {
+            }
+          else if (SDB[s].HasDensCalc())
             {
             CDensCorr & DC = SDB[s].DensCalc();
             if (DC.m_DoWarn && m_M[DC.m_iSolute]/GTZ(m_M[DC.m_iSolute]+m_M[DC.m_iSolvent])>DC.m_LimitFrac)

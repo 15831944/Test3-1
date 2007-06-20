@@ -2448,6 +2448,7 @@ double FlwNode::m_dStatusSolTestFrac=0.9;
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_AuditOption     = Audit_Off;
+long gs_RangeChecks     = RngChk_Temperature | RngChk_Density;
 bool gs_FSIdleRequested = false;
 
 CConnectMap FlwNode::sm_ConnectMap;

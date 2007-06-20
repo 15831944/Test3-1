@@ -3234,6 +3234,10 @@ const long Audit_Flows        = 3;
 const long Audit_Totals       = 4;
 const long Audit_Balance      = 5;
 
+const long RngChk_Temperature = 0x00000001;
+const long RngChk_Density     = 0x00000002;
+//const long RngChk_Density     = 0x00000002;
+
 // MdlStatusOptions
 const dword MSO_ShowStatus    = 0x00000001;
 const dword MSO_ShowRunInEdit = 0x00000002;
@@ -3241,6 +3245,7 @@ const dword MSO_ShowRunInEdit = 0x00000002;
 //
 extern DllImportExport long gs_SpillOption;
 extern DllImportExport long gs_AuditOption;
+extern DllImportExport long gs_RangeChecks;
 extern DllImportExport bool gs_FSIdleRequested;
 
 enum NodeFlwTasks
