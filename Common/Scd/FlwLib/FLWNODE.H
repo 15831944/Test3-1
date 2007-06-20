@@ -3150,7 +3150,7 @@ class DllImportExport CRqdPressCtrl
       m_pMdl       = pMdl;
       m_fMdlAvail  = pMdl!=NULL;
       }
-    void CalculateResult();
+    void CalculateResult(flag ForProbal);
 
     void SetMethod(long Method) { m_iMethod = Method; }
     void SetPRqd(double PRqd)   { m_dPRqd   = PRqd; }

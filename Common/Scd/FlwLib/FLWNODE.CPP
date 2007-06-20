@@ -7509,6 +7509,7 @@ void CRqdPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag F
   if (Allowed)
     {
 
+
     DDBValueLst DDBPBP[]={
       {PC_Null     , "Null",                                                       MDD_Hidden},
       {PC_Atmos    , "Atmospheric",  (PC_Atmos & Allowed)                  ? 0 : MDD_Hidden},
@@ -7553,10 +7554,13 @@ void CRqdPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag F
 
 //--------------------------------------------------------------------------
 
-void CRqdPressCtrl::CalculateResult()
+void CRqdPressCtrl::CalculateResult(flag ForProbal)
   {
   if (m_fMdlAvail!=(m_pMdl!=NULL))
     DoBreak(); // these must match
+
+  if (!ForProbal && m_iMethod!=PC_Atmos && m_iMethod!=PC_Reqd)
+    m_iMethod=PC_Atmos;
 
   m_fDoInputs=false;
   switch (m_iMethod)
@@ -7737,7 +7741,7 @@ void FlwNode::EvalJoinPressure(int iJoin, CRqdPressCtrl *pPC, SpModel/*Owner*/ *
       {
       pPC->SetMdl(pMdl);
       MeasureJoinPressure(iJoin, pPC);
-      pPC->CalculateResult();
+      pPC->CalculateResult(NetProbalMethod());
       SetJoinPressure(iJoin, pPC);
       }
     else

@@ -1308,7 +1308,7 @@ MProbalPCtrl::~MProbalPCtrl()
   };
 
 void    MProbalPCtrl::BuildDataFields(long Allowed) { m_pPCtrl->BuildDataDefn(*m_pCommon->m_pDDB, m_pNd, true, Allowed, 0); };
-void    MProbalPCtrl::CalculateResult()             { m_pPCtrl->CalculateResult() ; };
+void    MProbalPCtrl::CalculateResult()             { m_pPCtrl->CalculateResult(m_pNd->NetProbalMethod()) ; };
 
 long    MProbalPCtrl::getMethod()                   { return m_pPCtrl->Method(); };
 void    MProbalPCtrl::putMethod(long Method)        { m_pPCtrl->SetMethod(Method); };
