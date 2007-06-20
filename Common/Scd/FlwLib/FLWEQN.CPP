@@ -31,7 +31,7 @@ static CDbgMngr dbgFlwEqnModes         ("FlwEqns", "FlwEqnModes");
 //                      { Dynamic, InLineIntegral}
 double MinAperture[2] = { 0.02,             0.0};
 double MinFracHgt[2]  = { -1.0/*0.01*/,     0.0};
-double MaxFracHgt[2]  = { 1.0,              1.0};// {0.98, 1.0};
+double MaxFracHgt[2]  = { 1.05,              1.05};// {0.98, 1.0};
 
 //==========================================================================
 //

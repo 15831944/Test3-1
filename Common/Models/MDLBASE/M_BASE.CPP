@@ -1725,7 +1725,6 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
 #endif
 
       double VolFlwRetBelow = Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo)/ICGetTimeIncMx();
-
 #if dbgDerivs
       if (dbgso)
         {
@@ -1781,7 +1780,10 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
         {
         for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
           {
-          HO.m_VolScl[iHO1]=VolFlwScale;
+          if (IORelFracHgt_Flng(iIONo)<1.005)
+            HO.m_VolScl[iHO1]=VolFlwScale;
+          else
+            HO.m_VolScl[iHO1]=0.0;
           if (!IO_In(HO.m_Ord[iHO1]))  
             {
             int iIONo=HO.m_Ord[iHO1];
@@ -2012,7 +2014,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
         //VapourFlw.QSubM(Fo, som_ALL, VapQm); // remove this from flow
   #if dbgDerivs
         if (dbgso)
-          dbgpln(" %14.4f %7.4f %7.2f %s > %s", VapQm, HO.m_VolScl[iHO], HO.m_SLRho[iHO], FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
+          dbgpln(" %14.4f %14.4f %7.4f %7.2f %s > %s", VapQm, IOQmEst_Out(iIONo), HO.m_VolScl[iHO], HO.m_SLRho[iHO], FullObjTag(), Nd_Rmt(iIONo)->FullObjTag());
   #endif
         }
       }
@@ -2480,7 +2482,10 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
         {
         double Sig=0.0;
         for (int i=0; i<NoProcLnkIOs(); i++)
-          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
+          {
+          //Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowMass;
+          Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOConduit(i)->QMass();
+          }
         DCB.D=Sig;
         }
       else
