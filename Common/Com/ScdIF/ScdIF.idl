@@ -398,7 +398,8 @@ typedef enum eScdPressCtrls
   PC_SubCooled  = 0x00000100,
   PC_SuperHt    = 0x00000200,
 
-  PC_Basic      = 0x0000001f,
+  PC_BasicPB    = PC_Atmos|PC_MinFd|PC_MaxFd|PC_Reqd|PC_SatP,
+  PC_BasicDyn   = PC_Atmos/*|PC_MinFd|PC_MaxFd*/|PC_Reqd/*|PC_SatP*/,
   PC_All        = 0x000003ff,
   } eScdPressCtrls;
 
