@@ -271,7 +271,7 @@ void CCARTubeDigester::EvalProducts()
 	MStream& HotO = FlwIOs[FlwIOs.First[idHotO]].Stream;
 	MStream& CoolO = FlwIOs[FlwIOs.First[idCoolO]].Stream;
 
-	if (HotI.T > CoolI.T);
+	if (HotI.T > CoolI.T)
 	{
 		switch (m_eOperationMode)
 		{
@@ -299,7 +299,7 @@ void CCARTubeDigester::EvalProducts()
 		m_dLMTD = dNAN;
 		m_dUALMTD = dNAN;
 		m_dTheorArea = dNAN;
-		Log.SetCondition(true, LC_BadInputs, MMsg_Warning, "Hot Stream is not Hotter than Cold Stream. Heat Exchanger disabled.")
+		Log.SetCondition(true, LC_BadInputs, MMsg_Warning, "Hot Stream is not Hotter than Cold Stream. Heat Exchanger disabled.");
 	}
 
 	m_HotRB.EvalProducts(HotO);		m_ColdRB.EvalProducts(CoolO);
