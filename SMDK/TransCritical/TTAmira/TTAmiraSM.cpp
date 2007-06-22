@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-06-22 13:20:09 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-22 17:58:10 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -356,7 +356,7 @@ enum
 
   idK1_BoundSodaCalc,
 
-  idG0H2o, 
+  idG0H2O, 
 
   idAluminaConc25			,
   idCausticConc25			,
@@ -494,7 +494,7 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idLDensity25     : Info.Set(ePT_Double,    "", "LRho25",    MC_Rho,  "g/L",    0, 0,  MP_RN,    "Liquor Density @ 25"); return Inx;
     case idSLDensity25    : Info.Set(ePT_Double,    "", "SLRho25",   MC_Rho,  "g/L",    0, 0,  MP_RN,    "Slurry Density @ 25"); return Inx;
 
-    case idG0H2o:          Info.Set(ePT_Double,    "", "G0H2O",   MC_,  "",    0, 0,  MP_RN,    "Water Free Energy"); return Inx;
+    case idG0H2O:          Info.Set(ePT_Double,    "", "G0H2O",   MC_,  "",    0, 0,  MP_RN,    "Water Free Energy"); return Inx;
 
 
     case idSeparator3	  : Info.SetText("..."); return Inx;
@@ -600,7 +600,7 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
     GVALF(TOStoTOC);
 
     case idBoilPtElev	: Value=BoilPtElev(MArray(this), P);        return; 
-    case idG0H2o : Value = G0H2O(P/100., T); return;
+    case idG0H2O : Value = G0H2O(P/100., T); return;
       GVALF(LVolume25);
       GVALF(SLVolume25);
       GVALF(OrganateConc25);
@@ -651,6 +651,7 @@ void AmiraBayer::PutPropertyValue(long Index, MPropertyValue & Value)
 double AmiraBayer::DRatio(double T_) 
   {
     return dpData[iRho_Liq]*1000./(dpData[iWT]/GTZ(dpData[iV25]));
+    
   }
 
 //---------------------------------------------------------------------------
@@ -691,8 +692,8 @@ double AmiraBayer::SodaConc(double T_)
 double AmiraBayer::SodiumCarbonateConc(double T_)
   {
   CheckConverged();
-
-  return 200.;
+  
+  return Comp_gL[iNa2CO3]*DRatio(T_);
   }
 
 //---------------------------------------------------------------------------
@@ -701,7 +702,7 @@ double AmiraBayer::SodiumSulphateConc(double T_)
   {
   CheckConverged();
 
-  return 200.;
+  return Comp_gL[iNa2SO4]*DRatio(T_);
   }
 
 //---------------------------------------------------------------------------
@@ -710,7 +711,7 @@ double AmiraBayer::SodiumOxalateConc(double T_)
   {
   CheckConverged();
 
-  return 200.;
+  return Comp_gL[iOxalate]*DRatio(T_);
   }
 
 //---------------------------------------------------------------------------
@@ -858,7 +859,7 @@ double AmiraBayer::IonicStrength()
 
 double AmiraBayer::AluminaConcSat(double T_)
   {
-    return 300.;
+    return Solmkg[iSGibbsite];
   }
 
 //---------------------------------------------------------------------------
@@ -918,7 +919,7 @@ double AmiraBayer::BoundSodaSat(double T_)  // Amira doesnt deal with bound soda
 
 double AmiraBayer::SSNRatio(double T_)
   {   // AtoC actual / AtoC saturation ==> A/ASat
-    return AtoCSaturation(T_)/AtoC();
+    return AtoCSaturation(T_)/GTZ(AtoC());
   }
 
 //---------------------------------------------------------------------------
@@ -930,9 +931,7 @@ double AmiraBayer::TotalNa25()
   {//TotalNa Conc @ 25 expressed as Na2CO3
   CheckConverged();
 
-  double Sodium = 321;
-
-  return Sodium;
+  return 1.0;
   }
 
 //---------------------------------------------------------------------------
@@ -964,35 +963,30 @@ double AmiraBayer::OrganateConc25()
 double AmiraBayer::OxalateConc25()
   {
   CheckConverged();
-
-  return 0.6;
+  return Comp_gL[iOxalate];
   }
 
 //---------------------------------------------------------------------------
 
 double AmiraBayer::TotalOrganics25()
-  {
+{
   CheckConverged();
-
+  
   return 0.7;
-  }
+}
 //---------------------------------------------------------------------------
 
 double AmiraBayer::ChlorineConc25()
-  {
-  CheckConverged();
-
-  return 0.85;
-  }
+{
+  return Comp_gL[iNaCl];
+}
 
 //---------------------------------------------------------------------------
 
 double AmiraBayer::SulphateConc25()
-  {
-  CheckConverged();
-  
-  return 0.9;
-  }
+{
+  return Comp_gL[iNa2CO3];
+}
 
 //---------------------------------------------------------------------------
 

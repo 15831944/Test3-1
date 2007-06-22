@@ -76,13 +76,36 @@ enum {
     iS,           // Entropy
     NDPPTS       // Number of double precision data points 
 };
+// Component indices into return arrays
+
+enum {
+    iAlumina,   
+    iNaOH	   ,
+    iNaCl	   ,
+    iNa2CO3	   ,
+    iNa2SO4	,
+    iOxalate,
+    iAcetate,
+    iFormate,
+    iNaF
+};
+
+
+// Component indices into solubility arrays:
+enum {
+  iSGibbsite, 
+  iSBoemite,  
+  iSSulphate,
+  iSOxalate, 
+  iSNaFl,	  
+  iSNa3FSO4 
+};
 
 
 
-
-
-double G0H2O(double P, double T) {
-  return g0h2o_(&P, &T);  // Amira test: Gibbs free energy for water...
+double G0H2O(double P, double T)  /// Test function 
+{
+  return g0h2o_(&P, &T);
 }
 
 
