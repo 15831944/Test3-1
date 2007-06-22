@@ -311,93 +311,6 @@ typedef CMap<char *, char *, int, int> CXTagMap;
 typedef CArray <CExecObj*, CExecObj*> CExecObjArray;
 
 //===========================================================================
-//
-//
-//
-//===========================================================================
-
-enum eDirectIO
-  {
-    eDIO_Spill, eDIO_Vent, eDIO_Leak,                   // Real IOs
-    eDIO_Makeup, eDIO_Bleed,
-    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete        // Direct
-  };
-
-
-class DllImportExport CMdlAssocGraphic
-  {
-  public:
-    CMdlAssocGraphic();
-    CMdlAssocGraphic(const CMdlAssocGraphic & V);
-    
-    CMdlAssocGraphic &operator=(const CMdlAssocGraphic & V);
-
-    BOOL operator==(const CMdlAssocGraphic & V);
-
-    class CItem
-      {
-      public:
-        CItem() 
-          { 
-          m_eAGType   = eAG_None; 
-          m_bShowIt = true;
-          m_bExists = false;
-          }
-        CItem(const CItem & V) 
-          { 
-          m_eAGType   = V.m_eAGType;
-          m_sTag    = V.m_sTag;
-          m_bShowIt = V.m_bShowIt;
-          m_bExists = V.m_bExists; 
-          }
-        CItem& operator=(const CItem & V) 
-          { 
-          m_eAGType   = V.m_eAGType;
-          m_sTag    = V.m_sTag;
-          m_bShowIt = V.m_bShowIt;
-          m_bExists = V.m_bExists; 
-          return *this;
-          }
-        bool operator==(const CItem & V) 
-          { 
-          return (m_eAGType == V.m_eAGType) && (m_sTag == V.m_sTag) && (m_bShowIt == V.m_bShowIt);
-          }
-        bool operator!=(const CItem & V) 
-          { 
-          return (m_eAGType != V.m_eAGType) || (m_sTag != V.m_sTag) || (m_bShowIt != V.m_bShowIt);
-          }
-
-      public:
-        eAssocGrfTypes    m_eAGType;
-        CString           m_sTag;
-        bool              m_bShowIt;
-        // Working Vars
-        bool              m_bExists; 
-      };
-
-  public:
-    CString           m_sNdTag;
-    bool              m_bIsLnk;
-    CArray<CItem,CItem&> m_AssocGrfs;
-  };
-
-bool operator==(const CMdlAssocGraphic & V1, const CMdlAssocGraphic & V2);
-inline bool operator==(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) 
-  { return (V1.m_eAGType == V2.m_eAGType) && (V1.m_sTag == V2.m_sTag) && (V1.m_bShowIt == V2.m_bShowIt); }
-inline bool operator!=(const CMdlAssocGraphic::CItem & V1, const CMdlAssocGraphic::CItem & V2) 
-  { return (V1.m_eAGType != V2.m_eAGType) || (V1.m_sTag != V2.m_sTag) || (V1.m_bShowIt != V2.m_bShowIt); }
-
-class DllImportExport CMdlAssocGraphicList : public CList<CMdlAssocGraphic, CMdlAssocGraphic & > {};
-class CMdlAssocGraphicMapItem 
-  { 
-  public: 
-    CMdlAssocGraphicMapItem(CMdlAssocGraphic* pG=NULL, int Index=0) { m_pG=pG; m_Index=Index; }; 
-    CMdlAssocGraphic* m_pG; 
-    int m_Index; 
-  };
-class DllImportExport CMdlAssocGraphicMap  : public CMap<LPTSTR, LPTSTR, CMdlAssocGraphicMapItem, CMdlAssocGraphicMapItem&> {};
-
-//===========================================================================
 
 DllImportExport CTimeValue GetCurrentTime_1970();
 
@@ -528,9 +441,6 @@ class DllImportExport CExecObj
     virtual flag   EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf)                        { return false; };
     virtual flag   EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)   { return false; };
     
-    virtual flag   EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)      { return false; };
-    virtual flag   EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)   { return false; };
-
     //virtual flag   EO_SolutionReqd()                                    { return False; };
     //virtual int    EO_InitSolution(EqnSlvCtrlBlk & EQCtrl)              { return -1; };
     //virtual int    EO_StepSolution(EqnSlvCtrlBlk & EQCtrl)              { return -1; };
@@ -1294,9 +1204,6 @@ class DllImportExport CExecutive : public ConditionBlk
 
     flag           GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs);
     flag           OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-    flag           RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
-    flag           UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
-    flag           MaintainModelAssocGraphics(LPCTSTR Tag);
 
     flag           SteadyStateRqd() { return m_SteadyStateRqd; };
 

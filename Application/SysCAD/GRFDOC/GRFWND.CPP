@@ -204,6 +204,7 @@ bool CGrfWnd::UpdateForPaint(bool ForceUpd, bool ColoursChgd)
       {
       //dbgpln("OnDraw   B  %10.3fms", SW.Lap()*1e3); 
       gs_pTheSFELib->SetLoadAllModelStatus();
+      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
       //dbgpln("OnDraw   C  %10.3fms", SW.Lap()*1e3); 
       DoIt=true;
       }
@@ -312,13 +313,6 @@ flag CGrfWnd::EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info)
     }
   return False;
   }
-
-//---------------------------------------------------------------------------
-
-flag CGrfWnd::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)   
-  { 
-  return Dsp.Vp1->Drw->UpdateModelAssocGraphics(Grfs, Map);
-  };
 
 //---------------------------------------------------------------------------
 
@@ -593,6 +587,7 @@ void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeCo
     if (gs_pTheSFELib->RequestModelStatusChgCnt(Criteria, 1)>0)
       {
       gs_pTheSFELib->SetLoadAllModelStatus();
+      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
       DoIt=true;
       }
     dword NumStatusColourChgs=gs_pTheSFELib->GetNumStatusColourChgs();

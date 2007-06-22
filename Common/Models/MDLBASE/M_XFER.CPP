@@ -30,8 +30,8 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   {
   AttachClassInfo(nc_MXfer,NULL);
 
-  InitAssocGraphicShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
-  InitAssocGraphicShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowDyn(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
 
   Joins.SetSize(1);
   m_NetworkIsolator=false;

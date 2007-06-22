@@ -374,24 +374,24 @@ int CSfeSrvr::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxT
   return SfeFS->RequestModelStatusChgCnt(Criteria, MaxTest);
   };
 
+flag CSfeSrvr::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+  { 
+  return SfeFS->RequestModelAssocGrfs(Tag, Grfs); 
+  };
+
+int CSfeSrvr::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
+  { 
+  return SfeFS->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap); 
+  };
+
+flag CSfeSrvr::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode, LPCSTR NdTag, CModelAssocGrfMasks & Msks)
+  { 
+  return SfeFS->RequestModelAssocGrfsMasks(SetClass, SetNode, NdTag, Msks);
+  };
+
 int CSfeSrvr::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) 
   { 
   return SfeFS->RequestTagRefInfo(Tag, Refs);
-  };
-
-flag CSfeSrvr::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode, LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
-  { 
-  return SfeFS->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks);
-  };
-
-flag CSfeSrvr::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  { 
-  return SfeFS->EO_RequestModelAssocGraphics(Tag, Grfs); 
-  };
-
-flag CSfeSrvr::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
-  { 
-  return SfeFS->EO_UpdateModelAssocGraphics(Grfs, Map); 
   };
 
 //int CSfeSrvr::RequestXRefInfoChg()

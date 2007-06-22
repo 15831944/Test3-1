@@ -844,33 +844,33 @@ class DllImportExport TagObjClass
     LPSTR          TagFormat()                                 { return m_sTagFormat.GetLength()>0 ? m_sTagFormat() : sm_sTagFormat(); };
     LPSTR          TagComment()                                { return sTagComment(); };
 
-    CAssocGrfShowArray & AssocGraphicShow()                    { return m_AssocGraphicShow; }       
-    bool           AssocGraphicShowInited()                    { return m_AssocGraphicShowInited; } 
+    CAssocGrfShowArray & AssocGrfShow()                    { return m_AssocGrfShow; }       
+    bool           AssocGrfShowInited()                    { return m_AssocGrfShowInited; } 
 
-    void           InitAssocGraphicShowPB(flag PBMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
+    void           InitAssocGrfShowPB(flag PBMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
       {
-      if (PBMode && !m_AssocGraphicShowInited)
+      if (PBMode && !m_AssocGrfShowInited)
         {
-        m_AssocGraphicShow[eAG_Spill] = Spill;
-        m_AssocGraphicShow[eAG_Vent] = Vent;
-        m_AssocGraphicShow[eAG_Leak] = Leak;
-        m_AssocGraphicShow[eAG_Makeup] = Makeup;
-        m_AssocGraphicShow[eAG_Bleed] = Bleed;
-        m_AssocGraphicShow[eAG_RB] = RB;
-        m_AssocGraphicShowInited=true;
+        m_AssocGrfShow[eAG_Spill] = Spill;
+        m_AssocGrfShow[eAG_Vent] = Vent;
+        m_AssocGrfShow[eAG_Leak] = Leak;
+        m_AssocGrfShow[eAG_Makeup] = Makeup;
+        m_AssocGrfShow[eAG_Bleed] = Bleed;
+        m_AssocGrfShow[eAG_RB] = RB;
+        m_AssocGrfShowInited=true;
         }
       }
-    void           InitAssocGraphicShowDyn(flag DynMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
+    void           InitAssocGrfShowDyn(flag DynMode, eAssocGrfShows Spill, eAssocGrfShows Vent, eAssocGrfShows Leak, eAssocGrfShows Makeup, eAssocGrfShows Bleed, eAssocGrfShows RB)
       {
-      if (DynMode && !m_AssocGraphicShowInited)
+      if (DynMode && !m_AssocGrfShowInited)
         {
-        m_AssocGraphicShow[eAG_Spill] = Spill;
-        m_AssocGraphicShow[eAG_Vent] = Vent;
-        m_AssocGraphicShow[eAG_Leak] = Leak;
-        m_AssocGraphicShow[eAG_Makeup] = Makeup;
-        m_AssocGraphicShow[eAG_Bleed] = Bleed;
-        m_AssocGraphicShow[eAG_RB] = RB;
-        m_AssocGraphicShowInited=true;
+        m_AssocGrfShow[eAG_Spill] = Spill;
+        m_AssocGrfShow[eAG_Vent] = Vent;
+        m_AssocGrfShow[eAG_Leak] = Leak;
+        m_AssocGrfShow[eAG_Makeup] = Makeup;
+        m_AssocGrfShow[eAG_Bleed] = Bleed;
+        m_AssocGrfShow[eAG_RB] = RB;
+        m_AssocGrfShowInited=true;
         }
       }
 
@@ -970,9 +970,9 @@ class DllImportExport TagObjClass
     CTOSelectData  m_SelectData;
 #endif
 
-    CAssocGrfShowArray  m_AssocGraphicShow;//
-    bool                m_AssocGraphicShowInited;//
-    //dword          m_AssocGraphicOnMask;
+    CAssocGrfShowArray  m_AssocGrfShow;//
+    bool                m_AssocGrfShowInited;//
+    //dword          m_AssocGrfOnMask;
   };
 
 inline Strng GetClassIdNoVersion(LPCTSTR pClass)
@@ -1413,14 +1413,14 @@ class DllImportExport TaggedObject : public ConditionBlk
     CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
 #endif
 
-    void           InitAssocGraphicShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
-      { Class()->InitAssocGraphicShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
-    void           InitAssocGraphicShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
-      { Class()->InitAssocGraphicShowDyn(!NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
+    void           InitAssocGrfShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
+      { Class()->InitAssocGrfShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
+    void           InitAssocGrfShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
+      { Class()->InitAssocGrfShowDyn(!NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
     
-    bool           AssocGraphicOn(eAssocGrfTypes AGType, byte UseStatus);                       
-    CAssocGrfShowArray & AssocGraphicShowClass()                                 { return Class()->AssocGraphicShow();      }       
-    CAssocGrfShowArray & AssocGraphicShow()                                      { return m_AssocGraphicShow;               }       
+    bool           AssocGrfOn(eAssocGrfTypes AGType, byte UseStatus);                       
+    CAssocGrfShowArray & AssocGrfShowClass()                                 { return Class()->AssocGrfShow();      }       
+    CAssocGrfShowArray & AssocGrfShow()                                      { return m_AssocGrfShow;               }       
 
   protected:
     Strng           m_sTag;
@@ -1523,9 +1523,9 @@ protected:
     dword           m_dwPrevStatus;
 
 
-    CAssocGrfShowArray  m_AssocGraphicShow;//
-    //dword           m_AssocGraphicShow; 
-    //dword           m_AssocGraphicHide; 
+    CAssocGrfShowArray  m_AssocGrfShow;//
+    //dword           m_AssocGrfShow; 
+    //dword           m_AssocGrfHide; 
 
   protected:
     TagObjClass*   m_pClass;

@@ -4191,8 +4191,6 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   GetModelGraphic(CMdlGraphicArray & Grfs) { return false; };
     virtual flag   OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return false; };
 
-    virtual flag   EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs);
-
     virtual void   PreConfigureJoins();
     virtual void   ConfigureJoins()                         {};
     virtual void   PostConfigureJoins();
@@ -4385,6 +4383,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   AdjustMsFlows(SparseSolver & SS);
     virtual void   UpdateMsSoln(SparseSolver & SS);
 #endif
+
+    virtual flag   ModelAssocGrfs(CMdlAssocGrfList & Grfs);
 
     virtual dword  ModelStatus();
     static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)!=0); };

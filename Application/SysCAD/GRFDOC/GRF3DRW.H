@@ -17,9 +17,8 @@
 #ifndef  __VECTORS_H
 #include "vectors.h"
 #endif
-#ifndef __EXECUTIV_H
-#include "executiv.h"
-#endif
+//#include "executiv.h"
+#include "sfe_base.h"
 
 //#if defined(__GRF3DRW_CPP) || defined(__GRF3DSP_CPP)
 //  #define DllImportExport DllExport
@@ -294,17 +293,6 @@ inline REAL       &Insert_Rotation(DXF_ENTITY Ins) {return DXF_INSERT_ROT_ANG(In
 class Attr_Settings
   {
   public:
-    int        Length;
-    int        Flags;
-    REAL       Size;
-    REAL       XScl;
-    REAL       Rot;
-    int        Color;
-    Text_Hjust Hjust;
-    Text_Vjust Vjust;
-    pchar      Style;
-
-
     Attr_Settings()
       {
       Length =  50;
@@ -330,13 +318,10 @@ class Attr_Settings
       Vjust =  VjustIn;
       Style =  StyleIn;
       }
-  };
 
-//---------------------------------------------------------------------------
-
-class Text_Settings
-  {
   public:
+    int        Length;
+    int        Flags;
     REAL       Size;
     REAL       XScl;
     REAL       Rot;
@@ -345,6 +330,13 @@ class Text_Settings
     Text_Vjust Vjust;
     pchar      Style;
 
+  };
+
+//---------------------------------------------------------------------------
+
+class Text_Settings
+  {
+  public:
     Text_Settings(REAL SizeIn, REAL XSclIn, REAL RotIn, int ColorIn, Text_Hjust HjustIn,Text_Vjust VjustIn, pchar StyleIn)
       {
       Size =   SizeIn;
@@ -355,6 +347,16 @@ class Text_Settings
       Vjust =  VjustIn;
       Style =  StyleIn;
       }
+
+  public:
+    REAL       Size;
+    REAL       XScl;
+    REAL       Rot;
+    int        Color;
+    Text_Hjust Hjust;
+    Text_Vjust Vjust;
+    pchar      Style;
+
   };
 
 //---------------------------------------------------------------------------
@@ -448,23 +450,23 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 
 //---------------------------------------------------------------------------
 
-class DllImportExport CMdlAssocGraphicX
+class DllImportExport CMdlAssocGrfX
   {
   public:
     enum eActions { eNull, eAddNdAssocGrfs, eKeep, eDelete };
-    CMdlAssocGraphicX()
+    CMdlAssocGrfX()
       {
       m_eAction        = eNull; 
-      m_pAssGrf        = NULL;
+      m_pAssocGrf        = NULL;
       m_iAssoc         = 0;
       m_NdX            = 0;
       m_NdY            = 0;
       m_Entity         = NULL;
       };
-    CMdlAssocGraphicX(eActions eAction, CMdlAssocGraphic * pAssGrf, int iAssoc, double NdX, double NdY, DXF_ENTITY Entity)
+    CMdlAssocGrfX(eActions eAction, CMdlAssocGrf * pAssocGrf, int iAssoc, double NdX, double NdY, DXF_ENTITY Entity)
       {
       m_eAction        = eAction;
-      m_pAssGrf        = pAssGrf;
+      m_pAssocGrf        = pAssocGrf;
       m_iAssoc         = iAssoc;
       m_NdX            = NdX;
       m_NdY            = NdY;
@@ -474,7 +476,7 @@ class DllImportExport CMdlAssocGraphicX
   public:
 
     eActions            m_eAction;
-    CMdlAssocGraphic  * m_pAssGrf;
+    CMdlAssocGrf  * m_pAssocGrf;
     int                 m_iAssoc;
     double              m_NdX;
     double              m_NdY;
@@ -484,17 +486,6 @@ class DllImportExport CMdlAssocGraphicX
 class CGrfLayer
   {
   public:
-    DXF_TABLE_ENTRY  Def;            // Pointer to this layers info
-    DML_LIST         CurveLst;
-    DML_LIST         InsertLst;
-    DML_LIST         OtherLst;
-    int              m_Color;
-    int              m_DiscColor;
-    double           m_Thickness;
-    CGrfLayer *      Nxt;
-    pDXF_Drawing     Drawing;        // Pointer to parent drawing
-    pBlock           Block;          // pointer to parent block NULL if drawing else defined ( Ithink mhm )
-
     CGrfLayer(pDXF_Drawing DrawingIn, pBlock BlockIn);
     ~CGrfLayer();
 
@@ -502,7 +493,7 @@ class CGrfLayer
     void             CollectTags(Strng_List & TagList);
     void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
-    flag             UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsFound);   
+    flag             PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
     
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);
@@ -526,6 +517,18 @@ class CGrfLayer
     DXF_ENTITY       Find_Tagged_Insert(pchar pVal);
     void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
 
+  public:
+    DXF_TABLE_ENTRY  Def;            // Pointer to this layers info
+    DML_LIST         CurveLst;
+    DML_LIST         InsertLst;
+    DML_LIST         OtherLst;
+    int              m_Color;
+    int              m_DiscColor;
+    double           m_Thickness;
+    CGrfLayer *      Nxt;
+    pDXF_Drawing     Drawing;        // Pointer to parent drawing
+    pBlock           Block;          // pointer to parent block NULL if drawing else defined ( Ithink mhm )
+
   };
 
 //---------------------------------------------------------------------------
@@ -533,11 +536,6 @@ class CGrfLayer
 class LayerCollection
   {
   public:
-    CGrfLayer *           Layers;    // Pointer to my first layer
-    pDXF_Drawing     Drawing;   // Pointer to parent drawing
-    pBlock           Block;     // Pointer to Parent block;
-    char             CurLayer[128];
-
     LayerCollection();
     LayerCollection(pDXF_Drawing DrawingIn, pBlock BlockIn);
     ~LayerCollection();
@@ -625,13 +623,29 @@ class LayerCollection
     void             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
-    flag             UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsFound);   
+    flag             PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
+
+  public:
+    CGrfLayer *           Layers;    // Pointer to my first layer
+    pDXF_Drawing     Drawing;   // Pointer to parent drawing
+    pBlock           Block;     // Pointer to Parent block;
+    char             CurLayer[128];
+
   };
 
 //---------------------------------------------------------------------------
 
 class Block : public LayerCollection
   {
+  public:
+    Block(pDXF_Drawing DrawingIn);
+    ~Block();
+    void             Get(DXF_FILE file, int What,int test_mode);
+    void             Put(DXF_FILE file);
+    void             CountBlocksUsed(pDXF_Drawing pDrawing, CWordArray& BlkCnt);
+    flag             Find_Attdef_Settings(pchar Tag,Attr_Settings &Set,Pt_3f &pt);
+    //void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
+
   public:
     DXF_BLOCK         Def;       // this block DXF header info
     Block            *Nxt;       // Pointer to Next block in collection
@@ -640,14 +654,6 @@ class Block : public LayerCollection
 //                      IsScd:1,   // Has SysCAD added/created this block
                       SaveIt:1,  // Save this block to dxf
                       SaveSym:1;  // Save this block to dxf as a symbol
-
-    Block(pDXF_Drawing DrawingIn);
-    ~Block();
-    void             Get(DXF_FILE file, int What,int test_mode);
-    void             Put(DXF_FILE file);
-    void             CountBlocksUsed(pDXF_Drawing pDrawing, CWordArray& BlkCnt);
-    flag             Find_Attdef_Settings(pchar Tag,Attr_Settings &Set,Pt_3f &pt);
-    //void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
   };
 
 //---------------------------------------------------------------------------
@@ -655,9 +661,6 @@ class Block : public LayerCollection
 class BlockCollection
   {
   public:
-    Block           *Blocks;   // Pointer to first block in list of blocks for the drawing
-    DXF_Drawing     *Drawing;  // Pointer to the drawing
-
     BlockCollection(pDXF_Drawing DrawingIn);
     ~BlockCollection();
     int              Count();
@@ -674,31 +677,17 @@ class BlockCollection
     void             Get(DXF_FILE file, int What,int test_mode);
     void             Put(DXF_FILE file);
     pBlock           MakePidBase(pchar BlkName);
+
+  public:
+    Block           *Blocks;   // Pointer to first block in list of blocks for the drawing
+    DXF_Drawing     *Drawing;  // Pointer to the drawing
+
   };
 
 //---------------------------------------------------------------------------
 
 class DllImportExport DXF_Drawing : public LayerCollection
   {
-  public:
-    char            Name[128];
-    Grf3D_Display * pDsp;
-
-    char          * HdrInfo[N_HDR_VARS];
-    char            GotHdrInfo;
-
-    C3_BOX_S        Bounds;
-    float           PageWd;
-
-    BlockCollection Blocks;            // Instance of blockcollection for this drawings blocks
-
-    DML_LIST LTypeLst;
-    DML_LIST LayerLst;
-    DML_LIST StyleLst;
-    DML_LIST ViewLst;
-    DML_LIST UcsLst;
-    DML_LIST VPortLst;
-
   public:
     DXF_Drawing(Grf3D_Display *pDsp,pchar NameIn, flag InitForSyscad);
     ~DXF_Drawing();
@@ -727,7 +716,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
     void              CollectTagInfo(bool AllInserts, CGrfTagInfoArray & GTIA);
     void              CollectLinkInfo(CGrfTagInfo & GTI, CLinePointsArray & LPA);
     flag              FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
-    flag              UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);   
+    flag              UpdateModelAssocGrfs();   
 
     DML_LIST          SelectNearbyCurves(PT3 p,REAL tol);
     DML_LIST          SelectNearbyCurves(DML_LIST l,PT3 p,REAL tol);
@@ -811,6 +800,28 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     int               FindCurveIntersect(Viewport * vp, Pt_3f Pt, CEntInView* pEnt_1,CEntInView* pEnt_2, Pt_3f &IntPt, PARM parm_1, PARM parm_2);
     int               BreakCurvesAtIntersect(Viewport * vp, Pt_3f Pt, Pt_3f &IntPt);
+
+  public:
+    char            Name[128];
+    Grf3D_Display * pDsp;
+
+    char          * HdrInfo[N_HDR_VARS];
+    char            GotHdrInfo;
+
+    C3_BOX_S        Bounds;
+    float           PageWd;
+
+    dword           m_MdlAssocGrfSeqNo;
+
+    BlockCollection Blocks;            // Instance of blockcollection for this drawings blocks
+
+    DML_LIST LTypeLst;
+    DML_LIST LayerLst;
+    DML_LIST StyleLst;
+    DML_LIST ViewLst;
+    DML_LIST UcsLst;
+    DML_LIST VPortLst;
+
   };
 
 //===========================================================================

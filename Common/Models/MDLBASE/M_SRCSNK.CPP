@@ -25,8 +25,8 @@ m_CF(this)
   {
   AttachClassInfo(nc_MSrcSnk,NULL);
 
-  InitAssocGraphicShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
-  InitAssocGraphicShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
 
   //Initialise();
   fConnectionOn   = true;

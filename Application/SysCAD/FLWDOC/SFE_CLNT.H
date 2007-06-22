@@ -21,28 +21,6 @@
 _FWDDEF(SFEFlwLib)
 class SFEFlwLib : public SFEMdlLib, public CExecObj
   {
-  protected:
-    Strng          sFlwLibTag;
-
-#if WITHSFEWND 
-    CMDIChildWnd  *pSFEFrame;
-    EngStateWnd   *pSFEWnd;
-#endif
-
-    CSfeSrvrBase *pSfe;
-    NodeGrfInfo   *SFENodeGrfInfo;
-    
-    int            FPP_State;   // FPP State
-    
-    CModelStatusArray m_MdlStatus;
-    CMap <char *, char *, CModelStatusItem*, CModelStatusItem*> m_MdlStatusMap;
-
-    flag           m_TestStatusLoadReqd;
-    flag           m_LoadAllModelStatusDone;
-    dword          m_nMdlStatusLoads;
-    dword          m_nStatusColourChgs;
-    CCriticalSection m_StatusSect;
-
   public:
     SFEFlwLib();
     virtual ~SFEFlwLib();
@@ -134,11 +112,15 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
+
     int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf);
+    int            RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
+
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 //    int            RequestXRefInfoChg();
-    flag           RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
+    flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
 
     int            FE_GetRctInfo(CRctBlkInformation & RctInfo);
     int            FE_SetRctInfo(LPCTSTR NodeTag);
@@ -151,14 +133,22 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           FE_TestModelTagUnique(pchar pTag);
     int            FE_LoadAllModelStatus();
     dword          FE_GetModelStatus(pchar pTag);
-    CModelStatusArray & FE_MdlStatus() { return m_MdlStatus; };
+    CModelStatusArray & FE_MdlStatus() { return m_Status.m_Status; };
  
-    void           LockStatus() { m_StatusSect.Lock(); };
-    void           FreeStatus() { m_StatusSect.Unlock(); };
-    void           SetLoadAllModelStatus() { LockStatus(); m_LoadAllModelStatusDone=false; FreeStatus();};
-    dword          GetNumStatusLoads() { LockStatus(); dword dw=m_nMdlStatusLoads; FreeStatus(); return dw;};
-    dword          GetNumStatusColourChgs() { LockStatus(); dword dw=m_nStatusColourChgs; FreeStatus(); return dw; };
-        
+    void           LockStatus() { m_Status.m_Sect.Lock(); };
+    void           FreeStatus() { m_Status.m_Sect.Unlock(); };
+    void           SetLoadAllModelStatus() { LockStatus(); m_Status.m_LoadAllDone=false; FreeStatus();};
+    dword          GetStatusLoadSeqNo() { LockStatus(); dword dw=m_Status.m_nLoadSeqNo; FreeStatus(); return dw;};
+    dword          GetNumStatusColourChgs() { LockStatus(); dword dw=m_Status.m_nColourChgs; FreeStatus(); return dw; };
+
+    int            FE_LoadAllModelAssocGrfs();
+    int            FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap);
+
+    void           LockAssocGrfs() { m_AssocGrfs.m_Sect.Lock(); };
+    void           FreeAssocGrfs() { m_AssocGrfs.m_Sect.Unlock(); };
+    void           SetLoadAllModelAssocGrfs() { LockAssocGrfs(); m_AssocGrfs.m_LoadAllDone=false; FreeAssocGrfs();};
+    long           GetAssocGrfLoadSeqNo() { LockAssocGrfs(); dword dw=m_AssocGrfs.m_nLoadSeqNo; LockAssocGrfs(); return dw;};
+
     void           EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) ;
     flag           EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts);
     flag           EO_SetModelAction(LPCTSTR Tag, CMdlAction & Acts);
@@ -166,8 +156,6 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
 
-    flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grf);
-    flag           EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grf, CMdlAssocGraphicMap & Map);
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
@@ -217,6 +205,43 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           EO_EndLoad(FilingControlBlock &FCB);
     void           EO_BeginBulkChange(); 
     void           EO_EndBulkChange(); 
+
+  protected:
+    Strng             sFlwLibTag;
+
+#if WITHSFEWND 
+    CMDIChildWnd    * pSFEFrame;
+    EngStateWnd     * pSFEWnd;
+#endif
+
+    CSfeSrvrBase    * pSfe;
+    NodeGrfInfo     * SFENodeGrfInfo;
+    
+    int               FPP_State;   // FPP State
+
+    struct CMdlStatus
+      {
+      
+      CModelStatusArray m_Status;
+      CModelStatusMap   m_StatusMap;
+
+      flag              m_TestLoadReqd;
+      flag              m_LoadAllDone;
+      dword             m_nLoadSeqNo;
+      dword             m_nColourChgs;
+      CCriticalSection  m_Sect;
+      }               m_Status;
+
+    struct CAssocGrfs
+      {
+      CMdlAssocGrfList  m_Grfs;
+      CMdlAssocGrfMap   m_Map;
+
+      flag              m_TestLoadReqd;
+      flag              m_LoadAllDone;
+      dword             m_nLoadSeqNo;
+      CCriticalSection  m_Sect;
+      }               m_AssocGrfs;
   };
 
 extern SFEFlwLib      * gs_pTheSFELib;

@@ -5792,7 +5792,7 @@ flag CProject::LoadClassVariableStatus(LPCSTR Path)
 
 #if WITHASSOCGRAPHICS
 
-flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
+flag CProject::SaveAssocGrfsStatus(LPCSTR Path)
   {
   CString Fn(Path);
   Fn+=GrfStatusFileName;
@@ -5803,9 +5803,9 @@ flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
   PF.WrSection("Classes", "");
   for (TagObjClass *pClass=TagObjClass::FirstClass(); pClass; pClass = pClass->NextClass())
     {
-    if (pClass->AssocGraphicShowInited())
+    if (pClass->AssocGrfShowInited())
       {
-      CAssocGrfShowArray & A = pClass->AssocGraphicShow();
+      CAssocGrfShowArray & A = pClass->AssocGrfShow();
       Value.Format("%s,%i,%i,%i,%i,%i,%i", pClass->ClassIdNoVersion(), A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
       Entry.Format("Cl%05i", nClasses++);
       PF.WrStr("Classes", Entry, Value);
@@ -5815,13 +5815,13 @@ flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
 
   int nTags=0;
   PF.WrSection("Tags", "");
-  CModelAssocGraphicMasks Msks;
-  if (RequestModelAssocGraphicsMasks(false, false, NULL, Msks))
+  CModelAssocGrfMasks Msks;
+  if (RequestModelAssocGrfsMasks(false, false, NULL, Msks))
     {
     POSITION Pos=Msks.GetHeadPosition();
     while (Pos)
       {
-      CModelAssocGraphicMask & Msk = Msks.GetNext(Pos);
+      CModelAssocGrfMask & Msk = Msks.GetNext(Pos);
       CAssocGrfShowArray & A = Msk.m_ShowNode;
       Value.Format("%s,%i,%i,%i,%i,%i,%i", Msk.m_Tag, A[eAG_Spill], A[eAG_Vent], A[eAG_Leak], A[eAG_Makeup], A[eAG_Bleed], A[eAG_RB]);
       Entry.Format("Tg%05i", nTags++);
@@ -5833,7 +5833,7 @@ flag CProject::SaveAssocGraphicsStatus(LPCSTR Path)
 
 //---------------------------------------------------------------------------
 
-flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
+flag CProject::LoadAssocGrfsStatus(LPCSTR Path)
   {
   bool SetsDone=false;
   CString Fn(Path);
@@ -5857,7 +5857,7 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
         TagObjClass *pClass=TagObjClass::FindClassId(C[0], false);
         if (pClass)
           {
-          CAssocGrfShowArray & A = pClass->AssocGraphicShow();
+          CAssocGrfShowArray & A = pClass->AssocGrfShow();
           int i=1; 
           if (i<nToks)        A[eAG_Spill ]  = SafeAtoI(C[i++], A[eAG_Spill ]);
           if (i<nToks)        A[eAG_Vent  ]  = SafeAtoI(C[i++], A[eAG_Vent  ]);
@@ -5875,7 +5875,7 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
     }
 
   int n=0;
-  CModelAssocGraphicMasks Msks;
+  CModelAssocGrfMasks Msks;
   for (int n=0; ; n++)
     {
     Entry.Format("Tg%05i", n);
@@ -5887,7 +5887,7 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
       int nToks=ParseCSVTokens(ReqdS(), C, Quote); 
       if (nToks>0)
         {
-        CModelAssocGraphicMask Msk(C[0]);
+        CModelAssocGrfMask Msk(C[0]);
         CAssocGrfShowArray & A = Msk.m_ShowNode;
         int i=1; 
         if (i<nToks)        A[eAG_Spill ]  = SafeAtoI(C[i++], A[eAG_Spill ]);
@@ -5906,7 +5906,7 @@ flag CProject::LoadAssocGraphicsStatus(LPCSTR Path)
 
   if (Msks.GetCount()>0)
     {
-    if (RequestModelAssocGraphicsMasks(false, true, NULL, Msks))
+    if (RequestModelAssocGrfsMasks(false, true, NULL, Msks))
       {
       SetsDone=true;
       }
@@ -6340,7 +6340,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         {
 
 #if WITHASSOCGRAPHICS
-        LoadAssocGraphicsStatus(PrjFiles());
+        LoadAssocGrfsStatus(PrjFiles());
 #endif
 
 #if WITHEQUIPSPECS
@@ -6516,7 +6516,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
           FnLocalFilesDifferentClear();
           }
 
-        gs_Exec.MaintainModelAssocGraphics(NULL);
+        gs_pTheSFELib->SetLoadAllModelAssocGrfs();//CurTag());
 
         WriteProjectSet();
 
@@ -7755,7 +7755,7 @@ flag CProject::DoSave(flag DoPathChg, pchar pPrjPath, flag IsNew)
 #endif
 
 #if WITHASSOCGRAPHICS
-    SaveAssocGraphicsStatus(PrjFiles());
+    SaveAssocGrfsStatus(PrjFiles());
 #endif
 
     CDlgBusy::SetLine(3, "Saving Window Layout");
@@ -8630,26 +8630,32 @@ int CProject::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxT
 
 //---------------------------------------------------------------------------
 
+flag CProject::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+  { 
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfs(Tag, Grfs) : 0;
+  };
+
+//---------------------------------------------------------------------------
+
+int CProject::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
+  { 
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap) : 0;
+  };
+
+//---------------------------------------------------------------------------
+
+flag CProject::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks)
+  { 
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfsMasks(SetClass, SetNode, NdTag, Msks) : 0;
+  };
+
+
+//---------------------------------------------------------------------------
+
 int CProject::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) 
   { 
   return FlwLib()!=NULL ? FlwLib()->RequestTagRefInfo(Tag, Refs) : 0;
   };
-
-//---------------------------------------------------------------------------
-
-flag CProject::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  { 
-  return FlwLib()!=NULL ? FlwLib()->EO_RequestModelAssocGraphics(Tag, Grfs) : 0;
-  };
-
-//---------------------------------------------------------------------------
-
-flag CProject::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
-  { 
-  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks) : 0;
-  };
-
-
 
 //---------------------------------------------------------------------------
 

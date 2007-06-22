@@ -7592,21 +7592,22 @@ void GrfCmdBlk::DoDelete()
                 }
               }
             
-            CMdlAssocGraphicList Grfs;
-            if (gs_pPrj->EO_RequestModelAssocGraphics(pTag, Grfs))
+            CMdlAssocGrfList Grfs;
+            if (gs_pPrj->RequestModelAssocGrfs(pTag, Grfs))
               {
               POSITION Pos=Grfs.GetHeadPosition();
               while (Pos)
                 {
-                CMdlAssocGraphic & G=Grfs.GetNext(Pos);
+                CMdlAssocGrf & G=Grfs.GetNext(Pos);
               //if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
               //  {
-                for (int g=0; g<G.m_AssocGrfs.GetCount(); g++)
-                  {
-                  char *a[] = { TagAttribStr,                                    (pchar)NULL };
-                  char *b[] = { (LPTSTR)(LPCTSTR)G.m_AssocGrfs[g].m_sTag, (pchar)NULL };
-                  pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
-                  }
+_asm int 3;
+                //for (int g=0; g<G.m_AssocGrfs.GetCount(); g++)
+                //  {
+                //  char *a[] = { TagAttribStr,                                    (pchar)NULL };
+                //  char *b[] = { (LPTSTR)(LPCTSTR)G.m_AssocGrfs[g].m_sTag, (pchar)NULL };
+                //  pDrw->SelectInsertsOnAttrCombo(NULL, a, b, NULL);
+                //  }
                 }
               }
             }
@@ -8779,7 +8780,10 @@ void GrfCmdBlk::DoReDraw()
   if (When==EX_EXEC)
     {
     if (gs_pTheSFELib)
+      {
       gs_pTheSFELib->SetLoadAllModelStatus();
+      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
+      }
 
     pDsp->Open();
     pDrw->EntityInvalidate();
@@ -11652,7 +11656,10 @@ void GrfCmdBlk::Do3DImport()
     CDlgBusy::Close();
 
     if (gs_pTheSFELib)
+      {
       gs_pTheSFELib->SetLoadAllModelStatus();
+      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
+      }
 
     pDsp->Open();
     pDsp->SetZoom(Zoom_All);

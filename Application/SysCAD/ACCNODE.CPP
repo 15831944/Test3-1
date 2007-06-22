@@ -1299,9 +1299,10 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
           break;
         }
       if (gs_pTheSFELib)
+        {
         gs_pTheSFELib->SetLoadAllModelStatus();
-
-      gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
+        gs_pTheSFELib->SetLoadAllModelAssocGrfs();//CurTag());
+        }
       //XCloseTransaction();
       }
     else

@@ -37,6 +37,62 @@ extern AFX_EXTENSION_MODULE SCExecDLL;
 //
 //===========================================================================
 
+CMdlAssocGrf::CMdlAssocGrf()
+  {
+  m_bIsLnk        = false;
+  };
+
+
+CMdlAssocGrf::CMdlAssocGrf(const CMdlAssocGrf & V)
+  {
+  m_bIsLnk    = V.m_bIsLnk;
+  m_sNdTag    = V.m_sNdTag;
+  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  };
+   
+CMdlAssocGrf &CMdlAssocGrf::operator=(const CMdlAssocGrf & V)
+  {
+  m_bIsLnk    = V.m_bIsLnk;
+  m_sNdTag    = V.m_sNdTag;
+
+  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  return *this;
+  };
+
+BOOL CMdlAssocGrf::operator==(const CMdlAssocGrf & V)
+  {
+  if (m_sNdTag != V.m_sNdTag ||  m_bIsLnk != V.m_bIsLnk)
+    return false;
+  if (m_AssocGrfs.GetSize()!=V.m_AssocGrfs.GetSize())
+    return false;
+  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
+    if (m_AssocGrfs[i]!=V.m_AssocGrfs[i])
+      return false;
+  return true;
+  };
+
+bool operator==(const CMdlAssocGrf & V1, const CMdlAssocGrf & V2)
+  {
+  if (V1.m_sNdTag != V2.m_sNdTag ||  V1.m_bIsLnk != V2.m_bIsLnk)
+    return false;
+  if (V1.m_AssocGrfs.GetSize()!=V2.m_AssocGrfs.GetSize())
+    return false;
+  for (int i=0; i<V2.m_AssocGrfs.GetSize(); i++)
+    if (V1.m_AssocGrfs[i]!=V2.m_AssocGrfs[i])
+      return false;
+  return true;
+  };
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 CNodeBalanceIO::CNodeBalanceIO ()
   {
   Clear(true);

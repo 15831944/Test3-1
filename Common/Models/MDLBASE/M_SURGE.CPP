@@ -48,8 +48,8 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //pQProd=NULL;
   AttachClassInfo(nc_Process,NULL, &PipeEntryGroup);
 
-  InitAssocGraphicShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
-  InitAssocGraphicShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
 
   Contents.SetStateAction(IE_Integrate);
   m_EqThermals.SetStateAction(IE_Integrate);

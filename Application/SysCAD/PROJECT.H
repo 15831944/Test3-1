@@ -585,8 +585,8 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
 #endif
 
 #if WITHASSOCGRAPHICS
-    flag           LoadAssocGraphicsStatus(LPCSTR Path);
-    flag           SaveAssocGraphicsStatus(LPCSTR Path);
+    flag           LoadAssocGrfsStatus(LPCSTR Path);
+    flag           SaveAssocGrfsStatus(LPCSTR Path);
 #endif
 
     void           PutSettings();
@@ -734,12 +734,13 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
     int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
+    int            RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
+    flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
     //int            RequestXRefInfoChg();
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
-    flag           EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
-    flag           RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     flag           FlwModelExists(pchar pTag);
     flag           TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pHdr, char SepChar*/, Strng &UniqueTag, flag HdrAsIs);

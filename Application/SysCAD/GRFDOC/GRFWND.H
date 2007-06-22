@@ -128,7 +128,6 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     void           CopyBMPtoClipBoard(int Format);
 
     virtual flag   EO_RequestTagInfo(RequestTagInfoRec& Rqst, ReplyTagInfoRec& Info);
-    virtual flag   EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);

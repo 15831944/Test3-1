@@ -46,10 +46,15 @@ SFEFlwLib::SFEFlwLib()
   pSfe=NULL;
   SFENodeGrfInfo=NULL;
   FPP_State=0;
-  m_TestStatusLoadReqd=true;
-  m_LoadAllModelStatusDone=false;
-  m_nMdlStatusLoads=0;
-  m_nStatusColourChgs=0;
+
+  m_Status.m_TestLoadReqd=true;
+  m_Status.m_LoadAllDone=false;
+  m_Status.m_nLoadSeqNo=0;
+  m_Status.m_nColourChgs=0;
+
+  m_AssocGrfs.m_TestLoadReqd=true;
+  m_AssocGrfs.m_LoadAllDone=false;
+  m_AssocGrfs.m_nLoadSeqNo=0;
 
   ASSERT(gs_pTheSFELib==NULL);
   gs_pTheSFELib=this;
@@ -282,6 +287,7 @@ int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
 int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
   { 
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(-1) 
   pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd); 
   CExploreScd::RefreshIt(false);
@@ -291,6 +297,7 @@ int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, cha
 int SFEFlwLib::FE_DoInsertRoot(char * RootName) 
   { 
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(-1)
   pSfe->FE_DoInsertRoot(RootName);
   CExploreScd::RefreshIt(false);
@@ -299,6 +306,7 @@ int SFEFlwLib::FE_DoInsertRoot(char * RootName)
 int SFEFlwLib::FE_DoDelete(char * Tag)
   { 
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(-1)
   pSfe->FE_DoDelete(Tag);
   CExploreScd::RefreshIt(false);
@@ -307,6 +315,7 @@ int SFEFlwLib::FE_DoDelete(char * Tag)
 int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
   {
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(-1)
   pSfe->FE_DoConnect(SrcTag, DstTag);
   CExploreScd::RefreshIt(false);
@@ -315,6 +324,7 @@ int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
 int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
   {
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(-1)
   pSfe->FE_DoDisConnect(SrcTag, DstTag);
   CExploreScd::RefreshIt(false);
@@ -453,7 +463,7 @@ flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & 
    { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
 int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
   { 
-  if (m_TestStatusLoadReqd)
+  if (m_Status.m_TestLoadReqd)
     {
     IENTER(false) pSfe->RequestModelStatus(Criteria, Status);
     ILEAVE
@@ -465,7 +475,7 @@ int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
   };
 int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
   {
-  if (m_TestStatusLoadReqd)
+  if (m_Status.m_TestLoadReqd)
     {
     IENTER(false) pSfe->RequestModelStatusChgCnt(Criteria, MaxTest); 
     ILEAVE
@@ -475,11 +485,17 @@ int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
     return 1;
     }
   };
+
+flag SFEFlwLib::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf)
+  { FENTER(true) pSfe->RequestModelAssocGrfs(Tag, Grf); FLEAVE};
+int SFEFlwLib::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
+  { IENTER(false) pSfe->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap); ILEAVE};
+flag SFEFlwLib::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks)
+  { FENTER(true) pSfe->RequestModelAssocGrfsMasks(SetClass, SetNode, NdTag, Msks); FLEAVE};
+
 int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
    { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
 
-flag SFEFlwLib::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
-  { FENTER(true) pSfe->RequestModelAssocGraphicsMasks(SetClass, SetNode, NdTag, Msks); FLEAVE};
 //int SFEFlwLib::RequestXRefInfoChg()
 //   { IENTER(false) pSfe->RequestXRefInfoChg(); ILEAVE};
 flag SFEFlwLib::FE_TestModelTagUnique(pchar pTag)
@@ -509,11 +525,6 @@ flag SFEFlwLib::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
 flag SFEFlwLib::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
   { FENTER(false) pSfe->EO_OperateModelGraphic(Tag, Wnd, Grf); FLEAVE};
 
-flag SFEFlwLib::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  { FENTER(false) pSfe->EO_RequestModelAssocGraphics(Tag, Grfs); FLEAVE};
-flag SFEFlwLib::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
-  { FENTER(false) pSfe->EO_UpdateModelAssocGraphics(Grfs, Map); FLEAVE};
-
 
 //flag SFEFlwLib::EO_SolutionReqd()
 //   { return pSfe==NULL ? false : pSfe->EO_SolutionReqd();  };
@@ -537,12 +548,14 @@ int  SFEFlwLib::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
 int  SFEFlwLib::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   { 
   //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_ChangeTag(pOldTag, pNewTag);
   ILEAVE
   };
 int  SFEFlwLib::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
   { 
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_ChangeTagDone(pOldTag, pNewTag);
   ILEAVE
   };
@@ -551,6 +564,7 @@ int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
 int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   {
   //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_DeleteTag(pDelTag);
   //CExploreScd::RefreshIt(false);
   ILEAVE
@@ -558,6 +572,7 @@ int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
 int  SFEFlwLib::EO_DeleteTagDone(pchar pDelTag)
   {
   SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_DeleteTagDone(pDelTag);
   CExploreScd::RefreshIt(false);
   ILEAVE
@@ -581,7 +596,8 @@ flag SFEFlwLib::EO_PreStart(CXM_TimeControl &CB)
 flag SFEFlwLib::EO_Start(CXM_TimeControl &CB)
   { 
   FENTER(false) pSfe->EO_Start(CB);
-  m_TestStatusLoadReqd=false;
+  m_Status.m_TestLoadReqd=false;
+  m_AssocGrfs.m_TestLoadReqd=false;
   FLEAVE
   };
 void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
@@ -619,7 +635,8 @@ flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
   };
 flag SFEFlwLib::EO_Stop(CXM_TimeControl &CB)
   { 
-  m_TestStatusLoadReqd=true; 
+  m_Status.m_TestLoadReqd=true; 
+  m_AssocGrfs.m_TestLoadReqd=true; 
   FENTER(false) pSfe->EO_Stop(CB); 
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
@@ -634,7 +651,8 @@ flag SFEFlwLib::EO_Stopping(flag BeginStopping)
   };
 flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
   { 
-  m_TestStatusLoadReqd=true;
+  m_Status.m_TestLoadReqd=true;
+  m_AssocGrfs.m_TestLoadReqd=true;
   FENTER(false) pSfe->EO_BeginPause(CB); 
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
   if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
@@ -644,7 +662,8 @@ flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
 flag SFEFlwLib::EO_EndPause(CXM_TimeControl &CB)
   {
   FENTER(false) pSfe->EO_EndPause(CB);
-  m_TestStatusLoadReqd=false;
+  m_Status.m_TestLoadReqd=false;
+  m_AssocGrfs.m_TestLoadReqd=false;
   FLEAVE
   };
 
@@ -661,12 +680,15 @@ flag SFEFlwLib::EO_EndSave(FilingControlBlock &FCB)
 flag SFEFlwLib::EO_BeginLoad(FilingControlBlock &FCB)
   { 
   LockStatus();
-  m_MdlStatusMap.RemoveAll();
-  m_MdlStatus.SetSize(0);
-  m_TestStatusLoadReqd=true;
-  m_LoadAllModelStatusDone=false;
-  m_nMdlStatusLoads=0;
-  m_nStatusColourChgs=0;
+  m_Status.m_StatusMap.RemoveAll();
+  m_Status.m_Status.SetSize(0);
+  m_Status.m_TestLoadReqd=true;
+  m_Status.m_LoadAllDone=false;
+  m_Status.m_nLoadSeqNo=0;
+  m_Status.m_nColourChgs=0;
+  m_AssocGrfs.m_TestLoadReqd=true;
+  m_AssocGrfs.m_LoadAllDone=false;
+  m_AssocGrfs.m_nLoadSeqNo=0;
   FreeStatus();
   FENTER(false) pSfe->EO_BeginLoad(FCB); FLEAVE
   };
@@ -704,40 +726,40 @@ int SFEFlwLib::FE_LoadAllModelStatus()
   //dbgpln("FE_LoadAllModelStatus");
 
   LockStatus();
-  m_LoadAllModelStatusDone=true;
+  m_Status.m_LoadAllDone=true;
   CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (pSfe->RequestModelStatus(Criteria, m_MdlStatus))
+  if (pSfe->RequestModelStatus(Criteria, m_Status.m_Status))
     {
-    dword iSize=FindNextPrimeNumber((m_MdlStatus.GetSize()*120)/100);
-    if (m_MdlStatusMap.GetHashTableSize()!=iSize)
+    dword iSize=FindNextPrimeNumber((m_Status.m_Status.GetSize()*120)/100);
+    if (m_Status.m_StatusMap.GetHashTableSize()!=iSize)
       {
-      m_MdlStatusMap.RemoveAll();
-      m_MdlStatusMap.InitHashTable(iSize);
+      m_Status.m_StatusMap.RemoveAll();
+      m_Status.m_StatusMap.InitHashTable(iSize);
       }
     else
-      m_MdlStatusMap.RemoveAll();
-    for (int i=0; i<m_MdlStatus.GetSize(); i++)
+      m_Status.m_StatusMap.RemoveAll();
+    for (int i=0; i<m_Status.m_Status.GetSize(); i++)
       {
       int Colour=-1;
       int OvrColour=-1;
       int OvrStyle=-1;
-      GrfHelper.MdlStatusColor(m_MdlStatus[i].m_dwFlags, Colour, OvrColour, OvrStyle);
-      if (m_MdlStatus[i].m_iColour!=Colour || m_MdlStatus[i].m_iAColour!=OvrColour)
-        m_nStatusColourChgs++;
-      m_MdlStatus[i].m_iColour=Colour;
-      m_MdlStatus[i].m_iAColour=OvrColour;
-      m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
+      GrfHelper.MdlStatusColor(m_Status.m_Status[i].m_dwFlags, Colour, OvrColour, OvrStyle);
+      if (m_Status.m_Status[i].m_iColour!=Colour || m_Status.m_Status[i].m_iAColour!=OvrColour)
+        m_Status.m_nColourChgs++;
+      m_Status.m_Status[i].m_iColour=Colour;
+      m_Status.m_Status[i].m_iAColour=OvrColour;
+      m_Status.m_StatusMap.SetAt(m_Status.m_Status[i].m_Tag(), &m_Status.m_Status[i]);
       
-      //m_MdlStatusMap.SetAt(m_MdlStatus[i].m_Tag(), &m_MdlStatus[i]);
+      //m_Status.m_StatusMap.SetAt(m_Status.m_Status[i].m_Tag(), &m_Status.m_Status[i]);
       }
 
-    m_nMdlStatusLoads++;
-    long L=m_MdlStatus.GetSize();
+    m_Status.m_nLoadSeqNo++;
+    long L=m_Status.m_Status.GetSize();
     FreeStatus();
     return L;
     }
-  m_MdlStatusMap.RemoveAll();
-  m_MdlStatus.SetSize(0);
+  m_Status.m_StatusMap.RemoveAll();
+  m_Status.m_Status.SetSize(0);
   FreeStatus();
   return 0;
   };
@@ -750,10 +772,10 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
   //LockStatus();
 	dword dwVal=0;
 
-  //dword Done=InterlockedCompareExchange((PVOID*)(&m_LoadAllModelStatusDone), (PVOID)0, (PVOID)1);
+  //dword Done=InterlockedCompareExchange((PVOID*)(&m_Status.m_LoadAllDone), (PVOID)0, (PVOID)1);
 
   LockStatus();
-  if (m_TestStatusLoadReqd && !m_LoadAllModelStatusDone)
+  if (m_Status.m_TestLoadReqd && !m_Status.m_LoadAllDone)
     {
     FreeStatus();
     CExecObj::LockXO();
@@ -763,13 +785,98 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
     }
 
   CModelStatusItem* pItem;
-  if (pTag && m_MdlStatusMap.Lookup(pTag, pItem))
+  if (pTag && m_Status.m_StatusMap.Lookup(pTag, pItem))
 		dwVal=pItem->m_dwFlags;
   else 
     dwVal=0xFFFFFFFF;
   
   FreeStatus();
   return dwVal;
+  };
+
+//---------------------------------------------------------------------------
+
+#define dbgAssocGrfs      0
+
+int SFEFlwLib::FE_LoadAllModelAssocGrfs()
+  {
+  //CExecObj::Lock();
+  //dbgpln("FE_LoadAllModelStatus");
+
+  LockAssocGrfs();
+  m_AssocGrfs.m_LoadAllDone=true;
+
+
+#if dbgAssocGrfs
+  dbgpln("FE_LoadAllModelAssocGrfs====================");
+#endif
+  //CMdlAssocGrfList Grfs;
+  if (RequestModelAssocGrfs(NULL, m_AssocGrfs.m_Grfs))
+    {
+    //CMdlAssocGrfMap Map;
+   
+    dword ReqdSize=(Max(200, m_AssocGrfs.m_Map.GetCount())*120)/100;
+    if (m_AssocGrfs.m_Map.GetHashTableSize()<=ReqdSize)
+      m_AssocGrfs.m_Map.InitHashTable(ReqdSize);
+
+    m_AssocGrfs.m_Map.RemoveAll();
+    POSITION Pos=m_AssocGrfs.m_Grfs.GetHeadPosition(); 
+    while (Pos)
+      {
+      CMdlAssocGrf * pG=&m_AssocGrfs.m_Grfs.GetNext(Pos);
+      m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_sNdTag, CMdlAssocGrfMapItem(pG,-1)); 
+      for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
+        m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_AssocGrfs[i].m_sTag, CMdlAssocGrfMapItem(pG,i)); 
+
+#if dbgAssocGrfs
+      dbgpln("%s", pG->m_sNdTag);
+      for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
+        dbgpln("  %2i %s", pG->m_AssocGrfs[i].m_eAGType, pG->m_AssocGrfs[i].m_sTag);
+#endif    
+      }
+
+    m_AssocGrfs.m_nLoadSeqNo++;
+    long L=m_AssocGrfs.m_Grfs.GetSize();
+    FreeAssocGrfs();
+    return L;
+    }
+  
+  m_AssocGrfs.m_Map.RemoveAll();
+  m_AssocGrfs.m_Grfs.RemoveAll();
+  FreeAssocGrfs();
+  return 0;
+  };
+
+//---------------------------------------------------------------------------
+
+int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap)
+  {
+  LockAssocGrfs();
+  if (m_AssocGrfs.m_TestLoadReqd && !m_AssocGrfs.m_LoadAllDone)
+    {
+    FreeAssocGrfs();
+    CExecObj::LockXO();
+    FE_LoadAllModelAssocGrfs();
+    CExecObj::UnlockXO();
+    LockAssocGrfs();
+    }
+
+  if (LoadSeqNo!=m_AssocGrfs.m_nLoadSeqNo)
+    {
+    LoadSeqNo=m_AssocGrfs.m_nLoadSeqNo;
+    
+    int N=m_AssocGrfs.m_Grfs.GetCount();
+    if (N>0)
+      {
+      pGrfs=&m_AssocGrfs.m_Grfs;
+      pMap=&m_AssocGrfs.m_Map;
+      return N;
+      }
+    }
+  
+  FreeAssocGrfs();
+  
+  return 0;
   };
 
 //---------------------------------------------------------------------------

@@ -7838,15 +7838,15 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
 
 #define dbgAssocGrfs 0
 
-flag FlwNode::EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs)
+flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
   {
   if (NoRealDirectIOs()>0)
     {
-    CMdlAssocGraphic G;
+    CMdlAssocGrf G;
     G.m_sNdTag    = FullObjTag();
     G.m_bIsLnk    = IsLnk()!=0;
     Grfs.AddTail(G);
-    CMdlAssocGraphic &GT=Grfs.GetTail();
+    CMdlAssocGrf &GT=Grfs.GetTail();
 
     for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
       {
@@ -7858,7 +7858,7 @@ flag FlwNode::EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs)
         {
         CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
 
-        CMdlAssocGraphic::CItem I;
+        CMdlAssocGrf::CItem I;
         switch (D.Type)
           {
           case eDIO_Makeup: I.m_eAGType = eAG_Makeup;  break;
@@ -7870,7 +7870,7 @@ flag FlwNode::EO_RequestModelAssocGraphics(CMdlAssocGraphicList & Grfs)
             ASSERT_ALWAYS(false,"Uncatered for DIO Type", __FILE__, __LINE__);
           }
         I.m_sTag = pC->Tag();
-        I.m_bShowIt = AssocGraphicOn(I.m_eAGType, pC->UseStatus());
+        I.m_bShowIt = AssocGrfOn(I.m_eAGType, pC->UseStatus());
 
         GT.m_AssocGrfs.Add(I);
 #if dbgAssocGrfs 

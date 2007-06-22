@@ -73,7 +73,7 @@ BOOL CAssocGrfTag::OnInitDialog()
     CComboBox * pBox=(CComboBox *)GetDlgItem(Ids[i]);
 
     if (Ids[i]>=IDC_TAG_SHOW0)
-      pBox->AddString(" ");
+      pBox->AddString("<default>");
     
     pBox->AddString("Hide");
     pBox->AddString("Show");
@@ -81,10 +81,10 @@ BOOL CAssocGrfTag::OnInitDialog()
     pBox->AddString("Ever Used");
     }
 
-  CModelAssocGraphicMasks Msks;
-  if (gs_pPrj->RequestModelAssocGraphicsMasks(false, false, (LPSTR)(LPCSTR)m_NdTag, Msks))
+  CModelAssocGrfMasks Msks;
+  if (gs_pPrj->RequestModelAssocGrfsMasks(false, false, (LPSTR)(LPCSTR)m_NdTag, Msks))
     {
-    CModelAssocGraphicMask & Msk=Msks.GetHead();
+    CModelAssocGrfMask & Msk=Msks.GetHead();
 
     ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW0))->SetCurSel(Msk.m_ShowClass[eAG_Makeup]-1);
     ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW1))->SetCurSel(Msk.m_ShowClass[eAG_Bleed]-1);
@@ -121,7 +121,7 @@ void CAssocGrfTag::OnCancel()
 
 void CAssocGrfTag::OnBnClickedApply()
   {
-  CModelAssocGraphicMask Msk(m_NdTag);
+  CModelAssocGrfMask Msk(m_NdTag);
 
   Msk.m_ShowClass[eAG_Makeup] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW0))->GetCurSel()+1;
   Msk.m_ShowClass[eAG_Bleed ] = ((CComboBox *)GetDlgItem(IDC_CLASS_SHOW1))->GetCurSel()+1;
@@ -137,11 +137,12 @@ void CAssocGrfTag::OnBnClickedApply()
   Msk.m_ShowNode[eAG_Leak  ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW4))->GetCurSel();
   //Msk.m_ShowNode[eAG_RB    ] = ((CComboBox *)GetDlgItem(IDC_TAG_SHOW5))->GetCurSel();
 
-  CModelAssocGraphicMasks Msks;
+  CModelAssocGrfMasks Msks;
   Msks.AddTail(Msk);
 
-  if (gs_pPrj->RequestModelAssocGraphicsMasks(true, true, NULL, Msks))
+  if (gs_pPrj->RequestModelAssocGrfsMasks(true, true, NULL, Msks))
     {
-    gs_Exec.MaintainModelAssocGraphics(NULL);
+    gs_pTheSFELib->SetLoadAllModelAssocGrfs();
+    XUpdateDisplays(true, false);
     }
   }

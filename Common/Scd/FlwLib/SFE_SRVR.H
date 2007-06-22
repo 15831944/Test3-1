@@ -110,8 +110,10 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
     int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
     int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
+    int          RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
+    flag         RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
     int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
-    flag         RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks);
 
     //int          RequestXRefInfoChg();
 
@@ -139,9 +141,6 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
 
     flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-
-    flag         EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs);
-    flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map);
 
     //flag         EO_SolutionReqd();
     //int          EO_InitSolution(EqnSlvCtrlBlk & EQCtrl);

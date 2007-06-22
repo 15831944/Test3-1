@@ -725,7 +725,7 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
 
 //---------------------------------------------------------------------------
  
-flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsX)
+flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
   {
 #if dbgTagManagement  
   DumpInsertList("CCC", InsertLst);
@@ -760,9 +760,9 @@ flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocG
         LPTSTR Tag=DXF_ATTRIB_VALUE_GET(eTag);
         DXF_ENTITY eAssoc=Find_Attr(eInsert, AssocTagAttribStr);
 #if dbgAssocGrf
-        dbgpln("ModelAssocGraphics Tag 0x%08x      = %s", eTag, Tag); 
+        dbgpln("ModelAssocGrfs Tag 0x%08x      = %s", eTag, Tag); 
 #endif                               
-        CMdlAssocGraphicMapItem GI;
+        CMdlAssocGrfMapItem GI;
         if (Map.Lookup(Tag, GI))
           {
 #if dbgAssocGrf
@@ -770,7 +770,7 @@ flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocG
 #endif
           if (eAssoc)
             {
-            CMdlAssocGraphic::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
+            CMdlAssocGrf::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
             WorkReqd= 1;
             I.m_bExists=true;
             if (!I.m_bShowIt)
@@ -778,14 +778,14 @@ flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocG
 #if dbgAssocGrf
               dbgpln("                   Delete @ %s", Tag);
 #endif
-              GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, eInsert));
+              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
               }
             }
           else //if (I.m_bShowIt)
             {
             //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
             WorkReqd= 1;
-            GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
             }
           }
         else //if (eIsAssoc)
@@ -799,7 +799,7 @@ flag CGrfLayer::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocG
 #if dbgAssocGrf
             dbgpln("                   Delete @ %s", Tag);
 #endif
-            GrfsX.AddHead(CMdlAssocGraphicX(CMdlAssocGraphicX::eDelete, NULL, 0, 0, 0, eInsert));
+            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
             }
           }
         }
@@ -2154,12 +2154,12 @@ flag LayerCollection::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_EN
 
 //---------------------------------------------------------------------------
 
-flag LayerCollection::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map, CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> & GrfsX)
+flag LayerCollection::PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
   {
   flag WorkReqd =0;
   CGrfLayer * l = NULL;
   WALK_LAYERS(Layers,NULL, l)
-    WorkReqd |= l->UpdateModelAssocGraphics(Grfs, Map, GrfsX);
+    WorkReqd |= l->PutModelAssocGrfsChanges(Grfs, Map, GrfsX);
   return WorkReqd;
   }
 
@@ -4132,61 +4132,66 @@ flag DXF_Drawing::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY
 
 // ---------------------------------------------------------------------------
 
-flag DXF_Drawing::UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
+flag DXF_Drawing::UpdateModelAssocGrfs()
   {
-  CList<CMdlAssocGraphicX,CMdlAssocGraphicX&> GrfsX;
-  //change tag for models...
-  
+  CMdlAssocGrfList  *pGrfs=NULL;
+  CMdlAssocGrfMap  *pMap=NULL;
   int WorkReqd = 0;
-  CGrfLayer * pLay = Layers;
-  while (pLay)
-    {
-    WorkReqd |= pLay->UpdateModelAssocGraphics(Grfs, Map, GrfsX);
-    pLay = pLay->Nxt;
-    }
 
-  pDsp->Open();
-
-  POSITION Pos=GrfsX.GetHeadPosition();
-  while (Pos)
+  if (gs_pTheSFELib->FE_PrepareAllModelAssocGrfs(m_MdlAssocGrfSeqNo, pGrfs, pMap)>0)
     {
-    CMdlAssocGraphicX & GX = GrfsX.GetNext(Pos);
-    CMdlAssocGraphic  & G = *GX.m_pAssGrf;
-    switch (GX.m_eAction)
+    CList<CMdlAssocGrfX,CMdlAssocGrfX&> GrfsX;
+    CGrfLayer * pLay = Layers;
+    while (pLay)
       {
-      case CMdlAssocGraphicX::eAddNdAssocGrfs:
-        {
-        for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
-          {
-          CMdlAssocGraphic::CItem & I = G.m_AssocGrfs[i];
-          if (!I.m_bExists && I.m_bShowIt)
-            {
-            PT3 pt;
-            pt[0] = GX.m_NdX;
-            pt[1] = GX.m_NdY;
-            pt[2] = 0.0;
+      WorkReqd |= pLay->PutModelAssocGrfsChanges(*pGrfs, *pMap, GrfsX);
+      pLay = pLay->Nxt;
+      }
+    gs_pTheSFELib->FreeAssocGrfs();
 
-            DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
-            pDsp->Draw(Ins, -1);
-            }
-          else if (I.m_bExists && !I.m_bShowIt)
-            {
-            // Will Delete below;
-            }
-          }
-        break;
-        }
-      case CMdlAssocGraphicX::eDelete:
+
+    pDsp->Open();
+
+    POSITION Pos=GrfsX.GetHeadPosition();
+    while (Pos)
+      {
+      CMdlAssocGrfX & GX = GrfsX.GetNext(Pos);
+      CMdlAssocGrf  & G = *GX.m_pAssocGrf;
+      switch (GX.m_eAction)
         {
-        pDsp->Draw(GX.m_Entity, GrfHelper.GR_BACKGROUND);
-        Drawing->Delete(GX.m_Entity);
-        break;
+        case CMdlAssocGrfX::eAddNdAssocGrfs:
+          {
+          for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
+            {
+            CMdlAssocGrf::CItem & I = G.m_AssocGrfs[i];
+            if (!I.m_bExists && I.m_bShowIt)
+              {
+              PT3 pt;
+              pt[0] = GX.m_NdX;
+              pt[1] = GX.m_NdY;
+              pt[2] = 0.0;
+
+              DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
+              pDsp->Draw(Ins, -1);
+              }
+            else if (I.m_bExists && !I.m_bShowIt)
+              {
+              // Will Delete below;
+              }
+            }
+          break;
+          }
+        case CMdlAssocGrfX::eDelete:
+          {
+          pDsp->Draw(GX.m_Entity, GrfHelper.GR_BACKGROUND);
+          Drawing->Delete(GX.m_Entity);
+          break;
+          }
         }
       }
+
+    pDsp->Close();
     }
-
-  pDsp->Close();
-
   return WorkReqd;
   }
 
@@ -5103,6 +5108,8 @@ DXF_Drawing::DXF_Drawing(pGrf3D_Display pDsp_, pchar Fn, flag InitForSyscad) : L
     pchar a = strrchr(Name,'.');
     if (a) *a = NULL;
     }
+
+  m_MdlAssocGrfSeqNo = 0xffffffff;
 
   }
 
@@ -6308,6 +6315,8 @@ void DXF_Drawing::Draw(pViewport vp, /*ZoomTypes ZoomType, C3_BOX ZoomBoxIn,*/ C
   c3v_set(v1[0]+(C3_MAX_X(SubRgn)+0.5)*w, v1[1]+(C3_MAX_Y(SubRgn)+0.5)*h, 1e10,C3_MAX_PT(&ZoomBox));
 
   // dump_vp(vp);
+
+  UpdateModelAssocGrfs();
 
   LayerCollection::Draw(vp, &ZoomBox, -1,1,NULL);
 
@@ -8908,7 +8917,7 @@ static CSym VentSym[] =
 
 DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
   {
-  pBlock  AssGrf;
+  pBlock  AssocGrf;
   DXF_ENTITY InsSym;
   //REAL c_rad = 7.0;
   REAL t_hgt = 1.5;
@@ -8968,29 +8977,29 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagSt
     
     if (pSym)
       {
-      AssGrf = Blocks.Find(BlockName);
-      if (!AssGrf)
+      AssocGrf = Blocks.Find(BlockName);
+      if (!AssocGrf)
         {
         //    num = Blocks.FindUnique(BlockName,0);
         //(void)sprintf(name,"ILOOP_%d",num);
 
-        AssGrf = Add_Block(BlockName,zero.p());
+        AssocGrf = Add_Block(BlockName,zero.p());
         C3_CURVE cc = NULL;
         while (!pSym->m_Done)
           {
           if (pSym->m_Circle)
             {
-            AssGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt,(pSym+2)->m_Pt);
+            AssocGrf->Add_Circle(pSym->m_Pt,(pSym+1)->m_Pt,(pSym+2)->m_Pt);
             pSym+=3;
             }
           else if (pSym->m_IsStart)
             {
-            cc = AssGrf->Add_PLine_Start(pSym->m_Pt);
+            cc = AssocGrf->Add_PLine_Start(pSym->m_Pt);
             pSym++;
             }
           else
             {
-            AssGrf->Add_PLine_Vertex(cc,pSym->m_Pt);
+            AssocGrf->Add_PLine_Vertex(cc,pSym->m_Pt);
             pSym++;
             }
           }

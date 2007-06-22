@@ -387,7 +387,7 @@ m_SelectData(this)
   m_nInstances = 0;
   m_nInstancesMax = 0;
 
-  m_AssocGraphicShowInited=false;
+  m_AssocGrfShowInited=false;
 
   #if dbgConstructObj
   dbgpln("ConstructClass:%08x %2i %s", this, iId, pShortDesc);
@@ -3335,8 +3335,8 @@ void TaggedObject::BuildCommonStartDefn(DataDefnBlk &DDB)
   DDB.CheckBoxBtn ("SkipSnapLoad","", DC_,   "", &bSkipSnapLoad,        this, isParm|InitHidden|noFileAtAll);
   //if (DDB.ForFiling())
   //  {
-  //  DDB.DWord     ("AssocGrfShow", "", DC_,   "", &m_AssocGraphicShow,  this, isParm|SetOnChange);
-  //  DDB.DWord     ("AssocGrfHide", "", DC_,   "", &m_AssocGraphicHide,  this, isParm|SetOnChange);
+  //  DDB.DWord     ("AssocGrfShow", "", DC_,   "", &m_AssocGrfShow,  this, isParm|SetOnChange);
+  //  DDB.DWord     ("AssocGrfHide", "", DC_,   "", &m_AssocGrfHide,  this, isParm|SetOnChange);
   //  }
   }
 
@@ -3919,12 +3919,12 @@ CTOCustomData::CDataSet* TaggedObject::CustomDataSelected()
 //
 //==========================================================================
 
-bool TaggedObject::AssocGraphicOn(eAssocGrfTypes AGType, byte UseStatus)
+bool TaggedObject::AssocGrfOn(eAssocGrfTypes AGType, byte UseStatus)
   {
-  eAssocGrfShows Shw=AssocGraphicShow()[AGType];
+  eAssocGrfShows Shw=AssocGrfShow()[AGType];
 
   if (Shw==eAGS_AsPerClass)
-    Shw=AssocGraphicShowClass()[AGType];
+    Shw=AssocGrfShowClass()[AGType];
 
   switch (Shw)
     {

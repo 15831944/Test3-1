@@ -180,26 +180,26 @@ typedef struct
 
 typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData);
 
-class CModelAssocGraphicMask
+class CModelAssocGrfMask
   {
   public:
-    CModelAssocGraphicMask(LPCSTR Tag="")
+    CModelAssocGrfMask(LPCSTR Tag="")
       {
       m_Tag       = Tag;
       };
-    CModelAssocGraphicMask(LPCSTR Tag, const CAssocGrfShowArray  & ShowClass, const CAssocGrfShowArray  & ShowNode)
+    CModelAssocGrfMask(LPCSTR Tag, const CAssocGrfShowArray  & ShowClass, const CAssocGrfShowArray  & ShowNode)
       {
       m_Tag       = Tag;
       m_ShowClass = ShowClass;
       m_ShowNode  = ShowNode;
       };
-    CModelAssocGraphicMask(const CModelAssocGraphicMask & V)
+    CModelAssocGrfMask(const CModelAssocGrfMask & V)
       {
       m_Tag       = V.m_Tag;
       m_ShowClass = V.m_ShowClass;
       m_ShowNode  = V.m_ShowNode;
       };
-    CModelAssocGraphicMask & operator=(const CModelAssocGraphicMask & V)
+    CModelAssocGrfMask & operator=(const CModelAssocGrfMask & V)
       {
       m_Tag       = V.m_Tag;
       m_ShowClass = V.m_ShowClass;
@@ -213,7 +213,7 @@ class CModelAssocGraphicMask
     CAssocGrfShowArray  m_ShowNode;
   } ;
 
-class CModelAssocGraphicMasks : public CList<CModelAssocGraphicMask, CModelAssocGraphicMask&> {};
+class CModelAssocGrfMasks : public CList<CModelAssocGrfMask, CModelAssocGrfMask&> {};
 
 // ==========================================================================
 //
@@ -271,6 +271,7 @@ class CModelStatusItem
   };
 
 class CModelStatusArray : public CArray <CModelStatusItem, CModelStatusItem&> { };
+class CModelStatusMap : public CMap <char *, char *, CModelStatusItem*, CModelStatusItem*> {};
 
 class CModelStatusCriterion
   {
@@ -1028,6 +1029,93 @@ class CRctBlkInformation
  
   }; 
 
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
+enum eDirectIO
+  {
+    eDIO_Spill, eDIO_Vent, eDIO_Leak,                   // Real IOs
+    eDIO_Makeup, eDIO_Bleed,
+    eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete        // Direct
+  };
+
+
+class DllImportExport CMdlAssocGrf
+  {
+  public:
+    CMdlAssocGrf();
+    CMdlAssocGrf(const CMdlAssocGrf & V);
+    
+    CMdlAssocGrf &operator=(const CMdlAssocGrf & V);
+
+    BOOL operator==(const CMdlAssocGrf & V);
+
+    class CItem
+      {
+      public:
+        CItem() 
+          { 
+          m_eAGType   = eAG_None; 
+          m_bShowIt = true;
+          m_bExists = false;
+          }
+        CItem(const CItem & V) 
+          { 
+          m_eAGType   = V.m_eAGType;
+          m_sTag    = V.m_sTag;
+          m_bShowIt = V.m_bShowIt;
+          m_bExists = V.m_bExists; 
+          }
+        CItem& operator=(const CItem & V) 
+          { 
+          m_eAGType   = V.m_eAGType;
+          m_sTag    = V.m_sTag;
+          m_bShowIt = V.m_bShowIt;
+          m_bExists = V.m_bExists; 
+          return *this;
+          }
+        bool operator==(const CItem & V) 
+          { 
+          return (m_eAGType == V.m_eAGType) && (m_sTag == V.m_sTag) && (m_bShowIt == V.m_bShowIt);
+          }
+        bool operator!=(const CItem & V) 
+          { 
+          return (m_eAGType != V.m_eAGType) || (m_sTag != V.m_sTag) || (m_bShowIt != V.m_bShowIt);
+          }
+
+      public:
+        eAssocGrfTypes    m_eAGType;
+        CString           m_sTag;
+        bool              m_bShowIt;
+        // Working Vars
+        bool              m_bExists; 
+      };
+
+  public:
+    CString           m_sNdTag;
+    bool              m_bIsLnk;
+    CArray<CItem,CItem&> m_AssocGrfs;
+  };
+
+bool operator==(const CMdlAssocGrf & V1, const CMdlAssocGrf & V2);
+inline bool operator==(const CMdlAssocGrf::CItem & V1, const CMdlAssocGrf::CItem & V2) 
+  { return (V1.m_eAGType == V2.m_eAGType) && (V1.m_sTag == V2.m_sTag) && (V1.m_bShowIt == V2.m_bShowIt); }
+inline bool operator!=(const CMdlAssocGrf::CItem & V1, const CMdlAssocGrf::CItem & V2) 
+  { return (V1.m_eAGType != V2.m_eAGType) || (V1.m_sTag != V2.m_sTag) || (V1.m_bShowIt != V2.m_bShowIt); }
+
+class DllImportExport CMdlAssocGrfList : public CList<CMdlAssocGrf, CMdlAssocGrf & > {};
+class CMdlAssocGrfMapItem 
+  { 
+  public: 
+    CMdlAssocGrfMapItem(CMdlAssocGrf* pG=NULL, int Index=0) { m_pG=pG; m_Index=Index; }; 
+    CMdlAssocGrf* m_pG; 
+    int m_Index; 
+  };
+class DllImportExport CMdlAssocGrfMap  : public CMap<LPTSTR, LPTSTR, CMdlAssocGrfMapItem, CMdlAssocGrfMapItem&> {};
+
 // ==========================================================================
 //
 //
@@ -1135,8 +1223,12 @@ class DllImportExport CSfeSrvrBase
     virtual flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info) { return 0; };
     virtual int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status) { return 0; };
     virtual int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest) { return 0; };
+
+    virtual flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)   { return 0; };
+    virtual int          RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)   { return 0; };
+
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };
-    virtual flag         RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks) { return 0; };
+    virtual flag         RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks) { return 0; };
     //virtual int          RequestXRefInfoChg() { return 0; };
 
     virtual int          FE_GetRctInfo(CRctBlkInformation & RctInfo)                           { return 0; };
@@ -1163,8 +1255,6 @@ class DllImportExport CSfeSrvrBase
     virtual flag         EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)              { return 0; };
     virtual flag         EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf) { return 0; };
 
-    virtual flag         EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)   { return 0; };
-    virtual flag         EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map) { return 0; };
 
     virtual int          EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)          { return 0; };
 

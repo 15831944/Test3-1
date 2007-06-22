@@ -11454,9 +11454,9 @@ DeleteIt:
         }
       }
 
-    gs_Exec.MaintainModelAssocGraphics(NULL);//CurTag());
+    //gs_pTheSFELib->SetLoadAllModelStatus();
+    //gs_pTheSFELib->SetLoadAllModelAssocGrfs();
 
-    //SetLoadAllModelStatus();
     XUpdateDisplays(true, false);
     SHOWPROGRESS(1, "GlobalLinksDone");
 
@@ -12344,6 +12344,81 @@ int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int Ma
 
 //--------------------------------------------------------------------------
 
+flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks)
+  {
+  int ObjTagLen=0;
+
+  if (SetClass || SetNode)
+    {
+    POSITION Pos=Msks.GetHeadPosition();
+    while (Pos)
+      {
+      CModelAssocGrfMask & Msk=Msks.GetNext(Pos);
+      FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)(LPCSTR)Msk.m_Tag, false, ObjTagLen, 0));
+      if (p)
+        {
+        if (SetClass)
+          p->AssocGrfShowClass()=Msk.m_ShowClass;
+        if (SetNode)
+          p->AssocGrfShow()=Msk.m_ShowNode;
+        }
+      }
+    return true;
+    }
+  else if (NdTag)
+    {
+    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)NdTag, false, ObjTagLen, 0));
+    if (p)
+      {
+      CModelAssocGrfMask Msk(NdTag, p->AssocGrfShowClass(), p->AssocGrfShow());
+      Msks.AddTail(Msk);
+      return true;
+      }
+    }
+  else
+    {
+    for (FlwNode * p = NULL; GetObj_All(p); )
+      {
+      CModelAssocGrfMask Msk(p->FullObjTag(), p->AssocGrfShowClass(), p->AssocGrfShow());
+      Msks.AddTail(Msk);
+      }
+    return true;
+    }
+  return false;
+  }
+
+//--------------------------------------------------------------------------
+
+flag CFlwSolver::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+  {
+  Grfs.RemoveAll();
+  if (Tag)
+    {
+    int ObjTagLen=0;
+    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+    if (p)
+      {
+      return p->ModelAssocGrfs(Grfs);
+      }
+    return false;
+    }
+
+  for (FlwNode * p = NULL; GetObj_All(p); )
+    {
+    p->ModelAssocGrfs(Grfs);
+    }
+  return true;
+  };
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
+  {
+  return 0;
+  }
+
+//--------------------------------------------------------------------------
+
 int CFlwSolver::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Info)
   {
   if (Tag && strlen(Tag)>0)
@@ -12433,51 +12508,6 @@ flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info
         }
       return true;
       }
-    }
-  return false;
-  }
-
-//--------------------------------------------------------------------------
-
-flag CFlwSolver::RequestModelAssocGraphicsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGraphicMasks & Msks)
-  {
-  int ObjTagLen=0;
-
-  if (SetClass || SetNode)
-    {
-    POSITION Pos=Msks.GetHeadPosition();
-    while (Pos)
-      {
-      CModelAssocGraphicMask & Msk=Msks.GetNext(Pos);
-      FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)(LPCSTR)Msk.m_Tag, false, ObjTagLen, 0));
-      if (p)
-        {
-        if (SetClass)
-          p->AssocGraphicShowClass()=Msk.m_ShowClass;
-        if (SetNode)
-          p->AssocGraphicShow()=Msk.m_ShowNode;
-        }
-      }
-    return true;
-    }
-  else if (NdTag)
-    {
-    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)NdTag, false, ObjTagLen, 0));
-    if (p)
-      {
-      CModelAssocGraphicMask Msk(NdTag, p->AssocGraphicShowClass(), p->AssocGraphicShow());
-      Msks.AddTail(Msk);
-      return true;
-      }
-    }
-  else
-    {
-    for (FlwNode * p = NULL; GetObj_All(p); )
-      {
-      CModelAssocGraphicMask Msk(p->FullObjTag(), p->AssocGraphicShowClass(), p->AssocGraphicShow());
-      Msks.AddTail(Msk);
-      }
-    return true;
     }
   return false;
   }
@@ -13090,38 +13120,6 @@ flag CFlwSolver::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlG
     return p->OperateModelGraphic(Wnd, Grf);
   return false;
   };
-
-flag CFlwSolver::EO_RequestModelAssocGraphics(LPCTSTR Tag, CMdlAssocGraphicList & Grfs)
-  {
-  Grfs.RemoveAll();
-  if (Tag)
-    {
-    int ObjTagLen=0;
-    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
-    if (p)
-      {
-      return p->EO_RequestModelAssocGraphics(Grfs);
-      }
-    return false;
-    }
-
-  for (FlwNode * p = NULL; GetObj_All(p); )
-    {
-    p->EO_RequestModelAssocGraphics(Grfs);
-    }
-  return true;
-  };
-
-flag CFlwSolver::EO_UpdateModelAssocGraphics(CMdlAssocGraphicList & Grfs, CMdlAssocGraphicMap & Map)
-  {
-  //_asm int 3;
-  //int ObjTagLen=0;
-  //FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
-  //if (p)
-  //  return p->OperateModelGraphic(Wnd, Grf);
-  return false;
-  };
-
 
 //--------------------------------------------------------------------------
 
