@@ -186,8 +186,7 @@ byte CompositionFetchHelper::EvalDiscrete(SpImage & Contents)
 
 byte CompositionFetchHelper::DoFetch(SpImage & Contents)
   {
-  SpContainer * pCn=NULL;
-  SpConduit * pCd=NULL;
+  SpModelOwner * pMdlOwner=NULL;
   if (m_sCFTag())
     {
     MdlNode *pRoot = (MdlNode*)(m_pMdl->InsertRoot(NULL));
@@ -197,78 +196,88 @@ byte CompositionFetchHelper::DoFetch(SpImage & Contents)
     TaggedObject * p=pRoot->FindObjTag(TheTag, true, ObjTagLen, 0);
     if (p)
       {
-      pCn=dynamic_cast<SpContainer*>(p);
-      pCd=dynamic_cast<SpConduit*>(p);
-      if (pCd==NULL && pCd==NULL)
+      pMdlOwner=dynamic_cast<SpModelOwner*>(p);
+      if (pMdlOwner==NULL)
         {
-        pTaggedObject p1=p->pAttachments;
-        while (p1 && (_stricmp(p1->Tag(), &TheTag[ObjTagLen+1])!=0))
+        TaggedObject * p1=p->pAttachments;
+        while (p1 && (_stricmp(p1->FullObjTag(), TheTag)!=0))
           {
           p1=p1->pNxtAttachment;
           }
         if (p1)
           p=p1;
-        pCn=dynamic_cast<SpContainer*>(p);
-        pCd=dynamic_cast<SpConduit*>(p);
+        pMdlOwner=dynamic_cast<SpModelOwner*>(p);
         }
       }
     }
   else
-    pCd=m_pCdOther;
-
-  if (pCd)
     {
-    if (pCd->QMass()<=SmallPosFlow)
-      {
-      return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
-      }
-    else
-      {
-      if (m_iCFWhat&CFWhatComp)
-        {
-        for (int i=0; i<sm_nCFQuals; i++)
-          pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-        Contents.Copy(*pCd);
-        for (int i=0; i<sm_nCFQuals; i++)
-          pCd->SetQualityHoldCopy(i, false);
-        Contents.MArray().Normalise();
-        Contents.Model()->SetMassScale(1);
-        }
-      if (m_iCFWhat&CFWhatTemp)
-        Contents.m_T_Rqd=pCd->Temp();
-      if (m_iCFWhat&CFWhatPress)
-        Contents.SetPRqdTo(pCd->Press());
-      if (m_iCFWhat&CFWhatFlow)
-        {
-        switch (Contents.QMode())
-          {
-          case SPI_QModeQm:  Contents.SetQmRqdTo(pCd->QMass()*m_dCFRatio, true, false); break;
-          case SPI_QModeQv:  Contents.SetQvRqdTo(pCd->QVolume()*m_dCFRatio, true, false); break;
-          case SPI_QModeNQv: Contents.SetNQvRqdTo(pCd->QNVolume()*m_dCFRatio, true, false); break;
-          }
-        }
-      }
+    pMdlOwner=m_pCdOther;
     }
-  else if (pCn)
+  if (pMdlOwner)
     {
-    if (pCn->Mass()<=1e-10)
+    SpModelOwner &MdlO = *pMdlOwner;
+    SpModel      &Mdl  = *pMdlOwner->Model();
+    switch (Mdl.Usage())
       {
-      return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
-      }
-    else
-      {
-      if (m_iCFWhat&CFWhatComp)
+      case SPMU_Flow:
         {
-        for (int i=0; i<sm_nCFQuals; i++)
-          pCd->SetQualityHoldCopy(i, !m_CFQualsOn[i]);
-        Contents.Copy(*pCn, pCn->Press());
-        for (int i=0; i<sm_nCFQuals; i++)
-          pCd->SetQualityHoldCopy(i, false);
+        if (Mdl.Mass()<=SmallPosFlow)
+          {
+          return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
+          }
+        else
+          {
+          if (m_iCFWhat&CFWhatComp)
+            {
+            for (int i=0; i<sm_nCFQuals; i++)
+              Mdl.SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+            Contents.Copy(Mdl);
+            for (int i=0; i<sm_nCFQuals; i++)
+              Mdl.SetQualityHoldCopy(i, false);
+            Contents.MArray().Normalise();
+            Contents.Model()->SetMassScale(1);
+            }
+          if (m_iCFWhat&CFWhatTemp)
+            Contents.SetTRqdTo(Mdl.Temp());
+          if (m_iCFWhat&CFWhatPress)
+            Contents.SetPRqdTo(Mdl.Press());
+          if (m_iCFWhat&CFWhatFlow)
+            {
+            switch (Contents.QMode())
+              {
+              case SPI_QModeQm:  Contents.SetQmRqdTo(Mdl.Mass()*m_dCFRatio, true, false); break;
+              case SPI_QModeQv:  Contents.SetQvRqdTo(Mdl.Volume()*m_dCFRatio, true, false); break;
+              case SPI_QModeNQv: Contents.SetNQvRqdTo(Mdl.NVolume()*m_dCFRatio, true, false); break;
+              }
+            }
+          }
+        break;
         }
-      if (m_iCFWhat&CFWhatTemp)
-        Contents.m_T_Rqd=pCn->Temp();
-      if (m_iCFWhat&CFWhatPress)
-        Contents.SetPRqdTo(pCn->Press());
+      case SPMU_Image:
+      case SPMU_Mass:
+        {
+        if (Mdl.Mass()<=1e-10)
+          {
+          return (m_bCFWarnOnZero) ? CFH_ZeroFlow : CFH_OK;
+          }
+        else
+          {
+          if (m_iCFWhat&CFWhatComp)
+            {
+            for (int i=0; i<sm_nCFQuals; i++)
+              Mdl.SetQualityHoldCopy(i, !m_CFQualsOn[i]);
+            Contents.Copy(Mdl, Mdl.Press());
+            for (int i=0; i<sm_nCFQuals; i++)
+              Mdl.SetQualityHoldCopy(i, false);
+            }
+          if (m_iCFWhat&CFWhatTemp)
+            Contents.SetTRqdTo(Mdl.Temp());
+          if (m_iCFWhat&CFWhatPress)
+            Contents.SetPRqdTo(Mdl.Press());
+          }
+        break;
+        }
       }
     }
   else
@@ -328,7 +337,7 @@ const LPCTSTR ARName[AR_Size] =
 
 //TODO What to do about Tearing of LeaksIn
 
-MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) : \
+MN_Area::MN_Area (pTagObjClass pClass_, pchar TagIn, TaggedObject * pAttach, TagObjAttachment eAttach) : \
 MdlNode(pClass_, TagIn, pAttach, eAttach),
 m_Content("Content", this, TOA_Embedded)
   {

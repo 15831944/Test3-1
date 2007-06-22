@@ -1244,10 +1244,8 @@ class DllImportExport SpImage : public SpModelOwner
     virtual flag   PutOtherData(FilingControlBlock &FCB);
 
     void           Zero();
-    void           Copy(SpConduit & C);
-    void           Copy(SpConduit & C, double Press);
-    void           Copy(SpContainer & C);
-    void           Copy(SpContainer & C, double Press);
+    void           Copy(SpModel & C);
+    void           Copy(SpModel & C, double Press);
 
     bool           MassInUseOK()                     { return pModel->MassInUseOK();    };
     void           SetMassInUseOK(bool On)           { pModel->SetMassInUseOK(On);      };
@@ -1689,14 +1687,10 @@ inline flag SpImage::ModelIs(TagObjClass *pMC)
 
 inline void SpImage::Zero()
   { pModel->ZeroMass(); };
-inline void SpImage::Copy(SpConduit & C)
-  { CopyModel(C.Model()); pModel->Copy(C.Model()); }
-inline void SpImage::Copy(SpConduit & C, double Press)
-  { CopyModel(C.Model()); pModel->Copy(C.Model()); pModel->SetTempPress(C.Temp(), Press); }
-inline void SpImage::Copy(SpContainer & C)
-  { CopyModel(C.Model()); pModel->Copy(C.Model()); }
-inline void SpImage::Copy(SpContainer & C, double Press)
-  { CopyModel(C.Model()); pModel->Copy(C.Model()); pModel->SetTempPress(C.Temp(), Press); }
+inline void SpImage::Copy(SpModel & C)
+  { CopyModel(&C); pModel->Copy(&C); }
+inline void SpImage::Copy(SpModel & C, double Press)
+  { CopyModel(&C); pModel->Copy(&C); pModel->SetTempPress(C.Temp(), Press); }
 
 //inline void SpImage::Set(int No, double M) {pModel->M[No]=M; pModel->ClrStatesOK(); };
 

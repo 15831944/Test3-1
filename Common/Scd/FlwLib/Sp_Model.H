@@ -672,9 +672,10 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     void           QualityRemove(int No);
     virtual SpQPersonality *GetQualityPersonality(SpQuality* pQ) { return NULL; };  // ask Spmodel for the personality
 
-    SpQuality*     FindQuality(int No) { return QualityPtr(No, false);};
-    SpQuality*     CreateQuality(int No) { return QualityPtr(No, true);};
-    void           KillQuality(int No) { QualityRemove(No);};
+    SpQuality*     FindQuality(int No)                  { return QualityPtr(No, false);};
+    SpQuality*     CreateQuality(int No)                { return QualityPtr(No, true);};
+    void           KillQuality(int No)                  { QualityRemove(No);};
+    void           SetQualityHoldCopy(int No, flag On)  { SpQuality * p=FindQuality(No); if (p) p->SetHoldCopy(On); }; 
 
     void           QualitiesSetState(eScdMdlStateActs RqdState);
     void           CopyQualities(SpModel * SrcModel, int q0=-1, int q1=-1);
