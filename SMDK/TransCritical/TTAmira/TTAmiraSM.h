@@ -35,7 +35,7 @@ extern "C" void bayer_(        // In all its glory
 		   );
 
 
-#define NDPPTS 22   // Double precision data values in DPDATA
+//#define NDPPTS 22   // Double precision data values in DPDATA
 
 const static  long InUnits = 3;
 const static  long NInComp = 9;
@@ -73,7 +73,8 @@ enum {
     iV25,        // Specific Volume at 25 
     iWT,         // Mass Fraction Water 
     iH,          // Enthalpy
-    iS           // Entropy
+    iS,           // Entropy
+    NDPPTS       // Number of double precision data points 
 };
 
 
@@ -97,6 +98,10 @@ class AmiraBayer : public MSpModelBase, public MIBayer
 
     static     CArray <int, int> LclParm;
 
+    static MArray NaFactor;
+    static bool NaFactorOK;
+    
+
 #if DBG_MVECTOR
     CArray<double, double> m_dbgM;
     double                 m_dbgtotHf;
@@ -116,6 +121,7 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double Solmkg        [6 ];
 
     // This is all of the double precision results... add additional elements as needed
+
     double dpData[NDPPTS];
     
 

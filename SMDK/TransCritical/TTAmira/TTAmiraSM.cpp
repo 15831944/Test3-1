@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-05-14 05:44:51 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-22 13:20:09 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -75,11 +75,66 @@ MSpeciePtr   Steam             (InitTest, "H2O(g)",        true);
 //
 //===========================================================================
 
+
+bool AmiraBayer::NaFactorOK = false;
+MArray AmiraBayer::NaFactor;
+
+
+
+
 AmiraBayer::AmiraBayer(TaggedObject *pNd)
-  {
+{
   MInitialise(); // this must be called to initialise the SMDK library if neccessary
 
+  if (!NaFactorOK) {
+    Log.Message(MMsg_Note, "NaFactor");
+    for (int sn=0; sn<gs_MVDefn.Count(); sn++) {
+      bool hasSodium = false;
+      double amount = 0.0;
+      MSpecieElements theElements = gs_MVDefn[sn].Elements();
+      long eCount = theElements.Count();
+      for (int i=0; i<eCount; i++) {
+	MElementDefn Ele = theElements[i].Element();
+	// Log.Message(MMsg_Note,  "Element %4s No %5ld amt %8.2f", Ele.Symbol(), Ele.AtomicNumber(), theElements[i].Amount()); 
+	if (Ele.AtomicNumber()==11) { // Sodium
+	  hasSodium = true;
+	  amount = theElements[i].Amount();
+	  break;
+	}
+      }
+      if (!hasSodium) {
+	NaFactor[sn] = 1.0;
+	continue;
+      }
+      NaFactor[sn] = amount/2.*SodiumCarbonate.MW/gs_MVDefn[sn].MolecularWt();
+      Log.Message(MMsg_Note, "Species %s Sodium number %8.2f", gs_MVDefn[sn].Symbol(), NaFactor[sn]);
+    }
+    NaFactorOK = true;
   }
+}
+
+      
+	
+
+
+
+
+
+
+//    NaFactor[sn]=1.0; //For all the species without sodium ions
+//  NaFactor[::CausticSoda]	= 1.0 * ::SodiumCarbonate.MW / (2.0 * ::CausticSoda.MW);      
+//  NaFactor[::SodiumCarbonate] = 1.0;							      
+//  NaFactor[::SodiumOxalate]	= 2.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumOxalate.MW);    
+//  NaFactor[::SodiumChloride]	= 1.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumChloride.MW);   
+//  NaFactor[::SodiumSulphate]	= 2.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumSulphate.MW);
+//  NaFactor[::Alumina]		=  ::AluminaSolid.MW / (2.0 * ::Alumina.MW);
+//  NaFactor[::SodiumSilicate]	= 1.0 * ::SodiumCarbonate.MW / (1.0 * ::SodiumSilicate.MW);
+//  NaFactor[::SodiumFormate]	    = 1.0 * ::SodiumCarbonate.MW / (1.0 * ::SodiumFormate.MW);	  
+//
+//  NaFactorOK = true;
+//}
+
+  
 
 //---------------------------------------------------------------------------
 
@@ -595,7 +650,7 @@ void AmiraBayer::PutPropertyValue(long Index, MPropertyValue & Value)
 // 
 double AmiraBayer::DRatio(double T_) 
   {
-  return 1.2;
+    return dpData[iRho_Liq]*1000./(dpData[iWT]/GTZ(dpData[iV25]));
   }
 
 //---------------------------------------------------------------------------
@@ -800,8 +855,6 @@ double AmiraBayer::IonicStrength()
   }
 
 //---------------------------------------------------------------------------
-// The original SySCAD implementation had a major bug in that the switch/case constructs had no
-// break statements, hence the code always fell though all the cases to the final one, ie Alpart02
 
 double AmiraBayer::AluminaConcSat(double T_)
   {
@@ -816,7 +869,7 @@ double AmiraBayer::LVolume25()
   const double mt=Mass(MP_Liq);
   //Log.Message(MMsg_Warning, "LVolume25");
 
-  return ((mt>=UsableMass) ? (mt / get_Density(MP_Liq, C_2_K(25.0), Pressure, NULL)) : 0.0);
+  return ((mt>=UsableMass) ? (mt / LDensity25()) : 0.0);
   }
 
 double AmiraBayer::SLVolume25()
@@ -856,16 +909,16 @@ double AmiraBayer::AtoCSaturation(double T_)
 //---------------------------------------------------------------------------
 
 
-double AmiraBayer::BoundSodaSat(double T_)
+double AmiraBayer::BoundSodaSat(double T_)  // Amira doesnt deal with bound soda... 
   {
   CheckConverged();
 
-  return .2;
+  return 0.0;
   }
 
 double AmiraBayer::SSNRatio(double T_)
   {   // AtoC actual / AtoC saturation ==> A/ASat
-  return 1.1;
+    return AtoCSaturation(T_)/AtoC();
   }
 
 //---------------------------------------------------------------------------
