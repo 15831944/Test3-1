@@ -2473,7 +2473,7 @@ bool MTagIOValue::operator!=(const MTagIOValue & V)
   switch (m_TIOType)
     {
     case MTagType_Long:   return m_Long   != V.m_Long;   
-    case MTagType_Double: return m_Double != V.m_Double; 
+    case MTagType_Double:
       {
       bool Valid1=Valid(m_Double);
       bool Valid2=Valid(V.m_Double);
