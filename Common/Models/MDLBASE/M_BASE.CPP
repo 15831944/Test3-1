@@ -1741,9 +1741,8 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
         double VolCtrlFlw=0;
         if (iLvlCtrl>=0 && CtrlNow)
           {
-          double Dens=IOPMUFilterDens(iIONo); 
+          double Dens=ContentFlw.Rho(som_SL); //IOPMUFilterDens(iIONo); 
           switch (pControl->m_iType)
-
             {
             case SC_Level:
               VolFlwRetCtrl=Contents.ShapeVolume()*GEZ(pControl->m_dLevelSPT-IORelFracHgt_Flng(iLvlCtrl))/ICGetTimeInc();
