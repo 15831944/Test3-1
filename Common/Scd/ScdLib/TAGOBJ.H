@@ -761,6 +761,7 @@ class DllImportExport TagObjClass
   friend class TaggedObject;
   friend class DataDefnBlk;
   friend class MUnitDefBase;
+  friend class MUnitDefBaseEx;
   friend class DDBDataInfo;
   friend class CClassLicenseOptions;
 

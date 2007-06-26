@@ -26,7 +26,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //
 //===========================================================================
 
-LPTSTR MethodBaseVersion="";
+static LPTSTR MethodBaseVersion="";
 
 MUnitDefBase::MUnitDefBase(bool WithDevelopementChecks)
   {

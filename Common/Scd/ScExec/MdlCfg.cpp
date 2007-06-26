@@ -148,6 +148,7 @@ static char *Exclude[]=
 
   // SMDK
   "smdk1.dll",
+  "smdkint.dll",
 
   // Utils
   "scdvb.dll",

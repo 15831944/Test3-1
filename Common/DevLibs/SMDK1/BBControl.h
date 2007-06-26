@@ -27,7 +27,7 @@
 // ===========================================================================
 
 DEFINE_TAGOBJ(CBBControl);
-class CBBControl : public MdlNode, CBBBase
+class DllImportExport CBBControl : public MdlNode, CBBBase
   {
   public:
     CBBControl(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);

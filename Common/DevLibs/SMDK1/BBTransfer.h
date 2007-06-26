@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __BBSURGE_H
-#define  __BBSURGE_H
+#ifndef  __BBTRANSFER_H
+#define  __BBTRANSFER_H
 
 #include "sc_defs.h"
 #include "bbbase.h"
@@ -12,7 +12,7 @@
 #include "models.h"
 #include "..\..\..\SMDK\Include\md_headers.h"
 
-#ifdef __BBSURGE_CPP
+#ifdef __BBTRANSFER_CPP
   #define DllImportExport DllExport
 #elif !defined(SMDK1)
   #define DllImportExport DllImport
@@ -26,42 +26,34 @@
 //
 // ===========================================================================
 
-DEFINE_TAGOBJ(CBBSurge);
-class CBBSurge : public MN_Surge, CBBBase
+DEFINE_TAGOBJ(CBBTransfer);
+class DllImportExport CBBTransfer : public MN_Xfer/*MdlNode*/, CBBBase
   {
   public:
-    CBBSurge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
-    virtual ~CBBSurge();
+    CBBTransfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);
+    virtual ~CBBTransfer();
     virtual void    SetSubClass(pchar pSubClass);
 
     virtual void    BuildDataDefn(DataDefnBlk & DDB);
     virtual flag    DataXchg(DataChangeBlk & DCB);
     virtual flag    ValidateData(ValidateDataBlk & VDB);
-                    
     virtual flag    PreStartCheck();
-                    
-    virtual void    PostConnect(int IONo);
-    virtual void    PreDisConnect(int IONo);
-    virtual void    SetDatums(int Pass, CFlwNodeIndexList & List, int IOIn);
-    virtual void    SetDatumsDone();
-    virtual flag    Set_Sizes();
                     
     virtual flag    InitialiseSolution();
     virtual void    StartSolution();
     virtual void    StartStep();
                     
     virtual bool    PropagateNetInfo(CPropagateNetInfoCtrl & Ctrl, long IONo);
-                    
     virtual void    ConfigureJoins();
     virtual void    EvalPBMakeUpReqd(long JoinMask);
     virtual void    EvalPBMakeUpAvail(long JoinMask);
     virtual void    EvalJoinPressures(long JoinMask);
     virtual void    EvalJoinFlows(int JoinNo);
+
     virtual CSpPropInfo* IOGetNetProps(int i, double Qm);
     virtual flag    EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int IONo, int FE, int LnkNo);
                     
     virtual void    EvalProducts(CNodeEvalIndex & NEI);
-    virtual void    EvalIntegral(CNodeEvalIndex & NEI);
                     
     virtual void    EvalDiscrete();
     virtual void    EvalCtrlInitialise(eScdCtrlTasks Tasks=CO_All);
@@ -86,7 +78,6 @@ class CBBSurge : public MN_Surge, CBBBase
 
     virtual flag    GetModelGraphic(CMdlGraphicArray & Grfs);
     virtual flag    OperateModelGraphic(CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-
     // FlashTrain
     virtual void    MacroMdlEvaluate(eScdMacroMdlEvals Eval);
     virtual flag    MacroMdlValidNd(int iIONo);
@@ -98,8 +89,8 @@ class CBBSurge : public MN_Surge, CBBBase
   protected:
 
   private:
-    DEFINE_CI(CBBSurge, MN_Surge, FirstUserCI+MaxUserCI);
-    DEFINE_CIVIRT(CBBSurge, MN_Surge);
+    DEFINE_CI(CBBTransfer, MdlNode, FirstUserCI+MaxUserCI);
+    DEFINE_CIVIRT(CBBTransfer, MdlNode);
 
   };
 

@@ -858,6 +858,8 @@ class DllImportExport MUnitDefBase : public MSubConstructBaseDef
   friend class CBBBase;
   friend class CBBSurge;
   friend class CBBTransfer;
+  friend class MUnitDefBaseEx;
+
   public:
     MUnitDefBase(bool WithDevelopementChecks);
     virtual           ~MUnitDefBase();
