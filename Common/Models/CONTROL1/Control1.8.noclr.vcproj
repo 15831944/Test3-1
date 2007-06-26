@@ -527,7 +527,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Bivariate Stats.cpp"
+				RelativePath=".\BivariateStats.cpp"
 				>
 			</File>
 			<File
@@ -644,7 +644,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Bivariate Stats.h"
+				RelativePath=".\BivariateStats.h"
 				>
 			</File>
 			<File
