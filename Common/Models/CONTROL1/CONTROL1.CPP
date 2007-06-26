@@ -12,8 +12,8 @@
 #include "Models.h"
 #include "sfe_srvr.h"
 
-#pragma LIBCOMMENT("..\\..\\..\\SMDK\\Bin\\", "\\SMDK1" )
-#pragma LIBCOMMENT("..\\..\\SMDK\\SMDKEX\\", "\\SMDKEX" )
+#pragma LIBCOMMENT("..\\..\\..\\SMDK\\Bin\\", "\\DevLib1" )
+#pragma LIBCOMMENT("..\\..\\..\\SMDK\\BinEx\\", "\\DevLibEx" )
 
 
 //===========================================================================

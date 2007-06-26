@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="60.SMDK1"
+	Name="60.DevLibEx"
 	ProjectGUID="{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
 	Keyword="MFCProj">
 	<Platforms>
@@ -23,14 +23,14 @@
 				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="_DEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="_DEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Dbg/SMDK1.pch"
+				PrecompiledHeaderFile=".\Dbg/DevLibEx.pch"
 				AssemblerListingLocation=".\Dbg/"
 				ObjectFile=".\Dbg/"
 				ProgramDataBaseFileName=".\Dbg/"
@@ -44,19 +44,19 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLibEx.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Dbg/SMDK1.pdb"
-				ImportLibrary=".\Dbg/SMDK1.lib"/>
+				ProgramDatabaseFile=".\Dbg/DevLibEx.pdb"
+				ImportLibrary=".\Dbg/DevLibEx.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Dbg/SMDK1.tlb"/>
+				TypeLibraryName=".\Dbg/DevLibEx.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
@@ -92,13 +92,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Rdb/SMDK1.pch"
+				PrecompiledHeaderFile=".\Rdb/DevLibEx.pch"
 				AssemblerListingLocation=".\Rdb/"
 				ObjectFile=".\Rdb/"
 				ProgramDataBaseFileName=".\Rdb/"
@@ -112,19 +112,19 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLibEx.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Rdb/SMDK1.pdb"
-				ImportLibrary=".\Rdb/SMDK1.lib"/>
+				ProgramDatabaseFile=".\Rdb/DevLibEx.pdb"
+				ImportLibrary=".\Rdb/DevLibEx.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rdb/SMDK1.tlb"/>
+				TypeLibraryName=".\Rdb/DevLibEx.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
@@ -165,7 +165,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="_RELEASE;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="_RELEASE;NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="2"
@@ -174,7 +174,7 @@
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Rls/SMDK1.pch"
+				PrecompiledHeaderFile=".\Rls/DevLibEx.pch"
 				AssemblerListingLocation=".\Rls/"
 				ObjectFile=".\Rls/"
 				ProgramDataBaseFileName=".\Rls/"
@@ -188,19 +188,19 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLibEx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Rls/SMDK1.pdb"
-				ImportLibrary=".\Rls/SMDK1.lib"/>
+				ProgramDatabaseFile=".\Rls/DevLibEx.pdb"
+				ImportLibrary=".\Rls/DevLibEx.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls/SMDK1.tlb"/>
+				TypeLibraryName=".\Rls/DevLibEx.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
@@ -240,7 +240,7 @@
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="TRUE"
@@ -258,7 +258,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLibEx.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				GenerateDebugInformation="FALSE"
@@ -270,7 +270,7 @@
 				MkTypLibCompatible="TRUE"
 				SuppressStartupBanner="TRUE"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls/SMDK1.tlb"/>
+				TypeLibraryName=".\Rls/DevLibEx.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
@@ -335,7 +335,7 @@
 				RelativePath=".\md_vector.cpp">
 			</File>
 			<File
-				RelativePath=".\smdk1.cpp">
+				RelativePath=".\DevLibEx.cpp">
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp">
@@ -435,7 +435,7 @@
 				RelativePath="..\..\..\Smdk\Include\ScdMacros.h">
 			</File>
 			<File
-				RelativePath=".\smdk1.h">
+				RelativePath=".\DevLibEx.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">

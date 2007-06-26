@@ -4,7 +4,7 @@
 	Version="8.00"
 	Name="81.DevLib1"
 	ProjectGUID="{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
-	RootNamespace="SMDK1"
+	RootNamespace="DevLib1"
 	Keyword="MFCProj"
 	>
 	<Platforms>
@@ -43,13 +43,13 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Dbg8/SMDK1.tlb"
+				TypeLibraryName=".\Dbg8/DevLib1.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;DEVLIB1;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -59,7 +59,7 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Dbg8/SMDK1.pch"
+				PrecompiledHeaderFile=".\Dbg8/DevLib1.pch"
 				AssemblerListingLocation=".\Dbg8/"
 				ObjectFile=".\Dbg8/"
 				ProgramDataBaseFileName=".\Dbg8/"
@@ -83,12 +83,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLib1.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Dbg8/SMDK1.pdb"
-				ImportLibrary=".\Dbg8/SMDK1.lib"
+				ProgramDatabaseFile=".\Dbg8/DevLib1.pdb"
+				ImportLibrary=".\Dbg8/DevLib1.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -145,13 +145,13 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\RDb8/SMDK1.tlb"
+				TypeLibraryName=".\RDb8/DevLib1.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;DEVLIB1;WIN32;_WINDOWS;_AFXEXT"
 				GeneratePreprocessedFile="0"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
@@ -161,7 +161,7 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\RDb8/SMDK1.pch"
+				PrecompiledHeaderFile=".\RDb8/DevLib1.pch"
 				AssemblerListingLocation=".\RDb8/"
 				ObjectFile=".\RDb8/"
 				ProgramDataBaseFileName=".\RDb8/"
@@ -185,12 +185,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLib1.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\RDb8/SMDK1.pdb"
-				ImportLibrary=".\RDb8/SMDK1.lib"
+				ProgramDatabaseFile=".\RDb8/DevLib1.pdb"
+				ImportLibrary=".\RDb8/DevLib1.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -247,7 +247,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls8/SMDK1.tlb"
+				TypeLibraryName=".\Rls8/DevLib1.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -256,7 +256,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;DEVLIB1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
@@ -268,7 +268,7 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Rls8/SMDK1.pch"
+				PrecompiledHeaderFile=".\Rls8/DevLib1.pch"
 				AssemblerListingLocation=".\Rls8/"
 				ObjectFile=".\Rls8/"
 				ProgramDataBaseFileName=".\Rls8/"
@@ -292,12 +292,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLib1.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Rls8/SMDK1.pdb"
-				ImportLibrary=".\Rls8/SMDK1.lib"
+				ProgramDatabaseFile=".\Rls8/DevLib1.pdb"
+				ImportLibrary=".\Rls8/DevLib1.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -354,7 +354,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls8/SMDK1.tlb"
+				TypeLibraryName=".\Rls8/DevLib1.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -363,7 +363,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;DEVLIB1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="true"
@@ -374,7 +374,7 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Rls8/SMDK1.pch"
+				PrecompiledHeaderFile=".\Rls8/DevLib1.pch"
 				AssemblerListingLocation=".\Rls8/"
 				ObjectFile=".\Rls8/"
 				ProgramDataBaseFileName=".\Rls8/"
@@ -398,12 +398,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLib1.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Rls8/SMDK1.pdb"
-				ImportLibrary=".\Rls8/SMDK1.lib"
+				ProgramDatabaseFile=".\Rls8/DevLib1.pdb"
+				ImportLibrary=".\Rls8/DevLib1.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -460,7 +460,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Rls8/SMDK1.tlb"
+				TypeLibraryName=".\Rls8/DevLib1.tlb"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -469,7 +469,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
-				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SMDK1;WIN32;_WINDOWS;_AFXEXT"
+				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;DEVLIB1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -502,7 +502,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				OutputFile="..\..\..\Bin\SMDK1.dll"
+				OutputFile="..\..\..\Bin\DevLib1.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="false"
@@ -588,7 +588,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\smdk1.cpp"
+				RelativePath=".\DevLib1.cpp"
 				>
 			</File>
 			<File
@@ -725,7 +725,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\smdk1.h"
+				RelativePath=".\DevLib1.h"
 				>
 			</File>
 			<File
