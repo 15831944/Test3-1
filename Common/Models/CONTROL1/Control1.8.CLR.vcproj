@@ -49,7 +49,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\regexwrap;..\..\Scd\flwlib;..\..\Scd\xylib;..\mdlbase;..;..\..\..\SMDK\IncludeEx"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..,..\..\Scd\RegexWrap"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -148,8 +148,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\regexwrap;..\..\Scd\flwlib;..\..\Scd\xylib;..\mdlbase;..;..\..\..\SMDK\IncludeEx"
-				PreprocessorDefinitions="_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..,,..\..\Scd\RegexWrap"
+				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="2"
 				RuntimeLibrary="3"
 				FloatingPointModel="1"
@@ -246,7 +246,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\regexwrap;..\..\Scd\flwlib;..\..\Scd\xylib;..\mdlbase;..;..\..\..\SMDK\IncludeEx"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
@@ -347,10 +347,9 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\regexwrap;..\..\Scd\flwlib;..\..\Scd\xylib;..\mdlbase;..;..\..\..\SMDK\IncludeEx"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec..\..\Scd\regexwrap,,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
-				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
@@ -449,13 +448,10 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".;..\..\Scd\scdlib;..\..\Scd\scexec;..\..\Scd\regexwrap;..\..\Scd\flwlib;..\..\Scd\xylib;..\mdlbase;..;..\..\..\SMDK\IncludeEx"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
-				ExceptionHandling="2"
-				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
 				FloatingPointModel="1"
 				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
@@ -527,10 +523,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BivariateStats.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Control1.cpp"
 				>
 			</File>
@@ -576,10 +568,6 @@
 			</File>
 			<File
 				RelativePath=".\QueueCon.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SchedEvents.cpp"
 				>
 			</File>
 			<File
@@ -648,10 +636,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BivariateStats.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Control1.h"
 				>
 			</File>
@@ -693,10 +677,6 @@
 			</File>
 			<File
 				RelativePath=".\QueueCon.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SchedEvents.h"
 				>
 			</File>
 			<File

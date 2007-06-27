@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Basic1", "Common\Models\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "15.CCDK", "Application\Ccdk\Ccdk.8.vcproj", "{CE6585F2-2A5B-4382-BE94-C9F887D01C39}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Control1", "Common\Models\CONTROL1\Control1.8.noclr.vcproj", "{34582140-0099-4668-97E5-B800C6909F59}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "km.Control1", "Common\Models\CONTROL1\Control1.8.vcproj", "{34582140-0099-4668-97E5-B800C6909F59}"
 	ProjectSection(ProjectDependencies) = postProject
 		{8307DA1D-39C7-4D93-A9BA-2BB15614BBF6} = {8307DA1D-39C7-4D93-A9BA-2BB15614BBF6}
 	EndProjectSection
