@@ -13,7 +13,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #include "scdmacros.h" 
 #include "md_headers.h" 
-#pragma LIBCOMMENT("..\\..\\Bin\\", "\\SMDK1" )
+#pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scexec" )
 

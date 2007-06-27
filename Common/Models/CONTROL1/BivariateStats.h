@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __BIVARIATE_STATS_H
-#define  __BIVARIATE_STATS_H
+#ifndef  __BIVARIATESTATS_H
+#define  __BIVARIATESTATS_H
 
 #include "md_headers_ex.h"
 

@@ -3,15 +3,15 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define __DevLib1_CPP
-#include "DevLib1.h"
+#define __DEVLIB_CPP
+#include "DevLib.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
 static char BASED_CODE THIS_FILE[] = __FILE__;
 #endif
 
-AFX_EXTENSION_MODULE DevLib1DLL = { NULL, NULL };
+AFX_EXTENSION_MODULE DevLibDLL = { NULL, NULL };
 
 //===========================================================================
 
@@ -20,22 +20,22 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
   {
 	if (dwReason == DLL_PROCESS_ATTACH)
     {
-		TRACE0("DevLib1.DLL Initializing!\n");
+		TRACE0("DevLib.DLL Initializing!\n");
 		
 		// Extension DLL one-time initialization
-		AfxInitExtensionModule(DevLib1DLL, hInstance);
+		AfxInitExtensionModule(DevLibDLL, hInstance);
 
 		// Insert this DLL into the resource chain
-		new CDynLinkLibrary(DevLib1DLL);
+		new CDynLinkLibrary(DevLibDLL);
 
-		//if (!MakeVersionOK("DevLib1.DLL", _MAKENAME, SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))
+		//if (!MakeVersionOK("DevLib.DLL", _MAKENAME, SCD_VERINFO_V0, SCD_VERINFO_V1, SCD_VERINFO_V2, SCD_VERINFO_V3))
     //  return 0;
 
     }
 	else if (dwReason == DLL_PROCESS_DETACH)
     {
-		TRACE0("DevLib1.DLL Terminating!\n");
-		AfxTermExtensionModule(DevLib1DLL);
+		TRACE0("DevLib.DLL Terminating!\n");
+		AfxTermExtensionModule(DevLibDLL);
     }
 	return 1;   // ok
   }

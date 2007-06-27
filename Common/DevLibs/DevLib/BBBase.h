@@ -14,7 +14,7 @@
 
 #ifdef __BBBASE_CPP
   #define DllImportExport DllExport
-#elif !defined(SMDK1)
+#elif !defined(DEVLIB)
   #define DllImportExport DllImport
 #else
   #define DllImportExport

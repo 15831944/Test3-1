@@ -3,8 +3,8 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define  __BIVARIATE_STATS_CPP
-#include "Bivariate Stats.h"
+#define  __BIVARIATESTATS_CPP
+#include "BivariateStats.h"
 #include <math.h>
 #include <limits>
 #pragma optimize("", off)

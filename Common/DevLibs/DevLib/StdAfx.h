@@ -41,7 +41,7 @@
 
 #include "sc_defs.h"
 
-#define MDLLIBNAME "SMDK1"
+#define MDLLIBNAME "DEVLIB"
 
 
 //{{AFX_INSERT_LOCATION}}

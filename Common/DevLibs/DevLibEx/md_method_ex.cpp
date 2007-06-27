@@ -6,9 +6,9 @@
 #define __MD_METHOD_EX_CPP
 #include "md_headers_ex.h"
 
-#include "..\\devlib1\\bbtransfer.h"
-#include "..\\devlib1\\bbsurge.h"
-#include "..\\devlib1\\bbcontrol.h"
+#include "..\\devlib\\bbtransfer.h"
+#include "..\\devlib\\bbsurge.h"
+#include "..\\devlib\\bbcontrol.h"
 //#include "optoff.h"
 
 #ifdef _DEBUG

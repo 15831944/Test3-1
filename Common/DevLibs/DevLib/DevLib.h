@@ -3,12 +3,12 @@
 //===========================================================================
 #pragma once
 
-#ifndef  __DEVLIB1_H
-#define  __DEVLIB1_H
+#ifndef  __DEVLIB_H
+#define  __DEVLIB_H
 
-#ifdef __DEVLIB1_CPP
+#ifdef __DEVLIB_CPP
   #define DllImportExport __declspec(dllexport)
-#elif !defined(DEVLIB1)
+#elif !defined(DEVLIB)
   #define DllImportExport __declspec(dllimport)
 #else
   #define DllImportExport

@@ -12,7 +12,7 @@
 
 #ifdef __MD_DEFN_CPP
   #define DllImportExport __declspec(dllexport)
-#elif !defined(SMDK1)
+#elif !defined(DEVLIB)
   #define DllImportExport __declspec(dllimport)
 #else
   #define DllImportExport

@@ -18,7 +18,7 @@
 #include "op_db.h"
 #include "RTDlgs.h"
 
-#pragma LIBCOMMENT("..\\..\\..\\smdk\\Bin\\", "\\SMDK1" )
+#pragma LIBCOMMENT("..\\..\\..\\smdk\\Bin\\", "\\DevLib" )
 //#pragma LIBCOMMENT("..\\..\\smdk\\SMDKBase\\", "\\SMDKBase" )
 
 //===========================================================================
