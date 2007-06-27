@@ -2,12 +2,12 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __TTMAD_BAYER_H
-#define  __TTMAD_BAYER_H
+#ifndef  __ALUMINA2_H
+#define  __ALUMINA2_H
 
-#ifdef __TTMAD_BAYER_CPP
+#ifdef __ALUMINA2_CPP
   #define DllImportExport __declspec(dllexport)
-#elif !defined(SMDKDemoU)
+#elif !defined(ALUMINA2)
   #define DllImportExport __declspec(dllimport)
 #else
   #define DllImportExport

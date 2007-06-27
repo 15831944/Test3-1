@@ -4,7 +4,7 @@
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
-#include "TTMADBayerSM.h"
+#include "alumina2SM.h"
 #include "math.h"
 #include "md_headers.h"
 #pragma comment(lib, "rpcrt4.lib")

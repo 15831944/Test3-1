@@ -5,7 +5,7 @@
 //===========================================================================
 
 #ifndef __MD_HEADERS_H
-#include "md_headers.h"
+#include "md_headers_ex.h"
 #endif
 #include "..\TTCommon\STHx.h"
 

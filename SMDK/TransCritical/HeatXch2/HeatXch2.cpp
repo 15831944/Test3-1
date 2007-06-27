@@ -16,6 +16,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
+#pragma LIBCOMMENT("..\\..\\BinEx\\", "\\DevLibEx")
 
 
 

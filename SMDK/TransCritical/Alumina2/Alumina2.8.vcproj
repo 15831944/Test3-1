@@ -49,8 +49,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,."
-				PreprocessorDefinitions="NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
+				PreprocessorDefinitions="NDEBUG;ALUMINA2;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -149,8 +149,8 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Include,."
-				PreprocessorDefinitions="_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
+				PreprocessorDefinitions="_RELEASE;NDEBUG;ALUMINA2;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -247,8 +247,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,."
-				PreprocessorDefinitions="_DEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
+				PreprocessorDefinitions="_DEBUG;ALUMINA2;WIN32;_WINDOWS;_AFXEXT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -346,8 +346,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Include,."
-				PreprocessorDefinitions="SMDK_Debug;_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
+				PreprocessorDefinitions="SMDK_Debug;_RELEASE;NDEBUG;ALUMINA2;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -447,8 +447,8 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Include,."
-				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
+				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
+				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;ALUMINA2;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -523,6 +523,14 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath=".\Alumina2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Alumina2SM.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\TTCommon\precip.cpp"
 				>
 			</File>
@@ -579,14 +587,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TTMADBayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TTMADBayerSM.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TubeDigester.cpp"
 				>
 			</File>
@@ -595,6 +595,14 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
+			<File
+				RelativePath=".\Alumina2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Alumina2SM.h"
+				>
+			</File>
 			<File
 				RelativePath="..\TTCommon\precip.h"
 				>
@@ -609,14 +617,6 @@
 			</File>
 			<File
 				RelativePath="..\TTCommon\STHx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TTMADBayer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TTMADBayerSM.h"
 				>
 			</File>
 			<File

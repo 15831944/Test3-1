@@ -3,8 +3,8 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define __TTMAD_BAYER_CPP
-#include "TTMADBayer.h"
+#define __ALUMINA2_CPP
+#include "alumina2.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -16,6 +16,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
+#pragma LIBCOMMENT("..\\..\\BinEx\\", "\\DevLibEx" )
 
 
 

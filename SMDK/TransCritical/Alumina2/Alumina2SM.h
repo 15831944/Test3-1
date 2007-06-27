@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef __BayerSM_H_
-#define __BayerSM_H_
+#ifndef __ALUMINA2SM_H_
+#define __ALUMINA2SM_H_
 #include "md_headers.h"
 #include <vector>
 

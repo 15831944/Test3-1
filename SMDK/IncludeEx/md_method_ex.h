@@ -160,4 +160,6 @@ Obj##_UnitDef Obj##_UnitD(Class, NULL, "User:"##Class, DLL);
 
 //---------------------------------------------------------------------------
 
+#undef DllImportExport
+
 #endif

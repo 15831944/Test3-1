@@ -155,7 +155,7 @@ double Drw_CCARTubeDigester[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(CCARTubeDigester, "HeatXch2*TubeDigester", DLL_GroupName)
+DEFINE_TRANSFER_UNIT_EX(CCARTubeDigester, "HeatXch2*TubeDigester", DLL_GroupName)
 
 void CCARTubeDigester_UnitDef::GetOptions()
   {
