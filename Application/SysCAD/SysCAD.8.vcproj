@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="50.SysCAD"
+	Name="80.SysCAD"
 	ProjectGUID="{DA00A361-B55B-44B6-BA7A-9BF1BCD66304}"
 	RootNamespace="SysCAD"
 	Keyword="MFCProj"
@@ -554,8 +554,8 @@
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
-			RelativePath="..\..\Bin\protocol.dll"
-			AssemblyName=""
+			RelativePath="..\..\Bin\Protocol.dll"
+			AssemblyName="Protocol, Version=4.2.0.28260, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
 			RelativePath="System.dll"
