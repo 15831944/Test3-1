@@ -160,7 +160,7 @@ double Drw_CCARTubeDigester[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(CCARTubeDigester, "TubeDigester", DLL_GroupName)
+DEFINE_TRANSFER_UNIT(CCARTubeDigester, "Alumina2*TubeDigester", DLL_GroupName)
 
 void CCARTubeDigester_UnitDef::GetOptions()
   {

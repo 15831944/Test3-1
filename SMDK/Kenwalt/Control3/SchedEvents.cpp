@@ -26,7 +26,7 @@ static double Drw_SchedEvents[] =
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT(ScheduledEvents, "Scheduled Events", DLL_GroupName)
+DEFINE_CONTROL_UNIT(ScheduledEvents, "ScheduledEvents", DLL_GroupName)
 
 void ScheduledEvents_UnitDef::GetOptions()
 {

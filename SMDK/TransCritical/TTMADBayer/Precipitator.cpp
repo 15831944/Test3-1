@@ -62,7 +62,7 @@ double Drw_CPrecipitator[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(CPrecipitator, "Precipitator", DLL_GroupName)
+DEFINE_TRANSFER_UNIT(CPrecipitator, "Alumina2*Precipitator", DLL_GroupName)
 
 void CPrecipitator_UnitDef::GetOptions()
 {
