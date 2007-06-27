@@ -45,9 +45,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj smdk\examples\demousr\demousr.sln
@@ -62,9 +62,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
@@ -79,9 +79,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
@@ -98,9 +98,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj vsmdk\examples\demousr\demousr.sln
@@ -119,9 +119,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj vsmdk\examples\demousr\demousr.sln
@@ -145,9 +145,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj vsmdk\examples\demousr\demousr.sln
@@ -168,9 +168,9 @@ wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\incl
 wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
 wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
 wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
-wzzip -a -P -r %fn2% smdk\bin\rls\smdk1.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
-wzzip -a -P -r %fn2% smdk\bin\rls8\smdk1.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
 wzzip -a -P -r %fn2% smdk\examples\demousr\*.h smdk\examples\demousr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demousr\demousr.vcproj vsmdk\examples\demousr\demousr.sln
@@ -178,11 +178,13 @@ wzzip -a -P -r %fn2% smdk\examples\demospusr\*.h smdk\examples\demospusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demospusr\demospusr.sln
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\*.h smdk\examples\demoalspusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\demoalspusr\demoalspusr.sln
-wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk1\*.h smdk\kenwalt\kw_smdk1\*.cpp
-wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk1\kw_smdk1.vcproj vsmdk\kenwalt\kw_smdk1\kw_smdk1.sln
+wzzip -a -P -r %fn2% smdk\kenwalt\kw_devlib\*.h smdk\kenwalt\kw_devlib\*.cpp
+wzzip -a -P -r %fn2% smdk\kenwalt\kw_devlib\kw_devlib.vcproj vsmdk\kenwalt\kw_devlib\kw_devlib.sln
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\*.h smdk\kenwalt\kw_smdk2\*.cpp
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\kw_smdk2.vcproj vsmdk\kenwalt\kw_smdk2\kw_smdk2.sln
-
+wzzip -a -P -r %fn2% smdk\includeex\*.h 
+wzzip -a -P -r %fn2% smdk\binex\rls8\*.lib 
+wzzip -a -P -r %fn2% smdk\binex\rls\*.lib 
 
 @echo off
 

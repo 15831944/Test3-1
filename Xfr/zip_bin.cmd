@@ -39,8 +39,8 @@ wzzip -a %fn2% ..\bin\alumina1.dll ..\bin\basic1.dll ..\bin\commn1.dll ..\bin\co
 wzzip -a %fn2% ..\bin\heatxch1.dll ..\bin\kwdb.dll ..\bin\mathand1.dll ..\bin\mdlbase.dll ..\bin\scdcom.dll
 wzzip -a %fn2% ..\bin\scddesrvr.dll ..\bin\scdif.dll ..\bin\scdlib.dll ..\bin\scdmdl.dll ..\bin\scdopcsrv.dll
 wzzip -a %fn2% ..\bin\scdslv.dll ..\bin\scdvb.dll ..\bin\scexec.dll ..\bin\schist.dll ..\bin\scopcsrv.dll 
-wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\smdk1.dll ..\bin\unzip32.dll 
-wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll ..\bin\control3.dll
+wzzip -a %fn2% ..\bin\separ1.dll ..\bin\separ2.dll ..\bin\sizedst1.dll ..\bin\devlib.dll ..\bin\devlibex.dll ..\bin\unzip32.dll 
+wzzip -a %fn2% ..\bin\xylib.dll ..\bin\zip32.dll ..\bin\power1.dll 
 
 wzzip -a %fn2% ..\bin\regall.cmd ..\bin\syscad91.tlb ..\bin\scdif.tlb ..\bin\scdmdl.tlb ..\bin\scdslv.tlb 
 wzzip -a %fn2% ..\bin\scdvb.tlb ..\bin\scdcom.tlb
