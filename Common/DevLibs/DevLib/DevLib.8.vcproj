@@ -328,8 +328,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release Marshal|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory=".\Rls8"
+			IntermediateDirectory=".\Rls8"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="2"
@@ -560,6 +560,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DevLib.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\md_base.cpp"
 				>
 			</File>
@@ -585,10 +589,6 @@
 			</File>
 			<File
 				RelativePath=".\md_vector.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DevLib.cpp"
 				>
 			</File>
 			<File
@@ -661,6 +661,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DevLib.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\Smdk\Include\md_Alumina.h"
 				>
 			</File>
@@ -722,10 +726,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Smdk\Include\ScdMacros.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DevLib.h"
 				>
 			</File>
 			<File

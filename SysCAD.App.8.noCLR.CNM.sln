@@ -5405,8 +5405,8 @@ Global
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Distribution|Win32.ActiveCfg = Distribution|Win32
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Distribution|Win32.Build.0 = Distribution|Win32
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Any CPU.ActiveCfg = Release Marshal|Win32
-		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Mixed Platforms.ActiveCfg = Release Marshal|Win32
-		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Mixed Platforms.Build.0 = Release Marshal|Win32
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Mixed Platforms.ActiveCfg = Release|Win32
+		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Mixed Platforms.Build.0 = Release|Win32
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Win32.ActiveCfg = Release Marshal|Win32
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release - Full|Win32.Build.0 = Release Marshal|Win32
 		{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}.Release Marshal|Any CPU.ActiveCfg = Release Marshal|Win32
@@ -5475,8 +5475,8 @@ Global
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Distribution|Win32.ActiveCfg = Distribution|Win32
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Distribution|Win32.Build.0 = Distribution|Win32
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Any CPU.ActiveCfg = Release Marshal|Win32
-		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Mixed Platforms.ActiveCfg = Release Marshal|Win32
-		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Mixed Platforms.Build.0 = Release Marshal|Win32
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Mixed Platforms.ActiveCfg = Release|Win32
+		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Mixed Platforms.Build.0 = Release|Win32
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Win32.ActiveCfg = Release Marshal|Win32
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release - Full|Win32.Build.0 = Release Marshal|Win32
 		{AFA10940-2CDE-4B7B-85AC-B8644E838A06}.Release Marshal|Any CPU.ActiveCfg = Release Marshal|Win32
