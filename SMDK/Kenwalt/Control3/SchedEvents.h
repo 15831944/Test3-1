@@ -5,9 +5,7 @@
 #ifndef  __SCHEDEVENTS_H
 #define  __SCHEDEVENTS_H
 
-#ifndef __MD_HEADERS_H
-#include "md_headers.h"
-#endif
+#include "md_headers_ex.h"
 
 #include <vector>
 
