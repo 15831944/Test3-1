@@ -3644,33 +3644,99 @@ flag LayerCollection::Delete(DXF_ENTITY e)
         }
       }
     }
-  /*
-  old code - seemed to be causing a problem
-  for (int iLst=0; iLst<3; iLst++)
-  {
-  DML_LIST pLst;
-  switch (iLst)
-  {
-  case 0: pLst=l->InsertLst; break;
-  case 1: pLst=l->CurveLst; break;
-  case 2: pLst=l->OtherLst; break;
+  return 0;
   }
 
-  WALK_ENTITY_LIST(pLst, it, ei)
-  if (ei==e)
+//----------------------------------------------------------------------------
+
+flag LayerCollection::Delete(C3_CURVE c)
   {
-  if (((CEntInView*) (it->pKenwalta)))
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    {
+    DML_ITEM it;
+    C3_CURVE ci;
+    WALK_CURVE_LIST(l->CurveLst,it, ci)
+      if (ci==c)
+        {
+        if((CEntInView*)(it->pKenwalta))
+          {
+          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
+          }
+        dml_remove_item(l->CurveLst, it);
+        c3d_free_curve(ci);
+        return 1;
+        }
+    }
+  return 0;
+  }
+
+//----------------------------------------------------------------------------
+
+flag LayerCollection::Hide(DXF_ENTITY e, flag On)
   {
-  if( it->pKenwalta )
-  it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    {
+    DML_ITEM it;
+    DXF_ENTITY ei;
+
+    WALK_ENTITY_LIST(l->InsertLst, it, ei)
+      {
+      if (ei==e)
+        {
+        if( it->pKenwalta )
+          {
+          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
+          }
+        
+
+        //DXF_ENTITY eTag=Find_Attr(e, HideAttribStr);
+
+        //dml_remove_item(l->InsertLst, it);
+        //dxf_free_entity(ei);
+        return 1;
+        }
+      }
+
+    WALK_ENTITY_LIST(l->OtherLst, it, ei)
+      {
+      if (ei==e)
+        {
+        if( it->pKenwalta )
+          {
+          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
+          }
+        dml_remove_item(l->OtherLst, it);
+        dxf_free_entity(ei);
+        return 1;
+        }
+      }
+    }
+  return 0;
   }
-  dml_remove_item(l->InsertLst, it);
-  dxf_free_entity(ei);
-  return 1;
-  }
-  }
-  }
-  */
+
+//----------------------------------------------------------------------------
+
+flag LayerCollection::Hide(C3_CURVE c, flag On)
+  {
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    {
+    DML_ITEM it;
+    C3_CURVE ci;
+    WALK_CURVE_LIST(l->CurveLst,it, ci)
+      if (ci==c)
+        {
+        if((CEntInView*)(it->pKenwalta))
+          {
+          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
+          }
+        dml_remove_item(l->CurveLst, it);
+        c3d_free_curve(ci);
+        return 1;
+        }
+    }
   return 0;
   }
 
@@ -3785,30 +3851,6 @@ void LayerCollection::ChangeLayer(C3_CURVE c,LayerTypes NewLayer)
     l = Append(Drawing->FindLayerDef(LayerNames[NewLayer]));
   ASSERT(l);
   l->Add(c);
-  }
-
-//----------------------------------------------------------------------------
-
-flag LayerCollection::Delete(C3_CURVE c)
-  {
-  CGrfLayer * l;
-  WALK_LAYERS(Layers, NULL, l)
-    {
-    DML_ITEM it;
-    C3_CURVE ci;
-    WALK_CURVE_LIST(l->CurveLst,it, ci)
-      if (ci==c)
-        {
-        if((CEntInView*)(it->pKenwalta))
-          {
-          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
-          }
-        dml_remove_item(l->CurveLst, it);
-        c3d_free_curve(ci);
-        return 1;
-        }
-    }
-  return 0;
   }
 
 //----------------------------------------------------------------------------
@@ -8880,17 +8922,35 @@ void DXF_Drawing::AlignSelectedInserts(pViewport vp)
 struct CSym { bool m_Circle; bool m_IsStart; bool m_Done; PT3 m_Pt; };
 static CSym MakeupSym[] =
   {
-    {1, 0, 0,   {    -8 ,   1.5 }, },
-    {0, 0, 0,   {  -9.5 ,     0 }, },
-    {0, 0, 0,   {    -8 ,  -1.5 }, },
-    {0, 1, 0,   {    -8 ,  -1.5 }, },
-    {0, 0, 0,   {    -5 ,  -1.5 }, },
-    {0, 0, 0,   {  -3.5 ,     0 }, },
-    {0, 0, 0,   {    -5 ,   1.5 }, },
-    {0, 0, 0,   {    -8 ,   1.5 }, },
-    {0, 1, 0,   {  -3.5 ,     0 }, },
-    {0, 0, 0,   {    -2 ,     0 }, },
+    {0, 1, 0,   { -10.0,   6.5 }, },
+    {0, 0, 0,   { -10.0,   3.5 }, },
+    {0, 1, 0,   { -10.0,   5.0 }, },
+    {0, 0, 0,   {  -5.0,   5.0 }, },
+    {0, 0, 0,   {  -1.0,   1.0 }, },
+
+    {0, 1, 0,   {  -2.0,   2.6 }, },
+    {0, 0, 0,   {  -1.0,   1.0 }, },
+    {0, 0, 0,   {  -2.6,   2.0 }, },
+    {0, 0, 0,   {  -2.0,   2.6 }, },
+    
+    {0, 1, 0,   {  -1.9,   2.2 }, },
+    {0, 0, 0,   {  -1.0,   1.0 }, },
+    {0, 0, 0,   {  -2.2,   1.9 }, },
+    {0, 0, 0,   {  -1.9,   2.2 }, },
+    
     {0, 0, 1,                      },
+
+    //{1, 0, 0,   {    -8 ,   1.5 }, },
+    //{0, 0, 0,   {  -9.5 ,     0 }, },
+    //{0, 0, 0,   {    -8 ,  -1.5 }, },
+    //{0, 1, 0,   {    -8 ,  -1.5 }, },
+    //{0, 0, 0,   {    -5 ,  -1.5 }, },
+    //{0, 0, 0,   {  -3.5 ,     0 }, },
+    //{0, 0, 0,   {    -5 ,   1.5 }, },
+    //{0, 0, 0,   {    -8 ,   1.5 }, },
+    //{0, 1, 0,   {  -3.5 ,     0 }, },
+    //{0, 0, 0,   {    -2 ,     0 }, },
+    //{0, 0, 1,                      },
   };
 static CSym SpillSym[] =
   {                                                     

@@ -595,21 +595,23 @@ class LayerCollection
                                      PT3 Pt, Attr_Settings &Set);
     DXF_ENTITY       Find_Attrib_Defn(pchar Tag);
 
-    CEntInView*       IsEntitySelected(Viewport * v, DXF_ENTITY pEnt);
-    CEntInView*       IsCurveSelected(Viewport * v, C3_CURVE c);
+    CEntInView*      IsEntitySelected(Viewport * v, DXF_ENTITY pEnt);
+    CEntInView*      IsCurveSelected(Viewport * v, C3_CURVE c);
     long             TranslateEntitiesInWin(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
     long             TranslateEntitiesInList(Viewport * vp,PT3 S1, PT3 S2, PT3 E1, PT3 E2, flag DoX, flag DoY, flag DoXScl, flag DoYScl, flag DoSpred);
 
     void             ChangeLayer(DXF_ENTITY e,LayerTypes NewLayer);
     void             ChangeLayer(C3_CURVE   c,LayerTypes NewLayer);
-    CEntInView*       FindEntInView(DXF_ENTITY e);
-    CEntInView*       FindEntInView(C3_CURVE c);
+    CEntInView*      FindEntInView(DXF_ENTITY e);
+    CEntInView*      FindEntInView(C3_CURVE c);
     DML_ITEM         FindItem(DXF_ENTITY e);
     DML_ITEM         FindItem(C3_CURVE c);
-    CGrfLayer *           FindLayer(DXF_ENTITY e);
-    CGrfLayer *           FindLayer(C3_CURVE c);
+    CGrfLayer *      FindLayer(DXF_ENTITY e);
+    CGrfLayer *      FindLayer(C3_CURVE c);
     flag             Delete(DXF_ENTITY e);
     flag             Delete(C3_CURVE c);
+    flag             Hide(DXF_ENTITY e, flag On);
+    flag             Hide(C3_CURVE c, flag On);
     flag             RemoveFromLayer(DXF_ENTITY e);
     flag             RemoveFromLayer(C3_CURVE c);
     flag             Exists(DXF_ENTITY e);
