@@ -128,8 +128,10 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     SpPropOveride * getPropOverides();
     LPCTSTR         getTag();
     MVector         getVector();
-    bool            TestStateValid(int i);
-    void            SetStateValid(int i, bool On=true);
+    bool            TestMStateValid(int i);
+    bool            TestHStateValid(int i);
+    void            SetMStateValid(int i, bool On=true);
+    void            SetHStateValid(int i, bool On=true);
 
     eScdSVView         getView();
     eScdSVViewBasis    getViewBasis();

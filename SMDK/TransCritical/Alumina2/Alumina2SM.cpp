@@ -133,7 +133,7 @@ bool CBayerConcs::Converge(MArray & MA, bool SetValid)
   if (TLiq<1.0e-9)
     {
     Zero();
-    pBayerMdl->SetStateValid(0, SetValid);
+    pBayerMdl->SetMStateValid(0, SetValid);
     return true;
     }
 
@@ -166,7 +166,7 @@ bool CBayerConcs::Converge(MArray & MA, bool SetValid)
   //if (0 || pBayerMdl->Dbg.Marked())
   //  pBayerMdl->Dbg.PrintLn("%3s %-20s  Rho25) %.14g", "<", "", Density25);
 
-  pBayerMdl->SetStateValid(0, SetValid);
+  pBayerMdl->SetMStateValid(0, SetValid);
   return (IterCount>=0);
   }
 
@@ -1615,7 +1615,7 @@ void Bayer::CheckConverged(MArray *pMA)
   MArray MA(pMA ? (*pMA) : this);
   if (pMA)
     LiqConcs25.Converge(MA, false);
-  else if ( !TestStateValid(0) || FORCECNVG )
+  else if ( !TestMStateValid(0) || FORCECNVG )
     LiqConcs25.Converge(MA, true);
   }
 

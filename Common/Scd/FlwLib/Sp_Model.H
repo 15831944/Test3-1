@@ -428,14 +428,18 @@ enum QPF_Modes { QPF_Error, QPF_Sensible, QPF_Condensing, QPF_Evaporating };
 
 // Specie Validity Flags
 
-const DWORD SMVF_UserModel     = 0x000000ff;
-const DWORD SMVF_UserQuality   = 0x0000ff00;
+const DWORD SMVF_UserModelMBit0 = 0;
+const DWORD SMVF_UserModelHBit0 = 4;
 
-const DWORD SMVF_M_OK          = 0x00010000;
-const DWORD SMVF_H_OK          = 0x00020000;
-const DWORD SMVF_UnModified    = 0x00040000;
+const DWORD SMVF_UserModelM     = 0x0000000f;
+const DWORD SMVF_UserModelH     = 0x000000f0;
+const DWORD SMVF_UserQuality    = 0x0000ff00;
 
-const DWORD SMVF_EquilOK       = 0x00400000;
+const DWORD SMVF_M_OK           = 0x00010000;
+const DWORD SMVF_H_OK           = 0x00020000;
+const DWORD SMVF_UnModified     = 0x00040000;
+
+const DWORD SMVF_EquilOK        = 0x00400000;
 
 // ===========================================================================
 
@@ -672,9 +676,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     void           QualityRemove(int No);
     virtual SpQPersonality *GetQualityPersonality(SpQuality* pQ) { return NULL; };  // ask Spmodel for the personality
 
-    SpQuality*     FindQuality(int No)                  { return QualityPtr(No, false);};
-    SpQuality*     CreateQuality(int No)                { return QualityPtr(No, true);};
-    void           KillQuality(int No)                  { QualityRemove(No);};
+    SpQuality*     FindQuality(int No) { return QualityPtr(No, false);};
+    SpQuality*     CreateQuality(int No) { return QualityPtr(No, true);};
+    void           KillQuality(int No) { QualityRemove(No);};
     void           SetQualityHoldCopy(int No, flag On)  { SpQuality * p=FindQuality(No); if (p) p->SetHoldCopy(On); }; 
 
     void           QualitiesSetState(eScdMdlStateActs RqdState);
@@ -737,9 +741,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 #undef  FlagsBad
     void           EvalDerivedStates() { TestHStatesOK(); };
 
-    void           ClrMStatesOK() { m_dwValidFlags &= ~(SMVF_M_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); m_dwMassVersionNo++; };
-    void           ClrHStatesOK() { m_dwValidFlags &= ~(SMVF_H_OK|SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); };
-    void           ClrUserStatesOK() { m_dwValidFlags &= ~(SMVF_UserModel|SMVF_UserQuality|SMVF_EquilOK); };
+    void           ClrMStatesOK() { m_dwValidFlags &= ~(SMVF_M_OK|SMVF_UserModelM|SMVF_UserQuality|SMVF_EquilOK); m_dwMassVersionNo++; };
+    void           ClrHStatesOK() { m_dwValidFlags &= ~(SMVF_H_OK|SMVF_UserModelH|SMVF_UserQuality|SMVF_EquilOK); };
+    void           ClrUserStatesOK() { m_dwValidFlags &= ~(SMVF_UserModelM|SMVF_UserModelH|SMVF_UserQuality|SMVF_EquilOK); };
     void           ClrStatesOK()  { m_dwValidFlags = 0; m_dwMassVersionNo++; };
     bool           Modified()     { return (m_dwValidFlags & SMVF_UnModified)==0; };
     void           ClrModified()  { TestHStatesOK(); m_dwValidFlags |= SMVF_UnModified; };

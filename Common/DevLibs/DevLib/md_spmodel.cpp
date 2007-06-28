@@ -296,13 +296,25 @@ MVector MSpModelBase::getVector()
   return MVector(m_pSpMdlX);  
   };
 
-bool MSpModelBase::TestStateValid(int i)
+bool MSpModelBase::TestMStateValid(int i)
   {
-  return (SMVF_UserModel & m_pSpMdlX->m_dwValidFlags & (1<<i))!=0;
+  return (SMVF_UserModelM & m_pSpMdlX->m_dwValidFlags & (1<<(i+SMVF_UserModelMBit0)))!=0;
   };
-void MSpModelBase::SetStateValid(int i, bool On)
+bool MSpModelBase::TestHStateValid(int i)
   {
-  DWORD D=(SMVF_UserModel & (1<<i));
+  return (SMVF_UserModelH & m_pSpMdlX->m_dwValidFlags & (1<<(i+SMVF_UserModelHBit0)))!=0;
+  };
+void MSpModelBase::SetMStateValid(int i, bool On)
+  {
+  DWORD D=(SMVF_UserModelM & (1<<(i+SMVF_UserModelMBit0)));
+  if (On)
+    m_pSpMdlX->m_dwValidFlags |= D;
+  else
+    m_pSpMdlX->m_dwValidFlags &= ~D;
+  };
+void MSpModelBase::SetHStateValid(int i, bool On)
+  {
+  DWORD D=(SMVF_UserModelH & (1<<(i+SMVF_UserModelHBit0)));
   if (On)
     m_pSpMdlX->m_dwValidFlags |= D;
   else
