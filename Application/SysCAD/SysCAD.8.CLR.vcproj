@@ -2635,10 +2635,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\NetServerU.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\NeutralCommon.cpp"
 				>
 				<FileConfiguration

@@ -247,7 +247,6 @@ void CNETServer::Load()
 {
   LogNote("CNETServer", 0, "Load");
 
-  ass
   CNETServerThreadGlbl::gs_SrvrThread->Load("");
 };
 
