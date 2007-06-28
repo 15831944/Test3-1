@@ -186,14 +186,14 @@ public:
     LogNote("CNETServerThread", 0, "Shutdown");
   };
 
-  void Load()
+  void Load(String^ filename)
   {
-    engineProtocol->Load();
+    engineProtocol->Load(filename);
   };
 
-  void Save()
+  void Save(String^ filename)
   {
-    engineProtocol->Save();
+    engineProtocol->Save(filename);
   };
 
 protected:
@@ -247,14 +247,15 @@ void CNETServer::Load()
 {
   LogNote("CNETServer", 0, "Load");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Load();
+  ass
+  CNETServerThreadGlbl::gs_SrvrThread->Load("");
 };
 
 void CNETServer::Save()
 {
   LogNote("CNETServer", 0, "Save");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Save();
+  CNETServerThreadGlbl::gs_SrvrThread->Save("");
 };
 
 

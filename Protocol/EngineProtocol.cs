@@ -153,9 +153,9 @@ namespace SysCAD.Protocol
       serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
-    public bool Load()
+    public bool Load(String filename)
     {
-      return serviceGraphic.Load();
+      return serviceGraphic.Load(filename);
     }
 
     public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -193,9 +193,9 @@ namespace SysCAD.Protocol
       return serviceGraphic.PropertyList(guid, tag, path);
     }
 
-    public bool Save()
+    public bool Save(String filename)
     {
-      return serviceGraphic.Save();
+      return serviceGraphic.Save(filename);
     }
 
     public void ServiceGraphicItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
