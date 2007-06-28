@@ -1322,7 +1322,13 @@ namespace SysCAD.Editor
 
     internal String CurrentPath
     {
-      get { return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator; }
+      get
+      {
+        if (tvNavigation.SelectedNode != null)
+          return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator;
+        else
+          return tvNavigation.PathSeparator;
+      }
     }
 
     internal IEnumerable<GraphicItem> GraphicItems

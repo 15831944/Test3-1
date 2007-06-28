@@ -38,13 +38,13 @@ namespace SysCAD.Protocol
     public Dictionary<String, GraphicStencil> GraphicStencils
     {
       get { return graphicStencils; }
-      set { this.graphicStencils = graphicStencils; }
+      set { this.graphicStencils = value; }
     }
 
     public Dictionary<String, ModelStencil> ModelStencils
     {
       get { return modelStencils; }
-      set { this.modelStencils = modelStencils; }
+      set { this.modelStencils = value; }
     }
 
     public StringCollection ProjectList
@@ -56,7 +56,7 @@ namespace SysCAD.Protocol
     public Dictionary<String, ThingStencil> ThingStencils
     {
       get { return thingStencils; }
-      set { this.thingStencils = thingStencils; }
+      set { this.thingStencils = value; }
     }
   }
 
