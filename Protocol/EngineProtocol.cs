@@ -215,6 +215,8 @@ namespace SysCAD.Protocol
 
         graphicItems.Add(guid, graphicItem);
 
+        //cnm Scd9Create
+
         OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
