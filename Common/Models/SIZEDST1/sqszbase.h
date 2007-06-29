@@ -45,8 +45,9 @@ class SzSelBrk1;
 
 // ==========================================================================
 
-#define UseExtraColumns 0 //kga: 16/10/02 : Removed seldom used columns, 
-                        //this has memory/speed/etc savings for project mith large number of ore types
+#define UseExtraColumns 1 // CNM & KGA restored on 29/06/2007 - for QAL
+                          //kga: 16/10/02 : Removed seldom used columns, 
+                          //this has memory/speed/etc savings for project mith large number of ore types
 
 #if UseExtraColumns
 #define UseAllColumns 0 //kga:if 1 include SumG, xxxG columns (doubt we will ever need these)

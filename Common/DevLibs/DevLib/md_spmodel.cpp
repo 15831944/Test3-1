@@ -105,8 +105,8 @@ class CCall2MSpProps :  public SpModelEx
 
 		virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
     virtual LPTSTR FlashDescription();
-		virtual double SaturationP(double T, CSysVector * pMA=NULL/*, int iSatComp=-1*/);
-		virtual double SaturationT(double P, CSysVector * pMA=NULL/*, int iSatComp=-1*/);
+		virtual double SaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
+		virtual double SaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
     
     virtual double DynamicViscosity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
     virtual double ThermalConductivity(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
@@ -556,19 +556,19 @@ LPTSTR CCall2MSpProps::FlashDescription()
 
 //---------------------------------------------------------------------------
 
-double CCall2MSpProps::SaturationP(double T, CSysVector * pMA/*, int iSatComp*/)
+double CCall2MSpProps::SaturationP(double T, CSysVector * pMA, CSaturationDefn * pSat)
   {
   if (!m_pUserProps)// || iSatComp>=0)
-    return SpModel::SaturationP(T, pMA/*, iSatComp*/);
+    return SpModel::SaturationP(T, pMA, pSat);
   return m_pUserProps->get_SaturationP(T, pMA ? &::MArray(pMA):NULL);
   };
 
 //---------------------------------------------------------------------------
 
-double CCall2MSpProps::SaturationT(double P, CSysVector * pMA/*, int iSatComp*/)
+double CCall2MSpProps::SaturationT(double P, CSysVector * pMA, CSaturationDefn * pSat)
   {
   if (!m_pUserProps)// || iSatComp>=0)
-    return SpModel::SaturationT(P, pMA/*, iSatComp*/);
+    return SpModel::SaturationT(P, pMA, pSat);
   return m_pUserProps->get_SaturationT(P, pMA ? &::MArray(pMA):NULL);
   };
 

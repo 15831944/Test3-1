@@ -69,12 +69,13 @@ XID xidmsS       = ModelXID(1000) + 15*MaxSpecies;
 XID xidmsG       = ModelXID(1000) + 16*MaxSpecies;
 XID xidmsCp      = ModelXID(1000) + 17*MaxSpecies;
 XID xidRho       = ModelXID(1000) + 18*MaxSpecies;
-XID xidVp        = ModelXID(1000) + 19*MaxSpecies;
-XID xidVt        = ModelXID(1000) + 20*MaxSpecies;
+XID xidKaKb      = ModelXID(1000) + 19*MaxSpecies;
+XID xidVp        = ModelXID(1000) + 20*MaxSpecies;
+XID xidVt        = ModelXID(1000) + 21*MaxSpecies;
 
-XID xidElemMolWt = ModelXID(1000) + 21*MaxSpecies;
+XID xidElemMolWt = ModelXID(1000) + 22*MaxSpecies;
 
-XID xidExtraProp = ModelXID(1000) + 22*MaxSpecies; //first ExtraProps ID
+XID xidExtraProp = ModelXID(1000) + 23*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after xidExtraProp for MaxExtraProps*MaxSpecies !!!
 
 //DDBFnParms Parms0[]   = { {tt_NULL}}; 
@@ -156,6 +157,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
         DDB.FnDouble("Density", "Rho",    DC_Rho,  "kg/m^3",        xidRho   +i,   this, 0, Parms2);
         DDB.FnDouble("VapourP", "Vp",     DC_P,    "kPa",           xidVp    +i,   this, 0, Parms1);
         DDB.FnDouble("VapourT", "Vt",     DC_T,    "C",             xidVt    +i,   this, 0, Parms11);
+        DDB.String  ("",        "KaKb()", DC_,     "",              xidKaKb  +i,   this, 0);
         }
       DDB.EndStruct();
       }    
@@ -257,6 +259,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
         return true;
       case xidVp:    DCB.D=SDB[s].VapourP(FIDELITY(1), PARM(0)); return true;
       case xidVt:    DCB.D=SDB[s].VapourT(FIDELITY(1), PARM(0)); return true;
+      case xidKaKb:  DCB.pC=SDB[s].KaKbDesc();
       }
     }
   else if (DCB.lHandle>=xidElemMolWt && DCB.lHandle<xidExtraProp)
@@ -334,11 +337,12 @@ const int Id_Hs1             =  11*MaxSpecies;
 const int Id_Vp1             =  12*MaxSpecies;
 const int Id_Vt1             =  13*MaxSpecies;
 const int Id_Rho1            =  14*MaxSpecies;
-const int Id_RelSGs1         =  15*MaxSpecies;
+const int Id_KaKb1           =  15*MaxSpecies;
+const int Id_RelSGs1         =  16*MaxSpecies;
 
-const int Id_ElemMoleWt1     =  16*MaxSpecies;
+const int Id_ElemMoleWt1     =  17*MaxSpecies;
 
-const int Id_ExtraProp1      =  17*MaxSpecies; //first ExtraProps ID
+const int Id_ExtraProp1      =  18*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after Id_ExtraProp1 for MaxExtraProps*MaxSpecies !!!
 
 
@@ -518,6 +522,7 @@ static int iWd_Cp         =  10;
 static int iWd_Vp         =  8; 
 static int iWd_Vt         =  8; 
 static int iWd_Rho        =  8; 
+static int iWd_KaKb       =  10; 
 static int iWd_Corr       =  30;
 static int iWdElemName    =  6;
 static int iWdElemMolWt   =  12;
@@ -571,7 +576,8 @@ void SDBObjectEdt::Build()
     SetDesc(L, "Cp",            -1, iWd_Cp     ,  2, "");
     SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
     SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
-    SetDesc(L, "Density",       -1, iWd_Rho    ,  2, " ");
+    SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
+    SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
     SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
     
     L++;
@@ -597,6 +603,7 @@ void SDBObjectEdt::Build()
     SetDesc(L, VpCnv.Text(),    -1, iWd_Vp     ,  2, "");
     SetDesc(L, VtCnv.Text(),    -1, iWd_Vt     ,  2, "");
     SetDesc(L, RhoCnv.Text(),   -1, iWd_Rho    ,  2, " ");
+    SetDesc(L, "",              -1, iWd_KaKb   ,  2, " ");
     }
 
   if (1) // Other Blk
@@ -628,7 +635,8 @@ void SDBObjectEdt::Build()
             SetDesc(L, "Cp",            -1, iWd_Cp     ,  2, "");
             SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
             SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
-            SetDesc(L, "Density",       -1, iWd_Rho    ,  2, " ");
+            SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
+            SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
             SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
             L++;
             TextCnt = 0;
@@ -676,9 +684,13 @@ void SDBObjectEdt::Build()
           Tg.Set("$SDB.%s.Vt(%.2f)"  , SDB[iSp].SymOrTag(), rSDBO.m_dDisplayP);
           SetTag(Tg(), VtCnv.Text());
         
-          SetParm(L, "", Id_Rho1+iSp     , iWd_Rho, 2, " ");     // Density
+          SetParm(L, "", Id_Rho1+iSp     , iWd_Rho, 2, "");     // Density
           Tg.Set("$SDB.%s.Rho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
           SetTag(Tg(), RhoCnv.Text());
+        
+          SetParm(L, "", Id_KaKb1+iSp     , iWd_KaKb, 0, " ");     // KaKb
+          Tg.Set("$SDB.%s.KaKb()", SDB[iSp].SymOrTag());
+          SetTag(Tg());
         
           SetDesc(L, "", Id_RelSGs1+iSp, iWd_Corr, 0, "");          // DensityCorrs
           L++;
@@ -1052,6 +1064,10 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             Str="*";
           FixWide(iWd_Rho, Str, View());
           break;
+        case Id_KaKb1:
+          Str=SDB[iSp].KaKbDesc();
+          FixWide(iWd_KaKb, Str, View());
+          break;
         case Id_RelSGs1:
           {
           Str="";
@@ -1347,6 +1363,9 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
         case Id_Vt1:
           WrkIB.Set(EI.Fld->Tag, &VtCnv, &VtFmt);
           break;
+        case Id_KaKb1:
+          TagOnly=true;
+          break;
         default: 
           WrkIB.Set(EI.Fld->Tag);
         }
@@ -1365,6 +1384,7 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
           //TagOnly=true;
           break;
         case Id_SpTag1:
+        case Id_KaKb1:
           TagOnly=true;
           break;
         default: 

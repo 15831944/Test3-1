@@ -246,16 +246,22 @@ class DllImportExport MVector
     LPCTSTR       getTag();
 
     // ----------------------------- Basic State Access
+    // Temperature
     double        getT() const;
     void          putT(double T);
+    // Pressure
     double        getP() const;
     void          putP(double P);
+    // Actual Mass
     double        getM(long i) const;
     void          putM(long i, double M);
+    // Actual Moles (kg-moles)
     double        getMl(long i) const;
     void          putMl(long i, double M);
+    // Attribute
     double        getA(long i) const;
     void          putA(long i, double A);
+    //
     void          putSuppressErrors(bool On);
 
     double      * getMassVector();

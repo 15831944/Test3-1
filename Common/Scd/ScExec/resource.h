@@ -19,6 +19,8 @@
 #define IDC_AC                          14014
 #define IDC_COPYCFG                     14014
 #define IDC_BREAK                       14015
+#define IDC_KAKB                        14015
+#define IDC_DC                          14015
 #define IDC_BREAKPT                     14016
 #define IDC_EDITCFG                     14017
 #define IDC_CHECK_ERRORS                14018

@@ -666,6 +666,7 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
                       VAMsk_Thermo |
                       //VAMsk_Viscosity |
                       //VAMsk_HeatValues |
+                      //VAMsk_Acidity |
                       0;
     sm_VarsAvail |= VAMsk_Inited;
     }
@@ -1275,6 +1276,7 @@ static struct {long Inx; long Msk; LPCTSTR Nm; } VAList[] =
     {1, VAMsk_Thermo,        "Thermo"      },
     {2, VAMsk_Viscosity,     "Viscosity"   },
     {3, VAMsk_HeatValues,    "HeatValues"  },
+    {4, VAMsk_Acidity,       "Acidity"     },
     {-1 },
   };
 static struct {long Inx; long Msk; LPCTSTR Nm; } VASpList[] =
@@ -1557,6 +1559,22 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     DDB.Double  ("LPrandtlNo",      "",              DC_,         "",       xidLPrandtl,   this, isResult|noFileAtAll);
     DDB.Double  ("SurfaceTens",     "LSurfaceTens",  DC_SurfTens, "N/m",    xidLSurfT,     this, isResult|noFileAtAll);
     //DDB.Double  ("LSurfaceTens",  "",  DC_SurfTens, "N/m",    xidSurfT,     this, isResult|noFile|noSnap|InitHidden);
+    DDB.Text("");
+    }
+  if ((sm_VarsAvail|m_VarsAvail)& VAMsk_Acidity)
+    {
+    static DDBValueLst DDBAcidState[] =  
+      {
+        {pH_OK,           "OK"          },
+        {pH_AcidAndBase,  "Acid&Base"   },
+        {},
+      };
+    DDB.Page(Tg(), DDB_OptPage);
+    DDB.Text  ("Acidity:");
+    DDB.Byte  ("pH.State",          "",              DC_,     "",     xidpHState,        this, isResult|noFileAtAll, DDBAcidState);
+    DDB.Double("pH.negLogH",        "",              DC_,     "",     xidpHnegLogH,      this, isResult|noFileAtAll);
+    DDB.String("pH.AcidsPresent",   "",              DC_,     "",     xidpHAcidsPres,      this, isResult|noFileAtAll);
+    DDB.String("pH.BasesPresent",   "",              DC_,     "",     xidpHBasesPres,      this, isResult|noFileAtAll);
     DDB.Text("");
     }
 
@@ -2417,7 +2435,7 @@ void SpModel::BuildDataDefn_Species(DataDefnBlk & DDB, const BDDSpecies_Blk * Bl
                 *Cnv->m_pInx, (LPSTR)(LPCSTR)Cnv->m_Txt,
                 ViewInfo.xid, SpHandle2(RqdVwBasis, i), this,
                 isResult|FlagsE|HideIfZero);
-            }
+                }
             }
           if (BlkReqd)
             {
@@ -4471,6 +4489,11 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidLPrandtl      : DCB.D = PrandtlNo(som_SL);                   return 1;
     case xidLSurfT        : DCB.D = SurfaceTension(som_Liq);             return 1;
 
+    case xidpHState       : DCB.B = pHState();                           return 1;
+    case xidpHnegLogH     : DCB.D = pHnegLogH();                         return 1;
+    case xidpHAcidsPres   : DCB.pC = pHAcids();                          return 1;
+    case xidpHBasesPres   : DCB.pC = pHBases();                          return 1;
+
     case xidSpHeatValueHiM : DCB.D = HeatOfCombustionHi()/GTZ(Mass());     return 1;
     case xidSpHeatValueHiMl: DCB.D = HeatOfCombustionHi()/GTZ(Moles());    return 1;
     case xidSpHeatValueHiV : DCB.D = HeatOfCombustionHi()/GTZ(Volume());   return 1;
@@ -6064,7 +6087,7 @@ void SpModel::SetMassM(SpModel * C, CSysVector &Filter, double Mass__, double Pr
   for (int i=0; i < SVValueCount()/*SDB.No()*/; i++)
     Mt+=Filter[i]*C->m_M[i];
   double Frac=Mass__/GTZ(Mt);
-  
+
 	if (AsMult)
 	{
   _asm int 3;
@@ -6096,12 +6119,12 @@ void SpModel::SetMassF(SpModel * C, CSysVector &Filter, double Frac, double Pres
     m_M.Set(C->m_M, som_ALL, Frac, Filter.SVData());
     }
   else
-    {
-    double Ft=0.0;
-    for (int i=0; i < SVSpcCount(); i++)
-      Ft+=Filter[i];
- 
-    m_M.Set(C->m_M, som_ALL, Frac/Ft, Filter.SVData());
+  {
+  double Ft=0.0;
+  for (int i=0; i < SVSpcCount(); i++)
+    Ft+=Filter[i];
+
+  m_M.Set(C->m_M, som_ALL, Frac/Ft, Filter.SVData());
     }
 
   //for (i=0; i < SVSpcCount(); i++)
@@ -6297,16 +6320,16 @@ void SpModel::AddMassM(SpModel * C, CSysVector &Filter, double Mass__, bool AsMu
       Cm.VAttr[i]=C->m_M.VAttr[i];
     }
   else
-    {
-    double Mt=0.0;
-    for (int i=0; i < SVSpcCount(); i++)
-      Mt+=Filter[i]*C->m_M[i];
-    double Frac=Mass__/GTZ(Mt);
+  {
+  double Mt=0.0;
+  for (int i=0; i < SVSpcCount(); i++)
+    Mt+=Filter[i]*C->m_M[i];
+  double Frac=Mass__/GTZ(Mt);
 
-    for (i=0; i < SVSpcCount(); i++)
-      Cm.SetVMass(i, C->m_M, Frac*Filter[i]*C->m_M.VMass[i]);
-    for (i=0; i < SVAttCount(); i++)
-      Cm.VAttr[i]=C->m_M.VAttr[i];
+  for (i=0; i < SVSpcCount(); i++)
+    Cm.SetVMass(i, C->m_M, Frac*Filter[i]*C->m_M.VMass[i]);
+  for (i=0; i < SVAttCount(); i++)
+    Cm.VAttr[i]=C->m_M.VAttr[i];
     }
 
   AddQualities(C, Cm);
@@ -6353,14 +6376,14 @@ void SpModel::AddMassF(SpModel * C, CSysVector &Filter, double Frac, bool AsMult
     }
   else
     {
-    double Ft=0.0;
-    for (int i=0; i < SVSpcCount(); i++)
-      Ft+=Filter[i];
-    Ft=GTZ(Ft);
+  double Ft=0.0;
+  for (int i=0; i < SVSpcCount(); i++)
+    Ft+=Filter[i];
+  Ft=GTZ(Ft);
     _asm int 3;
     Cm.Set(C->m_M, som_ALL, 1.0, Filter.SVData());
-    //for (i=0; i < SDB.No(); i++)
-    //  Cm[i]=Frac*Filter[i]/Ft*C->M[i];
+  //for (i=0; i < SDB.No(); i++)
+  //  Cm[i]=Frac*Filter[i]/Ft*C->M[i];
     }
 
   AddQualities(C, Cm);
@@ -7702,6 +7725,120 @@ double SpModel::SurfaceTension(PhMask Phase, double T_, double P_, CSysVector * 
   const double C11 = 1 - 0.625 * Tx;
   return C10 * C11;
   }
+
+// --------------------------------------------------------------------------
+
+byte   SpModel::pHState(CSysVector * pMA)
+  {
+  CSysVector & MA = pMA==NULL ? MArray() : *pMA;
+  int Na=0;
+  int Nb=0;
+  CSVLongArray &A = SDB.m_Acids;
+  CSVLongArray &B = SDB.m_Bases;
+  double TolMass = MA.Mass(som_Liq)*1e-12;
+  for (int a=0; a<A.GetCount(); a++)
+    {
+    if (MA[A[a]]>TolMass)
+      Na++;
+    }
+  for (int b=0; b<B.GetCount(); b++)
+    {
+    if (MA[B[b]]>TolMass)
+      Nb++;
+    }
+
+  return (Na && Nb) ? pH_AcidAndBase : pH_OK;
+  };
+
+double SpModel::pHnegLogH(CSysVector * pMA)
+  {
+  CSysVector & MA = pMA==NULL ? MArray() : *pMA;
+  int Na=0;
+  int Nb=0;
+  CSVLongArray &A = SDB.m_Acids;
+  CSVLongArray &B = SDB.m_Bases;
+  double TolMass = MA.Mass(som_Liq)*1e-12;
+
+  double H=0.0;
+  for (int a=0; a<A.GetCount(); a++)
+    {
+    int s=A[a];
+    if (MA[s]>TolMass)
+      {
+      Na++;
+      double Cb = MA.VMoles[s];
+      for (int term=0; term<3; term++)
+        {
+        double Ka  = SDB[s].m_Const.m_dDa[term];
+        double CbNxt = sqrt(Ka*Cb + (Ka*Ka)/4) - Ka/2;
+        H += CbNxt;
+        Cb = CbNxt;
+        }
+      };
+    }
+
+  double OH=0;
+  for (int b=0; b<B.GetCount(); b++)
+    {
+    int s=B[b];
+    if (MA[s]>TolMass)
+      {
+      Nb++;
+      double Cb = MA.VMoles[s];
+      double Kb  = SDB[s].m_Const.m_dDa[0];
+      OH += sqrt(Kb*Cb + (Kb*Kb)/4) - Kb/2;
+      }
+    }
+
+  double LiqVol  = GTZ(MA.Volume(m_iFidelity, som_Liq, K2C(25.0), StdP, NULL));
+
+  if (H>OH)
+    return -log10(H-OH);
+  else if (OH>H)
+    return 14-(-log10(OH-H));
+  else
+    return 7;
+  };
+
+// --------------------------------------------------------------------------
+
+LPSTR  SpModel::pHAcids()  
+  {
+  CSysVector & MA = MArray();
+  CSVLongArray &A = SDB.m_Acids;
+  double TolMass = MA.Mass(som_Liq)*1e-12;
+  m_sAcids="";
+  for (int a=0; a<A.GetCount(); a++)
+    {
+    int s=A[a];
+    if (MA[s]>TolMass)
+      {
+      if (m_sAcids.GetLength())
+        m_sAcids+=", ";
+      m_sAcids+=SDB[s].Sym();
+      }
+    }
+  return m_sAcids();
+  };
+
+LPSTR  SpModel::pHBases()                          
+  {
+  CSysVector & MA = MArray();
+  CSVLongArray &B = SDB.m_Bases;
+  double TolMass = MA.Mass(som_Liq)*1e-12;
+  m_sBases="";
+  for (int b=0; b<B.GetCount(); b++)
+    {
+    int s=B[b];
+    if (MA[s]>TolMass)
+      {
+      if (m_sBases.GetLength())
+        m_sBases+=", ";
+      m_sBases+=SDB[s].Sym();
+      }
+    }
+  return m_sBases();
+  };
 
 // --------------------------------------------------------------------------
 

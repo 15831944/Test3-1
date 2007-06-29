@@ -568,6 +568,7 @@ struct SDBInfo
   Strng Tc;
   Strng Vc;
   Strng Ac;
+  Strng Dc;
   Strng MolecularDiam;
   Strng MolarVol;
   Strng CpCv;
@@ -578,7 +579,7 @@ struct SDBInfo
   SDBInfo();
   void Update(CCElementDataBase & EDB);
   flag Valid() { return IsValid; };
-  void CopyData(CStringArray &Values, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference);
+  void CopyData(CStringArray &Values, int iOC_Dissociation, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference);
 
   };
 
@@ -591,7 +592,7 @@ SDBInfo::SDBInfo()
 
 // --------------------------------------------------------------------------
 
-void SDBInfo::CopyData(CStringArray &Values, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference)
+void SDBInfo::CopyData(CStringArray &Values, int iOC_Dissociation, int iOC_MolecularDiam, int iOC_MolVol, int iOC_CpCv, int iOC_Reference)
   {
   Name          = (char*)(const char*)Values[ 0];
   Compound      = (char*)(const char*)Values[ 1]; 
@@ -610,6 +611,7 @@ void SDBInfo::CopyData(CStringArray &Values, int iOC_MolecularDiam, int iOC_MolV
   Tc            = (char*)(const char*)Values[14];
   Vc            = (char*)(const char*)Values[15];
   Ac            = (char*)(const char*)Values[16];
+  Dc            = iOC_Dissociation  >=0   ? (char*)(const char*)Values[iOC_Dissociation] : "";
   MolecularDiam = iOC_MolecularDiam >=0   ? (char*)(const char*)Values[iOC_MolecularDiam] : "";
   MolarVol      = iOC_MolVol>=0           ? (char*)(const char*)Values[iOC_MolVol] : "";
   CpCv          = iOC_CpCv>=0             ? (char*)(const char*)Values[iOC_CpCv] : "";
@@ -752,12 +754,16 @@ public:
 	CEdit	m_Compound;
 	CEdit	m_Checked;
 	CEdit	m_Ac;
+	CEdit	m_Dc;
 	CButton	m_Update;
 	CButton	m_Undo;
 	CButton	m_Import;
 	CButton	m_Delete;
 	CButton	m_Add;
 	//}}AFX_DATA
+
+  CString m_sDcPrev;
+  int     m_iDcBusy;
 
 
 // Overrides
@@ -785,6 +791,7 @@ protected:
 	afx_msg void OnSpImport();
 	afx_msg void OnSpUpdate();
 	afx_msg void OnChangeAc();
+	afx_msg void OnChangeDc();
 	afx_msg void OnChangeChecked();
 	afx_msg void OnChangeReference();
 	afx_msg void OnChangeCompound();
@@ -922,6 +929,7 @@ class CSDBSlct : public CDialog
 	  //}}AFX_DATA
 
     CDBHelper *pDB;
+    int iOC_Dissociation;
     int iOC_MolecularDiam;
     int iOC_MolVol;
     int iOC_CpCv;
@@ -1239,47 +1247,48 @@ struct MyFldInfo
 
 static MyFldInfo SpFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                                        Reqd   ZeroOK
-    { "Name"        , "Name"        , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Compound"    , "Compound"    , 14, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Phase"       , "Phase"       ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Definition"  , "Defn"        ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Occurence"   , "Occ"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Checked"     , "Chkd"        ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ts"          , "Ts(K)"       ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Te"          , "Te(K)"       ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Rho"         , "Rho(kg/m^3)" , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "dHf"         , "Hf(J/mol)"   ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "S298"        , "S(J/mol.K)"  ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Cp"          , "Cp(J/mol.K)" , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vp"          , "Vp(kPa)"     , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Pc"          , "Pc(MPa)"     ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Tc"          , "Tc(K)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Vc"          , "Vc(m^3)"     ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Ac"          , "Ac"          ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
-    { "Reference"   , "Reference"   , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Name"          , "Name"          , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Compound"      , "Compound"      , 14, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Phase"         , "Phase"         ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Definition"    , "Defn"          ,  8, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Occurence"     , "Occ"           ,  3, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    10, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Checked"       , "Chkd"          ,  5, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ts"            , "Ts(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Te"            , "Te(K)"         ,  5, 1,  ADOX::adSingle,     "ADOX::adSingle",   4, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Rho"           , "Rho(kg/m^3)"   , 10, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "dHf"           , "Hf(J/mol)"     ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "S298"          , "S(J/mol.K)"    ,  8, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Cp"            , "Cp(J/mol.K)"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vp"            , "Vp(kPa)"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Pc"            , "Pc(MPa)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Tc"            , "Tc(K)"         ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Vc"            , "Vc(m^3)"       ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Ac"            , "Ac"            ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Dissociation"  , "Dissociation"  ,  6, 1,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Reference"     , "Reference"     , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo CnvFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Conversion"  , "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Unit"        , "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "ScaleOffset" , "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Description" , "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
-    { "Reference"   , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
+    { "Conversion"    , "Conversion"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Unit"          , "Unit"         , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "ScaleOffset"   , "ScaleOffset"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Description"   , "Description"  , 20, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, false},
+    { "Reference"     , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false, true },
     { NULL },
   };
 
 static MyFldInfo SolnFI[] =
   { // Name          Wd  Al   Type                  Len  Attributes                        Reqd   ZeroOK
-    { "Solvent"      , "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "Solute"       , "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    //{ "OtherPhase"   , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
-    { "OtherPhase"   , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
-    { "DensCorrFn"   , "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "SolubilityFn" , "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "HDilutionFn"  , "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
-    { "Reference"    , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
+    { "Solvent"       , "Solvent"      , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "Solute"        , "Solute"       , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    //{ "OtherPhase"    , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), true , false},
+    { "OtherPhase"    , "OtherPhase"   , 10, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",    64, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false , true},
+    { "DensCorrFn"    , "DensCorrFn"   , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "SolubilityFn"  , "SolubilityFn" , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "HDilutionFn"   , "HDilutionFn"  , 18, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   128, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true},
+    { "Reference"     , "Reference"    , 25, 0,  ADOX::adVarWChar,   "ADOX::adVarWChar",   255, /*dbVariableField|dbUpdatableField*/ADOX::ColumnAttributesEnum(0), false,  true },
     { NULL },
   };
 
@@ -1308,7 +1317,8 @@ static MyFldInfo * FindFld(LPCTSTR Name,  MyFldInfo * FI)
 #define StrTc             SpFI[14].m_Name
 #define StrVc             SpFI[15].m_Name
 #define StrAc             SpFI[16].m_Name
-#define StrReference      SpFI[17].m_Name
+#define StrDc             SpFI[17].m_Name
+#define StrReference      SpFI[18].m_Name
 
 //===========================================================================
 //
@@ -1722,6 +1732,7 @@ BOOL CSCD_DB::CheckWater()
           INS(pRS, StrTc      , (i==0 ? "647.14" : "") ,false);
           INS(pRS, StrVc      , (i==0 ? "0.0568" : "") ,false);
           INS(pRS, StrAc      , (i==0 ? "0.3442" : "") ,false);
+          INS(pRS, StrDc      , ("")                   ,false);
           INS(pRS, StrReference, "" ,false);
           pRS->Update();
           }
@@ -1922,6 +1933,7 @@ CSDBSpecie::CSDBSpecie(CSDBSheet * pSheet)//CWnd* pParent /*=NULL*/)
   m_bDidInit=false;
   m_pSheet=pSheet;
   m_bIsActive=false;
+  m_iDcBusy=0;
   }
 
 
@@ -1947,6 +1959,7 @@ void CSDBSpecie::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMPOUND, m_Compound);
 	DDX_Control(pDX, IDC_CHECKED, m_Checked);
 	DDX_Control(pDX, IDC_AC, m_Ac);
+	DDX_Control(pDX, IDC_DC, m_Dc);
 	DDX_Control(pDX, ID_SP_UPDATE, m_Update);
 	DDX_Control(pDX, ID_SP_UNDO, m_Undo);
 	DDX_Control(pDX, ID_SP_IMPORT, m_Import);
@@ -1963,6 +1976,7 @@ BEGIN_MESSAGE_MAP(CSDBSpecie, CPropertyPage)
 	ON_BN_CLICKED(ID_SP_IMPORT, OnSpImport)
 	ON_BN_CLICKED(ID_SP_UPDATE, OnSpUpdate)
 	ON_EN_CHANGE(IDC_AC, OnChangeAc)
+	ON_EN_CHANGE(IDC_DC, OnChangeDc)
 	ON_EN_CHANGE(IDC_CHECKED, OnChangeChecked)
 	ON_EN_CHANGE(IDC_REFERENCE, OnChangeReference)
 	ON_EN_CHANGE(IDC_COMPOUND, OnChangeCompound)
@@ -2133,9 +2147,115 @@ void CSDBSpecie::OnSpUndo()
   m_Undo.EnableWindow(false);
   }
 
-// --------------------------------------------------------------------------
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
+struct CAcidBaseData 
+  {
+  LPCTSTR   m_sName;
+  bool      m_Acid;
+  double    m_dDa[3];
+  };
+
+static CAcidBaseData s_AcidData[] =
+  {
+    {"HCl",         1, {1,               0,                   0                   }},
+    {"HNO3",        1, {1,               0,                   0                   }},
+    {"H2SO4",       1, {1,               0.0102,              0                   }},
+    {"H2CrO4",      1, {0.18,            0.00000032,          0                   }},
+    {"HIO3",        1, {0.16,            0,                   0                   }},
+    {"H2C2O4",      1, {0.056,           0.000054,            0                   }},
+    {"H3PO3",       1, {0.03,            0.00000017,          0                   }},
+    {"H5IO6",       1, {0.028,           0.0000000053,        0                   }},
+    {"H2SO3",       1, {0.014,           0.000000065,         0                   }},
+    {"HClO2",       1, {0.0112,          0,                   0                   }},
+    {"H3PO4",       1, {0.0072,          0.00000063,          0.00000000000042    }},
+    {"H3ASO4",      1, {0.006,           0.00000011,          0.000000000003      }},
+    {"H3SeO3",      1, {0.0035,          0.00000005,          0                   }},
+    {"C3H4O4",      1, {0.0015,          0.000002,            0                   }},
+    {"C2H3O2Cl",    1, {0.0014,          0,                   0                   }},
+    {"C4H6O6",      1, {0.001,           0.000045,            0                   }},
+    {"H3C6H5O7",    1, {0.00075,         0.000017,            0.0000004           }},
+    {"HNO2",        1, {0.00071,         0,                   0                   }},
+    {"HF",          1, {0.00068,         0,                   0                   }},
+    {"HCNO",        1, {0.00035,         0,                   0                   }},
+    {"HCOOH",       1, {0.00018,         0,                   0                   }},
+    {"C3H6O3",      1, {0.00014,         0,                   0                   }},
+    {"C6H5COOH",    1, {0.000063,        0,                   0                   }},
+    {"HN3",         1, {0.000019,        0,                   0                   }},
+    {"CH3COOH",     1, {0.000018,        0,                   0                   }},
+    {"CH3CH2COOH",  1, {0.000013,        0,                   0                   }},
+    {"H2C6H6O6",    1, {0.00001,         0.000000000005,      0                   }},
+    {"H2CO3",       1, {0.00000045,      0.000000000047,      0                   }},
+    {"H2S",         1, {0.00000009,      0.00000000000000001, 0                   }},
+    {"HClO3",       1, {0.000000029,     0,                   0                   }},
+    {"HBrO",        1, {0.0000000023,    0,                   0                   }},
+    {"H3BO3",       1, {0.00000000073,   0.00000000000018,    0                   }},
+    {"HCN",         1, {0.00000000062,   0,                   0                   }},
+    {"H3AsO3",      1, {0.0000000006,    0,                   0                   }},
+    {"C6H5OH",      1, {0.0000000001,    0,                   0                   }},
+    {"HIO",         1, {0.000000000023,  0,                   0                   }},
+    {"H2O2",        1, {0.0000000000024, 0,                   0                   }},
+    {"NaOH",        0, {1             }},
+    {"LiOH",        0, {1             }},
+    {"KOH",         0, {1             }},
+    {"Na2O",        0, {1             }},
+    {"LiO2",        0, {1             }},
+    {"K2O",         0, {1             }},
+    {"MgO",         0, {1             }},
+    {"CaO",         0, {1             }},
+    {"Mg[OH]2",     0, {1             }},
+    {"Ca[OH]2",     0, {0.00374       }},
+    {"[CH3CH2]2NH", 0, {0.00086       }},
+    {"[CH3]2NH",    0, {0.00059       }},
+    {"[CH3CH2]3N",  0, {0.00052       }},
+    {"CH3NH2",      0, {0.00044       }},
+    {"CO3--",       0, {0.00021       }},
+    {"HOCH2CH2NH2", 0, {0.000032      }},
+    {"NH3",         0, {0.0000176     }},
+    {"C10H14N2",    0, {0.0000007     }},
+    {"ClO-",        0, {0.00000031    }},
+    {"HS-",         0, {0.0000001     }},
+    {"H2NOH",       0, {0.000000011   }},
+    {"C5H5N",       0, {0.0000000017  }},
+    {"C6H5NH2",     0, {0.0000000004  }},
+    {}
+  };
 
 void CSDBSpecie::OnChangeAc()              {	SomethingChanged(); };
+void CSDBSpecie::OnChangeDc()              
+  {  
+  if (m_iDcBusy++==0)
+    {
+    CString sDc, sCompound;
+    GetDlgItem(IDC_DC)->GetWindowText(sDc);
+    GetDlgItem(IDC_COMPOUND)->GetWindowText(sCompound);
+    sDc=sDc.Trim();
+    if (sDc.GetLength()==1 && m_sDcPrev.GetLength()==0)
+      {
+      for (int i=0; s_AcidData[i].m_sName; i++)
+        {
+        if (strcmp(s_AcidData[i].m_sName, sCompound)==0)
+          {
+          CString S;
+          if (s_AcidData[i].m_Acid)
+            S.Format("Ka(%.4g, %.4g, %.4g)", s_AcidData[i].m_dDa[0], s_AcidData[i].m_dDa[1], s_AcidData[i].m_dDa[2]);
+          else
+            S.Format("Kb(%.4g)", s_AcidData[i].m_dDa[0]);
+          GetDlgItem(IDC_DC)->SetWindowText(S);
+          break;
+          }
+        }
+      }
+    GetDlgItem(IDC_DC)->GetWindowText(m_sDcPrev);
+    }
+  m_iDcBusy--;
+
+  SomethingChanged(); 
+  };
 void CSDBSpecie::OnChangeChecked()         {	SomethingChanged(); };
 void CSDBSpecie::OnChangeReference()       {	SomethingChanged(); };
 void CSDBSpecie::OnChangeCompound()        {	SomethingChanged(); };
@@ -2163,6 +2283,15 @@ void CSDBSpecie::SomethingChanged()
   {
   m_Update.EnableWindow(true && !ReadOnly());
   m_Undo.EnableWindow(true && !ReadOnly());
+  CString sVp;
+  
+  m_Vp.GetWindowText(sVp);
+  m_Vp.EnableWindow(sVp.GetLength()>0 || GasOccBtn().GetCheck()!=0?1:0);
+  m_Tc.EnableWindow(GasOccBtn().GetCheck()!=0?1:0);
+  m_Pc.EnableWindow(GasOccBtn().GetCheck()!=0?1:0);
+  m_Vc.EnableWindow(GasOccBtn().GetCheck()!=0?1:0);
+  m_Ac.EnableWindow(GasOccBtn().GetCheck()!=0?1:0);
+  m_Dc.EnableWindow(LiqOccBtn().GetCheck()!=0?1:0);
   };
 
 void CSDBSpecie::OnCancel()
@@ -2357,7 +2486,7 @@ BOOL CSDBSpecie::BuildRowList(char * PositionAt)
 // --------------------------------------------------------------------------
 
 #define GET(Fld, Nm)                                             \
-  var=Recordset()->Fields->GetItem(Nm)->Value;                           \
+  var=Recordset()->Fields->GetItem(Nm)->Value;                   \
   if (var.vt==VT_R4)                                             \
     Fld.SetWindowText((AStr.Set("%.3f",V_R4(&var)), AStr()));    \
   else                                                           \
@@ -2435,7 +2564,10 @@ BOOL CSDBSpecie::LoadRecord(int ItemIndex)
   GET(m_Tc        , StrTc      );
   GET(m_Vc        , StrVc      );
   GET(m_Ac        , StrAc      );
+  GET(m_Dc        , StrDc      );
   GET(m_Reference , StrReference);
+  m_Dc.GetWindowText(m_sDcPrev);
+  m_iDcBusy=0;
   return true;
   }
 
@@ -2536,6 +2668,7 @@ BOOL CSDBSpecie::UpdateRecord(flag ForceIt)//int ItemIndex)
       UPD(m_Tc,       StrTc      , OChgd, false)
       UPD(m_Vc,       StrVc      , OChgd, false)
       UPD(m_Ac,       StrAc      , OChgd, false)
+      UPD(m_Dc,       StrDc      , OChgd, false)
       UPD(m_Reference, StrReference, OChgd, false);
 
       m_Compound.GetWindowText(Str);
@@ -2645,6 +2778,7 @@ BOOL CSDBSpecie::ImportRecords(CArray<HSCInfo*, HSCInfo*> & InfoArray)
         IMPS(StrTc,       NullStr)
         IMPS(StrVc,       NullStr)
         IMPS(StrAc,       NullStr)
+        IMPS(StrDc,       NullStr)
         IMPS(StrReference, NullStr)
 
         m_CompPhaseUpd=Info.Formula;
@@ -2697,6 +2831,7 @@ BOOL CSDBSpecie::ImportRecord(SDBInfo &Info)
       IMPS(StrTc,       Info.Tc)
       IMPS(StrVc,       Info.Vc)
       IMPS(StrAc,       Info.Ac)
+      IMPS(StrDc,       Info.Dc)
       IMPS(StrReference, Info.Reference)
 
       m_CompPhaseUpd=Info.Compound;
@@ -2743,6 +2878,7 @@ void CSDBSpecie::ClearDisplay(int DoEnable)
   CLR(m_Tc,       StrTc      )
   CLR(m_Vc,       StrVc      )
   CLR(m_Ac,       StrAc      )
+  CLR(m_Dc,       StrDc      )
   CLR(m_Reference, StrReference)
   if (DoEnable>=0)
     {
@@ -2767,8 +2903,11 @@ void CSDBSpecie::ClearDisplay(int DoEnable)
     m_Tc.EnableWindow(Enabled);
     m_Vc.EnableWindow(Enabled);
     m_Ac.EnableWindow(Enabled);
+    m_Dc.EnableWindow(Enabled);
     m_Reference.EnableWindow(Enabled);
     }
+  m_Dc.GetWindowText(m_sDcPrev);
+  m_iDcBusy=0;
   }
 
 // --------------------------------------------------------------------------
@@ -3283,8 +3422,9 @@ BOOL CSDBSlct::OnInitDialog()
         }
       if (ColNamesOK)
         {
-        char* OptColNames[] = { "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
+        char* OptColNames[] = { "Dissociation", "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
         pDB->CheckOptionalFieldNames(OptColNames);
+        iOC_Dissociation  = (pDB->FieldIndex(pDB->NFieldIndexes()-5)<0 ? -1 : pDB->NFieldIndexes()-5);
         iOC_MolecularDiam = (pDB->FieldIndex(pDB->NFieldIndexes()-4)<0 ? -1 : pDB->NFieldIndexes()-4);
         iOC_MolVol        = (pDB->FieldIndex(pDB->NFieldIndexes()-3)<0 ? -1 : pDB->NFieldIndexes()-3);
         iOC_CpCv          = (pDB->FieldIndex(pDB->NFieldIndexes()-2)<0 ? -1 : pDB->NFieldIndexes()-2);
@@ -3299,7 +3439,7 @@ BOOL CSDBSlct::OnInitDialog()
           pDB->GetNextRow(Values);
           int i= pDB->GetLineNo();
           SDBInfo Info;
-          Info.CopyData(Values, iOC_MolecularDiam, iOC_MolVol, iOC_CpCv, iOC_Reference); //,  true, SumH);
+          Info.CopyData(Values, iOC_Dissociation, iOC_MolecularDiam, iOC_MolVol, iOC_CpCv, iOC_Reference); //,  true, SumH);
           Info.Update(m_EDB);
           #if dbgDumpAll
           dbgpln("%3.3s %-25.25s %-3.3s %8.8s %8.8s %-30.30s %8.8s %8.8s %8.8s %-55.55s",
@@ -3382,7 +3522,7 @@ flag CSDBSlct::GetSelectedInfo(int No, SDBInfo & Info)
 
   ASSERT(pDB->GetLineNo()==RecNo);
     
-  Info.CopyData(Values, iOC_MolecularDiam, iOC_MolVol, iOC_CpCv, iOC_Reference); //,  true, SumH);
+  Info.CopyData(Values, iOC_Dissociation, iOC_MolecularDiam, iOC_MolVol, iOC_CpCv, iOC_Reference); //,  true, SumH);
     //Info.CopyData(Data, HIsForm, SumH);
     //HIsForm=false;
   //if (dwOffset==0)

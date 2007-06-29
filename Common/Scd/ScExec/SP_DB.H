@@ -582,11 +582,15 @@ class DllImportExport CSpConstData
     double        ACent()            { return m_dAc; };
     double        MolarVolume()      { return m_dMv; };
     double        MolecularDiam()    { return m_dMd; };
+    double        Ka(int i)          { return m_iDaType==DaType_IsAcid ? m_dDa[i]:0.0; };
+    double        Kb()               { return m_iDaType==DaType_IsBase ? m_dDa[0]:0.0; };
+    LPSTR         KaKbDesc()         { return m_sKaKbDesc(); }
 
     bool          PcOK()             { return m_bPcOK; };
     bool          TcOK()             { return m_bTcOK; };
     bool          VcOK()             { return m_bVcOK; };
     bool          AcOK()             { return m_bAcOK; };
+    bool          DaOK()             { return m_bDaOK; };
 
   public:
     double        m_dMoleWt;
@@ -611,6 +615,15 @@ class DllImportExport CSpConstData
     Strng         m_sMv; 
     Strng         m_sMd; 
 
+    static const byte      DaType_IsNull = 0;
+    static const byte      DaType_IsAcid = 1;
+    static const byte      DaType_IsBase = 2;
+
+    bool            m_bDaOK;
+    byte            m_iDaType;
+    double          m_dDa[3];        // Dissociation numbers
+    //Strng           m_sDa;           // 
+    Strng           m_sKaKbDesc;
   };
 
 // ---------------------------------------------------------------------------
@@ -628,7 +641,7 @@ class DllImportExport CSpCommonData
   public:
     bool            m_bVpOK;
     CSpDBEqn      * m_pVp;           // Vapour Pressure Eqn
-    Strng           m_sVp;           // Vapour Pressure Eqn
+    Strng           m_sVp;           // 
 
     CSpConstData  * m_pConst;
     CComponent    * m_pCmp;
@@ -860,6 +873,8 @@ class DllImportExport CSpecie : public CPropertyBase
 
     bool          CpOK();
 
+    LPSTR         KaKbDesc()         { return m_Const.m_sKaKbDesc(); };
+
     // CPropertyBase virtuals
     virtual LPCTSTR DefinedPropertyMapName()                              { return "SpecieDefn"; }
     virtual long    DefinedPropertyCount();
@@ -1019,7 +1034,12 @@ class DllImportExport CSpecieDataBase
     CSVLongArray   m_DensCorrSps;
     CSVLongArray   m_CpCorrSps;
     CSVLongArray   m_SolubleSps;
+    
+    CSVLongArray   m_Acids;
+    CSVLongArray   m_Bases;
+
     int            m_iNo;
+    int            m_iOC_Dissociation;
     int            m_iOC_MolecularDiam;
     int            m_iOC_MolVol;
     int            m_iOC_CpCv;
@@ -1807,6 +1827,7 @@ const long VAMsk_Overides     = 0x00000001;
 const long VAMsk_Thermo       = 0x00000002;
 const long VAMsk_Viscosity    = 0x00000004;
 const long VAMsk_HeatValues   = 0x00000008;
+const long VAMsk_Acidity      = 0x00000010;
 const long VAMsk_Inited       = 0x80000000;
 
 // Variable Available Masks (specie vector)
@@ -2165,6 +2186,7 @@ class DllImportExport CSysVector
   public:
     double      getVValue(int SVIndex)                              { return SVIndex>=0 ? m_d[SVIndex]:EvalFn(SVIndex); };
     double      getVMass(int SVIndex)                               { ASSERT(SVIndex>=0 && SVIndex<SVSpcCount()); return m_d[SVIndex]; };
+    double      getVMoles(int SVIndex)                              { ASSERT(SVIndex>=0 && SVIndex<SVSpcCount()); return m_d[SVIndex]/SDB[SVIndex].MoleWt(); };
     double      getVAttr(int SVIndex)                               { ASSERT(SVIndex>=0 && SVIndex<SVAttCount()); return m_d[SVIndex+SVSpcCount()]; };
     double      getVCalc(int SVIndex)                               { ASSERT(SVIndex>=0 && SVIndex<SVClcCount()); return EvalFn(SVIndex-SVClcCount()); };
     double    * getVPtr(int SVIndex)                                { ASSERT(SVIndex>=0 && SVIndex<SVValueCount()); return &m_d[SVIndex]; }
@@ -2179,6 +2201,7 @@ class DllImportExport CSysVector
 
     __declspec(property(get=getVValue,put=SetVValue))           double VValue[];
     __declspec(property(get=getVMass))                          double VMass[];
+    __declspec(property(get=getVMoles))                         double VMoles[];
     __declspec(property(get=getVAttr,put=SetVAttr))             double VAttr[];
     __declspec(property(get=getVCalc))                          double VCalc[];
     __declspec(property(get=getVPtr))                           double *VPtr[];

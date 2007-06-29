@@ -611,6 +611,12 @@ CSpConstData::CSpConstData()
   m_dAc=1.0;
   m_dMv=22.414;
   m_dMd=dNAN;
+
+  m_bDaOK   = false;
+  m_iDaType = CSpConstData::DaType_IsNull;
+  m_dDa[0]  = 0.0; 
+  m_dDa[1]  = 0.0; 
+  m_dDa[2]  = 0.0; 
   };
 
 // ==========================================================================
@@ -1228,11 +1234,44 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
     flag DummySpecd=false;
 
+    m_Const.m_iDaType=CSpConstData::DaType_IsNull;
+    if (m_eOcc==BOT_Liquid)
+      {
+      if (m_SDB.m_iOC_Dissociation>=0)
+        {
+        CSVColArray C;
+        Strng TheString;
+        int Quote=0;
+        int N=ParseCSVFunction((LPSTR)(LPCSTR)Values[m_SDB.m_iOC_Dissociation], C, Quote);
+        if (N>=2)
+          {
+          if (stricmp(C[0], "Ka")==0)
+            {
+            m_Const.m_iDaType = CSpConstData::DaType_IsAcid;
+            m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
+            m_Const.m_dDa[1] = N>=3 ? SpDB_TokenValue((LPSTR)C[2], 0.0) : 0.0;
+            m_Const.m_dDa[2] = N>=4 ? SpDB_TokenValue((LPSTR)C[3], 0.0) : 0.0;
+            m_Const.m_sKaKbDesc.Set("Ka(%.2g%s)", m_Const.m_dDa[0], m_Const.m_dDa[0]!=0?",..":""); 
+            }
+          else if (stricmp(C[0], "Kb")==0)
+            {
+            m_Const.m_iDaType = CSpConstData::DaType_IsBase;
+            m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
+            m_Const.m_sKaKbDesc.Set("Ka(%.2g)", m_Const.m_dDa[0]);
+            }
+          else
+            LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka or Kb", Sym());
+          }
+        else
+          LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka(a,b,c) or Kb(a)", Sym());
+        }
+      }
+
     if (m_SDB.m_iOC_MolecularDiam>=0)
       ParseAValue(NULL, m_Const.m_bMdOK, m_Const.m_dMd, m_Const.m_sMd, DummySpecd, dNAN, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolecularDiam], ID(), "Molecular Diam");
     else
       m_Const.m_dMd=dNAN;
-    
+
     if (m_SDB.m_iOC_MolVol>=0)
       ParseAValue(NULL, m_Const.m_bMvOK, m_Const.m_dMv, m_Const.m_sMv, DummySpecd, 22.414, 1.0, (LPCSTR)Values[m_SDB.m_iOC_MolVol], ID(), "Molar Volume"); // 22.414 is Ideal
     else
@@ -1814,6 +1853,7 @@ void CSpecieDataBase::Init()
   m_SolubleSps.SetSize(0);
   //  Term();
   m_pExtraProps=NULL;
+  m_iOC_Dissociation=-1;
   m_iOC_MolecularDiam=-1;
   m_iOC_MolVol=-1;
   m_iOC_CpCv=-1;
@@ -3075,9 +3115,10 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
         }
       if (ColNamesOK)
         {
-        char* OptColNames[] = { "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
+        char* OptColNames[] = { "Dissociation", "MolecularDiam", "MolarVol", "CpCv", "Reference", NULL };
         DB.CheckOptionalFieldNames(OptColNames);
 
+        m_SDB.m_iOC_Dissociation  = (DB.FieldIndex(DB.NFieldIndexes()-5)<0 ? -1 : DB.NFieldIndexes()-5);
         m_SDB.m_iOC_MolecularDiam = (DB.FieldIndex(DB.NFieldIndexes()-4)<0 ? -1 : DB.NFieldIndexes()-4);
         m_SDB.m_iOC_MolVol        = (DB.FieldIndex(DB.NFieldIndexes()-3)<0 ? -1 : DB.NFieldIndexes()-3);
         m_SDB.m_iOC_CpCv          = (DB.FieldIndex(DB.NFieldIndexes()-2)<0 ? -1 : DB.NFieldIndexes()-2);
@@ -4311,6 +4352,21 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         *p='_';
       }
     }
+  
+  for (s=0; s<m_SDB.m_iNo; s++)
+    {
+    CSpecie & Sp=m_SDB[s];
+    switch (Sp.m_Const.m_iDaType)
+      {
+      case CSpConstData::DaType_IsAcid:
+        m_SDB.m_Acids.Add(s);
+        break;
+      case CSpConstData::DaType_IsBase:
+        m_SDB.m_Bases.Add(s);
+        break;
+      }
+    }
+  
   return true;
   }
 

@@ -214,9 +214,14 @@ XID xidVPrandtl         = SpcXID(100147);
 XID xidLPrandtl         = SpcXID(100148);
 XID xidLSurfT           = SpcXID(100149);
 
-XID xidSpUseFlgs        = SpcXID(100150);
+XID xidpHState          = SpcXID(100152);
+XID xidpHnegLogH        = SpcXID(100153);
+XID xidpHAcidsPres      = SpcXID(100154);
+XID xidpHBasesPres      = SpcXID(100155);
 
-XID xidRhoSoln1         = SpcXID(100151);
+XID xidSpUseFlgs        = SpcXID(100156);
+
+XID xidRhoSoln1         = SpcXID(100157);
 XID xidRhoSolnLast      = SpcXID(100159);
 
 XID xidSpHeatValueHiM     = SpcXID(100160);
@@ -603,6 +608,9 @@ const byte AVLESet_DewPt      = 3;
 const byte AVLESet_Saturated  = 4;
 const byte AVLESet_SuperSat   = 5;
 
+const byte pH_OK              = 0;
+const byte pH_AcidAndBase     = 1;
+
 // ===========================================================================
 
 class CSpUseArray : public CArray<bool,bool> {} ;
@@ -898,6 +906,11 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double HeatOfCombustionLo(PhMask Phase=som_ALL);
     virtual double HeatOfCombustionLo(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
 
+    virtual byte   pHState(CSysVector * pMA=NULL);
+    virtual double pHnegLogH(CSysVector * pMA=NULL);
+    virtual LPSTR  pHAcids();
+    virtual LPSTR  pHBases();                          
+
     // new Stuff for Trancritical
     virtual double TCritical(PhMask Phase=som_Gas, eScdGasMixingRule Rule=eScdGMR_Default);
     virtual double PCritical(PhMask Phase=som_Gas, eScdGasMixingRule Rule=eScdGMR_Default);
@@ -1176,6 +1189,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     byte           nQuals;
     SpQualInfo     *Quals;
     byte           bSQFlags;
+
+    Strng          m_sAcids;
+    Strng          m_sBases;
 
     SpPropOveride  m_Ovr;
 
