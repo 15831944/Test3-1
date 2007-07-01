@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-06-04 01:30:46 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-29 16:30:25 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -19,7 +19,7 @@
   #define DllImportExport
 #endif
 
-
+#include "..\ttcommon\psd.h"
 
 
 
@@ -42,13 +42,16 @@ class CDynTestTank : public MBaseMethod
   void BuildDataFields();
   bool ValidateDataFields();
   void EvalProducts();
+  void SetState(MStatesToSet);
+ 
   //void ClosureInfo(MClosureInfo & CI);
-  double NucleationRate();
  protected:
   // Streams 
+  double dd[30];
 
   MStream Feed;
-  MStream Tank;     // Effective Stream for tank, calculations done on this stream\
+  MStream Tank;     // Effective Stream for tank, calculations done on this stream
+  MStream SavedTank;  // Save the tank stream contents for efficient recalculation
 
     // Booleans
   bool bOnline;
@@ -58,7 +61,6 @@ class CDynTestTank : public MBaseMethod
   bool bAttritionOn;
   bool started;
   // Doubles
-
 
   double dTankVol;   // Actual volume of tank
   double dTankVolume; // Volume of fluid in tank
@@ -75,11 +77,31 @@ class CDynTestTank : public MBaseMethod
   double dDeltaT;    // Timestep for iteration
   double dMassInflow;
   double dMassInflow1;
-  
+
+  double m_dSSat;    // Supersaturation
+  double m_dSSA;     // Specific surface area
+   
 
   long lPBType;   // Particle Balance Type
 
-  double M[21], F[21];
+  double Nucleation();       // Given numbers, determine new numbers
+  double Agglomeration();
+  double Growth();
+
+  double AdjustMass();
+  void doPrecip();
+  void displayPSD(MStream &);
+  double M[21];
+  long iPSD;
+  AgglomKernel ak;
 };
+
+
+
+double AgglomRate(double);
+double NucleationRate(double ssat, double ssa); 
+double GrowthRate(double);
+
+
 
 #endif
