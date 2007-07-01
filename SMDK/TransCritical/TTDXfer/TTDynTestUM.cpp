@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //           QAL Classifier Model 2004 - Transcritical Technologies/ QAL 
-//   Time-stamp: <2007-06-07 03:27:40 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-06-29 17:58:18 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 // $Nokeywords: $
 //===========================================================================
@@ -14,8 +14,13 @@ static MInitialiseTest InitTest("DynTest");
 
 
 static MSpeciePtr  spAlumina     (InitTest, "NaAl[OH]4(l)", false);
+static MSpeciePtr  spAluminaS    (InitTest, "Al[OH]3(s)", false);
 static MSpeciePtr  spWater       (InitTest, "H2O(l)", false);
 static MSpeciePtr  spVapor       (InitTest, "H2O(g)", false);
+
+
+static double** beta;
+static double** bsplit;
 
 
 
@@ -59,12 +64,16 @@ void CDynTestTank_UnitDef::GetOptions()
 
 
 CDynTestTank::CDynTestTank(MUnitDefBase *pUnitDef, TaggedObject * pNd) :  
-  MBaseMethod(pUnitDef, pNd)
+  MBaseMethod(pUnitDef, pNd),   Tank(this, "Tank")
 {   //default values...
   
   started = false;
   dDeltaT = 0.0;
   dTankDiameter = 10;
+  bAgglomOn = false;
+  bGrowthOn = false;
+  bNuclOn = false;
+  iPSD = 2;
 }
 
 
@@ -80,9 +89,9 @@ CDynTestTank::~CDynTestTank()
 
 
 bool CDynTestTank::ValidateDataFields()
-  {//ensure parameters are within expected ranges
+{//ensure parameters are within expected ranges
   return true;
-  }long lPBType;
+}
 
 //---------------------------------------------------------------------------
 
@@ -94,16 +103,17 @@ void CDynTestTank::Init()
 //---------------------------------------------------------------------------
 
 
+void CDynTestTank::SetState(MStatesToSet SS)
+{
+  switch (SS) {
+    case MSS_Empty:
+      Tank.AdjustMassTo(MP_All, 0.0);
+    }
+}
+
 
 
 //---------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 void CDynTestTank::EvalProducts()
@@ -113,22 +123,14 @@ void CDynTestTank::EvalProducts()
     MStream & UFlow = FlwIOs[FlwIOs.First[idUflow]].Stream; //Reference to the output stream
     MStream & OFlow = FlwIOs[FlwIOs.First[idOflow]].Stream; //Reference to the output stream
     
-
-
-    long l1 = Feed.Count();
-    Log.Message(MMsg_Note, "Tag : %s,    Count:   %ld",  UFlow.Tag, l1);
-
-
-
     
-    if (!started) {
+    if (!started && Tank.MassFlow()<1.0e-3) {
       started = true;
       Tank = Feed;
     } else {
       Tank.AddF(Feed, MP_All, 1.0);
     }
 
-    
     
     UFlow = Feed;
     OFlow = Feed;
@@ -146,39 +148,18 @@ void CDynTestTank::EvalProducts()
 
     Log.SetCondition(IsNothing(FeedB), 1, MMsg_Warning, "Bad Feed Stream - Not BATC Bayer Model");
 
-
+    lPBType = PB_None;
     // Try PSD
     MIPSD & FeedPSD = Feed.IF<MIPSD>(false);
     if (!IsNothing(FeedPSD)) 
       lPBType = PB_PSD;
     else {   // Try SSA...
-     MISSA & FeedSSA = Feed.IF<MISSA>(false);
-     if (!IsNothing(FeedSSA))
-       lPBType = PB_SSA;
-     else
-       lPBType = PB_None;
+      MISSA & FeedSSA = Feed.IF<MISSA>(false);
+      if (!IsNothing(FeedSSA))
+	lPBType = PB_SSA;
     }
 
-
-    long l2 = FeedPSD.getSizeCount();
-    long l3 = FeedPSD.getSpecieCount(0);
-    long PSDSpecie = FeedPSD.getSpecieIndex(0);
-    double s0 = FeedPSD.getSize(0);
-    double s1 = FeedPSD.getSize(1);
-    double b0 = FeedPSD.getBottomSize();
-    double sden = gs_MVDefn[PSDSpecie].Density();
-    FeedPSD.ExtractSizes(M, 1.0e6);
-    FeedPSD.ExtractFracVector(F, 0);
-
-
-    MSpecieElements AluminaElements = gs_MVDefn[PSDSpecie].Elements();
-    long ECount = AluminaElements.Count();
-    for (int i=0; i<ECount; i++) {
-      MElementDefn Ele = AluminaElements[i].Element();
-      Log.Message(MMsg_Warning, "Element %4s, AtomNumber = %5ld,    AtomWt = %8.2f", Ele.Symbol(), Ele.AtomicNumber(), Ele.AtomicWt());
-    }      
-      
-    
+    MIBayer  & TankB = Tank.IF<MIBayer>(false);
 
     Log.SetCondition(lPBType==PB_None, 1, MMsg_Warning, "Bad Feed Stream - No PSD or SSA Property");
 
@@ -186,12 +167,20 @@ void CDynTestTank::EvalProducts()
 
 
     if (bOnline && streamOK) {  // Online and have Bayer and SSA properties...
+
       UFlow = Tank;
-      
+      double acsat = TankB.AluminaConcSat(Tank.T)/GTZ(TankB.CausticConc(C2K(25)));
+      m_dSSat = TankB.AtoC()/GTZ(acsat);
+      FeedPSD.ExtractSizes(M);
+      //ak = AgglomKernel(FeedPSD.getSizeCount(), 1600, M);
       dQmin = Feed.MassFlow();
       dTankMass = Tank.Mass();
       dTankVolume = dTankMass/Tank.Density();
       dTankLevel = dTankVolume/CircleArea(dTankDiameter);
+      
+      doPrecip();
+      
+
       if (dTankVolume>dTankVol) {
 	double excess = dTankVolume-dTankVol;
 	UFlow.SetM(Tank, MP_All, excess*Tank.Density());
@@ -203,7 +192,7 @@ void CDynTestTank::EvalProducts()
       dTankMass = Tank.Mass();   // Remaining after adjustment
       dTin = Feed.T;
       dTout = Tank.T;
-      
+      displayPSD(Tank);
       
     } else  {   // Just tidy up and put some sensible stuff in the results...
        Log.Message(MMsg_Warning, "Stream Problem...");
@@ -232,6 +221,26 @@ void CDynTestTank::EvalProducts()
 //--------------------------------------------------------------------------
 
 
+void CDynTestTank::doPrecip()  {
+  
+  PSD p1(Tank, spAluminaS);
+
+  m_dSSA = p1.getArea();
+  double grate = GrowthRate(m_dSSat);
+  double arate = AgglomRate(m_dSSat);
+  double nrate = NucleationRate(m_dSSat, m_dSSA);
+  if (bNuclOn)
+    p1.Nucleation(nrate*dDeltaT);   // Nucleate N0 new particles to bin N
+  if (bGrowthOn)
+    p1.Growth(grate*dDeltaT);   // Growth of deltaR
+  if (bAgglomOn)
+    p1.Agglomeration(arate, ak);
+  p1.putN(Tank);
+  
+    
+}
+
+
 
 // Misra 1970  Nucleation Rate is in numbers of fine particles per unit area of surface
 
@@ -247,6 +256,11 @@ void CDynTestTank::EvalProducts()
 
 
 
+static MDDValueLst DDB2[]={
+  {0,   "Fraction" },
+  {1,   "Number"},
+  {2,   "F*"},
+  {0}};
 
 
 
@@ -270,14 +284,15 @@ void CDynTestTank::BuildDataFields()
 
 
   DD.CheckBox("On", "",  &bOnline, MF_PARAMETER|MF_SET_ON_CHANGE);
+  DD.Long("PSD.Display", "", &iPSD, MF_PARAMETER|MF_SET_ON_CHANGE, DDB2);
   //  DD.CheckBox("Int.Cooling", "", &m_bInternalCool, MF_PARAMETER|MF_SET_ON_CHANGE);
   //DD.CheckBox("Ext.Cooling", "", &m_bExternalCool, MF_PARAMETER|MF_SET_ON_CHANGE);
+
   DD.Text("");
   DD.CheckBox("Growth.On", "",  &bGrowthOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("Agglom.On", "",  &bAgglomOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("Nucleation.On", "",  &bNuclOn, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.CheckBox("Attrition.On", "",  &bAttritionOn, MF_PARAMETER|MF_SET_ON_CHANGE);
-
 
 
 
@@ -308,5 +323,59 @@ void CDynTestTank::BuildDataFields()
   DD.Double("TempIn", "",           &dTin           ,MF_RESULT, MC_T("C"));
   DD.Double("TempOut", "",          &dTout          ,MF_RESULT, MC_T("C"));
   DD.Text("");
-  
+  DD.Page("Tank Numbers");
+
+  CString Tg;
+
+  for (int i=0; i<21; i++) {
+    Tg.Format("Bin%02d", i);
+    DD.Double((char*)(const char*)Tg, "", &dd[i], MF_RESULT|MF_NO_FILING, MC_None);
+  }
+  DD.Text("");
+
+  DD.Object(Tank, MDD_RqdPage);
+
+}
+
+
+void CDynTestTank::displayPSD(MStream &ms)
+{
+  MIPSD & mpsd = ms.IF<MIPSD>(false);   /// Does the mud stream have PSD...
+  if (IsNothing(mpsd)) return;
+  int ic = mpsd.getSizeCount();
+  if (ic>40) ic=40;
+  double x=0.0;
+  PSD ps(ms, spAluminaS);
+  for (int i=0; i<ic; i++) {
+    switch (iPSD) {
+    case 0:
+      x = ps.getFrac(i);
+      break;
+    case 1: 
+      x = ps.getN(i);
+      break;
+    case 2: 
+      x = ps.getD(i)*1000;
+      break;
+      
+    }
+    dd[i]=x;
+  }
+}
+
+
+
+double AgglomRate(double ssat)  {
+  return  5.0e-10*pow(ssat, 4)/3600;
+}
+
+
+double GrowthRate(double ssat) // m/s
+{
+  return 1.2e-6/3600;
+}
+
+double NucleationRate(double ssat, double ssa) 
+{
+  return 5.0e8*pow(GTZ(ssat), 4)*ssa/3600;
 }
