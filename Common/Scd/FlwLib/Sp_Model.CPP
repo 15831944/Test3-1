@@ -7758,6 +7758,7 @@ double SpModel::pHnegLogH(CSysVector * pMA)
   CSVLongArray &A = SDB.m_Acids;
   CSVLongArray &B = SDB.m_Bases;
   double TolMass = MA.Mass(som_Liq)*1e-12;
+  double LiqVol  = GTZ(MA.Volume(m_iFidelity, som_Liq, C2K(25.0), StdP, NULL));
 
   double H=0.0;
   for (int a=0; a<A.GetCount(); a++)
@@ -7766,11 +7767,11 @@ double SpModel::pHnegLogH(CSysVector * pMA)
     if (MA[s]>TolMass)
       {
       Na++;
-      double Cb = MA.VMoles[s];
+      double Cb = MA.VMoles[s]/(LiqVol);
       for (int term=0; term<3; term++)
         {
         double Ka  = SDB[s].m_Const.m_dDa[term];
-        double CbNxt = sqrt(Ka*Cb + (Ka*Ka)/4) - Ka/2;
+        double CbNxt = (Ka==1.0) ? Cb : sqrt(Ka*Cb + (Ka*Ka)/4) - Ka/2;
         H += CbNxt;
         Cb = CbNxt;
         }
@@ -7784,13 +7785,11 @@ double SpModel::pHnegLogH(CSysVector * pMA)
     if (MA[s]>TolMass)
       {
       Nb++;
-      double Cb = MA.VMoles[s];
+      double Cb = MA.VMoles[s]/(LiqVol);
       double Kb  = SDB[s].m_Const.m_dDa[0];
-      OH += sqrt(Kb*Cb + (Kb*Kb)/4) - Kb/2;
+      OH += (Kb==1.0) ? Cb : sqrt(Kb*Cb + (Kb*Kb)/4) - Kb/2;
       }
     }
-
-  double LiqVol  = GTZ(MA.Volume(m_iFidelity, som_Liq, K2C(25.0), StdP, NULL));
 
   if (H>OH)
     return -log10(H-OH);

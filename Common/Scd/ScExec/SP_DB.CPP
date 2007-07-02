@@ -577,6 +577,89 @@ void SpPropOveride::AddSrc(SpPropOveride & Src)
 //
 // ==========================================================================
 
+static CAcidBaseData s_AcidData[] =
+  {
+    {"HCl",         1, {1,               0,                   0                   }},
+    {"HNO3",        1, {1,               0,                   0                   }},
+    {"H2SO4",       1, {1,               0.0102,              0                   }},
+    {"H2CrO4",      1, {0.18,            0.00000032,          0                   }},
+    {"HIO3",        1, {0.16,            0,                   0                   }},
+    {"H2C2O4",      1, {0.056,           0.000054,            0                   }},
+    {"H3PO3",       1, {0.03,            0.00000017,          0                   }},
+    {"H5IO6",       1, {0.028,           0.0000000053,        0                   }},
+    {"H2SO3",       1, {0.014,           0.000000065,         0                   }},
+    {"HClO2",       1, {0.0112,          0,                   0                   }},
+    {"H3PO4",       1, {0.0072,          0.00000063,          0.00000000000042    }},
+    {"H3ASO4",      1, {0.006,           0.00000011,          0.000000000003      }},
+    {"H3SeO3",      1, {0.0035,          0.00000005,          0                   }},
+    {"C3H4O4",      1, {0.0015,          0.000002,            0                   }},
+    {"C2H3O2Cl",    1, {0.0014,          0,                   0                   }},
+    {"C4H6O6",      1, {0.001,           0.000045,            0                   }},
+    {"H3C6H5O7",    1, {0.00075,         0.000017,            0.0000004           }},
+    {"HNO2",        1, {0.00071,         0,                   0                   }},
+    {"HF",          1, {0.00068,         0,                   0                   }},
+    {"HCNO",        1, {0.00035,         0,                   0                   }},
+    {"HCOOH",       1, {0.00018,         0,                   0                   }},
+    {"C3H6O3",      1, {0.00014,         0,                   0                   }},
+    {"C6H5COOH",    1, {0.000063,        0,                   0                   }},
+    {"HN3",         1, {0.000019,        0,                   0                   }},
+    {"CH3COOH",     1, {0.000018,        0,                   0                   }},
+    {"CH3CH2COOH",  1, {0.000013,        0,                   0                   }},
+    {"H2C6H6O6",    1, {0.00001,         0.000000000005,      0                   }},
+    {"H2CO3",       1, {0.00000045,      0.000000000047,      0                   }},
+    {"H2S",         1, {0.00000009,      0.00000000000000001, 0                   }},
+    {"HClO3",       1, {0.000000029,     0,                   0                   }},
+    {"HBrO",        1, {0.0000000023,    0,                   0                   }},
+    {"H3BO3",       1, {0.00000000073,   0.00000000000018,    0                   }},
+    {"HCN",         1, {0.00000000062,   0,                   0                   }},
+    {"H3AsO3",      1, {0.0000000006,    0,                   0                   }},
+    {"C6H5OH",      1, {0.0000000001,    0,                   0                   }},
+    {"HIO",         1, {0.000000000023,  0,                   0                   }},
+    {"H2O2",        1, {0.0000000000024, 0,                   0                   }},
+    {"NaOH",        0, {1             }},
+    {"LiOH",        0, {1             }},
+    {"KOH",         0, {1             }},
+    {"Na2O",        0, {1             }},
+    {"LiO2",        0, {1             }},
+    {"K2O",         0, {1             }},
+    {"MgO",         0, {1             }},
+    {"CaO",         0, {1             }},
+    {"Mg[OH]2",     0, {1             }},
+    {"Ca[OH]2",     0, {0.00374       }},
+    {"[CH3CH2]2NH", 0, {0.00086       }},
+    {"[CH3]2NH",    0, {0.00059       }},
+    {"[CH3CH2]3N",  0, {0.00052       }},
+    {"CH3NH2",      0, {0.00044       }},
+    {"CO3--",       0, {0.00021       }},
+    {"HOCH2CH2NH2", 0, {0.000032      }},
+    {"NH3",         0, {0.0000176     }},
+    {"C10H14N2",    0, {0.0000007     }},
+    {"ClO-",        0, {0.00000031    }},
+    {"HS-",         0, {0.0000001     }},
+    {"H2NOH",       0, {0.000000011   }},
+    {"C5H5N",       0, {0.0000000017  }},
+    {"C6H5NH2",     0, {0.0000000004  }},
+    {}
+  };
+
+
+CAcidBaseData * FindAcidBaseData(LPCSTR Compound)
+  {
+  for (int i=0; s_AcidData[i].m_sName; i++)
+    {
+    if ((strncmp(s_AcidData[i].m_sName, Compound, strlen(s_AcidData[i].m_sName))==0) &&
+        (Compound[strlen(s_AcidData[i].m_sName)]=='('))
+      return &s_AcidData[i];
+    }
+  return NULL;
+  }
+
+//===========================================================================
+//
+//
+//
+// ==========================================================================
+
 LPCTSTR OccurenceNames[] =
   {
   "Solid",
@@ -1239,6 +1322,8 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
       {
       if (m_SDB.m_iOC_Dissociation>=0)
         {
+        Strng TmpSym;
+        TmpSym.Set("%s(%s)", pC->SymOrTag(), Phase);
         CSVColArray C;
         Strng TheString;
         int Quote=0;
@@ -1260,10 +1345,10 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
             m_Const.m_sKaKbDesc.Set("Ka(%.2g)", m_Const.m_dDa[0]);
             }
           else
-            LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka or Kb", Sym());
+            LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka or Kb", TmpSym());
           }
-        else
-          LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka(a,b,c) or Kb(a)", Sym());
+        else if (N>0)
+          LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka(a,b,c) or Kb(a)", TmpSym());
         }
       }
 
@@ -4356,6 +4441,17 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (s=0; s<m_SDB.m_iNo; s++)
     {
     CSpecie & Sp=m_SDB[s];
+    if (Sp.IsLiq() && Sp.m_Const.m_iDaType==CSpConstData::DaType_IsNull)
+      {
+      // fill in the blanks
+      CAcidBaseData * p=FindAcidBaseData(Sp.Sym());
+      if (p)
+        {
+        Sp.m_Const.m_iDaType= p->m_Acid ? CSpConstData::DaType_IsAcid : CSpConstData::DaType_IsBase;
+        for (int a=0; a<3; a++)
+          Sp.m_Const.m_dDa[a]=p->m_dDa[a];
+        }
+      }
     switch (Sp.m_Const.m_iDaType)
       {
       case CSpConstData::DaType_IsAcid:

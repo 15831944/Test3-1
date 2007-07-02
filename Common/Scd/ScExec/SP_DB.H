@@ -570,6 +570,21 @@ class DllImportExport SpPropOveride
 //
 // ===========================================================================
 
+struct CAcidBaseData 
+  {
+  LPCTSTR   m_sName;
+  bool      m_Acid;
+  double    m_dDa[3];
+  };
+
+extern DllImportExport CAcidBaseData * FindAcidBaseData(LPCSTR Compound);
+
+// ===========================================================================
+//
+//
+//
+// ===========================================================================
+
 class DllImportExport CSpConstData
   {
   public:
