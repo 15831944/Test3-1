@@ -233,12 +233,16 @@ class DllImportExport MVector
   friend class MSpecieDefn;
   friend class MClosureInfo;
   friend class MVLEBlk;
+  friend class MSpModelBase;
   private:
     MVector(); // cannot construct standalone
 
   public:
+  //protected:
     MVector(SpModel * pMdl);
     MVector(MSpQualityBase * p);
+  public:
+
     ~MVector();
 
     //interface:

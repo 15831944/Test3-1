@@ -276,7 +276,7 @@ double AmiraBayer::get_SaturationT(double P, MArray *pMA)
 double AmiraBayer::get_SaturationP(double T, MArray *pMA)
 {
   double *dpData = CheckConverged(T, this->Pressure, pMA);
-  return 1000.0; //dpData[iP_sat];
+  return dpData[iP_sat]*100.0;
 }
 
 //---------------------------------------------------------------------------
@@ -899,7 +899,11 @@ double AmiraBayer::SulphateConc25()
 
 double* AmiraBayer::CheckConverged(double T, double P, MArray *pMA, bool force)
 {
-  if (!pMA) {   
+  //if (pMA->==&MassArray) 
+  //  {
+  //  int xxx=0;
+  //  }
+  if (!pMA /*|| (pMA==&MassArray)*/) {   
     // Calculation for *this* species
     if ((T<0.0  || T==this->Temperature) && 
 	(P<0.0  || P==this->Pressure))  { // Call for stream conditions and composition
