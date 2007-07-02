@@ -241,7 +241,6 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double ChlorineConc25();
     double SulphateConc25();
     double SolidsConc25();
-    double NaOnCS();                  
   
     double * CheckConverged(double T=-1.0, double P=-1.0, MArray *pMA=NULL, bool = FORCECNVG);
     /// bool   TestStateValid(int i);

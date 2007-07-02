@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-07-02 05:19:17 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-07-02 09:09:45 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -276,7 +276,7 @@ double AmiraBayer::get_SaturationT(double P, MArray *pMA)
 double AmiraBayer::get_SaturationP(double T, MArray *pMA)
 {
   double *dpData = CheckConverged(T, this->Pressure, pMA);
-  return 1000.;  //dpData[iP_sat];
+  return 1000.0; //dpData[iP_sat];
 }
 
 //---------------------------------------------------------------------------
@@ -339,7 +339,6 @@ enum
   idCarbonateConc25		,
   idSolidsConc25			  ,
   idFreeCaustic25      ,
-  idNaOnCS, 
   idNaSO4Conc25			  ,
   idNaClConc25				  ,
   idNa2C2O4Conc25			,
@@ -475,7 +474,6 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
     case idBoilPtElev     : 
       Info.Set(ePT_Double,    "", "BoilPtElev",MC_dT,   "C", 0, 0,  MP_RN,  "Boiling Point Elevation"); return Inx;
-    case idNaOnCS         : Info.Set(ePT_Double,    "", "NaOnCS",   MC_,  "", 0, 0,  MP_RNH,    "Total Sodium on Caustic"); return Inx;
 
     case idIonicStrength  : Info.Set(ePT_Double,    "I", "IonicStrength", MC_, "",    0, 0,  MP_RN,  "Ionic Strength"); return Inx;
 
@@ -556,8 +554,6 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
     
     case idBoilPtElev	: Value=BoilPtElev(P, NULL);        return; 
       
-      GVALF(LVolume25);
-      GVALF(SLVolume25);
       GVALF(OrganateConc25);
       GVALF(OxalateConc25);
       GVALF(TotalOrganics25);
@@ -567,9 +563,10 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
       GVALF(IonicStrength);
       GVALFT(AtoCSaturation);
       GVALFT(SSNRatio);
+      GVALF(LVolume25);
+      GVALF(SLVolume25);
       GVALF(LDensity25);
       GVALF(SLDensity25);
-      GVALF(NaOnCS);
 
     default: Value=0.0; return;
     }
@@ -844,14 +841,6 @@ double AmiraBayer::SSNRatio(double T_)
 
 
 
-
-
-double AmiraBayer::NaOnCS() 
-  { 
-  return 1.0;
-  }
-
-
 double AmiraBayer::Na2CO3toS()
   {
     //CheckConverged();
@@ -865,7 +854,7 @@ double AmiraBayer::OrganateConc25()
   {//Organic Na2C5O7 + NaOrg Conc @ 25
     //CheckConverged();
 
-  return .5;
+  return Comp_gL[iFormate]+Comp_gL[iAcetate];
   }
 
 //---------------------------------------------------------------------------
@@ -898,7 +887,7 @@ double AmiraBayer::ChlorineConc25()
 double AmiraBayer::SulphateConc25()
 {
   //CheckConverged();
-  return Comp_gL[iNa2CO3];
+  return Comp_gL[iNa2SO4];
 }
 
 //---------------------------------------------------------------------------
@@ -939,18 +928,18 @@ double* AmiraBayer::CheckConverged(double T, double P, MArray *pMA, bool force)
     if (T==C2K(0.0)) {    //  At Enthalpy/Entropy reference temperature 
       Log.Message(MMsg_Note, "Reference (0 C)");
       if (!TestMStateValid(0))    // Composition Changed, recalculate
-	Bayer(C2K(0.0), this->Pressure, MArray(this), dpData0); // Results in DPData 
+	Bayer(C2K(0.0), this->Pressure, MArray(this), dpData0); // Results in DPData0 
       return dpData0;
     }
     if (T==C2K(20.0)) {    //  At Enthalpy/Entropy reference temperature 
       Log.Message(MMsg_Note, "Reference (20 C)");
       if (!TestMStateValid(0))    // Composition Changed, recalculate
-	Bayer(C2K(20.0), this->Pressure, MArray(this), dpData20); // Results in DPData 
+	Bayer(C2K(20.0), this->Pressure, MArray(this), dpData20); // Results in DPData20 
       return dpData20;
     }
     // T specified but not equal to 25C or 0C
     Log.Message(MMsg_Note, "Stream MArray, Other Temperature...");
-    Bayer(T, this->Pressure, MArray(this), dpDataX); // Results in DPData 
+    Bayer(T, this->Pressure, MArray(this), dpDataX); // Results in DPDataX
     return dpDataX;
     
 

@@ -53,6 +53,5 @@ clean:
 	rm -f $(OBJS)
 
 list :  
-	a2ps -Ma4 -olist.ps $(DLLNAME)SM.h $(DLLNAME)SM.cpp \
-	    $(DLLNAME).h $(DLLNAME).cpp
+	a2ps -Ma4 -olist.ps $(DLLNAME)SM.h $(DLLNAME)SM.cpp
 
