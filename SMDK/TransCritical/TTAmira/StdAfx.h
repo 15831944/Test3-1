@@ -4,7 +4,7 @@
 //--------------------------------------------------------------------------
 
 //SMDK: NB you must define your SMDK user DLL group name here!
-#define DLL_GroupName "TTAmira"
+// #define DLL_GroupName "TTAmira"
 //--------------------------------------------------------------------------
 
 #if !defined(STDAFX_DEMOUSER_H_)

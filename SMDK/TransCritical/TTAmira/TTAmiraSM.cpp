@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Amira Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-06-22 17:58:10 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-07-02 05:19:17 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -9,7 +9,6 @@
 #include "md_headers.h"
 #pragma comment(lib, "rpcrt4.lib")
 
-#define FORCECNVG 0
 //#pragma optimize("", off)
 
 #if (1 && DBG_MVECTOR)
@@ -87,16 +86,13 @@ AmiraBayer::AmiraBayer(TaggedObject *pNd)
   MInitialise(); // this must be called to initialise the SMDK library if neccessary
 
   if (!NaFactorOK) {
-    Log.Message(MMsg_Note, "NaFactor");
     for (int sn=0; sn<gs_MVDefn.Count(); sn++) {
       bool hasSodium = false;
-      double amount = 0.0;
+      double amount = 1.0;
       MSpecieElements theElements = gs_MVDefn[sn].Elements();
       long eCount = theElements.Count();
       for (int i=0; i<eCount; i++) {
-	MElementDefn Ele = theElements[i].Element();
-	// Log.Message(MMsg_Note,  "Element %4s No %5ld amt %8.2f", Ele.Symbol(), Ele.AtomicNumber(), theElements[i].Amount()); 
-	if (Ele.AtomicNumber()==11) { // Sodium
+	if (theElements[i].Element().AtomicNumber()==anSODIUM) { // Sodium
 	  hasSodium = true;
 	  amount = theElements[i].Amount();
 	  break;
@@ -107,32 +103,11 @@ AmiraBayer::AmiraBayer(TaggedObject *pNd)
 	continue;
       }
       NaFactor[sn] = amount/2.*SodiumCarbonate.MW/gs_MVDefn[sn].MolecularWt();
-      Log.Message(MMsg_Note, "Species %s Sodium number %8.2f", gs_MVDefn[sn].Symbol(), NaFactor[sn]);
     }
     NaFactorOK = true;
   }
 }
 
-      
-	
-
-
-
-
-
-
-//    NaFactor[sn]=1.0; //For all the species without sodium ions
-//  NaFactor[::CausticSoda]	= 1.0 * ::SodiumCarbonate.MW / (2.0 * ::CausticSoda.MW);      
-//  NaFactor[::SodiumCarbonate] = 1.0;							      
-//  NaFactor[::SodiumOxalate]	= 2.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumOxalate.MW);    
-//  NaFactor[::SodiumChloride]	= 1.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumChloride.MW);   
-//  NaFactor[::SodiumSulphate]	= 2.0 * ::SodiumCarbonate.MW / (2.0 * ::SodiumSulphate.MW);
-//  NaFactor[::Alumina]		=  ::AluminaSolid.MW / (2.0 * ::Alumina.MW);
-//  NaFactor[::SodiumSilicate]	= 1.0 * ::SodiumCarbonate.MW / (1.0 * ::SodiumSilicate.MW);
-//  NaFactor[::SodiumFormate]	    = 1.0 * ::SodiumCarbonate.MW / (1.0 * ::SodiumFormate.MW);	  
-//
-//  NaFactorOK = true;
-//}
 
   
 
@@ -187,9 +162,8 @@ double AmiraBayer::get_Density(long Phases, double T, double P, MArray *pMA)
   double Dl=1.0;
   if (FLiq>1.0e-9)
     {
-    CheckConverged(pMA);
-    Bayer(T, P, MA);
-    Dl = dpData[iRho_Liq]*1000.;
+      double * dpd = CheckConverged(T, P, pMA);
+      Dl = dpd[iRho_Liq]*1000.;
     }
 
   return DUMPIT0("Density", DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA));
@@ -197,19 +171,24 @@ double AmiraBayer::get_Density(long Phases, double T, double P, MArray *pMA)
 
 //---------------------------------------------------------------------------
 
-double AmiraBayer::LiqCpCalc(MArray & MA, double Tc)
-  {
-  CheckConverged(&MA);
-
+double AmiraBayer::LiqCpCalc(double T, MArray *MA ) {
+  Log.Message(MMsg_Note, "Liq Cp Calculation");
+  double *dpData = CheckConverged(T, -1.0, MA);
   return dpData[iCp_Liq];
-  }
+}
 
-double AmiraBayer::LiqHCalc(MArray & MA, double Tc)
-  {
-  CheckConverged(&MA);
+double AmiraBayer::LiqHCalc(double T, double P, MArray *pMA ) {
+  Log.Message(MMsg_Note, "Liq H Calculation");
+  double * dpd = CheckConverged(T, P, pMA);
+  return  dpd[iH];
+}
 
-  return  dpData[iH];
-  }
+
+double AmiraBayer::LiqSCalc(double T, MArray *MA ) {
+  //double * dpd = CheckConverged(T, -1.0, MA);
+  return  dpData[iS];
+}
+
 
 
 //---------------------------------------------------------------------------
@@ -235,7 +214,7 @@ double AmiraBayer::get_msEnthalpy(long Phases, double T, double P, MArray *pMA)
   double Hl=0.0;
   if (FLiq>1.0e-9)
     {
-    Hl = LiqHCalc(MA, Tc) /*LiqCpCalc(MA, Tc) * Tc*/;
+      Hl = LiqHCalc(T, P, pMA) /*LiqCpCalc(MA, Tc) * Tc*/;
     }
   double Hs=(FSol>1.0e-9) ? gs_MVDefn.msHz(MP_Sol, T, P, PropOverides, &MA) : 0.0;
   return DUMPIT0("msEnthalpy", msEnthalpyMix(FSol, Hs, FLiq, Hl, (1.0-FSol-FLiq), dNAN, T, P, MA));
@@ -245,7 +224,8 @@ double AmiraBayer::get_msEnthalpy(long Phases, double T, double P, MArray *pMA)
 
 double AmiraBayer::get_msEntropy(long Phases, double T, double P, MArray *pMA)
   {
-  return dpData[iS];
+    // double * dpd = CheckConverged(T, P, pMA);
+    return dpData[iS];
   }
 
 //---------------------------------------------------------------------------
@@ -270,7 +250,7 @@ double AmiraBayer::get_msCp(long Phases, double T, double P, MArray *pMA)
   double Cpl=0.0;
   if (FLiq>1.0e-9)
     {
-    Cpl = LiqCpCalc(MA, K_2_C(T));
+    Cpl = LiqCpCalc(T, pMA);
     }
   double Cps=2.2;
   return msCpMix(FSol, Cps, FLiq, Cpl, (1.0-FSol-FLiq), dNAN, T, P, MA);
@@ -282,33 +262,29 @@ double AmiraBayer::get_SaturationT(double P, MArray *pMA)
   {
   MArray MA(pMA ? (*pMA) : this);
 
-  CheckConverged(&MA);
+  // CheckConverged(-1.0, P, &MA);;
 
   double PureSatT = MSpModelBase::get_SaturationT(P, &MA);
   if (MA.Mass(MP_Liq)/GTZ(MA.Mass())<1.0e-6)
     return DUMPIT1("SaturationTPure", PureSatT, P);
-
-
-  const double TotNa2C = NaOnCS();
-  double SatT = 300.;
-  return DUMPIT3("SaturationT", SatT, P, TotNa2C, LiqConcs25.Liq[::CausticSoda]);
-
+  double *dpData = CheckConverged(this->Temperature, P, pMA);
+  return PureSatT+dpData[iBPE];
   }
 
 //---------------------------------------------------------------------------
 
-double AmiraBayer::get_SaturationP(double T, MArray *pMa)
-  {
-
-    return 1000.;
-    
-
-  }
+double AmiraBayer::get_SaturationP(double T, MArray *pMA)
+{
+  double *dpData = CheckConverged(T, this->Pressure, pMA);
+  return 1000.;  //dpData[iP_sat];
+}
 
 //---------------------------------------------------------------------------
 
-double AmiraBayer::BoilPtElev(MArray & MA, double P)
-  {
+double AmiraBayer::BoilPtElev(double P, MArray*pMA)
+{
+  Log.Message(MMsg_Warning, "Boiling POint Elevation, t  %8.2f p  %8.2f", this->Temperature, P);
+  double * dpData = CheckConverged(this->Temperature, P, pMA);
   return dpData[iBPE];
   }
 
@@ -321,7 +297,6 @@ double AmiraBayer::get_DynamicViscosity(long Phases, double T, double P, MArray 
 
   MArray MA(pMA ? (*pMA) : this);
 
-  CheckConverged(&MA);
 
   double Tc = Max(-41.0, K_2_C(T));
   const double C = 200;
@@ -354,9 +329,6 @@ enum
   idRho_Factor,
   idMinSolCp        	,
 
-  idK1_BoundSodaCalc,
-
-  idG0H2O, 
 
   idAluminaConc25			,
   idCausticConc25			,
@@ -364,16 +336,13 @@ enum
   idAtoC					,
   idCtoS					,
   idCltoC	      ,
-  idTOC25					    ,
   idCarbonateConc25		,
   idSolidsConc25			  ,
   idFreeCaustic25      ,
   idNaOnCS, 
-  idTOS25					    ,
   idNaSO4Conc25			  ,
   idNaClConc25				  ,
   idNa2C2O4Conc25			,
-  idTOStoTOC           ,
 
   idSeparator1				  ,
 
@@ -381,7 +350,6 @@ enum
   idTotalOrganics25		,
   idChlorineConc25			,
   idSulphateConc25			,
-  idTotalNa25				  ,
   idOrganateConc25			,
 
   idSeparator2				  ,
@@ -408,10 +376,8 @@ enum
   idAluminaConcSat   ,
   idAtoCSaturation			,
   idSSNRatio				    ,
-  idAluminaSSN ,
   idIonicStrength    ,
   idBoilPtElev				  ,
-  idBoundSodaSat  ,
   idTHAMassFlow   			,
   idTHADens				    ,
 
@@ -463,9 +429,6 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idAtoC		    : Info.Set(ePT_Double,    "", "A/C",  MC_,"",  0, 0,  MP_RN,    "A to C ratio"); return Inx;
     case idCtoS		    : Info.Set(ePT_Double,    "", "C/S",  MC_,"",  0, 0,  MP_RN,    "C to S ratio"); return Inx;
     case idCltoC	    : Info.Set(ePT_Double,    "", "Cl/C", MC_,"",  0, 0,  MP_RN,    "Cl to C ratio"); return Inx;
-    case idTOStoTOC 	    : Info.Set(ePT_Double,    "", "TOS/TOC",   MC_,"",  0, 0,  MP_RNH,    "TOS to TOC ratio"); return Inx;
-    case idTOC25	    : Info.Set(ePT_Double,    "", "TOC",    MC_Conc, "g/L",    0, 0,  MP_RN,  "Total Organic Carbon Concentration @ 25"); return Inx;
-    case idTOS25	    : Info.Set(ePT_Double,    "", "TOS@25",    MC_Conc, "g/L",    0, 0,  MP_RNH,  "Total Organic Soda Concentration @ 25"); return Inx;
     case idNaSO4Conc25	    : Info.Set(ePT_Double,    "", "Sulphate*@25",  MC_Conc, "g/L",    0, 0,  MP_RNH,    "SodiumSulphate Concentration @ 25"); return Inx;
     case idNaClConc25	    : Info.Set(ePT_Double,    "", "Chloride*@25",  MC_Conc, "g/L",    0, 0,  MP_RNH,    "SodiumChloride Concentration @ 25"); return Inx;
     case idNa2C2O4Conc25    : Info.Set(ePT_Double,    "", "Oxalate*@25",	   MC_Conc, "g/L",    0, 0,  MP_RNH,    "SodiumOxalate Concentration @ 25"); return Inx;
@@ -484,7 +447,6 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
       Info.Set(ePT_Double,    "", "Oxalate",   MC_Conc, "g/L",    0, 0,  MP_RN,    "SodiumOxalate Concentration @ 25"); return Inx;
     case idOrganateConc25   : Info.Set(ePT_Double,    "", "Organate@25",	   MC_Conc, "g/L",    0, 0,  MP_RNH,    "Organate Concentration @ 25"); return Inx;
     case idTotalOrganics25  : Info.Set(ePT_Double,    "", "TOOC",    MC_Conc, "g/L",    0, 0,  MP_RN,    "Total Organic Concentration @ 25"); return Inx;
-    case idTotalNa25	    : Info.Set(ePT_Double,    "", "TotalNa",MC_Conc, "g/L",    0, 0,  MP_RN,    "Total Sodium Concentration @ 25"); return Inx;
 
     case idSeparator2  	  : Info.SetText("..."); return Inx;
 
@@ -493,8 +455,6 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idSLVolume25	  : Info.Set(ePT_Double,    "", "SLVolFlow25",    MC_Qv,   "L/s",    0, 0,  MP_RN,    "Slurry Volumetric flowrate @ 25"); return Inx;
     case idLDensity25     : Info.Set(ePT_Double,    "", "LRho25",    MC_Rho,  "g/L",    0, 0,  MP_RN,    "Liquor Density @ 25"); return Inx;
     case idSLDensity25    : Info.Set(ePT_Double,    "", "SLRho25",   MC_Rho,  "g/L",    0, 0,  MP_RN,    "Slurry Density @ 25"); return Inx;
-
-    case idG0H2O:          Info.Set(ePT_Double,    "", "G0H2O",   MC_,  "",    0, 0,  MP_RN,    "Water Free Energy"); return Inx;
 
 
     case idSeparator3	  : Info.SetText("..."); return Inx;
@@ -521,12 +481,10 @@ long AmiraBayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
 
 
-    case idBoundSodaSat   : Info.Set(ePT_Double,    "", "BoundSodaSat", MC_Frac, "%",    0, 0,  MP_RN,  "Bound Soda Saturation"); return Inx;
     case idAluminaConcSat : Info.SetText("--Other AmiraBayer Liquor Properties @ T-------");
       Info.Set(ePT_Double,    "ASat", "A_Saturation", MC_Conc, "g/L",    0, 0,  MP_RN,  "Alumina Saturation Concentration @ T"); return Inx;
     case idAtoCSaturation : Info.Set(ePT_Double,    "A/CSat", "A/C_Saturation", MC_,"",  0, 0,  MP_RNH,  "Alumina Saturation to Caustic ratio @ T"); return Inx;
     case idSSNRatio       : Info.Set(ePT_Double,    "", "SSN_Ratio",  MC_,"",  0, 0,  MP_RN,  "A/C actual to ASat/C ratio @ T"); return Inx;
-    case idAluminaSSN     : Info.Set(ePT_Double,    "", "Alumina_SSN",  MC_,"",  0, 0,  MP_RN,  "Supersaturated Alumina/FreeCaustic"); return Inx;
     case idTHAMassFlow    : Info.Set(ePT_Double,    "", "THAMassFlow",    MC_Qm,   "kg/s",   0, 0,  MP_RN,    "THA flow rate"); return Inx;
     case idTHADens        : Info.Set(ePT_Double,    "", "THADens",   MC_Rho,  "kg/m^3", 0, 0,  MP_RNH,    "THA Density"); return Inx;
 
@@ -562,7 +520,7 @@ DWORD AmiraBayer::GetPropertyVisibility(long Index)
 
 #define GV(x, type) case id##x :Value = type##x; return 
 #define GVAL(x)   case id##x : Value = d##x; return
-#define GVAL2(v, x) case id##v : CheckConverged(); Value = x; return
+#define GVAL2(v, x) case id##v : /*CheckConverged();*/ Value = x; return
 #define GVALF(x) case id##x : Value = x##(); return
 #define GVALFT(x) case id##x : Value = x##(T); return
 
@@ -590,17 +548,14 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
     GVALF(SolidsConc25);
     GVAL2(FreeCaustic25,FreeCaustic(C_2_K(25.0)));
     GVALFT(TOC);
-    GVALF(TOC25);
-    GVALF(TOS25);
 
 
     GVALF(AtoC);
     GVALF(CtoS);
     GVALF(CltoC);
-    GVALF(TOStoTOC);
-
-    case idBoilPtElev	: Value=BoilPtElev(MArray(this), P);        return; 
-    case idG0H2O : Value = G0H2O(P/100., T); return;
+    
+    case idBoilPtElev	: Value=BoilPtElev(P, NULL);        return; 
+      
       GVALF(LVolume25);
       GVALF(SLVolume25);
       GVALF(OrganateConc25);
@@ -608,12 +563,10 @@ void AmiraBayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*
       GVALF(TotalOrganics25);
       GVALF(ChlorineConc25);
       GVALF(SulphateConc25);
-      GVALF(TotalNa25);
       GVALFT(AluminaConcSat);
       GVALF(IonicStrength);
       GVALFT(AtoCSaturation);
       GVALFT(SSNRatio);
-      GVALFT(AluminaSSN);
       GVALF(LDensity25);
       GVALF(SLDensity25);
       GVALF(NaOnCS);
@@ -658,7 +611,7 @@ double AmiraBayer::DRatio(double T_)
 
 double AmiraBayer::CausticConc(double T_, MArray *pMA)
   {
-  CheckConverged(pMA);
+    //CheckConverged(T_, -1.0, pMA);
 
   return dpData[iTC];
   }
@@ -674,7 +627,7 @@ double AmiraBayer::CausticConc(double T_)
 
 double AmiraBayer::AluminaConc(double T_)
   {
-  CheckConverged();
+    //CheckConverged(T_);
 
   return dpData[iAl2O3];
   }
@@ -683,7 +636,7 @@ double AmiraBayer::AluminaConc(double T_)
 
 double AmiraBayer::SodaConc(double T_)
   {
-  CheckConverged();
+    //CheckConverged();
   return dpData[iTA];
   }
 
@@ -691,7 +644,7 @@ double AmiraBayer::SodaConc(double T_)
 
 double AmiraBayer::SodiumCarbonateConc(double T_)
   {
-  CheckConverged();
+    //CheckConverged();
   
   return Comp_gL[iNa2CO3]*DRatio(T_);
   }
@@ -700,7 +653,7 @@ double AmiraBayer::SodiumCarbonateConc(double T_)
 
 double AmiraBayer::SodiumSulphateConc(double T_)
   {
-  CheckConverged();
+    //CheckConverged();
 
   return Comp_gL[iNa2SO4]*DRatio(T_);
   }
@@ -709,7 +662,7 @@ double AmiraBayer::SodiumSulphateConc(double T_)
 
 double AmiraBayer::SodiumOxalateConc(double T_)
   {
-  CheckConverged();
+    //CheckConverged();
 
   return Comp_gL[iOxalate]*DRatio(T_);
   }
@@ -734,47 +687,17 @@ double AmiraBayer::SolidsConc25()
 
 double AmiraBayer::TOC(double T_)
   {
-  CheckConverged();
+    //CheckConverged();
 
   double Toc = 100.;
   return Max(0.0, Toc*DRatio(T_));
   }
 
-double AmiraBayer::TOC25()
-  {
-  CheckConverged();
-
-  return 100.;
-  }
 //---------------------------------------------------------------------------
 
-double AmiraBayer::TOS(double T_)
-  {
-  CheckConverged();
 
-return 100.;
-  }
 
-double AmiraBayer::TOS25()
-  {
-  CheckConverged();
 
- return 100.;
-  }
-
-//---------------------------------------------------------------------------
-
-double AmiraBayer::TOStoTOC()
-  {
-  const double TOC = TOC25();
-  if (TOC>1.0e-6) {
-    const double TOS = TOS25();
-    return TOS/TOC;
-    }
-  return 0.0;
-  }
-
-//---------------------------------------------------------------------------
 
 double AmiraBayer::FreeCaustic(double T_, MArray *pMA)
   {
@@ -792,7 +715,7 @@ double AmiraBayer::FreeCaustic(double T_)
 
 double AmiraBayer::AtoC(MArray *pMA)
   {
-  CheckConverged(pMA);
+    //CheckConverged(-1., -1., pMA);
   if (dpData[iTC]==0.0)
     return 0.0;
   return dpData[iAl2O3]/dpData[iTC];
@@ -809,7 +732,7 @@ double AmiraBayer::AtoC()
 
 double AmiraBayer::CtoS()
   {
-  CheckConverged();
+    //CheckConverged();
 
   return .89;
   }
@@ -818,7 +741,7 @@ double AmiraBayer::CtoS()
 
 double AmiraBayer::CltoC()
   {
-  CheckConverged();
+    //CheckConverged();
 
   return .12;
   }
@@ -827,7 +750,7 @@ double AmiraBayer::CltoC()
 
 double AmiraBayer::Na2SO4toC()
   {
-  CheckConverged();
+    //CheckConverged();
 
   return .34;
   }
@@ -851,7 +774,7 @@ double AmiraBayer::THADens(double T_)
 
 double AmiraBayer::IonicStrength()
   {
-  CheckConverged();
+    //CheckConverged();
   return 5.90;
   }
 
@@ -868,9 +791,9 @@ double AmiraBayer::AluminaConcSat(double T_)
 double AmiraBayer::LVolume25()
   {
   const double mt=Mass(MP_Liq);
-  //Log.Message(MMsg_Warning, "LVolume25");
-
-  return ((mt>=UsableMass) ? (mt / LDensity25()) : 0.0);
+  double lv = (mt / LDensity25());
+  Log.Message(MMsg_Warning, "LVolume25: mt %8.2f lv %8.2f", mt, lv);
+  return ((mt>=UsableMass) ? lv : 0.0);
   }
 
 double AmiraBayer::SLVolume25()
@@ -885,6 +808,7 @@ double AmiraBayer::SLVolume25()
 double AmiraBayer::LDensity25()
   {
     //Log.Message(MMsg_Warning, "LDensity25");
+    double * dpData = CheckConverged();
   return dpData[iWT]/GTZ(dpData[iV25]);
   }
 
@@ -910,12 +834,6 @@ double AmiraBayer::AtoCSaturation(double T_)
 //---------------------------------------------------------------------------
 
 
-double AmiraBayer::BoundSodaSat(double T_)  // Amira doesnt deal with bound soda... 
-  {
-  CheckConverged();
-
-  return 0.0;
-  }
 
 double AmiraBayer::SSNRatio(double T_)
   {   // AtoC actual / AtoC saturation ==> A/ASat
@@ -927,14 +845,6 @@ double AmiraBayer::SSNRatio(double T_)
 
 
 
-double AmiraBayer::TotalNa25()
-  {//TotalNa Conc @ 25 expressed as Na2CO3
-  CheckConverged();
-
-  return 1.0;
-  }
-
-//---------------------------------------------------------------------------
 
 double AmiraBayer::NaOnCS() 
   { 
@@ -944,7 +854,7 @@ double AmiraBayer::NaOnCS()
 
 double AmiraBayer::Na2CO3toS()
   {
-  CheckConverged();
+    //CheckConverged();
 
 return 2.0;
   }
@@ -953,7 +863,7 @@ return 2.0;
 
 double AmiraBayer::OrganateConc25()
   {//Organic Na2C5O7 + NaOrg Conc @ 25
-  CheckConverged();
+    //CheckConverged();
 
   return .5;
   }
@@ -962,7 +872,7 @@ double AmiraBayer::OrganateConc25()
 
 double AmiraBayer::OxalateConc25()
   {
-  CheckConverged();
+    //CheckConverged();
   return Comp_gL[iOxalate];
   }
 
@@ -970,7 +880,7 @@ double AmiraBayer::OxalateConc25()
 
 double AmiraBayer::TotalOrganics25()
 {
-  CheckConverged();
+  //CheckConverged();
   
   return 0.7;
 }
@@ -978,6 +888,8 @@ double AmiraBayer::TotalOrganics25()
 
 double AmiraBayer::ChlorineConc25()
 {
+  //CheckConverged();
+  
   return Comp_gL[iNaCl];
 }
 
@@ -985,6 +897,7 @@ double AmiraBayer::ChlorineConc25()
 
 double AmiraBayer::SulphateConc25()
 {
+  //CheckConverged();
   return Comp_gL[iNa2CO3];
 }
 
@@ -992,42 +905,64 @@ double AmiraBayer::SulphateConc25()
 
 
 
-double AmiraBayer::TOOCtoC()
-  {
-  CheckConverged();
-  return 0.95;
-  }
 
 
 
-double AmiraBayer::AluminaSSN(double T_)
-  {
-  return 1.3;
-  }
-
-
-void AmiraBayer::CheckConverged(MArray *pMA)
-  {
-  //static int xxx=0;
-  //xxx++;
-  //if (1 || Dbg.Marked())
-  //  {
-  //  Dbg.Print("CC: %4i %-20s", xxx, Tag);
-  //  Dbg.PrintLn("");
-  //  }
-
-  MArray MA(pMA ? (*pMA) : this);
-  if ( !TestStateValid(0) || FORCECNVG )
-    RecalcAmira();
-  }
-
-void AmiraBayer::RecalcAmira() 
+double* AmiraBayer::CheckConverged(double T, double P, MArray *pMA, bool force)
 {
+  if (!pMA) {   
+    // Calculation for *this* species
+    if ((T<0.0  || T==this->Temperature) && 
+	(P<0.0  || P==this->Pressure))  { // Call for stream conditions and composition
+      Log.Message(MMsg_Note, "Stream Conditions...");
+      if (!TestMStateValid(0))
+	Log.Message(MMsg_Note, "M State Invalid...");
+      if (!TestHStateValid(0))
+	Log.Message(MMsg_Note, "H State Invalid...");
 
+      if (!TestMStateValid(0) || !TestHStateValid(0))  {  // Composition Changed, recalculate
+	Bayer(this->Temperature, this->Pressure, MArray(this), dpData);
+	Bayer(C2K(25.0), this->Pressure, MArray(this), dpData25);
+	Bayer(C2K(0), this->Pressure, MArray(this), dpData0);
+	SetMStateValid(0);
+	SetHStateValid(0);
+      }
+      // Results in DPData 
+      return dpData;
+    }
+    if (T==C2K(25.0)) {    // At reference temperature (25 C)
+      Log.Message(MMsg_Note, "Reference (25 C)");
+      if (!TestMStateValid(0))    // Composition Changed, recalculate
+	Bayer(C2K(25.0), this->Pressure, MArray(this), dpData25); // Results in DPData 
+      return dpData25;
+    }
+    if (T==C2K(0.0)) {    //  At Enthalpy/Entropy reference temperature 
+      Log.Message(MMsg_Note, "Reference (0 C)");
+      if (!TestMStateValid(0))    // Composition Changed, recalculate
+	Bayer(C2K(0.0), this->Pressure, MArray(this), dpData0); // Results in DPData 
+      return dpData0;
+    }
+    if (T==C2K(20.0)) {    //  At Enthalpy/Entropy reference temperature 
+      Log.Message(MMsg_Note, "Reference (20 C)");
+      if (!TestMStateValid(0))    // Composition Changed, recalculate
+	Bayer(C2K(20.0), this->Pressure, MArray(this), dpData20); // Results in DPData 
+      return dpData20;
+    }
+    // T specified but not equal to 25C or 0C
+    Log.Message(MMsg_Note, "Stream MArray, Other Temperature...");
+    Bayer(T, this->Pressure, MArray(this), dpDataX); // Results in DPData 
+    return dpDataX;
+    
 
-  //Bayer(300., 100., )
-
-  return;
+  } else {   // MArray specified, recalculate.
+    Log.Message(MMsg_Note, "Specified MArray...");
+    
+    
+    if (T<0) T = this->Temperature;
+    if (P<0) P = this->Pressure; 
+    Bayer(T, P, *pMA, dpDataX); // Results in DPData 
+    return dpDataX;
+  }
 }
 
 
@@ -1035,31 +970,38 @@ void AmiraBayer::RecalcAmira()
 
 
 
-void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
+void AmiraBayer::Bayer(double T_K, double p_kPa, MArray  & MA, double *DPData) {
+  if (!DPData)
+    DPData = dpData;   // Primary copy
+  Log.Message(MMsg_Note, "Recalculating... T = %8.2f P = %8.2f", T_K, p_kPa);
+
   double TempC = T_K-273.15;
   double Pressure = p_kPa/100.;
   double InComp[12];
+  const double massFlow = MA.Mass();
+  if (massFlow <  1.0e-8) return;
+  
 
-  MA.Normalise();
+  //MA.Normalise();
 
-  double x = MA[CausticSoda];
-  double y = MA[Alumina];
+  double x = MA[CausticSoda]/massFlow;
+  double y = MA[Alumina]/massFlow;
 
   InComp[0] = InComp[1] = 0.0;
   InComp[2] = 78./118.*y*100.;      // Al[OH]3    
   InComp[3] = (40/118.*y+x)*100.;    // NaOH       
-  InComp[4] = MA[SodiumChloride]*100.;   // NaCl       
-  InComp[5] = MA[SodiumCarbonate]*100.;  // Na2CO3     
-  InComp[6] = MA[SodiumSulphate]*100.;   //  Na2SO4     
-  InComp[7] = MA[SodiumOxalate]*100.;    //  Na2C2O4    
+  InComp[4] = MA[SodiumChloride]*100./massFlow;   // NaCl       
+  InComp[5] = MA[SodiumCarbonate]*100./massFlow;  // Na2CO3     
+  InComp[6] = MA[SodiumSulphate]*100./massFlow;   //  Na2SO4     
+  InComp[7] = MA[SodiumOxalate]*100./massFlow;    //  Na2C2O4    
   InComp[10] = 0.0; // MA[SodiumFluoride]*100.;    //  NaF        
 
 
 
 
 
-  const double acetate = 0.88*MA[Organics]*100.;
-  const double formate = 0.12*MA[Organics]*100.;
+  const double acetate = 0.88*MA[Organics]*100./massFlow;
+  const double formate = 0.12*MA[Organics]*100./massFlow;
   
   InComp[8] = acetate;      //  NaAcetate  
   InComp[9] = formate;	    //  NaFormate  
@@ -1078,7 +1020,7 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
 	 /*double*, */  &Pressure,
 	 /*long*,   */  &NInComp,     
 	 /*double*, */  InComp,      
-	 /*double*  */  dpData,
+	 /*double*  */  DPData,
 	 /*long*,   */  &NOutComp,    
 	 /*double*, */  Comp_molkg,
 	 /*double*, */  Comp_molL,
@@ -1110,47 +1052,13 @@ void AmiraBayer::Bayer(double T_K, double p_kPa, MArray & MA) {
 #if DBG_MVECTOR
 
 double  AmiraBayer::DumpIt(LPCTSTR FnTag, double V, double x1, double x2, double x3)
-  {
-  //static xxx=0;
-  //xxx++;
-  //if (1 || Dbg.Marked())
-  //  {
-  //  if (Valid(x3))
-  //    Dbg.PrintLn("%5i] %-20s %-30s %25.12g  (%25.12g %25.12g %25.12g)", xxx, FnTag, Tag, V, x1,x2,x3);
-  //  else if (Valid(x2))
-  //    Dbg.PrintLn("%5i] %-20s %-30s %25.12g  (%25.12g %25.12g)", xxx, FnTag, Tag, V, x1,x2);
-  //  else if (Valid(x1))
-  //    Dbg.PrintLn("%5i] %-20s %-30s %25.12g  (%25.12g)", xxx, FnTag, Tag, V, x1);
-  //  else
-  //    Dbg.PrintLn("%5i] %-20s %-30s %25.12g  ()", xxx, FnTag, Tag, V);
-  //  }
-
+{
   return V;
-  };
+};
 
 bool AmiraBayer::TestStateValid(int iNo)
-  {
-  //static int xxx=0;
-  //xxx++;
-  //if (1 || Dbg.Marked())
-  //  {
-  //  m_dbgM.SetSize(gs_MVDefn.Count());
-  //  Dbg.Print("%3s %4i %-20s ", MSpModelBase::TestStateValid(iNo)?"OK":"", xxx, Tag);
-  //  Dbg.Print(" Rho25) %.14g", LiqConcs25.Density25);
-
-  //  if (fabs(Vector.msHfRaw()-m_dbgtotHf)>1e-12)
-  //    Dbg.Print(" Hf) %.14g>%.14g", m_dbgtotHf, Vector.msHfRaw());
-  //  m_dbgtotHf=Vector.msHfRaw();
-  //  for (int i=0; i<gs_MVDefn.Count(); i++) 
-  //    {
-  //    if (fabs(M[i]-m_dbgM[i])>1e-12)
-  //      Dbg.Print(" %i) %.14g>%.14g", i, m_dbgM[i], M[i]);
-  //    m_dbgM[i]=M[i];
-  //    }
-  //  Dbg.PrintLn("");
-  //  }
-
+{
   return MSpModelBase::TestStateValid(iNo);
-  };
+};
 
 #endif

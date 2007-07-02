@@ -1,8 +1,10 @@
 SYSCAD=91
 SYSCADDIR=C:\SysCAD$(SYSCAD)\bin
+DLLNAME = TTAmira
+
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
-DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "GLADDY"
+DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "GLADDY" /D DLL_GroupName=\"$(DLLNAME)\"
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 
 PRECIP_OBJ = precip.obj
@@ -10,7 +12,7 @@ PRECIP_OBJ = precip.obj
 LIBS = SMDK1.lib scdlib.lib
 
 
-OBJS = TTAmira.obj   TTAmiraSM.obj 
+OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 
 
 
 ifeq ($(SYSCAD),91)
@@ -28,19 +30,19 @@ endif
 	 cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $<
 
 
-all: TTAmira.dll
+all: $(DLLNAME).dll
 
 
-TTAmira.dll: $(OBJS)
-	link /OUT:"$(SYSCADDIR)\TTAmira.dll" $(LFLAGS) /PDB:".\Rls/TTAmira.pdb" /IMPLIB:".\Rls/TTAmira.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) amira.lib
-	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\TTAmira.dll"
+$(DLLNAME).dll: $(OBJS)
+	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" /IMPLIB:".\Rls/$(DLLNAME).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) amira.lib
+	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
 
 
 
-TTAmiraSM.obj : TTAmiraSM.cpp TTAmiraSM.h
-	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) TTAmiraSM.cpp
+$(DLLNAME)SM.obj : $(DLLNAME)SM.cpp $(DLLNAME)SM.h
+	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $(DLLNAME)SM.cpp
 
-TTAmira.obj : TTAmira.cpp TTAmira.h
+$(DLLNAME).obj : $(DLLNAME).cpp $(DLLNAME).h
 
 
 
@@ -51,9 +53,6 @@ clean:
 	rm -f $(OBJS)
 
 list :  
-	/cygwin/bin/a2ps -Ma4 -olist.ps TTAmiraSM.h TTAmiraSM.cpp \
-	    TTAmira.h TTAmira.cpp
+	a2ps -Ma4 -olist.ps $(DLLNAME)SM.h $(DLLNAME)SM.cpp \
+	    $(DLLNAME).h $(DLLNAME).cpp
 
-install: 
-	cp "C:\SysCAD90\Bin\Alumina2.dll" "\\TT_3\share\Alumina2.dll"
-	cp "C:\SysCAD90\Bin\Alumina2.dll" "G:\archive\syscad"

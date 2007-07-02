@@ -7,6 +7,11 @@
 #include "md_headers.h"
 #include <vector>
 
+#define FORCECNVG false
+
+class SpecieMdlMRU;   // FOrward Declare
+
+
 
 extern "C" double g0h2o_(double*, double *);
 
@@ -45,6 +50,7 @@ const static  long NGamma = 12;
 const static  long NSI = 10;
 const static  long NSol = 6;
 
+const static  int anSODIUM = 11;
 
 
 
@@ -109,6 +115,16 @@ double G0H2O(double P, double T)  /// Test function
 }
 
 
+struct {
+  long iMRU;
+  double T, P;
+  double DPDATA[NDPPTS];
+}  d[3];
+
+  
+
+
+
 //===========================================================================
 
 class AmiraBayer : public MSpModelBase, public MIBayer
@@ -146,13 +162,15 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     // This is all of the double precision results... add additional elements as needed
 
     double dpData[NDPPTS];
-    
+    double dpData25[NDPPTS];  // Properties at reference temperature 25C
+    double dpData20[NDPPTS];  // Properties at 20C
+    double dpData0[NDPPTS];   // Properties at 0C
+    double dpDataX[NDPPTS];   // Special Case
 
   public:
     AmiraBayer(TaggedObject *pNd);
     ~AmiraBayer();
-    void RecalcAmira();
-    void Bayer(double, double, MArray &);
+    void Bayer(double, double, MArray &, double * =NULL);
 
     bool            ValidateDataFields();
 
@@ -194,8 +212,7 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double AluminaConcSat(double T_);
     double FreeCaustic(double T_);
     double AluminaSolubility(double T_) { return AluminaConcSat(T_); };
-
-    // Extras
+// Extras
     double  CausticConc(double T_, MArray *pMA);
     double AtoC(MArray *pMA);
     double FreeCaustic(double T_, MArray *pMA);
@@ -203,20 +220,18 @@ class AmiraBayer : public MSpModelBase, public MIBayer
   protected:
     DDEF_Flags      FixSpEditFlags(DDEF_Flags Flags, int iSpid, bool AsParms);
     double DRatio(double Tc);
-    double BoundSodaSat(double T_);
-    double LiqCpCalc(MArray & MA, double Tc);
-    double LiqHCalc(MArray & MA, double Tc);
-    double BoilPtElev(MArray & MA, double T);
+    double LiqCpCalc(double T, MArray * pMA);
+    double LiqHCalc(double T, double P, MArray * pMA);
+    double LiqSCalc(double T, MArray * pMA);
+    double BoilPtElev(double P, MArray * pMA);
     void   InputCalcs(bool DoIt, double T_);
     void   LiquorComposition(bool);
-    double Molality(MArray & MA, double &, double &);
   public:
     //Other properties
     double LVolume25();
     double SLVolume25();
     double LDensity25();
     double SLDensity25();
-    double TotalNa25();
     double AtoCSaturation(double T_);
     double SSNRatio(double T_);
     double Na2CO3toS();
@@ -225,22 +240,40 @@ class AmiraBayer : public MSpModelBase, public MIBayer
     double TotalOrganics25();
     double ChlorineConc25();
     double SulphateConc25();
-    double TOS(double T_);
-    double TOS25();
-    double TOC25();
-    double TOStoTOC();
     double SolidsConc25();
-    double TOOCtoC();
-    double AluminaSSN(double T_);
     double NaOnCS();                  
   
-    void            CheckConverged(MArray *pMA=NULL);
+    double * CheckConverged(double T=-1.0, double P=-1.0, MArray *pMA=NULL, bool = FORCECNVG);
+    /// bool   TestStateValid(int i);
 
   protected:
 #if DBG_MVECTOR
-    double          DumpIt(LPCTSTR Tag, double V, double x1=NAN, double x2=NAN, double x3=NAN);
-    bool            TestStateValid(int i);
+    double DumpIt(LPCTSTR Tag, double V, double x1=NAN, double x2=NAN, double x3=NAN);
 #endif
   };
 
+
+
+
+
+
 #endif
+
+
+class SpecieMdlMRU 
+{
+  long iMRU;
+  double T, P;
+  double *m_dData;
+
+  SpecieMdlMRU();
+  ~SpecieMdlMRU();
+ public:
+  double get(int i)  {return m_dData[i];}
+  
+};
+
+class SpecieMdlMRUList 
+{
+  SpecieMdlMRU* m_pMRUList;
+};
