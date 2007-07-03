@@ -644,11 +644,11 @@ void Classifier::EvalProducts()
   {
   if (!IsSolveDirect)//(!IsProbal)
     return;
-  MStream Prod;
+  MStreamI Prod;
   bool SplitErr = false;
   try
     {
-    MStream Feed;
+    MStreamI Feed;
     FlwIOs.AddMixtureIn_Id(Feed, idFeed);
     MStream & OF = FlwIOs[FlwIOs.First[idOverflow]].Stream;
     MStream & UF = FlwIOs[FlwIOs.First[idUnderflow]].Stream;

@@ -20,10 +20,10 @@ class CBayerConcs
   {
   public:
     static bool     NaFactorOK;
-    static MArray   NaFactor;
+    static MArrayI NaFactor;
 
     BATCBayerSM    *pBayerMdl;
-    MArray          Liq; //array of concentrations at 25C as Na2CO3 Equiv
+    MArrayI  Liq; //array of concentrations at 25C as Na2CO3 Equiv
 
     double          Density25;    // Density @ 25 C
 

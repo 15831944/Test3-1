@@ -90,7 +90,7 @@ byte Bayer::sm_iTSEMethod       = TSE_97;
 // ==========================================================================
 
 bool   CBayerConcs::NaFactorOK=0;
-MArray CBayerConcs::NaFactor;
+MArrayI CBayerConcs::NaFactor;
 
 CBayerConcs::CBayerConcs(Bayer *pMdl)
   {

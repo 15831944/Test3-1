@@ -108,7 +108,7 @@ void PSDCalculator::SetPersonality()
   {
   try
     {
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
     // Get References to our Output Streams using the FlwIOs helper class and IO ids
@@ -158,7 +158,7 @@ void PSDCalculator::EvalProducts()
   {
   try
     {
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
     // Get References to our Output Streams using the FlwIOs helper class and IO ids

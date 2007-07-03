@@ -76,7 +76,7 @@ class Classifier : public MBaseMethod, public HyprodPrecipHelper
     double m_dRqdOFSolidsTons;
     double m_dDiameter;
     double m_dHindSettlFac;
-    MStream         m_QProd;
+    MStreamI       m_QProd;
 
     double m_dRf;
     double m_dUFSolidsConc;

@@ -512,7 +512,7 @@ bool MaterialMerge::ValidateDataFields()
 
 void MaterialMerge::EvalProducts()
 {
-  MStream QI; //initialise local empty copy of a stream
+  MStreamI QI; //initialise local empty copy of a stream
   FlwIOs.AddMixtureIn_Id(QI, idFeed); //sum of all feed streams
   const long index = FlwIOs.First[idProd];
   MStream & QO = FlwIOs[index].Stream; //get reference to the actual output stream

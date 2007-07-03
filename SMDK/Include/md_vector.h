@@ -142,12 +142,18 @@ class DllImportExport MProperties
 
 class DllImportExport MArray
   {
+  friend class MVector;
+  friend class MStream;
+  friend class MContainer;
+  friend class MSpModelBase;
+  
+  protected:
+    MArray(); // cannot construct standalone
   public:
-    MArray();
     MArray(CSysVector   * p);
     MArray(MVector      * p);
     MArray(MSpModelBase * p);
-    ~MArray();
+    virtual ~MArray();
 
     double & operator [](int i);
 
@@ -157,17 +163,27 @@ class DllImportExport MArray
     double MoleFrac(DWORD Phases=MP_All);
 
     MArray & operator=(MArray & M);
+    MArray & operator=(MVector & V);
     void   Normalise();
 
     operator CSysVector *() { return m_pSysVec; };
 
-  private:
-    bool m_bOwner;
+  protected:
     union
       {
       CSysVector *m_pSysVec;
       double (*dbgM)[64];         // For debugging - limited visibilty
       };
+  };
+
+class DllImportExport MArrayI : public MArray
+  {
+  public:
+    MArrayI();          // Allow construction
+    MArrayI(CSysVector   * p);
+    MArrayI(MVector      * p);
+    MArrayI(MSpModelBase * p);
+    virtual ~MArrayI();
   };
 
 //---------------------------------------------------------------------------
@@ -243,7 +259,7 @@ class DllImportExport MVector
     MVector(MSpQualityBase * p);
   public:
 
-    ~MVector();
+    virtual ~MVector();
 
     //interface:
     long          Count(DWORD Phases=MP_All);   //number of species (same as gs_MVDefn.Count())
@@ -434,20 +450,21 @@ class DllImportExport MStream : public MVector
   {
   friend class MBaseMethod;
   friend class MFlow;
-  public:
-    //MStream(SpConduit *pCn=NULL);
+  //friend class CArray;
+  friend class MStreamI;
+  friend class MStreams;
 
-    MStream();
+  protected:
+    MStream(); // Cannot instantiate - use MStreamI to Create an MStream
+
+  public:
+    MStream(SpConduit *pCd);
     MStream(const MStream &Cn);
-    MStream(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId=NULL);
-    MStream(MBaseMethod * Method, LPCSTR Tag, MVector &V);
-    ~MStream();
+    virtual ~MStream();
 
     void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
     void          Allocate(LPCSTR Tag, MVector &V);
-    void          Attach(const MStream &Cn);
-    void          Attach(SpConduit *pCn);
-    void          Detach();
+
     void          CheckAttached();
     void          SelectModel(MStream *V, double MassFlow);
     void          SelectModel(long NStreams, MStream *V, double *MassFlow);
@@ -484,34 +501,48 @@ class DllImportExport MStream : public MVector
     __declspec(property(get=getCd))   REFSPCONDUIT Cd;
 
   protected:
-    MStream(SpConduit *pCd);
     virtual SpModel * getSpMdl() const;
 
-  private:
+  protected:
     MBaseMethod * m_pMethod;
     SpConduit   * m_pCd;
-    bool          m_bOwned;
   };
 
-class MStreams : public CArray <MStream, MStream&> {};
+//---------------------------------------------------------------------------
+
+class DllImportExport MStreamI : public MStream
+  {
+  friend class MBaseMethod;
+  friend class MFlow;
+  public:
+    MStreamI();
+    MStreamI(const MStream &Cn);
+    MStreamI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId=NULL);
+    MStreamI(MBaseMethod * Method, LPCSTR Tag, MVector &V);
+    virtual ~MStreamI();
+  
+  protected:
+    MBaseMethod * m_pMethod;
+  };
 
 //---------------------------------------------------------------------------
 
 class DllImportExport MContainer : public MVector
   {
   friend class MBaseMethod;
+  friend class MContainerI;
+  friend class MContainers;
+  
+  protected:
+    MContainer(); // Cannot instantiate - use MContainerI to Create an MStream
+
   public:
-    MContainer();
+    MContainer(SpContainer *pCn);
     MContainer(const MContainer &Cn);
-    MContainer(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId);
-    MContainer(MBaseMethod * Method, LPCSTR Tag, MVector &V);
-    ~MContainer();
+    virtual ~MContainer();
 
     void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
     void          Allocate(LPCSTR Tag, MVector &V);
-    void          Attach(const MContainer &Cn);
-    void          Attach(SpContainer *pCn);
-    void          Detach();
     void          CheckAttached();
 
     bool          getExists()   const { return m_pCn!=NULL; };
@@ -543,16 +574,28 @@ class DllImportExport MContainer : public MVector
     __declspec(property(get=getCn))   REFSPCONTAINER Cn;
 
   protected:
-    MContainer(SpContainer *pCn);
     virtual SpModel * getSpMdl() const;
 
-  private:
+  protected:
     MBaseMethod * m_pMethod;
     SpContainer  * m_pCn;
-    bool         m_bOwned;
   };
 
-class MContainers : public CArray <MContainer, MContainer&> {};
+class DllImportExport MContainerI : public MContainer
+  {
+  friend class MBaseMethod;
+  public:
+    MContainerI();
+    MContainerI(const MContainer &Cn);
+    MContainerI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId);
+    MContainerI(MBaseMethod * Method, LPCSTR Tag, MVector &V);
+    ~MContainerI();
+
+  protected:
+    MBaseMethod * m_pMethod;
+  };
+
+//class MContainers : public CArray <MContainer, MContainer&> {};
 
 //---------------------------------------------------------------------------
 

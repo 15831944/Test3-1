@@ -365,8 +365,8 @@ void HatchHeater::EvalProducts()
 {
 	try
     {
-		MStream QI_Slur;								//initialise local empty copy of a stream
-		MStream QI_Stm;									//initialise local empty copy of a stream
+		MStreamI QI_Slur;								//initialise local empty copy of a stream
+		MStreamI QI_Stm;									//initialise local empty copy of a stream
 		FlwIOs.AddMixtureIn_Id(QI_Slur, idSlurIn);		//sum of all feed streams
 		FlwIOs.AddMixtureIn_Id(QI_Stm, idSteamIn);		//sum of all feed streams
 		const long index1 = FlwIOs.First[idSlurOur];

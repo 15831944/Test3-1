@@ -76,7 +76,7 @@ MSpeciePtr   Steam             (InitTest, "H2O(g)",        true);
 
 
 bool AmiraBayer::NaFactorOK = false;
-MArray AmiraBayer::NaFactor;
+MArrayI AmiraBayer::NaFactor;
 
 
 

@@ -10,9 +10,9 @@
 
 static MInitialiseTest InitTest("ExampleReaction");
 
-static MSpeciePtr   spAlumina          (InitTest, "Al2O3(l)", false);
-static MSpeciePtr   spWater            (InitTest, "H2O(l)", false);
-static MSpeciePtr   spTHA              (InitTest, "Al2O3.3H2O(s)", false);
+static MSpeciePtr   spAlumina          (InitTest, "Al2O3(l)", false, __FILE__, DLL_GroupName);
+static MSpeciePtr   spWater            (InitTest, "H2O(l)", false, __FILE__, DLL_GroupName);
+static MSpeciePtr   spTHA              (InitTest, "Al2O3.3H2O(s)", false, __FILE__, DLL_GroupName);
 //static MSpeciePtr   spCausticSoda      (InitTest, "NaOH(l)", false);
 //static MSpeciePtr   spOccSoda          (InitTest, "Na2O(s)", false);
 //static MSpeciePtr   spSodiumCarbonate  (InitTest, "Na2CO3(l)", false);
@@ -97,7 +97,7 @@ void SimpleReaction::EvalProducts()
   {
   try
     {
-    MStream Work; //initialise local empty copy of a stream
+    MStreamI Work; //initialise local empty copy of a stream
     FlwIOs.AddMixtureIn_Id(Work, idFeed); //sum of all feed streams
     const long index = FlwIOs.First[idProd];
     MStream & QO = FlwIOs[index].Stream; //get reference to the actual output stream

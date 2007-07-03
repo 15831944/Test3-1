@@ -59,6 +59,6 @@ class CFlashTank : public MBaseMethod
     MVLEBlk         m_VLE;
     MFT_Flash       m_FTF;
     MProbalPCtrl    m_PCtrl;
-    MStream         m_Feed; // keep the feed in here - also save it.
-    MStream         m_WrkStrm; // temporary work 
+    MStreamI        m_Feed; // keep the feed in here - also save it.
+    MStreamI        m_WrkStrm; // temporary work 
   };

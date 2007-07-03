@@ -37,7 +37,7 @@ class BatchPrecip : public MBaseMethod, public HyprodPrecipHelper
   private:
     bool            m_bOn;
     long            m_lNumberInService;
-    MStream         m_QProd;
+    MStreamI        m_QProd;
 
     //Batch specific
     bool            m_bUseCircTime;

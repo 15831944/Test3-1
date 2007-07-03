@@ -82,7 +82,7 @@ void CWhitenCrusher::EvalProducts()
   try
     {
     //get handles to input and output streams...
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, 0);
     MStream & Q0 = FlwIOs[FlwIOs.First[1]].Stream;
 

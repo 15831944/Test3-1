@@ -137,7 +137,7 @@ class AmiraBayer : public MSpModelBase, public MIBayer
 
     static     CArray <int, int> LclParm;
 
-    static MArray NaFactor;
+    static MArrayI NaFactor;
     static bool NaFactorOK;
     
 

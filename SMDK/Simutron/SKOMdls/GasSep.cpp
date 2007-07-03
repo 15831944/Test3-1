@@ -1023,7 +1023,7 @@ void CGasSep::EvalProducts()
       FlwRich.EstFlwOut>0 && 
       FlwRec.EstFlwOut>0)
       {
-      MStream QFeed;
+      MStreamI QFeed;
       FlwIOs.AddMixtureIn_Id(QFeed, ioFeed);
       MStream & QRich  = FlwRich.Stream;
       MStream & QStrip = FlwStrip.Stream;

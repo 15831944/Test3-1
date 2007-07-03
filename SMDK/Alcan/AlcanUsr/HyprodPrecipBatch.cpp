@@ -263,8 +263,8 @@ void BatchPrecip::EvalProducts()
   bool Err = true;
   try
     {
-    MStream Slurry;
-    MStream Liquor;
+    MStreamI Slurry;
+    MStreamI Liquor;
     FlwIOs.AddMixtureIn_Id(Slurry, idSlurry); //sum all input slurry streams
     m_bHasLiquor = (FlwIOs.First[idLiquor]>=0); //test if liquor stream connected
     if (m_bHasLiquor)
@@ -362,14 +362,14 @@ void BatchPrecip::EvalProducts()
   if (Err)
     {//Something is wrong!!!  Bug needs fixing!!! 
     //So lets set product=feed....
-    MStream Feed;
+    MStreamI Feed;
     MStream & Prod = FlwIOs[FlwIOs.First[idDrawOff]].Stream; //get a reference to the single output stream
 
     FlwIOs.AddMixtureIn_Id(Feed, idSlurry); //sum all input slurry streams
     Prod = Feed;
     if (FlwIOs.First[idLiquor]>=0)
       {
-      MStream Liquor;
+      MStreamI Liquor;
       FlwIOs.AddMixtureIn_Id(Liquor, idLiquor); //sum all input liquor streams
       Prod.AddF(Liquor, MP_All, 1.0);
       }

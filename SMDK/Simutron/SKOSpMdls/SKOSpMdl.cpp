@@ -292,7 +292,7 @@ double CSKOSpMdl::get_DynamicViscosity(long Phases, double T, double P, MArray *
   {
   // Result in Ns/m^2 = Pa.s
   MArray & MA = pMA ? *pMA : MassArray;
-  MArray mu, MF, MW;
+  MArrayI mu, MF, MW;
 
   bool InRange = true;
   if (!InRange) 

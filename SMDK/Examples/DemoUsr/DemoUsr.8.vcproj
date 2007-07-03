@@ -805,6 +805,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ExampleSurge.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -900,6 +904,10 @@
 			</File>
 			<File
 				RelativePath="ExampleSplitter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ExampleSurge.h"
 				>
 			</File>
 			<File

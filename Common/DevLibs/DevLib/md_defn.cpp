@@ -489,17 +489,37 @@ bool    MSpecieDefn::AcOK()                     { return m_pSp->AcOK(); };
 
 //===========================================================================
 
-//MSpeciePtr::MSpeciePtr(MSpModelDefBase & DefBase, LPCSTR Name, bool Optional)
-MSpeciePtr::MSpeciePtr(MInitialiseTest & InitTest, LPCSTR Name, bool Optional, LPCTSTR FileName, LPCTSTR DllName):
-  m_InitTest(InitTest)
+MSpeciePtr::MSpeciePtr()
   {
+  m_pInitTest=NULL;
+  m_pSB=NULL;
+  }
+//MSpeciePtr::MSpeciePtr(MSpModelDefBase & DefBase, LPCSTR Name, bool Optional)
+MSpeciePtr::MSpeciePtr(MInitialiseTest & InitTest, LPCSTR Name, bool Optional, LPCTSTR FileName, LPCTSTR DllName)
+  {
+  m_pInitTest=&InitTest;
   m_pSB=new CSpecieBlk(InitTest, (char*)Name, (char*)FileName, (char*)DllName);//__FILE__, "SOMEDLL");
   m_pSB->m_fOpt=Optional;
   };
+MSpeciePtr::MSpeciePtr(const MSpeciePtr & p)
+  {
+  m_pInitTest=NULL;
+  m_pSB=p.m_pSB;
+  }
 MSpeciePtr::~MSpeciePtr()
   {
-  delete m_pSB;
+  if (m_pInitTest)
+    delete m_pSB;
   }
+MSpeciePtr & MSpeciePtr::operator=(const MSpeciePtr & p)
+  {
+  if (m_pInitTest)
+    delete m_pSB;
+  m_pInitTest=NULL;
+  m_pSB=p.m_pSB;
+  return *this;
+  }
+
 MSpecieDefn * MSpeciePtr::operator->()  { ChkIndex(); return (m_pSB->sid()>=0) ? &gs_MVDefn[m_pSB->sid()]: NULL; }
 MSpeciePtr::operator int ()             { ChkIndex(); return m_pSB->sid();  };
 int     MSpeciePtr::get_Index()         { ChkIndex(); return m_pSB->sid();  };

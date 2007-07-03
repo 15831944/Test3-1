@@ -43,7 +43,7 @@ class Precipitator : public MBaseMethod, public HyprodPrecipHelper
     bool            m_bOn;
     bool            m_bBypassOn;
     double          m_dBypass;
-    MStream         m_QProd;
+    MStreamI        m_QProd;
 
     //results:
     double          m_dBypassFlow;

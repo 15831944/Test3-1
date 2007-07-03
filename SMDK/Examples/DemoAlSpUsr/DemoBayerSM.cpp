@@ -62,7 +62,7 @@ byte CDemoBayerSM::sm_iBPEMethod  = BPM_Dewey;
 // ==========================================================================
 
 bool   CBayerConcs::NaFactorOK=0;
-MArray CBayerConcs::NaFactor;
+MArrayI CBayerConcs::NaFactor;
 
 CBayerConcs::CBayerConcs(CDemoBayerSM *pMdl)
   {

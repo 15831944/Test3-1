@@ -298,8 +298,8 @@ void CCondShellAndTube::EvalProducts()
   {
   try           
     {
-    MStream TubeI;
-    MStream ShellI;
+    MStreamI TubeI;
+    MStreamI ShellI;
     MStream & TubeO = FlwIOs[FlwIOs.First[idTubeO]].Stream; //get reference to the actual output stream
     MStream & ShellO = FlwIOs[FlwIOs.First[idShellO]].Stream; //get reference to the actual output stream
 

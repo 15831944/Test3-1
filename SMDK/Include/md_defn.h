@@ -376,15 +376,14 @@ extern DllImportExport bool MInitialise();
 /* Class MSpeciePtr: Helper class for direct access to a named specie.*/
 class DllImportExport MSpeciePtr
   {
-  protected:
-    CSpecieBlk    * m_pSB;
-    MInitialiseTest & m_InitTest;
   public:
+    MSpeciePtr();
     MSpeciePtr(MInitialiseTest & Inittest, LPCSTR Name, bool Optional, LPCTSTR FileName=__FILE__, LPCTSTR DllName="SOMEDLL");//DLL_GroupName);
-    //MSpeciePtr(MSpModelDefBase & DefBase, LPCSTR Name, bool Optional);
-    //MSpeciePtr(MSurgeUnitDefBase & DefBase, LPCSTR Name, bool Optional);
-
+    MSpeciePtr(const MSpeciePtr & p);
     ~MSpeciePtr();
+
+    MSpeciePtr    & operator=(const MSpeciePtr & p);
+
     MSpecieDefn   * operator->();
     operator        int();
     int             get_Index();
@@ -395,8 +394,11 @@ class DllImportExport MSpeciePtr
     __declspec(property(get=get_Index))  int    Index;
 
   protected:
-
     void            ChkIndex();
+
+  protected:
+    CSpecieBlk    * m_pSB;
+    MInitialiseTest * m_pInitTest;
   };
 
 //===========================================================================

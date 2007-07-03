@@ -550,7 +550,7 @@ void CPrecipitator::EvalProducts()
   {
   try
     {
-    MStream Feed;
+    MStreamI Feed;
     FlwIOs.AddMixtureIn_Id(Feed, idFeed);
     MStream & Prod = FlwIOs[FlwIOs.First[idProd]].Stream; //get reference to the actual output stream
 

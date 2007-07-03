@@ -89,7 +89,7 @@ void WhitenScreen::EvalProducts()
     //
     // Make a copy of our input stream so we do not corrupt it
     //
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
     //Alternatively, IF there is only one feed allowed, we could get a direct reference to the Stream

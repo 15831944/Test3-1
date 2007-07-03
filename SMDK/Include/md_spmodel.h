@@ -91,6 +91,7 @@ class ValidateDataBlk;
 class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstructBase
   {
   friend class CCall2MSpProps;
+  friend class CCall2MSpQuals;
   friend class MArray;
   friend class MVector;
   protected:

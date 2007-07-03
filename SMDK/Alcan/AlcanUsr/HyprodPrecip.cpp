@@ -298,7 +298,7 @@ void Precipitator::EvalProducts()
     return;
   try
     {
-    MStream Feed;
+    MStreamI Feed;
     FlwIOs.AddMixtureIn_Id(Feed, idFeed); //sum all input streams
     MStream & Prod = FlwIOs[FlwIOs.First[idProd]].Stream; //get a reference to the single output stream
 
@@ -537,7 +537,7 @@ bool Precipitator::Precip(MVector & Feed, MVector & Prod, double Factor)
 bool Precipitator::RunSteady(MStream & Feed, MStream & Prod)
   {  
   MIBayer & ProdB = *Prod.GetIF<MIBayer>();
-	MStream NonReactStream;// this is the stream of slurry that bypass the tank
+	MStreamI NonReactStream;// this is the stream of slurry that bypass the tank
   //FlwIOs.AddMixtureIn_Id(NonReactStream, idFeed); //sum all input streams
   NonReactStream = Feed;
   m_bPrevPSDUsed = 0;

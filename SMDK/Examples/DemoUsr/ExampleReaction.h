@@ -20,7 +20,7 @@ class SimpleReaction : public MBaseMethod
 
   protected:
     //MReactionBlk    m_RB;
-    MStream m_QProd;
+    MStreamI m_QProd;
     double m_dSolPrecip;
     double dFeedT;
     double dProdT;

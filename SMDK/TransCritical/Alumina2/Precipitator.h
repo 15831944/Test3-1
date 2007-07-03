@@ -48,9 +48,9 @@ class CPrecipitator: public MBaseMethod, CPrecip
   void ClosureInfo(MClosureInfo & CI);
 
  protected:
-  MStream Feed;
-  MStream Evap;
-  MStream CoolIn;
+  MStreamI Feed;
+  MStreamI Evap;
+  MStreamI CoolIn;
   
 
   void EvalLosses(MStream & Prod);   // General routine for finding thermal and evaporative losses

@@ -768,7 +768,7 @@ void CLimnStream::ConvertToFracForm(MVector & M, bool ApplyScale)
   if (DoDbgCvt)
     Dump("ConvertToFracForm:Before", DoDbgCvt);
 
-  MArray Tot;
+  MArrayI Tot;
   // Current Total
   for (int ii=0; ii<gs_DWCfg.m_SeqIndex.GetCount(); ii++)
     {
@@ -856,7 +856,7 @@ void CLimnStream::AddMassF(MSpQualityBase * QualAdd, MArray & MAdd)
   // These numbers are always Fractional
   
   MVector M1=Vector; //
-  MArray MFrac1;
+  MArrayI MFrac1;
   for (int id=0; id<gs_MVDefn.Count(); id++)
     MFrac1[id] = M1.M[id]/GTZ(M1.M[id]+MAdd[id]);
 
@@ -894,8 +894,8 @@ void CLimnStream::AddDiscrete(MVector &V2, MSpQualityBase * pQual2, double Sgn_,
   if (Sgn_>0.0)
     {
     MVector M1=Vector; //
-    MArray m1;
-    MArray m2;
+    MArrayI m1;
+    MArrayI m2;
     for (int id=0; id<gs_MVDefn.Count(); id++)
       {
       m1[id] = M1.M[id];

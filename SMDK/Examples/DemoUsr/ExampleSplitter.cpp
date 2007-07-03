@@ -112,7 +112,7 @@ void Splitter::EvalProducts()
       }
 
     //sum all input streams into a working copy
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
     //get handles to input and output streams...

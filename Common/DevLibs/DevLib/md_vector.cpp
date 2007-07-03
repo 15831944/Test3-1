@@ -178,11 +178,12 @@ MProperty MProperties::operator[](LPCTSTR Name)
 //
 //===========================================================================
 
-MArray::MArray()                                { m_bOwner=true; m_pSysVec=new SpVector/*MArray*/; };
-MArray::MArray(CSysVector * p)                  { m_bOwner=false; m_pSysVec=p; };
-MArray::MArray(MVector * p)                     { m_bOwner=false; m_pSysVec=p->m_pSpMdl->pMArray(); };
-MArray::MArray(MSpModelBase * p)                { m_bOwner=false; m_pSysVec=p->m_pSpMdlX->pMArray(); };
-MArray::~MArray()                               { if (m_bOwner) delete (SpVector*)m_pSysVec; };
+MArray::MArray()                                { m_pSysVec=new SpVector/*MArray*/; };
+MArray::MArray(CSysVector * p)                  { m_pSysVec=p; };
+MArray::MArray(MVector * p)                     { m_pSysVec=p->SpMdl->pMArray(); };
+MArray::MArray(MSpModelBase * p)                { m_pSysVec=p->m_pSpMdlX->pMArray(); };
+MArray::~MArray()                               { m_pSysVec=NULL; };
+
 double & MArray::operator [](int i)             { return *m_pSysVec->VPtr[i]; }
 
 double MArray::Mass(DWORD Phases)               { return m_pSysVec->Mass(Phases);      };
@@ -197,6 +198,13 @@ MArray & MArray::operator=(MArray & M)
   return *this;
   };
 
+MArray & MArray::operator=(MVector & M)
+  {
+  for (int i=0; i<SDB.Count(); i++)
+    (*this)[i]=M.M[i];
+  return *this;
+  };
+
 void MArray::Normalise()
   {
   double T=0;
@@ -205,6 +213,37 @@ void MArray::Normalise()
   T=GTZ(T);
   for (int i=0; i<SDB.Count(); i++)
     (*this)[i]/=T;
+  };
+
+//===========================================================================
+
+MArrayI::MArrayI()                               
+  { 
+  m_pSysVec=new SpVector; 
+  };
+
+MArrayI::MArrayI(CSysVector * p)
+  {
+  m_pSysVec=new SpVector;
+  *m_pSysVec=*p;
+  };
+
+MArrayI::MArrayI(MVector * p)                     
+  { 
+  m_pSysVec=new SpVector; 
+  *((MArray*)this)=*p;
+  };
+
+MArrayI::MArrayI(MSpModelBase * p)                
+  { 
+  m_pSysVec=new SpVector; 
+  *((MArray*)this)=p->MassArray;
+  //*m_pSysVec=*p->m_pSpMdlX->pMArray(); 
+  };
+
+MArrayI::~MArrayI()
+  { 
+  delete m_pSysVec; 
   };
 
 //===========================================================================
@@ -437,8 +476,8 @@ MStream::MStream()
   {
   m_pMethod=NULL;
   m_pCd=NULL;
-  m_bOwned=false;
-  Allocate();
+  //m_bOwned=false;
+  //Allocate();
   }
 
 //---------------------------------------------------------------------------
@@ -446,11 +485,11 @@ MStream::MStream()
 MStream::MStream(const MStream &Cd)
   {
   m_pMethod=NULL;
-  m_pCd=NULL;
-  m_bOwned=false;
+  m_pCd=Cd.m_pCd;
+  //m_bOwned=false;
   //Attach(Cn);
-  Allocate();
-  *this=Cd;
+  //Allocate();
+  //*this=Cd;
   }
 
 //---------------------------------------------------------------------------
@@ -459,36 +498,36 @@ MStream::MStream(SpConduit * pCd)
   {
   m_pMethod=NULL;
   m_pCd=pCd;
-  m_bOwned=false;
+  //m_bOwned=false;
   }
 
 //---------------------------------------------------------------------------
 
-MStream::MStream(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId)
-  {
-  ASSERT(Method!=NULL);
-  m_pMethod=Method;
-  m_pCd=NULL;
-  m_bOwned=false;
-  Allocate(Tag, SpMdlId);
-  };
+//MStream::MStream(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId)
+//  {
+//  ASSERT(Method!=NULL);
+//  m_pMethod=Method;
+//  m_pCd=NULL;
+//  m_bOwned=false;
+//  Allocate(Tag, SpMdlId);
+//  };
 
 //---------------------------------------------------------------------------
 
-MStream::MStream(MBaseMethod * Method, LPCSTR Tag, MVector &V)
-  {
-  ASSERT(Method!=NULL);
-  m_pMethod=Method;
-  m_pCd=NULL;
-  m_bOwned=false;
-  Allocate(Tag, V);
-  };
+//MStream::MStream(MBaseMethod * Method, LPCSTR Tag, MVector &V)
+//  {
+//  ASSERT(Method!=NULL);
+//  m_pMethod=Method;
+//  m_pCd=NULL;
+//  m_bOwned=false;
+//  Allocate(Tag, V);
+//  };
 
 //---------------------------------------------------------------------------
 
 MStream::~MStream()
   {
-  Detach();
+  //Detach();
   }
 
 //---------------------------------------------------------------------------
@@ -529,34 +568,34 @@ SpModel * MStream::getSpMdl() const
 
 //---------------------------------------------------------------------------
 
-void MStream::Attach(const MStream &Cn)
-  {
-  if (m_bOwned)
-    delete m_pCd;
-  m_bOwned=false;
-  m_pCd=Cn.m_pCd;
-  };
-
-//---------------------------------------------------------------------------
-
-void MStream::Attach(SpConduit * pCd)
-  {
-  if (m_bOwned)
-    delete m_pCd;
-  m_bOwned=false;
-  m_pCd=pCd;
-  };
-
+//void MStream::Attach(const MStream &Cn)
+//  {
+//  if (m_bOwned)
+//    delete m_pCd;
+//  m_bOwned=false;
+//  m_pCd=Cn.m_pCd;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//void MStream::Attach(SpConduit * pCd)
+//  {
+//  if (m_bOwned)
+//    delete m_pCd;
+//  m_bOwned=false;
+//  m_pCd=pCd;
+//  };
+//
 //---------------------------------------------------------------------------
 
 static long ls_iTmpStreamTagNo=0;
 
 void MStream::Allocate(LPCSTR Tag, LPCSTR SpMdlId)
   {
-  if (m_bOwned)
-    delete m_pCd;
+  //if (m_bOwned)
+  //  delete m_pCd;
 
-  m_bOwned=true;
+  //m_bOwned=true;
   if (Tag==NULL)
     {
     CString T;
@@ -573,10 +612,10 @@ void MStream::Allocate(LPCSTR Tag, LPCSTR SpMdlId)
 
 void MStream::Allocate(LPCSTR Tag, MVector &V)
   {
-  if (m_bOwned)
-    delete m_pCd;
+  //if (m_bOwned)
+  //  delete m_pCd;
 
-  m_bOwned=true;
+  //m_bOwned=true;
   if (Tag==NULL)
     {
     CString T;
@@ -590,13 +629,13 @@ void MStream::Allocate(LPCSTR Tag, MVector &V)
 
 //---------------------------------------------------------------------------
 
-void MStream::Detach()
-  {
-  if (m_bOwned)
-    delete m_pCd;
-  m_bOwned=false;
-  m_pCd=NULL;
-  }
+//void MStream::Detach()
+//  {
+//  if (m_bOwned)
+//    delete m_pCd;
+//  m_bOwned=false;
+//  m_pCd=NULL;
+//  }
 
 //---------------------------------------------------------------------------
 
@@ -604,8 +643,9 @@ void MStream::CheckAttached()
   {
   if (m_pCd==NULL)
     {
-    m_bOwned=true;
-    m_pCd=new SpConduit("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
+    _asm int 3;
+    //m_bOwned=true;
+    //m_pCd=new SpConduit("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
     }
   };
 
@@ -655,6 +695,65 @@ double  MStream::Density(DWORD PhMsk, double T, double P) const { return m_pCd->
 double  MStream::msCp(DWORD PhMsk, double T, double P) const { return m_pCd->msCp(PhMsk, Valid(T)?T:m_pCd->Temp(), Valid(P)?P:m_pCd->Press()); };
 
 //===========================================================================
+
+MStreamI::MStreamI()
+  {
+  m_pMethod=NULL;
+  m_pCd=NULL;
+  Allocate();
+  }
+
+//---------------------------------------------------------------------------
+
+MStreamI::MStreamI(const MStream &Cd)
+  {
+  m_pMethod=NULL;
+  m_pCd=NULL;//Cd.m_pCd;
+  //m_bOwned=false;
+  ///Attach(Cn);
+  Allocate();
+  *(MStream*)m_pCd=Cd;
+  }
+
+//---------------------------------------------------------------------------
+
+//MStreamI::MStreamI(SpConduit * pCd)
+//  {
+//  m_pMethod=NULL;
+//  m_pCd=pCd;
+//  //m_bOwned=false;
+//  }
+
+//---------------------------------------------------------------------------
+
+MStreamI::MStreamI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId)
+  {
+  ASSERT(Method!=NULL);
+  m_pMethod=Method;
+  m_pCd=NULL;
+  //m_bOwned=false;
+  Allocate(Tag, SpMdlId);
+  };
+
+//---------------------------------------------------------------------------
+
+MStreamI::MStreamI(MBaseMethod * Method, LPCSTR Tag, MVector &V)
+  {
+  ASSERT(Method!=NULL);
+  m_pMethod=Method;
+  m_pCd=NULL;
+  //m_bOwned=false;
+  Allocate(Tag, V);
+  };
+
+//---------------------------------------------------------------------------
+
+MStreamI::~MStreamI()
+  {
+  delete m_pCd;
+  //Detach();
+  }
+//===========================================================================
 //
 //
 //
@@ -664,8 +763,8 @@ MContainer::MContainer()
   {
   m_pMethod=NULL;
   m_pCn=NULL;
-  m_bOwned=false;
-  Allocate();
+  //m_bOwned=false;
+  //Allocate();
   }
 
 //---------------------------------------------------------------------------
@@ -673,11 +772,11 @@ MContainer::MContainer()
 MContainer::MContainer(const MContainer &Cn)
   {
   m_pMethod=NULL;
-  m_pCn=NULL;
-  m_bOwned=false;
-  //Attach(Cn);
-  Allocate();
-  *this=Cn;
+  m_pCn=&Cn.Cn;
+  //m_bOwned=false;
+  ////Attach(Cn);
+  //Allocate();
+  //*this=Cn;
   }
 
 //---------------------------------------------------------------------------
@@ -686,36 +785,13 @@ MContainer::MContainer(SpContainer* pCn)
   {
   m_pMethod=NULL;
   m_pCn=pCn;
-  m_bOwned=false;
+  //m_bOwned=false;
   }
-
-//---------------------------------------------------------------------------
-
-MContainer::MContainer(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlDesc)
-  {
-  ASSERT(Method!=NULL);
-  m_pMethod=Method;
-  m_pCn=NULL;
-  m_bOwned=false;
-  Allocate(Tag, SpMdlDesc);
-  };
-
-//---------------------------------------------------------------------------
-
-MContainer::MContainer(MBaseMethod * Method, LPCSTR Tag, MVector &V)
-  {
-  ASSERT(Method!=NULL);
-  m_pMethod=Method;
-  m_pCn=NULL;
-  m_bOwned=false;
-  Allocate(Tag, V);
-  };
 
 //---------------------------------------------------------------------------
 
 MContainer::~MContainer()
   {
-  Detach();
   }
 
 //---------------------------------------------------------------------------
@@ -735,32 +811,32 @@ SpModel * MContainer::getSpMdl() const
 
 //---------------------------------------------------------------------------
 
-void MContainer::Attach(const MContainer &Cn)
-  {
-  if (m_bOwned)
-    delete m_pCn;
-  m_bOwned=false;
-  m_pCn=Cn.m_pCn;
-  };
-
-//---------------------------------------------------------------------------
-
-void MContainer::Attach(SpContainer * pCn)
-  {
-  if (m_bOwned)
-    delete m_pCn;
-  m_bOwned=false;
-  m_pCn=pCn;
-  };
+//void MContainer::Attach(const MContainer &Cn)
+//  {
+//  if (m_bOwned)
+//    delete m_pCn;
+//  m_bOwned=false;
+//  m_pCn=Cn.m_pCn;
+//  };
+//
+////---------------------------------------------------------------------------
+//
+//void MContainer::Attach(SpContainer * pCn)
+//  {
+//  if (m_bOwned)
+//    delete m_pCn;
+//  m_bOwned=false;
+//  m_pCn=pCn;
+//  };
 
 //---------------------------------------------------------------------------
 
 void MContainer::Allocate(LPCSTR Tag, LPCSTR SpMdlId)
   {
-  if (m_bOwned)
-    delete m_pCn;
+  //if (m_bOwned)
+  //  delete m_pCn;
 
-  m_bOwned=true;
+  //m_bOwned=true;
   m_pCn=new SpContainer((LPSTR)Tag, m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
   if (SpMdlId)
     m_pCn->ChangeModel((LPTSTR)SpMdlId, true);
@@ -770,32 +846,33 @@ void MContainer::Allocate(LPCSTR Tag, LPCSTR SpMdlId)
 
 void MContainer::Allocate(LPCSTR Tag, MVector &V)
   {
-  if (m_bOwned)
-    delete m_pCn;
+  //if (m_bOwned)
+  //  delete m_pCn;
 
-  m_bOwned=true;
+  //m_bOwned=true;
   m_pCn=new SpContainer((LPSTR)Tag, m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
   m_pCn->ChangeModel(V.SpMdl->ClassId(), true);
   }
 
 //---------------------------------------------------------------------------
 
-void MContainer::Detach()
-  {
-  if (m_bOwned)
-    delete m_pCn;
-  m_bOwned=false;
-  m_pCn=NULL;
-  }
-
-//---------------------------------------------------------------------------
-
+//void MContainer::Detach()
+//  {
+//  if (m_bOwned)
+//    delete m_pCn;
+//  m_bOwned=false;
+//  m_pCn=NULL;
+//  }
+//
+////---------------------------------------------------------------------------
+//
 void MContainer::CheckAttached()
   {
   if (m_pCn==NULL)
     {
-    m_bOwned=true;
-    m_pCn=new SpContainer("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
+    _asm int 3;
+    //m_bOwned=true;
+    //m_pCn=new SpContainer("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
     }
   };
 
@@ -825,6 +902,36 @@ double  MContainer::Mass(DWORD PhMsk) const                         { return m_p
 double  MContainer::Volume(DWORD PhMsk, double T, double P) const   { return m_pCn->Volume(PhMsk, Valid(T)?T:m_pCn->Temp(), Valid(P)?P:m_pCn->Press()); };
 double  MContainer::Density(DWORD PhMsk, double T, double P) const  { return m_pCn->Rho(PhMsk, Valid(T)?T:m_pCn->Temp(), Valid(P)?P:m_pCn->Press()); };
 double  MContainer::msCp(DWORD PhMsk, double T, double P) const     { return m_pCn->msCp(PhMsk, Valid(T)?T:m_pCn->Temp(), Valid(P)?P:m_pCn->Press()); };
+
+//---------------------------------------------------------------------------
+
+MContainerI::MContainerI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlDesc)
+  {
+  ASSERT(Method!=NULL);
+  m_pMethod=Method;
+  m_pCn=NULL;
+  //m_bOwned=false;
+  Allocate(Tag, SpMdlDesc);
+  };
+
+//---------------------------------------------------------------------------
+
+MContainerI::MContainerI(MBaseMethod * Method, LPCSTR Tag, MVector &V)
+  {
+  ASSERT(Method!=NULL);
+  m_pMethod=Method;
+  m_pCn=NULL;
+  //m_bOwned=false;
+  Allocate(Tag, V);
+  };
+
+//---------------------------------------------------------------------------
+
+MContainerI::~MContainerI()
+  {
+  delete m_pCn;
+  //Detach();
+  }
 
 //===========================================================================
 //

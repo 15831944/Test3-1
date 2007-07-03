@@ -918,8 +918,8 @@ void CKoueValle::EvalProducts()
 {
 	try           
 	{
-		MStream GasI;
-		MStream CoolI;
+		MStreamI GasI;
+		MStreamI CoolI;
 		MStream & GasO = FlwIOs[FlwIOs.First[idGasOut]].Stream; //get reference to the actual output stream
 		MStream & LiqO = FlwIOs[FlwIOs.First[idLiqOut]].Stream; //get reference to the actual output stream
 		MStream & CoolO = FlwIOs[FlwIOs.First[idCoolOut]].Stream; //get reference to the actual output stream
