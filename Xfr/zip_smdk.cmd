@@ -109,6 +109,24 @@ wzzip -a -P -r %fn2% smdk\examples\demospusr\demospusr.vcproj smdk\examples\demo
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\*.h smdk\examples\demoalspusr\*.cpp
 wzzip -a -P -r %fn2% smdk\examples\demoalspusr\demoalspusr.vcproj smdk\examples\demoalspusr\demoalspusr.sln
 
+rem ========== SMDK Internal ==========
+set fn2=%fn%_Internal.zip
+del %fn2%
+wzzip -a -P -r %fn2% smdk\devlic.exe
+wzzip -a -P -r %fn2% smdk\kwa.exe
+wzzip -a -P -r %fn2% smdk\include\md_headers.h smdk\include\md_data.h
+wzzip -a -P -r %fn2% smdk\include\md_share0.h smdk\include\md_share1.h smdk\include\md_share2.h
+wzzip -a -P -r %fn2% smdk\include\md_share3.h smdk\include\md_share4.h
+wzzip -a -P -r %fn2% smdk\include\md_defn.h smdk\include\md_spmodel.h smdk\include\md_vector.h smdk\include\md_method.h
+wzzip -a -P -r %fn2% smdk\include\scdif.h smdk\include\scdmacros.h smdk\include\md_psd.h smdk\include\md_alumina.h
+wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
+wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
+wzzip -a -P -r %fn2% smdk\includeex\.h 
+wzzip -a -P -r %fn2% smdk\binex\rls8\devlib.lib 
+wzzip -a -P -r %fn2% smdk\binex\rls\devlib.lib 
+
 rem ========== SMDK Alcan ==========
 set fn2=%fn%_Alcan.zip
 del %fn2%
@@ -183,8 +201,8 @@ wzzip -a -P -r %fn2% smdk\kenwalt\kw_devlib\kw_devlib.vcproj vsmdk\kenwalt\kw_de
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\*.h smdk\kenwalt\kw_smdk2\*.cpp
 wzzip -a -P -r %fn2% smdk\kenwalt\kw_smdk2\kw_smdk2.vcproj vsmdk\kenwalt\kw_smdk2\kw_smdk2.sln
 wzzip -a -P -r %fn2% smdk\includeex\*.h 
-wzzip -a -P -r %fn2% smdk\binex\rls8\*.lib 
-wzzip -a -P -r %fn2% smdk\binex\rls\*.lib 
+wzzip -a -P -r %fn2% smdk\binex\rls8\devlib.lib 
+wzzip -a -P -r %fn2% smdk\binex\rls\devlib.lib 
 
 @echo off
 
