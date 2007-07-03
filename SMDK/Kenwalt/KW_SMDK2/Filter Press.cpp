@@ -188,9 +188,9 @@ void FilterPress::EvalProducts()
 {
 	try {
 		int idPressNote = 0, idWashNote = 1;
-		MStream QFeed;
+		MStreamI QFeed;
 		FlwIOs.AddMixtureIn_Id(QFeed, idFeed);
-		MStream QWashWater;
+		MStreamI QWashWater;
 		bool bWashWaterConnected;
 		if (bWashWaterConnected = (FlwIOs.getCount(idWash) > 0))
 			FlwIOs.AddMixtureIn_Id(QWashWater, idWash);
@@ -437,7 +437,7 @@ void FilterPress::EvalProducts()
 			MStream& QVent = FlwIOs[FlwIOs.First[idVent]].Stream;
 			QVent = QCake;
 			QVent.ZeroMass();
-			MStream QWashWater;
+			MStreamI QWashWater;
 			if (FlwIOs.Count[idWash] > 0)
 				QWashWater = FlwIOs[FlwIOs.First[idWash]].Stream;
 			else

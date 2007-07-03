@@ -45,9 +45,9 @@ class QALClassifier : public MBaseMethod
 {
     friend class CdPSolverFn;
     friend class PSDSolverFn2;
-    MStream QI;
-    MStream QOverflow;		// Temporary for calculation of viscosity etc;
-    MStream QUnderflow;     // Temporary for underflow calculations
+    MStreamI QI;
+    MStreamI QOverflow;		// Temporary for calculation of viscosity etc;
+    MStreamI QUnderflow;     // Temporary for underflow calculations
 
     bool bStdFn;   // Standard functionality
     long iStdMode;  // Mode of operation in std model 

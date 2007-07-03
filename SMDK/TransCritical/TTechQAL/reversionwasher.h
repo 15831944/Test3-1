@@ -38,8 +38,8 @@ class ReversionWasher : public MBaseMethod
     double scandrettBalance(double x);
 
  protected:
-    MStream QI1;
-    MStream QI0;
+    MStreamI QI1;
+    MStreamI QI0;
     long           iThermalLossMethod;
     double         dTempDropRqd;
     double         dThermalLossRqd;

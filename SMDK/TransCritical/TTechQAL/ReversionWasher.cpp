@@ -216,14 +216,14 @@ void ReversionWasher::EvalProducts()
     try {
 	FlwIOs.AddMixtureIn_Id(QI0, 0);
 	FlwIOs.AddMixtureIn_Id(QI1, 1);
-	MStream SideStream;
+	MStreamI SideStream;
 	FlwIOs.AddMixtureIn_Id(SideStream, 4);
 	QI0.AddF(SideStream, MP_All, 1.0);
 
 	MStream & QO0 = FlwIOs[FlwIOs.First[2]].Stream; // Product stream 1 - here the overflow
 	MStream & QO1 = FlwIOs[FlwIOs.First[3]].Stream; // Product stream 2 - the mud underflow
-	MStream QMud;    // Stream to reversion
-	MStream QBypass;  // Bypass direct to overflow
+	MStreamI QMud;    // Stream to reversion
+	MStreamI QBypass;  // Bypass direct to overflow
 
 	// Set the outlet streams to the inlet streams (pass through) that 
 	// if unexpected errors happen
@@ -272,7 +272,7 @@ void ReversionWasher::EvalProducts()
 	    double x = (dSolidsRho - dMudReactionSolids)/(dSolidsRho - sol1)*sol1/dMudReactionSolids;
 
 
-	    MStream QM1;
+	    MStreamI QM1;
 	    QM1.SetF(QMud, MP_Sol, 1);
 	    QM1.AddF(QMud, MP_Liq, x);
 	    QBypass.AddF(QMud, MP_Liq, 1-x);
@@ -309,7 +309,7 @@ void ReversionWasher::EvalProducts()
 	}
 		
 
-	MStream QRevert;
+	MStreamI QRevert;
 	QRevert.SetF(QIR.getStream(), MP_All, 1.0);
 	dReactionHeat = hfIn - QRevert.totHf();
 	/// Now squeeze out liquor to provide the desired underflow mud level
@@ -401,9 +401,9 @@ void ReversionWasher::EvalProducts()
 
 double ReversionWasher::scandrettBalance(double y) 
 {
-	MStream QM;
-	MStream QB;
-	MStream QMOut;
+	MStreamI QM;
+	MStreamI QB;
+	MStreamI QMOut;
 
 	QM.SetF(QI0, MP_All, 1-y);
 	QB.SetF(QI0, MP_All, y);
@@ -465,7 +465,7 @@ double ReversionStream::revert2(double deltaT)
 
 double ReversionStream::dAdMAL() const
 {
-	MStream QT;
+	MStreamI QT;
 	QT.SetF(MudStream, MP_All, 1);
 	if (1) {
 		QT.M[ALUMINA] += dDelta;

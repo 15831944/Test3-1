@@ -437,7 +437,7 @@ void CTTOrifice::EvalProducts()
 {
   try           
     {
-    MStream InStream;
+    MStreamI InStream;
     FlwIOs.AddMixtureIn_Id(InStream, idIn);
 
     dDensityCorrection = bAmiraCorrection ? dcf(K2C(InStream.T)) : 1.0;
@@ -491,7 +491,7 @@ void CTTOrifice::EvalProducts()
       m_sDesc2 = (dPOrificeIn<dFlashP) ? "Two Phase" : "Single Phase";
       dSatP = m_VLE.SaturationP(InStream, InStream.T);
       dTin = InStream.T;
-      MStream mstmp;
+      MStreamI mstmp;
       mstmp = InStream;
       dMassVelocity = massVelocity(mstmp, dPOrificeIn, dPOrificeOut);
       dSinglePhaseDP = 0.5*Sqr(dMassFlow1/oarea)/den/1000.;
@@ -667,7 +667,7 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
   double gmax = -1000.;
   double pcrit;
   for (int i=0; i<=20; i++) {
-    MStream mtmp;
+    MStreamI mtmp;
     mtmp = ms;
     double p = pSat - dP*i/20.;
     double mv = massVelocity(mtmp, pIn, p);
@@ -686,7 +686,7 @@ double CTTOrifice::chokeMassVelocity(MStream  ms, double pIn)
 double CTTOrifice::criticalVelocity(MStream ms, int slipMode) 
 {
   if (slipMode == SFM_Default) slipMode = m_lSlipMode;
-  MStream mtmp;
+  MStreamI mtmp;
   mtmp = ms;
   SlipFlow s1(slipMode);
   double den1 = s1.SlipDensity(ms);
@@ -700,7 +700,7 @@ double CTTOrifice::criticalVelocity(MStream ms, int slipMode)
 double CTTOrifice::criticalFlow(MStream ms, int slipMode) 
 {
   if (slipMode == SFM_Default) slipMode = m_lSlipMode;
-  MStream mtmp;
+  MStreamI mtmp;
   mtmp = ms;
   SlipFlow s1(slipMode);
   double den1 = s1.SlipDensity(ms);
@@ -721,7 +721,7 @@ double CTTOrifice::criticalFlow(MStream ms, int slipMode)
 
 double CTTOrifice::orificeDeltaP(MStream ms) {
 
-  MStream mtmp;
+  MStreamI mtmp;
   mtmp = ms;
   double pIn  = ms.P;
   SlipFlow s1(m_lSlipMode);
@@ -774,7 +774,7 @@ double dcf(double tc) {
 // Homogeneous Nonequilibrium Flash Calculation...
 double CTTOrifice::HNEFlash(MStream ms, double p, double alpha, double flashmax)
 {
-  MStream mtmp;
+  MStreamI mtmp;
   mtmp = ms;
   m_VLE.PFlash(mtmp, p);
   double x1;   // Non equilibrium vapor fraction

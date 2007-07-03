@@ -481,8 +481,8 @@ void CQALHeater::EvalProducts()
 {
   try           
     {
-    MStream TubeI;
-    MStream ShellI;
+    MStreamI TubeI;
+    MStreamI ShellI;
     MStream & TubeO = FlwIOs[FlwIOs.First[idTubeO]].Stream;
     MStream & ShellO = FlwIOs[FlwIOs.First[idShellO]].Stream;
 

@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="60.DevLib"
+	Name="95.DevLib"
 	ProjectGUID="{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
 	Keyword="MFCProj">
 	<Platforms>
@@ -314,6 +314,9 @@
 				RelativePath=".\BBTransfer.cpp">
 			</File>
 			<File
+				RelativePath=".\DevLib.cpp">
+			</File>
+			<File
 				RelativePath=".\md_base.cpp">
 			</File>
 			<File
@@ -333,9 +336,6 @@
 			</File>
 			<File
 				RelativePath=".\md_vector.cpp">
-			</File>
-			<File
-				RelativePath=".\DevLib.cpp">
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp">
@@ -382,6 +382,9 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Smdk\Include\DebugLib.h">
+			</File>
+			<File
+				RelativePath=".\DevLib.h">
 			</File>
 			<File
 				RelativePath="..\..\..\Smdk\Include\md_Alumina.h">
@@ -433,9 +436,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Smdk\Include\ScdMacros.h">
-			</File>
-			<File
-				RelativePath=".\DevLib.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">

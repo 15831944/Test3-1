@@ -487,7 +487,7 @@ void QALCyclone::BuildDataFields()
 void QALCyclone::EvalProducts()
   {
   // Make a copy of our input stream so we do not corrupt it
-  MStream QI;
+  MStreamI QI;
   FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
   // Get References to our Output Streams using the FlwIOs helper class and IO ids

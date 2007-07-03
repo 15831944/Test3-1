@@ -65,8 +65,8 @@ class CFilter: public MBaseMethod
 
   
 
-  MStream Feed;
-  MStream Condensate;
+  MStreamI Feed;
+  MStreamI Condensate;
   bool bCondConnected;   // Do we have a condensate stream connected
   
 

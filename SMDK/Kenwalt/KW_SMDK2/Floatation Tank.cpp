@@ -321,7 +321,7 @@ void FloatationTank::EvalProducts()
 			vSecondaryRecoveries.at(i) = vReqSecondaryRecoveries.at(i);
 
 		//sum all input streams into a working copy
-		MStream QI;
+		MStreamI QI;
 		FlwIOs.AddMixtureIn_Id(QI, idFeed);
 
 		//get handles to input and output streams...

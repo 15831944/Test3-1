@@ -22,7 +22,7 @@ double linMap(double x, double x1, double y1, double x2, double y2)
 class CMaxLSplitFn: public MRootFinderBase
 {
 	MStream &Feed1;
-	MStream QS;
+	MStreamI QS;
 	double solids;
 	int OXALATE;
 
@@ -50,7 +50,7 @@ MToleranceBlock CMaxLSplitFn::s_Tol(TBF_Both, "QALClassifier:MaxSplit", 0.00005,
 class CFUSolverFn : public MRootFinderBase
 {
 	MStream &Feed1;
-	MStream QS;
+	MStreamI QS;
 	double solids;
 	double y;
 	int OXALATE;

@@ -84,7 +84,7 @@ void Tank::EvalProducts()
   if (IsSolveDirect)
     {
     // Get Inputs
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idIn); //sum all inputs
 
     // Total Estimated Out 
@@ -107,7 +107,7 @@ void Tank::EvalProducts()
   else
     {
     // Get Inputs
-    MStream QI;
+    MStreamI QI;
     FlwIOs.AddMixtureIn_Id(QI, idIn); //sum all inputs
 
     // Total Estimated Out 

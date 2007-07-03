@@ -752,7 +752,7 @@ bool CCARTubeDigester::ConfigureJoins()
       if (fabs(qShell)<fabs(qTube)) { // Limited By Shell - Tube TOut Limited
         //MStream  ms(TubeI);
         //MStream ms = TubeI;
-        MStream ms;
+        MStreamI ms;
         ms = TubeI;
         ms.Set_totHz(TubeI.totHz()+qShell);
         MxTbOutT = ms.T;
@@ -844,8 +844,8 @@ bool CCARTubeDigester::ConfigureJoins()
     {
     try           
       {
-      MStream TubeI;
-      MStream ShellI;
+      MStreamI TubeI;
+      MStreamI ShellI;
       MStream & TubeO = FlwIOs[FlwIOs.First[idTubeO]].Stream;
       MStream & ShellO = FlwIOs[FlwIOs.First[idShellO]].Stream;
       MStream & VentO = FlwIOs[FlwIOs.First[idVentO]].Stream;

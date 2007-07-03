@@ -370,9 +370,9 @@ void CPrecipitator::EvalLosses(MStream & Prod)
   }
   m_dIntCoolRate=0.0;
   if (m_bCoolerOn && iCoolType==COOL_INTERNAL && bCoolIn && iCoolMethod == COOL_Hx ) {
-    MStream TubeIn;
-    MStream TubeOut;
-    MStream CoolOut;
+    MStreamI TubeIn;
+    MStreamI TubeOut;
+    MStreamI CoolOut;
     if (m_bByVolFlow) 
       m_dCoolFlow = m_dIntCoolVolFlow*Prod.Density();
     else

@@ -244,7 +244,7 @@ void CPSDUnit::EvalProducts()
 
   try {
 
-    MStream Feed;
+    MStreamI Feed;
     FlwIOs.AddMixtureIn_Id(Feed, idFeed);
     MStream & Prod = FlwIOs[FlwIOs.First[idProd]].Stream; //Reference to the overflow out stream
     //dbg.log("EvalProds");

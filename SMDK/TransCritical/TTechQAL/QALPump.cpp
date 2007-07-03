@@ -422,7 +422,7 @@ void CQALPump::EvalProducts()
 {
   try           
     {
-    MStream PumpI;
+    MStreamI PumpI;
     MStream & PumpO = FlwIOs[FlwIOs.First[idDischarge]].Stream;
     if (m_bRawData) 
       fitCurveData();

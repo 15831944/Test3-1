@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="60.DevLibEx"
-	ProjectGUID="{AFA10940-2CDE-4B7B-85AC-B8644E838A06}"
+	Name="96.DevLibEx"
+	ProjectGUID="{FAF21E45-D5A0-4812-8A6B-3373C1CFC838}"
 	Keyword="MFCProj">
 	<Platforms>
 		<Platform
@@ -22,7 +22,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
+				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include,..\..\..\SMDK\IncludeEx"
 				PreprocessorDefinitions="_DEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
@@ -60,7 +60,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
-				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
+				CommandLine="..\..\BldCopyDllEx.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -91,7 +91,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
+				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include,..\..\..\SMDK\IncludeEx"
 				PreprocessorDefinitions="NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				GeneratePreprocessedFile="0"
 				RuntimeLibrary="2"
@@ -128,7 +128,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
-				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
+				CommandLine="..\..\BldCopyDllEx.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -164,7 +164,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
+				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include,..\..\..\SMDK\IncludeEx"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -204,7 +204,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
-				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
+				CommandLine="..\..\BldCopyDllEx.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -239,7 +239,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include"
+				AdditionalIncludeDirectories="..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\..\Models,..\..\Models\MdlBase,..\..\..\SMDK\Include,..\..\..\SMDK\IncludeEx"
 				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;DEVLIBEX;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -274,7 +274,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Copy Files for SMDK"
-				CommandLine="..\..\BldCopyDll.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
+				CommandLine="..\..\BldCopyDllEx.Cmd ..\..\..  $(TargetName)  $(OutDir)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -302,40 +302,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
-				RelativePath=".\BBBase.cpp">
-			</File>
-			<File
-				RelativePath=".\BBControl.cpp">
-			</File>
-			<File
-				RelativePath=".\BBSurge.cpp">
-			</File>
-			<File
-				RelativePath=".\BBTransfer.cpp">
-			</File>
-			<File
-				RelativePath=".\md_base.cpp">
-			</File>
-			<File
-				RelativePath=".\md_data.cpp">
-			</File>
-			<File
-				RelativePath=".\md_defn.cpp">
-			</File>
-			<File
-				RelativePath=".\md_method.cpp">
-			</File>
-			<File
-				RelativePath=".\md_PSD.cpp">
-			</File>
-			<File
-				RelativePath=".\md_spmodel.cpp">
-			</File>
-			<File
-				RelativePath=".\md_vector.cpp">
-			</File>
-			<File
 				RelativePath=".\DevLibEx.cpp">
+			</File>
+			<File
+				RelativePath=".\md_method_ex.cpp">
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp">
@@ -369,73 +339,13 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath=".\BBBase.h">
-			</File>
-			<File
-				RelativePath=".\BBControl.h">
-			</File>
-			<File
-				RelativePath=".\BBSurge.h">
-			</File>
-			<File
-				RelativePath=".\BBTransfer.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\DebugLib.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_Alumina.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_base.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_data.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_defn.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_headers.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_impl.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_method.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_PSD.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_share0.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_share1.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_share2.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_share3.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_share4.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\md_spmodel.h">
-			</File>
-			<File
-				RelativePath="..\..\..\SMDK\Include\md_vector.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\MsgLog.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Smdk\Include\ScdMacros.h">
-			</File>
-			<File
 				RelativePath=".\DevLibEx.h">
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\IncludeEx\md_headers_ex.h">
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\IncludeEx\md_method_ex.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">

@@ -351,7 +351,7 @@ bool CQALPipe::EvalJoinPressures()
 void CQALPipe::EvalProducts()
 {
   try    {
-    MStream PipeI;
+    MStreamI PipeI;
     MStream & PipeO = FlwIOs[FlwIOs.First[idDischarge]].Stream;
     FlwIOs.AddMixtureIn_Id(PipeI, idSuction);
 

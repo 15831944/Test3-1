@@ -131,7 +131,7 @@ void SysCADSurge::EvalProducts()
 
   try
   {
-      MStream Feed; // SysCAD Feed Stream
+      MStreamI Feed; // SysCAD Feed Stream
       FlwIOs.AddMixtureIn_Id(Feed, idFeed); //sum all input streams
 
       //

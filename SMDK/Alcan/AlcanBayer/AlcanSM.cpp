@@ -77,7 +77,7 @@ double CAlcanSM::sm_CarbonFactor = 2.0;
 // ==========================================================================
 
 bool   CAlcanConcs::NaFactorOK=0;
-MArray CAlcanConcs::NaFactor;//(0.0);
+MArrayI CAlcanConcs::NaFactor;//(0.0);
 
 CAlcanConcs::CAlcanConcs(CAlcanSM *pMdl)
   {

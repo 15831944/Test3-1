@@ -27,56 +27,45 @@ double Viscosity_cp(MStream & s);
 
 
 class CClassifier: public MBaseMethod
-{
- public:
+  {
+  public:
+    CClassifier(MUnitDefBase *pUnitDef,TaggedObject * pNd);
+    virtual ~CClassifier(void);
 
+    void Init();
+    void BuildDataFields();
+    bool ValidateDataFields();
+    void EvalProducts();
+    void ClosureInfo(MClosureInfo & CI);
 
-  CClassifier(MUnitDefBase *pUnitDef,TaggedObject * pNd);
-  virtual ~CClassifier(void);
+    void DoClassifier(MStream &, MStream &);
 
-  void Init();
-  void BuildDataFields();
-  bool ValidateDataFields();
-  void EvalProducts();
-  void ClosureInfo(MClosureInfo & CI);
+  protected:
+    bool bOnline;
+    long iClassMethod;
+    double dTankVol;
+    double dViscosity;
+    double tTerm;
+    bool bCalcCut_Size;
 
+    double m_dByPass;  
+    double m_dSharp_Index;  
+    double m_dCut_Size;     
+    double m_dSlurry_split; 
+    double m_dOver_pass;    
+    double m_dL0;
 
-  void DoClassifier(MStream &, MStream &);
+    double m_dxS;
+    double m_dEff;
 
+    double L[nClasses+1];
+    double Lav[nClasses+1];
 
- protected:
-  bool bOnline;
-  long iClassMethod;
-  double dTankVol;
-  double dViscosity;
-  double tTerm;
-  bool bCalcCut_Size;
+    MStreamI Feed;
 
-  double m_dByPass;  
-  double m_dSharp_Index;  
-  double m_dCut_Size;     
-  double m_dSlurry_split; 
-  double m_dOver_pass;    
-  double m_dL0;
+    long iPSD;
+    void displayStream(MStream &ms, int scrn);
+    void displayPSD(MStream &ms, int scrn);  double dd[8][26];
 
-  double m_dxS;
-  double m_dEff;
-
-  double L[nClasses+1];
-  double Lav[nClasses+1];
-
-  
-
-  MStream Feed;
-  
-
-  
-  long iPSD;
-  void displayStream(MStream &ms, int scrn);
-  void displayPSD(MStream &ms, int scrn);  double dd[8][26];
-
-
-     
-  
-};
+  };
 

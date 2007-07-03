@@ -73,13 +73,13 @@ class CPrecipitator: public MBaseMethod, CPrecip
   void ClosureInfo(MClosureInfo & CI);
 
  protected:
-  MStream Feed;
-  MStream Tank;     // Effective Stream for tank, calculations done on this stream
-  MStream SavedTank;  // Save the tank stream contents for efficient recalculation
+  MStreamI Feed;
+  MStreamI Tank;     // Effective Stream for tank, calculations done on this stream
+  MStreamI SavedTank;  // Save the tank stream contents for efficient recalculation
 
 
-  MStream Evap;
-  MStream CoolIn;
+  MStreamI Evap;
+  MStreamI CoolIn;
   
   bool alreadySolved;  // If 
 

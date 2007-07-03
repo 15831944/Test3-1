@@ -753,7 +753,7 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
     if (fabs(qShell)<fabs(qTube)) { // Limited By Shell - Tube TOut Limited
       //MStream  ms(TubeI);
       //MStream ms = TubeI;
-      MStream ms;
+      MStreamI ms;
       ms = TubeI;
       ms.Set_totHz(TubeI.totHz()+qShell);
       MxTbOutT = ms.T;
@@ -853,8 +853,8 @@ void CCARTubeDigester::EvalProducts()
 {
   try           
     {
-      MStream TubeI;
-      MStream ShellI;
+      MStreamI TubeI;
+      MStreamI ShellI;
       MStream & TubeO = FlwIOs[FlwIOs.First[idTubeO]].Stream;
       MStream & ShellO = FlwIOs[FlwIOs.First[idShellO]].Stream;
       MStream & VentO = FlwIOs[FlwIOs.First[idVentO]].Stream;

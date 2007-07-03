@@ -467,7 +467,7 @@ void CPrecipitator::EvalProducts()
     FlwIOs.AddMixtureIn_Id(Feed, idFeed);
     MStream & UFlow = FlwIOs[FlwIOs.First[idUflow]].Stream; //Reference to the output stream
     MStream & OFlow = FlwIOs[FlwIOs.First[idOflow]].Stream; //Reference to the output stream
-    MStream OutFlow;
+    MStreamI OutFlow;
     
     if (SavedTank.MassFlow() < 1.0e-5 || !bTest) {
       Tank = Feed;

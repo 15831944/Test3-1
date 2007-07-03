@@ -200,7 +200,7 @@ void CTTCompress::EvalProducts()
 {
   try           
     {
-    MStream PumpI;
+    MStreamI PumpI;
     MStream & PumpO = FlwIOs[FlwIOs.First[idDischarge]].Stream;
     FlwIOs.AddMixtureIn_Id(PumpI, idSuction);
     PumpO = PumpI;
