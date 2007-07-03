@@ -1379,7 +1379,7 @@ BOOL CSCD_DB::OpenDataBase()//char * Filename)
     {
     try
       {
-      S.Format(DBConnectOpenString(DBConnect_Default), m_Filename());
+      S.Format(DBConnectOpenString(DBConnect_Default), EscapeQuote(m_Filename()));
       m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
       m_pCat->PutActiveConnection(_variant_t((IDispatch*)m_pCnn));
       }
@@ -1393,7 +1393,7 @@ BOOL CSCD_DB::OpenDataBase()//char * Filename)
     {
     try
       {
-      S.Format(DBConnectCreateString(DBConnect_Default), m_Filename());
+      S.Format(DBConnectCreateString(DBConnect_Default), EscapeQuote(m_Filename()));
       m_pCat->Create(_bstr_t(S));
       m_pCnn=m_pCat->GetActiveConnection();
       }

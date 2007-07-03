@@ -1406,7 +1406,7 @@ BOOL CMdlCfgSheet::GetSpecieNames(char * Filename, int Src)
   if (CFile::GetStatus(Filename, State))
     {
     char* SpColNames[] = { "Name", "Compound", "Phase", "Occurence", "Vp", "Ts", "Te", NULL };
-    CDBHelper DB(Filename, "Species");
+    CDBHelper DB((LPSTR)(LPCSTR)EscapeQuote(Filename), "Species");
     if (DB.Open(DBConnect_Default, SpColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
 
       {
@@ -2795,7 +2795,8 @@ void CMdlCfgSpcs::BuildSpDBList()
     SpOrder[i]=&m_Species[i];
     }
 
-  HpSort(i, (void**)&SpOrder[0], SpDBTest);
+  if (m_Species.GetSize()>0)
+    HpSort(i, (void**)&SpOrder[0], SpDBTest);
 
   m_SpDBList.DeleteAllItems();
   BOOL AddIt;

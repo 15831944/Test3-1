@@ -340,6 +340,7 @@ int CTagDBMDB::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
   //      code would be needed here to create a new database.
 
   sDBName.Concat(pRoot, MDBName); //build filename 
+
   WIN32_FIND_DATA fd;
   if (FileExists(sDBName(), fd))
     {
@@ -349,7 +350,7 @@ int CTagDBMDB::Open(long DBFmt, DWORD DBOpts, pchar pRoot, pchar pRootOld, pchar
       return 4;
       }
     ASSERT_ALWAYS(m_OpenOpts & (DBO_ForWrite|DBO_ForRead), "Must be Readble or Writable", __FILE__, __LINE__);
-    if (!OpenDB(DBFmt, sDBName(), (m_OpenOpts & DBO_ForWrite), false))
+    if (!OpenDB(DBFmt, EscapeQuote(sDBName()), (m_OpenOpts & DBO_ForWrite), false))
       return 1;
     }
   //dbVersion30 for Access97;

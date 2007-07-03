@@ -405,7 +405,7 @@ bool CNeutralGrfImportExport::Open(LPCTSTR pDatabaseName, bool OpenForExport)
       LogError("GraphicslNDB", LF_Exclamation, "Cannot open read-only Database '%s'", sDBName());
       return false;
       }
-    if (!m_DB.OpenDB(DBConnect_Default, sDBName(), false, false))
+    if (!m_DB.OpenDB(DBConnect_Default, EscapeQuote(sDBName()), false, false))
       {
       LogError("GraphicslNDB", LF_Exclamation, "Cannot open Database '%s'", sDBName());
       return false;

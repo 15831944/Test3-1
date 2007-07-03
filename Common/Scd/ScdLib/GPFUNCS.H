@@ -1414,6 +1414,14 @@ inline void  Strng::GetSystemErrorStr(DWORD E)    { ::GetSystemErrorStr(*this, E
 //
 //===========================================================================
 
+extern DllImportExport CString EscapeQuote(CString sName);
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 class CAutoIncDec
   {
   public:

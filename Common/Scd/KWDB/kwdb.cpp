@@ -133,13 +133,13 @@ BOOL KWDatabase::OpenDB(long DBFmt,
       try
       {
         CString S;
-        S.Format(DBConnectOpenString(DBFmt), lpszName);
+        S.Format(DBConnectOpenString(DBFmt), EscapeQuote(lpszName));
         m_pCnn->Open(_bstr_t(S), "", "", ADODB::adConnectUnspecified);
       }
       catch(_com_error)
       {
         CString Spass;
-        Spass.Format(DBConnectOpenString(DBFmt), lpszName);
+        Spass.Format(DBConnectOpenString(DBFmt), EscapeQuote(lpszName));
         Spass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
         m_pCnn->Open(_bstr_t(Spass), "", "", ADODB::adConnectUnspecified);
         gs_EncryptNDemos.encryptedPGM = true;
@@ -269,7 +269,7 @@ BOOL KWDatabase::CreateDB(long DBFmt, LPCTSTR lpszName, /*LPCTSTR lpszLocale,*/ 
     m_pCat=ADOX::_CatalogPtr(__uuidof(ADOX::Catalog));
 
     CString S;
-    S.Format(DBConnectCreateString(DBFmt), lpszName);
+    S.Format(DBConnectCreateString(DBFmt), EscapeQuote(lpszName));
     m_pCat->Create(_bstr_t(S));
     m_pCnn=m_pCat->GetActiveConnection();
     }
@@ -1289,15 +1289,15 @@ BOOL KWDatabase::CompactDB(long DBFmt,
     try
     {
       CString SO, SN;
-      SO.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
-      SN.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
+      SO.Format(DBConnectOpenString(DBFmt), EscapeQuote(lpszDBNameOld));
+      SN.Format(DBConnectCreateString(DBFmt), EscapeQuote(lpszDBNameNew));
       pJet->CompactDatabase(_bstr_t(SO), _bstr_t(SN));
     }
     catch(_com_error & e)
     {
       CString SOpass, SNpass;
-      SOpass.Format(DBConnectOpenString(DBFmt), lpszDBNameOld);
-      SNpass.Format(DBConnectCreateString(DBFmt), lpszDBNameNew);
+      SOpass.Format(DBConnectOpenString(DBFmt), EscapeQuote(lpszDBNameOld));
+      SNpass.Format(DBConnectCreateString(DBFmt), EscapeQuote(lpszDBNameNew));
       SOpass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
       SNpass.AppendFormat("Jet OLEDB:Database Password=rj3nPmQULsmPBszTTzeX;"); // 20-digit max.
       pJet->CompactDatabase(_bstr_t(SOpass), _bstr_t(SNpass));

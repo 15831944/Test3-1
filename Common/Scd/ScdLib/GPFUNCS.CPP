@@ -6028,6 +6028,25 @@ int ParseTabTokens(char* Buff, CSVColArray &C)
 
 //===========================================================================
 
+CString EscapeQuote(CString sName)
+  {
+  char Chars[]="\'";
+  for (int c=0; Chars[c]; c++)
+    {
+    char C=Chars[c];
+    int iQuote=0;
+    while ((iQuote=sName.Find(C, iQuote))>=0)
+      {
+      if (sName[iQuote+1]!=C)
+        sName.Insert(iQuote+1, C);
+      iQuote+=2;
+      }
+    }
+  return sName;
+  }
+
+//===========================================================================
+
 CProfINIFile::CProfINIFile(LPCSTR pFilename)
   {
   m_bUseRegistry=false;

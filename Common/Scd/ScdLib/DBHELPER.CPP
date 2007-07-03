@@ -132,6 +132,7 @@ void CDBHelperBase::CommonConstruct(char* Dir, char* Filename, char* SheetName)
   iLineNumber = 0;
   sFilename = Dir;
   sFilename += Filename;
+  sFilename = EscapeQuote(sFilename);
   sSheetName = SheetName;
   ASSERT(sSheetName.GetLength()>0);
 //  if (sSheetName[sSheetName.GetLength()-1] != '$')
