@@ -35,6 +35,7 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
 
     BaseProtocol.RunStates runState;
+
     private bool selectItems = true;
 
     private bool selectLinks = true;
@@ -44,6 +45,7 @@ namespace SysCAD.Editor
     private bool showModels = true;
     private bool showTags = true;
     Int64 step = Int64.MinValue;
+
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
     DateTime time = DateTime.MinValue;
 
@@ -951,19 +953,14 @@ namespace SysCAD.Editor
       return clientProtocol.ModifyThingPath(out requestId, guid, path);
     }
 
-    internal PortStatus PortCheck(Guid itemGuid, Anchor anchor)
+    internal PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
     {
-
-      if (anchor != null)
-        return clientProtocol.PortCheck(itemGuid, anchor);
-
-      else
-        return PortStatus.Unavailable;
+      return clientProtocol.PortCheck(out requestId, itemGuid, anchor);
     }
 
-    internal ArrayList PropertyList(Guid guid, String tag, String path)
+    internal ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
     {
-      return clientProtocol.PropertyList(guid, tag, path);
+      return clientProtocol.PropertyList(out requestId, guid, tag, path);
     }
 
     internal void Remove(FlowChart flowChart)
@@ -1324,8 +1321,10 @@ namespace SysCAD.Editor
     {
       get
       {
+
         if (tvNavigation.SelectedNode != null)
           return tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator;
+
         else
           return tvNavigation.PathSeparator;
       }

@@ -34,7 +34,7 @@ namespace Service
     private String projectPath;
     private String stencilPath;
 
-
+    private Int64 requestID;
 
 
 
@@ -81,28 +81,28 @@ namespace Service
 
 
       
-      ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ClientChangeState);
+      ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
 
-      ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(ClientGetPropertyValues);
-      ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(ClientGetSubTags);
+      ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
+      ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(GetSubTags);
 
       ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(CreateItem);
-      ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ClientModifyItem);
-      ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ClientModifyItemPath);
-      ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(ClientDeleteItem);
+      ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ModifyItem);
+      ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
+      ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(DeleteItem);
 
-      ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(ClientCreateLink);
-      ClientServiceProtocol.ModifyLinkHandler clientModifyLink = new ClientServiceProtocol.ModifyLinkHandler(ClientModifyLink);
-      ClientServiceProtocol.DeleteLinkHandler clientDeleteLink = new ClientServiceProtocol.DeleteLinkHandler(ClientDeleteLink);
+      ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(CreateLink);
+      ClientServiceProtocol.ModifyLinkHandler clientModifyLink = new ClientServiceProtocol.ModifyLinkHandler(ModifyLink);
+      ClientServiceProtocol.DeleteLinkHandler clientDeleteLink = new ClientServiceProtocol.DeleteLinkHandler(DeleteLink);
 
-      ClientServiceProtocol.CreateThingHandler clientCreateThing = new ClientServiceProtocol.CreateThingHandler(ClientCreateThing);
-      ClientServiceProtocol.ModifyThingHandler clientModifyThing = new ClientServiceProtocol.ModifyThingHandler(ClientModifyThing);
-      ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ClientModifyThingPath);
-      ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(ClientDeleteThing);
+      ClientServiceProtocol.CreateThingHandler clientCreateThing = new ClientServiceProtocol.CreateThingHandler(CreateThing);
+      ClientServiceProtocol.ModifyThingHandler clientModifyThing = new ClientServiceProtocol.ModifyThingHandler(ModifyThing);
+      ClientServiceProtocol.ModifyThingPathHandler clientModifyThingPath = new ClientServiceProtocol.ModifyThingPathHandler(ModifyThingPath);
+      ClientServiceProtocol.DeleteThingHandler clientDeleteThing = new ClientServiceProtocol.DeleteThingHandler(DeleteThing);
 
-      ClientServiceProtocol.PortCheckHandler clientPortCheck = new ClientServiceProtocol.PortCheckHandler(ClientPortCheck);
+      ClientServiceProtocol.PortCheckHandler clientPortCheck = new ClientServiceProtocol.PortCheckHandler(PortCheck);
 
-      ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(ClientPropertyListCheck);
+      ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(PropertyListCheck);
 
 
       clientClientServiceProtocol = new ClientServiceProtocol(name, 
@@ -117,31 +117,31 @@ namespace Service
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
 
 
-      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
-      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(EngineSave);
+      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(Load);
+      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(Save);
 
-      EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(EngineChangeState);
+      EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(ChangeState);
 
-      EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(EngineGetPropertyValues);
-      EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(EngineGetSubTags);
+      EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
+      EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(GetSubTags);
 
       EngineServiceProtocol.CreateItemHandler engineCreateItem = new EngineServiceProtocol.CreateItemHandler(CreateItem);
-      EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(EngineModifyItem);
-      EngineServiceProtocol.ModifyItemPathHandler engineModifyItemPath = new EngineServiceProtocol.ModifyItemPathHandler(EngineModifyItemPath);
-      EngineServiceProtocol.DeleteItemHandler engineDeleteItem = new EngineServiceProtocol.DeleteItemHandler(EngineDeleteItem);
+      EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(ModifyItem);
+      EngineServiceProtocol.ModifyItemPathHandler engineModifyItemPath = new EngineServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
+      EngineServiceProtocol.DeleteItemHandler engineDeleteItem = new EngineServiceProtocol.DeleteItemHandler(DeleteItem);
 
-      EngineServiceProtocol.CreateLinkHandler engineCreateLink = new EngineServiceProtocol.CreateLinkHandler(EngineCreateLink);
-      EngineServiceProtocol.ModifyLinkHandler engineModifyLink = new EngineServiceProtocol.ModifyLinkHandler(EngineModifyLink);
-      EngineServiceProtocol.DeleteLinkHandler engineDeleteLink = new EngineServiceProtocol.DeleteLinkHandler(EngineDeleteLink);
+      EngineServiceProtocol.CreateLinkHandler engineCreateLink = new EngineServiceProtocol.CreateLinkHandler(CreateLink);
+      EngineServiceProtocol.ModifyLinkHandler engineModifyLink = new EngineServiceProtocol.ModifyLinkHandler(ModifyLink);
+      EngineServiceProtocol.DeleteLinkHandler engineDeleteLink = new EngineServiceProtocol.DeleteLinkHandler(DeleteLink);
 
-      EngineServiceProtocol.CreateThingHandler engineCreateThing = new EngineServiceProtocol.CreateThingHandler(EngineCreateThing);
-      EngineServiceProtocol.ModifyThingHandler engineModifyThing = new EngineServiceProtocol.ModifyThingHandler(EngineModifyThing);
-      EngineServiceProtocol.ModifyThingPathHandler engineModifyThingPath = new EngineServiceProtocol.ModifyThingPathHandler(EngineModifyThingPath);
-      EngineServiceProtocol.DeleteThingHandler engineDeleteThing = new EngineServiceProtocol.DeleteThingHandler(EngineDeleteThing);
+      EngineServiceProtocol.CreateThingHandler engineCreateThing = new EngineServiceProtocol.CreateThingHandler(CreateThing);
+      EngineServiceProtocol.ModifyThingHandler engineModifyThing = new EngineServiceProtocol.ModifyThingHandler(ModifyThing);
+      EngineServiceProtocol.ModifyThingPathHandler engineModifyThingPath = new EngineServiceProtocol.ModifyThingPathHandler(ModifyThingPath);
+      EngineServiceProtocol.DeleteThingHandler engineDeleteThing = new EngineServiceProtocol.DeleteThingHandler(DeleteThing);
 
-      EngineServiceProtocol.PortCheckHandler enginePortCheck = new EngineServiceProtocol.PortCheckHandler(EnginePortCheck);
+      EngineServiceProtocol.PortCheckHandler enginePortCheck = new EngineServiceProtocol.PortCheckHandler(PortCheck);
 
-      EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(EnginePropertyListCheck);
+      EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(PropertyListCheck);
 
       engineClientServiceProtocol = new EngineServiceProtocol(name,
                                                               graphicLinks, graphicItems, graphicThings,
@@ -151,8 +151,6 @@ namespace Service
                                                               engineCreateLink, engineModifyLink, engineDeleteLink,
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
                                                               engineDeleteThing, enginePortCheck, enginePropertyListCheck);
-
-      EngineLoad();
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
 
@@ -176,14 +174,19 @@ namespace Service
 
 
 
-    bool ClientChangeState(Int64 requestID, BaseProtocol.RunStates runState)
+    bool ChangeState(out Int64 requestID, BaseProtocol.RunStates runState)
     {
       if (true) // Decide whether to allow runstate change
       { // We're going to do it.
         // Change the runstate.
 
+        this.requestID++;
+        requestID = this.requestID;
+        throw new NotImplementedException("The method or operation is not implemented.");
+
         // Raise event(s).
         clientClientServiceProtocol.DoStateChanged(requestID, runState);
+        engineClientServiceProtocol.DoStateChanged(requestID, runState);
 
         return true;
       }
@@ -193,14 +196,18 @@ namespace Service
       }
     }
 
-    bool CreateItem(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
       // This is required in case a rogue client tries to create an item even when not supposed to.
       // This applies to all three create*, and all three delete* events.
-      if (!graphicItems.ContainsKey(guid))
+      if (true)
       { // We're going to do it.
         // Create the item.
+        this.requestID++;
+        requestID = this.requestID;
+        guid = Guid.NewGuid();
+
         GraphicItem graphicItem = new GraphicItem(guid, tag);
         graphicItem.Path = path;
         graphicItem.Model = model;
@@ -226,13 +233,21 @@ namespace Service
       }
     }
 
-    bool ClientCreateLink(Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool CreateLink(out Int64 requestID, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (true) // Decide whether to create an link.
       { // We're going to do it.
         // Create the item.
 
+        this.requestID++;
+        requestID = this.requestID;
+        guid = new Guid();
+
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints);
+        graphicLinks.Add(guid, graphicLink);
+
         // Raise event(s).
+        clientClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
         clientClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
@@ -243,11 +258,17 @@ namespace Service
       }
     }
 
-    bool ClientCreateThing(Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool CreateThing(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       if (true) // Decide whether to create an Thing.
       { // We're going to do it.
         // Create the Thing.
+
+        this.requestID++;
+        requestID = this.requestID;
+        guid = Guid.NewGuid();
+
+        throw new NotImplementedException("The method or operation is not implemented.");
 
         // Raise event(s).
         clientClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
@@ -260,9 +281,12 @@ namespace Service
       }
     }
 
-    bool ClientDeleteItem(Int64 requestID, Guid guid)
+    bool DeleteItem(out Int64 requestID, Guid guid)
     {
-      if (true) // Decide whether to delete an item.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
         // Delete the item.
 
@@ -277,9 +301,12 @@ namespace Service
       }
     }
 
-    bool ClientDeleteLink(Int64 requestID, Guid guid)
+    bool DeleteLink(out Int64 requestID, Guid guid)
     {
-      if (true) // Decide whether to delete an link.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
         // Delete the item.
 
@@ -294,9 +321,12 @@ namespace Service
       }
     }
 
-    bool ClientDeleteThing(Int64 requestID, Guid guid)
+    bool DeleteThing(out Int64 requestID, Guid guid)
     {
-      if (true) // Decide whether to delete an Thing.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
         // Delete the Thing.
 
@@ -311,13 +341,19 @@ namespace Service
       }
     }
 
-    void ClientGetPropertyValues(Int64 requestID, ref ArrayList propertyList)
+    void GetPropertyValues(out Int64 requestID, ref ArrayList propertyList)
     {
+      this.requestID++;
+      requestID = this.requestID;
+      throw new NotImplementedException("The method or operation is not implemented.");
       // Return modified ArrayList with tag details included.
     }
 
-    void ClientGetSubTags(Int64 requestID, String propertyPath, out ArrayList propertyList)
+    void GetSubTags(out Int64 requestID, String propertyPath, out ArrayList propertyList)
     {
+      this.requestID++;
+      requestID = this.requestID;
+
       propertyList = new ArrayList();
       Random random = new Random();
 
@@ -350,9 +386,12 @@ namespace Service
       }
     }
 
-    bool ClientModifyItem(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      if (true) // Decide whether to modify an item.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
 
         // Modify the item.
@@ -387,9 +426,12 @@ namespace Service
       }
     }
 
-    bool ClientModifyItemPath(Int64 requestID, Guid guid, String path)
+    bool ModifyItemPath(out Int64 requestID, Guid guid, String path)
     {
-      if (true) // Decide whether to modify an item.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
         // Modify the item.
 
@@ -404,9 +446,12 @@ namespace Service
       }
     }
 
-    bool ClientModifyLink(Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool ModifyLink(out Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      if (true) // Decide whether to modify an link.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
         // Modify the item.
 
@@ -421,9 +466,12 @@ namespace Service
       }
     }
 
-    bool ClientModifyThing(Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool ModifyThing(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      if (true) // Decide whether to modify an Thing.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
         // Modify the Thing.
 
@@ -438,9 +486,12 @@ namespace Service
       }
     }
 
-    bool ClientModifyThingPath(Int64 requestID, Guid guid, String path)
+    bool ModifyThingPath(out Int64 requestID, Guid guid, String path)
     {
-      if (true) // Decide whether to modify an item.
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
         // Modify the item.
 
@@ -455,18 +506,23 @@ namespace Service
       }
     }
 
-    PortStatus ClientPortCheck(Guid guid, Anchor anchor)
+    PortStatus PortCheck(out Int64 requestID, Guid guid, Anchor anchor)
     {
-      //		CNSGuidItem * pGuid = new CNSGuidItem();
-      //		pGuid.m_Guid = guid;
-      //		m_pUnmanaged.m_Guids.AddTail(null);
-      //		CNSGuidItem * pGuid = m_pUnmanaged.m_Guids.Find(guid);
-      //		CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(guid);
-      return PortStatus.Available;
+      this.requestID++;
+      requestID = this.requestID;
+
+      if (graphicItems.ContainsKey(guid))
+        return PortStatus.Available;
+
+      else
+        return PortStatus.Unavailable;
     }
 
-    ArrayList ClientPropertyListCheck(Guid guid, String tag, String path)
+    ArrayList PropertyListCheck(out Int64 requestID, Guid guid, String tag, String path)
     {
+      this.requestID++;
+      requestID = this.requestID;
+
       //char* dest = new char[tag.Length+1];
       //strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(tag)))));
       //ScdMainWnd().PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)dest);
@@ -489,153 +545,12 @@ namespace Service
       return true;
     }
 
-    bool EngineChangeState(Int64 requestID, BaseProtocol.RunStates runState)
+
+    bool Load(out Int64 requestID)
     {
-      if (true) // Decide whether to allow runstate change
-      { // We're going to do it.
-        // Change the runstate.
+      this.requestID++;
+      requestID = this.requestID;
 
-        // Raise event(s).
-        engineClientServiceProtocol.DoStateChanged(requestID, runState);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineCreateLink(Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
-    {
-      if (true) // Decide whether to create an link.
-      { // We're going to do it.
-        // Create the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineCreateThing(Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
-    {
-      if (true) // Decide whether to create an Thing.
-      { // We're going to do it.
-        // Create the Thing.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineDeleteItem(Int64 requestID, Guid guid)
-    {
-      if (true) // Decide whether to delete an item.
-      { // We're going to do it.
-        // Delete the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoItemDeleted(requestID, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineDeleteLink(Int64 requestID, Guid guid)
-    {
-      if (true) // Decide whether to delete an link.
-      { // We're going to do it.
-        // Delete the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoLinkDeleted(requestID, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineDeleteThing(Int64 requestID, Guid guid)
-    {
-      if (true) // Decide whether to delete an Thing.
-      { // We're going to do it.
-        // Delete the Thing.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoThingDeleted(requestID, guid);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    void EngineGetPropertyValues(Int64 requestID, ref ArrayList propertyList)
-    {
-      // Return modified ArrayList with tag details included.
-    }
-
-    void EngineGetSubTags(Int64 requestID, String propertyPath, out ArrayList propertyList)
-    {
-      propertyList = new ArrayList();
-      Random random = new Random();
-
-      // Return ArrayList with tag details included.
-      for (int i = 0; i < 10; i++)
-      {
-        StringBuilder builder = new StringBuilder();
-        System.Char ch;
-        int n = random.Next(5, 10);
-        for (int j = 0; j < n; j++)
-        {
-          ch = Convert.ToChar(random.Next(33, 126));
-          builder.Append(ch);
-        }
-        switch (random.Next(0, 3))
-        {
-          case 0:
-            propertyList.Add(new ModelProperty(builder.ToString(), random.Next()));
-            break;
-          case 1:
-            propertyList.Add(new ModelProperty(builder.ToString(), random.NextDouble()));
-            break;
-          case 2:
-            propertyList.Add(new ModelProperty(builder.ToString(), builder.ToString()));
-            break;
-          case 3:
-            propertyList.Add(new ModelProperty(builder.ToString(), Color.FromArgb(random.Next())));
-            break;
-        }
-      }
-    }
-
-
-
-
-
-    bool EngineLoad()
-    {
       try
       {
         Dictionary<Guid, GraphicLink> tempGraphicLinks;
@@ -692,134 +607,11 @@ namespace Service
       }
     }
 
-    bool EngineModifyItem(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool Save(out Int64 requestID)
     {
-      if (true) // Decide whether to modify an item.
-      { // We're going to do it.
+      this.requestID++;
+      requestID = this.requestID;
 
-        // Modify the item.
-
-        // Need to get hold of a valid pDoc pointer... *********
-
-        //Individual changes would go something like this: *********
-        //int length = tag.Length;
-        //wchar_t * tagwc = (wchar_t*)(void*)Marshal.StringToHGlobalUni(tag);
-
-        //char * tagc = (char *)malloc(length+1);
-        //tagc[length] = 0;
-        //for (int i=0; i<length; i++)
-        //  tagc[i] = (char)tagwc[i];
-
-        //pDoc.GCB.DoModify(tagc, 
-        //                    angle,
-        //                    boundingRect, 
-        //                    fillColor,
-        //                    fillMode,
-        //                    mirrorX,
-        //                    mirrorY);
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineModifyItemPath(Int64 requestID, Guid guid, String path)
-    {
-      if (true) // Decide whether to modify an item.
-      { // We're going to do it.
-        // Modify the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoItemPathModified(requestID, guid, path);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineModifyLink(Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
-    {
-      if (true) // Decide whether to modify an link.
-      { // We're going to do it.
-        // Modify the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineModifyThing(Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
-    {
-      if (true) // Decide whether to modify an Thing.
-      { // We're going to do it.
-        // Modify the Thing.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineModifyThingPath(Int64 requestID, Guid guid, String path)
-    {
-      if (true) // Decide whether to modify an item.
-      { // We're going to do it.
-        // Modify the item.
-
-        // Raise event(s).
-        engineClientServiceProtocol.DoThingPathModified(requestID, guid, path);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    PortStatus EnginePortCheck(Guid guid, Anchor anchor)
-    {
-      //		CNSGuidItem * pGuid = new CNSGuidItem();
-      //		pGuid.m_Guid = guid;
-      //		m_pUnmanaged.m_Guids.AddTail(null);
-      //		CNSGuidItem * pGuid = m_pUnmanaged.m_Guids.Find(guid);
-      //		CNSMdlLink * pLink = dynamic_cast<CNSMdlLink *>(guid);
-      return PortStatus.Available;
-    }
-
-    ArrayList EnginePropertyListCheck(Guid guid, String tag, String path)
-    {
-      //char* dest = new char[tag.Length+1];
-      //strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(tag)))));
-      //ScdMainWnd().PostMessage(WMU_TAGACTION, SUB_TAGACTION_FINDANDACCESS, (LPARAM)dest);
-
-      ArrayList list = new ArrayList();
-      // Generate list of properties at this level in properties tree.
-      return list;
-    }
-
-    bool EngineSave()
-    {
       try
       {
         {

@@ -15,6 +15,7 @@ namespace SysCAD.Editor
 
   internal partial class InsertAnnotationDialog : Form
   {
+
     private float defaultHeight;
 
     private float defaultWidth;

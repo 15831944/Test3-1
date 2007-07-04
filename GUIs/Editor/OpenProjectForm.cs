@@ -16,6 +16,7 @@ namespace SysCAD.Editor
 
   internal partial class OpenProjectForm : Form
   {
+
     private ClientProtocol clientProtocol = new ClientProtocol();
 
     private Config config = new Config();

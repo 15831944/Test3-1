@@ -11,6 +11,7 @@ namespace SysCAD.Editor
 
   internal class Item
   {
+
     private Box graphic;
 
     private GraphicItem graphicItem;

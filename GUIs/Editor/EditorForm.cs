@@ -21,193 +21,6 @@ namespace SysCAD.Editor
 
   internal partial class EditorForm : Form
   {
-
-    //private Dictionary<string, GraphicLink> clipBoardGraphicLinks;
-    //private Dictionary<string, GraphicItem> clipBoardGraphicItems;
-    //private Dictionary<String, GraphicThing> clipBoardGraphicThings;
-
-#region clipboard support
-
-    public void CopyToClipboard()
-    {
-      // create clones of selected items
-      ClientProtocol data = copySelection(frmFlowChart.FlowChart);
-
-      DataFormats.Format format =
-           DataFormats.GetFormat("Kenwalt.GraphicData");
-
-      //now copy to clipboard
-      IDataObject dataObj = new DataObject();
-      dataObj.SetData(format.Name, false, data);
-      Clipboard.SetDataObject(dataObj, false);
-    }
-
-    public void CutToClipboard()
-    {
-      CopyToClipboard();
-
-      // that returns the active composite if somebody has already created one
-      CompositeCmd composite = frmFlowChart.FlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
-
-      // delete selected items
-      frmFlowChart.State.Remove(frmFlowChart.FlowChart);
-
-      if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
-      {
-        // this is our own composite cmd
-        composite.Title = "Cut";
-        composite.Execute();
-      }
-    }
-
-    public void PasteFromClipboard(float dx, float dy)
-    {
-
-      try
-      {
-        // try getting clipboard data; might throw exceptions
-        IDataObject dataObj = Clipboard.GetDataObject();
-
-        // is there anything of interest in the clipboard ?
-        if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
-        {
-          BaseProtocol pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseProtocol;
-
-          if (pasteData != null)
-          {
-
-            foreach (GraphicItem graphicItem in pasteData.graphicItems.Values)
-            {
-              graphicItem.X += dx;
-              graphicItem.Y += dy;
-              frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.FullPath);
-            }
-
-            foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
-            {
-              GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
-
-              newGraphicLink.Destination = graphicLink.Destination;
-              newGraphicLink.Origin = graphicLink.Origin;
-
-              foreach (PointF point in graphicLink.ControlPoints)
-              {
-                newGraphicLink.ControlPoints.Add(new PointF(point.X, point.Y));
-              }
-
-              // use new tags for connected items.
-              //if (tagConversion.ContainsKey(newGraphicLink.Source))
-              //  newGraphicLink.Source = tagConversion[newGraphicLink.Source];
-              //else
-              //  newGraphicLink.Source = "";
-              //if (tagConversion.ContainsKey(newGraphicLink.Destination))
-              //  newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
-              //else
-              //  newGraphicLink.Destination = "";
-
-              frmFlowChart.NewGraphicLink(newGraphicLink, dx, dy);
-            }
-
-            foreach (GraphicThing graphicThing in pasteData.graphicThings.Values)
-            {
-              graphicThing.X += dx;
-              graphicThing.Y += dy;
-              frmFlowChart.NewGraphicThing(tvNavigation.SelectedNode.FullPath, graphicThing);
-            }
-
-            //// that returns the active composite if somebody has already created one
-            //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
-
-            //// add the copied items to the document
-            //result = pasteSelection(frmFlowChart.fcFlowChart, data, composite, dx, dy);
-
-            //if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
-            //{
-            //  // this is our own composite cmd
-            //  composite.Title = "Paste";
-            //  composite.Execute();
-            //}
-
-            //// fire *pasted events
-            //foreach (Item item in data.items.Values)
-            //  fireItemPasted(item);
-          }
-        }
-      }
-
-      catch (System.Runtime.InteropServices.ExternalException)
-      {
-        // just go on our merry way.
-      }
-    }
-
-    private ClientProtocol copySelection(FlowChart doc)
-    {
-
-      if (doc.Selection.Objects.Count == 0)
-        return null;
-
-      ClientProtocol copyClientProtocol = new ClientProtocol();
-
-      foreach (Box box in doc.Selection.Boxes)
-      {
-        GraphicItem graphicItem = frmFlowChart.State.GraphicItem(box);
-
-        if (graphicItem != null)
-        {
-          GraphicItem copyGraphicItem = new GraphicItem(box.Text);
-          copyGraphicItem.BoundingRect = graphicItem.BoundingRect;
-          copyGraphicItem.Angle = graphicItem.Angle;
-          copyGraphicItem.Model = graphicItem.Model;
-          copyGraphicItem.Shape = graphicItem.Shape;
-          copyGraphicItem.MirrorX = graphicItem.MirrorX;
-          copyGraphicItem.MirrorY = graphicItem.MirrorY;
-          copyGraphicItem.FillColor = graphicItem.FillColor;
-
-          copyClientProtocol.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
-        }
-
-        GraphicThing graphicThing = frmFlowChart.State.GraphicThing(box);
-
-        if (graphicThing != null)
-        {
-          GraphicThing copyGraphicThing = new GraphicThing(graphicThing.Tag);
-          copyGraphicThing.BoundingRect = graphicThing.BoundingRect;
-          copyGraphicThing.Xaml = graphicThing.Xaml;
-          copyGraphicThing.Angle = graphicThing.Angle;
-          copyGraphicThing.MirrorX = graphicThing.MirrorX;
-          copyGraphicThing.MirrorY = graphicThing.MirrorY;
-
-          copyClientProtocol.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
-        }
-
-      }
-
-      foreach (Arrow arrow in doc.Selection.Arrows)
-      {
-        GraphicLink graphicLink = frmFlowChart.State.GraphicLink((arrow.Tag as Link).Guid);
-
-        if (graphicLink != null)
-        {
-          GraphicLink copyGraphicLink = new GraphicLink(arrow.Text);
-          copyGraphicLink.Tag = graphicLink.Tag;
-          copyGraphicLink.ClassID = graphicLink.ClassID;
-          copyGraphicLink.Origin = graphicLink.Origin;
-          copyGraphicLink.Destination = graphicLink.Destination;
-
-          foreach (PointF point in graphicLink.ControlPoints)
-          {
-            copyGraphicLink.ControlPoints.Add(point);
-          }
-
-          copyClientProtocol.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
-        }
-      }
-
-      return copyClientProtocol;
-    }
-
-#endregion
     FrmFlowChart frmFlowChart;
 
     static List<PureComponents.TreeView.Node> wasSelectedNodes = new List<PureComponents.TreeView.Node>();
@@ -578,7 +391,8 @@ namespace SysCAD.Editor
           ModelItem modelItem = new ModelItem(graphicItem.Guid);
           modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.State);
 
-          frmFlowChart.State.PropertyList(graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
+          Int64 requestID;
+          frmFlowChart.State.PropertyList(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 
           int i;
 
@@ -1033,5 +847,193 @@ namespace SysCAD.Editor
       get { return toolStripStatusLabel; }
       set { toolStripStatusLabel = value; }
     }
+
+    //private Dictionary<string, GraphicLink> clipBoardGraphicLinks;
+    //private Dictionary<string, GraphicItem> clipBoardGraphicItems;
+    //private Dictionary<String, GraphicThing> clipBoardGraphicThings;
+
+    #region clipboard support
+
+    public void CopyToClipboard()
+    {
+      // create clones of selected items
+      ClientProtocol data = copySelection(frmFlowChart.FlowChart);
+
+      DataFormats.Format format =
+           DataFormats.GetFormat("Kenwalt.GraphicData");
+
+      //now copy to clipboard
+      IDataObject dataObj = new DataObject();
+      dataObj.SetData(format.Name, false, data);
+      Clipboard.SetDataObject(dataObj, false);
+    }
+
+    public void CutToClipboard()
+    {
+      CopyToClipboard();
+
+      // that returns the active composite if somebody has already created one
+      CompositeCmd composite = frmFlowChart.FlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+
+      // delete selected items
+      frmFlowChart.State.Remove(frmFlowChart.FlowChart);
+
+      if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
+      {
+        // this is our own composite cmd
+        composite.Title = "Cut";
+        composite.Execute();
+      }
+    }
+
+    public void PasteFromClipboard(float dx, float dy)
+    {
+
+      try
+      {
+        // try getting clipboard data; might throw exceptions
+        IDataObject dataObj = Clipboard.GetDataObject();
+
+        // is there anything of interest in the clipboard ?
+        if (dataObj != null && dataObj.GetDataPresent("Kenwalt.GraphicData"))
+        {
+          BaseProtocol pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseProtocol;
+
+          if (pasteData != null)
+          {
+
+            foreach (GraphicItem graphicItem in pasteData.graphicItems.Values)
+            {
+              graphicItem.X += dx;
+              graphicItem.Y += dy;
+              frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.FullPath);
+            }
+
+            foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
+            {
+              GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
+
+              newGraphicLink.Destination = graphicLink.Destination;
+              newGraphicLink.Origin = graphicLink.Origin;
+
+              foreach (PointF point in graphicLink.ControlPoints)
+              {
+                newGraphicLink.ControlPoints.Add(new PointF(point.X, point.Y));
+              }
+
+              // use new tags for connected items.
+              //if (tagConversion.ContainsKey(newGraphicLink.Source))
+              //  newGraphicLink.Source = tagConversion[newGraphicLink.Source];
+              //else
+              //  newGraphicLink.Source = "";
+              //if (tagConversion.ContainsKey(newGraphicLink.Destination))
+              //  newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
+              //else
+              //  newGraphicLink.Destination = "";
+
+              frmFlowChart.NewGraphicLink(newGraphicLink, dx, dy);
+            }
+
+            foreach (GraphicThing graphicThing in pasteData.graphicThings.Values)
+            {
+              graphicThing.X += dx;
+              graphicThing.Y += dy;
+              frmFlowChart.NewGraphicThing(tvNavigation.SelectedNode.FullPath, graphicThing);
+            }
+
+            //// that returns the active composite if somebody has already created one
+            //CompositeCmd composite = frmFlowChart.fcFlowChart.UndoManager.StartComposite("_Kenwalt.SysCAD_");
+
+            //// add the copied items to the document
+            //result = pasteSelection(frmFlowChart.fcFlowChart, data, composite, dx, dy);
+
+            //if (composite != null && composite.Title == "_Kenwalt.SysCAD_")
+            //{
+            //  // this is our own composite cmd
+            //  composite.Title = "Paste";
+            //  composite.Execute();
+            //}
+
+            //// fire *pasted events
+            //foreach (Item item in data.items.Values)
+            //  fireItemPasted(item);
+          }
+        }
+      }
+
+      catch (System.Runtime.InteropServices.ExternalException)
+      {
+        // just go on our merry way.
+      }
+    }
+
+    private ClientProtocol copySelection(FlowChart doc)
+    {
+
+      if (doc.Selection.Objects.Count == 0)
+        return null;
+
+      ClientProtocol copyClientProtocol = new ClientProtocol();
+
+      foreach (Box box in doc.Selection.Boxes)
+      {
+        GraphicItem graphicItem = frmFlowChart.State.GraphicItem(box);
+
+        if (graphicItem != null)
+        {
+          GraphicItem copyGraphicItem = new GraphicItem(box.Text);
+          copyGraphicItem.BoundingRect = graphicItem.BoundingRect;
+          copyGraphicItem.Angle = graphicItem.Angle;
+          copyGraphicItem.Model = graphicItem.Model;
+          copyGraphicItem.Shape = graphicItem.Shape;
+          copyGraphicItem.MirrorX = graphicItem.MirrorX;
+          copyGraphicItem.MirrorY = graphicItem.MirrorY;
+          copyGraphicItem.FillColor = graphicItem.FillColor;
+
+          copyClientProtocol.graphicItems.Add(copyGraphicItem.Guid, copyGraphicItem);
+        }
+
+        GraphicThing graphicThing = frmFlowChart.State.GraphicThing(box);
+
+        if (graphicThing != null)
+        {
+          GraphicThing copyGraphicThing = new GraphicThing(graphicThing.Tag);
+          copyGraphicThing.BoundingRect = graphicThing.BoundingRect;
+          copyGraphicThing.Xaml = graphicThing.Xaml;
+          copyGraphicThing.Angle = graphicThing.Angle;
+          copyGraphicThing.MirrorX = graphicThing.MirrorX;
+          copyGraphicThing.MirrorY = graphicThing.MirrorY;
+
+          copyClientProtocol.graphicThings.Add(copyGraphicThing.Guid, copyGraphicThing);
+        }
+
+      }
+
+      foreach (Arrow arrow in doc.Selection.Arrows)
+      {
+        GraphicLink graphicLink = frmFlowChart.State.GraphicLink((arrow.Tag as Link).Guid);
+
+        if (graphicLink != null)
+        {
+          GraphicLink copyGraphicLink = new GraphicLink(arrow.Text);
+          copyGraphicLink.Tag = graphicLink.Tag;
+          copyGraphicLink.ClassID = graphicLink.ClassID;
+          copyGraphicLink.Origin = graphicLink.Origin;
+          copyGraphicLink.Destination = graphicLink.Destination;
+
+          foreach (PointF point in graphicLink.ControlPoints)
+          {
+            copyGraphicLink.ControlPoints.Add(point);
+          }
+
+          copyClientProtocol.graphicLinks.Add(copyGraphicLink.Guid, copyGraphicLink);
+        }
+      }
+
+      return copyClientProtocol;
+    }
+
+    #endregion
+
   }
 }

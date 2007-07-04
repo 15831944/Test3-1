@@ -26,7 +26,7 @@ namespace SysCAD.Protocol
     private String originPort;
     private String tag;
 
-    public GraphicLink(Guid guid, String tag, String classId, Guid srcGuid, String srcPort, Guid dstGuid, String dstPort)
+    public GraphicLink(Guid guid, String tag, String classId, Guid srcGuid, String srcPort, Guid dstGuid, String dstPort, List<PointF> controlPoints)
     {
       this.guid = guid;
       this.tag = tag;
@@ -35,6 +35,11 @@ namespace SysCAD.Protocol
       this.originPort = srcPort;
       this.destination = dstGuid;
       this.destinationPort = dstPort;
+
+      this.controlPoints = new List<PointF>();
+
+      foreach (PointF controlPoint in controlPoints)
+        this.controlPoints.Add(controlPoint);
     }
 
     public GraphicLink(String tag)

@@ -1189,7 +1189,9 @@ namespace SysCAD.Editor
                   }
                 }
 
-                if (state.PortCheck((originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
+                Int64 requestID;
+
+                if (state.PortCheck(out requestID, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
                     originAnchorChosen.Position.X,
@@ -1243,7 +1245,9 @@ namespace SysCAD.Editor
                   }
                 }
 
-                if (state.PortCheck((destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
+                Int64 requestID;
+
+                if (state.PortCheck(out requestID, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
                     destinationAnchorChosen.Position.X,
