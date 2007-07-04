@@ -402,6 +402,7 @@ class DllImportExport CSysCADLicense : public CLicense
     //int               m_TrendWndCount;
     //int               m_GraphicWndCount;
     DWORD             m_PrevCheckTicks;
+    DWORD             m_PrevCrypkeyTicks;
 
   };
 

@@ -2218,6 +2218,7 @@ void CMainFrame::OnUpdateOptionsOPCServer(CCmdUI* pCmdUI)
 
 void CMainFrame::OnOptionsReports()
   {
+  gs_pPrj->CheckLicense(FALSE);
   if (!gs_License.Blocked())
     DoReports();
   }
@@ -2478,9 +2479,9 @@ static UINT BASED_CODE ToolbarIds[] =
   ID_OPTIONS_ARCHIVE,
   ID_FILE_SAVESNAPSHOT,
   ID_FILE_LOADSNAPSHOT,
-  ID_HELP_PGMLANGUAGE,
-  ID_HELP_SYSCAD,
-  ID_HELP_UserDocs,
+  ID_ONLINE_PGMLANGUAGE,
+  ID_ONLINE_HOME,
+  ID_ONLINE_MODELS,
   ID_CK_LIC_AUTH,
   ID_CK_LIC_INFO,
   ID_PROJECT_EDIT_DEFSDB,
@@ -2587,7 +2588,7 @@ static UINT BASED_CODE SysCADToolBarIds[] = //no project loaded
   ID_CK_LIC_AUTH,
   ID_CK_LIC_INFO,
     ID_SEPARATOR,
-  ID_HELP_SYSCAD,
+  ID_ONLINE_HOME,
   };
 
 #define AltToolbarStyle 0
@@ -2721,8 +2722,8 @@ static UINT BASED_CODE GeneralToolBarIds[] =
   //ID_FIND_TAG,
   //  ID_SEPARATOR,
   ID_GRF_HelpUnit,
-  ID_HELP_PGMLANGUAGE,
-  ID_HELP_SYSCAD,
+  ID_ONLINE_PGMLANGUAGE,
+  ID_ONLINE_HOME,
   };
 /*KGA: 6 May 2005: Remove runtime toolbars
 static UINT BASED_CODE SysCADToolBarIds_RunTime[] = //no project loaded
@@ -4322,22 +4323,6 @@ LRESULT CMainFrame::OnSetLicense(WPARAM wParam, LPARAM lParam)
 LRESULT CMainFrame::OnChkLicense(WPARAM wParam, LPARAM lParam)
   {
   gs_License.DoCheckLicense(wParam, lParam);
-  
-  //switch (wParam)
-  //  {
-  //  case 2: 
-  //  case 1: 
-  //  case 0: 
-  //    gs_License.QuickCheck(wParam);
-  //    break;      
-  //  case 3: 
-  //    {
-  //    //CheckLicenseConditions();
-  //    int xxx=0;
-  //    break;      
-  //    }
-  //  }
-  //gs_License.DumpState("Project");
   
   ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
   return 0;

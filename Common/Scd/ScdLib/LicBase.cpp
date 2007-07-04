@@ -35,7 +35,7 @@ using namespace std;
 #pragma comment(lib, "version.lib")
 
 #define CK_USE6134        0
-#define CK_USE6525        01
+#define CK_USE6525        1
                        
 #define USESERVERVERSION  1
 
@@ -122,11 +122,12 @@ b3656b892b302de4d71963c9c26497cec9275d03c2c5757cb9c"
 
 #endif
 
-//const int CK_NetworkChecktime = 600;
-const int CK_NetworkChecktime = 900;
+//const int CK_NetworkChecktime = 900;
+const int CK_NetworkChecktime = 600; //seconds
 const int CK_TrialVerNo = 1;          //Trial license version number
 const int CK_NumDefinedLevels = 2; //number of bits to be used for level
 const int CK_NumDefinedOpts = 30;
+const DWORD CK_CheckCrypkeyTime = 300*1000; //time test (in ms) for calling crypkey (should be < network check time)
               
 //===========================================================================
 //=== SysCAD Specific Code...
@@ -3138,6 +3139,7 @@ CSysCADLicense::CSysCADLicense()
   //m_TrendWndCount = 0;
   //m_GraphicWndCount = 0;
   m_PrevCheckTicks = GetTickCount();
+  m_PrevCrypkeyTicks = GetTickCount()-CK_CheckCrypkeyTime;
   }
 
 //---------------------------------------------------------------------------
@@ -3608,8 +3610,8 @@ void CSysCADLicense::CheckLicenseDate()
 //---------------------------------------------------------------------------
 
 //#if CK_LICENSINGON
-const int CK_DoFullCheck = (int)((double)RAND_MAX * 0.05); //do complete full check 5% of time
-const int CK_DoCheck = (int)((double)RAND_MAX * 0.12); //do full check 12% of time
+const int CK_DoFullCheck = (int)((double)RAND_MAX * 0.1); //do complete full check 10% of time
+const int CK_DoCheck = (int)((double)RAND_MAX * 0.4); //do full check 40% of time
 //static DWORD PrevCheck = GetTickCount();
 //#endif
 
@@ -3624,10 +3626,10 @@ void CSysCADLicense::CheckLicense(BOOL StartingSolve, bool IOMOn, int TrendWndCo
 
 void CSysCADLicense::DoCheckLicense(WPARAM wParam, LPARAM lParam)
   {
-  bool StartingSolve    = (wParam & 0x01)!=0;
-  bool IOMOn            = (wParam & 0x02)!=0;
-  int  TrendWndCount    = (lParam & 0xffff);
-  int  GraphicWndCount  = (lParam >> 16) & 0xffff;
+  const bool StartingSolve    = (wParam & 0x01)!=0;
+  const bool IOMOn            = (wParam & 0x02)!=0;
+  const int  TrendWndCount    = (lParam & 0xffff);
+  const int  GraphicWndCount  = (lParam >> 16) & 0xffff;
 
 #if CK_LICENSINGON
   if (!Blocked())
@@ -3636,14 +3638,30 @@ void CSysCADLicense::DoCheckLicense(WPARAM wParam, LPARAM lParam)
       AfxMessageBox(DemoMode() ? "SysCAD is unlicensed !\n\nCurrently using Demo mode." : "SysCAD is unlicensed !\n\nCurrently using Trial version.");
 
     //make occasional call to crypkey library/dll...
-    const int i = rand();
-    if (i<CK_DoFullCheck)
-      QuickCheck(2);
-    else if (i<CK_DoCheck)
-      QuickCheck(1);
+    DWORD TC = GetTickCount();
+    if (TC - CK_CheckCrypkeyTime>m_PrevCrypkeyTicks)
+      {//now possibly make a call to crypkey...
+      const int i = rand();
+      if (i<CK_DoFullCheck)
+        {
+        QuickCheck(2);
+        m_PrevCrypkeyTicks = TC;
+        }
+      else if (i<CK_DoCheck)
+        {
+        QuickCheck(1);
+        m_PrevCrypkeyTicks = TC;
+        }
+      else
+        {
+        QuickCheck(0);
+        }
+      }
     else
+      {
       QuickCheck(0);
-    if (GetTickCount() - m_PrevCheckTicks>600000) //if conditions haven't been checked for 600 seconds, check...
+      }
+    if (TC - m_PrevCheckTicks>400000) //if conditions haven't been checked for 400 seconds, check...
       CheckLicenseConditions(IOMOn, TrendWndCount, GraphicWndCount);
     DumpState("Project");
     }
