@@ -117,8 +117,8 @@ namespace Service
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
 
 
-      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(Load);
-      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(Save);
+      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
+      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(EngineSave);
 
       EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(ChangeState);
 
@@ -248,7 +248,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        clientClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -272,6 +272,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -292,6 +293,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemDeleted(requestID, guid);
+        engineClientServiceProtocol.DoItemDeleted(requestID, guid);
 
         return true;
       }
@@ -312,6 +314,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoLinkDeleted(requestID, guid);
+        engineClientServiceProtocol.DoLinkDeleted(requestID, guid);
 
         return true;
       }
@@ -332,6 +335,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoThingDeleted(requestID, guid);
+        engineClientServiceProtocol.DoThingDeleted(requestID, guid);
 
         return true;
       }
@@ -417,6 +421,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -437,6 +442,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemPathModified(requestID, guid, path);
+        engineClientServiceProtocol.DoItemPathModified(requestID, guid, path);
 
         return true;
       }
@@ -457,6 +463,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -477,6 +484,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -497,6 +505,7 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoThingPathModified(requestID, guid, path);
+        engineClientServiceProtocol.DoThingPathModified(requestID, guid, path);
 
         return true;
       }
@@ -546,7 +555,7 @@ namespace Service
     }
 
 
-    bool Load(out Int64 requestID)
+    bool EngineLoad(out Int64 requestID)
     {
       this.requestID++;
       requestID = this.requestID;
@@ -607,7 +616,7 @@ namespace Service
       }
     }
 
-    bool Save(out Int64 requestID)
+    bool EngineSave(out Int64 requestID)
     {
       this.requestID++;
       requestID = this.requestID;
