@@ -51,31 +51,31 @@ namespace SysCAD.Protocol
     private Int64 requestId;
     private SaveHandler saveHandler;
 
-    public delegate bool ChangeStateHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, RunStates runState);
+    public delegate bool ChangeStateHandler(Int64 requestId, RunStates runState);
 
-    public delegate bool CreateItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool CreateItemHandler(Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
 
-    public delegate bool CreateLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool CreateLinkHandler(Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
 
-    public delegate bool CreateThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool DeleteItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
-    public delegate bool DeleteLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
-    public delegate bool DeleteThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid);
+    public delegate bool CreateThingHandler(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool DeleteItemHandler(Int64 requestId, Guid guid);
+    public delegate bool DeleteLinkHandler(Int64 requestId, Guid guid);
+    public delegate bool DeleteThingHandler(Int64 requestId, Guid guid);
 
-    public delegate void GetPropertyValuesHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, ref ArrayList propertyList);
-    public delegate void GetSubTagsHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, String propertyPath, out ArrayList propertyList);
+    public delegate void GetPropertyValuesHandler(Int64 requestId, ref ArrayList propertyList);
+    public delegate void GetSubTagsHandler(Int64 requestId, String propertyPath, out ArrayList propertyList);
 
-    public delegate bool LoadHandler(EngineServiceProtocol engineServiceProtocol);
-    public delegate bool ModifyItemHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyItemPathHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String path);
-    public delegate bool ModifyLinkHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate bool ModifyThingHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate bool ModifyThingPathHandler(EngineServiceProtocol engineServiceProtocol, Int64 requestId, Guid guid, String path);
+    public delegate bool LoadHandler();
+    public delegate bool ModifyItemHandler(Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemPathHandler(Int64 requestId, Guid guid, String path);
+    public delegate bool ModifyLinkHandler(Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate bool ModifyThingHandler(Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyThingPathHandler(Int64 requestId, Guid guid, String path);
 
-    public delegate PortStatus PortCheckHandler(EngineServiceProtocol engineServiceProtocol, Guid itemGuid, Anchor anchor);
+    public delegate PortStatus PortCheckHandler(Guid itemGuid, Anchor anchor);
 
-    public delegate ArrayList PropertyListHandler(EngineServiceProtocol engineServiceProtocol, Guid guid, String tag, String path);
-    public delegate bool SaveHandler(EngineServiceProtocol engineServiceProtocol);
+    public delegate ArrayList PropertyListHandler(Guid guid, String tag, String path);
+    public delegate bool SaveHandler();
 
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
@@ -124,7 +124,7 @@ namespace SysCAD.Protocol
       this.requestId++;
       requestId = this.requestId;
       throw new NotImplementedException("The method or operation is not implemented.");
-      return changeStateHandler(this, requestId, runState);
+      return changeStateHandler(requestId, runState);
     }
 
     public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -132,7 +132,7 @@ namespace SysCAD.Protocol
       this.requestId++;
       requestId = this.requestId;
       guid = Guid.NewGuid();
-      return createItemHandler(this, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return createItemHandler(requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool CreateLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -140,7 +140,7 @@ namespace SysCAD.Protocol
       this.requestId++;
       requestId = this.requestId;
       guid = new Guid();
-      return createLinkHandler(this, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return createLinkHandler(requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
@@ -148,7 +148,7 @@ namespace SysCAD.Protocol
       this.requestId++;
       requestId = this.requestId;
       guid = Guid.NewGuid();
-      return createThingHandler(this, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return createThingHandler(requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     public bool DeleteItem(out Int64 requestId, Guid guid)
@@ -157,7 +157,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
-        return deleteItemHandler(this, requestId, guid);
+        return deleteItemHandler(requestId, guid);
 
       else
         return false;
@@ -169,7 +169,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicLinks.ContainsKey(guid))
-        return deleteLinkHandler(this, requestId, guid);
+        return deleteLinkHandler(requestId, guid);
 
       else
         return false;
@@ -181,7 +181,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
-        return deleteThingHandler(this, requestId, guid);
+        return deleteThingHandler(requestId, guid);
 
       else
         return false;
@@ -450,14 +450,14 @@ namespace SysCAD.Protocol
       this.requestId++;
       requestId = this.requestId;
       throw new NotImplementedException("The method or operation is not implemented.");
-      getPropertyValuesHandler(this, requestId, ref tagPathList);
+      getPropertyValuesHandler(requestId, ref tagPathList);
     }
 
     public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
       this.requestId++;
       requestId = this.requestId;
-      getSubTagsHandler(this, requestId, propertyPath, out propertyList);
+      getSubTagsHandler(requestId, propertyPath, out propertyList);
     }
 
     public bool Load(String filename)
@@ -475,7 +475,7 @@ namespace SysCAD.Protocol
       graphicThings = (Dictionary<Guid, GraphicThing>)sf.Deserialize(stream);
       stream.Close();
 
-      return loadHandler(this);
+      return loadHandler();
     }
 
     public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -484,7 +484,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
-        return modifyItemHandler(this, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        return modifyItemHandler(requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
       else
         return false;
@@ -496,7 +496,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
-        return modifyItemPathHandler(this, requestId, guid, path);
+        return modifyItemPathHandler(requestId, guid, path);
 
       else
         return false;
@@ -508,7 +508,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicLinks.ContainsKey(guid))
-        return modifyLinkHandler(this, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+        return modifyLinkHandler(requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
 
       else
         return false;
@@ -520,7 +520,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
-        return modifyThingHandler(this, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        return modifyThingHandler(requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
       else
         return false;
@@ -532,7 +532,7 @@ namespace SysCAD.Protocol
       requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
-        return modifyThingPathHandler(this, requestId, guid, path);
+        return modifyThingPathHandler(requestId, guid, path);
 
       else
         return false;
@@ -542,7 +542,7 @@ namespace SysCAD.Protocol
     {
 
       if (graphicItems.ContainsKey(itemGuid))
-        return portCheckHandler(this, itemGuid, anchor);
+        return portCheckHandler(itemGuid, anchor);
 
       else
         return PortStatus.Unavailable;
@@ -551,7 +551,7 @@ namespace SysCAD.Protocol
     public ArrayList PropertyList(Guid guid, String tag, String path)
     {
       //todo: check path is valid.
-      return propertyListHandler(this, guid, tag, path);
+      return propertyListHandler(guid, tag, path);
     }
 
     public bool Save(String filename)
@@ -564,7 +564,7 @@ namespace SysCAD.Protocol
       sf.Serialize(stream, graphicThings);
       stream.Close();
 
-      return saveHandler(this);
+      return saveHandler();
     }
 
   }

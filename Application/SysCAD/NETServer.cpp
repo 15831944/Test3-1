@@ -193,7 +193,7 @@ public:
 
   void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
   {
-    //state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
+    //Chris: This is an example of handling the ItemCreated event.
   }
 
 
