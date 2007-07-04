@@ -191,25 +191,8 @@ namespace SysCAD.Protocol
 
     public void DoItemCreated(Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-
-      if (!graphicItems.ContainsKey(guid))
-      {
-        GraphicItem graphicItem = new GraphicItem(guid, tag);
-        graphicItem.Path = path;
-        graphicItem.Model = model;
-        graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = (ARectangleF)boundingRect;
-        graphicItem.Angle = angle;
-        graphicItem.FillColor = fillColor;
-        graphicItem.FillMode = fillMode;
-        graphicItem.MirrorX = mirrorX;
-        graphicItem.MirrorY = mirrorY;
-
-        graphicItems.Add(guid, graphicItem);
-
-        eventId++;
-        OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
-      }
+      eventId++;
+      OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemDeleted(Int64 requestId, Guid guid)

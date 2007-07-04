@@ -52,7 +52,7 @@ using namespace System::Runtime::InteropServices;//;::Marshal;
 ref class CNETServerThread
 {
 public:
-  EngineProtocol ^ engineProtocol;
+  //EngineProtocol ^ engineProtocol;
 
   CNETServerThread()
   {
@@ -64,6 +64,16 @@ public:
   void Startup(String^ projectPath, String^ configPath)
   {
     LogNote("CNETServerThread", 0, "Startup");
+
+    BinaryServerFormatterSinkProvider^ serverProv = gcnew BinaryServerFormatterSinkProvider();
+    serverProv->TypeFilterLevel = System::Runtime::Serialization::Formatters::TypeFilterLevel::Full;
+
+    BinaryClientFormatterSinkProvider^ clientProv = gcnew BinaryClientFormatterSinkProvider();
+
+    Hashtable^ tcpProps = gcnew Hashtable();
+    tcpProps["port"] = "0";
+    TcpChannel^ tcpChannel = gcnew TcpChannel(tcpProps, clientProv, serverProv);
+    ChannelServices::RegisterChannel(tcpChannel, false);
 
     try
     {
@@ -87,7 +97,7 @@ public:
     }
 
     config = gcnew Config;
-    protocol = gcnew EngineProtocol;
+    engineProtocol = gcnew EngineProtocol;
 
     bool success = false;
     int i=0;
@@ -113,17 +123,19 @@ public:
         // Basically need to wait until service is ready.
         Sleep(i*i*i); // Last wait will be 1sec.
 
-        delete protocol;
-        protocol = gcnew EngineProtocol;
+        delete engineProtocol;
+        engineProtocol = gcnew EngineProtocol;
 
         // Connect to graphic data.
-        success = protocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
+        success = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
           Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath))));
       }
       if (success)
       {
-        protocol->Connect();
+        engineProtocol->Connect();
 
+
+        engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CNETServerThread::ItemCreated);
 
         ////////////////////////////////
         ////////////////////////////////
@@ -138,7 +150,7 @@ public:
         // dictionary will be 0.
         // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
 
-        for each (GraphicItem ^ item in protocol->graphicItems->Values)
+        for each (GraphicItem ^ item in engineProtocol->graphicItems->Values)
         {
           // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
           // ObjectBrowser with all the available members.
@@ -147,11 +159,11 @@ public:
           // item->X
         }
 
-        for each (GraphicLink ^ link in protocol->graphicLinks->Values)
+        for each (GraphicLink ^ link in engineProtocol->graphicLinks->Values)
         {
         }
 
-        for each (GraphicThing ^ thing in protocol->graphicThings->Values)
+        for each (GraphicThing ^ thing in engineProtocol->graphicThings->Values)
         {
         }
 
@@ -179,6 +191,12 @@ public:
     }
   };
 
+  void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+  {
+    //state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
+  }
+
+
   void Shutdown()
   {
     delete config;//
@@ -198,7 +216,7 @@ public:
 
 protected:
   SysCAD::Protocol::Config ^ config;
-  SysCAD::Protocol::EngineProtocol ^ protocol;
+  SysCAD::Protocol::EngineProtocol ^ engineProtocol;
 };
 
 

@@ -47,8 +47,6 @@ namespace Service
     {
       InitializeComponent();
 
-
-
       System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
       serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
@@ -80,45 +78,6 @@ namespace Service
       graphicItems = new Dictionary<Guid, GraphicItem>();
       graphicLinks = new Dictionary<Guid,GraphicLink>();
       graphicThings = new Dictionary<Guid,GraphicThing>();
-
-      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
-      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(EngineSave);
-
-      EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(EngineChangeState);
-
-      EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(EngineGetPropertyValues);
-      EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(EngineGetSubTags);
-
-      EngineServiceProtocol.CreateItemHandler engineCreateItem = new EngineServiceProtocol.CreateItemHandler(EngineCreateItem);
-      EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(EngineModifyItem);
-      EngineServiceProtocol.ModifyItemPathHandler engineModifyItemPath = new EngineServiceProtocol.ModifyItemPathHandler(EngineModifyItemPath);
-      EngineServiceProtocol.DeleteItemHandler engineDeleteItem = new EngineServiceProtocol.DeleteItemHandler(EngineDeleteItem);
-
-      EngineServiceProtocol.CreateLinkHandler engineCreateLink = new EngineServiceProtocol.CreateLinkHandler(EngineCreateLink);
-      EngineServiceProtocol.ModifyLinkHandler engineModifyLink = new EngineServiceProtocol.ModifyLinkHandler(EngineModifyLink);
-      EngineServiceProtocol.DeleteLinkHandler engineDeleteLink = new EngineServiceProtocol.DeleteLinkHandler(EngineDeleteLink);
-
-      EngineServiceProtocol.CreateThingHandler engineCreateThing = new EngineServiceProtocol.CreateThingHandler(EngineCreateThing);
-      EngineServiceProtocol.ModifyThingHandler engineModifyThing = new EngineServiceProtocol.ModifyThingHandler(EngineModifyThing);
-      EngineServiceProtocol.ModifyThingPathHandler engineModifyThingPath = new EngineServiceProtocol.ModifyThingPathHandler(EngineModifyThingPath);
-      EngineServiceProtocol.DeleteThingHandler engineDeleteThing = new EngineServiceProtocol.DeleteThingHandler(EngineDeleteThing);
-
-      EngineServiceProtocol.PortCheckHandler enginePortCheck = new EngineServiceProtocol.PortCheckHandler(EnginePortCheck);
-
-      EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(EnginePropertyListCheck);
-      
-      engineClientServiceProtocol = new EngineServiceProtocol(name,
-                                                              graphicLinks, graphicItems, graphicThings,
-                                                              engineLoad, engineSave,
-                                                              engineChangeState, engineGetPropertyValues, engineGetSubTags,
-                                                              engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
-                                                              engineCreateLink, engineModifyLink, engineDeleteLink,
-                                                              engineCreateThing, engineModifyThing, engineModifyThingPath,
-                                                              engineDeleteThing, enginePortCheck, enginePropertyListCheck);
-
-      EngineLoad(engineClientServiceProtocol);
-      
-      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
 
 
       
@@ -156,6 +115,47 @@ namespace Service
 
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
+
+
+      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
+      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(EngineSave);
+
+      EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(EngineChangeState);
+
+      EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(EngineGetPropertyValues);
+      EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(EngineGetSubTags);
+
+      EngineServiceProtocol.CreateItemHandler engineCreateItem = new EngineServiceProtocol.CreateItemHandler(EngineCreateItem);
+      EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(EngineModifyItem);
+      EngineServiceProtocol.ModifyItemPathHandler engineModifyItemPath = new EngineServiceProtocol.ModifyItemPathHandler(EngineModifyItemPath);
+      EngineServiceProtocol.DeleteItemHandler engineDeleteItem = new EngineServiceProtocol.DeleteItemHandler(EngineDeleteItem);
+
+      EngineServiceProtocol.CreateLinkHandler engineCreateLink = new EngineServiceProtocol.CreateLinkHandler(EngineCreateLink);
+      EngineServiceProtocol.ModifyLinkHandler engineModifyLink = new EngineServiceProtocol.ModifyLinkHandler(EngineModifyLink);
+      EngineServiceProtocol.DeleteLinkHandler engineDeleteLink = new EngineServiceProtocol.DeleteLinkHandler(EngineDeleteLink);
+
+      EngineServiceProtocol.CreateThingHandler engineCreateThing = new EngineServiceProtocol.CreateThingHandler(EngineCreateThing);
+      EngineServiceProtocol.ModifyThingHandler engineModifyThing = new EngineServiceProtocol.ModifyThingHandler(EngineModifyThing);
+      EngineServiceProtocol.ModifyThingPathHandler engineModifyThingPath = new EngineServiceProtocol.ModifyThingPathHandler(EngineModifyThingPath);
+      EngineServiceProtocol.DeleteThingHandler engineDeleteThing = new EngineServiceProtocol.DeleteThingHandler(EngineDeleteThing);
+
+      EngineServiceProtocol.PortCheckHandler enginePortCheck = new EngineServiceProtocol.PortCheckHandler(EnginePortCheck);
+
+      EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(EnginePropertyListCheck);
+
+      engineClientServiceProtocol = new EngineServiceProtocol(name,
+                                                              graphicLinks, graphicItems, graphicThings,
+                                                              engineLoad, engineSave,
+                                                              engineChangeState, engineGetPropertyValues, engineGetSubTags,
+                                                              engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
+                                                              engineCreateLink, engineModifyLink, engineDeleteLink,
+                                                              engineCreateThing, engineModifyThing, engineModifyThingPath,
+                                                              engineDeleteThing, enginePortCheck, enginePropertyListCheck);
+
+      EngineLoad(engineClientServiceProtocol);
+
+      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
+
     }
 
 
@@ -198,12 +198,45 @@ namespace Service
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
       // This is required in case a rogue client tries to create an item even when not supposed to.
       // This applies to all three create*, and all three delete* events.
+      if (!graphicItems.ContainsKey(guid))
+      { // We're going to do it.
+        // Create the item.
+        GraphicItem graphicItem = new GraphicItem(guid, tag);
+        graphicItem.Path = path;
+        graphicItem.Model = model;
+        graphicItem.Shape = stencil;
+        graphicItem.BoundingRect = (ARectangleF)boundingRect;
+        graphicItem.Angle = angle;
+        graphicItem.FillColor = fillColor;
+        graphicItem.FillMode = fillMode;
+        graphicItem.MirrorX = mirrorX;
+        graphicItem.MirrorY = mirrorY;
+
+        graphicItems.Add(guid, graphicItem);
+
+        // Raise event(s).
+        clientClientServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool EngineCreateItem(EngineServiceProtocol engineServiceProtocol, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      // Need to check for runstate here, and decide if we'll fire DoItemCreated.
+      // This is required in case a rogue client tries to create an item even when not supposed to.
+      // This applies to all three create*, and all three delete* events.
       if (true) // Decide whether to create an item.
       { // We're going to do it.
         // Create the item.
 
         // Raise event(s).
-        clientServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -484,26 +517,6 @@ namespace Service
 
         // Raise event(s).
         clientEngineServiceProtocol.DoStateChanged(requestID, runState);
-
-        return true;
-      }
-      else
-      { // We're not going to do it.
-        return false;
-      }
-    }
-
-    bool EngineCreateItem(EngineServiceProtocol engineServiceProtocol, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      // Need to check for runstate here, and decide if we'll fire DoItemCreated.
-      // This is required in case a rogue client tries to create an item even when not supposed to.
-      // This applies to all three create*, and all three delete* events.
-      if (true) // Decide whether to create an item.
-      { // We're going to do it.
-        // Create the item.
-
-        // Raise event(s).
-        engineServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }

@@ -87,8 +87,8 @@ namespace SysCAD.Editor
       foreach (ModelProperty modelProperty in propertyList)
       {
         PropertyEnumerator propertyEnum = AppendManagedProperty(rootProperty, id++, modelProperty.Path, modelProperty.State.GetType(), modelProperty.State, "");
-        AppendManagedProperty(propertyEnum, -1, "", typeof(dummyType), null, "");
-        ExpandProperty(propertyEnum, false);
+        //AppendManagedProperty(propertyEnum, -1, "", typeof(dummyType), null, "");
+        //ExpandProperty(propertyEnum, false);
       }
 
     }
