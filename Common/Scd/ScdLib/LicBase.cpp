@@ -1774,6 +1774,9 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
       if (result1 != result2)
         {
         Error("Security Failure.  Challenge function failed");
+#if dbgLicenseTimer
+        LogNote("License", 0, "Failed Check Took %.3f", TM.Secs());
+#endif
         return FALSE;
         }
       }
@@ -1798,6 +1801,9 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 #endif
 
     DumpState("Check:1");
+#if dbgLicenseTimer
+    LogNote("License", 0, "Successful Check Took %.3f", TM.Secs());
+#endif
     return TRUE;
     }
   else
@@ -1830,6 +1836,9 @@ BOOL CLicense::Check(BOOL Prompt /*=FALSE*/)
 //
 //#endif
 
+#if dbgLicenseTimer
+  LogNote("License", 0, "Bad Check Took %.3f", TM.Secs());
+#endif
   return FALSE;
   }
 
@@ -1845,7 +1854,12 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 
   ASSERT(m_bDidInitCrypkey);
   if (m_State.m_bBlocked)
+    {
+#if dbgLicenseTimer
+    LogNote("License", 0, "Quick Check Took %.3f", TM.Secs());
+#endif
     return FALSE;
+    }
   if (CheckLevel==0)
     {
     if (!m_State.m_bDemoMode && !m_State.m_bLicensed && !m_State.m_bCOMMineServeOn)
@@ -1855,12 +1869,19 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
       ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
       return FALSE;
       }
+#if dbgLicenseTimer
+    LogNote("License", 0, "Quick Check Took %.3f", TM.Secs());
+#endif
     return TRUE;
     }
 
   if (m_State.m_bDemoMode)
+    {
+#if dbgLicenseTimer
+    LogNote("License", 0, "Quick Check Took %.3f", TM.Secs());
+#endif
     return TRUE;
-
+    }
   CWaitCursor Wait;
   m_State.m_bLicensed = 0;
   m_State.m_dwOpLevel = 0;
@@ -1921,6 +1942,9 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
     strcat(Buff, "\n\nThe majority of SysCAD commands and functions have been disabled.\n\nPlease exit SysCAD. (Save project if required)");
     Error(Buff);
     ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_BACKGROUND, 0);
+#if dbgLicenseTimer
+    LogNote("License", 0, "Quick Check Took %.3f", TM.Secs());
+#endif
     return FALSE;
     }
   m_State.m_dwOpLevel=FixOptions(m_State.m_dwOpLevel);
@@ -1930,6 +1954,9 @@ BOOL CLicense::QuickCheck(byte CheckLevel/*=0*/)
 //  bLicensed = 1;
 //  dwOpLevel = 0;
 //#endif
+#if dbgLicenseTimer
+  LogNote("License", 0, "Quick Check Took %.3f", TM.Secs());
+#endif
   return TRUE;
   }
 
