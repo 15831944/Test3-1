@@ -88,13 +88,15 @@ CElectroCell::CElectroCell(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   Contents.SetPreset(&m_Preset, &m_PresetImg);
   SetAllowedModes(true, NM_All|SM_Direct|SM_Inline|SM_Buffered|HM_All);
 
-  CathMass     = 0.0;
-  dCellEff     = 0.9;
-  dPreHeatFrac = 0.0;//0.5;
-  dHeatFlow    = 0.0;
-  m_TempKFeed    = Std_T;
-  m_TempKProd    = Std_T;
-  iMetal       = 0;
+  CathMass           = 0.0;
+  dCellEff           = 0.9;
+  dPreHeatFrac       = 0.0;//0.5;
+  m_dElecEnergyTotal = 0.0;
+  m_dElecEnergyReact = 0.0;
+  m_dElecEnergyHeat  = 0.0;
+  m_TempKFeed        = Std_T;
+  m_TempKProd        = Std_T;
+  iMetal             = 0;
   };
 
 //--------------------------------------------------------------------------
@@ -116,12 +118,16 @@ void CElectroCell::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility();
 
   DDB.Text    ("");
-  DDB.Double  ("CellEfficiency","Cell_Eff", DC_Frac, "%",      &dCellEff,      this, isParm);
+  DDB.Double  ("CellEfficiency","Cell_Eff",        DC_Frac, "%",      &dCellEff,      this, isParm);
   //DDB.Double  ("",           "PreHeatFrac", DC_Frac, "%",      &dPreHeatFrac,  this, isParm); //possibly not needed?
-  DDB.Double  ("",             "EnergyRqd", DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|noFileAtAll|InitHidden);
-  DDB.Double  ("",             "HeatFlow",  DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|0);
-  DDB.Double ("TempFeed",      "Feed.T",    DC_T,    "C",      &m_TempKFeed,     this, isResult);//|noFileAtAll);
-  DDB.Double  ("FinalT",                "", DC_T,    "C",      &m_TempKProd,     this, isResult|0);
+  //DDB.Double  ("",             "EnergyRqd", DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|noFileAtAll|InitHidden);
+  //DDB.Double  ("",             "HeatFlow",  DC_Pwr,  "kW",     &dHeatFlow,     this, isResult|0);
+  DDB.Double  ("",             "ElecEnergyTotal",  DC_Pwr,  "kW",     &m_dElecEnergyTotal,     this, isResult|0);
+  DDB.Double  ("",             "ElecEnergyReact",  DC_Pwr,  "kW",     &m_dElecEnergyReact,     this, isResult|0);
+  DDB.Double  ("",             "ElecEnergyHeat",   DC_Pwr,  "kW",     &m_dElecEnergyHeat ,     this, isResult|0);
+  DDB.Text    ("");
+  DDB.Double  ("TempFeed",     "Feed.T",           DC_T,    "C",      &m_TempKFeed,     this, isResult);//|noFileAtAll);
+  DDB.Double  ("FinalT",       "",                 DC_T,    "C",      &m_TempKProd,     this, isResult|0);
 
 
   DDB.Text    ("");
@@ -227,20 +233,21 @@ void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       const double TotHfAtFeedT_After = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
       
       if (RB())
-        {// Input energy from the electrical work applied to the cell...
-        dHeatFlow = TotHfAtFeedT_After - TotHfAtFeedT_Before;
-        //Note: if dPreHeatFrac==0.0 then emf = (RB()->HfSumTot() * -1.0);
-        double dHeatFlowInEff = (dHeatFlow / dCellEff)-dHeatFlow;
-
-        const double dTotHf = Sd().totHf();
-        Sd().Set_totHf(dTotHf + dHeatFlow + dHeatFlowInEff); //add remaining energy AFTER reaction
+        {
+        // Input energy from the electrical work applied to the cell...
+        m_dElecEnergyReact = TotHfAtFeedT_After - TotHfAtFeedT_Before;
+        m_dElecEnergyHeat  = (m_dElecEnergyReact/ dCellEff)-m_dElecEnergyReact;
+        m_dElecEnergyTotal = m_dElecEnergyReact + m_dElecEnergyHeat;
         
-        dHeatFlow+=dHeatFlowInEff;
+        double dTotHf = Sd().totHf();
+        Sd().Set_totHf(dTotHf + m_dElecEnergyTotal); //add remaining energy AFTER reaction
         }
       else
-        dHeatFlow = 0.0;
-
-      //dHeatFlow = emf;
+        {
+        m_dElecEnergyTotal =  0.0;
+        m_dElecEnergyReact =  0.0;
+        m_dElecEnergyHeat  =  0.0;
+        }
 
       double Qs = Sd().QMass(som_Sol);
       double Ql = Sd().QMass(som_Liq);
@@ -283,14 +290,30 @@ void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
         //RB.EvalDerivs(Contents, Sd(), Sd());
         }
 
-      double emf = 0.0;
       if (RB())
         {
-        emf = RB()->HfSumTot();
-        emf = (emf / dCellEff) * -1.0;
-        Sd().Set_totHf(Sd().totHf() + emf);
+        // Input energy from the electrical work applied to the cell...
+        m_dElecEnergyReact = RB()->HfSumTot();
+        m_dElecEnergyHeat  = (m_dElecEnergyReact/ dCellEff)-m_dElecEnergyReact;
+        m_dElecEnergyTotal = m_dElecEnergyReact + m_dElecEnergyHeat;
+        
+        double dTotHf = Sd().totHf();
+        Sd().Set_totHf(dTotHf + m_dElecEnergyTotal); //add remaining energy AFTER reaction
         }
-      dHeatFlow = emf;
+      else
+        {
+        m_dElecEnergyTotal =  0.0;
+        m_dElecEnergyReact =  0.0;
+        m_dElecEnergyHeat  =  0.0;
+        }
+      //double emf = 0.0;
+      //if (RB())
+      //  {
+      //  emf = RB()->HfSumTot();
+      //  emf = (emf / dCellEff) * -1.0;
+      //  Sd().Set_totHf(Sd().totHf() + emf);
+      //  }
+      //dHeatFlow = emf;
 
       double SolMass = Contents.Mass(som_Sol);
       double LiqMass = Contents.Mass(som_Liq);
@@ -382,7 +405,7 @@ void CElectroCell::ClosureInfo()
     if (RB.Enabled())
       RB.GetClosureInfo(CI);
     
-    CI.m_PowerIn+=dHeatFlow;
+    CI.m_PowerIn += m_dElecEnergyTotal;
     
     if (m_EHX.Enabled())
       CI.m_EHXPowerIn+=m_EHX.HeatFlow();

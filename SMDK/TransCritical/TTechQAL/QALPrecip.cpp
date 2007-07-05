@@ -17,13 +17,13 @@ static MInitialiseTest InitTest("Precip");
 //static MSpeciePtr  spAlumina       (InitTest, "NaAl[OH]4(l)", false);
 //static MSpeciePtr  spTHA           (InitTest, "Al[OH]3(s)", false);
 
-static MAqSpeciePtrspAlumina       (InitTest, "NaAl[OH]4(l)", false);
+static MAqSpeciePtr spAlumina       (InitTest, "NaAl[OH]4(l)", false);
 static MSpeciePtr  spWater         (InitTest, "H2O(l)", false);
 static MSpeciePtr  spWaterVapor    (InitTest, "H2O(g)", false);
 static MSpeciePtr  spTHA           (InitTest, "Al[OH]3(s)", false);
-static MAqSpeciePtrspCausticSoda   (InitTest, "NaOH(l)", false);
+static MAqSpeciePtr spCausticSoda   (InitTest, "NaOH(l)", false);
 static MSpeciePtr  spOccSoda       (InitTest, "Na2O(s)", false);
-static MAqSpeciePtrspCarbonate     (InitTest, "Na2CO3(l)", false);
+static MAqSpeciePtr spCarbonate     (InitTest, "Na2CO3(l)", false);
 static MSpeciePtr  spBoundSoda     (InitTest, "NaOH*(s)", false);
 static MSpeciePtr  spOrganics      (InitTest, "Na2C5.2O7.2(l)", false);
 static MSpeciePtr  spBoundOrganics (InitTest, "Na2C5.2O7.2*(s)", false);

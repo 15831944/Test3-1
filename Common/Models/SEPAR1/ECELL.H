@@ -45,7 +45,9 @@ class CElectroCell : public MN_Surge
     double         CathMass;  // Mass of Cathodes
     double         dCellEff;
     double         dPreHeatFrac;
-    double         dHeatFlow;
+    double         m_dElecEnergyTotal;
+    double         m_dElecEnergyReact;
+    double         m_dElecEnergyHeat;
     double         m_TempKFeed;
     double         m_TempKProd;
   };
