@@ -648,7 +648,7 @@ CAcidBaseData * FindAcidBaseData(LPCSTR Compound)
   for (int i=0; s_AcidData[i].m_sName; i++)
     {
     if ((strncmp(s_AcidData[i].m_sName, Compound, strlen(s_AcidData[i].m_sName))==0) &&
-        (Compound[strlen(s_AcidData[i].m_sName)]=='('))
+        ((strlen(Compound)==strlen(s_AcidData[i].m_sName)) || (Compound[strlen(s_AcidData[i].m_sName)]=='(')))
       return &s_AcidData[i];
     }
   return NULL;
