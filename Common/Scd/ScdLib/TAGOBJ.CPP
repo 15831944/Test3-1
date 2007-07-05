@@ -5752,7 +5752,7 @@ DDBPkListItem * DataDefnBlk::FindChildItem(int MsgItemLevel, char *pTag, char * 
       S=pSym;
     else
       S="???";
-    LogWarning(pThis->FullObjTag(), 0, "Type Mismatch for '%s': %s!=%s", S(),tt_TypeString(BadType),tt_TypeString(iType));
+    LogWarning(pThis->FullObjTag(), 0, "Type Mismatch for '%s': %s!=%s - A ''Save Version'' will usually fix this", S(),tt_TypeString(BadType),tt_TypeString(iType));
     }
   return NULL;
 
