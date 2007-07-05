@@ -1000,8 +1000,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double SaturationTotalP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
     virtual double SaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
     virtual double SaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
-    virtual double PureSaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL)               { return SpModel::SaturationP(T, pMA, pSat);};
-    virtual double PureSaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL)               { return SpModel::SaturationT(P, pMA, pSat);};
+    virtual double PureSaturationP(double T, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
+    virtual double PureSaturationT(double P, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
     virtual double BoilingPtElevation(double P_, CSysVector * pMA=NULL, CSaturationDefn * pSat=NULL);
 
     //virtual long   InitialisePropertyMap(CPropertyMap * pParentMap);

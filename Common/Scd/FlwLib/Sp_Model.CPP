@@ -1519,12 +1519,12 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
       DDB.Double  ("SatP@T",        "",         DC_P,     "kPag",     xidSMSatPress,    this, isResult|noFileAtAll);
       DDB.Double  ("SatT@PP",       "",         DC_T,     "C",        xidSMSatTempPP,   this, isResult|noFileAtAll|NAN_OK);
       DDB.Double  ("SatT@P",        "",         DC_T,     "C",        xidSMSatTempP,    this, isResult|noFileAtAll);
-      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll|InitHidden);
-      DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll|InitHidden);
+      DDB.Double  ("WaterSatT@P",   "",         DC_T,     "C",        xidSMPureSatTemp, this, isResult|noFileAtAll);
+      DDB.Double  ("BPE",           "",         DC_dT,    "C",        xidSMBoilPtEle,   this, isResult|noFileAtAll);
       if (m_Ovr.bUse&(SPO_BPEle))
         DDB.TagComment("Ovr");
       DDB.Double  ("FinalT",        "",         DC_T,     "C",        xidSMTemp,        this, isResult|noFileAtAll|InitHidden);
-      DDB.Double  ("",              "LatHtVap", DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
+      DDB.Double  ("LatHtVap",      "",         DC_HMs,   "kJ/kg",    xidSMmsLatHtVap,  this, isResult|noFile|noSnap);
       }
     DDB.EndStruct();
 
@@ -1739,18 +1739,18 @@ void SpModel::BuildDataDefn_RqdProps(DataDefnBlk & DDB)
       if (DoIt)
         {
         DDB.Byte("", "Active",    DC_, "", xidOvrAnyOn,    this, noFile|noSnap, DDBYesNo);
-        DDB.Byte("", "VCp",       DC_, "", xidOvrVCp,      this, Flag, DDBX);
-        DDB.Byte("", "LCp",       DC_, "", xidOvrLCp,      this, Flag, DDBX);
-        DDB.Byte("", "SCp",       DC_, "", xidOvrSCp,      this, Flag, DDBX);
-        DDB.Byte("", "VDens",     DC_, "", xidOvrVDens,    this, Flag, DDBX);
-        DDB.Byte("", "LDens",     DC_, "", xidOvrLDens,    this, Flag, DDBX);
-        DDB.Byte("", "SDens",     DC_, "", xidOvrSDens,    this, Flag, DDBX);
-        DDB.Byte("", "VVisc",     DC_, "", xidOvrVDynVisc, this, Flag, DDBX);
-        DDB.Byte("", "LVisc",     DC_, "", xidOvrLDynVisc, this, Flag, DDBX);
-        DDB.Byte("", "VThermCd",  DC_, "", xidOvrVThermCd, this, Flag, DDBX);
-        DDB.Byte("", "LThermCd",  DC_, "", xidOvrLThermCd, this, Flag, DDBX);
-        DDB.Byte("", "SurfT",     DC_, "", xidOvrSurfT,    this, Flag, DDBX);
-        DDB.Byte("", "BPE",       DC_, "", xidOvrBPEle,    this, Flag, DDBX);
+        DDB.Byte("", "VCp",       DC_, "", xidOvrVCp,      this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "LCp",       DC_, "", xidOvrLCp,      this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "SCp",       DC_, "", xidOvrSCp,      this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "VDens",     DC_, "", xidOvrVDens,    this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "LDens",     DC_, "", xidOvrLDens,    this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "SDens",     DC_, "", xidOvrSDens,    this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "VVisc",     DC_, "", xidOvrVDynVisc, this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "LVisc",     DC_, "", xidOvrLDynVisc, this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "VThermCd",  DC_, "", xidOvrVThermCd, this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "LThermCd",  DC_, "", xidOvrLThermCd, this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "SurfT",     DC_, "", xidOvrSurfT,    this, Flag|SetOnChange, DDBX);
+        DDB.Byte("", "BPE",       DC_, "", xidOvrBPEle,    this, Flag|SetOnChange, DDBX);
         //  DDB.Text("");
 
         if (m_Ovr.bAdd & SPO_VCp)
@@ -8782,7 +8782,27 @@ double SpModel::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatD
   SetCI(6, Set6);
   SetCI(7, Set7);
 
+  if (m_Ovr.bUse & SPO_BPEle)
+    TRet += m_Ovr.fBPEle;
+
   return TRet;
+  };
+
+double SpModel::PureSaturationP(double T, CSysVector * pMA, CSaturationDefn * pSat)
+  { 
+  SPOType OvrOn = (m_Ovr.bUse & SPO_BPEle);
+  m_Ovr.bUse &= ~SPO_BPEle;
+  double P=SpModel::SaturationP(T, pMA, pSat);
+  m_Ovr.bUse |= OvrOn;
+  return P;
+  };
+double SpModel::PureSaturationT(double P, CSysVector * pMA, CSaturationDefn * pSat)
+  { 
+  SPOType OvrOn = (m_Ovr.bUse & SPO_BPEle);
+  m_Ovr.bUse &= ~SPO_BPEle;
+  double T=SpModel::SaturationT(P, pMA, pSat);
+  m_Ovr.bUse |= OvrOn;
+  return T;
   };
 
 //===========================================================================
