@@ -362,6 +362,7 @@ class CMdlCfgCfg : public CMdlCfgBase
     CComboBox	m_DefSpMdl;
     BOOL m_bPBAllowed;
     BOOL m_bDynAllowed;
+    BOOL m_bH2OAsAq;
 	  //CString	m_AtmosPress;
 	  CString	m_CfgFiles;
 	  CString	m_Desc;
@@ -398,6 +399,7 @@ class CMdlCfgCfg : public CMdlCfgBase
 
     void CheckModes();
 
+  public:
   };
 
 //===========================================================================

@@ -458,7 +458,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
   HX.Add_OnOff(DDB);
   RB.Add_OnOff(DDB);
-  if (NetProbalMethod())
+  if (1)//NetProbalMethod())
     m_EHX.Add_OnOff(DDB);
   //TODO RESTORE : VLE in ProBal mode!
   if (NetDynamicMethod())
@@ -512,7 +512,7 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
   RB.BuildDataDefn(DDB);
-  if (NetProbalMethod())
+  if (1)//NetProbalMethod())
     m_EHX.BuildDataDefn(DDB);
   if (NetDynamicMethod())
     m_VLE.BuildDataDefn(DDB);

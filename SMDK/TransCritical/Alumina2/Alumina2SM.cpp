@@ -39,13 +39,13 @@ static MInitialiseTest InitTest("BayerSMClass");
 
 
 MSpeciePtr   Water             (InitTest, "H2O(l)",        false);
-MSpeciePtr   Alumina           (InitTest, "NaAl[OH]4(l)",  false);
-MSpeciePtr   CausticSoda       (InitTest, "NaOH(l)",       false);
-MSpeciePtr   SodiumChloride    (InitTest, "NaCl(l)",       false);
-MSpeciePtr   SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
-MSpeciePtr   SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
+MAqSpeciePtr Alumina           (InitTest, "NaAl[OH]4(l)",  false);
+MAqSpeciePtr CausticSoda       (InitTest, "NaOH(l)",       false);
+MAqSpeciePtr SodiumChloride    (InitTest, "NaCl(l)",       false);
+MAqSpeciePtr SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
+MAqSpeciePtr SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
 MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
-MSpeciePtr   SodiumSilicate    (InitTest, "Na2SiO3(l)",    false); 
+MAqSpeciePtr SodiumSilicate    (InitTest, "Na2SiO3(l)",    false); 
 MSpeciePtr   Organics          (InitTest, "Na2C5.2O7.2(l)", false); //organic
 MSpeciePtr   OccSoda           (InitTest, "NaOH*(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al[OH]3(s)", false);

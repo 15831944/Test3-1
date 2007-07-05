@@ -26,10 +26,10 @@ inline long cINT(double x) { return (long)x; }
 inline double SQR(double x) { return x*x; }
 
 static MInitialiseTest InitTest("Precipitator");
-static MSpeciePtr   spAlumina          (InitTest, "Al2O3(l)", false);
+static MAqSpeciePtr spAlumina          (InitTest, "Al2O3(l)", false);
 static MSpeciePtr   spWater            (InitTest, "H2O(l)", false);
 static MSpeciePtr   spTHA              (InitTest, "Al2O3.3H2O(s)", false);
-static MSpeciePtr   spCausticSoda      (InitTest, "NaOH(l)", false);
+static MAqSpeciePtr spCausticSoda      (InitTest, "NaOH(l)", false);
 static MSpeciePtr   spOccSoda          (InitTest, "Na2O(s)", false);
 
 //===========================================================================

@@ -314,6 +314,7 @@ class DllImportExport CSArray : public CArray <Strng, Strng&>
     //flag Sort(flag Ascending = TRUE);
     //flag Reverse();
     void AddStrng(char * p);
+    void AddStrng(Strng & S);
     flag SetAll(char * p= "");
     //flag OpAdd(double d);
     //flag OpAdd(CDArray &v);

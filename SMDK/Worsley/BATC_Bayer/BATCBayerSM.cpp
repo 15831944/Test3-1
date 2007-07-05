@@ -24,17 +24,17 @@ IMPLEMENT_SPECIEMODEL(BATCBayerSM, "BATCBayerSM", "*BATC Bayer", "Bauxite and Al
 static MInitialiseTest InitTest("BATCBayerSMClass");
 
 MSpeciePtr   Water             (InitTest, "H2O(l)",        false);
-MSpeciePtr   Alumina           (InitTest, "Al2O3(l)",      false);
-MSpeciePtr   CausticSoda       (InitTest, "NaOH(l)",       false);
-MSpeciePtr   SodiumChloride    (InitTest, "NaCl(l)",       false);
-MSpeciePtr   SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
-MSpeciePtr   SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
-MSpeciePtr   SodiumFluoride    (InitTest, "NaF(l)",        false);
+MAqSpeciePtr Alumina           (InitTest, "Al2O3(l)",      false);
+MAqSpeciePtr CausticSoda       (InitTest, "NaOH(l)",       false);
+MAqSpeciePtr SodiumChloride    (InitTest, "NaCl(l)",       false);
+MAqSpeciePtr SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
+MAqSpeciePtr SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
+MAqSpeciePtr SodiumFluoride    (InitTest, "NaF(l)",        false);
 MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
 //MSpeciePtr   Organics          (InitTest, "Na2C5O7(l)",    false); //organic
 MSpeciePtr   Organics1         (InitTest, "NaOrg(l)",      false); //organic NaC2.21O2.275H3.63
-MSpeciePtr   SilicateLiq       (InitTest, "SiO2(l)",       false);
-//MSpeciePtr   Potassium         (InitTest, "K2O(l)",        false); 
+MAqSpeciePtr SilicateLiq     (InitTest, "SiO2(l)",       false);
+//MAqSpeciePtr Potassium         (InitTest, "K2O(l)",        false); 
 
 MSpeciePtr   OccSoda           (InitTest, "Na2O(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al2O3.3H2O(s)", false);

@@ -9797,7 +9797,8 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
       break;
     }
 
-  if (!CDB.Initialise(CDBI, (LPSTR)PrjSDBName, !ExcludeDefSpDB))
+  bool H2OAsAqueous=CfgPF.RdInt("General", "H2O_As_Aqueous", 0);
+  if (!CDB.Initialise(CDBI, (LPSTR)PrjSDBName, !ExcludeDefSpDB, H2OAsAqueous))
     {
     //CDB.DumpTest();
     LogError("Sfe_Server", LF_Exclamation, "Specie DB Failed to Initialise (see preceding messages)");

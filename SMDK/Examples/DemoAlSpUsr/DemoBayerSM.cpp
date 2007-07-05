@@ -22,15 +22,15 @@ IMPLEMENT_SPECIEMODEL(CDemoBayerSM, "DemoBayerSM", "*Demonstration Bayer", "Demo
 static MInitialiseTest InitTest("CDemoBayerSMClass");
 
 MSpeciePtr   Water             (InitTest, "H2O(l)",        false);
-MSpeciePtr   Alumina           (InitTest, "Al2O3(l)",      false);
-MSpeciePtr   CausticSoda       (InitTest, "NaOH(l)",       false);
-MSpeciePtr   SodiumChloride    (InitTest, "NaCl(l)",       false);
-MSpeciePtr   SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
-MSpeciePtr   SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
-//MSpeciePtr   SodiumFluoride    (InitTest, "NaF(l)",        false);
-MSpeciePtr   SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
-MSpeciePtr   Organics          (InitTest, "Na2C5O7(l)",    false); //organic
-MSpeciePtr   SilicateLiq       (InitTest, "SiO2(l)",       false);
+MAqSpeciePtr Alumina           (InitTest, "Al2O3(l)",      false);
+MAqSpeciePtr CausticSoda       (InitTest, "NaOH(l)",       false);
+MAqSpeciePtr SodiumChloride    (InitTest, "NaCl(l)",       false);
+MAqSpeciePtr SodiumSulphate    (InitTest, "Na2SO4(l)",     false);
+MAqSpeciePtr SodiumCarbonate   (InitTest, "Na2CO3(l)",     false);
+//MAqSpeciePtr SodiumFluoride    (InitTest, "NaF(l)",        false);
+MAqSpeciePtr SodiumOxalate     (InitTest, "Na2C2O4(l)",    false); //organic
+MAqSpeciePtr Organics          (InitTest, "Na2C5O7(l)",    false); //organic
+MAqSpeciePtr SilicateLiq       (InitTest, "SiO2(l)",       false);
 
 MSpeciePtr   OccSoda           (InitTest, "Na2O(s)",       false);
 MSpeciePtr   THA               (InitTest, "Al2O3.3H2O(s)", false);

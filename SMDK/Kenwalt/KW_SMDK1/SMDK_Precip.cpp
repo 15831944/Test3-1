@@ -10,13 +10,13 @@
 
 static MInitialiseTest InitTest("SMDK_Precip");
 
-static MSpeciePtr   spAlumina          (InitTest, "Al2O3(l)", false);
+static MAqSpeciePtr spAlumina          (InitTest, "Al2O3(l)", false);
 static MSpeciePtr   spWater            (InitTest, "H2O(l)", false);
-static MSpeciePtr   spTHA              (InitTest, "Al2O3.3H2O(s)", false);
-static MSpeciePtr   spCausticSoda      (InitTest, "NaOH(l)", false);
+static MAqSpeciePtr spTHA              (InitTest, "Al2O3.3H2O(s)", false);
+static MAqSpeciePtr spCausticSoda      (InitTest, "NaOH(l)", false);
 static MSpeciePtr   spOccSoda          (InitTest, "Na2O(s)", false);
-static MSpeciePtr   spSodiumCarbonate  (InitTest, "Na2CO3(l)", false);
-//static MSpeciePtr   spSodiumOxalate    (InitTest, "Na2C2O4(l)", false);
+static MAqSpeciePtr spSodiumCarbonate  (InitTest, "Na2CO3(l)", false);
+//static MAqSpeciePtr   spSodiumOxalate    (InitTest, "Na2C2O4(l)", false);
 
 enum GrowthRateMethods { GRM_White, GRM_Cresswell, GRM_WhiteBateman };
 enum SodaPrecipMethods { SPM_Sang, SPM_Ohkawa };

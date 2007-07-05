@@ -520,6 +520,16 @@ MSpeciePtr & MSpeciePtr::operator=(const MSpeciePtr & p)
   return *this;
   }
 
+//===========================================================================
+
+MAqSpeciePtr::MAqSpeciePtr(MInitialiseTest & InitTest, LPCSTR Name, bool Optional, LPCTSTR FileName, LPCTSTR DllName) :
+  MSpeciePtr(InitTest, Name, Optional, FileName, DllName)
+  {
+  m_pSB->m_fAllowAq=true;
+  };
+
+//===========================================================================
+
 MSpecieDefn * MSpeciePtr::operator->()  { ChkIndex(); return (m_pSB->sid()>=0) ? &gs_MVDefn[m_pSB->sid()]: NULL; }
 MSpeciePtr::operator int ()             { ChkIndex(); return m_pSB->sid();  };
 int     MSpeciePtr::get_Index()         { ChkIndex(); return m_pSB->sid();  };

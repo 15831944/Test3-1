@@ -80,10 +80,10 @@ IMPLEMENT_MODELUNIT(Precip, "Precip", "1", Drw_Precip, "Tank", "PP", TOC_ALL|TOC
 
 static MInitialiseTest InitTest(&PrecipClass);
 SPECIEBLK_L(InitTest, Water,           "H2O(l)",        false);
-SPECIEBLK_L(InitTest, Alumina,         "Al2O3(l)",      false);
+SPECIEBLK_A(InitTest, Alumina,         "Al2O3(l)",      false);
 SPECIEBLK_L(InitTest, SodiumOxalate,   "Na2C2O4(l)",    false);
-SPECIEBLK_L(InitTest, CausticSoda,     "NaOH(l)",       false);
-SPECIEBLK_L(InitTest, SodiumCarbonate, "Na2CO3(l)",     false);
+SPECIEBLK_A(InitTest, CausticSoda,     "NaOH(l)",       false);
+SPECIEBLK_A(InitTest, SodiumCarbonate, "Na2CO3(l)",     false);
 SPECIEBLK_S(InitTest, THA,             "Al2O3.3H2O(s)", false);
 SPECIEBLK_S(InitTest, OccSoda,         "Na2O(s)",       false);
 SPECIEBLK_S(InitTest, OxalateSol,      "Na2C2O4(s)",    false);

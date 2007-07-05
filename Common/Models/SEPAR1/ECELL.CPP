@@ -221,31 +221,26 @@ void CElectroCell::EvalProducts(CNodeEvalIndex & NEI)
       m_TempKFeed = Sd().Temp();
   
       const double TotHfAtFeedT_Before = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
-      double emf = dHeatFlow; //use previous value
-      double emfPart1 = 0.0;
-      if (0)//RB() && Valid(emf) && dPreHeatFrac>0.0) possibly not needed?
-        {//required to prevent low intermediate temperatures in some reactions...
-        emfPart1 = emf*dPreHeatFrac;
-        const double dTotHf = Sd().totHf();
-        Sd().Set_totHf(dTotHf + emfPart1); //add some energy BEFORE reaction
-        }
 
       RB.EvalProducts(Sd());
+     
       const double TotHfAtFeedT_After = Sd().totHf(som_ALL, m_TempKFeed, Sd().Press());
       
       if (RB())
         {// Input energy from the electrical work applied to the cell...
-        emf = TotHfAtFeedT_After - TotHfAtFeedT_Before;
+        dHeatFlow = TotHfAtFeedT_After - TotHfAtFeedT_Before;
         //Note: if dPreHeatFrac==0.0 then emf = (RB()->HfSumTot() * -1.0);
-        emf = (emf / dCellEff);
-        double emfPart2 = emf - emfPart1;
+        double dHeatFlowInEff = (dHeatFlow / dCellEff)-dHeatFlow;
+
         const double dTotHf = Sd().totHf();
-        Sd().Set_totHf(dTotHf + emfPart2); //add remaining energy AFTER reaction
+        Sd().Set_totHf(dTotHf + dHeatFlow + dHeatFlowInEff); //add remaining energy AFTER reaction
+        
+        dHeatFlow+=dHeatFlowInEff;
         }
       else
-        emf = 0.0;
+        dHeatFlow = 0.0;
 
-      dHeatFlow = emf;
+      //dHeatFlow = emf;
 
       double Qs = Sd().QMass(som_Sol);
       double Ql = Sd().QMass(som_Liq);

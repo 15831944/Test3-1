@@ -643,7 +643,6 @@ void MStream::CheckAttached()
   {
   if (m_pCd==NULL)
     {
-    _asm int 3;
     //m_bOwned=true;
     //m_pCd=new SpConduit("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
     }
@@ -870,7 +869,6 @@ void MContainer::CheckAttached()
   {
   if (m_pCn==NULL)
     {
-    _asm int 3;
     //m_bOwned=true;
     //m_pCn=new SpContainer("Tag", m_pMethod ? m_pMethod->m_pNd:NULL, m_pMethod ? TOA_Embedded:TOA_Unknown);
     }

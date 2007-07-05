@@ -29,13 +29,13 @@ static MInitialiseTest InitTest(&AlunorteBayerClass);
 
 // Specie Access 
 SPECIEBLK_L(InitTest, Water,             "H2O(l)",        false);
-SPECIEBLK_L(InitTest, Alumina,           "Al2O3(l)",      false);
-SPECIEBLK_L(InitTest, CausticSoda,       "NaOH(l)",       false);
-SPECIEBLK_L(InitTest, SodiumCarbonate,   "Na2CO3(l)",     false);
-SPECIEBLK_L(InitTest, SodiumChloride,    "NaCl(l)",       false);
+SPECIEBLK_A(InitTest, Alumina,           "Al2O3(l)",      false);
+SPECIEBLK_A(InitTest, CausticSoda,       "NaOH(l)",       false);
+SPECIEBLK_A(InitTest, SodiumCarbonate,   "Na2CO3(l)",     false);
+SPECIEBLK_A(InitTest, SodiumChloride,    "NaCl(l)",       false);
 SPECIEBLK_L(InitTest, SodiumOxalate,     "Na2C2O4(l)",    false);
-SPECIEBLK_L(InitTest, SilicateLiq,       "SiO2(l)",       false);
-SPECIEBLK_L(InitTest, SodiumSulphate,    "Na2SO4(l)",     false);
+SPECIEBLK_A(InitTest, SilicateLiq,       "SiO2(l)",       false);
+SPECIEBLK_A(InitTest, SodiumSulphate,    "Na2SO4(l)",     false);
 SPECIEBLK_L(InitTest, Organics,          "Na2C5O7(l)",    false);
 
 SPECIEBLK_S(InitTest, OccSoda,           "Na2O(s)",       false);

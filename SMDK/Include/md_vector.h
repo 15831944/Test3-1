@@ -462,19 +462,16 @@ class DllImportExport MStream : public MVector
     MStream(const MStream &Cn);
     virtual ~MStream();
 
-    void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
-    void          Allocate(LPCSTR Tag, MVector &V);
-
-    void          CheckAttached();
     void          SelectModel(MStream *V, double MassFlow);
     void          SelectModel(long NStreams, MStream *V, double *MassFlow);
 
-    bool          getExists()   const { return m_pCd!=NULL; };
-    LPCTSTR       getModelId() const;
+    void          CheckAttached();
+    bool          getAttached()   const { return m_pCd!=NULL; };
+    LPCTSTR       getModelId()    const;
     void          putModelId(LPCTSTR Mdl);
     void          putModelId(MVector & Mdl);
 
-    __declspec(property(get=getExists))                     bool    Exists;
+    __declspec(property(get=getAttached))                   bool    Attached;
     __declspec(property(get=getModelId, put=putModelId))    LPCTSTR ModelId;
 
     double        MassFlow(DWORD PhMsk=MP_All) const;
@@ -502,6 +499,8 @@ class DllImportExport MStream : public MVector
 
   protected:
     virtual SpModel * getSpMdl() const;
+    void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
+    void          Allocate(LPCSTR Tag, MVector &V);
 
   protected:
     MBaseMethod * m_pMethod;
@@ -520,7 +519,10 @@ class DllImportExport MStreamI : public MStream
     MStreamI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId=NULL);
     MStreamI(MBaseMethod * Method, LPCSTR Tag, MVector &V);
     virtual ~MStreamI();
-  
+
+    MStreamI & operator*=(const double &D)  { *(MStream*)this *= D; return *this; };
+    MStreamI & operator=(const MStream & S) { *(MStream*)this = S; return *this; };
+
   protected:
     MBaseMethod * m_pMethod;
   };
@@ -543,20 +545,15 @@ class DllImportExport MContainer : public MVector
 
     void          Allocate(LPCSTR Tag=NULL, LPCSTR SpMdlId=NULL);
     void          Allocate(LPCSTR Tag, MVector &V);
-    void          CheckAttached();
 
-    bool          getExists()   const { return m_pCn!=NULL; };
-    LPCTSTR       getModelId() const;
+    void          CheckAttached();
+    bool          getAttached()   const { return m_pCn!=NULL; };
+    LPCTSTR       getModelId()    const;
     void          putModelId(LPCTSTR Mdl);
     void          putModelId(MVector & Mdl);
 
-    __declspec(property(get=getExists))                     bool    Exists;
+    __declspec(property(get=getAttached))                   bool    Attached;
     __declspec(property(get=getModelId, put=putModelId))    LPCTSTR ModelId;
-
-
-    void          Allocate(LPCSTR Tag);
-    void          Deallocate();
-    void          CheckAllocated();
 
     double        Mass(DWORD PhMsk=MP_All) const;
     double        Volume(DWORD PhMsk=MP_All, double T=NAN, double P=NAN) const;
@@ -575,6 +572,9 @@ class DllImportExport MContainer : public MVector
 
   protected:
     virtual SpModel * getSpMdl() const;
+    void          Allocate(LPCSTR Tag);
+    void          Deallocate();
+    void          CheckAllocated();
 
   protected:
     MBaseMethod * m_pMethod;
@@ -590,6 +590,9 @@ class DllImportExport MContainerI : public MContainer
     MContainerI(MBaseMethod * Method, LPCSTR Tag, LPCSTR SpMdlId);
     MContainerI(MBaseMethod * Method, LPCSTR Tag, MVector &V);
     ~MContainerI();
+
+    MContainerI & operator*=(const double &D)     { *(MContainer*)this *= D; return *this; };
+    MContainer & operator=(const MContainer & C)  { *(MContainer*)this = C; return *this; };
 
   protected:
     MBaseMethod * m_pMethod;

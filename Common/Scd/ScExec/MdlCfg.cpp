@@ -201,6 +201,7 @@ static CfgItem CfgItemsC[]=
 #else                                   
     {IDC_DEFSPMDL,    1, "Default_SpModel",       "General",  false,             0, MassWtMnSpModelName, NULL},
 #endif
+    {IDC_H2OASAQ,     2, "H2O_As_Aqueous",        "General",  false,             0, "",         NULL},
     {0, NULL},
   };
 static CfgItem CfgItemsO[]=
@@ -871,10 +872,15 @@ void CDLLCfgDlg::BldRqdSpeciesList()
     CDllInfo & DLLI = pSheet->DLLs[i];
     if (DLLI.bLoad && DLLI.m_RqdSpcs.GetSize()>0 && _stricmp(DLLI.Name(), "flwlib.dll")!=0)
       {
+      //dbgpln("DLL - %s", DLLI.Name());
       for (int j=0; j<DLLI.m_RqdSpcs.GetSize(); j++)
         {
+        //dbgpln("  Rqd %i %s", DLLI.m_RqdSpcs[j].Index(), DLLI.m_RqdSpcs[j].Str());
         if (pSheet->m_DllRqdSpecies.Find(DLLI.m_RqdSpcs[j](), true)<0)
-          pSheet->m_DllRqdSpecies.AddStrng(DLLI.m_RqdSpcs[j]());
+          {
+          //dbgpln("    ADD");
+          pSheet->m_DllRqdSpecies.AddStrng(DLLI.m_RqdSpcs[j]);
+          }
         }
       }
     }
@@ -1330,12 +1336,20 @@ int CMdlCfgSheet::LoadDLLs()
         Strng Dll(pSp->m_sDll);
         Dll.FnCheckExtension(".dll");
         for (i=0; i<DLLs.GetSize(); i++)
+          {
           if (DLLs[i].Name.XStrICmp(Dll())==0)
             {
+            //dbgpln("AAA %i %s", pSp->m_fAllowAq?1:0, pSp->m_sSpName());
             if (DLLs[i].FindRqdSpecie(pSp->m_sSpName())==-1)
-              DLLs[i].m_RqdSpcs.Add(pSp->m_sSpName);
+              {
+              //dbgpln(" BBB");
+              Strng S(pSp->m_sSpName());
+              S.SetIndex(pSp->m_fAllowAq?1:0);
+              DLLs[i].m_RqdSpcs.Add(S);
+              }
             break;
             }
+          }
         }
       }
 
@@ -1647,6 +1661,7 @@ CMdlCfgCfg::CMdlCfgCfg(CMdlCfgSheet * Sheet)
   m_StdTemp = 0.0;
   m_bPBAllowed=true;
   m_bDynAllowed=true;
+  m_bH2OAsAq=false;
 
   //}}AFX_DATA_INIT
   }
@@ -1688,6 +1703,7 @@ void CMdlCfgCfg::DoDataExchange(CDataExchange* pDX)
   DDV_MinMaxDouble(pDX, m_StdTemp, -10., 100.);
   DDX_Check(pDX, IDC_PROBALALLOWED, m_bPBAllowed);
   DDX_Check(pDX, IDC_DYNAMICALLOWED, m_bDynAllowed);
+  DDX_Check(pDX, IDC_H2OASAQ, m_bH2OAsAq);
   //}}AFX_DATA_MAP
   }
 
@@ -1948,6 +1964,10 @@ BOOL CMdlCfgCfg::OnInitDialog()
     iSel=m_MaxHeatMode.SelectString(-1, S());
   if (iSel<0)
     iSel=m_MaxHeatMode.SetCurSel(2);
+
+  int PrjFileVerNo=Cfg.RdInt("General", "PrjFileVersion", 0);
+
+  m_bH2OAsAq = (PrjFileVerNo>=111);
 
   CheckModes();
 
@@ -3116,6 +3136,7 @@ void CMdlCfgSpcs::ChangeSpDefDB()
 
   for (int i=0; i<m_DllRqdSpecies.GetSize(); i++)
     {
+    //dbgpln("xx %i %s", m_DllRqdSpecies[i].Index(), m_DllRqdSpecies[i].Str());
     LVFINDINFO FI;
     FI.flags=LVFI_STRING;
     FI.psz=m_DllRqdSpecies[i]();

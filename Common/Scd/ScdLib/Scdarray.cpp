@@ -1049,6 +1049,11 @@ void CSArray::AddStrng(char * p)
   Add(S);
   }
 
+void CSArray::AddStrng(Strng & S)
+  {
+  Add(S);
+  }
+
 // -------------------------------------------------------------------------
     
 flag CSArray::SetAll(char * p)

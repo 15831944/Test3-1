@@ -141,7 +141,7 @@ static MInOutDefStruct s_IODefs[]=
     { "Tube Out", "TubeO",  idTubeO,   1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
     { "Shell In", "ShellI", idShellI,  1,  10,    1,    1.0f,  MIO_In |MIO_Material },
     { "Shell Out","ShellO", idShellO,  1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
-    { "Vent",     "VentO",  idVentO,   0,   1,    1,    1.0f,  MIO_Out|MIO_Material },
+    { "Vent",     "VentO",  idVentO,   1,   1,    1,    1.0f,  MIO_Out|MIO_Material },
     { NULL },
   };
 

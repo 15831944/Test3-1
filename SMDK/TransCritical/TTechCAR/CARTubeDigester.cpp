@@ -12,8 +12,8 @@
 
 //====================================================================================
 static MInitialiseTest InitTest("Digest");
-static MSpeciePtr  spWater         (InitTest, "H2O(l)", false);
-static MSpeciePtr  spWaterVapor    (InitTest, "H2O(g)", false);
+static MSpeciePtr  spWater         (InitTest, "H2O(l)", false, __FILE__, DLL_GroupName);
+static MSpeciePtr  spWaterVapor    (InitTest, "H2O(g)", false, __FILE__, DLL_GroupName);
 
 
 //====================================================================================
@@ -864,8 +864,15 @@ void CCARTubeDigester::EvalProducts()
 
       TubeO = TubeI;
       ShellO = ShellI;
-      VentO = ShellI;
-      VentO.SetM(ShellI, MP_All, 0);   // Set default values in case of error
+      if (VentO.Attached)
+        {
+        VentO = ShellI;
+        VentO.SetM(ShellI, MP_All, 0);   // Set default values in case of error
+        }
+      else
+        {
+        int CNM=0;
+        }
       if (bOnline) {
       
 	if (m_lHxMode) { 
@@ -891,8 +898,11 @@ void CCARTubeDigester::EvalProducts()
 	case OM_Simple:       DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); break;
 	case OM_Condensing:  
 	  DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);       
-	  VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
-	  break;
+	  if (VentO.Attached)
+      {
+      VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
+      }
+    break;
 	case OM_LiveSteam:    
 	  DoLiveSteamHeater(ShellI, TubeI, ShellO, TubeO, VentO); break;
 	}    

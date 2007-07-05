@@ -401,6 +401,12 @@ class DllImportExport MSpeciePtr
     MInitialiseTest * m_pInitTest;
   };
 
+class DllImportExport MAqSpeciePtr : public MSpeciePtr
+  {
+  public:
+    MAqSpeciePtr(MInitialiseTest & Inittest, LPCSTR Name, bool Optional, LPCTSTR FileName=__FILE__, LPCTSTR DllName="SOMEDLL");//DLL_GroupName);
+  };
+
 //===========================================================================
 
 DllImportExport void SetGlobalOther(char* pReferenceName, void* pGlobal);

@@ -24,14 +24,14 @@ static MInitialiseTest InitTest("QALPSDClass");
 //Specie Access 
 SPECIEBLK_V(InitTest, Steam,           "H2O(g)",                                   false);
 SPECIEBLK_L(InitTest, Water,           "H2O(l)",                                   false);
-SPECIEBLK_L(InitTest, NaAluminate,     "NaAl[OH]4(l)",                             false);
-SPECIEBLK_L(InitTest, CausticSoda,     "NaOH(l)",                                  false);
-SPECIEBLK_L(InitTest, NaCarbonate,     "Na2CO3(l)",                                false);
+SPECIEBLK_A(InitTest, NaAluminate,     "NaAl[OH]4(l)",                             false);
+SPECIEBLK_A(InitTest, CausticSoda,     "NaOH(l)",                                  false);
+SPECIEBLK_A(InitTest, NaCarbonate,     "Na2CO3(l)",                                false);
 SPECIEBLK_L(InitTest, NaOxalate,       "Na2C2O4(l)",                               false);
-SPECIEBLK_L(InitTest, NaChloride,      "NaCl(l)",                                  false);
-SPECIEBLK_L(InitTest, NaSulphate,      "Na2SO4(l)",                                false);
+SPECIEBLK_A(InitTest, NaChloride,      "NaCl(l)",                                  false);
+SPECIEBLK_A(InitTest, NaSulphate,      "Na2SO4(l)",                                false);
 SPECIEBLK_L(InitTest, OrgSoda,         "Na2C5.2O7.2(l)",                           false);
-SPECIEBLK_L(InitTest, NaSilicate,      "Na2SiO3(l)",                               false);
+SPECIEBLK_A(InitTest, NaSilicate,      "Na2SiO3(l)",                               false);
                                                                     
 SPECIEBLK_S(InitTest, THA,             "Al[OH]3(s)",                               false);
 SPECIEBLK_S(InitTest, DSP1,            "Na2O.2SiO2.Al2O3.2H2O.1/3Na2CO3(s)",       false);

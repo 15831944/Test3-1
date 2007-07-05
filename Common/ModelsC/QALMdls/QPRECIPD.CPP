@@ -18,16 +18,16 @@ typedef SMBayerBase SMBayerB;
 static MInitialiseTest InitTest(&QPrecipDClass);
 //Specie Access 
 SPECIEBLK_L(InitTest, Water,                 "H2O(l)",           false);
-SPECIEBLK_L(InitTest, SodiumAluminate,       "NaAl[OH]4(l)",     false);
-SPECIEBLK_L(InitTest, SodiumCarbonate,       "Na2CO3(l)",        false);
-SPECIEBLK_L(InitTest, CausticSoda,           "NaOH(l)",          false);
+SPECIEBLK_A(InitTest, SodiumAluminate,       "NaAl[OH]4(l)",     false);
+SPECIEBLK_A(InitTest, SodiumCarbonate,       "Na2CO3(l)",        false);
+SPECIEBLK_A(InitTest, CausticSoda,           "NaOH(l)",          false);
 SPECIEBLK_S(InitTest, Gibbsite,              "Al[OH]3(s)",       false);
 
 SPECIEBLK_S(InitTest, InertAlumina,          "Al2O3(s)",         false);
 
 //"optional" species...
 SPECIEBLK_L(InitTest, OrgSodaL,              "Na2C5.2O7.2(l)",   true);
-SPECIEBLK_L(InitTest, CausticL,              "NaOH(l)",          true);
+SPECIEBLK_A(InitTest, CausticL,              "NaOH(l)",          true);
 SPECIEBLK_S(InitTest, OrgSodaS,              "Na2C5.2O7.2*(s)",  true);
 SPECIEBLK_S(InitTest, CausticS,              "NaOH*(s)",         true);
 

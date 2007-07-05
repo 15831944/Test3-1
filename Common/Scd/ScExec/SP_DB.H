@@ -903,7 +903,8 @@ class DllImportExport CSpecie : public CPropertyBase
     Strng           sCmpTag;
     Strng           sTag;
     Strng           sSym;
-    Strng           m_sPhaseSym;
+    Strng           m_sPhaseSymVisible; // this is required for water special
+    Strng           m_sPhaseSymActual;
     int             m_eOcc;
     PhMask          m_OccMsk;
     PhMask          m_PhMsk;
@@ -1426,8 +1427,8 @@ class DllImportExport CComponentDataBase
     void           Init();
     void           Term();
 
-    flag           LoadComponents(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc);
-    flag           LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc);
+    flag           LoadComponents(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc, flag H2OAsAqueous);
+    flag           LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList& RqdSpc, flag H2OAsAqueous);
     flag           LoadSolnInfoADO(CDBInitRec & CDBInit, char* DataFile);
     void           AddSpecieD(int c, CComponent & C, CSpecie *pSpD, int p);
     flag           CheckCommonData();
@@ -1436,7 +1437,7 @@ class DllImportExport CComponentDataBase
     flag           LoadSolnInfo(CDBInitRec & CDBInit, char* FilePath);
     flag           CopyDataForMultiFidelity();
     flag           FixOffsetConstants();
-    flag           Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag DoTest=true);
+    flag           Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag H2OAsAqueous, flag DoTest=true);
     flag           Terminate();
     void           DumpTest();
 
@@ -1700,6 +1701,7 @@ class DllImportExport CSpecieBlk// : public CTagObjSelectFn
   friend class CSpecieDataBase;
   friend class CComponentDataBase;
   friend class MSpeciePtr;
+  friend class MAqSpeciePtr;
   public:
 
     int             operator()()  { return iSId; };
@@ -1731,6 +1733,8 @@ class DllImportExport CSpecieBlk// : public CTagObjSelectFn
     Strng           m_sSpPostfix;
     Strng           m_sFile;
     Strng           m_sDll;
+    flag            m_fOpt;
+    flag            m_fAllowAq;
 
   protected:
     static CSpecieBlk *sm_pFirst;
@@ -1741,7 +1745,6 @@ class DllImportExport CSpecieBlk// : public CTagObjSelectFn
     int             iCId;
     int             iSId;
     int             iAltId;
-    flag            m_fOpt;
 
   };
 
@@ -1764,6 +1767,17 @@ static Sp##Blk Sp(InitTest, Name, __FILE__, MDLLIBNAME);
     public: \
       Sp##Blk(MInitialiseTest & IT, pchar pName, pchar pFile, pchar pDll) : \
         CSpecieBlk(IT, pName, pFile, pDll) {/*eOcc=BOT_Liquid*/; m_fOpt=Opt; }; \
+      int            LiqPhInx() { return iSId; }; \
+      CSpecie &      LiqPhDef() { return SDB[iSId]; }; \
+    }; \
+static Sp##Blk Sp(InitTest, Name, __FILE__, MDLLIBNAME);
+
+#define SPECIEBLK_A(InitTest, Sp, Name, Opt) \
+  class Sp##Blk : public CSpecieBlk \
+    { \
+    public: \
+      Sp##Blk(MInitialiseTest & IT, pchar pName, pchar pFile, pchar pDll) : \
+        CSpecieBlk(IT, pName, pFile, pDll) {/*eOcc=BOT_Liquid*/; m_fOpt=Opt; m_fAllowAq=true; }; \
       int            LiqPhInx() { return iSId; }; \
       CSpecie &      LiqPhDef() { return SDB[iSId]; }; \
     }; \

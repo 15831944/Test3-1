@@ -10,12 +10,12 @@
 
 static MInitialiseTest InitTest("ExampleReaction");
 
-static MSpeciePtr   spAlumina          (InitTest, "Al2O3(l)", false, __FILE__, DLL_GroupName);
+static MAqSpeciePtr spAlumina          (InitTest, "Al2O3(l)", false, __FILE__, DLL_GroupName);
 static MSpeciePtr   spWater            (InitTest, "H2O(l)", false, __FILE__, DLL_GroupName);
 static MSpeciePtr   spTHA              (InitTest, "Al2O3.3H2O(s)", false, __FILE__, DLL_GroupName);
-//static MSpeciePtr   spCausticSoda      (InitTest, "NaOH(l)", false);
+//static MAqSpeciePtr spCausticSoda      (InitTest, "NaOH(l)", false);
 //static MSpeciePtr   spOccSoda          (InitTest, "Na2O(s)", false);
-//static MSpeciePtr   spSodiumCarbonate  (InitTest, "Na2CO3(l)", false);
+//static MAqSpeciePtr spSodiumCarbonate  (InitTest, "Na2CO3(l)", false);
 //====================================================================================
 
 const long idFeed = 0;

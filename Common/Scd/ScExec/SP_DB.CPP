@@ -734,7 +734,13 @@ class CVapTFndC : public MRootFinderBase
       m_pCom=pCom;
       };
     LPCTSTR ObjTag() { return (LPCTSTR)m_pC->SymOrTag(); };
-    double Function(double T) { return m_pCom->VapourP(T); };
+    double Function(double T) 
+      {
+      double Ret=m_pCom->VapourP(T); 
+      if (0)//Iterations()>(8*m_Tol.GetMaxIters())/10)
+        dbgpln("CVapTFnd %8.2f %8.2f  %s", T, Ret, m_pC->SymOrTag());
+      return Ret; 
+      };
   };
 
 //-----------------------------------------------------------------------
@@ -753,7 +759,7 @@ double CSpCommonData::VapourT(double P, double dPrvVapT)
   if (VapT.SolveFromEst(dPrvVapT, 1.0, 50.0)==RF_OK)
     dPrvVapT=VapT.Result();
   else
-    LogError("CDB", 0, "VapourT not Converged");
+    LogError("CDB", 0, "Vapour Temp not Converged @ %.2f kPa %s", P, m_pCmp->SymOrTag());
 
   return dPrvVapT;
   };
@@ -969,7 +975,8 @@ m_Common(pCmp->m_Common)
   sCmpTag=pCmpTag;
   sTag="";
   sSym="";
-  m_sPhaseSym="";
+  m_sPhaseSymVisible="";
+  m_sPhaseSymActual="";
 
   m_PhInx=0;
   m_iBOccT=0;
@@ -1201,7 +1208,9 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
   CSpFidelData & DataLo=m_FData[0];
 
-  m_sPhaseSym = (const char*)Values[3];
+  m_sPhaseSymVisible = (const char*)Values[3];
+  m_sPhaseSymActual  = (const char*)Values[3];
+  
   DataLo.m_dCpCv=1.4;
   Strng Phase = (const char*)Values[4];
   // work around for old projects / databases
@@ -1389,7 +1398,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
   if (dbgBuildSpc())
     {
     dbgp("   DBLine :%-15.15s %-15.15s %-7.7s, Vp0:%-10s Vp1:%-10s",
-      pC->SymOrTag(), pC->m_sElDef(), m_sPhaseSym() ? m_sPhaseSym() : "",
+      pC->SymOrTag(), pC->m_sElDef(), m_sPhaseSymVisible() ? m_sPhaseSymVisible() : "",
       pC->m_Common[0].m_pVp?pC->m_Common[0].m_pVp->VName():"",
       pC->m_Common[1].m_pVp?pC->m_Common[1].m_pVp->VName():"");
     for (int i=0; i<=DataLo.m_iLastTPoint; i++)
@@ -1465,7 +1474,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
       if (j<=DataLo.m_iLastTPoint)
         { // Yes
         DataLo.m_pCp[i]=CSpDBEqn::Construct(pC, &DataLo, NULL, DataLo.m_pCp[j]);
-        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSym());
+        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) copied ", pC->Sym/*OrTag*/(), m_sPhaseSymVisible());
         }
       else
         {
@@ -1475,7 +1484,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
           case BOT_Gas: S="1.0"; break;
           default :       S="2.0"; break;
           }
-        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSym(), S());
+        LogNote(SpecieDBLogHdr, 0, "Cp Data for %s(%s) assumed to be %s", pC->Sym/*OrTag*/(), m_sPhaseSymVisible(), S());
         pC->m_nAssumedCps++;
         DataLo.m_pCp[i]=CSpDBEqn::Construct(pC, &DataLo, S());
         }
@@ -1494,7 +1503,7 @@ flag CSpecie::FixMissingData(CComponent * pC)
   if (dbgBuildSpc())
     {
     dbgp("  Specie: %-7.7s %08x %08x   ",//%10.2f %10.2f %10.2f %10.2f",
-      m_sPhaseSym() ? m_sPhaseSym() : "", &m_Const, &m_Common);
+      m_sPhaseSymVisible() ? m_sPhaseSymVisible() : "", &m_Const, &m_Common);
     for (int i=0; i<=DataLo.m_iLastTPoint; i++)
       dbgpln("%*s @%08x T:%10.2f > %10.2f %-20s %-20s %-20s Const:%08x  %08x %08x FData:%08x  %08x %08x  ",//%08x",
       i==0?0:38,"",
@@ -1848,14 +1857,14 @@ char * CComponent::SymOrTag()
   //return Sym.Length()>0 ||  ? Sym(): xTag();
   };
 
-////---------------------------------------------------------------------
-//
+//---------------------------------------------------------------------
+
 int CComponent::FindPhaseDataIndex(char *pPhaseName)
   {
   if (m_nPhaseData==0)
     return -1;
   for (int i=m_nPhaseData-1; i>0; i--)
-    if (strcmp(pPhaseName, m_PhaseData[i]->m_sPhaseSym())==0)
+    if (strcmp(pPhaseName, m_PhaseData[i]->m_sPhaseSymVisible())==0)
       break;
   return i;
   };
@@ -3175,7 +3184,7 @@ void CComponentDataBase::Term()
 
 //---------------------------------------------------------------------------
 
-flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList & RqdSpc)
+flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList & RqdSpc, flag H2OAsAqueous)
   {
   flag Ok=true;
 
@@ -3316,12 +3325,19 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
                   ASSERT_ALWAYS(0, "Solid water phase not allowed!", __FILE__, __LINE__);
                 //DoBreak(); // should not get here
                 }
-              ASSERT(pC->m_nPhaseData<MaxPhases);
+              
+             if (H2OAsAqueous && _stricmp(pC->m_sElDef(), "H2O1")==0)
+               {
+               if ((pSp->m_eOcc==BOT_Liquid) && (pSp->m_sPhaseSymActual=="l"))
+                 pSp->m_sPhaseSymActual="aq";
+               }
+
+             ASSERT(pC->m_nPhaseData<MaxPhases);
               //flag GotIt=false;
               CSpecie * pSpPh = NULL;
               for (int i=0; i<pC->m_nPhaseData; i++)
                 {
-                if (pC->m_PhaseData[i]->m_sPhaseSym.XStrCmp(pSp->m_sPhaseSym())==0)
+                if (pC->m_PhaseData[i]->m_sPhaseSymActual.XStrCmp(pSp->m_sPhaseSymActual())==0)
                   {
                   pSpPh=pC->m_PhaseData[i];//GotIt=true;
                   break;
@@ -3346,9 +3362,9 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
                     break;
                   else if (Sp2->m_eOcc == Sp1->m_eOcc)
                     {
-                    if (Sp2->m_sPhaseSym.XStrCmp(Sp1->m_sPhaseSym)>0)
+                    if (Sp2->m_sPhaseSymVisible.XStrCmp(Sp1->m_sPhaseSymVisible)>0)
                       break;
-                    if (!PhaseNamePrimary(Sp2->m_eOcc, Sp2->m_sPhaseSym()) && PhaseNamePrimary(Sp1->m_eOcc, Sp1->m_sPhaseSym()))
+                    if (!PhaseNamePrimary(Sp2->m_eOcc, Sp2->m_sPhaseSymVisible()) && PhaseNamePrimary(Sp1->m_eOcc, Sp1->m_sPhaseSymVisible()))
                       break;
                     }
                   Exchange(pC->m_PhaseData[i-1], pC->m_PhaseData[i]);
@@ -3383,7 +3399,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
 
 //---------------------------------------------------------------------------
 
-flag CComponentDataBase::LoadComponents(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList & RqdSpc)
+flag CComponentDataBase::LoadComponents(CDBInitRec & CDBInit, char* DataFile, Strng_List & RqdCmp, CRqdSpList & RqdSpc, flag H2OAsAqueous)
   {
   Strng Ext;
   Ext.FnExt(DataFile);
@@ -3393,7 +3409,7 @@ flag CComponentDataBase::LoadComponents(CDBInitRec & CDBInit, char* DataFile, St
     if (dbgtestfileopen() || dbgBuildSpc())
       dbgpln("Load Species [ADO] From %s", DataFile);
 #endif
-    return LoadComponentsADO(CDBInit, DataFile, RqdCmp, RqdSpc);
+    return LoadComponentsADO(CDBInit, DataFile, RqdCmp, RqdSpc, H2OAsAqueous);
     }
 
   return False;
@@ -3835,11 +3851,11 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       {
       CSpecie & Sp=*C.m_PhaseData[p];
       if (Sp.sCmpTag.Length())
-        Sp.sTag.Set("%s(%s)", Sp.sCmpTag(), Sp.m_sPhaseSym());
+        Sp.sTag.Set("%s(%s)", Sp.sCmpTag(), Sp.m_sPhaseSymVisible());
       else
         Sp.sTag="";
       if (CmD[c]->Sym.Length())
-        Sp.sSym.Set("%s(%s)", CmD[c]->Sym(), Sp.m_sPhaseSym());
+        Sp.sSym.Set("%s(%s)", CmD[c]->Sym(), Sp.m_sPhaseSymVisible());
       else
         Sp.sSym="";
       //Sp.m_dMoleWt=C.MoleWt();
@@ -3977,12 +3993,14 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (int s=0; s<m_SDB.m_iNo; s++)
     {
     CSpecie & S=m_SDB[s];
+    Strng PhaseSym=S.m_sPhaseSymActual;
+
     bool Found=false;
     for (int ip=0; ip<m_PhInfoCount[BOT_All]; ip++)
       {
       if (m_PhInfo[ip].m_eOcc==S.m_eOcc)
         {
-        int iCmp=m_PhInfo[ip].m_Sym.XStrCmp(S.m_sPhaseSym());
+        int iCmp=m_PhInfo[ip].m_Sym.XStrCmp(PhaseSym());
         if (iCmp==0)
           {
           Found=true; // found it
@@ -4002,7 +4020,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         m_PhInfoCount[BOT_All]++;
         for (int i=m_PhInfoCount[BOT_All]; i>ip; i--)
           m_PhInfo[i]=m_PhInfo[i-1];
-        m_PhInfo[ip].m_Sym=S.m_sPhaseSym;
+        m_PhInfo[ip].m_Sym=PhaseSym;
         m_PhInfo[ip].m_eOcc=S.m_eOcc;
         m_PhInfo[ip].m_nSpecies=0;
         }
@@ -4199,11 +4217,11 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     for (i=m_PhInfoFirst[S.m_eOcc]; i<=m_PhInfoLast[S.m_eOcc]; i++)
       {
       CPhaseInfo & Ph = m_PhInfo[i];
-      if (S.m_sPhaseSym.XStrCmp(Ph.m_Sym)==0)
+      if (S.m_sPhaseSymActual.XStrCmp(Ph.m_Sym)==0)
         {
         Msk=Ph.m_PhMsk;
-        Phi=Ph.m_PhInx;
-        break;
+        Phi=Ph.m_PhInx;   
+        break;                          
         }
       }
     ASSERT(i<m_PhInfoCount[BOT_All]);
@@ -4240,7 +4258,7 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     int c=S.iCId;
     CmD[c]->m_SpPhaseD[Phi]=m_SDB.m_SpD[s];
 
-    S.m_bIsAqueous=S.m_sPhaseSym.XStrICmp("aq")==0 || S.m_sPhaseSym.XStrICmp("a")==0;
+    S.m_bIsAqueous=S.m_sPhaseSymActual.XStrICmp("aq")==0 || S.m_sPhaseSymActual.XStrICmp("a")==0;
 
 #if dbgBuildSDB
     if (dbgBuildSpc())
@@ -4411,11 +4429,11 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
         LogError(SpecieDBLogHdr, 0, "Species %s & %s both have Tag = %s", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].sTag());
         ROk=false;
         }
-      if (m_SDB[s0].m_sPhaseSym.XStrCmp(m_SDB[s].m_sPhaseSym)==0)
+      if (m_SDB[s0].m_sPhaseSymVisible.XStrCmp(m_SDB[s].m_sPhaseSymVisible)==0)
         {
         if (m_SDB[s0].m_OccMsk != m_SDB[s].m_OccMsk)
           {
-          LogError(SpecieDBLogHdr, 0, "Species %s & %s with the same phase name (%s) can not have different occurences (%s & %s)", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].m_sPhaseSym(), 
+          LogError(SpecieDBLogHdr, 0, "Species %s & %s with the same phase name (%s) can not have different occurences (%s & %s)", m_SDB[s].sSym(), m_SDB[s0].sSym(), m_SDB[s].m_sPhaseSymVisible(), 
             (m_SDB[s0].m_OccMsk==som_Sol ? "s" : m_SDB[s0].m_OccMsk==som_Liq ? "l" : "g"), (m_SDB[s].m_OccMsk==som_Sol ? "s" : m_SDB[s].m_OccMsk==som_Liq ? "l" : "g"));
           ROk=false;
           }
@@ -5393,7 +5411,7 @@ flag CComponentDataBase::FixOffsetConstants()
 
 //---------------------------------------------------------------------------
 
-flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag DoTest/*=true*/)
+flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag H2OAsAqueous, flag DoTest/*=true*/)
   {
   m_EDB.Init();
   m_SDB.Init();
@@ -5533,7 +5551,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       }
 #endif
 
-    if (!LoadComponents(CDBInit, PrjDBFn, RqdCmp, RqdSpc))
+    if (!LoadComponents(CDBInit, PrjDBFn, RqdCmp, RqdSpc, H2OAsAqueous))
       {
       LogError(SpecieDBLogHdr, LF_Exclamation, "Specie Data not Loaded");
       bCDBBad=true;
@@ -5570,7 +5588,31 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       for (CSpecieBlk * pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
         {
         flag DoneErr=False;
-        pSb->iSId=m_SDB.Find(pSb->m_sSpName());
+        //pSb->iSId=m_SDB.Find(pSb->m_sSpName());
+
+        // First look for the Aq Version of the specie
+        if (pSb->m_fAllowAq) 
+          {
+          Strng S(pSb->m_sSpName()), T;
+          char *p=S.XStrRChr('(');
+          if (p)
+            {
+            S.SetLength(p-S());
+            T=S;
+            T+="(aq)";
+            pSb->iSId=m_SDB.Find(T());
+            if (pSb->iSId<0)
+              {
+              T=S;
+              T+="(a)";
+              pSb->iSId=m_SDB.Find(T());
+              }
+            }
+          }
+
+        if (pSb->iSId<0) 
+          pSb->iSId=m_SDB.Find(pSb->m_sSpName());
+
         if (pSb->iCId>=0)
           pSb->MW=m_CDB[pSb->iCId].m_dMoleWt;
         else if (!pSb->m_fOpt)
@@ -5684,7 +5726,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
           for (int j=0; j<m_CDB[c].m_nPhaseData; j++)
             {
             CSpecie  &Sp=*m_CDB[c].m_PhaseData[j];
-            dbgpln("PhaseName: %3i %08x, %-20s %s", Sp.m_PhInx, Sp.m_PhMsk, m_CDB[c].Sym(), Sp.m_sPhaseSym());
+            dbgpln("PhaseName: %3i %08x, %-20s %s %s", Sp.m_PhInx, Sp.m_PhMsk, m_CDB[c].Sym(), Sp.m_sPhaseSymVisible(), Sp.m_sPhaseSymActual());
             }
           }
         }
@@ -6183,7 +6225,8 @@ CSpecieBlk::CSpecieBlk(MInitialiseTest & InitTest, LPCTSTR pName, LPCTSTR pFile,
   iSId=-1;
   iAltId=-1;
   //eOcc=BOT_Null;
-  m_fOpt=false;
+  m_fOpt = false;
+  m_fAllowAq=  false;
   dbgpln("SpecieBlk: %s (%s : %s)", m_sCmpName(), pFile, pDll);
   }
 
@@ -6329,7 +6372,7 @@ void CSpecie::GetPropertyValue(long Index, PhMask Phase/*=MP_All*/, double T/*=N
     case 1:   Value=Sym();                                return;
     case 2:   Value=CDB[iCId].m_sElDef();                 return;
     case 3:   Value=MoleWt();                             return;
-    case 4:   Value=m_sPhaseSym();                        return;
+    case 4:   Value=m_sPhaseSymVisible();                 return;
     case 5:   Value=(long)m_PhMsk;                        return;
     case 6:   Value=LoT(m_lFidelity);                     return;
     case 7:   Value=HiT(m_lFidelity);                     return;

@@ -139,6 +139,7 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
         DDB.Double("",        "LoT()",    DC_T,    "C",             xidLoT   +i,   this, 0);
         DDB.Double("",        "HiT()",    DC_T,    "C",             xidHiT   +i,   this, 0);
         DDB.String("",        "Tag()",    DC_,     "",              xidSpTag +i,   this, 0);
+        DDB.String("",        "KaKb()",   DC_,     "",              xidKaKb  +i,   this, 0);
 
         DDB.FnDouble("",        "mlHf25", DC_HMl,  "kJ/kmol",       xidmlHf25+i,   this, 0, Parms00);
         DDB.FnDouble("",        "mlHf",   DC_HMl,  "kJ/kmol",       xidmlHf  +i,   this, 0, Parms2);
@@ -157,7 +158,6 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
         DDB.FnDouble("Density", "Rho",    DC_Rho,  "kg/m^3",        xidRho   +i,   this, 0, Parms2);
         DDB.FnDouble("VapourP", "Vp",     DC_P,    "kPa",           xidVp    +i,   this, 0, Parms1);
         DDB.FnDouble("VapourT", "Vt",     DC_T,    "C",             xidVt    +i,   this, 0, Parms11);
-        DDB.String  ("",        "KaKb()", DC_,     "",              xidKaKb  +i,   this, 0);
         }
       DDB.EndStruct();
       }    
@@ -234,6 +234,7 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidLoT:    DCB.D=SDB[s].LoT(FIDELITY(0)); return true;
       case xidHiT:    DCB.D=SDB[s].HiT(FIDELITY(0)); return true;
       case xidSpTag:  DCB.pC=SDB[s].Tag(); return true;
+      case xidKaKb:   DCB.pC=SDB[s].KaKbDesc();  return true;
 
       case xidmlHf25: DCB.D=SDB[s].mlHf(FIDELITY(0), C_2_K(25), 101.325, NULL, NULL); return true;
       case xidmlHf:   DCB.D=SDB[s].mlHf(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
@@ -259,7 +260,6 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
         return true;
       case xidVp:    DCB.D=SDB[s].VapourP(FIDELITY(1), PARM(0)); return true;
       case xidVt:    DCB.D=SDB[s].VapourT(FIDELITY(1), PARM(0)); return true;
-      case xidKaKb:  DCB.pC=SDB[s].KaKbDesc();
       }
     }
   else if (DCB.lHandle>=xidElemMolWt && DCB.lHandle<xidExtraProp)
@@ -577,7 +577,6 @@ void SDBObjectEdt::Build()
     SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
     SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
     SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-    SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
     SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
     
     L++;
@@ -603,7 +602,6 @@ void SDBObjectEdt::Build()
     SetDesc(L, VpCnv.Text(),    -1, iWd_Vp     ,  2, "");
     SetDesc(L, VtCnv.Text(),    -1, iWd_Vt     ,  2, "");
     SetDesc(L, RhoCnv.Text(),   -1, iWd_Rho    ,  2, " ");
-    SetDesc(L, "",              -1, iWd_KaKb   ,  2, " ");
     }
 
   if (1) // Other Blk
@@ -636,7 +634,6 @@ void SDBObjectEdt::Build()
             SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
             SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
             SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-            SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
             SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
             L++;
             TextCnt = 0;
@@ -687,10 +684,6 @@ void SDBObjectEdt::Build()
           SetParm(L, "", Id_Rho1+iSp     , iWd_Rho, 2, "");     // Density
           Tg.Set("$SDB.%s.Rho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
           SetTag(Tg(), RhoCnv.Text());
-        
-          SetParm(L, "", Id_KaKb1+iSp     , iWd_KaKb, 0, " ");     // KaKb
-          Tg.Set("$SDB.%s.KaKb()", SDB[iSp].SymOrTag());
-          SetTag(Tg());
         
           SetDesc(L, "", Id_RelSGs1+iSp, iWd_Corr, 0, "");          // DensityCorrs
           L++;
@@ -760,14 +753,16 @@ void SDBObjectEdt::Build()
     SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
     SetDesc(L, "LoT",           -1, iWd_LoHiT  ,  2, "");
     SetDesc(L, "HiT",           -1, iWd_LoHiT  ,  2, "");
-    SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
+    SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, " ");
+    SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
     SetDesc(L, "Tag",           -1, iSpTgWidth ,  2, "");
     
     L++;
     SetSpace(L,iNameWidth);
     SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
     SetDesc(L, TCnv.Text(),     -1, iWd_LoHiT  ,  2, "");
-    SetDesc(L, "",              -1, iWd_MoleWt ,  2, "");
+    SetDesc(L, "",              -1, iWd_MoleWt ,  2, " ");
+    SetDesc(L, "",              -1, iWd_KaKb   ,  0, " ");
     SetDesc(L, "",              -1, iSpTgWidth ,  2, "");
     }
 
@@ -792,7 +787,8 @@ void SDBObjectEdt::Build()
             SetDesc(L, S(),             -1, iNameWidth ,  0, "");
             SetDesc(L, "LoT",           -1, iWd_LoHiT  ,  2, "");
             SetDesc(L, "HiT",           -1, iWd_LoHiT  ,  2, "");
-            SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, "");
+            SetDesc(L, "MoleWt",        -1, iWd_MoleWt ,  2, " ");
+            SetDesc(L, "KaKb",          -1, iWd_KaKb   ,  0, " ");
             SetDesc(L, "Tag",           -1, iSpTgWidth ,  2, "");
             L++;
             TextCnt = 0;
@@ -810,8 +806,12 @@ void SDBObjectEdt::Build()
           Tg.Set("$SDB.%s.HiT()", SDB[iSp].SymOrTag());
           SetTag(Tg());
 
-          SetParm(L, "", Id_MolWt1+iSp   , iWd_MoleWt, 2, "");   // MoleWt
+          SetParm(L, "", Id_MolWt1+iSp   , iWd_MoleWt, 2, " ");   // MoleWt
           Tg.Set("$SDB.%s.MoleWt()", SDB[iSp].SymOrTag());
+          SetTag(Tg());
+
+          SetParm(L, "", Id_KaKb1+iSp     , iWd_KaKb, 0, " ");     // KaKb
+          Tg.Set("$SDB.%s.KaKb()", SDB[iSp].SymOrTag());
           SetTag(Tg());
 
           SetParm(L, "", Id_SpTag1+iSp   , iSpTgWidth, 2, "");
@@ -1064,10 +1064,6 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             Str="*";
           FixWide(iWd_Rho, Str, View());
           break;
-        case Id_KaKb1:
-          Str=SDB[iSp].KaKbDesc();
-          FixWide(iWd_KaKb, Str, View());
-          break;
         case Id_RelSGs1:
           {
           Str="";
@@ -1118,6 +1114,10 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         case Id_MolWt1:
           MlFmt.FormatFloat(SDB[iSp].MoleWt(), Str);
           FixWide(iWd_MoleWt, Str, View());
+          break;
+        case Id_KaKb1:
+          Str=SDB[iSp].KaKbDesc();
+          FixWide(iWd_KaKb, Str, View());
           break;
         case Id_SpTag1:
           Str = SDB[iSp].Tag();

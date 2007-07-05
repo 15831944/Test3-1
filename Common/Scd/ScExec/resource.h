@@ -215,6 +215,7 @@
 #define IDC_PBHEATMODE                  14242
 #define IDC_PROBALALLOWED               14250
 #define IDC_DYNAMICALLOWED              14251
+#define IDC_H2OASAQ                     14252
 
 // Next default values for new objects
 // 
@@ -223,7 +224,7 @@
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        15000
 #define _APS_NEXT_COMMAND_VALUE         15000
-#define _APS_NEXT_CONTROL_VALUE         14252
+#define _APS_NEXT_CONTROL_VALUE         14253
 #define _APS_NEXT_SYMED_VALUE           15000
 #endif
 #endif
