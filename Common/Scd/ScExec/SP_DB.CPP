@@ -1345,13 +1345,11 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
             m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
             m_Const.m_dDa[1] = N>=3 ? SpDB_TokenValue((LPSTR)C[2], 0.0) : 0.0;
             m_Const.m_dDa[2] = N>=4 ? SpDB_TokenValue((LPSTR)C[3], 0.0) : 0.0;
-            m_Const.m_sKaKbDesc.Set("Ka(%.2g%s)", m_Const.m_dDa[0], m_Const.m_dDa[0]!=0?",..":""); 
             }
           else if (stricmp(C[0], "Kb")==0)
             {
             m_Const.m_iDaType = CSpConstData::DaType_IsBase;
             m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
-            m_Const.m_sKaKbDesc.Set("Ka(%.2g)", m_Const.m_dDa[0]);
             }
           else
             LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka or Kb", TmpSym());
@@ -4474,9 +4472,13 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       {
       case CSpConstData::DaType_IsAcid:
         m_SDB.m_Acids.Add(s);
+        Sp.m_Const.m_sKaKbDesc.Set("Ka(%.2g,%.2g,%s)", Sp.m_Const.m_dDa[0], Sp.m_Const.m_dDa[1], Sp.m_Const.m_dDa[2]!=0?",..":""); 
+        dbgpln("Acid: %-15s %s", Sp.Sym(), Sp.m_Const.m_sKaKbDesc());
         break;
       case CSpConstData::DaType_IsBase:
         m_SDB.m_Bases.Add(s);
+        Sp.m_Const.m_sKaKbDesc.Set("Ka(%.2g)", Sp.m_Const.m_dDa[0]);
+        dbgpln("Base: %-15s %s", Sp.Sym(), Sp.m_Const.m_sKaKbDesc());
         break;
       }
     }
