@@ -7770,7 +7770,7 @@ double SpModel::pHnegLogH(CSysVector * pMA)
       double Cb = MA.VMoles[s]/(LiqVol);
       for (int term=0; term<3; term++)
         {
-        double Ka  = SDB[s].m_Const.m_dDa[term];
+        double Ka  = SDB[s].Ka(term);
         double CbNxt = (Ka==1.0) ? Cb : sqrt(Ka*Cb + (Ka*Ka)/4) - Ka/2;
         H += CbNxt;
         Cb = CbNxt;
@@ -7786,7 +7786,7 @@ double SpModel::pHnegLogH(CSysVector * pMA)
       {
       Nb++;
       double Cb = MA.VMoles[s]/(LiqVol);
-      double Kb  = SDB[s].m_Const.m_dDa[0];
+      double Kb  = SDB[s].Kb();
       OH += (Kb==1.0) ? Cb : sqrt(Kb*Cb + (Kb*Kb)/4) - Kb/2;
       }
     }

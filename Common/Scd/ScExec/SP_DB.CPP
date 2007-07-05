@@ -695,11 +695,6 @@ CSpConstData::CSpConstData()
   m_dMv=22.414;
   m_dMd=dNAN;
 
-  m_bDaOK   = false;
-  m_iDaType = CSpConstData::DaType_IsNull;
-  m_dDa[0]  = 0.0; 
-  m_dDa[1]  = 0.0; 
-  m_dDa[2]  = 0.0; 
   };
 
 // ==========================================================================
@@ -1015,6 +1010,11 @@ m_Common(pCmp->m_Common)
   m_bVcSpecd = false;
   m_bAcSpecd = false;
 
+  m_bDaOK   = false;
+  m_iDaType = DaType_IsNull;
+  m_dDa[0]  = 0.0; 
+  m_dDa[1]  = 0.0; 
+  m_dDa[2]  = 0.0; 
   };
 
 //---------------------------------------------------------------------------
@@ -1326,7 +1326,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
 
     flag DummySpecd=false;
 
-    m_Const.m_iDaType=CSpConstData::DaType_IsNull;
+    m_iDaType=DaType_IsNull;
     if (m_eOcc==BOT_Liquid)
       {
       if (m_SDB.m_iOC_Dissociation>=0)
@@ -1341,15 +1341,15 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
           {
           if (stricmp(C[0], "Ka")==0)
             {
-            m_Const.m_iDaType = CSpConstData::DaType_IsAcid;
-            m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
-            m_Const.m_dDa[1] = N>=3 ? SpDB_TokenValue((LPSTR)C[2], 0.0) : 0.0;
-            m_Const.m_dDa[2] = N>=4 ? SpDB_TokenValue((LPSTR)C[3], 0.0) : 0.0;
+            m_iDaType = DaType_IsAcid;
+            m_dDa[0]  = SpDB_TokenValue((LPSTR)C[1], 0.0);
+            m_dDa[1]  = N>=3 ? SpDB_TokenValue((LPSTR)C[2], 0.0) : 0.0;
+            m_dDa[2]  = N>=4 ? SpDB_TokenValue((LPSTR)C[3], 0.0) : 0.0;
             }
           else if (stricmp(C[0], "Kb")==0)
             {
-            m_Const.m_iDaType = CSpConstData::DaType_IsBase;
-            m_Const.m_dDa[0] = SpDB_TokenValue((LPSTR)C[1], 0.0);
+            m_iDaType = DaType_IsBase;
+            m_dDa[0]  = SpDB_TokenValue((LPSTR)C[1], 0.0);
             }
           else
             LogError(SpecieDBLogHdr, 0, "Invalid Dissociation Equation for '%s' must be Ka or Kb", TmpSym());
@@ -4457,28 +4457,28 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
   for (s=0; s<m_SDB.m_iNo; s++)
     {
     CSpecie & Sp=m_SDB[s];
-    if (Sp.IsLiq() && Sp.m_Const.m_iDaType==CSpConstData::DaType_IsNull)
+    if (Sp.m_eOcc==BOT_Liquid && Sp.m_iDaType==CSpecie::DaType_IsNull)
       {
       // fill in the blanks
       CAcidBaseData * p=FindAcidBaseData(Sp.Sym());
       if (p)
         {
-        Sp.m_Const.m_iDaType= p->m_Acid ? CSpConstData::DaType_IsAcid : CSpConstData::DaType_IsBase;
+        Sp.m_iDaType= p->m_Acid ? CSpecie::DaType_IsAcid : CSpecie::DaType_IsBase;
         for (int a=0; a<3; a++)
-          Sp.m_Const.m_dDa[a]=p->m_dDa[a];
+          Sp.m_dDa[a]=p->m_dDa[a];
         }
       }
-    switch (Sp.m_Const.m_iDaType)
+    switch (Sp.m_iDaType)
       {
-      case CSpConstData::DaType_IsAcid:
+      case CSpecie::DaType_IsAcid:
         m_SDB.m_Acids.Add(s);
-        Sp.m_Const.m_sKaKbDesc.Set("Ka(%.2g,%.2g,%s)", Sp.m_Const.m_dDa[0], Sp.m_Const.m_dDa[1], Sp.m_Const.m_dDa[2]!=0?",..":""); 
-        dbgpln("Acid: %-15s %s", Sp.Sym(), Sp.m_Const.m_sKaKbDesc());
+        Sp.m_sKaKbDesc.Set("Ka(%.2g,%.2g,%s)", Sp.m_dDa[0], Sp.m_dDa[1], Sp.m_dDa[2]!=0?",..":""); 
+        dbgpln("Acid: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
         break;
-      case CSpConstData::DaType_IsBase:
+      case CSpecie::DaType_IsBase:
         m_SDB.m_Bases.Add(s);
-        Sp.m_Const.m_sKaKbDesc.Set("Ka(%.2g)", Sp.m_Const.m_dDa[0]);
-        dbgpln("Base: %-15s %s", Sp.Sym(), Sp.m_Const.m_sKaKbDesc());
+        Sp.m_sKaKbDesc.Set("Ka(%.2g)", Sp.m_dDa[0]);
+        dbgpln("Base: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
         break;
       }
     }
@@ -5936,7 +5936,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
       dbgpln("Species:");
       for (int i=0; i<SDB.Count(); i++)
         {
-        dbgpln("%3i %-20s %-20s", i, SDB[i].Sym(), SDB[i].Tag());
+        dbgpln("%3i %3i %08x %08x %-20s %-20s", i, SDB[i].m_eOcc, SDB[i].m_OccMsk, SDB[i].m_PhMsk, SDB[i].Sym(), SDB[i].Tag());
         }
       }
 

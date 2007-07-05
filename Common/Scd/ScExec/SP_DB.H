@@ -597,16 +597,11 @@ class DllImportExport CSpConstData
     double        ACent()            { return m_dAc; };
     double        MolarVolume()      { return m_dMv; };
     double        MolecularDiam()    { return m_dMd; };
-    double        Ka(int i)          { return m_iDaType==DaType_IsAcid ? m_dDa[i]:0.0; };
-    double        Kb()               { return m_iDaType==DaType_IsBase ? m_dDa[0]:0.0; };
-    LPSTR         KaKbDesc()         { return m_sKaKbDesc(); }
 
     bool          PcOK()             { return m_bPcOK; };
     bool          TcOK()             { return m_bTcOK; };
     bool          VcOK()             { return m_bVcOK; };
     bool          AcOK()             { return m_bAcOK; };
-    bool          DaOK()             { return m_bDaOK; };
-
   public:
     double        m_dMoleWt;
     bool          m_bPcOK;
@@ -630,15 +625,6 @@ class DllImportExport CSpConstData
     Strng         m_sMv; 
     Strng         m_sMd; 
 
-    static const byte      DaType_IsNull = 0;
-    static const byte      DaType_IsAcid = 1;
-    static const byte      DaType_IsBase = 2;
-
-    bool            m_bDaOK;
-    byte            m_iDaType;
-    double          m_dDa[3];        // Dissociation numbers
-    //Strng           m_sDa;           // 
-    Strng           m_sKaKbDesc;
   };
 
 // ---------------------------------------------------------------------------
@@ -888,7 +874,10 @@ class DllImportExport CSpecie : public CPropertyBase
 
     bool          CpOK();
 
-    LPSTR         KaKbDesc()         { return m_Const.m_sKaKbDesc(); };
+    double        Ka(int i)          { return m_iDaType==DaType_IsAcid ? m_dDa[i]:0.0; };
+    double        Kb()               { return m_iDaType==DaType_IsBase ? m_dDa[0]:0.0; };
+    LPSTR         KaKbDesc()         { return m_sKaKbDesc(); }
+    bool          DaOK()             { return m_bDaOK; };
 
     // CPropertyBase virtuals
     virtual LPCTSTR DefinedPropertyMapName()                              { return "SpecieDefn"; }
@@ -954,6 +943,16 @@ class DllImportExport CSpecie : public CPropertyBase
     CDensCorrs       m_DensCorrs;
     CCpCorrs         m_CpCorrs;
     CSolubilities    m_Solubilities;
+
+    static const byte      DaType_IsNull = 0;
+    static const byte      DaType_IsAcid = 1;
+    static const byte      DaType_IsBase = 2;
+
+    bool            m_bDaOK;
+    byte            m_iDaType;
+    double          m_dDa[3];        // Dissociation numbers
+    //Strng           m_sDa;           // 
+    Strng           m_sKaKbDesc;
 
   };
 
