@@ -9797,7 +9797,7 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
       break;
     }
 
-  bool H2OAsAqueous=CfgPF.RdInt("General", "H2O_As_Aqueous", 0);
+  bool H2OAsAqueous=CfgPF.RdInt("General", "H2O_As_Aqueous", 0)!=0;
   if (!CDB.Initialise(CDBI, (LPSTR)PrjSDBName, !ExcludeDefSpDB, H2OAsAqueous))
     {
     //CDB.DumpTest();
