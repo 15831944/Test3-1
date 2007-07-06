@@ -8177,7 +8177,7 @@ double SpModel::PartialPress(SpecieIter &Ids, double T, double P)
   double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
   // Assume Linear Relationship - Ideal Gas;
-  if (MassA>Mass1)
+  if (1)//MassA>Mass1)
     PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
   else
     PPart=P;
@@ -8205,7 +8205,7 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T, double P)
     double msVol1 = SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
     double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
     // Assume Linear Relationship - Ideal Gas;
-    if (MassA>Mass1)
+    if (1)//MassA>Mass1)
       PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
     else
       PPart=P;
@@ -8229,7 +8229,7 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T, double P)
     double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
     // Assume Linear Relationship - Ideal Gas;
-    if (MassA>Mass1)
+    if (1)//MassA>Mass1)
       PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
     else
       PPart=P;
@@ -8274,7 +8274,7 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
   double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
   // Assume Linear Relationship - Ideal Gas;
-  if (MassA>Mass1)
+  if (1)//MassA>Mass1)
     Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
 
   return Pf;
@@ -8298,7 +8298,7 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
     double msVol1 = SDB[IncIds].msVolume(m_iFidelity, T, P, &m_Ovr, SVData());
     double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
     // Assume Linear Relationship - Ideal Gas;
-    if (MassA>Mass1)
+    if (1)//MassA>Mass1)
       Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
     }
   else
@@ -8320,7 +8320,7 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
     double msVolA = SDB.msVolume(m_iFidelity, som_Gas, T, P, &m_Ovr, SVData());
 
     // Assume Linear Relationship - Ideal Gas;
-    if (MassA>Mass1)
+    if (1)//MassA>Mass1)
       Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
     }
 
