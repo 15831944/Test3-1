@@ -72,6 +72,8 @@ flag IsSpcName(Strng & S) { return S.XStrChr('(')!=NULL; };
 Strng CmpName(Strng & S) { Strng C=S; char*p=C.XStrChr('('); if (p) C.SetLength(p-C()); return C; };
 Strng CmpName(const char * m_pS) { Strng C=m_pS; char*p=C.XStrChr('('); if (p) C.SetLength(p-C()); return C; };
 
+LPCSTR CSysVecItemTypeNm[]= { "Null", "Specie", "Calculation", "Attribute", "Annotation"};
+
 // ==========================================================================
 
 flag SpDB_TokenOk(char* p)
@@ -5413,6 +5415,14 @@ flag CComponentDataBase::FixOffsetConstants()
 
 //---------------------------------------------------------------------------
 
+void TrimZeros(Strng & S)
+  {
+  int l=S.GetLength();
+  while (l>2 && S[l-1]=='0' && S[l-2]!='.')
+    S.SetLength(--l);
+  };
+
+
 flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag UseLibDB, flag H2OAsAqueous, flag DoTest/*=true*/)
   {
   m_EDB.Init();
@@ -5514,6 +5524,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   Strng_List RqdCmp;
   CRqdSpListIter IRqdSpc(CDBInit.RqdSpecies);
   for (CRqdSpItem *pRS=IRqdSpc.First(); (pRS); pRS=IRqdSpc.Next())
+    {
     if (pRS->m_iDuplicate<0)
       {
       Strng S=pRS->m_Name;
@@ -5539,447 +5550,493 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
 
       pC->SetIndex(pC->Index() || !IsASpc);
       }
-
+    }
 #if dbgBuildSDB
-    if (dbgBuildSpc())
-      {
-      dbgpln("---------------------------------------------------------");
-      for (pStrng m_pS=RqdCmp.First(); m_pS; m_pS=RqdCmp.Next())
-        dbgpln("  Rqd Comp [%s]  : %s", m_pS->Index()?"All":"   ", m_pS->Str());
-      CRqdSpListIter IRqdSpc(RqdSpc);
-      for (CRqdSpItem *pRS=IRqdSpc.First(); pRS; pRS=IRqdSpc.Next())
-        dbgpln("  Rqd Specie      : %s", pRS->m_Name());
-      dbgpln("---------------------------------------------------------");
-      }
+  if (dbgBuildSpc())
+    {
+    dbgpln("---------------------------------------------------------");
+    for (pStrng m_pS=RqdCmp.First(); m_pS; m_pS=RqdCmp.Next())
+      dbgpln("  Rqd Comp [%s]  : %s", m_pS->Index()?"All":"   ", m_pS->Str());
+    CRqdSpListIter IRqdSpc(RqdSpc);
+    for (CRqdSpItem *pRS=IRqdSpc.First(); pRS; pRS=IRqdSpc.Next())
+      dbgpln("  Rqd Specie      : %s", pRS->m_Name());
+    dbgpln("---------------------------------------------------------");
+    }
 #endif
 
-    if (!LoadComponents(CDBInit, PrjDBFn, RqdCmp, RqdSpc, H2OAsAqueous))
-      {
-      LogError(SpecieDBLogHdr, LF_Exclamation, "Specie Data not Loaded");
-      bCDBBad=true;
-      return false;
-      }
+  if (!LoadComponents(CDBInit, PrjDBFn, RqdCmp, RqdSpc, H2OAsAqueous))
+    {
+    LogError(SpecieDBLogHdr, LF_Exclamation, "Specie Data not Loaded");
+    bCDBBad=true;
+    return false;
+    }
 
-    if (!CheckCommonData())
-      {
-      bCDBBad=true;
-      return false;
-      }
-      
+  if (!CheckCommonData())
+    {
+    bCDBBad=true;
+    return false;
+    }
 
-    if (!BuildSpecies(CDBInit, RqdCmp, RqdSpc))
-      {
-      bCDBBad=true;
-      return false;
-      }
 
-    BIP.SetSize(m_CDB.No(), m_CDB.No());
+  if (!BuildSpecies(CDBInit, RqdCmp, RqdSpc))
+    {
+    bCDBBad=true;
+    return false;
+    }
 
-    LoadBIPs(CDBInit, PrjDBFn);
+  BIP.SetSize(m_CDB.No(), m_CDB.No());
 
-    if (!SVI.Finalise(CDBInit))
+  LoadBIPs(CDBInit, PrjDBFn);
+
+  if (!SVI.Finalise(CDBInit))
+    {
+    bCDBBad=true;
+    return false;
+    }
+  //flag Ok=true;
+  if (!m_ForTestingOnly)
+    {
+    int nNotLoaded=0;
+    Strng NotLoadedList;
+    for (CSpecieBlk * pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
       {
-      bCDBBad=true;
-      return false;
-      }
-    //flag Ok=true;
-    if (!m_ForTestingOnly)
-      {
-      int nNotLoaded=0;
-      Strng NotLoadedList;
-      for (CSpecieBlk * pSb=CSpecieBlk::sm_pFirst; (pSb); pSb=pSb->m_pNxt)
+      flag DoneErr=False;
+      //pSb->iSId=m_SDB.Find(pSb->m_sSpName());
+
+      // First look for the Aq Version of the specie
+      if (pSb->m_fAllowAq) 
         {
-        flag DoneErr=False;
-        //pSb->iSId=m_SDB.Find(pSb->m_sSpName());
-
-        // First look for the Aq Version of the specie
-        if (pSb->m_fAllowAq) 
+        Strng S(pSb->m_sSpName()), T;
+        char *p=S.XStrRChr('(');
+        if (p)
           {
-          Strng S(pSb->m_sSpName()), T;
-          char *p=S.XStrRChr('(');
-          if (p)
+          S.SetLength(p-S());
+          T=S;
+          T+="(aq)";
+          pSb->iSId=m_SDB.Find(T());
+          if (pSb->iSId<0)
             {
-            S.SetLength(p-S());
             T=S;
-            T+="(aq)";
+            T+="(a)";
             pSb->iSId=m_SDB.Find(T());
-            if (pSb->iSId<0)
-              {
-              T=S;
-              T+="(a)";
-              pSb->iSId=m_SDB.Find(T());
-              }
             }
           }
+        }
 
-        if (pSb->iSId<0) 
-          pSb->iSId=m_SDB.Find(pSb->m_sSpName());
+      if (pSb->iSId<0) 
+        pSb->iSId=m_SDB.Find(pSb->m_sSpName());
 
-        if (pSb->iCId>=0)
-          pSb->MW=m_CDB[pSb->iCId].m_dMoleWt;
-        else if (!pSb->m_fOpt)
+      if (pSb->iCId>=0)
+        pSb->MW=m_CDB[pSb->iCId].m_dMoleWt;
+      else if (!pSb->m_fOpt)
+        {
+        DoneErr=True;
+        LogError(SpecieDBLogHdr, 0, "Component '%s' not found in Specie Database.\n\nRequired by : %s", pSb->m_sCmpName(), pSb->m_sFile());
+        if (nNotLoaded)
+          NotLoadedList+=", ";
+        NotLoadedList+=pSb->m_sSpName();
+        nNotLoaded++;
+        }
+
+      if (pSb->iSId<0 && !pSb->m_fOpt)
+        {
+        Strng S=pSb->m_sSpPostfix;
+        //switch(pSb->eOcc)
+        //  {
+        //  case BOT_Null  :   DoBreak();   break;
+        //  case BOT_Solid :   S+="Solid";  break;
+        //  case BOT_Liquid:   S+="Liquid"; break;
+        //  case BOT_Gas:   S+="Vapour"; break;
+        //  }
+
+        LogError(SpecieDBLogHdr, 0, "Specie '%s' %s phase not found in Specie Database.\n\nRequired by : %s", pSb->m_sSpName(), S(), pSb->m_sFile);
+        if (!DoneErr)
           {
-          DoneErr=True;
-          LogError(SpecieDBLogHdr, 0, "Component '%s' not found in Specie Database.\n\nRequired by : %s", pSb->m_sCmpName(), pSb->m_sFile());
           if (nNotLoaded)
             NotLoadedList+=", ";
           NotLoadedList+=pSb->m_sSpName();
           nNotLoaded++;
           }
-
-        if (pSb->iSId<0 && !pSb->m_fOpt)
-          {
-          Strng S=pSb->m_sSpPostfix;
-          //switch(pSb->eOcc)
-          //  {
-          //  case BOT_Null  :   DoBreak();   break;
-          //  case BOT_Solid :   S+="Solid";  break;
-          //  case BOT_Liquid:   S+="Liquid"; break;
-          //  case BOT_Gas:   S+="Vapour"; break;
-          //  }
-
-          LogError(SpecieDBLogHdr, 0, "Specie '%s' %s phase not found in Specie Database.\n\nRequired by : %s", pSb->m_sSpName(), S(), pSb->m_sFile);
-          if (!DoneErr)
-            {
-            if (nNotLoaded)
-              NotLoadedList+=", ";
-            NotLoadedList+=pSb->m_sSpName();
-            nNotLoaded++;
-            }
-          }
         }
+      }
 
-      if (nNotLoaded)
+    if (nNotLoaded)
+      {
+      if (NotLoadedList.Len()>512)
         {
-        if (NotLoadedList.Len()>512)
-          {
-          NotLoadedList = NotLoadedList.Left(512);
-          NotLoadedList += "...";
-          }
-        Strng Msg;
-        Msg.Set("%i Species required by model DLL files not loaded   [ %s ]", nNotLoaded, NotLoadedList());
-        if (PrjFileVerNo()<51 || UseLibDB)
-          {//verbose description of possible error...
-          LogError(SpecieDBLogHdr, 0, Msg());
-          Msg+="\n\nCheck:\n";
-          if (UseLibDB)
-            Msg.Append("1) Specie data is no longer loaded from default.mdb, import or edit the\n   required specie data in syscad.mdb located at '%s'\n", PrjDBFn);
-          else
-            Msg.Append("1) Specie data in syscad.mdb located at '%s'\n", PrjDBFn);
-          Msg+="2) List of species required in configuration file.";
-          AfxMessageBox(Msg());
-          //LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
-          }
+        NotLoadedList = NotLoadedList.Left(512);
+        NotLoadedList += "...";
+        }
+      Strng Msg;
+      Msg.Set("%i Species required by model DLL files not loaded   [ %s ]", nNotLoaded, NotLoadedList());
+      if (PrjFileVerNo()<51 || UseLibDB)
+        {//verbose description of possible error...
+        LogError(SpecieDBLogHdr, 0, Msg());
+        Msg+="\n\nCheck:\n";
+        if (UseLibDB)
+          Msg.Append("1) Specie data is no longer loaded from default.mdb, import or edit the\n   required specie data in syscad.mdb located at '%s'\n", PrjDBFn);
         else
-          LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
-        bCDBBad=true;
+          Msg.Append("1) Specie data in syscad.mdb located at '%s'\n", PrjDBFn);
+        Msg+="2) List of species required in configuration file.";
+        AfxMessageBox(Msg());
+        //LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
+        }
+      else
+        LogError(SpecieDBLogHdr, LF_Exclamation, Msg());
+      bCDBBad=true;
+      }
+    }
+
+  CopyDataForMultiFidelity();
+
+  // Load Density Corrections and Solubility functions
+  if (!bCDBBad)
+    {
+    LoadSolnInfo(CDBInit, PrjDBFn);
+    //for (int s=0; s<No(); s++)
+    for (int s=0; s<m_SDB.m_iNo; s++)
+      {
+      if (m_SDB[s].m_DensCorrs.GetSize()>0)
+        m_SDB.m_DensCorrSps.Add(s);
+      if (m_SDB[s].m_CpCorrs.GetSize()>0)
+        m_SDB.m_CpCorrSps.Add(s);
+      if (m_SDB[s].m_Solubilities.GetSize()>0)
+        m_SDB.m_SolubleSps.Add(s);
+      }
+
+    if (CDBInit.NSpDensCorrPrj)
+      LogNote(SpecieDBLogHdr, 0, "%i Species have density correction functions (Loaded from %s)", CDBInit.NSpDensCorrPrj, PrjDataFile());
+    if (CDBInit.NSpSolFnPrj)
+      LogNote(SpecieDBLogHdr, 0, "%i Species have solubility functions (Loaded from %s)", CDBInit.NSpSolFnPrj, PrjDataFile());
+    }
+
+  // Fix Integration Constants
+  if (!bCDBBad)
+    bCDBBad=FixOffsetConstants();
+
+
+  if (!bCDBBad) // Set Ranges Tolerances
+    {
+    for (int s=0; s<m_SDB.m_iNo; s++)
+      {
+      CRqdSpItem * pRS=RqdSpc.Find(m_SDB[s].SymOrTag());
+      if (pRS)
+        {
+        if (pRS->m_dLoTol>=0)
+          m_SDB[s].m_dTsTol=Min(2000.0,pRS->m_dLoTol);
+        if (pRS->m_dHiTol>=0)
+          m_SDB[s].m_dTeTol=Min(2000.0,pRS->m_dHiTol);
         }
       }
 
-    CopyDataForMultiFidelity();
-
-    // Load Density Corrections and Solubility functions
-    if (!bCDBBad)
+    if (0)
       {
-      LoadSolnInfo(CDBInit, PrjDBFn);
-      //for (int s=0; s<No(); s++)
-      for (int s=0; s<m_SDB.m_iNo; s++)
+      dbgpln("Solids : %08x", som_Sol);
+      dbgpln("Liquids: %08x", som_Liq);
+      dbgpln("Vapours: %08x", som_Gas);
+      for (int c=0; c<m_CDB.m_iNo; c++)
         {
-        if (m_SDB[s].m_DensCorrs.GetSize()>0)
-          m_SDB.m_DensCorrSps.Add(s);
-        if (m_SDB[s].m_CpCorrs.GetSize()>0)
-          m_SDB.m_CpCorrSps.Add(s);
-        if (m_SDB[s].m_Solubilities.GetSize()>0)
-          m_SDB.m_SolubleSps.Add(s);
-        }
-
-      if (CDBInit.NSpDensCorrPrj)
-        LogNote(SpecieDBLogHdr, 0, "%i Species have density correction functions (Loaded from %s)", CDBInit.NSpDensCorrPrj, PrjDataFile());
-      if (CDBInit.NSpSolFnPrj)
-        LogNote(SpecieDBLogHdr, 0, "%i Species have solubility functions (Loaded from %s)", CDBInit.NSpSolFnPrj, PrjDataFile());
-      }
-
-    // Fix Integration Constants
-    if (!bCDBBad)
-      bCDBBad=FixOffsetConstants();
-
-
-    if (!bCDBBad) // Set Ranges Tolerances
-      {
-      for (int s=0; s<m_SDB.m_iNo; s++)
-        {
-        CRqdSpItem * pRS=RqdSpc.Find(m_SDB[s].SymOrTag());
-        if (pRS)
+        for (int j=0; j<m_CDB[c].m_nPhaseData; j++)
           {
-          if (pRS->m_dLoTol>=0)
-            m_SDB[s].m_dTsTol=Min(2000.0,pRS->m_dLoTol);
-          if (pRS->m_dHiTol>=0)
-            m_SDB[s].m_dTeTol=Min(2000.0,pRS->m_dHiTol);
+          CSpecie  &Sp=*m_CDB[c].m_PhaseData[j];
+          dbgpln("PhaseName: %3i %08x, %-20s %s %s", Sp.m_PhInx, Sp.m_PhMsk, m_CDB[c].Sym(), Sp.m_sPhaseSymVisible(), Sp.m_sPhaseSymActual());
           }
         }
-
-      if (0)
-        {
-        dbgpln("Solids : %08x", som_Sol);
-        dbgpln("Liquids: %08x", som_Liq);
-        dbgpln("Vapours: %08x", som_Gas);
-        for (int c=0; c<m_CDB.m_iNo; c++)
-          {
-          for (int j=0; j<m_CDB[c].m_nPhaseData; j++)
-            {
-            CSpecie  &Sp=*m_CDB[c].m_PhaseData[j];
-            dbgpln("PhaseName: %3i %08x, %-20s %s %s", Sp.m_PhInx, Sp.m_PhMsk, m_CDB[c].Sym(), Sp.m_sPhaseSymVisible(), Sp.m_sPhaseSymActual());
-            }
-          }
-        }
       }
+    }
 
-    if (DoTest && !bCDBBad) // Test Ranges
+  if (DoTest && !bCDBBad) // Test Ranges
+    {
+    for (int iFidelity=0; iFidelity<2; iFidelity++)
       {
-      for (int iFidelity=0; iFidelity<2; iFidelity++)
+      bool Fidelity=(iFidelity==1);
+      for (int s=0; s<m_SDB.m_iNo; s++)
+        // Exclude Aqueous Species and Water from Test
         {
-        bool Fidelity=(iFidelity==1);
-        for (int s=0; s<m_SDB.m_iNo; s++)
-          // Exclude Aqueous Species and Water from Test
+        CSpecie * pSp=&m_SDB[s];
+        if (pSp!=m_pWater && pSp!=m_pSteam &&
+          !pSp->IsAqueous() && pSp->CpDirect())
           {
-          CSpecie * pSp=&m_SDB[s];
-          if (pSp!=m_pWater && pSp!=m_pSteam &&
-            !pSp->IsAqueous() && pSp->CpDirect())
+          for (int Fidelity=0; Fidelity<MaxFidelity; Fidelity++)
             {
-            for (int Fidelity=0; Fidelity<MaxFidelity; Fidelity++)
+            CSpFidelData & D=m_SDB[s].m_FData[Fidelity];
+            for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
               {
-              CSpFidelData & D=m_SDB[s].m_FData[Fidelity];
-              for (int iSeg=0; iSeg<=D.m_iLastTPoint; iSeg++)
+              double Rho=D.SpRho(D.m_dTs[iSeg]+1.0,Std_P);
+              if (Rho<1.0e-6)
                 {
-                double Rho=D.SpRho(D.m_dTs[iSeg]+1.0,Std_P);
-                if (Rho<1.0e-6)
-                  {
-                  LogError(SpecieDBLogHdr, 0, "Bad Density %g %s", Rho, pSp->SymOrTag());
-                  bCDBBad=true;
-                  }
+                LogError(SpecieDBLogHdr, 0, "Bad Density %g %s", Rho, pSp->SymOrTag());
+                bCDBBad=true;
                 }
-              const double T_a = D.LoT();
-              const double T_b = D.TestLoT();
-              //double T=Max(MinT, T_a - T_b); //kga surely this is wrong!?!?
-              double T=Max(MinT, T_a);
-              double PrevEnth=pSp->mlHf(Fidelity, T, Std_P, NULL, NULL), Enth;
-              const double dT = 5.0;//10.0;
-              for (T+=dT ; T<=Min(MaxT, D.TestHiT()); T+=dT)
+              }
+            const double T_a = D.LoT();
+            const double T_b = D.TestLoT();
+            //double T=Max(MinT, T_a - T_b); //kga surely this is wrong!?!?
+            double T=Max(MinT, T_a);
+            double PrevEnth=pSp->mlHf(Fidelity, T, Std_P, NULL, NULL), Enth;
+            const double dT = 5.0;//10.0;
+            for (T+=dT ; T<=Min(MaxT, D.TestHiT()); T+=dT)
+              {
+              Enth=pSp->mlHf(Fidelity, T, Std_P, NULL, NULL);
+              if (Enth<PrevEnth)
                 {
-                Enth=pSp->mlHf(Fidelity, T, Std_P, NULL, NULL);
-                if (Enth<PrevEnth)
-                  {
-                  LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH decreases with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
-                  bCDBBad=true;
-                  break;
-                  }
-                if (Enth<=PrevEnth+1.0e-6)
-                  {
-                  LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH increases too slowly with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
-                  bCDBBad=true;
-                  break;
-                  }
-                PrevEnth=Enth;
+                LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH decreases with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
+                bCDBBad=true;
+                break;
                 }
+              if (Enth<=PrevEnth+1.0e-6)
+                {
+                LogError(SpecieDBLogHdr, 0, "Bad Enthalpy : mlH increases too slowly with T %s (error at T=%gK using test interval %gK)", pSp->SymOrTag(), T, dT);
+                bCDBBad=true;
+                break;
+                }
+              PrevEnth=Enth;
               }
             }
           }
         }
       }
+    }
 
 
-    if (!bCDBBad)
+  if (!bCDBBad)
+    {
+    m_SDB.m_Map.InitHashTable((m_SDB.m_iNo*3)/2+1);
+    for (int s=0; s<m_SDB.m_iNo; s++)
       {
-      m_SDB.m_Map.InitHashTable((m_SDB.m_iNo*3)/2+1);
-      for (int s=0; s<m_SDB.m_iNo; s++)
+      m_SDB.m_Map.SetAt(m_SDB[s].Sym(), s);
+      m_SDB.m_Map.SetAt(m_SDB[s].Tag(), s);
+      }
+
+    m_SDB.DDBSpList.Empty();
+    m_SDB.DDBSpListDash.Empty();
+    m_SDB.DDBSolSpList.Empty();
+    m_SDB.DDBSolSpListDash.Empty();
+    m_SDB.DDBLiqSpList.Empty();
+    m_SDB.DDBLiqSpListDash.Empty();
+    m_SDB.DDBVapSpList.Empty();
+    m_SDB.DDBVapSpListDash.Empty();
+
+    m_SDB.DDBSpListDash.Add(-1, "-");
+    m_SDB.DDBSolSpListDash.Add(-1, "-");
+    m_SDB.DDBLiqSpListDash.Add(-1, "-");
+    m_SDB.DDBVapSpListDash.Add(-1, "-");
+
+    for (int i=0; i<m_SDB.Count(); i++)
+      {
+      m_SDB.DDBSpList.Add(i, m_SDB[i].SymOrTag());
+      m_SDB.DDBSpListDash.Add(i, m_SDB[i].SymOrTag());
+      if (m_SDB[i].PhaseIs(m_som_Sol))
         {
-        m_SDB.m_Map.SetAt(m_SDB[s].Sym(), s);
-        m_SDB.m_Map.SetAt(m_SDB[s].Tag(), s);
+        m_SDB.DDBSolSpList.Add(i, m_SDB[i].SymOrTag());
+        m_SDB.DDBSolSpListDash.Add(i, m_SDB[i].SymOrTag());
         }
-
-      m_SDB.DDBSpList.Empty();
-      m_SDB.DDBSpListDash.Empty();
-      m_SDB.DDBSolSpList.Empty();
-      m_SDB.DDBSolSpListDash.Empty();
-      m_SDB.DDBLiqSpList.Empty();
-      m_SDB.DDBLiqSpListDash.Empty();
-      m_SDB.DDBVapSpList.Empty();
-      m_SDB.DDBVapSpListDash.Empty();
-
-      m_SDB.DDBSpListDash.Add(-1, "-");
-      m_SDB.DDBSolSpListDash.Add(-1, "-");
-      m_SDB.DDBLiqSpListDash.Add(-1, "-");
-      m_SDB.DDBVapSpListDash.Add(-1, "-");
-
-      for (int i=0; i<m_SDB.Count(); i++)
+      if (m_SDB[i].PhaseIs(m_som_Liq))
         {
-        m_SDB.DDBSpList.Add(i, m_SDB[i].SymOrTag());
-        m_SDB.DDBSpListDash.Add(i, m_SDB[i].SymOrTag());
-        if (m_SDB[i].PhaseIs(m_som_Sol))
-          {
-          m_SDB.DDBSolSpList.Add(i, m_SDB[i].SymOrTag());
-          m_SDB.DDBSolSpListDash.Add(i, m_SDB[i].SymOrTag());
-          }
-        if (m_SDB[i].PhaseIs(m_som_Liq))
-          {
-          m_SDB.DDBLiqSpList.Add(i, m_SDB[i].SymOrTag());
-          m_SDB.DDBLiqSpListDash.Add(i, m_SDB[i].SymOrTag());
-          }
-        if (m_SDB[i].PhaseIs(m_som_Gas))
-          {
-          m_SDB.DDBVapSpList.Add(i, m_SDB[i].SymOrTag());
-          m_SDB.DDBVapSpListDash.Add(i, m_SDB[i].SymOrTag());
-          }
+        m_SDB.DDBLiqSpList.Add(i, m_SDB[i].SymOrTag());
+        m_SDB.DDBLiqSpListDash.Add(i, m_SDB[i].SymOrTag());
         }
-
-      DDBCompListDash.Empty();
-      DDBCompListMix.Empty();
-      DDBCompListMixImg.Empty();
-      DDBCompListDash.Add(-1, "-");
-      DDBCompListDashVapLiq.Add(-1, "-");
-      DDBCompListMix.Add(m_CDB.MixtureId(), "Mixture");
-      DDBCompListMixImg.Add(m_CDB.MixtureId(), "Mixture");
-      DDBCompListMixImg.Add(m_CDB.ImageId(), "MixImage");
-      for (int c=0; c<m_CDB.No(); c++)
+      if (m_SDB[i].PhaseIs(m_som_Gas))
         {
-        DDBCompList.Add(c, m_CDB[c].SymOrTag());
-        DDBCompListMix.Add(c, m_CDB[c].SymOrTag());
-        DDBCompListDash.Add(c, m_CDB[c].SymOrTag());
-        if (m_CDB[c].LiqPhInx()>=0 && m_CDB[c].VapPhInx()>=0)
-          {
-          DDBCompListVapLiq.Add(c, m_CDB[c].SymOrTag());
-          DDBCompListDashVapLiq.Add(c, m_CDB[c].SymOrTag());
-          }
+        m_SDB.DDBVapSpList.Add(i, m_SDB[i].SymOrTag());
+        m_SDB.DDBVapSpListDash.Add(i, m_SDB[i].SymOrTag());
         }
       }
 
-    SVI.SetUpSkipList(0);
-    SVI.SetUpSkipList(m_som_Gas);
-    SVI.SetUpSkipList(m_som_Liq);
-    SVI.SetUpSkipList(m_som_Sol);
-    SVI.SetUpSkipList(m_som_SL);
-    SVI.SetUpSkipList(m_som_ALL);
+    DDBCompListDash.Empty();
+    DDBCompListMix.Empty();
+    DDBCompListMixImg.Empty();
+    DDBCompListDash.Add(-1, "-");
+    DDBCompListDashVapLiq.Add(-1, "-");
+    DDBCompListMix.Add(m_CDB.MixtureId(), "Mixture");
+    DDBCompListMixImg.Add(m_CDB.MixtureId(), "Mixture");
+    DDBCompListMixImg.Add(m_CDB.ImageId(), "MixImage");
+    for (int c=0; c<m_CDB.No(); c++)
+      {
+      DDBCompList.Add(c, m_CDB[c].SymOrTag());
+      DDBCompListMix.Add(c, m_CDB[c].SymOrTag());
+      DDBCompListDash.Add(c, m_CDB[c].SymOrTag());
+      if (m_CDB[c].LiqPhInx()>=0 && m_CDB[c].VapPhInx()>=0)
+        {
+        DDBCompListVapLiq.Add(c, m_CDB[c].SymOrTag());
+        DDBCompListDashVapLiq.Add(c, m_CDB[c].SymOrTag());
+        }
+      }
+    }
 
-    SVI.SetUpSkipListRev(0);
-    SVI.SetUpSkipListRev(m_som_Gas);
-    SVI.SetUpSkipListRev(m_som_Liq);
-    SVI.SetUpSkipListRev(m_som_Sol);
-    SVI.SetUpSkipListRev(m_som_SL);
-    SVI.SetUpSkipListRev(m_som_ALL);
+  SVI.SetUpSkipList(0);
+  SVI.SetUpSkipList(m_som_Gas);
+  SVI.SetUpSkipList(m_som_Liq);
+  SVI.SetUpSkipList(m_som_Sol);
+  SVI.SetUpSkipList(m_som_SL);
+  SVI.SetUpSkipList(m_som_ALL);
 
-    // Find Species for Heat of combustion
-    m_SDB.m_iH2Ol = SDB.Find("H2O(l)");
-    m_SDB.m_iCO2l = SDB.Find("CO2(l)");
-    m_SDB.m_iH2Og = SDB.Find("H2O(g)");
-    m_SDB.m_iCO2g = SDB.Find("CO2(g)");
+  SVI.SetUpSkipListRev(0);
+  SVI.SetUpSkipListRev(m_som_Gas);
+  SVI.SetUpSkipListRev(m_som_Liq);
+  SVI.SetUpSkipListRev(m_som_Sol);
+  SVI.SetUpSkipListRev(m_som_SL);
+  SVI.SetUpSkipListRev(m_som_ALL);
 
-    LPCTSTR Flash_Component= "H2O";
-    m_DefFlashCmpIndex=CDB.Find(Flash_Component);
-    m_DefFlashLiqIndex=SDB.Find(CString(Flash_Component)+="(l)");
-    m_DefFlashVapIndex=SDB.Find(CString(Flash_Component)+="(g)");
-    if (m_DefFlashLiqIndex<0 || m_DefFlashVapIndex<0)
-      m_DefFlashCmpIndex=-1;
+  // Find Species for Heat of combustion
+  m_SDB.m_iH2Ol = SDB.Find("H2O(l)");
+  m_SDB.m_iCO2l = SDB.Find("CO2(l)");
+  m_SDB.m_iH2Og = SDB.Find("H2O(g)");
+  m_SDB.m_iCO2g = SDB.Find("CO2(g)");
 
-    if (m_DefFlashCmpIndex<0)
-      LogError("Specie Database",0,"Default Flash Component %s not found", Flash_Component);
+  LPCTSTR Flash_Component= "H2O";
+  m_DefFlashCmpIndex=CDB.Find(Flash_Component);
+  m_DefFlashLiqIndex=SDB.Find(CString(Flash_Component)+="(l)");
+  m_DefFlashVapIndex=SDB.Find(CString(Flash_Component)+="(g)");
+  if (m_DefFlashLiqIndex<0 || m_DefFlashVapIndex<0)
+    m_DefFlashCmpIndex=-1;
 
-    m_Flashable.SetSize(0);
+  if (m_DefFlashCmpIndex<0)
+    LogError("Specie Database",0,"Default Flash Component %s not found", Flash_Component);
+
+  m_Flashable.SetSize(0);
+  for (int i=0; i<CDB.No(); i++)
+    {
+    if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0 || CDB[i].LiqPhInx("aq", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
+      {
+      m_Flashable.Add(i);
+      }
+    else
+      {
+      if (i==m_DefFlashCmpIndex)
+        {
+        m_DefFlashCmpIndex=-1;
+        m_DefFlashLiqIndex=-1;
+        m_DefFlashVapIndex=-1;
+        LogError("Specie Database",0,"Default Flash Component %s not flashable", Flash_Component);
+        }
+      }
+    }
+
+  m_DDBFlashable.Add(CDB.No(), "<Default>");
+  m_FlashCmps.SetSize(CDB.No());
+  m_FlashCmpsI.SetSize(CDB.No());
+  for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+    {
+    int c=CDB.m_Flashable[i];
+    m_DDBFlashable.Add(c, CDB[c].SymOrTag());
+    m_FlashCmps[c]=CDB[c].SymOrTag();
+    m_FlashCmpsI[c]="<";
+    m_FlashCmpsI[c]+=CDB[c].SymOrTag();
+    m_FlashCmpsI[c]+=">";
+    }
+
+  m_DDBFlashMethods.Add(SMFM_Default,      "<Default>");
+  m_DDBFlashMethods.Add(SMFM_PartialP,     "PartialP");
+  m_DDBFlashMethods.Add(SMFM_TotalP,       "TotalP");
+  m_DDBFlashMethods.Add(SMFM_Undefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
+
+  m_FlashMethods.SetAtGrow(SMFM_PartialP,  "PartialP");
+  m_FlashMethods.SetAtGrow(SMFM_TotalP,    "TotalP");
+  m_FlashMethodsI.SetAtGrow(SMFM_PartialP, "<PartialP>");
+  m_FlashMethodsI.SetAtGrow(SMFM_TotalP,   "<TotalP>");
+
+
+  if (1)
+    {
+    dbgpln("Components:");
     for (int i=0; i<CDB.No(); i++)
       {
-      if (CDB[i].VpOK() && (CDB[i].LiqPhInx("l", true)>=0 || CDB[i].LiqPhInx("aq", true)>=0) && (CDB[i].VapPhInx("g", true)>=0))
-        {
-        m_Flashable.Add(i);
-        }
-      else
-        {
-        if (i==m_DefFlashCmpIndex)
-          {
-          m_DefFlashCmpIndex=-1;
-          m_DefFlashLiqIndex=-1;
-          m_DefFlashVapIndex=-1;
-          LogError("Specie Database",0,"Default Flash Component %s not flashable", Flash_Component);
-          }
-        }
+      dbgpln("%3i %-20s", i, CDB[i].SymOrTag());
       }
-
-    m_DDBFlashable.Add(CDB.No(), "<Default>");
-    m_FlashCmps.SetSize(CDB.No());
-    m_FlashCmpsI.SetSize(CDB.No());
-    for (int i=0; i<CDB.m_Flashable.GetCount(); i++)
+    dbgpln("Species:");
+    for (int i=0; i<SDB.Count(); i++)
       {
-      int c=CDB.m_Flashable[i];
-      m_DDBFlashable.Add(c, CDB[c].SymOrTag());
-      m_FlashCmps[c]=CDB[c].SymOrTag();
-      m_FlashCmpsI[c]="<";
-      m_FlashCmpsI[c]+=CDB[c].SymOrTag();
-      m_FlashCmpsI[c]+=">";
+      dbgpln("%3i %3i %08x %08x %-20s %-20s", i, SDB[i].m_eOcc, SDB[i].m_OccMsk, SDB[i].m_PhMsk, SDB[i].Sym(), SDB[i].Tag());
       }
-
-    m_DDBFlashMethods.Add(SMFM_Default,      "<Default>");
-    m_DDBFlashMethods.Add(SMFM_PartialP,     "PartialP");
-    m_DDBFlashMethods.Add(SMFM_TotalP,       "TotalP");
-    m_DDBFlashMethods.Add(SMFM_Undefined,    "Undefined", MDD_NoSelect|MDD_Hidden);
-
-    m_FlashMethods.SetAtGrow(SMFM_PartialP,  "PartialP");
-    m_FlashMethods.SetAtGrow(SMFM_TotalP,    "TotalP");
-    m_FlashMethodsI.SetAtGrow(SMFM_PartialP, "<PartialP>");
-    m_FlashMethodsI.SetAtGrow(SMFM_TotalP,   "<TotalP>");
-
-
-    if (1)
-      {
-      dbgpln("Components:");
-      for (int i=0; i<CDB.No(); i++)
-        {
-        dbgpln("%3i %-20s", i, CDB[i].SymOrTag());
-        }
-      dbgpln("Species:");
-      for (int i=0; i<SDB.Count(); i++)
-        {
-        dbgpln("%3i %3i %08x %08x %-20s %-20s", i, SDB[i].m_eOcc, SDB[i].m_OccMsk, SDB[i].m_PhMsk, SDB[i].Sym(), SDB[i].Tag());
-        }
-      }
+    }
 
 #if dbgBuildSDB
-    if (dbgBuildLoops())
-      {
-      SpecieIter SIVap(m_som_Gas);
-      SpecieIter SILiq(m_som_Liq);
-      SpecieIter SISol(m_som_Sol);
-      SpecieIter SISL (m_som_SL);
-      SpecieIter SIALL(m_som_ALL);
+  if (dbgBuildLoops())
+    {
+    SpecieIter SIVap(m_som_Gas);
+    SpecieIter SILiq(m_som_Liq);
+    SpecieIter SISol(m_som_Sol);
+    SpecieIter SISL (m_som_SL);
+    SpecieIter SIALL(m_som_ALL);
 
-      int i;
-      dbgpln("Specie Vap ----------");
-      for (i=SIVap.ClcInx1(); SIVap.Loop(i); )
-        dbgpln("  %3i) %s", i, SVImg(i).FullTag());
-      dbgpln("Specie Liq ----------");
-      for (i=SILiq.ClcInx1(); SILiq.Loop(i); )
-        dbgpln("  %3i) %s", i, SVImg(i).FullTag());
-      dbgpln("Specie Sol ----------");
-      for (i=SISol.ClcInx1(); SISol.Loop(i); )
-        dbgpln("  %3i) %s", i, SVImg(i).FullTag());
-      dbgpln("Specie SL  ----------");
-      for (i=SISL.ClcInx1(); SISL.Loop(i); )
-        dbgpln("  %3i) %s", i, SVImg(i).FullTag());
-      dbgpln("Specie ALL ----------");
-      for (i=SIALL.ClcInx1(); SIALL.Loop(i); )
-        dbgpln("  %3i) %s", i, SVImg(i).FullTag());
+    int i;
+    dbgpln("Specie Vap ----------");
+    for (i=SIVap.ClcInx1(); SIVap.Loop(i); )
+      dbgpln("  %3i) %s", i, SVImg(i).FullTag());
+    dbgpln("Specie Liq ----------");
+    for (i=SILiq.ClcInx1(); SILiq.Loop(i); )
+      dbgpln("  %3i) %s", i, SVImg(i).FullTag());
+    dbgpln("Specie Sol ----------");
+    for (i=SISol.ClcInx1(); SISol.Loop(i); )
+      dbgpln("  %3i) %s", i, SVImg(i).FullTag());
+    dbgpln("Specie SL  ----------");
+    for (i=SISL.ClcInx1(); SISL.Loop(i); )
+      dbgpln("  %3i) %s", i, SVImg(i).FullTag());
+    dbgpln("Specie ALL ----------");
+    for (i=SIALL.ClcInx1(); SIALL.Loop(i); )
+      dbgpln("  %3i) %s", i, SVImg(i).FullTag());
 
-      dbgpln("Components ----------");
-      dbgpln("  #     si  li  ai  vi  ci");
-      for (i=0; i<m_CDB.No(); i++)
-        dbgpln("  %3i) %3i %3i %3i %3i %s", i, m_CDB[i].SolPhInx(), m_CDB[i].LiqPhInx(), m_CDB[i].VapPhInx(), m_CDB[i].CmpInx(), m_CDB[i].SymOrTag());
+    dbgpln("Components ----------");
+    dbgpln("  #     si  li  ai  vi  ci");
+    for (i=0; i<m_CDB.No(); i++)
+      dbgpln("  %3i) %3i %3i %3i %3i %s", i, m_CDB[i].SolPhInx(), m_CDB[i].LiqPhInx(), m_CDB[i].VapPhInx(), m_CDB[i].CmpInx(), m_CDB[i].SymOrTag());
 
-      }
+    }
 #endif
 
-    return !bCDBBad;
-    //return Ok;
+  if (!bCDBBad)
+    {
+    Strng Fn;
+    Fn.Set("%sSpecieData.ini", PrjFiles());
+    CProfINIFile PF(Fn());
+    for (int e=0; e<EDB.Count(); e++)
+      {
+      if (1)//EDB[e]
+        {
+        Strng Tg, E;
+        Tg.Set("E%03i", e);
+        E.Set("%s,%i,%.7f", EDB[e].m_Name, EDB[e].m_AtmNo, EDB[e].m_AtmWt);
+        TrimZeros(E);
+        PF.WrStr("Elements", Tg(), E());
+        }
+      }
+    for (int iCfg=0; iCfg<SVCfgCount(); iCfg++)
+      {
+      CSysVecItem *p=SVI.Cfg(iCfg);
+      Strng Tg,S,S1;
+      Tg.Set("S%03i", iCfg);
+
+      S.Set("%s,%s,%s", CSysVecItemTypeNm[p->Type()], p->FullTag(), p->FullSym());
+      if (p->Type()==SVT_Specie)
+        {
+        int s=p->SDBIndex();
+        switch (SDB[s].BaseOccType())
+          {
+          case BOT_Solid:  S+=",Solid"; break;
+          case BOT_Liquid: S+=",Liquid"; break;
+          case BOT_Gas:    S+=",Vapour"; break;
+          }
+        S1.Set(",%.7f", SDB[s].MoleWt());
+        TrimZeros(S1);
+        S+=S1;
+        ElemCompArray & EC = CDB[SDB[s].CId()].m_ElComp;
+        for (i=0; i<EC.GetCount(); i++)
+          {
+          S1.Set(",%.7f", EC[i].dMoles); 
+          TrimZeros(S1);
+          S+=S1;
+          S1.Set(",%i,%s", EC[i].iENo,EDB[EC[i].iENo]); 
+          S+=S1;
+          }
+        }
+      PF.WrStr("Species", Tg(), S());
+      }
+    }
+
+  return !bCDBBad;
+  //return Ok;
   }
-
-
-
 
 //---------------------------------------------------------------------------
 inline double LclChkZero(double x) { return ((fabs(x) > 1e-4) ? x : 0.0);}
@@ -6645,8 +6702,6 @@ long CSysVecItem::ViewBasisUsed(eScdSVViewBasis Ph)
 //                             Specie Array Info
 //
 // ==========================================================================
-
-LPCSTR CSysVecItemTypeNm[]= { "Null", "Specie", "Calculation", "Attribute", "Annotation"};
 
 CSysVecInfo SVI; // the global instance
 
