@@ -6023,10 +6023,10 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         ElemCompArray & EC = CDB[SDB[s].CId()].m_ElComp;
         for (i=0; i<EC.GetCount(); i++)
           {
+          S1.Set(",%s,%i",EDB[EC[i].iENo], EC[i].iENo); 
+          S+=S1;
           S1.Set(",%.7f", EC[i].dMoles); 
           TrimZeros(S1);
-          S+=S1;
-          S1.Set(",%i,%s", EC[i].iENo,EDB[EC[i].iENo]); 
           S+=S1;
           }
         }
@@ -6035,7 +6035,6 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
     }
 
   return !bCDBBad;
-  //return Ok;
   }
 
 //---------------------------------------------------------------------------
