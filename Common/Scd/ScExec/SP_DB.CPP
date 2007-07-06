@@ -6023,7 +6023,7 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         ElemCompArray & EC = CDB[SDB[s].CId()].m_ElComp;
         for (i=0; i<EC.GetCount(); i++)
           {
-          S1.Set(",%s,%i",EDB[EC[i].iENo], EC[i].iENo); 
+          S1.Set(",%s",EDB[EC[i].iENo].m_Name); 
           S+=S1;
           S1.Set(",%.7f", EC[i].dMoles); 
           TrimZeros(S1);
