@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-06-29 16:30:25 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-07-04 15:40:14 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -49,9 +49,9 @@ class CDynTestTank : public MBaseMethod
   // Streams 
   double dd[30];
 
-  MStream Feed;
-  MStream Tank;     // Effective Stream for tank, calculations done on this stream
-  MStream SavedTank;  // Save the tank stream contents for efficient recalculation
+  MStreamI Feed;
+  MStreamI Tank;     // Effective Stream for tank, calculations done on this stream
+  MStreamI SavedTank;  // Save the tank stream contents for efficient recalculation
 
     // Booleans
   bool bOnline;
