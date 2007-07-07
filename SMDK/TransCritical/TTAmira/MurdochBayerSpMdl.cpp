@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #define __TTAMIRA_CPP
-#include "TTAmira.h"
+#include "MurdochBayerSpMdl.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -14,9 +14,10 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #include "scdmacros.h" 
 #include "md_headers.h"
 
+#ifndef GLADDY
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
-
+#endif  //GLADDY
 
 
 //===========================================================================
