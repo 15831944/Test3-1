@@ -1,8 +1,11 @@
-CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800 /I C:/Tcl/Include
+CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
 
-OBJS =  sthx.obj hxutils.obj precip.obj utils.obj
+OBJS =  sthx.obj hxutils.obj precip.obj utils.obj psd.obj
 
 LFLAGS = /INCREMENTAL /NOLOGO /DEBUG user32.lib
+
+DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" \
+          /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS"
 
 
 all:  ttcommon.lib
@@ -29,6 +32,8 @@ utils.obj : utils.cpp utils.h
 precip.obj : precip.cpp precip.h
 	cl $(CFLAGS) precip.cpp
 
+psd.obj    : psd.cpp psd.h
+	cl $(CFLAGS) $(DFLAGS) /I "..\..\smdk\Include" psd.cpp
 
 
 dbgtest.exe: dbgtest.obj ttdbg.obj
