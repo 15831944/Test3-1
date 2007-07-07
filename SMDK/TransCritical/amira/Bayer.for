@@ -5,7 +5,8 @@
      $     NOC,OC,
      $     NGamma,Gamma,
      $     NSI,SI,
-     $     NSol, SolML, Solmkg)
+     $     NSol, SolML, Solmkg,
+     $     IFLAGS)
 
 
 C
@@ -255,11 +256,14 @@ C     >SIName(NSI),SolName(NSol)
 
       CALL HSCALC(NGAMMA,T,P,X,WT, H, S)
 
-      CALL SOLBY(NGAMMA,NInComp,InUnits,VH2O25,T,P,TR,P0,X,Comp_molkg,
-     >Comp_molL25,V25,NSol,SolML,Solmkg)
-
+      IF(IFLAGS.EQ.1) THEN
+         CALL SOLBY(NGAMMA,NInComp,InUnits,VH2O25,T,P,TR,P0,X,
+     >        Comp_molkg,
+     >        Comp_molL25,V25,NSol,SolML,Solmkg)
+      ENDIF
 
 C     COPY THE LOCAL EQUIVALENCED STUFF BACK TO THE DUMMY ARGUMENT
+
       DO 10, I=1,22
  10      DPDATA(I) = DPLDATA(I)
 

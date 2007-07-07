@@ -8,13 +8,13 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "AmiraBayer"
+Name "MBayer"
 
 ; The file to write
-OutFile "AmiraBayer.exe"
+OutFile "MBayer.exe"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\Amira
+InstallDir $PROGRAMFILES\MBayer
 ;--------------------------------
 
 ; Pages
@@ -32,5 +32,5 @@ Section "" ;No components page, name is not important
   
   ; Put file there
   File /r dist\*.*
-  CreateShortCut $DESKTOP\amira.lnk $INSTDIR\amira.exe "" "$INSTDIR\amira.ico"
+  CreateShortCut $DESKTOP\MBayer.lnk $INSTDIR\MBayer.exe "" "$INSTDIR\mb.ico"
 SectionEnd ; end the section

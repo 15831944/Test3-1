@@ -4,6 +4,11 @@ from generic import GenericMain, OutputFrame
 import re
 import entry
 from ctypes import *
+from tooltip import ToolTip
+
+
+from time import clock
+
 
 font0 = "Helvetica 10 bold"
 font3 = "Courier 8"
@@ -12,6 +17,42 @@ font4 = "Courier 8 bold"
 dpnames = ["I_m", "I_c", "I_c25", "P_Sat", "Al2O3", "TC", "TA", "TempSat",
            "BPE", "Cp_Liq", "Cp_H2O", "Rho_Liq", "Rho_H2O", "Cp_phi",
            "V_phi",  "Cp_LiqH2O",  "Phi", "Aw", "V25", "WT", "H", "S"]
+
+tipstrs = ["Ionic strength (mol/kg)",
+           "Ionic strength (mol/L, at TempC)",
+           "Ionic strength (mol/L, at 25 C)",
+           "Water vapour pressure of solution",
+           "Alumina (A) (g/l at 25C)",
+           "Caustic (C) (g/l at 25C)",
+           "Soda (S) (g/l at 25C)\n(Total Alkali!)",
+           "Saturation Temperature",
+           "Boiling Point Elevation",
+           "Liquid Specific Heat (kJ/kgK)",
+           "Water Specific Heat (kJ/kgK)",
+           "Liquor Density (kg/m^3)",
+           "Water Density (kg/m^3)",
+           "Apparent molar heat capacity of solution",
+           "Apparent molar volume of solution",
+           "Heat capacity of solution (J K-1 (g water)-1)",
+           "Osmotic coefficient of solution",
+           "Water activity", 
+           "Enthalpy (kJ/kg)",
+           "Entropy (kJ/kgK)"]
+
+
+
+
+gammaNames = ['Aw', 'Na+', 
+              'OH-'     , 
+              'HCO3-'   , 
+              'CO3-2'   , 
+              'Cl-'     , 
+              'SO4-2'   , 
+              'Al(OH)4-', 
+              'C2O4-2'  , 
+              'CH3COO-', 
+              'HCOO-'  , 
+              'F-' ]    
 
 dpdnames = dpnames[:-4]+dpnames[-2:]
 
@@ -66,22 +107,24 @@ XPG_1.Content.Na2CO3(l) (%)	1.41
 XPG_1.Content.Na2SO4(l) (%)	0.04
 '''
 
-helpTxt = '''Edit the individual fields and press the calculate button.
+helpTxt = '''Edit the individual fields and press the calculate button. There is
+only limited error checking on the input numbers: mass fractions of solids over 40%
+may give problems. When using industrial concentrations, the model will check for
+A < C < S. Note that TA is Total Alkali (ie Soda or S). TC is Total Caustic or C.
 
-Data may also be edited as text directly in this text window.
-
-
-Paste SysCAD data into the text area and press SysCAD button
-This will parse the data and calculate mass fractions of each
-species present.
-
-Each line is parsed to search for standard species, and if found, will look for a
-number at the end of the line. Thus
+Data may also be edited as text directly in this text window. Paste SysCAD data into
+the text area and press the SysCAD button This will parse the data and calculate mass
+fractions of each species present. Each line is parsed to search for standard species,
+and if found, will look for a number at the end of the line. Thus
 
 H2O  4
 NaCl 1
 
 will give a 20% saline solution.
+
+When working in mass fractions, in SysCAD NaOH (Caustic) is actually the Free Caustic.
+Total Caustic is NaoH + Na[AlOH]4. See the documentation for further discussion. 
+
 
 Properties may also be calculated over a range. Thus to see how the specific heat and
 density vary between 200C and 300C, highlight the following line (you can highlight a
@@ -89,7 +132,7 @@ line by triple clicking on it):
 
 Cp_Liq, Rho_Liq for Temperature in 200, 300, 10
 
-and press "Data"
+and press "Data" (or <Alt-d>
 
 Any of the result variables (Im, Temp_Sat, BPE etc) can be chosen to plot against any of
 the data variables (Temperature, Concentrations), for example:
@@ -100,6 +143,18 @@ Options Menu: AutoClear  - toggle clearing of text screen after each calculation
               Solubility - toggle solubilities and solubility indices display
               Activities - toggle activities display
 '''
+
+versionTxt = '''MurdochBayer Version 1.00
+
+Copyright 2007 Murdoch University
+Kenwalt Western Australia - www.syscad.net
+Transcritical Technologies - transcritical.com
+
+"Its always Christmas at Transcritical"
+
+Bayer DLL Version %s
+'''
+
 
 
 solnames = '                Al(OH)3    AlOOH   Na2SO4  Na2C2O4      NaF  Na3FSO4'
@@ -149,10 +204,12 @@ def frange(start, stop, step):
 
 
 def dllSetup():
-    global bayer_
+    global bayer_, version_
     try:
-        alib = CDLL('amira')
+        alib = CDLL('MurdochBayer')
         bayer_ = alib.bayer_    # Main routine in Amira Library
+        version_ = alib.version_
+        version_.restype=c_double
         bayer_.restype = None
         bayer_.argtypes = [
                    POINTER(c_double),    #  TempC,
@@ -181,32 +238,34 @@ def dllSetup():
 
                    POINTER(c_long),      #  NSol,        INTEGER!
                    POINTER(c_double),    #  SolML,
-                   POINTER(c_double)     #  Solmkg
+                   POINTER(c_double),    #  Solmkg
+                   POINTER(c_long)       #  IFLAGS
                    ]
 
 
 
     except WindowsError, err:
-        tkMessageBox.showerror("Missing dll","Need to install amira.dll")
+        tkMessageBox.showerror("Missing dll","Need to install MurdochBayer.dll")
 
 
 
-class TestMenu:
-    def __init__(self):
-        self.menuDic = {}
+class MBMenu:
 
     def mainMenuBar(self, w):
         mm=Menu(w)  # main menu
         self.acv = IntVar()
-        self.acv.set(0)
-        self.dsi = BooleanVar()
+        self.acv.set(1)
+        self.dsi = BooleanVar() # display solubility indices
         self.dsi.set(False)
+        self.dgs = BooleanVar() # display gamma
+        self.dgs.set(False)
+        
         self.mm=mm
         for x  in ["File", "Options", "Help"]:
-            self.menuDic[x] = Menu(mm, tearoff=0)
-            mm.add_cascade(label=x, menu=self.menuDic[x])
+            self.__dict__[x] = Menu(mm, tearoff=0)
+            mm.add_cascade(label=x, menu=self.__dict__[x])
         
-        m=self.menuDic["File"]  #0
+        m=self.File  #0
         m.add_command(label="Open...", state=DISABLED, 
                       accelerator="Ctrl+O")
         m.add_command(label="Save", state=DISABLED)
@@ -217,17 +276,20 @@ class TestMenu:
         m.add_command(label="Print", state=DISABLED)
         m.add_separator()
         m.add_command(label="Exit", command=done) #-command done
-        self.menuDic["Options"].add_checkbutton(label="AutoClear",
-                          variable=self.acv, onvalue=1, offvalue=0) 
-        self.menuDic["Options"].add_checkbutton(label="Solubilities",
-                          variable=self.dsi) 
+        self.Options.add_checkbutton(label="AutoClear",
+                variable=self.acv, onvalue=1, offvalue=0) 
+        self.Options.add_checkbutton(label="Solubilities",
+                variable=self.dsi) 
+        self.Options.add_checkbutton(label="Gamma Factors",
+                variable=self.dgs) 
 
-        self.menuDic["Help"].add_command(label="Help")
+        self.Help.add_command(label="Help")
+        self.Help.add_command(label="Version")
         return mm
 
 
 
-class AmiraBayer:
+class MurdochBayer:
 
     def __init__(self, Temp_C, Pressure_bar, InUnits=3):
 
@@ -253,7 +315,7 @@ class AmiraBayer:
 
         # Exported longs
         self.NOutComp = c_long(9)
-        self.NOC = c_long(2)
+        self.NOC =c_long(2)
         self.NGamma = c_long(12)
         self.NSI = c_long(10)
         self.NSol = c_long(6)
@@ -266,6 +328,12 @@ class AmiraBayer:
             self.InComp[i+2] = dic[x]
         self.bayer()
 
+
+    def version(self):
+        return ("%6.2f" % version_())
+
+
+    
     def bayer(self):
         self.P.value = self.Pressure_bar
         
@@ -296,17 +364,17 @@ class AmiraBayer:
 
             self.NSol,      #  NSol,        INTEGER!
             self.SolML,    #  SolML,
-            self.Solmkg     #  Solmkg
+            self.Solmkg,     #  Solmkg
+            c_long(0)
             )
         
 
-ab = AmiraBayer(100, 200)
+ab = MurdochBayer(100, 200)
 
-class MyMain(GenericMain):
+class MurdochMain(GenericMain):
 
     def activateApp(self):
-        f = Frame(self.baseFrame)
-        Label(f, text="Data", font=font0).pack(anchor="w")
+        f = LabelFrame(self.baseFrame, text="Data", font=font0)
 
         self.rbp = IntVar()
         self.rbp.set(3)
@@ -324,17 +392,19 @@ class MyMain(GenericMain):
         for x in range(4):
             frb.columnconfigure(x, weight=2-(x%2))
         frb.pack(side=TOP, anchor="nw", fill='x')
-
-        f0 = Frame(f)
-        self.s0=entry.EntryFrame(f0, s0Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
+        f3 = Frame(f, relief="groove", bd=1)
+        f3.pack()
+        self.s0=entry.EntryFrame(f3, s0Entries, lWidth=14, eWidth=8)
         self.s0.pack()
-        self.s2=entry.EntryFrame(f0, s2Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
+        self.s2=entry.EntryFrame(f3, s2Entries, lWidth=14, eWidth=8)
 
-        f0.pack(side=TOP)
-        Label(f, text="Results", font=font0).pack(anchor="w")
-        self.s1=entry.EntryFrame(f, s1Entries, lWidth=14, eWidth=8, relief=GROOVE, bd=2)
+        f0 = LabelFrame(f,text="Results", font=font0, relief=GROOVE, bd=1)
+        f0.pack()
+        self.s1=entry.EntryFrame(f0, s1Entries, lWidth=14, eWidth=8)
         self.s1.pack(side=TOP)
         self.s1.disable()
+        for i, s in enumerate(tipstrs):
+            ToolTip(self.s1.u[i], s)
         f1 = Frame(f)
         f1.pack(side = LEFT, fill=X, expand=1)
         Button(f1, text="Calculate", command=self.test, underline=0).grid(sticky="ew")
@@ -349,7 +419,8 @@ class MyMain(GenericMain):
         self.of=OutputFrame(canvasFrame, font=font3, width=90)
         self.of.txt.tag_config("b", font=font4)
         self.rbp.trace("w", self.doEntryType)
-        self.menus.menuDic["Help"].entryconfig(0, command=self.doHelp)
+        self.menus.Help.entryconfig(0, command=self.doHelp)
+        self.menus.Help.entryconfig(1, command=self.doVersion)
 
     def doEntryType(self, foo, bar, baz):
         et = self.rbp.get()
@@ -373,6 +444,9 @@ class MyMain(GenericMain):
     def doHelp(self):
         self.of.clearText()
         self.of.appendText(helpTxt)
+
+    def doVersion(self):
+        tkMessageBox.showinfo("Version",versionTxt % ab.version())
 
 
     def extractDPData(self):
@@ -421,31 +495,24 @@ class MyMain(GenericMain):
             sel = self.of.getSelection()
         except:
             tkMessageBox.showerror("Selection Invalid","Select line\nfrom text window")
-            
+            return
 
         ldic = {}
         lre = re.compile("(.*)\Wfor\W(.*)\Win(.*)")
         res = lre.search(sel)
-        if res:
-            print res.group(0)
-            print res.group(1)
-            print res.group(2)
-            print res.group(3)
         iv = res.group(2).strip()
         if iv not in s0Vars:
-            print "%s not in s0Vars" % iv
+            self.of.appendText("%s not in Variables List" % iv)
             return
         dv = [x.strip() for x in res.group(1).split(',')]
         for x in dv:
             if x not in dpnames:
-                print "%s not in dpnames" % x
+                self.of.appendText("%s not in Results List" % x)
                 return
         try:
             rnge = [float(x.strip()) for x in res.group(3).split(',')]
-            print rnge
             vals = frange(*rnge)
         except:
-            print "frange failure", res.group(3)
             return
 
         for x in inSpecies:
@@ -461,6 +528,8 @@ class MyMain(GenericMain):
             
         self.of.appendText(os)
 
+        self.waitCursor()
+        tStart = clock();
         for x in vals:
             ldic[iv] = x
             ab.fromDic(ldic)
@@ -469,7 +538,9 @@ class MyMain(GenericMain):
             for x in dv:
                 os += "%12.3f" % self.__dict__[x]
             self.of.appendText(os)
-       
+        print "Time... ", clock()-tStart
+        self.normalCursor()
+
                                
     def test(self):
         calcType = self.rbp.get()
@@ -481,18 +552,27 @@ class MyMain(GenericMain):
         t  = s["Temp"]
         p = s["Press"]
 
-        res = s.getValues()
         ab.InUnits = calcType
         if calcType in (2,3):
+            res = s.getValues()
             ab.InComp[0]=ab.InComp[1]=0.0
             for i, x in enumerate(res[2:]):
                 ab.InComp[i+2] = 100.*x
         else:
+            if s["TC"]<s["Al2O3"]:
+                s["TC"] = s["Al2O3"]
+            if s["TA"]<s["TC"]:
+                s["TA"] = s["TC"]
+            res = s.getValues()
             for i, x in enumerate(res[2:]):
                 ab.InComp[i] = x
+                
         
         ab.Temp_C = t-273.15
         ab.Pressure_bar = p/100.
+        
+
+
         ab.bayer()
         self.extractDPData()
         for x in dpdnames:
@@ -539,24 +619,30 @@ class MyMain(GenericMain):
             atxt(("Solubility mgk" + "%9.4f"*6) % tuple(ab.Solmkg))
             atxt("")
 
+        if self.menus.dgs.get():
+            atxt("Gamma Factors", None, "b")
+            for i, x in enumerate(gammaNames):
+                atxt("%9s %9.5f%s" % (x, ab.Gamma[i], "\n" if i%4==3 else "  "), 1)
+
+
 
 
 def main():
-    global app, bayer_, root, done
+    global app, root, done
     def done():
         root.destroy()
     root=Tk()
     root.protocol("WM_DELETE_WINDOW", done)
-    app=MyMain(root, TestMenu())
+    app=MurdochMain(root, MBMenu())
     def atst(foo, bar=None):
-        print foo, bar
         app.test()
     def agpl(foo, bar=None):
         app.getPlotLine()
 
     root.bind("<Alt-c>", atst)
     root.bind("<Alt-d>", agpl)
-    root.title("Amira Bayer Calculations")
+    root.title("Murdoch Bayer Calculations")
+    root.iconbitmap("kw.ico")
     root.iconify()
     root.update()
     root.deiconify()

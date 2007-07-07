@@ -5,11 +5,11 @@ from distutils.core import setup
 import py2exe
 
 setup(name="TTBayer",
-      scripts=["amira.py"],
+      scripts=["MBayer.py"],
       data_files=[(".",
-                   ["./amira.ico", "./amira.dll"])],
+                   ["./mb.ico", "./MurdochBayer.dll", "./kw.ico"])],
 
-      windows=["amira.py"]
+      windows=["MBayer.py"]
 )
 
 #      icon_resources=[(1, "e3000.ico")]

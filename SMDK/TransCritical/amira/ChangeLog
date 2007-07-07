@@ -1,3 +1,8 @@
+2007-06-24  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* demo/amira.py (tipstrs): Added tool-tips for derived variables.
+	(MyMain.test): Added display of gamma factors in text window.
+
 2007-05-14  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* Bayer.for (HSCALC): Added HSCALC subroutine to calculate entropy
