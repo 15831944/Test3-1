@@ -1,6 +1,6 @@
 SYSCAD=91
 SYSCADDIR=C:\SysCAD$(SYSCAD)\bin
-DLLNAME = TTAmira
+DLLNAME = MurdochBayerSpMdl
 
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
@@ -9,7 +9,7 @@ LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 
 PRECIP_OBJ = precip.obj
 
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
 
 
 OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 
@@ -34,8 +34,9 @@ all: $(DLLNAME).dll
 
 
 $(DLLNAME).dll: $(OBJS)
-	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" /IMPLIB:".\Rls/$(DLLNAME).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) amira.lib
+	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" /IMPLIB:".\Rls/$(DLLNAME).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) MurdochBayer.lib
 	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
+	cp c:/SysCAD91/bin/$(DLLNAME).dll "C:/Documents and Settings/Rodney Stephenson/Desktop/MBRelease"
 
 
 
