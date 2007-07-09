@@ -152,21 +152,6 @@ class MdlNode;
 
 #define CNMTOREMOVE   0
 
-class CSigmaIOFlows
-  {
-  public:
-    enum TestResult { Balanced, BadMass, BadHeat, BadBalance};
-    CSigmaIOFlows() { Clear(); }
-
-    void Clear() { Mass=Heat=MaxMass=MaxHeat=0; };
-    TestResult Test();
-
-    double Mass;
-    double Heat;
-    double MaxMass;
-    double MaxHeat;
-  };
-
 const dword  MNAudit_Qm     = 0x00000001;
 const dword  MNAudit_Hz     = 0x00000002;
 const dword  MNAudit_Cnts   = 0x00000004;
@@ -261,13 +246,11 @@ class DllImportExport MdlNode : public FlwNode
     void           FillIOIndexList(int JoinId, int *I);
     void           BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval=NULL);
 
-    void           SigmaIOFlows(CSigmaIOFlows & Sigma);
-
     DEFINE_CI(MdlNode, FlwNode, 16);
 
   private:
     void SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double VVolFrac, bool & CheckOutputs);
-    void DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed);
+    //void DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed);
 
   public:
     double         FlowIn;

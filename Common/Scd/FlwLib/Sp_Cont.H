@@ -38,80 +38,6 @@ class CDirectFlwIO;                 // Only defined in M_BASE
 
 // ===========================================================================
 //
-//                            Spcontainer Address
-//
-// ===========================================================================
-
-//_FWDDEF(SpTargetTag)
-//class DllImportExport SpTargetTag
-//  {
-//  public:
-//    SpTargetTag(int LclIOId, int RmtIOId);
-//    ~SpTargetTag();
-//
-//    void           SetTag(char * Tag);
-//    flag           Configured() { return sTargetTag.Length()>0; };
-//    flag           Valid();
-//    char *         Tag();
-//    SpContainer &  Container();
-//    void           Reset();
-//
-//    void           AddMass2Target(SpConduit & Q, double QMass, double DeltaTime);
-//    void           AddMass2Target(SpModel &M, double QMass, double DeltaTime);
-//
-//  protected:
-//    flag           bMustLook;
-//    Strng          sTargetTag;
-//    SpContainer *  pTarget;
-//    int            m_LclIOId;
-//    int            m_RmtIOId;
-//  };
-//
-//typedef CSCDList <SpTargetTag*, SpTargetTag*> SpTargetTagList;
-//typedef CSCDList <SpContainer*, SpContainer*> SpContainerList;
-//typedef CSCDPtrListIter <SpTargetTagList, SpTargetTag*> SpTargetTagIter;
-
-// ===========================================================================
-//
-//                       List af all SpContAddress
-//
-// ===========================================================================
-
-//_FWDDEF(SpTargetTags);
-//class DllImportExport SpTargetTags
-//  {
-//  protected:
-//    SpContainerList &Targets;
-//    SpTargetTagList &Tags;
-//    Strng_List      &MissingTargets;
-//
-//    pTaggedObject  pOwningObj;
-//    Strng          sDefaultAreaName;
-//
-//  public:
-//
-//    SpTargetTags();
-//    ~SpTargetTags();
-//
-//    void           Init(pTaggedObject OwningObj);
-//    void           Term();
-//    void           AddAddress(SpTargetTag* pAdd);
-//    void           DelAddress(SpTargetTag* pAdd);
-//    SpContainer *  Find(char * AreaTag);
-//    flag           InitialiseSolution();
-//    flag           TerminateSolution();
-//
-//    char *         DefaultArea(char * DefaultAreaName=NULL);
-//
-//    int            NMissingTargets() { return MissingTargets.Length(); };
-//    char *         MissingTarget(int i) { pStrng p=MissingTargets.AtIndex(i); return p ? p->Str() : NULL; };
-//
-//  };
-//
-//extern DllImportExport SpTargetTags TargetTags;
-
-// ===========================================================================
-//
 //                   SpConduit - Used for Transporting Material
 //
 // ===========================================================================
@@ -1116,6 +1042,7 @@ class DllImportExport SpContainer : public SpModelOwner
     CDirectFlwIO * m_pSpill;
     CDirectFlwIO * m_pVent;
 
+
     double         m_dVapEntrained;    // Fraction of Vapour Entrained
     double         m_dVapEntrainRate;
     double         m_dVapEscapeTau;     // Time Constant of Vapour Escaping From Container to Atmosphere
@@ -1152,7 +1079,8 @@ class DllImportExport SpContainer : public SpModelOwner
     flag           m_LvlLo;
     flag           m_LmtAsStatus;
 
-
+    double         m_HighestSLFrac;
+    double         m_HighestVapFrac;
   };
 
 // ===========================================================================

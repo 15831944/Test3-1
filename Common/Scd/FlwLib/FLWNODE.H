@@ -1967,11 +1967,15 @@ class CHgtOrdInfo
   public:
     CHgtOrdInfo()
       {
-      m_pCn=NULL;
-      m_dwIOIdMask=0;
+      m_pCn         = NULL;
+      m_dwIOIdMask  = 0;
+      m_nSLOrd      = 0;
+      m_nAllOrd     = 0;
       }
 
-    int NOrd() { return m_Ord.GetSize(); };
+    int NSLOrd()                { return m_nSLOrd; };
+    int NAllOrd()               { return m_nAllOrd; };
+    bool SLOut(int iOrd)        { return iOrd<m_nSLOrd; };
 
     SpContainer &Container()    { return *m_pCn; };
     SpConduit   &ContentFlw()   { return m_ContentFlw; };
@@ -1983,6 +1987,8 @@ class CHgtOrdInfo
     SpContainer             * m_pCn;
     SpConduit                 m_ContentFlw;
     SpConduit                 m_VapourFlw;
+    int                       m_nSLOrd;
+    int                       m_nAllOrd;
     CArray <int, int>         m_Ord;
     CArray <int, int>         m_Seq;
     CArray <double, double>   m_VolScl;

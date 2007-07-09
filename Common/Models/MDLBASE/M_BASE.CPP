@@ -1153,37 +1153,37 @@ void MdlNode::SetOutputFlows(CHgtOrdInfo & HO, int IONo, double LVolFrac, double
 
 //--------------------------------------------------------------------------
 
-void MdlNode::DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed)
-  {
-  SpContainer & Contents=HO.Container();
-  SpConduit   & ContentFlw=HO.ContentFlw();
-  ContentFlw.QSetF(Contents, som_ALL, 1.0/ICGetTimeInc());
-  ContentFlw.QAddF(*pQFeed, som_ALL, 1.0);
-
-  for (int j=0; j<HO.NOrd(); j++)
-    {
-    int iIONo=HO.m_Ord[j];
-    
-    if (!IO_In(iIONo))
-      {
-      SpConduit & Cd=*IOConduit(iIONo);
-      for (int s=0; s<SDB.Count(); s++)
-        {
-        double SpQ            = Cd.VMass[s];
-        double SpQMax         = ContentFlw.VMass[s];
-        if (SpQ>SpQMax)
-          {
-          dbgpln("Limit Spc Out %12.4f >  %12.4f %s", SpQ, SpQMax, SDB[s].SymOrTag());
-          Cd.VValue[s]          = SpQMax;
-          ContentFlw.VValue[s]  = 0.0;
-          }
-        else
-          ContentFlw.VValue[s]  = SpQMax-SpQ;
-        }
-      }
-    }
-
-  };
+//void MdlNode::DoCheckOutputs(CHgtOrdInfo & HO, SpConduit * pQFeed)
+//  {
+//  SpContainer & Contents=HO.Container();
+//  SpConduit   & ContentFlw=HO.ContentFlw();
+//  ContentFlw.QSetF(Contents, som_ALL, 1.0/ICGetTimeInc());
+//  ContentFlw.QAddF(*pQFeed, som_ALL, 1.0);
+//
+//  for (int j=0; j<HO.NOrd(); j++)
+//    {
+//    int iIONo=HO.m_Ord[j];
+//    
+//    if (!IO_In(iIONo))
+//      {
+//      SpConduit & Cd=*IOConduit(iIONo);
+//      for (int s=0; s<SDB.Count(); s++)
+//        {
+//        double SpQ            = Cd.VMass[s];
+//        double SpQMax         = ContentFlw.VMass[s];
+//        if (SpQ>SpQMax)
+//          {
+//          dbgpln("Limit Spc Out %12.4f >  %12.4f %s", SpQ, SpQMax, SDB[s].SymOrTag());
+//          Cd.VValue[s]          = SpQMax;
+//          ContentFlw.VValue[s]  = 0.0;
+//          }
+//        else
+//          ContentFlw.VValue[s]  = SpQMax-SpQ;
+//        }
+//      }
+//    }
+//
+//  };
 
 //--------------------------------------------------------------------------
 
@@ -1508,7 +1508,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
 
   bool DoneIt[MaxIOList];
   int HOSeq=-1;
-  for (int iHO=0; iHO<HO.NOrd(); )//iHO++)
+  for (int iHO=0; iHO<HO.NSLOrd(); )//iHO++)
     {
     int iIONo=HO.m_Ord[iHO];
     DoneIt[iIONo]=false;
@@ -1567,7 +1567,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
       TotalVAvl=GTZ(TotalVAvl);
 
       int iHO1;
-      for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+      for (iHO1=iHO; iHO1<HO.NSLOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
         {
         int iIONo=HO.m_Ord[iHO1];
         if (!IO_In(iIONo))
@@ -1777,12 +1777,12 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
 
       for (int iPass=0; iPass<10; iPass++)
         {
-        for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+        for (iHO1=iHO; iHO1<HO.NSLOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
           {
-          if (IORelFracHgt_Flng(iIONo)<1.005)
+          if (IORelFracHgt_Flng(iIONo)<HO.Container().m_HighestSLFrac)// 1.005)
             HO.m_VolScl[iHO1]=VolFlwScale;
           else
-            HO.m_VolScl[iHO1]=0.0;
+            HO.m_VolScl[iHO1]=-1.0;
           if (!IO_In(HO.m_Ord[iHO1]))  
             {
             int iIONo=HO.m_Ord[iHO1];
@@ -1847,7 +1847,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
       for (int s=0; s<SDB.Count(); s++)
         TotOut[s]=0.0;
 
-      for (iHO1=iHO; iHO1<HO.NOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
+      for (iHO1=iHO; iHO1<HO.NSLOrd() && HO.m_Seq[iHO1]==HOSeq; iHO1++)
         {
         if (!IO_In(HO.m_Ord[iHO1]))  
           {
@@ -1875,9 +1875,6 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
         ContentFlw.SetVMass(s, ContentFlw, GEZ(ContentFlw.VMass[s]-TotOut[s]));
         }
 
-      //dbgpln("   <<<<<<<< IMPROVE THIS");
-      //ContentFlw.QScaleMass(som_SL, GEZ(TotalVAvl-VolFlwScale*TotalVDmd)/GTZ(TotalVAvl));
-
 #if dbgDerivs
       if (dbgso)
         {
@@ -1892,7 +1889,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
       iHO++;
     }
 
-  for (int iHO=0; iHO<HO.NOrd(); iHO++)
+  for (int iHO=0; iHO<HO.NSLOrd(); iHO++)
     {
     int iIONo=HO.m_Ord[iHO];
     if (!DoneIt[iIONo])
@@ -1927,48 +1924,35 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     {
     double TotalVapRqd=0.0;
     double VapourQmRqd=0.0;
-    //double SpcVapRqd[MaxSpecies];
-    //double SpcVapAvl[MaxSpecies];
     double SpcVapFrac[MaxSpecies];
 
     SpecieIter I(som_Gas);
     for (int s=-1; I.Loop(s); )
-      {
-      //SpcVapRqd[s]=0.0;
-      //SpcVapAvl[s]=VapourFlw.MArray().VMass[s];
-      //SpcVapFrac[s]=SpcVapAvl[s]/TotalVapAvl;
       SpcVapFrac[s]=VapourFlw.MArray().VMass[s]/TotalVapAvl;
-      }
     
-    for (int iHO=0; iHO<HO.NOrd(); iHO++)
+    for (int iHO=0; iHO<HO.NAllOrd(); iHO++)
       {
       int iIONo=HO.m_Ord[iHO];
       if (!IO_In(iIONo))
         {
         SpConduit & Fo = *IOConduit(iIONo);
         double VapQm=GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
-        VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+        if (HO.SLOut(iHO))
+          VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+        else
+          VapQm = Min(VapQm, GEZ(VapourFlw.QMass()/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau())));
 
         if (IOHasPMU(iIONo, PMU_Filter))
           {
           CSysVector & Filter=*IOPMUFilter(iIONo);
           for (int s=-1; I.Loop(s); )
             VapourQmRqd+=VapQm*SpcVapFrac[s]*Filter[s];
-            //{
-            //SpcVapRqd[s]+=VapQm*SpcVapFrac[s]*Filter[s];
-            //VapourQmRqd+=SpcVapRqd[s];
-            //}
           }
         else
           {
           for (int s=-1; I.Loop(s); )
             VapourQmRqd+=VapQm*SpcVapFrac[s];
-            //{
-            //SpcVapRqd[s]+=VapQm*SpcVapFrac[s];
-            //VapourQmRqd+=SpcVapRqd[s];
-            //}
           }
-        //VapourQmRqd+=VapQm;
         }
       }
     double VapourScl=Range(0.0, VapourFlw.QMass()/GTZ(VapourQmRqd), 1.0);
@@ -1976,14 +1960,18 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     if (dbgso)
       dbgpln("VapourScl = %14.4f %s", VapourScl, FullObjTag());
   #endif
-    for (int iHO=0; iHO<HO.NOrd(); iHO++)
+    for (int iHO=0; iHO<HO.NAllOrd(); iHO++)
       {
       int iIONo=HO.m_Ord[iHO];
       if (!IO_In(iIONo))
         {
         SpConduit & Fo = *IOConduit(iIONo);
         double VapQm=VapourScl*GEZ(IOQmEst_Out(iIONo)-Fo.QMass());
-        VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+        //VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+        if (HO.SLOut(iHO))
+          VapQm *=(1.0-HO.m_VolScl[iHO]); // actually double dating;
+        else
+          VapQm = Min(VapQm, GEZ(VapourFlw.QMass()/Max(Max(1.0, ICGetTimeInc()) * 1.5, Contents.VapourEscapeTau())));
 
         if (IOHasPMU(iIONo, PMU_Filter))
           {
@@ -3441,7 +3429,6 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
   flag dbg=(flag)dbgSortIOs();
   #endif
 
-
   for ( ;Data->m_IOIdMask; Data++)
     {
     double  FHgt[MaxIOList];
@@ -3449,6 +3436,9 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
     SortSurgeIOData &D=*Data;
     CHgtOrdInfo     &HO=*D.m_pOrd;
     HO.m_dwIOIdMask = D.m_IOIdMask;
+
+    HO.m_nAllOrd=0;
+    HO.m_nSLOrd=0;
 
     // Connect Container to Hgt Order
     HO.m_pCn=D.m_pCn;
@@ -3505,7 +3495,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
       Oi=0;
       for (i = 0; i < /*NoProcLnkIOs*/NoFlwIOs() && !DoSort; i++)
         if ((IOIdMask_Self(i) & D.m_IOIdMask)!=0)
-          if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
+          if (/*IO_Out(i) &&*/ (FHgt[i]<=HO.Container().m_HighestVapFrac))
             {
             IOAreaRec * pA=IODesc_Self(i);
             if (IOHgtOrd(i)>=0 && IOHgtOrd(i)<NoFlwIOs())
@@ -3528,7 +3518,7 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
         Oi=0;
         for (i = 0; i < NoFlwIOs(); i++)
           if ((IOIdMask_Self(i) & D.m_IOIdMask)!=0)
-            if (/*IO_Out(i) &&*/ (FHgt[i]<=1.01))
+            if (/*IO_Out(i) &&*/ (FHgt[i]<=HO.Container().m_HighestVapFrac))
               IHgt[Oi++]=i;
             else
               IOHgtOrd(i)=-1;
@@ -3560,13 +3550,16 @@ void MdlNode::SortSurgeIO(SortSurgeIOData * Data)
     HO.m_VolScl.SetSize(Oi);
     HO.m_SLRho.SetSize(Oi);
 
-    int HSeq=0;
+      int HSeq=0;
     for (i = 0; i < Oi; i++)
       {
       HO.m_Ord[i]=IHgt[i];
       if (i>0 && ((FHgt[IHgt[i]] - FHgt[IHgt[i-1]]) >= 1.0e-3))
         HSeq++;
       HO.m_Seq[i]=HSeq;
+      HO.m_nAllOrd++;
+      if (FHgt[IHgt[i]]<=HO.Container().m_HighestSLFrac)
+        HO.m_nSLOrd++;
       }
 
     #if dbgModels
@@ -3590,21 +3583,19 @@ void MdlNode::GetCnFlows(CHgtOrdInfo &HO, int IONo, SpConduit & SLFeed, /*SpCond
   SpContainer &Cn=HO.Container();
 
   SLFeed.QZero();      // total Slurry feed into this Vessel
-  //QvSLFeed.QZero();      // total Slurry feed into this Vessel
   SLOutBelow.QZero();  // Slurry leaving affecting this IO
 
   int MySeq=MaxIOList;
-  for (int j=0; j<HO.NOrd(); j++)
+  for (int j=0; j<HO.NAllOrd(); j++)
     {
     int ii=HO.m_Ord[j];
     if (ii==IONo)
       MySeq=HO.m_Seq[j];
     }
 
-  for (int j=0; j<HO.NOrd(); j++)
+  for (int j=0; j<HO.NAllOrd(); j++)
     {
     int ii=HO.m_Ord[j];
-    // if IONo<0 then doing Overflow
     if (ii==IONo)
       {
       //MySeq=HO.m_Seq[j];
@@ -3621,7 +3612,7 @@ void MdlNode::GetCnFlows(CHgtOrdInfo &HO, int IONo, SpConduit & SLFeed, /*SpCond
       //SLFeed+=QmIn*(Fp.msVolL()*(1-Fp.VVolFrac())*(1-IOEstL2VOnEntry(ii))+
       //                Fp.msVolL()*(Fp.VVolFrac())*IOEstV2LOnEntry(ii));
       }
-    else if ((ii!=IONo) && IO_Out(ii) && (HO.m_Seq[j]</*=*/MySeq))
+    else if (HO.SLOut(ii) && IO_Out(ii) && (HO.m_Seq[j]</*=*/MySeq))
       {
       //CSpPropInfo &Fp=*IOFlwProps(ii,0);
       CSpPropInfo &Fp=*IONetProps(ii);
@@ -4621,26 +4612,6 @@ void MdlNode::MakeUpLinkTransferReqd()
   int iIn=IO_In(0) ? 0 : 1;
   int iOut=(iIn+1)%2;
   IOFlange(iIn)->SetMakeUpReqd(IOFlange(iOut)->MakeUpReqd());
-  };
-
-//--------------------------------------------------------------------------
-
-void MdlNode::SigmaIOFlows(CSigmaIOFlows & Sigma)
-  {
-  Sigma.Clear();
-  for (int i=0; i<NoFlwIOs(); i++)
-    {
-    Sigma.Mass+=(IO_In(i) ? 1 : -1) * IOConduit(i)->QMass();
-    Sigma.MaxMass=Max(Sigma.MaxMass, (IO_In(i) ? 1 : -1) * IOConduit(i)->QMass());
-    Sigma.Heat+=(IO_In(i) ? 1 : -1) * IOConduit(i)->totHf();
-    Sigma.MaxHeat=Max(Sigma.MaxHeat, fabs((IO_In(i) ? 1 : -1) * IOConduit(i)->totHf()));
-    }
-  }
-
-CSigmaIOFlows::TestResult CSigmaIOFlows::Test()
-  {
-  _asm int 3;
-  return Balanced;
   };
 
 //--------------------------------------------------------------------------

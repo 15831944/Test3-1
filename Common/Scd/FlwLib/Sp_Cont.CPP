@@ -911,7 +911,10 @@ m_MixSet(this)
   m_LvlHi       = 0;
   m_LvlLo       = 0; 
   m_LmtAsStatus = 1;
- };
+
+  m_HighestSLFrac  = 1.02;
+  m_HighestVapFrac = 1.10;
+  };
 
 // --------------------------------------------------------------------------
 
@@ -965,6 +968,9 @@ m_MixSet(this)
   m_LvlHi       = 0;
   m_LvlLo       = 0; 
   m_LmtAsStatus = 1;
+
+  m_HighestSLFrac  = 1.02;
+  m_HighestVapFrac = 1.10;
   };
 
 // --------------------------------------------------------------------------
@@ -1162,6 +1168,10 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
       pModel->BuildDataDefn_UsrProps(DDB, MP_ConfigProp);
 
       DDB.Page(Tg(), DDB_OptPage);
+      DDB.Text(" ");
+      DDB.Text("ProductIO");
+      DDB.Double ("HighestSlurryIO", "", DC_Frac, "%", &m_HighestSLFrac,  this, isParm);
+      DDB.Double ("HighestVapourIO", "", DC_Frac, "%", &m_HighestVapFrac, this, 0);
       if (pPreset)
         pPreset->BuildDataDefn(DDB, *this);
 
@@ -1580,6 +1590,10 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
 flag SpContainer::ValidateData(ValidateDataBlk & VDB)
   {
   flag OK=true;
+
+  m_HighestVapFrac = Range(1.02, m_HighestVapFrac, 1.2);
+  m_HighestSLFrac = Range(1.001, m_HighestSLFrac, m_HighestVapFrac);
+
   if (OrigPrjFileVerNo()<90)
     {
     if (SpillExists() && _stricmp(Spill.AreaTag, "Floor.Content")==0)
