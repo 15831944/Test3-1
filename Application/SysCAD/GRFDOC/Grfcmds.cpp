@@ -7601,7 +7601,7 @@ void GrfCmdBlk::DoDelete()
                 CMdlAssocGrf & G=Grfs.GetNext(Pos);
               //if (!Info.fIsDirectConnect && (strcmp(Info.Group(), FlwLinkGrp)==0 || strcmp(Info.Group(), CtrlLinkGrp)==0))
               //  {
-_asm int 3;
+//_asm int 3;
                 //for (int g=0; g<G.m_AssocGrfs.GetCount(); g++)
                 //  {
                 //  char *a[] = { TagAttribStr,                                    (pchar)NULL };
