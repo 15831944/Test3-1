@@ -252,7 +252,7 @@ flag CRepTrend::Start1()
       LogError("Report", LF_Exclamation, "Cannot open read-only Database '%s'", sDBName());
       return false;
       }
-    if (!DB.OpenDB(DBConnect_Default, EscapeQuote(sDBName()), false, false))
+    if (!DB.OpenDB(DBConnect_Default, sDBName(), false, false))
       {
       LogError("Report", LF_Exclamation, "Cannot open Database '%s'", sDBName());
       return false;
