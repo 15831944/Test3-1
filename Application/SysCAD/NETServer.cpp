@@ -196,6 +196,46 @@ public:
     //Chris: This is an example of handling the ItemCreated event.
   }
 
+    void LinkCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
+    {
+    }
+
+    void ThingCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    {
+    }
+
+    void ItemDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    {
+    }
+
+    void LinkDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    {
+    }
+
+    void ThingDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    {
+    }
+
+    void ItemModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+    }
+
+    void ItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String^ path)
+    {
+    }
+
+    void LinkModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
+    {
+    }
+
+    void ThingModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    {
+    }
+
+    void ThingPathModified(Int64 eventId, Int64 requestID, Guid guid, String^ path)
+    {
+    }
+
 
   void Shutdown()
   {

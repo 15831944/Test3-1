@@ -18,30 +18,20 @@ namespace Service
 {
   public partial class ServiceTemporaryWindow : Form
   {
-
     public ConfigData configData; 
-    public Dictionary<Guid, GraphicItem> graphicItems;
 
+    public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicThing> graphicThings;
 
-
     ClientServiceProtocol clientClientServiceProtocol;
-    private String configPath;
     EngineServiceProtocol engineClientServiceProtocol;
 
+    private String configPath;
     private String name;
     private String projectPath;
     private String stencilPath;
-
     private Int64 requestID;
-
-
-
-    
-    
-    
-    
     
     public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
     {
@@ -57,8 +47,6 @@ namespace Service
       //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
       IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
       ChannelServices.RegisterChannel(ipcChannel, false);
-
-
       
       this.projectPath = projectPath;
       this.configPath = configPath;
@@ -66,20 +54,14 @@ namespace Service
 
       name = Path.GetFileNameWithoutExtension(Path.GetDirectoryName(projectPath));
 
-
-
-
       configData = new ConfigData();
       GetStencils(configData);
       configData.ProjectList.Add(name);
       RemotingServices.Marshal(configData, "Global");
 
-
       graphicItems = new Dictionary<Guid, GraphicItem>();
       graphicLinks = new Dictionary<Guid,GraphicLink>();
       graphicThings = new Dictionary<Guid,GraphicThing>();
-
-
       
       ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
 
@@ -153,26 +135,7 @@ namespace Service
                                                               engineDeleteThing, enginePortCheck, enginePropertyListCheck);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     bool ChangeState(out Int64 requestID, BaseProtocol.RunStates runState)
     {
