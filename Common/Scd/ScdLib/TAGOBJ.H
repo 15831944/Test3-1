@@ -77,7 +77,7 @@ class CFieldMonitorTOCls;
 //ensure no overhead checking tags,cnvs,etc when in full release mode!
 #define DoDDBChecks 0
 #else
-#define DoDDBChecks (!(0 && SYSCAD10))
+#define DoDDBChecks 1/*(!defined(_MANAGED))// && !(0 && SYSCAD10))*/
 #endif
 
 #if DoDDBChecks
@@ -1729,6 +1729,13 @@ typedef CMap <char *, char *, DDBCheckClass*, DDBCheckClass*> DDBCheckClassMap;
 #define CHKSTUFF1(pDDB);
 #endif
 
+#ifdef _MANAGED
+#undef CHKSTUFF0
+#undef CHKSTUFF1
+#define CHKSTUFF0()          /* nothing */
+#define CHKSTUFF1(pDDB)      /* nothing */
+#endif
+
 //---------------------------------------------------------------------------
 
 class DllImportExport DataDefnBlk  : public DDBDataInfo
@@ -2244,6 +2251,7 @@ class DllImportExport TagAccessBlk
     DDBShortcut         m_Shortcut;
 
   public:
+#ifndef _MANAGED
     struct CTimes
       {
       long        m_Calls;
@@ -2255,6 +2263,7 @@ class DllImportExport TagAccessBlk
     static CTimes   m_GetDefined;
     static CTimes   m_PutDefined;
     static CTimes   m_ValidateDefined;
+#endif
   };
 
 //===========================================================================

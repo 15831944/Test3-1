@@ -400,7 +400,7 @@ class CGrfTagInfo
     Strng m_sDrwGroup;
     flag m_bValid;
     flag m_bHasTag;
-    struct {
+    struct CSymbol{
       double m_X;
       double m_Y;
       double m_Z;
@@ -410,7 +410,7 @@ class CGrfTagInfo
       double m_Rotation;
       BOOL   m_Visible;
       } m_Node, m_Tag;
-    struct {
+    struct CPoint{
       double m_X;
       double m_Y;
       double m_Z;

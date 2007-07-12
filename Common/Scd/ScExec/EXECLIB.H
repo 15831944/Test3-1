@@ -430,6 +430,7 @@ class DllImportExport CXM_QueryString : public CXM_Header
         m_dwLength+=len;
         }
       };
+#ifndef _MANAGED
     void Set(char* Value, ...)
       {
       m_dwLength=&cValue[0]-(char*)this;
@@ -441,6 +442,7 @@ class DllImportExport CXM_QueryString : public CXM_Header
       va_end(argptr);
       m_dwLength+=strlen(cValue)+1;
       };
+#endif
     char * String() { return cValue; };
 
     DEFINE_SPARES(CXM_QueryString)
@@ -466,6 +468,7 @@ class DllImportExport CXM_QueryRow : public CXM_Header
       nPts=0;
       m_dwLength=(char*)(&dValue[0])-(char*)this;
       };
+#ifndef _MANAGED
     flag AddValue(double Value, ...)
       {
       if (nPts>=MaxQueryRowValues)
@@ -474,6 +477,7 @@ class DllImportExport CXM_QueryRow : public CXM_Header
       m_dwLength += sizeof(double);
       return True;
       };
+#endif
     double         Value(int i) { ASSERT(i<nPts); return dValue[i]; };
 
     DEFINE_SPARES(CXM_QueryRow)
@@ -709,6 +713,7 @@ class DllImportExport CXM_String : public CXM_Header
         m_dwLength+=strlen(cValue)+1;
         }
       };
+#ifndef _MANAGED
     void Set(char* Value, ...)
       {
       m_dwLength=&cValue[0]-(char*)this;
@@ -720,6 +725,7 @@ class DllImportExport CXM_String : public CXM_Header
       va_end(argptr);
       m_dwLength+=strlen(cValue)+1;
       };
+#endif
     char * String() { return cValue; };
 
     DEFINE_SPARES(CXM_String)

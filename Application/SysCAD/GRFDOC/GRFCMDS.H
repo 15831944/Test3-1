@@ -138,6 +138,35 @@ class CLineDrawHelper
 
 //===========================================================================
 
+class CRectangleF
+  {
+  public:
+    CRectangleF()
+      {
+      m_Left=0.0;
+      m_Right=0.0;
+      m_Top=0.0;
+      m_Bottom=0.0;
+      };
+    CRectangleF(double L, double R, double T, double B)
+      {
+      m_Left=L;
+      m_Right=R;
+      m_Top=T;
+      m_Bottom=B;
+      }
+    double  MidX() const { return 0.5*(m_Left+m_Right); };
+    double  MidY() const { return 0.5*(m_Top+m_Bottom); };
+
+  public:
+    double   m_Left;
+    double   m_Right;
+    double   m_Top;
+    double   m_Bottom;
+  };
+
+//===========================================================================
+
 class CInsertBlk
   {
   public :
@@ -176,6 +205,7 @@ class CInsertBlk
     DXF_ENTITY    m_Entity;
     CEntInView    *m_EntInVw;
 
+    CRectangleF   m_BoundRct;
   };
 
 class CConnectBlk

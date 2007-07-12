@@ -6533,7 +6533,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
     if (01)//pkh && OK)
       {
       m_pCLRSrvr = new CNETServer;
-      m_pCLRSrvr->Startup(PrjFiles(), CfgFiles());
+      m_pCLRSrvr->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
       }
     else
       m_pCLRSrvr = NULL;

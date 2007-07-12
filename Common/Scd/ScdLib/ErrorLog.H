@@ -26,8 +26,6 @@ DllImportExport const char * FindWinError(DWORD Code);
 
 //===========================================================================
 
-#ifndef _MANAGED
-
 class ConditionArray  : public CArray < byte, byte &> {};
 class ConditionSeqNos : public CArray < DWORD, DWORD &> {};
 class ConditionInfo
@@ -81,6 +79,7 @@ class DllImportExport ConditionBlk
 
     static void    SetSeqNoAtRunStart() { m_lSeqNoAtRunStart=m_lSeqNo; };
 
+#ifndef _MANAGED
     // These are used to Transfer to the top of a TaggedObject Class Heirarchy to get the context correct
     virtual flag   SetCIVirt(int No)                      { DoBreak(); return 0; };
     virtual flag   ClrCIVirt(int No)                      { DoBreak(); return 0; };
@@ -88,8 +87,10 @@ class DllImportExport ConditionBlk
     virtual flag   SetCIVirt(int No, flag State)          { DoBreak(); return 0; };
     virtual flag   ClrCIVirt(int No, flag State)          { DoBreak(); return 0; };
     virtual int    CBContextVirt()                        { DoBreak(); return 0; };
+#endif
   };
 
+#ifndef _MANAGED
 
 #define DEFINE_CI(Class, BaseClass, MaxMsgs)                                         \
 virtual flag   CIStrng(int No, pchar & S);                                           \
@@ -184,6 +185,13 @@ virtual flag SetCIVirt(int No, flag State)          { return SetCI(No, State); }
 virtual flag ClrCIVirt(int No, flag State)          { return ClrCI(No, State); };   \
 virtual int  CBContextVirt()                        { return CBContext();      };
 
+#else
+
+#define DEFINE_CI(Class, BaseClass, MaxMsgs)                                         
+#define DEFINE_CIVIRT(Class, BaseClass)                                             
+
+#endif
+
 //===========================================================================
 //
 //
@@ -204,8 +212,6 @@ public:
   long ErrNo() { return m_ErrNo;};
   char* ErrStr() { return m_pszMessage ? m_pszMessage : "";};
 };
-
-#endif
 
 //===========================================================================
 //

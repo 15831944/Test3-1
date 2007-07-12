@@ -31,7 +31,7 @@ class CNETServer
   public:
     ~CNETServer();
 
-    static void Startup(char* projectPath, char* configPath);
+    static void Startup(char* projectPath, char* configPath, bool ImportScd9);
     static void Shutdown();
 
     static void Sync(__int64 requestID);

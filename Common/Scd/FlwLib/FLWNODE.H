@@ -4339,6 +4339,7 @@ class DllImportExport FlwNode : public CTNode
     // ConditionBlk Override
     DEFINE_CI(FlwNode, CTNode, 40);
 
+#ifndef _MANAGED
     virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)
       {
       if (Text)
@@ -4351,6 +4352,7 @@ class DllImportExport FlwNode : public CTNode
       else
         SetCI(Id+26, On);
       };
+#endif
 
 #if NDSTOPWATCHES
     // Stop Watches
