@@ -535,6 +535,13 @@ void CPipeLeak::PostConnect(int IONo)
   IOFB(IONo,0)->SetFBScales(1.0,1.0);
   };
 
+// -------------------------------------------------------------------------
+
+void CPipeLeak::ConfigureJoins()
+  {
+  MN_Xfer::ConfigureJoins();
+  };
+
 //==========================================================================
 //
 //

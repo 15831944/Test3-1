@@ -11206,6 +11206,7 @@ static LPCTSTR eTypeStr(eDirectIO eType)
     case eDIO_Snk:         return "Sink";
     case eDIO_Bleed:       return "Bleed";
     case eDIO_Accum:       return "Accum";
+    case eDIO_Leak:        return "Leak";
     default:               return "???";
     }
   }
@@ -11475,7 +11476,7 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
 
     DDB.Text("");
     if (!m_bIsXfer)
-      m_FEP.BuildDataDefn(FBDDOpt_WithAll, DDB, m_pNd, NULL, UserInfo);
+      m_FEP.BuildDataDefn(FBDDOpt_WithAll|FBDDOpt_WithXtraEqn, DDB, m_pNd, NULL, UserInfo);
     }
 
   switch (Type)
@@ -11885,7 +11886,8 @@ void CDirectFlwIO::PostConnect(int IONo)
   m_pNd->IOFB(IONo,0)->SetIsPipe(true);
   m_pNd->IOFB(IONo,0)->SetFBScales(1.0,1.0);
 
-  m_pNd->IOFB(IONo,0)->SetFlowMode(FBMode_Xfer);
+  if (m_bIsXfer)
+    m_pNd->IOFB(IONo,0)->SetFlowMode(FBMode_Xfer);
   };
 
 // -------------------------------------------------------------------------

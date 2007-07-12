@@ -22,7 +22,7 @@
 // ==========================================================================
 // Basic Flow Object
 
-const int IOId_XferLeak = LeakIOId(0);
+const int IOId_XferLeak = IOId_LeakI2Area;//LeakIOId(0);
 
 XID xidNetworkIsolator  = MdlBsXID(10000);
 

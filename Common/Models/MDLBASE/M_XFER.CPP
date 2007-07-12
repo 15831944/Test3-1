@@ -306,8 +306,15 @@ void MN_Xfer::ConfigureJoins()
       }
     }
 
-  for (int ii=NoProcessIOs(), jj=1+1; ii<NoFlwIOs(); ii++, jj++)
-    SetIO_Direct(ii, jj);
+  int jj=1+1;
+  for (int ii=NoProcLnkIOs(), jj=1+1; ii<NoFlwIOs(); ii++)
+    {
+    int Id=IOId_Self(ii);
+    if (Id==IOId_XferLeak)
+      SetIO_Join(ii, 0);  
+    else
+      SetIO_Direct(ii, jj++);
+    }
   };
 
 //--------------------------------------------------------------------------

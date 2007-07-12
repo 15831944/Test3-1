@@ -104,6 +104,7 @@ class DllImportExport CPipeLeak : public MN_Xfer
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
     virtual void   PostConnect(int IONo);
+    virtual void   ConfigureJoins();
 
   protected:
     //flag           m_bShowQFeed;
