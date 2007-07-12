@@ -7,7 +7,7 @@
 #include "neutralcommon.h"
 
 #include "NETServer.h"
-//#include "NETServerU.h"
+#include "NETServerU.h"
 
 //========================================================================
 
@@ -42,6 +42,37 @@ using namespace System::Runtime::InteropServices;//;::Marshal;
 
 #pragma managed
 
+//========================================================================
+//
+//
+//
+//========================================================================
+
+
+CString ToCString(String ^ str)
+  {
+   // Pin memory so GC can't move it while native function is called
+   pin_ptr<const wchar_t> wch = PtrToStringChars(str);
+   printf_s("%S\n", wch);
+
+   // Conversion to char* :
+   // Can just convert wchar_t* to char* using one of the 
+   // conversion functions such as: 
+   // WideCharToMultiByte()
+   // wcstombs_s()
+   // ... etc
+   size_t convertedChars = 0;
+   size_t  sizeInBytes = ((str->Length + 1) * 2);
+   errno_t err = 0;
+   char    *ch = (char *)malloc(sizeInBytes);
+
+   err = wcstombs_s(&convertedChars, 
+                    ch, sizeInBytes,
+                    wch, sizeInBytes);
+   if (err != 0)
+      printf_s("wcstombs_s  failed!\n");
+  return CString(wch) ;
+  }
 
 //========================================================================
 //
@@ -157,6 +188,14 @@ public:
           // e.g.
           // item->Angle
           // item->X
+
+          SS_CreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+                        ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
+                        CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Top, item->BoundingRect.Bottom), 
+                        item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
+                        item->MirrorX, item->MirrorY);
+          int yyy=0;
+        //Chris
         }
 
         for each (GraphicLink ^ link in engineProtocol->graphicLinks->Values)
@@ -191,9 +230,16 @@ public:
     }
   };
 
+
   void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
   {
     //Chris: This is an example of handling the ItemCreated event.
+    SS_CreateItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+                  ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
+                  CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Top, boundingRect.Bottom), 
+                  angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
+                  mirrorX, mirrorY);
+    int yyy=0;
   }
 
     void LinkCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
