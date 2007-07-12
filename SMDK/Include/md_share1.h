@@ -417,7 +417,7 @@ class MSysException
     char m_sNear[128];
   };
 
-#if !_MANAGED
+#ifndef _MANAGED
 
 //Floating Point Processor Exception:
 class MFPPException : public MSysException

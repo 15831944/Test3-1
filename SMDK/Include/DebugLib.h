@@ -60,7 +60,7 @@ DllImportExport void dbgTimeStamp(LPCTSTR Where);
 
 //=========================================================================
 
-//pkh#if !_MANAGED
+#ifndef _MANAGED
 
 class DllImportExport CStopWatch
   {
@@ -174,7 +174,7 @@ class DllImportExport CGlblStopWatchList : public CArray<CGlblStopWatch*, CGlblS
 extern DllImportExport CGlblStopWatchList gs_swFlwSolve;
 extern DllImportExport CGlblStopWatchList gs_swExecute;
 
-//pkh#endif
+#endif
 
 //===========================================================================
 

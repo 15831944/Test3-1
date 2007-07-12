@@ -124,7 +124,7 @@ const flag True=1;
 //
 // ========================================================================
 
-#if !_MANAGED
+#ifndef _MANAGED
 
 #include <eh.h>
 inline void XcpTranslateFunction( unsigned int u, EXCEPTION_POINTERS* pExp )

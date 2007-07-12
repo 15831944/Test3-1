@@ -740,12 +740,12 @@ class DllImportExport Strng
     /*#F:#R:Returns the current value of the zero based index of the Strng*/
     int      Index() { return iIndex; };
 
-//pkh#if !_MANAGED
+#ifndef _MANAGED
     double   SafeAtoF(double Default=0.0) { return ::SafeAtoF(Buff, Default); };
     long     SafeAtoL(long Default=0) { return ::SafeAtoL(Buff, Default); };
     char*    MakeBinary(DWORD dw, int MinLen, int Grp = -1);
     char*    MakeAlpha(long dw, int MinLen = -1, int Base = 26);
-//pkh#endif
+#endif
 
   //protected:
     pchar    Buff;//stores the contents of the Strng.
@@ -833,7 +833,7 @@ DllImportExport Strng operator+(LPCTSTR lpsz, const Strng& string);
 
 // -------------------------------------------------------------------------
 
-#if !_MANAGED
+#ifndef _MANAGED
 
 inline double SafeAtoF(Strng & Str, double Default=0.0)
   { return SafeAtoF(Str(), Default); };
@@ -1167,7 +1167,7 @@ DllImportExport DWORD  FreeVirtualMemory();
 
 // -------------------------------------------------------------------------
 // SysCAD Wrapper class - used to ensure that the LOCALE remains "C"
-//pkh#if !_MANAGED
+#ifndef _MANAGED
 
 class DllImportExport CSCDFileDialog : public CFileDialog
   {
@@ -1183,7 +1183,7 @@ class DllImportExport CSCDFileDialog : public CFileDialog
     virtual BOOL OnFileNameOK( );
   };
 
-//pkh#endif
+#endif
 
 
 BOOL DllImportExport MyPostMessage(CWnd* pWnd, UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
@@ -1263,7 +1263,7 @@ extern DllImportExport CProfINIFile ScdPFMachine;
 //
 // ==========================================================================
 
-#if !_MANAGED
+#ifndef _MANAGED
 
 class DllImportExport CStopWatchItem : public CStopWatch
   {
