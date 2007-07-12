@@ -2977,7 +2977,7 @@ bool CArchiveManager::OpenDB()
       CString S;
       S.Format("Provider='Microsoft.JET.OLEDB.4.0';"
         "Data source = %s;"
-        "Jet OLEDB:Engine Type=5", (LPCTSTR)m_sDataFile);
+        "Jet OLEDB:Engine Type=5", (LPCTSTR)EscapeQuote(m_sDataFile));
       m_pCat->Create(_bstr_t(S));
       m_pCnn=m_pCat->GetActiveConnection();
       m_pCnn->Close();
