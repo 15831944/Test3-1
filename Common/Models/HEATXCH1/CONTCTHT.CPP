@@ -7,6 +7,7 @@
 #include "sc_defs.h"
 #define  __CONTCTHT_CPP
 #include "contctht.h"
+//#include "optoff.h"
 
 #define WithPressureOption 0
 
@@ -442,10 +443,10 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
       double LiquorP = QLiqIn.Press();
       double LiquorT_ = QLiqIn.Temp();
 
-      //flag HasSteam  = (Vapour().Qm(si)>1.0e-6);
-      flag HasSteam  = (VapourQ>1.0e-6);
-      flag HasFeed   = (Mixture().QMass()>1.0e-6);
-      flag HasLiquor = (LiquorQ>1.0e-6);
+      //const flag HasSteam  = (Vapour().Qm(si)>1.0e-6);
+      const flag HasSteam  = (VapourQ>1.0e-6);
+      const flag HasFeed   = (Mixture().QMass()>1.0e-6);
+      const flag HasLiquor = (LiquorQ>1.0e-6);
       SetCI(2, HasLiquor && !HasSteam);
 
       SetCI(5, bTrackSteamStatus && HasSteam && (VapourSteamQ/VapourQ)<0.9999); //expect 100% steam in steam line
@@ -466,7 +467,7 @@ void ContactHeater::EvalProducts(CNodeEvalIndex & NEI)
       if (!GeneralCalc)
         {
         iCalcMode = (byte)(m_FTC.Active() ? QST_FTCActive : QST_Makup);
-        SetCI(2, (VapourSteamQ<1.0e-6));
+        SetCI(2, HasLiquor && (VapourSteamQ<1.0e-6));
 
         m_FTC.m_dQCond = VapourQ;//VapourQVap;//VapourSteamQ
 

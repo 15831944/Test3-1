@@ -171,7 +171,7 @@ bool CScdSlvWrap::InitialiseCfg(BSTR CfgFileName)
   else
     m_PrjCnvsDBName="";
   //if (CnvsLoadedCnt>0)
-  //  LogNote("Sfe_Server", 0, "%d new conversions loaded from %s", CnvsLoadedCnt, m_PrjCnvsDBName());
+  //  LogNote("SysCAD", 0, "%d new conversions loaded from %s", CnvsLoadedCnt, m_PrjCnvsDBName());
   m_PrjCnvsDBName.FnMakePrjFileRelative();
   m_PrjCnvsDBName.FnContract();
 
@@ -179,13 +179,13 @@ bool CScdSlvWrap::InitialiseCfg(BSTR CfgFileName)
     m_PrjSDBName.FnSearchExpand(NULL, AF_CfgFiles|AF_BackupFiles);
   if (!FileExists(m_PrjSDBName()))
     {
-    LogError("Sfe_Server", LF_Exclamation, "File not found: %s", m_PrjSDBName());
+    LogError("SysCAD", LF_Exclamation, "File not found: %s", m_PrjSDBName());
     //m_PrjSDBName="";
     }
   
   if (!CFlwSolver::LoadSpecieData(CfgFile(), m_PrjSDBName(), false))
     {
-    LogError("Sfe_Server", LF_Exclamation, "Specie Data no Loaded : %s", CfgFile());
+    LogError("SysCAD", LF_Exclamation, "Specie data not loaded : %s", CfgFile());
     return false;
     }
 

@@ -9738,7 +9738,7 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
     if (SpModelClass.FindClassId(Tmp()))
       SpModelOwner::DefaultModel=Tmp;
     else
-      LogError("Sfe_Server", LF_Exclamation, "Unknown Specie Model '%s'", Tmp());
+      LogError("SysCAD", LF_Exclamation, "Unknown Specie Model '%s'", Tmp());
 
   SVI.Init();
 
@@ -9801,7 +9801,7 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
   if (!CDB.Initialise(CDBI, (LPSTR)PrjSDBName, !ExcludeDefSpDB, H2OAsAqueous))
     {
     //CDB.DumpTest();
-    LogError("Sfe_Server", LF_Exclamation, "Specie DB Failed to Initialise (see preceding messages)");
+    LogError("SpecieDB", LF_Exclamation, "Specie database failed to initialise (see preceding messages)");
     return false;
     }
 
@@ -9861,7 +9861,7 @@ flag CFlwSolver::Init()
   else
     m_PrjCnvsDBName="";
   if (CnvsLoadedCnt>0)
-    LogNote("Sfe_Server", 0, "%d new conversions loaded from %s", CnvsLoadedCnt, m_PrjCnvsDBName());
+    LogNote("SysCAD", 0, "%d new conversions loaded from %s", CnvsLoadedCnt, m_PrjCnvsDBName());
   m_PrjCnvsDBName.FnMakePrjFileRelative();
   m_PrjCnvsDBName.FnContract();
 
@@ -9869,13 +9869,13 @@ flag CFlwSolver::Init()
     m_PrjSDBName.FnSearchExpand(NULL, AF_CfgFiles|AF_BackupFiles);
   if (!FileExists(m_PrjSDBName()))
     {
-    LogError("Sfe_Server", LF_Exclamation, "File not found: %s", m_PrjSDBName());
+    LogError("SysCAD", LF_Exclamation, "File not found: %s", m_PrjSDBName());
     //m_PrjSDBName="";
     }
 
   if (!LoadSpecieData(CfgFile(), m_PrjSDBName(), true))
     {
-    //LogError("Sfe_Server", LF_Exclamation, "File not found: %s", m_PrjSDBName());
+    //LogError("SysCAD", LF_Exclamation, "File not found: %s", m_PrjSDBName());
     return false;
     }
 
@@ -9937,12 +9937,12 @@ flag CFlwSolver::Init()
             {
             p->SetSelectable(On);
             if (On && !p->Selectable())
-              LogError("Sfe_Server", 0, "%s Model Class not available", Tg());
+              LogError("SysCAD", 0, "%s Model Class not available", Tg());
             }
           else
             {
             if (stricmp(Tg(), "CEnvelope-1")!=0)
-              LogError("Sfe_Server", LF_Exclamation, "%s Unknown Model Class", Tg());
+              LogError("SysCAD", LF_Exclamation, "%s Unknown Model Class", Tg());
             }
           }
         }
@@ -9965,7 +9965,7 @@ flag CFlwSolver::Init()
     if (p)
       p->SetSelectable(true);
     else
-      LogError("Sfe_Server", LF_Exclamation, "Required %s Model Class not available", ForceOn[i]);
+      LogError("SysCAD", LF_Exclamation, "Required %s Model Class not available", ForceOn[i]);
     }
 
   for (SfeInitClass* p=SfeInitClass::First(); p; p=p->Next())
