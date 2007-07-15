@@ -1733,7 +1733,7 @@ void GrfCmdBlk::DoObjectAccess()
           pDsp->Vp1->ClearAllEntity();
         pDsp->Vp1->AddSelectionEntityList(DXF_INSERT);
         pDsp->Vp1->AddSelectionAttribList(TagAttribStr);
-        pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 25.0); // 50.0
+        pDsp->Vp1->SelectClosestEntity(pDsp->CurrentPt, 10.0); // 50.0
         CEntInView* pEnt = ((pDsp->Vp1)->FirstSelectedEntity());
         pDsp->Vp1->ClrSelectionAllList();
 

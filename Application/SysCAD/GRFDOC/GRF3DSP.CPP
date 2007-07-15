@@ -190,7 +190,7 @@ CEntInView* Viewport::SelectClosestEntity(Pt_SLW pt, BOOL& AlreadySelected, doub
   int ypos = pt.Logical[1];
   CEntInView* p = disp_list;
   CEntInView* best = NULL;
-  flag InBox;
+  flag InBox=false;
 
   DWORD CW=FPP_DisableExceptions();//IGF to prevent Line_2f::PerpParm crashing due to infinite "len"
   do
