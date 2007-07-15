@@ -85,71 +85,86 @@ flag LE_EquivDiam::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFl
   double DensMeas=Min_FE_Rho(FE.MeanRho(pProps));
   double EquivArea=Diam2Area(m_dEquivDiam);
 
-  // K for Pipe Entry + Exit
-  double K=1.0+0.5;
-  m_PhD.KFact.SetVal(K, this);
-
-  FE.SetVelMeasRange(DensMeas, EquivArea, 0.001);
-  double Qm0=FE.QmMeas();
-  double Qm1=FE.QmMeas(1.001);
-  double Vel0=FE.VelMeas();
-  double Vel1=FE.VelMeas(1.001);
-  FE.SetVelocity(Vel0);
-  m_dVelMeas=Vel0;
-
-  double DP0, DP1;
-  if (FE.Linearised())
+  Regulation=Range(0.0, Regulation, 1.0);
+  if (On && (Regulation > MinValveOpening))
     {
-    DP0=FE.LinearisedDP(Qm0, Regulation);
-    DP1=FE.LinearisedDP(Qm1, Regulation);
+    FE.SetQmFree();
+
+    // K for Pipe Entry + Exit
+    double K=1.0+0.5;
+    m_PhD.KFact.SetVal(K, this);
+
+    FE.SetVelMeasRange(DensMeas, EquivArea*Regulation, 0.001);
+    double Qm0=FE.QmMeas();
+    double Qm1=FE.QmMeas(1.001);
+    double Vel0=FE.VelMeas();
+    double Vel1=FE.VelMeas(1.001);
+    FE.SetVelocity(Vel0);
+    m_dVelMeas=Vel0;
+
+    double DP0, DP1;
+    if (FE.Linearised())
+      {
+      DP0=FE.LinearisedDP(Qm0, Regulation);
+      DP1=FE.LinearisedDP(Qm1, Regulation);
+      }
+    else
+      {
+      DP0=PressDropKFact(Vel0, DensMeas, m_PhD.KFact());
+      DP1=PressDropKFact(Vel1, DensMeas, m_PhD.KFact());
+      }
+    FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
+    FE.SetDPb(0.0, 0.0);
+    m_dDP=DP0;
+    double P=FE.FlngPB().P;
+    if (Valid(P) && P>1.0)
+      m_dVelSonicMeas=Sqrt(1.4*P*1000/GTZ(FE.MeanRhoV(pProps, P)));
+    else
+      m_dVelSonicMeas=0;
+
+    /*
+    //double dPipeArea=Diam2Area(m_dDiamPipe);
+    //if (pPhD0 && pPhD0->IsPipe())
+    //  dPipeArea=pPhD0->Area();
+    //else if (pPhD1 && pPhD1->IsPipe())
+    //  dPipeArea=pPhD1->Area();
+    //else
+    //  {};
+    //m_dDiamPipe=dPipeArea=Area2Diam(dPipeArea);
+
+    FE.SetQmMeasRange(0.0001);
+    double m_dDiamPipe=0.1;
+
+    //double aQm = fabs(FE.Qm);
+    //int    sQm = Sign(FE.Qm);
+    double Rho = FE.MeanRho(pProps);
+    //double Rho=
+    //m_dEquivDiam = Range(0.2*m_dDiamPipe, m_dEquivDiam, 0.8*m_dDiamPipe);
+    m_dEquivDiam = Range(0.001*m_dDiamPipe, m_dEquivDiam, 0.8*m_dDiamPipe);
+    double DR = m_dEquivDiam/GTZ(m_dDiamPipe);//diameter ratio
+    double DRpowFour = Pow(DR,4.0);//diameter ratio raised to power of 4
+    double DRexpr = 1.0-DRpowFour;//1-(diam ratio to power of 4)
+    double E = Pow(DRexpr,-0.5);//Velocity_of_Approach factor
+    double DC = 0.5959+0.0312*Pow(DR,2.1)-0.184*Pow(DR,8.0)+0.039
+    *DRpowFour*Pow(DRexpr,-1.0)-0.01584*Pow(DR,3.0);//Discharge coefficient
+    m_dDP=Sqr((4000.0*FE.QmMeas())/(DC*E*PI*m_dEquivDiam*Rho))/(2.0*Rho);
+    double DPDQ=(FE.QmMeas()/Rho)*Sqr(4000.0/(DC*E*PI*m_dEquivDiam*Rho));
+
+    m_dDensMeas=Max(0.001, FE.MeanRho(pProps));
+    m_dVelMeas=FE.VelMeas();
+
+    FE.SetDPb(0.0, 0.0);
+    FE.SetDPq(-FE.QmSign()*m_dDP, -FE.QmSign()*DPDQ);
+    FE.SetVelocity(m_dVelMeas);
+    */
+
+
     }
   else
-    {
-    DP0=PressDropKFact(Vel0, DensMeas, m_PhD.KFact());
-    DP1=PressDropKFact(Vel1, DensMeas, m_PhD.KFact());
-    }
-  FE.SetDPq(DP0, (DP1-DP0)/FE.DQmMeas(1.001));
-  FE.SetDPb(0.0, 0.0);
-  m_dDP=DP0;
-  m_dVelSonicMeas=Sqrt(1.4*FE.FlngPB().P*1000/GTZ(FE.MeanRhoV(pProps, FE.FlngPB().P)));
+    FE.SetQmReqd(0.0);
 
-/*
-  //double dPipeArea=Diam2Area(m_dDiamPipe);
-  //if (pPhD0 && pPhD0->IsPipe())
-  //  dPipeArea=pPhD0->Area();
-  //else if (pPhD1 && pPhD1->IsPipe())
-  //  dPipeArea=pPhD1->Area();
-  //else
-  //  {};
-  //m_dDiamPipe=dPipeArea=Area2Diam(dPipeArea);
 
-  FE.SetQmMeasRange(0.0001);
-  double m_dDiamPipe=0.1;
 
-  //double aQm = fabs(FE.Qm);
-  //int    sQm = Sign(FE.Qm);
-  double Rho = FE.MeanRho(pProps);
-  //double Rho=
-  //m_dEquivDiam = Range(0.2*m_dDiamPipe, m_dEquivDiam, 0.8*m_dDiamPipe);
-  m_dEquivDiam = Range(0.001*m_dDiamPipe, m_dEquivDiam, 0.8*m_dDiamPipe);
-  double DR = m_dEquivDiam/GTZ(m_dDiamPipe);//diameter ratio
-  double DRpowFour = Pow(DR,4.0);//diameter ratio raised to power of 4
-  double DRexpr = 1.0-DRpowFour;//1-(diam ratio to power of 4)
-  double E = Pow(DRexpr,-0.5);//Velocity_of_Approach factor
-  double DC = 0.5959+0.0312*Pow(DR,2.1)-0.184*Pow(DR,8.0)+0.039
-             *DRpowFour*Pow(DRexpr,-1.0)-0.01584*Pow(DR,3.0);//Discharge coefficient
-  m_dDP=Sqr((4000.0*FE.QmMeas())/(DC*E*PI*m_dEquivDiam*Rho))/(2.0*Rho);
-  double DPDQ=(FE.QmMeas()/Rho)*Sqr(4000.0/(DC*E*PI*m_dEquivDiam*Rho));
-  
-  m_dDensMeas=Max(0.001, FE.MeanRho(pProps));
-  m_dVelMeas=FE.VelMeas();
-
-  FE.SetDPb(0.0, 0.0);
-  FE.SetDPq(-FE.QmSign()*m_dDP, -FE.QmSign()*DPDQ);
-  FE.SetVelocity(m_dVelMeas);
-*/
-
-    
   return True;
   }
 
@@ -325,7 +340,7 @@ flag LE_VolFlow::ValidateData(ValidateDataBlk & VDB)
 flag LE_VolFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
-  if (Regulation > MinValveOpening)
+  if (On && (Regulation > MinValveOpening))
     {
     FE.SetQmFree();
     double dPq1, dPq2;
@@ -417,7 +432,7 @@ flag LE_MassFlow::ValidateData(ValidateDataBlk & VDB)
 flag LE_MassFlow::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 1.0);
-  if (Regulation > MinValveOpening)
+  if (On && (Regulation > MinValveOpening))
     {
     FE.SetQmFree();
     double dPq1, dPq2;
@@ -533,6 +548,8 @@ void CPipeLeak::PostConnect(int IONo)
   //_asm int 3;
   IOFB(IONo,0)->SetIsPipe(true);
   IOFB(IONo,0)->SetFBScales(1.0,1.0);
+  IOFB(IONo,0)->SetFlowModeSrc(this, false);
+
   };
 
 // -------------------------------------------------------------------------

@@ -41,6 +41,8 @@ MN_Xfer::MN_Xfer(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_AccCalc=NULL;
   SetAllowedModes(false, NM_All|SM_Direct|SM_Inline|HM_All);
   //SetInlineIntegral(true);
+  
+  m_Leak.FEP.SetFlowModeSrc(this, false);
   };
 
 MN_Xfer::~MN_Xfer()

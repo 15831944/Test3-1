@@ -7719,7 +7719,8 @@ void FlwNode::SetJoinPressure(int iJoinNo, double P, bool DoInputs, bool DoOutpu
   for (int c=0; c<J.NConns(); c++)
     {
     int i = J.IONo(c);
-    if (i<NoFlwIOs() && (DoInputs && IO_In(i) || DoOutputs && IO_Out(i)))
+    //if (i<NoFlwIOs() && (DoInputs && IO_In(i) || DoOutputs && IO_Out(i)))
+    if (i<NoFlwIOs() && (DoInputs && !IO_Out(i) || DoOutputs && !IO_In(i)))
       {
       Set_IOP_Self(i, P);
       Set_IOP_Flng(i, P);
@@ -8450,7 +8451,7 @@ void FlwNode::EvalAudit(int Pass)
   {
   if (AuditOption()>Audit_Off)
     {
-    bool dbgOn=false;
+    bool dbgOn=true;
     if (dbgOn)
       dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
     switch (Pass)
@@ -11157,7 +11158,7 @@ eDIOConnectSelects CDirectFlwIO::sm_ConnectLeaks       = eDIOSlct_All;
 eDIOConnectSelects CDirectFlwIO::sm_ConnectAudit       = eDIOSlct_All;
 
 CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
-  m_FEP(NULL, FBDDOpt_WithAll, 0.0)
+  xm_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
   m_sRmtTypeName=RmtTypeName?RmtTypeName:"Area";
   m_sRmtTagDef=RmtTagDef;
@@ -11169,7 +11170,7 @@ CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysE
   };
 
 CDirectFlwIO::CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, LPCTSTR RmtTypeName, LPCTSTR RmtTagDef) :
-  m_FEP(NULL, FBDDOpt_WithAll, 0.0)
+  xm_FEP(NULL, FBDDOpt_WithAll, 0.0)
   {
   m_sRmtTypeName=RmtTypeName?RmtTypeName:"Area";
   m_sRmtTagDef=RmtTagDef;
@@ -11226,6 +11227,7 @@ void CDirectFlwIO::Initialise(eDirectIO eType, FlwNode* Nd)
     {
     case eDIO_Spill:
     case eDIO_Vent:
+    case eDIO_Leak:
       m_NdSignImp=-1;
       break;
     case eDIO_Src:
@@ -11469,14 +11471,19 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
       DDB.Double  ("FracHgt", "FHgt",  DC_Frac,  "%",         xidDrctFracHgt,    m_pNd, isParmStopped);
 
     if (Options&DFIO_ShowQm)
-      DDB.Double  ("MassFlowOut", "QmOut",  DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
+      {
+      DDB.Double  ("FlowOut.MassEst", "FlowOut.QmEst",  DC_Qm,  "kg/s",   xidDrctQmEst,      m_pNd, isResult|NAN_OK);
+      DDB.Double  ("FlowOut.Mass",    "FlowOut.Qm",     DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
+      DDB.Double  ("FlowOut.Volume",  "FlowOut.Qv",     DC_Qv,  "L/s",    xidDrctQv,         m_pNd, isResult);
+      DDB.Double  ("FlowOut.NVolume", "FlowOut.NQv",    DC_NQv, "NL/s",   xidDrctNQv,        m_pNd, isResult);
+      }
 
     if (DDB.ForFileSnpScn())
       DDB.Byte    ("UseStatus",   "",  DC_,         "",       xidUseStatus,      m_pNd, isResult);
 
     DDB.Text("");
     if (!m_bIsXfer)
-      m_FEP.BuildDataDefn(FBDDOpt_WithAll|FBDDOpt_WithXtraEqn, DDB, m_pNd, NULL, UserInfo);
+      xm_FEP.BuildDataDefn(FBDDOpt_WithAll/*|FBDDOpt_WithXtraEqn*/, DDB, m_pNd, NULL, UserInfo);
     }
 
   switch (Type)
@@ -11524,7 +11531,7 @@ LPCTSTR CDirectFlwIO::TargetStr(flag ForFiling)
 
 flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
   {
-  if (/*DCB.dwUserInfo==1 &&*/ m_FEP.DataXchg(DCB))
+  if (/*DCB.dwUserInfo==1 &&*/ xm_FEP.DataXchg(DCB))
     return 1;
   switch (DCB.lHandle)
     {
@@ -11568,7 +11575,7 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       return 1;
     case xidDrctOpening:
       if (DCB.rD)
-        Opening=*DCB.rD;
+        Opening=Range(0.0, *DCB.rD, 1.0);
       DCB.D=Opening;
       return 1;
 
@@ -11577,9 +11584,27 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
         FracHgt=Range(1.0001, *DCB.rD, 2.0);
       DCB.D=FracHgt;
       return 1;
-    case xidDrctQm:
-      DCB.D=HasConduit ? Cd.QMass() : Sum.FlowMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QMass() : Cd.QMass() : 0);
+    case xidDrctQmEst:
+      DCB.D = (m_iMyConnectedIO>=0) ? -m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : dNAN;
       return 1;
+    case xidDrctQm:
+      {
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      DCB.D = HasConduit ? Sgn*Cd.QMass() : Sum.FlowMass;//dNAN;
+      return 1;
+      }
+    case xidDrctQv:
+      {
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      DCB.D=HasConduit ? Sgn*Cd.QVolume() : dNAN;
+      return 1;
+      }
+    case xidDrctNQv:
+      {
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      DCB.D=HasConduit ? Sgn*Cd.QNVolume() : dNAN;
+      return 1;
+      }
     case xidConnectState:
       DCB.B=m_pRmt.ConnectState();
       return 1;
@@ -11588,14 +11613,8 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
         m_pFlng->m_iUseStatus = *DCB.rB;
       DCB.B = m_pFlng ? m_pFlng->m_iUseStatus:0;
       return 1;
-
-    //case xidDrctQv:
-    //  DCB.D=Sum.totMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QVolume() : Cd.QVolume() : 0);
-    //  return 1;
-    //case xidDrctNQv:
-    //  DCB.D=Sum.totMass;//dNAN;//(m_bConnected ? m_iMyConnectedIO>=0 ? -m_pNd->IOSign(m_iMyConnectedIO)*m_pNd->IOConduit(m_iMyConnectedIO)->QNVolume() : Cd.QNVolume() : 0);
-    //  return 1;
     }
+
   return false;
   };
 
@@ -11881,13 +11900,18 @@ void CDirectFlwIO::PostConnect(int IONo)
 
   m_pNd->IOConduit(IONo)->AttachMeToObj(m_pNd, TOA_Embedded);
   if (!m_bIsXfer)
-    m_pNd->IOFB(IONo,0)->SetParentFlwEqn(&m_FEP);
+    m_pNd->IOFB(IONo,0)->SetParentFlwEqn(&xm_FEP);
 //  m_pNd->IOFB(IONo,0)->AssignFlwEqnGroup(Leak2AreaGroup, m_FEP.Eqn()->ClassId()/*Leak2AreaGroup.Default()*/, m_pNd);
   m_pNd->IOFB(IONo,0)->SetIsPipe(true);
   m_pNd->IOFB(IONo,0)->SetFBScales(1.0,1.0);
 
   if (m_bIsXfer)
     m_pNd->IOFB(IONo,0)->SetFlowMode(FBMode_Xfer);
+  else
+    {
+    xm_FEP.SetFlowModeSrc(m_pNd, false);
+    m_pNd->IOFB(IONo,0)->SetFlowModeSrc(m_pNd, false);
+    }
   };
 
 // -------------------------------------------------------------------------

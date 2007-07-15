@@ -493,15 +493,19 @@ class DllImportExport CExternAuditCalc : public CAreaSum
 
 XID xidRmtTag           = MdlBsXID(5203);
 XID xidRmtTagConnd      = MdlBsXID(5204);
-XID xidDrctQm           = MdlBsXID(5205);
-XID xidDrctEnable       = MdlBsXID(5206);
-XID xidConnectState     = MdlBsXID(5207);
-XID xidDIOFlangeTag     = MdlBsXID(5208);
-XID xidDIOFlngSrcTag    = MdlBsXID(5209);
-XID xidDIOFlngDstTag    = MdlBsXID(5210);
-XID xidUseStatus        = MdlBsXID(5211);
-XID xidDrctOpening      = MdlBsXID(5212);
-XID xidDrctFracHgt      = MdlBsXID(5213);
+XID xidDrctQmEst        = MdlBsXID(5205);
+XID xidDrctQm           = MdlBsXID(5206);
+XID xidDrctQv           = MdlBsXID(5207);
+XID xidDrctNQv          = MdlBsXID(5208);
+XID xidDrctEnable       = MdlBsXID(5209);
+XID xidConnectState     = MdlBsXID(5210);
+XID xidDIOFlangeTag     = MdlBsXID(5211);
+XID xidDIOFlngSrcTag    = MdlBsXID(5212);
+XID xidDIOFlngDstTag    = MdlBsXID(5213);
+XID xidUseStatus        = MdlBsXID(5214);
+XID xidDrctOpening      = MdlBsXID(5215);
+XID xidDrctFracHgt      = MdlBsXID(5216);
+
 enum eDIOConnectSelects
   {
   eDIOSlct_None, eDIOSlct_All, eDIOSlct_Selected
@@ -583,6 +587,7 @@ class DllImportExport CDirectFlwIO
     FlwNode     & getArea()                 { return *m_pRmt; };
     CAreaSum    & getSum()                  { return *m_pSum; };
     int           getNdSignImplied()        { return m_NdSignImp; };
+    CFlwEqnPtr  & getFEP()                  { return xm_FEP; };
 
     flag          getHasConduit()           { return m_eType <= eDIO_Bleed; };
     SpConduit   & getConduit();//              { return *m_pFlng->Conduit(false); };
@@ -611,6 +616,7 @@ class DllImportExport CDirectFlwIO
     _declspec(property(get=getHasConduit))                  flag          HasConduit;
     _declspec(property(get=getFlange))                      CFlange     & Flange;
     _declspec(property(get=getConduit))                     SpConduit   & Cd;
+    _declspec(property(get=getFEP))                         CFlwEqnPtr  & FEP;
 
   protected:
 
@@ -627,7 +633,7 @@ class DllImportExport CDirectFlwIO
     Strng         m_sRmtTag;
     Strng         m_sRmtTmp;
     Strng         m_sRmtTagDef;
-    CFlwEqnPtr     m_FEP;
+    CFlwEqnPtr    xm_FEP;
     flag          m_bConnected;
     int           m_iMyConnectedIO;
     double        m_Opening;
@@ -1913,7 +1919,7 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 
 #define SPILL2AREA           {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
 #define VENT2AREA(DisableId) {"", "Vnt",   IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
-#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*/|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
+#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*//*|IOHidden*/,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
 
 const int MaxIOList       = 32000;
 const int IOPt_MaxJoinId  = MaxIOList-1;

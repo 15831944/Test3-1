@@ -453,7 +453,7 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 class DllImportExport CMdlAssocGrfX
   {
   public:
-    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eDelete };
+    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eHide, eDelete };
     CMdlAssocGrfX()
       {
       m_eAction        = eNull; 

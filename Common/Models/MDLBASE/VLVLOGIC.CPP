@@ -206,7 +206,7 @@ void VL_Basic::EvalCtrlActions(FlwNode* pFNode)
 
 double VL_Basic::ActualPosition(FlwNode* pFNode, CFlwRegBlk * pFRB)
   {
-  if (pFRB && pFRB->What()!=FBReg_Off)
+  if (On() && pFRB && pFRB->What()!=FBReg_Off)
     dPosition=pFRB->Ctrl();
   else
     dPosition=Range(0.0, dPosition, 1.0);

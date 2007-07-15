@@ -423,21 +423,28 @@ void MdlNode::Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, 
     {
     double Qot=0.0;
     for (int i,ic = 0; (i=I[ic])>=0; ic++)
-      if (i<NoProcLnkIOs() && IO_Out(i))
-        Qot += IOQmEst_Out(i);
+      {
+      if (i<NoProcLnkIOs() || IsLeakIOId(IOId_Self(i)))
+        {
+        if (IO_Out(i))
+          Qot += IOQmEst_Out(i);
+        }
+      }
 
     double QinA=Qo.QMass(som_ALL);
     double TIn=Qo.Temp();
     // What Comes in must go out
     double Scl=Range(0.0, QinA/GTZ(Qot), 1000.0);
     for (ic = 0; (i=I[ic])>=0; ic++)
-      if (i<NoProcLnkIOs())
+      {
+      if (i<NoProcLnkIOs() || IsLeakIOId(IOId_Self(i)))
         {
         if (IO_Out(i))
           IOConduit(i)->QSetM(Qo, som_ALL, IOQmEst_Out(i)*Scl, Qo.Press());
         else if (!IO_In(i))
           IOConduit(i)->QSetM(Qo, som_ALL, 0, Qo.Press());
         }
+      }
     }
   }
 

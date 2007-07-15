@@ -778,7 +778,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
 #if dbgAssocGrf
               dbgpln("                   Delete @ %s", Tag);
 #endif
-              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
+              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eHide, NULL, 0, 0, 0, eInsert));
               }
             }
           else //if (I.m_bShowIt)
@@ -4229,6 +4229,12 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
           Drawing->Delete(GX.m_Entity);
           break;
           }
+        case CMdlAssocGrfX::eHide:
+          {
+          pDsp->Draw(GX.m_Entity, GrfHelper.GR_BACKGROUND);
+          Drawing->Hide(GX.m_Entity, true);
+          break;
+          }
         }
       }
 
@@ -5774,7 +5780,8 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
         int AllowBoxSlct=
           (pBlockName &&
           _strnicmp(pBlockName, "Pipe-", 5)!=0 &&
-          _strnicmp(pBlockName, "Link-", 5)!=0);
+          _strnicmp(pBlockName, "Link-", 5)!=0 &&
+          _strnicmp(pBlockName, "LNKBLK", 6)!=0);
 
         CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, AllowBoxSlct, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), entitytag);
         if (!l->NumPoint())
