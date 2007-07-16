@@ -28,13 +28,16 @@ struct HXSideVars
 	double	m_dSatT;
 	double	m_dSatP;
 	double	m_dSatPP;
+	double	m_ddHz;
+
+	double	m_dInHz;
 
 	void	BuildDataFields(MDataDefn DD);
 	void	ReadInStream(const MStream& InStream);
 	void	ReadOutStream(const MStream& OutStream);
 };
 
-class CCARTubeDigester : public MBaseMethod//, CSTHx
+class CKWATubeDigester : public MBaseMethod//, CSTHx
 {
 	friend class HXSolver;
 	friend class CondensingHXSolver;
@@ -42,8 +45,8 @@ class CCARTubeDigester : public MBaseMethod//, CSTHx
 	friend class SimpleHXSolver;
 	friend class CondEvapHXSolver;
 public:
-	CCARTubeDigester(MUnitDefBase * pUnitDef, TaggedObject * pNd);
-	virtual ~CCARTubeDigester(void);
+	CKWATubeDigester(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+	virtual ~CKWATubeDigester(void);
 
 	virtual void    Init();
 	virtual void    BuildDataFields();

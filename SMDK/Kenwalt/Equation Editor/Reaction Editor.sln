@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reaction Editor", "Equation Editor\Reaction Editor.csproj", "{6E29A89F-A48C-43F2-98D9-0DA080E89D70}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Reaction Editor Setup", "Setup1\Setup1.vdproj", "{37D7D233-130C-4815-8543-B8E6DF4B9E9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,8 @@ Global
 		{6E29A89F-A48C-43F2-98D9-0DA080E89D70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E29A89F-A48C-43F2-98D9-0DA080E89D70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E29A89F-A48C-43F2-98D9-0DA080E89D70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37D7D233-130C-4815-8543-B8E6DF4B9E9F}.Debug|Any CPU.ActiveCfg = Debug
+		{37D7D233-130C-4815-8543-B8E6DF4B9E9F}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

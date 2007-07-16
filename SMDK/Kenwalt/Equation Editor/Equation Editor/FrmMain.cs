@@ -165,6 +165,7 @@ namespace Reaction_Editor
                 {
                     dlgSaveRxn.FileName = target.Filename;
                 }
+                dlgSaveRxn.Title = "Save Reaction " + target.Title;
                 if (dlgSaveRxn.ShowDialog(this) == DialogResult.OK)
                     target.SaveAs(dlgSaveRxn.FileName);
             }
@@ -173,6 +174,14 @@ namespace Reaction_Editor
                 MessageBox.Show(ex.Message, "Save file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.Message(ex.Message, MessageType.Error);
             }
+        }
+
+        protected void RepositionLog()
+        {
+            FrmLog frm = (FrmLog)Log;
+            frm.Size = new Size(this.ClientSize.Width - grpFiles.Width - grpSpecies.Width - 20,
+                150);
+            frm.Location = new Point(5, this.ClientRectangle.Bottom - frm.Height - statusStrip1.Height - 30);
         }
         #endregion
 
@@ -192,9 +201,7 @@ namespace Reaction_Editor
             frm.MdiParent = this;
 
             frm.Show();
-            frm.StartPosition = FormStartPosition.Manual;
-            frm.Location = new Point(5, this.ClientRectangle.Bottom - frm.Height - statusStrip1.Height - 30);
-            frm.Width = this.ClientSize.Width - grpFiles.Width - grpSpecies.Width - 20;
+            RepositionLog();
             string fn = (string) regKey.GetValue("Last Database", "");
             if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
                 OpenSpecieDB(fn);
@@ -490,7 +497,7 @@ namespace Reaction_Editor
 
         private void menuNew_Click(object sender, EventArgs e)
         {
-            FrmReaction frm = new FrmReaction(m_nUntitledNo, Log);
+            FrmReaction frm = new FrmReaction(m_nUntitledNo++, Log);
             RegisterForm(frm);
         }
 
@@ -509,6 +516,53 @@ namespace Reaction_Editor
                     ((FrmReaction)treeFiles.SelectedNode.Parent.Tag).SelectReaction((SimpleReaction)treeFiles.SelectedNode.Tag);
                 }
             }
+        }
+
+        private void menuClose_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild is FrmReaction)
+                ActiveMdiChild.Close();
+        }
+
+        private void menuCascade_Click(object sender, EventArgs e)
+        {
+            LayoutMdi(MdiLayout.Cascade);
+            RepositionLog();
+        }
+
+        private void undockToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form f = ActiveMdiChild;
+            ActiveMdiChild.MdiParent = null;
+            f.Owner = this;
+        }
+
+        private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("SysCAD Reaction editor version 0.1\r\nTest version.");
+        }
+
+        private void menuExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void fileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            menuClose.Enabled =
+                menuSave.Enabled =
+                menuSaveAs.Enabled =
+                (ActiveMdiChild != null && ActiveMdiChild is FrmReaction);
+        }
+
+        private void menuSaveAll_Click(object sender, EventArgs e)
+        {
+            foreach (Form f in OwnedForms)
+                if (f is FrmReaction)
+                    Save((FrmReaction)f);
+            foreach (Form f in MdiChildren)
+                if (f is FrmReaction)
+                    Save((FrmReaction)f);
         }
     }
 }

@@ -22,8 +22,6 @@ namespace Reaction_Editor
             listView1.SmallImageList = new ImageList();
             foreach (DictionaryEntry de in rr)
             {
-                Console.WriteLine("Key: " + de.Key);
-                Console.WriteLine("Value " + de.Value);
                 listView1.SmallImageList.Images.Add((String)de.Key, (Icon) de.Value);
             }
         }
@@ -52,6 +50,8 @@ namespace Reaction_Editor
             ListViewItem lvi = new ListViewItem(new string[] { source, msg }, imageKey);
             lvi.Tag = src;
             listView1.Items.Add(lvi);
+            listView1.EnsureVisible(lvi.Index);
+            //listView1.AutoScrollOffset = new Point(0);//(lvi.Position);
         }
 
         public void Message(string msg, MessageType msgType, MessageSource src)

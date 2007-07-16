@@ -166,23 +166,23 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			{
 				CString compTag = (sPipeName + ".Qi.") + gs_MVDefn[i].Symbol();         /*CNM*/
 				MTagIODirect compItem(TagIO, compTag);                                  /*CNM*/
-        if (compItem.ReadValue(false)==MTagIO_OK)                               /*CNM*/
-        {                                                                       /*CNM*/
-				  double dFrac = compItem.DoubleSI;
-				  if (((bShowLiquids && gs_MVDefn[i].IsLiquid())
-					  || (bShowSolids && gs_MVDefn[i].IsSolid())
-					  || (bShowVapours && gs_MVDefn[i].IsGas()))
-					  && dFrac > ZeroLimit)
-				  {
-					  vNames.push_back(gs_MVDefn[i].Symbol());
-					  vFractions.push_back(dFrac);
-					  dTotFrac += dFrac;
-          }
-        }                                                                       /*CNM*/
-        else                                                                    /*CNM*/
-        {                                                                       /*CNM*/
-        Log.Message(MMsg_Error, "Tag %s not Read '%s'", compTag, MTagIOItem::ResultString(compItem.Result));   /*CNM*/
-        }                                                                       /*CNM*/
+				if (compItem.ReadValue(false)==MTagIO_OK)                               /*CNM*/
+				{                                                                       /*CNM*/
+					double dFrac = compItem.DoubleSI;
+					if (((bShowLiquids && gs_MVDefn[i].IsLiquid())
+						|| (bShowSolids && gs_MVDefn[i].IsSolid())
+						|| (bShowVapours && gs_MVDefn[i].IsGas()))
+						&& dFrac > ZeroLimit)
+					{
+						vNames.push_back(gs_MVDefn[i].Symbol());
+						vFractions.push_back(dFrac);
+						dTotFrac += dFrac;
+					}
+				}                                                                       /*CNM*/
+				else                                                                    /*CNM*/
+				{                                                                       /*CNM*/
+					Log.Message(MMsg_Error, "Tag %s not Read '%s'", compTag, MTagIOItem::ResultString(compItem.Result));   /*CNM*/
+				}                                                                       /*CNM*/
 			}
 		}
 		else
@@ -194,14 +194,14 @@ bool PieChart::OperateModelGraphic(CMdlGraphicWnd &Wnd, CMdlGraphic &Grf)
 			MTagIODirect liquidItem(TagIO); liquidItem.Tag = liquidTag;
 			MTagIODirect gasItem(TagIO, gasTag);                                     /*CNM*/
 			if (gasItem.ReadValue(true)==MTagIO_OK)                                  /*CNM*/
-      {                                                                        /*CNM*/
-        double dSolidFrac = solidItem.DoubleSI;
-			  if (dSolidFrac > ZeroLimit)
-			  {
-				  vFractions.push_back(dSolidFrac);
-				  vNames.push_back("Solids");
-			  }
-      }                                                                        /*CNM*/
+			{                                                                        /*CNM*/
+				double dSolidFrac = solidItem.DoubleSI;
+				if (dSolidFrac > ZeroLimit)
+				{
+					vFractions.push_back(dSolidFrac);
+					vNames.push_back("Solids");
+				}
+			}                                                                        /*CNM*/
 			double dLiquidFrac = liquidItem.DoubleSI;                                /*CNM???*/
 			if (dLiquidFrac > ZeroLimit)                                             /*CNM???*/
 			{                                                                        /*CNM???*/

@@ -33,6 +33,7 @@ namespace Reaction_Editor
             System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Liquids", System.Windows.Forms.HorizontalAlignment.Left);
             System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuNew = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,7 +58,10 @@ namespace Reaction_Editor
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.selectedAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.arrangeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutSysCADReactionEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.grpFiles = new System.Windows.Forms.GroupBox();
@@ -71,6 +75,7 @@ namespace Reaction_Editor
             this.dlgOpenRxn = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveRxn = new System.Windows.Forms.SaveFileDialog();
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
+            this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -108,6 +113,7 @@ namespace Reaction_Editor
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
             this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // menuNew
             // 
@@ -125,6 +131,7 @@ namespace Reaction_Editor
             // 
             // menuOpenDir
             // 
+            this.menuOpenDir.Enabled = false;
             this.menuOpenDir.Name = "menuOpenDir";
             this.menuOpenDir.Size = new System.Drawing.Size(160, 22);
             this.menuOpenDir.Text = "Open &Directory";
@@ -134,6 +141,7 @@ namespace Reaction_Editor
             this.menuClose.Name = "menuClose";
             this.menuClose.Size = new System.Drawing.Size(160, 22);
             this.menuClose.Text = "&Close";
+            this.menuClose.Click += new System.EventHandler(this.menuClose_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -159,6 +167,7 @@ namespace Reaction_Editor
             this.menuSaveAll.Name = "menuSaveAll";
             this.menuSaveAll.Size = new System.Drawing.Size(160, 22);
             this.menuSaveAll.Text = "Save A&ll";
+            this.menuSaveAll.Click += new System.EventHandler(this.menuSaveAll_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -182,6 +191,7 @@ namespace Reaction_Editor
             this.menuExit.Name = "menuExit";
             this.menuExit.Size = new System.Drawing.Size(160, 22);
             this.menuExit.Text = "E&xit";
+            this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -194,6 +204,7 @@ namespace Reaction_Editor
             this.pasteToolStripMenuItem,
             this.toolStripMenuItem4,
             this.selectedAllToolStripMenuItem});
+            this.editToolStripMenuItem.Enabled = false;
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.editToolStripMenuItem.Text = "&Edit";
@@ -202,60 +213,87 @@ namespace Reaction_Editor
             // undoToolStripMenuItem
             // 
             this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.undoToolStripMenuItem.Text = "&Undo";
             // 
             // redoToolStripMenuItem
             // 
             this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-            this.redoToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.redoToolStripMenuItem.Text = "&Redo";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(137, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
             // 
             // cutToolStripMenuItem
             // 
             this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
-            this.cutToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.cutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.cutToolStripMenuItem.Text = "Cu&t";
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.copyToolStripMenuItem.Text = "&Copy";
             // 
             // pasteToolStripMenuItem
             // 
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.pasteToolStripMenuItem.Text = "&Paste";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(137, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
             // 
             // selectedAllToolStripMenuItem
             // 
             this.selectedAllToolStripMenuItem.Name = "selectedAllToolStripMenuItem";
-            this.selectedAllToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.selectedAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.selectedAllToolStripMenuItem.Text = "Selected &All";
             // 
             // windowToolStripMenuItem
             // 
+            this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.arrangeToolStripMenuItem,
+            this.undockToolStripMenuItem});
             this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
             this.windowToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.windowToolStripMenuItem.Text = "&Window";
             // 
+            // arrangeToolStripMenuItem
+            // 
+            this.arrangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuCascade});
+            this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
+            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.arrangeToolStripMenuItem.Text = "&Arrange";
+            // 
+            // undockToolStripMenuItem
+            // 
+            this.undockToolStripMenuItem.Name = "undockToolStripMenuItem";
+            this.undockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.undockToolStripMenuItem.Text = "&Undock";
+            this.undockToolStripMenuItem.Click += new System.EventHandler(this.undockToolStripMenuItem_Click);
+            // 
             // helpToolStripMenuItem
             // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutSysCADReactionEditorToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
             this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // aboutSysCADReactionEditorToolStripMenuItem
+            // 
+            this.aboutSysCADReactionEditorToolStripMenuItem.Name = "aboutSysCADReactionEditorToolStripMenuItem";
+            this.aboutSysCADReactionEditorToolStripMenuItem.Size = new System.Drawing.Size(231, 22);
+            this.aboutSysCADReactionEditorToolStripMenuItem.Text = "&About SysCAD Reaction Editor";
+            this.aboutSysCADReactionEditorToolStripMenuItem.Click += new System.EventHandler(this.aboutSysCADReactionEditorToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -379,6 +417,13 @@ namespace Reaction_Editor
             this.dlgOpenDB.Filter = "ini files|*.ini|All files|*.*";
             this.dlgOpenDB.Title = "Open Database";
             // 
+            // menuCascade
+            // 
+            this.menuCascade.Name = "menuCascade";
+            this.menuCascade.Size = new System.Drawing.Size(152, 22);
+            this.menuCascade.Text = "&Cascade";
+            this.menuCascade.Click += new System.EventHandler(this.menuCascade_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -390,6 +435,7 @@ namespace Reaction_Editor
             this.Controls.Add(this.grpFiles);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FrmMain";
@@ -448,6 +494,10 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuOpenDB;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.OpenFileDialog dlgOpenDB;
+        private System.Windows.Forms.ToolStripMenuItem arrangeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem undockToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutSysCADReactionEditorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuCascade;
 
 
     }

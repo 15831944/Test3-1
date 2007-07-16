@@ -28,6 +28,7 @@ namespace Reaction_Editor
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmReaction));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabReactions = new System.Windows.Forms.TabPage();
             this.pnlList = new System.Windows.Forms.Panel();
@@ -607,7 +608,7 @@ namespace Reaction_Editor
             this.tabOptions.Location = new System.Drawing.Point(4, 22);
             this.tabOptions.Name = "tabOptions";
             this.tabOptions.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOptions.Size = new System.Drawing.Size(687, 358);
+            this.tabOptions.Size = new System.Drawing.Size(687, 353);
             this.tabOptions.TabIndex = 1;
             this.tabOptions.Text = "Sources And Sinks";
             this.tabOptions.UseVisualStyleBackColor = true;
@@ -620,7 +621,7 @@ namespace Reaction_Editor
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(681, 352);
+            this.panel1.Size = new System.Drawing.Size(681, 347);
             this.panel1.TabIndex = 2;
             // 
             // grpSources
@@ -629,7 +630,7 @@ namespace Reaction_Editor
             this.grpSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSources.Location = new System.Drawing.Point(0, 0);
             this.grpSources.Name = "grpSources";
-            this.grpSources.Size = new System.Drawing.Size(681, 248);
+            this.grpSources.Size = new System.Drawing.Size(681, 243);
             this.grpSources.TabIndex = 3;
             this.grpSources.TabStop = false;
             this.grpSources.Text = "Sources";
@@ -640,7 +641,7 @@ namespace Reaction_Editor
             this.txtSources.Location = new System.Drawing.Point(3, 16);
             this.txtSources.Multiline = true;
             this.txtSources.Name = "txtSources";
-            this.txtSources.Size = new System.Drawing.Size(675, 229);
+            this.txtSources.Size = new System.Drawing.Size(675, 224);
             this.txtSources.TabIndex = 0;
             this.txtSources.TextChanged += new System.EventHandler(this.txtSources_TextChanged);
             // 
@@ -648,7 +649,7 @@ namespace Reaction_Editor
             // 
             this.grpSinks.Controls.Add(this.txtSinks);
             this.grpSinks.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpSinks.Location = new System.Drawing.Point(0, 248);
+            this.grpSinks.Location = new System.Drawing.Point(0, 243);
             this.grpSinks.Name = "grpSinks";
             this.grpSinks.Size = new System.Drawing.Size(681, 104);
             this.grpSinks.TabIndex = 2;
@@ -673,7 +674,7 @@ namespace Reaction_Editor
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(687, 358);
+            this.tabPage1.Size = new System.Drawing.Size(687, 353);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "Options";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -684,7 +685,7 @@ namespace Reaction_Editor
             this.grpDescription.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpDescription.Location = new System.Drawing.Point(3, 87);
             this.grpDescription.Name = "grpDescription";
-            this.grpDescription.Size = new System.Drawing.Size(681, 268);
+            this.grpDescription.Size = new System.Drawing.Size(681, 263);
             this.grpDescription.TabIndex = 13;
             this.grpDescription.TabStop = false;
             this.grpDescription.Text = "Description";
@@ -695,7 +696,7 @@ namespace Reaction_Editor
             this.txtDescription.Location = new System.Drawing.Point(3, 16);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(675, 249);
+            this.txtDescription.Size = new System.Drawing.Size(675, 244);
             this.txtDescription.TabIndex = 0;
             this.txtDescription.TextChanged += new System.EventHandler(this.txtDescription_TextChanged);
             // 
@@ -785,6 +786,7 @@ namespace Reaction_Editor
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(703, 387);
             this.Controls.Add(this.tabControl1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(571, 351);
             this.Name = "FrmReaction";
             this.Padding = new System.Windows.Forms.Padding(4);

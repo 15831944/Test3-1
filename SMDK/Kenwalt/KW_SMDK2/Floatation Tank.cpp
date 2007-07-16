@@ -389,11 +389,11 @@ void FloatationTank::EvalProducts()
 			dOtherMassIn += QI.M[vOtherIndices.at(i)];
 
 		int liNoGrade = 0;
-		double dTotalReqImpurities = dPrimaryElementConc * 1.0 / dReqPrimaryGrade - dPrimaryMassConc;
+		double dTotalReqImpurities = dPrimaryElementConc * 1.0 / NZ(dReqPrimaryGrade) - dPrimaryMassConc;
 		if (dTotalReqImpurities < dSecondaryMassConc) //If this is the case, we will put in no more impurities.
 		{
 			Log.SetCondition(true, liNoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
-			dPrimaryGrade = dPrimaryMassConc / (dPrimaryMassConc + dSecondaryMassConc);
+			dPrimaryGrade = dPrimaryMassConc / NZ(dPrimaryMassConc + dSecondaryMassConc);
 		}
 		else
 		{
@@ -405,8 +405,8 @@ void FloatationTank::EvalProducts()
 			}
 			for (unsigned int i = 0; i < vOtherIndices.size(); i++)
 			{
-				QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / dOtherMassIn;
-				QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / dOtherMassIn);
+				QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / NZ(dOtherMassIn);
+				QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / NZ(dOtherMassIn));
 			}
 		}
 
@@ -419,8 +419,8 @@ void FloatationTank::EvalProducts()
 			QOT.M[i] = QI.M[i] * (1 - dReqWaterFrac);
 		}
 
-		dPrimaryGrade = dPrimaryElementConc / QOC.Mass(MP_Sol);
-		dWaterFrac = QOC.Mass(MP_Liq) / QOC.Mass(MP_All);
+		dPrimaryGrade = dPrimaryElementConc / NZ(QOC.Mass(MP_Sol));
+		dWaterFrac = QOC.Mass(MP_Liq) / NZ(QOC.Mass(MP_All));
   }
   catch (MMdlException &e)
     {

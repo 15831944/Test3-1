@@ -537,7 +537,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Floatation Tank.cpp"
+				RelativePath=".\Flotation Cell.cpp"
 				>
 			</File>
 			<File
@@ -688,7 +688,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Floatation Tank.h"
+				RelativePath=".\Flotation Cell.h"
 				>
 			</File>
 			<File

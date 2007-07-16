@@ -1281,8 +1281,8 @@ namespace Reaction_Editor
                 else
                 {
                     startString += UnparseableComps[0];
-                    foreach (string s in UnparseableComps)
-                        startString += "', '" + s;
+                    for (int i = 1; i < UnparseableComps.Count; i++)
+                        startString += "', '" + UnparseableComps[i];
                     startString += "'";
                     Log.Message(startString, MessageType.Warning);
                 }
@@ -1295,8 +1295,8 @@ namespace Reaction_Editor
                 else
                 {
                     startString += UnparseableTokens[0];
-                    foreach (string s in UnparseableTokens)
-                        startString += "', '" + s;
+                    for (int i = 1; i < UnparseableTokens.Count; i++)
+                        startString += "', '" + UnparseableTokens[i];
                     startString += "'";
                     Log.Message(startString, MessageType.Warning);
                 }

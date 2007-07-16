@@ -44,7 +44,7 @@ static MInOutDefStruct s_IODefs[]=
 	{ NULL },
 };
 
-double Drw_CCARTubeDigester[] = 
+double Drw_CKWATubeDigester[] = 
   { 
   MDrw_Poly, -10,1, 10,1,
   MDrw_Poly, -10,-1, 10,-1,
@@ -59,12 +59,12 @@ double Drw_CCARTubeDigester[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT(CCARTubeDigester, "TubeDigester", DLL_GroupName)
+DEFINE_TRANSFER_UNIT(CKWATubeDigester, "TubeDigester", DLL_GroupName)
 
-void CCARTubeDigester_UnitDef::GetOptions()
+void CKWATubeDigester_UnitDef::GetOptions()
 {
 	SetDefaultTag("TR");
-	SetDrawing("HeatExchange", Drw_CCARTubeDigester);
+	SetDrawing("HeatExchange", Drw_CKWATubeDigester);
 	SetTreeDescription("Heat Transfer:Shell & Tube(2)");
 	SetDescription("TODO: Flash Train Digester");
 	SetModelSolveMode(MSolveMode_Probal);
@@ -74,7 +74,7 @@ void CCARTubeDigester_UnitDef::GetOptions()
 
 //---------------------------------------------------------------------------
 
-CCARTubeDigester::CCARTubeDigester(MUnitDefBase *pUnitDef, TaggedObject * pNd) : 
+CKWATubeDigester::CKWATubeDigester(MUnitDefBase *pUnitDef, TaggedObject * pNd) : 
 	MBaseMethod(pUnitDef, pNd),
 	m_HotRB(this, false, "RB_Hot"), m_ColdRB(this, false, "RB_Cold"),
 	m_HotVLE(this, VLEF_QPFlash, "VLE_Hot"), m_ColdVLE(this, VLEF_QPFlash, "VLE_Cold"),
@@ -101,13 +101,13 @@ CCARTubeDigester::CCARTubeDigester(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
 
   //---------------------------------------------------------------------------
 
-  CCARTubeDigester::~CCARTubeDigester()
+  CKWATubeDigester::~CKWATubeDigester()
     {
     }
 
   //---------------------------------------------------------------------------
 
-  void CCARTubeDigester::Init()
+  void CKWATubeDigester::Init()
     {
     SetIODefinition(s_IODefs);
     RegisterFlashTrainNode(idHotI, true, m_FTC.TypeInfo());
@@ -122,7 +122,7 @@ static MDDValueLst gs_OpModes[] = {
 		{ OM_CondEvap, "Condensing / Evaporating" },
 		{ 0 } };
 
-void CCARTubeDigester::BuildDataFields()
+void CKWATubeDigester::BuildDataFields()
 {
 
 	DD.Page("HX");
@@ -158,7 +158,7 @@ void CCARTubeDigester::BuildDataFields()
 
 //---------------------------------------------------------------------------
 
-bool CCARTubeDigester::ValidateDataFields()
+bool CKWATubeDigester::ValidateDataFields()
 {
 	//Eliminate zeros in case of database corruption or some such.
 	m_dHTC = GTZ(m_dHTC);
@@ -170,7 +170,7 @@ bool CCARTubeDigester::ValidateDataFields()
 		&& m_dLMTDFact > ZeroLimit;
 }
 
-bool CCARTubeDigester::PreStartCheck()
+bool CKWATubeDigester::PreStartCheck()
 {
 	if (FlwIOs.Count[FlwIOs.First[idVent]] == 0 && m_dReqQmVent > 0)
 		return false;
@@ -180,7 +180,7 @@ bool CCARTubeDigester::PreStartCheck()
 
 //---------------------------------------------------------------------------
 
-bool CCARTubeDigester::ExchangeDataFields()
+bool CKWATubeDigester::ExchangeDataFields()
 {
 	return false;
 }
@@ -189,7 +189,7 @@ bool CCARTubeDigester::ExchangeDataFields()
 
 // NOTE: if the tears in a flash train are moved to the slurry lines connecting the heaters the resulting convergence
 // is much improved. This code snippet will set this up automatically
-bool CCARTubeDigester::ConfigureJoins()
+bool CKWATubeDigester::ConfigureJoins()
 { 
 	if (MBaseMethod::ConfigureJoins())
 	{
@@ -208,7 +208,7 @@ bool CCARTubeDigester::ConfigureJoins()
 
   //---------------------------------------------------------------------------
 
-bool CCARTubeDigester::EvalJoinPressures()
+bool CKWATubeDigester::EvalJoinPressures()
 {
 	if (1)
 	{//set pressures at each join (pipes connected to unit)
@@ -246,7 +246,7 @@ bool CCARTubeDigester::EvalJoinPressures()
 	return false;
 }
 
-void CCARTubeDigester::ClosureInfo(MClosureInfo & CI)
+void CKWATubeDigester::ClosureInfo(MClosureInfo & CI)
 {
   if (CI.DoFlows())
     {
@@ -254,11 +254,11 @@ void CCARTubeDigester::ClosureInfo(MClosureInfo & CI)
     }
 }
 
-void CCARTubeDigester::EvalProducts()
+void CKWATubeDigester::EvalProducts()
 {
 	m_dUA = m_dHTC * m_dActualArea;
 
-	MStream HotI, CoolI;
+	MStreamI HotI, CoolI;
 	FlwIOs.AddMixtureIn_Id(HotI, idHotI);
 	FlwIOs.AddMixtureIn_Id(CoolI, idCoolI);
 	m_HotSide.ReadInStream(HotI);
@@ -314,12 +314,12 @@ protected:
 	MStream m_HotI, m_CoolI;
 	MStream& m_HotO, &m_CoolO;
 
-	CCARTubeDigester& m_TD;
+	CKWATubeDigester& m_TD;
 
 	static MToleranceBlock s_Tol;
 
 public:
-	HXSolver (CCARTubeDigester* TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI):
+	HXSolver (CKWATubeDigester* TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI):
 	MRootFinder("A Desc", s_Tol),
 	m_HotO(HotO),
 	m_CoolO(CoolO),
@@ -333,13 +333,13 @@ public:
 	};
 };
 
-MToleranceBlock HXSolver::s_Tol(TBF_Both, "CCARTubeDigester:HXSolver", 0.0, 1.0e-12);
+MToleranceBlock HXSolver::s_Tol(TBF_Both, "CKWATubeDigester:HXSolver", 0.0, 1.0e-12);
   //---------------------------------------------------------------------------
 //Iteration parameter is cool side output temperature.
 class SimpleHXSolver : public HXSolver
 {
 public:
-	SimpleHXSolver(CCARTubeDigester *TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI) : HXSolver(TD, HotO, CoolO, HotI, CoolI) {}
+	SimpleHXSolver(CKWATubeDigester *TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI) : HXSolver(TD, HotO, CoolO, HotI, CoolI) {}
 
 	double Function(double TCO)
 	{
@@ -355,7 +355,7 @@ public:
 	}
 };
 
-void CCARTubeDigester::DoSimpleHeater(MStream HotI, MStream CoolI)
+void CKWATubeDigester::DoSimpleHeater(MStream HotI, MStream CoolI)
 {
 	MStream& HotO = FlwIOs[FlwIOs.First[idHotO]].Stream;
 	MStream& CoolO = FlwIOs[FlwIOs.First[idCoolO]].Stream;
@@ -378,7 +378,7 @@ protected:
 public:
 	const static double s_dTnTooHigh;
 
-	CondensingHXSolver(CCARTubeDigester* TD, MStream& HotO, MStream& ColdO, MStream HotI, MStream ColdI) : HXSolver(TD, HotO, ColdO, HotI, ColdI), m_VLE(TD->m_HotVLE)
+	CondensingHXSolver(CKWATubeDigester* TD, MStream& HotO, MStream& ColdO, MStream HotI, MStream ColdI) : HXSolver(TD, HotO, ColdO, HotI, ColdI), m_VLE(TD->m_HotVLE)
 	{
 		m_dTSat = m_HotI.SaturationT();
 		m_dPSat = m_HotI.SaturationTotalP();
@@ -431,11 +431,11 @@ const double CondensingHXSolver::s_dTnTooHigh = 1E6;
 class VapReqSolver : public MRootFinder
 {
 protected:
-	CCARTubeDigester& m_TD;
+	CKWATubeDigester& m_TD;
 	CondensingHXSolver& m_CDHXS;
 	static MToleranceBlock s_Tol;
 public:
-	VapReqSolver(CCARTubeDigester* TD, CondensingHXSolver & CDHXS) :
+	VapReqSolver(CKWATubeDigester* TD, CondensingHXSolver & CDHXS) :
 		MRootFinder("Vapour Req Solver", s_Tol),
 		m_TD(*TD),
 		m_CDHXS(CDHXS)
@@ -448,8 +448,8 @@ public:
 	}
 };
 
-MToleranceBlock VapReqSolver::s_Tol(TBF_Both, "CCARTubeDigester:VapReq", 0.0, 1.0e-12);
-void CCARTubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
+MToleranceBlock VapReqSolver::s_Tol(TBF_Both, "CKWATubeDigester:VapReq", 0.0, 1.0e-12);
+void CKWATubeDigester::DoCondensingHeater(MStream HotI, MStream CoolI)
 {
 	//First check if the steam is so superheated that this acts as only a simple heater:
 
@@ -537,7 +537,7 @@ protected:
 	MVLEBlk &m_VLE;
 
 public:
-	EvaporatingHXSolver(CCARTubeDigester* TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI) : HXSolver(TD, HotO, CoolO, HotI, CoolI), m_VLE(TD->m_ColdVLE)
+	EvaporatingHXSolver(CKWATubeDigester* TD, MStream& HotO, MStream& CoolO, MStream HotI, MStream CoolI) : HXSolver(TD, HotO, CoolO, HotI, CoolI), m_VLE(TD->m_ColdVLE)
 	{
 		m_dTSat = m_CoolI.SaturationT();
 		m_dPSat = m_CoolI.SaturationTotalP();
@@ -578,7 +578,7 @@ public:
 	}
 };
 
-void CCARTubeDigester::DoEvaporatingHeater(MStream HotI, MStream CoolI)
+void CKWATubeDigester::DoEvaporatingHeater(MStream HotI, MStream CoolI)
 {
 	//First check if the input is so cold that this acts as only a simple heater:
 	
@@ -644,7 +644,7 @@ protected:
 	double m_dUA_Cond_SensibleI;
 	double m_dLMTD_Cond_Evap;
 public:
-	CondEvapHXSolver(CCARTubeDigester* TD, MVLEBlk& HotVLE, MVLEBlk& ColdVLE,
+	CondEvapHXSolver(CKWATubeDigester* TD, MVLEBlk& HotVLE, MVLEBlk& ColdVLE,
 		MStream& HotO, MStream& ColdO, MStream HotI, MStream ColdI) : 
 		HXSolver(TD, HotO, ColdO, HotI, ColdI),
 		m_HotVLE(HotVLE), m_ColdVLE(ColdVLE)
@@ -672,6 +672,7 @@ public:
 		MStream TestHotO = m_HotI;
 		m_HotO = m_HotI; m_CoolO = m_CoolI; //Restore streams...
 		double UA_Cond_Evap = 0, UA_Cond_Sense = 0, UA_Sense_Evap = 0, UA_Sense_Sense = 0;
+		double UA_Cond_SenseI = m_dUA_Cond_SensibleI;
 		//Condense the incomming cold fluid, and calculate QCond:
 		m_HotO.SetTP(m_dHTSat, m_dHPSat);
 		double initialHz = m_HotO.totHz();
@@ -684,7 +685,7 @@ public:
 
 		if (m_ColdVLE.FlashVapFrac(m_CoolO) < 1) //Simple case where condensation is not enough to fully evaporate.
 		{
-			double UA_Cond_Evap = (QCond - m_dQWarmingI) / m_dLMTD_Cond_Evap; //We have NZ'd this elsewhere.
+			UA_Cond_Evap = (QCond - m_dQWarmingI) / m_dLMTD_Cond_Evap; //We have NZ'd this elsewhere.
 
 			//Now determine what happens as we cool the incomming stream to TSat, PSat.
 			m_ColdVLE.PFlash(m_CoolO, m_dCPSat, m_dQCooling);
@@ -729,22 +730,30 @@ public:
 			double LMTD_Sense_Sense = LMTD(m_HotI.T, m_dHTSat, Tn, m_CoolO.T);
 			UA_Sense_Sense = m_dQCooling / NZ(LMTD_Sense_Sense);
 		}
-		m_TD.m_dTheorArea = (m_dUA_Cond_SensibleI + UA_Cond_Evap + UA_Cond_Sense + UA_Sense_Evap + UA_Sense_Sense) / m_TD.m_dHTC;
+		m_TD.m_dTheorArea = (UA_Cond_SenseI + UA_Cond_Evap + UA_Cond_Sense + UA_Sense_Evap + UA_Sense_Sense) / (m_TD.m_dHTC * m_TD.m_dLMTDFact);
 		return m_TD.m_dTheorArea - m_TD.m_dActualArea;
 	}
 };
 
-void CCARTubeDigester::DoCondEvapHeater(MStream HotI, MStream CoolI)
+void CKWATubeDigester::DoCondEvapHeater(MStream HotI, MStream CoolI)
 {
+	if (HotI.SaturationT() < CoolI.SaturationT())
+	{
+		Log.SetCondition(true, LC_FlashVapIndex, MMsg_Warning, "HX Operating in simple heat exchanger mode");
+		DoSimpleHeater(HotI, CoolI);
+		return;
+	}
 	//TODO: Make this as functional as straight Condensing or straight evaporating heater. [What warnings do we want? Do we want a steam demand?]
 	MStream& HotO = FlwIOs[FlwIOs.First[idHotO]].Stream;
 	MStream& CoolO = FlwIOs[FlwIOs.First[idCoolO]].Stream;
 	CondEvapHXSolver solver(this, m_HotVLE, m_ColdVLE, HotO, CoolO, HotI, CoolI);
 	double HotICondFrac = 1 - m_HotVLE.FlashVapFrac(HotI);
 	solver.FindRoot(0, HotICondFrac, 1);
+	m_HotSide.m_eOpMode = OM_Condensing;
+	m_ColdSide.m_eOpMode = OM_Evaporating;
 }
 
-void CCARTubeDigester::DoVent(MStream& HotI)
+void CKWATubeDigester::DoVent(MStream& HotI)
 {
 	if (FlwIOs.Count[idVent] < 1) return;	//If no vent is connected, don't vent.
 	MStream& Vent = FlwIOs[FlwIOs.First[idVent]].Stream;
@@ -759,6 +768,7 @@ HXSideVars::HXSideVars()
 {
 	m_eOpMode = OM_Simple;
 	m_dQm = m_dCp = m_dTi = m_dTo = m_dPi = m_dPo = m_ddT = m_dSatT = m_dSatP = m_dSatPP = dNAN;
+	m_ddHz = dNAN;
 }
 
 void HXSideVars::ReadInStream(const MStream &InStream)
@@ -770,6 +780,7 @@ void HXSideVars::ReadInStream(const MStream &InStream)
 	m_dSatT = InStream.SaturationT();
 	m_dSatP = InStream.SaturationTotalP();
 	m_dSatPP = InStream.SaturationP();
+	m_dInHz = InStream.totHz();
 }
 
 void HXSideVars::ReadOutStream(const MStream &OutStream)
@@ -777,6 +788,7 @@ void HXSideVars::ReadOutStream(const MStream &OutStream)
 	m_dTo = OutStream.T;
 	m_dPo = OutStream.P;
 	m_ddT = m_dTo - m_dTi;
+	m_ddHz = OutStream.totHz() - m_dInHz;
 }
 
 void HXSideVars::BuildDataFields(MDataDefn DD)
@@ -792,4 +804,5 @@ void HXSideVars::BuildDataFields(MDataDefn DD)
 	DD.Double("SatT", "", &m_dSatT, MF_RESULT, MC_T);
 	DD.Double("SatP", "", &m_dSatP, MF_RESULT, MC_P);
 	DD.Double("SatPP", "", &m_dSatPP, MF_RESULT, MC_P); //Should this be MC_DP?
+	DD.Double("dHz", "", &m_ddHz, MF_RESULT, MC_E);
 }
