@@ -352,7 +352,7 @@ class MSysException
       strncpy_s(m_sNear, _countof(m_sNear), "", sizeof(m_sNear)-1);
 #else
       strncpy(m_sName, Test, sizeof(m_sName)-1); 
-      strncpy(m_sWhere, __FILE__, sizeof(m_sWhere)-1);
+      strncpy(m_sWhere, File, sizeof(m_sWhere)-1);
       char Tmp[25];
       _ltoa(LineNumber, Tmp, 10);
       strncat(m_sWhere, "(", sizeof(m_sWhere)-1);

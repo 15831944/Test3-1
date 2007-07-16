@@ -1,6 +1,12 @@
 @echo off
 setlocal
 
+echo .
+echo "VS2003 ?"
+echo .
+
+pause 
+
 set pt=..\bin
 set pt1="c:\Program Files\WinZip"
 if not exist %pt% goto err 

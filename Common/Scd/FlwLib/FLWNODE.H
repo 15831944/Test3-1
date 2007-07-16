@@ -1919,7 +1919,7 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
 
 #define SPILL2AREA           {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
 #define VENT2AREA(DisableId) {"", "Vnt",   IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
-#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*//*|IOHidden*/,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
+#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*/|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
 
 const int MaxIOList       = 32000;
 const int IOPt_MaxJoinId  = MaxIOList-1;
