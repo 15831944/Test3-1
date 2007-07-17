@@ -6574,6 +6574,18 @@ DoneFailed:
   return false;
   }
 
+  //---------------------------------------------------------------------------
+
+#if SYSCAD10
+void CProject::Export2Scd10()
+  {
+  if (01)//pkh && OK)
+    {
+    m_pCLRSrvr->Export(PrjFiles(), CfgFiles());
+    }
+  }
+#endif
+
 //---------------------------------------------------------------------------
 
 flag CProject::DoPrjPaths(pchar pPrjPath, flag IsNew, CPrjFilesLists* pPFL, BOOL WithVersion, BOOL RemoveOld)

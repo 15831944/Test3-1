@@ -835,6 +835,8 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     SFEMdlLibArray MdlLibs;
 
 #if SYSCAD10
+    void           Export2Scd10();
+
     CNETServer   * m_pCLRSrvr;
 #endif
   };

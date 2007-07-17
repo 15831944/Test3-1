@@ -90,6 +90,8 @@ ref class CNETServerThread
 
     CNETServerThread()
       {
+      // There could be sharing problems - when importing and editing simultaneously -  unlikely
+      m_DoingExport=false;  
       };
     ~CNETServerThread()
       {
@@ -170,17 +172,7 @@ ref class CNETServerThread
 
           /*
           This is where import goes
-          a) Get Item etc
-          b) Delete Items from Old Grf
-          c) Add to graphicItems etc
-          d) ?? Save //engineProtocol->Save(??????);
           */
-
-          if (ImportScd9)//engineProtocol->graphicItems->Count==0)
-            {
-            ImportGraphicItems(Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath)));
-
-            }
 
           engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CNETServerThread::ItemCreated);
 
@@ -205,7 +197,7 @@ ref class CNETServerThread
             // item->Angle
             // item->X
 
-            SS_CreateItem(ImportScd9, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+            SS_CreateItem(m_DoingExport, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
               ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
               CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Top, item->BoundingRect.Bottom), 
               item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
@@ -249,7 +241,7 @@ ref class CNETServerThread
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
-      SS_CreateItem(false, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+      SS_CreateItem(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Top, boundingRect.Bottom), 
         angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
@@ -314,38 +306,50 @@ ref class CNETServerThread
       engineProtocol->Save(filename);
       };
 
-    void ImportGraphicItems(String ^ filename)
+    void Export(String ^ filename)
       {
 
+      m_DoingExport=true;
+
       CGetExistingItems GI;
+
 
       while (GI.GetOne())//SS_GetExistingItem(NdPtr, Tag, Page, Model, Shape, BoundingRect, Angle, MirrorX, MirrorY))
         {
         CGrfTagInfo & I = GI.Item();
-        
+
         dbgpln("XX %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
         System::Guid guid(gcnew String(GI.Guid()));
         guid=System::Guid::NewGuid();
-        String ^ page =  "Pg1";
+        String ^ page =  gcnew String(GI.PageName());//"Pg1";
         //page "Pg1"/*I.m_ppNode->m_pGrfs[0]->m_Page*/
+
+        // Simple Layout
+        int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
+        double XOffSet=(GI.PageNo()%NAcross)*310*1.4;
+        double YOffSet=(GI.PageNo()/NAcross)*310;
 
         switch (GI.Type())
           {
           case CGetExistingItems::eIsNode:
             {
-
-            GraphicItem ^ graphicItem = gcnew GraphicItem(guid, gcnew String(I.m_sTag()));
             String ^ path = "/" + filename + "/" + page + "/";
 
-            graphicItem->Populate(filename, gcnew String(page),
-              gcnew String(guid.ToString()), gcnew String(I.m_sClass()), 
-              //RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
-              RectangleF((float)I.m_LoBnd.m_X /*+ pageOffset[path].X*/, (float)(296.0f-I.m_HiBnd.m_Y) /*+ pageOffset[path].Y*/, 
-                         (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
-              //pNode->m_pGrfs[0]->m_Rotation);
-              0.0);
-            graphicItem->Shape=gcnew String(I.m_sSymbol());
-            engineProtocol->graphicItems->Add(graphicItem->Guid, graphicItem);
+            CString S(I.m_sSymbol());
+            int iDollar=S.Find('$');
+            if (iDollar>=0)
+              S.Delete(0, iDollar+1);
+
+            Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
+            Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
+
+            static __int64 RqID=0;
+            engineProtocol->CreateItem(RqID, guid, gcnew String(I.m_sTag()),
+              path, model, shape,
+              RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
+              (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
+              (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
+              0.0, Color(), Drawing2D::FillMode()  , false, false);
             break;
             }
 
@@ -356,29 +360,13 @@ ref class CNETServerThread
           }
         }
 
-      //POSITION Pos=m_pUnmanaged->m_Guids.GetHeadPosition();
-      //while (Pos)
-      //  {
-      //  CNSGuidItem * pGuid = m_pUnmanaged->m_Guids.GetNext(Pos);
-      //  if (!pGuid->m_IsLink)
-      //    {
-      //      CNSMdlNode * pNode = dynamic_cast<CNSMdlNode *>(pGuid); 
-
-      //      GraphicItem ^ graphicItem = gcnew GraphicItem(Guid(gcnew String(pNode->m_Guid)), gcnew String(pNode->m_Tag));
-      //      String ^ path = "/" + filename + "/" + gcnew String(pNode->m_pGrfs[0]->m_Page) + "/";
-
-      //      graphicItem->Populate(filename, gcnew String(pNode->m_pGrfs[0]->m_Page),
-      //        gcnew String(pNode->m_Guid), gcnew String(pNode->m_ClassID), 
-      //        RectangleF(pNode->m_pGrfs[0]->m_Left + pageOffset[path].X, pNode->m_pGrfs[0]->m_Top + pageOffset[path].Y, pNode->m_pGrfs[0]->m_Width, pNode->m_pGrfs[0]->m_Height),
-      //        pNode->m_pGrfs[0]->m_Rotation);
-      //      serviceProtocol->graphicItems->Add(graphicItem->Guid, graphicItem);
-      //    }
-      //  }
+      m_DoingExport=false;
       }
 
   protected:
     SysCAD::Protocol::Config ^ config;
     SysCAD::Protocol::EngineProtocol ^ engineProtocol;
+    bool m_DoingExport;
   };
 
 
@@ -421,6 +409,18 @@ void CNETServer::Shutdown()
   delete CNETServerThreadGlbl::gs_SrvrThread;
 
   LogNote("CNETServer", 0, "Shutdown");
+  };
+
+void CNETServer::Export(char* projectPath, char* configPath)
+  {
+  String^ projectPathString = gcnew String(projectPath);
+  String^ configPathString = gcnew String(configPath);
+
+  LogNote("CNETServer", 0, "Import");
+
+  CNETServerThreadGlbl::gs_SrvrThread->Export(projectPathString);   
+
+  //System::Threading::S
   };
 
 void CNETServer::Load()

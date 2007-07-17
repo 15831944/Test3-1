@@ -295,6 +295,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWnd)
   ON_UPDATE_COMMAND_UI(ID_FILE_IMPORT, OnUpdateFileImport)
   ON_UPDATE_COMMAND_UI(ID_FILE_EXPORT, OnUpdateFileExport)
   ON_COMMAND(ID_DELETEDEBUGFILE, OnDeleteDebugFile)
+  ON_COMMAND(ID_SCD10_EXPORT, &CMainFrame::OnScd10Export)
+  ON_UPDATE_COMMAND_UI(ID_SCD10_EXPORT, &CMainFrame::OnUpdateScd10Export)
   END_MESSAGE_MAP()
 
 //---------------------------------------------------------------------------
@@ -4330,3 +4332,14 @@ LRESULT CMainFrame::OnChkLicense(WPARAM wParam, LPARAM lParam)
 
 //===========================================================================
 
+
+void CMainFrame::OnScd10Export()
+  {
+  gs_pPrj->Export2Scd10();
+  // TODO: Add your command handler code here
+  }
+
+void CMainFrame::OnUpdateScd10Export(CCmdUI *pCmdUI)
+  {
+  pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());
+  }

@@ -348,6 +348,8 @@ class CMainFrame : public CMDIFrameWnd, CExecObj
     afx_msg void OnFileExport();
     afx_msg void OnUpdateFileExport(CCmdUI *pCmdUI);
     afx_msg void OnDeleteDebugFile();
+    afx_msg void OnScd10Export();
+    afx_msg void OnUpdateScd10Export(CCmdUI *pCmdUI);
 };
 
 //inline CMainFrame* MainWnd() { return (CMainFrame*)SysCAD.m_pMainWnd; };

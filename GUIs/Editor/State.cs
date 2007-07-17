@@ -379,8 +379,9 @@ namespace SysCAD.Editor
         config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil);
         config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil);
 
-        Box textBox, graphicBox, modelBox;
+        Box textBox=null, graphicBox=null, modelBox=null;
 
+        if (graphicStencil!=null)
         {
           RectangleF textArea = graphicStencil.TextArea;
           RectangleF textBoxRect = new RectangleF(
@@ -424,7 +425,8 @@ namespace SysCAD.Editor
           else
             graphicBox.FillColor = graphicItem.FillColor;
         }
-
+        
+        if (modelStencil!=null)
         {
           modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
           modelBox.RotationAngle = graphicItem.Angle;
@@ -446,27 +448,30 @@ namespace SysCAD.Editor
           modelBox.Visible = ShowModels && isVisible;
         }
 
-        textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
-        graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
+        if (textBox != null && modelBox != null)
+        {
+          textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
 
-        Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
+          graphicBox.AttachTo(modelBox, 0, 0, 100, 100);
 
-        modelBox.Tag = item;
-        graphicBox.Tag = item;
-        textBox.Tag = item;
+          Item item = new Item(graphicItem.Guid, graphicItem.Tag, modelBox, graphicBox, textBox, isVisible, graphicItem);
 
-        items.Add(item.Guid, item);
+          modelBox.Tag = item;
+          graphicBox.Tag = item;
+          textBox.Tag = item;
 
-        PureComponents.TreeView.Node node =
-          tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
-        node.Tag = item;
-        node.AllowDrop = false;
+          items.Add(item.Guid, item);
 
-        tvNavigation.AddSelectedNode(node);
+          PureComponents.TreeView.Node node =
+            tvNavigation.AddNodeByPath(graphicItem.Path + graphicItem.Tag, graphicItem.Guid.ToString());
+          node.Tag = item;
+          node.AllowDrop = false;
 
-        if ((isVisible) && (node.Parent != null))
-          node.Parent.Select();
+          tvNavigation.AddSelectedNode(node);
 
+          if ((isVisible) && (node.Parent != null))
+            node.Parent.Select();
+        }
       }
     }
 
