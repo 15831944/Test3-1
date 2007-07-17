@@ -9098,7 +9098,7 @@ double SpModelEx::msHz(PhMask Phase, double T_, double P_, CSysVector * pMA, dou
 
 double SpModelEx::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA, double *pTotalM)
   {
-  if (SpModelExDbgOn)
+  if (0 && SpModelExDbgOn)
     dbgindent(2);
 
   CSysVector &MA = ((pMA==NULL) ? MArray() : *pMA);
@@ -9126,7 +9126,7 @@ double SpModelEx::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA, dou
       }
     }
 
-  if (SpModelExDbgOn)
+  if (0 && SpModelExDbgOn)
     {
     dbgindent(-2);
     dbgpln("SpModelEx::msHf %7.2f %7.2f M:%12.3f H:%12.3f Ht:%12.3f Mt:%12.3f =%12.3f",

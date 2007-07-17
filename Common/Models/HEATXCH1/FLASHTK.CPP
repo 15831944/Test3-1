@@ -608,7 +608,8 @@ void FlashTank::EvalProducts(CNodeEvalIndex & NEI)
             double PMargin=0.0001;
             Qv.CopyQualities(Ql);
 
-            m_VLE.PFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
+            // CNM - Why is this here ?
+            //m_VLE.PFlash(Ql, Qv, m_FTF.m_dSuctionP, 0.0, VLEF_SaturationLimit);
 
             int ZeroQvCount=0;
             for (int Iter=0;  ;Iter++)

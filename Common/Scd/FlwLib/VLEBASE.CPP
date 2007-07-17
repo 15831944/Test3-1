@@ -1542,11 +1542,11 @@ class QPRootFnd : public MRootFinderBase
       double Ts = Min(m_TMx, pMdlL->SaturationT(Max(1.0, (1.0-OtherPFrac)*m_P)-m_ApproachT, NULL, &SD/*.m_iCmpNo*/));
       double h, t;
       if (x<0.0)
-        t=m_TMn+(Ts-m_TMn)*(x+1.0); // Map -1<=x<=0 on to TMn to T
+        t=m_TMn+(Ts-m_TMn)*(x+1.0); // Map -1<=x<=0 on to TMn to Ts
       else if (x>1.0)
-        t=Ts+(m_TMx-Ts)*(x-1.0);   // Map 1<=x<=2 on to T to TMx
+        t=Ts+(m_TMx-Ts)*(x-1.0);   // Map 1<=x<=2 on to Ts to TMx
       else
-        t=Ts;                   // Map 1<=x<=2 on to T to TMx
+        t=Ts;                   // Map 1<=x<=2 on to Ts to TMx
 
       pMdlL->SetTempPress(t, m_P);
       if (pMdlV)
@@ -1562,10 +1562,10 @@ class QPRootFnd : public MRootFinderBase
         SpModelExDbgOn++;
 
         if (m_PassOne)
-          dbgpln("  QPRoot\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s", 
-          "VFrac","Ts","t","M","P", "PP","Htrg","H-Htrg","Hl", "Hv", "Ml", "Mv");
-        dbgpln("  QPRoot\t%14.10f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6g\t%14.6f\t%14.6f\t%14.6f\t%14.6f", 
-          x, K_2_C(Ts),K_2_C(t),VLE.Mt,m_P,m_P*(1.0-OtherPFrac),dTarget,h-dTarget, 
+          dbgpln("  QPRoot\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s\t%14s", 
+          "VFrac","Ts","t","TMx","M","m","P", "PP","Htrg","H-Htrg","Hl", "Hv", "Ml", "Mv");
+        dbgpln("  QPRoot\t%14.10f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6f\t%14.6g\t%14.6f\t%14.6f\t%14.6f\t%14.6f", 
+          x, K_2_C(Ts),K_2_C(t),K_2_C(m_TMx),VLE.Mt,pMdlL->Mass(),m_P,m_P*(1.0-OtherPFrac),dTarget,h-dTarget, 
           pMdlL->totHf(), pMdlV?pMdlL->totHf(som_ALL, pMdlV->Temp(), pMdlV->Press(), pMdlV->pMArray()):0.0,
           pMdlL->Mass(), pMdlV?pMdlV->Mass():0.0);
 
@@ -1623,110 +1623,52 @@ void CVLEVapPress::PFlash(double Press, double Duty, dword Flags)
   double HiX = 2;
 
   flag fBad=false;
-  flag DoCnvg=true;
-  flag DoRestore=false;
-  double Hf0, Hf1;
+  QPF.SetLimits(LoX, HiX);
 
-  Hf0 = QPF.Function(0.0);    
-
-  if (Hf0 >= HTrg)
-    {// Sub Cooled (ie 0% vapour)
-    HiX=0.0;
-    //HiF=Hf0;
-    if (!pMdlV)
-      {
-      DoCnvg =false;
-      pMdlL->Set_totHf(HTrg);
-      }
-    goto Continue;
-    }
-
-  Hf1 = QPF.Function(1.0);
-
-  if (Hf1 <= HTrg)
-    {// SuperHeated (ie 100% vapour)
-    LoX=1.0;
-    //LoF=Hf1;
-    if (!pMdlV)
-      {
-      DoCnvg =false;
-      pMdlL->Set_totHf(HTrg);
-      }
-    goto Continue;
-    }
-
-  LoX=0.0;
-  HiX=1.0;
-
-Continue:
-  if (DoCnvg)
-    {  
-    QPF.SetLimits(LoX, HiX);
-
-    /*switch (QPF.SolveFromEst(VFrac0, 1.0, 0.1))
+  if (QPF.SolveFromEst(VFrac0, 1.0, 0.1)==RF_OK)
     {
-    case RF_OK:
-    break;
+    }
+  else if (QPF.Start(LoX, HiX)==RF_OK)
+    {
+    switch (QPF.Solve_Brent())
+      {
+      case RF_OK:
+        break;
 
-    case RF_HiLimit:
-    //DoRestore=(Flags & VLEF_SaturationLimit);
-    break;
+      case RF_HiLimit:
+        break;
 
-    case RF_LoLimit:
-    //DoRestore=(Flags & VLEF_SaturationLimit);
-    break;
+      case RF_LoLimit:
+        break;
 
-    default:
+      default:
+        fBad=true;
+        break;
+      }
+    }
+  else
     fBad=true;
-    break;
-    }*/
-    if (QPF.SolveFromEst(VFrac0, 1.0, 0.1)==RF_OK)
-      {
-      }
-    else if (QPF.Start(LoX, HiX)==RF_OK)
-      {
-      switch (QPF.Solve_Brent())
-        {
-        case RF_OK:
-          break;
 
-        case RF_HiLimit:
-          //DoRestore=(Flags & VLEF_SaturationLimit);
-          break;
-
-        case RF_LoLimit:
-          //DoRestore=(Flags & VLEF_SaturationLimit);
-          break;
-
-        default:
-          fBad=true;
-          break;
-        }
-      }
-    else
-      fBad=true;
-
-    if (fBad || DoRestore)
+  if (fBad)
+    {
+    SetVapFrac(VFInit);
+    pMdlL->Set_totHf(HL);
+    pMdlL->SetPress(P0);
+    if (pMdlV)
       {
-      SetVapFrac(VFInit);
-      pMdlL->Set_totHf(HL);
-      pMdlL->SetPress(P0);
-      if (pMdlV)
-        {
-        pMdlV->Set_totHf(HV);
-        pMdlV->SetPress(P0);
-        }
+      pMdlV->Set_totHf(HV);
+      pMdlV->SetPress(P0);
       }
-    if (fBad)
-      {
-      if (QPFlashBrentErr++<5)
-        dbgpln("CVLEBase - QPF.Solve_Brent FAILED");
-      }
-    else
-      {
-      double dVFrac=QPF.Result();
-      m_dPrvVapFrac=dVFrac;
-      }
+    }
+  if (fBad)
+    {
+    if (QPFlashBrentErr++<5)
+      dbgpln("CVLEBase - QPF.Solve_Brent FAILED");
+    }
+  else
+    {
+    double dVFrac=QPF.Result();
+    m_dPrvVapFrac=dVFrac;
     }
 
   pMdlL->ClrHoldVentExpand();  

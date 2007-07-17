@@ -125,6 +125,8 @@ void CBayerConcs::Zero()
 
 // --------------------------------------------------------------------------
 
+#define WITHDUMP 0
+
 bool CBayerConcs::Converge(MArray & MA, bool SetValid)
   {
   //if (0 || pBayerMdl->Dbg.Marked())
@@ -143,6 +145,18 @@ bool CBayerConcs::Converge(MArray & MA, bool SetValid)
   const double T_ = C2K(Tc);
   // Converge Liquor Conc. All sodium concentrations expressed as Na2CO3
   int IterCount = s_Tol.GetMaxIters();//100;
+  Density25 = Range(0.0001, Density25, 1500.0);
+
+#if WITHDUMP 
+  pBayerMdl->Dbg.Print("------------------------------------------");
+  for (int sn=0; sn<gs_MVDefn.Count(); sn++) 
+    {
+    if (gs_MVDefn[sn].IsLiquid())
+      pBayerMdl->Dbg.Print(" [%17.17s]", gs_MVDefn[sn].Symbol());
+    }
+  pBayerMdl->Dbg.PrintLn("");
+#endif
+
   double OldDensity = Density25;
   while (1)
     {
@@ -158,10 +172,30 @@ bool CBayerConcs::Converge(MArray & MA, bool SetValid)
 
 
     Density25 = LiquorDensity(T_, MA);
-    if  (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0) break;
-    OldDensity = Density25;
 
+#if WITHDUMP 
+    pBayerMdl->Dbg.Print("Rho %12.2f --> %12.2f", OldDensity , Density25);
+    pBayerMdl->Dbg.Print(" %8.2f", Liq[CausticSoda]);
+
+    for (int sn=0; sn<gs_MVDefn.Count(); sn++) 
+      {
+      if (gs_MVDefn[sn].IsLiquid())
+        pBayerMdl->Dbg.Print(" [%8.2f,%8.2f]", Liq[sn]  , MA[sn]);
+      }
+
+    pBayerMdl->Dbg.PrintLn("");
+#endif
+
+    if  (fabs(OldDensity - Density25) < s_Tol.GetAbs() || --IterCount==0) 
+      break;
+    OldDensity = Density25;
     } // end of while
+
+  if (Density25>5000.0)
+    pBayerMdl->Log.Message(MMsg_Error, "Density Convergence Questionable : Rho = %.2f kg/m^3", Density25);
+  if (IterCount==0)
+    pBayerMdl->Log.Message(MMsg_Error, "Density Convergence Failed : Rho = %.2f kg/m^3", Density25);
+
   Density25 = Max(0.001, Density25);
   //if (0 || pBayerMdl->Dbg.Marked())
   //  pBayerMdl->Dbg.PrintLn("%3s %-20s  Rho25) %.14g", "<", "", Density25);
@@ -495,6 +529,11 @@ double Bayer::get_SaturationT(double P, MArray *pMA)
   double SatT = (4737.8+0.479859*LiqConcs25.Liq[::CausticSoda]*TotNa2C)/
     (17.43407-log(Max(1.0, P)));
   SatT = Max(SatT, PureSatT);
+
+#if WITHDUMP
+  Dbg.PrintLn(" %-30s %25.12g  (%25.12g %25.12g %25.12g)", "Al2 SaturationT", K2C(SatT), P, TotNa2C, LiqConcs25.Liq[::CausticSoda]);
+#endif
+
   return DUMPIT3("SaturationT", SatT, P, TotNa2C, LiqConcs25.Liq[::CausticSoda]);
 
   }
@@ -503,6 +542,9 @@ double Bayer::get_SaturationT(double P, MArray *pMA)
 
 double Bayer::get_SaturationP(double T, MArray *pMa)
   {
+  MArray MA(pMa ? (*pMa) : this);
+
+  CheckConverged(&MA);
 
   return DUMPIT1("SaturationP", exp ( 17.43407 - ( 4737.8 + 0.479859 * LiqConcs25.Liq[::CausticSoda] * NaOnCS() ) / Max(200.0, T) ), T);
 
