@@ -1344,6 +1344,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         #ifndef SYSCAD10
         DeleteMenuItem(ID_FILE_Save);
         DeleteMenuItem(ID_FILE_Load);
+        DeleteMenuItem(ID_SCD10_EXPORT);
         #endif
         //DeleteMenuItem(ID_GRF_ZoomIso);
         DeleteMenuItem(ID_FILE_DUMMY);
