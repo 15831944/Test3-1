@@ -51,18 +51,14 @@ namespace Reaction_Editor
             this.chkExtentStabilised = new System.Windows.Forms.CheckBox();
             this.lblExtent2 = new System.Windows.Forms.Label();
             this.lblExtent3 = new System.Windows.Forms.Label();
-            this.numExtentVal3 = new CtrlLib.NumEdit();
-            this.numExtentVal2 = new CtrlLib.NumEdit();
             this.comboExtentPhase = new System.Windows.Forms.ComboBox();
             this.lblExtentUnits = new System.Windows.Forms.Label();
             this.comboExtentSpecie = new System.Windows.Forms.ComboBox();
             this.lblExtentValue = new System.Windows.Forms.Label();
-            this.numExtentValue = new CtrlLib.NumEdit();
             this.comboExtentType = new System.Windows.Forms.ComboBox();
             this.grpHOR = new System.Windows.Forms.GroupBox();
             this.comboHORUnits = new System.Windows.Forms.ComboBox();
             this.comboHORSpecie = new System.Windows.Forms.ComboBox();
-            this.numHORValue = new CtrlLib.NumEdit();
             this.lblHORValue = new System.Windows.Forms.Label();
             this.comboHORType = new System.Windows.Forms.ComboBox();
             this.grpOther = new System.Windows.Forms.GroupBox();
@@ -74,19 +70,26 @@ namespace Reaction_Editor
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.grpSources = new System.Windows.Forms.GroupBox();
-            this.txtSources = new System.Windows.Forms.TextBox();
+            this.txtSources = new System.Windows.Forms.RichTextBox();
             this.grpSinks = new System.Windows.Forms.GroupBox();
-            this.txtSinks = new System.Windows.Forms.TextBox();
+            this.txtSinks = new System.Windows.Forms.RichTextBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.grpDescription = new System.Windows.Forms.GroupBox();
             this.txtDescription = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkSequence = new System.Windows.Forms.CheckBox();
             this.grpHX = new System.Windows.Forms.GroupBox();
+            this.lblHXPercent = new System.Windows.Forms.Label();
+            this.numHXApproach = new System.Windows.Forms.NumericUpDown();
+            this.lblHXApproach = new System.Windows.Forms.Label();
             this.lblHXUnits = new System.Windows.Forms.Label();
-            this.numHX = new CtrlLib.NumEdit();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lblHXValue = new System.Windows.Forms.Label();
             this.comboHXType = new System.Windows.Forms.ComboBox();
+            this.numExtentVal3 = new CtrlLib.NumEdit();
+            this.numExtentVal2 = new CtrlLib.NumEdit();
+            this.numExtentValue = new CtrlLib.NumEdit();
+            this.numHORValue = new CtrlLib.NumEdit();
+            this.numHX = new CtrlLib.NumEdit();
             this.tabControl1.SuspendLayout();
             this.tabReactions.SuspendLayout();
             this.pnlList.SuspendLayout();
@@ -104,6 +107,7 @@ namespace Reaction_Editor
             this.grpDescription.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.grpHX.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numHXApproach)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -143,6 +147,7 @@ namespace Reaction_Editor
             // 
             // lstReactions
             // 
+            this.lstReactions.AllowDrop = true;
             this.lstReactions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clFormula,
             this.clExtent,
@@ -160,7 +165,11 @@ namespace Reaction_Editor
             this.lstReactions.TabIndex = 0;
             this.lstReactions.UseCompatibleStateImageBehavior = false;
             this.lstReactions.View = System.Windows.Forms.View.Details;
+            this.lstReactions.DragDrop += new System.Windows.Forms.DragEventHandler(this.lstReactions_DragDrop);
+            this.lstReactions.DragOver += new System.Windows.Forms.DragEventHandler(this.lstReactions_DragOver);
             this.lstReactions.SelectedIndexChanged += new System.EventHandler(this.lstReactions_SelectedIndexChanged);
+            this.lstReactions.DragLeave += new System.EventHandler(this.lstReactions_DragLeave);
+            this.lstReactions.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.lstReactions_ItemDrag);
             // 
             // clFormula
             // 
@@ -269,14 +278,13 @@ namespace Reaction_Editor
             // txtReactants
             // 
             this.txtReactants.AllowDrop = true;
-            this.txtReactants.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.txtReactants.ForeColor = System.Drawing.SystemColors.WindowText;
             this.txtReactants.Location = new System.Drawing.Point(3, 5);
             this.txtReactants.Name = "txtReactants";
             this.txtReactants.Size = new System.Drawing.Size(307, 20);
             this.txtReactants.TabIndex = 0;
             this.txtReactants.Text = "Reactants";
             this.txtReactants.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtReactants.Enter += new System.EventHandler(this.FormulaBox_Enter);
             this.txtReactants.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragDrop);
             this.txtReactants.Leave += new System.EventHandler(this.FormulaBox_Leave);
             this.txtReactants.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragEnter);
@@ -298,14 +306,13 @@ namespace Reaction_Editor
             // txtProducts
             // 
             this.txtProducts.AllowDrop = true;
-            this.txtProducts.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.txtProducts.ForeColor = System.Drawing.SystemColors.WindowText;
             this.txtProducts.Location = new System.Drawing.Point(367, 5);
             this.txtProducts.Name = "txtProducts";
             this.txtProducts.Size = new System.Drawing.Size(307, 20);
             this.txtProducts.TabIndex = 1;
             this.txtProducts.Text = "Products";
             this.txtProducts.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtProducts.Enter += new System.EventHandler(this.FormulaBox_Enter);
             this.txtProducts.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragDrop);
             this.txtProducts.Leave += new System.EventHandler(this.FormulaBox_Leave);
             this.txtProducts.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragEnter);
@@ -374,26 +381,6 @@ namespace Reaction_Editor
             this.lblExtent3.Text = "Val 1:";
             this.lblExtent3.Visible = false;
             // 
-            // numExtentVal3
-            // 
-            this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal3.Location = new System.Drawing.Point(575, 15);
-            this.numExtentVal3.Name = "numExtentVal3";
-            this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
-            this.numExtentVal3.TabIndex = 9;
-            this.numExtentVal3.Visible = false;
-            this.numExtentVal3.TextChanged += new System.EventHandler(this.numExtentVal3_TextChanged);
-            // 
-            // numExtentVal2
-            // 
-            this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal2.Location = new System.Drawing.Point(451, 15);
-            this.numExtentVal2.Name = "numExtentVal2";
-            this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
-            this.numExtentVal2.TabIndex = 8;
-            this.numExtentVal2.Visible = false;
-            this.numExtentVal2.TextChanged += new System.EventHandler(this.numExtentVal2_TextChanged);
-            // 
             // comboExtentPhase
             // 
             this.comboExtentPhase.FormattingEnabled = true;
@@ -414,6 +401,7 @@ namespace Reaction_Editor
             // 
             // comboExtentSpecie
             // 
+            this.comboExtentSpecie.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboExtentSpecie.FormattingEnabled = true;
             this.comboExtentSpecie.Location = new System.Drawing.Point(318, 15);
             this.comboExtentSpecie.Name = "comboExtentSpecie";
@@ -429,15 +417,6 @@ namespace Reaction_Editor
             this.lblExtentValue.Size = new System.Drawing.Size(34, 13);
             this.lblExtentValue.TabIndex = 3;
             this.lblExtentValue.Text = "Value";
-            // 
-            // numExtentValue
-            // 
-            this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentValue.Location = new System.Drawing.Point(177, 15);
-            this.numExtentValue.Name = "numExtentValue";
-            this.numExtentValue.Size = new System.Drawing.Size(71, 20);
-            this.numExtentValue.TabIndex = 1;
-            this.numExtentValue.TextChanged += new System.EventHandler(this.numExtentValue_TextChanged);
             // 
             // comboExtentType
             // 
@@ -486,21 +465,13 @@ namespace Reaction_Editor
             // 
             // comboHORSpecie
             // 
+            this.comboHORSpecie.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboHORSpecie.FormattingEnabled = true;
             this.comboHORSpecie.Location = new System.Drawing.Point(318, 15);
             this.comboHORSpecie.Name = "comboHORSpecie";
             this.comboHORSpecie.Size = new System.Drawing.Size(78, 21);
             this.comboHORSpecie.TabIndex = 5;
             this.comboHORSpecie.SelectedIndexChanged += new System.EventHandler(this.comboHORSpecie_SelectedIndexChanged);
-            // 
-            // numHORValue
-            // 
-            this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHORValue.Location = new System.Drawing.Point(177, 15);
-            this.numHORValue.Name = "numHORValue";
-            this.numHORValue.Size = new System.Drawing.Size(71, 20);
-            this.numHORValue.TabIndex = 4;
-            this.numHORValue.TextChanged += new System.EventHandler(this.numHORValue_TextChanged);
             // 
             // lblHORValue
             // 
@@ -637,12 +608,15 @@ namespace Reaction_Editor
             // 
             // txtSources
             // 
+            this.txtSources.DetectUrls = false;
             this.txtSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSources.Location = new System.Drawing.Point(3, 16);
-            this.txtSources.Multiline = true;
             this.txtSources.Name = "txtSources";
+            this.txtSources.ShortcutsEnabled = false;
             this.txtSources.Size = new System.Drawing.Size(675, 224);
             this.txtSources.TabIndex = 0;
+            this.txtSources.Text = "";
+            this.txtSources.Leave += new System.EventHandler(this.txtSources_Leave);
             this.txtSources.TextChanged += new System.EventHandler(this.txtSources_TextChanged);
             // 
             // grpSinks
@@ -658,12 +632,15 @@ namespace Reaction_Editor
             // 
             // txtSinks
             // 
+            this.txtSinks.DetectUrls = false;
             this.txtSinks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSinks.Location = new System.Drawing.Point(3, 16);
-            this.txtSinks.Multiline = true;
             this.txtSinks.Name = "txtSinks";
+            this.txtSinks.ShortcutsEnabled = false;
             this.txtSinks.Size = new System.Drawing.Size(675, 85);
             this.txtSinks.TabIndex = 1;
+            this.txtSinks.Text = "";
+            this.txtSinks.Leave += new System.EventHandler(this.txtSinks_Leave);
             this.txtSinks.TextChanged += new System.EventHandler(this.txtSinks_TextChanged);
             // 
             // tabPage1
@@ -724,9 +701,12 @@ namespace Reaction_Editor
             // 
             // grpHX
             // 
+            this.grpHX.Controls.Add(this.lblHXPercent);
+            this.grpHX.Controls.Add(this.numHXApproach);
+            this.grpHX.Controls.Add(this.lblHXApproach);
             this.grpHX.Controls.Add(this.lblHXUnits);
             this.grpHX.Controls.Add(this.numHX);
-            this.grpHX.Controls.Add(this.label2);
+            this.grpHX.Controls.Add(this.lblHXValue);
             this.grpHX.Controls.Add(this.comboHXType);
             this.grpHX.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpHX.Location = new System.Drawing.Point(3, 3);
@@ -736,32 +716,60 @@ namespace Reaction_Editor
             this.grpHX.TabStop = false;
             this.grpHX.Text = "Heat Exchange";
             // 
+            // lblHXPercent
+            // 
+            this.lblHXPercent.AutoSize = true;
+            this.lblHXPercent.Location = new System.Drawing.Point(469, 18);
+            this.lblHXPercent.Name = "lblHXPercent";
+            this.lblHXPercent.Size = new System.Drawing.Size(15, 13);
+            this.lblHXPercent.TabIndex = 11;
+            this.lblHXPercent.Text = "%";
+            this.lblHXPercent.Visible = false;
+            // 
+            // numHXApproach
+            // 
+            this.numHXApproach.DecimalPlaces = 1;
+            this.numHXApproach.Location = new System.Drawing.Point(394, 15);
+            this.numHXApproach.Name = "numHXApproach";
+            this.numHXApproach.Size = new System.Drawing.Size(69, 20);
+            this.numHXApproach.TabIndex = 10;
+            this.numHXApproach.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numHXApproach.Visible = false;
+            this.numHXApproach.ValueChanged += new System.EventHandler(this.numHXApproach_ValueChanged);
+            // 
+            // lblHXApproach
+            // 
+            this.lblHXApproach.AutoSize = true;
+            this.lblHXApproach.Location = new System.Drawing.Point(335, 18);
+            this.lblHXApproach.Name = "lblHXApproach";
+            this.lblHXApproach.Size = new System.Drawing.Size(53, 13);
+            this.lblHXApproach.TabIndex = 9;
+            this.lblHXApproach.Text = "Approach";
+            this.lblHXApproach.Visible = false;
+            // 
             // lblHXUnits
             // 
             this.lblHXUnits.AutoSize = true;
-            this.lblHXUnits.Location = new System.Drawing.Point(262, 18);
+            this.lblHXUnits.Location = new System.Drawing.Point(294, 18);
             this.lblHXUnits.Name = "lblHXUnits";
-            this.lblHXUnits.Size = new System.Drawing.Size(0, 13);
+            this.lblHXUnits.Size = new System.Drawing.Size(35, 13);
             this.lblHXUnits.TabIndex = 8;
+            this.lblHXUnits.Text = "degC,";
+            this.lblHXUnits.Visible = false;
             // 
-            // numHX
+            // lblHXValue
             // 
-            this.numHX.Enabled = false;
-            this.numHX.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHX.Location = new System.Drawing.Point(177, 15);
-            this.numHX.Name = "numHX";
-            this.numHX.Size = new System.Drawing.Size(78, 20);
-            this.numHX.TabIndex = 6;
-            this.numHX.TextChanged += new System.EventHandler(this.numHX_TextChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(137, 18);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(34, 13);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Value";
+            this.lblHXValue.Location = new System.Drawing.Point(137, 18);
+            this.lblHXValue.Name = "lblHXValue";
+            this.lblHXValue.Size = new System.Drawing.Size(67, 15);
+            this.lblHXValue.TabIndex = 5;
+            this.lblHXValue.Text = "Value";
+            this.lblHXValue.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.lblHXValue.Visible = false;
             // 
             // comboHXType
             // 
@@ -779,6 +787,54 @@ namespace Reaction_Editor
             this.comboHXType.Size = new System.Drawing.Size(121, 21);
             this.comboHXType.TabIndex = 2;
             this.comboHXType.SelectedIndexChanged += new System.EventHandler(this.comboHXType_SelectedIndexChanged);
+            // 
+            // numExtentVal3
+            // 
+            this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentVal3.Location = new System.Drawing.Point(575, 15);
+            this.numExtentVal3.Name = "numExtentVal3";
+            this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
+            this.numExtentVal3.TabIndex = 9;
+            this.numExtentVal3.Visible = false;
+            this.numExtentVal3.TextChanged += new System.EventHandler(this.numExtentVal3_TextChanged);
+            // 
+            // numExtentVal2
+            // 
+            this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentVal2.Location = new System.Drawing.Point(451, 15);
+            this.numExtentVal2.Name = "numExtentVal2";
+            this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
+            this.numExtentVal2.TabIndex = 8;
+            this.numExtentVal2.Visible = false;
+            this.numExtentVal2.TextChanged += new System.EventHandler(this.numExtentVal2_TextChanged);
+            // 
+            // numExtentValue
+            // 
+            this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentValue.Location = new System.Drawing.Point(177, 15);
+            this.numExtentValue.Name = "numExtentValue";
+            this.numExtentValue.Size = new System.Drawing.Size(71, 20);
+            this.numExtentValue.TabIndex = 1;
+            this.numExtentValue.TextChanged += new System.EventHandler(this.numExtentValue_TextChanged);
+            // 
+            // numHORValue
+            // 
+            this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORValue.Location = new System.Drawing.Point(177, 15);
+            this.numHORValue.Name = "numHORValue";
+            this.numHORValue.Size = new System.Drawing.Size(71, 20);
+            this.numHORValue.TabIndex = 4;
+            this.numHORValue.TextChanged += new System.EventHandler(this.numHORValue_TextChanged);
+            // 
+            // numHX
+            // 
+            this.numHX.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHX.Location = new System.Drawing.Point(210, 15);
+            this.numHX.Name = "numHX";
+            this.numHX.Size = new System.Drawing.Size(78, 20);
+            this.numHX.TabIndex = 6;
+            this.numHX.Visible = false;
+            this.numHX.TextChanged += new System.EventHandler(this.numHX_TextChanged);
             // 
             // FrmReaction
             // 
@@ -810,9 +866,7 @@ namespace Reaction_Editor
             this.tabOptions.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.grpSources.ResumeLayout(false);
-            this.grpSources.PerformLayout();
             this.grpSinks.ResumeLayout(false);
-            this.grpSinks.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.grpDescription.ResumeLayout(false);
             this.grpDescription.PerformLayout();
@@ -820,6 +874,7 @@ namespace Reaction_Editor
             this.groupBox1.PerformLayout();
             this.grpHX.ResumeLayout(false);
             this.grpHX.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numHXApproach)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -866,9 +921,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.CheckBox chkEnabled;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.GroupBox grpSources;
-        private System.Windows.Forms.TextBox txtSources;
         private System.Windows.Forms.GroupBox grpSinks;
-        private System.Windows.Forms.TextBox txtSinks;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtComment;
         private System.Windows.Forms.NumericUpDown numSequence;
@@ -878,12 +931,17 @@ namespace Reaction_Editor
         private System.Windows.Forms.GroupBox grpHX;
         private System.Windows.Forms.Label lblHXUnits;
         private CtrlLib.NumEdit numHX;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lblHXValue;
         private System.Windows.Forms.ComboBox comboHXType;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox txtDescription;
         private System.Windows.Forms.ComboBox comboHORUnits;
         private System.Windows.Forms.Button btnCopy;
+        private System.Windows.Forms.RichTextBox txtSources;
+        private System.Windows.Forms.RichTextBox txtSinks;
+        private System.Windows.Forms.Label lblHXPercent;
+        private System.Windows.Forms.NumericUpDown numHXApproach;
+        private System.Windows.Forms.Label lblHXApproach;
 
 
     }

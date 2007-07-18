@@ -27,10 +27,11 @@ namespace Reaction_Editor
         }
 
         #region ILog Members
-
+        protected bool m_bActive = true;
         protected Stack<MessageSource> sourceStack = new Stack<MessageSource>();
         protected void AddMessage(string msg, MessageType msgType, MessageSource src)
         {
+            if (!m_bActive) return;
             string imageKey = "";
             switch (msgType)
             {
@@ -77,6 +78,11 @@ namespace Reaction_Editor
             sourceStack.Pop();
         }
 
+        public bool Active
+        {
+            get { return m_bActive; }
+            set { m_bActive = value; }
+        }
         #endregion
 
         private void FrmLog_FormClosing(object sender, FormClosingEventArgs e)

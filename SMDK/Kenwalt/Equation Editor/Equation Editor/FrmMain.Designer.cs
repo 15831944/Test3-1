@@ -28,6 +28,7 @@ namespace Reaction_Editor
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Specie Database");
             System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Reaction Blocks");
             System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
@@ -35,7 +36,7 @@ namespace Reaction_Editor
             System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.menuNew = new System.Windows.Forms.ToolStripMenuItem();
             this.menuOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.menuOpenDir = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,16 +50,12 @@ namespace Reaction_Editor
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
-            this.selectedAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuCut = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuCopy = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuPaste = new System.Windows.Forms.ToolStripMenuItem();
             this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.arrangeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
             this.undockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutSysCADReactionEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -75,17 +72,22 @@ namespace Reaction_Editor
             this.dlgOpenRxn = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveRxn = new System.Windows.Forms.SaveFileDialog();
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
-            this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuDatabaseFile = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.unloadAllSpeciesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
             this.grpSpecies.SuspendLayout();
+            this.menuDatabaseFile.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
+            this.menuFile,
             this.editToolStripMenuItem,
             this.windowToolStripMenuItem,
             this.helpToolStripMenuItem});
@@ -95,9 +97,9 @@ namespace Reaction_Editor
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
-            // fileToolStripMenuItem
+            // menuFile
             // 
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuNew,
             this.menuOpen,
             this.menuOpenDir,
@@ -110,14 +112,15 @@ namespace Reaction_Editor
             this.menuOpenDB,
             this.toolStripSeparator1,
             this.menuExit});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
-            this.fileToolStripMenuItem.Text = "&File";
-            this.fileToolStripMenuItem.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
+            this.menuFile.Name = "menuFile";
+            this.menuFile.Size = new System.Drawing.Size(35, 20);
+            this.menuFile.Text = "&File";
+            this.menuFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // menuNew
             // 
             this.menuNew.Name = "menuNew";
+            this.menuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.menuNew.Size = new System.Drawing.Size(160, 22);
             this.menuNew.Text = "&New";
             this.menuNew.Click += new System.EventHandler(this.menuNew_Click);
@@ -125,16 +128,17 @@ namespace Reaction_Editor
             // menuOpen
             // 
             this.menuOpen.Name = "menuOpen";
+            this.menuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.menuOpen.Size = new System.Drawing.Size(160, 22);
             this.menuOpen.Text = "&Open";
             this.menuOpen.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // menuOpenDir
             // 
-            this.menuOpenDir.Enabled = false;
             this.menuOpenDir.Name = "menuOpenDir";
             this.menuOpenDir.Size = new System.Drawing.Size(160, 22);
             this.menuOpenDir.Text = "Open &Directory";
+            this.menuOpenDir.Click += new System.EventHandler(this.menuOpenDir_Click);
             // 
             // menuClose
             // 
@@ -151,6 +155,7 @@ namespace Reaction_Editor
             // menuSave
             // 
             this.menuSave.Name = "menuSave";
+            this.menuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.menuSave.Size = new System.Drawing.Size(160, 22);
             this.menuSave.Text = "&Save";
             this.menuSave.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
@@ -196,71 +201,45 @@ namespace Reaction_Editor
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoToolStripMenuItem,
-            this.redoToolStripMenuItem,
-            this.toolStripMenuItem3,
-            this.cutToolStripMenuItem,
-            this.copyToolStripMenuItem,
-            this.pasteToolStripMenuItem,
-            this.toolStripMenuItem4,
-            this.selectedAllToolStripMenuItem});
-            this.editToolStripMenuItem.Enabled = false;
+            this.menuCut,
+            this.menuCopy,
+            this.menuPaste});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.editToolStripMenuItem.Text = "&Edit";
-            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            this.editToolStripMenuItem.DropDownOpening += new System.EventHandler(this.editToolStripMenuItem_DropDownOpening);
             // 
-            // undoToolStripMenuItem
+            // menuCut
             // 
-            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.undoToolStripMenuItem.Text = "&Undo";
+            this.menuCut.Name = "menuCut";
+            this.menuCut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.menuCut.Size = new System.Drawing.Size(152, 22);
+            this.menuCut.Text = "Cu&t";
+            this.menuCut.Click += new System.EventHandler(this.menuCut_Click);
             // 
-            // redoToolStripMenuItem
+            // menuCopy
             // 
-            this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-            this.redoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.redoToolStripMenuItem.Text = "&Redo";
+            this.menuCopy.Name = "menuCopy";
+            this.menuCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
+            this.menuCopy.Size = new System.Drawing.Size(152, 22);
+            this.menuCopy.Text = "&Copy";
+            this.menuCopy.Click += new System.EventHandler(this.menuCopy_Click);
             // 
-            // toolStripMenuItem3
+            // menuPaste
             // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
-            // 
-            // cutToolStripMenuItem
-            // 
-            this.cutToolStripMenuItem.Name = "cutToolStripMenuItem";
-            this.cutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.cutToolStripMenuItem.Text = "Cu&t";
-            // 
-            // copyToolStripMenuItem
-            // 
-            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.copyToolStripMenuItem.Text = "&Copy";
-            // 
-            // pasteToolStripMenuItem
-            // 
-            this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.pasteToolStripMenuItem.Text = "&Paste";
-            // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(149, 6);
-            // 
-            // selectedAllToolStripMenuItem
-            // 
-            this.selectedAllToolStripMenuItem.Name = "selectedAllToolStripMenuItem";
-            this.selectedAllToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.selectedAllToolStripMenuItem.Text = "Selected &All";
+            this.menuPaste.Name = "menuPaste";
+            this.menuPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
+            this.menuPaste.Size = new System.Drawing.Size(152, 22);
+            this.menuPaste.Text = "&Paste";
+            this.menuPaste.Click += new System.EventHandler(this.menuPaste_Click);
             // 
             // windowToolStripMenuItem
             // 
             this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.arrangeToolStripMenuItem,
-            this.undockToolStripMenuItem});
+            this.undockToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.logToolStripMenuItem});
             this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
             this.windowToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.windowToolStripMenuItem.Text = "&Window";
@@ -273,8 +252,16 @@ namespace Reaction_Editor
             this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.arrangeToolStripMenuItem.Text = "&Arrange";
             // 
+            // menuCascade
+            // 
+            this.menuCascade.Name = "menuCascade";
+            this.menuCascade.Size = new System.Drawing.Size(126, 22);
+            this.menuCascade.Text = "&Cascade";
+            this.menuCascade.Click += new System.EventHandler(this.menuCascade_Click);
+            // 
             // undockToolStripMenuItem
             // 
+            this.undockToolStripMenuItem.Enabled = false;
             this.undockToolStripMenuItem.Name = "undockToolStripMenuItem";
             this.undockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.undockToolStripMenuItem.Text = "&Undock";
@@ -324,6 +311,7 @@ namespace Reaction_Editor
             // 
             // treeFiles
             // 
+            this.treeFiles.AllowDrop = true;
             this.treeFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeFiles.Location = new System.Drawing.Point(3, 16);
             this.treeFiles.Name = "treeFiles";
@@ -336,7 +324,10 @@ namespace Reaction_Editor
             treeNode2});
             this.treeFiles.Size = new System.Drawing.Size(140, 318);
             this.treeFiles.TabIndex = 0;
+            this.treeFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragDrop);
+            this.treeFiles.DragOver += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragOver);
             this.treeFiles.DoubleClick += new System.EventHandler(this.treeFiles_DoubleClick);
+            this.treeFiles.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeFiles_ItemDrag);
             // 
             // grpSpecies
             // 
@@ -371,9 +362,7 @@ namespace Reaction_Editor
             this.lstSpecies.TabIndex = 0;
             this.lstSpecies.UseCompatibleStateImageBehavior = false;
             this.lstSpecies.View = System.Windows.Forms.View.Details;
-            this.lstSpecies.MouseUp += new System.Windows.Forms.MouseEventHandler(this.lstSpecies_MouseUp);
-            this.lstSpecies.MouseMove += new System.Windows.Forms.MouseEventHandler(this.lstSpecies_MouseMove);
-            this.lstSpecies.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstSpecies_MouseDown);
+            this.lstSpecies.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.lstSpecies_ItemDrag);
             // 
             // chName
             // 
@@ -417,12 +406,36 @@ namespace Reaction_Editor
             this.dlgOpenDB.Filter = "ini files|*.ini|All files|*.*";
             this.dlgOpenDB.Title = "Open Database";
             // 
-            // menuCascade
+            // toolStripMenuItem3
             // 
-            this.menuCascade.Name = "menuCascade";
-            this.menuCascade.Size = new System.Drawing.Size(152, 22);
-            this.menuCascade.Text = "&Cascade";
-            this.menuCascade.Click += new System.EventHandler(this.menuCascade_Click);
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
+            // 
+            // logToolStripMenuItem
+            // 
+            this.logToolStripMenuItem.Name = "logToolStripMenuItem";
+            this.logToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.logToolStripMenuItem.Text = "&Log";
+            this.logToolStripMenuItem.Click += new System.EventHandler(this.logToolStripMenuItem_Click);
+            // 
+            // menuDatabaseFile
+            // 
+            this.menuDatabaseFile.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.unloadAllSpeciesToolStripMenuItem});
+            this.menuDatabaseFile.Name = "menuDatabaseFile";
+            this.menuDatabaseFile.Size = new System.Drawing.Size(221, 26);
+            // 
+            // unloadAllSpeciesToolStripMenuItem
+            // 
+            this.unloadAllSpeciesToolStripMenuItem.Name = "unloadAllSpeciesToolStripMenuItem";
+            this.unloadAllSpeciesToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.unloadAllSpeciesToolStripMenuItem.Text = "Unload &All Specie Databases";
+            this.unloadAllSpeciesToolStripMenuItem.Click += new System.EventHandler(this.unloadAllSpeciesToolStripMenuItem_Click);
+            // 
+            // folderBrowserDialog1
+            // 
+            this.folderBrowserDialog1.RootFolder = System.Environment.SpecialFolder.MyComputer;
+            this.folderBrowserDialog1.ShowNewFolderButton = false;
             // 
             // FrmMain
             // 
@@ -449,6 +462,7 @@ namespace Reaction_Editor
             this.statusStrip1.PerformLayout();
             this.grpFiles.ResumeLayout(false);
             this.grpSpecies.ResumeLayout(false);
+            this.menuDatabaseFile.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -464,7 +478,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.ListView lstSpecies;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.Splitter splitter2;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuFile;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
@@ -477,14 +491,6 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuSaveAll;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem menuExit;
-        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem selectedAllToolStripMenuItem;
         private System.Windows.Forms.ColumnHeader chName;
         private System.Windows.Forms.ColumnHeader chSymbol;
         private System.Windows.Forms.ToolStripMenuItem menuOpenDir;
@@ -498,6 +504,14 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem undockToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutSysCADReactionEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem menuCascade;
+        public System.Windows.Forms.ToolStripMenuItem menuCut;
+        public System.Windows.Forms.ToolStripMenuItem menuCopy;
+        public System.Windows.Forms.ToolStripMenuItem menuPaste;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip menuDatabaseFile;
+        private System.Windows.Forms.ToolStripMenuItem unloadAllSpeciesToolStripMenuItem;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
 
 
     }

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace Reaction_Editor
 {
@@ -22,6 +23,7 @@ namespace Reaction_Editor
     public enum FracTypes { ByMass, ByMole };
 
     #region Reaction Extent Structures
+    [Serializable]
     public class RxnExtent
     {
         protected double m_dValue = double.NaN;
@@ -119,6 +121,7 @@ namespace Reaction_Editor
         }
     }
 
+    [Serializable]
     public class FractionExtent : RxnExtent
     {
         public FractionExtent(RxnExtent original) 
@@ -145,6 +148,7 @@ namespace Reaction_Editor
         }
     }
 
+    [Serializable]
     public class RatioExtent : RxnExtent
     {
         protected Compound m_Specie2;
@@ -218,6 +222,7 @@ namespace Reaction_Editor
         }
     }
 
+    [Serializable]
     public class EquilibriumExtent : RxnExtent
     {
         public EquilibriumExtent(RxnExtent original)
@@ -246,6 +251,7 @@ namespace Reaction_Editor
         }
     }
 
+    [Serializable]
     public class Final_ConcExtent : RxnExtent
     {
         protected double m_T = double.NaN;
@@ -294,6 +300,7 @@ namespace Reaction_Editor
         }
     }
 
+    [Serializable]
     public class Final_FracExtent : RxnExtent
     {
         protected Phases m_Phase = (Phases)(-1);
@@ -338,7 +345,7 @@ namespace Reaction_Editor
                 ret.FracType = FracTypes.ByMole;
             else
                 throw new Exception("Final_FracExtent.Parse called with invalid string");
-            s = s.Remove(0, "mXfinalfrac".Length).Trim();
+            s = s.Remove(0, "mXfinalfraction".Length).Trim();
             if (s.ToLowerInvariant().StartsWith("total"))
             {
                 ret.Phase = Phases.All;
@@ -359,13 +366,14 @@ namespace Reaction_Editor
                 ret.Phase = Phases.Gas;
                 s = s.Remove(0, "Gas ".Length).Trim();
             }
-            string[] subs = s.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] subs = s.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
             ret.Specie = Compound.FromString(subs[0].Trim());
             ret.Value = double.Parse(subs[1].Trim());
             return ret;
         }
     }
 
+    [Serializable]
     public class RateExtent : RxnExtent
     {
         protected bool m_bStabilised = false;
@@ -564,6 +572,8 @@ namespace Reaction_Editor
 
     public class SimpleReaction
     {
+        public static DataFormats.Format sFormat = DataFormats.GetFormat(typeof(SimpleReaction).FullName); 
+
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
@@ -572,15 +582,17 @@ namespace Reaction_Editor
         public static Regex s_CompoundRegex = new Regex(
             @"^\s*(?<Unparseable>.*?)(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*(?>(?<Unparseable>.*?)\+\s*(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*)*(?<Unparseable>.*?)$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        
         #region Internal Variables
         protected ListViewItem m_LVI;
+        protected int m_nLastAddedNumStart;
 
         protected bool m_bEnabled = true;
         protected RxnStatuses m_eStatus;
         protected bool m_bProductsOK = true, m_bReactantsOK = true;
         protected bool m_bUseOriginalString;
 
-        protected RxnDirections m_eDirection;
+        protected RxnDirections m_eDirection = RxnDirections.Equilibrium;
         protected ExtentTypes m_eExtentType;
         protected bool m_bCustomHeatOfReaction;
 
@@ -633,7 +645,12 @@ namespace Reaction_Editor
                 m_LVI = value;
                 m_LVI.Tag = this;
             }
-        } 
+        }
+
+        public int LastAddedNumStart
+        {
+            get { return m_nLastAddedNumStart; }
+        }
 
         public RxnStatuses Status
         {
@@ -906,6 +923,21 @@ namespace Reaction_Editor
             get { return m_Log; }
             set { m_Log = value; }
         }
+
+        public IEnumerable<Compound> Compounds
+        {
+            get
+            {
+                List<Compound> ret = new List<Compound>();
+                foreach (Compound c in m_OrderedProducts)
+                    if (!ret.Contains(c))
+                        ret.Add(c);
+                foreach (Compound c in m_OrderedReactants)
+                    if (!ret.Contains(c))
+                        ret.Add(c);
+                return ret;
+            }
+        }
         #endregion Properties
 
         #region Public Functions
@@ -925,16 +957,20 @@ namespace Reaction_Editor
             while (i < m_OrderedReactants.Count)
             {
                 tempReactantString += m_Reactants[m_OrderedReactants[i]] + " ";
-                if (i < tempReactantString.Length)
+                if (location <= tempReactantString.Length)
                     break;
                 tempReactantString += m_OrderedReactants[i] + " + ";
                 i++;
             }
+            m_nLastAddedNumStart = tempReactantString.Length;
+            if (i < m_OrderedReactants.Count)
+                m_nLastAddedNumStart -= 2;
             m_OrderedReactants.Insert(i, compound);
             m_Reactants.Add(compound, 1.0);
 
-            if (Changed != null)
-                Changed(this, new EventArgs());
+            FireChanged();
+            if (ReactantsChanged != null)
+                ReactantsChanged(this, new EventArgs());
         }
 
         public void AddProduct(Compound compound, Double fraction, int location)
@@ -958,11 +994,15 @@ namespace Reaction_Editor
                 tempProductString += m_OrderedProducts[i] + " + ";
                 i++;
             }
+            m_nLastAddedNumStart = tempProductString.Length;
+            if (i < m_OrderedProducts.Count)
+                m_nLastAddedNumStart -= 2;
             m_OrderedProducts.Insert(i, compound);
             m_Products.Add(compound, 1.0);
 
-            if (Changed != null)
-                Changed(this, new EventArgs());
+            FireChanged();
+            if (ProductsChanged != null)
+                ProductsChanged(this, new EventArgs());
         }
 
         public override string ToString()
@@ -1195,6 +1235,102 @@ namespace Reaction_Editor
             ret.Changed += new EventHandler(ret.UpdateStatus);
             return ret;
         }
+
+        public void DoDatabaseChanged()
+        {
+            //Extent:
+            if (m_Extent.Specie != null && !Compound.CompoundList.ContainsKey(m_Extent.Specie.Symbol))
+            {
+                Log.Message("Extent specie not found in new database", MessageType.Error);
+                m_Extent.Specie = null;
+            }
+            //HOR:
+            if (CustomHeatOfReaction && !Compound.CompoundList.ContainsKey(m_HeatOfReactionSpecie.Symbol))
+            {
+                Log.Message("Heat of reaction specie not found in new database", MessageType.Error);
+                m_HeatOfReactionSpecie = null;
+                FireChanged();
+            }
+            //Spaces to force a reparse:
+            ParseProducts(GetProductsString() + " "); 
+            ParseReactants(GetReactantsString() + " ");
+        }
+
+        /*public static SimpleReaction FromClipboard(FrmReaction owner)
+        {
+            IDataObject obj = Clipboard.GetDataObject();
+            if (!obj.GetDataPresent(sFormat.Name))
+                return null;
+            string s = (string) obj.GetData(sFormat.Name);
+            Match rxnMatch = FrmReaction.s_ReactionRegex.Match(s);
+            bool enabled = rxnMatch.Success;
+            if (!rxnMatch.Success)
+                rxnMatch = FrmReaction.s_DisabledReactionRegex.Match(s);
+            if (!rxnMatch.Success)
+                throw new Exception("Unable to match clipboad data");
+
+            SimpleReaction currentReaction = owner.CreateReaction(null);
+            ILog Log = currentReaction.Log;
+            MessageSource source = new MessageFrmReaction(
+                owner.Title + ", Clipboad paste",
+                owner,
+                currentReaction);
+            Log.SetSource(source);
+            Group grpComment = rxnMatch.Groups["Comment"];
+            if (grpComment.Success)
+                currentReaction.Comment = grpComment.Captures[0].Value;
+
+            Group grpReactants = rxnMatch.Groups["Reactants"];
+            currentReaction.ParseReactants(grpReactants.Captures[0].Value);
+
+
+            Group grpDirection = rxnMatch.Groups["Direction"];
+            currentReaction.DirectionString = grpDirection.Captures[0].Value;
+
+            Group grpProducts = rxnMatch.Groups["Products"];
+            currentReaction.ParseProducts(grpProducts.Captures[0].Value);
+
+            source.Source = this.Title + ": " + currentReaction;
+
+            Group grpExtent = rxnMatch.Groups["Extent"];
+            if (grpExtent.Success)
+                try
+                {
+                    currentReaction.ParseExtent(grpExtent.Value);
+                }
+                catch (Exception ex)
+                {
+                    Log.Message("Unable to parse extent (" + grpExtent.Value + "). Reason: " + ex.Message, MessageType.Warning);
+                }
+            else
+                Log.Message("Extent not found for reaction", MessageType.Warning);
+
+            Group grpSequence = rxnMatch.Groups["Sequence"];
+            if (grpSequence.Success)
+            {
+                Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
+                if (sequenceMatch.Success)
+                {
+                    currentReaction.Sequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                }
+                else
+                    Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+            }
+
+            Group grpHOR = rxnMatch.Groups["HOR"];
+            if (grpHOR.Success)
+                try
+                {
+                    currentReaction.ParseHOR(grpHOR.Captures[0].Value.Trim());
+                }
+                catch (Exception ex)
+                {
+                    Log.Message("Unable to parse HeatOfReaction '" + grpHOR.Value + "' Reason: " + ex.Message, MessageType.Warning);
+                }
+
+            currentReaction.Enabled = enabled;
+            //***
+        }*/
         #endregion Public Functions
 
         #region Protected Functions
@@ -1393,6 +1529,12 @@ namespace Reaction_Editor
         /// Sets the default message source to be the new source on the stack.
         /// </summary>
         void RemoveSource();
+
+        bool Active
+        {
+            get;
+            set;
+        }
     }
 
     public class ConsoleLog : ILog
@@ -1420,6 +1562,12 @@ namespace Reaction_Editor
         public void RemoveSource()
         {
             sourceStack.Pop();
+        }
+
+        public bool Active
+        {
+            get { return true; }
+            set { }
         }
 
         #endregion
