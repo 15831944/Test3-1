@@ -4336,11 +4336,16 @@ LRESULT CMainFrame::OnChkLicense(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnScd10Export()
   {
+#if SYSCAD10
   gs_pPrj->Export2Scd10();
-  // TODO: Add your command handler code here
+#endif
   }
 
 void CMainFrame::OnUpdateScd10Export(CCmdUI *pCmdUI)
   {
+#if SYSCAD10
   pCmdUI->Enable(true);//EnablePrjOK() && !EnableNotStopped());
+#else
+  pCmdUI->Enable(false);
+#endif
   }
