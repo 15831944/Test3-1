@@ -1252,11 +1252,6 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.Visibility(Vis, pModel->Closed());
           DDB.Double("VolScale",      "",    DC_Frac, "%",        xidSSVapVolScale,    this, isParm);
 
-          //          static DDBValueLst DDB1[]={
-          //            {0, "Vent"},
-          //            {1, "AutoExpand"},
-          //            {0}};
-          //          DDB.Bool  ("VentAction",    "",    DC_,     "",         xidCnVentAction,     this, isParm, DDB1);
           DDB.Double("VentPress",     "",    DC_P,    "kPag",     xidCnVentPress,      this, isParm);
           LPTSTR Nm1=PrjFileVerNo()<58 ? "MaxLevel":"VentLevel";
           DDB.Double(Nm1,             "",    DC_Frac, "%",        xidCnVentLevel,      this, isParm);

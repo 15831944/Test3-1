@@ -105,10 +105,10 @@ BeltCnv::BeltCnv(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   m_Pwr("Supply", this, TOA_Embedded),
   m_BeltSB("PL_FwdRv", this, &m_Pwr),
   m_WtMtrPos(*(new CWtMtrPosArray)),
-  m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
-  m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
-  m_AccIn(eDIO_Accum, this, false, true, "Accumulation"),
-  m_AccOut(eDIO_Deplete, this, false, true, "Depletion"),
+  m_Spill(eDIO_Spill, this, false, true, SpillIOTag, IOId_Spill2Area, IOId_AreaSpillI),
+  m_Vent(eDIO_Vent, this, false, true, VentIOTag, IOId_Vent2Area, IOId_AreaVentI),
+  m_AccIn(eDIO_Accum, this, false, true, AccumIOTag),
+  m_AccOut(eDIO_Deplete, this, false, true, DepleteIOTag),
   m_AccCalc(this, m_AccIn, m_AccOut),
   m_Q("Belt", this, TOA_Embedded, &m_Spill, &m_Vent, &m_AccIn, &m_AccOut)
   {

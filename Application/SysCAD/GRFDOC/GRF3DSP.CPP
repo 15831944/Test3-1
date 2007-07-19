@@ -774,7 +774,7 @@ flag Viewport::EntityIsSelectable(DXF_ENTITY e,C3_CURVE c)
   //                         type,layr,SelectOnEntity,SelectOnLayer.Length(),SelectOnAttrTag.Length());
   // begin testing 
   if( SelectOnEntity == 0 && SelectOnLayer.Length() == 0 && SelectOnAttrTag.Length() == 0) 
-    return(1);
+    goto FoundIt;
   if( SelectOnEntity && !(SelectOnEntity & type))
     return(0);
   if( SelectOnLayer.Length() && !SelectOnLayer.Find(layr))
@@ -792,6 +792,13 @@ flag Viewport::EntityIsSelectable(DXF_ENTITY e,C3_CURVE c)
       }
       if( !p )
         return 0;
+    }
+
+FoundIt: // Test Not Hidden
+  if (e && DXF_ENTITY_IS_INSERT(e))
+    {
+    if (EntityIsHidden(e))
+      return 0;
     }
   return(1);
   }

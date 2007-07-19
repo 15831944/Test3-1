@@ -1404,8 +1404,27 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
       ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
       ContentFlw.QAddF(*IOConduit(iIONo), som_Gas, IOEntrainRateG(iIONo));
       VapourFlw.QAddF(*IOConduit(iIONo), som_Gas, (1.0-IOEntrainRateG(iIONo)));
+#if dbgDerivs
+      if (dbgso)
+        {
+        dbgpln("    ContentFlw   %15.6f kg/s @ %s", ContentFlw.QMass(), IODesc_Self(iIONo)->m_pName);
+        dbgpln("    VapourFlw    %15.6f kg/s", VapourFlw.QMass());
+        }
+#endif
       }
     }
+
+#if dbgDerivs
+  if (dbgso)
+    {
+    dbgpln("  ContentFlw S   %15.6f kg/s", ContentFlw.QMass(som_Sol));
+    dbgpln("  ContentFlw L   %15.6f kg/s", ContentFlw.QMass(som_Liq));
+    dbgpln("  ContentFlw V   %15.6f kg/s", ContentFlw.QMass(som_Gas));
+    dbgpln("  VapourFlw S    %15.6f kg/s", VapourFlw.QMass(som_Sol));
+    dbgpln("  VapourFlw L    %15.6f kg/s", VapourFlw.QMass(som_Liq));
+    dbgpln("  VapourFlw V    %15.6f kg/s", VapourFlw.QMass(som_Gas));
+    }
+#endif
 
   // DoReaction 
   //TODO EvalProducts_SurgeLevelInline - DoReaction

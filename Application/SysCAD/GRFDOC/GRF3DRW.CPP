@@ -524,6 +524,23 @@ void MakeLayerName(pchar FullNm, LayerTypes LayerType, pchar CGrfLayer)
   strcat(FullNm, CGrfLayer);
   };
 
+//----------------------------------------------------------------------------
+
+bool EntityIsHidden(DXF_ENTITY e)
+  {
+  DXF_ENTITY eHide= Find_Attr(e, HideInsertAttribStr);
+  bool Hidden=false;
+  if (eHide)
+    {
+    LPSTR pHide=DXF_ATTRIB_VALUE_GET(eHide);
+    Hidden=(*pHide=='1');
+    if (Hidden)
+      { 
+      int xxx=0;
+      };
+    }
+  return Hidden;
+  }
 
 //============================================================================
 
@@ -702,8 +719,7 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
         //       DXF_ATTRIB_TAG_GET(e1) ? DXF_ATTRIB_TAG_GET(e1) : "---",
         //       DXF_ATTRIB_VALUE_GET(e1) ? DXF_ATTRIB_VALUE_GET(e1) : "");
 
-        if( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr))// &&
-          //DXF_ATTRIB_VALUE_GET(e1) && !_stricmp(DXF_ATTRIB_VALUE_GET(e1),pOldTag) )
+        if (!EntityIsHidden(e) && DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),TagAttribStr))
           {
           if (stricmp(DXF_ATTRIB_VALUE_GET(e1), Tag)==0)
             {
@@ -736,71 +752,73 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
   flag WorkReqd = 0;
   WALK_ENTITY_LIST(InsertLst, it, eInsert)
     {
-    DML_LIST l1 = DXF_INSERT_ATTRS(eInsert);
-    if (l1)
+    DXF_ENTITY eTag=Find_Attr(eInsert, TagAttribStr);
+    if (eTag)
       {
-      //DML_ITEM it1;
-      //DXF_ENTITY e1;
-
-      //      WALK_ENTITY_LIST(l1, it1, e1)
-      //        {
-      //        if ( DXF_ATTRIB_TAG_GET(e1) && !_stricmp(DXF_ATTRIB_TAG_GET(e1),AssocTagAttribStr))
-      //          {
-      //#if dbgAssocGrf
-      //          dbgpln("AssocTag 0x%08x = %s", e1, DXF_ATTRIB_VALUE_GET(e1));
-      //#endif
-      //          eIsAssoc=e;
-      //          break;
-      //          }
-      //        }
-
-      DXF_ENTITY eTag=Find_Attr(eInsert, TagAttribStr);
-      if (eTag)
-        {
-        LPTSTR Tag=DXF_ATTRIB_VALUE_GET(eTag);
-        DXF_ENTITY eAssoc=Find_Attr(eInsert, AssocTagAttribStr);
+      LPTSTR Tag=DXF_ATTRIB_VALUE_GET(eTag);
+      DXF_ENTITY eAssocTag=Find_Attr(eInsert, AssocTagAttribStr);
 #if dbgAssocGrf
-        dbgpln("ModelAssocGrfs Tag 0x%08x      = %s", eTag, Tag); 
+      dbgpln("ModelAssocGrfs Tag 0x%08x      = %s", eTag, Tag); 
 #endif                               
-        CMdlAssocGrfMapItem GI;
-        if (Map.Lookup(Tag, GI))
-          {
+      CMdlAssocGrfMapItem GI;
+      if (Map.Lookup(Tag, GI))
+        {
 #if dbgAssocGrf
-          dbgpln("                   Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
+        dbgpln("                   Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
 #endif
-          if (eAssoc)
+        if (eAssocTag)  // This is an Assoc Graphic
+          {
+          CMdlAssocGrf::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
+          bool Hidden=EntityIsHidden(eInsert);
+          I.m_bExists=true;
+#if dbgAssocGrf
+          dbgpln("                   %s @ %s", I.m_bShowIt?"ShowIt":"HideIt", Tag);
+#endif
+          if (!I.m_bShowIt)
             {
-            CMdlAssocGrf::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
-            WorkReqd= 1;
-            I.m_bExists=true;
-            if (!I.m_bShowIt)
+//#if dbgAssocGrf
+//            dbgpln("                   Delete @ %s", Tag);
+//#endif
+            if (!Hidden)
               {
 #if dbgAssocGrf
-              dbgpln("                   Delete @ %s", Tag);
+              dbgpln("                   Hide   @ %s", Tag);
 #endif
               GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eHide, NULL, 0, 0, 0, eInsert));
+              WorkReqd= 1;
               }
             }
-          else //if (I.m_bShowIt)
+          else
             {
-            //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
-            WorkReqd= 1;
-            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+            if (Hidden)
+              {
+#if dbgAssocGrf
+              dbgpln("                   Show   @ %s", Tag);
+#endif
+              GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eShow, NULL, 0, 0, 0, eInsert));
+              WorkReqd= 1;
+              }
             }
           }
-        else //if (eIsAssoc)
+        else //if (I.m_bShowIt)
           {
-          // Item not found - remove it if assoc grfs
+          //ASSERT_ALWAYS(stricmp(Tag, GI.m_pG->m_sNdTag)==0, "Tag Should match", __FILE__, __LINE__); 
+          GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eAddNdAssocGrfs, GI.m_pG, -1, DXF_INSERT_PT(eInsert)[0], DXF_INSERT_PT(eInsert)[1], eInsert));
+          WorkReqd= 1;
+          }
+        }
+      else //if (eIsAssoc)
+        {
+        // Item not found - remove it from assoc grfs
 #if dbgAssocGrf
-          dbgpln("                   Missing ");
+        dbgpln("                   Missing ");
 #endif
-          if (eAssoc)
-            {
+        if (eAssocTag)
+          {
 #if dbgAssocGrf
-            dbgpln("                   Delete @ %s", Tag);
+          dbgpln("                   Delete @ %s", Tag);
 #endif
-            GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
-            }
+          GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
           }
         }
       }
@@ -3675,69 +3693,20 @@ flag LayerCollection::Delete(C3_CURVE c)
 
 flag LayerCollection::Hide(DXF_ENTITY e, flag On)
   {
-  CGrfLayer * l;
-  WALK_LAYERS(Layers, NULL, l)
+  if (DXF_ENTITY_IS_INSERT(e))
     {
-    DML_ITEM it;
-    DXF_ENTITY ei;
-
-    WALK_ENTITY_LIST(l->InsertLst, it, ei)
+    DXF_ENTITY eHide=Find_Attr(e, HideInsertAttribStr);
+    if (eHide==NULL)
       {
-      if (ei==e)
-        {
-        if( it->pKenwalta )
-          {
-          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
-          }
-        
-
-        //DXF_ENTITY eTag=Find_Attr(e, HideAttribStr);
-
-        //dml_remove_item(l->InsertLst, it);
-        //dxf_free_entity(ei);
-        return 1;
-        }
+      Pt_3f basept;
+      //add tag...
+      Attr_Settings AHide(50,DXF_ATTRIB_INVIS,1.0,1.0,0.0,GR_DARKGRAY,Text_Left ,Text_Baseline,"STANDARD");
+      eHide = Add_Insert_Attrib(e, HideInsertAttribStr, On?"1":"0", basept.p(), AHide);
       }
-
-    WALK_ENTITY_LIST(l->OtherLst, it, ei)
-      {
-      if (ei==e)
-        {
-        if( it->pKenwalta )
-          {
-          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
-          }
-        dml_remove_item(l->OtherLst, it);
-        dxf_free_entity(ei);
-        return 1;
-        }
-      }
+    else
+      DXF_ATTRIB_VALUE_SET(eHide, On?"1":"0");
     }
-  return 0;
-  }
-
-//----------------------------------------------------------------------------
-
-flag LayerCollection::Hide(C3_CURVE c, flag On)
-  {
-  CGrfLayer * l;
-  WALK_LAYERS(Layers, NULL, l)
-    {
-    DML_ITEM it;
-    C3_CURVE ci;
-    WALK_CURVE_LIST(l->CurveLst,it, ci)
-      if (ci==c)
-        {
-        if((CEntInView*)(it->pKenwalta))
-          {
-          it->pKenwalta = ((CEntInView*)(it->pKenwalta))->EntityInvalidate();
-          }
-        dml_remove_item(l->CurveLst, it);
-        c3d_free_curve(ci);
-        return 1;
-        }
-    }
-  return 0;
+  return 1;
   }
 
 //----------------------------------------------------------------------------
@@ -4218,7 +4187,12 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
               }
             else if (I.m_bExists && !I.m_bShowIt)
               {
-              // Will Delete below;
+              int xx=0;
+              // Hidden by code below;
+              }
+            else if (I.m_bExists && I.m_bShowIt)
+              {
+              // Shown by code below;
               }
             }
           break;
@@ -4233,6 +4207,12 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
           {
           pDsp->Draw(GX.m_Entity, GrfHelper.GR_BACKGROUND);
           Drawing->Hide(GX.m_Entity, true);
+          break;
+          }
+        case CMdlAssocGrfX::eShow:
+          {
+          Drawing->Hide(GX.m_Entity, false);
+          pDsp->Draw(GX.m_Entity, -1);//GrfHelper.GR_BACKGROUND);
           break;
           }
         }
@@ -5654,290 +5634,305 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
     item->pKenwalta = (void *)l->EntityInvalidate();
     }
 
-  if (DXF_ENTITY_IS_INSERT(e) && item->pKenwalta == NULL)
+  if (DXF_ENTITY_IS_INSERT(e))// && item->pKenwalta == NULL)
     {
-    pBlock b;
-    b = Blocks.Find(DXF_INSERT_BLOCK_GET(e));
-    if (b)
+    bool Hidden=EntityIsHidden(e);
+
+    if (Hidden)
       {
-      pchar entitytag = Find_Attr_Value(e, "TAG");
-      int RqdColor= (color>=0 ? color : entitytag==NULL ? Ocolor : -1);
-
-#if dbgdxfdraw
-      dbgpln("  %*s Draw Block %s @ %g,%g,%g * %g,%g,%g %i [%i]%s",Lvl," ",
-        DXF_BLOCK_NAME_GET(b->Def),
-        DXF_INSERT_PT(e)[0],DXF_INSERT_PT(e)[1],DXF_INSERT_PT(e)[2],
-        DXF_INSERT_X_SCALE(e), DXF_INSERT_Y_SCALE(e), DXF_INSERT_Z_SCALE(e),
-        DXF_ENTITY_COLOR(e),
-        RqdColor, entitytag);
-#endif
-
-      VP_TRANSFORM vpt;
-      C3_TRANSFORM Imat,Imat_i;
-      ConstructInsertMatrix(Imat, b, e);
-      SetGfxLayer(color, Lvl, pLay, iLay, (pchar)DXF_ENTITY_LAYER_GET(e), (int)DXF_ENTITY_COLOR(e), DXF_ENTITY_THICKNESS(e));
-
-      vpi_get_transform(vp->vp, vpt);
-      //vp3_append_transform(vp->vp, c3t_r1);
-      vp3_append_transform(vp->vp, Imat);
-      C3_BOX_S boxt;
-      //c3t_inverse(c3t_r1, c3t_r1_i);
-      c3t_inverse(Imat, Imat_i);
-      PT3 mn, mx;
-      //c3t_eval_pt(C3_MIN_PT(box), c3t_r1_i, mn);
-      //c3t_eval_pt(C3_MAX_PT(box), c3t_r1_i, mx);
-
-      c3t_eval_pt(C3_MIN_PT(box), Imat_i, mn);
-      c3t_eval_pt(C3_MAX_PT(box), Imat_i, mx);
-
-      c3v_set(Min(mn[0], mx[0]), Min(mn[1], mx[1]), Min(mn[2], mx[2]), C3_MIN_PT(&boxt));
-      c3v_set(Max(mn[0], mx[0]), Max(mn[1], mx[1]), Max(mn[2], mx[2]), C3_MAX_PT(&boxt));
-
-#if dbgBlk
-      if (Lvl == 1)
-        dbgpln("  %*s Blkdbg opening insert segment for %s",Lvl," ",DXF_INSERT_BLOCK_GET(e));
-      dbgpln("         Blkdbg INSERT");
-#endif
-
-      // Look at the number of fill tags on the insert and create a
-      // CLVector to hold the seg ids
-      if (Lvl==1)
+      if (item->pKenwalta != NULL)
         {
-        int FillSize = 0;
-        vp->Curseg_level = -1;
-        pchar filltag = Find_Attr_Value(e, "FILLTAG");
-        if (filltag)
-          {
-          pchar fillvar   = Find_Attr_Value(e, "FILLVAR");
-          pchar fillmin   = Find_Attr_Value(e, "FILLMIN");
-          pchar fillmax   = Find_Attr_Value(e, "FILLMAX");
-          pchar fillcolor = Find_Attr_Value(e, "FILLCOLOR");
-          if (fillvar && fillmin && fillmax)
-            FillSize = 1;
-          }
-
-        int BarsSize = 0;
-        pchar dynmtags = Find_Attr_Value(e, "DYNMTAGS");
-        if (dynmtags)
-          {
-          pchar dynmvars = Find_Attr_Value(e, "DYNMVARS");
-          pchar dynmmins = Find_Attr_Value(e, "DYNMMINS");
-          pchar dynmmaxs = Find_Attr_Value(e, "DYNMMAXS");
-          if (dynmvars && dynmmins && dynmmaxs)
-            {
-            Strng_List ltag,lvar;
-            ltag.AppendTokString(dynmtags, " ");
-            lvar.AppendTokString(dynmvars, " ");
-            int n1 = ltag.Length();
-            int n2 = lvar.Length();
-            if (n1 && n1==n2)
-              BarsSize = n1;
-            }
-          }
-
-        int ToggSize = 0;
-        pchar toggtags = Find_Attr_Value(e, "TOGGTAGS");
-        if (toggtags)
-          {
-          pchar toggvars = Find_Attr_Value(e, "TOGGVARS");
-          if (toggvars)
-            {
-            Strng_List ltag,lvar;
-            ltag.AppendTokString(toggtags, " ");
-            lvar.AppendTokString(toggvars, " ");
-            int n1 = ltag.Length();
-            int n2 = lvar.Length();
-            if (n1 && n1==n2)
-              ToggSize = n1;
-            }
-          }
-
-        if (FillSize+BarsSize+ToggSize>0)
-          {
-          vp->Curseg_offset.SetSize(FillSize+BarsSize+ToggSize, -1);
-          vp->Curseg_level  = 0;
-          }
-        ini_vector_buffer();
-        }
-
-      b->Draw(vp, &boxt, color, Lvl+1, iLay);
-      vpi_set_transform(vp->vp, vpt);
-
-      DML_LIST l1 = DXF_INSERT_ATTRS(e);
-      DML_ITEM it1;
-      DXF_ENTITY e1;
-      if (l1)
-        {
-        WALK_ENTITY_LIST(l1, it1, e1)
-          {
-          Draw(e1, vp, &boxt, color, Lvl+1, pLay, iLay, item);
-          }
-        }
-
-      if (Lvl==1)
-        {
-        char * pBlockName=DXF_BLOCK_NAME_GET(b->Def);
-        int AllowBoxSlct=
-          (pBlockName &&
-          _strnicmp(pBlockName, "Pipe-", 5)!=0 &&
-          _strnicmp(pBlockName, "Link-", 5)!=0 &&
-          _strnicmp(pBlockName, "LNKBLK", 6)!=0);
-
-        CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, AllowBoxSlct, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), entitytag);
-        if (!l->NumPoint())
-          {
-          delete l;
-          l = NULL;
-          item->pKenwalta = NULL;
-          }
-        else
-          {
-          item->pKenwalta = (void*)l;
-          vp->AddDisplaySegment(l);
-          l->Qdisplay();
-          if (vp->Curseg_level!=-1)
-            {
-            int cnt = 0;
-            pchar filltag = Find_Attr_Value(e, "FILLTAG");
-            if (filltag)
-              {
-              char Tmp[32];
-              sprintf(Tmp, "%d", SEG_TBFILL);
-              pchar fillvar = Find_Attr_Value(e, "FILLVAR");
-              pchar fillmin = Find_Attr_Value(e, "FILLMIN");
-              pchar fillmax = Find_Attr_Value(e, "FILLMAX");
-              pchar fillcolor = Find_Attr_Value(e, "FILLCOLOR");
-              COLORREF Color = DEFAULTFILLCOLOUR;
-              if (fillcolor)
-                {
-                Color = atol(fillcolor);
-                l->SetFillColorRqd(Color);
-                }
-
-              if (fillvar && fillmin && fillmax)
-                {
-                //TRACE("Adding Fill %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
-                Strng WrkVar, WrkCnvTxt;
-                TaggedObject::SplitTagCnv(fillvar, WrkVar, WrkCnvTxt);
-                CCnvIndex CnvInx;
-                double CurVal;
-                if (pDsp->FetchTaggedSIValue(filltag, WrkVar(), CurVal, CnvInx, WrkCnvTxt))
-                  {
-                  DynamicSegment* pDS = new DynamicSegment(l, filltag, fillvar, CnvInx, WrkCnvTxt(), Tmp, DynFill, Color, atof(fillmin), atof(fillmax), CurVal, vp->Curseg_offset[cnt]);
-                  vp->AddDynamicSegment(pDS);
-                  vp->DrawDynamicSegment(pDS);
-                  }
-                cnt++;
-                }
-              }
-
-            pchar dynmtags = Find_Attr_Value(e, "DYNMTAGS");
-            if (dynmtags)
-              {
-              char Tmp[32];
-              sprintf(Tmp, "%d", SEG_TBFILL);
-              Strng_List ltag,lvar,lmin,lmax,lcol;
-              pStrng     ptag,pvar,pmin,pmax,pcol;
-              COLORREF   Color;
-
-              pchar dynmvars = Find_Attr_Value(e, "DYNMVARS");
-              pchar dynmmins = Find_Attr_Value(e, "DYNMMINS");
-              pchar dynmmaxs = Find_Attr_Value(e, "DYNMMAXS");
-              pchar dynmcols = Find_Attr_Value(e, "DYNMCOLOR");
-
-              ltag.AppendTokString(dynmtags, " ");
-              lvar.AppendTokString(dynmvars, " ");
-              lmin.AppendTokString(dynmmins, " ");
-              lmax.AppendTokString(dynmmaxs, " ");
-              if (dynmcols)
-                lcol.AppendTokString(dynmcols, " ");
-
-              ptag = ltag.First();
-              pvar = lvar.First();
-              pmin = lmin.First();
-              pmax = lmax.First();
-              pcol = lcol.First();
-
-              //int cnt = 0;
-              while (ptag && pvar && pmin && pmax)
-                {
-                //TRACE("Adding dynamic bar %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
-                Strng WrkVar, WrkCnvTxt;
-                TaggedObject::SplitTagCnv(pvar->Str(), WrkVar, WrkCnvTxt);
-                CCnvIndex CnvInx;
-                double CurVal;
-                if (pDsp->FetchTaggedSIValue(ptag->Str(), pvar->Str(), CurVal, CnvInx, WrkCnvTxt))
-                  {
-                  Color = DEFAULTBARSCOLOUR;
-                  if (pcol)
-                    Color = atol(pcol->Str());
-                  DynamicSegment* pDS = new DynamicSegment(l, ptag->Str(), pvar->Str(), CnvInx, WrkCnvTxt(), Tmp, DynBars, Color, atof(pmin->Str()), atof(pmax->Str()), CurVal, vp->Curseg_offset[cnt]);
-                  vp->AddDynamicSegment(pDS);
-                  vp->DrawDynamicSegment(pDS);
-                  }
-
-                cnt++;
-                ptag = ltag.Next();
-                pvar = lvar.Next();
-                pmin = lmin.Next();
-                pmax = lmax.Next();
-                pcol = lcol.Next();
-                }
-              }
-
-            pchar toggtags = Find_Attr_Value(e, "TOGGTAGS");
-            if (toggtags)
-              {
-              char Tmp[32];
-              sprintf(Tmp, "%d", SEG_TBFILL);
-              Strng_List ltag,lvar;
-              pStrng     ptag,pvar;
-              COLORREF   Color = DEFAULTTOGGCOLOUR;
-              pchar toggvars = Find_Attr_Value(e, "TOGGVARS");
-              ltag.AppendTokString(toggtags, " ");
-              lvar.AppendTokString(toggvars, " ");
-              ptag = ltag.First();
-              pvar = lvar.First();
-
-              //int cnt = 0;
-              while (ptag && pvar)
-                {
-                //TRACE("Adding toggle %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
-                Strng WrkVar, WrkCnvTxt;
-                TaggedObject::SplitTagCnv(pvar->Str(), WrkVar, WrkCnvTxt);
-                CCnvIndex CnvInx;
-                double CurVal;
-                if (pDsp->FetchTaggedSIValue(ptag->Str(), pvar->Str(), CurVal, CnvInx, WrkCnvTxt))
-                  {
-                  DynamicSegment* pDS = new DynamicSegment(l, ptag->Str(), pvar->Str(), CnvInx, WrkCnvTxt(), Tmp, DynToggle, Color, 0.0, 0.0, CurVal, vp->Curseg_offset[cnt]);
-                  vp->AddDynamicSegment(pDS);
-                  vp->DrawDynamicSegment(pDS);
-                  }
-
-                cnt++;
-                ptag = ltag.Next();
-                pvar = lvar.Next();
-                }
-              }
-
-            vp->Curseg_offset.SetSize(1, -1);
-            vp->Curseg_level = -1;
-            }
-          }
+        CEntInView* p = ((CEntInView*)(item->pKenwalta));
+        if( p )
+          p->VP()->DelDisplaySegment(p);
         }
       }
     else
       {
+
+      pBlock b;
+      b = Blocks.Find(DXF_INSERT_BLOCK_GET(e));
+      if (b)
+        {
+        pchar entitytag = Find_Attr_Value(e, "TAG");
+        int RqdColor= (color>=0 ? color : entitytag==NULL ? Ocolor : -1);
+
+#if dbgdxfdraw
+        dbgpln("  %*s Draw Block %s @ %g,%g,%g * %g,%g,%g %i [%i]%s",Lvl," ",
+          DXF_BLOCK_NAME_GET(b->Def),
+          DXF_INSERT_PT(e)[0],DXF_INSERT_PT(e)[1],DXF_INSERT_PT(e)[2],
+          DXF_INSERT_X_SCALE(e), DXF_INSERT_Y_SCALE(e), DXF_INSERT_Z_SCALE(e),
+          DXF_ENTITY_COLOR(e),
+          RqdColor, entitytag);
+#endif
+
+        VP_TRANSFORM vpt;
+        C3_TRANSFORM Imat,Imat_i;
+        ConstructInsertMatrix(Imat, b, e);
+        SetGfxLayer(color, Lvl, pLay, iLay, (pchar)DXF_ENTITY_LAYER_GET(e), (int)DXF_ENTITY_COLOR(e), DXF_ENTITY_THICKNESS(e));
+
+        vpi_get_transform(vp->vp, vpt);
+        //vp3_append_transform(vp->vp, c3t_r1);
+        vp3_append_transform(vp->vp, Imat);
+        C3_BOX_S boxt;
+        //c3t_inverse(c3t_r1, c3t_r1_i);
+        c3t_inverse(Imat, Imat_i);
+        PT3 mn, mx;
+        //c3t_eval_pt(C3_MIN_PT(box), c3t_r1_i, mn);
+        //c3t_eval_pt(C3_MAX_PT(box), c3t_r1_i, mx);
+
+        c3t_eval_pt(C3_MIN_PT(box), Imat_i, mn);
+        c3t_eval_pt(C3_MAX_PT(box), Imat_i, mx);
+
+        c3v_set(Min(mn[0], mx[0]), Min(mn[1], mx[1]), Min(mn[2], mx[2]), C3_MIN_PT(&boxt));
+        c3v_set(Max(mn[0], mx[0]), Max(mn[1], mx[1]), Max(mn[2], mx[2]), C3_MAX_PT(&boxt));
+
 #if dbgBlk
-      pchar iblk=DXF_INSERT_BLOCK_GET(e);
-      pchar entitytag = Find_Attr_Value(e, "TAG");
-      dbgpln("  %*s Blkdbg MISSING Block %s %s",Lvl," ",iblk,entitytag);
+        if (Lvl == 1)
+          dbgpln("  %*s Blkdbg opening insert segment for %s",Lvl," ",DXF_INSERT_BLOCK_GET(e));
+        dbgpln("         Blkdbg INSERT");
+#endif
+
+        // Look at the number of fill tags on the insert and create a
+        // CLVector to hold the seg ids
+        if (Lvl==1)
+          {
+          int FillSize = 0;
+          vp->Curseg_level = -1;
+          pchar filltag = Find_Attr_Value(e, "FILLTAG");
+          if (filltag)
+            {
+            pchar fillvar   = Find_Attr_Value(e, "FILLVAR");
+            pchar fillmin   = Find_Attr_Value(e, "FILLMIN");
+            pchar fillmax   = Find_Attr_Value(e, "FILLMAX");
+            pchar fillcolor = Find_Attr_Value(e, "FILLCOLOR");
+            if (fillvar && fillmin && fillmax)
+              FillSize = 1;
+            }
+
+          int BarsSize = 0;
+          pchar dynmtags = Find_Attr_Value(e, "DYNMTAGS");
+          if (dynmtags)
+            {
+            pchar dynmvars = Find_Attr_Value(e, "DYNMVARS");
+            pchar dynmmins = Find_Attr_Value(e, "DYNMMINS");
+            pchar dynmmaxs = Find_Attr_Value(e, "DYNMMAXS");
+            if (dynmvars && dynmmins && dynmmaxs)
+              {
+              Strng_List ltag,lvar;
+              ltag.AppendTokString(dynmtags, " ");
+              lvar.AppendTokString(dynmvars, " ");
+              int n1 = ltag.Length();
+              int n2 = lvar.Length();
+              if (n1 && n1==n2)
+                BarsSize = n1;
+              }
+            }
+
+          int ToggSize = 0;
+          pchar toggtags = Find_Attr_Value(e, "TOGGTAGS");
+          if (toggtags)
+            {
+            pchar toggvars = Find_Attr_Value(e, "TOGGVARS");
+            if (toggvars)
+              {
+              Strng_List ltag,lvar;
+              ltag.AppendTokString(toggtags, " ");
+              lvar.AppendTokString(toggvars, " ");
+              int n1 = ltag.Length();
+              int n2 = lvar.Length();
+              if (n1 && n1==n2)
+                ToggSize = n1;
+              }
+            }
+
+          if (FillSize+BarsSize+ToggSize>0)
+            {
+            vp->Curseg_offset.SetSize(FillSize+BarsSize+ToggSize, -1);
+            vp->Curseg_level  = 0;
+            }
+          ini_vector_buffer();
+          }
+
+        b->Draw(vp, &boxt, color, Lvl+1, iLay);
+        vpi_set_transform(vp->vp, vpt);
+
+        DML_LIST l1 = DXF_INSERT_ATTRS(e);
+        DML_ITEM it1;
+        DXF_ENTITY e1;
+        if (l1)
+          {
+          WALK_ENTITY_LIST(l1, it1, e1)
+            {
+            Draw(e1, vp, &boxt, color, Lvl+1, pLay, iLay, item);
+            }
+          }
+
+        if (Lvl==1)
+          {
+          char * pBlockName=DXF_BLOCK_NAME_GET(b->Def);
+          int AllowBoxSlct=
+            (pBlockName &&
+            _strnicmp(pBlockName, "Pipe-", 5)!=0 &&
+            _strnicmp(pBlockName, "Link-", 5)!=0 &&
+            _strnicmp(pBlockName, "LNKBLK", 6)!=0);
+
+          CEntInView* l = new CEntInView(item, e, (C3_CURVE)NULL, vp, AllowBoxSlct, RqdColor, -1, -1, DXF_ENTITY_THICKNESS(e), entitytag);
+          if (!l->NumPoint())
+            {
+            delete l;
+            l = NULL;
+            item->pKenwalta = NULL;
+            }
+          else
+            {
+            item->pKenwalta = (void*)l;
+            vp->AddDisplaySegment(l);
+            l->Qdisplay();
+            if (vp->Curseg_level!=-1)
+              {
+              int cnt = 0;
+              pchar filltag = Find_Attr_Value(e, "FILLTAG");
+              if (filltag)
+                {
+                char Tmp[32];
+                sprintf(Tmp, "%d", SEG_TBFILL);
+                pchar fillvar = Find_Attr_Value(e, "FILLVAR");
+                pchar fillmin = Find_Attr_Value(e, "FILLMIN");
+                pchar fillmax = Find_Attr_Value(e, "FILLMAX");
+                pchar fillcolor = Find_Attr_Value(e, "FILLCOLOR");
+                COLORREF Color = DEFAULTFILLCOLOUR;
+                if (fillcolor)
+                  {
+                  Color = atol(fillcolor);
+                  l->SetFillColorRqd(Color);
+                  }
+
+                if (fillvar && fillmin && fillmax)
+                  {
+                  //TRACE("Adding Fill %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
+                  Strng WrkVar, WrkCnvTxt;
+                  TaggedObject::SplitTagCnv(fillvar, WrkVar, WrkCnvTxt);
+                  CCnvIndex CnvInx;
+                  double CurVal;
+                  if (pDsp->FetchTaggedSIValue(filltag, WrkVar(), CurVal, CnvInx, WrkCnvTxt))
+                    {
+                    DynamicSegment* pDS = new DynamicSegment(l, filltag, fillvar, CnvInx, WrkCnvTxt(), Tmp, DynFill, Color, atof(fillmin), atof(fillmax), CurVal, vp->Curseg_offset[cnt]);
+                    vp->AddDynamicSegment(pDS);
+                    vp->DrawDynamicSegment(pDS);
+                    }
+                  cnt++;
+                  }
+                }
+
+              pchar dynmtags = Find_Attr_Value(e, "DYNMTAGS");
+              if (dynmtags)
+                {
+                char Tmp[32];
+                sprintf(Tmp, "%d", SEG_TBFILL);
+                Strng_List ltag,lvar,lmin,lmax,lcol;
+                pStrng     ptag,pvar,pmin,pmax,pcol;
+                COLORREF   Color;
+
+                pchar dynmvars = Find_Attr_Value(e, "DYNMVARS");
+                pchar dynmmins = Find_Attr_Value(e, "DYNMMINS");
+                pchar dynmmaxs = Find_Attr_Value(e, "DYNMMAXS");
+                pchar dynmcols = Find_Attr_Value(e, "DYNMCOLOR");
+
+                ltag.AppendTokString(dynmtags, " ");
+                lvar.AppendTokString(dynmvars, " ");
+                lmin.AppendTokString(dynmmins, " ");
+                lmax.AppendTokString(dynmmaxs, " ");
+                if (dynmcols)
+                  lcol.AppendTokString(dynmcols, " ");
+
+                ptag = ltag.First();
+                pvar = lvar.First();
+                pmin = lmin.First();
+                pmax = lmax.First();
+                pcol = lcol.First();
+
+                //int cnt = 0;
+                while (ptag && pvar && pmin && pmax)
+                  {
+                  //TRACE("Adding dynamic bar %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
+                  Strng WrkVar, WrkCnvTxt;
+                  TaggedObject::SplitTagCnv(pvar->Str(), WrkVar, WrkCnvTxt);
+                  CCnvIndex CnvInx;
+                  double CurVal;
+                  if (pDsp->FetchTaggedSIValue(ptag->Str(), pvar->Str(), CurVal, CnvInx, WrkCnvTxt))
+                    {
+                    Color = DEFAULTBARSCOLOUR;
+                    if (pcol)
+                      Color = atol(pcol->Str());
+                    DynamicSegment* pDS = new DynamicSegment(l, ptag->Str(), pvar->Str(), CnvInx, WrkCnvTxt(), Tmp, DynBars, Color, atof(pmin->Str()), atof(pmax->Str()), CurVal, vp->Curseg_offset[cnt]);
+                    vp->AddDynamicSegment(pDS);
+                    vp->DrawDynamicSegment(pDS);
+                    }
+
+                  cnt++;
+                  ptag = ltag.Next();
+                  pvar = lvar.Next();
+                  pmin = lmin.Next();
+                  pmax = lmax.Next();
+                  pcol = lcol.Next();
+                  }
+                }
+
+              pchar toggtags = Find_Attr_Value(e, "TOGGTAGS");
+              if (toggtags)
+                {
+                char Tmp[32];
+                sprintf(Tmp, "%d", SEG_TBFILL);
+                Strng_List ltag,lvar;
+                pStrng     ptag,pvar;
+                COLORREF   Color = DEFAULTTOGGCOLOUR;
+                pchar toggvars = Find_Attr_Value(e, "TOGGVARS");
+                ltag.AppendTokString(toggtags, " ");
+                lvar.AppendTokString(toggvars, " ");
+                ptag = ltag.First();
+                pvar = lvar.First();
+
+                //int cnt = 0;
+                while (ptag && pvar)
+                  {
+                  //TRACE("Adding toggle %9s %9s %d\n", ptag->Str(), pvar->Str(), vp->Curseg_offset[cnt]);
+                  Strng WrkVar, WrkCnvTxt;
+                  TaggedObject::SplitTagCnv(pvar->Str(), WrkVar, WrkCnvTxt);
+                  CCnvIndex CnvInx;
+                  double CurVal;
+                  if (pDsp->FetchTaggedSIValue(ptag->Str(), pvar->Str(), CurVal, CnvInx, WrkCnvTxt))
+                    {
+                    DynamicSegment* pDS = new DynamicSegment(l, ptag->Str(), pvar->Str(), CnvInx, WrkCnvTxt(), Tmp, DynToggle, Color, 0.0, 0.0, CurVal, vp->Curseg_offset[cnt]);
+                    vp->AddDynamicSegment(pDS);
+                    vp->DrawDynamicSegment(pDS);
+                    }
+
+                  cnt++;
+                  ptag = ltag.Next();
+                  pvar = lvar.Next();
+                  }
+                }
+
+              vp->Curseg_offset.SetSize(1, -1);
+              vp->Curseg_level = -1;
+              }
+            }
+          }
+        }
+      else
+        {
+#if dbgBlk
+        pchar iblk=DXF_INSERT_BLOCK_GET(e);
+        pchar entitytag = Find_Attr_Value(e, "TAG");
+        dbgpln("  %*s Blkdbg MISSING Block %s %s",Lvl," ",iblk,entitytag);
+#endif
+        }
+#if dbgBlk
+      if (Lvl==1)
+        dbgpln("  %*s Blkdbg closing insert segment",Lvl," ");
 #endif
       }
-#if dbgBlk
-    if (Lvl==1)
-      dbgpln("  %*s Blkdbg closing insert segment",Lvl," ");
-#endif
     }
   else if (DXF_ENTITY_IS_TEXT(e) && item->pKenwalta == NULL)
     {

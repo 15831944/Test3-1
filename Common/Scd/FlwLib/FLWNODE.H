@@ -1894,6 +1894,15 @@ const int IOId_AreaLeakO      = LeakIOId(501);
 const int IOId_AreaMakeupO    = MakeupIOId(500);
 const int IOId_AreaBleedI     = BleedIOId(500);
 
+extern DllImportExport LPTSTR SourceIOTag;
+extern DllImportExport LPTSTR SinkIOTag;
+extern DllImportExport LPTSTR MakeupIOTag;
+extern DllImportExport LPTSTR BleedIOTag;
+extern DllImportExport LPTSTR SpillIOTag;
+extern DllImportExport LPTSTR VentIOTag;
+extern DllImportExport LPTSTR LeakIOTag;
+extern DllImportExport LPTSTR AccumIOTag;
+extern DllImportExport LPTSTR DepleteIOTag;
 
 DllImportExport IOAreaRec TwoIOAreaList[];
 DllImportExport IOAreaRec TwoIOAreaListWithS[];
@@ -1917,9 +1926,9 @@ DllImportExport IOAreaRec TwoIOAreaListWithMBS[];
   {"", "BL4",  IOId_Bleed2Area+3,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1},  \
   {"", "BL5",  IOId_Bleed2Area+4,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup, -1}
 
-#define SPILL2AREA           {"", "Spl",   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
-#define VENT2AREA(DisableId) {"", "Vnt",   IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
-#define LEAKS2AREA(Tg,Id)    {"", Tg,      Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*/|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
+#define SPILL2AREA           {"", SpillIOTag,   IOId_Spill2Area, LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  -1        }
+#define VENT2AREA(DisableId) {"", VentIOTag,    IOId_Vent2Area,  LIO_Out,  nc_MLnk, 0, 1000, IOSetXfer|IOOptsHide|IOEqnsHide|IOHidden, 0.0f, {0,0,0,0}, 0, &NullFlwGroup,  DisableId }
+#define LEAKS2AREA(Tg,Id)    {"", Tg,           Id,              LIO_Out,  nc_MLnk, 0, 1000, IOOptsHide/*|IOEqnsHide*/|IOHidden,           0.0f, {0,0,0,0}, 0, &Leak2AreaGroup,-1        }
 
 const int MaxIOList       = 32000;
 const int IOPt_MaxJoinId  = MaxIOList-1;

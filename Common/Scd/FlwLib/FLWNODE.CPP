@@ -72,7 +72,15 @@ IMPLEMENT_MEMSTATS(FlwNode)
 
 //===========================================================================
 
-//CStopWatch MallocSW;
+LPTSTR SourceIOTag  = "Src";
+LPTSTR SinkIOTag    = "Snk";
+LPTSTR MakeupIOTag  = "MU";
+LPTSTR BleedIOTag   = "BL";
+LPTSTR SpillIOTag   = "Spl";
+LPTSTR VentIOTag    = "Vnt";
+LPTSTR LeakIOTag    = "Lk";
+LPTSTR AccumIOTag   = "Acc";
+LPTSTR DepleteIOTag = "Dep";
 
 //===========================================================================
 //
@@ -685,7 +693,7 @@ static inline long ExtractIndexFromTag(LPSTR Tag)
 
 // --------------------------------------------------------------------------
 
-#define dbgInitConnId 0
+#define dbgInitConnId 10
 
 void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName)
   {
@@ -735,7 +743,7 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
     }  
 
 #if dbgInitConnId
-  dbgp("  [%s] ", p->Tag());
+  dbgpln("  [%s] ", p->Tag());
 #endif
 
   long iNext=0;
@@ -745,9 +753,14 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
     CConnect *pC=p->IOConnect(i);
     if (pC)
       {
-      LPSTR Tag=p->IOConnect(i)->m_sRefIOTg();
-      if (Tag)
-        iNext=Max(iNext, ExtractIndexFromTag(Tag));
+      LPSTR pTag=p->IOConnect(i)->m_sRefIOTg();
+      if (pTag)
+        {
+        iNext=Max(iNext, ExtractIndexFromTag(pTag));
+#if dbgInitConnId
+        dbgpln(">>>>IO  %3i %s", iNext, pTag);
+#endif
+        }
       }
     }
   for (int i=0; i<p->m_AttachedDirectIOs.GetCount(); i++)
@@ -759,7 +772,12 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
     else
       pTag=pDIO->m_sConnTagMem();
     if (pTag)
+      {
       iNext=Max(iNext, ExtractIndexFromTag(pTag));
+#if dbgInitConnId
+      dbgpln(">>>>DIO %3i %s", iNext, pTag);
+#endif
+      }
     }
   iNext++;
 
@@ -6549,10 +6567,11 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
         pT=(CAirTermX*)CAirTermXClass.Construct("AirTermX" ,"ATermTag" ,NULL , TOA_Free);// 
       
       Ret = Connect(Info[0], Info[1], pF, pT, RqdIONo1, RqdIONo2);
-      if (pF && DoInitConn)
+      if (pF)
         {
-        pF->InitConnId(Info[0].p, Info[0].p->IODesc_Self(Info[0].IOIndex)->IOName(0), 
-                       Info[1].p, Info[1].p->IODesc_Self(Info[1].IOIndex)->IOName(0), NULL);
+        if (DoInitConn)
+          pF->InitConnId(Info[0].p, Info[0].p->IODesc_Self(Info[0].IOIndex)->IOName(0), 
+                         Info[1].p, Info[1].p->IODesc_Self(Info[1].IOIndex)->IOName(0), NULL);
         //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
         if (ConnectTag)
           pF->FixTag(ConnectTag, true);
@@ -6676,10 +6695,11 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
 #endif
       Ret=Connect(Info[0], Info[1], pF, pT);
 
-      if (pF && DoInitConn)
-        {
-        pF->InitConnId(Info[0].p, Info[0].p->IODesc_SelfId(Info[0].Id)->IOName(0), 
-          Info[1].p, Info[1].p->IODesc_SelfId(Info[1].Id)->IOName(0), NULL);
+      if (pF)// && DoInitConn)
+        {      
+        if (DoInitConn)
+          pF->InitConnId(Info[0].p, Info[0].p->IODesc_SelfId(Info[0].Id)->IOName(0), 
+                         Info[1].p, Info[1].p->IODesc_SelfId(Info[1].Id)->IOName(0), NULL);
         //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
         if (ConnectTag)
           pF->FixTag(ConnectTag, true);
@@ -8451,7 +8471,7 @@ void FlwNode::EvalAudit(int Pass)
   {
   if (AuditOption()>Audit_Off)
     {
-    bool dbgOn=true;
+    bool dbgOn=false;
     if (dbgOn)
       dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
     switch (Pass)
@@ -11358,17 +11378,6 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   m_iRmtDIOId       = RmtDIOId;
   m_iLclIOId        = LclIOId;
 
-  //Strng FlngTag;
-  //switch (m_eType)
-  //  {
-  //  case eDIO_Spill:  FlngTag.Set("Spl%i", LclDIOId-IOId_Spill2Area+1); break;
-  //  case eDIO_Vent:   FlngTag.Set("Vnt%i", LclDIOId-IOId_Vent2Area+1);  break;
-  //  case eDIO_Makeup: FlngTag.Set("MU%i", LclDIOId-IOId_Makeup2Area+1); break;
-  //  case eDIO_Bleed:  FlngTag.Set("BL%i", LclDIOId-IOId_Bleed2Area+1);  break;
-  //  case eDIO_Leak:   FlngTag.Set("Lk%i", LclDIOId-IOId_LeakI2Area+1);  break;
-  //  default :         FlngTag.Set("XX");                                break;
-  //  }
-
   if (HasConduit && (m_pFlng == NULL))
     {
     m_pFlng                 = (CFlange*)CFlangeClass.Construct(DirectLinkClass ,""/*()*/ ,NULL , TOA_Free);
@@ -11790,6 +11799,10 @@ flag CDirectFlwIO::GlobalConnect()
     ASSERT(NdIOLcl[iO].IODesc()!=NULL);
     ASSERT(NdIORmt[iI].IODesc()!=NULL);
 
+    #if dbgFlwNode
+    if (dbgGlobalConnects())
+      dbgpln("Connect m_sConnTagMem %08x = %s", this, m_sConnTagMem());
+    #endif
     #if dbgKwikConnect
     dbgpln(" .E %5s %5s %10.1fus", "", "", SW.Lap()*1e6);
     #endif
@@ -11842,6 +11855,10 @@ flag CDirectFlwIO::GlobalDisConnect()
       {
       int io=m_pNd->IOWithId_Self(m_iLclDIOId);
       m_sConnTagMem = m_pNd->IOConnect(io)->Tag();
+      #if dbgFlwNode
+      if (dbgGlobalConnects())
+        dbgpln("DisCONN m_sConnTagMem %08x = %s", this, m_sConnTagMem());
+      #endif
       m_pNd->DisConnect(io);
       m_iMyConnectedIO=-1;
       }

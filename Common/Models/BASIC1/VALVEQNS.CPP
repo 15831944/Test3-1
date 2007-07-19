@@ -142,27 +142,6 @@ XID xidVDiam          = MdlBsXID(17004);
 
 void VE_Crane::BuildDataDefn(DataDefnBlk & DDB)
   {
-  //if (NetProbalMethod())
-  //  {
-  //  }
-  //else if (SolveInlineMethod())
-  //  {
-  //  //DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer/* || dbgfile()*/));
-  //  DDB.Double ("Qm_RqdCapacity", "Qm_Capacity",  DC_Qm,   "kg/s",  &m_RqdQmCap,     this, isParm|NAN_OK, DDBNAN_NotSpecd);
-  //  DDB.Double ("Qm_MinCapacity", "Qm_MinCap",    DC_Qm,   "kg/s",  &m_MinQmCap,     this, isParm);
-  //  DDB.Double ("Qm_MaxCapacity", "Qm_MaxCap",    DC_Qm,   "kg/s",  xidQmMaxCapacity, this, isParm|NAN_OK, DDBNAN_NotSpecd);
-  //  //if (IsXfer)
-  //  //  {
-  //  //  static DDBValueLst DDBXfCapOpt[]={
-  //  //    {XCO_Spill,   "Spill"   },
-  //  //    {XCO_Accept,  "Accept"  },
-  //  //    {0}};
-  //  //  DDB.Byte  ("OverCapacity", "",     DC_,     "",      &m_iXferCapOption, this, isParm|SetOnChange, DDBXfCapOpt);
-  //  //  }
-  //  }
-  //else
-  //  {
-  //  DDB.Double ("",                "Qm_Rqd",      DC_Qm,   "kg/s",  &m_ReqdQm,           this, isParm|NAN_OK, DDBNAN_NotSpecd);
     static DDBValueLst DDB0[]={
       {VC_Linear, "Linear"},
       {VC_EqPerc, "EqualPerc"},

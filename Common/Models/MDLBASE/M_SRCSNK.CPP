@@ -18,8 +18,8 @@ Flows("Flows", this, TOA_Embedded),
 P_RegB("RL_Basic", this, NULL),
 T_RegB("RL_Basic", this, NULL),
 m_VLE(this, VLEF_TPFlash),
-m_Src(eDIO_Src, this, false, true, "Source"), 
-m_Snk(eDIO_Snk, this, false, true, "Sink"),
+m_Src(eDIO_Src, this, false, true, SourceIOTag), 
+m_Snk(eDIO_Snk, this, false, true, SinkIOTag),
 m_BlkEval(this, NULL, NULL, NULL, NULL, NULL),
 m_CF(this)
   {

@@ -64,8 +64,11 @@ const byte MSStyle_Dots     = 4;
 
 //---------------------------------------------------------------------------
 
-const LPTSTR TagAttribStr = "Tag";
-const LPTSTR AssocTagAttribStr = "AssocTag";
+const LPTSTR TagAttribStr         = "Tag";
+const LPTSTR AssocTagAttribStr    = "AssocTag";
+const LPTSTR HideInsertAttribStr  = "HideInsert";
+
+extern bool EntityIsHidden(DXF_ENTITY e);
 
 //---------------------------------------------------------------------------
 
@@ -453,7 +456,7 @@ class CGrfTagInfoArray : public CArray<CGrfTagInfo, CGrfTagInfo&>
 class DllImportExport CMdlAssocGrfX
   {
   public:
-    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eHide, eDelete };
+    enum eActions { eNull, eAddNdAssocGrfs, eKeep, eShow, eHide, eDelete };
     CMdlAssocGrfX()
       {
       m_eAction        = eNull; 
@@ -611,7 +614,7 @@ class LayerCollection
     flag             Delete(DXF_ENTITY e);
     flag             Delete(C3_CURVE c);
     flag             Hide(DXF_ENTITY e, flag On);
-    flag             Hide(C3_CURVE c, flag On);
+    //flag             Hide(C3_CURVE c, flag On);
     flag             RemoveFromLayer(DXF_ENTITY e);
     flag             RemoveFromLayer(C3_CURVE c);
     flag             Exists(DXF_ENTITY e);

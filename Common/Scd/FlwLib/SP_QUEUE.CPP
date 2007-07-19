@@ -619,7 +619,7 @@ SpQueue::SpQueue(pTagObjClass pClass_, pchar pTag_, TaggedObject* pAttach, TagOb
   {
   FlwNode * pNd=dynamic_cast<FlwNode *>(pAttach);
   ASSERT(pNd!=NULL);
-  m_pSpill=NULL;//new CDirectFlwIO(eDIO_Spill, pNd, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillIn);
+  m_pSpill=NULL;//new CDirectFlwIO(eDIO_Spill, pNd, false, true, SpillIOTag, IOId_Spill2Area, IOId_AreaSpillIn);
   //m_bOwnSpill=true;
   m_dSpeed=1.0;
   m_dMaxSpeed=1.0;

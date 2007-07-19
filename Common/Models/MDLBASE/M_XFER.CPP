@@ -85,8 +85,8 @@ flag MN_Xfer::DataXchg(DataChangeBlk & DCB)
           m_Accumulator->SetPressAsSet(true);
           m_Accumulator->SetStateAction(IE_Integrate);
           m_Accumulator->dwDisplay = SPDF_DynMode;
-          m_AccIn=new CDirectFlwIO(eDIO_Accum, this, false, true, "Accumulation");
-          m_AccOut=new CDirectFlwIO(eDIO_Deplete, this, false, true, "Depletion");
+          m_AccIn=new CDirectFlwIO(eDIO_Accum, this, false, true, AccumIOTag);
+          m_AccOut=new CDirectFlwIO(eDIO_Deplete, this, false, true, DepleteIOTag);
           m_AccCalc=new CDirectAccCalc(this, *m_AccIn, *m_AccOut);
           }
         else

@@ -94,8 +94,8 @@ FilterPress::FilterPress(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttac
   Cake("Cake", this, TOA_Embedded),
   ToCake("ToCake", this, TOA_Embedded),
   FromCake("FromCake", this, TOA_Embedded),
-  //m_Spill(eDIO_Spill, this, false, true, "Spill", IOId_Spill2Area, IOId_AreaSpillI),
-  m_Vent(eDIO_Vent, this, false, true, "Vent", IOId_Vent2Area, IOId_AreaVentI),
+  //m_Spill(eDIO_Spill, this, false, true, SpillIOTag, IOId_Spill2Area, IOId_AreaSpillI),
+  m_Vent(eDIO_Vent, this, false, true, VentIOTag, IOId_Vent2Area, IOId_AreaVentI),
   //Wash("Wash", this, TOA_Free),
   Fd("Fd", this, TOA_Free)
   {

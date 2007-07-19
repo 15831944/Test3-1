@@ -159,17 +159,6 @@ Pipe::~Pipe()
 
 //--------------------------------------------------------------------------
 
-/*static DDBValueLst DDB1P[]={
-  {(int)true,  "Calc_K"},
-  {(int)false, "Define_K" },
-  {0}};
-
-//--------------------------------------------------------------------------
-static DDBValueLst DDBXfCapOpt[]={
-  {XCO_Spill,   "Spill"   },
-  {XCO_Accept,  "Accept"  },
-  {0}};*/
-
 void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   {
   //const flag IsXfer=((Joins.GetSize()>0) && Joins[0].InXferNet()) || XferFlwMode();
@@ -690,18 +679,6 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   if (IsXfer)
     {
     DDB.Visibility(NM_Dynamic|SM_All|HM_All, !IsSrcSnk && (IsXfer || dbgfile()));
-    //if (m_iXferCapOption==XCO_Spill)
-    //  {
-    //  if (DDB.BeginObject(this, "Spill", "SpContDirect", NULL, DDB_NoPage, -1))//, MarkerOpen))
-    //    {
-    //    DDB.CheckBoxBtn("Discard",  "",    DC_, "",           xidSpillDiscard, this, isParm);
-    //    DDB.String("Target",        "",    DC_, "",           xidSpillTarget, this, isParm|isTag);
-    //    //DDB.Double("Settle",        "Tau", DC_Time, "s",      xidSpillSettle, this, isParm|InitHidden);
-    //    DDB.Double("Rate",          "",    DC_Qm, "kg/s",     xidSpillRate,   this, isResult|0);
-    //    DDB.Double("Total",         "",    DC_M, "kg",        xidSpillTotal,  this, isParm);
-    //    }
-    //  DDB.EndObject();
-    //  }
     }
 
 #ifdef OldCode
