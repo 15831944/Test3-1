@@ -41,6 +41,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Data Structures.cs" />
+    <Compile Include="FrmBalanceOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmBalanceOptions.Designer.cs">
+      <DependentUpon>FrmBalanceOptions.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmLog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -64,6 +70,10 @@
     <EmbeddedResource Include="BANumEdit.resx">
       <DependentUpon>BANumEdit.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmBalanceOptions.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FrmBalanceOptions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmLog.resx">
       <SubType>Designer</SubType>

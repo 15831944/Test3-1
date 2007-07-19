@@ -43,20 +43,25 @@ namespace Reaction_Editor
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.pnlReaction = new System.Windows.Forms.Panel();
+            this.btnBalance = new System.Windows.Forms.Button();
             this.txtReactants = new System.Windows.Forms.TextBox();
             this.comboDirection = new System.Windows.Forms.ComboBox();
             this.txtProducts = new System.Windows.Forms.TextBox();
             this.txtFormula = new System.Windows.Forms.TextBox();
             this.grpExtent = new System.Windows.Forms.GroupBox();
-            this.chkExtentStabilised = new System.Windows.Forms.CheckBox();
+            this.chkExtentOption = new System.Windows.Forms.CheckBox();
             this.lblExtent2 = new System.Windows.Forms.Label();
             this.lblExtent3 = new System.Windows.Forms.Label();
-            this.comboExtentPhase = new System.Windows.Forms.ComboBox();
             this.lblExtentUnits = new System.Windows.Forms.Label();
             this.comboExtentSpecie = new System.Windows.Forms.ComboBox();
             this.lblExtentValue = new System.Windows.Forms.Label();
             this.comboExtentType = new System.Windows.Forms.ComboBox();
             this.grpHOR = new System.Windows.Forms.GroupBox();
+            this.lblHORPUnits = new System.Windows.Forms.Label();
+            this.lblHORP = new System.Windows.Forms.Label();
+            this.lblHORT = new System.Windows.Forms.Label();
+            this.comboHORConditions = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.comboHORUnits = new System.Windows.Forms.ComboBox();
             this.comboHORSpecie = new System.Windows.Forms.ComboBox();
             this.lblHORValue = new System.Windows.Forms.Label();
@@ -77,6 +82,7 @@ namespace Reaction_Editor
             this.grpDescription = new System.Windows.Forms.GroupBox();
             this.txtDescription = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chkFirstReactant = new System.Windows.Forms.CheckBox();
             this.chkSequence = new System.Windows.Forms.CheckBox();
             this.grpHX = new System.Windows.Forms.GroupBox();
             this.lblHXPercent = new System.Windows.Forms.Label();
@@ -88,6 +94,8 @@ namespace Reaction_Editor
             this.numExtentVal3 = new CtrlLib.NumEdit();
             this.numExtentVal2 = new CtrlLib.NumEdit();
             this.numExtentValue = new CtrlLib.NumEdit();
+            this.numHORP = new CtrlLib.NumEdit();
+            this.numHORT = new CtrlLib.NumEdit();
             this.numHORValue = new CtrlLib.NumEdit();
             this.numHX = new CtrlLib.NumEdit();
             this.tabControl1.SuspendLayout();
@@ -244,6 +252,7 @@ namespace Reaction_Editor
             this.btnRemove.TabIndex = 1;
             this.btnRemove.Text = "Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
             // btnAdd
             // 
@@ -260,6 +269,7 @@ namespace Reaction_Editor
             // pnlReaction
             // 
             this.pnlReaction.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnlReaction.Controls.Add(this.btnBalance);
             this.pnlReaction.Controls.Add(this.txtReactants);
             this.pnlReaction.Controls.Add(this.comboDirection);
             this.pnlReaction.Controls.Add(this.txtProducts);
@@ -274,6 +284,18 @@ namespace Reaction_Editor
             this.pnlReaction.Size = new System.Drawing.Size(681, 159);
             this.pnlReaction.TabIndex = 7;
             this.pnlReaction.Resize += new System.EventHandler(this.pnlReaction_Resize);
+            // 
+            // btnBalance
+            // 
+            this.btnBalance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBalance.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnBalance.Location = new System.Drawing.Point(598, 3);
+            this.btnBalance.Name = "btnBalance";
+            this.btnBalance.Size = new System.Drawing.Size(75, 23);
+            this.btnBalance.TabIndex = 11;
+            this.btnBalance.Text = "Balance";
+            this.btnBalance.UseVisualStyleBackColor = true;
+            this.btnBalance.Click += new System.EventHandler(this.btnBalance_Click);
             // 
             // txtReactants
             // 
@@ -330,12 +352,11 @@ namespace Reaction_Editor
             // 
             // grpExtent
             // 
-            this.grpExtent.Controls.Add(this.chkExtentStabilised);
+            this.grpExtent.Controls.Add(this.chkExtentOption);
             this.grpExtent.Controls.Add(this.lblExtent2);
             this.grpExtent.Controls.Add(this.lblExtent3);
             this.grpExtent.Controls.Add(this.numExtentVal3);
             this.grpExtent.Controls.Add(this.numExtentVal2);
-            this.grpExtent.Controls.Add(this.comboExtentPhase);
             this.grpExtent.Controls.Add(this.lblExtentUnits);
             this.grpExtent.Controls.Add(this.comboExtentSpecie);
             this.grpExtent.Controls.Add(this.lblExtentValue);
@@ -349,22 +370,22 @@ namespace Reaction_Editor
             this.grpExtent.TabStop = false;
             this.grpExtent.Text = "Extent";
             // 
-            // chkExtentStabilised
+            // chkExtentOption
             // 
-            this.chkExtentStabilised.AutoSize = true;
-            this.chkExtentStabilised.Location = new System.Drawing.Point(402, 17);
-            this.chkExtentStabilised.Name = "chkExtentStabilised";
-            this.chkExtentStabilised.Size = new System.Drawing.Size(71, 17);
-            this.chkExtentStabilised.TabIndex = 12;
-            this.chkExtentStabilised.Text = "Stabilised";
-            this.chkExtentStabilised.UseVisualStyleBackColor = true;
-            this.chkExtentStabilised.Visible = false;
-            this.chkExtentStabilised.CheckedChanged += new System.EventHandler(this.chkExtentStabilised_CheckedChanged);
+            this.chkExtentOption.AutoSize = true;
+            this.chkExtentOption.Location = new System.Drawing.Point(375, 17);
+            this.chkExtentOption.Name = "chkExtentOption";
+            this.chkExtentOption.Size = new System.Drawing.Size(71, 17);
+            this.chkExtentOption.TabIndex = 12;
+            this.chkExtentOption.Text = "Stabilised";
+            this.chkExtentOption.UseVisualStyleBackColor = true;
+            this.chkExtentOption.Visible = false;
+            this.chkExtentOption.CheckedChanged += new System.EventHandler(this.chkExtentOption_CheckedChanged);
             // 
             // lblExtent2
             // 
             this.lblExtent2.AutoSize = true;
-            this.lblExtent2.Location = new System.Drawing.Point(402, 18);
+            this.lblExtent2.Location = new System.Drawing.Point(375, 18);
             this.lblExtent2.Name = "lblExtent2";
             this.lblExtent2.Size = new System.Drawing.Size(43, 13);
             this.lblExtent2.TabIndex = 11;
@@ -374,26 +395,16 @@ namespace Reaction_Editor
             // lblExtent3
             // 
             this.lblExtent3.AutoSize = true;
-            this.lblExtent3.Location = new System.Drawing.Point(535, 18);
+            this.lblExtent3.Location = new System.Drawing.Point(508, 18);
             this.lblExtent3.Name = "lblExtent3";
             this.lblExtent3.Size = new System.Drawing.Size(34, 13);
             this.lblExtent3.TabIndex = 10;
             this.lblExtent3.Text = "Val 1:";
             this.lblExtent3.Visible = false;
             // 
-            // comboExtentPhase
-            // 
-            this.comboExtentPhase.FormattingEnabled = true;
-            this.comboExtentPhase.Location = new System.Drawing.Point(402, 15);
-            this.comboExtentPhase.Name = "comboExtentPhase";
-            this.comboExtentPhase.Size = new System.Drawing.Size(78, 21);
-            this.comboExtentPhase.TabIndex = 7;
-            this.comboExtentPhase.Visible = false;
-            this.comboExtentPhase.SelectedIndexChanged += new System.EventHandler(this.comboExtentPhase_SelectedIndexChanged);
-            // 
             // lblExtentUnits
             // 
-            this.lblExtentUnits.Location = new System.Drawing.Point(254, 18);
+            this.lblExtentUnits.Location = new System.Drawing.Point(227, 18);
             this.lblExtentUnits.Name = "lblExtentUnits";
             this.lblExtentUnits.Size = new System.Drawing.Size(58, 13);
             this.lblExtentUnits.TabIndex = 6;
@@ -402,8 +413,9 @@ namespace Reaction_Editor
             // comboExtentSpecie
             // 
             this.comboExtentSpecie.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboExtentSpecie.Enabled = false;
             this.comboExtentSpecie.FormattingEnabled = true;
-            this.comboExtentSpecie.Location = new System.Drawing.Point(318, 15);
+            this.comboExtentSpecie.Location = new System.Drawing.Point(291, 15);
             this.comboExtentSpecie.Name = "comboExtentSpecie";
             this.comboExtentSpecie.Size = new System.Drawing.Size(78, 21);
             this.comboExtentSpecie.TabIndex = 4;
@@ -437,6 +449,13 @@ namespace Reaction_Editor
             // 
             // grpHOR
             // 
+            this.grpHOR.Controls.Add(this.lblHORPUnits);
+            this.grpHOR.Controls.Add(this.numHORP);
+            this.grpHOR.Controls.Add(this.lblHORP);
+            this.grpHOR.Controls.Add(this.lblHORT);
+            this.grpHOR.Controls.Add(this.numHORT);
+            this.grpHOR.Controls.Add(this.comboHORConditions);
+            this.grpHOR.Controls.Add(this.label2);
             this.grpHOR.Controls.Add(this.comboHORUnits);
             this.grpHOR.Controls.Add(this.comboHORSpecie);
             this.grpHOR.Controls.Add(this.numHORValue);
@@ -450,6 +469,56 @@ namespace Reaction_Editor
             this.grpHOR.TabStop = false;
             this.grpHOR.Text = "Heat Of Reaction";
             // 
+            // lblHORPUnits
+            // 
+            this.lblHORPUnits.AutoSize = true;
+            this.lblHORPUnits.Location = new System.Drawing.Point(638, 18);
+            this.lblHORPUnits.Name = "lblHORPUnits";
+            this.lblHORPUnits.Size = new System.Drawing.Size(26, 13);
+            this.lblHORPUnits.TabIndex = 18;
+            this.lblHORPUnits.Text = "kPa";
+            this.lblHORPUnits.Visible = false;
+            // 
+            // lblHORP
+            // 
+            this.lblHORP.AutoSize = true;
+            this.lblHORP.Location = new System.Drawing.Point(553, 18);
+            this.lblHORP.Name = "lblHORP";
+            this.lblHORP.Size = new System.Drawing.Size(37, 13);
+            this.lblHORP.TabIndex = 16;
+            this.lblHORP.Text = "°C, P=";
+            this.lblHORP.Visible = false;
+            // 
+            // lblHORT
+            // 
+            this.lblHORT.AutoSize = true;
+            this.lblHORT.Location = new System.Drawing.Point(485, 18);
+            this.lblHORT.Name = "lblHORT";
+            this.lblHORT.Size = new System.Drawing.Size(20, 13);
+            this.lblHORT.TabIndex = 15;
+            this.lblHORT.Text = "T=";
+            this.lblHORT.Visible = false;
+            // 
+            // comboHORConditions
+            // 
+            this.comboHORConditions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboHORConditions.Enabled = false;
+            this.comboHORConditions.FormattingEnabled = true;
+            this.comboHORConditions.Location = new System.Drawing.Point(401, 15);
+            this.comboHORConditions.Name = "comboHORConditions";
+            this.comboHORConditions.Size = new System.Drawing.Size(78, 21);
+            this.comboHORConditions.TabIndex = 8;
+            this.comboHORConditions.SelectedIndexChanged += new System.EventHandler(this.comboHORConditions_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(378, 18);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(17, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "At";
+            // 
             // comboHORUnits
             // 
             this.comboHORUnits.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -457,7 +526,7 @@ namespace Reaction_Editor
             this.comboHORUnits.Items.AddRange(new object[] {
             "kJ/mol",
             "kJ/kg"});
-            this.comboHORUnits.Location = new System.Drawing.Point(254, 15);
+            this.comboHORUnits.Location = new System.Drawing.Point(230, 15);
             this.comboHORUnits.Name = "comboHORUnits";
             this.comboHORUnits.Size = new System.Drawing.Size(58, 21);
             this.comboHORUnits.TabIndex = 6;
@@ -467,7 +536,7 @@ namespace Reaction_Editor
             // 
             this.comboHORSpecie.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboHORSpecie.FormattingEnabled = true;
-            this.comboHORSpecie.Location = new System.Drawing.Point(318, 15);
+            this.comboHORSpecie.Location = new System.Drawing.Point(294, 15);
             this.comboHORSpecie.Name = "comboHORSpecie";
             this.comboHORSpecie.Size = new System.Drawing.Size(78, 21);
             this.comboHORSpecie.TabIndex = 5;
@@ -612,7 +681,6 @@ namespace Reaction_Editor
             this.txtSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSources.Location = new System.Drawing.Point(3, 16);
             this.txtSources.Name = "txtSources";
-            this.txtSources.ShortcutsEnabled = false;
             this.txtSources.Size = new System.Drawing.Size(675, 224);
             this.txtSources.TabIndex = 0;
             this.txtSources.Text = "";
@@ -636,7 +704,6 @@ namespace Reaction_Editor
             this.txtSinks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSinks.Location = new System.Drawing.Point(3, 16);
             this.txtSinks.Name = "txtSinks";
-            this.txtSinks.ShortcutsEnabled = false;
             this.txtSinks.Size = new System.Drawing.Size(675, 85);
             this.txtSinks.TabIndex = 1;
             this.txtSinks.Text = "";
@@ -660,9 +727,9 @@ namespace Reaction_Editor
             // 
             this.grpDescription.Controls.Add(this.txtDescription);
             this.grpDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.grpDescription.Location = new System.Drawing.Point(3, 87);
+            this.grpDescription.Location = new System.Drawing.Point(3, 112);
             this.grpDescription.Name = "grpDescription";
-            this.grpDescription.Size = new System.Drawing.Size(681, 263);
+            this.grpDescription.Size = new System.Drawing.Size(681, 238);
             this.grpDescription.TabIndex = 13;
             this.grpDescription.TabStop = false;
             this.grpDescription.Text = "Description";
@@ -673,29 +740,43 @@ namespace Reaction_Editor
             this.txtDescription.Location = new System.Drawing.Point(3, 16);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(675, 244);
+            this.txtDescription.Size = new System.Drawing.Size(675, 219);
             this.txtDescription.TabIndex = 0;
             this.txtDescription.TextChanged += new System.EventHandler(this.txtDescription_TextChanged);
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chkFirstReactant);
             this.groupBox1.Controls.Add(this.chkSequence);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(3, 45);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(681, 42);
+            this.groupBox1.Size = new System.Drawing.Size(681, 67);
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Sequences";
+            this.groupBox1.Text = "Miscellaneous";
+            // 
+            // chkFirstReactant
+            // 
+            this.chkFirstReactant.AutoSize = true;
+            this.chkFirstReactant.Checked = true;
+            this.chkFirstReactant.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkFirstReactant.Location = new System.Drawing.Point(10, 42);
+            this.chkFirstReactant.Name = "chkFirstReactant";
+            this.chkFirstReactant.Size = new System.Drawing.Size(198, 17);
+            this.chkFirstReactant.TabIndex = 13;
+            this.chkFirstReactant.Text = "Always Use First Reactant for Extent";
+            this.chkFirstReactant.UseVisualStyleBackColor = true;
+            this.chkFirstReactant.CheckedChanged += new System.EventHandler(this.chkFirstReactant_CheckedChanged);
             // 
             // chkSequence
             // 
             this.chkSequence.AutoSize = true;
             this.chkSequence.Location = new System.Drawing.Point(10, 19);
             this.chkSequence.Name = "chkSequence";
-            this.chkSequence.Size = new System.Drawing.Size(65, 17);
+            this.chkSequence.Size = new System.Drawing.Size(122, 17);
             this.chkSequence.TabIndex = 12;
-            this.chkSequence.Text = "Enabled";
+            this.chkSequence.Text = "Sequences Enabled";
             this.chkSequence.UseVisualStyleBackColor = true;
             this.chkSequence.CheckedChanged += new System.EventHandler(this.chkSequence_CheckedChanged);
             // 
@@ -791,7 +872,7 @@ namespace Reaction_Editor
             // numExtentVal3
             // 
             this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal3.Location = new System.Drawing.Point(575, 15);
+            this.numExtentVal3.Location = new System.Drawing.Point(548, 15);
             this.numExtentVal3.Name = "numExtentVal3";
             this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
             this.numExtentVal3.TabIndex = 9;
@@ -801,7 +882,7 @@ namespace Reaction_Editor
             // numExtentVal2
             // 
             this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal2.Location = new System.Drawing.Point(451, 15);
+            this.numExtentVal2.Location = new System.Drawing.Point(424, 15);
             this.numExtentVal2.Name = "numExtentVal2";
             this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
             this.numExtentVal2.TabIndex = 8;
@@ -813,16 +894,36 @@ namespace Reaction_Editor
             this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numExtentValue.Location = new System.Drawing.Point(177, 15);
             this.numExtentValue.Name = "numExtentValue";
-            this.numExtentValue.Size = new System.Drawing.Size(71, 20);
+            this.numExtentValue.Size = new System.Drawing.Size(44, 20);
             this.numExtentValue.TabIndex = 1;
             this.numExtentValue.TextChanged += new System.EventHandler(this.numExtentValue_TextChanged);
+            // 
+            // numHORP
+            // 
+            this.numHORP.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORP.Location = new System.Drawing.Point(590, 15);
+            this.numHORP.Name = "numHORP";
+            this.numHORP.Size = new System.Drawing.Size(48, 20);
+            this.numHORP.TabIndex = 17;
+            this.numHORP.Visible = false;
+            this.numHORP.TextChanged += new System.EventHandler(this.numHORP_TextChanged);
+            // 
+            // numHORT
+            // 
+            this.numHORT.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORT.Location = new System.Drawing.Point(505, 15);
+            this.numHORT.Name = "numHORT";
+            this.numHORT.Size = new System.Drawing.Size(48, 20);
+            this.numHORT.TabIndex = 13;
+            this.numHORT.Visible = false;
+            this.numHORT.TextChanged += new System.EventHandler(this.numHORT_TextChanged);
             // 
             // numHORValue
             // 
             this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
             this.numHORValue.Location = new System.Drawing.Point(177, 15);
             this.numHORValue.Name = "numHORValue";
-            this.numHORValue.Size = new System.Drawing.Size(71, 20);
+            this.numHORValue.Size = new System.Drawing.Size(44, 20);
             this.numHORValue.TabIndex = 4;
             this.numHORValue.TextChanged += new System.EventHandler(this.numHORValue_TextChanged);
             // 
@@ -849,7 +950,6 @@ namespace Reaction_Editor
             this.ShowInTaskbar = false;
             this.Text = "Untitled Reaction Block";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmReaction_FormClosed);
-            this.Load += new System.EventHandler(this.FrmReaction_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabReactions.ResumeLayout(false);
             this.pnlList.ResumeLayout(false);
@@ -911,13 +1011,12 @@ namespace Reaction_Editor
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.TabPage tabOptions;
         private System.Windows.Forms.ComboBox comboExtentSpecie;
-        private System.Windows.Forms.ComboBox comboExtentPhase;
         private System.Windows.Forms.Label lblExtentUnits;
         private System.Windows.Forms.Label lblExtent2;
         private System.Windows.Forms.Label lblExtent3;
         private CtrlLib.NumEdit numExtentVal3;
         private CtrlLib.NumEdit numExtentVal2;
-        private System.Windows.Forms.CheckBox chkExtentStabilised;
+        private System.Windows.Forms.CheckBox chkExtentOption;
         private System.Windows.Forms.CheckBox chkEnabled;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.GroupBox grpSources;
@@ -942,6 +1041,15 @@ namespace Reaction_Editor
         private System.Windows.Forms.Label lblHXPercent;
         private System.Windows.Forms.NumericUpDown numHXApproach;
         private System.Windows.Forms.Label lblHXApproach;
+        private System.Windows.Forms.CheckBox chkFirstReactant;
+        private System.Windows.Forms.Label lblHORT;
+        private CtrlLib.NumEdit numHORT;
+        private System.Windows.Forms.ComboBox comboHORConditions;
+        private System.Windows.Forms.Label label2;
+        private CtrlLib.NumEdit numHORP;
+        private System.Windows.Forms.Label lblHORP;
+        private System.Windows.Forms.Label lblHORPUnits;
+        private System.Windows.Forms.Button btnBalance;
 
 
     }

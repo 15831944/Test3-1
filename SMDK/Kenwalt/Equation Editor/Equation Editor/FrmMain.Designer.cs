@@ -57,23 +57,28 @@ namespace Reaction_Editor
             this.arrangeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
             this.undockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutSysCADReactionEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.m_StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.grpFiles = new System.Windows.Forms.GroupBox();
             this.treeFiles = new System.Windows.Forms.TreeView();
             this.grpSpecies = new System.Windows.Forms.GroupBox();
             this.lstSpecies = new System.Windows.Forms.ListView();
             this.chName = new System.Windows.Forms.ColumnHeader();
             this.chSymbol = new System.Windows.Forms.ColumnHeader();
+            this.menuSpecieList = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.sortByPhaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.txtFilter = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.dlgOpenRxn = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveRxn = new System.Windows.Forms.SaveFileDialog();
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDatabaseFile = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unloadAllSpeciesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -81,6 +86,8 @@ namespace Reaction_Editor
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
             this.grpSpecies.SuspendLayout();
+            this.menuSpecieList.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.menuDatabaseFile.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -213,7 +220,7 @@ namespace Reaction_Editor
             // 
             this.menuCut.Name = "menuCut";
             this.menuCut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.menuCut.Size = new System.Drawing.Size(152, 22);
+            this.menuCut.Size = new System.Drawing.Size(150, 22);
             this.menuCut.Text = "Cu&t";
             this.menuCut.Click += new System.EventHandler(this.menuCut_Click);
             // 
@@ -221,7 +228,7 @@ namespace Reaction_Editor
             // 
             this.menuCopy.Name = "menuCopy";
             this.menuCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.menuCopy.Size = new System.Drawing.Size(152, 22);
+            this.menuCopy.Size = new System.Drawing.Size(150, 22);
             this.menuCopy.Text = "&Copy";
             this.menuCopy.Click += new System.EventHandler(this.menuCopy_Click);
             // 
@@ -229,7 +236,7 @@ namespace Reaction_Editor
             // 
             this.menuPaste.Name = "menuPaste";
             this.menuPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.menuPaste.Size = new System.Drawing.Size(152, 22);
+            this.menuPaste.Size = new System.Drawing.Size(150, 22);
             this.menuPaste.Text = "&Paste";
             this.menuPaste.Click += new System.EventHandler(this.menuPaste_Click);
             // 
@@ -249,7 +256,7 @@ namespace Reaction_Editor
             this.arrangeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuCascade});
             this.arrangeToolStripMenuItem.Name = "arrangeToolStripMenuItem";
-            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.arrangeToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.arrangeToolStripMenuItem.Text = "&Arrange";
             // 
             // menuCascade
@@ -263,9 +270,21 @@ namespace Reaction_Editor
             // 
             this.undockToolStripMenuItem.Enabled = false;
             this.undockToolStripMenuItem.Name = "undockToolStripMenuItem";
-            this.undockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.undockToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.undockToolStripMenuItem.Text = "&Undock";
             this.undockToolStripMenuItem.Click += new System.EventHandler(this.undockToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(121, 6);
+            // 
+            // logToolStripMenuItem
+            // 
+            this.logToolStripMenuItem.Name = "logToolStripMenuItem";
+            this.logToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.logToolStripMenuItem.Text = "&Log";
+            this.logToolStripMenuItem.Click += new System.EventHandler(this.logToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -285,18 +304,18 @@ namespace Reaction_Editor
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
+            this.m_StatusLabel});
             this.statusStrip1.Location = new System.Drawing.Point(0, 361);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(734, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // m_StatusLabel
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(109, 17);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            this.m_StatusLabel.Name = "m_StatusLabel";
+            this.m_StatusLabel.Size = new System.Drawing.Size(109, 17);
+            this.m_StatusLabel.Text = "toolStripStatusLabel1";
             // 
             // grpFiles
             // 
@@ -332,6 +351,7 @@ namespace Reaction_Editor
             // grpSpecies
             // 
             this.grpSpecies.Controls.Add(this.lstSpecies);
+            this.grpSpecies.Controls.Add(this.panel1);
             this.grpSpecies.Dock = System.Windows.Forms.DockStyle.Right;
             this.grpSpecies.Location = new System.Drawing.Point(562, 24);
             this.grpSpecies.Name = "grpSpecies";
@@ -345,6 +365,7 @@ namespace Reaction_Editor
             this.lstSpecies.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.chName,
             this.chSymbol});
+            this.lstSpecies.ContextMenuStrip = this.menuSpecieList;
             this.lstSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
             listViewGroup1.Header = "Solids";
             listViewGroup1.Name = "Solid";
@@ -358,7 +379,8 @@ namespace Reaction_Editor
             listViewGroup3});
             this.lstSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstSpecies.Name = "lstSpecies";
-            this.lstSpecies.Size = new System.Drawing.Size(166, 318);
+            this.lstSpecies.ShowGroups = false;
+            this.lstSpecies.Size = new System.Drawing.Size(166, 284);
             this.lstSpecies.TabIndex = 0;
             this.lstSpecies.UseCompatibleStateImageBehavior = false;
             this.lstSpecies.View = System.Windows.Forms.View.Details;
@@ -372,6 +394,50 @@ namespace Reaction_Editor
             // chSymbol
             // 
             this.chSymbol.Text = "Symbol";
+            // 
+            // menuSpecieList
+            // 
+            this.menuSpecieList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sortByPhaseToolStripMenuItem});
+            this.menuSpecieList.Name = "menuSpecieList";
+            this.menuSpecieList.Size = new System.Drawing.Size(153, 26);
+            // 
+            // sortByPhaseToolStripMenuItem
+            // 
+            this.sortByPhaseToolStripMenuItem.CheckOnClick = true;
+            this.sortByPhaseToolStripMenuItem.Name = "sortByPhaseToolStripMenuItem";
+            this.sortByPhaseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sortByPhaseToolStripMenuItem.Text = "&Sort By Phase";
+            this.sortByPhaseToolStripMenuItem.Click += new System.EventHandler(this.sortByPhaseToolStripMenuItem_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.txtFilter);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(3, 300);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(166, 34);
+            this.panel1.TabIndex = 1;
+            // 
+            // txtFilter
+            // 
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFilter.Location = new System.Drawing.Point(38, 6);
+            this.txtFilter.Name = "txtFilter";
+            this.txtFilter.Size = new System.Drawing.Size(119, 20);
+            this.txtFilter.TabIndex = 1;
+            this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(3, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(29, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Filter";
             // 
             // splitter1
             // 
@@ -405,18 +471,6 @@ namespace Reaction_Editor
             // 
             this.dlgOpenDB.Filter = "ini files|*.ini|All files|*.*";
             this.dlgOpenDB.Title = "Open Database";
-            // 
-            // toolStripMenuItem3
-            // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
-            // 
-            // logToolStripMenuItem
-            // 
-            this.logToolStripMenuItem.Name = "logToolStripMenuItem";
-            this.logToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.logToolStripMenuItem.Text = "&Log";
-            this.logToolStripMenuItem.Click += new System.EventHandler(this.logToolStripMenuItem_Click);
             // 
             // menuDatabaseFile
             // 
@@ -462,6 +516,9 @@ namespace Reaction_Editor
             this.statusStrip1.PerformLayout();
             this.grpFiles.ResumeLayout(false);
             this.grpSpecies.ResumeLayout(false);
+            this.menuSpecieList.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.menuDatabaseFile.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -494,7 +551,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.ColumnHeader chName;
         private System.Windows.Forms.ColumnHeader chSymbol;
         private System.Windows.Forms.ToolStripMenuItem menuOpenDir;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel m_StatusLabel;
         private System.Windows.Forms.OpenFileDialog dlgOpenRxn;
         private System.Windows.Forms.SaveFileDialog dlgSaveRxn;
         private System.Windows.Forms.ToolStripMenuItem menuOpenDB;
@@ -512,6 +569,11 @@ namespace Reaction_Editor
         private System.Windows.Forms.ContextMenuStrip menuDatabaseFile;
         private System.Windows.Forms.ToolStripMenuItem unloadAllSpeciesToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.TextBox txtFilter;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ContextMenuStrip menuSpecieList;
+        private System.Windows.Forms.ToolStripMenuItem sortByPhaseToolStripMenuItem;
 
 
     }

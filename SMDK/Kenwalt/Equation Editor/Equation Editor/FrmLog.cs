@@ -16,14 +16,8 @@ namespace Reaction_Editor
         public FrmLog()
         {
             InitializeComponent();
-            Assembly asm = Assembly.GetExecutingAssembly();
-            ResourceReader rr = new ResourceReader(asm.GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             //rm.BaseName
-            listView1.SmallImageList = new ImageList();
-            foreach (DictionaryEntry de in rr)
-            {
-                listView1.SmallImageList.Images.Add((String)de.Key, (Icon) de.Value);
-            }
+            listView1.SmallImageList = Program.Images;
         }
 
         #region ILog Members

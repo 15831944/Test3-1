@@ -8,6 +8,9 @@ using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using System.Resources;
+using System.Reflection;
+using System.Collections;
 
 namespace Reaction_Editor
 {
@@ -32,6 +35,8 @@ namespace Reaction_Editor
         {
             try
             {
+                lstSpecies.BeginUpdate();
+                lstSpecies.ShowGroups = true;
                 string db = File.ReadAllText(filename);
                 if (!db.Contains("[Species]"))
                 {
@@ -88,6 +93,8 @@ namespace Reaction_Editor
                         specieCount++;
                     }
                 }
+                lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+                lstSpecies.EndUpdate();
                 Log.Message(elementCount.ToString() + " Elements and " + specieCount.ToString() + " Species loaded.",
                     MessageType.Note,
                     new MessageSource(filename));
@@ -124,7 +131,8 @@ namespace Reaction_Editor
             {
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
-                m_RecentFiles.Enqueue(filename);
+                if (!m_RecentFiles.Contains(filename))
+                    m_RecentFiles.Enqueue(filename);
                 while (m_RecentFiles.Count > m_nRecentFileCount)
                     m_RecentFiles.Dequeue();
             }
@@ -154,7 +162,10 @@ namespace Reaction_Editor
                 subNode.Name = r.ToString();
                 newNode.Nodes.Add(subNode);
             }
+            frm.NowChanged += new EventHandler(frm_NowChanged);
             frm.CompoundsChanged += new EventHandler(frm_CompoundsChanged);
+            frm.ReactionChanged += new EventHandler(frm_ReactionChanged);
+            frm.SourcesSinksChanged += new EventHandler(frm_SourcesSinksChanged);
         }
 
         protected void Save(FrmReaction target)
@@ -200,14 +211,43 @@ namespace Reaction_Editor
             frm.Location = new Point(5, this.ClientRectangle.Bottom - frm.Height - statusStrip1.Height - 30);
         }
 
-        protected void UpdateUsedSpecies(List<Compound> compsInUse)
+        protected void UpdateUsedSpecies(/*List<Compound> compsInUse*/)
         {
+            List<Compound> compsInUse;
+            List<Compound> compsInReaction;
+            List<Compound> compsInSource;
+            List<Compound> compsInSink;
+            if (ActiveMdiChild is FrmReaction)
+            {
+                compsInUse = ((FrmReaction)ActiveMdiChild).GetCompounds();
+                compsInReaction = ((FrmReaction)ActiveMdiChild).CurrentReactionCompounds;
+                compsInSource = ((FrmReaction)ActiveMdiChild).SourceCompounds;
+                compsInSink = ((FrmReaction)ActiveMdiChild).SinkCompounds;
+            }
+            else
+            {
+                compsInSource = compsInSink = compsInReaction = compsInUse = new List<Compound>();
+            }
             lstSpecies.BeginUpdate();
             foreach (ListViewItem lvi in lstSpecies.Items)
+            {
                 if (compsInUse.Contains((Compound)lvi.Tag))
                     lvi.Font = new Font(lvi.Font, FontStyle.Bold);
                 else
                     lvi.Font = new Font(lvi.Font, FontStyle.Regular);
+
+                if (compsInReaction.Contains((Compound)lvi.Tag))
+                    lvi.ForeColor = Color.Blue;
+                else
+                    lvi.ForeColor = System.Drawing.SystemColors.WindowText;
+
+                if (compsInSource.Contains((Compound)lvi.Tag) && compsInSink.Contains((Compound)lvi.Tag))
+                    lvi.ImageKey = "PlusMinus";
+                else if (compsInSource.Contains((Compound)lvi.Tag))
+                    lvi.ImageKey = "Plus";
+                else if (compsInSink.Contains((Compound)lvi.Tag))
+                    lvi.ImageKey = "Minus";
+            }
             lstSpecies.EndUpdate();
         }
 
@@ -235,12 +275,32 @@ namespace Reaction_Editor
         {
             InitializeComponent();
             treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
+            //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
+            lstSpecies.SmallImageList = Program.Images;
+        }
+
+        void frm_NowChanged(object sender, EventArgs e)
+        {
+            if (sender == ActiveMdiChild)
+                m_StatusLabel.Text = ((FrmReaction)sender).StatusMessage;
         }
 
         void frm_CompoundsChanged(object sender, EventArgs e)
         {
             if (sender == ActiveMdiChild)
-                UpdateUsedSpecies(((FrmReaction)sender).GetCompounds());
+                UpdateUsedSpecies();
+        }
+
+        void frm_ReactionChanged(object sender, EventArgs e)
+        {
+            if (sender == ActiveMdiChild)
+                UpdateUsedSpecies();
+        }
+
+        void frm_SourcesSinksChanged(object sender, EventArgs e)
+        {
+            if (sender == ActiveMdiChild)
+                UpdateUsedSpecies();
         }
 
         Regex recentFileRegex = new Regex("RecentFile\\d+");
@@ -258,15 +318,19 @@ namespace Reaction_Editor
             string[] valueNames = regKey.GetValueNames();
             Array.Sort<String>(valueNames);
             bool firstName = true;
-            int recentFileCount = 0;
             int insertionLoc = menuFile.DropDown.Items.IndexOf(menuExit);
+            List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
             foreach (string s in valueNames)
                 if (recentFileRegex.Match(s).Success)
                 {
-                    if (recentFileCount++ >= m_nRecentFileCount)
+                    if (m_RecentFiles.Count >= m_nRecentFileCount)
                         break; //Don't load more than [m_nRecentFileCount] files.
                     string filename = regKey.GetValue(s).ToString();
+                    if (m_RecentFiles.Contains(filename))
+                        continue;
+
                     ToolStripMenuItem recentFile = new ToolStripMenuItem(Path.GetFileName(filename));
+                    recentList.Add(recentFile);
                     recentFile.Tag = filename;
                     recentFile.Click += new EventHandler(recentFile_Click);
                     if (firstName)
@@ -277,6 +341,8 @@ namespace Reaction_Editor
                     menuFile.DropDown.Items.Insert(insertionLoc, recentFile);
                     m_RecentFiles.Enqueue(filename);
                 }
+            for (int i = 1; i <= recentList.Count; i++)
+                recentList[recentList.Count - i].Text = "&" + i + " " + recentList[recentList.Count - i].Text;
         }
 
         void recentFile_Click(object sender, EventArgs e)
@@ -339,17 +405,18 @@ namespace Reaction_Editor
         {
             if (ActiveMdiChild == null)
             {
-                UpdateUsedSpecies(new List<Compound>());
+                UpdateUsedSpecies();
                 this.Text = "SysCAD Reaction Editor";
             }
             else if (ActiveMdiChild.GetType() == typeof(FrmReaction))
             {
                 this.Text = "SysCAD Reaction Editor - " + ((FrmReaction)ActiveMdiChild).Title;
-                UpdateUsedSpecies(((FrmReaction)ActiveMdiChild).GetCompounds());
+                m_StatusLabel.Text = ((FrmReaction)ActiveMdiChild).StatusMessage;
+                UpdateUsedSpecies();
             }
             else
             {
-                UpdateUsedSpecies(new List<Compound>());
+                UpdateUsedSpecies();
                 this.Text = "SysCAD Reaction Editor";
             }
         }
@@ -415,7 +482,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("SysCAD Reaction editor version 0.1.1\r\nTest version.");
+            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.0\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -572,6 +639,33 @@ namespace Reaction_Editor
             }
             foreach (string fn in Directory.GetFiles(folderBrowserDialog1.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
                 Open(fn);
+        }
+
+        private void sortByPhaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+        }
+
+        private void txtFilter_TextChanged(object sender, EventArgs e)
+        {
+            lstSpecies.BeginUpdate();
+            lstSpecies.Items.Clear();
+            lstSpecies.ShowGroups = true;
+            string[] tokens = string.IsNullOrEmpty(txtFilter.Text.Trim()) ? new string[] {""} :
+                txtFilter.Text.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (Compound c in Compound.CompoundList.Values)
+                foreach (string s in tokens)
+                    if (c.Symbol.Contains(s) || c.Name.ToLower().Contains(s.ToLower()))
+                    {
+                        ListViewItem lvi = new ListViewItem(new string[] { c.Name, c.Symbol });
+                        lstSpecies.Items.Add(lvi);
+                        lvi.Group = lstSpecies.Groups[c.Phase.ToString()];
+                        lvi.Tag = c;
+                        continue;
+                    }
+            lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+            UpdateUsedSpecies();
+            lstSpecies.EndUpdate();
         }
     }
 }

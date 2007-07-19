@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Collections.ObjectModel;
 
 namespace Reaction_Editor
 {
@@ -17,10 +18,11 @@ namespace Reaction_Editor
 
     public enum Phases { Solid, Liquid, Gas, All };
     public enum RxnDirections { Forward, Equilibrium, Backward };
-    public enum RxnStatuses { Ok, Imbalanced, Invalid };
+    public enum RxnStatuses { OK, Imbalanced, Invalid };
     public enum ExtentTypes { Fraction, Ratio, Equilibrium, FinalConc, FinalFrac, Rate }
     public enum HXTypes { None, FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
     public enum FracTypes { ByMass, ByMole };
+    public enum TPConditions { Feed, Product, Standard, Custom };
 
     #region Reaction Extent Structures
     [Serializable]
@@ -39,17 +41,17 @@ namespace Reaction_Editor
             }
         }
         public RxnExtent() { }
-        public double Value
+        public virtual double Value
         {
             get { return m_dValue; }
             set 
             {
-                m_dValue = value;
+                m_dValue = value > 0 ? value : 0;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
             }
         }
-        public Compound Specie
+        public virtual Compound Specie
         {
             get { return m_Specie; }
             set 
@@ -130,6 +132,12 @@ namespace Reaction_Editor
         public override string ToString()
         {
             return "Fraction " + Specie + " = " + Value;
+        }
+
+        public override double Value
+        {
+            get { return base.Value; }
+            set { base.Value = value > 1 ? 1 : value; }
         }
 
         public static RxnExtent Parse(string s)
@@ -303,16 +311,16 @@ namespace Reaction_Editor
     [Serializable]
     public class Final_FracExtent : RxnExtent
     {
-        protected Phases m_Phase = (Phases)(-1);
+        protected bool m_bByPhase = true;
         protected FracTypes m_eFracType;
         public Final_FracExtent(RxnExtent original)
             : base(original) { }
-        public Phases Phase 
+        public bool ByPhase 
         {
-            get{ return m_Phase; }
+            get{ return m_bByPhase; }
             set 
             {
-                m_Phase = value;
+                m_bByPhase = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
             }
@@ -330,41 +338,36 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            string phaseString = "";
-            if ((int)Phase != -1)
-                phaseString = Phase == Phases.All ? "Total " : Phase.ToString() + " ";
-            return "msFinalFraction " + phaseString + Specie + " = " + Value;
+            string phaseString = m_bByPhase ? "Phase " : "Total ";
+            string startString = FracType == FracTypes.ByMass ? "msFinalFraction " : "mlFinalFraction ";
+            return startString + phaseString + Specie + " = " + Value;
+        }
+
+        public override double Value
+        {
+            get { return base.Value; }
+            set { base.Value = value > 1 ? 1 : value; }
         }
 
         public static Final_FracExtent Parse(string s)
         {
             Final_FracExtent ret = new Final_FracExtent(null);
-            if (s.ToLowerInvariant().StartsWith("msfinalfrac"))
+            if (s.ToLowerInvariant().StartsWith("msfinalfraction"))
                 ret.FracType = FracTypes.ByMass;
-            else if (s.ToLowerInvariant().StartsWith("mlfinalfrac"))
+            else if (s.ToLowerInvariant().StartsWith("mlfinalfraction"))
                 ret.FracType = FracTypes.ByMole;
             else
                 throw new Exception("Final_FracExtent.Parse called with invalid string");
             s = s.Remove(0, "mXfinalfraction".Length).Trim();
             if (s.ToLowerInvariant().StartsWith("total"))
             {
-                ret.Phase = Phases.All;
+                ret.ByPhase = false;
                 s = s.Remove(0, "total".Length).Trim();
             }
-            else if (s.ToLowerInvariant().StartsWith("liq ") || s.ToLowerInvariant().StartsWith("liq\t"))
+            else if (s.ToLowerInvariant().StartsWith("phase"))
             {
-                ret.Phase = Phases.Liquid;
-                s = s.Remove(0, "Liq ".Length).Trim();
-            }
-            else if (s.ToLowerInvariant().StartsWith("sol ") || s.ToLowerInvariant().StartsWith("sol\t"))
-            {
-                ret.Phase = Phases.Solid;
-                s = s.Remove(0, "Sol ".Length).Trim();
-            }
-            else if (s.ToLowerInvariant().StartsWith("gas ") || s.ToLowerInvariant().StartsWith("gas\t"))
-            {
-                ret.Phase = Phases.Gas;
-                s = s.Remove(0, "Gas ".Length).Trim();
+                ret.ByPhase = true;
+                s = s.Remove(0, "phase".Length).Trim();
             }
             string[] subs = s.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
             ret.Specie = Compound.FromString(subs[0].Trim());
@@ -505,6 +508,11 @@ namespace Reaction_Editor
                 throw new RxnEdException("Compound " + compString + " not found in database");
         }
 
+        public static bool Contains(string compString)
+        {
+            return CompoundList.ContainsKey(compString);
+        }
+
         public override string ToString()
         {
             return Symbol;
@@ -572,17 +580,20 @@ namespace Reaction_Editor
 
     public class SimpleReaction
     {
-        public static DataFormats.Format sFormat = DataFormats.GetFormat(typeof(SimpleReaction).FullName); 
+        public static DataFormats.Format sFormat = DataFormats.GetFormat(typeof(SimpleReaction).FullName);
+        public static double sMinValue = 5E-3;
 
+        #region regex's
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
-            @"^HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*/\s*(?<Specie>\S*)\s*$",
+            @"^HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*/\s*(?<Specie>\S*)\s*(At\s*((?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)|\.\d+)\s*,\s*(?<P>\d*(\.\d+)|\.\d+)))?$",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_CompoundRegex = new Regex(
             @"^\s*(?<Unparseable>.*?)(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*(?>(?<Unparseable>.*?)\+\s*(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*)*(?<Unparseable>.*?)$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-        
+        #endregion Regex's
+
         #region Internal Variables
         protected ListViewItem m_LVI;
         protected int m_nLastAddedNumStart;
@@ -593,13 +604,15 @@ namespace Reaction_Editor
         protected bool m_bUseOriginalString;
 
         protected RxnDirections m_eDirection = RxnDirections.Equilibrium;
-        protected ExtentTypes m_eExtentType;
-        protected bool m_bCustomHeatOfReaction;
 
-        protected RxnExtent m_Extent = new RxnExtent(null);
-        protected double m_dHeatOfReaction = 0;
+        protected ExtentTypes m_eExtentType;
+        protected RxnExtent m_Extent = new FractionExtent(null);
+
+        protected double m_dHeatOfReaction = double.NaN;
         protected Compound m_HeatOfReactionSpecie = null;
         protected FracTypes m_eHeatOfReactionType = FracTypes.ByMole;
+        protected TPConditions m_eHeatOfReactionConditions = TPConditions.Feed;
+        protected double m_dHeatOfReactionT = 25, m_dHeatOfReactionP = 101.3;
         
         protected int m_nSequence = 1;
 
@@ -623,6 +636,7 @@ namespace Reaction_Editor
         {
             m_Log = log;
             m_Extent.Owner = this;
+            m_Extent.Value = 1;
             LVI = _LVI;
             Changed += new EventHandler(UpdateStatus);
             Changed(this, new EventArgs());
@@ -754,11 +768,6 @@ namespace Reaction_Editor
                 if (m_dHeatOfReaction == value)
                     return;
                 m_dHeatOfReaction = value;
-
-                if (double.IsNaN(value))
-                    m_bCustomHeatOfReaction = false;
-                else
-                    m_bCustomHeatOfReaction = true;
                 if (Changed != null)
                     Changed(this, new EventArgs());
             }
@@ -781,12 +790,45 @@ namespace Reaction_Editor
             get { return m_eHeatOfReactionType; }
             set
             {
+                if (m_eHeatOfReactionType == value) return;
                 m_eHeatOfReactionType = value;
                 FireChanged();
             }
         }
 
-        public static double BalanceAccuracy = 1E-2;
+        public TPConditions HeatOfReactionConditions
+        {
+            get { return m_eHeatOfReactionConditions; }
+            set
+            {
+                if (m_eHeatOfReactionConditions == value) return;
+                m_eHeatOfReactionConditions = value;
+                FireChanged();
+            }
+        }
+
+        public double HeatOfReactionP
+        {
+            get { return m_dHeatOfReactionP; }
+            set
+            {
+                if (m_dHeatOfReactionP == value) return;
+                m_dHeatOfReactionP = value;
+                FireChanged();
+            }
+        }
+
+        public double HeatOfReactionT
+        {
+            get { return m_dHeatOfReactionT; }
+            set
+            {
+                if (m_dHeatOfReactionT == value) return;
+                m_dHeatOfReactionT = value;
+                FireChanged();
+            }
+        }
+
         public bool Balanced
         {
             get 
@@ -817,7 +859,7 @@ namespace Reaction_Editor
                         ret = false;
                         m_Unbalanced[kvpReactants.Key] = -reactantAmounts[kvpReactants.Key];
                     }
-                    else if (Math.Abs(kvpReactants.Value - productAmounts[kvpReactants.Key]) > BalanceAccuracy)
+                    else if (Math.Abs(kvpReactants.Value - productAmounts[kvpReactants.Key]) > sMinValue)
                     {
                         ret = false;
                         m_Unbalanced[kvpReactants.Key] = productAmounts[kvpReactants.Key] - kvpReactants.Value;
@@ -924,7 +966,7 @@ namespace Reaction_Editor
             set { m_Log = value; }
         }
 
-        public IEnumerable<Compound> Compounds
+        public List<Compound> Compounds
         {
             get
             {
@@ -938,6 +980,33 @@ namespace Reaction_Editor
                 return ret;
             }
         }
+
+        public Compound FirstReactant
+        {
+            get
+            {
+                if (m_OrderedReactants.Count > 0)
+                    return m_OrderedReactants[0];
+                else
+                    return null;
+            }
+        }
+
+        public List<Element> Elements
+        {
+            get
+            {
+                List<Element> ret = new List<Element>();
+                foreach (Compound c in Compounds)
+                    foreach (Element e in c.Elements.Keys)
+                        if (!ret.Contains(e))
+                            ret.Add(e);
+                return ret;
+            }
+        }
+
+        public List<Compound> OrderedProducts { get { return m_OrderedProducts; } }
+        public List<Compound> OrderedReactants { get { return m_OrderedReactants; } }
         #endregion Properties
 
         #region Public Functions
@@ -1005,7 +1074,7 @@ namespace Reaction_Editor
                 ProductsChanged(this, new EventArgs());
         }
 
-        public override string ToString()
+        public string ToString(string numberFormat)
         {
             if (m_bUseOriginalString)
             {
@@ -1024,52 +1093,74 @@ namespace Reaction_Editor
                     arrow = " = ";
                     break;
             }
-            return GetReactantsString() + arrow + GetProductsString();
+            return GetReactantsString(numberFormat) + arrow + GetProductsString(numberFormat);
+        }
+
+        public override string ToString()
+        {
+            return ToString("0.##");
         }
 
         public string ToSaveString(bool includeSequence)
         {
             StringBuilder sb = new StringBuilder();
-            if (!m_bEnabled)
-                sb.Append("; ");
-            sb.Append(this.ToString()); //Formula
-            sb.Append(" Extent : " + m_Extent.ToString());
+            if (!m_bEnabled) sb.Append("; ");
+            sb.AppendLine(this.ToString("0.######")); //Formula
+            if (!m_bEnabled) sb.Append("; ");
+            sb.AppendLine("Extent : " + m_Extent.ToString());
             if (CustomHeatOfReaction)
             {
+                if (!m_bEnabled) sb.Append("; ");
                 sb.Append(" HeatOfReaction : ");
                 if (m_eHeatOfReactionType == FracTypes.ByMass)
                     sb.Append("MsFixed = ");
                 else
                     sb.Append("MlFixed = ");
                 sb.Append(m_dHeatOfReaction + " / " + m_HeatOfReactionSpecie);
+                switch (m_eHeatOfReactionConditions)
+                {
+                    case TPConditions.Feed:
+                        sb.AppendLine(" At Feed"); break;
+                    case TPConditions.Product:
+                        sb.AppendLine(" At Prod"); break;
+                    case TPConditions.Standard:
+                        sb.AppendLine(" At Std"); break;
+                    case TPConditions.Custom:
+                        sb.AppendLine(" At " + m_dHeatOfReactionT + ", " + m_dHeatOfReactionP); break;
+                }
             }
             if (includeSequence)
+            {
+                if (!m_bEnabled) sb.Append("; ");
                 sb.Append(" Sequence : " + m_nSequence);
+            }
             return sb.ToString();
         }
 
-        public string GetProductsString()
+        public string GetProductsString() { return GetProductsString("0.###"); }
+        public string GetProductsString(string numberFormat)
         {
             if (!m_bProductsOK)
                 return m_sProductString;
             string ret = "";
             foreach (Compound c in m_OrderedProducts)
             {
-                ret += m_Products[c] + " " + c + " + ";
+                ret += m_Products[c].ToString(numberFormat) + " " + c + " + ";
             }
             if (ret.Length > 3)
                 ret = ret.Substring(0, ret.Length - 3); //Trim the trailing " + "
             return ret;
         }
 
-        public string GetReactantsString()
+        public string GetReactantsString() { return GetReactantsString("0.###"); }
+        public string GetReactantsString(string numberFormat)
         {
             if (!m_bReactantsOK)
                 return m_sReactantString;
             string ret = "";
             foreach (Compound c in m_OrderedReactants)
             {
-                ret += m_Reactants[c] + " " + c + " + ";
+                ret += m_Reactants[c].ToString(numberFormat) + " " + c + " + ";
             }
             if (ret.Length > 3)
                 ret = ret.Substring(0, ret.Length - 3); //Trim the trailing " + "
@@ -1209,10 +1300,26 @@ namespace Reaction_Editor
             //TODO: Throw an exception in the event of no match
             HeatOfReactionValue = double.Parse(m.Groups["Value"].Captures[0].Value);
             HeatOfReactionSpecie = Compound.FromString(m.Groups["Specie"].Captures[0].Value);
-            if (m.Groups["Type"].Captures[0].Value == "MsFixed")
+            if (m.Groups["Type"].Captures[0].Value.ToLowerInvariant() == "msfixed")
                 HeatOfReactionType = FracTypes.ByMass;
             else
                 HeatOfReactionType = FracTypes.ByMole;
+
+            if (m.Groups["Condition"].Success)
+            {
+                if (m.Groups["Condition"].Value.ToLowerInvariant() == "feed")
+                    m_eHeatOfReactionConditions = TPConditions.Feed;
+                else if (m.Groups["Condition"].Value.ToLowerInvariant() == "prod")
+                    m_eHeatOfReactionConditions = TPConditions.Product;
+                else if (m.Groups["Condition"].Value.ToLowerInvariant() == "std")
+                    m_eHeatOfReactionConditions = TPConditions.Standard;
+            }
+            else if (m.Groups["T"].Success)
+            {
+                m_eHeatOfReactionConditions = TPConditions.Custom;
+                double.TryParse(m.Groups["T"].Value, out m_dHeatOfReactionT);
+                double.TryParse(m.Groups["P"].Value, out m_dHeatOfReactionP);
+            }
         }
 
         public void FireChanged()
@@ -1256,84 +1363,112 @@ namespace Reaction_Editor
             ParseReactants(GetReactantsString() + " ");
         }
 
-        /*public static SimpleReaction FromClipboard(FrmReaction owner)
+        public RemovalInfo BalanceOptions()
         {
-            IDataObject obj = Clipboard.GetDataObject();
-            if (!obj.GetDataPresent(sFormat.Name))
-                return null;
-            string s = (string) obj.GetData(sFormat.Name);
-            Match rxnMatch = FrmReaction.s_ReactionRegex.Match(s);
-            bool enabled = rxnMatch.Success;
-            if (!rxnMatch.Success)
-                rxnMatch = FrmReaction.s_DisabledReactionRegex.Match(s);
-            if (!rxnMatch.Success)
-                throw new Exception("Unable to match clipboad data");
+            //List<Compound> compounds = Compounds;
 
-            SimpleReaction currentReaction = owner.CreateReaction(null);
-            ILog Log = currentReaction.Log;
-            MessageSource source = new MessageFrmReaction(
-                owner.Title + ", Clipboad paste",
-                owner,
-                currentReaction);
-            Log.SetSource(source);
-            Group grpComment = rxnMatch.Groups["Comment"];
-            if (grpComment.Success)
-                currentReaction.Comment = grpComment.Captures[0].Value;
+            Matrix m = GetBalanceMatrix();
+            if (!m.IsSolveable())
+                throw new InvalidOperationException("System is over-constrained, and not solveable.");
+            RemovalInfo info = RecursiveRemoveableChecks(m);
+            return info;
+        }
 
-            Group grpReactants = rxnMatch.Groups["Reactants"];
-            currentReaction.ParseReactants(grpReactants.Captures[0].Value);
-
-
-            Group grpDirection = rxnMatch.Groups["Direction"];
-            currentReaction.DirectionString = grpDirection.Captures[0].Value;
-
-            Group grpProducts = rxnMatch.Groups["Products"];
-            currentReaction.ParseProducts(grpProducts.Captures[0].Value);
-
-            source.Source = this.Title + ": " + currentReaction;
-
-            Group grpExtent = rxnMatch.Groups["Extent"];
-            if (grpExtent.Success)
-                try
-                {
-                    currentReaction.ParseExtent(grpExtent.Value);
-                }
-                catch (Exception ex)
-                {
-                    Log.Message("Unable to parse extent (" + grpExtent.Value + "). Reason: " + ex.Message, MessageType.Warning);
-                }
-            else
-                Log.Message("Extent not found for reaction", MessageType.Warning);
-
-            Group grpSequence = rxnMatch.Groups["Sequence"];
-            if (grpSequence.Success)
+        public void BalanceWith(int[] CompsToRemove)
+        {
+            foreach (int i in CompsToRemove)
             {
-                Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
-                if (sequenceMatch.Success)
+                int originalReactantCount = m_OrderedReactants.Count;
+                if (i < originalReactantCount)
                 {
-                    currentReaction.Sequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                    m_Reactants.Remove(m_OrderedReactants[i]);
+                    m_OrderedReactants.RemoveAt(i);
                 }
                 else
-                    Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+                {
+                    m_Products.Remove(m_OrderedProducts[i - originalReactantCount]);
+                    m_OrderedProducts.RemoveAt(i - originalReactantCount);
+                }
             }
+            Matrix m = GetBalanceMatrix();
+            double[] vals = m.getVariableValues();
 
-            Group grpHOR = rxnMatch.Groups["HOR"];
-            if (grpHOR.Success)
-                try
+            for (int i = 0; i < m_OrderedReactants.Count - 1; i++)
+                m_Reactants[m_OrderedReactants[i + 1]] = vals[i];
+            for (int i = 0; i < m_OrderedProducts.Count; i++)
+                m_Products[m_OrderedProducts[i]] = vals[i + m_OrderedReactants.Count - 1];
+
+            Dictionary<Compound, double> originalReactants = new Dictionary<Compound, double>(m_Reactants);
+            Dictionary<Compound, double> originalProducts = new Dictionary<Compound, double>(m_Products);
+            foreach (KeyValuePair<Compound, double> kvp in originalReactants)
+                if (kvp.Value < sMinValue)
                 {
-                    currentReaction.ParseHOR(grpHOR.Captures[0].Value.Trim());
+                    m_Reactants.Remove(kvp.Key);
+                    m_OrderedReactants.Remove(kvp.Key);
                 }
-                catch (Exception ex)
+            foreach (KeyValuePair<Compound, double> kvp in originalProducts)
+                if (kvp.Value < sMinValue)
                 {
-                    Log.Message("Unable to parse HeatOfReaction '" + grpHOR.Value + "' Reason: " + ex.Message, MessageType.Warning);
+                    m_Products.Remove(kvp.Key);
+                    m_OrderedProducts.Remove(kvp.Key);
                 }
 
-            currentReaction.Enabled = enabled;
-            //***
-        }*/
+            FireChanged();
+            if (ReactantsChanged != null)
+                ReactantsChanged(this, new EventArgs());
+            if (ProductsChanged != null)
+                ProductsChanged(this, new EventArgs());
+        }
         #endregion Public Functions
 
         #region Protected Functions
+        protected Matrix GetBalanceMatrix()
+        {
+            List<Element> elements = Elements;
+            Matrix m = new Matrix(elements.Count, m_OrderedProducts.Count + m_OrderedReactants.Count);
+            for (int i = 0; i < elements.Count; i++)
+            {
+                for (int j = 1; j < m_OrderedReactants.Count; j++)
+                    m[i, j - 1] = m_OrderedReactants[j].Elements.ContainsKey(elements[i]) ? -m_OrderedReactants[j].Elements[elements[i]] : 0;
+                int c = m_OrderedReactants.Count - 1;
+                for (int j = 0; j < m_OrderedProducts.Count; j++)
+                    m[i, j + c] = m_OrderedProducts[j].Elements.ContainsKey(elements[i]) ? m_OrderedProducts[j].Elements[elements[i]] : 0;
+                m[i, m.Columns - 1] = FirstReactant.Elements.ContainsKey(elements[i]) ? m_Reactants[FirstReactant] * FirstReactant.Elements[elements[i]] : 0;
+            }
+            return m;
+        }
+
+        protected RemovalInfo RecursiveRemoveableChecks(Matrix m)
+        {
+            if (m.Rank == m.Columns - 1)
+            {
+                double[] vals = m.getVariableValues();
+                bool AllPositive = true;
+                for (int j = 0; j < vals.Length; j++)
+                    if (vals[j] < 0)
+                    {
+                        AllPositive = false;
+                        break;
+                    }
+                if (AllPositive)
+                    return new RemovalInfo(true);
+                else
+                    return new RemovalInfo(false);
+            }
+            else
+            {
+                bool[] removeables = m.ColumnsRemoveable();
+                RemovalInfo ret = new RemovalInfo(m.Columns - 1);
+                for (int i = 0; i < removeables.Length; i++)
+                {
+                    if (!removeables[i]) 
+                        ret.m_IfRemoved[i] = new RemovalInfo(false);
+                    Matrix OneColRemoved = m.RemoveColumn(i);
+                    ret.SetIfRemoved(i, RecursiveRemoveableChecks(OneColRemoved));
+                }
+                return ret;
+            }
+        }
 
         protected void UpdateStatus(object sender, EventArgs e)
         {
@@ -1352,7 +1487,7 @@ namespace Reaction_Editor
                     case RxnStatuses.Invalid:
                         m_LVI.ForeColor = Color.Red;
                         break;
-                    case RxnStatuses.Ok:
+                    case RxnStatuses.OK:
                         m_LVI.ForeColor = System.Drawing.SystemColors.WindowText;
                         break;
                 }
@@ -1480,11 +1615,44 @@ namespace Reaction_Editor
                 || m_Products.Count == 0 || m_Reactants.Count == 0)
                 m_eStatus = RxnStatuses.Invalid;
             else
-                m_eStatus = Balanced ? RxnStatuses.Ok : RxnStatuses.Imbalanced;
+                m_eStatus = Balanced ? RxnStatuses.OK : RxnStatuses.Imbalanced;
         }
         #endregion Protected Functions
 
+        #region Subclasses
+        public class RemovalInfo
+        {
+            public RemovalInfo() { }
+            public RemovalInfo(bool CanRemove) { m_bCanRemove = CanRemove; }
+            public RemovalInfo(int subRemoveCounts) { m_IfRemoved = new RemovalInfo[subRemoveCounts]; }
+            public bool m_bCanRemove = false;
+            public RemovalInfo[] m_IfRemoved;
+            public RemovalInfo m_Parent;
 
+            public void SetIfRemoved(int i, RemovalInfo info)
+            {
+                m_IfRemoved[i] = info;
+                if (info.m_bCanRemove)
+                    m_bCanRemove = true;
+                info.m_Parent = this;
+            }
+
+            public int DegreesOfFreedom
+            {
+                get
+                {
+                    if (m_IfRemoved == null)
+                        return 0;
+                    else
+                        for (int i = 0; i < m_IfRemoved.Length; i++)
+                            if (m_IfRemoved[i] != null && m_IfRemoved[i].m_bCanRemove)
+                                return m_IfRemoved[i].DegreesOfFreedom + 1;
+                    return 0;
+                }
+            }
+        }
+
+        #endregion Subclasses
     }
 
     #region Log
@@ -1574,6 +1742,335 @@ namespace Reaction_Editor
     }
     #endregion Log
 
+
+    #region Matrix
+    /// <summary>
+    /// A Matrix class. Has quite a bit of room for optimisation, 
+    /// but we should never be using this on excessively large matrices.
+    /// </summary>
+    public class Matrix
+    {
+        #region Internal Variables
+        double[][] m_Data;
+        int m_nRows, m_nColumns;
+        bool m_bReduced = true;
+        #endregion Internal Variables
+
+        #region Properties
+        public double this[int row, int col]
+        {
+            get { return m_Data[row][col]; }
+            set
+            {
+                m_Data[row][col] = value;
+                m_bReduced = false;
+            }
+        }
+
+        public int Rows { get { return m_nRows; } }//m_Data.Length; } }
+        public int Columns { get { return m_nColumns; } }//m_Data[0].Length; } }
+
+        /// <summary>
+        /// Doesn't work if the matrix is not row-reduced.
+        /// </summary>
+        public int Rank
+        {
+            get
+            {
+                RowReduce();
+                for (int i = 0; i < Rows; i++)
+                {
+                    int fnze = FirstNZElem(m_Data[i]);
+                    if (fnze < 0 || fnze == Columns - 1)
+                        return i;
+                }
+                return Rows;
+            }
+        }
+        #endregion Properties
+
+        #region Constructors
+        public Matrix(int rows, int columns)
+        {
+            m_nRows = rows;
+            m_nColumns = columns;
+            m_Data = new double[rows][];
+            for (int i = 0; i < rows; i++)
+                m_Data[i] = new double[columns];
+        }
+        #endregion Constructors
+
+        #region Public Functions
+        public void RowReduce()
+        {
+            if (m_bReduced)
+                return;
+            int k;
+            for (k = 0; k < m_nRows - 1; k++)
+            {
+                Array.Sort<double[]>(m_Data, new Comparison<double[]>(CompareRows));
+                int firstNZElem = FirstNZElem(m_Data[k]);
+                if (firstNZElem == -1)
+                    break;
+                double val = m_Data[k][firstNZElem];
+                for (int i = k + 1; i < m_Data.Length; i++)
+                {
+                    double fac = m_Data[i][firstNZElem] / val;
+                    if (fac != 0)
+                    {
+                        m_Data[i][firstNZElem] = 0;
+                        for (int j = firstNZElem + 1; j < m_nColumns; j++)
+                        {
+                            m_Data[i][j] = m_Data[i][j] - m_Data[k][j] * fac;
+                        }
+                    }
+                }
+            }
+            //We now have:
+            //  #  #  #  #  #  #
+            //  0  #  #  #  #  #
+            //  0  0  0  #  #  #
+            //  0  0  0  0  #  #
+            //For a full row reduce:
+            for (; k > 0; k--)
+            {
+                int firstNZElem = FirstNZElem(m_Data[k]);
+                if (firstNZElem < 0 || firstNZElem == Columns - 1)
+                    continue;
+                double val = m_Data[k][firstNZElem];
+                for (int i = k - 1; i >= 0; i--)
+                {
+                    double fac = m_Data[i][firstNZElem] / val;
+                    if (fac != 0)
+                    {
+                        m_Data[i][firstNZElem] = 0;
+                        for (int j = firstNZElem + 1; j < m_nColumns; j++)
+                        {
+                            m_Data[i][j] = m_Data[i][j] - m_Data[k][j] * fac;
+                        }
+                    }
+                }
+            }
+            //We now have:
+            //  v1 v2 v3 v4 v5
+            //  #  0  #  0  0  #1
+            //  0  #  #  0  0  #2
+            //  0  0  0  #  0  #3
+            //  0  0  0  0  #  #4
+
+            /* Musings on linkages:
+             * if #1 == 0,              setting v1 = 0 REQUIRES v3 = 0
+             * if #1 == 0 && #2 == 0,   setting v1 = 0 REQUIRES v2 = v3 = 0
+             *                          If we have an independant block, with all results zero, this should not be in our reaction.
+             */
+            m_bReduced = true;
+        }
+
+        public bool IsSolveable()
+        {
+            RowReduce();
+            for (int i = 0; i < Rows; i++)
+                if (FirstNZElem(m_Data[i]) == Columns - 1)
+                    return false;
+            return true;
+        }
+
+        public double[] getVariableValues()
+        {
+            RowReduce();
+            double[] ret = new double[Columns - 1];
+            for (int i = 0; i < Columns - 1; i++)
+                ret[i] = 0;
+            int rank = Rank;
+            for (int i = rank - 1; i >= 0; i--)
+            {
+                double t = m_Data[i][Columns - 1];
+                for (int j = Columns - 2; j > i; j--)
+                    t -= ret[j] * m_Data[i][j];
+                ret[i] = t / m_Data[i][i];
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Calculates which sets of variables are linked.
+        /// </summary>
+        public LinDependanceInfo[] GetVariableLinkages()
+        {
+            RowReduce();
+
+            LinDependanceInfo[] ret = new LinDependanceInfo[Columns - 1];
+            for (int i = 0; i < Columns - 1; i++)
+                ret[i].Index = i;
+
+            for (int i = 0; i < Rows; i++)
+            {
+                int fnze = FirstNZElem(m_Data[i]);
+                if (fnze < 0 || fnze == Columns - 1)
+                    break;
+                ret[fnze].RowFirst = i;
+                for (int j = fnze + 1; j < Columns - j; i++)
+                    if (m_Data[i][j] != 0)
+                        ret[fnze].LinkTo(ret[j]);
+                if (m_Data[i][Columns - 1] != 0)
+                    ret[fnze].SetLinkedToPrimary();
+            }
+            return ret;
+        }
+
+        public Matrix Clone()
+        {
+            Matrix ret = new Matrix(this.Rows, this.Columns);
+            for (int i = 0; i < Rows; i++)
+                Array.Copy(m_Data[i], ret.m_Data[i], Columns);
+            return ret;
+        }
+
+        public bool[] ColumnsRemoveable()
+        {
+            bool[] removeable = new bool[Columns - 1];
+            for (int i = 0; i < Columns - 1; i++)
+                removeable[i] = true;
+            for (int k = 0; k < Columns - 1; k++)
+            {
+                for (int i = 0; i < Rows; i++)
+                {
+                    if (m_Data[i][Columns - 1] == 0)    //Ignore rows where the sum is to zero.
+                        continue;
+                    if (m_Data[i][k] == 0)              //Ignore rows where this variable is not used
+                        continue;
+                    int c = 0;
+                    for (int j = 0; j < Columns - 1; j++)
+                        if (m_Data[i][j] != 0)
+                            c++;
+                    if (c == 1)
+                    {
+                        removeable[k] = false;              //If the only variable is this one, it's not removeable
+                        break;
+                    }
+                }
+            } 
+            return removeable;
+        }
+
+        public Matrix RemoveColumn(int col)
+        {
+            double[][] newData = new double[Rows][];
+            for (int i = 0; i < Rows; i++)
+            {
+                newData[i] = new double[Columns - 1];
+                Array.Copy(m_Data[i], 0, newData[i], 0, col);
+                Array.Copy(m_Data[i], col + 1, newData[i], col, Columns - col - 1);
+            }
+            Matrix ret = (Matrix) this.MemberwiseClone();
+
+            ret.m_Data = newData;
+            ret.m_bReduced = false;
+            ret.m_nColumns--;
+            return ret;
+        }
+        #endregion Public Functions
+
+        #region Protected Functions
+        protected int CompareRows(double[] row1, double[] row2)
+        {
+
+            for (int i = 0; i < row1.Length; i++)
+                if (row1[i] != 0 && row2[i] != 0)
+                    return 0;
+                else if (row1[i] == 0 && row2[i] == 0)
+                    continue;
+                else if (row1[i] == 0)
+                    return 1;
+                else if (row2[i] == 0)
+                    return -1;
+            return 0;
+        }
+
+        protected int FirstNZElem(double[] row)
+        {
+            for (int i = 0; i < row.Length; i++)
+                if (row[i] != 0)
+                    return i;
+            return -1;
+        }
+        #endregion Protected Functions
+
+        #region Subclasses
+        public class LinDependanceInfo
+        {
+            protected List<LinDependanceInfo> m_Linkages = new List<LinDependanceInfo>();
+            protected bool m_bLinkedToPrimary = false;
+
+            public bool LinkedToPrimary { get { return m_bLinkedToPrimary; } }
+            public int Index = -1;
+            public int RowFirst = -1;
+            public ReadOnlyCollection<LinDependanceInfo> Linkages { get { return m_Linkages.AsReadOnly(); } }
+
+            public int DegreesOfFreedom
+            {
+                get
+                {
+                    int ret = m_Linkages.Count;
+                    foreach (LinDependanceInfo inf in m_Linkages)
+                        if (inf.RowFirst != -1)
+                            ret--;
+                    return ret;
+                }
+            }
+
+            public int[] LinkageIndices
+            {
+                get
+                {
+                    int[] ret = new int[m_Linkages.Count];
+                    for (int i = 0; i < m_Linkages.Count; i++)
+                        ret[i] = m_Linkages[i].Index;
+                    return ret;
+                }
+            }
+
+            public void LinkTo(LinDependanceInfo otherVar)
+            {
+                if (m_Linkages.Contains(otherVar) || otherVar == this) //This statement stops an infinite loop occurring
+                    return;
+                m_Linkages.Add(otherVar);
+                foreach (LinDependanceInfo another in otherVar.m_Linkages)
+                    LinkTo(another);
+                if (otherVar.m_bLinkedToPrimary)
+                    m_bLinkedToPrimary = true;
+                otherVar.LinkTo(this);
+            }
+
+            public void SetLinkedToPrimary()
+            {
+                m_bLinkedToPrimary = true;
+            }
+        }
+
+        public class LinDependanceInfo2
+        {
+            protected List<List<LinDependanceInfo2>> m_DirectLinks = new List<List<LinDependanceInfo2>>();
+            protected bool m_bConstrained;
+
+            public void AddLinks(List<LinDependanceInfo2> others)
+            {
+                m_DirectLinks.Add(others);
+            }
+
+            public bool Constrained
+            {
+                set { m_bConstrained = value; }
+                get
+                {
+                    bool bNoFreedom = false;
+                    return m_bConstrained || bNoFreedom;
+                }
+            }
+        }
+        #endregion Subclasses
+    }
+    #endregion Matrix
     /*public struct Fraction : IComparable
     {
         /// <summary>
