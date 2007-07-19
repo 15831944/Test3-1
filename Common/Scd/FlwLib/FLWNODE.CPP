@@ -782,10 +782,10 @@ void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR I
   iNext++;
 
   if (DIOName)
-    m_sRefIOTg.Set("%s<%i>%s",p->FullObjTag(), iNext, DIOName);
+    m_sRefIOTg.Set("%s_<%i>%s",p->FullObjTag(), iNext, DIOName);
   else
     {
-    m_sRefIOTg.Set("%s<%i>%s",p->FullObjTag(), iNext, p==pNd ? IOName : IONameRmt);
+    m_sRefIOTg.Set("%s_<%i>%s",p->FullObjTag(), iNext, p==pNd ? IOName : IONameRmt);
     }
 #if dbgInitConnId
   dbgpln("    = %s", m_sRefIOTg());
@@ -3029,20 +3029,42 @@ void FlwNode::BuildDataDefnAreaIOs(DataDefnBlk & DDB)
     {
     DDB.Visibility();
     DDB.Page("DirectIO", DDB_RqdPage);
-    //if (PrjFileVerNo()<107)
-    //  {
-    //  for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
-    //    m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Object, "DIO", DDB_NoPage, 99500+i, DFIO_ShowQm);
-    //  }
-    //else
+    if (DDB.ForFileSnpScn())
       {
       if (DDB.BeginArray(this, "DIO", PrjFileVerNo()<107 ? "DirectedIO":"DirectIO", Joins.GetSize(), 0, DDB_NoPage))
         {
         for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
           m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Element, NULL, DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
         }
+      DDB.EndArray();
       }
-    DDB.EndArray();
+    else
+      {
+      //if (DDB.BeginStruct(this, "DIO", PrjFileVerNo()<107 ? "DirectedIO":"DirectIO", Joins.GetSize(), 0, DDB_NoPage))
+        {
+        for (int i=0; i<m_AttachedDirectIOs.GetCount(); i++)
+          {
+          if (m_AttachedDirectIOs[i]->m_pFlng!=NULL)
+            {
+            Strng IOTag=m_AttachedDirectIOs[i]->Flange.Tag();
+            //Remove the NOdes Tag if it Exists
+            int Lt=strlen(Tag());
+            int Li=IOTag.GetLength();
+            if (Li>Lt && IOTag.XStrNICmp(Tag(), Lt)==0)
+              {
+              IOTag=IOTag.Right(Li-Lt);
+              if (IOTag[0]=='_')
+                IOTag=IOTag.Right(Li-Lt-1);
+
+              }
+            IOTag+=".IO";
+            //if (DDB.BeginStruct(this, Tag()))
+              m_AttachedDirectIOs[i]->BuildDataDefn(DDB, tt_Struct, IOTag(), DDB_NoPage, 99500+i, DFIO_ShowQm|DFIO_ShowSrcTag|DFIO_ShowDstTag);
+            //DDB.EndStruct();
+            }
+          }
+        }
+      }
     }
   };
 
@@ -11481,10 +11503,10 @@ void CDirectFlwIO::BuildDataDefn(DataDefnBlk & DDB, int Type/*, LPCTSTR TagPrefi
 
     if (Options&DFIO_ShowQm)
       {
-      DDB.Double  ("FlowOut.MassEst", "FlowOut.QmEst",  DC_Qm,  "kg/s",   xidDrctQmEst,      m_pNd, isResult|NAN_OK);
-      DDB.Double  ("FlowOut.Mass",    "FlowOut.Qm",     DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
-      DDB.Double  ("FlowOut.Volume",  "FlowOut.Qv",     DC_Qv,  "L/s",    xidDrctQv,         m_pNd, isResult);
-      DDB.Double  ("FlowOut.NVolume", "FlowOut.NQv",    DC_NQv, "NL/s",   xidDrctNQv,        m_pNd, isResult);
+      DDB.Double  ("MassEst", "QmEst",  DC_Qm,  "kg/s",   xidDrctQmEst,      m_pNd, isResult|NAN_OK);
+      DDB.Double  ("Mass",    "Qm",     DC_Qm,  "kg/s",   xidDrctQm,         m_pNd, isResult);
+      DDB.Double  ("Volume",  "Qv",     DC_Qv,  "L/s",    xidDrctQv,         m_pNd, isResult);
+      DDB.Double  ("NVolume", "NQv",    DC_NQv, "NL/s",   xidDrctNQv,        m_pNd, isResult);
       }
 
     if (DDB.ForFileSnpScn())
@@ -11594,23 +11616,23 @@ flag CDirectFlwIO::DataXchg(DataChangeBlk & DCB)
       DCB.D=FracHgt;
       return 1;
     case xidDrctQmEst:
-      DCB.D = (m_iMyConnectedIO>=0) ? -m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : dNAN;
+      DCB.D = (m_iMyConnectedIO>=0) ? m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst : dNAN;
       return 1;
     case xidDrctQm:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
       DCB.D = HasConduit ? Sgn*Cd.QMass() : Sum.FlowMass;//dNAN;
       return 1;
       }
     case xidDrctQv:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
       DCB.D=HasConduit ? Sgn*Cd.QVolume() : dNAN;
       return 1;
       }
     case xidDrctNQv:
       {
-      double Sgn = (m_iMyConnectedIO>=0) ? Sign(-m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
+      double Sgn = (m_iMyConnectedIO>=0) ? Sign(m_pNd->IOFB(m_iMyConnectedIO, 0)->m_QmEst) : 0.0;
       DCB.D=HasConduit ? Sgn*Cd.QNVolume() : dNAN;
       return 1;
       }
