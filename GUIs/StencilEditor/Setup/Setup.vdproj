@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3DF99D69BF31F60C34DFB484852F7C8F"
+        "MsmKey" = "8:_3EDF272325241E71F8EF662EAE0B001E"
         "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -52,7 +52,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3DF99D69BF31F60C34DFB484852F7C8F"
+        "OwnerKey" = "8:_3EDF272325241E71F8EF662EAE0B001E"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -145,20 +145,20 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3DF99D69BF31F60C34DFB484852F7C8F"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3EDF272325241E71F8EF662EAE0B001E"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Interface, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Protocol, Version=4.2.0.28260, Culture=neutral, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3DF99D69BF31F60C34DFB484852F7C8F"
+                    "_3EDF272325241E71F8EF662EAE0B001E"
                     {
-                    "Name" = "8:Interface.dll"
+                    "Name" = "8:Protocol.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:Interface.dll"
+            "SourcePath" = "8:Protocol.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
@@ -180,7 +180,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.1.0.24340, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.15542, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_8DCC6855DAC53089EF90971A1C1C736D"
@@ -293,14 +293,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Stencil Editor"
-        "ProductCode" = "8:{9E668885-A16F-402F-8BAD-FF9A760A9C7E}"
-        "PackageCode" = "8:{42206FB0-0D89-4979-AB26-EA6ADF42B1B8}"
+        "ProductCode" = "8:{9445091A-D194-47D7-9DE1-F639960EA1B2}"
+        "PackageCode" = "8:{1F3F39F8-3E0C-4DEE-8090-E73F068F44AA}"
         "UpgradeCode" = "8:{9D4431C2-D4F7-423A-A9CA-FFAC905BC3CF}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.1.10"
+        "ProductVersion" = "8:1.1.11"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

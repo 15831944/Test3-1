@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 
-using SysCAD.Interface;
+using SysCAD.Protocol;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.IO;
@@ -52,12 +52,12 @@ namespace StencilEditor
 
     public Form1()
     {
-      graphicStencil.elements = new System.Collections.ArrayList();
-      graphicStencil.decorations = new System.Collections.ArrayList();
+      graphicStencil.Elements = new System.Collections.ArrayList();
+      graphicStencil.Decorations = new System.Collections.ArrayList();
 
-      modelStencil.elements = new System.Collections.ArrayList();
-      modelStencil.decorations = new System.Collections.ArrayList();
-      modelStencil.anchors = new System.Collections.ArrayList();
+      modelStencil.Elements = new System.Collections.ArrayList();
+      modelStencil.Decorations = new System.Collections.ArrayList();
+      modelStencil.Anchors = new System.Collections.ArrayList();
 
       InitializeComponent();
 
@@ -92,14 +92,18 @@ namespace StencilEditor
         toolStripStatusLabel1.Text = "";
         toolStripStatusLabel1.BackColor = DefaultBackColor;
 
-        Parse(graphicStencil.elements, elementTextBox);
-        Parse(graphicStencil.decorations, decorationTextBox);
-        ParseTextArea(ref graphicStencil.textArea, textAreaTextBox);
+        Parse(graphicStencil.Elements, elementTextBox);
+        Parse(graphicStencil.Decorations, decorationTextBox);
+
+        RectangleF textArea = graphicStencil.TextArea;
+        ParseTextArea(ref textArea, textAreaTextBox);
+        graphicStencil.TextArea = textArea;
+
         UpdateStencil(graphicStencil);
 
-        Parse(modelStencil.elements, elementTextBox);
-        Parse(modelStencil.decorations, decorationTextBox);
-        ParseAnchor(modelStencil.anchors, anchorTextBox);
+        Parse(modelStencil.Elements, elementTextBox);
+        Parse(modelStencil.Decorations, decorationTextBox);
+        ParseAnchor(modelStencil.Anchors, anchorTextBox);
         UpdateStencil(modelStencil);
       }
     }
@@ -794,18 +798,18 @@ namespace StencilEditor
       float minY = float.MaxValue;
       float maxY = float.MinValue;
 
-      UpdateStencil(graphicStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
-      UpdateStencil(graphicStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
+      UpdateStencil(graphicStencil.Elements, ref minX, ref minY, ref maxX, ref maxY);
+      UpdateStencil(graphicStencil.Decorations, ref minX, ref minY, ref maxX, ref maxY);
 
       float textMinX = float.MaxValue;
       float textMaxX = float.MinValue;
       float textMinY = float.MaxValue;
       float textMaxY = float.MinValue;
 
-      UpdateStencil(graphicStencil.textArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
+      UpdateStencil(graphicStencil.TextArea, ref textMinX, ref textMinY, ref textMaxX, ref textMaxY);
 
-      ScaleStencil(graphicStencil.elements, minX, minY, maxX, maxY);
-      ScaleStencil(graphicStencil.decorations, minX, minY, maxX, maxY);
+      ScaleStencil(graphicStencil.Elements, minX, minY, maxX, maxY);
+      ScaleStencil(graphicStencil.Decorations, minX, minY, maxX, maxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
@@ -821,10 +825,10 @@ namespace StencilEditor
         bool mirrorX = false;
         bool mirrorY = false;
 
-        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
         {
           int i = 0;
-          foreach (Element element in stencil.elements)
+          foreach (Element element in stencil.Elements)
           {
             if (element is Arc)
             {
@@ -914,10 +918,10 @@ namespace StencilEditor
           }
         }
 
-        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
         {
           int i = 0;
-          foreach (Element decoration in stencil.decorations)
+          foreach (Element decoration in stencil.Decorations)
           {
             if (decoration is Arc)
             {
@@ -979,20 +983,20 @@ namespace StencilEditor
       float minY = float.MaxValue;
       float maxY = float.MinValue;
 
-      UpdateStencil(modelStencil.elements, ref minX, ref minY, ref maxX, ref maxY);
-      UpdateStencil(modelStencil.decorations, ref minX, ref minY, ref maxX, ref maxY);
+      UpdateStencil(modelStencil.Elements, ref minX, ref minY, ref maxX, ref maxY);
+      UpdateStencil(modelStencil.Decorations, ref minX, ref minY, ref maxX, ref maxY);
 
       float anchorMinX = minX;
       float anchorMaxX = maxX;
       float anchorMinY = minY;
       float anchorMaxY = maxY;
 
-      UpdateStencil(modelStencil.anchors, ref anchorMinX, ref anchorMinY, ref anchorMaxX, ref anchorMaxY);
+      UpdateStencil(modelStencil.Anchors, ref anchorMinX, ref anchorMinY, ref anchorMaxX, ref anchorMaxY);
 
-      ScaleStencil(modelStencil.elements, minX, minY, maxX, maxY);
-      ScaleStencil(modelStencil.decorations, minX, minY, maxX, maxY);
-
-      ScaleStencil(modelStencil.anchors, minX, minY, maxX, maxY);
+      ScaleStencil(modelStencil.Elements, minX, minY, maxX, maxY);
+      ScaleStencil(modelStencil.Decorations, minX, minY, maxX, maxY);
+      
+      ScaleStencil(modelStencil.Anchors, minX, minY, maxX, maxY);
 
       float scale = 1000.0F / Math.Max((maxX - minX), (maxY - minY));
 
@@ -1006,9 +1010,9 @@ namespace StencilEditor
         bool mirrorX = false;
         bool mirrorY = false;
 
-        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
         i = 0;
-        foreach (Element element in stencil.elements)
+        foreach (Element element in stencil.Elements)
         {
           if (element is Arc)
           {
@@ -1092,9 +1096,9 @@ namespace StencilEditor
           i++;
         }
 
-        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
         i = 0;
-        foreach (Element decoration in stencil.decorations)
+        foreach (Element decoration in stencil.Decorations)
         {
           if (decoration is Arc)
           {
@@ -1178,7 +1182,7 @@ namespace StencilEditor
           i++;
         }
 
-        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.FillMode, stencil.Tag));
       }
 
 
@@ -1189,10 +1193,10 @@ namespace StencilEditor
 
       anchorPointBoxes.Clear();
 
-      foreach (Anchor anchor in modelStencil.anchors)
+      foreach (Anchor anchor in modelStencil.Anchors)
       {
-        RectangleF displayRect = new RectangleF((anchor.position.X / 100.0F * (maxX - minX) + minX) * scale,
-                                                (anchor.position.Y / 100.0F * (maxY - minY) + minY) * scale,
+        RectangleF displayRect = new RectangleF((anchor.Position.X / 100.0F * (maxX - minX) + minX) * scale,
+                                                (anchor.Position.Y / 100.0F * (maxY - minY) + minY) * scale,
                                                 0.0F, 0.0F);
         displayRect.Inflate(20.0F, 20.0F);
         Box box = flowChart2.CreateBox(displayRect.X, displayRect.Y, displayRect.Width, displayRect.Height);
@@ -1271,7 +1275,12 @@ namespace StencilEditor
         {
           Bezier bezier = element as Bezier;
 
-          PointCollection pointCollection = Utilities.approxBezier(bezier.Points, 0, 100);
+          PointF[] bezierPoints = new PointF[4] {new PointF(bezier.x1, bezier.y1), 
+                                                 new PointF(bezier.x2, bezier.y2), 
+                                                 new PointF(bezier.x3, bezier.y3),
+                                                 new PointF(bezier.x4, bezier.y4)};
+
+          PointCollection pointCollection = Utilities.approxBezier(bezierPoints, 0, 100);
 
           foreach (PointF point in pointCollection)
           {
@@ -1285,10 +1294,10 @@ namespace StencilEditor
         if (element is Anchor)
         {
           Anchor anchor = element as Anchor;
-          if (anchor.position.X < minX) minX = anchor.position.X;
-          if (anchor.position.X > maxX) maxX = anchor.position.X;
-          if (anchor.position.Y < minY) minY = anchor.position.Y;
-          if (anchor.position.Y > maxY) maxY = anchor.position.Y;
+          if (anchor.Position.X < minX) minX = anchor.Position.X;
+          if (anchor.Position.X > maxX) maxX = anchor.Position.X;
+          if (anchor.Position.Y < minY) minY = anchor.Position.Y;
+          if (anchor.Position.Y > maxY) maxY = anchor.Position.Y;
         }
       }
 
@@ -1343,8 +1352,7 @@ namespace StencilEditor
         if (element is Anchor)
         {
           Anchor anchor = element as Anchor;
-          anchor.position.X = (anchor.position.X - minX) * 100.0F / (maxX - minX);
-          anchor.position.Y = (anchor.position.Y - minY) * 100.0F / (maxY - minY);
+          anchor.Position = new PointF((anchor.Position.X - minX) * 100.0F / (maxX - minX), (anchor.Position.Y - minY) * 100.0F / (maxY - minY));
         }
       }
     }
@@ -1429,12 +1437,12 @@ namespace StencilEditor
 
       Text = "*Untitled*";
 
-      graphicStencil.elements = new System.Collections.ArrayList();
-      graphicStencil.decorations = new System.Collections.ArrayList();
+      graphicStencil.Elements = new System.Collections.ArrayList();
+      graphicStencil.Decorations = new System.Collections.ArrayList();
 
-      modelStencil.elements = new System.Collections.ArrayList();
-      modelStencil.decorations = new System.Collections.ArrayList();
-      modelStencil.anchors = new System.Collections.ArrayList();
+      modelStencil.Elements = new System.Collections.ArrayList();
+      modelStencil.Decorations = new System.Collections.ArrayList();
+      modelStencil.Anchors = new System.Collections.ArrayList();
 
       flowChart1.DocExtents = new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F);
       flowChart1.ZoomToRect(new RectangleF(-1.0F, -1.0F, 2.0F, 2.0F));
@@ -1448,10 +1456,10 @@ namespace StencilEditor
         bool mirrorX = false;
         bool mirrorY = false;
 
-        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
         {
           int i = 0;
-          foreach (Element element in stencil.elements)
+          foreach (Element element in stencil.Elements)
           {
             if (element is Arc)
             {
@@ -1541,10 +1549,10 @@ namespace StencilEditor
           }
         }
 
-        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
         {
           int i = 0;
-          foreach (Element decoration in stencil.decorations)
+          foreach (Element decoration in stencil.Decorations)
           {
             if (decoration is Arc)
             {
@@ -1600,9 +1608,9 @@ namespace StencilEditor
         bool mirrorX = false;
         bool mirrorY = false;
 
-        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.elements.Count];
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
         i = 0;
-        foreach (Element element in stencil.elements)
+        foreach (Element element in stencil.Elements)
         {
           if (element is Arc)
           {
@@ -1686,9 +1694,9 @@ namespace StencilEditor
           i++;
         }
 
-        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.decorations.Count];
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
         i = 0;
-        foreach (Element decoration in stencil.decorations)
+        foreach (Element decoration in stencil.Decorations)
         {
           if (decoration is Arc)
           {
@@ -1772,7 +1780,7 @@ namespace StencilEditor
           i++;
         }
 
-        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+        box2.Shape = (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.FillMode, stencil.Tag));
       }
     }
 
@@ -1823,32 +1831,32 @@ namespace StencilEditor
             graphicStencil = (GraphicStencil)sf.Deserialize(stream);
             stream.Close();
 
-            Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
-            Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-            Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
+            Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+            Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+            Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
           }
           catch
           {
-            if (stream != null) stream.Close();
-            try
-            {
-              sf = new SoapFormatter();
-              stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+            //if (stream != null) stream.Close();
+            //try
+            //{
+            //  sf = new SoapFormatter();
+            //  stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
 
-              OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
-              graphicStencil.elements = oldGraphicStencil.elements;
-              graphicStencil.decorations = oldGraphicStencil.decorations;
-              graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
-              //graphicStencil.fillMode = oldGraphicStencil.fillMode;
-              graphicStencil.groupName = oldGraphicStencil.groupName;
-              graphicStencil.textArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
-              Generate(graphicStencil.elements, graphicStencil.defaultSize, elementTextBox);
-              Generate(graphicStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-              Generate(graphicStencil.textArea, graphicStencil.defaultSize, textAreaTextBox);
-            }
-            catch
-            {
-            }
+            //  OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
+            //  graphicStencil.Elements = oldGraphicStencil.elements;
+            //  graphicStencil.Decorations = oldGraphicStencil.decorations;
+            //  graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
+            //  //graphicStencil.fillMode = oldGraphicStencil.fillMode;
+            //  graphicStencil.groupName = oldGraphicStencil.groupName;
+            //  graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+            //  Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+            //  Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+            //  Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
+            //}
+            //catch
+            //{
+            //}
           }
           if (stream != null) stream.Close();
         }
@@ -1863,11 +1871,11 @@ namespace StencilEditor
             stream.Close();
 
             if (elementTextBox.Text == "")
-              Generate(modelStencil.elements, graphicStencil.defaultSize, elementTextBox);
+              Generate(modelStencil.Elements, graphicStencil.defaultSize, elementTextBox);
             if (decorationTextBox.Text == "")
-              Generate(modelStencil.decorations, graphicStencil.defaultSize, decorationTextBox);
-            Generate(modelStencil.anchors, graphicStencil.defaultSize, anchorTextBox);
-            toolStripComboBoxModelGroup.Text = modelStencil.groupName;
+              Generate(modelStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+            Generate(modelStencil.Anchors, graphicStencil.defaultSize, anchorTextBox);
+            toolStripComboBoxModelGroup.Text = modelStencil.GroupName;
           }
           catch
           {
@@ -1875,14 +1883,18 @@ namespace StencilEditor
         }
 
 
-        Parse(modelStencil.elements, elementTextBox);
-        Parse(modelStencil.decorations, decorationTextBox);
-        ParseAnchor(modelStencil.anchors, anchorTextBox);
+        Parse(modelStencil.Elements, elementTextBox);
+        Parse(modelStencil.Decorations, decorationTextBox);
+        ParseAnchor(modelStencil.Anchors, anchorTextBox);
         UpdateStencil(modelStencil);
 
-        Parse(graphicStencil.elements, elementTextBox);
-        Parse(graphicStencil.decorations, decorationTextBox);
-        ParseTextArea(ref graphicStencil.textArea, textAreaTextBox);
+        Parse(graphicStencil.Elements, elementTextBox);
+        Parse(graphicStencil.Decorations, decorationTextBox);
+
+        RectangleF textArea = graphicStencil.TextArea;
+        ParseTextArea(ref textArea, textAreaTextBox);
+        graphicStencil.TextArea = textArea;
+
         UpdateStencil(graphicStencil);
 
         this.elementTextBox.TextChanged += new System.EventHandler(this.textBox_TextChanged);
@@ -1998,8 +2010,8 @@ namespace StencilEditor
     private void GenerateAnchor(Anchor anchor, SizeF defaultSize)
     {
       tempText += "MDrw_Anchor ";
-      tempText += anchor.tag + ", ";
-      tempText += (anchor.position.X / 100.0F * defaultSize.Width).ToString() + ", " + (anchor.position.Y / 100.0F * defaultSize.Height).ToString() + "\r\n";
+      tempText += anchor.Tag + ", ";
+      tempText += (anchor.Position.X / 100.0F * defaultSize.Width).ToString() + ", " + (anchor.Position.Y / 100.0F * defaultSize.Height).ToString() + "\r\n";
     }
 
     private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2130,7 +2142,7 @@ namespace StencilEditor
 
     private void toolStripComboBoxModelGroup_Click(object sender, EventArgs e)
     {
-      modelStencil.groupName = toolStripComboBoxModelGroup.Text;
+      modelStencil.GroupName = toolStripComboBoxModelGroup.Text;
     }
   }
 }

@@ -61,7 +61,7 @@ namespace SysCAD.Protocol
     {
       get { return textArea; }
 
-      private set { textArea = value; }
+      set { textArea = value; }
     }
 
   }
