@@ -1348,13 +1348,15 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
 
 //---------------------------------------------------------------------------
 
-void AccNodeWnd::LoadNdHist()
+void AccNodeWnd::LoadNdHist(int iNo)
   {
   NdHistList.SetSize(MaxNdHistListSize);
   int Cnt = 0;
   char Buffer[8192];
   CProfINIFile PF(PrjIniFile());
-  if (PF.RdSection("AccessWndTagHistory", Buffer, sizeof(Buffer))>0)
+  Strng Section;
+  Section.Set("AccessWndTagHistory%i", iNo);
+  if (PF.RdSection(Section(), Buffer, sizeof(Buffer))>0)
     {
     char* pBuff = Buffer;
     char* pName;
@@ -1371,7 +1373,7 @@ void AccNodeWnd::LoadNdHist()
 
 //---------------------------------------------------------------------------
 
-void AccNodeWnd::SaveNdHist()
+void AccNodeWnd::SaveNdHist(int iNo)
   {
   char Buff[8192];
   CProfINIFile PF(PrjIniFile());
@@ -1379,17 +1381,14 @@ void AccNodeWnd::SaveNdHist()
   const int Size = NdHistList.GetSize();
   for (int i=0; i<Size; i++)
     {
-    int Len = NdHistList[i].Len();
-    if (Len>0)
-      {
-      sprintf(&Buff[Pos], "Hist_%02d=%s", i, NdHistList[i]());
-      Pos = Pos + 8 + Len;
-      Buff[Pos++] = 0;
-      }
+    if (NdHistList[i].Len()>0)
+      Pos+=sprintf(&Buff[Pos], "Hist%02i=%s", i, NdHistList[i]())+1;
     }
   Buff[Pos++] = 0;
   Buff[Pos++] = 0;
-  PF.WrSection("AccessWndTagHistory", Buff);
+  Strng Section;
+  Section.Set("AccessWndTagHistory%i", iNo);
+  PF.WrSection(Section(), Buff);
   }
 
 //---------------------------------------------------------------------------
@@ -5867,14 +5866,14 @@ void CAccessWnds::LoadNdHist(long Which)
   long iS=(Which>=0 ? Which:0);
   long iN=(Which>=0 ? Which+1:NAccessWnds);
   for (int i=iS; i<iN; i++)
-    m_pAccWnds[i]->LoadNdHist();
+    m_pAccWnds[i]->LoadNdHist(i);
   };
 void CAccessWnds::SaveNdHist(long Which)
   {
   long iS=(Which>=0 ? Which:0);
   long iN=(Which>=0 ? Which+1:NAccessWnds);
   for (int i=iS; i<iN; i++)
-    m_pAccWnds[i]->SaveNdHist();
+    m_pAccWnds[i]->SaveNdHist(i);
   };
 void CAccessWnds::RefreshData(long Which, flag SaveIt)
   {

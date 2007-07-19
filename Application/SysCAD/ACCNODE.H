@@ -234,8 +234,8 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     void           DoDeferredAccess();
     flag           LoadAccessData();//flag ParmsOnly);
     flag           CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect);
-    void           LoadNdHist();
-    void           SaveNdHist();
+    void           LoadNdHist(int iNo);
+    void           SaveNdHist(int iNo);
 
     flag           RefreshData(flag SaveIt);
     flag           SaveData();
