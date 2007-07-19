@@ -198,6 +198,19 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
     m_EqThermals.ValidateData(VDB);
   
   flag OK=true;
+  if (SolveBufferedMethod())
+    {
+    if (m_BlkEval.MakeupCount()>0)
+      {
+      m_BlkEval.SetMakeupCount(0);
+      LogWarning(Tag(), 0, "Buffered Solution : Makeup count set to Zero");
+      }
+    if (m_BlkEval.BleedCount()>0)
+      {
+      m_BlkEval.SetBleedCount(0);
+      LogWarning(Tag(), 0, "Buffered Solution : Bleed count set to Zero");
+      }
+    }
   if (!m_BlkEval.ValidateData(VDB))
     OK=false;
   if (!MdlNode::ValidateData(VDB))

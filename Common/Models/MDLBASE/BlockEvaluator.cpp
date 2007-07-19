@@ -219,6 +219,52 @@ void CBlockEvaluator::BuildDataDefn(DataDefnBlk &DDB, DDBPages PageIs)
     }
   };
 
+ //-------------------------------------------------------------------------
+
+void CBlockEvaluator::SetMakeupCount(int N)
+   {
+   N=Range(0, N, m_nMaxNdMakeups); 
+   for (int a=N; a<m_pMakeups.GetSize(); a++)
+     {
+     RemBlk(m_pMakeups[a]);
+     delete m_pMakeups[a];
+     }
+   int NOld=m_pMakeups.GetSize();
+   m_pMakeups.SetSize(N);
+   for (int a=NOld; a<N; a++)
+     {
+     Strng Tg, Nm;
+     Tg.Set("%s%i", MakeupIOTag, a+1);
+     m_pMakeups[a] = new CMakeupBase(m_pThis, a, Tg());
+     m_pMakeups[a]->Open(1);
+     m_pMakeups[a]->SetEnable(true);
+     AddBlk(m_pMakeups[a], 1+a);
+     }
+   }
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::SetBleedCount(int N)
+  {
+  N=Range(0, N, MaxNdBleeds); 
+  for (int a=N; a<m_pBleeds.GetSize(); a++)
+    {
+    RemBlk(m_pBleeds[a]);
+    delete m_pBleeds[a];
+    }
+  int NOld=m_pBleeds.GetSize();
+  m_pBleeds.SetSize(N);
+  for (int a=NOld; a<N; a++)
+    {
+    Strng Tg, Nm;
+    Tg.Set("%s%i", BleedIOTag, a+1);
+    m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
+    m_pBleeds[a]->Open(1);
+    m_pBleeds[a]->SetEnable(true);
+    AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
+    }
+  }
+
 //-------------------------------------------------------------------------
 
 flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
@@ -227,50 +273,12 @@ flag CBlockEvaluator::DataXchg(DataChangeBlk & DCB)
     {
     case xidNMakeups:
       if (DCB.rL)
-        {
-        int N=*DCB.rL;
-        N=Range(0, N, m_nMaxNdMakeups); 
-        for (int a=N; a<m_pMakeups.GetSize(); a++)
-          {
-          RemBlk(m_pMakeups[a]);
-          delete m_pMakeups[a];
-          }
-        int NOld=m_pMakeups.GetSize();
-        m_pMakeups.SetSize(N);
-        for (int a=NOld; a<N; a++)
-          {
-          Strng Tg, Nm;
-          Tg.Set("MU%i", a+1);
-          m_pMakeups[a] = new CMakeupBase(m_pThis, a, Tg());
-          m_pMakeups[a]->Open(1);
-          m_pMakeups[a]->SetEnable(true);
-          AddBlk(m_pMakeups[a], 1+a);
-          }
-        }
+        SetMakeupCount(*DCB.rL);
       DCB.L=m_pMakeups.GetSize();
       return 1;
     case xidNBleeds:
       if (DCB.rL)
-        {
-        int N=*DCB.rL;
-        N=Range(0, N, MaxNdBleeds); 
-        for (int a=N; a<m_pBleeds.GetSize(); a++)
-          {
-          RemBlk(m_pBleeds[a]);
-          delete m_pBleeds[a];
-          }
-        int NOld=m_pBleeds.GetSize();
-        m_pBleeds.SetSize(N);
-        for (int a=NOld; a<N; a++)
-          {
-          Strng Tg, Nm;
-          Tg.Set("BL%i", a+1);
-          m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
-          m_pBleeds[a]->Open(1);
-          m_pBleeds[a]->SetEnable(true);
-          AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
-          }
-        }
+        SetBleedCount(*DCB.rL);
       DCB.L=m_pBleeds.GetSize();
       return 1;
 

@@ -52,6 +52,12 @@ class DllImportExport CBlockEvaluator
     int               ChangeTag(char * pOldTag, char * pNewTag);
     int               DeleteTag(char * pDelTag);
 
+    int               MakeupCount() { return m_pMakeups.GetCount(); };
+    int               BleedCount()  { return m_pBleeds.GetCount(); };
+
+    void              SetMakeupCount(int N);
+    void              SetBleedCount(int N);
+
   protected:
     FlwNode         * m_pThis;
     int               m_nBlocks;
