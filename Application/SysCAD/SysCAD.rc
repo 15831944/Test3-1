@@ -186,6 +186,10 @@ IDB_ACCPREV_LOWRESBTN   BITMAP                  "res\\accprevlr.bmp"
 IDB_ACCPREV_LOWRESBTNDOWN BITMAP                  "res\\accprevlr1.bmp"
 IDB_ARCHIVEIMAGES       BITMAP                  "res\\arctabim.bmp"
 IDB_BTN_BREAK           BITMAP                  "res\\BtnBreak.bmp"
+IDB_ACCNEXT_BTN         BITMAP                  "res\\accnext.bmp"
+IDB_ACCNEXT_BTNDOWN     BITMAP                  "res\\accnext1.bmp"
+IDB_ACCNEXT_LOWRESBTN   BITMAP                  "res\\accnextlr.bmp"
+IDB_ACCNEXT_LOWRESBTNDOWN BITMAP                  "res\\accnextlr1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

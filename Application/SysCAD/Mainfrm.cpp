@@ -1999,6 +1999,10 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
         if (pTxt)
           gs_AccessWnds.AccessNode(-1, pTxt);
         break;
+      case SUB_TAG_ACCNOUPDHIST:
+        if (pTxt)
+          gs_AccessWnds.AccessNode(-1, pTxt, true, false);
+        break;
       case SUB_TAG_CHANGE:
         if (pTxt)
           {
@@ -2060,6 +2064,7 @@ LRESULT CMainFrame::OnTagAction(WPARAM wParam, LPARAM lParam)
         {
         dword Options=0;
         Options |= wParam&SUB_TAG_ACCESS      ? FTO_DoAccess:0;
+        Options |= wParam&SUB_TAG_ACCNOUPDHIST? FTO_DoAccessNoUpd:0;
         Options |= wParam&SUB_TAG_MARK        ? (wParam&SUB_TAG_KWIK ? FTO_HighliteKwik:FTO_HighliteSlow):0;
         Options |= wParam&SUB_TAG_GOTO        ? FTO_MoveCursor:0;
         Options |= wParam&SUB_TAG_NOERRDLG    ? FTO_NoErrDlg:0;

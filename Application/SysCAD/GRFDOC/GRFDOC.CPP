@@ -400,6 +400,12 @@ void CGrfDoc::FindTagComplete(LPSTR Tag, DXF_ENTITY pTagInsert, DXF_ENTITY pTagA
     strcpy(pTxt, Tag);
     ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCESS, (LPARAM)pTxt);
     }
+  else if (Options & FTO_DoAccessNoUpd)// gs_pPrj->bDoGrfAutoAccess)
+    {
+    char* pTxt = new char[strlen(Tag)+1];
+    strcpy(pTxt, Tag);
+    ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_ACCNOUPDHIST, (LPARAM)pTxt);
+    }
 
   //else
   //  {

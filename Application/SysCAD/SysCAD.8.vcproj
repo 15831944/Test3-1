@@ -554,7 +554,7 @@
 			AssemblyName="System.Runtime.Serialization.Formatters.Soap, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
-			RelativePath="..\..\Bin\Protocol.dll"
+			RelativePath="..\..\Bin\protocol.dll"
 			AssemblyName="Protocol, Version=4.2.0.28260, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
 		/>
 		<AssemblyReference
@@ -6024,6 +6024,22 @@
 				Name="Resource Files"
 				Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 				>
+				<File
+					RelativePath=".\res\accnext.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnext1.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnextlr.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\accnextlr1.bmp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Resource Files"

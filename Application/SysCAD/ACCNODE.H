@@ -230,7 +230,7 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     void           CloseWnd();
     void           ClearFlds(flag SaveCnvs);
     flag           CloseAccess();
-    void           AccessNode(LPCTSTR pTag, bool AllowDeferred=true);
+    void           AccessNode(LPCTSTR pTag, bool AllowDeferred=true, bool UpdateHistory=true);
     void           DoDeferredAccess();
     flag           LoadAccessData();//flag ParmsOnly);
     flag           CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect);
@@ -401,8 +401,8 @@ class AccNodeWnd : public FxdEdtView, public CExecObj
     CStringArray   sLastSelFullTag;
     AccNdData*     pLastAccNdData;
 
-    CSArray        NdHistList;
-    int            iNdHistPos;
+    CSArray        m_NdHistList;
+    int            m_iNdHistPos;
 
     CBitmap        ViewVarBitmap;
     CBitmap        HiddenBitmap;
@@ -467,7 +467,7 @@ class CAccessWnds
     void           Add(AccNodeWnd *pAccWnd, CMDIChildWnd *pAccFrame);
     void           MarkAsActive(AccNodeWnd *pAccWnd);
 
-    void           AccessNode(long Which, LPCTSTR pTag, bool AllowDeferred=true);
+    void           AccessNode(long Which, LPCTSTR pTag, bool AllowDeferred=true, bool UpdateHistory=true);
     void           DoDeferredAccess(long Which);
     void           CloseAccessData(long Which, flag SaveIt, flag CancelIt, flag Disconnect);
     void           CloseWnd(long Which);

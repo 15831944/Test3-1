@@ -84,7 +84,8 @@ const int Id_Prev        = 1+5*MaxAccNdFlds+11;
 const int Id_GoTo        = 1+5*MaxAccNdFlds+12;
 const int Id_ViewIndex   = 1+5*MaxAccNdFlds+13;
 const int Id_FindBtn     = 1+5*MaxAccNdFlds+14;
-const int Id_GoToBtn     = 1+5*MaxAccNdFlds+15;
+const int Id_GoToPrevBtn = 1+5*MaxAccNdFlds+15;
+const int Id_GoToNextBtn = 1+5*MaxAccNdFlds+16;
 
 const int MaxLinesOnPage = 40;
 const int MinLinesOnPage = 20;
@@ -330,7 +331,7 @@ AccNodeWnd::AccNodeWnd()
   fAllFldsVis=0;
   fGlobalFmtMenu=0;
   fKeepNdHist=0;
-  iNdHistPos=-1;
+  m_iNdHistPos=-1;
   RBActiveFld=-1;
 
   for (int i=0; i<MaxAccNdFlds; i++)
@@ -1350,7 +1351,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
 
 void AccNodeWnd::LoadNdHist(int iNo)
   {
-  NdHistList.SetSize(MaxNdHistListSize);
+  m_NdHistList.SetSize(MaxNdHistListSize);
   int Cnt = 0;
   char Buffer[8192];
   CProfINIFile PF(PrjIniFile());
@@ -1364,11 +1365,12 @@ void AccNodeWnd::LoadNdHist(int iNo)
     while (pBuff[0] && Cnt<MaxNdHistListSize)
       {
       PF.GetProfItem(pBuff, pName, pFindTxt);
-      if (pFindTxt)
-        NdHistList[Cnt++] = pFindTxt;
+      if (pFindTxt && pName && (strnicmp(pName, "Hist", 4)==0))
+        m_NdHistList[Cnt++] = pFindTxt;
       }
     }
-  NdHistList.SetSize(Cnt);
+  m_NdHistList.SetSize(Cnt);
+  m_iNdHistPos=PF.RdInt(Section(), "Position", 0);
   }
 
 //---------------------------------------------------------------------------
@@ -1378,11 +1380,12 @@ void AccNodeWnd::SaveNdHist(int iNo)
   char Buff[8192];
   CProfINIFile PF(PrjIniFile());
   int Pos = 0;
-  const int Size = NdHistList.GetSize();
+  const int Size = m_NdHistList.GetSize();
+  Pos+=sprintf(&Buff[Pos], "Position=%i", m_iNdHistPos)+1;
   for (int i=0; i<Size; i++)
     {
-    if (NdHistList[i].Len()>0)
-      Pos+=sprintf(&Buff[Pos], "Hist%02i=%s", i, NdHistList[i]())+1;
+    if (m_NdHistList[i].Len()>0)
+      Pos+=sprintf(&Buff[Pos], "Hist%i=%s", i, m_NdHistList[i]())+1;
     }
   Buff[Pos++] = 0;
   Buff[Pos++] = 0;
@@ -2434,7 +2437,7 @@ int AccNodeWnd::BuildStdPageHeader()
   SetSpace(L, 1);
   if (fAllFldsVis)
     SetSpace(L, 1);
-  SetButton(L, "OK",      Id_SetBtn,      11, 0, " ");
+  SetButton(L, "OK",      Id_SetBtn,      14, 0, " ");
   SetButton(L, "Cancel",  Id_CloseBtn,    9, 0, " ");
   SetButton(L, "Options", Id_Options,     9, 0, " ");
   //SetBitmapButton2(L, fAllFldsVis ? IDB_ACCALLFIELDSON_BTN : IDB_ACCALLFIELDSOFF, Id_AllBtn, 4, 0, " ");
@@ -2451,10 +2454,11 @@ int AccNodeWnd::BuildStdPageHeader()
   SetBitmapButton2(L, GDIBlk::LowRes() ? IDB_ACCREFRESH_LOWRESBTN : IDB_ACCREFRESH_BTN, Id_GetBtn, 2, 0, " ");
   SetButton(L, ">",   Id_Next,    2, 0, " ");
   //SetButton(L, "-",   Id_GoToBtn, 2, 0, " ");
-  SetBitmapButton2(L, GDIBlk::LowRes() ? IDB_ACCPREV_LOWRESBTN : IDB_ACCPREV_BTN, Id_GoToBtn, 2, 0, " ");
+  SetBitmapButton2(L, GDIBlk::LowRes() ? IDB_ACCPREV_LOWRESBTN : IDB_ACCPREV_BTN, Id_GoToPrevBtn, 2, 0, " ");
+  SetBitmapButton2(L, GDIBlk::LowRes() ? IDB_ACCNEXT_LOWRESBTN : IDB_ACCNEXT_BTN, Id_GoToNextBtn, 2, 0, " ");
   SetParm(L, "", Id_GoTo, 18, 0);
-  for (int i=0; i<NdHistList.GetSize(); i++)
-    FldHasFixedStrValue(i, NdHistList[i]());
+  for (int i=0; i<m_NdHistList.GetSize(); i++)
+    FldHasFixedStrValue(i, m_NdHistList[i]());
   SetSpace(L, 2);
   //SetBitmapButton2(L, IDB_ACCDISPTAGS_BTN, Id_TagOrSymBtn, 2, 0, " ");
   //SetButton(L, GetDisplayTagsOnly() ? "Symbols" : "Tags", Id_TagOrSymBtn, 10, 0, " ");
@@ -3519,13 +3523,24 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
           ShowDefWndTitle();
         break;
         }
-      case Id_GoToBtn: //access most recent/previous in history
-        if (NdHistList.GetSize()>1)
+      case Id_GoToPrevBtn: //access most recent/previous in history
+        if (m_NdHistList.GetSize()>1)
           {
+          m_iNdHistPos=Min(m_iNdHistPos+1, m_NdHistList.GetCount()-1);
           m_pMyFrm->SetWindowText("Access ...");
-          char* pTxt = new char[NdHistList[1].Len()+1];
-          strcpy(pTxt, NdHistList[1]());
-          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCESS|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
+          char* pTxt = new char[m_NdHistList[m_iNdHistPos].Len()+1];
+          strcpy(pTxt, m_NdHistList[m_iNdHistPos]());
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCNOUPDHIST|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
+          }
+        break;
+      case Id_GoToNextBtn: //access most recent/previous in history
+        if (m_NdHistList.GetSize()>1)
+          {
+          m_iNdHistPos=Max(m_iNdHistPos-1, 0);
+          m_pMyFrm->SetWindowText("Access ...");
+          char* pTxt = new char[m_NdHistList[m_iNdHistPos].Len()+1];
+          strcpy(pTxt, m_NdHistList[m_iNdHistPos]());
+          ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MARK|SUB_TAG_ACCNOUPDHIST|SUB_TAG_NOERRDLG, (LPARAM)pTxt);
           }
         break;
       case Id_SetBtn:
@@ -3978,7 +3993,7 @@ void AccNodeWnd::DoDeferredAccess()
     AccessNode(Tag(), false);
   }
 
-void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
+void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred, bool UpdateHistory)
   {
   if (pNdTag==NULL || pNdTag[0]==0)
     return;
@@ -3990,24 +4005,6 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
     m_DeferredTag=pNdTag;
     return;
     }
-
-
-  if (0)
-    {
-  
-    CXM_Route XRoute;
-    CExcelBasicIO XX(gs_pPrj->m_pFlwLib, &XRoute, "D:\\SysCAD Projects\\D\\De Beers\\Kenwalt example.xls");
-    long R, C;
-    CArray<double, double> Dbls;
-    XX.GetDoubleValueRange("Stream_Densimetrics", "OreSizefeed", R, C, Dbls);
-
-
-    int xxxxx=0;
-    }
-
-
-
-
 
   gs_AccessWnds.MarkAsActive(this);
 
@@ -4035,20 +4032,23 @@ void AccNodeWnd::AccessNode(LPCTSTR  pNdTag, bool AllowDeferred)
     m_NdTag.Set(RqdNdTag());
     ObjRoute.Clear();
 
-    if (!fKeepNdHist)
+    if (UpdateHistory && !fKeepNdHist)
       {
-      for (int i=0; i<NdHistList.GetSize(); i++)
-        if (NdHistList[i].XStrICmp(m_NdTag)==0)
+      for (int i=0; i<m_NdHistList.GetSize(); i++)
+        {
+        if (m_NdHistList[i].XStrICmp(m_NdTag)==0)
           {
-          NdHistList.RemoveAt(i);
+          m_NdHistList.RemoveAt(i);
           break;
           }
+        }
 
-      NdHistList.InsertAt(0, m_NdTag);
-      if (NdHistList.GetSize()>MaxNdHistListSize)
-        NdHistList.SetSize(MaxNdHistListSize);
+      m_NdHistList.InsertAt(0, m_NdTag);
+      if (m_NdHistList.GetSize()>MaxNdHistListSize)
+        m_NdHistList.SetSize(MaxNdHistListSize);
       
-      iNdHistPos=Range(0, iNdHistPos-1, NdHistList.GetSize()-1);
+      m_iNdHistPos=0;
+      //m_iNdHistPos=Range(0, m_iNdHistPos-1, m_NdHistList.GetSize()-1);
       }
     fKeepNdHist=0;
 
@@ -5558,12 +5558,12 @@ int AccNodeWnd::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
 
 int AccNodeWnd::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   {
-  const int Size = NdHistList.GetSize();
+  const int Size = m_NdHistList.GetSize();
   const int len = strlen(pOldTag);
   for (int i=0; i<Size; i++)
     {
-    if (NdHistList[i].Len()==len && _strnicmp(NdHistList[i](), pOldTag, len)==0)
-      NdHistList[i] = pNewTag;
+    if (m_NdHistList[i].Len()==len && _strnicmp(m_NdHistList[i](), pOldTag, len)==0)
+      m_NdHistList[i] = pNewTag;
     }
   return EOCT_DONE;
   }
@@ -5580,11 +5580,13 @@ int AccNodeWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 int AccNodeWnd::EO_DeleteTag(pchar pDelTag)
   {
   const int len = strlen(pDelTag);
-  for (int i=0; i<NdHistList.GetSize(); i++)
+  for (int i=0; i<m_NdHistList.GetSize(); i++)
     {
-    if (NdHistList[i].Len()==len && _strnicmp(NdHistList[i](), pDelTag, len)==0)
-      NdHistList.RemoveAt(i);
+    if (m_NdHistList[i].Len()==len && _strnicmp(m_NdHistList[i](), pDelTag, len)==0)
+      m_NdHistList.RemoveAt(i);
     }
+  m_iNdHistPos=Range(0, m_iNdHistPos, m_NdHistList.GetSize()-1);
+
   if (m_NdTag.Len()==len && _strnicmp(m_NdTag(), pDelTag, len)==0)
     {
     /*gs_pAccWnd->*/CloseAccessData(false, true, true);
@@ -5817,16 +5819,16 @@ void CAccessWnds::MarkAsActive(AccNodeWnd *pAccWnd)
       };
   };
 
-void CAccessWnds::AccessNode(long Which, LPCTSTR pTag, bool AllowDeferred) 
+void CAccessWnds::AccessNode(long Which, LPCTSTR pTag, bool AllowDeferred, bool UpdateHistory) 
   {
   if (Which>=0 && Which<NAccessWnds)
-    m_pAccWnds[Which]->AccessNode(pTag, AllowDeferred);
+    m_pAccWnds[Which]->AccessNode(pTag, AllowDeferred, UpdateHistory);
   else if (Which==-1)
-    m_pAccWnds[m_iActive]->AccessNode(pTag, AllowDeferred);
+    m_pAccWnds[m_iActive]->AccessNode(pTag, AllowDeferred, UpdateHistory);
   else
     {
     m_iActive=(m_iActive+1)%NAccessWnds;
-    m_pAccWnds[m_iActive]->AccessNode(pTag, AllowDeferred);
+    m_pAccWnds[m_iActive]->AccessNode(pTag, AllowDeferred, UpdateHistory);
     }
   };
 

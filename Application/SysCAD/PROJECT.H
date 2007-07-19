@@ -555,6 +555,7 @@ const dword FTO_HighliteSlow       = 0x00000008;
 const dword FTO_NoErrDlg           = 0x00000010;
 const dword FTO_FindNext           = 0x00000020;
 const dword FTO_SkipNoGraphicsErr  = 0x00000040;
+const dword FTO_DoAccessNoUpd      = 0x00000080;
 
 //_FWDDEF(CProject)
 class DllImportExport CProject : public CExecObj, public CProjectSettings
