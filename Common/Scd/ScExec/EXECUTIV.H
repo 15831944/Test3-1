@@ -1246,7 +1246,7 @@ class DllImportExport CExecutive : public ConditionBlk
 
     flag           XBuildDataLists(CExecObj *pEO);
     flag           XBuildMyDataLists(CExecObj *pEO);
-    DWORD          XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route);
+    DWORD          XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route, bool StopSleep=true);
     int            XWriteTaggedItem(CExecObj *pEO, CXM_ObjectData &ObjData, CXM_Route &rRoute);
 
     void           XGlblResultValidity(int IsValid=-1, int IsAlwaysValid=-1);

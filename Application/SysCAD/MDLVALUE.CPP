@@ -779,7 +779,7 @@ void CMdlValueShow::DoTheUpdate()
     if (m_sTag[iTag].Length()==0)
       continue;
 
-    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+    if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route, false))
       {
       m_sObjClassId="";
       CPkDataItem * pItem=ObjData.FirstItem();
@@ -844,7 +844,7 @@ void CMdlValueShow::DoTheUpdate()
         CXM_ObjectTag  ObjTag(T(), TABOpt_AllInfoOnce);
         CXM_ObjectData ObjData;
         CXM_Route      Route;
-        if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+        if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route, false))
           {
           CPkDataItem * pItem=ObjData.FirstItem();
           m_CondStr[iTag]="";
@@ -862,7 +862,7 @@ void CMdlValueShow::DoTheUpdate()
         CXM_ObjectData ObjData;
         CXM_Route      Route;
 
-        if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route))
+        if (gs_Exec.XReadTaggedItem(NULL, ObjTag, ObjData, Route, false))
           {
           CPkDataItem * pItem=ObjData.FirstItem();
           int cType=pItem->Type();

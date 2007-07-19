@@ -1953,9 +1953,10 @@ void CExecutive::UpdateDisplays(flag OnlyStatusLine,  flag ForceUpd, flag Colour
   {
   //dbgpln("CExecutive::UpdateDisplays");
   //return ;
+  //this->m_dwLoopCount
 
   if (AfxGetMainWnd())
-    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, 0, (long)&TimeCB());
+    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, OnlyStatusLine?0x00000001:0x00000000, (long)&TimeCB());
 
   XFlushAppMsgQ();
   if (!OnlyStatusLine)
@@ -5011,9 +5012,11 @@ flag CExecutive::XBuildMyDataLists(CExecObj *pEO)
 //---------------------------------------------------------------------------
 //#pragma optimize("", off)
 
-DWORD CExecutive::XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_ObjectData & ObjData, CXM_Route &Route)//, CXMsgLst &XM)
+DWORD CExecutive::XReadTaggedItem(CExecObj *pEO, CXM_ObjectTag & ObjTag, CXM_ObjectData & ObjData, CXM_Route &Route, bool StopSleep/*=true*/)
   {
-  SetStopSleep();
+  if (StopSleep)
+    SetStopSleep();
+
   DWORD RetCode = 0;
   CExecObj *XObjs[256];
   LockExec();

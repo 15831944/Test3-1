@@ -3690,6 +3690,10 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
   static int IdlingCnt = 0;
   const char* StatusRotate = "/-\\|";
 
+
+  bool OnlyStatusLine = (wParam&0x01)!=0;
+  dbgpln("ExecUpdateDisplay %s", OnlyStatusLine?"Status":"All");
+
   CXM_TimeControl & CB=*(CXM_TimeControl*)lParam;
   const int ExecStateIndex = gs_Exec.StateIndex();
   if (gs_Exec.Busy())
@@ -3832,9 +3836,12 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
     //pStatusBar->UpdateIndicator(4, "", true);
     }
 
-  CMdlValueShow::UpdateAll();
-  CMdlGraphicShow::UpdateAll();
-  gs_AccessWnds.DoDeferredAccess(-1);
+  if (!OnlyStatusLine)
+    {
+    CMdlValueShow::UpdateAll();
+    CMdlGraphicShow::UpdateAll();
+    gs_AccessWnds.DoDeferredAccess(-1);
+    }
 
 #if WITHDRVMAN
   if (gs_pPrj->bDrvOn)
