@@ -186,7 +186,7 @@ class CMdlValueShow : public CDialog
 
     bool           m_bAllowMove;
   
-    DWORD          m_LastUpdateTicks; // used to prevent a lockup
+    LONG           m_lBusyFlag; // used to prevent a lockup
 };
 
 /////////////////////////////////////////////////////////////////////////////

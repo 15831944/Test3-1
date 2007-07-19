@@ -567,13 +567,14 @@ CMdlValueShow::CMdlValueShow(char * pTag, /*CMdlAction & Act,*/ int X, int Y, bo
       }
     }
 
+  m_lBusyFlag=0;
+
   //{{AFX_DATA_INIT(CMdlValueShow)
   // NOTE: the ClassWizard will add member initialization here
   //}}AFX_DATA_INIT
   Create(CMdlValueShow::IDD, pParent);
   SetWindowText(pTag);
 
-  m_LastUpdateTicks=GetTickCount();
   }
 
 void CMdlValueShow::DoDataExchange(CDataExchange* pDX)
@@ -720,7 +721,7 @@ void CMdlValueShow::DoTheUpdateByMsg()
   {
   //dbgpln("CMdlValueShow::DoTheUpdateByMsg");
 
-  if ((GetTickCount()>m_LastUpdateTicks+500) || (GetTickCount()<m_LastUpdateTicks))
+  if (InterlockedCompareExchangeAcquire(&m_lBusyFlag, 1, 0)==0)
     {
     PostMessage(WMU_UPDATESHOWWND, 0, 0);
     }
@@ -738,9 +739,9 @@ void CMdlValueShow::DoTheUpdate()
   //dbgpln("CMdlValueShow::DoTheUpdate");
   if (m_nTags<1)
     {
-    m_LastUpdateTicks=GetTickCount();
     return;
     }
+
   SetWindowText(m_nTags>1 ? m_sObjClassId() : m_sTag[0]());
 
   m_TagStr="";
@@ -1098,7 +1099,6 @@ void CMdlValueShow::DoTheUpdate()
 
   Invalidate();
 
-  m_LastUpdateTicks=GetTickCount();
   }
 
 static COLORREF Colours[]=
@@ -1724,6 +1724,7 @@ void CMdlValueShow::UpdateAll()
 LRESULT CMdlValueShow::OnUpdateWnd(WPARAM wParam, LPARAM lParam)
   {
   DoTheUpdate();
+  InterlockedExchange(&m_lBusyFlag, 0);
   return 0;
   }
 
