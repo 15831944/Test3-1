@@ -1762,6 +1762,10 @@ dbgpln("  %16.2f %-15s %s", SW.LapTime()*1e6, p->ClassId(), p->FullObjTag());
     if (!Ok)
       nBad++;
     }
+
+  for (FlwNode * p=All.First(); (p); p=All.Next())
+    p->SetAuditCalculation();
+
   TIMINGLAP("PreStart:Other");
   return nBad==0;
   }
@@ -1809,13 +1813,6 @@ void FlwSlvBlk::StartSolutionAll()
     {
     p->StartSolution();
     p->InitFlowInfo();
-    
-    p->m_AuditOptionRmt=Audit_Ignore;
-    for (int j=0; j<p->NoFlwIOs(); j++)
-      {
-      p->m_AuditOptionRmt=Max(p->m_AuditOptionRmt, p->Nd_Rmt(j)->m_AuditOption);
-      }
-    
     }
   TIMINGLAP("Start Solution");
 

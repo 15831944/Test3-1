@@ -830,7 +830,7 @@ flag MN_Area::ValidateData(ValidateDataBlk & VDB)
 
 long MN_Area::CheckDataRanges(bool CheckIO)
   {
-  return MdlNode::CheckDataRanges((m_bDoAudit && AuditOption()>=Audit_Flows || m_bForceAudit) && CheckIO);
+  return MdlNode::CheckDataRanges((m_bDoAudit && AuditCalculation()>=Audit_Flows || m_bForceAudit) && CheckIO);
   }
 
 // -------------------------------------------------------------------------
@@ -1185,7 +1185,7 @@ void MN_Area::EvalAudit(int Pass)
       {
       m_OvResults.ZeroFlows();
 
-      if (!(m_bDoAudit && AuditOption()>=Audit_Flows || m_bForceAudit)) 
+      if (!(m_bDoAudit && AuditCalculation()>=Audit_Flows || m_bForceAudit)) 
         break;
 
       for (int j=0; j<AR_Size; j++)

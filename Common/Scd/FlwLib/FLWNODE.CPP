@@ -30,6 +30,7 @@
 static CDbgMngr dbgAccCalcs         ("FlwNode",  "AccCalcs");
 static CDbgMngr dbgBuildJoinList    ("FlwNode",  "BuildJoinList");
 static CDbgMngr dbgConstruction     ("FlwNode",  "Construction");
+static CDbgMngr dbgEvalAudit        ("FlwNode",  "EvalAudit");
 static CDbgMngr dbgGlobalConnects   ("FlwNode",  "GlobalConnects");
 static CDbgMngr dbgJoinsBld         ("FlwNode",  "JoinsBld");
 static CDbgMngr dbgPropagateFlwModes("FlwNode",  "PropagateFlwModes");
@@ -2568,8 +2569,8 @@ FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagOb
   Joins.SetSize(0);
 
   m_AuditOption      = Audit_Ignore;
-  m_AuditOptionRmt   = Audit_Ignore;
   m_ForceAuditOption = Audit_Ignore;
+  m_AuditCalculation = Audit_Ignore;
 
   #if NDSTOPWATCHES
   pSWs=NULL;
@@ -4514,13 +4515,30 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
 
 //--------------------------------------------------------------------------
 
+void FlwNode::SetAuditCalculation() 
+  { 
+  m_AuditCalculation=AuditOption();
+  for (int i=0; i<NoFlwIOs(); i++)
+    m_AuditCalculation=Max(m_AuditCalculation, Nd_Rmt(i)->AuditOption());
+  }
+
+//--------------------------------------------------------------------------
+
+long FlwNode::AuditCalculation() 
+  { 
+  return m_AuditCalculation; 
+  }
+
+//--------------------------------------------------------------------------
+
 long FlwNode::AuditOption() 
   { 
   if (gs_AuditOption==Audit_AllOff)
     return Audit_Off;
-  //return m_ForceAuditOption ? m_ForceAuditOption : m_AuditOption ? m_AuditOption :gs_AuditOption; 
-  return Max(m_ForceAuditOption, Max(m_AuditOption, m_AuditOptionRmt, gs_AuditOption)); 
+  return Max(m_ForceAuditOption, m_AuditOption, gs_AuditOption); 
   }
+
+//--------------------------------------------------------------------------
 
 LPCSTR FlwNode::GetAuditOptionStr(flag ForFiling)
   {
@@ -4554,7 +4572,7 @@ long FlwNode::SetAuditOptionStr(flag ForFiling, LPCSTR Str)
     }
   else
     {
-    if   (stricmp(Str, "Off")==0)     m_AuditOption = Audit_Off;
+    if   (stricmp(Str, "Off")==0)          m_AuditOption = Audit_Off;
     else if   (stricmp(Str, "Flows")==0)   m_AuditOption = Audit_Flows;
     else if   (stricmp(Str, "Totals")==0)  m_AuditOption = Audit_Totals;
     else if   (stricmp(Str, "Balance")==0) m_AuditOption = Audit_Balance;
@@ -8491,11 +8509,12 @@ CTraceArray * FlwNode::GetChangeTrace(long i, dword Flags)
 
 void FlwNode::EvalAudit(int Pass)
   {
-  if (AuditOption()>Audit_Off)
+  if (AuditCalculation()>Audit_Off)
     {
-    bool dbgOn=false;
-    if (dbgOn)
+    #if dbgFlwNode 
+    if (dbgEvalAudit())
       dbgpln("EvalAudit [%i] %s", Pass, FullObjTag());
+    #endif
     switch (Pass)
       {
       case 0:
@@ -8509,10 +8528,12 @@ void FlwNode::EvalAudit(int Pass)
             {
             CAreaSum &Sum=IOFlange(i)->Sum;
             Sum.Set(*IOConduit(i));
-            if (AuditOption()>=Audit_Totals)
+            if (AuditCalculation()>=Audit_Totals)
               Sum.Integrate(ICGetTimeInc());
-            if (dbgOn)
+            #if dbgFlwNode 
+            if (dbgEvalAudit())
               dbgpln("%2i)    f %20s %20s %s",i,DbgFltString(Sum.FlowMass),DbgFltString(Sum.TotalMass), Nd_Rmt(i)->FullObjTag());
+            #endif
             }
           }
 
@@ -8522,10 +8543,12 @@ void FlwNode::EvalAudit(int Pass)
           for (int d=FirstMkupDirect(); d<=LastAuditDirect(); d++)
             {
             CDirectFlwIO &D=*m_EnabledDirectIOs[d];
-            if (AuditOption()>=Audit_Totals)
+            if (AuditCalculation()>=Audit_Totals)
               D.Sum.Integrate(ICGetTimeInc());
-            if (dbgOn)
+            #if dbgFlwNode 
+            if (dbgEvalAudit())
               dbgpln("%2i)[%2i]d %20s %20s %s",i++,d,DbgFltString(D.Sum.FlowMass),DbgFltString(D.Sum.TotalMass), D.Tag);
+            #endif
             }
           }
         break;

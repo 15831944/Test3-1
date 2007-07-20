@@ -4350,6 +4350,8 @@ class DllImportExport FlwNode : public CTNode
     LPCSTR         GetAuditOptionStr(flag ForFiling);
     long           SetAuditOptionStr(flag ForFiling, LPCSTR Str);
     void           GetAuditOptionStrLst(flag ForFiling, DDBValueLstMem & Lst);
+    void           SetAuditCalculation(); 
+    long           AuditCalculation(); 
 
     // ConditionBlk Override
     DEFINE_CI(FlwNode, CTNode, 40);
@@ -4611,8 +4613,8 @@ class DllImportExport FlwNode : public CTNode
     CJoinClusterArray m_Clusters;
 
     long           m_AuditOption;
-    long           m_AuditOptionRmt;
     long           m_ForceAuditOption;
+    long           m_AuditCalculation;
 
     CExternAuditCalc m_ExtAudit;
 
