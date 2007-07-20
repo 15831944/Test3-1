@@ -71,6 +71,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\LogView\Log.csproj">
+      <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
+      <Name>Log</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Protocol\70.Protocol.csproj">
       <Project>{742CEAF6-CB09-4218-9D6F-8176A31BBC2D}</Project>
       <Name>70.Protocol</Name>

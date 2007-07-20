@@ -13,10 +13,11 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting;
+using SysCAD.Log;
 
 namespace Service
 {
-  public partial class ServiceTemporaryWindow : Form
+  public partial class ServiceTemporaryWindow : Form, ILog
   {
     public ConfigData configData; 
 
@@ -36,6 +37,11 @@ namespace Service
     public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
     {
       InitializeComponent();
+
+      //Examples 
+      logView.Message("Test Note", SysCAD.Log.MessageType.Note);
+      logView.Message("Test Warning", SysCAD.Log.MessageType.Warning);
+      logView.Message("Test Error", SysCAD.Log.MessageType.Error);
 
       System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
       serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -871,5 +877,32 @@ namespace Service
       // TODO: Check here if anchor.Tag is to be included. (and possibly in future anchor.Type)
       return true;
     }
+
+    public void Message(string msg, MessageType msgType, MessageSource src)
+    {
+      logView.Message(msg, msgType, src);
+    }
+
+    public void Message(string msg, MessageType msgType)
+    {
+      logView.Message(msg, msgType);
+    }
+
+    public void SetSource(MessageSource src)
+    {
+      logView.SetSource(src);
+    }
+
+    public void RemoveSource()
+    {
+      logView.RemoveSource();
+    }
+
+    public bool Active
+    {
+      get { return logView.Enabled; }
+      set { logView.Enabled = value; }
+    }
+
   }
 }

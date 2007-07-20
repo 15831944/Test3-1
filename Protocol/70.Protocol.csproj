@@ -63,10 +63,12 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="BaseProtocol.cs" />
     <Compile Include="Bezier.cs" />
+    <Compile Include="LogItem.cs" />
     <Compile Include="ClientProtocol.cs" />
     <Compile Include="ClientServiceProtocol.cs" />
     <Compile Include="EngineProtocol.cs" />
     <Compile Include="EngineServiceProtocol.cs" />
+    <Compile Include="GraphicGroup.cs" />
     <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />

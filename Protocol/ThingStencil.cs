@@ -20,7 +20,7 @@ namespace SysCAD.Protocol
   public class ThingStencil
   {
 
-    private SizeF defaultSize;
+    private SizeF defaultSize = new SizeF(10.0F, 10.0F);
 
     private Model model;
     private String tag;

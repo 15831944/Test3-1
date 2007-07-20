@@ -23,9 +23,12 @@ namespace SysCAD.Protocol
   {
 
     public Dictionary<Guid, GraphicItem> graphicItems;
-
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicThing> graphicThings;
+
+    public Dictionary<Guid, GraphicGroup> graphicGroups;
+
+    public Dictionary<DateTime, LogItem> logItems;
 
     public ItemCreatedHandler ItemCreated;
     public ItemDeletedHandler ItemDeleted;
