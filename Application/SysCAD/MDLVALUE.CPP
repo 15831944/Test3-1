@@ -721,7 +721,7 @@ void CMdlValueShow::DoTheUpdateByMsg()
   {
   //dbgpln("CMdlValueShow::DoTheUpdateByMsg");
 
-  if (InterlockedCompareExchangeAcquire(&m_lBusyFlag, 1, 0)==0)
+  if (InterlockedCompareExchange(&m_lBusyFlag, 1, 0)==0)
     {
     PostMessage(WMU_UPDATESHOWWND, 0, 0);
     }
