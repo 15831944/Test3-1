@@ -469,8 +469,10 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
       VentFrac = VentFrac*(1.0-OrigVapFrac);
       m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
       VentFlow=HotSd.m_pCd->QMass(som_Gas);
+      double LiqFlow1=HotSd.m_pCd->QMass(som_Liq);
       //Move Gases to Vent
       HotSd.AddGasToVent(VentFlow, MixVentBack!=0);
+      double LiqFlow2=HotSd.m_pCd->QMass(som_Liq);
 //      // Remove from HotSd Product
 //      HotSd.QScaleMass(som_Gas, 0.0);
       m_dDuty=m_dMaxFlDuty;
@@ -2525,9 +2527,16 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Direct:
       {
       if (m_HXJ.PriIsJoined() && IOWithId_Self(ioidPVent)>=0 && m_pPriVent==NULL)
+        {
         m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
+        m_pPriVent->SetVLEBlk(&m_HX.m_VLE);
+        }
       if (m_HXJ.SecIsJoined() && IOWithId_Self(ioidSVent)>=0 && m_pSecVent==NULL)
+        {
         m_pSecVent=new SpConduit("SecVent", this, TOA_Embedded);
+        m_pSecVent->SetVLEBlk(&m_HX.m_VLE);
+        }
+
       m_HX.SetCI(6, m_pPriVent && m_pSecVent); //m_HX DOES NOT SUPPORT TWO VENTS!!!
 
       m_HX.ClrVent();
@@ -2536,6 +2545,7 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
       if (m_HXJ.PriIsJoined() && m_HXJ.PriConnected())
         {
         SpConduit & CdOut=*IOConduit(m_HXJ.P.IOFlwOut());
+        CdOut.SetVLEBlk(&m_HX.m_VLE);
         PriPIn=SigmaQInPMin(CdOut, som_ALL, ioidPIn, ioidPIn);//Out);
         m_HX.SetPrimary(NULL, CdOut, PriPIn, NULL);
         }
@@ -2543,10 +2553,10 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         m_HX.ClrPrimary();
       if (m_pPriVent)
         m_HX.SetVent(*m_pPriVent, PriPIn);
-
       if (m_HXJ.SecIsJoined() && m_HXJ.SecConnected())
         {
         SpConduit & CdOut=*IOConduit(m_HXJ.S.IOFlwOut());
+        CdOut.SetVLEBlk(&m_HX.m_VLE);
         SecPIn=SigmaQInPMin(CdOut, som_ALL, ioidSIn, ioidSIn);//som_Gas);
         m_HX.SetSecondary(NULL, CdOut, SecPIn, NULL, m_EHX());
         }
