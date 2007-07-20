@@ -2532,9 +2532,9 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
     {
     case SM_Direct:
       {
-      dbgpln("---------------------- %s", Tag());
-      for (int i=-0; i<NoProcessIOs(); i++)
-        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
+      //dbgpln("---------------------- %s", Tag());
+      //for (int i=-0; i<NoProcessIOs(); i++)
+      //  dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
       if (m_HXJ.PriIsJoined() && IOWithId_Self(ioidPVent)>=0 && m_pPriVent==NULL)
         {
         m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
@@ -2576,9 +2576,9 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
 
       m_HX.EvalProducts(this, false);
 
-      dbgpln("---------------------- %s", Tag());
-      for (int i=-0; i<NoProcessIOs(); i++)
-        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
+      //dbgpln("---------------------- %s", Tag());
+      //for (int i=-0; i<NoProcessIOs(); i++)
+      //  dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
 
       if (m_HXJ.PriIsJoined() && m_pPriVent)
         {
@@ -2594,9 +2594,9 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         if (idVent>=0)
           IOConduit(idVent)->QSetF(*m_pSecVent, som_ALL, 1.0, SecPIn);
         }
-      dbgpln("---------------------- %s", Tag());
-      for (int i=-0; i<NoProcessIOs(); i++)
-        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
+      //dbgpln("---------------------- %s", Tag());
+      //for (int i=-0; i<NoProcessIOs(); i++)
+      //  dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
       }
       break;
     case SM_Inline:

@@ -3697,7 +3697,7 @@ LRESULT CMainFrame::OnExecUpdateDisplay(WPARAM wParam, LPARAM lParam)
 
 
   bool OnlyStatusLine = (wParam&0x01)!=0;
-  dbgpln("ExecUpdateDisplay %s", OnlyStatusLine?"Status":"All");
+  //dbgpln("ExecUpdateDisplay %s", OnlyStatusLine?"Status":"All");
 
   CXM_TimeControl & CB=*(CXM_TimeControl*)lParam;
   const int ExecStateIndex = gs_Exec.StateIndex();
