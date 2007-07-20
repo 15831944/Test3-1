@@ -2118,7 +2118,7 @@ flag HeatXchg1::ValidateData(ValidateDataBlk & VDB)
   m_HX.m_bLvlEffOn=(m_iPriSgMd==HXSM_Shell || m_iSecSgMd==HXSM_Shell);
 
   SetContProps(m_iPriSgMd, m_pPriSg, PriIOMask);
-  if (/*m_iPriSgMd!=HXSM_NoSurge &&*/ !(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
+  if (m_iPriSgMd!=HXSM_NoSurge && !(NetDynamicMethod() && (m_HX.m_iRqdOpMode==HX1_FullyCondensing)))
     {
     if (!m_pPriVent)
       m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
