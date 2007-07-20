@@ -338,7 +338,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            string phaseString = m_bByPhase ? "Phase " : "Total ";
+            string phaseString = m_bByPhase ? "" : "Total ";
             string startString = FracType == FracTypes.ByMass ? "msFinalFraction " : "mlFinalFraction ";
             return startString + phaseString + Specie + " = " + Value;
         }
@@ -1460,12 +1460,13 @@ namespace Reaction_Editor
                 bool[] removeables = m.ColumnsRemoveable();
                 RemovalInfo ret = new RemovalInfo(m.Columns - 1);
                 for (int i = 0; i < removeables.Length; i++)
-                {
-                    if (!removeables[i]) 
+                    if (!removeables[i])
                         ret.m_IfRemoved[i] = new RemovalInfo(false);
-                    Matrix OneColRemoved = m.RemoveColumn(i);
-                    ret.SetIfRemoved(i, RecursiveRemoveableChecks(OneColRemoved));
-                }
+                    else
+                    {
+                        Matrix OneColRemoved = m.RemoveColumn(i);
+                        ret.SetIfRemoved(i, RecursiveRemoveableChecks(OneColRemoved));
+                    }
                 return ret;
             }
         }

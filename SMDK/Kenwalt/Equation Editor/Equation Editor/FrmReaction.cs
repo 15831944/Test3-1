@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections;
 using System.Collections.Specialized;
+using Be.Windows.Forms;
 
 namespace Reaction_Editor
 {
@@ -29,7 +30,7 @@ namespace Reaction_Editor
             @"(^|\r\n)\s*((?<Comment>;.*)\r\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>(?>\s*(;.*\r\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r\n)\s*((?<Comment>;.*)\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r\n)\s*((?<Comment>;.*)\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_SinkRegex = new Regex(@"(?<=\r\n\s*?Sink:)[^:]*?(?=End|HeatExchange|$)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -185,7 +186,7 @@ namespace Reaction_Editor
             get
             {
                 if (m_CurrentReaction == null)
-                    return "No Reaction Selected";
+                    return "No Reaction Selected.";
                 string text = "Status: " + m_CurrentReaction.Status + ".";
                 if (!m_CurrentReaction.ProductsOk)
                     text += " Invalid product string.";
@@ -216,6 +217,7 @@ namespace Reaction_Editor
         public FrmReaction(ILog log)
         {
             SetUp(log);
+            SetPanelEnables(pnlReaction, false);
         }
 
         public FrmReaction(string filename, ILog log)
@@ -230,6 +232,7 @@ namespace Reaction_Editor
         {
             SetUp(log);
             this.Title = "Untitled-" + titleNum;
+            SetPanelEnables(pnlReaction, false);
         }
 
         private void SetUp(ILog log)
@@ -258,6 +261,10 @@ namespace Reaction_Editor
                 TPConditions.Standard,
                 TPConditions.Custom });
 
+            txtProducts.SelectAll(); txtReactants.SelectAll();
+            txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
+            txtProducts.Select(0, 0); txtReactants.Select(0, 0);
+
             for (int i = 0; i <= sMaxSequences; i++)
             {
                 ListViewGroup grp = new ListViewGroup("grpSequence" + i, "Sequence " + i);
@@ -270,8 +277,8 @@ namespace Reaction_Editor
             tabSources_Sinks_Resize(null, new EventArgs());
             pnlReaction_Resize(null, new EventArgs());
 
-            txtSources.AllowDrop = txtReactants.AllowDrop = true;
-            grpSources.DragEnter += new DragEventHandler(grpSources_DragEnter);
+            txtSources.AllowDrop = true;
+            txtReactants.AllowDrop = true;
 
             txtSources.DragDrop += new DragEventHandler(txtCompounds_DragDrop);
             txtSinks.DragDrop += new DragEventHandler(txtCompounds_DragDrop);
@@ -282,11 +289,6 @@ namespace Reaction_Editor
             numSequence.Text = "";
 
             Changed = false;
-        }
-
-        void grpSources_DragEnter(object sender, DragEventArgs e)
-        {
-            throw new Exception("The method or operation is not implemented.");
         }
         #endregion Constructors
 
@@ -496,7 +498,7 @@ namespace Reaction_Editor
         #region Protected Functions
         protected bool PasteText(Control c)
         {
-            if ((c.GetType() == typeof(TextBox) || c.GetType() == typeof(RichTextBox))
+            if ((c.GetType() == typeof(TextBox) || c.GetType() == typeof(RichTextBoxEx))
                 && c.Focused)
             {
                 ((TextBoxBase)c).Paste();
@@ -877,14 +879,15 @@ namespace Reaction_Editor
                 ReactionChanged(this, new EventArgs());
             if (rxn == null)
             {
+                SetPanelEnables(pnlReaction, false);
                 btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = false;
-                pnlReaction.Enabled = false;
+                //pnlReaction.Enabled = false;
                 txtReactants.Text = txtProducts.Text = "";
                 comboDirection.SelectedIndex = -1;
                 comboExtentType.SelectedIndex = -1;
                 comboExtentSpecie.SelectedIndex = -1;
                 comboHORSpecie.SelectedIndex = -1;
-                comboHXType.SelectedIndex = -1;
+                //comboHXType.SelectedIndex = -1;
                 numSequence.Text = "";
                 chkEnabled.Checked = false;
                 return;
@@ -917,6 +920,13 @@ namespace Reaction_Editor
                 txtReactants.ForeColor = System.Drawing.SystemColors.WindowText;
                 txtReactants.Tag = true;
             }*/
+
+            SetPanelEnables(pnlReaction, true);
+            
+            comboExtentSpecie.Enabled = !chkFirstReactant.Checked;
+            numSequence.Enabled = chkSequence.Checked;
+            SetHOREnabled(rxn.CustomHeatOfReaction);
+                
             txtReactants.Text = rxn.GetReactantsString();
             txtProducts.Text = rxn.GetProductsString();
 
@@ -936,7 +946,18 @@ namespace Reaction_Editor
                 numSequence.Value = Math.Min(Math.Max(rxn.Sequence, 1), sMaxSequences);
                 numSequence.Text = numSequence.Value.ToString();
             }
-            pnlReaction.Enabled = true;
+            //pnlReaction.Enabled = true;
+        }
+
+        protected void SetPanelEnables(Control p, bool val)
+        {
+            foreach (Control c in p.Controls)
+                if (c == p)
+                    continue;
+                else if (c is Panel || c is GroupBox)
+                    SetPanelEnables(c, val);
+                else
+                    c.Enabled = val;
         }
 
         void rxn_ProductsChanged(object sender, EventArgs e)
@@ -1258,7 +1279,7 @@ namespace Reaction_Editor
 
         private void FormulaBox_Leave(object sender, EventArgs e)
         {
-            TextBox box = (TextBox)sender;
+            RichTextBox box = (RichTextBox)sender;
             if (m_CurrentReaction != null)
             {
                 if (box == txtReactants)
@@ -1276,18 +1297,22 @@ namespace Reaction_Editor
             }
         }
 
+        protected void SetHOREnabled(bool val)
+        {
+            comboHORSpecie.Enabled = val;
+            comboHORConditions.Enabled = val;
+            comboHORUnits.Enabled = val;
+            numHORValue.Enabled = val;
+        }
+
         private void comboHORType_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboHORType.SelectedIndex == 0) //Default:
             {
-                comboHORSpecie.Enabled = false;
+                SetHOREnabled(false);
                 comboHORSpecie.SelectedIndex = -1;
-
                 comboHORConditions.SelectedItem = null;
-                comboHORConditions.Enabled = false;
-
                 comboHORUnits.SelectedItem = "kJ/mol";
-                comboHORUnits.Enabled = false;
                 /*if (m_CurrentReaction != null)
                 {
                     m_CurrentReaction.HeatOfReactionValue = double.NaN;
@@ -1295,14 +1320,10 @@ namespace Reaction_Editor
                 }
                 else*/
                 numHORValue.Text = "";
-                numHORValue.Enabled = false;
             }
             else //Override:
             {
-                comboHORUnits.Enabled = true;
-                comboHORSpecie.Enabled = true;
-                comboHORConditions.Enabled = true;
-                numHORValue.Enabled = true;
+                SetHOREnabled(true);
                 if (m_CurrentReaction != null)
                 {
                     comboHORSpecie.SelectedItem = m_CurrentReaction.HeatOfReactionSpecie;
@@ -1453,7 +1474,12 @@ namespace Reaction_Editor
                 return;
             }
             if (e.Data.GetDataPresent(typeof(Compound)))
-                e.Effect = DragDropEffects.Link;
+            {
+                if (m_CurrentReaction.Compounds.Contains((Compound)e.Data.GetData(typeof(Compound))))
+                    e.Effect = DragDropEffects.None;
+                else
+                    e.Effect = DragDropEffects.Link;
+            }
             else
                 e.Effect = DragDropEffects.None;
         }
@@ -1474,6 +1500,11 @@ namespace Reaction_Editor
                 return;
             }
             Compound compound = (Compound) e.Data.GetData(typeof(Compound));
+            if (m_CurrentReaction.Compounds.Contains(compound))
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
             m_CurrentReaction.AddProduct(compound, 1.0, chIndex);
             e.Effect = DragDropEffects.Link;
             txtProducts.Select();
@@ -1809,6 +1840,8 @@ namespace Reaction_Editor
             ColourCompounds(box);
             Log.Active = bWasActive;
             ChangeOccured();
+            if (SourcesSinksChanged != null)
+                SourcesSinksChanged(this, new EventArgs());
         }
 
         private void numHXApproach_ValueChanged(object sender, EventArgs e)
@@ -1887,6 +1920,32 @@ namespace Reaction_Editor
             {
                 MessageBox.Show(ex.Message, "Autobalancer");
             }
+        }
+
+        private void txtFormula_TextChanged(object sender, EventArgs e)
+        {
+            RichTextBox box = (RichTextBox)sender;
+            box.SelectionAlignment = HorizontalAlignment.Center;
+            int oldSelectStart = box.SelectionStart;
+            int oldSelectLen = box.SelectionLength;
+            box.SelectAll();
+            box.SelectionColor = box.ForeColor;
+            box.SelectionBackColor = box.BackColor;
+            Match m = SimpleReaction.s_CompoundRegex.Match(box.Text);
+            foreach (Capture c in m.Groups["Unparseable"].Captures)
+            {
+                box.Select(c.Index, c.Length);
+                box.SelectionBackColor = Color.DarkRed;
+                box.SelectionColor = Color.White;
+            }
+            foreach (Capture c in m.Groups["Compound"].Captures)
+                if (!Compound.Contains(c.Value.Trim()))
+                {
+                    box.Select(c.Index, c.Length);
+                    box.SelectionBackColor = Color.DarkRed;
+                    box.SelectionColor = Color.White;
+                }
+            box.Select(oldSelectStart, oldSelectLen);
         }
     }
 }

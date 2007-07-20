@@ -47,7 +47,7 @@ namespace Reaction_Editor
             this.menuSaveAll = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuOpenDB = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuRecentFileSeperator = new System.Windows.Forms.ToolStripSeparator();
             this.menuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuCut = new System.Windows.Forms.ToolStripMenuItem();
@@ -117,11 +117,12 @@ namespace Reaction_Editor
             this.menuSaveAll,
             this.toolStripMenuItem2,
             this.menuOpenDB,
-            this.toolStripSeparator1,
+            this.menuRecentFileSeperator,
             this.menuExit});
             this.menuFile.Name = "menuFile";
             this.menuFile.Size = new System.Drawing.Size(35, 20);
             this.menuFile.Text = "&File";
+            this.menuFile.DropDownOpening += new System.EventHandler(this.menuFile_DropDownOpening);
             this.menuFile.Click += new System.EventHandler(this.fileToolStripMenuItem_Click);
             // 
             // menuNew
@@ -193,10 +194,10 @@ namespace Reaction_Editor
             this.menuOpenDB.Text = "Open Da&tabase";
             this.menuOpenDB.Click += new System.EventHandler(this.menuOpenDB_Click);
             // 
-            // toolStripSeparator1
+            // menuRecentFileSeperator
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
+            this.menuRecentFileSeperator.Name = "menuRecentFileSeperator";
+            this.menuRecentFileSeperator.Size = new System.Drawing.Size(157, 6);
             // 
             // menuExit
             // 
@@ -314,8 +315,7 @@ namespace Reaction_Editor
             // m_StatusLabel
             // 
             this.m_StatusLabel.Name = "m_StatusLabel";
-            this.m_StatusLabel.Size = new System.Drawing.Size(109, 17);
-            this.m_StatusLabel.Text = "toolStripStatusLabel1";
+            this.m_StatusLabel.Size = new System.Drawing.Size(0, 17);
             // 
             // grpFiles
             // 
@@ -555,7 +555,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.OpenFileDialog dlgOpenRxn;
         private System.Windows.Forms.SaveFileDialog dlgSaveRxn;
         private System.Windows.Forms.ToolStripMenuItem menuOpenDB;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator menuRecentFileSeperator;
         private System.Windows.Forms.OpenFileDialog dlgOpenDB;
         private System.Windows.Forms.ToolStripMenuItem arrangeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undockToolStripMenuItem;

@@ -22,7 +22,7 @@ namespace Reaction_Editor
         int m_nUntitledNo = 1;
         ILog Log = new FrmLog();
         RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
-        protected Queue<String> m_RecentFiles = new Queue<string>();
+        protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
         #endregion Internal Variables
 
@@ -131,16 +131,76 @@ namespace Reaction_Editor
             {
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
-                if (!m_RecentFiles.Contains(filename))
+                RegisterRecentFile(filename);
+                /*if (!m_RecentFiles.Contains(filename))
                     m_RecentFiles.Enqueue(filename);
+                else
+                {
+                    //We need to re-order the queue to have the new file at the top.
+                    Queue<string> temp = new Queue<string>();
+                    for (int i = 0; i < m_RecentFiles.Count; i++)
+                    {
+                        string fn = m_RecentFiles.Dequeue();
+                        if (fn != filename)
+                            m_RecentFiles.Enqueue(fn);
+                    }
+                    m_RecentFiles.Enqueue(filename);
+                }
                 while (m_RecentFiles.Count > m_nRecentFileCount)
-                    m_RecentFiles.Dequeue();
+                    m_RecentFiles.Dequeue();*/
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Open file", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Log.Message(ex.Message, MessageType.Error);
             }
+        }
+
+
+        protected void RegisterRecentFile(string filename)
+        {
+            bool bAlreadyContained = false;
+            int insertionLoc = menuFile.DropDown.Items.IndexOf(menuRecentFileSeperator) + 1;
+
+            foreach (ToolStripMenuItem item in m_RecentFiles)
+                if ((string)item.Tag == filename)
+                {
+                    bAlreadyContained = true;
+                    break;
+                }
+            if (m_RecentFiles.Count == 0)
+            {
+                menuFile.DropDown.Items.Insert(insertionLoc, new ToolStripSeparator());
+            }
+            if (!bAlreadyContained)
+            {
+                ToolStripMenuItem recentFile = new ToolStripMenuItem(Path.GetFileName(filename));
+                recentFile.Tag = filename;
+                recentFile.Click += new EventHandler(recentFile_Click);
+                m_RecentFiles.Add(recentFile);
+                menuFile.DropDown.Items.Insert(insertionLoc, recentFile);
+                if (m_RecentFiles.Count > m_nRecentFileCount)
+                {
+                    menuFile.DropDown.Items.Remove(m_RecentFiles[0]);
+                    m_RecentFiles.RemoveAt(0);
+                }
+            }
+            else
+            {
+                ToolStripMenuItem recentFile = null;
+                foreach (ToolStripMenuItem item in m_RecentFiles)
+                    if ((string)item.Tag == filename)
+                    {
+                        recentFile = item;
+                        break;
+                    }
+                m_RecentFiles.Remove(recentFile);
+                m_RecentFiles.Add(recentFile);
+                menuFile.DropDown.Items.Remove(recentFile);
+                menuFile.DropDown.Items.Insert(insertionLoc, recentFile);
+            }
+            for (int i = 0; i < m_RecentFiles.Count; i++)
+                m_RecentFiles[i].Text = "&" + (m_RecentFiles.Count - i) + " " + m_RecentFiles[i].Tag;
         }
 
         protected void RegisterForm(FrmReaction frm)
@@ -175,7 +235,10 @@ namespace Reaction_Editor
                 if (!target.FileOpen)
                     SaveAs(target);
                 else
+                {
                     target.Save();
+                    RegisterRecentFile(target.Filename);
+                }
             }
             catch (Exception ex)
             {
@@ -195,6 +258,7 @@ namespace Reaction_Editor
                 dlgSaveRxn.Title = "Save Reaction " + target.Title;
                 if (dlgSaveRxn.ShowDialog(this) == DialogResult.OK)
                     target.SaveAs(dlgSaveRxn.FileName);
+                RegisterRecentFile(target.Filename);
             }
             catch (Exception ex)
             {
@@ -266,8 +330,8 @@ namespace Reaction_Editor
                     regKey.DeleteValue(s);
 
             int i = 0;
-            while (m_RecentFiles.Count > 0)
-                regKey.SetValue("RecentFile" + i++, m_RecentFiles.Dequeue());
+            foreach(ToolStripMenuItem item in m_RecentFiles)
+                regKey.SetValue("RecentFile" + i++, item.Tag);
         }
         #endregion
 
@@ -294,7 +358,10 @@ namespace Reaction_Editor
         void frm_ReactionChanged(object sender, EventArgs e)
         {
             if (sender == ActiveMdiChild)
+            {
                 UpdateUsedSpecies();
+                m_StatusLabel.Text = ((FrmReaction)sender).StatusMessage;
+            }
         }
 
         void frm_SourcesSinksChanged(object sender, EventArgs e)
@@ -318,31 +385,14 @@ namespace Reaction_Editor
             string[] valueNames = regKey.GetValueNames();
             Array.Sort<String>(valueNames);
             bool firstName = true;
-            int insertionLoc = menuFile.DropDown.Items.IndexOf(menuExit);
             List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
             foreach (string s in valueNames)
                 if (recentFileRegex.Match(s).Success)
                 {
                     if (m_RecentFiles.Count >= m_nRecentFileCount)
                         break; //Don't load more than [m_nRecentFileCount] files.
-                    string filename = regKey.GetValue(s).ToString();
-                    if (m_RecentFiles.Contains(filename))
-                        continue;
-
-                    ToolStripMenuItem recentFile = new ToolStripMenuItem(Path.GetFileName(filename));
-                    recentList.Add(recentFile);
-                    recentFile.Tag = filename;
-                    recentFile.Click += new EventHandler(recentFile_Click);
-                    if (firstName)
-                    {
-                        menuFile.DropDown.Items.Insert(insertionLoc, new ToolStripSeparator());
-                        firstName = false;
-                    }
-                    menuFile.DropDown.Items.Insert(insertionLoc, recentFile);
-                    m_RecentFiles.Enqueue(filename);
+                    RegisterRecentFile(regKey.GetValue(s).ToString());
                 }
-            for (int i = 1; i <= recentList.Count; i++)
-                recentList[recentList.Count - i].Text = "&" + i + " " + recentList[recentList.Count - i].Text;
         }
 
         void recentFile_Click(object sender, EventArgs e)
@@ -403,12 +453,7 @@ namespace Reaction_Editor
 
         private void FrmMain_MdiChildActivate(object sender, EventArgs e)
         {
-            if (ActiveMdiChild == null)
-            {
-                UpdateUsedSpecies();
-                this.Text = "SysCAD Reaction Editor";
-            }
-            else if (ActiveMdiChild.GetType() == typeof(FrmReaction))
+            if (ActiveMdiChild is FrmReaction)
             {
                 this.Text = "SysCAD Reaction Editor - " + ((FrmReaction)ActiveMdiChild).Title;
                 m_StatusLabel.Text = ((FrmReaction)ActiveMdiChild).StatusMessage;
@@ -418,6 +463,7 @@ namespace Reaction_Editor
             {
                 UpdateUsedSpecies();
                 this.Text = "SysCAD Reaction Editor";
+                m_StatusLabel.Text = "";
             }
         }
 
@@ -482,7 +528,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.0\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.2\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -666,6 +712,19 @@ namespace Reaction_Editor
             lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
             UpdateUsedSpecies();
             lstSpecies.EndUpdate();
+        }
+
+        private void menuFile_DropDownOpening(object sender, EventArgs e)
+        {
+            menuSave.Enabled = menuSaveAs.Enabled = menuClose.Enabled = ActiveMdiChild is FrmReaction;
+            bool anyFilesOpen = false;
+            foreach (Form f in MdiChildren)
+                if (f is FrmReaction)
+                {
+                    anyFilesOpen = true;
+                    break;
+                }
+            menuSaveAll.Enabled = anyFilesOpen;
         }
     }
 }
