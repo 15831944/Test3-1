@@ -25,6 +25,10 @@ namespace SysCAD.Protocol
     private String connectionError = String.Empty;
     private EngineServiceProtocol serviceGraphic;
 
+    private EngineServiceProtocol.GroupCreatedHandler serviceGraphicGroupCreatedHandler = null;
+    private EngineServiceProtocol.GroupDeletedHandler serviceGraphicGroupDeletedHandler = null;
+    private EngineServiceProtocol.GroupModifiedHandler serviceGraphicGroupModifiedHandler = null;
+
     private EngineServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
     private EngineServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
     private EngineServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
@@ -70,6 +74,10 @@ namespace SysCAD.Protocol
 
         serviceGraphicSyncHandler = new EngineServiceProtocol.SyncHandler(ServiceGraphicSync);
 
+        serviceGraphicGroupCreatedHandler = new EngineServiceProtocol.GroupCreatedHandler(ServiceGraphicGroupCreated);
+        serviceGraphicGroupModifiedHandler = new EngineServiceProtocol.GroupModifiedHandler(ServiceGraphicGroupModified);
+        serviceGraphicGroupDeletedHandler = new EngineServiceProtocol.GroupDeletedHandler(ServiceGraphicGroupDeleted);
+
         serviceGraphicItemCreatedHandler = new EngineServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphicItemModifiedHandler = new EngineServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
         serviceGraphicItemDeletedHandler = new EngineServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
@@ -87,6 +95,10 @@ namespace SysCAD.Protocol
         serviceGraphic.Step += serviceGraphicStepHandler;
 
         serviceGraphic.Sync += serviceGraphicSyncHandler;
+
+        serviceGraphic.GroupCreated += serviceGraphicGroupCreatedHandler;
+        serviceGraphic.GroupModified += serviceGraphicGroupModifiedHandler;
+        serviceGraphic.GroupDeleted += serviceGraphicGroupDeletedHandler;
 
         serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
         serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
@@ -196,6 +208,21 @@ namespace SysCAD.Protocol
     public bool Save(String filename)
     {
       return serviceGraphic.Save(filename);
+    }
+
+    public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void ServiceGraphicGroupDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     public void ServiceGraphicItemCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
@@ -366,6 +393,11 @@ namespace SysCAD.Protocol
       BinaryFormatter bf = new BinaryFormatter();
 
       memoryStream = new MemoryStream();
+      bf.Serialize(memoryStream, serviceGraphic.graphicGroups);
+      memoryStream.Seek(0, SeekOrigin.Begin);
+      graphicGroups = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicGroup>;
+
+      memoryStream = new MemoryStream();
       bf.Serialize(memoryStream, serviceGraphic.graphicLinks);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicLinks = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicLink>;
@@ -429,6 +461,30 @@ namespace SysCAD.Protocol
         {
 
           if (serviceGraphicSyncHandler != null) serviceGraphic.Sync -= serviceGraphicSyncHandler;
+        }
+
+        catch (InvalidOperationException) { }
+
+        try
+        {
+
+          if (serviceGraphicGroupCreatedHandler != null) serviceGraphic.GroupCreated -= serviceGraphicGroupCreatedHandler;
+        }
+
+        catch (InvalidOperationException) { }
+
+        try
+        {
+
+          if (serviceGraphicGroupModifiedHandler != null) serviceGraphic.GroupModified -= serviceGraphicGroupModifiedHandler;
+        }
+
+        catch (InvalidOperationException) { }
+
+        try
+        {
+
+          if (serviceGraphicGroupDeletedHandler != null) serviceGraphic.GroupDeleted -= serviceGraphicGroupDeletedHandler;
         }
 
         catch (InvalidOperationException) { }

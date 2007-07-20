@@ -21,14 +21,17 @@ namespace SysCAD.Protocol
   [Serializable]
   abstract public class BaseProtocol : MarshalByRefObject
   {
+    public Dictionary<Guid, GraphicGroup> graphicGroups;
 
     public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicThing> graphicThings;
 
-    public Dictionary<Guid, GraphicGroup> graphicGroups;
-
     public Dictionary<DateTime, LogItem> logItems;
+
+    public GroupCreatedHandler GroupCreated;
+    public GroupDeletedHandler GroupDeleted;
+    public GroupModifiedHandler GroupModified;
 
     public ItemCreatedHandler ItemCreated;
     public ItemDeletedHandler ItemDeleted;
@@ -49,6 +52,10 @@ namespace SysCAD.Protocol
     public ThingModifiedHandler ThingModified;
 
     private String name;
+
+    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag);
+    public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
+    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag);
 
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
@@ -85,6 +92,51 @@ namespace SysCAD.Protocol
     public override Object InitializeLifetimeService()
     {
       return null;
+    }
+
+    public void OnGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    {
+
+      if (GroupCreated != null)
+      {
+
+        try
+        {
+          GroupCreated(eventId, requestID, guid, tag);
+        }
+
+        catch (SocketException) { }
+      }
+    }
+
+    public void OnGroupDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    {
+
+      if (GroupDeleted != null)
+      {
+
+        try
+        {
+          GroupDeleted(eventId, requestID, guid);
+        }
+
+        catch (SocketException) { }
+      }
+    }
+
+    public void OnGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag)
+    {
+
+      if (GroupModified != null)
+      {
+
+        try
+        {
+          GroupModified(eventId, requestID, guid, tag);
+        }
+
+        catch (SocketException) { }
+      }
     }
 
     public void OnItemCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)

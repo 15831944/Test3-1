@@ -19,7 +19,9 @@ namespace Service
 {
   public partial class ServiceTemporaryWindow : Form, ILog
   {
-    public ConfigData configData; 
+    public ConfigData configData;
+
+    public Dictionary<Guid, GraphicGroup> graphicGroups;
 
     public Dictionary<Guid, GraphicItem> graphicItems;
     public Dictionary<Guid, GraphicLink> graphicLinks;
@@ -65,6 +67,8 @@ namespace Service
       configData.ProjectList.Add(name);
       RemotingServices.Marshal(configData, "Global");
 
+      graphicGroups = new Dictionary<Guid, GraphicGroup>();
+
       graphicItems = new Dictionary<Guid, GraphicItem>();
       graphicLinks = new Dictionary<Guid,GraphicLink>();
       graphicThings = new Dictionary<Guid,GraphicThing>();
@@ -94,7 +98,7 @@ namespace Service
 
 
       clientClientServiceProtocol = new ClientServiceProtocol(name, 
-                                                              graphicLinks, graphicItems, graphicThings,
+                                                              graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangeState, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
@@ -132,7 +136,7 @@ namespace Service
       EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(PropertyListCheck);
 
       engineClientServiceProtocol = new EngineServiceProtocol(name,
-                                                              graphicLinks, graphicItems, graphicThings,
+                                                              graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               engineLoad, engineSave,
                                                               engineChangeState, engineGetPropertyValues, engineGetSubTags,
                                                               engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
@@ -163,6 +167,11 @@ namespace Service
       { // We're not going to do it.
         return false;
       }
+    }
+
+    bool CreateGroup(out Int64 requestID, out Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -249,6 +258,11 @@ namespace Service
       { // We're not going to do it.
         return false;
       }
+    }
+
+    bool DeleteGroup(out Int64 requestID, Guid guid)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     bool DeleteItem(out Int64 requestID, Guid guid)
@@ -357,6 +371,11 @@ namespace Service
             break;
         }
       }
+    }
+
+    bool ModifyGroup(out Int64 requestID, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -531,9 +550,19 @@ namespace Service
 
       try
       {
+        Dictionary<Guid, GraphicGroup> tempGraphicGroups;
+
         Dictionary<Guid, GraphicLink> tempGraphicLinks;
         Dictionary<Guid, GraphicItem> tempGraphicItems;
         Dictionary<Guid, GraphicThing> tempGraphicThings;
+
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamReader streamRdr = new StreamReader(projectPath + "GraphicGroups.10");
+          Stream stream = streamRdr.BaseStream;
+          tempGraphicGroups = (Dictionary<Guid, GraphicGroup>)sf.Deserialize(stream);
+          stream.Close();
+        }
 
         {
           SoapFormatter sf = new SoapFormatter();
@@ -559,9 +588,14 @@ namespace Service
           stream.Close();
         }
 
+        graphicGroups = tempGraphicGroups;
+
         graphicLinks = tempGraphicLinks;
         graphicItems = tempGraphicItems;
         graphicThings = tempGraphicThings;
+
+        if (graphicGroups == null)
+          graphicGroups = new Dictionary<Guid, GraphicGroup>();
 
         if (graphicLinks == null)
           graphicLinks = new Dictionary<Guid,GraphicLink>();
@@ -574,6 +608,9 @@ namespace Service
       }
       catch (Exception)
       {
+        if (graphicGroups == null)
+          graphicGroups = new Dictionary<Guid, GraphicGroup>();
+
         if (graphicLinks == null)
           graphicLinks = new Dictionary<Guid, GraphicLink>();
         if (graphicItems == null)
@@ -592,6 +629,14 @@ namespace Service
 
       try
       {
+        {
+          SoapFormatter sf = new SoapFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicGroups.10");
+          Stream stream = streamWriter.BaseStream;
+          sf.Serialize(stream, graphicGroups);
+          stream.Close();
+        }
+
         {
           SoapFormatter sf = new SoapFormatter();
           StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicLinks.10");

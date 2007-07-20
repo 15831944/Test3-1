@@ -77,7 +77,7 @@ namespace SysCAD.Protocol
     public delegate bool SaveHandler(out Int64 requestID);
 
     public EngineServiceProtocol(String name,
-      Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
+      Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       LoadHandler loadHandler, SaveHandler saveHandler,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
@@ -86,6 +86,8 @@ namespace SysCAD.Protocol
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
       this.Name = name;
+
+      this.graphicGroups = graphicGroups;
 
       this.graphicLinks = graphicLinks;
       this.graphicItems = graphicItems;
@@ -151,6 +153,21 @@ namespace SysCAD.Protocol
     public bool DeleteThing(out Int64 requestID, Guid guid)
     {
       return deleteThingHandler(out requestID, guid);
+    }
+
+    public void DoGroupCreated(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void DoGroupDeleted(Int64 requestID, Guid guid)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void DoGroupModified(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     public void DoItemBoundingRectModified(Int64 requestID, Guid guid, RectangleF boundingRect)
@@ -414,9 +431,13 @@ namespace SysCAD.Protocol
       StreamReader streamRdr = new StreamReader(filename);
       Stream stream = streamRdr.BaseStream;
 
+      this.graphicGroups = graphicGroups;
+
       this.graphicLinks = graphicLinks;
       this.graphicItems = graphicItems;
       this.graphicThings = graphicThings;
+
+      graphicGroups = (Dictionary<Guid, GraphicGroup>)sf.Deserialize(stream);
 
       graphicLinks = (Dictionary<Guid, GraphicLink>)sf.Deserialize(stream);
       graphicItems = (Dictionary<Guid, GraphicItem>)sf.Deserialize(stream);
@@ -468,6 +489,7 @@ namespace SysCAD.Protocol
       SoapFormatter sf = new SoapFormatter();
       StreamWriter streamWriter = new StreamWriter(filename);
       Stream stream = streamWriter.BaseStream;
+      sf.Serialize(stream, graphicGroups);
       sf.Serialize(stream, graphicLinks);
       sf.Serialize(stream, graphicItems);
       sf.Serialize(stream, graphicThings);

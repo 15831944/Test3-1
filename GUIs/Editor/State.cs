@@ -320,6 +320,9 @@ namespace SysCAD.Editor
       ClientProtocol.StateChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
       ClientProtocol.SyncHandler syncHandler,
+      ClientProtocol.GroupCreatedHandler GroupCreatedHandler,
+      ClientProtocol.GroupModifiedHandler GroupModifiedHandler,
+      ClientProtocol.GroupDeletedHandler GroupDeletedHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
@@ -335,6 +338,10 @@ namespace SysCAD.Editor
       clientProtocol.Step += stepHandler;
 
       clientProtocol.Sync += syncHandler;
+
+      clientProtocol.GroupCreated += GroupCreatedHandler;
+      clientProtocol.GroupModified += GroupModifiedHandler;
+      clientProtocol.GroupDeleted += GroupDeletedHandler;
 
       clientProtocol.ItemCreated += itemCreatedHandler;
       clientProtocol.ItemModified += itemModifiedHandler;
@@ -697,6 +704,9 @@ namespace SysCAD.Editor
       ClientProtocol.StateChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
       ClientProtocol.SyncHandler syncHandler,
+      ClientProtocol.GroupCreatedHandler GroupCreatedHandler,
+      ClientProtocol.GroupModifiedHandler GroupModifiedHandler,
+      ClientProtocol.GroupDeletedHandler GroupDeletedHandler,
       ClientProtocol.ItemCreatedHandler itemCreatedHandler,
       ClientProtocol.ItemModifiedHandler itemModifiedHandler,
       ClientProtocol.ItemDeletedHandler itemDeletedHandler,
@@ -712,6 +722,10 @@ namespace SysCAD.Editor
       clientProtocol.Step -= stepHandler;
 
       clientProtocol.Sync -= syncHandler;
+
+      clientProtocol.GroupCreated -= GroupCreatedHandler;
+      clientProtocol.GroupModified -= GroupModifiedHandler;
+      clientProtocol.GroupDeleted -= GroupDeletedHandler;
 
       clientProtocol.ItemCreated -= itemCreatedHandler;
       clientProtocol.ItemModified -= itemModifiedHandler;

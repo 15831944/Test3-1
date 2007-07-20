@@ -393,6 +393,9 @@ namespace SysCAD.Editor
         new ClientProtocol.StateChangedHandler(fcFlowChart_StateChanged),
         new ClientProtocol.StepHandler(fcFlowChart_Step),
         new ClientProtocol.SyncHandler(fcFlowChart_Sync),
+        new ClientProtocol.GroupCreatedHandler(fcFlowChart_GroupCreated),
+        new ClientProtocol.GroupModifiedHandler(fcFlowChart_GroupModified),
+        new ClientProtocol.GroupDeletedHandler(fcFlowChart_GroupDeleted),
         new ClientProtocol.ItemCreatedHandler(fcFlowChart_ItemCreated),
         new ClientProtocol.ItemModifiedHandler(fcFlowChart_ItemModified),
         new ClientProtocol.ItemDeletedHandler(fcFlowChart_ItemDeleted),
@@ -443,6 +446,9 @@ namespace SysCAD.Editor
           fcFlowChart_StateChanged,
           fcFlowChart_Step,
           fcFlowChart_Sync,
+          fcFlowChart_GroupCreated,
+          fcFlowChart_GroupModified,
+          fcFlowChart_GroupDeleted,
           fcFlowChart_ItemCreated,
           fcFlowChart_ItemModified,
           fcFlowChart_ItemDeleted,
@@ -1270,6 +1276,21 @@ namespace SysCAD.Editor
           }
         }
       }
+    }
+
+    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    private void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)

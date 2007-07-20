@@ -71,7 +71,7 @@ namespace SysCAD.Protocol
     public delegate ArrayList PropertyListHandler(out Int64 requestID, Guid guid, String tag, String path);
 
     public ClientServiceProtocol(String name,
-      Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
+      Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
@@ -79,6 +79,8 @@ namespace SysCAD.Protocol
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
     {
       this.Name = name;
+
+      this.graphicGroups = graphicGroups;
 
       this.graphicLinks = graphicLinks;
       this.graphicItems = graphicItems;
@@ -154,6 +156,21 @@ namespace SysCAD.Protocol
         eventId++;
         OnItemModified(eventId, requestID, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
       }
+    }
+
+    public void DoGroupCreated(Int64 requestID, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void DoGroupDeleted(Int64 requestID, Guid guid)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
+    }
+
+    public void DoGroupModified(Int64 requestID, Guid guid, String tag)
+    {
+      throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     public void DoItemCreated(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
