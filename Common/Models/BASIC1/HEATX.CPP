@@ -95,7 +95,7 @@ HeatXchg::HeatXchg(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   //EffectCurve("DataOnly", "Effective", this, TOA_Embedded)
   //HXB(&CHXBlockClass, "HX", this, TOA_Embedded)
   HX(this, &CHXBlockClass),
-  m_HXJ(this, idPIn, idPOut, idSIn, idSOut),
+  m_HXJ(this, idPIn, idPOut, -1, idSIn, idSOut, -1),
   FBP(NULL, 0, 1.0),
   FBS(NULL, 0, 1.0)
   {

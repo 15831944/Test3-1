@@ -1674,7 +1674,7 @@ ShellTube::ShellTube(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   LastVent("LastVent", this, TOA_Embedded),
   HX(this, &CHXShlTubeClass, true),
   m_EHX(this, EHXF_Node),
-  m_HXJ(this, ioidST_TubeIn, ioidST_TubeOut, ioidST_ShellIn, ioidST_ShellOut),
+  m_HXJ(this, ioidST_TubeIn, ioidST_TubeOut, -1, ioidST_ShellIn, ioidST_ShellOut, ioidST_ShellVent),
   Shell("Shell", this, TOA_Embedded),
   //Preset(&((CHXShlTube*)HX())->VLE),
   FBP(NULL, 0, 1.0),

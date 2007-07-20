@@ -1385,15 +1385,17 @@ double CHXSide::AddGasToVent(double VentFlow, bool MixVentBack)
       if (pVent)
         {
         pVent->QAddM(*m_pCd, som_Gas, VentFlow);
+        m_pCd->QAdjustQmTo(som_Gas, OldVapFlow-VentFlow); //is this logic correct for all conditions???
         }
       else 
         {
+        //m_pCd->QAdjustQmTo(som_Gas, OldVapFlow+OldQmVent/*-QmVent*/); //is this logic correct for all conditions???
         pHX->SetCI(5);
         }
 
       QmVent+=VentFlow;
       //m_pCd->QAdjustQmTo(som_Gas, OldVapFlow-QmVent);
-      m_pCd->QAdjustQmTo(som_Gas, OldVapFlow+OldQmVent-QmVent); //is this logic correct for all conditions???
+//      m_pCd->QAdjustQmTo(som_Gas, OldVapFlow+OldQmVent/*-QmVent*/); //is this logic correct for all conditions???
       ////m_pCd->QScaleMass(som_ALL, 1.0-VentFrac);
       }
     }
@@ -2224,16 +2226,20 @@ flag CHXBase::DataXchg(DataChangeBlk & DCB)
 //
 // ==========================================================================
 
-CHXSdJoinInfo::CHXSdJoinInfo(pFlwNode Nd, int IdIn, int IdOut) :
+CHXSdJoinInfo::CHXSdJoinInfo(pFlwNode Nd, int IdIn, int IdOut, int IdVent) :
   m_Qi("Qi", NULL, TOA_Unknown),
   m_Qo("Qo", NULL, TOA_Unknown)
   {
   pNd=Nd;
-  ioFlwOut=-1;
+  m_ioFlwOut=-1;
+  m_ioFlwVnt=-1;
   idMask=0;
   if (IdIn>=0)
+    {
     for (int i=IdIn; i<=IdOut; i++)
       idMask|=Id_2_Mask(i);
+    }
+  idVentMask = IdVent>=0 ? Id_2_Mask(IdVent):0;
   };
 
 //--------------------------------------------------------------------------
@@ -2241,16 +2247,24 @@ CHXSdJoinInfo::CHXSdJoinInfo(pFlwNode Nd, int IdIn, int IdOut) :
 flag CHXSdJoinInfo::TstConnected()
   {
   int jJ=0, jI=0;
-  ioFlwOut=-1;
+  m_ioFlwOut=-1;
   for (int i=0; i<pNd->NoFlwIOs(); i++)
+    {
     if ((pNd->IOIdMask_Self(i)&idMask)!=0)
       {
       ioJoin[jJ++] = i;
       if (pNd->IO_In(i))
         ioFlwIn[jI++] = i;
       else if (pNd->IO_Out(i))
-        ioFlwOut = i;
+        m_ioFlwOut = i;
       }
+    if ((pNd->IOIdMask_Self(i)&idVentMask)!=0)
+      {
+      ioJoin[jJ++] = i;
+      if (pNd->IO_Out(i))
+        m_ioFlwVnt= i;
+      }
+    }
   ioFlwIn[jI++] = -1;
   ioJoin[jJ++] = -1;
   return (ioJoin[0] >= 0);

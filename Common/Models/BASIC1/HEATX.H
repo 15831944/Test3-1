@@ -43,7 +43,7 @@ class DllImportExport HeatXchg : public MdlNode
   public:
 
     CHXBase        HX;
-    CFlwEqnPtr      FBP, FBS;
+    CFlwEqnPtr     FBP, FBS;
     CHXJoinInfo    m_HXJ;
 
 

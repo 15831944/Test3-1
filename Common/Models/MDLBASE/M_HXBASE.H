@@ -632,21 +632,23 @@ class DllImportExport CHXSdJoinInfo
   friend class CHXJoinInfo;
   protected:
     IDMask        idMask;
+    IDMask        idVentMask;
     FlwNode*      pNd;
     int           iJoinId;
     flag          fOpen;
-    int           ioJoin[21], ioFlwIn[20], ioFlwOut;
+    int           ioJoin[22], ioFlwIn[20], m_ioFlwOut, m_ioFlwVnt;
     SpConduit     m_Qi;
     SpConduit     m_Qo;
 
   public:
-    CHXSdJoinInfo(FlwNode* Nd, int IdIn, int IdOut);
+    CHXSdJoinInfo(FlwNode* Nd, int IdIn, int IdOut, int IdVent);
     flag        TstConnected();
-    flag        IsConnected()   { return ioFlwOut>=0; };
+    flag        IsConnected()   { return m_ioFlwOut>=0; };
     int         JoinId()        { return iJoinId;};
     int         IOJoin(int i)   { return ioJoin[i]; };
     int         IOFlwIn(int i)  { return ioFlwIn[i]; };
-    int         IOFlwOut()      { return ioFlwOut; };
+    int         IOFlwOut()      { return m_ioFlwOut; };
+    int         IOFlwVent()     { return m_ioFlwVnt; };
     IDMask      IdMask()        { return idMask; };
     SpConduit & Qi()            { return m_Qi; };
     SpConduit & Qo()            { return m_Qo; };
@@ -661,9 +663,9 @@ class DllImportExport CHXJoinInfo
     FlwNode *pNd;
 
   public:
-    CHXJoinInfo(FlwNode* Nd, int IdPIn, int IdPOut, int IdSIn, int IdSOut) :
-      P(Nd, IdPIn, IdPOut),
-      S(Nd, IdSIn, IdSOut)
+    CHXJoinInfo(FlwNode* Nd, int IdPIn, int IdPOut, int IdPVent, int IdSIn, int IdSOut, int IdSVent) :
+      P(Nd, IdPIn, IdPOut, IdPVent),
+      S(Nd, IdSIn, IdSOut, IdSVent)
       {
       pNd=Nd;
       };

@@ -470,9 +470,14 @@ double CHXBlock1::CondenseAll(flag AllowVent, flag MixVentBack, CHXSide& HotSd, 
       m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
       VentFlow=HotSd.m_pCd->QMass(som_Gas);
       double LiqFlow1=HotSd.m_pCd->QMass(som_Liq);
+      double VapFlow1=HotSd.m_pCd->QMass(som_Gas);
       //Move Gases to Vent
       HotSd.AddGasToVent(VentFlow, MixVentBack!=0);
       double LiqFlow2=HotSd.m_pCd->QMass(som_Liq);
+      double VapFlow2=HotSd.m_pCd->QMass(som_Gas);
+      double LiqFlow3=m_pVent?m_pVent->QMass(som_Liq):dNAN;
+      double VapFlow3=m_pVent?m_pVent->QMass(som_Gas):dNAN;
+
 //      // Remove from HotSd Product
 //      HotSd.QScaleMass(som_Gas, 0.0);
       m_dDuty=m_dMaxFlDuty;
@@ -1859,7 +1864,8 @@ HeatXchg1::HeatXchg1(pTagObjClass pClass_, pchar TagIn, TaggedObject* pAttach, T
   m_HX(&CHXBlock1Class, "HX", this, TOA_Embedded),
   m_EHX(this, EHXF_Node),
   //m_HXJ(this, ioidPIn, ioidPVent, ioidSIn, ioidSVent) //KGA why PVent and SVent !!!?!?!?!?!?!!
-  m_HXJ(this, ioidPIn, ioidPVent/*Out*/, ioidSIn, ioidSVent/*Out*/)
+  //m_HXJ(this, ioidPIn, ioidPVent/*Out*/, ioidSIn, ioidSVent/*Out*/)
+  m_HXJ(this, ioidPIn, ioidPOut, ioidPVent, ioidSIn, ioidSOut, ioidSVent)
   {
   AttachClassInfo(nc_Process, HeaterIOAreaList, &HeatXDPGroup);
 
@@ -2526,6 +2532,9 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
     {
     case SM_Direct:
       {
+      dbgpln("---------------------- %s", Tag());
+      for (int i=-0; i<NoProcessIOs(); i++)
+        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
       if (m_HXJ.PriIsJoined() && IOWithId_Self(ioidPVent)>=0 && m_pPriVent==NULL)
         {
         m_pPriVent=new SpConduit("PriVent", this, TOA_Embedded);
@@ -2567,6 +2576,10 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
 
       m_HX.EvalProducts(this, false);
 
+      dbgpln("---------------------- %s", Tag());
+      for (int i=-0; i<NoProcessIOs(); i++)
+        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
+
       if (m_HXJ.PriIsJoined() && m_pPriVent)
         {
         // Copy VentConduit to Output if present
@@ -2581,6 +2594,9 @@ void HeatXchg1::EvalProducts(CNodeEvalIndex & NEI)
         if (idVent>=0)
           IOConduit(idVent)->QSetF(*m_pSecVent, som_ALL, 1.0, SecPIn);
         }
+      dbgpln("---------------------- %s", Tag());
+      for (int i=-0; i<NoProcessIOs(); i++)
+        dbgpln("  %12.4f %12.2f %s", IOConduit(i)->QMass(som_SL), IOConduit(i)->QMass(som_Gas), IODesc_Self(i)->IOName());
       }
       break;
     case SM_Inline:
