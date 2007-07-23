@@ -394,6 +394,9 @@ namespace SysCAD.Editor
           box.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.BurlyWood);
           box.FrameColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
           box.Visible = isVisible;
+          
+          // Make groups unmodifiable -- for now.
+          box.Locked = true;
         }
 
         Group group = new Group(graphicGroup.Guid, graphicGroup.Tag, box, isVisible, graphicGroup);
