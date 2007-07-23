@@ -5634,7 +5634,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
     item->pKenwalta = (void *)l->EntityInvalidate();
     }
 
-  if (DXF_ENTITY_IS_INSERT(e))// && item->pKenwalta == NULL)
+  if (DXF_ENTITY_IS_INSERT(e))
     {
     bool Hidden=EntityIsHidden(e);
 
@@ -5647,7 +5647,7 @@ void DXF_Drawing::Draw(DXF_ENTITY e, pViewport vp, C3_BOX box, int color, int Lv
           p->VP()->DelDisplaySegment(p);
         }
       }
-    else
+    else if (item->pKenwalta == NULL)
       {
 
       pBlock b;
