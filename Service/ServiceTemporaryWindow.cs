@@ -179,7 +179,7 @@ namespace Service
       }
     }
 
-    bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path)
+    bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
       // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
       // This is required in case a rogue client tries to create an Group even when not supposed to.
@@ -193,12 +193,13 @@ namespace Service
 
         GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
         graphicGroup.Path = path;
+        graphicGroup.BoundingRect = (ARectangleF)boundingRect;
 
         graphicGroups.Add(guid, graphicGroup);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path);
-        engineClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path);
+        clientClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path, boundingRect);
+        engineClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path, boundingRect);
 
         return true;
       }
@@ -407,7 +408,7 @@ namespace Service
       }
     }
 
-    bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path)
+    bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

@@ -125,9 +125,9 @@ namespace SysCAD.Protocol
       }
     }
 
-    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path)
+    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return serviceGraphic.CreateGroup(out requestID, out guid, tag, path);
+      return serviceGraphic.CreateGroup(out requestID, out guid, tag, path, boundingRect);
     }
 
     public bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -180,9 +180,9 @@ namespace SysCAD.Protocol
       return serviceGraphic.Load(filename);
     }
 
-    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path)
+    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return serviceGraphic.ModifyGroup(out requestID, guid, tag, path);
+      return serviceGraphic.ModifyGroup(out requestID, guid, tag, path, boundingRect);
     }
 
     public bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -225,7 +225,7 @@ namespace SysCAD.Protocol
       return serviceGraphic.Save(filename);
     }
 
-    public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path)
+    public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       if (!graphicGroups.ContainsKey(guid))
       {
@@ -236,7 +236,7 @@ namespace SysCAD.Protocol
 
         //cnm Scd9Create
 
-        OnGroupCreated(eventId, requestID, guid, tag, path);
+        OnGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
       }
     }
 
@@ -245,7 +245,7 @@ namespace SysCAD.Protocol
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path)
+    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

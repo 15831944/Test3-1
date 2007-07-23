@@ -564,7 +564,7 @@ namespace SysCAD.Editor
         {
 
           if (innerNode.Key != null)
-            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), innerNode.IsSelected);
+            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), innerNode.IsSelected);
 
           SelectSubNodes(innerNode);
         }
@@ -578,7 +578,7 @@ namespace SysCAD.Editor
         {
 
           if (innerNode.Key != null)
-            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), false);
+            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), false);
 
           tvNavigation.RemoveSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -593,7 +593,7 @@ namespace SysCAD.Editor
         {
 
           if (innerNode.Key != null)
-            frmFlowChart.State.ItemVisible(new Guid(innerNode.Key), true);
+            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), true);
 
           tvNavigation.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -687,7 +687,7 @@ namespace SysCAD.Editor
             SelectSubNodes(node);
 
           else
-            frmFlowChart.State.ItemVisible(new Guid(node.Key), node.IsSelected);
+            frmFlowChart.State.SetVisible(new Guid(node.Key), node.IsSelected);
         }
 
         wasSelectedNodes.Clear();
@@ -705,7 +705,7 @@ namespace SysCAD.Editor
         {
 
           if (node.Key != null)
-            frmFlowChart.State.ItemVisible(new Guid(node.Key), false);
+            frmFlowChart.State.SetVisible(new Guid(node.Key), false);
         }
 
         wasSelectedNodes.Clear();

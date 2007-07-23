@@ -69,6 +69,7 @@
     <Compile Include="GraphicPropertyGrid.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Group.cs" />
     <Compile Include="InsertAnnotationDialog.cs">
       <SubType>Form</SubType>
     </Compile>

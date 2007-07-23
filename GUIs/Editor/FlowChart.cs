@@ -412,6 +412,11 @@ namespace SysCAD.Editor
       fcFlowChart.Visible = false;
       fcFlowChart.Enabled = false;
 
+      foreach (GraphicGroup graphicGroup in clientProtocol.graphicGroups.Values)
+      {
+        state.CreateGroup(graphicGroup, false, fcFlowChart);
+      }
+
       foreach (GraphicItem graphicItem in clientProtocol.graphicItems.Values)
       {
         state.CreateItem(graphicItem, false, fcFlowChart);
@@ -1278,7 +1283,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path)
+    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
@@ -1288,7 +1293,7 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path)
+    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

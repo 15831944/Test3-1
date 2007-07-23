@@ -53,9 +53,9 @@ namespace SysCAD.Protocol
 
     private String name;
 
-    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path);
+    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect);
     public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
-    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path);
+    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect);
 
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
@@ -94,7 +94,7 @@ namespace SysCAD.Protocol
       return null;
     }
 
-    public void OnGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path)
+    public void OnGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
 
       if (GroupCreated != null)
@@ -102,7 +102,7 @@ namespace SysCAD.Protocol
 
         try
         {
-          GroupCreated(eventId, requestID, guid, tag, path);
+          GroupCreated(eventId, requestID, guid, tag, path, boundingRect);
         }
 
         catch (SocketException) { }
@@ -124,7 +124,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path)
+    public void OnGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
 
       if (GroupModified != null)
@@ -132,7 +132,7 @@ namespace SysCAD.Protocol
 
         try
         {
-          GroupModified(eventId, requestID, guid, tag, path);
+          GroupModified(eventId, requestID, guid, tag, path, boundingRect);
         }
 
         catch (SocketException) { }

@@ -363,7 +363,10 @@ ref class CNETServerThread
               else // _IS_ a FLOWSHEET_* page element.
               {
                 String ^ path = "/" + filename + "/" + page + "/";
-                engineProtocol->CreateGroup(RqID++, guid, gcnew String(I.m_sTag()), path);
+                engineProtocol->CreateGroup(RqID++, guid, gcnew String(I.m_sTag()), path,
+                  RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
+                  (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
+                  (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)));
               }
             }
 

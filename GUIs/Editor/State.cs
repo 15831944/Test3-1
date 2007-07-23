@@ -30,8 +30,9 @@ namespace SysCAD.Editor
 
     private ClientProtocol clientProtocol;
     private Config config;
-    private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
 
+    private Dictionary<Guid, Group> groups = new Dictionary<Guid, Group>();
+    private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
 
     BaseProtocol.RunStates runState;
@@ -125,6 +126,8 @@ namespace SysCAD.Editor
     //  //this.Background = Brushes.White;
     //  //this.Content = exampleBorder;
     //}
+
+    private delegate void CreateGroupDelegate(GraphicGroup graphicGroup, bool isVisible, FlowChart flowchart);
 
     private delegate void CreateItemDelegate(GraphicItem graphicItem, bool isVisible, FlowChart flowchart);
 
@@ -369,6 +372,46 @@ namespace SysCAD.Editor
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       return clientProtocol.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+    }
+
+    internal void CreateGroup(GraphicGroup graphicGroup, bool isVisible, FlowChart flowchart)
+    {
+
+      if (flowchart.InvokeRequired)
+      {
+        flowchart.BeginInvoke(new CreateGroupDelegate(CreateGroup), new object[] { graphicGroup, isVisible, flowchart });
+      }
+
+      else
+      {
+        Box box = null;
+
+        {
+          box = flowchart.CreateBox(graphicGroup.X, graphicGroup.Y, graphicGroup.Width, graphicGroup.Height);
+          box.ToolTip = graphicGroup.Tag;
+          box.Style = BoxStyle.Rectangle;
+
+          box.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.BurlyWood);
+          box.FrameColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+          box.Visible = isVisible;
+        }
+
+        Group group = new Group(graphicGroup.Guid, graphicGroup.Tag, box, isVisible, graphicGroup);
+
+        box.Tag = group;
+
+        groups.Add(group.Guid, group);
+
+        PureComponents.TreeView.Node node = tvNavigation.AddNodeByPath(graphicGroup.Path + graphicGroup.Tag, graphicGroup.Guid.ToString());
+        node.Tag = group;
+        node.AllowDrop = false;
+
+        tvNavigation.AddSelectedNode(node);
+
+        if ((isVisible) && (node.Parent != null))
+          node.Parent.Select();
+
+      }
     }
 
     internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
@@ -892,9 +935,16 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void ItemVisible(Guid guid, bool visible)
+    internal void SetVisible(Guid guid, bool visible)
     {
       Item item;
+      Group group;
+
+      if (groups.TryGetValue(guid, out group))
+      {
+        group.Visible = visible;
+        group.Box.Visible = visible;// && group.Box.Selected;
+      }
 
       if (items.TryGetValue(guid, out item))
       {

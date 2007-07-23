@@ -51,7 +51,7 @@ namespace SysCAD.Protocol
 
     public delegate bool ChangeStateHandler(out Int64 requestID, RunStates runState);
 
-    public delegate bool CreateGroupHandler(out Int64 requestID, out Guid guid, String tag, String path);
+    public delegate bool CreateGroupHandler(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect);
     public delegate bool CreateItemHandler(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool CreateLinkHandler(out Int64 requestID, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool CreateThingHandler(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
@@ -64,7 +64,7 @@ namespace SysCAD.Protocol
     public delegate void GetPropertyValuesHandler(out Int64 requestID, ref ArrayList propertyList);
     public delegate void GetSubTagsHandler(out Int64 requestID, String propertyPath, out ArrayList propertyList);
 
-    public delegate bool ModifyGroupHandler(out Int64 requestID, Guid guid, String tag, String path);
+    public delegate bool ModifyGroupHandler(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect);
     public delegate bool ModifyItemHandler(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemPathHandler(out Int64 requestID, Guid guid, String path);
 
@@ -126,9 +126,9 @@ namespace SysCAD.Protocol
       return changeStateHandler(out requestID, runState);
     }
 
-    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path)
+    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return createGroupHandler(out requestID, out guid, tag, path);
+      return createGroupHandler(out requestID, out guid, tag, path, boundingRect);
     }
 
     public bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -179,10 +179,10 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void DoGroupCreated(Int64 requestID, Guid guid, String tag, String path)
+    public void DoGroupCreated(Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       eventId++;
-      OnGroupCreated(eventId, requestID, guid, tag, path);
+      OnGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
     }
 
     public void DoGroupDeleted(Int64 requestID, Guid guid)
@@ -435,9 +435,9 @@ namespace SysCAD.Protocol
       getSubTagsHandler(out requestID, propertyPath, out propertyList);
     }
 
-    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path)
+    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return modifyGroupHandler(out requestID, guid, tag, path);
+      return modifyGroupHandler(out requestID, guid, tag, path, boundingRect);
     }
 
     public bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
