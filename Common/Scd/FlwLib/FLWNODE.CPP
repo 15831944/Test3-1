@@ -989,7 +989,7 @@ void FlangeTearVarBlk::OnEditDestroy()
 byte CFlange::iMkUpOKCurr=0;
 byte CFlange::iMkUpOKNext=0;
 
-IMPLEMENT_TAGOBJ(CFlange, DirectLinkGrp, DirectLinkClass, "", "DirectIO", "DLnk", TOC_SYSTEM, "Direct Link", "")
+IMPLEMENT_TAGOBJ(CFlange, DirectLinkGrp, DirectLinkClass, "", "DirectLink", "DLnk", TOC_SYSTEM, "Direct Link", "")
 
 CFlange::CFlange(pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) : \
 TearPosBlk(TT_NoTear),

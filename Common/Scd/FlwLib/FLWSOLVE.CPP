@@ -10297,7 +10297,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
 
     DDB.Text  ("");
     DDB.Text  ("MultiProcessing");
-    // Removed By CNM - why would ew need these ???
+    // Removed By CNM - why would we need these ???
     //DDB.Byte  ("KeepGlblLinks",         "", DC_,     "",  &fKeepGlblLinks,   this, isParmStopped|SetOnChange, DDBYesNo);
     //DDB.Byte  ("GlblLinksDone",         "", DC_,     "",  &fGlblLinksDone,   this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap, DDBYesNo);
     DDB.Long  ("NoOfProcessors",        "", DC_,     "",  &nProcessors,      this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
@@ -10305,7 +10305,7 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("NoOfSolveThreadsRqd",   "", DC_,     "",  xidRqdThreads,     this, isParmStopped);
 
     DDB.Text  ("");
-    DDB.Text("DirectIOs");
+    DDB.Text("Direct IO Links");
     if (DDB.BeginStruct(this, "DIO", NULL, DDB_NoPage))
       {
       static DDBValueLst DDBSV[]= { {eDIOSlct_None, "None"}, {eDIOSlct_All, "All"}, /*{eDIOSlct_Selected, "Selected"}, */{0} };
