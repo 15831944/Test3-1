@@ -180,6 +180,7 @@ ref class CNETServerThread
           This is where import goes
           */
 
+          engineProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CNETServerThread::GroupCreated);
           engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CNETServerThread::ItemCreated);
 
           ////////////////////////////////
@@ -244,6 +245,11 @@ ref class CNETServerThread
         }
       };
 
+
+    void GroupCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
+      {
+      int xxx=0;
+      }
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
@@ -319,8 +325,11 @@ ref class CNETServerThread
 
       CGetExistingItems GI;
 
+      int PrevPage=-1;
 
-      while (GI.GetOne())//SS_GetExistingItem(NdPtr, Tag, Page, Model, Shape, BoundingRect, Angle, MirrorX, MirrorY))
+      static __int64 RqID=0;
+
+      while (GI.GetOne())
         {
         CGrfTagInfo & I = GI.Item();
 
@@ -328,46 +337,40 @@ ref class CNETServerThread
         System::Guid guid(gcnew String(GI.Guid()));
         guid=System::Guid::NewGuid();
         String ^ page =  gcnew String(GI.PageName());//"Pg1";
-        //page "Pg1"/*I.m_ppNode->m_pGrfs[0]->m_Page*/
 
         // Simple Layout
         int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
-        double XOffSet=(GI.PageNo()%NAcross)*310*1.4;
-        double YOffSet=(GI.PageNo()/NAcross)*310;
+        float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
+        float YOffSet=(GI.PageNo()/NAcross)*310.0f;
+
+        if (PrevPage!=GI.PageNo())
+          {
+          PrevPage=GI.PageNo();
+
+          String ^ path = "/" + filename + "/";
+          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String (path), RectangleF(XOffSet,YOffSet,297*1.4141f, 297));
+          }
 
         switch (GI.Type())
           {
           case CGetExistingItems::eIsNode:
             {
-              static __int64 RqID=0;
-              if (I.m_sTag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
-              {
-                String ^ path = "/" + filename + "/" + page + "/";
+            String ^ path = "/" + filename + "/" + page + "/";
 
-                CString S(I.m_sSymbol());
-                int iDollar=S.Find('$');
-                if (iDollar>=0)
-                  S.Delete(0, iDollar+1);
+            CString S(I.m_sSymbol());
+            int iDollar=S.Find('$');
+            if (iDollar>=0)
+              S.Delete(0, iDollar+1);
 
-                Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
-                Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
+            Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
+            Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
 
-                engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
-                  path, model, shape,
-                  RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
-                  (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
-                  (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
-                  0.0, Color(), Drawing2D::FillMode()  , false, false);
-                break;
-              }
-              else // _IS_ a FLOWSHEET_* page element.
-              {
-                String ^ path = "/" + filename + "/" + page + "/";
-                engineProtocol->CreateGroup(RqID++, guid, gcnew String(I.m_sTag()), path,
-                  RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
-                  (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
-                  (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)));
-              }
+            engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
+              path, model, shape,
+              RectangleF((float)(I.m_LoBnd.m_X), float((296.0f-I.m_HiBnd.m_Y)), 
+              float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
+              0.0, Color(), Drawing2D::FillMode()  , false, false);
+            break;
             }
 
           case CGetExistingItems::eIsLink:

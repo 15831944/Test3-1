@@ -231,7 +231,8 @@ namespace SysCAD.Protocol
       {
         GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
         graphicGroup.Path = path;
-
+        graphicGroup.BoundingRect = boundingRect;
+        
         graphicGroups.Add(guid, graphicGroup);
 
         //cnm Scd9Create

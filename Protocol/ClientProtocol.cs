@@ -117,7 +117,7 @@ namespace SysCAD.Protocol
         Syncxxx();
 
         connectionError = "";
-        return true;
+          return true;
       }
 
       catch (System.Runtime.Remoting.RemotingException remotingException)
@@ -223,7 +223,8 @@ namespace SysCAD.Protocol
       {
         GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
         graphicGroup.Path = path;
-
+        graphicGroup.BoundingRect = boundingRect;
+        
         graphicGroups.Add(guid, graphicGroup);
 
         OnGroupCreated(eventId, requestID, guid, tag, path, boundingRect);

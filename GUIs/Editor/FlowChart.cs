@@ -1285,7 +1285,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      //CNM throw new NotImplementedException("The method or operation is not implemented.");
     }
 
     private void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
