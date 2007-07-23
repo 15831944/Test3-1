@@ -18,6 +18,7 @@ namespace SysCAD.Protocol
 
     private Guid guid;
     private String tag;
+    private String path;
 
     public GraphicGroup(Guid guid, String tag)
     {
@@ -53,6 +54,12 @@ namespace SysCAD.Protocol
     {
       get { return tag; }
       set { tag = value; }
+    }
+
+    public String Path
+    {
+      get { return path; }
+      set { path = value; }
     }
 
     public float Width

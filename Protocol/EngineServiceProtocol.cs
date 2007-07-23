@@ -25,11 +25,14 @@ namespace SysCAD.Protocol
 
     private ChangeStateHandler changeStateHandler;
 
+    private CreateGroupHandler createGroupHandler;
+
     private CreateItemHandler createItemHandler;
 
     private CreateLinkHandler createLinkHandler;
 
     private CreateThingHandler createThingHandler;
+    private DeleteGroupHandler deleteGroupHandler;
     private DeleteItemHandler deleteItemHandler;
     private DeleteLinkHandler deleteLinkHandler;
     private DeleteThingHandler deleteThingHandler;
@@ -39,6 +42,7 @@ namespace SysCAD.Protocol
     private GetSubTagsHandler getSubTagsHandler;
 
     private LoadHandler loadHandler;
+    private ModifyGroupHandler modifyGroupHandler;
     private ModifyItemHandler modifyItemHandler;
     private ModifyItemPathHandler modifyItemPathHandler;
     private ModifyLinkHandler modifyLinkHandler;
@@ -52,10 +56,12 @@ namespace SysCAD.Protocol
 
     public delegate bool ChangeStateHandler(out Int64 requestID, RunStates runState);
 
+    public delegate bool CreateGroupHandler(out Int64 requestID, out Guid guid, String tag, String path);
     public delegate bool CreateItemHandler(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool CreateLinkHandler(out Int64 requestID, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool CreateThingHandler(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
 
+    public delegate bool DeleteGroupHandler(out Int64 requestID, Guid guid);
     public delegate bool DeleteItemHandler(out Int64 requestID, Guid guid);
     public delegate bool DeleteLinkHandler(out Int64 requestID, Guid guid);
     public delegate bool DeleteThingHandler(out Int64 requestID, Guid guid);
@@ -63,6 +69,8 @@ namespace SysCAD.Protocol
     public delegate void GetPropertyValuesHandler(out Int64 requestID, ref ArrayList propertyList);
     public delegate void GetSubTagsHandler(out Int64 requestID, String propertyPath, out ArrayList propertyList);
     public delegate bool LoadHandler(out Int64 requestID);
+
+    public delegate bool ModifyGroupHandler(out Int64 requestID, Guid guid, String tag, String path);
 
     public delegate bool ModifyItemHandler(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemPathHandler(out Int64 requestID, Guid guid, String path);
@@ -80,6 +88,7 @@ namespace SysCAD.Protocol
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       LoadHandler loadHandler, SaveHandler saveHandler,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
+      CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
@@ -100,6 +109,10 @@ namespace SysCAD.Protocol
 
       this.getPropertyValuesHandler = getPropertyValuesHandler;
       this.getSubTagsHandler = getSubTagsHandler;
+
+      this.createGroupHandler = createGroupHandler;
+      this.modifyGroupHandler = modifyGroupHandler;
+      this.deleteGroupHandler = deleteGroupHandler;
 
       this.createItemHandler = createItemHandler;
       this.modifyItemHandler = modifyItemHandler;
@@ -125,6 +138,11 @@ namespace SysCAD.Protocol
       return changeStateHandler(out requestID, runState);
     }
 
+    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path)
+    {
+      return createGroupHandler(out requestID, out guid, tag, path);
+    }
+
     public bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       return createItemHandler(out requestID, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
@@ -138,6 +156,11 @@ namespace SysCAD.Protocol
     public bool CreateThing(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       return createThingHandler(out requestID, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+    }
+
+    public bool DeleteGroup(out Int64 requestID, Guid guid)
+    {
+      return deleteGroupHandler(out requestID, guid);
     }
 
     public bool DeleteItem(out Int64 requestID, Guid guid)
@@ -155,9 +178,12 @@ namespace SysCAD.Protocol
       return deleteThingHandler(out requestID, guid);
     }
 
-    public void DoGroupCreated(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoGroupCreated(Int64 requestID, Guid guid, String tag, String path)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      {
+        eventId++;
+        OnGroupCreated(eventId, requestID, guid, tag, path);
+      }
     }
 
     public void DoGroupDeleted(Int64 requestID, Guid guid)
@@ -165,7 +191,7 @@ namespace SysCAD.Protocol
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void DoGroupModified(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoGroupModified(Int64 requestID, Guid guid, String tag, String path)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
@@ -446,6 +472,11 @@ namespace SysCAD.Protocol
 
       Int64 requestID;
       return loadHandler(out requestID);
+    }
+
+    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path)
+    {
+      return modifyGroupHandler(out requestID, guid, tag, path);
     }
 
     public bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)

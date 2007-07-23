@@ -111,6 +111,14 @@ ref class CNETServerThread
       TcpChannel^ tcpChannel = gcnew TcpChannel(tcpProps, clientProv, serverProv);
       ChannelServices::RegisterChannel(tcpChannel, false);
 
+      config = gcnew Config;
+      engineProtocol = gcnew EngineProtocol;
+
+      bool success = false;
+      success = config->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global"));
+
+      if (!success) // couldn't connect to service, probably not running -- start one.
+      {
       try
         {
         // Shell execute Service with parameters projectPath & configPath.
@@ -131,11 +139,9 @@ ref class CNETServerThread
         {
         // Handle this exception here, basically means the app didn't exist.
         }
+      }
 
-      config = gcnew Config;
-      engineProtocol = gcnew EngineProtocol;
-
-      bool success = false;
+      success = false;
       int i=0;
       while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
         {
@@ -333,24 +339,32 @@ ref class CNETServerThread
           {
           case CGetExistingItems::eIsNode:
             {
-            String ^ path = "/" + filename + "/" + page + "/";
+              static __int64 RqID=0;
+              if (I.m_sTag.Find("FLOWSHEET_")) // _NOT_ a FLOWSHEET_* non-unit -- There must be a better way to find/handle these?
+              {
+                String ^ path = "/" + filename + "/" + page + "/";
 
-            CString S(I.m_sSymbol());
-            int iDollar=S.Find('$');
-            if (iDollar>=0)
-              S.Delete(0, iDollar+1);
+                CString S(I.m_sSymbol());
+                int iDollar=S.Find('$');
+                if (iDollar>=0)
+                  S.Delete(0, iDollar+1);
 
-            Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
-            Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
+                Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
+                Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
 
-            static __int64 RqID=0;
-            engineProtocol->CreateItem(RqID, guid, gcnew String(I.m_sTag()),
-              path, model, shape,
-              RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
-              (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
-              (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
-              0.0, Color(), Drawing2D::FillMode()  , false, false);
-            break;
+                engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
+                  path, model, shape,
+                  RectangleF((float)(I.m_LoBnd.m_X + XOffSet/*+ pageOffset[path].X*/), 
+                  (float)((296.0f-I.m_HiBnd.m_Y) +YOffSet/*+ pageOffset[path].Y*/), 
+                  (float)(I.m_HiBnd.m_X-I.m_LoBnd.m_X), (float)(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
+                  0.0, Color(), Drawing2D::FillMode()  , false, false);
+                break;
+              }
+              else // _IS_ a FLOWSHEET_* page element.
+              {
+                String ^ path = "/" + filename + "/" + page + "/";
+                engineProtocol->CreateGroup(RqID++, guid, gcnew String(I.m_sTag()), path);
+              }
             }
 
           case CGetExistingItems::eIsLink:

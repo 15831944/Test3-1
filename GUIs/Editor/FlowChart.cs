@@ -1278,7 +1278,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
@@ -1288,7 +1288,7 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag)
+    private void fcFlowChart_GroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }

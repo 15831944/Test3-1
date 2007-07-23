@@ -78,6 +78,10 @@ namespace Service
       ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
       ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(GetSubTags);
 
+      ClientServiceProtocol.CreateGroupHandler clientCreateGroup = new ClientServiceProtocol.CreateGroupHandler(CreateGroup);
+      ClientServiceProtocol.ModifyGroupHandler clientModifyGroup = new ClientServiceProtocol.ModifyGroupHandler(ModifyGroup);
+      ClientServiceProtocol.DeleteGroupHandler clientDeleteGroup = new ClientServiceProtocol.DeleteGroupHandler(DeleteGroup);
+
       ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(CreateItem);
       ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ModifyItem);
       ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
@@ -100,6 +104,7 @@ namespace Service
       clientClientServiceProtocol = new ClientServiceProtocol(name, 
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangeState, clientGetPropertyValues, clientGetSubTags,
+                                                              clientCreateGroup, clientModifyGroup, clientDeleteGroup,
                                                               clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
@@ -116,6 +121,10 @@ namespace Service
 
       EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
       EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(GetSubTags);
+
+      EngineServiceProtocol.CreateGroupHandler engineCreateGroup = new EngineServiceProtocol.CreateGroupHandler(CreateGroup);
+      EngineServiceProtocol.ModifyGroupHandler engineModifyGroup = new EngineServiceProtocol.ModifyGroupHandler(ModifyGroup);
+      EngineServiceProtocol.DeleteGroupHandler engineDeleteGroup = new EngineServiceProtocol.DeleteGroupHandler(DeleteGroup);
 
       EngineServiceProtocol.CreateItemHandler engineCreateItem = new EngineServiceProtocol.CreateItemHandler(CreateItem);
       EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(ModifyItem);
@@ -139,6 +148,7 @@ namespace Service
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               engineLoad, engineSave,
                                                               engineChangeState, engineGetPropertyValues, engineGetSubTags,
+                                                              engineCreateGroup, engineModifyGroup, engineDeleteGroup,
                                                               engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
                                                               engineCreateLink, engineModifyLink, engineDeleteLink,
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
@@ -169,9 +179,33 @@ namespace Service
       }
     }
 
-    bool CreateGroup(out Int64 requestID, out Guid guid, String tag)
+    bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path)
     {
-      throw new NotImplementedException("The method or operation is not implemented.");
+      // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
+      // This is required in case a rogue client tries to create an Group even when not supposed to.
+      // This applies to all three create*, and all three delete* events.
+      if (true)
+      { // We're going to do it.
+        // Create the Group.
+        this.requestID++;
+        requestID = this.requestID;
+        guid = Guid.NewGuid();
+
+        GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
+        graphicGroup.Path = path;
+
+        graphicGroups.Add(guid, graphicGroup);
+
+        // Raise event(s).
+        clientClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path);
+        engineClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
     }
 
     bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
@@ -373,7 +407,7 @@ namespace Service
       }
     }
 
-    bool ModifyGroup(out Int64 requestID, Guid guid, String tag)
+    bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
