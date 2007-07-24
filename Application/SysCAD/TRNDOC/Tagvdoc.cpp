@@ -2065,6 +2065,16 @@ BOOL CTagVwDoc::NewReadDocument(FILE* pFile)
             TB.EndTime=TB.EndTime.GreaterThan(TB.StartTime);
             TB.TrackingTime = (SafeAtoI(f[3], TB.TrackingTime)==0 ? 0 : 1);
             TB.AllowLatch = 0;
+            //if (fTimeBaseGlobal)
+            //  GTB=TB;
+            }
+          else if (_stricmp(f[0], "GTimebase")==0)
+            {
+            GTB.StartTime.Seconds = SafeAtoF(f[1], GTB.StartTime.Seconds);
+            GTB.EndTime.Seconds = GTB.StartTime.Seconds+SafeAtoF(f[2], 1.0);
+            GTB.EndTime = GTB.EndTime.GreaterThan(GTB.StartTime);
+            GTB.TrackingTime = (SafeAtoI(f[3], GTB.TrackingTime)==0 ? 0 : 1);
+            GTB.AllowLatch = 0;
             }
           else if (_stricmp(f[0], "General")==0)
             {
@@ -2285,6 +2295,7 @@ BOOL CTagVwDoc::WriteDocument(const char* pszPathName, FILE* pFile)
   fprintf(pFile, "Other,-1,\"Labels(%i,%i,%i,%i,%i,%i)\",,,-1,,,,,\"ShowLabels(StartDate,StartTime,EndDate,EndTime,Duration,HundredSecs)\"\n", SD, ST, ED, ET, Dur, HS);
   fprintf(pFile, "Other,-1,\"Grid(%i,%i)\",,,-1,,,,,\"Grid(NoOfXDivisions,NoOfYDivisions)\"\n", iNXGridDivs, iNYGridDivs);
   fprintf(pFile, "Other,-1,\"Timebase(%g,%g,%i)\",,,-1,,,,,\"Timebase(Start,Duration,Tracking)\"\n", TimeBaseStart().Seconds, TimeBaseDuration().Seconds, TimeBaseTracking());
+  fprintf(pFile, "Other,-1,\"GTimebase(%g,%g,%i)\",,,-1,,,,,\"GTimebase(Start,Duration,Tracking)\"\n", TimeBaseStart(true).Seconds, TimeBaseDuration(true).Seconds, TimeBaseTracking(true));
   fprintf(pFile, "Other,-1,\"General(%i)\",,,-1,,,,,\"General(Scroll)\"\n", Scroll);
   fprintf(pFile, "Other,-1,\"ColumnWidths(%i,%i,%i,%i)\",,,-1,,,,,\"ColumnWidths(Tag,Value,Min,Max)\"\n", ColumnWidths[0], ColumnWidths[1], ColumnWidths[2], ColumnWidths[3]);
 
