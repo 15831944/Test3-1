@@ -433,9 +433,10 @@ int CXRefItem::ResolveNearXRef(pTaggedObject pSrchRoot, char* pTag, CTNode* Owne
     {
     TaggedObject *p=m_TAB.pAccObj;
     m_pOther=NULL;
-    while (!m_pOther && p)
+    if (p)
       m_pOther=dynamic_cast<CTNode*>(p);
-
+    else
+      ASSERT_ALWAYS(FALSE, "XRef Target not available", __FILE__, __LINE__);
     m_iType = m_TAB.Type();
     m_iCnvIndex = m_TAB.CnvIndex();
     //m_bNdPtrsValid=true;

@@ -591,7 +591,7 @@ CConnectCodeLock ConnectCodeLock;
 IMPLEMENT_MEMSTATS(CConnect);
 
 CConnect::CConnect(dword ID, pTagObjClass pClass_, char * TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-TaggedObject(pClass_, TagIn, pAttach, eAttach)
+CTNode(pClass_, TagIn, pAttach, eAttach)
   {
   InitializeCriticalSection(&m_LockSect);
 

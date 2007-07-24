@@ -1471,7 +1471,7 @@ typedef IOInfo IOInfoBlk[2];
 const dword Connect_Terminal = 1;
 const dword Connect_Flange   = 2;
 
-class DllImportExport CConnect : public CSFGNodeInfo, public TaggedObject
+class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
   {
   protected:
     DEFINE_MEMSTATS(CConnect )
