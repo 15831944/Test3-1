@@ -118,15 +118,21 @@ namespace SysCAD.Editor
 
     public void NewGraphicItem(GraphicItem graphicItem, String path)
     {
-
-      if (graphicItem != null)
-        NewGraphicItem(path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+      Guid guid;
+      NewGraphicItem(out guid, graphicItem, path);
     }
 
-    public void NewGraphicItem(String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void NewGraphicItem(out Guid guid, GraphicItem graphicItem, String path)
+    {
+      if (graphicItem != null)
+        NewGraphicItem(out guid, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+      else
+        guid = Guid.Empty;
+    }
+
+    public void NewGraphicItem(out Guid guid, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       Int64 requestId;
-      Guid guid;
 
       while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
@@ -134,37 +140,57 @@ namespace SysCAD.Editor
       state.CreateGraphicItem(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public GraphicLink NewGraphicLink(GraphicLink graphicLink, float dx, float dy)
+    public void NewGraphicLink(out Guid guid, GraphicLink graphicLink)
     {
-
-      while (state.Exists("A_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
-        tempBoxKey++;
-
-      GraphicLink newGraphicLink = new GraphicLink("A_" + tempBoxKey.ToString());
-      newGraphicLink.Destination = graphicLink.Destination;
-      newGraphicLink.Origin = graphicLink.Origin;
-
-      foreach (PointF point in graphicLink.ControlPoints)
-      {
-        newGraphicLink.ControlPoints.Add(new PointF(point.X + dx, point.Y + dy));
-      }
-
-      state.CreateLink(newGraphicLink, true, fcFlowChart);
-
-      return newGraphicLink;
+      if (graphicLink != null)
+        NewGraphicLink(out guid, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints);
+      else
+        guid = Guid.Empty;
     }
-
-    public void NewGraphicThing(String path, GraphicThing graphicThing)
-    {
-
-      if (graphicThing != null)
-        NewGraphicThing(path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
-    }
-
-    public void NewGraphicThing(String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    
+    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       Int64 requestId;
+
+      state.CreateGraphicLink(out requestId, out guid, "A_" + tempBoxKey.ToString(), classId, origin, destination, originPort, destinationPort, controlPoints);
+    }
+
+    //public GraphicLink NewGraphicLink(out Guid guid, GraphicLink graphicLink, float dx, float dy)
+    //{
+    //  while (state.Exists("A_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
+    //    tempBoxKey++;
+
+    //  GraphicLink newGraphicLink = new GraphicLink("A_" + tempBoxKey.ToString());
+    //  newGraphicLink.Destination = graphicLink.Destination;
+    //  newGraphicLink.Origin = graphicLink.Origin;
+
+    //  foreach (PointF point in graphicLink.ControlPoints)
+    //  {
+    //    newGraphicLink.ControlPoints.Add(new PointF(point.X + dx, point.Y + dy));
+    //  }
+
+    //  state.CreateLink(newGraphicLink, true, fcFlowChart);
+
+    //  return newGraphicLink;
+    //}
+
+    public void NewGraphicThing(GraphicThing graphicThing, String path)
+    {
       Guid guid;
+      NewGraphicThing(out guid, graphicThing, path);
+    }
+
+    public void NewGraphicThing(out Guid guid, GraphicThing graphicThing, String path)
+    {
+      if (graphicThing != null)
+        NewGraphicThing(out guid, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
+      else
+        guid = Guid.Empty;
+    }
+
+    public void NewGraphicThing(out Guid guid, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    {
+      Int64 requestId;
 
       while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
@@ -921,6 +947,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_Click(object sender, EventArgs e)
     {
+      Guid guid;
       MouseEventArgs me = e as MouseEventArgs;
       mousePressed = me.Location;
       hoverArrow = fcFlowChart.GetArrowAt(fcFlowChart.ClientToDoc(me.Location), 2);
@@ -936,7 +963,9 @@ namespace SysCAD.Editor
           ((currentModel != null) && (currentStencil != null))
           )
       {
+        state.newElementSelectionList.Clear();
         NewGraphicItem(
+          out guid,
           state.CurrentPath,
           currentModel,
           currentStencil,
@@ -1811,7 +1840,7 @@ namespace SysCAD.Editor
         graphicThing.Width = insertAnnotationDialog.DefaultWidth;
         graphicThing.Height = insertAnnotationDialog.DefaultHeight;
 
-        NewGraphicThing(state.TVNavigation.SelectedNode.FullPath, graphicThing);
+        NewGraphicThing(graphicThing, state.TVNavigation.SelectedNode.FullPath + state.TVNavigation.PathSeparator);
       }
     }
 

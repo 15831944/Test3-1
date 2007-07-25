@@ -312,132 +312,135 @@ namespace SysCAD.Editor
 
     private void frmFlowChart_fcFlowChart_SelectionChanged()
     {
-      graphicPropertyGrid.Clear();
-
-      frmFlowChart.FlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
-
-      if (!frmFlowChart.State.SelectItems)
+      if (!frmFlowChart.State.creatingItem)
       {
+        graphicPropertyGrid.Clear();
 
-        if (frmFlowChart.FlowChart.Selection.Boxes.Count > 1)
+        frmFlowChart.FlowChart.SelectionChanged -= new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+
+        if (!frmFlowChart.State.SelectItems)
         {
-          BoxCollection boxCollection = frmFlowChart.FlowChart.Selection.Boxes.Clone();
 
-          foreach (Box box in boxCollection)
+          if (frmFlowChart.FlowChart.Selection.Boxes.Count > 1)
           {
-            box.Selected = false;
-          }
-        }
-      }
+            BoxCollection boxCollection = frmFlowChart.FlowChart.Selection.Boxes.Clone();
 
-      if (!frmFlowChart.State.SelectLinks)
-      {
-
-        if (frmFlowChart.FlowChart.Selection.Arrows.Count > 1)
-        {
-          ArrowCollection arrowCollection = frmFlowChart.FlowChart.Selection.Arrows.Clone();
-
-          foreach (Arrow arrow in arrowCollection)
-          {
-            arrow.Selected = false;
-          }
-        }
-      }
-
-      foreach (Item item in frmFlowChart.State.Items)
-      {
-
-        if (item.Graphic.Selected)
-        {
-          item.Model.Selected = true;
-          item.Graphic.Selected = false;
-          item.Text.Selected = false;
-        }
-
-        if (item.Model.Selected)
-        {
-          item.Model.Visible = item.Visible;
-          item.Model.ZIndex = item.Graphic.ZIndex + 1;
-          item.Text.Visible = item.Visible && frmFlowChart.State.ShowTags;
-          item.Text.ZIndex = item.Graphic.ZIndex + 2;
-        }
-
-        else
-        {
-          item.Model.Visible = item.Visible && frmFlowChart.State.ShowModels;
-        }
-      }
-
-      if (frmFlowChart.FlowChart.ActiveObject is Arrow)
-      {
-        Arrow activeArrow = frmFlowChart.FlowChart.ActiveObject as Arrow;
-        GraphicLink graphicLink = frmFlowChart.State.GraphicLink(activeArrow);
-
-        if (graphicLink != null)
-        {
-          graphicPropertyGrid.SetSelectedObject(graphicLink, frmFlowChart.State);
-        }
-      }
-
-      if (frmFlowChart.FlowChart.ActiveObject is Box)
-      {
-        Box activeBox = frmFlowChart.FlowChart.ActiveObject as Box;
-        GraphicItem graphicItem = frmFlowChart.State.GraphicItem(activeBox);
-
-        if (graphicItem != null)
-        {
-          graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.State);
-
-          ModelItem modelItem = new ModelItem(graphicItem.Guid);
-          modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.State);
-
-          Int64 requestID;
-          frmFlowChart.State.PropertyList(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
-
-          int i;
-
-          i = 0;
-
-          foreach (String model in (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items)
-          {
-
-            if (model == graphicItem.Model)
+            foreach (Box box in boxCollection)
             {
-              (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
-              (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Text = model;
+              box.Selected = false;
             }
-            i++;
           }
-
-          if ((barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
-            (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
-
-          ModelStencil modelStencil = frmFlowChart.State.ModelShape(graphicItem.Model);
-
-          if (modelStencil != null)
-          {
-            GraphicType_Populate(modelStencil.GroupName);
-          }
-
-          i = 0;
-
-          foreach (String shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
-          {
-
-            if (shape == graphicItem.Shape)
-            {
-              (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
-              (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Text = shape;
-            }
-            i++;
-          }
-
-          if ((barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
-            (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
         }
-      }
 
-      frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+        if (!frmFlowChart.State.SelectLinks)
+        {
+
+          if (frmFlowChart.FlowChart.Selection.Arrows.Count > 1)
+          {
+            ArrowCollection arrowCollection = frmFlowChart.FlowChart.Selection.Arrows.Clone();
+
+            foreach (Arrow arrow in arrowCollection)
+            {
+              arrow.Selected = false;
+            }
+          }
+        }
+
+        foreach (Item item in frmFlowChart.State.Items)
+        {
+
+          if (item.Graphic.Selected)
+          {
+            item.Model.Selected = true;
+            item.Graphic.Selected = false;
+            item.Text.Selected = false;
+          }
+
+          if (item.Model.Selected)
+          {
+            item.Model.Visible = item.Visible;
+            item.Model.ZIndex = item.Graphic.ZIndex + 1;
+            item.Text.Visible = item.Visible && frmFlowChart.State.ShowTags;
+            item.Text.ZIndex = item.Graphic.ZIndex + 2;
+          }
+
+          else
+          {
+            item.Model.Visible = item.Visible && frmFlowChart.State.ShowModels;
+          }
+        }
+
+        if (frmFlowChart.FlowChart.ActiveObject is Arrow)
+        {
+          Arrow activeArrow = frmFlowChart.FlowChart.ActiveObject as Arrow;
+          GraphicLink graphicLink = frmFlowChart.State.GraphicLink(activeArrow);
+
+          if (graphicLink != null)
+          {
+            graphicPropertyGrid.SetSelectedObject(graphicLink, frmFlowChart.State);
+          }
+        }
+
+        if (frmFlowChart.FlowChart.ActiveObject is Box)
+        {
+          Box activeBox = frmFlowChart.FlowChart.ActiveObject as Box;
+          GraphicItem graphicItem = frmFlowChart.State.GraphicItem(activeBox);
+
+          if (graphicItem != null)
+          {
+            graphicPropertyGrid.SetSelectedObject(graphicItem, frmFlowChart.State);
+
+            ModelItem modelItem = new ModelItem(graphicItem.Guid);
+            modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.State);
+
+            Int64 requestID;
+            frmFlowChart.State.PropertyList(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
+
+            int i;
+
+            i = 0;
+
+            foreach (String model in (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items)
+            {
+
+              if (model == graphicItem.Model)
+              {
+                (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = i;
+                (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Text = model;
+              }
+              i++;
+            }
+
+            if ((barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex == -1)
+              (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 0;
+
+            ModelStencil modelStencil = frmFlowChart.State.ModelShape(graphicItem.Model);
+
+            if (modelStencil != null)
+            {
+              GraphicType_Populate(modelStencil.GroupName);
+            }
+
+            i = 0;
+
+            foreach (String shape in (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items)
+            {
+
+              if (shape == graphicItem.Shape)
+              {
+                (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = i;
+                (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Text = shape;
+              }
+              i++;
+            }
+
+            if ((barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex == -1)
+              (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndex = 0;
+          }
+        }
+
+        frmFlowChart.FlowChart.SelectionChanged += new SelectionEvent(this.frmFlowChart_fcFlowChart_SelectionChanged);
+      }
     }
 
     private void frmFlowChart_fcFlowChart_SelectionChanged(object sender, EventArgs e)
@@ -888,7 +891,7 @@ namespace SysCAD.Editor
 
     public void PasteFromClipboard(float dx, float dy)
     {
-
+      Guid guid;
       try
       {
         // try getting clipboard data; might throw exceptions
@@ -899,6 +902,8 @@ namespace SysCAD.Editor
         {
           BaseProtocol pasteData = dataObj.GetData("Kenwalt.GraphicData") as BaseProtocol;
 
+          frmFlowChart.State.newElementSelectionList.Clear();
+
           if (pasteData != null)
           {
 
@@ -906,39 +911,52 @@ namespace SysCAD.Editor
             {
               graphicItem.X += dx;
               graphicItem.Y += dy;
-              frmFlowChart.NewGraphicItem(graphicItem, tvNavigation.SelectedNode.FullPath);
+              frmFlowChart.NewGraphicItem(out guid, graphicItem, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
+              frmFlowChart.State.newElementSelectionList.Add(guid);
             }
 
             foreach (GraphicLink graphicLink in pasteData.graphicLinks.Values)
             {
-              GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
-
-              newGraphicLink.Destination = graphicLink.Destination;
-              newGraphicLink.Origin = graphicLink.Origin;
-
+              List<PointF> newControlPoints = new List<PointF>();
               foreach (PointF point in graphicLink.ControlPoints)
               {
-                newGraphicLink.ControlPoints.Add(new PointF(point.X, point.Y));
+                newControlPoints.Add(new PointF(point.X + dx, point.Y + dy));
               }
+              graphicLink.ControlPoints = newControlPoints;
 
-              // use new tags for connected items.
-              //if (tagConversion.ContainsKey(newGraphicLink.Source))
-              //  newGraphicLink.Source = tagConversion[newGraphicLink.Source];
-              //else
-              //  newGraphicLink.Source = "";
-              //if (tagConversion.ContainsKey(newGraphicLink.Destination))
-              //  newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
-              //else
-              //  newGraphicLink.Destination = "";
+              frmFlowChart.NewGraphicLink(out guid, graphicLink);
+              frmFlowChart.State.newElementSelectionList.Add(guid);
 
-              frmFlowChart.NewGraphicLink(newGraphicLink, dx, dy);
+              //GraphicLink newGraphicLink = new GraphicLink(graphicLink.Tag);
+
+              //newGraphicLink.Destination = graphicLink.Destination;
+              //newGraphicLink.Origin = graphicLink.Origin;
+
+              //foreach (PointF point in graphicLink.ControlPoints)
+              //{
+              //  newGraphicLink.ControlPoints.Add(new PointF(point.X, point.Y));
+              //}
+
+              //// use new tags for connected items.
+              ////if (tagConversion.ContainsKey(newGraphicLink.Source))
+              ////  newGraphicLink.Source = tagConversion[newGraphicLink.Source];
+              ////else
+              ////  newGraphicLink.Source = "";
+              ////if (tagConversion.ContainsKey(newGraphicLink.Destination))
+              ////  newGraphicLink.Destination = tagConversion[newGraphicLink.Destination];
+              ////else
+              ////  newGraphicLink.Destination = "";
+
+              //frmFlowChart.NewGraphicLink(guid, newGraphicLink, dx, dy);
+              //frmFlowChart.newItemSelectionList.Add(guid);
             }
 
             foreach (GraphicThing graphicThing in pasteData.graphicThings.Values)
             {
               graphicThing.X += dx;
               graphicThing.Y += dy;
-              frmFlowChart.NewGraphicThing(tvNavigation.SelectedNode.FullPath, graphicThing);
+              frmFlowChart.NewGraphicThing(out guid, graphicThing, tvNavigation.SelectedNode.FullPath + tvNavigation.PathSeparator);
+              frmFlowChart.State.newElementSelectionList.Add(guid);
             }
 
             //// that returns the active composite if somebody has already created one

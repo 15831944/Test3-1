@@ -137,9 +137,9 @@ namespace SysCAD.Protocol
       return clientServiceGraphic.CreateItem(out requestID, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public bool CreateLink(out Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public bool CreateLink(out Int64 requestID, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientServiceGraphic.CreateLink(out requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientServiceGraphic.CreateLink(out requestID, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public bool CreateThing(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)

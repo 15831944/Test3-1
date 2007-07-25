@@ -321,12 +321,12 @@ namespace SysCAD.Editor
         editCopyBarButtonCommand.Enabled = false;
         editCopyBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editCopyBarButtonCommand.Image")));
         editCopyBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131139, false),
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131139),
             new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 196694)});
         editPasteBarButtonCommand.Enabled = false;
         editPasteBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editPasteBarButtonCommand.Image")));
         editPasteBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {
-            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131158, false)});
+            new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut(null, 0, 131158)});
         editDeleteBarButtonCommand.Enabled = false;
         editDeleteBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("editDeleteBarButtonCommand.Image")));
         editDeleteBarButtonCommand.KeyboardShortcuts.AddRange(new ActiproSoftware.UIStudio.Bar.BarKeyboardShortcut[] {

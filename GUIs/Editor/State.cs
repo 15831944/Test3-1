@@ -47,6 +47,8 @@ namespace SysCAD.Editor
     private bool showTags = true;
     Int64 step = Int64.MinValue;
 
+    public List<Guid> newElementSelectionList = new List<Guid>(); // List of elements that have to be selected -- i.e. after paste.
+
     private Dictionary<Guid, Thing> things = new Dictionary<Guid, Thing>();
     DateTime time = DateTime.MinValue;
 
@@ -364,9 +366,9 @@ namespace SysCAD.Editor
       return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientProtocol.CreateLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
@@ -417,8 +419,11 @@ namespace SysCAD.Editor
       }
     }
 
+    public bool creatingItem = false; // Allows us to turn off some notifications during the creation process (specifically selectionChagned.)
+
     internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
+      creatingItem = true;
 
       if (flowchart.InvokeRequired)
       {
@@ -478,8 +483,10 @@ namespace SysCAD.Editor
           else
             graphicBox.FillColor = graphicItem.FillColor;
         }
-        
-        if (modelStencil!=null)
+
+        creatingItem = false; // we want any events to happen for the last created piece.
+
+        if (modelStencil != null)
         {
           modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
           modelBox.RotationAngle = graphicItem.Angle;
@@ -520,14 +527,32 @@ namespace SysCAD.Editor
           node.Tag = item;
           node.AllowDrop = false;
 
-          tvNavigation.AddSelectedNode(node);
+          NewElementSelection();
 
-          if ((isVisible) && (node.Parent != null))
-            node.Parent.Select();
+          //tvNavigation.AddSelectedNode(node);
+
+          //if ((isVisible) && (node.Parent != null))
+          //  node.Parent.Select();
         }
       }
     }
 
+    private void NewElementSelection()
+    {
+      if (newElementSelectionList.Count > 0)
+      {
+        foreach (Guid guid in newElementSelectionList)
+        {
+          if (items.ContainsKey(guid))
+            items[guid].Model.Selected = true;
+          if (links.ContainsKey(guid))
+            links[guid].Arrow.Selected = true;
+          if (things.ContainsKey(guid))
+            things[guid].Box.Selected = true;
+        }
+      }
+    }
+    
     internal void CreateLink(GraphicLink graphicLink, bool isVisible, FlowChart flowchart)
     {
 
@@ -616,6 +641,8 @@ namespace SysCAD.Editor
         arrow.Visible = ShowLinks && isVisible;
 
         links.Add(link.Guid, link);
+
+        NewElementSelection();
       }
     }
 
@@ -661,6 +688,8 @@ namespace SysCAD.Editor
         node.NodeStyle = new PureComponents.TreeView.NodeStyle();
         node.NodeStyle.SelectedForeColor = System.Drawing.Color.Green;
         node.NodeStyle.ForeColor = System.Drawing.Color.Green;
+
+        NewElementSelection();
       }
     }
 
