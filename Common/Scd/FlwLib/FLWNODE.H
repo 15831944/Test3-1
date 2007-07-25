@@ -524,6 +524,8 @@ class DllImportExport CDirectFlwIO
   {
   friend class FlwNode;
   friend class CConnect;
+  friend class CFlange;
+
   public:
 
     CDirectFlwIO(eDirectIO eType, FlwNode* Nd, flag ShowUsr, flag SysEnable, LPCTSTR Tag, int LclDIOId, int RmtDIOId, LPCTSTR RmtTypeName=NULL, LPCTSTR RmtTagDef=NULL);
@@ -1499,7 +1501,7 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     void           SetIsEvalSeqStart(flag On) { m_fIsEvalSeqStart=On; };
     flag           IsEvalSeqStart() { return m_fIsEvalSeqStart; };
 
-    void           FixTag(LPCSTR ReqdTag=NULL, bool TagFixed=false);
+    void           FixTag(LPCSTR ReqdTag=NULL);
     void           InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName);
 
     void           ClrUseStatus()               { m_iUseStatus=0; };
@@ -1533,8 +1535,6 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     
     POSITION       m_ListPosn;
 
-  private:
-    bool           m_bTagFixed;
   };
 
 // =========================================================================
@@ -1745,6 +1745,8 @@ class DllImportExport CFlange : public TearPosBlk, public CConnect//, public Tag
   public:
     int            m_Attachments;
     bool           m_bMustDelete;
+    
+    CDirectFlwIO * m_pDirectFlwIO;
 
     double         m_Datum, m_DeltaZ;
     flag           //fFlngSetUp,

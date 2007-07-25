@@ -603,7 +603,6 @@ CTNode(pClass_, TagIn, pAttach, eAttach)
   m_iIOSrc=0;
   m_iIODst=0;
 
-  m_bTagFixed=false;
   m_ListPosn=NULL;
   FlwNode::AddToConnectList(this);
   LPSTR pTag=Tag();
@@ -625,12 +624,9 @@ CConnect::~CConnect()
 void  CConnect::ClrConnection() 
   { 
   m_pNdSrc=m_pNdDst=NULL; 
-  if (!m_bTagFixed)
-    {
-    if (Tag())
-      FlwNode::RemoveFromConnectMap(Tag()); 
-    SetTag("", true);
-    }
+  if (Tag())
+    FlwNode::RemoveFromConnectMap(Tag()); 
+  SetTag("", true);
   };
 
 // --------------------------------------------------------------------------
@@ -648,30 +644,40 @@ void  CConnect::SetConnection(const IOInfo & IOSrc, const IOInfo & IODst)
 
 // --------------------------------------------------------------------------
 
-void CConnect::FixTag(LPCSTR ReqdTag, bool TagFixed)
+#define dbgFixTag 0
+
+void CConnect::FixTag(LPCSTR ReqdTag)
   {
   Strng NewTag(Tag());
   
-  if (ReqdTag && strlen(ReqdTag)>0)
-    {
-    NewTag=ReqdTag;
-    m_bTagFixed=TagFixed;
-    }
+#if dbgFixTag 
+  Strng OldTag(Tag());
 
-  if (!m_bTagFixed)
-    {
+  if (stricmp(Tag(), "xxxx")==0 || (ReqdTag && stricmp(ReqdTag, "xxxx")==00))
+    { int xxx=0; };
+
+#endif
+  
+  if (ReqdTag && strlen(ReqdTag)>0)
+    NewTag=ReqdTag;
+  else
     NewTag=m_sRefIOTg();
-    }
 
   if (NewTag.XStrICmp(Tag())!=0)
     {
+   
     if (Tag())
       FlwNode::RemoveFromConnectMap(Tag()); 
     CConnect::SetTag(NewTag());
     if (Tag())
       FlwNode::AddToConnectMap(CConnect::Tag(), this); 
     }
-  
+
+#if dbgFixTag 
+  static int cnt=0;
+  dbgpln("FixTag %5i %08x %i %-20s >> %s", cnt++, this, /*TagFixed*/0, OldTag(), Tag());
+#endif
+
   };
 
 // --------------------------------------------------------------------------
@@ -694,7 +700,7 @@ static inline long ExtractIndexFromTag(LPSTR Tag)
 
 // --------------------------------------------------------------------------
 
-#define dbgInitConnId 10
+#define dbgInitConnId 0
 
 void CConnect::InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName)
   {
@@ -999,6 +1005,8 @@ CConnect(Connect_Flange, pClass_, TagIn, pAttach, eAttach)
   m_Attachments=0;
   m_bMustDelete=false;//MustDelete;
 
+  m_pDirectFlwIO=NULL;
+
   m_Datum=0.0;
   m_DeltaZ=0.0;
   //fFlngSetUp=false;
@@ -1064,10 +1072,16 @@ LPSTR CFlange::Tag()
 
 LPSTR CFlange::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
   {
+  if (m_pDirectFlwIO && ReqdTag && strlen(ReqdTag)>0)
+    m_pDirectFlwIO->m_sConnTagMem=ReqdTag;
+  
   if (ReqdTag)
-    FixTag(ReqdTag, true);
+    FixTag(ReqdTag);
+  else
+    CConnect::SetTag(ReqdTag, AllowEmptyTag);
 
-  return CConnect::SetTag(ReqdTag, AllowEmptyTag);
+
+  return CConnect::Tag();
   };
 
 // --------------------------------------------------------------------------
@@ -6612,11 +6626,7 @@ int FlwNode::ConnectTag(FlwNode * Root, pchar Tag1, pchar Tag2, int RqdIONo1, in
         if (DoInitConn)
           pF->InitConnId(Info[0].p, Info[0].p->IODesc_Self(Info[0].IOIndex)->IOName(0), 
                          Info[1].p, Info[1].p->IODesc_Self(Info[1].IOIndex)->IOName(0), NULL);
-        //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
-        if (ConnectTag)
-          pF->FixTag(ConnectTag, true);
-        else
-          pF->FixTag();
+        pF->FixTag(ConnectTag);
         pF->m_iUseStatus=UseStatus;
         }
       }
@@ -6740,11 +6750,7 @@ int FlwNode::ConnectIOTag(FlwNode * s, pchar IOTag1, FlwNode * d, pchar IOTag2, 
         if (DoInitConn)
           pF->InitConnId(Info[0].p, Info[0].p->IODesc_SelfId(Info[0].Id)->IOName(0), 
                          Info[1].p, Info[1].p->IODesc_SelfId(Info[1].Id)->IOName(0), NULL);
-        //pF->m_pRefNd      = (Info[0].p->m_dwType & nc_MLnk) ? Info[1].p : Info[0].p;
-        if (ConnectTag)
-          pF->FixTag(ConnectTag, true);
-        else
-          pF->FixTag();
+        pF->FixTag(ConnectTag);
         pF->m_iUseStatus=UseStatus;
         }
 
@@ -11426,6 +11432,7 @@ void CDirectFlwIO::InitialiseIO(flag ShowUsr, flag SysEnable, LPCTSTR Tag, int L
   if (HasConduit && (m_pFlng == NULL))
     {
     m_pFlng                 = (CFlange*)CFlangeClass.Construct(DirectLinkClass ,""/*()*/ ,NULL , TOA_Free);
+    m_pFlng->m_pDirectFlwIO = this;
     m_pFlng->m_bMustDelete  = false;
     m_pFlng->InitConnId(m_pNd, NULL, NULL, NULL, m_sTag());
     switch (m_eType)
