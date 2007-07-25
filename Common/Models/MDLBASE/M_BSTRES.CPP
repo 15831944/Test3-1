@@ -39,8 +39,8 @@ MN_BstRes::MN_BstRes(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
 
   AttachClassInfo(nc_MBst, NULL, &NullFlwGroup);
 
-  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
-  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed);
+  InitAssocGrfShowPB(eAGS_Hide, eAGS_Hide, eAGS_Hide, eAGS_Show, eAGS_Show);
+  InitAssocGrfShowDyn(eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_ShowEverUsed, eAGS_Show, eAGS_Show);
 
   m_FEP.SetFlowModeSrc(this, false);
   }

@@ -1414,9 +1414,9 @@ class DllImportExport TaggedObject : public ConditionBlk
     CTOSelectData *SelectData()             { return TagObjClass::m_bEquipSpecs && m_pClass->m_SelectData.DataSetCount()>0 ? &m_pClass->m_SelectData:NULL; };
 #endif
 
-    void           InitAssocGrfShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
+    void           InitAssocGrfShowPB(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
       { Class()->InitAssocGrfShowPB(NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
-    void           InitAssocGrfShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Hide, eAssocGrfShows Bleed=eAGS_Hide, eAssocGrfShows RB=eAGS_Hide)
+    void           InitAssocGrfShowDyn(eAssocGrfShows Spill=eAGS_Hide, eAssocGrfShows Vent=eAGS_Hide, eAssocGrfShows Leak=eAGS_Hide, eAssocGrfShows Makeup=eAGS_Show, eAssocGrfShows Bleed=eAGS_Show, eAssocGrfShows RB=eAGS_Hide)
       { Class()->InitAssocGrfShowDyn(!NetProbalMethod(), Spill, Vent, Leak, Makeup, Bleed, RB); }
     
     bool           AssocGrfOn(eAssocGrfTypes AGType, byte UseStatus);                       
@@ -2318,7 +2318,7 @@ class DllImportExport CCOMObjManagerRoot
   DEFINE_TAGOBJDERIVED(Obj, TagObjClass)
 
 
-#define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, Base) \
+#define IMPLEMENT_TAGOBJSLCTDERIVED(Obj, ObjName, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, Base) \
 TaggedObject * Obj##ClassDef::ConstructGroup(LPSTR pClass, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
   { return TagObjClass::ConstructGrp(pClass, pSubClass, pTag, pAttach, eAttach); }; \
 TaggedObject * Obj##ClassDef::ConstructGroupDesc(LPSTR pShortDesc, LPSTR pSubClass, LPSTR pTag, TaggedObject * pAttach, TagObjAttachment eAttach) \
@@ -2333,20 +2333,23 @@ TaggedObject * Obj##ClassDef::Construct(LPSTR pSubClass, LPSTR pTag, TaggedObjec
   }; \
 Obj##ClassDef::Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask) \
   : Base(pClassName_, pGroup_, pClassId_, pSubClassId_, pVersion_, pDrwGroup_, pTagInitialID_, dwCat, pShortDesc_, pDesc_, dwSelectMask) { sMdlLibName=MDLLIBNAME; }; \
-  Obj##ClassDef::Obj##ClassDef() : Base(#Obj, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
+  Obj##ClassDef::Obj##ClassDef() : Base(ObjName, Grp, ClassId, SubClass, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask){ sMdlLibName=MDLLIBNAME; }; \
 Obj##ClassDef Obj##Class;
 
 #define IMPLEMENT_TAGOBJ(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+
+#define IMPLEMENT_TAGOBJEX(Obj, ObjName, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, ObjName, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
 #define IMPLEMENT_TAGOBJSUB(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, SubClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, TagObjClass)
 
 #define IMPLEMENT_TAGOBJDERIVED(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, Base) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, Base)
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, 0xffffffff, Base)
 
 #define IMPLEMENT_TAGOBJSLCT(Obj, Grp, ClassId, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask) \
-  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, TagObjClass)
+  IMPLEMENT_TAGOBJSLCTDERIVED(Obj, #Obj, Grp, ClassId, NULL, Version, DrwGroup, TagInitialID, Cat, ShortDesc, Desc, SelectMask, TagObjClass)
 
 // --------------------------------------------------------------------------
 
