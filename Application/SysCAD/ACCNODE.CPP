@@ -3643,6 +3643,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
 #if WITHSPECSHEETS
 //ss        Menu.AppendMenu(MF_STRING, IDM_ACC_SPECSHEET,   "&Spec Sheet ...");
 #endif
+        Menu.AppendMenu(MF_STRING, IDM_ACC_MDLHELP,       "Model Help");
         Menu.AppendMenu(MF_STRING, IDM_ACC_PRINT,         "&Print ...");
 #if WITHDOCUMENTATIONLINK
         Menu.AppendMenu(MF_STRING, IDM_ACC_DOCUMENT,      "Docu&ment ...");
@@ -3681,7 +3682,6 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
 #endif
 
         //Menu.AppendMenu(MF_STRING, IDM_ACC_FINDTAG, s());
-        //Menu.AppendMenu(MF_STRING, IDM_ACC_MDLHELP, "Model &Help");
 
         Menu.TrackPopupMenu(TPM_LEFTALIGN|TPM_RIGHTBUTTON, RBPoint.x, RBPoint.y, this);
         Menu.DestroyMenu();
@@ -4480,6 +4480,13 @@ void AccNodeWnd::OnAccOptions(UINT Id)
       ChgTag.DoModal();
       }
       break;
+    case IDM_ACC_MDLHELP:
+      {
+      char* pTxt = new char[m_NdTag.Len()+1];
+      strcpy(pTxt, m_NdTag());
+      ScdMainWnd()->PostMessage(WMU_TAGACTION, SUB_TAG_MDLHELP, (LPARAM)pTxt);
+      break;
+      }
     case IDM_ACC_PRINT:
       OnFilePrint();
       break;
