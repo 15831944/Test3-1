@@ -11,6 +11,7 @@ using Microsoft.Win32;
 using System.Resources;
 using System.Reflection;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace Reaction_Editor
 {
@@ -20,7 +21,7 @@ namespace Reaction_Editor
         //Rectangle m_DragRect = Rectangle.Empty;
         //Compound m_DraggedCompound = null;
         int m_nUntitledNo = 1;
-        ILog Log = new FrmLog();
+        ILog Log;
         RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
@@ -86,14 +87,11 @@ namespace Reaction_Editor
 
                     if (Compound.AddCompound(comp))
                     {
-                        ListViewItem lvi = new ListViewItem(new string[] { comp.Name, comp.Symbol });
-                        lstSpecies.Items.Add(lvi);
-                        lvi.Group = lstSpecies.Groups[comp.Phase.ToString()];
-                        lvi.Tag = comp;
                         specieCount++;
                     }
                 }
                 lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+                txtFilter_TextChanged(this, new EventArgs());
                 lstSpecies.EndUpdate();
                 Log.Message(elementCount.ToString() + " Elements and " + specieCount.ToString() + " Species loaded.",
                     MessageType.Note,
@@ -311,6 +309,8 @@ namespace Reaction_Editor
                     lvi.ImageKey = "Plus";
                 else if (compsInSink.Contains((Compound)lvi.Tag))
                     lvi.ImageKey = "Minus";
+                else
+                    lvi.ImageKey = null;
             }
             lstSpecies.EndUpdate();
         }
@@ -341,6 +341,7 @@ namespace Reaction_Editor
             treeFiles.Nodes["SpecieDB"].ContextMenuStrip = menuDatabaseFile;
             //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             lstSpecies.SmallImageList = Program.Images;
+            Log = new ListLog(lstLog);
         }
 
         void frm_NowChanged(object sender, EventArgs e)
@@ -373,18 +374,17 @@ namespace Reaction_Editor
         Regex recentFileRegex = new Regex("RecentFile\\d+");
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            FrmLog frm = (FrmLog)Log;
-            frm.MdiParent = this;
+            //FrmLog frm = (FrmLog)Log;
+            //frm.MdiParent = this;
 
-            frm.Show();
-            frm.TopMost = true;
-            RepositionLog();
+            //frm.Show();
+            //frm.TopMost = true;
+            //RepositionLog();
             string fn = (string)regKey.GetValue("Last Database", "");
             if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
                 OpenSpecieDB(fn);
             string[] valueNames = regKey.GetValueNames();
             Array.Sort<String>(valueNames);
-            bool firstName = true;
             List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
             foreach (string s in valueNames)
                 if (recentFileRegex.Match(s).Success)
@@ -516,7 +516,7 @@ namespace Reaction_Editor
         private void menuCascade_Click(object sender, EventArgs e)
         {
             LayoutMdi(MdiLayout.Cascade);
-            RepositionLog();
+            //RepositionLog();
         }
 
         private void undockToolStripMenuItem_Click(object sender, EventArgs e)
@@ -645,11 +645,6 @@ namespace Reaction_Editor
                 ((FrmReaction)ActiveMdiChild).Cut();
         }
 
-        private void logToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((FrmLog)Log).Activate();
-        }
-
         private void unloadAllSpeciesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Are you sure you wish to unload all specie data from all databases?", "Unload All", MessageBoxButtons.YesNo) == DialogResult.Yes)
@@ -703,13 +698,18 @@ namespace Reaction_Editor
                 foreach (string s in tokens)
                     if (c.Symbol.Contains(s) || c.Name.ToLower().Contains(s.ToLower()))
                     {
-                        ListViewItem lvi = new ListViewItem(new string[] { c.Name, c.Symbol });
+                        ListViewItem lvi = new ListViewItem(new string[] { c.Symbol, c.Name });
                         lstSpecies.Items.Add(lvi);
                         lvi.Group = lstSpecies.Groups[c.Phase.ToString()];
                         lvi.Tag = c;
                         continue;
                     }
             lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+            if (!string.IsNullOrEmpty(txtFilter.Text.Trim()))
+                txtFilter.BackColor = Color.Pink;
+            else
+                txtFilter.BackColor = System.Drawing.SystemColors.Window;
+
             UpdateUsedSpecies();
             lstSpecies.EndUpdate();
         }
@@ -725,6 +725,265 @@ namespace Reaction_Editor
                     break;
                 }
             menuSaveAll.Enabled = anyFilesOpen;
+        }
+
+        private void grpSpecies_Resize(object sender, EventArgs e)
+        {
+            btnCollapseRight.Left = grpSpecies.Left - btnCollapseRight.Width;
+            btnCollapseRight.Top = grpSpecies.Top + (grpSpecies.Height - btnCollapseRight.Height) / 2;
+        }
+
+        int m_nOldGrpSpeciesWidth;
+        private void btnCollapseRight_Click(object sender, EventArgs e)
+        {
+            if (!splitterRight.Enabled)
+            {
+                grpSpecies.Width = m_nOldGrpSpeciesWidth;
+                splitterRight.Enabled = true;
+            }
+            else
+            {
+                m_nOldGrpSpeciesWidth = grpSpecies.Width;
+                grpSpecies.Width = 0;
+                splitterRight.Enabled = false;
+            }
+            grpSpecies_Resize(sender, e);
+        }
+
+        private void grpFiles_Resize(object sender, EventArgs e)
+        {
+            btnCollapseLeft.Left = grpFiles.Right;
+            btnCollapseLeft.Top = grpFiles.Top + (grpFiles.Height - btnCollapseRight.Height) / 2;
+
+        }
+
+        protected int m_nOldGrpFilesWidth;
+        private void btnCollapseLeft_Click(object sender, EventArgs e)
+        {
+            if (!splitterLeft.Enabled)
+            {
+                grpFiles.Width = m_nOldGrpFilesWidth;
+                splitterLeft.Enabled = true;
+            }
+            else
+            {
+                m_nOldGrpFilesWidth = grpFiles.Width;
+                grpFiles.Width = 0;
+                splitterLeft.Enabled = false;
+            }
+            grpFiles_Resize(sender, e);
+        }
+
+        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
+        protected int m_nOldPnlLogHeight;
+        private void btnLogCollapse_Click(object sender, EventArgs e)
+        {
+            if (splitterLog.Enabled)
+            {
+                m_nOldPnlLogHeight = pnlLog.Height;
+                pnlLog.Height = pnlLogHeader.Height + 4;
+                splitterLog.Enabled = false;
+                btnLogCollapse.BackgroundImage = Reaction_Editor.Properties.Resources.UpArrow;
+                if (ActiveMdiChild != null && ActiveMdiChild.ActiveControl != null)
+                    ActiveMdiChild.ActiveControl.Focus();
+            }
+            else
+            {
+                pnlLog.Height = m_nOldPnlLogHeight;
+                splitterLog.Enabled = true;
+                btnLogCollapse.BackgroundImage = Reaction_Editor.Properties.Resources.DownArrow;
+                pnlLog.Focus();
+            }
+        }
+
+        private void splitterRight_DoubleClick(object sender, EventArgs e)
+        {
+            chName.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+            chSymbol.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+            //chSymbol.Width += 16; //To account for images
+            grpSpecies.Width = (chName.Width + chSymbol.Width + (lstSpecies.Width - lstSpecies.ClientSize.Width) )+ (grpSpecies.Width - grpSpecies.ClientSize.Width);
+            grpSpecies_Resize(sender, e);
+        }
+
+        protected FrmReaction LastChild = null;
+        private void pnlLog_Enter(object sender, EventArgs e)
+        {
+            btnLogCollapse.FlatAppearance.BorderColor = btnLogCollapse.BackColor = pnlLogHeader.BackColor = SystemColors.ActiveCaption;
+            lblLogHeader.ForeColor = SystemColors.ActiveCaptionText;
+            if (ActiveMdiChild != null)
+                Messaging.SendMessage(ActiveMdiChild.Handle, Messaging.WM_NCACTIVATE, (IntPtr) 0, (IntPtr)0);
+            if (ActiveMdiChild is FrmReaction)
+                (LastChild = ((FrmReaction)ActiveMdiChild)).ActualActive = false;
+        }
+
+        private void pnlLog_Leave(object sender, EventArgs e)
+        {
+            btnLogCollapse.FlatAppearance.BorderColor = btnLogCollapse.BackColor = pnlLogHeader.BackColor = SystemColors.InactiveCaption;
+            lblLogHeader.ForeColor = SystemColors.InactiveCaptionText;
+            if (ActiveMdiChild != null)
+                Messaging.SendMessage(ActiveMdiChild.Handle, Messaging.WM_NCACTIVATE, (IntPtr)1, (IntPtr)0);
+            if (LastChild is FrmReaction)
+            {
+                ((FrmReaction)LastChild).ActualActive = true;
+                LastChild = null;
+            }
+        }
+
+        private void pnlLogHeader_Click(object sender, EventArgs e)
+        {
+            if (splitterLog.Enabled)
+                ((Control)sender).Select();
+        }
+
+        private void splitterRight_Move(object sender, EventArgs e)
+        {
+            grpSpecies_Resize(sender, e);
+        }
+
+        private void menuSpecieList_Opening(object sender, CancelEventArgs e)
+        {
+            if (lstSpecies.SelectedItems.Count == 0 || !(ActiveMdiChild is FrmReaction))
+            {
+                menuSetSink.Enabled =
+                    menuSetSource.Enabled =
+                    menuRemoveSink.Enabled =
+                    menuRemoveSource.Enabled = false;
+            }
+            else
+            {
+                List<Compound> sources = ((FrmReaction)ActiveMdiChild).SourceCompounds;
+                List<Compound> sinks = ((FrmReaction)ActiveMdiChild).SinkCompounds;
+                bool anySinks = false;
+                bool anySources = false;
+                bool anyNonSinks = false;
+                bool anyNonSources = false;
+                foreach (ListViewItem lvi in lstSpecies.SelectedItems)
+                {
+                    if (sources.Contains((Compound)lvi.Tag))
+                        anySources = true;
+                    else
+                        anyNonSources = true;
+                    if (sinks.Contains((Compound)lvi.Tag))
+                        anySinks = true;
+                    else
+                        anyNonSinks = true;
+                }
+                menuSetSink.Enabled = anyNonSinks;
+                menuSetSource.Enabled = anyNonSources;
+                menuRemoveSink.Enabled = anySinks;
+                menuRemoveSource.Enabled = anySources;
+            }
+        }
+
+        private void menuSetSource_Click(object sender, EventArgs e)
+        {
+            List<Compound> comps = new List<Compound>();
+            foreach (ListViewItem lvi in lstSpecies.SelectedItems)
+                comps.Add((Compound)lvi.Tag);
+            ((FrmReaction)ActiveMdiChild).AddSources(comps.ToArray());
+        }
+
+        private void menuSetSink_Click(object sender, EventArgs e)
+        {
+            List<Compound> comps = new List<Compound>();
+            foreach (ListViewItem lvi in lstSpecies.SelectedItems)
+                comps.Add((Compound)lvi.Tag);
+            ((FrmReaction)ActiveMdiChild).AddSinks(comps.ToArray());
+        }
+
+        private void menuRemoveSource_Click(object sender, EventArgs e)
+        {
+            List<Compound> comps = new List<Compound>();
+            foreach (ListViewItem lvi in lstSpecies.SelectedItems)
+                comps.Add((Compound)lvi.Tag);
+            ((FrmReaction)ActiveMdiChild).RemoveSources(comps.ToArray());
+        }
+
+        private void menuRemoveSink_Click(object sender, EventArgs e)
+        {
+            List<Compound> comps = new List<Compound>();
+            foreach (ListViewItem lvi in lstSpecies.SelectedItems)
+                comps.Add((Compound)lvi.Tag);
+            ((FrmReaction)ActiveMdiChild).RemoveSinks(comps.ToArray());
+        }
+    }
+
+    public class ListLog : ILog
+    {
+        protected ListView listView1;
+        public ListLog(ListView lv)
+        {
+            listView1 = lv;
+            listView1.DoubleClick += new EventHandler(listView1_DoubleClick);
+            listView1.SmallImageList = Program.Images;
+        }
+
+        #region ILog Members
+        protected bool m_bActive = true;
+        protected Stack<MessageSource> sourceStack = new Stack<MessageSource>();
+        protected void AddMessage(string msg, MessageType msgType, MessageSource src)
+        {
+            if (!m_bActive) return;
+            string imageKey = "";
+            switch (msgType)
+            {
+                case MessageType.Error:
+                    imageKey = "Error_ico";
+                    break;
+                case MessageType.Note:
+                    imageKey = "Info_ico";
+                    break;
+                case MessageType.Warning:
+                    imageKey = "Warning_ico";
+                    break;
+            }
+            string source = "Global";
+            if (src != null)
+                source = src.Source;
+            ListViewItem lvi = new ListViewItem(new string[] { source, msg }, imageKey);
+            lvi.Tag = src;
+            listView1.Items.Add(lvi);
+            listView1.EnsureVisible(lvi.Index);
+            //listView1.AutoScrollOffset = new Point(0);//(lvi.Position);
+        }
+
+        public void Message(string msg, MessageType msgType, MessageSource src)
+        {
+            AddMessage(msg, msgType, src);
+        }
+
+        public void Message(string msg, MessageType msgType)
+        {
+            MessageSource src = null;
+            if (sourceStack.Count != 0)
+                src = sourceStack.Peek();
+            AddMessage(msg, msgType, src);
+        }
+
+        public void SetSource(MessageSource src)
+        {
+            sourceStack.Push(src);
+        }
+
+        public void RemoveSource()
+        {
+            sourceStack.Pop();
+        }
+
+        public bool Active
+        {
+            get { return m_bActive; }
+            set { m_bActive = value; }
+        }
+        #endregion
+
+        private void listView1_DoubleClick(object sender, EventArgs e)
+        {
+            if (listView1.SelectedItems.Count != 0 &&
+                listView1.SelectedItems[0].Tag != null)
+            {
+                ((MessageSource)listView1.SelectedItems[0].Tag).DoCallback();
+            }
         }
     }
 }

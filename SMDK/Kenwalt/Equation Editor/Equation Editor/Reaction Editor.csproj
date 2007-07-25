@@ -38,10 +38,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BANumEdit.cs">
+    <Compile Include="BoxAutoComplete.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Third Party Controls\BANumEdit.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Data Structures.cs" />
+    <Compile Include="FrmAutoComplete.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAutoComplete.designer.cs">
+      <DependentUpon>FrmAutoComplete.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmBalanceOptions.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,11 +75,15 @@
     <Compile Include="FrmReaction.Designer.cs">
       <DependentUpon>FrmReaction.cs</DependentUpon>
     </Compile>
-    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Third Party Controls\NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="BANumEdit.resx">
+    <EmbeddedResource Include="Third Party Controls\BANumEdit.resx">
       <DependentUpon>BANumEdit.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmAutoComplete.resx">
+      <DependentUpon>FrmAutoComplete.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmBalanceOptions.resx">
@@ -89,13 +102,13 @@
       <SubType>Designer</SubType>
       <DependentUpon>FrmReaction.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Icons.resources" />
+    <EmbeddedResource Include="Images\Icons.resources" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="RichTextBoxEx.resx">
+    <EmbeddedResource Include="Third Party Controls\RichTextBoxEx.resx">
       <DependentUpon>RichTextBoxEx.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -113,9 +126,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RichTextBoxEx.cs">
+    <Compile Include="Third Party Controls\RichTextBoxEx.cs">
       <SubType>Component</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\UpArrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Images\DownArrow2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

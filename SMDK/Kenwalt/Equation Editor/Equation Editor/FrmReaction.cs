@@ -10,12 +10,16 @@ using System.IO;
 using System.Collections;
 using System.Collections.Specialized;
 using Be.Windows.Forms;
+using Auto_Complete;
 
 namespace Reaction_Editor
 {
     public partial class FrmReaction : Form
     {
         #region Regex's
+        protected static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r?\n)?|\r?\n|$))*?$",
+            RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
         protected static Regex s_LastSelectedRegex = new Regex(@"<LastSelected\s*=\s*(?<Value>\d+|None)>",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
         protected static Regex s_EndRegex = new Regex(@"(^|\r\n)\s*End",
@@ -73,6 +77,8 @@ namespace Reaction_Editor
         {
             get { return lstReactions.Items.Count + 1; }
         }
+
+        protected bool m_bActualActive = true;
         #endregion Variables
 
         #region Properties
@@ -204,6 +210,19 @@ namespace Reaction_Editor
                 return text;
             }
         }
+
+        public bool ActualActive
+        {
+            get{ return m_bActualActive; }
+            set 
+            {
+                m_bActualActive = value;
+                if (!value)
+                    Messaging.SendMessage(Handle, Messaging.WM_NCACTIVATE, (IntPtr)0, (IntPtr)0);
+            }
+        }
+
+        List<Auto_Complete.BoxAutoComplete> AutoCompleteBoxes = new List<Auto_Complete.BoxAutoComplete>();
         #endregion Properties
 
         #region Events
@@ -289,6 +308,10 @@ namespace Reaction_Editor
             numSequence.Text = "";
 
             Changed = false;
+
+            AutoCompleteBoxes.AddRange(new BoxAutoComplete[] { txtSources, txtSinks, txtReactants, txtProducts });
+
+            UpdateAutoCompleteForms();
         }
         #endregion Constructors
 
@@ -493,9 +516,105 @@ namespace Reaction_Editor
             if (Clipboard.ContainsText())
                 PasteText(this);
         }
+
+        public void AddSources(params Compound[] newSources)
+        {
+            List<Compound> existingSources = SourceCompounds;
+            foreach (Compound c in newSources)
+            {
+                if (!existingSources.Contains(c))
+                {
+                    if (s_EndsWithComma.Match(txtSources.Text).Success || string.IsNullOrEmpty(txtSources.Text.Trim()))
+                        txtSources.AppendText(c.Symbol);
+                    else
+                        txtSources.AppendText(", " + c.Symbol);
+                    m_SourcesCache.Add(c);
+                }
+            }
+            ChangeOccured();
+            if (SourcesSinksChanged != null)
+                SourcesSinksChanged(this, new EventArgs());
+        }
+
+        public void AddSinks(params Compound[] newSinks)
+        {
+            List<Compound> existingSinks = SinkCompounds;
+            foreach (Compound c in newSinks)
+            {
+                if (!existingSinks.Contains(c))
+                {
+                    if (s_EndsWithComma.Match(txtSinks.Text).Success || string.IsNullOrEmpty(txtSinks.Text.Trim()))
+                        txtSinks.AppendText(c.Symbol);
+                    else
+                        txtSinks.AppendText(", " + c.Symbol);
+                    m_SinksCache.Add(c);
+                }
+            }
+            ChangeOccured();
+            if (SourcesSinksChanged != null)
+                SourcesSinksChanged(this, new EventArgs());
+        }
+
+        public void RemoveSinks(params Compound[] toRemove)
+        {
+            List<Compound> originalSinks = new List<Compound>(SinkCompounds);
+            Match m = s_CompoundSeperator.Match(txtSinks.Text);
+            CaptureCollection compCaptures = m.Groups["Comp"].Captures;
+            CaptureCollection delimCaptures = m.Groups["Delim"].Captures;
+
+            for (int i = compCaptures.Count - 1; i >= 0; i--)
+                foreach (Compound c in toRemove)
+                    if (originalSinks.Contains(c))
+                    {
+                        if (compCaptures[i].Value.Trim() == c.Symbol)
+                        {
+                            txtSinks.Select(compCaptures[i].Index, compCaptures[i].Length + delimCaptures[i].Length);
+                            txtSinks.SelectedText = "";
+                        }
+                        m_SinksCache.Remove(c);
+                    }
+            ChangeOccured();
+            if (SourcesSinksChanged != null)
+                SourcesSinksChanged(this, new EventArgs());
+        }
+
+        public void RemoveSources(params Compound[] toRemove)
+        {
+            List<Compound> originalSources = new List<Compound>(SourceCompounds);
+            Match m = s_CompoundSeperator.Match(txtSources.Text);
+            CaptureCollection compCaptures = m.Groups["Comp"].Captures;
+            CaptureCollection delimCaptures = m.Groups["Delim"].Captures;
+
+            for (int i = compCaptures.Count - 1; i >= 0; i--)
+                foreach (Compound c in toRemove)
+                    if (originalSources.Contains(c))
+                    {
+                        if (compCaptures[i].Value.Trim() == c.Symbol)
+                        {
+                            txtSources.Select(compCaptures[i].Index, compCaptures[i].Length + delimCaptures[i].Length);
+                            txtSources.SelectedText = "";
+                        }
+                        m_SourcesCache.Remove(c);
+                    }
+            ChangeOccured();
+            if (SourcesSinksChanged != null)
+                SourcesSinksChanged(this, new EventArgs());
+        }
         #endregion Public Functions
 
         #region Protected Functions
+        protected void UpdateAutoCompleteForms()
+        {
+            txtReactants.HitCounts.Clear();
+            foreach (BoxAutoComplete box in AutoCompleteBoxes)
+            {
+                box.HitCounts = txtReactants.HitCounts;
+                box.Items.Clear();
+                foreach (Compound c in Compound.CompoundList.Values)
+                    box.Items.Add(c);
+            }
+        }
+
         protected bool PasteText(Control c)
         {
             if ((c.GetType() == typeof(TextBox) || c.GetType() == typeof(RichTextBoxEx))
@@ -509,6 +628,7 @@ namespace Reaction_Editor
                     return true;
             return false;
         }
+
         protected void ReadFile()
         {
             //Now, stopping at the End token:
@@ -1053,8 +1173,6 @@ namespace Reaction_Editor
                 NowChanged(this, new EventArgs());
         }
 
-        protected static Regex s_CompoundSeperator = new Regex(@"^(?<Comp>[^,\r\n]*)((,(\r?\n)?|\r?\n)(?<Comp>[^,\r\n]*))*$",
-            RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         /// <summary>
         /// Checks a comma seperated list of compounds.
         /// </summary>
@@ -1827,18 +1945,14 @@ namespace Reaction_Editor
                 return;
             }
             e.Effect = DragDropEffects.Link;
-            if (s_EndsWithComma.Match(box.Text).Success)
-                box.Text = box.Text.Trim() + newComp;
-            else if (string.IsNullOrEmpty(box.Text.Trim()))
-                box.Text = newComp.ToString();
+            //bool bWasActive = Log.Active;
+            //Log.Active = false;
+            //ColourCompounds(box);
+            //Log.Active = bWasActive;
+            if (box == txtSinks)
+                AddSinks(newComp);
             else
-                box.Text = box.Text.Trim() + ", " + newComp;
-            if (box == txtSources) m_SourcesCache.Add(newComp);
-            else if (box == txtSinks) m_SinksCache.Add(newComp);
-            bool bWasActive = Log.Active;
-            Log.Active = false;
-            ColourCompounds(box);
-            Log.Active = bWasActive;
+                AddSources(newComp);
             ChangeOccured();
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
@@ -1909,11 +2023,21 @@ namespace Reaction_Editor
                     {
                         FrmBalanceOptions frm = new FrmBalanceOptions(info, m_CurrentReaction);
                         if (frm.ShowDialog(this) == DialogResult.OK)
-                            m_CurrentReaction.BalanceWith(frm.ToBeRemoved);
+                        {
+                            SimpleReaction demo = m_CurrentReaction.Clone();
+                            demo.BalanceWith(frm.ToBeRemoved);
+                            if (MessageBox.Show(this, "Resultant Reaction:\n" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                                m_CurrentReaction.BalanceWith(frm.ToBeRemoved);
+                        }
                         frm.Dispose();
                     }
                     else
-                        m_CurrentReaction.BalanceWith(new int[0]);
+                    {
+                        SimpleReaction demo = m_CurrentReaction.Clone();
+                        demo.BalanceWith(new int[0]);
+                        if (MessageBox.Show(this, "Resultant Reaction:\n" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                            m_CurrentReaction.BalanceWith(new int[0]);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1946,6 +2070,80 @@ namespace Reaction_Editor
                     box.SelectionColor = Color.White;
                 }
             box.Select(oldSelectStart, oldSelectLen);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (!m_bActualActive) 
+            {
+                Messaging.SendMessage(Handle, Messaging.WM_NCACTIVATE, (IntPtr)0, (IntPtr)0);
+            }
+            base.OnPaint(e);
+        }
+
+        protected static Regex s_NumRegexLtoR = new Regex(@"(\s|\+|^)\d+(\.\d+)?|\.\d+", RegexOptions.Compiled);
+        protected static Regex s_NumRegexRtoL = new Regex(@"(\s|\+|^)\d+(\.\d+)?|\.\d+", RegexOptions.Compiled | RegexOptions.RightToLeft);
+        protected static TimeSpan s_TabWindow = new TimeSpan(0, 0, 0, 0, 50);
+        protected DateTime lastTab = DateTime.MinValue;
+        protected DateTime lastShiftTab = DateTime.MinValue;
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            bool handled = false;
+            BoxAutoComplete box = null;
+            if (txtProducts.Focused)
+                box = txtProducts;
+            else if (txtReactants.Focused)
+                box = txtReactants;
+
+            if (box != null)
+            {
+                if (keyData == (Keys.Tab | Keys.Shift))
+                {
+                    Match m = s_NumRegexRtoL.Match(box.Text, box.SelectionStart);
+                    if (m.Success)
+                    {
+                        handled = true;
+                        box.Select(m.Index, m.Length);
+                    }
+                }
+                else if (keyData == Keys.Tab)
+                {
+                    Match m = s_NumRegexLtoR.Match(box.Text, box.SelectionStart + box.SelectionLength);
+                    if (m.Success)
+                    {
+                        handled = true;
+                        box.Select(m.Index, m.Length);
+                        box.HideSuggestions();
+                    }
+                }
+            }
+
+            if (keyData == (Keys.Tab | Keys.Shift))
+                lastShiftTab = DateTime.Now;
+            if (keyData == (Keys.Tab))
+                lastTab = DateTime.Now;
+
+            if (!handled)
+                return base.ProcessCmdKey(ref msg, keyData);
+            else
+                return true;
+        }
+
+        private void FormulaBox_Enter(object sender, EventArgs e)
+        {
+            RichTextBox box = (RichTextBox)sender;
+            if (DateTime.Now - lastTab < s_TabWindow)
+            {
+                Match m = s_NumRegexLtoR.Match(box.Text);
+                if (m.Success)
+                    box.Select(m.Index, m.Length);
+            }
+            else if (DateTime.Now - lastShiftTab < s_TabWindow)
+            {
+                Match m = s_NumRegexRtoL.Match(box.Text);
+                if (m.Success)
+                    box.Select(m.Index, m.Length);
+            }
         }
     }
 }

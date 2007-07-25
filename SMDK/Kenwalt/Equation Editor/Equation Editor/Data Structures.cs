@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
+using System.Runtime.InteropServices;
 
 namespace Reaction_Editor
 {
@@ -1328,6 +1329,14 @@ namespace Reaction_Editor
                 Changed(this, new EventArgs());
         }
 
+        public SimpleReaction Clone()
+        {
+            //Simply clone it with a dummy LVI:
+            ListViewItem lvi = new ListViewItem();
+            lvi.SubItems.AddRange(new string[] { "", "" });
+            return Clone(lvi);
+        }
+
         public SimpleReaction Clone(ListViewItem newLVI)
         {
             SimpleReaction ret = (SimpleReaction) this.MemberwiseClone();
@@ -1339,6 +1348,7 @@ namespace Reaction_Editor
             ret.m_Products = new Dictionary<Compound, double>(m_Products);
             ret.m_Reactants = new Dictionary<Compound, double>(m_Reactants);
             ret.m_Unbalanced = new Dictionary<Element, double>(m_Unbalanced);
+            ret.Changed = null;
             ret.Changed += new EventHandler(ret.UpdateStatus);
             return ret;
         }
@@ -2072,6 +2082,7 @@ namespace Reaction_Editor
         #endregion Subclasses
     }
     #endregion Matrix
+
     /*public struct Fraction : IComparable
     {
         /// <summary>

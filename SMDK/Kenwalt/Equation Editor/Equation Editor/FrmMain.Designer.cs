@@ -58,7 +58,6 @@ namespace Reaction_Editor
             this.menuCascade = new System.Windows.Forms.ToolStripMenuItem();
             this.undockToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutSysCADReactionEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -67,28 +66,46 @@ namespace Reaction_Editor
             this.treeFiles = new System.Windows.Forms.TreeView();
             this.grpSpecies = new System.Windows.Forms.GroupBox();
             this.lstSpecies = new System.Windows.Forms.ListView();
-            this.chName = new System.Windows.Forms.ColumnHeader();
             this.chSymbol = new System.Windows.Forms.ColumnHeader();
+            this.chName = new System.Windows.Forms.ColumnHeader();
             this.menuSpecieList = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.sortByPhaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuSetSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSetSink = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRemoveSource = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRemoveSink = new System.Windows.Forms.ToolStripMenuItem();
+            this.pnlFilter = new System.Windows.Forms.Panel();
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.splitter1 = new System.Windows.Forms.Splitter();
-            this.splitter2 = new System.Windows.Forms.Splitter();
+            this.splitterLeft = new System.Windows.Forms.Splitter();
             this.dlgOpenRxn = new System.Windows.Forms.OpenFileDialog();
             this.dlgSaveRxn = new System.Windows.Forms.SaveFileDialog();
             this.dlgOpenDB = new System.Windows.Forms.OpenFileDialog();
             this.menuDatabaseFile = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.unloadAllSpeciesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.splitterRight = new System.Windows.Forms.Splitter();
+            this.btnCollapseRight = new System.Windows.Forms.Button();
+            this.btnCollapseLeft = new System.Windows.Forms.Button();
+            this.pnlLog = new System.Windows.Forms.Panel();
+            this.lstLog = new System.Windows.Forms.ListView();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.pnlLogHeader = new System.Windows.Forms.Panel();
+            this.btnLogCollapse = new System.Windows.Forms.Button();
+            this.lblLogHeader = new System.Windows.Forms.Label();
+            this.splitterLog = new System.Windows.Forms.Splitter();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
             this.grpSpecies.SuspendLayout();
             this.menuSpecieList.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.pnlFilter.SuspendLayout();
             this.menuDatabaseFile.SuspendLayout();
+            this.pnlLog.SuspendLayout();
+            this.pnlLogHeader.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -246,8 +263,7 @@ namespace Reaction_Editor
             this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.arrangeToolStripMenuItem,
             this.undockToolStripMenuItem,
-            this.toolStripMenuItem3,
-            this.logToolStripMenuItem});
+            this.toolStripMenuItem3});
             this.windowToolStripMenuItem.Name = "windowToolStripMenuItem";
             this.windowToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.windowToolStripMenuItem.Text = "&Window";
@@ -279,13 +295,6 @@ namespace Reaction_Editor
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(121, 6);
-            // 
-            // logToolStripMenuItem
-            // 
-            this.logToolStripMenuItem.Name = "logToolStripMenuItem";
-            this.logToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
-            this.logToolStripMenuItem.Text = "&Log";
-            this.logToolStripMenuItem.Click += new System.EventHandler(this.logToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -327,6 +336,7 @@ namespace Reaction_Editor
             this.grpFiles.TabIndex = 2;
             this.grpFiles.TabStop = false;
             this.grpFiles.Text = "Files";
+            this.grpFiles.Resize += new System.EventHandler(this.grpFiles_Resize);
             // 
             // treeFiles
             // 
@@ -351,7 +361,7 @@ namespace Reaction_Editor
             // grpSpecies
             // 
             this.grpSpecies.Controls.Add(this.lstSpecies);
-            this.grpSpecies.Controls.Add(this.panel1);
+            this.grpSpecies.Controls.Add(this.pnlFilter);
             this.grpSpecies.Dock = System.Windows.Forms.DockStyle.Right;
             this.grpSpecies.Location = new System.Drawing.Point(562, 24);
             this.grpSpecies.Name = "grpSpecies";
@@ -359,14 +369,16 @@ namespace Reaction_Editor
             this.grpSpecies.TabIndex = 3;
             this.grpSpecies.TabStop = false;
             this.grpSpecies.Text = "Species";
+            this.grpSpecies.Resize += new System.EventHandler(this.grpSpecies_Resize);
             // 
             // lstSpecies
             // 
             this.lstSpecies.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.chName,
-            this.chSymbol});
+            this.chSymbol,
+            this.chName});
             this.lstSpecies.ContextMenuStrip = this.menuSpecieList;
             this.lstSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstSpecies.FullRowSelect = true;
             listViewGroup1.Header = "Solids";
             listViewGroup1.Name = "Solid";
             listViewGroup2.Header = "Liquids";
@@ -386,39 +398,78 @@ namespace Reaction_Editor
             this.lstSpecies.View = System.Windows.Forms.View.Details;
             this.lstSpecies.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.lstSpecies_ItemDrag);
             // 
-            // chName
-            // 
-            this.chName.Text = "Name";
-            this.chName.Width = 77;
-            // 
             // chSymbol
             // 
             this.chSymbol.Text = "Symbol";
             // 
+            // chName
+            // 
+            this.chName.Text = "Name";
+            this.chName.Width = 93;
+            // 
             // menuSpecieList
             // 
             this.menuSpecieList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sortByPhaseToolStripMenuItem});
+            this.sortByPhaseToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.menuSetSource,
+            this.menuSetSink,
+            this.menuRemoveSource,
+            this.menuRemoveSink});
             this.menuSpecieList.Name = "menuSpecieList";
-            this.menuSpecieList.Size = new System.Drawing.Size(153, 26);
+            this.menuSpecieList.Size = new System.Drawing.Size(175, 142);
+            this.menuSpecieList.Opening += new System.ComponentModel.CancelEventHandler(this.menuSpecieList_Opening);
             // 
             // sortByPhaseToolStripMenuItem
             // 
             this.sortByPhaseToolStripMenuItem.CheckOnClick = true;
             this.sortByPhaseToolStripMenuItem.Name = "sortByPhaseToolStripMenuItem";
-            this.sortByPhaseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sortByPhaseToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.sortByPhaseToolStripMenuItem.Text = "&Sort By Phase";
             this.sortByPhaseToolStripMenuItem.Click += new System.EventHandler(this.sortByPhaseToolStripMenuItem_Click);
             // 
-            // panel1
+            // toolStripMenuItem4
             // 
-            this.panel1.Controls.Add(this.txtFilter);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(3, 300);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(166, 34);
-            this.panel1.TabIndex = 1;
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(171, 6);
+            // 
+            // menuSetSource
+            // 
+            this.menuSetSource.Name = "menuSetSource";
+            this.menuSetSource.Size = new System.Drawing.Size(174, 22);
+            this.menuSetSource.Text = "Set as S&ource";
+            this.menuSetSource.Click += new System.EventHandler(this.menuSetSource_Click);
+            // 
+            // menuSetSink
+            // 
+            this.menuSetSink.Name = "menuSetSink";
+            this.menuSetSink.Size = new System.Drawing.Size(174, 22);
+            this.menuSetSink.Text = "Set as S&ink";
+            this.menuSetSink.Click += new System.EventHandler(this.menuSetSink_Click);
+            // 
+            // menuRemoveSource
+            // 
+            this.menuRemoveSource.Name = "menuRemoveSource";
+            this.menuRemoveSource.Size = new System.Drawing.Size(174, 22);
+            this.menuRemoveSource.Text = "Remove as So&urce";
+            this.menuRemoveSource.Click += new System.EventHandler(this.menuRemoveSource_Click);
+            // 
+            // menuRemoveSink
+            // 
+            this.menuRemoveSink.Name = "menuRemoveSink";
+            this.menuRemoveSink.Size = new System.Drawing.Size(174, 22);
+            this.menuRemoveSink.Text = "Remove as Si&nk";
+            this.menuRemoveSink.Click += new System.EventHandler(this.menuRemoveSink_Click);
+            // 
+            // pnlFilter
+            // 
+            this.pnlFilter.Controls.Add(this.txtFilter);
+            this.pnlFilter.Controls.Add(this.label1);
+            this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlFilter.Location = new System.Drawing.Point(3, 300);
+            this.pnlFilter.Name = "pnlFilter";
+            this.pnlFilter.Size = new System.Drawing.Size(166, 34);
+            this.pnlFilter.TabIndex = 1;
             // 
             // txtFilter
             // 
@@ -439,22 +490,13 @@ namespace Reaction_Editor
             this.label1.TabIndex = 0;
             this.label1.Text = "Filter";
             // 
-            // splitter1
+            // splitterLeft
             // 
-            this.splitter1.Location = new System.Drawing.Point(146, 24);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 337);
-            this.splitter1.TabIndex = 5;
-            this.splitter1.TabStop = false;
-            // 
-            // splitter2
-            // 
-            this.splitter2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter2.Location = new System.Drawing.Point(559, 24);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(3, 337);
-            this.splitter2.TabIndex = 6;
-            this.splitter2.TabStop = false;
+            this.splitterLeft.Location = new System.Drawing.Point(146, 24);
+            this.splitterLeft.Name = "splitterLeft";
+            this.splitterLeft.Size = new System.Drawing.Size(5, 337);
+            this.splitterLeft.TabIndex = 5;
+            this.splitterLeft.TabStop = false;
             // 
             // dlgOpenRxn
             // 
@@ -491,13 +533,143 @@ namespace Reaction_Editor
             this.folderBrowserDialog1.RootFolder = System.Environment.SpecialFolder.MyComputer;
             this.folderBrowserDialog1.ShowNewFolderButton = false;
             // 
+            // splitterRight
+            // 
+            this.splitterRight.Dock = System.Windows.Forms.DockStyle.Right;
+            this.splitterRight.Location = new System.Drawing.Point(557, 24);
+            this.splitterRight.Name = "splitterRight";
+            this.splitterRight.Size = new System.Drawing.Size(5, 337);
+            this.splitterRight.TabIndex = 8;
+            this.splitterRight.TabStop = false;
+            this.splitterRight.DoubleClick += new System.EventHandler(this.splitterRight_DoubleClick);
+            this.splitterRight.Move += new System.EventHandler(this.splitterRight_Move);
+            // 
+            // btnCollapseRight
+            // 
+            this.btnCollapseRight.Location = new System.Drawing.Point(558, 159);
+            this.btnCollapseRight.Name = "btnCollapseRight";
+            this.btnCollapseRight.Size = new System.Drawing.Size(6, 100);
+            this.btnCollapseRight.TabIndex = 9;
+            this.btnCollapseRight.UseVisualStyleBackColor = true;
+            this.btnCollapseRight.Click += new System.EventHandler(this.btnCollapseRight_Click);
+            // 
+            // btnCollapseLeft
+            // 
+            this.btnCollapseLeft.Location = new System.Drawing.Point(146, 159);
+            this.btnCollapseLeft.Name = "btnCollapseLeft";
+            this.btnCollapseLeft.Size = new System.Drawing.Size(6, 100);
+            this.btnCollapseLeft.TabIndex = 10;
+            this.btnCollapseLeft.UseVisualStyleBackColor = true;
+            this.btnCollapseLeft.Click += new System.EventHandler(this.btnCollapseLeft_Click);
+            // 
+            // pnlLog
+            // 
+            this.pnlLog.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnlLog.Controls.Add(this.lstLog);
+            this.pnlLog.Controls.Add(this.listView1);
+            this.pnlLog.Controls.Add(this.pnlLogHeader);
+            this.pnlLog.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlLog.Location = new System.Drawing.Point(151, 236);
+            this.pnlLog.MinimumSize = new System.Drawing.Size(4, 18);
+            this.pnlLog.Name = "pnlLog";
+            this.pnlLog.Size = new System.Drawing.Size(406, 125);
+            this.pnlLog.TabIndex = 11;
+            this.pnlLog.Enter += new System.EventHandler(this.pnlLog_Enter);
+            this.pnlLog.Leave += new System.EventHandler(this.pnlLog_Leave);
+            // 
+            // lstLog
+            // 
+            this.lstLog.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+            this.lstLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstLog.Location = new System.Drawing.Point(0, 18);
+            this.lstLog.Name = "lstLog";
+            this.lstLog.Size = new System.Drawing.Size(402, 103);
+            this.lstLog.TabIndex = 2;
+            this.lstLog.UseCompatibleStateImageBehavior = false;
+            this.lstLog.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Source";
+            this.columnHeader1.Width = 172;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Message";
+            this.columnHeader2.Width = 269;
+            // 
+            // listView1
+            // 
+            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView1.Location = new System.Drawing.Point(0, 18);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(402, 103);
+            this.listView1.TabIndex = 1;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            // 
+            // pnlLogHeader
+            // 
+            this.pnlLogHeader.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.pnlLogHeader.Controls.Add(this.btnLogCollapse);
+            this.pnlLogHeader.Controls.Add(this.lblLogHeader);
+            this.pnlLogHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlLogHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlLogHeader.Name = "pnlLogHeader";
+            this.pnlLogHeader.Size = new System.Drawing.Size(402, 18);
+            this.pnlLogHeader.TabIndex = 0;
+            this.pnlLogHeader.DoubleClick += new System.EventHandler(this.btnLogCollapse_Click);
+            this.pnlLogHeader.Click += new System.EventHandler(this.pnlLogHeader_Click);
+            // 
+            // btnLogCollapse
+            // 
+            this.btnLogCollapse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLogCollapse.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.btnLogCollapse.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnLogCollapse.BackgroundImage")));
+            this.btnLogCollapse.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.btnLogCollapse.FlatAppearance.BorderColor = System.Drawing.SystemColors.InactiveCaption;
+            this.btnLogCollapse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLogCollapse.Location = new System.Drawing.Point(384, 0);
+            this.btnLogCollapse.Name = "btnLogCollapse";
+            this.btnLogCollapse.Size = new System.Drawing.Size(16, 16);
+            this.btnLogCollapse.TabIndex = 1;
+            this.btnLogCollapse.UseVisualStyleBackColor = false;
+            this.btnLogCollapse.Click += new System.EventHandler(this.btnLogCollapse_Click);
+            // 
+            // lblLogHeader
+            // 
+            this.lblLogHeader.AutoSize = true;
+            this.lblLogHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLogHeader.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.lblLogHeader.Location = new System.Drawing.Point(7, 3);
+            this.lblLogHeader.Name = "lblLogHeader";
+            this.lblLogHeader.Size = new System.Drawing.Size(28, 13);
+            this.lblLogHeader.TabIndex = 0;
+            this.lblLogHeader.Text = "Log";
+            this.lblLogHeader.DoubleClick += new System.EventHandler(this.btnLogCollapse_Click);
+            this.lblLogHeader.Click += new System.EventHandler(this.pnlLogHeader_Click);
+            // 
+            // splitterLog
+            // 
+            this.splitterLog.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.splitterLog.Location = new System.Drawing.Point(151, 233);
+            this.splitterLog.Name = "splitterLog";
+            this.splitterLog.Size = new System.Drawing.Size(406, 3);
+            this.splitterLog.TabIndex = 12;
+            this.splitterLog.TabStop = false;
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(734, 383);
-            this.Controls.Add(this.splitter2);
-            this.Controls.Add(this.splitter1);
+            this.Controls.Add(this.splitterLog);
+            this.Controls.Add(this.pnlLog);
+            this.Controls.Add(this.btnCollapseLeft);
+            this.Controls.Add(this.btnCollapseRight);
+            this.Controls.Add(this.splitterRight);
+            this.Controls.Add(this.splitterLeft);
             this.Controls.Add(this.grpSpecies);
             this.Controls.Add(this.grpFiles);
             this.Controls.Add(this.statusStrip1);
@@ -517,9 +689,12 @@ namespace Reaction_Editor
             this.grpFiles.ResumeLayout(false);
             this.grpSpecies.ResumeLayout(false);
             this.menuSpecieList.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.pnlFilter.ResumeLayout(false);
+            this.pnlFilter.PerformLayout();
             this.menuDatabaseFile.ResumeLayout(false);
+            this.pnlLog.ResumeLayout(false);
+            this.pnlLogHeader.ResumeLayout(false);
+            this.pnlLogHeader.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -533,8 +708,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.TreeView treeFiles;
         private System.Windows.Forms.GroupBox grpSpecies;
         private System.Windows.Forms.ListView lstSpecies;
-        private System.Windows.Forms.Splitter splitter1;
-        private System.Windows.Forms.Splitter splitter2;
+        private System.Windows.Forms.Splitter splitterLeft;
         private System.Windows.Forms.ToolStripMenuItem menuFile;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;
@@ -565,15 +739,31 @@ namespace Reaction_Editor
         public System.Windows.Forms.ToolStripMenuItem menuCopy;
         public System.Windows.Forms.ToolStripMenuItem menuPaste;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip menuDatabaseFile;
         private System.Windows.Forms.ToolStripMenuItem unloadAllSpeciesToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel pnlFilter;
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip menuSpecieList;
         private System.Windows.Forms.ToolStripMenuItem sortByPhaseToolStripMenuItem;
+        private System.Windows.Forms.Splitter splitterRight;
+        private System.Windows.Forms.Button btnCollapseRight;
+        private System.Windows.Forms.Button btnCollapseLeft;
+        private System.Windows.Forms.Panel pnlLog;
+        private System.Windows.Forms.Panel pnlLogHeader;
+        private System.Windows.Forms.Button btnLogCollapse;
+        private System.Windows.Forms.Label lblLogHeader;
+        private System.Windows.Forms.Splitter splitterLog;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView lstLog;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem menuSetSource;
+        private System.Windows.Forms.ToolStripMenuItem menuSetSink;
+        private System.Windows.Forms.ToolStripMenuItem menuRemoveSource;
+        private System.Windows.Forms.ToolStripMenuItem menuRemoveSink;
 
 
     }
