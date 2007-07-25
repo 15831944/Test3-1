@@ -1386,8 +1386,10 @@ namespace Reaction_Editor
 
         public void BalanceWith(int[] CompsToRemove)
         {
-            foreach (int i in CompsToRemove)
+            Array.Sort<int>(CompsToRemove);
+            for (int j = CompsToRemove.Length - 1; j >= 0; j--)
             {
+                int i = CompsToRemove[j];
                 int originalReactantCount = m_OrderedReactants.Count;
                 if (i < originalReactantCount)
                 {

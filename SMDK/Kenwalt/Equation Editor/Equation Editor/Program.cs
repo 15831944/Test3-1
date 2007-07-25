@@ -15,8 +15,9 @@ namespace Reaction_Editor
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            Args = args;
             Assembly asm = Assembly.GetExecutingAssembly();
             ResourceReader rr = new ResourceReader(asm.GetManifestResourceStream(typeof(FrmMain), "Images.Icons.resources"));
 
@@ -37,6 +38,7 @@ namespace Reaction_Editor
 
         public static ImageList Images = new ImageList();
         public static Random Rnd = new Random();
+        public static String[] Args;
     }
 
     public class Messaging

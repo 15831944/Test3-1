@@ -25,6 +25,9 @@ namespace Reaction_Editor
         RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
+
+        protected static Regex s_RctRegex = new Regex(@"\s*(?<Filename>.*\.rct)\s*", RegexOptions.IgnoreCase);
+        protected static Regex s_SpecieRegex = new Regex(@"\s*(?<Filename>.*\.ini)\s*", RegexOptions.IgnoreCase);
         #endregion Internal Variables
 
         #region Protected Functions
@@ -342,6 +345,41 @@ namespace Reaction_Editor
             //ResourceReader rr = new ResourceReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(typeof(FrmMain), "Icons.resources"));
             lstSpecies.SmallImageList = Program.Images;
             Log = new ListLog(lstLog);
+
+            string[] valueNames = regKey.GetValueNames();
+            Array.Sort<String>(valueNames);
+            List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
+            foreach (string s in valueNames)
+                if (recentFileRegex.Match(s).Success)
+                {
+                    if (m_RecentFiles.Count >= m_nRecentFileCount)
+                        break; //Don't load more than [m_nRecentFileCount] files.
+                    RegisterRecentFile(regKey.GetValue(s).ToString());
+                }
+
+            bool bDBOpen = false;
+            foreach (string s in Program.Args)
+            {
+                Match specieData = s_SpecieRegex.Match(s);
+                if (specieData.Success)
+                {
+                    OpenSpecieDB(specieData.Groups["Filename"].Value);
+                    break;
+                }
+            }
+            if (!bDBOpen)
+            {
+                string fn = (string)regKey.GetValue("Last Database", "");
+                if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
+                    OpenSpecieDB(fn);
+            }
+
+            foreach (string s in Program.Args)
+            {
+                Match rct = s_RctRegex.Match(s);
+                if (rct.Success)
+                    Open(rct.Groups["Filename"].Value);
+            }
         }
 
         void frm_NowChanged(object sender, EventArgs e)
@@ -380,19 +418,6 @@ namespace Reaction_Editor
             //frm.Show();
             //frm.TopMost = true;
             //RepositionLog();
-            string fn = (string)regKey.GetValue("Last Database", "");
-            if (!string.IsNullOrEmpty(fn) && File.Exists(fn))
-                OpenSpecieDB(fn);
-            string[] valueNames = regKey.GetValueNames();
-            Array.Sort<String>(valueNames);
-            List<ToolStripMenuItem> recentList = new List<ToolStripMenuItem>();
-            foreach (string s in valueNames)
-                if (recentFileRegex.Match(s).Success)
-                {
-                    if (m_RecentFiles.Count >= m_nRecentFileCount)
-                        break; //Don't load more than [m_nRecentFileCount] files.
-                    RegisterRecentFile(regKey.GetValue(s).ToString());
-                }
         }
 
         void recentFile_Click(object sender, EventArgs e)
