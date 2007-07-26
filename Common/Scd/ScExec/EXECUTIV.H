@@ -216,9 +216,13 @@ class DllImportExport CMergeProjectsInfo
     Strng       sMasterSuffix;       //
     Strng       sSlavePrefix;        //
     Strng       sSlaveSuffix;        //
+#if WithNumericTags
     BOOL        bMasterNumTagsBAD;   //
+#endif
     BOOL        bMasterStNumTagsBAD; //
+#if WithNumericTags
     BOOL        bSlaveNumTagsBAD;    //
+#endif
     BOOL        bSlaveStNumTagsBAD;  //
     CSVector    SlaveTags;           //
     CSVector    PreChangeTags;       //tags in master project requiring a change
@@ -981,7 +985,11 @@ class DllImportExport CExecutive : public ConditionBlk
 
     int            ChangeTag(pchar pOldTag, pchar pNewTag);
     int            DeleteTag(pchar pDelTag);
+#if WithNumericTags
     int            CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Prompt=1);
+#else
+    int            CheckAllTags(flag NewNumStartingBad, flag Prompt=1, flag ForceTest=0);
+#endif
 
     void           ClearThread() { LockExec();  pExecThread=NULL; UnlockExec(); };
     DWORD          ExecThreadId() { return pExecThread->m_nThreadID; };

@@ -2572,6 +2572,7 @@ flag GSModel::DataXchg(DataChangeBlk & DCB)
 
 flag GSModel::ValidateData(ValidateDataBlk & VDB)
   {
+#if WithNumericTags
   if (!TaggedObject::NumericTagsBad)
     {
     //KGA 6/5/2002 : For temp "fix", warn user about numeric tags in pipe names!
@@ -2598,6 +2599,7 @@ flag GSModel::ValidateData(ValidateDataBlk & VDB)
         }
       }
     }
+#endif
 
 #if WITHTHERMAL 
   if (m_bThermal)

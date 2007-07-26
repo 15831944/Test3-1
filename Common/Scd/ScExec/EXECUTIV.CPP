@@ -1814,13 +1814,23 @@ int CExecutive::DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
+#if WithNumericTags
 int CExecutive::CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Prompt/*=1*/)
+#else
+int CExecutive::CheckAllTags(flag NewNumStartingBad, flag Prompt/*=1*/, flag ForceTest/*=0*/)
+#endif
   {//return number of tags changed; return -1 if tags require changing but user selected cancel
-  if (!NewNumTagsBad && !NewNumStartingBad)
+#if WithNumericTags
+  if (!NewNumTagsBad || !NewNumStartingBad)
     return 0;
   const int PrevNumericTagsBad = TaggedObject::NumericTagsBad;
   const int PrevNumericStartingTagsBad = TaggedObject::NumericStartingTagsBad;
   TaggedObject::NumericTagsBad = NewNumTagsBad;
+#else
+  if (!ForceTest && !NewNumStartingBad)
+    return 0;
+  const int PrevNumericStartingTagsBad = TaggedObject::NumericStartingTagsBad;
+#endif
   TaggedObject::NumericStartingTagsBad = NewNumStartingBad;
   CSVector BadTags;
   BadTags.SetSize(32);
@@ -1850,7 +1860,9 @@ int CExecutive::CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Pr
             (BadCnt>1) ? "s are" : " is", (BadCnt>1) ? "" : "s", BadTags[0](), sNewTag());
       if (AfxMessageBox(s(), MB_YESNO|MB_ICONQUESTION)!=IDYES)
         {
+#if WithNumericTags
         TaggedObject::NumericTagsBad = PrevNumericTagsBad;
+#endif
         TaggedObject::NumericStartingTagsBad = PrevNumericStartingTagsBad;
         return -1;
         }
@@ -1866,7 +1878,9 @@ int CExecutive::CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Pr
       LogNote("Executive", 0, "%d %s changed", BadCnt, (BadCnt>1) ? "tags were" : "tag was");
       }
     }
+#if WithNumericTags
   TaggedObject::NumericTagsBad = PrevNumericTagsBad;
+#endif
   TaggedObject::NumericStartingTagsBad = PrevNumericStartingTagsBad;
   return BadCnt;
   }

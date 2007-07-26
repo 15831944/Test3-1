@@ -1180,10 +1180,17 @@ class DllImportExport TaggedObject : public ConditionBlk
     static void     ValidateTagDot(Strng & S);
     static flag     ValidateTagChanged(Strng & S);
     static flag     ValidateTagDotChanged(Strng & S);
+#if WithNumericTags
     static int      TestValidTag(char* pTag, int NumStartBad, int NumBad);
     static int      TestValidTagDot(char* pTag, int NumStartBad, int NumBad);
     static int      TestValidTag(char* pTag) { return TestValidTag(pTag, NumericStartingTagsBad, NumericTagsBad); };
     static int      TestValidTagDot(char* pTag) { return TestValidTagDot(pTag, NumericStartingTagsBad, NumericTagsBad); };
+#else
+    static int      TestValidTag(char* pTag, int NumStartBad);
+    static int      TestValidTagDot(char* pTag, int NumStartBad);
+    static int      TestValidTag(char* pTag) { return TestValidTag(pTag, NumericStartingTagsBad); };
+    static int      TestValidTagDot(char* pTag) { return TestValidTagDot(pTag, NumericStartingTagsBad); };
+#endif
     static flag     CheckNonNumericTagChr(char c);
     static void     SetBadFieldNameChars(char* pBad, char * pRep);
     static int      TestValidFieldName(char* pTag);
@@ -1508,7 +1515,9 @@ protected:
     flag            bSkipSnapLoad;
     dword           dwObjDataVerNo;
     static dword    dwGlblDataVerNo;
+#if WithNumericTags
     static int      NumericTagsBad;         //if true, tags that only contain numeric characters are illegal
+#endif
     static int      NumericStartingTagsBad; //if true, tags starting with a numeric character are illegal
     static char     NonNumericTagChr;       //character to use to make illegal numeric tags good
     static int      m_DisplayTagsOnly;

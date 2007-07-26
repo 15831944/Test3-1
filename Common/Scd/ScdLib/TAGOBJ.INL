@@ -2633,8 +2633,14 @@ INLINE void TaggedObject::ValidateTag(rStrng S)
       S.InsertChar(0, NonNumericTagChr);
       NumCharCnt--;
       }
+#if WithNumericTags
     if ((NumericStartingTagsBad && isdigit(S[0])) || (NumericTagsBad && len==NumCharCnt))
+#else
+    if ((len==NumCharCnt) || (NumericStartingTagsBad && isdigit(S[0])))
+#endif
+      {
       S.InsertChar(0, NonNumericTagChr);
+      }
     }
   }
 
@@ -2659,8 +2665,14 @@ INLINE void TaggedObject::ValidateTagDot(rStrng S)
       S.InsertChar(0, NonNumericTagChr);
       NumCharCnt--;
       }
+#if WithNumericTags
     if ((NumericStartingTagsBad && isdigit(S[0])) || (NumericTagsBad && len==NumCharCnt))
+#else
+    if ((len==NumCharCnt) || (NumericStartingTagsBad && isdigit(S[0])))
+#endif
+      {
       S.InsertChar(0, NonNumericTagChr);
+      }
     }
   }
 
@@ -2691,7 +2703,11 @@ INLINE flag TaggedObject::ValidateTagChanged(rStrng S)
       NumCharCnt--;
       Chngd = 1;
       }
+#if WithNumericTags
     if ((NumericStartingTagsBad && isdigit(S[0])) || (NumericTagsBad && len==NumCharCnt))
+#else
+    if ((len==NumCharCnt) || (NumericStartingTagsBad && isdigit(S[0])))
+#endif
       {
       S.InsertChar(0, NonNumericTagChr);
       Chngd = 1;
@@ -2727,7 +2743,11 @@ INLINE flag TaggedObject::ValidateTagDotChanged(rStrng S)
       NumCharCnt--;
       Chngd = 1;
       }
+#if WithNumericTags
     if ((NumericStartingTagsBad && isdigit(S[0])) || (NumericTagsBad && len==NumCharCnt))
+#else
+    if ((len==NumCharCnt) || (NumericStartingTagsBad && isdigit(S[0])))
+#endif
       {
       S.InsertChar(0, NonNumericTagChr);
       Chngd = 1;
@@ -2738,6 +2758,7 @@ INLINE flag TaggedObject::ValidateTagDotChanged(rStrng S)
 
 //---------------------------------------------------------------------------
 
+#if WithNumericTags
 INLINE int TaggedObject::TestValidTag(char* pTag, int NumStartBad, int NumBad)
   {
   if (pTag==NULL || pTag[0]==0)
@@ -2804,7 +2825,66 @@ INLINE int TaggedObject::TestValidTagDot(char* pTag, int NumStartBad, int NumBad
     }
   return 0;
   }
+#else
+INLINE int TaggedObject::TestValidTag(char* pTag, int NumStartBad)
+  {
+  if (pTag==NULL || pTag[0]==0)
+    return 1;
+  if (NumStartBad && isdigit(pTag[0]))
+    return 2;
+  if (pTag[0]=='\'' || pTag[0]=='=')
+    return 3;
+  if (strpbrk(pTag, " ,%\t\n\v\f\r"))
+    return 4;
+//  if (strchr(pTag, ' ') || 
+//      strchr(pTag, ',') || 
+//      strchr(pTag, '%') || 
+//      strchr(pTag, '\t') ||
+//      strchr(pTag, '\n') ||
+//      strchr(pTag, '\v') ||
+//      strchr(pTag, '\f') ||
+//      strchr(pTag, '\r'))
+//    return False;
+  int Cnt = 0;
+  while (pTag[Cnt])
+    {
+    if (!isdigit(pTag[Cnt++]))
+      return 0;
+    }
+  return 5;
+  }
 
+//---------------------------------------------------------------------------
+
+INLINE int TaggedObject::TestValidTagDot(char* pTag, int NumStartBad)
+  { 
+  if (pTag==NULL || pTag[0]==0)
+    return 1;
+  if (NumStartBad && isdigit(pTag[0]))
+    return 2;
+  if (pTag[0]=='\'' || pTag[0]=='=')
+    return 3;
+  if (strpbrk(pTag, " .,%\t\n\v\f\r"))
+    return 4;
+  //if (strchr(pTag, ' ') || 
+  //    strchr(pTag, '.') || 
+  //    strchr(pTag, ',') || 
+  //    strchr(pTag, '%') || 
+  //    strchr(pTag, '\t') ||
+  //    strchr(pTag, '\n') ||
+  //    strchr(pTag, '\v') ||
+  //    strchr(pTag, '\f') ||
+  //    strchr(pTag, '\r'))
+  //  return False;
+  int Cnt = 0;
+  while (pTag[Cnt])
+    {
+    if (!isdigit(pTag[Cnt++]))
+      return 0;
+    }
+  return 5;
+  }
+#endif
 //========================================================================
 //
 //

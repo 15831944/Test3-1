@@ -54,6 +54,7 @@
 #define WITHDOCUMENTATIONLINK 0  /*not implemented*/
 
 //discontinued functionality...
+#define WithNumericTags       0
 #define WITHLOCALCOPY         0
 #define WITHDEFAULTSPDB       0
 #define WITHDDEREPORTS        0

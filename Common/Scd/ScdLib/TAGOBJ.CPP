@@ -2270,7 +2270,9 @@ BOOL FilingControlBlock::Eof(){ return dwCurrentPos>=dwEndPos;};
 
 int     TaggedObject::m_DisplayTagsOnly=0;
 int     TaggedObject::m_HideZeros=0;
+#if WithNumericTags
 int     TaggedObject::NumericTagsBad=1;
+#endif
 int     TaggedObject::NumericStartingTagsBad=1;
 char    TaggedObject::NonNumericTagChr='#';
 int     TaggedObject::bHoldValidateData=0;

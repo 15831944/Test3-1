@@ -54,7 +54,7 @@ class CMergeDlg : public CDialog
     CMergeDlg(CMergeProjectsInfo* MPI, CWnd* pParent = NULL);
     ~CMergeDlg();
     //{{AFX_DATA(CMergeDlg)
-	enum { IDD = IDD_MERGEDLG };
+    enum { IDD = IDD_MERGEDLG };
     CString m_MergeReportFile;
     CString m_ModelCfg;
     CString m_SlavePrj;
@@ -65,9 +65,11 @@ class CMergeDlg : public CDialog
     int m_MasterChangeType;
     int m_SlaveChangeType;
     CString m_TagAppendChars;
+#if WithNumericTags
 	  BOOL m_MasterNumTagsOK;
-	  BOOL m_MasterStNumTagsOK;
 	  BOOL m_SlaveNumTagsOK;
+#endif
+	  BOOL m_MasterStNumTagsOK;
     BOOL m_SlaveStNumTagsOK;
     //}}AFX_DATA
     //{{AFX_VIRTUAL(CMergeDlg)
@@ -87,17 +89,16 @@ class CMergeDlg : public CDialog
     afx_msg void OnBrowse();
     virtual BOOL OnInitDialog();
     afx_msg void OnMerge();
-	afx_msg void OnChangeSlaveprj();
-	afx_msg void OnMstrstnumtags();
-	afx_msg void OnMstrnumtags();
-	//}}AFX_MSG
+    afx_msg void OnChangeSlaveprj();
+    afx_msg void OnMstrstnumtags();
+    afx_msg void OnMstrnumtags();
+    //}}AFX_MSG
     afx_msg BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg void OnMasterPrefixSuffix();
     afx_msg void OnSlavePrefixSuffix();
     afx_msg void OnChangeType();
     afx_msg void OnUpdateMasterPrefixSuffix(CCmdUI* pCmdUi);
     afx_msg void OnUpdateSlavePrefixSuffix(CCmdUI* pCmdUi);
-    afx_msg void OnUpdateMasterNumTags(CCmdUI* pCmdUi);
     afx_msg void OnUpdateMasterStNumTags(CCmdUI* pCmdUi);
     afx_msg void OnUpdateSlaveNumTags(CCmdUI* pCmdUi);
     afx_msg void OnUpdateSlaveStNumTags(CCmdUI* pCmdUi);

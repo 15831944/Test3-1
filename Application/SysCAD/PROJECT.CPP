@@ -195,8 +195,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 106; //CNM  23/04/2007 DataUnionCom changes - reopen of old historian files
 //const int LatestPrjFileVer = 107; //CNM  18/05/2007 Makeup recovery issues
 //const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
-//const int LatestPrjFileVer = 109;   //CNM  13/06/2007 SpCOntainer HiLevelLimit tweak
-//const int LatestPrjFileVer = 110;   //CNM  19/06/2007 Renaming "Flange" to "DirectLink"
+//const int LatestPrjFileVer = 109; //CNM  13/06/2007 SpCOntainer HiLevelLimit tweak
+//const int LatestPrjFileVer = 110; //CNM  19/06/2007 Renaming "Flange" to "DirectLink"
 const int LatestPrjFileVer = 111;   //CNM  04/07/2007 H20 as Aqueous
 
 //===========================================================================
@@ -1408,7 +1408,9 @@ void CProjectSettings::ClearSettings()
   m_HideZeros                = false;
   m_ShowGroups               = false;
 
+#if WithNumericTags
   m_NumericTagsBad           = true;
+#endif
   m_NumericStartingTagsBad   = true;
   m_NonNumericTagChr         = '#';
 
@@ -1614,12 +1616,16 @@ flag CProjectSettings::ReadSettings(CProfINIFile & PF, int PrjFileVerNo)
   m_DisplayTagsOnly       = PF.RdLong("General", "DisplayTagsOnly", m_DisplayTagsOnly) != 0;
   m_HideZeros             = PF.RdLong("General", "HideZeros", m_HideZeros) != 0;
   m_ShowGroups            = PF.RdLong("General", "ShowGroups", m_ShowGroups) != 0;
+#if WithNumericTags
   m_NumericTagsBad        = PF.RdLong("General", "NumericTagsBad", m_NumericTagsBad) != 0;
+#endif
   m_NumericStartingTagsBad = PF.RdLong("General", "NumericStartingTagsBad", m_NumericStartingTagsBad) != 0;
   m_NonNumericTagChr      = (char)PF.RdLong("General", "NonNumericTagChr", m_NonNumericTagChr);
   if (!TaggedObject::CheckNonNumericTagChr(m_NonNumericTagChr))
     m_NonNumericTagChr = '#';
+#if WithNumericTags
   m_NumericTagsBad = m_NumericTagsBad || m_NumericStartingTagsBad;
+#endif
 
   m_bRemoveRevs        =(PF.RdLong("Database", "RemovePreviousRevisions", m_bRemoveRevs)!=0);
   m_bCopyDBFiles=(PF.RdLong("Database", "CopyDBFiles", m_bCopyDBFiles)!=0);
@@ -1879,7 +1885,9 @@ flag CProjectSettings::WriteSettings(CProfINIFile & PF, bool FullSave)
   PF.WrLong("General", "DisplayTagsOnly",         m_DisplayTagsOnly);
   PF.WrLong("General", "HideZeros",               m_HideZeros);
   PF.WrLong("General", "ShowGroups",              m_ShowGroups);
+#if WithNumericTags
   PF.WrLong("General", "NumericTagsBad",          m_NumericTagsBad);
+#endif
   PF.WrLong("General", "NumericStartingTagsBad",  m_NumericStartingTagsBad);
   PF.WrLong("General", "NonNumericTagChr",        m_NonNumericTagChr);
 
@@ -2277,13 +2285,19 @@ void CProject::Clear()
   if (CfgFile())
     {
     CProfINIFile PF(CfgFile());
+#if WithNumericTags
     TaggedObject::NumericTagsBad = (PF.RdLong("General", "NumericTagsBad", TaggedObject::NumericTagsBad) != 0);
+#endif
     TaggedObject::NumericStartingTagsBad = (PF.RdLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad) != 0);
+#if WithNumericTags
     TaggedObject::NumericTagsBad = TaggedObject::NumericTagsBad || TaggedObject::NumericStartingTagsBad;
+#endif
     }
   else
     {
+#if WithNumericTags
     TaggedObject::NumericTagsBad = true;
+#endif
     TaggedObject::NumericStartingTagsBad = true;
     }
 
@@ -4658,11 +4672,17 @@ flag CProject::ImportFlwsheet()
     MPI.sSlavePrefix = PF.RdStr("MergeProject", "ImportPrefix", "I_");
     MPI.sMasterSuffix = PF.RdStr("MergeProject", "CurrentSuffix", "_C");
     MPI.sSlaveSuffix = PF.RdStr("MergeProject", "ImportSuffix", "_I");
+#if WithNumericTags
     MPI.bMasterNumTagsBAD   = TaggedObject::NumericTagsBad;
+#endif
     MPI.bMasterStNumTagsBAD = TaggedObject::NumericStartingTagsBad;
+#if WithNumericTags
     MPI.bMasterNumTagsBAD   = MPI.bMasterNumTagsBAD || MPI.bMasterStNumTagsBAD;
+#endif
 
+#if WithNumericTags
     MPI.bSlaveNumTagsBAD    = true;
+#endif
     MPI.bSlaveStNumTagsBAD  = true;
 
     CMergeDlg Dlg(&MPI);
@@ -4672,7 +4692,9 @@ flag CProject::ImportFlwsheet()
       return false;
       }
 
+#if WithNumericTags
     TaggedObject::NumericTagsBad=pMPI->bMasterNumTagsBAD;
+#endif
     TaggedObject::NumericStartingTagsBad=pMPI->bMasterStNumTagsBAD;
 
     CWaitMsgCursor Wait("Preparing project merge");
@@ -4778,15 +4800,23 @@ flag CProject::ImportFlwsheet()
           ScdApp()->OpenDocumentFile(FullFile());
           }
         }
+
       //complete the merge...
       CDlgBusy::SetLine(1, "Merging projects");
       err = gs_Exec.DoMergeB(MPI);
       CDlgBusy::SetLine(3, "");
+#if WithNumericTags
       if (gs_Exec.CheckAllTags(TaggedObject::NumericTagsBad, TaggedObject::NumericStartingTagsBad)<0)
         {
         TaggedObject::NumericTagsBad = 0;
         TaggedObject::NumericStartingTagsBad = 0;
         }
+#else
+      if (gs_Exec.CheckAllTags(TaggedObject::NumericStartingTagsBad)<0)
+        {
+        TaggedObject::NumericStartingTagsBad = 0;
+        }
+#endif
       //CloseHistorian();
       //OpenHistorian();
       CloseIOMarshal();
@@ -5961,7 +5991,9 @@ void CProject::PutSettings()
   SetDisplayTagsOnly(m_DisplayTagsOnly != 0);
   SetHideZeros(m_HideZeros != 0);
   SVI.SetShowGroups(m_ShowGroups != 0);
+#if WithNumericTags
   TaggedObject::NumericTagsBad = m_NumericTagsBad;
+#endif
   TaggedObject::NumericStartingTagsBad = m_NumericStartingTagsBad != 0;
   TaggedObject::NonNumericTagChr = m_NonNumericTagChr;
 
@@ -6019,7 +6051,9 @@ void CProject::GetSettings()
   m_DisplayTagsOnly         = GetDisplayTagsOnly();
   m_HideZeros               = GetHideZeros();
   m_ShowGroups              = SVI.GetShowGroups();
+#if WithNumericTags
   m_NumericTagsBad          = TaggedObject::NumericTagsBad ;
+#endif
   m_NumericStartingTagsBad  = TaggedObject::NumericStartingTagsBad;
   m_NonNumericTagChr        = TaggedObject::NonNumericTagChr;
 
@@ -6469,14 +6503,33 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         bDoingLoad = 0;
         bCmdSuccess = true;
 
+#if WithNumericTags
+#else
+  if (PrjFileVerNo()<=111)
+    {
+    if (PF.RdLong("General", "NumericTagsBad", 1)==0)
+      {
+      //DoCheckTags = true;
+      int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericStartingTagsBad, true, true);
+      }
+    }
+#endif
         if (DoCheckTags)
           {
+#if WithNumericTags
           int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericTagsBad, TaggedObject::NumericStartingTagsBad);
           if (TagsChngd<0)
             {
             TaggedObject::NumericTagsBad = 0;
             TaggedObject::NumericStartingTagsBad = 0;
             }
+#else
+          int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericStartingTagsBad, true, true);
+          if (TagsChngd<0)
+            {
+            TaggedObject::NumericStartingTagsBad = 0;
+            }
+#endif
           else if (TagsChngd>0)
             {
             CWaitCursor Wait;

@@ -222,7 +222,9 @@ static CfgItem CfgItemsO[]=
     {IDC_CONFIGDB      , 2, "SearchDefaultSpecieDB",   "General", false,             0, "", NULL},
 #endif
     {IDC_TAGSNUMSTART  , 2, "NumericStartingTagsBad",  "General", false,             1, "", NULL, true},
+#if WithNumericTags
     {IDC_TAGSNUMERIC   , 2, "NumericTagsBad",          "General", false,             1, "", NULL, true},
+#endif
     {0, NULL},
   };
 
@@ -3056,7 +3058,11 @@ void CMdlCfgSpcs::ChangeSpDefDB()
         {
         char Buff[512];
         int iImgNo=0;
+#if WithNumericTags
         int TagErr=TaggedObject::TestValidTag(Spc(), bNumericStartTagsBad, true);
+#else
+        int TagErr=TaggedObject::TestValidTag(Spc(), bNumericStartTagsBad);
+#endif
         switch (TagErr)
           {
           case 0:

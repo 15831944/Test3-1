@@ -532,9 +532,10 @@ class DllImportExport CProjectSettings
                      m_HideZeros,
                      m_ShowGroups;
     
-    flag             m_NumericTagsBad,
-                     m_NumericStartingTagsBad;
-
+#if WithNumericTags
+    flag             m_NumericTagsBad;
+#endif
+    flag             m_NumericStartingTagsBad;
     char             m_NonNumericTagChr;
 
     CTimeValue       m_GTBStartTime;

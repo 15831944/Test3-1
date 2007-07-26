@@ -156,14 +156,16 @@ class CGrfTagsPage : public CCustomPropertyPage
     CProjectSettings * m_pSet;
 
     flag    //m_bTimeChanged:1,
-m_bTagNamingChanged:1;
+    m_bTagNamingChanged:1;
     CTimeValue m_CurrentTimeAtInit;
 
     //{{AFX_DATA(CGenPage)
     enum { IDD = IDD_PRJGRFTAGSDLG };
     //CString     m_CurrentTimeHMS;
     //CString     m_TimeText;
+#if WithNumericTags
     BOOL        m_NumTagsOK;
+#endif
     BOOL        m_NumStartingOK;
     CString     m_NumChar;
     //int m_SolveMd;
@@ -1666,7 +1668,9 @@ CGrfTagsPage::CGrfTagsPage() : CCustomPropertyPage(CGrfTagsPage::IDD)
   //{{AFX_DATA_INIT(CGrfTagsPage)
   //m_CurrentTimeHMS = _T("");
   //m_TimeText = _T("Time");
+#if WithNumericTags
   m_NumTagsOK = !FALSE;
+#endif
   m_NumStartingOK = !FALSE;
   m_NumChar = _T("");
   //m_SolveMd = 0;
@@ -1753,10 +1757,17 @@ BOOL CGrfTagsPage::OnInitDialog()
   //SetDlgItemText(IDC_DATETIME_TXT, m_NetMode==0 ? "" : Tm);
 
 
+#if WithNumericTags
   m_NumTagsOK = !m_pSet->m_NumericTagsBad;
+#endif
   m_NumStartingOK = !m_pSet->m_NumericStartingTagsBad;
+#if WithNumericTags
   m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+#else
+  GetDlgItem(IDC_PRJNUMERICOK)->EnableWindow(false);
+#endif
   m_NumChar = m_pSet->m_NonNumericTagChr;
+
 
 #if WITHGRFDOCFRAME
   m_sDefGrpLib=m_pSet->m_sDefGrpLib;
@@ -1891,7 +1902,9 @@ void CGrfTagsPage::DoDataExchange(CDataExchange* pDX)
   //{{AFX_DATA_MAP(CGrfTagsPage)
   //DDX_Text(pDX, IDC_PRJCURRENTTIME, m_CurrentTimeHMS);
   //DDX_Text(pDX, IDC_TIMETEXT, m_TimeText);
+#if WithNumericTags
   DDX_Check(pDX, IDC_PRJNUMERICOK, m_NumTagsOK);
+#endif
   DDX_Check(pDX, IDC_PRJNUMERICSTARTOK, m_NumStartingOK);
   DDX_Text(pDX, IDC_PRJNUMERICCHAR, m_NumChar);
   //DDX_Radio(pDX, IDC_PRJPROBAL, m_SolveMd);
@@ -2086,15 +2099,23 @@ void CGrfTagsPage::OnOK()
       if (m_pPrj && m_bTagNamingChanged)
         {
         _asm int 3;
+#if WithNumericTags
         int TagsChngd = gs_Exec.CheckAllTags(!m_NumTagsOK, !m_NumStartingOK);
+#else
+        int TagsChngd = gs_Exec.CheckAllTags(!m_NumStartingOK);
+#endif
         if (TagsChngd<0)
           {
+#if WithNumericTags
           m_pSet->m_NumericTagsBad = 0;
+#endif
           m_pSet->m_NumericStartingTagsBad = 0;
           }
         else
           {
+#if WithNumericTags
           m_pSet->m_NumericTagsBad = !m_NumTagsOK;
+#endif
           m_pSet->m_NumericStartingTagsBad = !m_NumStartingOK;
           if (TagsChngd>0)
             {
@@ -2213,7 +2234,9 @@ void CGrfTagsPage::OnNumTagsChanged()
   {
   UpdateData(true);
   m_bTagNamingChanged = 1;
+#if WithNumericTags
   m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+#endif
   UpdateData(false);
   }
 
@@ -2224,7 +2247,9 @@ void CGrfTagsPage::OnNumStTagsChanged()
   UpdateData(true);
   m_bTagNamingChanged = 1;
   //  m_NumStartingOK = m_NumStartingOK || m_NumTagsOK;
+#if WithNumericTags
   m_NumTagsOK = m_NumTagsOK && m_NumStartingOK;
+#endif
   UpdateData(false);
   }
 
@@ -3413,9 +3438,11 @@ CMergeDlg::CMergeDlg(CMergeProjectsInfo* MPI, CWnd* pParent /*=NULL*/)
   m_MasterChangeType = -1;
   m_SlaveChangeType = -1;
   m_TagAppendChars = _T("");
+#if WithNumericTags
   m_MasterNumTagsOK = !FALSE;
-  m_MasterStNumTagsOK = !FALSE;
   m_SlaveNumTagsOK = !FALSE;
+#endif
+  m_MasterStNumTagsOK = !FALSE;
   m_SlaveStNumTagsOK = !FALSE;
   //}}AFX_DATA_INIT
   }
@@ -3443,9 +3470,11 @@ void CMergeDlg::DoDataExchange(CDataExchange* pDX)
   DDX_Radio(pDX, IDC_MSTRCHANGEALL, m_MasterChangeType);
   DDX_Radio(pDX, IDC_SLVCHANGEALL, m_SlaveChangeType);
   DDX_Text(pDX, IDC_APPENDCHARS, m_TagAppendChars);
+#if WithNumericTags
   DDX_Check(pDX, IDC_MSTRNUMTAGSOK, m_MasterNumTagsOK);
-  DDX_Check(pDX, IDC_MSTRSTNUMTAGSOK, m_MasterStNumTagsOK);
   DDX_Check(pDX, IDC_SLVNUMTAGSOK, m_SlaveNumTagsOK);
+#endif
+  DDX_Check(pDX, IDC_MSTRSTNUMTAGSOK, m_MasterStNumTagsOK);
   DDX_Check(pDX, IDC_SLVSTNUMTAGSOK, m_SlaveStNumTagsOK);
   //}}AFX_DATA_MAP
   }
@@ -3477,7 +3506,6 @@ BEGIN_MESSAGE_MAP(CMergeDlg, CDialog)
   ON_UPDATE_COMMAND_UI(IDC_SLVPREFIX, OnUpdateSlavePrefixSuffix)
   ON_UPDATE_COMMAND_UI(IDC_SLVSUFFIX, OnUpdateSlavePrefixSuffix)
   ON_UPDATE_COMMAND_UI(IDC_SLVPRESUF, OnUpdateSlavePrefixSuffix)
-  ON_UPDATE_COMMAND_UI(IDC_MSTRNUMTAGSOK,   OnUpdateMasterNumTags)
   ON_UPDATE_COMMAND_UI(IDC_MSTRSTNUMTAGSOK, OnUpdateMasterStNumTags)
   ON_UPDATE_COMMAND_UI(IDC_SLVNUMTAGSOK,    OnUpdateSlaveNumTags)
   ON_UPDATE_COMMAND_UI(IDC_SLVSTNUMTAGSOK,  OnUpdateSlaveStNumTags)
@@ -3494,6 +3522,10 @@ BOOL CMergeDlg::OnInitDialog()
   Strng s;
   s.Set("Current project : %s", PrjName());
   SetDlgItemText(IDC_TXTMSTRPRJ, s());
+#if WithNumericTags
+#else
+  GetDlgItem(IDC_MSTRNUMTAGSOK)->EnableWindow(false);
+#endif
   UpdateDialogControls(this, FALSE);
   UpdateSlaveNumTagsOK();
   return TRUE;
@@ -3532,7 +3564,9 @@ void CMergeDlg::PopulateDialog()
   m_MasterPrefixSuffix = m_MasterRenameType==MRG_Prefix ? pMPI->sMasterPrefix() : pMPI->sMasterSuffix();
   m_SlavePrefixSuffix = m_SlaveRenameType==MRG_Prefix ? pMPI->sSlavePrefix() : pMPI->sSlaveSuffix();
 
+#if WithNumericTags
   m_MasterNumTagsOK = !pMPI->bMasterNumTagsBAD;
+#endif
   m_MasterStNumTagsOK = !pMPI->bMasterStNumTagsBAD;
   }
 
@@ -3573,7 +3607,9 @@ void CMergeDlg::UpdateSlaveNumTags()
   if (FileExists((char*)(LPCTSTR)m_SlavePrj))
     {
     CProfINIFile SlavePF((char*)(LPCTSTR)m_SlavePrj);
+#if WithNumericTags
     m_SlaveNumTagsOK = !(SlavePF.RdLong("General", "NumericTagsBad", TaggedObject::NumericTagsBad) != 0);
+#endif
     m_SlaveStNumTagsOK = !(SlavePF.RdLong("General", "NumericStartingTagsBad", TaggedObject::NumericStartingTagsBad) != 0);
     }
   }
@@ -3587,8 +3623,10 @@ void CMergeDlg::UpdateSlaveNumTagsOK()
     {
     if (m_SlaveStNumTagsOK && !m_MasterStNumTagsOK)
       OK=FALSE;
+#if WithNumericTags
     if (m_SlaveNumTagsOK && !m_MasterNumTagsOK)
       OK=FALSE;
+#endif
     if (!OK)
       SetDlgItemText(IDC_TXTERR, "ERROR : Numeric tag setting's Not Valid");
     else
@@ -3622,7 +3660,11 @@ void CMergeDlg::OnMerge()
   int TagsOK=true;
   if (bTagNamingChanged)
     {
+#if WithNumericTags
     int TagsChngd = gs_Exec.CheckAllTags(!m_MasterNumTagsOK, !m_MasterStNumTagsOK);
+#else
+    int TagsChngd = gs_Exec.CheckAllTags(!m_MasterStNumTagsOK);
+#endif
     if (TagsChngd<0)
       {
       TagsOK=false;
@@ -3632,7 +3674,9 @@ void CMergeDlg::OnMerge()
       }
     else
       {
+#if WithNumericTags
       pMPI->bMasterNumTagsBAD   = !m_MasterNumTagsOK;
+#endif
       pMPI->bMasterStNumTagsBAD = !m_MasterStNumTagsOK;
       //      TaggedObject::NumericTagsBad = !m_MasterNumTagsOK;
       //      TaggedObject::NumericStartingTagsBad = !m_MasterStNumTagsOK;
@@ -3647,7 +3691,9 @@ void CMergeDlg::OnMerge()
     }
   else
     {
+#if WithNumericTags
     pMPI->bMasterNumTagsBAD   = !m_MasterNumTagsOK;
+#endif
     pMPI->bMasterStNumTagsBAD = !m_MasterStNumTagsOK;
     }
 
@@ -3687,9 +3733,6 @@ void CMergeDlg::OnUpdateSlavePrefixSuffix(CCmdUI* pCmdUi)
   pCmdUi->Enable(m_SlaveChangeType!=MRG_ChangeNone);
   }
 
-void CMergeDlg::OnUpdateMasterNumTags(CCmdUI* pCmdUi)
-  {
-  };
 void CMergeDlg::OnUpdateMasterStNumTags(CCmdUI* pCmdUi)
   {
   };
@@ -3745,9 +3788,13 @@ void CMergeDlg::OnMstrstnumtags()
   {
   UpdateData(TRUE);
   bTagNamingChanged = 1;
+#if WithNumericTags
   m_MasterNumTagsOK;
+#endif
   m_MasterStNumTagsOK;
+#if WithNumericTags
   m_MasterNumTagsOK = m_MasterNumTagsOK && m_MasterStNumTagsOK;
+#endif
   UpdateSlaveNumTagsOK();
   UpdateData(FALSE);
   }
@@ -3758,7 +3805,9 @@ void CMergeDlg::OnMstrnumtags()
   {
   UpdateData(TRUE);
   bTagNamingChanged = 1;
+#if WithNumericTags
   m_MasterStNumTagsOK = m_MasterStNumTagsOK || m_MasterNumTagsOK;
+#endif
   UpdateSlaveNumTagsOK();
   UpdateData(FALSE);
   }
