@@ -1531,7 +1531,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
 
   int iLvlCtrl=pControl ? pControl->StreamIndex() : -1;
   Contents.SetCI(7, pControl && pControl->m_iStreamIndex<0 && pControl->m_bOn && pControl->m_bEnabled);
-
+  
   bool DoneIt[MaxIOList];
   int HOSeq=-1;
   for (int iHO=0; iHO<HO.NSLOrd(); )//iHO++)
@@ -1647,40 +1647,27 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
             double MassOutEst=IOQmEst_Out(iIONo);
 
             if (iLvlCtrl==iIONo)
-              {
-              for (int s=0; s<SDB.Count(); s++)
-                {
-                VCtrlDmd[s] = VFlwAvl[s]*Filter[s];//QmEst*ContentFlw /IOFilterDens(iIONo);
-                TotalVCtrl  +=VCtrlDmd[s];
-                }
               CtrlNow=true;
-#if dbgDerivs
-              if (dbgso)
-                dbgpln("  CtrlNow Filt");
-#endif
-              }
-            else
+
+            for (int s=0; s<SDB.Count(); s++)
               {
-              for (int s=0; s<SDB.Count(); s++)
-                {
-                double M    = Filter[s]*MFlwAvl[s]/MassOutAvl*QmEst;
-                double V    = M/Dens[s];
-                IOMFlw.m_MFlwDmd[s]   = M;
+              double M    = Filter[s]*MFlwAvl[s]/MassOutAvl*QmEst;
+              double V    = M/Dens[s];
+              IOMFlw.m_MFlwDmd[s]   = M;
 
 #if dbgDerivs
-                if (dbgso && (MFlwAvl[s]>ZeroLimit))
-                  dbgpln("  IOFlwFt MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
+              if (dbgso && (MFlwAvl[s]>ZeroLimit))
+                dbgpln("  IOFlwFt MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
 #endif
 
-                if (M>ZeroLimit)
-                  {
-                  IOMFlw.m_TotalMFlwDmd += M;
+              if (M>ZeroLimit)
+                {
+                IOMFlw.m_TotalMFlwDmd += M;
 
-                  MFlwDmd[s]  +=M;
-                  TotalMDmd   +=M;
-                  VFlwDmd[s]  +=V;
-                  TotalVDmd   +=V;
-                  }
+                MFlwDmd[s]  +=M;
+                TotalMDmd   +=M;
+                VFlwDmd[s]  +=V;
+                TotalVDmd   +=V;
                 }
               }
             }
@@ -1693,39 +1680,26 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
             MassOutAvl=GTZ(MassOutAvl);
 
             if (iLvlCtrl==iIONo)
-              {
-              for (int s=0; s<SDB.Count(); s++)
-                {
-                VCtrlDmd[s] = VFlwAvl[s];
-                TotalVCtrl  +=VCtrlDmd[s];
-                }
               CtrlNow=true;
-#if dbgDerivs
-              if (dbgso)
-                dbgpln("  CtrlNow B");
-#endif
-              }
-            else
+              
+            for (int s=0; s<SDB.Count(); s++)
               {
-              for (int s=0; s<SDB.Count(); s++)
-                {
-                double M    = MFlwAvl[s]/MassOutAvl*QmEst;
-                double V    = M/Dens[s];
-                IOMFlw.m_MFlwDmd[s]   = M;
+              double M    = MFlwAvl[s]/MassOutAvl*QmEst;
+              double V    = M/Dens[s];
+              IOMFlw.m_MFlwDmd[s]   = M;
 #if dbgDerivs
-                if (dbgso && (MFlwAvl[s]>ZeroLimit))
-                  dbgpln("  IOFlw   MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
+              if (dbgso && (MFlwAvl[s]>ZeroLimit))
+                dbgpln("  IOFlw   MFlwDmd %12.6f VFlwDmd %12.6f %-20s %s", M, V, SDB[s].SymOrTag(), Nd_Rmt(iIONo)->FullObjTag());
 #endif
 
-                if (M>ZeroLimit)
-                  {
-                  IOMFlw.m_TotalMFlwDmd += M;
+              if (M>ZeroLimit)
+                {
+                IOMFlw.m_TotalMFlwDmd += M;
 
-                  MFlwDmd[s]  +=M;
-                  TotalMDmd   +=M;
-                  VFlwDmd[s]  +=V;
-                  TotalVDmd   +=V;
-                  }
+                MFlwDmd[s]  +=M;
+                TotalMDmd   +=M;
+                VFlwDmd[s]  +=V;
+                TotalVDmd   +=V;
                 }
               }
             }
@@ -1761,6 +1735,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
         }
 #endif
 
+      double VolCanLeave = -1.0;
       if (InLine)
         {
         double VolFlwRetCtrl=0;
@@ -1781,16 +1756,18 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
               break;
             }
 
-          VolCtrlFlw=GEZ(TotalVAvl-(VolFlwRetBelow+VolFlwRetCtrl)-TotalVDmd);
+          VolCtrlFlw=GEZ(TotalVAvl-(VolFlwRetBelow+VolFlwRetCtrl));//-TotalVDmd);
           VolCtrlFlw=Max(VolCtrlFlw, pControl->m_dQmMinStep/Dens);
           if (Valid(pControl->m_dQmMaxStep))
             VolCtrlFlw=Min(VolCtrlFlw, pControl->m_dQmMaxStep/Dens);
           pControl->m_dQmCalc=VolCtrlFlw*Dens;
-          TotalVDmd+=VolCtrlFlw;
+          VolCanLeave = VolCtrlFlw;
           }
         }
 
-      double VolCanLeave = GEZ(TotalVAvl-VolFlwRetBelow);
+      if (VolCanLeave==-1.0)
+        VolCanLeave = GEZ(TotalVAvl-VolFlwRetBelow);
+
       double VolFlwScale = Range(0.0, VolCanLeave/GTZ(TotalVDmd), 1.0);
 
 #if dbgDerivs
@@ -1819,41 +1796,27 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
               dbgpln("  >>>> %3i) %18.3f %s",iIONo,QmEst, Nd_Rmt(iIONo)->FullObjTag());
 #endif
 
-            if (iLvlCtrl==iIONo)
+            CIOMFlwDmdRec & IOMFlw = IOMFlwDmd(iIONo);  
+            IOMFlw.m_TotalMFlwOut=0;
+            for (int s=0; s<SDB.Count(); s++)
               {
-              //            double Dens=IOFilterDens(iIONo);
-
-              //            SetOutputFlows(HO, iIONo, Dens*VolFlwScale*VolCtrlFlw/GTZ(TotalVCtrl), 0.0, /*HasImage ? &DemandScale:*/NULL);
-              //            DoneIt[HO.m_Ord[iHO1]]=true;
-              //#if dbgDerivs
-              //            if (dbgso)
-              //              dbgpln("    %3i = %18.3f %s",iIONo,IOQmEst_Out(iIONo)*VolFlwScale, Nd_Rmt(iIONo)->FullObjTag());
-              //#endif
-              }
-            else
-              {
-              CIOMFlwDmdRec & IOMFlw = IOMFlwDmd(iIONo);  
-              IOMFlw.m_TotalMFlwOut=0;
-              for (int s=0; s<SDB.Count(); s++)
+              if (IOMFlw.m_MFlwDmd[s]>ZeroLimit)
                 {
-                if (IOMFlw.m_MFlwDmd[s]>ZeroLimit)
-                  {
-                  IOMFlw.m_MFlwOut[s] = Min(MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), IOMFlw.m_MFlwDmd[s]*VolFlwScale);;
-                  IOMFlw.m_TotalMFlwOut += IOMFlw.m_MFlwOut[s];
+                IOMFlw.m_MFlwOut[s] = Min(MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), IOMFlw.m_MFlwDmd[s]*VolFlwScale);;
+                IOMFlw.m_TotalMFlwOut += IOMFlw.m_MFlwOut[s];
 #if dbgDerivs
-                  if (dbgso)
-                    dbgpln("  SetOut %12.6f = MFlwAvl %9.4f IOMFlwDmd %12.6f MFlwDmd %12.6f X %12.6f %s",
-                    IOMFlw.m_MFlwOut[s], MFlwAvl[s], IOMFlw.m_MFlwDmd[s], MFlwDmd[s], MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), SDB[s].SymOrTag());
+                if (dbgso)
+                  dbgpln("  SetOut %12.6f = MFlwAvl %9.4f IOMFlwDmd %12.6f MFlwDmd %12.6f X %12.6f %s",
+                  IOMFlw.m_MFlwOut[s], MFlwAvl[s], IOMFlw.m_MFlwDmd[s], MFlwDmd[s], MFlwAvl[s]*IOMFlw.m_MFlwDmd[s]/GTZ(MFlwDmd[s]), SDB[s].SymOrTag());
 #endif
-                  }
-                else
-                  IOMFlw.m_MFlwOut[s]=0;
                 }
-#if dbgDerivs
-              if (dbgso)
-                dbgpln("  Total FlwOut %12.6f FlwDmd %12.6f", IOMFlw.m_TotalMFlwOut, IOMFlw.m_TotalMFlwDmd);
-#endif
+              else
+                IOMFlw.m_MFlwOut[s]=0;
               }
+#if dbgDerivs
+            if (dbgso)
+              dbgpln("  Total FlwOut %12.6f FlwDmd %12.6f", IOMFlw.m_TotalMFlwOut, IOMFlw.m_TotalMFlwDmd);
+#endif
             }
           }
 
