@@ -6776,7 +6776,7 @@ flag Block::Find_Attdef_Settings(pchar Tag, Attr_Settings &Set, Pt_3f &Pos)
     Pos.Set(DXF_ATTDEF_PT(ad)[0],
       DXF_ATTDEF_PT(ad)[1],
       DXF_ATTDEF_PT(ad)[2]);
-    Attr_Settings &Set = Attr_Settings (
+    Set = Attr_Settings (
       50,                              // Length ?
       DXF_ATTDEF_GFLAGS(ad),           // Flags
       DXF_ATTDEF_HEIGHT(ad),           // Size
@@ -9214,6 +9214,24 @@ long DXF_Drawing::AddNodeGrfInfo(pNodeGrfInfo pNGI)
           //dbgpln("Poly  %li  %li", X, Y);
           }
         break;
+      case DD_TagPos:
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          DORANGE(X,Y);
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          //dbgpln("TagPos %li  %li", X, Y);
+          }
+        break;
+      case DD_ValuesPos:
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          DORANGE(X,Y);
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          //dbgpln("ValuesPos %li  %li", X, Y);
+          }
+        break;
       case DD_Dynm:
         pVar  = pNGI->GetAChar();
         pType = pNGI->GetAChar();
@@ -9442,19 +9460,75 @@ long DXF_Drawing::AddNodeGrfInfo(pNodeGrfInfo pNGI)
       case DD_Arc3:
         {
         double Xs,Xm,Xe,Ys,Ym,Ye;
-        if (pNGI->GetCoOrd(Xs,Ys))
-          if (pNGI->GetCoOrd(Xm,Ym))
-            if (pNGI->GetCoOrd(Xe,Ye))
-              if (b)
-                {
-                Pt_3f pts, ptm, pte;
-                LOADPT(pts, Xs, Ys);
-                LOADPT(ptm, Xm, Ym);
-                LOADPT(pte, Xe, Ye);
-                b->SetCurrentLayer(Drawing_Layer);
-                C3=b->Add_Arc(pts.p(), ptm.p(), pte.p());
-                }
-              break;
+        if (pNGI->GetCoOrd(Xs,Ys) && pNGI->GetCoOrd(Xm,Ym) && pNGI->GetCoOrd(Xe,Ye) && b)
+          {
+          Pt_3f pts, ptm, pte;
+          LOADPT(pts, Xs, Ys);
+          LOADPT(ptm, Xm, Ym);
+          LOADPT(pte, Xe, Ye);
+          b->SetCurrentLayer(Drawing_Layer);
+          C3=b->Add_Arc(pts.p(), ptm.p(), pte.p());
+          }
+        break;
+        }
+      case DD_TagPos:
+        {
+        double X,Y;
+        int iJust;
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          if (b)
+            {
+            Pt_3f pt;
+            LOADPT(pt, X, Y);
+
+            if (iJust<0) // left
+              {
+              }
+            else if (iJust>0) // right
+              {
+              }
+            else
+              {
+              }
+
+            Attr_Settings TSet(50, 0, 3.0, 1.0, 0.0, GR_DARKGRAY, Text_Cntrd, Text_Baseline, "STANDARD");
+
+            //Attr_Settings TSet(50,
+            //                   Ti.flags | Ti.on ? 0 : DXF_ATTRIB_INVIS,
+            //                   Ti.height,
+            //                   Ti.wfactor,
+            //                   Rads2Degs(Ti.angle),
+            //                   GR_DARKGRAY,
+            //                   Text_Left,Text_Baseline,
+            //                   Ti.style);
+            b->Add_Attrib_Defn(TagAttribStr,"", "tag", pt.p(), TSet); 
+            }
+          }
+        break;
+        }
+      case DD_ValuesPos:
+        {
+        double X,Y;
+        int iJust;
+        if (pNGI->GetCoOrd(X,Y) && b)
+          {
+          iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          //if (pNGI->GetCoOrd(Xe,Ye))
+            //  if (b)
+            //    {
+            //    Pt_3f pts, ptm, pte;
+            //    LOADPT(pts, Xs, Ys);
+            //    LOADPT(ptm, Xm, Ym);
+            //    LOADPT(pte, Xe, Ye);
+            //    b->SetCurrentLayer(Drawing_Layer);
+            //    C3=b->Add_Arc(pts.p(), ptm.p(), pte.p());
+            //    }
+          }
+        break;
         }
       case DD_End:
         NdNo++;
@@ -9532,6 +9606,26 @@ flag DXF_Drawing::GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs,
           {
           };
         break;
+      case DD_TagPos:
+        {
+        double X,Y;
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          }
+        break;
+        }
+      case DD_ValuesPos:
+        {
+        double X,Y;
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          }
+        break;
+        }
       case DD_Dynm:
         pVar  = pNGI->GetAChar();
         pType = pNGI->GetAChar();

@@ -67,6 +67,7 @@ const byte MSStyle_Dots     = 4;
 const LPTSTR TagAttribStr         = "Tag";
 const LPTSTR AssocTagAttribStr    = "AssocTag";
 const LPTSTR HideInsertAttribStr  = "HideInsert";
+const LPTSTR ValuesAttribStr      = "Values";
 
 extern bool EntityIsHidden(DXF_ENTITY e);
 

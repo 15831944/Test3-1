@@ -10969,12 +10969,27 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 
   if (DoIt)
     {
+    Attr_Settings TagAttSet(ASet);
     double Xto = 0.0;
     double Yto = 0.0;
     if (TagPt && Valid(TagPt->X))
       {
       Xto=TagPt->X;
       Yto=TagPt->Y;
+      }
+    else 
+      {
+      //Attr_Settings Set;
+      Pt_3f Pos;
+      if (b->Find_Attdef_Settings(TagAttribStr, TagAttSet, Pos))
+        {
+
+      //DXF_ENTITY eTg=b->Find_Attrib_Defn(TagAttribStr);
+      //if (eTg && DXF_ENTITY_IS_ATTDEF(eTg))
+      //  {
+        Xto=Pos.X;
+        Yto=Pos.Y;
+        }
       }
     Pt_3f Ptt(Xto * Scl.X, Yto * Scl.Y, 0.);
 
@@ -10983,7 +10998,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
       Scl.X, Scl.Y, Pt.X, Pt.Y, Ptt.X, Ptt.Y, (LPCTSTR)DrawBlockName, Tag);
     #endif
 
-    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Tag, AssocTag, Ptt, ASet);
+    DXF_ENTITY e = pDrw->Create_Insert(DXF_BLOCK_NAME_GET(b->Def), Pt, GR_LIGHTGREEN, Scl, Rotate, Tag, AssocTag, Ptt, TagAttSet);
     if (AssocTag)
           pDrw->GetBounds();
     return e;

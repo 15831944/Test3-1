@@ -1314,6 +1314,28 @@ bool CInsertUnitDlg::LoadDefDraw()
         while (pNGI->GetCoOrd(X,Y))
           DORANGE(X,Y);
         break;
+      case DD_TagPos:
+        {
+        double X,Y;
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          DORANGE(X,Y);
+          }
+        break;
+        }
+      case DD_ValuesPos:
+        {
+        double X,Y;
+        if (pNGI->GetCoOrd(X,Y))
+          {
+          int iJust=pNGI->GetLVal();
+          int iVisible=pNGI->GetLVal();
+          DORANGE(X,Y);
+          }
+        break;
+        }
       case DD_Dynm:
         pVar  = pNGI->GetAChar();
         pType = pNGI->GetAChar();
@@ -1488,6 +1510,42 @@ Continue:
           }
         break;
         }
+      case DD_TagPos:
+        if(pNGI->GetCoOrd(X,Y))
+          {
+          if (GotIt)
+            {
+            int iJust=pNGI->GetLVal();
+            int iVisible=pNGI->GetLVal();
+            //m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X),YSCL(Y)));
+            //m_PolyPtCnt.SetAtGrow(m_PolyCnt, 1);
+            //while (pNGI->GetCoOrd(X,Y))
+            //  {
+            //  m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X),YSCL(Y)));
+            //  m_PolyPtCnt[m_PolyCnt]++;
+            //  }
+            //m_PolyCnt++;
+            }
+          }
+        break;
+      case DD_ValuesPos:
+        if(pNGI->GetCoOrd(X,Y))
+          {
+          if (GotIt)
+            {
+            int iJust=pNGI->GetLVal();
+            int iVisible=pNGI->GetLVal();
+            //m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X),YSCL(Y)));
+            //m_PolyPtCnt.SetAtGrow(m_PolyCnt, 1);
+            //while (pNGI->GetCoOrd(X,Y))
+            //  {
+            //  m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X),YSCL(Y)));
+            //  m_PolyPtCnt[m_PolyCnt]++;
+            //  }
+            //m_PolyCnt++;
+            }
+          }
+        break;
       case DD_End:
         if (GotIt)
           {
