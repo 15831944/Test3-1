@@ -13,13 +13,15 @@ namespace Auto_Complete
     class BoxAutoComplete : RichTextBoxEx
     {
         #region Variables
-        protected FrmAutoComplete m_AutoForm = new FrmAutoComplete();
+        protected FrmAutoComplete m_AutoForm;
+        int m_nStartChar = -1;
         #endregion Variables
 
         #region Constructors
         public BoxAutoComplete()
             : base()
         {
+            m_AutoForm = new FrmAutoComplete(this);
             m_AutoForm.TopMost = true;
             m_AutoForm.OwnerBox = this;
         }
@@ -33,7 +35,21 @@ namespace Auto_Complete
 
         public Form FrmOwner
         {
-            set { m_AutoForm.Owner = value; }
+            set 
+            { 
+                m_AutoForm.Owner = value;
+                value.Move += new EventHandler(Owner_Move);
+            }
+        }
+
+        void Owner_Move(object sender, EventArgs e)
+        {
+            if (m_AutoForm.Visible)
+            {
+                Point p = this.PointToScreen(this.GetPositionFromCharIndex(m_nStartChar));
+                p.Y += (int)this.Font.GetHeight();
+                m_AutoForm.Location = p;
+            }
         }
 
         public Dictionary<object, int> HitCounts
@@ -44,6 +60,7 @@ namespace Auto_Complete
         #endregion Properties
 
         #region Overrides
+
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             if (!m_AutoForm.Visible)
@@ -55,7 +72,9 @@ namespace Auto_Complete
                     if (m.Success)
                     {
                         //m_AutoForm.AssociatedControl = this;
+                        m_AutoForm.LastSelect = -1;
                         m_AutoForm.SetFilter(m.Groups["Last"].Value);
+                        m_nStartChar = this.SelectionStart;
                         Point p = this.PointToScreen(this.GetPositionFromCharIndex(this.SelectionStart));
                         p.Y += (int)this.Font.GetHeight();
 

@@ -36,7 +36,7 @@ namespace Auto_Complete
         void MainControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (MainControl.SelectedIndex != -1)
-                m_nLastSelect = MainControl.SelectedIndex;
+                LastSelect = MainControl.SelectedIndex;
         }
 
         public BoxAutoComplete OwnerBox
@@ -51,7 +51,13 @@ namespace Auto_Complete
 
         public int LastSelect 
         {
-            set { m_nLastSelect = value; }
+            set 
+            {
+                Console.WriteLine(value);
+                m_nLastSelect = value;
+                if (value == -1)
+                    Console.WriteLine("Fuck");
+            }
             get { return m_nLastSelect; }
         }
 
@@ -70,7 +76,6 @@ namespace Auto_Complete
         protected override void OnShown(EventArgs e)
         {
             //MainControl.SelectedIndex = -1;
-            m_nLastSelect = -1;
             base.OnShown(e);
         }
 
@@ -90,8 +95,8 @@ namespace Auto_Complete
             {
                 if (MainControl.SelectedItem != null)
                     return MainControl.SelectedItem;
-                else if (m_nLastSelect > 0)
-                    return MainControl.Items[m_nLastSelect];
+                else if (LastSelect >= 0)
+                    return MainControl.Items[LastSelect];
                 else return null;
             }
         }
@@ -120,12 +125,6 @@ namespace Auto_Complete
                 m_ReselectForm.Activate();
         }
 
-        public new void Show()
-        {
-            m_nLastSelect = -1;
-            base.Show();
-        }
-
         //Doesn't intercept Alt+F4:
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -150,16 +149,6 @@ namespace Auto_Complete
                 this.Hide();
             }
             base.WndProc(ref m);
-        }
-
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-        }
-
-        public new void Hide()
-        {
-            base.Hide();
         }
     }
 

@@ -20,14 +20,24 @@ namespace Reaction_Editor
         #region Internal Variables
         //Rectangle m_DragRect = Rectangle.Empty;
         //Compound m_DraggedCompound = null;
-        int m_nUntitledNo = 1;
-        ILog Log;
-        RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
+        protected int m_nUntitledNo = 1;
+        protected ILog Log;
+        protected RegistryKey regKey = Registry.CurrentUser.CreateSubKey("Software").CreateSubKey("Kenwalt").CreateSubKey("SysCAD Reaction Editor");
         protected List<ToolStripMenuItem> m_RecentFiles = new List<ToolStripMenuItem>();
         protected int m_nRecentFileCount = 6;
 
         protected static Regex s_RctRegex = new Regex(@"\s*(?<Filename>.*\.rct)\s*", RegexOptions.IgnoreCase);
         protected static Regex s_SpecieRegex = new Regex(@"\s*(?<Filename>.*\.ini)\s*", RegexOptions.IgnoreCase);
+
+        protected static Regex s_ElementRegex = new Regex(
+            @"^E\d{3}=(?<Sym>[^,\s]{1,3})\s*,\s*(?<AtmNo>\d{1,3})\s*,\s*(?<AtmWt>(\d+(\.\d+)?|\.\d+))\s*$",
+            RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        protected static Regex s_CompoundRegex = new Regex(
+            @"^S(?<Index>\d{3})=Specie\s*,\s*(?<Name>[^\r\n,]*)\s*,\s*(?<Sym>[^\r\n\s,]*)\s*,\s*(?<Phase>Solid|Liquid|Vapour)\s*,\s*(?<MolWt>(\d+(.\d+)?|.\d+))(\s*,\s*(?<ElementSym>[^,\r\n\s]*)\s*,\s*(?<ElemCount>\d*(\.\d+)?)\s*)+$",
+            RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
+        protected static Regex s_GroupRegex = new Regex(
+            @"^S(?<Index>\d{3})=Annotation\s*,\s*(?<Name>[^\r\n,]*)",
+            RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
         #endregion Internal Variables
 
         #region Protected Functions
@@ -39,8 +49,6 @@ namespace Reaction_Editor
         {
             try
             {
-                lstSpecies.BeginUpdate();
-                lstSpecies.ShowGroups = true;
                 string db = File.ReadAllText(filename);
                 if (!db.Contains("[Species]"))
                 {
@@ -61,11 +69,33 @@ namespace Reaction_Editor
                         elementCount++;
                 }
 
+                List<int> groupIndices = new List<int>();
+                Dictionary<int, string> groupNames = new Dictionary<int, string>();
+                for (Match m = s_GroupRegex.Match(db); m.Success; m = m.NextMatch())
+                {
+                    int i = int.Parse(m.Groups["Index"].Value);
+                    groupIndices.Add(i);
+                    groupNames.Add(i, m.Groups["Name"].Value);
+                    if (lstSpecies.Groups[m.Groups["Name"].Value] == null)
+                        lstSpecies.Groups.Add(m.Groups["Name"].Value, m.Groups["Name"].Value);
+                }
+                groupIndices.Sort();
+
+
                 for (Match m = s_CompoundRegex.Match(db); m.Success; m = m.NextMatch())
                 {
                     Compound comp = new Compound();
                     comp.Name = m.Groups["Name"].Value;
                     comp.Symbol = m.Groups["Sym"].Value;
+                    comp.Index = int.Parse(m.Groups["Index"].Value);
+                    int j = 0;
+                    while (j < groupIndices.Count && groupIndices[j] < comp.Index)
+                        j++;
+                    if (j != 0)
+                        j--;
+                    if (groupNames.Count > 0)//To stop the program from simply crashing.
+                        comp.Annotation = groupNames[groupIndices[j]]; 
+
                     if (m.Groups["Phase"].Value == "Solid")
                         comp.Phase = Phases.Solid;
                     else if (m.Groups["Phase"].Value == "Liquid")
@@ -82,7 +112,7 @@ namespace Reaction_Editor
                                 , double.NaN));
                             Log.Message("Element '" + sym + "' not found in element database (Found in compound '" + comp.Name + "')",
                                 MessageType.Warning,
-                                new MessageSource(Path.GetFileName(filename)));
+                                new MessageSource(filename));
                         }
                         comp.Elements.Add(Element.ElementList[sym],
                                           double.Parse(m.Groups["ElemCount"].Captures[i].Value));
@@ -93,9 +123,7 @@ namespace Reaction_Editor
                         specieCount++;
                     }
                 }
-                lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
                 txtFilter_TextChanged(this, new EventArgs());
-                lstSpecies.EndUpdate();
                 Log.Message(elementCount.ToString() + " Elements and " + specieCount.ToString() + " Species loaded.",
                     MessageType.Note,
                     new MessageSource(filename));
@@ -112,12 +140,6 @@ namespace Reaction_Editor
             }
             DoDatabaseChanged();
         }
-        protected static Regex s_ElementRegex = new Regex(
-            @"^E\d{3}=(?<Sym>[^,\s]{1,3})\s*,\s*(?<AtmNo>\d{1,3})\s*,\s*(?<AtmWt>(\d+(\.\d+)?|\.\d+))\s*$",
-            RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
-        protected static Regex s_CompoundRegex = new Regex(
-            @"^S\d{3}=Specie\s*,\s*(?<Name>[^\r\n,\s]*)\s*,\s*(?<Sym>[^\r\n\s,]*)\s*,\s*(?<Phase>Solid|Liquid|Vapour)\s*,\s*(?<MolWt>(\d+(.\d+)?|.\d+))(\s*,\s*(?<ElementSym>[^,\r\n\s]*)\s*,\s*(?<ElemCount>\d*(\.\d+)?)\s*)+$",
-            RegexOptions.Compiled | RegexOptions.Multiline | RegexOptions.ExplicitCapture);
 
         protected void DoDatabaseChanged()
         {
@@ -130,6 +152,13 @@ namespace Reaction_Editor
         {
             try
             {
+                Form f = AlreadyOpen(filename);
+                if (f != null)
+                {
+                    f.Activate();
+                    return;
+                }
+
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
                 RegisterRecentFile(filename);
@@ -227,6 +256,8 @@ namespace Reaction_Editor
             frm.CompoundsChanged += new EventHandler(frm_CompoundsChanged);
             frm.ReactionChanged += new EventHandler(frm_ReactionChanged);
             frm.SourcesSinksChanged += new EventHandler(frm_SourcesSinksChanged);
+            frm.ReactionAdded += new FrmReaction.ReactionHandler(frm_ReactionAdded);
+            frm.ReactionRemoved += new FrmReaction.ReactionHandler(frm_ReactionRemoved);
         }
 
         protected void Save(FrmReaction target)
@@ -394,6 +425,37 @@ namespace Reaction_Editor
                 UpdateUsedSpecies();
         }
 
+        void frm_ReactionRemoved(FrmReaction form, SimpleReaction reaction)
+        {
+            if (form == ActiveMdiChild)
+                UpdateUsedSpecies();
+            foreach (TreeNode f in treeFiles.Nodes["RBs"].Nodes)
+                if (f.Tag == form)
+                {
+                    foreach (TreeNode r in f.Nodes)
+                        if (r.Tag == reaction)
+                        {
+                            r.Remove();
+                            break;
+                        }
+                    break;
+                }
+        }
+
+        void frm_ReactionAdded(FrmReaction form, SimpleReaction reaction)
+        {
+            if (form == ActiveMdiChild)
+                UpdateUsedSpecies();
+            foreach (TreeNode f in treeFiles.Nodes["RBs"].Nodes)
+                if (f.Tag == form)
+                {
+                    TreeNode newNode = new TreeNode(reaction.ToString());
+                    newNode.Tag = reaction;
+                    f.Nodes.Add(newNode);
+                    break;
+                }
+        }
+
         void frm_ReactionChanged(object sender, EventArgs e)
         {
             if (sender == ActiveMdiChild)
@@ -430,9 +492,16 @@ namespace Reaction_Editor
             if (dlgOpenRxn.ShowDialog(this) != DialogResult.OK)
                 return;
             foreach (string file in dlgOpenRxn.FileNames)
-                    Open(file);
+                Open(file);
         }
 
+        Form AlreadyOpen(string filename)
+        {
+            foreach (Form f in this.MdiChildren)
+                if (f is FrmReaction && ((FrmReaction)f).Filename == filename)
+                    return f;
+            return null;
+        }
 
         void frm_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -479,17 +548,10 @@ namespace Reaction_Editor
         private void FrmMain_MdiChildActivate(object sender, EventArgs e)
         {
             if (ActiveMdiChild is FrmReaction)
-            {
-                this.Text = "SysCAD Reaction Editor - " + ((FrmReaction)ActiveMdiChild).Title;
                 m_StatusLabel.Text = ((FrmReaction)ActiveMdiChild).StatusMessage;
-                UpdateUsedSpecies();
-            }
             else
-            {
-                UpdateUsedSpecies();
-                this.Text = "SysCAD Reaction Editor";
                 m_StatusLabel.Text = "";
-            }
+            UpdateUsedSpecies();
         }
 
         private void menuOpenDB_Click(object sender, EventArgs e)
@@ -553,7 +615,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.2\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.3\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -686,25 +748,35 @@ namespace Reaction_Editor
         {
             if (folderBrowserDialog1.ShowDialog(this) != DialogResult.OK)
                 return;
-            if (File.Exists(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini"))
+            try
             {
-                int dbOpen = 0; bool reloadRequired = false;
-                foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
-                    if (tn.Text == folderBrowserDialog1.SelectedPath + "\\SpecieData.ini")
-                        dbOpen = 1;
-                if (treeFiles.Nodes["SpecieDB"].Nodes.Count > dbOpen && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                lstLog.BeginUpdate();
+                treeFiles.BeginUpdate();
+                if (File.Exists(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini"))
                 {
-                    reloadRequired = true;
-                    UnloadDatabase();
+                    int dbOpen = 0; bool reloadRequired = false;
+                    foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
+                        if (tn.Text == folderBrowserDialog1.SelectedPath + "\\SpecieData.ini")
+                            dbOpen = 1;
+                    if (treeFiles.Nodes["SpecieDB"].Nodes.Count > dbOpen && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        reloadRequired = true;
+                        UnloadDatabase();
+                    }
+                    if (dbOpen == 0 || reloadRequired)
+                    {
+                        OpenSpecieDB(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini");
+                        DoDatabaseChanged();
+                    }
                 }
-                if (dbOpen == 0 || reloadRequired)
-                {
-                    OpenSpecieDB(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini");
-                    DoDatabaseChanged();
-                }
+                foreach (string fn in Directory.GetFiles(folderBrowserDialog1.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
+                    Open(fn);
             }
-            foreach (string fn in Directory.GetFiles(folderBrowserDialog1.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
-                Open(fn);
+            finally
+            {
+                lstLog.EndUpdate();
+                treeFiles.EndUpdate();
+            }
         }
 
         private void sortByPhaseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -725,7 +797,7 @@ namespace Reaction_Editor
                     {
                         ListViewItem lvi = new ListViewItem(new string[] { c.Symbol, c.Name });
                         lstSpecies.Items.Add(lvi);
-                        lvi.Group = lstSpecies.Groups[c.Phase.ToString()];
+                        lvi.Group = lstSpecies.Groups[c.Annotation];
                         lvi.Tag = c;
                         continue;
                     }

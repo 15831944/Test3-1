@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Equation Editor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Sucks ^_^")]
+[assembly: AssemblyCompany("Kenwalt")]
 [assembly: AssemblyProduct("Equation Editor")]
-[assembly: AssemblyCopyright("Copyright © Sucks ^_^ 2007")]
+[assembly: AssemblyCopyright("Copyright © Kenwalt 2007")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

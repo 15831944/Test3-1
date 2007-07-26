@@ -24,14 +24,19 @@ namespace Reaction_Editor
     public enum HXTypes { None, FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
     public enum FracTypes { ByMass, ByMole };
     public enum TPConditions { Feed, Product, Standard, Custom };
+    public enum ExtentAim { Default, Target, Strict };
 
     #region Reaction Extent Structures
     [Serializable]
     public class RxnExtent
     {
+        public static Regex s_ExtentRegex = new Regex(
+            @"Extent\s*:\s*(?<Data>((?<Fraction>Fraction)|(?<Equilibrium>Equilibrium)|(?<FinalFrac>m(s|l)FinalFraction)|(?<FinalConc>FinalConc)|(?<Ratio>Ratio))(?<Aim>Target|Strict)?.*)",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
         protected double m_dValue = double.NaN;
         protected Compound m_Specie;
         protected SimpleReaction m_Owner;
+        protected ExtentAim m_eAim = ExtentAim.Default;
         public RxnExtent(RxnExtent original)
         {
             if (original != null)
@@ -67,6 +72,16 @@ namespace Reaction_Editor
             get { return m_Owner; }
             set { m_Owner = value; }
         }
+        public virtual ExtentAim Aim
+        {
+            get { return m_eAim; }
+            set
+            {
+                m_eAim = value;
+                if (m_Owner != null)
+                    m_Owner.FireChanged();
+            }
+        }
 
         public override string ToString()
         {
@@ -82,38 +97,38 @@ namespace Reaction_Editor
 
         public static RxnExtent Parse(string s, out ExtentTypes retType)
         {
-            if (s.StartsWith("Extent :"))
-                s = s.Remove(0, "Extent :".Length).Trim();
-            if (s.ToLowerInvariant().StartsWith("fraction"))
+            Match m = s_ExtentRegex.Match(s);
+            if (!m.Success)
+                throw new RxnEdException("Unsupported extent token");
+            if (m.Groups["Fraction"].Success)
             {
                 if (s.Contains(" Rate "))
                     retType = ExtentTypes.Rate;
                 else
                     retType = ExtentTypes.Fraction;
-                return FractionExtent.Parse(s);
+                return FractionExtent.Parse(m.Groups["Data"].Value);
             }
-            if (s.ToLowerInvariant().StartsWith("equilibrium"))
+            if (m.Groups["Equilibrium"].Success)
             {
                 retType = ExtentTypes.Equilibrium;
-                return EquilibriumExtent.Parse(s);
+                return EquilibriumExtent.Parse(m.Groups["Data"].Value);
             }
-            if (s.ToLowerInvariant().StartsWith("mlfinalfraction") ||
-                s.ToLowerInvariant().StartsWith("msfinalfraction"))
+            if (m.Groups["FinalFraction"].Success)
             {
                 retType = ExtentTypes.FinalFrac;
-                return Final_FracExtent.Parse(s);
+                return Final_FracExtent.Parse(m.Groups["Data"].Value);
             }
-            if (s.ToLowerInvariant().StartsWith("finalconc"))
+            if (m.Groups["FinalConc"].Success)
             {
                 retType = ExtentTypes.FinalConc;
-                return Final_ConcExtent.Parse(s);
+                return Final_ConcExtent.Parse(m.Groups["Data"].Value);
             }
-            if (s.ToLowerInvariant().StartsWith("ratio"))
+            if (m.Groups["Ratio"].Success)
             {
                 retType = ExtentTypes.Ratio;
-                return RatioExtent.Parse(s);
+                return RatioExtent.Parse(m.Groups["Data"].Value);
             }
-            throw new RxnEdException("Unsupported extent token");
+            throw new Exception(); //Just to make the compiler happy
         }
 
         public RxnExtent Clone(SimpleReaction newOwner)
@@ -122,17 +137,21 @@ namespace Reaction_Editor
             ret.m_Owner = newOwner;
             return ret;
         }
+
+        protected string AimString { get { return Aim == ExtentAim.Default ? "" : Aim.ToString() + " "; } }
     }
 
     [Serializable]
     public class FractionExtent : RxnExtent
     {
+        protected static Regex s_FractionRegex = new Regex(@"(Extent\s*:\s*)?Fraction\s*(?<Aim>Target|Strict)?\s*(?<Specie>[^\s=]+)?\s*(?<Rate>Rate)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)(?<Percent>%)?\s*(?<Stabilised>Stabilised)?",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public FractionExtent(RxnExtent original) 
             : base(original) { }
         public FractionExtent() : base() { }
         public override string ToString()
         {
-            return "Fraction " + Specie + " = " + Value;
+            return "Fraction " + AimString + Specie + " = " + Value;
         }
 
         public override double Value
@@ -143,16 +162,26 @@ namespace Reaction_Editor
 
         public static RxnExtent Parse(string s)
         {
-            ExtentTypes bleh;
-            if (!s.ToLowerInvariant().StartsWith("fraction"))
-                return RxnExtent.Parse(s, out bleh);
-            if (s.Contains(" Rate "))
-                return RateExtent.Parse(s);
-            FractionExtent ret = new FractionExtent();
-            s = s.Remove(0, "fraction".Length).Trim();
-            string[] subs = s.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
-            ret.Specie = Compound.FromString(subs[0].Trim());
-            ret.Value = double.Parse(subs[1].Trim());
+            Match m = s_FractionRegex.Match(s);
+            if (!m.Success)
+                throw new Exception("Unable to Parse Fraction Extent");
+            FractionExtent ret;
+            if (m.Groups["Rate"].Success)
+                ret = new RateExtent(null);
+            else
+                ret = new FractionExtent();
+            if (m.Groups["Specie"].Success)
+                ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
+            ret.Value = double.Parse(m.Groups["Value"].Value);
+            if (m.Groups["Aim"].Success)
+                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
+                    ret.Aim = ExtentAim.Target;
+                else
+                    ret.Aim = ExtentAim.Strict;
+            if (m.Groups["Percent"].Success)
+                ret.Value *= 0.01;
+            if (m.Groups["Rate"].Success && m.Groups["Stabilised"].Success)
+                ((RateExtent)ret).Stabilised = true;
             return ret;
         }
     }
@@ -222,7 +251,8 @@ namespace Reaction_Editor
                 ret.Ratio2 = r2 / r1;
             }
             string[] subPri = subs[0].Split(new char[] { '=', ':' }, StringSplitOptions.RemoveEmptyEntries);
-            ret.Specie = Compound.FromString(subPri[0].Trim());
+            try { ret.Specie = Compound.FromString(subPri[0].Trim()); }
+            catch { }
             ret.Specie2 = Compound.FromString(subPri[1].Trim());
             double r3 = double.Parse(subPri[2].Trim());
             double r4 = double.Parse(subPri[3].Trim());
@@ -241,7 +271,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "Equilibrium " + Value;
+            return "Equilibrium " + AimString + Value;
         }
 
         public static EquilibriumExtent Parse(string s)
@@ -263,16 +293,19 @@ namespace Reaction_Editor
     [Serializable]
     public class Final_ConcExtent : RxnExtent
     {
-        protected double m_T = double.NaN;
+        protected static Regex s_FinalConcRegex = new Regex(
+            @"FinalConc\s*(?<Aim>Target|Strict)\s*(?<Specie>[^\s=]*)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*(At\s*(?<T>\d+(\.\d+)?|\.\d+))?",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        protected double m_dT = double.NaN;
         public Final_ConcExtent(RxnExtent original)
             : base(original) { }
         public Final_ConcExtent() : base() { }
         public double T
         {
-            get { return m_T; }
+            get { return m_dT; }
             set
             {
-                m_T = value;
+                m_dT = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
             }
@@ -280,31 +313,25 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "FinalConc " + Specie + " = " + Value + (double.IsNaN(T) ? "" : " At " + T);
+            return "FinalConc " + AimString + Specie + " = " + Value + (double.IsNaN(T) ? "" : " At " + T);
         }
 
         public static Final_ConcExtent Parse(string s)
         {
-            if (!s.ToLowerInvariant().StartsWith("finalconc"))
+            Match m = s_FinalConcRegex.Match(s);
+            if (!m.Success)
                 throw new Exception("Invalid string passed to Final_ConcExtent.Parse");
             Final_ConcExtent ret = new Final_ConcExtent();
-            s = s.Remove(0, "FinalConc".Length);
-            string[] subs;
-            if (s.ToLowerInvariant().Contains(" at "))
-            {
-                if (s.Contains(" at"))
-                    subs = s.Split(new string[] { " at " }, StringSplitOptions.RemoveEmptyEntries);
-                else if (s.Contains(" At "))
-                    subs = s.Split(new string[] { " At " }, StringSplitOptions.RemoveEmptyEntries);
-                else //(s.Contains(" AT "))
-                    subs = s.Split(new string[] { " AT " }, StringSplitOptions.RemoveEmptyEntries);
-                ret.T = double.Parse(subs[1].Trim());
-            }
-            else
-                subs = new string[] { s };
-            string[] subs2 = subs[0].Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-            ret.Specie = Compound.FromString(subs2[0].Trim());
-            ret.Value = double.Parse(subs2[1].Trim());
+            if (m.Groups["Aim"].Success)
+                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
+                    ret.Aim = ExtentAim.Target;
+                else
+                    ret.Aim = ExtentAim.Strict;
+            if (m.Groups["Specie"].Success)
+                ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
+            ret.Value = double.Parse(m.Groups["Value"].Value);
+            if (m.Groups["T"].Success)
+                ret.T = double.Parse(m.Groups["T"].Value);
             return ret;
         }
     }
@@ -312,6 +339,9 @@ namespace Reaction_Editor
     [Serializable]
     public class Final_FracExtent : RxnExtent
     {
+        protected Regex m_FinalFracRegex = new Regex(
+            @"(?<Type>m(s|l))finalfraction\s*(?<Phase>Total|Phase)?\s*(?<Aim>Target|Strict)?\s*(?<Specie>[^\s=]+)?\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)(?<Percent>%)?",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
         protected bool m_bByPhase = true;
         protected FracTypes m_eFracType;
         public Final_FracExtent(RxnExtent original)
@@ -339,9 +369,9 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            string phaseString = m_bByPhase ? "" : "Total ";
+            string phaseString = m_bByPhase ? "Phase " : "Total ";
             string startString = FracType == FracTypes.ByMass ? "msFinalFraction " : "mlFinalFraction ";
-            return startString + phaseString + Specie + " = " + Value;
+            return startString + phaseString + AimString + Specie + " = " + Value;
         }
 
         public override double Value
@@ -353,32 +383,36 @@ namespace Reaction_Editor
         public static Final_FracExtent Parse(string s)
         {
             Final_FracExtent ret = new Final_FracExtent(null);
-            if (s.ToLowerInvariant().StartsWith("msfinalfraction"))
+            Match m = s_ExtentRegex.Match(s);
+            if (!m.Success)
+                throw new Exception("Unable to parse string");
+            if (m.Groups["Type"].Value.ToLowerInvariant() == "ms")
                 ret.FracType = FracTypes.ByMass;
-            else if (s.ToLowerInvariant().StartsWith("mlfinalfraction"))
+            else 
                 ret.FracType = FracTypes.ByMole;
-            else
-                throw new Exception("Final_FracExtent.Parse called with invalid string");
-            s = s.Remove(0, "mXfinalfraction".Length).Trim();
-            if (s.ToLowerInvariant().StartsWith("total"))
-            {
-                ret.ByPhase = false;
-                s = s.Remove(0, "total".Length).Trim();
-            }
-            else if (s.ToLowerInvariant().StartsWith("phase"))
-            {
-                ret.ByPhase = true;
-                s = s.Remove(0, "phase".Length).Trim();
-            }
-            string[] subs = s.Split(new char[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
-            ret.Specie = Compound.FromString(subs[0].Trim());
-            ret.Value = double.Parse(subs[1].Trim());
+
+            if (m.Groups["Phase"].Success && m.Groups["Phase"].Value.ToLowerInvariant() == "total")
+                ret.m_bByPhase = false;
+
+            ret.Value = double.Parse(m.Groups["Value"].Value);
+            if (m.Groups["Percent"].Success)
+                ret.Value *= 0.01;
+
+            if (m.Groups["Aim"].Success)
+                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
+                    ret.Aim = ExtentAim.Target;
+                else
+                    ret.Aim = ExtentAim.Strict;
+
+            if (m.Groups["Specie"].Success)
+                ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
+
             return ret;
         }
     }
 
     [Serializable]
-    public class RateExtent : RxnExtent
+    public class RateExtent : FractionExtent
     {
         protected bool m_bStabilised = false;
         public RateExtent(RxnExtent original)
@@ -396,32 +430,13 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "Fraction " + Specie + " Rate = " + Value + (Stabilised ? "Stabilised" : "");
-        }
-
-        public static RateExtent Parse(string s)
-        {
-            if (!s.ToLowerInvariant().StartsWith("fraction") ||
-                !s.ToLowerInvariant().Contains(" Rate "))
-                throw new Exception("Invalid string passed to RateExtent.Parse");
-            s = s.Remove(0, "fraction".Length).Trim();
-            RateExtent ret = new RateExtent(null);
-            if (s.ToLowerInvariant().EndsWith("stabilised"))
-            {
-                ret.Stabilised = true;
-                s = s.Remove(s.Length - "stabilised".Length).Trim();
-            }
-            string[] subs = s.Split(new string[] { " Rate = " }, StringSplitOptions.RemoveEmptyEntries);
-            ret.Specie = Compound.FromString(subs[0].Trim());
-            ret.Value = double.Parse(subs[1].Trim());
-            return ret;
+            return "Fraction " + AimString + Specie + " Rate = " + Value + (Stabilised ? "Stabilised" : "");
         }
     }
     #endregion Reaction Extent Structures
 
     public class Compound
     {
-
         #region Internal Variables
         /// <summary>
         /// A list of all compounds in the current database, with their symbol as their key.
@@ -433,7 +448,7 @@ namespace Reaction_Editor
         private string m_sName;
         private string m_sSymbol;
         private Dictionary<Element, double> m_Elements = new Dictionary<Element, double>();
-
+        private int m_nIndex;
         #endregion Internal Variables
         public static bool SilentAddFail = true;
         public static bool AddCompound(Compound comp)
@@ -497,7 +512,15 @@ namespace Reaction_Editor
         {
             get { return m_Elements; }
             set { m_Elements = value; }
-        } 
+        }
+
+        public int Index
+        {
+            get { return m_nIndex; }
+            set { m_nIndex = value; }
+        }
+
+        public string Annotation;
         #endregion
 
 
@@ -588,10 +611,10 @@ namespace Reaction_Editor
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
-            @"^HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*/\s*(?<Specie>\S*)\s*(At\s*((?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)|\.\d+)\s*,\s*(?<P>\d*(\.\d+)|\.\d+)))?$",
+            @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>-?\d+(\.\d+)?|\.\d+)\s*(/\s*(?<Specie>\S*))?\s*(At\s*((?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)|\.\d+)(\s*,\s*(?<P>\d*(\.\d+)|\.\d+))?))?\s*$",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_CompoundRegex = new Regex(
-            @"^\s*(?<Unparseable>.*?)(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*(?>(?<Unparseable>.*?)\+\s*(?<Amount>\d*(\.\d+)?)\s*(?<Compound>[A-Z][A-Za-z0-9\[\]]*\([a-zA-z]+\))\s*)*(?<Unparseable>.*?)$",
+            @"^\s*(?<Unparseable>.*?)(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s+]*)\s*(?>(?<Unparseable>.*?)\+\s*(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s+]*)\s*)*(?<Unparseable>.*?)$",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         #endregion Regex's
 
@@ -1290,17 +1313,32 @@ namespace Reaction_Editor
 
         public void ParseExtent(string extentString)
         {
-            m_Extent = RxnExtent.Parse(extentString, out m_eExtentType);
-            m_Extent.Owner = this;
-            FireChanged();
+            try
+            {
+                m_Extent = RxnExtent.Parse(extentString, out m_eExtentType);
+                if (m_Extent.Specie == null)
+                    m_Extent.Specie = FirstReactant;
+            }
+            finally
+            {
+                m_Extent.Owner = this;
+                FireChanged(); //?This necessary?
+            }
         }
 
         public void ParseHOR(string HORString)
         {
             Match m = s_HORRegex.Match(HORString);
-            //TODO: Throw an exception in the event of no match
-            HeatOfReactionValue = double.Parse(m.Groups["Value"].Captures[0].Value);
-            HeatOfReactionSpecie = Compound.FromString(m.Groups["Specie"].Captures[0].Value);
+            if (!m.Success)
+                throw new Exception("Unable to parse string");
+            HeatOfReactionValue = double.Parse(m.Groups["Value"].Value);
+            Exception MaybeEx = null;
+            if (m.Groups["Specie"].Success)
+                try { HeatOfReactionSpecie = Compound.FromString(m.Groups["Specie"].Value); }
+                catch (Exception ex) { MaybeEx = ex; }
+            else
+                HeatOfReactionSpecie = FirstReactant;
+
             if (m.Groups["Type"].Captures[0].Value.ToLowerInvariant() == "msfixed")
                 HeatOfReactionType = FracTypes.ByMass;
             else
@@ -1318,9 +1356,15 @@ namespace Reaction_Editor
             else if (m.Groups["T"].Success)
             {
                 m_eHeatOfReactionConditions = TPConditions.Custom;
-                double.TryParse(m.Groups["T"].Value, out m_dHeatOfReactionT);
-                double.TryParse(m.Groups["P"].Value, out m_dHeatOfReactionP);
+                if (!double.TryParse(m.Groups["T"].Value, out m_dHeatOfReactionT))
+                    m_dHeatOfReactionT = 25;
+                if (!double.TryParse(m.Groups["P"].Value, out m_dHeatOfReactionP))
+                    m_dHeatOfReactionP = 101.3;
+
             }
+
+            if (MaybeEx != null)
+                throw MaybeEx;
         }
 
         public void FireChanged()
@@ -1333,7 +1377,7 @@ namespace Reaction_Editor
         {
             //Simply clone it with a dummy LVI:
             ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "" });
+            lvi.SubItems.AddRange(new string[] { "", "", "" });
             return Clone(lvi);
         }
 
@@ -1491,6 +1535,7 @@ namespace Reaction_Editor
             m_LVI.Text = this.ToString();
             m_LVI.SubItems[1].Text = m_Extent.ToString();
             m_LVI.SubItems[2].Text = CustomHeatOfReaction ? HeatOfReactionValue + "kJ/mol " + HeatOfReactionSpecie : "Default";
+            m_LVI.SubItems[3].Text = m_nSequence.ToString();
             if (m_bEnabled)
                 switch (m_eStatus)
                 {
@@ -1525,6 +1570,7 @@ namespace Reaction_Editor
             Group grpAmount = m.Groups["Amount"];
             Group grpCompound = m.Groups["Compound"];
             Group grpUnparseable = m.Groups["Unparseable"];
+            Group grpSpace = m.Groups["Space"];
             List<string> UnparseableComps = new List<string>();
             List<string> UnparseableTokens = new List<string>();
             for (int i = 0; i < grpAmount.Captures.Count; i++)
@@ -1532,21 +1578,41 @@ namespace Reaction_Editor
                 try
                 {
                     double val = 1.0;
-                    if (!string.IsNullOrEmpty(grpAmount.Captures[i].Value))
-                        val = double.Parse(grpAmount.Captures[i].Value);
-                    Compound comp = Compound.FromString(grpCompound.Captures[i].Value);
-                    if (ret.ContainsKey(comp))
-                        ret[comp] += val;
+                    if (!string.IsNullOrEmpty(grpAmount.Captures[i].Value) && !string.IsNullOrEmpty(grpSpace.Captures[i].Value))
+                        val = ParseFrac(grpAmount.Captures[i].Value);
+                    Compound comp = null;
+                    string compString;
+
+                    if (grpSpace.Captures[i].Length == 0)
+                        compString = grpAmount.Captures[i].Value + grpCompound.Captures[i].Value;
+                    else
+                        compString = grpCompound.Captures[i].Value;
+                    if (Compound.Contains(compString))
+                        comp = Compound.FromString(compString);
+                    else if (grpSpace.Captures[i].Length == 0 && Compound.Contains(grpCompound.Captures[i].Value))
+                    {
+                        comp = Compound.FromString(grpCompound.Captures[i].Value);
+                        if (grpAmount.Captures[i].Length != 0)
+                            val = ParseFrac(grpAmount.Captures[i].Value);
+                    }
                     else
                     {
-                        ret.Add(comp, val);
-                        Order.Add(comp);
+                        UnparseableComps.Add(compString);
+                        Success = false;
                     }
+
+                    if (comp != null)
+                        if (ret.ContainsKey(comp))
+                            ret[comp] += val;
+                        else
+                        {
+                            ret.Add(comp, val);
+                            Order.Add(comp);
+                        }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    UnparseableComps.Add(grpCompound.Captures[i].Value);
-                    Success = false;
+                    Log.Message(ex.Message, MessageType.Error);
                 }
             }
             foreach (Capture c in grpUnparseable.Captures)
@@ -1586,40 +1652,17 @@ namespace Reaction_Editor
                 }
             }
             return ret;
-            /*foreach (string s in Compounds)
+        }
+
+        protected double ParseFrac(string s)
+        {
+            if (s.Contains("/"))
             {
-                s.Trim();
-                string numString = "";
-                //For now: Suport 1.0 and 1,0
-                int i;
-                for (i = 0; i < s.Length && (char.IsDigit(s[i]) || s[i] == '.' || s[i] == ','); i++) ;
-                if (i == s.Length)
-                {
-                    Log.Message("Expected Compound not found", MessageType.Error);
-                    Success = false;
-                }
-                numString = s.Substring(0, i);
-                double amount;
-                if (numString.Length == 0)
-                    amount = 1.0;
-                else if (!double.TryParse(numString, out amount))
-                {
-                    Success = false;
-                    Log.Message("Unable to parse compound amount", MessageType.Error);
-                }
-                Double frac = amount;// new Double(amount);
-                string compString = s.Substring(i, s.Length - i).Trim();
-                Compound comp = Compound.FromString(compString);
-                if (ret.ContainsKey(comp))
-                    ret[comp] += frac;
-                else
-                {
-                    ret[comp] = frac;
-                    Order.Add(comp);
-                }
-            }*/
-
-
+                string[] subs = s.Split('/');
+                return double.Parse(subs[0]) / double.Parse(subs[1]);
+            }
+            else
+                return double.Parse(s);
         }
         
         protected void SetStatus()
@@ -2085,6 +2128,7 @@ namespace Reaction_Editor
     }
     #endregion Matrix
 
+    #region Fraction
     /*public struct Fraction : IComparable
     {
         /// <summary>
@@ -2162,4 +2206,5 @@ namespace Reaction_Editor
         }
         #endregion IComparable Members
     }*/
+    #endregion Fraction
 }

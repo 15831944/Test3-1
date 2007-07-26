@@ -28,6 +28,7 @@ namespace Reaction_Editor
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmReaction));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabReactions = new System.Windows.Forms.TabPage();
@@ -36,6 +37,12 @@ namespace Reaction_Editor
             this.clFormula = new System.Windows.Forms.ColumnHeader();
             this.clExtent = new System.Windows.Forms.ColumnHeader();
             this.clHOR = new System.Windows.Forms.ColumnHeader();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.menuCopy = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAdd = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRemove = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuShowSequence = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.btnCopy = new System.Windows.Forms.Button();
             this.btnMoveDown = new System.Windows.Forms.Button();
@@ -44,24 +51,32 @@ namespace Reaction_Editor
             this.btnAdd = new System.Windows.Forms.Button();
             this.pnlReaction = new System.Windows.Forms.Panel();
             this.btnBalance = new System.Windows.Forms.Button();
+            this.txtReactants = new Auto_Complete.BoxAutoComplete();
             this.comboDirection = new System.Windows.Forms.ComboBox();
+            this.txtProducts = new Auto_Complete.BoxAutoComplete();
             this.txtFormula = new System.Windows.Forms.TextBox();
             this.grpExtent = new System.Windows.Forms.GroupBox();
             this.chkExtentOption = new System.Windows.Forms.CheckBox();
             this.lblExtent2 = new System.Windows.Forms.Label();
             this.lblExtent3 = new System.Windows.Forms.Label();
+            this.numExtentVal3 = new CtrlLib.NumEdit();
+            this.numExtentVal2 = new CtrlLib.NumEdit();
             this.lblExtentUnits = new System.Windows.Forms.Label();
             this.comboExtentSpecie = new System.Windows.Forms.ComboBox();
             this.lblExtentValue = new System.Windows.Forms.Label();
+            this.numExtentValue = new CtrlLib.NumEdit();
             this.comboExtentType = new System.Windows.Forms.ComboBox();
             this.grpHOR = new System.Windows.Forms.GroupBox();
             this.lblHORPUnits = new System.Windows.Forms.Label();
+            this.numHORP = new CtrlLib.NumEdit();
             this.lblHORP = new System.Windows.Forms.Label();
             this.lblHORT = new System.Windows.Forms.Label();
+            this.numHORT = new CtrlLib.NumEdit();
             this.comboHORConditions = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.comboHORUnits = new System.Windows.Forms.ComboBox();
             this.comboHORSpecie = new System.Windows.Forms.ComboBox();
+            this.numHORValue = new CtrlLib.NumEdit();
             this.lblHORValue = new System.Windows.Forms.Label();
             this.comboHORType = new System.Windows.Forms.ComboBox();
             this.grpOther = new System.Windows.Forms.GroupBox();
@@ -73,7 +88,9 @@ namespace Reaction_Editor
             this.tabOptions = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.grpSources = new System.Windows.Forms.GroupBox();
+            this.txtSources = new Auto_Complete.BoxAutoComplete();
             this.grpSinks = new System.Windows.Forms.GroupBox();
+            this.txtSinks = new Auto_Complete.BoxAutoComplete();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.grpDescription = new System.Windows.Forms.GroupBox();
             this.txtDescription = new System.Windows.Forms.TextBox();
@@ -85,22 +102,14 @@ namespace Reaction_Editor
             this.numHXApproach = new System.Windows.Forms.NumericUpDown();
             this.lblHXApproach = new System.Windows.Forms.Label();
             this.lblHXUnits = new System.Windows.Forms.Label();
+            this.numHX = new CtrlLib.NumEdit();
             this.lblHXValue = new System.Windows.Forms.Label();
             this.comboHXType = new System.Windows.Forms.ComboBox();
-            this.txtReactants = new Auto_Complete.BoxAutoComplete();
-            this.txtProducts = new Auto_Complete.BoxAutoComplete();
-            this.numExtentVal3 = new CtrlLib.NumEdit();
-            this.numExtentVal2 = new CtrlLib.NumEdit();
-            this.numExtentValue = new CtrlLib.NumEdit();
-            this.numHORP = new CtrlLib.NumEdit();
-            this.numHORT = new CtrlLib.NumEdit();
-            this.numHORValue = new CtrlLib.NumEdit();
-            this.txtSources = new Auto_Complete.BoxAutoComplete();
-            this.txtSinks = new Auto_Complete.BoxAutoComplete();
-            this.numHX = new CtrlLib.NumEdit();
+            this.comboExtentAim = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabReactions.SuspendLayout();
             this.pnlList.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.pnlButtons.SuspendLayout();
             this.pnlReaction.SuspendLayout();
             this.grpExtent.SuspendLayout();
@@ -160,6 +169,7 @@ namespace Reaction_Editor
             this.clFormula,
             this.clExtent,
             this.clHOR});
+            this.lstReactions.ContextMenuStrip = this.contextMenuStrip1;
             this.lstReactions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstReactions.FullRowSelect = true;
             this.lstReactions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -177,6 +187,7 @@ namespace Reaction_Editor
             this.lstReactions.DragOver += new System.Windows.Forms.DragEventHandler(this.lstReactions_DragOver);
             this.lstReactions.SelectedIndexChanged += new System.EventHandler(this.lstReactions_SelectedIndexChanged);
             this.lstReactions.DragLeave += new System.EventHandler(this.lstReactions_DragLeave);
+            this.lstReactions.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstReactions_KeyDown);
             this.lstReactions.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.lstReactions_ItemDrag);
             // 
             // clFormula
@@ -193,6 +204,52 @@ namespace Reaction_Editor
             // 
             this.clHOR.Text = "Heat Of Reaction";
             this.clHOR.Width = 137;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuCopy,
+            this.menuAdd,
+            this.menuRemove,
+            this.toolStripMenuItem1,
+            this.menuShowSequence});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 98);
+            this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // menuCopy
+            // 
+            this.menuCopy.Name = "menuCopy";
+            this.menuCopy.Size = new System.Drawing.Size(198, 22);
+            this.menuCopy.Text = "&Copy";
+            this.menuCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            // 
+            // menuAdd
+            // 
+            this.menuAdd.Name = "menuAdd";
+            this.menuAdd.Size = new System.Drawing.Size(198, 22);
+            this.menuAdd.Text = "&Add";
+            this.menuAdd.Click += new System.EventHandler(this.btnAdd_Click);
+            // 
+            // menuRemove
+            // 
+            this.menuRemove.Name = "menuRemove";
+            this.menuRemove.Size = new System.Drawing.Size(198, 22);
+            this.menuRemove.Text = "&Remove";
+            this.menuRemove.Click += new System.EventHandler(this.btnRemove_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(195, 6);
+            // 
+            // menuShowSequence
+            // 
+            this.menuShowSequence.CheckOnClick = true;
+            this.menuShowSequence.Name = "menuShowSequence";
+            this.menuShowSequence.Size = new System.Drawing.Size(198, 22);
+            this.menuShowSequence.Text = "&Show Sequence Groups";
+            this.menuShowSequence.CheckedChanged += new System.EventHandler(this.menuShowSequence_CheckedChanged);
             // 
             // pnlButtons
             // 
@@ -269,8 +326,8 @@ namespace Reaction_Editor
             // pnlReaction
             // 
             this.pnlReaction.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pnlReaction.Controls.Add(this.btnBalance);
             this.pnlReaction.Controls.Add(this.txtReactants);
+            this.pnlReaction.Controls.Add(this.btnBalance);
             this.pnlReaction.Controls.Add(this.comboDirection);
             this.pnlReaction.Controls.Add(this.txtProducts);
             this.pnlReaction.Controls.Add(this.txtFormula);
@@ -296,6 +353,24 @@ namespace Reaction_Editor
             this.btnBalance.UseVisualStyleBackColor = true;
             this.btnBalance.Click += new System.EventHandler(this.btnBalance_Click);
             // 
+            // txtReactants
+            // 
+            this.txtReactants.AcceptsTab = true;
+            this.txtReactants.AllowDrop = true;
+            this.txtReactants.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.txtReactants.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtReactants.HitCounts")));
+            this.txtReactants.Location = new System.Drawing.Point(3, 5);
+            this.txtReactants.Multiline = false;
+            this.txtReactants.Name = "txtReactants";
+            this.txtReactants.Size = new System.Drawing.Size(307, 20);
+            this.txtReactants.TabIndex = 0;
+            this.txtReactants.Text = "";
+            this.txtReactants.Leave += new System.EventHandler(this.FormulaBox_Leave);
+            this.txtReactants.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragEnter);
+            this.txtReactants.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragDrop);
+            this.txtReactants.Enter += new System.EventHandler(this.FormulaBox_Enter);
+            this.txtReactants.TextChanged += new System.EventHandler(this.txtFormula_TextChanged);
+            // 
             // comboDirection
             // 
             this.comboDirection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -310,6 +385,24 @@ namespace Reaction_Editor
             this.comboDirection.TabIndex = 1;
             this.comboDirection.SelectedIndexChanged += new System.EventHandler(this.comboDirection_SelectedIndexChanged);
             // 
+            // txtProducts
+            // 
+            this.txtProducts.AcceptsTab = true;
+            this.txtProducts.AllowDrop = true;
+            this.txtProducts.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.txtProducts.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtProducts.HitCounts")));
+            this.txtProducts.Location = new System.Drawing.Point(367, 5);
+            this.txtProducts.Multiline = false;
+            this.txtProducts.Name = "txtProducts";
+            this.txtProducts.Size = new System.Drawing.Size(307, 20);
+            this.txtProducts.TabIndex = 2;
+            this.txtProducts.Text = "";
+            this.txtProducts.Leave += new System.EventHandler(this.FormulaBox_Leave);
+            this.txtProducts.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragEnter);
+            this.txtProducts.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragDrop);
+            this.txtProducts.Enter += new System.EventHandler(this.FormulaBox_Enter);
+            this.txtProducts.TextChanged += new System.EventHandler(this.txtFormula_TextChanged);
+            // 
             // txtFormula
             // 
             this.txtFormula.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -323,6 +416,7 @@ namespace Reaction_Editor
             // 
             // grpExtent
             // 
+            this.grpExtent.Controls.Add(this.comboExtentAim);
             this.grpExtent.Controls.Add(this.chkExtentOption);
             this.grpExtent.Controls.Add(this.lblExtent2);
             this.grpExtent.Controls.Add(this.lblExtent3);
@@ -344,7 +438,7 @@ namespace Reaction_Editor
             // chkExtentOption
             // 
             this.chkExtentOption.AutoSize = true;
-            this.chkExtentOption.Location = new System.Drawing.Point(375, 17);
+            this.chkExtentOption.Location = new System.Drawing.Point(488, 17);
             this.chkExtentOption.Name = "chkExtentOption";
             this.chkExtentOption.Size = new System.Drawing.Size(71, 17);
             this.chkExtentOption.TabIndex = 3;
@@ -373,6 +467,26 @@ namespace Reaction_Editor
             this.lblExtent3.Text = "Val 1:";
             this.lblExtent3.Visible = false;
             // 
+            // numExtentVal3
+            // 
+            this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentVal3.Location = new System.Drawing.Point(548, 15);
+            this.numExtentVal3.Name = "numExtentVal3";
+            this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
+            this.numExtentVal3.TabIndex = 5;
+            this.numExtentVal3.Visible = false;
+            this.numExtentVal3.TextChanged += new System.EventHandler(this.numExtentVal3_TextChanged);
+            // 
+            // numExtentVal2
+            // 
+            this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentVal2.Location = new System.Drawing.Point(424, 15);
+            this.numExtentVal2.Name = "numExtentVal2";
+            this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
+            this.numExtentVal2.TabIndex = 4;
+            this.numExtentVal2.Visible = false;
+            this.numExtentVal2.TextChanged += new System.EventHandler(this.numExtentVal2_TextChanged);
+            // 
             // lblExtentUnits
             // 
             this.lblExtentUnits.Location = new System.Drawing.Point(227, 18);
@@ -400,6 +514,15 @@ namespace Reaction_Editor
             this.lblExtentValue.Size = new System.Drawing.Size(34, 13);
             this.lblExtentValue.TabIndex = 3;
             this.lblExtentValue.Text = "Value";
+            // 
+            // numExtentValue
+            // 
+            this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numExtentValue.Location = new System.Drawing.Point(177, 15);
+            this.numExtentValue.Name = "numExtentValue";
+            this.numExtentValue.Size = new System.Drawing.Size(44, 20);
+            this.numExtentValue.TabIndex = 1;
+            this.numExtentValue.TextChanged += new System.EventHandler(this.numExtentValue_TextChanged);
             // 
             // comboExtentType
             // 
@@ -450,6 +573,16 @@ namespace Reaction_Editor
             this.lblHORPUnits.Text = "kPa";
             this.lblHORPUnits.Visible = false;
             // 
+            // numHORP
+            // 
+            this.numHORP.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORP.Location = new System.Drawing.Point(590, 15);
+            this.numHORP.Name = "numHORP";
+            this.numHORP.Size = new System.Drawing.Size(48, 20);
+            this.numHORP.TabIndex = 6;
+            this.numHORP.Visible = false;
+            this.numHORP.TextChanged += new System.EventHandler(this.numHORP_TextChanged);
+            // 
             // lblHORP
             // 
             this.lblHORP.AutoSize = true;
@@ -469,6 +602,16 @@ namespace Reaction_Editor
             this.lblHORT.TabIndex = 15;
             this.lblHORT.Text = "T=";
             this.lblHORT.Visible = false;
+            // 
+            // numHORT
+            // 
+            this.numHORT.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORT.Location = new System.Drawing.Point(505, 15);
+            this.numHORT.Name = "numHORT";
+            this.numHORT.Size = new System.Drawing.Size(48, 20);
+            this.numHORT.TabIndex = 5;
+            this.numHORT.Visible = false;
+            this.numHORT.TextChanged += new System.EventHandler(this.numHORT_TextChanged);
             // 
             // comboHORConditions
             // 
@@ -512,6 +655,15 @@ namespace Reaction_Editor
             this.comboHORSpecie.Size = new System.Drawing.Size(78, 21);
             this.comboHORSpecie.TabIndex = 3;
             this.comboHORSpecie.SelectedIndexChanged += new System.EventHandler(this.comboHORSpecie_SelectedIndexChanged);
+            // 
+            // numHORValue
+            // 
+            this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHORValue.Location = new System.Drawing.Point(177, 15);
+            this.numHORValue.Name = "numHORValue";
+            this.numHORValue.Size = new System.Drawing.Size(44, 20);
+            this.numHORValue.TabIndex = 1;
+            this.numHORValue.TextChanged += new System.EventHandler(this.numHORValue_TextChanged);
             // 
             // lblHORValue
             // 
@@ -646,6 +798,19 @@ namespace Reaction_Editor
             this.grpSources.TabStop = false;
             this.grpSources.Text = "Sources";
             // 
+            // txtSources
+            // 
+            this.txtSources.DetectUrls = false;
+            this.txtSources.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtSources.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtSources.HitCounts")));
+            this.txtSources.Location = new System.Drawing.Point(3, 16);
+            this.txtSources.Name = "txtSources";
+            this.txtSources.Size = new System.Drawing.Size(675, 224);
+            this.txtSources.TabIndex = 0;
+            this.txtSources.Text = "";
+            this.txtSources.Leave += new System.EventHandler(this.txtSources_Leave);
+            this.txtSources.TextChanged += new System.EventHandler(this.txtSources_TextChanged);
+            // 
             // grpSinks
             // 
             this.grpSinks.Controls.Add(this.txtSinks);
@@ -656,6 +821,19 @@ namespace Reaction_Editor
             this.grpSinks.TabIndex = 2;
             this.grpSinks.TabStop = false;
             this.grpSinks.Text = "Sinks";
+            // 
+            // txtSinks
+            // 
+            this.txtSinks.DetectUrls = false;
+            this.txtSinks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtSinks.HitCounts = ((System.Collections.Generic.Dictionary<object, int>)(resources.GetObject("txtSinks.HitCounts")));
+            this.txtSinks.Location = new System.Drawing.Point(3, 16);
+            this.txtSinks.Name = "txtSinks";
+            this.txtSinks.Size = new System.Drawing.Size(675, 85);
+            this.txtSinks.TabIndex = 1;
+            this.txtSinks.Text = "";
+            this.txtSinks.Leave += new System.EventHandler(this.txtSinks_Leave);
+            this.txtSinks.TextChanged += new System.EventHandler(this.txtSinks_TextChanged);
             // 
             // tabPage1
             // 
@@ -789,6 +967,16 @@ namespace Reaction_Editor
             this.lblHXUnits.Text = "degC,";
             this.lblHXUnits.Visible = false;
             // 
+            // numHX
+            // 
+            this.numHX.InputType = CtrlLib.NumEdit.NumEditType.Double;
+            this.numHX.Location = new System.Drawing.Point(210, 15);
+            this.numHX.Name = "numHX";
+            this.numHX.Size = new System.Drawing.Size(78, 20);
+            this.numHX.TabIndex = 1;
+            this.numHX.Visible = false;
+            this.numHX.TextChanged += new System.EventHandler(this.numHX_TextChanged);
+            // 
             // lblHXValue
             // 
             this.lblHXValue.Location = new System.Drawing.Point(137, 18);
@@ -816,131 +1004,14 @@ namespace Reaction_Editor
             this.comboHXType.TabIndex = 0;
             this.comboHXType.SelectedIndexChanged += new System.EventHandler(this.comboHXType_SelectedIndexChanged);
             // 
-            // txtReactants
+            // comboExtentAim
             // 
-            this.txtReactants.AcceptsTab = true;
-            this.txtReactants.AllowDrop = true;
-            this.txtReactants.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.txtReactants.Location = new System.Drawing.Point(3, 5);
-            this.txtReactants.Multiline = false;
-            this.txtReactants.Name = "txtReactants";
-            this.txtReactants.Size = new System.Drawing.Size(307, 20);
-            this.txtReactants.TabIndex = 0;
-            this.txtReactants.Text = "";
-            this.txtReactants.Leave += new System.EventHandler(this.FormulaBox_Leave);
-            this.txtReactants.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragEnter);
-            this.txtReactants.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtReactants_DragDrop);
-            this.txtReactants.Enter += new System.EventHandler(this.FormulaBox_Enter);
-            this.txtReactants.TextChanged += new System.EventHandler(this.txtFormula_TextChanged);
-            // 
-            // txtProducts
-            // 
-            this.txtProducts.AcceptsTab = true;
-            this.txtProducts.AllowDrop = true;
-            this.txtProducts.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.txtProducts.Location = new System.Drawing.Point(367, 5);
-            this.txtProducts.Multiline = false;
-            this.txtProducts.Name = "txtProducts";
-            this.txtProducts.Size = new System.Drawing.Size(307, 20);
-            this.txtProducts.TabIndex = 2;
-            this.txtProducts.Text = "";
-            this.txtProducts.Leave += new System.EventHandler(this.FormulaBox_Leave);
-            this.txtProducts.DragEnter += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragEnter);
-            this.txtProducts.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtProducts_DragDrop);
-            this.txtProducts.Enter += new System.EventHandler(this.FormulaBox_Enter);
-            this.txtProducts.TextChanged += new System.EventHandler(this.txtFormula_TextChanged);
-            // 
-            // numExtentVal3
-            // 
-            this.numExtentVal3.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal3.Location = new System.Drawing.Point(548, 15);
-            this.numExtentVal3.Name = "numExtentVal3";
-            this.numExtentVal3.Size = new System.Drawing.Size(78, 20);
-            this.numExtentVal3.TabIndex = 5;
-            this.numExtentVal3.Visible = false;
-            this.numExtentVal3.TextChanged += new System.EventHandler(this.numExtentVal3_TextChanged);
-            // 
-            // numExtentVal2
-            // 
-            this.numExtentVal2.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentVal2.Location = new System.Drawing.Point(424, 15);
-            this.numExtentVal2.Name = "numExtentVal2";
-            this.numExtentVal2.Size = new System.Drawing.Size(78, 20);
-            this.numExtentVal2.TabIndex = 4;
-            this.numExtentVal2.Visible = false;
-            this.numExtentVal2.TextChanged += new System.EventHandler(this.numExtentVal2_TextChanged);
-            // 
-            // numExtentValue
-            // 
-            this.numExtentValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numExtentValue.Location = new System.Drawing.Point(177, 15);
-            this.numExtentValue.Name = "numExtentValue";
-            this.numExtentValue.Size = new System.Drawing.Size(44, 20);
-            this.numExtentValue.TabIndex = 1;
-            this.numExtentValue.TextChanged += new System.EventHandler(this.numExtentValue_TextChanged);
-            // 
-            // numHORP
-            // 
-            this.numHORP.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHORP.Location = new System.Drawing.Point(590, 15);
-            this.numHORP.Name = "numHORP";
-            this.numHORP.Size = new System.Drawing.Size(48, 20);
-            this.numHORP.TabIndex = 6;
-            this.numHORP.Visible = false;
-            this.numHORP.TextChanged += new System.EventHandler(this.numHORP_TextChanged);
-            // 
-            // numHORT
-            // 
-            this.numHORT.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHORT.Location = new System.Drawing.Point(505, 15);
-            this.numHORT.Name = "numHORT";
-            this.numHORT.Size = new System.Drawing.Size(48, 20);
-            this.numHORT.TabIndex = 5;
-            this.numHORT.Visible = false;
-            this.numHORT.TextChanged += new System.EventHandler(this.numHORT_TextChanged);
-            // 
-            // numHORValue
-            // 
-            this.numHORValue.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHORValue.Location = new System.Drawing.Point(177, 15);
-            this.numHORValue.Name = "numHORValue";
-            this.numHORValue.Size = new System.Drawing.Size(44, 20);
-            this.numHORValue.TabIndex = 1;
-            this.numHORValue.TextChanged += new System.EventHandler(this.numHORValue_TextChanged);
-            // 
-            // txtSources
-            // 
-            this.txtSources.DetectUrls = false;
-            this.txtSources.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSources.Location = new System.Drawing.Point(3, 16);
-            this.txtSources.Name = "txtSources";
-            this.txtSources.Size = new System.Drawing.Size(675, 224);
-            this.txtSources.TabIndex = 0;
-            this.txtSources.Text = "";
-            this.txtSources.Leave += new System.EventHandler(this.txtSources_Leave);
-            this.txtSources.TextChanged += new System.EventHandler(this.txtSources_TextChanged);
-            // 
-            // txtSinks
-            // 
-            this.txtSinks.DetectUrls = false;
-            this.txtSinks.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSinks.Location = new System.Drawing.Point(3, 16);
-            this.txtSinks.Name = "txtSinks";
-            this.txtSinks.Size = new System.Drawing.Size(675, 85);
-            this.txtSinks.TabIndex = 1;
-            this.txtSinks.Text = "";
-            this.txtSinks.Leave += new System.EventHandler(this.txtSinks_Leave);
-            this.txtSinks.TextChanged += new System.EventHandler(this.txtSinks_TextChanged);
-            // 
-            // numHX
-            // 
-            this.numHX.InputType = CtrlLib.NumEdit.NumEditType.Double;
-            this.numHX.Location = new System.Drawing.Point(210, 15);
-            this.numHX.Name = "numHX";
-            this.numHX.Size = new System.Drawing.Size(78, 20);
-            this.numHX.TabIndex = 1;
-            this.numHX.Visible = false;
-            this.numHX.TextChanged += new System.EventHandler(this.numHX_TextChanged);
+            this.comboExtentAim.FormattingEnabled = true;
+            this.comboExtentAim.Location = new System.Drawing.Point(401, 14);
+            this.comboExtentAim.Name = "comboExtentAim";
+            this.comboExtentAim.Size = new System.Drawing.Size(81, 21);
+            this.comboExtentAim.TabIndex = 12;
+            this.comboExtentAim.SelectedIndexChanged += new System.EventHandler(this.comboExtentAim_SelectedIndexChanged);
             // 
             // FrmReaction
             // 
@@ -959,6 +1030,7 @@ namespace Reaction_Editor
             this.tabControl1.ResumeLayout(false);
             this.tabReactions.ResumeLayout(false);
             this.pnlList.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
             this.pnlButtons.ResumeLayout(false);
             this.pnlReaction.ResumeLayout(false);
             this.pnlReaction.PerformLayout();
@@ -1056,6 +1128,13 @@ namespace Reaction_Editor
         private System.Windows.Forms.Label lblHORP;
         private System.Windows.Forms.Label lblHORPUnits;
         private System.Windows.Forms.Button btnBalance;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem menuCopy;
+        private System.Windows.Forms.ToolStripMenuItem menuAdd;
+        private System.Windows.Forms.ToolStripMenuItem menuRemove;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem menuShowSequence;
+        private System.Windows.Forms.ComboBox comboExtentAim;
 
 
     }

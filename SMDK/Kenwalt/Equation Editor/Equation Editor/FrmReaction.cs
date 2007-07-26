@@ -34,7 +34,7 @@ namespace Reaction_Editor
             @"(^|\r\n)\s*((?<Comment>;.*)\r\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>(?>\s*(;.*\r\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r\n)\s*((?<Comment>;.*)\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r\n)\s*((?<Comment>;.*)\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_SinkRegex = new Regex(@"(?<=\r\n\s*?Sink:)[^:]*?(?=End|HeatExchange|$)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -50,11 +50,9 @@ namespace Reaction_Editor
         #endregion Regex's
 
         #region Variables
-        //protected List<SimpleReaction> m_Reactions = new List<SimpleReaction>();
-        //protected List<Compound> m_Sources = new List<Compound>();
-        //protected List<Compound> m_Sinks = new List<Compound>();
-        //Dictionary<int, ListViewGroup> m_ListViewGroups = new Dictionary<int, ListViewGroup>();
+        protected ColumnHeader m_SequenceHeader = new ColumnHeader();
         protected bool m_bChanged = false;
+        protected bool m_bLoading = false;
         protected string m_sTitle = "Untitled Reaction Block";
         protected FileStream m_File;
         protected SimpleReaction m_CurrentReaction;
@@ -230,6 +228,8 @@ namespace Reaction_Editor
         public event EventHandler CompoundsChanged;
         public event EventHandler ReactionChanged;
         public event EventHandler SourcesSinksChanged;
+        public event ReactionHandler ReactionAdded;
+        public event ReactionHandler ReactionRemoved;
         #endregion Events
 
         #region Constructors
@@ -242,7 +242,7 @@ namespace Reaction_Editor
         public FrmReaction(string filename, ILog log)
         {
             SetUp(log);
-            m_File = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+            m_File = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             this.Title = Path.GetFileName(filename);
             ReadFile();
         }
@@ -257,7 +257,10 @@ namespace Reaction_Editor
         private void SetUp(ILog log)
         {
             InitializeComponent();
+            m_SequenceHeader.Text = "Sequence";
             m_Log = log;
+            txtReactants.FrmOwner = this;
+            txtProducts.FrmOwner = this;
 
             m_OptionalExtentControls.AddRange(new Control[] {
                 this.numExtentVal2,
@@ -279,6 +282,11 @@ namespace Reaction_Editor
                 TPConditions.Product,
                 TPConditions.Standard,
                 TPConditions.Custom });
+
+            comboExtentAim.Items.AddRange(new object[] {
+                ExtentAim.Default,
+                ExtentAim.Target,
+                ExtentAim.Strict });
 
             txtProducts.SelectAll(); txtReactants.SelectAll();
             txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
@@ -318,6 +326,19 @@ namespace Reaction_Editor
         #region Public Functions
         public void Save()
         {
+            bool ok = true;
+            bool balanced = true;
+            foreach (ListViewItem lvi in lstReactions.Items)
+            {
+                if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Invalid)
+                    ok = false;
+                else if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Imbalanced)
+                    balanced = false;
+            }
+            if (!ok)
+                MessageBox.Show(this, "Some reactions are not valid. This reaction block may not load into SysCAD.", Title, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            else if (!balanced)
+                MessageBox.Show(this, "Some reactions are not balanced.", Title, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             m_File.SetLength(0);
             StreamWriter sr = new StreamWriter(m_File);
             //First, the comments:
@@ -417,13 +438,16 @@ namespace Reaction_Editor
         public SimpleReaction AddReaction(SimpleReaction rxn, int location)
         {
             ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "" });
+            lvi.SubItems.AddRange(new string[] { "", "", "" });
             if (location < 0 || location > lstReactions.Items.Count)
                 lstReactions.Items.Add(lvi);
             else
                 lstReactions.Items.Insert(location, lvi);
             SimpleReaction newRxn = rxn.Clone(lvi);
             newRxn.FireChanged();
+
+            if (ReactionAdded != null)
+                ReactionAdded(this, rxn);
             return newRxn;
         }
 
@@ -631,110 +655,118 @@ namespace Reaction_Editor
 
         protected void ReadFile()
         {
-            //Now, stopping at the End token:
-            Log.SetSource(new MessageFrmReaction(this.Title, this, null));
-
-            StreamReader sr = new StreamReader(m_File);
-            string contents = sr.ReadToEnd().Trim();
-            
-            //Sources and sinks use a comment stripped version of the file:
-            StringBuilder sb = new StringBuilder();
-            for (Match m = s_CommentRemovingRegex.Match(contents); m.Success; m = m.NextMatch())
+            try
             {
-                sb.AppendLine(m.Value);
-                if (m.Value.ToLowerInvariant().Trim() == "end")
-                    break;
-            }
-            string commentsRemoved = sb.ToString();
-            if (!s_EndRegex.Match(commentsRemoved).Success)
-                Log.Message("'End' token not found. Reading to end of file (May cause unpredictable results)", MessageType.Warning);
+                m_bLoading = true;
+                //Now, stopping at the End token:
+                Log.SetSource(new MessageFrmReaction(this.Title, this, null));
 
-            //General comments:
-            StringBuilder comments = new StringBuilder();
-            Match commentsMatch = s_OpeningCommentRegex.Match(contents);
-            if (commentsMatch.Success)
-            {
-                Group g = commentsMatch.Groups["Comment"];
-                if (g.Success)
-                    foreach (Capture c in g.Captures)
-                        comments.AppendLine(c.Value);
-                txtDescription.Text = comments.ToString();
-            }
+                StreamReader sr = new StreamReader(m_File);
+                string contents = sr.ReadToEnd().Trim();
 
-            //Sources:
-            Match sourcesMatch = s_SourceRegex.Match(commentsRemoved);
-            if (sourcesMatch.Success)
-            {
-                txtSources.Text = sourcesMatch.Value.Trim().Replace("\r\n", ", ");
-                txtSources_Leave(txtSources, new EventArgs());
-            }
-
-            //Reactions:
-            Match start = s_RxnBlockStartRegex.Match(contents);
-            Match end = s_RxnBlockEndRegex.Match(contents);
-            if (!start.Success || !end.Success)
-            {
-                Log.Message("Reaction Block Not Found", MessageType.Error);
-                throw new Exception("Reaction block not found");
-            }
-            int rxnBlockStart = start.Index + start.Length;
-            int rxnBlockEnd = end.Index;
-            string rxnBlock = contents.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
-
-            FindReactions(rxnBlock, s_ReactionRegex, true);
-            FindReactions(rxnBlock, s_DisabledReactionRegex, false);
-
-            chkFirstReactant.Checked = rxnBlock.ToLowerInvariant().Contains("<usefirstreactant=true>");
-
-            Match LSMatch = s_LastSelectedRegex.Match(rxnBlock);
-            if (LSMatch.Success)
-            {
-                int index;
-                if (int.TryParse(LSMatch.Groups["Value"].Value, out index))
-                    lstReactions.Items[index].Selected = true;
-            }
-            else if (lstReactions.Items.Count > 0)
-                lstReactions.Items[0].Selected = true;
-
-            //Heat Exchange:
-            Match HXMatch = s_HXRegex.Match(commentsRemoved);
-            if (HXMatch.Success)
-            {
-                string type = HXMatch.Groups["Type"].Value;
-                if (type == "FinalT")
-                    comboHXType.SelectedItem = "Final Temp.";
-                else if (type == "TargetT")
+                //Sources and sinks use a comment stripped version of the file:
+                StringBuilder sb = new StringBuilder();
+                for (Match m = s_CommentRemovingRegex.Match(contents); m.Success; m = m.NextMatch())
                 {
-                    comboHXType.SelectedItem = "Approach Temp.";
-                    numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                    sb.AppendLine(m.Value);
+                    if (m.Value.ToLowerInvariant().Trim() == "end")
+                        break;
                 }
-                else if (type == "Ambient")
+                string commentsRemoved = sb.ToString();
+                if (!s_EndRegex.Match(commentsRemoved).Success)
+                    Log.Message("'End' token not found. Reading to end of file (May cause unpredictable results)", MessageType.Warning);
+
+                //General comments:
+                StringBuilder comments = new StringBuilder();
+                Match commentsMatch = s_OpeningCommentRegex.Match(contents);
+                if (commentsMatch.Success)
                 {
-                    comboHXType.SelectedItem = "Approach Ambient";
-                    numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                    Group g = commentsMatch.Groups["Comment"];
+                    if (g.Success)
+                        foreach (Capture c in g.Captures)
+                            comments.AppendLine(c.Value);
+                    txtDescription.Text = comments.ToString();
                 }
-                else if (type == "Power")
-                    comboHXType.SelectedItem = "Power";
-                else if (type == "Electrolyisis")
-                    comboHXType.SelectedItem = "Electrolysis";
+
+                //Sources:
+                Match sourcesMatch = s_SourceRegex.Match(commentsRemoved);
+                if (sourcesMatch.Success)
+                {
+                    txtSources.Text = sourcesMatch.Value.Trim().Replace("\r\n", ", ");
+                    txtSources_Leave(txtSources, new EventArgs());
+                }
+
+                //Reactions:
+                Match start = s_RxnBlockStartRegex.Match(contents);
+                Match end = s_RxnBlockEndRegex.Match(contents);
+                if (!start.Success || !end.Success)
+                {
+                    Log.Message("Reaction Block Not Found", MessageType.Error);
+                    throw new Exception("Reaction block not found");
+                }
+                int rxnBlockStart = start.Index + start.Length;
+                int rxnBlockEnd = end.Index;
+                string rxnBlock = contents.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
+
+                FindReactions(rxnBlock, s_ReactionRegex, true);
+                FindReactions(rxnBlock, s_DisabledReactionRegex, false);
+
+                chkFirstReactant.Checked = rxnBlock.ToLowerInvariant().Contains("<usefirstreactant=true>");
+
+                Match LSMatch = s_LastSelectedRegex.Match(rxnBlock);
+                if (LSMatch.Success)
+                {
+                    int index;
+                    if (int.TryParse(LSMatch.Groups["Value"].Value, out index))
+                        lstReactions.Items[index].Selected = true;
+                }
+                else if (lstReactions.Items.Count > 0)
+                    lstReactions.Items[0].Selected = true;
+
+                //Heat Exchange:
+                Match HXMatch = s_HXRegex.Match(commentsRemoved);
+                if (HXMatch.Success)
+                {
+                    string type = HXMatch.Groups["Type"].Value;
+                    if (type == "FinalT")
+                        comboHXType.SelectedItem = "Final Temp.";
+                    else if (type == "TargetT")
+                    {
+                        comboHXType.SelectedItem = "Approach Temp.";
+                        numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                    }
+                    else if (type == "Ambient")
+                    {
+                        comboHXType.SelectedItem = "Approach Ambient";
+                        numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                    }
+                    else if (type == "Power")
+                        comboHXType.SelectedItem = "Power";
+                    else if (type == "Electrolyisis")
+                        comboHXType.SelectedItem = "Electrolysis";
+                    else
+                        Log.Message("Unknown Heat Exchange type '" + HXMatch.Groups["Type"].Value + "'", MessageType.Warning);
+                    numHX.Text = HXMatch.Groups["Value"].Captures[0].Value;
+                }
+
+                //Sinks:
+                Match SinkMatch = s_SinkRegex.Match(commentsRemoved);
+                if (SinkMatch.Success)
+                {
+                    txtSinks.Text = SinkMatch.Value.Trim();
+                    txtSinks_Leave(txtSinks, new EventArgs());
+                }
+                Changed = false;
+                if (lstReactions.Items.Count != 1)
+                    Log.Message("File opened. " + lstReactions.Items.Count + " Reactions found.", MessageType.Note);
                 else
-                    Log.Message("Unknown Heat Exchange type '" + HXMatch.Groups["Type"].Value + "'", MessageType.Warning);
-                numHX.Text = HXMatch.Groups["Value"].Captures[0].Value;
+                    Log.Message("File opened. 1 Reaction found.", MessageType.Note);
+                Log.RemoveSource();
             }
-
-            //Sinks:
-            Match SinkMatch = s_SinkRegex.Match(commentsRemoved);
-            if (SinkMatch.Success)
+            finally
             {
-                txtSources.Text = SinkMatch.Value.Trim();
-                txtSinks_Leave(txtSinks, new EventArgs());
+                m_bLoading = false;
             }
-            Changed = false;
-            if (lstReactions.Items.Count != 1)
-                Log.Message("File opened. " + lstReactions.Items.Count + " Reactions found.", MessageType.Note);
-            else
-                Log.Message("File opened. 1 Reaction found.", MessageType.Note);
-            Log.RemoveSource();
         }
 
         protected void FindReactions(string rxnBlock, Regex reactionRegex, bool enabled)
@@ -967,7 +999,7 @@ namespace Reaction_Editor
         public SimpleReaction CreateReaction(string initialFormula)
         {
             ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "" });
+            lvi.SubItems.AddRange(new string[] { "", "", "" });
             lstReactions.Items.Add(lvi);
             SimpleReaction rxn = new SimpleReaction(lvi, Log);
             rxn.Changed += new EventHandler(rxn_Changed);
@@ -987,10 +1019,12 @@ namespace Reaction_Editor
 
         protected void LoadReaction(SimpleReaction rxn)
         {
+            m_bLoading = true;
             if (m_CurrentReaction != null)
             {
                 m_CurrentReaction.Changed -= new EventHandler(currentReactionChanged);
                 m_CurrentReaction.ReactantsChanged -= new EventHandler(rxn_ReactantsChanged);
+                m_CurrentReaction.ProductsChanged -= new EventHandler(rxn_ProductsChanged);
             }
             m_CurrentReaction = rxn;
             txtReactants.Visible = txtProducts.Visible = comboDirection.Visible = true;
@@ -1007,9 +1041,11 @@ namespace Reaction_Editor
                 comboExtentType.SelectedIndex = -1;
                 comboExtentSpecie.SelectedIndex = -1;
                 comboHORSpecie.SelectedIndex = -1;
-                //comboHXType.SelectedIndex = -1;
+                comboHORType.SelectedIndex = -1;
+                comboExtentAim.SelectedIndex = -1;
                 numSequence.Text = "";
                 chkEnabled.Checked = false;
+                m_bLoading = false;
                 return;
             }
             rxn.Changed += new EventHandler(currentReactionChanged);
@@ -1055,6 +1091,7 @@ namespace Reaction_Editor
             comboDirection.SelectedIndex = (int)rxn.Direction;
 
             comboExtentType.SelectedIndex = (int) rxn.ExtentType;
+            comboExtentAim.SelectedItem = rxn.ExtentInfo.Aim;
             comboHORType.SelectedIndex = rxn.CustomHeatOfReaction ? 1 : 0;
 
             numExtentValue.Text = rxn.ExtentInfo.Value.ToString();
@@ -1067,6 +1104,7 @@ namespace Reaction_Editor
                 numSequence.Text = numSequence.Value.ToString();
             }
             //pnlReaction.Enabled = true;
+            m_bLoading = false;
         }
 
         protected void SetPanelEnables(Control p, bool val)
@@ -1105,7 +1143,7 @@ namespace Reaction_Editor
         {
             comboExtentSpecie.Items.Clear();
             comboHORSpecie.Items.Clear();
-            foreach (Compound c in m_CurrentReaction.Reactants.Keys)
+            foreach (Compound c in m_CurrentReaction.Compounds)
             {
                 comboExtentSpecie.Items.Add(c);
                 comboHORSpecie.Items.Add(c);
@@ -1168,7 +1206,8 @@ namespace Reaction_Editor
 
         protected void ChangeOccured()
         {
-            Changed = true;
+            if (!m_bLoading)
+                Changed = true;
             if (NowChanged != null)
                 NowChanged(this, new EventArgs());
         }
@@ -1237,6 +1276,8 @@ namespace Reaction_Editor
         #endregion Protected Functions
 
         #region Subclasses
+        public delegate void ReactionHandler(FrmReaction form, SimpleReaction reaction);
+
         protected class MessageFrmReaction : MessageSource
         {
             protected FrmReaction m_owner;
@@ -1293,6 +1334,8 @@ namespace Reaction_Editor
 
             if (!chkSequence.Checked)
             {
+                if (lstReactions.Columns.Contains(m_SequenceHeader))
+                    lstReactions.Columns.Remove(m_SequenceHeader);
                 //To get the damned order correct:
                 foreach (ListViewGroup grp in lstReactions.Groups)
                     foreach (ListViewItem lvi in grp.Items)
@@ -1302,7 +1345,7 @@ namespace Reaction_Editor
                 lstReactions.Items.Clear();
                 lstReactions.Items.AddRange(originalList.ToArray());
 
-                lstReactions.ShowGroups = false;
+                menuShowSequence.Checked = false;
 
                 foreach (ListViewItem lvi in originalList)
                 {
@@ -1312,12 +1355,14 @@ namespace Reaction_Editor
             }
             else
             {
+                if (!lstReactions.Columns.Contains(m_SequenceHeader))
+                    lstReactions.Columns.Add(m_SequenceHeader);
                 foreach (ListViewItem lvi in lstReactions.Items)
                     originalList.Add(lvi);
                 lstReactions.ShowGroups = true;
                 foreach (ListViewItem lvi in originalList)
                     lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
-                
+                lstReactions.ShowGroups = false;
             }
             m_bDoEvents = true;
 
@@ -1425,7 +1470,7 @@ namespace Reaction_Editor
 
         private void comboHORType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboHORType.SelectedIndex == 0) //Default:
+            if (comboHORType.SelectedIndex <= 0) //Default:
             {
                 SetHOREnabled(false);
                 comboHORSpecie.SelectedIndex = -1;
@@ -1734,7 +1779,12 @@ namespace Reaction_Editor
             if (lstReactions.SelectedItems.Count == 0)
                 return;
             else
+            {
+                SimpleReaction rxn = (SimpleReaction)lstReactions.SelectedItems[0].Tag;
                 lstReactions.SelectedItems[0].Remove();
+                if (ReactionRemoved != null)
+                    ReactionRemoved(this, rxn);
+            }
         }
 
         private void txtSources_TextChanged(object sender, EventArgs e)
@@ -2144,6 +2194,29 @@ namespace Reaction_Editor
                 if (m.Success)
                     box.Select(m.Index, m.Length);
             }
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            menuCopy.Enabled = menuRemove.Enabled = m_CurrentReaction != null;
+            menuShowSequence.Enabled = chkSequence.Checked;
+        }
+
+        private void menuShowSequence_CheckedChanged(object sender, EventArgs e)
+        {
+            lstReactions.ShowGroups = menuShowSequence.Checked;
+        }
+
+        private void lstReactions_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+                btnRemove_Click(sender, e);
+        }
+
+        private void comboExtentAim_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (m_CurrentReaction != null)
+                m_CurrentReaction.ExtentInfo.Aim = (ExtentAim)comboExtentAim.SelectedItem;
         }
     }
 }
