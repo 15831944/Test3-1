@@ -348,7 +348,7 @@ ref class CNETServerThread
           PrevPage=GI.PageNo();
 
           String ^ path = "/" + filename + "/";
-          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String (path), RectangleF(XOffSet,YOffSet,297*1.4141f, 297));
+          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), RectangleF(XOffSet,YOffSet,297*1.4141f, 297));
           }
 
         switch (GI.Type())
@@ -367,7 +367,7 @@ ref class CNETServerThread
 
             engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
               path, model, shape,
-              RectangleF((float)(I.m_LoBnd.m_X), float((296.0f-I.m_HiBnd.m_Y)), 
+              RectangleF(I.m_LoBnd.m_X+XOffSet, float((296.0f-I.m_HiBnd.m_Y+YOffSet)), 
               float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
               0.0, Color(), Drawing2D::FillMode()  , false, false);
             break;
