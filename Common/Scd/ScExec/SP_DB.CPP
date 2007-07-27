@@ -4474,13 +4474,16 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
       {
       case CSpecie::DaType_IsAcid:
         m_SDB.m_Acids.Add(s);
-        Sp.m_sKaKbDesc.Set("Ka(%.2g,%.2g,%s)", Sp.m_dDa[0], Sp.m_dDa[1], Sp.m_dDa[2]!=0?",..":""); 
-        dbgpln("Acid: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
+        if (Sp.m_dDa[2]!=0)
+          Sp.m_sKaKbDesc.Set("Ka(%.2g,%.2g,%.2g)", Sp.m_dDa[0], Sp.m_dDa[1], Sp.m_dDa[2]); 
+        else
+          Sp.m_sKaKbDesc.Set("Ka(%.2g,%.2g)", Sp.m_dDa[0], Sp.m_dDa[1]); 
+        //dbgpln("Acid: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
         break;
       case CSpecie::DaType_IsBase:
         m_SDB.m_Bases.Add(s);
-        Sp.m_sKaKbDesc.Set("Ka(%.2g)", Sp.m_dDa[0]);
-        dbgpln("Base: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
+        Sp.m_sKaKbDesc.Set("Kb(%.2g)", Sp.m_dDa[0]);
+        //dbgpln("Base: %-15s %s", Sp.Sym(), Sp.m_sKaKbDesc());
         break;
       }
     }
