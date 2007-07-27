@@ -372,16 +372,19 @@ void Viewport::SelectAssocEntities()
       }
     else 
       {
-      char * pTag=Find_Attr_Value(e, "Tag");
-      if (pTag)
+      if (e)
         {
-        for (CEntInView* p1 = disp_list; p1; p1=p1->GetNextValue())
+        char * pTag=Find_Attr_Value(e, "Tag");
+        if (pTag)
           {
-          DXF_ENTITY e1=p1->EntityPtr();
-          char * pAssocTag = e1!=NULL ? Find_Attr_Value(e1, AssocTagAttribStr) : NULL;
+          for (CEntInView* p1 = disp_list; p1; p1=p1->GetNextValue())
+            {
+            DXF_ENTITY e1=p1->EntityPtr();
+            char * pAssocTag = e1!=NULL ? Find_Attr_Value(e1, AssocTagAttribStr) : NULL;
 
-          if (pAssocTag && stricmp(pAssocTag, pTag)==0)
-            SelectEntity(p1);
+            if (pAssocTag && stricmp(pAssocTag, pTag)==0)
+              SelectEntity(p1);
+            }
           }
         }
       }

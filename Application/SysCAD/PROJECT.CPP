@@ -195,9 +195,9 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 106; //CNM  23/04/2007 DataUnionCom changes - reopen of old historian files
 //const int LatestPrjFileVer = 107; //CNM  18/05/2007 Makeup recovery issues
 //const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
-//const int LatestPrjFileVer = 109; //CNM  13/06/2007 SpCOntainer HiLevelLimit tweak
+//const int LatestPrjFileVer = 109; //CNM  13/06/2007 SpContainer HiLevelLimit tweak
 //const int LatestPrjFileVer = 110; //CNM  19/06/2007 Renaming "Flange" to "DirectLink"
-const int LatestPrjFileVer = 111;   //CNM  04/07/2007 H20 as Aqueous
+const int LatestPrjFileVer = 111; //CNM  04/07/2007 H20 as Aqueous
 
 //===========================================================================
 //
@@ -6505,7 +6505,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
 #if WithNumericTags
 #else
-  if (PrjFileVerNo()<=111)
+  if (PrjFileVerNo()<111)
     {
     if (PF.RdLong("General", "NumericTagsBad", 1)==0)
       {
