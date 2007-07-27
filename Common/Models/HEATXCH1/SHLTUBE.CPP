@@ -24,7 +24,7 @@ static CDbgMngr  dbgHeater   ("HeatXChg",  "ShellTube");
 #endif
 
 #define FORCESTEAM  (0 && HX_MEASURE_LIQVAP)
-#define dbgShlTube  (0)
+#define dbgShlTube  (01)
 
 #define BOX(x,y,w,h) x,y, x,y+h, x+w,y+h, x+w,y, x,y
 
@@ -36,6 +36,16 @@ static CDbgMngr  dbgHeater   ("HeatXChg",  "ShellTube");
 
 XID xidHXRqdOpMode = ModelXID(1000);
 XID xidHXSd_dT     = ModelXID(1001);
+
+
+// Set this #define nonzero to Fix some minor value issues - flowsheets will need to reconverge
+#if 0
+#define COLDSIDEPRESS   ColdSd.m_pCd->Press()
+#define HOTSIDEPRESS    HotSd.m_pCd->Press()
+#else
+#define COLDSIDEPRESS   ColdSd.FlashPressOut()
+#define HOTSIDEPRESS    HotSd.FlashPressOut()
+#endif
 
 //==========================================================================
 /*#D:#T:Shell & Tube Heat Exchanger(1)
@@ -362,7 +372,7 @@ double ShlTubeCondFnd::Function(double Amount)
   HotSd.Hi = HotSd.m_pCd->totHf();
 
   double FTemp=Max(ColdSd.Ti, HotSd.m_SatT-BPE);
-  double FPress=HotSd.FlashPressOut();//.Po;
+  double FPress=HOTSIDEPRESS;//.Po;
   m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), FTemp, FPress, 0.0, VLEF_Null);
   HotSd.To=FTemp;//HotSd.m_pCd->Temp();
   Blk.m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
@@ -429,7 +439,7 @@ ShlTubeCondLimitFnd::ShlTubeCondLimitFnd(CHXShlTube* Blk_, CHXSide & HotSd_, CHX
 double ShlTubeCondLimitFnd::Function(double x)
   {
   double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
-  ST.m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, x, VLEF_Null);
+  ST.m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HOTSIDEPRESS/*.Po*/, x, VLEF_Null);
   HotSd.To=HotSd.m_pCd->Temp();
   ST.m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
   HotSd.iMode=QPF_Condensing;
@@ -482,7 +492,7 @@ ShlTubeEvapLimitFnd::ShlTubeEvapLimitFnd(CHXShlTube* Blk_, CHXSide & HotSd_, CHX
 double ShlTubeEvapLimitFnd::Function(double x)
   {
   double ColdSdToEst=Max(ColdSd.Ti, ColdSd.m_SatT-BPE);
-  ST.m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, ColdSd.FlashPressOut()/*.Po*/, x, VLEF_Null);
+  ST.m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, COLDSIDEPRESS, x, VLEF_Null);
   ColdSd.To=ColdSd.m_pCd->Temp();
   ST.m_dDuty=fabs(ColdSd.m_pCd->totHf()-ColdSd.Hi);
   ColdSd.iMode=QPF_Evaporating;
@@ -522,7 +532,7 @@ void CHXShlTube::FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd
       double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
       HotSd.m_pCd->SetTemp(ColdSd.Ti);
       HotSd.MaxNfDuty=HotSd.Hi-HotSd.m_pCd->totHf();
-      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HOTSIDEPRESS, 0.0, VLEF_Null);
       HotSd.MaxFlDuty=HotSd.Hi-HotSd.m_pCd->totHf();
       break;
       }
@@ -551,7 +561,7 @@ void CHXShlTube::FindLimitingDuties(byte OpMode, CHXSide& HotSd, CHXSide& ColdSd
       double ColdSdToEst=Max(ColdSd.Ti, ColdSd.m_SatT-BPE);
       ColdSd.m_pCd->SetTemp(HotSd.Ti);
       ColdSd.MaxNfDuty=ColdSd.m_pCd->totHf()-ColdSd.Hi;
-      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, ColdSd.FlashPressOut()/*.Po*/, 1.0, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, COLDSIDEPRESS, 1.0, VLEF_Null);
       ColdSd.MaxFlDuty=ColdSd.m_pCd->totHf()-ColdSd.Hi;
       break;
       }
@@ -593,7 +603,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
 
   double HotSdToEst=Min(HotSd.Ti, HotSd.m_SatT-BPE);
   double OrigVapFrac=m_VLE.FlashVapFrac(*HotSd.m_pCd->Model());
-  m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
+  m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HOTSIDEPRESS/*.Po*/, 0.0, VLEF_Null);
   HotSd.To=HotSd.m_pCd->Temp();
   m_dDuty=fabs(HotSd.m_pCd->totHf()-HotSd.Hi);
   if (flags & CA_AllowVent)
@@ -603,7 +613,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
       double VentFrac=(m_dDuty-m_dMaxFlDuty)/GTZ(m_dDuty);
       // Adjust for what existed
       VentFrac = Range(0.0, VentFrac*(1.0-OrigVapFrac), 1.0);
-      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HOTSIDEPRESS/*.Po*/, VentFrac, VLEF_Null);
       VentFlow=HotSd.m_pCd->QMass(som_Gas);
       HotSd.AddGasToVent(VentFlow, false);
       m_dDuty=m_dMaxFlDuty;
@@ -619,7 +629,7 @@ double CHXShlTube::CondenseAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI,
       m_dDuty=Min(m_dDuty, MaxDuty);
       // Adjust for what existed
       VapFrac = Range(0.0, VapFrac*(1.0-OrigVapFrac), 1.0);
-      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HotSd.FlashPressOut()/*.Po*/, VapFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), HotSdToEst, HOTSIDEPRESS/*.Po*/, VapFrac, VLEF_Null);
       }
     }
   HotSd.iMode=QPF_Condensing;
@@ -645,7 +655,7 @@ double CHXShlTube::EvaporateAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI
 
   double ColdSdToEst=Max(ColdSd.Ti, ColdSd.m_SatT-BPE);
   double OrigVapFrac=ColdSd.m_VfIn;//m_VLE.FlashVapFrac(*ColdSd.m_pCd->Model());
-  m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, ColdSd.FlashPressOut()/*.Po*/, 1.0, VLEF_Null);
+  m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, COLDSIDEPRESS, 1.0, VLEF_Null);
   ColdSd.To=ColdSd.m_pCd->Temp();
   m_dDuty=fabs(ColdSd.m_pCd->totHf()-ColdSd.Hi);
   if (flags & CA_AllowVent)
@@ -655,7 +665,7 @@ double CHXShlTube::EvaporateAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI
       double VentFrac=(m_dDuty-m_dMaxFlDuty)/GTZ(m_dDuty);
       // Adjust for what existed
       VentFrac = Range(0.0, VentFrac*(1.0-OrigVapFrac), 1.0);
-      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, ColdSd.FlashPressOut()/*.Po*/, VentFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, COLDSIDEPRESS, VentFrac, VLEF_Null);
       VentFlow=ColdSd.m_pCd->QMass(som_Gas);
       ColdSd.AddGasToVent(VentFlow, false);
       m_dDuty=m_dMaxFlDuty;
@@ -671,7 +681,7 @@ double CHXShlTube::EvaporateAll(CHXSide& HotSd, CHXSide& ColdSd, CHXSdInfo &HotI
       m_dDuty=Min(m_dDuty, MaxDuty);
       // Adjust for what existed
       VapFrac = Range(0.0, VapFrac*(1.0-OrigVapFrac), 1.0);
-      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, ColdSd.FlashPressOut()/*.Po*/, VapFrac, VLEF_Null);
+      m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), ColdSdToEst, COLDSIDEPRESS, VapFrac, VLEF_Null);
       }
     }
   ColdSd.iMode=QPF_Evaporating;
@@ -819,23 +829,27 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
       case STHX_FullyCondensing:
         {
 
-        #if (dbgShlTube)
-        dbgpln("============= %s", FullObjTag());
-        dbgpln("  Vf      %%     %12.4f      %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f      %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f      %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f      %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f      %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f      %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f      %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f      %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf());
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("============= %s", FullObjTag());
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          }
         double dbgHfCold = ColdSd.m_pCd->totHf();
         double dbgHfHot  = HotSd.m_pCd->totHf();
         double dbgHfVent = m_pVent->totHf();
         double dbgQmCold = ColdSd.m_pCd->QMass();
         double dbgQmHot  = HotSd.m_pCd->QMass();
         double dbgQmVent = m_pVent->QMass();
-        #endif
+#endif
 
         // Vents & Bypasses
         HotSd.KeepByPassLiquor(HotSd.m_Pi);
@@ -848,13 +862,13 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         QMemS->SetVLEBlk(&m_VLE);
         QMemS().QSetF(*HotSd.m_pCd, som_ALL, 1.0, HotSd.m_Pi);
 
-        #if (dbgShlTube)
+#if (dbgShlTube)
         double PVf=ColdSd.m_pCd->MassFrac(som_Gas);
         double SVf=HotSd.m_pCd->MassFrac(som_Gas);
         const double PQm=ColdSd.m_pCd->QMass();
         const double SQm=HotSd.m_pCd->QMass();
         const double QQm=QMemS().QMass();
-        #endif
+#endif
 
         m_VLE.SetHfInAtZero(*HotSd.m_pCd);
         m_VLE.SaveFeedInfo(false, *HotSd.m_pCd);
@@ -865,38 +879,46 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         ColdSd.dHEnv=ColdSd.m_pCd->totHf()-ColdSd.Hi;
         HotSd.dHEnv=HotSd.m_pCd->totHf()-HotSd.Hi;
 
-        #if (dbgShlTube)
-        dbgpln("X -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("X -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         const double SteamBefore=HotSd.m_pCd->VMass[m_VLE.FlashVapIndex()/*H2OVap()*/];
 
         // Find Mode Of Operation
         FindLimitingDuties(m_iActOpMode, HotSd, ColdSd, HotSdI, ColdSdI);
 
-        #if (dbgShlTube)
-        dbgpln("X -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("X -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         // Estimate the required amount able to Condense
         if (m_FTC.Active())
@@ -907,7 +929,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
           m_FTC.m_dQCond = HotSd.Qm;
 #endif
           m_FTC.m_dQCool = ColdSd.Qm;
-          m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.m_SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HotSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
+          m_VLE.SetFlashVapFrac(*HotSd.m_pCd->Model(), Max(HotSd.m_SatT-BPE, CoCurrent ? ColdSd.To : ColdSd.Ti), HOTSIDEPRESS, 0.0, VLEF_Null);
           double OldQRqd=m_FTC.m_dQRqd;
           double MaxFlQm=ColdSd.MaxFlDuty/GTZ(HotSd.Hi/NZ(HotSd.Qm)-HotSd.m_pCd->msHf());
 
@@ -988,19 +1010,23 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
             {
             VentFlow=CondenseAll(HotSd, ColdSd, HotSdI, ColdSdI, (m_bExtraCond ? CA_LimitNone : CA_LimitDuty));
 
-            #if (dbgShlTube)
-            dbgpln("Y -----------");
-            dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-            dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-            dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-            dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-            dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-            dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-            dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-            dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-            dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-            dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-            #endif
+#if (dbgShlTube)
+            if (pNd->fDoDbgBrk)
+              {
+              dbgpln("Y -----------");
+              dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+              dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+              dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+              dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+              dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+              dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+              dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+              dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+              dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+              dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+              dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+              }
+#endif
 
             //now check if the actual duty exceeds maximum allowed...
             const double LMTDSat_ = LMTDSat(ColdSd.Ti, ColdSd.To, HotSd.To);
@@ -1049,24 +1075,28 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         m_Pri.Duty=m_dDuty*m_Pri.Sgn + m_Pri.dHEnv;
         m_Sec.Duty=m_dDuty*m_Sec.Sgn + m_Sec.dHEnv;
 
-        #if (dbgShlTube)
-        dbgpln("A -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
-        ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
-        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To);
-        HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
-        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To, &m_VLE.FlashDefn());
+        ColdSd.m_SatP = m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To);
+        ColdSd.m_SatPP = m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To);
+        HotSd.m_SatP = m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To);
+        HotSd.m_SatPP = m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To);
 
 //        ColdSd.m_pCd->Model()->ClrStatesOK();
 //        ColdSd.m_pCd->Model()->EquilibrateAll();
@@ -1080,82 +1110,98 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=HotSd.m_pCd->SaturationP(CoCurrent ? HotSd.Ti : ColdSd.Ti, &m_VLE.FlashDefn());
+        m_FTC.m_dMinSatPress=m_VLE.SaturationP(*HotSd.m_pCd, CoCurrent ? HotSd.Ti : ColdSd.Ti);
 
         HotSd.AddByPassLiquor();
 
-        #if (dbgShlTube)
-        dbgpln("A1 -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A1 -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         //HotSd.SendGasToVent(true);
 
         m_VLE.AddHfOutAtZero(*HotSd.m_pCd);
         m_VLE.SaveProdInfo(false, *HotSd.m_pCd);
 
-        #if (dbgShlTube)
-        dbgpln("A2 -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A2 -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         VapourFlowInCondensate=HotSd.m_pCd->VMass[m_VLE.FlashVapIndex()];
         m_dQmVapCond = SteamBefore-VapourFlowInCondensate;
 
-        #if (dbgShlTube)
-        dbgpln("B -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", ColdSd.To-273.15, HotSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325, HotSd.m_pCd->SaturationP(HotSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("B -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", ColdSd.m_pCd->Press(), HotSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", ColdSd.m_pCd->MassFrac(som_Gas)*100, HotSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_Gas), HotSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->QMass(som_SL), HotSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->Temp()-273.15, HotSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", ColdSd.To-273.15, HotSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325, m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", ColdSd.m_pCd->totHf(), HotSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   ColdSd.m_pCd->totHf()+HotSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfCold+dbgHfHot+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", ColdSd.m_pCd->QMass()-dbgQmCold, HotSd.m_pCd->QMass()-dbgQmHot, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         break;
         }
       case STHX_FullyEvaporating:
         {
 
-        #if (dbgShlTube)
-        dbgpln("============= %s", FullObjTag());
-        dbgpln("  Vf      %%     %12.4f      %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f      %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f      %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f      %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f      %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f      %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f      %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f      %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf());
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("============= %s", FullObjTag());
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          }
         double dbgHfHot = HotSd.m_pCd->totHf();
         double dbgHfCold  = ColdSd.m_pCd->totHf();
         double dbgHfVent = m_pVent->totHf();
         double dbgQmHot = HotSd.m_pCd->QMass();
         double dbgQmCold  = ColdSd.m_pCd->QMass();
         double dbgQmVent = m_pVent->QMass();
-        #endif
+#endif
 
         // Vents & Bypasses
         //ColdSd.KeepByPassLiquor(ColdSd.m_Pi);
@@ -1183,38 +1229,46 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         HotSd.dHEnv=HotSd.m_pCd->totHf()-HotSd.Hi;
         ColdSd.dHEnv=ColdSd.m_pCd->totHf()-ColdSd.Hi;
 
-        #if (dbgShlTube)
-        dbgpln("X -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("X -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         const double LiquidBefore=ColdSd.m_pCd->VMass[m_VLE.FlashLiqIndex()/*H2OVap()*/];
 
         // Find Mode Of Operation
         FindLimitingDuties(m_iActOpMode, HotSd, ColdSd, HotSdI, ColdSdI);
 
-        #if (dbgShlTube)
-        dbgpln("X -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("X -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         // Estimate the required amount able to Condense
         if (m_FTC.Active())
@@ -1226,7 +1280,7 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
           m_FTC.m_dQCond = ColdSd.Qm;
 #endif
           m_FTC.m_dQCool = HotSd.Qm;
-          m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), Max(ColdSd.m_SatT-BPE, CoCurrent ? HotSd.To : HotSd.Ti), ColdSd.FlashPressOut()/*.Po*/, 0.0, VLEF_Null);
+          m_VLE.SetFlashVapFrac(*ColdSd.m_pCd->Model(), Max(ColdSd.m_SatT-BPE, CoCurrent ? HotSd.To : HotSd.Ti), COLDSIDEPRESS, 0.0, VLEF_Null);
           double OldQRqd=m_FTC.m_dQRqd;
           double MaxFlQm=HotSd.MaxFlDuty/GTZ(ColdSd.Hi/NZ(ColdSd.Qm)-ColdSd.m_pCd->msHf());
 
@@ -1307,19 +1361,23 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
             {
             VentFlow=EvaporateAll(HotSd, ColdSd, HotSdI, ColdSdI, (m_bExtraCond ? CA_LimitNone : CA_LimitDuty));
 
-            #if (dbgShlTube)
-            dbgpln("Y -----------");
-            dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-            dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-            dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-            dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-            dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-            dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-            dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-            dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-            dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-            dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-            #endif
+#if (dbgShlTube)
+            if (pNd->fDoDbgBrk)
+              {
+              dbgpln("Y -----------");
+              dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+              dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+              dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+              dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+              dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+              dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+              dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+              dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+              dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+              dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+              dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+              }
+#endif
 
             //now check if the actual duty exceeds maximum allowed...
             const double LMTDSat_ = LMTDSat(HotSd.Ti, HotSd.To, ColdSd.To);
@@ -1371,24 +1429,28 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         m_Pri.Duty=m_dDuty*m_Pri.Sgn + m_Pri.dHEnv;
         m_Sec.Duty=m_dDuty*m_Sec.Sgn + m_Sec.dHEnv;
 
-        #if (dbgShlTube)
-        dbgpln("A -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
-        HotSd.m_SatP = HotSd.m_pCd->SaturationTotalP(HotSd.To);
-        HotSd.m_SatPP = HotSd.m_pCd->SaturationP(HotSd.To);
-        ColdSd.m_SatP = ColdSd.m_pCd->SaturationTotalP(ColdSd.To);
-        ColdSd.m_SatPP = ColdSd.m_pCd->SaturationP(ColdSd.To, &m_VLE.FlashDefn());
+        HotSd.m_SatP = m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To);
+        HotSd.m_SatPP = m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To);
+        ColdSd.m_SatP = m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To);
+        ColdSd.m_SatPP = m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To);
 
 //        HotSd.m_pCd->Model()->ClrStatesOK();
 //        HotSd.m_pCd->Model()->EquilibrateAll();
@@ -1403,59 +1465,71 @@ void CHXShlTube::EvalProducts(pFlwNode pNd)
         if (m_dLMTD<0.0)
           m_FTC.m_dQRqd=1.0e-20;
 
-        m_FTC.m_dMinSatPress=ColdSd.m_pCd->SaturationP(CoCurrent ? ColdSd.Ti : HotSd.Ti, &m_VLE.FlashDefn());
+        m_FTC.m_dMinSatPress=m_VLE.SaturationP(*ColdSd.m_pCd, CoCurrent ? ColdSd.Ti : HotSd.Ti);
 
         //ColdSd.AddByPassLiquor();
 
-        #if (dbgShlTube)
-        dbgpln("A1 -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A1 -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         //ColdSd.SendGasToVent(true);
 
         m_VLE.AddHfOutAtZero(*ColdSd.m_pCd);
         m_VLE.SaveProdInfo(false, *ColdSd.m_pCd);
 
-        #if (dbgShlTube)
-        dbgpln("A2 -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("A2 -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         LiquidFlowInVapour = ColdSd.m_pCd->VMass[m_VLE.FlashLiqIndex()];
         m_dQmLiqEvap = LiquidBefore-LiquidFlowInVapour;
 
-        #if (dbgShlTube)
-        dbgpln("B -----------");
-        dbgpln("  Vf      %%     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
-        dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
-        dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
-        dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15);
-        dbgpln("  To      C     %12.4f    %12.4f    %12.4f", HotSd.To-273.15, ColdSd.To-273.15);
-        dbgpln("  TotP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationTotalP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationTotalP(ColdSd.To)/101.325);
-        dbgpln("  SatP    atm   %12.4f    %12.4f    %12.4f", HotSd.m_pCd->SaturationP(HotSd.To)/101.325, ColdSd.m_pCd->SaturationP(ColdSd.To)/101.325);
-        dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
-        dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
-        dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
-        #endif
+#if (dbgShlTube)
+        if (pNd->fDoDbgBrk)
+          {
+          dbgpln("B -----------");
+          dbgpln("  P       kPa   %12.4f    %12.4f           ", HotSd.m_pCd->Press(), ColdSd.m_pCd->Press());
+          dbgpln("  Vf      %%     %12.4f    %12.4f          ", HotSd.m_pCd->MassFrac(som_Gas)*100, ColdSd.m_pCd->MassFrac(som_Gas)*100);
+          dbgpln("  VQm     kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_Gas), ColdSd.m_pCd->QMass(som_Gas), m_pVent->QMass(som_Gas));
+          dbgpln("  SLQm    kg/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->QMass(som_SL), ColdSd.m_pCd->QMass(som_SL), m_pVent->QMass(som_SL));
+          dbgpln("  CdT     C     %12.4f    %12.4f    %12.4f", HotSd.m_pCd->Temp()-273.15, ColdSd.m_pCd->Temp()-273.15, m_pVent->Temp()-273.15);
+          dbgpln("  To      C     %12.4f    %12.4f          ", HotSd.To-273.15, ColdSd.To-273.15);
+          dbgpln("  TotP    atm   %12.4f    %12.4f          ", m_VLE.SaturationTotalP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationTotalP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  SatP    atm   %12.4f    %12.4f          ", m_VLE.SaturationP(*HotSd.m_pCd, HotSd.To)/101.325, m_VLE.SaturationP(*ColdSd.m_pCd, ColdSd.To)/101.325);
+          dbgpln("  Hf      kJ/s  %12.4f    %12.4f    %12.4f", HotSd.m_pCd->totHf(), ColdSd.m_pCd->totHf(), m_pVent->totHf());
+          dbgpln("  NettHf  kJ/s (%+12.6f)",                   HotSd.m_pCd->totHf()+ColdSd.m_pCd->totHf()+m_pVent->totHf()-(dbgHfHot+dbgHfCold+dbgHfVent));
+          dbgpln("  NettQm  kg/s (%+12.6f) (%+12.6f)  (%+12.6f)", HotSd.m_pCd->QMass()-dbgQmHot, ColdSd.m_pCd->QMass()-dbgQmCold, m_pVent->QMass()-dbgQmVent); 
+          }
+#endif
 
         break;
         }
@@ -2025,7 +2099,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
         const int idPri = m_HXJ.P.IOFlwOut();
         SpConduit & CdOut=*IOConduit(idPri);
         double TubePIn=SigmaQInPMin(CdOut, som_ALL, ioidST_TubeIn, ioidST_TubeIn);//Out);
-        HX.SetPrimary(NULL, CdOut, TubePIn, NULL);
+        HX.SetPrimary(NULL, CdOut, TubePIn, &pHXST->m_VLE.FlashDefn());
         }
       else
         HX.ClrPrimary();

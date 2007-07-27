@@ -186,6 +186,11 @@ class DllImportExport CVLEBase : public CClosureHfGain, public CBlockEvalBase
     virtual double CondensableFrac(SpConduit *Ql, SpConduit *Qv);
     virtual double CondensableFrac(SpContainer*Cn);
 
+    virtual double SaturationTotalP(SpConduit &Cd, double T);
+    virtual double SaturationTotalP(SpContainer &Cn, double T);
+    virtual double SaturationP(SpConduit &Cd, double T);
+    virtual double SaturationP(SpContainer &Cn, double T);
+
     virtual double ApproachTemp();
     virtual bool   ApproachTempOn() { return (m_iFlags & VLEF_ApproachTempOn)!=0; }
 

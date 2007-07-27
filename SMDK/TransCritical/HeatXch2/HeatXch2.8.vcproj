@@ -145,10 +145,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="4"
+				Optimization="2"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
 				AdditionalIncludeDirectories=".,..\..\Include,..\..\IncludeEx"
 				PreprocessorDefinitions="_RELEASE;NDEBUG;SMDKDemoU;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"

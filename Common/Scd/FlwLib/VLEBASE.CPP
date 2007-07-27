@@ -536,6 +536,12 @@ void CVLEBase::SaveProdInfo(bool Cvt2Flow, SpModel * Ql, SpModel * Qv)
   //m_sSatMethod        = "";//Ql->SaturationMethodUsed();
   }
 
+
+double CVLEBase::SaturationTotalP(SpConduit & Cd, double T)    { return Cd.SaturationTotalP(T, &FlashDefn());  };
+double CVLEBase::SaturationTotalP(SpContainer & Cn, double T)  { return Cn.SaturationTotalP(T, &FlashDefn());  };
+double CVLEBase::SaturationP(SpConduit & Cd, double T)         { return Cd.SaturationP(T, &FlashDefn());       };
+double CVLEBase::SaturationP(SpContainer & Cn, double T)       { return Cn.SaturationP(T, &FlashDefn());       };
+
 //--------------------------------------------------------------------------
 
 void CVLEBase::PFlash(SpConduit &Q, double Press, double Duty, dword Flags)

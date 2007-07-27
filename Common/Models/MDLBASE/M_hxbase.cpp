@@ -1124,14 +1124,14 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
   Cp = pCd->msCp();
   Qm = pCd->QMass();
 
-  if (pFlashDefn && pFlashDefn->Method()/*pCd->SaturationMethod()*/==SMFM_PartialP)
-    m_PPFrac = pCd->PartialPressFrac(pCd->SaturationVapIndex(), -1);
+  if (pFlashDefn && pFlashDefn->Method()==SMFM_PartialP)
+    m_PPFrac = pCd->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1;
 
 #if HX_MEASURE_LIQVAP
-  m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()/* H2OLiq()*/];
-  m_VapQm = pCd->VMass[pCd->FlashVapIndex()/* H2OVap()*/];
+  m_LiqQm = pCd->VMass[pCd->FlashLiqIndex()];
+  m_VapQm = pCd->VMass[pCd->FlashVapIndex()];
 #endif
 
   //dbgpln("CHXSide::MeasureHXDataCd Liq:%12.5f Vap:%12.5f Ti:%12.4f Pi:%12.4f %s", 
@@ -1141,9 +1141,9 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
 
   m_Po=m_Pi;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCd->SaturationT(FlashPressOut());
+    m_SatT = pCd->SaturationT(FlashPressOut(), pFlashDefn);
   else
-    m_SatT = pCd->SaturationT(m_Po);
+    m_SatT = pCd->SaturationT(m_Po, pFlashDefn);
   m_pCd->QSaveMass(MassImg);
 
   To=Ti;
@@ -1164,8 +1164,8 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  if (pFlashDefn && pFlashDefn->Method()/*pCn->SaturationMethod()*/==SMFM_PartialP)
-    m_PPFrac = pCn->PartialPressFrac(pCn->SaturationVapIndex(), -1);
+  if (pFlashDefn && pFlashDefn->Method()==SMFM_PartialP)
+    m_PPFrac = pCn->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1.0;
 
@@ -1177,9 +1177,9 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
   //m_SatT = pCn->SaturationT(FlashPressOut());
   _asm int 3;
   if (m_PPFrac>1.0e-6)
-    m_SatT = pCn->SaturationT(FlashPressOut());
+    m_SatT = pCn->SaturationT(FlashPressOut(), pFlashDefn);
   else
-    m_SatT = pCn->SaturationT(m_Po);
+    m_SatT = pCn->SaturationT(m_Po, pFlashDefn);
   //m_pCnd->QSaveMass(MassImg);
 
   To=Ti;
