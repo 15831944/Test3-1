@@ -143,26 +143,42 @@ class CRectangleF
   public:
     CRectangleF()
       {
-      m_Left=0.0;
-      m_Right=0.0;
-      m_Top=0.0;
-      m_Bottom=0.0;
+      m_Left    = 0.0;
+      m_Right   = 0.0;
+      m_Bottom  = 0.0;
+      m_Top     = 0.0;
       };
-    CRectangleF(double L, double R, double T, double B)
+    CRectangleF(double L, double R, double B, double T)
       {
-      m_Left=L;
-      m_Right=R;
-      m_Top=T;
-      m_Bottom=B;
+      m_Left    = L;
+      m_Right   = R;
+      m_Bottom  = B;
+      m_Top     = T;
       }
-    double  MidX() const { return 0.5*(m_Left+m_Right); };
-    double  MidY() const { return 0.5*(m_Top+m_Bottom); };
 
-  public:
+    void Set(double Left,double Bottom,double Width,double Height)
+      {
+      m_Left    = Left;
+      m_Right   = Left+Width;
+      m_Bottom  = Bottom;
+      m_Top     = Bottom+Height;
+      }
+
+    double  Left()    const { return m_Left;   };
+    double  Right()   const { return m_Right;  };
+    double  Bottom()  const { return m_Bottom; };
+    double  Top()     const { return m_Top;    };
+
+    double  Width()   const { return (m_Right-m_Left); };
+    double  Height()  const { return (m_Top-m_Bottom); };
+    double  MidX()    const { return 0.5*(m_Left+m_Right); };
+    double  MidY()    const { return 0.5*(m_Bottom+m_Top); };
+
+  protected:
     double   m_Left;
     double   m_Right;
-    double   m_Top;
     double   m_Bottom;
+    double   m_Top;
   };
 
 //===========================================================================

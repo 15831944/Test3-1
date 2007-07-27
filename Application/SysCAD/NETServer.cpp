@@ -56,7 +56,6 @@ CString ToCString(String ^ str)
   {
   // Pin memory so GC can't move it while native function is called
   pin_ptr<const wchar_t> wch = PtrToStringChars(str);
-  //printf_s("%S\n", wch);
 
   // Conversion to char* :
   // Can just convert wchar_t* to char* using one of the 
@@ -206,7 +205,7 @@ ref class CNETServerThread
 
             SS_CreateItem(m_DoingExport, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
               ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
-              CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Top, item->BoundingRect.Bottom), 
+              CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
               item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
               item->MirrorX, item->MirrorY);
             int yyy=0;
@@ -246,16 +245,17 @@ ref class CNETServerThread
       };
 
 
-    void GroupCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
+    void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
       {
-      int xxx=0;
+      SS_CreateGroup(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top));
       }
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       SS_CreateItem(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
-        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Top, boundingRect.Bottom), 
+        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top), 
         angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
@@ -333,7 +333,8 @@ ref class CNETServerThread
         {
         CGrfTagInfo & I = GI.Item();
 
-        dbgpln("XX %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+        dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+        
         System::Guid guid(gcnew String(GI.Guid()));
         guid=System::Guid::NewGuid();
         String ^ page =  gcnew String(GI.PageName());//"Pg1";
@@ -348,7 +349,8 @@ ref class CNETServerThread
           PrevPage=GI.PageNo();
 
           String ^ path = "/" + filename + "/";
-          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), RectangleF(XOffSet,YOffSet,297*1.4141f, 297));
+          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), 
+            RectangleF(float(GI.PageRct().Left()+XOffSet),float(GI.PageRct().Bottom()+YOffSet), float(GI.PageRct().Width()), float(GI.PageRct().Height())));
           }
 
         switch (GI.Type())
@@ -367,8 +369,7 @@ ref class CNETServerThread
 
             engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
               path, model, shape,
-              RectangleF(I.m_LoBnd.m_X+XOffSet, float((296.0f-I.m_HiBnd.m_Y+YOffSet)), 
-              float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
+              RectangleF(float(I.m_LoBnd.m_X+XOffSet), float((GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet)), float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
               0.0, Color(), Drawing2D::FillMode()  , false, false);
             break;
             }
@@ -417,6 +418,8 @@ void CNETServer::Startup(char* projectPath, char* configPath, bool ImportScd9)
 
   LogNote("CNETServer", 0, "Startup");
 
+  SS_Initialise();
+
   CNETServerThreadGlbl::gs_SrvrThread = gcnew CNETServerThread;//.Startup("");
   CNETServerThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
 
@@ -427,6 +430,8 @@ void CNETServer::Shutdown()
   {
   CNETServerThreadGlbl::gs_SrvrThread->Shutdown();
   delete CNETServerThreadGlbl::gs_SrvrThread;
+
+  SS_Terminate();
 
   LogNote("CNETServer", 0, "Shutdown");
   };

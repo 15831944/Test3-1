@@ -13,7 +13,7 @@
 
 //========================================================================
 //
-//
+// Common
 //
 //========================================================================
 
@@ -69,8 +69,79 @@ static CDocument* GetGrfDoc(int index, LPCTSTR name)
   }
 
 
-static bool AddUnitGrf(bool DoingExport, LPCSTR Tag, LPCTSTR Path, double X, double Y, double Z, LPCSTR Symbol, LPCSTR ClassId, double XScale, double YScale, double Rotation)
+//========================================================================
+//
+// Messaging
+//
+//========================================================================
+
+class CSSGrfGroup
   {
+  public:
+    CString       m_Guid;
+    CString       m_Name;
+    CString       m_Path;
+
+    CRectangleF   m_Bounds;
+  };
+
+class CSSGrfGroupMap : public CMap <LPCSTR, LPCSTR, CSSGrfGroup*, CSSGrfGroup*> {};
+
+CSSGrfGroupMap gs_GrfGrpsNames;
+CSSGrfGroupMap gs_GrfGrpsGuids;
+
+//========================================================================
+
+void SS_Initialise()
+  {
+  gs_GrfGrpsNames.InitHashTable(101);
+  gs_GrfGrpsGuids.InitHashTable(101);
+
+  };
+
+//========================================================================
+
+void SS_Terminate()
+  {
+  POSITION Pos=gs_GrfGrpsNames.GetStartPosition();
+  while (Pos)
+    {
+    LPCSTR Key;
+    CSSGrfGroup *pG;
+    gs_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
+    delete pG;
+    }
+
+  gs_GrfGrpsNames.RemoveAll();
+  gs_GrfGrpsGuids.RemoveAll();
+  };
+
+//========================================================================
+
+void SS_CreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
+                    const CRectangleF & boundingRect)
+  {
+
+
+  CSSGrfGroup * pG = new CSSGrfGroup;
+  pG->m_Guid=guid;
+  pG->m_Name=tag;
+  pG->m_Path=path;
+  pG->m_Bounds=boundingRect;
+
+  gs_GrfGrpsNames.SetAt(pG->m_Name, pG);
+  gs_GrfGrpsGuids.SetAt(pG->m_Guid, pG);
+
+  };
+
+//========================================================================
+
+void SS_CreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR Guid, LPCTSTR Tag, LPCTSTR Path, 
+                   LPCTSTR ClassId, LPCTSTR Symbol, const CRectangleF & boundingRect,
+                   double Angle, COLORREF FillColor, 
+                   bool MirrorX, bool MirrorY)
+  {
+
   try
     {
     bool Error = false;
@@ -84,6 +155,8 @@ static bool AddUnitGrf(bool DoingExport, LPCSTR Tag, LPCTSTR Path, double X, dou
         }
 
       }
+
+    CRectangleF PageRct(0.0, 420, 0, 297);
     CDocument* pDoc=NULL;
     if (!Error)
       {
@@ -105,7 +178,16 @@ static bool AddUnitGrf(bool DoingExport, LPCSTR Tag, LPCTSTR Path, double X, dou
 
       pDoc=GetGrfDoc(-1, Pg.GetLength()>0?Pg.GetBuffer():NULL);//m_sName);
       Error = (pDoc==NULL);
+      if (!Error)
+        {
+        CSSGrfGroup *pG;
+        if (gs_GrfGrpsNames.Lookup(Pg, pG))
+          {
+          PageRct = pG->m_Bounds;
+          }
+        }
       }
+
 
     if (!Error)
       {
@@ -121,13 +203,13 @@ static bool AddUnitGrf(bool DoingExport, LPCSTR Tag, LPCTSTR Path, double X, dou
 
       CB.ATag=Tag;
       CB.AClass=ClassId;//();
-      CB.Pt.World.X=X;
-      CB.Pt.World.Y=Y;
-      CB.Pt.World.Z=Z;
-      CB.NdScl.X=XScale;
-      CB.NdScl.Y=YScale;
-      CB.NdScl.Z=YScale;
-      CB.Rotate=(float)Rotation;
+      CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+      CB.Pt.World.Y=PageRct.Bottom()-boundingRect.MidY();  // this must be inverted
+      CB.Pt.World.Z=0;
+      CB.NdScl.X=MirrorX ? -1:1;//XScale;
+      CB.NdScl.Y=MirrorY ? -1:1;
+      CB.NdScl.Z=1;
+      CB.Rotate=(float)Angle;
       CB.ATagBase="XX_";//MInfo.TagInitialID();
       //if (Symbol && strchr(Symbol, ':'))
       CB.ASymbol=Symbol;
@@ -150,42 +232,19 @@ static bool AddUnitGrf(bool DoingExport, LPCSTR Tag, LPCTSTR Path, double X, dou
 
     if (Error)
       {
-      LogError(NETSERVERNAME, 0, "AddUnit '%s' failed!", Tag);
+      LogError(NETSERVERNAME, 0, "CreateUnit '%s' failed!", Tag);
       //return Scd.Return(eScdGraphicCode_GrfNotCreated, "AddUnit '%s' failed!", Tag);
       }
-    return !Error;
     }
   catch(...)
     {
-    LogError(NETSERVERNAME, 0, "Exception while Adding Unit '%s'", Tag);
+    LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", Tag);
     }
-  return false;  
   }
 
 //========================================================================
 //
-//
-//
-//========================================================================
-
-
-void SS_CreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
-                   LPCTSTR model, LPCTSTR shape, const CRectangleF & boundingRect,
-                   double angle, COLORREF fillColor, 
-                   bool mirrorX, bool mirrorY)
-  {
-  //296 = hgt of a3 sheat
-  if (!AddUnitGrf(DoingExport, tag, path, boundingRect.MidX(), 296.0-boundingRect.MidY(), 0.0, shape, model, mirrorX ? -1.0:1.0/*XScale*/, mirrorY ? -1.0:1.0/*YScale*/, angle))
-    {
-    }
-  
-
-  int xxx=0;
-  }
-
-//========================================================================
-//
-//
+// Export Stuff
 //
 //========================================================================
 
@@ -208,6 +267,16 @@ m_GrfTemplate(ScdApp()->GraphTemplate())
   }
 
 //------------------------------------------------------------------------
+  
+static struct CPageSizeInfo {LPCTSTR Nm; float Scl;} s_PgInfo[]=
+  {
+    {"A5", 0.5f},
+    {"A4", 0.7071f},
+    {"A3", 1.0f},
+    {"A2", 1.4142f},
+    {"A1", 2.0f},
+    {0}
+  };
 
 bool CGetExistingItems::GetOne()
   {
@@ -218,12 +287,50 @@ bool CGetExistingItems::GetOne()
     if (m_iInArray>=m_nInArray)
       {// Get Next Page
       if (!m_GrfDocPos)
-        return false; // no pore pages
+        return false; // no more pages
       
       bool DoAllInserts=true;
       m_pDoc=dynamic_cast<CGrfDoc*>(m_GrfTemplate.GetNextDoc(m_GrfDocPos));
       m_iPage++;
       m_sPage=m_pDoc->GetTitle();
+
+      double PageX = 0;
+      double PageY = 0;
+      double PageW = 420;
+      double PageH = 297;
+
+      if (m_pDoc->GCB.pDrw->GetBounds())
+        {
+        double DrwX = C3_MIN_X(&m_pDoc->GCB.pDrw->Bounds);
+        double DrwY = C3_MIN_Y(&m_pDoc->GCB.pDrw->Bounds);
+        double DrwW = C3_MAX_X(&m_pDoc->GCB.pDrw->Bounds) - DrwX;
+        double DrwH = C3_MAX_Y(&m_pDoc->GCB.pDrw->Bounds) - DrwY;
+        bool FoundPageSz=false;
+        for (int i=0; s_PgInfo[i].Nm; i++)
+          {
+          double Scl=s_PgInfo[i].Scl;
+          double PgW=s_PgInfo[i].Scl*420;
+          double PgH=s_PgInfo[i].Scl*297;
+          if (DrwW<=PgW*1.02 && DrwH<=PgH*1.02)
+            {
+            PageW=PgW;
+            PageH=PgH;
+            FoundPageSz=true;
+            break;
+            }
+          }
+        if (!FoundPageSz)
+          {
+          PageX += (PageW-DrwW)*0.5;
+          PageY += (PageH-DrwH)*0.5;
+          }
+        }
+      else
+        {
+        }
+      
+      m_PageRct.Set(PageX, PageY, PageW, PageH);
+
       m_nInArray = m_pDoc->GetTagListInfo(DoAllInserts, m_GTIA);
       m_iInArray=0;
       }
