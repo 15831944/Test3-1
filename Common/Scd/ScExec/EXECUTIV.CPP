@@ -107,8 +107,8 @@ static CStopWatch gs_TimeSW;  // The iteration Timer
 
 void XFlushAppMsgQ()
   {
-  Sleep(10);
-  ::WaitForInputIdle(GetCurrentProcess(), 200);
+  Sleep(0);
+  ::WaitForInputIdle(GetCurrentProcess(), 01);
   };
 void XDoAppIdle()
   {
