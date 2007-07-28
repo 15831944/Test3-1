@@ -11455,7 +11455,7 @@ DeleteIt:
     //gs_pTheSFELib->SetLoadAllModelStatus();
     //gs_pTheSFELib->SetLoadAllModelAssocGrfs();
 
-    XUpdateDisplays(true, false);
+    XUpdateDisplays(UDO_ForceUpd);
     SHOWPROGRESS(1, "GlobalLinksDone");
 
     #if (dbgFlwSolve)

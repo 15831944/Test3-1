@@ -392,6 +392,12 @@ struct DllImportExport CEOExecReturn
     }
   };
 
+const byte UDO_OnlyStatusLine = 0x01;
+const byte UDO_ForceUpd       = 0x02;
+const byte UDO_ColoursChgd    = 0x04;
+const byte UDO_FlushMsgQ      = 0x10;
+
+
 class DllImportExport CExecObj
   {
   friend class ObjTagIndex;
@@ -482,7 +488,7 @@ class DllImportExport CExecObj
     virtual flag   EO_Stop(CXM_TimeControl &CB)                          { return True;};
     virtual flag   EO_BeginPause(CXM_TimeControl &CB)                    { return True;};
     virtual flag   EO_EndPause(CXM_TimeControl &CB)                      { return True;};
-    virtual void   EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB) { };
+    virtual void   EO_DisplayUpdate(byte Options, const CXM_TimeControl &CB) { };
 
     virtual flag   EO_BeginSave(FilingControlBlock &FCB)                 { return False;};
     virtual flag   EO_SaveDefinedData(FilingControlBlock &FCB, Strng &Tag, CXMsgLst &XM) { return False;};
@@ -996,12 +1002,12 @@ class DllImportExport CExecutive : public ConditionBlk
 
     flag           StartThreads(byte ThrdFlag, UINT Cmd, word Extra=0);
     LONG           PostCmd(CExecObj *pSrcEO, word Cmd, LONG lParam=0, CExecObj *pEO=NULL, word Extra=0);
-    void           UpdateDisplays(flag OnlyStatusLine=false,  flag ForceUpd=false, flag ColoursChgd=false);
+    void           UpdateDisplays(byte Options=0);
     void           UpdateStateDisplay(DWORD StateOn, DWORD StateOff)
       {
       dwState|=StateOn;
       dwState&=~StateOff;
-      UpdateDisplays(true);
+      UpdateDisplays(UDO_OnlyStatusLine);
       }
     void           SetStopTimeEtc(bool ForceIt);
     void           UpdateState(UpdateOps Op, eScnState RqdManState, eScnState RqdScnState);
@@ -1486,7 +1492,7 @@ inline int  XDBFormat()           { return gs_Exec.DBFormat();     };
 
 inline CXStopWatches  & XSW(bool ForDisp=true) { return ForDisp ? gs_Exec.XSWDsp : gs_Exec.XSW; };
 
-inline void XUpdateDisplays(flag ForceUpd, flag ColoursChgd) { gs_Exec.UpdateDisplays(false, ForceUpd, ColoursChgd); };
+inline void XUpdateDisplays(byte Options=0) { gs_Exec.UpdateDisplays(Options); };
 //inline void XSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) { gs_Exec.SetModelState(RqdState, RqdTags); };
 
 //=========================================================================

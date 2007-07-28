@@ -143,6 +143,6 @@ void CAssocGrfTag::OnBnClickedApply()
   if (gs_pPrj->RequestModelAssocGrfsMasks(true, true, NULL, Msks))
     {
     gs_pTheSFELib->SetLoadAllModelAssocGrfs();
-    XUpdateDisplays(true, false);
+    XUpdateDisplays(UDO_ForceUpd);
     }
   }

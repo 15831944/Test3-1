@@ -1326,7 +1326,7 @@ flag AccNodeWnd::CloseAccessData(flag SaveIt, flag CancelIt, flag Disconnect)
     ObjRoute.Clear();//lNdEOId=-1;
 
   Invalidate();
-  XUpdateDisplays(false, false);
+  XUpdateDisplays();
 
   Pages=0; // NBNB This should be in a routine FxdEdtView::Clear();
 

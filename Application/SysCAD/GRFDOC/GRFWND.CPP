@@ -575,7 +575,7 @@ LRESULT CGrfWnd::OnDoDspUpdate(WPARAM wParam, LPARAM lParam)
 
 //---------------------------------------------------------------------------
 
-void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB)
+void CGrfWnd::EO_DisplayUpdate(byte Options, const CXM_TimeControl &CB)
   {
   //dbgpln("CGrfWnd::EO_DisplayUpdate");
 
@@ -598,7 +598,7 @@ void CGrfWnd::EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeCo
       PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
       }
 #else
-    PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
+    PostMessage(WMU_GRFWNDDSPUPDATE, (Options & UDO_ForceUpd)!=0, (Options & UDO_ColoursChgd)!=0);
 #endif
     }
   };

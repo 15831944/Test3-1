@@ -142,7 +142,7 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual flag   EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet);
     virtual flag   EO_Stop(CXM_TimeControl &CB);
     virtual flag   EO_Stopping(flag fBeginStopping);
-    virtual void   EO_DisplayUpdate(flag ForceUpd, flag ColoursChgd, const CXM_TimeControl &CB);
+    virtual void   EO_DisplayUpdate(byte Options, const CXM_TimeControl &CB);
     
    };
 

@@ -1396,7 +1396,7 @@ CColourPage::CColourPage() : CCustomPropertyPage(CColourPage::IDD)
 
 CColourPage::~CColourPage()
   {
-  XUpdateDisplays(true, true);
+  XUpdateDisplays(UDO_ForceUpd|UDO_ColoursChgd);
   }
 
 //--------------------------------------------------------------------------

@@ -1963,21 +1963,21 @@ void CExecutive::DoTimer()
 
 //---------------------------------------------------------------------------
 
-void CExecutive::UpdateDisplays(flag OnlyStatusLine,  flag ForceUpd, flag ColoursChgd)
+void CExecutive::UpdateDisplays(byte Options)
   {
   //dbgpln("CExecutive::UpdateDisplays");
   //return ;
   //this->m_dwLoopCount
 
   if (AfxGetMainWnd())
-    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, OnlyStatusLine?0x00000001:0x00000000, (long)&TimeCB());
-
-  XFlushAppMsgQ();
-  if (!OnlyStatusLine)
+    ScdMainWnd()->PostMessage(WMU_EXECUPDATEDISPLAY, (Options&UDO_OnlyStatusLine)?0x00000001:0x00000000, (long)&TimeCB());
+  if (Options & UDO_FlushMsgQ)
+    XFlushAppMsgQ();
+  if (!(Options&UDO_OnlyStatusLine))
     {
     for (int EInx=0; EInx<Objs_Reg.GetSize(); EInx++)
       if (Objs_Reg[EInx]->bExec & EODisplayUpdate)
-        Objs_Reg[EInx]->EO_DisplayUpdate(ForceUpd, ColoursChgd, TimeCB());
+        Objs_Reg[EInx]->EO_DisplayUpdate(Options, TimeCB());
     }
   }
 
@@ -2410,7 +2410,7 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
       //    break;
       //    }
 
-      UpdateDisplays();
+       UpdateDisplays();
 
       //ConfigureArchive();
 
@@ -2883,6 +2883,8 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           #endif
           }
         }
+
+      UpdateDisplays(UDO_OnlyStatusLine|UDO_FlushMsgQ);
 
       PostCmd(0, NextCmd);
 
@@ -4754,7 +4756,7 @@ void CExecutive::DoSetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
     a->EO_SetModelState(RqdState, RqdTags);
     a->UnlockXO();
     }
-  UpdateDisplays(true);
+  UpdateDisplays(UDO_OnlyStatusLine);
   }
 
 //---------------------------------------------------------------------------
