@@ -69,6 +69,8 @@ extern "C"
 #include "grldefs.h"
   }
 
+#include "netserveru.h"
+
 //#include "optoff.h"
 
 // Force search of Version.Lib for Version control Functions
@@ -2156,7 +2158,7 @@ CProject::CProject() : CProjectSettings(gs_HstMngr)
   m_bRemoveOld   = RemoveOldDefault;
 
 #if SYSCAD10
-  m_pCLRSrvr = NULL;
+  m_pSvc = NULL;
 #endif
   }
 
@@ -6585,11 +6587,11 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 #if SYSCAD10
     if (01)//pkh && OK)
       {
-      m_pCLRSrvr = new CNETServer;
-      m_pCLRSrvr->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
+      m_pSvc = new CSvcConnect;
+      m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
       }
     else
-      m_pCLRSrvr = NULL;
+      m_pSvc = NULL;
 #endif
 
     gs_ProjectOpenFlag++;
@@ -6627,15 +6629,21 @@ DoneFailed:
   return false;
   }
 
-  //---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #if SYSCAD10
+void CProject::SvcLoad()
+  {
+  m_pSvc->Load();
+  };
+void CProject::SvcSave()
+  {
+  m_pSvc->Save();
+  }
+
 void CProject::Export2Scd10()
   {
-  if (01)//pkh && OK)
-    {
-    m_pCLRSrvr->Export(PrjFiles(), CfgFiles());
-    }
+  m_pSvc->Export(PrjFiles(), CfgFiles());
   }
 #endif
 
@@ -7885,10 +7893,14 @@ flag CProject::DoClose(flag ForExit, flag AllowCancel/*=true*/)
     return false;
 
 #if SYSCAD10
-  if (m_pCLRSrvr)
+  if (m_pSvc)
     {
-    m_pCLRSrvr->Shutdown();
-    //PKH delete m_pCLRSrvr;
+    m_pSvc->Shutdown();
+    if (0)//PKH 
+      {
+      delete m_pSvc;
+      m_pSvc=NULL;
+      }
     }
 #endif
 

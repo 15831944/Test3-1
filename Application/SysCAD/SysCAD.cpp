@@ -2788,12 +2788,12 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 void CSysCADApp::DummyLoad()
   {
-    gs_pPrj->m_pCLRSrvr->Load();
+  gs_pPrj->SvcLoad();
   }
 
 void CSysCADApp::DummySave()
   {
-    gs_pPrj->m_pCLRSrvr->Save();
+  gs_pPrj->SvcSave();
   }
 #endif
 

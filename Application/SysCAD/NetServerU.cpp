@@ -2,8 +2,9 @@
 #include "grfdoc.h"
 #include "msgwnd.h"
 
-#include "NetServerU.h"
 #include "flwnode.h"
+#include "NetServerU.h"
+#include "NetServer.h"
 
 #define NETSERVERNAME "NetServer"
 
@@ -75,68 +76,97 @@ static CDocument* GetGrfDoc(int index, LPCTSTR name)
 //
 //========================================================================
 
-class CSSGrfGroup
+CSvcConnect::CSvcConnect()
   {
-  public:
-    CString       m_Guid;
-    CString       m_Name;
-    CString       m_Path;
-
-    CRectangleF   m_Bounds;
-  };
-
-class CSSGrfGroupMap : public CMap <LPCSTR, LPCSTR, CSSGrfGroup*, CSSGrfGroup*> {};
-
-CSSGrfGroupMap gs_GrfGrpsNames;
-CSSGrfGroupMap gs_GrfGrpsGuids;
-
-//========================================================================
-
-void SS_Initialise()
+  }
+CSvcConnect::~CSvcConnect()
   {
-  gs_GrfGrpsNames.InitHashTable(101);
-  gs_GrfGrpsGuids.InitHashTable(101);
+  }
+
+void CSvcConnect::Startup(char* projectPath, char* configPath, bool ImportScd9)
+  {
+  m_GrfGrpsNames.InitHashTable(101);
+  m_GrfGrpsGuids.InitHashTable(101);
+
+  m_pCLR = new CSvcConnectCLR;
+  m_pCLR->Startup(this, projectPath, configPath, ImportScd9);
 
   };
 
-//========================================================================
-
-void SS_Terminate()
+void CSvcConnect::Shutdown()
   {
-  POSITION Pos=gs_GrfGrpsNames.GetStartPosition();
+  m_pCLR->Shutdown();
+  delete m_pCLR;
+
+  POSITION Pos=m_GrfGrpsNames.GetStartPosition();
   while (Pos)
     {
     LPCSTR Key;
-    CSSGrfGroup *pG;
-    gs_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
+    CsGrfGroup *pG;
+    m_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
     delete pG;
     }
 
-  gs_GrfGrpsNames.RemoveAll();
-  gs_GrfGrpsGuids.RemoveAll();
+  m_GrfGrpsNames.RemoveAll();
+  m_GrfGrpsGuids.RemoveAll();
   };
+
+
+void CSvcConnect::Export(char* projectPath, char* configPath)
+  {
+  m_pCLR->Export(projectPath, configPath);
+  };
+void CSvcConnect::Load()
+  {
+  m_pCLR->Load();
+  };
+void CSvcConnect::Save()
+  {
+  m_pCLR->Save();
+  };
+
+//void CSvcConnect::Initialise()
+//  {
+//  m_GrfGrpsNames.InitHashTable(101);
+//  m_GrfGrpsGuids.InitHashTable(101);
+//
+//  };
 
 //========================================================================
 
-void SS_CreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
+//void CSvcConnect::Terminate()
+//  {
+//  POSITION Pos=m_GrfGrpsNames.GetStartPosition();
+//  while (Pos)
+//    {
+//    LPCSTR Key;
+//    CsGrfGroup *pG;
+//    m_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
+//    delete pG;
+//    }
+//
+//  m_GrfGrpsNames.RemoveAll();
+//  m_GrfGrpsGuids.RemoveAll();
+//  };
+
+//========================================================================
+
+void CSvcConnect::OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
                     const CRectangleF & boundingRect)
   {
-
-
-  CSSGrfGroup * pG = new CSSGrfGroup;
+  CsGrfGroup * pG = new CsGrfGroup;
   pG->m_Guid=guid;
   pG->m_Name=tag;
   pG->m_Path=path;
   pG->m_Bounds=boundingRect;
 
-  gs_GrfGrpsNames.SetAt(pG->m_Name, pG);
-  gs_GrfGrpsGuids.SetAt(pG->m_Guid, pG);
-
+  m_GrfGrpsNames.SetAt(pG->m_Name, pG);
+  m_GrfGrpsGuids.SetAt(pG->m_Guid, pG);
   };
 
 //========================================================================
 
-void SS_CreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR Guid, LPCTSTR Tag, LPCTSTR Path, 
+void CSvcConnect::OnCreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR Guid, LPCTSTR Tag, LPCTSTR Path, 
                    LPCTSTR ClassId, LPCTSTR Symbol, const CRectangleF & boundingRect,
                    double Angle, COLORREF FillColor, 
                    bool MirrorX, bool MirrorY)
@@ -180,8 +210,8 @@ void SS_CreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR
       Error = (pDoc==NULL);
       if (!Error)
         {
-        CSSGrfGroup *pG;
-        if (gs_GrfGrpsNames.Lookup(Pg, pG))
+        CsGrfGroup *pG;
+        if (m_GrfGrpsNames.Lookup(Pg, pG))
           {
           PageRct = pG->m_Bounds;
           }
@@ -241,6 +271,23 @@ void SS_CreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR
     LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", Tag);
     }
   }
+
+
+void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCTSTR guid)
+  {
+  };
+
+void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
+                   LPCTSTR model, LPCTSTR shape, const CRectangleF & boundingRect, 
+                   double angle, COLORREF Colour, 
+                   bool mirrorX, bool mirrorY)
+  {
+  };
+
+void CSvcConnect::DoCreateItem(DXF_ENTITY eEntity, CGrfDoc *pDoc)
+  {
+  };
+
 
 //========================================================================
 //

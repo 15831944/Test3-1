@@ -24,7 +24,7 @@
 #include "accnode.h"
 #endif
 
-#include "NETServer.h"
+//#include "NETServeru.h"
 #include "hstmain.h"
 
 //#include ".\opcsrvrwrapper.h"
@@ -367,7 +367,8 @@ const int WB_Together       = WB_MoveTogether|WB_SizeTogether;
 const int WB_Coincident     = 0x04;
 
 class CProject; // forward 
-//_FWDDEF(CProject)
+class CSvcConnect;  // forward 
+
 class DllImportExport CProjectSettings
   {
   public:
@@ -558,7 +559,6 @@ const dword FTO_FindNext           = 0x00000020;
 const dword FTO_SkipNoGraphicsErr  = 0x00000040;
 const dword FTO_DoAccessNoUpd      = 0x00000080;
 
-//_FWDDEF(CProject)
 class DllImportExport CProject : public CExecObj, public CProjectSettings
   {
   public:
@@ -837,9 +837,12 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     SFEMdlLibArray MdlLibs;
 
 #if SYSCAD10
+    void           SvcLoad();
+    void           SvcSave();
     void           Export2Scd10();
 
-    CNETServer   * m_pCLRSrvr;
+    CSvcConnect  * m_pSvc;
+    //CNetServer   * m_pCLRSrvr;
 #endif
   };
 

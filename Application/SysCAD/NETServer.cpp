@@ -82,23 +82,24 @@ CString ToCString(String ^ str)
 //
 //========================================================================
 
-ref class CNETServerThread
+ref class CSvcConnectCLRThread
   {
   public:
     //EngineProtocol ^ engineProtocol;
 
-    CNETServerThread()
+    CSvcConnectCLRThread(CSvcConnect * pConn)
       {
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
+      m_pConn = pConn;
       m_DoingExport=false;  
       };
-    ~CNETServerThread()
+    ~CSvcConnectCLRThread()
       {
       };
 
     void Startup(String^ projectPath, String^ configPath, bool ImportScd9)
       {
-      LogNote("CNETServerThread", 0, "Startup");
+      LogNote("CSvcConnectCLRThread", 0, "Startup");
 
       BinaryServerFormatterSinkProvider^ serverProv = gcnew BinaryServerFormatterSinkProvider();
       serverProv->TypeFilterLevel = System::Runtime::Serialization::Formatters::TypeFilterLevel::Full;
@@ -179,8 +180,8 @@ ref class CNETServerThread
           This is where import goes
           */
 
-          engineProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CNETServerThread::GroupCreated);
-          engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CNETServerThread::ItemCreated);
+          engineProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
+          engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
 
           ////////////////////////////////
           ////////////////////////////////
@@ -203,7 +204,7 @@ ref class CNETServerThread
             // item->Angle
             // item->X
 
-            SS_CreateItem(m_DoingExport, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+            m_pConn->OnCreateItem(m_DoingExport, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
               ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
               CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
               item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
@@ -219,6 +220,8 @@ ref class CNETServerThread
           for each (GraphicThing ^ thing in engineProtocol->graphicThings->Values)
             {
             }
+
+
 
           // GraphicItems is a dictionary of all the items.  The key is the guid, and the value is the item itself.
           // The dictionary class contains all the usual functions for extracting particular elements based on key, etc.
@@ -247,65 +250,90 @@ ref class CNETServerThread
 
     void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
       {
-      SS_CreateGroup(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+      m_pConn->OnCreateGroup(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top));
       }
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
-      SS_CreateItem(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+      m_pConn->OnCreateItem(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top), 
         angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
 
-    void LinkCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
+    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
       {
       }
 
-    void ThingCreated(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
+    void ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       }
 
-    void ItemDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
+      {
+      m_pConn->OnDeleteItem(eventId, requestId, ToCString(guid.ToString()));
+      }
+
+    void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
       {
       }
 
-    void LinkDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    void ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
       {
       }
 
-    void ThingDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+      {
+      m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+        ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
+        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top), 
+        angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
+        mirrorX, mirrorY);
+      }
+
+    void ItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String^ path)
       {
       }
 
-    void ItemModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
       {
       }
 
-    void ItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String^ path)
+    void ThingModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
       }
 
-    void LinkModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
+    void ThingPathModified(Int64 eventId, Int64 requestId, Guid guid, String^ path)
       {
       }
 
-    void ThingModified(Int64 eventId, Int64 requestID, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
-      {
-      }
 
-    void ThingPathModified(Int64 eventId, Int64 requestID, Guid guid, String^ path)
-      {
-      }
 
+      //{
+
+      //Int64 requestId;
+      //Guid guid;
+      //String ^ tag;
+      //String ^ path;
+      //String ^ model;
+      //String ^ shape;
+      //RectangleF boundingRect;
+      //Single angle;
+      //System::Drawing::Color fillColor;
+      //System::Drawing::Drawing2D::FillMode fillMode;
+      //bool mirrorX;
+      //bool mirrorY;
+
+      //engineProtocol->ModifyItem(requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      //}
 
     void Shutdown()
       {
       delete config;//
 
-      LogNote("CNETServerThread", 0, "Shutdown");
+      LogNote("CSvcConnectCLRThread", 0, "Shutdown");
       };
 
     void Load(String^ filename)
@@ -387,14 +415,16 @@ ref class CNETServerThread
   protected:
     SysCAD::Protocol::Config ^ config;
     SysCAD::Protocol::EngineProtocol ^ engineProtocol;
-    bool m_DoingExport;
+    
+    CSvcConnect   * m_pConn;
+    bool            m_DoingExport;
   };
 
 
-ref class CNETServerThreadGlbl
+ref class CSvcConnectCLRThreadGlbl
   {
   public:
-    static CNETServerThread ^ gs_SrvrThread;// = gcnew CNETServerThread;
+    static CSvcConnectCLRThread ^ gs_SrvrThread;// = gcnew CSvcConnectCLRThread;
   };
 
 //========================================================================
@@ -403,63 +433,66 @@ ref class CNETServerThreadGlbl
 //
 //========================================================================
 
-CNETServer::CNETServer(void)
+CSvcConnectCLR::CSvcConnectCLR(void)
   {
   }
 
-CNETServer::~CNETServer(void)
+CSvcConnectCLR::~CSvcConnectCLR(void)
   {
   }
 
-void CNETServer::Startup(char* projectPath, char* configPath, bool ImportScd9)
+void CSvcConnectCLR::Startup(CSvcConnect * pConn, char* projectPath, char* configPath, bool ImportScd9)
   {
   String^ projectPathString = gcnew String(projectPath);
   String^ configPathString = gcnew String(configPath);
 
-  LogNote("CNETServer", 0, "Startup");
+  LogNote("CSvcConnectCLR", 0, "Startup");
 
-  SS_Initialise();
+  m_pConn =  pConn;
+  //m_pSrvr->Initialise();
+  
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
 
-  CNETServerThreadGlbl::gs_SrvrThread = gcnew CNETServerThread;//.Startup("");
-  CNETServerThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
 
   //System::Threading::S
   };
 
-void CNETServer::Shutdown()
+void CSvcConnectCLR::Shutdown()
   {
-  CNETServerThreadGlbl::gs_SrvrThread->Shutdown();
-  delete CNETServerThreadGlbl::gs_SrvrThread;
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Shutdown();
+  delete CSvcConnectCLRThreadGlbl::gs_SrvrThread;
 
-  SS_Terminate();
+  //m_pSrvr->Terminate();
+  m_pConn = NULL;
 
-  LogNote("CNETServer", 0, "Shutdown");
+  LogNote("CSvcConnectCLR", 0, "Shutdown");
   };
 
-void CNETServer::Export(char* projectPath, char* configPath)
+void CSvcConnectCLR::Export(char* projectPath, char* configPath)
   {
   String^ projectPathString = gcnew String(projectPath);
   String^ configPathString = gcnew String(configPath);
 
-  LogNote("CNETServer", 0, "Import");
+  LogNote("CSvcConnectCLR", 0, "Import");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Export(projectPathString);   
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Export(projectPathString);   
 
   //System::Threading::S
   };
 
-void CNETServer::Load()
+void CSvcConnectCLR::Load()
   {
-  LogNote("CNETServer", 0, "Load");
+  LogNote("CSvcConnectCLR", 0, "Load");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Load("");
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Load("");
   };
 
-void CNETServer::Save()
+void CSvcConnectCLR::Save()
   {
-  LogNote("CNETServer", 0, "Save");
+  LogNote("CSvcConnectCLR", 0, "Save");
 
-  CNETServerThreadGlbl::gs_SrvrThread->Save("");
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Save("");
   };
 
 
