@@ -59,6 +59,7 @@ CDlgWhat_ConCLnk,
 CDlgWhat_ConELnk, 
 CDlgWhat_ConALnk, 
 CDlgWhat_ChgUnit, 
+CDlgWhat_InsSymb, 
 CDlgWhat_Last
   };
 

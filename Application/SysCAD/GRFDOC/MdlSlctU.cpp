@@ -267,6 +267,7 @@ void CInsertUnitDlg::SetPFSection()
     case CDlgWhat_ConALnk: m_sSection+="ConALnk"; break;
     case CDlgWhat_ConLink: m_sSection+="ConLink"; break;
     case CDlgWhat_ChgUnit: m_sSection+="ChgUnit"; break;
+    case CDlgWhat_InsSymb: m_sSection+="InsSymb"; break;
     default:               m_sSection+="?" ; break;
     };
   };
@@ -300,6 +301,7 @@ LPTSTR CInsertUnitDlg::GetGroup()
     case CDlgWhat_ConALnk: return AirLinkGrp;
     case CDlgWhat_ConLink: return FlwLinkGrp;
     case CDlgWhat_ChgUnit: return FlwUnitGrp;
+    case CDlgWhat_InsSymb: return FlwUnitGrp;
     default:               return NULL;
     };
   };
@@ -310,7 +312,8 @@ bool CInsertUnitDlg::IsUnit()
     {
     case CDlgWhat_InsUnit: 
     case CDlgWhat_ConUnit: 
-    case CDlgWhat_ChgUnit: return true;
+    case CDlgWhat_ChgUnit: 
+    case CDlgWhat_InsSymb: return true;
     case CDlgWhat_ConCLnk: 
     case CDlgWhat_ConELnk: 
     case CDlgWhat_ConALnk: 
@@ -324,7 +327,8 @@ bool CInsertUnitDlg::IsConstruct()
   switch (m_What)
     {
     case CDlgWhat_InsUnit: 
-    case CDlgWhat_ChgUnit: return false;
+    case CDlgWhat_ChgUnit:
+    case CDlgWhat_InsSymb: return false;
     case CDlgWhat_ConUnit: 
     case CDlgWhat_ConCLnk: 
     case CDlgWhat_ConELnk: 
@@ -382,9 +386,9 @@ BOOL CInsertUnitDlg::OnInitDialog()
     GetDlgItem(IDB_IWIN)->ShowWindow(SW_HIDE);
     GetDlgItem(IDB_CWIN)->ShowWindow(SW_HIDE);
     }
-  else if (m_What==CDlgWhat_ChgUnit)
+  else if (m_What==CDlgWhat_ChgUnit || m_What==CDlgWhat_InsSymb)
     {
-    SetWindowText("Change Symbol"); // "Unit");
+    SetWindowText(m_What==CDlgWhat_ChgUnit ? "Change Symbol" : "Insert Symbol");
     GetDlgItem(IDC_MDLSYMBOL)->ShowWindow(SW_SHOW);
     GetDlgItem(IDB_IWIN)->ShowWindow(SW_HIDE);
     GetDlgItem(IDB_CWIN)->ShowWindow(SW_HIDE);
@@ -637,7 +641,7 @@ void CInsertUnitDlg::OnPaint()
       m_pDsp->Close();
       Done=true;
       }
-    else if (m_What==CDlgWhat_InsUnit || m_What==CDlgWhat_ChgUnit)
+    else if (m_What==CDlgWhat_InsUnit || m_What==CDlgWhat_ChgUnit || m_What==CDlgWhat_InsSymb)
       {
       CPaintDC dc(&m_SymbolFrame); // device context for painting
       CDCResChk ResChk(dc);
@@ -1591,8 +1595,8 @@ bool CInsertUnitDlg::LoadSelectedSymbol()
       {
       case CDlgWhat_InsUnit:
       case CDlgWhat_ChgUnit:
+      case CDlgWhat_InsSymb:
         {
-        
         m_DefLoaded=false;
         m_BMPLoaded=false;
         m_DXFLoaded=false;
