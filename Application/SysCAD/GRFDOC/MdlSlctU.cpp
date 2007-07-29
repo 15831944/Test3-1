@@ -684,12 +684,13 @@ void CInsertUnitDlg::OnCancel()
 
 void CInsertUnitDlg::OnMdldoc() 
   {
-  HTREEITEM hItem=m_MdlTree.GetSelectedItem();
-  if (hItem)
+  if (m_pMdl && gs_pPrj)
     {
-    CString S=m_MdlTree.GetItemText(hItem);
-    if (m_pMdl && gs_pPrj)
-      gs_pPrj->ModelHelp((LPSTR)(LPCTSTR)S);
+    CString S = GetSelMdlName();
+    TagObjClass* pC=TagObjClass::FindClassId((LPSTR)(LPCTSTR)S);
+    if (pC)
+      S = pC->ClassIdNoVersion();
+    gs_pPrj->ModelHelp((LPSTR)(LPCTSTR)S);
     }
   }
 
