@@ -83,6 +83,7 @@ static IOAreaRec CentrifugeMBIOAreaList[] =
 
 static double Drw_CentrifugeMB[] = { DD_Poly, -10,-5, 0,-5, 10,-2, 10,2, 0,5, -10,5, -10,-5,
                             DD_Poly, 0,-5, 0,5,
+                            DD_TagPos, 0,-8.5,
                             DD_End }; 
 
 
@@ -142,6 +143,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double  ("Rqd_Solids_To_Filtrate",  "RqdSolToFilt",    DC_Frac, "%",      &RqdSolidsToFiltrate,this, isParm);//SolidLoss
   DDB.Double  ("Rqd_Cake_Moisture",       "RqdCakeMoist",    DC_Frac, "%",      &RqdCakeMoist,       this, isParm);
   DDB.Double  ("Rqd_Wash_Efficiency",     "RqdWashEff",      DC_Frac, "%",      &WashEff,            this, isParm);
+  DDB.Text    ("");
   DDB.Text    ("Results");
   //DDB.Double  ("Wash_Efficiency",         "WashEff",         DC_Frac, "%",      &ActWashEff,         this, isResult);//|noFile|noSnap);
   DDB.Double  ("Cake_Moisture",           "CakeMoist",       DC_Frac, "%",      &ActCakeLiq,         this, isResult);//|noFile|noSnap);
@@ -156,8 +158,8 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Double  ("",                        "CompWashEff1",    DC_Frac, "%",      &dSpWashEff,         this, isResult);//|noFile|noSnap);
   DDB.Double  ("",                        "CompWashEff2",    DC_Frac, "%",      &dSpWashEff2,        this, isResult);//|noFile|noSnap);
 
-  DDB.Visibility(NM_Dynamic|SM_All|HM_All);
-  DDB.Bool    ("",           "CakeDisch?",    DC_     , "",      &Disch,         this, isParm, DDBYesNo);
+  //DDB.Visibility(NM_Dynamic|SM_All|HM_All);
+  //DDB.Bool    ("",           "CakeDisch?",    DC_     , "",      &Disch,         this, isParm, DDBYesNo);
   DDB.Visibility();
 
   DDB.Text    (" ");

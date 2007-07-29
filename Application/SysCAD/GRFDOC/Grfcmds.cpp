@@ -10969,28 +10969,30 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 
   if (DoIt)
     {
+    bool TagHidden = (ASet.Flags & DXF_ATTRIB_INVIS) != 0;
     Attr_Settings TagAttSet(ASet);
     double Xto = 0.0;
     double Yto = 0.0;
     if (TagPt && Valid(TagPt->X))
-      {
+      {//tag position set explicitly
       Xto=TagPt->X;
       Yto=TagPt->Y;
       }
     else 
       {
-      //Attr_Settings Set;
       Pt_3f Pos;
       if (b->Find_Attdef_Settings(TagAttribStr, TagAttSet, Pos))
-        {
-
-      //DXF_ENTITY eTg=b->Find_Attrib_Defn(TagAttribStr);
-      //if (eTg && DXF_ENTITY_IS_ATTDEF(eTg))
-      //  {
+        {//get tag position from attrib definition
+        Xto=Pos.X;
+        Yto=Pos.Y;
+        }
+      else if (b->Find_TextToAttrib(TagAttribStr, Pos))
+        {//get tag position from text
         Xto=Pos.X;
         Yto=Pos.Y;
         }
       }
+    TagAttSet.Flags=TagHidden ? DXF_ATTRIB_INVIS : 0;
     Pt_3f Ptt(Xto * Scl.X, Yto * Scl.Y, 0.);
 
     #if dbgdrw

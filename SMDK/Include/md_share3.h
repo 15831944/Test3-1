@@ -348,8 +348,8 @@ class MSubConstructBaseDef
 const long MDrw_Poly      = 0x80000001; //poly-line: list of x,y co-ordinates
 const long MDrw_Arc       = 0x80000002; //circle: x,y centre co-ordinates and radius
 const long MDrw_Arc3      = 0x80000003; //curve: set of 3 x,y co-ordinates
-const long MDrw_TagPos    = 0x80000004; //tag position: a set of x,y co-ordinates & -1,0,1 = L,C,R justified   & Visible !=0
-const long MDrw_ValuesPos = 0x80000005; //value position: a set of x,y co-ordinates & -1,0,1 = L,C,R justified & Visible !=0
+const long MDrw_TagPos    = 0x80000004; //tag position: a set of x,y co-ordinates
+const long MDrw_ValuePos  = 0x80000005; //value position: a set of x,y co-ordinates
 const long MDrw_End       = 0x80000006; //end: end of graphics symbol definition
 
 /*A drawing symbol is defined arround the origin 0,0.
@@ -358,6 +358,7 @@ long Drw_SimpleHeater[] = { MDrw_Arc, 0,0, 5,
 MDrw_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0,
 MDrw_Poly, -5,1, -6,1, -6,0, -5,0, -5,1,
 MDrw_Poly, 5,-1, 6,-1, 6,0, 5,0, 5,-1,
+MDrw_TagPos, 0,-3,
 MDrw_End };
 long Drw_FlashTank[] = { MDrw_Poly, -5,10, -5,-5, 0,-10, 5,-5, 5,10,
 MDrw_Poly, -5,-2, 5,-2,

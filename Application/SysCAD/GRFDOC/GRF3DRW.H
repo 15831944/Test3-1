@@ -595,9 +595,11 @@ class LayerCollection
     //DXF_ENTITY       Create_Insert(pchar Typ, PT3 Pt ,int Color);
 
     DXF_ENTITY       Add_Text(pchar Txt, PT3 Pt, Text_Settings &Set);
+    DXF_ENTITY       Find_Text(pchar Txt);
     DXF_ENTITY       Add_Attrib_Defn(pchar Tag, pchar Prompt, pchar Value,
                                      PT3 Pt, Attr_Settings &Set);
     DXF_ENTITY       Find_Attrib_Defn(pchar Tag);
+
 
     CEntInView*      IsEntitySelected(Viewport * v, DXF_ENTITY pEnt);
     CEntInView*      IsCurveSelected(Viewport * v, C3_CURVE c);
@@ -644,12 +646,13 @@ class LayerCollection
 class Block : public LayerCollection
   {
   public:
-    Block(pDXF_Drawing DrawingIn);
+    Block(DXF_Drawing* DrawingIn);
     ~Block();
-    void             Get(DXF_FILE file, int What,int test_mode);
+    void             Get(DXF_FILE file, int What, int test_mode);
     void             Put(DXF_FILE file);
-    void             CountBlocksUsed(pDXF_Drawing pDrawing, CWordArray& BlkCnt);
+    void             CountBlocksUsed(DXF_Drawing* pDrawing, CWordArray& BlkCnt);
     flag             Find_Attdef_Settings(pchar Tag,Attr_Settings &Set,Pt_3f &pt);
+    flag             Find_TextToAttrib(pchar Txt, Pt_3f &Pos);
     //void             SetDiscColor(DML_LIST dlay = NULL,int on= NULL);
 
   public:

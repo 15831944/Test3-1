@@ -3123,6 +3123,32 @@ DXF_ENTITY LayerCollection::Add_Text(pchar Txt, PT3 Pt, Text_Settings &Set)
 
 //----------------------------------------------------------------------------
 
+DXF_ENTITY LayerCollection::Find_Text(pchar Txt)
+  {
+  const int len = strlen(Txt);
+  CGrfLayer * l;
+  WALK_LAYERS(Layers, NULL, l)
+    {
+    Entity_List_Info Info;
+    DXF_ENTITY t = First_Ent(l->OtherLst, Info);
+    while (t)
+      {
+      if (DXF_ENTITY_IS_TEXT(t))
+        {
+        if (DXF_TEXT_VALUE_GET(t) && strlen(DXF_TEXT_VALUE_GET(t))==len)
+          {
+          if (stricmp((pchar)DXF_TEXT_VALUE_GET(t), Txt)==0)
+            return t;
+          }
+        }
+      t = Next_Ent(Info);
+      }
+    }
+  return NULL;
+  }
+
+//----------------------------------------------------------------------------
+
 DXF_ENTITY LayerCollection::Add_Attrib_Defn(pchar Tag, pchar Prompt, pchar Value,
                                             PT3 Pt, Attr_Settings &Set)
   {
@@ -3976,6 +4002,49 @@ void Block::CountBlocksUsed(pDXF_Drawing pDrawing, CWordArray& BlkCnt)
             }
           }
     }
+  }
+
+//---------------------------------------------------------------------------
+
+flag Block::Find_Attdef_Settings(pchar Tag, Attr_Settings &Set, Pt_3f &Pos)
+  {
+  DXF_ENTITY ad = Find_Attrib_Defn(Tag);
+  if (ad)
+    {
+    Pos.Set(DXF_ATTDEF_PT(ad)[0],
+      DXF_ATTDEF_PT(ad)[1],
+      DXF_ATTDEF_PT(ad)[2]);
+    Set = Attr_Settings (
+      50,                              // Length ?
+      DXF_ATTDEF_GFLAGS(ad),           // Flags
+      DXF_ATTDEF_HEIGHT(ad),           // Size
+      DXF_ATTDEF_X_SCALE(ad),          // Scale
+      DXF_ATTDEF_ROT_ANG(ad),          // Rot
+      DXF_ENTITY_COLOR(ad),            // Color
+      Text_Cntrd,                      // Hjust
+      Text_Middle,                     // Vjsut
+      DXF_ATTDEF_STYLE_GET(ad)             // Style
+      );
+
+    return 1;
+    }
+  return 0;
+  }
+
+//---------------------------------------------------------------------------
+
+flag Block::Find_TextToAttrib(pchar Txt, Pt_3f &Pos)
+  {
+  DXF_ENTITY ad = LayerCollection::Find_Text(Txt);
+  if (ad)
+    {
+    Pos.Set(DXF_ATTDEF_PT(ad)[0], DXF_ATTDEF_PT(ad)[1], DXF_ATTDEF_PT(ad)[2]);
+    Delete(ad);
+    Attr_Settings TSet(50, 0, 3.0, 1.0, 0.0, GR_DARKGRAY, Text_Cntrd, Text_Baseline, "STANDARD");
+    Add_Attrib_Defn(Txt, "", "tag", Pos.p(), TSet);
+    return 1;
+    }
+  return 0;
   }
 
 //============================================================================
@@ -6597,10 +6666,6 @@ flag Reset_Attr(DXF_ENTITY Insert, pchar Tag,pchar NewVal)
   return False;
   }
 
-
-
-
-
 pchar Find_Attr_Value(DXF_ENTITY Insert, pchar Tag)
   {
   DXF_ENTITY Att = Find_Attr(Insert,Tag);
@@ -6632,7 +6697,8 @@ int Find_Attr_GFlags(DXF_ENTITY Insert, pchar Tag)
   }
 
 //----------------------------------------------------------------------------
-flag DXF_Drawing::FindCOGfromSelection(pViewport vp, Pt_3f &cg,Pt_3f &boxll,Pt_3f &boxur)
+
+flag DXF_Drawing::FindCOGfromSelection(pViewport vp, Pt_3f &cg, Pt_3f &boxll, Pt_3f &boxur)
   {
   C3_BOX box;
   REAL *pos;
@@ -6768,37 +6834,10 @@ pBlock DXF_Drawing::Add_Block(pchar BlockName, REAL *basept)
 
 //---------------------------------------------------------------------------
 
-flag Block::Find_Attdef_Settings(pchar Tag, Attr_Settings &Set, Pt_3f &Pos)
-  {
-  DXF_ENTITY ad = Find_Attrib_Defn(Tag);
-  if (ad)
-    {
-    Pos.Set(DXF_ATTDEF_PT(ad)[0],
-      DXF_ATTDEF_PT(ad)[1],
-      DXF_ATTDEF_PT(ad)[2]);
-    Set = Attr_Settings (
-      50,                              // Length ?
-      DXF_ATTDEF_GFLAGS(ad),           // Flags
-      DXF_ATTDEF_HEIGHT(ad),           // Size
-      DXF_ATTDEF_X_SCALE(ad),          // Scale
-      DXF_ATTDEF_ROT_ANG(ad),          // Rot
-      DXF_ENTITY_COLOR(ad),            // Color
-      Text_Cntrd,                      // Hjust
-      Text_Middle,                     // Vjsut
-      DXF_ATTDEF_STYLE_GET(ad)             // Style
-      );
-
-    return 1;
-    }
-  return 0;
-  }
-
-
 DXF_ENTITY DXF_Drawing::Add_Attr(DXF_ENTITY Insert, pchar Tag, pchar Prompt, pchar Value,
                                  Pt_3f Pt, Attr_Settings &Set)
   {
   pBlock b = Blocks.Find(DXF_INSERT_BLOCK_GET(Insert));
-
   if (b)
     {
     DXF_ENTITY ad = b->Find_Attrib_Defn(Tag);
@@ -9218,17 +9257,17 @@ long DXF_Drawing::AddNodeGrfInfo(pNodeGrfInfo pNGI)
         if (pNGI->GetCoOrd(X,Y))
           {
           DORANGE(X,Y);
-          int iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
           //dbgpln("TagPos %li  %li", X, Y);
           }
         break;
-      case DD_ValuesPos:
+      case DD_ValuePos:
         if (pNGI->GetCoOrd(X,Y))
           {
           DORANGE(X,Y);
-          int iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
           //dbgpln("ValuesPos %li  %li", X, Y);
           }
         break;
@@ -9474,59 +9513,33 @@ long DXF_Drawing::AddNodeGrfInfo(pNodeGrfInfo pNGI)
       case DD_TagPos:
         {
         double X,Y;
-        int iJust;
-        if (pNGI->GetCoOrd(X,Y))
+        if (pNGI->GetCoOrd(X,Y) && b)
           {
-          iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
-          if (b)
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
+          Pt_3f pt;
+          LOADPT(pt, X, Y);
+          /*if (iJust<0) // left
             {
-            Pt_3f pt;
-            LOADPT(pt, X, Y);
-
-            if (iJust<0) // left
-              {
-              }
-            else if (iJust>0) // right
-              {
-              }
-            else
-              {
-              }
-
-            Attr_Settings TSet(50, 0, 3.0, 1.0, 0.0, GR_DARKGRAY, Text_Cntrd, Text_Baseline, "STANDARD");
-
-            //Attr_Settings TSet(50,
-            //                   Ti.flags | Ti.on ? 0 : DXF_ATTRIB_INVIS,
-            //                   Ti.height,
-            //                   Ti.wfactor,
-            //                   Rads2Degs(Ti.angle),
-            //                   GR_DARKGRAY,
-            //                   Text_Left,Text_Baseline,
-            //                   Ti.style);
-            b->Add_Attrib_Defn(TagAttribStr,"", "tag", pt.p(), TSet); 
             }
+          else if (iJust>0) // right
+            {
+            }
+          else
+            {
+            }*/
+          Attr_Settings TSet(50, 0, 3.0, 1.0, 0.0, GR_DARKGRAY, Text_Cntrd, Text_Baseline, "STANDARD");
+          b->Add_Attrib_Defn(TagAttribStr,"", "tag", pt.p(), TSet);
           }
         break;
         }
-      case DD_ValuesPos:
+      case DD_ValuePos:
         {
         double X,Y;
-        int iJust;
         if (pNGI->GetCoOrd(X,Y) && b)
           {
-          iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
-          //if (pNGI->GetCoOrd(Xe,Ye))
-            //  if (b)
-            //    {
-            //    Pt_3f pts, ptm, pte;
-            //    LOADPT(pts, Xs, Ys);
-            //    LOADPT(ptm, Xm, Ym);
-            //    LOADPT(pte, Xe, Ye);
-            //    b->SetCurrentLayer(Drawing_Layer);
-            //    C3=b->Add_Arc(pts.p(), ptm.p(), pte.p());
-            //    }
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
           }
         break;
         }
@@ -9611,18 +9624,18 @@ flag DXF_Drawing::GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs,
         double X,Y;
         if (pNGI->GetCoOrd(X,Y))
           {
-          int iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
           }
         break;
         }
-      case DD_ValuesPos:
+      case DD_ValuePos:
         {
         double X,Y;
         if (pNGI->GetCoOrd(X,Y))
           {
-          int iJust=pNGI->GetLVal();
-          int iVisible=pNGI->GetLVal();
+          //int iJust=pNGI->GetLVal();
+          //int iVisible=pNGI->GetLVal();
           }
         break;
         }
