@@ -842,7 +842,6 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           Export2Scd10();
 
     CSvcConnect  * m_pSvc;
-    //CNetServer   * m_pCLRSrvr;
 #endif
   };
 

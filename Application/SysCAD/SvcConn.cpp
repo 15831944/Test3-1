@@ -3,10 +3,10 @@
 #include "msgwnd.h"
 
 #include "flwnode.h"
-#include "NetServerU.h"
-#include "NetServer.h"
+#include "SvcConn.h"
+#include "SvcConnCLR.h"
 
-#define NETSERVERNAME "NetServer"
+#define NETSERVERNAME "SvcConnect"
 
 //========================================================================
 

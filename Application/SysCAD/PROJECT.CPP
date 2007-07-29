@@ -69,7 +69,7 @@ extern "C"
 #include "grldefs.h"
   }
 
-#include "netserveru.h"
+#include "SvcConn.h"
 
 //#include "optoff.h"
 

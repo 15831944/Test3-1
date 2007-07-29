@@ -9,8 +9,8 @@
 #include "gpwfuncs.h"
 #include "neutralcommon.h"
 
-#include "NETServer.h"
-#include "NETServerU.h"
+#include "SvcConn.h"
+#include "SvcConnCLR.h"
 
 //========================================================================
 
@@ -71,7 +71,7 @@ CString ToCString(String ^ str)
   err = wcstombs_s(&convertedChars, ch, sizeInBytes, wch, sizeInBytes);
 
   if (err != 0)
-    LogError("NetServer", 0, "wcstombs_s  failed!\n");
+    LogError("SvcConnCLR", 0, "wcstombs_s  failed!\n");
 
   return CString(wch) ;
   }
