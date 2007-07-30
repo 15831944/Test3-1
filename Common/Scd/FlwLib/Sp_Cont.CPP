@@ -1364,24 +1364,34 @@ flag SpContainer::DataXchg(DataChangeBlk & DCB)
     case xidCnPress:
       if (DCB.rD) 
         {
-        CSpContPreset PS;
-        PS.SetLRqd(RLevel());
-        PS.SetTRqd(Temp());
-        PS.SetPRqd(*DCB.rD);
-        PS.SetImg(NULL);
-        SetRequiredConditions(&PS);
+        if (Closed()) 
+          {
+          CSpContPreset PS;
+          PS.SetLRqd(RLevel());
+          PS.SetTRqd(Temp());
+          PS.SetPRqd(*DCB.rD);
+          PS.SetImg(NULL);
+          SetRequiredConditions(&PS);
+          }
         }
       DCB.D = Press();
       return 1;
     case xidCnTemp:
-      if (DCB.rD) 
+      if (DCB.rD)
         {
-        CSpContPreset PS;
-        PS.SetLRqd(RLevel() );
-        PS.SetTRqd(*DCB.rD);
-        PS.SetPRqd(Press());
-        PS.SetImg(NULL);
-        SetRequiredConditions(&PS);
+        if (Closed()) 
+          {
+          CSpContPreset PS;
+          PS.SetLRqd(RLevel() );
+          PS.SetTRqd(*DCB.rD);
+          PS.SetPRqd(Press());
+          PS.SetImg(NULL);
+          SetRequiredConditions(&PS);
+          }
+        else
+          {
+          SetTempPress(*DCB.rD, Press());
+          }
         }
       DCB.D = Temp();
       return 1;
