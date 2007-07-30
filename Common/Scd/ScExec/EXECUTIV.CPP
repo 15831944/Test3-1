@@ -2202,16 +2202,26 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
   #if dbgExecutive
   if (dbgExecSeqTm())
     {
-    dbgpln("%20s Exec Time          ---- [@%12.4f] %s%s%s%s%s%s %s %08x   App.%s",TheTime.Format(TD_DaysJoined|TD_Time), gs_TimeSW.Time(),
+    static double PrevTime=-1;
+    double TheSWTime=gs_TimeSW.Time();
+    Strng TheSWTimeStr;
+    if (PrevTime>=0)
+      TheSWTimeStr.Set("%+12.4f", (TheSWTime-PrevTime)*1000.0);
+    else
+      TheSWTimeStr=" ";
 
-    bActive?"A":".",
-    bStopReqd?"S":".",
-    bStepReqd?"T":".",
-    bPauseReqd?"P":".",
-    bListRebuildReqd?"R":".",
-    bListUpdateReqd?"U":".",
+    dbgpln("%20s Exec Time          ---- [@%12.4f %12sms] %s%s%s%s%s%s %s %08x   App.%s",
+      TheTime.Format(TD_DaysJoined|TD_Time), TheSWTime, TheSWTimeStr(),
 
-    EXM_MSGS[XCMD(Cmd)], dwState, pEO ? pEO->Name() : "");
+      bActive?"A":".",
+      bStopReqd?"S":".",
+      bStepReqd?"T":".",
+      bPauseReqd?"P":".",
+      bListRebuildReqd?"R":".",
+      bListUpdateReqd?"U":".",
+
+      EXM_MSGS[XCMD(Cmd)], dwState, pEO ? pEO->Name() : "");
+    PrevTime=TheSWTime;
     }
   else if (dbgExecSeq())
     {

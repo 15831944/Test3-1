@@ -1749,7 +1749,7 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
               VolFlwRetCtrl=Contents.ShapeVolume()*GEZ(pControl->m_dLevelSPT-IORelFracHgt_Flng(iLvlCtrl))/ICGetTimeInc();
               break;
             case SC_Mass:
-              VolFlwRetCtrl=GEZ(pControl->m_dMassSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
+              VolFlwRetCtrl=GEZ(pControl->m_dMassSPT/GTZ(ContentFlw.Rho(som_SL))-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
               break;
             case SC_Volume:
               VolFlwRetCtrl=GEZ(pControl->m_dVolumeSPT-Contents.ShapeVolume()*IORelFracHgt_Flng(iIONo))/ICGetTimeInc();
