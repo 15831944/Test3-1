@@ -1272,6 +1272,8 @@
 #define IDD_RPTTAGITEMEDIT              25516
 #define IDC_MASS_SMOOTH                 25517
 #define IDB_BITMAP7                     25518
+#define IDC_MASS_SMOOTH2                25518
+#define IDC_DAMP_AS_GROUP               25518
 #define IDB_TRND_FINDTAG                25519
 #define IDB_TRND_ARCHIVETAG             25519
 #define IDC_MSON0                       25520

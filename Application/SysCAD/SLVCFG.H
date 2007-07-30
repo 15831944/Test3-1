@@ -29,16 +29,12 @@ class CSolverCfgSheet : public CPropertySheet
 
     CCustomPropertyPage* Pages[CfgFixedPages];
 
-    //{{AFX_VIRTUAL(CSolverCfgSheet)
     public:
     virtual BOOL OnInitDialog();
     protected:
     virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
-    //}}AFX_VIRTUAL
 
   protected:
-    //{{AFX_MSG(CSolverCfgSheet)
-    //}}AFX_MSG
     DECLARE_MESSAGE_MAP()
 
   void UpdateOptMeth(byte iReqdOptMeth);

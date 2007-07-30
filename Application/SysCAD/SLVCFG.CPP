@@ -89,6 +89,7 @@ class CSolveCfgPage : public CCustomPropertyPage
     int		m_RqdConvergedIters;
     //}}AFX_DATA
     int m_Method;
+    BOOL m_fDampAsGroup;
 
     //{{AFX_VIRTUAL(CSolveCfgPage)
     protected:
@@ -783,19 +784,14 @@ IMPLEMENT_DYNCREATE(CSolveCfgPage, CPropertyPage)
 
 CSolveCfgPage::CSolveCfgPage() : CCustomPropertyPage(CSolveCfgPage::IDD)
   {
-  //{{AFX_DATA_INIT(CSolveCfgPage)
   m_EPS_Rel = 1;
   m_EPS_Abs = 1;
   m_MaxIters = 1;
   m_Damping = 10.0;
 	m_fMassSmooth = FALSE;
 	m_RqdConvergedIters = 3;
-	//}}AFX_DATA_INIT
   m_Method=TCM_AdaptSubs;
-  //bDidInit = False;
-
-  //	m_Iters = 0;
-//  m_State = _T("");
+  m_fDampAsGroup = FALSE;
   }
 
 //--------------------------------------------------------------------------
@@ -813,7 +809,8 @@ BOOL CSolveCfgPage::OnInitDialog()
   m_EPS_Abs = PBEqnCB().Cfg.dEps_Abs;
   m_MaxIters = PBEqnCB().Cfg.iMaxIters;
   m_RqdConvergedIters = PBEqnCB().Cfg.iRqdCnvrgdIters;
-  m_Damping = PBEqnCB().Cfg.dDamping*100.0;
+  m_fDampAsGroup = (PBEqnCB().Cfg.m_iDampAsGroup==DAG_On);
+  m_Damping = PBEqnCB().Cfg.m_dDamping*100.0;
   m_Method = PBEqnCB().Cfg.iConvergeMeth;
   #if ALLOWMASSSMOOTH
   m_fMassSmooth = PBEqnCB().Cfg.fMassSmooth;
@@ -842,11 +839,11 @@ void CSolveCfgPage::DoDataExchange(CDataExchange* pDX)
   DDV_MinMaxInt(pDX, m_MaxIters, 1, 20000);
   DDX_Text(pDX, IDC_SLV_DAMPING, m_Damping);
   DDV_MinMaxDouble(pDX, m_Damping, 0., 100.);
-	DDX_Check(pDX, IDC_MASS_SMOOTH, m_fMassSmooth);
-	DDX_Text(pDX, IDC_SLV_RQDCONVERGEDITERS, m_RqdConvergedIters);
-	DDV_MinMaxInt(pDX, m_RqdConvergedIters, 1, 999);
-	//}}AFX_DATA_MAP
-  
+  DDX_Check(pDX, IDC_MASS_SMOOTH, m_fMassSmooth);
+  DDX_Text(pDX, IDC_SLV_RQDCONVERGEDITERS, m_RqdConvergedIters);
+  DDV_MinMaxInt(pDX, m_RqdConvergedIters, 1, 999);
+  //}}AFX_DATA_MAP
+
   CComboBox * pMethLst=(CComboBox *)GetDlgItem(IDC_SLV_METH);
   if (pDX->m_bSaveAndValidate)
     {
@@ -870,6 +867,7 @@ void CSolveCfgPage::DoDataExchange(CDataExchange* pDX)
     //pDampText->RedrawWindow();
     }
 
+  DDX_Check(pDX, IDC_DAMP_AS_GROUP, m_fDampAsGroup);
   }
 
 //--------------------------------------------------------------------------
@@ -904,7 +902,8 @@ void CSolveCfgPage::OnOK()
     PBEqnCB().Cfg.iConvergeMeth = m_Method;
     PBEqnCB().Cfg.dEps_Rel = m_EPS_Rel ;
     PBEqnCB().Cfg.dEps_Abs = m_EPS_Abs ;
-    PBEqnCB().Cfg.dDamping = m_Damping/100.0;
+    PBEqnCB().Cfg.m_iDampAsGroup = m_fDampAsGroup?DAG_On:DAG_Off;
+    PBEqnCB().Cfg.m_dDamping = m_Damping/100.0;
     PBEqnCB().Cfg.iMaxIters = m_MaxIters;
     PBEqnCB().Cfg.iRqdCnvrgdIters = m_RqdConvergedIters;
     SetModified(FALSE);
@@ -1859,7 +1858,7 @@ BOOL CRunTearPage::OnInitDialog()
   m_EPS_Rel = DynEqnCB().Cfg.dEps_Rel;
   m_EPS_Abs = DynEqnCB().Cfg.dEps_Abs;
   m_MaxIters = DynEqnCB().Cfg.iMaxIters;
-  m_Damping = DynEqnCB().Cfg.dDamping*100.0;
+  m_Damping = DynEqnCB().Cfg.m_dDamping*100.0;
   m_Method  = DynEqnCB().Cfg.iConvergeMeth;
   //InitDialog();//bDidInit = True;
   CCustomPropertyPage::OnInitDialog();
@@ -1940,7 +1939,7 @@ void CRunTearPage::OnOK()
     DynEqnCB().Cfg.iConvergeMeth=m_Method;
     DynEqnCB().Cfg.dEps_Rel = m_EPS_Rel ;
     DynEqnCB().Cfg.dEps_Abs = m_EPS_Abs ;
-    DynEqnCB().Cfg.dDamping = m_Damping/100.0;
+    DynEqnCB().Cfg.m_dDamping = m_Damping/100.0;
     DynEqnCB().Cfg.iMaxIters = m_MaxIters;
     SetModified(FALSE);
 //    pSlvTool->bChanged=1;

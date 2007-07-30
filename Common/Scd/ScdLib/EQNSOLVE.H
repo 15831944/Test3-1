@@ -244,6 +244,11 @@ const byte TCM_Kalman       = 4;
 const byte TCM_Last         = 5;
 const byte TCM_Default      = TCM_NULL;
 
+const byte DAG_Off          = 0;
+const byte DAG_On           = 1;
+const byte DAG_Default      = 2;
+const byte DAG_Last = 3;
+
 extern DllImportExport char * TearMethodStrings[];
 extern DllImportExport DDBValueLst DDBTearMethod[];
 extern DllImportExport char * EPSStrategyStrings[];
@@ -256,10 +261,44 @@ inline LPCTSTR TearConvergeMethodStr(int i)
 inline long FindTearConvergeMethod(LPCTSTR Str)
   {
   for (int i=0; i<TCM_Last; i++)
+    {
     if (_stricmp(Str, TearMethodStrings[i])==0)
       {
       return i;
       }
+    }
+  return -1;
+  };
+
+extern DllImportExport char * DampAsGroupStrings[];
+extern DllImportExport char * DampAsGroupStringsShort[];
+extern DllImportExport DDBValueLst DDBDampAsGroup[];
+extern DllImportExport DDBValueLst DDBDampAsGroupDef[];
+
+inline LPCTSTR DampAsGroupStr(int i)
+  {
+  return (i>=0 && i<TCM_Last) ? DampAsGroupStrings[i] : "";
+  };
+inline LPCTSTR DampAsGroupStrShort(int i)
+  {
+  return (i>=0 && i<TCM_Last) ? DampAsGroupStringsShort[i] : "";
+  };
+inline long FindDampAsGroup(LPCTSTR Str)
+  {
+  for (int i=0; i<DAG_Last; i++)
+    {
+    if (_stricmp(Str, DampAsGroupStrings[i])==0)
+      {
+      return i;
+      }
+    }
+  for (int i=0; i<DAG_Last; i++)
+    {
+    if (_stricmp(Str, DampAsGroupStringsShort[i])==0)
+      {
+      return i;
+      }
+    }
   return -1;
   };
 
@@ -298,7 +337,7 @@ class DllImportExport TearVarBlk : public TaggedObject
     byte           m_iTearMethod;
     flag           fInUse;
     byte           m_iEPSStrategy;
-    flag           fDampAsGroup;
+    byte           m_iDampAsGroup;
     flag           fGroupBlk;
 
     TearPosBlk    *pPosBlk;
@@ -435,11 +474,11 @@ class DllImportExport TearVarBlk : public TaggedObject
     double         EPS_Abs(EqnSlvCtrlBlk & EqnCB, int iVar);
     double         EPS_Rel(EqnSlvCtrlBlk & EqnCB, int iVar);
 
-    flag           DampAsGroupCfg() { return fDampAsGroup; };
+    byte           DampAsGroupCfg() { return m_iDampAsGroup; };
     double         DampingRqdCfg() { return m_dDampingRqd; };
     double         EPS_AbsCfg() { return dEPS_Abs; };
     double         EPS_RelCfg() { return dEPS_Rel; };
-    void           SetDampAsGroupCfg(flag On) { fDampAsGroup=On; };
+    void           SetDampAsGroupCfg(byte On) { m_iDampAsGroup=On; };
     void           SetDampingRqdCfg(double Val) { m_dDampingRqd=Val; };
     void           SetEPS_AbsCfg(double Val) { dEPS_Abs=Val; };
     void           SetEPS_RelCfg(double Val) { dEPS_Rel=Val; };
@@ -555,11 +594,12 @@ class DllImportExport EqnSlvCfgBlk
     short          iWA_Delay;
     double         dEps_Rel;
     double         dEps_Abs;
-    double         dDamping;
+    double         m_dDamping;
     double         dWA_Bound;
     double         dWA_Clamping;
     double         dDampFctGrowth;
     double         dDampFctDecay;
+    byte           m_iDampAsGroup;
 
     EqnSlvCfgBlk() { InitProBal(); };
 

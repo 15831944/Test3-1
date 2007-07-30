@@ -4818,7 +4818,8 @@ void FlwSlvPB::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Short ("CnvgdIters",        "", DC_    , "",    &PBEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
     DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
     //DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */, DDB0);
-    DDB.Double("Damping",           "", DC_Frac, "%",   &PBEqnCB().Cfg.dDamping,       &FlwSlvNd, isParm );
+    DDB.Byte  ("DampAsGroup",       "", DC_,     "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Damping",           "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm );
     DDB.Double("DampingGrowth",     "", DC_,     "",    &PBEqnCB().Cfg.dDampFctGrowth, &FlwSlvNd, isParm );
     DDB.Double("DampingDecay",      "", DC_,     "",    &PBEqnCB().Cfg.dDampFctDecay,  &FlwSlvNd, isParm );
     DDB.Short ("WegsteinDelay",     "", DC_,     "",    &PBEqnCB().Cfg.iWA_Delay,      &FlwSlvNd, isParm );
@@ -4877,9 +4878,10 @@ void FlwSlvPB::BuildDataDefnOld(DataDefnBlk & DDB)
     DDB.Double("EPS_Rel",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
     DDB.Double("EPS_Abs",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
     DDB.Long  ("MaxIters",        "", DC_    , "",    &PBEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
-    DDB.Double("Damping",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dDamping,       &FlwSlvNd, isParm );
+    DDB.Byte  ("DampAsGroup",     "", DC_    , "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Damping",         "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,     &FlwSlvNd, isParm );
     DDB.Byte  ("Method",          "", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
-    DDB.Bool  ("MassSmoothing",   "", DC_    , "",    &PBEqnCB().Cfg.fMassSmooth,     &FlwSlvNd, isParm);
+    DDB.Bool  ("MassSmoothing",   "", DC_    , "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, isParm);
     DDB.Bool  ("ResultsValid",    "", DC_    , "",    xidResultsValid,               &FlwSlvNd, 0/*isParm */);
 
     DDB.Text(" ");
@@ -6771,8 +6773,9 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     if (DDB.ForFiling() && DDB.DoingPutData())
       {
       DDB.Long  ("Tear_MaxIters",     "", DC_,      "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm);
-      DDB.Double("Tear_Damping",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.dDamping,       &FlwSlvNd, isParm);
+      DDB.Double("Tear_Damping",      "", DC_Frac,  "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
       DDB.Byte  ("Tear_Method",       "", DC_,      "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
+      //DDB.Bool  ("Tear_DampAsGroup",  "", DC_Frac,  "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
       }
 
     static DDBValueLst DDBTM[] =
@@ -6793,7 +6796,8 @@ void FlwSlvDyn::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("Tear.MaxIters",          "", DC_    , "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
     //DDB.Short ("Tear.CnvgdIters",        "", DC_    , "",    &DynEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
     DDB.Byte  ("Tear.Method",            "", DC_    , "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, isParm, DDBTM);
-    DDB.Double("Tear.Damping",           "", DC_Frac, "%",   &DynEqnCB().Cfg.dDamping,       &FlwSlvNd, isParm );
+    DDB.Byte  ("Tear.DampAsGroup",       "", DC_,     "",    &DynEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Double("Tear.Damping",           "", DC_Frac, "%",   &DynEqnCB().Cfg.m_dDamping,     &FlwSlvNd, isParm );
     DDB.Double("Tear.DampingGrowth",     "", DC_,     "",    &DynEqnCB().Cfg.dDampFctGrowth, &FlwSlvNd, isParm );
     DDB.Double("Tear.DampingDecay",      "", DC_,     "",    &DynEqnCB().Cfg.dDampFctDecay,  &FlwSlvNd, isParm );
     DDB.Short ("Tear.WegsteinDelay",     "", DC_,     "",    &DynEqnCB().Cfg.iWA_Delay,      &FlwSlvNd, isParm );
@@ -6923,7 +6927,8 @@ void FlwSlvDyn::BuildDataDefnOld(DataDefnBlk & DDB)
     DDB.Double("Tear_EPS_Rel",      "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm);
     DDB.Double("Tear_EPS_Abs",      "", DC_Frac, "%",   &DynEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm);
     DDB.Long  ("Tear_MaxIters",     "", DC_    , "",    &DynEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm);
-    DDB.Double("Tear_Damping",      "", DC_Frac, "%",   &DynEqnCB().Cfg.dDamping,       &FlwSlvNd, isParm);
+    DDB.Byte  ("Tear_DampAsGroup",  "", DC_    , "",    &DynEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup);
+    DDB.Double("Tear_Damping",      "", DC_Frac, "%",   &DynEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm);
     DDB.Byte  ("Tear_Method",       "", DC_    , "",    &DynEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
 
 //    DDB.Page("Statistics", DDB_RqdPage);

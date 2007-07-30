@@ -1586,6 +1586,7 @@ const int Id_TDfWegstein_Bound    = 8;
 const int Id_TDfWegstein_Clamp    = 9;
 const int Id_TDfRel               = 10;
 const int Id_TDfAbs               = 11;
+const int Id_TDfDampAsGroup       = 12;
 
 const int Id_TearBlkMethod        = 20;
 const int Id_TearBlkNVars         = 21;
@@ -1755,6 +1756,12 @@ void TearObjectEdt::Build()
     SetSpace(L,2); SetDParm(L, "MaxIters",      16, "", Id_TDfMaxIters,   10, 2, " ");
     SetTag("$PB.MaxIters");
     L++;                                                  
+    SetSpace(L,2); SetDParm(L, "DampAsGroup",   16, "", Id_TDfDampAsGroup,    10, 2, " ");
+    FldHasFixedStrValue(DAG_Default, DampAsGroupStringsShort[DAG_Default]);
+    FldHasFixedStrValue(DAG_On,      DampAsGroupStringsShort[DAG_Off]);
+    FldHasFixedStrValue(DAG_Off,     DampAsGroupStringsShort[DAG_On]);
+    SetTag("$PB.DampAsGroup");
+    L++;
     SetSpace(L,2); SetDParm(L, "Damping",       16, "", Id_TDfDamping,    10, 2, " ");
     SetTag("$PB.Damping", DCnv.Text()); SetDesc(L, DCnv.Text(), -1, 5, 0, " ");
     L++;
@@ -1853,8 +1860,9 @@ void TearObjectEdt::Build()
     Tag.Set("%s.DampingRqd", (char*)p->Tag()); 
     SetTag(Tag(), DCnv.Text());
     SetParm(L, "", Id_TearBlkGroup,      3, 2, "  ");
-    FldHasFixedStrValue(0, "-");
-    FldHasFixedStrValue(1, "Yes");
+    FldHasFixedStrValue(DAG_Default, DampAsGroupStringsShort[DAG_Default]);
+    FldHasFixedStrValue(DAG_On,      DampAsGroupStringsShort[DAG_Off]);
+    FldHasFixedStrValue(DAG_Off,     DampAsGroupStringsShort[DAG_On]);
     Tag.Set("%s.DampAsGroup", (char*)p->Tag()); 
     SetTag(Tag());
     SetParm(L, "", Id_TearBlkStrategy,  10, 0, "  ");
@@ -2054,8 +2062,11 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         case Id_TDfMaxIters:
           Str.Set("%i", EqnCB().Cfg.iMaxIters);
           break;
+        case Id_TDfDampAsGroup:
+          Str=DampAsGroupStr(EqnCB().Cfg.m_iDampAsGroup);
+          break;
         case Id_TDfDamping:
-          DFmt.FormatFloat(DCnv.Human(EqnCB().Cfg.dDamping), Str);
+          DFmt.FormatFloat(DCnv.Human(EqnCB().Cfg.m_dDamping), Str);
           break;
         case Id_TDfDamping_Growth:
           DFmt.FormatFloat(EqnCB().Cfg.dDampFctGrowth, Str);
@@ -2103,7 +2114,7 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           DFmt.FormatFloat(DCnv.Human(m_Blks[i]->DampingRqdCfg()), Str);
           break;
         case Id_TearBlkGroup:
-          Str=m_Blks[i]->DampAsGroupCfg() ? "Yes":"-";
+          Str=DampAsGroupStrShort(m_Blks[i]->DampAsGroupCfg());
           break;
         case Id_TearBlkStrategy:
           Str=m_Blks[i]->EPSStrategyStr();
@@ -2128,7 +2139,7 @@ void TearObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           Str=TearMethodStrings[m_pSlctTVB->m_iTearMethod];
           break;
         case Id_TearDmpDampAsGroup:
-          Str=m_pSlctTVB->fDampAsGroup ? "Yes" : "No";
+          Str=DampAsGroupStrings[m_pSlctTVB->m_iDampAsGroup];
           EI.Fld->fEditable=(IsAdaptSubs);
           break;
         case Id_TearDmpBlkDamp:
@@ -2272,8 +2283,15 @@ long TearObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
         case Id_TDfMaxIters:
           EqnCB().Cfg.iMaxIters=Range(3L, SafeAtoL(Str(), EqnCB().Cfg.iMaxIters), 20000L);
           break;
+        case Id_TDfDampAsGroup:
+          {
+          int j=FindDampAsGroup(Str());
+          if (j>=0)
+            EqnCB().Cfg.m_iDampAsGroup = byte(j);
+          break;
+          }
         case Id_TDfDamping:
-          EqnCB().Cfg.dDamping=DCnv.Normal(SafeAtoF(Str(), EqnCB().Cfg.dDamping));
+          EqnCB().Cfg.m_dDamping=DCnv.Normal(SafeAtoF(Str(), EqnCB().Cfg.m_dDamping));
           break;
         case Id_TDfDamping_Growth:
           EqnCB().Cfg.dDampFctGrowth=SafeAtoF(Str(), EqnCB().Cfg.dDampFctGrowth);

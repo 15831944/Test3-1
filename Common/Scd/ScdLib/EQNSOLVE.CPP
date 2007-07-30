@@ -343,7 +343,7 @@ void TearVarBlk::CommonConstruct()
   m_iEPSStrategy=TVBTS_Maximum;
   dEPS_Rel=dNAN;
   dEPS_Abs=dNAN;
-  fDampAsGroup=True;
+  m_iDampAsGroup=DAG_Default;
   GrpDampFactor=0.0;
   fGroupBlk=False;
   pGroupInfo=NULL;
@@ -401,6 +401,23 @@ DDBValueLst DDBEPSStrategy[]=
     {0}
   };
 
+char * DampAsGroupStrings[]={"-", "Yes", "Default", 0};
+char * DampAsGroupStringsShort[]={"-", "Yes", "Def", 0};
+
+DDBValueLst DDBDampAsGroup[]=
+  {
+    {DAG_Off,     DampAsGroupStrings[DAG_Off]      },
+    {DAG_On,      DampAsGroupStrings[DAG_On]       },
+    {0}
+  };
+DDBValueLst DDBDampAsGroupDef[]=
+  {
+    {DAG_Default, DampAsGroupStrings[DAG_Default]  },
+    {DAG_Off,     DampAsGroupStrings[DAG_Off]      },
+    {DAG_On,      DampAsGroupStrings[DAG_On]       },
+    {0}
+  };
+
 void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
   {
   if (DDB.BeginStruct(this))
@@ -409,7 +426,7 @@ void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("NVars",       "",    DC_,     "",     xidNTearVars,               this, 0);//isParmConstruct);//0isParm);
     DDB.Byte  ("TearMethod",  "",    DC_,     "",     &m_iTearMethod,             this, isParm, DDBTearMethod);
     DDB.Long  ("NHistory",    "",    DC_,     "",     xidNTearHistory,            this, isParmStopped);
-    DDB.Bool  ("DampAsGroup", "",    DC_,     "",     &fDampAsGroup,              this, isParm);
+    DDB.Byte  ("DampAsGroup", "",    DC_,     "",     &m_iDampAsGroup,            this, isParm, DDBDampAsGroupDef);
     DDB.Double("DampingRqd",  "",    DC_Frac, "%",    &m_dDampingRqd,             this, isParm|NAN_OK);
     DDB.Byte  ("EPS_Strategy","",    DC_,     "",     &m_iEPSStrategy,            this, isParm, DDBEPSStrategy);
     DDB.Double("EPS_Abs",     "",    DC_Frac, "%",    &dEPS_Abs,                  this, isParm|NAN_OK);
@@ -523,7 +540,7 @@ flag TearVarBlk::ValidateData(ValidateDataBlk & VDB)
     dbgpln("GroupName   %s", sGroupTag());
     dbgpln("NVars       %i", nVariables);
     dbgpln("NHistory    %i", nHistory);
-    dbgpln("DampAsGroup %i", fDampAsGroup);
+    dbgpln("DampAsGroup %i", m_iDampAsGroup);
     dbgpln("DampingRqd  %g", m_dDampingRqd);
     dbgpln("TolStrategy %i", m_iEPSStrategy);
     dbgpln("EPS_Abs     %g", dEPS_Abs);
@@ -772,7 +789,7 @@ double TearVarBlk::DampingRqd(EqnSlvCtrlBlk & EqnCB, int iVar)
     R=Max(R, pGroupInfo->TV[iVar].m_DampingRqd);
   if (Valid(m_dDampingRqd))
     R=Max(R, m_dDampingRqd);
-  R=Max(R, EqnCB.Cfg.dDamping);
+  R=Max(R, EqnCB.Cfg.m_dDamping);
   return Range(0.0, R, 1.0);
   };
 
@@ -994,6 +1011,7 @@ void TearVarBlk::AdvAdaptDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
     }
 #endif
   GrpDampFactor=0.0;
+  bool DampGrp=((m_iDampAsGroup==DAG_Default) ? EqnCB.Cfg.m_iDampAsGroup : m_iDampAsGroup)==DAG_On;
   for (int iVar=0; iVar<nVariables; iVar++)
     {
 #ifndef _RELEASE
@@ -1035,13 +1053,13 @@ void TearVarBlk::AdvAdaptDirect(EqnSlvCtrlBlk & EqnCB, double Damping)
     double DFMin=Max(DampingRqd(EqnCB, iVar), Damping);
     TV[iVar].m_EstDampFactor=Range(DFMin, TV[iVar].m_EstDampFactor, 1.0);
 
-    if (fDampAsGroup && (fabs(TV[iVar].Y[0])>1.0e-10))
+    if (DampGrp && (fabs(TV[iVar].Y[0])>1.0e-10))
       GrpDampFactor=Max(GrpDampFactor, TV[iVar].m_EstDampFactor);
     }
 
   for (iVar=0; iVar<nVariables; iVar++)
     {
-    if (fDampAsGroup)
+    if (DampGrp)
       TV[iVar].m_DampFactor=GrpDampFactor;
     else
       TV[iVar].m_DampFactor=TV[iVar].m_EstDampFactor;
@@ -1219,11 +1237,11 @@ void TearVarBlk::Advance(EqnSlvCtrlBlk & EqnCB)
         AdvWegstein(EqnCB);
       break;
     case TCM_AdaptSubs:
-      AdvAdaptDirect(EqnCB, EqnCB.Cfg.dDamping);
+      AdvAdaptDirect(EqnCB, EqnCB.Cfg.m_dDamping);
       break;
     case TCM_DirectSubs:
     default:
-      AdvDirect(EqnCB, EqnCB.Cfg.dDamping);
+      AdvDirect(EqnCB, EqnCB.Cfg.m_dDamping);
       break;
     }
   m_bHoldDamping=false;
@@ -1551,7 +1569,7 @@ void TearVarBlkEdt::Load(FxdEdtInfo &EI, Strng & Str)
     switch (EI.FieldId)
       {
       case Id_DampAsGroup:
-        Str=rTVB.fDampAsGroup ? "Yes" : "No";
+        Str=DampAsGroupStrings[rTVB.m_iDampAsGroup];
         EI.Fld->fEditable=(IsAdaptSubs);
         break;
       case Id_BlkDamp:
@@ -1659,8 +1677,14 @@ long TearVarBlkEdt::Parse(FxdEdtInfo &EI, Strng & Str)
     switch (EI.FieldId)
       {
       case Id_DampAsGroup:
-        rTVB.fDampAsGroup = (strpbrk(Str(), "Yy")!=0);
+        {
+        for (int i=0; DampAsGroupStrings[i]; i++)
+          if (Str.XStrICmp(DampAsGroupStrings[i])==0)
+            break;
+        rTVB.m_iDampAsGroup=(DampAsGroupStrings[i] ? i : DAG_Off);
+        //rTVB.m_fDampAsGroup = (strpbrk(Str(), "Yy")!=0);
         break;
+        }
       case Id_BlkDamp:
         rTVB.m_dDampingRqd = DampCnv.Normal(SafeAtoF(Str));
         break;
@@ -1972,12 +1996,13 @@ void EqnSlvCfgBlk::InitProBal()
   fIdleWhenDone=0;
   dEps_Rel=1.0e-5;
   dEps_Abs=1.0e-6;
-  dDamping=0.0;
+  m_dDamping=0.0;
   iMaxIters=1000;
   iRqdCnvrgdIters=3;
   dWA_Bound=-3.0;
   iWA_Delay=5;
   dWA_Clamping=0.5;
+  m_iDampAsGroup=DAG_Off;
 
   dDampFctGrowth=0.25;
   dDampFctDecay=0.05;
@@ -1993,12 +2018,13 @@ void EqnSlvCfgBlk::InitDynamic()
   fIdleWhenDone=0;
   dEps_Rel=1.0e-3;
   dEps_Abs=1.0e-4;
-  dDamping=0.0;
+  m_dDamping=0.0;
   iMaxIters=25;
   iRqdCnvrgdIters=3;
   dWA_Bound=-5.0;
   iWA_Delay=2;
   dWA_Clamping=0.5;
+  m_iDampAsGroup=DAG_Off;
 
   dDampFctGrowth=0.25;
   dDampFctDecay=0.05;
