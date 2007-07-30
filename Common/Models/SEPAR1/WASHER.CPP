@@ -70,8 +70,9 @@ static IOAreaRec WasherIOAreaList[] =
   };
 
 static double Drw_Washer[] = { DD_Poly, -25,0, -25,-3, -22,-3, -22,0, 22,0, 22,-3, 25,-3,
-											 25,0, 25,-3, 22,-3, 22,-4, 0,-13, -22,-4, -22,-3,
-											 -22,-4, 22,-4, DD_End };
+							         				 25,0, 25,-3, 22,-3, 22,-4, 0,-13, -22,-4, -22,-3, -22,-4, 22,-4, 
+                               DD_TagPos, 0, -16.5,
+                               DD_End };
 
 enum OFM_OverFlowMethods { OFM_OFSolFrac, OFM_OFSolConc };
 enum IBM_InputBypassMethods { IBM_None, IBM_Overflow, IBM_Underflow };

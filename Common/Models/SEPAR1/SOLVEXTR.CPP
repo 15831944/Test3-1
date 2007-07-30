@@ -123,18 +123,17 @@ static IOAreaRec MixerSettlerIOAreaList[] =
     {NULL}
   };
 
-static double Drw_MixerSettler[] = { DD_Poly, -30, 7, -30, -5, 30, -5, 30, 5, -17, 5, -17, -5, -17, 6,
-                            DD_Poly, -23, 11, -24, 11, -24, -2, -26, -2, -26, -4, -20, -4, -20, -2, -23, -2,-23, 11,
-        					          DD_Poly, -23, -2, -24, -2,
-        					          DD_Poly, -30, 6, -17, 6,
-        					          DD_Poly, 30, 2, 32, 2, 32, 5,
-        					          DD_Poly, 30, -5, 32, -5, 32, -3, 30, -3,
-        					          DD_Poly, -25, -2, -25, -4,
-         					          DD_Poly, -24, -2, -24, -4,
-        					          DD_Poly, -23, -2, -23, -4,
-         					          DD_Poly, -22, -2, -22, -4,
-         					          DD_Poly, -21, -2, -21, -4,
-         					          DD_End }; //This provides the default drawing of the MixerSettler.
+static double Drw_MixerSettler[] = { DD_Poly, -30,6, -30,-5, 28,-5, 28,5, -17,5, -17,-5, -17,6, -30,6,
+                                    DD_Poly, -23,10, -24,10, -24,-2, -26,-2, -26,-4, -21,-4, -21,-2, -23,-2, -23,10,
+        					                  DD_Poly, -23,-2, -24,-2,
+        					                  DD_Poly, -25,-2, -25,-4,
+         					                  DD_Poly, -24,-2, -24,-4,
+        					                  DD_Poly, -23,-2, -23,-4,
+         					                  DD_Poly, -22,-2, -22,-4,
+        					                  DD_Poly,  28,2, 30,2, 30,5,
+        					                  DD_Poly,  28,-5, 30,-5, 30,-3, 28,-3,
+                                    DD_TagPos, 0, -8.5,
+         					                  DD_End }; //This provides the default drawing of the MixerSettler.
 
 //--------------------------------------------------------------------------
 

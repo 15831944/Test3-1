@@ -87,7 +87,8 @@ static IOAreaRec CCWasherIOAreaList[] =
 
 
 static double Drw_CCWasher[] = { DD_Poly, -15,15, -15,0, 0,-10, 15,0, 15,15, -15,15,
-                               DD_End }; 
+                                 DD_TagPos, 0, -18.5,
+                                 DD_End }; 
 
 enum MEM_MixingEffMethods { MEM_Scandrett, MEM_Mixing };
 

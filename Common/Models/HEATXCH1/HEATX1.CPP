@@ -1842,10 +1842,10 @@ static IOAreaRec HeaterIOAreaList[] =
    {NULL}};
 
 
-static double Drw_Heater[] = {DD_Poly, -6,-6, -6,6, 6,6, 6,-6, -6,-6,
-                            DD_Poly, -5,-6, -5,-3, -4,3, -3,-3, -2,3, -1,-3, 0,3,
-                                     1,-3, 2,3, 3,-3, 4,3, 5,-3, 5,-6,
-                            DD_End };
+static double Drw_Heater[] = { DD_Poly, -6,-6, -6,6, 6,6, 6,-6, -6,-6,
+                               DD_Poly, -5,-6, -5,-3, -4,3, -3,-3, -2,3, -1,-3, 0,3, 1,-3, 2,3, 3,-3, 4,3, 5,-3, 5,-6,
+                               DD_TagPos, 0, -9.5,
+                               DD_End };
 
 IMPLEMENT_MODELUNIT(HeatXchg1, "HeatXchg", "1", Drw_Heater, "HeatExchange", "HXCH", TOC_ALL|TOC_GRP_ENERGY|TOC_HEATBAL,
 //                    "HX - Heat Exchanger(1)",

@@ -37,7 +37,8 @@ Model type:Unit#n
 //==========================================================================
 // To Improve
 double Drw_Stack[] = { DD_Poly, -3,10, -5,-10, 5,-10, 3,10, -3,10,
-                          DD_End };
+                       DD_TagPos, 0, -13.5,
+                       DD_End };
 //long Drw_B_Stack[] = { DD_Arc, 0, 0, 4,
 //                      DD_Poly, 0,-4, 5,-4, 5,-2, 0,-2,
 //                      DD_End };

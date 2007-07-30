@@ -36,19 +36,20 @@ static IOAreaRec FFEvapIOAreaList[] =
     {NULL}
   };
 
-static double Drw_FFEvap[] = { DD_Poly, -4,11, -4,-11,
-                             DD_Poly, 4,11, 4,-11,
-                             DD_Poly, -4,8, 4,8,
-                             DD_Poly, -4,-5, 4,-5,
-                             DD_Poly, -3,8, -3,-5,
-                             DD_Poly, -2,8, -2,-5,
-                             DD_Poly, -1,8, -1,-5,
-                             DD_Poly, 1,8, 1,-5,
-                             DD_Poly, 2,8, 2,-5,
-                             DD_Poly, 3,8, 3,-5,
-                             DD_Arc3, -4,11, 0,13, 4,11,
-                             DD_Arc3, -4,-11, 0,-13, 4,-11,
-                             DD_End };
+static double Drw_FFEvap[] = {  DD_Poly, -4,11, -4,-11,
+                                DD_Poly, 4,11, 4,-11,
+                                DD_Poly, -4,8, 4,8,
+                                DD_Poly, -4,-5, 4,-5,
+                                DD_Poly, -3,8, -3,-5,
+                                DD_Poly, -2,8, -2,-5,
+                                DD_Poly, -1,8, -1,-5,
+                                DD_Poly, 1,8, 1,-5,
+                                DD_Poly, 2,8, 2,-5,
+                                DD_Poly, 3,8, 3,-5,
+                                DD_Arc3, -4,11, 0,13, 4,11,
+                                DD_Arc3, -4,-11, 0,-13, 4,-11,
+                                DD_TagPos, 0, -16.5,
+                                DD_End };
 
 enum  QST_CalcMode { QST_FTCActive, QST_Makup, QST_General };
 

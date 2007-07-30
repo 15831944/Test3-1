@@ -21,7 +21,8 @@ liquids, slurries and gases. The reducer only has one inlet and one outlet point
 //==========================================================================
 
 static double Drw_Reducer[] = { DD_Poly, -4,3, -4,-3, 4,-1, 4,1, -4,3,
-                       DD_End };
+                                DD_TagPos, 0, -6.5,
+                                DD_End };
 
 //--------------------------------------------------------------------------
 

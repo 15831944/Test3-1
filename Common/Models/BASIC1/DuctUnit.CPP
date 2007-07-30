@@ -51,7 +51,8 @@ static IOAreaRec DuctUnitIOAreaList[] =
    {NULL}};
 
 double Drw_DuctUnit[] = { DD_Poly, -10,10, 10,10, 10,-10, -10,-10, -10,10,
-                     DD_End };
+                          DD_TagPos, 0, -13.5,
+                          DD_End };
 
 //--------------------------------------------------------------------------
 

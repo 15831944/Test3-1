@@ -77,6 +77,7 @@ static double Drw_GenStats[] =
        {
        DD_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3, 
        DD_Poly, -2,-2, -2,2, 2,2, 2,-2, -2,-2, 
+       DD_TagPos, 0, -6.5,
        DD_End
        };
 

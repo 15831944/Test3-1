@@ -76,6 +76,7 @@ static double Drw_GControl[] =
        DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4,
        DD_Poly, -4,0, 4,0,
        DD_Poly, 0, -4,0, 4,
+       DD_TagPos, 0, -7.5,
        DD_End
        };
 

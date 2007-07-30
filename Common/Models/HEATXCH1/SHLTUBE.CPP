@@ -1729,12 +1729,13 @@ static IOAreaRec ShellTubeIOAreaList[] =
   };
 
 static double Drw_ShellTube[] = { DD_Poly, -6,7, -4,7, -4,-7, -6,-7, -6,7,
-                                DD_Poly,  6,7,  4,7,  4,-7,  6,-7,  6,7,
-                                DD_Poly, -4,6, 4,6,
-                                DD_Poly, -4,-6, 4,-6,
-                                DD_Arc3, -6,6, -10,0, -6,-6,
-                                DD_Arc3,  6,6,  10,0,  6,-6,
-                                DD_End };
+                                  DD_Poly,  6,7,  4,7,  4,-7,  6,-7,  6,7,
+                                  DD_Poly, -4,6, 4,6,
+                                  DD_Poly, -4,-6, 4,-6,
+                                  DD_Arc3, -6,6, -10,0, -6,-6,
+                                  DD_Arc3,  6,6,  10,0,  6,-6,
+                                  DD_TagPos, 0, -10.5,
+                                  DD_End };
 
 IMPLEMENT_MODELUNIT(ShellTube, "ShllTube", "1", Drw_ShellTube, "HeatExchange", "ST", TOC_ALL|TOC_GRP_ENERGY|TOC_HEATBAL,
 //                    "HX - Shell & Tube Heat Exchanger(1)",

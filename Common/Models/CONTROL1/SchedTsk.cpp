@@ -623,12 +623,13 @@ int ScheduleTask::DeleteTag(pchar pDelTag, BOOL & FoundOne)
 //==========================================================================
 
 double Drw_SchedTask[] = 
-      { 
-      //DD_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3, 
-      DD_Arc, 0, 0, 4,
-      DD_Poly, 0,3, 0,0, 2,0,
-      DD_End
-      };
+       { 
+       //DD_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3, 
+       DD_Arc, 0, 0, 4,
+       DD_Poly, 0,3, 0,0, 2,0,
+       DD_TagPos, 0, -7.5,
+       DD_End
+       };
 
 IMPLEMENT_MODELUNIT(CScheduleTask, "SchedTask", "", Drw_SchedTask, "Control", "TSK", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,  
                     "Control:Task",

@@ -105,10 +105,11 @@ static IOAreaRec BarometricCondenserIOAreaList[] =
 
 
 static double Drw_BarometricCondenser[] = { 
-                                 DD_Poly, -7,-4, -7,-11, 7,-11, 7,-4,
-                                 DD_Poly, -1.4,-7.5, -1.4,3, -2.8,4.4, -2.8,10, -2.1,10.7, 2.1,10.7, 2.8,10, 2.8,4.4, 1.4,3, 1.4,-7.5,  
-                                 DD_Poly, -7,-5.4, -1.4,-5.4,
-                                 DD_Poly, 7,-5.4, 1.4,-5.4,
+                                 DD_Poly, -7,-3.9, -7,-10.8, 7,-10.8, 7,-3.9,
+                                 DD_Poly, -1.4,-7.4, -1.4,3.1, -2.8,4.5, -2.8,10.1, -2.1,10.8, 2.1,10.8, 2.8,10.1, 2.8,4.5, 1.4,3.1, 1.4,-7.4,  
+                                 DD_Poly, -7,-5.3, -1.4,-5.3,
+                                 DD_Poly, 7,-5.3, 1.4,-5.3,
+                                 DD_TagPos, 0, -14.3,
                                  DD_End }; 
 /*static double Drw_BarometricCondenser[] = { 
                                  DD_Scale, 750,

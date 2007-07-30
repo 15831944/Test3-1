@@ -27,13 +27,11 @@ XID xid_DegSuperHeat  = MdlBsXID(4505);
 XID xid_TotalHeatRqd  = MdlBsXID(4506);
 XID xid_FuelEnergyRqd = MdlBsXID(4507);
 
-static double Drw_Boiler[] =
-  {
-  DD_Poly, 5,10, 5,-10, -5,-10, -5,10, 5,10,
-    DD_Arc, 0, 4, 3,
-    DD_Arc, 0, -4, 3,
-    DD_End
-  };
+static double Drw_Boiler[] = {  DD_Poly, 5,10, 5,-10, -5,-10, -5,10, 5,10,
+                                DD_Arc, 0, 4, 3,
+                                DD_Arc, 0, -4, 3,
+                                DD_TagPos, 0, -13.5,
+                                DD_End };
 
 //--------------------------------------------------------------------------
 

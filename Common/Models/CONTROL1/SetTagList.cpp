@@ -140,6 +140,7 @@ static double Drw_TagListCon[] =
        DD_Poly, -2,2, 0,2,
        DD_Poly, -1,2, -1,-2,
        DD_Poly, 1,2, 1,-2, 3,-2,
+       DD_TagPos, 0, -7.5,
        DD_End
        };
 

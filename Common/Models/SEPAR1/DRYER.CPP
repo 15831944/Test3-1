@@ -70,7 +70,9 @@ static IOAreaRec DryerIOAreaList[] =
 /*#G:This provides the default drawing of the Dryer.*/
 static double Drw_Dryer[] = { DD_Poly, -15,6, 15,6, 15,-6, -15,-6, -15,6,
 															-12,6, -12,9, -10,9, -10,-9, -12,-9, -12,6,
-															10,6, 10,9, 12,9, 12,-9, 10,-9, 10,6, DD_End };
+															10,6, 10,9, 12,9, 12,-9, 10,-9, 10,6, 
+                              DD_TagPos, 0, -9.5,
+                              DD_End };
 
 //--------------------------------------------------------------------------
 

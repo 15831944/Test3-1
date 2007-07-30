@@ -67,10 +67,11 @@ static IOAreaRec BeltFiltIOAreaList[] =
    {NULL}};
 
 static double Drw_BeltFilt[] = { DD_Arc, -16, 0, 2, 
-												DD_Poly, -16,2, 16,2,
-												DD_Arc, 16, 0, 2, 
-												DD_Poly, 16,-2, 0,-6, -16,-2,
-                        DD_End };
+												         DD_Poly, -16,2, 16,2,
+												         DD_Arc, 16, 0, 2, 
+												         DD_Poly, 16,-2, 0,-6, -16,-2,
+                                 DD_TagPos, 0, -8.5,
+                                 DD_End };
 
 //--------------------------------------------------------------------------
 

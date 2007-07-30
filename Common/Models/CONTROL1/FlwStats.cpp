@@ -133,13 +133,11 @@ void FlwStatInfo::ExecIns(double dT)
 
 static double Drw_FlwStats[] =
        {
-       //DD_Poly, -1,0, -3,0, -3,-3, -3,3, 3,3, 3,-3, -3,-3, -3,0,
-       //DD_Poly, 3,0, 1,0, 2,0, 2,2, -2,2, -2,-2, 2,-2, 2,0,
        DD_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3,
-       //DD_Poly, -2,-2, -2,2, 2,2, 2,-2, -2,-2,
        DD_Poly, -1,-1, -1,1, 1,1, 1,-1, -1,-1,
        DD_Poly, -3,0, -1,0,
        DD_Poly, 3,0, 1,0,
+       DD_TagPos, 0, -6.5,
        DD_End
        };
 

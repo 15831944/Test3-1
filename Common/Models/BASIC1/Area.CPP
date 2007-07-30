@@ -24,18 +24,16 @@ static IOAreaRec CAreaIOAreaList[] =
   {
     {"SpillIO",   "Spls",   IOId_AreaSpillI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
     {"VentIO",    "Vnts",   IOId_AreaVentI,   LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &Xfer2AreaGroup},
-    {"LeakIO",    "Leak",  IOId_AreaLeakI,   LIO_InOut,  nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
+    {"LeakIO",    "Leak",   IOId_AreaLeakI,   LIO_InOut,  nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     {"Makeup",    "MUs",    IOId_AreaMakeupO, LIO_Out,    nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     {"Bleed",     "BLs",    IOId_AreaBleedI,  LIO_In,     nc_MLnk, 0, MaxIOList, IOPipeEntry, 0, {0,0,0,0}, NULL, &NullFlwGroup},
     {NULL}
   };
 
-static double Drw_CArea[] = 
-  { 
-  DD_Poly, 6,6, 9,4, 7,2, 11,0, 9,-2, 10,-4, 8,-6,
-           -8,-6, -11,-4, -9,-2, -8,0, -10,2, -11,4, -8,6,
-           6,6, DD_End 
-  };
+static double Drw_CArea[] = { DD_Poly, 6,6, 9,4, 7,2, 11,0, 9,-2, 10,-4, 8,-6,
+                                        -8,-6, -11,-4, -9,-2, -8,0, -10,2, -11,4, -8,6, 6,6, 
+                              DD_TagPos, 0, -9.5,
+                              DD_End };
 
 //--------------------------------------------------------------------------
 
@@ -91,12 +89,10 @@ static IOAreaRec MakeupSrcIOAreaList[] =
     {NULL}
   };
 
-static double Drw_MakeupSrc[] = 
-  { 
-  DD_Poly, -2,3, 3,3, 5,0, 3,-3, -2,-3, 
-  DD_Arc3, -2,-3, -5,0, -2,3,
-  DD_End 
-  };
+static double Drw_MakeupSrc[] = { DD_Poly, -2.5,3, 3.5,3, 5.5,0, 3.5,-3, -2.5,-3, 
+                                  DD_Arc3, -2.5,-3, -5.5,0, -2.5,3,
+                                  DD_TagPos, 0, -6.5,
+                                  DD_End };
 
 //--------------------------------------------------------------------------
 
@@ -203,12 +199,10 @@ static IOAreaRec BleedSnkIOAreaList[] =
     {NULL}
   };
 
-static double Drw_BleedSnk[] = 
-  { 
-  DD_Poly, -5,3, 2,3, 
-  DD_Arc3, 2,3, 5,0, 2,-3,
-  DD_Poly,  2,-3, -5,-3, -3,0, -5,3, DD_End 
-  };
+static double Drw_BleedSnk[] = { DD_Poly,  2.5,-3, -5.5,-3, -3.5,0, -5.5,3, 2.5,3, 
+                                 DD_Arc3, 2.5,3, 5.5,0, 2.5,-3,
+                                 DD_TagPos, 0, -6.5,
+                                 DD_End };
 
 //--------------------------------------------------------------------------
 

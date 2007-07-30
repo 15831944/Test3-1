@@ -84,6 +84,7 @@ static double Drw_NoiseCon[] =
        {
        DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
        DD_Poly, -4,0, -3,2, -2,-1, -1,1, 0,-2, 1,2, 2,-3, 3,0, 4,0, 
+       DD_TagPos, 0, -7.5,
        DD_End
        };
 

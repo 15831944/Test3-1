@@ -196,8 +196,9 @@ void HeaterSizeCalcs::SetMdlDuty(double MdlDuty)
 //==========================================================================
 
 static double Drw_Heater[] = { DD_Arc, 0, 0, 5,
-                      DD_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0,
-                      DD_End };
+                               DD_Poly, -5,0, -3,0, -3,-2, 3,2, 3,0, 5,0,
+                               DD_TagPos, 0, -8.5,
+                               DD_End };
 
 enum HDM_HeaterDutyMethod { HDM_Duty, HDM_FixedT, HDM_DutyTag };
 

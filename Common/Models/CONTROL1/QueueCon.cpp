@@ -308,6 +308,7 @@ static double Drw_QueueCon[] =
        DD_Poly, -1,0, 0,0,
        DD_Poly, 1,0, 2,0,
        DD_Poly, 3,0, 4,0,
+       DD_TagPos, 0, -7.5,
        DD_End
        };
 

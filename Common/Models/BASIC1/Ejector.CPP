@@ -31,10 +31,10 @@ static IOAreaRec X_EjectorIOAreaList[] =
    {"Output",      "Output"   , IOId_Output, LIO_Out0, nc_MLnk, 1, 1, /*IOPipeJoin|*/IOGRP(1)},
    {NULL}};
 
-static double Drw_X_Ejector[] = { //DD_Scale, 2000,
-                         DD_Poly, -4,2, 0,2, 0,-2, -4,-2, -4,2,
-                         DD_Poly, 0,1, 6,2, 6,-2, 0,-1,
-                         DD_End };
+static double Drw_X_Ejector[] = { DD_Poly, -5,2, -1,2, -1,-2, -5,-2, -5,2,
+                                  DD_Poly, -1,1, 5,2, 5,-2, -1,-1,
+                                  DD_TagPos, 0, -5.5,
+                                  DD_End };
 
 //--------------------------------------------------------------------------
 

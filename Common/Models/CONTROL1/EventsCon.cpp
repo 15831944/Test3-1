@@ -316,12 +316,13 @@ void EventConInfo::ExecIns(double ICTime)
 //==========================================================================
 
 static double Drw_EventsCon[] =
-  {
-  DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
-    DD_Poly, 2,3, -2,3, -2,-3, 2,-3,
-    DD_Poly, -2,0, 1,0,
-    DD_End
-  };
+       {
+       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
+       DD_Poly, 2,3, -2,3, -2,-3, 2,-3,
+       DD_Poly, -2,0, 1,0,
+       DD_TagPos, 0, -7.5,
+       DD_End
+       };
 
 IMPLEMENT_MODELUNIT(CEventsCon, "Events", "", Drw_EventsCon, "Control", "EV", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,  
                     "Control:Events",

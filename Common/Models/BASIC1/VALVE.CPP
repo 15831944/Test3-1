@@ -69,8 +69,12 @@ Model type:Unit#n
 */
 //==========================================================================
 
-static double Drw_Valve_GP[] = { DD_Poly, -4,3, -4,-3, 4,3, 4,-3, -4,3,
-                        DD_End };
+/*static double Drw_Valve_GP[] = { DD_Poly, -4,3, -4,-3, 4,3, 4,-3, -4,3,
+                                 DD_TagPos, 0, -6.5,
+                                 DD_End };*/
+static double Drw_Valve_GP[] = { DD_Poly, -3.8,2.85, -3.8,-2.85, 3.8,2.85, 3.8,-2.85, -3.8,2.85,
+                                 DD_TagPos, 0, -7.3,
+                                 DD_End };
 
 const int CIOId_Pos     = CtrlIOId(0);
 const int EIOId_Supply  = ElecIOId(0);

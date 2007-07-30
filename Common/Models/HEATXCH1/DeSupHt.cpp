@@ -30,8 +30,9 @@ static IOAreaRec DeSuperHeaterIOAreaList[] =
 
 XID xid_DegSuperHeat  = MdlBsXID(4505);
 
-static double Drw_DeSuperHeater[] ={DD_Poly, 8,3, 2,1, 1,1, 1,2, -1,2, -1,1, -2,1, -8,3, -8,-3, -2,-1, 2,-1, 8,-3, 8,3,
-                                 DD_End };
+static double Drw_DeSuperHeater[] = { DD_Poly, 8,3, 2,1, 1,1, 1,2, -1,2, -1,1, -2,1, -8,3, -8,-3, -2,-1, 2,-1, 8,-3, 8,3,
+                                      DD_TagPos, 0, -6.5,
+                                      DD_End };
 
 //--------------------------------------------------------------------------
 

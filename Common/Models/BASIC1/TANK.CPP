@@ -385,10 +385,18 @@ static IOAreaRec TankIOAreaList[] =
     {NULL}
   };    
 
-static double Drw_Tank[] = { DD_Poly,   -10,10, -10,-10, 10,-10, 10,10,
+/*static double Drw_Tank[] = { DD_Poly, -10,10, -10,-10, 10,-10, 10,10,
                              DD_TagPos, 0, -13.5,
                              //DD_ValuePos , 11, 6,
-                             DD_End     }; //This provides the default drawing of the Tank.
+                             DD_End }; //This provides the default drawing of the Tank.*/
+static double Drw_Tank[] = { DD_Poly, -7,9, -7,-9,
+                             DD_Poly, 7,-9, 7,9,
+                             DD_Arc3, -7,-9, 0,-12, 7,-9,
+                             DD_Arc3, 7,9, 0,12, -7,9,
+                             DD_Arc3, 7,9, 0,6, -7,9,
+                             DD_TagPos, 0, -15.5,
+                             //DD_ValuePos , 11, 6,
+                             DD_End }; //This provides the default drawing of the Tank.
 
 //--------------------------------------------------------------------------
 

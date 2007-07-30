@@ -82,9 +82,9 @@ static IOAreaRec CentrifugeMBIOAreaList[] =
   };
 
 static double Drw_CentrifugeMB[] = { DD_Poly, -10,-5, 0,-5, 10,-2, 10,2, 0,5, -10,5, -10,-5,
-                            DD_Poly, 0,-5, 0,5,
-                            DD_TagPos, 0,-8.5,
-                            DD_End }; 
+                                     DD_Poly, 0,-5, 0,5,
+                                     DD_TagPos, 0,-8.5,
+                                     DD_End }; 
 
 
 //--------------------------------------------------------------------------

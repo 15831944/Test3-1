@@ -109,7 +109,8 @@ static IOAreaRec Feed_XPGIOAreaList[] =
    {NULL}};
 
 static double Drw_Feed_XPG[] = { DD_Poly, -10,3, 7,3, 10,0, 7,-3, -10,-3 , -7,0, -10,3,
-                      DD_End };
+                                 DD_TagPos, 0, -6.5,
+                                 DD_End };
 
 //--------------------------------------------------------------------------
 

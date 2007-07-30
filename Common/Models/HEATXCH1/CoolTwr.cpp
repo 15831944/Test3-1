@@ -40,11 +40,11 @@ static IOAreaRec CoolingTowerIOAreaList[] =
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_CoolingTower[] = { 
-                                 DD_Poly, -14,-14, -14,-6, 14,-6, 14,-14, -14,-14,
-                                 DD_Poly, 9,-7, 7,17, -1,17, -3,-7,
-                                 DD_Poly, -8,-7, -8,15, -1,15,
-                                 DD_End }; 
+static double Drw_CoolingTower[] = { DD_Poly, -14,-15, -14,-8, 14,-8, 14,-15, -14,-15,
+                                     DD_Poly, 9,-9, 7,15, -1,15, -3,-9,
+                                     DD_Poly, -8,-9, -8,13, -1,13,
+                                     DD_TagPos, 0, -18.5,
+                                     DD_End }; 
 
 //--------------------------------------------------------------------------
 

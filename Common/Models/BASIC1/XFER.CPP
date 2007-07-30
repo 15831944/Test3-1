@@ -53,8 +53,9 @@ static IOAreaRec X_TieIOAreaList[] =
   BLEED2AREA(),
   {NULL}};
 
-double Drw_X_Tie[] = { DD_Poly, -1,1, 1,1, 1,-1, -1,-1, -1,1,
-DD_End };
+double Drw_X_Tie[] = { DD_Poly, -1.5,1.5, 1.5,1.5, 1.5,-1.5, -1.5,-1.5, -1.5,1.5,
+                       DD_TagPos, 0, -5,
+                       DD_End };
 
 //--------------------------------------------------------------------------
 

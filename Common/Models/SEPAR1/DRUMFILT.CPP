@@ -70,9 +70,11 @@ static IOAreaRec DrumFiltIOAreaList[] =
     {NULL}
   };
 
-static double Drw_DrumFilt[] = { DD_Arc, 0, 0, 8, 
-                      DD_Poly, -12,-2, 0,-12, 12,-4, 8,-2,
-                      DD_End };
+static double Drw_DrumFilt[] = { DD_Arc, 0, 0, 6.4, 
+                                 DD_Poly, -9.6,-1.6, 0,-9.6, 9.6,-3.2, 6.4,-1.6,
+                                 DD_TagPos, 0, -13.1,
+                                 DD_End };
+
 //--------------------------------------------------------------------------
 
 IMPLEMENT_MODELUNIT(DrumFilt, "DrumFilt", "0", Drw_DrumFilt, "Filter", "DFT", TOC_PROBAL|TOC_GRP_SEPAR|TOC_STD_KENWALT,

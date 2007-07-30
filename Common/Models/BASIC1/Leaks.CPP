@@ -22,7 +22,6 @@ XID xidKFact  = MdlBsXID(17000);
 XID xidPDiam  = MdlBsXID(17002);
 XID xidVDiam  = MdlBsXID(17003);
 
-
 //==========================================================================
 //
 //
@@ -467,10 +466,11 @@ static IOAreaRec CPipeLeakIOAreaList[] =
    //{"Leak",    "Leak", IOId_XferLeak,  LIO_Out,       nc_MLnk, 0, 1, IOOptsHide|IOEqnsHide|IOPipeJoin|IOHidden},
    {NULL}};
 
-double Drw_CLeak[] = {  DD_Poly, -3,0,  3,0, 
-                        DD_Poly,  0,0, -1,1, 
-                        DD_Poly,  0,0,  0,2, 
-                        DD_Poly,  0,0,  1,1, 
+double Drw_CLeak[] = {  DD_Poly, -3,-1,  3,-1, 
+                        DD_Poly,  0,-1, -1,0, 
+                        DD_Poly,  0,-1,  0,1, 
+                        DD_Poly,  0,-1,  1,0, 
+                        DD_TagPos, 0, -4.5,
                         DD_End };
 
 //--------------------------------------------------------------------------

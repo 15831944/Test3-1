@@ -62,8 +62,9 @@ Model type:Unit#n
 //==========================================================================
 
 double Drw_B_Pump[] = { DD_Arc, 0, 0, 4,
-                      DD_Poly, 0,-4, 5,-4, 5,-2, 0,-2,
-                      DD_End };
+                        DD_Poly, 0,-4, 5,-4, 5,-2, 0,-2,
+                        DD_TagPos, 0, -7.5,
+                        DD_End };
 
 //XID xidPressMethod = MdlBsXID(4801);
 

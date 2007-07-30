@@ -112,7 +112,8 @@ static IOAreaRec Vlv4PortIOAreaList[] =
   };
 
 double Drw_Vlv4Port[] = { DD_Poly, -3,-1, -3,1, -1,1, -1,3, 1,3, 1,1, 3,1, 3,-1, 1,-1, 1,-3, -1,-3, -1,-1, -3,-1,
-DD_End };
+                          DD_TagPos, 0, -6.5,
+                          DD_End };
 
 //const long Max4WayIOPorts=4;
 

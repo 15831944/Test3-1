@@ -163,10 +163,11 @@ static IOAreaRec FlashTankIOAreaList[] =
   {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_FlashTank[] = { DD_Poly, -5,10, -5,-5, 0,-10, 5,-5, 5,10,
-DD_Poly, -5,-2, 5,-2,
-DD_Arc3, -5,10, 0,13, 5,10,
-DD_End }; 
+static double Drw_FlashTank[] = { DD_Poly, -5,8.5, -5,-6.5, 0,-11.5, 5,-6.5, 5,8.5,
+                                  DD_Poly, -5,-3.5, 5,-3.5,
+                                  DD_Arc3, -5,8.5, 0,11.5, 5,8.5,
+                                  DD_TagPos, 0, -15.0,
+                                  DD_End }; 
 
 //--------------------------------------------------------------------------
 

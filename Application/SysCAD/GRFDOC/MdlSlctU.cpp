@@ -1485,8 +1485,11 @@ Continue:
               }
             if (j<3) // AllOK
               {
-              double X=(B[i2]*C[i1]-B[i1]*C[i2])/(A[i1]*C[i2]-C[i1]*B[i2]);
-              double Y=-(X*A[i1]+B[i1])/C[i1];
+              const double Xa=B[i2]*C[i1]-B[i1]*C[i2];
+              const double Xb=A[i1]*C[i2]-C[i1]*B[i2];
+              const double X=Xa/NZ(Xb);
+              //double X=(B[i2]*C[i1]-B[i1]*C[i2])/(A[i1]*C[i2]-C[i1]*B[i2]);
+              const double Y=-(X*A[i1]+B[i1])/C[i1];
               double Rad=sqrt(Sqr(Xs-X)+Sqr(Ys-Y));
               double Sa=Rad2Deg(atan2(Ys-Y, Xs-X));
               double Ma=Rad2Deg(atan2(Ym-Y, Xm-X));

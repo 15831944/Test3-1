@@ -86,7 +86,8 @@ static IOAreaRec SplitterIOAreaList[] =
    {NULL}};
 
 static double Drw_Splitter[] = { DD_Poly, -1,5, 1,5, 3,-5, -3,-5, -1,5,
-                        DD_End };
+                                 DD_TagPos, 0, -8.5,
+                                 DD_End };
 
 enum SPM_FiltrateMethods { SPM_Specie, SPM_FeedSolLiq, SPM_OSSolLiq };
 

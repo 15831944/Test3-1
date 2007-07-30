@@ -12,7 +12,9 @@
 
 //==========================================================================
 
-static double Drw_PipeTerm[] = { DD_Poly, -2,3, 4,0, -2,-3, -2,3, DD_End };
+static double Drw_PipeTerm[] = { DD_Poly, -3,3, 3,0, -3,-3, -3,3, 
+                                 DD_TagPos, 0, -6.5,
+                                 DD_End };
 
 static IOAreaRec PipeTermIOAreaList[] =
   {{"Inputof Stack",       "In"  , 0, LIO_In0 ,  nc_MLnk, 0, 1, IOPipeEntry},

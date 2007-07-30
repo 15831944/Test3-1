@@ -70,7 +70,8 @@ static IOAreaRec ClassifierIOAreaList[] =
 
 
 static double Drw_Classifier[] = { DD_Poly, -10,10, -10,-5, 0,-10, 10,-5, 10,10, -10,10,
-                               DD_End }; 
+                                   DD_TagPos, 0, -13.5,
+                                   DD_End }; 
 
 
 enum CLM_Methods { CLUF_SolRec, CLUF_OFConc, CLUF_UQVol };

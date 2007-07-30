@@ -28,14 +28,12 @@ XID xidValveDP        = ModelXID(1);
 //XID xidValveModeAct       = ModelXID(2);
 //XID xidValveModeRqd       = ModelXID(3);
 
-double Drw_VlvIsoPRV[] = 
-  {
-  DD_Poly, -4,3, -4,-3, 0,0, 4,3, 4,-3, -4,3,
-  DD_Poly, -2,4, 2,4, //0,5, -2,4,
-  DD_Arc3, 2,4, 0,6, -2,4, //0,5, -2,4,
-  DD_Poly, 0,0, 0,7, 4,7, 0,0,
-  DD_End 
-  };
+double Drw_VlvIsoPRV[] = { DD_Poly, -4,1, -4,-5, 0,-2, 4,1, 4,-5, -4,1,
+                           DD_Poly, -2,2, 2,2, //0,3, -2,2,
+                           DD_Arc3, 2,2, 0,4, -2,2, //0,3, -2,2,
+                           DD_Poly, 0,-2, 0,5, 4,5, 0,-2,
+                           DD_TagPos, 0, -8.5,
+                           DD_End };
 
 //const long Max4WayIOPorts=4;
 
