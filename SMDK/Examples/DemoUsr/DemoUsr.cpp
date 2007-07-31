@@ -13,12 +13,12 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 
 #include "scdmacros.h" 
 #include "md_headers.h" 
-#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\DevLib.lib")
-#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\scdlib.lib")
-#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\scexec.lib")
-//#pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
-//#pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
-//#pragma LIBCOMMENT("..\\..\\Bin\\", "\\scexec" )
+//#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\DevLib.lib")
+//#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\scdlib.lib")
+//#pragma comment( lib, LIBCOMMENTHD "..\\..\\Bin\\Rls\\scexec.lib")
+#pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
+#pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
+#pragma LIBCOMMENT("..\\..\\Bin\\", "\\scexec" )
 
 //===========================================================================
 
