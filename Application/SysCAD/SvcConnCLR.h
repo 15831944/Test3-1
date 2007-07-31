@@ -32,24 +32,31 @@ class CSvcConnectCLR
   public:
     ~CSvcConnectCLR(void);
 
-    void Startup(CSvcConnect * pConn, char* projectPath, char* configPath, bool ImportScd9);
+    void Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
     void Shutdown();
 
     void Sync(__int64 requestID);
 
-    //static void CreateItem(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, LPCTSTR model, LPCTSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY);
-    //static void CreateLink(__int64 requestID, LPCTSTR guid, LPCTSTR tag, LPCTSTR classID, LPCTSTR origin, LPCTSTR destination, LPCTSTR originPort, LPCTSTR destinationPort, PKPointF controlPoints[], int controlPointsLength);
+    void DoCreateGroup(__int64 requestId, LPCSTR GroupGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect);
 
-    //static void DeleteItem(__int64 requestID, LPCTSTR guid);
-    //static void DeleteLink(__int64 requestID, LPCTSTR guid);
+    void DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                   float Angle, COLORREF FillColor, 
+                   bool MirrorX, bool MirrorY);
+
+    //static void CreateItem(__int64 requestID, LPCSTR guid, LPCSTR tag, LPCSTR path, LPCSTR model, LPCSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY);
+    //static void CreateLink(__int64 requestID, LPCSTR guid, LPCSTR tag, LPCSTR classID, LPCSTR origin, LPCSTR destination, LPCSTR originPort, LPCSTR destinationPort, PKPointF controlPoints[], int controlPointsLength);
+
+    //static void DeleteItem(__int64 requestID, LPCSTR guid);
+    //static void DeleteLink(__int64 requestID, LPCSTR guid);
 
     void Load();
     void Save();
 
-    //static void ModifyItemBoundingRect(__int64 requestID, LPCTSTR guid, PKRectangleF boundingRect);
-    //static void ModifyLinkControlPoints(__int64 requestID, LPCTSTR guid, PKPointF controlPoints[], int controlPointsLength);
+    //static void ModifyItemBoundingRect(__int64 requestID, LPCSTR guid, PKRectangleF boundingRect);
+    //static void ModifyLinkControlPoints(__int64 requestID, LPCSTR guid, PKPointF controlPoints[], int controlPointsLength);
 
-    void Export(char* projectPath, char* configPath);
+    void Export(LPCSTR projectPath, LPCSTR configPath);
 
   public:
 

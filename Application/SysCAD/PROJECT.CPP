@@ -6589,6 +6589,8 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       {
       m_pSvc = new CSvcConnect;
       m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
+      // Temporary
+      m_pSvc->Export(PrjFiles(), CfgFiles());
       }
     else
       m_pSvc = NULL;
@@ -8881,11 +8883,11 @@ flag CProject::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pH
 
 //---------------------------------------------------------------------------
 
-int CProject::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag)
+int CProject::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, Strng * pGuidStr)
   {
   if (!FlwLib())
     return False;
-  return FlwLib()->FE_DoInsert(ModelType, SubClass, NULL, Tag, NULL, NULL);
+  return FlwLib()->FE_DoInsert(ModelType, SubClass, NULL, Tag, NULL, NULL, NULL, pGuidStr);
   }
 
 //---------------------------------------------------------------------------

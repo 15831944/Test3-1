@@ -17,42 +17,57 @@ class CRectangleF
   public:
     CRectangleF()
       {
-      m_Left    = 0.0;
-      m_Right   = 0.0;
-      m_Bottom  = 0.0;
-      m_Top     = 0.0;
+      m_X = 0.0;
+      m_Y = 0.0;
+      m_W = 0.0;
+      m_H = 0.0;
       };
-    CRectangleF(double L, double R, double B, double T)
+    CRectangleF(double x, double y, double w, double h)
       {
-      m_Left    = L;
-      m_Right   = R;
-      m_Bottom  = B;
-      m_Top     = T;
+      m_X = float(x);
+      m_Y = float(y);
+      m_W = float(w);
+      m_H = float(h);
+      }
+    CRectangleF(float x, float y, float w, float h)
+      {
+      m_X = x;
+      m_Y = y;
+      m_W = w;
+      m_H = h;
       }
 
-    void Set(double Left,double Bottom,double Width,double Height)
+    void Set(double x,double y,double w,double h)
       {
-      m_Left    = Left;
-      m_Right   = Left+Width;
-      m_Bottom  = Bottom;
-      m_Top     = Bottom+Height;
+      m_X = float(x);
+      m_Y = float(y);
+      m_W = float(w);
+      m_H = float(h);
       }
 
-    double  Left()    const { return m_Left;   };
-    double  Right()   const { return m_Right;  };
-    double  Bottom()  const { return m_Bottom; };
-    double  Top()     const { return m_Top;    };
+    void Set(float x,float y,float w,float h)
+      {
+      m_X = x;
+      m_Y = y;
+      m_W = w;
+      m_H = h;
+      }
 
-    double  Width()   const { return (m_Right-m_Left); };
-    double  Height()  const { return (m_Top-m_Bottom); };
-    double  MidX()    const { return 0.5*(m_Left+m_Right); };
-    double  MidY()    const { return 0.5*(m_Bottom+m_Top); };
+    float  Left()    const { return m_X;      };
+    float  Bottom()  const { return m_Y;      };
+    float  Right()   const { return m_X+m_W;  };
+    float  Top()     const { return m_Y+m_H;  };
+
+    float  Width()   const { return m_W; };
+    float  Height()  const { return m_H; };
+    float  MidX()    const { return m_X+0.5f*m_W; };
+    float  MidY()    const { return m_Y+0.5f*m_H; };
 
   protected:
-    double   m_Left;
-    double   m_Right;
-    double   m_Bottom;
-    double   m_Top;
+    float   m_X;
+    float   m_Y;
+    float   m_W;
+    float   m_H;
   };
 
 //========================================================================
@@ -104,42 +119,62 @@ class CSvcConnect
   public:
     ~CSvcConnect();
 
-    void Startup(char* projectPath, char* configPath, bool ImportScd9);
+    void Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
     void Shutdown();
     //void Initialise();
     //void Terminate();
 
+    void Export(LPCSTR projectPath, LPCSTR configPath);
+    void Load();
+    void Save();
+
     //------------------------------------------------------------------------
 
-    void OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
+    void OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       const CRectangleF & boundingRect);
 
     //------------------------------------------------------------------------
+    // Items
+    // When actions are initiated in Scd9
+    // if DoUpdate it true then the callback's must 'redo' the work else they should be filtered out
 
-    void OnCreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
-      LPCTSTR model, LPCTSTR shape, const CRectangleF & boundingRect, 
-      double angle, COLORREF Colour, 
+    // Utils ------
+    //static CString MakePath(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page);
+    CString               MakePath(LPCSTR Part1=NULL, LPCSTR Part2=NULL, LPCSTR Part3=NULL);
+    CRectangleF           GetPageRect(LPCSTR PgName);
+    CString               ExtractPageName(LPCSTR Path);
+    CGrfDoc             * FindGrfDoc(LPCSTR PageName);
+    CString               ExtractShape(LPCSTR Symbol);
+
+    // Operations
+    void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
+    void DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity);
+    void DoDeleteItem(CGrfDoc *pDoc, DXF_ENTITY eEntity);
+
+    // CallBack's
+    void OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
+      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+      float angle, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
-    void OnDeleteItem(__int64 eventId, __int64 requestId, LPCTSTR guid);
+    void OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR guid);
 
-    void OnModifyItem(__int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
-      LPCTSTR model, LPCTSTR shape, const CRectangleF & boundingRect, 
-      double angle, COLORREF Colour, 
+    void OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
+      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+      float angle, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
-    void DoCreateItem(DXF_ENTITY eEntity, CGrfDoc *pDoc);
-
-
-    void Export(char* projectPath, char* configPath);
-    void Load();
-    void Save();
+    //------------------------------------------------------------------------
 
   protected:
     CSvcConnectCLR    * m_pCLR;
     
     CsGrfGroupMap   m_GrfGrpsNames;
     CsGrfGroupMap   m_GrfGrpsGuids;
+    __int64         m_lEventId;
+    __int64         m_lRequestId;
+
+    bool            m_bExportBusy;
 
   };
 

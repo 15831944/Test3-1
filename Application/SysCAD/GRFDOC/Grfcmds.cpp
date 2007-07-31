@@ -32,6 +32,7 @@
 #include "neutralmdl.h"
 #include "bulktagchange.h"
 #include "assocgrftag.h"
+#include "svcconn.h"
 
 //#include "optoff.h"
                         
@@ -2120,16 +2121,31 @@ void GrfCmdBlk::DoInsert()
             
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
+#if SYSCAD10
+            //TACKY !!
+            int NOpens=pDsp->Opens;
+            for (int ixx=0; ixx<NOpens; ixx++)
+              pDsp->Close();
+            gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), CreateGUIDStr(), CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+            for (int ixx=0; ixx<NOpens; ixx++)
+              pDsp->Open();
+
+#else
 
             CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set);
             if (CB->e)
               {
+              Strng TheGuid;
               pDsp->Draw(CB->e, -1);
               if (DoAddModel)
-                CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag());
+                CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), &TheGuid);
               pDsp->Draw(CB->e, -1);
-  //            pDrw->EntityInvalidate(en, NULL);
+              //            pDrw->EntityInvalidate(en, NULL);
+
+              //gs_pPrj->Svc.DoCreateItem(true, TheGuid(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
               }
+
+#endif
             }
 
           if (pMdlDlg)
@@ -11014,7 +11030,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 
 //---------------------------------------------------------------------------
 
-int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag)
+int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag, Strng * pGuidStr)
   {
   int err = -1;
   if (!gs_License.NodeCountExceeded(1, eLic_MsgBox))
@@ -11027,7 +11043,7 @@ int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag)
       {
       CMdlValueSet::Clear();
       char * SubClass=NULL; // tobe Set / passed into this subroutine
-      err = gs_pPrj->AddNodeModel(ModelTyp, SubClass, Tag);
+      err = gs_pPrj->AddNodeModel(ModelTyp, SubClass, Tag, pGuidStr);
       if (err)
         LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Model not inserted[%i]\n%s:%s", err, ModelTyp, Tag);
       }

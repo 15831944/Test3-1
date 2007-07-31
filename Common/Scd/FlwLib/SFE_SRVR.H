@@ -44,7 +44,7 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
 //    VOID         Free();
 
    
-    int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL);
+    int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL, Strng * pGuidStr=NULL);
     int          FE_DoInsertRoot(char * RootName);
     int          FE_DoDelete(char * Tag);
     int          FE_DoConnect(char * SrcTag, char *DstTag);

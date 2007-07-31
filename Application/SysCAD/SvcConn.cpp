@@ -18,7 +18,7 @@
 //
 //========================================================================
 
-static int CheckTagExists(LPCTSTR Tag)
+static int CheckTagExists(LPCSTR Tag)
   {
   if (gs_pSfeSrvr)
     {
@@ -30,7 +30,7 @@ static int CheckTagExists(LPCTSTR Tag)
   return -2;
   }
 
-static CDocument* GetGrfDoc(int index, LPCTSTR name)
+static CDocument* GetGrfDoc(int index, LPCSTR name)
   {
   bool Done=false;
   CDocument* pDoc=NULL;
@@ -78,12 +78,16 @@ static CDocument* GetGrfDoc(int index, LPCTSTR name)
 
 CSvcConnect::CSvcConnect()
   {
+  m_lRequestId = 2000; // temporary - should be zeros
+  m_lEventId   = 1000;
+
+  m_bExportBusy = false;
   }
 CSvcConnect::~CSvcConnect()
   {
   }
 
-void CSvcConnect::Startup(char* projectPath, char* configPath, bool ImportScd9)
+void CSvcConnect::Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
   {
   m_GrfGrpsNames.InitHashTable(101);
   m_GrfGrpsGuids.InitHashTable(101);
@@ -112,10 +116,68 @@ void CSvcConnect::Shutdown()
   };
 
 
-void CSvcConnect::Export(char* projectPath, char* configPath)
+void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
   {
-  m_pCLR->Export(projectPath, configPath);
+  m_bExportBusy = true;
+  //m_pCLR->Export(projectPath, configPath);
+
+  CGetExistingItems GI;
+
+  int PrevPage=-1;
+  CString Path;
+
+  //    static __int64 RqID=0;
+
+  while (GI.GetOne())
+    {
+    CGrfTagInfo & I = GI.Item();
+
+    dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+    
+    // Simple Layout
+    int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
+    float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
+    float YOffSet=(GI.PageNo()/NAcross)*310.0f;
+
+    if (PrevPage!=GI.PageNo())
+      {
+      PrevPage=GI.PageNo();
+
+      CString GrpGuid = CreateGUIDStr(); // where should this come from
+      dbgpln("DoCreateItem2 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, GrpGuid , GI.PageName(), MakePath(projectPath));
+
+      m_pCLR->DoCreateGroup(m_lRequestId++, GrpGuid, GI.PageName(), MakePath(projectPath), 
+        CRectangleF(GI.PageRct().Left()+XOffSet,GI.PageRct().Bottom()+YOffSet, GI.PageRct().Width(), GI.PageRct().Height()));
+      }
+
+    switch (GI.Type())
+      {
+      case CGetExistingItems::eIsNode:
+        {
+
+        CString ItemGuid = CreateGUIDStr(); // where should this come from
+        CString Shape    = ExtractShape(I.m_sSymbol());
+        CString Model    = I.m_sClass();
+
+        dbgpln("DoCreateItem2 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, ItemGuid, I.m_sTag(), MakePath(projectPath, GI.PageName()));
+        
+        m_pCLR->DoCreateItem(m_lRequestId++, ItemGuid, I.m_sTag(),
+          MakePath(projectPath, GI.PageName()), Model, Shape,
+          CRectangleF(I.m_LoBnd.m_X+XOffSet, GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet, I.m_HiBnd.m_X-I.m_LoBnd.m_X, I.m_HiBnd.m_Y-I.m_LoBnd.m_Y),
+          0.0, 0, false, false);
+        break;
+        }
+
+      case CGetExistingItems::eIsLink:
+        {
+        break;
+        }
+      }
+    }
+
+  m_bExportBusy = false;
   };
+
 void CSvcConnect::Load()
   {
   m_pCLR->Load();
@@ -125,33 +187,9 @@ void CSvcConnect::Save()
   m_pCLR->Save();
   };
 
-//void CSvcConnect::Initialise()
-//  {
-//  m_GrfGrpsNames.InitHashTable(101);
-//  m_GrfGrpsGuids.InitHashTable(101);
-//
-//  };
-
 //========================================================================
 
-//void CSvcConnect::Terminate()
-//  {
-//  POSITION Pos=m_GrfGrpsNames.GetStartPosition();
-//  while (Pos)
-//    {
-//    LPCSTR Key;
-//    CsGrfGroup *pG;
-//    m_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
-//    delete pG;
-//    }
-//
-//  m_GrfGrpsNames.RemoveAll();
-//  m_GrfGrpsGuids.RemoveAll();
-//  };
-
-//========================================================================
-
-void CSvcConnect::OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
+void CSvcConnect::OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
                     const CRectangleF & boundingRect)
   {
   CsGrfGroup * pG = new CsGrfGroup;
@@ -165,17 +203,105 @@ void CSvcConnect::OnCreateGroup(bool DoingExport, __int64 eventId, __int64 reque
   };
 
 //========================================================================
+//
+//
+//
+//========================================================================
 
-void CSvcConnect::OnCreateItem(bool DoingExport, __int64 eventId, __int64 requestId, LPCTSTR Guid, LPCTSTR Tag, LPCTSTR Path, 
-                   LPCTSTR ClassId, LPCTSTR Symbol, const CRectangleF & boundingRect,
-                   double Angle, COLORREF FillColor, 
+CString CSvcConnect::MakePath(LPCSTR Part1, LPCSTR Part2, LPCSTR Part3)
+  {
+  CString S("/");
+  if (Part1) { S+=Part1; S+="/"; }
+  if (Part2) { S+=Part2; S+="/"; }
+  if (Part3) { S+=Part3; S+="/"; }
+  return S;
+  };
+
+CString CSvcConnect::ExtractPageName(LPCSTR Path)
+  {
+  CString Pg(Path);
+  // find endof Path
+  int n=0; 
+  for (int i=0; i<Pg.GetLength(); i++)
+    if (Pg[i]=='/')
+      n++;
+  
+  if (n>=2)
+    {
+    // Assume Page is last delimited string
+    for (i=0; i<n-1; i++)
+      Pg.Delete(0, Pg.Find('/')+1);
+
+    Pg.Delete(Pg.Find('/'), 1000);
+    }
+  // Error Checking ?????????
+  return Pg;
+  }
+
+CGrfDoc * CSvcConnect::FindGrfDoc(LPCSTR PageName)
+  {
+  CGrfDoc * pDoc=dynamic_cast<CGrfDoc*>(GetGrfDoc(-1, PageName && strlen(PageName)>0?PageName:NULL));
+  // Error Checking ?????????
+  return pDoc;
+  }
+
+CRectangleF CSvcConnect::GetPageRect(LPCSTR PageName) 
+  {
+  CRectangleF PageRct(0.0, 420, 0, 297);
+  CsGrfGroup *pG;
+  if (PageName&& m_GrfGrpsNames.Lookup(PageName, pG))
+    {
+    PageRct = pG->m_Bounds;
+    }
+  return PageRct;
+  }
+
+CString CSvcConnect::ExtractShape(LPCSTR Symbol)
+  {
+  CString Shape(Symbol);
+  int iSep=Shape.FindOneOf("$:");
+  if (iSep>=0)
+    Shape.Delete(0, iSep+1);
+  return Shape;
+  }
+
+//========================================================================
+//
+//
+//
+//========================================================================
+
+void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
+  {
+  double Width=20;
+  double Height=20;
+
+  CRectangleF PageRct = GetPageRect(Page);
+  CRectangleF boundingRect(Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
+  // TO Fix
+  CString Shape = ExtractShape(ClassId);//Symbol);
+
+  dbgpln("DoCreateItem1 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, ItemGuid, Tag, MakePath(Prj, Page));
+  m_pCLR->DoCreateItem(m_lRequestId++, ItemGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, 0, false, false);
+  };
+
+//========================================================================
+
+void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR Tag, LPCSTR Path, 
+                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                   float Angle, COLORREF FillColor, 
                    bool MirrorX, bool MirrorY)
   {
 
   try
     {
+    //if (m_bExportBusy)
+    //  return;
+
+    dbgpln("OnCreateItem  %7I64i %7I64i %s  %-20s  %s", eventId, requestId, Guid, Tag, Path);
+
     bool Error = false;
-    if (!DoingExport)
+    if (!m_bExportBusy)
       {
       Error = (CheckTagExists(Tag)==0);
       if (Error)
@@ -183,77 +309,30 @@ void CSvcConnect::OnCreateItem(bool DoingExport, __int64 eventId, __int64 reques
         LogError(NETSERVERNAME, 0, "Tag not found : AddUnit '%s' failed!", Tag);
         // return Scd.Return(eScdGraphicCode_TagNotFound, "Tag not found : AddUnit '%s' failed!", Tag);
         }
-
       }
 
     CRectangleF PageRct(0.0, 420, 0, 297);
-    CDocument* pDoc=NULL;
-    if (!Error)
-      {
-      CString Pg(Path);
-      // find endof Path
-      int n=0; 
-      for (int i=0; i<Pg.GetLength(); i++)
-        if (Pg[i]=='/')
-          n++;
-      
-      if (n>=2)
-        {
-        // Assume Page is last delimited string
-        for (i=0; i<n-1; i++)
-          Pg.Delete(0, Pg.Find('/')+1);
-
-        Pg.Delete(Pg.Find('/'), 1000);
-        }
-
-      pDoc=GetGrfDoc(-1, Pg.GetLength()>0?Pg.GetBuffer():NULL);//m_sName);
-      Error = (pDoc==NULL);
-      if (!Error)
-        {
-        CsGrfGroup *pG;
-        if (m_GrfGrpsNames.Lookup(Pg, pG))
-          {
-          PageRct = pG->m_Bounds;
-          }
-        }
-      }
-
+    CString PageName=ExtractPageName(Path);
+    CGrfDoc * pDoc=FindGrfDoc(PageName);
+    PageRct = GetPageRect(PageName);
 
     if (!Error)
       {
-      //RequestModelInfoRec MInfo;
-      //Strng ClassId;
-      //flag b = gs_pPrj->RequestModelClassId((char*)Tag, ClassId);
-      //ASSERT_RDB(b, "Class for tag should be found", __FILE__, __LINE__);
-      //b = gs_pPrj->RequestModelInfoByClassId(ClassId(), MInfo);
-      //ASSERT_RDB(b, "ModelInfo for Class should be found", __FILE__, __LINE__);
-
       CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
       CInsertBlk CB; 
 
       CB.ATag=Tag;
       CB.AClass=ClassId;//();
       CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
-      CB.Pt.World.Y=PageRct.Bottom()-boundingRect.MidY();  // this must be inverted
+      CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
       CB.Pt.World.Z=0;
       CB.NdScl.X=MirrorX ? -1:1;//XScale;
       CB.NdScl.Y=MirrorY ? -1:1;
       CB.NdScl.Z=1;
       CB.Rotate=(float)Angle;
       CB.ATagBase="XX_";//MInfo.TagInitialID();
-      //if (Symbol && strchr(Symbol, ':'))
       CB.ASymbol=Symbol;
-      //else
-      //  {
-      //  CB.ASymbol="XX";//MInfo.DrwGroup();
-      //  CB.ASymbol+=':';
-      //  CB.ASymbol+=Symbol;
-      //  }
-      //CB.ASymbol+=".dxf";
-        
-      //CB.m_BoundRct=
-
-      if (DoingExport)
+      if (m_bExportBusy)
         pGDoc->GCB.DoInsertNodeGrf(&CB);
       else
         pGDoc->GCB.DoInsertNode(&CB);
@@ -273,21 +352,28 @@ void CSvcConnect::OnCreateItem(bool DoingExport, __int64 eventId, __int64 reques
   }
 
 
-void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCTSTR guid)
+//========================================================================
+
+void CSvcConnect::DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
   {
   };
 
-void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCTSTR guid, LPCTSTR tag, LPCTSTR path, 
-                   LPCTSTR model, LPCTSTR shape, const CRectangleF & boundingRect, 
-                   double angle, COLORREF Colour, 
+void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
+                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                   float angle, COLORREF Colour, 
                    bool mirrorX, bool mirrorY)
   {
   };
 
-void CSvcConnect::DoCreateItem(DXF_ENTITY eEntity, CGrfDoc *pDoc)
+//========================================================================
+
+void CSvcConnect::DoDeleteItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
   {
   };
 
+void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR guid)
+  {
+  };
 
 //========================================================================
 //
@@ -315,7 +401,7 @@ m_GrfTemplate(ScdApp()->GraphTemplate())
 
 //------------------------------------------------------------------------
   
-static struct CPageSizeInfo {LPCTSTR Nm; float Scl;} s_PgInfo[]=
+static struct CPageSizeInfo {LPCSTR Nm; float Scl;} s_PgInfo[]=
   {
     {"A5", 0.5f},
     {"A4", 0.7071f},
@@ -434,7 +520,7 @@ bool CGetExistingItems::GetOne()
             //pMdl->m_pGrf = pGrf;
             //m_Guids.AddTail(pMdl);
 
-            DoneOne = true;
+            //DoneOne = true;
             break;       
             }
           case eIsNode:

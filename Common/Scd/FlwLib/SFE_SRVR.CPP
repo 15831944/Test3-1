@@ -124,9 +124,9 @@ pNodeGrfInfo CSfeSrvr::Drawings()
 
 //---------------------------------------------------------------------------
 
-int CSfeSrvr::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
+int CSfeSrvr::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
   {
-  return SfeFS->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd);
+  return SfeFS->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd, pGuidStr);
   };
 int CSfeSrvr::FE_DoInsertRoot(char * RootName)
   {

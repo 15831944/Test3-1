@@ -509,7 +509,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     long           MarkFlwNodesPressNetwork(FlwNode * pNd);
     long           MarkFlwNodesFlowNetwork(FlwNode * pNd);
 
-    int            FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL);
+    int            FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL, Strng * pGuidStr=NULL);
     int            FE_DoInsertRoot(char * RootName);
     int            FE_DoDelete(char * Tag);
     int            FE_DoConnect(char * SrcTag, char *DstTag);

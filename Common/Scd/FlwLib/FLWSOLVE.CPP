@@ -11626,7 +11626,7 @@ long CFlwSolver::MarkFlwNodesFlowNetwork(FlwNode * pNd)
 //
 //==========================================================================
 
-int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
+int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
   {
   FlwNode * p;
 
@@ -11638,6 +11638,8 @@ int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn,
   p=InsertNode(m_pRoot, ClassIn, SubClassIn, PrimaryCfgIn, NTag, NULL, TOA_Free);
   if (pNd)
     *pNd=p;
+  if (pGuidStr)
+    *pGuidStr=p->EqGUID();
   if (p)
     {
     if (SrcTag)

@@ -1341,7 +1341,7 @@ void CMainFrame::OnInitMenu(CMenu* pMenu)
         #if (!WITHANALYSE)
         DeleteMenuItem(ID_ACTIONS_Analyse);
         #endif
-        #ifndef SYSCAD10
+        #if (!SYSCAD10)
         DeleteMenuItem(ID_FILE_Save);
         DeleteMenuItem(ID_FILE_Load);
         DeleteMenuItem(ID_SCD10_EXPORT);

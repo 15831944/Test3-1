@@ -204,12 +204,13 @@ ref class CSvcConnectCLRThread
             // item->Angle
             // item->X
 
-            m_pConn->OnCreateItem(m_DoingExport, -1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
-              ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
-              CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
-              item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
-              item->MirrorX, item->MirrorY);
-            int yyy=0;
+            //CNM Removed must work out when to do this
+            //m_pConn->OnCreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+            //  ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
+            //  CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
+            //  item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
+            //  item->MirrorX, item->MirrorY);
+            //int yyy=0;
             //Chris
             }
 
@@ -247,21 +248,57 @@ ref class CSvcConnectCLRThread
         }
       };
 
+    // ====================================================================
+
+    void DoCreateGroup(__int64 requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
+      {
+      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      engineProtocol->CreateGroup(requestId, Guid(gcnew String(GrpGuid)), gcnew String(Tag), gcnew String(Path), BR);
+      }
+
 
     void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
       {
       m_pConn->OnCreateGroup(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
-        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top));
+        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height));
       }
+
+    // ====================================================================
+
+    void DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+                                      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                                      float Angle, COLORREF FillColor, 
+                                      bool MirrorX, bool MirrorY)
+      {
+      //Guid X(gcnew String(guid))
+      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      engineProtocol->CreateItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
+        gcnew String(ClassId), gcnew String(Symbol), BR, Angle, Color::Black, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
+      };
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
-      m_pConn->OnCreateItem(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+      m_pConn->OnCreateItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
-        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top), 
+        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
         angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
+
+    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+      {
+      m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+        ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
+        CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
+        angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
+        mirrorX, mirrorY);
+      }
+
+    void ItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String^ path)
+      {
+      }
+
+    // ====================================================================
 
     void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
       {
@@ -281,19 +318,6 @@ ref class CSvcConnectCLRThread
       }
 
     void ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
-      {
-      }
-
-    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
-      {
-      m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
-        ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
-        CRectangleF(boundingRect.Left, boundingRect.Right, boundingRect.Bottom, boundingRect.Top), 
-        angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
-        mirrorX, mirrorY);
-      }
-
-    void ItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String^ path)
       {
       }
 
@@ -348,66 +372,67 @@ ref class CSvcConnectCLRThread
 
     void Export(String ^ filename)
       {
+      // Recreates Graphics but leaves the models in place
 
       m_DoingExport=true;
 
-      CGetExistingItems GI;
+      //CGetExistingItems GI;
 
-      int PrevPage=-1;
+      //int PrevPage=-1;
 
-      static __int64 RqID=0;
+      //static __int64 RqID=0;
 
-      while (GI.GetOne())
-        {
-        CGrfTagInfo & I = GI.Item();
+      //while (GI.GetOne())
+      //  {
+      //  CGrfTagInfo & I = GI.Item();
 
-        dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
-        
-        System::Guid guid(gcnew String(GI.Guid()));
-        guid=System::Guid::NewGuid();
-        String ^ page =  gcnew String(GI.PageName());//"Pg1";
+      //  dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+      //  
+      //  System::Guid guid(gcnew String(GI.Guid()));
+      //  guid=System::Guid::NewGuid();
+      //  String ^ page =  gcnew String(GI.PageName());//"Pg1";
 
-        // Simple Layout
-        int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
-        float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
-        float YOffSet=(GI.PageNo()/NAcross)*310.0f;
+      //  // Simple Layout
+      //  int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
+      //  float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
+      //  float YOffSet=(GI.PageNo()/NAcross)*310.0f;
 
-        if (PrevPage!=GI.PageNo())
-          {
-          PrevPage=GI.PageNo();
+      //  if (PrevPage!=GI.PageNo())
+      //    {
+      //    PrevPage=GI.PageNo();
 
-          String ^ path = "/" + filename + "/";
-          engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), 
-            RectangleF(float(GI.PageRct().Left()+XOffSet),float(GI.PageRct().Bottom()+YOffSet), float(GI.PageRct().Width()), float(GI.PageRct().Height())));
-          }
+      //    String ^ path = "/" + filename + "/";
+      //    engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), 
+      //      RectangleF(float(GI.PageRct().Left()+XOffSet),float(GI.PageRct().Bottom()+YOffSet), float(GI.PageRct().Width()), float(GI.PageRct().Height())));
+      //    }
 
-        switch (GI.Type())
-          {
-          case CGetExistingItems::eIsNode:
-            {
-            String ^ path = "/" + filename + "/" + page + "/";
+      //  switch (GI.Type())
+      //    {
+      //    case CGetExistingItems::eIsNode:
+      //      {
+      //      String ^ path = "/" + filename + "/" + page + "/";
 
-            CString S(I.m_sSymbol());
-            int iDollar=S.Find('$');
-            if (iDollar>=0)
-              S.Delete(0, iDollar+1);
+      //      CString S(I.m_sSymbol());
+      //      int iDollar=S.Find('$');
+      //      if (iDollar>=0)
+      //        S.Delete(0, iDollar+1);
 
-            Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
-            Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
+      //      Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
+      //      Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
 
-            engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
-              path, model, shape,
-              RectangleF(float(I.m_LoBnd.m_X+XOffSet), float((GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet)), float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
-              0.0, Color(), Drawing2D::FillMode()  , false, false);
-            break;
-            }
+      //      engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
+      //        path, model, shape,
+      //        RectangleF(float(I.m_LoBnd.m_X+XOffSet), float((GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet)), float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
+      //        0.0, Color(), Drawing2D::FillMode()  , false, false);
+      //      break;
+      //      }
 
-          case CGetExistingItems::eIsLink:
-            {
-            break;
-            }
-          }
-        }
+      //    case CGetExistingItems::eIsLink:
+      //      {
+      //      break;
+      //      }
+      //    }
+      //  }
 
       m_DoingExport=false;
       }
@@ -441,7 +466,7 @@ CSvcConnectCLR::~CSvcConnectCLR(void)
   {
   }
 
-void CSvcConnectCLR::Startup(CSvcConnect * pConn, char* projectPath, char* configPath, bool ImportScd9)
+void CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
   {
   String^ projectPathString = gcnew String(projectPath);
   String^ configPathString = gcnew String(configPath);
@@ -469,7 +494,27 @@ void CSvcConnectCLR::Shutdown()
   LogNote("CSvcConnectCLR", 0, "Shutdown");
   };
 
-void CSvcConnectCLR::Export(char* projectPath, char* configPath)
+//========================================================================
+
+void CSvcConnectCLR::DoCreateGroup(__int64 requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateGroup(requestId, GrpGuid, Tag, Path, boundingRect);
+  };
+
+//========================================================================
+
+void CSvcConnectCLR::DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path,  
+                                  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                                  float Angle, COLORREF FillColor, 
+                                  bool MirrorX, bool MirrorY)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateItem(requestId, ItemGuid, Tag, Path, 
+                                  ClassId, Symbol, boundingRect, Angle, FillColor, MirrorX, MirrorY);
+  };
+
+//========================================================================
+
+void CSvcConnectCLR::Export(LPCSTR projectPath, LPCSTR configPath)
   {
   String^ projectPathString = gcnew String(projectPath);
   String^ configPathString = gcnew String(configPath);

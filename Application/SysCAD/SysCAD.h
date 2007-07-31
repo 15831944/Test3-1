@@ -162,12 +162,12 @@ class CSysCADApp : public CWinApp
     afx_msg void OnHelpModels();
     afx_msg void OnProjectSaveall();
     afx_msg void OnFileOpen();
-#ifdef SYSCAD10
+#if SYSCAD10
     afx_msg void DummyLoad();
     afx_msg void DummySave();
 #endif
     afx_msg void OnFileNew();
-#ifdef SYSCAD10
+#if SYSCAD10
     afx_msg void OnUpdateDummyInsert(CCmdUI* pCmdUI);
     afx_msg void OnUpdateDummyModify(CCmdUI* pCmdUI);
     afx_msg void OnUpdateDummyDelete(CCmdUI* pCmdUI);

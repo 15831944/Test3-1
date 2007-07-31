@@ -1158,7 +1158,7 @@ class DllImportExport CSfeSrvrBase
     virtual flag         Term() { return false; };
     virtual pNodeGrfInfo Drawings() { return 0; };
 
-    virtual int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL) { return 0; };
+    virtual int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL, Strng * pGuidStr=NULL) { return 0; };
     virtual int          FE_DoInsertRoot(char * RootName) { return 0; };
     virtual int          FE_DoDelete(char * Tag) { return 0; };
     virtual int          FE_DoConnect(char * SrcTag, char *DstTag) { return 0; };

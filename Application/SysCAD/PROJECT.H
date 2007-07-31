@@ -754,7 +754,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     int            GetLinkWiring(CLinkWiring &LinkWiring);
     int            SetLinkWiring(CLinkWiring &LinkWiring);
 
-    int            AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag);
+    int            AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, Strng * pGuidStr=NULL);
     int            DeleteNodeModel(pchar Tag);
     int            AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
     int            AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
@@ -840,6 +840,10 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     void           SvcLoad();
     void           SvcSave();
     void           Export2Scd10();
+
+    CSvcConnect  & getSvc() { return *m_pSvc; };
+
+    _declspec(property(get=getSvc))             CSvcConnect  & Svc;
 
     CSvcConnect  * m_pSvc;
 #endif

@@ -2318,6 +2318,31 @@ GlblTopologyChg TaggedObject::GlblTopoChg = {NULL, 0};
 //
 //===========================================================================
 
+CString CreateGUIDStr()
+  {
+  CString Guid;
+  // Generate DefaultGuid
+  UCHAR*psEqGUID=NULL;
+  UUID AGuid;
+  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
+  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
+#if (0 && SYSCAD10)  
+  Guid=psEqGUID;     /* Why does this not work */
+#else                
+  Guid.Format("{%s}", psEqGUID);
+#endif
+
+  RpcStringFree(&psEqGUID);
+  
+  return Guid;
+  }
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
+
 TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAttach, TagObjAttachment eAttach)
 #if WITHTAGMONITOR
 : m_Monitor(this)
@@ -2373,13 +2398,15 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
 
   m_lEqLink=-1;
 
-  // Generate DefaultGuid
-  UCHAR*psEqGUID=NULL;
-  UUID AGuid;
-  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
-  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
-  m_sEqGUID.Set("{%s}", psEqGUID);
-  RpcStringFree(&psEqGUID);
+  //// Generate DefaultGuid
+  //UCHAR*psEqGUID=NULL;
+  //UUID AGuid;
+  //ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
+  //ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
+  //m_sEqGUID.Set("{%s}", psEqGUID);
+  //RpcStringFree(&psEqGUID);
+
+  m_sEqGUID = CreateGUIDStr();
 
   m_lReportKey=0;
 

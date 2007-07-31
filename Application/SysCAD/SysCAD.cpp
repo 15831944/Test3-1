@@ -175,12 +175,12 @@ BEGIN_MESSAGE_MAP(CSysCADApp, CWinApp)
   ON_COMMAND(ID_HELP_UserDocs, OnHelpModels)
   ON_COMMAND(ID_PROJECT_SAVEALL, OnProjectSaveall)
   ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
-#ifdef SYSCAD10
+#if SYSCAD10
   ON_COMMAND(ID_FILE_Load, DummyLoad)
   ON_COMMAND(ID_FILE_Save, DummySave)
 #endif
   ON_COMMAND(ID_FILE_NEW, OnFileNew)
-#ifdef SYSCAD10
+#if SYSCAD10
   ON_UPDATE_COMMAND_UI(ID_FILE_Load, OnUpdateDummyLoad)
   ON_UPDATE_COMMAND_UI(ID_FILE_Save, OnUpdateDummySave)
 #endif
@@ -2784,7 +2784,7 @@ void CSysCADApp::OnUpdateFileOpen(CCmdUI* pCmdUI)
 
 //---------------------------------------------------------------------------
 
-#ifdef SYSCAD10
+#if SYSCAD10
 
 void CSysCADApp::DummyLoad()
   {
@@ -2834,7 +2834,7 @@ void CSysCADApp::OnUpdateFileNew(CCmdUI* pCmdUI)
   pCmdUI->Enable((EnableNoPrj() || (EnableNotBusy() && EnableNotAnalysing())) && EnableNotFiling() && EnableNotStopped() && !gs_License.Blocked());
   }
 
-#ifdef SYSCAD10
+#if SYSCAD10
 void CSysCADApp::OnUpdateDummyLoad(CCmdUI* pCmdUI)
   {
   pCmdUI->Enable(EnableNotBusy() && EnableNotAnalysing() && EnableNotFiling() && EnableNotStopped() && (CWindowLists::GetCurrentTopWindowDoc()!=NULL));

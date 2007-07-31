@@ -282,12 +282,12 @@ int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
 
 //---------------------------------------------------------------------------
 
-int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd)
+int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd);
+  pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd, pGuidStr);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
