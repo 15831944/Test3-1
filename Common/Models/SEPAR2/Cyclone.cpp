@@ -763,9 +763,9 @@ static IOAreaRec CycloneIOAreaList[] =
    {"Cyclone Underflow", "UnderFlow" , idUF,    LIO_Out1,  nc_MLnk, 1, 1,            0, 0.0F}, //Out.Out"},
    {NULL}};
 
-static double Drw_Cyclone[] = { DD_Poly, -8,4, -8,12, 8,12, 8,4, 4,-12, -4,-12, -8,4, 8,4,
-                                DD_Poly, BOX(-4,12, 8,4),
-                                DD_TagPos, 0, -15.5,
+static double Drw_Cyclone[] = { DD_Poly, -6,1, -6,9, 6,9, 6,1, 2.7,-13, -2.7,-13, -6,1, 6,1,
+                                DD_Poly, -2,9, -2,13, 2,13, 2,9,
+                                DD_TagPos, 0, -16.5,
                                 DD_End };
 
 //--------------------------------------------------------------------------

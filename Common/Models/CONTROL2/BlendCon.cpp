@@ -38,6 +38,7 @@ static double Drw_BlendCon[] =
        DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
        DD_Poly, -4,4, -1,0, -1,-4, 
        DD_Poly, 4,4, 1,0, 1,-4, 
+       DD_TagPos, 0, -7.5,
        DD_End
        };
 

@@ -66,11 +66,11 @@ static IOAreaRec BeltFiltIOAreaList[] =
 	 {"Liquid washings",            "Washings",   ioidWh, LIO_Out,    nc_MLnk, 0, 1,  IOGRP(0)},
    {NULL}};
 
-static double Drw_BeltFilt[] = { DD_Arc, -16, 0, 2, 
-												         DD_Poly, -16,2, 16,2,
-												         DD_Arc, 16, 0, 2, 
-												         DD_Poly, 16,-2, 0,-6, -16,-2,
-                                 DD_TagPos, 0, -8.5,
+static double Drw_BeltFilt[] = { DD_Arc, -16,2, 2, 
+												         DD_Poly, -16,4, 16,4,
+												         DD_Arc, 16,2, 2, 
+												         DD_Poly, 16,0, 0,-4, -16,0,
+                                 DD_TagPos, 0, -7.5,
                                  DD_End };
 
 //--------------------------------------------------------------------------

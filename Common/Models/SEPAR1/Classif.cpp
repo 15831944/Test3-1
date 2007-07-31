@@ -69,9 +69,14 @@ static IOAreaRec ClassifierIOAreaList[] =
   }; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_Classifier[] = { DD_Poly, -10,10, -10,-5, 0,-10, 10,-5, 10,10, -10,10,
+/*static double Drw_Classifier[] = { DD_Poly, -10,10, -10,-5, 0,-10, 10,-5, 10,10, -10,10,
                                    DD_TagPos, 0, -13.5,
-                                   DD_End }; 
+                                   DD_End }; */
+static double Drw_Classifier[] = { DD_Poly, -6,1, -6,9, 6,9, 6,1, 2.7,-13, -2.7,-13, -6,1, 6,1,
+                                   DD_Poly, -2,9, -2,13, 2,13, 2,9,
+                                   DD_Poly, -6,6, -8,6, -8,4, -6,4,
+                                   DD_TagPos, 0, -16.5,
+                                   DD_End };
 
 
 enum CLM_Methods { CLUF_SolRec, CLUF_OFConc, CLUF_UQVol };

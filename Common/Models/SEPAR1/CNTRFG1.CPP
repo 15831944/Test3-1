@@ -67,8 +67,9 @@ static IOAreaRec CentrifugeIOAreaList[] =
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_Centrifuge[] = { DD_Poly, -10,8, 10,8, 10,-8, -10,-8, -10,8, -10,6, 10,3, 10,-3, -10,-6, 
-                                   DD_TagPos, 0, -11.5,
+static double Drw_Centrifuge[] = { DD_Poly, -7,5.6, 7,5.6, 7,-5.6, -7,-5.6, -7,5.6,
+                                   DD_Poly, -7,4.2, 7,2.1, 7,-2.1, -7,-4.2, 
+                                   DD_TagPos, 0, -9.1,
                                    DD_End }; 
 
 //--------------------------------------------------------------------------

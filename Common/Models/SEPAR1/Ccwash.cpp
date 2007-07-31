@@ -86,9 +86,14 @@ static IOAreaRec CCWasherIOAreaList[] =
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_CCWasher[] = { DD_Poly, -15,15, -15,0, 0,-10, 15,0, 15,15, -15,15,
+/*static double Drw_CCWasher[] = { DD_Poly, -15,15, -15,0, 0,-10, 15,0, 15,15, -15,15,
                                  DD_TagPos, 0, -18.5,
-                                 DD_End }; 
+                                 DD_End };*/
+static double Drw_CCWasher[] = { DD_Poly, -25,5.7, -25,2.7, -22,2.7, -22,5.7, 22,5.7, 22,2.7, 25,2.7,
+							           				 25,5.7, 25,2.7, 22,2.7, 22,1.7, 0,-7.5, -22,1.7, -22,2.7, -22,1.7, 22,1.7, 
+                                 DD_Poly, -3,5.7, -3,7.5, 3,7.5, 3,5.7,
+                                 DD_TagPos, 0, -11,
+                                 DD_End };
 
 enum MEM_MixingEffMethods { MEM_Scandrett, MEM_Mixing };
 

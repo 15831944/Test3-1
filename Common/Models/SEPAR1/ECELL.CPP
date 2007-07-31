@@ -67,9 +67,19 @@ static IOAreaRec ElectroCellIOAreaList[] =
     {NULL}
   };
 
-static double Drw_ECell[] = { DD_Poly, -10,-5, -10,5, -6,5, -6,-5, -2,-5,
+/*static double Drw_ECell[] = { DD_Poly, -10,-5, -10,5, -6,5, -6,-5, -2,-5,
                               -2,5, 2,5, 2,-5, 6,-5, 6,5, 10,5, 10,-5,
                               -10,-5, -10,5, 10,5, 
+                              DD_TagPos, 0, -8.5,
+                              DD_End }; */
+static double Drw_ECell[] = { DD_Poly, -12,-5, -12,5, 12,5, 12,-5, -12,-5,
+                              DD_Poly, -8,-5, -8,5,
+                              DD_Poly, -4,-5, -4,5,
+                              DD_Poly, 0,-5, 0,5,
+                              DD_Poly, 4,-5, 4,5,
+                              DD_Poly, 8,-5, 8,5,
+                              DD_Poly, -12,6, -12,7.5, -1.2,9.5, -1.2,11,
+                              DD_Poly, 12,6, 12,7.5, 1.2,9.5, 1.2,11,
                               DD_TagPos, 0, -8.5,
                               DD_End };  
 

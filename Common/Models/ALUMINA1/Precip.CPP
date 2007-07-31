@@ -63,9 +63,16 @@ static IOAreaRec PrecipIOAreaList[] =
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_Precip[] = { DD_Poly, -5,10, -5,-10, 5,-10, 5,10,
+/*static double Drw_Precip[] = { DD_Poly, -5,10, -5,-10, 5,-10, 5,10,
                                DD_TagPos, 0, -13.5,
-                               DD_End }; //This provides the default drawing of the Precipitator.
+                               DD_End };*/
+static double Drw_Precip[] = { DD_Poly, -4.5,10, -4.5,-10,
+                               DD_Poly, 4.5,-10, 4.5,-10,
+                               DD_Arc3, -4.5,-10, 0,-12, 4.5,-10,
+                               DD_Arc3, 4.5,10, 0,12, -4.5,10,
+                               DD_Arc3, 4.5,10, 0,8, -4.5,10,
+                               DD_TagPos, 0, -15.5,
+                               DD_End };
 
 enum YieldMethods { YM_None, YM_Yield1, YM_Yield2, YM_Yield3 };
 enum GrowthRateMethods { GRM_White, GRM_Cresswell, GRM_WhiteBateman };

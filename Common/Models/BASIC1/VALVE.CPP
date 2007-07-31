@@ -72,8 +72,8 @@ Model type:Unit#n
 /*static double Drw_Valve_GP[] = { DD_Poly, -4,3, -4,-3, 4,3, 4,-3, -4,3,
                                  DD_TagPos, 0, -6.5,
                                  DD_End };*/
-static double Drw_Valve_GP[] = { DD_Poly, -3.8,2.85, -3.8,-2.85, 3.8,2.85, 3.8,-2.85, -3.8,2.85,
-                                 DD_TagPos, 0, -7.3,
+static double Drw_Valve_GP[] = { DD_Poly, -3.6,2.7, -3.6,-2.7, 3.6,2.7, 3.6,-2.7, -3.6,2.7,
+                                 DD_TagPos, 0, -7.1,
                                  DD_End };
 
 const int CIOId_Pos     = CtrlIOId(0);
@@ -451,9 +451,9 @@ Model type:Unit#n
 */
 //==========================================================================
 
-static double Drw_Valve_NR[] = { DD_Poly, -4,3, -4,-3, 0,0,
-                        DD_Poly, 4,3, 4,-3, -4,3,
-                        DD_End };
+static double Drw_Valve_NR[] = { DD_Poly, 3.6,2.7, 3.6,-2.7, -3.6,2.7, -3.6,-2.7, 0,0,
+                                 DD_TagPos, 0, -7.1,
+                                 DD_End };
 
 //--------------------------------------------------------------------------
 
