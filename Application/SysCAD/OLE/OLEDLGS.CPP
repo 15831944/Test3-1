@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __OLEDLGS_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "ole_base.h"

@@ -5,7 +5,6 @@
 //      To build a separate proxy/stub DLL, 
 //      run nmake -f ScdSlvps.mk in the project directory.
 
-#include "ScdConnectPoints.h"
 #include "stdafx.h"
 #include "resource.h"
 #include <initguid.h>

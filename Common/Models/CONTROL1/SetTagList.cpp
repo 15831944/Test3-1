@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __SETTAGLIST_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "settaglist.h"

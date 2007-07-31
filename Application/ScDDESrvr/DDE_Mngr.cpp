@@ -1,8 +1,7 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
 //===========================================================================
-#define  __DDE_MNGR_CPP
-  
+
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "dde_mngr.h"

@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __EVENTSCON_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "eventscon.h"

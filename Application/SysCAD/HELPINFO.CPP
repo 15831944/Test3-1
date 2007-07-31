@@ -1,7 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
 //===========================================================================
-#define  __HELPINFO_CPP
 
 #include "stdafx.h"
 #include "sc_defs.h"

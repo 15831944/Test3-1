@@ -3,7 +3,6 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define  __SCHEDEVENTS_CPP
 #include "SchedEvents.h"
 #include <math.h>
 //#pragma optimize("", off)

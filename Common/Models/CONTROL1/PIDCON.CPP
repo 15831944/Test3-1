@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __PIDCON_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "pgm_e.h"

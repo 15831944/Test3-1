@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __REP_MNGR_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "rep_mngr.h"

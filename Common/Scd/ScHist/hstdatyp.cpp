@@ -2,9 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __HSTDATYP_H
-#define  __HSTDATYP_H
-
 #include "stdafx.h"
 
 #if !ForSysCAD

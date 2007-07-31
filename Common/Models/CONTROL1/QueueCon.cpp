@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __QUEUECON_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "queuecon.h"

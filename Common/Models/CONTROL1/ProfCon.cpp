@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __PROFCON_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "profiler.h"

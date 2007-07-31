@@ -3,9 +3,6 @@
 //===========================================================================
 //OLE 2.0 automation for Excel
 
-#define  __OLEWORD_CPP
-
-
 #include "stdafx.h"
 #include "sc_defs.h"
 

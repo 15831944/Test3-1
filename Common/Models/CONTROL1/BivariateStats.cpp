@@ -3,7 +3,6 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define  __BIVARIATESTATS_CPP
 #include "BivariateStats.h"
 #include <math.h>
 #include <limits>

@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __CMD_MNGR_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "cmd_mngr.h"

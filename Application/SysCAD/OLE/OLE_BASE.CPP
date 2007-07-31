@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
   
-#define  __OLE_BASE_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "gpfuncs.h"

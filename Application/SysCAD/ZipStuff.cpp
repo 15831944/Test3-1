@@ -2,9 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __ZIPSTUFF_H
-#define  __ZIPSTUFF_H
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "scdver.h"

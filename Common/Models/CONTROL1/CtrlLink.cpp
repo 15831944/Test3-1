@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __CTRLLINK_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "pgm_e.h"
