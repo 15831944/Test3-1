@@ -2,9 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __DATATYPE_H
-#define  __DATATYPE_H
-
 #include "stdafx.h"
 #include <string.h>
 #include <math.h>

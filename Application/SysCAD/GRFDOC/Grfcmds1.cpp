@@ -2,8 +2,6 @@
 // $Nokeywords: $
 //===========================================================================
 
-#define  __GRFCMDS_CPP
-
 #include "stdafx.h"
 #include "sc_defs.h"
 #include "..\resource.h"
