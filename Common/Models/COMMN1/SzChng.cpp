@@ -29,8 +29,9 @@ static IOAreaRec SzChngIOAreaList[] =
    {NULL}};
            
 static double Drw_SzChng[] = { DD_Poly, -4,-2, -4,2, 4,2, 4,-2, -4,-2,
-                      DD_Poly, -4,0, 4,0,
-                      DD_End };
+                               DD_Poly, -4,0, 4,0,
+                               DD_TagPos, 0, -5.5,
+                               DD_End };
 
 //===========================================================================
 

@@ -64,7 +64,8 @@ static IOAreaRec PrecipIOAreaList[] =
 
 
 static double Drw_Precip[] = { DD_Poly, -5,10, -5,-10, 5,-10, 5,10,
-                      DD_End }; //This provides the default drawing of the Precipitator.
+                               DD_TagPos, 0, -13.5,
+                               DD_End }; //This provides the default drawing of the Precipitator.
 
 enum YieldMethods { YM_None, YM_Yield1, YM_Yield2, YM_Yield3 };
 enum GrowthRateMethods { GRM_White, GRM_Cresswell, GRM_WhiteBateman };

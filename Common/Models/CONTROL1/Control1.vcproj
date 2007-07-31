@@ -323,6 +323,9 @@
 				RelativePath=".\QueueCon.cpp">
 			</File>
 			<File
+				RelativePath=".\SchedEvents.cpp">
+			</File>
+			<File
 				RelativePath=".\SchedTsk.cpp">
 			</File>
 			<File
@@ -397,6 +400,9 @@
 			</File>
 			<File
 				RelativePath=".\QueueCon.h">
+			</File>
+			<File
+				RelativePath=".\SchedEvents.h">
 			</File>
 			<File
 				RelativePath=".\SchedTsk.h">

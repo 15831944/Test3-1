@@ -59,9 +59,9 @@ static IOAreaRec ThickenerIOAreaList[] =
     {NULL}
   };
 
-static double Drw_Thicken[] = { DD_Poly, -25,0, -25,-3, -22,-3, -22,0, 22,0, 22,-3, 25,-3, 
-										          	 25,0, 25,-3, 22,-3, 22,-4, 0,-13, -22,-4, -22,-3, -22,-4, 22,-4, 
-                                 DD_TagPos, 0, -16.5,
+static double Drw_Thicken[] = { DD_Poly, -25,6, -25,3, -22,3, -22,6, 22,6, 22,3, 25,3, 
+										          	 25,6, 25,3, 22,3, 22,2, 0,-6, -22,2, -22,3, -22,2, 22,2, 
+                                 DD_TagPos, 0, -9.5,
                                  DD_End };
 
 enum OFM_OverFlowMethods { OFM_OFSolFrac, OFM_OFSolConc };

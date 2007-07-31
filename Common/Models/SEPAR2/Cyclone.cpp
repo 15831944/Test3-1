@@ -764,8 +764,9 @@ static IOAreaRec CycloneIOAreaList[] =
    {NULL}};
 
 static double Drw_Cyclone[] = { DD_Poly, -8,4, -8,12, 8,12, 8,4, 4,-12, -4,-12, -8,4, 8,4,
-                           DD_Poly, BOX(-4,12, 8,4),
-                           DD_End };
+                                DD_Poly, BOX(-4,12, 8,4),
+                                DD_TagPos, 0, -15.5,
+                                DD_End };
 
 //--------------------------------------------------------------------------
 

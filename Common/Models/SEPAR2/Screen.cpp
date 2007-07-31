@@ -1628,10 +1628,11 @@ static IOAreaRec ScreenIOAreaList[] =
    {"Over size material/solids",  "OverSize",   ioidOS, LIO_Out2,   nc_MLnk, 0, 1},
    {NULL}};
 
-static double Drw_Screen[] = { DD_Poly, -10,2, 10,0, 10,-2, 0,-5, -10,0, -10,2,
-                        DD_Poly, -10,3, 10,1,
-                        DD_Poly, -10,4, 10,2,
-                        DD_End };
+static double Drw_Screen[] = { DD_Poly, -10,2.5, 10,0.5, 10,-1.5, 0,-4.5, -10,0.5, -10,2.5,
+                               DD_Poly, -10,3.5, 10,1.5,
+                               DD_Poly, -10,4.5, 10,2.5,
+                               DD_TagPos, 0, -8,
+                               DD_End };
 
 //--------------------------------------------------------------------------
 

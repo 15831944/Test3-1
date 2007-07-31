@@ -7,6 +7,11 @@
 #include "examplesplitter.h"
 #pragma optimize("", off)
 
+/*#include < fstream >
+#include <RegexWrap\RegexWrap.h>
+//#pragma LIBCOMMENT("RegexWrap\\", "\\RegexWrap" )
+#pragma comment( lib, LIBCOMMENTHD "RegexWrap\\Rls8\\RegexWrap.lib")*/
+
 //====================================================================================
 
 const long idFeed = 0;
@@ -64,6 +69,13 @@ void Splitter::Init()
 
 void Splitter::BuildDataFields()
   {
+/*CMRegex *regex = new CMRegex();
+char buf[1024];
+strcpy_s(buf, "a string for regexing.");
+CString regexStr = "regex";
+CString replaceStr = "replac";
+CString out = regex->Replace(buf, regexStr, replaceStr);*/
+
   DD.Text("Requirements...");
   DD.CheckBox("SplitByPhase", "",  &bDoPhaseSplit, MF_PARAMETER|MF_SET_ON_CHANGE);
   DD.Double("Split", "",       &dRqdFracSplit, MF_PARAMETER|(bDoPhaseSplit ? MF_NO_VIEW : 0), MC_Frac("%"));
