@@ -791,7 +791,7 @@ CSolveCfgPage::CSolveCfgPage() : CCustomPropertyPage(CSolveCfgPage::IDD)
 	m_fMassSmooth = FALSE;
 	m_RqdConvergedIters = 3;
   m_Method=TCM_AdaptSubs;
-  m_fDampAsGroup = FALSE;
+  m_fDampAsGroup = TRUE; //maybe default should be changed to false?
   }
 
 //--------------------------------------------------------------------------

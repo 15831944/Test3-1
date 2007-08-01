@@ -2002,7 +2002,7 @@ void EqnSlvCfgBlk::InitProBal()
   dWA_Bound=-3.0;
   iWA_Delay=5;
   dWA_Clamping=0.5;
-  m_iDampAsGroup=DAG_Off;
+  m_iDampAsGroup=DAG_On;//DAG_Off; maybe change default to off?
 
   dDampFctGrowth=0.25;
   dDampFctDecay=0.05;
@@ -2024,7 +2024,7 @@ void EqnSlvCfgBlk::InitDynamic()
   dWA_Bound=-5.0;
   iWA_Delay=2;
   dWA_Clamping=0.5;
-  m_iDampAsGroup=DAG_Off;
+  m_iDampAsGroup=DAG_On;//DAG_Off; maybe change default to off?
 
   dDampFctGrowth=0.25;
   dDampFctDecay=0.05;
