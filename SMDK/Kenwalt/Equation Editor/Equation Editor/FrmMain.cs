@@ -149,6 +149,9 @@ namespace Reaction_Editor
         }
 
         protected void Open(string filename)
+        { Open(filename, true); }
+
+        protected void Open(string filename, bool queryDB)
         {
             try
             {
@@ -158,26 +161,9 @@ namespace Reaction_Editor
                     f.Activate();
                     return;
                 }
-
                 FrmReaction frm = new FrmReaction(filename, Log);
                 RegisterForm(frm);
                 RegisterRecentFile(filename);
-                /*if (!m_RecentFiles.Contains(filename))
-                    m_RecentFiles.Enqueue(filename);
-                else
-                {
-                    //We need to re-order the queue to have the new file at the top.
-                    Queue<string> temp = new Queue<string>();
-                    for (int i = 0; i < m_RecentFiles.Count; i++)
-                    {
-                        string fn = m_RecentFiles.Dequeue();
-                        if (fn != filename)
-                            m_RecentFiles.Enqueue(fn);
-                    }
-                    m_RecentFiles.Enqueue(filename);
-                }
-                while (m_RecentFiles.Count > m_nRecentFileCount)
-                    m_RecentFiles.Dequeue();*/
             }
             catch (Exception ex)
             {
@@ -415,8 +401,13 @@ namespace Reaction_Editor
 
         void frm_NowChanged(object sender, EventArgs e)
         {
-            if (sender == ActiveMdiChild)
-                m_StatusLabel.Text = ((FrmReaction)sender).StatusMessage;
+            //if (sender == ActiveMdiChild)
+            //    m_StatusLabel.Text = ((FrmReaction)sender).StatusMessage;
+            FrmReaction frm = sender as FrmReaction;
+            if (frm.Changed)
+                ((TreeNode)frm.Tag).ForeColor = Color.Blue;
+            else
+                ((TreeNode)frm.Tag).ForeColor = SystemColors.WindowText;
         }
 
         void frm_CompoundsChanged(object sender, EventArgs e)
@@ -487,10 +478,38 @@ namespace Reaction_Editor
             Open((string)((ToolStripMenuItem)sender).Tag);
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuOpen_Click(object sender, EventArgs e)
         {
             if (dlgOpenRxn.ShowDialog(this) != DialogResult.OK)
                 return;
+            string filename = dlgOpenRxn.FileName;
+            bool bDBLoaded = false;
+            foreach (TreeNode n in treeFiles.Nodes["SpecieDB"].Nodes)
+                if (Path.GetDirectoryName(n.Text) == Path.GetDirectoryName(filename))
+                {
+                    bDBLoaded = true;
+                    break;
+                }
+            if (!bDBLoaded)
+            {
+                switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
+                {
+                    case DialogResult.Yes:
+                        if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini"))
+                            MessageBox.Show(this, "No specie database found in reaction folder", "Open", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        else
+                        {
+                            if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show(this, "Unload existing specie databases before loading new database?", "Open", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                UnloadDatabase();
+                            OpenSpecieDB(Path.GetDirectoryName(filename) + "\\SpecieData.ini");
+                        }
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                        return;
+                }
+            }
             foreach (string file in dlgOpenRxn.FileNames)
                 Open(file);
         }
@@ -754,21 +773,23 @@ namespace Reaction_Editor
                 treeFiles.BeginUpdate();
                 if (File.Exists(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini"))
                 {
-                    int dbOpen = 0; bool reloadRequired = false;
+                    bool dbOpen = false;
                     foreach (TreeNode tn in treeFiles.Nodes["SpecieDB"].Nodes)
                         if (tn.Text == folderBrowserDialog1.SelectedPath + "\\SpecieData.ini")
-                            dbOpen = 1;
-                    if (treeFiles.Nodes["SpecieDB"].Nodes.Count > dbOpen && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            dbOpen = true;
+                            break;
+                        }
+                    if (!dbOpen)
                     {
-                        reloadRequired = true;
-                        UnloadDatabase();
-                    }
-                    if (dbOpen == 0 || reloadRequired)
-                    {
+                        if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show("Unload existing specie databases before loading new database?", "Open Directory", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            UnloadDatabase();
                         OpenSpecieDB(folderBrowserDialog1.SelectedPath + "\\SpecieData.ini");
-                        DoDatabaseChanged();
                     }
                 }
+                else
+                    MessageBox.Show(this, "Specie database not found in selected directory", "Open Directory", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                 foreach (string fn in Directory.GetFiles(folderBrowserDialog1.SelectedPath, "*.rct", SearchOption.TopDirectoryOnly))
                     Open(fn);
             }
@@ -777,11 +798,6 @@ namespace Reaction_Editor
                 lstLog.EndUpdate();
                 treeFiles.EndUpdate();
             }
-        }
-
-        private void sortByPhaseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
         }
 
         private void txtFilter_TextChanged(object sender, EventArgs e)
@@ -793,7 +809,7 @@ namespace Reaction_Editor
                 txtFilter.Text.Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
             foreach (Compound c in Compound.CompoundList.Values)
                 foreach (string s in tokens)
-                    if (c.Symbol.Contains(s) || c.Name.ToLower().Contains(s.ToLower()))
+                    if (c.Symbol.Contains(s))
                     {
                         ListViewItem lvi = new ListViewItem(new string[] { c.Symbol, c.Name });
                         lstSpecies.Items.Add(lvi);
@@ -801,7 +817,7 @@ namespace Reaction_Editor
                         lvi.Tag = c;
                         continue;
                     }
-            lstSpecies.ShowGroups = sortByPhaseToolStripMenuItem.Checked;
+            lstSpecies.ShowGroups = menuSortByPhase.Checked;
             if (!string.IsNullOrEmpty(txtFilter.Text.Trim()))
                 txtFilter.BackColor = Color.Pink;
             else
@@ -871,7 +887,7 @@ namespace Reaction_Editor
             grpFiles_Resize(sender, e);
         }
 
-        System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
+        static System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
         protected int m_nOldPnlLogHeight;
         private void btnLogCollapse_Click(object sender, EventArgs e)
         {
@@ -879,7 +895,7 @@ namespace Reaction_Editor
             {
                 m_nOldPnlLogHeight = pnlLog.Height;
                 pnlLog.Height = pnlLogHeader.Height + 4;
-                splitterLog.Enabled = false;
+                lstLog.Enabled = splitterLog.Enabled = false;
                 btnLogCollapse.BackgroundImage = Reaction_Editor.Properties.Resources.UpArrow;
                 if (ActiveMdiChild != null && ActiveMdiChild.ActiveControl != null)
                     ActiveMdiChild.ActiveControl.Focus();
@@ -887,7 +903,7 @@ namespace Reaction_Editor
             else
             {
                 pnlLog.Height = m_nOldPnlLogHeight;
-                splitterLog.Enabled = true;
+                lstLog.Enabled = splitterLog.Enabled = true;
                 btnLogCollapse.BackgroundImage = Reaction_Editor.Properties.Resources.DownArrow;
                 pnlLog.Focus();
             }
@@ -1002,6 +1018,26 @@ namespace Reaction_Editor
             foreach (ListViewItem lvi in lstSpecies.SelectedItems)
                 comps.Add((Compound)lvi.Tag);
             ((FrmReaction)ActiveMdiChild).RemoveSinks(comps.ToArray());
+        }
+
+        private void menuSortAlphabetically_CheckedChanged(object sender, EventArgs e)
+        {
+            if (menuSortByPhase.Checked)
+                menuSortByPhase.Checked = false;
+            if (menuSortAlphabetically.Checked)
+                lstSpecies.Sorting = SortOrder.Ascending;
+            else
+            {
+                lstSpecies.Sorting = SortOrder.None;
+                txtFilter_TextChanged(sender, e);
+            }
+        }
+
+        private void menuSortByPhase_CheckedChanged(object sender, EventArgs e)
+        {
+            if (menuSortAlphabetically.Checked)
+                menuSortAlphabetically.Checked = false;
+            lstSpecies.ShowGroups = menuSortByPhase.Checked;
         }
     }
 

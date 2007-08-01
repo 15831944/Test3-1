@@ -24,7 +24,6 @@ namespace Reaction_Editor
     public enum HXTypes { None, FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
     public enum FracTypes { ByMass, ByMole };
     public enum TPConditions { Feed, Product, Standard, Custom };
-    public enum ExtentAim { Default, Target, Strict };
 
     #region Reaction Extent Structures
     [Serializable]
@@ -36,7 +35,6 @@ namespace Reaction_Editor
         protected double m_dValue = double.NaN;
         protected Compound m_Specie;
         protected SimpleReaction m_Owner;
-        protected ExtentAim m_eAim = ExtentAim.Default;
         public RxnExtent(RxnExtent original)
         {
             if (original != null)
@@ -71,16 +69,6 @@ namespace Reaction_Editor
         {
             get { return m_Owner; }
             set { m_Owner = value; }
-        }
-        public virtual ExtentAim Aim
-        {
-            get { return m_eAim; }
-            set
-            {
-                m_eAim = value;
-                if (m_Owner != null)
-                    m_Owner.FireChanged();
-            }
         }
 
         public override string ToString()
@@ -137,8 +125,6 @@ namespace Reaction_Editor
             ret.m_Owner = newOwner;
             return ret;
         }
-
-        protected string AimString { get { return Aim == ExtentAim.Default ? "" : Aim.ToString() + " "; } }
     }
 
     [Serializable]
@@ -151,7 +137,7 @@ namespace Reaction_Editor
         public FractionExtent() : base() { }
         public override string ToString()
         {
-            return "Fraction " + AimString + Specie + " = " + Value;
+            return "Fraction " + Specie + " = " + Value;
         }
 
         public override double Value
@@ -173,11 +159,6 @@ namespace Reaction_Editor
             if (m.Groups["Specie"].Success)
                 ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
             ret.Value = double.Parse(m.Groups["Value"].Value);
-            if (m.Groups["Aim"].Success)
-                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
-                    ret.Aim = ExtentAim.Target;
-                else
-                    ret.Aim = ExtentAim.Strict;
             if (m.Groups["Percent"].Success)
                 ret.Value *= 0.01;
             if (m.Groups["Rate"].Success && m.Groups["Stabilised"].Success)
@@ -271,7 +252,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "Equilibrium " + AimString + Value;
+            return "Equilibrium " + Value;
         }
 
         public static EquilibriumExtent Parse(string s)
@@ -313,7 +294,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "FinalConc " + AimString + Specie + " = " + Value + (double.IsNaN(T) ? "" : " At " + T);
+            return "FinalConc " + Specie + " = " + Value + (double.IsNaN(T) ? "" : " At " + T);
         }
 
         public static Final_ConcExtent Parse(string s)
@@ -322,11 +303,6 @@ namespace Reaction_Editor
             if (!m.Success)
                 throw new Exception("Invalid string passed to Final_ConcExtent.Parse");
             Final_ConcExtent ret = new Final_ConcExtent();
-            if (m.Groups["Aim"].Success)
-                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
-                    ret.Aim = ExtentAim.Target;
-                else
-                    ret.Aim = ExtentAim.Strict;
             if (m.Groups["Specie"].Success)
                 ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
             ret.Value = double.Parse(m.Groups["Value"].Value);
@@ -371,7 +347,7 @@ namespace Reaction_Editor
         {
             string phaseString = m_bByPhase ? "Phase " : "Total ";
             string startString = FracType == FracTypes.ByMass ? "msFinalFraction " : "mlFinalFraction ";
-            return startString + phaseString + AimString + Specie + " = " + Value;
+            return startString + phaseString + Specie + " = " + Value;
         }
 
         public override double Value
@@ -397,12 +373,6 @@ namespace Reaction_Editor
             ret.Value = double.Parse(m.Groups["Value"].Value);
             if (m.Groups["Percent"].Success)
                 ret.Value *= 0.01;
-
-            if (m.Groups["Aim"].Success)
-                if (m.Groups["Aim"].Value.ToLowerInvariant() == "target")
-                    ret.Aim = ExtentAim.Target;
-                else
-                    ret.Aim = ExtentAim.Strict;
 
             if (m.Groups["Specie"].Success)
                 ret.Specie = Compound.FromString(m.Groups["Specie"].Value);
@@ -430,7 +400,7 @@ namespace Reaction_Editor
 
         public override string ToString()
         {
-            return "Fraction " + AimString + Specie + " Rate = " + Value + (Stabilised ? "Stabilised" : "");
+            return "Fraction " + Specie + " Rate = " + Value + (Stabilised ? "Stabilised" : "");
         }
     }
     #endregion Reaction Extent Structures
@@ -1534,7 +1504,7 @@ namespace Reaction_Editor
             if (m_LVI == null) return;
             m_LVI.Text = this.ToString();
             m_LVI.SubItems[1].Text = m_Extent.ToString();
-            m_LVI.SubItems[2].Text = CustomHeatOfReaction ? HeatOfReactionValue + "kJ/mol " + HeatOfReactionSpecie : "Default";
+            m_LVI.SubItems[2].Text = CustomHeatOfReaction ? HeatOfReactionValue + (HeatOfReactionType == FracTypes.ByMole ? "kJ/mol " : "kJ/kg") + HeatOfReactionSpecie : "";
             m_LVI.SubItems[3].Text = m_nSequence.ToString();
             if (m_bEnabled)
                 switch (m_eStatus)

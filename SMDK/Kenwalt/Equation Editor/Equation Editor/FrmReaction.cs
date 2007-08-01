@@ -283,11 +283,6 @@ namespace Reaction_Editor
                 TPConditions.Standard,
                 TPConditions.Custom });
 
-            comboExtentAim.Items.AddRange(new object[] {
-                ExtentAim.Default,
-                ExtentAim.Target,
-                ExtentAim.Strict });
-
             txtProducts.SelectAll(); txtReactants.SelectAll();
             txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
             txtProducts.Select(0, 0); txtReactants.Select(0, 0);
@@ -340,67 +335,74 @@ namespace Reaction_Editor
             else if (!balanced)
                 MessageBox.Show(this, "Some reactions are not balanced.", Title, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             m_File.SetLength(0);
-            StreamWriter sr = new StreamWriter(m_File);
+            StreamWriter sw = new StreamWriter(m_File);
             //First, the comments:
             if (!string.IsNullOrEmpty(txtDescription.Text))
             {
-                sr.WriteLine(";" + txtDescription.Text.TrimEnd().Replace("\r\n", "\r\n;"));
-                sr.WriteLine();
+                sw.WriteLine(";" + txtDescription.Text.TrimEnd().Replace("\r\n", "\r\n;"));
+                sw.WriteLine();
             }
 
             //Sources, if they exist:
             if (!string.IsNullOrEmpty(txtSources.Text))
             {
-                sr.WriteLine("Source: " + txtSources.Text.Replace("\r\n", ", "));
-                sr.WriteLine();
+                sw.WriteLine("Source: " + txtSources.Text.Replace("\r\n", ", "));
+                sw.WriteLine();
             }
+            
+            if (chkFirstReactant.Checked)
+                sw.WriteLine(";<UseFirstReactant=True>");
 
             //Reactions:
-            sr.WriteLine("Reactions:");
-            string LastSelected = "None";
-            if (lstReactions.SelectedIndices.Count > 0)
-                LastSelected = lstReactions.SelectedIndices[0].ToString();
-            sr.WriteLine(";<LastSelected=" + LastSelected + ">");
-            if (chkFirstReactant.Checked)
-                sr.WriteLine(";<UseFirstReactant=True>");
+            sw.WriteLine("Reactions:");
             foreach (ListViewItem lvi in lstReactions.Items)
             {
                 SimpleReaction rxn = (SimpleReaction)lvi.Tag;
-                sr.WriteLine();
+                sw.WriteLine();
                 if (!string.IsNullOrEmpty(rxn.Comment))
-                    sr.WriteLine(";" + rxn.Comment);
-                sr.WriteLine(rxn.ToSaveString(chkSequence.Checked));
+                    sw.WriteLine(";" + rxn.Comment);
+                sw.WriteLine(rxn.ToSaveString(chkSequence.Checked));
             }
-            sr.WriteLine();
+            sw.WriteLine();
             
             if ((HXTypes) comboHXType.SelectedIndex == HXTypes.Electrolysis ||
                 (HXTypes) comboHXType.SelectedIndex == HXTypes.FinalT ||
                 (HXTypes) comboHXType.SelectedIndex == HXTypes.Power)
             {
-                sr.WriteLine("HeatExchange: " + (HXTypes)comboHXType.SelectedIndex + " = " + numHX.Text);
-                sr.WriteLine();
+                sw.WriteLine("HeatExchange: " + (HXTypes)comboHXType.SelectedIndex + " = " + numHX.Text);
+                sw.WriteLine();
             }
             else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachAmbient)
             {
-                sr.WriteLine("HeatExchange: Ambient = " + numHX.Text + ", ApproachAmbient = " + numHXApproach.Value.ToString());
-                sr.WriteLine();
+                sw.WriteLine("HeatExchange: Ambient = " + numHX.Text + ", ApproachAmbient = " + numHXApproach.Value.ToString());
+                sw.WriteLine();
             }
             else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachT)
             {
-                sr.WriteLine("Heat Exchange: TargetT = " + numHX.Text + ", ApproachT = " + numHXApproach.Value.ToString());
-                sr.WriteLine();
+                sw.WriteLine("Heat Exchange: TargetT = " + numHX.Text + ", ApproachT = " + numHXApproach.Value.ToString());
+                sw.WriteLine();
             }
 
 
             if (!string.IsNullOrEmpty(txtSinks.Text))
             {
-                sr.WriteLine("Sink: " + txtSinks.Text.Replace("\r\n", ", "));
-                sr.WriteLine();
+                sw.WriteLine("Sink: " + txtSinks.Text.Replace("\r\n", ", "));
+                sw.WriteLine();
             }
 
-            sr.WriteLine("End");
-            sr.Flush();
+            sw.WriteLine("End");
+            sw.Flush();
+
+            string LastSelected = "None";
+            if (lstReactions.SelectedIndices.Count > 0)
+                LastSelected = lstReactions.SelectedIndices[0].ToString();
+            sw.WriteLine(";<LastSelected=" + LastSelected + ">");
+
             Changed = false;
+
+            //To update the colour in the file view on the right to indicate that the reaction block is unchanged:
+            if (NowChanged != null)
+                NowChanged(this, new EventArgs());
         }
 
         public void SaveAs(string newName)
@@ -532,13 +534,15 @@ namespace Reaction_Editor
                 FindReactions(data, s_ReactionRegex, true);
                 FindReactions(data, s_DisabledReactionRegex, false);
                 chkSequence = properChkSequence;
-                if (NowChanged != null)
-                    NowChanged(this, new EventArgs());
+                ChangeOccured();
                 if (CompoundsChanged != null)
                     CompoundsChanged(this, new EventArgs());
             }
             if (Clipboard.ContainsText())
+            {
                 PasteText(this);
+                ChangeOccured();
+            }
         }
 
         public void AddSources(params Compound[] newSources)
@@ -1041,8 +1045,7 @@ namespace Reaction_Editor
                 comboExtentType.SelectedIndex = -1;
                 comboExtentSpecie.SelectedIndex = -1;
                 comboHORSpecie.SelectedIndex = -1;
-                comboHORType.SelectedIndex = -1;
-                comboExtentAim.SelectedIndex = -1;
+                chkHOROverride.Checked = false;
                 numSequence.Text = "";
                 chkEnabled.Checked = false;
                 m_bLoading = false;
@@ -1091,8 +1094,7 @@ namespace Reaction_Editor
             comboDirection.SelectedIndex = (int)rxn.Direction;
 
             comboExtentType.SelectedIndex = (int) rxn.ExtentType;
-            comboExtentAim.SelectedItem = rxn.ExtentInfo.Aim;
-            comboHORType.SelectedIndex = rxn.CustomHeatOfReaction ? 1 : 0;
+            chkHOROverride.Checked = rxn.CustomHeatOfReaction;
 
             numExtentValue.Text = rxn.ExtentInfo.Value.ToString();
             chkEnabled.Checked = rxn.Enabled;
@@ -1150,15 +1152,6 @@ namespace Reaction_Editor
             }
         }
 
-        protected void SetWaitingText(TextBox box, string text)
-        {
-            return;
-            box.Text = text;
-            box.TextAlign = HorizontalAlignment.Center;
-            box.ForeColor = System.Drawing.SystemColors.GrayText;
-            box.Tag = false;
-        }
-
         protected void ChangePosition(ListViewItem item, int newIndex)
         {
             m_bDoEvents = false;
@@ -1210,6 +1203,7 @@ namespace Reaction_Editor
                 Changed = true;
             if (NowChanged != null)
                 NowChanged(this, new EventArgs());
+            statusLabel.Text = StatusMessage;
         }
 
         /// <summary>
@@ -1359,10 +1353,11 @@ namespace Reaction_Editor
                     lstReactions.Columns.Add(m_SequenceHeader);
                 foreach (ListViewItem lvi in lstReactions.Items)
                     originalList.Add(lvi);
-                lstReactions.ShowGroups = true;
+                //lstReactions.ShowGroups = true;
+                menuShowSequence.Checked = true;
                 foreach (ListViewItem lvi in originalList)
                     lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
-                lstReactions.ShowGroups = false;
+                //lstReactions.ShowGroups = false;
             }
             m_bDoEvents = true;
 
@@ -1468,9 +1463,9 @@ namespace Reaction_Editor
             numHORValue.Enabled = val;
         }
 
-        private void comboHORType_SelectedIndexChanged(object sender, EventArgs e)
+        private void chkHOROverride_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboHORType.SelectedIndex <= 0) //Default:
+            if (!chkHOROverride.Checked) //Default:
             {
                 SetHOREnabled(false);
                 comboHORSpecie.SelectedIndex = -1;
@@ -2211,12 +2206,6 @@ namespace Reaction_Editor
         {
             if (e.KeyCode == Keys.Delete)
                 btnRemove_Click(sender, e);
-        }
-
-        private void comboExtentAim_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (m_CurrentReaction != null)
-                m_CurrentReaction.ExtentInfo.Aim = (ExtentAim)comboExtentAim.SelectedItem;
         }
     }
 }

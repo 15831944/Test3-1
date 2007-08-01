@@ -69,7 +69,8 @@ namespace Reaction_Editor
             this.chSymbol = new System.Windows.Forms.ColumnHeader();
             this.chName = new System.Windows.Forms.ColumnHeader();
             this.menuSpecieList = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.sortByPhaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSortAlphabetically = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuSortByPhase = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.menuSetSource = new System.Windows.Forms.ToolStripMenuItem();
             this.menuSetSink = new System.Windows.Forms.ToolStripMenuItem();
@@ -156,7 +157,7 @@ namespace Reaction_Editor
             this.menuOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.menuOpen.Size = new System.Drawing.Size(160, 22);
             this.menuOpen.Text = "&Open";
-            this.menuOpen.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            this.menuOpen.Click += new System.EventHandler(this.menuOpen_Click);
             // 
             // menuOpenDir
             // 
@@ -320,6 +321,7 @@ namespace Reaction_Editor
             this.statusStrip1.Size = new System.Drawing.Size(734, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip1.Visible = false;
             // 
             // m_StatusLabel
             // 
@@ -332,7 +334,7 @@ namespace Reaction_Editor
             this.grpFiles.Dock = System.Windows.Forms.DockStyle.Left;
             this.grpFiles.Location = new System.Drawing.Point(0, 24);
             this.grpFiles.Name = "grpFiles";
-            this.grpFiles.Size = new System.Drawing.Size(146, 337);
+            this.grpFiles.Size = new System.Drawing.Size(146, 359);
             this.grpFiles.TabIndex = 2;
             this.grpFiles.TabStop = false;
             this.grpFiles.Text = "Files";
@@ -351,7 +353,7 @@ namespace Reaction_Editor
             this.treeFiles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode2});
-            this.treeFiles.Size = new System.Drawing.Size(140, 318);
+            this.treeFiles.Size = new System.Drawing.Size(140, 340);
             this.treeFiles.TabIndex = 0;
             this.treeFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragDrop);
             this.treeFiles.DragOver += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragOver);
@@ -365,7 +367,7 @@ namespace Reaction_Editor
             this.grpSpecies.Dock = System.Windows.Forms.DockStyle.Right;
             this.grpSpecies.Location = new System.Drawing.Point(562, 24);
             this.grpSpecies.Name = "grpSpecies";
-            this.grpSpecies.Size = new System.Drawing.Size(172, 337);
+            this.grpSpecies.Size = new System.Drawing.Size(172, 359);
             this.grpSpecies.TabIndex = 3;
             this.grpSpecies.TabStop = false;
             this.grpSpecies.Text = "Species";
@@ -391,8 +393,7 @@ namespace Reaction_Editor
             listViewGroup3});
             this.lstSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstSpecies.Name = "lstSpecies";
-            this.lstSpecies.ShowGroups = false;
-            this.lstSpecies.Size = new System.Drawing.Size(166, 284);
+            this.lstSpecies.Size = new System.Drawing.Size(166, 306);
             this.lstSpecies.TabIndex = 0;
             this.lstSpecies.UseCompatibleStateImageBehavior = false;
             this.lstSpecies.View = System.Windows.Forms.View.Details;
@@ -410,23 +411,34 @@ namespace Reaction_Editor
             // menuSpecieList
             // 
             this.menuSpecieList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sortByPhaseToolStripMenuItem,
+            this.menuSortAlphabetically,
+            this.menuSortByPhase,
             this.toolStripMenuItem4,
             this.menuSetSource,
             this.menuSetSink,
             this.menuRemoveSource,
             this.menuRemoveSink});
             this.menuSpecieList.Name = "menuSpecieList";
-            this.menuSpecieList.Size = new System.Drawing.Size(175, 142);
+            this.menuSpecieList.Size = new System.Drawing.Size(175, 164);
             this.menuSpecieList.Opening += new System.ComponentModel.CancelEventHandler(this.menuSpecieList_Opening);
             // 
-            // sortByPhaseToolStripMenuItem
+            // menuSortAlphabetically
             // 
-            this.sortByPhaseToolStripMenuItem.CheckOnClick = true;
-            this.sortByPhaseToolStripMenuItem.Name = "sortByPhaseToolStripMenuItem";
-            this.sortByPhaseToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
-            this.sortByPhaseToolStripMenuItem.Text = "&Sort By Phase";
-            this.sortByPhaseToolStripMenuItem.Click += new System.EventHandler(this.sortByPhaseToolStripMenuItem_Click);
+            this.menuSortAlphabetically.CheckOnClick = true;
+            this.menuSortAlphabetically.Name = "menuSortAlphabetically";
+            this.menuSortAlphabetically.Size = new System.Drawing.Size(174, 22);
+            this.menuSortAlphabetically.Text = "Sort &Alphabetically";
+            this.menuSortAlphabetically.CheckedChanged += new System.EventHandler(this.menuSortAlphabetically_CheckedChanged);
+            // 
+            // menuSortByPhase
+            // 
+            this.menuSortByPhase.Checked = true;
+            this.menuSortByPhase.CheckOnClick = true;
+            this.menuSortByPhase.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.menuSortByPhase.Name = "menuSortByPhase";
+            this.menuSortByPhase.Size = new System.Drawing.Size(174, 22);
+            this.menuSortByPhase.Text = "Sort By &Phase";
+            this.menuSortByPhase.CheckedChanged += new System.EventHandler(this.menuSortByPhase_CheckedChanged);
             // 
             // toolStripMenuItem4
             // 
@@ -466,7 +478,7 @@ namespace Reaction_Editor
             this.pnlFilter.Controls.Add(this.txtFilter);
             this.pnlFilter.Controls.Add(this.label1);
             this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlFilter.Location = new System.Drawing.Point(3, 300);
+            this.pnlFilter.Location = new System.Drawing.Point(3, 322);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Size = new System.Drawing.Size(166, 34);
             this.pnlFilter.TabIndex = 1;
@@ -494,7 +506,7 @@ namespace Reaction_Editor
             // 
             this.splitterLeft.Location = new System.Drawing.Point(146, 24);
             this.splitterLeft.Name = "splitterLeft";
-            this.splitterLeft.Size = new System.Drawing.Size(5, 337);
+            this.splitterLeft.Size = new System.Drawing.Size(5, 359);
             this.splitterLeft.TabIndex = 5;
             this.splitterLeft.TabStop = false;
             // 
@@ -538,7 +550,7 @@ namespace Reaction_Editor
             this.splitterRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.splitterRight.Location = new System.Drawing.Point(557, 24);
             this.splitterRight.Name = "splitterRight";
-            this.splitterRight.Size = new System.Drawing.Size(5, 337);
+            this.splitterRight.Size = new System.Drawing.Size(5, 359);
             this.splitterRight.TabIndex = 8;
             this.splitterRight.TabStop = false;
             this.splitterRight.DoubleClick += new System.EventHandler(this.splitterRight_DoubleClick);
@@ -569,7 +581,7 @@ namespace Reaction_Editor
             this.pnlLog.Controls.Add(this.listView1);
             this.pnlLog.Controls.Add(this.pnlLogHeader);
             this.pnlLog.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlLog.Location = new System.Drawing.Point(151, 236);
+            this.pnlLog.Location = new System.Drawing.Point(151, 258);
             this.pnlLog.MinimumSize = new System.Drawing.Size(4, 18);
             this.pnlLog.Name = "pnlLog";
             this.pnlLog.Size = new System.Drawing.Size(406, 125);
@@ -653,7 +665,7 @@ namespace Reaction_Editor
             // splitterLog
             // 
             this.splitterLog.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitterLog.Location = new System.Drawing.Point(151, 233);
+            this.splitterLog.Location = new System.Drawing.Point(151, 255);
             this.splitterLog.Name = "splitterLog";
             this.splitterLog.Size = new System.Drawing.Size(406, 3);
             this.splitterLog.TabIndex = 12;
@@ -746,7 +758,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip menuSpecieList;
-        private System.Windows.Forms.ToolStripMenuItem sortByPhaseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem menuSortByPhase;
         private System.Windows.Forms.Splitter splitterRight;
         private System.Windows.Forms.Button btnCollapseRight;
         private System.Windows.Forms.Button btnCollapseLeft;
@@ -764,6 +776,7 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuSetSink;
         private System.Windows.Forms.ToolStripMenuItem menuRemoveSource;
         private System.Windows.Forms.ToolStripMenuItem menuRemoveSink;
+        private System.Windows.Forms.ToolStripMenuItem menuSortAlphabetically;
 
 
     }
