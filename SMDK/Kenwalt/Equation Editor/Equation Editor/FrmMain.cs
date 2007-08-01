@@ -148,10 +148,8 @@ namespace Reaction_Editor
                     ((FrmReaction)f).DoDatabaseChanged();
         }
 
-        protected void Open(string filename)
-        { Open(filename, true); }
 
-        protected void Open(string filename, bool queryDB)
+        protected void Open(string filename)
         {
             try
             {
@@ -1022,7 +1020,7 @@ namespace Reaction_Editor
 
         private void menuSortAlphabetically_CheckedChanged(object sender, EventArgs e)
         {
-            if (menuSortByPhase.Checked)
+            if (menuSortByPhase.Checked && menuSortAlphabetically.Checked)
                 menuSortByPhase.Checked = false;
             if (menuSortAlphabetically.Checked)
                 lstSpecies.Sorting = SortOrder.Ascending;
@@ -1035,7 +1033,7 @@ namespace Reaction_Editor
 
         private void menuSortByPhase_CheckedChanged(object sender, EventArgs e)
         {
-            if (menuSortAlphabetically.Checked)
+            if (menuSortAlphabetically.Checked && menuSortByPhase.Checked)
                 menuSortAlphabetically.Checked = false;
             lstSpecies.ShowGroups = menuSortByPhase.Checked;
         }

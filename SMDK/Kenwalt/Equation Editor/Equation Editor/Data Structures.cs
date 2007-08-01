@@ -21,7 +21,7 @@ namespace Reaction_Editor
     public enum RxnDirections { Forward, Equilibrium, Backward };
     public enum RxnStatuses { OK, Imbalanced, Invalid };
     public enum ExtentTypes { Fraction, Ratio, Equilibrium, FinalConc, FinalFrac, Rate }
-    public enum HXTypes { None, FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
+    public enum HXTypes { FinalT, ApproachT, ApproachAmbient, Power, Electrolysis };
     public enum FracTypes { ByMass, ByMole };
     public enum TPConditions { Feed, Product, Standard, Custom };
 
@@ -641,6 +641,7 @@ namespace Reaction_Editor
         public event EventHandler Changed;
         public event EventHandler ProductsChanged;
         public event EventHandler ReactantsChanged;
+        public event EventHandler SequenceChanged;
         #endregion Events
 
         #region Properties
@@ -949,8 +950,9 @@ namespace Reaction_Editor
                 if (m_nSequence > FrmReaction.sMaxSequences)
                     m_nSequence = FrmReaction.sMaxSequences;
 
-                if (Changed != null)
-                    Changed(this, new EventArgs());
+                if (SequenceChanged != null)
+                    SequenceChanged(this, new EventArgs());
+                FireChanged();
             }
         }
 
@@ -1098,10 +1100,11 @@ namespace Reaction_Editor
         public string ToSaveString(bool includeSequence)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine(";RC" + m_LVI.Text + ": " + m_sComment);
             if (!m_bEnabled) sb.Append("; ");
             sb.AppendLine(this.ToString("0.######")); //Formula
             if (!m_bEnabled) sb.Append("; ");
-            sb.AppendLine("Extent : " + m_Extent.ToString());
+            sb.AppendLine(" Extent : " + m_Extent.ToString());
             if (CustomHeatOfReaction)
             {
                 if (!m_bEnabled) sb.Append("; ");
@@ -1346,9 +1349,9 @@ namespace Reaction_Editor
         public SimpleReaction Clone()
         {
             //Simply clone it with a dummy LVI:
-            ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "", "" });
-            return Clone(lvi);
+            //ListViewItem lvi = new ListViewItem();
+            //lvi.SubItems.AddRange(new string[] { "", "", "" });
+            return Clone(null);
         }
 
         public SimpleReaction Clone(ListViewItem newLVI)
@@ -1502,10 +1505,10 @@ namespace Reaction_Editor
             SetStatus();
 
             if (m_LVI == null) return;
-            m_LVI.Text = this.ToString();
-            m_LVI.SubItems[1].Text = m_Extent.ToString();
-            m_LVI.SubItems[2].Text = CustomHeatOfReaction ? HeatOfReactionValue + (HeatOfReactionType == FracTypes.ByMole ? "kJ/mol " : "kJ/kg") + HeatOfReactionSpecie : "";
-            m_LVI.SubItems[3].Text = m_nSequence.ToString();
+            m_LVI.SubItems[1].Text = this.ToString();
+            m_LVI.SubItems[2].Text = m_Extent.ToString();
+            m_LVI.SubItems[3].Text = CustomHeatOfReaction ? HeatOfReactionValue + (HeatOfReactionType == FracTypes.ByMole ? "kJ/mol " : "kJ/kg") + HeatOfReactionSpecie : "";
+            m_LVI.SubItems[4].Text = m_nSequence.ToString();
             if (m_bEnabled)
                 switch (m_eStatus)
                 {

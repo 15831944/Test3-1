@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Specialized;
 using Be.Windows.Forms;
 using Auto_Complete;
+using System.Threading;
 
 namespace Reaction_Editor
 {
@@ -31,10 +32,10 @@ namespace Reaction_Editor
         protected static Regex s_SourceRegex = new Regex(@"(?<=(^|\r\n)\s*?Source:)[^:]*(?=Reactions:)",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_ReactionRegex = new Regex(
-            @"(^|\r\n)\s*((?<Comment>;.*)\r\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>(?>\s*(;.*\r\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r\n)\s*((;(RC\d+:\s?)?(?<Comment>.*))\r\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>(?>\s*(;.*\r\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r\n)\s*((?<Comment>;.*)\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r\n)\s*((;(RC\d+:\s?)?(?<Comment>.*))\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         protected static Regex s_SinkRegex = new Regex(@"(?<=\r\n\s*?Sink:)[^:]*?(?=End|HeatExchange|$)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -50,6 +51,8 @@ namespace Reaction_Editor
         #endregion Regex's
 
         #region Variables
+        protected FrmAddSelector m_AddSelector = new FrmAddSelector();
+
         protected ColumnHeader m_SequenceHeader = new ColumnHeader();
         protected bool m_bChanged = false;
         protected bool m_bLoading = false;
@@ -58,6 +61,10 @@ namespace Reaction_Editor
         protected SimpleReaction m_CurrentReaction;
 
         protected ILog m_Log;
+
+        protected ListViewItem m_SinksLVI = new ListViewItem(new string[] { "", "Sinks" }),
+            m_SourcesLVI = new ListViewItem(new string[] { "", "Sources" }),
+            m_HXLVI = new ListViewItem(new string[] { "", "Heat Exchange" });
 
         protected bool m_bDoEvents = true;
         protected List<Control> m_OptionalExtentControls = new List<Control>();
@@ -77,6 +84,7 @@ namespace Reaction_Editor
         }
 
         protected bool m_bActualActive = true;
+        List<Auto_Complete.BoxAutoComplete> AutoCompleteBoxes = new List<Auto_Complete.BoxAutoComplete>();
         #endregion Variables
 
         #region Properties
@@ -121,7 +129,8 @@ namespace Reaction_Editor
             {
                 List<SimpleReaction> ret = new List<SimpleReaction>();
                 foreach (ListViewItem lvi in lstReactions.Items)
-                    ret.Add((SimpleReaction)lvi.Tag);
+                    if (lvi.Tag is SimpleReaction)
+                        ret.Add((SimpleReaction)lvi.Tag);
                 return ret;
             }
         }
@@ -220,7 +229,27 @@ namespace Reaction_Editor
             }
         }
 
-        List<Auto_Complete.BoxAutoComplete> AutoCompleteBoxes = new List<Auto_Complete.BoxAutoComplete>();
+        protected string HXString
+        {
+            get
+            {
+                if ((HXTypes)comboHXType.SelectedIndex == HXTypes.Electrolysis ||
+                   (HXTypes)comboHXType.SelectedIndex == HXTypes.FinalT ||
+                   (HXTypes)comboHXType.SelectedIndex == HXTypes.Power)
+                {
+                    return "HeatExchange: " + (HXTypes)comboHXType.SelectedIndex + " = " + numHX.Text;
+                }
+                else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachAmbient)
+                {
+                    return "HeatExchange: Ambient = " + numHX.Text + ", ApproachAmbient = " + numHXApproach.Value.ToString();
+                }
+                else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachT)
+                {
+                    return "Heat Exchange: TargetT = " + numHX.Text + ", ApproachT = " + numHXApproach.Value.ToString();
+                }
+                return "";
+            }
+        }
         #endregion Properties
 
         #region Events
@@ -245,6 +274,15 @@ namespace Reaction_Editor
             m_File = new FileStream(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
             this.Title = Path.GetFileName(filename);
             ReadFile();
+
+            //And because of the beauty and elegance that is working with the ListView control, we must put in a timer to update reaction numbers! WEEE!
+            Thread updateLVIThread = new Thread(new ThreadStart(DelayedUpdateReactionNumbers));
+            updateLVIThread.Start();
+        }
+        private void DelayedUpdateReactionNumbers()
+        {
+            Thread.Sleep(200);
+            this.BeginInvoke(new ThreadStart(UpdateReactionNumbers));
         }
 
         public FrmReaction(int titleNum, ILog log)
@@ -257,6 +295,7 @@ namespace Reaction_Editor
         private void SetUp(ILog log)
         {
             InitializeComponent();
+
             m_SequenceHeader.Text = "Sequence";
             m_Log = log;
             txtReactants.FrmOwner = this;
@@ -283,17 +322,25 @@ namespace Reaction_Editor
                 TPConditions.Standard,
                 TPConditions.Custom });
 
+            tabSourcesSinks.Dispose();
+
             txtProducts.SelectAll(); txtReactants.SelectAll();
             txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
             txtProducts.Select(0, 0); txtReactants.Select(0, 0);
 
+            ListViewGroup srcGrp = new ListViewGroup("grpSources", "Sources");
+            lstReactions.Groups.Add(srcGrp);
             for (int i = 0; i <= sMaxSequences; i++)
             {
                 ListViewGroup grp = new ListViewGroup("grpSequence" + i, "Sequence " + i);
                 lstReactions.Groups.Add(grp);
             }
+            ListViewGroup sinkGrp = new ListViewGroup("grpSinks", "Sinks");
+            lstReactions.Groups.Add(sinkGrp);
+            ListViewGroup HXGrp = new ListViewGroup("grpHX", "Heat Exchange");
+            lstReactions.Groups.Add(HXGrp);
 
-            comboHXType.SelectedItem = "None";
+            comboHXType.SelectedItem = null;
             comboDirection.SelectedItem = "=";
 
             tabSources_Sinks_Resize(null, new EventArgs());
@@ -315,6 +362,24 @@ namespace Reaction_Editor
             AutoCompleteBoxes.AddRange(new BoxAutoComplete[] { txtSources, txtSinks, txtReactants, txtProducts });
 
             UpdateAutoCompleteForms();
+
+            m_SinksLVI.ForeColor = Color.Blue;
+            m_SourcesLVI.ForeColor = Color.Blue;
+            m_HXLVI.ForeColor = Color.Blue;
+
+            foreach (TabPage tp in tcIDE.TabPages)
+            {
+                foreach (Control c in tp.Controls)
+                {
+                    c.Dock = DockStyle.Bottom;
+                    tp.Controls.Remove(c);
+                    tabReactions.Controls.Add(c);
+                    c.Visible = false;
+                }
+                tp.Dispose();
+            }
+            pnlBlank.Visible = true;
+            tcIDE.Dispose();
         }
         #endregion Constructors
 
@@ -324,12 +389,13 @@ namespace Reaction_Editor
             bool ok = true;
             bool balanced = true;
             foreach (ListViewItem lvi in lstReactions.Items)
-            {
-                if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Invalid)
-                    ok = false;
-                else if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Imbalanced)
-                    balanced = false;
-            }
+                if (lvi.Tag is SimpleReaction)
+                {
+                    if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Invalid)
+                        ok = false;
+                    else if (((SimpleReaction)lvi.Tag).Status == RxnStatuses.Imbalanced)
+                        balanced = false;
+                }
             if (!ok)
                 MessageBox.Show(this, "Some reactions are not valid. This reaction block may not load into SysCAD.", Title, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             else if (!balanced)
@@ -344,7 +410,7 @@ namespace Reaction_Editor
             }
 
             //Sources, if they exist:
-            if (!string.IsNullOrEmpty(txtSources.Text))
+            if (m_SourcesLVI.ListView != null)
             {
                 sw.WriteLine("Source: " + txtSources.Text.Replace("\r\n", ", "));
                 sw.WriteLine();
@@ -356,47 +422,31 @@ namespace Reaction_Editor
             //Reactions:
             sw.WriteLine("Reactions:");
             foreach (ListViewItem lvi in lstReactions.Items)
-            {
-                SimpleReaction rxn = (SimpleReaction)lvi.Tag;
-                sw.WriteLine();
-                if (!string.IsNullOrEmpty(rxn.Comment))
-                    sw.WriteLine(";" + rxn.Comment);
-                sw.WriteLine(rxn.ToSaveString(chkSequence.Checked));
-            }
+                if (lvi.Tag is SimpleReaction)
+                {
+                    SimpleReaction rxn = (SimpleReaction)lvi.Tag;
+                    sw.WriteLine();
+                    sw.WriteLine(rxn.ToSaveString(chkSequence.Checked));
+                }
             sw.WriteLine();
             
-            if ((HXTypes) comboHXType.SelectedIndex == HXTypes.Electrolysis ||
-                (HXTypes) comboHXType.SelectedIndex == HXTypes.FinalT ||
-                (HXTypes) comboHXType.SelectedIndex == HXTypes.Power)
-            {
-                sw.WriteLine("HeatExchange: " + (HXTypes)comboHXType.SelectedIndex + " = " + numHX.Text);
-                sw.WriteLine();
-            }
-            else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachAmbient)
-            {
-                sw.WriteLine("HeatExchange: Ambient = " + numHX.Text + ", ApproachAmbient = " + numHXApproach.Value.ToString());
-                sw.WriteLine();
-            }
-            else if ((HXTypes)comboHXType.SelectedIndex == HXTypes.ApproachT)
-            {
-                sw.WriteLine("Heat Exchange: TargetT = " + numHX.Text + ", ApproachT = " + numHXApproach.Value.ToString());
-                sw.WriteLine();
-            }
+            if (lstReactions.Items.Contains(m_HXLVI))
+                sw.WriteLine(HXString);
 
-
-            if (!string.IsNullOrEmpty(txtSinks.Text))
+            if (m_SinksLVI.ListView != null)
             {
                 sw.WriteLine("Sink: " + txtSinks.Text.Replace("\r\n", ", "));
                 sw.WriteLine();
             }
 
             sw.WriteLine("End");
-            sw.Flush();
 
             string LastSelected = "None";
             if (lstReactions.SelectedIndices.Count > 0)
                 LastSelected = lstReactions.SelectedIndices[0].ToString();
             sw.WriteLine(";<LastSelected=" + LastSelected + ">");
+
+            sw.Flush();
 
             Changed = false;
 
@@ -440,14 +490,16 @@ namespace Reaction_Editor
         public SimpleReaction AddReaction(SimpleReaction rxn, int location)
         {
             ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "", "" });
+            lvi.SubItems.AddRange(new string[] {"", "", "", "" });
             if (location < 0 || location > lstReactions.Items.Count)
                 lstReactions.Items.Add(lvi);
             else
                 lstReactions.Items.Insert(location, lvi);
             SimpleReaction newRxn = rxn.Clone(lvi);
+            newRxn.SequenceChanged += new EventHandler(rxn_SequenceChanged);
+            newRxn.Changed += new EventHandler(rxn_Changed);
             newRxn.FireChanged();
-
+            UpdateReactionNumbers();
             if (ReactionAdded != null)
                 ReactionAdded(this, rxn);
             return newRxn;
@@ -457,19 +509,21 @@ namespace Reaction_Editor
         {
             List<Compound> ret = new List<Compound>();
             foreach (ListViewItem lvi in lstReactions.Items)
-            {
+                if (lvi.Tag is SimpleReaction)
+                {
                 SimpleReaction rxn = (SimpleReaction)lvi.Tag;
                 foreach (Compound c in rxn.Compounds)
                     if (!ret.Contains(c))
                         ret.Add(c);
-            }
+                }
             return ret;
         }
 
         public void DoDatabaseChanged()
         {
             foreach (ListViewItem lvi in lstReactions.Items)
-                ((SimpleReaction)lvi.Tag).DoDatabaseChanged();
+                if (lvi.Tag is SimpleReaction)
+                    ((SimpleReaction)lvi.Tag).DoDatabaseChanged();
             txtSources_Leave(txtSources, new EventArgs());
             txtSinks_Leave(txtSinks, new EventArgs());
         }
@@ -557,6 +611,7 @@ namespace Reaction_Editor
                     else
                         txtSources.AppendText(", " + c.Symbol);
                     m_SourcesCache.Add(c);
+                    UpdateSourcesLVI();
                 }
             }
             ChangeOccured();
@@ -576,6 +631,7 @@ namespace Reaction_Editor
                     else
                         txtSinks.AppendText(", " + c.Symbol);
                     m_SinksCache.Add(c);
+                    UpdateSinksLVI();
                 }
             }
             ChangeOccured();
@@ -600,6 +656,7 @@ namespace Reaction_Editor
                             txtSinks.SelectedText = "";
                         }
                         m_SinksCache.Remove(c);
+                        UpdateSinksLVI();
                     }
             ChangeOccured();
             if (SourcesSinksChanged != null)
@@ -623,6 +680,7 @@ namespace Reaction_Editor
                             txtSources.SelectedText = "";
                         }
                         m_SourcesCache.Remove(c);
+                        UpdateSourcesLVI();
                     }
             ChangeOccured();
             if (SourcesSinksChanged != null)
@@ -631,6 +689,49 @@ namespace Reaction_Editor
         #endregion Public Functions
 
         #region Protected Functions
+        protected void UpdateSinksLVI()
+        {
+            string s = "Sinks: ";
+            foreach (Compound c in m_SinksCache)
+                s += c.Symbol;
+            m_SinksLVI.SubItems[1].Text = s;
+        }
+
+        protected void UpdateSourcesLVI()
+        {
+            string s = "Sources: ";
+            foreach (Compound c in m_SourcesCache)
+                s += c.Symbol;
+            m_SourcesLVI.SubItems[1].Text = s;
+        }
+
+        protected void UpdateHXLVI()
+        {
+            m_HXLVI.SubItems[1].Text = HXString;
+        }
+
+        protected void UpdateReactionNumbers()
+        {
+            ListViewItem[] orderedLVIs = OrderedLVIs(lstReactions.Items);
+            for (int i = 0; i < orderedLVIs.Length; i++)
+                orderedLVIs[i].Text = (i + 1).ToString();
+        }
+
+        protected ListViewItem[] OrderedLVIs(ListView.ListViewItemCollection collection)
+        {
+            ListViewItem[] ret = new ListViewItem[collection.Count];
+            int i = 0;
+            foreach (ListViewItem LVI in collection)
+                ret[i++] = LVI;
+            Array.Sort<ListViewItem>(ret, new Comparison<ListViewItem>(LVIHeightComp));
+            return ret;
+        }
+
+        protected int LVIHeightComp(ListViewItem lvi1, ListViewItem lvi2)
+        {
+            return lvi1.Position.Y.CompareTo(lvi2.Position.Y);
+        }
+
         protected void UpdateAutoCompleteForms()
         {
             txtReactants.HitCounts.Clear();
@@ -698,6 +799,7 @@ namespace Reaction_Editor
                 {
                     txtSources.Text = sourcesMatch.Value.Trim().Replace("\r\n", ", ");
                     txtSources_Leave(txtSources, new EventArgs());
+                    lstReactions.Items.Add(m_SourcesLVI);
                 }
 
                 //Reactions:
@@ -727,6 +829,17 @@ namespace Reaction_Editor
                 else if (lstReactions.Items.Count > 0)
                     lstReactions.Items[0].Selected = true;
 
+                //Sinks:
+                Match SinkMatch = s_SinkRegex.Match(commentsRemoved);
+                if (SinkMatch.Success)
+                {
+                    txtSinks.Text = SinkMatch.Value.Trim();
+                    txtSinks_Leave(txtSinks, new EventArgs());
+                    lstReactions.Items.Add(m_SinksLVI);
+                    if (menuShowSequence.Checked)
+                        m_SinksLVI.Group = lstReactions.Groups["grpSinks"];
+                }
+
                 //Heat Exchange:
                 Match HXMatch = s_HXRegex.Match(commentsRemoved);
                 if (HXMatch.Success)
@@ -751,15 +864,11 @@ namespace Reaction_Editor
                     else
                         Log.Message("Unknown Heat Exchange type '" + HXMatch.Groups["Type"].Value + "'", MessageType.Warning);
                     numHX.Text = HXMatch.Groups["Value"].Captures[0].Value;
+                    lstReactions.Items.Add(m_HXLVI);
+                    if (menuShowSequence.Checked)
+                        m_HXLVI.Group = lstReactions.Groups["grpHX"];
                 }
 
-                //Sinks:
-                Match SinkMatch = s_SinkRegex.Match(commentsRemoved);
-                if (SinkMatch.Success)
-                {
-                    txtSinks.Text = SinkMatch.Value.Trim();
-                    txtSinks_Leave(txtSinks, new EventArgs());
-                }
                 Changed = false;
                 if (lstReactions.Items.Count != 1)
                     Log.Message("File opened. " + lstReactions.Items.Count + " Reactions found.", MessageType.Note);
@@ -1003,10 +1112,11 @@ namespace Reaction_Editor
         public SimpleReaction CreateReaction(string initialFormula)
         {
             ListViewItem lvi = new ListViewItem();
-            lvi.SubItems.AddRange(new string[] { "", "", "" });
+            lvi.SubItems.AddRange(new string[] { "", "", "", "" });
             lstReactions.Items.Add(lvi);
             SimpleReaction rxn = new SimpleReaction(lvi, Log);
             rxn.Changed += new EventHandler(rxn_Changed);
+            rxn.SequenceChanged += new EventHandler(rxn_SequenceChanged);
             if (initialFormula != null)
                 try
                 {
@@ -1014,10 +1124,11 @@ namespace Reaction_Editor
                 }
                 catch (Exception ex)
                 {
-                    //TODO: Log the error
+                    //This code is never called, so meh.
                 }
             else
                 rxn_Changed(rxn, new EventArgs());
+            UpdateReactionNumbers();
             return rxn;
         }
 
@@ -1038,7 +1149,6 @@ namespace Reaction_Editor
             if (rxn == null)
             {
                 SetPanelEnables(pnlReaction, false);
-                btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = false;
                 //pnlReaction.Enabled = false;
                 txtReactants.Text = txtProducts.Text = "";
                 comboDirection.SelectedIndex = -1;
@@ -1174,6 +1284,7 @@ namespace Reaction_Editor
             lstReactions.SelectedIndices.Clear();
             if (wasSelected)
                 lstReactions.SelectedIndices.Add(item.Index);
+            UpdateReactionNumbers();
             m_bDoEvents = true;
         }
 
@@ -1188,6 +1299,12 @@ namespace Reaction_Editor
                     m_bDoEvents = true;
                 }
             ChangeOccured();
+        }
+
+        protected void rxn_SequenceChanged(object sender, EventArgs e)
+        {
+            Thread delayedUpdate = new Thread(new ThreadStart(DelayedUpdateReactionNumbers));
+            delayedUpdate.Start();
         }
 
         protected void currentReactionChanged(object sender, EventArgs e)
@@ -1260,7 +1377,9 @@ namespace Reaction_Editor
             int nClosestVal = int.MaxValue;
             ListViewItem closestLVI = null;
             foreach (ListViewItem lvi in lstReactions.Items)
-                if (lvi.Bounds.Bottom > p.Y && lvi.Bounds.Bottom - p.Y < nClosestVal)
+                if (lvi.Tag is SimpleReaction &&
+                    lvi.Bounds.Bottom > p.Y && 
+                    lvi.Bounds.Bottom - p.Y < nClosestVal)
                 {
                     nClosestVal = lvi.Bounds.Bottom - p.Y;
                     closestLVI = lvi;
@@ -1307,16 +1426,69 @@ namespace Reaction_Editor
         {
             if (!m_bDoEvents) return;
 
-            if (lstReactions.SelectedIndices.Count == 0)
+            /*if (lstReactions.SelectedIndices.Count == 0)
                 LoadReaction(null);
             else
+                LoadReaction((SimpleReaction)lstReactions.SelectedItems[0].Tag);*/
+            this.tabReactions.SuspendLayout();
+            pnlBlank.Visible = pnlReaction.Visible = pnlSinks.Visible = pnlSources.Visible = grpHX.Visible = false;
+            btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = false;
+            if (lstReactions.SelectedIndices.Count == 0)
+                pnlBlank.Visible = true;
+            else if (lstReactions.SelectedItems[0].Tag is SimpleReaction)
+            {
                 LoadReaction((SimpleReaction)lstReactions.SelectedItems[0].Tag);
+                pnlReaction.Visible = true;
+                btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = true;
+            }
+            else if (lstReactions.SelectedItems[0] == m_SourcesLVI)
+                pnlSources.Visible = true;
+            else if (lstReactions.SelectedItems[0] == m_SinksLVI)
+                pnlSinks.Visible = true;
+            else if (lstReactions.SelectedItems[0] == m_HXLVI)
+                grpHX.Visible = true;
+            this.tabReactions.ResumeLayout();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            CreateReaction(null).LVI.Selected = true;
-            txtReactants.Select();
+            m_AddSelector.radioHX.Enabled = m_HXLVI.ListView == null;
+            m_AddSelector.radioSink.Enabled = m_SinksLVI.ListView == null;
+            m_AddSelector.radioSource.Enabled = m_SourcesLVI.ListView == null;
+            m_AddSelector.radioReaction.Checked = true;
+            if (m_AddSelector.ShowDialog(this) == DialogResult.Cancel)
+                return;
+            if (m_AddSelector.radioReaction.Checked)
+            {
+                CreateReaction(null).LVI.Selected = true;
+                txtReactants.Select();
+            }
+            else if (m_AddSelector.radioHX.Checked)
+            {
+                lstReactions.Items.Add(m_HXLVI);
+                if (lstReactions.ShowGroups)
+                    m_HXLVI.Group = lstReactions.Groups["grpHX"];
+                m_HXLVI.Selected = true;
+                comboHXType.Select();
+            }
+            else if (m_AddSelector.radioSink.Checked)
+            {
+                if (m_HXLVI.ListView == null)
+                    lstReactions.Items.Add(m_SinksLVI);
+                else
+                    lstReactions.Items.Insert(m_HXLVI.Index, m_SinksLVI);
+                if (lstReactions.ShowGroups)
+                    m_SinksLVI.Group = lstReactions.Groups["grpSinks"];
+                m_SinksLVI.Selected = true;
+                txtSinks.Select();
+            }
+            else if (m_AddSelector.radioSource.Checked)
+            {
+                lstReactions.Items.Insert(0, m_SourcesLVI);
+                if (lstReactions.ShowGroups)
+                    m_SourcesLVI.Group = lstReactions.Groups["grpSources"];
+            }
+            UpdateReactionNumbers();
         }
 
         private void chkSequence_CheckedChanged(object sender, EventArgs e)
@@ -1324,7 +1496,7 @@ namespace Reaction_Editor
             m_bDoEvents = false;
             numSequence.Enabled = chkSequence.Checked;
 
-            List<ListViewItem> originalList = new List<ListViewItem>();
+            ListViewItem[] originalList = OrderedLVIs(lstReactions.Items);
 
             if (!chkSequence.Checked)
             {
@@ -1332,33 +1504,35 @@ namespace Reaction_Editor
                     lstReactions.Columns.Remove(m_SequenceHeader);
                 //To get the damned order correct:
                 foreach (ListViewGroup grp in lstReactions.Groups)
-                    foreach (ListViewItem lvi in grp.Items)
-                        originalList.Add(lvi);
-                foreach (ListViewGroup grp in lstReactions.Groups)
                     grp.Items.Clear();
                 lstReactions.Items.Clear();
-                lstReactions.Items.AddRange(originalList.ToArray());
+                lstReactions.Items.AddRange(originalList);
 
                 menuShowSequence.Checked = false;
 
                 foreach (ListViewItem lvi in originalList)
-                {
-                    SimpleReaction rxn = (SimpleReaction)lvi.Tag;
-                    rxn.Sequence = 1;
-                }
+                    if (lvi.Tag is SimpleReaction)
+                    {
+                        SimpleReaction rxn = (SimpleReaction)lvi.Tag;
+                        rxn.Sequence = 1;
+                    }
             }
             else
             {
                 if (!lstReactions.Columns.Contains(m_SequenceHeader))
                     lstReactions.Columns.Add(m_SequenceHeader);
-                foreach (ListViewItem lvi in lstReactions.Items)
-                    originalList.Add(lvi);
-                //lstReactions.ShowGroups = true;
                 menuShowSequence.Checked = true;
                 foreach (ListViewItem lvi in originalList)
-                    lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
-                //lstReactions.ShowGroups = false;
+                    if (lvi.Tag is SimpleReaction)
+                        lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
+                    else if (lvi == m_SourcesLVI)
+                        lvi.Group = lstReactions.Groups["grpSources"];
+                    else if (lvi == m_SinksLVI)
+                        lvi.Group = lstReactions.Groups["grpSinks"];
+                    else if (lvi == m_HXLVI)
+                        lvi.Group = lstReactions.Groups["grpHX"];
             }
+            UpdateReactionNumbers();
             m_bDoEvents = true;
 
             ChangeOccured();
@@ -1534,8 +1708,6 @@ namespace Reaction_Editor
                 c.Visible = false;
             switch ((HXTypes)comboHXType.SelectedIndex)
             {
-                case HXTypes.None:
-                    break;
                 case HXTypes.FinalT:
                     lblHXUnits.Text = "degC"; lblHXUnits.Visible = true;
                     lblHXValue.Text = "Temperature"; lblHXValue.Visible = true;
@@ -1562,6 +1734,7 @@ namespace Reaction_Editor
                     numHX.Visible = true;
                     break;
             }
+            UpdateHXLVI();
             ChangeOccured();
         }
 
@@ -1738,7 +1911,7 @@ namespace Reaction_Editor
 
         private void tabSources_Sinks_Resize(object sender, EventArgs e)
         {
-            grpSinks.Height = tabOptions.Height / 2;
+            grpSinks.Height = tabSourcesSinks.Height / 2;
         }
 
         private void chkEnabled_CheckedChanged(object sender, EventArgs e)
@@ -1777,6 +1950,7 @@ namespace Reaction_Editor
             {
                 SimpleReaction rxn = (SimpleReaction)lstReactions.SelectedItems[0].Tag;
                 lstReactions.SelectedItems[0].Remove();
+                UpdateReactionNumbers();
                 if (ReactionRemoved != null)
                     ReactionRemoved(this, rxn);
             }
@@ -1802,7 +1976,7 @@ namespace Reaction_Editor
 
         private void numHX_TextChanged(object sender, EventArgs e)
         {
-
+            UpdateHXLVI();
             ChangeOccured();
         }
 
@@ -1819,7 +1993,8 @@ namespace Reaction_Editor
 
         private void lstReactions_ItemDrag(object sender, ItemDragEventArgs e)
         {
-            DoDragDrop(((ListViewItem)e.Item).Tag, DragDropEffects.Move | DragDropEffects.Copy);
+            if (((ListViewItem)e.Item).Tag is SimpleReaction)
+                DoDragDrop(((ListViewItem)e.Item).Tag, DragDropEffects.Move | DragDropEffects.Copy);
         }
 
         private void lstReactions_DragOver(object sender, DragEventArgs e)
@@ -1932,6 +2107,7 @@ namespace Reaction_Editor
             Log.RemoveSource();
 
             m_SourcesCache = GetCommaSeperatedCompounds(txtSources.Text);
+            UpdateSourcesLVI();
 
             ChangeOccured();
             if (SourcesSinksChanged != null)
@@ -1947,6 +2123,7 @@ namespace Reaction_Editor
             ColourCompounds(txtSinks);
 
             m_SinksCache = GetCommaSeperatedCompounds(txtSinks.Text);
+            UpdateSinksLVI();
 
             Log.RemoveSource();
 
@@ -2005,6 +2182,7 @@ namespace Reaction_Editor
 
         private void numHXApproach_ValueChanged(object sender, EventArgs e)
         {
+            UpdateHXLVI();
             ChangeOccured();
         }
 
@@ -2013,10 +2191,11 @@ namespace Reaction_Editor
             if (chkFirstReactant.Checked)
             {
                 foreach (ListViewItem lvi in lstReactions.Items)
-                {
-                    SimpleReaction rxn = (SimpleReaction)lvi.Tag;
-                    rxn.ExtentInfo.Specie = rxn.FirstReactant;
-                }
+                    if (lvi.Tag is SimpleReaction)
+                    {
+                        SimpleReaction rxn = (SimpleReaction)lvi.Tag;
+                        rxn.ExtentInfo.Specie = rxn.FirstReactant;
+                    }
                 comboExtentSpecie.SelectedItem = m_CurrentReaction != null ?
                     m_CurrentReaction.FirstReactant : null;
             }
@@ -2200,6 +2379,7 @@ namespace Reaction_Editor
         private void menuShowSequence_CheckedChanged(object sender, EventArgs e)
         {
             lstReactions.ShowGroups = menuShowSequence.Checked;
+            UpdateReactionNumbers();
         }
 
         private void lstReactions_KeyDown(object sender, KeyEventArgs e)

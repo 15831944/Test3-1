@@ -40,6 +40,12 @@
     <Compile Include="BoxAutoComplete.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="FrmAddSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAddSelector.Designer.cs">
+      <DependentUpon>FrmAddSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Third Party Controls\BANumEdit.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -77,6 +83,10 @@
     <Compile Include="Third Party Controls\NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmAddSelector.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FrmAddSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Third Party Controls\BANumEdit.resx">
       <DependentUpon>BANumEdit.cs</DependentUpon>
       <SubType>Designer</SubType>
