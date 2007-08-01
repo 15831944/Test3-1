@@ -473,31 +473,31 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
                                 Xfer_EvalProducts_Info & S2,
                                 CHXBase * pHX)
   {
-  SpConduit *Sd1 = (S1.pQo!=NULL) ? S1.pQo : GetWrkConduit("Xfer1", chLINEID());
-  SpConduit *Sd2 = (S2.pQo!=NULL) ? S2.pQo : GetWrkConduit("Xfer2", chLINEID());
-  Xfer_EvalProductsIn_(S1.iJoinId, S1.dPress, S1.pQo, Sd1, S1.pPBP);
-  Xfer_EvalProductsIn_(S2.iJoinId, S2.dPress, S2.pQo, Sd2, S2.pPBP);
+  SpConduit *Sd1 = (S1.m_pQo!=NULL) ? S1.m_pQo : GetWrkConduit("Xfer1", chLINEID());
+  SpConduit *Sd2 = (S2.m_pQo!=NULL) ? S2.m_pQo : GetWrkConduit("Xfer2", chLINEID());
+  Xfer_EvalProductsIn_(S1.m_iJoinId, S1.m_dPress, S1.m_pQo, Sd1, S1.m_pPBP);
+  Xfer_EvalProductsIn_(S2.m_iJoinId, S2.m_dPress, S2.m_pQo, Sd2, S2.m_pPBP);
 
   flag HX_PreReact = (pHX && NetProbalMethod() && pHX->PreReact()); //should this HX sequencing option be enabled for dynamic?
   if (HX_PreReact)
     {
-    pHX->SetPrimary(NULL, *Sd1, S1.dPress, NULL);
-    pHX->SetSecondary(NULL, *Sd2, S2.dPress, NULL);
+    pHX->SetPrimary(NULL, *Sd1, S1.m_dPress, NULL);
+    pHX->SetSecondary(NULL, *Sd2, S2.m_dPress, NULL);
     pHX->EvalProducts();
     }
 
-  Xfer_EvalProductsWork_(S1.pQo, Sd1, S1.pRB, S1.pEHX);
-  Xfer_EvalProductsWork_(S2.pQo, Sd2, S2.pRB, S2.pEHX);
+  Xfer_EvalProductsWork_(S1.m_pQo, Sd1, S1.m_pRB, S1.m_pEHX, S1.m_pBlkEval);
+  Xfer_EvalProductsWork_(S2.m_pQo, Sd2, S2.m_pRB, S2.m_pEHX, S2.m_pBlkEval);
 
   if (pHX && !HX_PreReact)
     {
-    pHX->SetPrimary(NULL, *Sd1, S1.dPress, NULL);
-    pHX->SetSecondary(NULL, *Sd2, S2.dPress, NULL);
+    pHX->SetPrimary(NULL, *Sd1, S1.m_dPress, NULL);
+    pHX->SetSecondary(NULL, *Sd2, S2.m_dPress, NULL);
     pHX->EvalProducts();
     }
 
-  Xfer_EvalProductsOut_(S1.iJoinId, S1.pQo, Sd1, S1.pGSM, S1.pPBP);
-  Xfer_EvalProductsOut_(S2.iJoinId, S2.pQo, Sd2, S2.pGSM, S2.pPBP);
+  Xfer_EvalProductsOut_(S1.m_iJoinId, S1.m_pQo, Sd1, S1.m_pGSM, S1.m_pPBP);
+  Xfer_EvalProductsOut_(S2.m_iJoinId, S2.m_pQo, Sd2, S2.m_pGSM, S2.m_pPBP);
   }
 
 // -------------------------------------------------------------------------

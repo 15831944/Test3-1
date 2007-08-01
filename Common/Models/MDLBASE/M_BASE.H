@@ -93,33 +93,48 @@ class DllImportExport CSurgeControl
 class Xfer_EvalProducts_Info
   {
   friend class MdlNode;
-  protected:
-    int             iJoinId;
-    double          dPress;
-    SpConduit      *pQi;
-    SpConduit      *pQo;
-    CReactionBlock *pRB;
-    GSModel        *pGSM;
-    CEnvironHX     *pEHX;
-    CRqdPressCtrl   *pPBP;
-
-    int             Io[MaxIOList+1];
-
   public:
 
     Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
                            GSModel * GSM=NULL, CRqdPressCtrl *PBP=NULL, 
                            CReactionBlock *RB=NULL, CEnvironHX * EHX=NULL)
       {
-      iJoinId = JoinId;
-      dPress  = Press;
-      pQi  = Qi;
-      pQo  = Qo;
-      pRB  = RB;
-      pGSM = GSM;
-      pEHX = EHX;
-      pPBP = PBP;
+      m_iJoinId   = JoinId;
+      m_dPress    = Press;
+      m_pQi       = Qi;
+      m_pQo       = Qo;
+      m_pGSM      = GSM;
+      m_pPBP      = PBP;
+      m_pRB       = RB;
+      m_pEHX      = EHX;
+      m_pBlkEval  = NULL;
       };
+    Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
+                           GSModel * GSM=NULL, CRqdPressCtrl *PBP=NULL, 
+                           CBlockEvaluator *BlkEval = NULL)
+      {
+      m_iJoinId   = JoinId;
+      m_dPress    = Press;
+      m_pQi       = Qi;
+      m_pQo       = Qo;
+      m_pGSM      = GSM;
+      m_pPBP      = PBP;
+      m_pRB       = NULL;
+      m_pEHX      = NULL;
+      m_pBlkEval  = BlkEval;
+      };
+
+  protected:
+    int                m_iJoinId;
+    double             m_dPress;
+    SpConduit        * m_pQi;
+    SpConduit        * m_pQo;
+    CReactionBlock   * m_pRB;
+    GSModel          * m_pGSM;
+    CEnvironHX       * m_pEHX;
+    CRqdPressCtrl    * m_pPBP;
+    CBlockEvaluator  * m_pBlkEval;
+
   };
 
 //--------------------------------------------------------------------------

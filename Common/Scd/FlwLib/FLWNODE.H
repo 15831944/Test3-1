@@ -543,6 +543,8 @@ class DllImportExport CDirectFlwIO
 
     void          ManageNdDirectIOs(bool AddIt);
 
+    bool          MethodEnable(long NetMethod);
+
     void          MakeRmtTag();
     flag          GlobalConnect();
     flag          GlobalDisConnect();
@@ -576,7 +578,7 @@ class DllImportExport CDirectFlwIO
     flag          getSysEnable()            { return m_bSysEnable; };
     void          putUsrEnable(flag On)     { m_bUsrEnable = On; ManageNdDirectIOs(Enabled!=0); };
     flag          getUsrEnable()            { return m_bUsrEnable; };
-    flag          getEnabled()              { return (m_bSysEnable || m_bUsrEnable) && !m_bMLnkConnd; };
+    flag          getEnabled();
     flag          getConnected()            { return m_bConnected; };
     flag          getTagDeferred()          { m_sRmtTag.LRTrim(); return m_sRmtTag.GetLength()==0; };
     flag          getConnectError();
@@ -1501,7 +1503,7 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     void           SetIsEvalSeqStart(flag On) { m_fIsEvalSeqStart=On; };
     flag           IsEvalSeqStart() { return m_fIsEvalSeqStart; };
 
-    void           FixTag(LPCSTR ReqdTag=NULL);
+    void           FixTag(LPCSTR ReqdTag=NULL, bool Checkit=false);
     void           InitConnId(FlwNode * pNd, LPSTR IOName, FlwNode * pRmtNd, LPSTR IONameRmt, LPSTR DIOName);
 
     void           ClrUseStatus()               { m_iUseStatus=0; };
@@ -3580,6 +3582,7 @@ class DllImportExport FlwNode : public CTNode
     static void    RemoveFromConnectList(CConnect * pConnect); 
     static void    AddToConnectMap(LPSTR ConnTag, CConnect * pConnect); 
     static void    RemoveFromConnectMap(LPSTR ConnTag); 
+    static void    CheckInConnectMap(LPSTR ConnTag, CConnect * pConnect); 
     static flag    FindConnect(LPSTR ConnTag, CConnect * pConnect); 
     static CConnect * FindConnect(LPSTR pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
 
