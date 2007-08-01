@@ -26,6 +26,8 @@ static CDbgMngr dbgRctSolveSimplex("RctEqns", "SolveSimplex");
 static CDbgMngr dbgRctDumpSimplex ("RctEqns", "DumpSimplex");
 #endif
 
+#define TryBalanceReaction 0
+
 //===========================================================================
 //
 //                       Equation Control Class Factory
@@ -1009,11 +1011,13 @@ flag BalanceData::Check()
     // Now try balance the reactions if required...
     if (Pass==0 && !BalanceOK)// || R.fAutoBalance)
       {
+      #if TryBalanceReaction
       if (Balance() == 0)
         {
         Strng Es;
         R.GetEqnAsString(Es, EAS_Rct);
         R.SetCI(2, "W\t%s balance adjusted in %s", BadElements(), Es());
+        LogWarning(R.BaseTag(), 0, "%s balance adjusted to %s", BadElements(), Es());
         }
       else
         {
@@ -1021,9 +1025,10 @@ flag BalanceData::Check()
         //R.GetEqnAsString(Es);
         //LogWarning(FullObjTag, 0, "Unable to balance %s in %s", BadElements(), Es());
         }
+      #endif
       }
     else
-      break;
+      break; //break out of loop
     }
 
   if (!BalanceOK)
@@ -1045,6 +1050,8 @@ flag BalanceData::Check()
 
 int BalanceData::Balance()
   {
+  int      Ret=-1; // initialise as unsuccessful
+  #if TryBalanceReaction
   //TODO: This needs improving!!!
   //User needs to be given the balanced reaction string so that they can put this in the reaction file
   CDVector B, Coeffs;
@@ -1053,7 +1060,6 @@ int BalanceData::Balance()
   int      i, j, k, m, n;
   byte     error=0;
   double   sum;
-  int      Ret=-1; // initialise as unsuccessful
 
   IndepSpc = NumSpc -1;
   DepSpc = 1;
@@ -1157,6 +1163,7 @@ int BalanceData::Balance()
     {
     // Cannot AutoBalance
     }
+  #endif
   return Ret;
   }
 

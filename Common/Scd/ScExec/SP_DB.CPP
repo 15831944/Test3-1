@@ -5991,7 +5991,8 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   if (!bCDBBad)
     {
     Strng Fn;
-    Fn.Set("%sSpecieData.ini", PrjFiles());
+    Fn=FnDefaultReactionsFolder();
+    Fn+="SpecieData.ini";
     CProfINIFile PF(Fn());
     for (int e=0; e<EDB.Count(); e++)
       {
