@@ -4818,7 +4818,7 @@ void FlwSlvPB::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Short ("CnvgdIters",        "", DC_    , "",    &PBEqnCB().Cfg.iRqdCnvrgdIters,&FlwSlvNd, isParm );
     DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
     //DDB.Byte  ("TearMethod",  "Method", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */, DDB0);
-    DDB.Byte  ("DampAsGroup",       "", DC_,     "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Byte  ("DampTogether",      "", DC_,     "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
     DDB.Double("Damping",           "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,       &FlwSlvNd, isParm );
     DDB.Double("DampingGrowth",     "", DC_,     "",    &PBEqnCB().Cfg.dDampFctGrowth, &FlwSlvNd, isParm );
     DDB.Double("DampingDecay",      "", DC_,     "",    &PBEqnCB().Cfg.dDampFctDecay,  &FlwSlvNd, isParm );
@@ -4878,7 +4878,7 @@ void FlwSlvPB::BuildDataDefnOld(DataDefnBlk & DDB)
     DDB.Double("EPS_Rel",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Rel,       &FlwSlvNd, isParm );
     DDB.Double("EPS_Abs",         "", DC_Frac, "%",   &PBEqnCB().Cfg.dEps_Abs,       &FlwSlvNd, isParm );
     DDB.Long  ("MaxIters",        "", DC_    , "",    &PBEqnCB().Cfg.iMaxIters,      &FlwSlvNd, isParm );
-    DDB.Byte  ("DampAsGroup",     "", DC_    , "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
+    DDB.Byte  ("DampTogether",    "", DC_    , "",    &PBEqnCB().Cfg.m_iDampAsGroup, &FlwSlvNd, isParm, DDBDampAsGroup );
     DDB.Double("Damping",         "", DC_Frac, "%",   &PBEqnCB().Cfg.m_dDamping,     &FlwSlvNd, isParm );
     DDB.Byte  ("Method",          "", DC_    , "",    &PBEqnCB().Cfg.iConvergeMeth,  &FlwSlvNd, 0/*isParm */);
     DDB.Bool  ("MassSmoothing",   "", DC_    , "",    &PBEqnCB().Cfg.fMassSmooth,    &FlwSlvNd, isParm);

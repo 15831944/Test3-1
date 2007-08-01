@@ -1756,7 +1756,7 @@ void TearObjectEdt::Build()
     SetSpace(L,2); SetDParm(L, "MaxIters",      16, "", Id_TDfMaxIters,   10, 2, " ");
     SetTag("$PB.MaxIters");
     L++;                                                  
-    SetSpace(L,2); SetDParm(L, "DampAsGroup",   16, "", Id_TDfDampAsGroup,    10, 2, " ");
+    SetSpace(L,2); SetDParm(L, "DampTogether",   16, "", Id_TDfDampAsGroup,    10, 2, " ");
     FldHasFixedStrValue(DAG_Default, DampAsGroupStringsShort[DAG_Default]);
     FldHasFixedStrValue(DAG_On,      DampAsGroupStringsShort[DAG_Off]);
     FldHasFixedStrValue(DAG_Off,     DampAsGroupStringsShort[DAG_On]);

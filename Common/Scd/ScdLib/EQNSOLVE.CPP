@@ -426,7 +426,7 @@ void TearVarBlk::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("NVars",       "",    DC_,     "",     xidNTearVars,               this, 0);//isParmConstruct);//0isParm);
     DDB.Byte  ("TearMethod",  "",    DC_,     "",     &m_iTearMethod,             this, isParm, DDBTearMethod);
     DDB.Long  ("NHistory",    "",    DC_,     "",     xidNTearHistory,            this, isParmStopped);
-    DDB.Byte  ("DampAsGroup", "",    DC_,     "",     &m_iDampAsGroup,            this, isParm, DDBDampAsGroupDef);
+    DDB.Byte  ("DampTogether","",    DC_,     "",     &m_iDampAsGroup,            this, isParm, DDBDampAsGroupDef);
     DDB.Double("DampingRqd",  "",    DC_Frac, "%",    &m_dDampingRqd,             this, isParm|NAN_OK);
     DDB.Byte  ("EPS_Strategy","",    DC_,     "",     &m_iEPSStrategy,            this, isParm, DDBEPSStrategy);
     DDB.Double("EPS_Abs",     "",    DC_Frac, "%",    &dEPS_Abs,                  this, isParm|NAN_OK);
@@ -540,7 +540,7 @@ flag TearVarBlk::ValidateData(ValidateDataBlk & VDB)
     dbgpln("GroupName   %s", sGroupTag());
     dbgpln("NVars       %i", nVariables);
     dbgpln("NHistory    %i", nHistory);
-    dbgpln("DampAsGroup %i", m_iDampAsGroup);
+    dbgpln("DampTogether%i", m_iDampAsGroup);
     dbgpln("DampingRqd  %g", m_dDampingRqd);
     dbgpln("TolStrategy %i", m_iEPSStrategy);
     dbgpln("EPS_Abs     %g", dEPS_Abs);
