@@ -348,8 +348,8 @@ class MSubConstructBaseDef
 const long MDrw_Poly      = 0x80000001; //poly-line: list of x,y co-ordinates
 const long MDrw_Arc       = 0x80000002; //circle: x,y centre co-ordinates and radius
 const long MDrw_Arc3      = 0x80000003; //curve: set of 3 x,y co-ordinates
-const long MDrw_TagPos    = 0x80000004; //tag position: a set of x,y co-ordinates
-const long MDrw_ValuePos  = 0x80000005; //value position: a set of x,y co-ordinates
+const long MDrw_TagPos    = 0x80000004; //tag position: a set of x,y co-ordinates (bottom centre)
+const long MDrw_ValuePos  = 0x80000005; //value position: a set of x,y co-ordinates (not used)
 const long MDrw_End       = 0x80000006; //end: end of graphics symbol definition
 
 /*A drawing symbol is defined arround the origin 0,0.

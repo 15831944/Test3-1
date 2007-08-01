@@ -26,8 +26,9 @@ static MInOutDefStruct s_IODefs[]=
 
 //====================================================================================
 
-static double SeperatorDraw[] = { MDrw_Poly,  -4.,3.,  5.,-1.,  1.,-3.,  -4.,3.,
-                           MDrw_End};
+static double SeperatorDraw[] = { MDrw_Poly,  -4.5,3.,  4.5,-1.,  0.5,-3.,  -4.5,3.,
+                                  MDrw_TagPos, 0,-6.5,
+                                  MDrw_End};
 
  DEFINE_TRANSFER_UNIT(SysCADSeperator, "SeperatorUnit", DLL_GroupName)
 void SysCADSeperator_UnitDef::GetOptions()

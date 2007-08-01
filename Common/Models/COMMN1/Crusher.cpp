@@ -78,12 +78,19 @@ static IOAreaRec CrusherIOAreaList[] =
    {"ElecSupply",    "ElecIn",     EIOId_Supply, LIO_In,   nc_ELnk, 0,50},
    {NULL}};
            
-static double Drw_Crusher[] = { DD_Poly, -10,-8, -10,8, 10,8, 10,-8, -10,-8,
-                       DD_Poly, -8,8, -4,-8,
-                       DD_Poly, -6,8, -2,-8,
-                       DD_Poly,  6,8,  2,-8,
-                       DD_Poly,  8,8,  4,-8,
-                       DD_End };
+static double Drw_Crusher[] = { DD_Poly, -8,-6.4, -8,6.4, 8,6.4, 8,-6.4, -8,-6.4,
+                                DD_Poly, -6.4,6.4, -3.2,-6.4,
+                                DD_Poly, -4.8,6.4, -1.6,-6.4,
+                                DD_Poly,  4.8,6.4,  1.6,-6.4,
+                                DD_Poly,  6.4,6.4,  3.2,-6.4,
+                                DD_TagPos, 0, -9.9,
+                                DD_End };
+/*static double Drw_Crusher[] = { DD_Poly, -10,-8, -10,8, 10,8, 10,-8, -10,-8,
+                                DD_Poly, -8,8, -4,-8,
+                                DD_Poly, -6,8, -2,-8,
+                                DD_Poly,  6,8,  2,-8,
+                                DD_Poly,  8,8,  4,-8,
+                                DD_End };*/
 
 //===========================================================================
 

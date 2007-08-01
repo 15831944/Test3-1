@@ -476,11 +476,11 @@ static IOAreaRec Crush1IOAreaList[] =
    {"ElecSupply",    "ElecIn",     EIOId_Supply, LIO_In,   nc_ELnk, 0,50},
    {NULL}};
            
-static double Drw_Crush1[] = { DD_Poly, -10,-7, -10,7, 10,7, 10,-7, -10,-7,
-                               DD_Poly, -10,-7, -5,4, -5,7,
-                               DD_Poly, 10,-7, 5,4, 5,7,
-                               DD_Poly, -7,-5, -3,4, 3,4, 7,-5, -7,-5,
-                               DD_TagPos, 0, -10.5,
+static double Drw_Crush1[] = { DD_Poly, -8.0,-5.6, -8.0,5.6, 8.0,5.6, 8.0,-5.6, -8.0,-5.6,
+                               DD_Poly, -8.0,-5.6, -4.0,3.2, -4.0,5.6,
+                               DD_Poly, 8.0,-5.6, 4.0,3.2, 4.0,5.6,
+                               DD_Poly, -5.6,-4.0, -2.4,3.2, 2.4,3.2, 5.6,-4.0, -5.6,-4.0,
+                               DD_TagPos, 0, -9.9,
                                DD_End };
 
 //===========================================================================

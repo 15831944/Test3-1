@@ -300,8 +300,8 @@ static CSArray IONames;
 
 static double Drw_Transmitter[] =
        {
-       DD_Arc, 0,0,2.5,
-       DD_TagPos, 0, -6,
+       DD_Arc, 0,0,2,
+       DD_TagPos, 0, -5.5,
        DD_End
        };
 

@@ -24,9 +24,10 @@ static MInOutDefStruct s_IODefs[]=
 //====================================================================================
 
 static double ComminutionDraw[] = { MDrw_Poly,  -5.,-5.,  -1.,-5.,  -4.,5.,  -5.,5., -5.,-5.,
-                             MDrw_Poly,   1.,-5.,   5.,-5.,   5.,5.,  4.,5.,  1.,-5.,
-                             MDrw_Poly,  -4.,5.,   4.,5.,     1.,-5.,-1.,-5.,  -4.,5.,
-                             MDrw_End};
+                                    MDrw_Poly,   1.,-5.,   5.,-5.,   5.,5.,  4.,5.,  1.,-5.,
+                                    MDrw_Poly,  -4.,5.,   4.,5.,     1.,-5.,-1.,-5.,  -4.,5.,
+                                    MDrw_TagPos, 0,-8.5,
+                                    MDrw_End};
 
 DEFINE_TRANSFER_UNIT(SysCADComminution, "ComminutionUnit", DLL_GroupName)
 void SysCADComminution_UnitDef::GetOptions()

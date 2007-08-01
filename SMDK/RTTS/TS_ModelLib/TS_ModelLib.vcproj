@@ -311,9 +311,6 @@
 					RelativePath=".\SysCADSeperator.cpp">
 				</File>
 				<File
-					RelativePath=".\SysCADSurge.cpp">
-				</File>
-				<File
 					RelativePath="SysCADSystemHelper.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
@@ -355,6 +352,21 @@
 			Filter="h;hpp;hxx;hm;inl">
 			<File
 				RelativePath="StdAfx.h">
+			</File>
+			<File
+				RelativePath=".\SysCADComminution.h">
+			</File>
+			<File
+				RelativePath=".\SysCADMill.h">
+			</File>
+			<File
+				RelativePath=".\SysCADSeperator.h">
+			</File>
+			<File
+				RelativePath=".\SysCADSystemHelper.h">
+			</File>
+			<File
+				RelativePath=".\TS_SMDK.h">
 			</File>
 			<Filter
 				Name="SMDK"

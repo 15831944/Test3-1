@@ -67,7 +67,7 @@ static IOAreaRec PrecipIOAreaList[] =
                                DD_TagPos, 0, -13.5,
                                DD_End };*/
 static double Drw_Precip[] = { DD_Poly, -4.5,10, -4.5,-10,
-                               DD_Poly, 4.5,-10, 4.5,-10,
+                               DD_Poly, 4.5,10, 4.5,-10,
                                DD_Arc3, -4.5,-10, 0,-12, 4.5,-10,
                                DD_Arc3, 4.5,10, 0,12, -4.5,10,
                                DD_Arc3, 4.5,10, 0,8, -4.5,10,

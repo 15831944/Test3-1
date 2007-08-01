@@ -80,10 +80,10 @@ static IOAreaRec MillIOAreaList[] =
                          DD_Poly, 2,-8, 2,8,
                          DD_Poly, -4,-2, -10,2, -10,4, -6,4, -4,2,
                          DD_End };*/
-static double Drw_Mill[] = { DD_Poly, -2,-3, -2,3, 1,12, 7,12, 10,3, 10,-3, 7,-12, 1,-12, -2,-3,
-                             DD_Poly, 1,-12, 1,12,
-                             DD_Poly, 7,-12, 7,12,
-                             DD_Poly, -2,-3, -10,3, -10,6, -5,6, -2,3,
+static double Drw_Mill[] = { DD_Poly, -4,-3, -4,3, -1,12, 9,12, 12,3, 12,-3, 9,-12, -1,-12, -4,-3,
+                             DD_Poly, -1,-12, -1,12,
+                             DD_Poly, 9,-12, 9,12,
+                             DD_Poly, -4,-3, -12,3, -12,6, -7,6, -4,3,
                              DD_TagPos, 0, -15.5,
                              DD_End };
 

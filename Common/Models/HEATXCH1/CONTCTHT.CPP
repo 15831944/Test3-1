@@ -80,10 +80,10 @@ static IOAreaRec ContactHeaterIOAreaList[] =
    {NULL}}; //This lists the areas of the model where links can be attached.
 
 
-static double Drw_ContactHeater[] = { DD_Poly, -5,7, -5,-7, 5,-7, 5,7, -5,7,
-                                      DD_Arc3, -5,7, 0,10, 5,7,
-                                      DD_Arc3, -5,-7, 0,-10, 5,-7,
-                                      DD_TagPos, 0, -13.5,
+static double Drw_ContactHeater[] = { DD_Poly, -6,8.4, -6,-8.4, 6,-8.4, 6,8.4, -6,8.4,
+                                      DD_Arc3, -6,8.4, 0,12, 6,8.4,
+                                      DD_Arc3, -6,-8.4, 0,-12, 6,-8.4,
+                                      DD_TagPos, 0, -15.5,
                                       DD_End };
 /*static double Drw_ContactHeater[] ={DD_Poly, -5,10, -5,-5, 5,-5, 5,10, -5,10,
                                  DD_Arc3, -5,10, 0,13, 5,10,

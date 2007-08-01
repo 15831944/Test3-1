@@ -22,10 +22,11 @@ static MInOutDefStruct s_IODefs[]=
 };
 
 static double Drw_MaterialMerge[] = { MDrw_Poly, -8,4, -8,-4, 8,-4, 8,4, -8,4,
-MDrw_Poly, -5,3, -3,0, -5,-3,
-MDrw_Poly, 0,3, 2,0, 0,-3,
-MDrw_Poly, 3,3, 5,0, 3,-3,
-MDrw_End };
+                                      MDrw_Poly, -5,3, -3,0, -5,-3,
+                                      MDrw_Poly, 0,3, 2,0, 0,-3,
+                                      MDrw_Poly, 3,3, 5,0, 3,-3,
+                                      MDrw_TagPos, 0,-7.5,
+                                      MDrw_End };
 
 //---------------------------------------------------------------------------
 DEFINE_TRANSFER_UNIT(MaterialMerge, "MaterialMerge", DLL_GroupName)

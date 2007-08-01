@@ -24,9 +24,9 @@ static MInOutDefStruct s_IODefs[]=
 //====================================================================================
 
 static double SurgeDraw[] = { MDrw_Poly,  -4.,4.,  4.,4.,  4.,-4.,  -4.,-4.,  -4.,4.,
-                           MDrw_End};
+                              MDrw_End};
 
- DEFINE_TRANSFER_UNIT(SysCADSurge, "SurgeUnit", DLL_GroupName)
+DEFINE_TRANSFER_UNIT(SysCADSurge, "SurgeUnit", DLL_GroupName)
 void SysCADSurge_UnitDef::GetOptions()
   {
   SetDefaultTag("BIN",TRUE);
