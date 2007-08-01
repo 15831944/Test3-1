@@ -2666,18 +2666,41 @@ void KWDatabase::KWDisplayException(_com_error & e, LPCTSTR strMsg)
     case DB_E_NOCOMMAND : EC= "NOCOMMAND"; break;
     case DB_E_NOINDEX : EC= "NOINDEX"; break;
     case DB_E_NOTABLE : EC= "NOTABLE"; break;
-    case E_OUTOFMEMORY : EC= "OFMEMORY"; break;
+    case E_OUTOFMEMORY : EC= "OUTOFMEMORY"; break;
 
     }
 
-  CString message;
+  /*CString message;
   message=strMsg;
   CString strErrCode;
-  strErrCode.FormatMessage("\nException: Error Code = %s %08x\n", EC, e.Error());
+  //does e.Error() return anything useful?
+  //if (EC.GetLength()>0)
+  //  strErrCode.FormatMessage("\nException: Error Code = %s %08x.\n", EC, e.Error());
+  //else
+  //  strErrCode.FormatMessage("\nException: Error Code = %08x.\n", e.Error());
+  if (EC.GetLength()>0)
+    strErrCode.FormatMessage("\nException: Error Code = %s.\n", EC); 
+  else
+    strErrCode = "\n");
   message += strErrCode;
   message += (LPCTSTR)e.Source();
   message += _T(": ");
+  message += (LPCTSTR)e.Description();*/
+
+  CString message;
+  message = (LPCTSTR)e.Source();
+  message += _T(": ");
   message += (LPCTSTR)e.Description();
+  message += ". \n";
+  //does e.Error() return anything useful?
+  //strErrCode.FormatMessage("\nException: Error Code = %s %08x.\n", EC, e.Error());
+  if (EC.GetLength()>0)
+    {
+    CString strErrCode;
+    strErrCode.FormatMessage("Exception Error Code:%s.\n ", EC);
+    message += strErrCode;
+    }
+  message+=strMsg;
 
   //for (long ie=0; ie<m_pCnn->Errors->Count; ie++)
   //  {
