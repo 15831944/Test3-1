@@ -296,6 +296,8 @@ const byte RBXT_Strict      = 1;
 const byte RBXT_Target      = 2;
 const byte RBXT_Individual  = 3;
 
+const int MacRctCIs = 16;
+
 class DllImportExport CReactionBlock : public TaggedObject
   {
   friend class CReactionBase;
@@ -433,7 +435,7 @@ class DllImportExport CReactionBlock : public TaggedObject
 
   protected:
 
-    DEFINE_CI(CReactionBlock, TaggedObject, 16);
+    DEFINE_CI(CReactionBlock, TaggedObject, MacRctCIs);
   protected:
     flag           fOn;
     Strng          sRCTName;

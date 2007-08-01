@@ -2548,7 +2548,6 @@ Global
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{7BBFB4E3-30BE-4D58-87D4-55E2A9E17390}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -2675,7 +2674,6 @@ Global
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{23F1BC15-A0B7-4965-B36D-69BEB6279669}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -3649,7 +3647,6 @@ Global
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{2109E5C8-940C-4E59-BE2F-633177B5B01D}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -3714,7 +3711,6 @@ Global
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{FE4A8E54-9BAD-43C2-B41E-99CECD7A7167}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4042,7 +4038,6 @@ Global
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{69BC910C-ADBD-4231-BAB0-F899DA5382A4}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4715,7 +4710,6 @@ Global
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{C649A10B-BAEA-4F22-A7B2-01F604D3D665}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4784,7 +4778,6 @@ Global
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{B1474608-BD36-4DC7-8600-317175D95809}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4853,7 +4846,6 @@ Global
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{D81AC8C5-0B59-4F2B-8266-537A007B0343}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -4922,7 +4914,6 @@ Global
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{43165012-873E-4CCE-AEFF-7FB9A8C572B0}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32
@@ -5131,7 +5122,6 @@ Global
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg_Small|Win32.Build.0 = Release_Dbg|Win32
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg|Any CPU.ActiveCfg = Release_Dbg|Win32
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg|Mixed Platforms.ActiveCfg = Release_Dbg|Win32
-		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg|Mixed Platforms.Build.0 = Release_Dbg|Win32
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg|Win32.ActiveCfg = Release_Dbg|Win32
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_Dbg|Win32.Build.0 = Release_Dbg|Win32
 		{E29426EE-6AA6-4FB9-B4A5-F990612CCD62}.Release_DbgCLR Full|Any CPU.ActiveCfg = Release_Dbg|Win32

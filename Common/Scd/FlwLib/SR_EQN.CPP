@@ -1466,6 +1466,11 @@ flag CR_Eqn::ParseTerm(CR_EqnTerm &Term)
   if (Term.NoOfMoles<1.0e-6)
     CReactionBlock::Error(&RB, 'B', 12, Term.SpcName());
 
+  if (Term.SpcId>=0 && !SDB[Term.SpcId].H25OK())
+    CReactionBlock::Error(&RB, 'B', 20, Term.SpcName());
+  if (Term.SpcId>=0 && !SDB[Term.SpcId].CpOK())
+    CReactionBlock::Error(&RB, 'B', 21, Term.SpcName());
+
   return (Term.SpcId>=0);
   }
 

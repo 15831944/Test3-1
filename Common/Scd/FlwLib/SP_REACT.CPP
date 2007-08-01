@@ -10,6 +10,7 @@
 #include "sp_model.h"
 #include "sp_react.h"
 #include "sr_eqn.h"
+#include "sr_src.h"
 #include "sr_vcs.h"
 #include "sq_lock.h"
 #include "scd_wm.h"
@@ -85,7 +86,7 @@ int CRCTTokenFile::IntToken()
 //
 //===========================================================================
 
-CReaction::CReaction(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
+CReaction::CReaction(TagObjClass * pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
   TaggedObject(pClass_, Tag_, pAttach, eAttach),
   RB(*(CReactionBlock*)pAttach)
   {
@@ -157,7 +158,7 @@ Model type:Block#n
 //IMPLEMENT_TAGOBJ(CReactionBlock, "ReactBlk", "ReactBlk", "", "RB", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "ReactionBlk", "Reaction Block");
 IMPLEMENT_TAGOBJ(CReactionBlock, "SR_Cfg", "SR_Cfg", "", "", "RB", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT, "ReactionBlk", "Reaction Block");
 
-CReactionBlock::CReactionBlock(pTagObjClass pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
+CReactionBlock::CReactionBlock(TagObjClass * pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) :
   TaggedObject(pClass_, Tag_, pAttach, eAttach),
   All(*(new CReactionArray)),
   Eqns(*(new CReactionArray)),
@@ -302,6 +303,11 @@ void CReactionBlock::Clear(flag fClearMsg, flag ClearAll)
   iReactionState       = RBS_Empty;
 
   m_DynRateScale       = 1.0;
+  
+  bReloadReqd          = false;
+
+  for (int i=1; i<=MacRctCIs; i++)
+    ClrCI(i);
 
   if (fClearMsg)
     {
@@ -524,8 +530,8 @@ Strng ScanComments(CRCTTokenFile &TF)
 
 void CReactionBlock::Parse(CRCTTokenFile &TF)
   {
-  pTagObjClass pCFirst=TagObjClass::FindGroupId(CReaction::GroupName);
-  pTagObjClass pC=NULL;//pCFirst;
+  TagObjClass * pCFirst=TagObjClass::FindGroupId(CReaction::GroupName);
+  TagObjClass * pC=NULL;//pCFirst;
   int SeqNo=0;
   flag UsrSeq=0;
   bool SeqReqd=false;
@@ -537,6 +543,8 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
   TF.SetStringChar(StringChar);
   TF.SetUseStringChar(False);
   TF.SetIgnoreComments(false);
+  int SrcCount = 0;
+  int SnkCount = 0;
 
   BlkComment=ScanComments(TF);
 
@@ -566,7 +574,7 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
 
     int n=NAll();
     RTag.Set("R%i",n+1);
-    pTagObjClass pCMem=pC;
+    TagObjClass * pCMem=pC;
     for (pC=pCFirst; pC; pC=pC->NextClassInGrp())
       if (TF.TokenIs(pC->ShortDesc()))
         {
@@ -604,36 +612,50 @@ void CReactionBlock::Parse(CRCTTokenFile &TF)
 
     //ScanComments(TF); // throw away
 
-    CReaction* pRct=(CReaction*)pC->Construct(NULL, RTag(), this, TOA_Embedded);
-    pRct->EqnIDNo=n;
-    pRct->m_sComment=RctComment;
-    TF.SetIgnoreComments(true);
-    pRct->Parse(TF);
-
-    flag IsSeq=TF.TokenIs("Sequence");
-
-    if (dynamic_cast<CR_Eqn*>(pRct))
+    if (dynamic_cast<CR_SrcClassDef*>(pC) && SrcCount++>0)
       {
-      if (IsSeq && !FirstRct && !SeqReqd)
-        Error(this, 'B', 17);
+      Error(this, 'B', 18);
       }
-    
-    if (IsSeq && (SeqReqd || FirstRct))
+    else if (dynamic_cast<CR_SnkClassDef*>(pC) && SnkCount++>0)
       {
-      SeqReqd = true;
-      TF.CheckToken(":");
-      SeqNo=abs(TF.IntToken());
-      UsrSeq=1;
+      Error(this, 'B', 19);
       }
-    // if following default sequence
-    else if (!UsrSeq)
-      SeqNo--;
-    pRct->SeqNo=abs(SeqNo);
+    else
+      {
+      CReaction* pRct=(CReaction*)pC->Construct(NULL, RTag(), this, TOA_Embedded);
+      pRct->EqnIDNo=n;
+      pRct->m_sComment=RctComment;
+      TF.SetIgnoreComments(true);
+      pRct->Parse(TF);
 
-    All.Add(pRct);
+      flag IsSeq=TF.TokenIs("Sequence");
 
-    if (dynamic_cast<CR_Eqn*>(pRct))
-      FirstRct=false;
+      if (dynamic_cast<CR_Eqn*>(pRct))
+        {
+        if (IsSeq && !FirstRct && !SeqReqd)
+          Error(this, 'B', 17);
+        }
+
+      if (IsSeq && (SeqReqd || FirstRct))
+        {
+        SeqReqd = true;
+        TF.CheckToken(":");
+        SeqNo=abs(TF.IntToken());
+        UsrSeq=1;
+        }
+      else 
+        {
+        // if following default sequence
+        if (!UsrSeq)
+          SeqNo--;
+        }
+      pRct->SeqNo=abs(SeqNo);
+
+      All.Add(pRct);
+
+      if (dynamic_cast<CR_Eqn*>(pRct))
+        FirstRct=false;
+      }
 
     TF.SetIgnoreComments(false);
 
@@ -895,6 +917,14 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
     case 16: errDesc.Set("Specie %s : Heat of formation not Specified", s);
       break;
     case 17: errDesc.Set("First Reaction must have a Sequence number");
+      break;
+    case 18: errDesc.Set("Too Many Source reactions (Max = 1)");
+      break;
+    case 19: errDesc.Set("Too Many Sink reactions (Max = 1)");
+      break;
+    case 20: errDesc.Set("Specie %s : Hf not defined", s);
+      break;
+    case 21: errDesc.Set("Specie %s : Cp not defined", s);
       break;
     default: errDesc = ((s !=NULL) && (strlen(s)>0)) ? s : "Unknown Error Number";
     };
@@ -1859,7 +1889,7 @@ flag CReactionBlock::Load(flag bIsSurgeType, pchar pRCTName, flag KeepState)
 
 //---------------------------------------------------------------------------
 
-CReaction *CReactionBlock::AddReaction(pTagObjClass pEqnClass)
+CReaction *CReactionBlock::AddReaction(TagObjClass * pEqnClass)
   {
   CReaction* pRct=(CReaction*)pEqnClass->Construct(NULL, "Rxx", this, TOA_Embedded);
   return AddReaction(pRct);

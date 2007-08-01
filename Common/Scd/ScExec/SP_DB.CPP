@@ -6046,116 +6046,124 @@ inline double LclChkZero(double x) { return ((fabs(x) > 1e-4) ? x : 0.0);}
 
 void CComponentDataBase::DumpTest()
   {
-  /***
+
   double T1=073.16, T2=2073.15;
   dbgpln("=================================================================================================================================================");
   dbgpln("Specie Disp Sequernce");
   for (int s=0; s<m_SDB.m_iNo; s++)
-  dbgpln("%s", m_SDB[s].SymOrTag());
+    dbgpln("%s", m_SDB[s].SymOrTag());
 
   dbgpln("Specie Test Dump");
 
   for (int c=0; c<m_CDB.m_iNo; c++)
-  {
-  dbgpln("-------------------------------------------------------------------------------------------------------------------------------------------------");
-  for (int j=0; j<m_CDB[c].nPhaseData; j++)
-  {
-  int s=m_CDB[c].PhaseData[j]->iSId;
-  CSpecie & Sp=m_SDB[s];
-  dbgpln("---------------- %s", Sp.SymOrTag());
-  dbgpln("Tc=%10.1f", Sp.TCrit());
-  dbgpln("Pc=%10.1f", Sp.PCrit());
-  dbgpln("Vc=%10.1f", Sp.VCrit());
-  dbgpln("MW=%10.1f", Sp.MoleWt());
-  dbgpln(
-  //"  %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s",
-  //" %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s",
-  " %6s %6s Ti    %10s %10s %10s %10s %10s %10s %10s %10s %10s",// %10s %10s %10s",
-  "tK", "tC", //"tF",
-  //"msHs(SP)",
-  "msHs",
-  "msHz",
-  "msHf",
-  //"msHf0",
-  //"msDHf",
-  //"msDHs",
-  //"msDHz",
-  "msDHf",
-  "msCp",
-  "msSf",
-  "msGf",
-  //"msCpdHfEst",
-  //"msCpHfEst",
-  //"mlCp",
-  "VapP",
-  "Rho");
-  double dt=50.0,t1=T1-dt, t=0, tp, vp=0,vpp;//floor((t2-t1)/10),t=t1;
-  flag Done298=0;
+    {
+    dbgpln("-------------------------------------------------------------------------------------------------------------------------------------------------");
+    for (int j=0; j<m_CDB[c].m_nPhaseData; j++)
+      {
+      int s=m_CDB[c].m_PhaseData[j]->iSId;
+      CSpecie & Sp=m_SDB[s];
+      dbgpln("---------------- %s", Sp.SymOrTag());
+      dbgpln("Tc=%10.1f", Sp.TCrit());
+      dbgpln("Pc=%10.1f", Sp.PCrit());
+      dbgpln("Vc=%10.1f", Sp.VCrit());
+      dbgpln("MW=%10.1f", Sp.MoleWt());
+      dbgpln(
+        //"  %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s",
+        //" %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s",
+        " %6s %6s Ti %3s %10s %10s %10s %10s %10s %10s %10s %10s %10s",// %10s %10s %10s",
+        "tK", "tC", //"tF",
+        //"msHs(SP)",
+        "Hf",
+        "msHs",
+        "msHz",
+        "msHf",
+        //"msHf0",
+        //"msDHf",
+        //"msDHs",
+        //"msDHz",
+        "msDHf",
+        "msCp",
+        "msSf",
+        "msGf",
+        //"msCpdHfEst",
+        //"msCpHfEst",
+        //"mlCp",
+        "VapP",
+        "Rho");
 
-  if (Sp.sCmpTag.XStrICmp("Water")==0 || Sp.sCmpTag.XStrICmp("Steam")==0)
-  { int xxx=0; }
+      for (int Fidelity=0; Fidelity<2; Fidelity++)
+        {
 
-  for (int i=0; i <= 30; i++)
-  {
-  tp=t;
-  vpp=vp;
-  if (i>20)
-  dt=100.0;
-  char vps[1024];
-  if (t1< 298.16 && t1+dt>298.16 && !Done298)
-  {
-  t=298.16;
-  Done298=1;
-  }
-  else //if (i==2)
-  {
-  t1=t1+dt;
-  t=t1;
-  }
+        double dt=50.0,t1=T1-dt, t=0, tp, vp=0,vpp;//floor((t2-t1)/10),t=t1;
+        flag Done298=0;
 
-  //dbgp  (" %6.1f %6.1f %6.1f %2i %2i",t, K_2_C(t), K_2_F(t), Sp.m_iLastTPoint+1, Sp.FindTIndex(t));
-  dbgp  (" %6.1f %6.1f %2i %2i",t, K_2_C(t), Sp.m_iLastTPoint+1, Sp.FindTIndex(t));
-  vp=Sp.VapourP(Fidelity, t);
-  //dbgp  (" %10.1f", LclChkZero(Sp.msHs(t, Std_P, NULL, NULL)));
-  dbgp  (" %10.1f", LclChkZero(Sp.msHs(Fidelity, t, Std_P, NULL, NULL)));
-  dbgp  (" %10.1f", LclChkZero(Sp.msHz(Fidelity, t, Std_P, NULL, NULL)));
-  dbgp  (" %10.1f", LclChkZero(Sp.msHf(Fidelity, t, Std_P, NULL, NULL)));
-  //dbgp  (" %10.1f", LclChkZero(Sp.msHf0()));
-  //dbgp  (" %10.1f", LclChkZero(Sp.msdHf0()));
-  if (j>0)
-  {
-  int s1=m_CDB[c].PhaseData[j-1]->iSId;
-  double vp1=m_SDB[s1].VapourP(t);
-  dbgp  (" %10.1f", LclChkZero(Sp.msHf(Fidelity, t, Std_P, NULL, NULL)-m_SDB[s1].msHf(Fidelity, t, Std_P, NULL, NULL)));
-  }
-  else
-  dbgp  (" %10s ", "");
+        if (Sp.sCmpTag.XStrICmp("Water")==0 || Sp.sCmpTag.XStrICmp("Steam")==0)
+          { int xxx=0; }
 
-  dbgp  (" %10.4f", Sp.msCp(Fidelity, t, vp, NULL, NULL));
-  dbgp  (" %10.1f", LclChkZero(Sp.msSf(Fidelity, t, Std_P, NULL, NULL)));
-  dbgp  (" %10.1f", LclChkZero(Sp.msGf(Fidelity, t, Std_P, NULL, NULL)));
+        for (int i=0; i <= 30; i++)
+          {
+          tp=t;
+          vpp=vp;
+          if (i>20)
+            dt=100.0;
+          char vps[1024];
+          if (t1< 298.16 && t1+dt>298.16 && !Done298)
+            {
+            t=298.16;
+            Done298=1;
+            }
+          else //if (i==2)
+            {
+            t1=t1+dt;
+            t=t1;
+            }
 
-  //if (i>0)
-  //  {
-  //  dbgp  (" %10.4f", LclChkZero(Sp.msHz(t, vp, NULL, NULL)-Sp.msHz(tp, vpp, NULL, NULL))/(t-tp));
-  //  dbgp  (" %10.4f", LclChkZero(Sp.msHf(t, vp, NULL, NULL)-Sp.msHf(tp, vpp, NULL, NULL))/(t-tp));
-  //  }
-  //else
-  //  dbgp  (" %10s %10s", "", "");
+          //dbgp  (" %6.1f %6.1f %6.1f %2i %2i",t, K_2_C(t), K_2_F(t), Sp.m_iLastTPoint+1, Sp.FindTIndex(t));
+          dbgp  (" %6.1f %6.1f %2i",t, K_2_C(t), Sp.FindTIndex(Fidelity, t));
+          vp=Sp.VapourP(Fidelity, t);
 
-  sprintf(vps, vp<1.0e5 ? "%10.3f":"%10.3e", vp);
-  dbgp  (" %10s", vps);
-  if (Sp.m_bfDensInDirect)
-  dbgp  (" %10s", " ---");
-  else
-  dbgp  (" %10.3f", LclChkZero(Sp.Density(Fidelity, t, Std_P, NULL, NULL)));
-  dbgpln("");
-  }
-  }
-  dbgpln(" ");
-  }
+          dbgp  (" %s", Sp.m_FData[Fidelity].m_bH25OK?"   ":"BAD");
+          //dbgp  (" %10.1f", LclChkZero(Sp.msHs(t, Std_P, NULL, NULL)));
+          dbgp  (" %10.1f", LclChkZero(Sp.msHs(Fidelity, t, Std_P, NULL, NULL)));
+          dbgp  (" %10.1f", LclChkZero(Sp.msHz(Fidelity, t, Std_P, NULL, NULL)));
+          dbgp  (" %10.1f", LclChkZero(Sp.msHf(Fidelity, t, Std_P, NULL, NULL)));
+          //dbgp  (" %10.1f", LclChkZero(Sp.msHf0()));
+          //dbgp  (" %10.1f", LclChkZero(Sp.msdHf0()));
+          if (j>0)
+            {
+            int s1=m_CDB[c].m_PhaseData[j-1]->iSId;
+            double vp1=m_SDB[s1].VapourP(Fidelity, t);
+            dbgp  (" %10.1f", LclChkZero(Sp.msHf(Fidelity, t, Std_P, NULL, NULL)-m_SDB[s1].msHf(Fidelity, t, Std_P, NULL, NULL)));
+            }
+          else
+            dbgp  (" %10s ", "");
+
+          dbgp  (" %10.4f", Sp.msCp(Fidelity, t, vp, NULL, NULL));
+          dbgp  (" %10.1f", LclChkZero(Sp.msSf(Fidelity, t, Std_P, NULL, NULL)));
+          dbgp  (" %10.1f", LclChkZero(Sp.msGf(Fidelity, t, Std_P, NULL, NULL)));
+
+          //if (i>0)
+          //  {
+          //  dbgp  (" %10.4f", LclChkZero(Sp.msHz(t, vp, NULL, NULL)-Sp.msHz(tp, vpp, NULL, NULL))/(t-tp));
+          //  dbgp  (" %10.4f", LclChkZero(Sp.msHf(t, vp, NULL, NULL)-Sp.msHf(tp, vpp, NULL, NULL))/(t-tp));
+          //  }
+          //else
+          //  dbgp  (" %10s %10s", "", "");
+
+          sprintf(vps, vp<1.0e5 ? "%10.3f":"%10.3e", vp);
+          dbgp  (" %10s", vps);
+          //if (Sp..m_bfDensInDirect)
+          //  dbgp  (" %10s", " ---");
+          //else
+          //  dbgp  (" %10.3f", LclChkZero(Sp.Density(Fidelity, t, Std_P, NULL, NULL)));
+          dbgpln("");
+          }
+        }
+      }
+    dbgpln(" ");
+    }
   dbgpln("=================================================================================================================================================");
-  **/
+
   };
 
 //---------------------------------------------------------------------------
