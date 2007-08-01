@@ -5795,7 +5795,7 @@ TypeCast:
     S=pSym;
   else
     S="???";
-  LogWarning(pThis->FullObjTag(), 0, "Project save-version (or save-as) likely required because of database change (Type Cast for '%s': %s to %s", S(), tt_TypeString(pChild->iType), tt_TypeString(iType));
+  LogWarning(pThis->FullObjTag(), 0, "Project save-version (or save-as) likely required because of database change (Type Cast for '%s': %s to %s)", S(), tt_TypeString(pChild->iType), tt_TypeString(iType));
   return pChild;
   }
 

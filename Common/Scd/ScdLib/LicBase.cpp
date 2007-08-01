@@ -180,11 +180,21 @@ char* CK_LevelNames[4] =
 //===========================================================================
 
 #if CURTIN_ACADEMIC_LICENSE 
+
+//use "ipconfig /All" to get MAC (Physical Address)
+
 const int MaxMACs=2;
 const int MaxDsks=2;
-CTime s_FromDate( 2006,  8,  1, 0, 0, 0);
-CTime s_ToDate  ( 2006, 12, 31, 0, 0, 0);
-struct CLicData { char m_Name[100]; INT64 m_MACs[MaxMACs]; DWORD m_Dsks[MaxDsks]; };
+//CTime s_FromDate( 2006,  8,  1, 0, 0, 0);
+//CTime s_ToDate  ( 2006, 12, 31, 0, 0, 0);
+CTime s_FromDate( 2007,  7,  1, 0, 0, 0);
+CTime s_ToDate  ( 2007, 12, 31, 0, 0, 0);
+struct CLicData 
+  { 
+  char m_Name[100]; 
+  INT64 m_MACs[MaxMACs]; //MAC
+  DWORD m_Dsks[MaxDsks]; //Disk Serial Number
+  };
 static CLicData s_LicData[] = 
   {
     {"" ,     { 0x000A5E55E061, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
@@ -357,8 +367,10 @@ static CLicData s_LicData[] =
     {"" ,     { 0x000C6EED1FE1, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
     {"" ,     { 0x000A5E4181C4, 0x000000000000 }, {0x6C02A51D, 0x1C7EBA1B}, },
     {"CNM" ,  { 0x0011430c0e22, 0x000000000000 }, {0xb015b4ac,           }, },
+    {"KGA" ,  { 0x0019B915D8BE, 0x000000000000 }, {0xbce412d5,           }, },
     {"$END$"}
   };
+
 
 BOOL CLicense::InitFromScdLicense()
   {
@@ -370,6 +382,9 @@ BOOL CLicense::InitFromScdLicense()
     if (ferror(h)) 
       goto ErrRet;
 
+    //if (NRd!=973)
+    //  goto ErrRet; //unexpected file length
+
     //???????????????????????????????????????????????????????????
     // Read File and Unscramble
     // ie Set s_LicData
@@ -379,14 +394,14 @@ BOOL CLicense::InitFromScdLicense()
 
     CTime CurTime = CTime::GetCurrentTime();
     if (CurTime<s_FromDate || CurTime>s_ToDate)
-      goto ErrRet;
+      goto ErrRet;  //unexpected PC date range
 
     FILETIME FileTime;
     if (FileWriteTime(m_sLicFile, FileTime))
       {
       CTime FT(FileTime);
       if (FT<s_FromDate || FT>s_ToDate)
-        goto ErrRet;
+        goto ErrRet;  //unexpected file date range
       }
     else
       goto ErrRet;
@@ -397,9 +412,9 @@ BOOL CLicense::InitFromScdLicense()
     INT64 Mac=GetMacAddress("*");
     DWORD Dsk=GetDiskSerialNumber(m_sProgFiles);
     if (Mac==0)
-      goto ErrRet;
+      goto ErrRet;  //can't get Mac address
     if (Dsk==0)
-      goto ErrRet;
+      goto ErrRet;  //can't get disk serial number
 
     for (int iPC=0; strcmp(s_LicData[iPC].m_Name, "$END$")!=0; iPC++)
       {
@@ -410,7 +425,7 @@ BOOL CLicense::InitFromScdLicense()
           for (int iDsk=0; iDsk<MaxDsks; iDsk++)
             {
             if (s_LicData[iPC].m_Dsks[iDsk]==Dsk)
-              return TRUE;
+              return TRUE; //Mac address and disk serial number matches options from list
             }
           }
         }
@@ -658,8 +673,6 @@ int MyCrypKeyVersion()
   {
 #if CURTIN_ACADEMIC_LICENSE 
   if (gs_License.AcademicMode())
-    return -1;
-  else
     return -1;
 #endif
 #if !BYPASSLICENSING
@@ -1511,9 +1524,13 @@ BOOL CLicense::Init(char* PathIn /*=NULL*/, char* ProgFiles/*=NULL*/)
       SetAcademicMode();
       return LicInit_GoAcademic;
       }
-    AfxMessageBox("License Error 2006 Please contact suppliers\n\nStarting SysCAD in Demo Mode!", MB_ICONEXCLAMATION|MB_OK);
+    AfxMessageBox("License Error 2007 Please contact suppliers\n\nStarting SysCAD in Demo Mode!", MB_ICONEXCLAMATION|MB_OK);
     SetDemoMode();
     return LicInit_GoDemo;
+    }
+  else
+    {
+    LogWarning("License", 0, "File '%s' missing.", m_sLicFile);
     }
 
 #endif /*CURTIN_ACADEMIC_LICENSE*/
@@ -3244,10 +3261,10 @@ DWORD CSysCADLicense::GetAcademicOptions()
   Opt.m_Opts.Func_OPCServer         = 0;
   //model add-ons...
   Opt.m_Opts.Mdls_Electrical        = 0;
-  Opt.m_Opts.Mdls_SMDKRuntime       = 1;
+  Opt.m_Opts.Mdls_SMDKRuntime       = 0;//1;
   Opt.m_Opts.Mdls_HeatExtra         = 1;
   Opt.m_Opts.Mdls_HeatBal           = 1;
-  Opt.m_Opts.Mdls_Alumina           = 0;
+  Opt.m_Opts.Mdls_Alumina           = 1;//0;
   Opt.m_Opts.Mdls_SizeDist          = 1;
   //other...
   //Opt.m_Opts.xOld_Dynamic           = 0;
@@ -3272,12 +3289,12 @@ DWORD CSysCADLicense::GetTrialOptions()
   //standard options...
   Opt.m_Opts.Mode_ProBal            = 1;
   Opt.m_Opts.Mode_DynamicFlow       = 1;
-  Opt.m_Opts.Mode_DynamicFull       = 1;
+  Opt.m_Opts.Mode_DynamicFull       = 0;
   Opt.m_Opts.Mode_Electrical        = 0;
   //Opt.m_Opts.Only_SteadyState       = 0;
   Opt.m_Opts.Func_FullEdit          = 1;
   Opt.m_Opts.Func_COM               = 1;
-  Opt.m_Opts.Func_COMProp           = 1;
+  Opt.m_Opts.Func_COMProp           = 0;
   Opt.m_Opts.Func_Drivers           = 1;
   Opt.m_Opts.Func_OPCServer         = 1;
   //model add-ons...
