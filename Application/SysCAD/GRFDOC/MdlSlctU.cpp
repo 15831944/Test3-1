@@ -14,7 +14,7 @@
 #include "sfe_base.h"
 #include "mdlslctu.h"
 #include ".\mdlslctu.h"
-//#include "optoff.h"
+#include "optoff.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE    
@@ -92,6 +92,7 @@ int  CInsertUnitDlg::sm_LastLinkModel=-1;
 int  CInsertUnitDlg::sm_LastCLnkModel=-1;
 int  CInsertUnitDlg::sm_LastELnkModel=-1;
 int  CInsertUnitDlg::sm_LastALnkModel=-1;
+bool CInsertUnitDlg::sm_bCreatedSymFolders=false;
 
 //---------------------------------------------------------------------------
 
@@ -141,6 +142,15 @@ CInsertUnitDlg::CInsertUnitDlg(CDlgWhat What, flag IsConstructSymbol, pGrfComCmd
 	//}}AFX_DATA_INIT
 
   m_PolyCnt=0;
+
+  if (!sm_bCreatedSymFolders)
+    {
+    Strng SymbolFiles;
+    SymbolFiles = BaseGrfSymbolFiles();
+    SymbolFiles += "DirectLink\\";
+    FnCreateDirectory(SymbolFiles(), false);
+    sm_bCreatedSymFolders=true;
+    }
 
   int nAdded=0;
 

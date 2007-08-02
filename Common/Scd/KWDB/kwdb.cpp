@@ -2691,7 +2691,7 @@ void KWDatabase::KWDisplayException(_com_error & e, LPCTSTR strMsg)
   message = (LPCTSTR)e.Source();
   message += _T(": ");
   message += (LPCTSTR)e.Description();
-  message += ". \n";
+  message += " \n";
   //does e.Error() return anything useful?
   //strErrCode.FormatMessage("\nException: Error Code = %s %08x.\n", EC, e.Error());
   if (EC.GetLength()>0)

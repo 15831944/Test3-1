@@ -125,6 +125,7 @@ class CInsertUnitDlg : public CDialog
     static int            sm_LastALnkModel;
     static WINDOWPLACEMENT  sm_WP;
     static flag           sm_bWPOk;
+    static bool           sm_bCreatedSymFolders;
 
   protected:
     CString               m_sSection;
