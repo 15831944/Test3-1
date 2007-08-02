@@ -45,18 +45,7 @@ CGrfDoc::CGrfDoc() :
   pCurrentCB = NULL;
   bModelsActive = true;
 
-  //// Generate DefaultGuid
-  //UCHAR*psDocGUID=NULL;
-  //UUID DocGUID;
-
-  //ASSERT_ALWAYS(UuidCreate(&DocGUID)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
-  //ASSERT_ALWAYS(UuidToString(&DocGUID, &psDocGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
-
-  //m_sDocGUID.Set("{%s}", psDocGUID);
-
-  m_sDocGUID = CreateGUIDStr();
-
-  //RpcStringFree(&psDocGUID);
+  m_sDocGUID = TaggedObject::CreateGUIDStr();
   }
 
 //---------------------------------------------------------------------------

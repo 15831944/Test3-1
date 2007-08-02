@@ -181,7 +181,9 @@ ref class CSvcConnectCLRThread
           */
 
           engineProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
-          engineProtocol->ItemCreated += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
+          engineProtocol->ItemCreated  += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
+          //engineProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
+          engineProtocol->ItemDeleted  += gcnew EngineProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
 
           ////////////////////////////////
           ////////////////////////////////
@@ -250,10 +252,12 @@ ref class CSvcConnectCLRThread
 
     // ====================================================================
 
-    void DoCreateGroup(__int64 requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
+    void DoCreateGroup(__int64 & requestId, CString & GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
       {
+      Guid guid;//Guid(gcnew String(GrpGuid))
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      engineProtocol->CreateGroup(requestId, Guid(gcnew String(GrpGuid)), gcnew String(Tag), gcnew String(Path), BR);
+      engineProtocol->CreateGroup(requestId, guid, gcnew String(Tag), gcnew String(Path), BR);
+      GrpGuid = guid.ToString();
       }
 
 
@@ -265,15 +269,16 @@ ref class CSvcConnectCLRThread
 
     // ====================================================================
 
-    void DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+    void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
                                       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
                                       float Angle, COLORREF FillColor, 
                                       bool MirrorX, bool MirrorY)
       {
-      //Guid X(gcnew String(guid))
+      Guid guid;//X(gcnew String(guid))
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      engineProtocol->CreateItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
+      engineProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
         gcnew String(ClassId), gcnew String(Symbol), BR, Angle, Color::Black, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
+      ItemGuid = guid.ToString();
       };
 
     void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
@@ -284,6 +289,8 @@ ref class CSvcConnectCLRThread
         angle, RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
+
+    // ====================================================================
 
     void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
@@ -300,17 +307,24 @@ ref class CSvcConnectCLRThread
 
     // ====================================================================
 
+    void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
+      {
+      engineProtocol->DeleteItem(requestId, Guid(gcnew String(ItemGuid)));
+      };
+
+    void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
+      {
+      m_pConn->OnDeleteItem(eventId, requestId, ToCString(guid.ToString()));
+      }
+
+    // ====================================================================
+
     void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
       {
       }
 
     void ThingCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect, String^ xaml, Single angle, bool mirrorX, bool mirrorY)
       {
-      }
-
-    void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
-      {
-      m_pConn->OnDeleteItem(eventId, requestId, ToCString(guid.ToString()));
       }
 
     void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -496,20 +510,25 @@ void CSvcConnectCLR::Shutdown()
 
 //========================================================================
 
-void CSvcConnectCLR::DoCreateGroup(__int64 requestId, LPCSTR GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
+void CSvcConnectCLR::DoCreateGroup(__int64 & requestId, CString & GrpGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateGroup(requestId, GrpGuid, Tag, Path, boundingRect);
   };
 
 //========================================================================
 
-void CSvcConnectCLR::DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path,  
+void CSvcConnectCLR::DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path,  
                                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
                                   float Angle, COLORREF FillColor, 
                                   bool MirrorX, bool MirrorY)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateItem(requestId, ItemGuid, Tag, Path, 
                                   ClassId, Symbol, boundingRect, Angle, FillColor, MirrorX, MirrorY);
+  };
+
+void CSvcConnectCLR::DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
+  {
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteItem(requestId, ItemGuid);
   };
 
 //========================================================================

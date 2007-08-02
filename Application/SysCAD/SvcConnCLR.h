@@ -37,12 +37,14 @@ class CSvcConnectCLR
 
     void Sync(__int64 requestID);
 
-    void DoCreateGroup(__int64 requestId, LPCSTR GroupGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect);
+    void DoCreateGroup(__int64 & requestId, CString & GroupGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect);
 
-    void DoCreateItem(__int64 requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+    void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
                    LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
                    float Angle, COLORREF FillColor, 
                    bool MirrorX, bool MirrorY);
+
+    void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid);
 
     //static void CreateItem(__int64 requestID, LPCSTR guid, LPCSTR tag, LPCSTR path, LPCSTR model, LPCSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY);
     //static void CreateLink(__int64 requestID, LPCSTR guid, LPCSTR tag, LPCSTR classID, LPCSTR origin, LPCSTR destination, LPCSTR originPort, LPCSTR destinationPort, PKPointF controlPoints[], int controlPointsLength);

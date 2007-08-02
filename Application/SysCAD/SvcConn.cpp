@@ -12,6 +12,13 @@
 
 #if SYSCAD10
 
+#define dbgSvcConn  1
+
+// temporary
+#if dbgSvcConn
+static bool dbgConnect() { return 1; }
+#endif
+
 //========================================================================
 //
 // Common
@@ -51,7 +58,7 @@ static CDocument* GetGrfDoc(int index, LPCSTR name)
         {
         CView* pFirstView = pDoc->GetNextView(pos);
         CWnd* w = pFirstView->GetParent();
-  //      if (pDoc->IsKindOf(RUNTIME_CLASS(CGrfDoc)))
+        //      if (pDoc->IsKindOf(RUNTIME_CLASS(CGrfDoc)))
         if (dynamic_cast<CGrfDoc*>(pDoc))
           {
           //ASSERT(dynamic_cast<CGrfFrameWnd*>(w));
@@ -132,8 +139,13 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
     {
     CGrfTagInfo & I = GI.Item();
 
-    dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
-    
+#if dbgSvcConn
+    if (dbgConnect())
+      {
+      dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+      }
+#endif
+
     // Simple Layout
     int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
     float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
@@ -143,28 +155,61 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
       {
       PrevPage=GI.PageNo();
 
-      CString GrpGuid = CreateGUIDStr(); // where should this come from
-      dbgpln("DoCreateItem2 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, GrpGuid , GI.PageName(), MakePath(projectPath));
+      CString GrpGuid = TaggedObject::CreateGUIDStr(); // where should this come from
 
-      m_pCLR->DoCreateGroup(m_lRequestId++, GrpGuid, GI.PageName(), MakePath(projectPath), 
+      m_lRequestId++;
+
+#if dbgSvcConn
+      if (dbgConnect())
+        {
+        dbgpln("DoCreateGroupE >>> %7s %7I64i %s  %-20s  %s", "", m_lRequestId, GrpGuid , GI.PageName(), MakePath(projectPath));
+        dbgindent(2);
+        }
+#endif
+
+      m_pCLR->DoCreateGroup(m_lRequestIdRet, GrpGuid, GI.PageName(), MakePath(projectPath), 
         CRectangleF(GI.PageRct().Left()+XOffSet,GI.PageRct().Bottom()+YOffSet, GI.PageRct().Width(), GI.PageRct().Height()));
+
+#if dbgSvcConn
+      if (dbgConnect())
+        {
+        dbgindent(-2);
+        dbgpln("DoCreateGroupE <<< %7s %7I64i %s  ", "", m_lRequestIdRet, GrpGuid);
+        }
       }
+#endif
 
     switch (GI.Type())
       {
       case CGetExistingItems::eIsNode:
         {
 
-        CString ItemGuid = CreateGUIDStr(); // where should this come from
+        CString ItemGuid;// = CreateGUIDStr(); // where should this come from
         CString Shape    = ExtractShape(I.m_sSymbol());
         CString Model    = I.m_sClass();
 
-        dbgpln("DoCreateItem2 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, ItemGuid, I.m_sTag(), MakePath(projectPath, GI.PageName()));
-        
-        m_pCLR->DoCreateItem(m_lRequestId++, ItemGuid, I.m_sTag(),
+        m_lRequestId++;
+
+#if dbgSvcConn
+        if (dbgConnect())
+          {
+          dbgpln("DoCreateItemE >>> %7s %7I64i %s  %-20s  %s", "", m_lRequestId, "", I.m_sTag(), MakePath(projectPath, GI.PageName()));
+          dbgindent(2);
+          }
+#endif
+
+        m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag(),
           MakePath(projectPath, GI.PageName()), Model, Shape,
           CRectangleF(I.m_LoBnd.m_X+XOffSet, GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet, I.m_HiBnd.m_X-I.m_LoBnd.m_X, I.m_HiBnd.m_Y-I.m_LoBnd.m_Y),
           0.0, 0, false, false);
+
+#if dbgSvcConn
+        if (dbgConnect())
+          {
+          dbgindent(-2);
+          dbgpln("DoCreateItemE <<< %7s %7I64i %s ", "", m_lRequestIdRet, ItemGuid);
+          }
+#endif
         break;
         }
 
@@ -190,7 +235,7 @@ void CSvcConnect::Save()
 //========================================================================
 
 void CSvcConnect::OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-                    const CRectangleF & boundingRect)
+                                const CRectangleF & boundingRect)
   {
   CsGrfGroup * pG = new CsGrfGroup;
   pG->m_Guid=guid;
@@ -225,7 +270,7 @@ CString CSvcConnect::ExtractPageName(LPCSTR Path)
   for (int i=0; i<Pg.GetLength(); i++)
     if (Pg[i]=='/')
       n++;
-  
+
   if (n>=2)
     {
     // Assume Page is last delimited string
@@ -271,7 +316,7 @@ CString CSvcConnect::ExtractShape(LPCSTR Symbol)
 //
 //========================================================================
 
-void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
+void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle)
   {
   double Width=20;
   double Height=20;
@@ -281,24 +326,50 @@ void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR It
   // TO Fix
   CString Shape = ExtractShape(ClassId);//Symbol);
 
-  dbgpln("DoCreateItem1 %7s %7I64i %s  %-20s  %s", "", m_lRequestId+1, ItemGuid, Tag, MakePath(Prj, Page));
-  m_pCLR->DoCreateItem(m_lRequestId++, ItemGuid, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, 0, false, false);
+  m_lRequestId++;
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgpln("DoCreateItem  >>> %7s %7I64i %s  %-20s  %s", "", m_lRequestId, "", Tag, MakePath(Prj, Page));
+    dbgindent(2);
+    }
+#endif
+
+  CString GuidRet;
+
+  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, 0, false, false);
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgindent(-2);
+    dbgpln("DoCreateItem  <<< %7s %7I64i %s ", "", m_lRequestIdRet, GuidRet);
+    }
+#endif
   };
 
 //========================================================================
 
 void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR Tag, LPCSTR Path, 
-                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                   float Angle, COLORREF FillColor, 
-                   bool MirrorX, bool MirrorY)
+                               LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+                               float Angle, COLORREF FillColor, 
+                               bool MirrorX, bool MirrorY)
   {
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgpln("OnCreateItem >>>  %7I64i %7I64i  %s   %-20s  %s", eventId, requestId, Guid, Tag, Path);
+    dbgindent(2);
+    }
+#endif
 
   try
     {
     //if (m_bExportBusy)
     //  return;
 
-    dbgpln("OnCreateItem  %7I64i %7I64i %s  %-20s  %s", eventId, requestId, Guid, Tag, Path);
 
     bool Error = false;
     if (!m_bExportBusy)
@@ -332,11 +403,15 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
       CB.Rotate=(float)Angle;
       CB.ATagBase="XX_";//MInfo.TagInitialID();
       CB.ASymbol=Symbol;
+      CB.m_sGuid=Guid;
       if (m_bExportBusy)
+        {
         pGDoc->GCB.DoInsertNodeGrf(&CB);
+        pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
+        }
       else
         pGDoc->GCB.DoInsertNode(&CB);
-        
+
       }
 
     if (Error)
@@ -349,6 +424,14 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
     {
     LogError(NETSERVERNAME, 0, "Exception in CreateUnit '%s'", Tag);
     }
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgindent(-2);
+    dbgpln("OnCreateItem <<<  %7I64i %7I64i  %s   ", eventId, requestId, Guid);
+    }
+#endif
   }
 
 
@@ -359,20 +442,67 @@ void CSvcConnect::DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
   };
 
 void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                   float angle, COLORREF Colour, 
-                   bool mirrorX, bool mirrorY)
+                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                               float angle, COLORREF Colour, 
+                               bool mirrorX, bool mirrorY)
   {
   };
 
 //========================================================================
 
-void CSvcConnect::DoDeleteItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
+void CSvcConnect::DoDeleteItem(LPCSTR Tag)
   {
-  };
 
-void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR guid)
+  m_lRequestId++;
+
+  LPSTR Guid = (LPSTR)gs_pPrj->GetNodeGuid((LPSTR)Tag);
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgpln("DoDeleteItem  >>> %7s %7I64i %s %s", "", m_lRequestId, Guid, Tag);
+    dbgindent(2);
+    }
+#endif
+
+  m_pCLR->DoDeleteItem(m_lRequestIdRet, Guid);
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgindent(-2);
+    dbgpln("DoDeleteItem  <<< %7s %7I64i", "", m_lRequestIdRet);
+    };
+#endif
+  }
+
+void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGuid)
   {
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgpln("OnDeleteItem  >>> %7I64i %7I64i %s", eventId, requestId, ItemGuid);
+    dbgindent(2);
+    }
+#endif
+
+  CString Tag = gs_pPrj->FindNodeTagFromGuid((LPSTR)ItemGuid);
+  if (Tag.GetLength()>0)
+    {
+    }
+  else
+    {
+    // ... Error
+    }
+
+
+#if dbgSvcConn
+  if (dbgConnect())
+    {
+    dbgindent(-2);
+    dbgpln("OnDeleteItem  <<< %7I64i %7I64i", eventId, requestId);
+    }
+#endif
   };
 
 //========================================================================
@@ -400,7 +530,7 @@ m_GrfTemplate(ScdApp()->GraphTemplate())
   }
 
 //------------------------------------------------------------------------
-  
+
 static struct CPageSizeInfo {LPCSTR Nm; float Scl;} s_PgInfo[]=
   {
     {"A5", 0.5f},
@@ -421,7 +551,7 @@ bool CGetExistingItems::GetOne()
       {// Get Next Page
       if (!m_GrfDocPos)
         return false; // no more pages
-      
+
       bool DoAllInserts=true;
       m_pDoc=dynamic_cast<CGrfDoc*>(m_GrfTemplate.GetNextDoc(m_GrfDocPos));
       m_iPage++;
@@ -461,13 +591,13 @@ bool CGetExistingItems::GetOne()
       else
         {
         }
-      
+
       m_PageRct.Set(PageX, PageY, PageW, PageH);
 
       m_nInArray = m_pDoc->GetTagListInfo(DoAllInserts, m_GTIA);
       m_iInArray=0;
       }
-    
+
     if (m_iInArray<m_nInArray)
       {
       // Load Data
@@ -507,7 +637,7 @@ bool CGetExistingItems::GetOne()
           {
           case eIsLink:
             {
-            
+
             CLinePointsArray LPA;
             m_pDoc->GCB.pDrw->CollectLinkInfo(I, LPA);
 

@@ -147,9 +147,9 @@ class CSvcConnect
     CString               ExtractShape(LPCSTR Symbol);
 
     // Operations
-    void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
+    void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
     void DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity);
-    void DoDeleteItem(CGrfDoc *pDoc, DXF_ENTITY eEntity);
+    void DoDeleteItem(LPCSTR Tag);
 
     // CallBack's
     void OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
@@ -173,6 +173,7 @@ class CSvcConnect
     CsGrfGroupMap   m_GrfGrpsGuids;
     __int64         m_lEventId;
     __int64         m_lRequestId;
+    __int64         m_lRequestIdRet;
 
     bool            m_bExportBusy;
 

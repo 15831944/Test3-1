@@ -1154,10 +1154,6 @@ class DllImportExport CComTOOwner
 
 //---------------------------------------------------------------------------
 
-extern DllImportExport CString CreateGUIDStr();
-
-//---------------------------------------------------------------------------
-
 typedef CList<TaggedObject *, TaggedObject *> CTaggedObjectList;
 
 class DllImportExport TaggedObject : public ConditionBlk
@@ -1306,8 +1302,10 @@ class DllImportExport TaggedObject : public ConditionBlk
     Strng &         TagRef()                 { return m_sTag; };
     Strng &         PrefixRef()              { return m_sPrefix; };
 
+    static CString  CreateGUIDStr();
     LPSTR           EqGUID()                 { return m_sEqGUID(); };
-    ;
+    LPSTR           SetEqGUID(LPSTR Guid)    { if (Guid) m_sEqGUID = Guid; return m_sEqGUID(); };
+
     void            SetEqpDesc(char * Desc)  { m_sEqDesc=Desc; };
     char *          EqpDesc()                { return m_sEqDesc(); };
     void            SetEqpMemo(char * Memo)  { m_sEqMemo=Memo; };

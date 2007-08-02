@@ -2126,7 +2126,7 @@ void GrfCmdBlk::DoInsert()
             int NOpens=pDsp->Opens;
             for (int ixx=0; ixx<NOpens; ixx++)
               pDsp->Close();
-            gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), CreateGUIDStr(), CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+            gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
             for (int ixx=0; ixx<NOpens; ixx++)
               pDsp->Open();
 
@@ -3306,7 +3306,7 @@ bool GrfCmdBlk::DoInsertNode(CInsertBlk* CB)
 
   CheckTheTag(CB->ATag, CB->AClass(), TagBase.Length() == 0 ? CB->AClass() : TagBase(), true);
 
-  CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag());
+  CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), CB->m_sGuid());
   if (CB->MdlInsertErr==0)
     {
     if (DoInsertNodeGrf(CB))
@@ -3469,6 +3469,14 @@ bool GrfCmdBlk::DoInsertLink(CConnectBlk* CB)
   pDsp->Close();
   return OK;
   }
+
+//---------------------------------------------------------------------------
+
+bool GrfCmdBlk::DoChangeNodeGuid(pchar Tag, pchar Guid)
+  {
+  bool OK = gs_pPrj->ChangeNodeGuid(Tag, Guid)!=0;
+  return OK;
+  };
 
 //---------------------------------------------------------------------------
 
@@ -7640,6 +7648,7 @@ void GrfCmdBlk::DoDelete()
       CWaitMsgCursor Wait("Deleting entities");
       int DeletesFailedCnt = 0;
       int MdlDeletes = 0;
+
       CEntInView* pEnt = pDsp->Vp1->FirstSelectedEntity();
       while (pEnt)
         {
@@ -7652,6 +7661,56 @@ void GrfCmdBlk::DoDelete()
           }
         if (e && pDrw->Exists(e))
           {
+
+#if SYSCAD10
+
+          pchar pTag;
+          if (DelMdl)
+            {
+            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+              {
+              CMdlValueSet::Clear();
+
+              if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
+                {
+            
+                //TACKY !!
+                int NOpens=pDsp->Opens;
+                for (int ixx=0; ixx<NOpens; ixx++)
+                  pDsp->Close();
+                gs_pPrj->Svc.DoDeleteItem(pTag);
+                for (int ixx=0; ixx<NOpens; ixx++)
+                  pDsp->Open();
+
+                
+                //int RetCode = gs_Exec.DeleteTag(pTag);
+                //if (RetCode!=EODT_DONE)
+                //  {
+                //  LogError(pTag, 0, "Model not deleted");
+                //  DeletesFailedCnt++;
+                //  }
+                //else
+                //  MdlDeletes++;
+                }
+
+              /*int err = gs_pPrj->DeleteNodeModel(pTag);
+              if (err)
+                {
+                if (DeletesFailedCnt==1)
+                  LogError("GrfCmds", 0, sLogMsg());
+                sLogMsg.Set("Model '%s' not deleted[%i]", pTag, err);
+                if (DeletesFailedCnt)
+                  LogError("GrfCmds", 0, sLogMsg());
+                DeletesFailedCnt++;
+                }
+              else
+                MdlDeletes++;
+              */
+              }
+            }
+
+
+#else
           pchar pTag;
           if (DelMdl)
             {
@@ -7691,6 +7750,7 @@ void GrfCmdBlk::DoDelete()
             pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
             pDrw->Delete(e);
             }
+#endif
           }
         pEnt = pDsp->Vp1->NextSelectedEntity();
         }
@@ -11030,7 +11090,7 @@ DXF_ENTITY GrfCmdBlk::AddUnitDrawing(char* TagBase_, char* DrawTyp_, char* Model
 
 //---------------------------------------------------------------------------
 
-int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag, Strng * pGuidStr)
+int GrfCmdBlk::AddUnitModel(char* ModelTyp, char* Tag, pchar pGuidStr)
   {
   int err = -1;
   if (!gs_License.NodeCountExceeded(1, eLic_MsgBox))

@@ -279,10 +279,12 @@ int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
 #define PCLEAVE       Leave(); return pcVal;  } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
 #define DWENTER(x)    if (pSfe==NULL) return x; Enter(); try { dword dwVal=
 #define DWLEAVE       Leave(); return dwVal;  } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
+#define SENTER(x)     if (pSfe==NULL) return x; Enter(); try { Strng sVal=
+#define SLEAVE        Leave(); return sVal;   } catch (MSysException e) { FPP_RestoreExceptions(FPP_State); CExecObj::UnlockXO(); throw; }
 
 //---------------------------------------------------------------------------
 
-int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
+int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, LPSTR pGuidStr)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
@@ -310,6 +312,37 @@ int SFEFlwLib::FE_DoDelete(char * Tag)
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
+
+LPSTR SFEFlwLib::FE_GetNodeGuid(pchar Tag)
+  {
+  //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
+  PCENTER(NULL)
+  pSfe->FE_GetNodeGuid(Tag);
+  //CExploreScd::RefreshIt(false);
+  PCLEAVE
+  };
+
+int SFEFlwLib::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
+  {
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  IENTER(-1)
+  pSfe->FE_ChangeNodeGuid(Tag, Guid);
+  CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+
+LPSTR SFEFlwLib::FE_FindNodeTagFromGuid(pchar Guid)
+  {
+  //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
+  PCENTER(NULL)
+  pSfe->FE_FindNodeTagFromGuid(Guid);
+  //CExploreScd::RefreshIt(false);
+  PCLEAVE
+  };
+
 int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
   {
   SetLoadAllModelStatus();

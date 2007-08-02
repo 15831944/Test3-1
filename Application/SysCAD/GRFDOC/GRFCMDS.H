@@ -162,7 +162,7 @@ class CInsertBlk
 
   public :
     Strng         ATag, AClass, ASymbol, ATagBase;
-    Strng         m_sGroupLibrary, m_sGroupName;
+    Strng         m_sGroupLibrary, m_sGroupName, m_sGuid;
     Pt_SLW        Pt;
     Pt_3f         NdScl;
     Pt_3f         GrpScl;
@@ -362,6 +362,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
     bool           DoInsertLinkGrf(CLineDrawHelper & LDH, char* SrcTag=NULL, char* DstTag=NULL, bool SkipTagTest=false);
     bool           DoInsertLinkGrf(CConnectBlk* CB, bool SkipTagTest=false);
     bool           DoInsertLink(CConnectBlk* CB);
+    bool           DoChangeNodeGuid(pchar Tag, pchar Guid);
     flag           GetConnsForUnit(char* Tag, flag Inputs, dword RqdClass, Strng &IOTag, CSArray &IONames, CSArray &IODescs, CIOClassArray &IOClass, CSArray &IODefaultTSs, Pt_3f *pDigOff, Pt_3f *pDrwScl);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindLink, Strng& Tag);
     CEntInView*    GetClosest(Pt_SLW CurrentPt, flag FindInsert);
@@ -456,7 +457,7 @@ class DllImportExport GrfCmdBlk : public GrfComCmdBlk
                                   flag CompleteBlock,
                                   Attr_Settings &ASet = Attr_Settings (50,0,1.5,1.0,0.0,GR_DARKGRAY,Text_Cntrd,Text_Baseline,"STANDARD"),
                                   Pt_3f * TagPt = NULL);
-    int            AddUnitModel(pchar ModelTyp, pchar Tag, Strng * pGuidStr=NULL);
+    int            AddUnitModel(pchar ModelTyp, pchar Tag, pchar pGuidStr=NULL);
     DXF_ENTITY     AddLink(pchar Typ, pchar Tag,
                          pchar SrcTag, pchar SrcOut,
                          pchar DstTag, pchar DstIn,

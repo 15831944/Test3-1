@@ -11626,7 +11626,7 @@ long CFlwSolver::MarkFlwNodesFlowNetwork(FlwNode * pNd)
 //
 //==========================================================================
 
-int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
+int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, LPSTR pGuidStr)
   {
   FlwNode * p;
 
@@ -11639,7 +11639,7 @@ int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn,
   if (pNd)
     *pNd=p;
   if (pGuidStr)
-    *pGuidStr=p->EqGUID();
+    p->SetEqGUID(pGuidStr);
   if (p)
     {
     if (SrcTag)
@@ -11690,6 +11690,43 @@ int CFlwSolver::FE_DoDelete(char * Tag)
     return 0;
     }
   return NErr_NotFound;
+  }
+
+//--------------------------------------------------------------------------
+    
+LPSTR CFlwSolver::FE_GetNodeGuid(pchar Tag)
+  {
+  FlwNode * p = (FlwNode *)FindObj(Tag);
+  if (p)
+    {
+    return (LPSTR)p->EqpGUID();
+    }
+  return NULL;
+  }
+
+
+int CFlwSolver::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
+  {
+  UnDoGlobalLinks();
+
+  FlwNode * p = (FlwNode *)FindObj(Tag);
+  if (p)
+    {
+    p->SetEqpGUID(Guid);
+    return 0;
+    }
+  return NErr_NotFound;
+  }
+
+LPSTR CFlwSolver::FE_FindNodeTagFromGuid(pchar Guid)
+  {
+  _asm int 3;
+  FlwNode * p = NULL;//(FlwNode *)FindObj(Tag);
+  if (p)
+    {
+    return p->Tag();
+    }
+  return NULL;
   }
 
 //--------------------------------------------------------------------------

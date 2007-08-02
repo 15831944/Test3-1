@@ -2318,25 +2318,6 @@ GlblTopologyChg TaggedObject::GlblTopoChg = {NULL, 0};
 //
 //===========================================================================
 
-CString CreateGUIDStr()
-  {
-  CString Guid;
-  // Generate DefaultGuid
-  UCHAR*psEqGUID=NULL;
-  UUID AGuid;
-  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
-  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
-#if (0 && SYSCAD10)  
-  Guid=psEqGUID;     /* Why does this not work */
-#else                
-  Guid.Format("{%s}", psEqGUID);
-#endif
-
-  RpcStringFree(&psEqGUID);
-  
-  return Guid;
-  }
-
 //===========================================================================
 //
 //
@@ -3309,6 +3290,27 @@ char * TaggedObject::FullObjTag(Strng &S,  byte What)
 
 //---------------------------------------------------------------------------
 
+CString TaggedObject::CreateGUIDStr()
+  {
+  CString Guid;
+  // Generate DefaultGuid
+  UCHAR*psEqGUID=NULL;
+  UUID AGuid;
+  ASSERT_ALWAYS(UuidCreate(&AGuid)==RPC_S_OK, "Guid Not Created", __FILE__, __LINE__);
+  ASSERT_ALWAYS(UuidToString(&AGuid, &psEqGUID)==RPC_S_OK, "Guid Not Converted", __FILE__, __LINE__);
+#if (SYSCAD10)  
+  Guid=psEqGUID;     /* Why does this not work */
+#else                
+  Guid.Format("{%s}", psEqGUID);
+#endif
+
+  RpcStringFree(&psEqGUID);
+  
+  return Guid;
+  }
+
+//---------------------------------------------------------------------------
+
 bool TaggedObject::SetEqpGUID(LPCSTR strGuid)
   {
   if (strGuid==NULL || strlen(strGuid)==0)
@@ -3322,13 +3324,21 @@ bool TaggedObject::SetEqpGUID(LPCSTR strGuid)
     Buff[strlen(Buff)-1]=0;
     if (UuidFromString((UCHAR*)&Buff, &LclGuid)==RPC_S_OK)
       {
+#if (SYSCAD10)  
+      m_sEqGUID=Buff;
+#else
       m_sEqGUID=strGuid;
+#endif
       return true;
       }
     }
   else if (UuidFromString((UCHAR*)strGuid, &LclGuid)==RPC_S_OK)
     {
+#if (SYSCAD10)  
+    m_sEqGUID.Set("%s", strGuid);
+#else
     m_sEqGUID.Set("{%s}", strGuid);
+#endif
     return true;
     }
 

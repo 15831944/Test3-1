@@ -6591,7 +6591,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       m_pSvc = new CSvcConnect;
       m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
       // Temporary
-      m_pSvc->Export(PrjFiles(), CfgFiles());
+      m_pSvc->Export(PrjFile(), CfgFiles());
       }
     else
       m_pSvc = NULL;
@@ -8884,7 +8884,7 @@ flag CProject::TestModelTagUnique(pchar pTag, CUniqueTagRulesBlk & TRB/*pchar pH
 
 //---------------------------------------------------------------------------
 
-int CProject::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, Strng * pGuidStr)
+int CProject::AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, pchar pGuidStr)
   {
   if (!FlwLib())
     return False;
@@ -8899,6 +8899,29 @@ int CProject::DeleteNodeModel(pchar Tag)
   if (!FlwLib())
     return False;
   return FlwLib()->FE_DoDelete(Tag);
+  }
+
+//---------------------------------------------------------------------------
+
+LPSTR CProject::GetNodeGuid(pchar Tag)
+  {
+  if (!FlwLib())
+    return False;
+  return FlwLib()->FE_GetNodeGuid(Tag);
+  }
+
+int CProject::ChangeNodeGuid(pchar Tag, pchar Guid)
+  {
+  if (!FlwLib())
+    return False;
+  return FlwLib()->FE_ChangeNodeGuid(Tag, Guid);
+  }
+
+LPSTR CProject::FindNodeTagFromGuid(pchar Guid)
+  {
+  if (!FlwLib())
+    return False;
+  return FlwLib()->FE_FindNodeTagFromGuid(Guid);
   }
 
 //---------------------------------------------------------------------------

@@ -124,7 +124,7 @@ pNodeGrfInfo CSfeSrvr::Drawings()
 
 //---------------------------------------------------------------------------
 
-int CSfeSrvr::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, Strng * pGuidStr)
+int CSfeSrvr::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd, LPSTR pGuidStr)
   {
   return SfeFS->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd, pGuidStr);
   };
@@ -136,6 +136,20 @@ int CSfeSrvr::FE_DoDelete(char * Tag)
   {
   return SfeFS->FE_DoDelete(Tag);
   };
+LPSTR CSfeSrvr::FE_GetNodeGuid(pchar Tag)
+  {
+  return SfeFS->FE_GetNodeGuid(Tag);
+  };
+int CSfeSrvr::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
+  {
+  return SfeFS->FE_ChangeNodeGuid(Tag, Guid);
+  };
+
+LPSTR CSfeSrvr::FE_FindNodeTagFromGuid(pchar Guid)
+  {
+  return SfeFS->FE_FindNodeTagFromGuid(Guid);
+  }
+
 int CSfeSrvr::FE_DoConnect(char * SrcTag, char *DstTag)
   {
   return SfeFS->FE_DoConnect(SrcTag, DstTag);

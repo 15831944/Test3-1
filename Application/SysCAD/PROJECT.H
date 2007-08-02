@@ -754,13 +754,16 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     int            GetLinkWiring(CLinkWiring &LinkWiring);
     int            SetLinkWiring(CLinkWiring &LinkWiring);
 
-    int            AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, Strng * pGuidStr=NULL);
+    int            AddNodeModel(pchar ModelType, pchar SubClass, pchar Tag, pchar pGuidStr=NULL);
     int            DeleteNodeModel(pchar Tag);
     int            AddNodeConnect(pchar Type, pchar Tag, pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
     int            AddConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
     int            DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
     int            AddConnect(pchar Src, pchar Dst);
     int            DisConnect(pchar Src, pchar Dst);
+    LPSTR          GetNodeGuid(pchar Tag);
+    int            ChangeNodeGuid(pchar Tag, pchar Guid);
+    LPSTR          FindNodeTagFromGuid(pchar Guid);
 
   public:
     static bool    sm_fOpenAltCfg;
