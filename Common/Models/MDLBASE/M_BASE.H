@@ -97,7 +97,7 @@ class Xfer_EvalProducts_Info
 
     Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
                            GSModel * GSM=NULL, CRqdPressCtrl *PBP=NULL, 
-                           CReactionBlock *RB=NULL, CEnvironHX * EHX=NULL)
+                           CReactionBlock *RB=NULL, CEnvironHX * EHX=NULL, CBlockEvaluator *BlkEval = NULL)
       {
       m_iJoinId   = JoinId;
       m_dPress    = Press;
@@ -107,7 +107,7 @@ class Xfer_EvalProducts_Info
       m_pPBP      = PBP;
       m_pRB       = RB;
       m_pEHX      = EHX;
-      m_pBlkEval  = NULL;
+      m_pBlkEval  = BlkEval;
       };
     Xfer_EvalProducts_Info(int JoinId, double Press,  SpConduit *Qi=NULL, SpConduit *Qo=NULL,
                            GSModel * GSM=NULL, CRqdPressCtrl *PBP=NULL, 
@@ -193,7 +193,7 @@ class DllImportExport MdlNode : public FlwNode
     void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CRqdPressCtrl *pPC);
     void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
     void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC);
-    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CReactionBlock *pRB, CEnvironHX * pEHX);
+    virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
     virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CBlockEvaluator *pBlkEval);
     virtual void   Xfer_EvalProducts(Xfer_EvalProducts_Info & S1, Xfer_EvalProducts_Info & S2, CHXBase * pHX);
     virtual void   PostConnect(int IONo);
