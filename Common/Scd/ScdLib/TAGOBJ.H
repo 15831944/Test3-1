@@ -2219,12 +2219,12 @@ class DllImportExport TagAccessBlk
   {
   public :
     TagAccessBlk();
-    TagAccessBlk(TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    TagAccessBlk(TaggedObject * pOwner, TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
     ~TagAccessBlk();
 
     TagAccessBlk& operator=(const TagAccessBlk&X);
 
-    void           Init(TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
+    void           Init(TaggedObject * pOwner, TaggedObject * pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest=False);
     flag           LoadAddress(flag FndShortcut=True);
 
     flag           GetDefinedData(CPkDataList &DataObj, TABOptions Opts);
@@ -2264,6 +2264,9 @@ class DllImportExport TagAccessBlk
     dword               m_lPrevValues;
     CTagRefStatus       m_PrevXRefStatus;
     DDBShortcut         m_Shortcut;
+
+    TaggedObject      * m_pOwner;
+
 
   public:
 #ifndef _MANAGED

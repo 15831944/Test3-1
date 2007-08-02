@@ -81,7 +81,7 @@ bool TagListFileHelper::LoadAndSetTags(bool TestParamStopped)
           if (c[0] && c[1] && len>0/* && strlen(c[1])>0*/)
             {
             Strng Tag = c[0];
-            int Ret = TryWriteTag(pParent->FamilyHead(), c[0], c[1], TestParamStopped);
+            int Ret = TryWriteTag(pParent, pParent->FamilyHead(), c[0], c[1], TestParamStopped);
             if (Ret==FXR_Found)
               {
               ValidRowCnt++;

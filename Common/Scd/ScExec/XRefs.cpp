@@ -427,7 +427,7 @@ int CXRefItem::ResolveNearXRef(pTaggedObject pSrchRoot, char* pTag, CTNode* Owne
   //m_bNdPtrsValid=false;
   m_pOwner = Owner;
   m_pSrchRoot = pSrchRoot;
-  m_TAB.Init(pSrchRoot, pTag, TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
+  m_TAB.Init(m_pOwner, pSrchRoot, pTag, TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
   int Ret=FXR_NotFound;
   if (m_TAB.LoadAddress())
     {
@@ -979,12 +979,12 @@ void CXRefItem::SetXRefStrValue(char* p, bool DoCnts)
 //
 //==========================================================================
 
-int TryTestTag(TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped/*=true*/)
+int TryTestTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped/*=true*/)
   {
   Strng WrkTag,WrkCnv;
   TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
   TagAccessBlk TAB;
-  TAB.Init(pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
+  TAB.Init(pNode, pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
   int Ret=FXR_NotFound;
   if (TAB.LoadAddress())
     {
@@ -1001,13 +1001,17 @@ int TryTestTag(TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped/*=true
   return Ret;
   }
 
-int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestParamStopped/*=true*/)
+#define dbgTryWrite 0
+
+int TryWriteTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, double Value, bool TestParamStopped/*=true*/)
   {
-  //CStopWatch SW(true);
+#if dbgTryWrite 
+  CStopWatch SW(true);
+#endif
   Strng WrkTag,WrkCnv;
   TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
   TagAccessBlk TAB;
-  TAB.Init(pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
+  TAB.Init(pNode, pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
   int Ret=FXR_NotFound;
   if (TAB.LoadAddress())
     {
@@ -1033,17 +1037,21 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestPara
       }
     }
 
-  //dbgpln("TryWriteTag D %10.2f %s ", 1e6*SW.Secs(), pTag);
+#if dbgTryWrite 
+  dbgpln("TryWriteTag D %10.2f %-30s > %-30s = %12.4f", 1e6*SW.Secs(), pNode->Tag(), pTag, Value);
+#endif
   return Ret;
   }
 
-int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestParamStopped/*=true*/)
+int TryWriteTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestParamStopped/*=true*/)
   {
-  //CStopWatch SW(true);
+#if dbgTryWrite 
+  CStopWatch SW(true);
+#endif
   Strng WrkTag,WrkCnv;
   TaggedObject::SplitTagCnv(pTag, WrkTag, WrkCnv);
   TagAccessBlk TAB;
-  TAB.Init(pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
+  TAB.Init(pNode, pSrchRoot, WrkTag(), TABOpt_AllInfoOnce/*TABOpt_Parms*/, TU_IndividuallyUnique);
   int Ret=FXR_NotFound;
   if (TAB.LoadAddress())
     {
@@ -1081,7 +1089,9 @@ int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestPara
       }
     }
 
-  //dbgpln("TryWriteTag S %10.2f %s ", 1e6*SW.Secs(), pTag);
+#if dbgTryWrite 
+  dbgpln("TryWriteTag S %10.2f %-30s > %-30s = %s", 1e6*SW.Secs(), pNode->Tag(), pTag, pValue);
+#endif
   return Ret;
   }
 

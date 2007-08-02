@@ -284,7 +284,7 @@ void EventConInfo::ExecIns(double ICTime)
           }
         }
       */
-      int Ret = TryWriteTag(pParent->FamilyHead(), RowData[iCurIndex]->m_sOutputTag(), RowData[iCurIndex]->m_dOutputVal);
+      int Ret = TryWriteTag(pParent, pParent->FamilyHead(), RowData[iCurIndex]->m_sOutputTag(), RowData[iCurIndex]->m_dOutputVal);
       if (Ret!=FXR_Found)
         {
         Strng S;

@@ -7582,7 +7582,7 @@ TagAccessBlk::TagAccessBlk()
 
 //--------------------------------------------------------------------------
 
-TagAccessBlk::TagAccessBlk(TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
+TagAccessBlk::TagAccessBlk(TaggedObject * pOwner, TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
   {
   //pTag = NULL;
   m_pPrevValues=NULL;
@@ -7591,7 +7591,7 @@ TagAccessBlk::TagAccessBlk(TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts
   //iCnv=0;
   //iCnvOk=0;
   //pCnvTxt=NULL;
-  Init(pSrchRoot_, Tag_, Opts, TU);
+  Init(pOwner, pSrchRoot_, Tag_, Opts, TU);
   };
 
 //--------------------------------------------------------------------------
@@ -7632,9 +7632,10 @@ TagAccessBlk& TagAccessBlk::operator=(const TagAccessBlk&X)
 
 //--------------------------------------------------------------------------
 
-void TagAccessBlk::Init(TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
+void TagAccessBlk::Init(TaggedObject * pOwner, TaggedObject *pSrchRoot_, LPSTR Tag_, TABOptions Opts, TagUniqueness TU, flag AllowChangeTest/*=False*/)
   {
   TaggedObject::SplitTagCnv(Tag_, sTag, sCnvTxt);
+  m_pOwner=pOwner;
   pSrchRoot=pSrchRoot_;
   pAccObj=NULL;
   Ok=0;
@@ -7815,6 +7816,10 @@ flag TagAccessBlk::GetDefinedData(CPkDataList &DataObj, TABOptions Opts)
 
 //--------------------------------------------------------------------------
 
+bool s_LogTABGets = false;
+bool s_LogTABPuts = false;
+
+
 int TagAccessBlk::PutDefinedData(CPkDataList &DataObj)
   {
   int Ret=TOData_NotFound;
@@ -7826,6 +7831,12 @@ int TagAccessBlk::PutDefinedData(CPkDataList &DataObj)
     pAccObj->PutDefinedData(m_pTagFound, DataObj, Iter, dwOptions, &m_Shortcut);
     Ret=(pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     m_PutDefined.Add(SW);
+
+    if (s_LogTABPuts)
+      {
+      dbgpln("TAB Set %-30s -> %s[%]", m_pOwner ? m_pOwner->Tag():"Unknown", sTag());
+      }
+
     }
   return Ret;
   }
@@ -7900,6 +7911,7 @@ int TagAccessBlk::PutTagValue(MTagIOValue V, LPSTR pRqdCnvText)
     
     m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
+
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
   return TOData_NotFound;
@@ -7956,6 +7968,10 @@ int TagAccessBlk::PutDouble(double D, char * pRqdCnvText)
     DataValue.SetTypeDouble(m_Shortcut.iType, D, pRqdCnvText ? m_Shortcut.iCnv : 0, pRqdCnvText);
     m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
+    if (s_LogTABPuts)
+      {
+      dbgpln("TAB Set %-30s -> %s", m_pOwner ? m_pOwner->Tag():"Unknown", sTag());
+      }
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
   return TOData_NotFound;
@@ -7971,6 +7987,10 @@ int TagAccessBlk::PutLong(long L)
     DataValue.SetTypeLong(m_Shortcut.iType, L);
     m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
+    if (s_LogTABPuts)
+      {
+      dbgpln("TAB Set %-30s -> %s", m_pOwner ? m_pOwner->Tag():"Unknown", sTag());
+      }
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
   return TOData_NotFound;
@@ -7986,6 +8006,10 @@ int TagAccessBlk::PutString(char* p)
     DataValue.SetTypeString(m_Shortcut.iType, p);
     m_Shortcut.PutValue(dwOptions, DataValue);
     ValidateDataBlk VDB;
+    if (s_LogTABPuts)
+      {
+      dbgpln("TAB Set %-30s -> %s", m_pOwner ? m_pOwner->Tag():"Unknown", sTag());
+      }
     return (pAccObj->ValidateDefinedData(VDB) ? TOData_OK : TOData_InvalidData);
     }
   return TOData_NotFound;

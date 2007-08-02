@@ -13816,7 +13816,7 @@ void CFlwSolver::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
 
     if (p==NULL)
       p=new TagAccessBlk();
-    p->Init(this/*&FlwSlvNd*/, Msg->Tag, Msg->Options, TU_IndividuallyUnique, true/*Allow Change Management*/);
+    p->Init(this, this/*&FlwSlvNd*/, Msg->Tag, Msg->Options, TU_IndividuallyUnique, true/*Allow Change Management*/);
 
     //dbgpln("-->> %s", Msg->Tag);
     if (p->LoadAddress(true))
@@ -13926,7 +13926,7 @@ DWORD CFlwSolver::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData & Obj
   //  PB.BuildMacroMdls();
   DWORD RetCode = 0;
   TryDoGlobalLinks();
-  TagAccessBlk TAB(this, ObjTag.Tag, ObjTag.Options/*|RunModes()*/, TU_IndividuallyUnique);
+  TagAccessBlk TAB(this, this, ObjTag.Tag, ObjTag.Options/*|RunModes()*/, TU_IndividuallyUnique);
   if (TAB.LoadAddress(true))
     {
     RetCode = (RC_RTI_Exists | RC_RTI_SolverTag);
@@ -13957,8 +13957,10 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   {
   SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 
+  ObjData.List.dbgDump(true, "EOW");
+
   CPkDataItem * pItem=ObjData.FirstItem();
-  TagAccessBlk TAB(this, pItem->SymOrTag(), ObjData.dwOptions, TU_IndividuallyUnique);
+  TagAccessBlk TAB(this, this, pItem->SymOrTag(), ObjData.dwOptions, TU_IndividuallyUnique);
   if (TAB.LoadAddress(true))
     {
     int Ret=TAB.PutDefinedData(ObjData.List);
@@ -14800,7 +14802,7 @@ Done:;
           {
           if (FCB.Type()==TOF_DBase || !pObj->bSkipSnapLoad)
             {
-            TagAccessBlk TAB(this, pItem->SymOrTag(), TABOpt_ForFile|TABOpt_AllInfo, TU_IndividuallyUnique);
+            TagAccessBlk TAB(this, this, pItem->SymOrTag(), TABOpt_ForFile|TABOpt_AllInfo, TU_IndividuallyUnique);
             if (TAB.LoadAddress(true))
               {
               TAB.PutDefinedData(pData->List);
@@ -15516,7 +15518,7 @@ int CFlwSolver::FE_GetNodeConfiguration(BOOL AllParms, BOOL AllState, LPCTSTR Nd
   CXM_ObjectData ObjData(0);
   flag Ok = false;
 
-  TagAccessBlk TAB(this, (LPTSTR)NdTag, TABOpt_AllInfo|TABOpt_ForFile/* TABOpt_ForSnapShot*//*|TABOpt_XRefStatus*//*|RunModes()*/, TU_IndividuallyUnique);
+  TagAccessBlk TAB(this, this, (LPTSTR)NdTag, TABOpt_AllInfo|TABOpt_ForFile/* TABOpt_ForSnapShot*//*|TABOpt_XRefStatus*//*|RunModes()*/, TU_IndividuallyUnique);
   if (TAB.LoadAddress(true))
     {
     ObjData.List.Clear();

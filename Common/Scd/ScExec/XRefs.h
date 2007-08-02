@@ -262,9 +262,9 @@ class DllImportExport CXRefItem : public CTagRef, public CSFGNodeInfo
 
 //============================================================================
 
-DllImportExport int TryTestTag(TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped=true); //assumed number tag
-DllImportExport int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, double Value, bool TestParamStopped=true); //assumed number tag
-DllImportExport int TryWriteTag(TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestParamStopped=true); //string or number tag
+DllImportExport int TryTestTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, bool TestParamStopped=true); //assumed number tag
+DllImportExport int TryWriteTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, double Value, bool TestParamStopped=true); //assumed number tag
+DllImportExport int TryWriteTag(TaggedObject* pNode, TaggedObject* pSrchRoot, char* pTag, char* pValue, bool TestParamStopped=true); //string or number tag
 
 //============================================================================
 

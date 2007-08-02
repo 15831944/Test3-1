@@ -198,7 +198,7 @@ void QueueConInfo::SetTagsDirectly()
       if (Tag.Len())
         {
         const double d = ColData[j]->m_dOutput;
-        int Ret = TryWriteTag(pParent->FamilyHead(), Tag(), d);
+        int Ret = TryWriteTag(pParent, pParent->FamilyHead(), Tag(), d);
         if (Ret==FXR_Found)
           {
           if (eLogSetTags)
@@ -233,7 +233,7 @@ void QueueConInfo::CheckTags()
       Strng Tag = ColData[j]->m_OutputVar.sVar();
       if (Tag.Len())
         {
-        int Ret = TryTestTag(pParent->FamilyHead(), Tag());
+        int Ret = TryTestTag(pParent, pParent->FamilyHead(), Tag());
         if (Ret!=FXR_Found)
           {
           LogError(pParent->Tag(), 0, "Col %d: Tag '%s' not found or not allowed!", j+1, Tag());
