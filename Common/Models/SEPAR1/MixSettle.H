@@ -1,7 +1,7 @@
 // SysCAD Copyright Kenwalt (Pty) Ltd 1995
 
-#ifndef  SOLVEXTR_H
-#define  SOLVEXTR_H
+#ifndef  MIXSETTLE_H
+#define  MIXSETTLE_H
 
 #ifndef __SC_DEFS_H
   #include "sc_defs.h"
@@ -10,7 +10,7 @@
   #include "m_surge.h"
 #endif  
 		
-#ifdef SOLVEXTR_CPP
+#ifdef MIXSETTLE_CPP
   #define DllImportExport DllExport
 #elif !defined(Separ1)
   #define DllImportExport DllImport

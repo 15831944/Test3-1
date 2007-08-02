@@ -2,8 +2,8 @@
  
 #include "stdafx.h"
 #include "sc_defs.h"
-#define  SOLVEXTR_CPP
-#include "solvextr.h"
+#define  MIXSETTLE_CPP
+#include "mixsettle.h"
 #include "sr_eqn.h"
 #include "sr_ctrl.h"
 //#include "optoff.h"
@@ -844,6 +844,154 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
   switch (SolveMethod())
     {
     case SM_Direct:
+      {
+      ClrCI(1);
+      SigmaQInPMin(Aq(), som_ALL, Id_2_Mask(ioidAqIn));
+      SigmaQInPMin(Og(), som_ALL, Id_2_Mask(ioidOrgIn));
+
+      double Ratio; 
+      const double AqIn    = Aq().QVolume(som_Liq);
+      const double OrgIn   = Og().QVolume(som_Liq);
+      const double AqInQm  = Aq().QMass(som_Liq);
+      const double OrgInQm = Og().QMass(som_Liq);
+      //double AqT   = Aq().Temp();
+      //double OrgT  = Og().Temp();
+      if ((OrgIn > 1e-9) && (AqIn > 1e-9))
+        {
+        Ratio   = OrgIn/AqIn;
+        OARatio = Ratio;
+        if (!Extraction)
+          Ratio = 1.0/Ratio;
+        }
+      else
+        {
+        Ratio = 0.0;
+        OARatio = Ratio;
+        }
+
+      // Find metal concentrations in aqueous and organic feeds in g/l
+      double AqMass = 0.0;
+      if (AqIn>0.0)
+        {
+        AqMass = MetalMass(Aq());
+	      AqsInConc = AqMass/AqIn;
+        }
+      else
+        AqsInConc = 0.0;
+      double OgMass = 0.0;
+      if (OrgIn>0.0)
+        {
+        OgMass = MetalMass(Og());
+        OrgInConc = OgMass/OrgIn;
+        }
+      else
+        OrgInConc = 0.0;
+
+      //===============================================
+      // Isotherm Method
+      if (iMethod==SVM_Isotherms)
+        {
+        if (Extraction)
+          dReactExt = MetalExtract(AqMass, AqIn, OrgInConc, AqsInConc, Ratio);
+        else
+          dReactExt = MetalExtract(OgMass, OrgIn, AqsInConc, OrgInConc, Ratio);
+        
+        // Set the extent of reaction
+        if (RB() && RB()->Eqns.GetSize()>0)
+          {
+          CR_Eqn* pCREqn=(CR_Eqn*)RB()->Eqns[0];
+          if (pCREqn->SpecieReactantIndex(iSol)>=0 || pCREqn->SpecieProductIndex(iSol)>=0)
+            {
+            pCREqn->SetExtent(iSol, dReactExt);
+            }
+          else
+            {
+      		  SetCI(1, true);
+            }
+          }
+        }
+      //================================================
+
+      SpMArray Mix;
+      SigmaQInPMin(QMxInEst, som_ALL, 0xffffffff);
+
+      SpConduit & Aqs = *IOConduit(IOWithId_Self(ioidAqOut)); //Raffinate
+      SpConduit & Orgs = *IOConduit(IOWithId_Self(ioidOrgOut)); //LoadedOrganic
+
+      if (RB())
+	      RB()->EvalProducts(QMxInEst);
+      double Tc = QMxInEst.Temp();
+      Mix=(*QMxInEst.Model());
+
+      // Allow only organic losses in the aqueous stream and
+      // the aqueous losses in the organic stream.
+      double A=0.0;
+      double O=0.0;
+      AqLoss = Range(0.0, AqLoss, 0.9);
+      OgLoss = Range(0.0, OgLoss, 0.9);
+      for (int i=0; i<SDB.Count(); i++)
+        {
+        double dens = GetDensity(i, Tc, Std_P, QMxInEst.Ovr());
+        if (dens < RhoSep)
+          {
+          Aqs.SetVMass(i, Mix, Mix[i] * OgLoss);
+          Orgs.SetVMass(i, Mix, Mix[i] - Aqs.VMass[i]);
+          }
+        else
+          {
+          Orgs.SetVMass(i, Mix, Mix[i] * AqLoss);
+          Aqs.SetVMass(i, Mix, Mix[i] - Orgs.VMass[i]);
+          }
+        A+=Aqs.VMass[i];
+        O+=Orgs.VMass[i];
+        }
+
+      Aqs.SetTempPress(QMxInEst.Temp(), QMxInEst.Press());
+      Orgs.SetTempPress(QMxInEst.Temp(), QMxInEst.Press());
+
+      for (i=0; i<NoFlwIOs(); i++)
+        {
+        if (IO_Out(i))
+          {
+          switch (IOId_Self(i))
+            {
+            case ioidAqOut : IOConduit(i)->QAdjustQmTo(som_ALL, A/NIOsWithId_Self(ioidAqOut));  break;
+            case ioidOrgOut: IOConduit(i)->QAdjustQmTo(som_ALL, O/NIOsWithId_Self(ioidOrgOut)); break;
+            default:         IOConduit(i)->QAdjustQmTo(som_ALL, 0.0);                         break;
+            }
+          }
+        }
+
+      // Find metal concentrations in aqueous and organic products in g/l
+      Aqs.SanityCheck();
+      Orgs.SanityCheck();
+
+      const double AqOut  = Aqs.QVolume(som_Liq);
+      const double OrgOut = Orgs.QVolume(som_Liq);
+
+      double AqMassOut = 0.0;
+      if (AqOut>0.0)
+        {
+        AqMassOut = MetalMass(Aqs);
+        AqsOutConc = AqMassOut/AqOut;
+        }
+      else
+        AqsOutConc = 0.0;
+      double OgMassOut = 0.0;
+      if (OrgOut>0.0)
+        {
+        OgMassOut = MetalMass(Orgs);
+        OrgOutConc = OgMassOut/OrgOut;
+        }
+      else
+        OrgOutConc = 0.0;
+
+      MaxLoadedConc = AqMass/GTZ((AqMass+OrgInQm)/Orgs.Rho(som_Liq));//Based on 100% Extraction
+      MaxStripConc = OgMass/GTZ((OgMass+AqInQm)/Aqs.Rho(som_Liq));
+
+      //MN_Surge::EvalProducts(CNodeEvalIndex & NEI);
+      break;
+      }
     case SM_Inline:
       {
       ClrCI(1);
