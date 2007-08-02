@@ -408,6 +408,10 @@ IMPLEMENT_MODELUNIT(CTank, "Tank", "1", Drw_Tank, "Tank", "TNK",
 CTank::CTank(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   MN_Surge(pClass_, TagIn, pAttach, eAttach)
   {
+#if SURGEEB_RB_EHX
+  m_BlkEval.Attach(&RB, NULL, &m_EHX, NULL, NULL);
+#endif
+
   //if (OrigPrjFileVerNo()<90)
   //  AttachIOAreas(TankIOAreaListOld, &PipeEntryGroup);
   //else
@@ -466,10 +470,19 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
   m_BlkEval.Add_OnOff(DDB);  
 
   DDB.Visibility(NM_All|SM_All|HM_All);//|(m_CyclicStorage.m_bOn ? 0:SM_Direct));
+
   HX.Add_OnOff(DDB);
-  RB.Add_OnOff(DDB);
-  if (1)//NetProbalMethod())
+#if SURGEEB_RB_EHX
+  if (PrjFileVerNo()<112)
+    {
+    RB.Add_OnOff(DDB);
     m_EHX.Add_OnOff(DDB);
+    }
+#else
+  RB.Add_OnOff(DDB);
+  m_EHX.Add_OnOff(DDB);
+#endif
+  
   //TODO RESTORE : VLE in ProBal mode!
   if (NetDynamicMethod())
     m_VLE.Add_OnOff(DDB);
@@ -521,9 +534,13 @@ void CTank::BuildDataDefn(DataDefnBlk & DDB)
 
 
   HX.BuildDataDefn(DDB, NULL, NULL, DDB_RqdPage, 0);
-  RB.BuildDataDefn(DDB);
-  if (1)//NetProbalMethod())
+#if SURGEEB_RB_EHX
+  if (PrjFileVerNo()<112)
+    {
+    RB.BuildDataDefn(DDB);
     m_EHX.BuildDataDefn(DDB);
+    }
+#endif
   if (NetDynamicMethod())
     m_VLE.BuildDataDefn(DDB);
   if (NetProbalMethod())

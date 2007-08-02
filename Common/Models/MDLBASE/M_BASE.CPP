@@ -387,6 +387,10 @@ void MdlNode::Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBl
   if (pBlkEval)
     {
     pBlkEval->EvalProducts(Qo, Qo.Press(), NULL);//&m_FTB);
+    if (pRB && !pBlkEval->RBAttached())
+      pRB->EvalProducts(Qo);
+    if (pEHX && !pBlkEval->EHXAttached())
+      pEHX->EvalProducts(Qo);
     }
   else
     {

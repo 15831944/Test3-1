@@ -34,6 +34,10 @@ const int IOId_HX         = FlwIOId(80);
 XID xidPBSurgeCycleIt     = MdlBsXID(30000);
 
 // ==========================================================================
+
+#define SURGEEB_RB_EHX 1
+
+// ==========================================================================
 // Basic Flow Object
 
 /*#C:Unit models that have surge derive from this class */

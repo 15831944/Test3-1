@@ -27,6 +27,40 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
                                  CEvapBase * pEvap)
   {
   m_pThis     = pThis;
+  
+  Attach(pRB, pHX, pEHX, pVLE, pEvap);
+  };
+
+//-------------------------------------------------------------------------
+
+CBlockEvaluator::~CBlockEvaluator(void)
+  {
+  RemBlk(m_pRB);
+  RemBlk(m_pHX); 
+  RemBlk(m_pEHX); 
+  RemBlk(m_pVLE); 
+  RemBlk(m_pEvap); 
+
+  for (int a=0; a<m_pMakeups.GetSize(); a++)
+    {
+    RemBlk(m_pMakeups[a]);
+    delete m_pMakeups[a];
+    }
+  for (int a=0; a<m_pBleeds.GetSize(); a++)
+    {
+    RemBlk(m_pBleeds[a]);
+    delete m_pBleeds[a];
+    }
+  }
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::Attach(CReactionBase * pRB,
+                CHXBase *pHX,
+                CEnvironHXBase * pEHX,
+                CVLEBase * pVLE,
+                CEvapBase * pEvap)
+  {
   m_nBlocks   = 0;
 
   m_pRB   = pRB;
@@ -56,28 +90,6 @@ CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
 
   SortBlocks();
   };
-
-//-------------------------------------------------------------------------
-
-CBlockEvaluator::~CBlockEvaluator(void)
-  {
-  RemBlk(m_pRB);
-  RemBlk(m_pHX); 
-  RemBlk(m_pEHX); 
-  RemBlk(m_pVLE); 
-  RemBlk(m_pEvap); 
-
-  for (int a=0; a<m_pMakeups.GetSize(); a++)
-    {
-    RemBlk(m_pMakeups[a]);
-    delete m_pMakeups[a];
-    }
-  for (int a=0; a<m_pBleeds.GetSize(); a++)
-    {
-    RemBlk(m_pBleeds[a]);
-    delete m_pBleeds[a];
-    }
-  }
 
 //-------------------------------------------------------------------------
 

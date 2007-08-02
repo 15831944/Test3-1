@@ -199,7 +199,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 108; //CNM  1/06/2007 Status colour display options
 //const int LatestPrjFileVer = 109; //CNM  13/06/2007 SpContainer HiLevelLimit tweak
 //const int LatestPrjFileVer = 110; //CNM  19/06/2007 Renaming "Flange" to "DirectLink"
-const int LatestPrjFileVer = 111; //CNM  04/07/2007 H20 as Aqueous
+//const int LatestPrjFileVer = 111; //CNM  04/07/2007 H20 as Aqueous
+const int LatestPrjFileVer = 112; //CNM  02/08/2007 M_Surge extend m_BlkEval
 
 //===========================================================================
 //

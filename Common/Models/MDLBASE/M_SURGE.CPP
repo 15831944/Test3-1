@@ -42,7 +42,6 @@ MN_Surge::MN_Surge(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, Tag
   m_AccOut(eDIO_Deplete, this, false, true, DepleteIOTag),
   m_AccCalc(this, m_AccIn, m_AccOut),
   m_BlkEval(this)
-  //m_BlkEval(this, &m_RB, NULL, &m_EHX, &VLE, &m_Evap)
   {
   //pQFeed=NULL;
   //pQProd=NULL;

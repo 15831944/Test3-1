@@ -30,6 +30,12 @@ class DllImportExport CBlockEvaluator
                     CEvapBase * pEvap = NULL);
     ~CBlockEvaluator(void);
 
+    void Attach(CReactionBase * pRB = NULL,
+                CHXBase *pHX = NULL,
+                CEnvironHXBase * pEHX = NULL,
+                CVLEBase * pVLE = NULL,
+                CEvapBase * pEvap = NULL);
+
     void              SetEnable(bool On);
 
     void              AddBlk(CBlockEvalBase *p, int DefSeqNo);
@@ -57,6 +63,12 @@ class DllImportExport CBlockEvaluator
 
     void              SetMakeupCount(int N);
     void              SetBleedCount(int N);
+
+    bool              RBAttached()      { return m_pRB!=NULL; };
+    bool              HXAttached()      { return m_pHX!=NULL; };
+    bool              EHXAttached()     { return m_pEHX!=NULL; };
+    bool              VLEAttached()     { return m_pVLE!=NULL; };
+    bool              EvapAttached()    { return m_pEvap!=NULL; };
 
   protected:
     FlwNode         * m_pThis;
