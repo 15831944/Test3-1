@@ -1839,8 +1839,8 @@ inline bool IsAirIOId(int Id)     { return InRange(AirIOId0,   Id, MaxIOId-1);  
 
 // ----------------------------------------------------------
 
-const int MaxNdMakeups        = 5;
-const int MaxNdBleeds         = 5;
+const int MaxNdMakeups        = 8;
+const int MaxNdBleeds         = 8;
 
 // ----------------------------------------------------------
 // FlwIO Type Ids

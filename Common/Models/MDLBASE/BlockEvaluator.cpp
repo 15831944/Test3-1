@@ -75,18 +75,18 @@ void CBlockEvaluator::Attach(CReactionBase * pRB,
   AddBlk(m_pVLE, MaxNdMakeups+5); 
   AddBlk(m_pEvap, MaxNdMakeups+6); 
 
-  m_nMaxNdMakeups  = 1;
+  m_nMaxNdMakeups  = MaxNdMakeups;
 
-  if (m_pRB  )
-    m_nMaxNdMakeups++;
-  if (m_pHX  ) 
-    m_nMaxNdMakeups++;
-  if (m_pEHX ) 
-    m_nMaxNdMakeups++;
-  if (m_pVLE ) 
-    m_nMaxNdMakeups++;
-  if (m_pEvap) 
-    m_nMaxNdMakeups++;
+  //if (m_pRB  )
+  //  m_nMaxNdMakeups++;
+  //if (m_pHX  ) 
+  //  m_nMaxNdMakeups++;
+  //if (m_pEHX ) 
+  //  m_nMaxNdMakeups++;
+  //if (m_pVLE ) 
+  //  m_nMaxNdMakeups++;
+  //if (m_pEvap) 
+  //  m_nMaxNdMakeups++;
 
   SortBlocks();
   };
