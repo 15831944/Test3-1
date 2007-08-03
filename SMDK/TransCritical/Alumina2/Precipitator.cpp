@@ -132,9 +132,9 @@ CPrecipitator::CPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
 //   x=new double[4];
 //   xo = new double[4];
 
-
   m_bEvapConnected = 0;
 
+  /*//CAR data:  
   m_dActivationEnergy =	7734.00;
   m_dK0	= 2.29e+13;
   m_dK1 = 1.75;
@@ -144,7 +144,20 @@ CPrecipitator::CPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
   m_dn_eq = 0;
   m_dn_ = 1.70;
   m_dn_sol = 1.00;
+  m_dn_ssa = 0.60;*/
+
+  //Generic data:
+  m_dActivationEnergy =	7600.00;
+  m_dK0	= 1.0e+11;
+  m_dK1 = 1.0;
+  m_dk_TOC = 0.0;
+  m_dn_s = -1.00;
+  m_dn_fc = -0.5;
+  m_dn_eq = 0.0;
+  m_dn_ = 2.0;
+  m_dn_sol = 1.00;
   m_dn_ssa = 0.60;
+
 
   bOnLine = 1;
   dTempDropRqd = 0.5;
@@ -181,8 +194,6 @@ CPrecipitator::CPrecipitator(MUnitDefBase *pUnitDef, TaggedObject * pNd) :
   m_dCoolOutTotHz = 0.0;
   iCoolType = 0;
   
-  
-
 }
 
 //---------------------------------------------------------------------------
