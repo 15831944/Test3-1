@@ -1801,7 +1801,22 @@ flag CReactionBlock::Load(flag bIsSurgeType, pchar pRCTName, flag KeepState)
   sRCTName.FnSearchExpand(NULL, AF_All|AF_BackupFiles);
 
   //dbgpln("       %s", sRCTName());
-  FnModifyTime(sRCTName(), RCTTime);
+  bool FileFound = FnModifyTime(sRCTName(), RCTTime);
+
+  if (!FileFound && sRCTName.Len()>0)
+    {
+    //let's see if the reaction file has been moved to the "Reactions" sub folder...
+    Strng Tmp(sRCTName);
+    Tmp.FnNameExt();
+    Strng Tmp2 = FnDefaultReactionsFolder();
+    Tmp2 += Tmp;
+    FileFound = FnModifyTime(Tmp2(), RCTTime);
+    if (FileFound)
+      {
+      sRCTName = Tmp2();
+      LogNote(FullObjTag(), 0, "Reaction file (%s) folder location changed to '\\Reactions'.", Tmp());
+      }
+    }
 
   delete pTkns;
   pTkns = new CRCTTokenFile(this, AF_All|AF_BackupFiles, sRCTName());
