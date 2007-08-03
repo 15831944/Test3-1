@@ -203,7 +203,7 @@ void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Text  ("Equilibrium");
   DDB.Byte  ("ExtentType",        "",        DC_,     "",      &m_bExtentType,          &Eq, SetOnChange|isParm, DDBExtentTypes);
 
-  m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "",      DC_,     "",    xid_RCTKEquilibrium, &Eq, "Cfg", "Rqd");
+  m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "",      DC_,     "",    xid_RCTKEquilibrium, &Eq, "Rct", "Rqd");
 
   //DDB.Double("K_Eq",              "",        DC_,     "",      &m_dK_Eq,                &Eq, isResult);
   DDB.Double("K_EOStep",          "K_Act",   DC_,     "",      &m_dKEOStep,             &Eq, isResult);
@@ -212,7 +212,7 @@ void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
   if (m_bDoResTime)
     {
     DDB.Double("K_Rt",            "",        DC_,     "",      &m_dK_Rt,                &Eq, isResult);
-    m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",  DC_Time, "s",  xid_RTRef,   &Eq, "Cfg", "Rqd");
+    m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",  DC_Time, "s",  xid_RTRef,   &Eq, "Rct", "Rqd");
     m_ddActualResTime.BuildDataDefn(DDB, "RT",      "",  DC_Time, "s",  xid_ResTime, &Eq, "Actual", "Rqd");
     DDB.Double("Alpha",           "",        DC_,     "",      &m_dAlpha,                 &Eq, isResult);
     }
@@ -223,7 +223,7 @@ void CEC_Equilibrium::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Frac, SDB[m_iXSpcId].SymOrTag(), "%", dc, pCnvTxt);
-    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Cfg", "Rqd");
+    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Rct", "Rqd");
     }
   };
 
@@ -369,7 +369,7 @@ void CEC_EquilTXPoly::BuildDataDefn(DataDefnBlk & DDB)
     {
     //DDB.Double("K_Rt",           "",        DC_,     "",      &dK_Rt,                  &Eq, isResult);
     //DDB.Double("Defined_RT",     "",        DC_Time, "s",     &m_ddDefinedResTime,        &Eq, isParm);
-    //m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",  DC_Time, "s",  xid_RTRef,   &Eq, "Cfg", "Rqd");
+    //m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",  DC_Time, "s",  xid_RTRef,   &Eq, "Rct", "Rqd");
     //m_ddActualResTime.BuildDataDefn(DDB, "RT",      "",  DC_Time, "s",  xid_ResTime, &Eq, "Actual", "Rqd");
     //DDB.Double("Actual_RT",      "",        DC_Time, "s",     &m_ddActualResTime,         &Eq, isParm);
     DDB.Double("Alpha",          "",        DC_,     "",      &m_dAlpha,                 &Eq, isResult);
@@ -381,7 +381,7 @@ void CEC_EquilTXPoly::BuildDataDefn(DataDefnBlk & DDB)
 //    CCnvIndex dc;
 //    pchar pCnvTxt;
 //    SDB.AddSpCnv(DC_Frac, SDB[m_iXSpcId].SymOrTag(), "%", dc, pCnvTxt);
-//    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Cfg", "Rqd");
+//    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Rct", "Rqd");
 //    }
   };
 
@@ -585,7 +585,7 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Byte  ("ExtentType",        "",                       DC_,     "",    &m_bExtentType,   &Eq, SetOnChange|isParm, DDBExtentTypes);
   DDB.SetVisibility(VFlags);
 
-  m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "EquilbriumRatio",    DC_,     "",    xid_RCTKEquilibrium, &Eq, "Cfg", "Rqd");
+  m_ddKEq.BuildDataDefn(DDB, "K_Eq",  "EquilbriumRatio",    DC_,     "",    xid_RCTKEquilibrium, &Eq, "Rct", "Rqd");
   DDB.Double("K_EOStep",          "K_Act",   DC_,     "",      &m_dKEOStep,             &Eq, isResult);
   DDB.Double("K_Final",           "",        DC_,     "",      &m_dKFinal,              &Eq, isResult|NAN_OK);
   if (!DynamicRate())
@@ -594,12 +594,12 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
     {
     if (m_bDoRate)
       {
-      m_ddFracRate.BuildDataDefn(DDB, "Rate", "",           DC_FracRate, "%/s",  xid_RCTFracRate, &Eq, "Cfg", "Rqd");
+      m_ddFracRate.BuildDataDefn(DDB, "Rate", "",           DC_FracRate, "%/s",  xid_RCTFracRate, &Eq, "Rct", "Rqd");
       }
     if (m_bDoResTime)
       {
       DDB.Double("K_Rt",           "",                      DC_,     "",    &m_dKRt,          &Eq, isResult);
-      m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",   DC_Time, "s",   xid_RTRef,        &Eq, "Cfg", "Rqd");
+      m_ddDefinedResTime.BuildDataDefn(DDB, "RT_Ref", "",   DC_Time, "s",   xid_RTRef,        &Eq, "Rct", "Rqd");
       m_ddActualResTime.BuildDataDefn(DDB,  "RT",     "",   DC_Time, "s",   xid_ResTime,      &Eq, "Actual", "Rqd");
       DDB.Double("Alpha",          "",                      DC_,     "",    &m_dAlpha,        &Eq, isResult);
       }
@@ -611,7 +611,7 @@ void CEC_Ratio::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Frac, SDB[m_iXSpcId].SymOrTag(), "%",     dc, pCnvTxt);
-    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",          dc, pCnvTxt,  xid_RCTExtent, &Eq, "Cfg", "Rqd");
+    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",          dc, pCnvTxt,  xid_RCTExtent, &Eq, "Rct", "Rqd");
     }
   };
 
@@ -838,7 +838,7 @@ void CEC_FracExt::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Frac, SDB[m_iXSpcId].SymOrTag(), "%", dc, pCnvTxt);
-    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Cfg", "Rqd");
+    m_ddExtentRqd.BuildDataDefn(DDB, "Extent", "",  dc, pCnvTxt,  xid_RCTExtent, &Eq, "Rct", "Rqd");
     DDB.Double("ExtentAchieved",   "",     DC_Frac, "%",  &m_dKEOStep,  &Eq, isResult);
 
     if (!DynamicRate())
@@ -847,7 +847,7 @@ void CEC_FracExt::BuildDataDefn(DataDefnBlk & DDB)
       {
       if (m_bDoRate)
         {
-        m_ddFracRate.BuildDataDefn(DDB, "Rate", "",  DC_FracRate, "%/s",  xid_RCTFracRate, &Eq, "Cfg", "Rqd");
+        m_ddFracRate.BuildDataDefn(DDB, "Rate", "",  DC_FracRate, "%/s",  xid_RCTFracRate, &Eq, "Rct", "Rqd");
         }
       }
     }
@@ -1074,7 +1074,7 @@ void CEC_FinalConc::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Conc, SDB[m_Spc.m_SpcId].SymOrTag(), "g/L", dc, pCnvTxt);
-    Strng S,C("Cfg"),R("Rqd");
+    Strng S,C("Rct"),R("Rqd");
     if (Valid(m_dRqdTemp))
       S.Set("@%.2f", K2C(m_dRqdTemp));
     else
@@ -1275,7 +1275,7 @@ void CEC_MSFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Frac, SDB[m_Spc.m_SpcId].SymOrTag(), "%", dc, pCnvTxt);
-    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Cfg", "Rqd");
+    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Rct", "Rqd");
     DDB.Double("Frac_EOStep",      "Frac_Act",      dc, pCnvTxt,   &m_dKEOStep,      &Eq, isResult);
     DDB.Double("Frac_Final",       "",              dc, pCnvTxt,   &m_dKFinal,       &Eq, isResult|NAN_OK);
     DDB.Double("ExtentError",      "",              DC_Frac, "%",  xid_ExtentError,  &Eq, isResult|noFile|noSnap|NAN_OK);
@@ -1421,7 +1421,7 @@ void CEC_MLFinalFrac::BuildDataDefn(DataDefnBlk & DDB)
     CCnvIndex dc;
     pchar pCnvTxt;
     SDB.AddSpCnv(DC_Frac, SDB[m_Spc.m_SpcId].SymOrTag(), "%", dc, pCnvTxt);
-    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Cfg", "Rqd");
+    m_ddRqdFrac.BuildDataDefn(DDB, "Frac_Rqd", "",  dc, pCnvTxt,  xid_RCTExtent,    &Eq, "Rct", "Rqd");
     DDB.Double("Frac_EOStep",      "Frac_Act",      dc, pCnvTxt,   &m_dKEOStep,      &Eq, isResult);
     DDB.Double("Frac_Final",       "",              dc, pCnvTxt,   &m_dKFinal,       &Eq, isResult|NAN_OK);
     DDB.Double("ExtentError",      "",              DC_Frac, "%",  xid_ExtentError,  &Eq, isResult|noFile|noSnap|NAN_OK);

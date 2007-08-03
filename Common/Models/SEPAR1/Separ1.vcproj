@@ -314,13 +314,13 @@
 				RelativePath=".\FiltPrss.CPP">
 			</File>
 			<File
+				RelativePath=".\MixSettle.CPP">
+			</File>
+			<File
 				RelativePath=".\Separ1.cpp">
 			</File>
 			<File
 				RelativePath=".\Separ1.rc">
-			</File>
-			<File
-				RelativePath=".\SOLVEXTR.CPP">
 			</File>
 			<File
 				RelativePath=".\Splitter.cpp">
@@ -396,13 +396,13 @@
 				RelativePath=".\FiltPrss.H">
 			</File>
 			<File
+				RelativePath=".\MixSettle.H">
+			</File>
+			<File
 				RelativePath=".\Resource.h">
 			</File>
 			<File
 				RelativePath=".\Separ1.h">
-			</File>
-			<File
-				RelativePath=".\SOLVEXTR.H">
 			</File>
 			<File
 				RelativePath=".\Splitter.h">

@@ -771,21 +771,21 @@ void CR_HX::BuildDataDefn(DataDefnBlk & DDB)
       {
       case CR_HX_ApproachAmb:
         if (m_bLocalAmbT)
-          m_ddAmbTemp.BuildDataDefn(DDB, "Ambient",     "",   DC_T,    "C",    xidRCTHXAmbTemp,   this, "Cfg", "Rqd", isParm, 0, UseOldVer);
-        m_ddTFrac.BuildDataDefn(DDB, "ApproachAmbient", "",   DC_Frac, "%",    xidRCTHXTFrac,     this, "Cfg", "Rqd", isParm, 0, UseOldVer);
+          m_ddAmbTemp.BuildDataDefn(DDB, "Ambient",     "",   DC_T,    "C",    xidRCTHXAmbTemp,   this, "Rct", "Rqd", isParm, 0, UseOldVer);
+        m_ddTFrac.BuildDataDefn(DDB, "ApproachAmbient", "",   DC_Frac, "%",    xidRCTHXTFrac,     this, "Rct", "Rqd", isParm, 0, UseOldVer);
         break;
       case CR_HX_ApproachT:
-        m_ddTargetT.BuildDataDefn(DDB, "TargetT",      "",    DC_T,    "C",    xidRCTHXTargetT,   this, "Cfg", "Rqd", isParm, 0, UseOldVer);
-        m_ddTFrac.BuildDataDefn(DDB, "ApproachT",      "",    DC_Frac, "%",    xidRCTHXTFrac,     this, "Cfg", "Rqd", isParm, 0, UseOldVer);
+        m_ddTargetT.BuildDataDefn(DDB, "TargetT",      "",    DC_T,    "C",    xidRCTHXTargetT,   this, "Rct", "Rqd", isParm, 0, UseOldVer);
+        m_ddTFrac.BuildDataDefn(DDB, "ApproachT",      "",    DC_Frac, "%",    xidRCTHXTFrac,     this, "Rct", "Rqd", isParm, 0, UseOldVer);
         break;
       case CR_HX_Pwr:
-        m_ddPwr.BuildDataDefn(DDB, "PowerInput",       "",    DC_Pwr,  "kJ/s", xidRCTHXPwr,       this, "Cfg", "Rqd", isParm, 0, UseOldVer);
+        m_ddPwr.BuildDataDefn(DDB, "PowerInput",       "",    DC_Pwr,  "kJ/s", xidRCTHXPwr,       this, "Rct", "Rqd", isParm, 0, UseOldVer);
         break;
       case CR_HX_FinalT:
-        m_ddRqdFinalT.BuildDataDefn(DDB, "FinalTRqd",  "",    DC_T,    "C",    xidRCTHXRqdFinalT, this, "Cfg", "Rqd", 0, m_bMaintFeedT ? isResult : isParm, UseOldVer);
+        m_ddRqdFinalT.BuildDataDefn(DDB, "FinalTRqd",  "",    DC_T,    "C",    xidRCTHXRqdFinalT, this, "Rct", "Rqd", 0, m_bMaintFeedT ? isResult : isParm, UseOldVer);
         break;
       case CR_HX_Electrolysis:
-        m_ddElectEff.BuildDataDefn(DDB, "ElectEff",    "",    DC_Frac, "%",    xidRCTHXElectEff,  this, "Cfg", "Rqd", isParm, 0, UseOldVer);
+        m_ddElectEff.BuildDataDefn(DDB, "ElectEff",    "",    DC_Frac, "%",    xidRCTHXElectEff,  this, "Rct", "Rqd", isParm, 0, UseOldVer);
         break;
       default:;
       }

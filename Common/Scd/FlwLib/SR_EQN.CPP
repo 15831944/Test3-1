@@ -587,7 +587,7 @@ void CR_EqnHeatFixedMs::BuildDataDefn(DataDefnBlk & DDB)
   pchar pCnvTxtR;
   int s=m_bProdTerm ? m_Eq.Product[m_iTermNo].SpcId : m_Eq.Reactant[m_iTermNo].SpcId;
   SDB.AddSpCnv(m_iCnvBasisRqd, SDB[s].SymOrTag(), "", dcR, pCnvTxtR);
-  m_ddRqddH.BuildDataDefn(DDB, "HoR@RefRqd", "Rqd_dH",  dcR, pCnvTxtR, xid_HORRqdDH,&m_Eq, "Cfg", "Rqd");
+  m_ddRqddH.BuildDataDefn(DDB, "HoR@RefRqd", "Rqd_dH",  dcR, pCnvTxtR, xid_HORRqdDH,&m_Eq, "Rct", "Rqd");
   CR_EqnHeat::BuildDataDefn(DDB);
   };
 

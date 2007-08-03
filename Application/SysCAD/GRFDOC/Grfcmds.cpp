@@ -2138,7 +2138,7 @@ void GrfCmdBlk::DoInsert()
               Strng TheGuid;
               pDsp->Draw(CB->e, -1);
               if (DoAddModel)
-                CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), &TheGuid);
+                CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), TheGuid());
               pDsp->Draw(CB->e, -1);
               //            pDrw->EntityInvalidate(en, NULL);
 
