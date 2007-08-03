@@ -1992,9 +1992,10 @@ class CHgtOrdInfo
       m_nAllOrd     = 0;
       }
 
-    int NSLOrd()                { return m_nSLOrd; };
-    int NAllOrd()               { return m_nAllOrd; };
-    bool SLOut(int iOrd)        { return iOrd<m_nSLOrd; };
+    int FirstVapourOnly()       { return m_nSLOrd; };
+    int SlurryAccessCount()     { return m_nSLOrd; };
+    int Count()                 { return m_nAllOrd; };
+    bool SlurryAccess(int iOrd) { return iOrd<m_nSLOrd; };
 
     SpContainer &Container()    { return *m_pCn; };
     SpConduit   &ContentFlw()   { return m_ContentFlw; };
