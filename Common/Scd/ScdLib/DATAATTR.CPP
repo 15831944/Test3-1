@@ -55,7 +55,7 @@ void FmtAttribute::FormatFloat(double dVal, char * Str, short Len, Strng_List * 
       else
         strcpy(Str, "-Large");
       }
-    else if (fabs(dVal)>=DisplayZeroLimit)
+    else if (fabs(dVal)>=gs_DisplayZeroLimit)
       {
       double SclPrec[] = { 1.0e0, 1.0e1, 1.0e2, 1.0e3, 1.0e4, 1.0e5, 1.0e6, 1.0e7, 1.0e8 };
       char tType= cTyp;

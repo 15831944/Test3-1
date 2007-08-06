@@ -537,7 +537,7 @@ class DllImportExport MN_Lnk : public MdlNode
     CDirectFlwIO   m_Bleed;
 #endif
 
-    bool           SpillFlowing()       { return m_Spill.Cd.QMass(som_ALL)>1.0e-12; };
+    bool           SpillFlowing()       { return m_Spill.Cd.QMass(som_ALL)>gs_DisplayZeroFlow; };
     void           SpillClear()         { m_Spill.Cd.QZero(); };//.QSetTraceMass(); };
 
   protected:

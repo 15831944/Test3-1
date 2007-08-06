@@ -561,7 +561,7 @@ class DllImportExport CDirectFlwIO
     void          SetTarget(LPCTSTR T);
     LPCTSTR       Target();
     LPCTSTR       TargetStr(flag ForFiling);
-    bool          Flowing()                 { return Cd.QMass(som_ALL)>1.0e-12; };
+    bool          Flowing()                 { return Cd.QMass(som_ALL)>gs_DisplayZeroFlow; };
     int           MyConnectedIO()           { return m_iMyConnectedIO; };
     int           LclDIOId()                { return m_iLclDIOId; };
     int           RmtDIOId()                { return m_iRmtDIOId; };
@@ -1508,12 +1508,18 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
 
     void           ClrUseStatus()               { m_iUseStatus=0; };
     byte           UseStatus()                  { return m_iUseStatus; };
-    byte           SetUseStatus(bool InUse)     
+    byte           SetUseStatus(bool InUse, flag * pChanged)     
       { 
+      byte Old = m_iUseStatus;
       if (InUse) 
         m_iUseStatus |= (CUseMsk_InUse|CUseMsk_WasUsed);
       else
         m_iUseStatus &= ~CUseMsk_InUse;
+      if (pChanged)
+        {
+        if (m_iUseStatus!=Old)
+          *pChanged=true;
+        }
       return m_iUseStatus; 
       };
 
@@ -1532,6 +1538,8 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     int            m_iIdSrc;
     int            m_iIdDst;
     byte           m_iUseStatus;
+    bool           m_bPrevShowStatus;
+    bool           m_bPrevShowStatusOK;
     
     Strng          m_sRefIOTg;
     
@@ -4416,6 +4424,7 @@ class DllImportExport FlwNode : public CTNode
 #endif
 
     virtual flag   ModelAssocGrfs(CMdlAssocGrfList & Grfs);
+    virtual int    ModelAssocGrfsChgCnt();
 
     virtual dword  ModelStatus();
     static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)!=0); };
@@ -4481,8 +4490,6 @@ class DllImportExport FlwNode : public CTNode
     static flag    fInConfigureJoins;
     static flag    fCollectChgStats;
     static dword   m_dwMdlStatusOptions; //for status displays
-    static double  m_dStatusVapTestFrac; //for status displays
-    static double  m_dStatusSolTestFrac; //for status displays
 
     bool           fSolutionBusy,
                    fHasFiles,

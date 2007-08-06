@@ -116,10 +116,11 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
-    int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
-    int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    int            RequestModelStatus(CModelStatusArray &Status);
+    flag           TestLoadModelStatus();
+
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf);
-    int            RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
+    flag           TestLoadModelAssocGrfs();
 
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 //    int            RequestXRefInfoChg();
@@ -140,17 +141,47 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
  
     void           LockStatus() { m_Status.m_Sect.Lock(); };
     void           FreeStatus() { m_Status.m_Sect.Unlock(); };
-    void           SetLoadAllModelStatus() { LockStatus(); m_Status.m_LoadAllDone=false; FreeStatus();};
-    dword          GetStatusLoadSeqNo() { LockStatus(); dword dw=m_Status.m_nLoadSeqNo; FreeStatus(); return dw;};
-    dword          GetNumStatusColourChgs() { LockStatus(); dword dw=m_Status.m_nColourChgs; FreeStatus(); return dw; };
+    void           SetLoadAllModelStatus(bool SetOptions=false, dword ReqdOptions=0)
+      { 
+      LockStatus(); 
+      m_Status.m_LoadReqd=true; 
+      if (SetOptions) 
+        m_Status.m_dwOptions=ReqdOptions; 
+      FreeStatus();
+      };
+    dword          GetStatusLoadSeqNo() 
+      { 
+      LockStatus();
+      dword dw=m_Status.m_nLoadSeqNo; 
+      FreeStatus(); 
+      return dw;
+      };
+    dword          GetNumStatusColourChgs() 
+      { 
+      LockStatus();
+      dword dw=m_Status.m_nColourChgs;
+      FreeStatus();
+      return dw;
+      };
 
     int            FE_LoadAllModelAssocGrfs();
     int            FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap);
 
     void           LockAssocGrfs() { m_AssocGrfs.m_Sect.Lock(); };
     void           FreeAssocGrfs() { m_AssocGrfs.m_Sect.Unlock(); };
-    void           SetLoadAllModelAssocGrfs() { LockAssocGrfs(); m_AssocGrfs.m_LoadAllDone=false; FreeAssocGrfs();};
-    long           GetAssocGrfLoadSeqNo() { LockAssocGrfs(); dword dw=m_AssocGrfs.m_nLoadSeqNo; LockAssocGrfs(); return dw;};
+    void           SetLoadAllModelAssocGrfs() 
+      {
+      LockAssocGrfs();
+      m_AssocGrfs.m_LoadReqd=true; 
+      FreeAssocGrfs();
+      };
+    long           GetAssocGrfLoadSeqNo() 
+      { 
+      LockAssocGrfs(); 
+      dword dw=m_AssocGrfs.m_nLoadSeqNo; 
+      LockAssocGrfs(); 
+      return dw;
+      };
 
     void           EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags) ;
     flag           EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts);
@@ -158,7 +189,6 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
 
     flag           EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grf);
     flag           EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf);
-
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
@@ -228,8 +258,8 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
       CModelStatusArray m_Status;
       CModelStatusMap   m_StatusMap;
 
-      flag              m_TestLoadReqd;
-      flag              m_LoadAllDone;
+      dword             m_dwOptions;
+      flag              m_LoadReqd;
       dword             m_nLoadSeqNo;
       dword             m_nColourChgs;
       CCriticalSection  m_Sect;
@@ -240,8 +270,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
       CMdlAssocGrfList  m_Grfs;
       CMdlAssocGrfMap   m_Map;
 
-      flag              m_TestLoadReqd;
-      flag              m_LoadAllDone;
+      flag              m_LoadReqd;
       dword             m_nLoadSeqNo;
       CCriticalSection  m_Sect;
       }               m_AssocGrfs;

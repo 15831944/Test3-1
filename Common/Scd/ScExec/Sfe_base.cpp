@@ -37,6 +37,8 @@ extern AFX_EXTENSION_MODULE SCExecDLL;
 //
 //===========================================================================
 
+IMPLEMENT_SPARES(CMdlAssocGrf, 1000);
+IMPLEMENT_SPARES(CMdlAssocGrfItem, 5000);
 CMdlAssocGrf::CMdlAssocGrf()
   {
   m_bIsLnk        = false;

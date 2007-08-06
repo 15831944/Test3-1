@@ -199,15 +199,18 @@ bool CGrfWnd::UpdateForPaint(bool ForceUpd, bool ColoursChgd)
   if (1)//m_UpdateRequested)
     {
     flag DoIt=false;
-    CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-    if (gs_pTheSFELib->RequestModelStatusChgCnt(Criteria, 1)>0)
+    if (gs_pTheSFELib->TestLoadModelStatus()>0)
       {
-      //dbgpln("OnDraw   B  %10.3fms", SW.Lap()*1e3); 
       gs_pTheSFELib->SetLoadAllModelStatus();
-      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
-      //dbgpln("OnDraw   C  %10.3fms", SW.Lap()*1e3); 
       DoIt=true;
       }
+
+    if (gs_pTheSFELib->TestLoadModelAssocGrfs())
+      {
+      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
+      DoIt=true;
+      }
+
     dword NumStatusColourChgs=gs_pTheSFELib->GetNumStatusColourChgs();
     if (ForceUpd || ColoursChgd || DoIt || 
       NumStatusColourChgs!=PrevNumStatusColourChgs)

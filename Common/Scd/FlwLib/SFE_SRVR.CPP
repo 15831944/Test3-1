@@ -38,7 +38,8 @@ static MEMORYSTATUS PrvMS;
 //CList <SfeInitClass *, SfeInitClass *> SfeInitClass::List;
 //===========================================================================
 
-flag CSfeSrvr::Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn_, flag FlushDbg_, fn_CallBack CallBack)
+flag CSfeSrvr::Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn_, flag FlushDbg_, fn_CallBack CallBack,
+                    flag *pStatusLoadReqd, flag * pAssocGrfsLoadReqd)
   {
   ASSERT(gs_pSfeSrvr==NULL);
   gs_pSfeSrvr=this;
@@ -52,7 +53,7 @@ flag CSfeSrvr::Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *
   
   if (SfeFS)
     {
-    SfeInitOK=SfeFS->Init();
+    SfeInitOK=SfeFS->Init(pStatusLoadReqd, pAssocGrfsLoadReqd);
     if (!SfeInitOK)
       {
       Term();
@@ -378,24 +379,14 @@ flag CSfeSrvr::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & I
   return SfeFS->RequestModelIOConn(pTag, iNo, Info); 
   };
 
-int CSfeSrvr::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+int CSfeSrvr::RequestModelStatus(dword Options, CModelStatusArray &Status)
   {
-  return SfeFS->RequestModelStatus(Criteria, Status);
-  };
-
-int CSfeSrvr::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
-  {
-  return SfeFS->RequestModelStatusChgCnt(Criteria, MaxTest);
+  return SfeFS->RequestModelStatus(Options, Status);
   };
 
 flag CSfeSrvr::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
   { 
   return SfeFS->RequestModelAssocGrfs(Tag, Grfs); 
-  };
-
-int CSfeSrvr::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
-  { 
-  return SfeFS->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap); 
   };
 
 flag CSfeSrvr::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode, LPCSTR NdTag, CModelAssocGrfMasks & Msks)
@@ -407,12 +398,6 @@ int CSfeSrvr::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
   { 
   return SfeFS->RequestTagRefInfo(Tag, Refs);
   };
-
-//int CSfeSrvr::RequestXRefInfoChg()
-//  {
-//  return SfeFS->RequestXRefInfoChg();
-//  };
-
 
 int CSfeSrvr::FE_GetRctInfo(CRctBlkInformation & RctInfo)
   {

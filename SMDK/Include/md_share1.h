@@ -26,8 +26,10 @@ extern DllImportExport const double UsableMass;
 extern DllImportExport const double TraceMass;
 extern DllImportExport const double SmallMassFrac;
 
-extern DllImportExport double DisplayZeroLimit;      // these two are configurable in PlantModel
-extern DllImportExport double DisplayZeroFlow;
+extern DllImportExport double gs_DisplayZeroLimit;      // these five are configurable in PlantModel
+extern DllImportExport double gs_DisplayZeroFlow;
+extern DllImportExport double gs_StatusVapTestFrac;   
+extern DllImportExport double gs_StatusSolTestFrac;   
 
 // ----------------------------------------------------------------------
 //Useful test and functions:

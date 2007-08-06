@@ -1541,7 +1541,7 @@ dword MixerSettler::ModelStatus()
     int HasFlw=0;        
     for (int i=0; i<NoFlwIOs(); i++)
       {
-      if (IOConduit(i)->QMass()>DisplayZeroFlow)
+      if (IOConduit(i)->QMass()>gs_DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

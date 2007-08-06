@@ -3965,19 +3965,27 @@ bool TaggedObject::AssocGrfOn(eAssocGrfTypes AGType, byte UseStatus)
   if (Shw==eAGS_AsPerClass)
     Shw=AssocGrfShowClass()[AGType];
 
+
+  bool Ret=false;
+
   switch (Shw)
     {
     case eAGS_Hide:
-    return false;
+      Ret=false;
+      break;
     case eAGS_Show:
-    return true;
+      Ret=true;
+      break;
     case eAGS_ShowInUse:
-      return (UseStatus&CUseMsk_InUse)!=0;
+      Ret=(UseStatus&CUseMsk_InUse)!=0;
+      break;
     case eAGS_ShowEverUsed:
-      return (UseStatus&(CUseMsk_InUse|CUseMsk_WasUsed))!=0;
+      Ret=(UseStatus&(CUseMsk_InUse|CUseMsk_WasUsed))!=0;
+      break;
     }      
 
-  return false;
+  //dbgpln("AssocGrfOn %2i %2i %04x %3s %s", AGType, Shw, UseStatus, Ret?"ON":"", Tag());
+  return Ret;
   };
 
 //========================================================================

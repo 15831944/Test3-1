@@ -635,6 +635,11 @@ CTNode(pClass_, TagIn, pAttach, eAttach)
   m_pNdDst=NULL;
   m_iIOSrc=0;
   m_iIODst=0;
+  m_bPrevShowStatus=false;
+  m_bPrevShowStatusOK=false;
+  m_iUseStatus=0;
+  m_iIdSrc=-1;
+  m_iIdDst=-1;
 
   m_ListPosn=NULL;
   FlwNode::AddToConnectList(this);
@@ -1779,12 +1784,12 @@ dword  CFlange::ModelStatus()
   else
     {
     SpConduit * pCd=Conduit(true);
-    if (pCd->QMass()>DisplayZeroFlow)
+    if (pCd->QMass()>gs_DisplayZeroFlow)
       {
       Status |= FNS_LFlwP;
-      if (pCd->MassFrac(som_Gas)>FlwNode::m_dStatusVapTestFrac)
+      if (pCd->MassFrac(som_Gas)>gs_StatusVapTestFrac)
         Status |= FNS_LFlwVap;
-      else if (pCd->MassFrac(som_Sol)>FlwNode::m_dStatusSolTestFrac)
+      else if (pCd->MassFrac(som_Sol)>gs_StatusSolTestFrac)
         Status |= FNS_LFlwSol;
       }
     else
@@ -2558,11 +2563,9 @@ void IOAreaRec::PreDelete()
 //
 //===========================================================================
 
-flag FlwNode::fInConfigureJoins=0;
-flag FlwNode::fCollectChgStats=0;
-dword FlwNode::m_dwMdlStatusOptions=0;
-double FlwNode::m_dStatusVapTestFrac=0.99;
-double FlwNode::m_dStatusSolTestFrac=0.9;
+flag FlwNode::fInConfigureJoins       = 0;
+flag FlwNode::fCollectChgStats        = 0;
+dword FlwNode::m_dwMdlStatusOptions   = 0;
 
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
@@ -7998,7 +8001,7 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-#define dbgAssocGrfs 0
+#define dbgAssocGrfs 01
 
 flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
   {
@@ -8020,19 +8023,11 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
         {
         CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
 
-        CMdlAssocGrf::CItem I;
-        switch (D.Type)
-          {
-          case eDIO_Makeup: I.m_eAGType = eAG_Makeup;  break;
-          case eDIO_Bleed:  I.m_eAGType = eAG_Bleed;   break;
-          case eDIO_Spill:  I.m_eAGType = eAG_Spill;   break;
-          case eDIO_Vent:   I.m_eAGType = eAG_Vent;    break;
-          case eDIO_Leak:   I.m_eAGType = eAG_Leak;    break;
-          default:
-            ASSERT_ALWAYS(false,"Uncatered for DIO Type", __FILE__, __LINE__);
-          }
+        CMdlAssocGrfItem I;
         I.m_sTag = pC->Tag();
-        I.m_bShowIt = AssocGrfOn(I.m_eAGType, pC->UseStatus());
+        I.m_bShowIt = AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus());
+        pC->m_bPrevShowStatus=I.m_bShowIt;
+        pC->m_bPrevShowStatusOK=true;
 
         GT.m_AssocGrfs.Add(I);
 #if dbgAssocGrfs 
@@ -8047,6 +8042,29 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
     // etc for RB etc
     }
   return true;
+  };
+
+//--------------------------------------------------------------------------
+
+int FlwNode::ModelAssocGrfsChgCnt()
+  {
+  int Cnt=0;
+  for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
+    {
+    CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
+    if (D.Connected)
+      {
+      CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
+      if (!pC->m_bPrevShowStatusOK || 
+          (pC->m_bPrevShowStatus!=AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus())))
+        Cnt++;
+      }
+    }
+#if dbgAssocGrfs 
+  if (Cnt>0)
+    dbgpln("ModelAssocGrfsChgCnt %5i %s", Cnt, Tag());
+#endif
+  return Cnt;
   };
 
 //--------------------------------------------------------------------------

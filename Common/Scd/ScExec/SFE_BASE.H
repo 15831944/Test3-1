@@ -180,41 +180,6 @@ typedef struct
 
 typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData);
 
-class CModelAssocGrfMask
-  {
-  public:
-    CModelAssocGrfMask(LPCSTR Tag="")
-      {
-      m_Tag       = Tag;
-      };
-    CModelAssocGrfMask(LPCSTR Tag, const CAssocGrfShowArray  & ShowClass, const CAssocGrfShowArray  & ShowNode)
-      {
-      m_Tag       = Tag;
-      m_ShowClass = ShowClass;
-      m_ShowNode  = ShowNode;
-      };
-    CModelAssocGrfMask(const CModelAssocGrfMask & V)
-      {
-      m_Tag       = V.m_Tag;
-      m_ShowClass = V.m_ShowClass;
-      m_ShowNode  = V.m_ShowNode;
-      };
-    CModelAssocGrfMask & operator=(const CModelAssocGrfMask & V)
-      {
-      m_Tag       = V.m_Tag;
-      m_ShowClass = V.m_ShowClass;
-      m_ShowNode  = V.m_ShowNode;
-      return *this;
-      };
-
-  public:
-    CString   m_Tag;
-    CAssocGrfShowArray  m_ShowClass;
-    CAssocGrfShowArray  m_ShowNode;
-  } ;
-
-class CModelAssocGrfMasks : public CList<CModelAssocGrfMask, CModelAssocGrfMask&> {};
-
 // ==========================================================================
 //
 //
@@ -272,18 +237,6 @@ class CModelStatusItem
 
 class CModelStatusArray : public CArray <CModelStatusItem, CModelStatusItem&> { };
 class CModelStatusMap : public CMap <char *, char *, CModelStatusItem*, CModelStatusItem*> {};
-
-class CModelStatusCriterion
-  {
-  public:
-    CModelStatusCriterion(dword Opts)
-      {
-      m_dwMdlStatusOptions=Opts;
-      }
-    //Strng           m_sWhichTags;
-  public:
-    dword           m_dwMdlStatusOptions;
-  };
 
 // ==========================================================================
 //
@@ -1035,6 +988,43 @@ class CRctBlkInformation
 //
 //===========================================================================
 
+class CModelAssocGrfMask
+  {
+  public:
+    CModelAssocGrfMask(LPCSTR Tag="")
+      {
+      m_Tag       = Tag;
+      };
+    CModelAssocGrfMask(LPCSTR Tag, const CAssocGrfShowArray  & ShowClass, const CAssocGrfShowArray  & ShowNode)
+      {
+      m_Tag       = Tag;
+      m_ShowClass = ShowClass;
+      m_ShowNode  = ShowNode;
+      };
+    CModelAssocGrfMask(const CModelAssocGrfMask & V)
+      {
+      m_Tag       = V.m_Tag;
+      m_ShowClass = V.m_ShowClass;
+      m_ShowNode  = V.m_ShowNode;
+      };
+    CModelAssocGrfMask & operator=(const CModelAssocGrfMask & V)
+      {
+      m_Tag       = V.m_Tag;
+      m_ShowClass = V.m_ShowClass;
+      m_ShowNode  = V.m_ShowNode;
+      return *this;
+      };
+
+  public:
+    CString   m_Tag;
+    CAssocGrfShowArray  m_ShowClass;
+    CAssocGrfShowArray  m_ShowNode;
+  } ;
+
+class CModelAssocGrfMasks : public CList<CModelAssocGrfMask, CModelAssocGrfMask&> {};
+
+//---------------------------------------------------------------------------
+
 enum eDirectIO
   {
     eDIO_Spill, eDIO_Vent, eDIO_Leak,                   // Real IOs
@@ -1042,9 +1032,69 @@ enum eDirectIO
     eDIO_Src, eDIO_Snk, eDIO_Accum, eDIO_Deplete        // Direct
   };
 
+inline eAssocGrfTypes AGTypeFromDIOType(eDirectIO D)
+  {
+  switch (D)
+    {
+    case eDIO_Makeup: return eAG_Makeup;
+    case eDIO_Bleed:  return eAG_Bleed;
+    case eDIO_Spill:  return eAG_Spill;   
+    case eDIO_Vent:   return eAG_Vent;    
+    case eDIO_Leak:   return eAG_Leak;    
+    default:  ASSERT_ALWAYS(false,"Uncatered for DIO Type", __FILE__, __LINE__);
+    }
+  return eAG_None;      
+  }
+
+class DllImportExport CMdlAssocGrfItem
+  {
+  public:
+    DEFINE_SPARES(CMdlAssocGrfItem);
+  
+  public:
+    CMdlAssocGrfItem() 
+      { 
+      m_eAGType = eAG_None; 
+      m_bShowIt = true;
+      m_bExists = false;
+      }
+    CMdlAssocGrfItem(const CMdlAssocGrfItem & V) 
+      { 
+      m_eAGType = V.m_eAGType;
+      m_sTag    = V.m_sTag;
+      m_bShowIt = V.m_bShowIt;
+      m_bExists = V.m_bExists; 
+      }
+    CMdlAssocGrfItem& operator=(const CMdlAssocGrfItem & V) 
+      { 
+      m_eAGType = V.m_eAGType;
+      m_sTag    = V.m_sTag;
+      m_bShowIt = V.m_bShowIt;
+      m_bExists = V.m_bExists; 
+      return *this;
+      }
+    bool operator==(const CMdlAssocGrfItem & V) 
+      { 
+      return (m_eAGType == V.m_eAGType) && (m_sTag == V.m_sTag) && (m_bShowIt == V.m_bShowIt);
+      }
+    bool operator!=(const CMdlAssocGrfItem & V) 
+      { 
+      return (m_eAGType != V.m_eAGType) || (m_sTag != V.m_sTag) || (m_bShowIt != V.m_bShowIt);
+      }
+
+  public:
+    eAssocGrfTypes    m_eAGType;
+    CString           m_sTag;
+    bool              m_bShowIt;
+    // Working Vars
+    bool              m_bExists; 
+
+  };
 
 class DllImportExport CMdlAssocGrf
   {
+  public:
+    DEFINE_SPARES(CMdlAssocGrf);
   public:
     CMdlAssocGrf();
     CMdlAssocGrf(const CMdlAssocGrf & V);
@@ -1053,57 +1103,17 @@ class DllImportExport CMdlAssocGrf
 
     BOOL operator==(const CMdlAssocGrf & V);
 
-    class CItem
-      {
-      public:
-        CItem() 
-          { 
-          m_eAGType   = eAG_None; 
-          m_bShowIt = true;
-          m_bExists = false;
-          }
-        CItem(const CItem & V) 
-          { 
-          m_eAGType   = V.m_eAGType;
-          m_sTag    = V.m_sTag;
-          m_bShowIt = V.m_bShowIt;
-          m_bExists = V.m_bExists; 
-          }
-        CItem& operator=(const CItem & V) 
-          { 
-          m_eAGType   = V.m_eAGType;
-          m_sTag    = V.m_sTag;
-          m_bShowIt = V.m_bShowIt;
-          m_bExists = V.m_bExists; 
-          return *this;
-          }
-        bool operator==(const CItem & V) 
-          { 
-          return (m_eAGType == V.m_eAGType) && (m_sTag == V.m_sTag) && (m_bShowIt == V.m_bShowIt);
-          }
-        bool operator!=(const CItem & V) 
-          { 
-          return (m_eAGType != V.m_eAGType) || (m_sTag != V.m_sTag) || (m_bShowIt != V.m_bShowIt);
-          }
-
-      public:
-        eAssocGrfTypes    m_eAGType;
-        CString           m_sTag;
-        bool              m_bShowIt;
-        // Working Vars
-        bool              m_bExists; 
-      };
-
   public:
     CString           m_sNdTag;
     bool              m_bIsLnk;
-    CArray<CItem,CItem&> m_AssocGrfs;
+    CArray<CMdlAssocGrfItem,CMdlAssocGrfItem&> m_AssocGrfs;
+  
   };
 
 bool operator==(const CMdlAssocGrf & V1, const CMdlAssocGrf & V2);
-inline bool operator==(const CMdlAssocGrf::CItem & V1, const CMdlAssocGrf::CItem & V2) 
+inline bool operator==(const CMdlAssocGrfItem & V1, const CMdlAssocGrfItem & V2) 
   { return (V1.m_eAGType == V2.m_eAGType) && (V1.m_sTag == V2.m_sTag) && (V1.m_bShowIt == V2.m_bShowIt); }
-inline bool operator!=(const CMdlAssocGrf::CItem & V1, const CMdlAssocGrf::CItem & V2) 
+inline bool operator!=(const CMdlAssocGrfItem & V1, const CMdlAssocGrfItem & V2) 
   { return (V1.m_eAGType != V2.m_eAGType) || (V1.m_sTag != V2.m_sTag) || (V1.m_bShowIt != V2.m_bShowIt); }
 
 class DllImportExport CMdlAssocGrfList : public CList<CMdlAssocGrf, CMdlAssocGrf & > {};
@@ -1153,7 +1163,8 @@ class DllImportExport CSfeSrvrBase
   public:
     CSfeSrvrBase();
     virtual ~CSfeSrvrBase();
-    virtual flag         Init(pchar ModuleName, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn, flag FlushDbg, fn_CallBack CallBack) { return false; };
+    virtual flag         Init(pchar ModuleName, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn, flag FlushDbg, fn_CallBack CallBack,
+                              flag *pStatusLoadReqd, flag *pAssocGrfsLoadReqd) { return false; };
     //virtual void         InitLic(dword LicWord) { };
     virtual flag         Term() { return false; };
     virtual pNodeGrfInfo Drawings() { return 0; };
@@ -1224,11 +1235,12 @@ class DllImportExport CSfeSrvrBase
     virtual flag         RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info) { return 0; };
     virtual flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info) { return 0; };
     virtual flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info) { return 0; };
-    virtual int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status) { return 0; };
-    virtual int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest) { return 0; };
+
+    virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status) { return 0; };
+    virtual flag         TestLoadModelStatus()            { return 0; };
 
     virtual flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)   { return 0; };
-    virtual int          RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)   { return 0; };
+    virtual flag         TestLoadModelAssocGrfs()         { return 0; };
 
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };
     virtual flag         RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks) { return 0; };

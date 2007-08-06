@@ -2443,8 +2443,8 @@ dword ShellTube::ModelStatus()
 
     double FlwSh=ioSH>=0 ? IOQm_In(ioSH) : 0.0;
     double FlwTb=ioTB>=0 ? IOQm_In(ioTB) : 0.0;
-    //int HasFlw=(fabs(FlwSh)>DisplayZeroFlow&& fabs(FlwTb)>DisplayZeroFlow);
-    int HasFlw=(fabs(FlwSh)>DisplayZeroFlow || fabs(FlwTb)>DisplayZeroFlow);
+    //int HasFlw=(fabs(FlwSh)>gs_DisplayZeroFlow&& fabs(FlwTb)>gs_DisplayZeroFlow);
+    int HasFlw=(fabs(FlwSh)>gs_DisplayZeroFlow || fabs(FlwTb)>gs_DisplayZeroFlow);
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
     }
   return Status;

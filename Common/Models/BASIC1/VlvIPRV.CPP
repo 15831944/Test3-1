@@ -455,7 +455,7 @@ dword CIsoPRV ::ModelStatus()
       for (int i=0; i<NoFlwIOs(); i++)
         {
         TFlw+=IOQm_In(i);
-        if (IOConduit(i)->QMass()>DisplayZeroFlow)
+        if (IOConduit(i)->QMass()>gs_DisplayZeroFlow)
           HasFlw=1;
         }
       Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

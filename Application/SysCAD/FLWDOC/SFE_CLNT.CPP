@@ -45,13 +45,11 @@ SFEFlwLib::SFEFlwLib()
   SFENodeGrfInfo=NULL;
   FPP_State=0;
 
-  m_Status.m_TestLoadReqd=true;
-  m_Status.m_LoadAllDone=false;
+  m_Status.m_LoadReqd=true;
   m_Status.m_nLoadSeqNo=0;
   m_Status.m_nColourChgs=0;
 
-  m_AssocGrfs.m_TestLoadReqd=true;
-  m_AssocGrfs.m_LoadAllDone=false;
+  m_AssocGrfs.m_LoadReqd=true;
   m_AssocGrfs.m_nLoadSeqNo=0;
 
   ASSERT(gs_pTheSFELib==NULL);
@@ -94,13 +92,13 @@ flag SFEFlwLib::Initialise(pchar ModelCfg, pchar FlwLibTag, pchar EO_LocationTag
   sFlwLibTag=FlwLibTag;
   sMdlDLLPath=(GetModuleFileName(hSFELib, Buff, sizeof(Buff)) > 0) ? Buff : "";
 
-  #if dbgClnt
+#if dbgClnt
   if (dbgDumpTagClasses())
     {
     dbgpln("TagClasses - After Load");
     TagObjClass::DumpAll();
     }
-  #endif
+#endif
 
   SFENodeGrfInfo=NULL;
   fn_AddSfeSrvr AddSfeSrvr=(fn_AddSfeSrvr)GetProcAddress(hSFELib, "AddSfeSrvr");
@@ -115,7 +113,7 @@ flag SFEFlwLib::Initialise(pchar ModelCfg, pchar FlwLibTag, pchar EO_LocationTag
       gs_TheRunMngr.m_pAppMngr=(CBaseRunManager*)gs_pAppRunMngr;
       }
 
-    if (!pSfe->Init(ModelCfg, FlwLibTag, AfxGetInstanceHandle(), this, 1, 0, NULL))//Sfe_CallBack);
+    if (!pSfe->Init(ModelCfg, FlwLibTag, AfxGetInstanceHandle(), this, 1, 0, NULL, &m_Status.m_LoadReqd, &m_AssocGrfs.m_LoadReqd))
       {
       SFENodeGrfInfo=NULL;
       LogError("SysCAD", 0, "Error initializing DLL %s  (Check preceding errors!)", sMdlDLLName());
@@ -139,17 +137,17 @@ flag SFEFlwLib::Initialise(pchar ModelCfg, pchar FlwLibTag, pchar EO_LocationTag
       HICON hIcon=ScdApp()->LoadIcon(IDI_SFESTATE);
       CString ClassName(AfxRegisterWndClass(CS_DBLCLKS|CS_NOCLOSE, 0, 0, hIcon));
       if (pSFEFrame->Create(ClassName.GetBuffer(0),
-                            FlwLibTag, WS_CHILD | WS_VISIBLE |
-                            WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | // seems to be required
-                            WS_THICKFRAME | WS_MINIMIZEBOX | //WS_MAXIMIZEBOX |
-                            WS_MINIMIZE,
-                            pSFEFrame->rectDefault, NULL, &CC))
+        FlwLibTag, WS_CHILD | WS_VISIBLE |
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | // seems to be required
+        WS_THICKFRAME | WS_MINIMIZEBOX | //WS_MAXIMIZEBOX |
+        WS_MINIMIZE,
+        pSFEFrame->rectDefault, NULL, &CC))
         {
         pSFEWnd = (pEngStateWnd)(pSFEFrame)->GetTopWindow();
         pSFEWnd->SetFlwLibName(FlwLibTag);
         pSFEWnd->OnInitialUpdate();
         gs_pPrj->RestoreOneWindow(FlwLibTag, pSFEWnd, false);
-//        EO_Register(EO_LocationTag, EOWrite_Thread | EORead_Thread | EOExec_Thread, THREAD_PRIORITY_BELOW_NORMAL, 4*PkDataListLength, 101);
+        //        EO_Register(EO_LocationTag, EOWrite_Thread | EORead_Thread | EOExec_Thread, THREAD_PRIORITY_BELOW_NORMAL, 4*PkDataListLength, 101);
 
         }
 #endif
@@ -199,8 +197,8 @@ flag SFEFlwLib::Terminate()
     }
 #endif
 
-//  dbgpln("TagClasses - After UnLoad");
-//  TagObjClass::DumpAll();
+  //  dbgpln("TagClasses - After UnLoad");
+  //  TagObjClass::DumpAll();
 
   UnlockXO();
   return true;
@@ -289,7 +287,7 @@ int SFEFlwLib::FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, cha
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd, pGuidStr);
+    pSfe->FE_DoInsert(Class, SubClass, PrimaryCfgIn, NTag, SrcTag, DstTag, pNd, pGuidStr);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -299,7 +297,7 @@ int SFEFlwLib::FE_DoInsertRoot(char * RootName)
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoInsertRoot(RootName);
+    pSfe->FE_DoInsertRoot(RootName);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -308,7 +306,7 @@ int SFEFlwLib::FE_DoDelete(char * Tag)
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoDelete(Tag);
+    pSfe->FE_DoDelete(Tag);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -318,7 +316,7 @@ LPSTR SFEFlwLib::FE_GetNodeGuid(pchar Tag)
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
   PCENTER(NULL)
-  pSfe->FE_GetNodeGuid(Tag);
+    pSfe->FE_GetNodeGuid(Tag);
   //CExploreScd::RefreshIt(false);
   PCLEAVE
   };
@@ -328,7 +326,7 @@ int SFEFlwLib::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_ChangeNodeGuid(Tag, Guid);
+    pSfe->FE_ChangeNodeGuid(Tag, Guid);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -338,7 +336,7 @@ LPSTR SFEFlwLib::FE_FindNodeTagFromGuid(pchar Guid)
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
   PCENTER(NULL)
-  pSfe->FE_FindNodeTagFromGuid(Guid);
+    pSfe->FE_FindNodeTagFromGuid(Guid);
   //CExploreScd::RefreshIt(false);
   PCLEAVE
   };
@@ -348,7 +346,7 @@ int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoConnect(SrcTag, DstTag);
+    pSfe->FE_DoConnect(SrcTag, DstTag);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -357,7 +355,7 @@ int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
   IENTER(-1)
-  pSfe->FE_DoDisConnect(SrcTag, DstTag);
+    pSfe->FE_DoDisConnect(SrcTag, DstTag);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -365,13 +363,13 @@ int SFEFlwLib::FE_DoDisConnect(char * SrcTag, char *DstTag)
 int SFEFlwLib::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID)
   {
   IENTER(-1)
-  pSfe->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
+    pSfe->FE_SetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   ILEAVE
   };
 int SFEFlwLib::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng & EqpIdStr, Strng & EqpLocation, Strng & PlantArea, Strng & EqpGUID)
   {
   IENTER(-1)
-  pSfe->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
+    pSfe->FE_GetCommon(Tag, EqpDesc, EqpMemo, EqpIdStr, EqpLocation, PlantArea, EqpGUID);
   ILEAVE
   };
 
@@ -472,31 +470,32 @@ void SFEFlwLib::FE_SetSpModelFixupStrategy(long Strategy)
   { VENTER; pSfe->FE_SetSpModelFixupStrategy(Strategy); VLEAVE }
 
 pchar SFEFlwLib::RequestModelDLLPath()
-   { return sMdlDLLPath(); };
+  { return sMdlDLLPath(); };
 pchar SFEFlwLib::RequestModelDLLTag()
-   { return sFlwLibTag(); };
+  { return sFlwLibTag(); };
 flag SFEFlwLib::RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info)
-   { FENTER(false) pSfe->RequestModelInfoByGroupIndex(pGroup, iIndex, Info); FLEAVE };
+  { FENTER(false) pSfe->RequestModelInfoByGroupIndex(pGroup, iIndex, Info); FLEAVE };
 
 flag SFEFlwLib::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info)
-   { FENTER(false) pSfe->RequestModelInfoByClassId(pClass, Info); FLEAVE};
+  { FENTER(false) pSfe->RequestModelInfoByClassId(pClass, Info); FLEAVE};
 flag SFEFlwLib::RequestModelClassId(pchar pTag, Strng & ClassId)
-   { FENTER(false) pSfe->RequestModelClassId(pTag, ClassId); FLEAVE};
+  { FENTER(false) pSfe->RequestModelClassId(pTag, ClassId); FLEAVE};
 flag SFEFlwLib::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
-   { FENTER(false) pSfe->RequestModelConnInfo(pTag, Info); FLEAVE};
+  { FENTER(false) pSfe->RequestModelConnInfo(pTag, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
-   { FENTER(false) pSfe->RequestModelIOInfoByClassId(pClass, Info); FLEAVE};
+  { FENTER(false) pSfe->RequestModelIOInfoByClassId(pClass, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
-   { FENTER(false) pSfe->RequestModelIOInfoByIndex(pTag, iIndex, Info); FLEAVE};
+  { FENTER(false) pSfe->RequestModelIOInfoByIndex(pTag, iIndex, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
-   { FENTER(false) pSfe->RequestModelIOInfoById(pTag, iId, Info); FLEAVE};
+  { FENTER(false) pSfe->RequestModelIOInfoById(pTag, iId, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
-   { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
-int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+  { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
+
+int  SFEFlwLib::RequestModelStatus(CModelStatusArray &Status)
   {
-  if (m_Status.m_TestLoadReqd)
+  if (m_Status.m_LoadReqd)
     {
-    IENTER(false) pSfe->RequestModelStatus(Criteria, Status);
+    IENTER(false) pSfe->RequestModelStatus(m_Status.m_dwOptions, Status);
     ILEAVE
     }
   else
@@ -504,48 +503,55 @@ int  SFEFlwLib::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
     return 0;
     }
   };
-int  SFEFlwLib::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
+
+flag SFEFlwLib::TestLoadModelStatus()
   {
-  if (m_Status.m_TestLoadReqd)
-    {
-    IENTER(false) pSfe->RequestModelStatusChgCnt(Criteria, MaxTest);
-    ILEAVE
-    }
-  else
-    {
-    return 1;
-    }
+  return m_Status.m_LoadReqd;
   };
 
 flag SFEFlwLib::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf)
-  { FENTER(true) pSfe->RequestModelAssocGrfs(Tag, Grf); FLEAVE};
-int SFEFlwLib::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
-  { IENTER(false) pSfe->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap); ILEAVE};
+  { 
+  if (m_AssocGrfs.m_LoadReqd)
+    {
+    m_AssocGrfs.m_LoadReqd=false;
+    FENTER(true) pSfe->RequestModelAssocGrfs(Tag, Grf); 
+    FLEAVE
+    }
+  else
+    {
+    return 0;
+    }
+  };
+flag SFEFlwLib::TestLoadModelAssocGrfs()
+  {
+  return m_AssocGrfs.m_LoadReqd;
+  };
+
 flag SFEFlwLib::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks)
   { FENTER(true) pSfe->RequestModelAssocGrfsMasks(SetClass, SetNode, NdTag, Msks); FLEAVE};
 
 int SFEFlwLib::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs)
-   { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
+  { IENTER(false) pSfe->RequestTagRefInfo(Tag, Refs); ILEAVE};
 
 //int SFEFlwLib::RequestXRefInfoChg()
 //   { IENTER(false) pSfe->RequestXRefInfoChg(); ILEAVE};
 flag SFEFlwLib::FE_TestModelTagUnique(pchar pTag)
-   { FENTER(true) pSfe->FE_TestModelTagUnique(pTag); FLEAVE};
+  { FENTER(true) pSfe->FE_TestModelTagUnique(pTag); FLEAVE};
 
 int SFEFlwLib::FE_GetRctInfo(CRctBlkInformation & RctInfo)
-   { IENTER(0) pSfe->FE_GetRctInfo(RctInfo); ILEAVE};
+  { IENTER(0) pSfe->FE_GetRctInfo(RctInfo); ILEAVE};
 int SFEFlwLib::FE_SetRctInfo(LPCTSTR NodeTag)
-   { IENTER(0) pSfe->FE_SetRctInfo(NodeTag); ILEAVE};
+  { IENTER(0) pSfe->FE_SetRctInfo(NodeTag); ILEAVE};
 
 int  SFEFlwLib::FE_GetNodeWiring(CNodeWiring &NodeWiring)
-   { IENTER(false) pSfe->FE_GetNodeWiring(NodeWiring); ILEAVE};
+  { IENTER(false) pSfe->FE_GetNodeWiring(NodeWiring); ILEAVE};
 int  SFEFlwLib::FE_GetLinkWiring(CLinkWiring &LinkWiring)
-   { IENTER(false) pSfe->FE_GetLinkWiring(LinkWiring); ILEAVE};
+  { IENTER(false) pSfe->FE_GetLinkWiring(LinkWiring); ILEAVE};
 int  SFEFlwLib::FE_SetLinkWiring(CLinkWiring &LinkWiring)
-   { IENTER(false) pSfe->FE_SetLinkWiring(LinkWiring); ILEAVE};
+  { IENTER(false) pSfe->FE_SetLinkWiring(LinkWiring); ILEAVE};
 
 void SFEFlwLib::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags)
-   { VENTER pSfe->EO_SetModelState(RqdState, RqdTags); VLEAVE};
+  { VENTER pSfe->EO_SetModelState(RqdState, RqdTags); VLEAVE};
 flag SFEFlwLib::EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)
   { FENTER(false) pSfe->EO_GetModelAction(Tag, Acts); FLEAVE};
 flag SFEFlwLib::EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)
@@ -567,7 +573,7 @@ flag SFEFlwLib::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGr
 //int SFEFlwLib::EO_TermSolution(EqnSlvCtrlBlk & EQCtrl)
 //   { return pSfe==NULL ? -1 : pSfe->EO_TermSolution(EQCtrl); };
 int SFEFlwLib::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
-   { IENTER(-1) pSfe->EO_GetSolutionError(EQCtrl, RptLine); ILEAVE };
+  { IENTER(-1) pSfe->EO_GetSolutionError(EQCtrl, RptLine); ILEAVE };
 
 // CExecObj Overrides
 void SFEFlwLib::EO_OnAppActivate(BOOL bActive)
@@ -627,8 +633,8 @@ flag SFEFlwLib::EO_PreStart(CXM_TimeControl &CB)
 flag SFEFlwLib::EO_Start(CXM_TimeControl &CB)
   {
   FENTER(false) pSfe->EO_Start(CB);
-  m_Status.m_TestLoadReqd=false;
-  m_AssocGrfs.m_TestLoadReqd=false;
+  m_Status.m_LoadReqd=false;
+  m_AssocGrfs.m_LoadReqd=true;
   FLEAVE
   };
 void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
@@ -646,12 +652,8 @@ int  SFEFlwLib::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
 flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   FENTER(false) pSfe->EO_Execute(CB, EORet);
-
-  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
-    FE_LoadAllModelStatus();
-  //if (pSfe->RequestXRefInfoChg())
-  //  LoadAllXRefStatus();
+  m_Status.m_LoadReqd=true;
+  //m_AssocGrfs.m_LoadReqd=true; // this will usually get set on-demand by the flwsolver
   FLEAVE
   };
 flag SFEFlwLib::EO_StepDone(CXM_TimeControl &CB, flag StepExecuted)
@@ -666,35 +668,30 @@ flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
   };
 flag SFEFlwLib::EO_Stop(CXM_TimeControl &CB)
   {
-  m_Status.m_TestLoadReqd=true;
-  m_AssocGrfs.m_TestLoadReqd=true;
+  m_Status.m_LoadReqd=true;
+  m_AssocGrfs.m_LoadReqd=true;
+
   FENTER(false) pSfe->EO_Stop(CB);
-  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
-    FE_LoadAllModelStatus();
   FLEAVE
   };
 flag SFEFlwLib::EO_Stopping(flag BeginStopping)
   {
   FENTER(false)
-  pSfe->EO_Stopping(BeginStopping);
+    pSfe->EO_Stopping(BeginStopping);
   FLEAVE
   };
 flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
   {
-  m_Status.m_TestLoadReqd=true;
-  m_AssocGrfs.m_TestLoadReqd=true;
+  m_Status.m_LoadReqd=true;
+  m_AssocGrfs.m_LoadReqd=true;
   FENTER(false) pSfe->EO_BeginPause(CB);
-  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (pSfe->RequestModelStatusChgCnt(Criteria, 1)>0)
-    FE_LoadAllModelStatus();
   FLEAVE
   };
 flag SFEFlwLib::EO_EndPause(CXM_TimeControl &CB)
   {
   FENTER(false) pSfe->EO_EndPause(CB);
-  m_Status.m_TestLoadReqd=false;
-  m_AssocGrfs.m_TestLoadReqd=false;
+  m_Status.m_LoadReqd=false;
+  //m_AssocGrfs.m_LoadReqd=true; // this will usually get set on-demand by the flwsolver
   FLEAVE
   };
 
@@ -713,12 +710,10 @@ flag SFEFlwLib::EO_BeginLoad(FilingControlBlock &FCB)
   LockStatus();
   m_Status.m_StatusMap.RemoveAll();
   m_Status.m_Status.SetSize(0);
-  m_Status.m_TestLoadReqd=true;
-  m_Status.m_LoadAllDone=false;
+  m_Status.m_LoadReqd=true;
   m_Status.m_nLoadSeqNo=0;
   m_Status.m_nColourChgs=0;
-  m_AssocGrfs.m_TestLoadReqd=true;
-  m_AssocGrfs.m_LoadAllDone=false;
+  m_AssocGrfs.m_LoadReqd=true;
   m_AssocGrfs.m_nLoadSeqNo=0;
   FreeStatus();
   FENTER(false) pSfe->EO_BeginLoad(FCB); FLEAVE
@@ -734,7 +729,7 @@ flag SFEFlwLib::EO_EndConnect(FilingControlBlock &FCB)
 flag SFEFlwLib::EO_EndLoad(FilingControlBlock &FCB)
   {
   FENTER(false)
-  pSfe->EO_EndLoad(FCB);
+    pSfe->EO_EndLoad(FCB);
   CExploreScd::RefreshIt(true);
   FLEAVE
   };
@@ -751,15 +746,13 @@ void SFEFlwLib::FE_SetModelStatusOptions(dword Options)
 
 //---------------------------------------------------------------------------
 
+#define dbgAssocGrfs      0
+
 int SFEFlwLib::FE_LoadAllModelStatus()
   {
-  //CExecObj::Lock();
-  //dbgpln("FE_LoadAllModelStatus");
 
   LockStatus();
-  m_Status.m_LoadAllDone=true;
-  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-  if (pSfe->RequestModelStatus(Criteria, m_Status.m_Status))
+  if (pSfe->RequestModelStatus(m_Status.m_dwOptions, m_Status.m_Status))
     {
     dword iSize=FindNextPrimeNumber((m_Status.m_Status.GetSize()*120)/100);
     if (m_Status.m_StatusMap.GetHashTableSize()!=iSize)
@@ -787,11 +780,19 @@ int SFEFlwLib::FE_LoadAllModelStatus()
     m_Status.m_nLoadSeqNo++;
     long L=m_Status.m_Status.GetSize();
     FreeStatus();
+
+#if dbgAssocGrfs
+    dbgpln("FE_LoadAllModelStatus    Set Count %5i Seq %5i", L, m_Status.m_nLoadSeqNo);
+#endif
+
     return L;
     }
   m_Status.m_StatusMap.RemoveAll();
   m_Status.m_Status.SetSize(0);
   FreeStatus();
+#if dbgAssocGrfs
+  dbgpln("FE_LoadAllModelStatus    %i", 0); 
+#endif
   return 0;
   };
 
@@ -801,12 +802,10 @@ int SFEFlwLib::FE_LoadAllModelStatus()
 dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
   {
   //LockStatus();
-	dword dwVal=0;
-
-  //dword Done=InterlockedCompareExchange((PVOID*)(&m_Status.m_LoadAllDone), (PVOID)0, (PVOID)1);
+  dword dwVal=0;
 
   LockStatus();
-  if (m_Status.m_TestLoadReqd && !m_Status.m_LoadAllDone)
+  if (m_Status.m_LoadReqd)
     {
     FreeStatus();
     CExecObj::LockXO();
@@ -817,7 +816,7 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
 
   CModelStatusItem* pItem;
   if (pTag && m_Status.m_StatusMap.Lookup(pTag, pItem))
-		dwVal=pItem->m_dwFlags;
+    dwVal=pItem->m_dwFlags;
   else
     dwVal=0xFFFFFFFF;
 
@@ -827,25 +826,17 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
 
 //---------------------------------------------------------------------------
 
-#define dbgAssocGrfs      0
 
 int SFEFlwLib::FE_LoadAllModelAssocGrfs()
   {
-  //CExecObj::Lock();
-  //dbgpln("FE_LoadAllModelStatus");
-
   LockAssocGrfs();
-  m_AssocGrfs.m_LoadAllDone=true;
 
-
-#if dbgAssocGrfs
+#if (0 && dbgAssocGrfs)
   dbgpln("FE_LoadAllModelAssocGrfs====================");
 #endif
   //CMdlAssocGrfList Grfs;
   if (RequestModelAssocGrfs(NULL, m_AssocGrfs.m_Grfs))
     {
-    //CMdlAssocGrfMap Map;
-
     m_AssocGrfs.m_Map.RemoveAll();
 
     dword ReqdSize=(Max(200, m_AssocGrfs.m_Map.GetCount())*120)/100;
@@ -860,19 +851,24 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
       for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
         m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_AssocGrfs[i].m_sTag, CMdlAssocGrfMapItem(pG,i));
 
-#if dbgAssocGrfs
-      dbgpln("%s", pG->m_sNdTag);
+#if (0 && dbgAssocGrfs)
+      dbgpln("  %s", pG->m_sNdTag);
       for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
-        dbgpln("  %2i %s", pG->m_AssocGrfs[i].m_eAGType, pG->m_AssocGrfs[i].m_sTag);
+        dbgpln("    %2i %s", pG->m_AssocGrfs[i].m_eAGType, pG->m_AssocGrfs[i].m_sTag);
 #endif
       }
 
     m_AssocGrfs.m_nLoadSeqNo++;
     long L=m_AssocGrfs.m_Grfs.GetSize();
     FreeAssocGrfs();
+#if dbgAssocGrfs
+    dbgpln("FE_LoadAllModelAssocGrfs Set Count %5i Seq %5i", L, m_AssocGrfs.m_nLoadSeqNo);
+#endif
     return L;
     }
-
+#if dbgAssocGrfs
+  dbgpln("FE_LoadAllModelAssocGrfs  %i", 0);
+#endif
   m_AssocGrfs.m_Map.RemoveAll();
   m_AssocGrfs.m_Grfs.RemoveAll();
   FreeAssocGrfs();
@@ -884,7 +880,10 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
 int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap)
   {
   LockAssocGrfs();
-  if (m_AssocGrfs.m_TestLoadReqd && !m_AssocGrfs.m_LoadAllDone)
+#if dbgAssocGrfs
+  dbgpln("FE_PrepareAllModelAssocGrfs >>>>>>>>>");
+#endif
+  if (m_AssocGrfs.m_LoadReqd)
     {
     FreeAssocGrfs();
     CExecObj::LockXO();
@@ -892,6 +891,10 @@ int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *
     CExecObj::UnlockXO();
     LockAssocGrfs();
     }
+
+#if dbgAssocGrfs
+  dbgpln("FE_PrepareAllModelAssocGrfs ========= %5i %5i %5i ", LoadSeqNo, m_AssocGrfs.m_nLoadSeqNo, m_AssocGrfs.m_Grfs.GetCount());
+#endif
 
   if (LoadSeqNo!=m_AssocGrfs.m_nLoadSeqNo)
     {
@@ -902,12 +905,23 @@ int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *
       {
       pGrfs=&m_AssocGrfs.m_Grfs;
       pMap=&m_AssocGrfs.m_Map;
+#if dbgAssocGrfs
+      dbgpln("FE_PrepareAllModelAssocGrfs <<<<<<<<< NewLoad %i", N);
+#endif
       return N;
       }
+
+#if dbgAssocGrfs
+    dbgpln("FE_PrepareAllModelAssocGrfs <<<<<<<<< NewLoad %i", 0);
+#endif
+    FreeAssocGrfs();
+    return 0;
     }
 
+#if dbgAssocGrfs
+  dbgpln("FE_PrepareAllModelAssocGrfs <<<<<<<<< ");
+#endif
   FreeAssocGrfs();
-
   return 0;
   };
 

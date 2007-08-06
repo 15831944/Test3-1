@@ -485,7 +485,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     static  bool   ParseSpecieDef2(int nToks, CSVColArray & C, CDBInitRec &CDBI, int CfgFilePrjFileVerNo);
     static  bool   LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMsgs);
 
-    flag           Init();
+    flag           Init(flag *pStatusLoadReqd, flag * pAssocGrfsLoadReqd);
     flag           Term();
 
     virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
@@ -559,10 +559,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
-    int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
-    int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    //int            UpdateAllStatus();
+    int            RequestModelStatus(dword Options, CModelStatusArray &Status);
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
-    int            RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
     flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
 
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
@@ -734,6 +733,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     double         m_RandomSeed;
      
     long           m_lUnDoGlobalLinksCount;
+
+    flag         * m_pStatusLoadReqd;
+    flag         * m_pAssocGrfsLoadReqd;
 
     CToleranceBlock m_MCloseTol;
     CToleranceBlock m_HCloseTol;

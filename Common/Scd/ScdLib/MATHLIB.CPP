@@ -15,15 +15,11 @@ const double ZeroLimit          = 1.0e-30;//the numerical limit below which all 
 const double UsableMass         = 1.0e-16;
 const double TraceMass          = 0.5e-18;
 const double SmallMassFrac      = 1.0e-30;
-extern double DisplayZeroLimit  = 1.0e-20;
-extern double DisplayZeroFlow   = 1.0e-6;
 
-//const DNanValueUnion DQuietNanValue   = { 0x7fffffffffffffff};
-//const FNanValueUnion FQuietNanValue   = { 0x7fffffff};
-//const DNanValueUnion DSignalNanValue  = { 0x7ffbffffffffffff};
-//const FNanValueUnion FSignalNanValue  = { 0x7f800000 };
-//const double NAN = dNAN;
-
+extern double gs_DisplayZeroLimit    = 1.0e-20;
+extern double gs_DisplayZeroFlow     = 1.0e-6;
+extern double gs_StatusVapTestFrac   = 0.99;
+extern double gs_StatusSolTestFrac   = 0.9; 
 
 //NaNs come in two flavors, "quiet" and "signaling." 
 //The NaN function in the IEEE754 unit returns the "quiet" NaN, 
@@ -63,20 +59,6 @@ const float fNAN=fQuietNAN;
 const double dQuietNAN  = CDNanValueUnion (0x7fffffff00000000);
 const double dSignalNAN = CDNanValueUnion (0x7ff7ffff00000000);
 const double dNAN=dSignalNAN;  
-
-//inline float  fQuietNAN(void)  { FNanValueUnion FQuietNanValue={0x7fffffff};              return FQuietNanValue.F; };
-//inline double dQuietNAN(void)  { DNanValueUnion DQuietNanValue={0x7fffffff00000000};      return DQuietNanValue.D; };
-//inline float  fSignalNAN(void) { FNanValueUnion FSignalNanValue={0x7f800000};             return FSignalNanValue.F; };
-//inline double dSignalNAN(void) { DNanValueUnion DSignalNanValue={0x7ffbffff00000000};     return DSignalNanValue.D; };
-//
-//inline float  fNAN(void) { FNanValueUnion FQuietNanValue={0x7fffffff};                    return FQuietNanValue.F; };
-//inline double dNAN(void) { DNanValueUnion DSignalNanValue={0x7ffbffff00000000};           return DSignalNanValue.D; };
-//
-//inline void Invalidate(float &x)  { FNanValueUnion FSignalNanValue={0x7f800000};          x=FSignalNanValue.F; };
-//inline void Invalidate(double &x) { DNanValueUnion DSignalNanValue={0x7ffbffff00000000};  x=DSignalNanValue.D; };
-//
-//inline bool IsQuietNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)!=0; };
-//inline bool IsSignalNAN(double V) { return (((LARGE_INTEGER*)&V)->HighPart & 0x00040000)==0; };
 
 // ===========================================================================
 //find next number that might be a prime number...

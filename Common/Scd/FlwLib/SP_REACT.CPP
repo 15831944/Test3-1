@@ -1801,7 +1801,7 @@ flag CReactionBlock::Load(flag bIsSurgeType, pchar pRCTName, flag KeepState)
   sRCTName.FnSearchExpand(NULL, AF_All|AF_BackupFiles);
 
   //dbgpln("       %s", sRCTName());
-  bool FileFound = FnModifyTime(sRCTName(), RCTTime);
+  flag FileFound = FnModifyTime(sRCTName(), RCTTime);
 
   if (!FileFound && sRCTName.Len()>0)
     {

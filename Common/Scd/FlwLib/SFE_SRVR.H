@@ -36,7 +36,8 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
   protected:
 //    int          CW;
   public:
-    flag         Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn, flag FlushDbg, fn_CallBack CallBack);
+    flag         Init(pchar ModelCfg, pchar FlwLibTag, HINSTANCE hInst, CExecObj *pObj, flag DbgOn, flag FlushDbg, fn_CallBack CallBack,
+                      flag *pStatusLoadReqd, flag *pAssocGrfsLoadReqd);
     //void         InitLic(dword dwLic);
     flag         Term();
     NodeGrfInfo* Drawings();
@@ -111,10 +112,8 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
     flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
-    int          RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
-    int          RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+    int          RequestModelStatus(dword Options, CModelStatusArray &Status);
     flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
-    int          RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
     flag         RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
     int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 

@@ -768,7 +768,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
 #endif
         if (eAssocTag)  // This is an Assoc Graphic
           {
-          CMdlAssocGrf::CItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
+          CMdlAssocGrfItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
           bool Hidden=EntityIsHidden(eInsert);
           I.m_bExists=true;
 #if dbgAssocGrf
@@ -4243,7 +4243,7 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
           {
           for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
             {
-            CMdlAssocGrf::CItem & I = G.m_AssocGrfs[i];
+            CMdlAssocGrfItem & I = G.m_AssocGrfs[i];
             if (!I.m_bExists && I.m_bShowIt)
               {
               PT3 pt;

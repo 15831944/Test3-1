@@ -278,7 +278,7 @@ dword CBBTransfer::ModelStatus()
   if (NoFlwIOs()>1)
     {
     const int iIn  = (IOQmEst_In(0)>0.0 ? 0 : 1);
-    Status |= (IOConduit(iIn)->QMass()>DisplayZeroFlow ? FNS_UFlw : FNS_UNoFlw);
+    Status |= (IOConduit(iIn)->QMass()>gs_DisplayZeroFlow ? FNS_UFlw : FNS_UNoFlw);
     }
   else if (NoFlwIOs()==1)
     Status |= FNS_Error;

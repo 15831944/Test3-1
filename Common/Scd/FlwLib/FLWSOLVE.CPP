@@ -5250,7 +5250,7 @@ void FlwSlvPB::FITPBEvalDiscrete(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
     p->EvalFlowInfoEnd();
     p->EvalDiscrete();
     for (int i=0; i<p->NoFlwIOs(); i++)
-      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>gs_DisplayZeroFlow, FlwSlvNd.m_pAssocGrfsLoadReqd);
     XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     //p->UnLockFlanges();
     p->UnLockNode();
@@ -5331,7 +5331,7 @@ void FlwSlvPB::EvalAllDiscrete()
     XT.LockDone();//(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     NJ.Nd.EvalDiscrete();
     for (int i=0; i<NJ.Nd.NoFlwIOs(); i++)
-      NJ.Nd.IOFlange(i)->SetUseStatus(NJ.Nd.IOConduit(i)->QMass()>SmallPosFlow);
+      NJ.Nd.IOFlange(i)->SetUseStatus(NJ.Nd.IOConduit(i)->QMass()>gs_DisplayZeroFlow, FlwSlvNd.m_pAssocGrfsLoadReqd);
     XT.ExecDone();//Postamble(p, eFITPBEvalDiscrete, FSW_EvalDiscrete);
     XT.EndLoop();
     }
@@ -8366,7 +8366,9 @@ void FlwSlvDyn::FITDiscrete(CFlwNodeList & List)//CLkFlwNodeIter & Iter)
       {
       for (int j=0; j<p->NIOFBs(i); j++)
         p->IOFB(i,j)->EvalDiscrete();
-      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+      //dbgpln("%s %10.4e %s.%s", p->IOConduit(i)->QMass()>gs_DisplayZeroFlow?"InUse":"     ", 
+      //  p->IOConduit(i)->QMass(), p->Tag(), p->IODesc_Self(i)->m_pName);
+      p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>gs_DisplayZeroFlow, FlwSlvNd.m_pAssocGrfsLoadReqd);
       }
     XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
     //p->UnLockFlanges();
@@ -8536,7 +8538,7 @@ void FlwSlvDyn::EvalAllDiscrete()
         {
         for (int j=0; j<p->NIOFBs(i); j++)
           p->IOFB(i,j)->EvalDiscrete();
-        p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>SmallPosFlow);
+        p->IOFlange(i)->SetUseStatus(p->IOConduit(i)->QMass()>gs_DisplayZeroFlow, FlwSlvNd.m_pAssocGrfsLoadReqd);
         }
       XT.ExecDone();//Postamble(p, eFITEvalDiscrete, FSW_EvalDiscrete);
       XT.EndLoop();
@@ -9592,6 +9594,9 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   CCnMixSet::GlblInitialise();
 
 
+  m_pStatusLoadReqd=NULL;
+  m_pAssocGrfsLoadReqd=NULL;
+
   InitialiseEnvironVars();
   }
 
@@ -9843,8 +9848,10 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
 //
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::Init()
+flag CFlwSolver::Init(flag *pStatusLoadReqd, flag * pAssocGrfsLoadReqd)
   {
+  m_pStatusLoadReqd    = pStatusLoadReqd; 
+  m_pAssocGrfsLoadReqd = pAssocGrfsLoadReqd;
   flag SfeInitOK=True;
 
   m_PrjSDBName=CfgFiles();
@@ -10286,13 +10293,11 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
     
     DDB.Text  ("");
-    DDB.Text  ("Display Limits");
-    DDB.Double("ZeroFlow",              "", DC_,     "",  &DisplayZeroFlow,           this, isParmStopped);
-    DDB.Double("Zero",                  "", DC_,     "",  &DisplayZeroLimit,          this, isParmStopped);
-
-    //DDB.Text  ("");
-    //DDB.Text  ("Information");
-    //DDB.Long  ("ConditionCount",        "", DC_, "",   xidConditionCnt,                    this, isResult);
+    DDB.Text  ("Display Configuration");
+    DDB.Double("Value.Zero",            "", DC_,     "",      &gs_DisplayZeroLimit,           this, isParm/*Stopped*/);
+    DDB.Double("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,            this, isParm/*Stopped*/);
+    DDB.Double("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,          this, isParm/*Stopped*/);
+    DDB.Double("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,          this, isParm/*Stopped*/);
 
     DDB.Text  ("");
     DDB.Text  ("Options");
@@ -12255,9 +12260,9 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status)
   {
-  m_dwMdlStatusOptions=Criteria.m_dwMdlStatusOptions;
+  m_dwMdlStatusOptions=Options;//Criteria.m_dwMdlStatusOptions;
   if (!GetStatus())
     {
     Status.SetSize(0);
@@ -12305,83 +12310,10 @@ int CFlwSolver::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatus
       }
     }
 
-  //CConnectMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
-  //while (pX)
-  //  {
-  //  CFlange * pF=dynamic_cast<CFlange*>(pX->value);
-  //  
-  //  if (pF)
-  //    {
-  //    if (i>=Status.GetSize())
-  //      Status.SetSize(i+256);
-
-  //    Status[i].m_Tag=pX->key;
-  //    Status[i].m_dwFlags=pF->ModelStatus();
-
-  //    //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-
-  //    pF->m_dwPrevStatus=Status[i].m_dwFlags;
-  //    i++;
-  //    }
-
-  //  pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
-  //  }
-
   if (i<Status.GetSize())
     Status.SetSize(i); // size it down
     
   return Status.GetSize();
-  }
-
-//--------------------------------------------------------------------------
-
-int CFlwSolver::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
-  {
-  m_dwMdlStatusOptions=Criteria.m_dwMdlStatusOptions;
-  if (!GetStatus())
-    {
-    return 0;
-    }
-  int Cnt=0;
-  for (FlwNode * p = NULL; (Cnt != MaxTest) && GetObj_All(p); )
-    {
-    //dbgpln("** Tst %8x  %8x %s", p->dwPrevStatus, p->ModelStatus(), p->FullObjTag());
-    if (p->m_dwPrevStatus!=p->ModelStatus())
-      Cnt++;
-    }
-
-  POSITION Pos=FlwNode::sm_ConnectList.GetHeadPosition();
-  while (Pos)
-    {
-    CConnect *pCn=FlwNode::sm_ConnectList.GetNext(Pos);
-    CFlange * pF=dynamic_cast<CFlange*>(pCn);
-    if (pF)
-      {
-      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-
-      LPSTR t=pCn->Tag();
-      if (t && strlen(t)>0)
-        {
-        if (pF->m_dwPrevStatus!=pF->ModelStatus())
-          Cnt++;
-        }
-      }
-    }
-
-  //CConnectMap::CPair *pX=FlwNode::sm_ConnectsMap.PGetFirstAssoc();
-  //while (pX && (Cnt != MaxTest))
-  //  {
-  //  CFlange * pF=dynamic_cast<CFlange*>(pX->value);
-  //  if (pF)
-  //    {
-  //    if (pF->m_dwPrevStatus!=pF->ModelStatus())
-  //      Cnt++;
-  //    }
-
-  //  pX=FlwNode::sm_ConnectsMap.PGetNextAssoc(pX);
-  //  }
-
-  return Cnt;
   }
 
 //--------------------------------------------------------------------------
@@ -12451,13 +12383,6 @@ flag CFlwSolver::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
     }
   return true;
   };
-
-//--------------------------------------------------------------------------
-
-int CFlwSolver::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
-  {
-  return 0;
-  }
 
 //--------------------------------------------------------------------------
 
@@ -14002,6 +13927,7 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
     {
     int Ret=TAB.PutDefinedData(ObjData.List);
     SetGlblTopologyChg(NULL, 0);
+    *m_pAssocGrfsLoadReqd=true;
     return Ret;
     }
 

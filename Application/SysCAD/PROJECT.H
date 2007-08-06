@@ -734,10 +734,13 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
-    int            RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status);
-    int            RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest);
+
+    int            RequestModelStatus(CModelStatusArray &Status);
+    flag           TestLoadModelStatus();
+
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
-    int            RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap);
+    flag           TestLoadModelAssocGrfs();
+
     flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
     //int            RequestXRefInfoChg();

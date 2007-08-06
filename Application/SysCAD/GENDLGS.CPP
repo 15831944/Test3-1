@@ -1387,8 +1387,8 @@ CColourPage::CColourPage() : CCustomPropertyPage(CColourPage::IDD)
   //{{AFX_DATA_INIT(CColourPage)
 	m_StatusOn = gs_pPrj->ShowStatus();
   m_ShowEditStatus = gs_pPrj->ShowEditStatus();
-  m_dVapTest = FlwNode::m_dStatusVapTestFrac*100.0;
-  m_dSolTest = FlwNode::m_dStatusSolTestFrac*100.0;
+  m_dVapTest = gs_StatusVapTestFrac*100.0;
+  m_dSolTest = gs_StatusSolTestFrac*100.0;
 	//}}AFX_DATA_INIT
   }       
 
@@ -1524,8 +1524,8 @@ void CColourPage::OnOK()
     GrfHelper.iShowMdlStatusLFlwSol   = m_PenStyle[ 23].GetCurSel();
     //ScdMainWnd()->PostMessage(WMU_UPDATEMAINWND, SUB_UPDMAIN_ACTIVATECMDS, 0); //after stopping ensure active/top window has commands enabled
 
-    FlwNode::m_dStatusVapTestFrac = m_dVapTest/100.0;
-    FlwNode::m_dStatusSolTestFrac = m_dSolTest/100.0;
+    gs_StatusVapTestFrac = m_dVapTest/100.0;
+    gs_StatusSolTestFrac = m_dSolTest/100.0;
     }
   }
 

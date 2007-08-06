@@ -529,6 +529,9 @@ flag MN_Surge::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int 
 /*#F:This determines the state of the contents contained within the surge unit.*/
 void MN_Surge::EvalState()
   {
+  
+  dbgpln("VentSpill  %10.2e  %10.2e  %s", Contents.Vent.Cd.QMass(), Contents.Spill.Cd.QMass(), Tag());
+  
   Contents.SetCI(1, Contents.Spill.Flowing());
   Contents.SetCI(4, Contents.Vent.Flowing());
   Contents.TestLevelLimits();
@@ -1325,7 +1328,7 @@ dword MN_Surge::ModelStatus()
     for (int i=0; i<NoFlwIOs(); i++)
       {
       TFlw+=IOQm_In(i);
-      if (IOConduit(i)->QMass()>DisplayZeroFlow)
+      if (IOConduit(i)->QMass()>gs_DisplayZeroFlow)
         HasFlw=1;
       }
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

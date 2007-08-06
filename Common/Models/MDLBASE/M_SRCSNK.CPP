@@ -1564,7 +1564,7 @@ dword  MN_SrcSnk::ModelStatus()
     for (int i=0; i<NoProcLnkIOs(); i++)
       {
       TFlw+=IOQm_In(i);
-      if (IOConduit(i)->QMass()>DisplayZeroFlow)
+      if (IOConduit(i)->QMass()>gs_DisplayZeroFlow)
         HasFlw=1;
       }
     if (GetStatusAsStopped())
@@ -1584,14 +1584,14 @@ dword  MN_SrcSnk::ModelStatus()
       }
     else
       {
-      Status |= (IOConduit(0)->QMass()>DisplayZeroFlow ? FNS_UFlw : FNS_UNoFlw);
+      Status |= (IOConduit(0)->QMass()>gs_DisplayZeroFlow ? FNS_UFlw : FNS_UNoFlw);
 
       int HasFlw=0;
       double TFlw=0.0;
       for (int i=0; i<NoProcLnkIOs(); i++)
         {
         TFlw+=IOQm_In(i);
-        if (IOConduit(i)->QMass()>DisplayZeroFlow)
+        if (IOConduit(i)->QMass()>gs_DisplayZeroFlow)
           HasFlw=1;
         }
       Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);

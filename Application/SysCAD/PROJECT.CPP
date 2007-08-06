@@ -2345,7 +2345,7 @@ void CProject::SetShowStatus(bool On)
   else
     m_dwMdlStatusOptions &= ~MSO_ShowStatus;
   if (gs_pTheSFELib)
-    gs_pTheSFELib->FE_LoadAllModelStatus();
+    gs_pTheSFELib->SetLoadAllModelStatus(true, m_dwMdlStatusOptions);
   }
 
 bool CProject::ShowStatus()
@@ -2362,7 +2362,7 @@ void CProject::SetShowEditStatus(bool On)
   else
     m_dwMdlStatusOptions &= ~MSO_ShowRunInEdit;
   if (gs_pTheSFELib)
-    gs_pTheSFELib->FE_LoadAllModelStatus();
+    gs_pTheSFELib->SetLoadAllModelStatus(true, m_dwMdlStatusOptions);
   }
 
 bool CProject::ShowEditStatus()
@@ -2452,8 +2452,8 @@ void CProject::SaveColours(CProfINIFile & PF)
   PF.WrLong("StatusColours", "ShowLinearLnk", GrfHelper.iShowMdlStatusLinearLnk);
   PF.WrLong("StatusColours", "ShowFullLnk",   GrfHelper.iShowMdlStatusFullLnk);
 
-  PF.WrDouble("StatusColours", "VapTestFrac", FlwNode::m_dStatusVapTestFrac);
-  PF.WrDouble("StatusColours", "SolTestFrac", FlwNode::m_dStatusSolTestFrac);
+  PF.WrDouble("StatusColours", "VapTestFrac", gs_StatusVapTestFrac);
+  PF.WrDouble("StatusColours", "SolTestFrac", gs_StatusSolTestFrac);
   }
 
 //---------------------------------------------------------------------------
@@ -2553,8 +2553,11 @@ void CProject::LoadColours(CProfINIFile & PF)
     GrfHelper.iShowMdlStatusFullLnk   = PF.RdLong("StatusColours", "ShowFullLnk",   GrfHelper.iShowMdlStatusFullLnk);
     }
 
-  FlwNode::m_dStatusVapTestFrac = PF.RdDouble("StatusColours", "VapTestFrac", FlwNode::m_dStatusVapTestFrac);
-  FlwNode::m_dStatusSolTestFrac = PF.RdDouble("StatusColours", "SolTestFrac", FlwNode::m_dStatusSolTestFrac);
+  gs_StatusVapTestFrac = PF.RdDouble("StatusColours", "VapTestFrac", gs_StatusVapTestFrac);
+  gs_StatusSolTestFrac = PF.RdDouble("StatusColours", "SolTestFrac", gs_StatusSolTestFrac);
+  
+  if (gs_pTheSFELib)
+    gs_pTheSFELib->SetLoadAllModelStatus(true, m_dwMdlStatusOptions);
   }
 
 //---------------------------------------------------------------------------
@@ -6511,14 +6514,14 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
 
 #if WithNumericTags
 #else
-  if (PrjFileVerNo()<111)
-    {
-    if (PF.RdLong("General", "NumericTagsBad", 1)==0)
-      {
-      //DoCheckTags = true;
-      int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericStartingTagsBad, true, true);
-      }
-    }
+        if (PrjFileVerNo()<111)
+          {
+          if (PF.RdLong("General", "NumericTagsBad", 1)==0)
+            {
+            //DoCheckTags = true;
+            int TagsChngd = gs_Exec.CheckAllTags(TaggedObject::NumericStartingTagsBad, true, true);
+            }
+          }
 #endif
         if (DoCheckTags)
           {
@@ -8700,16 +8703,16 @@ flag CProject::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & I
 
 //---------------------------------------------------------------------------
 
-int CProject::RequestModelStatus(CModelStatusCriterion &Criteria, CModelStatusArray &Status)
+int CProject::RequestModelStatus(CModelStatusArray &Status)
   {
-  return FlwLib()!=NULL ? FlwLib()->RequestModelStatus(Criteria, Status) : 0;
+  return FlwLib()!=NULL ? FlwLib()->RequestModelStatus(Status) : 0;
   };
 
 //---------------------------------------------------------------------------
 
-int CProject::RequestModelStatusChgCnt(CModelStatusCriterion &Criteria, int MaxTest)
-  {
-  return FlwLib()!=NULL ? FlwLib()->RequestModelStatusChgCnt(Criteria, MaxTest) : 0;
+flag CProject::TestLoadModelStatus()
+  { 
+  return FlwLib()!=NULL ? FlwLib()->TestLoadModelStatus() : 0;
   };
 
 //---------------------------------------------------------------------------
@@ -8721,9 +8724,9 @@ flag CProject::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
 
 //---------------------------------------------------------------------------
 
-int CProject::RequestModelAssocGrfsChgCnt(LPCTSTR Tag, CMdlAssocGrfList **pGrfs, CMdlAssocGrfMap **pMap)
+flag CProject::TestLoadModelAssocGrfs()
   { 
-  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfsChgCnt(Tag, pGrfs, pMap) : 0;
+  return FlwLib()!=NULL ? FlwLib()->TestLoadModelAssocGrfs() : 0;
   };
 
 //---------------------------------------------------------------------------

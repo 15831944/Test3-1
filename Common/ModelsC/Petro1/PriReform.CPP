@@ -659,7 +659,7 @@ dword PriReform::ModelStatus()
 
     double FlwP=ioP>=0 ? IOQm_In(ioP) : 0.0;
     double FlwS=ioS>=0 ? IOQm_In(ioS) : 0.0;
-    int HasFlw=(fabs(FlwP)>DisplayZeroFlow && fabs(FlwS)>DisplayZeroFlow);
+    int HasFlw=(fabs(FlwP)>gs_DisplayZeroFlow && fabs(FlwS)>gs_DisplayZeroFlow);
     Status |= (HasFlw ? FNS_UFlw : FNS_UNoFlw);
     }
   return Status;
