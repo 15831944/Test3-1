@@ -534,7 +534,7 @@ static int iWd_Vp         =  8;
 static int iWd_Vt         =  8; 
 static int iWd_Rho        =  8; 
 static int iWd_KaKb       =  15; 
-static int iWd_Corr       =  30;
+static int iWd_Corr       =  38;
 static int iWdElemName    =  6;
 static int iWdElemMolWt   =  12;
 
@@ -575,19 +575,22 @@ void SDBObjectEdt::Build()
     L++;
     SetDParm(L,"Pressure"   , 18, "", Id_DisplayP, 10, 2, " ");
     SetDesc(L, PCnv.Text(),   -1, 6,  0, "");
-    for (int j=0; j<DensCorrSolventCnt; j++)
+    if (DensCorrSolventCnt>0)
       {
-      const int iSolvent=SDB.m_DensCorrSps[j];
-      if (j==0)
-        rSDBO.m_iDisplaySolvent = iSolvent; //force this for now
-      if (rSDBO.m_iDisplaySolvent==iSolvent)
+      //TODO:Add option to allow user to select solvent
+      rSDBO.m_iDisplaySolvent = SDB.m_DensCorrSps[0]; //force this for now
+      for (int j=0; j<DensCorrSolventCnt; j++)
         {
-        Strng Tg;
-        //CComponent &C=m_CDB[m_SDB[iSolvent].CId()];
-        Tg.Set("%s_MassFrac", CDB[SDB[iSolvent].CId()].Sym()); //SDB[iSolvent].SymTag());
-        L++;
-        SetDParm(L, Tg(), 18, "", Id_DisplayDensMF, 10, 2, " ");
-        SetDesc(L, FCnv.Text(),   -1, 6,  0, "");
+        const long iSolvent = SDB.m_DensCorrSps[j];
+        if (rSDBO.m_iDisplaySolvent==iSolvent)
+          {//only display the user selected solvent
+          L++;
+          SetDParm(L, "SoluteMassFrac", 18, "", Id_DisplayDensMF, 10, 2, " ");
+          Strng Tg;
+          //CComponent &C=m_CDB[m_SDB[iSolvent].CId()];
+          Tg.Set("%s  (Solvent:%s)", FCnv.Text(), CDB[SDB[iSolvent].CId()].Sym());
+          SetDesc(L, Tg(),   -1, 25,  0, "");
+          }
         }
       }
     
@@ -1120,9 +1123,16 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
                 const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
                 const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
                 RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
+                //const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
+                //RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
                 Str += T;
                 T.Set(" (%.4f)", 1.0+Factor);
                 Str += T;
+                if (rSDBO.m_dDisplayMF>SI.m_LimitFrac)
+                  {
+                  T.Set(" Above limit of %.3f", SI.m_LimitFrac);
+                  Str += T;
+                  }
                 }
               }
             }

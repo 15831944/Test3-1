@@ -4174,11 +4174,14 @@ flag CProject::FindTag(LPCTSTR pTag, LPCTSTR pGrf, LPCTSTR pTrnd, int TrndLineNo
       {
       if ((Options & FTO_SkipNoGraphicsErr)==0)
         {
-        pStatusBar->SetMsg("Tag '%s' NOT found", sFindTag());
-        if (DocNotLoadedCnt>0)
-          LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag; %d drawing%s NOT searched (not loaded)", DocNotLoadedCnt, DocNotLoadedCnt>1 ? "s" : "");
-        else
-          LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag in graphics windows");
+        if (!TaggedObject::TestIfReservedTag(sFindTag()))
+          {//only give messages for "real" tags...
+          pStatusBar->SetMsg("Tag '%s' NOT found", sFindTag());
+          if (DocNotLoadedCnt>0)
+            LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag; %d drawing%s NOT searched (not loaded)", DocNotLoadedCnt, DocNotLoadedCnt>1 ? "s" : "");
+          else
+            LogNote(sFindTag(), Options&FTO_NoErrDlg ? 0 : LF_Exclamation, "Unable to find tag in graphics windows");
+          }
         }
       if (Options&FTO_DoAccess)
         gs_AccessWnds.AccessNode(-1, sFindTag());
