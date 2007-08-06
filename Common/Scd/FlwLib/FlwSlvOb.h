@@ -70,6 +70,8 @@ class SDBObject : public CTNode
   public:
     double m_dDisplayT;
     double m_dDisplayP;
+    double m_dDisplayMF;
+    long   m_iDisplaySolvent;
     flag   m_bShowMs;
     flag   m_bHiFidelity;
 
@@ -97,8 +99,8 @@ class DllImportExport SDBObjectEdt : public FxdEdtBookRef
     int            iPgExtraProps;
     int            iSpBlkCnt;
     int            iSpBlkLen[MaxSpecies+1];
-    CnvAttribute   TCnv, PCnv, CpCnvMl, HCnvMl, SCnvMl, CpCnvMs, HCnvMs, SCnvMs, RhoCnv, VpCnv, VtCnv;
-    FmtAttribute   MlFmt, TFmt, PFmt, CpFmt, HFmt, SFmt, RhoFmt, VpFmt, VtFmt;
+    CnvAttribute   TCnv, PCnv, FCnv, CpCnvMl, HCnvMl, SCnvMl, CpCnvMs, HCnvMs, SCnvMs, RhoCnv, VpCnv, VtCnv;
+    FmtAttribute   MlFmt, TFmt, PFmt, FFmt, CpFmt, HFmt, SFmt, RhoFmt, VpFmt, VtFmt;
     FmtAttribute   ElFmt;//shared Elemental MoleWt Fmt
     FmtAttribute   EPFmt;//shared ExtraProps Fmt
 

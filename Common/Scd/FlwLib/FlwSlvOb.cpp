@@ -36,6 +36,8 @@ SDBObject::SDBObject(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   bDoSystemDefn=false;
   m_dDisplayT=Std_T;
   m_dDisplayP=Std_P;
+  m_iDisplaySolvent=-1;
+  m_dDisplayMF=0.1;
   //m_iFidelity=0;
   m_bShowMs=true;
   m_bHiFidelity=SpModel::Fidelity()==1?1:0;
@@ -100,6 +102,8 @@ void SDBObject::BuildDataDefn(DataDefnBlk & DDB)
     DDB.CheckBoxBtn("MassBasis",  "", DC_, "",  &m_bShowMs  ,  this, isParm);
     DDB.Double("DisplayT",    "", DC_T, "C",    &m_dDisplayT,  this, isParm);
     DDB.Double("DisplayP",    "", DC_P, "kPa",  &m_dDisplayP,  this, isParm);
+    //DDB.Long("Solvent",   "", DC_, "", &m_iDisplaySolvent, this, isParm);
+    DDB.Double("DisplayMF",   "", DC_Frac, "%", &m_dDisplayMF, this, isParm);
 
     DDBFnParms Parms0[]   = 
       { 
@@ -322,6 +326,8 @@ const int Id_DisplayT        =   1;
 const int Id_DisplayP        =   2;
 const int Id_ShowMass        =   3;
 const int Id_HiFidelity      =   4;
+const int Id_DisplaySolvent  =   5;
+const int Id_DisplayDensMF   =   6;
                                   
 const int Id_Name1           =   1*MaxSpecies;
 const int Id_LoT1            =   2*MaxSpecies;
@@ -364,6 +370,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
   {
   TCnv.Set    (DC_T,    "C");
   PCnv.Set    (DC_P,    "kPa");
+  FCnv.Set    (DC_Frac, "%");
   CpCnvMl.Set (DC_CpMl, "kJ/kmol.K");
   HCnvMl.Set  (DC_HMl,  "kJ/kmol");
   SCnvMl.Set  (DC_SMl,  "kJ/kmol.K");
@@ -375,7 +382,8 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
   VtCnv.Set   (DC_T,    "C");
   MlFmt.Set   ("", 0, 3, 'f');
   TFmt.Set    ("", 0, 2, 'f');
-  PFmt.Set    ("", 0, 2, 'f');
+  PFmt.Set    ("", 0, 3, 'f');
+  FFmt.Set    ("", 0, 2, 'f');
   CpFmt.Set   ("", 0, 2, 'f');
   HFmt.Set    ("", 0, 2, 'f');
   RhoFmt.Set  ("", 0, 2, 'f');
@@ -430,6 +438,7 @@ SDBObjectEdt::SDBObjectEdt(pFxdEdtView pView_, pSDBObject pSDBO_) :
     {
     pAttr->FieldFmtCnvs("T",     TFmt,   TCnv);
     pAttr->FieldFmtCnvs("P",     PFmt,   PCnv);
+    pAttr->FieldFmtCnvs("F",     FFmt,   FCnv);
     pAttr->FieldFmtCnvs("CpMl",  CpFmt,  CpCnvMl);
     pAttr->FieldFmtCnvs("HMl",   HFmt,   HCnvMl);
     pAttr->FieldFmtCnvs("SMl",   SFmt,   SCnvMl);
@@ -454,6 +463,8 @@ SDBObjectEdt::~SDBObjectEdt()
     pAttr->SetFieldCnvs ("T",    TCnv);
     pAttr->SetFieldFmt  ("P",    PFmt);
     pAttr->SetFieldCnvs ("P",    PCnv);
+    pAttr->SetFieldFmt  ("F",    FFmt);
+    pAttr->SetFieldCnvs ("F",    FCnv);
     pAttr->SetFieldFmt  ("CpMl", CpFmt);
     pAttr->SetFieldCnvs ("CpMl", CpCnvMl);
     pAttr->SetFieldFmt  ("HMl",  HFmt);
@@ -547,22 +558,38 @@ void SDBObjectEdt::Build()
 
   if (1) //data Blk
     {
-    StartBlk(6, 0, NULL); 
+    const long DensCorrSolventCnt = SDB.m_DensCorrSps.GetSize();
+    StartBlk(6+(DensCorrSolventCnt>0?1:0), 0, NULL); 
     int L=0;
 
     SetSpace(L,8);
     L++;
-    SetDesc(L,"Mass Basis",  -1, 12, 0, "");
+    SetDesc(L,"Mass Basis",  -1, 18, 0, "");
     SetCheckBoxBtn(L, rSDBO.m_bShowMs? "1" : "0", Id_ShowMass, 5, 2, " ", true);
     SetSpace(L,2);
-    SetDesc(L,"HiFidelity",  -1, 12, 0, "");
+    SetDesc(L,"HiFidelity",  -1, 18, 0, "");
     SetCheckBoxBtn(L, rSDBO.m_bHiFidelity? "1" : "0", Id_HiFidelity, 5, 2, " ", true);
     L++;
-    SetDParm(L,"Temperature", 12, "", Id_DisplayT, 10, 2, " ");
+    SetDParm(L,"Temperature", 18, "", Id_DisplayT, 10, 2, " ");
     SetDesc(L, TCnv.Text(),   -1, 6,  0, "");
     L++;
-    SetDParm(L,"Pressure"   , 12, "", Id_DisplayP, 10, 2, " ");
+    SetDParm(L,"Pressure"   , 18, "", Id_DisplayP, 10, 2, " ");
     SetDesc(L, PCnv.Text(),   -1, 6,  0, "");
+    for (int j=0; j<DensCorrSolventCnt; j++)
+      {
+      const int iSolvent=SDB.m_DensCorrSps[j];
+      if (j==0)
+        rSDBO.m_iDisplaySolvent = iSolvent; //force this for now
+      if (rSDBO.m_iDisplaySolvent==iSolvent)
+        {
+        Strng Tg;
+        //CComponent &C=m_CDB[m_SDB[iSolvent].CId()];
+        Tg.Set("%s_MassFrac", CDB[SDB[iSolvent].CId()].Sym()); //SDB[iSolvent].SymTag());
+        L++;
+        SetDParm(L, Tg(), 18, "", Id_DisplayDensMF, 10, 2, " ");
+        SetDesc(L, FCnv.Text(),   -1, 6,  0, "");
+        }
+      }
     
     //headings...
     //L++;
@@ -577,7 +604,7 @@ void SDBObjectEdt::Build()
     SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
     SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
     SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-    SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
+    SetDesc(L, "Correction",    -1, iWd_Corr   ,  0, "");
     
     L++;
     SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
@@ -634,7 +661,7 @@ void SDBObjectEdt::Build()
             SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
             SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
             SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-            SetDesc(L, "Corrections @ 10% Mass",  -1, iWd_Corr,  0, "");
+            SetDesc(L, "Correction",    -1, iWd_Corr   ,  0, "");
             L++;
             TextCnt = 0;
             }
@@ -985,6 +1012,9 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
         case Id_DisplayP:  
           PFmt.FormatFloat(PCnv.Human(rSDBO.m_dDisplayP), Str);
           break;
+        case Id_DisplayDensMF:  
+          PFmt.FormatFloat(FCnv.Human(rSDBO.m_dDisplayMF), Str);
+          break;
         }
       }
 
@@ -1058,30 +1088,62 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
           FixWide(iWd_Vt, Str, View());
           break;
         case Id_Rho1:
-          if (!SDB[iSp].HasDensCalc())
-            RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)), Str);
+          if (SDB[iSp].HasDensCalc())
+            {
+            //Str="*";
+            CDensCorr & SI=SDB[iSp].DensCalc();
+            RhoFmt.FormatFloat(RhoCnv.Human(SI.m_PureValue), Str);
+            }
           else
-            Str="*";
+            {
+            RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)), Str);
+            }
           FixWide(iWd_Rho, Str, View());
           break;
         case Id_RelSGs1:
           {
           Str="";
-          Strng T;
-          for (int j=0; j<SDB[iSp].DensCorrCount(); j++)
+          if (1)
             {
-            CDensCorr & SI=SDB[iSp].DensCorr(j);
-            if (j>0)
-              Str+=",";
-
-            if (SI.m_pDensCorrFn)
+            const int Cnt = SDB[iSp].DensCorrCount();
+            if (Cnt>0)
               {
-              Strng buff1,buff2; 
-              if (SI.m_pDensCorrFn) buff1.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff1="";
-              buff1.Trim();
-              T.Set("%s{%s}", SDB[SI.m_iSolute].SymOrTag(), buff1());
+              Str.Set("Solvent (%d species) ", Cnt);
               }
-            Str+=T;
+            if (SDB[iSp].HasDensCalc())
+              {
+              Strng T;
+              const int iSolvent = SDB[iSp].Solvent();
+              if (rSDBO.m_iDisplaySolvent==iSolvent)
+                {
+                CDensCorr & SI=SDB[iSp].DensCalc();
+                const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+                const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
+                RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
+                Str += T;
+                T.Set(" (%.4f)", 1.0+Factor);
+                Str += T;
+                }
+              }
+            }
+          else
+            {
+            Strng T;
+            for (int j=0; j<SDB[iSp].DensCorrCount(); j++)
+              {
+              CDensCorr & SI=SDB[iSp].DensCorr(j);
+              if (j>0)
+                Str+=",";
+
+              if (SI.m_pDensCorrFn)
+                {
+                Strng buff1,buff2; 
+                if (SI.m_pDensCorrFn) buff1.Set("%10.2f", 1.+SI.DensCorr(0.1)); else buff1="";
+                buff1.Trim();
+                T.Set("%s{%s}", SDB[SI.m_iSolute].SymOrTag(), buff1());
+                }
+              Str+=T;
+              }
             }
           break;
           }
@@ -1192,12 +1254,16 @@ long SDBObjectEdt::Parse(FxdEdtInfo &EI, Strng & Str)
           rSDBO.m_bHiFidelity = Str() && (Str[0]=='1');
           View().DoRebuild();
           break;
-        case Id_DisplayT:  
+        case Id_DisplayT:
           rSDBO.m_dDisplayT=TCnv.Normal(SafeAtoF(Str, rSDBO.m_dDisplayT));
           View().DoRebuild();
           break;
-        case Id_DisplayP:  
+        case Id_DisplayP:
           rSDBO.m_dDisplayP=PCnv.Normal(SafeAtoF(Str, rSDBO.m_dDisplayP));
+          View().DoRebuild();
+          break;
+        case Id_DisplayDensMF:
+          rSDBO.m_dDisplayMF=Range(0.0, FCnv.Normal(SafeAtoF(Str, rSDBO.m_dDisplayMF)), 1.0);
           View().DoRebuild();
           break;
         }
@@ -1331,6 +1397,9 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
           break;
         case Id_DisplayP:
           WrkIB.Set(EI.Fld->Tag, &PCnv, &PFmt);
+          break;
+        case Id_DisplayDensMF:
+          WrkIB.Set(EI.Fld->Tag, &FCnv, &FFmt);
           break;
         case Id_Sf1:
           if (rSDBO.m_bShowMs)

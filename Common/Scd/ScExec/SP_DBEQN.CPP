@@ -2262,8 +2262,13 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
       {
       if (pCopyFrom)
         p->Copy(pCopyFrom);
-      else if (p->Load(pInitString, Cols)!=0)
-        LogError("SpecieDB", LF_Exclamation, "Bad Parameters %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
+      else
+        {
+        if (p->Load(pInitString, Cols)!=0)
+          {
+          LogError("SpecieDB", LF_Exclamation, "Bad Parameters %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
+          }
+        }
       }
     }
   else

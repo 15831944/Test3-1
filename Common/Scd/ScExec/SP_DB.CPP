@@ -110,6 +110,7 @@ void SpDB_ParseTokens(char * Buff, char* C[MaxSPDBCols])
   int Paren=0;
   int Brace=0;
   for (i=0,j=0;Buff[i]!=0;i++)
+    {
     if (Buff[i]=='\"')
       Quote = (Quote == 0) ? 1 : (Quote == 1) ? 0 : Quote;
     else if (Buff[i]=='\'')
@@ -129,20 +130,22 @@ void SpDB_ParseTokens(char * Buff, char* C[MaxSPDBCols])
         C[j]=&Buff[i+1];
         Buff[i]=0;
         }
-      if (Quote)
-        LogError(SpecieDBLogHdr, 0, "Bad Token - Mismatched Quotes");
+    }
 
-      for (j=0;C[j] && (j<MaxSPDBCols);j++)
-        {
-        XStrTrim(C[j]);
-        if (j<2)
-          {
-          const int kend=strlen(C[j]);
-          for (int k=0; k<kend; k++)
-            if (C[j][k]==' ')
-              C[j][k]='_';
-          }
-        }
+  if (Quote)
+    LogError(SpecieDBLogHdr, 0, "Bad Token - Mismatched Quotes");
+
+  for (j=0;C[j] && (j<MaxSPDBCols);j++)
+    {
+    XStrTrim(C[j]);
+    if (j<2)
+      {
+      const int kend=strlen(C[j]);
+      for (int k=0; k<kend; k++)
+        if (C[j][k]==' ')
+          C[j][k]='_';
+      }
+    }
   }
 
 // ==========================================================================
@@ -1604,15 +1607,18 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
             LimitFrac=SafeAtoF(Cols[1], DefaultLimitFrac);
             PureValue=SafeAtoF(Cols[2], DefaultPureValue);
             DoWarn=!(stricmp(Cols[3], "Off")==0);
-            int xxx=0;
             }
           else
             Ret=4;
           }
         else
-          pDensCorrFn = (pDensCorr && strlen(pDensCorr)>0) ? CSpDBEqn::Construct(&m_Const, &m_FData[0], pDensCorr) : NULL;
+          {
+          char DensCorrStr[2048];
+          strcpy(DensCorrStr, Str());
+          pDensCorrFn = CSpDBEqn::Construct(&m_Const, &m_FData[0], DensCorrStr);
+          }
         Str="";
-        //SKipCOmma
+        //SkipComma
         while (iChar<Count && (pDensCorr[iChar]==' ' || pDensCorr[iChar]==','))
           iChar++;
         iParen=-1;
