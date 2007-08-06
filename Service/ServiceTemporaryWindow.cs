@@ -477,6 +477,10 @@ namespace Service
       { // We're going to do it.
         // Modify the item.
 
+        GraphicItem graphicItem = graphicItems[guid];
+
+        graphicItem.Path = path;
+
         // Raise event(s).
         clientClientServiceProtocol.DoItemPathModified(requestID, guid, path);
         engineClientServiceProtocol.DoItemPathModified(requestID, guid, path);

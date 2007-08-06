@@ -223,37 +223,14 @@ namespace SysCAD.Protocol
 
     public void DoItemModified(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.Tag = tag;
-        graphicItem.Path = path;
-        graphicItem.Model = model;
-        graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = (ARectangleF)boundingRect;
-        graphicItem.Angle = angle;
-        graphicItem.FillColor = fillColor;
-        graphicItem.FillMode = fillMode;
-        graphicItem.MirrorX = mirrorX;
-        graphicItem.MirrorY = mirrorY;
-
-        eventId++;
-        OnItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
-      }
+      eventId++;
+      OnItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemPathModified(Int64 requestID, Guid guid, String path)
     {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.Path = path;
-
-        eventId++;
-        OnItemModified(eventId, requestID, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
+      eventId++;
+      OnItemModified(eventId, requestID, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
     }
 
     public void DoLinkControlPointsModified(Int64 requestID, Guid guid, List<PointF> controlPoints)
