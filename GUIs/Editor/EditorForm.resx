@@ -118,16 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="dockManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
+    <value>121, 17</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>44</value>
   </metadata>
-  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>283, 17</value>
+  <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
   </metadata>
   <metadata name="barManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>166, 17</value>
+    <value>245, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="editUndoBarButtonCommand.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -258,6 +258,19 @@
         29arLMv0LHYAZw5DnOdZoL7vpa7rNAAfdSBz3Na6rr6a++28h2DSOvAjsuoAAKeVrCIGMPMGALN9it8J
         ItpXgIw60BJagDGYkb1pmnQLMWCaJj/1AEJmmHEKlt1SOW2OMwYg6ziOHoKSoaqqhMk4sxGxJKwhAYDn
         kVABfQEB8ptHvG168/R7URQfiBMZk79gudtnlPkNFVoatX3PyxAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="modeModifyBarButtonCommand.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAK7wAA
+        Cu8BfXaKSAAAAW5JREFUOE/dks8rw3Ecxh9zkDg4UfwBCuXgOrdxsAOHRYby47I2wnakSfIrI7+TH4kD
+        IdssB4k2Eg7IUsZSolhYfkzEbN/HZ+X61a68z+/n9TzP+/MB/um0vShhurDC5L2NqffcQndkg/48N7q2
+        vWxMsdyHi2xB5jnI9AUybuSTaPCEYbg0/g4x+5XJlrtwg4vUbZDqFTJznkycIjEaIvTuMGqOlfIQo3dZ
+        Y/+ifpOsXCNVVpFgjoyfEIDBD6Ltjih12WUBMSbvjXqVLBTO+XYyZ5FMnSUVYxLR/0Z0PRLl2zeyAEX9
+        qS9ricwWvTNE9LQZ0X9SuA8FCcsz0f5AaF0++Qq6Q0fCWIhJ06K3EMaOC+eIuC9AdPiJpitCs74qDzB4
+        VDCeSYhEHhaXH3gnen7ErT6icldC8b7q95eovTKj7kRCp3DsfhLOInbzNVG1J6HC3RLdX6g+KECJ04ny
+        nQDKtl5FbCe0++roxH9u6xtljtEU8TxeGQAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">

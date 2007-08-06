@@ -4812,19 +4812,17 @@
 			<File
 				RelativePath=".\SvcConn.cpp"
 				>
-			</File>
-			<File
-				RelativePath=".\SvcConnCLR.cpp"
-				>
 				<FileConfiguration
 					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
-						DebugInformationFormat="3"
+						DebugInformationFormat="0"
 						CompileAsManaged="1"
 					/>
 				</FileConfiguration>
@@ -4833,6 +4831,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
 						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
@@ -4846,6 +4845,8 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
@@ -4858,10 +4859,12 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
-						DebugInformationFormat="3"
+						DebugInformationFormat="0"
 						CompileAsManaged="1"
 					/>
 				</FileConfiguration>
@@ -4870,6 +4873,40 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="0"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SvcConnCLR.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="0"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release_Dbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
@@ -4877,9 +4914,50 @@
 						CompileAsManaged="1"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="3"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Marshal|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="0"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Distribution|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ExceptionHandling="0"
+						BasicRuntimeChecks="0"
+						FloatingPointModel="0"
+						FloatingPointExceptions="false"
+						UsePrecompiledHeader="0"
+						DebugInformationFormat="0"
+						CompileAsManaged="1"
+					/>
+				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\SysCAD.cpp"
+			<File				RelativePath=".\SysCAD.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"

@@ -307,7 +307,9 @@ namespace Service
 
       if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
+
         // Delete the item.
+        graphicItems.Remove(guid);
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemDeleted(requestID, guid);
@@ -421,8 +423,6 @@ namespace Service
       if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
 
-        // Modify the item.
-
         // Need to get hold of a valid pDoc pointer... *********
 
         //Individual changes would go something like this: *********
@@ -441,6 +441,20 @@ namespace Service
         //                    fillMode,
         //                    mirrorX,
         //                    mirrorY);
+
+        // Modify the item.
+        GraphicItem graphicItem = graphicItems[guid];
+
+        graphicItem.Tag = tag;
+        graphicItem.Path = path;
+        graphicItem.Model = model;
+        graphicItem.Shape = stencil;
+        graphicItem.BoundingRect = (ARectangleF)boundingRect;
+        graphicItem.Angle = angle;
+        graphicItem.FillColor = fillColor;
+        graphicItem.FillMode = fillMode;
+        graphicItem.MirrorX = mirrorX;
+        graphicItem.MirrorY = mirrorY;
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);

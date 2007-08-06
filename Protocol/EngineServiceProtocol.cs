@@ -211,60 +211,14 @@ namespace SysCAD.Protocol
 
     public void DoItemCreated(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      {
-        eventId++;
-        OnItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
-      }
+      eventId++;
+      OnItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemDeleted(Int64 requestID, Guid guid)
     {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-
-        foreach (GraphicLink graphicLink in graphicLinks.Values)
-        {
-
-          if (graphicLink.Origin == guid)
-          {
-
-            if (graphicLink.Destination == Guid.Empty) // it isn't connected to anything on the other end.
-            {
-
-              DoLinkDeleted(requestID, graphicLink.Guid);
-            }
-
-            else
-            {
-
-              DoLinkModified(requestID, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, new Guid(), graphicLink.Destination, null, graphicLink.DestinationPort, graphicLink.ControlPoints);
-            }
-          }
-
-          if (graphicLink.Destination == guid)
-          {
-
-            if (graphicLink.Origin == Guid.Empty) // it isn't connected to anything on the other end.
-            {
-
-              DoLinkDeleted(requestID, graphicLink.Guid);
-            }
-
-            else
-            {
-
-              DoLinkModified(requestID, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, new Guid(), graphicLink.OriginPort, null, graphicLink.ControlPoints);
-            }
-          }
-        }
-
-        graphicItems.Remove(guid);
-
-        eventId++;
-        OnItemDeleted(eventId, requestID, guid);
-      }
+      eventId++;
+      OnItemDeleted(eventId, requestID, guid);
     }
 
     public void DoItemModified(Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
