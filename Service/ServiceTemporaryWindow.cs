@@ -35,6 +35,8 @@ namespace Service
     private String projectPath;
     private String stencilPath;
     private Int64 requestID;
+    private Int64 eventId;
+
     
     public ServiceTemporaryWindow(String projectPath, String configPath, String stencilPath)
     {
@@ -168,8 +170,9 @@ namespace Service
         throw new NotImplementedException("The method or operation is not implemented.");
 
         // Raise event(s).
-        clientClientServiceProtocol.DoStateChanged(requestID, runState);
-        engineClientServiceProtocol.DoStateChanged(requestID, runState);
+        eventId++;
+        clientClientServiceProtocol.DoStateChanged(eventId, requestID, runState);
+        engineClientServiceProtocol.DoStateChanged(eventId, requestID, runState);
 
         return true;
       }
@@ -198,8 +201,9 @@ namespace Service
         graphicGroups.Add(guid, graphicGroup);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path, boundingRect);
-        engineClientServiceProtocol.DoGroupCreated(requestID, guid, tag, path, boundingRect);
+        eventId++;
+        clientClientServiceProtocol.DoGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
+        engineClientServiceProtocol.DoGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
 
         return true;
       }
@@ -235,8 +239,8 @@ namespace Service
         graphicItems.Add(guid, graphicItem);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemCreated(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -260,8 +264,9 @@ namespace Service
         graphicLinks.Add(guid, graphicLink);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkCreated(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        eventId++;
+        clientClientServiceProtocol.DoLinkCreated(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkCreated(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -284,8 +289,9 @@ namespace Service
         throw new NotImplementedException("The method or operation is not implemented.");
 
         // Raise event(s).
-        clientClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingCreated(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        eventId++;
+        clientClientServiceProtocol.DoThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -312,8 +318,9 @@ namespace Service
         graphicItems.Remove(guid);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoItemDeleted(requestID, guid);
-        engineClientServiceProtocol.DoItemDeleted(requestID, guid);
+        eventId++;
+        clientClientServiceProtocol.DoItemDeleted(eventId, requestID, guid);
+        engineClientServiceProtocol.DoItemDeleted(eventId, requestID, guid);
 
         return true;
       }
@@ -333,8 +340,9 @@ namespace Service
         // Delete the item.
 
         // Raise event(s).
-        clientClientServiceProtocol.DoLinkDeleted(requestID, guid);
-        engineClientServiceProtocol.DoLinkDeleted(requestID, guid);
+        eventId++;
+        clientClientServiceProtocol.DoLinkDeleted(eventId, requestID, guid);
+        engineClientServiceProtocol.DoLinkDeleted(eventId, requestID, guid);
 
         return true;
       }
@@ -354,8 +362,9 @@ namespace Service
         // Delete the Thing.
 
         // Raise event(s).
-        clientClientServiceProtocol.DoThingDeleted(requestID, guid);
-        engineClientServiceProtocol.DoThingDeleted(requestID, guid);
+        eventId++;
+        clientClientServiceProtocol.DoThingDeleted(eventId, requestID, guid);
+        engineClientServiceProtocol.DoThingDeleted(eventId, requestID, guid);
 
         return true;
       }
@@ -457,8 +466,9 @@ namespace Service
         graphicItem.MirrorY = mirrorY;
 
         // Raise event(s).
-        clientClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemModified(requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        eventId++;
+        clientClientServiceProtocol.DoItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -482,8 +492,9 @@ namespace Service
         graphicItem.Path = path;
 
         // Raise event(s).
-        clientClientServiceProtocol.DoItemPathModified(requestID, guid, path);
-        engineClientServiceProtocol.DoItemPathModified(requestID, guid, path);
+        eventId++;
+        clientClientServiceProtocol.DoItemPathModified(eventId, requestID, guid, path);
+        engineClientServiceProtocol.DoItemPathModified(eventId, requestID, guid, path);
 
         return true;
       }
@@ -503,8 +514,9 @@ namespace Service
         // Modify the item.
 
         // Raise event(s).
-        clientClientServiceProtocol.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkModified(requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        eventId++;
+        clientClientServiceProtocol.DoLinkModified(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkModified(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -524,8 +536,9 @@ namespace Service
         // Modify the Thing.
 
         // Raise event(s).
-        clientClientServiceProtocol.DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingModified(requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        eventId++;
+        clientClientServiceProtocol.DoThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -545,8 +558,9 @@ namespace Service
         // Modify the item.
 
         // Raise event(s).
-        clientClientServiceProtocol.DoThingPathModified(requestID, guid, path);
-        engineClientServiceProtocol.DoThingPathModified(requestID, guid, path);
+        eventId++;
+        clientClientServiceProtocol.DoThingPathModified(eventId, requestID, guid, path);
+        engineClientServiceProtocol.DoThingPathModified(eventId, requestID, guid, path);
 
         return true;
       }
