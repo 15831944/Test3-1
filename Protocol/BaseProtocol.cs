@@ -36,6 +36,7 @@ namespace SysCAD.Protocol
     public ItemCreatedHandler ItemCreated;
     public ItemDeletedHandler ItemDeleted;
     public ItemModifiedHandler ItemModified;
+    public ItemPathModifiedHandler ItemPathModified;
 
     public LinkCreatedHandler LinkCreated;
     public LinkDeletedHandler LinkDeleted;
@@ -60,6 +61,7 @@ namespace SysCAD.Protocol
     public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
     public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemPathModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String path);
 
     public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
@@ -178,6 +180,21 @@ namespace SysCAD.Protocol
         try
         {
           ItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        }
+
+        catch (SocketException) { }
+      }
+    }
+
+    public void OnItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String path)
+    {
+
+      if (ItemModified != null)
+      {
+
+        try
+        {
+          ItemPathModified(eventId, requestID, guid, path);
         }
 
         catch (SocketException) { }

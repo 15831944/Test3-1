@@ -34,6 +34,7 @@ namespace SysCAD.Protocol
     private ClientServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
     private ClientServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
     private ClientServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
+    private ClientServiceProtocol.ItemPathModifiedHandler serviceGraphicItemPathModifiedHandler = null;
 
     private ClientServiceProtocol.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
     private ClientServiceProtocol.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
@@ -82,6 +83,7 @@ namespace SysCAD.Protocol
 
         serviceGraphicItemCreatedHandler = new ClientServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphicItemModifiedHandler = new ClientServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
+        serviceGraphicItemPathModifiedHandler = new ClientServiceProtocol.ItemPathModifiedHandler(ServiceGraphicItemPathModified);
         serviceGraphicItemDeletedHandler = new ClientServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
 
         serviceGraphicLinkCreatedHandler = new ClientServiceProtocol.LinkCreatedHandler(ServiceGraphicLinkCreated);
@@ -104,6 +106,7 @@ namespace SysCAD.Protocol
 
         clientServiceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
         clientServiceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
+        clientServiceGraphic.ItemPathModified += serviceGraphicItemPathModifiedHandler;
         clientServiceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
 
         clientServiceGraphic.LinkCreated += serviceGraphicLinkCreatedHandler;
@@ -290,6 +293,18 @@ namespace SysCAD.Protocol
         graphicItem.MirrorY = mirrorY;
 
         OnItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+      }
+    }
+
+    public void ServiceGraphicItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String path)
+    {
+      GraphicItem graphicItem;
+
+      if (graphicItems.TryGetValue(guid, out graphicItem))
+      {
+        graphicItem.Path = path;
+
+        OnItemPathModified(eventId, requestID, guid, path);
       }
     }
 
@@ -489,74 +504,62 @@ namespace SysCAD.Protocol
 
         try
         {
-
           if (serviceGraphicGroupModifiedHandler != null) clientServiceGraphic.GroupModified -= serviceGraphicGroupModifiedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicGroupDeletedHandler != null) clientServiceGraphic.GroupDeleted -= serviceGraphicGroupDeletedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicItemCreatedHandler != null) clientServiceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicItemModifiedHandler != null) clientServiceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
+          if (serviceGraphicItemPathModifiedHandler != null) clientServiceGraphic.ItemPathModified -= serviceGraphicItemPathModifiedHandler;
+        }
+        catch (InvalidOperationException) { }
 
+        try
+        {
           if (serviceGraphicItemDeletedHandler != null) clientServiceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicLinkCreatedHandler != null) clientServiceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicLinkModifiedHandler != null) clientServiceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicLinkDeletedHandler != null) clientServiceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try
         {
-
           if (serviceGraphicThingCreatedHandler != null) clientServiceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
         }
-
         catch (InvalidOperationException) { }
 
         try

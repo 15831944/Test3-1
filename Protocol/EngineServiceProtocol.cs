@@ -230,7 +230,7 @@ namespace SysCAD.Protocol
     public void DoItemPathModified(Int64 requestID, Guid guid, String path)
     {
       eventId++;
-      OnItemModified(eventId, requestID, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
+      OnItemPathModified(eventId, requestID, guid, path);
     }
 
     public void DoLinkControlPointsModified(Int64 requestID, Guid guid, List<PointF> controlPoints)
