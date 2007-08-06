@@ -5536,7 +5536,7 @@ int CExecutive::LoadDBase(eLoadDBPasses Pass, CLoadDBInfo & LDBI)
     case eLdDB_Close:     Ret=DoLoadDBaseClose(LDBI);     break;
     }
   UnlockExec();
-  return true;
+  return Ret;
   }
 
 //---------------------------------------------------------------------------
