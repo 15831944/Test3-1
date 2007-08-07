@@ -12,8 +12,6 @@
 #include "licbase.h"
 #include "msgwnd.h"
 #include "sfe_base.h"
-#include "mdlslctu.h"
-#include ".\mdlslctu.h"
 //#include "optoff.h"
 
 #ifdef _DEBUG
@@ -1336,7 +1334,7 @@ bool CInsertUnitDlg::LoadDefDraw()
           {
           //int iJust=pNGI->GetLVal();
           //int iVisible=pNGI->GetLVal();
-          DORANGE(X,Y);
+          //DORANGE(X,Y); //exclude tag position for preview
           }
         break;
         }
@@ -1347,7 +1345,7 @@ bool CInsertUnitDlg::LoadDefDraw()
           {
           //int iJust=pNGI->GetLVal();
           //int iVisible=pNGI->GetLVal();
-          DORANGE(X,Y);
+          //DORANGE(X,Y); //exclude tag position for preview
           }
         break;
         }
