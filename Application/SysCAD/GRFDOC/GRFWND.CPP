@@ -196,31 +196,25 @@ bool CGrfWnd::UpdateForPaint(bool ForceUpd, bool ColoursChgd)
   //CStopWatch SW;
   //SW.Start();
   //dbgpln("OnDraw   A  %10.3fms", SW.Lap()*1e3); 
-  if (1)//m_UpdateRequested)
+  flag DoIt=false;
+  if (gs_pTheSFELib->TestLoadModelStatus()>0)
     {
-    flag DoIt=false;
-    if (gs_pTheSFELib->TestLoadModelStatus()>0)
-      {
-      gs_pTheSFELib->SetLoadAllModelStatus();
-      DoIt=true;
-      }
+    gs_pTheSFELib->SetLoadAllModelStatus();
+    DoIt=true;
+    }
 
-    if (gs_pTheSFELib->TestLoadModelAssocGrfs())
-      {
-      gs_pTheSFELib->SetLoadAllModelAssocGrfs();
-      DoIt=true;
-      }
+  if (gs_pTheSFELib->TestLoadModelAssocGrfs())
+    {
+    gs_pTheSFELib->SetLoadAllModelAssocGrfs();
+    DoIt=true;
+    }
 
-    dword NumStatusColourChgs=gs_pTheSFELib->GetNumStatusColourChgs();
-    if (ForceUpd || ColoursChgd || DoIt || 
-      NumStatusColourChgs!=PrevNumStatusColourChgs)
-      {
-      PrevNumStatusColourChgs=NumStatusColourChgs;
+  //dword NumStatusColourChgs=gs_pTheSFELib->GetNumStatusColourChgs();
+  if (ForceUpd || ColoursChgd || DoIt /*|| NumStatusColourChgs!=PrevNumStatusColourChgs*/)
+    {
+    //PrevNumStatusColourChgs=NumStatusColourChgs;
 
-      return true;
-
-      //PostMessage(WMU_GRFWNDDSPUPDATE, ForceUpd, ColoursChgd);
-      }
+    return true;
     }
   return false;
 #else

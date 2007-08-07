@@ -2390,10 +2390,6 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
   m_sEqGUID = CreateGUIDStr();
 
   m_lReportKey=0;
-
-  m_dwPrevStatus = 0xffffffff;
-
- 
   }
 
 //---------------------------------------------------------------------------

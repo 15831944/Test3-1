@@ -8703,9 +8703,9 @@ flag CProject::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & I
 
 //---------------------------------------------------------------------------
 
-int CProject::RequestModelStatus(CModelStatusArray &Status)
+int CProject::RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged)
   {
-  return FlwLib()!=NULL ? FlwLib()->RequestModelStatus(Status) : 0;
+  return FlwLib()!=NULL ? FlwLib()->RequestModelStatus(Status, TagsChanged) : 0;
   };
 
 //---------------------------------------------------------------------------

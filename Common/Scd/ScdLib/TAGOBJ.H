@@ -1534,12 +1534,7 @@ protected:
 
     flag            m_bFileIOBusy;
 
-    dword           m_dwPrevStatus;
-
-
     CAssocGrfShowArray  m_AssocGrfShow;//
-    //dword           m_AssocGrfShow; 
-    //dword           m_AssocGrfHide; 
 
   protected:
     TagObjClass*   m_pClass;

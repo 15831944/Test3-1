@@ -12265,11 +12265,16 @@ flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec &
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status)
+int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged)
   {
+  TagsChanged= false;
+
+  //dbgpln("CFlwSolver::RequestModelStatus");
+
   m_dwMdlStatusOptions=Options;//Criteria.m_dwMdlStatusOptions;
   if (!GetStatus())
     {
+    TagsChanged=Status.GetSize()>0;
     Status.SetSize(0);
     return 0;
     }
@@ -12278,17 +12283,20 @@ int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status)
   for (FlwNode * p = NULL; GetObj_All(p); )
     {
     if (i>=Status.GetSize())
+      {
       Status.SetSize(i+256);
+      TagsChanged=true;
+      }
 
     char * pTag=p->FullObjTag();
     if (pTag)
       {
+      TagsChanged = TagsChanged || (Status[i].m_Tag.XStrICmp(p->FullObjTag())!=0);
+
       Status[i].m_Tag=p->FullObjTag();
       Status[i].m_dwFlags=p->ModelStatus();
-      
-      //dbgpln("**Nd Get %8x  %8x %s", p->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
-      
-      p->m_dwPrevStatus=Status[i].m_dwFlags;
+
+      //dbgpln("**Nd Get %8x %s", Status[i].m_dwFlags, Status[i].m_Tag());
       i++;
       }
     }
@@ -12301,22 +12309,29 @@ int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status)
     if (pF)
       {
       if (i>=Status.GetSize())
-        Status.SetSize(i+256);
-
-      LPSTR t=pCn->Tag();
-      if (t && strlen(t)>0)
         {
-        Status[i].m_Tag=t;
+        Status.SetSize(i+256);
+        TagsChanged=true;
+        }
+
+      LPSTR Tg=pCn->Tag();
+      if (Tg && strlen(Tg)>0)
+        {
+        TagsChanged = TagsChanged || (Status[i].m_Tag.XStrICmp(Tg)!=0);
+
+        Status[i].m_Tag=Tg;
         Status[i].m_dwFlags=pF->ModelStatus();
-        pF->m_dwPrevStatus=Status[i].m_dwFlags;
         i++;
         }
-      //dbgpln("**Fl Get %8x  %8x %s", pF->m_dwPrevStatus, Status[i].m_dwFlags, Status[i].m_Tag());
+      //dbgpln("**Fl Get %8x %s", Status[i].m_dwFlags, Status[i].m_Tag());
       }
     }
 
   if (i<Status.GetSize())
+    {
     Status.SetSize(i); // size it down
+    TagsChanged=true;
+    }
     
   return Status.GetSize();
   }
@@ -12326,6 +12341,8 @@ int CFlwSolver::RequestModelStatus(dword Options, CModelStatusArray &Status)
 flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks)
   {
   int ObjTagLen=0;
+
+  dbgpln("CFlwSolver::RequestModelAssocGrfsMasks");
 
   if (SetClass || SetNode)
     {
@@ -13924,7 +13941,7 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   {
   //SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 
-  ObjData.List.dbgDump(true, "EOW");
+  //ObjData.List.dbgDump(true, "EOW");
 
   CPkDataItem * pItem=ObjData.FirstItem();
   TagAccessBlk TAB(this, this, pItem->SymOrTag(), ObjData.dwOptions, TU_IndividuallyUnique);

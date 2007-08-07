@@ -47,7 +47,6 @@ SFEFlwLib::SFEFlwLib()
 
   m_Status.m_LoadReqd=true;
   m_Status.m_nLoadSeqNo=0;
-  m_Status.m_nColourChgs=0;
 
   m_AssocGrfs.m_LoadReqd=true;
   m_AssocGrfs.m_nLoadSeqNo=0;
@@ -491,11 +490,12 @@ flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRe
 flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
 
-int  SFEFlwLib::RequestModelStatus(CModelStatusArray &Status)
+int  SFEFlwLib::RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged)
   {
   if (m_Status.m_LoadReqd)
     {
-    IENTER(false) pSfe->RequestModelStatus(m_Status.m_dwOptions, Status);
+    m_Status.m_LoadReqd=false;
+    IENTER(false) pSfe->RequestModelStatus(m_Status.m_dwOptions, Status, TagsChanged);
     ILEAVE
     }
   else
@@ -584,8 +584,8 @@ int  SFEFlwLib::EO_QueryChangeTag(pchar pOldTag, pchar pNewTag)
   { IENTER(false) pSfe->EO_QueryChangeTag(pOldTag, pNewTag); ILEAVE };
 int  SFEFlwLib::EO_ChangeTag(pchar pOldTag, pchar pNewTag)
   {
-  //SetLoadAllModelStatus();
-  //SetLoadAllModelAssocGrfs();
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_ChangeTag(pOldTag, pNewTag);
   ILEAVE
   };
@@ -600,8 +600,8 @@ int  SFEFlwLib::EO_QueryDeleteTag(pchar pDelTag)
   { IENTER(false) pSfe->EO_QueryDeleteTag(pDelTag); ILEAVE };
 int  SFEFlwLib::EO_DeleteTag(pchar pDelTag)
   {
-  //SetLoadAllModelStatus();
-  //SetLoadAllModelAssocGrfs();
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   IENTER(false) pSfe->EO_DeleteTag(pDelTag);
   //CExploreScd::RefreshIt(false);
   ILEAVE
@@ -633,8 +633,8 @@ flag SFEFlwLib::EO_PreStart(CXM_TimeControl &CB)
 flag SFEFlwLib::EO_Start(CXM_TimeControl &CB)
   {
   FENTER(false) pSfe->EO_Start(CB);
-  m_Status.m_LoadReqd=false;
-  m_AssocGrfs.m_LoadReqd=true;
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   FLEAVE
   };
 void SFEFlwLib::EO_QuerySubsReqd(CXMsgLst &XM)
@@ -644,15 +644,28 @@ void SFEFlwLib::EO_QuerySubsAvail(CXMsgLst &XM, CXMsgLst &XMRet)
 flag SFEFlwLib::EO_ReadSubsData(CXMsgLst &XM)
   { FENTER(false) pSfe->EO_ReadSubsData(XM); FLEAVE};
 flag SFEFlwLib::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
-  { FENTER(false) pSfe->EO_WriteSubsData(XM, FirstBlock, LastBlock); FLEAVE};
+  { 
+  FENTER(false) pSfe->EO_WriteSubsData(XM, FirstBlock, LastBlock); 
+  FLEAVE
+  };
 DWORD SFEFlwLib::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData &ObjData, CXM_Route &Route)
   { DWENTER(0) pSfe->EO_ReadTaggedItem(ObjTag, ObjData, Route); DWLEAVE};
 int  SFEFlwLib::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
-  { IENTER(TOData_NotFound) pSfe->EO_WriteTaggedItem(ObjData, Route); ILEAVE };
+  { 
+  IENTER(TOData_NotFound) pSfe->EO_WriteTaggedItem(ObjData, Route); 
+  SetLoadAllModelStatus();
+  
+  if (XStopped())
+    {
+    SetLoadAllModelAssocGrfs();
+    XUpdateDisplays(UDO_ForceUpd);
+    }
+  ILEAVE 
+  };
 flag SFEFlwLib::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   {
   FENTER(false) pSfe->EO_Execute(CB, EORet);
-  m_Status.m_LoadReqd=true;
+  SetLoadAllModelStatus();
   //m_AssocGrfs.m_LoadReqd=true; // this will usually get set on-demand by the flwsolver
   FLEAVE
   };
@@ -668,30 +681,36 @@ flag SFEFlwLib::EO_QueryStop(CXM_TimeControl &CB, bool Starting)
   };
 flag SFEFlwLib::EO_Stop(CXM_TimeControl &CB)
   {
-  m_Status.m_LoadReqd=true;
-  m_AssocGrfs.m_LoadReqd=true;
-
   FENTER(false) pSfe->EO_Stop(CB);
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  XUpdateDisplays(UDO_ForceUpd);
   FLEAVE
   };
 flag SFEFlwLib::EO_Stopping(flag BeginStopping)
   {
   FENTER(false)
     pSfe->EO_Stopping(BeginStopping);
+  if (!BeginStopping)
+    {
+    SetLoadAllModelStatus();
+    SetLoadAllModelAssocGrfs();
+    XUpdateDisplays(UDO_ForceUpd);
+    }
   FLEAVE
   };
 flag SFEFlwLib::EO_BeginPause(CXM_TimeControl &CB)
   {
-  m_Status.m_LoadReqd=true;
-  m_AssocGrfs.m_LoadReqd=true;
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
   FENTER(false) pSfe->EO_BeginPause(CB);
   FLEAVE
   };
 flag SFEFlwLib::EO_EndPause(CXM_TimeControl &CB)
   {
   FENTER(false) pSfe->EO_EndPause(CB);
-  m_Status.m_LoadReqd=false;
-  //m_AssocGrfs.m_LoadReqd=true; // this will usually get set on-demand by the flwsolver
+  SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs(); // this will usually get set on-demand by the flwsolver
   FLEAVE
   };
 
@@ -712,7 +731,6 @@ flag SFEFlwLib::EO_BeginLoad(FilingControlBlock &FCB)
   m_Status.m_Status.SetSize(0);
   m_Status.m_LoadReqd=true;
   m_Status.m_nLoadSeqNo=0;
-  m_Status.m_nColourChgs=0;
   m_AssocGrfs.m_LoadReqd=true;
   m_AssocGrfs.m_nLoadSeqNo=0;
   FreeStatus();
@@ -728,8 +746,7 @@ flag SFEFlwLib::EO_EndConnect(FilingControlBlock &FCB)
   { FENTER(false) pSfe->EO_EndConnect(FCB); FLEAVE };
 flag SFEFlwLib::EO_EndLoad(FilingControlBlock &FCB)
   {
-  FENTER(false)
-    pSfe->EO_EndLoad(FCB);
+  FENTER(false) pSfe->EO_EndLoad(FCB);
   CExploreScd::RefreshIt(true);
   FLEAVE
   };
@@ -752,7 +769,8 @@ int SFEFlwLib::FE_LoadAllModelStatus()
   {
 
   LockStatus();
-  if (pSfe->RequestModelStatus(m_Status.m_dwOptions, m_Status.m_Status))
+  flag TagsChanged=false;
+  if (RequestModelStatus(m_Status.m_Status, TagsChanged))
     {
     dword iSize=FindNextPrimeNumber((m_Status.m_Status.GetSize()*120)/100);
     if (m_Status.m_StatusMap.GetHashTableSize()!=iSize)
@@ -760,22 +778,11 @@ int SFEFlwLib::FE_LoadAllModelStatus()
       m_Status.m_StatusMap.RemoveAll();
       m_Status.m_StatusMap.InitHashTable(iSize);
       }
-    else
+    else if (TagsChanged)
       m_Status.m_StatusMap.RemoveAll();
+    
     for (int i=0; i<m_Status.m_Status.GetSize(); i++)
-      {
-      int Colour=-1;
-      int OvrColour=-1;
-      int OvrStyle=-1;
-      GrfHelper.MdlStatusColor(m_Status.m_Status[i].m_dwFlags, Colour, OvrColour, OvrStyle);
-      if (m_Status.m_Status[i].m_iColour!=Colour || m_Status.m_Status[i].m_iAColour!=OvrColour)
-        m_Status.m_nColourChgs++;
-      m_Status.m_Status[i].m_iColour=Colour;
-      m_Status.m_Status[i].m_iAColour=OvrColour;
       m_Status.m_StatusMap.SetAt(m_Status.m_Status[i].m_Tag(), &m_Status.m_Status[i]);
-
-      //m_Status.m_StatusMap.SetAt(m_Status.m_Status[i].m_Tag(), &m_Status.m_Status[i]);
-      }
 
     m_Status.m_nLoadSeqNo++;
     long L=m_Status.m_Status.GetSize();
@@ -812,6 +819,8 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
     FE_LoadAllModelStatus();
     CExecObj::UnlockXO();
     LockStatus();
+
+    //dbgpln("FE_GetModelStatus =======================");
     }
 
   CModelStatusItem* pItem;
@@ -820,6 +829,7 @@ dword SFEFlwLib::FE_GetModelStatus(pchar pTag)
   else
     dwVal=0xFFFFFFFF;
 
+  //dbgpln("Status  0x%08x %s", dwVal, pTag);
   FreeStatus();
   return dwVal;
   };

@@ -559,8 +559,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
-    //int            UpdateAllStatus();
-    int            RequestModelStatus(dword Options, CModelStatusArray &Status);
+    int            RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged);
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
     flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
 

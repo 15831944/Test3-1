@@ -1394,19 +1394,7 @@ void CModesPage::OnOK()
         m_pSet->m_DynHeatMode=RqdHeatM;
         m_pSet->m_DynFlowMode=RqdFlowM;
         }
-      //if ((RqdNetM!=m_NetMode) && !CnmVersion())
-      //  {
-      //  //Force a PrjSaveAs conditional on there being units in flowsheet;
-      //  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-      //  CModelStatusArray Status;
-      //  gs_pPrj->RequestModelStatus(Criteria, Status);
-      //  if (Status.GetCount()>1)
-      //    {
-      //    gs_pPrj->bForceSaveAsNV=true;
-      //    AfxMessageBox("Solve Mode has been changed:\nProject will be saved as a new version", MB_OK);
-      //    }
-      //  }
-
+      
       m_bTimeChanged=1;
       m_SyncWithClock=0;
       DoSyncChange();
@@ -1982,72 +1970,12 @@ void CGrfTagsPage::SetLibraryOptions()
   }
 
 //---------------------------------------------------------------------------
-//
-//void CGrfTagsPage::SetFrameOptions()
-//  {
-//  CString S;
-//  m_Library.GetWindowText(S);
-//  gs_pPrj->m_sDefGrpLib=S;
-//  gs_pPrj->m_sDefGrpLib.FnContract();
-//  //m_Library.SetWindowText(gs_pPrj->m_sDefGrpLib());
-//  //m_PageFrame.SetWindowText(gs_pPrj->m_sGrfFrameName());
-//  }
-
-//---------------------------------------------------------------------------
 
 void CGrfTagsPage::OnOK()
   {
   if (bDidInit)
     {
     UpdateData(true);
-    //GetGraphicsOptions();
-
-    //long RqdNetM=m_NetModeCB.GetCurSel()>=0 ? m_NetModes.Item(m_NetModeCB.GetCurSel())->m_lVal : -1;
-    //long RqdNodeM=m_NodeModeCB.GetCurSel()>=0 ? m_NodeModes.Item(m_NodeModeCB.GetCurSel())->m_lVal : -1;
-    //long RqdLinkM=m_LinkModeCB.GetCurSel()>=0 ? m_LinkModes.Item(m_LinkModeCB.GetCurSel())->m_lVal : -1;
-    //long RqdHeatM=m_HeatModeCB.GetCurSel()>=0 ? m_HeatModes.Item(m_HeatModeCB.GetCurSel())->m_lVal : -1;
-    //long RqdFlowM=m_FlowModeCB.GetCurSel()>=0 ? m_FlowModes.Item(m_FlowModeCB.GetCurSel())->m_lVal : -1;
-
-    //if (1)
-    //    //RqdNetM!=m_NetMode || 
-    //    //RqdNodeM!=m_NodeMode || 
-    //    //RqdLinkM!=m_LinkMode || 
-    //    //RqdHeatM!=m_HeatMode || 
-    //    //RqdFlowM!=m_FlowMode)
-    //  {
-
-    //  m_pSet->m_NetMode=RqdNetM;
-    //  if (RqdNetM==NM_Probal)
-    //    {
-    //    m_pSet->m_PBNodeMode=RqdNodeM;
-    //    m_pSet->m_PBLinkMode=RqdLinkM;
-    //    m_pSet->m_PBHeatMode=RqdHeatM;
-    //    m_pSet->m_PBFlowMode=RqdFlowM;
-    //    }
-    //  else
-    //    {
-    //    m_pSet->m_DynNodeMode=RqdNodeM;
-    //    m_pSet->m_DynLinkMode=RqdLinkM;
-    //    m_pSet->m_DynHeatMode=RqdHeatM;
-    //    m_pSet->m_DynFlowMode=RqdFlowM;
-    //    }
-    //  //if ((RqdNetM!=m_NetMode) && !CnmVersion())
-    //  //  {
-    //  //  //Force a PrjSaveAs conditional on there being units in flowsheet;
-    //  //  CModelStatusCriterion Criteria(gs_pPrj->m_dwMdlStatusOptions);
-    //  //  CModelStatusArray Status;
-    //  //  gs_pPrj->RequestModelStatus(Criteria, Status);
-    //  //  if (Status.GetCount()>1)
-    //  //    {
-    //  //    gs_pPrj->bForceSaveAsNV=true;
-    //  //    AfxMessageBox("Solve Mode has been changed:\nProject will be saved as a new version", MB_OK);
-    //  //    }
-    //  //  }
-
-    //  m_bTimeChanged=1;
-    //  m_SyncWithClock=0;
-    //  DoSyncChange();
-    //  }
 
     if (m_NumChar.GetLength()==0 || !TaggedObject::CheckNonNumericTagChr(m_NumChar[0]))
       {

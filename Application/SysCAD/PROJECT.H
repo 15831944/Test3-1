@@ -735,7 +735,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
-    int            RequestModelStatus(CModelStatusArray &Status);
+    int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);
     flag           TestLoadModelStatus();
 
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);

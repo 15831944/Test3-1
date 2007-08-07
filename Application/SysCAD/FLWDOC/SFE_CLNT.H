@@ -116,7 +116,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
-    int            RequestModelStatus(CModelStatusArray &Status);
+    int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);
     flag           TestLoadModelStatus();
 
     flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf);
@@ -156,14 +156,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
       FreeStatus(); 
       return dw;
       };
-    dword          GetNumStatusColourChgs() 
-      { 
-      LockStatus();
-      dword dw=m_Status.m_nColourChgs;
-      FreeStatus();
-      return dw;
-      };
-
+    
     int            FE_LoadAllModelAssocGrfs();
     int            FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap);
 
@@ -261,7 +254,6 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
       dword             m_dwOptions;
       flag              m_LoadReqd;
       dword             m_nLoadSeqNo;
-      dword             m_nColourChgs;
       CCriticalSection  m_Sect;
       }               m_Status;
 

@@ -379,9 +379,9 @@ flag CSfeSrvr::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & I
   return SfeFS->RequestModelIOConn(pTag, iNo, Info); 
   };
 
-int CSfeSrvr::RequestModelStatus(dword Options, CModelStatusArray &Status)
+int CSfeSrvr::RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged)
   {
-  return SfeFS->RequestModelStatus(Options, Status);
+  return SfeFS->RequestModelStatus(Options, Status, TagsChanged);
   };
 
 flag CSfeSrvr::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)

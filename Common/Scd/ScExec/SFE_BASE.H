@@ -224,14 +224,10 @@ class CModelStatusItem
   public:
     Strng           m_Tag;
     dword           m_dwFlags;
-    int             m_iColour;
-    int             m_iAColour;
 
     CModelStatusItem()
       {
       m_dwFlags=0xFFFFFFFF;
-      m_iColour=-1;
-      m_iAColour=-1;
       };
   };
 
@@ -1236,7 +1232,7 @@ class DllImportExport CSfeSrvrBase
     virtual flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info) { return 0; };
     virtual flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info) { return 0; };
 
-    virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status) { return 0; };
+    virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged) { return 0; };
     virtual flag         TestLoadModelStatus()            { return 0; };
 
     virtual flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)   { return 0; };
