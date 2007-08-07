@@ -1466,13 +1466,13 @@ flag CR_Eqn::ParseTerm(CR_EqnTerm &Term)
   if (Term.NoOfMoles<1.0e-6)
     CReactionBlock::Error(&RB, 'B', 12, Term.SpcName());
 
-  //Todo (for 20 and 21): 
-  //1) This should only be a warning
-  //2) This should not occur if (a) user specifies a heatofreaction; or (b) heatbalance is switched off
-  if (Term.SpcId>=0 && !SDB[Term.SpcId].H25OK())
-    CReactionBlock::Error(&RB, 'B', 20, Term.SpcName());
-  if (Term.SpcId>=0 && !SDB[Term.SpcId].CpOK())
-    CReactionBlock::Error(&RB, 'B', 21, Term.SpcName());
+  ////Todo (for 20 and 21): 
+  ////1) This should only be a warning
+  ////2) This should not occur if (a) user specifies a heatofreaction; or (b) heatbalance is switched off
+  //if (Term.SpcId>=0 && !SDB[Term.SpcId].H25OK())
+  //  CReactionBlock::Error(&RB, 'B', 20, Term.SpcName());
+  //if (Term.SpcId>=0 && !SDB[Term.SpcId].CpOK())
+  //  CReactionBlock::Error(&RB, 'B', 21, Term.SpcName());
 
   return (Term.SpcId>=0);
   }
@@ -1590,6 +1590,26 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
 //    }
   if (pHeat==NULL && !HeatSkipMethod())
     pHeat=new CR_EqnHeat(NULL, this);
+
+
+  // Check Cp && Hf OK
+  // 1) This should only be a warning
+  // 2) This should not occur if (a) user specifies a heatofreaction; or (b) heatbalance is switched off
+  if (pHeat)
+    {
+    for (int Pass=0; Pass<2; Pass++)
+      {
+      CR_EqnTermArray &A = Pass==0 ? Reactant:Product;
+      for (int t=0; t<A.GetCount(); t++)
+        {
+        CR_EqnTerm & T=A[t]; 
+        if (T.SpcId>=0 && !SDB[T.SpcId].H25OK())
+          CReactionBlock::Error(&RB, 'W', 20, T.SpcName());
+        if (T.SpcId>=0 && !SDB[T.SpcId].CpOK())
+          CReactionBlock::Error(&RB, 'W', 21, T.SpcName());
+        }
+      }
+    }
 
 //  if (RB.fUseHtOfForms)
 //    {

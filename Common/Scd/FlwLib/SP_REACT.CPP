@@ -932,23 +932,25 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
   char Buff0[1024], Buff1[1024];
   sprintf(Buff0, "%d: %s", errNo, errDesc);
 
-  if (pRBlk!=NULL && pRBlk->pTkns!=NULL  && Code == SPR_ErrBuild)
+  if (pRBlk!=NULL && pRBlk->pTkns!=NULL  && (Code == SPR_ErrBuild || Code == SPR_WarnBuild))
     sprintf(Buff1, "Line:%4d %s" , pRBlk->pTkns->GetLineNo(), pRBlk->pTkns->GetWholeLine());
   else
     sprintf(Buff1, "");
 
   dbgpln(" ======================= ERROR =========================");
   dbgpln("ERROR %c : %s", Code, Buff0);
-  #ifndef TESTING_GCONTROL
-  LogStop(pRBlk ? pRBlk->FullObjTag() : "Reactions", 0, "Reactions:ERROR %c : %s", Code, Buff0);
-  #endif
+#ifndef TESTING_GCONTROL
+  if (Code != SPR_WarnBuild)
+    LogStop(pRBlk ? pRBlk->FullObjTag() : "Reactions", 0, "Reactions:ERROR %c : %s", Code, Buff0);
+#endif
 
   if (strlen(Buff1)>0)
     {
     dbgpln("%s", Buff1);
-    #ifndef TESTING_GCONTROL
-    LogStop(pRBlk ? pRBlk->FullObjTag() : "Reactions", 0, "%s", Buff1);
-    #endif
+#ifndef TESTING_GCONTROL
+    if (Code != SPR_WarnBuild)
+      LogStop(pRBlk ? pRBlk->FullObjTag() : "Reactions", 0, "%s", Buff1);
+#endif
     }
   dbgpln(" =======================================================");
 
@@ -958,14 +960,19 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
     pRBlk->m_LoadError=Buff1;
     }
 
-  #ifdef TESTING_GCONTROL
+#ifdef TESTING_GCONTROL
   AfxMessageBox(Buff0);
-  #endif
+#endif
 
-  if (Code != SPR_ErrBuild)
+  switch (Code)
     {
-    sprintf(Buff0, "%s\n%c: Run-time error!\n", Buff0, Code);
-    AfxMessageBox(Buff0);
+    case SPR_WarnBuild:
+    case SPR_ErrBuild:
+      break;
+    default:
+      sprintf(Buff0, "%s\n%c: Run-time error!\n", Buff0, Code);
+      AfxMessageBox(Buff0);
+      break;
     };
 
   switch (Code)
@@ -974,6 +981,8 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
       break;
     case SPR_ErrOtherRuntime: //KGA:TODO what to do for runtime errors ????
       AfxMessageBox("Unpredictable results will occur!!\n System likely to CRASH !");
+      break;
+    case SPR_WarnBuild:
       break;
     case SPR_ErrBuild:
       {

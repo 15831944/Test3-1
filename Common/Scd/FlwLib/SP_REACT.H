@@ -81,6 +81,7 @@ const char Comma=',';
 //===========================================================================
 
 const char SPR_ErrBuild        = 'B';
+const char SPR_WarnBuild       = 'W';
 const char SPR_ErrMathRuntime  = 'M';
 const char SPR_ErrOtherRuntime = 'R';
 
