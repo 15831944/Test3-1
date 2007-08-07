@@ -35,6 +35,7 @@ public:
   // Initialize model with specific arguments
   bool Initialize(PStreamInfo1 Config, VectorView& ParamVec);
   void SetWaterSplitToUS(double WSUS);
+  void SetApperture(double Ap);
   void InitializeRegr(double* A, double* B, double* C, double* E, double* Td, double* Tw);
 
   virtual bool CalculateModel( PFlowStream1 FeedStream );

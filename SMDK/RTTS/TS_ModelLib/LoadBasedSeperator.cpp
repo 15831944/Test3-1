@@ -316,7 +316,7 @@ void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
   // Parameters
   //
   DB.StructBegin("Top" );
-  DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Apperture"    , "", &m_dTopApperture      , MF_PARAMETER ,  MC_L("mm"));
   DB.Double("Length"       , "", &m_dTopLength         , MF_PARAM_STOPPED ,  MC_L("mm"));
   DB.Double("Width"        , "", &m_dTopWidth          , MF_PARAM_STOPPED ,  MC_L("mm"));
   DB.Double("Angle"        , "", &m_dTopAngle          , MF_PARAM_STOPPED | MF_INIT_HIDDEN ,  MC_Ang("deg"));
@@ -333,7 +333,7 @@ void CSeperator_LoadBased::BuildDataFields(MDataDefn &DB)
 
   DB.Text("");
   DB.StructBegin("Bottom" );
-  DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAM_STOPPED ,  MC_L("mm"));
+  DB.Double("Apperture"    , "", &m_dBottomApperture      , MF_PARAMETER ,  MC_L("mm"));
   DB.Double("Length"       , "", &m_dBottomLength         , MF_PARAM_STOPPED ,  MC_L("mm"));
   DB.Double("Width"        , "", &m_dBottomWidth          , MF_PARAM_STOPPED ,  MC_L("mm"));
   DB.Double("Angle"        , "", &m_dBottomAngle          , MF_PARAM_STOPPED | MF_INIT_HIDDEN,  MC_Ang("deg"));
@@ -512,10 +512,13 @@ void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
     SysCADSystemHelper::SysCADSolidsToSystem(Feed,FeedStream);
     SysCADSystemHelper::SysCADLiquidToSystem(Feed,FeedStream);
 
+    //set some parameters every iteration:
     TopDeckScreen.SetWaterSplitToUS(m_dTopWaterSplitToUS);
+    TopDeckScreen.SetApperture(m_dTopApperture*1000.0);
     if ( bTwoDecks )
       {
       BottomDeckScreen.SetWaterSplitToUS(m_dBottomWaterSplitToUS);
+      BottomDeckScreen.SetApperture(m_dBottomApperture*1000.0);
       }
 
     // Execute the Top Deck Model

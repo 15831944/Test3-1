@@ -318,6 +318,12 @@ void LoadBasedScreen1::SetWaterSplitToUS(double WSUS)
   WR  = WaterSplitToUS;
   }
 
+void LoadBasedScreen1::SetApperture(double Ap)
+  {
+  Apperture = Ap;
+  S = Apperture;
+  }
+
 void LoadBasedScreen1::InitializeRegr(double* A_, double* B_, double* C_, double* E_, double* Td_, double* Tw_)
   {
   pAArray = A_;
