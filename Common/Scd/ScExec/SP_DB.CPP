@@ -854,6 +854,9 @@ CDensCorr::CDensCorr()
   m_iSolvent=-1;
   m_pDensCorrFn=NULL;
   m_DensCorrZero=0.0;
+  m_LimitFrac=0.0;
+  m_PureValue=1000.0;
+  m_DoWarn=true;
   };
 
 CDensCorr::CDensCorr(int Solute, int Solvent,
@@ -864,7 +867,7 @@ CDensCorr::CDensCorr(int Solute, int Solvent,
   m_iSolvent       = Solvent;
   m_pDensCorrFn    = DensCorrFn;
   m_DensCorrZero   = DensCorrZero;
-  m_LimitFrac      = LimitFrac;        
+  m_LimitFrac      = Range(0.00001, LimitFrac, 0.999);
   m_PureValue      = PureValue;
   m_DoWarn         = DoWarn;
   };
@@ -879,23 +882,40 @@ void CDensCorr::Clear()
   m_pDensCorrFn=NULL;
   };
 
+double CDensCorr::Evaluate(long Fidelity, double T, double P, double MassSolvent, double MassSolute)
+  {
+  const double DensSolvent    = SDB[m_iSolvent].Density(Fidelity, T, P, NULL, NULL);
+  const double MassTotal      = MassSolute+MassSolvent;
+  const double MassFrac       = MassSolute/GTZ(MassTotal);
+  const double MassFracCalc   = Min(MassFrac, m_LimitFrac);
+
+  const double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
+  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent);
+  //AppDensSolute  = MixDens*MassSolute*DensSolvent / NZ(MassTotal*DensSolvent - MixDens*MassSolvent);
+
+  if (MassFrac>m_LimitFrac)
+    {
+    AppDensSolute = AppDensSolute+(m_PureValue-AppDensSolute)*(MassFrac-m_LimitFrac)/(1.0-m_LimitFrac);
+    }    
+
+  return AppDensSolute;
+  };
+
 double CDensCorr::Evaluate(long Fidelity, double T, double P, CSVData M)
   {
-  double DensSolvent    = SDB[m_iSolvent].Density(Fidelity, T,P, NULL, M);
+  const double DensSolvent    = SDB[m_iSolvent].Density(Fidelity, T,P, NULL, M);
+  const double MassSolvent    = M[m_iSolvent];
+  const double MassSolute     = M[m_iSolute];
+  const double MassTotal      = MassSolute+MassSolvent;
+  const double MassFrac       = MassSolute/GTZ(MassTotal);
+  const double MassFracCalc   = Min(MassFrac, m_LimitFrac);
 
-  double MassSolvent    = M[m_iSolvent];
-  double MassSolute     = M[m_iSolute];
-  double MassTotal      = MassSolute+MassSolvent;
-  double MassFrac       = MassSolute/GTZ(MassSolute+MassSolvent);
-  double MassFracCalc   = Min(MassFrac, m_LimitFrac);
-
-  double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
-
+  const double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
   double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent);
 
   if (MassFrac>m_LimitFrac)
     {
-    AppDensSolute=AppDensSolute+(m_PureValue-AppDensSolute)*(MassFrac-m_LimitFrac)/GTZ(1.0-m_LimitFrac);
+    AppDensSolute = AppDensSolute+(m_PureValue-AppDensSolute)*(MassFrac-m_LimitFrac)/(1.0-m_LimitFrac);
     }    
 
   return AppDensSolute;

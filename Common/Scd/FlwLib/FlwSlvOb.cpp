@@ -342,13 +342,14 @@ const int Id_Hz1             =  10*MaxSpecies;
 const int Id_Hs1             =  11*MaxSpecies;
 const int Id_Vp1             =  12*MaxSpecies;
 const int Id_Vt1             =  13*MaxSpecies;
-const int Id_Rho1            =  14*MaxSpecies;
-const int Id_KaKb1           =  15*MaxSpecies;
-const int Id_RelSGs1         =  16*MaxSpecies;
+const int Id_KaKb1           =  14*MaxSpecies;
+const int Id_Rho1            =  15*MaxSpecies;
+const int Id_CorrRho1        =  16*MaxSpecies;
+const int Id_RelSGs1         =  17*MaxSpecies;
 
-const int Id_ElemMoleWt1     =  17*MaxSpecies;
+const int Id_ElemMoleWt1     =  18*MaxSpecies;
 
-const int Id_ExtraProp1      =  18*MaxSpecies; //first ExtraProps ID
+const int Id_ExtraProp1      =  19*MaxSpecies; //first ExtraProps ID
 // NBNB Do NOT have Ids after Id_ExtraProp1 for MaxExtraProps*MaxSpecies !!!
 
 
@@ -533,10 +534,11 @@ static int iWd_Cp         =  10;
 static int iWd_Vp         =  8; 
 static int iWd_Vt         =  8; 
 static int iWd_Rho        =  8; 
-static int iWd_KaKb       =  15; 
-static int iWd_Corr       =  38;
+static int iWd_CorrRho    =  8; 
+static int iWd_CorrDesc   =  32;
 static int iWdElemName    =  6;
 static int iWdElemMolWt   =  12;
+static int iWd_KaKb       =  15; 
 
 int GetSp(int i) { return i<MaxSpecies ? i : (i%MaxSpecies); };
 int GetID(int i) { return i<MaxSpecies ? i : (i/MaxSpecies)*MaxSpecies; };
@@ -554,11 +556,12 @@ void SDBObjectEdt::Build()
   int H2Ol_i = -1;
 #endif
 
+  const long DensCorrSolventCnt = SDB.m_DensCorrSps.GetSize();
+
   StartPage("Specie Properties");
 
   if (1) //data Blk
     {
-    const long DensCorrSolventCnt = SDB.m_DensCorrSps.GetSize();
     StartBlk(6+(DensCorrSolventCnt>0?1:0), 0, NULL); 
     int L=0;
 
@@ -607,7 +610,11 @@ void SDBObjectEdt::Build()
     SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
     SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
     SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-    SetDesc(L, "Correction",    -1, iWd_Corr   ,  0, "");
+    if (DensCorrSolventCnt>0)
+      {
+      SetDesc(L, "CorrDens",      -1, iWd_CorrRho,  2, "");
+      SetDesc(L, "Correction Factor", -1, iWd_CorrDesc, 1, "");
+      }
     
     L++;
     SetDesc(L, "Specie",        -1, iNameWidth ,  0, "");
@@ -631,7 +638,9 @@ void SDBObjectEdt::Build()
       }
     SetDesc(L, VpCnv.Text(),    -1, iWd_Vp     ,  2, "");
     SetDesc(L, VtCnv.Text(),    -1, iWd_Vt     ,  2, "");
-    SetDesc(L, RhoCnv.Text(),   -1, iWd_Rho    ,  2, " ");
+    SetDesc(L, RhoCnv.Text(),   -1, iWd_Rho    ,  2, "");
+    if (DensCorrSolventCnt>0)
+      SetDesc(L, RhoCnv.Text(),   -1, iWd_CorrRho,  2, " ");
     }
 
   if (1) // Other Blk
@@ -664,7 +673,11 @@ void SDBObjectEdt::Build()
             SetDesc(L, "VapourP",       -1, iWd_Vp     ,  2, "");
             SetDesc(L, "VapourT",       -1, iWd_Vt     ,  2, "");
             SetDesc(L, "Density",       -1, iWd_Rho    ,  2, "");
-            SetDesc(L, "Correction",    -1, iWd_Corr   ,  0, "");
+            if (DensCorrSolventCnt>0)
+              {
+              SetDesc(L, "CorrDens",      -1, iWd_CorrRho,  2, "");
+              SetDesc(L, "Correction Factor", -1, iWd_CorrDesc, 1, "");
+              }
             L++;
             TextCnt = 0;
             }
@@ -715,7 +728,25 @@ void SDBObjectEdt::Build()
           Tg.Set("$SDB.%s.Rho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
           SetTag(Tg(), RhoCnv.Text());
         
-          SetDesc(L, "", Id_RelSGs1+iSp, iWd_Corr, 0, "");          // DensityCorrs
+          if (DensCorrSolventCnt>0)
+            {
+            if (SDB[iSp].HasDensCalc() || SDB[iSp].DensCorrCount()>0)
+              {
+              SetParm(L, "", Id_CorrRho1+iSp, iWd_CorrRho, 2, "");     // Corr Density
+              Tg.Set("$SDB.%s.CorrRho(%.2f,%.2f)", SDB[iSp].SymOrTag(), rSDBO.m_dDisplayT, rSDBO.m_dDisplayP);
+              SetTag(Tg(), RhoCnv.Text());
+              }
+            else
+              {
+              if (SDB[iSp].DensCorrCount()>0)
+                SetDesc(L, "Solvent", -1, iWd_CorrRho, 0, "");
+              else
+                SetSpace(L, iWd_CorrRho);
+              }
+          
+            SetDesc(L, "", Id_RelSGs1+iSp, iWd_CorrDesc, 0, "");          // DensityCorrDesc
+            }
+
           L++;
           }
           break;
@@ -1103,6 +1134,29 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             }
           FixWide(iWd_Rho, Str, View());
           break;
+        case Id_CorrRho1:
+          {
+          Str="";
+          if (SDB[iSp].HasDensCalc())
+            {
+            const int iSolvent = SDB[iSp].Solvent();
+            if (rSDBO.m_iDisplaySolvent==iSolvent)
+              {
+              CDensCorr & SI=SDB[iSp].DensCalc();
+              const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+              const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
+              RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), Str);
+              //const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
+              //RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
+              }
+            }
+          else if (SDB[iSp].DensCorrCount()>0)
+            {
+            Str = "Solvent";
+            }
+          FixWide(iWd_CorrRho, Str, View());
+          break;
+          }
         case Id_RelSGs1:
           {
           Str="";
@@ -1111,7 +1165,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             const int Cnt = SDB[iSp].DensCorrCount();
             if (Cnt>0)
               {
-              Str.Set("Solvent (%d species) ", Cnt);
+              Str.Set("(%d species) ", Cnt);
               }
             if (SDB[iSp].HasDensCalc())
               {
@@ -1122,15 +1176,15 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
                 CDensCorr & SI=SDB[iSp].DensCalc();
                 const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
                 const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
-                RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
-                //const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
-                //RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
+                T.Set("(%.4f) ", 1.0+Factor);
                 Str += T;
-                T.Set(" (%.4f)", 1.0+Factor);
+                //RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
+                const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
+                RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
                 Str += T;
                 if (rSDBO.m_dDisplayMF>SI.m_LimitFrac)
                   {
-                  T.Set(" Above limit of %.3f", SI.m_LimitFrac);
+                  T.Set(" at Limit(%.3f)", SI.m_LimitFrac);
                   Str += T;
                   }
                 }
@@ -1434,6 +1488,9 @@ flag SDBObjectEdt::DoRButtonUp(UINT nFlags, CPoint point)
             WrkIB.Set(EI.Fld->Tag, &CpCnvMl, &CpFmt);
           break;
         case Id_Rho1:
+          WrkIB.Set(EI.Fld->Tag, &RhoCnv, &RhoFmt);
+          break;
+        case Id_CorrRho1:
           WrkIB.Set(EI.Fld->Tag, &RhoCnv, &RhoFmt);
           break;
         case Id_Vp1:
