@@ -1101,7 +1101,7 @@ double LoadBasedScreen1::CalculateT( double V )
   double* pw = (pTwArray ? pTwArray : *TWetArray);
   double* pd = (pTdArray ? pTdArray : *TDryArray);
   Matrix TWetMatrix( nWetRows, 2, pw );
-  Matrix TDryMatrix( nWetRows, 2, pd );
+  Matrix TDryMatrix( nDryRows, 2, pd );
   CubicSpline TSpline;
 
   if (WetScreening==true)

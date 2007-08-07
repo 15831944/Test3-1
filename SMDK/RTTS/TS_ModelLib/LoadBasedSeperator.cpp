@@ -14,11 +14,10 @@
 
 CSeperator_LoadBased::CSeperator_LoadBased()
 	{
+  // Construct the Persistent System Feed Data
 
-	// Construct the Persistent System Feed Data
-
-    FeedStream  = RioTintoTS::PFlowStream1( new RioTintoTS::FlowStream1 );
-    MatInfo     = RioTintoTS::PStreamInfo1( new RioTintoTS::StreamInfo1 );
+  FeedStream  = RioTintoTS::PFlowStream1( new RioTintoTS::FlowStream1 );
+  MatInfo     = RioTintoTS::PStreamInfo1( new RioTintoTS::StreamInfo1 );
 
 	//
 	// Default Parameters
@@ -497,6 +496,33 @@ void CSeperator_LoadBased::EvalProducts(MStream &Feed ,
     if ( bTwoDecks )
       {
       BottomDeckScreen.InitializeRegr(m_A.Val(), m_B.Val(), m_C.Val(), m_E.Val(), m_Td.Val(), m_Tw.Val());
+      }
+
+    if ( !bTwoDecks )
+      {//clear the bottom deck results
+	    m_dBottomQF=0.0;		//  total tph of feed
+	    m_dBottomFeed_OS=0.0;	//  fraction of feed > apperture
+	    m_dBottomFeed_US=0.0;	//  fraction of feed < apperture
+	    m_dBottomFeed_HS=0.0;	//  fraction of feed < half-apperture
+	    m_dBottomQU=0.0;		//  flowrate of undersize stream
+	    m_dBottomQO=0.0;		//  flowrate of oversize stream
+	    m_dBottomS=0.0;		//  apperture size
+	    m_dBottomT=0.0;		//  screen efficiency (at S)
+	    m_dBottomAF=0.0;		//  effective screen area
+	    m_dBottomD50=0.0;		//  fitted d50 of separation
+	    m_dBottomA=0.0;	    //  basic capacity factor
+	    m_dBottomB=0.0;		//  over-size factor
+	    m_dBottomC=0.0;		//  half-size factor
+	    m_dBottomD=0.0;		//  deck location factor
+	    m_dBottomE=0.0;		//  wet screening factor
+	    m_dBottomF=0.0;		//  feed bulk density factor
+	    m_dBottomG=0.0;		//  load vs efficiency factor
+	    m_dBottomH=0.0;		//  opening shape factor
+	    m_dBottomJ=0.0;		//  screen open area factor
+	    m_dBottomK=0.0;		//  rock/gravel factor
+	    m_dBottomL=0.0;		//  humidity factor
+	    m_dBottomX=0.0;		//  user custom factor
+	    m_dBottomV=0.0;		//  screen load %
       }
 
     // Create the Feed Stream. Use SetConfig after initialisation

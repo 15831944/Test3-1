@@ -38,27 +38,29 @@ class SysCADSeperator : public MBaseMethod
 
   protected:
 
-	// Seperator Method
-	CSeperator::eMethod				m_Method;
+	  // Seperator Method
+	  CSeperator::eMethod				m_Method;
 
-	// Persistent Storage for each Seperation Type
-	CSeperator_LoadBased			m_CSeperator_LoadBased;
-	CSeperator_EfficiencyCurve		m_CSeperator_EfficiencyCurve;
-	CSeperator_GlobalPartition		m_CSeperator_GlobalPartition;
-	CSeperator_ComponentPartition	m_CSeperator_ComponentPartition;
+	  // Persistent Storage for each Seperation Type
+	  CSeperator_LoadBased			m_CSeperator_LoadBased;
+	  CSeperator_EfficiencyCurve		m_CSeperator_EfficiencyCurve;
+	  CSeperator_GlobalPartition		m_CSeperator_GlobalPartition;
+	  CSeperator_ComponentPartition	m_CSeperator_ComponentPartition;
 
-	// The Selected Method
-	CSeperator          *m_pCSeperator;
+	  // The Selected Method
+	  CSeperator          *m_pCSeperator;
 
-  // Options for species not handled by the Method
-  double m_dOtherLiqToUS;
-  double m_dOtherSolToUS;
+    // Options for species not handled by the Method
+    double m_dOtherLiqToUS;
+    double m_dOtherSolToUS;
 
-	// Flag to tell EvalProducts to initialise
-	bool bInit;
+	  // Flag to tell EvalProducts to initialise
+	  bool bInit;
 
-	// Parameter for specifying 1 or 2 decks
-	bool m_bTwoDecks;
+	  // Parameter for specifying 1 or 2 decks
+	  bool m_bTwoDecks;
+
+    CString m_sMyTag;
 
   };
 

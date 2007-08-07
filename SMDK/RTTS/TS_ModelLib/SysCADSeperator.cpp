@@ -69,8 +69,7 @@ void SysCADSeperator::Init()
 //---------------------------------------------------------------------------
 
 void SysCADSeperator::BuildDataFields()
-{
-
+  {
   static MDDValueLst DDMethod[]={
     {CSeperator::eMethod_LoadBased,         "LoadBasedScreen"},
     {CSeperator::eMethod_EfficiencyCurve,   "EfficiencyCurve_BySize"},
@@ -78,77 +77,68 @@ void SysCADSeperator::BuildDataFields()
     {CSeperator::eMethod_ComponentPartition,"FixedPartition_ByComponent"},
     {0}};
 
-    // SysCAD Tag Name convention ==> no spaces between words
-    // Use MF_VISIBLE to make parameters invisible
+  // SysCAD Tag Name convention ==> no spaces between words
+  // Use MF_VISIBLE to make parameters invisible
 
-    // Seperator Parameters
-    DD.Page("Configuration");
+  // Seperator Parameters
+  DD.Page("Configuration");
 
-    //DD.Bool("N", "", &m_bTwoDecks , MF_RESULT);//MF_PARAMETER | MF_SET_ON_CHANGE | MF_PARAM_STOPPED);
+  //DD.Bool("N", "", &m_bTwoDecks , MF_RESULT);//MF_PARAMETER | MF_SET_ON_CHANGE | MF_PARAM_STOPPED);
 
-    DD.ObjectBegin("TS_Seperation", "Seperation" );
+  DD.ObjectBegin("TS_Seperation", "Seperation" );
 
+  DD.Long("Method", "", (long*)&m_Method, MF_PARAMETER|MF_SET_ON_CHANGE|MF_PARAM_STOPPED, DDMethod);
+  DD.Double("OtherLiquidSplitToUS", "", &m_dOtherLiqToUS, MF_PARAMETER|MF_INIT_HIDDEN, MC_Frac("%"));
+  DD.Double("OtherSolidSplitToUS", "", &m_dOtherSolToUS, MF_PARAMETER, MC_Frac("%"));
 
-    DD.Long("Method", "", (long*)&m_Method, MF_PARAMETER|MF_SET_ON_CHANGE|MF_PARAM_STOPPED, DDMethod);
-  	DD.Double("OtherLiquidSplitToUS", "", &m_dOtherLiqToUS, MF_PARAMETER|MF_INIT_HIDDEN, MC_Frac("%"));
-  	DD.Double("OtherSolidSplitToUS", "", &m_dOtherSolToUS, MF_PARAMETER, MC_Frac("%"));
-
-    int l = 0;
-
-    switch(m_Method)
-      {
-      case CSeperator::eMethod_LoadBased:
-		  m_pCSeperator =  &m_CSeperator_LoadBased;
-          break;
-
-      case CSeperator::eMethod_EfficiencyCurve:
+  switch(m_Method)
+    {
+    case CSeperator::eMethod_LoadBased:
+  		m_pCSeperator =  &m_CSeperator_LoadBased;
+      break;
+    case CSeperator::eMethod_EfficiencyCurve:
 		  m_pCSeperator =  &m_CSeperator_EfficiencyCurve;
-          break;
-
+      break;
 	  case CSeperator::eMethod_GlobalPartition:
 		  m_pCSeperator =  &m_CSeperator_GlobalPartition;
 		  break;
-
 	  case CSeperator::eMethod_ComponentPartition:
 		  m_pCSeperator =  &m_CSeperator_ComponentPartition;
 		  break;
-
-      default:
+    default:
 	    m_pCSeperator = NULL;
-        break;
+      break;
+    }
 
-      }
+  // We Build all the data field irrespective of the
+  // selected method so all data is persistent.
+  // We just specify the visibility based on the selected method.
+  if (m_pCSeperator==&m_CSeperator_LoadBased)
+    DD.Show(true,true,true);
+  else
+	  DD.Show(false,true,true);
+  m_CSeperator_LoadBased.BuildDataFields(DD);
 
-	  // We Build all the data field irrespective of the
-	  // selected method so all data is persistent.
-	  // We just specify the visibility based on the selected method.
-	  if (m_pCSeperator==&m_CSeperator_LoadBased)
-  		DD.Show(true,true,true);
-	  else
-	    DD.Show(false,true,true);
-	  m_CSeperator_LoadBased.BuildDataFields(DD);
+  if (m_pCSeperator==&m_CSeperator_EfficiencyCurve)
+    DD.Show(true,true,true);
+  else
+	  DD.Show(false,true,true);
+  m_CSeperator_EfficiencyCurve.BuildDataFields(DD);
 
-	  if (m_pCSeperator==&m_CSeperator_EfficiencyCurve)
-		DD.Show(true,true,true);
-	  else
-	    DD.Show(false,true,true);
-	  m_CSeperator_EfficiencyCurve.BuildDataFields(DD);
+  if (m_pCSeperator==&m_CSeperator_GlobalPartition)
+    DD.Show(true,true,true);
+  else
+	  DD.Show(false,true,true);
+  m_CSeperator_GlobalPartition.BuildDataFields(DD);
 
-	  if (m_pCSeperator==&m_CSeperator_GlobalPartition)
-		DD.Show(true,true,true);
-	  else
-	    DD.Show(false,true,true);
-	  m_CSeperator_GlobalPartition.BuildDataFields(DD);
+  if (m_pCSeperator==&m_CSeperator_ComponentPartition)
+	  DD.Show(true,true,true);
+  else
+	  DD.Show(false,true,true);
+  m_CSeperator_ComponentPartition.BuildDataFields(DD);
 
-	  if (m_pCSeperator==&m_CSeperator_ComponentPartition)
-		DD.Show(true,true,true);
-	  else
-	    DD.Show(false,true,true);
-	  m_CSeperator_ComponentPartition.BuildDataFields(DD);
-
-	  DD.ObjectEnd();
-
-}
+	DD.ObjectEnd();
+  }
 
 //---------------------------------------------------------------------------
 
@@ -158,6 +148,8 @@ void SysCADSeperator::EvalProducts()
     {
     MStreamI Feed; // SysCAD Feed Stream
     FlwIOs.AddMixtureIn_Id(Feed, idFeed); //sum all input streams
+
+    //m_sMyTag = getTag(); //for debug
 
     //
     // Get References to our Output Streams using the FlwIOs helper class and IO ids
