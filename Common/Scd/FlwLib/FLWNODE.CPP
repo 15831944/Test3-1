@@ -3362,6 +3362,8 @@ void FlwNode::GlobalConnect()
   for (int io=0; io<NoProcLnkIOs(); io++)
     IOFlange(io)->FixTag();
 
+  //dbgpln("FlwNode::GlobalConnect %s", FullObjTag());
+
   MakeAreaTag();
   if (m_pArea.Connect(this, -1, "Area"))
     {
@@ -3394,6 +3396,9 @@ void FlwNode::GlobalConnect()
       if (pDIO->Enabled)
         {
         m_EnabledDirectIOs.SetAtGrow(iEnabled++, pDIO);
+
+        //dbgpln("EDIO %3i %4s %s", iEnabled, pDIO->Connected?"Conn":"", pDIO->Tag);
+ 
         switch (pDIO->m_eType)
           {
           case eDIO_Spill:
@@ -8001,10 +8006,13 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
 
 //--------------------------------------------------------------------------
 
-#define dbgAssocGrfs 01
+#define dbgAssocGrfs 0
 
 flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
   {
+#if dbgAssocGrfs 
+  dbgpln("Flwode::ModelAssocGrfs %s", FullObjTag());
+#endif
   if (NoRealDirectIOs()>0)
     {
     CMdlAssocGrf G;
@@ -8022,17 +8030,27 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
       if (D.Connected)
         {
         CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
+        if (pC)
+          {
 
-        CMdlAssocGrfItem I;
-        I.m_sTag = pC->Tag();
-        I.m_bShowIt = AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus());
-        pC->m_bPrevShowStatus=I.m_bShowIt;
-        pC->m_bPrevShowStatusOK=true;
+          CMdlAssocGrfItem I;
+          I.m_sTag = pC->Tag();
+          I.m_bShowIt = AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus());
+          pC->m_bPrevShowStatus=I.m_bShowIt;
+          pC->m_bPrevShowStatusOK=true;
 
-        GT.m_AssocGrfs.Add(I);
+          GT.m_AssocGrfs.Add(I);
 #if dbgAssocGrfs 
-        dbgp(" %s", pC->FullTag());
+          dbgp(" %s", pC->FullTag());
 #endif
+          }
+        else
+          {
+#if dbgAssocGrfs 
+          _asm int 3;
+          dbgp(" %s", "MISSING <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"/*pC->FullTag()*/);
+#endif
+          }
         }
 #if dbgAssocGrfs 
       dbgpln("");

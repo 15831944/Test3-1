@@ -1551,8 +1551,7 @@ protected:
 
 inline void  TaggedObject::CallGlblTopologyChg(DDBDataInfo * Info)
   {
-  //if ((Info->iFlags & (DDEF_PARAMSTOPPED | DDEF_TOPOLOGYDATA)) && GlblTopoChg.Fun)
-  if ((Info->iFlags & (DDEF_PARAMSTOPPED)) && GlblTopoChg.Fun)
+  if ((Info==NULL || (Info->iFlags & (DDEF_PARAMSTOPPED))) && GlblTopoChg.Fun)
     {
     //dbgpln("Call ChgFun:%s", Info->pTag);
     (*GlblTopoChg.Fun)(GlblTopoChg.Data);

@@ -9598,6 +9598,9 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
   m_pAssocGrfsLoadReqd=NULL;
 
   InitialiseEnvironVars();
+
+  SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
+    
   }
 
 
@@ -9605,6 +9608,9 @@ CFlwSolver::CFlwSolver(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach,
 
 CFlwSolver::~CFlwSolver()
   {
+  SetGlblTopologyChg(NULL, 0);
+
+
   XDataClear();
 
   UnDoGlobalLinks();
@@ -13861,7 +13867,7 @@ flag CFlwSolver::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_WriteSubsData");
 
-  SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
+  //SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 //  return Dyn.WriteSubsData(XM, FirstBlock, LastBlock);
   for (long i=0; i<XM.NoMsgs(); i++)
     {
@@ -13872,7 +13878,7 @@ flag CFlwSolver::EO_WriteSubsData(CXMsgLst &XM, flag FirstBlock, flag LastBlock)
     else
       XD.pNd->WriteSubsData(*pData, XD.lMdlIndex);
     }
-  SetGlblTopologyChg(NULL, 0);
+  //SetGlblTopologyChg(NULL, 0);
 
   SHOWPROGRESS(1, "EO_WriteSubsData");
   return true;
@@ -13916,7 +13922,7 @@ DWORD CFlwSolver::EO_ReadTaggedItem(CXM_ObjectTag & ObjTag, CXM_ObjectData & Obj
 
 int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   {
-  SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
+  //SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 
   ObjData.List.dbgDump(true, "EOW");
 
@@ -13925,12 +13931,12 @@ int CFlwSolver::EO_WriteTaggedItem(CXM_ObjectData &ObjData, CXM_Route &Route)
   if (TAB.LoadAddress(true))
     {
     int Ret=TAB.PutDefinedData(ObjData.List);
-    SetGlblTopologyChg(NULL, 0);
+    //SetGlblTopologyChg(NULL, 0);
     *m_pAssocGrfsLoadReqd=true;
     return Ret;
     }
 
-  SetGlblTopologyChg(NULL, 0);
+  //SetGlblTopologyChg(NULL, 0);
   gs_Exec.XGlblResultValidity(true);
   return TOData_NotFound;
   }
@@ -14663,7 +14669,7 @@ flag CFlwSolver::EO_BeginLoad(FilingControlBlock &FCB)
 
 flag CFlwSolver::EO_LoadDefinedData(FilingControlBlock &FCB, CXMsgLst &XM)
   {
-  SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
+  //SetGlblTopologyChg(GlblTopyChgFun, (dword)this);
 
   flag Loaded=true;
   while (XM.MsgAvail())
@@ -14801,7 +14807,7 @@ Done:;
       #endif
       }
     }
-  SetGlblTopologyChg(NULL, 0);
+  //SetGlblTopologyChg(NULL, 0);
   return Loaded;
   };
 
