@@ -3,10 +3,11 @@
 //===========================================================================
 
 #include "stdafx.h"
-#include "BivariateStats.h"
+#define  __STATSBIVARIATE_CPP
+#include "StatsBivariate.h"
 #include <math.h>
 #include <limits>
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 
@@ -15,13 +16,14 @@ static double Drw_Stats[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,
 
 //---------------------------------------------------------------------------
 
-DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStatistics", MDLLIBNAME)
+//Needs testing, exclude for now
+DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
 
 void BivarStats_UnitDef::GetOptions()
 {
 	SetDefaultTag("BS");
-	SetDrawing("Tank", Drw_Stats);
-	SetTreeDescription("Control:BivariateStatistics");
+	SetDrawing("Control", Drw_Stats);
+	SetTreeDescription("Statistics:Bivariate Statistics");
 	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
 };

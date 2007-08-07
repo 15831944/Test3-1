@@ -527,10 +527,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BivariateStats.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Control1.cpp"
 				>
 			</File>
@@ -591,6 +587,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StatsBivariate.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StatsSingleVar.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -648,10 +652,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BivariateStats.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Control1.h"
 				>
 			</File>
@@ -705,6 +705,14 @@
 			</File>
 			<File
 				RelativePath=".\SetTagList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StatsBivariate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StatsSingleVar.h"
 				>
 			</File>
 			<File
