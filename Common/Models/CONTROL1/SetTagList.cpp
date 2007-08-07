@@ -134,11 +134,11 @@ bool TagListFileHelper::LoadAndSetTags(bool TestParamStopped)
 
 static double Drw_TagListCon[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
-       DD_Poly, -2,2, 0,2,
-       DD_Poly, -1,2, -1,-2,
-       DD_Poly, 1,2, 1,-2, 3,-2,
-       DD_TagPos, 0, -7.5,
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2,
+       DD_Poly, -1.6,1.6, 0.0,1.6,
+       DD_Poly, -0.8,1.6, -0.8,-1.6,
+       DD_Poly, 0.8,1.6, 0.8,-1.6, 2.4,-1.6,
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

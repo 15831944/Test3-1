@@ -315,10 +315,10 @@ void EventConInfo::ExecIns(double ICTime)
 
 static double Drw_EventsCon[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
-       DD_Poly, 2,3, -2,3, -2,-3, 2,-3,
-       DD_Poly, -2,0, 1,0,
-       DD_TagPos, 0, -7.5,
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2, 
+       DD_Poly, 1.6,2.4, -1.6,2.4, -1.6,-2.4, 1.6,-2.4,
+       DD_Poly, -1.6,0, 0.8,0,
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

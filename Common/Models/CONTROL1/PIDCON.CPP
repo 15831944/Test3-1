@@ -241,9 +241,9 @@ static int s_nPIDControls=0;
 
 static double Drw_PIDControl[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4,
-       DD_Poly, -4,0, 0,4, 4,0, 0,-4, -4,0,
-       DD_TagPos, 0, -7.5,
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2,
+       DD_Poly, -3.2,0, 0,3.2, 3.2,0, 0,-3.2, -3.2,0,
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

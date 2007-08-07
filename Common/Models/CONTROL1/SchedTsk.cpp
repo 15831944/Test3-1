@@ -622,10 +622,9 @@ int ScheduleTask::DeleteTag(pchar pDelTag, BOOL & FoundOne)
 
 double Drw_SchedTask[] = 
        { 
-       //DD_Poly, -3,-3, -3,3, 3,3, 3,-3, -3,-3, 
-       DD_Arc, 0, 0, 4,
-       DD_Poly, 0,3, 0,0, 2,0,
-       DD_TagPos, 0, -7.5,
+       DD_Arc, 0,0, 3.2,
+       DD_Poly, 0.0,2.4, 0.0,0.0, 1.6,0.0,
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

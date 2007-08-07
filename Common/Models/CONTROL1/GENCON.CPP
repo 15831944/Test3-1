@@ -71,10 +71,10 @@ Model type:Unit#n
 
 static double Drw_GControl[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4,
-       DD_Poly, -4,0, 4,0,
-       DD_Poly, 0, -4,0, 4,
-       DD_TagPos, 0, -7.5,
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2,
+       DD_Poly, -3.2,0, 3.2,0,
+       DD_Poly, 0,-3.2, 0,3.2,
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

@@ -163,13 +163,13 @@ void ProfConInfo::ExecIns(double ICTime)
 
 static double Drw_ProfCon[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
-       DD_Poly, -4,0, -3,0, -3,2, -1,2, -1,-2, 0,-2, 0,-1, 2,-1, 2,0, 3,0, 3,3, 4,3, 
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2,
+       DD_Poly, -3.2,0.0, -2.4,0.0, -2.4,1.6, -0.8,1.6, -0.8,-1.6, 0.0,-1.6, 0.0,-0.8, 1.6,-0.8, 1.6,0.0, 2.4,0.0, 2.4,2.4, 3.2,2.4, 
        DD_TagPos, 0, -7.5,
        DD_End
        };
 
-IMPLEMENT_MODELUNIT(CProfileCon, "ProfCon", "", Drw_ProfCon, "Control", "PC", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,  
+IMPLEMENT_MODELUNITHIDDEN(CProfileCon, "ProfCon", "", Drw_ProfCon, "Control", "PC", TOC_ALL|TOC_DYNAMICFLOW|TOC_GRP_GENERAL|TOC_STD_KENWALT,  
                     "Control:Profile(old)",
                    "Profile Control model.")
 
