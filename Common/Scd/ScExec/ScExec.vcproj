@@ -529,9 +529,6 @@
 				RelativePath=".\font.h">
 			</File>
 			<File
-				RelativePath="..\..\..\Smdk\Include\md_share1.h">
-			</File>
-			<File
 				RelativePath=".\MdlCfg.h">
 			</File>
 			<File

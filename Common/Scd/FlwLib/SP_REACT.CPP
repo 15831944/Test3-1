@@ -918,9 +918,9 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
       break;
     case 17: errDesc.Set("First Reaction must have a Sequence number");
       break;
-    case 18: errDesc.Set("Too Many Source reactions (Max = 1)");
+    case 18: errDesc.Set("Source may only be specified once. (Use ',' to separate species)");
       break;
-    case 19: errDesc.Set("Too Many Sink reactions (Max = 1)");
+    case 19: errDesc.Set("Sink may only be specified once. (Use ',' to separate species)");
       break;
     case 20: errDesc.Set("Specie %s : Hf not defined", s);
       break;

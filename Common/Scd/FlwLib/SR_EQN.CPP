@@ -1466,6 +1466,9 @@ flag CR_Eqn::ParseTerm(CR_EqnTerm &Term)
   if (Term.NoOfMoles<1.0e-6)
     CReactionBlock::Error(&RB, 'B', 12, Term.SpcName());
 
+  //Todo (for 20 and 21): 
+  //1) This should only be a warning
+  //2) This should not occur if (a) user specifies a heatofreaction; or (b) heatbalance is switched off
   if (Term.SpcId>=0 && !SDB[Term.SpcId].H25OK())
     CReactionBlock::Error(&RB, 'B', 20, Term.SpcName());
   if (Term.SpcId>=0 && !SDB[Term.SpcId].CpOK())

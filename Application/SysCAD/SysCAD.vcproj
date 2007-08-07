@@ -746,6 +746,18 @@
 				RelativePath=".\ABOUTBOX.H">
 			</File>
 			<File
+				RelativePath=".\res\accnext.bmp">
+			</File>
+			<File
+				RelativePath=".\res\accnext1.bmp">
+			</File>
+			<File
+				RelativePath=".\res\accnextlr.bmp">
+			</File>
+			<File
+				RelativePath=".\res\accnextlr1.bmp">
+			</File>
+			<File
 				RelativePath=".\ACCNODE.H">
 			</File>
 			<File
