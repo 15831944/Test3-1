@@ -11725,11 +11725,10 @@ int CFlwSolver::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
 
 LPSTR CFlwSolver::FE_FindNodeTagFromGuid(pchar Guid)
   {
-  _asm int 3;
-  FlwNode * p = NULL;//(FlwNode *)FindObj(Tag);
-  if (p)
+  for (FlwNode * p = NULL; GetObj_All(p); )
     {
-    return p->Tag();
+    if (stricmp(p->EqGUID(), Guid)==0)
+      return p->Tag();
     }
   return NULL;
   }

@@ -489,6 +489,14 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
   CString Tag = gs_pPrj->FindNodeTagFromGuid((LPSTR)ItemGuid);
   if (Tag.GetLength()>0)
     {
+    int RetCode = gs_Exec.DeleteTag((LPSTR)(LPCSTR)Tag);
+    if (RetCode!=EODT_DONE)
+      {
+      LogError((LPSTR)(LPCSTR)Tag, 0, "Model not deleted");
+      //DeletesFailedCnt++;
+      }
+    //else
+    //  MdlDeletes++;
     }
   else
     {

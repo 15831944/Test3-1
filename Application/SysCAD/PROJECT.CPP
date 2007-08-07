@@ -6595,9 +6595,9 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
     if (01)//pkh && OK)
       {
       m_pSvc = new CSvcConnect;
-      m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
+      m_pSvc->Startup(PrjName(), CfgFiles(), true /* Hardwired for now - always import*/);
       // Temporary
-      m_pSvc->Export(PrjFile(), CfgFiles());
+      m_pSvc->Export(PrjName(), CfgFiles());
       }
     else
       m_pSvc = NULL;
