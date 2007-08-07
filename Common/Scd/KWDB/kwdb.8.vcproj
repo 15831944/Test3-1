@@ -246,17 +246,19 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="4"
+				Optimization="0"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
+				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories=".,..\..\SMDK\Include,..\scdlib"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;KWDB;WIN32;_WINDOWS;AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				FloatingPointModel="1"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="false"
+				FloatingPointModel="0"
 				FloatingPointExceptions="true"
 				ForceConformanceInForLoopScope="false"
 				UsePrecompiledHeader="2"
@@ -283,7 +285,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\KWDB.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

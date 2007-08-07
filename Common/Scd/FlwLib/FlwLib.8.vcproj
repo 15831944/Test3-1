@@ -45,17 +45,22 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="4"
+				Optimization="2"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
+				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\ScdIF,..\scdlib,..\scexec,..\xylib"
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;FLWLIB;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
-				FloatingPointModel="1"
-				FloatingPointExceptions="true"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="false"
+				FloatingPointModel="0"
+				FloatingPointExceptions="false"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -83,7 +88,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
 				OutputFile="..\..\..\Bin\FlwLib.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -2195,11 +2199,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tblas1.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tblas1.h"
 				>
 			</File>
 			<File
@@ -2207,11 +2211,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
 				>
 			</File>
 			<File
-				RelativePath=".\SparseSlv\Indirect\mv\include\tmvmat.h"
+				RelativePath=".\SparseSlv\Indirect\include\tmvmat.h"
 				>
 			</File>
 			<File

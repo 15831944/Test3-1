@@ -106,8 +106,8 @@ void CPressBlk::Init()
   m_PStdyStart=-1;
   m_iFxdPOrder=-1;
 
-  m_PMax=fNAN;
-  m_PMaxLim=fNAN;
+  m_PMax=dNAN;
+  m_PMaxLim=dNAN;
   };
 
 //==========================================================================
@@ -660,12 +660,12 @@ void CFlwBlkData::ResetData(flag Complete)
   if (m_pNdPB)
     {
     m_pNdPB->P          = Std_P;
-    m_pNdPB->PMax       = fNAN;
+    m_pNdPB->PMax       = dNAN;
     }
   if (m_pFlPB)
     {
     m_pFlPB->P          = Std_P;
-    m_pFlPB->PMax       = fNAN;
+    m_pFlPB->PMax       = dNAN;
     }
 
   m_dPb                 = 0.0;
@@ -817,7 +817,7 @@ void CFlwEqnPtr::ResetData(flag Complete)
 void CFlwEqnPtr::SetOptions(long Options, double DPFactor)
   {
   m_Options|=Options;
-  FlwRqd().m_PressDP=(float)DPFactor;
+  FlwRqd().m_PressDP=DPFactor;
   };
 
 // -------------------------------------------------------------------------
@@ -2203,7 +2203,7 @@ bool CFlwBlkBase::GetBasicModeRqd(long FlowMode, CSpPropInfo *pProps, bool On, b
   if (Regulation<SmallRegulation)
     On=false;
 
-  FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
+  FR.m_MeasDens     = Max(0.001, MeanRho(pProps));
   FR.m_bMeasDensOK  = true;
 
   if (FR.m_AsMass)
@@ -2303,7 +2303,7 @@ flag CFlwBlkBase::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, bool
   flag b=false;
   CFlwEqnFlwRqd &FR=FlwRqd();
 
-  FR.m_MeasDens     = (float)Max(0.001, MeanRho(pProps));
+  FR.m_MeasDens     = Max(0.001, MeanRho(pProps));
   FR.m_bMeasDensOK  = true;
 
   if (FR.m_AsMass)

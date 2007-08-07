@@ -242,7 +242,7 @@ class DllImportExport MFlowBlk
     void            SetQmFree();
     void            SetXferMode();
     void            SetXferCapacity(double QmCap);
-    void            SetQmReqd(double QmReqd, bool IsDegFree=true, float MaxNode=fNAN, float MaxFlng=fNAN);
+    void            SetQmReqd(double QmReqd, bool IsDegFree=true, double MaxNode=dNAN, double MaxFlng=dNAN);
 
     void            SetDerivsBad(bool On=true);
     void            SetFunctOfPress(bool On=true);

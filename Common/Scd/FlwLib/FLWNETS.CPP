@@ -340,7 +340,7 @@ void FlwBlk::SetXferCapacity(double QmCap)
   m_QmXfCap         = QmCap;
   };
 
-void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float MaxFlng)
+void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, double MaxNode, double MaxFlng)
   {
   if (!m_fFixed || m_fXfer)
     {
@@ -361,7 +361,7 @@ void FlwBlk::SetQmReqd(double QmReqd, flag IsFree, float MaxNode, float MaxFlng)
   #endif
   };
 
-void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, float MaxNode, float MaxFlng)
+void FlwBlk::SetQmReqdVlv(double QmReqd, double Reg, flag IsFree, double MaxNode, double MaxFlng)
   {
   if (!m_fFixed || m_fXfer)
     {
@@ -394,8 +394,8 @@ void FlwBlk::SetQmFree()
   m_fFixed          = false;
   m_fXfer           = false;
   m_fIsDegFree      = false;
-  NodePB().PMaxLim  = fNAN;
-  FlngPB().PMaxLim  = fNAN;
+  NodePB().PMaxLim  = dNAN;
+  FlngPB().PMaxLim  = dNAN;
   #if (0||dbgTrackQmModes)
   dbgpln("%-20s fb%04i", "SetQmFree", m_iNo);
   #endif
@@ -4301,8 +4301,8 @@ void CSubNetBlk::FindFxdFBPEstRqd( CJoinGFBPtr & JG)
     CPressBlk & SrcPB=FB.SrcPB(GoFwd);
     CPressBlk & DstPB=FB.DstPB(GoFwd);
 
-    SrcPB.PMax=Valid(SrcPB.PMaxLim) ? SrcPB.PMaxLim: fNAN;
-    DstPB.PMax=Valid(DstPB.PMaxLim) ? DstPB.PMaxLim: fNAN;
+    SrcPB.PMax=Valid(SrcPB.PMaxLim) ? SrcPB.PMaxLim: dNAN;
+    DstPB.PMax=Valid(DstPB.PMaxLim) ? DstPB.PMaxLim: dNAN;
 
 #if dbgFlwNets
     if (dbgSolveFxdPs())
@@ -4392,7 +4392,7 @@ void CSubNetBlk::FindFxdJoinPEstRqd(CJoinGFBPtr & JG)
       }
     }
 
-  Jn.PB()->PMax=(PMin>=0.0 ? (float)PMin: fNAN);
+  Jn.PB()->PMax=(PMin>=0.0 ? PMin: dNAN);
   Jn.PB_Self(iSrcConn)->PMax=Jn.PB()->PMax;
 
 #if dbgFlwNets

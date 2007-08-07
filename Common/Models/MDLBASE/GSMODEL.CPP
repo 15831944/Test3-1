@@ -74,7 +74,7 @@ GSIOAlpha::GSIOAlpha()
   m_LQvRqd     = 0.0;
   m_VQvRqd     = 0.0;
   for (int i=0; i<MaxPhases; i++)
-    m_PhSplt[i]   = fNAN;
+    m_PhSplt[i]   = dNAN;
 
   m_ReqdT=Std_T;
   m_ReqdP=Std_P;

@@ -11153,8 +11153,8 @@ void CFlwSolver::SetState(eScdMdlStateActs RqdState)
         {
         if (Valid(m_RandomSeed))
           {
-          srand((long)(m_RandomSeed));
-          CBaseNoise::SetGlobalNoiseSeed((long)(m_RandomSeed));
+          srand((long)(__int64)(m_RandomSeed));
+          CBaseNoise::SetGlobalNoiseSeed((long)(__int64)(m_RandomSeed));
           }
         else
           {

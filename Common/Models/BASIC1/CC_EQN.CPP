@@ -348,7 +348,7 @@ flag CC_FixQv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
 
   //dbgpln("CC_FixQv::EvaluateFlwEqn P:%10.3f Rho:%10.5f = QmRqdPrv:%12.5f QmRqd:%12.5f  %s", m_Press, m_Density, m_QmRqdPrv, m_QmRqd, FullObjTag());
 
-  FE.SetQmReqd(m_QmRqd, true, (float)m_dMaxNdPress);
+  FE.SetQmReqd(m_QmRqd, true, m_dMaxNdPress);
   FE.SetDPb(0.0, 0.0);
   FE.SetDPq(0.0, 0.0);
   return true;
@@ -1329,12 +1329,12 @@ flag CC_FixQvAGA::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlw
 
     if (m_dStCnt > 10)
       {
-      FE.SetQmReqd(m_dMaxPSlew, true, (float)m_dMaxNdPress);
+      FE.SetQmReqd(m_dMaxPSlew, true, m_dMaxNdPress);
       }
     else
       {
       m_dMaxPSlew = m_dReqd_Qv;
-      FE.SetQmReqd(m_dSrgFlwF*m_dMaxPSlew, true, (float)m_dMaxNdPress);
+      FE.SetQmReqd(m_dSrgFlwF*m_dMaxPSlew, true, m_dMaxNdPress);
       }
 /*
 if (Rqd_MassFlw < MinQm)
@@ -1351,7 +1351,7 @@ if (Rqd_MassFlw < MinQm)
 
   else
     {
-    FE.SetQmReqd(0.0, true, (float)m_dMaxNdPress);
+    FE.SetQmReqd(0.0, true, m_dMaxNdPress);
     }
 //test boost kcg
 

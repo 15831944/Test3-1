@@ -58,7 +58,7 @@ const float fNAN=fQuietNAN;
 
 const double dQuietNAN  = CDNanValueUnion (0x7fffffff00000000);
 const double dSignalNAN = CDNanValueUnion (0x7ff7ffff00000000);
-const double dNAN=dSignalNAN;  
+const double dNAN=dQuietNAN;////dSignalNAN;  
 
 // ===========================================================================
 //find next number that might be a prime number...

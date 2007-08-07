@@ -173,8 +173,8 @@ class CPressBlk
     double    getPEst()             { return m_PEst;    };
     double    getPMn()              { return m_PMn;     };
     double    getPGood()            { return m_PGood;   };
-    float     getPMax()             { return m_PMax;    };
-    float     getPMaxLim()          { return m_PMaxLim; };
+    double    getPMax()             { return m_PMax;    };
+    double    getPMaxLim()          { return m_PMaxLim; };
     double    getPStdyState()       { return m_PStdyStart; };
 
     void      putP(double P)        { m_P=P;        };
@@ -189,24 +189,24 @@ class CPressBlk
       m_PMn=P;      
       };
     void      putPGood(double P)      { m_PGood=P;    };
-    void      putPMax(float P)        { m_PMax=P;     };
-    void      putPMaxLim(float P)     { m_PMaxLim=P;  };
+    void      putPMax(double P)       { m_PMax=P;     };
+    void      putPMaxLim(double P)    { m_PMaxLim=P;  };
     void      putPStdyState(double P) { m_PStdyStart=P;  };
 
     _declspec(property(get=getP,put=putP))                    double P; 
     _declspec(property(get=getPEst,put=putPEst))              double PEst; 
     _declspec(property(get=getPMn,put=putPMn))                double PMn; 
     _declspec(property(get=getPGood,put=putPGood))            double PGood; 
-    _declspec(property(get=getPMax,put=putPMax))              float  PMax; 
-    _declspec(property(get=getPMaxLim,put=putPMaxLim))        float  PMaxLim; 
+    _declspec(property(get=getPMax,put=putPMax))              double PMax; 
+    _declspec(property(get=getPMaxLim,put=putPMaxLim))        double PMaxLim; 
     _declspec(property(get=getPStdyState,put=putPStdyState))  double PStdyState; 
 
     double  * PAdd()                { return &m_P;       };
     double  * PEstAdd()             { return &m_PEst;    };
     double  * PMnAdd()              { return &m_PMn;     };
     double  * PGoodAdd()            { return &m_PGood;   };
-    float   * PMaxAdd()             { return &m_PMax;    };
-    float   * PMaxLimAdd()          { return &m_PMaxLim; };
+    double  * PMaxAdd()             { return &m_PMax;    };
+    double  * PMaxLimAdd()          { return &m_PMaxLim; };
 
   protected:
     double    m_P;
@@ -215,8 +215,8 @@ class CPressBlk
 
     double    m_PGood;
 
-    float     m_PMax;        // Used to Estimate Max Pressures in links in fixed mass mode
-    float     m_PMaxLim;     // Used to Estimate Max Pressures in links in fixed mass mode
+    double    m_PMax;        // Used to Estimate Max Pressures in links in fixed mass mode
+    double    m_PMaxLim;     // Used to Estimate Max Pressures in links in fixed mass mode
 
     double    m_PStdyStart;
 
@@ -899,8 +899,8 @@ class DllImportExport CFlwBlkBase : public CFlwBlkData,  public CFlwEqnPtr
     virtual flag   InXferNet()=0;
     virtual void   SetXferMode()=0;
     virtual void   SetXferCapacity(double QmCap)=0;
-    virtual void   SetQmReqd(double QmReqd, flag IsDegFree=true, float MaxNode=fNAN, float MaxFlng=fNAN)=0;
-    virtual void   SetQmReqdVlv(double QmReqd, double Reg, flag IsDegFree=true, float MaxNode=fNAN, float MaxFlng=fNAN)=0;
+    virtual void   SetQmReqd(double QmReqd, flag IsDegFree=true, double MaxNode=dNAN, double MaxFlng=dNAN)=0;
+    virtual void   SetQmReqdVlv(double QmReqd, double Reg, flag IsDegFree=true, double MaxNode=dNAN, double MaxFlng=dNAN)=0;
 
 
     virtual flag   IsXfer()=0;

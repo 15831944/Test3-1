@@ -1288,8 +1288,8 @@ class DllImportExport FlwBlk  : public CFlwBlkBase
     void           ResetData(flag Complete);
     void           SetXferMode();
     void           SetXferCapacity(double QmCap);
-    void           SetQmReqd(double QmReqd, flag IsFree=true, float MaxNode=fNAN, float MaxFlng=fNAN);
-    void           SetQmReqdVlv(double QmReqd, double Reg, flag IsFree=true, float MaxNode=fNAN, float MaxFlng=fNAN);
+    void           SetQmReqd(double QmReqd, flag IsFree=true, double MaxNode=dNAN, double MaxFlng=dNAN);
+    void           SetQmReqdVlv(double QmReqd, double Reg, flag IsFree=true, double MaxNode=dNAN, double MaxFlng=dNAN);
     void           SetQmFree();
     double         RequiredQm();
 
@@ -4129,8 +4129,8 @@ class DllImportExport FlwNode : public CTNode
     void           Set_JoinP_Est(int iJoinId, double P)       { JoinPBlk(iJoinId).PEst=P; };
     void           Set_JoinP_Good(int iJoinId, double P)      { JoinPBlk(iJoinId).PGood=P; };
     //void           Set_JoinP_Ref(int iJoinId, double P)       { JoinPBlk(iJoinId).PRef=(float)P; };
-    void           Set_JoinP_Max(int iJoinId, double P)       { JoinPBlk(iJoinId).PMax=(float)P; };
-    void           Set_JoinP_MaxSet(int iJoinId, double P)    { JoinPBlk(iJoinId).PMaxLim=(float)P; };
+    void           Set_JoinP_Max(int iJoinId, double P)       { JoinPBlk(iJoinId).PMax=P; };
+    void           Set_JoinP_MaxSet(int iJoinId, double P)    { JoinPBlk(iJoinId).PMaxLim=P; };
     double         JoinP(int iJoinId)                         { return JoinPBlk(iJoinId).P; };
     double         JoinP_Est(int iJoinId)                     { return JoinPBlk(iJoinId).PEst; };
     double         JoinP_Good(int iJoinId)                    { return JoinPBlk(iJoinId).PGood; };

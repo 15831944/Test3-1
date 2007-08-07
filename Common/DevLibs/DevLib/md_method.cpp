@@ -744,7 +744,7 @@ void            MFlowBlk::SetDPz(double DP, double dDP)   {  m_pNd->IOFB(m_iIONo
 void            MFlowBlk::SetQmFree()                     {  m_pNd->IOFB(m_iIONo,0)->SetQmFree(); }
 void            MFlowBlk::SetXferMode()                   {  m_pNd->IOFB(m_iIONo,0)->SetXferMode(); };
 void            MFlowBlk::SetXferCapacity(double QmCap)   {  m_pNd->IOFB(m_iIONo,0)->SetXferCapacity(QmCap); }
-void            MFlowBlk::SetQmReqd(double QmReqd, bool IsDegFree, float MaxNode, float MaxFlng) {  m_pNd->IOFB(m_iIONo,0)->SetQmReqd(QmReqd, IsDegFree, MaxNode, MaxFlng); }
+void            MFlowBlk::SetQmReqd(double QmReqd, bool IsDegFree, double MaxNode, double MaxFlng) {  m_pNd->IOFB(m_iIONo,0)->SetQmReqd(QmReqd, IsDegFree, MaxNode, MaxFlng); }
 
 void            MFlowBlk::SetDerivsBad(bool On)           {  m_pNd->IOFB(m_iIONo,0)->SetDerivsBad(On); }
 void            MFlowBlk::SetFunctOfPress(bool On)        {  m_pNd->IOFB(m_iIONo,0)->SetFunctOfPress(On); };

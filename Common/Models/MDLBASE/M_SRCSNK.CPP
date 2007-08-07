@@ -916,7 +916,7 @@ flag MN_SrcSnk::EvalFlowEquations(eScdFlwEqnTasks Task, CSpPropInfo *pProps, int
       //if (IOFB(IONo)->
       Contents.SetPRqdTo(IOP_Flng(IONo));
       double PFeed=Contents.Press();
-      pFB->SetQmReqd((((SSMode&SSM_Source)!=0) ? -1 : 1) * QRequired(Contents.Rho(som_ALL)), true, (float)PFeed);
+      pFB->SetQmReqd((((SSMode&SSM_Source)!=0) ? -1 : 1) * QRequired(Contents.Rho(som_ALL)), true, PFeed);
 
       if (fDoDbgBrk)
         dbgpln("          %15.6f %15.6f %15.6f %s", IOP_Flng(IONo),Contents.PRqd(), PFeed, FullObjTag());

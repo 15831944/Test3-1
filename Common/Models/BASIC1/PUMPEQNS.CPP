@@ -92,7 +92,7 @@ void PC_FixQm::BuildDataDefn(DataDefnBlk & DDB)
 flag PC_FixQm::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlkBase & FE, bool On, double Regulation, CFBPhysData *pPhD0, CFBPhysData *pPhD1)
   {
   Regulation=Range(0.0, Regulation, 2.0);
-  FE.SetQmReqd(dReqd_Qm*Regulation, true, (float)dMaxNdPress);
+  FE.SetQmReqd(dReqd_Qm*Regulation, true, dMaxNdPress);
   FE.SetDPb(0.0, 0.0);
   FE.SetDPq(0.0, 0.0);
   return true;
@@ -176,7 +176,7 @@ flag PC_FixQv::EvaluateFlwEqn(eScdFlwEqnTasks Task, CSpPropInfo *pProps, CFlwBlk
   double Dens=FE.Properties(pProps)->Rho(P, dNAN);
   dbgpln("PC_FixQv::EvaluateFlwEqn P:%10.3f Rho:%10.5f = QmRqd:%12.5f  %s", P, Dens, dReqd_Qv*Dens*Regulation, FullObjTag());
   
-  FE.SetQmReqd(dReqd_Qv*Dens*Regulation, true, (float)dMaxNdPress);
+  FE.SetQmReqd(dReqd_Qv*Dens*Regulation, true, dMaxNdPress);
   FE.SetDPb(0.0, 0.0);
   FE.SetDPq(0.0, 0.0);
   return true;
