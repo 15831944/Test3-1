@@ -501,6 +501,20 @@ flag GControl::LoadPGM(char * pPGMName, flag WithDebug)
     ss.FnDrivePathName(sPGMName());
     ss.FnCheckExtension("pgm");
     ss.FnSearchExpand(NULL, AF_All|AF_BackupFiles);
+
+    if (!FileExists(ss()))
+      {
+      //let's see if the pgm file has been moved to the "Controls" sub folder...
+      Strng Tmp(ss);
+      Tmp.FnNameExt();
+      Strng Tmp2 = FnDefaultControlsFolder();
+      Tmp2 += Tmp;
+      if (FileExists(Tmp2()))
+        {
+        ss = Tmp2();
+        LogNote(FullObjTag(), 0, "PGM file (%s) folder location changed to '\\Controls'.", Tmp());
+        }
+      }
     sPGMName.FnContract(ss());
     }
 

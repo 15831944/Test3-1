@@ -4048,7 +4048,7 @@ void PGMParseFailure(char* pTxt, DWORD ErrNo, void* p)
 
 //---------------------------------------------------------------------------
 
-bool fileExists(const std::string& fileName)
+/*bool fileExists(const std::string& fileName)
 {
   std::fstream fin;
   fin.open(fileName.c_str(),std::ios::in);
@@ -4059,7 +4059,7 @@ bool fileExists(const std::string& fileName)
   }
   fin.close();
   return false;
-}
+}*/
 
 
 flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* ParseBuff, flag AddingCode/*=False*/, int FirstInsBlkSize/*=4096*/, int NextInsBlkSize/*=2048*/)
@@ -4128,8 +4128,8 @@ flag GCInsMngr::BuildCode(byte Places, char* fullFileName, WORD InsSet, char* Pa
     realFn.FnExpand(Fn);
     EncryptedFn = realFn;
     EncryptedFn += ".xxx";
-
-    if (fileExists(EncryptedFn()))
+    const BOOL Encrypted = FileExists(EncryptedFn());
+    if (Encrypted)
       {//FIRST look for encrypted file
       LogNote(m_pXRM ? m_pXRM->GetOwnerTag() : "???", 0, "Load:%s", EncryptedFn());
       std::fstream fin;
