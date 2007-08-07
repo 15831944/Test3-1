@@ -1999,7 +1999,8 @@ flag SfeSD_Defn::Initialise()
       ASSERT(nCols==D.Columns.GetSize());
       if (D.Columns.GetSize()>=MaxColumns)
         {
-        LogError("SzDist", 0, "Require %i columns: Max allowed is %i!", D.Columns.GetSize(), MaxColumns);
+        //LogError("SzDist", 0, "Too many columns, try reduce options in PlantModel.Globals!");
+        LogError("SzDist", /*LF_Exclamation*/0, "Require %i columns for PSD: Max allowed is %i!", D.Columns.GetSize(), MaxColumns);
         D.Columns.SetSize(MaxColumns);
         }
 
@@ -2030,7 +2031,7 @@ flag SfeSD_Defn::Initialise()
             c++;
             }
           const int base = c;
-          for (int s=0; s<D.sSzNames.GetSize(); s++)
+          for (int s=0; (s<D.sSzNames.GetSize()) && (c<cmax); s++)
             D.DispColIndices[c++]=base+Ord[s];
           }
         }
