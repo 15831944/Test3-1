@@ -106,8 +106,12 @@ void CSvcConnect::Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9
 
 void CSvcConnect::Shutdown()
   {
-  m_pCLR->Shutdown();
-  delete m_pCLR;
+  if (m_pCLR)
+    {
+    m_pCLR->Shutdown();
+    delete m_pCLR;
+    m_pCLR=NULL;
+    }
 
   POSITION Pos=m_GrfGrpsNames.GetStartPosition();
   while (Pos)
