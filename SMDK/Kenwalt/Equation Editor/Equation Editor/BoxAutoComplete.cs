@@ -14,7 +14,9 @@ namespace Auto_Complete
     {
         #region Variables
         protected FrmAutoComplete m_AutoForm;
-        int m_nStartChar = -1;
+        protected int m_nStartChar = -1;
+        protected bool m_bCompSelected = false;
+        protected bool m_bCompSelection;
         #endregion Variables
 
         #region Constructors
@@ -57,7 +59,36 @@ namespace Auto_Complete
             get { return m_AutoForm.MainControl.m_HitCounts; }
             set { m_AutoForm.MainControl.m_HitCounts = value; }
         }
+
+        public bool CompSelected
+        {
+            get { return m_bCompSelected; }
+            protected set
+            {
+                m_bCompSelected = value;
+                if (!m_bCompSelected)
+                    this.Cursor = Cursors.IBeam;
+                else if (GetSelectionRectangle(null).Contains(this.PointToClient(Cursor.Position)))
+                    this.Cursor = Cursors.Default;
+            }
+        }
+
+        public bool CompSelection
+        {
+            get { return m_bCompSelection; }
+            set
+            {
+                m_bCompSelection = value;
+                if (!m_bCompSelection)
+                    CompSelected = false;
+            }
+        }
         #endregion Properties
+
+        #region Events
+        public event EventHandler CompoundDragged;
+        public event CancelEventHandler PreCompSelect;
+        #endregion Events
 
         #region Overrides
 
@@ -169,13 +200,65 @@ namespace Auto_Complete
                     || m.WParam == m_AutoForm.Handle || m.WParam == m_AutoForm.MainControl.Handle))
                     m_AutoForm.Hide();
             }
-            base.WndProc(ref m);
+            if (m.Msg == Messaging.WM_LBUTTONDOWN && m_bCompSelected && GetSelectionRectangle(null).Contains(this.PointToClient(Cursor.Position)))
+                DoCustomLMouseDown(ref m);
+            else
+                base.WndProc(ref m);
+            //Because we want to draw on top of the normal control:
+            if (m.Msg == Messaging.WM_PAINT)
+                DrawSelectionFrame();
         }
 
         protected override void  OnMouseDown(MouseEventArgs e)
         {
             m_AutoForm.Hide();
- 	        base.OnMouseDown(e);
+            base.OnMouseDown(e);
+        }
+
+        //Although I guess this should be in another derived class, I like it here.
+        protected override void OnDoubleClick(EventArgs e)
+        {
+            CancelEventArgs ce = new CancelEventArgs(false);
+            if (m_bCompSelection)
+            {
+                if (PreCompSelect != null)
+                    PreCompSelect(this, ce);
+            }
+            base.OnDoubleClick(e);
+            if (m_bCompSelection && !ce.Cancel)
+            {
+                
+                //Change the selection to select the entire current specie.
+                string[] subs = Text.Split(',', '+');
+                Point pos = this.PointToClient(Cursor.Position);
+                int mouseLoc = this.GetCharIndexFromPosition(pos);
+                int i = 0, selectionLoc = 0;
+                while (selectionLoc <= mouseLoc && i < subs.Length)
+                    selectionLoc += subs[i++].Length + 1;
+                if (i != 0)
+                    i--;
+                int selectionStart = selectionLoc - subs[i].Length - 1 + (subs[i].Length - subs[i].TrimStart().Length);
+                this.Select(selectionStart, subs[i].Trim().Length);
+                CompSelected = true;
+            }
+        }
+
+        protected override void OnSelectionChanged(EventArgs e)
+        {
+            CompSelected = false;
+            base.OnSelectionChanged(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            if (CompSelected)
+            {
+                if (GetSelectionRectangle(null).Contains(e.Location))
+                    this.Cursor = Cursors.Default;
+                else
+                    this.Cursor = Cursors.IBeam;
+            }
         }
         #endregion Overrides
 
@@ -203,5 +286,35 @@ namespace Auto_Complete
             m_AutoForm.Hide();
         }
         #endregion Public Functions
+
+        #region Protected Functions
+        protected void DrawSelectionFrame()
+        {
+            if (CompSelected)
+            {
+                Graphics gfx = this.CreateGraphics();
+                Rectangle outsideRect = GetSelectionRectangle(gfx);
+                Rectangle insideRect = outsideRect;
+                insideRect.X += 1; insideRect.Y += 1; insideRect.Width -= 2; insideRect.Height -= 2;
+                ControlPaint.DrawSelectionFrame(gfx, true, outsideRect, insideRect, Color.Red);
+            }
+        }
+
+        protected Rectangle GetSelectionRectangle(Graphics gfx)
+        {
+            if (gfx == null) gfx = this.CreateGraphics();
+            Point selectionStart = this.GetPositionFromCharIndex(SelectionStart);
+            Point selectionEnd = this.GetPositionFromCharIndex(SelectionStart + SelectionLength);
+            SizeF selectionSize = gfx.MeasureString(this.SelectedText, this.Font);
+            return new Rectangle(selectionStart.X, selectionStart.Y, selectionEnd.X - selectionStart.X, (int)selectionSize.Height);
+        }
+
+        protected void DoCustomLMouseDown(ref Message m)
+        {
+            if (CompoundDragged != null)
+                CompoundDragged(this, new EventArgs());
+        }
+        #endregion Protected Functions
+
     }
 }

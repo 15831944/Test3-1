@@ -12,6 +12,7 @@ using System.Resources;
 using System.Reflection;
 using System.Collections;
 using System.Runtime.InteropServices;
+using Mehroz;
 
 namespace Reaction_Editor
 {
@@ -115,7 +116,7 @@ namespace Reaction_Editor
                                 new MessageSource(filename));
                         }
                         comp.Elements.Add(Element.ElementList[sym],
-                                          double.Parse(m.Groups["ElemCount"].Captures[i].Value));
+                                          Fraction.ToFraction(m.Groups["ElemCount"].Captures[i].Value));
                     }
 
                     if (Compound.AddCompound(comp))
@@ -221,6 +222,7 @@ namespace Reaction_Editor
         {
             frm.FormClosing += new FormClosingEventHandler(frm_FormClosing);
             frm.FormClosed += new FormClosedEventHandler(frm_FormClosed);
+            frm.RecheckCutCopyPaste += new EventHandler(frm_RecheckCutCopyPaste);
             frm.MdiParent = this;
             frm.Show();
             TreeNode newNode = new TreeNode(frm.Text);
@@ -351,6 +353,23 @@ namespace Reaction_Editor
             foreach(ToolStripMenuItem item in m_RecentFiles)
                 regKey.SetValue("RecentFile" + i++, item.Tag);
         }
+
+        protected void UpdateToolbar()
+        {
+            if (this.MdiChildren.Length == 0)
+                btnSaveAll.Enabled = false;
+            else
+                btnSaveAll.Enabled = true;
+            if (!(ActiveMdiChild is FrmReaction))
+            {
+                btnSave.Enabled = btnCut.Enabled = btnCopy.Enabled = btnPaste.Enabled = false;
+                return;
+            }
+            FrmReaction frm = (FrmReaction)ActiveMdiChild;
+            btnSave.Enabled = frm.Changed;
+            btnCopy.Enabled = btnCut.Enabled = frm.CanCutCopy;
+            btnPaste.Enabled = frm.CanPaste;
+        }
         #endregion
 
         public FrmMain()
@@ -379,6 +398,7 @@ namespace Reaction_Editor
                 if (specieData.Success)
                 {
                     OpenSpecieDB(specieData.Groups["Filename"].Value);
+                    bDBOpen = true;
                     break;
                 }
             }
@@ -395,6 +415,14 @@ namespace Reaction_Editor
                 if (rct.Success)
                     Open(rct.Groups["Filename"].Value);
             }
+
+            UpdateToolbar();
+        }
+
+        void frm_RecheckCutCopyPaste(object sender, EventArgs e)
+        {
+            if (sender == ActiveMdiChild)
+                UpdateToolbar();
         }
 
         void frm_NowChanged(object sender, EventArgs e)
@@ -547,9 +575,9 @@ namespace Reaction_Editor
             }
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        private void menuSave_Click(object sender, EventArgs e)
         {
-            if (this.ActiveMdiChild.GetType() != typeof(FrmReaction))
+            if (!(this.ActiveMdiChild is FrmReaction))
                 return;
             Save((FrmReaction) this.ActiveMdiChild);
         }
@@ -569,6 +597,7 @@ namespace Reaction_Editor
             else
                 m_StatusLabel.Text = "";
             UpdateUsedSpecies();
+            UpdateToolbar();
         }
 
         private void menuOpenDB_Click(object sender, EventArgs e)
@@ -632,7 +661,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.3\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.5\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)

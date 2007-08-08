@@ -29,11 +29,11 @@ namespace Reaction_Editor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Specie Database");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Reaction Blocks");
-            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Liquids", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Specie Database");
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Reaction Blocks");
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup5 = new System.Windows.Forms.ListViewGroup("Liquids", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup6 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,6 +98,15 @@ namespace Reaction_Editor
             this.btnLogCollapse = new System.Windows.Forms.Button();
             this.lblLogHeader = new System.Windows.Forms.Label();
             this.splitterLog = new System.Windows.Forms.Splitter();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.btnNew = new System.Windows.Forms.ToolStripButton();
+            this.btnOpen = new System.Windows.Forms.ToolStripButton();
+            this.btnSave = new System.Windows.Forms.ToolStripButton();
+            this.btnSaveAll = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnCut = new System.Windows.Forms.ToolStripButton();
+            this.btnCopy = new System.Windows.Forms.ToolStripButton();
+            this.btnPaste = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -107,6 +116,7 @@ namespace Reaction_Editor
             this.menuDatabaseFile.SuspendLayout();
             this.pnlLog.SuspendLayout();
             this.pnlLogHeader.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -184,7 +194,7 @@ namespace Reaction_Editor
             this.menuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.menuSave.Size = new System.Drawing.Size(160, 22);
             this.menuSave.Text = "&Save";
-            this.menuSave.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            this.menuSave.Click += new System.EventHandler(this.menuSave_Click);
             // 
             // menuSaveAs
             // 
@@ -332,9 +342,9 @@ namespace Reaction_Editor
             // 
             this.grpFiles.Controls.Add(this.treeFiles);
             this.grpFiles.Dock = System.Windows.Forms.DockStyle.Left;
-            this.grpFiles.Location = new System.Drawing.Point(0, 24);
+            this.grpFiles.Location = new System.Drawing.Point(0, 49);
             this.grpFiles.Name = "grpFiles";
-            this.grpFiles.Size = new System.Drawing.Size(146, 359);
+            this.grpFiles.Size = new System.Drawing.Size(146, 334);
             this.grpFiles.TabIndex = 2;
             this.grpFiles.TabStop = false;
             this.grpFiles.Text = "Files";
@@ -346,14 +356,14 @@ namespace Reaction_Editor
             this.treeFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeFiles.Location = new System.Drawing.Point(3, 16);
             this.treeFiles.Name = "treeFiles";
-            treeNode1.Name = "SpecieDB";
-            treeNode1.Text = "Specie Database";
-            treeNode2.Name = "RBs";
-            treeNode2.Text = "Reaction Blocks";
+            treeNode3.Name = "SpecieDB";
+            treeNode3.Text = "Specie Database";
+            treeNode4.Name = "RBs";
+            treeNode4.Text = "Reaction Blocks";
             this.treeFiles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2});
-            this.treeFiles.Size = new System.Drawing.Size(140, 340);
+            treeNode3,
+            treeNode4});
+            this.treeFiles.Size = new System.Drawing.Size(140, 315);
             this.treeFiles.TabIndex = 0;
             this.treeFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragDrop);
             this.treeFiles.DragOver += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragOver);
@@ -365,9 +375,9 @@ namespace Reaction_Editor
             this.grpSpecies.Controls.Add(this.lstSpecies);
             this.grpSpecies.Controls.Add(this.pnlFilter);
             this.grpSpecies.Dock = System.Windows.Forms.DockStyle.Right;
-            this.grpSpecies.Location = new System.Drawing.Point(562, 24);
+            this.grpSpecies.Location = new System.Drawing.Point(562, 49);
             this.grpSpecies.Name = "grpSpecies";
-            this.grpSpecies.Size = new System.Drawing.Size(172, 359);
+            this.grpSpecies.Size = new System.Drawing.Size(172, 334);
             this.grpSpecies.TabIndex = 3;
             this.grpSpecies.TabStop = false;
             this.grpSpecies.Text = "Species";
@@ -381,19 +391,19 @@ namespace Reaction_Editor
             this.lstSpecies.ContextMenuStrip = this.menuSpecieList;
             this.lstSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstSpecies.FullRowSelect = true;
-            listViewGroup1.Header = "Solids";
-            listViewGroup1.Name = "Solid";
-            listViewGroup2.Header = "Liquids";
-            listViewGroup2.Name = "Liquid";
-            listViewGroup3.Header = "Vapours";
-            listViewGroup3.Name = "Gas";
+            listViewGroup4.Header = "Solids";
+            listViewGroup4.Name = "Solid";
+            listViewGroup5.Header = "Liquids";
+            listViewGroup5.Name = "Liquid";
+            listViewGroup6.Header = "Vapours";
+            listViewGroup6.Name = "Gas";
             this.lstSpecies.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1,
-            listViewGroup2,
-            listViewGroup3});
+            listViewGroup4,
+            listViewGroup5,
+            listViewGroup6});
             this.lstSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstSpecies.Name = "lstSpecies";
-            this.lstSpecies.Size = new System.Drawing.Size(166, 306);
+            this.lstSpecies.Size = new System.Drawing.Size(166, 281);
             this.lstSpecies.TabIndex = 0;
             this.lstSpecies.UseCompatibleStateImageBehavior = false;
             this.lstSpecies.View = System.Windows.Forms.View.Details;
@@ -419,7 +429,7 @@ namespace Reaction_Editor
             this.menuRemoveSource,
             this.menuRemoveSink});
             this.menuSpecieList.Name = "menuSpecieList";
-            this.menuSpecieList.Size = new System.Drawing.Size(175, 164);
+            this.menuSpecieList.Size = new System.Drawing.Size(175, 142);
             this.menuSpecieList.Opening += new System.ComponentModel.CancelEventHandler(this.menuSpecieList_Opening);
             // 
             // menuSortAlphabetically
@@ -478,7 +488,7 @@ namespace Reaction_Editor
             this.pnlFilter.Controls.Add(this.txtFilter);
             this.pnlFilter.Controls.Add(this.label1);
             this.pnlFilter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlFilter.Location = new System.Drawing.Point(3, 322);
+            this.pnlFilter.Location = new System.Drawing.Point(3, 297);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Size = new System.Drawing.Size(166, 34);
             this.pnlFilter.TabIndex = 1;
@@ -504,9 +514,9 @@ namespace Reaction_Editor
             // 
             // splitterLeft
             // 
-            this.splitterLeft.Location = new System.Drawing.Point(146, 24);
+            this.splitterLeft.Location = new System.Drawing.Point(146, 49);
             this.splitterLeft.Name = "splitterLeft";
-            this.splitterLeft.Size = new System.Drawing.Size(5, 359);
+            this.splitterLeft.Size = new System.Drawing.Size(5, 334);
             this.splitterLeft.TabIndex = 5;
             this.splitterLeft.TabStop = false;
             // 
@@ -548,9 +558,9 @@ namespace Reaction_Editor
             // splitterRight
             // 
             this.splitterRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterRight.Location = new System.Drawing.Point(557, 24);
+            this.splitterRight.Location = new System.Drawing.Point(557, 49);
             this.splitterRight.Name = "splitterRight";
-            this.splitterRight.Size = new System.Drawing.Size(5, 359);
+            this.splitterRight.Size = new System.Drawing.Size(5, 334);
             this.splitterRight.TabIndex = 8;
             this.splitterRight.TabStop = false;
             this.splitterRight.DoubleClick += new System.EventHandler(this.splitterRight_DoubleClick);
@@ -671,6 +681,98 @@ namespace Reaction_Editor
             this.splitterLog.TabIndex = 12;
             this.splitterLog.TabStop = false;
             // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnNew,
+            this.btnOpen,
+            this.btnSave,
+            this.btnSaveAll,
+            this.toolStripSeparator1,
+            this.btnCut,
+            this.btnCopy,
+            this.btnPaste});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(734, 25);
+            this.toolStrip1.TabIndex = 14;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // btnNew
+            // 
+            this.btnNew.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnNew.Image = ((System.Drawing.Image)(resources.GetObject("btnNew.Image")));
+            this.btnNew.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnNew.Name = "btnNew";
+            this.btnNew.Size = new System.Drawing.Size(23, 22);
+            this.btnNew.Text = "New";
+            this.btnNew.Click += new System.EventHandler(this.menuNew_Click);
+            // 
+            // btnOpen
+            // 
+            this.btnOpen.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnOpen.Image = ((System.Drawing.Image)(resources.GetObject("btnOpen.Image")));
+            this.btnOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnOpen.Name = "btnOpen";
+            this.btnOpen.Size = new System.Drawing.Size(23, 22);
+            this.btnOpen.Text = "Open";
+            this.btnOpen.Click += new System.EventHandler(this.menuOpen_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
+            this.btnSave.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(23, 22);
+            this.btnSave.Text = "Save";
+            this.btnSave.Click += new System.EventHandler(this.menuSave_Click);
+            // 
+            // btnSaveAll
+            // 
+            this.btnSaveAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSaveAll.Image = ((System.Drawing.Image)(resources.GetObject("btnSaveAll.Image")));
+            this.btnSaveAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnSaveAll.Name = "btnSaveAll";
+            this.btnSaveAll.Size = new System.Drawing.Size(23, 22);
+            this.btnSaveAll.Text = "Save All";
+            this.btnSaveAll.Click += new System.EventHandler(this.menuSaveAll_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // btnCut
+            // 
+            this.btnCut.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnCut.Image = ((System.Drawing.Image)(resources.GetObject("btnCut.Image")));
+            this.btnCut.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnCut.Name = "btnCut";
+            this.btnCut.Size = new System.Drawing.Size(23, 22);
+            this.btnCut.Text = "Cut";
+            this.btnCut.Click += new System.EventHandler(this.menuCut_Click);
+            // 
+            // btnCopy
+            // 
+            this.btnCopy.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnCopy.Image = ((System.Drawing.Image)(resources.GetObject("btnCopy.Image")));
+            this.btnCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(23, 22);
+            this.btnCopy.Text = "Copy";
+            this.btnCopy.Click += new System.EventHandler(this.menuCopy_Click);
+            // 
+            // btnPaste
+            // 
+            this.btnPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnPaste.Image = ((System.Drawing.Image)(resources.GetObject("btnPaste.Image")));
+            this.btnPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnPaste.Name = "btnPaste";
+            this.btnPaste.Size = new System.Drawing.Size(23, 22);
+            this.btnPaste.Text = "Paste";
+            this.btnPaste.Click += new System.EventHandler(this.menuPaste_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -685,6 +787,7 @@ namespace Reaction_Editor
             this.Controls.Add(this.grpSpecies);
             this.Controls.Add(this.grpFiles);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
@@ -707,6 +810,8 @@ namespace Reaction_Editor
             this.pnlLog.ResumeLayout(false);
             this.pnlLogHeader.ResumeLayout(false);
             this.pnlLogHeader.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -777,6 +882,15 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripMenuItem menuRemoveSource;
         private System.Windows.Forms.ToolStripMenuItem menuRemoveSink;
         private System.Windows.Forms.ToolStripMenuItem menuSortAlphabetically;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton btnNew;
+        private System.Windows.Forms.ToolStripButton btnOpen;
+        private System.Windows.Forms.ToolStripButton btnSave;
+        private System.Windows.Forms.ToolStripButton btnSaveAll;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripButton btnCut;
+        private System.Windows.Forms.ToolStripButton btnCopy;
+        private System.Windows.Forms.ToolStripButton btnPaste;
 
 
     }

@@ -41,6 +41,7 @@ namespace Reaction_Editor
             // 
             this.radioReaction.AutoSize = true;
             this.radioReaction.Checked = true;
+            this.radioReaction.Cursor = System.Windows.Forms.Cursors.Default;
             this.radioReaction.Location = new System.Drawing.Point(12, 29);
             this.radioReaction.Name = "radioReaction";
             this.radioReaction.Size = new System.Drawing.Size(68, 17);
@@ -104,14 +105,16 @@ namespace Reaction_Editor
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(140, 13);
+            this.label1.Size = new System.Drawing.Size(75, 13);
             this.label1.TabIndex = 6;
-            this.label1.Text = "Please Select Process Type";
+            this.label1.Text = "Please Select:";
             // 
             // FrmAddSelector
             // 
+            this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(177, 151);
             this.ControlBox = false;
             this.Controls.Add(this.label1);
@@ -123,7 +126,7 @@ namespace Reaction_Editor
             this.Controls.Add(this.radioReaction);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "FrmAddSelector";
-            this.Text = "Add Process";
+            this.Text = "Add";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -12,41 +12,58 @@ using System.Collections.Specialized;
 using Be.Windows.Forms;
 using Auto_Complete;
 using System.Threading;
+using Mehroz;
 
 namespace Reaction_Editor
 {
     public partial class FrmReaction : Form
     {
         #region Regex's
-        protected static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r?\n)?|\r?\n|$))*?$",
+        protected static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r*\n)?|\r*\n|$))*?$",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         protected static Regex s_LastSelectedRegex = new Regex(@"<LastSelected\s*=\s*(?<Value>\d+|None)>",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        protected static Regex s_EndRegex = new Regex(@"(^|\r\n)\s*End",
+
+        protected static Regex s_EndRegex = new Regex(@"(^|\r*\n)\s*End",
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
-        protected static Regex s_CommentRemovingRegex = new Regex(@"^[^;]*",
+
+        protected static Regex s_CommentRemovingRegex = new Regex(@"^(?<Active>[^;]*)(;(?<Comment>.*))?",
             RegexOptions.ExplicitCapture | RegexOptions.Multiline | RegexOptions.Compiled);
-        protected static Regex s_OpeningCommentRegex = new Regex(@"^(\s*(?>;(?<Comment>[^\r\n]*))?)*",
+
+        protected static Regex s_OpeningCommentRegex = new Regex(@"^(?>;(?<Comment>[^\r\n]*)\r*\n)*",
             RegexOptions.ExplicitCapture | RegexOptions.Compiled); //If the first match is non-zero, discard.
-        protected static Regex s_SourceRegex = new Regex(@"(?<=(^|\r\n)\s*?Source:)[^:]*(?=Reactions:)",
+
+
+        protected static Regex s_SourceRegex = new Regex(@"(;RC1:(?<Comment>[^\r\n]*))?(^|\r*\n)[^\S\r\n]*(?<Disabled>;)?Source:(?<Value>[^;\r\n]*)",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+
+        #region Reactions
         public static Regex s_ReactionRegex = new Regex(
-            @"(^|\r\n)\s*((;(RC\d+:\s?)?(?<Comment>.*))\r\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>(?>\s*(;.*\r\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         protected static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r\n)\s*((;(RC\d+:\s?)?(?<Comment>.*))\r\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r\n|$))(?>[^\S\r\n]*(\r\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        protected static Regex s_SinkRegex = new Regex(@"(?<=\r\n\s*?Sink:)[^:]*?(?=End|HeatExchange|$)",
+        #endregion Reactions
+
+        #region Sinks
+
+        protected static Regex s_SinkRegex = new Regex(@"(;(RC(\d+|-):)?(?<Comment>[^\r\n]*))?\r*\n[^\S\r\n]*(?<Disabled>;)?Sink:(?<Value>[^;\r\n]*)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        #endregion Sinks
+
         protected static Regex s_HXRegex = new Regex(
-            @"^\s*HeatExchange:\s*(
+            @"^\s*(;(RC(\d+|-): ?)?(?<Comment>[^\r\n]*)\r*\n)?\s*(?<Disabled>;)?HeatExchange:\s*(
                 (?<Type>FinalT|Power|Electrolysis)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+) |
                 (?<Type>TargetT|Ambient)\s*=\s*(?<Value>\d+(\.\d+)?|\.\d+)\s*,\s*(ApproachT|ApproachAmbient)\s*=\s*(?<Value2>d+(\.\d+)?|\.\d+))",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
-        protected static Regex s_RxnBlockStartRegex = new Regex(@"(^|\r\n\s*)Reactions:",
+
+        protected static Regex s_RxnBlockStartRegex = new Regex(@"(^|\r*\n\s*)Reactions:",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        protected static Regex s_RxnBlockEndRegex = new Regex(@"\r\n\s*(End|^|HeatExchange|Sink)",
+
+        protected static Regex s_RxnBlockEndRegex = new Regex(@"\r*\n\s*(End|^|HeatExchange|Sink)",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         #endregion Regex's
 
@@ -158,15 +175,19 @@ namespace Reaction_Editor
         {
             get
             {
-                return 
-                    (lstReactions.Focused && lstReactions.SelectedItems.Count > 0) ||
-                    (txtComment.Focused && !string.IsNullOrEmpty(txtComment.SelectedText)) ||
-                    (txtDescription.Focused && !string.IsNullOrEmpty(txtDescription.SelectedText)) ||
-                    (txtSources.Focused && !string.IsNullOrEmpty(txtSources.SelectedText)) ||
-                    (txtSinks.Focused && !string.IsNullOrEmpty(txtSinks.SelectedText)) ||
-                    (txtProducts.Focused && !string.IsNullOrEmpty(txtProducts.SelectedText)) ||
-                    (txtReactants.Focused && !string.IsNullOrEmpty(txtReactants.SelectedText));
+                Control act = ActualActiveControl(this);
+                return (lstReactions.Focused && lstReactions.SelectedItems.Count > 0) ||
+                    (act is RichTextBox && !string.IsNullOrEmpty(((RichTextBox)act).SelectedText)) ||
+                    (act is TextBoxEx && !string.IsNullOrEmpty(((TextBoxEx)act).SelectedText));
             }
+        }
+
+        protected Control ActualActiveControl(ContainerControl c)
+        {
+            if (c.ActiveControl is ContainerControl)
+                return ActualActiveControl((ContainerControl)c.ActiveControl);
+            else
+                return c.ActiveControl;
         }
 
         public bool CanPaste
@@ -174,10 +195,9 @@ namespace Reaction_Editor
             get
             {
                 IDataObject obj = Clipboard.GetDataObject();
+                Control act = ActualActiveControl(this);
                 return obj.GetDataPresent(typeof(SimpleReaction)) ||
-                    (Clipboard.ContainsText() && (
-                    txtComment.Focused || txtDescription.Focused || txtSources.Focused || txtSinks.Focused ||
-                    txtProducts.Focused || txtReactants.Focused));
+                    (Clipboard.ContainsText() && (act is RichTextBox || act is TextBoxEx));
             }
         }
 
@@ -210,10 +230,12 @@ namespace Reaction_Editor
                 if (!m_CurrentReaction.Balanced)
                 {
                     text += " Excess product elements: ";
-                    foreach (KeyValuePair<Element, double> kvp in m_CurrentReaction.UnbalancedDetails)
-                        text += "{" + kvp.Key.Symbol + " = " + kvp.Value.ToString("+####0.##;-####0.##;\"Balanced\"") + "}, ";
+                    foreach (KeyValuePair<Element, Fraction> kvp in m_CurrentReaction.UnbalancedDetails)
+                        text += "{" + kvp.Key.Symbol + " = " + kvp.Value.ToString() + "}, ";
                     text = text.Substring(0, text.Length - 2);
                 }
+                if (m_CurrentReaction.Reducible)
+                    text += " (Reduced Reaction Possible.)";
                 return text;
             }
         }
@@ -250,6 +272,19 @@ namespace Reaction_Editor
                 return "";
             }
         }
+
+        protected int MaxReactionLocation
+        {
+            get
+            {
+                int ret = lstReactions.Items.Count;
+                if (m_HXLVI.ListView != null)
+                    ret--;
+                if (m_SinksLVI.ListView != null)
+                    ret--;
+                return ret;
+            }
+        }
         #endregion Properties
 
         #region Events
@@ -259,6 +294,7 @@ namespace Reaction_Editor
         public event EventHandler SourcesSinksChanged;
         public event ReactionHandler ReactionAdded;
         public event ReactionHandler ReactionRemoved;
+        public event EventHandler RecheckCutCopyPaste;
         #endregion Events
 
         #region Constructors
@@ -282,7 +318,11 @@ namespace Reaction_Editor
         private void DelayedUpdateReactionNumbers()
         {
             Thread.Sleep(200);
-            this.BeginInvoke(new ThreadStart(UpdateReactionNumbers));
+            try
+            {
+                this.BeginInvoke(new ThreadStart(UpdateReactionNumbers));
+            }
+            catch { }
         }
 
         public FrmReaction(int titleNum, ILog log)
@@ -295,6 +335,8 @@ namespace Reaction_Editor
         private void SetUp(ILog log)
         {
             InitializeComponent();
+
+            //lstReactions.ListViewItemSorter = new IntStringComparer();
 
             m_SequenceHeader.Text = "Sequence";
             m_Log = log;
@@ -322,8 +364,6 @@ namespace Reaction_Editor
                 TPConditions.Standard,
                 TPConditions.Custom });
 
-            tabSourcesSinks.Dispose();
-
             txtProducts.SelectAll(); txtReactants.SelectAll();
             txtReactants.SelectionAlignment = txtProducts.SelectionAlignment = HorizontalAlignment.Center;
             txtProducts.Select(0, 0); txtReactants.Select(0, 0);
@@ -343,7 +383,6 @@ namespace Reaction_Editor
             comboHXType.SelectedItem = null;
             comboDirection.SelectedItem = "=";
 
-            tabSources_Sinks_Resize(null, new EventArgs());
             pnlReaction_Resize(null, new EventArgs());
 
             txtSources.AllowDrop = true;
@@ -363,10 +402,6 @@ namespace Reaction_Editor
 
             UpdateAutoCompleteForms();
 
-            m_SinksLVI.ForeColor = Color.Blue;
-            m_SourcesLVI.ForeColor = Color.Blue;
-            m_HXLVI.ForeColor = Color.Blue;
-
             foreach (TabPage tp in tcIDE.TabPages)
             {
                 foreach (Control c in tp.Controls)
@@ -380,7 +415,21 @@ namespace Reaction_Editor
             }
             pnlBlank.Visible = true;
             tcIDE.Dispose();
+
+            SetFocusChanged(this);
+            lstReactions.SelectedIndexChanged += new EventHandler(FireRecheckCutCopyPaste);
         }
+
+        private void SetFocusChanged(Control ctrl)
+        {
+            ctrl.Enter += new EventHandler(FireRecheckCutCopyPaste);
+            if (ctrl is RichTextBox)
+                ((RichTextBox)ctrl).SelectionChanged += new EventHandler(FireRecheckCutCopyPaste);
+            else if (ctrl is TextBoxEx)
+                ((TextBoxEx)ctrl).SelectionChanged += new EventHandler(FireRecheckCutCopyPaste);
+            foreach (Control c in ctrl.Controls)
+                SetFocusChanged(c);
+        }        
         #endregion Constructors
 
         #region Public Functions
@@ -405,14 +454,18 @@ namespace Reaction_Editor
             //First, the comments:
             if (!string.IsNullOrEmpty(txtDescription.Text))
             {
-                sw.WriteLine(";" + txtDescription.Text.TrimEnd().Replace("\r\n", "\r\n;"));
-                sw.WriteLine();
+                sw.WriteLine(";" + txtDescription.Text.TrimEnd().Replace("\n", "\n;"));
             }
+
+            sw.WriteLine();
 
             //Sources, if they exist:
             if (m_SourcesLVI.ListView != null)
             {
-                sw.WriteLine("Source: " + txtSources.Text.Replace("\r\n", ", "));
+                sw.WriteLine(";RC1: " + txtSourceComments.Text + "");
+                if (!chkSourcesEnabled.Checked)
+                    sw.Write(';');
+                sw.WriteLine("Source: " + txtSources.Text);
                 sw.WriteLine();
             }
             
@@ -421,7 +474,7 @@ namespace Reaction_Editor
 
             //Reactions:
             sw.WriteLine("Reactions:");
-            foreach (ListViewItem lvi in lstReactions.Items)
+            foreach (ListViewItem lvi in OrderedLVIs(lstReactions.Items))
                 if (lvi.Tag is SimpleReaction)
                 {
                     SimpleReaction rxn = (SimpleReaction)lvi.Tag;
@@ -430,13 +483,21 @@ namespace Reaction_Editor
                 }
             sw.WriteLine();
             
-            if (lstReactions.Items.Contains(m_HXLVI))
-                sw.WriteLine(HXString);
-
             if (m_SinksLVI.ListView != null)
             {
-                sw.WriteLine("Sink: " + txtSinks.Text.Replace("\r\n", ", "));
+                sw.WriteLine(";RC" + m_SinksLVI.Text + ": " + txtSinkComments.Text);
+                if (!chkSinksEnabled.Checked)
+                    sw.Write(';');
+                sw.WriteLine("Sink: " + txtSinks.Text);
                 sw.WriteLine();
+            }
+
+            if (lstReactions.Items.Contains(m_HXLVI))
+            {
+                sw.WriteLine(";RC" + m_HXLVI.Text + ": " + txtHXComment.Text);
+                if (!chkHXEnabled.Checked)
+                    sw.Write(';');
+                sw.WriteLine(HXString);
             }
 
             sw.WriteLine("End");
@@ -491,8 +552,8 @@ namespace Reaction_Editor
         {
             ListViewItem lvi = new ListViewItem();
             lvi.SubItems.AddRange(new string[] {"", "", "", "" });
-            if (location < 0 || location > lstReactions.Items.Count)
-                lstReactions.Items.Add(lvi);
+            if (location <= (m_SourcesLVI.Index) || location > MaxReactionLocation)
+                lstReactions.Items.Insert(MaxReactionLocation, lvi);
             else
                 lstReactions.Items.Insert(location, lvi);
             SimpleReaction newRxn = rxn.Clone(lvi);
@@ -532,18 +593,11 @@ namespace Reaction_Editor
         {
             if (lstReactions.Focused && lstReactions.SelectedItems.Count > 0)
                 Clipboard.SetData(SimpleReaction.sFormat.Name, ((SimpleReaction)lstReactions.SelectedItems[0].Tag).ToSaveString(true));
-            else if (txtComment.Focused)
-                txtComment.Copy();
-            else if (txtDescription.Focused)
-                txtDescription.Copy();
-            else if (txtSources.Focused)
-                txtSources.Copy();
-            else if (txtSinks.Focused)
-                txtSinks.Copy();
-            else if (txtProducts.Focused)
-                txtProducts.Copy();
-            else if (txtReactants.Focused)
-                txtReactants.Copy();
+            Control act = ActualActiveControl(this);
+            if (act is RichTextBox)
+                ((RichTextBox)act).Copy();
+            else if (act is TextBoxEx)
+                ((TextBoxEx)act).Copy();
         }
 
         public void Cut()
@@ -602,6 +656,7 @@ namespace Reaction_Editor
         public void AddSources(params Compound[] newSources)
         {
             List<Compound> existingSources = SourceCompounds;
+
             foreach (Compound c in newSources)
             {
                 if (!existingSources.Contains(c))
@@ -611,9 +666,9 @@ namespace Reaction_Editor
                     else
                         txtSources.AppendText(", " + c.Symbol);
                     m_SourcesCache.Add(c);
-                    UpdateSourcesLVI();
                 }
             }
+            UpdateSourcesLVI();
             ChangeOccured();
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
@@ -622,6 +677,8 @@ namespace Reaction_Editor
         public void AddSinks(params Compound[] newSinks)
         {
             List<Compound> existingSinks = SinkCompounds;
+            if (m_SinksLVI.ListView == null)
+                AddSinksLVI();
             foreach (Compound c in newSinks)
             {
                 if (!existingSinks.Contains(c))
@@ -631,9 +688,9 @@ namespace Reaction_Editor
                     else
                         txtSinks.AppendText(", " + c.Symbol);
                     m_SinksCache.Add(c);
-                    UpdateSinksLVI();
                 }
             }
+            UpdateSinksLVI();
             ChangeOccured();
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
@@ -656,8 +713,8 @@ namespace Reaction_Editor
                             txtSinks.SelectedText = "";
                         }
                         m_SinksCache.Remove(c);
-                        UpdateSinksLVI();
                     }
+            UpdateSinksLVI();
             ChangeOccured();
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
@@ -680,8 +737,9 @@ namespace Reaction_Editor
                             txtSources.SelectedText = "";
                         }
                         m_SourcesCache.Remove(c);
-                        UpdateSourcesLVI();
                     }
+
+            UpdateSourcesLVI();
             ChangeOccured();
             if (SourcesSinksChanged != null)
                 SourcesSinksChanged(this, new EventArgs());
@@ -713,8 +771,16 @@ namespace Reaction_Editor
         protected void UpdateReactionNumbers()
         {
             ListViewItem[] orderedLVIs = OrderedLVIs(lstReactions.Items);
+            int index = 1;
             for (int i = 0; i < orderedLVIs.Length; i++)
-                orderedLVIs[i].Text = (i + 1).ToString();
+                if ((orderedLVIs[i].Tag is SimpleReaction && ((SimpleReaction)orderedLVIs[i].Tag).Enabled)
+                    || (orderedLVIs[i] == m_SourcesLVI && chkSourcesEnabled.Checked)
+                    || (orderedLVIs[i] == m_SinksLVI && chkSinksEnabled.Checked)
+                    || (orderedLVIs[i] == m_HXLVI && chkHXEnabled.Checked))
+                    orderedLVIs[i].Text = (index++).ToString();
+                else
+                    orderedLVIs[i].Text = "-";
+
         }
 
         protected ListViewItem[] OrderedLVIs(ListView.ListViewItemCollection collection)
@@ -746,7 +812,7 @@ namespace Reaction_Editor
 
         protected bool PasteText(Control c)
         {
-            if ((c.GetType() == typeof(TextBox) || c.GetType() == typeof(RichTextBoxEx))
+            if ((c is TextBox || c is RichTextBox)
                 && c.Focused)
             {
                 ((TextBoxBase)c).Paste();
@@ -770,41 +836,52 @@ namespace Reaction_Editor
                 string contents = sr.ReadToEnd().Trim();
 
                 //Sources and sinks use a comment stripped version of the file:
-                StringBuilder sb = new StringBuilder();
+                StringBuilder activeSB = new StringBuilder();
+                StringBuilder commentSB = new StringBuilder();
+                StringBuilder relevantSB = new StringBuilder();
                 for (Match m = s_CommentRemovingRegex.Match(contents); m.Success; m = m.NextMatch())
                 {
-                    sb.AppendLine(m.Value);
-                    if (m.Value.ToLowerInvariant().Trim() == "end")
+                    relevantSB.AppendLine(m.Value);
+                    activeSB.AppendLine(m.Groups["Active"].Value);
+                    if (m.Groups["Comment"].Success)
+                        commentSB.AppendLine(m.Groups["Comment"].Value);
+                    if (m.Groups["Active"].Value.ToLowerInvariant().Trim() == "end")
                         break;
                 }
-                string commentsRemoved = sb.ToString();
+                string relevant = relevantSB.ToString();
+                string commentsRemoved = activeSB.ToString();
+                string commentsOnly = commentSB.ToString();
                 if (!s_EndRegex.Match(commentsRemoved).Success)
                     Log.Message("'End' token not found. Reading to end of file (May cause unpredictable results)", MessageType.Warning);
 
                 //General comments:
-                StringBuilder comments = new StringBuilder();
-                Match commentsMatch = s_OpeningCommentRegex.Match(contents);
+                StringBuilder openingCommentsSB = new StringBuilder();
+                Match commentsMatch = s_OpeningCommentRegex.Match(relevant);
                 if (commentsMatch.Success)
                 {
                     Group g = commentsMatch.Groups["Comment"];
                     if (g.Success)
                         foreach (Capture c in g.Captures)
-                            comments.AppendLine(c.Value);
-                    txtDescription.Text = comments.ToString();
+                            openingCommentsSB.AppendLine(c.Value);
+                    txtDescription.Text = openingCommentsSB.ToString();
                 }
 
                 //Sources:
-                Match sourcesMatch = s_SourceRegex.Match(commentsRemoved);
+                Match sourcesMatch = s_SourceRegex.Match(relevant);
                 if (sourcesMatch.Success)
                 {
-                    txtSources.Text = sourcesMatch.Value.Trim().Replace("\r\n", ", ");
+                    if (sourcesMatch.Groups["Disabled"].Success)
+                        chkSourcesEnabled.Checked = false;
+                    if (sourcesMatch.Groups["Comment"].Success)
+                        txtSourceComments.Text = sourcesMatch.Groups["Comment"].Value;
+                    txtSources.Text = sourcesMatch.Groups["Value"].Value.Trim();
                     txtSources_Leave(txtSources, new EventArgs());
                     lstReactions.Items.Add(m_SourcesLVI);
                 }
 
                 //Reactions:
-                Match start = s_RxnBlockStartRegex.Match(contents);
-                Match end = s_RxnBlockEndRegex.Match(contents);
+                Match start = s_RxnBlockStartRegex.Match(relevant);
+                Match end = s_RxnBlockEndRegex.Match(relevant);
                 if (!start.Success || !end.Success)
                 {
                     Log.Message("Reaction Block Not Found", MessageType.Error);
@@ -812,28 +889,22 @@ namespace Reaction_Editor
                 }
                 int rxnBlockStart = start.Index + start.Length;
                 int rxnBlockEnd = end.Index;
-                string rxnBlock = contents.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
+                string rxnBlock = relevant.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
 
                 FindReactions(rxnBlock, s_ReactionRegex, true);
                 FindReactions(rxnBlock, s_DisabledReactionRegex, false);
 
-                chkFirstReactant.Checked = rxnBlock.ToLowerInvariant().Contains("<usefirstreactant=true>");
-
-                Match LSMatch = s_LastSelectedRegex.Match(rxnBlock);
-                if (LSMatch.Success)
-                {
-                    int index;
-                    if (int.TryParse(LSMatch.Groups["Value"].Value, out index))
-                        lstReactions.Items[index].Selected = true;
-                }
-                else if (lstReactions.Items.Count > 0)
-                    lstReactions.Items[0].Selected = true;
+                chkFirstReactant.Checked = relevant.ToLowerInvariant().Contains("<usefirstreactant=true>");
 
                 //Sinks:
-                Match SinkMatch = s_SinkRegex.Match(commentsRemoved);
+                Match SinkMatch = s_SinkRegex.Match(relevant);
                 if (SinkMatch.Success)
                 {
-                    txtSinks.Text = SinkMatch.Value.Trim();
+                    if (SinkMatch.Groups["Disabled"].Success)
+                        chkSinksEnabled.Checked = false;
+                    if (SinkMatch.Groups["Comment"].Success)
+                        txtSinkComments.Text = SinkMatch.Groups["Comment"].Value;
+                    txtSinks.Text = SinkMatch.Groups["Value"].Value.Trim();
                     txtSinks_Leave(txtSinks, new EventArgs());
                     lstReactions.Items.Add(m_SinksLVI);
                     if (menuShowSequence.Checked)
@@ -841,21 +912,27 @@ namespace Reaction_Editor
                 }
 
                 //Heat Exchange:
-                Match HXMatch = s_HXRegex.Match(commentsRemoved);
+                Match HXMatch = s_HXRegex.Match(relevant);
                 if (HXMatch.Success)
                 {
+                    if (HXMatch.Groups["Disabled"].Success)
+                        chkHXEnabled.Checked = false;
+                    if (HXMatch.Groups["Comment"].Success)
+                        txtHXComment.Text = HXMatch.Groups["Comment"].Value;
                     string type = HXMatch.Groups["Type"].Value;
                     if (type == "FinalT")
                         comboHXType.SelectedItem = "Final Temp.";
                     else if (type == "TargetT")
                     {
                         comboHXType.SelectedItem = "Approach Temp.";
-                        numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                        try { numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value); }
+                        catch { }
                     }
                     else if (type == "Ambient")
                     {
                         comboHXType.SelectedItem = "Approach Ambient";
-                        numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value);
+                        try { numHXApproach.Value = Decimal.Parse(HXMatch.Groups["Value2"].Value); }
+                        catch { }
                     }
                     else if (type == "Power")
                         comboHXType.SelectedItem = "Power";
@@ -863,11 +940,21 @@ namespace Reaction_Editor
                         comboHXType.SelectedItem = "Electrolysis";
                     else
                         Log.Message("Unknown Heat Exchange type '" + HXMatch.Groups["Type"].Value + "'", MessageType.Warning);
-                    numHX.Text = HXMatch.Groups["Value"].Captures[0].Value;
+                    numHX.Text = HXMatch.Groups["Value"].Value;
                     lstReactions.Items.Add(m_HXLVI);
                     if (menuShowSequence.Checked)
                         m_HXLVI.Group = lstReactions.Groups["grpHX"];
                 }
+
+                Match LSMatch = s_LastSelectedRegex.Match(contents);
+                if (LSMatch.Success)
+                {
+                    int index;
+                    if (int.TryParse(LSMatch.Groups["Value"].Value, out index) && index < lstReactions.Items.Count) //"None" will return false here, therefore selecting nothing.
+                        lstReactions.Items[index].Selected = true;
+                }
+                else if (lstReactions.Items.Count > 0)
+                    lstReactions.Items[0].Selected = true;
 
                 Changed = false;
                 if (lstReactions.Items.Count != 1)
@@ -878,6 +965,7 @@ namespace Reaction_Editor
             }
             finally
             {
+                UpdateReactionNumbers();
                 m_bLoading = false;
             }
         }
@@ -896,7 +984,7 @@ namespace Reaction_Editor
                 Log.SetSource(source);
                 Group grpComment = rxnMatch.Groups["Comment"];
                 if (grpComment.Success)
-                    currentReaction.Comment = grpComment.Captures[0].Value;
+                    currentReaction.Comment = grpComment.Captures[0].Value.Trim();
 
                 Group grpReactants = rxnMatch.Groups["Reactants"];
                 currentReaction.ParseReactants(grpReactants.Captures[0].Value);
@@ -955,165 +1043,11 @@ namespace Reaction_Editor
                 chkSequence.Checked = true;
         }
 
-        protected void OldReadFile()
-        {
-            StreamReader sr = new StreamReader(m_File);
-            string str = sr.ReadLine();
-            bool bReactionsFound = false, bEndFound = false;
-            bool bSourceFound = false, bSinksFound = false;
-            SimpleReaction curReaction = null;
-            while (str != null)
-            {
-                str = str.Trim();
-                if (string.IsNullOrEmpty(str) || str.StartsWith(";")) //Discard comment and empty lines
-                {
-                    str = sr.ReadLine();
-                    continue;
-                }
-                if (str.Contains(";")) //Discard comments
-                    str = str.Split(';')[0];
-
-                if (str.ToLowerInvariant().StartsWith("end"))
-                {
-                    bEndFound = true;
-                    break;
-                }
-
-                if (str.ToLowerInvariant().StartsWith("source:"))
-                {
-                    bSourceFound = true;
-                    str = str.Remove(0, ("Source:").Length);
-                    str.Trim();
-                }
-                if (bSourceFound && !bReactionsFound)
-                {
-                    string[] tokens = str.Split(',');
-                    foreach (string s in tokens)
-                    {
-                        if (Compound.CompoundList.ContainsKey(s.Trim()))
-                        {
-                            if (!string.IsNullOrEmpty(txtSources.Text))
-                                txtSources.Text += ", ";
-                            txtSources.Text += s.Trim();
-                        }
-                        else
-                        {
-                            //TODO: Log errors
-                        }
-                    }
-                }
-                if (str.ToLowerInvariant().StartsWith("reactions:"))
-                {
-                    bReactionsFound = true;
-                    if (!string.IsNullOrEmpty(str.Remove(0, ("reactions:").Length).Trim()))
-                    {
-                        //Log this error
-                    }
-                    str = sr.ReadLine();
-                    continue;
-                }
-                if (bReactionsFound && !bSinksFound)
-                {
-                    string sFormula = null, sExtent = null, sHOR = null;
-                    int nExtentLoc = str.ToLowerInvariant().IndexOf("extent :");
-                    int nHORLoc = str.ToLowerInvariant().IndexOf("heat of reaction:");
-                    if (nExtentLoc == -1 && nHORLoc == -1)
-                        sFormula = str;
-                    else if (nExtentLoc == -1)
-                    {
-                        sFormula = str.Substring(0, nHORLoc);
-                        sHOR = str.Substring(nHORLoc);
-                    }
-                    else if (nHORLoc == -1)
-                    {
-                        sFormula = str.Substring(0, nExtentLoc);
-                        sExtent = str.Substring(nExtentLoc, str.Length - nExtentLoc);
-                    }
-                    else if (nExtentLoc < nHORLoc)
-                    {
-                        sFormula = str.Substring(0, nExtentLoc);
-                        sExtent = str.Substring(nExtentLoc, nHORLoc - nExtentLoc);
-                        sHOR = str.Substring(nHORLoc);
-                    }
-                    else
-                    {
-                        sFormula = str.Substring(0, nHORLoc);
-                        sHOR = str.Substring(nHORLoc, nExtentLoc - nHORLoc);
-                        sExtent = str.Substring(nExtentLoc);
-                    }
-                    if (sFormula.Length > 0)
-                        try
-                        {
-                            curReaction = CreateReaction(sFormula);
-                        }
-                        catch
-                        {
-                            //TODO: Log the error.
-                        }
-                    if (curReaction == null && (sHOR != null || sExtent != null))
-                    {
-                        //TODO: Log this error.
-                        str = sr.ReadLine();
-                        continue;
-                    }
-                    if (sHOR != null)
-                    {
-                        sHOR = sHOR.Remove(0, "heat of reaction :".Length).Trim();
-                        string[] subStrings = sHOR.Split('/');
-                        try
-                        {
-                            curReaction.HeatOfReactionValue = double.Parse(subStrings[0].Trim());
-                            curReaction.HeatOfReactionSpecie = Compound.FromString(subStrings[1].Trim());
-                        }
-                        catch
-                        {
-                            //TODO: Log the error
-                        }
-                    }
-                    if (sExtent != null)
-                    {
-                        try
-                        {
-                            sExtent = sExtent.Remove(0, "extent :".Length).Trim();
-                            curReaction.ParseExtent(sExtent);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine(ex.ToString());
-                            //TODO: Log the error.
-                        }
-                    }
-                }
-                if (str.ToLowerInvariant().StartsWith("sink:"))
-                {
-                    bSinksFound = true;
-                    str = str.Remove(0, ("sink:").Length);
-                }
-                if (bSinksFound)
-                {
-                    string[] sinks = str.Split(',');
-                    foreach (string s in sinks)
-                        if (Compound.CompoundList.ContainsKey(s.Trim()))
-                        {
-                            if (!string.IsNullOrEmpty(txtSinks.Text))
-                                txtSinks.Text += ", ";
-                            txtSinks.Text += s.Trim();
-                        }
-                        else
-                        {
-                            //TODO: Log this error.
-                        }
-                }
-                str = sr.ReadLine();
-            }
-            //TODO: Log the error if "end" is not found.
-        }
-
         public SimpleReaction CreateReaction(string initialFormula)
         {
             ListViewItem lvi = new ListViewItem();
             lvi.SubItems.AddRange(new string[] { "", "", "", "" });
-            lstReactions.Items.Add(lvi);
+            lstReactions.Items.Insert(MaxReactionLocation, lvi);
             SimpleReaction rxn = new SimpleReaction(lvi, Log);
             rxn.Changed += new EventHandler(rxn_Changed);
             rxn.SequenceChanged += new EventHandler(rxn_SequenceChanged);
@@ -1269,8 +1203,6 @@ namespace Reaction_Editor
             int oldIndex = item.Index;
             ListViewGroup grp = item.Group;
             lstReactions.Items.Remove(item);
-            //if (oldIndex < newIndex)
-                //newIndex--;
             try
             {
                 lstReactions.Items.Insert(newIndex, item);
@@ -1283,26 +1215,29 @@ namespace Reaction_Editor
 
             lstReactions.SelectedIndices.Clear();
             if (wasSelected)
+            {
                 lstReactions.SelectedIndices.Add(item.Index);
+                btnMoveUp.Enabled = lstReactions.SelectedIndices[0] > m_SourcesLVI.Index + 1;
+                btnMoveDown.Enabled = lstReactions.SelectedIndices[0] < MaxReactionLocation - 1;
+            }
             UpdateReactionNumbers();
             m_bDoEvents = true;
         }
-
+            
         protected void rxn_Changed(object sender, EventArgs e)
         {
-            SimpleReaction rxn = (SimpleReaction)sender;
-            if (lstReactions.ShowGroups)
-                if (lstReactions.Groups["grpSequence" + rxn.Sequence] != rxn.LVI.Group)
-                {
-                    m_bDoEvents = false;
-                    rxn.LVI.Group = lstReactions.Groups["grpSequence" + rxn.Sequence];
-                    m_bDoEvents = true;
-                }
             ChangeOccured();
         }
 
         protected void rxn_SequenceChanged(object sender, EventArgs e)
         {
+            SimpleReaction rxn = (SimpleReaction)sender;
+            if (lstReactions.ShowGroups)
+            {
+                m_bDoEvents = false;
+                rxn.LVI.Group = lstReactions.Groups["grpSequence" + rxn.Sequence];
+                m_bDoEvents = true;
+            }
             Thread delayedUpdate = new Thread(new ThreadStart(DelayedUpdateReactionNumbers));
             delayedUpdate.Start();
         }
@@ -1310,8 +1245,10 @@ namespace Reaction_Editor
         protected void currentReactionChanged(object sender, EventArgs e)
         {
             txtFormula.Text = m_CurrentReaction.ToString();
-            txtProducts.Text = m_CurrentReaction.GetProductsString();
-            txtReactants.Text = m_CurrentReaction.GetReactantsString();
+            if (txtProducts.Text != m_CurrentReaction.GetProductsString())
+                txtProducts.Text = m_CurrentReaction.GetProductsString();
+            if (txtReactants.Text != m_CurrentReaction.GetReactantsString())
+                txtReactants.Text = m_CurrentReaction.GetReactantsString();
         }
 
         protected void ChangeOccured()
@@ -1334,7 +1271,7 @@ namespace Reaction_Editor
             if (string.IsNullOrEmpty(s.Trim()))
                 return ret;
             Match m = s_CompoundSeperator.Match(s);
-            //string[] seperatedCompounds = s.Split(new string[] { ",", "\r\n" }, StringSplitOptions.None);
+            //string[] seperatedCompounds = s.Split(new string[] { ",", "\r*\n" }, StringSplitOptions.None);
             foreach (Capture c in m.Groups["Comp"].Captures)
             {
                 if (!Compound.CompoundList.ContainsKey(c.Value.Trim()))
@@ -1391,6 +1328,26 @@ namespace Reaction_Editor
         #region Subclasses
         public delegate void ReactionHandler(FrmReaction form, SimpleReaction reaction);
 
+        /// <summary>
+        /// Only to be used on list view items.
+        /// </summary>
+        protected class IntStringComparer : IComparer
+        {
+            #region IComparer Members
+
+            public int Compare(object x, object y)
+            {
+                if (!(x is ListViewItem && y is ListViewItem))
+                    return 0;
+                int nX, nY;
+                int.TryParse(((ListViewItem)x).Text, out nX);
+                int.TryParse(((ListViewItem)y).Text, out nY);
+                return nX.CompareTo(nY);
+            }
+
+            #endregion
+        }
+
         protected class MessageFrmReaction : MessageSource
         {
             protected FrmReaction m_owner;
@@ -1422,31 +1379,53 @@ namespace Reaction_Editor
         }
         #endregion Subclasses
 
+        private void FireRecheckCutCopyPaste(object sender, EventArgs e)
+        {
+            if (RecheckCutCopyPaste != null)
+                RecheckCutCopyPaste(this, new EventArgs());
+        }
+
         private void lstReactions_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!m_bDoEvents) return;
 
-            /*if (lstReactions.SelectedIndices.Count == 0)
-                LoadReaction(null);
-            else
-                LoadReaction((SimpleReaction)lstReactions.SelectedItems[0].Tag);*/
             this.tabReactions.SuspendLayout();
-            pnlBlank.Visible = pnlReaction.Visible = pnlSinks.Visible = pnlSources.Visible = grpHX.Visible = false;
+            pnlBlank.Visible = pnlReaction.Visible = grpSinks.Visible = grpSources.Visible = grpHX.Visible = false;
             btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = false;
+
             if (lstReactions.SelectedIndices.Count == 0)
-                pnlBlank.Visible = true;
-            else if (lstReactions.SelectedItems[0].Tag is SimpleReaction)
             {
-                LoadReaction((SimpleReaction)lstReactions.SelectedItems[0].Tag);
-                pnlReaction.Visible = true;
-                btnCopy.Enabled = btnMoveDown.Enabled = btnMoveUp.Enabled = btnRemove.Enabled = true;
+                LoadReaction(null);
+                pnlBlank.Visible = true;
             }
-            else if (lstReactions.SelectedItems[0] == m_SourcesLVI)
-                pnlSources.Visible = true;
-            else if (lstReactions.SelectedItems[0] == m_SinksLVI)
-                pnlSinks.Visible = true;
-            else if (lstReactions.SelectedItems[0] == m_HXLVI)
-                grpHX.Visible = true;
+            else
+            {
+                if (lstReactions.SelectedItems[0].Tag is SimpleReaction)
+                {
+                    LoadReaction((SimpleReaction)lstReactions.SelectedItems[0].Tag);
+                    pnlReaction.Visible = true;
+                    btnCopy.Enabled = btnRemove.Enabled = true;
+                    btnMoveUp.Enabled = lstReactions.SelectedIndices[0] > m_SourcesLVI.Index + 1;
+                    btnMoveDown.Enabled = lstReactions.SelectedIndices[0] < MaxReactionLocation - 1;
+                }
+                else
+                    LoadReaction(null);
+                if (lstReactions.SelectedItems[0] == m_SourcesLVI)
+                {
+                    grpSources.Visible = true;
+                    btnRemove.Enabled = true;
+                }
+                else if (lstReactions.SelectedItems[0] == m_SinksLVI)
+                {
+                    grpSinks.Visible = true;
+                    btnRemove.Enabled = true;
+                }
+                else if (lstReactions.SelectedItems[0] == m_HXLVI)
+                {
+                    grpHX.Visible = true;
+                    btnRemove.Enabled = true;
+                }
+            }
             this.tabReactions.ResumeLayout();
         }
 
@@ -1462,33 +1441,55 @@ namespace Reaction_Editor
             {
                 CreateReaction(null).LVI.Selected = true;
                 txtReactants.Select();
+                UpdateReactionNumbers();
             }
             else if (m_AddSelector.radioHX.Checked)
             {
-                lstReactions.Items.Add(m_HXLVI);
-                if (lstReactions.ShowGroups)
-                    m_HXLVI.Group = lstReactions.Groups["grpHX"];
+                AddHXLVI();
                 m_HXLVI.Selected = true;
                 comboHXType.Select();
             }
             else if (m_AddSelector.radioSink.Checked)
             {
-                if (m_HXLVI.ListView == null)
-                    lstReactions.Items.Add(m_SinksLVI);
-                else
-                    lstReactions.Items.Insert(m_HXLVI.Index, m_SinksLVI);
-                if (lstReactions.ShowGroups)
-                    m_SinksLVI.Group = lstReactions.Groups["grpSinks"];
+                AddSinksLVI();
                 m_SinksLVI.Selected = true;
                 txtSinks.Select();
             }
             else if (m_AddSelector.radioSource.Checked)
             {
-                lstReactions.Items.Insert(0, m_SourcesLVI);
-                if (lstReactions.ShowGroups)
-                    m_SourcesLVI.Group = lstReactions.Groups["grpSources"];
+                AddSourcesLVI();
+                m_SourcesLVI.Selected = true;
+                txtSources.Select();
             }
+        }
+
+        private void AddSinksLVI()
+        {
+            lstReactions.Items.Add(m_SinksLVI);
+            if (lstReactions.ShowGroups)
+                m_SinksLVI.Group = lstReactions.Groups["grpSinks"];
             UpdateReactionNumbers();
+            ChangePosition(m_SinksLVI,
+                m_HXLVI.ListView == null ? lstReactions.Items.Count :
+                (m_HXLVI.Index > 0 ? m_HXLVI.Index : m_HXLVI.Index - 1));
+        }
+
+        private void AddHXLVI()
+        {
+            lstReactions.Items.Add(m_HXLVI);
+            if (lstReactions.ShowGroups)
+                m_HXLVI.Group = lstReactions.Groups["grpHX"];
+            UpdateReactionNumbers();
+            ChangePosition(m_HXLVI, lstReactions.Items.Count);
+        }
+
+        private void AddSourcesLVI()
+        {
+            lstReactions.Items.Insert(0, m_SourcesLVI);
+            if (lstReactions.ShowGroups)
+                m_SourcesLVI.Group = lstReactions.Groups["grpSources"];
+            UpdateReactionNumbers();
+            ChangePosition(m_SourcesLVI, 0);
         }
 
         private void chkSequence_CheckedChanged(object sender, EventArgs e)
@@ -1502,27 +1503,26 @@ namespace Reaction_Editor
             {
                 if (lstReactions.Columns.Contains(m_SequenceHeader))
                     lstReactions.Columns.Remove(m_SequenceHeader);
-                //To get the damned order correct:
-                foreach (ListViewGroup grp in lstReactions.Groups)
+                /*foreach (ListViewGroup grp in lstReactions.Groups)
                     grp.Items.Clear();
                 lstReactions.Items.Clear();
-                lstReactions.Items.AddRange(originalList);
+                lstReactions.Items.AddRange(originalList);*/
 
                 menuShowSequence.Checked = false;
 
-                foreach (ListViewItem lvi in originalList)
+                /*foreach (ListViewItem lvi in originalList)
                     if (lvi.Tag is SimpleReaction)
                     {
                         SimpleReaction rxn = (SimpleReaction)lvi.Tag;
                         rxn.Sequence = 1;
-                    }
+                    }*/
             }
             else
             {
                 if (!lstReactions.Columns.Contains(m_SequenceHeader))
                     lstReactions.Columns.Add(m_SequenceHeader);
                 menuShowSequence.Checked = true;
-                foreach (ListViewItem lvi in originalList)
+                /*foreach (ListViewItem lvi in originalList)
                     if (lvi.Tag is SimpleReaction)
                         lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
                     else if (lvi == m_SourcesLVI)
@@ -1530,7 +1530,7 @@ namespace Reaction_Editor
                     else if (lvi == m_SinksLVI)
                         lvi.Group = lstReactions.Groups["grpSinks"];
                     else if (lvi == m_HXLVI)
-                        lvi.Group = lstReactions.Groups["grpHX"];
+                        lvi.Group = lstReactions.Groups["grpHX"];*/
             }
             UpdateReactionNumbers();
             m_bDoEvents = true;
@@ -1811,6 +1811,8 @@ namespace Reaction_Editor
                 else
                     e.Effect = DragDropEffects.Link;
             }
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+                e.Effect = DragDropEffects.Move;
             else
                 e.Effect = DragDropEffects.None;
         }
@@ -1825,21 +1827,32 @@ namespace Reaction_Editor
 
             Point clientPoint = txtProducts.PointToClient(new Point(e.X, e.Y));
             int chIndex = txtProducts.GetCharIndexFromPosition(clientPoint);
-            if (!e.Data.GetDataPresent(typeof(Compound)))
+            if (e.Data.GetDataPresent(typeof(Compound)))
+            {
+                Compound compound = (Compound)e.Data.GetData(typeof(Compound));
+                if (m_CurrentReaction.Compounds.Contains(compound))
+                {
+                    e.Effect = DragDropEffects.None;
+                    return;
+                }
+                m_CurrentReaction.AddProduct(compound, 1.0, chIndex);
+                e.Effect = DragDropEffects.Link;
+                txtProducts.Select();
+                txtProducts.Select(m_CurrentReaction.LastAddedNumStart, 1);
+            }
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            {
+                CompoundDrag data = (CompoundDrag)e.Data.GetData(typeof(CompoundDrag));
+                if (data.ctrl == txtProducts)
+                    m_CurrentReaction.MoveProduct(data.startIndex, chIndex);
+                else
+                    m_CurrentReaction.MoveReactantToProducts(data.startIndex, chIndex);
+            }
+            else
             {
                 e.Effect = DragDropEffects.None;
                 return;
             }
-            Compound compound = (Compound) e.Data.GetData(typeof(Compound));
-            if (m_CurrentReaction.Compounds.Contains(compound))
-            {
-                e.Effect = DragDropEffects.None;
-                return;
-            }
-            m_CurrentReaction.AddProduct(compound, 1.0, chIndex);
-            e.Effect = DragDropEffects.Link;
-            txtProducts.Select();
-            txtProducts.Select(m_CurrentReaction.LastAddedNumStart, 1);
         }
 
         private void txtReactants_DragEnter(object sender, DragEventArgs e)
@@ -1850,7 +1863,14 @@ namespace Reaction_Editor
                 return;
             }
             if (e.Data.GetDataPresent(typeof(Compound)))
-                e.Effect = DragDropEffects.Link;
+            {
+                if (m_CurrentReaction.Compounds.Contains((Compound)e.Data.GetData(typeof(Compound))))
+                    e.Effect = DragDropEffects.None;
+                else
+                    e.Effect = DragDropEffects.Link;
+            }
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+                e.Effect = DragDropEffects.Move;
             else
                 e.Effect = DragDropEffects.None;
         }
@@ -1865,16 +1885,24 @@ namespace Reaction_Editor
 
             Point clientPoint = txtReactants.PointToClient(new Point(e.X, e.Y));
             int chIndex = txtReactants.GetCharIndexFromPosition(clientPoint);
-            if (!e.Data.GetDataPresent(typeof(Compound)))
+            if (e.Data.GetDataPresent(typeof(Compound)))
             {
-                e.Effect = DragDropEffects.None;
-                return;
+                e.Effect = DragDropEffects.Link;
+                Compound compound = (Compound)e.Data.GetData(typeof(Compound));
+                m_CurrentReaction.AddReactant(compound, 1.0, chIndex);
+                txtReactants.Select();
+                txtReactants.Select(m_CurrentReaction.LastAddedNumStart, 1);
             }
-            e.Effect = DragDropEffects.Link;
-            Compound compound = (Compound)e.Data.GetData(typeof(Compound));
-            m_CurrentReaction.AddReactant(compound, 1.0, chIndex);
-            txtReactants.Select();
-            txtReactants.Select(m_CurrentReaction.LastAddedNumStart, 1);
+            else if (e.Data.GetDataPresent(typeof(CompoundDrag)))
+            {
+                CompoundDrag data = (CompoundDrag)e.Data.GetData(typeof(CompoundDrag));
+                if (data.ctrl == txtReactants)
+                    m_CurrentReaction.MoveReactant(data.startIndex, chIndex);
+                else
+                    m_CurrentReaction.MoveProductToReactants(data.startIndex, chIndex);
+            }
+            else
+                e.Effect = DragDropEffects.None;
         }
 
         private void btnMoveDown_Click(object sender, EventArgs e)
@@ -1909,15 +1937,13 @@ namespace Reaction_Editor
             //txtReactants.Left = outsidePadding + 2 * spacing + comboWidth + txtReactants.Width;
         }
 
-        private void tabSources_Sinks_Resize(object sender, EventArgs e)
-        {
-            grpSinks.Height = tabSourcesSinks.Height / 2;
-        }
-
         private void chkEnabled_CheckedChanged(object sender, EventArgs e)
         {
             if (m_CurrentReaction != null)
+            {
                 m_CurrentReaction.Enabled = chkEnabled.Checked;
+                UpdateReactionNumbers();
+            }
         }
 
         private void txtComment_TextChanged(object sender, EventArgs e)
@@ -1946,14 +1972,39 @@ namespace Reaction_Editor
         {
             if (lstReactions.SelectedItems.Count == 0)
                 return;
-            else
+            ListViewItem lvi = lstReactions.SelectedItems[0];
+            lstReactions.SelectedItems[0].Remove();
+
+            if (lvi.Tag is SimpleReaction)
             {
                 SimpleReaction rxn = (SimpleReaction)lstReactions.SelectedItems[0].Tag;
-                lstReactions.SelectedItems[0].Remove();
-                UpdateReactionNumbers();
                 if (ReactionRemoved != null)
                     ReactionRemoved(this, rxn);
             }
+            else if (lvi == m_HXLVI)
+            {
+                comboHXType.SelectedIndex = 0;
+                numHX.Text = "";
+            }
+            else if (lvi == m_SinksLVI)
+            {
+                txtSinks.Clear(); m_SinksCache.Clear();
+                txtSinkComments.Clear();
+                chkSinksEnabled.Checked = true;
+                if (SourcesSinksChanged != null)
+                    SourcesSinksChanged(this, new EventArgs());
+            }
+            else if (lvi == m_SourcesLVI)
+            {
+                txtSources.Clear(); m_SourcesCache.Clear();
+                txtSourceComments.Clear();
+                chkSourcesEnabled.Checked = true;
+                if (SourcesSinksChanged != null)
+                    SourcesSinksChanged(this, new EventArgs());
+            }
+                
+            ChangeOccured();
+            UpdateReactionNumbers();
         }
 
         private void txtSources_TextChanged(object sender, EventArgs e)
@@ -2236,22 +2287,25 @@ namespace Reaction_Editor
         private void btnBalance_Click(object sender, EventArgs e)
         {
             if (m_CurrentReaction == null) return;
-            try
+            //try
             {
-                SimpleReaction.RemovalInfo info = m_CurrentReaction.BalanceOptions();
+                Matrix.RemovalInfo info = m_CurrentReaction.BalanceOptions();
                 if (!info.m_bCanRemove)
                     MessageBox.Show("Unable to balance reaction - no solutions available without forcing compounds to change sides of the reaction", "Autobalance", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 else
                 {
                     if (info.DegreesOfFreedom > 0)
                     {
-                        FrmBalanceOptions frm = new FrmBalanceOptions(info, m_CurrentReaction);
+                        FrmBalanceOptions2 frm = new FrmBalanceOptions2(m_CurrentReaction);
                         if (frm.ShowDialog(this) == DialogResult.OK)
                         {
                             SimpleReaction demo = m_CurrentReaction.Clone();
-                            demo.BalanceWith(frm.ToBeRemoved);
-                            if (MessageBox.Show(this, "Resultant Reaction:\n" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-                                m_CurrentReaction.BalanceWith(frm.ToBeRemoved);
+                            //demo.BalanceWith(frm.ToBeRemoved);
+                            demo.SetCoefficients(frm.Coefficients);
+                            if (MessageBox.Show(this, "Original Reaction: " + m_CurrentReaction.ToString() +
+                                "\nResultant Reaction:" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                                //m_CurrentReaction.BalanceWith(frm.ToBeRemoved);
+                                m_CurrentReaction.SetCoefficients(frm.Coefficients);
                         }
                         frm.Dispose();
                     }
@@ -2259,20 +2313,21 @@ namespace Reaction_Editor
                     {
                         SimpleReaction demo = m_CurrentReaction.Clone();
                         demo.BalanceWith(new int[0]);
-                        if (MessageBox.Show(this, "Resultant Reaction:\n" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                        if (MessageBox.Show(this, "Original Reaction: " + m_CurrentReaction.ToString() + 
+                            "\nResultant Reaction:" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                             m_CurrentReaction.BalanceWith(new int[0]);
                     }
                 }
             }
-            catch (Exception ex)
+            /*catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Autobalancer");
-            }
+            }*/
         }
 
         private void txtFormula_TextChanged(object sender, EventArgs e)
         {
-            RichTextBox box = (RichTextBox)sender;
+            BoxAutoComplete box = (BoxAutoComplete)sender;
             box.SelectionAlignment = HorizontalAlignment.Center;
             int oldSelectStart = box.SelectionStart;
             int oldSelectLen = box.SelectionLength;
@@ -2378,7 +2433,32 @@ namespace Reaction_Editor
 
         private void menuShowSequence_CheckedChanged(object sender, EventArgs e)
         {
-            lstReactions.ShowGroups = menuShowSequence.Checked;
+
+            if (menuShowSequence.Checked)
+            {
+                lstReactions.ShowGroups = true;
+                foreach (ListViewItem lvi in lstReactions.Items)
+                    if (lvi.Tag is SimpleReaction)
+                        lvi.Group = lstReactions.Groups["grpSequence" + ((SimpleReaction)lvi.Tag).Sequence];
+                    else if (lvi == m_SourcesLVI)
+                        lvi.Group = lstReactions.Groups["grpSources"];
+                    else if (lvi == m_SinksLVI)
+                        lvi.Group = lstReactions.Groups["grpSinks"];
+                    else if (lvi == m_HXLVI)
+                        lvi.Group = lstReactions.Groups["grpHX"];
+            }
+            else
+            {
+                ListViewItem[] originalList = OrderedLVIs(lstReactions.Items);
+                lstReactions.ShowGroups = false;
+                ListViewItem selectedItem = null;
+                if (lstReactions.SelectedItems.Count > 0)
+                    selectedItem = lstReactions.SelectedItems[0];
+                lstReactions.Items.Clear();
+                lstReactions.Items.AddRange(originalList);
+                if (selectedItem != null)
+                    selectedItem.Selected = true;
+            }
             UpdateReactionNumbers();
         }
 
@@ -2386,6 +2466,54 @@ namespace Reaction_Editor
         {
             if (e.KeyCode == Keys.Delete)
                 btnRemove_Click(sender, e);
+        }
+
+        private void chkSourcesEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            m_SourcesLVI.ForeColor = chkSourcesEnabled.Checked ? SystemColors.WindowText : Color.Gray;
+            UpdateReactionNumbers();
+        }
+
+        private void chkSinksEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            m_SinksLVI.ForeColor = chkSinksEnabled.Checked ? SystemColors.WindowText : Color.Gray;
+            UpdateReactionNumbers();
+        }
+
+        private void chkHXEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            m_HXLVI.ForeColor = chkHXEnabled.Checked ? SystemColors.WindowText : Color.Gray;
+            UpdateReactionNumbers();
+        }
+
+        private void txtFormula_CompoundDragged(object sender, EventArgs e)
+        {
+            DoDragDrop(new CompoundDrag((Control)sender, ((BoxAutoComplete)sender).SelectionStart), DragDropEffects.Move);
+        }
+
+        private class CompoundDrag
+        {
+            public CompoundDrag(Control _ctrl, int _startIndex)
+            {
+                ctrl = _ctrl;
+                startIndex = _startIndex;
+            }
+            public Control ctrl;
+            public int startIndex;
+        }
+
+        private void txtReactants_PreCompSelect(object sender, CancelEventArgs e)
+        {
+            FormulaBox_Leave(sender, e);
+            if (!m_CurrentReaction.ReactantsOk)
+                e.Cancel = true;
+        }
+
+        private void txtProducts_PreCompSelect(object sender, CancelEventArgs e)
+        {
+            FormulaBox_Leave(sender, e);
+            if (!m_CurrentReaction.ProductsOk)
+                e.Cancel = true;
         }
     }
 }

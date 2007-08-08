@@ -10,7 +10,7 @@ namespace Reaction_Editor
 {
     public partial class FrmBalanceOptions : Form
     {
-        protected SimpleReaction.RemovalInfo baseInfo;
+        protected Matrix.RemovalInfo baseInfo;
         
         protected List<CheckBox> m_Checkboxes = new List<CheckBox>();
 
@@ -26,7 +26,7 @@ namespace Reaction_Editor
             }
         }
 
-        public FrmBalanceOptions(SimpleReaction.RemovalInfo info, SimpleReaction rxn)
+        public FrmBalanceOptions(Matrix.RemovalInfo info, SimpleReaction rxn)
         {
             baseInfo = info;
             int chkSpacing = 23;
@@ -87,7 +87,7 @@ namespace Reaction_Editor
             grpReactants.ResumeLayout();
         }
 
-        protected void RecursivelyDisableCheckboxes(SimpleReaction.RemovalInfo info, List<int> alreadyRemoved)
+        protected void RecursivelyDisableCheckboxes(Matrix.RemovalInfo info, List<int> alreadyRemoved)
         {
             if (info.m_IfRemoved == null) //If IfRemoved is null, we're on the lowest level - everything not checked should be disabled
             {
