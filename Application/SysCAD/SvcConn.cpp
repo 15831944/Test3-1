@@ -495,6 +495,19 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
       LogError((LPSTR)(LPCSTR)Tag, 0, "Model not deleted");
       //DeletesFailedCnt++;
       }
+
+
+    //CString PageName=ExtractPageName(Path);
+    //CGrfDoc * pDoc=FindGrfDoc(PageName);
+    //PageRct = GetPageRect(PageName);
+
+
+    //      if (DelSym)
+    //        {
+    //        pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
+    //        pDrw->Delete(e);
+    //        }
+
     //else
     //  MdlDeletes++;
     }
