@@ -17,7 +17,8 @@ static double Drw_Stats[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,
 //---------------------------------------------------------------------------
 
 //Needs testing, exclude this file from project for now...
-//DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
+#if 0
+DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
 
 void BivarStats_UnitDef::GetOptions()
 {
@@ -29,6 +30,7 @@ void BivarStats_UnitDef::GetOptions()
   SetModelLicense(MLicense_Standard);
 };
 
+#endif
 //---------------------------------------------------------------------------
 
 BivarStats::BivarStats(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd),
