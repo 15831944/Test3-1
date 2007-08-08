@@ -221,9 +221,6 @@ XID xidpHBasesPres      = SpcXID(100155);
 
 XID xidSpUseFlgs        = SpcXID(100156);
 
-XID xidRhoSoln1         = SpcXID(100157);
-XID xidRhoSolnLast      = SpcXID(100159);
-
 XID xidSpHeatValueHiM     = SpcXID(100160);
 XID xidSpHeatValueHiMl    = SpcXID(100161);
 XID xidSpHeatValueHiV     = SpcXID(100162);
@@ -265,6 +262,17 @@ XID xidHumidityDewPt        = SpcXID(100207);
 
 XID xidSMFnRanges           = SpcXID(100208);
 XID xidSMFnRangeID          = SpcXID(100209);
+
+XID xidRhoSolvent1          = SpcXID(100210);
+XID xidRhoSolventLast       = SpcXID(100212);
+XID xidRhoSoln1             = SpcXID(100213);
+XID xidRhoSolnLast          = SpcXID(100215);
+XID xidRhoFactor1           = SpcXID(100216);
+XID xidRhoFactorLast        = SpcXID(100218);
+XID xidSolnQm1              = SpcXID(100219);
+XID xidSolnQmLast           = SpcXID(100221);
+XID xidSolnQv1              = SpcXID(100222);
+XID xidSolnQvLast           = SpcXID(100224);
 
 XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
 XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 
