@@ -487,8 +487,8 @@ double CR_EqnHeat::mlDHf(SpModel *Mdl, double T, double P)
 
 double CR_EqnHeat::totDHf(SpModel *Mdl, double T, double P)
   {
-  m_Eq.dwState=!m_Eq.CpsOK() ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
-  m_Eq.dwState=!m_Eq.HfsOK() ? m_Eq.dwState|CRS_BadHfs : m_Eq.dwState&~(CRS_BadHfs);
+  //m_Eq.dwState=!m_Eq.CpsOK() ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
+  //m_Eq.dwState=!m_Eq.HfsOK() ? m_Eq.dwState|CRS_BadHfs : m_Eq.dwState&~(CRS_BadHfs);
 
   double Ht=0.0;
   if (dynamic_cast<SpModelEx*>(Mdl)!=NULL)
@@ -706,7 +706,7 @@ LPCTSTR CR_EqnHeatFixedMs::GetRctString()
 double CR_EqnHeatFixedMs::totDHf(SpModel *Mdl, double T, double P)
   {
   flag OK=m_Eq.CpsOK();
-  m_Eq.dwState=!OK ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
+  //m_Eq.dwState=!OK ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
 
   //should this be independent of T ?!?!?!?
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
@@ -871,7 +871,7 @@ LPCTSTR CR_EqnHeatFixedMl::GetRctString()
 double CR_EqnHeatFixedMl::totDHf(SpModel *Mdl, double T, double P)
   {
   flag OK=m_Eq.CpsOK();
-  m_Eq.dwState=!OK ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
+  //m_Eq.dwState=!OK ? m_Eq.dwState|CRS_BadCps : m_Eq.dwState&~(CRS_BadCps);
 
   //should this be independent of T ?!?!?!?
   CR_EqnTerm &Trm=m_bProdTerm ? m_Eq.Product[m_iTermNo] : m_Eq.Reactant[m_iTermNo];
@@ -1041,7 +1041,7 @@ flag BalanceData::Check()
   else
     {
     R.ClrCI(2);
-    R.ClrCI(9);
+    R.ClrCI(8);
     }
   return BalanceOK;
   }
@@ -1270,7 +1270,7 @@ flag CR_Eqn::DataXchg(DataChangeBlk & DCB)
     case xid_RctState:
       {
       sState="";
-      GetState();
+      //GetState();
       if ((dwState & (CRS_BadCps|CRS_BadHfs))==(CRS_BadCps|CRS_BadHfs))
         sState+="Bad Hf's & Cp's";
       else if (dwState & CRS_BadCps)
@@ -1350,6 +1350,10 @@ void CR_Eqn::Clear()
   m_dMlXfer=0.0;
   dRctScl=1.0;
   m_dRelRate=1.0;
+
+  m_HfReqd=true;
+  m_CpsOK=true;
+  m_HfsOK=true;
 
   sState="";
   dwState=0;
@@ -1488,6 +1492,10 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
   flag fFwdRctDef=True;
   flag fRevRctDef=True;
 
+  m_HfReqd = !HeatSkipMethod();
+  m_CpsOK  = true;
+  m_HfsOK  = true;
+
   //Reactants
   Reactant.SetSize(0, 5);
   ParseTerm(ATerm);
@@ -1560,6 +1568,7 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
       pHeat=CR_EqnHeatFactory::Construct(EqnName(), this);
       if (pHeat)
         {
+        m_HfReqd = false;
         Heat().Parse(TF);
         if (HeatSkipMethod())
           {
@@ -1595,7 +1604,7 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
   // Check Cp && Hf OK
   // 1) This should only be a warning
   // 2) This should not occur if (a) user specifies a heatofreaction; or (b) heatbalance is switched off
-  if (pHeat)
+  if (m_HfReqd)
     {
     for (int Pass=0; Pass<2; Pass++)
       {
@@ -1603,10 +1612,16 @@ void CR_Eqn::Parse(CRCTTokenFile &TF)
       for (int t=0; t<A.GetCount(); t++)
         {
         CR_EqnTerm & T=A[t]; 
-        if (T.SpcId>=0 && !SDB[T.SpcId].H25OK())
-          CReactionBlock::Error(&RB, 'W', 20, T.SpcName());
         if (T.SpcId>=0 && !SDB[T.SpcId].CpOK())
+          {
+          CReactionBlock::Error(&RB, 'W', 20, T.SpcName());
+          m_CpsOK = false;
+          }
+        if (T.SpcId>=0 && !SDB[T.SpcId].H25OK())
+          {
           CReactionBlock::Error(&RB, 'W', 21, T.SpcName());
+          m_HfsOK = false;
+          }
         }
       }
     }
@@ -1726,6 +1741,14 @@ dword CR_Eqn::Check()
   if (!BD.Check())
     dwState|=CRS_NoBalance;
 
+  if (m_HfReqd)
+    {
+    if (!m_CpsOK)
+      dwState|=CRS_BadCps;
+    if (!m_HfsOK)
+      dwState|=CRS_BadHfs;
+    }
+
 //  if (!pControl)
 //    SetCI(1, "Reaction has no extent");
 //  else
@@ -1755,15 +1778,6 @@ void CR_Eqn::Zero()
 
 dword  CR_Eqn::GetState()
   {
-//  if (!CpsOK())
-//    dwState|=CRS_BadCps;
-//  else
-//    dwState=dwState&~CRS_BadCps;
-//  if (!HfsOK())
-//    dwState|=CRS_BadHfs;
-//  else
-//    dwState=dwState&~CRS_BadHfs;
-
   return dwState;
   };
 

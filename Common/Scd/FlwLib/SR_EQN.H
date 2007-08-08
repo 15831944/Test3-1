@@ -449,6 +449,9 @@ class DllImportExport CR_Eqn : public CReaction
     
     flag           fDone;
     flag           fCnvrgd;
+    flag           m_HfReqd; 
+    flag           m_CpsOK;
+    flag           m_HfsOK;
 
     int            iLimitSpc;
     double         m_dMlXfer;

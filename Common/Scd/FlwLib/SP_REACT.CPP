@@ -306,7 +306,7 @@ void CReactionBlock::Clear(flag fClearMsg, flag ClearAll)
   
   bReloadReqd          = false;
 
-  for (int i=1; i<=MacRctCIs; i++)
+  for (int i=1; i<=MaxRctCIs; i++)
     ClrCI(i);
 
   if (fClearMsg)
@@ -922,9 +922,9 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
       break;
     case 19: errDesc.Set("Sink may only be specified once. (Use ',' to separate species)");
       break;
-    case 20: errDesc.Set("Specie %s : Hf not defined", s);
+    case 20: errDesc.Set("Specie %s : Cp not defined", s);
       break;
-    case 21: errDesc.Set("Specie %s : Cp not defined", s);
+    case 21: errDesc.Set("Specie %s : Hf not defined", s);
       break;
     default: errDesc = ((s !=NULL) && (strlen(s)>0)) ? s : "Unknown Error Number";
     };
@@ -932,7 +932,7 @@ void CReactionBlock::Error(pCReactionBlock pRBlk, char Code, int errNo, pchar s/
   char Buff0[1024], Buff1[1024];
   sprintf(Buff0, "%d: %s", errNo, errDesc);
 
-  if (pRBlk!=NULL && pRBlk->pTkns!=NULL  && (Code == SPR_ErrBuild || Code == SPR_WarnBuild))
+  if (pRBlk!=NULL && pRBlk->pTkns!=NULL  && (Code == SPR_ErrBuild))// || Code == SPR_WarnBuild))
     sprintf(Buff1, "Line:%4d %s" , pRBlk->pTkns->GetLineNo(), pRBlk->pTkns->GetWholeLine());
   else
     sprintf(Buff1, "");
