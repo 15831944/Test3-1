@@ -16,8 +16,8 @@ static double Drw_Stats[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,
 
 //---------------------------------------------------------------------------
 
-//Needs testing, exclude for now
-DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
+//Needs testing, exclude this file from project for now...
+//DEFINE_CONTROL_UNIT_EX(BivarStats, "BivariateStats", MDLLIBNAME)
 
 void BivarStats_UnitDef::GetOptions()
 {
@@ -26,6 +26,7 @@ void BivarStats_UnitDef::GetOptions()
 	SetTreeDescription("Statistics:Bivariate Statistics");
 	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
+  SetModelLicense(MLicense_Standard);
 };
 
 //---------------------------------------------------------------------------

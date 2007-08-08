@@ -35,10 +35,10 @@ const long FunctSubsStartIndex = 500;
 
 static double Drw_BlendCon[] =
        {
-       DD_Poly, -4,-4, -4,4, 4,4, 4,-4, -4,-4, 
-       DD_Poly, -4,4, -1,0, -1,-4, 
-       DD_Poly, 4,4, 1,0, 1,-4, 
-       DD_TagPos, 0, -7.5,
+       DD_Poly, -3.2,-3.2, -3.2,3.2, 3.2,3.2, 3.2,-3.2, -3.2,-3.2,
+       DD_Poly, -3.2,3.2, -0.8,0.0, -0.8,-3.2, 
+       DD_Poly, 3.2,3.2, 0.8,0.0, 0.8,-3.2, 
+       DD_TagPos, 0, -6.7,
        DD_End
        };
 

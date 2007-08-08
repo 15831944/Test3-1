@@ -332,6 +332,9 @@
 				RelativePath=".\SetTagList.cpp">
 			</File>
 			<File
+				RelativePath=".\StatsSingleVar.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -409,6 +412,9 @@
 			</File>
 			<File
 				RelativePath=".\SetTagList.h">
+			</File>
+			<File
+				RelativePath=".\StatsSingleVar.h">
 			</File>
 			<File
 				RelativePath=".\stdafx.h">

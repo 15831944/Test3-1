@@ -35,6 +35,7 @@ void SingleVarStats_UnitDef::GetOptions()
 	SetTreeDescription("Statistics:Single Variable Histogram");
 	SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
+  SetModelLicense(MLicense_Standard);
 };
 
 //---------------------------------------------------------------------------

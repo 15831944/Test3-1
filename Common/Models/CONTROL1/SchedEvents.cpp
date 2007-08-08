@@ -46,7 +46,7 @@ void ScheduledEvents_UnitDef::GetOptions()
 	SetTreeDescription("Control:Scheduled Events");
 	SetModelSolveMode(MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
 	SetModelGroup(MGroup_General);
-  //SetModelLicense(MLicense_Standard);
+  SetModelLicense(MLicense_Standard);
 };
 
 //---------------------------------------------------------------------------
