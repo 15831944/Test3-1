@@ -1028,7 +1028,7 @@ namespace Reaction_Editor
             for (int i = 1; i < m_OrderedReactants.Count; i++)
                 m_Reactants[m_OrderedReactants[i]] = newCoefficients[i - 1];
             for (int i = 0; i < m_OrderedProducts.Count; i++)
-                m_Products[m_OrderedProducts[i]] = newCoefficients[i - 1 - m_Reactants.Count];
+                m_Products[m_OrderedProducts[i]] = newCoefficients[i - 1 + m_Reactants.Count];
             FireChanged();
         }
 
