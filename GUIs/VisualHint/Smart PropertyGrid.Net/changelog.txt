@@ -1,0 +1,411 @@
+Version 2.2.4:
+-------------
+
+Bugs fixed:
+
+- There was a crash when hiding a property with ShowProperty if the first visible property was a descendant of the hidden property.
+- Dynamic (thanks to type descriptors and type converters) target instances are now better managed when SelectedObject is used and the content of the grid is rebuilt when needed.
+- A regression bug appeared when under .net 1.1, preventing the user to close a dropdown list by clicking outside the list with the mouse.
+- When the PropertyGrid was not directly in a form but in a sub-control, the currently edited value in a textbox was lost when clicking outside the application.
+- When a UITypeEditor had its dropdown form opened and the user clicked outside the application, the focus cue was not given back to the grid and its inplace control correctly when the application was activated again.
+- There was a slight flickering effect (on the textbox part of the inplace control) when typing a first character while the inplace control had not the focus yet.
+- When calling SetValue on a PropertyValue, there was no automatic refresh of the grid.
+- Pressing the Delete key was erasing the content of a Readonly textbox when the property label was selected.
+- In TabKey mode, a property with a "None" feel could take the focus when pressing tab on the previous focusable property.
+- In TabKey mode, if a property with a "None" feel was selected, pressing Tab was giving the focus to the next control in the form, not to the next focusable property.
+- When the user was clicking on the dropdown arrow of a UITypeEditor and was continuing to move the mouse, the editor could not refresh itself until the mouse stopped moving. 
+- The PropertyEnumerator.Depth property could return an invalid result after using one of the Movexxxxx methods.
+- CTRL + A does not beep anymore when typed while a property label (i.e. the internal grid) has the focus (the inplace control has not the focus yet).
+
+New features:
+
+- PropertyGrid.RefreshProperties() has been added. It has the same effect as the Microsoft PropertyGrid Refresh() call, i.e. rebuild the content of the grid based on the input of type converters and type descriptors.
+- Two helper methods are added: PropertyGrid.SavePropertiesStates and PropertyGrid.RestorePropertiesStates. They allow to save the expanded and selected states of all the properties. This is very convenient to keep the visual aspect of the grid and its properties when you call SelectedObject on the same or on a similar target type.
+- In the handler of the PropertySelected event, you can know the property which was previously selected.
+- Clipboard operations were not working when a menu with the clipboard entries was present.
+
+Changes:
+
+- In your custom inplace control classes, instead of calling the PropertyValue.SetValue() method you must now call the PropertyValue.SetValueFromInPlaceCtrl() method.
+- In class PropertyValueDisplayedAsAttribute, the DisplayedStrings property and the GetDisplayedStrings method are now virtual to ease derivation.
+- The PropertyValue.Recreate() method now takes an argument: a boolean to indicate if the PropertyCreated event must be sent or not.
+
+
+Version 2.2.3:
+-------------
+
+Bugs fixed:
+
+- When calling SetManuallyDisabled and the initial state is "disabled", the descendant properties were not correctly set as disabled.
+- The +/- glyph color was not the correct one for a property with child properties when a dropdown form was open.
+- When adding a second value to a property with the ValueAddedToPropertyAttribute while filling the grid with SelectedObject, the operation was failing if the PropertyDescriptor for the second value was supplied by a TypeConverter (instead of being a descriptor for a regular property).
+- In TABkey + autofocus mode, if an hyperlink property was already selected, clicking on the hyperlink had no effect.
+- In TABkey mode, if there was a unit inplace control below another unit control, changing the unit in the first one tried to commit the new value in the second one.
+
+New features:
+
+- The PropertyGrid can now host the new datetime inplace control (separate product called Smart FieldPackEditor.Net).
+
+
+Version 2.2.2:
+-------------
+
+Bugs fixed:
+
+- There was a crash if a PropertyDescriptor was returning null for Category. SPG now loads and sets the localized "Misc" string for the empty category.
+- There was a crash when typing in the textbox part and SPG tries to match the typed key with the first letter of one of the possible displayed values to switch to it.
+- There was a crash when creating a managed property that publishes some child properties.
+- When adding a root category, the check was not done to see if a vertical scrollbar had to be shown.
+- There was a stack overflow when dealing with a managed property and the recreation of its children when its value changes.
+- PropertyGrid.DrawingManager was not returning the correct drawing manager when you were using a custom manager derived from a built-in one.
+- When using SelectedObjects, the multiple target instances were correctly set to the first level of properties but not to their descendants.
+- In KeepFocus mode, it was impossible to leave an inplace control with a textbox (except by hitting ESC) if the textbox was empty and the property was targetting several instances. The empty value (null internally) was refused by the attached TypeConverter inside the new validation engine.
+- The tooltips for the toolstrip are now localized (before, they were harcoded english strings).
+- When switching from classic to XP theme rendering (and vice versa) the change was not taken into account in the drawing engine.
+- In the mode (Enabled==false && DisabledMode==Simple) it was possible to see and trigger the button of a UITypeEditor, and therefore edit the underlying value, which should not be possible in a disabled mode.
+- SelectedObjects has been improved so that child properties at level2 and deeper of one target instance are correctly analyzed for potential conflicts with the same properties in the other target instances.
+- A very consuming GDI memory leak has been fixed.
+- When setting a trackbar property to Readonly, the trackbar control was still visible and usable if it had been displayed previously.
+- When a property using a checkbox inplace control was bound to several target instances with different values, there was a crash when showing the inplace control.
+- When using a list inplace control, the container of the dropdown list (PropInPlaceContainer class) was never disposed and as such the window handle was always present in the windows hierarchy (as seen under ManagedSpy).
+- If a call to TypeConverter.ConvertToString returns null, SPG transforms it into an empty string to avoid a crash due to a faulty TypeConverter.
+- When using SelectedObject(s), the BrowsableAttribute filter was always implicitely used and it was not possible to use a custom filter (with the PropertyPreFilterOut event).
+- The size and placement of the UITypeEditor are now calculated correctly (they were not under some circumstances). It does even better than the Microsoft PropertyGrid by always relying on the editor PreferredSize property.
+- SelectedObject couldl crash when using the SortedProperty attribute on a property that has children.
+- The first root category with a height multiplier greater than 1 could be truncated at the top of the grid after calling SelectedObject when it uses the SortedCategoryAttribute.
+
+Changes:
+
+- The documentation was wrong in the section concerning the ValueAddedToProperty attribute.
+- The TargetInstance property has been added to the class PropertyPreFilterOutEventArgs.
+
+
+Version 2.2.1:
+-------------
+
+Bugs fixed:
+
+- Fixed a crash appearing when displaying empty value strings in bold or italic.
+- A missing Refresh() call was missing in Property.HeightMultiplier, preventing from playing with the height multiplier of a property in realtime while resizing the grid.
+- The icon at the left of property labels was painted vertically centered instead of being aligned with the label. This was a problem for properties with a height multiplier greater than 1.
+
+
+Version 2.2:
+-----------
+
+New features:
+
+- Value validation engine has been reworked. It is now possible to keep the focus on the faulty value.
+- SPG is now compatible with Skybound VisualTips (www.skybound.ca) which is of great use with the new validation mode.
+- If an exception is thrown by the client application while setting a value to a property, it is not "eaten" anymore and will be managed by the validation mechanism.
+- MouseEnter, MouseHover and MouseLeave events from the InternalGrid are now forwarded to the parent PropertyGrid.
+- The method PropertyEnumerator.IsDescendantOf(PropertyEnumerator) has been added.
+- RealtimeChange property is now functional for Unit inplace controls.
+- The Escape key now restores the old value for inplace controls whose RealtimeChange property had been set to true.
+- PropertyGrid.UpdateInPlaceControlFromValue() has been added to update the content of the active inplace control when the value of the property has changed externally.
+- PropertyGrid.SelectAndFocusProperty() has been added to select a property and force the focus on the inplace control of a property. A parameter enables also to select all the text if the inplace control contains a textbox.
+- PropInPlaceUITypeEditor.ButtonText has been added so that it's possible to change the button text of modal UITypeEditors, like it was already the case for button feels.
+
+Bugs fixed:
+
+- In the AppendProperty/InsertProperty methods, the code checking for the presence of BrowsableAttribute has been kept by inadvertence. It should have been erased since this is now taken care of in SelectedObject with the addition of the new PropertyPreFilterOutEvent event.
+- All event handlers were passed arguments as EventArgs and it was necessary to cast it to the correct derived class.
+- Fixed double click on the property value in the textbox part of a combobox (it would not cycle the value more than once on the inplace control that has RealtimeChange set to false). The same behavior occurs when typing the first letter of possible values.
+- The margin at left/right of any text was not correct when setting a bold font to the grid.
+- Setting the DrawingManager at runtime was not recalculating the size of the client area.
+- Changing BorderStyle was showing some flicker.
+- Calling DisplayMode was forcing the focus on the grid.
+- It was impossible to revert from a DisableMode set to Full.
+- When clicking in the text of a textbox corresponding to an already selected property, the text was incorrectly scrolled to the right if it was truncated by the right border of the grid.
+- It was impossible to change the DisplayMode from Flat to FlatSorted and vice-versa without passing first by the Categorized mode.
+- The margin used everywhere between texts and boundaries was static. It was creating display problems when showing two PropertyGrids with different font sizes.
+- Italic text was possibly right-truncated by the overhang value (~ 2 pixels).
+- When resizing the grid, the height of the comments area was not checked. It could end up with a grid filled only by the comments area.
+- While scrolling down with the arrow key, there was an annoying remanence of the inplace control on the previously selected property when it was the last displayed at the bottom.
+- Some Refresh() calls were missing when setting some colors on a PropertyValue.
+- When PropertyGrid.ReadOnlyVisual was changed, the existing readonly properties were not changed (enabled/disabled) according to the new value.
+- It was impossible to create a managed property with a certain type and to initialize it with a value from a derived type.
+- It was impossible to specify an EditorAttribute in the parameters of Append(Managed)Property (broken since 2.0).
+
+Changes:
+
+- GetRegisteredFeel now throws an exception if a feel can't be found.
+- All the events have their name changed. The term "event" has been removed from their names.
+- The ActualText property, when it exists, in inplace controls has been replaced by Text.
+- The DisableModes enumeration does not contain EverythingGrayedOut anymore. It has been replaced by a DisableModeGrayedOut property which is an option for all the disable modes.
+- All TabKey submodes have been moved to the TabKeyNavigationModes enumeration.
+- In order to keep the same level of quality, the DateTime inplace control can not be used with the dropdown calendar anymore. It was too difficult to manage in all possible situations. Instead, you can rely on the usual DateTime UITypeEditor or use it in updown button mode.
+
+
+Version 2.1:
+-----------
+
+New features:
+
+- The library now supports .Net 1.1.
+- SelectedObject(s) can now be called even if not in categorized display mode.
+- An image can be drawn at the left of any property label (previously it was feasible only for categories).
+- IInPlaceControl.TextBox has been added so that the textbox of any inplace control can be accessed.
+- The event InPlaceCtrlCreatedEvent and the callback method OnInPlaceCtrlCreated have been added. This event happens before InPlaceCtrlCreatedVisible and enables the client application to customize the inplace control sooner (when the customizations recreate the handle of the control for instance). One example is to configure the inplace control with autocomplete feature (see sample).
+- Typing a character in a textbox, which is readonly due to exclusive possible values, changes the value to the next possible string beginning by the typed letter. So far it was possible only in listboxes having no textbox.
+- IInPlaceCtrl.CommitValue() added.
+- PropInPlaceDateTime.RealtimeChange added so that you can control when CommitValue() is called (at each change or upon validation).
+- OnPropertyChanged is fired for properties that are using a CollectionEditor. There is a bug in the Microsoft PropertyGrid that prevents knowing if a collection has actually changed after edition in the editor. The PropertyValueChanged event in the Microsoft PropertyGrid is not even fired (it is for arrays, not for most collections). In SPG, a way has be found to fire the event in such cases.
+- PropertyGrid.OnPropertyPreFilterOut() has been added so that you can override the default mechanism that filters out properties that have the BrowsableAttribute(false) attached.
+- The width of the columns is now set by calling PropertyGrid.LabelColumnWidthRatio with a percentage value.
+- MouseClick (for .net2), MouseDoubleClick (for .net2) and Click events in the internal grid are now forwarded to the PropertyGrid.
+
+Bugs fixed:
+
+- There was a crash when clicking on a non readonly datetime inplace control while coming from a readonly datetime inplace control, and vice versa.
+- Clicking in another app while a dropdown list is opened will prevent the same listbox from being opened when focusing back the grid with the same property still selected.
+- Calling Clear() while in non categorized mode was not clearing the properties collection correctly.
+- When a PropertyDescriptor was changing its readonly state, the change was not reflected in the grid.
+- Checkboxes were not drawn correctly when disabled in non XP theme.
+- The width of the button in the UITypeEditor inplace control was not calculated correctly.
+- The listbox for an enumeration attached to a TypeConverter of your own could be empty.
+- The hit test in radio button and checkbox inplace controls was buggy. It was visible when adding more than 6 or 7 items in the control and was producing a shift when clicking (the next value after the one clicked was selected).
+- In TAB mode, ending the editing of the last property could cause the inplace control to disappear even with the property still selected.
+- OnPropertyChanged was not correctly triggered for checkboxes (set to RealtimeChange) with an underlying ArrayList.
+- Found a workaround for the native focus bug in the DateTimePicker control. When the month calendar is closed, giving the focus back to the control without the mouse would put the focus selection mark nowhere. The user had to hit an arrow key.
+- Fixed some issues with the DateTime inplace control, one of them being OnPropertyChanged triggered when changing only one field of the date/time or when clicking in the month calendar month and year buttons.
+- A child property was automatically set readonly when its parent was also readonly even if NoLinkWithChildren was set on the parent's PropertyValue.
+- Shift+Enter and Ctrl+Enter now works correctly with a multiline textbox to create a line break.
+- A collection editor attached to a readonly property (no "set" accessor) was not shown to let the user edit the content of the collection (should have been fixed in 2.0).
+
+Changes:
+
+- PropertyValidatorMinMax is not a generic class anymore. Instead, it takes arguments that interface IComparable.
+- It is now mandatory to attach a validator to a property that uses a trackbar.
+- PropertyValue.NoLinkWithChildren has now by default the value "true". It means that you must set it to false each time you create a grouped property whose parent and children have a logical link (like the WindowSize in the sample).
+- PropertyGrid.LabelColumnFollowsResize has been removed. The underlying behaviour becomes the norm.
+- PropertyGrid.OnPropertyFilterOut() is now called OnPropertyPostFilterOut().
+- PropertyGrid.LabelColumnWidth.set does not exist anymore. Use LabelColumnWidthRatio instead.
+
+
+Version 2.0:
+-----------
+
+New features:
+
+- PropertyGrid.SelectedObjects has been implemented.
+- PropertyGrid.SelectedObjectChangedEvent has been added.
+- Navigation with TAB (+shift) key has been implemented. It offers various sub-modes of operation.
+- The height of the gap between the grid and the comments area is not hardcoded anymore. This is now an overridable property (CommentsGapHeight) of the CustomDrawManager class.
+- The DateTimeEditor (don't mix it up with the DateTime feel) can now handle nullable dates.
+- PropertyGrid.HitTest() returns three new identifiers : Label, CommentArea and LeftColumn.
+- The Return key on a (sub)category switches between expanded and collapsed states.
+- A double-click on the label of a property now puts the focus in the textbox or scrolls through available values like in the MSPG (independently from any inplace control type). Contrarily to MSPG, shift + double-click also works in reverse order.
+- A double-click on the value of a property now scrolls through available values like in the MSPG (independently from any inplace control type). Contrarily to MSPG, shift + double-click also works in reverse order.
+- PropertyGrid.ExpandAllProperties() has been added to expand or collapse all properties in one shot.
+- In the brightness/saturation map of the alphacolor picker dropdown control, arrow keys can be used to modifiy the saturation and/or brightness.
+- PropertyDisableAttribute was usable only for child properties of the property that is decorated. It now works with the decorated property itself.
+- PropertyHideAttribute was usable only for child properties of the property that is decorated. It now works with the decorated property itself.
+- Up/Down/PgDown and PgUp keys are now handled on the textbox part of a trackbar feel to modify the trackbar value;
+- PropertyLookAttribute can now take the parameters that will be passed to the Look constructor. Very handy when using SelectedObjects.
+- PropertyHeightMultiplierAttribute class has been added (example use: to set the height of a multiline textbox in SelectedObject mode).
+- ManuallyDisabledAttribute class has been added. It allows to call SetManuallyDisabled(propEnum, true) on the decorated property when SelectedObject is used.
+- A test has been added to ensure that the type of the initial value passed to AppendManagedProperty matches the type passed in the same call. If it mismatches, an exception is thrown.
+- CTRL + left/right arrows changes the width of the label and value columns by a step of 3 pixels.
+- PropertyDateTimeLook has a constructor to accept Format, CustomFormat and ShowUpDown properties. Therefore these values can be passed when the look is assigned at design-time with an attribute.
+- PropertyGrid.LabelColumnFollowsResize has been added to keep the ratio of column widths during a user resize.
+- Child properties of a parent property whose TypeConverter does not supply PropertyDescriptors are now sorted by the PropertyGrid.PropertyComparer.
+- The sample's form is now resizable.
+- PropertyTypeDescriptorContext now contains a reference to the PropertyGrid.
+
+Bugs fixed:
+
+- The Checkbox inplace control was not calling OnPropertyChanged properly.
+- Closing the dropdown list of a Unit inplace control by clicking on the dropdown button was closing and reopening the list at the same time.
+- In a Unit inplace control, there was a blink on the textbox (temporary SelectAll) if it contained the focus and the user was clicking on the dropdown arrow.
+- The +/- glyph or a root or sub category was not vertically centered if using a HeightMultiplier greater than 1.
+- An exception (MemberAccessException) is thrown when a property whose name is given in the call to AppendProperty or InsertProperty can't be found in the target instance type.
+- It is now possible to assign a null value to managed properties (created with AppendManagedProperty).
+- There was a crash when using a string data type with radio-buttons.
+- Since 1.5, OnDisplayValuesNeeded was called only for dropdown lists and if PropertyValue.ResetDisplayedValues() was called. Now it will be called at property creation and then later if ResetDisplayedValues() is called.
+- Some TypeConverter's conversion methods were not using PropertyValue.CultureInfo.
+- When using several properties with FeelEditTrackbar, the textbox was not sized property when moving from one property to the other one.
+- An anti-recursion mechanism has been added to PropertyGrid.EnableProperty so that calling EnableProperty from OnPropertyEnabled with the current Enabled state won't recurse.
+- Applying the PasswordPropertyTextAttribute attribute to a property now automatically selects the correct password look and feel classes.
+- A bug causing a null reference exception in ValueAddedToPropertyAttribute.Equals() has been fixed.
+- Using [PropertyLook(null)] had no effect. This is used when one wants to clear the automatic assignment of a registered look for a given type.
+- There was some issues with the PropertyEnumerators, preventing certain loops to work property. Also sometimes, a Clone() call was necessary.
+- The PropertyMaskedEditLook class now displays the mask with the prompt character visible.
+- The child properties of a collection that has been modified (by its editor) are recreated.
+- The Delete key had no effect on a UITypeEditor when it was not focused (it normally should give the focus and delete the text).
+- The tooltip trigger was not calculated correctly for UITypeEditors. The consequence was that the tooltip was not appearing if the text was slightly truncated.
+- TypeConverter.CreateInstance was not called with the proper TypeDescriptorContext and propertyValues.
+- NoWrap was missing in the PropertyPasswordLook. Long passwords were displayed on several lines.
+- A property with a password look was passed bullets in its Set accessor when Escape was pressed.
+- PropertyEnumerator.Equals() was not overloaded to compare values. It was comparing only references.
+- Crash when a ComponentEditor was attached to a property that had no UITypeEditor.
+- A collection editor attached to a readonly property (no "set" accessor) was not shown to let the user edit the content of the collection.
+- UITypeEditor.PaintValue is now passed the ITypeDescriptorContext.
+- Crash when using SelectedObject and one of the properties that publishes subproperties returns null for its value (this was the case when targetting the form in the sample and BackgroundImage has a null value).
+
+Changes:
+
+- PropertyCultureInfoAttribute class has been removed from the project. It was of no need at design-time. Use PropertyValue.CultureInfo instead.
+- Property.Look has been added as a shortcut. Use this instead of PropertyValue.Look.
+- The feel instance has been transferred to the PropertyValue class, however Property.Feel has been kept has a shortcut.
+- The PropertyTrackBarLook class name has been changed to PropertyProgressBarLook.
+- PropertyGrid.SelectedBkgColor has been renamed to SelectedBackColor.
+- PropertyGrid.SelectedNotFocusedBkgColor has been renamed to SelectedNotFocusedBackColor.
+- PropertyValue.CurrentImageListIndex has been renamed to ImageIndex.
+- ReadOnlyForeColor has now the default value GrayText.
+- EllipsisMode has now the default value EllipsisOnValuesAndLabels.
+
+
+Version 1.5:
+-----------
+
+New features:
+
+- Microsoft UITypeEditor classes are now supported by the SPG framework.
+- Dropdown boxes have now a resize box if needed.
+- PropertyValue.ResetDisplayedValues(...) has been added to delete or change the values displayed for an enumerable type (previously it was possible to set them only at compile time with an attribute).
+- PropertyGrid.OnDisplayedValuesNeeded is now called by the framework each time there is no displayed values defined.
+- Added some DefaultValueAttributes to avoid unnecessary serialization by the IDE designer.
+- Possibility to create a parent and children properties that have nothing in common. The parent acts like a category (with the look of a property) with a value part. Changing a child does not modify the parent and vice-versa. To use it, call PropertyValue.NoLinkWithChildren.
+- The actual trackbar of the PropInPlaceTrackBar class is now accessible from the client application (to register to events for example). Get it by calling PropInPlaceTrackbar.TrackBar.
+- PropertyChangedEventArgs has now a field SelectedIndex to know the entry selected by the user in a dropdown list and in a radiobuttons inplace control.
+- Ability to control the size of the images displayed in the value part of a property by calling PropertyValue.ImageSize. It means that you can keep the original image size when you increase the height of the property. By default the image scales with the property height.
+- The PromptChar can be changed for the MaskedTextbox inplace control.
+- The PropertyGrid can be disabled with different options. You can disable everything, the selection of properties or the selection of just the values.
+- There is no need to attach the DateTime feel and look to a DateTime property, they are now registered to be automatically assigned.
+- There is now a distinction between DisabledForeColor and ReadonlyForeColor.
+- PropertyValue.PropertyDescriptor is now accessible when applicable.
+- The right and center mouse buttons now select the clicked property (without putting the focus on the inplace control).
+
+Bugs fixed:
+
+- In flat and flatsorted mode, the shift of a property label was not calculated correctly for a depth greater than one.
+- When clicking on the internal grid, the virtual methods OnMouse.... are called but the corresponding events were not triggered.
+- When gaining the focus indirectly (not a mouse click in the grid but ALT-TAB for example) the selected property was not repainted as focused.
+- When using SelectedObject and some PropertyDescriptors returning the same value for "Name", only the first PropertyDescriptor was used, giving several properties pointing to the same data.
+- Unicode strings were not displayed correctly in the value column (and in the corresponding tooltip).
+- When creating a property with AppendManagedProperty and a PropertyValueDisplayedAs attribute was set on the type itself, it was not taken into account.
+- When setting a bold font on the Property class, the textbox of the value was X-shifted.
+- The F4 key to open the dropdown list was not working anymore in a Unit inplace control if the textbox had the focus.
+- When the TypeConverter can't convert from a string or GetStandardValuesExclusive() returns true, the textbox was not set as ReadOnly.
+- It was not possible to attach a simple string as the Unit part of a PropInPlaceUnit. Only enumerations were handled. Now a string can be the unit and OnDisplayedValuesNeeded will be called to know all the possible units.
+- It was not possible to set the Focus on the grid from outside (for example from the form to set the initial focus on the grid).
+- The item height of a dropdown listbox is now calculated using the font height and the PropertyVerticalMargin field of the PropertyGrid.
+- Property.CanBeDisabledManually.set has been replaced by PropertyGrid.SetManuallyDisabled to fix a bug related to setting a manually disabled checkbox on a property whose parent is disabled.
+- The DateTime inplace control could not be readonly.
+- The mouse hover effect under an XP theme was not right on the dropdown button, push button and updown buttons.
+- When two different properties were showing radio buttons, the inplace control was not reinitialized correctly from one to the other and it was sometimes impossible to change the underlying values.
+- Down and Up arrow keys were not working on the combo part of a Unit inplace control.
+- When using an ImageList in a PropertyValue and the user changes the value by using the textbox (FeelEditList feel), the image index was not changed.
+- Fixes on the password inplace control.
+- PropertyGrid.HighlightedTextColor was not used by subcategories text and by +/- glyphs on properties and subcategories.
+- The attribute ShowChildPropertiesAttribute was not detected on the type of a property added with AppendManagedProperty.
+- Not really a bug, but a double click on the vertical line between labels and value as well as the double click on a category were handled on the mouse up, not the mouse down.
+- With a grouped (managed) property, if one of the children was of type string, the space character following the separator character was included in the child value as a leading space.
+
+
+Version 1.4:
+-----------
+
+New features:
+
+- Added the notification OnInPlaceControlHidden.
+- PropertyGrid.SelectedNotFocusedBkgColor has been added to change the background of a selected property when the grid is not focused.
+- To let client applications develop their own drag and drop (among others), mouse down, mouse move and mouse up events in the internal grid are forwarded to the parent PropertyGrid.
+
+Bugs fixed:
+
+- Calling PropertyGrid.SelectedObject = null; was crashing.
+- Since version 1.3, clicking on the "sort alphabetically" button was crashing.
+- The TypeDescriptorContext of a property was not always passed to GetProperties() and GetPropertiesSupported().
+- Calling SelectProperty was showing the inplace control even if the grid had not the focus.
+- When clicking on a property, OnInPlaceControlVisible could be called twice in certain circumstances.
+- Hyperlinked properties were not visible under the Flat display modes.
+- HighlightedTextColor was not taken into account.
+- When changing the display mode (PropertyGrid,DisplayMode) the button in the toolbar was not correctly updated.
+- When a dropdown listbox has no entry selected because no entry corresponds to the value in the textbox, clicking outside the listbox to close it was triggering a value change with an empty string.
+- Hyperlink properties (those occupying the full row) were taken into account in the calculation done by PropertyGrid.AdjustLabelColumn().
+- The ReadOnly state of a property value was not correctly read from PropertyDescriptor.IsReadOnly.
+
+
+Version 1.3:
+-----------
+
+New features:
+
+- Attributes now use AttributeUsage with AllowMultiple set to true when necessary. It allows not to pass big arrays to their constructor and to apply multiple instances of the same attribute instead.
+- A PropertyValidator attribute can now be applied on the children of a property.
+- A new notification has been added: OnPropertyFilterOut. It allows you to remove the property based on your criterias just after it has been created using SelectedObject.
+
+Bugs fixed:
+
+- The management of enum fields is now done correctly when using Browsable and PropertyValueDisplayedAs attributes when the enumeration is defined in another language like C++.
+- DescriptionAttribute was not handled when using SelectedObject.
+- It was not possible to assign a Checkbox feel to boolean child properties of a parent property like a font (whose TypeConverter returns true for GetCreateInstanceSupported()).
+
+
+Version 1.2:
+-----------
+
+New features:
+
+- PropertyValueDisplayedAs attribute can now be applied on individual fields of an enumeration.
+- There is no need to call PropInPlaceUpDown.UpdateByNotifications anymore to set custom increments on properties that use an updown control.
+- Custom attributes have now overrides for Equals() and GetHasCode().
+- The readonly state of a property value can now be changed on the fly with Property.Value.ReadOnly
+- PropertyValueDislayedAsAttribute can now be used for a string type. Previously when showing a listbox with such a type it was mandatory to handle OnDisplayedValuesNeeded.
+- Browsable(false) applied on individual enum fields are now taken into account and the fields won't be displayed. (experimental)
+
+Bugs fixed:
+
+- PropertyValueIndirect.TypeConverter was not caching the TypeConverter correctly.
+- There was a major flaw with how the validation was applied on a new edited value. The property was actually changed with the new value, then validated then reverted back to the old value if the validation failed. Now, the property is updated only if previously validated on a generated interim value.
+- Crash when sorting the properties alphabetically and the first displayed property was already the first in alpha order.
+- A checkbox for a boolean with an empty text was still displaying an (empty) focus rect. A check has been added to prevent that.
+- The rectangle around the +/- glyph in front of categories in the LightColorDrawManager was not drawn correctly.
+- Fixed the double-clic on a +/- glyph.
+- The tooltip was sometimes appearing on a property showing its inplace control when the mouse was in the bottom pixel row.
+- At 2 places in the code, I was modifying the global StringFormat.GenericDefault.
+- The icon in a combobox property was not redrawn correctly if the user was opening the listbox, typing an arrow key and escape.
+- Alt+down/up and F4 keys were not always handled correctly in combobox type properties.
+- A listbox had no maximum height.
+- Setting a property to invisible could have some side effects in some circumstances (regression bug).
+
+
+Version 1.1:
+-----------
+
+New features:
+
+- It is possible to create a property with multiple values while using SelectedObject by putting a ValueAddedToProperty attribute on the additional properties.
+- PropertyLook.OnDraw() now contains a generic drawing code. No need to override it in simple derived looks.
+- Contrarily to the MSGrid, when a property is selected, the Escape key does not enter in edit mode nor beep.
+- The TypeDescriptorContext passed to a TypeConverter contains a reference to a Property.
+- Each HyperLinked property can now send an event to different handlers.
+- Customized cultures can be applied on a per property basis.
+- Cultures are passed to TypeConvertes.
+- PropertyValue.TargetInstance (get) has been added to retrieve the target of a property.
+
+Bugs fixed:
+
+- Crash when attemting to assign a checkbox look and feel to a property that has been created through SelectedObject.
+- Crash when requestiong the Name (not the DisplayName) of a category (a category is not linked to a .net property so it cannot get its name).
+- A ReadOnly attribute passed to AppendProperty or such method was not taken into account.
+- On a dual screen configuration, the color listbox could appear on the wrong screen.
+- PropertyGrid.CommentsHeight now checks for too big values.
+- When double-clicking on the value part of an unselected property, the double-click was not transmitted to the newly appeared inplace control.
+- Some bugs were preventing the DateTime feel to be used normally to display dates and the month calendar.
+- It was not possible to set a property Id with the PropertyId attribute to auto-discovered children of a parent property.
+- LabelColumnWidth was not accepting a value if outside the client rectangle width when set from Form.InitializeComponent().
+- When using AppendProperty or InsertProperty, the Browsable attribute was ignored, whether it is applied at design-time or at runtime. 
+
+
+Version 1.0.1:
+-------------
+
+Bugs fixed:
+
+- Crash when trying to find the dropdown content of a property whose parent has a PropertyDropDownContent attribute.
+- When using SelectedObject, the TypeConverter of the target instance was not taken into account.
+- A click on the arrow of an opened combobox was closing and then reopening the listbox instead of just closing it.
+- The space key was triggering the popup of a combobox.

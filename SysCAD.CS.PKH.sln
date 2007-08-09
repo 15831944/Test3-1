@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PureComponents TreeView VS2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "70.Protocol", "Protocol\70.Protocol.csproj", "{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartPropertyGrid", "GUIs\VisualHint\Smart PropertyGrid.Net\SmartPropertyGrid.csproj", "{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		BETA Debug|Any CPU = BETA Debug|Any CPU
@@ -161,6 +163,28 @@ Global
 		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Vertigo|Any CPU.ActiveCfg = Distribution|Any CPU
 		{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}.Vertigo|Any CPU.Build.0 = Distribution|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Release|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Standard|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Standard|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
+		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Vertigo|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

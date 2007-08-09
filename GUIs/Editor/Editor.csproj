@@ -47,13 +47,12 @@
       <Private>True</Private>
       <HintPath>..\..\..\..\..\..\Program Files\Actipro Software\UIStudio\v2.0.0062\ActiproSoftware.UIStudio.Dock.dll</HintPath>
     </Reference>
-    <Reference Include="ActiproSoftware.UIStudio.NavigationBar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b14901ad955fb079" />
+    <Reference Include="ActiproSoftware.UIStudio.NavigationBar, Version=2.0.62.0, Culture=neutral, PublicKeyToken=b14901ad955fb079">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Actipro Software\UIStudio\v2.0.0062\ActiproSoftware.UIStudio.NavigationBar.dll</HintPath>
+    </Reference>
     <Reference Include="ActiproSoftware.WinUICore, Version=1.0.77.0, Culture=neutral, PublicKeyToken=1eba893a2bc55de5">
       <Private>True</Private>
-    </Reference>
-    <Reference Include="SmartPropertyGrid, Version=1.5.0.0, Culture=neutral, PublicKeyToken=717018457dd20991, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\VisualHint\Smart PropertyGrid.Net eval\bin\.Net 2.0\SmartPropertyGrid.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -163,6 +162,10 @@
     <ProjectReference Include="..\TreeView\PureComponents TreeView VS2005 SRC.csproj">
       <Project>{07620E7A-1355-41BB-A084-B72B24401F4B}</Project>
       <Name>PureComponents TreeView VS2005 SRC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VisualHint\Smart PropertyGrid.Net\SmartPropertyGrid.csproj">
+      <Project>{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}</Project>
+      <Name>SmartPropertyGrid</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

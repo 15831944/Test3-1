@@ -1,0 +1,276 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>SmartPropertyGrid</AssemblyName>
+    <AssemblyOriginatorKeyFile>SmartPropertyGrid.snk.pfx</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>VisualHint.SmartPropertyGrid</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;DEBUG;_DOTNET2</DefineConstants>
+    <DocumentationFile>bin\release\SmartPropertyGrid.XML</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE;_DOTNET2</DefineConstants>
+    <DocumentationFile>bin\release\SmartPropertyGrid.XML</DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>1591</NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AlphaColorPicker.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ColorUtils.cs" />
+    <Compile Include="FieldInfoEnumComparer.cs" />
+    <Compile Include="InPlaceCtrlCreatedEventArgs.cs" />
+    <Compile Include="KeyboardHook.cs" />
+    <Compile Include="ManuallyDisabledAttribute.cs" />
+    <Compile Include="DisplayedValuesNeededEventArgs.cs" />
+    <Compile Include="MouseHook.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MultipleValuesException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertiesStates.cs" />
+    <Compile Include="PropertyDateTimeFeel.cs" />
+    <Compile Include="PropertyDateTimeLook.cs" />
+    <Compile Include="PropertyEventArgs.cs" />
+    <Compile Include="PropertyHeightMultiplierAttribute.cs" />
+    <Compile Include="PropertyMaskedEditFeel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyMaskedEditLook.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyPreFilterOutEventArgs.cs" />
+    <Compile Include="PropertyUITypeEditorFeel.cs" />
+    <Compile Include="PropertyCreatedEventArgs.cs" />
+    <Compile Include="PropertyDisableAttribute.cs" />
+    <Compile Include="PropertyEnabledEventArgs.cs" />
+    <Compile Include="PropertyPostFilterOutEventArgs.cs" />
+    <Compile Include="PropertyFontFeel.cs" />
+    <Compile Include="PropertyFontNameLook.cs" />
+    <Compile Include="PropertyHyperLink.cs" />
+    <Compile Include="PropertyHyperLinkClickedEventArgs.cs" />
+    <Compile Include="PropertyIdAttribute.cs" />
+    <Compile Include="PropertyComparerDefaultSort.cs" />
+    <Compile Include="PropertyTypeDescriptorContext.cs" />
+    <Compile Include="PropertyUpDownEventArgs.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyUpDownFeel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyValidatorNoOp.cs" />
+    <Compile Include="PropInPlaceDateTime.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceMaskedTextbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceUITypeEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SortedPropertyAttribute.cs" />
+    <Compile Include="PropertyValidatorBase.cs" />
+    <Compile Include="CustomDrawManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DefaultDrawManager.cs" />
+    <Compile Include="DotnetDrawManager.cs" />
+    <Compile Include="DropDownContentClosedEventArgs.cs" />
+    <Compile Include="DropDownContentListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IDropDownContent.cs" />
+    <Compile Include="IInPlaceControl.cs" />
+    <Compile Include="InPlaceCtrlVisibleEventArgs.cs" />
+    <Compile Include="InternalGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="InternalTrackBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LightColorDrawManager.cs" />
+    <Compile Include="LinkedList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MessageHook.cs" />
+    <Compile Include="PropertyAlphaColorLook.cs" />
+    <Compile Include="PropertyDropDownContentAttribute.cs" />
+    <Compile Include="PropertyFeelAttribute.cs" />
+    <Compile Include="PropertyHideAttribute.cs" />
+    <Compile Include="PropertyLookAttribute.cs" />
+    <Compile Include="PropertyPenLook.cs" />
+    <Compile Include="PropertyProgressLook.cs" />
+    <Compile Include="PropertyUnitFeel.cs" />
+    <Compile Include="PropertyUnitLook.cs" />
+    <Compile Include="PropertyValidatorAttribute.cs" />
+    <Compile Include="PropertyValidatorMinMax.cs" />
+    <Compile Include="PropertyValue.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Property.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyButtonClickedEventArgs.cs" />
+    <Compile Include="PropertyButtonFeel.cs" />
+    <Compile Include="PropertyChangedEventArgs.cs" />
+    <Compile Include="PropertyCheckboxFeel.cs" />
+    <Compile Include="PropertyCheckboxLook.cs" />
+    <Compile Include="PropertyColorLook.cs" />
+    <Compile Include="PropertyValueDisplayedAsAttribute.cs" />
+    <Compile Include="PropertyEditFeel.cs" />
+    <Compile Include="PropertyExpandedEventArgs.cs" />
+    <Compile Include="PropertyFeel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyListFeel.cs" />
+    <Compile Include="PropertyLook.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyMultilineEditFeel.cs" />
+    <Compile Include="PropertyMultilineEditLook.cs" />
+    <Compile Include="PropertyPasswordLook.cs" />
+    <Compile Include="PropertyRadioButtonFeel.cs" />
+    <Compile Include="PropertyRadioButtonLook.cs" />
+    <Compile Include="PropertyTrackBarFeel.cs" />
+    <Compile Include="PropertyValueIndirect.cs" />
+    <Compile Include="PropertyValueManaged.cs" />
+    <Compile Include="PropertyValueSimulated.cs" />
+    <Compile Include="PropInPlaceButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceCheckbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceContainer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceTextbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceFontButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceList.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceTrackbar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropInPlaceUnit.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="RootCategory.cs" />
+    <Compile Include="PropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PropertySelectedEventArgs.cs" />
+    <Compile Include="ShowChildPropertiesAttribute.cs" />
+    <Compile Include="SortedCategoryAttribute.cs" />
+    <Compile Include="SubCategory.cs" />
+    <Compile Include="ThemeRenderer.cs" />
+    <Compile Include="ToolTipCtrl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Utilities.cs" />
+    <Compile Include="ValueAddedToPropertyAttribute.cs" />
+    <Compile Include="ValueValidationEventArgs.cs" />
+    <Compile Include="Win32Calls.cs" />
+    <Compile Include="_VisualTipInclude.cs" />
+    <EmbeddedResource Include="PropertyGrid.bmp" />
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SmartPropertyGrid.snk.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SmartPropertyGrid.plsk" />
+  </ItemGroup>
+</Project>

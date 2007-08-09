@@ -1,0 +1,70 @@
+Smart PropertyGrid License Agreement 
+
+The enclosed software that includes source code, demos, libraries and documentation (hereinafter
+the "Software") is licensed, not sold, to you by VisualHint for use only under the terms of this
+License, and VisualHint reserves any rights not expressly granted to you. You own the media on which
+the Software is recorded or fixed, but VisualHint retains ownership of the Software itself.
+
+
+1. License:
+
+The Software is "in use" (or the term "use" is written) when you develop any source code depending on
+the Software, modified or not.
+
+VisualHint grants to you the license that allows a single developer to use only one copy of the
+Software on a single computer at any one time. A full site license allows any developer to use the
+Software on any computer inside your company at only one site. You are not required to pay any royalty
+fees for the Software.
+
+Under the terms of this license you may:
+
+1.1. Incorporate the libraries into any number of products provided that the Software does not
+constitute the major portion of these products. The Software must be incorporated in binary (for MFC
+products) and obfuscated form (for .Net products), as supplied by VisualHint in the Software, or in a
+reobfuscated form and embedded in your own software if .Net sources have been modified by you (the
+same strong level of obfuscation is expected and you will have to contact VisualHint support to ensure
+that this operation is done right). The process of building or packaging your product with the
+Software can be done by any person at your company without a purchased license as long as the terms
+and conditions of this EULA are respected.
+1.2. Make an unlimited number of copies with any modifications in any fashion, provided that such
+copies shall be used only internally, contain this license agreement and are not distributed or
+republished.
+1.3. Use and modify the library examples, provided you do not distribute or republish the Examples, or
+any modified version of the Examples in the source code form.
+
+VisualHint retains the right not to give you support if modifications of the source code have been
+done in the Software, depending on the modifications and at the sole discretion of VisualHint.
+
+You shall not:
+
+1.4 Republish any part of the Software (original or modified) in a context different from the
+    permitted use mentioned above unless you have received a written permission from VisualHint.
+1.5 Incorporate the Software into your products if it is part of a package expressly labeled by
+    VisualHint as "beta", "demo", "eval" or any other term from the same category.
+1.6 Expose the Software API in the products you publish.
+1.7 Redistribute the Software as part of a software development library without a written permission
+    from VisualHint.
+1.8 Lend, give, rent, lease, sub-license and transfer the Registered Software and related materials
+    to other parties without the written permission of VisualHint.
+1.9 Use the software in Canada except if you pay to VisualHint the applicable sales taxes.
+
+2. Copyright:
+
+The Software is owned by VisualHint and this Agreement shall be governed by the laws of the Province
+of Quebec, Canada.
+
+3. LIMITED WARRANTY/LIMITATION OF LIABILITY:
+
+This Software is licensed "AS IS". If for any reason you are dissatisfied with the Software,
+remove it from your computer system and destroy all copies of it. These warranties are in lieu
+of any other warranties, expressed or implied, including the implied warranties of merchantability
+and fitness for a particular purpose. In no event will VisualHint be liable to you for damages,
+including any loss of profits, lost savings, or other incidental or consequential damages arising
+out of your use of or inability to use the Software, even if VisualHint has been advised of the
+possibility of such damages.
+
+4. INDEMNIFICATION:
+
+By installing and using the Software, you hereby agree to save and hold harmless VisualHint from any
+loss, direct or consequential damage, or claim incurred by you resulting from reliance upon the
+results obtained through the use of the Software.
