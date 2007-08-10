@@ -205,7 +205,8 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
         m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag(),
           MakePath(projectPath, GI.PageName()), Model, Shape,
           CRectangleF(I.m_LoBnd.m_X+XOffSet, GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet, I.m_HiBnd.m_X-I.m_LoBnd.m_X, I.m_HiBnd.m_Y-I.m_LoBnd.m_Y),
-          0.0, 0, false, false);
+          0.0,  CRectangleF(0.0, 0.0, 0.0, 0.0), // !!! textArea not used!
+		  0, false, false);
 
 #if dbgSvcConn
         if (dbgConnect())
@@ -342,7 +343,7 @@ void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Ta
 
   CString GuidRet;
 
-  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, 0, false, false);
+  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0, false, false); // !!! textArea not used.
 
 #if dbgSvcConn
   if (dbgConnect())
@@ -357,9 +358,11 @@ void CSvcConnect::DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Ta
 
 void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR Tag, LPCSTR Path, 
                                LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                               float Angle, COLORREF FillColor, 
+                               float Angle, const CRectangleF & textArea, COLORREF FillColor, 
                                bool MirrorX, bool MirrorY)
   {
+
+// !!! textArea not handled as yet.
 
 #if dbgSvcConn
   if (dbgConnect())
@@ -447,7 +450,7 @@ void CSvcConnect::DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
 
 void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, COLORREF Colour, 
+                               float angle, const CRectangleF & textArea, COLORREF Colour, 
                                bool mirrorX, bool mirrorY)
   {
   };

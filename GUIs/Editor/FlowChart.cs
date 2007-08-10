@@ -125,19 +125,19 @@ namespace SysCAD.Editor
     public void NewGraphicItem(out Guid guid, GraphicItem graphicItem, String path)
     {
       if (graphicItem != null)
-        NewGraphicItem(out guid, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+        NewGraphicItem(out guid, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
       else
         guid = Guid.Empty;
     }
 
-    public void NewGraphicItem(out Guid guid, String path, String model, String shape, RectangleF boundingRect, Single angle, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void NewGraphicItem(out Guid guid, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       Int64 requestId;
 
       while (state.Exists("N_" + tempBoxKey.ToString(CultureInfo.InvariantCulture)))
         tempBoxKey++;
 
-      state.CreateGraphicItem(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      state.CreateGraphicItem(out requestId, out guid, "N_" + tempBoxKey.ToString(), path, model, shape, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public void NewGraphicLink(out Guid guid, GraphicLink graphicLink)
@@ -965,6 +965,7 @@ namespace SysCAD.Editor
           currentStencil,
           new RectangleF(fcFlowChart.ClientToDoc(me.Location), state.GraphicShape(currentStencil).defaultSize),
           0.0F,
+          state.GraphicShape(currentStencil).TextArea, // ???? I think this needs to be converted from relative (stencil) to absolute (graphicItem)
           Color.LightBlue,
           FillMode.Alternate,
           false,
@@ -1321,7 +1322,7 @@ namespace SysCAD.Editor
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
     }
@@ -1331,7 +1332,7 @@ namespace SysCAD.Editor
       state.DeleteItem(guid, fcFlowChart);
     }
 
-    private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    private void fcFlowChart_ItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       Item item = state.Item(guid);
 
@@ -1692,6 +1693,7 @@ namespace SysCAD.Editor
       {
         GraphicItem graphicItem = state.GraphicItem((e.Box.Tag as Item).Guid);
         Box modelBox = (e.Box.Tag as Item).Model;
+        Box textBox = (e.Box.Tag as Item).Text;
 
         Int64 requestId;
 
@@ -1703,6 +1705,7 @@ namespace SysCAD.Editor
           graphicItem.Shape,
           modelBox.BoundingRect, // this is the new boundingbox from the user move.
           modelBox.RotationAngle, // this is the new rotationangle from the user move.
+          textBox.BoundingRect,
           graphicItem.FillColor,
           graphicItem.FillMode,
           graphicItem.MirrorX,

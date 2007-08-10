@@ -564,7 +564,7 @@ namespace SysCAD.Editor
         // Nothings changed at area level, update flowchart with innerNodes selection status.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), innerNode.IsSelected);
+          frmFlowChart.State.SetVisible(innerNode.Key, innerNode.IsSelected);
 
           SelectSubNodes(innerNode);
         }
@@ -575,7 +575,7 @@ namespace SysCAD.Editor
         // Been deselected, deselect all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), false);
+          frmFlowChart.State.SetVisible(innerNode.Key, false);
 
           tvNavigation.RemoveSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -587,7 +587,7 @@ namespace SysCAD.Editor
         // Been selected, select all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), true);
+          frmFlowChart.State.SetVisible(innerNode.Key, true);
 
           tvNavigation.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -680,7 +680,7 @@ namespace SysCAD.Editor
             SelectSubNodes(node);
 
           if (node.Key != null)
-            frmFlowChart.State.SetVisible(new Guid(node.Key), node.IsSelected);
+            frmFlowChart.State.SetVisible(node.Key, node.IsSelected);
         }
 
         wasSelectedNodes.Clear();
@@ -696,7 +696,7 @@ namespace SysCAD.Editor
 
         foreach (PureComponents.TreeView.Node node in wasSelectedNodes)
         {
-          frmFlowChart.State.SetVisible(new Guid(node.Key), false);
+          frmFlowChart.State.SetVisible(node.Key, false);
         }
 
         wasSelectedNodes.Clear();

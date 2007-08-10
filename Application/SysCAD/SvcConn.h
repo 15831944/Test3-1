@@ -154,14 +154,14 @@ class CSvcConnect
     // CallBack's
     void OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, COLORREF Colour, 
+      float angle, const CRectangleF & textArea, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
     void OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR guid);
 
     void OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, COLORREF Colour, 
+      float angle, const CRectangleF & textArea, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
     //------------------------------------------------------------------------

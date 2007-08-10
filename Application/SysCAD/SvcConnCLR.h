@@ -41,7 +41,7 @@ class CSvcConnectCLR
 
     void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
                    LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                   float Angle, COLORREF FillColor, 
+                   float Angle, const CRectangleF & textArea, COLORREF FillColor, 
                    bool MirrorX, bool MirrorY);
 
     void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid);

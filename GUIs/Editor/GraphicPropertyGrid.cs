@@ -56,8 +56,8 @@ namespace SysCAD.Editor
       if (graphicItem != null)
       {
         state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path,
-          graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.FillColor,
-          graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+          graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea,
+          graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
       }
 
       if (graphicLink != null)

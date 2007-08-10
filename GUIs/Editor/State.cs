@@ -361,9 +361,9 @@ namespace SysCAD.Editor
       clientProtocol.ThingDeleted += thingDeletedHandler;
     }
 
-    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -983,42 +983,46 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void SetVisible(Guid guid, bool visible)
+    internal void SetVisible(String keyGuid, bool visible)
     {
-      Item item;
-      Group group;
-
-      if (groups.TryGetValue(guid, out group))
+      if (keyGuid != null)
       {
-        group.Visible = visible;
-        group.Box.Visible = false; // visible;// && group.Box.Selected;
-        group.Box.ZBottom();
-      }
+        Guid guid = new Guid(keyGuid);
+        Item item;
+        Group group;
 
-      if (items.TryGetValue(guid, out item))
-      {
-        item.Visible = visible;
-        item.Model.Visible = visible && (item.Model.Selected || ShowModels);
-        item.Graphic.Visible = visible && ShowGraphics;
-        item.Text.Visible = visible && ShowTags;
-
-        foreach (Arrow arrowDestination in item.Model.IncomingArrows)
+        if (groups.TryGetValue(guid, out group))
         {
-          arrowDestination.Visible = visible && ShowLinks;
+          group.Visible = visible;
+          group.Box.Visible = false; // visible;// && group.Box.Selected;
+          group.Box.ZBottom();
         }
 
-        foreach (Arrow arrowOrigin in item.Model.OutgoingArrows)
+        if (items.TryGetValue(guid, out item))
         {
-          arrowOrigin.Visible = visible && ShowLinks;
+          item.Visible = visible;
+          item.Model.Visible = visible && (item.Model.Selected || ShowModels);
+          item.Graphic.Visible = visible && ShowGraphics;
+          item.Text.Visible = visible && ShowTags;
+
+          foreach (Arrow arrowDestination in item.Model.IncomingArrows)
+          {
+            arrowDestination.Visible = visible && ShowLinks;
+          }
+
+          foreach (Arrow arrowOrigin in item.Model.OutgoingArrows)
+          {
+            arrowOrigin.Visible = visible && ShowLinks;
+          }
         }
-      }
 
-      Thing thing;
+        Thing thing;
 
-      if (things.TryGetValue(guid, out thing))
-      {
-        thing.Visible = visible;
-        thing.Box.Visible = visible;
+        if (things.TryGetValue(guid, out thing))
+        {
+          thing.Visible = visible;
+          thing.Box.Visible = visible;
+        }
       }
     }
 
@@ -1046,9 +1050,9 @@ namespace SysCAD.Editor
       return modelStencil;
     }
 
-    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool ModifyGraphicItemPath(out Int64 requestId, Guid guid, String path)
