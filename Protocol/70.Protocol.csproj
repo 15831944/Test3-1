@@ -100,4 +100,10 @@
   <ItemGroup>
     <None Include="Protocol.snk" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\LogView\Log.csproj">
+      <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
+      <Name>Log</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

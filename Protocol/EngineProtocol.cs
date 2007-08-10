@@ -223,6 +223,11 @@ namespace SysCAD.Protocol
       return serviceGraphic.PropertyList(out requestId, guid, tag, path);
     }
 
+    public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    {
+      serviceGraphic.LogMessage(out requestId, message, messageType);
+    }
+
     public bool Save(String filename)
     {
       return serviceGraphic.Save(filename);

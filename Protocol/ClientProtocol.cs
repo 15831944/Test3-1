@@ -25,7 +25,7 @@ namespace SysCAD.Protocol
 
     public String connectionError = String.Empty;
 
-    private ClientServiceProtocol clientServiceGraphic;
+    private ClientServiceProtocol serviceGraphic;
 
     private ClientServiceProtocol.GroupCreatedHandler serviceGraphicGroupCreatedHandler = null;
     private ClientServiceProtocol.GroupDeletedHandler serviceGraphicGroupDeletedHandler = null;
@@ -58,7 +58,7 @@ namespace SysCAD.Protocol
 
     public bool ChangeState(out Int64 requestId, RunStates runState)
     {
-      return clientServiceGraphic.ChangeState(out requestId, runState);
+      return serviceGraphic.ChangeState(out requestId, runState);
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
@@ -67,9 +67,9 @@ namespace SysCAD.Protocol
 
       try
       {
-        clientServiceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
+        serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
 
-        Name = clientServiceGraphic.Name; // Force a test of the connection.
+        Name = serviceGraphic.Name; // Force a test of the connection.
 
         serviceGraphicStateChangedHandler = new ClientServiceProtocol.StateChangedHandler(ServiceGraphicStateChanged);
 
@@ -94,28 +94,28 @@ namespace SysCAD.Protocol
         serviceGraphicThingModifiedHandler = new ClientServiceProtocol.ThingModifiedHandler(ServiceGraphicThingModified);
         serviceGraphicThingDeletedHandler = new ClientServiceProtocol.ThingDeletedHandler(ServiceGraphicThingDeleted);
 
-        clientServiceGraphic.StateChanged += serviceGraphicStateChangedHandler;
+        serviceGraphic.StateChanged += serviceGraphicStateChangedHandler;
 
-        clientServiceGraphic.Step += serviceGraphicStepHandler;
+        serviceGraphic.Step += serviceGraphicStepHandler;
 
-        clientServiceGraphic.Sync += serviceGraphicSyncHandler;
+        serviceGraphic.Sync += serviceGraphicSyncHandler;
 
-        clientServiceGraphic.GroupCreated += serviceGraphicGroupCreatedHandler;
-        clientServiceGraphic.GroupModified += serviceGraphicGroupModifiedHandler;
-        clientServiceGraphic.GroupDeleted += serviceGraphicGroupDeletedHandler;
+        serviceGraphic.GroupCreated += serviceGraphicGroupCreatedHandler;
+        serviceGraphic.GroupModified += serviceGraphicGroupModifiedHandler;
+        serviceGraphic.GroupDeleted += serviceGraphicGroupDeletedHandler;
 
-        clientServiceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
-        clientServiceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
-        clientServiceGraphic.ItemPathModified += serviceGraphicItemPathModifiedHandler;
-        clientServiceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
+        serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
+        serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
+        serviceGraphic.ItemPathModified += serviceGraphicItemPathModifiedHandler;
+        serviceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
 
-        clientServiceGraphic.LinkCreated += serviceGraphicLinkCreatedHandler;
-        clientServiceGraphic.LinkModified += serviceGraphicLinkModifiedHandler;
-        clientServiceGraphic.LinkDeleted += serviceGraphicLinkDeletedHandler;
+        serviceGraphic.LinkCreated += serviceGraphicLinkCreatedHandler;
+        serviceGraphic.LinkModified += serviceGraphicLinkModifiedHandler;
+        serviceGraphic.LinkDeleted += serviceGraphicLinkDeletedHandler;
 
-        clientServiceGraphic.ThingCreated += serviceGraphicThingCreatedHandler;
-        clientServiceGraphic.ThingModified += serviceGraphicThingModifiedHandler;
-        clientServiceGraphic.ThingDeleted += serviceGraphicThingDeletedHandler;
+        serviceGraphic.ThingCreated += serviceGraphicThingCreatedHandler;
+        serviceGraphic.ThingModified += serviceGraphicThingModifiedHandler;
+        serviceGraphic.ThingDeleted += serviceGraphicThingDeletedHandler;
 
         Syncxxx();
 
@@ -132,22 +132,22 @@ namespace SysCAD.Protocol
 
     public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return clientServiceGraphic.CreateGroup(out requestId, out guid, tag, path, boundingRect);
+      return serviceGraphic.CreateGroup(out requestId, out guid, tag, path, boundingRect);
     }
 
     public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientServiceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return serviceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientServiceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return serviceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientServiceGraphic.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return serviceGraphic.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     public bool DeleteGroup(out Int64 requestId, Guid guid)
@@ -157,27 +157,27 @@ namespace SysCAD.Protocol
 
     public bool DeleteItem(out Int64 requestId, Guid guid)
     {
-      return clientServiceGraphic.DeleteItem(out requestId, guid);
+      return serviceGraphic.DeleteItem(out requestId, guid);
     }
 
     public bool DeleteLink(out Int64 requestId, Guid guid)
     {
-      return clientServiceGraphic.DeleteLink(out requestId, guid);
+      return serviceGraphic.DeleteLink(out requestId, guid);
     }
 
     public bool DeleteThing(out Int64 requestId, Guid guid)
     {
-      return clientServiceGraphic.DeleteThing(out requestId, guid);
+      return serviceGraphic.DeleteThing(out requestId, guid);
     }
 
     public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      clientServiceGraphic.GetPropertyValues(out requestId, ref tagPathList);
+      serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
     }
 
     public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
-      clientServiceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
+      serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
     public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
@@ -187,37 +187,42 @@ namespace SysCAD.Protocol
 
     public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientServiceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
     {
-      return clientServiceGraphic.ModifyItemPath(out requestId, guid, path);
+      return serviceGraphic.ModifyItemPath(out requestId, guid, path);
     }
 
     public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return clientServiceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return serviceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return clientServiceGraphic.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return serviceGraphic.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
     {
-      return clientServiceGraphic.ModifyThingPath(out requestId, guid, path);
+      return serviceGraphic.ModifyThingPath(out requestId, guid, path);
     }
 
     public PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
     {
-      return clientServiceGraphic.PortCheck(out requestId, itemGuid, anchor);
+      return serviceGraphic.PortCheck(out requestId, itemGuid, anchor);
     }
 
     public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
     {
-      return clientServiceGraphic.PropertyList(out requestId, guid, tag, path);
+      return serviceGraphic.PropertyList(out requestId, guid, tag, path);
+    }
+
+    public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    {
+      serviceGraphic.LogMessage(out requestId, message, messageType);
     }
 
     public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
@@ -424,22 +429,22 @@ namespace SysCAD.Protocol
       BinaryFormatter bf = new BinaryFormatter();
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, clientServiceGraphic.graphicGroups);
+      bf.Serialize(memoryStream, serviceGraphic.graphicGroups);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicGroups = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicGroup>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, clientServiceGraphic.graphicLinks);
+      bf.Serialize(memoryStream, serviceGraphic.graphicLinks);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicLinks = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicLink>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, clientServiceGraphic.graphicItems);
+      bf.Serialize(memoryStream, serviceGraphic.graphicItems);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicItems = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicItem>;
 
       memoryStream = new MemoryStream();
-      bf.Serialize(memoryStream, clientServiceGraphic.graphicThings);
+      bf.Serialize(memoryStream, serviceGraphic.graphicThings);
       memoryStream.Seek(0, SeekOrigin.Begin);
       graphicThings = bf.Deserialize(memoryStream) as Dictionary<Guid, GraphicThing>;
     }
@@ -449,9 +454,9 @@ namespace SysCAD.Protocol
 
       try
       {
-        clientServiceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
+        serviceGraphic = Activator.GetObject(typeof(BaseProtocol), url.ToString()) as ClientServiceProtocol;
 
-        Name = clientServiceGraphic.Name; // Force a test of the connection.
+        Name = serviceGraphic.Name; // Force a test of the connection.
 
         this.url = url;
         connectionError = "";
@@ -469,13 +474,13 @@ namespace SysCAD.Protocol
     ~ClientProtocol()
     {
 
-      if (clientServiceGraphic != null)
+      if (serviceGraphic != null)
       {
 
         try
         {
 
-          if (serviceGraphicStateChangedHandler != null) clientServiceGraphic.StateChanged -= serviceGraphicStateChangedHandler;
+          if (serviceGraphicStateChangedHandler != null) serviceGraphic.StateChanged -= serviceGraphicStateChangedHandler;
         }
 
         catch (InvalidOperationException) { }
@@ -483,7 +488,7 @@ namespace SysCAD.Protocol
         try
         {
 
-          if (serviceGraphicStepHandler != null) clientServiceGraphic.Step -= serviceGraphicStepHandler;
+          if (serviceGraphicStepHandler != null) serviceGraphic.Step -= serviceGraphicStepHandler;
         }
 
         catch (InvalidOperationException) { }
@@ -491,7 +496,7 @@ namespace SysCAD.Protocol
         try
         {
 
-          if (serviceGraphicSyncHandler != null) clientServiceGraphic.Sync -= serviceGraphicSyncHandler;
+          if (serviceGraphicSyncHandler != null) serviceGraphic.Sync -= serviceGraphicSyncHandler;
         }
 
         catch (InvalidOperationException) { }
@@ -499,75 +504,75 @@ namespace SysCAD.Protocol
         try
         {
 
-          if (serviceGraphicGroupCreatedHandler != null) clientServiceGraphic.GroupCreated -= serviceGraphicGroupCreatedHandler;
+          if (serviceGraphicGroupCreatedHandler != null) serviceGraphic.GroupCreated -= serviceGraphicGroupCreatedHandler;
         }
 
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicGroupModifiedHandler != null) clientServiceGraphic.GroupModified -= serviceGraphicGroupModifiedHandler;
+          if (serviceGraphicGroupModifiedHandler != null) serviceGraphic.GroupModified -= serviceGraphicGroupModifiedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicGroupDeletedHandler != null) clientServiceGraphic.GroupDeleted -= serviceGraphicGroupDeletedHandler;
+          if (serviceGraphicGroupDeletedHandler != null) serviceGraphic.GroupDeleted -= serviceGraphicGroupDeletedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicItemCreatedHandler != null) clientServiceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
+          if (serviceGraphicItemCreatedHandler != null) serviceGraphic.ItemCreated -= serviceGraphicItemCreatedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicItemModifiedHandler != null) clientServiceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
+          if (serviceGraphicItemModifiedHandler != null) serviceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicItemPathModifiedHandler != null) clientServiceGraphic.ItemPathModified -= serviceGraphicItemPathModifiedHandler;
+          if (serviceGraphicItemPathModifiedHandler != null) serviceGraphic.ItemPathModified -= serviceGraphicItemPathModifiedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicItemDeletedHandler != null) clientServiceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
+          if (serviceGraphicItemDeletedHandler != null) serviceGraphic.ItemDeleted -= serviceGraphicItemDeletedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicLinkCreatedHandler != null) clientServiceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
+          if (serviceGraphicLinkCreatedHandler != null) serviceGraphic.LinkCreated -= serviceGraphicLinkCreatedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicLinkModifiedHandler != null) clientServiceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
+          if (serviceGraphicLinkModifiedHandler != null) serviceGraphic.LinkModified -= serviceGraphicLinkModifiedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicLinkDeletedHandler != null) clientServiceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
+          if (serviceGraphicLinkDeletedHandler != null) serviceGraphic.LinkDeleted -= serviceGraphicLinkDeletedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
-          if (serviceGraphicThingCreatedHandler != null) clientServiceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
+          if (serviceGraphicThingCreatedHandler != null) serviceGraphic.ThingCreated -= serviceGraphicThingCreatedHandler;
         }
         catch (InvalidOperationException) { }
 
         try
         {
 
-          if (serviceGraphicThingModifiedHandler != null) clientServiceGraphic.ThingModified -= serviceGraphicThingModifiedHandler;
+          if (serviceGraphicThingModifiedHandler != null) serviceGraphic.ThingModified -= serviceGraphicThingModifiedHandler;
         }
 
         catch (InvalidOperationException) { }
@@ -575,7 +580,7 @@ namespace SysCAD.Protocol
         try
         {
 
-          if (serviceGraphicThingDeletedHandler != null) clientServiceGraphic.ThingDeleted -= serviceGraphicThingDeletedHandler;
+          if (serviceGraphicThingDeletedHandler != null) serviceGraphic.ThingDeleted -= serviceGraphicThingDeletedHandler;
         }
 
         catch (InvalidOperationException) { }

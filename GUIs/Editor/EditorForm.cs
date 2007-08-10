@@ -73,10 +73,8 @@ namespace SysCAD.Editor
       {
         BeginInvoke(new LoadProjectDelegate(LoadProject), new object[] { clientProtocol, config });
       }
-
       else
       {
-
         // Close the one selected.
         if (frmFlowChart != null)
           FileCloseProject();

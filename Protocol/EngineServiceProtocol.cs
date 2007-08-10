@@ -53,6 +53,8 @@ namespace SysCAD.Protocol
     private PropertyListHandler propertyListHandler;
     private SaveHandler saveHandler;
 
+    private LogMessageHandler logMessageHandler;
+
     public delegate bool ChangeStateHandler(out Int64 requestId, RunStates runState);
 
     public delegate bool CreateGroupHandler(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect);
@@ -83,6 +85,8 @@ namespace SysCAD.Protocol
     public delegate ArrayList PropertyListHandler(out Int64 requestId, Guid guid, String tag, String path);
     public delegate bool SaveHandler(out Int64 requestId);
 
+    public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
+
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       LoadHandler loadHandler, SaveHandler saveHandler,
@@ -91,7 +95,7 @@ namespace SysCAD.Protocol
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
-      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
+      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
     {
       this.Name = name;
 
@@ -130,6 +134,8 @@ namespace SysCAD.Protocol
       this.portCheckHandler = portCheckHandler;
 
       this.propertyListHandler = propertyListHandler;
+
+      this.logMessageHandler = logMessageHandler;
     }
 
     public bool ChangeState(out Int64 requestId, RunStates runState)
@@ -441,5 +447,9 @@ namespace SysCAD.Protocol
       return saveHandler(out requestId);
     }
 
+    public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    {
+      logMessageHandler(out requestId, message, messageType);
+    }
   }
 }

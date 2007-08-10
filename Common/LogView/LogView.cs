@@ -27,17 +27,26 @@ namespace SysCAD.Log
       SmallImageList.Images.Add("Error", (Icon)resources.GetObject("Error"));
     }
 
+    private delegate void AddMessageDelegate(string msg, MessageType msgType, MessageSource src);
+
     private void AddMessage(string msg, MessageType msgType, MessageSource src)
     {
-      string source = "Global";
-      if (src != null)
-        source = src.Source;
+      if (InvokeRequired)
+      {
+        BeginInvoke(new AddMessageDelegate(AddMessage), new object[] { msg, msgType, src });
+      }
+      else
+      {
+        string source = "Global";
+        if (src != null)
+          source = src.Source;
 
-      ListViewItem lvi = new ListViewItem(new string[] { source, msg }, msgType.ToString());
+        ListViewItem lvi = new ListViewItem(new string[] { source, msg }, msgType.ToString());
 
-      lvi.Tag = src;
-      Items.Add(lvi);
-      EnsureVisible(lvi.Index);
+        lvi.Tag = src;
+        Items.Add(lvi);
+        EnsureVisible(lvi.Index);
+      }
     }
 
     public void Message(string msg, MessageType msgType, MessageSource src)

@@ -145,6 +145,10 @@
     <Content Include="Logo32.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\LogView\Log.csproj">
+      <Project>{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}</Project>
+      <Name>Log</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Protocol\70.Protocol.csproj">
       <Project>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</Project>
       <Name>70.Protocol</Name>

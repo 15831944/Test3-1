@@ -102,7 +102,8 @@ namespace Service
 
       ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(PropertyListCheck);
 
-
+      ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
+      
       clientClientServiceProtocol = new ClientServiceProtocol(name, 
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangeState, clientGetPropertyValues, clientGetSubTags,
@@ -110,7 +111,7 @@ namespace Service
                                                               clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
-                                                              clientDeleteThing, clientPortCheck, clientPropertyListCheck);
+                                                              clientDeleteThing, clientPortCheck, clientPropertyListCheck, clientLogMessage);
 
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
@@ -146,6 +147,8 @@ namespace Service
 
       EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(PropertyListCheck);
 
+      EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
+
       engineClientServiceProtocol = new EngineServiceProtocol(name,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               engineLoad, engineSave,
@@ -154,7 +157,7 @@ namespace Service
                                                               engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
                                                               engineCreateLink, engineModifyLink, engineDeleteLink,
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
-                                                              engineDeleteThing, enginePortCheck, enginePropertyListCheck);
+                                                              engineDeleteThing, enginePortCheck, enginePropertyListCheck, engineLogMessage);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
     }
@@ -598,7 +601,13 @@ namespace Service
       return list;
     }
 
+    void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    {
+      this.requestId++;
+      requestId = this.requestId;
 
+      logView.Message(message, messageType);
+    }
 
 
 

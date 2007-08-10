@@ -48,6 +48,8 @@ namespace SysCAD.Protocol
 
     private PropertyListHandler propertyListHandler;
 
+    private LogMessageHandler logMessageHandler;
+
     public delegate bool ChangeStateHandler(out Int64 requestId, RunStates runState);
 
     public delegate bool CreateGroupHandler(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect);
@@ -75,6 +77,8 @@ namespace SysCAD.Protocol
     public delegate PortStatus PortCheckHandler(out Int64 requestId, Guid itemGuid, Anchor anchor);
     public delegate ArrayList PropertyListHandler(out Int64 requestId, Guid guid, String tag, String path);
 
+    public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
+
     public ClientServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
@@ -82,7 +86,7 @@ namespace SysCAD.Protocol
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
-      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler)
+      PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
     {
       this.Name = name;
 
@@ -118,6 +122,8 @@ namespace SysCAD.Protocol
       this.portCheckHandler = portCheckHandler;
 
       this.propertyListHandler = propertyListHandler;
+
+      this.logMessageHandler = logMessageHandler;
     }
 
     public bool ChangeState(out Int64 requestId, RunStates runState)
@@ -398,5 +404,9 @@ namespace SysCAD.Protocol
       return propertyListHandler(out requestId, guid, tag, path);
     }
 
+    public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    {
+      logMessageHandler(out requestId, message, messageType);
+    }
   }
 }

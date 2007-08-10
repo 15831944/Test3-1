@@ -432,8 +432,20 @@ namespace SysCAD.Editor
 
       else
       {
-        ModelStencil modelShape = ModelShape(graphicItem.Model);
+        ModelStencil modelStencil = ModelShape(graphicItem.Model);
         GraphicStencil graphicStencil = GraphicShape(graphicItem.Shape, graphicItem.Model);
+
+        Int64 requestId;
+        if (GraphicShape(graphicItem.Shape) == null)
+        // can't use graphicStencil because the above GraphiShape call will find a stencil even if the shape doesn't exist.
+        {
+          clientProtocol.LogMessage(out requestId, "GraphicStencil not found in library for shape \'" + graphicItem.Shape + "\'", SysCAD.Log.MessageType.Warning);
+        }
+
+        if (modelStencil == null)
+        {
+          clientProtocol.LogMessage(out requestId, "ModelStencil not found in library for shape \'" + graphicItem.Model + "\'", SysCAD.Log.MessageType.Error);
+        }
 
         Box textBox=null, graphicBox=null, modelBox=null;
 
@@ -503,12 +515,12 @@ namespace SysCAD.Editor
 
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
 
-          if (modelShape != null)
-            modelBox.Shape = GetShapeTemplate(modelShape, graphicItem.MirrorX, graphicItem.MirrorY);
+          if (modelStencil != null)
+            modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
           else
             modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-          modelBox.AnchorPattern = GetAnchorPattern(modelShape, graphicItem);
+          modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
 
           modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
           modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
