@@ -1394,6 +1394,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
     {
     DDB.Text("Density Correction");
     Strng Tg1,Tg2;
+    ASSERT(xidRhoSolnLast-xidRhoSoln1<MaxSpSolvents);
     for (int j=0; j<SDB.m_DensCorrSps.GetSize() && xidRhoSoln1+j<=xidRhoSolnLast; j++)
       {
       const int iSolvent=SDB.m_DensCorrSps[j];
@@ -1408,9 +1409,13 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
         DDB.Double("SolnDensity", "SolnRho", DC_Rho, "kg/m^3", xidRhoSoln1+j, this, isResult|noFile|noSnap);
         if (m_Ovr.bUse&SPO_LDens)
           DDB.TagComment("Ovr");
+        DDB.Double("StreamDensity", "StreamRho", DC_Rho, "kg/m^3", xidRhoStream1+j, this, isResult|noFile|noSnap); //temp for testing
+        if (m_Ovr.bUse&SPO_LDens)
+          DDB.TagComment("Ovr");
         DDB.Double("", "CorrFactor", DC_, "", xidRhoFactor1+j, this, isResult|noFile|noSnap|InitHidden);
         DDB.Double("", "SolnQm", DC_Qm, "m/s", xidSolnQm1+j, this, isResult|noFile|noSnap|InitHidden);
         DDB.Double("", "SolnQv", DC_Qv, "m^3/s", xidSolnQv1+j, this, isResult|noFile|noSnap|InitHidden);
+        DDB.String("", "SolnRho.State", DC_, "", xidSolnState1+j, this, isResult|noFileAtAll);
         }
       else
         {
@@ -1430,6 +1435,8 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
         DDB.Double("", Tg2(), DC_Qm, "m/s", xidSolnQm1+j, this, isResult|noFile|noSnap|InitHidden);
         Tg2.Set("SolnQv_%s", Solvent.SymOrTag());
         DDB.Double("", Tg2(), DC_Qv, "m^3/s", xidSolnQv1+j, this, isResult|noFile|noSnap|InitHidden);
+        Tg2.Set("SolnRho.State_%s", Solvent.SymOrTag());
+        DDB.String("", Tg2(), DC_, "", xidSolnState1+j, this, isResult|noFileAtAll);
         }
       }
     }
@@ -4798,103 +4805,181 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         DCB.B=Quals[q].m_iAct;
         return 1;
         }
-      else if (DCB.lHandle>=xidRhoSolvent1 && DCB.lHandle<=xidRhoSolventLast)
-        {
-        const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSolvent1];
-        DCB.D=SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solvent
-        return 1;
-        }
-      else if (DCB.lHandle>=xidRhoSoln1 && DCB.lHandle<=xidRhoSolnLast)
-        {
-        const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSoln1];
-        const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
-        double Mt = m_M[iSolvent];
-        const int Cnt = SDB[iSolvent].DensCorrCount();
-        for (int j=0; j<Cnt; j++)
+      else if (DCB.lHandle>=xidRhoCorrFuncFirst && DCB.lHandle<=xidRhoCorrFuncLast)
+        {//handle all the density correction tags...
+        if (DCB.lHandle>=xidRhoSolvent1 && DCB.lHandle<=xidRhoSolventLast)
           {
-          CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-          Mt += m_M[SI.m_iSolute];
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSolvent1];
+          DCB.D=SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solvent
+          return 1;
           }
-        double Factor = 1.0;
-        if (Mt>MeasTolerance)
+        else if (DCB.lHandle>=xidRhoSoln1 && DCB.lHandle<=xidRhoSolnLast)
           {
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoSoln1];
+          const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
+          double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          const int Cnt = SDB[iSolvent].DensCorrCount();
           for (int j=0; j<Cnt; j++)
             {
             CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+            Mt += m_M[SI.m_iSolute];
+            }
+          double Factor = 1.0;
+          if (Mt>MeasTolerance)
+            {
+            for (int j=0; j<Cnt; j++)
               {
-              Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+                {
+                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                }
               }
             }
+          DCB.D=SolventDensity*Factor;
+          return 1;
           }
-        DCB.D=SolventDensity*Factor;
-        return 1;
-        }
-      else if (DCB.lHandle>=xidRhoFactor1 && DCB.lHandle<=xidRhoFactorLast)
-        {
-        const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoFactor1];
-        //CDensCorr & SI=SDB[iSolvent].DensCalc();
-        double Mt = m_M[iSolvent];
-        const int Cnt = SDB[iSolvent].DensCorrCount();
-        for (int j=0; j<Cnt; j++)
+        else if (DCB.lHandle>=xidRhoStream1 && DCB.lHandle<=xidRhoStreamLast)
           {
-          CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-          Mt += m_M[SI.m_iSolute];
-          }
-        double Factor = 1.0;
-        if (Mt>MeasTolerance)
-          {
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoStream1];
+          const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
+          double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          const int Cnt = SDB[iSolvent].DensCorrCount();
           for (int j=0; j<Cnt; j++)
             {
             CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+            if (m_M[SI.m_iSolute]>MeasTolerance)
+              Mt += m_M[SI.m_iSolute];
+            }
+          double Factor = 1.0;
+          if (Mt>MeasTolerance)
+            {
+            for (int j=0; j<Cnt; j++)
               {
-              Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+                {
+                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                }
               }
             }
+          const double SolnQv=Mt/GTZ(SolventDensity*Factor);
+          const double SolnRho=SolventDensity*Factor;
+
+          double m=Mt;
+          double v=Mt*1.0/GTZ(SolnRho);
+          SpecieIter I(som_Liq);
+          for (int i=-1; I.Loop(i); )
+            {
+            CSpecie & D=SDB[i];
+            if (m_M[i]>MeasTolerance && i!=iSolvent && SDB[i].Solvent()!=iSolvent)
+              {
+              //const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+              const double vv = SDB[i].msVolume(m_iFidelity, Temp(), Press(), &m_Ovr, SVData());
+              m += m_M[i];
+              v += m_M[i]*vv;
+              }
+            }
+          DCB.D=(m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
+          return 1;
           }
-        DCB.D=Factor;
-        return 1;
-        }
-      else if (DCB.lHandle>=xidSolnQm1 && DCB.lHandle<=xidSolnQmLast)
-        {
-        const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQm1];
-        double Mt = m_M[iSolvent];
-        const int Cnt = SDB[iSolvent].DensCorrCount();
-        for (int j=0; j<Cnt; j++)
+        else if (DCB.lHandle>=xidRhoFactor1 && DCB.lHandle<=xidRhoFactorLast)
           {
-          CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-          Mt += m_M[SI.m_iSolute];
-          }
-        DCB.D=Mt;
-        return 1;
-        }
-      else if (DCB.lHandle>=xidSolnQv1 && DCB.lHandle<=xidSolnQvLast)
-        {
-        const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQv1];
-        const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
-        double Mt = m_M[iSolvent];
-        const int Cnt = SDB[iSolvent].DensCorrCount();
-        for (int j=0; j<Cnt; j++)
-          {
-          CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-          Mt += m_M[SI.m_iSolute];
-          }
-        double Factor = 1.0;
-        if (Mt>MeasTolerance)
-          {
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoFactor1];
+          //CDensCorr & SI=SDB[iSolvent].DensCalc();
+          double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          const int Cnt = SDB[iSolvent].DensCorrCount();
           for (int j=0; j<Cnt; j++)
             {
             CDensCorr & SI=SDB[iSolvent].DensCorr(j);
-            if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+            Mt += m_M[SI.m_iSolute];
+            }
+          double Factor = 1.0;
+          if (Mt>MeasTolerance)
+            {
+            for (int j=0; j<Cnt; j++)
               {
-              Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+                {
+                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                }
               }
             }
+          DCB.D=Factor;
+          return 1;
           }
-        DCB.D=Mt/GTZ(SolventDensity*Factor);
-        return 1;
-        }
+        else if (DCB.lHandle>=xidSolnQm1 && DCB.lHandle<=xidSolnQmLast)
+          {
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQm1];
+          double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          const int Cnt = SDB[iSolvent].DensCorrCount();
+          for (int j=0; j<Cnt; j++)
+            {
+            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+            Mt += m_M[SI.m_iSolute];
+            }
+          DCB.D=Mt;
+          return 1;
+          }
+        else if (DCB.lHandle>=xidSolnQv1 && DCB.lHandle<=xidSolnQvLast)
+          {
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnQv1];
+          const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
+          double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          const int Cnt = SDB[iSolvent].DensCorrCount();
+          for (int j=0; j<Cnt; j++)
+            {
+            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+            Mt += m_M[SI.m_iSolute];
+            }
+          double Factor = 1.0;
+          if (Mt>MeasTolerance)
+            {
+            for (int j=0; j<Cnt; j++)
+              {
+              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
+                {
+                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                }
+              }
+            }
+          DCB.D=Mt/GTZ(SolventDensity*Factor);
+          return 1;
+          }
+        else if (DCB.lHandle>=xidSolnState1 && DCB.lHandle<=xidSolnStateLast)
+          {
+          static Strng DensCorrState[MaxSpSolvents];
+          const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidSolnState1];
+          double Mt = m_M[iSolvent];
+          const int Cnt = SDB[iSolvent].DensCorrCount();
+          for (int j=0; j<Cnt; j++)
+            {
+            CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+            Mt += m_M[SI.m_iSolute];
+            }
+          Strng S;
+          if (Mt>MeasTolerance)
+            {
+            for (int j=0; j<Cnt; j++)
+              {
+              CDensCorr & SI=SDB[iSolvent].DensCorr(j);
+              if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance && m_M[SI.m_iSolute]/Mt>SI.m_LimitFrac)
+                {
+                S += SDB[SI.m_iSolute].SymOrTag();
+                S += " ";
+                }
+              }
+            }
+          if (S.Len()==0)
+            DensCorrState[DCB.lHandle-xidSolnState1] = "OK";
+          else
+            DensCorrState[DCB.lHandle-xidSolnState1].Set("Limit:%s", S());
+          DCB.pC=DensCorrState[DCB.lHandle-xidSolnState1]();
+          return 1;
+          }
+        }//end of density correction functions
       else if (DCB.lHandle>=xidSpMdlVarsAvail && DCB.lHandle<xidSpMdlVarsAvailEnd)
         {
         int i=DCB.lHandle-xidSpMdlVarsAvail;

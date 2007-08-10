@@ -66,6 +66,7 @@ class CCall2MSpQuals;
 // ===========================================================================
 
 const int MaxSpQualities = 16;
+const int MaxSpSolvents = 3;
 
 XID xidSpShape          = SpcXID(100000);
 XID xidSpModel          = SpcXID(100001);
@@ -264,7 +265,8 @@ XID xidSMFnRanges           = SpcXID(100208);
 XID xidSMFnRangeID          = SpcXID(100209);
 
 XID xidRhoSolvent1          = SpcXID(100210);
-XID xidRhoSolventLast       = SpcXID(100212);
+XID xidRhoCorrFuncFirst     = xidRhoSolvent1;
+XID xidRhoSolventLast       = SpcXID(100212); //using MaxSpSolvents
 XID xidRhoSoln1             = SpcXID(100213);
 XID xidRhoSolnLast          = SpcXID(100215);
 XID xidRhoFactor1           = SpcXID(100216);
@@ -273,6 +275,11 @@ XID xidSolnQm1              = SpcXID(100219);
 XID xidSolnQmLast           = SpcXID(100221);
 XID xidSolnQv1              = SpcXID(100222);
 XID xidSolnQvLast           = SpcXID(100224);
+XID xidSolnState1           = SpcXID(100225);
+XID xidSolnStateLast        = SpcXID(100227);
+XID xidRhoStream1           = SpcXID(100228);
+XID xidRhoStreamLast        = SpcXID(100230);
+XID xidRhoCorrFuncLast      = xidRhoStreamLast;
 
 XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
 XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 
