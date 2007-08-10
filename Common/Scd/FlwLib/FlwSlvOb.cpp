@@ -1175,7 +1175,7 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
                 {
                 CDensCorr & SI=SDB[iSp].DensCalc();
                 const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
-                const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
+                const double Factor = SI.DensCorrWithLimit(rSDBO.m_dDisplayMF, SolventDensity);
                 T.Set("(%.4f) ", 1.0+Factor);
                 Str += T;
                 //RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);

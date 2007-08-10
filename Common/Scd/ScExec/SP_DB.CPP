@@ -882,6 +882,16 @@ void CDensCorr::Clear()
   m_pDensCorrFn=NULL;
   };
 
+double CDensCorr::DensCorrWithLimit(double MF, double SolventDensity)
+  {
+  if (MF<=m_LimitFrac)
+    return m_pDensCorrFn->AtT(MF)-m_DensCorrZero;
+  const double LimitDens = SolventDensity * (1.0 + DensCorr(m_LimitFrac));
+  //linear interpolation to get required density:
+  const double RqdDens = LimitDens + (MF-m_LimitFrac)/(1.0-m_LimitFrac) * (m_PureValue - LimitDens);
+  return RqdDens/SolventDensity - 1.0;
+  }
+
 double CDensCorr::Evaluate(long Fidelity, double T, double P, double MassSolvent, double MassSolute)
   {
   const double DensSolvent    = SDB[m_iSolvent].Density(Fidelity, T, P, NULL, NULL);
@@ -890,8 +900,8 @@ double CDensCorr::Evaluate(long Fidelity, double T, double P, double MassSolvent
   const double MassFracCalc   = Min(MassFrac, m_LimitFrac);
 
   const double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
-  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent);
-  //AppDensSolute  = MixDens*MassSolute*DensSolvent / NZ(MassTotal*DensSolvent - MixDens*MassSolvent);
+  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent); //NBNB: this GTZ causes incorrect results giving incorrect mixture density (and volume flowrates)!!!
+  //double AppDensSolute  = MixDens*MassSolute*DensSolvent / NZ(MassTotal*DensSolvent - MixDens*MassSolvent); //This is more correct but -ve density causes other problems
 
   if (MassFrac>m_LimitFrac)
     {
@@ -911,7 +921,7 @@ double CDensCorr::Evaluate(long Fidelity, double T, double P, CSVData M)
   const double MassFracCalc   = Min(MassFrac, m_LimitFrac);
 
   const double MixDens        = DensSolvent * (1.0+DensCorr(MassFracCalc));
-  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent);
+  double AppDensSolute  = MassSolute / GTZ(MassTotal/MixDens - MassSolvent/DensSolvent); //NBNB: this GTZ causes incorrect results giving incorrect mixture density (and volume flowrates)!!!
 
   if (MassFrac>m_LimitFrac)
     {
@@ -920,6 +930,7 @@ double CDensCorr::Evaluate(long Fidelity, double T, double P, CSVData M)
 
   return AppDensSolute;
   };
+
 
 // ==========================================================================
 

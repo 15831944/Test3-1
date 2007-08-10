@@ -411,6 +411,7 @@ class DllImportExport CDensCorr
 
     void Clear();
     double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_DensCorrZero; } //note this ignores MF Limit
+    double DensCorrWithLimit(double MF, double SolventDensity);
     double Evaluate(long Fidelity, double T, double P, double MassSolvent, double MassSolute);
     double Evaluate(long Fidelity, double T, double P, CSVData M);
 

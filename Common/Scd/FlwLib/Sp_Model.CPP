@@ -1409,13 +1409,13 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
         DDB.Double("SolnDensity", "SolnRho", DC_Rho, "kg/m^3", xidRhoSoln1+j, this, isResult|noFile|noSnap);
         if (m_Ovr.bUse&SPO_LDens)
           DDB.TagComment("Ovr");
-        DDB.Double("StreamDensity", "StreamRho", DC_Rho, "kg/m^3", xidRhoStream1+j, this, isResult|noFile|noSnap); //temp for testing
+        DDB.Double("StreamDensity", "StreamLRho", DC_Rho, "kg/m^3", xidRhoStream1+j, this, isResult|noFile|noSnap|InitHidden); //temp for testing
         if (m_Ovr.bUse&SPO_LDens)
           DDB.TagComment("Ovr");
         DDB.Double("", "CorrFactor", DC_, "", xidRhoFactor1+j, this, isResult|noFile|noSnap|InitHidden);
         DDB.Double("", "SolnQm", DC_Qm, "m/s", xidSolnQm1+j, this, isResult|noFile|noSnap|InitHidden);
         DDB.Double("", "SolnQv", DC_Qv, "m^3/s", xidSolnQv1+j, this, isResult|noFile|noSnap|InitHidden);
-        DDB.String("", "SolnRho.State", DC_, "", xidSolnState1+j, this, isResult|noFileAtAll);
+        DDB.String("", "SolnRho.State", DC_, "", xidSolnState1+j, this, isResult|noFileAtAll|InitHidden);
         }
       else
         {
@@ -4832,7 +4832,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
               CDensCorr & SI=SDB[iSolvent].DensCorr(j);
               if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -4859,7 +4859,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
               CDensCorr & SI=SDB[iSolvent].DensCorr(j);
               if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -4886,8 +4886,9 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
         else if (DCB.lHandle>=xidRhoFactor1 && DCB.lHandle<=xidRhoFactorLast)
           {
           const int iSolvent=SDB.m_DensCorrSps[DCB.lHandle-xidRhoFactor1];
-          //CDensCorr & SI=SDB[iSolvent].DensCalc();
+          const double SolventDensity = SDB[iSolvent].Density(m_iFidelity, Temp(), Press(), &m_Ovr, SVData()); //density of the solution
           double Mt = (m_M[iSolvent]>MeasTolerance ? m_M[iSolvent] : 0.0);
+          //CDensCorr & SI=SDB[iSolvent].DensCalc();
           const int Cnt = SDB[iSolvent].DensCorrCount();
           for (int j=0; j<Cnt; j++)
             {
@@ -4902,7 +4903,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
               CDensCorr & SI=SDB[iSolvent].DensCorr(j);
               if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
                 }
               }
             }
@@ -4941,7 +4942,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
               CDensCorr & SI=SDB[iSolvent].DensCorr(j);
               if (SI.m_pDensCorrFn && m_M[SI.m_iSolute]>MeasTolerance)
                 {
-                Factor += SI.DensCorr(m_M[SI.m_iSolute]/Mt);
+                Factor += SI.DensCorrWithLimit(m_M[SI.m_iSolute]/Mt, SolventDensity);
                 }
               }
             }
