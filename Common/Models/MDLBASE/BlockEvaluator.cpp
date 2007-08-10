@@ -237,8 +237,6 @@ void CBlockEvaluator::SetMakeupCount(int N)
    {
    if (N!=m_pMakeups.GetSize())
      {
-     TaggedObject::CallGlblTopologyChg(NULL);
-
      N=Range(0, N, m_nMaxNdMakeups); 
      for (int a=N; a<m_pMakeups.GetSize(); a++)
        {
@@ -265,8 +263,6 @@ void CBlockEvaluator::SetBleedCount(int N)
   {
   if (N!=m_pBleeds.GetSize())
     {
-    TaggedObject::CallGlblTopologyChg(NULL);
-
     N=Range(0, N, MaxNdBleeds); 
     for (int a=N; a<m_pBleeds.GetSize(); a++)
       {
