@@ -438,24 +438,27 @@ namespace SysCAD.Editor
         Box textBox=null, graphicBox=null, modelBox=null;
 
         {
-          if (graphicStencil != null)
+          RectangleF textArea = graphicItem.TextArea;
+
+          if (textArea.IsEmpty) // We haven't got a TextArea stored in the item yet.
           {
-            RectangleF textArea = graphicStencil.TextArea;
-            textBox = flowchart.CreateBox(
-                                      graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                      graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
-                                      textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                      textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
-          }
-          else
-          {
-            textBox = flowchart.CreateBox(
-                                      graphicItem.X,
-                                      graphicItem.Y + graphicItem.Height,
-                                      graphicItem.Width,
-                                      graphicItem.Height / 2.0F);
+            if (graphicStencil != null)
+            {
+              textArea = new RectangleF(graphicItem.X + graphicStencil.TextArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                        graphicItem.Y + graphicStencil.TextArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
+                                        graphicStencil.TextArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                        graphicStencil.TextArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
+            }
+            else
+            {
+              textArea = new RectangleF(graphicItem.X,
+                                        graphicItem.Y + 1.1F * graphicItem.Height,
+                                        graphicItem.Width,
+                                        graphicItem.Height / 2.0F);
+            }
           }
 
+          textBox = flowchart.CreateBox(textArea.X, textArea.Y, textArea.Width, textArea.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.Style = BoxStyle.Shape;

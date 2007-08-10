@@ -21,6 +21,8 @@ namespace SysCAD.Protocol
 
     private float angle;
     private RectangleF boundingRect;
+    private RectangleF textArea;
+
     private System.Drawing.Color fillColor;
     private FillMode fillMode;
     private Guid guid;
@@ -203,6 +205,12 @@ namespace SysCAD.Protocol
     {
       get { return boundingRect; }
       set { boundingRect = value; }
+    }
+
+    public ARectangleF TextArea
+    {
+      get { return textArea; }
+      set { textArea = value; }
     }
 
     public System.Drawing.Color FillColor
