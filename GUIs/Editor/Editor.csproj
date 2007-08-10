@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GraphicPropertyGrid.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Group.cs" />
     <Compile Include="InsertAnnotationDialog.cs">
@@ -75,6 +76,7 @@
       <DependentUpon>InsertAnnotationDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ModelPropertyGrid.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Thing.cs" />
     <Compile Include="Item.cs" />

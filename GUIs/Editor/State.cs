@@ -154,7 +154,7 @@ namespace SysCAD.Editor
     {
       AnchorPointCollection anchorPointCollection = new AnchorPointCollection();
 
-      if (modelStencil.Anchors != null)
+      if ((modelStencil != null) && (modelStencil.Anchors != null))
       {
         graphicItem.anchorIntToTag.Clear();
         graphicItem.anchorTagToInt.Clear();
@@ -423,7 +423,7 @@ namespace SysCAD.Editor
 
     internal void CreateItem(GraphicItem graphicItem, bool isVisible, FlowChart flowchart)
     {
-      creatingItem = true;
+      creatingItem = true; // turn off flowchart events while we're mid-create.
 
       if (flowchart.InvokeRequired)
       {
@@ -432,23 +432,30 @@ namespace SysCAD.Editor
 
       else
       {
-        GraphicStencil graphicStencil;
-        ModelStencil modelStencil;
-        config.GraphicStencils.TryGetValue(graphicItem.Shape, out graphicStencil);
-        config.ModelStencils.TryGetValue(graphicItem.Model, out modelStencil);
+        ModelStencil modelShape = ModelShape(graphicItem.Model);
+        GraphicStencil graphicStencil = GraphicShape(graphicItem.Shape, graphicItem.Model);
 
         Box textBox=null, graphicBox=null, modelBox=null;
 
-        if (graphicStencil!=null)
         {
-          RectangleF textArea = graphicStencil.TextArea;
-          RectangleF textBoxRect = new RectangleF(
-                                    graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                    graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
-                                    textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
-                                    textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
+          if (graphicStencil != null)
+          {
+            RectangleF textArea = graphicStencil.TextArea;
+            textBox = flowchart.CreateBox(
+                                      graphicItem.X + textArea.X / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                      graphicItem.Y + textArea.Y / graphicStencil.defaultSize.Height * graphicItem.Height,
+                                      textArea.Width / graphicStencil.defaultSize.Width * graphicItem.Width,
+                                      textArea.Height / graphicStencil.defaultSize.Height * graphicItem.Height);
+          }
+          else
+          {
+            textBox = flowchart.CreateBox(
+                                      graphicItem.X,
+                                      graphicItem.Y + graphicItem.Height,
+                                      graphicItem.Width,
+                                      graphicItem.Height / 2.0F);
+          }
 
-          textBox = flowchart.CreateBox(textBoxRect.X, textBoxRect.Y, textBoxRect.Width, textBoxRect.Height);
           textBox.FillColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.FrameColor = System.Drawing.Color.FromArgb(0, System.Drawing.Color.Black);
           textBox.Style = BoxStyle.Shape;
@@ -469,7 +476,6 @@ namespace SysCAD.Editor
 
           if (graphicStencil != null)
             graphicBox.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
-
           else
             graphicBox.Shape = ShapeTemplate.FromId("Decision2");
 
@@ -486,7 +492,6 @@ namespace SysCAD.Editor
 
         creatingItem = false; // we want any events to happen for the last created piece.
 
-        if (modelStencil != null)
         {
           modelBox = flowchart.CreateBox(graphicItem.X, graphicItem.Y, graphicItem.Width, graphicItem.Height);
           modelBox.RotationAngle = graphicItem.Angle;
@@ -495,20 +500,19 @@ namespace SysCAD.Editor
 
           //modelBox.Image = System.Drawing.Image.FromStream(testXAML());
 
-          if (modelStencil != null)
-            modelBox.Shape = GetShapeTemplate(modelStencil, graphicItem.MirrorX, graphicItem.MirrorY);
-
+          if (modelShape != null)
+            modelBox.Shape = GetShapeTemplate(modelShape, graphicItem.MirrorX, graphicItem.MirrorY);
           else
             modelBox.Shape = ShapeTemplate.FromId("Decision2");
 
-          modelBox.AnchorPattern = GetAnchorPattern(modelStencil, graphicItem);
+          modelBox.AnchorPattern = GetAnchorPattern(modelShape, graphicItem);
 
           modelBox.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
           modelBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.BurlyWood);
           modelBox.Visible = ShowModels && isVisible;
         }
 
-        if (textBox != null && modelBox != null)
+        if (textBox != null && graphicBox != null && modelBox != null)
         {
           textBox.AttachTo(modelBox, AttachToNode.BottomCenter);
 
@@ -917,6 +921,15 @@ namespace SysCAD.Editor
       return graphicStencil;
     }
 
+    internal GraphicStencil GraphicShape(String stencilName, String modelName)
+    {
+      GraphicStencil graphicStencil;
+      config.GraphicStencils.TryGetValue(stencilName, out graphicStencil);
+      if (graphicStencil == null)
+        config.GraphicStencils.TryGetValue(modelName, out graphicStencil);
+      return graphicStencil;
+    }
+
     internal GraphicThing GraphicThing(Box box)
     {
       GraphicThing graphicThing = null;
@@ -1143,11 +1156,12 @@ namespace SysCAD.Editor
         if (clientProtocol.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorX = mirrorX;
-          GraphicStencil stencil;
 
-          if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          GraphicStencil graphicStencil = GraphicShape(graphicItem.Shape, graphicItem.Model);
+
+          if (graphicStencil != null)
           {
-            item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
+            item.Graphic.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
         }
       }
@@ -1165,11 +1179,12 @@ namespace SysCAD.Editor
         if (clientProtocol.graphicItems.TryGetValue(guid, out graphicItem))
         {
           graphicItem.MirrorY = mirrorY;
-          GraphicStencil stencil;
 
-          if (config.GraphicStencils.TryGetValue(graphicItem.Shape, out stencil))
+          GraphicStencil graphicStencil = GraphicShape(graphicItem.Shape, graphicItem.Model);
+
+          if (graphicStencil != null)
           {
-            item.Graphic.Shape = GetShapeTemplate(stencil, graphicItem.MirrorX, graphicItem.MirrorY);
+            item.Graphic.Shape = GetShapeTemplate(graphicStencil, graphicItem.MirrorX, graphicItem.MirrorY);
           }
         }
       }
