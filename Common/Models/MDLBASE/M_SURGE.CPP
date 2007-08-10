@@ -197,17 +197,25 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
     m_EqThermals.ValidateData(VDB);
   
   flag OK=true;
-  if (SolveBufferedMethod())
+  if (NetDynamicMethod())
     {
-    if (m_BlkEval.MakeupCount()>0)
+    //Check all links are xfer
+    bool AllAreXfer=true;
+    for (int i=0; i<NoProcLnkIOs(); i++)
       {
-      m_BlkEval.SetMakeupCount(0);
-      LogWarning(Tag(), 0, "Buffered Solution : Makeup count set to Zero");
+      if (!Nd_Rmt(i)->TransferFlowMode())
+        {
+        AllAreXfer =false;
+        break;
+        }
       }
-    if (m_BlkEval.BleedCount()>0)
+
+    if (!AllAreXfer)
       {
-      m_BlkEval.SetBleedCount(0);
-      LogWarning(Tag(), 0, "Buffered Solution : Bleed count set to Zero");
+      if (m_BlkEval.MakeupCount()>0)
+        LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
+      if (m_BlkEval.BleedCount()>0)
+        LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
       }
     }
   if (!m_BlkEval.ValidateData(VDB))
