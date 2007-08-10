@@ -1420,7 +1420,7 @@ Continue:
           }
         break;
       case DD_Poly:
-        if(pNGI->GetCoOrd(X,Y))
+        if (pNGI->GetCoOrd(X,Y))
           {
           if (GotIt)
             {
@@ -1464,60 +1464,75 @@ Continue:
         break;
       case DD_Arc3:
         {
-        double Xs,Xm,Xe,Ys,Ym,Ye;
-        if (pNGI->GetCoOrd(Xs,Ys) && pNGI->GetCoOrd(Xm,Ym) && pNGI->GetCoOrd(Xe,Ye))
+        double X1,Y1,X2,Y2,X3,Y3;
+        if (pNGI->GetCoOrd(X1,Y1) && pNGI->GetCoOrd(X2,Y2) && pNGI->GetCoOrd(X3,Y3))
           {
           if (GotIt)
             {
-            double A[3], B[3], C[3];
-            A[0]=2*(Xs-Xm);
-            A[1]=2*(Xe-Xs);
-            A[2]=2*(Xm-Xe);
-            B[0]=Xs*Xs-Xm*Xm+Ys*Ys-Ym*Ym;
-            B[1]=Xe*Xe-Xs*Xs+Ye*Ye-Ys*Ys;
-            B[2]=Xm*Xm-Xe*Xe+Ym*Ym-Ye*Ye;
-            C[0]=-2*(Ys*Ys-Ym*Ym);
-            C[1]=-2*(Ye*Ye-Ys*Ys);
-            C[2]=-2*(Ym*Ym-Ye*Ye);
+            //9/8/2007: Code from Barry Smith
+            const double MinValue = 1E-6;
 
-            int i1=0;
-            int i2=1;
-            for (int j=0; j<3; j++) // 3 combinations
-              {
-              if (A[i1]*C[i2]!=0 || C[i1]*B[i2]!=0)
-                break;
-              if (j==0)
-                i2=2;
-              else if (j==1)
-                i1=1;
-              }
-            if (j<3) // AllOK
-              {
-              const double Xa=B[i2]*C[i1]-B[i1]*C[i2];
-              const double Xb=A[i1]*C[i2]-C[i1]*B[i2];
-              const double X=Xa/NZ(Xb);
-              //double X=(B[i2]*C[i1]-B[i1]*C[i2])/(A[i1]*C[i2]-C[i1]*B[i2]);
-              const double Y=-(X*A[i1]+B[i1])/C[i1];
-              double Rad=sqrt(Sqr(Xs-X)+Sqr(Ys-Y));
-              double Sa=Rad2Deg(atan2(Ys-Y, Xs-X));
-              double Ma=Rad2Deg(atan2(Ym-Y, Xm-X));
-              double Ea=Rad2Deg(atan2(Ye-Y, Xe-X));
-              if ((Ma-Sa)*(Ea-Ma)<0) // must move End
-                Ea=Ma+(Ma-Sa);
+            //Normalise to X1:
+            double NX2 = X2 - X1;
+            double NY2 = Y2 - Y1;
+            double R12 = NX2 * NX2 + NY2 * NY2; //Technically R^2
+            double NX3 = X3 - X1;
+            double NY3 = Y3 - Y1;
+            double R13 = NX3 * NX3 + NY3 * NY3; //Technically R^2
 
-              long NSegs=Max(1,int(fabs(Ea-Sa)*6/90+0.5)); // 6 segs per 90deg
-              double dA=(Ea-Sa)/NSegs;
-              double An=Sa;
-              double ax=X+Rad*cos(Deg2Rad(An));
-              double ay=Y+Rad*sin(Deg2Rad(An));
-              m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(ax),YSCL(ay)));
+            //If the points are linear, we will have indefinates causing problems:
+            if ((NX2 == 0 && NX3 == 0) || (abs(NY2 / NZ(NX2) - NY3 / NZ(NX3)) <= MinValue))
+              {
+              m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X1), YSCL(Y1)));
               m_PolyPtCnt.SetAtGrow(m_PolyCnt, 1);
-              for (int i=0; i<NSegs; i++)
+              m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X2), YSCL(Y2)));
+              m_PolyPtCnt[m_PolyCnt]++;
+              m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(X3), YSCL(Y3)));
+              m_PolyPtCnt[m_PolyCnt]++;
+              m_PolyCnt++;
+              }
+            else
+              {
+              //Find the centre:
+              double CX = - 0.5 * (NY2 * R13 - NY3 * R12) / NZ(NX2 * NY3 - NX3 * NY2);
+              double CY = - 0.5 * (NX2 * R13 - NX3 * R12) / NZ(NX3 * NY2 - NX2 * NY3);
+
+              double R = sqrt(CX * CX + CY * CY);
+
+              //Un-normalise:
+              CX += X1; CY += Y1;
+
+              double th1 = atan2(Y1 - CY, X1 - CX);
+              double th2 = atan2(Y2 - CY, X2 - CX);
+              double th3 = atan2(Y3 - CY, X3 - CX);
+
+              //Restrict to [th1, th1+2*PI) for simple comparison:
+              while (th3 < th1) 
+                th3 += 2 * PI;
+              while (th2 < th1) 
+                th2 += 2 * PI;
+
+              //If th2 lies outside of (th1, th3), we are going to go from th3 to th1:
+              if (th2 > th3)
                 {
-                An+=dA;
-                ax=X+Rad*cos(Deg2Rad(An));
-                ay=Y+Rad*sin(Deg2Rad(An));
-                m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(ax),YSCL(ay)));
+                double temp = th1;
+                th1 = th3;
+                th3 = temp + 2 * PI;
+                }
+
+              int nSegs = (int) ((th3 - th1) * 6.0 / (PI / 2) + 0.5); //6 segments per pi/2 (90deg)
+              if (nSegs < 2)
+                nSegs = 2;
+              double dth = (th3 - th1) / (nSegs - 1);
+              double ax = CX + R * cos(th1);
+              double ay = CY + R * sin(th1);
+              m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(ax), YSCL(ay)));
+              m_PolyPtCnt.SetAtGrow(m_PolyCnt, 1);
+              for (int i=1; i<nSegs; i++)
+                {
+                ax = CX + R * cos(th1 + i * dth);
+                ay = CY + R * sin(th1 + i * dth);
+                m_PolyPts.SetAtGrow(PtCnt++, CPoint(XSCL(ax), YSCL(ay)));
                 m_PolyPtCnt[m_PolyCnt]++;
                 }
               m_PolyCnt++;
