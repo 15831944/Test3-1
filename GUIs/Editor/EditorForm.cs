@@ -121,6 +121,7 @@ namespace SysCAD.Editor
         foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
         {
           node.Select();
+          node.Expand();
           SelectSubNodes(node);
         }
 
@@ -393,8 +394,8 @@ namespace SysCAD.Editor
             ModelItem modelItem = new ModelItem(graphicItem.Guid);
             modelPropertiesGrid.SetSelectedObject(modelItem, frmFlowChart.State);
 
-            Int64 requestID;
-            frmFlowChart.State.PropertyList(out requestID, graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
+            Int64 requestId;
+            frmFlowChart.State.PropertyList(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path);
 
             int i;
 
@@ -536,15 +537,14 @@ namespace SysCAD.Editor
 
     private void RePathNodes(PureComponents.TreeView.Node node)
     {
-
-      if (node.Key != null)
+      if (IsLeaf(node))
       {
         Int64 requestId;
 
-        if (node.Tag is Item)
+        if (IsItem(node))
           frmFlowChart.State.ModifyGraphicItemPath(out requestId, new Guid(node.Key), node.FullPath);
 
-        if (node.Tag is Thing)
+        if (IsThing(node))
           frmFlowChart.State.ModifyGraphicThingPath(out requestId, new Guid(node.Key), node.FullPath);
       }
 
@@ -561,13 +561,10 @@ namespace SysCAD.Editor
 
       if (wasSelected == isSelected)
       {
-
         // Nothings changed at area level, update flowchart with innerNodes selection status.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-
-          if (innerNode.Key != null)
-            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), innerNode.IsSelected);
+          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), innerNode.IsSelected);
 
           SelectSubNodes(innerNode);
         }
@@ -575,13 +572,10 @@ namespace SysCAD.Editor
 
       else if (wasSelected && !isSelected)
       {
-
         // Been deselected, deselect all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-
-          if (innerNode.Key != null)
-            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), false);
+          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), false);
 
           tvNavigation.RemoveSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -590,13 +584,10 @@ namespace SysCAD.Editor
 
       else if (!wasSelected && isSelected)
       {
-
         // Been selected, select all underlings and update flowchart.
         foreach (PureComponents.TreeView.Node innerNode in node.Nodes)
         {
-
-          if (innerNode.Key != null)
-            frmFlowChart.State.SetVisible(new Guid(innerNode.Key), true);
+          frmFlowChart.State.SetVisible(new Guid(innerNode.Key), true);
 
           tvNavigation.AddSelectedNode(innerNode);
           SelectSubNodes(innerNode);
@@ -685,11 +676,10 @@ namespace SysCAD.Editor
 
         foreach (PureComponents.TreeView.Node node in tvNavigation.SelectedNodes)
         {
-
-          if (node.Key == null) // not an item.
+          if (IsBranch(node))
             SelectSubNodes(node);
 
-          else
+          if (node.Key != null)
             frmFlowChart.State.SetVisible(new Guid(node.Key), node.IsSelected);
         }
 
@@ -706,15 +696,53 @@ namespace SysCAD.Editor
 
         foreach (PureComponents.TreeView.Node node in wasSelectedNodes)
         {
-
-          if (node.Key != null)
-            frmFlowChart.State.SetVisible(new Guid(node.Key), false);
+          frmFlowChart.State.SetVisible(new Guid(node.Key), false);
         }
 
         wasSelectedNodes.Clear();
       }
 
       tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+    }
+
+    /// <summary>Determine if this node represents a leaf (i.e. item or thing.)</summary>
+    /// <param name="node">Node to be tested</param>
+    /// <returns>True if node represents a leaf.</returns>
+    private bool IsLeaf(PureComponents.TreeView.Node node)
+    {
+      return ((node.Tag != null) && ((node.Tag is Item) || (node.Tag is Thing)));
+    }
+
+    /// <summary>Determine if this node represents a item.</summary>
+    /// <param name="node">Node to be tested</param>
+    /// <returns>True if node represents a item.</returns>
+    private bool IsItem(PureComponents.TreeView.Node node)
+    {
+      return ((node.Tag != null) && (node.Tag is Item));
+    }
+
+    /// <summary>Determine if this node represents a thing.</summary>
+    /// <param name="node">Node to be tested</param>
+    /// <returns>True if node represents a thing.</returns>
+    private bool IsThing(PureComponents.TreeView.Node node)
+    {
+      return ((node.Tag != null) && (node.Tag is Thing));
+    }
+
+    /// <summary>Determine if this node represents a branch (i.e. root or group.)</summary>
+    /// <param name="node">Node to be tested</param>
+    /// <returns>True if node represents a branch.</returns>
+    private bool IsBranch(PureComponents.TreeView.Node node)
+    {
+      return ((node.Tag == null) || (node.Tag is Group));
+    }
+
+    /// <summary>Determine if this node represents a group.</summary>
+    /// <param name="node">Node to be tested</param>
+    /// <returns>True if node represents a group.</returns>
+    private bool IsGroup(PureComponents.TreeView.Node node)
+    {
+      return ((node.Tag != null) && (node.Tag is Group));
     }
 
     private void ViewSelectArrows()

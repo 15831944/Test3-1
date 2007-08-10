@@ -34,7 +34,7 @@ namespace Service
     private String name;
     private String projectPath;
     private String stencilPath;
-    private Int64 requestID;
+    private Int64 requestId;
     private Int64 eventId;
 
     
@@ -159,20 +159,20 @@ namespace Service
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
     }
 
-    bool ChangeState(out Int64 requestID, BaseProtocol.RunStates runState)
+    bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
     {
       if (true) // Decide whether to allow runstate change
       { // We're going to do it.
         // Change the runstate.
 
-        this.requestID++;
-        requestID = this.requestID;
+        this.requestId++;
+        requestId = this.requestId;
         throw new NotImplementedException("The method or operation is not implemented.");
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoStateChanged(eventId, requestID, runState);
-        engineClientServiceProtocol.DoStateChanged(eventId, requestID, runState);
+        clientClientServiceProtocol.DoStateChanged(eventId, requestId, runState);
+        engineClientServiceProtocol.DoStateChanged(eventId, requestId, runState);
 
         return true;
       }
@@ -182,7 +182,7 @@ namespace Service
       }
     }
 
-    bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect)
+    bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
       // Need to check for runstate here, and decide if we'll fire DoGroupCreated.
       // This is required in case a rogue client tries to create an Group even when not supposed to.
@@ -190,8 +190,8 @@ namespace Service
       if (true)
       { // We're going to do it.
         // Create the Group.
-        this.requestID++;
-        requestID = this.requestID;
+        this.requestId++;
+        requestId = this.requestId;
         guid = Guid.NewGuid();
 
         GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
@@ -202,8 +202,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
-        engineClientServiceProtocol.DoGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
+        clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
+        engineClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
 
         return true;
       }
@@ -213,7 +213,7 @@ namespace Service
       }
     }
 
-    bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
       // This is required in case a rogue client tries to create an item even when not supposed to.
@@ -221,8 +221,8 @@ namespace Service
       if (true)
       { // We're going to do it.
         // Create the item.
-        this.requestID++;
-        requestID = this.requestID;
+        this.requestId++;
+        requestId = this.requestId;
         guid = Guid.NewGuid();
 
         GraphicItem graphicItem = new GraphicItem(guid, tag);
@@ -239,8 +239,8 @@ namespace Service
         graphicItems.Add(guid, graphicItem);
 
         // Raise event(s).
-        clientClientServiceProtocol.DoItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -250,14 +250,14 @@ namespace Service
       }
     }
 
-    bool CreateLink(out Int64 requestID, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       if (true) // Decide whether to create an link.
       { // We're going to do it.
         // Create the item.
 
-        this.requestID++;
-        requestID = this.requestID;
+        this.requestId++;
+        requestId = this.requestId;
         guid = new Guid();
 
         GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints);
@@ -265,8 +265,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkCreated(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkCreated(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -276,22 +276,22 @@ namespace Service
       }
     }
 
-    bool CreateThing(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       if (true) // Decide whether to create an Thing.
       { // We're going to do it.
         // Create the Thing.
 
-        this.requestID++;
-        requestID = this.requestID;
+        this.requestId++;
+        requestId = this.requestId;
         guid = Guid.NewGuid();
 
         throw new NotImplementedException("The method or operation is not implemented.");
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -301,15 +301,15 @@ namespace Service
       }
     }
 
-    bool DeleteGroup(out Int64 requestID, Guid guid)
+    bool DeleteGroup(out Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    bool DeleteItem(out Int64 requestID, Guid guid)
+    bool DeleteItem(out Int64 requestId, Guid guid)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
@@ -319,8 +319,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemDeleted(eventId, requestID, guid);
-        engineClientServiceProtocol.DoItemDeleted(eventId, requestID, guid);
+        clientClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
+        engineClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -330,10 +330,10 @@ namespace Service
       }
     }
 
-    bool DeleteLink(out Int64 requestID, Guid guid)
+    bool DeleteLink(out Int64 requestId, Guid guid)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
@@ -341,8 +341,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkDeleted(eventId, requestID, guid);
-        engineClientServiceProtocol.DoLinkDeleted(eventId, requestID, guid);
+        clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
+        engineClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -352,10 +352,10 @@ namespace Service
       }
     }
 
-    bool DeleteThing(out Int64 requestID, Guid guid)
+    bool DeleteThing(out Int64 requestId, Guid guid)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
@@ -363,8 +363,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoThingDeleted(eventId, requestID, guid);
-        engineClientServiceProtocol.DoThingDeleted(eventId, requestID, guid);
+        clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
+        engineClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -374,18 +374,18 @@ namespace Service
       }
     }
 
-    void GetPropertyValues(out Int64 requestID, ref ArrayList propertyList)
+    void GetPropertyValues(out Int64 requestId, ref ArrayList propertyList)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
       throw new NotImplementedException("The method or operation is not implemented.");
       // Return modified ArrayList with tag details included.
     }
 
-    void GetSubTags(out Int64 requestID, String propertyPath, out ArrayList propertyList)
+    void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       propertyList = new ArrayList();
       Random random = new Random();
@@ -419,15 +419,15 @@ namespace Service
       }
     }
 
-    bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
@@ -467,8 +467,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -478,10 +478,10 @@ namespace Service
       }
     }
 
-    bool ModifyItemPath(out Int64 requestID, Guid guid, String path)
+    bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
       { // We're going to do it.
@@ -493,8 +493,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemPathModified(eventId, requestID, guid, path);
-        engineClientServiceProtocol.DoItemPathModified(eventId, requestID, guid, path);
+        clientClientServiceProtocol.DoItemPathModified(eventId, requestId, guid, path);
+        engineClientServiceProtocol.DoItemPathModified(eventId, requestId, guid, path);
 
         return true;
       }
@@ -504,10 +504,10 @@ namespace Service
       }
     }
 
-    bool ModifyLink(out Int64 requestID, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
@@ -515,8 +515,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkModified(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkModified(eventId, requestID, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        engineClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -526,10 +526,10 @@ namespace Service
       }
     }
 
-    bool ModifyThing(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
@@ -537,8 +537,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        engineClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -548,10 +548,10 @@ namespace Service
       }
     }
 
-    bool ModifyThingPath(out Int64 requestID, Guid guid, String path)
+    bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicThings.ContainsKey(guid))
       { // We're going to do it.
@@ -559,8 +559,8 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoThingPathModified(eventId, requestID, guid, path);
-        engineClientServiceProtocol.DoThingPathModified(eventId, requestID, guid, path);
+        clientClientServiceProtocol.DoThingPathModified(eventId, requestId, guid, path);
+        engineClientServiceProtocol.DoThingPathModified(eventId, requestId, guid, path);
 
         return true;
       }
@@ -570,10 +570,10 @@ namespace Service
       }
     }
 
-    PortStatus PortCheck(out Int64 requestID, Guid guid, Anchor anchor)
+    PortStatus PortCheck(out Int64 requestId, Guid guid, Anchor anchor)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       if (graphicItems.ContainsKey(guid))
         return PortStatus.Available;
@@ -582,10 +582,10 @@ namespace Service
         return PortStatus.Unavailable;
     }
 
-    ArrayList PropertyListCheck(out Int64 requestID, Guid guid, String tag, String path)
+    ArrayList PropertyListCheck(out Int64 requestId, Guid guid, String tag, String path)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       //char* dest = new char[tag.Length+1];
       //strcpy(dest, static_cast<LPCTSTR>(const_cast<void*>(static_cast<const void*>(System.Runtime.InteropServices.Marshal.StringToHGlobalAnsi(tag)))));
@@ -610,10 +610,10 @@ namespace Service
     }
 
 
-    bool EngineLoad(out Int64 requestID)
+    bool EngineLoad(out Int64 requestId)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       try
       {
@@ -689,10 +689,10 @@ namespace Service
       }
     }
 
-    bool EngineSave(out Int64 requestID)
+    bool EngineSave(out Int64 requestId)
     {
-      this.requestID++;
-      requestID = this.requestID;
+      this.requestId++;
+      requestId = this.requestId;
 
       try
       {

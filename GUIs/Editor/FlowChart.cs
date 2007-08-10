@@ -458,12 +458,6 @@ namespace SysCAD.Editor
         state.CreateThing(graphicThing, false, fcFlowChart);
       }
 
-      foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
-      {
-        node.Select();
-        node.Expand();
-      }
-
       fcFlowChart.UndoManager.UndoEnabled = true;
       fcFlowChart.UseWaitCursor = false;
       fcFlowChart.ValidityChecks = true;
@@ -1229,9 +1223,9 @@ namespace SysCAD.Editor
                   }
                 }
 
-                Int64 requestID;
+                Int64 requestId;
 
-                if (state.PortCheck(out requestID, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
+                if (state.PortCheck(out requestId, (originBox.Tag as Item).Guid, originAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(originBox.BoundingRect,
                     originAnchorChosen.Position.X,
@@ -1285,9 +1279,9 @@ namespace SysCAD.Editor
                   }
                 }
 
-                Int64 requestID;
+                Int64 requestId;
 
-                if (state.PortCheck(out requestID, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
+                if (state.PortCheck(out requestId, (destinationBox.Tag as Item).Guid, destinationAnchorChosen) == PortStatus.Available)
                 {
                   PointF anchorPointPos = GetRelativeAnchorPosition(destinationBox.BoundingRect,
                     destinationAnchorChosen.Position.X,

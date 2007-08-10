@@ -54,9 +54,9 @@ namespace SysCAD.Protocol
     {
     }
 
-    public bool ChangeState(out Int64 requestID, RunStates runState)
+    public bool ChangeState(out Int64 requestId, RunStates runState)
     {
-      return serviceGraphic.ChangeState(out requestID, runState);
+      return serviceGraphic.ChangeState(out requestId, runState);
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
@@ -128,54 +128,54 @@ namespace SysCAD.Protocol
       }
     }
 
-    public bool CreateGroup(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect)
+    public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return serviceGraphic.CreateGroup(out requestID, out guid, tag, path, boundingRect);
+      return serviceGraphic.CreateGroup(out requestId, out guid, tag, path, boundingRect);
     }
 
-    public bool CreateItem(out Int64 requestID, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.CreateItem(out requestID, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return serviceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public bool CreateLink(out Int64 requestID, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return serviceGraphic.CreateLink(out requestID, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return serviceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    public bool CreateThing(out Int64 requestID, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.CreateThing(out requestID, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return serviceGraphic.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
-    public bool DeleteGroup(out Int64 requestID, Guid guid)
+    public bool DeleteGroup(out Int64 requestId, Guid guid)
     {
-      return serviceGraphic.DeleteGroup(out requestID, guid);
+      return serviceGraphic.DeleteGroup(out requestId, guid);
     }
 
-    public bool DeleteItem(out Int64 requestID, Guid guid)
+    public bool DeleteItem(out Int64 requestId, Guid guid)
     {
-      return serviceGraphic.DeleteItem(out requestID, guid);
+      return serviceGraphic.DeleteItem(out requestId, guid);
     }
 
-    public bool DeleteLink(out Int64 requestID, Guid guid)
+    public bool DeleteLink(out Int64 requestId, Guid guid)
     {
-      return serviceGraphic.DeleteLink(out requestID, guid);
+      return serviceGraphic.DeleteLink(out requestId, guid);
     }
 
-    public bool DeleteThing(out Int64 requestID, Guid guid)
+    public bool DeleteThing(out Int64 requestId, Guid guid)
     {
-      return serviceGraphic.DeleteThing(out requestID, guid);
+      return serviceGraphic.DeleteThing(out requestId, guid);
     }
 
-    public void GetPropertyValues(out Int64 requestID, ref ArrayList tagPathList)
+    public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
     {
-      serviceGraphic.GetPropertyValues(out requestID, ref tagPathList);
+      serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
     }
 
-    public void GetSubTags(out Int64 requestID, String propertyPath, out ArrayList propertyList)
+    public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
     {
-      serviceGraphic.GetSubTags(out requestID, propertyPath, out propertyList);
+      serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
     public bool Load(String filename)
@@ -183,44 +183,44 @@ namespace SysCAD.Protocol
       return serviceGraphic.Load(filename);
     }
 
-    public bool ModifyGroup(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      return serviceGraphic.ModifyGroup(out requestID, guid, tag, path, boundingRect);
+      return serviceGraphic.ModifyGroup(out requestId, guid, tag, path, boundingRect);
     }
 
-    public bool ModifyItem(out Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.ModifyItem(out requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+      return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    public bool ModifyItemPath(out Int64 requestID, Guid guid, String path)
+    public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
     {
-      return serviceGraphic.ModifyItemPath(out requestID, guid, path);
+      return serviceGraphic.ModifyItemPath(out requestId, guid, path);
     }
 
-    public bool ModifyLink(out Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      return serviceGraphic.ModifyLink(out requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return serviceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
-    public bool ModifyThing(out Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      return serviceGraphic.ModifyThing(out requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+      return serviceGraphic.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
-    public bool ModifyThingPath(out Int64 requestID, Guid guid, String path)
+    public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
     {
-      return serviceGraphic.ModifyThingPath(out requestID, guid, path);
+      return serviceGraphic.ModifyThingPath(out requestId, guid, path);
     }
 
-    public PortStatus PortCheck(out Int64 requestID, Guid itemGuid, Anchor anchor)
+    public PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
     {
-      return serviceGraphic.PortCheck(out requestID, itemGuid, anchor);
+      return serviceGraphic.PortCheck(out requestId, itemGuid, anchor);
     }
 
-    public ArrayList PropertyList(out Int64 requestID, Guid guid, String tag, String path)
+    public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
     {
-      return serviceGraphic.PropertyList(out requestID, guid, tag, path);
+      return serviceGraphic.PropertyList(out requestId, guid, tag, path);
     }
 
     public bool Save(String filename)
@@ -228,7 +228,7 @@ namespace SysCAD.Protocol
       return serviceGraphic.Save(filename);
     }
 
-    public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       if (!graphicGroups.ContainsKey(guid))
       {
@@ -240,21 +240,21 @@ namespace SysCAD.Protocol
 
         //cnm Scd9Create
 
-        OnGroupCreated(eventId, requestID, guid, tag, path, boundingRect);
+        OnGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
       }
     }
 
-    public void ServiceGraphicGroupDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void ServiceGraphicGroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void ServiceGraphicGroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void ServiceGraphicItemCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void ServiceGraphicItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
 
       if (!graphicItems.ContainsKey(guid))
@@ -273,22 +273,22 @@ namespace SysCAD.Protocol
 
         //cnm Scd9Create
 
-        OnItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 
-    public void ServiceGraphicItemDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void ServiceGraphicItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (graphicItems.ContainsKey(guid))
       {
         graphicItems.Remove(guid);
 
-        OnItemDeleted(eventId, requestID, guid);
+        OnItemDeleted(eventId, requestId, guid);
       }
     }
 
-    public void ServiceGraphicItemModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void ServiceGraphicItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       GraphicItem graphicItem;
 
@@ -304,11 +304,11 @@ namespace SysCAD.Protocol
         graphicItem.MirrorX = mirrorX;
         graphicItem.MirrorY = mirrorY;
 
-        OnItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+        OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
       }
     }
 
-    public void ServiceGraphicItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String path)
+    public void ServiceGraphicItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String path)
     {
       GraphicItem graphicItem;
 
@@ -316,11 +316,11 @@ namespace SysCAD.Protocol
       {
         graphicItem.Path = path;
 
-        OnItemPathModified(eventId, requestID, guid, path);
+        OnItemPathModified(eventId, requestId, guid, path);
       }
     }
 
-    public void ServiceGraphicLinkCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void ServiceGraphicLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
 
       if (!graphicLinks.ContainsKey(guid))
@@ -328,22 +328,22 @@ namespace SysCAD.Protocol
         GraphicLink graphicLink = new GraphicLink(guid, tag, classId, origin, originPort, destination, destinationPort, controlPoints);
         graphicLinks.Add(guid, graphicLink);
 
-        OnLinkCreated(eventId, requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+        OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
       }
     }
 
-    public void ServiceGraphicLinkDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void ServiceGraphicLinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (graphicLinks.ContainsKey(guid))
       {
         graphicLinks.Remove(guid);
 
-        OnLinkDeleted(eventId, requestID, guid);
+        OnLinkDeleted(eventId, requestId, guid);
       }
     }
 
-    public void ServiceGraphicLinkModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void ServiceGraphicLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       GraphicLink graphicLink;
 
@@ -361,13 +361,13 @@ namespace SysCAD.Protocol
         foreach (PointF controlPoint in controlPoints)
           graphicLink.ControlPoints.Add(controlPoint);
 
-        OnLinkModified(eventId, requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+        OnLinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
       }
     }
 
-    public void ServiceGraphicStateChanged(Int64 eventId, Int64 requestID, RunStates runState)
+    public void ServiceGraphicStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
     {
-      OnStateChanged(eventId, requestID, runState);
+      OnStateChanged(eventId, requestId, runState);
     }
 
     public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)
@@ -380,7 +380,7 @@ namespace SysCAD.Protocol
       OnSync(eventId);
     }
 
-    public void ServiceGraphicThingCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void ServiceGraphicThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
 
       if (!graphicThings.ContainsKey(guid))
@@ -395,22 +395,22 @@ namespace SysCAD.Protocol
 
         graphicThings.Add(guid, graphicThing);
 
-        OnThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
       }
     }
 
-    public void ServiceGraphicThingDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void ServiceGraphicThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (graphicThings.ContainsKey(guid))
       {
         graphicThings.Remove(guid);
 
-        OnThingDeleted(eventId, requestID, guid);
+        OnThingDeleted(eventId, requestId, guid);
       }
     }
 
-    public void ServiceGraphicThingModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void ServiceGraphicThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       GraphicThing graphicThing;
 
@@ -424,7 +424,7 @@ namespace SysCAD.Protocol
         graphicThing.MirrorX = mirrorX;
         graphicThing.MirrorY = mirrorY;
 
-        OnThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+        OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
       }
     }
 

@@ -54,28 +54,28 @@ namespace SysCAD.Protocol
 
     private String name;
 
-    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect);
-    public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
-    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect);
+    public delegate void GroupCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
+    public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
+    public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
 
-    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
-    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
-    public delegate void ItemPathModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String path);
+    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
+    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemPathModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String path);
 
-    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
-    public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
-    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
+    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
 
-    public delegate void StateChangedHandler(Int64 eventId, Int64 requestID, RunStates runState);
+    public delegate void StateChangedHandler(Int64 eventId, Int64 requestId, RunStates runState);
 
     public delegate void StepHandler(Int64 eventId, Int64 step, DateTime time);
 
     public delegate void SyncHandler(Int64 eventId);
 
-    public delegate void ThingCreatedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
-    public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestID, Guid guid);
-    public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate void ThingCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
+    public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
+    public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
 
     public enum RunStates
     {
@@ -96,7 +96,7 @@ namespace SysCAD.Protocol
       return null;
     }
 
-    public void OnGroupCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void OnGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
 
       if (GroupCreated != null)
@@ -104,14 +104,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          GroupCreated(eventId, requestID, guid, tag, path, boundingRect);
+          GroupCreated(eventId, requestId, guid, tag, path, boundingRect);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnGroupDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void OnGroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (GroupDeleted != null)
@@ -119,14 +119,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          GroupDeleted(eventId, requestID, guid);
+          GroupDeleted(eventId, requestId, guid);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnGroupModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect)
+    public void OnGroupModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
 
       if (GroupModified != null)
@@ -134,14 +134,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          GroupModified(eventId, requestID, guid, tag, path, boundingRect);
+          GroupModified(eventId, requestId, guid, tag, path, boundingRect);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnItemCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
 
       if (ItemCreated != null)
@@ -149,14 +149,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ItemCreated(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+          ItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnItemDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void OnItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (ItemDeleted != null)
@@ -164,14 +164,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ItemDeleted(eventId, requestID, guid);
+          ItemDeleted(eventId, requestId, guid);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnItemModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
 
       if (ItemModified != null)
@@ -179,14 +179,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ItemModified(eventId, requestID, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
+          ItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, fillColor, mirrorX, mirrorY);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnItemPathModified(Int64 eventId, Int64 requestID, Guid guid, String path)
+    public void OnItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String path)
     {
 
       if (ItemModified != null)
@@ -194,14 +194,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ItemPathModified(eventId, requestID, guid, path);
+          ItemPathModified(eventId, requestId, guid, path);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnLinkCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
 
       if (LinkCreated != null)
@@ -209,14 +209,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          LinkCreated(eventId, requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+          LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnLinkDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void OnLinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (LinkDeleted != null)
@@ -224,14 +224,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          LinkDeleted(eventId, requestID, guid);
+          LinkDeleted(eventId, requestId, guid);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnLinkModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
 
       if (LinkModified != null)
@@ -239,14 +239,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          LinkModified(eventId, requestID, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+          LinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnStateChanged(Int64 eventId, Int64 requestID, RunStates runState)
+    public void OnStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
     {
 
       if (StateChanged != null)
@@ -254,7 +254,7 @@ namespace SysCAD.Protocol
 
         try
         {
-          StateChanged(eventId, requestID, runState);
+          StateChanged(eventId, requestId, runState);
         }
 
         catch (SocketException) { }
@@ -291,7 +291,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnThingCreated(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void OnThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
 
       if (ThingCreated != null)
@@ -299,14 +299,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ThingCreated(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+          ThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnThingDeleted(Int64 eventId, Int64 requestID, Guid guid)
+    public void OnThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
 
       if (ThingDeleted != null)
@@ -314,14 +314,14 @@ namespace SysCAD.Protocol
 
         try
         {
-          ThingDeleted(eventId, requestID, guid);
+          ThingDeleted(eventId, requestId, guid);
         }
 
         catch (SocketException) { }
       }
     }
 
-    public void OnThingModified(Int64 eventId, Int64 requestID, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
+    public void OnThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
 
       if (ThingModified != null)
@@ -329,7 +329,7 @@ namespace SysCAD.Protocol
 
         try
         {
-          ThingModified(eventId, requestID, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
+          ThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
         }
 
         catch (SocketException) { }
