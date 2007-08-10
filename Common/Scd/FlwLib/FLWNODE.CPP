@@ -8035,7 +8035,8 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
 
           CMdlAssocGrfItem I;
           I.m_sTag = pC->Tag();
-          I.m_bShowIt = AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus());
+          I.m_eAGType = AGTypeFromDIOType(D.Type);
+          I.m_bShowIt = AssocGrfOn(I.m_eAGType, pC->UseStatus());
           pC->m_bPrevShowStatus=I.m_bShowIt;
           pC->m_bPrevShowStatusOK=true;
 

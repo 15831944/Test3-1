@@ -764,7 +764,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
       if (Map.Lookup(Tag, GI))
         {
 #if dbgAssocGrf
-        dbgpln("                   Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
+        dbgpln("                          Found @ = %s [%i]", GI.m_pG->m_sNdTag, GI.m_Index);
 #endif
         if (eAssocTag)  // This is an Assoc Graphic
           {
@@ -772,7 +772,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
           bool Hidden=EntityIsHidden(eInsert);
           I.m_bExists=true;
 #if dbgAssocGrf
-          dbgpln("                   %s @ %s", I.m_bShowIt?"ShowIt":"HideIt", Tag);
+          dbgpln("                   %s %s @ %s", Hidden?"Hidden":"Shown ", I.m_bShowIt?"ShowIt":"HideIt", Tag);
 #endif
           if (!I.m_bShowIt)
             {
@@ -782,7 +782,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
             if (!Hidden)
               {
 #if dbgAssocGrf
-              dbgpln("                   Hide   @ %s", Tag);
+              dbgpln("                          Hide   @ %s", Tag);
 #endif
               GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eHide, NULL, 0, 0, 0, eInsert));
               WorkReqd= 1;
@@ -793,7 +793,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
             if (Hidden)
               {
 #if dbgAssocGrf
-              dbgpln("                   Show   @ %s", Tag);
+              dbgpln("                          Show   @ %s", Tag);
 #endif
               GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eShow, NULL, 0, 0, 0, eInsert));
               WorkReqd= 1;
@@ -811,12 +811,12 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
         {
         // Item not found - remove it from assoc grfs
 #if dbgAssocGrf
-        dbgpln("                   Missing ");
+        dbgpln("                          Missing ");
 #endif
         if (eAssocTag)
           {
 #if dbgAssocGrf
-          dbgpln("                   Delete @ %s", Tag);
+          dbgpln("                          Delete @ %s", Tag);
 #endif
           GrfsX.AddHead(CMdlAssocGrfX(CMdlAssocGrfX::eDelete, NULL, 0, 0, 0, eInsert));
           }
