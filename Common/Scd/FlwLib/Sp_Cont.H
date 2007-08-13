@@ -250,7 +250,7 @@ class DllImportExport SpConduit : public SpModelOwner
     double         PartialPressC(int CmpIncIds, int CmpExcIds, double P=dNAN)      { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp(), P);};
     double         PartialPressFrac(SpecieIter & Ids, double T, double P=dNAN)     { return pModel->PartialPressFrac(Ids, T, P);};
     double         PartialPressFrac(int SpIncIds, int SpExcIds, double P=dNAN)     { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp(), P);};
-    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)  { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp(), P);};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)  { return pModel->PartialPressFracC(CmpIncIds, CmpExcIds, Temp(), P);};
 
     void           SetVLEBlk(CVLEBase * pVLE)                                     { pModel->m_pVLE=pVLE;  };
     void           ClrVLEBlk(CVLEBase * pVLE)                                     { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
@@ -859,7 +859,7 @@ class DllImportExport SpContainer : public SpModelOwner
     double         PartialPressC(int CmpIncIds, int CmpExcIds, double P=dNAN)       { return pModel->PartialPress(CmpIncIds, CmpExcIds, Temp(), P);};
     double         PartialPressFrac(SpecieIter & Ids, double T, double P=dNAN)      { return pModel->PartialPressFrac(Ids, T, P);};
     double         PartialPressFrac(int SpIncIds, int SpExcIds, double P=dNAN)      { return pModel->PartialPressFrac(SpIncIds, SpExcIds, Temp(), P);};
-    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)   { return pModel->PartialPressFrac(CmpIncIds, CmpExcIds, Temp(), P);};
+    double         PartialPressFracC(int CmpIncIds, int CmpExcIds, double P=dNAN)   { return pModel->PartialPressFracC(CmpIncIds, CmpExcIds, Temp(), P);};
 
     void           SetVLEBlk(CVLEBase * pVLE)                                    { pModel->m_pVLE=pVLE; };
     void           ClrVLEBlk(CVLEBase * pVLE)                                    { if (pModel->m_pVLE==pVLE) pModel->m_pVLE=NULL; };
