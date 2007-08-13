@@ -786,7 +786,7 @@ class DllImportExport DXF_Drawing : public LayerCollection
 
     long              AddNodeGrfInfo(pNodeGrfInfo pNGI);
     flag              GetNodeGrfIOs(pNodeGrfInfo pNGI, pchar NodeName, long ReqdIOs, Strng_List &IOL);
-    DXF_ENTITY        Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTag, LPCSTR Tag, DXF_ENTITY OwnerEntity);
+    DXF_ENTITY        Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount, LPCSTR NdTag, LPCSTR Tag, DXF_ENTITY OwnerEntity);
     DXF_ENTITY        Add_PidBubble(CEntInView* ent,PT3 pt,Pt_SLW pta,pchar loop_id,pchar area_id,pchar equip_isa,pchar loop_type);
     DXF_ENTITY        Add_Unit(Viewport * vp, Pt_3f &CTagPt, flag CTagPtOK, pchar equip_name, pchar Tag, pchar BlockName, pchar ModelName, Attr_Settings &Tag_Attr_Set);
     DXF_ENTITY        Add_Instr(Viewport * vp);

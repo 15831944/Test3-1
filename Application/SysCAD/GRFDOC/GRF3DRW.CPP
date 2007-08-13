@@ -4241,6 +4241,9 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
         {
         case CMdlAssocGrfX::eAddNdAssocGrfs:
           {
+          int TypeCount[eAG_Last+1];
+          for (int x=0; x<eAG_Last; x++)
+            TypeCount[x]=0;
           for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
             {
             CMdlAssocGrfItem & I = G.m_AssocGrfs[i];
@@ -4251,7 +4254,7 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
               pt[1] = GX.m_NdY;
               pt[2] = 0.0;
 
-              DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
+              DXF_ENTITY Ins = Add_AssocGrf(I.m_eAGType, pt, TypeCount[I.m_eAGType], (LPSTR)(LPCSTR)G.m_sNdTag, (LPSTR)(LPCSTR)I.m_sTag, (DXF_ENTITY)GX.m_Entity);
               pDsp->Draw(Ins, -1);
               }
             else if (I.m_bExists && !I.m_bShowIt)
@@ -4263,6 +4266,7 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
               {
               // Shown by code below;
               }
+            TypeCount[I.m_eAGType]++;
             }
           break;
           }
@@ -8980,18 +8984,6 @@ static CSym MakeupSym[] =
     {0, 0, 0,   {  -1.9,   2.2 }, },
     
     {0, 0, 1,                      },
-
-    //{1, 0, 0,   {    -8 ,   1.5 }, },
-    //{0, 0, 0,   {  -9.5 ,     0 }, },
-    //{0, 0, 0,   {    -8 ,  -1.5 }, },
-    //{0, 1, 0,   {    -8 ,  -1.5 }, },
-    //{0, 0, 0,   {    -5 ,  -1.5 }, },
-    //{0, 0, 0,   {  -3.5 ,     0 }, },
-    //{0, 0, 0,   {    -5 ,   1.5 }, },
-    //{0, 0, 0,   {    -8 ,   1.5 }, },
-    //{0, 1, 0,   {  -3.5 ,     0 }, },
-    //{0, 0, 0,   {    -2 ,     0 }, },
-    //{0, 0, 1,                      },
   };
 static CSym SpillSym[] =
   {                                                     
@@ -9016,7 +9008,7 @@ static CSym VentSym[] =
     {0, 0, 1,                      },
   };
 
-DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
+DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, int TypeCount, LPCSTR NdTagStr, LPCSTR TagStr, DXF_ENTITY OwnerEntity)
   {
   pBlock  AssocGrf;
   DXF_ENTITY InsSym;
@@ -9051,7 +9043,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagSt
         {
         BlockName="MAKEUP_ASSOCGRF";
         pSym=MakeupSym;
-        AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1], pt[2]);
+        AssocGrfPos.Set(Bnds.minpt[0], Bnds.maxpt[1]+TypeCount*4, pt[2]);
         AssTagPos.Set(0.0, 4.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
@@ -9060,7 +9052,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagSt
         {
         BlockName="SPILL_ASSOCGRF";
         pSym=SpillSym;
-        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.minpt[1], pt[2]);
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.minpt[1]-TypeCount*4, pt[2]);
         AssTagPos.Set(0.0, 2.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
@@ -9069,7 +9061,7 @@ DXF_ENTITY DXF_Drawing::Add_AssocGrf(eAssocGrfTypes Type, PT3 pt, LPCSTR NdTagSt
         {
         BlockName="VENT_ASSOCGRF";
         pSym=VentSym;
-        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1], pt[2]);
+        AssocGrfPos.Set(Bnds.maxpt[0], Bnds.maxpt[1]+TypeCount*4, pt[2]);
         AssTagPos.Set(0.0, -2.0, 0.0);
         AssTagPos = AssTagPos+ AssocGrfPos;                                          
         break;
