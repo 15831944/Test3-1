@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -198,6 +197,10 @@ namespace SysCAD.Editor
           this.FileOpenProject();
           break;
 
+        case "File.Save":
+          this.FileSaveProject();
+          break;
+
         case "File.Close":
           this.FileCloseProject();
           break;
@@ -298,6 +301,12 @@ namespace SysCAD.Editor
 
         LoadProject(openProjectForm.ClientProtocol, openProjectForm.Config);
       }
+    }
+
+    private void FileSaveProject()
+    {
+      Int64 requestId;
+      frmFlowChart.State.ClientProtocol.Save(out requestId);
     }
 
     private void Form1FormClosing(object sender, FormClosingEventArgs e)
@@ -605,6 +614,7 @@ namespace SysCAD.Editor
       {
         barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
         barManager1.Commands["File.Print"].Enabled = projectExists;
+        barManager1.Commands["File.Save"].Enabled = projectExists;
         barManager1.Commands["File.Close"].Enabled = projectExists;
         barManager1.Commands["View.ZoomIn"].Enabled = projectExists;
         barManager1.Commands["View.ZoomOut"].Enabled = projectExists;

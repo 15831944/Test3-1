@@ -45,11 +45,6 @@ namespace Service
     {
       InitializeComponent();
 
-      //Examples 
-      logView.Message("Test Note", SysCAD.Log.MessageType.Note);
-      logView.Message("Test Warning", SysCAD.Log.MessageType.Warning);
-      logView.Message("Test Error", SysCAD.Log.MessageType.Error);
-
       System.Runtime.Remoting.Channels.BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
       serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
 
