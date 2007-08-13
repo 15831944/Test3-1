@@ -368,26 +368,8 @@ namespace SysCAD.Protocol
       getSubTagsHandler(out requestId, propertyPath, out propertyList);
     }
 
-    public bool Load(String filename)
+    public bool Load(out Int64 requestId)
     {
-      SoapFormatter sf = new SoapFormatter();
-      StreamReader streamRdr = new StreamReader(filename);
-      Stream stream = streamRdr.BaseStream;
-
-      this.graphicGroups = graphicGroups;
-
-      this.graphicLinks = graphicLinks;
-      this.graphicItems = graphicItems;
-      this.graphicThings = graphicThings;
-
-      graphicGroups = (Dictionary<Guid, GraphicGroup>)sf.Deserialize(stream);
-
-      graphicLinks = (Dictionary<Guid, GraphicLink>)sf.Deserialize(stream);
-      graphicItems = (Dictionary<Guid, GraphicItem>)sf.Deserialize(stream);
-      graphicThings = (Dictionary<Guid, GraphicThing>)sf.Deserialize(stream);
-      stream.Close();
-
-      Int64 requestId;
       return loadHandler(out requestId);
     }
 
@@ -432,18 +414,8 @@ namespace SysCAD.Protocol
       return propertyListHandler(out requestId, guid, tag, path);
     }
 
-    public bool Save(String filename)
+    public bool Save(out Int64 requestId)
     {
-      SoapFormatter sf = new SoapFormatter();
-      StreamWriter streamWriter = new StreamWriter(filename);
-      Stream stream = streamWriter.BaseStream;
-      sf.Serialize(stream, graphicGroups);
-      sf.Serialize(stream, graphicLinks);
-      sf.Serialize(stream, graphicItems);
-      sf.Serialize(stream, graphicThings);
-      stream.Close();
-
-      Int64 requestId;
       return saveHandler(out requestId);
     }
 

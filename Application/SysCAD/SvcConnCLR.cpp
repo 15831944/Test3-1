@@ -97,7 +97,7 @@ ref class CSvcConnectCLRThread
       {
       };
 
-    void Startup(String^ projectPath, String^ configPath, bool ImportScd9)
+    bool Startup(String^ projectPath, String^ configPath, bool ImportScd9)
       {
       LogNote("CSvcConnectCLRThread", 0, "Startup");
 
@@ -184,6 +184,11 @@ ref class CSvcConnectCLRThread
           engineProtocol->ItemCreated  += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
           //engineProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
           engineProtocol->ItemDeleted  += gcnew EngineProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
+
+          return (!((engineProtocol->graphicGroups->Count == 0)&&
+            (engineProtocol->graphicItems->Count == 0)&&
+            (engineProtocol->graphicLinks->Count == 0)&&
+            (engineProtocol->graphicThings->Count == 0)));
 
           ////////////////////////////////
           ////////////////////////////////
@@ -381,14 +386,16 @@ ref class CSvcConnectCLRThread
       LogNote("CSvcConnectCLRThread", 0, "Shutdown");
       };
 
-    void Load(String^ filename)
+    void Load()
       {
-      engineProtocol->Load(filename);
+      Int64 requestId;
+      engineProtocol->Load(requestId);
       };
 
-    void Save(String^ filename)
+    void Save()
       {
-      engineProtocol->Save(filename);
+      Int64 requestId;
+      engineProtocol->Save(requestId);
       };
 
     void Export(String ^ filename)
@@ -487,7 +494,7 @@ CSvcConnectCLR::~CSvcConnectCLR(void)
   {
   }
 
-void CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
+bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
   {
   String^ projectPathString = gcnew String(projectPath);
   String^ configPathString = gcnew String(configPath);
@@ -498,7 +505,7 @@ void CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR con
   //m_pSrvr->Initialise();
   
   CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
+  return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
 
 
   //System::Threading::S
@@ -556,14 +563,14 @@ void CSvcConnectCLR::Load()
   {
   LogNote("CSvcConnectCLR", 0, "Load");
 
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Load("");
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Load();
   };
 
 void CSvcConnectCLR::Save()
   {
   LogNote("CSvcConnectCLR", 0, "Save");
 
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Save("");
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Save();
   };
 
 

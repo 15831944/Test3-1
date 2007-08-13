@@ -14,6 +14,7 @@ using System.Runtime.Serialization.Formatters.Soap;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting;
 using SysCAD.Log;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Service
 {
@@ -30,10 +31,12 @@ namespace Service
     ClientServiceProtocol clientClientServiceProtocol;
     EngineServiceProtocol engineClientServiceProtocol;
 
-    private String configPath;
-    private String name;
+    private String projectName;
+
     private String projectPath;
+    private String configPath;
     private String stencilPath;
+
     private Int64 requestId;
     private Int64 eventId;
 
@@ -57,24 +60,27 @@ namespace Service
       //ipcProps["typeFilterLevel"] = TypeFilterLevel.Full;
       IpcChannel ipcChannel = new IpcChannel(ipcProps, clientProv, serverProv);
       ChannelServices.RegisterChannel(ipcChannel, false);
-      
+
+      projectName = Path.GetFileNameWithoutExtension(Path.GetDirectoryName(projectPath));
+
       this.projectPath = projectPath;
       this.configPath = configPath;
       this.stencilPath = stencilPath;
 
-      name = Path.GetFileNameWithoutExtension(Path.GetDirectoryName(projectPath));
 
       configData = new ConfigData();
       GetStencils(configData);
-      configData.ProjectList.Add(name);
+      configData.ProjectList.Add(projectName);
       RemotingServices.Marshal(configData, "Global");
 
       graphicGroups = new Dictionary<Guid, GraphicGroup>();
 
       graphicItems = new Dictionary<Guid, GraphicItem>();
-      graphicLinks = new Dictionary<Guid,GraphicLink>();
-      graphicThings = new Dictionary<Guid,GraphicThing>();
-      
+      graphicLinks = new Dictionary<Guid, GraphicLink>();
+      graphicThings = new Dictionary<Guid, GraphicThing>();
+
+      Load();
+
       ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
 
       ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
@@ -103,8 +109,8 @@ namespace Service
       ClientServiceProtocol.PropertyListHandler clientPropertyListCheck = new ClientServiceProtocol.PropertyListHandler(PropertyListCheck);
 
       ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
-      
-      clientClientServiceProtocol = new ClientServiceProtocol(name, 
+
+      clientClientServiceProtocol = new ClientServiceProtocol(projectName,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangeState, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
@@ -114,7 +120,7 @@ namespace Service
                                                               clientDeleteThing, clientPortCheck, clientPropertyListCheck, clientLogMessage);
 
 
-      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + name);
+      RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
 
 
       EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
@@ -149,7 +155,7 @@ namespace Service
 
       EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
 
-      engineClientServiceProtocol = new EngineServiceProtocol(name,
+      engineClientServiceProtocol = new EngineServiceProtocol(projectName,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               engineLoad, engineSave,
                                                               engineChangeState, engineGetPropertyValues, engineGetSubTags,
@@ -159,7 +165,7 @@ namespace Service
                                                               engineCreateThing, engineModifyThing, engineModifyThingPath,
                                                               engineDeleteThing, enginePortCheck, enginePropertyListCheck, engineLogMessage);
 
-      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + name);
+      RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
 
     bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
@@ -620,12 +626,8 @@ namespace Service
       return true;
     }
 
-
-    bool EngineLoad(out Int64 requestId)
+    bool Load()
     {
-      this.requestId++;
-      requestId = this.requestId;
-
       try
       {
         Dictionary<Guid, GraphicGroup> tempGraphicGroups;
@@ -635,34 +637,34 @@ namespace Service
         Dictionary<Guid, GraphicThing> tempGraphicThings;
 
         {
-          SoapFormatter sf = new SoapFormatter();
+          BinaryFormatter bf = new BinaryFormatter();
           StreamReader streamRdr = new StreamReader(projectPath + "GraphicGroups.10");
           Stream stream = streamRdr.BaseStream;
-          tempGraphicGroups = (Dictionary<Guid, GraphicGroup>)sf.Deserialize(stream);
+          tempGraphicGroups = (Dictionary<Guid, GraphicGroup>)bf.Deserialize(stream);
           stream.Close();
         }
 
         {
-          SoapFormatter sf = new SoapFormatter();
+          BinaryFormatter bf = new BinaryFormatter();
           StreamReader streamRdr = new StreamReader(projectPath + "GraphicLinks.10");
           Stream stream = streamRdr.BaseStream;
-          tempGraphicLinks = (Dictionary<Guid, GraphicLink>)sf.Deserialize(stream);
+          tempGraphicLinks = (Dictionary<Guid, GraphicLink>)bf.Deserialize(stream);
           stream.Close();
         }
 
         {
-          SoapFormatter sf = new SoapFormatter();
+          BinaryFormatter bf = new BinaryFormatter();
           StreamReader streamRdr = new StreamReader(projectPath + "GraphicItems.10");
           Stream stream = streamRdr.BaseStream;
-          tempGraphicItems = (Dictionary<Guid, GraphicItem>)sf.Deserialize(stream);
+          tempGraphicItems = (Dictionary<Guid, GraphicItem>)bf.Deserialize(stream);
           stream.Close();
         }
 
         {
-          SoapFormatter sf = new SoapFormatter();
+          BinaryFormatter bf = new BinaryFormatter();
           StreamReader streamRdr = new StreamReader(projectPath + "GraphicThings.10");
           Stream stream = streamRdr.BaseStream;
-          tempGraphicThings = (Dictionary<Guid, GraphicThing>)sf.Deserialize(stream);
+          tempGraphicThings = (Dictionary<Guid, GraphicThing>)bf.Deserialize(stream);
           stream.Close();
         }
 
@@ -676,11 +678,11 @@ namespace Service
           graphicGroups = new Dictionary<Guid, GraphicGroup>();
 
         if (graphicLinks == null)
-          graphicLinks = new Dictionary<Guid,GraphicLink>();
+          graphicLinks = new Dictionary<Guid, GraphicLink>();
         if (graphicItems == null)
-          graphicItems = new Dictionary<Guid,GraphicItem>();
+          graphicItems = new Dictionary<Guid, GraphicItem>();
         if (graphicThings == null)
-          graphicThings = new Dictionary<Guid,GraphicThing>();
+          graphicThings = new Dictionary<Guid, GraphicThing>();
 
         return true;
       }
@@ -700,50 +702,63 @@ namespace Service
       }
     }
 
+    bool Save()
+    {
+      try
+      {
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicGroups.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, graphicGroups);
+          stream.Close();
+        }
+
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicLinks.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, graphicLinks);
+          stream.Close();
+        }
+
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicItems.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, graphicItems);
+          stream.Close();
+        }
+
+        {
+          BinaryFormatter bf = new BinaryFormatter();
+          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicThings.10");
+          Stream stream = streamWriter.BaseStream;
+          bf.Serialize(stream, graphicThings);
+          stream.Close();
+        }
+        return true;
+      }
+      catch (Exception e)
+      {
+        return false;
+      }
+    }
+
+    bool EngineLoad(out Int64 requestId)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+
+      return Load();
+    }
+
     bool EngineSave(out Int64 requestId)
     {
       this.requestId++;
       requestId = this.requestId;
 
-      try
-      {
-        {
-          SoapFormatter sf = new SoapFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicGroups.10");
-          Stream stream = streamWriter.BaseStream;
-          sf.Serialize(stream, graphicGroups);
-          stream.Close();
-        }
-
-        {
-          SoapFormatter sf = new SoapFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicLinks.10");
-          Stream stream = streamWriter.BaseStream;
-          sf.Serialize(stream, graphicLinks);
-          stream.Close();
-        }
-
-        {
-          SoapFormatter sf = new SoapFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicItems.10");
-          Stream stream = streamWriter.BaseStream;
-          sf.Serialize(stream, graphicItems);
-          stream.Close();
-        }
-
-        {
-          SoapFormatter sf = new SoapFormatter();
-          StreamWriter streamWriter = new StreamWriter(projectPath + "GraphicThings.10");
-          Stream stream = streamWriter.BaseStream;
-          sf.Serialize(stream, graphicThings);
-          stream.Close();
-        }
-        return true;
-      }
-      catch (Exception)
-      {
-        return false;
-      }
+      return Save();
     }
 
     void GetStencils(ConfigData configData)

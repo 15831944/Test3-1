@@ -94,13 +94,13 @@ CSvcConnect::~CSvcConnect()
   {
   }
 
-void CSvcConnect::Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
+bool CSvcConnect::Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9)
   {
   m_GrfGrpsNames.InitHashTable(101);
   m_GrfGrpsGuids.InitHashTable(101);
 
   m_pCLR = new CSvcConnectCLR;
-  m_pCLR->Startup(this, projectPath, configPath, ImportScd9);
+  return m_pCLR->Startup(this, projectPath, configPath, ImportScd9);
 
   };
 

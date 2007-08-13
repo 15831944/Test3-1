@@ -178,9 +178,9 @@ namespace SysCAD.Protocol
       serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
-    public bool Load(String filename)
+    public bool Load(out Int64 requestId)
     {
-      return serviceGraphic.Load(filename);
+      return serviceGraphic.Load(out requestId);
     }
 
     public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
@@ -228,9 +228,9 @@ namespace SysCAD.Protocol
       serviceGraphic.LogMessage(out requestId, message, messageType);
     }
 
-    public bool Save(String filename)
+    public bool Save(out Int64 requestId)
     {
-      return serviceGraphic.Save(filename);
+      return serviceGraphic.Save(out requestId);
     }
 
     public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)

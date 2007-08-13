@@ -6595,9 +6595,12 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
     if (01)//pkh && OK)
       {
       m_pSvc = new CSvcConnect;
-      m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/);
-      // Temporary
-      m_pSvc->Export(PrjName(), CfgFiles());
+      if (!m_pSvc->Startup(PrjFiles(), CfgFiles(), true /* Hardwired for now - always import*/))
+        {
+          // Temporary
+          m_pSvc->Export(PrjName(), CfgFiles());
+          m_pSvc->Save();
+        }
       }
     else
       m_pSvc = NULL;
@@ -6652,7 +6655,7 @@ void CProject::SvcSave()
 
 void CProject::Export2Scd10()
   {
-  m_pSvc->Export(PrjFiles(), CfgFiles());
+  m_pSvc->Export(PrjName(), CfgFiles());
   }
 #endif
 

@@ -32,7 +32,7 @@ class CSvcConnectCLR
   public:
     ~CSvcConnectCLR(void);
 
-    void Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
+    bool Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
     void Shutdown();
 
     void Sync(__int64 requestId);

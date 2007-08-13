@@ -119,7 +119,7 @@ class CSvcConnect
   public:
     ~CSvcConnect();
 
-    void Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
+    bool Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
     void Shutdown();
     //void Initialise();
     //void Terminate();
