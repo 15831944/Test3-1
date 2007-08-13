@@ -277,9 +277,11 @@ XID xidSolnQv1              = SpcXID(100222);
 XID xidSolnQvLast           = SpcXID(100224);
 XID xidSolnState1           = SpcXID(100225);
 XID xidSolnStateLast        = SpcXID(100227);
-XID xidRhoStream1           = SpcXID(100228);
-XID xidRhoStreamLast        = SpcXID(100230);
-XID xidRhoCorrFuncLast      = xidRhoStreamLast;
+XID xidRhoSoln251           = SpcXID(100228);
+XID xidRhoSoln25Last        = SpcXID(100230);
+XID xidRhoStream25          = SpcXID(100231); //
+XID xidRhoStream            = SpcXID(100232); //
+XID xidRhoCorrFuncLast      = xidRhoStream;
 
 XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
 XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 

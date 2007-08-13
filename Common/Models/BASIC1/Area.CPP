@@ -37,7 +37,7 @@ static double Drw_CArea[] = { DD_Poly, 6,6, 9,4, 7,2, 11,0, 9,-2, 10,-4, 8,-6,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(CArea, "Area", "1", Drw_CArea, "Area", "Area", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(CArea, "Area", "1", Drw_CArea, "Tank", "Area", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                     "Process:Unit:Area", 
                     "Simple Source and/or Sink of Material as Leaks") 
 
@@ -96,7 +96,7 @@ static double Drw_MakeupSrc[] = { DD_Poly, -2.5,3, 3.5,3, 5.5,0, 3.5,-3, -2.5,-3
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(MakeupSrc, "MakeupSrc", "1", Drw_MakeupSrc, "MakeupSrc", "MakeupSrc", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(MakeupSrc, "MakeupSrc", "1", Drw_MakeupSrc, "Feed", "MakeupSrc", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                     "Process:Unit:Makeup Source", 
                     "Simple Source Material for Makeups") 
 
@@ -206,7 +206,7 @@ static double Drw_BleedSnk[] = { DD_Poly,  2.5,-3, -5.5,-3, -3.5,0, -5.5,3, 2.5,
 
 //--------------------------------------------------------------------------
 
-IMPLEMENT_MODELUNIT(BleedSnk, "BleedSnk", "1", Drw_BleedSnk, "BleedSnk", "BleedSnk", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
+IMPLEMENT_MODELUNIT(BleedSnk, "BleedSnk", "1", Drw_BleedSnk, "Feed", "BleedSnk", TOC_ALL|TOC_GRP_GENERAL|TOC_STD_KENWALT,
                     "Process:Unit:Bleed Sink", 
                     "Simple Sink for Bleeds") 
 

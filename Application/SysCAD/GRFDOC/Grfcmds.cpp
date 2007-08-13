@@ -4081,6 +4081,7 @@ void GrfCmdBlk::DoConnect()
             TheLDH.SetShowTag(Tag_Attr_Set.Flags==0);
             TheLDH.SetArrowScale(ArrowScale);
             TheLDH.SetTag(ATag());
+            TheLDH.SetTagPt(0.0, 1.5, 0.0); //place the tag slightly above the insert point
             DXF_ENTITY e = AddLinkDrawing(TheLDH);
             pDsp->Draw(e, GR_WHITE);
             pWnd->Invalidate();
