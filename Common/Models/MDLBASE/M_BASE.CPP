@@ -2102,29 +2102,32 @@ void MdlNode::EvalProducts_SurgeLevel(flag InLine, flag InEvalProdSurge, CHgtOrd
     }
 #endif
 
-  for (int iIONo= 0; iIONo< NoMaterialIOs(); iIONo++)
+  if (InLine)
     {
-    if (IOQm_In(iIONo)>0.0)
+    for (int iIONo= 0; iIONo< NoMaterialIOs(); iIONo++)
       {
-      ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
-      ContentFlw.QAddF(*IOConduit(iIONo), som_Gas, IOEntrainRateG(iIONo));
-      VapourFlw.QAddF(*IOConduit(iIONo), som_Gas, (1.0-IOEntrainRateG(iIONo)));
+      if (IOQm_In(iIONo)>0.0)
+        {
+        ContentFlw.QAddF(*IOConduit(iIONo), som_SL, 1.0);
+        ContentFlw.QAddF(*IOConduit(iIONo), som_Gas, IOEntrainRateG(iIONo));
+        VapourFlw.QAddF(*IOConduit(iIONo), som_Gas, (1.0-IOEntrainRateG(iIONo)));
 #if dbgDerivs
-      if (dbgso)
-        dbgpln("ConduitFlw     %15.6f %15.6f %15.6f kg/s @ EntRate %6.2f%% %s", 
-        IOConduit(iIONo)->QMass(som_Sol), IOConduit(iIONo)->QMass(som_Liq), IOConduit(iIONo)->QMass(som_Gas),
-        IOEntrainRateG(iIONo)*100, IODesc_Self(iIONo)->m_pName);
+        if (dbgso)
+          dbgpln("ConduitFlw     %15.6f %15.6f %15.6f kg/s @ EntRate %6.2f%% %s", 
+          IOConduit(iIONo)->QMass(som_Sol), IOConduit(iIONo)->QMass(som_Liq), IOConduit(iIONo)->QMass(som_Gas),
+          IOEntrainRateG(iIONo)*100, IODesc_Self(iIONo)->m_pName);
 #endif
+        }
       }
-    }
 
 #if dbgDerivs
-  if (dbgso)
-    {
-    dbgpln("ContentFlw === %15.6f %15.6f %15.6f kg/s", ContentFlw.QMass(som_Sol), ContentFlw.QMass(som_Liq), ContentFlw.QMass(som_Gas));
-    dbgpln("VapourFlw  === %15.6f %15.6f %15.6f kg/s", VapourFlw.QMass(som_Sol), VapourFlw.QMass(som_Liq), VapourFlw.QMass(som_Gas));
-    }
+    if (dbgso)
+      {
+      dbgpln("ContentFlw === %15.6f %15.6f %15.6f kg/s", ContentFlw.QMass(som_Sol), ContentFlw.QMass(som_Liq), ContentFlw.QMass(som_Gas));
+      dbgpln("VapourFlw  === %15.6f %15.6f %15.6f kg/s", VapourFlw.QMass(som_Sol), VapourFlw.QMass(som_Liq), VapourFlw.QMass(som_Gas));
+      }
 #endif
+    }
 
   TranslateFilters(InLine, InEvalProdSurge, HO);
 
