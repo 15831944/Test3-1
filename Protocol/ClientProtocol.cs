@@ -180,6 +180,11 @@ namespace SysCAD.Protocol
       serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
     }
 
+    public bool Load(out Int64 requestId)
+    {
+      return serviceGraphic.Load(out requestId);
+    }
+
     public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       throw new NotImplementedException("The method or operation is not implemented.");
@@ -223,6 +228,11 @@ namespace SysCAD.Protocol
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
     {
       serviceGraphic.LogMessage(out requestId, message, messageType);
+    }
+
+    public bool Save(out Int64 requestId)
+    {
+      return serviceGraphic.Save(out requestId);
     }
 
     public void ServiceGraphicGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)

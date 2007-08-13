@@ -112,6 +112,7 @@ ref class CSvcConnectCLRThread
       ChannelServices::RegisterChannel(tcpChannel, false);
 
       config = gcnew Config;
+      clientProtocol = gcnew ClientProtocol;
       engineProtocol = gcnew EngineProtocol;
 
       bool success = false;
@@ -158,37 +159,39 @@ ref class CSvcConnectCLRThread
         config->Syncxxx();
 
 
-        success = false;
+        bool clientSuccess = false;
+        bool engineSuccess = false;
         i=0;
-        while ((!success)&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
+        while ((!((clientSuccess)&&(engineSuccess)))&&(i++ < 20)) //_MUST_ find a better way to handle this! (but only temporary...)
           {
           // Basically need to wait until service is ready.
           Sleep(i*i*i); // Last wait will be 1sec.
 
+          delete clientProtocol;
           delete engineProtocol;
+          clientProtocol = gcnew ClientProtocol;
           engineProtocol = gcnew EngineProtocol;
 
           // Connect to graphic data.
-          success = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
+
+          clientSuccess = clientProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
+            Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath))));
+          engineSuccess = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Client/" + 
             Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath))));
           }
-        if (success)
+        if (clientSuccess&&engineSuccess)
           {
+          clientProtocol->Connect();
           engineProtocol->Connect();
 
           /*
           This is where import goes
           */
 
-          engineProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
-          engineProtocol->ItemCreated  += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
-          //engineProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
-          engineProtocol->ItemDeleted  += gcnew EngineProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
-
-          return (!((engineProtocol->graphicGroups->Count == 0)&&
-            (engineProtocol->graphicItems->Count == 0)&&
-            (engineProtocol->graphicLinks->Count == 0)&&
-            (engineProtocol->graphicThings->Count == 0)));
+          clientProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
+          clientProtocol->ItemCreated  += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
+          //clientProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
+          clientProtocol->ItemDeleted  += gcnew EngineProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
 
           ////////////////////////////////
           ////////////////////////////////
@@ -203,8 +206,8 @@ ref class CSvcConnectCLRThread
           // dictionary will be 0.
           // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
 
-          for each (GraphicItem ^ item in engineProtocol->graphicItems->Values)
-            {
+          //for each (GraphicItem ^ item in clientProtocol->graphicItems->Values)
+            //{
             // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
             // ObjectBrowser with all the available members.
             // e.g.
@@ -219,15 +222,15 @@ ref class CSvcConnectCLRThread
             //  item->MirrorX, item->MirrorY);
             //int yyy=0;
             //Chris
-            }
+            //}
 
-          for each (GraphicLink ^ link in engineProtocol->graphicLinks->Values)
-            {
-            }
+          //for each (GraphicLink ^ link in clientProtocol->graphicLinks->Values)
+          //  {
+          //  }
 
-          for each (GraphicThing ^ thing in engineProtocol->graphicThings->Values)
-            {
-            }
+          //for each (GraphicThing ^ thing in clientProtocol->graphicThings->Values)
+          //  {
+          //  }
 
 
 
@@ -253,6 +256,17 @@ ref class CSvcConnectCLRThread
           ///////////////////////////////
           }
         }
+        if (clientProtocol == nullptr)
+          return false;
+        
+        if ((clientProtocol->graphicGroups == nullptr) || (clientProtocol->graphicItems == nullptr) || 
+          (clientProtocol->graphicLinks == nullptr) || (clientProtocol->graphicThings == nullptr))
+          return false;
+
+        return (!((clientProtocol->graphicGroups->Count == 0)&&
+          (clientProtocol->graphicItems->Count == 0)&&
+          (clientProtocol->graphicLinks->Count == 0)&&
+          (clientProtocol->graphicThings->Count == 0)));
       };
 
     // ====================================================================
@@ -261,7 +275,7 @@ ref class CSvcConnectCLRThread
       {
       Guid guid;//Guid(gcnew String(GrpGuid))
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      engineProtocol->CreateGroup(requestId, guid, gcnew String(Tag), gcnew String(Path), BR);
+      clientProtocol->CreateGroup(requestId, guid, gcnew String(Tag), gcnew String(Path), BR);
       GrpGuid = guid.ToString();
       }
 
@@ -283,7 +297,7 @@ ref class CSvcConnectCLRThread
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
       RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
-      engineProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
+      clientProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
         gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
 		Color::Black, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       ItemGuid = guid.ToString();
@@ -321,7 +335,7 @@ ref class CSvcConnectCLRThread
 
     void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
       {
-      engineProtocol->DeleteItem(requestId, Guid(gcnew String(ItemGuid)));
+      clientProtocol->DeleteItem(requestId, Guid(gcnew String(ItemGuid)));
       };
 
     void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -389,13 +403,13 @@ ref class CSvcConnectCLRThread
     void Load()
       {
       Int64 requestId;
-      engineProtocol->Load(requestId);
+      clientProtocol->Load(requestId);
       };
 
     void Save()
       {
       Int64 requestId;
-      engineProtocol->Save(requestId);
+      clientProtocol->Save(requestId);
       };
 
     void Export(String ^ filename)
@@ -467,6 +481,7 @@ ref class CSvcConnectCLRThread
 
   protected:
     SysCAD::Protocol::Config ^ config;
+    SysCAD::Protocol::ClientProtocol ^ clientProtocol;
     SysCAD::Protocol::EngineProtocol ^ engineProtocol;
     
     CSvcConnect   * m_pConn;

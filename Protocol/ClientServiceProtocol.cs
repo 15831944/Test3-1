@@ -21,6 +21,8 @@ namespace SysCAD.Protocol
   [Serializable]
   public sealed class ClientServiceProtocol : BaseProtocol
   {
+    private LoadHandler loadHandler;
+    private SaveHandler saveHandler;
 
     private ChangeStateHandler changeStateHandler;
 
@@ -49,6 +51,9 @@ namespace SysCAD.Protocol
     private PropertyListHandler propertyListHandler;
 
     private LogMessageHandler logMessageHandler;
+
+    public delegate bool LoadHandler(out Int64 requestId);
+    public delegate bool SaveHandler(out Int64 requestId);
 
     public delegate bool ChangeStateHandler(out Int64 requestId, RunStates runState);
 
@@ -80,6 +85,7 @@ namespace SysCAD.Protocol
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
 
     public ClientServiceProtocol(String name,
+      LoadHandler loadHandler, SaveHandler saveHandler, 
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
@@ -95,6 +101,9 @@ namespace SysCAD.Protocol
       this.graphicLinks = graphicLinks;
       this.graphicItems = graphicItems;
       this.graphicThings = graphicThings;
+
+      this.loadHandler = loadHandler;
+      this.saveHandler = saveHandler;
 
       this.changeStateHandler = changeStateHandler;
 
@@ -363,6 +372,11 @@ namespace SysCAD.Protocol
       getSubTagsHandler(out requestId, propertyPath, out propertyList);
     }
 
+    public bool Load(out Int64 requestId)
+    {
+      return loadHandler(out requestId);
+    }
+
     public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       return modifyGroupHandler(out requestId, guid, tag, path, boundingRect);
@@ -402,6 +416,11 @@ namespace SysCAD.Protocol
     {
       //todo: check path is valid.
       return propertyListHandler(out requestId, guid, tag, path);
+    }
+
+    public bool Save(out Int64 requestId)
+    {
+      return saveHandler(out requestId);
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)

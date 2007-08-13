@@ -81,6 +81,9 @@ namespace Service
 
       Load();
 
+      ClientServiceProtocol.LoadHandler engineLoad = new ClientServiceProtocol.LoadHandler(Load);
+      ClientServiceProtocol.SaveHandler engineSave = new ClientServiceProtocol.SaveHandler(Save);
+
       ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
 
       ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
@@ -111,6 +114,7 @@ namespace Service
       ClientServiceProtocol.LogMessageHandler clientLogMessage = new ClientServiceProtocol.LogMessageHandler(LogMessage);
 
       clientClientServiceProtocol = new ClientServiceProtocol(projectName,
+                                                              engineLoad, engineSave,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangeState, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
@@ -122,9 +126,6 @@ namespace Service
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
 
-
-      EngineServiceProtocol.LoadHandler engineLoad = new EngineServiceProtocol.LoadHandler(EngineLoad);
-      EngineServiceProtocol.SaveHandler engineSave = new EngineServiceProtocol.SaveHandler(EngineSave);
 
       EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(ChangeState);
 
@@ -157,7 +158,6 @@ namespace Service
 
       engineClientServiceProtocol = new EngineServiceProtocol(projectName,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
-                                                              engineLoad, engineSave,
                                                               engineChangeState, engineGetPropertyValues, engineGetSubTags,
                                                               engineCreateGroup, engineModifyGroup, engineDeleteGroup,
                                                               engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
@@ -745,7 +745,7 @@ namespace Service
       }
     }
 
-    bool EngineLoad(out Int64 requestId)
+    bool Load(out Int64 requestId)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -753,7 +753,7 @@ namespace Service
       return Load();
     }
 
-    bool EngineSave(out Int64 requestId)
+    bool Save(out Int64 requestId)
     {
       this.requestId++;
       requestId = this.requestId;

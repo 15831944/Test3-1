@@ -40,7 +40,6 @@ namespace SysCAD.Protocol
     private GetPropertyValuesHandler getPropertyValuesHandler;
     private GetSubTagsHandler getSubTagsHandler;
 
-    private LoadHandler loadHandler;
     private ModifyGroupHandler modifyGroupHandler;
     private ModifyItemHandler modifyItemHandler;
     private ModifyItemPathHandler modifyItemPathHandler;
@@ -51,7 +50,6 @@ namespace SysCAD.Protocol
     private PortCheckHandler portCheckHandler;
 
     private PropertyListHandler propertyListHandler;
-    private SaveHandler saveHandler;
 
     private LogMessageHandler logMessageHandler;
 
@@ -69,7 +67,6 @@ namespace SysCAD.Protocol
 
     public delegate void GetPropertyValuesHandler(out Int64 requestId, ref ArrayList propertyList);
     public delegate void GetSubTagsHandler(out Int64 requestId, String propertyPath, out ArrayList propertyList);
-    public delegate bool LoadHandler(out Int64 requestId);
 
     public delegate bool ModifyGroupHandler(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
 
@@ -83,13 +80,11 @@ namespace SysCAD.Protocol
 
     public delegate PortStatus PortCheckHandler(out Int64 requestId, Guid itemGuid, Anchor anchor);
     public delegate ArrayList PropertyListHandler(out Int64 requestId, Guid guid, String tag, String path);
-    public delegate bool SaveHandler(out Int64 requestId);
 
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
 
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      LoadHandler loadHandler, SaveHandler saveHandler,
       ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
@@ -104,9 +99,6 @@ namespace SysCAD.Protocol
       this.graphicLinks = graphicLinks;
       this.graphicItems = graphicItems;
       this.graphicThings = graphicThings;
-
-      this.loadHandler = loadHandler;
-      this.saveHandler = saveHandler;
 
       this.changeStateHandler = changeStateHandler;
 
@@ -368,11 +360,6 @@ namespace SysCAD.Protocol
       getSubTagsHandler(out requestId, propertyPath, out propertyList);
     }
 
-    public bool Load(out Int64 requestId)
-    {
-      return loadHandler(out requestId);
-    }
-
     public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       return modifyGroupHandler(out requestId, guid, tag, path, boundingRect);
@@ -412,11 +399,6 @@ namespace SysCAD.Protocol
     {
       //todo: check path is valid.
       return propertyListHandler(out requestId, guid, tag, path);
-    }
-
-    public bool Save(out Int64 requestId)
-    {
-      return saveHandler(out requestId);
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
