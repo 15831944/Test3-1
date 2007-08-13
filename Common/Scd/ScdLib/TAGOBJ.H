@@ -760,6 +760,8 @@ class DllImportExport TagObjClass
   {
   friend class TaggedObject;
   friend class DataDefnBlk;
+  friend class MSpModelDefBase;
+  friend class MSpModelDefBaseEx;
   friend class MUnitDefBase;
   friend class MUnitDefBaseEx;
   friend class DDBDataInfo;
@@ -917,8 +919,8 @@ class DllImportExport TagObjClass
     Strng          m_sProgID;
     Strng          sClassName;
     Strng          sClassId;
-    Strng          sSubClassId;
-    Strng          sBaseClassId;
+    Strng          m_sSubClassId;
+    Strng          m_sBaseClassId;
     Strng          sClassIdNV;
     Strng          sTableId;
     Strng          sMdlLibName;
@@ -1293,10 +1295,9 @@ class DllImportExport TaggedObject : public ConditionBlk
     void            SetClass(TagObjClass*pClass)
       {
       m_pClass=pClass;
-      if (SubClassId())
-        SetSubClass(SubClassId());
+      SetSubClass(SubClassId());
       };
-    virtual void    SetSubClass(LPSTR pSubClass)  { /*m_sSubClass=pSubClass*/; };
+    virtual void    SetSubClass(LPSTR pSubClass)  { };
     LPSTR           Desc()                   { return m_pClass->sDesc(); };
     LPSTR           ShortDesc()              { return m_pClass->sShortDesc(); };
     Strng &         TagRef()                 { return m_sTag; };
@@ -2337,8 +2338,7 @@ TaggedObject * Obj##ClassDef::Construct(LPSTR pSubClass, LPSTR pTag, TaggedObjec
   { \
   p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
   SetTypeId(&typeid(*pn));                           \
-  if (pSubClass)                                     \
-    pn->SetSubClass(pSubClass);                      \
+  pn->SetSubClass(pSubClass);                        \
   return pn;                                         \
   }; \
 Obj##ClassDef::Obj##ClassDef(LPSTR pClassName_, LPSTR pGroup_, LPSTR pClassId_, LPSTR pSubClassId_, LPSTR pVersion_, LPSTR pDrwGroup_, LPSTR pTagInitialID_, dword dwCat, LPSTR pShortDesc_, LPSTR pDesc_, DWORD dwSelectMask) \
@@ -2391,8 +2391,7 @@ TaggedObject * Obj##ClassDef::Construct(LPSTR pSubClass, LPSTR pTag, TaggedObjec
   { \
   p##Obj pn = new Obj(this, pTag, pAttach, eAttach); \
   SetTypeId(&typeid(*pn));                           \
-  if (pSubClass)                                     \
-    pn->SetSubClass(pSubClass);                      \
+  pn->SetSubClass(pSubClass);                        \
   return pn;                                         \
   };  \
 pFxdEdtBookRef Obj##ClassDef::ConstructEdit(pFxdEdtView pView_, TaggedObject * pObj) \

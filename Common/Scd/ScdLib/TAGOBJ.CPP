@@ -252,8 +252,8 @@ LONG TagObjClassLock=-1;
 
 // -------------------------------------------------------------------------
 
-char* TagObjClass::SubClassId() { return sSubClassId(); };
-char* TagObjClass::BaseClassId() { return sBaseClassId(); };
+char* TagObjClass::SubClassId() { return m_sSubClassId(); };
+char* TagObjClass::BaseClassId() { return m_sBaseClassId(); };
 
 // -------------------------------------------------------------------------
 
@@ -301,15 +301,14 @@ m_SelectData(this)
   if (strchr(sClassId(), '*'))
     {
     int l=strchr(sClassId(), '*')-sClassId();
-    sBaseClassId=sClassId.Left(l);
-    sSubClassId=sClassId.Right(sClassId.Length()-l-1);
+    m_sBaseClassId=sClassId.Left(l);
+    m_sSubClassId=sClassId.Right(sClassId.Length()-l-1);
     }
   else
     {
-    sBaseClassId=sClassId;
-    sSubClassId="";
+    m_sBaseClassId=sClassId;
+    m_sSubClassId=pSubClassId_?pSubClassId_:"";
     }
-
 
   iClassIdLenNoVersion=strlen(pClassId_);
   if (pVersion_ && (strlen(pVersion_)>0))

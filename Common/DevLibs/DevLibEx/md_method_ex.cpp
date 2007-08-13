@@ -68,8 +68,7 @@ TaggedObject * CTransferMethodClassDefEx::Construct(pchar pSubClass, pchar pTag,
   {
   CBBTransfer * pn = new CBBTransfer(this, pTag, pAttach, eAttach);
   SetTypeId(NULL); // will be set by Init
-  if (SubClassId())
-    pn->SetSubClass(SubClassId());
+  pn->SetSubClass(SubClassId());
 
   return pn;
   };
@@ -87,7 +86,7 @@ MTransferUnitDefBaseEx::MTransferUnitDefBaseEx(LPCTSTR pClass, LPCTSTR pSubClass
   MUnitDefBaseEx(WithDevelopementChecks)
   {
   m_pClassDef=new CTransferMethodClassDefEx((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
-                     "Xfer", "X", TOC_PROBAL|TOC_GRP_GENERAL/*|TOC_SMDKRUNTIME*/, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+                     "Xfer", "X", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_DYNAMICFULL|TOC_GRP_GENERAL/*|TOC_SMDKRUNTIME*/, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
 
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
@@ -120,8 +119,7 @@ TaggedObject * CSurgeMethodClassDefEx::Construct(pchar pSubClass, pchar pTag, Ta
   {
   CBBSurge * pn = new CBBSurge(this, pTag, pAttach, eAttach);
   SetTypeId(NULL); // will be set by Init
-  if (SubClassId())
-    pn->SetSubClass(SubClassId());
+  pn->SetSubClass(SubClassId());
 
   return pn;
   };
@@ -139,7 +137,8 @@ MSurgeUnitDefBaseEx::MSurgeUnitDefBaseEx(LPCTSTR pClass, LPCTSTR pSubClass, LPCT
   MUnitDefBaseEx(WithDevelopementChecks)
   {
   m_pClassDef= new CSurgeMethodClassDefEx((LPTSTR)pClass, FlwUnitGrp, (LPTSTR)pClass, (LPTSTR)pSubClass, MethodBaseVersion,
-                       "Tank", "S", TOC_PROBAL|TOC_GRP_GENERAL/*|TOC_SMDKRUNTIME*/, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+                       "Tank", "S", TOC_PROBAL|TOC_DYNAMICFLOW|TOC_DYNAMICFULL|TOC_GRP_GENERAL/*|TOC_SMDKRUNTIME*/, (LPTSTR)ShortDesc, (LPTSTR)ShortDesc, 0xffffffff);
+
   m_pClassDef->SetMdlLibName(DLL);
   m_pClassDef->SetSubConstruct(this);
 
@@ -173,8 +172,7 @@ TaggedObject * CControlMethodClassDefEx::Construct(pchar pSubClass, pchar pTag, 
   {
   CBBControl * pn = new CBBControl(this, pTag, pAttach, eAttach);
   SetTypeId(NULL); // will be set by Init
-  if (SubClassId())
-    pn->SetSubClass(SubClassId());
+  pn->SetSubClass(SubClassId());
 
   return pn;
   };

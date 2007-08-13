@@ -62,7 +62,8 @@ double Drw_CPrecipitator[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT_EX(CPrecipitator, "Alumina2*Precipitator", DLL_GroupName)
+//DEFINE_TRANSFER_UNIT_EX(CPrecipitator, "Alumina2*Precipitator", DLL_GroupName)
+DEFINE_TRANSFER_UNIT_EX(CPrecipitator, "Precipitator2", DLL_GroupName)
 
 void CPrecipitator_UnitDef::GetOptions()
 {
@@ -72,7 +73,7 @@ void CPrecipitator_UnitDef::GetOptions()
   SetDescription("TODO: Precip Model");
   SetModelSolveMode(MSolveMode_Probal);
   SetModelGroup(MGroup_Alumina);
-  //SetModelLicense(MLicense_HeatExchange|MLicense_Alumina);
+  SetModelLicense(MLicense_HeatExchange|MLicense_Alumina);
 };
 
 //---------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #include "alumina2SM.h"
 #include "math.h"
-#include "md_headers.h"
+#include "md_headers_ex.h"
 #pragma comment(lib, "rpcrt4.lib")
 
 #define FORCECNVG 0
@@ -29,8 +29,8 @@
 //
 //===========================================================================
 
-DEFINE_SPECIEMODEL(Bayer)
-IMPLEMENT_SPECIEMODEL(Bayer, "BayerSM", "*Bayer", "SMDK Generic Bayer Specie Model", DLL_GroupName)
+DEFINE_SPECIEMODEL_EX(Bayer)
+IMPLEMENT_SPECIEMODEL_EX(Bayer, "BayerSM", "Bayer2", "SMDK Generic Bayer Specie Model", DLL_GroupName)
 
 //===========================================================================
 // Specie Access

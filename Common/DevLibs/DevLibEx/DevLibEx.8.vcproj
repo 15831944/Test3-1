@@ -554,6 +554,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\md_spmodel_ex.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -607,11 +611,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\md_headers_ex.h"
+				RelativePath="..\..\..\SMDK\IncludeEx\md_headers_ex.h"
 				>
 			</File>
 			<File
-				RelativePath=".\md_method_ex.h"
+				RelativePath="..\..\..\SMDK\IncludeEx\md_method_ex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\SMDK\IncludeEx\md_spmodel_ex.h"
 				>
 			</File>
 			<File

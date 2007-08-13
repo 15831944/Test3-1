@@ -15,6 +15,7 @@
 //#include "..\include\scdmacros.h"
 #include "..\include\md_headers.h"
 
+#include "md_spmodel_ex.h"
 #include "md_method_ex.h"
 
 //#ifndef DEVLIBEX

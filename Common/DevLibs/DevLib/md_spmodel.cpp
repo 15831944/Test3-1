@@ -150,11 +150,7 @@ TaggedObject * CSpPropsClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSub
 TaggedObject * CSpPropsClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
   {
   SpModel * pn = new CCall2MSpProps(this, pTag, pAttach, eAttach);
-  //if (pSubClass)
-  //  pn->SetSubClass(pSubClass);
-  //else
-  if (SubClassId())
-    pn->SetSubClass(SubClassId());
+  pn->SetSubClass(SubClassId());
 
   return pn;
   };
@@ -1005,11 +1001,7 @@ TaggedObject * CSpQualsClassDef::ConstructGroupDesc(pchar pShortDesc, pchar pSub
 TaggedObject * CSpQualsClassDef::Construct(pchar pSubClass, pchar pTag, TaggedObject * pAttach, TagObjAttachment eAttach)
   {
   SpQuality * pn = new CCall2MSpQuals(this, pTag, pAttach, eAttach);
-  //if (pSubClass)
-  //  pn->SetSubClass(pSubClass);
-  //else
-  if (SubClassId())
-    pn->SetSubClass(SubClassId());
+  pn->SetSubClass(SubClassId());
 
   return pn;
   //return NULL;

@@ -18,11 +18,17 @@
 
 #ifdef __MD_METHOD_EX_CPP
   #define DllImportExport __declspec(dllexport)
-#elif !defined(SMDK1)
+#elif !defined(DEVLIBEX)
   #define DllImportExport __declspec(dllimport)
 #else
   #define DllImportExport
 #endif
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 
 class DllImportExport MUnitDefBaseEx : public MUnitDefBase 
@@ -90,7 +96,7 @@ Obj##_UnitDef::Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDe
   MTransferUnitDefBaseEx(pClass, pSubClass, pShortDesc, pDLL, DEVCHECKSON) { GetOptions(); }; \
 Obj##_UnitDef::~Obj##_UnitDef() { }; \
 MSubConstructBase* Obj##_UnitDef::Construct(TaggedObject * pNd) { return new Obj(this, pNd); }; \
-Obj##_UnitDef Obj##_UnitD(Class, NULL, "User:"##Class, DLL);
+Obj##_UnitDef Obj##_UnitD(Class, NULL, Class, DLL);
 
 //---------------------------------------------------------------------------
 //
@@ -123,7 +129,7 @@ Obj##_UnitDef::Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDe
   MSurgeUnitDefBaseEx(pClass, pSubClass, pShortDesc, pDLL, DEVCHECKSON) { GetOptions(); }; \
 Obj##_UnitDef::~Obj##_UnitDef() { }; \
 MSubConstructBase* Obj##_UnitDef::Construct(TaggedObject * pNd) { return new Obj(this, pNd); }; \
-Obj##_UnitDef Obj##_UnitD(DLL##"*"##Class, NULL, "User:"##Class, DLL);
+Obj##_UnitDef Obj##_UnitD(Class, NULL, Class, DLL);
 
 //---------------------------------------------------------------------------
 //
@@ -156,7 +162,7 @@ Obj##_UnitDef::Obj##_UnitDef(LPCTSTR pClass, LPCTSTR pSubClass, LPCTSTR pShortDe
   MControlUnitDefBaseEx(pClass, pSubClass, pShortDesc, pDLL, DEVCHECKSON) { GetOptions(); }; \
 Obj##_UnitDef::~Obj##_UnitDef() { }; \
 MSubConstructBase* Obj##_UnitDef::Construct(TaggedObject * pNd) { return new Obj(this, pNd); }; \
-Obj##_UnitDef Obj##_UnitD(Class, NULL, "User:"##Class, DLL);
+Obj##_UnitDef Obj##_UnitD(Class, NULL, Class, DLL);
 
 //---------------------------------------------------------------------------
 

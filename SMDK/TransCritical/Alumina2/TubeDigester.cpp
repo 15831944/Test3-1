@@ -160,7 +160,9 @@ double Drw_CCARTubeDigester[] =
   };
 
 //---------------------------------------------------------------------------
-DEFINE_TRANSFER_UNIT_EX(CCARTubeDigester, "Alumina2*TubeDigester", DLL_GroupName)
+
+//DEFINE_TRANSFER_UNIT_EX(CCARTubeDigester, "Alumina2*TubeDigester", DLL_GroupName)
+DEFINE_TRANSFER_UNIT_EX(CCARTubeDigester, "TubeDigester2", DLL_GroupName)
 
 void CCARTubeDigester_UnitDef::GetOptions()
   {
@@ -170,7 +172,7 @@ void CCARTubeDigester_UnitDef::GetOptions()
   SetDescription("TODO: Flash Train Digester");
   SetModelSolveMode(MSolveMode_Probal);
   SetModelGroup(MGroup_Energy);
-  //SetModelLicense(MLicense_HeatExchange);
+  SetModelLicense(MLicense_HeatExchange);
   };
 
 //---------------------------------------------------------------------------
