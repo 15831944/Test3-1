@@ -54,11 +54,6 @@ namespace SysCAD.Protocol
     {
     }
 
-    public bool ChangeState(out Int64 requestId, RunStates runState)
-    {
-      return serviceGraphic.ChangeState(out requestId, runState);
-    }
-
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect()
     {
@@ -126,96 +121,6 @@ namespace SysCAD.Protocol
         connectionError = remotingException.Message;
         return false;
       }
-    }
-
-    public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
-    {
-      return serviceGraphic.CreateGroup(out requestId, out guid, tag, path, boundingRect);
-    }
-
-    public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      return serviceGraphic.CreateItem(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
-    }
-
-    public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
-    {
-      return serviceGraphic.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
-    }
-
-    public bool CreateThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
-    {
-      return serviceGraphic.CreateThing(out requestId, out guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    }
-
-    public bool DeleteGroup(out Int64 requestId, Guid guid)
-    {
-      return serviceGraphic.DeleteGroup(out requestId, guid);
-    }
-
-    public bool DeleteItem(out Int64 requestId, Guid guid)
-    {
-      return serviceGraphic.DeleteItem(out requestId, guid);
-    }
-
-    public bool DeleteLink(out Int64 requestId, Guid guid)
-    {
-      return serviceGraphic.DeleteLink(out requestId, guid);
-    }
-
-    public bool DeleteThing(out Int64 requestId, Guid guid)
-    {
-      return serviceGraphic.DeleteThing(out requestId, guid);
-    }
-
-    public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
-    {
-      serviceGraphic.GetPropertyValues(out requestId, ref tagPathList);
-    }
-
-    public void GetSubTags(out Int64 requestId, String propertyPath, out ArrayList propertyList)
-    {
-      serviceGraphic.GetSubTags(out requestId, propertyPath, out propertyList);
-    }
-
-    public bool ModifyGroup(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
-    {
-      return serviceGraphic.ModifyGroup(out requestId, guid, tag, path, boundingRect);
-    }
-
-    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
-    {
-      return serviceGraphic.ModifyItem(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
-    }
-
-    public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
-    {
-      return serviceGraphic.ModifyItemPath(out requestId, guid, path);
-    }
-
-    public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
-    {
-      return serviceGraphic.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
-    }
-
-    public bool ModifyThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
-    {
-      return serviceGraphic.ModifyThing(out requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-    }
-
-    public bool ModifyThingPath(out Int64 requestId, Guid guid, String path)
-    {
-      return serviceGraphic.ModifyThingPath(out requestId, guid, path);
-    }
-
-    public PortStatus PortCheck(out Int64 requestId, Guid itemGuid, Anchor anchor)
-    {
-      return serviceGraphic.PortCheck(out requestId, itemGuid, anchor);
-    }
-
-    public ArrayList PropertyList(out Int64 requestId, Guid guid, String tag, String path)
-    {
-      return serviceGraphic.PropertyList(out requestId, guid, tag, path);
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)

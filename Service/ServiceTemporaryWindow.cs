@@ -79,10 +79,10 @@ namespace Service
       graphicLinks = new Dictionary<Guid, GraphicLink>();
       graphicThings = new Dictionary<Guid, GraphicThing>();
 
-      Load();
+      LoadGraphics();
 
-      ClientServiceProtocol.LoadHandler engineLoad = new ClientServiceProtocol.LoadHandler(Load);
-      ClientServiceProtocol.SaveHandler engineSave = new ClientServiceProtocol.SaveHandler(Save);
+      ClientServiceProtocol.LoadHandler engineLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
+      ClientServiceProtocol.SaveHandler engineSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
 
       ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
 
@@ -126,44 +126,10 @@ namespace Service
 
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
 
-
-      EngineServiceProtocol.ChangeStateHandler engineChangeState = new EngineServiceProtocol.ChangeStateHandler(ChangeState);
-
-      EngineServiceProtocol.GetPropertyValuesHandler engineGetPropertyValues = new EngineServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
-      EngineServiceProtocol.GetSubTagsHandler engineGetSubTags = new EngineServiceProtocol.GetSubTagsHandler(GetSubTags);
-
-      EngineServiceProtocol.CreateGroupHandler engineCreateGroup = new EngineServiceProtocol.CreateGroupHandler(CreateGroup);
-      EngineServiceProtocol.ModifyGroupHandler engineModifyGroup = new EngineServiceProtocol.ModifyGroupHandler(ModifyGroup);
-      EngineServiceProtocol.DeleteGroupHandler engineDeleteGroup = new EngineServiceProtocol.DeleteGroupHandler(DeleteGroup);
-
-      EngineServiceProtocol.CreateItemHandler engineCreateItem = new EngineServiceProtocol.CreateItemHandler(CreateItem);
-      EngineServiceProtocol.ModifyItemHandler engineModifyItem = new EngineServiceProtocol.ModifyItemHandler(ModifyItem);
-      EngineServiceProtocol.ModifyItemPathHandler engineModifyItemPath = new EngineServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
-      EngineServiceProtocol.DeleteItemHandler engineDeleteItem = new EngineServiceProtocol.DeleteItemHandler(DeleteItem);
-
-      EngineServiceProtocol.CreateLinkHandler engineCreateLink = new EngineServiceProtocol.CreateLinkHandler(CreateLink);
-      EngineServiceProtocol.ModifyLinkHandler engineModifyLink = new EngineServiceProtocol.ModifyLinkHandler(ModifyLink);
-      EngineServiceProtocol.DeleteLinkHandler engineDeleteLink = new EngineServiceProtocol.DeleteLinkHandler(DeleteLink);
-
-      EngineServiceProtocol.CreateThingHandler engineCreateThing = new EngineServiceProtocol.CreateThingHandler(CreateThing);
-      EngineServiceProtocol.ModifyThingHandler engineModifyThing = new EngineServiceProtocol.ModifyThingHandler(ModifyThing);
-      EngineServiceProtocol.ModifyThingPathHandler engineModifyThingPath = new EngineServiceProtocol.ModifyThingPathHandler(ModifyThingPath);
-      EngineServiceProtocol.DeleteThingHandler engineDeleteThing = new EngineServiceProtocol.DeleteThingHandler(DeleteThing);
-
-      EngineServiceProtocol.PortCheckHandler enginePortCheck = new EngineServiceProtocol.PortCheckHandler(PortCheck);
-
-      EngineServiceProtocol.PropertyListHandler enginePropertyListCheck = new EngineServiceProtocol.PropertyListHandler(PropertyListCheck);
-
       EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
 
       engineClientServiceProtocol = new EngineServiceProtocol(projectName,
-                                                              graphicGroups, graphicLinks, graphicItems, graphicThings,
-                                                              engineChangeState, engineGetPropertyValues, engineGetSubTags,
-                                                              engineCreateGroup, engineModifyGroup, engineDeleteGroup,
-                                                              engineCreateItem, engineModifyItem, engineModifyItemPath, engineDeleteItem,
-                                                              engineCreateLink, engineModifyLink, engineDeleteLink,
-                                                              engineCreateThing, engineModifyThing, engineModifyThingPath,
-                                                              engineDeleteThing, enginePortCheck, enginePropertyListCheck, engineLogMessage);
+                                                              graphicGroups, graphicLinks, graphicItems, graphicThings, engineLogMessage);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
@@ -181,7 +147,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoStateChanged(eventId, requestId, runState);
-        engineClientServiceProtocol.DoStateChanged(eventId, requestId, runState);
 
         return true;
       }
@@ -212,7 +177,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
-        engineClientServiceProtocol.DoGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
 
         return true;
       }
@@ -250,7 +214,6 @@ namespace Service
 
         // Raise event(s).
         clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -276,7 +239,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -301,7 +263,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -330,7 +291,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
-        engineClientServiceProtocol.DoItemDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -352,7 +312,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
-        engineClientServiceProtocol.DoLinkDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -374,7 +333,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
-        engineClientServiceProtocol.DoThingDeleted(eventId, requestId, guid);
 
         return true;
       }
@@ -479,7 +437,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -505,7 +462,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoItemPathModified(eventId, requestId, guid, path);
-        engineClientServiceProtocol.DoItemPathModified(eventId, requestId, guid, path);
 
         return true;
       }
@@ -527,7 +483,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
-        engineClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
 
         return true;
       }
@@ -549,7 +504,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-        engineClientServiceProtocol.DoThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
 
         return true;
       }
@@ -571,7 +525,6 @@ namespace Service
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoThingPathModified(eventId, requestId, guid, path);
-        engineClientServiceProtocol.DoThingPathModified(eventId, requestId, guid, path);
 
         return true;
       }
@@ -626,7 +579,7 @@ namespace Service
       return true;
     }
 
-    bool Load()
+    bool LoadGraphics()
     {
       try
       {
@@ -702,7 +655,7 @@ namespace Service
       }
     }
 
-    bool Save()
+    bool SaveGraphics()
     {
       try
       {
@@ -745,20 +698,20 @@ namespace Service
       }
     }
 
-    bool Load(out Int64 requestId)
+    bool LoadGraphics(out Int64 requestId)
     {
       this.requestId++;
       requestId = this.requestId;
 
-      return Load();
+      return LoadGraphics();
     }
 
-    bool Save(out Int64 requestId)
+    bool SaveGraphics(out Int64 requestId)
     {
       this.requestId++;
       requestId = this.requestId;
 
-      return Save();
+      return SaveGraphics();
     }
 
     void GetStencils(ConfigData configData)
