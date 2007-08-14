@@ -62,6 +62,7 @@ namespace Service
       this.configPath = configPath;
       this.stencilPath = stencilPath;
 
+      logView.LogFile = projectPath + "test.log";
 
       configData = new ConfigData();
       GetStencils(configData);

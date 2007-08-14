@@ -16,7 +16,35 @@ namespace SysCAD.Log
   {
     protected Stack<MessageSource> sourceStack = new Stack<MessageSource>();
 
+    private int maxEntries = 1000;
+    private string logFile = string.Empty;
+
+    public string LogFile
+    {
+      get { return logFile; }
+      set { logFile = value; }
+    }
+    private StreamWriter logStreamWriter;
+
     public LogView()
+    {
+      Initialize();
+    }
+
+    public LogView(int maxEntries)
+    {
+      this.maxEntries = maxEntries;
+      Initialize();
+    }
+
+    public LogView(int maxEntries, string logFile)
+    {
+      this.maxEntries = maxEntries;
+      this.logFile = logFile;
+      Initialize();
+    }
+
+    void Initialize()
     {
       InitializeComponent();
 
@@ -25,6 +53,9 @@ namespace SysCAD.Log
       SmallImageList.Images.Add("Note", (Icon)resources.GetObject("Note"));
       SmallImageList.Images.Add("Warning", (Icon)resources.GetObject("Warning"));
       SmallImageList.Images.Add("Error", (Icon)resources.GetObject("Error"));
+
+      if (logFile.Length > 0)
+        logStreamWriter = new StreamWriter(logFile, true);
     }
 
     private delegate void AddMessageDelegate(string msg, MessageType msgType, MessageSource src);
@@ -45,7 +76,15 @@ namespace SysCAD.Log
 
         lvi.Tag = src;
         Items.Add(lvi);
+        while (Items.Count > maxEntries)
+          Items.RemoveAt(0);
         EnsureVisible(lvi.Index);
+
+        if (logStreamWriter != null)
+        {
+          logStreamWriter.WriteLine(DateTime.Now.ToString() + ": " + source + "; " + msgType.ToString() + "; " + msg);
+          logStreamWriter.Flush();
+        }
       }
     }
 

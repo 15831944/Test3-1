@@ -28,7 +28,7 @@ namespace Service
     /// </summary>
     private void InitializeComponent()
     {
-      this.logView = new SysCAD.Log.LogView();
+      this.logView = new SysCAD.Log.LogView(5);
       this.SuspendLayout();
       // 
       // logView1
