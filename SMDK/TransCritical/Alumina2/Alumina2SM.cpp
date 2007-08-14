@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #include "alumina2SM.h"
 #include "math.h"
-#include "md_headers_ex.h"
+#include "ex_headers.h"
 #pragma comment(lib, "rpcrt4.lib")
 
 #define FORCECNVG 0

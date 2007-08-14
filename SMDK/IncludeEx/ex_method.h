@@ -3,8 +3,8 @@
 //===========================================================================
 #pragma once
 
-#ifndef  __MD_METHOD_EX_H
-#define  __MD_METHOD_EX_H
+#ifndef  __EX_METHOD_H
+#define  __EX_METHOD_H
 
 #if _MSC_VER < 1300
 #error "Incorrect verion of compiler being used"
@@ -12,11 +12,7 @@
 
 #pragma warning (disable : 4355) // this used in base member initializer list 
 
-//#include "..\..\..\smdk\include\md_headers.h"
-//
-//#include "md_method_ex.h"
-
-#ifdef __MD_METHOD_EX_CPP
+#ifdef __EX_METHOD_CPP
   #define DllImportExport __declspec(dllexport)
 #elif !defined(DEVLIBEX)
   #define DllImportExport __declspec(dllimport)
@@ -29,7 +25,6 @@
 //
 //
 //---------------------------------------------------------------------------
-
 
 class DllImportExport MUnitDefBaseEx : public MUnitDefBase 
   {

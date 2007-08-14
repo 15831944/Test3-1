@@ -123,7 +123,7 @@ wzzip -a -P -r %fn2% smdk\bin\rls\devlib.lib smdk\bin\rls\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls\scdlib.lib smdk\bin\rls\scexec.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\devlib.lib smdk\bin\rls8\scdif.lib
 wzzip -a -P -r %fn2% smdk\bin\rls8\scdlib.lib smdk\bin\rls8\scexec.lib
-wzzip -a -P -r %fn2% smdk\includeex\md_headers_ex.h smdk\includeex\md_method_ex.h 
+wzzip -a -P -r %fn2% smdk\includeex\ex_headers.h smdk\includeex\ex_method.h smdk\includeex\ex_spmodel.h 
 wzzip -a -P -r %fn2% smdk\binex\rls8\devlibex.lib 
 wzzip -a -P -r %fn2% smdk\binex\rls\devlibex.lib 
 

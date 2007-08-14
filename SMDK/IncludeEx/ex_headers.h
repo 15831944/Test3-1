@@ -12,15 +12,11 @@
 
 #pragma warning (disable : 4355) // this used in base member initializer list 
 
-//#include "..\include\scdmacros.h"
 #include "..\include\md_headers.h"
 
-#include "md_spmodel_ex.h"
-#include "md_method_ex.h"
+#include "ex_spmodel.h"
+#include "ex_method.h"
 
-//#ifndef DEVLIBEX
-//#pragma LIBCOMMENT("..\\BinEx\\", "\\DevLibEx")
-//#endif
 //---------------------------------------------------------------------------
 
 #endif

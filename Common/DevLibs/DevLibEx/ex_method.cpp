@@ -3,8 +3,8 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define __MD_METHOD_EX_CPP
-#include "md_headers_ex.h"
+#define __EX_METHOD_CPP
+#include "ex_headers.h"
 
 #include "..\\devlib\\bbtransfer.h"
 #include "..\\devlib\\bbsurge.h"
@@ -33,7 +33,7 @@ MUnitDefBaseEx::~MUnitDefBaseEx()
 void MUnitDefBaseEx::SetModelLicense(dword License)
   {
   MUnitDefBase::SetModelLicense(License);
-  m_pClassDef->dwCategory = m_pClassDef->dwCategory &~TOC_SMDKRUNTIME; 
+  m_pClassDef->dwCategory = m_pClassDef->dwCategory &~TOC_SMDKRUNTIME; //Do we want to force this off!?
   }
 
 //===========================================================================
