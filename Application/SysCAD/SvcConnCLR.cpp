@@ -174,9 +174,9 @@ ref class CSvcConnectCLRThread
 
           // Connect to graphic data.
 
-          clientSuccess = clientProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
+          clientSuccess = clientProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Client/" + 
             Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath))));
-          engineSuccess = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Client/" + 
+          engineSuccess = engineProtocol->TestUrl(gcnew Uri("ipc://SysCAD.Service/Engine/" + 
             Path::GetFileNameWithoutExtension(Path::GetDirectoryName(projectPath))));
           }
         if (clientSuccess&&engineSuccess)
@@ -188,10 +188,10 @@ ref class CSvcConnectCLRThread
           This is where import goes
           */
 
-          clientProtocol->GroupCreated += gcnew EngineProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
-          clientProtocol->ItemCreated  += gcnew EngineProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
+          clientProtocol->GroupCreated += gcnew ClientProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
+          clientProtocol->ItemCreated  += gcnew ClientProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
           //clientProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
-          clientProtocol->ItemDeleted  += gcnew EngineProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
+          clientProtocol->ItemDeleted  += gcnew ClientProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
 
           ////////////////////////////////
           ////////////////////////////////
