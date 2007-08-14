@@ -1006,7 +1006,7 @@ namespace SysCAD.Editor
         if (groups.TryGetValue(guid, out group))
         {
           group.Visible = visible;
-          group.Box.Visible = false; // visible;// && group.Box.Selected;
+          group.Box.Visible = visible;// && group.Box.Selected;
           group.Box.ZBottom();
         }
 

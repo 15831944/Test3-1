@@ -113,6 +113,10 @@ namespace SysCAD.Editor
 
         frmFlowChart.Show();
 
+        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
+        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
+        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
+
         tvNavigation.ClearNodeSelection();
 
         foreach (PureComponents.TreeView.Node node in tvNavigation.Nodes)
@@ -121,10 +125,6 @@ namespace SysCAD.Editor
           node.Expand();
           SelectSubNodes(node);
         }
-
-        this.tvNavigation.AfterNodePositionChange += new PureComponents.TreeView.TreeView.AfterNodePositionChangeEventHandler(this.tvNavigation_AfterNodePositionChange);
-        this.tvNavigation.NodeSelectionChange += new System.EventHandler(this.tvNavigation_NodeSelectionChange);
-        this.tvNavigation.NodeMouseClick += new PureComponents.TreeView.TreeView.NodeMouseClickEventHandler(this.tvNavigation_NodeMouseClick);
 
         tvNavigation.ResumeLayout(true);
         frmFlowChart.FlowChart.ResumeLayout(true);

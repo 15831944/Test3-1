@@ -95,6 +95,7 @@ namespace SysCAD.Editor
       this.Margin = new System.Windows.Forms.Padding(2);
       this.Name = "FrmFlowChart";
       this.Text = "FlowChart";
+      this.fcFlowChart.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
