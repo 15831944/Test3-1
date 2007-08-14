@@ -550,11 +550,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\md_method_ex.cpp"
+				RelativePath=".\ex_method.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\md_spmodel_ex.cpp"
+				RelativePath=".\ex_spmodel.cpp"
 				>
 			</File>
 			<File
@@ -611,15 +611,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\SMDK\IncludeEx\md_headers_ex.h"
+				RelativePath="..\..\..\SMDK\IncludeEx\ex_headers.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\SMDK\IncludeEx\md_method_ex.h"
+				RelativePath="..\..\..\SMDK\IncludeEx\ex_method.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\SMDK\IncludeEx\md_spmodel_ex.h"
+				RelativePath="..\..\..\SMDK\IncludeEx\ex_spmodel.h"
 				>
 			</File>
 			<File
