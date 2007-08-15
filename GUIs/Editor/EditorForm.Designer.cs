@@ -378,9 +378,12 @@ namespace SysCAD.Editor
       createItemGraphicTypeBarComboBoxCommand.Style = ActiproSoftware.UIStudio.Bar.BarComboBoxCommandStyle.DropDownList;
       viewShowGraphicsBarButtonCommand.Checkable = true;
       viewShowGraphicsBarButtonCommand.Checked = true;
+      viewShowGraphicsBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowGraphicsBarButtonCommand.Image")));
       viewShowModelsBarButtonCommand.Checkable = true;
+      viewShowModelsBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowModelsBarButtonCommand.Image")));
       viewShowLinksBarButtonCommand.Checkable = true;
       viewShowLinksBarButtonCommand.Checked = true;
+      viewShowLinksBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowLinksBarButtonCommand.Image")));
       selectionSelectItemsBarButtonCommand.Checkable = true;
       selectionSelectItemsBarButtonCommand.Checked = true;
       selectionSelectLinksBarButtonCommand.Checkable = true;
@@ -391,10 +394,16 @@ namespace SysCAD.Editor
       modeModifyBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("modeModifyBarButtonCommand.Image")));
       modeCreateLinkBarButtonCommand.Checkable = true;
       modeCreateLinkBarButtonCommand.CheckGroupName = "ModeGroup";
+      modeCreateLinkBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("modeCreateLinkBarButtonCommand.Image")));
       modeCreateNodeBarButtonCommand.Checkable = true;
       modeCreateNodeBarButtonCommand.CheckGroupName = "ModeGroup";
+      modeCreateNodeBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("modeCreateNodeBarButtonCommand.Image")));
       viewShowTagsBarButtonCommand.Checkable = true;
       viewShowTagsBarButtonCommand.Checked = true;
+      viewShowTagsBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowTagsBarButtonCommand.Image")));
+      viewShowGroupsBarButtonCommand.Checkable = true;
+      viewShowGroupsBarButtonCommand.Checked = true;
+      viewShowGroupsBarButtonCommand.Image = ((System.Drawing.Image)(resources.GetObject("viewShowGroupsBarButtonCommand.Image")));
       this.barManager1.Commands.AddRange(new ActiproSoftware.UIStudio.Bar.BarCommand[] {
             editUndoBarButtonCommand,
             editRedoBarButtonCommand,
