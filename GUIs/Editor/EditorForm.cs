@@ -221,6 +221,10 @@ namespace SysCAD.Editor
           this.ViewZoomToVisible();
           break;
 
+        case "View.ShowGroups":
+          this.ViewShowGroups();
+          break;
+
         case "View.ShowModels":
           this.ViewShowModels();
           break;
@@ -620,6 +624,7 @@ namespace SysCAD.Editor
         barManager1.Commands["View.ZoomOut"].Enabled = projectExists;
         barManager1.Commands["View.ZoomToVisible"].Enabled = projectExists;
         barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
+        barManager1.Commands["View.ShowGroups"].Enabled = projectExists;
         barManager1.Commands["View.ShowModels"].Enabled = projectExists;
         barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
         barManager1.Commands["View.ShowLinks"].Enabled = projectExists;
@@ -804,6 +809,17 @@ namespace SysCAD.Editor
         if (destination != null) visible = visible && destination.Visible;
 
         arrow.Visible = visible && frmFlowChart.State.ShowLinks;
+      }
+    }
+
+    private void ViewShowGroups()
+    {
+      frmFlowChart.State.ShowGroups = ((IBarCheckableCommand)barManager1.Commands["View.ShowGroups"]).Checked;
+
+      foreach (Group group in frmFlowChart.State.Groups)
+      {
+        group.Box.Visible = group.Visible && frmFlowChart.State.ShowGroups;
+        group.Box.ZBottom();
       }
     }
 

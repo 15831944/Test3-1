@@ -43,7 +43,7 @@ namespace SysCAD.Editor
     private bool showGraphics = true;
     private bool showLinks = true;
 
-    private bool showModels = true;
+    private bool showModels = false;
     private bool showTags = true;
     Int64 step = Int64.MinValue;
 
@@ -396,7 +396,9 @@ namespace SysCAD.Editor
           box.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.BurlyWood);
           box.FrameColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
           box.Visible = isVisible;
-          
+
+          box.ZBottom();
+
           // Make groups unmodifiable -- for now.
           box.Locked = true;
         }
@@ -429,7 +431,6 @@ namespace SysCAD.Editor
       {
         flowchart.BeginInvoke(new CreateItemDelegate(CreateItem), new object[] { graphicItem, isVisible, flowchart });
       }
-
       else
       {
         ModelStencil modelStencil = ModelShape(graphicItem.Model);
@@ -1441,6 +1442,12 @@ namespace SysCAD.Editor
       set { showModels = value; }
     }
 
+    public bool ShowGroups
+    {
+      get { return showModels; }
+      set { showModels = value; }
+    }
+
     public bool ShowTags
     {
       get { return showTags; }
@@ -1479,6 +1486,11 @@ namespace SysCAD.Editor
     internal IEnumerable<GraphicThing> GraphicThings
     {
       get { return clientProtocol.graphicThings.Values; }
+    }
+
+    internal IEnumerable<Group> Groups
+    {
+      get { return groups.Values; }
     }
 
     internal IEnumerable<Item> Items
