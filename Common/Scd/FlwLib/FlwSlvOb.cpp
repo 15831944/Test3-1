@@ -1010,6 +1010,7 @@ static inline void FixWide(int &W, Strng &Str, FxdEdtView &View)
     View.DoRebuild(); 
   };
 
+#define WithSDB_DensCorrTesting 0
 
 void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
   {
@@ -1178,13 +1179,15 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
                 const double Factor = SI.DensCorrWithLimit(rSDBO.m_dDisplayMF, SolventDensity);
                 T.Set("(%.4f) ", 1.0+Factor);
                 Str += T;
+#if WithSDB_DensCorrTesting
                 //RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
                 const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
                 RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
                 Str += T;
+#endif
                 if (rSDBO.m_dDisplayMF>SI.m_LimitFrac)
                   {
-                  T.Set(" at Limit(%.3f)", SI.m_LimitFrac);
+                  T.Set(" Limit(%.3f)!", SI.m_LimitFrac);
                   Str += T;
                   }
                 }

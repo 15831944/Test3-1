@@ -2,8 +2,8 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef  __FLOATATION_TANK_H
-#define  __FLOATATION_TANK_H
+#ifndef  __FLOTATIONTANK_H
+#define  __FLOTATIONTANK_H
 
 #ifndef __MD_HEADERS_H
 #include "md_headers.h"
@@ -11,7 +11,7 @@
 
 #include <vector>
 
-#ifdef __FLOATATION_TANK_CPP
+#ifdef __FLOTATIONTANK_CPP
   #define DllImportExport __declspec(dllexport)
 #elif !defined(SMDKDemoU)
   #define DllImportExport __declspec(dllimport)
@@ -25,10 +25,10 @@ using namespace std;
 
 enum FT_SpecType {FTST_ByCompound, FTST_ByElement};
 
-class FloatationTank : public MBaseMethod
+class FlotationTank : public MBaseMethod
   {
   public:
-    FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+    FlotationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd);
     virtual void    Init();
     virtual void    BuildDataFields();
 	virtual bool	ExchangeDataFields();

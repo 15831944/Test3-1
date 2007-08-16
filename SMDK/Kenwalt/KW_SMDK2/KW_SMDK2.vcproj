@@ -375,7 +375,7 @@
 				RelativePath=".\Filter Press.cpp">
 			</File>
 			<File
-				RelativePath=".\Floatation Tank.cpp">
+				RelativePath=".\FlotationTank.cpp">
 			</File>
 			<File
 				RelativePath="KW_SMDK2.cpp">
@@ -481,7 +481,7 @@
 				RelativePath=".\Downtime.h">
 			</File>
 			<File
-				RelativePath=".\Floatation Tank.h">
+				RelativePath=".\FlotationTank.h">
 			</File>
 			<File
 				RelativePath="KW_SMDK2.h">

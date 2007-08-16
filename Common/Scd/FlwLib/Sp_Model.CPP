@@ -1372,6 +1372,8 @@ static DDBFnParms Parms2[] = {{tt_Double, (DC_T), "C",  Std_T},
                               {tt_Long,   (DC_),  "",    0    },
                               {tt_NULL}};
 
+#define WithDensCorrTesting 0
+
 void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   {
   DDB.Text("Density");
@@ -1412,9 +1414,12 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
         DDB.Double("SolnDensity25", "SolnRho25", DC_Rho, "kg/m^3", xidRhoSoln251+j, this, isResult|noFile|noSnap|InitHidden);
         if (m_Ovr.bUse&SPO_LDens)
           DDB.TagComment("Ovr");
+#if WithDensCorrTesting
         DDB.Double("", "CorrFactor", DC_, "", xidRhoFactor1+j, this, isResult|noFile|noSnap|InitHidden);
+#endif
         DDB.Double("", "SolnQm", DC_Qm, "m/s", xidSolnQm1+j, this, isResult|noFile|noSnap|InitHidden);
         DDB.Double("", "SolnQv", DC_Qv, "m^3/s", xidSolnQv1+j, this, isResult|noFile|noSnap|InitHidden);
+#if WithDensCorrTesting
         DDB.String("", "SolnRho.State", DC_, "", xidSolnState1+j, this, isResult|noFileAtAll|InitHidden);
         if (1)
           {
@@ -1426,6 +1431,7 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
           if (m_Ovr.bUse&SPO_LDens)
             DDB.TagComment("Ovr");
           }
+#endif
         }
       else
         {
@@ -1444,14 +1450,18 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
         DDB.Double(Tg1(), Tg2(), DC_Rho, "kg/m^3", xidRhoSoln251+j, this, isResult|noFile|noSnap|InitHidden);
         if (m_Ovr.bUse&SPO_LDens)
           DDB.TagComment("Ovr");
+#if WithDensCorrTesting
         Tg2.Set("Factor_%s", Solvent.SymOrTag());
         DDB.Double("", Tg2(), DC_, "", xidRhoFactor1+j, this, isResult|noFile|noSnap|InitHidden);
+#endif
         Tg2.Set("SolnQm_%s", Solvent.SymOrTag());
         DDB.Double("", Tg2(), DC_Qm, "m/s", xidSolnQm1+j, this, isResult|noFile|noSnap|InitHidden);
         Tg2.Set("SolnQv_%s", Solvent.SymOrTag());
         DDB.Double("", Tg2(), DC_Qv, "m^3/s", xidSolnQv1+j, this, isResult|noFile|noSnap|InitHidden);
+#if WithDensCorrTesting
         Tg2.Set("SolnRho.State_%s", Solvent.SymOrTag());
         DDB.String("", Tg2(), DC_, "", xidSolnState1+j, this, isResult|noFileAtAll);
+#endif
         }
       }
     }

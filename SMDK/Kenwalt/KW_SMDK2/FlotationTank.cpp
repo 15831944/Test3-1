@@ -3,8 +3,8 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define  __FLOATATION_TANK_CPP
-#include "Floatation Tank.h"
+#define  __FLOTATION_TANK_CPP
+#include "FlotationTank.h"
 #pragma optimize("", off)
 
 //====================================================================================
@@ -24,24 +24,27 @@ static MInOutDefStruct s_IODefs[]=
     { NULL },
   };
 
-static double Drw_FloatTank[] = { MDrw_Poly,  -2.,2.,  2.,2.,  2.,-2., -2.,-2., -2.,2.,
-MDrw_End };
+static double Drw_FlotationTank[] = { 
+  MDrw_Poly,  8.0,4.0, 8.0,-6.0, -8.0,-6.0, -8.0,4.0, 8.0,4.0,
+  MDrw_Poly,  7.0,4.0, 7.0,6.0, -7.0,6.0, -7.0,4.0,
+  MDrw_Poly,  8.0,2.5, 0.0,-6.0, -8.0,2.5,
+  MDrw_End };
 
 //---------------------------------------------------------------------------
 
-DEFINE_TRANSFER_UNIT(FloatationTank, "Floatation Tank", DLL_GroupName)
-void FloatationTank_UnitDef::GetOptions()
+DEFINE_TRANSFER_UNIT(FlotationTank, "TestFlotationTank", DLL_GroupName)
+void FlotationTank_UnitDef::GetOptions()
   {
-  SetDefaultTag("SP");
-  SetDrawing("Tank", Drw_FloatTank);
-  SetTreeDescription("Demo:Floatation Tank");
+  SetDefaultTag("FL");
+  SetDrawing("Tank", Drw_FlotationTank);
+  SetTreeDescription("Demo:Flotation Tank");
   SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
   SetModelGroup(MGroup_General);
   };
 
 //---------------------------------------------------------------------------
 
-FloatationTank::FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
+FlotationTank::FlotationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
   //default values...
 	eSpecType = FTST_ByCompound;
@@ -58,7 +61,7 @@ FloatationTank::FloatationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MB
 static	vector<MDDValueLst>	gs_vSolidElements;
 
 
-void FloatationTank::Init()
+void FlotationTank::Init()
 {
 	SetIODefinition(s_IODefs);
 
@@ -108,7 +111,7 @@ const int idDX_SecondaryIndex = 10 + maxSecondaries;
 const int idDX_SecondaryReqRecovery = 10 + 2*maxSecondaries;
 const int idDX_SecondaryRecovery = 10 + 3*maxSecondaries;
 
-void FloatationTank::BuildDataFields()
+void FlotationTank::BuildDataFields()
 {
 	static MDDValueLst DDB1[] ={
 		{ FTST_ByCompound, "Compound" },
@@ -153,7 +156,7 @@ void FloatationTank::BuildDataFields()
 
 //---------------------------------------------------------------------------
 
-bool FloatationTank::ExchangeDataFields()
+bool FlotationTank::ExchangeDataFields()
 {
 	switch (DX.Handle)
 	{
@@ -279,7 +282,7 @@ bool FloatationTank::ExchangeDataFields()
 
 //---------------------------------------------------------------------------
 
-bool FloatationTank::PreStartCheck()
+bool FlotationTank::PreStartCheck()
 {
 	if (!FlwIOs.getCount(idFeed) || !FlwIOs.getCount(idTail) || !FlwIOs.getCount(idConc))
 		return false;
@@ -298,7 +301,7 @@ bool FloatationTank::PreStartCheck()
 
 //---------------------------------------------------------------------------
 
-bool FloatationTank::ValidateDataFields()
+bool FlotationTank::ValidateDataFields()
 {
 	dReqPrimaryRecovery = Range(0.0, dReqPrimaryRecovery, 1.);
 	dReqPrimaryGrade = Range(ZeroLimit, dReqPrimaryGrade, 1.);
@@ -310,7 +313,7 @@ bool FloatationTank::ValidateDataFields()
 
 //---------------------------------------------------------------------------
 
-void FloatationTank::EvalProducts()
+void FlotationTank::EvalProducts()
 {
 	try
 	{
@@ -444,7 +447,7 @@ void FloatationTank::EvalProducts()
 //====================================================================================
 
 //This will recalculate the primary indices if the mode is set to ByElement. It will then call UpdateMDDLists.
-void FloatationTank::UpdatePrimaryIndices()
+void FlotationTank::UpdatePrimaryIndices()
 {
 	if (eSpecType == FTST_ByElement)
 	{
@@ -480,7 +483,7 @@ void FloatationTank::UpdatePrimaryIndices()
 //If they are a primary, or if they are a different secondary.
 //The MDD lists will be created in SetSecondaryCount, so we will merely set flags at this point.
 //This is somewhat inefficent - the number of iterations is n^2 * c, where n is the secondary count and c is the element count.
-/*void FloatationTank::UpdateMDDLists()
+/*void FlotationTank::UpdateMDDLists()
 {
 	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		for (unsigned int j = 0; j < vSecondaryMDDLists.at(i).size(); j++)
@@ -504,7 +507,7 @@ void FloatationTank::UpdatePrimaryIndices()
 		}
 }*/
 
-void FloatationTank::SetSecondaryCount(int newSize)
+void FlotationTank::SetSecondaryCount(int newSize)
 {
 	if (newSize < 0) newSize = 0;
 	if (newSize > maxSecondaries) newSize = maxSecondaries;
@@ -544,7 +547,7 @@ void FloatationTank::SetSecondaryCount(int newSize)
 	UpdateOtherIndices();
 }
 
-void FloatationTank::UpdateOtherIndices()
+void FlotationTank::UpdateOtherIndices()
 {
 	vOtherIndices.clear();
 	for (int i = 0; i < gs_MVDefn.Count(); i++)
