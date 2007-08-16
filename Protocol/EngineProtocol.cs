@@ -19,7 +19,7 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public sealed class EngineProtocol : BaseProtocol
+  public sealed class EngineProtocol : EngineBaseProtocol
   {
 
     private String connectionError = String.Empty;
@@ -29,6 +29,11 @@ namespace SysCAD.Protocol
 
     public EngineProtocol()
     {
+    }
+
+    public bool ChangeState(out Int64 requestId, RunState runState)
+    {
+      return serviceGraphic.ChangeState(out requestId, runState);
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]

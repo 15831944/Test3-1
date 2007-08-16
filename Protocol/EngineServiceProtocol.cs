@@ -20,15 +20,17 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public sealed class EngineServiceProtocol : BaseProtocol
+  public sealed class EngineServiceProtocol : EngineBaseProtocol
   {
-    private LogMessageHandler logMessageHandler;
-
     public delegate void LogMessageHandler(out Int64 requestId, String message, SysCAD.Log.MessageType messageType);
+    public delegate bool StateChangedHandler(out long requestId, RunState runState);
+
+    private LogMessageHandler logMessageHandler;
+    private StateChangedHandler stateChangedHandler;
 
     public EngineServiceProtocol(String name,
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      LogMessageHandler logMessageHandler)
+      LogMessageHandler logMessageHandler, StateChangedHandler stateChangedHandler)
     {
       this.Name = name;
 
@@ -39,11 +41,17 @@ namespace SysCAD.Protocol
       this.graphicThings = graphicThings;
 
       this.logMessageHandler = logMessageHandler;
+      this.stateChangedHandler = stateChangedHandler;
     }
 
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
     {
       logMessageHandler(out requestId, message, messageType);
+    }
+
+    public bool ChangeState(out long requestId, RunState runState)
+    {
+      return stateChangedHandler(out requestId, runState);
     }
   }
 }

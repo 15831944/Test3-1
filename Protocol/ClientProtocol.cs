@@ -56,11 +56,6 @@ namespace SysCAD.Protocol
     {
     }
 
-    public bool ChangePermissions(out Int64 requestId, Permissions permissions)
-    {
-      return serviceGraphic.ChangePermissions(out requestId, permissions);
-    }
-
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
     public bool Connect()
     {

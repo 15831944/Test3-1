@@ -184,6 +184,10 @@ ref class CSvcConnectCLRThread
           clientProtocol->Connect();
           engineProtocol->Connect();
 
+          // This will allow the editor to create/delete in addition to modify after the project loads.
+          __int64 requestId;
+          engineProtocol->ChangeState(requestId, SysCAD::Protocol::EngineBaseProtocol::RunState::Edit);
+
           /*
           This is where import goes
           */

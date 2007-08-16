@@ -123,9 +123,11 @@ namespace Service
       RemotingServices.Marshal(clientClientServiceProtocol, "Client/" + projectName);
 
       EngineServiceProtocol.LogMessageHandler engineLogMessage = new EngineServiceProtocol.LogMessageHandler(LogMessage);
+      EngineServiceProtocol.StateChangedHandler engineStateChanged = new EngineServiceProtocol.StateChangedHandler(StateChanged);
 
       engineClientServiceProtocol = new EngineServiceProtocol(projectName,
-                                                              graphicGroups, graphicLinks, graphicItems, graphicThings, engineLogMessage);
+                                                              graphicGroups, graphicLinks, graphicItems, graphicThings, 
+                                                              engineLogMessage, engineStateChanged);
 
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
@@ -556,7 +558,7 @@ namespace Service
       return list;
     }
 
-    void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
+    void LogMessage(out Int64 requestId, String message, MessageType messageType)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -564,7 +566,35 @@ namespace Service
       logView.Message(message, messageType);
     }
 
+    bool StateChanged(out Int64 requestId, EngineBaseProtocol.RunState runState)
+    {
+      if (runState != null)
+      {
+        this.requestId++;
+        requestId = this.requestId;
 
+        ClientBaseProtocol.Permissions permissions = null;
+        switch (runState)
+        {
+          case EngineBaseProtocol.RunState.Edit:
+            permissions = new ClientBaseProtocol.Permissions(true, true, true);
+            break;
+          case EngineBaseProtocol.RunState.Idle:
+            permissions = new ClientBaseProtocol.Permissions(false, true, false);
+            break;
+          case EngineBaseProtocol.RunState.Run:
+            permissions = new ClientBaseProtocol.Permissions(false, true, false);
+            break;
+        }
+
+        eventId++;
+        clientClientServiceProtocol.PermissionsChanged(eventId, requestId, permissions);
+        return true;
+      }
+      {
+        return false;
+      }
+    }
 
 
 

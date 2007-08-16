@@ -67,11 +67,37 @@ namespace SysCAD.Protocol
     public delegate void ThingDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
     public delegate void ThingModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
 
+    [Serializable]
     public class Permissions
     {
-      public bool Create = false;
-      public bool Modify = false;
-      public bool Delete = false;
+      public Permissions(bool create, bool modify, bool delete)
+      {
+        this.create = create;
+        this.modify = modify;
+        this.delete = delete;
+      }
+
+      private bool create = false;
+
+      public bool Create
+      {
+        get { return create; }
+        set { create = value; }
+      }
+      private bool modify = false;
+
+      public bool Modify
+      {
+        get { return modify; }
+        set { modify = value; }
+      }
+      private bool delete = false;
+
+      public bool Delete
+      {
+        get { return delete; }
+        set { delete = value; }
+      }
     }
 
     // This shouldn't be in the abstract base class...

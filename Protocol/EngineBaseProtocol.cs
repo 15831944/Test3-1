@@ -21,5 +21,9 @@ namespace SysCAD.Protocol
   [Serializable]
   abstract public class EngineBaseProtocol : BaseProtocol
   {
+    public enum RunState
+    {
+      Edit, Run, Idle
+    }
   }
 }

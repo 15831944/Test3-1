@@ -586,7 +586,7 @@ namespace SysCAD.Editor
       else
       {
         bool projectOpen = false;
-        ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions();
+        ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions(false, false, false);
 
         if (frmFlowChart != null)
         {

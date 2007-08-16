@@ -37,7 +37,7 @@ namespace SysCAD.Editor
 
     bool projectOpen = false;
 
-    ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions();
+    ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions(false, false, false);
 
     private bool selectItems = true;
 
@@ -316,11 +316,6 @@ namespace SysCAD.Editor
         arrow.ControlPoints[i++] = keepPoint;
       }
       arrow.UpdateFromPoints();
-    }
-
-    internal bool ChangePermissions(out Int64 requestId, ClientBaseProtocol.Permissions permissions)
-    {
-      return clientProtocol.ChangePermissions(out requestId, permissions);
     }
 
     internal void ConnectGraphic(
