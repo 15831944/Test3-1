@@ -3316,7 +3316,15 @@ flag CProject::DoSaveSnapShotScenario(flag DoSnapShot, pchar pName, CExecObjArra
   {
   CWaitMsgCursor Wait(DoSnapShot ? "Saving SnapShot" : "Saving Scenario");
   Strng Fn, Ext;
-  Fn = pName;
+  if (pName && strcmp(pName, "AutoInc")==0)
+    {
+    Fn.Set("%s%03d", m_sSSPrefix(), m_iSSNumber);
+    m_iSSNumber++;
+    }
+  else
+    {
+    Fn = pName;
+    }
   if (DoSnapShot && Fn.Length()==0)
     Fn = m_sSSName;
   if (Fn.Length()==0)

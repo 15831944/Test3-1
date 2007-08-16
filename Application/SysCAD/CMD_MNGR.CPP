@@ -714,8 +714,8 @@ class CCmdSaveSnapshot : public CCmdBase
 
     CCmdSaveSnapshot(char* pFilename) : CCmdBase(ComCmd_SaveSnapshot) { sFilename.FnSearchExpand(pFilename, AF_All|AF_BackupFiles); flags |= CmdFlagDoNotExecNext; };
     virtual ~CCmdSaveSnapshot(){};
-    virtual int ExecCmd(CCmdExec* pXCmd) { gs_pPrj->DoSaveSnapShotScenario(True, sFilename()); return 0; };
-    virtual char* Desc(char* Buff) { sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), sFilename()); return Buff; };
+    virtual int ExecCmd(CCmdExec* pXCmd) { gs_pPrj->DoSaveSnapShotScenario(True, sFilename.Len()>0 ? sFilename() : "AutoInc"); return 0; };
+    virtual char* Desc(char* Buff) { sprintf(Buff, "%s(\"%s\")", CmdNames(CmdID), sFilename.Len()>0 ? sFilename() : ""); return Buff; };
   };
 
 //---------------------------------------------------------------------------
