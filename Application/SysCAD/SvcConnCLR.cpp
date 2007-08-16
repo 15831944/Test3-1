@@ -119,28 +119,28 @@ ref class CSvcConnectCLRThread
       success = config->TestUrl(gcnew Uri("ipc://SysCAD.Service/Global"));
 
       if (!success) // couldn't connect to service, probably not running -- start one.
-      {
-      try
         {
-        // Shell execute Service with parameters projectPath & configPath.
-        Process ^proc = gcnew Process();
-        proc->EnableRaisingEvents = false;
+        try
+          {
+          // Shell execute Service with parameters projectPath & configPath.
+          Process ^proc = gcnew Process();
+          proc->EnableRaisingEvents = false;
 
-        String ^ progFiles = gcnew String(ProgFiles());
+          String ^ progFiles = gcnew String(ProgFiles());
 
-        String ^ stencilPath = gcnew String(BaseCfgFiles());
-        stencilPath = stencilPath + "Stencils";
+          String ^ stencilPath = gcnew String(BaseCfgFiles());
+          stencilPath = stencilPath + "Stencils";
 
-        proc->StartInfo->FileName = progFiles + "Service.exe";
-        proc->StartInfo->Arguments = "\" " + projectPath + " \" \" " + configPath + " \" \" " + stencilPath + " \"";
-        proc->Start();
-        //proc->WaitForExit();
+          proc->StartInfo->FileName = progFiles + "Service.exe";
+          proc->StartInfo->Arguments = "\" " + projectPath + " \" \" " + configPath + " \" \" " + stencilPath + " \"";
+          proc->Start();
+          //proc->WaitForExit();
+          }
+        catch (Exception ^e)
+          {
+          // Handle this exception here, basically means the app didn't exist.
+          }
         }
-      catch (Exception ^e)
-        {
-        // Handle this exception here, basically means the app didn't exist.
-        }
-      }
 
       success = false;
       int i=0;
@@ -211,22 +211,22 @@ ref class CSvcConnectCLRThread
           // A 'save' has to be done first to fill this, and then the 10 graphics can be used.
 
           //for each (GraphicItem ^ item in clientProtocol->graphicItems->Values)
-            //{
-            // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
-            // ObjectBrowser with all the available members.
-            // e.g.
-            // item->Angle
-            // item->X
+          //{
+          // 'Go To Definition' on GraphicItem doesn't go to the source but does show the
+          // ObjectBrowser with all the available members.
+          // e.g.
+          // item->Angle
+          // item->X
 
-            //CNM Removed must work out when to do this
-            //m_pConn->OnCreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
-            //  ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
-            //  CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
-            //  item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
-            //  item->MirrorX, item->MirrorY);
-            //int yyy=0;
-            //Chris
-            //}
+          //CNM Removed must work out when to do this
+          //m_pConn->OnCreateItem(-1, -1, ToCString(item->Guid.ToString()), ToCString(item->Tag), ToCString(item->Path), 
+          //  ToCString(item->Model->ToString()), ToCString(item->Shape->ToString()), 
+          //  CRectangleF(item->BoundingRect.Left, item->BoundingRect.Right, item->BoundingRect.Bottom, item->BoundingRect.Top), 
+          //  item->Angle, RGB(item->FillColor.R, item->FillColor.G, item->FillColor.B), 
+          //  item->MirrorX, item->MirrorY);
+          //int yyy=0;
+          //Chris
+          //}
 
           //for each (GraphicLink ^ link in clientProtocol->graphicLinks->Values)
           //  {
@@ -260,17 +260,17 @@ ref class CSvcConnectCLRThread
           ///////////////////////////////
           }
         }
-        if (clientProtocol == nullptr)
-          return false;
-        
-        if ((clientProtocol->graphicGroups == nullptr) || (clientProtocol->graphicItems == nullptr) || 
-          (clientProtocol->graphicLinks == nullptr) || (clientProtocol->graphicThings == nullptr))
-          return false;
+      if (clientProtocol == nullptr)
+        return false;
 
-        return (!((clientProtocol->graphicGroups->Count == 0)&&
-          (clientProtocol->graphicItems->Count == 0)&&
-          (clientProtocol->graphicLinks->Count == 0)&&
-          (clientProtocol->graphicThings->Count == 0)));
+      if ((clientProtocol->graphicGroups == nullptr) || (clientProtocol->graphicItems == nullptr) || 
+        (clientProtocol->graphicLinks == nullptr) || (clientProtocol->graphicThings == nullptr))
+        return false;
+
+      return (!((clientProtocol->graphicGroups->Count == 0)&&
+        (clientProtocol->graphicItems->Count == 0)&&
+        (clientProtocol->graphicLinks->Count == 0)&&
+        (clientProtocol->graphicThings->Count == 0)));
       };
 
     // ====================================================================
@@ -293,9 +293,9 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
     void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
-                                      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                                      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
-                                      bool MirrorX, bool MirrorY)
+      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
+      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+      bool MirrorX, bool MirrorY)
       {
       Guid guid;//X(gcnew String(guid))
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
@@ -303,7 +303,7 @@ ref class CSvcConnectCLRThread
 
       clientProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
         gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
-		Color::Black, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
+        Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       ItemGuid = guid.ToString();
       };
 
@@ -313,12 +313,27 @@ ref class CSvcConnectCLRThread
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
         angle, 
-	    CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height),
-		RGB(fillColor.R, fillColor.G, fillColor.B), 
+        CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height),
+        RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
 
     // ====================================================================
+
+    void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
+      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+      bool MirrorX, bool MirrorY)
+      {
+      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      
+      //clientProtocol->ModifyItem(requestId, guid, gcnew String(Tag), gcnew String(Path), gcnew String(ClassId), gcnew String(Symbol), RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+      clientProtocol->ModifyItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
+        gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
+        Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
+        
+      };
 
     void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
       {
@@ -326,8 +341,8 @@ ref class CSvcConnectCLRThread
         ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
         angle, 
-		CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
-		RGB(fillColor.R, fillColor.G, fillColor.B), 
+        CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
+        RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
 
@@ -379,23 +394,23 @@ ref class CSvcConnectCLRThread
 
 
 
-      //{
+    //{
 
-      //Int64 requestId;
-      //Guid guid;
-      //String ^ tag;
-      //String ^ path;
-      //String ^ model;
-      //String ^ shape;
-      //RectangleF boundingRect;
-      //Single angle;
-      //System::Drawing::Color fillColor;
-      //System::Drawing::Drawing2D::FillMode fillMode;
-      //bool mirrorX;
-      //bool mirrorY;
+    //Int64 requestId;
+    //Guid guid;
+    //String ^ tag;
+    //String ^ path;
+    //String ^ model;
+    //String ^ shape;
+    //RectangleF boundingRect;
+    //Single angle;
+    //System::Drawing::Color fillColor;
+    //System::Drawing::Drawing2D::FillMode fillMode;
+    //bool mirrorX;
+    //bool mirrorY;
 
-      //engineProtocol->ModifyItem(requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
-      //}
+    //engineProtocol->ModifyItem(requestId, guid, tag, path, model, shape, boundingRect, angle, fillColor, fillMode, mirrorX, mirrorY);
+    //}
 
     void Shutdown()
       {
@@ -487,7 +502,7 @@ ref class CSvcConnectCLRThread
     SysCAD::Protocol::Config ^ config;
     SysCAD::Protocol::ClientProtocol ^ clientProtocol;
     SysCAD::Protocol::EngineProtocol ^ engineProtocol;
-    
+
     CSvcConnect   * m_pConn;
     bool            m_DoingExport;
   };
@@ -522,7 +537,7 @@ bool CSvcConnectCLR::Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR con
 
   m_pConn =  pConn;
   //m_pSrvr->Initialise();
-  
+
   CSvcConnectCLRThreadGlbl::gs_SrvrThread = gcnew CSvcConnectCLRThread(m_pConn);//.Startup("");
   return CSvcConnectCLRThreadGlbl::gs_SrvrThread->Startup(projectPathString, configPathString, ImportScd9);   
 
@@ -556,7 +571,7 @@ void CSvcConnectCLR::DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCST
                                   bool MirrorX, bool MirrorY)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateItem(requestId, ItemGuid, Tag, Path, 
-                                  ClassId, Symbol, boundingRect, Angle, textArea, FillColor, MirrorX, MirrorY);
+    ClassId, Symbol, boundingRect, Angle, textArea, FillColor, MirrorX, MirrorY);
   };
 
 void CSvcConnectCLR::DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)

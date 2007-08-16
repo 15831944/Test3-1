@@ -446,6 +446,34 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
 
 void CSvcConnect::DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity)
   {
+  m_lRequestId++;
+  LPSTR Tag="?Tag?";
+
+  Strng Guid;
+  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+    {
+
+#if dbgSvcConn
+    if (dbgConnect())
+      {
+      dbgpln("DoModifyItem  >>> %7s %7I64i %s %s", "", m_lRequestId, Guid(), Tag);
+      dbgindent(2);
+      }
+#endif
+
+    //m_pCLR->DoModifyItem(m_lRequestIdRet, Guid());
+
+#if dbgSvcConn
+    if (dbgConnect())
+      {
+      dbgindent(-2);
+      dbgpln("DoModifyItem  <<< %7s %7I64i", "", m_lRequestIdRet);
+      };
+#endif
+    }
+  else
+    {
+    }
   };
 
 void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
@@ -494,7 +522,7 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
 #if dbgSvcConn
   if (dbgConnect())
     {
-    dbgpln("OnDeleteItem  >>> %7I64i %7I64i %s", eventId, requestId, ItemGuid);
+    dbgpln("OnDeleteItem  >>> %7I64i %7I64i [%7I64i] %s", eventId, requestId, m_lRequestIdRet, ItemGuid);
     dbgindent(2);
     }
 #endif
@@ -529,7 +557,7 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
   if (dbgConnect())
     {
     dbgindent(-2);
-    dbgpln("OnDeleteItem  <<< %7I64i %7I64i", eventId, requestId);
+    dbgpln("OnDeleteItem  <<< %7I64i %7I64i [%7I64i]", eventId, requestId, m_lRequestIdRet);
     }
 #endif
   };
