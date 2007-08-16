@@ -41,16 +41,6 @@ namespace SysCAD.Protocol
       this.logMessageHandler = logMessageHandler;
     }
 
-    public void DoStep(Int64 eventId, Int64 step, DateTime time)
-    {
-      OnStep(eventId, step, time);
-    }
-
-    public void DoSync(Int64 eventId)
-    {
-      OnSync(eventId);
-    }
-
     public void LogMessage(out Int64 requestId, String message, SysCAD.Log.MessageType messageType)
     {
       logMessageHandler(out requestId, message, messageType);

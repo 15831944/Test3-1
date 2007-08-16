@@ -61,8 +61,14 @@
     <Compile Include="Animation.cs" />
     <Compile Include="Arc.cs" />
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="BaseProtocol.cs" />
+    <Compile Include="BaseProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Bezier.cs" />
+    <Compile Include="ClientBaseProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EngineBaseProtocol.cs" />
     <Compile Include="LogItem.cs" />
     <Compile Include="ClientProtocol.cs" />
     <Compile Include="ClientServiceProtocol.cs" />

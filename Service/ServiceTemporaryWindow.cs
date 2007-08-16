@@ -80,7 +80,7 @@ namespace Service
       ClientServiceProtocol.LoadHandler engineLoad = new ClientServiceProtocol.LoadHandler(LoadGraphics);
       ClientServiceProtocol.SaveHandler engineSave = new ClientServiceProtocol.SaveHandler(SaveGraphics);
 
-      ClientServiceProtocol.ChangeStateHandler clientChangeState = new ClientServiceProtocol.ChangeStateHandler(ChangeState);
+      ClientServiceProtocol.ChangePermissionsHandler clientChangePermissions = new ClientServiceProtocol.ChangePermissionsHandler(ChangePermissions);
 
       ClientServiceProtocol.GetPropertyValuesHandler clientGetPropertyValues = new ClientServiceProtocol.GetPropertyValuesHandler(GetPropertyValues);
       ClientServiceProtocol.GetSubTagsHandler clientGetSubTags = new ClientServiceProtocol.GetSubTagsHandler(GetSubTags);
@@ -112,7 +112,7 @@ namespace Service
       clientClientServiceProtocol = new ClientServiceProtocol(projectName,
                                                               engineLoad, engineSave,
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
-                                                              clientChangeState, clientGetPropertyValues, clientGetSubTags,
+                                                              clientChangePermissions, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
                                                               clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
@@ -130,7 +130,7 @@ namespace Service
       RemotingServices.Marshal(engineClientServiceProtocol, "Engine/" + projectName);
     }
 
-    bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
+    bool ChangePermissions(out Int64 requestId, ClientBaseProtocol.Permissions permissions)
     {
       if (true) // Decide whether to allow runstate change
       { // We're going to do it.
@@ -142,7 +142,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoStateChanged(eventId, requestId, runState);
+        clientClientServiceProtocol.DoPermissionsChanged(eventId, requestId, permissions);
 
         return true;
       }

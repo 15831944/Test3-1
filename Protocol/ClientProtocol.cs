@@ -20,7 +20,7 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public sealed class ClientProtocol : BaseProtocol
+  public sealed class ClientProtocol : ClientBaseProtocol
   {
 
     public String connectionError = String.Empty;
@@ -40,7 +40,7 @@ namespace SysCAD.Protocol
     private ClientServiceProtocol.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
     private ClientServiceProtocol.LinkModifiedHandler serviceGraphicLinkModifiedHandler = null;
 
-    private ClientServiceProtocol.StateChangedHandler serviceGraphicStateChangedHandler = null;
+    private ClientServiceProtocol.PermissionsChangedHandler serviceGraphicPermissionsChangedHandler = null;
 
     private ClientServiceProtocol.StepHandler serviceGraphicStepHandler = null;
 
@@ -56,9 +56,9 @@ namespace SysCAD.Protocol
     {
     }
 
-    public bool ChangeState(out Int64 requestId, RunStates runState)
+    public bool ChangePermissions(out Int64 requestId, Permissions permissions)
     {
-      return serviceGraphic.ChangeState(out requestId, runState);
+      return serviceGraphic.ChangePermissions(out requestId, permissions);
     }
 
     //[EnvironmentPermissionAttribute(SecurityAction.LinkDemand, Unrestricted = true)]
@@ -71,7 +71,7 @@ namespace SysCAD.Protocol
 
         Name = serviceGraphic.Name; // Force a test of the connection.
 
-        serviceGraphicStateChangedHandler = new ClientServiceProtocol.StateChangedHandler(ServiceGraphicStateChanged);
+        serviceGraphicPermissionsChangedHandler = new ClientServiceProtocol.PermissionsChangedHandler(ServiceGraphicPermissionsChanged);
 
         serviceGraphicStepHandler = new ClientServiceProtocol.StepHandler(ServiceGraphicStep);
 
@@ -94,7 +94,7 @@ namespace SysCAD.Protocol
         serviceGraphicThingModifiedHandler = new ClientServiceProtocol.ThingModifiedHandler(ServiceGraphicThingModified);
         serviceGraphicThingDeletedHandler = new ClientServiceProtocol.ThingDeletedHandler(ServiceGraphicThingDeleted);
 
-        serviceGraphic.StateChanged += serviceGraphicStateChangedHandler;
+        serviceGraphic.PermissionsChanged += serviceGraphicPermissionsChangedHandler;
 
         serviceGraphic.Step += serviceGraphicStepHandler;
 
@@ -370,9 +370,9 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void ServiceGraphicStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
+    public void ServiceGraphicPermissionsChanged(Int64 eventId, Int64 requestId, Permissions permissions)
     {
-      OnStateChanged(eventId, requestId, runState);
+      OnPermissionsChanged(eventId, requestId, permissions);
     }
 
     public void ServiceGraphicStep(Int64 eventId, Int64 step, DateTime time)
@@ -490,7 +490,7 @@ namespace SysCAD.Protocol
         try
         {
 
-          if (serviceGraphicStateChangedHandler != null) serviceGraphic.StateChanged -= serviceGraphicStateChangedHandler;
+          if (serviceGraphicPermissionsChangedHandler != null) serviceGraphic.PermissionsChanged -= serviceGraphicPermissionsChangedHandler;
         }
 
         catch (InvalidOperationException) { }

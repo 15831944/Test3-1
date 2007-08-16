@@ -34,14 +34,12 @@ namespace SysCAD.Editor
 
     private delegate void LoadProjectDelegate(ClientProtocol clientProtocol, Config config);
 
-    private delegate void SetProjectBasedButtonsDelegate(bool projectExists);
-
     public EditorForm()
     {
       //String testXaml = State.PreprocessXaml("test [[Test tag, 0, 5, #0, #ffffff, Linear, Hex]] test some more");
 
       InitializeComponent();
-      SetProjectBasedButtons(false);
+      SetButtonStates();
 
       BinaryServerFormatterSinkProvider serverProv = new BinaryServerFormatterSinkProvider();
       serverProv.TypeFilterLevel = System.Runtime.Serialization.Formatters.TypeFilterLevel.Full;
@@ -109,7 +107,9 @@ namespace SysCAD.Editor
         }
         (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndex = 3;
 
-        SetProjectBasedButtons(true);
+
+        frmFlowChart.State.ProjectOpen = true;
+        SetButtonStates();
 
         frmFlowChart.Show();
 
@@ -145,42 +145,10 @@ namespace SysCAD.Editor
       (barManager1.Commands["Mode.CreateLink"] as BarButtonCommand).Checked = false;
     }
 
-    public void StateChanged(BaseProtocol.RunStates runState)
+    public void PermissionsChanged(ClientBaseProtocol.Permissions permissions)
     {
-
-      switch (runState)
-      {
-
-        case BaseProtocol.RunStates.Edit:
-          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
-          barManager1.Commands["Mode.CreateNode"].Enabled = false;
-          barManager1.Commands["Mode.CreateLink"].Enabled = false;
-
-          barManager1.Commands["Edit.Paste"].Enabled = false;
-
-          tvNavigation.AllowArranging = false;
-          break;
-
-        case BaseProtocol.RunStates.Run:
-          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
-          barManager1.Commands["Mode.CreateNode"].Enabled = false;
-          barManager1.Commands["Mode.CreateLink"].Enabled = false;
-
-          barManager1.Commands["Edit.Paste"].Enabled = false;
-          tvNavigation.AllowArranging = false;
-          break;
-
-        case BaseProtocol.RunStates.Idle:
-          frmFlowChart.FlowChart.Behavior = BehaviorType.Modify;
-          barManager1.Commands["Mode.CreateNode"].Enabled = false;
-          barManager1.Commands["Mode.CreateLink"].Enabled = false;
-
-          barManager1.Commands["Edit.Paste"].Enabled = false;
-          tvNavigation.AllowArranging = false;
-          break;
-        default:
-          throw new Exception("Unknown RunState: " + runState.ToString());
-      }
+      frmFlowChart.State.Permissions = permissions;
+      SetButtonStates();
     }
 
     private void barManager1_CommandClick(object sender, BarCommandLinkEventArgs e)
@@ -285,7 +253,8 @@ namespace SysCAD.Editor
 
       else
       {
-        SetProjectBasedButtons(false);
+        frmFlowChart.State.ProjectOpen = false;
+        SetButtonStates();
 
         frmFlowChart.UnSetProject();
 
@@ -371,9 +340,9 @@ namespace SysCAD.Editor
           if (item.Model.Selected)
           {
             item.Model.Visible = item.Visible;
-            item.Model.ZIndex = item.Graphic.ZIndex + 1;
+            item.Model.ZIndex = item.Graphic.ZIndex + 100000;
+            item.Text.ZIndex = item.Graphic.ZIndex - 100000;
             item.Text.Visible = item.Visible && frmFlowChart.State.ShowTags;
-            item.Text.ZIndex = item.Graphic.ZIndex + 2;
           }
 
           else
@@ -606,38 +575,47 @@ namespace SysCAD.Editor
       }
     }
 
-    private void SetProjectBasedButtons(bool projectExists)
-    {
+    private delegate void SetButtonStatesDelegate();
 
+    private void SetButtonStates()
+    {
       if (InvokeRequired)
       {
-        BeginInvoke(new SetProjectBasedButtonsDelegate(SetProjectBasedButtons), new object[] { projectExists });
+        BeginInvoke(new SetButtonStatesDelegate(SetButtonStates));
       }
-
       else
       {
-        barManager1.Commands["File.PrintPreview"].Enabled = projectExists;
-        barManager1.Commands["File.Print"].Enabled = projectExists;
-        barManager1.Commands["File.Save"].Enabled = projectExists;
-        barManager1.Commands["File.Close"].Enabled = projectExists;
-        barManager1.Commands["View.ZoomIn"].Enabled = projectExists;
-        barManager1.Commands["View.ZoomOut"].Enabled = projectExists;
-        barManager1.Commands["View.ZoomToVisible"].Enabled = projectExists;
-        barManager1.Commands["View.ZoomToSelected"].Enabled = projectExists;
-        barManager1.Commands["View.ShowGroups"].Enabled = projectExists;
-        barManager1.Commands["View.ShowModels"].Enabled = projectExists;
-        barManager1.Commands["View.ShowGraphics"].Enabled = projectExists;
-        barManager1.Commands["View.ShowLinks"].Enabled = projectExists;
-        barManager1.Commands["View.ShowTags"].Enabled = projectExists;
-        barManager1.Commands["Selection.SelectItems"].Enabled = projectExists;
-        barManager1.Commands["Selection.SelectLinks"].Enabled = projectExists;
-        barManager1.Commands["CreateItem.ModelType"].Enabled = projectExists;
-        barManager1.Commands["Mode.Modify"].Enabled = projectExists;
-        barManager1.Commands["Mode.CreateNode"].Enabled = projectExists;
-        barManager1.Commands["Mode.CreateLink"].Enabled = projectExists;
-        barManager1.Commands["Edit.Cut"].Enabled = projectExists;
-        barManager1.Commands["Edit.Copy"].Enabled = projectExists;
-        barManager1.Commands["Edit.Paste"].Enabled = projectExists;
+        bool projectOpen = false;
+        ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions();
+
+        if (frmFlowChart != null)
+        {
+          projectOpen = frmFlowChart.State.ProjectOpen;
+          permissions = frmFlowChart.State.Permissions;
+        }
+
+        barManager1.Commands["File.PrintPreview"].Enabled = projectOpen;
+        barManager1.Commands["File.Print"].Enabled = projectOpen;
+        barManager1.Commands["File.Save"].Enabled = projectOpen;
+        barManager1.Commands["File.Close"].Enabled = projectOpen;
+        barManager1.Commands["View.ZoomIn"].Enabled = projectOpen;
+        barManager1.Commands["View.ZoomOut"].Enabled = projectOpen;
+        barManager1.Commands["View.ZoomToVisible"].Enabled = projectOpen;
+        barManager1.Commands["View.ZoomToSelected"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowGroups"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowModels"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowGraphics"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowLinks"].Enabled = projectOpen;
+        barManager1.Commands["View.ShowTags"].Enabled = projectOpen;
+        barManager1.Commands["Selection.SelectItems"].Enabled = projectOpen;
+        barManager1.Commands["Selection.SelectLinks"].Enabled = projectOpen;
+        barManager1.Commands["CreateItem.ModelType"].Enabled = projectOpen && permissions.Create;
+        barManager1.Commands["Mode.Modify"].Enabled = projectOpen && permissions.Modify;
+        barManager1.Commands["Mode.CreateNode"].Enabled = projectOpen && permissions.Create;
+        barManager1.Commands["Mode.CreateLink"].Enabled = projectOpen && permissions.Create;
+        barManager1.Commands["Edit.Cut"].Enabled = projectOpen && permissions.Delete;
+        barManager1.Commands["Edit.Copy"].Enabled = projectOpen;
+        barManager1.Commands["Edit.Paste"].Enabled = projectOpen && permissions.Create;
 
         barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
         barManager1.Commands["CreateItem.ModelType"].Enabled = false;
@@ -787,8 +765,8 @@ namespace SysCAD.Editor
       foreach (Item item in frmFlowChart.State.Items)
       {
         item.Graphic.Visible = item.Visible && frmFlowChart.State.ShowGraphics;
-        item.Model.ZIndex = item.Graphic.ZIndex + 1;
-        item.Text.ZIndex = item.Model.ZIndex + 1;
+        item.Model.ZIndex = item.Graphic.ZIndex + 100000;
+        item.Text.ZIndex = item.Graphic.ZIndex - 100000;
       }
     }
 
@@ -830,8 +808,8 @@ namespace SysCAD.Editor
       foreach (Item item in frmFlowChart.State.Items)
       {
         item.Model.Visible = item.Visible && frmFlowChart.State.ShowModels;
-        item.Model.ZIndex = item.Graphic.ZIndex + 1;
-        item.Text.ZIndex = item.Model.ZIndex + 1;
+        item.Model.ZIndex = item.Graphic.ZIndex + 100000;
+        item.Text.ZIndex = item.Graphic.ZIndex - 100000;
       }
     }
 

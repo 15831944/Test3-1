@@ -416,7 +416,7 @@ namespace SysCAD.Editor
       state.TVNavigation = tvNavigation;
 
       state.ConnectGraphic(
-        new ClientProtocol.StateChangedHandler(fcFlowChart_StateChanged),
+        new ClientProtocol.PermissionsChangedHandler(fcFlowChart_PermissionsChanged),
         new ClientProtocol.StepHandler(fcFlowChart_Step),
         new ClientProtocol.SyncHandler(fcFlowChart_Sync),
         new ClientProtocol.GroupCreatedHandler(fcFlowChart_GroupCreated),
@@ -468,7 +468,7 @@ namespace SysCAD.Editor
     internal void UnSetProject()
     {
       state.DisconnectGraphic(
-          fcFlowChart_StateChanged,
+          fcFlowChart_PermissionsChanged,
           fcFlowChart_Step,
           fcFlowChart_Sync,
           fcFlowChart_GroupCreated,
@@ -1475,15 +1475,17 @@ namespace SysCAD.Editor
         if (hoverArrow.Destination is Box)
         {
           Item hoverItem = hoverArrow.Destination.Tag as Item;
-          hoverItem.Text.ZIndex = hoverArrow.ZIndex - 1;
-          hoverItem.Model.ZIndex = hoverArrow.ZIndex - 2;
+          hoverItem.Model.ZIndex = hoverArrow.ZIndex - 100000;
+          hoverItem.Graphic.ZIndex = hoverArrow.ZIndex - 200000;
+          hoverItem.Text.ZIndex = hoverArrow.ZIndex - 300000;
         }
 
         if (hoverArrow.Origin is Box)
         {
           Item hoverItem = hoverArrow.Origin.Tag as Item;
-          hoverItem.Text.ZIndex = hoverArrow.ZIndex - 1;
-          hoverItem.Model.ZIndex = hoverArrow.ZIndex - 2;
+          hoverItem.Model.ZIndex = hoverArrow.ZIndex - 100000;
+          hoverItem.Graphic.ZIndex = hoverArrow.ZIndex - 200000;
+          hoverItem.Text.ZIndex = hoverArrow.ZIndex - 300000;
         }
 
         hoverArrow.Visible = state.ShowLinks;
@@ -1496,22 +1498,22 @@ namespace SysCAD.Editor
         //hoverItem.Graphic.ZTop();
         hoverItem.Model.Visible = hoverItem.Visible;
         hoverItem.Model.CustomDraw = CustomDraw.Additional;
-        hoverItem.Model.ZIndex = hoverItem.Graphic.ZIndex + 1;
+        hoverItem.Model.ZIndex = hoverItem.Graphic.ZIndex + 100000;
+        hoverItem.Text.ZIndex = hoverItem.Graphic.ZIndex - 100000;
         hoverItem.Text.Visible = hoverItem.Visible && state.ShowTags;
-        hoverItem.Text.ZIndex = hoverItem.Model.ZIndex + 1;
 
         foreach (Arrow arrow in hoverItem.IncomingArrows)
         {
           arrow.Visible = hoverItem.Visible;
           arrow.CustomDraw = CustomDraw.Additional;
-          arrow.ZIndex = hoverItem.Text.ZIndex + 1;
+          arrow.ZIndex = hoverItem.Text.ZIndex - 100000;
         }
 
         foreach (Arrow arrow in hoverItem.OutgoingArrows)
         {
           arrow.Visible = hoverItem.Visible;
           arrow.CustomDraw = CustomDraw.Additional;
-          arrow.ZIndex = hoverItem.Text.ZIndex + 1;
+          arrow.ZIndex = hoverItem.Text.ZIndex - 100000;
         }
       }
 
@@ -1525,15 +1527,17 @@ namespace SysCAD.Editor
           if (oldHoverArrow.Destination is Box)
           {
             Item oldHoverItem = oldHoverArrow.Destination.Tag as Item;
-            oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 1;
-            oldHoverItem.Model.ZIndex = oldHoverArrow.ZIndex - 2;
+            oldHoverItem.Model.ZIndex = oldHoverArrow.ZIndex - 100000;
+            oldHoverItem.Graphic.ZIndex = oldHoverArrow.ZIndex - 200000;
+            oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 300000;
           }
 
           if (oldHoverArrow.Origin is Box)
           {
             Item oldHoverItem = oldHoverArrow.Origin.Tag as Item;
-            oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 1;
-            oldHoverItem.Model.ZIndex = oldHoverArrow.ZIndex - 2;
+            oldHoverItem.Model.ZIndex = oldHoverArrow.ZIndex - 100000;
+            oldHoverItem.Graphic.ZIndex = oldHoverArrow.ZIndex - 200000;
+            oldHoverItem.Text.ZIndex = oldHoverArrow.ZIndex - 300000;
           }
 
           oldHoverArrow.Visible = true;
@@ -1552,22 +1556,22 @@ namespace SysCAD.Editor
             oldHoverItem.Graphic.Visible = oldHoverItem.Visible && state.ShowGraphics;
             oldHoverItem.Model.Visible = oldHoverItem.Visible && (oldHoverItem.Model.Selected || state.ShowModels);
             oldHoverItem.Model.CustomDraw = CustomDraw.None;
-            oldHoverItem.Model.ZIndex = oldHoverItem.Graphic.ZIndex + 1;
+            oldHoverItem.Model.ZIndex = oldHoverItem.Graphic.ZIndex + 100000;
+            oldHoverItem.Text.ZIndex = oldHoverItem.Graphic.ZIndex - 100000;
             oldHoverItem.Text.Visible = oldHoverItem.Visible && state.ShowTags;
-            oldHoverItem.Text.ZIndex = oldHoverItem.Model.ZIndex + 1;
 
             foreach (Arrow arrow in oldHoverItem.IncomingArrows)
             {
               arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
               arrow.CustomDraw = CustomDraw.None;
-              arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+              arrow.ZIndex = oldHoverItem.Text.ZIndex - 100000;
             }
 
             foreach (Arrow arrow in oldHoverItem.OutgoingArrows)
             {
               arrow.Visible = oldHoverItem.Visible && state.ShowLinks;
               arrow.CustomDraw = CustomDraw.None;
-              arrow.ZIndex = oldHoverItem.Text.ZIndex + 1;
+              arrow.ZIndex = oldHoverItem.Text.ZIndex - 100000;
             }
           }
 
@@ -1647,11 +1651,11 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_StateChanged(Int64 eventId, Int64 requestId, BaseProtocol.RunStates runState)
+    private void fcFlowChart_PermissionsChanged(Int64 eventId, Int64 requestId, ClientBaseProtocol.Permissions permissions)
     {
-      state.StateChanged(runState);
+      state.PermissionsChanged(permissions);
 
-      form1.StateChanged(runState);
+      form1.PermissionsChanged(permissions);
     }
 
     private void fcFlowChart_Step(Int64 eventId, Int64 step, DateTime time)

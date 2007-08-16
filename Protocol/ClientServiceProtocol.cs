@@ -19,12 +19,12 @@ namespace SysCAD.Protocol
 {
 
   [Serializable]
-  public sealed class ClientServiceProtocol : BaseProtocol
+  public sealed class ClientServiceProtocol : ClientBaseProtocol
   {
     private LoadHandler loadHandler;
     private SaveHandler saveHandler;
 
-    private ChangeStateHandler changeStateHandler;
+    private ChangePermissionsHandler clientChangePermissions;
 
     private CreateGroupHandler createGroupHandler;
     private CreateItemHandler createItemHandler;
@@ -55,7 +55,7 @@ namespace SysCAD.Protocol
     public delegate bool LoadHandler(out Int64 requestId);
     public delegate bool SaveHandler(out Int64 requestId);
 
-    public delegate bool ChangeStateHandler(out Int64 requestId, RunStates runState);
+    public delegate bool ChangePermissionsHandler(out Int64 requestId, Permissions permissions);
 
     public delegate bool CreateGroupHandler(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect);
     public delegate bool CreateItemHandler(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
@@ -87,7 +87,7 @@ namespace SysCAD.Protocol
     public ClientServiceProtocol(String name,
       LoadHandler loadHandler, SaveHandler saveHandler, 
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
-      ChangeStateHandler changeStateHandler, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
+      ChangePermissionsHandler clientChangePermissions, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
       CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
@@ -105,7 +105,7 @@ namespace SysCAD.Protocol
       this.loadHandler = loadHandler;
       this.saveHandler = saveHandler;
 
-      this.changeStateHandler = changeStateHandler;
+      this.clientChangePermissions = clientChangePermissions;
 
       this.getPropertyValuesHandler = getPropertyValuesHandler;
       this.getSubTagsHandler = getSubTagsHandler;
@@ -135,9 +135,9 @@ namespace SysCAD.Protocol
       this.logMessageHandler = logMessageHandler;
     }
 
-    public bool ChangeState(out Int64 requestId, RunStates runState)
+    public bool ChangePermissions(out Int64 requestId, Permissions permissions)
     {
-      return changeStateHandler(out requestId, runState);
+      return clientChangePermissions(out requestId, permissions);
     }
 
     public bool CreateGroup(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect)
@@ -287,9 +287,9 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void DoStateChanged(Int64 eventId, Int64 requestId, RunStates runState)
+    public void DoPermissionsChanged(Int64 eventId, Int64 requestId, Permissions permissions)
     {
-      OnStateChanged(eventId, requestId, runState);
+      OnPermissionsChanged(eventId, requestId, permissions);
     }
 
     public void DoStep(Int64 eventId, Int64 step, DateTime time)

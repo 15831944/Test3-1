@@ -35,7 +35,9 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
 
-    BaseProtocol.RunStates runState;
+    bool projectOpen = false;
+
+    ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions();
 
     private bool selectItems = true;
 
@@ -316,13 +318,13 @@ namespace SysCAD.Editor
       arrow.UpdateFromPoints();
     }
 
-    internal bool ChangeState(out Int64 requestId, BaseProtocol.RunStates runState)
+    internal bool ChangePermissions(out Int64 requestId, ClientBaseProtocol.Permissions permissions)
     {
-      return clientProtocol.ChangeState(out requestId, runState);
+      return clientProtocol.ChangePermissions(out requestId, permissions);
     }
 
     internal void ConnectGraphic(
-      ClientProtocol.StateChangedHandler stateChangedHandler,
+      ClientProtocol.PermissionsChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
       ClientProtocol.SyncHandler syncHandler,
       ClientProtocol.GroupCreatedHandler GroupCreatedHandler,
@@ -338,7 +340,7 @@ namespace SysCAD.Editor
       ClientProtocol.ThingModifiedHandler thingModifiedHandler,
       ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
-      clientProtocol.StateChanged += stateChangedHandler;
+      clientProtocol.PermissionsChanged += stateChangedHandler;
 
       clientProtocol.Step += stepHandler;
 
@@ -796,7 +798,7 @@ namespace SysCAD.Editor
     }
 
     internal void DisconnectGraphic(
-      ClientProtocol.StateChangedHandler stateChangedHandler,
+      ClientProtocol.PermissionsChangedHandler stateChangedHandler,
       ClientProtocol.StepHandler stepHandler,
       ClientProtocol.SyncHandler syncHandler,
       ClientProtocol.GroupCreatedHandler GroupCreatedHandler,
@@ -812,7 +814,7 @@ namespace SysCAD.Editor
       ClientProtocol.ThingModifiedHandler thingModifiedHandler,
       ClientProtocol.ThingDeletedHandler thingDeletedHandler)
     {
-      clientProtocol.StateChanged -= stateChangedHandler;
+      clientProtocol.PermissionsChanged -= stateChangedHandler;
 
       clientProtocol.Step -= stepHandler;
 
@@ -1264,9 +1266,9 @@ namespace SysCAD.Editor
       }
     }
 
-    internal void StateChanged(BaseProtocol.RunStates runState)
+    internal void PermissionsChanged(ClientBaseProtocol.Permissions permissions)
     {
-      this.runState = runState;
+      this.permissions = permissions;
     }
 
     internal void Step(Int64 step, DateTime time)
@@ -1410,6 +1412,18 @@ namespace SysCAD.Editor
     public IEnumerable<ModelStencil> ModelStencils
     {
       get { return config.ModelStencils.Values; }
+    }
+
+    public bool ProjectOpen
+    {
+      get { return projectOpen; }
+      set { projectOpen = value; }
+    }
+
+    public ClientBaseProtocol.Permissions Permissions
+    {
+      get { return permissions; }
+      set { permissions = value; }
     }
 
     public bool SelectItems
