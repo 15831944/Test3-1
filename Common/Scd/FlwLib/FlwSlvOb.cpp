@@ -37,7 +37,7 @@ SDBObject::SDBObject(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, T
   m_dDisplayT=Std_T;
   m_dDisplayP=Std_P;
   m_iDisplaySolvent=-1;
-  m_dDisplayMF=0.1;
+  m_dDisplayMF=0.02;
   //m_iFidelity=0;
   m_bShowMs=true;
   m_bHiFidelity=SpModel::Fidelity()==1?1:0;

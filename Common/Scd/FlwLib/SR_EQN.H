@@ -430,7 +430,7 @@ class DllImportExport CR_Eqn : public CReaction
     virtual void   GetMsAGData(CMSJoin & AG);
 #endif
 
-    DEFINE_CI(CR_Eqn, CReaction, 8);
+    DEFINE_CI(CR_Eqn, CReaction, 10);
 
   public:
     static CToleranceBlock sm_ExtentTol;

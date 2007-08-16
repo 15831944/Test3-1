@@ -1041,7 +1041,7 @@ flag BalanceData::Check()
   else
     {
     R.ClrCI(2);
-    R.ClrCI(8);
+    //R.ClrCI(9);
     }
   return BalanceOK;
   }
