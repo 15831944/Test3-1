@@ -6608,7 +6608,8 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         {
           // Temporary
           m_pSvc->Export(PrjName(), CfgFiles());
-          m_pSvc->Save();
+          // CNM Removed - temp
+          //m_pSvc->Save();
         }
       }
     else
@@ -8921,11 +8922,11 @@ int CProject::DeleteNodeModel(pchar Tag)
 
 //---------------------------------------------------------------------------
 
-LPSTR CProject::GetNodeGuid(pchar Tag)
+flag CProject::GetNodeGuid(pchar Tag, Strng & Guid)
   {
   if (!FlwLib())
     return False;
-  return FlwLib()->FE_GetNodeGuid(Tag);
+  return FlwLib()->FE_GetNodeGuid(Tag, Guid);
   }
 
 int CProject::ChangeNodeGuid(pchar Tag, pchar Guid)
@@ -8935,11 +8936,11 @@ int CProject::ChangeNodeGuid(pchar Tag, pchar Guid)
   return FlwLib()->FE_ChangeNodeGuid(Tag, Guid);
   }
 
-LPSTR CProject::FindNodeTagFromGuid(pchar Guid)
+flag CProject::FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink)
   {
   if (!FlwLib())
-    return False;
-  return FlwLib()->FE_FindNodeTagFromGuid(Guid);
+    return false;
+  return FlwLib()->FE_FindNodeInfoFromGuid(Guid, Tag, IsLink);
   }
 
 //---------------------------------------------------------------------------

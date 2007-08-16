@@ -48,9 +48,9 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     int            FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL, LPSTR pGuidStr=NULL);
     int            FE_DoInsertRoot(char * RootName);
     int            FE_DoDelete(char * Tag);
-    LPSTR          FE_GetNodeGuid(pchar Tag);
+    flag           FE_GetNodeGuid(pchar Tag, Strng & Guid);
     int            FE_ChangeNodeGuid(pchar Tag, pchar Guid);
-    LPSTR          FE_FindNodeTagFromGuid(pchar Guid);
+    flag           FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink);
     int            FE_DoConnect(char * SrcTag, char *DstTag);
     int            FE_DoDisConnect(char * SrcTag, char *DstTag);
     int            FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID);

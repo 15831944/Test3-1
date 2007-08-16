@@ -137,18 +137,18 @@ int CSfeSrvr::FE_DoDelete(char * Tag)
   {
   return SfeFS->FE_DoDelete(Tag);
   };
-LPSTR CSfeSrvr::FE_GetNodeGuid(pchar Tag)
+flag CSfeSrvr::FE_GetNodeGuid(pchar Tag, Strng & Guid)
   {
-  return SfeFS->FE_GetNodeGuid(Tag);
+  return SfeFS->FE_GetNodeGuid(Tag, Guid);
   };
 int CSfeSrvr::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
   {
   return SfeFS->FE_ChangeNodeGuid(Tag, Guid);
   };
 
-LPSTR CSfeSrvr::FE_FindNodeTagFromGuid(pchar Guid)
+flag CSfeSrvr::FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink)
   {
-  return SfeFS->FE_FindNodeTagFromGuid(Guid);
+  return SfeFS->FE_FindNodeInfoFromGuid(Guid, Tag, IsLink);
   }
 
 int CSfeSrvr::FE_DoConnect(char * SrcTag, char *DstTag)

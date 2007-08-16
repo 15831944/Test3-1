@@ -310,14 +310,14 @@ int SFEFlwLib::FE_DoDelete(char * Tag)
   ILEAVE
   };
 
-LPSTR SFEFlwLib::FE_GetNodeGuid(pchar Tag)
+flag SFEFlwLib::FE_GetNodeGuid(pchar Tag, Strng & Guid)
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
-  PCENTER(NULL)
-    pSfe->FE_GetNodeGuid(Tag);
+  FENTER(NULL)
+    pSfe->FE_GetNodeGuid(Tag, Guid);
   //CExploreScd::RefreshIt(false);
-  PCLEAVE
+  FLEAVE
   };
 
 int SFEFlwLib::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
@@ -330,14 +330,14 @@ int SFEFlwLib::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
   ILEAVE
   };
 
-LPSTR SFEFlwLib::FE_FindNodeTagFromGuid(pchar Guid)
+flag SFEFlwLib::FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink)
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
-  PCENTER(NULL)
-    pSfe->FE_FindNodeTagFromGuid(Guid);
+  FENTER(0)
+    pSfe->FE_FindNodeInfoFromGuid(Guid, Tag, IsLink);
   //CExploreScd::RefreshIt(false);
-  PCLEAVE
+  FLEAVE
   };
 
 int SFEFlwLib::FE_DoConnect(char * SrcTag, char *DstTag)

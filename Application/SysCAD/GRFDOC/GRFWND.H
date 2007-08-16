@@ -131,6 +131,7 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual int    EO_QueryChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
+    virtual int    EO_DeleteTag(pchar pDelTag);
 
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);

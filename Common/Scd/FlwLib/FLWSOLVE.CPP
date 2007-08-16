@@ -11699,14 +11699,15 @@ int CFlwSolver::FE_DoDelete(char * Tag)
 
 //--------------------------------------------------------------------------
     
-LPSTR CFlwSolver::FE_GetNodeGuid(pchar Tag)
+flag CFlwSolver::FE_GetNodeGuid(pchar Tag, Strng & Guid)
   {
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    return (LPSTR)p->EqpGUID();
+    Guid = p->EqpGUID();
+    return true;
     }
-  return NULL;
+  return false;
   }
 
 
@@ -11723,14 +11724,18 @@ int CFlwSolver::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
   return NErr_NotFound;
   }
 
-LPSTR CFlwSolver::FE_FindNodeTagFromGuid(pchar Guid)
+flag CFlwSolver::FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink)
   {
   for (FlwNode * p = NULL; GetObj_All(p); )
     {
     if (stricmp(p->EqGUID(), Guid)==0)
-      return p->Tag();
+      {
+      Tag=p->Tag();
+      IsLink=p->IsLnk();
+      return true;
+      }
     }
-  return NULL;
+  return false;
   }
 
 //--------------------------------------------------------------------------

@@ -1168,9 +1168,9 @@ class DllImportExport CSfeSrvrBase
     virtual int          FE_DoInsert(char * Class, char *SubClass, char *PrimaryCfgIn, char *NTag, char *SrcTag, char *DstTag, FlwNode **pNd=NULL, LPSTR pGuidStr=NULL) { return 0; };
     virtual int          FE_DoInsertRoot(char * RootName) { return 0; };
     virtual int          FE_DoDelete(char * Tag) { return 0; };
-    virtual LPSTR        FE_GetNodeGuid(pchar Tag) { return NULL; };
+    virtual flag         FE_GetNodeGuid(pchar Tag, Strng & Guid) { return false; };
     virtual int          FE_ChangeNodeGuid(pchar Tag, pchar Guid) { return 0; };
-    virtual LPSTR        FE_FindNodeTagFromGuid(pchar Guid) { return NULL; };
+    virtual flag         FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink) { return 0; };
     virtual int          FE_DoConnect(char * SrcTag, char *DstTag) { return 0; };
     virtual int          FE_DoDisConnect(char * SrcTag, char *DstTag) { return 0; };
     virtual int          FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * EqpIdStr, char * EqpLocation, char * PlantArea, char * EqpGUID) { return 0; };

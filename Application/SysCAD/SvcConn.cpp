@@ -462,25 +462,31 @@ void CSvcConnect::DoDeleteItem(LPCSTR Tag)
 
   m_lRequestId++;
 
-  LPSTR Guid = (LPSTR)gs_pPrj->GetNodeGuid((LPSTR)Tag);
+  Strng Guid;
+  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+    {
 
 #if dbgSvcConn
-  if (dbgConnect())
-    {
-    dbgpln("DoDeleteItem  >>> %7s %7I64i %s %s", "", m_lRequestId, Guid, Tag);
-    dbgindent(2);
+    if (dbgConnect())
+      {
+      dbgpln("DoDeleteItem  >>> %7s %7I64i %s %s", "", m_lRequestId, Guid(), Tag);
+      dbgindent(2);
+      }
+#endif
+
+    m_pCLR->DoDeleteItem(m_lRequestIdRet, Guid());
+
+#if dbgSvcConn
+    if (dbgConnect())
+      {
+      dbgindent(-2);
+      dbgpln("DoDeleteItem  <<< %7s %7I64i", "", m_lRequestIdRet);
+      };
+#endif
     }
-#endif
-
-  m_pCLR->DoDeleteItem(m_lRequestIdRet, Guid);
-
-#if dbgSvcConn
-  if (dbgConnect())
+  else
     {
-    dbgindent(-2);
-    dbgpln("DoDeleteItem  <<< %7s %7I64i", "", m_lRequestIdRet);
-    };
-#endif
+    }
   }
 
 void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGuid)
@@ -493,30 +499,25 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
     }
 #endif
 
-  CString Tag = gs_pPrj->FindNodeTagFromGuid((LPSTR)ItemGuid);
-  if (Tag.GetLength()>0)
+  Strng Tag;
+  flag IsLink;
+  Strng_List Pages;
+  if (gs_pPrj->FindNodeInfoFromGuid((LPSTR)ItemGuid, Tag, IsLink))
     {
-    int RetCode = gs_Exec.DeleteTag((LPSTR)(LPCSTR)Tag);
-    if (RetCode!=EODT_DONE)
+    if (!IsLink)
       {
-      LogError((LPSTR)(LPCSTR)Tag, 0, "Model not deleted");
-      //DeletesFailedCnt++;
+      int RetCode = gs_Exec.DeleteTag(Tag());
+      if (RetCode!=EODT_DONE)
+        {
+        LogError(Tag(), 0, "Model not deleted");
+        //DeletesFailedCnt++;
+        }
+
       }
-
-
-    //CString PageName=ExtractPageName(Path);
-    //CGrfDoc * pDoc=FindGrfDoc(PageName);
-    //PageRct = GetPageRect(PageName);
-
-
-    //      if (DelSym)
-    //        {
-    //        pDsp->Draw(e, GrfHelper.GR_BACKGROUND);
-    //        pDrw->Delete(e);
-    //        }
-
-    //else
-    //  MdlDeletes++;
+    else
+      {
+      // Links should be deleted by OnDeleteLink
+      }
     }
   else
     {

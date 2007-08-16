@@ -364,6 +364,31 @@ int CGrfWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 
 //---------------------------------------------------------------------------
 
+int CGrfWnd::EO_DeleteTag(pchar pDelTag)
+  {//a tag has been deleted, ...
+  int RetCode = EODT_NOTFOUND;
+
+  DXF_ENTITY eInsert, eAttrib;
+  if (Dsp.FindTag(pDelTag, eInsert, eAttrib))
+    {
+    Dsp.Open();
+
+    if (eInsert)
+      {
+      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+
+      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+      GCB.pDrw->Delete(eInsert);
+      }
+
+    Dsp.Close();
+    }
+
+  return RetCode;
+  }
+
+//---------------------------------------------------------------------------
+
 flag CGrfWnd::EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd)
   {
   return True;

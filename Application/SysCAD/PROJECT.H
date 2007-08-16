@@ -764,9 +764,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     int            DisConnect(pchar SrcTag, pchar SrcOut, pchar DstTag, pchar DstIn);
     int            AddConnect(pchar Src, pchar Dst);
     int            DisConnect(pchar Src, pchar Dst);
-    LPSTR          GetNodeGuid(pchar Tag);
+    flag           GetNodeGuid(pchar Tag, Strng & Guid);
     int            ChangeNodeGuid(pchar Tag, pchar Guid);
-    LPSTR          FindNodeTagFromGuid(pchar Guid);
+    flag           FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink);
 
   public:
     static bool    sm_fOpenAltCfg;
