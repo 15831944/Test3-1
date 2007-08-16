@@ -27,8 +27,6 @@ namespace SysCAD.Protocol
     public Dictionary<Guid, GraphicLink> graphicLinks;
     public Dictionary<Guid, GraphicThing> graphicThings;
 
-    public Dictionary<DateTime, LogItem> logItems;
-
     private String name;
 
     //[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure)]
