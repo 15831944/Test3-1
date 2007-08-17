@@ -1661,11 +1661,12 @@ int CSpecie::AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* pDensCo
   if (pDensCorrFn && !HasLimit)
     Ret=5;
 
-  double DensCorrZero  = pDensCorrFn ? pDensCorrFn->AtT(0.0) : 0.0;
-
-  SDB[iSoluteA].m_pDensCalc = new CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn);
-
-  m_DensCorrs.Add(CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn));
+  if (pDensCorrFn)
+    {
+    const double DensCorrZero  = pDensCorrFn->AtT(0.0);
+    SDB[iSoluteA].m_pDensCalc = new CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn);
+    m_DensCorrs.Add(CDensCorr(iSoluteA, iSolvent, pDensCorrFn, DensCorrZero, LimitFrac, PureValue, DoWarn));
+    }
 
 DensOK:
 
