@@ -21,13 +21,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3EDF272325241E71F8EF662EAE0B001E"
+        "MsmKey" = "8:_25FC4BA21AC947113DCF331C3E3CAEEB"
         "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8DCC6855DAC53089EF90971A1C1C736D"
+        "MsmKey" = "8:_25FC4BA21AC947113DCF331C3E3CAEEB"
+        "OwnerKey" = "8:_6A73F7AB08B72701E54B260D959D046A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6A73F7AB08B72701E54B260D959D046A"
         "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -39,6 +45,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F5970BE164A616F99439065C0B96CD53"
+        "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_16C7FACAD9EA474992D838B2DC7C13FB"
         "MsmSig" = "8:_UNDEFINED"
@@ -46,13 +58,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8DCC6855DAC53089EF90971A1C1C736D"
+        "OwnerKey" = "8:_F5970BE164A616F99439065C0B96CD53"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3EDF272325241E71F8EF662EAE0B001E"
+        "OwnerKey" = "8:_6A73F7AB08B72701E54B260D959D046A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_25FC4BA21AC947113DCF331C3E3CAEEB"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -145,20 +163,20 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_3EDF272325241E71F8EF662EAE0B001E"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_25FC4BA21AC947113DCF331C3E3CAEEB"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Protocol, Version=4.2.0.28260, Culture=neutral, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:LogView, Version=1.0.2785.7152, Culture=neutral, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3EDF272325241E71F8EF662EAE0B001E"
+                    "_25FC4BA21AC947113DCF331C3E3CAEEB"
                     {
-                    "Name" = "8:Protocol.dll"
+                    "Name" = "8:LogView.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:Protocol.dll"
+            "SourcePath" = "8:LogView.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
@@ -176,20 +194,20 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8DCC6855DAC53089EF90971A1C1C736D"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_6A73F7AB08B72701E54B260D959D046A"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.15542, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:Protocol, Version=4.2.0.28260, Culture=neutral, PublicKeyToken=8cb361a6244c44c8, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8DCC6855DAC53089EF90971A1C1C736D"
+                    "_6A73F7AB08B72701E54B260D959D046A"
                     {
-                    "Name" = "8:FlowChart.NET.dll"
+                    "Name" = "8:Protocol.dll"
                     "Attributes" = "3:512"
                     }
                 }
-            "SourcePath" = "8:FlowChart.NET.dll"
+            "SourcePath" = "8:Protocol.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
@@ -225,6 +243,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F5970BE164A616F99439065C0B96CD53"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FlowChart.NET, Version=4.2.0.28169, Culture=neutral, PublicKeyToken=7bab251dc203bf49, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_F5970BE164A616F99439065C0B96CD53"
+                    {
+                    "Name" = "8:FlowChart.NET.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:FlowChart.NET.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_41B4F90065D641A9A3EA51B2BFB675EC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
         }
@@ -293,14 +342,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Stencil Editor"
-        "ProductCode" = "8:{9445091A-D194-47D7-9DE1-F639960EA1B2}"
-        "PackageCode" = "8:{1F3F39F8-3E0C-4DEE-8090-E73F068F44AA}"
+        "ProductCode" = "8:{0C1EFE54-B2AE-45ED-AB9D-119CBEC65DC1}"
+        "PackageCode" = "8:{9B5D4AF1-AD26-41B1-963F-219DC635628A}"
         "UpgradeCode" = "8:{9D4431C2-D4F7-423A-A9CA-FFAC905BC3CF}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.1.11"
+        "ProductVersion" = "8:1.1.12"
         "Manufacturer" = "8:Kenwalt"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -854,9 +903,6 @@
                 {
                 }
             }
-        }
-        "VJSharpPlugin"
-        {
         }
     }
 }

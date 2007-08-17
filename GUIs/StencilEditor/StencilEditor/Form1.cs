@@ -2023,10 +2023,19 @@ namespace StencilEditor
       saveFileDialog.DereferenceLinks = true;
       saveFileDialog.Filter = "Graphic Stencil|*.GraphicStencil|Model Stencil|*.ModelStencil";
       saveFileDialog.ValidateNames = true;
+      saveFileDialog.AddExtension = false;
 
       if (saveFileDialog.ShowDialog() == DialogResult.OK)
       {
-        filename = saveFileDialog.FileName;
+        String baseName = saveFileDialog.FileName;
+
+        baseName = baseName.Replace(".GraphicStencil", "");
+        baseName = baseName.Replace(".ModelStencil", "");
+        baseName = baseName.Replace(".graphicstencil", "");
+        baseName = baseName.Replace(".modelstencil", "");
+
+        filename = baseName;
+
         saveToolStripMenuItem_Click(sender, e);
       }
     }
