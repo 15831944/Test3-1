@@ -38,15 +38,6 @@ namespace Reaction_Editor
         protected static Regex s_SourceRegex = new Regex(@"(;RC1:(?<Comment>[^\r\n]*))?(^|\r*\n)[^\S\r\n]*(?<Disabled>;)?Source:(?<Value>[^;\r\n]*)",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
-        #region Reactions
-        public static Regex s_ReactionRegex = new Regex(
-            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
-            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        protected static Regex s_DisabledReactionRegex = new Regex(
-            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
-            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        #endregion Reactions
 
         #region Sinks
 
@@ -97,7 +88,7 @@ namespace Reaction_Editor
         //It's only ever used in adding a new reaction. And non-software people don't like zero referenced arrays.
         protected int ReactionNo
         {
-            get { return lstReactions.Items.Count + 1; }
+            get { return lstReactions.Items.Count; }
         }
 
         protected bool m_bActualActive = true;
@@ -182,12 +173,9 @@ namespace Reaction_Editor
             }
         }
 
-        protected Control ActualActiveControl(ContainerControl c)
+        public bool CanRevert
         {
-            if (c.ActiveControl is ContainerControl)
-                return ActualActiveControl((ContainerControl)c.ActiveControl);
-            else
-                return c.ActiveControl;
+            get { return m_CurrentReaction != null && m_CurrentReaction.CanRevert; }
         }
 
         public bool CanPaste
@@ -227,6 +215,14 @@ namespace Reaction_Editor
                     text += " Invalid reactant string.";
                 if (!m_CurrentReaction.ExtentInfo.IsValid())
                     text += " Invalid extent specified.";
+                if (!m_CurrentReaction.HeatOfReactionOK)
+                {
+                    text += " Heat of Formation undefined for: {";
+                    foreach (Compound c in m_CurrentReaction.Compounds)
+                        if (!c.HoFOK)
+                            text += c.Symbol + ", ";
+                    text = text.Substring(0, text.Length - 2) + "}";
+                }
                 if (!m_CurrentReaction.Balanced)
                 {
                     text += " Excess product elements: ";
@@ -290,10 +286,11 @@ namespace Reaction_Editor
         #region Events
         public event EventHandler NowChanged;
         public event EventHandler CompoundsChanged;
-        public event EventHandler ReactionChanged;
+        public event EventHandler SelectedReactionChanged;
         public event EventHandler SourcesSinksChanged;
         public event ReactionHandler ReactionAdded;
         public event ReactionHandler ReactionRemoved;
+        public event ReactionHandler ReactionChanged;
         public event EventHandler RecheckCutCopyPaste;
         #endregion Events
 
@@ -589,6 +586,25 @@ namespace Reaction_Editor
             txtSinks_Leave(txtSinks, new EventArgs());
         }
 
+        public void RevertCurrent()
+        {
+            if (m_CurrentReaction == null || !m_CurrentReaction.CanRevert)
+                return;
+            if (MessageBox.Show(this, "Are you sure you wish to revert:\n"
+                + m_CurrentReaction.ToSaveString(chkSequence.Checked, false)
+                + "\nTo the original Reaction:\n"
+                + m_CurrentReaction.RevertReaction.ToSaveString(chkSequence.Checked, false)
+                , "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                LoadReaction(m_CurrentReaction.Revert());
+                UpdateReactionNumbers();
+                if (ReactionChanged != null)
+                    ReactionChanged(this, m_CurrentReaction);
+                if (NowChanged != null)
+                    NowChanged(this, new EventArgs());
+            }
+        }
+
         public void Copy()
         {
             if (lstReactions.Focused && lstReactions.SelectedItems.Count > 0)
@@ -639,10 +655,15 @@ namespace Reaction_Editor
                 CheckBox properChkSequence = chkSequence; //Because the new reaction will always carry sequence information.
                 chkSequence = new CheckBox();
                 //A reaction shouldn't be both enabled and disabled, so simply call both:
-                FindReactions(data, s_ReactionRegex, true);
-                FindReactions(data, s_DisabledReactionRegex, false);
+                Match m = SimpleReaction.s_ReactionRegex.Match(data);
+                if (!m.Success)
+                    m = SimpleReaction.s_DisabledReactionRegex.Match(data);
+                SimpleReaction rxn = CreateReaction(null);
+                rxn.SetRegex(m, new MessageSource(""), "");
                 chkSequence = properChkSequence;
                 ChangeOccured();
+                if (ReactionAdded != null)
+                    ReactionAdded(this, rxn);
                 if (CompoundsChanged != null)
                     CompoundsChanged(this, new EventArgs());
             }
@@ -747,6 +768,14 @@ namespace Reaction_Editor
         #endregion Public Functions
 
         #region Protected Functions
+        protected Control ActualActiveControl(ContainerControl c)
+        {
+            if (c.ActiveControl is ContainerControl)
+                return ActualActiveControl((ContainerControl)c.ActiveControl);
+            else
+                return c.ActiveControl;
+        }
+
         protected void UpdateSinksLVI()
         {
             string s = "Sinks: ";
@@ -770,11 +799,13 @@ namespace Reaction_Editor
 
         protected void UpdateReactionNumbers()
         {
+            if (m_bLoading) return;
             ListViewItem[] orderedLVIs = OrderedLVIs(lstReactions.Items);
             int index = 1;
             for (int i = 0; i < orderedLVIs.Length; i++)
-                if ((orderedLVIs[i].Tag is SimpleReaction && ((SimpleReaction)orderedLVIs[i].Tag).Enabled)
-                    || (orderedLVIs[i] == m_SourcesLVI && chkSourcesEnabled.Checked)
+                if ((orderedLVIs[i].Tag is SimpleReaction && ((SimpleReaction)orderedLVIs[i].Tag).Enabled))
+                    ((SimpleReaction)orderedLVIs[i].Tag).ReactionNumber = index++;
+                else if ((orderedLVIs[i] == m_SourcesLVI && chkSourcesEnabled.Checked)
                     || (orderedLVIs[i] == m_SinksLVI && chkSinksEnabled.Checked)
                     || (orderedLVIs[i] == m_HXLVI && chkHXEnabled.Checked))
                     orderedLVIs[i].Text = (index++).ToString();
@@ -891,8 +922,8 @@ namespace Reaction_Editor
                 int rxnBlockEnd = end.Index;
                 string rxnBlock = relevant.Substring(rxnBlockStart, rxnBlockEnd - rxnBlockStart);
 
-                FindReactions(rxnBlock, s_ReactionRegex, true);
-                FindReactions(rxnBlock, s_DisabledReactionRegex, false);
+                FindReactions(rxnBlock, SimpleReaction.s_ReactionRegex, true);
+                FindReactions(rxnBlock, SimpleReaction.s_DisabledReactionRegex, false);
 
                 chkFirstReactant.Checked = relevant.ToLowerInvariant().Contains("<usefirstreactant=true>");
 
@@ -977,39 +1008,13 @@ namespace Reaction_Editor
             for (Match rxnMatch = reactionRegex.Match(rxnBlock); rxnMatch.Success; rxnMatch = rxnMatch.NextMatch())
             {
                 SimpleReaction currentReaction = CreateReaction(null);
+                currentReaction.Initialised = false;
                 MessageSource source = new MessageFrmReaction(
                     this.Title + ", Reaction " + ReactionNo,
                     this,
                     currentReaction);
                 Log.SetSource(source);
-                Group grpComment = rxnMatch.Groups["Comment"];
-                if (grpComment.Success)
-                    currentReaction.Comment = grpComment.Captures[0].Value.Trim();
-
-                Group grpReactants = rxnMatch.Groups["Reactants"];
-                currentReaction.ParseReactants(grpReactants.Captures[0].Value);
-
-
-                Group grpDirection = rxnMatch.Groups["Direction"];
-                currentReaction.DirectionString = grpDirection.Captures[0].Value;
-
-                Group grpProducts = rxnMatch.Groups["Products"];
-                currentReaction.ParseProducts(grpProducts.Captures[0].Value);
-
-                source.Source = this.Title + ": " + currentReaction;
-
-                Group grpExtent = rxnMatch.Groups["Extent"];
-                if (grpExtent.Success)
-                    try
-                    {
-                        currentReaction.ParseExtent(grpExtent.Captures[0].Value);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Message("Unable to parse extent (" + grpExtent.Value + "). Reason: " +ex.Message, MessageType.Warning);
-                    }
-                else
-                    Log.Message("Extent not found for reaction", MessageType.Warning);
+                currentReaction.SetRegex(rxnMatch, source, this.Title);
 
                 Group grpSequence = rxnMatch.Groups["Sequence"];
                 if (grpSequence.Success)
@@ -1024,19 +1029,12 @@ namespace Reaction_Editor
                         Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
                 }
                 currentReaction.Sequence = lastSequence;
-
-                Group grpHOR = rxnMatch.Groups["HOR"];
-                if (grpHOR.Success)
-                    try
-                    {
-                        currentReaction.ParseHOR(grpHOR.Captures[0].Value.Trim());
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Message("Unable to parse HeatOfReaction '" + grpHOR.Value + "' Reason: " + ex.Message, MessageType.Warning);
-                    }
-
+                
                 currentReaction.Enabled = enabled;
+                currentReaction.ReactionNumber = currentReaction.OriginalReactionNumber = ReactionNo; //Sets a flag that indicates the original reaction number should be set to the next reaction number given.
+                currentReaction.Backup();
+                currentReaction.Initialised = true;
+
                 Log.RemoveSource();
             }
             if (sequenceFound)
@@ -1063,6 +1061,7 @@ namespace Reaction_Editor
             else
                 rxn_Changed(rxn, new EventArgs());
             UpdateReactionNumbers();
+            rxn.Initialised = true;
             return rxn;
         }
 
@@ -1078,8 +1077,8 @@ namespace Reaction_Editor
             m_CurrentReaction = rxn;
             txtReactants.Visible = txtProducts.Visible = comboDirection.Visible = true;
             txtFormula.Visible = false;
-            if (ReactionChanged != null)
-                ReactionChanged(this, new EventArgs());
+            if (SelectedReactionChanged != null)
+                SelectedReactionChanged(this, new EventArgs());
             if (rxn == null)
             {
                 SetPanelEnables(pnlReaction, false);
@@ -1150,6 +1149,7 @@ namespace Reaction_Editor
                 numSequence.Text = numSequence.Value.ToString();
             }
             //pnlReaction.Enabled = true;
+            statusLabel.Text = StatusMessage;
             m_bLoading = false;
         }
 
@@ -1226,6 +1226,8 @@ namespace Reaction_Editor
             
         protected void rxn_Changed(object sender, EventArgs e)
         {
+            if (ReactionChanged != null)
+                ReactionChanged(this, (SimpleReaction)sender);
             ChangeOccured();
         }
 
@@ -1439,9 +1441,12 @@ namespace Reaction_Editor
                 return;
             if (m_AddSelector.radioReaction.Checked)
             {
-                CreateReaction(null).LVI.Selected = true;
+                SimpleReaction rxn = CreateReaction(null);
+                rxn.LVI.Selected = true;
                 txtReactants.Select();
                 UpdateReactionNumbers();
+                if (ReactionAdded != null)
+                    ReactionAdded(this, rxn);
             }
             else if (m_AddSelector.radioHX.Checked)
             {
@@ -1740,7 +1745,7 @@ namespace Reaction_Editor
 
         private void numHORValue_TextChanged(object sender, EventArgs e)
         {
-            if (m_CurrentReaction == null) return;
+            if (m_CurrentReaction == null || m_bLoading) return;
             double temp;
             double.TryParse(numHORValue.Text, out temp);
             m_CurrentReaction.HeatOfReactionValue = temp;
@@ -1964,8 +1969,10 @@ namespace Reaction_Editor
         private void btnCopy_Click(object sender, EventArgs e)
         {
             if (m_CurrentReaction == null) return;
-            ListViewItem lvi = AddReaction(m_CurrentReaction, -1).LVI;
-            lvi.Selected = true;
+            SimpleReaction rxn = AddReaction(m_CurrentReaction, -1);
+            rxn.LVI.Selected = true;
+            if (ReactionAdded != null)
+                ReactionAdded(this, rxn);
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -1977,7 +1984,7 @@ namespace Reaction_Editor
 
             if (lvi.Tag is SimpleReaction)
             {
-                SimpleReaction rxn = (SimpleReaction)lstReactions.SelectedItems[0].Tag;
+                SimpleReaction rxn = (SimpleReaction)lvi.Tag;
                 if (ReactionRemoved != null)
                     ReactionRemoved(this, rxn);
             }
@@ -2287,7 +2294,7 @@ namespace Reaction_Editor
         private void btnBalance_Click(object sender, EventArgs e)
         {
             if (m_CurrentReaction == null) return;
-            //try
+            try
             {
                 Matrix.RemovalInfo info = m_CurrentReaction.BalanceOptions();
                 if (!info.m_bCanRemove)
@@ -2319,10 +2326,10 @@ namespace Reaction_Editor
                     }
                 }
             }
-            /*catch (Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Autobalancer");
-            }*/
+            }
         }
 
         private void txtFormula_TextChanged(object sender, EventArgs e)
@@ -2428,6 +2435,7 @@ namespace Reaction_Editor
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
             menuCopy.Enabled = menuRemove.Enabled = m_CurrentReaction != null;
+            menuRevert.Enabled = m_CurrentReaction != null && m_CurrentReaction.CanRevert;
             menuShowSequence.Enabled = chkSequence.Checked;
         }
 
@@ -2514,6 +2522,11 @@ namespace Reaction_Editor
             FormulaBox_Leave(sender, e);
             if (!m_CurrentReaction.ProductsOk)
                 e.Cancel = true;
+        }
+
+        private void menuRevert_Click(object sender, EventArgs e)
+        {
+            RevertCurrent();
         }
     }
 }

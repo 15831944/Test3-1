@@ -16,6 +16,7 @@ namespace Reaction_Editor
         }
 
         protected Fraction m_Max = 100, m_Min = 0;
+        protected Fraction m_OldValue = Fraction.NaN;
 
         #region properties
         public Fraction Value
@@ -32,8 +33,9 @@ namespace Reaction_Editor
             {
                 if (value > m_Max) value = m_Max;
                 if (value < m_Min) value = m_Min;
-                if (Text == value.ToString())
+                if (m_OldValue == value && Text == value.ToString())
                     return;
+                m_OldValue = value;
                 Text = value.ToString();
                 FireValueChanged();
             }
@@ -104,6 +106,11 @@ namespace Reaction_Editor
                     base.OnKeyDown(e);
                     break;
             }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
         }
 
         protected override void OnLeave(EventArgs e)

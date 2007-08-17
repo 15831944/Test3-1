@@ -29,11 +29,11 @@ namespace Reaction_Editor
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Specie Database");
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Reaction Blocks");
-            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup5 = new System.Windows.Forms.ListViewGroup("Liquids", System.Windows.Forms.HorizontalAlignment.Left);
-            System.Windows.Forms.ListViewGroup listViewGroup6 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Specie Database");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Reaction Blocks");
+            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Solids", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Liquids", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Vapours", System.Windows.Forms.HorizontalAlignment.Left);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMain));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -107,6 +107,8 @@ namespace Reaction_Editor
             this.btnCut = new System.Windows.Forms.ToolStripButton();
             this.btnCopy = new System.Windows.Forms.ToolStripButton();
             this.btnPaste = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.btnRevert = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -356,13 +358,13 @@ namespace Reaction_Editor
             this.treeFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeFiles.Location = new System.Drawing.Point(3, 16);
             this.treeFiles.Name = "treeFiles";
-            treeNode3.Name = "SpecieDB";
-            treeNode3.Text = "Specie Database";
-            treeNode4.Name = "RBs";
-            treeNode4.Text = "Reaction Blocks";
+            treeNode1.Name = "SpecieDB";
+            treeNode1.Text = "Specie Database";
+            treeNode2.Name = "RBs";
+            treeNode2.Text = "Reaction Blocks";
             this.treeFiles.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode3,
-            treeNode4});
+            treeNode1,
+            treeNode2});
             this.treeFiles.Size = new System.Drawing.Size(140, 315);
             this.treeFiles.TabIndex = 0;
             this.treeFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeFiles_DragDrop);
@@ -391,16 +393,16 @@ namespace Reaction_Editor
             this.lstSpecies.ContextMenuStrip = this.menuSpecieList;
             this.lstSpecies.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstSpecies.FullRowSelect = true;
-            listViewGroup4.Header = "Solids";
-            listViewGroup4.Name = "Solid";
-            listViewGroup5.Header = "Liquids";
-            listViewGroup5.Name = "Liquid";
-            listViewGroup6.Header = "Vapours";
-            listViewGroup6.Name = "Gas";
+            listViewGroup1.Header = "Solids";
+            listViewGroup1.Name = "Solid";
+            listViewGroup2.Header = "Liquids";
+            listViewGroup2.Name = "Liquid";
+            listViewGroup3.Header = "Vapours";
+            listViewGroup3.Name = "Gas";
             this.lstSpecies.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup4,
-            listViewGroup5,
-            listViewGroup6});
+            listViewGroup1,
+            listViewGroup2,
+            listViewGroup3});
             this.lstSpecies.Location = new System.Drawing.Point(3, 16);
             this.lstSpecies.Name = "lstSpecies";
             this.lstSpecies.Size = new System.Drawing.Size(166, 281);
@@ -691,7 +693,9 @@ namespace Reaction_Editor
             this.toolStripSeparator1,
             this.btnCut,
             this.btnCopy,
-            this.btnPaste});
+            this.btnPaste,
+            this.toolStripSeparator2,
+            this.btnRevert});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(734, 25);
@@ -772,6 +776,22 @@ namespace Reaction_Editor
             this.btnPaste.Size = new System.Drawing.Size(23, 22);
             this.btnPaste.Text = "Paste";
             this.btnPaste.Click += new System.EventHandler(this.menuPaste_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // btnRevert
+            // 
+            this.btnRevert.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnRevert.Enabled = false;
+            this.btnRevert.Image = ((System.Drawing.Image)(resources.GetObject("btnRevert.Image")));
+            this.btnRevert.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnRevert.Name = "btnRevert";
+            this.btnRevert.Size = new System.Drawing.Size(23, 22);
+            this.btnRevert.Text = "Revert";
+            this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
             // FrmMain
             // 
@@ -891,6 +911,8 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripButton btnCut;
         private System.Windows.Forms.ToolStripButton btnCopy;
         private System.Windows.Forms.ToolStripButton btnPaste;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton btnRevert;
 
 
     }

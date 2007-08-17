@@ -51,6 +51,7 @@ namespace Reaction_Editor
             get { return m_dValue; }
             set 
             {
+                if (m_dValue == value) return;
                 m_dValue = value > 0 ? value : 0;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -61,6 +62,8 @@ namespace Reaction_Editor
             get { return m_Specie; }
             set 
             {
+                if (m_Specie == value)
+                    return;
                 m_Specie = value; 
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -287,6 +290,7 @@ namespace Reaction_Editor
             get { return m_dT; }
             set
             {
+                if (m_dT == value) return;
                 m_dT = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -328,6 +332,7 @@ namespace Reaction_Editor
             get{ return m_bByPhase; }
             set 
             {
+                if (m_bByPhase == value) return;
                 m_bByPhase = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -338,6 +343,7 @@ namespace Reaction_Editor
             get { return m_eFracType; }
             set
             {
+                if (m_eFracType == value) return;
                 m_eFracType = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -382,7 +388,6 @@ namespace Reaction_Editor
         }
     }
 
-    [Serializable]
     public class RateExtent : FractionExtent
     {
         protected bool m_bStabilised = false;
@@ -393,6 +398,7 @@ namespace Reaction_Editor
             get { return m_bStabilised; }
             set
             {
+                if (m_bStabilised == value) return;
                 m_bStabilised = value;
                 if (m_Owner != null)
                     m_Owner.FireChanged();
@@ -420,6 +426,7 @@ namespace Reaction_Editor
         private string m_sSymbol;
         private Dictionary<Element, Fraction> m_Elements = new Dictionary<Element, Fraction>();
         private int m_nIndex;
+        private bool m_bHoFOK = true;
         #endregion Internal Variables
         public static bool SilentAddFail = true;
         public static bool AddCompound(Compound comp)
@@ -489,6 +496,12 @@ namespace Reaction_Editor
         {
             get { return m_nIndex; }
             set { m_nIndex = value; }
+        }
+
+        public bool HoFOK
+        {
+            get { return m_bHoFOK; }
+            set { m_bHoFOK = value; }
         }
 
         public string Annotation;
@@ -579,6 +592,14 @@ namespace Reaction_Editor
         public static double sMinValue = 5E-3;
 
         #region regex's
+        public static Regex s_ReactionRegex = new Regex(
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n)?(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>(?>\s*(;.*\r*\n)?)*((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        public static Regex s_DisabledReactionRegex = new Regex(
+            @"(^|\r*\n)\s*((;(RC(\d+|-):\s?)?(?<Comment>[^\r\n]*))\r*\n[^\S\r\n]*)?;(?<Reactants>[^;\r\n<>=\-:]*)(?<Direction>->|=|<->|->)\s*(?<Products>[^<>=\-;:\r\n]*?(?=Extent|Sequence|HeatOfReaction|;|\r*\n|$))(?>[^\S\r\n]*(\r*\n\s*;[^\S\r\n]*)?((?<Extent>Extent\s*:[^\r\n;]*?)|(?<Sequence>Sequence\s*:[^\r\n;]*?)|(?<HOR>HeatOfReaction\s*:[^\r\n;]*?))(?=Extent|Sequence|HeatOfReaction|;|\r\n|$)){0,3}",
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
@@ -590,7 +611,14 @@ namespace Reaction_Editor
         #endregion Regex's
 
         #region Internal Variables
+        protected SimpleReaction m_Original;
         protected ListViewItem m_LVI;
+        protected bool m_bChanged = false;
+        protected bool m_bInitialised = false;
+
+        protected int m_nReactionNumber;
+        protected int m_nOriginalReactionNumber = -1;
+
         protected int m_nLastAddedNumStart;
 
         protected bool m_bEnabled = true;
@@ -634,7 +662,7 @@ namespace Reaction_Editor
             m_Extent.Value = 1;
             LVI = _LVI;
             Changed += new EventHandler(UpdateStatus);
-            Changed(this, new EventArgs());
+            UpdateStatus(this, new EventArgs());
         }
         #endregion Constructors
 
@@ -646,6 +674,66 @@ namespace Reaction_Editor
         #endregion Events
 
         #region Properties
+        public bool Initialised
+        {
+            get { return m_bInitialised; }
+            set { m_bInitialised = value; }
+        }
+
+        public int ReactionNumber
+        {
+            get { return m_nReactionNumber; }
+            set
+            {
+                if (m_nReactionNumber == value) return;
+                m_nReactionNumber = value;
+                bool temp = m_bInitialised;
+                m_bInitialised = false;
+                try
+                {
+                    FireChanged();
+                }
+                finally
+                {
+                    m_bInitialised = temp;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The reaction number of the reaction when loaded from the file.
+        /// </summary>
+        public int OriginalReactionNumber
+        {
+            get { return m_nOriginalReactionNumber; }
+            set
+            {
+                if (m_nOriginalReactionNumber == value) return;
+                m_nOriginalReactionNumber = value;
+                FireChanged();
+            }
+        }
+
+        public bool HasChanged
+        {
+            get { return m_bChanged; }
+            set
+            {
+                m_bChanged = value;
+                UpdateStatus(this, new EventArgs());
+            }
+        }
+
+        public bool CanRevert
+        {
+            get { return m_Original != null; }
+        }
+
+        public SimpleReaction RevertReaction
+        {
+            get { return m_Original; }
+        }
+
         public ListViewItem LVI
         {
             get { return m_LVI; }
@@ -673,6 +761,7 @@ namespace Reaction_Editor
             get { return m_bEnabled; }
             set
             {
+                if (value == m_bEnabled) return;
                 m_bEnabled = value;
                 FireChanged();
             }
@@ -890,6 +979,18 @@ namespace Reaction_Editor
             get { return m_Unbalanced; }
         }
 
+        public bool HeatOfReactionOK
+        {
+            get
+            {
+                if (!CustomHeatOfReaction)
+                    foreach (Compound c in Compounds)
+                        if (!c.HoFOK)
+                            return false;
+                return true;
+            }
+        }
+
         public bool CustomHeatOfReaction
         {
             get 
@@ -1020,8 +1121,89 @@ namespace Reaction_Editor
         #endregion Properties
 
         #region Public Functions
+        public void SetRegex(Match rxnMatch, MessageSource source, string title)
+        {
+            Group grpComment = rxnMatch.Groups["Comment"];
+            if (grpComment.Success)
+                this.Comment = grpComment.Captures[0].Value.Trim();
+
+            Group grpReactants = rxnMatch.Groups["Reactants"];
+            this.ParseReactants(grpReactants.Captures[0].Value);
+
+
+            Group grpDirection = rxnMatch.Groups["Direction"];
+            this.DirectionString = grpDirection.Captures[0].Value;
+
+            Group grpProducts = rxnMatch.Groups["Products"];
+            this.ParseProducts(grpProducts.Captures[0].Value);
+
+            source.Source = title + ": " + this;
+
+            Group grpExtent = rxnMatch.Groups["Extent"];
+            if (grpExtent.Success)
+                try
+                {
+                    this.ParseExtent(grpExtent.Captures[0].Value);
+                }
+                catch (Exception ex)
+                {
+                    Log.Message("Unable to parse extent (" + grpExtent.Value + "). Reason: " + ex.Message, MessageType.Warning);
+                }
+            else
+                Log.Message("Extent not found for reaction", MessageType.Warning);
+
+            Group grpSequence = rxnMatch.Groups["Sequence"];
+            if (grpSequence.Success)
+            {
+                Match sequenceMatch = SimpleReaction.s_SequenceRegex.Match(grpSequence.Captures[0].Value.Trim());
+                if (sequenceMatch.Success)
+                    m_nSequence = int.Parse(sequenceMatch.Groups["Value"].Captures[0].Value);
+                else
+                    Log.Message("Unable to parse sequence '" + grpSequence.Value + "'", MessageType.Warning);
+            }
+
+            Group grpHOR = rxnMatch.Groups["HOR"];
+            if (grpHOR.Success)
+                try
+                {
+                    this.ParseHOR(grpHOR.Captures[0].Value.Trim());
+                }
+                catch (Exception ex)
+                {
+                    Log.Message("Unable to parse HeatOfReaction '" + grpHOR.Value + "' Reason: " + ex.Message, MessageType.Warning);
+                }
+        }
+
         /// <summary>
-        /// Sets coeffients for all parameters but the first.
+        /// Creates a backup of this reaction that can be accessed using Revert()
+        /// </summary>
+        public void Backup()
+        {
+            m_Original = Clone();
+        }
+
+        /// <summary>
+        /// Changes the tag of this reaction's LVI to point to the backup reaction. Also returns the backup reaction, with itself as a backup.
+        /// </summary>
+        public SimpleReaction Revert()
+        {
+            this.m_bInitialised = false;
+            this.SetRegex(m_Original.Enabled ? s_ReactionRegex.Match(m_Original.ToSaveString(true)) :
+                s_DisabledReactionRegex.Match(m_Original.ToSaveString(true)), new MessageSource(""), "");
+            this.Enabled = m_Original.Enabled;
+            if (!m_Original.CustomHeatOfReaction)
+            {
+                this.m_HeatOfReactionSpecie = null;
+                this.m_dHeatOfReaction = double.NaN;
+            }
+            m_bChanged = false;
+            UpdateStatus(this, new EventArgs());
+            this.m_bInitialised = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets coeffients for all compounds but the first reactant.
         /// </summary>
         public void SetCoefficients(Fraction[] newCoefficients)
         {
@@ -1192,10 +1374,13 @@ namespace Reaction_Editor
             return ToString("0.##");
         }
 
-        public string ToSaveString(bool includeSequence)
+        public string ToSaveString(bool includeSequence) { return ToSaveString(includeSequence, true); }
+
+        public string ToSaveString(bool includeSequence, bool includeComment)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine(";RC" + m_LVI.Text + ": " + m_sComment);
+            if (includeComment)
+                sb.AppendLine(";RC" + m_nReactionNumber + ": " + m_sComment);
             if (!m_bEnabled) sb.Append("; ");
             sb.AppendLine(this.ToString("0.######")); //Formula
             if (!m_bEnabled) sb.Append("; ");
@@ -1449,7 +1634,12 @@ namespace Reaction_Editor
 
         public SimpleReaction Clone(ListViewItem newLVI)
         {
-            SimpleReaction ret = (SimpleReaction) this.MemberwiseClone();
+            SimpleReaction ret = new SimpleReaction(newLVI, null);
+            ret.SetRegex(this.Enabled ? 
+                s_ReactionRegex.Match(ToSaveString(true)) :
+                s_DisabledReactionRegex.Match(ToSaveString(true)) , 
+                new MessageSource("SimpleReaction.Clone"), "Clone");
+            /*SimpleReaction ret = (SimpleReaction) this.MemberwiseClone();
             ret.LVI = newLVI;
             //Items which must make their own clones:
             ret.m_Extent = m_Extent.Clone(ret);
@@ -1459,7 +1649,7 @@ namespace Reaction_Editor
             ret.m_Reactants = new Dictionary<Compound, Fraction>(m_Reactants);
             ret.m_Unbalanced = new Dictionary<Element, Fraction>(m_Unbalanced);
             ret.Changed = null;
-            ret.Changed += new EventHandler(ret.UpdateStatus);
+            ret.Changed += new EventHandler(ret.UpdateStatus);*/
             return ret;
         }
 
@@ -1598,7 +1788,13 @@ namespace Reaction_Editor
         {
             SetStatus();
 
+            if (m_bInitialised)
+                m_bChanged = true;
+
             if (m_LVI == null) return;
+            m_LVI.Text = (m_bEnabled ? m_nReactionNumber.ToString() : "-")
+                + (m_nOriginalReactionNumber >= 0 ? "(" + m_nOriginalReactionNumber + ")": "")
+                + (HasChanged ? "*" : "");
             m_LVI.SubItems[1].Text = this.ToString();
             m_LVI.SubItems[2].Text = m_Extent.ToString();
             m_LVI.SubItems[3].Text = CustomHeatOfReaction ? HeatOfReactionValue + (HeatOfReactionType == FracTypes.ByMole ? " kJ/mol " : " kJ/kg ") + HeatOfReactionSpecie : "";
@@ -1724,7 +1920,7 @@ namespace Reaction_Editor
         protected void SetStatus()
         {
             if (m_bUseOriginalString || !m_bProductsOK || !m_bReactantsOK || !m_Extent.IsValid()
-                || m_Products.Count == 0 || m_Reactants.Count == 0)
+                || m_Products.Count == 0 || m_Reactants.Count == 0 || !HeatOfReactionOK)
                 m_eStatus = RxnStatuses.Invalid;
             else
                 m_eStatus = Balanced ? RxnStatuses.OK : RxnStatuses.Imbalanced;
@@ -1819,7 +2015,6 @@ namespace Reaction_Editor
         #endregion
     }
     #endregion Log
-
 
     #region Matrix
     /// <summary>

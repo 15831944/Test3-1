@@ -223,6 +223,7 @@ namespace Reaction_Editor
             frm.FormClosing += new FormClosingEventHandler(frm_FormClosing);
             frm.FormClosed += new FormClosedEventHandler(frm_FormClosed);
             frm.RecheckCutCopyPaste += new EventHandler(frm_RecheckCutCopyPaste);
+            frm.ReactionChanged += new FrmReaction.ReactionHandler(frm_ReactionChanged);
             frm.MdiParent = this;
             frm.Show();
             TreeNode newNode = new TreeNode(frm.Text);
@@ -240,7 +241,7 @@ namespace Reaction_Editor
             }
             frm.NowChanged += new EventHandler(frm_NowChanged);
             frm.CompoundsChanged += new EventHandler(frm_CompoundsChanged);
-            frm.ReactionChanged += new EventHandler(frm_ReactionChanged);
+            frm.SelectedReactionChanged += new EventHandler(frm_SelectedReactionChanged);
             frm.SourcesSinksChanged += new EventHandler(frm_SourcesSinksChanged);
             frm.ReactionAdded += new FrmReaction.ReactionHandler(frm_ReactionAdded);
             frm.ReactionRemoved += new FrmReaction.ReactionHandler(frm_ReactionRemoved);
@@ -293,7 +294,7 @@ namespace Reaction_Editor
             frm.Location = new Point(5, this.ClientRectangle.Bottom - frm.Height - statusStrip1.Height - 30);
         }
 
-        protected void UpdateUsedSpecies(/*List<Compound> compsInUse*/)
+        protected void UpdateUsedSpecies()
         {
             List<Compound> compsInUse;
             List<Compound> compsInReaction;
@@ -369,6 +370,7 @@ namespace Reaction_Editor
             btnSave.Enabled = frm.Changed;
             btnCopy.Enabled = btnCut.Enabled = frm.CanCutCopy;
             btnPaste.Enabled = frm.CanPaste;
+            btnRevert.Enabled = frm.CanRevert;
         }
         #endregion
 
@@ -431,7 +433,15 @@ namespace Reaction_Editor
             //    m_StatusLabel.Text = ((FrmReaction)sender).StatusMessage;
             FrmReaction frm = sender as FrmReaction;
             if (frm.Changed)
-                ((TreeNode)frm.Tag).ForeColor = Color.Blue;
+            {
+                TreeNode frmNode = (TreeNode)frm.Tag;
+                frmNode.ForeColor = Color.Blue;
+                foreach (TreeNode t in frmNode.Nodes)
+                    if (((SimpleReaction)t.Tag).HasChanged)
+                        t.ForeColor = Color.Blue;
+                    else
+                        t.ForeColor = SystemColors.WindowText;
+            }
             else
                 ((TreeNode)frm.Tag).ForeColor = SystemColors.WindowText;
         }
@@ -446,34 +456,37 @@ namespace Reaction_Editor
         {
             if (form == ActiveMdiChild)
                 UpdateUsedSpecies();
-            foreach (TreeNode f in treeFiles.Nodes["RBs"].Nodes)
-                if (f.Tag == form)
-                {
-                    foreach (TreeNode r in f.Nodes)
-                        if (r.Tag == reaction)
-                        {
-                            r.Remove();
-                            break;
-                        }
-                    break;
-                }
+            TreeNode t = FindTreeNode(form, reaction);
+            if (t != null) t.Remove();
+        }
+
+        protected TreeNode FindTreeNode(FrmReaction form, SimpleReaction reaction)
+        {
+            TreeNode f = (TreeNode)form.Tag;
+            foreach (TreeNode r in f.Nodes)
+                if (r.Tag == reaction)
+                    return r;
+            return null;
         }
 
         void frm_ReactionAdded(FrmReaction form, SimpleReaction reaction)
         {
             if (form == ActiveMdiChild)
                 UpdateUsedSpecies();
-            foreach (TreeNode f in treeFiles.Nodes["RBs"].Nodes)
-                if (f.Tag == form)
-                {
-                    TreeNode newNode = new TreeNode(reaction.ToString());
-                    newNode.Tag = reaction;
-                    f.Nodes.Add(newNode);
-                    break;
-                }
+            TreeNode newNode = new TreeNode(reaction.ToString());
+            newNode.Tag = reaction;
+            ((TreeNode)form.Tag).Nodes.Add(newNode);
         }
 
-        void frm_ReactionChanged(object sender, EventArgs e)
+        void frm_ReactionChanged(FrmReaction form, SimpleReaction reaction)
+        {
+            TreeNode frmNode = (TreeNode)form.Tag;
+            TreeNode n = FindTreeNode(form, reaction);
+            if (n != null)
+                n.Text = reaction.ToString();
+        }
+
+        void frm_SelectedReactionChanged(object sender, EventArgs e)
         {
             if (sender == ActiveMdiChild)
             {
@@ -661,7 +674,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.5\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.6\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -1065,6 +1078,12 @@ namespace Reaction_Editor
             if (menuSortAlphabetically.Checked && menuSortByPhase.Checked)
                 menuSortAlphabetically.Checked = false;
             lstSpecies.ShowGroups = menuSortByPhase.Checked;
+        }
+
+        private void btnRevert_Click(object sender, EventArgs e)
+        {
+            if (ActiveMdiChild is FrmReaction)
+                ((FrmReaction)ActiveMdiChild).RevertCurrent();
         }
     }
 
