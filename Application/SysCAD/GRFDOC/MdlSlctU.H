@@ -64,6 +64,7 @@ class CInsertUnitDlg : public CDialog
     void                  SaveLastModelData();
     static void           Reset();
 
+    void                  ExportDumpAllSymbols();
     int                   GetSelectedSymbol(CString &Sym);
     bool                  GetSelectedSymbolFile(LPCTSTR Ext, Strng &SymName, Strng &BlkName, Strng &SymPath);
     bool                  LoadBitmap();

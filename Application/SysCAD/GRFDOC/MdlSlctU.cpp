@@ -696,6 +696,7 @@ void CInsertUnitDlg::OnCancel()
 
 void CInsertUnitDlg::OnMdldoc() 
   {
+  //ExportDumpAllSymbols(); //testing
   if (m_pMdl && gs_pPrj)
     {
     CString S = GetSelMdlName();
@@ -1216,6 +1217,44 @@ bool CInsertUnitDlg::LoadBitmap()
   InvalidateRect(m_SymRectClient, TRUE); 
   m_SymbolFrame.Invalidate();
   return Ret;
+  }
+
+//---------------------------------------------------------------------------
+
+void CInsertUnitDlg::ExportDumpAllSymbols()
+  {
+  //all dxf symbols...
+  int nAdded=0;
+
+  Strng SymPath(BaseGrfSymbolFiles());
+  Strng Path, Fn, Ext("dxf");
+
+  WIN32_FIND_DATA fdd;
+  Path.Set("%s*.*", SymPath());
+  HANDLE hFolders=FindFirstFile(Path(), &fdd);
+
+  flag AllFolders = (hFolders==INVALID_HANDLE_VALUE);
+  while (!AllFolders)
+    {
+    if ((fdd.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_HIDDEN)) == FILE_ATTRIBUTE_DIRECTORY)
+      {
+      if (fdd.cFileName[0] != '.')
+        {
+        //m_DrwGrpList.AddTail(fdd.cFileName);
+        Path.Set("%s%s\\*.%s", SymPath(), fdd.cFileName, Ext());
+        //todo Dump this symbol to a text file
+        nAdded++;
+        }
+      }
+    AllFolders = !FindNextFile(hFolders, &fdd);
+    }
+  
+  //all default symbols...
+  Strng DefSymbols;
+  DefSymbols = PrjFiles();
+  DefSymbols += "DefaultSymbols.txt";
+  NodeGrfInfo * pNGI=gs_pPrj->GetNodeDrawings();
+  NodeGrfInfo::ExportToFile(pNGI, DefSymbols());
   }
 
 //---------------------------------------------------------------------------

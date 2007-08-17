@@ -67,6 +67,8 @@ class DllImportExport NodeGrfInfo
     void            PutValue(double l);
     void            PutPChar(char * p);
 
+    static void     ExportToFile(NodeGrfInfo* pNGI, char* TextFilename);
+
   public:
     long            Len;
     double        * Buff;
