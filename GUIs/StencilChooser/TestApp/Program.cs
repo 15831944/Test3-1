@@ -62,6 +62,37 @@ namespace TestApp
         return null;
     }
 
+    static public ShapeTemplate GetShapeTemplate(GraphicStencil stencil)
+    {
+      int i;
+
+      if (stencil != null)
+      {
+        ElementTemplate[] elementTemplate = new ElementTemplate[stencil.Elements.Count];
+        i = 0;
+
+        foreach (Element element in stencil.Elements)
+        {
+          elementTemplate[i] = Element(element);
+          i++;
+        }
+
+        ElementTemplate[] decorationTemplate = new ElementTemplate[stencil.Decorations.Count];
+        i = 0;
+
+        foreach (Element decoration in stencil.Decorations)
+        {
+          decorationTemplate[i] = Element(decoration);
+          i++;
+        }
+
+        return (new ShapeTemplate(elementTemplate, decorationTemplate, null, stencil.fillMode, stencil.Tag));
+      }
+
+      else
+        return null;
+    }
+
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -71,50 +102,51 @@ namespace TestApp
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 
-      FlowChart flowchart16 = new FlowChart();
-      FlowChart flowchart32 = new FlowChart();
+      FlowChart flowchart = new FlowChart();
 
       Config config = new Config();
       if (config.TestUrl(new System.Uri("ipc://SysCAD.Service/Global")))
       {
         config.Syncxxx();
 
-        Dictionary<String, Bitmap> thumbnails16 = new Dictionary<String, Bitmap>();
-        Dictionary<String, Bitmap> thumbnails32 = new Dictionary<String, Bitmap>();
+        Dictionary<String, Bitmap> modelThumbnails = new Dictionary<String, Bitmap>();
+        Dictionary<String, Bitmap> graphicThumbnails = new Dictionary<String, Bitmap>();
 
         foreach (String key in config.ModelStencils.Keys)
         {
           ModelStencil stencil = config.ModelStencils[key];
-          {
-            flowchart16.DocExtents = flowchart16.ClientToDoc(new Rectangle(0, 0, 17, 17));
-            flowchart16.ShadowsStyle = ShadowsStyle.None;
-            flowchart16.BackColor = Color.White;
-            flowchart16.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            RectangleF boxRect = flowchart16.ClientToDoc(new Rectangle(0, 0, 15, 15));
-            Box box16 = flowchart16.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
-            box16.Style = BoxStyle.Shape;
-            box16.Shape = GetShapeTemplate(stencil);
-            box16.Locked = true;
-            thumbnails16.Add(key, flowchart16.CreateImage());
-            flowchart16.DeleteObject(box16);
-          }
-
-          {
-            flowchart32.DocExtents = flowchart32.ClientToDoc(new Rectangle(0, 0, 33, 33));
-            flowchart32.ShadowsStyle = ShadowsStyle.None;
-            flowchart32.BackColor = Color.White;
-            flowchart32.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            RectangleF boxRect = flowchart32.ClientToDoc(new Rectangle(0, 0, 31, 31));
-            Box box32 = flowchart32.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
-            box32.Style = BoxStyle.Shape;
-            box32.Shape = GetShapeTemplate(stencil);
-            box32.Locked = true;
-            thumbnails32.Add(key, flowchart32.CreateImage());
-            flowchart32.DeleteObject(box32);
-          }
+          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.ShadowsStyle = ShadowsStyle.None;
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+          box.Style = BoxStyle.Shape;
+          box.Shape = GetShapeTemplate(stencil);
+          box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+          box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
+          box.Locked = true;
+          modelThumbnails.Add(key, flowchart.CreateImage());
+          flowchart.DeleteObject(box);
         }
 
-        Application.Run(new TestAppForm(thumbnails16, thumbnails32));
+        foreach (String key in config.GraphicStencils.Keys)
+        {
+          GraphicStencil stencil = config.GraphicStencils[key];
+          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.ShadowsStyle = ShadowsStyle.None;
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+          box.Style = BoxStyle.Shape;
+          box.Shape = GetShapeTemplate(stencil);
+          box.Locked = true;
+          graphicThumbnails.Add(key, flowchart.CreateImage());
+          flowchart.DeleteObject(box);
+        }
+
+        Application.Run(new TestAppForm(modelThumbnails, graphicThumbnails, config.ModelStencils, config.GraphicStencils));
       }
     }
   }
