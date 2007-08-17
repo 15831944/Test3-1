@@ -11,6 +11,8 @@
 #include "surfaces.h"
 //#include "optoff.h"
 
+#define DODBGDENS 0
+
 #if dbgBuildSDB
 #include "dbgmngr.h"
 static CDbgMngr dbgBuildSpc           ("SysVec",  "SpDB-BuildSpc");
@@ -2114,11 +2116,21 @@ void CSpecieDataBase::AddSpCnv(CCnvIndex DC_Family, char * pSpName, char * CnvRq
 
 //--------------------------------------------------------------------------
 
+#if DODBGDENS 
+#define DBGDENS0     static int xxx=0; dbgpln("============================"); 
+#define DBGDENS1(d)  dbgpln("%s %i = %24.18f", __FUNCTION__, xxx++, (d)); 
+#else
+#define DBGDENS0     
+#define DBGDENS1(d)  
+#endif
+
 double CSpecieDataBase::Density(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, double *M)
   {
   double m=0.0;
   double v=0.0;
   SpecieIter I(Phase);
+
+  DBGDENS0;
 
   for (int i=-1; I.Loop(i); )
     {
@@ -2127,9 +2139,13 @@ double CSpecieDataBase::Density(long Fidelity, PhMask Phase, double T, double P,
       double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
       m += M[i];
       v += M[i]*vv;
+#if DODBGDENS 
+      dbgpln("  %3i %24.16f %24.16f %24.16f %24.16f %s", i, M[i], M[i]*vv, m, v, SDB[i].SymOrTag());
+#endif
       }
     }
 
+  DBGDENS1((m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho);
   return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
   };
 
@@ -2139,6 +2155,8 @@ double CSpecieDataBase::Density(long Fidelity, CIArray & SpIds, double T, double
   {
   double m=0.0;
   double v=0.0;
+
+  DBGDENS0
 
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
@@ -2151,6 +2169,7 @@ double CSpecieDataBase::Density(long Fidelity, CIArray & SpIds, double T, double
       }
     }
 
+  DBGDENS1((m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho);
   return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
   };
 
@@ -2158,6 +2177,8 @@ double CSpecieDataBase::Density(long Fidelity, CIArray & SpIds, double T, double
 
 double CSpecieDataBase::Density(long Fidelity, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, double *M)
   {
+  DBGDENS0
+
   double m=0.0;
   double v=0.0;
   SpecieIter I(som_ALL);
@@ -2172,6 +2193,7 @@ double CSpecieDataBase::Density(long Fidelity, CSysVector & Scale, double T, dou
       }
     }
 
+  DBGDENS1((m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho);
   return (m >= 1.0e-100/*TraceMass*/) ? m/GTZ(v) : DefaultRho;
   };
 
@@ -2179,6 +2201,8 @@ double CSpecieDataBase::Density(long Fidelity, CSysVector & Scale, double T, dou
 
 double CSpecieDataBase::msVolume(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, double *M)
   {
+  DBGDENS0
+
   double m=0.0;
   double v=0.0;
   SpecieIter I(Phase);
@@ -2187,11 +2211,13 @@ double CSpecieDataBase::msVolume(long Fidelity, PhMask Phase, double T, double P
     {
     if (M[i] > MeasTolerance)
       {
+      const double vv=m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
       m += M[i];
-      v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
+      v += M[i]*vv;//m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
       }
     }
 
+  DBGDENS1((m >= 1.0e-100/*TraceMass*/) ? v/GTZ(m) : 1.0/DefaultRho);
   return (m >= 1.0e-100/*TraceMass*/) ? v/GTZ(m) : 1.0/DefaultRho;
   };
 
@@ -2199,6 +2225,7 @@ double CSpecieDataBase::msVolume(long Fidelity, PhMask Phase, double T, double P
 
 double CSpecieDataBase::msVolumeFrac(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, double *M, double *Frac)
   {
+  
   double m=0.0;
   double v=0.0;
 
@@ -2232,6 +2259,7 @@ double CSpecieDataBase::msVolumeFrac(long Fidelity, PhMask Phase, double T, doub
 
 double CSpecieDataBase::Volume(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, double *M)
   {
+  DBGDENS0;
   double v=0.0;
   SpecieIter I(Phase);
   for (int i=-1; I.Loop(i); )
@@ -2239,6 +2267,7 @@ double CSpecieDataBase::Volume(long Fidelity, PhMask Phase, double T, double P, 
     if (M[i] > MeasTolerance)
       v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
     }
+  DBGDENS1(v);
   return v;
   };
 
@@ -2246,6 +2275,7 @@ double CSpecieDataBase::Volume(long Fidelity, PhMask Phase, double T, double P, 
 
 double CSpecieDataBase::Volume(long Fidelity, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, double *M)
   {
+  DBGDENS0;
   double v=0.0;
   int i;
   for (int j=0; j<SpIds.GetSize() && (i=SpIds[j])>=0; j++)
@@ -2253,6 +2283,7 @@ double CSpecieDataBase::Volume(long Fidelity, CIArray & SpIds, double T, double 
     if (M[i] > MeasTolerance)
       v += M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
     }
+  DBGDENS1(v);
   return v;
   };
 
@@ -2260,6 +2291,7 @@ double CSpecieDataBase::Volume(long Fidelity, CIArray & SpIds, double T, double 
 
 double CSpecieDataBase::Volume(long Fidelity, CSysVector &Scale, double T, double P, SpPropOveride *Ovr, double *M)
   {
+  DBGDENS0;
   double v=0.0;
   SpecieIter I(som_ALL);
   for (int i=-1; I.Loop(i); )
@@ -2267,6 +2299,7 @@ double CSpecieDataBase::Volume(long Fidelity, CSysVector &Scale, double T, doubl
     if (M[i] > MeasTolerance) 
       v += Scale[i]*M[i]*m_SpD[i]->msVolume(Fidelity, T, P, Ovr, M);
     }
+  DBGDENS1(v);
   return v;
   };
 
@@ -2829,6 +2862,10 @@ double CSpecieDataBase::RhoMix(long Fidelity, double FSol, double Ds, double FLi
       }
     d += FVap/GTZ(Dv);
     }
+
+#if DODBGDENS 
+dbgpln("RhoMix %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f %24.16f", FSol, Ds, FLiq, Dl, FVap, Dv, 1.0/GTZ(d));
+#endif
 
   return 1.0/GTZ(d);
   //return 1.0/GTZ(FSol/GTZ(Ds)+FLiq/GTZ(Dl)+FVap/GTZ(Dv));

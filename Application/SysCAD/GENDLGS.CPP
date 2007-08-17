@@ -2068,7 +2068,7 @@ BOOL CDebugPage::OnInitDialog()
    // Display "SubSection Value Edit Box" with appropriate value from selected SubSexn
     
   bChanged = 0;
-  DbgFn = TemporaryFiles();
+  DbgFn = DBGFILESPATH;
   //if (DbgFn.Len()>0 && DbgFn[DbgFn.Len()-1] != '\\')
   //  DbgFn += "\\";
 #if BLDDEPENDENTFILES

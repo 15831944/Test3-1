@@ -2823,11 +2823,7 @@ double CXBlk_MUSimple::GetMeasVal(SpConduit &QIn, SpConduit &QPrd)
       return GetRawMeas(QPrd)/GTZ(GetRawMeas(QPrd, som_ALL));
 
     case Type_Conc:
-      {
-      double d1 = GetRawMeas(QPrd);
-      double d2 = QPrd.QVolume();
       return GetRawMeas(QPrd)/GTZ(QPrd.QVolume());
-      }
     }
   return 0.0;
   }
