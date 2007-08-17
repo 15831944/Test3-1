@@ -160,7 +160,7 @@ CK_OptionDetails CK_OptionNames[] =
   { 19, "Models: SMDK Runtime", true },
   { 22, "Client: Alcan", false },
   { 23, "Client: Gijima MineServe", false },
-  { 24, "Client: QAL", false },
+  { 24, "Client: RTA or QAL", false },
   { 25, "Client: RioTinto", false },
   { 26, "Client: Custom Models", false },
   { -1},
