@@ -57,21 +57,34 @@ namespace SysCAD
           groupNode = listView.Nodes.Add("Group: " + group, group);
         }
 
-        groupNode.Nodes.Add("Model: " + key, key, "Model: " + key, "Model: " + key);
+        TreeNode modelNode = groupNode.Nodes.Add("Model: " + key, key, "Model: " + key, "Model: " + key);
+        modelNode.Nodes.Add("Model: " + modelNode.Text + "; All", "All");
       }
 
       foreach (String key in graphicStencils.Keys)
       {
         String group = graphicStencils[key].groupName;
 
-        TreeNode groupNode;
         if (listView.Nodes.ContainsKey("Group: " + group))
         {
-          groupNode = listView.Nodes["Group: " + group];
-
-          foreach (TreeNode modelNode in groupNode.Nodes)
           {
-            modelNode.Nodes.Add("Model: " + modelNode.Text + "; Graphic: " + key, key, "Graphic: " + key, "Graphic: " + key);
+            TreeNode groupNode = listView.Nodes["Group: " + group];
+
+            foreach (TreeNode modelNode in groupNode.Nodes)
+            {
+              modelNode.Nodes.Add("Model: " + modelNode.Text + "; Graphic: " + key, key, "Graphic: " + key, "Graphic: " + key);
+            }
+          }
+
+          {
+            foreach (TreeNode groupNode in listView.Nodes)
+            {
+              foreach (TreeNode modelNode in groupNode.Nodes)
+              {
+                TreeNode allNode = modelNode.Nodes["Model: " + modelNode.Text + "; All"];
+                allNode.Nodes.Add("Model: " + modelNode.Text + "; Graphic: " + key, key, "Graphic: " + key, "Graphic: " + key);
+              }
+            }
           }
         }
       }
@@ -101,7 +114,10 @@ namespace SysCAD
 
         label1.Text = " : " + key;
 
-        key = e.Node.Parent.ImageKey;
+        if (e.Node.Parent.Text != "All")
+          key = e.Node.Parent.ImageKey;
+        else
+          key = e.Node.Parent.Parent.ImageKey;
       }
       else if (key.Contains("Model: "))
       {
@@ -162,6 +178,11 @@ namespace SysCAD
       }
 
       ListViewItem item = listBox1.Items.Insert(0, label1.Text, label1.Text, label1.Text);
+
+      while (listBox1.Items.Count > 10)
+      {
+        listBox1.Items.RemoveAt(listBox1.Items.Count-1);
+      }
     }
   }
 }
