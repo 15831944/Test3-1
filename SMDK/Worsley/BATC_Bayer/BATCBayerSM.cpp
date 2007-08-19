@@ -10,6 +10,8 @@
 
 #define IncludeBrahma 1
 
+#define At25 1
+
 //===========================================================================
 //
 //
@@ -1232,9 +1234,16 @@ enum {
 
  idSeparator5				  ,	
 
+#if At25
+ idAluminaConcSat25   ,
+ idAtoCSaturation			,
+ idSSNRatio				    ,
+ idAluminaConcSat			,
+#else
  idAluminaConcSat			,
  idAtoCSaturation			,
  idSSNRatio				    ,
+#endif
  idOxalateEquilibrium	,
  idSulphateEquilibrium,
  idCarbonateEquilibrium,
@@ -1381,17 +1390,23 @@ long BATCBayerSM::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
 
     case idSeparator5			  : Info.SetText("..."); return Inx;
 
+#if At25
+    case idAluminaConcSat25 : Info.SetText("--Other Bayer Liquor Properties @ 25-------");
+                              Info.Set(ePT_Double,    "", "AluminaSatConc25",         MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation Concentration @ 25"); return Inx;
+    case idAtoCSaturation		: Info.Set(ePT_Double,    "", "ASat_To_C",                MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation to Caustic ratio @ 25"); return Inx;
+    case idSSNRatio				  : Info.Set(ePT_Double,    "", "SSNRatio",                 MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "A/C actual to ASat/C ratio @ 25"); return Inx;
     case idAluminaConcSat		: Info.SetText("--Other Bayer Liquor Properties @ T-------");
                               Info.Set(ePT_Double,    "", "AluminaSatConc",           MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation Concentration @ T"); return Inx;
-    case idAtoCSaturation		: Info.Set(ePT_Double,    "", "ASat_To_C",                MC_,     "",       0,      0,  MP_Result|MP_NoFiling,       "Alumina Saturation to Caustic ratio @ T"); return Inx;
-    case idSSNRatio				  : Info.Set(ePT_Double,    "", "SSNRatio",                 MC_,     "",       0,      0,  MP_Result|MP_NoFiling,       "A/C actual to ASat/C ratio @ T"); return Inx;
-    case idOxalateEquilibrium	  : Info.Set(ePT_Double, "", "OxalateSolubility",       MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling,       "Oxalate Equilibrium Concentration @ T"); return Inx;
-    case idSulphateEquilibrium	: Info.Set(ePT_Double, "", "SulphateSolubility",      MC_,     "",       0,      0,  MP_Result|MP_NoFiling,       "Sulphate Equilibrium Concentration @ T (g/kg)"); return Inx;
-    case idCarbonateEquilibrium	: Info.Set(ePT_Double, "", "CarbonateSolubility",     MC_,     "",       0,      0,  MP_Result|MP_NoFiling,       "Carbonate Equilibrium Concentration @ T (g/kg)"); return Inx;
+#else
+    case idAluminaConcSat		: Info.SetText("--Other Bayer Liquor Properties @ T-------");
+                              Info.Set(ePT_Double,    "", "AluminaSatConc",           MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation Concentration @ T"); return Inx;
+    case idAtoCSaturation		: Info.Set(ePT_Double,    "", "ASat_To_C",                MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "Alumina Saturation to Caustic ratio @ T"); return Inx;
+    case idSSNRatio				  : Info.Set(ePT_Double,    "", "SSNRatio",                 MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "A/C actual to ASat/C ratio @ T"); return Inx;
+#endif
+    case idOxalateEquilibrium : Info.Set(ePT_Double, "", "OxalateSolubility",         MC_Conc, "g/L",    0,      0,  MP_Result|MP_NoFiling, "Oxalate Equilibrium Concentration @ T"); return Inx;
+    case idSulphateEquilibrium	: Info.Set(ePT_Double, "", "SulphateSolubility",      MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "Sulphate Equilibrium Concentration @ T (g/kg)"); return Inx;
+    case idCarbonateEquilibrium	: Info.Set(ePT_Double, "", "CarbonateSolubility",     MC_,     "",       0,      0,  MP_Result|MP_NoFiling, "Carbonate Equilibrium Concentration @ T (g/kg)"); return Inx;
     case idMolality	: Info.Set(ePT_Double, "", "Molality",     MC_,     "",       0,      0,  MP_Result|MP_NoFiling,       "Molality for Brahma"); return Inx;
-
-
-
 
     case idSeparator6			  : Info.SetText("..."); return Inx;
 
@@ -1514,21 +1529,24 @@ void BATCBayerSM::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/
     case idFluorideConc25		: Value=FluorideConc25();                   return; 
     case idTotalNa25			  : Value=TotalSodiumConc25();                return; 
 
+    case idAluminaConcSat25: Value=AluminaConcSat(C_2_K(25.0));         return; 
     case idAluminaConcSat		: Value=AluminaConcSat(T);                  return; 
     case idOxalateEquilibrium	  : Value=OxalateSolubility(T);           return; 
     case idSulphateEquilibrium	: Value=SulphateSolubility(T);          return; 
     case idCarbonateEquilibrium	: Value=CarbonateSolubility(T);         return; 
+#if At25
+    case idAtoCSaturation		: Value=AtoCSaturation(C_2_K(25.0));        return; 
+    case idSSNRatio				  : Value=SSNRatio(C_2_K(25.0));              return;
+#else
     case idAtoCSaturation		: Value=AtoCSaturation(T);                  return; 
     case idSSNRatio				  : Value=SSNRatio(T);                        return;
+#endif
     case idMolality  : 
       {
-	double d1;
-	double d2; Value = Molality(d1, d2);
-	return;
+  	  double d1,d2; 
+      Value = Molality(d1, d2);
+	    return;
       }
-      
-
-
     case idLDensity25		  	: Value=LDensity25();                        return; 
     case idSLDensity25			: Value=SLDensity25();                       return; 
 		
@@ -2775,6 +2793,31 @@ double BATCBayerSM::SSNRatio(double T_)
     return 0.0;
   const double ACsat = AtoCSaturation(T_);
   return AtoC() / GTZ(ACsat);
+/*The calculated equilibrium alumina (A*) per these methods is for liquor at temperature, but is corrected to 25°C. 
+  Hence the calcs for SSN and A/C* should use the A and C at 25°C, and not at T.
+
+Eg. For the following liquor at 145°C (using LiqInfo6):
+
+C = 260
+A/C = 0.750 (A = 195.0)
+C/S = 0.900
+Na2SO4 = 5
+NaCl = 5
+NaOx = 2
+TOC = 12
+
+The calculated A* is 201.0 g/L, and so the SSN ratio should be 195.0/201.0 = 0.970 and the A/C* should be 0.773. 
+The current calculated values for SSN ratio and A/C* are based on the A@T of 181.2 and C@T of 241.6, and hence 
+are reported incorrectly as 0.902 and 0.832 respectively.
+
+Could you please update these and upload?
+
+We probably should also change where we report the A* number on the access page, or change its description so that it's 
+clear that it is corrected to 25°C even though it appears under the heading for "Other properties at T". Perhaps call it 
+"ASatConc25C" or something similar. Your thoughts?
+
+Would it be possible for you also to upload the standard (generic) alumina properties .dll?
+*/
   }
 
 //---------------------------------------------------------------------------
