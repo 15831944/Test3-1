@@ -42,6 +42,7 @@ namespace SysCAD.Protocol
     private ModifyGroupHandler modifyGroupHandler;
     private ModifyItemHandler modifyItemHandler;
     private ModifyItemPathHandler modifyItemPathHandler;
+    private ModifyItemBoundingRectHandler modifyItemBoundingRectHandler;
     private ModifyLinkHandler modifyLinkHandler;
     private ModifyThingHandler modifyThingHandler;
     private ModifyThingPathHandler modifyThingPathHandler;
@@ -73,6 +74,7 @@ namespace SysCAD.Protocol
     public delegate bool ModifyGroupHandler(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
     public delegate bool ModifyItemHandler(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemPathHandler(out Int64 requestId, Guid guid, String path);
+    public delegate bool ModifyItemBoundingRectHandler(out Int64 requestId, Guid guid, RectangleF boundingRect);
 
     public delegate bool ModifyLinkHandler(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
 
@@ -89,7 +91,8 @@ namespace SysCAD.Protocol
       Dictionary<Guid, GraphicGroup> graphicGroups, Dictionary<Guid, GraphicLink> graphicLinks, Dictionary<Guid, GraphicItem> graphicItems, Dictionary<Guid, GraphicThing> graphicThings,
       ChangePermissionsHandler clientChangePermissions, GetPropertyValuesHandler getPropertyValuesHandler, GetSubTagsHandler getSubTagsHandler,
       CreateGroupHandler createGroupHandler, ModifyGroupHandler modifyGroupHandler, DeleteGroupHandler deleteGroupHandler,
-      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, DeleteItemHandler deleteItemHandler,
+      CreateItemHandler createItemHandler, ModifyItemHandler modifyItemHandler, ModifyItemPathHandler modifyItemPathHandler, ModifyItemBoundingRectHandler modifyItemBoundingRectHandler, 
+      DeleteItemHandler deleteItemHandler,
       CreateLinkHandler createLinkHandler, ModifyLinkHandler modifyLinkHandler, DeleteLinkHandler deleteLinkHandler,
       CreateThingHandler createThingHandler, ModifyThingHandler modifyThingHandler, ModifyThingPathHandler modifyThingPathHandler, DeleteThingHandler deleteThingHandler,
       PortCheckHandler portCheckHandler, PropertyListHandler propertyListHandler, LogMessageHandler logMessageHandler)
@@ -117,6 +120,7 @@ namespace SysCAD.Protocol
       this.createItemHandler = createItemHandler;
       this.modifyItemHandler = modifyItemHandler;
       this.modifyItemPathHandler = modifyItemPathHandler;
+      this.modifyItemBoundingRectHandler = modifyItemBoundingRectHandler;
       this.deleteItemHandler = deleteItemHandler;
 
       this.createLinkHandler = createLinkHandler;
@@ -180,18 +184,6 @@ namespace SysCAD.Protocol
       return deleteThingHandler(out requestId, guid);
     }
 
-    public void DoItemBoundingRectModified(Int64 eventId, Int64 requestId, Guid guid, RectangleF boundingRect)
-    {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.BoundingRect = boundingRect;
-
-        OnItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
-    }
-
     public void DoGroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
       OnGroupCreated(eventId, requestId, guid, tag, path, boundingRect);
@@ -222,33 +214,6 @@ namespace SysCAD.Protocol
       OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, mirrorX, mirrorY);
     }
 
-    public void DoItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String path)
-    {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.Path = path;
-
-        OnItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.MirrorX, graphicItem.MirrorY);
-      }
-    }
-
-    public void DoLinkControlPointsModified(Int64 eventId, Int64 requestId, Guid guid, List<PointF> controlPoints)
-    {
-      GraphicLink graphicLink;
-
-      if (graphicLinks.TryGetValue(guid, out graphicLink))
-      {
-        graphicLink.ControlPoints.Clear();
-
-        foreach (PointF controlPoint in controlPoints)
-          graphicLink.ControlPoints.Add(controlPoint);
-
-        OnLinkModified(eventId, requestId, guid, graphicLink.Tag, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints);
-      }
-    }
-
     public void DoLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
       OnLinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
@@ -256,35 +221,12 @@ namespace SysCAD.Protocol
 
     public void DoLinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
     {
-
-      if (graphicLinks.ContainsKey(guid))
-      {
-        graphicLinks.Remove(guid);
-
-        OnLinkDeleted(eventId, requestId, guid);
-      }
+      OnLinkDeleted(eventId, requestId, guid);
     }
 
     public void DoLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      GraphicLink graphicLink;
-
-      if (graphicLinks.TryGetValue(guid, out graphicLink))
-      {
-        graphicLink.Tag = tag;
-        graphicLink.ClassID = classId;
-        graphicLink.Origin = origin;
-        graphicLink.Destination = destination;
-        graphicLink.OriginPort = originPort;
-        graphicLink.DestinationPort = destinationPort;
-
-        graphicLink.ControlPoints.Clear();
-
-        foreach (PointF controlPoint in controlPoints)
-          graphicLink.ControlPoints.Add(controlPoint);
-
-        OnLinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
-      }
+      OnLinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
     }
 
     public void DoPermissionsChanged(Int64 eventId, Int64 requestId, Permissions permissions)
@@ -304,21 +246,7 @@ namespace SysCAD.Protocol
 
     public void DoThingCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-
-      if (!graphicThings.ContainsKey(guid))
-      {
-        GraphicThing graphicThing = new GraphicThing(guid, tag);
-        graphicThing.Path = path;
-        graphicThing.BoundingRect = (ARectangleF)boundingRect;
-        graphicThing.Xaml = xaml;
-        graphicThing.Angle = angle;
-        graphicThing.MirrorX = mirrorX;
-        graphicThing.MirrorY = mirrorY;
-
-        graphicThings.Add(guid, graphicThing);
-
-        OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-      }
+      OnThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     public void DoThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -334,32 +262,7 @@ namespace SysCAD.Protocol
 
     public void DoThingModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
-      GraphicThing graphicThing;
-
-      if (graphicThings.TryGetValue(guid, out graphicThing))
-      {
-        graphicThing.Tag = tag;
-        graphicThing.Path = path;
-        graphicThing.BoundingRect = (ARectangleF)boundingRect;
-        graphicThing.Xaml = xaml;
-        graphicThing.Angle = angle;
-        graphicThing.MirrorX = mirrorX;
-        graphicThing.MirrorY = mirrorY;
-
-        OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
-      }
-    }
-
-    public void DoThingPathModified(Int64 eventId, Int64 requestId, Guid guid, String path)
-    {
-      GraphicThing graphicThing;
-
-      if (graphicThings.TryGetValue(guid, out graphicThing))
-      {
-        graphicThing.Path = path;
-
-        OnThingModified(eventId, requestId, guid, graphicThing.Tag, graphicThing.Path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
-      }
+      OnThingModified(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
     }
 
     public void GetPropertyValues(out Int64 requestId, ref ArrayList tagPathList)
@@ -390,6 +293,11 @@ namespace SysCAD.Protocol
     public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
     {
       return modifyItemPathHandler(out requestId, guid, path);
+    }
+
+    public bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, RectangleF boundingRect)
+    {
+      return modifyItemBoundingRectHandler(out requestId, guid, boundingRect);
     }
 
     public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)

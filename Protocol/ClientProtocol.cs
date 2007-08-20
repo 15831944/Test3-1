@@ -34,7 +34,6 @@ namespace SysCAD.Protocol
     private ClientServiceProtocol.ItemCreatedHandler serviceGraphicItemCreatedHandler = null;
     private ClientServiceProtocol.ItemDeletedHandler serviceGraphicItemDeletedHandler = null;
     private ClientServiceProtocol.ItemModifiedHandler serviceGraphicItemModifiedHandler = null;
-    private ClientServiceProtocol.ItemPathModifiedHandler serviceGraphicItemPathModifiedHandler = null;
 
     private ClientServiceProtocol.LinkCreatedHandler serviceGraphicLinkCreatedHandler = null;
     private ClientServiceProtocol.LinkDeletedHandler serviceGraphicLinkDeletedHandler = null;
@@ -78,7 +77,6 @@ namespace SysCAD.Protocol
 
         serviceGraphicItemCreatedHandler = new ClientServiceProtocol.ItemCreatedHandler(ServiceGraphicItemCreated);
         serviceGraphicItemModifiedHandler = new ClientServiceProtocol.ItemModifiedHandler(ServiceGraphicItemModified);
-        serviceGraphicItemPathModifiedHandler = new ClientServiceProtocol.ItemPathModifiedHandler(ServiceGraphicItemPathModified);
         serviceGraphicItemDeletedHandler = new ClientServiceProtocol.ItemDeletedHandler(ServiceGraphicItemDeleted);
 
         serviceGraphicLinkCreatedHandler = new ClientServiceProtocol.LinkCreatedHandler(ServiceGraphicLinkCreated);
@@ -101,7 +99,6 @@ namespace SysCAD.Protocol
 
         serviceGraphic.ItemCreated += serviceGraphicItemCreatedHandler;
         serviceGraphic.ItemModified += serviceGraphicItemModifiedHandler;
-        serviceGraphic.ItemPathModified += serviceGraphicItemPathModifiedHandler;
         serviceGraphic.ItemDeleted += serviceGraphicItemDeletedHandler;
 
         serviceGraphic.LinkCreated += serviceGraphicLinkCreatedHandler;
@@ -193,6 +190,11 @@ namespace SysCAD.Protocol
     public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)
     {
       return serviceGraphic.ModifyItemPath(out requestId, guid, path);
+    }
+
+    public bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, RectangleF boundingRect)
+    {
+      return serviceGraphic.ModifyItemBoundingRect(out requestId, guid, boundingRect);
     }
 
     public bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -305,18 +307,6 @@ namespace SysCAD.Protocol
         graphicItem.MirrorY = mirrorY;
 
         OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, mirrorX, mirrorY);
-      }
-    }
-
-    public void ServiceGraphicItemPathModified(Int64 eventId, Int64 requestId, Guid guid, String path)
-    {
-      GraphicItem graphicItem;
-
-      if (graphicItems.TryGetValue(guid, out graphicItem))
-      {
-        graphicItem.Path = path;
-
-        OnItemPathModified(eventId, requestId, guid, path);
       }
     }
 
@@ -535,12 +525,6 @@ namespace SysCAD.Protocol
         try
         {
           if (serviceGraphicItemModifiedHandler != null) serviceGraphic.ItemModified -= serviceGraphicItemModifiedHandler;
-        }
-        catch (InvalidOperationException) { }
-
-        try
-        {
-          if (serviceGraphicItemPathModifiedHandler != null) serviceGraphic.ItemPathModified -= serviceGraphicItemPathModifiedHandler;
         }
         catch (InvalidOperationException) { }
 

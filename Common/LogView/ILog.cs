@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+[assembly: CLSCompliant(true)]
 namespace SysCAD.Log
 {
   public enum MessageType { Error, Warning, Note };

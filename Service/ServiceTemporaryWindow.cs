@@ -92,6 +92,7 @@ namespace Service
       ClientServiceProtocol.CreateItemHandler clientCreateItem = new ClientServiceProtocol.CreateItemHandler(CreateItem);
       ClientServiceProtocol.ModifyItemHandler clientModifyItem = new ClientServiceProtocol.ModifyItemHandler(ModifyItem);
       ClientServiceProtocol.ModifyItemPathHandler clientModifyItemPath = new ClientServiceProtocol.ModifyItemPathHandler(ModifyItemPath);
+      ClientServiceProtocol.ModifyItemBoundingRectHandler clientModifyItemBoundingRect = new ClientServiceProtocol.ModifyItemBoundingRectHandler(ModifyItemBoundingRect);
       ClientServiceProtocol.DeleteItemHandler clientDeleteItem = new ClientServiceProtocol.DeleteItemHandler(DeleteItem);
 
       ClientServiceProtocol.CreateLinkHandler clientCreateLink = new ClientServiceProtocol.CreateLinkHandler(CreateLink);
@@ -114,7 +115,8 @@ namespace Service
                                                               graphicGroups, graphicLinks, graphicItems, graphicThings,
                                                               clientChangePermissions, clientGetPropertyValues, clientGetSubTags,
                                                               clientCreateGroup, clientModifyGroup, clientDeleteGroup,
-                                                              clientCreateItem, clientModifyItem, clientModifyItemPath, clientDeleteItem,
+                                                              clientCreateItem, clientModifyItem, clientModifyItemPath, clientModifyItemBoundingRect, 
+                                                              clientDeleteItem,
                                                               clientCreateLink, clientModifyLink, clientDeleteLink,
                                                               clientCreateThing, clientModifyThing, clientModifyThingPath,
                                                               clientDeleteThing, clientPortCheck, clientPropertyListCheck, clientLogMessage);
@@ -168,7 +170,7 @@ namespace Service
 
         GraphicGroup graphicGroup = new GraphicGroup(guid, tag);
         graphicGroup.Path = path;
-        graphicGroup.BoundingRect = (ARectangleF)boundingRect;
+        graphicGroup.BoundingRect = boundingRect;
 
         graphicGroups.Add(guid, graphicGroup);
 
@@ -200,7 +202,7 @@ namespace Service
         graphicItem.Path = path;
         graphicItem.Model = model;
         graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = (ARectangleF)boundingRect;
+        graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.TextArea = textArea;
         graphicItem.FillColor = fillColor;
@@ -211,6 +213,7 @@ namespace Service
         graphicItems.Add(guid, graphicItem);
 
         // Raise event(s).
+        eventId++;
         clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
@@ -256,8 +259,16 @@ namespace Service
         requestId = this.requestId;
         guid = Guid.NewGuid();
 
-        throw new NotImplementedException("The method or operation is not implemented.");
+        GraphicThing graphicThing = new GraphicThing(guid, tag);
+        graphicThing.Path = path;
+        graphicThing.BoundingRect = boundingRect;
+        graphicThing.Xaml = xaml;
+        graphicThing.Angle = angle;
+        graphicThing.MirrorX = mirrorX;
+        graphicThing.MirrorY = mirrorY;
 
+        graphicThings.Add(guid, graphicThing);
+        
         // Raise event(s).
         eventId++;
         clientClientServiceProtocol.DoThingCreated(eventId, requestId, guid, tag, path, boundingRect, xaml, angle, mirrorX, mirrorY);
@@ -306,6 +317,8 @@ namespace Service
       if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
         // Delete the item.
+
+        graphicLinks.Remove(guid);
 
         // Raise event(s).
         eventId++;
@@ -424,7 +437,7 @@ namespace Service
         graphicItem.Path = path;
         graphicItem.Model = model;
         graphicItem.Shape = stencil;
-        graphicItem.BoundingRect = (ARectangleF)boundingRect;
+        graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.TextArea = textArea;
         graphicItem.FillColor = fillColor;
@@ -459,7 +472,32 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemPathModified(eventId, requestId, guid, path);
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+
+        return true;
+      }
+      else
+      { // We're not going to do it.
+        return false;
+      }
+    }
+
+    bool ModifyItemBoundingRect(out Int64 requestId, Guid guid, RectangleF boundingRect)
+    {
+      this.requestId++;
+      requestId = this.requestId;
+
+      if (graphicItems.ContainsKey(guid))
+      { // We're going to do it.
+        // Modify the item.
+
+        GraphicItem graphicItem = graphicItems[guid];
+
+        graphicItem.BoundingRect = boundingRect;
+
+        // Raise event(s).
+        eventId++;
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, boundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
 
         return true;
       }
@@ -477,6 +515,20 @@ namespace Service
       if (graphicLinks.ContainsKey(guid))
       { // We're going to do it.
         // Modify the item.
+
+        GraphicLink graphicLink = graphicLinks[guid];
+
+        graphicLink.Tag = tag;
+        graphicLink.ClassID = classID;
+        graphicLink.Origin = origin;
+        graphicLink.Destination = destination;
+        graphicLink.OriginPort = originPort;
+        graphicLink.DestinationPort = destinationPort;
+
+        graphicLink.ControlPoints.Clear();
+
+        foreach (PointF controlPoint in controlPoints)
+          graphicLink.ControlPoints.Add(controlPoint);
 
         // Raise event(s).
         eventId++;
@@ -520,9 +572,13 @@ namespace Service
       { // We're going to do it.
         // Modify the item.
 
+        GraphicThing graphicThing = graphicThings[guid];
+
+        graphicThing.Path = path;
+
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoThingPathModified(eventId, requestId, guid, path);
+        clientClientServiceProtocol.DoThingModified(eventId, requestId, guid, graphicThing.Tag, path, graphicThing.BoundingRect, graphicThing.Xaml, graphicThing.Angle, graphicThing.MirrorX, graphicThing.MirrorY);
 
         return true;
       }
@@ -568,32 +624,26 @@ namespace Service
 
     bool StateChanged(out Int64 requestId, EngineBaseProtocol.RunState runState)
     {
-      if (runState != null)
-      {
-        this.requestId++;
-        requestId = this.requestId;
+      this.requestId++;
+      requestId = this.requestId;
 
-        ClientBaseProtocol.Permissions permissions = null;
-        switch (runState)
-        {
-          case EngineBaseProtocol.RunState.Edit:
-            permissions = new ClientBaseProtocol.Permissions(true, true, true);
-            break;
-          case EngineBaseProtocol.RunState.Idle:
-            permissions = new ClientBaseProtocol.Permissions(false, true, false);
-            break;
-          case EngineBaseProtocol.RunState.Run:
-            permissions = new ClientBaseProtocol.Permissions(false, true, false);
-            break;
-        }
-
-        eventId++;
-        clientClientServiceProtocol.PermissionsChanged(eventId, requestId, permissions);
-        return true;
-      }
+      ClientBaseProtocol.Permissions permissions = null;
+      switch (runState)
       {
-        return false;
+        case EngineBaseProtocol.RunState.Edit:
+          permissions = new ClientBaseProtocol.Permissions(true, true, true);
+          break;
+        case EngineBaseProtocol.RunState.Idle:
+          permissions = new ClientBaseProtocol.Permissions(false, true, false);
+          break;
+        case EngineBaseProtocol.RunState.Run:
+          permissions = new ClientBaseProtocol.Permissions(false, true, false);
+          break;
       }
+
+      eventId++;
+      clientClientServiceProtocol.PermissionsChanged(eventId, requestId, permissions);
+      return true;
     }
 
 
@@ -718,7 +768,7 @@ namespace Service
         }
         return true;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         return false;
       }
