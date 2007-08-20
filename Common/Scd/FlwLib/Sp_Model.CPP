@@ -5009,7 +5009,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           DCB.D=SolventDensity*Factor;
           return 1;
           }
-#if WITHRHOSTREAM 
+#if WITHRHOSTREAM  
         else if (DCB.lHandle==xidRhoStream)
           {
           const int iSolvent=SDB.m_DensCorrSps[0];
@@ -5046,7 +5046,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
             CSpecie & D=SDB[i];
             if (m_M[i]>MeasTolerance && i!=iSolvent && SDB[i].Solvent()!=iSolvent)
               {
-              const double vv = 1.0/SDB[i].Density(C);
+              const double vv = 1.0/SDB[i].DensityNCFn(C);
               m += m_M[i];
               v += m_M[i]*vv;
               }
@@ -5090,7 +5090,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
             CSpecie & D=SDB[i];
             if (m_M[i]>MeasTolerance && i!=iSolvent && SDB[i].Solvent()!=iSolvent)
               {
-              const double vv = 1.0/SDB[i].Density(C);
+              const double vv = 1.0/SDB[i].DensityNCFn(C);
               m += m_M[i];
               v += m_M[i]*vv;
               }
