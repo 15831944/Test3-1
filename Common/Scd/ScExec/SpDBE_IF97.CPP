@@ -80,6 +80,8 @@ const double tc_water = 647.096;    // //critical temperature in K
 const double pc_water = 220.64;     // //critical pressure in bar
 const double dc_water = 322.0;      //  //critical density in kg/m**3
 
+const double H20MoleWt = 18.01528;
+
 class CIF97Calcs
   {
   protected:
@@ -3424,6 +3426,56 @@ static double WtrH(double T, double P)
     }
   return IF97Calcs.enthalpyW(T,P);
   }
+
+static double StmCpRgn5_KW(double T, double P)
+  {
+  // Cp Eqn - Rod Stephenson
+  double Cp = 1.47951179E-18 * Pow(T, 6) - 
+              9.42330592E-15 * Pow(T, 5) + 
+              2.47275340E-11 * Pow(T, 4) - 
+              3.42612967E-08 * Pow(T, 3) + 
+              2.65138336E-05 * Pow(T, 2) - 
+              1.02119293E-02 * T + 
+              3.46562048E+00; 
+  return Cp;            
+  }
+static double StmHRgn5_KW(double T, double P)
+  {
+  // Cp Eqn - Rod Stephenson
+  double H = IF97Calcs.enthalpyW(1073.15, P) +
+    
+       1.47951179E-18 * (Pow(T, 7) - Pow(1073.15, 7))/7.0 - 
+       9.42330592E-15 * (Pow(T, 6) - Pow(1073.15, 6))/6.0 + 
+       2.47275340E-11 * (Pow(T, 5) - Pow(1073.15, 5))/5.0 - 
+       3.42612967E-08 * (Pow(T, 4) - Pow(1073.15, 4))/4.0 + 
+       2.65138336E-05 * (Pow(T, 3) - Pow(1073.15, 3))/3.0 - 
+       1.02119293E-02 * (Pow(T, 2) - Pow(1073.15, 2))/2.0 + 
+       3.46562048E+00 * (T-1073.15);
+
+  return H;                                                          
+  }                                                                  
+static double StmSRgn5_KW(double T, double P)                        
+  {                                                                  
+  // Cp Eqn - Rod Stephenson                                         
+  double S = IF97Calcs.entropyW(1073.15, P) +
+    
+       1.47951179E-18 * (Pow(T, 6) - Pow(1073.15, 6)) - 
+       9.42330592E-15 * (Pow(T, 5) - Pow(1073.15, 5)) + 
+       2.47275340E-11 * (Pow(T, 4) - Pow(1073.15, 4)) - 
+       3.42612967E-08 * (Pow(T, 3) - Pow(1073.15, 3)) + 
+       2.65138336E-05 * (Pow(T, 2) - Pow(1073.15, 2)) - 
+       1.02119293E-02 * (T - 1073.15) + 
+       3.46562048E+00 * log(T/1073.15);
+
+  return S;
+  }
+static double StmDensRgn5_KW(double T, double P)
+  {
+  // 100 is to compensate for *0.01 in IF97_SteamDensity::AtTP
+  double Dens = (100.0*P)*H20MoleWt/GTZ(8.314*T);
+  return Dens;
+  }
+
 static double StmH(double T, double P)
   {
 //  dbgpln("StmH: %16.8f %16.8f", T, P);
@@ -3452,7 +3504,8 @@ static double StmH(double T, double P)
 //      return IF97Calcs.enthalpyW(T, P);
 
     if (T > 1073.15)
-      return IF97Calcs.enthalpyW(1073.15, P) + IF97Calcs.cpW(1073.15, P) * (T - 1073.15);
+      return StmHRgn5_KW(T,P);
+      //return IF97Calcs.enthalpyW(1073.15, P) + IF97Calcs.cpW(1073.15, P) * (T - 1073.15);
     else
       {
       double TIn = T;
@@ -3560,7 +3613,8 @@ static double StmS(double T, double P)
   if (!DBDataRaw)
     {
     if (T > 1073.15)
-      return IF97Calcs.entropyW(1073.15, P) + (IF97Calcs.cpW(1073.15, P)/1073.16)*(T - 1073.15);
+      return StmDensRgn5_KW(T, P);
+      //return IF97Calcs.entropyW(1073.15, P) + (IF97Calcs.cpW(1073.15, P)/1073.16)*(T - 1073.15);
     else
       {
       double TIn=T;
@@ -3668,61 +3722,69 @@ static double StmDens(double T, double P)
     //
     // densW = -1: T and/or P outside range
     //
-    double val, val1, Ti=T, Pi=P, PSat=IF97Calcs.pSatW(T), PBnd=IF97Calcs.pBound(T);
-    P = Min(P, 1000.0);
-    T = Min(T, 1073.15);
-    //if ( T >= 273.15 && T <= 623.15 && P >= pSatW(T) && P <= 1000.0 )
-    //  {
-    //  //  region 1
-    //  val = 1 / volreg1(T, P);
-    //  }
-    //else 
-    if ( (T >= 273.15 && T <= 623.15 && P > 0 && P <= PSat) || 
-         (T >= 623.15 && T <= 863.15 && P > 0 && P <= PBnd) || 
-         (T >= 863.15 && T <= 1073.15 && P > 0 && P <= 1000.0) )
+    double val, val1, Ti=T, Pi=P;
+    double PSat=IF97Calcs.pSatW(T);
+    double PBnd=IF97Calcs.pBound(T);
+
+    if (T>1073.15)
+      val=StmDensRgn5_KW(T,P);
+    else
       {
-      //  region 2
-      val = 1 / IF97Calcs.volreg2(T, P);
-      if (Ti>1073.15)
+      P = Min(P, 1000.0);
+      T = Min(T, 1073.15);
+      //if ( T >= 273.15 && T <= 623.15 && P >= pSatW(T) && P <= 1000.0 )
+      //  {
+      //  //  region 1
+      //  val = 1 / volreg1(T, P);
+      //  }
+      //else 
+      if ( (T >= 273.15 && T <= 623.15 && P > 0 && P <= PSat) || 
+        (T >= 623.15 && T <= 863.15 && P > 0 && P <= PBnd) || 
+        (T >= 863.15 && T <= 1073.15 && P > 0 && P <= 1000.0) )
         {
-        val1 = 0.1*val;
-        val  += (val1-val)*(Ti-T)/(10000-T);
-//        val1 = 1 / IF97Calcs.volreg2(T-1, P);
-//        val += (val-val1)*(Ti-T);
-        }
-      }
-    else if ( T >= 623.15 && T <= IF97Calcs.tBound(P) && P >= PBnd && P <= 1000.0 )
-      {
-      //  region 3
-      val = IF97Calcs.densreg3(T, P);
-      }
-    else if ( P >= IF97Calcs.pSatW(623.15)) 
-      {
-      //  adjacent to region 3
-      val = IF97Calcs.densreg3(623.15, P);
-      val1 = IF97Calcs.densreg3(623.15+1, P);
-      val += (val1-val)*(Ti-623.15);
-      }
-    else //if ( P >= IF97Calcs.pSatW(623.15)) 
-      {
-      //  adjacent to region 2
-      T=IF97Calcs.tSatW(P);
-      if (T>0.0)
-        {
+        //  region 2
         val = 1 / IF97Calcs.volreg2(T, P);
-        val1 = 1 / IF97Calcs.volreg2(T+1, P);
-        val += (val1-val)*(Ti-T);
+        if (Ti>1073.15)
+          {
+          val1 = 0.1*val;
+          val  += (val1-val)*(Ti-T)/(10000-T);
+          //        val1 = 1 / IF97Calcs.volreg2(T-1, P);
+          //        val += (val-val1)*(Ti-T);
+          }
         }
-      else
-        val = -1.0;//  outside range
+      else if ( T >= 623.15 && T <= IF97Calcs.tBound(P) && P >= PBnd && P <= 1000.0 )
+        {
+        //  region 3
+        val = IF97Calcs.densreg3(T, P);
+        }
+      else if ( P >= IF97Calcs.pSatW(623.15)) 
+        {
+        //  adjacent to region 3
+        val = IF97Calcs.densreg3(623.15, P);
+        val1 = IF97Calcs.densreg3(623.15+1, P);
+        val += (val1-val)*(Ti-623.15);
+        }
+      else //if ( P >= IF97Calcs.pSatW(623.15)) 
+        {
+        //  adjacent to region 2
+        T=IF97Calcs.tSatW(P);
+        if (T>0.0)
+          {
+          val = 1 / IF97Calcs.volreg2(T, P);
+          val1 = 1 / IF97Calcs.volreg2(T+1, P);
+          val += (val1-val)*(Ti-T);
+          }
+        else
+          val = -1.0;//  outside range
+        }
+      //    else
+      //      {
+      //      //  outside range
+      //      val = -1.0;
+      //
+      //      }
+      //
       }
-//    else
-//      {
-//      //  outside range
-//      val = -1.0;
-//
-//      }
-    //
     return Min(2000.0, val);
 /*
     P=Min(P, 1000.0);
@@ -3871,9 +3933,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfWtrCp(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfWtrCp(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfWtrCp(Temp, Press*0.01);
+  return H20MoleWt*SfWtrCp(Temp, Press*0.01);
 #endif
   };
 H2OEQNEND
@@ -3897,9 +3959,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfStmCp(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfStmCp(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfStmCp(Temp, Press*0.01);
+  return H20MoleWt*SfStmCp(Temp, Press*0.01);
 #endif
   }
 H2OEQNEND
@@ -3923,9 +3985,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfWtrH(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfWtrH(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfWtrH(Temp, Press*0.01);
+  return H20MoleWt*SfWtrH(Temp, Press*0.01);
 #endif
   }
 H2OEQNEND
@@ -3949,9 +4011,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfStmH(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfStmH(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfStmH(Temp, Press*0.01);
+  return H20MoleWt*SfStmH(Temp, Press*0.01);
 #endif
   }
 H2OEQNEND
@@ -3975,9 +4037,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfWtrS(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfWtrS(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfWtrS(Temp, Press*0.01);
+  return H20MoleWt*SfWtrS(Temp, Press*0.01);
 #endif
   }
 H2OEQNEND
@@ -4001,9 +4063,9 @@ virtual double AtTP(double Temp, double Press)
   //ASSERT_ALWAYS(!CSpecieDataBase::gs_nDoTestEstTP || Temp<IF97MaxTemp, "Excessive Temperature in IF97!!!", __FILE__, __LINE__);
   #endif
 #if DoRangePress
-  return 18.01528*SfStmS(Temp, Min(IF97MaxPress, Press*0.01));
+  return H20MoleWt*SfStmS(Temp, Min(IF97MaxPress, Press*0.01));
 #else
-  return 18.01528*SfStmS(Temp, Press*0.01);
+  return H20MoleWt*SfStmS(Temp, Press*0.01);
 #endif
   }
 H2OEQNEND
