@@ -1872,7 +1872,7 @@ void SpContainer::SetRequiredPress(double TempRqd, double PressRqd, CSysVector *
 
     if (ImgMass>1.0e-6)
       {
-      double Rho= pImg->Rho(Model()->m_iFidelity, som_Gas, TempRqd, PressRqd, &Model()->m_Ovr);
+      double Rho= pImg->Rho(Model()->m_iFidelity, Model()->DensityMethod(), som_Gas, TempRqd, PressRqd, &Model()->m_Ovr);
       double RqdMass=Rho*GasSpace;//*PressRqd/Std_P*Std_T/TempRqd;
       double ImgMass=pImg->Mass(som_Gas);
       for (int s=0; s<SVSpcCount(); s++)
@@ -2706,7 +2706,7 @@ flag CCnMixSet::GetImage(double FracHgt, CSysVector &Img)
       {
       CIArray &GI=m_GrpIndex[i];
       GrpMass[i]=Img.Mass(GI);
-      GrpVol[i]=Img.Volume(m_pCn->Fidelity(), GI, m_pCn->Temp(), m_pCn->Press(), NULL);
+      GrpVol[i]=Img.Volume(m_pCn->Fidelity(), m_pCn->DensityMethod(), GI, m_pCn->Temp(), m_pCn->Press(), NULL);
       GrpDens[i]=GrpMass[i]/GTZ(GrpVol[i]);
       }
 
@@ -2805,10 +2805,10 @@ double CCnMixSet::GrpVolumeFrac(long Index)
 
   CSysVector &Img = m_pCn->MArray();
   SpModel & Mdl=*m_pCn->pModel;
-  double V=Img.Volume(Mdl.Fidelity(), m_GrpIndex[Index], Mdl.Temp(), Mdl.Press(), NULL);
+  double V=Img.Volume(Mdl.Fidelity(), Mdl.DensityMethod(), m_GrpIndex[Index], Mdl.Temp(), Mdl.Press(), NULL);
   double Vt=0;
   for (int i=0; i<m_nGrps; i++)
-    Vt+=Img.Volume(Mdl.Fidelity(), m_GrpIndex[i], Mdl.Temp(), Mdl.Press(), NULL);
+    Vt+=Img.Volume(Mdl.Fidelity(), Mdl.DensityMethod(), m_GrpIndex[i], Mdl.Temp(), Mdl.Press(), NULL);
   return V/GTZ(Vt);
   }
 
@@ -2821,7 +2821,7 @@ double CCnMixSet::GrpVolumeTotal(long Index)
 
   CSysVector &Img = m_pCn->MArray();
   SpModel & Mdl=*m_pCn->pModel;
-  double V=Img.Volume(Mdl.Fidelity(), m_GrpIndex[Index], Mdl.Temp(), Mdl.Press(), NULL);
+  double V=Img.Volume(Mdl.Fidelity(), Mdl.DensityMethod(), m_GrpIndex[Index], Mdl.Temp(), Mdl.Press(), NULL);
   return V;
   }
 

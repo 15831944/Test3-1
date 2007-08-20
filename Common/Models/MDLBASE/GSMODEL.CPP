@@ -2053,6 +2053,7 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Pres
         A[j]->m_QvErr=0.0;
         }
       bool Converged=false;
+      CDensityInfo C(Sd.Fidelity(), Sd.DensityMethod(), StdT, StdP, NULL, Sd.SVData());
       for (int Iter=100; !Converged && Iter>0; Iter--)
         {
         nShort=0;
@@ -2065,7 +2066,9 @@ void GSModel::EvalProductsOutSplit(long SolveMethod, bool FirstPass, double Pres
             {
             GSIOAlpha &Aj=*A[j];
             SpConduit & Cd=*m_Nd.IOConduit(I[j]);
-            double Dens=SDB[s].Density(Sd.Fidelity(), Aj.m_ReqdT, Aj.m_ReqdP, NULL, Sd.SVData());
+
+            C.SetTP(Aj.m_ReqdT, Aj.m_ReqdP);
+            double Dens=SDB[s].DensityXZero(C);
             double F=Aj.m_QvRqds[s]*Dens;//*Aj.m_QvCorrs[s];
             //double Dens=SDB[s].Density(Sd.Fidelity(), Aj.m_ReqdT, Aj.m_ReqdP, NULL, Sd.SVData());
             //double F=Aj.m_QvRqds[s]*Dens;

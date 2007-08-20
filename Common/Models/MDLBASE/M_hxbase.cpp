@@ -1124,7 +1124,7 @@ void CHXSide::MeasureHXDataCd(SpConduit * pCd, CSaturationDefn * pFlashDefn)
   Cp = pCd->msCp();
   Qm = pCd->QMass();
 
-  if (pFlashDefn && pFlashDefn->Method()==SMFM_PartialP)
+  if (pFlashDefn && pFlashDefn->Method()==SMSatPM_PartialP)
     m_PPFrac = pCd->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1;
@@ -1164,7 +1164,7 @@ void CHXSide::MeasureHXDataCn(SpContainer * pCn, CSaturationDefn * pFlashDefn)
   Ci = pCn->totCp();
   Cp = pCn->msCp();
   Qm = pCn->Mass();
-  if (pFlashDefn && pFlashDefn->Method()==SMFM_PartialP)
+  if (pFlashDefn && pFlashDefn->Method()==SMSatPM_PartialP)
     m_PPFrac = pCn->PartialPressFracC(pFlashDefn->CmpIndex(), -1);
   else
     m_PPFrac = 1.0;

@@ -1156,7 +1156,8 @@ double ASMBayer::THAMassFlow()
 
 double ASMBayer::THADens(double T_)
   {
-  return SDB[::THA.SolPhInx()].Density(m_iFidelity, T_, Std_P, &m_Ovr, NULL);
+  CDensityInfo C(m_iFidelity, DensityMethod(), T_, Std_P, &m_Ovr, NULL);
+  return SDB[::THA.SolPhInx()].DensityXZero(C);
   }
 
 //---------------------------------------------------------------------------
@@ -2151,7 +2152,7 @@ double ASMBayer::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
   //if (FVap>1.0e-9)
   //  Dv=SpModelEx::Rho(som_Gas, T_, P_, &Mn);
 
-  return SDB.RhoMix(m_iFidelity, FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T_, P_, &m_Ovr, Mn);
+  return SDB.RhoMix(m_iFidelity, DensityMethod(), FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T_, P_, &m_Ovr, Mn);
   }
 
 //---------------------------------------------------------------------------

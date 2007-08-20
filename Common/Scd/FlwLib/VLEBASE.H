@@ -423,7 +423,7 @@ class DllImportExport CVLERootK : public CVLEBlock
     flag           DataXchg(DataChangeBlk & DCB);
     flag           ValidateData(ValidateDataBlk & VDB);
 
-    virtual int    FlashMethod()   { return SMFM_Undefined; };
+    virtual int    FlashMethod()   { return SMSatPM_Undefined; };
     virtual int    FlashCmpIndex() { return -1; };
     virtual int    FlashLiqIndex() { return -1; };
     virtual int    FlashVapIndex() { return -1; };

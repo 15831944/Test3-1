@@ -561,7 +561,7 @@ double CSzSSA::SolidsDens()
   //if (pSz)
   //  return pSz->SolidsDensity(pModel->Temp(), pModel->Press(), &pModel->m_Ovr, pModel->SVData());
   //  //return 2420.0;
-  return m_iSolids>=0 ?  SDB[m_iSolids].Density(pModel->Fidelity(), pModel->Temp(), pModel->Press(), NULL, NULL) : 1000;
+  return m_iSolids>=0 ?  SDB[m_iSolids].DensityXZero(CDensityInfo(pModel->Fidelity(), SMDensM_None, pModel->Temp(), pModel->Press(), NULL, NULL)) : 1000;
   };
 
 //---------------------------------------------------------------------------

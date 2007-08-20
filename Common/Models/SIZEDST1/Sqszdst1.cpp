@@ -1467,9 +1467,12 @@ double SQSzDist1::SurfaceAreaPerGram(int DistNo, int PriId)
   double Temp=pModel->Temp();
   double Press=pModel->Press();
 
+  CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
+
   double SAM=0;
   double TotMass=0;
   for (int d=d0; d<dN; d++)
+    {
     if (DistExists(d))
       {
       CSD_Distribution &D=Dist(d);
@@ -1483,8 +1486,8 @@ double SQSzDist1::SurfaceAreaPerGram(int DistNo, int PriId)
 
         for (int l=0; l<D.NSecIds(s); l++)
           {
-          double Dens=SDB[D.SzId(s,l)].Density(pModel->Fidelity(), Temp, Press, NULL, NULL);
-          double Mass=pModel->m_M[D.SzId(s,l)];
+          double Dens=SDB[D.SzId(s,l)].DensityXZero(C);
+          double Mass=C.Mass();
           TotMass+=Mass;
           for (long i=0; i<NIntervals; i++)
             {
@@ -1496,6 +1499,7 @@ double SQSzDist1::SurfaceAreaPerGram(int DistNo, int PriId)
           }
         }
       }
+    }
   return SAM/GTZ(TotMass);
   }
 
@@ -1508,6 +1512,8 @@ double SQSzDist1::SurfaceAreaPerLitre(int DistNo, int PriId)
 
   double Temp=pModel->Temp();
   double Press=pModel->Press();
+
+  CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
 
   double SAL=0;
   double TotMass=0;
@@ -1525,8 +1531,8 @@ double SQSzDist1::SurfaceAreaPerLitre(int DistNo, int PriId)
 
         for (int l=0; l<D.NSecIds(s); l++)
           {
-          double Dens=SDB[D.SzId(s,l)].Density(pModel->Fidelity(), Temp, Press, NULL, NULL);
-          double Mass=pModel->m_M[D.SzId(s,l)];
+          double Dens=SDB[D.SzId(s,l)].DensityXZero(C);
+          double Mass=C.Mass();
           TotMass+=Mass;
           for (long i=0; i<NIntervals; i++)
             {
@@ -1552,6 +1558,8 @@ double SQSzDist1::ParticleCountPerMass(int DistNo, int PriId)
     double Temp=pModel->Temp();
     double Press=pModel->Press();
 
+    CDensityInfo C(pModel->Fidelity(), SMDensM_None, Temp, Press, NULL, pModel->SVData());
+
     double Cnt=0;
     double TotMass=0;
     for (int d=d0; d<dN; d++)
@@ -1568,8 +1576,8 @@ double SQSzDist1::ParticleCountPerMass(int DistNo, int PriId)
 
           for (int l=0; l<D.NSecIds(s); l++)
             {
-            const double Dens=SDB[D.SzId(s,l)].Density(pModel->Fidelity(), Temp, Press, NULL, NULL);
-            const double Mass=pModel->m_M[D.SzId(s,l)];
+            const double Dens=SDB[D.SzId(s,l)].DensityXZero(C);
+            const double Mass=C.Mass();
             TotMass+=Mass;
             for (long i=0; i<NIntervals; i++)
               {

@@ -192,7 +192,7 @@ double CConcentrations::LiquorDensEqn1(double Tc, double WTNa, double WAlumina)
 
 // --------------------------------------------------------------------------
 
-double CConcentrations::LiquorDensEqn2(long Fidelity, double Tc, double A, double S, double C, double toc, double SO4, double Cl)
+double CConcentrations::LiquorDensEqn2(long Fidelity, long DensMethod, double Tc, double A, double S, double C, double toc, double SO4, double Cl)
   {
   const double B58 = S - C;
   const double B59 = 0.000797*C - 0.0000003087*C*C;
@@ -200,7 +200,8 @@ double CConcentrations::LiquorDensEqn2(long Fidelity, double Tc, double A, doubl
   const double B61 = 0.0006455*A + 0.0000009582*A*A;
   const double B62 = 0.001008*B58 - 0.0000005589*B58*B58 - 0.000001759*B58*A;
   const double B63 = 0.00167*toc + 0.000554*SO4 + 0.00052*Cl;
-  const double B64 = SDB[Water.LiqPhInx()].Density(Fidelity, C2K(Tc), Std_P, NULL, NULL)/1000.0;
+  CDensityInfo CDI(Fidelity, DensMethod, C2K(Tc), Std_P, NULL, NULL);
+  const double B64 = SDB[Water.LiqPhInx()].DensityNCFn(CDI)/1000.0;
   return (B59+B60+B61+B62+B63+B64) * 1000.0;
   }
 
@@ -257,7 +258,7 @@ double CConcentrations::LiquorDensity(double T_, CSysVector & MA)
       const double toc = (Liq[::Organics.LiqPhInx()]*5.0 + Liq[::SodiumOxalate.LiqPhInx()]*2.0)*MW_C/::SodiumCarbonate.MW;
       const double SO4 = Liq[::SodiumSulphate.LiqPhInx()]/NaFactor[::SodiumSulphate.LiqPhInx()];//NOT as Na2CO3
       const double Cl  = Liq[::SodiumChloride.LiqPhInx()]/NaFactor[::SodiumChloride.LiqPhInx()];//NOT as Na2CO3
-      double RHO = LiquorDensEqn2(pBayerMdl->Fidelity(), Tc, A, S, C, toc, SO4, Cl);
+      double RHO = LiquorDensEqn2(pBayerMdl->Fidelity(), pBayerMdl->DensityMethod(), Tc, A, S, C, toc, SO4, Cl);
       return RHO;
       }
     }
@@ -732,7 +733,7 @@ void AlcoaBayer::DoInputCalcs(double T_)
             const double toc = dRqd_TOC;
             const double SO4 = dRqd_Sul;
             const double Cl  = dRqd_Salt;
-            Density25 = CConcentrations::LiquorDensEqn2(Fidelity(), 25.0, A, S, C, toc, SO4, Cl)/1000.0;
+            Density25 = CConcentrations::LiquorDensEqn2(Fidelity(), DensityMethod(), 25.0, A, S, C, toc, SO4, Cl)/1000.0;
             break;
             }
           }
@@ -840,7 +841,8 @@ double AlcoaBayer::THAMassFlow()
 
 double AlcoaBayer::THADens(double T_)
   {
-  return SDB[::THA.SolPhInx()].Density(Fidelity(), T_, Std_P, &m_Ovr, NULL);
+  CDensityInfo C(Fidelity(), DensityMethod(), T_, Std_P, &m_Ovr, NULL);
+  return SDB[::THA.SolPhInx()].DensityXZero(C);
   }
 
 //---------------------------------------------------------------------------
@@ -1656,7 +1658,7 @@ double AlcoaBayer::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
   //if (FVap>1.0e-9)
   //  Dv=SpModelEx::Rho(som_Gas, T_, P_, &Mn);
 
-  return SDB.RhoMix(m_iFidelity, FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T_, P_, &m_Ovr, Mn);
+  return SDB.RhoMix(m_iFidelity, DensityMethod(), FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T_, P_, &m_Ovr, Mn);
   }
 
 //---------------------------------------------------------------------------

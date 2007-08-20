@@ -450,10 +450,10 @@ MSpecieElements MSpecieDefn::Elements()         { return MSpecieElements(m_pSp);
 bool    MSpecieDefn::HasSizeData()              { return m_iPSDDefn>=0; };
 
 double  MSpecieDefn::MolecularWt()              { return m_pSp->MoleWt(); };
-double  MSpecieDefn::Density(double T, double P, MVector * MVec) { return m_pSp->Density(SpModel::Fidelity(), T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
-double  MSpecieDefn::NDensity(MVector * MVec)                    { return m_pSp->NDensity(SpModel::Fidelity(), NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
-double  MSpecieDefn::msVolume(double T, double P, MVector * MVec) { return m_pSp->msVolume(SpModel::Fidelity(), T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
-double  MSpecieDefn::msNVolume(MVector * MVec)                    { return 1.0/GTZ(m_pSp->NDensity(SpModel::Fidelity(), NULL, MVec?(MVec->SpMdl->SVData()):NULL)); };
+double  MSpecieDefn::Density(double T, double P, MVector * MVec)  { CDensityInfo C(SpModel::Fidelity(), SMDensM_None, T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); return m_pSp->DensityX(C) ? C.Density() : 0.0; };
+double  MSpecieDefn::NDensity(MVector * MVec)                     { CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Norm_T, Norm_P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); return m_pSp->DensityX(C) ? C.Density() : 0.0; };
+double  MSpecieDefn::msVolume(double T, double P, MVector * MVec) { CDensityInfo C(SpModel::Fidelity(), SMDensM_None, T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); return m_pSp->DensityX(C) ? C.msVolume() : 0.0; };
+double  MSpecieDefn::msNVolume(MVector * MVec)                    { CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Norm_T, Norm_P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); return m_pSp->DensityX(C) ? C.msVolume() : 0.0; };
 //double  MSpecieDefn::Volume(double T, double P, MVector * MVec)  { return m_pSp->Volume(SpModel::Fidelity(), T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
 //double  MSpecieDefn::NVolume(MVector * MVec)                     { return m_pSp->NVolume(SpModel::Fidelity(), NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
 double  MSpecieDefn::TempLimitLo()              { return m_pSp->LoT(SpModel::Fidelity()); };

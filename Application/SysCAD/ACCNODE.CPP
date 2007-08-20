@@ -102,6 +102,8 @@ void AppendTagComment(Strng & T, Strng & Com)
       case '(':
       case '[':
       case '{':
+      case '\"':
+      case '\'':
         T+=Com;
         return;
       }

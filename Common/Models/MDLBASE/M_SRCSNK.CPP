@@ -310,7 +310,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       case VLEO_SatLiqT:
       case VLEO_SatVapT:
         m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.FlashMethod()==SMFM_PartialP)
+        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());
@@ -328,7 +328,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
       case VLEO_SatLiqP:
       case VLEO_SatVapP:
         {
-        if (m_VLE.FlashMethod()==SMFM_PartialP)
+        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
           {
           m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
           double PPress0=-1;
@@ -356,7 +356,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
 
       case VLEO_SupVap:
         m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 1.0, 0);
-        if (m_VLE.FlashMethod()==SMFM_PartialP)
+        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());
@@ -375,7 +375,7 @@ flag MN_SrcSnk::ValidateData(ValidateDataBlk & VDB)
         break;
       case VLEO_SubLiq:
         m_VLE.SetFlashVapFrac(CMdl, TRequired(), PRequired(), 0.0, 0);
-        if (m_VLE.FlashMethod()==SMFM_PartialP)
+        if (m_VLE.FlashMethod()==SMSatPM_PartialP)
           {
           PSat=Contents.SaturationP(TRequired(), &m_VLE.FlashDefn());
           double PPFrac = Contents.PartialPressFracC(m_VLE.FlashCmpIndex(), -1, PRequired());

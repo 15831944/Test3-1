@@ -1526,6 +1526,7 @@ void MdlNode::DistributeSlurry(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & 
       bool CtrlNow=false;
 
       int Fidelity=ContentFlw.Fidelity();
+      int DensMethod=ContentFlw.DensityMethod();
       double Temp=ContentFlw.Temp();
       double Press=ContentFlw.Press();
 
@@ -1535,24 +1536,28 @@ void MdlNode::DistributeSlurry(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & 
       double VFlwAvl[MaxSpecies];
       double VFlwDmd[MaxSpecies];
       double VCtrlDmd[MaxSpecies];
+
+      CDensityInfo C(Fidelity, DensMethod, Temp, Press, NULL, ContentFlw.SVData());
       for (int s=0; s<SDB.Count(); s++)
         {
-        Dens[s]=GTZ(SDB[s].Density(Fidelity, Temp, Press, NULL, ContentFlw.SVData()));
-        MFlwAvl[s]=ContentFlw.MArray().VMass[s];
-        VFlwAvl[s]=MFlwAvl[s]/Dens[s];
+        if (SDB[s].DensityX(C))
+          {
+          Dens[s]=C.Density();
+          MFlwAvl[s]=ContentFlw.MArray().VMass[s];
+          VFlwAvl[s]=MFlwAvl[s]/Dens[s];
 
-        TotalMAvl+=MFlwAvl[s];
-        TotalVAvl+=VFlwAvl[s];
+          TotalMAvl+=MFlwAvl[s];
+          TotalVAvl+=VFlwAvl[s];
 
-        MFlwDmd[s]=0.0;
-        VFlwDmd[s]=0.0;
-        VCtrlDmd[s]=0.0;
+          MFlwDmd[s]=0.0;
+          VFlwDmd[s]=0.0;
+          VCtrlDmd[s]=0.0;
 
-#if dbgDerivs
-        if (dbgso && (MFlwAvl[s]>ZeroLimit))
-          dbgpln("  CntFlw  MFlwAvl %12.6f VFlwAvl %12.6f %s", MFlwAvl[s], VFlwAvl[s], SDB[s].SymOrTag());
-#endif
-
+  #if dbgDerivs
+          if (dbgso && (MFlwAvl[s]>ZeroLimit))
+            dbgpln("  CntFlw  MFlwAvl %12.6f VFlwAvl %12.6f %s", MFlwAvl[s], VFlwAvl[s], SDB[s].SymOrTag());
+  #endif
+          }
         }
       TotalMAvl=GTZ(TotalMAvl);
       TotalVAvl=GTZ(TotalVAvl);

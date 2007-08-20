@@ -4003,6 +4003,7 @@ void CSDBTest::TestRelDens(int &nGood, int &nBad)
   CDArray M;
   M.SetSize(m_SDB.Count());
   long iFidelity=0; 
+  long iDensMethod=SMDensM_Version1; 
   for (int j=0; j<m_SDB.m_DensCorrSps.GetSize(); j++)
     {
     int iSolvent=m_SDB.m_DensCorrSps[j];
@@ -4025,7 +4026,7 @@ void CSDBTest::TestRelDens(int &nGood, int &nBad)
           {
           M[SItem.m_iSolute]=(1.0/m_NIntervals)*it;
           M[iSolvent]=1.0;
-          double Rho=m_SDB.Density(iFidelity, som_ALL, C_2_K(25.0), Std_T, NULL, &M[0]);
+          double Rho=m_SDB.Density(iFidelity, iDensMethod, som_ALL, C_2_K(25.0), Std_T, NULL, &M[0]);
           double SG=Rho/Rho0;
           Note="";
           if (it==0 && (fabs(SG-1.0)>1.0e-4))

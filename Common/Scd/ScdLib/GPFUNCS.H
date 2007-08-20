@@ -555,6 +555,7 @@ class DllImportExport Strng
     Strng(word InitLen);
     Strng(const char *Init);
     Strng(const char *lpsz1, const char *lpsz2);
+    Strng(const char *lpsz1, const char *lpsz2, const char *lpsz3);
     Strng(char Init);
     Strng(pchar Init, unsigned long Size_);
     Strng(const Strng &S);             // copy constructor

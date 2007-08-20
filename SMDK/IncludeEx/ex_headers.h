@@ -3,8 +3,8 @@
 //===========================================================================
 #pragma once
 
-#ifndef  __MD_HEADERS_EX_H
-#define  __MD_HEADERS_EX_H
+#ifndef  __EX_HEADERS_H
+#define  __EX_HEADERS_H
 
 #if _MSC_VER < 1300
 #error "Incorrect verion of compiler being used"

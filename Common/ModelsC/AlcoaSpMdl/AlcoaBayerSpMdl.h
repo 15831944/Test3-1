@@ -53,7 +53,7 @@ class DllImportExport CConcentrations
     double LTotalSodium(CSysVector & MA);
     double LiquorDensity(double T_, CSysVector & MA);
     static double LiquorDensEqn1(double Tc, double WTNa, double WAlumina);
-    static double LiquorDensEqn2(long Fidelity, double Tc, double A, double S, double C, double toc, double SO4, double Cl);
+    static double LiquorDensEqn2(long Fidelity, long DensMethod, double Tc, double A, double S, double C, double toc, double SO4, double Cl);
   };
 
 // ===========================================================================

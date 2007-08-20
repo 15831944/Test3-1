@@ -518,7 +518,10 @@ double GCSDB::CallFunct(rGCInsMngr IB, pvoid pSubClass, short FunctId, pGCClassV
       double T=IB.GetDParm(); 
       int i=IB.GetLParm();
       if (i>=0 && i<SDB.Count())
-        return SDB[i].Density(pLclSDB->m_iFidelity, T, P, NULL, NULL);
+        {
+        CDensityInfo C(pLclSDB->m_iFidelity, CDB.DefDensityMethod(), T, P, NULL, NULL);
+        return SDB[i].DensityXZero(C);
+        }
       return 0;
       }
 

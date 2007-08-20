@@ -395,10 +395,55 @@ class DllImportExport CSpDBEqn
 //class CSolnArray : public CArray<CSolnItem, CSolnItem&> {};
 
 // ===========================================================================
+
+class DllImportExport CDensityInfo
+  {
+  friend class CSpecie;
+  friend class CDensCorr;
+  friend class CSpecieDataBase;
+  friend class SpModel;
+
+  public:
+    CDensityInfo(long Fidelity, long Method, double T, double P, SpPropOveride *Ovr, CSVData M)
+      {
+      m_iFidelity    = Fidelity;
+      m_iMethod      = Method;
+      m_T            = T; 
+      m_P            = P; 
+      m_Ovr          = Ovr;
+      m_M            = M;
+
+      m_SpM          = 0.0;
+      m_Rho          = dNAN;
+      };
+    
+    double Mass()                     { return m_SpM; }; 
+    double Density()                  { return m_Rho; }; 
+    double msVolume()                 { return 1.0/m_Rho; }; 
+    
+    void   SetTP(double T, double P)  { m_T = T; m_P = P; };
+    
+  protected:
+    long            m_iFidelity;
+    long            m_iMethod;
+    double          m_T; 
+    double          m_P; 
+    SpPropOveride * m_Ovr;
+    CSVData         m_M;
+
+    double          m_SpM;  // The Mass
+    double          m_Rho;  // The Density
+  };
+
+// ===========================================================================
 //
 //
 //
 // ===========================================================================
+
+const byte SDensContrib_Std      = 0;
+const byte SDensContrib_Solvent  = 1;
+const byte SDensContrib_Solute   = 2;
 
 class DllImportExport CDensCorr
   {
@@ -412,8 +457,9 @@ class DllImportExport CDensCorr
     void Clear();
     double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_DensCorrZero; } //note this ignores MF Limit
     double DensCorrWithLimit(double MF, double SolventDensity);
-    double Evaluate(long Fidelity, double T, double P, double MassSolvent, double MassSolute);
-    double Evaluate(long Fidelity, double T, double P, CSVData M);
+
+    double Evaluate(CDensityInfo & C, double MassSolvent, double MassSolute);
+    double Evaluate(CDensityInfo & C);
 
   public:
     int      m_iSolute;
@@ -764,7 +810,8 @@ class DllImportExport CSpecie : public CPropertyBase
   friend class CSpecieDataBase;
   friend class CComponentDataBase;
   friend class CSpFidelData;
-
+  friend class CDensCorr;
+  friend class SpModel;
 
   public:
     CSpecie(CComponent *pComp, CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * pCmpTag);
@@ -792,8 +839,9 @@ class DllImportExport CSpecie : public CPropertyBase
 
     int           CId();
 
-    double        DensCorrMass(CSVData M);
-    double        DensCorrFactor(CSVData M);
+    byte          DensContribution() { return m_iDensContribution; }
+    flag          HasDensCalc() { return m_pDensCalc!=0; };
+
     double        CpCorrFactor(CSVData M);
     int           DensCorrCount();
     CDensCorr   & DensCorr(int i);
@@ -803,8 +851,8 @@ class DllImportExport CSpecie : public CPropertyBase
     int           SolubilityCount();
     CSolubility & Solubility(int i);
     int           Solvent();
+    int           SolventNo();
 
-    flag          HasDensCalc() { return m_pDensCalc!=0; };
 
     flag          CpDirect();
     flag          CpInDirect();
@@ -817,13 +865,25 @@ class DllImportExport CSpecie : public CPropertyBase
 
     int           FindTIndex(long Fidelity, double T);
 
+
+    bool          DensityX(CDensityInfo & C, double SpMass);
+    bool          DensityX(CDensityInfo & C)                 { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0); }
+
+    double        DensityXZero(CDensityInfo & C)             { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():0.0; }
+    double        DensityXInf(CDensityInfo & C)              { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():1.0/ZeroLimit; }
+    double        DensityXNAN(CDensityInfo & C)              { return DensityX(C, C.m_M ? C.m_M[iSId]:0.0) ? C.Density():dNAN; }
+
+    //double        msVolumeX(CDensityInfo & C, double SpMass) { return 1.0/DensityX(C, SpMass); };
+    //double        msVolumeX(CDensityInfo & C)                { return 1.0/DensityX(C); };
+
+    //bool          SigmaDensityX(CDensityInfo & C, double SpMass, double Scale=1.0);
+
+  protected:
+    double        DensityFn(CDensityInfo & C);
+    double        DensityNCFn(CDensityInfo & C);
+
+  public:
     double        SpRho(long Fidelity, double T, double P);
-    double        msVolume(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double        Density(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double        Volume(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double        NmsVolume(long Fidelity, SpPropOveride *Ovr, CSVData M);
-    double        NDensity(long Fidelity, SpPropOveride *Ovr, CSVData M);
-    double        NVolume(long Fidelity, SpPropOveride *Ovr, CSVData M);
 
     double        LoT(long Fidelity);
     double        HiT(long Fidelity);
@@ -940,7 +1000,9 @@ class DllImportExport CSpecie : public CPropertyBase
     byte             m_iOverIndex;
 
     int              m_iSolvent;
+    int              m_iSolventNo;
     CDensCorr *      m_pDensCalc;
+    byte             m_iDensContribution;
 
     CDensCorrs       m_DensCorrs;
     CCpCorrs         m_CpCorrs;
@@ -997,22 +1059,22 @@ class DllImportExport CSpecieDataBase
     void           SetExtraProps(CSpeciePropDataBase* pSPDB) { m_pExtraProps = pSPDB; };
     CSpeciePropDataBase* ExtraProps() { return m_pExtraProps; };
 
-    double         msVolume(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         msVolumeFrac(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M, CSVData Frac);
-    double         Density(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         Density(long Fidelity, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         Density(long Fidelity, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         Volume(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         Volume(long Fidelity, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         Volume(long Fidelity, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         NDensity(long Fidelity, PhMask Phase, SpPropOveride *Ovr, CSVData M);
-    double         NDensity(long Fidelity, CIArray & SpIds, SpPropOveride *Ovr, CSVData M);
-    double         NDensity(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr, CSVData M);
-    double         NVolume(long Fidelity, PhMask Phase, SpPropOveride *Ovr, CSVData M);
-    double         NVolume(long Fidelity, CIArray & SpIds, SpPropOveride *Ovr, CSVData M);
-    double         NVolume(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr, CSVData M);
-    double         VolFrac(long Fidelity, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
-    double         VolFrac(long Fidelity, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         msVolume(long Fidelity, int Method, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         msVolumeFrac(long Fidelity, int Method, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M, CSVData Frac);
+    double         Density(long Fidelity, int Method, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         Density(long Fidelity, int Method, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         Density(long Fidelity, int Method, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         Volume(long Fidelity, int Method, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         Volume(long Fidelity, int Method, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         Volume(long Fidelity, int Method, CSysVector & Scale, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         NDensity(long Fidelity, int Method, PhMask Phase, SpPropOveride *Ovr, CSVData M);
+    double         NDensity(long Fidelity, int Method, CIArray & SpIds, SpPropOveride *Ovr, CSVData M);
+    double         NDensity(long Fidelity, int Method, CSysVector & Scale, SpPropOveride *Ovr, CSVData M);
+    double         NVolume(long Fidelity, int Method, PhMask Phase, SpPropOveride *Ovr, CSVData M);
+    double         NVolume(long Fidelity, int Method, CIArray & SpIds, SpPropOveride *Ovr, CSVData M);
+    double         NVolume(long Fidelity, int Method, CSysVector & Scale, SpPropOveride *Ovr, CSVData M);
+    double         VolFrac(long Fidelity, int Method, PhMask Phase, double T, double P, SpPropOveride *Ovr, CSVData M);
+    double         VolFrac(long Fidelity, int Method, CIArray & SpIds, double T, double P, SpPropOveride *Ovr, CSVData M);
 
     double         CpCv(long Fidelity, PhMask Phase, CSVData M);
 
@@ -1033,7 +1095,7 @@ class DllImportExport CSpecieDataBase
     double         msHmMix(long Fidelity, double Fm, double Hm, double Fo, CSVData Mo, double T_, double P_, SpPropOveride *Ovr);
     double         msHmMix(long Fidelity, double FSol, double Hs, double FLiq, double Hl, double FVap, double Hv, double T_, double P_, SpPropOveride *Ovr, CSVData M);
     double         msCpMix(long Fidelity, double FSol, double Cs, double FLiq, double Cl, double FVap, double Cv, double T_, double P_, SpPropOveride *Ovr, CSVData M);
-    double         RhoMix(long Fidelity, double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, SpPropOveride *Ovr, CSVData M);
+    double         RhoMix(long Fidelity, long DensMethod, double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, SpPropOveride *Ovr, CSVData M);
 
     double         HeatOfCombustionLo(long Fidelity, PhMask Phase, double T_, double P_, CSVData M);
     double         HeatOfCombustionHi(long Fidelity, PhMask Phase, double T_, double P_, CSVData M);
@@ -1355,17 +1417,25 @@ class CPhaseInfo
 
 // ===========================================================================
 
-const int SMFM_Default     = -1;
-const int SMFM_PartialP    = 0;
-const int SMFM_TotalP      = 1;
-const int SMFM_Undefined   = 2;
+const int SMDensM_Default     = -1;
+const int SMDensM_None        = 0;
+const int SMDensM_Original    = 1;
+const int SMDensM_Version1    = 2;
+const int SMDensM_Version2    = 3;
+
+// ===========================================================================
+
+const int SMSatPM_Default     = -1;
+const int SMSatPM_PartialP    = 0;
+const int SMSatPM_TotalP      = 1;
+const int SMSatPM_Undefined   = 2;
 
 class CSaturationDefn
   {
   public:
     CSaturationDefn() 
       {
-      m_iMethod    = SMFM_Default;
+      m_iMethod    = SMSatPM_Default;
       m_iCmpIndex  = -1;
       };
     CSaturationDefn(CSaturationDefn * pSatDefn) 
@@ -1377,7 +1447,7 @@ class CSaturationDefn
         }
       else
         {
-        m_iMethod    = SMFM_Default;
+        m_iMethod    = SMSatPM_Default;
         m_iCmpIndex  = -1;
         }
       };
@@ -1400,7 +1470,7 @@ class CSaturationDefn
 
     int Method()
       {
-      //if (m_iMethod==SMFM_Default)
+      //if (m_iMethod==SMSatPM_Default)
       //  return MdlMethod;
       return m_iMethod;
       }
@@ -1417,6 +1487,15 @@ class CSaturationDefn
     int  m_iCmpIndex;
   };
 
+template <class T> int FindString(T & A, LPSTR S)
+  {
+  for (int i=0; i<A.GetCount(); i++)
+    {
+    if (A[i].XStrICmp(S)==0)
+      return i;
+    }
+  return -1;
+  }
 
 class DllImportExport CComponentDataBase
   {
@@ -1463,7 +1542,9 @@ class DllImportExport CComponentDataBase
     int            PhaseFirst(int Occ=BOT_All)  { return m_PhInfoFirst[Occ]; };
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
-    
+
+    int            DefDensityMethod()  { return m_DefDensityMethod; };
+
     CSaturationDefn DefFlashDefn()     { return CSaturationDefn(m_DefFlashMethod, m_DefFlashCmpIndex); }
     int            DefFlashMethod()    { return m_DefFlashMethod; };
     int            DefFlashCmpIndex()  { return m_DefFlashCmpIndex; };
@@ -1522,6 +1603,14 @@ class DllImportExport CComponentDataBase
     int                   m_PhInfoLast[BOT_All+1];
     CPhaseInfo            m_PhInfo[MaxPhases];
 
+    int                   m_DefDensityMethod;
+
+    DDBValueLstMem        m_DDBDensityMethods;
+    DDBValueLstMem        m_DDBDefDensityMethods;
+    CArray<Strng, Strng>  m_DensityMethods;
+    CArray<Strng, Strng>  m_DensityMethodsDef;
+    CArray<Strng, Strng>  m_DensityMethodsInh;
+
     int                   m_DefFlashMethod;
     int                   m_DefFlashCmpIndex;
     int                   m_DefFlashLiqIndex;
@@ -1530,11 +1619,14 @@ class DllImportExport CComponentDataBase
 
     DDBValueLstMem        m_DDBFlashable;
     CArray<Strng, Strng>  m_FlashCmps;
-    CArray<Strng, Strng>  m_FlashCmpsI;
+    CArray<Strng, Strng>  m_FlashCmpsDef;
+    CArray<Strng, Strng>  m_FlashCmpsInh;
 
     DDBValueLstMem        m_DDBFlashMethods;
+    DDBValueLstMem        m_DDBDefFlashMethods;
     CArray<Strng, Strng>  m_FlashMethods;
-    CArray<Strng, Strng>  m_FlashMethodsI;
+    CArray<Strng, Strng>  m_FlashMethodsDef;
+    CArray<Strng, Strng>  m_FlashMethodsInh;
 
   public:
     DDBValueLstMem        DDBCompList;
@@ -1638,6 +1730,7 @@ inline int        CSpecie::SolubilityCount()      { return m_Solubilities.GetSiz
 inline CSolubility & CSpecie::Solubility(int i)   { return m_Solubilities[i]; };
 
 inline int        CSpecie::Solvent()              { return m_iSolvent; };
+inline int        CSpecie::SolventNo()            { return m_iSolventNo; };
 
 inline char *     CSpecie::SymOrTag()             { return sSym.Length()>0 ? sSym(): sTag();};
 inline flag       CSpecie::PrjDB()                { return m_bPrjDB; };
@@ -1858,6 +1951,7 @@ const long VAMsk_Thermo       = 0x00000002;
 const long VAMsk_Viscosity    = 0x00000004;
 const long VAMsk_HeatValues   = 0x00000008;
 const long VAMsk_Acidity      = 0x00000010;
+const long VAMsk_DensCorrsX   = 0x00000020;
 const long VAMsk_Inited       = 0x80000000;
 
 // Variable Available Masks (specie vector)
@@ -2236,9 +2330,9 @@ class DllImportExport CSysVector
     __declspec(property(get=getVCalc))                          double VCalc[];
     __declspec(property(get=getVPtr))                           double *VPtr[];
 
-    double      ValueOp(int i, byte Op, long Fidelity, double T, double P);
-    void        SetValueOP(int i, byte Op, double V, long Fidelity, double T, double P);
-    static double Mass2OtherFactor(int i, byte Op, long Fidelity, double T, double P, CSVData M);
+    double      ValueOp(int i, byte Op, long Fidelity, long DensMethod, double T, double P);
+    void        SetValueOP(int i, byte Op, double V, long Fidelity, long DensMethod, double T, double P);
+    static double Mass2OtherFactor(int i, byte Op, long Fidelity, long DensMethod, double T, double P, CSVData M);
 
     CSVData     SVData()                                            { return &m_d[0]; }
 
@@ -2248,7 +2342,7 @@ class DllImportExport CSysVector
 
   protected:
     double         EvalFn(int SVIndex);
-    double         EvalFn(int SVIndex, byte Op, long Fidelity, double T, double P);
+    double         EvalFn(int SVIndex, byte Op, long Fidelity, long DensMethod, double T, double P);
     //void           SetOneScl(int SVIndex, CSysVector &Data2, double Scale);
     //void           SetOneVal(int SVIndex, CSysVector &Data2, double Value);
     //void           AddOneScl(int SVIndex, CSysVector &Data2, double Scale);
@@ -2301,23 +2395,23 @@ class DllImportExport CSysVector
     double      Moles(PhMask Phase);
     double      Moles(CIArray & SpIds);
     double      Moles(CSysVector & Scale);
-    double      Volume(long Fidelity, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)        { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, Phase, Temp, Press, Ovr, m_d); };
-    double      Volume(long Fidelity, CIArray & SpIds, double Temp, double Press, SpPropOveride *Ovr)     { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, SpIds, Temp, Press, Ovr, m_d); };
-    double      Volume(long Fidelity, CSysVector & Scale, double Temp, double Press, SpPropOveride *Ovr)  { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, Scale, Temp, Press, Ovr, m_d); };
-    double      NVolume(long Fidelity, PhMask Phase, SpPropOveride *Ovr)                                  { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Phase, Ovr, m_d); };
-    double      NVolume(long Fidelity, CIArray & SpIds, SpPropOveride *Ovr)                               { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, SpIds, Ovr, m_d); };
-    double      NVolume(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr)                            { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Scale, Ovr, m_d); };
+    double      Volume(long Fidelity, int Method, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)        { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, Method, Phase, Temp, Press, Ovr, m_d); };
+    double      Volume(long Fidelity, int Method, CIArray & SpIds, double Temp, double Press, SpPropOveride *Ovr)     { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, Method, SpIds, Temp, Press, Ovr, m_d); };
+    double      Volume(long Fidelity, int Method, CSysVector & Scale, double Temp, double Press, SpPropOveride *Ovr)  { SPMVECTORTIMERLAP(sm_swDens); return SDB.Volume(Fidelity, Method, Scale, Temp, Press, Ovr, m_d); };
+    double      NVolume(long Fidelity, int Method, PhMask Phase, SpPropOveride *Ovr)                                  { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Method, Phase, Ovr, m_d); };
+    double      NVolume(long Fidelity, int Method, CIArray & SpIds, SpPropOveride *Ovr)                               { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Method, SpIds, Ovr, m_d); };
+    double      NVolume(long Fidelity, int Method, CSysVector & Scale, SpPropOveride *Ovr)                            { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Method, Scale, Ovr, m_d); };
 
     double      ElementMass(CIArray & ElementIds, PhMask Phase);
 
     double      MassFrac(PhMask Phase);
     double      MoleFrac(PhMask Phase);
 
-    double      VolFrac(long Fidelity, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)       { SPMVECTORTIMERLAP(sm_swDens); return SDB.VolFrac(Fidelity, Phase, Temp, Press, Ovr, m_d); };
-    double      Rho(long Fidelity, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)           { SPMVECTORTIMERLAP(sm_swDens); return SDB.Density(Fidelity, Phase, Temp, Press, Ovr, &m_d[0]); };
-    double      Rho(long Fidelity, CSysVector & Scale, double Temp, double Press, SpPropOveride *Ovr)     { SPMVECTORTIMERLAP(sm_swDens); return SDB.Density(Fidelity, Scale, Temp, Press, Ovr, &m_d[0]); };
-    double      NRho(long Fidelity, PhMask Phase, SpPropOveride *Ovr)                                     { SPMVECTORTIMERLAP(sm_swDens); return SDB.NDensity(Fidelity, Phase, Ovr, &m_d[0]); };
-    double      NRho(long Fidelity, CSysVector & Scale, SpPropOveride *Ovr)                               { SPMVECTORTIMERLAP(sm_swDens); return SDB.NDensity(Fidelity, Scale, Ovr, &m_d[0]); };
+    double      VolFrac(long Fidelity, int Method, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)       { SPMVECTORTIMERLAP(sm_swDens); return SDB.VolFrac(Fidelity, Method, Phase, Temp, Press, Ovr, m_d); };
+    double      Rho(long Fidelity, int Method, PhMask Phase, double Temp, double Press, SpPropOveride *Ovr)           { SPMVECTORTIMERLAP(sm_swDens); return SDB.Density(Fidelity, Method, Phase, Temp, Press, Ovr, &m_d[0]); };
+    double      Rho(long Fidelity, int Method, CSysVector & Scale, double Temp, double Press, SpPropOveride *Ovr)     { SPMVECTORTIMERLAP(sm_swDens); return SDB.Density(Fidelity, Method, Scale, Temp, Press, Ovr, &m_d[0]); };
+    double      NRho(long Fidelity, int Method, PhMask Phase, SpPropOveride *Ovr)                                     { SPMVECTORTIMERLAP(sm_swDens); return SDB.NDensity(Fidelity, Method, Phase, Ovr, &m_d[0]); };
+    double      NRho(long Fidelity, int Method, CSysVector & Scale, SpPropOveride *Ovr)                               { SPMVECTORTIMERLAP(sm_swDens); return SDB.NDensity(Fidelity, Method, Scale, Ovr, &m_d[0]); };
 
     double      CpCv(long Fidelity, PhMask Phase)                                                   { SPMVECTORTIMERLAP(sm_swHeat); return SDB.CpCv(Fidelity, Phase, &m_d[0]); };
     double      msCp(long Fidelity, PhMask Phase, double T_, double P_, SpPropOveride *Ovr)         { SPMVECTORTIMERLAP(sm_swHeat); return SDB.msCp(Fidelity, Phase, T_, P_, Ovr, &m_d[0]); };

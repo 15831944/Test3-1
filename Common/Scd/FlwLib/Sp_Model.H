@@ -67,6 +67,7 @@ class CCall2MSpQuals;
 
 const int MaxSpQualities = 16;
 const int MaxSpSolvents = 3;
+const int MaxSpSolutes  = 100;
 
 XID xidSpShape          = SpcXID(100000);
 XID xidSpModel          = SpcXID(100001);
@@ -117,6 +118,8 @@ XID xidSMVFrac          = SpcXID(100042);
 XID xidSMMlSFrac        = SpcXID(100043);
 XID xidSMMlLFrac        = SpcXID(100044);
 XID xidSMMlVFrac        = SpcXID(100045);
+
+XID xidSMRhoMethod      = SpcXID(100047);
 
 XID xidSMPureSatTemp    = SpcXID(100050);
 XID xidSMSatTempP       = SpcXID(100051);
@@ -266,22 +269,35 @@ XID xidSMFnRangeID          = SpcXID(100209);
 
 XID xidRhoSolvent1          = SpcXID(100210);
 XID xidRhoCorrFuncFirst     = xidRhoSolvent1;
-XID xidRhoSolventLast       = SpcXID(100212); //using MaxSpSolvents
-XID xidRhoSoln1             = SpcXID(100213);
-XID xidRhoSolnLast          = SpcXID(100215);
-XID xidRhoFactor1           = SpcXID(100216);
-XID xidRhoFactorLast        = SpcXID(100218);
-XID xidSolnQm1              = SpcXID(100219);
-XID xidSolnQmLast           = SpcXID(100221);
-XID xidSolnQv1              = SpcXID(100222);
-XID xidSolnQvLast           = SpcXID(100224);
-XID xidSolnState1           = SpcXID(100225);
-XID xidSolnStateLast        = SpcXID(100227);
-XID xidRhoSoln251           = SpcXID(100228);
-XID xidRhoSoln25Last        = SpcXID(100230);
-XID xidRhoStream25          = SpcXID(100231); //
-XID xidRhoStream            = SpcXID(100232); //
+XID xidRhoSolventLast       = xidRhoCorrFuncFirst + MaxSpSolvents - 1;
+XID xidRhoSoln1             = xidRhoSolventLast   + 1;
+XID xidRhoSolnLast          = xidRhoSoln1         + MaxSpSolvents - 1;
+XID xidRhoFactor1           = xidRhoSolnLast      + 1;
+XID xidRhoFactorLast        = xidRhoFactor1       + MaxSpSolvents - 1;
+XID xidSolnQm1              = xidRhoFactorLast    + 1;
+XID xidSolnQmLast           = xidSolnQm1          + MaxSpSolvents - 1;
+XID xidSolnQv1              = xidSolnQmLast       + 1;
+XID xidSolnQvLast           = xidSolnQv1          + MaxSpSolvents - 1;
+XID xidSolnState1           = xidSolnQvLast       + 1;
+XID xidSolnStateLast        = xidSolnState1       + MaxSpSolvents - 1;
+XID xidRhoSoln251           = xidSolnStateLast    + 1;
+XID xidRhoSoln25Last        = xidRhoSoln251       + MaxSpSolvents - 1;
+XID xidSpcFactor1           = xidRhoSoln25Last    + 1;
+XID xidSpcFactorLast        = xidSpcFactor1       + MaxSpSolvents - 1;
+
+#if defined(_RELEASE)
+#define WITHRHOSTREAM 0
+#else
+#define WITHRHOSTREAM 1
+#endif
+
+#if WITHRHOSTREAM 
+XID xidRhoStream25          = xidSpcFactorLast + 1;
+XID xidRhoStream            = xidRhoStream25   + 1;
 XID xidRhoCorrFuncLast      = xidRhoStream;
+#else
+XID xidRhoCorrFuncLast      = xidSpcFactorLast;
+#endif
 
 XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
 XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 
@@ -740,6 +756,8 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
+    static  int    DoDCBRhoMethod(DataChangeBlk & DCB, sint & iRhoMethodRqd, sint & iRhoMethod);
+
     static  int    DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp);
     static  int    DoDCBSatMethod(DataChangeBlk & DCB, sint & iSatMethodRqd, sint & iSatMethod);
 
@@ -898,9 +916,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     double NVolume(CIArray & SpIds, CSysVector * pMA=NULL)                          { return Volume(SpIds, Norm_T, Norm_P); };
     double NVolume(CSysVector & Scale, CSysVector * pMA=NULL)                       { return Volume(Scale, Norm_T, Norm_P); };
 
-    virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)         { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
-    virtual double Rho(CIArray & SpIds, double T_, double P_, CSysVector * pMA=NULL)      { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, SpIds, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
-    virtual double Rho(CSysVector & Scale, double T_, double P_, CSysVector * pMA=NULL)   { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, Scale, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double Rho(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL)         { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, DensityMethod(), Phase, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double Rho(CIArray & SpIds, double T_, double P_, CSysVector * pMA=NULL)      { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, DensityMethod(), SpIds, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
+    virtual double Rho(CSysVector & Scale, double T_, double P_, CSysVector * pMA=NULL)   { SPMDLTIMERLAP(sm_swDens); return SDB.Density(m_iFidelity, DensityMethod(), Scale, T_, P_, &m_Ovr, pMA ? pMA->SVData() : m_M.SVData()); };
     virtual double NRho(PhMask Phase=som_ALL, CSysVector * pMA=NULL)                      { SPMDLTIMERLAP(sm_swDens); return Rho(Phase, Norm_T, Norm_P, pMA); };
     virtual double NRho(CIArray & SpIds, CSysVector * pMA=NULL)                           { SPMDLTIMERLAP(sm_swDens); return Rho(SpIds, Norm_T, Norm_P, pMA); };
     virtual double NRho(CSysVector & Scale, CSysVector * pMA=NULL)                        { SPMDLTIMERLAP(sm_swDens); return Rho(Scale, Norm_T, Norm_P, pMA); };
@@ -1000,11 +1018,13 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual double MassFrac(PhMask Phase=som_ALL)                                 { return m_M.MassFrac(Phase); };
     virtual double MoleFrac(PhMask Phase=som_ALL)                                 { return m_M.MoleFrac(Phase); };
-    virtual double VolFrac(PhMask Phase, double Temp, double Press)               { SPMDLTIMERLAP(sm_swDens); return SDB.VolFrac(m_iFidelity, Phase, Temp, Press, &m_Ovr, m_M.SVData()); };
+    virtual double VolFrac(PhMask Phase, double Temp, double Press)               { SPMDLTIMERLAP(sm_swDens); return SDB.VolFrac(m_iFidelity, DensityMethod(), Phase, Temp, Press, &m_Ovr, m_M.SVData()); };
     virtual double SpecieConc(double T_, int iSpNo, PhMask Phase=som_ALL);
     virtual double PhaseConc(double T_, PhMask Ph, PhMask Phase=som_ALL);
 
     virtual void   SetDebug(flag DbgOn_);
+
+    virtual int    DensityMethod();
 
     virtual LPTSTR FlashDescription();
     virtual void   SetFlashDescription(LPCSTR Desc);
@@ -1196,6 +1216,9 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
       double       m_dRelH;    
       double       m_dDewPt;    
       }            m_AutoVLE;
+
+    sint           m_iRhoMethodRqd;
+    sint           m_iRhoMethod;
 
     int            m_iSatCmpRqd;
     int            m_iSatCmp;

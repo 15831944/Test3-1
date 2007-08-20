@@ -1198,6 +1198,41 @@ Strng::Strng(const char *lpsz1, const char *lpsz2)  // the string to be stored i
 
 //---------------------------------------------------------------------------
 
+Strng::Strng(const char *lpsz1, const char *lpsz2, const char *lpsz3)
+  {
+  pNxt = pPrv = NULL;
+  Pos = NULL;
+  iIndex=0;
+
+  DoAlloc=True;
+  Buff = AllocBuff(Size = ReqdSize(0)); //new char[Size = ReqdSize(InitLen)];
+  strcpy(Buff, "");
+
+  int nSrc1Len = Strng::SafeStrlen(lpsz1);
+  int nSrc2Len = Strng::SafeStrlen(lpsz2);
+  int nSrc3Len = Strng::SafeStrlen(lpsz3);
+
+  int nNewLen = nSrc1Len + nSrc2Len + nSrc3Len;
+  const int l = ReqdSize(nNewLen);
+  Expand(l);
+  memcpy(Buff, lpsz1, nSrc1Len*sizeof(char));
+  memcpy(Buff+nSrc1Len, lpsz2, nSrc2Len*sizeof(char));
+  memcpy(Buff+nSrc1Len+nSrc2Len, lpsz3, nSrc3Len*sizeof(char));
+  Buff[nSrc1Len+nSrc2Len+nSrc3Len]=0;
+
+
+#if TESTValidAddress
+  if (LookForValidAddress)
+    if (_CrtIsValidPointer((void*)LookForValidAddress, 1, TRUE))
+      {
+      DoBreak();
+      LookForValidAddress=0;
+      }
+#endif
+  }
+
+//---------------------------------------------------------------------------
+
 Strng::Strng(const Strng &S1, const Strng &S2)// the string to be stored in the Strng.
   {
   pNxt = pPrv = NULL;

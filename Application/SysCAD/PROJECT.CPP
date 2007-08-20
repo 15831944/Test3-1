@@ -201,7 +201,8 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 //const int LatestPrjFileVer = 110; //CNM  19/06/2007 Renaming "Flange" to "DirectLink"
 //const int LatestPrjFileVer = 111; //CNM  04/07/2007 H20 as Aqueous
 //const int LatestPrjFileVer = 112; //CNM  02/08/2007 M_Surge extend m_BlkEval
-const int LatestPrjFileVer = 113; //CNM  13/08/2007 DevLibEx Class Name Changes
+//const int LatestPrjFileVer = 113; //CNM  13/08/2007 DevLibEx Class Name Changes
+const int LatestPrjFileVer = 114; //CNM  14/08/2007 Extention for Density Correction
 
 //===========================================================================
 //

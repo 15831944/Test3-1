@@ -261,7 +261,7 @@ double MSpModelBase::getBoilingPtElevation(double P, MArray * pMA)
 
 double MSpModelBase::DensityMix(double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, MArray & M)
   {
-  return SDB.RhoMix(m_pSpMdlX->Fidelity(), FSol, Ds, FLiq, Dl, FVap, Dv, T_, P_, &m_pSpMdlX->m_Ovr, &M[0]);
+  return SDB.RhoMix(m_pSpMdlX->Fidelity(), m_pSpMdlX->DensityMethod(), FSol, Ds, FLiq, Dl, FVap, Dv, T_, P_, &m_pSpMdlX->m_Ovr, &M[0]);
   };
 
 double MSpModelBase::msEnthalpyMix(double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, MArray & M)

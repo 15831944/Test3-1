@@ -4,7 +4,7 @@
 // $Nokeywords: $
 //===========================================================================
 
-#ifndef __MD_HEADERS_H
+#ifndef __EX_HEADERS_H
 #include "ex_headers.h"
 #endif
 #include "..\TTCommon\STHx.h"

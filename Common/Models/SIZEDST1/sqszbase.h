@@ -629,34 +629,42 @@ class DllImportExport CSD_Distribution
                         for (int s=0; s<NPriIds(); s++)
                           TotalM+=M[PriSzId(s)];
                         TotalM=GTZ(TotalM);
+                        CDensityInfo C(SpModel::Fidelity(), SMDensM_None/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
                         for (int s=0; s<NPriIds(); s++)
                           {
-                          double SolDens=SDB[PriSzId(s)].Density(SpModel::Fidelity(), T, P, pOvr, M);
-                          CSD_SpDist & S=*PriSp[s];
-                          double Mult=M[PriSzId(s)]/TotalM;
-                          for (int i=0; i<NIntervals(); i++)
+                          if (SDB[PriSzId(s)].DensityX(C))
                             {
-                            const double D=MeanPartDiam(i); 
-                            const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
-                            TotalF+=Mult*S.FracPass[i];
-                            TotalA+=Mult*Y*S.FracPass[i];
+                            double SolDens=C.Density();
+                            CSD_SpDist & S=*PriSp[s];
+                            double Mult=C.Mass()/TotalM;
+                            for (int i=0; i<NIntervals(); i++)
+                              {
+                              const double D=MeanPartDiam(i); 
+                              const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
+                              TotalF+=Mult*S.FracPass[i];
+                              TotalA+=Mult*Y*S.FracPass[i];
+                              }
                             }
                           }
                         return 0.001*TotalA/GTZ(TotalF);
                         }
     double           SpecificSurfaceAreaV(double T, double P, SpPropOveride * pOvr, double *M, double LiqVol) 
                         { 
+                        CDensityInfo C(SpModel::Fidelity(), SMDensM_None/*SpModel::DensityMethod()*/, T, P, pOvr, M); 
                         double TotalF=0.0;
                         double TotalA=0.0;
                         for (int s=0; s<NPriIds(); s++)
                           {
-                          double SolDens=SDB[PriSzId(s)].Density(SpModel::Fidelity(), T, P, pOvr, M);
-                          CSD_SpDist & S=*PriSp[s];
-                          for (int i=0; i<NIntervals(); i++)
+                          if (SDB[PriSzId(s)].DensityX(C))
                             {
-                            const double D=MeanPartDiam(i); 
-                            const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
-                            TotalA+=M[PriSzId(s)]*Y*S.FracPass[i];
+                            double SolDens=C.Density();
+                            CSD_SpDist & S=*PriSp[s];
+                            for (int i=0; i<NIntervals(); i++)
+                              {
+                              const double D=MeanPartDiam(i); 
+                              const double Y=3.0/GTZ(0.5*SolDens*D);  // m^2/kg
+                              TotalA+=C.Mass()*Y*S.FracPass[i];
+                              }
                             }
                           }
                         return TotalA/GTZ(LiqVol);

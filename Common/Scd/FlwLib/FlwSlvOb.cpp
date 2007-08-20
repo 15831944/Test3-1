@@ -258,7 +258,10 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
       case xidmsCp:   DCB.D=SDB[s].msCp(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); return true;
       case xidRho:   
         if (!SDB[s].HasDensCalc())
-          DCB.D=SDB[s].Density(FIDELITY(2), PARM(0), PARM(1), NULL, NULL); 
+          {
+          CDensityInfo C(FIDELITY(2), SMDensM_None, PARM(0), PARM(1), NULL, NULL); 
+          DCB.D=SDB[s].DensityX(C) ? C.Density() : 0.0; 
+          }
         else
           DCB.D=dNAN;
         return true;
@@ -613,7 +616,7 @@ void SDBObjectEdt::Build()
     if (DensCorrSolventCnt>0)
       {
       SetDesc(L, "CorrDens",      -1, iWd_CorrRho,  2, "");
-      SetDesc(L, "Correction Factor", -1, iWd_CorrDesc, 1, "");
+      SetDesc(L, "(Factor) AppRho", -1, iWd_CorrDesc, 0, "");
       }
     
     L++;
@@ -676,7 +679,7 @@ void SDBObjectEdt::Build()
             if (DensCorrSolventCnt>0)
               {
               SetDesc(L, "CorrDens",      -1, iWd_CorrRho,  2, "");
-              SetDesc(L, "Correction Factor", -1, iWd_CorrDesc, 1, "");
+              SetDesc(L, "(Factor) AppRho", -1, iWd_CorrDesc, 0, "");
               }
             L++;
             TextCnt = 0;
@@ -1131,7 +1134,8 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             }
           else
             {
-            RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL)), Str);
+            CDensityInfo C(rSDBO.m_bHiFidelity?1:0, SMDensM_None, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+            RhoFmt.FormatFloat(RhoCnv.Human(SDB[iSp].DensityXZero(C)), Str);
             }
           FixWide(iWd_Rho, Str, View());
           break;
@@ -1144,7 +1148,8 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
             if (rSDBO.m_iDisplaySolvent==iSolvent)
               {
               CDensCorr & SI=SDB[iSp].DensCalc();
-              const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+              CDensityInfo C(rSDBO.m_bHiFidelity?1:0, SMDensM_None, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+              const double SolventDensity = SDB[iSolvent].DensityX(C) ? C.Density():0.0;
               const double Factor = SI.DensCorr(rSDBO.m_dDisplayMF);
               RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), Str);
               //const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
@@ -1175,13 +1180,14 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
               if (rSDBO.m_iDisplaySolvent==iSolvent)
                 {
                 CDensCorr & SI=SDB[iSp].DensCalc();
-                const double SolventDensity = SDB[iSolvent].Density(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+                CDensityInfo C(rSDBO.m_bHiFidelity?1:0, SMDensM_None, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL);
+                const double SolventDensity = SDB[iSolvent].DensityX(C) ? C.Density():0.0;
                 const double Factor = SI.DensCorrWithLimit(rSDBO.m_dDisplayMF, SolventDensity);
                 T.Set("(%.4f) ", 1.0+Factor);
                 Str += T;
 #if WithSDB_DensCorrTesting
                 //RhoFmt.FormatFloat(RhoCnv.Human(SolventDensity * (1.0+Factor)), T);
-                const double AppDensity = SI.Evaluate(rSDBO.m_bHiFidelity?1:0, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
+                const double AppDensity = SI.Evaluate(CDensityInfo(rSDBO.m_bHiFidelity?1:0, SMDensM_None, rSDBO.m_dDisplayT, rSDBO.m_dDisplayP, NULL, NULL), 1.0-rSDBO.m_dDisplayMF, rSDBO.m_dDisplayMF);
                 RhoFmt.FormatFloat(RhoCnv.Human(AppDensity), T);
                 Str += T;
 #endif

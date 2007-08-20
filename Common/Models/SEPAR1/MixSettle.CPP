@@ -1226,9 +1226,10 @@ void MixerSettler::EvalDerivs(CNodeEvalIndex & NEI)
         Settler.AddDeriv(*IOConduit(j), IOSign(j));
 
     double QvMxAcc=0.0;
+    CDensityInfo C(Settler.Fidelity(), Settler.DensityMethod(), Mixer.Temp(), Mixer.Press(), Mixer.Ovr(), NULL);
     for (int k=0; k<SDB.Count();k++)
       if (!SDB[k].IsGas())
-        QvMxAcc+=Mixer.VMassDot[k]*SDB[k].msVolume(Settler.Fidelity(), Mixer.Temp(), Mixer.Press(), Mixer.Ovr(), NULL);
+        QvMxAcc+=Mixer.VMassDot[k]*(SDB[k].DensityX(C) ? C.msVolume() : 0.0);
       else if (!Mixer.Closed())
         //  Vapours do not accumlate
         Mixer.SetVValueDot(k, 0.0);
@@ -1249,12 +1250,13 @@ void MixerSettler::EvalDerivs(CNodeEvalIndex & NEI)
 
   QmAcc=0.0;
   QvAcc=0.0;
+  CDensityInfo CM(Settler.Fidelity(), Settler.DensityMethod(), Mixer.Temp(), Mixer.Press(), Mixer.Ovr(), NULL);
+  CDensityInfo CS(Settler.Fidelity(), Settler.DensityMethod(), Settler.Temp(), Settler.Press(), Settler.Ovr(), NULL);
   for (int i=0; i<SDB.Count();i++)
     if (!SDB[i].IsGas())
       {
       QmAcc+=Mixer.VMassDot[i]+Settler.VMassDot[i];
-      QvAcc+=(Mixer.VMassDot[i]*SDB[i].msVolume(Settler.Fidelity(), Mixer.Temp(), Mixer.Press(), Mixer.Ovr(), NULL))+
-             (Settler.VMassDot[i]*SDB[i].msVolume(Settler.Fidelity(), Settler.Temp(), Settler.Press(), Settler.Ovr(), NULL));
+      QvAcc+=Mixer.VMassDot[i]*(SDB[i].DensityX(CM) ? CM.msVolume(): 0.0)+ Settler.VMassDot[i]*(SDB[i].DensityX(CS) ? CS.msVolume(): 0.0);
       }
   };
 
@@ -1528,7 +1530,7 @@ double MixerSettler::GetDensity(int index, double T, double P, SpPropOveride *Ov
   //return SDB[index].Density(T, P, Ovr, NULL);
   //return SDB[index].DensityInDirect() ? 1000.0 : SDB[index].Density(T, P, Ovr, NULL);
   //return SDB[index].DensityInDirect() ? SDB[index].SpRho(Tc, Std_P) : SDB[index].Density(T, P, Ovr, NULL);
-  return SDB[index].Density(Settler.Fidelity(), T, P, Ovr, NULL);
+  return SDB[index].DensityXZero(CDensityInfo(Settler.Fidelity(), Settler.DensityMethod(), T, P, Ovr, NULL));
   }
 
 //--------------------------------------------------------------------------

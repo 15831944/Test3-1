@@ -123,7 +123,7 @@ STDMETHODIMP CScdSpecieDefn::get_Density(DOUBLE TdK, DOUBLE PkPa, DOUBLE * pVal)
   dllSCD_COMENTRYGET(long, pVal)
     {
     if (m_lIndex>=0 && m_lIndex<gs_CDB.m_SDB.Count())
-      *pVal=gs_CDB.m_SDB[m_lIndex].Density(m_lFidelity, TdK, PkPa, NULL, NULL);
+      *pVal=gs_CDB.m_SDB[m_lIndex].DensityXZero(CDensityInfo(m_lFidelity, SMDensM_None, TdK, PkPa, NULL, NULL));
     else
       Scd.ReturnH(E_INVALIDARG);
     }

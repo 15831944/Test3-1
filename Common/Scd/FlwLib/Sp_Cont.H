@@ -78,7 +78,8 @@ class DllImportExport SpConduit : public SpModelOwner
     void            SetModel(TagObjClass *pRqdModelClass_);
     flag            ModelIs(TagObjClass *pMC);
 
-    long            Fidelity() { return pModel->Fidelity(); };
+    long            DensityMethod() { return pModel->DensityMethod(); };
+    long            Fidelity()      { return pModel->Fidelity(); };
 
     void            SetState(eScdMdlStateActs RqdState);
 
@@ -658,7 +659,8 @@ class DllImportExport SpContainer : public SpModelOwner
     // Shape Members --------------------------------------------------------
     virtual SpShape* Shape() { return pShape; };
 
-    long           Fidelity() { return pModel->Fidelity(); };
+    long           DensityMethod() { return pModel->DensityMethod(); };
+    long           Fidelity()      { return pModel->Fidelity(); };
 
     void           CopyShape(SpShape* RqdShape) { SpModelOwner::ChangeShape(pShape, RqdShape->Class()); };
     void           ChangeShape(pchar ReqdShapeDesc) { SpModelOwner::ChangeShape(pShape, ReqdShapeDesc); };

@@ -338,8 +338,8 @@ flag CVLEBase::ValidateData(ValidateDataBlk & VDB)
 
 //--------------------------------------------------------------------------
 
-CSaturationDefn CVLEBase::FlashDefn()         { return Enabled() ? m_pVLE->FlashDefn()     : CSaturationDefn(SMFM_Default, -1); };
-int CVLEBase::FlashMethod()                   { return Enabled() ? m_pVLE->FlashMethod()   : SMFM_Default; };
+CSaturationDefn CVLEBase::FlashDefn()         { return Enabled() ? m_pVLE->FlashDefn()     : CSaturationDefn(SMSatPM_Default, -1); };
+int CVLEBase::FlashMethod()                   { return Enabled() ? m_pVLE->FlashMethod()   : SMSatPM_Default; };
 int CVLEBase::FlashCmpIndex()                 { return Enabled() ? m_pVLE->FlashCmpIndex() : -1; };
 int CVLEBase::FlashLiqIndex()                 { return Enabled() ? m_pVLE->FlashLiqIndex() : -1; };
 int CVLEBase::FlashVapIndex()                 { return Enabled() ? m_pVLE->FlashVapIndex() : -1; };
@@ -1212,7 +1212,7 @@ CVLEBlock(pClass_, TagIn, pAttach, eAttach)//,
   m_dPrvVapPress=Std_P;
   m_fModelSatP=true;
   m_dApproachTemp=0.0;
-  m_iFlashMethod=SMFM_Default;
+  m_iFlashMethod=SMSatPM_Default;
   };
 
 //--------------------------------------------------------------------------
@@ -1268,7 +1268,7 @@ flag CVLEVapPress::DataXchg(DataChangeBlk & DCB)
         {
         if (stricmp(DCB.rpC, "<Default>")==0)
           {
-          m_iFlashMethod=SMFM_Default; 
+          m_iFlashMethod=SMSatPM_Default; 
           }
         else
           {
@@ -1283,7 +1283,7 @@ flag CVLEVapPress::DataXchg(DataChangeBlk & DCB)
       if (m_iFlashMethod>=0)
         DCB.pC = CDB.m_FlashMethods[m_iFlashMethod]();
       else
-        DCB.pC = CDB.m_FlashMethodsI[CDB.DefFlashMethod()]();
+        DCB.pC = CDB.m_FlashMethodsDef[CDB.DefFlashMethod()]();
       return 1;
       }
     case xidVLEFlashComp:
@@ -1309,9 +1309,9 @@ flag CVLEVapPress::DataXchg(DataChangeBlk & DCB)
       if (m_iCmpNoReqd>=0)
         DCB.pC = CDB.m_FlashCmps[m_iCmpNoReqd]();
       else if (m_iCmpNo>=0)
-        DCB.pC = CDB.m_FlashCmpsI[m_iCmpNo]();
+        DCB.pC = CDB.m_FlashCmpsInh[m_iCmpNo]();
       else
-        DCB.pC = CDB.m_FlashCmpsI[CDB.DefFlashCmpIndex()]();
+        DCB.pC = CDB.m_FlashCmpsDef[CDB.DefFlashCmpIndex()]();
       return 1;
       }
     default:
@@ -1427,7 +1427,7 @@ void CVLEVapPress::SetVapFrac(double VapFrac)//, double RqdH)
 LPTSTR CVLEVapPress::FlashDescription()
   {
   m_sFlashDesc="Vp:";
-  m_sFlashDesc+= (FlashMethod()==SMFM_PartialP) ? "PartialP":"TotalP";
+  m_sFlashDesc+= (FlashMethod()==SMSatPM_PartialP) ? "PartialP":"TotalP";
   m_sFlashDesc+=":";
   if (m_iCmpNo>=0)
     m_sFlashDesc+=CDB[m_iCmpNo].SymOrTag();
@@ -1475,7 +1475,7 @@ void CVLEVapPress::TPFlash(SpModel &Mdl, double Temp, double Press, dword Flags)
 
     CSaturationDefn &SD=FlashDefn();
     double OtherPP;
-    if (SD.Method()==SMFM_PartialP)
+    if (SD.Method()==SMSatPM_PartialP)
       OtherPP=pMdlL->PartialPress(OtherVapSp, Temp);
     else
       OtherPP=0.0;
@@ -1540,7 +1540,7 @@ class QPRootFnd : public MRootFinderBase
       SpModel * pWrk=(pMdlV ? pMdlV : pMdlL);
       CSaturationDefn &SD=VLE.FlashDefn();
       double OtherPFrac;
-      if (SD.Method()==SMFM_PartialP)
+      if (SD.Method()==SMSatPM_PartialP)
         OtherPFrac=pWrk->PartialPressFrac(VLE.OtherVapSp, pMdlL->Temp(), m_P);
       else
         OtherPFrac=0.0;

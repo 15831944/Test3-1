@@ -231,7 +231,10 @@ XID xidDoSmoothing                    = FlwXID(1017);
 XID xidNThreads                       = FlwXID(1018);
 XID xidRqdThreads                     = FlwXID(1019);
 
-XID xidDefaultArea                    = FlwXID(1020);
+XID xidDefDensCorr                    = FlwXID(1020);
+XID xidDefSatPress                    = FlwXID(1021);
+
+XID xidDefaultArea                    = FlwXID(1030);
 //XID xidMissSpillAreas                 = FlwXID(2022);
 XID xidODEMethod                      = FlwXID(1521);
 XID xidODESSCtrl                      = FlwXID(1522);
@@ -10372,8 +10375,12 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Double("StandardTemp",  "StdT",   DC_T,   "C",    xidStdT,        this, isResult|noFileAtAll);
     DDB.Double("StandardPress", "StdP",   DC_P,   "kPa",  xidStdP,        this, isResult|noFileAtAll);
     DDB.Text  ("");
-    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
     DDB.Long  ("H2OProperties",         "", DC_,     "",  xidH2OProperties,                   this, isParmStopped|SetOnChange, CDB.H2ODDBList());
+    DDB.Long  ("EnthalpyStrategy",      "", DC_,     "",  (long*)&SpModel::iEnthalpyStrategy, this, isParmStopped|SetOnChange, DDBEnthStrat);
+    DDB.Long  ("DefDensityCorrection",  "", DC_,     "",  xidDefDensCorr,                     this, isParmStopped|SetOnChange, CDB.m_DDBDefDensityMethods()); 
+    DDB.Long  ("DefSaturationPress",    "", DC_,     "",  xidDefSatPress,                     this, isParmStopped|SetOnChange, CDB.m_DDBDefFlashMethods());
+
+    DDB.Text  ("");
     DDB.CheckBoxBtn("FunctionSurfaces", "", DC_,     "",  xidUseSurfaces,                     this, AllowSurfaces ? isParmStopped : 0);
     DDB.CheckBoxBtn("SmoothSurfaces",   "", DC_,     "",  xidDoSmoothing,                     this, AllowSmoothing ? isParmStopped : 0);
 #if UseNewSurfaces
@@ -10725,6 +10732,16 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
           }
         }
       DCB.L=CDB.H2OPropertiesSelected();
+      return 1;
+    case xidDefDensCorr:
+      if (DCB.rL)
+        CDB.m_DefDensityMethod=*DCB.rL;
+      DCB.L=CDB.DefDensityMethod();
+      return 1;
+    case xidDefSatPress:
+      if (DCB.rL)
+        CDB.m_DefFlashMethod=*DCB.rL;
+      DCB.L=CDB.DefFlashMethod();
       return 1;
     case xidUseSurfaces:
       if (DCB.rB)

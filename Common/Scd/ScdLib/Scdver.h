@@ -83,8 +83,8 @@
 //#define SCD_BUILD_SVN    1489                 /* SVN when Build 123 first released */
 //#define SCD_BUILD_SVN    1810                 /* SVN when Build 124 first released */
 //#define SCD_BUILD_SVN    1894                 /* SVN when Build 125 Beta first used (11 June 2007)*/
-#define SCD_BUILD_SVN    2397                 /* SVN when Build 125 Beta first released (17 August 2007)*/
-#define SCD_BUILD_NUM    125                  /* Build number*/
+#define SCD_BUILD_SVN    2400                 /* SVN when Build 125 Beta first released (17 August 2007)*/
+#define SCD_BUILD_NUM    126                  /* Build number*/
 #define SCD_BUILD_DATE   "17 August 2007"   /* Date when Build is first released */
 
 //compile information

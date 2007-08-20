@@ -2706,11 +2706,12 @@ void CSD_Distribution::DistTotals(SpPropOveride *Ovr, CSysVector &M1, int iSpPri
   {
   Mass=0.0;
   Volume=0.0;
+  CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Std_T, Std_P, Ovr, M1.SVData());
   for (int l=0; l<NSecIds(iSpPriId); l++)
     {
     int Id=SzId(iSpPriId,l);
     Mass+=M1[Id];
-    Volume+=M1[Id]*SDB[Id].msVolume(SpModel::Fidelity(), Std_T, Std_P, Ovr, M1.SVData());
+    Volume+=M1[Id]*(SDB[Id].DensityX(C) ? C.msVolume():0.0);
     }
   }
 
@@ -2723,6 +2724,7 @@ void CSD_Distribution::CalcDensity(SpPropOveride *Ovr, CSysVector &M1, int iSpId
 
   int s0=(iSpId>=0) ? iSpId : 0;
   int sN=(iSpId>=0) ? iSpId : NPriIds()-1;
+  CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Std_T, Std_P, Ovr, M1.SVData());
   for (int s=s0; s<=sN; s++)
     {
     SpMass[s]=0.0;
@@ -2731,7 +2733,7 @@ void CSD_Distribution::CalcDensity(SpPropOveride *Ovr, CSysVector &M1, int iSpId
       {
       int Id=SzId(s,l);
       SpMass[s]+=M1[Id];
-      Volume+=M1[Id]*SDB[Id].msVolume(SpModel::Fidelity(), Std_T, Std_P, Ovr, M1.SVData());
+      Volume+=M1[Id]*(SDB[Id].DensityX(C) ? C.msVolume(): 0.0);
       }
     SpDensity[s]=SpMass[s]/GTZ(Volume);
     SpDensity[s]=Max(0.01, SpDensity[s]);
