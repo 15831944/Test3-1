@@ -878,7 +878,6 @@ class DllImportExport CSpecie : public CPropertyBase
 
     //bool          SigmaDensityX(CDensityInfo & C, double SpMass, double Scale=1.0);
 
-  protected:
     double        DensityFn(CDensityInfo & C);
     double        DensityNCFn(CDensityInfo & C);
 
