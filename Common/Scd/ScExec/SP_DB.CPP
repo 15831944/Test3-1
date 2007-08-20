@@ -8415,7 +8415,7 @@ CSysVecItem * CSysVecInfo::ParseSpecie(int nToks, CSVColArray & C, CDBInitRec &C
     CRqdSpItem I(p->m_sSDBTag.StrC());
     I.m_dLoTol=SafeAtoF(C[InfoColNo], 25);
     I.m_dHiTol=SafeAtoF(C[InfoColNo+1],25);
-    if (nToks>InfoColNo+2)
+    if (nToks>=InfoColNo+2)
       I.m_bUseIdeal=(C[InfoColNo+2] && strlen(C[InfoColNo+2])>0 && C[InfoColNo+2][0]=='1');
     CDBI.RqdSpecies.AddTail(I);
     m_nSVSpcCount++;
