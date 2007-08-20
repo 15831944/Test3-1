@@ -928,7 +928,6 @@ namespace SysCAD.Editor
 
       if (fcFlowChart.Selection.Arrows.Count == 1) // We're playing with just one arrow...
       {
-
         DoArrowModifyingOperations(e.Arrow, e.SelectionHandle);
       }
     }
@@ -936,7 +935,7 @@ namespace SysCAD.Editor
     private void fcFlowChart_BoxDeleting(object sender, BoxConfirmArgs e)
     {
       e.Confirm = false; // Tell flowchart not to deal with this.
-      state.Remove(fcFlowChart);
+      DeleteSelection();
     }
 
     private void fcFlowChart_Click(object sender, EventArgs e)
@@ -1968,6 +1967,41 @@ namespace SysCAD.Editor
     public State State
     {
       get { return state; }
+    }
+
+    internal void DeleteSelection()
+    {
+      List<Item> items = new List<Item>();
+      List<Link> links = new List<Link>();
+      Int64 requestId;
+
+      foreach (Box box in fcFlowChart.Selection.Boxes)
+      {
+        Item item = box.Tag as Item;
+        if (!items.Contains(item))
+        {
+          items.Add(item);
+        }
+      }
+
+      foreach (Arrow arrow in fcFlowChart.Selection.Arrows)
+      {
+        Link link = arrow.Tag as Link;
+        if (!links.Contains(link))
+        {
+          links.Add(link);
+        }
+      }
+
+      foreach (Item item in items)
+      {
+        state.DeleteGraphicItem(out requestId, item.Guid);
+      }
+
+      foreach (Link link in links)
+      {
+        state.DeleteGraphicLink(out requestId, link.Guid);
+      }
     }
   }
 }

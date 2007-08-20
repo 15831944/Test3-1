@@ -240,6 +240,11 @@ namespace SysCAD.Editor
         case "Edit.Paste":
           this.PasteFromClipboard(10.0F, 10.0F);
           break;
+
+        case "Edit.Delete":
+          this.Delete();
+          break;
+
       }
     }
 
@@ -615,6 +620,7 @@ namespace SysCAD.Editor
         barManager1.Commands["Mode.CreateLink"].Enabled = projectOpen && permissions.Create;
         barManager1.Commands["Edit.Cut"].Enabled = projectOpen && permissions.Delete;
         barManager1.Commands["Edit.Copy"].Enabled = projectOpen;
+        barManager1.Commands["Edit.Delete"].Enabled = projectOpen;
         barManager1.Commands["Edit.Paste"].Enabled = projectOpen && permissions.Create;
 
         barManager1.Commands["CreateItem.GraphicType"].Enabled = false;
@@ -1079,6 +1085,11 @@ namespace SysCAD.Editor
       }
 
       return copyClientProtocol;
+    }
+
+    public void Delete()
+    {
+      frmFlowChart.DeleteSelection();
     }
 
     #endregion
