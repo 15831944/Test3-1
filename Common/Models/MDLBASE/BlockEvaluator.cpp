@@ -493,7 +493,7 @@ void CBlockEvaluator::CheckFlowsConsistent(int iJoinNo, bool ForMakeup)
         bool LinkDrawnToHere = (ioIdRmt>0);
         double QmIn = m_pNd->IOQm_In(io);
         if ((LinkDrawnToHere && (QmIn < SmallPosFlow)) || (!LinkDrawnToHere && (QmIn > SmallPosFlow)))
-          LogError(m_pNd->FullObjTag(), 0, "%s Bad flow direction @ %s", ForMakeup?"MakeUp":"Bleed", pRmt->FullObjTag());
+          LogError(m_pNd->FullObjTag(), 0, "%s: Bad flow direction @ %s", ForMakeup?"MakeUp":"Bleed", pRmt->FullObjTag());
         }
       }
     }
