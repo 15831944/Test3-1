@@ -964,8 +964,8 @@ void CCpCorr::Clear()
 
 CSolubility::CSolubility()
   {
-  m_iSoluteA=-1;
-  m_iSoluteS=-1;
+  m_iAqueous=-1;
+  m_iOtherPh=-1;
   m_pSolubleFn=NULL;
   m_pHeatOfMixFn=NULL;
   };
@@ -973,8 +973,8 @@ CSolubility::CSolubility()
 CSolubility::CSolubility(int SoluteA, int SoluteS,
                          CSpDBEqn *SolubleFn, CSpDBEqn *HeatOfMixFn)
   {
-  m_iSoluteA       = SoluteA;
-  m_iSoluteS       = SoluteS;
+  m_iAqueous       = SoluteA;
+  m_iOtherPh       = SoluteS;
   m_pSolubleFn     = SolubleFn;
   m_pHeatOfMixFn   = HeatOfMixFn;
   };
@@ -1699,7 +1699,7 @@ DensOK:
 CpOK:
 
   for (int i=0; i<m_Solubilities.GetSize(); i++)
-    if (m_Solubilities[i].m_iSoluteA==iSoluteA)
+    if (m_Solubilities[i].m_iAqueous==iSoluteA)
       {
       Ret=2;
       goto SolOK;

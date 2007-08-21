@@ -976,7 +976,9 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
           for (int i=0; i<Solvent.SolubilityCount(); i++)
             {
             CSolubility &S=Solvent.Solubility(i);
-            dbgp(" %+29s %6s", SDB[S.m_iSoluteS].SymOrTag(),"");
+            dbgp(" %s : ", Solvent.SymOrTag());
+            dbgp(" %s <> %s", SDB[S.m_iOtherPh].SymOrTag(), SDB[S.m_iAqueous].SymOrTag());
+            //dbgp(" %+29s %6s", SDB[S.m_iOtherPh].SymOrTag(),"");
             }
           }
         dbgpln("");
@@ -1015,18 +1017,18 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
             {
             CSolubility &S=Solvent.Solubility(i);
             double Ht=totHf();
-            double TotSolute=m_M[S.m_iSoluteS]+m_M[S.m_iSoluteA];
+            double TotSolute=m_M[S.m_iOtherPh]+m_M[S.m_iAqueous];
             double MassSolvent=m_M[iSolvent];
             if (TstGTZ(TotSolute) && TstGTZ(MassSolvent))
               {
-              double SolFrac=m_M[S.m_iSoluteS]/TotSolute;
-              double MassAq=m_M[S.m_iSoluteA];
+              double OtherFrac=m_M[S.m_iOtherPh]/TotSolute;
+              double MassAq=m_M[S.m_iAqueous];
 
               double T=Valid(RqdT)?RqdT:Temp();
               double P=Valid(RqdP)?RqdP:Press();
               //double SolventDens=SDB[iSolvent].Density(m_iFidelity, T, P, &m_Ovr, SVData());
               //double SolventVol=(MassSolvent+MassAq)/SolventDens;
-              double ActConc=m_M[S.m_iSoluteA]/MassSolvent;
+              double ActConc=m_M[S.m_iAqueous]/MassSolvent;
               //double RqdConc=GEZ(S.pFn1 ? S.pFn1->Value(T) : S.pFn2->Value(T, P));
               double RqdConc=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T) : 1e12);
               double Err=RqdConc-ActConc;
@@ -1039,16 +1041,16 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
                 continue;
               //if (fabs(Err)<1.0e-8*RqdConc+1.0e-10)
               //  continue;
-              if (RqdConc>ActConc && SolFrac<0.000000000001)
+              if (RqdConc>ActConc && OtherFrac<0.000000000001)
                 continue;
-              if (RqdConc<ActConc && SolFrac>0.999999999999)
+              if (RqdConc<ActConc && OtherFrac>0.999999999999)
                 continue;
               SolConverged=False;
 
-              double TstdMassAq=SolFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
-              double TstSolFrac=Range(0.0, SolFrac-TstdMassAq/TotSolute, 1.0);
-              VValue[S.m_iSoluteS]=TotSolute*(TstSolFrac);
-              VValue[S.m_iSoluteA]=TotSolute*(1.0-TstSolFrac);
+              double TstdMassAq=OtherFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
+              double TstSolFrac=Range(0.0, OtherFrac-TstdMassAq/TotSolute, 1.0);
+              VValue[S.m_iOtherPh]=TotSolute*(TstSolFrac);
+              VValue[S.m_iAqueous]=TotSolute*(1.0-TstSolFrac);
               ClrStatesOK();
 
               if (Valid(RqdT))
@@ -1061,9 +1063,9 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
               double Slope=(RqdConc1-RqdConc)/TstdMassAq;
 
               double dMAq=(MassSolvent*(RqdConc-ActConc))/(1-LEZ(MassSolvent*Slope));
-              double NewSolFrac=Range(0.0, SolFrac-dMAq/TotSolute, 1.0);
-              VValue[S.m_iSoluteS]=TotSolute*(NewSolFrac);
-              VValue[S.m_iSoluteA]=TotSolute*(1.0-NewSolFrac);
+              double NewOtherFrac=Range(0.0, OtherFrac-dMAq/TotSolute, 1.0);
+              VValue[S.m_iOtherPh]=TotSolute*(NewOtherFrac);
+              VValue[S.m_iAqueous]=TotSolute*(1.0-NewOtherFrac);
               ClrStatesOK();
 
               if (Valid(RqdT))
@@ -1072,7 +1074,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 
               //double SolventDens1=SDB[iSolvent].Density(m_iFidelity, Valid(RqdT)?RqdT:Temp(), P, &m_Ovr, SVData());
               //double SolventVol1=(MassSolvent+MassAq)/SolventDens1;
-              double ActConc1=m_M[S.m_iSoluteA]/MassSolvent;
+              double ActConc1=m_M[S.m_iAqueous]/MassSolvent;
 
               int xxx=0;
               }

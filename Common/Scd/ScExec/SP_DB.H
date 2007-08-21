@@ -330,72 +330,6 @@ class DllImportExport CSpDBEqn
 //
 // ===========================================================================
 
-//class DllImportExport CSolnItem
-//  {
-//  public:
-//    int      m_iSoluteA;
-//    int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
-//
-//    CSpDBEqn *m_pDensCorrFn;          // Density Correction Function
-//    double   m_dDensCorrZero;        // Density Correction Function
-//
-//    CSpDBEqn *m_pCpCorrFn;            // Cp Correction Function
-//    double   m_dCpCorrZero;          // Cp Correction Function
-//
-//    CSpDBEqn *m_pSolubleFn;           // Solubility Function
-//    CSpDBEqn *m_pHeatOfMixFn;
-//
-//    CSolnItem()
-//      {
-//      m_iSoluteA=-1;
-//      m_iSoluteS=-1;
-//      m_pDensCorrFn=NULL;
-//      m_dDensCorrZero=0.0;
-//      m_pCpCorrFn=NULL;
-//      m_dCpCorrZero=0.0;
-//      m_pSolubleFn=NULL;
-//      m_pHeatOfMixFn=NULL;
-//      };
-//
-//    CSolnItem(int SoluteA, int SoluteS,
-//              CSpDBEqn *DensCorrFn, double DensCorrZero,
-//              CSpDBEqn *CpCorrFn, double CpCorrZero,
-//              CSpDBEqn *SolubleFn, CSpDBEqn *HeatOfMixFn)
-//      {
-//      m_iSoluteA       = SoluteA;
-//      m_iSoluteS       = SoluteS;
-//      m_pDensCorrFn    = DensCorrFn;
-//      m_dDensCorrZero  = DensCorrZero;
-//      m_pCpCorrFn      = CpCorrFn;
-//      m_dCpCorrZero    = CpCorrZero;
-//      m_pSolubleFn     = SolubleFn;
-//      m_pHeatOfMixFn   = HeatOfMixFn;
-//      };
-//
-//    ~CSolnItem()
-//      {
-//      };
-//
-//    void Clear()
-//      {
-//      delete m_pDensCorrFn;
-//      delete m_pCpCorrFn;
-//      delete m_pSolubleFn;
-//      delete m_pHeatOfMixFn;
-//      m_pDensCorrFn=NULL;
-//      m_pCpCorrFn=NULL;
-//      m_pSolubleFn=NULL;
-//      m_pHeatOfMixFn=NULL;
-//      };
-//
-//    double DensCorr(double MF) { return m_pDensCorrFn->AtT(MF)-m_dDensCorrZero; }
-//    double CpCorr(double MF)   { return m_pCpCorrFn->AtT(MF)-m_dCpCorrZero; }
-//  };
-//
-//class CSolnArray : public CArray<CSolnItem, CSolnItem&> {};
-
-// ===========================================================================
-
 class DllImportExport CDensityInfo
   {
   friend class CSpecie;
@@ -513,8 +447,8 @@ class DllImportExport CSolubility
     void Clear();
 
   public:
-    int      m_iSoluteA;
-    int      m_iSoluteS;             //'OtherPhase' required by SolubleFn
+    int      m_iAqueous;
+    int      m_iOtherPh;             //'OtherPhase' required by SolubleFn
 
     CSpDBEqn *m_pSolubleFn;           // Solubility Function
     CSpDBEqn *m_pHeatOfMixFn;

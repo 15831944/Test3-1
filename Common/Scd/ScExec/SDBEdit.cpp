@@ -4122,7 +4122,7 @@ void CSDBTest::TestSoluble(int &nGood, int &nBad)
             {
             S.Set("%s\t%s\t%.2f\t%s\t%s",
               it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-              it==0 ? (m_SDB[SItem.m_iSoluteA].SymOrTag()?m_SDB[SItem.m_iSoluteA].SymOrTag():""):"",
+              it==0 ? (m_SDB[SItem.m_iAqueous].SymOrTag()?m_SDB[SItem.m_iAqueous].SymOrTag():""):"",
               m_ShowK.GetCheck()?t:K_2_C(t),
               SolS(),
               Note() ? Note() : " ");
@@ -4171,40 +4171,40 @@ void CSDBTest::TestMixHeat(int &nGood, int &nBad)
 //          {
 //          //bool Fidelity=(iFidelity==1);
 //
-//          M[SItem.m_iSoluteA]=0.0;
+//          M[SItem.m_iAqueous]=0.0;
 //          M[iSolvent]=1.0;
 //  //        double H0=m_SDB[iSolvent].msEnthalpy(C_2_K(25.0), Std_T);
 //          for (int it=0; it<=m_NIntervals; it++)
 //            {
-//            M[SItem.m_iSoluteA]=(0.9/m_NIntervals)*it;
-//            M[iSolvent]=1.0-M[SItem.m_iSoluteA];
+//            M[SItem.m_iAqueous]=(0.9/m_NIntervals)*it;
+//            M[iSolvent]=1.0-M[SItem.m_iAqueous];
 //
 //            Strng NS;
 //            if (it>0)
 //              {
-//              double N=M[iSolvent]/M[SItem.m_iSoluteA];
+//              double N=M[iSolvent]/M[SItem.m_iAqueous];
 //              NS.Set("%.1f", N);
 //              }
 //            else
 //              NS="Infinite";
 //
 //            double h0=m_SDB[iSolvent].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
-//            double h1=m_SDB[SItem.m_iSoluteA].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
-//            double h2=m_SDB[SItem.m_iSoluteS].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
+//            double h1=m_SDB[SItem.m_iAqueous].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
+//            double h2=m_SDB[SItem.m_iOtherPh].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
 //
 //            double H1=M[iSolvent]*m_SDB[iSolvent].mlHf(iFidelity, Std_T, Std_P, NULL, NULL) +
-//                      M[SItem.m_iSoluteA]*m_SDB[SItem.m_iSoluteA].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
-//            H1/=(M[iSolvent]+M[SItem.m_iSoluteA]);
+//                      M[SItem.m_iAqueous]*m_SDB[SItem.m_iAqueous].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
+//            H1/=(M[iSolvent]+M[SItem.m_iAqueous]);
 //
 //            M[iSolvent]+=1000000;
 //            double H0=M[iSolvent]*m_SDB[iSolvent].mlHf(iFidelity, Std_T, Std_P, NULL, NULL) +
-//                      M[SItem.m_iSoluteA]*m_SDB[SItem.m_iSoluteA].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
-//            H0/=(M[iSolvent]+M[SItem.m_iSoluteA]);
+//                      M[SItem.m_iAqueous]*m_SDB[SItem.m_iAqueous].mlHf(iFidelity, Std_T, Std_P, NULL, NULL);
+//            H0/=(M[iSolvent]+M[SItem.m_iAqueous]);
 //            double DT=0.0;
 //
 //  dbgpln("%-15.15s  %-15.15s  %8.8s  h:%12.1f  l:%12.1f  a:%12.1f  d:%12.1f  c:%12.1f  %12.1f  %12.1f  %12.1f  %12.1f",
 //    it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-//    it==0 ? (m_SDB[SItem.m_iSoluteA].SymOrTag()?m_SDB[SItem.m_iSoluteA].SymOrTag():""):"",
+//    it==0 ? (m_SDB[SItem.m_iAqueous].SymOrTag()?m_SDB[SItem.m_iAqueous].SymOrTag():""):"",
 //    NS(),
 //    h0,
 //    h2,
@@ -4235,7 +4235,7 @@ void CSDBTest::TestMixHeat(int &nGood, int &nBad)
 //              Strng S;
 //              S.Set("%s\t%s\t%s\t%.1f\t%.1f\t%.1f\t%.1f\t%s",
 //                it==0 ? (m_SDB[iSolvent].SymOrTag()?m_SDB[iSolvent].SymOrTag():""):"",
-//                it==0 ? (m_SDB[SItem.m_iSoluteA].SymOrTag()?m_SDB[SItem.m_iSoluteA].SymOrTag():""):"",
+//                it==0 ? (m_SDB[SItem.m_iAqueous].SymOrTag()?m_SDB[SItem.m_iAqueous].SymOrTag():""):"",
 //                NS(),
 //                H1-H0,
 //                H1,H0,
