@@ -3138,7 +3138,7 @@ void MN_Lnk::EvalProducts(CNodeEvalIndex & NEI)
 #endif
 
       double ActLen=m_MFB.On() ? 0.0 : m_FEP.ActLength();
-      m_BlkEval.EvalProductsInline(Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
+      m_BlkEval.EvalProductsInline(-1, Fo, ActLen, m_FEP.Diam(), IOP_Flng(iOut), &m_FTB); 
 #if dbgShowEval
       if (fDoDbgBrk)
         dbgpln("EvalProducts R  %15.6f %15.6f %15.6f %15.6f %s", Fi.QMass(), Fi.MassFrac(som_Liq), Fo.QMass(), Fo.MassFrac(som_Liq), FullObjTag());

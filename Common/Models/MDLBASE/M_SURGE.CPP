@@ -197,27 +197,27 @@ flag MN_Surge::ValidateData(ValidateDataBlk & VDB)
     m_EqThermals.ValidateData(VDB);
   
   flag OK=true;
-  if (NetDynamicMethod())
-    {
-    //Check all links are xfer
-    bool AllAreXfer=true;
-    for (int i=0; i<NoProcLnkIOs(); i++)
-      {
-      if (!Nd_Rmt(i)->TransferFlowMode())
-        {
-        AllAreXfer =false;
-        break;
-        }
-      }
+  //if (NetDynamicMethod())
+  //  {
+  //  //Check all links are xfer
+  //  bool AllAreXfer=true;
+  //  for (int i=0; i<NoProcLnkIOs(); i++)
+  //    {
+  //    if (!Nd_Rmt(i)->TransferFlowMode())
+  //      {
+  //      AllAreXfer =false;
+  //      break;
+  //      }
+  //    }
 
-    if (!AllAreXfer)
-      {
-      if (m_BlkEval.MakeupCount()>0)
-        LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
-      if (m_BlkEval.BleedCount()>0)
-        LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
-      }
-    }
+  //  if (!AllAreXfer)
+  //    {
+  //    if (m_BlkEval.MakeupCount()>0)
+  //      LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
+  //    if (m_BlkEval.BleedCount()>0)
+  //      LogStop(Tag(), 0, "Non TransferMode Links Connected : Makeup count > 0");
+  //    }
+  //  }
   if (!m_BlkEval.ValidateData(VDB))
     OK=false;
   if (!MdlNode::ValidateData(VDB))
@@ -609,7 +609,7 @@ void MN_Surge::EvalProducts(CNodeEvalIndex & NEI)
     case SM_Buffered:
       SigmaQInPMin(m_QFeed, som_ALL, First64IOIds);
 
-      m_BlkEval.EvalProducts(m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
+      m_BlkEval.EvalProducts(0, m_QFeed, ContentHgtOrd.Container().Press(), NULL);//&m_FTB);
 
       EvalProducts_SurgeLevel(SolveInlineMethod(), false, ContentHgtOrd, &m_SrgCtrl);
       //EvalProducts_SurgeLevel(Contents, QFeed, First64IOIds, PMU());

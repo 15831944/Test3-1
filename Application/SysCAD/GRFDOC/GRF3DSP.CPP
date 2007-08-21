@@ -966,9 +966,12 @@ CEntInView* Viewport::Draw(DXF_ENTITY e, int Colour)
     {
     CGrfLayer * l = Drw->Find(DXF_ENTITY_LAYER_GET(e));
     DML_ITEM item = Drw->FindItem(e);
-    ASSERT(l);
-    Drw->Draw(e, this, &ZoomBox, Colour, 1, l, l, item);
-    return (CEntInView*)(item->pKenwalta);
+    if (item)
+      {
+      ASSERT(l);
+      Drw->Draw(e, this, &ZoomBox, Colour, 1, l, l, item);
+      return (CEntInView*)(item->pKenwalta);
+      }
     }
 
   #if dbgGrfDsp

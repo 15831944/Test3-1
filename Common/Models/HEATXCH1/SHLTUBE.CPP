@@ -2184,7 +2184,7 @@ void ShellTube::EvalProducts(CNodeEvalIndex & NEI)
       //#if NewXferEval
       PressInP=Joins[m_HXJ.P.JoinId()].Pressure();
       Xfer_EvalProductsIn_(m_HXJ.P.JoinId(), PressInP, &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL);
-      Xfer_EvalProductsWork_(&m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL);
+      Xfer_EvalProductsWork_(m_HXJ.P.JoinId(), &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL);
       //#else
       //      PressInP=Xfer_EvalProductsIn(m_HXJ.P.JoinId(), Joins[m_HXJ.P.JoinId()].Pressure(), &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL, NULL);
       //#endif

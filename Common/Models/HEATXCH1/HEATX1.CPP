@@ -2636,7 +2636,7 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
 //#if NewXferEval
       PressInP=Joins[m_HXJ.P.JoinId()].Pressure();
       Xfer_EvalProductsIn_(m_HXJ.P.JoinId(), PressInP, &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL);
-      Xfer_EvalProductsWork_(&m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL);
+      Xfer_EvalProductsWork_(m_HXJ.P.JoinId(), &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL);
 //#else
 //      PressInP=Xfer_EvalProductsIn(m_HXJ.P.JoinId(), Joins[m_HXJ.P.JoinId()].Pressure(),
 //                                   &m_HXJ.P.Qi(), &m_HXJ.P.Qo(), NULL, NULL, NULL);
@@ -2683,7 +2683,7 @@ void HeatXchg1::EvalProductsDyn(bool DoSurge, bool DoXferOut)
 //#if NewXferEval
       PressInS=Joins[m_HXJ.S.JoinId()].Pressure();
       Xfer_EvalProductsIn_(m_HXJ.S.JoinId(), PressInS, &m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL);
-      Xfer_EvalProductsWork_(&m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL, NULL);
+      Xfer_EvalProductsWork_(m_HXJ.S.JoinId(), &m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL, NULL);
 //#else
 //      PressInS=Xfer_EvalProductsIn(m_HXJ.S.JoinId(), Joins[m_HXJ.S.JoinId()].Pressure(),
 //                                   &m_HXJ.S.Qi(), &m_HXJ.S.Qo(), NULL, NULL, NULL);

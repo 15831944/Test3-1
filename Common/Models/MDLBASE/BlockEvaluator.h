@@ -22,7 +22,7 @@ class DllImportExport CBlockEvaluator
     //                                     RB, HX, EHX, VLE
     static const int MaxBEBlocks           =   1  +1   +1   +1   +MaxNdMakeups+MaxNdBleeds;
 
-    CBlockEvaluator(FlwNode * pThis,
+    CBlockEvaluator(FlwNode * pNd,
                     CReactionBase * pRB = NULL,
                     CHXBase *pHX = NULL,
                     CEnvironHXBase * pEHX = NULL,
@@ -52,8 +52,8 @@ class DllImportExport CBlockEvaluator
     //void              SetBlkSeqNo(byte SeqID, byte No);
     void              SortBlocks();
 
-    void              EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
-    void              EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
+    void              EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
+    void              EvalProductsInline(int iJoinNo, SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst=dNAN);
 
     int               ChangeTag(char * pOldTag, char * pNewTag);
     int               DeleteTag(char * pDelTag);
@@ -64,6 +64,8 @@ class DllImportExport CBlockEvaluator
     void              SetMakeupCount(int N);
     void              SetBleedCount(int N);
 
+    void              CheckFlowsConsistent(int iJoinNo, bool ForMakeup);
+
     bool              RBAttached()      { return m_pRB!=NULL; };
     bool              HXAttached()      { return m_pHX!=NULL; };
     bool              EHXAttached()     { return m_pEHX!=NULL; };
@@ -71,7 +73,7 @@ class DllImportExport CBlockEvaluator
     bool              EvapAttached()    { return m_pEvap!=NULL; };
 
   protected:
-    FlwNode         * m_pThis;
+    FlwNode         * m_pNd;
     int               m_nBlocks;
     //int               m_nBEInSeq;
     //byte              m_BEInSeq[MaxBEBlocks+1];

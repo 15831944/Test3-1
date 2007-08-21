@@ -191,7 +191,7 @@ class DllImportExport MdlNode : public FlwNode
 
     // Performs the basic EvalProducts for Ties
     void           Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, SpConduit *pQo, CRqdPressCtrl *pPC);
-    void           Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
+    void           Xfer_EvalProductsWork_(int JoinId, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
     void           Xfer_EvalProductsOut_(int JoinId, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC);
     virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator *pBlkEval = NULL);
     virtual void   Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpConduit *pQo, GSModel * pGSM, CRqdPressCtrl *pPC, CBlockEvaluator *pBlkEval);

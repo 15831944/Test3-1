@@ -381,12 +381,12 @@ void MdlNode::Xfer_EvalProductsIn_(int JoinId, double & Press, SpConduit *pQi, S
 
 //--------------------------------------------------------------------------
 
-void MdlNode::Xfer_EvalProductsWork_(SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator * pBlkEval)
+void MdlNode::Xfer_EvalProductsWork_(int JoinId, SpConduit *pQi, SpConduit *pQo, CReactionBlock *pRB, CEnvironHX * pEHX, CBlockEvaluator * pBlkEval)
   {
   SpConduit & Qo=pQo ? *pQo : *pQi;
   if (pBlkEval)
     {
-    pBlkEval->EvalProducts(Qo, Qo.Press(), NULL);//&m_FTB);
+    pBlkEval->EvalProducts(JoinId, Qo, Qo.Press(), NULL);//&m_FTB);
     if (pRB && !pBlkEval->RBAttached())
       pRB->EvalProducts(Qo);
     if (pEHX && !pBlkEval->EHXAttached())
@@ -459,7 +459,7 @@ void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpCond
   Press=Max(Press, LowPressure);
   SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());
   Xfer_EvalProductsIn_(JoinId, Press, pQi, Sd, pPC);
-  Xfer_EvalProductsWork_(pQi, Sd, pRB, pEHX, pBlkEval);
+  Xfer_EvalProductsWork_(JoinId, pQi, Sd, pRB, pEHX, pBlkEval);
   Xfer_EvalProductsOut_(JoinId, pQi, Sd, pGSM, pPC);
   };
 
@@ -470,7 +470,7 @@ void MdlNode::Xfer_EvalProducts(int JoinId, double Press, SpConduit *pQi, SpCond
   Press=Max(Press, LowPressure);
   SpConduit *Sd = (pQo!=NULL) ? pQo : GetWrkConduit("Xfer0", chLINEID());
   Xfer_EvalProductsIn_(JoinId, Press, pQi, Sd, pPC);
-  Xfer_EvalProductsWork_(pQi, Sd, NULL, NULL, pBlkEval);
+  Xfer_EvalProductsWork_(JoinId, pQi, Sd, NULL, NULL, pBlkEval);
   Xfer_EvalProductsOut_(JoinId, pQi, Sd, pGSM, pPC);
   };
 
@@ -493,8 +493,8 @@ void MdlNode::Xfer_EvalProducts(Xfer_EvalProducts_Info & S1,
     pHX->EvalProducts();
     }
 
-  Xfer_EvalProductsWork_(S1.m_pQo, Sd1, S1.m_pRB, S1.m_pEHX, S1.m_pBlkEval);
-  Xfer_EvalProductsWork_(S2.m_pQo, Sd2, S2.m_pRB, S2.m_pEHX, S2.m_pBlkEval);
+  Xfer_EvalProductsWork_(S1.m_iJoinId, S1.m_pQo, Sd1, S1.m_pRB, S1.m_pEHX, S1.m_pBlkEval);
+  Xfer_EvalProductsWork_(S2.m_iJoinId, S2.m_pQo, Sd2, S2.m_pRB, S2.m_pEHX, S2.m_pBlkEval);
 
   if (pHX && !HX_PreReact)
     {

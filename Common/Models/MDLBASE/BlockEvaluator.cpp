@@ -4,6 +4,7 @@
 #include "flwnode.h"
 #define __BLOCKEVALUATOR_CPP
 #include "BlockEvaluator.h"
+#include "m_link.h"
 
 #define dbgBlkEvalProd 0
 
@@ -19,14 +20,14 @@ XID xidNMakeups       = EvalBlkXID(1);
 XID xidNBleeds        = EvalBlkXID(2);
 XID xidOldBlkSeq      = EvalBlkXID(3);
 
-CBlockEvaluator::CBlockEvaluator(FlwNode * pThis,
+CBlockEvaluator::CBlockEvaluator(FlwNode * pNd,
                                  CReactionBase * pRB,
                                  CHXBase *pHX,
                                  CEnvironHXBase * pEHX,
                                  CVLEBase * pVLE,
                                  CEvapBase * pEvap)
   {
-  m_pThis     = pThis;
+  m_pNd = pNd;
   
   Attach(pRB, pHX, pEHX, pVLE, pEvap);
   };
@@ -120,7 +121,7 @@ void CBlockEvaluator::AddBlk(CBlockEvalBase *p, int DefSeqNo)
   if (p)
     {
     if (0)
-      dbgpln("AddBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
+      dbgpln("AddBlk %3i %s", m_nBlocks, m_pNd->FullObjTag());
     p->SetOnOffValLst(&m_OnOffValLst);
     p->SetDefBlkSeqNo(DefSeqNo);
     m_Blks[m_nBlocks++]=p;
@@ -141,7 +142,7 @@ void CBlockEvaluator::RemBlk(CBlockEvalBase *p)
         for (int j=i; j<m_nBlocks; j++)
           m_Blks[j]=m_Blks[j+1];
         if (0)
-          dbgpln("RemBlk %3i %s", m_nBlocks, m_pThis->FullObjTag());
+          dbgpln("RemBlk %3i %s", m_nBlocks, m_pNd->FullObjTag());
         break;
         }
       }
@@ -154,13 +155,13 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
   {
   BOOL DoIt=true;
   if (PrjFileVerNo()>=99)
-    DoIt=DDB.BeginObject(m_pThis, "EB", "EB_Slct", 0, DDB_NoPage);
+    DoIt=DDB.BeginObject(m_pNd, "EB", "EB_Slct", 0, DDB_NoPage);
   
   if (DoIt)
     {
-    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, m_pThis, 0); 
-    DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pThis, isParmStopped|SetOnChange); 
-    DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pThis, isParmStopped|SetOnChange); 
+    DDB.String("EvaluationSequence", "EvalSeq", DC_, "", &m_sBlkSeq, m_pNd, 0); 
+    DDB.Long("Makeups", "", DC_, "", xidNMakeups, m_pNd, isParmStopped|SetOnChange); 
+    DDB.Long("Bleeds",  "", DC_, "", xidNBleeds,  m_pNd, isParmStopped|SetOnChange); 
 
     //DDB.Text("");
     for (int a=0; a<m_pMakeups.GetSize(); a++)
@@ -190,7 +191,7 @@ void CBlockEvaluator::Add_OnOff(DataDefnBlk &DDB, DDBPages PageIs)
       {0, "RB EHX VLE" },
       {1, "EHX RB VLE" },
       {0}};
-    DDB.Byte("BlockActionSeq",         "",   DC_,  "",  xidOldBlkSeq, m_pThis, isParmStopped, DDBBS);
+    DDB.Byte("BlockActionSeq",         "",   DC_,  "",  xidOldBlkSeq, m_pNd, isParmStopped, DDBBS);
     }
 
   DDB.Text("");
@@ -249,7 +250,7 @@ void CBlockEvaluator::SetMakeupCount(int N)
        {
        Strng Tg, Nm;
        Tg.Set("%s%i", MakeupIOTag, a+1);
-       m_pMakeups[a] = new CMakeupBase(m_pThis, a, Tg());
+       m_pMakeups[a] = new CMakeupBase(m_pNd, a, Tg());
        m_pMakeups[a]->Open(1);
        m_pMakeups[a]->SetEnable(true);
        AddBlk(m_pMakeups[a], 1+a);
@@ -275,7 +276,7 @@ void CBlockEvaluator::SetBleedCount(int N)
       {
       Strng Tg, Nm;
       Tg.Set("%s%i", BleedIOTag, a+1);
-      m_pBleeds[a] = new CBleedBase(m_pThis, a, Tg());
+      m_pBleeds[a] = new CBleedBase(m_pNd, a, Tg());
       m_pBleeds[a]->Open(1);
       m_pBleeds[a]->SetEnable(true);
       AddBlk(m_pBleeds[a], MaxNdMakeups*2+a);
@@ -395,7 +396,7 @@ void CBlockEvaluator::SortBlocks()
 
   if (0)
     {
-    dbgpln("SortBlks =============== %s", m_pThis->FullObjTag());
+    dbgpln("SortBlks =============== %s", m_pNd->FullObjTag());
     for (i=0 ; i<m_nBlocks; i++)
       dbgpln("  Seq: %-6s %i %s %5i", m_Blks[i]->Name(), m_Blks[i]->OpenStatus(m_Blks[i]->Enabled()), m_Blks[i]->Enabled()?"En":"Da", m_Blks[i]->BlkSeqNo(true));
     }
@@ -475,10 +476,35 @@ void CBlockEvaluator::SortBlocks()
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
+void CBlockEvaluator::CheckFlowsConsistent(int iJoinNo, bool ForMakeup)
+  {
+  if (iJoinNo>=0)
+    {
+    CJoinRec & J = m_pNd->Joins[iJoinNo];
+
+    for (int c=0; c<J.NConns(); c++)
+      {
+      int io = J.Conn(c).m_iIONo;
+      int ioIdRmt = m_pNd->IOId_Rmt(io);
+      FlwNode * pRmt = m_pNd->Nd_Rmt(io);
+      // check that the remote 'node' is a link
+      if (dynamic_cast<MN_Lnk*>(pRmt)!=NULL)
+        {
+        bool LinkDrawnToHere = (ioIdRmt>0);
+        double QmIn = m_pNd->IOQm_In(io);
+        if ((LinkDrawnToHere && (QmIn < SmallPosFlow)) || (!LinkDrawnToHere && (QmIn > SmallPosFlow)))
+          LogError(m_pNd->FullObjTag(), 0, "%s Bad flow direction @ %s", ForMakeup?"MakeUp":"Bleed", pRmt->FullObjTag());
+        }
+      }
+    }
+  }
+
+//-------------------------------------------------------------------------
+
+void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   if (dbgBlkEvalProd && m_nBlocks>0)
-    dbgpln("CBlockEvaluator::EvalProducts >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
+    dbgpln("CBlockEvaluator::EvalProducts >> Qm:%10.3f %s", Fo.QMass(), m_pNd->Tag());
   for (int i=0; i<m_nBlocks ; i++)
     {
     switch (m_Blks[i]->BEId())
@@ -524,6 +550,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
         break;
 
       case BEId_Makeup:  
+        CheckFlowsConsistent(iJoinNo, true);
         //if (pFTB)
         //  pFTB->AddEvapBegin();
         m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
@@ -531,6 +558,7 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
         //  pFTB->AddEvapEnd();
         break;
       case BEId_Bleed:  
+        CheckFlowsConsistent(iJoinNo, false);
         //if (pFTB)
         //  pFTB->AddEvapBegin();
         m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
@@ -548,10 +576,10 @@ void CBlockEvaluator::EvalProducts(SpConduit & Fo, double Po, CFlwThermalBlk * p
 
 //-------------------------------------------------------------------------
 
-void CBlockEvaluator::EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
+void CBlockEvaluator::EvalProductsInline(int iJoinNo, SpConduit & Fo, double Len, double Diam, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   if (dbgBlkEvalProd && m_nBlocks>0)
-    dbgpln("CBlockEvaluator::EvalProductsInline >> Qm:%10.3f %s", Fo.QMass(), m_pThis->Tag());
+    dbgpln("CBlockEvaluator::EvalProductsInline >> Qm:%10.3f %s", Fo.QMass(), m_pNd->Tag());
   for (int i=0; i<m_nBlocks; i++)
     {
     switch (m_Blks[i]->BEId())
@@ -597,6 +625,7 @@ void CBlockEvaluator::EvalProductsInline(SpConduit & Fo, double Len, double Diam
         break;
 
       case BEId_Makeup:  
+        CheckFlowsConsistent(iJoinNo, true);
         //if (pFTB)
         //  pFTB->AddEvapBegin();
         m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
@@ -604,6 +633,7 @@ void CBlockEvaluator::EvalProductsInline(SpConduit & Fo, double Len, double Diam
         //  pFTB->AddEvapEnd();
         break;
       case BEId_Bleed:  
+        CheckFlowsConsistent(iJoinNo, false);
         //if (pFTB)
         //  pFTB->AddEvapBegin();
         m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 

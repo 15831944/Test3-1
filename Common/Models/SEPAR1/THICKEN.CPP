@@ -417,7 +417,7 @@ void Thickener::EvalProducts(CNodeEvalIndex & NEI)
       SigmaQInPMin(Fd(), som_ALL, Id_2_Mask(ioidFd));
       flag HasFlw = (Fd().QMass(som_ALL)>UsableMass);
 
-      m_BlkEval.EvalProducts(Fd(), Fd->Press(), NULL);
+      m_BlkEval.EvalProducts(0, Fd(), Fd->Press(), NULL);
 
 
       if (m_bShowQFeed)
