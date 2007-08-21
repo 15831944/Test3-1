@@ -18,7 +18,7 @@ namespace SysCAD.Protocol
   /// </summary>
   [Serializable]
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
-  public class GraphicStencil
+  public class GraphicStencil1
   {
 
     public SizeF defaultSize;
@@ -32,9 +32,7 @@ namespace SysCAD.Protocol
     private String tag;
     private RectangleF textArea;
 
-    private Image thumbnailUnselected16x16;
-
-    public GraphicStencil()
+    public GraphicStencil1()
     {
     }
 

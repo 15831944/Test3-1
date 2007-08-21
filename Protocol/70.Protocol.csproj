@@ -74,6 +74,7 @@
     <Compile Include="EngineProtocol.cs" />
     <Compile Include="EngineServiceProtocol.cs" />
     <Compile Include="GraphicGroup.cs" />
+    <Compile Include="GraphicStencil1.cs" />
     <Compile Include="GraphicThing.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Config.cs" />
@@ -88,11 +89,13 @@
     <Compile Include="ModelLink.cs" />
     <Compile Include="ModelStencil.cs" />
     <Compile Include="ARectangleF.cs" />
+    <Compile Include="ModelStencil1.cs" />
     <Compile Include="PortStatus.cs" />
     <Compile Include="ModelProperty.cs" />
     <Compile Include="Stencil.cs" />
     <Compile Include="StencilConverter.cs" />
     <Compile Include="ThingStencil.cs" />
+    <Compile Include="ThingStencil1.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

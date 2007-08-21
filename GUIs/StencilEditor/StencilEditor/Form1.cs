@@ -1837,49 +1837,140 @@ namespace StencilEditor
           }
           catch
           {
-            //if (stream != null) stream.Close();
-            //try
-            //{
-            //  sf = new SoapFormatter();
-            //  stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
+            if (stream != null) stream.Close();
+            try
+            {
+              String stencilString;
 
-            //  OldGraphicStencil oldGraphicStencil = (OldGraphicStencil)sf.Deserialize(stream);
-            //  graphicStencil.Elements = oldGraphicStencil.elements;
-            //  graphicStencil.Decorations = oldGraphicStencil.decorations;
-            //  graphicStencil.defaultSize = oldGraphicStencil.defaultSize;
-            //  //graphicStencil.fillMode = oldGraphicStencil.fillMode;
-            //  graphicStencil.groupName = oldGraphicStencil.groupName;
-            //  graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
-            //  Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
-            //  Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-            //  Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
-            //}
-            //catch
-            //{
-            //}
+              // This code creates an empty GraphicStencil1 file to help create the Replace strings below.
+              {
+                SoapFormatter sf1 = new SoapFormatter();
+                Stream stream1 = new StreamWriter(filename + ".GraphicStencil1.new").BaseStream;
+                GraphicStencil1 graphicStencil1 = new GraphicStencil1();
+                graphicStencil1.Elements = new ArrayList();
+                graphicStencil1.Elements.Add(new Arc(1.0F, 2.0F, 1.0F, 2.0F, 1.0F, 2.0F));
+
+                sf1.Serialize(stream1, graphicStencil1);
+                stream1.Close();
+              }
+
+              {
+                sf = new SoapFormatter();
+                StreamReader streamReader = new StreamReader(baseName + ".GraphicStencil");
+                stencilString = streamReader.ReadToEnd();
+
+                //stencilString = stencilString.Replace(
+                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8",
+                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Stencils1%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull"
+                //    );
+                stencilString = stencilString.Replace("GraphicStencil", "GraphicStencil1");
+                streamReader.Close();
+
+                StreamWriter streamWriter = new StreamWriter(filename + ".GraphicStencil1");
+                streamWriter.Write(stencilString);
+                streamWriter.Close();
+              }
+
+              {
+                sf = new SoapFormatter();
+                stream = new StreamReader(baseName + ".GraphicStencil1").BaseStream;
+
+                GraphicStencil1 graphicStencil1 = (GraphicStencil1)sf.Deserialize(stream);
+                stream.Close();
+
+                graphicStencil.Elements = graphicStencil1.Elements;
+                graphicStencil.Decorations = graphicStencil1.Decorations;
+                graphicStencil.defaultSize = graphicStencil1.defaultSize;
+                graphicStencil.fillMode = graphicStencil1.fillMode;
+                graphicStencil.groupName = graphicStencil1.groupName;
+                graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+                Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+                Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+                Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
+              }
+            }
+            catch
+            {
+            }
           }
           if (stream != null) stream.Close();
         }
 
         {
+          SoapFormatter sf;
+          Stream stream = null;
+
           try
           {
-            SoapFormatter sf = new SoapFormatter();
-            Stream stream = new StreamReader(baseName + ".ModelStencil").BaseStream;
+            sf = new SoapFormatter();
+            stream = new StreamReader(baseName + ".GraphicStencil").BaseStream;
 
-            modelStencil = (ModelStencil)sf.Deserialize(stream);
+            graphicStencil = (GraphicStencil)sf.Deserialize(stream);
             stream.Close();
 
             if (elementTextBox.Text == "")
-              Generate(modelStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+              Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
             if (decorationTextBox.Text == "")
-              Generate(modelStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
-            Generate(modelStencil.Anchors, graphicStencil.defaultSize, anchorTextBox);
-            toolStripComboBoxModelGroup.Text = modelStencil.GroupName;
+              Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
           }
           catch
           {
-          }
+            if (stream != null) stream.Close();
+            try
+            {
+              String stencilString;
+
+              // This code creates an empty GraphicStencil1 file to help create the Replace strings below.
+              {
+                SoapFormatter sf1 = new SoapFormatter();
+                Stream stream1 = new StreamWriter(filename + ".GraphicStencil1.new").BaseStream;
+                GraphicStencil1 graphicStencil1 = new GraphicStencil1();
+                graphicStencil1.Elements = new ArrayList();
+                graphicStencil1.Elements.Add(new Arc(1.0F, 2.0F, 1.0F, 2.0F, 1.0F, 2.0F));
+
+                sf1.Serialize(stream1, graphicStencil1);
+                stream1.Close();
+              }
+
+              {
+                sf = new SoapFormatter();
+                StreamReader streamReader = new StreamReader(baseName + ".GraphicStencil");
+                stencilString = streamReader.ReadToEnd();
+
+                //stencilString = stencilString.Replace(
+                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8",
+                //    "http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Stencils1%2C%20Version%3D0.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull"
+                //    );
+                stencilString = stencilString.Replace("GraphicStencil", "GraphicStencil1");
+                streamReader.Close();
+
+                StreamWriter streamWriter = new StreamWriter(filename + ".GraphicStencil1");
+                streamWriter.Write(stencilString);
+                streamWriter.Close();
+              }
+
+              {
+                sf = new SoapFormatter();
+                stream = new StreamReader(baseName + ".GraphicStencil1").BaseStream;
+
+                GraphicStencil1 graphicStencil1 = (GraphicStencil1)sf.Deserialize(stream);
+                stream.Close();
+
+                graphicStencil.Elements = graphicStencil1.Elements;
+                graphicStencil.Decorations = graphicStencil1.Decorations;
+                graphicStencil.defaultSize = graphicStencil1.defaultSize;
+                graphicStencil.fillMode = graphicStencil1.fillMode;
+                graphicStencil.groupName = graphicStencil1.groupName;
+                graphicStencil.TextArea = new RectangleF(0.0F, graphicStencil.defaultSize.Height * 1.1F, graphicStencil.defaultSize.Width, 5F);
+                Generate(graphicStencil.Elements, graphicStencil.defaultSize, elementTextBox);
+                Generate(graphicStencil.Decorations, graphicStencil.defaultSize, decorationTextBox);
+                Generate(graphicStencil.TextArea, graphicStencil.defaultSize, textAreaTextBox);
+              }
+            }
+            catch
+            {
+            }
+        }
         }
 
 
