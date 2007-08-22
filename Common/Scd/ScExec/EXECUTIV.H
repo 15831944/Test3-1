@@ -364,6 +364,12 @@ const int  EODT_RESERVED   = 5;
 const int  EODT_DONE       = 6;
 const int  EODT_FAILED     = 7;
 
+//constants for server connect return codes...
+const int  EOSC_DONE       = 0;
+const int  EOSC_NOTFOUND   = 1;
+const int  EOSC_NOTALLOWED = 2;
+const int  EOSC_FAILED     = 3;
+
 static DDBValueLst SetStateStrs[]={
   {MSA_Null,            " "},
   {MSA_ZeroFlows,       "ZeroFlows"},
@@ -396,6 +402,22 @@ const byte UDO_OnlyStatusLine = 0x01;
 const byte UDO_ForceUpd       = 0x02;
 const byte UDO_ColoursChgd    = 0x04;
 const byte UDO_FlushMsgQ      = 0x10;
+
+class DllImportExport CSvcExecCtrl
+  {
+  public:
+    CSvcExecCtrl()
+      {
+      m_bExportBusy=false;
+      }
+
+    void SetXObjArray(CExecObj * p)  { if (p) { m_Objs.SetSize(1); m_Objs[0]=p; } else m_Objs.SetSize(0); };
+    void AddXObjArray(CExecObj * p)  { if (p) m_Objs.Add(p); };
+    void ClrXObjArray()              { m_Objs.SetSize(0); };
+  
+    bool           m_bExportBusy;
+    CExecObjArray  m_Objs;
+  };
 
 
 class DllImportExport CExecObj
@@ -439,8 +461,19 @@ class DllImportExport CExecObj
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)       { return EOCT_DONE;     };
     virtual int    EO_QueryDeleteTag(pchar pDelTag)                     { return EODT_NOTFOUND; };
     virtual int    EO_DeleteTag(pchar pDelTag)                          { return EODT_NOTFOUND; };
-    virtual int    EO_DeleteTagDone(pchar pDelTag)                          { return EODT_NOTFOUND; };
+    virtual int    EO_DeleteTagDone(pchar pDelTag)                      { return EODT_NOTFOUND; };
     virtual int    EO_CanClose(Strng_List & Problems)                   { return EO_CanClose_Yes; };
+
+
+    virtual int    EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
+    virtual int    EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) { return EOSC_NOTFOUND; };
+    virtual int    EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
 
     virtual DWORD  EO_Message(CXMsgLst &XM, CXM_Route &Route)           { return False; };
 
@@ -996,6 +1029,15 @@ class DllImportExport CExecutive : public ConditionBlk
 #else
     int            CheckAllTags(flag NewNumStartingBad, flag Prompt=1, flag ForceTest=0);
 #endif
+    int            SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               bool mirrorX, bool mirrorY);
+    int            SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               bool mirrorX, bool mirrorY);
 
     void           ClearThread() { LockExec();  pExecThread=NULL; UnlockExec(); };
     DWORD          ExecThreadId() { return pExecThread->m_nThreadID; };

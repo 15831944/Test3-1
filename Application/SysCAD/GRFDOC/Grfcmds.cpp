@@ -303,6 +303,36 @@ int FindTheTag(Strng & ATag, char* Class)
   return RetCode;
   }
 
+#if SYSCAD10
+
+//TACKY !! needs some thought !!
+
+#define SCD10ENTER                        \
+  {                                       \
+  int NOpens=pDsp->Opens;                 \
+  for (int ixx=0; ixx<NOpens; ixx++)      \
+    pDsp->Close();
+
+#define SCD10LEAVE                        \
+  for (int ixx=0; ixx<NOpens; ixx++)      \
+    pDsp->Open();                         \
+  }
+
+static LPCSTR Scd10GetTag(DXF_ENTITY e)
+  {
+  LPCSTR pTag;
+  if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+    {
+    if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
+      return pTag;
+    }
+  return NULL;
+  }
+
+#else
+#define SCD10ENTER
+#define SCD10LEAVE
+#endif
 //===========================================================================
 
 //flag GrfCmdBlk::bLicBlock = 0;
@@ -2122,13 +2152,9 @@ void GrfCmdBlk::DoInsert()
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
 #if SYSCAD10
-            //TACKY !!
-            int NOpens=pDsp->Opens;
-            for (int ixx=0; ixx<NOpens; ixx++)
-              pDsp->Close();
+            SCD10ENTER;
             gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
-            for (int ixx=0; ixx<NOpens; ixx++)
-              pDsp->Open();
+            SCD10LEAVE;
 
 #else
 
@@ -2141,8 +2167,6 @@ void GrfCmdBlk::DoInsert()
                 CB->MdlInsertErr = AddUnitModel(CB->AClass(), CB->ATag(), TheGuid());
               pDsp->Draw(CB->e, -1);
               //            pDrw->EntityInvalidate(en, NULL);
-
-              //gs_pPrj->Svc.DoCreateItem(true, TheGuid(), CB->ASymbol(), CB->AClass(), CB->ATag(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
               }
 
 #endif
@@ -5875,11 +5899,26 @@ void GrfCmdBlk::DoMoveEntity()
               {//move the selected entity...
               if (Like)
                 {
+#if SYSCAD10
+                Pt_3f Delta=pDsp->CurrentPt.World;
+                Delta=Delta-pDsp->StartPt.World;
+
+                gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
+
+                LPCSTR pTag = Scd10GetTag(Like);
+                if (pTag)
+                  {
+                  SCD10ENTER;
+                  gs_pPrj->Svc.DoModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
+                  SCD10LEAVE;
+                  }
+#else
                 pDsp->Draw(Like, GrfHelper.GR_BACKGROUND);
                 pDrw->TranslateEntity(Like, pDsp->StartPt.World, pDsp->CurrentPt.World);
                 gs_pCmd->ExtendCmdLine(";"); //SelectionList will be clear or invalid, cannot continue repositioning !!!
                 pDrw->EntityInvalidate(Like, NULL);
                 pDsp->Draw(Like, -1);
+#endif
                 Pt3 = pDsp->CurrentPt;
                 }
               else
@@ -7664,53 +7703,17 @@ void GrfCmdBlk::DoDelete()
           {
 
 #if SYSCAD10
-
-          pchar pTag;
           if (DelMdl)
             {
-            if (DXF_ENTITY_IS_INSERT(e) && (pTag = Find_Attr_Value(e, TagAttribStr)))
+            LPCSTR pTag = Scd10GetTag(e);
+            if (pTag)
               {
               CMdlValueSet::Clear();
-
-              if (Find_Attr_Value(e, AssocTagAttribStr)==NULL) // is not an AssocTag
-                {
-            
-                //TACKY !!
-                int NOpens=pDsp->Opens;
-                for (int ixx=0; ixx<NOpens; ixx++)
-                  pDsp->Close();
-                gs_pPrj->Svc.DoDeleteItem(pTag);
-                for (int ixx=0; ixx<NOpens; ixx++)
-                  pDsp->Open();
-
-                
-                //int RetCode = gs_Exec.DeleteTag(pTag);
-                //if (RetCode!=EODT_DONE)
-                //  {
-                //  LogError(pTag, 0, "Model not deleted");
-                //  DeletesFailedCnt++;
-                //  }
-                //else
-                //  MdlDeletes++;
-                }
-
-              /*int err = gs_pPrj->DeleteNodeModel(pTag);
-              if (err)
-                {
-                if (DeletesFailedCnt==1)
-                  LogError("GrfCmds", 0, sLogMsg());
-                sLogMsg.Set("Model '%s' not deleted[%i]", pTag, err);
-                if (DeletesFailedCnt)
-                  LogError("GrfCmds", 0, sLogMsg());
-                DeletesFailedCnt++;
-                }
-              else
-                MdlDeletes++;
-              */
+              SCD10ENTER;
+              gs_pPrj->Svc.DoDeleteItem(e, pTag);
+              SCD10LEAVE;
               }
             }
-
-
 #else
           pchar pTag;
           if (DelMdl)

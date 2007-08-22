@@ -604,6 +604,16 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
+    int            EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY);
+    int            EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY);
+
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
     void           EO_SetSolveMode();

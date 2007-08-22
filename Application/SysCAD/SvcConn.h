@@ -12,66 +12,6 @@
 
 //========================================================================
 
-class CRectangleF
-  {
-  public:
-    CRectangleF()
-      {
-      m_X = 0.0;
-      m_Y = 0.0;
-      m_W = 0.0;
-      m_H = 0.0;
-      };
-    CRectangleF(double x, double y, double w, double h)
-      {
-      m_X = float(x);
-      m_Y = float(y);
-      m_W = float(w);
-      m_H = float(h);
-      }
-    CRectangleF(float x, float y, float w, float h)
-      {
-      m_X = x;
-      m_Y = y;
-      m_W = w;
-      m_H = h;
-      }
-
-    void Set(double x,double y,double w,double h)
-      {
-      m_X = float(x);
-      m_Y = float(y);
-      m_W = float(w);
-      m_H = float(h);
-      }
-
-    void Set(float x,float y,float w,float h)
-      {
-      m_X = x;
-      m_Y = y;
-      m_W = w;
-      m_H = h;
-      }
-
-    float  Left()    const { return m_X;      };
-    float  Bottom()  const { return m_Y;      };
-    float  Right()   const { return m_X+m_W;  };
-    float  Top()     const { return m_Y+m_H;  };
-
-    float  Width()   const { return m_W; };
-    float  Height()  const { return m_H; };
-    float  MidX()    const { return m_X+0.5f*m_W; };
-    float  MidY()    const { return m_Y+0.5f*m_H; };
-
-  protected:
-    float   m_X;
-    float   m_Y;
-    float   m_W;
-    float   m_H;
-  };
-
-//========================================================================
-
 class CsGrfGroup
   {
   public:
@@ -130,7 +70,7 @@ class CSvcConnect
 
     //------------------------------------------------------------------------
 
-    void OnCreateGroup(bool DoingExport, __int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
+    void OnCreateGroup(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
       const CRectangleF & boundingRect);
 
     //------------------------------------------------------------------------
@@ -140,16 +80,17 @@ class CSvcConnect
 
     // Utils ------
     //static CString MakePath(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page);
-    CString               MakePath(LPCSTR Part1=NULL, LPCSTR Part2=NULL, LPCSTR Part3=NULL);
+    static CString        MakePath(LPCSTR Part1=NULL, LPCSTR Part2=NULL, LPCSTR Part3=NULL);
     CRectangleF           GetPageRect(LPCSTR PgName);
-    CString               ExtractPageName(LPCSTR Path);
-    CGrfDoc             * FindGrfDoc(LPCSTR PageName);
-    CString               ExtractShape(LPCSTR Symbol);
+    static CString        ExtractPageName(LPCSTR Path);
+    static CGrfDoc      * FindGrfDoc(LPCSTR PageName);
+    static CGrfWnd      * FindGrfWnd(LPCSTR PageName);
+    static CString        ExtractShape(LPCSTR Symbol);
 
     // Operations
     void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
-    void DoModifyItem(CGrfDoc *pDoc, DXF_ENTITY eEntity);
-    void DoDeleteItem(LPCSTR Tag);
+    void DoDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag);
+    void DoModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
 
     // CallBack's
     void OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
@@ -166,7 +107,7 @@ class CSvcConnect
 
     //------------------------------------------------------------------------
 
-  protected:
+  //protected:
     CSvcConnectCLR    * m_pCLR;
     
     CsGrfGroupMap   m_GrfGrpsNames;
@@ -174,10 +115,14 @@ class CSvcConnect
     __int64         m_lEventId;
     __int64         m_lRequestId;
     __int64         m_lRequestIdRet;
+    //bool            m_bExportBusy;
 
-    bool            m_bExportBusy;
+    CSvcExecCtrl    m_Ctrl;
 
   };
+
+inline CSvcConnect & PrjSvc() { return *(gs_pPrj->m_pSvc); };
+inline CSvcExecCtrl & PrjSvcCtrl() { return gs_pPrj->m_pSvc->m_Ctrl; };
 
 //========================================================================
 //

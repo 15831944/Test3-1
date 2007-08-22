@@ -45,11 +45,14 @@ class CSvcConnectCLR
                       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
                       float Angle, const CRectangleF & textArea, COLORREF FillColor, 
                       bool MirrorX, bool MirrorY);
-    void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
-                      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
-                      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
-                      bool MirrorX, bool MirrorY);
     void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid);
+
+    void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta);
+
+    //void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+    //                  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
+    //                  float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+    //                  bool MirrorX, bool MirrorY);
 
     // ..........
     //static void CreateItem(__int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, LPCSTR model, LPCSTR stencil, PKRectangleF boundingRect, float angle, int fillColor, int fillMode, bool mirrorX, bool mirrorY);
@@ -64,7 +67,7 @@ class CSvcConnectCLR
     //static void ModifyItemBoundingRect(__int64 requestId, LPCSTR guid, PKRectangleF boundingRect);
     //static void ModifyLinkControlPoints(__int64 requestId, LPCSTR guid, PKPointF controlPoints[], int controlPointsLength);
 
-    void Export(LPCSTR projectPath, LPCSTR configPath);
+    //void Export(LPCSTR projectPath, LPCSTR configPath);
 
   public:
 

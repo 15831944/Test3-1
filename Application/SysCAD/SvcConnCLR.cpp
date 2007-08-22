@@ -91,7 +91,6 @@ ref class CSvcConnectCLRThread
       {
       // There could be sharing problems - when importing and editing simultaneously -  unlikely
       m_pConn = pConn;
-      m_DoingExport=false;  
       };
     ~CSvcConnectCLRThread()
       {
@@ -194,7 +193,7 @@ ref class CSvcConnectCLRThread
 
           clientProtocol->GroupCreated += gcnew ClientProtocol::GroupCreatedHandler(this, &CSvcConnectCLRThread::GroupCreated);
           clientProtocol->ItemCreated  += gcnew ClientProtocol::ItemCreatedHandler(this, &CSvcConnectCLRThread::ItemCreated);
-          //clientProtocol->ItemModified += gcnew EngineProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
+          clientProtocol->ItemModified += gcnew ClientProtocol::ItemModifiedHandler(this, &CSvcConnectCLRThread::ItemModified);
           clientProtocol->ItemDeleted  += gcnew ClientProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
 
           ////////////////////////////////
@@ -286,7 +285,7 @@ ref class CSvcConnectCLRThread
 
     void GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, RectangleF boundingRect)
       {
-      m_pConn->OnCreateGroup(m_DoingExport, eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
+      m_pConn->OnCreateGroup(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height));
       }
 
@@ -320,22 +319,45 @@ ref class CSvcConnectCLRThread
 
     // ====================================================================
 
-    void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
-      LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
-      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
-      bool MirrorX, bool MirrorY)
+    void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
       {
-      RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+      //RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
       
-      //clientProtocol->ModifyItem(requestId, guid, gcnew String(Tag), gcnew String(Path), gcnew String(ClassId), gcnew String(Symbol), RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
-      clientProtocol->ModifyItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
-        gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
-        Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
-        
+
+      Guid itemGuid(gcnew String(ItemGuid));
+      GraphicItem ^ Item;
+      if (clientProtocol->graphicItems->TryGetValue(itemGuid, Item))
+        {
+
+        RectangleF BR=Item->BoundingRect;
+        BR.X+=(float)Delta.X;
+        BR.Y+=(float)Delta.Y;
+        //(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+
+
+        clientProtocol->ModifyItem(requestId, itemGuid, Item->Tag, Item->Path, 
+          Item->Model, Item->Shape, BR, Item->Angle, Item->TextArea,
+          Color::Empty, Drawing2D::FillMode::Alternate, Item->MirrorX, Item->MirrorY);
+        }
+
       };
 
-    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System::Drawing::Color fillColor, System::Drawing::Drawing2D::FillMode fillMode, bool mirrorX, bool mirrorY)
+    //void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
+    //  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
+    //  float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+    //  bool MirrorX, bool MirrorY)
+    //  {
+    //  RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
+    //  RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+    //  
+    //  //clientProtocol->ModifyItem(requestId, guid, gcnew String(Tag), gcnew String(Path), gcnew String(ClassId), gcnew String(Symbol), RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    //  clientProtocol->ModifyItem(requestId, Guid(gcnew String(ItemGuid)), gcnew String(Tag), gcnew String(Path), 
+    //    gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
+    //    Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
+    //    
+    //  };
+
+    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
@@ -431,80 +453,12 @@ ref class CSvcConnectCLRThread
       clientProtocol->Save(requestId);
       };
 
-    void Export(String ^ filename)
-      {
-      // Recreates Graphics but leaves the models in place
-
-      m_DoingExport=true;
-
-      //CGetExistingItems GI;
-
-      //int PrevPage=-1;
-
-      //static __int64 RqID=0;
-
-      //while (GI.GetOne())
-      //  {
-      //  CGrfTagInfo & I = GI.Item();
-
-      //  dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
-      //  
-      //  System::Guid guid(gcnew String(GI.Guid()));
-      //  guid=System::Guid::NewGuid();
-      //  String ^ page =  gcnew String(GI.PageName());//"Pg1";
-
-      //  // Simple Layout
-      //  int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
-      //  float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
-      //  float YOffSet=(GI.PageNo()/NAcross)*310.0f;
-
-      //  if (PrevPage!=GI.PageNo())
-      //    {
-      //    PrevPage=GI.PageNo();
-
-      //    String ^ path = "/" + filename + "/";
-      //    engineProtocol->CreateGroup(RqID++, guid, gcnew String(GI.PageName()), gcnew String(path), 
-      //      RectangleF(float(GI.PageRct().Left()+XOffSet),float(GI.PageRct().Bottom()+YOffSet), float(GI.PageRct().Width()), float(GI.PageRct().Height())));
-      //    }
-
-      //  switch (GI.Type())
-      //    {
-      //    case CGetExistingItems::eIsNode:
-      //      {
-      //      String ^ path = "/" + filename + "/" + page + "/";
-
-      //      CString S(I.m_sSymbol());
-      //      int iDollar=S.Find('$');
-      //      if (iDollar>=0)
-      //        S.Delete(0, iDollar+1);
-
-      //      Model ^ model = gcnew Model(gcnew String(I.m_sClass()));
-      //      Shape ^ shape = gcnew Shape(gcnew String(I.m_sClass()));
-
-      //      engineProtocol->CreateItem(RqID++, guid, gcnew String(I.m_sTag()),
-      //        path, model, shape,
-      //        RectangleF(float(I.m_LoBnd.m_X+XOffSet), float((GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet)), float(I.m_HiBnd.m_X-I.m_LoBnd.m_X), float(I.m_HiBnd.m_Y-I.m_LoBnd.m_Y)),
-      //        0.0, Color(), Drawing2D::FillMode()  , false, false);
-      //      break;
-      //      }
-
-      //    case CGetExistingItems::eIsLink:
-      //      {
-      //      break;
-      //      }
-      //    }
-      //  }
-
-      m_DoingExport=false;
-      }
-
   protected:
     SysCAD::Protocol::Config ^ config;
     SysCAD::Protocol::ClientProtocol ^ clientProtocol;
     SysCAD::Protocol::EngineProtocol ^ engineProtocol;
 
     CSvcConnect   * m_pConn;
-    bool            m_DoingExport;
   };
 
 
@@ -579,19 +533,12 @@ void CSvcConnectCLR::DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoDeleteItem(requestId, ItemGuid);
   };
 
-//========================================================================
-
-void CSvcConnectCLR::Export(LPCSTR projectPath, LPCSTR configPath)
+void CSvcConnectCLR::DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
   {
-  String^ projectPathString = gcnew String(projectPath);
-  String^ configPathString = gcnew String(configPath);
+  CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyItemPosition(requestId, ItemGuid, Delta);
+  }
 
-  LogNote("CSvcConnectCLR", 0, "Import");
-
-  CSvcConnectCLRThreadGlbl::gs_SrvrThread->Export(projectPathString);   
-
-  //System::Threading::S
-  };
+//========================================================================
 
 void CSvcConnectCLR::Load()
   {

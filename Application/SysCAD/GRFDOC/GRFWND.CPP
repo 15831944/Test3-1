@@ -14,6 +14,7 @@
 #include "project.h"
 #include "wndslct.h"
 #include "explorescd.h"
+#include "svcconn.h"
 
 //#include "optoff.h"
 
@@ -386,6 +387,113 @@ int CGrfWnd::EO_DeleteTag(pchar pDelTag)
 
   return RetCode;
   }
+
+//---------------------------------------------------------------------------
+
+int CGrfWnd::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            bool mirrorX, bool mirrorY) 
+  {
+
+  CRectangleF PageRct(0.0, 420, 0, 297);
+  CString PageName=CSvcConnect::ExtractPageName(path);
+
+  if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
+    return EOSC_NOTFOUND;
+
+  //CGrfDoc * pDoc=CSvcCOnnect::FindGrfDoc(PageName);
+  PageRct = PrjSvc().GetPageRect(PageName);
+
+  //if (!Error)
+    {
+    CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+    CInsertBlk CB; 
+
+    CB.ATag=pTag;
+    CB.AClass=model;//();
+    CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+    CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
+    CB.Pt.World.Z=0;
+    CB.NdScl.X=mirrorX ? -1:1;//XScale;
+    CB.NdScl.Y=mirrorY ? -1:1;
+    CB.NdScl.Z=1;
+    CB.Rotate=(float)angle;
+    CB.ATagBase="XX_";//MInfo.TagInitialID();
+    CB.ASymbol=shape;
+    CB.m_sGuid=ItemGuid;
+    //if (m_bExportBusy)
+    //  {
+    pGDoc->GCB.DoInsertNodeGrf(&CB);
+    pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
+    //  }
+    //else
+    //  pGDoc->GCB.DoInsertNode(&CB);
+
+    }
+
+  return EOSC_DONE;
+  };
+
+int CGrfWnd::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+  {
+  int RetCode = EOSC_NOTFOUND;
+
+  DXF_ENTITY eInsert, eAttrib;
+  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+    {
+    Dsp.Open();
+
+    if (eInsert)
+      {
+      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+      GCB.pDrw->Delete(eInsert);
+      RetCode = EOSC_DONE;
+      }
+
+    Dsp.Close();
+    }
+
+  return RetCode;
+  };
+
+int CGrfWnd::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            bool mirrorX, bool mirrorY)     
+  { 
+  CRectangleF PageRct(0.0, 420, 0, 297);
+  CString PageName=CSvcConnect::ExtractPageName(path);
+
+  if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
+    return EOSC_NOTFOUND;
+
+  DXF_ENTITY eInsert, eAttrib;
+  if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
+    {
+    Dsp.Open();
+
+    if (eInsert)
+      {
+      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+
+      PageRct = PrjSvc().GetPageRect(PageName);
+
+      DXF_INSERT_PT(eInsert)[0]   = boundingRect.MidX()-PageRct.Left();
+      DXF_INSERT_PT(eInsert)[1]   = PageRct.Top()-boundingRect.MidY();
+      DXF_INSERT_PT(eInsert)[2]   = 0;
+
+      GCB.pDrw->EntityInvalidate(eInsert);
+      Invalidate(true);
+
+      }
+
+    Dsp.Close();
+    return EOSC_DONE; 
+    }
+  return EOSC_NOTFOUND; 
+  };
 
 //---------------------------------------------------------------------------
 

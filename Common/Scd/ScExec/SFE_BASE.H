@@ -1276,8 +1276,18 @@ class DllImportExport CSfeSrvrBase
     virtual int          EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)                        { return 0; };
     virtual int          EO_QueryDeleteTag(pchar pDelTag)                                      { return 0; };
     virtual int          EO_DeleteTag(pchar pDelTag)                                           { return 0; };
-    virtual int          EO_DeleteTagDone(pchar pDelTag)                                           { return 0; };
+    virtual int          EO_DeleteTagDone(pchar pDelTag)                                       { return 0; };
     virtual int          EO_CanClose(Strng_List & Problems)                                    { return 0; };
+
+    virtual int          EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                        LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                        float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                        bool mirrorX, bool mirrorY)                            { return EOSC_DONE; };
+    virtual int          EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)             { return EOSC_DONE; };
+    virtual int          EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                        LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                        float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                        bool mirrorX, bool mirrorY)                            { return EOSC_DONE; };
 
     virtual void         EO_SetSolveMode()                                                     { };
     virtual flag         EO_Starting(flag fBeginStarting)                                      { return 0; };

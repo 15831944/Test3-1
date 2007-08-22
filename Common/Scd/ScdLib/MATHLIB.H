@@ -396,6 +396,70 @@ inline CTimeValue Max(CTimeValue T1, CTimeValue T2) { return T1.mSeconds>T2.mSec
 //
 //===========================================================================
 
+class CRectangleF
+  {
+  public:
+    CRectangleF()
+      {
+      m_X = 0.0;
+      m_Y = 0.0;
+      m_W = 0.0;
+      m_H = 0.0;
+      };
+    CRectangleF(double x, double y, double w, double h)
+      {
+      m_X = float(x);
+      m_Y = float(y);
+      m_W = float(w);
+      m_H = float(h);
+      }
+    CRectangleF(float x, float y, float w, float h)
+      {
+      m_X = x;
+      m_Y = y;
+      m_W = w;
+      m_H = h;
+      }
+
+    void Set(double x,double y,double w,double h)
+      {
+      m_X = float(x);
+      m_Y = float(y);
+      m_W = float(w);
+      m_H = float(h);
+      }
+
+    void Set(float x,float y,float w,float h)
+      {
+      m_X = x;
+      m_Y = y;
+      m_W = w;
+      m_H = h;
+      }
+
+    float  Left()    const { return m_X;      };
+    float  Bottom()  const { return m_Y;      };
+    float  Right()   const { return m_X+m_W;  };
+    float  Top()     const { return m_Y+m_H;  };
+
+    float  Width()   const { return m_W; };
+    float  Height()  const { return m_H; };
+    float  MidX()    const { return m_X+0.5f*m_W; };
+    float  MidY()    const { return m_Y+0.5f*m_H; };
+
+  protected:
+    float   m_X;
+    float   m_Y;
+    float   m_W;
+    float   m_H;
+  };
+
+//========================================================================
+//
+//
+//
+//========================================================================
+
 #undef DllImportExport 
 
 #endif  /* __MATHLIB_H */

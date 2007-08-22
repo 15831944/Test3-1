@@ -524,11 +524,31 @@ int CSfeSrvr::EO_DeleteTagDone(pchar pDelTag)
   {
   return SfeFS->EO_DeleteTagDone(pDelTag); 
   };
-
 int CSfeSrvr::EO_CanClose(Strng_List & Problems)
   {
   return SfeFS->EO_CanClose(Problems); 
   };
+
+
+int CSfeSrvr::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                             float angle, const CRectangleF & textArea, COLORREF Colour, 
+                             bool mirrorX, bool mirrorY)
+  {
+  return SfeFS->EO_SCInsertTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  };
+int CSfeSrvr::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+  {
+  return SfeFS->EO_SCDeleteTag(Ctrl, pTag, ItemGuid, path);
+  };
+int CSfeSrvr::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                   bool mirrorX, bool mirrorY)
+  {
+  return SfeFS->EO_SCModifyTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  };
+
 
 int CSfeSrvr::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)
   {

@@ -160,6 +160,16 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     int          EO_DeleteTagDone(pchar pDelTag);
     int          EO_CanClose(Strng_List & Problems);
 
+    int          EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                bool mirrorX, bool mirrorY);
+    int          EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int          EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                bool mirrorX, bool mirrorY);
+
     void         EO_SetSolveMode();
     flag         EO_Starting(flag fBeginStarting);
     flag         EO_SetTime(CTimeValue TimeRqd, bool Rewind);

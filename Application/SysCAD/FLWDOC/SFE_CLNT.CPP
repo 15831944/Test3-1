@@ -614,6 +614,38 @@ int  SFEFlwLib::EO_DeleteTagDone(pchar pDelTag)
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
+
+int SFEFlwLib::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                              float angle, const CRectangleF & textArea, COLORREF Colour, 
+                              bool mirrorX, bool mirrorY)
+  {
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCInsertTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+int SFEFlwLib::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+  {
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCDeleteTag(Ctrl, pTag, ItemGuid, path);
+  CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+int SFEFlwLib::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                              float angle, const CRectangleF & textArea, COLORREF Colour, 
+                              bool mirrorX, bool mirrorY)
+  {
+  //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCModifyTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  //CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+
 int  SFEFlwLib::EO_CanClose(Strng_List & Problems)
   { IENTER(EO_CanClose_Yes)  pSfe->EO_CanClose(Problems); ILEAVE };
 void SFEFlwLib::EO_SetSolveMode()

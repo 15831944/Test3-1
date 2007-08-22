@@ -132,6 +132,16 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     virtual int    EO_ChangeTag(pchar pOldTag, pchar pNewTag);
     virtual int    EO_ChangeTagDone(pchar pOldTag, pchar pNewTag);
     virtual int    EO_DeleteTag(pchar pDelTag);
+    
+    virtual int    EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY) ;
+    virtual int    EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    virtual int    EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  bool mirrorX, bool mirrorY) ;
 
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);

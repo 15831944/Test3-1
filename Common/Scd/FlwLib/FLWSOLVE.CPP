@@ -13247,6 +13247,83 @@ int CFlwSolver::EO_DeleteTagDone(pchar pDelTag)
   }
 
 //--------------------------------------------------------------------------
+  //  if (!m_bExportBusy)
+  //    {
+  //    /*gs_pSfeSrvr->*/FE_TestModelTagUnique((char*)pTag)
+  //    return 0;
+  //  else
+  //    return -1;
+  //  }
+  //return -2;
+  //}
+
+int CFlwSolver::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               bool mirrorX, bool mirrorY) 
+  {
+
+  if (Ctrl.m_bExportBusy)
+    return EOSC_DONE;
+    
+  bool Error = FE_TestModelTagUnique((char*)pTag)==0;
+  if (Error)
+    {
+    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", pTag);
+    // return Scd.Return(eScdGraphicCode_TagNotFound, "Tag not found : AddUnit '%s' failed!", Tag);
+    }
+  else
+    {
+    FlwNode *pNd;
+    int XError=FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, NULL, NULL, &pNd, (LPSTR)ItemGuid);
+    return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
+    }
+
+  return EOSC_NOTFOUND;
+  };
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) 
+  {
+  // A COpy of EO_DeleteTag = SHOULD EO_DeleteTagDone be called and when ??????????
+  UnDoGlobalLinks();
+  FlwNode * p = (FlwNode *)FindObj((LPSTR)pTag);
+  if (p)
+    {
+    dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
+    p->DisConnectAll();
+    delete p;
+
+    //ask all models if they want to do anything internally for the delete tag...
+    pSaveNode = NULL;
+    while (GetObj_All(pSaveNode))
+      {
+      if (!pSaveNode->Internal)
+        {
+        pSaveNode->DeleteTag((LPSTR)pTag);
+        }
+      }
+
+    TryDoGlobalLinks();
+    return EOSC_DONE;
+    }
+  return EOSC_FAILED;
+  //_asm int 3;
+  //return EOSC_NOTFOUND;
+  };
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               bool mirrorX, bool mirrorY) 
+  {
+  return EOSC_NOTFOUND;
+  };
+
+//--------------------------------------------------------------------------
 
 int CFlwSolver::EO_CanClose(Strng_List & Problems)
   {

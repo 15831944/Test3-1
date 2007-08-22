@@ -1814,6 +1814,75 @@ int CExecutive::DeleteTag(pchar pDelTag)
 
 //---------------------------------------------------------------------------
 
+int CExecutive::SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            bool mirrorX, bool mirrorY)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCInsertTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCTag insert failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e = O[OInx]->EO_SCDeleteTag(Ctrl, pTag, ItemGuid, path);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCTag delete failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
+int CExecutive::SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                            LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            bool mirrorX, bool mirrorY)     
+  {
+  int Ret = EOSC_DONE;
+
+  CExecObjArray & O = Ctrl.m_Objs.GetCount()>0 ? Ctrl.m_Objs : Objs_Reg;
+
+  const int Size = O.GetSize();
+  for (int OInx=0; OInx<Size; OInx++)
+    {
+    int e=O[OInx]->EO_SCModifyTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+    if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
+      {
+      LogError(pTag, 0, "SCTag modify failure in %s", O[OInx]->Name());
+      Ret = EOSC_FAILED;
+      }
+    }
+  return Ret; 
+  };
+
+//---------------------------------------------------------------------------
+
 #if WithNumericTags
 int CExecutive::CheckAllTags(flag NewNumTagsBad, flag NewNumStartingBad, flag Prompt/*=1*/)
 #else
