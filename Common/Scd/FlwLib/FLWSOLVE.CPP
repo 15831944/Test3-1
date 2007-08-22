@@ -13247,16 +13247,7 @@ int CFlwSolver::EO_DeleteTagDone(pchar pDelTag)
   }
 
 //--------------------------------------------------------------------------
-  //  if (!m_bExportBusy)
-  //    {
-  //    /*gs_pSfeSrvr->*/FE_TestModelTagUnique((char*)pTag)
-  //    return 0;
-  //  else
-  //    return -1;
-  //  }
-  //return -2;
-  //}
-
+  
 int CFlwSolver::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                float angle, const CRectangleF & textArea, COLORREF Colour, 
@@ -13309,8 +13300,6 @@ int CFlwSolver::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
     return EOSC_DONE;
     }
   return EOSC_FAILED;
-  //_asm int 3;
-  //return EOSC_NOTFOUND;
   };
 
 //--------------------------------------------------------------------------
