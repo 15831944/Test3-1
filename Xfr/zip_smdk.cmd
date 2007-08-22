@@ -33,6 +33,8 @@ set fn=xfr\%foldr%\SMDK_120
 
 :continue 
 
+PATH = %pt1%;PATH
+
 pushd ..
 
 rem ========== SMDK Units ==========

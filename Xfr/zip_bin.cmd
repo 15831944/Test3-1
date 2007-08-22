@@ -37,6 +37,9 @@ md %foldr%
 set fn=%foldr%\Bins122
 
 :continue 
+
+PATH = %pt1%;PATH
+
 rem ========== SysCAD Standard Files ==========
 set fn2=%fn%_SysCAD.zip
 del %fn2%
