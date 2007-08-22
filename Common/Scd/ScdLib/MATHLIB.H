@@ -396,6 +396,47 @@ inline CTimeValue Max(CTimeValue T1, CTimeValue T2) { return T1.mSeconds>T2.mSec
 //
 //===========================================================================
 
+class CPointF
+  {
+  public:
+    CPointF()
+      {
+      m_X = 0.0;
+      m_Y = 0.0;
+      };
+    CPointF(double x, double y)
+      {
+      m_X = float(x);
+      m_Y = float(y);
+      }
+    CPointF(float x, float y)
+      {
+      m_X = x;
+      m_Y = y;
+      }
+
+    void Set(double x,double y)
+      {
+      m_X = float(x);
+      m_Y = float(y);
+      }
+
+    void Set(float x,float y)
+      {
+      m_X = x;
+      m_Y = y;
+      }
+
+    float  X()    const { return m_X;      };
+    float  Y()  const { return m_Y;      };
+
+  protected:
+    float   m_X;
+    float   m_Y;
+  };
+
+//---------------------------------------------------------------------------
+
 class CRectangleF
   {
   public:

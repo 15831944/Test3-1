@@ -12,6 +12,12 @@
 
 //========================================================================
 
+class CPointFList : public CList<CPointF, CPointF&> 
+  {
+  };
+
+//========================================================================
+
 class CsGrfGroup
   {
   public:
@@ -59,7 +65,7 @@ class CSvcConnect
   public:
     ~CSvcConnect();
 
-    bool Startup(LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
+    bool Startup(LPCSTR projectPath, LPCSTR configPath);
     void Shutdown();
     //void Initialise();
     //void Terminate();
@@ -87,6 +93,7 @@ class CSvcConnect
     static CGrfWnd      * FindGrfWnd(LPCSTR PageName);
     static CString        ExtractShape(LPCSTR Symbol);
 
+    // Items -----------------------------------------------------------------
     // Operations
     void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
     void DoDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag);
@@ -105,6 +112,26 @@ class CSvcConnect
       float angle, const CRectangleF & textArea, COLORREF Colour, 
       bool mirrorX, bool mirrorY);
 
+    // Links -----------------------------------------------------------------
+    // Operations
+    //void DoCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
+    //void DoDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag);
+    //void DoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
+
+
+    // CallBack's
+    void OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
+                      LPCSTR ClassId, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      CPointFList & ControlPoints);
+
+    void OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR guid);
+
+    void OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
+      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+      float angle, const CRectangleF & textArea, COLORREF Colour, 
+      bool mirrorX, bool mirrorY);
+
     //------------------------------------------------------------------------
 
   //protected:
@@ -113,7 +140,7 @@ class CSvcConnect
     CsGrfGroupMap   m_GrfGrpsNames;
     CsGrfGroupMap   m_GrfGrpsGuids;
     __int64         m_lEventId;
-    __int64         m_lRequestId;
+    //__int64         m_lRequestId;
     __int64         m_lRequestIdRet;
     //bool            m_bExportBusy;
 
@@ -146,6 +173,7 @@ class CGetExistingItems
     eType           Type()       { return m_Type;             };
     CRectangleF   & PageRct()    { return m_PageRct;          };
 
+
   protected:
     
     int               m_nPages;
@@ -154,7 +182,7 @@ class CGetExistingItems
     CGrfDoc         * m_pDoc;
     CGrfTagInfoArray  m_GTIA;
     CRectangleF       m_PageRct;
-    
+
     int               m_nInArray;
     int               m_iInArray;
 
@@ -163,6 +191,12 @@ class CGetExistingItems
     CString           m_Guid;
     eType             m_Type;
 
+  public:  //??
+    CLinePointsArray  m_LPA;
+    CString           m_SrcGuid;
+    CString           m_DstGuid;
+    CString           m_SrcPort;
+    CString           m_DstPort;
   };
 
 //========================================================================

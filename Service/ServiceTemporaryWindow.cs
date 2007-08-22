@@ -232,7 +232,7 @@ namespace Service
 
         this.requestId++;
         requestId = this.requestId;
-        guid = new Guid();
+        guid = Guid.NewGuid();
 
         GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints);
         graphicLinks.Add(guid, graphicLink);

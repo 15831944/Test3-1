@@ -10,20 +10,6 @@
 
 //========================================================================
 
-//struct PKPointF
-//{
-//  float x;
-//  float y;
-//};
-//
-//struct PKRectangleF
-//{
-//  float x;
-//  float y;
-//  float w;
-//  float h;
-//};
-
 class CSvcConnectCLR
   {
   public:
@@ -32,14 +18,16 @@ class CSvcConnectCLR
   public:
     ~CSvcConnectCLR(void);
 
-    bool Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath, bool ImportScd9);
+    bool Startup(CSvcConnect * pConn, LPCSTR projectPath, LPCSTR configPath);
     void Shutdown();
 
     void Sync(__int64 requestId);
 
     //Groups
-    void DoCreateGroup(__int64 & requestId, CString & GroupGuid, LPCSTR Tag, LPCSTR Path, const CRectangleF & boundingRect);
+    void DoCreateGroup(__int64 & requestId, CString & GroupGuid, LPCSTR Tag, LPCSTR Path,
+                       const CRectangleF & boundingRect);
     
+    //----------------------------------------------------------------------------------
     //Items
     void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
@@ -48,6 +36,25 @@ class CSvcConnectCLR
     void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid);
 
     void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta);
+
+    //----------------------------------------------------------------------------------
+    //Links
+    void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
+                      LPCSTR ClassId, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      CPointFList & ControlPoints);
+    void DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid);
+    void DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
+                      LPCSTR ClassId, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      CPointFList & ControlPoints);
+
+
+    //----------------------------------------------------------------------------------
+    //Things
+
+    //----------------------------------------------------------------------------------
+    //.....
 
     //void DoModifyItem(__int64 & requestId, LPCSTR ItemGuid, LPCSTR Tag, LPCSTR Path, 
     //                  LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect, 
