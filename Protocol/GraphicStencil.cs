@@ -32,8 +32,6 @@ namespace SysCAD.Protocol
     private String tag;
     private RectangleF textArea;
 
-    private Image thumbnailUnselected16x16;
-
     public GraphicStencil()
     {
     }
