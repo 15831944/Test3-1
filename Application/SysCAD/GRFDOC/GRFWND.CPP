@@ -395,7 +395,7 @@ int CGrfWnd::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
                             float angle, const CRectangleF & textArea, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
-
+#if SYSCAD10
   CRectangleF PageRct(0.0, 420, 0, 297);
   CString PageName=CSvcConnect::ExtractPageName(path);
 
@@ -405,32 +405,29 @@ int CGrfWnd::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
   //CGrfDoc * pDoc=CSvcCOnnect::FindGrfDoc(PageName);
   PageRct = PrjSvc().GetPageRect(PageName);
 
-  //if (!Error)
-    {
-    CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
-    CInsertBlk CB; 
+  CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+  CInsertBlk CB; 
 
-    CB.ATag=pTag;
-    CB.AClass=model;//();
-    CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
-    CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
-    CB.Pt.World.Z=0;
-    CB.NdScl.X=mirrorX ? -1:1;//XScale;
-    CB.NdScl.Y=mirrorY ? -1:1;
-    CB.NdScl.Z=1;
-    CB.Rotate=(float)angle;
-    CB.ATagBase="XX_";//MInfo.TagInitialID();
-    CB.ASymbol=shape;
-    CB.m_sGuid=ItemGuid;
-    //if (m_bExportBusy)
-    //  {
-    pGDoc->GCB.DoInsertNodeGrf(&CB);
-    pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
-    //  }
-    //else
-    //  pGDoc->GCB.DoInsertNode(&CB);
-
-    }
+  CB.ATag=pTag;
+  CB.AClass=model;//();
+  CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+  CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
+  CB.Pt.World.Z=0;
+  CB.NdScl.X=mirrorX ? -1:1;//XScale;
+  CB.NdScl.Y=mirrorY ? -1:1;
+  CB.NdScl.Z=1;
+  CB.Rotate=(float)angle;
+  CB.ATagBase="XX_";//MInfo.TagInitialID();
+  CB.ASymbol=shape;
+  CB.m_sGuid=ItemGuid;
+  //if (m_bExportBusy)
+  //  {
+  pGDoc->GCB.DoInsertNodeGrf(&CB);
+  pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
+  //  }
+  //else
+  //  pGDoc->GCB.DoInsertNode(&CB);
+#endif
 
   return EOSC_DONE;
   };
@@ -439,6 +436,7 @@ int CGrfWnd::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
   {
   int RetCode = EOSC_NOTFOUND;
 
+#if SYSCAD10
   DXF_ENTITY eInsert, eAttrib;
   if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
     {
@@ -454,6 +452,7 @@ int CGrfWnd::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
 
     Dsp.Close();
     }
+#endif
 
   return RetCode;
   };
@@ -463,6 +462,7 @@ int CGrfWnd::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
                             float angle, const CRectangleF & textArea, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
+#if SYSCAD10
   CRectangleF PageRct(0.0, 420, 0, 297);
   CString PageName=CSvcConnect::ExtractPageName(path);
 
@@ -492,6 +492,7 @@ int CGrfWnd::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, L
     Dsp.Close();
     return EOSC_DONE; 
     }
+#endif
   return EOSC_NOTFOUND; 
   };
 
