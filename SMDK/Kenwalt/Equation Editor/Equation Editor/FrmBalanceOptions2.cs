@@ -20,6 +20,12 @@ namespace Reaction_Editor
 
         protected Fraction[] m_MinValues, m_MaxValues;
 
+        int chkSpacing = 23;
+        int extraFormSpace = 170 - 23;
+
+        int chkX = 6, chkY = 19;
+        int numX = 151, numY = 14;
+
         public int[] ToBeRemoved
         {
             get
@@ -54,7 +60,12 @@ namespace Reaction_Editor
                     int j = 0;
                     for (int i = 0; i < m_MaxValues.Length; i++)
                         if (alreadyRemoved.Contains(i))
-                            m_MinValues[i] = 0;
+                        {
+                            if (m_MinValues[i] > 0)
+                                m_MinValues[i] = 0;
+                            if (m_MaxValues[i] < 0)
+                                m_MaxValues[i] = 0;
+                        }
                         else
                         {
                             if (vals[j] > m_MaxValues[i])
@@ -69,7 +80,7 @@ namespace Reaction_Editor
             {
                 bool[] removeables = m.ColumnsRemoveable();
                 int j = 0;
-                for (int i = 0; i < removeables.Length; i++)
+                for (int i = 0; i < m_MaxValues.Length; i++)
                     if (alreadyRemoved.Contains(i))
                         continue;
                     else
@@ -85,9 +96,9 @@ namespace Reaction_Editor
             }
         }
 
-        public FrmBalanceOptions2(SimpleReaction rxn)
+        public FrmBalanceOptions2(SimpleReaction rxn, List<Compound> extraComps)
         {
-            m_OriginalMatrix = rxn.GetBalanceMatrix();
+            m_OriginalMatrix = rxn.GetBalanceMatrix(extraComps);
             m_OriginalMatrix.RowReduce();
 
             m_MinValues = new Fraction[m_OriginalMatrix.Columns - 1];
@@ -95,15 +106,12 @@ namespace Reaction_Editor
             for (int i = 0; i < m_MinValues.Length; i++)
             {
                 m_MinValues[i] = Fraction.MaxValue;
-                m_MaxValues[i] = 0;
+                if (m_OriginalMatrix.CanGoNegative(i))
+                    m_MaxValues[i] = Fraction.MinValue;
+                else
+                    m_MaxValues[i] = 0;
             }
             CalculateAbsoluteMinMaxValues(m_OriginalMatrix, new List<int>());
-
-            int chkSpacing = 23;
-            int extraFormSpace = 170 - 23;
-
-            int chkX = 6, chkY = 19;
-            int numX = 151, numY = 14;
 
             InitializeComponent();
 
@@ -118,28 +126,55 @@ namespace Reaction_Editor
             List<Compound> products = rxn.OrderedProducts;
             List<Compound> reactants = rxn.OrderedReactants;
             int longestLength = products.Count > reactants.Count - 1 ? products.Count : reactants.Count - 1;
+            if (extraComps.Count > longestLength)
+                longestLength = extraComps.Count;
 
             this.Height = extraFormSpace + longestLength * chkSpacing;
 
-            for (int i = 0; i < reactants.Count - 1; i++)
+            PopulateGroupBox(grpReactants, reactants, 0, changeables, 1);
+            PopulateGroupBox(grpProducts, products, reactants.Count - 1, changeables, 0);
+
+            if (extraComps.Count != 0)
+            {
+                lblNote.Text = "Note that a negative value in the third group indicates the compound will be a reactant, while a positive value indicates it will be a product.";
+                int extraWidth = grpProducts.Right - grpReactants.Right;
+                this.Width += extraWidth;
+                GroupBox grpExtras = new GroupBox();
+                grpExtras.Text = "Autobalance Added Compounds";
+                this.Controls.Add(grpExtras);
+                grpExtras.Top = grpProducts.Top;
+                grpExtras.Left = grpProducts.Left + extraWidth;
+                grpExtras.Width = grpProducts.Width;
+                grpExtras.Height = grpProducts.Height;
+                PopulateGroupBox(grpExtras, extraComps, reactants.Count - 1 + products.Count, changeables, 0);
+            }
+
+            SetInitialValues();
+
+            m_bDoOnValueChanged = true;
+        }
+
+        private void PopulateGroupBox(GroupBox box, List<Compound> comps, int offset, bool[] changeables, int start)
+        {
+            for (int i = 0; i < comps.Count - start; i++)
             {
                 CheckBox chk = new CheckBox();
-                grpReactants.Controls.Add(chk);
+                box.Controls.Add(chk);
                 chk.AutoSize = true;
                 chk.UseVisualStyleBackColor = true;
-                chk.Name = "chkOption" + i;
-                chk.Text = reactants[i + 1].Symbol;
-                chk.Enabled = changeables[i];
+                chk.Name = "chkOption" + (i + offset);
+                chk.Text = comps[i + start].Symbol;
+                chk.Enabled = changeables[i + offset];
                 chk.Location = new Point(chkX, chkY + i * chkSpacing);
                 chk.TabIndex = 2 * i;
                 chk.CheckedChanged += new EventHandler(chk_CheckedChanged);
-                if (m_MinValues[i] == 0)
+                if (m_MinValues[i + offset] == 0)
                     chk.Font = new Font(chk.Font, FontStyle.Bold);
                 m_Checkboxes.Add(chk);
 
                 FractionalUpDown num = new FractionalUpDown();
-                grpReactants.Controls.Add(num);
-                num.Name = "numOption" + i;
+                box.Controls.Add(num);
+                num.Name = "numOption" + (i + offset);
                 num.Enabled = false;
                 num.Location = new Point(numX, numY + i * chkSpacing);
                 num.Size = new Size(59, 20);
@@ -152,40 +187,6 @@ namespace Reaction_Editor
 
                 chk.Tag = chk.Text; num.Tag = chk;
             }
-            for (int i = 0; i < products.Count; i++)
-            {
-                CheckBox chk = new CheckBox();
-                grpProducts.Controls.Add(chk);
-                chk.AutoSize = true;
-                chk.UseVisualStyleBackColor = true;
-                chk.Name = "chkOption" + (i + reactants.Count - 1);
-                chk.Text = products[i].Symbol;
-                chk.Enabled = changeables[i + reactants.Count - 1];
-                chk.Location = new Point(chkX, chkY + i * chkSpacing);
-                chk.TabIndex = i + reactants.Count - 1;
-                chk.CheckedChanged += new EventHandler(chk_CheckedChanged);
-                if (m_MinValues[i + reactants.Count - 1] == 0)
-                    chk.Font = new Font(chk.Font, FontStyle.Bold);
-                m_Checkboxes.Add(chk);
-
-                FractionalUpDown num = new FractionalUpDown();
-                grpProducts.Controls.Add(num);
-                num.Name = "numOption" + (i + reactants.Count - 1);
-                num.Enabled = false;
-                num.Location = new Point(numX, numY + i * chkSpacing);
-                num.Size = new Size(59, 20);
-                num.Minimum = Fraction.MinValue;
-                num.Maximum = Fraction.MaxValue;
-                num.TabIndex = chk.TabIndex + 1;
-                num.ValueChanged += new EventHandler(num_ValueChanged);
-                m_NumericUDs.Add(num);
-
-                chk.Tag = chk.Text; num.Tag = chk;
-            }
-
-            SetInitialValues();
-
-            m_bDoOnValueChanged = true;
         }
 
         private void num_GotFocus(object sender, EventArgs e)

@@ -147,6 +147,7 @@ namespace Reaction_Editor
             foreach (Form f in MdiChildren)
                 if (f is FrmReaction)
                     ((FrmReaction)f).DoDatabaseChanged();
+            Program.FrmAutobalanceExtraComps.UpdateAutocomplete();
         }
 
 
@@ -392,6 +393,8 @@ namespace Reaction_Editor
                         break; //Don't load more than [m_nRecentFileCount] files.
                     RegisterRecentFile(regKey.GetValue(s).ToString());
                 }
+
+            Program.FrmAutobalanceExtraComps = new FrmAutobalanceExtraComps(regKey.CreateSubKey("Autobalance Sets"));
 
             bool bDBOpen = false;
             foreach (string s in Program.Args)
@@ -674,7 +677,7 @@ namespace Reaction_Editor
 
         private void aboutSysCADReactionEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this, "SysCAD Reaction editor version 1.0.6\r\nTest version.", "About");
+            MessageBox.Show(this, "SysCAD Reaction Editor version 1.0.7\r\nTest version.", "About");
         }
 
         private void menuExit_Click(object sender, EventArgs e)
@@ -687,7 +690,7 @@ namespace Reaction_Editor
             menuClose.Enabled =
                 menuSave.Enabled =
                 menuSaveAs.Enabled =
-                (ActiveMdiChild != null && ActiveMdiChild is FrmReaction);
+                ActiveMdiChild is FrmReaction;
         }
 
         private void menuSaveAll_Click(object sender, EventArgs e)
@@ -1084,6 +1087,18 @@ namespace Reaction_Editor
         {
             if (ActiveMdiChild is FrmReaction)
                 ((FrmReaction)ActiveMdiChild).RevertCurrent();
+        }
+
+        private void menuAutoCompleteSets_Click(object sender, EventArgs e)
+        {
+            FrmAutobalanceExtraComps temp = new FrmAutobalanceExtraComps(Program.FrmAutobalanceExtraComps);
+            if (temp.ShowDialog(this) == DialogResult.OK)
+            {
+                Program.FrmAutobalanceExtraComps.Dispose();
+                Program.FrmAutobalanceExtraComps = temp;
+            }
+            else
+                temp.Dispose();
         }
     }
 

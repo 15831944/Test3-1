@@ -109,6 +109,8 @@ namespace Reaction_Editor
             this.btnPaste = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.btnRevert = new System.Windows.Forms.ToolStripButton();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.menuAutoCompleteSets = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.grpFiles.SuspendLayout();
@@ -241,7 +243,9 @@ namespace Reaction_Editor
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuCut,
             this.menuCopy,
-            this.menuPaste});
+            this.menuPaste,
+            this.toolStripMenuItem5,
+            this.menuAutoCompleteSets});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.editToolStripMenuItem.Text = "&Edit";
@@ -251,7 +255,7 @@ namespace Reaction_Editor
             // 
             this.menuCut.Name = "menuCut";
             this.menuCut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.menuCut.Size = new System.Drawing.Size(150, 22);
+            this.menuCut.Size = new System.Drawing.Size(192, 22);
             this.menuCut.Text = "Cu&t";
             this.menuCut.Click += new System.EventHandler(this.menuCut_Click);
             // 
@@ -259,7 +263,7 @@ namespace Reaction_Editor
             // 
             this.menuCopy.Name = "menuCopy";
             this.menuCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.menuCopy.Size = new System.Drawing.Size(150, 22);
+            this.menuCopy.Size = new System.Drawing.Size(192, 22);
             this.menuCopy.Text = "&Copy";
             this.menuCopy.Click += new System.EventHandler(this.menuCopy_Click);
             // 
@@ -267,7 +271,7 @@ namespace Reaction_Editor
             // 
             this.menuPaste.Name = "menuPaste";
             this.menuPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.menuPaste.Size = new System.Drawing.Size(150, 22);
+            this.menuPaste.Size = new System.Drawing.Size(192, 22);
             this.menuPaste.Text = "&Paste";
             this.menuPaste.Click += new System.EventHandler(this.menuPaste_Click);
             // 
@@ -793,6 +797,18 @@ namespace Reaction_Editor
             this.btnRevert.Text = "Revert";
             this.btnRevert.Click += new System.EventHandler(this.btnRevert_Click);
             // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(189, 6);
+            // 
+            // menuAutoCompleteSets
+            // 
+            this.menuAutoCompleteSets.Name = "menuAutoCompleteSets";
+            this.menuAutoCompleteSets.Size = new System.Drawing.Size(192, 22);
+            this.menuAutoCompleteSets.Text = "&Auto Complete Sets...";
+            this.menuAutoCompleteSets.Click += new System.EventHandler(this.menuAutoCompleteSets_Click);
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -913,6 +929,8 @@ namespace Reaction_Editor
         private System.Windows.Forms.ToolStripButton btnPaste;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripButton btnRevert;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem menuAutoCompleteSets;
 
 
     }

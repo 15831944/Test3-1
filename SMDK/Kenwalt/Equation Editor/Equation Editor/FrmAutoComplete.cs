@@ -53,10 +53,7 @@ namespace Auto_Complete
         {
             set 
             {
-                Console.WriteLine(value);
                 m_nLastSelect = value;
-                if (value == -1)
-                    Console.WriteLine("Fuck");
             }
             get { return m_nLastSelect; }
         }

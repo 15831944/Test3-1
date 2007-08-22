@@ -38,7 +38,9 @@ namespace Reaction_Editor
 
         public static ImageList Images = new ImageList();
         public static Random Rnd = new Random();
+        public static FrmAutobalanceExtraComps FrmAutobalanceExtraComps;
         public static String[] Args;
+        public static Dictionary<object, int> AutocompleteHitCounts = new Dictionary<object, int>();
     }
 
     public class Messaging
@@ -62,7 +64,7 @@ namespace Reaction_Editor
         public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr
         wParam, IntPtr lParam);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        public static extern uint RegisterWindowMessage(string lpString);
+        /*[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern uint RegisterWindowMessage(string lpString);*/
     }
 }

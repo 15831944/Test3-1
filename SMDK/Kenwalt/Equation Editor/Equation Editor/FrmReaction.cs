@@ -831,10 +831,10 @@ namespace Reaction_Editor
 
         protected void UpdateAutoCompleteForms()
         {
-            txtReactants.HitCounts.Clear();
+            //txtReactants.HitCounts.Clear();
             foreach (BoxAutoComplete box in AutoCompleteBoxes)
             {
-                box.HitCounts = txtReactants.HitCounts;
+                box.HitCounts = Program.AutocompleteHitCounts;
                 box.Items.Clear();
                 foreach (Compound c in Compound.CompoundList.Values)
                     box.Items.Add(c);
@@ -2296,33 +2296,48 @@ namespace Reaction_Editor
             if (m_CurrentReaction == null) return;
             try
             {
-                Matrix.RemovalInfo info = m_CurrentReaction.BalanceOptions();
+                List<Compound> extraComps = new List<Compound>();
+                string note = "Reaction is over-constrained, and requires additional compounds to allow autobalancing. Please specify a compound set to allow autobalancing.";
+                while (!m_CurrentReaction.IsBalanceable(extraComps))
+                {
+                    FrmAutobalanceExtraComps temp = new FrmAutobalanceExtraComps(Program.FrmAutobalanceExtraComps);
+                    temp.Note = note;
+                    note = "Previously selected set did not contain suitable compounds to allow autobalancing. Please adjust the compound set, or choose a different set.";
+                    if (temp.ShowDialog(this) == DialogResult.Cancel)
+                    {
+                        temp.Dispose();
+                        return;
+                    }
+                    Program.FrmAutobalanceExtraComps.Dispose();
+                    Program.FrmAutobalanceExtraComps = temp;
+                    temp.Note = "";
+                    extraComps = GetCommaSeperatedCompounds(temp.SelectedList);
+                }
+                Matrix.RemovalInfo info = m_CurrentReaction.BalanceOptions(extraComps);
                 if (!info.m_bCanRemove)
                     MessageBox.Show("Unable to balance reaction - no solutions available without forcing compounds to change sides of the reaction", "Autobalance", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 else
                 {
                     if (info.DegreesOfFreedom > 0)
                     {
-                        FrmBalanceOptions2 frm = new FrmBalanceOptions2(m_CurrentReaction);
+                        FrmBalanceOptions2 frm = new FrmBalanceOptions2(m_CurrentReaction, extraComps);
                         if (frm.ShowDialog(this) == DialogResult.OK)
                         {
                             SimpleReaction demo = m_CurrentReaction.Clone();
-                            //demo.BalanceWith(frm.ToBeRemoved);
-                            demo.SetCoefficients(frm.Coefficients);
+                            demo.SetCoefficients(frm.Coefficients, extraComps);
                             if (MessageBox.Show(this, "Original Reaction: " + m_CurrentReaction.ToString() +
                                 "\nResultant Reaction:" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-                                //m_CurrentReaction.BalanceWith(frm.ToBeRemoved);
-                                m_CurrentReaction.SetCoefficients(frm.Coefficients);
+                                m_CurrentReaction.SetCoefficients(frm.Coefficients, extraComps);
                         }
                         frm.Dispose();
                     }
                     else
                     {
                         SimpleReaction demo = m_CurrentReaction.Clone();
-                        demo.BalanceWith(new int[0]);
+                        demo.BalanceWith(extraComps);
                         if (MessageBox.Show(this, "Original Reaction: " + m_CurrentReaction.ToString() + 
                             "\nResultant Reaction:" + demo.ToString(), "Confirm Change", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-                            m_CurrentReaction.BalanceWith(new int[0]);
+                            m_CurrentReaction.BalanceWith(extraComps);
                     }
                 }
             }

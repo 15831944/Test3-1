@@ -1107,12 +1107,7 @@ namespace Reaction_Editor
         {
             get
             {
-                List<Element> ret = new List<Element>();
-                foreach (Compound c in Compounds)
-                    foreach (Element e in c.Elements.Keys)
-                        if (!ret.Contains(e))
-                            ret.Add(e);
-                return ret;
+                return ElementsWith(new List<Compound>());
             }
         }
 
@@ -1205,12 +1200,24 @@ namespace Reaction_Editor
         /// <summary>
         /// Sets coeffients for all compounds but the first reactant.
         /// </summary>
-        public void SetCoefficients(Fraction[] newCoefficients)
+        public void SetCoefficients(Fraction[] newCoefficients, List<Compound> extraComps)
         {
             for (int i = 1; i < m_OrderedReactants.Count; i++)
                 m_Reactants[m_OrderedReactants[i]] = newCoefficients[i - 1];
             for (int i = 0; i < m_OrderedProducts.Count; i++)
                 m_Products[m_OrderedProducts[i]] = newCoefficients[i - 1 + m_Reactants.Count];
+            int c = m_Reactants.Count - 1 + m_Products.Count;
+            for (int i = 0; i < extraComps.Count; i++)
+                if (newCoefficients[i + c] < 0)
+                {
+                    m_OrderedReactants.Add(extraComps[i]);
+                    m_Reactants[extraComps[i]] = -newCoefficients[i + c];
+                }
+                else if (newCoefficients[i + c] > 0)
+                {
+                    m_OrderedProducts.Add(extraComps[i]);
+                    m_Products[extraComps[i]] = newCoefficients[i + c];
+                }
             FireChanged();
         }
 
@@ -1673,67 +1680,41 @@ namespace Reaction_Editor
             ParseReactants(GetReactantsString() + " ");
         }
 
-        public Matrix.RemovalInfo BalanceOptions()
+        public bool IsBalanceable() { return IsBalanceable(new List<Compound>()); }
+        public bool IsBalanceable(List<Compound> extraComps) 
         {
-            Matrix m = GetBalanceMatrix();
+            return GetBalanceMatrix(extraComps).IsSolveable(); 
+        }
+
+        public Matrix.RemovalInfo BalanceOptions() { return BalanceOptions(new List<Compound>()); }
+        public Matrix.RemovalInfo BalanceOptions(List<Compound> extraComps)
+        {
+            Matrix m = GetBalanceMatrix(extraComps);
             if (!m.IsSolveable())
                 throw new InvalidOperationException("System is over-constrained, and not solveable.");
             Matrix.RemovalInfo info = m.GetRemovalInfo();
             return info;
         }
 
-        public void BalanceWith(int[] CompsToRemove)
+        public void BalanceWith(List<Compound> extraComps)
         {
-            Array.Sort<int>(CompsToRemove);
-            for (int j = CompsToRemove.Length - 1; j >= 0; j--)
-            {
-                int i = CompsToRemove[j];
-                int originalReactantCount = m_OrderedReactants.Count;
-                if (i < originalReactantCount)
-                {
-                    m_Reactants.Remove(m_OrderedReactants[i]);
-                    m_OrderedReactants.RemoveAt(i);
-                }
-                else
-                {
-                    m_Products.Remove(m_OrderedProducts[i - originalReactantCount]);
-                    m_OrderedProducts.RemoveAt(i - originalReactantCount);
-                }
-            }
-            Matrix m = GetBalanceMatrix();
+            Matrix m = GetBalanceMatrix(extraComps);
             Fraction[] vals = m.getVariableValues();
-
-            for (int i = 0; i < m_OrderedReactants.Count - 1; i++)
-                m_Reactants[m_OrderedReactants[i + 1]] = vals[i];
-            for (int i = 0; i < m_OrderedProducts.Count; i++)
-                m_Products[m_OrderedProducts[i]] = vals[i + m_OrderedReactants.Count - 1];
-
-            Dictionary<Compound, Fraction> originalReactants = new Dictionary<Compound, Fraction>(m_Reactants);
-            Dictionary<Compound, Fraction> originalProducts = new Dictionary<Compound, Fraction>(m_Products);
-            foreach (KeyValuePair<Compound, Fraction> kvp in originalReactants)
-                if (kvp.Value < sMinValue)
-                {
-                    m_Reactants.Remove(kvp.Key);
-                    m_OrderedReactants.Remove(kvp.Key);
-                }
-            foreach (KeyValuePair<Compound, Fraction> kvp in originalProducts)
-                if (kvp.Value < sMinValue)
-                {
-                    m_Products.Remove(kvp.Key);
-                    m_OrderedProducts.Remove(kvp.Key);
-                }
-
-            FireChanged();
-            if (ReactantsChanged != null)
-                ReactantsChanged(this, new EventArgs());
-            if (ProductsChanged != null)
-                ProductsChanged(this, new EventArgs());
+            SetCoefficients(vals, extraComps);
         }
 
         public Matrix GetBalanceMatrix()
         {
-            List<Element> elements = Elements;
-            Matrix m = new Matrix(elements.Count, m_OrderedProducts.Count + m_OrderedReactants.Count);
+            return GetBalanceMatrix(new List<Compound>());
+        }
+
+        public Matrix GetBalanceMatrix(List<Compound> extraComps)
+        {
+            foreach (Compound c in Compounds)
+                while (extraComps.Contains(c))
+                    extraComps.Remove(c);
+            List<Element> elements = ElementsWith(extraComps);
+            Matrix m = new Matrix(elements.Count, m_OrderedProducts.Count + m_OrderedReactants.Count + extraComps.Count);
             for (int i = 0; i < elements.Count; i++)
             {
                 for (int j = 1; j < m_OrderedReactants.Count; j++)
@@ -1741,13 +1722,33 @@ namespace Reaction_Editor
                 int c = m_OrderedReactants.Count - 1;
                 for (int j = 0; j < m_OrderedProducts.Count; j++)
                     m[i, j + c] = m_OrderedProducts[j].Elements.ContainsKey(elements[i]) ? m_OrderedProducts[j].Elements[elements[i]] : 0;
+                c += m_OrderedProducts.Count;
+                for (int j = 0; j < extraComps.Count; j++)
+                    m[i, j + c] = extraComps[j].Elements.ContainsKey(elements[i]) ? extraComps[j].Elements[elements[i]] : 0;
                 m[i, m.Columns - 1] = FirstReactant.Elements.ContainsKey(elements[i]) ? m_Reactants[FirstReactant] * FirstReactant.Elements[elements[i]] : 0;
             }
+            //extraComps can go negative:
+            for (int i = m_OrderedProducts.Count - 1 + m_OrderedReactants.Count; i < m.Columns - 1; i++)
+                m.CanGoNegative(i, true);
             return m;
         }
         #endregion Public Functions
 
         #region Protected Functions
+        protected List<Element> ElementsWith(List<Compound> extraCompounds)
+        {
+            List<Element> ret = new List<Element>();
+            foreach (Compound c in Compounds)
+                foreach (Element e in c.Elements.Keys)
+                    if (!ret.Contains(e))
+                        ret.Add(e);
+            foreach (Compound c in extraCompounds)
+                foreach (Element e in c.Elements.Keys)
+                    if (!ret.Contains(e))
+                        ret.Add(e);
+            return ret;
+        }
+
         protected int GetInsertionIndex(List<Compound> orderedComps, Dictionary<Compound, Fraction> Comps, int location)
         {
             int i = 0;
@@ -2025,6 +2026,7 @@ namespace Reaction_Editor
     {
         #region Internal Variables
         Fraction[][] m_Data;
+        bool[] m_CanGoNegative;
         int m_nRows, m_nColumns;
         bool m_bReduced = true;
         #endregion Internal Variables
@@ -2067,10 +2069,21 @@ namespace Reaction_Editor
             m_Data = new Fraction[rows][];
             for (int i = 0; i < rows; i++)
                 m_Data[i] = new Fraction[columns];
+            m_CanGoNegative = new bool[columns];
         }
         #endregion Constructors
 
         #region Public Functions
+        public void CanGoNegative(int Col, bool Val)
+        {
+            m_CanGoNegative[Col] = Val;
+        }
+
+        public bool CanGoNegative(int Col)
+        {
+            return m_CanGoNegative[Col];
+        }
+
         public void RowReduce()
         {
             if (m_bReduced)
@@ -2200,8 +2213,13 @@ namespace Reaction_Editor
                 Array.Copy(m_Data[i], 0, newData[i], 0, col);
                 Array.Copy(m_Data[i], col + 1, newData[i], col, Columns - col - 1);
             }
+            bool[] newCanGoNegative = new bool[Columns - 1];
+            Array.Copy(m_CanGoNegative, 0, newCanGoNegative, 0, col);
+            Array.Copy(m_CanGoNegative, col + 1, newCanGoNegative, col, Columns - col - 1);
+
             Matrix ret = (Matrix) this.MemberwiseClone();
 
+            ret.m_CanGoNegative = newCanGoNegative;
             ret.m_Data = newData;
             ret.m_bReduced = false;
             ret.m_nColumns--;
@@ -2277,7 +2295,7 @@ namespace Reaction_Editor
                 Fraction[] vals = m.getVariableValues();
                 bool AllPositive = true;
                 for (int j = 0; j < vals.Length; j++)
-                    if (vals[j] < 0)
+                    if (vals[j] < 0 && !m.m_CanGoNegative[j])
                     {
                         AllPositive = false;
                         break;

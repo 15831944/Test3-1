@@ -49,6 +49,12 @@
     <Compile Include="FrmAddSelector.Designer.cs">
       <DependentUpon>FrmAddSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmAutobalanceExtraComps.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmAutobalanceExtraComps.Designer.cs">
+      <DependentUpon>FrmAutobalanceExtraComps.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmBalanceOptions2.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,7 +69,7 @@
     </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Component</SubType>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>
@@ -99,6 +105,10 @@
     <EmbeddedResource Include="FrmAddSelector.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FrmAddSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmAutobalanceExtraComps.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FrmAutobalanceExtraComps.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmBalanceOptions2.resx">
       <DependentUpon>FrmBalanceOptions2.cs</DependentUpon>
