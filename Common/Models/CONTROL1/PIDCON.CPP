@@ -593,8 +593,15 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         DDB.Page(Buff, DDB_RqdPage);
         }
       DDB.BeginElement(this, i);
+      DDEF_Flags PID4ViewFlag = (PIDType[i]!=4) ? DDEF_NOVIEW : 0;
+      DDEF_Flags DynViewFlag = (NetMethod()==NM_Probal) ? InitHidden : 0;
+
+      DDB.CheckBoxBtn("On",          "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+5, this, isParmStopped, DDBYesNo);
+      DDB.String("Name",             "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+1, this, isParmStopped);
       DDB.String("ID",               "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+10, this, isParmStopped);
       DDB.Byte("Type",               "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+0, this, isParmStopped, DDBPIDType);
+      DDB.Long  ("Priority",         "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+9, this, isParmStopped);
+
       PIDInfo* p = PID[i];
       Strng InCnvTxt,OutCnvTxt;
       if (bWithCnvComment && XRefsValid() && p->bValid)
@@ -602,34 +609,40 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         GetValidCnvTxt(p->m_MeasVar, InCnvTxt);
         GetValidCnvTxt(p->m_OutputVar, OutCnvTxt);
         }
-      DDB.String("Name",             "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+1, this, isParmStopped);
-      DDB.Text("Connections");
-      DDB.String("SetPoint_Tag",     "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+4, this, m_IOConnd[SptIOInx(i)]?isTag:isParmStopped|isTag|isFunct);
+
+      DDB.Text("Measured tag (input) and range");
       DDB.String("Measured_Tag",     "Meas_Tag",   DC_, "", idmCfgTags+(i*NoOfCfgTags)+2, this, m_IOConnd[MeasIOInx(i)]?isTag:isParmStopped|isTag|isFunct);
-      DDEF_Flags PID4ViewFlag = (PIDType[i]!=4) ? DDEF_NOVIEW : 0; 
-      DDB.String("Feedforward_Tag", "FeedForward_Tag",   DC_, "", idmCfgTags+(i*NoOfCfgTags)+11, this, m_IOConnd[FeedFwdIOInx(i)]?isTag|PID4ViewFlag:isParmStopped|isTag|isFunct|PID4ViewFlag);
-
-      DDB.String("Output_Tag",       "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+3, this, m_IOConnd[OutIOInx(i)]?isTag:isParmStopped|isTag);
-      
-      DDB.Text("SetPoint");
-      DDB.Double("SetPoint",         "Spt",        DC_, "", idmCfgTags+(i*NoOfCfgTags)+6, this, p->m_SetPointVar.IsBlank()/* ||p->m_SetPointVar.m_bIsIO*/  ? isParm : 0);
-      DDB.Range(p->InMn(), p->InMx());
-      if (InCnvTxt.Len())
-        DDB.TagComment(InCnvTxt());
-
-      DDB.Text("Measurement");
-      DDB.Double("Measured_Value",   "Meas",       DC_, "", &(p->Meas()),    this, 0);
-      DDB.Range(p->InMn(), p->InMx());
-      if (InCnvTxt.Len())
-        DDB.TagComment(InCnvTxt());
       DDB.Double("Minimum_Input",    "InMin",      DC_, "", &(p->InMn()),   this, isParm);
       if (InCnvTxt.Len())
         DDB.TagComment(InCnvTxt());
       DDB.Double("Maximum_Input",    "InMax",      DC_, "", &(p->InMx()),    this, isParm);
       if (InCnvTxt.Len())
         DDB.TagComment(InCnvTxt());
+      DDB.String("Feedforward_Tag", "FeedForward_Tag",   DC_, "", idmCfgTags+(i*NoOfCfgTags)+11, this, m_IOConnd[FeedFwdIOInx(i)]?isTag|PID4ViewFlag:isParmStopped|isTag|isFunct|PID4ViewFlag);
+      
+      DDB.Text("Controled tag (output) and expected range");
+      DDB.String("Output_Tag",       "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+3, this, m_IOConnd[OutIOInx(i)]?isTag:isParmStopped|isTag);
+      DDB.Double("Minimum_Output",   "OutMin",     DC_, "", &(p->OutMn()),   this, isParm);
+      if (OutCnvTxt.Len())
+        DDB.TagComment(OutCnvTxt());
+      DDB.Double("Maximum_Output",   "OutMax",     DC_, "", &(p->OutMx()),   this, isParm);
+      if (OutCnvTxt.Len())
+        DDB.TagComment(OutCnvTxt());
+      
+      DDB.Text("SetPoint (Tag or Value)");
+      DDB.String("SetPoint_Tag",     "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+4, this, m_IOConnd[SptIOInx(i)]?isTag:isParmStopped|isTag|isFunct);
+      DDB.Double("SetPoint",         "Spt",        DC_, "", idmCfgTags+(i*NoOfCfgTags)+6, this, p->m_SetPointVar.IsBlank()/* ||p->m_SetPointVar.m_bIsIO*/  ? isParm : 0);
+      DDB.Range(p->InMn(), p->InMx());
+      if (InCnvTxt.Len())
+        DDB.TagComment(InCnvTxt());
 
-      DDB.Text("ControlVariable");
+      DDB.Text("Current values");
+//TODO:!!!
+      //DDB.Double("Setpoint_Value_Used", "SptUsed", DC_, "", &(p->SptUsed()), this, 0);
+      DDB.Double("Measured_Value",   "Meas",       DC_, "", &(p->Meas()),    this, 0);
+      DDB.Range(p->InMn(), p->InMx());
+      if (InCnvTxt.Len())
+        DDB.TagComment(InCnvTxt());
       DDB.Double("Output_Value",     "Out",        DC_, "", idmCfgTags+(i*NoOfCfgTags)+12,     this, isParm);
       if (OrigPrjFileVerNo()<92 && !DDB.ForView() && !DDB.ForFiling())
         DDB.Double("",                 "Output",     DC_, "", idmCfgTags+(i*NoOfCfgTags)+12,     this, isParm|InitHidden);
@@ -637,15 +650,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
       if (OutCnvTxt.Len())
         DDB.TagComment(OutCnvTxt());
 
-      DDB.Double("Minimum_Output",   "OutMin",     DC_, "", &(p->OutMn()),   this, isParm);
-      if (OutCnvTxt.Len())
-        DDB.TagComment(OutCnvTxt());
-      DDB.Double("Maximum_Output",   "OutMax",     DC_, "", &(p->OutMx()),   this, isParm);
-      if (OutCnvTxt.Len())
-        DDB.TagComment(OutCnvTxt());
-
-      DDB.Text("Settings");
-      DDB.CheckBoxBtn("On",          "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+5, this, isParmStopped, DDBYesNo);
+      DDB.Text("Options");
       DDB.CheckBoxBtn("Auto",        "",           DC_, "", &(p->AutoMan()), this, isParm/*|InitHidden*/, DDBYesNo);
       DDEF_Flags Old=DDB.GetVisibility();
       DDB.Visibility(NM_Dynamic|SM_All|HM_All);
@@ -660,8 +665,8 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         DDB.CheckBoxBtn("Reverse_Acting", "Reverse", DC_, "", &(p->RevActing()), this, isParm, DDBYesNo);
       DDB.Double("Gain",             "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+8, this, isParm);
       DDB.Double("PropBand",         "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+7, this, isParm);
-      DDB.Double("Integral",         "",           DC_, "", &(p->Ic()),     this, isParm);
-      DDB.Double("Derivative",       "",           DC_, "", &(p->Dc()),     this, isParm);
+      DDB.Double("Integral",         "",           DC_, "", &(p->Ic()),     this, isParm|DynViewFlag);
+      DDB.Double("Derivative",       "",           DC_, "", &(p->Dc()),     this, isParm|DynViewFlag);
       DDB.Double("Bias",             "",           DC_, "", &(p->Bias()),   this, isParm|PID4ViewFlag);
 
       DDB.Double("ETerm",            "",           DC_, "", &(p->ETerm()),   this, isParmConstruct|InitHidden);
@@ -669,8 +674,6 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
       DDB.Double("ITerm",            "",           DC_, "", &(p->ITerm()),   this, isParmConstruct|InitHidden);
       DDB.Double("DTerm",            "",           DC_, "", &(p->DTerm()),   this, isParmConstruct|InitHidden);
       
-      DDB.Text(" ");
-      DDB.Long  ("Priority",         "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+9, this, isParmStopped);
       DDB.Byte  ("TuneRule",         "",           DC_, "", &(p->TuneRule()), this, isParm|InitHidden, DDBTuneRules);
 //TODO Restore
       //DDB.Double("TuneOut",          "",     DC_, "", &(p->TuneOut()), this, isParm|InitHidden|NAN_OK);
@@ -679,6 +682,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
 
       Old=DDB.GetVisibility();
       DDB.Visibility(NM_Probal|SM_All|HM_All);
+      DDB.Text("Control Tolerances");
       DDB.Double("Tolerance_Abs",    "AbsTol",     DC_Frac, "%", &(p->EPSAbs()), this, isParm|NAN_OK);
       DDB.Double("Tolerance_Rel",    "RelTol",     DC_Frac, "%", &(p->EPSRel()), this, isParm|NAN_OK);
       DDB.SetVisibility(Old);
