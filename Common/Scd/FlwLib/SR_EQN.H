@@ -102,6 +102,7 @@ class DllImportExport CR_EqnControl
   
     virtual bool   ExtentITOInitConds()               { return false; };
     virtual double ExtentReqd()                       { return m_ddExtentRqd(); };
+    virtual double ExtentReqdOveride()                    { return m_ddExtentRqd.Ovr(); };
     virtual double ExtentActual(double ProdMoles=0.0) { return dNAN; };
     virtual double ExtentError();
     virtual flag   ExtentType();

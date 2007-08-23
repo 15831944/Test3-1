@@ -190,6 +190,8 @@ MixerSettler::MixerSettler(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   MaxLoadedConc= 0.0;
   MaxStripConc = 0.0;
 
+  m_AllowOveride = false;
+
   Mixer.SetClosed(False);
   Settler.SetClosed(False);
 
@@ -262,7 +264,9 @@ void MixerSettler::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Byte    ("ExtractionMethod", "Method",      DC_,     "",       &iMethod,    this, isParm|SetOnChange, DDB3);
   
   DDB.Visibility(NSHM_All, iMethod==SVM_Isotherms);
-	DDB.Text    ("");
+  DDB.CheckBoxBtn("AllowOveride",          "",           DC_,      "",    &m_AllowOveride, this, isParm);
+
+  DDB.Text    ("");
 	static DDBValueLst DDB0[]={
 		{(int)True,  "Extraction"},
 		{(int)False, "Stripping" },
@@ -889,6 +893,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
 
       //===============================================
       // Isotherm Method
+      bool CI2On=false;
       if (iMethod==SVM_Isotherms)
         {
         if (Extraction)
@@ -903,6 +908,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
           if (pCREqn->SpecieReactantIndex(iSol)>=0 || pCREqn->SpecieProductIndex(iSol)>=0)
             {
             pCREqn->SetExtent(iSol, dReactExt);
+            CI2On=Valid(pCREqn->Control().ExtentReqdOveride());
             }
           else
             {
@@ -910,6 +916,8 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
         }
+ 		  SetCI(2, !m_AllowOveride && CI2On);
+      
       //================================================
 
       SpMArray Mix;
@@ -1038,6 +1046,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
 
       //===============================================
       // Isotherm Method
+      bool CI2On=false;
       if (iMethod==SVM_Isotherms)
         {
         if (Extraction)
@@ -1052,6 +1061,7 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
           if (pCREqn->SpecieReactantIndex(iSol)>=0 || pCREqn->SpecieProductIndex(iSol)>=0)
             {
             pCREqn->SetExtent(iSol, dReactExt);
+            CI2On=Valid(pCREqn->Control().ExtentReqdOveride());
             }
           else
             {
@@ -1059,6 +1069,8 @@ void MixerSettler::EvalProducts(CNodeEvalIndex & NEI)
             }
           }
         }
+ 		  SetCI(2, !m_AllowOveride && CI2On);
+
       //================================================
 
       SpMArray Mix, Aqs, Ogs;
@@ -1559,6 +1571,7 @@ flag MixerSettler::CIStrng(int No, pchar & pS)
   switch (No-CBContext())
     {
     case  1: pS="W\tInvalid Solute for reaction (using Isotherm method)."; return 1;
+    case  2: pS="W\tIsotherm Extent Override Active."; return 1;
     default:                                               
       return MdlNode::CIStrng(No, pS);
     }

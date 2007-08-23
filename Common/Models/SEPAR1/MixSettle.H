@@ -92,6 +92,7 @@ class MixerSettler : public MdlNode
     double         dReactExt;
     double         SEff;
     byte           iSol, iMethod;
+    bool           m_AllowOveride;
 
     C2DFn          PriIsotherm;    // Distribution isotherm curve
     //C2DFn          SecIsotherm;    // Distribution isotherm curve
