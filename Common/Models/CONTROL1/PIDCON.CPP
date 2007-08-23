@@ -610,7 +610,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         GetValidCnvTxt(p->m_OutputVar, OutCnvTxt);
         }
 
-      DDB.Text("Measured tag (input) and range");
+      DDB.Text("Measured tag (input) and expected range");
       DDB.String("Measured_Tag",     "Meas_Tag",   DC_, "", idmCfgTags+(i*NoOfCfgTags)+2, this, m_IOConnd[MeasIOInx(i)]?isTag:isParmStopped|isTag|isFunct);
       DDB.Double("Minimum_Input",    "InMin",      DC_, "", &(p->InMn()),   this, isParm);
       if (InCnvTxt.Len())
@@ -620,7 +620,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         DDB.TagComment(InCnvTxt());
       DDB.String("Feedforward_Tag", "FeedForward_Tag",   DC_, "", idmCfgTags+(i*NoOfCfgTags)+11, this, m_IOConnd[FeedFwdIOInx(i)]?isTag|PID4ViewFlag:isParmStopped|isTag|isFunct|PID4ViewFlag);
       
-      DDB.Text("Controled tag (output) and expected range");
+      DDB.Text("Controlled tag (output) and range limits");
       DDB.String("Output_Tag",       "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+3, this, m_IOConnd[OutIOInx(i)]?isTag:isParmStopped|isTag);
       DDB.Double("Minimum_Output",   "OutMin",     DC_, "", &(p->OutMn()),   this, isParm);
       if (OutCnvTxt.Len())
