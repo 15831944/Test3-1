@@ -213,6 +213,9 @@ class DllImportExport SpConduit : public SpModelOwner
     double         QNVolume(CSysVector &Scale)                                    { return pModel->NVolume(Scale); };
 
     double         QElementMass(CIArray & ElementIds, PhMask Phase=som_ALL)       { return pModel->ElementMass(ElementIds, Phase); };
+    double         QElementMoles(CIArray & ElementIds, PhMask Phase=som_ALL)      { return pModel->ElementMoles(ElementIds, Phase); };
+    double         QElementVolume(CIArray & ElementIds, PhMask Phase=som_ALL)     { return pModel->ElementVolume(ElementIds, Phase); };
+    double         QElementNVolume(CIArray & ElementIds, PhMask Phase=som_ALL)    { return pModel->ElementNVolume(ElementIds, Phase); };
 
     double         Rho(PhMask PhaseM=som_ALL)                                     { return pModel->Rho(PhaseM);};
     double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL)     { return pModel->Rho(PhaseM, T, P, S);};
@@ -831,6 +834,9 @@ class DllImportExport SpContainer : public SpModelOwner
     double         NVolume(CSysVector &S)                                           { return pModel->NVolume(som_ALL, &S); };
 
     double         ElementMass(CIArray & ElementIds, PhMask Phase=som_ALL)          { return pModel->ElementMass(ElementIds, Phase); };
+    double         ElementMoles(CIArray & ElementIds, PhMask Phase=som_ALL)         { return pModel->ElementMoles(ElementIds, Phase); };
+    double         ElementVolume(CIArray & ElementIds, PhMask Phase=som_ALL)        { return pModel->ElementVolume(ElementIds, Phase); };
+    double         ElementNVolume(CIArray & ElementIds, PhMask Phase=som_ALL)       { return pModel->ElementNVolume(ElementIds, Phase); };
 
     double         Rho(PhMask PhaseM=som_ALL) { return pModel->Rho(PhaseM);};
     double         Rho(PhMask PhaseM, double T, double P, CSysVector* S=NULL)       { return pModel->Rho(PhaseM, T, P, S);};

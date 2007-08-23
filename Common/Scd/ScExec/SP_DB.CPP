@@ -10569,8 +10569,9 @@ double CSysVector::ElementMass(CIArray & ElementIds, PhMask Phase)
   {
   SPMVECTORTIMERLAP(sm_swMass);
   double tot=0.0;
-  for (int ie=0; ie<ElementIds.GetCount(); ie++)
+  for (int i=0; i<ElementIds.GetCount(); i++)
     {
+    int ie=ElementIds[i];
     CompFracArray &CFH=*(EDB[ie].m_SpComp);
     int Ns=CFH.GetSize();
     for (int is=0; is<Ns; is++)
@@ -10578,6 +10579,49 @@ double CSysVector::ElementMass(CIArray & ElementIds, PhMask Phase)
       int s=CFH[is].iSpNo;
       if (SDB[s].PhaseIs(Phase))
         tot+=m_d[s]*CFH[is].dMassFrac;
+      }
+    }
+  return tot;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSysVector::ElementMoles(CIArray & ElementIds, PhMask Phase)
+  {
+  SPMVECTORTIMERLAP(sm_swMass);
+  double tot=0.0;
+  for (int i=0; i<ElementIds.GetCount(); i++)
+    {
+    int ie=ElementIds[i];
+    CompFracArray &CFH=*(EDB[ie].m_SpComp);
+    int Ns=CFH.GetSize();
+    for (int is=0; is<Ns; is++)
+      {
+      int s=CFH[is].iSpNo;
+      if (SDB[s].PhaseIs(Phase))
+        tot+=m_d[s]*CFH[is].dMassFrac/SDB[s].MoleWt();
+      }
+    }
+  return tot;
+  };
+
+//--------------------------------------------------------------------------
+
+double CSysVector::ElementVolume(CIArray & ElementIds, PhMask Phase, long Fidelity, long DensityMethod, double Temp, double Press, SpPropOveride * Ovr)
+  {
+  SPMVECTORTIMERLAP(sm_swMass);
+  double tot=0.0;
+  CDensityInfo C(Fidelity, DensityMethod, Temp, Press, Ovr, m_d);
+  for (int i=0; i<ElementIds.GetCount(); i++)
+    {
+    int ie=ElementIds[i];
+    CompFracArray &CFH=*(EDB[ie].m_SpComp);
+    int Ns=CFH.GetSize();
+    for (int is=0; is<Ns; is++)
+      {
+      int s=CFH[is].iSpNo;
+      if (SDB[s].PhaseIs(Phase) && SDB[s].DensityX(C))
+        tot+=C.Mass()*CFH[is].dMassFrac/C.Density();
       }
     }
   return tot;

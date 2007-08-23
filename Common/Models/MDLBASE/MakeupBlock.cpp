@@ -1105,7 +1105,6 @@ flag CMeasInfo::ValidateData(ValidateDataBlk & VDB, CXBlk_MUFeed &Blk)
       }
     case Slct_Element:
       {
-      Blk.m_eType=CXBlk_MUFeed::Type_Mass;
       break;
       }
     default:
@@ -1484,6 +1483,8 @@ double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*
       return Q.QMass(MI.m_Phases);
 
     case Type_Mole:
+      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+        return Q.QElementMoles(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QMole(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
@@ -1491,6 +1492,8 @@ double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*
       return Q.QMole(MI.m_Phases);
 
     case Type_Volume:
+      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+        return Q.QElementVolume(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QVolume(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)
@@ -1498,6 +1501,8 @@ double CXBlk_MUFeed::GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd/*=0*
       return Q.QVolume(MI.m_Phases);
 
     case Type_NVolume:
+      if (MI.m_eSelect==CMeasInfo ::Slct_Element)
+        return Q.QElementNVolume(MI.m_Elements, MI.m_Phases);
       if (PhRqd)
         return Q.QNVolume(PhRqd);
       if (MI.m_eSelect>=CMeasInfo::Slct_Specie)

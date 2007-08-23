@@ -2336,6 +2336,8 @@ class DllImportExport CSysVector
     double      NVolume(long Fidelity, int Method, CSysVector & Scale, SpPropOveride *Ovr)                            { SPMVECTORTIMERLAP(sm_swDens); return SDB.NVolume(Fidelity, Method, Scale, Ovr, m_d); };
 
     double      ElementMass(CIArray & ElementIds, PhMask Phase);
+    double      ElementMoles(CIArray & ElementIds, PhMask Phase);
+    double      ElementVolume(CIArray & ElementIds, PhMask Phase, long Fidelity, long DensityMethod, double Temp, double Press, SpPropOveride * Ovr);
 
     double      MassFrac(PhMask Phase);
     double      MoleFrac(PhMask Phase);
