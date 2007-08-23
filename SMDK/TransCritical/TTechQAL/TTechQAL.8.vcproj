@@ -557,6 +557,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\QALPSD.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\QALPump.cpp"
 				>
 			</File>
@@ -635,6 +639,22 @@
 			</File>
 			<File
 				RelativePath=".\QALCyclone.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QALHeater.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QALPipe.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QALPSD.h"
+				>
+			</File>
+			<File
+				RelativePath=".\QALPump.h"
 				>
 			</File>
 			<File
