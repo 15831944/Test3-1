@@ -49,9 +49,9 @@ CMdlAssocGrf::CMdlAssocGrf(const CMdlAssocGrf & V)
   {
   m_bIsLnk    = V.m_bIsLnk;
   m_sNdTag    = V.m_sNdTag;
-  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
-  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
-    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  m_Items.SetSize(V.m_Items.GetSize());
+  for (int i=0; i<V.m_Items.GetSize(); i++)
+    m_Items[i]=V.m_Items[i];
   };
    
 CMdlAssocGrf &CMdlAssocGrf::operator=(const CMdlAssocGrf & V)
@@ -59,9 +59,9 @@ CMdlAssocGrf &CMdlAssocGrf::operator=(const CMdlAssocGrf & V)
   m_bIsLnk    = V.m_bIsLnk;
   m_sNdTag    = V.m_sNdTag;
 
-  m_AssocGrfs.SetSize(V.m_AssocGrfs.GetSize());
-  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
-    m_AssocGrfs[i]=V.m_AssocGrfs[i];
+  m_Items.SetSize(V.m_Items.GetSize());
+  for (int i=0; i<V.m_Items.GetSize(); i++)
+    m_Items[i]=V.m_Items[i];
   return *this;
   };
 
@@ -69,10 +69,10 @@ BOOL CMdlAssocGrf::operator==(const CMdlAssocGrf & V)
   {
   if (m_sNdTag != V.m_sNdTag ||  m_bIsLnk != V.m_bIsLnk)
     return false;
-  if (m_AssocGrfs.GetSize()!=V.m_AssocGrfs.GetSize())
+  if (m_Items.GetSize()!=V.m_Items.GetSize())
     return false;
-  for (int i=0; i<V.m_AssocGrfs.GetSize(); i++)
-    if (m_AssocGrfs[i]!=V.m_AssocGrfs[i])
+  for (int i=0; i<V.m_Items.GetSize(); i++)
+    if (m_Items[i]!=V.m_Items[i])
       return false;
   return true;
   };
@@ -81,10 +81,10 @@ bool operator==(const CMdlAssocGrf & V1, const CMdlAssocGrf & V2)
   {
   if (V1.m_sNdTag != V2.m_sNdTag ||  V1.m_bIsLnk != V2.m_bIsLnk)
     return false;
-  if (V1.m_AssocGrfs.GetSize()!=V2.m_AssocGrfs.GetSize())
+  if (V1.m_Items.GetSize()!=V2.m_Items.GetSize())
     return false;
-  for (int i=0; i<V2.m_AssocGrfs.GetSize(); i++)
-    if (V1.m_AssocGrfs[i]!=V2.m_AssocGrfs[i])
+  for (int i=0; i<V2.m_Items.GetSize(); i++)
+    if (V1.m_Items[i]!=V2.m_Items[i])
       return false;
   return true;
   };

@@ -1538,8 +1538,6 @@ class DllImportExport CConnect : public CSFGNodeInfo, public CTNode
     int            m_iIdSrc;
     int            m_iIdDst;
     byte           m_iUseStatus;
-    bool           m_bPrevShowStatus;
-    bool           m_bPrevShowStatusOK;
     
     Strng          m_sRefIOTg;
     
@@ -4423,8 +4421,8 @@ class DllImportExport FlwNode : public CTNode
     virtual void   UpdateMsSoln(SparseSolver & SS);
 #endif
 
-    virtual flag   ModelAssocGrfs(CMdlAssocGrfList & Grfs);
-    virtual int    ModelAssocGrfsChgCnt();
+    virtual int    ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index);
+    //virtual int    ModelAssocGrfsChgCnt();
 
     virtual dword  ModelStatus();
     static bool    GetStatusAsStopped() { return gs_Exec.Stopped() && ((m_dwMdlStatusOptions&MSO_ShowRunInEdit)!=0); };
@@ -4662,6 +4660,8 @@ class DllImportExport FlwNode : public CTNode
     CClosureInfoArray m_Closure;
 
     CArray<CPwrUser*, CPwrUser*> m_PwrUsers;
+
+    CMdlAssocGrf      m_AssocGrf;
 
     CMap<CString, LPCTSTR, SpConduit*, SpConduit*> WrkConduits;
     CMap<CString, LPCTSTR, SpContainer*, SpContainer*> WrkContainers;

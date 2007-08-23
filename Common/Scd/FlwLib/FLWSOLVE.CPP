@@ -12401,25 +12401,14 @@ flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR N
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+flag CFlwSolver::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   {
-  Grfs.RemoveAll();
-  if (Tag)
-    {
-    int ObjTagLen=0;
-    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
-    if (p)
-      {
-      return p->ModelAssocGrfs(Grfs);
-      }
-    return false;
-    }
-
+  int Chgs=0;
+  int Index=0;
   for (FlwNode * p = NULL; GetObj_All(p); )
-    {
-    p->ModelAssocGrfs(Grfs);
-    }
-  return true;
+    Chgs+=p->ModelAssocGrfs(Grfs, Index++);
+
+  return Chgs>0;
   };
 
 //--------------------------------------------------------------------------

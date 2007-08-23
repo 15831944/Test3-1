@@ -497,7 +497,7 @@ class CGrfLayer
     void             CollectTags(Strng_List & TagList);
     void             CollectTagInfo(DXF_Drawing * pDrawing, bool AllInserts, CGrfTagInfoArray & GTIA);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
-    flag             PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
+    flag             PutModelAssocGrfsChanges(CMdlAssocGrfArray & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
     
     flag             GetEntityBox(C3_BOX_S *box,DXF_ENTITY e,double *BiggestDim = NULL);
     flag             GetCurveBox(C3_BOX_S *box,C3_CURVE c,C3_TRANSFORM c3t,double *BiggestDim = NULL);
@@ -631,7 +631,7 @@ class LayerCollection
     void             ChangeTag(pchar pOldTag, pchar pNewTag);
     void             CollectTags(Strng_List & TagList);
     flag             FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &pLastMatchingAttr);
-    flag             PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
+    flag             PutModelAssocGrfsChanges(CMdlAssocGrfArray & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsFound);   
 
   public:
     CGrfLayer *           Layers;    // Pointer to my first layer

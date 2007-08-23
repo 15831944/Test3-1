@@ -738,7 +738,7 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);
     flag           TestLoadModelStatus();
 
-    flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
+    flag           RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs);
     flag           TestLoadModelAssocGrfs();
 
     flag           RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);

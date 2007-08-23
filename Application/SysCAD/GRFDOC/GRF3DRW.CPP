@@ -741,7 +741,7 @@ flag CGrfLayer::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY &
 
 //---------------------------------------------------------------------------
  
-flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
+flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfArray & xGrfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
   {
 #if dbgTagManagement  
   DumpInsertList("CCC", InsertLst);
@@ -768,7 +768,7 @@ flag CGrfLayer::PutModelAssocGrfsChanges(CMdlAssocGrfList & xGrfs, CMdlAssocGrfM
 #endif
         if (eAssocTag)  // This is an Assoc Graphic
           {
-          CMdlAssocGrfItem & I=GI.m_pG->m_AssocGrfs[GI.m_Index];
+          CMdlAssocGrfItem & I=GI.m_pG->m_Items[GI.m_Index];
           bool Hidden=EntityIsHidden(eInsert);
           I.m_bExists=true;
 #if dbgAssocGrf
@@ -2172,7 +2172,7 @@ flag LayerCollection::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_EN
 
 //---------------------------------------------------------------------------
 
-flag LayerCollection::PutModelAssocGrfsChanges(CMdlAssocGrfList & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
+flag LayerCollection::PutModelAssocGrfsChanges(CMdlAssocGrfArray & Grfs, CMdlAssocGrfMap & Map, CList<CMdlAssocGrfX,CMdlAssocGrfX&> & GrfsX)
   {
   flag WorkReqd =0;
   CGrfLayer * l = NULL;
@@ -4214,7 +4214,7 @@ flag DXF_Drawing::FindTag(LPSTR Tag, DXF_ENTITY &pLastMatchingInsert, DXF_ENTITY
 
 flag DXF_Drawing::UpdateModelAssocGrfs()
   {
-  CMdlAssocGrfList  *pGrfs=NULL;
+  CMdlAssocGrfArray  *pGrfs=NULL;
   CMdlAssocGrfMap  *pMap=NULL;
   int WorkReqd = 0;
 
@@ -4244,9 +4244,9 @@ flag DXF_Drawing::UpdateModelAssocGrfs()
           int TypeCount[eAG_Last+1];
           for (int x=0; x<eAG_Last; x++)
             TypeCount[x]=0;
-          for (int i=0; i<G.m_AssocGrfs.GetSize(); i++)
+          for (int i=0; i<G.m_Items.GetSize(); i++)
             {
-            CMdlAssocGrfItem & I = G.m_AssocGrfs[i];
+            CMdlAssocGrfItem & I = G.m_Items[i];
             if (!I.m_bExists && I.m_bShowIt)
               {
               PT3 pt;

@@ -1102,7 +1102,7 @@ class DllImportExport CMdlAssocGrf
   public:
     CString           m_sNdTag;
     bool              m_bIsLnk;
-    CArray<CMdlAssocGrfItem,CMdlAssocGrfItem&> m_AssocGrfs;
+    CArray<CMdlAssocGrfItem,CMdlAssocGrfItem&> m_Items;
   
   };
 
@@ -1112,7 +1112,8 @@ inline bool operator==(const CMdlAssocGrfItem & V1, const CMdlAssocGrfItem & V2)
 inline bool operator!=(const CMdlAssocGrfItem & V1, const CMdlAssocGrfItem & V2) 
   { return (V1.m_eAGType != V2.m_eAGType) || (V1.m_sTag != V2.m_sTag) || (V1.m_bShowIt != V2.m_bShowIt); }
 
-class DllImportExport CMdlAssocGrfList : public CList<CMdlAssocGrf, CMdlAssocGrf & > {};
+class DllImportExport CMdlAssocGrfArray : public CArray<CMdlAssocGrf*, CMdlAssocGrf*> {};
+
 class CMdlAssocGrfMapItem 
   { 
   public: 
@@ -1235,7 +1236,7 @@ class DllImportExport CSfeSrvrBase
     virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged) { return 0; };
     virtual flag         TestLoadModelStatus()            { return 0; };
 
-    virtual flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)   { return 0; };
+    virtual flag         RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)   { return 0; };
     virtual flag         TestLoadModelAssocGrfs()         { return 0; };
 
     virtual int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs) { return 0; };

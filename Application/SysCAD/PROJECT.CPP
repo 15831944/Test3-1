@@ -8731,9 +8731,9 @@ flag CProject::TestLoadModelStatus()
 
 //---------------------------------------------------------------------------
 
-flag CProject::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+flag CProject::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   { 
-  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfs(Tag, Grfs) : 0;
+  return FlwLib()!=NULL ? FlwLib()->RequestModelAssocGrfs(Grfs) : 0;
   };
 
 //---------------------------------------------------------------------------

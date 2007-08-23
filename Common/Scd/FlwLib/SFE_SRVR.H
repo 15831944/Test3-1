@@ -113,7 +113,7 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
     flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
     flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
     int          RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged);
-    flag         RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs);
+    flag         RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs);
     flag         RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR NdTag, CModelAssocGrfMasks & Msks);
     int          RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
 

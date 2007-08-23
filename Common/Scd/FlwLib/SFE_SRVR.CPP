@@ -384,9 +384,9 @@ int CSfeSrvr::RequestModelStatus(dword Options, CModelStatusArray &Status, flag 
   return SfeFS->RequestModelStatus(Options, Status, TagsChanged);
   };
 
-flag CSfeSrvr::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grfs)
+flag CSfeSrvr::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   { 
-  return SfeFS->RequestModelAssocGrfs(Tag, Grfs); 
+  return SfeFS->RequestModelAssocGrfs(Grfs); 
   };
 
 flag CSfeSrvr::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode, LPCSTR NdTag, CModelAssocGrfMasks & Msks)

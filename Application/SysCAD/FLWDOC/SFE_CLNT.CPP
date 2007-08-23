@@ -509,12 +509,12 @@ flag SFEFlwLib::TestLoadModelStatus()
   return m_Status.m_LoadReqd;
   };
 
-flag SFEFlwLib::RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf)
+flag SFEFlwLib::RequestModelAssocGrfs(CMdlAssocGrfArray & Grf)
   { 
   if (m_AssocGrfs.m_LoadReqd)
     {
     m_AssocGrfs.m_LoadReqd=false;
-    FENTER(true) pSfe->RequestModelAssocGrfs(Tag, Grf); 
+    FENTER(true) pSfe->RequestModelAssocGrfs(Grf); 
     FLEAVE
     }
   else
@@ -876,8 +876,8 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
 #if (0 && dbgAssocGrfs)
   dbgpln("FE_LoadAllModelAssocGrfs====================");
 #endif
-  //CMdlAssocGrfList Grfs;
-  if (RequestModelAssocGrfs(NULL, m_AssocGrfs.m_Grfs))
+  //CMdlAssocGrfArray Grfs;
+  if (RequestModelAssocGrfs(m_AssocGrfs.m_Grfs))
     {
     m_AssocGrfs.m_Map.RemoveAll();
 
@@ -885,13 +885,12 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
     if (m_AssocGrfs.m_Map.GetHashTableSize()<=ReqdSize)
       m_AssocGrfs.m_Map.InitHashTable(ReqdSize);
 
-    POSITION Pos=m_AssocGrfs.m_Grfs.GetHeadPosition();
-    while (Pos)
+    for (int ig=0; ig<m_AssocGrfs.m_Grfs.GetCount(); ig++)
       {
-      CMdlAssocGrf * pG=&m_AssocGrfs.m_Grfs.GetNext(Pos);
+      CMdlAssocGrf * pG=m_AssocGrfs.m_Grfs[ig];
       m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_sNdTag, CMdlAssocGrfMapItem(pG,-1));
-      for (int i=0; i<pG->m_AssocGrfs.GetCount(); i++)
-        m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_AssocGrfs[i].m_sTag, CMdlAssocGrfMapItem(pG,i));
+      for (int i=0; i<pG->m_Items.GetCount(); i++)
+        m_AssocGrfs.m_Map.SetAt((LPTSTR)(LPCTSTR)pG->m_Items[i].m_sTag, CMdlAssocGrfMapItem(pG,i));
 
 #if (0 && dbgAssocGrfs)
       dbgpln("  %s", pG->m_sNdTag);
@@ -911,15 +910,15 @@ int SFEFlwLib::FE_LoadAllModelAssocGrfs()
 #if dbgAssocGrfs
   dbgpln("FE_LoadAllModelAssocGrfs  %i", 0);
 #endif
-  m_AssocGrfs.m_Map.RemoveAll();
-  m_AssocGrfs.m_Grfs.RemoveAll();
+  //m_AssocGrfs.m_Map.RemoveAll();
+  //m_AssocGrfs.m_Grfs.RemoveAll();
   FreeAssocGrfs();
   return 0;
   };
 
 //---------------------------------------------------------------------------
 
-int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap)
+int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfArray *&pGrfs, CMdlAssocGrfMap *&pMap)
   {
   LockAssocGrfs();
 #if dbgAssocGrfs
@@ -957,7 +956,7 @@ int SFEFlwLib::FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *
     dbgpln("FE_PrepareAllModelAssocGrfs <<<<<<<<< NewLoad %i", 0);
 #endif
     FreeAssocGrfs();
-    return 0;
+    return 0; 
     }
 
 #if dbgAssocGrfs

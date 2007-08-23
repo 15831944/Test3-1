@@ -635,8 +635,6 @@ CTNode(pClass_, TagIn, pAttach, eAttach)
   m_pNdDst=NULL;
   m_iIOSrc=0;
   m_iIODst=0;
-  m_bPrevShowStatus=false;
-  m_bPrevShowStatusOK=false;
   m_iUseStatus=0;
   m_iIdSrc=-1;
   m_iIdDst=-1;
@@ -8008,22 +8006,25 @@ void FlwNode::SetState(eScdMdlStateActs RqdState)
 
 #define dbgAssocGrfs 0
 
-flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
+int FlwNode::ModelAssocGrfs(CMdlAssocGrfArray & Grfs, int Index)
   {
 #if dbgAssocGrfs 
   dbgpln("Flwode::ModelAssocGrfs %s", FullObjTag());
 #endif
+
+  int Chgs = 0;//(NoRealDirectIOs()!=m_AssocGrf.m_AssocGrfs.GetSize()) ? 1:0;
+  int OldCount = m_AssocGrf.m_Items.GetSize();
+  int NewCount = 0;
+
   if (NoRealDirectIOs()>0)
     {
-    CMdlAssocGrf G;
-    G.m_sNdTag    = FullObjTag();
-    G.m_bIsLnk    = IsLnk()!=0;
-    Grfs.AddTail(G);
-    CMdlAssocGrf &GT=Grfs.GetTail();
+    m_AssocGrf.m_sNdTag    = FullObjTag();
+    m_AssocGrf.m_bIsLnk    = IsLnk()!=0;
 
     for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
       {
       CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
+
 #if dbgAssocGrfs 
       dbgp("%2i %2i %s", iDir, D.m_eType, D.Connected?"Conn":"    ");
 #endif
@@ -8032,15 +8033,26 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
         CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
         if (pC)
           {
+          if (m_AssocGrf.m_Items.GetCount()<NewCount+1)
+            m_AssocGrf.m_Items.SetSize(NewCount+1);
 
-          CMdlAssocGrfItem I;
+          CMdlAssocGrfItem &I=m_AssocGrf.m_Items[NewCount++];
+
+          if (I.m_sTag != pC->Tag())
+            Chgs++;
+
+          eAssocGrfTypes Type = AGTypeFromDIOType(D.Type);
+          if (I.m_eAGType != Type)
+            Chgs++;
+
+          bool Show = AssocGrfOn(Type, pC->UseStatus());
+          if (I.m_bShowIt != Show)
+            Chgs++;
+
           I.m_sTag = pC->Tag();
-          I.m_eAGType = AGTypeFromDIOType(D.Type);
-          I.m_bShowIt = AssocGrfOn(I.m_eAGType, pC->UseStatus());
-          pC->m_bPrevShowStatus=I.m_bShowIt;
-          pC->m_bPrevShowStatusOK=true;
+          I.m_eAGType = Type;
+          I.m_bShowIt = Show;
 
-          GT.m_AssocGrfs.Add(I);
 #if dbgAssocGrfs 
           dbgp(" %s", pC->FullTag());
 #endif
@@ -8060,30 +8072,16 @@ flag FlwNode::ModelAssocGrfs(CMdlAssocGrfList & Grfs)
 
     // etc for RB etc
     }
-  return true;
-  };
 
-//--------------------------------------------------------------------------
+  m_AssocGrf.m_Items.SetSize(NewCount);
+  if (OldCount != NewCount)
+    Chgs++;
 
-int FlwNode::ModelAssocGrfsChgCnt()
-  {
-  int Cnt=0;
-  for (int iDir=0; iDir<NoRealDirectIOs(); iDir++) 
-    {
-    CDirectFlwIO &D=*m_EnabledDirectIOs[iDir];
-    if (D.Connected)
-      {
-      CConnect *pC  = dynamic_cast<CConnect*>(&D.Flange);
-      if (!pC->m_bPrevShowStatusOK || 
-          (pC->m_bPrevShowStatus!=AssocGrfOn(AGTypeFromDIOType(D.Type), pC->UseStatus())))
-        Cnt++;
-      }
-    }
-#if dbgAssocGrfs 
-  if (Cnt>0)
-    dbgpln("ModelAssocGrfsChgCnt %5i %s", Cnt, Tag());
-#endif
-  return Cnt;
+  if (Grfs.GetUpperBound()<Index || Grfs[Index]!=&m_AssocGrf)
+    Chgs++;
+  Grfs.SetAtGrow(Index, &m_AssocGrf);
+
+  return Chgs;
   };
 
 //--------------------------------------------------------------------------

@@ -119,7 +119,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);
     flag           TestLoadModelStatus();
 
-    flag           RequestModelAssocGrfs(LPCTSTR Tag, CMdlAssocGrfList & Grf);
+    flag           RequestModelAssocGrfs(CMdlAssocGrfArray & Grf);
     flag           TestLoadModelAssocGrfs();
 
     int            RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Refs);
@@ -158,7 +158,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
       };
     
     int            FE_LoadAllModelAssocGrfs();
-    int            FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfList *&pGrfs, CMdlAssocGrfMap *&pMap);
+    int            FE_PrepareAllModelAssocGrfs(dword & LoadSeqNo, CMdlAssocGrfArray *&pGrfs, CMdlAssocGrfMap *&pMap);
 
     void           LockAssocGrfs() { m_AssocGrfs.m_Sect.Lock(); };
     void           FreeAssocGrfs() { m_AssocGrfs.m_Sect.Unlock(); };
@@ -268,7 +268,7 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
 
     struct CAssocGrfs
       {
-      CMdlAssocGrfList  m_Grfs;
+      CMdlAssocGrfArray  m_Grfs;
       CMdlAssocGrfMap   m_Map;
 
       flag              m_LoadReqd;
