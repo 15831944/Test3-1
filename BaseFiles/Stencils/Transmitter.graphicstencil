@@ -11,21 +11,21 @@
 <elements href="#ref-6"/>
 <tag xsi:null="1"/>
 <textArea>
-<x>-2</x>
-<y>3</y>
-<width>5.3</width>
-<height>2</height>
+<x>0</x>
+<y>7.1</y>
+<width>3.6</width>
+<height>3</height>
 </textArea>
 </a1:GraphicStencil>
 <a4:ArrayList id="ref-5" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>
 <_size>0</_size>
-<_version>79</_version>
+<_version>106</_version>
 </a4:ArrayList>
 <a4:ArrayList id="ref-6" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
 <_size>1</_size>
-<_version>170</_version>
+<_version>223</_version>
 </a4:ArrayList>
 <SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
