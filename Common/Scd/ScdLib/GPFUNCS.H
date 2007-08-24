@@ -1468,6 +1468,14 @@ class DllImportExport CUpGrdCompletion
 //
 //
 //===========================================================================
+// Debug
+extern DllImportExport CString MakeDbgFileName(LPCSTR Ext);
+
+//===========================================================================
+//
+//
+//
+//===========================================================================
 
 class DllImportExport CScdCmdParms
   {

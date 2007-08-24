@@ -1668,7 +1668,7 @@ BOOL CSysCADApp::DoInitInstance()
   if (0)
     {
     m_CLH.bDebugOn = true;
-    m_CLH.sDebugFile.Set("%sScd_Dbg.%i.Txt", DBGFILESPATH, SCD_BUILD_NUM);
+    m_CLH.sDebugFile=MakeDbgFileName("Txt");
     }
 
   if (m_CLH.bDebugOn)
@@ -3525,7 +3525,7 @@ bool CCmdLineHelper::Parse(char* pCmdLine)
         if (OptRgt.GetLength()==0)
           {
 #if BLDDEPENDENTFILES
-          OptRgt.Format("%sScd_Dbg.%i.Txt", DBGFILESPATH, SCD_BUILD_NUM);
+          OptRgt=MakeDbgFileName("Txt");
 #else
           OptRgt = TemporaryFiles();
           OptRgt += "Scd_Dbg.Txt";

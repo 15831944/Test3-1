@@ -421,11 +421,10 @@ void CDbgMngr::LoadAll()
   if (!bStarted) 
     return; 
   //SetRootDirectory("c:\\syscad71");
-  Strng NewDbgMngrFilename(DBGFILESPATH);
 #if BLDDEPENDENTFILES
-  NewDbgMngrFilename.Set("%sScd_Dbg.%i.INI", NewDbgMngrFilename(), SCD_BUILD_NUM);
+  Strng NewDbgMngrFilename(MakeDbgFileName("Ini"));
 #else
-  NewDbgMngrFilename+="Scd_Dbg.ini"; // specifies the DbgMngrFile to be used  
+  Strng NewDbgMngrFilename(TemporaryFiles(), "Scd_Dbg.ini");
 #endif
   flag ForceLoad=_stricmp(NewDbgMngrFilename(), DbgMngrFilename())!=0;
   struct _stat FileTime;            //if used an unallocated pointer memory would be unstable

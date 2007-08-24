@@ -7308,6 +7308,31 @@ CWnd * ScdMainWnd()
   return AfxGetMainWnd();
   };
 
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+CString MakeDbgFileName(LPCSTR Ext)
+  {
+  Strng SS;
+  SS.FnPath(ProgFiles());
+  SS=SS.Right(SS.Length()-1);
+  SS.FnClearEndBSlash();
+  SS.FnPath(); // Remove 'Bin'
+
+  for (int i=0; i<SS.GetLength(); i++)
+    {
+    if (SS[i]=='\\')
+      SS[i]='.';
+    }
+  CString S;
+  S.Format("%s%sScd_Dbg.%i.%s", TemporaryFiles(), SS(), SCD_BUILD_NUM, Ext); 
+  return S;
+  }
+
 //==========================================================================
 //
 //
