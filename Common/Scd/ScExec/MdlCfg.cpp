@@ -2937,7 +2937,7 @@ BOOL CMdlCfgSpcs::OnInitDialog()
 #if WITH_H2O_FNS_ALWAYS
   bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 1);
 #else
-  bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 0);
+  bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 1);
 #endif
 
   m_lCfgFilePrjFileVerNo=Cfg.RdInt("General", "PrjFileVersion", 0);
@@ -3191,11 +3191,11 @@ BOOL CMdlCfgSpcs::OnSetActive()
     bExcludeDefSpDB = !Cfg.RdInt("General", "SearchDefaultSpecieDB", 0);
 #endif
     bNumericStartTagsBad = Cfg.RdInt("General", "NumericStartingTagsBad", 1);
-#if WITH_H2O_FNS_ALWAYS
+#if WITH_H2O_FNS_ALWAYS   
     bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 1);
-#else
-    bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 0);
-#endif
+#else                   
+    bUseStdFns4H2O = Cfg.RdInt("General", "UseStdFns4H2O", 1);
+#endif                 
 
 #if WITHDEFAULTSPDB
     if (bPrevExcludeDefSpDB != bExcludeDefSpDB ||

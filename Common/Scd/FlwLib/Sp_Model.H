@@ -1348,23 +1348,6 @@ class DllImportExport SpModelEx : public SpModel
 //
 // ===========================================================================
 
-//inline double SpModel::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA)   { SPMDLTIMERLAP(sm_swHeat); return SDB.msCp(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::msHs(PhMask Phase, double T_, double P_, CSysVector * pMA)   { SPMDLTIMERLAP(sm_swHeat); return SDB.msHs(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::msHz(PhMask Phase, double T_, double P_, CSysVector * pMA)   { SPMDLTIMERLAP(sm_swHeat); return SDB.msHz(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::msHf(PhMask Phase, double T_, double P_, CSysVector * pMA)   { SPMDLTIMERLAP(sm_swHeat); return SDB.msHf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::msSf(PhMask Phase, double T_, double P_, CSysVector * pMA)   { SPMDLTIMERLAP(sm_swHeat); return SDB.msSf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::totCp(PhMask Phase, double T_, double P_, CSysVector * pMA)  { SPMDLTIMERLAP(sm_swHeat); return SDB.totCp(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::totHs(PhMask Phase, double T_, double P_, CSysVector * pMA)  { SPMDLTIMERLAP(sm_swHeat); return SDB.totHs(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::totHz(PhMask Phase, double T_, double P_, CSysVector * pMA)  { SPMDLTIMERLAP(sm_swHeat); return SDB.totHz(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::totHf(PhMask Phase, double T_, double P_, CSysVector * pMA)  { SPMDLTIMERLAP(sm_swHeat); return SDB.totHf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-//inline double SpModel::totSf(PhMask Phase, double T_, double P_, CSysVector * pMA)  { SPMDLTIMERLAP(sm_swHeat); return SDB.totSf(m_iFidelity, Phase, T_, P_, &m_Ovr, pMA ? &(*pMA)[0] : &M[0]); };
-
-// ===========================================================================
-//
-//
-//
-// ===========================================================================
-
 class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
   {
   public :

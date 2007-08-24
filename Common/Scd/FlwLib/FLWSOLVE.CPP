@@ -9735,7 +9735,7 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
 #if WITH_H2O_FNS_ALWAYS
   CDBI.UseStdFns4H2O = true;
 #else
-  CDBI.UseStdFns4H2O = CfgPF.RdInt("General", "UseStdFns4H2O", (OrigPrjFileVerNo()<27 ? 0 : 1));
+  CDBI.UseStdFns4H2O = CfgPF.RdInt("General", "UseStdFns4H2O", 1);//(OrigPrjFileVerNo()<27 ? 0 : 1));
 #endif
 #if WithMG
   if (MGOptions())

@@ -5635,7 +5635,11 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   MinP=CDBInit.MinP;
   MaxP=CDBInit.MaxP;
   PrjDataFile=PrjDBFn;
+#if WITH_H2O_FNS_ALWAYS   
   UseStdFns4H2O = true;//ALWAYS  CDBInit.UseStdFns4H2O;
+#else
+  UseStdFns4H2O = CDBInit.UseStdFns4H2O;
+#endif
   m_pWater=NULL;
   m_pSteam=NULL;
 
