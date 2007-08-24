@@ -20,12 +20,12 @@
 <a4:ArrayList id="ref-5" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-7"/>
 <_size>0</_size>
-<_version>328</_version>
+<_version>343</_version>
 </a4:ArrayList>
 <a4:ArrayList id="ref-6" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
 <_items href="#ref-8"/>
-<_size>7</_size>
-<_version>1840</_version>
+<_size>8</_size>
+<_version>1966</_version>
 </a4:ArrayList>
 <SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[0]">
 </SOAP-ENC:Array>
@@ -37,6 +37,7 @@
 <item href="#ref-13"/>
 <item href="#ref-14"/>
 <item href="#ref-15"/>
+<item href="#ref-16"/>
 </SOAP-ENC:Array>
 <a1:Line id="ref-9" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>0</x1>
@@ -78,6 +79,12 @@
 <x1>100</x1>
 <x2>100</x2>
 <y1>100</y1>
+<y2>0</y2>
+</a1:Line>
+<a1:Line id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>100</x1>
+<x2>0</x2>
+<y1>0</y1>
 <y2>0</y2>
 </a1:Line>
 </SOAP-ENV:Body>

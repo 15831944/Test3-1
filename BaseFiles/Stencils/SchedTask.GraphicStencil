@@ -1,0 +1,58 @@
+<SOAP-ENV:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:clr="http://schemas.microsoft.com/soap/encoding/clr/1.0" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+<SOAP-ENV:Body>
+<a1:GraphicStencil id="ref-1" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<defaultSize>
+<width>6.4</width>
+<height>6.4</height>
+</defaultSize>
+<fillMode>Alternate</fillMode>
+<groupName id="ref-4">Conveyor</groupName>
+<decorations href="#ref-5"/>
+<elements href="#ref-6"/>
+<tag xsi:null="1"/>
+<textArea>
+<x>0</x>
+<y>9.9</y>
+<width>6.4</width>
+<height>3</height>
+</textArea>
+</a1:GraphicStencil>
+<a4:ArrayList id="ref-5" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
+<_items href="#ref-7"/>
+<_size>2</_size>
+<_version>41</_version>
+</a4:ArrayList>
+<a4:ArrayList id="ref-6" xmlns:a4="http://schemas.microsoft.com/clr/ns/System.Collections">
+<_items href="#ref-8"/>
+<_size>1</_size>
+<_version>32</_version>
+</a4:ArrayList>
+<SOAP-ENC:Array id="ref-7" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-9"/>
+<item href="#ref-10"/>
+</SOAP-ENC:Array>
+<SOAP-ENC:Array id="ref-8" SOAP-ENC:arrayType="xsd:anyType[4]">
+<item href="#ref-11"/>
+</SOAP-ENC:Array>
+<a1:Line id="ref-9" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>50</x1>
+<x2>50</x2>
+<y1>12.5</y1>
+<y2>50</y2>
+</a1:Line>
+<a1:Line id="ref-10" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<x1>50</x1>
+<x2>75</x2>
+<y1>50</y1>
+<y2>50</y2>
+</a1:Line>
+<a1:Arc id="ref-11" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
+<a>0</a>
+<h>100</h>
+<s>360</s>
+<w>100</w>
+<x>0</x>
+<y>0</y>
+</a1:Arc>
+</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
