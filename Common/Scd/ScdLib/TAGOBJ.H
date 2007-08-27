@@ -1303,8 +1303,6 @@ class DllImportExport TaggedObject : public ConditionBlk
     Strng &         TagRef()                 { return m_sTag; };
     Strng &         PrefixRef()              { return m_sPrefix; };
 
-    LPSTR           HHHHHHHH() { return NULL; };
-    virtual LPSTR   GGGGGGGG() { return NULL; };
     static CString  CreateGuidStr();
     virtual LPSTR   Guid()                   { return m_sGuid(); };
     virtual LPSTR   SetGuid(LPSTR Guid);//      { if (Guid) m_sGuid = Guid; return m_sGuid(); };

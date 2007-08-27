@@ -42,14 +42,12 @@ class CSvcConnectCLR
     void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints);
     void DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid);
     void DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints);
 

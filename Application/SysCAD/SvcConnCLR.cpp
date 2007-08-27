@@ -199,7 +199,7 @@ ref class CSvcConnectCLRThread
 
           clientProtocol->LinkCreated  += gcnew ClientProtocol::LinkCreatedHandler(this, &CSvcConnectCLRThread::LinkCreated);
           //clientProtocol->LinkModified += gcnew ClientProtocol::LinkModifiedHandler(this, &CSvcConnectCLRThread::LinkModified);
-          //clientProtocol->LinkDeleted  += gcnew ClientProtocol::LinkDeletedHandler(this, &CSvcConnectCLRThread::LinkDeleted);
+          clientProtocol->LinkDeleted  += gcnew ClientProtocol::LinkDeletedHandler(this, &CSvcConnectCLRThread::LinkDeleted);
 
           ////////////////////////////////
           ////////////////////////////////
@@ -330,6 +330,20 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
+    void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
+      {
+      clientProtocol->DeleteItem(requestId, Guid(gcnew String(ItemGuid)));
+      };
+
+    void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
+      {
+      m_pConn->OnDeleteItem(eventId, requestId, ToCString(guid.ToString()));
+      }
+
+    // ====================================================================
+    //
+    // ====================================================================
+
     void DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, Pt_3f Delta)
       {
       //RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
@@ -387,24 +401,9 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
-      {
-      clientProtocol->DeleteItem(requestId, Guid(gcnew String(ItemGuid)));
-      };
-
-    void ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
-      {
-      m_pConn->OnDeleteItem(eventId, requestId, ToCString(guid.ToString()));
-      }
-
-    // ====================================================================
-    //
-    // ====================================================================
-
     void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints)
       {
@@ -446,23 +445,29 @@ ref class CSvcConnectCLRThread
         ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), 
         Pts, textRect);
       }
+
     // ====================================================================
     //
     // ====================================================================
 
-    void DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
+    void DoDeleteLink(__int64 & requestId, LPCSTR LinkGuid)
       {
-      int xxxx=0;
+      clientProtocol->DeleteLink(requestId, Guid(gcnew String(LinkGuid)));
       };
 
+    void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
+      {
+      m_pConn->OnDeleteLink(eventId, requestId, ToCString(guid.ToString()));
+      }
+
     // ====================================================================
     //
     // ====================================================================
+
 
     void DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag,
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints)
       {
@@ -482,9 +487,9 @@ ref class CSvcConnectCLRThread
       {
       }
 
-    void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
-      {
-      }
+    //void LinkDeleted(Int64 eventId, Int64 requestId, Guid guid)
+    //  {
+    //  }
 
     void ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
       {
@@ -631,7 +636,6 @@ void CSvcConnectCLR::DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, 
 void CSvcConnectCLR::DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                                   LPCSTR ClassId, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                  //LPCSTR OriginTag, LPCSTR DestinationTag, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
                                   CPointFList & ControlPoints)
   {
@@ -651,7 +655,6 @@ void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
 void CSvcConnectCLR::DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                                   LPCSTR ClassId, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                                  //LPCSTR OriginTag, LPCSTR DestinationTag, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
                                   CPointFList & ControlPoints)
   {

@@ -114,6 +114,8 @@ class CLineDrawHelper
     void            SetShowTag(bool ShowTag) { m_bShowTag = ShowTag; };
     void            SetTagProps(double Scale, double Rot) { m_TagScale.X = Scale; m_TagScale.Y = Scale; m_TagScale.Z = Scale; m_TagRotation = Rot; };
 
+    Pt_3f           VertWorld(int i) { return m_Verts[i].World; };
+
   protected:
     LineDrawMethod    m_eLineMethod;
     ArrowRuleMethod   m_eArrowRule;

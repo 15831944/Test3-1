@@ -93,9 +93,9 @@ class CSvcConnect
 
     // Items -----------------------------------------------------------------
     // Operations
-    void DoCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
-    void DoDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag);
-    void DoModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
+    void GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
+    void GCBDeleteItem(DXF_ENTITY eEntity, LPCSTR Tag);
+    void GCBModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
 
     // CallBack's
     void OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
@@ -112,16 +112,18 @@ class CSvcConnect
 
     // Links -----------------------------------------------------------------
     // Operations
-    //void DoCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR Symbol, LPCSTR ClassId, Pt_3f Pt, Pt_3f Scl, float Angle);
-    //void DoDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag);
-    //void DoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
+    void GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, LPCSTR ClassId, 
+                      LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, 
+                      CPointFList & ControlPoints);//, const CRectangleF & textArea);
+
+    void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag);
+    //void GCBDoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
 
 
     // CallBack's
     void OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints, const CRectangleF & textArea);
 
@@ -130,7 +132,6 @@ class CSvcConnect
     void OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints, const CRectangleF & textArea);
 

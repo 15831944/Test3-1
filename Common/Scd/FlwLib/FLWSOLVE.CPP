@@ -13342,7 +13342,11 @@ int CFlwSolver::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
   else
     {
     FlwNode *pNd;
-    int XError=-1;//FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, NULL, NULL, &pNd, (LPSTR)ItemGuid);
+
+    Strng From(OriginTag, ".", OriginPort);
+    Strng To(DestinationTag, ".", DestinationPort);
+
+    int XError=FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, From(), To(), &pNd, (LPSTR)ItemGuid);
     return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
     }
 

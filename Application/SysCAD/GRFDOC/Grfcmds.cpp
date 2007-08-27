@@ -329,6 +329,15 @@ static LPCSTR Scd10GetTag(DXF_ENTITY e)
   return NULL;
   }
 
+static LPCSTR Scd10GetInsertName(DXF_ENTITY e)
+  {
+  if (DXF_ENTITY_IS_INSERT(e))
+    {
+    return DXF_INSERT_BLOCK_GET(e);
+    }
+  return NULL;
+  }
+
 #else
 #define SCD10ENTER
 #define SCD10LEAVE
@@ -2153,7 +2162,7 @@ void GrfCmdBlk::DoInsert()
 
 #if SYSCAD10         
             SCD10ENTER;
-            gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
+            gs_pPrj->Svc.GCBCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
             SCD10LEAVE;
 
 #else
@@ -4099,6 +4108,17 @@ void GrfCmdBlk::DoConnect()
 
         if (SrcTag.Length() > 0 && SrcIO.Length() > 0 && DstTag.Length() > 0 && DstIO.Length() > 0)
           {
+#if SYSCAD10 
+          SCD10ENTER;
+          CPointFList ControlPoints;
+          for (int i=0; i<TheLDH.NVerts(); i++)
+            {
+            Pt_3f Pt = TheLDH.VertWorld(i);
+            ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
+            }
+          gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
+          SCD10LEAVE;
+#else 
           if (AddLinkModel(AClass(), ATag(), SrcTag(), SrcIO(), DstTag(), DstIO()))
             {
             Tag_Attr_Set.Flags = HideTag ? DXF_ATTRIB_INVIS : 0;
@@ -4110,6 +4130,7 @@ void GrfCmdBlk::DoConnect()
             pDsp->Draw(e, GR_WHITE);
             pWnd->Invalidate();
             }
+#endif
           }
         else
           {
@@ -5909,7 +5930,7 @@ void GrfCmdBlk::DoMoveEntity()
                 if (pTag)
                   {
                   SCD10ENTER;
-                  gs_pPrj->Svc.DoModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
+                  gs_pPrj->Svc.GCBModifyItemPosition((CGrfDoc*)pDoc, Like, pTag, Delta);
                   SCD10LEAVE;
                   }
 #else
@@ -7691,7 +7712,12 @@ void GrfCmdBlk::DoDelete()
               {
               CMdlValueSet::Clear();
               SCD10ENTER;
-              gs_pPrj->Svc.DoDeleteItem(e, pTag);
+
+              LPCTSTR InsName=Scd10GetInsertName(e);
+              if (InsName && strstr(InsName, "LNKBLK"))
+                gs_pPrj->Svc.GCBDeleteLink(e, pTag);
+              else
+                gs_pPrj->Svc.GCBDeleteItem(e, pTag);
               SCD10LEAVE;
               }
             }
