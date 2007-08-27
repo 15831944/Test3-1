@@ -373,19 +373,29 @@ IOAreaRec TwoIOAreaListWithMBS[] =
 //
 //===========================================================================
 
-LPSTR FlwNode::Tag() 
-  { 
-  return CTNode::Tag(); 
-  };
+//LPSTR FlwNode::Tag() 
+//  { 
+//  return CTNode::Tag(); 
+//  };
+//
+//LPSTR FlwNode::SetTag(LPSTR ReqdTag, bool AllowEmptyTag) 
+//  { 
+//  CTNode::SetTag(ReqdTag, AllowEmptyTag); 
+//  //rename all connections
+//  // for all connects 
+//  //   connect[i]->FixTag()
+//  return CTNode::Tag(); 
+//  };
 
-LPSTR FlwNode::SetTag(LPSTR ReqdTag, bool AllowEmptyTag) 
-  { 
-  CTNode::SetTag(ReqdTag, AllowEmptyTag); 
-  //rename all connections
-  // for all connects 
-  //   connect[i]->FixTag()
-  return CTNode::Tag(); 
-  };
+//LPSTR FlwNode::Guid() 
+//  { 
+//  return CTNode::Guid(); 
+//  };
+//
+//LPSTR FlwNode::SetGuid(LPSTR ReqdGuid) 
+//  { 
+//  return CTNode::SetGuid(ReqdGuid); 
+//  };
 
 //--------------------------------------------------------------------------
 

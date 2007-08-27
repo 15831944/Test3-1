@@ -111,9 +111,9 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     flag           RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
     flag           RequestModelClassId(pchar pTag, Strng & ClassId);
     flag           RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info);
-    flag           RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
-    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
-    flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    //flag           RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
+    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info);
+    flag           RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
     int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);
@@ -196,15 +196,30 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
     int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
-    int            EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
-                                  bool mirrorX, bool mirrorY);
-    int            EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int            EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
-                                  LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
-                                  bool mirrorX, bool mirrorY);
+    int            EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                   bool mirrorX, bool mirrorY);
+    int            EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
+                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                   bool mirrorX, bool mirrorY);
+
+    int            EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
+    int            EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
+
     void           EO_SetSolveMode();
     flag           EO_Starting(flag fBeginStarting);
     flag           EO_SetTime(CTimeValue TimeRqd, bool Rewind);

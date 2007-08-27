@@ -12,12 +12,6 @@
 
 //========================================================================
 
-class CPointFList : public CList<CPointF, CPointF&> 
-  {
-  };
-
-//========================================================================
-
 class CsGrfGroup
   {
   public:
@@ -70,6 +64,8 @@ class CSvcConnect
     //void Initialise();
     //void Terminate();
 
+    //bool RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
+
     void Export(LPCSTR projectPath, LPCSTR configPath);
     void Load();
     void Save();
@@ -88,6 +84,8 @@ class CSvcConnect
     //static CString MakePath(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page);
     static CString        MakePath(LPCSTR Part1=NULL, LPCSTR Part2=NULL, LPCSTR Part3=NULL);
     CRectangleF           GetPageRect(LPCSTR PgName);
+    CRectangleF           GetContainingPageRect(const CRectangleF & rct);
+    CsGrfGroup          * GetContainingGroup(const CRectangleF & rct);
     static CString        ExtractPageName(LPCSTR Path);
     static CGrfDoc      * FindGrfDoc(LPCSTR PageName);
     static CGrfWnd      * FindGrfWnd(LPCSTR PageName);
@@ -122,15 +120,19 @@ class CSvcConnect
     // CallBack's
     void OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints);
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                      LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      CPointFList & ControlPoints, const CRectangleF & textArea);
 
     void OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR guid);
 
-    void OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR guid, LPCSTR tag, LPCSTR path, 
-      LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-      float angle, const CRectangleF & textArea, COLORREF Colour, 
-      bool mirrorX, bool mirrorY);
+    void OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
+                      LPCSTR ClassId, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                      LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      CPointFList & ControlPoints, const CRectangleF & textArea);
 
     //------------------------------------------------------------------------
 

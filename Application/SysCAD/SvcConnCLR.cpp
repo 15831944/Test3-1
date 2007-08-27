@@ -403,7 +403,9 @@ ref class CSvcConnectCLRThread
 
     void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                      //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                      LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints)
       {
       Guid guid;//X(gcnew String(guid))
@@ -438,10 +440,11 @@ ref class CSvcConnectCLRThread
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
 
+      CRectangleF textRect;  // TO GET FROM SOMEWHERE
       m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), 
         ToCString(tag), ToCString(classId), 
         ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), 
-        Pts);
+        Pts, textRect);
       }
     // ====================================================================
     //
@@ -458,7 +461,9 @@ ref class CSvcConnectCLRThread
 
     void DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                      //LPCSTR OriginTag, LPCSTR DestinationTag,
+                      LPCSTR OriginPort, LPCSTR DestinationPort, 
                       CPointFList & ControlPoints)
       {
       int xxxx=0;
@@ -625,12 +630,15 @@ void CSvcConnectCLR::DoModifyItemPosition(__int64 & requestId, LPCSTR ItemGuid, 
 
 void CSvcConnectCLR::DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                                   LPCSTR ClassId, 
-                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                  //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
                                   CPointFList & ControlPoints)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateLink(requestId, LinkGuid, Tag, Path, 
     ClassId, 
-    OriginGuid, DestinationGuid, OriginPort, DestinationPort, 
+    OriginGuid, DestinationGuid, 
+    OriginPort, DestinationPort, 
     ControlPoints);
   };
 
@@ -642,7 +650,9 @@ void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
 
 void CSvcConnectCLR::DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
                                   LPCSTR ClassId, 
-                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                  //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
                                   CPointFList & ControlPoints)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyLink(requestId, LinkGuid, Tag, Path, 

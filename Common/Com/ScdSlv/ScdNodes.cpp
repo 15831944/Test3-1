@@ -61,7 +61,7 @@ STDMETHODIMP CScdNodes::Node(VARIANT WhichOne, IScdNode ** pItem)
       case VT_BSTR:
         {
         SCD_LclStr(Name, WhichOne.bstrVal);
-        FlwNode * pNd=gs_pSfeSrvr->FE_FindNode(Name);
+        FlwNode * pNd=gs_pSfeSrvr->FE_FindNode(Name, NULL);
         if (pNd)
           {
           IScdNode * p;

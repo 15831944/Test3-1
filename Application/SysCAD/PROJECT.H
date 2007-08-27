@@ -730,9 +730,9 @@ class DllImportExport CProject : public CExecObj, public CProjectSettings
     pchar          RequestModelDLLTag();
     flag           RequestModelInfoByGroupIndex(pchar pGroup, int iIndex, RequestModelInfoRec &Info);
     flag           RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
-    flag           RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
-    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
-    flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    //flag           RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
+    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info);
+    flag           RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
     int            RequestModelStatus(CModelStatusArray &Status, flag & TagsChanged);

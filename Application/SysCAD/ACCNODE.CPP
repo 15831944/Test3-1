@@ -3479,7 +3479,7 @@ long AccNodeWnd::ButtonPushed(FxdEdtInfo &EI, Strng & Str)
         CSArray DescTags;
         Strng Tg;
         RequestModelIOConnRec ConnInfo;
-        RequestModelIOInfoRec IOInfo;
+        CRequestModelIOInfoRec IOInfo;
         for (int i=0; gs_pTheSFELib->RequestModelIOConn(m_NdTag(), i, ConnInfo); i++)
           if (!ConnInfo.fIsDirectConnect && ((ConnInfo.iDirn<0 && (EI.FieldId==Id_Next)) ||
                                            (ConnInfo.iDirn>0 && (EI.FieldId==Id_Prev))))

@@ -18,13 +18,6 @@
 #define dbgDisConnect    0
 #define dbgConstruction  0
 
-// ===========================================================================
-
-//word CTNode::NoofNdStats=0;
-//NodeStats CTNode::NdStats;
-
-static flag DoLookUp=1;
-
 //===========================================================================
 
 int StrPosNo(pchar s1, pchar s2)
@@ -38,7 +31,8 @@ int StrPosNo(pchar s1, pchar s2)
 
 //===========================================================================
 
-CExecObj *CTNode::sm_pExecObj=NULL;
+CExecObj  *CTNode::sm_pExecObj=NULL;
+CNdTagMap *CTNode::sm_pChildGuidMap=NULL;
 
 CTNode::CTNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
   TaggedObject(pClass_, TagIn, pAttach, eAttach),
@@ -53,7 +47,7 @@ CTNode::CTNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjA
   NdInx  = -2;
   Internal = 0;
   AllDataHere=0;
-  pChildMap=NULL;
+  m_pChildTagMap=NULL;
 
   //NdStats[IdNo()].NoOf++;
   #if dbgConstruction
@@ -90,7 +84,7 @@ CTNode::~CTNode()
 
   //NdStats[IdNo()].NoOf--;
 
-  delete pChildMap;
+  delete m_pChildTagMap;
   };
 
 //--------------------------------------------------------------------------
@@ -116,30 +110,46 @@ void CTNode::BuildDataDefn(DataDefnBlk & DDB)
 
 //--------------------------------------------------------------------------
 
-LPSTR CTNode::Tag()
-  {
-  return TaggedObject::Tag();
-  }
+//LPSTR CTNode::Tag()
+//  {
+//  return TaggedObject::Tag();
+//  }
 
 LPSTR CTNode::SetTag(LPSTR ReqdTag, bool AllowEmptyTag)
   {
-  if (DoLookUp)
+  CNdTagMap *pMap=MyParent ? MyParent->m_pChildTagMap : NULL;
+  if (ReqdTag && pMap)
     {
-    CNdTagMap *pMap=MyParent ? MyParent->pChildMap : NULL;
-    if (ReqdTag && pMap)
-      {
-      pMap->RemoveKey(TaggedObject::Tag());
-      pchar p=TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
-      pMap->SetAt(TaggedObject::Tag(), this);
-      return p;
-      }
-    else
-      return TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
+    pMap->RemoveKey(TaggedObject::Tag());
+    pchar p=TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
+    pMap->SetAt(TaggedObject::Tag(), this);
+    return p;
     }
   else
     return TaggedObject::SetTag(ReqdTag, AllowEmptyTag);
   }
 
+//--------------------------------------------------------------------------
+
+//LPSTR CTNode::Guid()
+//  {
+//  return TaggedObject::Guid();
+//  }
+
+LPSTR CTNode::SetGuid(LPSTR ReqdGuid)
+  {
+
+  CNdTagMap *pMap=sm_pChildGuidMap;
+  if (ReqdGuid && pMap)
+    {
+    pMap->RemoveKey(TaggedObject::Guid());
+    pchar p=TaggedObject::SetGuid(ReqdGuid);
+    pMap->SetAt(TaggedObject::Guid(), this);
+    return p;
+    }
+  else
+    return TaggedObject::SetGuid(ReqdGuid);
+  }
 
 //--------------------------------------------------------------------------
 
@@ -147,95 +157,58 @@ TaggedObject * CTNode::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, 
   {
   if (pSrchTag==NULL)
     return NULL;
-  if (DoLookUp)
+
+  ObjTagLen=0;
+  int P1=0,L=0;
+  CTNode* pRet=NULL;
+  CTNode* SrchRoot=FamilyHead();
+  if ((L=TaggedObject::TagCmp(SrchRoot->Tag(), &pSrchTag[P1], MinTagLen))>0)
     {
-    ObjTagLen=0;
-    int P1=0,L=0;
-    CTNode* pRet=NULL;
-    CTNode* SrchRoot=FamilyHead();
-    if ((L=TaggedObject::TagCmp(SrchRoot->Tag(), &pSrchTag[P1], MinTagLen))>0)
-      {
-      ObjTagLen=L;
-      P1=L;
-      pRet=SrchRoot;
-      }
-  
-    //CTNode* p=NULL;
-    flag Looking=1;
-
-    // Look for tag while expanding the 
-    // length of the SrchTag until found or not
-    int NDots=0;
-    //flag MoveDown=0;
-    while (Looking)// && !MoveDown)
-      {
-      SCDFullTag SrchTag;
-      strcpy(SrchTag, &pSrchTag[P1]);
-      char * pDot=strchr(&SrchTag[MinTagLen], '.');
-      for (int d=0; pDot && (d<NDots) ; d++)
-        pDot=strchr(pDot+1, '.');
-      if (pDot)
-        *pDot=0; // Truncate @ Dot
-      CTNode* p;
-      if (SrchRoot->pChildMap && SrchRoot->pChildMap->Lookup(SrchTag, p))
-        {
-        // Move down a level and search it
-        SrchRoot=p;  
-        //ObjTagLen=P1;
-        ObjTagLen=P1+strlen(SrchTag);
-        P1+=strlen(SrchTag);
-        if (pSrchTag[P1]=='.')
-          P1++;
-        pRet=p;
-        //MoveDown=1;
-        Looking=(strlen(&pSrchTag[P1])>0);
-        NDots=0;
-        MinTagLen=0;
-        }
-      else if (pDot) // More Tag to search
-        NDots++;
-      else    // End Of Tag & Not Found
-        Looking=0;
-      }
-
-    //ObjTagLen=P1;
-    return pRet;
+    ObjTagLen=L;
+    P1=L;
+    pRet=SrchRoot;
     }
-  else
+
+  //CTNode* p=NULL;
+  flag Looking=1;
+
+  // Look for tag while expanding the 
+  // length of the SrchTag until found or not
+  int NDots=0;
+  //flag MoveDown=0;
+  while (Looking)// && !MoveDown)
     {
-    ObjTagLen=0;
-    int P1=0,L=0;
-    CTNode* pRet=NULL;
-    CTNode* h=FamilyHead();
-    if ((L=TaggedObject::TagCmp(h->Tag(), &pSrchTag[P1], MinTagLen))>0)
+    SCDFullTag SrchTag;
+    strcpy(SrchTag, &pSrchTag[P1]);
+    char * pDot=strchr(&SrchTag[MinTagLen], '.');
+    for (int d=0; pDot && (d<NDots) ; d++)
+      pDot=strchr(pDot+1, '.');
+    if (pDot)
+      *pDot=0; // Truncate @ Dot
+    CTNode* p;
+    if (SrchRoot->m_pChildTagMap && SrchRoot->m_pChildTagMap->Lookup(SrchTag, p))
       {
-      P1=L;
-      pRet=h;
+      // Move down a level and search it
+      SrchRoot=p;  
+      //ObjTagLen=P1;
+      ObjTagLen=P1+strlen(SrchTag);
+      P1+=strlen(SrchTag);
+      if (pSrchTag[P1]=='.')
+        P1++;
+      pRet=p;
+      //MoveDown=1;
+      Looking=(strlen(&pSrchTag[P1])>0);
+      NDots=0;
+      MinTagLen=0;
       }
-  
-    CTNode* p=NULL, *p1=h;
-    flag GotOne;
-    do
-      {
-      if (SrchAll)
-        GotOne=p1->GetObj_All(p);
-      else
-        GotOne=p1->GetObj(p);
-      if (GotOne)  
-        if ((L=TaggedObject::TagCmp(p->Tag(), &pSrchTag[P1], MinTagLen))>0)
-          {
-          ObjTagLen=P1;
-          P1+=L;
-          pRet=p;
-          p1=p;
-          p=NULL;
-          }
-      }
-    while (GotOne);
-
-    ObjTagLen=P1;
-    return pRet;
+    else if (pDot) // More Tag to search
+      NDots++;
+    else    // End Of Tag & Not Found
+      Looking=0;
     }
+
+  //ObjTagLen=P1;
+  return pRet;
   };
 
 //--------------------------------------------------------------------------
@@ -337,8 +310,8 @@ void CTNode::Remove_Child(CTNode* pRem)
       }
     }
 
-  if (DoLookUp)
-    pChildMap->RemoveKey(pRem->Tag());
+  m_pChildTagMap->RemoveKey(pRem->Tag());
+  sm_pChildGuidMap->RemoveKey(pRem->Guid());
   
   }
 
@@ -354,29 +327,33 @@ void CTNode::Add_Child(CTNode* pAdd)
     }
   else
     {
-    //CTNode* pe = MyChildren;
-    //while (pe->Nxt) 
-    //  pe = pe->Nxt;
-    //pe->Nxt = pAdd;
     LastChild->Nxt = pAdd;
     LastChild = pAdd;
     };
-  if (DoLookUp)
-    {
-    if (pChildMap==NULL)
-      {
-      // to comeout
-      //int xxx=FindNextPrimeNumber(1000);
-      //DoBreak(); 
 
-      pChildMap = new CNdTagMap(100);
-      pChildMap->InitHashTable(FindNextPrimeNumber(1000));
-      }
-  
-    CTNode* pX;
-    ASSERT_ALWAYS(!pChildMap->Lookup(pAdd->Tag(), pX),"Tag already in ChildMap", __FILE__, __LINE__);
-    pChildMap->SetAt(pAdd->Tag(), pAdd);
+  int iDepth=0;
+  for (CTNode *p=this; p; p=p->MyParent)
+    iDepth++;
+
+  int iBlkSize=iDepth>1 ? 10:100;
+  int iCountEst=iDepth>1 ? 10:5000;
+
+  if (m_pChildTagMap==NULL)
+    {
+    m_pChildTagMap = new CNdTagMap(iBlkSize);
+    m_pChildTagMap->InitHashTable(FindNextPrimeNumber(iCountEst));
     }
+  CTNode* pX;
+  ASSERT_ALWAYS(!m_pChildTagMap->Lookup(pAdd->Tag(), pX),"Tag already in ChildMap", __FILE__, __LINE__);
+  m_pChildTagMap->SetAt(pAdd->Tag(), pAdd);
+
+  if (sm_pChildGuidMap==NULL)
+    {
+    sm_pChildGuidMap = new CNdTagMap(iBlkSize);
+    sm_pChildGuidMap->InitHashTable(FindNextPrimeNumber(iCountEst));
+    }
+  ASSERT_ALWAYS(!sm_pChildGuidMap->Lookup(pAdd->Guid(), pX),"Guid already in ChildMap", __FILE__, __LINE__);
+  sm_pChildGuidMap->SetAt(pAdd->Guid(), pAdd);
   }
 
 //--------------------------------------------------------------------------
@@ -521,21 +498,23 @@ CTNode* CTNode::FindObj(pchar TagIn)
 
 //--------------------------------------------------------------------------
 
+CTNode* CTNode::FindObjGuid(pchar pGuid)
+  {
+  CTNode* p;
+  if (pGuid && sm_pChildGuidMap && sm_pChildGuidMap->Lookup(pGuid, p))
+    return p;
+
+  return NULL;
+  };
+
+//--------------------------------------------------------------------------
+
 CTNode* CTNode::FindChildTag(pchar pTag)
   {
-  if (DoLookUp)
-    {
-    CTNode* p;
-    if (pChildMap && pChildMap->Lookup(pTag, p))
-      return p;
-    return NULL;
-    }
-  else
-    {
-    CTNode* p = NULL;
-    while (GetObj(p) && (_stricmp(p->Tag(), pTag) != 0));
+  CTNode* p;
+  if (m_pChildTagMap && m_pChildTagMap->Lookup(pTag, p))
     return p;
-    }
+  return NULL;
   }
 
 //--------------------------------------------------------------------------

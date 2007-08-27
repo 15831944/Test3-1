@@ -793,7 +793,7 @@ flag CSfeSrvrBase::RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec &
 
 //--------------------------------------------------------------------------
 /*
-flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info)
   {
   int ObjTagLen=0;
   pFlwNode p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));

@@ -2151,7 +2151,7 @@ void GrfCmdBlk::DoInsert()
             
             Tag_Attr_Set.Flags=HideTag ? DXF_ATTRIB_INVIS : 0;
 
-#if SYSCAD10
+#if SYSCAD10         
             SCD10ENTER;
             gs_pPrj->Svc.DoCreateItem((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), /*CreateGUIDStr(),*/ CB->ATag(), CB->ASymbol(), CB->AClass(), CB->Pt.World, CB->NdScl, (float)CB->Rotate);
             SCD10LEAVE;
@@ -3561,7 +3561,7 @@ flag GrfCmdBlk::GetConnsForUnit(char *Tag, flag Inputs, dword RqdClass, Strng &I
   IODescs.SetSize(0);
   IOClass.SetSize(0);
   IODefaultTSs.SetSize(0);
-  RequestModelIOInfoRec IOInfo;
+  CRequestModelIOInfoRec IOInfo;
   int Cnt;
   for (int nIO=0; gs_pPrj->RequestModelIOInfoByIndex(Tag, nIO, IOInfo); nIO++)
     if (IOInfo.iId>=IdDone.GetSize() || !IdDone[IOInfo.iId])
@@ -3919,7 +3919,7 @@ void GrfCmdBlk::DoConnect()
         case MID_SIo :
           {
           SrcIO = gs_pCmd->LastToken();
-          RequestModelIOInfoRec Info;
+          CRequestModelIOInfoRec Info;
           flag GotSrcOut=0;
           for (int nIns=0; gs_pPrj->RequestModelIOInfoByIndex(SrcTag(), nIns, Info); nIns++)
             if (!Info.Input && Info.Name.XStrICmp(SrcIO())==0)
@@ -3931,7 +3931,7 @@ void GrfCmdBlk::DoConnect()
         case MID_DIo :
           {
           DstIO = gs_pCmd->LastToken();
-          RequestModelIOInfoRec Info;
+          CRequestModelIOInfoRec Info;
           flag GotDstOut=0;
           for (int nIns=0; gs_pPrj->RequestModelIOInfoByIndex(DstTag(), nIns, Info); nIns++)
             if (Info.Input && Info.Name.XStrICmp(DstIO())==0)
@@ -5100,7 +5100,7 @@ void GrfCmdBlk::DoConstructLink()
         case MID_SIo :
           {
           SrcIO = gs_pCmd->LastToken();
-          RequestModelIOInfoRec Info;
+          CRequestModelIOInfoRec Info;
           flag GotSrcOut=0;
           for (int nIns=0; gs_pPrj->RequestModelIOInfoByIndex(SrcTag(), nIns, Info); nIns++)
             if (!Info.Input && Info.Name.XStrICmp(SrcIO())==0)
@@ -5112,7 +5112,7 @@ void GrfCmdBlk::DoConstructLink()
         case MID_DIo :
           {
           DstIO = gs_pCmd->LastToken();
-          RequestModelIOInfoRec Info;
+          CRequestModelIOInfoRec Info;
           flag GotDstOut=0;
           for (int nIns=0; gs_pPrj->RequestModelIOInfoByIndex(DstTag(), nIns, Info); nIns++)
             if (Info.Input && Info.Name.XStrICmp(DstIO())==0)

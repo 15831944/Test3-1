@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="0.Start"
-	ProjectGUID="{DEF426AD-58B3-4874-AA9A-F66242C6E52E}"
+	ProjectGUID="{D00B79DF-03F5-42D5-9049-849D5B54C692}"
 	RootNamespace="Start"
 	>
 	<Platforms>

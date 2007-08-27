@@ -57,8 +57,11 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
     pchar               TagOfParent() { return MyParent ? MyParent->Tag() : NULL; };
 
-    virtual LPSTR       Tag();
+    //virtual LPSTR       Tag();
     virtual LPSTR       SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
+
+    //virtual LPSTR       Guid();
+    virtual LPSTR       SetGuid(LPSTR ReqdTag);
 
     CTNode*             Insert(CTNode*p, char IsInternal=1);
     CTNode*             Parent() { return MyParent;};
@@ -75,6 +78,7 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     void                SplitTag(pchar TagIn, SCDPartTag &FirstPart, pchar &Remainder);
     
     virtual CTNode*     FindObj(pchar TagIn);
+    virtual CTNode*     FindObjGuid(pchar GuidIn);
     virtual flag        GetDataObj(pTaggedObject &p) { p = ((p) ? ((CTNode*)p)->Nxt : MyChildren); return (p!=NULL);};
     virtual pchar       FullTag();
 
@@ -101,7 +105,9 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
                         Done2:1, Reverse:1, Copied:1, Copy:1, AllDataHere:1;
     int                 NdInx;
     CTNode            * MyParent, *MyChildren, *Nxt, *LastChild;
-    CNdTagMap         * pChildMap;
+    
+    CNdTagMap         * m_pChildTagMap;
+    static CNdTagMap  * sm_pChildGuidMap;
 
   protected:
     virtual CTNode*     FindChildTag(pchar pTag);

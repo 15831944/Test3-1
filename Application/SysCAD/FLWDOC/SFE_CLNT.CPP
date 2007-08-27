@@ -245,7 +245,7 @@ int SFEFlwLib::AddAttachedToMenu(CMenu& Menu, char* pTag)
   while (pSfe->RequestModelIOConn(pTag, j++, ConnInfo) && j<IDM_PRJ_ACCESSLAST-IDM_PRJ_ACCESSFIRST)
     {
     Strng Tg;
-    RequestModelIOInfoRec IOInfo;
+    CRequestModelIOInfoRec IOInfo;
     if (pSfe->RequestModelIOInfoById(pTag, ConnInfo.iId, IOInfo))
       Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
     else
@@ -481,11 +481,11 @@ flag SFEFlwLib::RequestModelClassId(pchar pTag, Strng & ClassId)
   { FENTER(false) pSfe->RequestModelClassId(pTag, ClassId); FLEAVE};
 flag SFEFlwLib::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
   { FENTER(false) pSfe->RequestModelConnInfo(pTag, Info); FLEAVE};
-flag SFEFlwLib::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
-  { FENTER(false) pSfe->RequestModelIOInfoByClassId(pClass, Info); FLEAVE};
-flag SFEFlwLib::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+//flag SFEFlwLib::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns)
+//  { FENTER(false) pSfe->RequestNodeDefinitions(Group, Defns); FLEAVE};
+flag SFEFlwLib::RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info)
   { FENTER(false) pSfe->RequestModelIOInfoByIndex(pTag, iIndex, Info); FLEAVE};
-flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
+flag SFEFlwLib::RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info)
   { FENTER(false) pSfe->RequestModelIOInfoById(pTag, iId, Info); FLEAVE};
 flag SFEFlwLib::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   { FENTER(false) pSfe->RequestModelIOConn(pTag, iNo, Info); FLEAVE};
@@ -615,36 +615,85 @@ int  SFEFlwLib::EO_DeleteTagDone(pchar pDelTag)
   ILEAVE
   };
 
-int SFEFlwLib::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int SFEFlwLib::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                               float angle, const CRectangleF & textArea, COLORREF Colour, 
                               bool mirrorX, bool mirrorY)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCInsertTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int SFEFlwLib::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
+int SFEFlwLib::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCDeleteTag(Ctrl, pTag, ItemGuid, path);
+  IENTER(false) pSfe->EO_SCDeleteItem(Ctrl, pTag, ItemGuid, path);
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
-int SFEFlwLib::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int SFEFlwLib::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                               LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                               float angle, const CRectangleF & textArea, COLORREF Colour, 
                               bool mirrorX, bool mirrorY)
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
-  IENTER(false) pSfe->EO_SCModifyTag(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  IENTER(false) pSfe->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };
+
+
+int SFEFlwLib::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                               LPCSTR model, 
+                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                               LPCSTR OriginTag, LPCSTR DestinationTag, 
+                               LPCSTR OriginPort, LPCSTR DestinationPort, 
+                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+  {
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/
+                                   model, 
+                                   OriginGuid, DestinationGuid, 
+                                   OriginTag, DestinationTag, 
+                                   OriginPort, DestinationPort, 
+                                   ControlPoints, textArea) ;
+  CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+
+int SFEFlwLib::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+  {
+  SetLoadAllModelStatus();
+  SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCDeleteLink(Ctrl, pTag, ItemGuid/*, path*/);
+  CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+
+int SFEFlwLib::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                               LPCSTR model, 
+                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                               LPCSTR OriginTag, LPCSTR DestinationTag, 
+                               LPCSTR OriginPort, LPCSTR DestinationPort, 
+                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+  {
+  //SetLoadAllModelStatus();
+  //SetLoadAllModelAssocGrfs();
+  IENTER(false) pSfe->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/
+                                   model, 
+                                   OriginGuid, DestinationGuid, 
+                                   OriginTag, DestinationTag, 
+                                   OriginPort, DestinationPort, 
+                                   ControlPoints, textArea) ;
+  //CExploreScd::RefreshIt(false);
+  ILEAVE
+  };
+
 
 int  SFEFlwLib::EO_CanClose(Strng_List & Problems)
   { IENTER(EO_CanClose_Yes)  pSfe->EO_CanClose(Problems); ILEAVE };

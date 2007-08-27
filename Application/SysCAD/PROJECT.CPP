@@ -6607,10 +6607,17 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
       m_pSvc = new CSvcConnect;
       if (!m_pSvc->Startup(PrjFiles(), CfgFiles()))
         {
-          // Temporary
-          m_pSvc->Export(PrjName(), CfgFiles());
-          // CNM Removed - temp
-          //m_pSvc->Save();
+        CFlwNodeDefinitionList Defns;
+        //if (m_pSvc->RequestItemDefinitions(FlwUnitGrp, Defns)>0)
+        //  {
+        //  int xxx=0;
+        //  };
+        
+        // Temporary
+        m_pSvc->Export(PrjName(), CfgFiles());
+         
+        // CNM Removed - temp
+        //m_pSvc->Save();
         }
       }
     else
@@ -8689,21 +8696,21 @@ flag CProject::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
 
 //---------------------------------------------------------------------------
 
-flag CProject::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
-  {
-  return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoByClassId(pClass, Info) : FALSE;
-  };
+//flag CProject::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns)
+//  {
+//  return FlwLib()!=NULL ? FlwLib()->RequestNodeDefinitions(Group, Defns) : FALSE;
+//  };
 
 //---------------------------------------------------------------------------
 
-flag CProject::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+flag CProject::RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoByIndex(pTag, iIndex, Info) : FALSE;
   };
 
 //---------------------------------------------------------------------------
 
-flag CProject::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
+flag CProject::RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info)
   {
   return FlwLib()!=NULL ? FlwLib()->RequestModelIOInfoById(pTag, iId, Info) : FALSE;
   };

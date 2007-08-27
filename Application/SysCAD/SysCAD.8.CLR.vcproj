@@ -154,15 +154,20 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories=".;..\..\common\com\scdif;..\..\common\com\scdmdl;..\..\common\com\scdslv;..\..\common\scd\scdlib;..\..\common\scd\scexec;..\..\common\scd\kwdb;..\..\common\scd\flwlib;..\..\common\scd\schist;Grfdoc;trndoc;flwdoc;ole;..\ccdk\inc"
 				PreprocessorDefinitions="SYSCAD10;CREATENETSERVER;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				StringPooling="false"
-				MinimalRebuild="false"
-				ExceptionHandling="2"
-				BasicRuntimeChecks="3"
+				MinimalRebuild="true"
+				ExceptionHandling="1"
+				BasicRuntimeChecks="0"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="2"
-				FloatingPointModel="1"
-				FloatingPointExceptions="true"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="false"
+				EnableFunctionLevelLinking="true"
+				FloatingPointModel="0"
+				FloatingPointExceptions="false"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
@@ -4831,13 +4836,9 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="0"
-						BasicRuntimeChecks="0"
-						FloatingPointModel="0"
-						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
 						DebugInformationFormat="3"
-						CompileAsManaged="1"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4905,6 +4906,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						MinimalRebuild="false"
 						ExceptionHandling="0"
 						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
@@ -4957,7 +4959,8 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File				RelativePath=".\SysCAD.cpp"
+			<File
+				RelativePath=".\SysCAD.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"

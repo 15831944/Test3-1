@@ -216,6 +216,39 @@ void CSvcConnect::Shutdown()
   };
 
 
+//bool CSvcConnect::RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns)
+//  {
+//  gs_pPrj->RequestNodeDefinitions(Group, Defns);
+//
+//  if (1)
+//    {
+//    POSITION Pos=Defns.GetHeadPosition();
+//    if (Pos)
+//      dbgpln("=======================================================================");
+//    while (Pos)
+//      {
+//      CFlwNodeDefinition &D=Defns.GetNext(Pos);
+//      dbgpln("ClassNV     : %s", D.m_sClassNV());
+//      dbgpln("Class       : %s", D.m_sClass());
+//      dbgpln("Description : %s", D.m_sDescription());
+//      dbgpln("ShortDesc   : %s", D.m_sShortDesc());
+//      dbgpln("Category    : 0x%08x", D.m_Category);
+//      dbgpln("IOs         : %i", D.m_IOs.GetCount());
+//      for (int io=0; io<D.m_IOs.GetCount(); io++)
+//        {
+//        CRequestModelIOInfoRec & IO = D.m_IOs[io];
+//        dbgpln("  %-9s : %4i %3i %3i %3i %2x %2i %s%s %s %s", 
+//          IO.Name(), IO.iId, IO.nIORqd, IO.nIOMax, IO.Dirn, 
+//          IO.m_dwType, IO.iGrp, IO.Input?"I":" ", IO.Output?"O":" ", IO.m_Hidden?"Hide":"    ", IO.Desc());
+//      
+//        }
+//      dbgpln("=======================================================================");
+//      }
+//    }
+//
+//  return Defns.GetCount()>0;
+//  }
+
 void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
   {
   m_Ctrl.m_bExportBusy = true;
@@ -249,7 +282,7 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
       {
       PrevPage=GI.PageNo();
 
-      CString GrpGuid = TaggedObject::CreateGUIDStr(); // where should this come from
+      CString GrpGuid = TaggedObject::CreateGuidStr(); // where should this come from
 
       DO_ENTRY_GTP("DoCreateGroupE", GrpGuid , GI.PageName(), MakePath(projectPath));
 
@@ -289,11 +322,13 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
 
         CPointFList CtrlPts;
         for (int i=0; i<GI.m_LPA.GetCount(); i++)
-          CtrlPts.AddHead(CPointF(GI.m_LPA[i].x, GI.m_LPA[i].y));
+          CtrlPts.AddHead(CPointF(GI.m_LPA[i].x+XOffSet, GI.PageRct().Height()-GI.m_LPA[i].y+YOffSet));
 
         m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag(), 
           MakePath(projectPath, GI.PageName()), 
-          Model, GI.m_SrcGuid, GI.m_DstGuid, GI.m_SrcPort, GI.m_DstPort, CtrlPts);
+          Model, 
+          GI.m_SrcGuid, GI.m_DstGuid, 
+          GI.m_SrcPort, GI.m_DstPort, CtrlPts);
 
 
         DO_EXIT_G("DoCreateLinkE", ItemGuid);
@@ -402,6 +437,34 @@ CRectangleF CSvcConnect::GetPageRect(LPCSTR PageName)
   return PageRct;
   }
 
+CRectangleF CSvcConnect::GetContainingPageRect(const CRectangleF & rct)
+  {
+  POSITION Pos=m_GrfGrpsNames.GetStartPosition();
+  while (Pos)
+    {
+    LPCSTR Key;
+    CsGrfGroup *pG;
+    m_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
+    if (pG->m_Bounds.Contains(rct, true))
+      return pG->m_Bounds;
+    }
+  return CRectangleF(0.0, 0, 0, 0);
+  }
+
+CsGrfGroup * CSvcConnect::GetContainingGroup(const CRectangleF & rct)
+  {
+  POSITION Pos=m_GrfGrpsNames.GetStartPosition();
+  while (Pos)
+    {
+    LPCSTR Key;
+    CsGrfGroup *pG;
+    m_GrfGrpsNames.GetNextAssoc(Pos, Key, pG);
+    if (pG->m_Bounds.Contains(rct, true))
+      return pG;
+    }
+  return NULL;
+  };
+
 CString CSvcConnect::ExtractShape(LPCSTR Symbol)
   {
   CString Shape(Symbol);
@@ -459,7 +522,7 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
     m_Ctrl.SetXObjArray(gs_pTheSFELib);
     m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
 
-    int RetCode = gs_Exec.SCInsertTag(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, FillColor, mirrorX, mirrorY);
+    int RetCode = gs_Exec.SCInsertItem(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, FillColor, mirrorX, mirrorY);
 
 
     if (RetCode!=EOSC_DONE)
@@ -512,7 +575,7 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR Guid)
       {
       m_Ctrl.ClrXObjArray();
  
-      int RetCode = gs_Exec.SCDeleteTag(m_Ctrl, Tag(), Guid, "???");
+      int RetCode = gs_Exec.SCDeleteItem(m_Ctrl, Tag(), Guid, "???");
       if (RetCode!=EODT_DONE)
         {
         LogError(Tag(), 0, "Model not deleted");
@@ -572,7 +635,7 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
   CString PageName=CSvcConnect::ExtractPageName(path);
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyTag(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  int RetCode = gs_Exec.SCModifyItem(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
   if (RetCode!=EODT_DONE)
     {
     LogError(tag, 0, "Model not modified");
@@ -596,9 +659,11 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
 //------------------------------------------------------------------------
 
 void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, /*LPCSTR path,*/ 
-                      LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints)
+                                LPCSTR ClassId, 
+                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                //LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                CPointFList & ControlPoints, const CRectangleF & textArea)
   {
 // !!! textArea not handled as yet.
 
@@ -606,6 +671,44 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
 
   try
     {
+
+    FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+    FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+    pSrc->Tag();
+
+    CRectangleF boundingRect;
+    POSITION Pos=ControlPoints.GetHeadPosition();
+    if (Pos)
+      {
+      boundingRect.Set(ControlPoints.GetNext(Pos));
+      while (Pos)
+        boundingRect.Include(ControlPoints.GetNext(Pos), false);
+      }
+
+    CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
+
+    //CRectangleF CSvcConnect::GetContainingPageR(const CRectangleF & rct)
+    //CRectangleF CSvcConnect::GetContainingPageRect(const CRectangleF & rct)
+
+    //CString SrcPath;
+
+    ////CGrfWnd * pWnd=FindGrfWnd(PageName);
+    ////PageRct = GetPageRect(PageName);
+
+    m_Ctrl.SetXObjArray(gs_pTheSFELib);
+    if (pGrp)
+      {
+      CString GroupName=pGrp->m_Name;// CSvcConnect::ExtractPageName(path);
+      m_Ctrl.AddXObjArray(FindGrfWnd(GroupName));
+      }
+
+    int RetCode = gs_Exec.SCInsertLink(m_Ctrl, tag, Guid, /*path,*/ ClassId, 
+                    OriginGuid, DestinationGuid, 
+                    pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
+                    OriginPort, DestinationPort, 
+                    ControlPoints, textArea);
+
 
     dbgpln("Still Do Do <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
     //CString PageName=CSvcConnect::ExtractPageName(path);
@@ -616,7 +719,7 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
     //m_Ctrl.SetXObjArray(gs_pTheSFELib);
     //m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
 
-    //int RetCode = gs_Exec.SCInsertTag(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, FillColor, mirrorX, mirrorY);
+    //int RetCode = gs_Exec.SCInsertItem(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, FillColor, mirrorX, mirrorY);
 
 
     //if (RetCode!=EOSC_DONE)
@@ -742,12 +845,12 @@ bool CGetExistingItems::GetOne()
       m_Type = eIsError; //error
       if (I.m_bHasTag)
         {
-        FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag());
+        FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag(), NULL);
         if (pNode)
           {
           TagObjClass * pTagObjC = pNode->Class();
           I.m_sClass = pNode->ClassId();
-          m_Guid = pNode->EqpGUID();
+          m_Guid = pNode->Guid();
 
           if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 || 
             _stricmp(CtrlLinkGrp, pTagObjC->Group())==0 || 
@@ -775,9 +878,9 @@ bool CGetExistingItems::GetOne()
             m_LPA.SetSize(0);
             m_pDoc->GCB.pDrw->CollectLinkInfo(I, m_LPA);
                         
-            m_SrcGuid = pNode->Nd_Rmt(0)->EqpGUID();
+            m_SrcGuid = pNode->Nd_Rmt(0)->Guid();
             m_SrcPort = pNode->IODesc_Rmt(0)->IOName();
-            m_DstGuid = pNode->Nd_Rmt(1)->EqpGUID();
+            m_DstGuid = pNode->Nd_Rmt(1)->Guid();
             m_DstPort = pNode->IODesc_Rmt(1)->IOName();
 
             DoneOne = true;

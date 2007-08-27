@@ -441,7 +441,7 @@ void NodeGrfInfo::ExportToFile(NodeGrfInfo* pNGI, char* TextFilename)
               if (pClass)
                 {
                 RequestModelIOInfoArray Info;
-                CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
+                CFlwSolver::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
                 for each...
                 }*/
               sprintf(Buff, "TextArea,%g,%g,%g,%g\n", XMn2, YMx2+0.5, XRng, 3.0);

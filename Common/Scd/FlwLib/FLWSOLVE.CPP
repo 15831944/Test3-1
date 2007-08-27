@@ -10194,6 +10194,19 @@ TaggedObject * CFlwSolver::FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagL
 
 //--------------------------------------------------------------------------
 
+FlwNode * CFlwSolver::FindNodeTag(pchar pTag)
+  {
+  int ObjTagLen=0;
+  return dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)(LPCTSTR)pTag, false, ObjTagLen, 0));
+  }
+
+FlwNode * CFlwSolver::FindNodeGuid(pchar pGuid)
+  {
+  return dynamic_cast<FlwNode*>(CTNode::FindObjGuid(pGuid));
+  };
+
+//--------------------------------------------------------------------------
+
 static DDBValueLst DDBEnthStrat[] = 
   {
     {SPMES_BestTemp,  "Best_Temperature"},
@@ -11661,7 +11674,7 @@ int CFlwSolver::FE_DoInsert(char *ClassIn, char *SubClassIn, char *PrimaryCfgIn,
   if (pNd)
     *pNd=p;
   if (pGuidStr)
-    p->SetEqGUID(pGuidStr);
+    p->SetGuid(pGuidStr);
   if (p)
     {
     if (SrcTag)
@@ -11721,7 +11734,7 @@ flag CFlwSolver::FE_GetNodeGuid(pchar Tag, Strng & Guid)
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    Guid = p->EqpGUID();
+    Guid = p->Guid();
     return true;
     }
   return false;
@@ -11735,7 +11748,7 @@ int CFlwSolver::FE_ChangeNodeGuid(pchar Tag, pchar Guid)
   FlwNode * p = (FlwNode *)FindObj(Tag);
   if (p)
     {
-    p->SetEqpGUID(Guid);
+    p->SetGuid(Guid);
     return 0;
     }
   return NErr_NotFound;
@@ -11745,7 +11758,7 @@ flag CFlwSolver::FE_FindNodeInfoFromGuid(pchar Guid, Strng &Tag, flag & IsLink)
   {
   for (FlwNode * p = NULL; GetObj_All(p); )
     {
-    if (stricmp(p->EqGUID(), Guid)==0)
+    if (stricmp(p->Guid(), Guid)==0)
       {
       Tag=p->Tag();
       IsLink=p->IsLnk();
@@ -11785,7 +11798,7 @@ int CFlwSolver::FE_SetCommon(char * Tag, char * EqpDesc, char * EqpMemo, char * 
     p->SetEqpIdStr(EqpIdStr ? EqpIdStr:"");
     p->SetEqpLocation(EqpLocation ? EqpLocation:"");
     p->SetAreaTag( PlantArea ? PlantArea :"");
-    p->SetEqpGUID(EqpGUID ? EqpGUID:"");
+    p->SetGuid(EqpGUID ? EqpGUID:"");
     return 0;
     }
   return NErr_NotFound;
@@ -11803,7 +11816,7 @@ int CFlwSolver::FE_GetCommon(char * Tag, Strng & EqpDesc, Strng & EqpMemo, Strng
     EqpIdStr = p->EqpIdStr();
     EqpLocation = p->EqpLocation();
     PlantArea = p->GetAreaTagDisp();//.GetLength()>0 ? p->m_sAreaTag():"";
-    EqpGUID  = p->EqpGUID();
+    EqpGUID  = p->Guid();
     return 0;
     }
   return NErr_NotFound;
@@ -12149,56 +12162,72 @@ flag CFlwSolver::RequestModelInfoByGroupIndex(pchar pGroup, int iNo, RequestMode
 */
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info)
-  {
-  INCOMPLETECODE(__FILE__, __LINE__);
-//flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+//flag CFlwSolver::RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns)
 //  {
-  Info.SetSize(0);
+//
+//  Defns.RemoveAll();
+//
+//  TagObjClass *pCls=NULL;
+//  for (int ic=0; (pCls=TagObjClass::FindClassIndexed(Group, ic))!=NULL; ic++)
+//    {
+//    CFlwNodeDefinition Defn;
+//    Defn.m_sClass         = pCls->ClassId();
+//    Defn.m_sClassNV       = pCls->ClassIdNoVersion();
+//    Defn.m_sShortDesc     = pCls->ShortDesc();
+//    Defn.m_sDescription   = pCls->Desc();
+//    Defn.m_Category       = pCls->Category();
+//
+//
+//    Defns.AddTail(Defn);
+//    }
+//
 
-  TagObjClass* pC = TagObjClass::FindClassId(pClass);
-  if (pC==NULL)
-    return false;
-  FlwNode * p=dynamic_cast<FlwNode*>(pC->Construct(NULL, "?????????", NULL, TOA_Free));
-  if (p)
-    {
-    for (int n=0; ; n++)
-      if (p->IODesc_SelfIndexed(n)==NULL)
-        break;
-    Info.SetSize(n);
-
-    for (int i=0; i<n; i++)
-      {
-      IOAreaRec * pIO=p->IODesc_SelfIndexed(i);
-      if (pIO)
-        {
-        Info[i].Name=pIO->IOName();
-        Info[i].Desc=pIO->IODesc();
-        Info[i].iId=pIO->m_Id;
-        Info[i].Input=(pIO->m_Dirn & LIO_In)!=0;
-        Info[i].Output=(pIO->m_Dirn & LIO_Out)!=0;
-        Info[i].nIORqd=pIO->m_nIORqd;
-        Info[i].nIOMax=pIO->m_nIOMax;
-        Info[i].Dirn=pIO->m_Dirn;
-        Info[i].iGrp=IOGRP(pIO->m_dwFlags);
-        Info[i].m_dwType=pIO->m_dwType;
-        Info[i].m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
-        Info[i].m_Hidden=(pIO->m_dwFlags&IOHidden)!=0;
-        Info[i].m_GrfTarget=pIO->m_GrfTarget;
-        }
-      }
-    p->DisConnectAll();
-    delete p;
-    }
-  return Info.GetSize()>0;
-  }
+//flag CSfeSrvrBase::RequestModelIOInfo(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info)
+////  {
+//  Info.SetSize(0);
+//
+//  TagObjClass* pC = TagObjClass::FindClassId(pClass);
+//  if (pC==NULL)
+//    return false;
+//  FlwNode * p=dynamic_cast<FlwNode*>(pC->Construct(NULL, "?????????", NULL, TOA_Free));
+//  if (p)
+//    {
+//    for (int n=0; ; n++)
+//      if (p->IODesc_SelfIndexed(n)==NULL)
+//        break;
+//    Info.SetSize(n);
+//
+//    for (int i=0; i<n; i++)
+//      {
+//      IOAreaRec * pIO=p->IODesc_SelfIndexed(i);
+//      if (pIO)
+//        {
+//        Info[i].Name=pIO->IOName();
+//        Info[i].Desc=pIO->IODesc();
+//        Info[i].iId=pIO->m_Id;
+//        Info[i].Input=(pIO->m_Dirn & LIO_In)!=0;
+//        Info[i].Output=(pIO->m_Dirn & LIO_Out)!=0;
+//        Info[i].nIORqd=pIO->m_nIORqd;
+//        Info[i].nIOMax=pIO->m_nIOMax;
+//        Info[i].Dirn=pIO->m_Dirn;
+//        Info[i].iGrp=IOGRP(pIO->m_dwFlags);
+//        Info[i].m_dwType=pIO->m_dwType;
+//        Info[i].m_sDefaultTS=pIO->m_pDefaultTS ? pIO->m_pDefaultTS:"";
+//        Info[i].m_Hidden=(pIO->m_dwFlags&IOHidden)!=0;
+//        Info[i].m_GrfTarget=pIO->m_GrfTarget;
+//        }
+//      }
+//    p->DisConnectAll();
+//    delete p;
+//    }
+//  return Defns.GetSize()>0;
+//  }
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info)
+flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag(pTag);
   if (p)
     {
     IOAreaRec * pIO=p->IODesc_SelfIndexed(iIndex);
@@ -12225,10 +12254,9 @@ flag CFlwSolver::RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelI
 
 //--------------------------------------------------------------------------
 
-flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info)
+flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag(pTag);
   if (p)
     {
     IOAreaRec * pIO=p->IODesc_SelfId(iId);
@@ -12256,8 +12284,7 @@ flag CFlwSolver::RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoR
 
 flag CFlwSolver::RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag(pTag);
   if (p && iNo<p->NoProcessIOs() && p->Nd_Rmt(iNo))
     {
     Info.iId = p->IOId_Self(iNo);
@@ -12366,7 +12393,7 @@ flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR N
     while (Pos)
       {
       CModelAssocGrfMask & Msk=Msks.GetNext(Pos);
-      FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)(LPCSTR)Msk.m_Tag, false, ObjTagLen, 0));
+      FlwNode * p=FindNodeTag((LPSTR)(LPCSTR)Msk.m_Tag);
       if (p)
         {
         if (SetClass)
@@ -12379,7 +12406,7 @@ flag CFlwSolver::RequestModelAssocGrfsMasks(bool SetClass, bool SetNode,LPCSTR N
     }
   else if (NdTag)
     {
-    FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPSTR)NdTag, false, ObjTagLen, 0));
+    FlwNode * p=FindNodeTag((LPSTR)NdTag);
     if (p)
       {
       CModelAssocGrfMask Msk(NdTag, p->AssocGrfShowClass(), p->AssocGrfShow());
@@ -12469,8 +12496,7 @@ int CFlwSolver::RequestTagRefInfo(LPCTSTR Tag, CXRefInfoArray &Info)
 
 flag CFlwSolver::RequestModelClassId(pchar pTag, Strng & ClassId)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag(pTag);
   ClassId = (p!=NULL ? p->ClassId() : "");
   return (p!=NULL);
   }
@@ -12479,8 +12505,7 @@ flag CFlwSolver::RequestModelClassId(pchar pTag, Strng & ClassId)
 
 flag CFlwSolver::RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag(pTag);
   if (p && !p->Internal)
     {
     bool GrpOK=_stricmp(p->Group(), FlwLinkGrp)==0 ||
@@ -12624,8 +12649,7 @@ int CFlwSolver::FE_SetRctInfo(LPCTSTR NodeTag)
 
 int CFlwSolver::FE_GetNodeWiring(CNodeWiring &NodeWiring)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)(LPCTSTR)NodeWiring.m_NodeTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)(LPCTSTR)NodeWiring.m_NodeTag);
   return p->GetNodeWiring(NodeWiring);
   };
 
@@ -12633,8 +12657,7 @@ int CFlwSolver::FE_GetNodeWiring(CNodeWiring &NodeWiring)
 
 int CFlwSolver::FE_GetLinkWiring(CLinkWiring &LinkWiring)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)(LPCTSTR)LinkWiring.m_LinkTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)(LPCTSTR)LinkWiring.m_LinkTag);
   return p->GetLinkWiring(LinkWiring);
   };
 
@@ -12642,8 +12665,7 @@ int CFlwSolver::FE_GetLinkWiring(CLinkWiring &LinkWiring)
 
 int CFlwSolver::FE_SetLinkWiring(CLinkWiring &LinkWiring)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)(LPCTSTR)LinkWiring.m_LinkTag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)(LPCTSTR)LinkWiring.m_LinkTag);
   return p->SetLinkWiring(LinkWiring);
   };
 
@@ -12678,14 +12700,17 @@ long CFlwSolver::FE_GetNodes(DWORD What, CFlwNodeArray & Nodes)
 
 //--------------------------------------------------------------------------
 
-FlwNode *CFlwSolver::FE_FindNode(LPCTSTR Tag)
+FlwNode *CFlwSolver::FE_FindNode(LPCTSTR Tag, LPCTSTR Guid)
   {
-  FlwNode * p=NULL;
-  UINT N=0;
-  while (GetObj_All(p))
-    if (TaggedObject::TagCmp(p->Tag(), (LPTSTR)Tag))
-      return p;
-  return NULL;
+  if (Tag) 
+    return FindNodeTag((LPSTR)Tag);
+  return FindNodeGuid((LPSTR)Guid);
+  //FlwNode * p=NULL;
+  //UINT N=0;
+  //while (GetObj_All(p))
+  //  if (TaggedObject::TagCmp(p->Tag(), (LPTSTR)Tag))
+  //    return p;
+  //return NULL;
   };
 
 //--------------------------------------------------------------------------
@@ -13020,8 +13045,7 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
     {
     for (pStrng pTag=RqdTags.First(); pTag; pTag=RqdTags.Next())
       {
-      int ObjTagLen=0;
-      FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag(pTag->Str(), false, ObjTagLen, 0));
+      FlwNode * p=FindNodeTag(pTag->Str());
       if (p)
         p->SetState(RqdState);
       }
@@ -13075,8 +13099,7 @@ void CFlwSolver::EO_SetModelState(eScdMdlStateActs RqdState, Strng_List &RqdTags
 
 flag CFlwSolver::EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)Tag);
   if (p)
     return p->GetModelAction(Acts);
   return false;
@@ -13086,8 +13109,7 @@ flag CFlwSolver::EO_GetModelAction(LPCTSTR Tag, CMdlActionArray & Acts)
 
 flag CFlwSolver::EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)Tag);
   if (p)
     return p->SetModelAction(Act);
   return false;
@@ -13097,8 +13119,7 @@ flag CFlwSolver::EO_SetModelAction(LPCTSTR Tag, CMdlAction & Act)
 
 flag CFlwSolver::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)Tag);
   if (p)
     return p->GetModelGraphic(Grfs);
   return false;
@@ -13108,8 +13129,7 @@ flag CFlwSolver::EO_GetModelGraphic(LPCTSTR Tag, CMdlGraphicArray & Grfs)
 
 flag CFlwSolver::EO_OperateModelGraphic(LPCTSTR Tag, CMdlGraphicWnd & Wnd, CMdlGraphic & Grf)
   {
-  int ObjTagLen=0;
-  FlwNode * p=dynamic_cast<FlwNode*>(CTNode::FindObjTag((LPTSTR)Tag, false, ObjTagLen, 0));
+  FlwNode * p=FindNodeTag((LPTSTR)Tag);
   if (p)
     return p->OperateModelGraphic(Wnd, Grf);
   return false;
@@ -13237,7 +13257,7 @@ int CFlwSolver::EO_DeleteTagDone(pchar pDelTag)
 
 //--------------------------------------------------------------------------
   
-int CFlwSolver::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CFlwSolver::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                float angle, const CRectangleF & textArea, COLORREF Colour, 
                                bool mirrorX, bool mirrorY) 
@@ -13264,7 +13284,7 @@ int CFlwSolver::EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) 
+int CFlwSolver::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) 
   {
   // A COpy of EO_DeleteTag = SHOULD EO_DeleteTagDone be called and when ??????????
   UnDoGlobalLinks();
@@ -13293,13 +13313,79 @@ int CFlwSolver::EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
 
 //--------------------------------------------------------------------------
 
-int CFlwSolver::EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+int CFlwSolver::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                float angle, const CRectangleF & textArea, COLORREF Colour, 
                                bool mirrorX, bool mirrorY) 
   {
   return EOSC_NOTFOUND;
   };
+
+//--------------------------------------------------------------------------
+
+int CFlwSolver::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                               LPCSTR model, 
+                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                               LPCSTR OriginTag, LPCSTR DestinationTag, 
+                               LPCSTR OriginPort, LPCSTR DestinationPort, 
+                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+  {
+  if (Ctrl.m_bExportBusy)
+    return EOSC_DONE;
+
+  bool Error = FE_TestModelTagUnique((char*)pTag)==0;
+  if (Error)
+    {
+    LogError("Solver", 0, "Tag not found : AddUnit '%s' failed!", pTag);
+    // return Scd.Return(eScdGraphicCode_TagNotFound, "Tag not found : AddUnit '%s' failed!", Tag);
+    }
+  else
+    {
+    FlwNode *pNd;
+    int XError=-1;//FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, NULL, NULL, &pNd, (LPSTR)ItemGuid);
+    return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
+    }
+
+  return EOSC_NOTFOUND;
+  };
+
+int CFlwSolver::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
+    {
+    // A COpy of EO_DeleteTag = SHOULD EO_DeleteTagDone be called and when ??????????
+  UnDoGlobalLinks();
+  FlwNode * p = (FlwNode *)FindObj((LPSTR)pTag);
+  if (p)
+    {
+    dbgpln("DELETE %s %s ", pTag, p->FullObjTag());
+    p->DisConnectAll();
+    delete p;
+
+    //ask all models if they want to do anything internally for the delete tag...
+    pSaveNode = NULL;
+    while (GetObj_All(pSaveNode))
+      {
+      if (!pSaveNode->Internal)
+        {
+        pSaveNode->DeleteTag((LPSTR)pTag);
+        }
+      }
+
+    TryDoGlobalLinks();
+    return EOSC_DONE;
+    }
+  return EOSC_FAILED;
+  };
+
+int CFlwSolver::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                               LPCSTR model, 
+                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                               LPCSTR OriginTag, LPCSTR DestinationTag, 
+                               LPCSTR OriginPort, LPCSTR DestinationPort, 
+                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+  {
+  return EOSC_NOTFOUND;
+  };
+
 
 //--------------------------------------------------------------------------
 
@@ -15541,7 +15627,7 @@ int CFlwSolver::FE_GetNodeList(CNodeList&List)
     I.m_sEqpIdStr   = p->EqpIdStr();
     I.m_sEqpLocation = p->EqpLocation();
     I.m_sPlantArea  = p->GetAreaTagDisp(); 
-    I.m_sEqpGUID    = p->EqpGUID();
+    I.m_sEqpGUID    = p->Guid();
     I.m_lSeqNo      = SeqNo++;
     I.m_bIsLnk      = /*(p->NoProcessIOs()==2) &&*/ (p->IsMLnk() || p->IsCLnk() || p->IsELnk() || p->IsALnk());
     if (I.m_bIsLnk)

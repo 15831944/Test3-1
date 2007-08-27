@@ -146,24 +146,6 @@ typedef struct
   double m_Left,m_Top,m_Right,m_Bottom; 
   } CRct_Dbl;
 
-typedef struct
-  {
-  int       iId;
-  Strng     Name;
-  Strng     Desc;
-  flag      Input;
-  flag      Output;
-  DWORD     m_dwType;
-  int       nIORqd;
-  int       nIOMax;
-  byte      Dirn;
-  int       iGrp;
-  flag      m_Hidden;
-  Strng     m_sDefaultTS;
-  CRct_Dbl  m_GrfTarget;
-  } RequestModelIOInfoRec;
-
-class RequestModelIOInfoArray : public CArray <RequestModelIOInfoRec, RequestModelIOInfoRec& > {};
 
 typedef struct
   {
@@ -180,6 +162,90 @@ typedef struct
 
 typedef flag         (*fn_CallBack)(PVOID FS, int iCode, long lData, pvoid pData);
 
+class CRequestModelIOInfoRec
+  {
+  public:
+    CRequestModelIOInfoRec()
+      {
+      }
+    CRequestModelIOInfoRec(const CRequestModelIOInfoRec & IO)
+      {
+      *this=IO;
+      }
+    CRequestModelIOInfoRec & operator=(const CRequestModelIOInfoRec & IO)
+      {
+      iId             = IO.iId;
+      Name            = IO.Name;
+      Desc            = IO.Desc;
+      Input           = IO.Input;
+      Output          = IO.Output;
+      m_dwType        = IO.m_dwType;
+      nIORqd          = IO.nIORqd;
+      nIOMax          = IO.nIOMax;
+      Dirn            = IO.Dirn;
+      iGrp            = IO.iGrp;
+      m_Hidden        = IO.m_Hidden;
+      m_sDefaultTS    = IO.m_sDefaultTS;
+      m_GrfTarget     = IO.m_GrfTarget;
+      return *this;
+      }
+
+  public:
+    int       iId;
+    Strng     Name;
+    Strng     Desc;
+    flag      Input;
+    flag      Output;
+    DWORD     m_dwType;
+    int       nIORqd;
+    int       nIOMax;
+    byte      Dirn;
+    int       iGrp;
+    flag      m_Hidden;
+    Strng     m_sDefaultTS;
+    CRct_Dbl  m_GrfTarget;
+  };
+
+class CRequestModelIOInfoArray : public CArray <CRequestModelIOInfoRec, CRequestModelIOInfoRec& > {};
+
+class CFlwNodeDefinition
+  {
+  public:
+    CFlwNodeDefinition()
+      {
+      m_Category = 0;
+      }
+    CFlwNodeDefinition(const CFlwNodeDefinition & D)
+      {
+      *this=D;
+      }
+    CFlwNodeDefinition & operator=(const CFlwNodeDefinition & D)
+      {
+      m_sClass        = D.m_sClass;
+      m_sClassNV      = D.m_sClassNV;
+      m_Category      = D.m_Category;
+      m_sShortDesc    = D.m_sShortDesc;
+      m_sDescription  = D.m_sDescription;
+
+      m_IOs.SetSize(D.m_IOs.GetSize());
+      for (int i=0; i<D.m_IOs.GetSize(); i++)
+        m_IOs[i]=D.m_IOs[i];
+      return *this;
+      }
+
+  public:
+    Strng      m_sClass;
+    Strng      m_sClassNV;
+    dword      m_Category;
+    Strng      m_sShortDesc;
+    Strng      m_sDescription;
+
+    CRequestModelIOInfoArray m_IOs;
+
+  };
+
+class CFlwNodeDefinitionList : public CList<CFlwNodeDefinition, CFlwNodeDefinition&> { };
+        
 // ==========================================================================
 //
 //
@@ -1129,6 +1195,30 @@ class DllImportExport CMdlAssocGrfMap  : public CMap<LPTSTR, LPTSTR, CMdlAssocGr
 //
 // ==========================================================================
 
+class CNodeInfo 
+  {
+  public:
+    CNodeInfo ()
+      {
+      }
+
+    CString     m_sTag;
+    CString     m_sGuid;
+    CString     m_sClassId;
+    CString     m_sSrcTag;
+    CString     m_sSrcGuid;
+    CString     m_sSrcPort;
+    CString     m_sDstTag;
+    CString     m_sDstGuid;
+    CString     m_sDstPort;
+  };
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
 enum FE_TagOps
   {
   FETOp_GetActive,
@@ -1227,10 +1317,11 @@ class DllImportExport CSfeSrvrBase
     virtual flag         RequestModelInfoByClassId(pchar pClass, RequestModelInfoRec & Info);
     virtual flag         RequestModelClassId(pchar pTag, Strng & ClassId) { return 0; };
     virtual flag         RequestModelConnInfo(pchar pTag, RequestConnModelInfoRec & Info) { return 0; };
-    virtual flag         RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info) { return 0; };
 
-    virtual flag         RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info) { return 0; };
-    virtual flag         RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info) { return 0; };
+    //virtual flag         RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns) { return 0; };
+
+    virtual flag         RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info) { return 0; };
+    virtual flag         RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info) { return 0; };
     virtual flag         RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info) { return 0; };
 
     virtual int          RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged) { return 0; };
@@ -1252,7 +1343,7 @@ class DllImportExport CSfeSrvrBase
 
     virtual long         FE_GetTopologyCount()                                                 { return 0; };
     virtual long         FE_GetNodes(DWORD What, CFlwNodeArray & Nodes)                        { return 0; };
-    virtual FlwNode     *FE_FindNode(LPCTSTR Tag)                                              { return NULL; };
+    virtual FlwNode     *FE_FindNode(LPCTSTR Tag, LPCTSTR Guid)                                { return NULL; };
 
     virtual void         FE_UnDoGlobalLinks()                                                  { };
     virtual long         FE_SpModelFixupStrategy()                                             { return 0; }
@@ -1280,15 +1371,29 @@ class DllImportExport CSfeSrvrBase
     virtual int          EO_DeleteTagDone(pchar pDelTag)                                       { return 0; };
     virtual int          EO_CanClose(Strng_List & Problems)                                    { return 0; };
 
-    virtual int          EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    virtual int          EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                         LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                         float angle, const CRectangleF & textArea, COLORREF Colour, 
                                         bool mirrorX, bool mirrorY)                            { return EOSC_DONE; };
-    virtual int          EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)             { return EOSC_DONE; };
-    virtual int          EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    virtual int          EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)             { return EOSC_DONE; };
+    virtual int          EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                         LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                         float angle, const CRectangleF & textArea, COLORREF Colour, 
                                         bool mirrorX, bool mirrorY)                            { return EOSC_DONE; };
+
+    virtual int          EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                         LPCSTR model, 
+                                         LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                         LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                         LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                         CPointFList & ControlPoints, const CRectangleF & textArea) { return EOSC_DONE; };
+    virtual int          EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/){ return EOSC_DONE; };
+    virtual int          EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                         LPCSTR model, 
+                                         LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                         LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                         LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                         CPointFList & ControlPoints, const CRectangleF & textArea) { return EOSC_DONE; };
 
     virtual void         EO_SetSolveMode()                                                     { };
     virtual flag         EO_Starting(flag fBeginStarting)                                      { return 0; };

@@ -437,6 +437,14 @@ class CPointF
 
 //---------------------------------------------------------------------------
 
+class CPointFList : public CList<CPointF, CPointF&> 
+  {
+  };
+
+//---------------------------------------------------------------------------
+//
+//---------------------------------------------------------------------------
+
 class CRectangleF
   {
   public:
@@ -478,6 +486,46 @@ class CRectangleF
       m_H = h;
       }
 
+    void Set(const CPointF & pt)
+      {
+      m_X = pt.X();
+      m_Y = pt.Y();
+      m_W = 0;
+      m_H = 0;
+      }
+    void Include(const CPointF & pt, bool PositiveUp)
+      {
+      if (pt.X()<m_X)
+        {
+        m_W += m_X-pt.X();
+        m_X = pt.X();
+        }
+      else
+        m_W = Max(m_W, pt.X()-m_X);
+
+      if (PositiveUp)
+        {
+        if (pt.Y()<m_Y)
+          {
+          m_H += m_Y-pt.Y();
+          m_Y = pt.Y();
+          }
+        else
+          m_H = Max(m_H, pt.Y()-m_Y);
+        }
+      else
+        {
+        if (pt.Y()<m_Y)
+          {
+          m_H += m_Y-pt.Y();
+          m_Y = pt.Y();
+          }
+        else
+          m_H = Max(m_H, pt.Y()-m_Y);
+        }
+
+      }
+
     float  Left()    const { return m_X;      };
     float  Bottom()  const { return m_Y;      };
     float  Right()   const { return m_X+m_W;  };
@@ -488,6 +536,20 @@ class CRectangleF
     float  MidX()    const { return m_X+0.5f*m_W; };
     float  MidY()    const { return m_Y+0.5f*m_H; };
 
+    bool   Contains(const CRectangleF & rct, bool PositiveUp) 
+      {
+      if (PositiveUp)
+        return rct.Left()>= Left() && rct.Right()<= Right() && rct.Bottom()>= Bottom() && rct.Top()<=Top();
+      else
+        return rct.Left()>= Left() && rct.Right()<= Right() && rct.Top()>=Top() && rct.Bottom()<= Bottom();
+      }
+    bool   Contains(const CPointF & pt, bool PositiveUp)
+      {
+      if (PositiveUp)
+        return pt.X()>= Left() && pt.X()<= Right() && pt.Y()>= Bottom() && pt.Y()<=Top();
+      else
+        return pt.X()>= Left() && pt.X()<= Right() && pt.Y()>=Top() && pt.Y()<= Bottom();
+      }
   protected:
     float   m_X;
     float   m_Y;

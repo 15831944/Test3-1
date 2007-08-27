@@ -490,6 +490,9 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
 
     virtual TaggedObject * FindObjTag(pchar pSrchTag, flag SrchAll, int &ObjTagLen, int MinTagLen);
 
+    virtual FlwNode * FindNodeTag(pchar pTag);
+    virtual FlwNode * FindNodeGuid(pchar pGuid);
+
     virtual void   BuildDataDefn(DataDefnBlk & DDB);
     virtual void   BuildDataDefnOld(DataDefnBlk & DDB);
     virtual flag   DataXchg(DataChangeBlk & DCB);
@@ -553,10 +556,10 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     
     void           DoTraceChanges(dword Flags);
 
-    flag           RequestModelIOInfoByClassId(pchar pClass, RequestModelIOInfoArray & Info);
+    //flag           RequestNodeDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
 
-    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, RequestModelIOInfoRec & Info);
-    flag           RequestModelIOInfoById(pchar pTag, int iId, RequestModelIOInfoRec & Info);
+    flag           RequestModelIOInfoByIndex(pchar pTag, int iIndex, CRequestModelIOInfoRec & Info);
+    flag           RequestModelIOInfoById(pchar pTag, int iId, CRequestModelIOInfoRec & Info);
     flag           RequestModelIOConn(pchar pTag, int iNo, RequestModelIOConnRec & Info);
 
     int            RequestModelStatus(dword Options, CModelStatusArray &Status, flag & TagsChanged);
@@ -580,7 +583,7 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
 
     long           FE_GetTopologyCount();
     long           FE_GetNodes(DWORD What, CFlwNodeArray & Nodes);
-    FlwNode       *FE_FindNode(LPCTSTR Tag);
+    FlwNode       *FE_FindNode(LPCTSTR Tag, LPCTSTR Guid);
     //void           FE_ElecComponentsChanged();
     void           FE_UnDoGlobalLinks();
     long           FE_SpModelFixupStrategy();
@@ -604,15 +607,29 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     int            EO_DeleteTagDone(pchar pDelTag);
     int            EO_CanClose(Strng_List & Problems);
 
-    int            EO_SCInsertTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
-    int            EO_SCDeleteTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
-    int            EO_SCModifyTag(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
+    int            EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
+    int            EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY);
+
+    int            EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
+    int            EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
+    int            EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
+                                   LPCSTR model, 
+                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
+                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
+                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
 
     int            EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine);
 
@@ -751,6 +768,8 @@ class DllImportExport CFlwSolver : public FlwNode, public CTagRefStatusFnHook, p
     CToleranceBlock m_HCloseTol2;
 
      
+    //CMap <LPSTR, LPSTR, FlwNode*, FlwNode*> m_NdGuidMap; 
+
 
   protected:
     CString        SecsBuff;

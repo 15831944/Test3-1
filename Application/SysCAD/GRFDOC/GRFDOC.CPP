@@ -45,7 +45,7 @@ CGrfDoc::CGrfDoc() :
   pCurrentCB = NULL;
   bModelsActive = true;
 
-  m_sDocGUID = TaggedObject::CreateGUIDStr();
+  m_sDocGUID = TaggedObject::CreateGuidStr();
   }
 
 //---------------------------------------------------------------------------

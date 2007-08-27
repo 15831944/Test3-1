@@ -2386,7 +2386,7 @@ TaggedObject::TaggedObject(TagObjClass* pClass_, LPSTR Tag_, TaggedObject *pAtta
   //m_sEqGUID.Set("{%s}", psEqGUID);
   //RpcStringFree(&psEqGUID);
 
-  m_sEqGUID = CreateGUIDStr();
+  m_sGuid = CreateGuidStr();
 
   m_lReportKey=0;
   }
@@ -3285,7 +3285,7 @@ char * TaggedObject::FullObjTag(Strng &S,  byte What)
 
 //---------------------------------------------------------------------------
 
-CString TaggedObject::CreateGUIDStr()
+CString TaggedObject::CreateGuidStr()
   {
   CString Guid;
   // Generate DefaultGuid
@@ -3306,10 +3306,10 @@ CString TaggedObject::CreateGUIDStr()
 
 //---------------------------------------------------------------------------
 
-bool TaggedObject::SetEqpGUID(LPCSTR strGuid)
+LPSTR TaggedObject::SetGuid(LPSTR strGuid)
   {
   if (strGuid==NULL || strlen(strGuid)==0)
-    return false;
+    return m_sGuid();
 
   UUID LclGuid;
   if (strGuid[0]=='{')
@@ -3319,34 +3319,34 @@ bool TaggedObject::SetEqpGUID(LPCSTR strGuid)
     Buff[strlen(Buff)-1]=0;
     if (UuidFromString((UCHAR*)&Buff, &LclGuid)==RPC_S_OK)
       {
-#if (SYSCAD10)  
-      m_sEqGUID=Buff;
+#if (SYSCAD10)   
+      m_sGuid=Buff;
 #else
-      m_sEqGUID=strGuid;
+      m_sGuid=strGuid;
 #endif
-      return true;
+      return m_sGuid();
       }
     }
   else if (UuidFromString((UCHAR*)strGuid, &LclGuid)==RPC_S_OK)
     {
 #if (SYSCAD10)  
-    m_sEqGUID.Set("%s", strGuid);
+    m_sGuid.Set("%s", strGuid);
 #else
-    m_sEqGUID.Set("{%s}", strGuid);
+    m_sGuid.Set("{%s}", strGuid);
 #endif
-    return true;
+    return m_sGuid();
     }
 
   LogWarning(Tag(), 0, "Bad GUID:%s", strGuid);
-  return false;
+  return m_sGuid();
   };
 
 //---------------------------------------------------------------------------
 
-LPCSTR TaggedObject::EqpGUID()
-  {
-  return m_sEqGUID();
-  };
+//LPSTR TaggedObject::Guid()
+//  {
+//  return m_sGuid();
+//  };
 
 //---------------------------------------------------------------------------
 
@@ -3392,7 +3392,7 @@ flag TaggedObject::DataXchg(DataChangeBlk & DCB)
     case xidEqLocation: if (DCB.rpC) m_sEqLocation=DCB.rpC; DCB.pC=m_sEqLocation(); return 1;
     case xidEqLink    : if (DCB.rL)  m_lEqLink=*DCB.rL; DCB.L=m_lEqLink; return 1;
     case xidEqRepKey  : if (DCB.rL)  m_lReportKey=*DCB.rL; DCB.L=m_lReportKey; return 1;
-    case xidEqGUID    : if (DCB.rpC) SetEqpGUID(DCB.rpC); DCB.pC=(LPSTR)EqpGUID(); return 1;
+    case xidEqGUID    : if (DCB.rpC) SetGuid(DCB.rpC); DCB.pC=(LPSTR)Guid(); return 1;
     case xidPrimaryCfg: if (DCB.rpC) PutPrimaryCfg(DCB.rpC); DCB.pC=(LPSTR)GetPrimaryCfg(); return 1;
     }
   return 0;

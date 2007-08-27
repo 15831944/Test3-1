@@ -794,7 +794,7 @@ void CPrjForm::OnRclickMdlTree(NMHDR* pNMHDR, LRESULT* pResult)
         while (pFlwLib->RequestModelIOConn(sCurrentSeln(), j++, ConnInfo) && j<IDM_PRJ_ACCESSLAST-IDM_PRJ_ACCESSFIRST)
           {
           Strng Tg;
-          RequestModelIOInfoRec IOInfo;
+          CRequestModelIOInfoRec IOInfo;
           if (pFlwLib->RequestModelIOInfoById(sCurrentSeln(), ConnInfo.iId, IOInfo))
             Tg.Set("%s : %s", IOInfo.Name(), ConnInfo.Tag());
           else

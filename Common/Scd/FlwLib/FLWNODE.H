@@ -3556,9 +3556,14 @@ class DllImportExport FlwNode : public CTNode
     virtual flag   ValidateDataAreaIOs(ValidateDataBlk & VDB);
 
      // CTNode override
-    virtual LPSTR  Tag();
-    virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
-  
+    //virtual LPSTR  Tag();
+    //virtual LPSTR  SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
+
+
+    //virtual LPSTR  Guid();
+    //virtual LPSTR  SetGuid(LPSTR ReqdGuid);
+
+
     FlwNode*       InsertRoot(char * TagIn);
     FlwNode*       InsertNode(FlwNode* Root, LPTSTR ClassIn, LPTSTR SubClassIn, LPTSTR PrimaryCfgIn, LPTSTR TagIn, TaggedObject * pAttach, TagObjAttachment eAttach);
     int            ConnectTag(FlwNode* Root, char * Tag1, char * Tag2, int RqdIONo1=-1, int RqdIONo2=-1, char * ConnectTag=NULL, int UseStatus=0);
