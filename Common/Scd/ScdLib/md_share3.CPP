@@ -104,7 +104,7 @@ void MLog::Message(MMessageType Type, LPCSTR pFmt, ...)
   if (Buff[0])//strlen(Buff)>0)
     {
     static DWORD What[] = {LogFlag_Note, LogFlag_Error, LogFlag_Warning, LogFlag_Note };
-    LogLn(LogFlag_FromBlackBox|What[Type], m_pObj ? m_pObj->Tag() : "SysCAD", 0/*BoxFlags*/, Buff);
+    LogLn(LogFlag_FromBlackBox|What[Type], m_pObj ? m_pObj->FullObjTag() : "SysCAD", 0/*BoxFlags*/, Buff);
     }
   }
 
