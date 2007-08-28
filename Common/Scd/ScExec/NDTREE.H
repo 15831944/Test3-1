@@ -61,7 +61,7 @@ class DllImportExport CTNode: public TaggedObject, public CNodeXRefMngr
     virtual LPSTR       SetTag(LPSTR ReqdTag, bool AllowEmptyTag=false);
 
     //virtual LPSTR       Guid();
-    virtual LPSTR       SetGuid(LPSTR ReqdTag);
+    virtual LPSTR       SetGuid(LPSTR ReqdGuid);
 
     CTNode*             Insert(CTNode*p, char IsInternal=1);
     CTNode*             Parent() { return MyParent;};

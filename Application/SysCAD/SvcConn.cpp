@@ -782,7 +782,7 @@ void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
       m_Ctrl.ClrXObjArray();
  
       int RetCode = gs_Exec.SCDeleteLink(m_Ctrl, Tag(), Guid);
-      if (RetCode!=EODT_DONE)
+      if (RetCode!=EOSC_DONE)
         {
         LogError(Tag(), 0, "Link not deleted");
         //DeletesFailedCnt++;

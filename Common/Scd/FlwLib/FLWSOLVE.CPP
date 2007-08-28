@@ -13264,8 +13264,14 @@ int CFlwSolver::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
   {
 
   if (Ctrl.m_bExportBusy)
-    return EOSC_DONE;
+    {
+    FlwNode * p=FindNodeTag((LPSTR)pTag);
+    if (p)
+      p->SetGuid((LPSTR)ItemGuid);
     
+    return EOSC_DONE;
+    }
+
   bool Error = FE_TestModelTagUnique((char*)pTag)==0;
   if (Error)
     {
@@ -13331,7 +13337,13 @@ int CFlwSolver::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                CPointFList & ControlPoints, const CRectangleF & textArea) 
   {
   if (Ctrl.m_bExportBusy)
+    {
+    FlwNode * p=FindNodeTag((LPSTR)pTag);
+    if (p)
+      p->SetGuid((LPSTR)ItemGuid);
+    
     return EOSC_DONE;
+    }
 
   bool Error = FE_TestModelTagUnique((char*)pTag)==0;
   if (Error)
