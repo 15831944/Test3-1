@@ -47,6 +47,8 @@ class CentrifugeMB : public MN_Surge
 
     virtual void   EvalJoinPressures(long JoinMask);
     virtual void   EvalProducts(CNodeEvalIndex & NEI);
+
+    DEFINE_CI(CentrifugeMB, MN_Surge, 4);
   private:
   };
 

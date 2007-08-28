@@ -6,6 +6,7 @@
 #include "stdafx.h"
 #define  __CNTRFGMB_CPP
 #include "cntrfgmb.h"
+//#include "optoff.h"
 
 //===========================================================================
 /*#D:#T:Centrifugal Filter
@@ -224,8 +225,7 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       SpConduit & Cl = *IOConduit(iCl);
       SpConduit & Cs = *IOConduit(iCs);
 
-      double wash1, wash2, MSol, MLiq, MSol2Filt, MLiq2Cake,
-             RSol, TotLiq, Sol2Filt; 
+      double wash1, wash2, MSol, MLiq, MSol2Filt, MLiq2Cake, RSol, TotLiq, Sol2Filt; 
       const int iWw = IOWithId_Self(ioidwash);
       const int iW2 = IOWithId_Self(ioidwsh2);
       const int iFW = IOWithId_Self(ioidFW);
@@ -245,6 +245,8 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       double CWash1 = QWw.SpecieConc(QWw.Temp(), iWashEffSpecie, som_Liq);
       double CWash2 = QW2.SpecieConc(QW2.Temp(), iWashEffSpecie, som_Liq);
 
+      bool HasFeed = (QFd.QMass(som_ALL)>UsableMass);
+
       RB.EvalProducts(QFd);
       m_EHX.EvalProducts(QFd);
 
@@ -252,12 +254,20 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       MLiq    = QFd.QMass(som_Liq);
       wash1   = QWw.QMass(som_Liq);
       wash2   = QW2.QMass(som_Liq);
+      const double TtlLiqIn = MLiq + wash1 + wash2;
+      const double TtlWashSol = QWw.QMass(som_Sol) + QW2.QMass(som_Sol);
       
       //will not achieve requirements if there are any solids in wash!!!
       MSol2Filt = MSol * RqdSolidsToFiltrate;
       RSol      = MSol - MSol2Filt;
-      MLiq2Cake = (RqdCakeMoist * RSol)/(1 - RqdCakeMoist); 
-      TotLiq    = max(MLiq + wash1 + wash2 - MLiq2Cake, 1e-6);
+      MLiq2Cake = (RqdCakeMoist * RSol)/(1.0 - RqdCakeMoist);
+      const bool FeedLiqLow = (TtlLiqIn<MLiq2Cake);
+		  SetCI(1, /*fOn && */HasFeed && FeedLiqLow);
+      if (FeedLiqLow)
+        {//force all liquids to cake
+        MLiq2Cake = TtlLiqIn;
+        }
+      TotLiq    = max(TtlLiqIn - MLiq2Cake, 1e-6);
       Sol2Filt  = GEZ(MLiq - MLiq2Cake) * MSol2Filt/TotLiq;
 
       Cs.QSetM(QFd, som_Sol, RSol, IOP_Self(iCs));
@@ -349,6 +359,12 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       double CCake2 = Cs.SpecieConc(Cs.Temp(), iWashEffSpecie, som_Liq);
       dSpWashEff  = (CFeed - CCake1)/NZ(CFeed - CWash1);
       dSpWashEff2 = (CFeed - CCake2)/NZ(CFeed - CWash2);
+
+      const double CMErr = fabs(ActCakeLiq - RqdCakeMoist); //CakeMoisture error
+      const bool SolInWashErr = (CMErr > 1.0e-5 && TtlWashSol>1.0e-6);
+		  SetCI(2, /*fOn && bTrackStatus && */HasFeed && !FeedLiqLow && !SolInWashErr && CMErr > 1.0e-5);
+		  SetCI(3, /*fOn && bTrackStatus && */HasFeed && SolInWashErr);
+      
       break;
       }
     case SM_Inline:
@@ -400,6 +416,22 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
 
       break;
       }
+    }
+  }
+
+//--------------------------------------------------------------------------
+
+flag CentrifugeMB::CIStrng(int No, pchar & pS)
+  {
+  // NB check CBCount is large enough.
+  switch (No-CBContext())
+    {
+    case  1: pS="W\tTotal feed moisture too low to meet Cake moisture requirements."; return 1;
+    case  2: pS="W\tCake moisture requirements not met."; return 1;
+    case  3: pS="W\tCake moisture requirements not met (solids present in wash stream)."; return 1;
+    //case  4: pS="W\tNo Vent Defined."; return 1;
+    default:                                               
+      return MN_Surge::CIStrng(No, pS);
     }
   }
 
