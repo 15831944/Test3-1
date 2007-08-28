@@ -1,4 +1,4 @@
-#   Time-stamp: <2007-05-22 23:21:34 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-08-28 13:15:06 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -33,13 +33,8 @@ LFLAGS := $(LFLAGS)   c:/Tcl/lib/Tcl84.lib  c:/Tcl/lib/Tk84.lib
 DFLAGS := $(DFLAGS) /D "TTDEBUG"
 endif
 
-ifeq ($(SYSCAD),91)
- IDIR = "..\..\smdk\Include"
- LDIR = "..\..\smdk\bin\rls"
-else
- IDIR = "..\..\include"
- LDIR = "..\..\bin\rls"
-endif
+IDIR = "..\..\include"
+LDIR = "..\..\bin\rls"
 
 
 %.obj : %.cpp
@@ -50,7 +45,7 @@ endif
 
 TTechQAL.dll: $(OBJS)
 	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/TTechQAL.pdb" /IMPLIB:".\Rls/TTechQAL.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
-	../../smdk/devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
+	../../devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
 #	cp "$(SYSCADDIR)/$(SMDKDLL).dll" "g:/archive/syscad/syscad$(SYSCAD)"
 
 QALClassifier.obj : QALClassifier.cpp QALClassifier.h

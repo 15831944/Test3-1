@@ -33,7 +33,7 @@ precip.obj : precip.cpp precip.h
 	cl $(CFLAGS) precip.cpp
 
 psd.obj    : psd.cpp psd.h
-	cl $(CFLAGS) $(DFLAGS) /I "..\..\smdk\Include" psd.cpp
+	cl $(CFLAGS) $(DFLAGS) /I "..\..\Include" psd.cpp
 
 
 dbgtest.exe: dbgtest.obj ttdbg.obj

@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    QAL Classifer Model. Transcritical Technologies Pty Ltd copyright 2004
-//   Time-stamp: <2007-05-22 23:41:19 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-08-28 13:04:02 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 
@@ -76,11 +76,11 @@ class CDynPrecipitator : public MBaseMethod, CPrecip
   void ClosureInfo(MClosureInfo & CI);
 
  protected:
-  MStream Feed;
-  MStream Tank;     // Effective Stream for tank, calculations done on this stream
+  MStreamI Feed;
+  MStreamI Tank;     // Effective Stream for tank, calculations done on this stream
 
-  MStream Evap;
-  MStream CoolIn;
+  MStreamI Evap;
+  MStreamI CoolIn;
   
   bool alreadySolved;
 
