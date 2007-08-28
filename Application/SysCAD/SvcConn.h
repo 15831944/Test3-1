@@ -118,6 +118,9 @@ class CSvcConnect
 
     void GCBDeleteLink(DXF_ENTITY eEntity, LPCSTR Tag);
     //void GCBDoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
+    void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
+                      LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, */
+                      CPointFList & ControlPoints);//, const CRectangleF & textArea);
 
 
     // CallBack's

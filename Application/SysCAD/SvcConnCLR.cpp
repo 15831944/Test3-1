@@ -198,7 +198,7 @@ ref class CSvcConnectCLRThread
           clientProtocol->ItemDeleted  += gcnew ClientProtocol::ItemDeletedHandler(this, &CSvcConnectCLRThread::ItemDeleted);
 
           clientProtocol->LinkCreated  += gcnew ClientProtocol::LinkCreatedHandler(this, &CSvcConnectCLRThread::LinkCreated);
-          //clientProtocol->LinkModified += gcnew ClientProtocol::LinkModifiedHandler(this, &CSvcConnectCLRThread::LinkModified);
+          clientProtocol->LinkModified += gcnew ClientProtocol::LinkModifiedHandler(this, &CSvcConnectCLRThread::LinkModified);
           clientProtocol->LinkDeleted  += gcnew ClientProtocol::LinkDeletedHandler(this, &CSvcConnectCLRThread::LinkDeleted);
 
           ////////////////////////////////
@@ -401,16 +401,8 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
-                      LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints)
+    void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints)
       {
-      Guid guid;//X(gcnew String(guid))
-      //RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
-      //RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
-
       List<PointF> ^ Pts = gcnew List<PointF>;
       POSITION Pos=ControlPoints.GetHeadPosition();
       while (Pos)
@@ -419,18 +411,12 @@ ref class CSvcConnectCLRThread
         Pts->Add(PointF(Pt.X(), Pt.Y()));
         }
 
-      clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */
-        gcnew String(ClassId), 
-        Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), 
-        gcnew String(OriginPort), gcnew String(DestinationPort), Pts);
-
+      Guid guid;
+      clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts);
       LinkGuid = guid.ToString();
       };
 
-    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, 
-      String ^ tag, String ^ classId, 
-      Guid origin, Guid destination, String ^ originPort, String ^destinationPort, 
-      List<PointF> ^ controlPoints)
+    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String ^ tag, String ^ classId, Guid origin, Guid destination, String ^ originPort, String ^destinationPort, List<PointF> ^ controlPoints)
       {
       CPointFList Pts;
 
@@ -440,10 +426,7 @@ ref class CSvcConnectCLRThread
         }
 
       CRectangleF textRect;  // TO GET FROM SOMEWHERE
-      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), 
-        ToCString(tag), ToCString(classId), 
-        ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), 
-        Pts, textRect);
+      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, textRect);
       }
 
     // ====================================================================
@@ -465,14 +448,29 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
 
-    void DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
-                      LPCSTR ClassId, 
-                      LPCSTR OriginGuid, LPCSTR DestinationGuid, 
-                      LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints)
+    void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints)
       {
-      int xxxx=0;
+      List<PointF> ^ Pts = gcnew List<PointF>;
+      POSITION Pos=ControlPoints.GetHeadPosition();
+      while (Pos)
+        {
+        CPointF & Pt=ControlPoints.GetNext(Pos);
+        Pts->Add(PointF(Pt.X(), Pt.Y()));
+        }
+      clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts);
       };
+
+    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> ^ controlPoints)
+      {
+      CPointFList Pts;
+      for each (PointF ^ Pt in controlPoints)
+        {
+        Pts.AddTail(CPointF(Pt->X, Pt->Y));
+        }
+      CRectangleF textRect;  // TO GET FROM SOMEWHERE
+      m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, textRect);
+      }
+
 
     // ====================================================================
     //
@@ -492,10 +490,6 @@ ref class CSvcConnectCLRThread
     //  }
 
     void ThingDeleted(Int64 eventId, Int64 requestId, Guid guid)
-      {
-      }
-
-    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> controlPoints)
       {
       }
 
@@ -652,7 +646,7 @@ void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
   };
 
 
-void CSvcConnectCLR::DoModifyLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, 
+void CSvcConnectCLR::DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
                                   LPCSTR ClassId, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 

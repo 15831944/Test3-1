@@ -542,9 +542,9 @@ int CGrfWnd::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
     }
 
 #endif
-
   return EOSC_DONE;
   };
+
 int CGrfWnd::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
   {
   int RetCode = EOSC_NOTFOUND;
@@ -569,6 +569,7 @@ int CGrfWnd::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
 
   return RetCode;
   };
+
 int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                LPCSTR model, 
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
@@ -578,10 +579,13 @@ int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   {
 #if SYSCAD10
   CRectangleF PageRct(0.0, 420, 0, 297);
-  CString PageName="";//CSvcConnect::ExtractPageName(path);
+  CString PageName=pDoc->GetTitle(); // Assume that this is THE page required
+  PageRct = PrjSvc().GetPageRect(PageName);
 
-  if (PageName.CompareNoCase(pDoc->GetTitle())!=0)
-    return EOSC_NOTFOUND;
+  CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+
+  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
 
   DXF_ENTITY eInsert, eAttrib;
   if (Dsp.FindTag((LPSTR)pTag, eInsert, eAttrib))
@@ -590,17 +594,38 @@ int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
 
     if (eInsert)
       {
-      //GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+      GrfCmdBlk& GCB = ((CGrfDoc*)pDoc)->GCB;
+      
+      LPSTR BlockName = DXF_INSERT_BLOCK_GET(eInsert);
 
-      //PageRct = PrjSvc().GetPageRect(PageName);
+      Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+      GCB.pDrw->Delete(eInsert);
 
-      //DXF_INSERT_PT(eInsert)[0]   = boundingRect.MidX()-PageRct.Left();
-      //DXF_INSERT_PT(eInsert)[1]   = PageRct.Top()-boundingRect.MidY();
-      //DXF_INSERT_PT(eInsert)[2]   = 0;
+      CLineDrawHelper LDH;
+      LDH.SetLineMethod(LDM_Direct); //todo user option
+      LDH.SetArrowRule(ARM_EndDirnAndLast); //todo user option
+      LDH.SetArrowScale(2.5); //todo user option
+      LDH.SetShowTag(false); //todo user option
 
-      //GCB.pDrw->EntityInvalidate(eInsert);
-      //Invalidate(true);
+      LDH.SetTag(pTag, 0.0, 0.0, 0.0);//m_pLk->m_TagPt.m_X, m_pLk->m_TagPt.m_Y, m_pLk->m_TagPt.m_Z);
+      LDH.SetTagProps(1.0, 0.0);//m_pLk->m_TagScale.m_X, m_pLk->m_TagRotation);
+      LDH.InitPoints();
 
+      CRectangleF boundingRect;
+      POSITION Pos=ControlPoints.GetHeadPosition();
+      while (Pos)
+        {
+        CPointF &pt=ControlPoints.GetNext(Pos);
+        Pt_3f Pt3(pt.X()-PageRct.Left(), PageRct.Top()-pt.Y(), 0.0);
+
+        LDH.AddPoint(Pt3, LPT_Line);
+        }
+
+      if (pGDoc!=NULL)
+        {
+        //todo check if parms are legal!!!
+        pGDoc->GCB.DoInsertLinkGrf(LDH, (LPSTR)OriginTag, (LPSTR)DestinationTag, true);
+        }
       }
 
     Dsp.Close();

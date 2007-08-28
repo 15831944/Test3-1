@@ -576,7 +576,7 @@ void CSvcConnect::OnDeleteItem(__int64 eventId, __int64 requestId, LPCSTR Guid)
       m_Ctrl.ClrXObjArray();
  
       int RetCode = gs_Exec.SCDeleteItem(m_Ctrl, Tag(), Guid, "???");
-      if (RetCode!=EODT_DONE)
+      if (RetCode!=EOSC_DONE)
         {
         LogError(Tag(), 0, "Model not deleted");
         //DeletesFailedCnt++;
@@ -636,7 +636,7 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
   int RetCode = gs_Exec.SCModifyItem(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
-  if (RetCode!=EODT_DONE)
+  if (RetCode!=EOSC_DONE)
     {
     LogError(tag, 0, "Model not modified");
     //DeletesFailedCnt++;
@@ -703,8 +703,6 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
 
     FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
     FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
-
-    pSrc->Tag();
 
     CRectangleF boundingRect;
     POSITION Pos=ControlPoints.GetHeadPosition();
@@ -800,6 +798,94 @@ void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
     }
 
   ON_EXIT("OnDeleteLink");
+  };
+
+
+//------------------------------------------------------------------------
+//
+//------------------------------------------------------------------------
+
+void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
+                                LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
+                                CPointFList & ControlPoints)//, const CRectangleF & textArea);
+  {
+
+  Strng Guid;
+  if (gs_pPrj->GetNodeGuid((LPSTR)Tag, Guid))
+    {
+    DO_ENTRY_GT("GCBModifyLinkPts", Guid(), Tag);
+
+    CRectangleF PageRct = GetPageRect(Page);
+
+    FlwNode * pLink = gs_pSfeSrvr->FE_FindNode(Tag, NULL);
+
+    LPSTR     pClass  = pLink->ClassId();
+    FlwNode * pSrcNd  = pLink->Nd_Rmt(0);
+    LPSTR     pSrcIO  = pLink->IOArea_Rmt(0).IOName();
+    FlwNode * pDstNd  = pLink->Nd_Rmt(1);
+    LPSTR     pDstIO  = pLink->IOArea_Rmt(1).IOName();
+
+    POSITION Pos=ControlPoints.GetHeadPosition();
+    while (Pos)
+      {
+      CPointF &Pt=ControlPoints.GetNext(Pos);
+      Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
+      }
+    m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints);
+
+    DO_EXIT("GCBModifyLinkPts");
+    }
+  else
+    {
+    }
+  }
+
+//------------------------------------------------------------------------
+
+void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGuid, LPCSTR Tag, /*LPCSTR Path,*/ 
+                              LPCSTR ClassId, 
+                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
+                              LPCSTR OriginPort, LPCSTR DestinationPort, 
+                              CPointFList & ControlPoints, const CRectangleF & textArea)
+  {
+  ON_ENTRY_GT("OnModifyLink", LinkGuid, Tag);
+
+
+  FlwNode * pSrc = gs_pSfeSrvr->FE_FindNode(NULL, OriginGuid);
+  FlwNode * pDst = gs_pSfeSrvr->FE_FindNode(NULL, DestinationGuid);
+
+  CRectangleF boundingRect;
+  POSITION Pos=ControlPoints.GetHeadPosition();
+  if (Pos)
+    {
+    boundingRect.Set(ControlPoints.GetNext(Pos));
+    while (Pos)
+      boundingRect.Include(ControlPoints.GetNext(Pos), false);
+    }
+
+  CsGrfGroup * pGrp=CSvcConnect::GetContainingGroup(boundingRect);
+
+  m_Ctrl.SetXObjArray(gs_pTheSFELib);
+  if (pGrp)
+    {
+    CString GroupName=pGrp->m_Name;
+    m_Ctrl.AddXObjArray(FindGrfWnd(GroupName));
+    }
+
+  //CString PageName=CSvcConnect::ExtractPageName(path);
+  //m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
+
+  int RetCode = gs_Exec.SCModifyLink(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, textArea);
+  if (RetCode!=EOSC_DONE)
+    {
+    LogError(Tag, 0, "Link not modified");
+    //DeletesFailedCnt++;
+    }
+  else
+    {
+    }
+
+  ON_EXIT("OnModifyLink");
   };
 
 //========================================================================

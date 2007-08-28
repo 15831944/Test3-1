@@ -4321,6 +4321,18 @@ void GrfCmdBlk::DoMoveLink()
         {
         if (LnkTag.Length())
           {
+#if SYSCAD10
+          SCD10ENTER;
+          CPointFList ControlPoints;
+          for (int i=0; i<TheLDH.NVerts(); i++)
+            {
+            Pt_3f Pt = TheLDH.VertWorld(i);
+            ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
+            }
+          gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints);
+          SCD10LEAVE;
+#else
+
           if (OldEntity)
             {//delete previous...
             //char * pTag = Attr_Value(Find_Attr(OldEntity, TagAttribStr));
@@ -4344,6 +4356,7 @@ void GrfCmdBlk::DoMoveLink()
           DXF_ENTITY e = AddLinkDrawing(TheLDH);
           pDsp->Draw(e, GR_WHITE);
           pWnd->Invalidate();
+#endif
           }
         else
           LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Valid link must be selected");
