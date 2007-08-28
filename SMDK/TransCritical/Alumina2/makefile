@@ -7,21 +7,16 @@ LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 
 PRECIP_OBJ = precip.obj
 
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
 
 
-OBJS = TTMADBayer.obj   TTMADBayerSM.obj 
+OBJS = Alumina2.obj   Alumina2SM.obj 
 UOBJS =  Precipitator.obj TubeDigester.obj $(PRECIP_OBJ) sthx.obj
 COMMON = ../TTCommon/
 
 
-ifeq ($(SYSCAD),91)
- IDIR = "..\..\smdk\Include"
- LDIR = "..\..\smdk\bin\rls"
-else
- IDIR = "..\..\include"
- LDIR = "..\..\bin\rls"
-endif
+IDIR = "..\..\includeex"
+LDIR = "..\..\binex\rls"
 
 
 
@@ -34,15 +29,15 @@ all: Alumina2.dll
 
 
 Alumina2.dll: $(OBJS) $(UOBJS)
-	link /OUT:"$(SYSCADDIR)\Alumina2.dll" $(LFLAGS) /PDB:".\Rls/TTMADBayer.pdb" /IMPLIB:".\Rls/TTMADBayer.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(UOBJS) $(LIBS)
+	link /OUT:"$(SYSCADDIR)\Alumina2.dll" $(LFLAGS) /PDB:".\Rls/Alumina2.pdb" /IMPLIB:".\Rls/Alumina2.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(UOBJS) $(LIBS)
 	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\Alumina2.dll"
 
 
 
-TTMADBayerSM.obj : TTMADBayerSM.cpp TTMADBayerSM.h
-	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) TTMADBayerSM.cpp
+Alumina2SM.obj : Alumina2SM.cpp Alumina2SM.h
+	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) Alumina2SM.cpp
 
-TTMADBayer.obj : TTMADBayer.cpp TTMADBayer.h
+Alumina2.obj : Alumina2.cpp Alumina2.h
 
 
 
@@ -65,8 +60,8 @@ clean:
 	rm -f $(OBJS) $(UOBJS)
 
 list :  
-	/cygwin/bin/a2ps -Ma4 -olist.ps TTMADBayerSM.h TTMADBayerSM.cpp \
-	    TTMADBayer.h TTMADBayer.cpp
+	/cygwin/bin/a2ps -Ma4 -olist.ps Alumina2SM.h Alumina2SM.cpp \
+	    Alumina2.h Alumina2.cpp
 
 install: 
 	cp "C:\SysCAD90\Bin\Alumina2.dll" "\\TT_3\share\Alumina2.dll"
