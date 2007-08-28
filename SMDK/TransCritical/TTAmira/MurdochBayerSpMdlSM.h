@@ -12,13 +12,6 @@
 class SpecieMdlMRU;   // FOrward Declare
 
 
-#ifndef RLS125
-#define MArrayI MArray
-#define TestMStateValid TestStateValid
-#define TestHStateValid TestStateValid
-#define SetMStateValid SetStateValid
-#define SetHStateValid SetStateValid
-#endif
 
 
 

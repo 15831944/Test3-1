@@ -9,20 +9,15 @@ LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 
 PRECIP_OBJ = precip.obj
 
-#LIBS = DevLib.lib scdlib.lib
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
+#LIBS = SMDK1.lib scdlib.lib
 
 
 OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 
 
 
-ifeq ($(SYSCAD),91)
- IDIR = "..\..\smdk\Include"
- LDIR = "..\..\smdk\bin\rls"
-else
- IDIR = "..\..\include"
- LDIR = "..\..\bin\rls"
-endif
+IDIR = "..\..\include"
+LDIR = "..\..\bin\rls"
 
 
 
@@ -36,7 +31,7 @@ all: $(DLLNAME).dll
 
 $(DLLNAME).dll: $(OBJS)
 	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" /IMPLIB:".\Rls/$(DLLNAME).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) MurdochBayer.lib
-	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
+	../../devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
 	cp c:/SysCAD91/bin/$(DLLNAME).dll "C:/Documents and Settings/Rodney Stephenson/Desktop/MBRelease"
 
 
