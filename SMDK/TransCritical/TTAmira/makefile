@@ -9,7 +9,8 @@ LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 
 PRECIP_OBJ = precip.obj
 
-LIBS = DevLib.lib scdlib.lib
+#LIBS = DevLib.lib scdlib.lib
+LIBS = SMDK1.lib scdlib.lib
 
 
 OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 

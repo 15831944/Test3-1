@@ -12,6 +12,15 @@
 class SpecieMdlMRU;   // FOrward Declare
 
 
+#ifndef RLS125
+#define MArrayI MArray
+#define TestMStateValid TestStateValid
+#define TestHStateValid TestStateValid
+#define SetMStateValid SetStateValid
+#define SetHStateValid SetStateValid
+#endif
+
+
 
 extern "C" double g0h2o_(double*, double *);
 
@@ -145,7 +154,6 @@ class MurdochBayerSpMdl : public MSpModelBase, public MIBayer
 
     static MArrayI NaFactor;
     static bool NaFactorOK;
-    
 
 #if DBG_MVECTOR
     CArray<double, double> m_dbgM;
