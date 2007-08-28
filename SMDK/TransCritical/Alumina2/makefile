@@ -1,5 +1,5 @@
 SYSCAD=91
-SYSCADDIR=C:\SysCAD$(SYSCAD)\bin
+SYSCADDIR=C:\SysCAD$(SYSCAD)\bin125
 
 IDIR = "..\..\includeex"
 IDIR1  = "..\..\include"
