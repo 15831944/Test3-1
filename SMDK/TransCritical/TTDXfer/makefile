@@ -1,5 +1,5 @@
 #   Generic makefile for compiling SMDK using GNU tools and free MS Compilers
-#   Time-stamp: <2007-07-04 15:41:33 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-08-28 13:18:33 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
 
@@ -17,13 +17,8 @@ OBJS = 	TTDynTest.obj   \
 	TTDynTestUM.obj
 
 
-ifeq ($(SYSCAD),91)
- IDIR = "..\..\smdk\Include"
- LDIR = "..\..\smdk\bin\rls"
-else
- IDIR = "..\..\include"
- LDIR = "..\..\bin\rls"
-endif
+IDIR = "..\..\include"
+LDIR = "..\..\bin\rls"
 
 
 %.obj : %.cpp
@@ -35,7 +30,7 @@ endif
 TTDynTest.dll: $(OBJS)
 	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/$(SMDKDLL).pdb" \
 	/IMPLIB:".\Rls/$(SMDKDLL).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
-	../../smdk/devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
+	../../devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
 
 
 TTDynTestUM.obj : TTDynTestUM.cpp TTDynTestUM.h
