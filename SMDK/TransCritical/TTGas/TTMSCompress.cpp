@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2006-12-01 12:12:08 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-08-29 10:58:03 Rod Stephenson Transcritical Pty Ltd>
 // $Nokeywords: $ QAL Extensions by Transcritical Technologies Pty Ltd
 //===========================================================================
 
@@ -330,7 +330,7 @@ void CTTMSCompress::EvalProducts()
 {
   try           
     {
-    MStream PumpI;
+    MStreamI PumpI;
     MStream & PumpO = FlwIOs[FlwIOs.First[idDischarge]].Stream;
     FlwIOs.AddMixtureIn_Id(PumpI, idSuction);
     PumpO = PumpI;

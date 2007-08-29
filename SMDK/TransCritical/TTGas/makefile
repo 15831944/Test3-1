@@ -1,15 +1,15 @@
 DLLNAME = TTGas
 SYSCAD=91
-SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
+SYSCADDIR = C:\SysCAD$(SYSCAD)\bin125
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
 DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "TTECH"
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 OBJS = TTGas.obj   TTGasSM.obj TTCompress.obj TTMSCompress.obj
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
 
-IDIR = "..\..\smdk\Include"
-LDIR = "..\..\smdk\bin\rls"
+IDIR = "..\..\Include"
+LDIR = "..\..\bin\rls"
 
 %.obj : %.cpp
 	 cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $<
@@ -18,7 +18,7 @@ LDIR = "..\..\smdk\bin\rls"
 TTGas.dll: $(OBJS)
 	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" \
 	/IMPLIB:".\Rls/$(DLLNAME).lib" /LIBPATH:$(LDIR) /MACHINE:X86 $(OBJS) $(LIBS)
-	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
+	../../devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
 
 TTGasSM.obj : TTGasSM.cpp TTGasSM.h
 
