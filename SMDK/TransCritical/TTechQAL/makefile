@@ -1,6 +1,6 @@
-#   Time-stamp: <2007-08-28 13:15:06 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-08-28 14:22:24 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
-SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
+SYSCADDIR = C:\SysCAD$(SYSCAD)\bin125
 
 #DBG = 1
 COMMON = ../TTCommon/
@@ -11,7 +11,7 @@ CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800 /I C:/Tcl/Include
 DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" \
           /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS"
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG  $(COMMON)ttcommon.lib
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
 
 OBJS = 	QALClassifier.obj   \
 	ReversionWasher.obj \
@@ -45,7 +45,7 @@ LDIR = "..\..\bin\rls"
 
 TTechQAL.dll: $(OBJS)
 	link /OUT:"c:\SysCAD$(SYSCAD)\Bin\$(SMDKDLL).dll" $(LFLAGS) /PDB:".\Rls/TTechQAL.pdb" /IMPLIB:".\Rls/TTechQAL.lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS)
-	../../devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin\$(SMDKDLL).dll"
+	../../devlic.exe /q /f:"c:\syscad$(SYSCAD)\bin125\$(SMDKDLL).dll"
 #	cp "$(SYSCADDIR)/$(SMDKDLL).dll" "g:/archive/syscad/syscad$(SYSCAD)"
 
 QALClassifier.obj : QALClassifier.cpp QALClassifier.h

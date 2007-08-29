@@ -1,7 +1,7 @@
 # Makefile for Dynamic Flash Train Models
 DLLNAME = TTechFT
 SYSCAD=91
-SYSCADDIR = C:\SysCAD$(SYSCAD)\bin
+SYSCADDIR = C:\SysCAD$(SYSCAD)\bin125
 
 
 
@@ -10,10 +10,10 @@ DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 PRECIP_OBJ = precip.obj
 OBJS = TTFT.obj TTOrifice.obj utils.obj
-LIBS = SMDK1.lib scdlib.lib
+LIBS = DevLib.lib scdlib.lib
 
-IDIR = "..\..\smdk\Include"
-LDIR = "..\..\smdk\bin\rls"
+IDIR = "..\..\Include"
+LDIR = "..\..\bin\rls"
 
 
 
@@ -27,7 +27,7 @@ LDIR = "..\..\smdk\bin\rls"
 TTechFT.dll: $(OBJS)
 	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" \
 	/IMPLIB:".\Rls/$(DLLNAME).lib" /LIBPATH:$(LDIR) /MACHINE:X86 $(OBJS) $(LIBS)
-	../../smdk/devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
+	../../devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
 ##	cp "$(SYSCADDIR)\$(DLLNAME).dll" "g:/archive/syscad/syscad$(SYSCAD)"
 
 TTOrifice.obj : TTOrifice.cpp TTOrifice.h

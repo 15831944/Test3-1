@@ -1,5 +1,5 @@
 SYSCAD=91
-SYSCADDIR=C:\SysCAD$(SYSCAD)\bin
+SYSCADDIR=C:\SysCAD$(SYSCAD)\bin125
 DLLNAME = MurdochBayerSpMdl
 
 
@@ -10,7 +10,6 @@ LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
 PRECIP_OBJ = precip.obj
 
 LIBS = DevLib.lib scdlib.lib
-#LIBS = SMDK1.lib scdlib.lib
 
 
 OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 
@@ -32,7 +31,7 @@ all: $(DLLNAME).dll
 $(DLLNAME).dll: $(OBJS)
 	link /OUT:"$(SYSCADDIR)\$(DLLNAME).dll" $(LFLAGS) /PDB:".\Rls/$(DLLNAME).pdb" /IMPLIB:".\Rls/$(DLLNAME).lib" /MACHINE:X86 /LIBPATH:$(LDIR) $(OBJS) $(LIBS) MurdochBayer.lib
 	../../devlic.exe /q /f:"$(SYSCADDIR)\$(DLLNAME).dll"
-	cp c:/SysCAD91/bin/$(DLLNAME).dll "C:/Documents and Settings/Rodney Stephenson/Desktop/MBRelease"
+	cp c:/SysCAD91/bin125/$(DLLNAME).dll "C:/Documents and Settings/Rodney Stephenson/Desktop/MBRelease"
 
 
 
