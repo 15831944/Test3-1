@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 // $Nokeywords: $
-//   Time-stamp: <2007-05-28 03:22:28 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-08-29 10:32:49 Rod Stephenson Transcritical Pty Ltd>
 //===========================================================================
 
 #include "stdafx.h"
@@ -15,7 +15,7 @@ static char BASED_CODE THIS_FILE[] = __FILE__;
 #include "scdmacros.h" 
 #include "md_headers.h"
 
-#pragma LIBCOMMENT("..\\..\\Bin\\", "\\SMDK1" )
+#pragma LIBCOMMENT("..\\..\\Bin\\", "\\DevLib" )
 #pragma LIBCOMMENT("..\\..\\Bin\\", "\\scdlib" )
 
 //===========================================================================
