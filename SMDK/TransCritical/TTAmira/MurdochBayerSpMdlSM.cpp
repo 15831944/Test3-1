@@ -1,6 +1,6 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
 //    Murdoch Bayer Model Transcritical Technologies Pty Ltd Feb 05
-//   Time-stamp: <2007-07-03 18:16:11 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-08-29 14:12:40 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //===========================================================================
 #include "stdafx.h"
@@ -180,13 +180,13 @@ double MurdochBayerSpMdl::get_Density(long Phases, double T, double P, MArray *p
 //---------------------------------------------------------------------------
 
 double MurdochBayerSpMdl::LiqCpCalc(double T, MArray *MA ) {
-  Log.Message(MMsg_Note, "Liq Cp Calculation");
+  //Log.Message(MMsg_Note, "Liq Cp Calculation");
   double *dpData = CheckConverged(T, -1.0, MA);
   return dpData[iCp_Liq];
 }
 
 double MurdochBayerSpMdl::LiqHCalc(double T, double P, MArray *pMA ) {
-  Log.Message(MMsg_Note, "Liq H Calculation");
+  //Log.Message(MMsg_Note, "Liq H Calculation");
   double * dpData = CheckConverged(T, P, pMA);
   return  dpData[iH]-dpData0[iH];
 }
@@ -291,7 +291,7 @@ double MurdochBayerSpMdl::get_SaturationP(double T, MArray *pMA)
 
 double MurdochBayerSpMdl::BoilPtElev(double P, MArray*pMA)
 {
-  Log.Message(MMsg_Warning, "Boiling POint Elevation, t  %8.2f p  %8.2f", this->Temperature, P);
+  //Log.Message(MMsg_Warning, "Boiling POint Elevation, t  %8.2f p  %8.2f", this->Temperature, P);
   double * dpData = CheckConverged(this->Temperature, P, pMA);
   return dpData[iBPE];
   }
@@ -789,7 +789,7 @@ double MurdochBayerSpMdl::LVolume25()
   {
   const double mt=Mass(MP_Liq);
   double lv = (mt / LDensity25());
-  Log.Message(MMsg_Warning, "LVolume25: mt %8.2f lv %8.2f", mt, lv);
+  //Log.Message(MMsg_Warning, "LVolume25: mt %8.2f lv %8.2f", mt, lv);
   return ((mt>=UsableMass) ? lv : 0.0);
   }
 
@@ -904,11 +904,11 @@ double* MurdochBayerSpMdl::CheckConverged(double T, double P, MArray *pMA, bool 
     // Calculation for *this* species
     if ((T<0.0  || T==this->Temperature) && 
 	(P<0.0  || P==this->Pressure))  { // Call for stream conditions and composition
-      Log.Message(MMsg_Note, "Stream Conditions...");
-      if (!TestMStateValid(0))
-	Log.Message(MMsg_Note, "M State Invalid...");
-      if (!TestHStateValid(0))
-	Log.Message(MMsg_Note, "H State Invalid...");
+//       Log.Message(MMsg_Note, "Stream Conditions...");
+//       if (!TestMStateValid(0))
+// 	Log.Message(MMsg_Note, "M State Invalid...");
+//       if (!TestHStateValid(0))
+// 	Log.Message(MMsg_Note, "H State Invalid...");
 
       if (!TestMStateValid(0) || !TestHStateValid(0))  {  // Composition Changed, recalculate
 	Bayer(this->Temperature, this->Pressure, MArray(this), dpData);
@@ -921,31 +921,31 @@ double* MurdochBayerSpMdl::CheckConverged(double T, double P, MArray *pMA, bool 
       return dpData;
     }
     if (T==C2K(25.0)) {    // At reference temperature (25 C)
-      Log.Message(MMsg_Note, "Reference (25 C)");
+      //Log.Message(MMsg_Note, "Reference (25 C)");
       if (!TestMStateValid(0))    // Composition Changed, recalculate
 	Bayer(C2K(25.0), this->Pressure, MArray(this), dpData25); // Results in DPData 
       return dpData25;
     }
     if (T==C2K(0.0)) {    //  At Enthalpy/Entropy reference temperature 
-      Log.Message(MMsg_Note, "Reference (0 C)");
+      //Log.Message(MMsg_Note, "Reference (0 C)");
       if (!TestMStateValid(0))    // Composition Changed, recalculate
 	Bayer(C2K(0.0), 101.325, MArray(this), dpData0); // Results in DPData0 
       return dpData0;
     }
     if (T==C2K(20.0)) {    //  At Enthalpy/Entropy reference temperature 
-      Log.Message(MMsg_Note, "Reference (20 C)");
+      //Log.Message(MMsg_Note, "Reference (20 C)");
       if (!TestMStateValid(0))    // Composition Changed, recalculate
 	Bayer(C2K(20.0), this->Pressure, MArray(this), dpData20); // Results in DPData20 
       return dpData20;
     }
     // T specified but not equal to 25C or 0C
-    Log.Message(MMsg_Note, "Stream MArray, Other Temperature...");
+    //Log.Message(MMsg_Note, "Stream MArray, Other Temperature...");
     Bayer(T, this->Pressure, MArray(this), dpDataX); // Results in DPDataX
     return dpDataX;
     
 
   } else {   // MArray specified, recalculate.
-    Log.Message(MMsg_Note, "Specified MArray...");
+    //Log.Message(MMsg_Note, "Specified MArray...");
     
     
     if (T<0) T = this->Temperature;
@@ -967,7 +967,7 @@ void MurdochBayerSpMdl::Bayer(double T_K,
 			      bool calcSolubility) {
   if (!DPData)
     DPData = dpData;   // Primary copy
-  Log.Message(MMsg_Note, "Recalculating... T = %8.2f P = %8.2f", T_K, p_kPa);
+  //Log.Message(MMsg_Note, "Recalculating... T = %8.2f P = %8.2f", T_K, p_kPa);
 
   long iFlags;
   double TempC = T_K-273.15;
