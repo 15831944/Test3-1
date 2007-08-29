@@ -1,10 +1,9 @@
 #   Generic makefile for compiling SMDK using GNU tools and free MS Compilers
-#   Time-stamp: <2007-08-29 10:09:40 Rod Stephenson Transcritical Pty Ltd>
+#   Time-stamp: <2007-08-29 10:30:35 Rod Stephenson Transcritical Pty Ltd>
 SYSCAD=91
 SYSCADDIR = C:\SysCAD$(SYSCAD)\bin125
 
 COMMON = ../TTCommon/
-
 SMDKDLL = TTDynTest
 
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /Zi /wd4800
