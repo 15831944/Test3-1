@@ -368,7 +368,7 @@ int CGrfWnd::EO_ChangeTagDone(pchar pOldTag, pchar pNewTag)
 int CGrfWnd::EO_DeleteTag(pchar pDelTag)
   {//a tag has been deleted, ...
   int RetCode = EODT_NOTFOUND;
-
+#if SYSCAD10
   DXF_ENTITY eInsert, eAttrib;
   if (Dsp.FindTag(pDelTag, eInsert, eAttrib))
     {
@@ -384,7 +384,7 @@ int CGrfWnd::EO_DeleteTag(pchar pDelTag)
 
     Dsp.Close();
     }
-
+#endif
   return RetCode;
   }
 

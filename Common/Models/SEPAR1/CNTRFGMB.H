@@ -39,6 +39,7 @@ class CentrifugeMB : public MN_Surge
     byte           iWashEffSpecie; //eg caustic
     double         dSpWashEff,dSpWashEff2;
     flag           Disch;
+    flag           fOn;
     SpConduit      QFd;
 
     CentrifugeMB(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach);

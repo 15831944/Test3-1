@@ -117,6 +117,7 @@ CentrifugeMB::CentrifugeMB(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAtt
   dSpWashEff2   = 0.0;
   ActFiltSolConc=ActFiltSolConcT=0.0;
   ActCakeSolids=ActFiltSolids=0.0;
+  fOn=True;
   }
 
 //--------------------------------------------------------------------------
@@ -138,6 +139,7 @@ void CentrifugeMB::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Text    ("");
   DDB.Text    ("Requirements");
+  DDB.CheckBox("On",                      "",                DC_,     "",       &fOn,                this, isParm);
   if (PrjFileVerNo()<49)
     DDB.Double  ("",           "SolidLoss",     DC_Frac, "%",      &RqdSolidsToFiltrate, this, isParm);//SolidLoss
   else
@@ -220,12 +222,16 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
     {
     case SM_Direct:
       {
+      //RqdSolidsToFiltrate = Range(1.0e-8, RqdSolidsToFiltrate, 0.3);
+      RqdSolidsToFiltrate = Range(0.0, RqdSolidsToFiltrate, 1.0);
+      RqdCakeMoist  = Range(0.0, RqdCakeMoist,  0.99);
+      WashEff       = Range(0.01, WashEff, 1.0);
+
       const int iCl = IOWithId_Self(ioidLiq);
       const int iCs = IOWithId_Self(ioidSol);
       SpConduit & Cl = *IOConduit(iCl);
       SpConduit & Cs = *IOConduit(iCs);
 
-      double wash1, wash2, MSol, MLiq, MSol2Filt, MLiq2Cake, RSol, TotLiq, Sol2Filt; 
       const int iWw = IOWithId_Self(ioidwash);
       const int iW2 = IOWithId_Self(ioidwsh2);
       const int iFW = IOWithId_Self(ioidFW);
@@ -234,118 +240,132 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       SpConduit & QWw = (iWw >= 1 ? *IOConduit(iWw) : Dummy1);
       SpConduit & QW2 = (iW2 >= 1 ? *IOConduit(iW2) : Dummy2);
 
-      //RqdSolidsToFiltrate = Range(1.0e-8, RqdSolidsToFiltrate, 0.3);
-      RqdSolidsToFiltrate = Range(0.0, RqdSolidsToFiltrate, 1.0);
-      RqdCakeMoist  = Range(0.0, RqdCakeMoist,  0.99);
-      WashEff       = Range(0.01, WashEff, 1.0);
-
       SigmaQInPMin(QFd, som_ALL, Id_2_Mask(ioidFd));
+      const bool HasFeed = (QFd.QMass(som_ALL)>UsableMass);
+      const double TtlWashSol = QWw.QMass(som_Sol) + QW2.QMass(som_Sol);
+
       //double CFeed = QFd.SpecieConc(QFd.Temp(), iScanEffSpecie, som_Liq);
       double CFeed = QFd.SpecieConc(QFd.Temp(), iWashEffSpecie, som_Liq);
       double CWash1 = QWw.SpecieConc(QWw.Temp(), iWashEffSpecie, som_Liq);
       double CWash2 = QW2.SpecieConc(QW2.Temp(), iWashEffSpecie, som_Liq);
 
-      bool HasFeed = (QFd.QMass(som_ALL)>UsableMass);
-
-      RB.EvalProducts(QFd);
-      m_EHX.EvalProducts(QFd);
-
-		  MSol    = QFd.QMass(som_Sol);
-      MLiq    = QFd.QMass(som_Liq);
-      wash1   = QWw.QMass(som_Liq);
-      wash2   = QW2.QMass(som_Liq);
-      const double TtlLiqIn = MLiq + wash1 + wash2;
-      const double TtlWashSol = QWw.QMass(som_Sol) + QW2.QMass(som_Sol);
-      
-      //will not achieve requirements if there are any solids in wash!!!
-      MSol2Filt = MSol * RqdSolidsToFiltrate;
-      RSol      = MSol - MSol2Filt;
-      MLiq2Cake = (RqdCakeMoist * RSol)/(1.0 - RqdCakeMoist);
-      const bool FeedLiqLow = (TtlLiqIn<MLiq2Cake);
-		  SetCI(1, /*fOn && */HasFeed && FeedLiqLow);
-      if (FeedLiqLow)
-        {//force all liquids to cake
-        MLiq2Cake = TtlLiqIn;
-        }
-      TotLiq    = max(TtlLiqIn - MLiq2Cake, 1e-6);
-      Sol2Filt  = GEZ(MLiq - MLiq2Cake) * MSol2Filt/TotLiq;
-
-      Cs.QSetM(QFd, som_Sol, RSol, IOP_Self(iCs));
-      Cs.QAddM(QWw, som_Sol, QWw.QMass(som_Sol));
-      Cs.QAddM(QW2, som_Sol, QW2.QMass(som_Sol));
-
-      Cl.QSetM(QFd, som_Liq, GEZ(MLiq - MLiq2Cake), IOP_Self(iCl));
-      Cl.QAddM(QFd, som_Sol, Sol2Filt);
-
-      //=======================================================
+      bool FeedLiqLow = false;
       double CCake1 = 0.0;
-      if ((MSol > 1e-6) && (MLiq > 1e-6))
+      if (fOn/* && HasFeed*/)
         {
-        double Cf, Cw1, Cw2, e1, e2, w1, w2;
+        RB.EvalProducts(QFd);
+        m_EHX.EvalProducts(QFd);
 
-        w1 = min(MLiq2Cake*WashEff, wash1);
-        w2 = min(MLiq2Cake*WashEff, wash2);
-        e1 = w1/max(MLiq2Cake,1e-6);
-        e2 = w2/max(MLiq2Cake,1e-6);
+		    const double MSol    = QFd.QMass(som_Sol);
+        const double MLiq    = QFd.QMass(som_Liq);
+        const double wash1   = QWw.QMass(som_Liq);
+        const double wash2   = QW2.QMass(som_Liq);
+        const double TtlLiqIn = MLiq + wash1 + wash2;
+        
+        //will not achieve requirements if there are any solids in wash!!!
+        const double MSol2Filt = MSol * RqdSolidsToFiltrate;
+        const double RSol      = MSol - MSol2Filt;
+        double MLiq2Cake = (RqdCakeMoist * RSol)/(1 - RqdCakeMoist); 
+        FeedLiqLow = (TtlLiqIn<MLiq2Cake);
+		    SetCI(1, /*fOn && */HasFeed && FeedLiqLow);
+        if (FeedLiqLow)
+          {//force all liquids to cake
+          MLiq2Cake = TtlLiqIn;
+          }
+        const double TotLiq    = max(TtlLiqIn - MLiq2Cake, 1e-6);
+        const double Sol2Filt  = GEZ(MLiq - MLiq2Cake) * MSol2Filt/TotLiq;
 
-        // The liquid composition of the solids.
-        Cf  = MLiq2Cake * (1.0 - e1 - e2 + e1*e2);
-        Cw1 = w1 - w2*e1;
-        Cw2 = w2;
+        Cs.QSetM(QFd, som_Sol, RSol, IOP_Self(iCs));
+        Cs.QAddM(QWw, som_Sol, QWw.QMass(som_Sol));
+        Cs.QAddM(QW2, som_Sol, QW2.QMass(som_Sol));
 
-        Cs.QAddM(QFd, som_Liq, Cf);
-        Cs.QAddM(QWw, som_Liq, Cw1);
-        CCake1 = Cs.SpecieConc(Cs.Temp(), iWashEffSpecie, som_Liq);
-        Cs.QAddM(QW2, som_Liq, Cw2);
+        Cl.QSetM(QFd, som_Liq, GEZ(MLiq - MLiq2Cake), IOP_Self(iCl));
+        Cl.QAddM(QFd, som_Sol, Sol2Filt);
 
-        // The filtrate and washing streams
-        double Ff, Fw1, Fw2;
-        Ff  = MLiq2Cake - Cf;
-        Fw1 = wash1 - Cw1;
-        Fw2 = wash2 - Cw2;
-
-        if (iFW >= 1)
+        //=======================================================
+        if ((MSol > 1e-6) && (MLiq > 1e-6))
           {
-          rSpConduit FW =*IOConduit(iFW);
-          
-          if (iSW >= 1)
-            {//more than one washing output stream connected
-            double Sw1, Sw2;
-            rSpConduit SW =*IOConduit(iSW);
-            Sw1 = wash1 * MSol2Filt/TotLiq;
-            Sw2 = wash2 * MSol2Filt/TotLiq;
+          double Cf, Cw1, Cw2, e1, e2, w1, w2;
 
-            FW.QSetM(QFd, som_Liq, w1, IOP_Self(iFW));
-            FW.QAddM(QWw, som_Liq, wash1 - w1);
-            FW.QAddM(QFd, som_Sol, Sw1);
+          w1 = min(MLiq2Cake*WashEff, wash1);
+          w2 = min(MLiq2Cake*WashEff, wash2);
+          e1 = w1/max(MLiq2Cake,1e-6);
+          e2 = w2/max(MLiq2Cake,1e-6);
 
-            SW.QSetM(QFd, som_Liq, w2 - w1*e2, IOP_Self(iSW));
-            SW.QAddM(QWw, som_Liq, w1*e2);
-            SW.QAddM(QW2, som_Liq, Fw2);
-            SW.QAddM(QFd, som_Sol, Sw2);
-            }
-          else  // everything goes to the first washings stream
+          // The liquid composition of the solids.
+          Cf  = MLiq2Cake * (1.0 - e1 - e2 + e1*e2);
+          Cw1 = w1 - w2*e1;
+          Cw2 = w2;
+
+          Cs.QAddM(QFd, som_Liq, Cf);
+          Cs.QAddM(QWw, som_Liq, Cw1);
+          CCake1 = Cs.SpecieConc(Cs.Temp(), iWashEffSpecie, som_Liq);
+          Cs.QAddM(QW2, som_Liq, Cw2);
+
+          // The filtrate and washing streams
+          double Ff, Fw1, Fw2;
+          Ff  = MLiq2Cake - Cf;
+          Fw1 = wash1 - Cw1;
+          Fw2 = wash2 - Cw2;
+
+          if (iFW >= 1)
             {
-            FW.QSetM(QFd, som_Liq, Ff, IOP_Self(iFW));
-            FW.QAddM(QWw, som_Liq, Fw1);
-            FW.QAddM(QW2, som_Liq, Fw2);
-            FW.QAddM(QFd, som_Sol, MSol2Filt - Sol2Filt);
+            rSpConduit FW =*IOConduit(iFW);
+            
+            if (iSW >= 1)
+              {//more than one washing output stream connected
+              double Sw1, Sw2;
+              rSpConduit SW =*IOConduit(iSW);
+              Sw1 = wash1 * MSol2Filt/TotLiq;
+              Sw2 = wash2 * MSol2Filt/TotLiq;
+
+              FW.QSetM(QFd, som_Liq, w1, IOP_Self(iFW));
+              FW.QAddM(QWw, som_Liq, wash1 - w1);
+              FW.QAddM(QFd, som_Sol, Sw1);
+
+              SW.QSetM(QFd, som_Liq, w2 - w1*e2, IOP_Self(iSW));
+              SW.QAddM(QWw, som_Liq, w1*e2);
+              SW.QAddM(QW2, som_Liq, Fw2);
+              SW.QAddM(QFd, som_Sol, Sw2);
+              }
+            else  // everything goes to the first washings stream
+              {
+              FW.QSetM(QFd, som_Liq, Ff, IOP_Self(iFW));
+              FW.QAddM(QWw, som_Liq, Fw1);
+              FW.QAddM(QW2, som_Liq, Fw2);
+              FW.QAddM(QFd, som_Sol, MSol2Filt - Sol2Filt);
+              }
+            }
+          else  // everything goes to the filtrate
+            {
+            Cl.QAddM(QFd, som_Liq, Ff);
+            Cl.QAddM(QWw, som_Liq, Fw1);
+            Cl.QAddM(QW2, som_Liq, Fw2);
+            Cl.QAddM(QFd, som_Sol, MSol2Filt - Sol2Filt);
             }
           }
-        else  // everything goes to the filtrate
+        else
           {
-          Cl.QAddM(QFd, som_Liq, Ff);
-          Cl.QAddM(QWw, som_Liq, Fw1);
-          Cl.QAddM(QW2, som_Liq, Fw2);
-          Cl.QAddM(QFd, som_Sol, MSol2Filt - Sol2Filt);
+          Cs.QAddM(QFd, som_Sol, MSol2Filt);
+          Cl.QAddM(QFd, som_Liq, MLiq2Cake);
+          Cl.QAddM(QWw, som_Liq, wash1);
+          Cl.QAddM(QW2, som_Liq, wash2);
           }
         }
       else
-        {
-        Cs.QAddM(QFd, som_Sol, MSol2Filt);
-        Cl.QAddM(QFd, som_Liq, MLiq2Cake);
-        Cl.QAddM(QWw, som_Liq, wash1);
-        Cl.QAddM(QW2, som_Liq, wash2);
+        {//off
+        SigmaQInPMin(Cs, som_ALL, Id_2_Mask(ioidFd));
+        SigmaQInPMin(Cl, som_ALL, Id_2_Mask(ioidwash)|Id_2_Mask(ioidwsh2));
+        if (iFW >= 1)
+          {
+          rSpConduit FW =*IOConduit(iFW);
+          FW.QZero();
+          }
+        if (iSW >= 1)
+          {
+          rSpConduit SW =*IOConduit(iSW);
+          SW.QZero();
+          }
         }
 
       ActCakeLiq      = Cs.MassFrac(som_Liq);
@@ -356,15 +376,14 @@ void CentrifugeMB::EvalProducts(CNodeEvalIndex & NEI)
       //double Cuf = Cs.SpecieConc(Cs.Temp(), iScanEffSpecie, som_Liq);
       //double Cof = Cl.SpecieConc(Cl.Temp(), iScanEffSpecie, som_Liq);
       //ActScandrettEff = (CFeed - Cuf)/NZ(CFeed - Cof);
-      double CCake2 = Cs.SpecieConc(Cs.Temp(), iWashEffSpecie, som_Liq);
+      const double CCake2 = Cs.SpecieConc(Cs.Temp(), iWashEffSpecie, som_Liq);
       dSpWashEff  = (CFeed - CCake1)/NZ(CFeed - CWash1);
       dSpWashEff2 = (CFeed - CCake2)/NZ(CFeed - CWash2);
 
       const double CMErr = fabs(ActCakeLiq - RqdCakeMoist); //CakeMoisture error
       const bool SolInWashErr = (CMErr > 1.0e-5 && TtlWashSol>1.0e-6);
-		  SetCI(2, /*fOn && bTrackStatus && */HasFeed && !FeedLiqLow && !SolInWashErr && CMErr > 1.0e-5);
-		  SetCI(3, /*fOn && bTrackStatus && */HasFeed && SolInWashErr);
-      
+		  SetCI(2, fOn && /*bTrackStatus && */HasFeed && !FeedLiqLow && !SolInWashErr && CMErr > 1.0e-5);
+		  SetCI(3, fOn && /*bTrackStatus && */HasFeed && SolInWashErr);
       break;
       }
     case SM_Inline:

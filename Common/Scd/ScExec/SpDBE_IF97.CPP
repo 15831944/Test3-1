@@ -3614,7 +3614,7 @@ static double StmS(double T, double P)
   if (!DBDataRaw)
     {
     if (T > 1073.15)
-      return StmDensRgn5_KW(T, P);
+      return StmSRgn5_KW(T, P);
       //return IF97Calcs.entropyW(1073.15, P) + (IF97Calcs.cpW(1073.15, P)/1073.16)*(T - 1073.15);
     else
       {

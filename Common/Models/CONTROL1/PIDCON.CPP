@@ -665,7 +665,7 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
         DDB.CheckBoxBtn("Reverse_Acting", "Reverse", DC_, "", &(p->RevActing()), this, isParm, DDBYesNo);
       DDB.Double("Gain",             "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+8, this, isParm);
       DDB.Double("PropBand",         "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+7, this, isParm);
-      DDB.Double("Integral",         "",           DC_, "", &(p->Ic()),     this, isParm|DynViewFlag);
+      DDB.Double("Integral",         "",           DC_, "", &(p->Ic()),     this, isParm/*|DynViewFlag*/);
       DDB.Double("Derivative",       "",           DC_, "", &(p->Dc()),     this, isParm|DynViewFlag);
       DDB.Double("Bias",             "",           DC_, "", &(p->Bias()),   this, isParm|PID4ViewFlag);
 
