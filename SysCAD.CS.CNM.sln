@@ -48,13 +48,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log", "Common\LogView\Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartPropertyGrid", "GUIs\VisualHint\Smart PropertyGrid.Net\SmartPropertyGrid.csproj", "{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}"
 	ProjectSection(WebsiteProperties) = preProject
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartPropertyGrid", "GUIs\VisualHint\Smart PropertyGrid.Net\SmartPropertyGrid.csproj", "{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "71.Log", "Common\LogView\71.Log.csproj", "{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -224,28 +228,6 @@ Global
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
 		{317F8980-564D-423D-945F-D7A9F4A8043D}.Vertigo|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Release|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Distribution|Any CPU.Build.0 = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Standard|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Standard|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Release|Any CPU.Build.0 = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
-		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Vertigo|Any CPU.Build.0 = Release|Any CPU
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -268,6 +250,28 @@ Global
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Trial Release|Any CPU.Build.0 = Release|Any CPU
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
 		{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}.Vertigo|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.BETA Release|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Distribution|Any CPU.ActiveCfg = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Distribution|Any CPU.Build.0 = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release Marshal|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release Marshal|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Standard|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Standard|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Fixed Date Release|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Trial Release|Any CPU.Build.0 = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Vertigo|Any CPU.ActiveCfg = Release|Any CPU
+		{B10BBF30-1665-4E24-9F7E-7F248A44A0A9}.Vertigo|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
