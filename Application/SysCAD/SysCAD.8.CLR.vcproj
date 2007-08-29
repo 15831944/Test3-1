@@ -269,9 +269,14 @@
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;WIN32;_WINDOWS;__MCRSFTC__;SPLINE;_CCDK_WIN"
 				GeneratePreprocessedFile="0"
 				StringPooling="true"
+				MinimalRebuild="true"
 				ExceptionHandling="2"
-				BasicRuntimeChecks="0"
+				BasicRuntimeChecks="3"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="3"
+				StructMemberAlignment="0"
+				FloatingPointModel="0"
+				FloatingPointExceptions="false"
 				TreatWChar_tAsBuiltInType="false"
 				ForceConformanceInForLoopScope="false"
 				RuntimeTypeInfo="true"
@@ -283,7 +288,7 @@
 				ProgramDataBaseFileName=".\Dbg8/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 				CompileAs="0"
 			/>
 			<Tool
@@ -4846,7 +4851,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ExceptionHandling="0"
+						ExceptionHandling="1"
 						BasicRuntimeChecks="0"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
@@ -4921,8 +4926,13 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						StringPooling="false"
+						MinimalRebuild="false"
 						ExceptionHandling="0"
 						BasicRuntimeChecks="0"
+						SmallerTypeCheck="false"
+						BufferSecurityCheck="false"
+						EnableFunctionLevelLinking="true"
 						FloatingPointModel="0"
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
