@@ -438,6 +438,8 @@ namespace SysCAD.Editor
       fcFlowChart.Visible = false;
       fcFlowChart.Enabled = false;
 
+
+
       foreach (GraphicGroup graphicGroup in clientProtocol.graphicGroups.Values)
       {
         state.CreateGroup(graphicGroup, false, fcFlowChart);

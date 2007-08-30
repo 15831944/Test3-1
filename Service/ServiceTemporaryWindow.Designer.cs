@@ -28,7 +28,7 @@ namespace Service
     /// </summary>
     private void InitializeComponent()
     {
-      this.logView = new SysCAD.Log.LogView(5);
+      this.logView = new SysCAD.Log.LogView(50, "c:\\ServiceLog.txt");
       this.SuspendLayout();
       // 
       // logView1

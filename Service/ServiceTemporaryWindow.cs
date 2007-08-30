@@ -226,12 +226,19 @@ namespace Service
 
     bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
     {
-      if (true) // Decide whether to create an link.
+      GraphicItem originGraphicItem;
+      GraphicItem destinationGraphicItem;
+
+      graphicItems.TryGetValue(origin, out originGraphicItem);
+      graphicItems.TryGetValue(destination, out destinationGraphicItem);
+
+      this.requestId++;
+      requestId = this.requestId;
+
+      if ((originGraphicItem != null) && (destinationGraphicItem != null)) // Decide whether to create an link.
       { // We're going to do it.
         // Create the item.
 
-        this.requestId++;
-        requestId = this.requestId;
         guid = Guid.NewGuid();
 
         GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints);
@@ -245,6 +252,14 @@ namespace Service
       }
       else
       { // We're not going to do it.
+        if (originGraphicItem == null)
+          logView.Message("Failed to create link " + tag + ".  Origin: " + origin.ToString() + " missing.", MessageType.Warning);
+
+        if (destinationGraphicItem == null)
+          logView.Message("Failed to create link " + tag + ".  Destination: " + destination.ToString() + " missing.", MessageType.Warning);
+
+        guid = Guid.Empty;
+
         return false;
       }
     }

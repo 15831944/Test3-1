@@ -35,6 +35,36 @@ namespace SysCAD.Editor
     private Dictionary<Guid, Item> items = new Dictionary<Guid, Item>();
     private Dictionary<Guid, Link> links = new Dictionary<Guid, Link>();
 
+    private Dictionary<String, Bitmap> modelUnselectedThumbnails = new Dictionary<String, Bitmap>();
+    private Dictionary<String, Bitmap> modelSelectedThumbnails = new Dictionary<String, Bitmap>();
+
+    public Dictionary<String, Bitmap> ModelUnselectedThumbnails
+    {
+      get { return modelUnselectedThumbnails; }
+      set { modelUnselectedThumbnails = value; }
+    }
+
+    public Dictionary<String, Bitmap> ModelSelectedThumbnails
+    {
+      get { return modelSelectedThumbnails; }
+      set { modelSelectedThumbnails = value; }
+    }
+
+    private Dictionary<String, Bitmap> graphicUnselectedThumbnails = new Dictionary<String, Bitmap>();
+    private Dictionary<String, Bitmap> graphicSelectedThumbnails = new Dictionary<String, Bitmap>();
+
+    public Dictionary<String, Bitmap> GraphicUnselectedThumbnails
+    {
+      get { return graphicUnselectedThumbnails; }
+      set { graphicUnselectedThumbnails = value; }
+    }
+
+    public Dictionary<String, Bitmap> GraphicSelectedThumbnails
+    {
+      get { return graphicSelectedThumbnails; }
+      set { graphicSelectedThumbnails = value; }
+    }
+
     bool projectOpen = false;
 
     ClientBaseProtocol.Permissions permissions = new ClientBaseProtocol.Permissions(false, false, false);
@@ -599,9 +629,9 @@ namespace SysCAD.Editor
         Item origin = null;
         Item destination = null;
 
-        if (graphicLink.Origin != Guid.Empty) origin = item(graphicLink.Origin);
+        if (graphicLink.Origin != Guid.Empty) origin = Item(graphicLink.Origin);
 
-        if (graphicLink.Destination != Guid.Empty) destination = item(graphicLink.Destination);
+        if (graphicLink.Destination != Guid.Empty) destination = Item(graphicLink.Destination);
 
         PointF pointOrigin = new PointF();
         PointF pointDestination = new PointF();
@@ -1279,13 +1309,6 @@ namespace SysCAD.Editor
       return thing;
     }
 
-    private Item item(Guid guid)
-    {
-      Item item;
-      items.TryGetValue(guid, out item);
-      return item;
-    }
-
     static private ElementTemplate MirroredElement(object element, bool mirrorX, bool mirrorY)
     {
       SysCAD.Protocol.Line line = element as SysCAD.Protocol.Line;
@@ -1396,7 +1419,58 @@ namespace SysCAD.Editor
     public Config Config
     {
       get { return config; }
-      set { config = value; }
+      set
+      {
+        config = value;
+
+        FlowChart flowchart = new FlowChart();
+
+        foreach (String key in config.ModelStencils.Keys)
+        {
+          ModelStencil stencil = config.ModelStencils[key];
+          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.ShadowsStyle = ShadowsStyle.None;
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+          box.Style = BoxStyle.Shape;
+          box.Shape = GetShapeTemplate(stencil, false, false);
+          box.FillColor = System.Drawing.Color.FromArgb(150, System.Drawing.Color.BurlyWood);
+          box.FrameColor = System.Drawing.Color.FromArgb(255, System.Drawing.Color.BurlyWood);
+          box.Locked = true;
+
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          modelUnselectedThumbnails.Add(key, flowchart.CreateImage());
+
+          flowchart.BackColor = System.Drawing.SystemColors.Highlight;
+          modelSelectedThumbnails.Add(key, flowchart.CreateImage());
+          
+          flowchart.DeleteObject(box);
+        }
+
+        foreach (String key in config.GraphicStencils.Keys)
+        {
+          GraphicStencil stencil = config.GraphicStencils[key];
+          flowchart.DocExtents = flowchart.ClientToDoc(new Rectangle(0, 0, 17, 17));
+          flowchart.ShadowsStyle = ShadowsStyle.None;
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          flowchart.AntiAlias = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+          RectangleF boxRect = flowchart.ClientToDoc(new Rectangle(1, 1, 13, 13));
+          Box box = flowchart.CreateBox(boxRect.X, boxRect.Y, boxRect.Width, boxRect.Height);
+          box.Style = BoxStyle.Shape;
+          box.Shape = GetShapeTemplate(stencil, false, false);
+          box.Locked = true;
+          
+          flowchart.BackColor = System.Drawing.SystemColors.Window;
+          graphicUnselectedThumbnails.Add(key, flowchart.CreateImage());
+
+          flowchart.BackColor = System.Drawing.SystemColors.Highlight;
+          graphicSelectedThumbnails.Add(key, flowchart.CreateImage());
+
+          flowchart.DeleteObject(box);
+        }
+      }
     }
 
     public IEnumerable<GraphicStencil> GraphicStencils
