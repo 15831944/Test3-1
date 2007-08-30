@@ -2,23 +2,18 @@ SYSCAD=91
 SYSCADDIR=C:\SysCAD$(SYSCAD)\bin125
 DLLNAME = MurdochBayerSpMdl
 
-
+# Compiler Flags...
 CFLAGS = /GF /FD /EHsc /MD /GR /W3 /nologo /c /ZI /wd4800
-DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "GLADDY" /D DLL_GroupName=\"$(DLLNAME)\"
+# Defines...
+DFLAGS =  /D "_RELEASE" /D "NDEBUG" /D "SMDKDemoU" /D "WIN32" /D "_WINDOWS" /D "_AFXEXT" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D DLL_GroupName=\"$(DLLNAME)\"
+# Linker Flags...
 LFLAGS = /INCREMENTAL /NOLOGO /DLL /DEBUG
-
-PRECIP_OBJ = precip.obj
-
-#LIBS = DevLib.lib scdlib.lib
 
 
 OBJS = $(DLLNAME).obj   $(DLLNAME)SM.obj 
 
 
 IDIR = "..\..\include"
-#LDIR = "..\..\bin\rls"
-
-
 
 
 %.obj : %.cpp
@@ -36,17 +31,12 @@ $(DLLNAME).dll: $(OBJS)
 
 
 $(DLLNAME)SM.obj : $(DLLNAME)SM.cpp $(DLLNAME)SM.h
-	cl /I $(IDIR) $(DFLAGS) $(CFLAGS) $(DLLNAME)SM.cpp
 
 $(DLLNAME).obj : $(DLLNAME).cpp $(DLLNAME).h
 
 
-
-
-
-
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJS) vc*
 
 list :  
 	a2ps -Ma4 -olist.ps $(DLLNAME)SM.h $(DLLNAME)SM.cpp
