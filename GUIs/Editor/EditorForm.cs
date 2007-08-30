@@ -101,7 +101,7 @@ namespace SysCAD.Editor
 
         (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Clear();
 
-        foreach (ModelStencil modelStencil in frmFlowChart.State.ModelStencils)
+        foreach (ModelStencil modelStencil in frmFlowChart.State.ModelStencilValues)
         {
           (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).Items.Add(modelStencil.Tag);
         }
@@ -439,7 +439,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Clear();
       ShapeConverter.ClearStencilList();
 
-      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencils)
+      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencilValues)
       {
 
         if (groupName == graphicStencil.groupName)
@@ -451,7 +451,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).Items.Add("-------");
       ShapeConverter.AddStencil("-------");
 
-      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencils)
+      foreach (GraphicStencil graphicStencil in frmFlowChart.State.GraphicStencilValues)
       {
 
         if (groupName != graphicStencil.groupName)

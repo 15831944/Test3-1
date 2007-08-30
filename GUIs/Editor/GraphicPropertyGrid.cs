@@ -50,6 +50,26 @@ namespace SysCAD.Editor
     Int64 requestId;
     State state = null;
 
+    protected override void OnPropertyButtonClicked(PropertyButtonClickedEventArgs e)
+    {
+      if (graphicItem != null)
+      {
+      Property a = e.PropertyEnum.Property;
+
+      if (a.Name == "Shape")
+      {
+        GraphicStencilChangeForm gscf = new GraphicStencilChangeForm(state.GraphicUnselectedThumbnails, state.GraphicSelectedThumbnails, state.ModelStencils, state.GraphicStencils, a.Value.DisplayString);
+        if (gscf.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+        {
+          state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, 
+            graphicItem.Path, graphicItem.Model, gscf.Value, graphicItem.BoundingRect, 
+            graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, 
+            graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+        }
+      }
+      }
+    }
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
 
@@ -106,7 +126,10 @@ namespace SysCAD.Editor
       itemGraphicBoungingRectHeight = AppendProperty(itemGraphicBoungingRect, id++, "Height", graphicItem, "Height", "");
       ExpandProperty(itemGraphicBoungingRect, false);
       itemGraphicAngle = AppendProperty(itemGraphic, id++, "Angle", graphicItem, "Angle", "");
+      
       itemGraphicShape = AppendProperty(itemGraphic, id++, "Shape", graphicItem, "Shape", "");
+      itemGraphicShape.Property.Feel = GetRegisteredFeel(PropertyGrid.FeelButton);
+
       itemGraphicFill = AppendSubCategory(itemGraphic, id++, "Fill");
       itemGraphicFillColor = AppendProperty(itemGraphicFill, id++, "Color", graphicItem, "FillColor", "");
       itemGraphicFillMode = AppendProperty(itemGraphicFill, id++, "Mode", graphicItem, "FillMode", "");

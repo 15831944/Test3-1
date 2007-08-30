@@ -1473,14 +1473,24 @@ namespace SysCAD.Editor
       }
     }
 
-    public IEnumerable<GraphicStencil> GraphicStencils
+    public IEnumerable<GraphicStencil> GraphicStencilValues
     {
       get { return config.GraphicStencils.Values; }
     }
 
-    public IEnumerable<ModelStencil> ModelStencils
+    public IEnumerable<ModelStencil> ModelStencilValues
     {
       get { return config.ModelStencils.Values; }
+    }
+
+    public Dictionary<String, GraphicStencil> GraphicStencils
+    {
+      get { return config.GraphicStencils; }
+    }
+
+    public Dictionary<String, ModelStencil> ModelStencils
+    {
+      get { return config.ModelStencils; }
     }
 
     public bool ProjectOpen
