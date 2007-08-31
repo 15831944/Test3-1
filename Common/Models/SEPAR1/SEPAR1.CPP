@@ -15,6 +15,9 @@
 #include "Models.h"
 #include "sfe_srvr.h"
 
+#pragma LIBCOMMENT("..\\..\\..\\SMDK\\Bin\\", "\\DevLib" )
+#pragma LIBCOMMENT("..\\..\\..\\SMDK\\BinEx\\", "\\DevLibEx" )
+
 //===========================================================================
 //
 //                    Visual C++ Stuff

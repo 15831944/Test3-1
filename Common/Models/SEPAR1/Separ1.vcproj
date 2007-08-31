@@ -26,7 +26,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -93,7 +93,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="_DEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
@@ -158,7 +158,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -226,7 +226,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -314,6 +314,9 @@
 				RelativePath=".\FiltPrss.CPP">
 			</File>
 			<File
+				RelativePath=".\FlotationTank.cpp">
+			</File>
+			<File
 				RelativePath=".\MixSettle.CPP">
 			</File>
 			<File
@@ -394,6 +397,9 @@
 			</File>
 			<File
 				RelativePath=".\FiltPrss.H">
+			</File>
+			<File
+				RelativePath=".\FlotationTank.h">
 			</File>
 			<File
 				RelativePath=".\MixSettle.H">

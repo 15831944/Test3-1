@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="NDEBUG;HeatXch1;WIN32;_WINDOWS;_AFXEXT"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -90,7 +90,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="_RELEASE;NDEBUG;HeatXch1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				ExceptionHandling="FALSE"
@@ -157,7 +157,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="_DEBUG;HeatXch1;WIN32;_WINDOWS;_AFXEXT"
 				ExceptionHandling="FALSE"
 				RuntimeLibrary="3"
@@ -226,7 +226,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="TRUE"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="DISTRIBUTION;_RELEASE;NDEBUG;HeatXch1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -317,6 +317,9 @@
 				RelativePath=".\HeatXch1.rc">
 			</File>
 			<File
+				RelativePath=".\ShellTube2.cpp">
+			</File>
+			<File
 				RelativePath=".\ShlTube.CPP">
 			</File>
 			<File
@@ -345,6 +348,9 @@
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\STHx.cpp">
 			</File>
 			<File
 				RelativePath=".\Turbine.cpp">
@@ -387,10 +393,16 @@
 				RelativePath=".\Resource.h">
 			</File>
 			<File
+				RelativePath=".\ShellTube2.h">
+			</File>
+			<File
 				RelativePath=".\ShlTube.H">
 			</File>
 			<File
 				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath=".\STHx.h">
 			</File>
 			<File
 				RelativePath=".\Turbine.h">
