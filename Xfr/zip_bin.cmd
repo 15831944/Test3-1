@@ -66,6 +66,12 @@ set fn2=%fn%_Marshal.zip
 del %fn2%
 wzzip -a %fn2% ..\bin\SysCADMarshal.exe ..\bin\SysCADMarshal_ps.dll ..\bin\ScdIODB.exe
 
+rem ========== SysCAD92 ==========
+set fn2=%fn%_scd10.zip
+del %fn2%
+wzzip -a %fn2% ..\bin\service.exe ..\bin\SysCADMarshal_ps.dll ..\bin\ScdIODB.exe
+wzzip -a %fn2% ..\bin\logview.dll ..\bin\protocol.dll ..\bin\regexwrap.dll ..\bin\sha512wrap.dll
+
 
 rem ------- Client DLLs -------
 

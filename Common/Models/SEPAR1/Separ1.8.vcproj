@@ -51,7 +51,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -152,7 +152,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -256,7 +256,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="false"
 				MinimalRebuild="true"
@@ -364,7 +364,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -465,7 +465,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,.."
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Separ1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -576,6 +576,10 @@
 			</File>
 			<File
 				RelativePath=".\FiltPrss.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\FlotationTank.cpp"
 				>
 			</File>
 			<File
@@ -693,6 +697,10 @@
 			</File>
 			<File
 				RelativePath=".\FiltPrss.H"
+				>
+			</File>
+			<File
+				RelativePath=".\FlotationTank.h"
 				>
 			</File>
 			<File

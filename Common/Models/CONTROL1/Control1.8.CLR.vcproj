@@ -49,7 +49,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..,..\..\Scd\RegexWrap"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,..\..\Scd\RegexWrap,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				ExceptionHandling="2"
@@ -148,7 +148,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..,,..\..\Scd\RegexWrap"
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,..\..\Scd\RegexWrap,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_DEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -252,7 +252,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,..\..\Scd\RegexWrap,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="false"
 				MinimalRebuild="true"
@@ -360,7 +360,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec..\..\Scd\regexwrap,,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,..\..\Scd\RegexWrap,.."
 				PreprocessorDefinitions="SYSCAD10;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -461,7 +461,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,.."
+				AdditionalIncludeDirectories=".,..\..\Scd\scdlib,..\..\Scd\scexec,..\..\Scd\regexwrap,..\..\Scd\flwlib,..\..\Scd\xylib,..\mdlbase,..\..\..\SMDK\IncludeEx,..\..\Scd\RegexWrap,.."
 				PreprocessorDefinitions="SYSCAD10;DISTRIBUTION;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;_RELEASE;NDEBUG;Control1;WIN32;_WINDOWS;_AFXEXT"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -584,11 +584,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SchedEvents.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SchedTsk.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\SetTagList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StatsSingleVar.cpp"
 				>
 			</File>
 			<File
@@ -693,11 +701,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SchedEvents.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SchedTsk.h"
 				>
 			</File>
 			<File
 				RelativePath=".\SetTagList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StatsSingleVar.h"
 				>
 			</File>
 			<File
