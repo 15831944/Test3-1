@@ -246,6 +246,9 @@ double MSpModelBase::get_SaturationP(double T, MArray * pMA)                    
 double MSpModelBase::get_DynamicViscosity(long Phases, double T, double P, MArray * pMA)    { return m_pSpMdlX->SpModel::DynamicViscosity(Phases, T, P, pMA?(CSysVector*)(*pMA):NULL); };
 double MSpModelBase::get_ThermalConductivity(long Phases, double T, double P, MArray * pMA) { return m_pSpMdlX->SpModel::ThermalConductivity(Phases, T, P, pMA?(CSysVector*)(*pMA):NULL); };
 
+#if WITHMDLRANGECHECKS
+MRngChks & MSpModelBase::getRngChks() { return m_pSpMdlX->m_RngChks; };
+#endif
 
 //double MSpModelBase::BoilPtElev(double T_, double MassL)
 //  {
@@ -336,8 +339,6 @@ double MSpModelBase::MassFrac(DWORD Phases) const         { return m_pSpMdlX->Ma
 double MSpModelBase::MoleFrac(DWORD Phases) const         { return m_pSpMdlX->MoleFrac(Phases);          };
 
 void MSpModelBase::ScaleMass(DWORD Phases, double Scale)  { return m_pSpMdlX->ScaleMass(Phases, Scale);  };
-
-MSMFnRanges & MSpModelBase::getSMFnRanges()               { return *m_pSpMdlX->SMFnRanges();                 };
 
 //===========================================================================
 //

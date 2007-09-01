@@ -1414,7 +1414,10 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
 
   flag Local=(pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
-  m_SMFnRanges.SetInRange(eSpFn_SatP, true);
+
+#if WITHMDLRANGECHECKS
+  //m_SMFnRanges.SetInRange(eSpFn_SatP, true);
+#endif
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationP(T_, &MA, pSatDefn);
@@ -1424,7 +1427,9 @@ double SMBayer::SaturationP(double T_, CSysVector * pMA, CSaturationDefn * pSatD
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
     {
-    m_SMFnRanges.SetInRange(eSpFn_SatP, false);
+#if WITHMDLRANGECHECKS
+    //m_SMFnRanges.SetInRange(eSpFn_SatP, false);
+#endif
     return SpModelEx::SaturationP(T_, pMA, pSatDefn);
     }
   #endif
@@ -1466,7 +1471,9 @@ double SMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatD
   // Employs gram-ion calculation method - see also BpElev
   flag Local   = (pMA==NULL);
   CSysVector &MA = (Local ? MArray() : *pMA);
-  m_SMFnRanges.SetInRange(eSpFn_SatT, true);
+#if WITHMDLRANGECHECKS
+  //m_SMFnRanges.SetInRange(eSpFn_SatT, true);
+#endif
 
   if (MA.Sum(som_SL)/GTZ(MA.Sum())<1.0e-6)
     return SpModelEx::SaturationT(P_, &MA, pSatDefn);
@@ -1476,7 +1483,9 @@ double SMBayer::SaturationT(double P_, CSysVector * pMA, CSaturationDefn * pSatD
   double TLiq = MA.Sum(som_Liq); // Total Liquid kg/s
   if ((TLiq>1e-6) && (MA[Water.LiqPhInx()]/TLiq>H2OTestFrac))
     {
-    m_SMFnRanges.SetInRange(eSpFn_SatT, false);
+#if WITHMDLRANGECHECKS
+    //m_SMFnRanges.SetInRange(eSpFn_SatT, false);
+#endif
     return SpModelEx::SaturationT(P_, pMA, pSatDefn);
     }
   #endif
@@ -1516,7 +1525,9 @@ double SMBayer::Rho(PhMask Phase, double T_, double P_, CSysVector * pMA)
       Dl = dRhoFactor*LiqConcs25.LiquorDensity(T_, MA); //todo : check!  Should this be Mn instead of MA???
       }
     }
-  m_SMFnRanges.SetInRange(eSpFn_Rho, Valid(Dl));
+#if WITHMDLRANGECHECKS
+  //m_SMFnRanges.SetInRange(eSpFn_Rho, Valid(Dl));
+#endif
   //if (FVap>1.0e-9)
   //  Dv=SpModelEx::Rho(som_Gas, T_, P_, &Mn);
 
@@ -1585,7 +1596,9 @@ double SMBayer::msCp(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
     #endif
       Cpl = LiqCpCalc(Mn, FLiq);
     }
-  m_SMFnRanges.SetInRange(eSpFn_Cp, Valid(Cpl));
+#if WITHMDLRANGECHECKS
+  //m_SMFnRanges.SetInRange(eSpFn_Cp, Valid(Cpl));
+#endif
 
   double Cps=0.0;
   if (FSol>1.0e-9)
@@ -1634,8 +1647,10 @@ double SMBayer::msHm(PhMask Phase, double T_, double P_, CSysVector * pMA, doubl
     #endif
       Hl = LiqCpCalc(Mn, FLiq) * Tc;
     }
-  m_SMFnRanges.SetInRange(eSpFn_H, Valid(Hl));
-  
+#if WITHMDLRANGECHECKS
+  //m_SMFnRanges.SetInRange(eSpFn_H, Valid(Hl));
+#endif
+
   double Hs=0.0;
   if (FSol>1.0e-9)
     {//Solids

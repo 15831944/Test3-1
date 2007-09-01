@@ -3266,10 +3266,6 @@ const long Audit_Flows        = 3;
 const long Audit_Totals       = 4;
 const long Audit_Balance      = 5;
 
-const long RngChk_Temperature = 0x00000001;
-const long RngChk_Density     = 0x00000002;
-//const long RngChk_Density     = 0x00000002;
-
 // MdlStatusOptions
 const dword MSO_ShowStatus    = 0x00000001;
 const dword MSO_ShowRunInEdit = 0x00000002;
@@ -3277,7 +3273,6 @@ const dword MSO_ShowRunInEdit = 0x00000002;
 //
 extern DllImportExport long gs_SpillOption;
 extern DllImportExport long gs_AuditOption;
-extern DllImportExport long gs_RangeChecks;
 extern DllImportExport bool gs_FSIdleRequested;
 
 enum NodeFlwTasks
@@ -3483,7 +3478,13 @@ class CFlwNodeIndexList : public CList <CFlwNodeIndex, CFlwNodeIndex&> {};
 class CConnectMap      : public CMap<LPSTR, LPSTR, CConnect*, CConnect*> {};
 class CConnectList     : public CList<CConnect*, CConnect*> {};
 
+
+const int MaxCIsPerNode = 40;
+
 class DllImportExport FlwNode : public CTNode
+#if WITHMDLRANGECHECKS
+  , public MRngChkCntxt
+#endif
   {
   DEFINE_MEMSTATS(FlwNode)
 
@@ -4368,7 +4369,7 @@ class DllImportExport FlwNode : public CTNode
     long           AuditCalculation(); 
 
     // ConditionBlk Override
-    DEFINE_CI(FlwNode, CTNode, 40);
+    DEFINE_CI(FlwNode, CTNode, MaxCIsPerNode);
 
 #ifndef _MANAGED
     virtual void   SetXRefCI(long Id, bool On, LPCTSTR Text=NULL)
@@ -4741,6 +4742,12 @@ XID xidSetStateSteadyState        = FlwXID(53);
 XID xidSetStatePBInit             = FlwXID(54);
 XID xidSetStateDynStatsRunInit    = FlwXID(55);
 XID xidSetStateEmptySpillTargets  = FlwXID(56);
+
+#if WITHMDLRANGECHECKS
+XID xidRngChkCount                = FlwXID(1000);
+XID xidRngChkDesc0                = FlwXID(1010);
+XID xidRngChkDescN                = FlwXID(1060);
+#endif
 
 XID xidFBMeanTemp                 = FlwXID(30000);  // User Info passes Additional Info
 XID xidFBMeanPress                = FlwXID(30001);  // User Info passes Additional Info

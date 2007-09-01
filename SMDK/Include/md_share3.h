@@ -290,31 +290,234 @@ class MXSpQuality
   };
 
 // ======================================================================
+//
+//
+//
+// ======================================================================
 
-// SpModel SMFnRanges Checks
-enum eSpFns { eSpFn_Cp, eSpFn_H, eSpFn_S, eSpFn_Rho, eSpFn_SatP, eSpFn_SatT, eSpFn_BPE, eSpFn_DynVisc, eSpFn_ThermCond, eFn_Last };
-const LPCTSTR eSpFnsNames[] = {"Cp", "H", "S", "Rho", "SatP", "SatT", "BPE", "DynVisc", "ThermCond" };
+#define WITHMDLRANGECHECKS  1
 
-class DllImportExport MSMFnRanges
+// Always define these two
+const int MaxRngChksPerNode = 16;
+const int FirstRngChkCI     = 4;
+
+#if WITHMDLRANGECHECKS
+
+const long RngChk_T         = 0x00000001;
+const long RngChk_TExtn     = 0x00000002;
+const long RngChk_P         = 0x00000004;
+const long RngChk_Rho       = 0x00000008;
+const long RngChk_Comp      = 0x00000010;
+const long RngChk_Other     = 0x00000020;
+
+class MRngChkKey
   {
-  friend class SpModel;
-  friend class SpModelOwner;
-
   public:
-    MSMFnRanges();
-    void Clear();
-    void SetInRange(eSpFns FnInx, bool OK);
-    bool InRange(eSpFns FnInx);
-    bool Valid(eSpFns FnInx);
-    bool AllInRange();
-    static void BumpGlblIter();
+    MRngChkKey(LPCSTR Cntxt, LPCSTR Name) 
+      {
+      m_sCntxt  = Cntxt;
+      m_sName   = Name;
+      }
+
+    MRngChkKey(const MRngChkKey & K) 
+      {
+      *this = K;
+      }
+    MRngChkKey & operator=(const MRngChkKey & K) 
+      {
+      m_sCntxt  = K.m_sCntxt;
+      m_sName   = K.m_sName;
+      return *this;
+      }
+    bool operator==(const MRngChkKey & K) 
+      {
+      return (_stricmp(m_sCntxt, K.m_sCntxt)==0 && _stricmp(m_sName, K.m_sName)==0);
+      }
+    CString     m_sCntxt;
+    CString     m_sName;
+  };
+
+//-----------------------------------------------------------------------
+
+class DllImportExport MRngChkItem
+  {
+  friend class MRngChkCntxt;
+  friend class MRngChkMngr;
+  public:
+    MRngChkItem(const MRngChkKey & Key);
+    ~MRngChkItem();
+
+    LPCSTR        FormatDisplay(int FormatNo);
 
   protected:
-    long          m_Flags;
-    long          m_Masks;
-    long          m_Iter;
-    static long   sm_Iter;
+
+    MRngChkKey    m_Key;
+
+    long          m_Iter;  // Last Iter where a range check occurred
+
+    bool          m_IsMsg;
+    bool          m_LTMin;
+    bool          m_GTMax;
+    double        m_MinValue;
+    double        m_MaxValue;
+    double        m_Value;
+
+    POSITION      m_Position; // In m_List
+    CString       m_sNameTrim;
+    CString       m_sCnvTxt;
+    int           m_iCnv;
+    CString       m_sMsg;
+    CString       m_sDisplay;
+
   };
+
+//-----------------------------------------------------------------------
+
+struct CRangeListItem { long m_IdMask; LPCSTR m_Name; double m_MinValue; double m_MaxValue; double m_Value; };
+
+class TaggedObject; // forward
+
+class DllImportExport MRngChkCntxt
+  {
+  friend class MRngChkItem;
+  friend class MRngChkMngr;
+
+  public:
+    static const byte CRC_None  = 0;
+    static const byte CRC_Basic = 1;
+    static const byte CRC_All   = 2;
+
+    MRngChkCntxt(TaggedObject * pObject, LPCSTR Context);
+    virtual ~MRngChkCntxt();
+    
+    void   AddRngChk(LPCSTR Name, TaggedObject * pOwner, bool LTMin, bool GTMax, double MinValue, double MaxValue, double Value);
+    void   AddRngChkMsg(LPCSTR Name, TaggedObject * pOwner, LPCSTR Msg);
+    void   CheckRangeList(CRangeListItem Checks[], TaggedObject * pOwner);
+ 
+    long   RngChkCount();
+    LPCSTR RngChkDisplay(long Index);
+ 
+    static byte     sm_iCndRngChks;
+ 
+  protected:
+    MRngChkItem *  FindItem(LPCSTR Name, LPCSTR Tag);
+  
+  protected:
+    TaggedObject  * m_pObject;
+    CString         m_sContext;
+    POSITION        m_Position;
+    long            m_Iter;  // Last Iter where a range check occurred
+    long            m_ValidCount;
+    
+    CList<MRngChkItem*, MRngChkItem*> m_List;
+    CMap<MRngChkKey*, MRngChkKey*, MRngChkItem*, MRngChkItem*> m_Map;
+  };
+
+//-----------------------------------------------------------------------
+
+class DllImportExport MRngChks
+  {
+  friend class MRngChkItem;
+  friend class MRngChkMngr;
+
+  public:
+    MRngChks(TaggedObject * pSrc, LPCSTR Context);
+    virtual ~MRngChks();
+
+    bool        Selected(long IdMask);
+    void        CheckMin(long IdMask, LPCSTR Name, double MinValue, double Value);  
+    void        CheckMax(long IdMask, LPCSTR Name, double MaxValue, double Value); 
+    void        CheckRange(long IdMask, LPCSTR Name, double MinValue, double MaxValue, double Value);
+    void        AddCheck(long IdMask, LPCSTR Name, bool LTMin, bool GTMax, double MinValue, double MaxValue, double Value);
+    void        AddMessage(long IdMask, LPCSTR Name, LPCSTR Fmt, ...);          
+    void        CheckRangeList(CRangeListItem Checks[]);
+
+
+    MRngChkCntxt  * Context();
+
+  public:
+    TaggedObject  * m_pSrc;
+    //MRngChkCntxt  * m_pContext;
+  };
+
+//-----------------------------------------------------------------------
+
+class DllImportExport MRngChkMngr
+  {
+  friend class MRngChks;
+  friend class MRngChkItem;
+  friend class MRngChkCntxt;
+
+  public:
+    MRngChkMngr();
+
+    void BumpGlblIter();
+    void Dump();
+
+    bool Selected(long Mask) const { return (m_SelectMask&Mask)!=0; };
+    void SetSelect(long Which, long Reqd)      { m_SelectMask = (m_SelectMask & ~Which) | Reqd; };
+
+  protected:
+    CList<MRngChkCntxt*, MRngChkCntxt*> m_List;
+    long            m_Iter;              
+    long            m_SelectMask;
+  };
+
+//-----------------------------------------------------------------------
+
+extern DllImportExport MRngChkMngr gs_RngChecks;
+
+//-----------------------------------------------------------------------
+
+inline bool MRngChks::Selected(long IdMask) 
+  { 
+  return (gs_RngChecks.m_SelectMask & IdMask) !=0;
+  }
+
+inline void MRngChks::CheckMin(long IdMask, LPCSTR Name, double MinValue, double Value)  
+  {
+  if ((gs_RngChecks.m_SelectMask & IdMask) && Value<MinValue) 
+    Context()->AddRngChk(Name, m_pSrc, true, false, MinValue, dNAN, Value); 
+  };
+inline void MRngChks::CheckMax(long IdMask, LPCSTR Name, double MaxValue, double Value)  
+  { 
+  if ((gs_RngChecks.m_SelectMask & IdMask) && Value>MaxValue) 
+    Context()->AddRngChk(Name, m_pSrc, false, true, dNAN, MaxValue, Value);
+  };
+inline void MRngChks::CheckRange(long IdMask, LPCSTR Name, double MinValue, double MaxValue, double Value)
+  {
+  if (gs_RngChecks.m_SelectMask & IdMask)
+    {
+    if (Value<MinValue) 
+      Context()->AddRngChk(Name, m_pSrc, true, false, MinValue, MaxValue, Value); 
+    else if (Value>MaxValue) 
+      Context()->AddRngChk(Name, m_pSrc, false, true, MinValue, MaxValue, Value); 
+    }
+  };
+inline void MRngChks::AddCheck(long IdMask, LPCSTR Name, bool LTMin, bool GTMax, double MinValue, double MaxValue, double Value) 
+  { 
+  if (gs_RngChecks.m_SelectMask & IdMask)
+    Context()->AddRngChk(Name, m_pSrc, LTMin, GTMax, MinValue, MaxValue, Value);
+  }
+inline void MRngChks::AddMessage(long IdMask, LPCSTR Name, LPCSTR Fmt, ...)          
+  { 
+  if (gs_RngChecks.m_SelectMask & IdMask)
+    {
+    char Buff[4096];
+    va_list argptr;
+    va_start(argptr,Fmt);
+    vsprintf_s(Buff, sizeof(Buff), Fmt, argptr);
+    va_end(argptr);
+
+    Context()->AddRngChkMsg(Name, m_pSrc, Buff); 
+    }
+  };
+inline void MRngChks::CheckRangeList(CRangeListItem Checks[])
+  {
+  Context()->CheckRangeList(Checks, m_pSrc);
+  };
+
+#endif
 
 // ======================================================================
 //

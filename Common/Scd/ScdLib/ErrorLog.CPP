@@ -1079,7 +1079,12 @@ char * ConditionBlk::GetTxtInfo(int No, flag SetIt, dword &Flag)
     pT=pS;
   if (SetIt)
     {
-    Flag= ((C1=='p') ? LogFlag_FromPGM : 0) | LogFlag_Cond;
+    switch (C1)
+      {
+      case 'p': Flag = LogFlag_FromPGM; break;
+      case 'r': Flag = LogFlag_Rng;     break;
+      default:  Flag = LogFlag_Cond;    break;
+      }
     switch (toupper(C0))
       {
       case 'F' : Flag|=LogFlag_Fatal  ; break;

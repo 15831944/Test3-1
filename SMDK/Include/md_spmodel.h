@@ -116,7 +116,7 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     virtual double  get_ThermalConductivity(long Phases, double T, double P, MArray * pMA);
 
     virtual bool    get_IsBaseClassOf(LPCTSTR OtherProgID);
-    virtual LPCTSTR get_PreferredModelProgID();
+    virtual LPCSTR  get_PreferredModelProgID();
 
     // ----------------------------- Utilities             
     double          DensityMix(double FSol, double Ds, double FLiq, double Dl, double FVap, double Dv, double T_, double P_, MArray & M);
@@ -148,7 +148,9 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     double          getTemperature();              
 
     // ----------------------------- 
-    MSMFnRanges   & getSMFnRanges();
+#if WITHMDLRANGECHECKS
+    MRngChks      & getRngChks();
+#endif
 
     double          getBoilingPtElevation(double P, MArray * pMA);
 
@@ -179,7 +181,7 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     MDataDefn       DD;
     MDataChange     DX;
     MDataValidate   DV;
-
+    
     // ----------------------------- 
     __declspec(property(get=getM,put=putM))       double        M[];
     __declspec(property(get=getMl,put=putMl))     double        Ml[];
@@ -189,7 +191,9 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     __declspec(property(get=getMassArray))        MArray        MassArray;
     __declspec(property(get=getPressure))         double        Pressure;
     __declspec(property(get=getTemperature))      double        Temperature;
-    __declspec(property(get=getSMFnRanges))       MSMFnRanges  & SMFnRanges;
+#if WITHMDLRANGECHECKS
+    __declspec(property(get=getRngChks))          MRngChks     & RngChks;
+#endif
     __declspec(property(get=getTag))              LPCTSTR       Tag;
     __declspec(property(get=getVector))           MVector       Vector;
 

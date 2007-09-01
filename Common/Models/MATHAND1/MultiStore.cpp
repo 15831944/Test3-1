@@ -167,7 +167,6 @@ void CMultiStore::BuildDataDefn(DataDefnBlk &DDB)
     pModel->BuildDataDefn_RqdProps(DDB);
     //pModel->BuildDataDefn_UsrProps(DDB, MP_GlobalProp);
     pModel->BuildDataDefn_UsrProps(DDB, MP_ConfigProp);
-    AddFnRanges(DDB);
     }
   DDB.EndStruct();
   };

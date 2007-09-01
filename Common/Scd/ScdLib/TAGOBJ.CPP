@@ -3832,10 +3832,17 @@ flag TaggedObject::TestIfReservedTag(char* pTag)
 flag TaggedObject::CIStrng(int No, LPSTR & pS)
   {
   // NB check CBCount is large enough.
-  switch (No-CBContext())
+  int i=No-CBContext();
+  switch (i)
     {
-    case 1: pS="???";                  return 1;
+    case 1: pS="W\tRange Errors Exist";                  return 1;
     default:
+      if (i>=FirstRngChkCI && i<FirstRngChkCI+MaxRngChksPerNode)
+        {
+        pS="?";
+        return 1;
+        }
+    
       return ConditionBlk::CIStrng(No, pS);
     }
   };

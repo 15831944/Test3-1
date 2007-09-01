@@ -3610,11 +3610,6 @@ dword MN_Lnk::ModelStatus()
 
 void MN_Lnk::ClosureInfo()
   {
-  bool InRange=true;
-  for (int i=0; i<NoFlwIOs(); i++)
-    InRange = InRange && IOConduit(i)->SMFnsInRange();
-  FlwNode::SetCI(29, !InRange);
-
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];

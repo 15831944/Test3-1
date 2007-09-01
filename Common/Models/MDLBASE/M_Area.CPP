@@ -1014,14 +1014,6 @@ void MN_Area::EvalState()
 
 void MN_Area::ClosureInfo()
   {
-  bool InRange=true;
-  for (int i=0; i<NoFlwIOs(); i++)
-    InRange = InRange && IOConduit(i)->SMFnsInRange();
-  //  InRange = InRange && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange() && m_OvResults.m_Sum[AR_Srcs].SMFnsInRange();
-  //  InRange = InRange && m_OvResults.m_Sum[AR_Snks].SMFnsInRange() && m_OvResults.m_Sum[AR_Snks].SMFnsInRange();
-  //  InRange = InRange && m_OvResults.m_Sum[AR_Spills].SMFnsInRange() && m_OvResults.m_Sum[AR_Spills].SMFnsInRange();
-  //  InRange = InRange && m_OvResults.m_Sum[AR_LeaksI].SMFnsInRange() && m_OvResults.m_Sum[AR_LeaksO].SMFnsInRange();
-  FlwNode::SetCI(29, !InRange);
 
   if (m_Closure.DoFlows())
     {

@@ -2578,7 +2578,6 @@ dword FlwNode::m_dwMdlStatusOptions   = 0;
 long gs_ClosureOption   = CloseTest_Off;
 long gs_SpillOption     = SpillReports_Cnds;
 long gs_AuditOption     = Audit_Off;
-long gs_RangeChecks     = RngChk_Temperature | RngChk_Density;
 bool gs_FSIdleRequested = false;
 
 CConnectMap FlwNode::sm_ConnectMap;
@@ -2587,10 +2586,13 @@ CConnectList FlwNode::sm_ConnectList;
 // --------------------------------------------------------------------------
 
 FlwNode::FlwNode(pTagObjClass pClass_, pchar TagIn, pTaggedObject pAttach, TagObjAttachment eAttach) :
-  CTNode(pClass_, TagIn, pAttach, eAttach),
-  m_ExtAudit(this)
+CTNode(pClass_, TagIn, pAttach, eAttach),
+#if WITHMDLRANGECHECKS
+MRngChkCntxt(this, "FlwNode"),
+#endif
+m_ExtAudit(this)
   {
-  #if dbgFlwNode
+#if dbgFlwNode
   if (dbgConstruction())
     dbgpln("FlwNode()");
   #endif
@@ -3731,6 +3733,29 @@ void FlwNode::BuildCommonStartDefn(DataDefnBlk & DDB)
       DDB.TagComment(S());
       }
     }
+
+#if WITHMDLRANGECHECKS
+  if (!fSolutionForRoot)
+    {
+    DDB.Long  ("RngChkCount",    "",   DC_,    "",      xidRngChkCount,   this, isResult|noFileAtAll);
+    if (RngChkCount()>0)
+      {
+      DDB.Text(" ");
+      if (DDB.BeginStruct(this, "RangeChecks", 0, DDB_NoPage))
+        {
+        int N=Min(/*pModel->*/RngChkCount(), xidRngChkDescN-xidRngChkDesc0);
+        Strng Tg;
+        for (int i=0; i<N; i++)
+          {
+          Tg.Set("RC.%i", i);
+          DDB.String(Tg(),   "",   DC_,    "",      xidRngChkDesc0+i,    this, isResult|noFileAtAll);
+          }
+        }
+      DDB.EndStruct();
+      }
+    }
+#endif
+
   if (!fSolutionForRoot)
     {
     DDB.Bool("SetState",           "", DC_, "", xidSetState,   this, isParm|noFileAtAll|InitHidden, SetStateStrs);
@@ -4634,6 +4659,19 @@ flag FlwNode::DataXchg(DataChangeBlk & DCB)
         Joins[DCB.dwUserInfo].sNetInfo=DCB.rpC;
       DCB.pC=Joins[DCB.dwUserInfo].sNetInfo();
       return 1;
+#if WITHMDLRANGECHECKS
+    case xidRngChkCount:
+      DCB.L=RngChkCount();
+      return 1;
+#endif
+    default:;
+#if WITHMDLRANGECHECKS
+      if (DCB.lHandle>=xidRngChkDesc0 && DCB.lHandle<=xidRngChkDescN)
+        {
+        DCB.pC = (LPSTR)RngChkDisplay(DCB.lHandle-xidRngChkDesc0);
+        return 1;
+        }
+#endif
     }
   return 0;
   }
@@ -8423,7 +8461,7 @@ flag FlwNode::CIStrng(int No, pchar & pS)
     case 26: pS="E\tBad external tag references";            return 1;
     case 27: pS="W\tEngineering units invalid";              return 1;
     case 28: pS="W\tDynTags missing ";                       return 1;
-    case 29: pS="W\tSpecie Model Operating Out of Range";    return 1;
+    //case 29: pS="W\tSpecie Model Operating Out of Range";    return 1;
     case 30: pS="W\tNotAuditNode";                           return 1;
     case 31: pS="W\tAreaNotFOund";                           return 1;
     case 32: pS="W\tNBadDirects";                            return 1;

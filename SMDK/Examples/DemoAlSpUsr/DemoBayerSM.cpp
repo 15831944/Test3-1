@@ -317,7 +317,9 @@ double CDemoBayerSM::get_Density(long Phases, double T, double P, MArray *pMA)
       Dl = (Dl*(1.0-Std_Prop)) + (Std_Dl*Std_Prop);
       }
     }
-  SMFnRanges.SetInRange(eSpFn_Rho, true);
+#if WITHMDLRANGECHECKS
+  //SMFnRanges.SetInRange(eSpFn_Rho, true);
+#endif
 
   return DensityMix(FSol, dNAN, FLiq, Dl, (1.0-FSol-FLiq), dNAN, T, P, MA);
   }
@@ -358,7 +360,9 @@ double CDemoBayerSM::get_msEnthalpy(long Phases, double T, double P, MArray *pMA
   {
   MArray MA(pMA ? (*pMA) : this);
 
-  SMFnRanges.SetInRange(eSpFn_H, true);
+#if WITHMDLRANGECHECKS
+  //SMFnRanges.SetInRange(eSpFn_H, true);
+#endif
 
   const double MSol=(Phases & MP_Sol) ? MA.Mass(MP_Sol) : 0.0;
   const double MLiq=(Phases & MP_Liq) ? MA.Mass(MP_Liq) : 0.0;
@@ -396,7 +400,9 @@ double CDemoBayerSM::get_msEnthalpy(long Phases, double T, double P, MArray *pMA
 
 double CDemoBayerSM::get_msEntropy(long Phases, double T, double P, MArray *pMA)
   {
-  SMFnRanges.SetInRange(eSpFn_S, true);
+#if WITHMDLRANGECHECKS
+  //SMFnRanges.SetInRange(eSpFn_S, true);
+#endif
   return MSpModelBase::get_msEntropy(Phases, T, P, pMA);
   }
 
@@ -406,7 +412,9 @@ double CDemoBayerSM::get_msCp(long Phases, double T, double P, MArray *pMA)
   {
   MArray MA(pMA ? (*pMA) : this);
 
-  SMFnRanges.SetInRange(eSpFn_Cp, true);
+#if WITHMDLRANGECHECKS
+  //SMFnRanges.SetInRange(eSpFn_Cp, true);
+#endif
 
   const double MSol=(Phases & MP_Sol) ? MA.Mass(MP_Sol) : 0.0;
   const double MLiq=(Phases & MP_Liq) ? MA.Mass(MP_Liq) : 0.0;
@@ -509,8 +517,9 @@ double CDemoBayerSM::BoilPtElev(MArray & MA, double T)
   {//parameter T is the PureWaterSaturation temperature at the given pressure
   double TLiq=MA.Mass(MP_Liq); // Total Liquid kg/s
   
-  SMFnRanges.SetInRange(eSpFn_BPE, true);
-
+#if WITHMDLRANGECHECKS
+  //SMFnRanges.SetInRange(eSpFn_BPE, true);
+#endif
   if (TLiq<1.0e-9)
     return 0.0;
 
@@ -519,7 +528,9 @@ double CDemoBayerSM::BoilPtElev(MArray & MA, double T)
     {
     if (MA[Alumina]<1.0e-6 && MA[CausticSoda]<1.0e-6 && MA[SodiumCarbonate]<1.0e-6)
       {
-      SMFnRanges.SetInRange(eSpFn_BPE, false);
+#if WITHMDLRANGECHECKS
+      //SMFnRanges.SetInRange(eSpFn_BPE, false);
+#endif  
       return 0.0;
       }
 
@@ -569,7 +580,9 @@ double CDemoBayerSM::BoilPtElev(MArray & MA, double T)
     LiqConcs25.Converge(MA);
     if (LiqConcs25.Liq[::CausticSoda]<1.0e-6 && LiqConcs25.Liq[::SodiumCarbonate]<1.0e-6)
       {
-      SMFnRanges.SetInRange(eSpFn_BPE, false);
+#if WITHMDLRANGECHECKS
+      //SMFnRanges.SetInRange(eSpFn_BPE, false);
+#endif  
       return 0.0;
       }
     //Equation: f(x1,x2) = a+b*x1+c*x2+d*x1^2+e*x2^2+f*x1*x2+g*x1^3+h*x2^3+i*x1*x2^2+j*x1^2*x2

@@ -943,14 +943,6 @@ void MN_SrcSnk::EvalState()
 
 void MN_SrcSnk::ClosureInfo()
   {
-  bool InRange=true;
-  for (int i=0; i<NoProcessIOs(); i++)
-    InRange = InRange && IOConduit(i)->SMFnsInRange();
-  if ((SSMode & SSM_Source) && !fCrossConnected)
-    InRange = InRange && Contents.SMFnsInRange();
-  InRange = InRange && Flows.SMFnsInRange();
-  FlwNode::SetCI(29, !InRange);
-
   if (fCrossConnected)
     return;
 

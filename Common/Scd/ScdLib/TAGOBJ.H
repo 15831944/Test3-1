@@ -1402,7 +1402,7 @@ class DllImportExport TaggedObject : public ConditionBlk
     static void     SplitTagCnv(char *pTag, Strng & Tag, Strng& Cnv);
 
     // ConditionBlk Overides
-    DEFINE_CI(TaggedObject, ConditionBlk, 8);
+    DEFINE_CI(TaggedObject, ConditionBlk, FirstRngChkCI);
     char *          CBTag()                 { return FullObjTag(); };
     void            CBChanged()             { /*StructureChanged(this);*/ };
     flag            GetAllCIs(Strng_List & L, int MaxNo=100);

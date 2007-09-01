@@ -383,6 +383,14 @@ XID xidDynCmdScnRestart               = FlwXID(2314);
 XID xidDynCmdResetTime                = FlwXID(2315);
 XID xidDynCmdRestartHist              = FlwXID(2316);
 
+
+XID xidRngChk_T                       = FlwXID(2400);
+XID xidRngChk_TExtn                   = FlwXID(2401);
+XID xidRngChk_P                       = FlwXID(2402);
+XID xidRngChk_Rho                     = FlwXID(2403);
+XID xidRngChk_Comp                    = FlwXID(2404);
+XID xidRngChk_Other                   = FlwXID(2405);
+
 //XID xidConvergeTm                     = FlwXID(2120);
 //XID xidFlwSolveTm                     = FlwXID(2121);
 //XID xidFlwWashTm                      = FlwXID(2122);
@@ -411,8 +419,10 @@ XID xidGenTime1970                    = FlwXID(5036);
 
 XID xidSetStateAll                    = FlwXID(5040);
 XID xidIncludeSpcCnvs                 = FlwXID(5041);
+#if !WITHMDLRANGECHECKS
 XID xidShowSpcRangeErrors             = FlwXID(5042);
 XID xidShowSpcXRangeErrors            = FlwXID(5043);
+#endif
 
 XID xidDynStatReset                   = FlwXID(5100);
 XID xidDynStatStopTm                  = FlwXID(5101);
@@ -10250,15 +10260,47 @@ static DDBValueLst DDBAuditOptions[] =
     {0}
   };
 
-static DDBValueLst DDBRangeChecks[] = 
+//static DDBValueLst DDBRangeChecks[] = 
+//  {
+//    {0,                           "None"    },
+//    {RngChk_T,                    "T"       },
+//    {RngChk_T|RngChk_P,                "Other"   },
+//    {RngChk_T|RngChk_Rho,                "Other"   },
+//    {RngChk_T|RngChk_Comp,                "Other"   },
+//    {RngChk_T|RngChk_Other,                "Other"   },
+//
+//    {RngChk_P|RngChk_Rho,                "Other"   },
+//    {RngChk_P|RngChk_Comp,                "Other"   },
+//    {RngChk_P|RngChk_Other,                "Other"   },
+//
+//    {RngChk_Rho|RngChk_Comp,                "Other"   },
+//    {RngChk_Rho|RngChk_Other,                "Other"   },
+//
+//    {RngChk_Comp|RngChk_Other,                "Other"   },
+//
+//    {RngChk_P,                "Other"   },
+//
+//
+//    {RngChk_P,                    "P"       },
+//    {RngChk_Rho,                  "Rho"     },
+//    {RngChk_Comp,                 "Comp"   },
+//    {RngChk_Other,                "Other"   },
+//
+//    {0}
+//  };
+
+
+#if WITHMDLRANGECHECKS
+
+static DDBValueLst DDBCndRangeChecks[] = 
   {
-    {0,                                     "None"    },
-    {RngChk_Temperature,                    "T"       },
-    {RngChk_Density,                        "Rho"     },
-    {RngChk_Temperature|RngChk_Density,     "T,Rho"   },
+    {MRngChkCntxt::CRC_None,                "None"        },
+    {MRngChkCntxt::CRC_Basic,               "OnePerNode"  },
+    {MRngChkCntxt::CRC_All,                 "All"         },
     {0}
   };
 
+#endif
 
 void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   {
@@ -10274,64 +10316,78 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
   if (DDB.BeginStruct(this))
     {
 
-    DDB.Text  ("");
-    DDB.Text  ("Commands");
+    DDB.Text    ("");
+    DDB.Text    ("Commands");
     DDB.Visibility();
-    DDB.Long  ("State",                 "", DC_, "",  xidExecState,                   this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-    DDB.String("StateDesc",             "", DC_, "",  xidExecStateDesc,               this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-    DDB.Button("Cmd.Start",             "", DC_, "", xidExecStart,                    this, isParm);
-    DDB.Button("Cmd.Idle",              "", DC_, "", xidExecIdle,                     this, isParm);
-    DDB.Button("Cmd.Stop",              "", DC_, "", xidExecStop,                     this, isParm);
+    DDB.Long    ("State",                 "", DC_, "",  xidExecState,                   this, InitHidden|DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.String  ("StateDesc",             "", DC_, "",  xidExecStateDesc,               this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.Button  ("Cmd.Start",             "", DC_, "", xidExecStart,                    this, isParm);
+    DDB.Button  ("Cmd.Idle",              "", DC_, "", xidExecIdle,                     this, isParm);
+    DDB.Button  ("Cmd.Stop",              "", DC_, "", xidExecStop,                     this, isParm);
     //DDB.Text  ("");
-    DDB.Bool("SetStateAll",             "", DC_, "",  xidSetStateAll,                 this, isParm|noFileAtAll|InitHidden, SetStateStrs);
-    DDB.Button("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,         this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,             this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,            this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,       this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,            this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,   this, isParm|noFileAtAll|InitHidden);
-    DDB.Button("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets, this, isParm|noFileAtAll|InitHidden);
+    DDB.Bool    ("SetStateAll",           "", DC_, "", xidSetStateAll,                 this, isParm|noFileAtAll|InitHidden, SetStateStrs);
+    DDB.Button  ("Cmd.ZeroFlows",         "", DC_, "", xidSetStateAllZeroFlows,         this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.Empty",             "", DC_, "", xidSetStateAllEmpty,             this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.Preset",            "", DC_, "", xidSetStateAllPreSet,            this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.SteadyState",       "", DC_, "", xidSetStateAllSteadyState,       this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.PBInit",            "", DC_, "", xidSetStateAllPBInit,            this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.DynStatsRunInit",   "", DC_, "", xidSetStateAllDynStatsRunInit,   this, isParm|noFileAtAll|InitHidden);
+    DDB.Button  ("Cmd.EmptySpillTargets", "", DC_, "", xidSetStateAllEmptySpillTargets, this, isParm|noFileAtAll|InitHidden);
 
     // For Compatibility with older flowsheets
     //DDB.Text  ("");
-    DDB.Double("Dyn.Time",              "", DC_Time, "s", xidODETime,                 this, InitHidden|noFile|noScenario|noSnap);
-    DDB.Double("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,              this, InitHidden|noFile|noScenario|noSnap);
+    DDB.Double  ("Dyn.Time",              "", DC_Time, "s", xidODETime,                 this, InitHidden|noFile|noScenario|noSnap);
+    DDB.Double  ("Dyn.dTime",             "", DC_Time, "s", xidODETimeInc,              this, InitHidden|noFile|noScenario|noSnap);
     //DDB.Double("Dyn.StopTime",          "", DC_Time, "s", &Dyn.StopTime,              this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
-    DDB.Double("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double  ("Dyn.dTimeMax",          "", DC_Time, "s", xidODETimeIncMxRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
+    DDB.Double  ("Dyn.dTimeMin",          "", DC_Time, "s", xidODETimeIncMnRqd,         this, InitHidden|noFile|noScenario|noSnap|isParm);
 
-    DDB.Text  ("");
-    DDB.Text("Balance & Closure");
-    DDB.Double("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
-    DDB.Long  ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
-    DDB.Long  ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
-    DDB.Long  ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
-    DDB.Long  ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
-    
-    DDB.Text  ("");
-    DDB.Text  ("Display Configuration");
-    DDB.Double("Value.Zero",            "", DC_,     "",      &gs_DisplayZeroLimit,           this, isParm/*Stopped*/);
-    DDB.Double("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,            this, isParm/*Stopped*/);
-    DDB.Double("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,          this, isParm/*Stopped*/);
-    DDB.Double("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,          this, isParm/*Stopped*/);
+    DDB.Text    ("");
+    DDB.Text    ("Balance & Closure");
+    DDB.Double  ("TestMassTolerance",     "", DC_Frac, "%", &SpModel::dTestToleranceMassFrac,   this, isParm|SetOnChange);
+    DDB.Long    ("ClosureTests",          "", DC_,     "",  &gs_ClosureOption,                  this, isParmStopped|SetOnChange, DDBCloseTest);
+    DDB.Long    ("SpillReporting",        "", DC_,     "",  &gs_SpillOption,                    this, isParm       |SetOnChange, DDBSpillReporting);
+    DDB.Long    ("AuditLevel",            "", DC_,     "",  &gs_AuditOption,                    this, isParmStopped|SetOnChange, DDBAuditOptions);
+    //DDB.Long    ("RangeChecks",           "", DC_,     "",  &gs_RangeChecks,                    this, isParmStopped|SetOnChange, DDBRangeChecks);
+#if WITHMDLRANGECHECKS
+    DDB.Text    ("");
+    if (DDB.BeginStruct(this, "RangeChecks", 0, DDB_NoPage))
+      {
+      DDB.CheckBox("Temp",                "", DC_,     "",  xidRngChk_T,                        this, isParmStopped|SetOnChange);
+      DDB.CheckBox("TempExtended",        "", DC_,     "",  xidRngChk_TExtn,                    this, isParmStopped|SetOnChange);
+      DDB.CheckBox("Press",               "", DC_,     "",  xidRngChk_P,                        this, isParmStopped|SetOnChange);
+      DDB.CheckBox("Rho",                 "", DC_,     "",  xidRngChk_Rho,                      this, isParmStopped|SetOnChange);
+      DDB.CheckBox("Composition",         "", DC_,     "",  xidRngChk_Comp,                     this, isParmStopped|SetOnChange);
+      DDB.CheckBox("Other",               "", DC_,     "",  xidRngChk_Other,                    this, isParmStopped|SetOnChange);
+      DDB.Byte    ("AsCond",              "", DC_,     "",  &MRngChkCntxt::sm_iCndRngChks,      this, isParmStopped|SetOnChange, DDBCndRangeChecks);
+      }
+    DDB.EndStruct();
+#endif
 
-    DDB.Text  ("");
-    DDB.Text  ("Options");
-    DDB.Byte  ("StopOnError",           "", DC_,     "",  &fStopOnError,     this, isParmStopped|SetOnChange, DDBYesNo);
-    DDB.Double("PGM_ExecuteTimeout",    "", DC_Time, "s", xidPGMExecTimeOut, this, isParmStopped);
-    DDB.Double("RandomSeedAtStart",     "", DC_,     "",  xidRandomSeed,     this, isParmStopped|NAN_OK);
+    DDB.Text    ("");
+    DDB.Text    ("Display Configuration");
+    DDB.Double  ("Value.Zero",            "", DC_,     "",      &gs_DisplayZeroLimit,           this, isParm/*Stopped*/);
+    DDB.Double  ("Status.ZeroFlow",       "", DC_,     "",      &gs_DisplayZeroFlow,            this, isParm/*Stopped*/);
+    DDB.Double  ("Status.VapourTest",     "", DC_Frac, "%",     &gs_StatusVapTestFrac,          this, isParm/*Stopped*/);
+    DDB.Double  ("Status.SolidsTest",     "", DC_Frac, "%",     &gs_StatusSolTestFrac,          this, isParm/*Stopped*/);
 
-    DDB.Text  ("");
-    DDB.Text  ("MultiProcessing");
+    DDB.Text    ("");
+    DDB.Text    ("Options");
+    DDB.Byte    ("StopOnError",           "", DC_,     "",  &fStopOnError,     this, isParmStopped|SetOnChange, DDBYesNo);
+    DDB.Double  ("PGM_ExecuteTimeout",    "", DC_Time, "s", xidPGMExecTimeOut, this, isParmStopped);
+    DDB.Double  ("RandomSeedAtStart",     "", DC_,     "",  xidRandomSeed,     this, isParmStopped|NAN_OK);
+
+    DDB.Text    ("");
+    DDB.Text    ("MultiProcessing");
     // Removed By CNM - why would we need these ???
     //DDB.Byte  ("KeepGlblLinks",         "", DC_,     "",  &fKeepGlblLinks,   this, isParmStopped|SetOnChange, DDBYesNo);
     //DDB.Byte  ("GlblLinksDone",         "", DC_,     "",  &fGlblLinksDone,   this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap, DDBYesNo);
-    DDB.Long  ("NoOfProcessors",        "", DC_,     "",  &nProcessors,      this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
-    DDB.Long  ("NoOfSolveThreads",      "", DC_,     "",  xidNThreads,       this, 0);
-    DDB.Long  ("NoOfSolveThreadsRqd",   "", DC_,     "",  xidRqdThreads,     this, isParmStopped);
+    DDB.Long    ("NoOfProcessors",        "", DC_,     "",  &nProcessors,      this, DDEF_WRITEPROTECT|noFile|noScenario|noSnap);
+    DDB.Long    ("NoOfSolveThreads",      "", DC_,     "",  xidNThreads,       this, 0);
+    DDB.Long    ("NoOfSolveThreadsRqd",   "", DC_,     "",  xidRqdThreads,     this, isParmStopped);
 
-    DDB.Text  ("");
-    DDB.Text("Direct IO Links");
+    DDB.Text    ("");
+    DDB.Text    ("Direct IO Links");
     if (DDB.BeginStruct(this, "DIO", NULL, DDB_NoPage))
       {
       static DDBValueLst DDBSV[]= { {eDIOSlct_None, "None"}, {eDIOSlct_All, "All"}, /*{eDIOSlct_Selected, "Selected"}, */{0} };
@@ -10403,10 +10459,11 @@ void CFlwSolver::BuildDataDefn(DataDefnBlk & DDB)
     DDB.Long  ("SurfaceElements",       "", DC_,     "",  &CSurface3DElement::m_nGlblElementCnt,  this, InitHidden|noFile|noScenario|noSnap);
 #endif
     DDB.CheckBoxBtn("IncludeSpcCnvs",   "", DC_,     "",  xidIncludeSpcCnvs,                  this, isParmStopped);
+#if !WITHMDLRANGECHECKS
     DDB.Visibility(SM_All|HM_Reduced|HM_Full);
     DDB.CheckBoxBtn("ShowSpcRangeErrors", "", DC_,   "",  xidShowSpcRangeErrors,              this, isParmStopped);
     DDB.CheckBoxBtn("ShowSpcXRangeErrors", "", DC_,  "",  xidShowSpcXRangeErrors,             this, isParmStopped);
-
+#endif
 
     DDB.Visibility();
     DDB.Text  ("");
@@ -10778,6 +10835,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
         gs_WithSpecieCnvs=(*DCB.rB!=0);
       DCB.B=gs_WithSpecieCnvs;
       return 1;
+#if !WITHMDLRANGECHECKS
     case xidShowSpcRangeErrors:
       if (DCB.rB)
         SpModel::m_RangeErrorsOn=(*DCB.rB!=0);
@@ -10788,7 +10846,7 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
         SpModel::m_RangeExtErrorsOn=(*DCB.rB!=0);
       DCB.B=SpModel::m_RangeExtErrorsOn;
       return 1;
-
+#endif
     case xidSetStateAll:
       if (DCB.rB)
         {
@@ -11077,6 +11135,38 @@ flag CFlwSolver::DataXchg(DataChangeBlk & DCB)
         }
       DCB.B=TaggedObject::GlblResultsValid();
       return 1;
+#if WITHMDLRANGECHECKS
+    case xidRngChk_T:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_T, *DCB.rB ? RngChk_T:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_T);
+      return 1;
+    case xidRngChk_TExtn:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_TExtn, *DCB.rB ? RngChk_TExtn:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_TExtn);
+      return 1;
+    case xidRngChk_P:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_P, *DCB.rB ? RngChk_P:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_P);
+      return 1;
+    case xidRngChk_Rho:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_Rho, *DCB.rB ? RngChk_Rho:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_Rho);
+      return 1;
+    case xidRngChk_Comp:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_Comp, *DCB.rB ? RngChk_Comp:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_Comp);
+      return 1;
+    case xidRngChk_Other:
+      if (DCB.rB)
+        gs_RngChecks.SetSelect(RngChk_Other, *DCB.rB ? RngChk_Other:0);
+      DCB.B=gs_RngChecks.Selected(RngChk_Other);
+      return 1;
+#endif
     default:
       {
       if (DCB.lHandle>=xidGrfFirstActive && DCB.lHandle<=xidGrfLastActive)
@@ -12435,6 +12525,9 @@ flag CFlwSolver::RequestModelAssocGrfs(CMdlAssocGrfArray & Grfs)
   for (FlwNode * p = NULL; GetObj_All(p); )
     Chgs+=p->ModelAssocGrfs(Grfs, Index++);
 
+  if (Grfs.GetCount()!=Index)
+    Grfs.SetSize(Index);
+
   return Chgs>0;
   };
 
@@ -13430,8 +13523,10 @@ flag CFlwSolver::EO_Starting(flag fBeginStarting)
   STARTPROGRESS;
   SHOWPROGRESS(10, "EO_Starting");
 
-  if (fBeginStarting)
-    MSMFnRanges::BumpGlblIter();
+#if WITHMDLRANGECHECKS
+  //if (fBeginStarting)
+  //  gs_RngChecks.BumpGlblIter();
+#endif
 
   // Undo to Redo -- in case mode has changed
   ASSERT(_CrtCheckMemory());
@@ -14149,7 +14244,9 @@ flag CFlwSolver::EO_Execute(CXM_TimeControl &CB, CEOExecReturn &EORet)
   ODE().ClearIters4Step();
 
   gs_MsgLog.SetDefer(true);
-  MSMFnRanges::BumpGlblIter();
+#if WITHMDLRANGECHECKS
+  //gs_RngChecks.BumpGlblIter();
+#endif
 
   #if (dbgFlwSolve)
   SetUpLoopDebug(this);
@@ -14322,6 +14419,10 @@ Done:
   #endif
 
   SHOWPROGRESS(1, "EO_Execute 4");
+
+#if WITHMDLRANGECHECKS
+  //gs_RngChecks.Dump();
+#endif
 
   return ret;
   }

@@ -1211,12 +1211,6 @@ void MN_Surge::SetCyclicStorageOut()
 
 void MN_Surge::ClosureInfo()
   {
-  bool InRange=true;
-  for (int i=0; i<NoFlwIOs(); i++)
-    InRange = InRange && IOConduit(i)->SMFnsInRange();
-  InRange = InRange && Contents.SMFnsInRange();
-  FlwNode::SetCI(29, !InRange);
-
   if (m_Closure.DoFlows())
     {
     CClosureInfo &CI=m_Closure[0];

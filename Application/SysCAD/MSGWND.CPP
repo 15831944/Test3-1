@@ -581,7 +581,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
     int iOff=(Msg.m_dwFlags & LogFlag_FromPGM) ? 3 : (Msg.m_dwFlags & LogFlag_FromCOM) ? 6 : 0;
     switch (Msg.m_dwFlags & (LogFlag_Fatal | LogFlag_Stop | LogFlag_Separator | 
                            LogFlag_Error | LogFlag_Warning | LogFlag_Note | 
-                           LogFlag_Cmd | LogFlag_CondClear))
+                           LogFlag_Cmd | LogFlag_CondClear | LogFlag_RngClear))
       {
       case LogFlag_Fatal: 
         iImg=2+iOff;
@@ -612,6 +612,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
         bLogIt=1;
         break;
       case LogFlag_CondClear:
+      case LogFlag_RngClear:
         if (Msg.m_lSeqNo!=0)
           {
           AddMsg=0;
@@ -656,6 +657,8 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
       default:
         AddMsg=0;
       }
+    if (Msg.m_dwFlags & LogFlag_Rng)
+      iImg=9;
 
     if ((Msg.m_dwFlags & LogFlag_ClearErrList))
       {
@@ -687,7 +690,7 @@ LRESULT CMsgWnd::OnLogMsg(WPARAM wParam, LPARAM lParam)
         }
       if (AddMsg)
         {
-        flag IsCond = ((Msg.m_dwFlags & LogFlag_Cond)!=0);
+        flag IsCond = ((Msg.m_dwFlags & (LogFlag_Cond|LogFlag_Rng))!=0);
         CListCtrl* pCtrl=IsCond ? &CndCtrl : &MsgCtrl;
         CMsgList * pList=IsCond ? &Shared.m_CndList : &Shared.m_MsgList;
 

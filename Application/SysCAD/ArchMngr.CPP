@@ -1562,7 +1562,7 @@ bool CArchiveDBTable::AddMsgRecord(CXM_TimeControl &CB, CMsgLogItem & Msg)
     {
     switch (Msg.m_dwFlags & (LogFlag_Fatal | LogFlag_Stop | LogFlag_Separator | 
       LogFlag_Error | LogFlag_Warning | LogFlag_Note | 
-      LogFlag_Cmd | LogFlag_CondClear))
+      LogFlag_Cmd | LogFlag_CondClear | LogFlag_RngClear))
       {
       case LogFlag_Fatal: 
         Type= "Fatal";

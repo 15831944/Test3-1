@@ -2977,6 +2977,10 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
         }
       else if (bStepReqd)
         {
+#if WITHMDLRANGECHECKS
+        gs_RngChecks.BumpGlblIter();
+#endif
+
         //nPauseCount=10;
         #if dbgExecutive
         if (dbgExecSeq())
@@ -3001,8 +3005,12 @@ void CExecutive::DoOneExecMessage(UINT wParam, LONG lParam)
           NextCmd=EXM_DOTEST;
         }
       else
+        {
+#if WITHMDLRANGECHECKS
+        gs_RngChecks.BumpGlblIter();
+#endif
         NextCmd=EXM_DOEXEC;
-
+        }
       if (DoEndPause && Waiting())
         {
         dwState&=(~EXF_Waiting);

@@ -123,7 +123,7 @@ void CMessageLog::Unlock() { LeaveCriticalSection(&gs_MsgLog.m_errSect); }
 
 DWORD CMessageLog::MsgTypeWord(DWORD Flags) 
   { 
-  return (Flags & (LogFlag_Fatal | LogFlag_Stop | LogFlag_Error | LogFlag_Warning | LogFlag_Note | LogFlag_Cmd | LogFlag_CondClear | LogFlag_Separator));
+  return (Flags & (LogFlag_Fatal | LogFlag_Stop | LogFlag_Error | LogFlag_Warning | LogFlag_Note | LogFlag_Cmd | LogFlag_CondClear | LogFlag_RngClear | LogFlag_Separator));
   };
 
 LPCTSTR CMessageLog::MsgTypeString(DWORD iTyp)
@@ -135,6 +135,7 @@ LPCTSTR CMessageLog::MsgTypeString(DWORD iTyp)
     case LogFlag_Error:     return "Err";   
     case LogFlag_Warning:   return "Wrn";   
     case LogFlag_CondClear: return "- Clr"; 
+    case LogFlag_RngClear:  return "- Rng"; 
     case LogFlag_Note:      return "Nt";    
     case LogFlag_Cmd:       return "CMD";   
     case LogFlag_Separator: return "===";   
@@ -755,6 +756,12 @@ int LogCondClear(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...)
   {
   DOVARARGS(fmt);
   return gs_MsgLog.LogLn(LogFlag_CondClear, Where, BoxFlags, S);
+  }
+
+int LogRngClear(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...)
+  {
+  DOVARARGS(fmt);
+  return gs_MsgLog.LogLn(LogFlag_RngClear, Where, BoxFlags, S);
   }
 
 int PgmLogError(LPCTSTR Where, UINT BoxFlags, LPCTSTR fmt, ...)

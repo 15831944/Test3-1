@@ -4582,6 +4582,7 @@ Global
 		{96E1E755-DDA4-4437-9456-273B14D65001}.Release_DbgCLR Full|Win32.Build.0 = Release_Dbg|Win32
 		{96E1E755-DDA4-4437-9456-273B14D65001}.Release|Any CPU.ActiveCfg = Release|Win32
 		{96E1E755-DDA4-4437-9456-273B14D65001}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{96E1E755-DDA4-4437-9456-273B14D65001}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{96E1E755-DDA4-4437-9456-273B14D65001}.Release|Win32.ActiveCfg = Release|Win32
 		{96E1E755-DDA4-4437-9456-273B14D65001}.Release|Win32.Build.0 = Release|Win32
 		{96E1E755-DDA4-4437-9456-273B14D65001}.SMDK_Debug|Any CPU.ActiveCfg = SMDK_Debug|Win32

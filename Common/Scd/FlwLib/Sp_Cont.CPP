@@ -444,6 +444,7 @@ void SpConduit::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double  ("VapourNormVol",    "VNQVt",  DC_NQv,   "NL/s",   xidSMVNVol,    this, isResult|noFile|noSnap|InitHidden);
     DDB.Double  ("SlurryNormVol",    "SLNQVt", DC_NQv,   "NL/s",   xidSMSLNVol,   this, isResult|noFile|noSnap|InitHidden);
 
+
     pModel->BuildDataDefn_Vars(DDB);
     pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
 
@@ -457,7 +458,6 @@ void SpConduit::BuildDataDefn(DataDefnBlk &DDB)
       pModel->BuildDataDefn_Quals(DDB, false);
       DDB.Text("");
       }
-    AddFnRanges(DDB);
     }
   DDB.EndStruct();
   };
@@ -1151,8 +1151,10 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
     DDB.Double  ("EntVapourVolFrac",  "EntVapFracVV",  DC_Frac, "%",    xidCnVFracVV,    this, isResult|noFile|noSnap);
     //DDB.Double  ("EntSlurryVolFrac",  "EntSLFracVV",  DC_Frac, "%",    xidCnSLFracVV,   this, isResult|noFile|noSnap|InitHidden);
 
+
     pModel->BuildDataDefn_Vars(DDB);
     pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
+
     DDB.Text   (" ");
     //DDB.Visibility(NM_Dynamic|SM_All|HM_All);  // hss 8/6/99
 
@@ -1342,7 +1344,6 @@ void SpContainer::BuildDataDefn(DataDefnBlk &DDB)
           DDB.EndObject();
           }
       }
-    AddFnRanges(DDB);
     DDB.Visibility(Vis);  // hss 8/6/99
     }
   DDB.EndStruct();
@@ -3386,6 +3387,7 @@ void SpImage::BuildDataDefn(DataDefnBlk &DDB)
 
       DDB.Double  ("Temperature",  "T",    DC_T,    "C",      xidSMTemp,     this, 0|isParmConstruct);//(!AsFlow ? isParm : 0));
       DDB.Double  ("Pressure",     "P",    DC_P,    "kPag",   xidSMPress,    this, 0|isParmConstruct);//(!AsFlow ? isParm : 0));
+
       pModel->BuildDataDefn_Vars(DDB);
       pModel->BuildDataDefn_UsrProps(DDB, MP_UserProp, true);
 
@@ -3406,7 +3408,6 @@ void SpImage::BuildDataDefn(DataDefnBlk &DDB)
         DDB.Text("");
         }
       }
-    AddFnRanges(DDB);
     }
   DDB.EndStruct();
   };

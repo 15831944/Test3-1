@@ -501,8 +501,10 @@ const pchar   SpModel::GroupName="SpModel";
 double        SpModel::dUsrDefT=C_2_K(25);
 double        SpModel::dUsrDefP=dNAN;
 double        SpModel::dTestToleranceMassFrac=0.0001;
+#if !WITHMDLRANGECHECKS
 bool          SpModel::m_RangeErrorsOn=false;
 bool          SpModel::m_RangeExtErrorsOn=true;
+#endif
 
 flag          SpModel::sm_VarsChange=0;
 long          SpModel::sm_VarsAvail=0;
@@ -556,6 +558,9 @@ long SpModel::m_lIdCount=0;
 
 SpModel::SpModel(TagObjClass* pClass_, pchar Tag_, pTaggedObject pAttach, TagObjAttachment eAttach) ://, pSpMassModel pMM_)
 TaggedObject(pClass_, Tag_, pAttach, eAttach)
+#if WITHMDLRANGECHECKS
+, m_RngChks(this, "SpModel")
+#endif
   {
   m_lId = SpModel::m_lIdCount++;
 
@@ -5448,10 +5453,14 @@ long SpModel::CheckDataRanges()
   {
   long NBadTempRanges=0;
   long NBadDensRanges=0;
-  if (HeatSkipMethod() || ((gs_RangeChecks&(RngChk_Temperature|RngChk_Density))==0))
+#if WITHMDLRANGECHECKS
+  if (HeatSkipMethod() || !gs_RngChecks.Selected(RngChk_T|RngChk_TExtn|RngChk_Rho))
+#else
+  if (HeatSkipMethod())
+#endif
     {
-    ClrCI(5);
-    ClrCI(8);
+    //ClrCI(5);
+    //ClrCI(8);
     }
   else
     {
@@ -5471,17 +5480,24 @@ long SpModel::CheckDataRanges()
           {
           CSpecie & D=SDB[s];
           flag BadTemp=false;
-          if ((gs_RangeChecks&RngChk_Temperature)==0)
+#if WITHMDLRANGECHECKS
+          if (gs_RngChecks.Selected(RngChk_T) && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
             {
+            BadTemp=true;
             }
-          else if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
+          else if (gs_RngChecks.Selected(RngChk_TExtn) && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
+            {
+            BadTemp=true;
+            }
+#else
+          if (SpModel::m_RangeExtErrorsOn && (T<D.TestLoT(m_iFidelity) || T>D.TestHiT(m_iFidelity)))
             {
             AsWarn=true;
             BadTemp=true;
             }
           else if (SpModel::m_RangeErrorsOn && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
             BadTemp=true;
-
+#endif
           if (BadTemp)
             {
             NBadTempRanges++;
@@ -5506,10 +5522,13 @@ long SpModel::CheckDataRanges()
               }
             }
 
-          if ((gs_RangeChecks&RngChk_Density)==0)
+#if WITHMDLRANGECHECKS
+          if (!gs_RngChecks.Selected(RngChk_Rho))
             {
             }
-          else if (SDB[s].HasDensCalc())
+          else 
+#endif
+            if (SDB[s].HasDensCalc())
             {
             CDensCorr & DC = SDB[s].DensCalc();
             if (DC.m_DoWarn && m_M[DC.m_iSolute]/GTZ(m_M[DC.m_iSolute]+m_M[DC.m_iSolvent])>DC.m_LimitFrac)
@@ -5541,22 +5560,34 @@ long SpModel::CheckDataRanges()
       }
     if (NBadTempRanges)
       {
-      if (WithSpcs)
-        SetCI(5, "%s\tTemperature Range [%7.2f C] %s", AsWarn?"W":"N", K_2_C(T), Spcs());
-      else
-        SetCI(5, "%s\tTemperature [%7.2f C] out of Valid Data Range", AsWarn?"W":"N", K_2_C(T));
+#if WITHMDLRANGECHECKS
+      m_RngChks.AddMessage(RngChk_T|RngChk_TExtn, "SpcTemp",  "%7.2f (C) %s", K_2_C(T), WithSpcs ? Spcs():"");
+#else
+      SetCI(5);
+#endif
       }
-    else
+    else 
+      {
+#if WITHMDLRANGECHECKS
+#else
       ClrCI(5);
+#endif
+      }
     if (NBadDensRanges)
       {
-      if (WithSpcs)
-        SetCI(8, "%s\tDensityCorrection Range %s", AsWarn?"W":"N", Spcs());
-      else
-        SetCI(8, "%s\tDensityCorrection out of Valid Data Range", AsWarn?"W":"N");
+#if WITHMDLRANGECHECKS
+      m_RngChks.AddMessage(RngChk_Rho, "SpcDensityCorrection",  WithSpcs ? Spcs():"");
+#else
+      SetCI(8);
+#endif
       }
     else
+      {
+#if WITHMDLRANGECHECKS
+#else
       ClrCI(8);
+#endif
+      }
     }
   return NBadTempRanges+NBadDensRanges;
   };
@@ -9346,10 +9377,10 @@ flag SpModel::CIStrng(int No, pchar & pS)
     case 2: pS="W\tGas Venting";                                  return 1;
     case 3: pS="W\tVolume Expanded";                              return 1;
     case 4: pS="W\tSaturationT not converged";                    return 1;
-    case 5: pS="W\tTemp/Press Out of Range for ????";             return 1;
+    case 5: pS="W\tTemp/Press Out of Range";                      return 1;
     case 6: pS="N\tSaturationT Low Limit";                        return 1;
     case 7: pS="N\tSaturationT High Limit";                       return 1;
-    case 8: pS="W\tDensity Corrections Out of Range for ????";    return 1;
+    case 8: pS="W\tDensity Corrections Out of Range";             return 1;
     default:
       return TaggedObject::CIStrng(No, pS);
     }
@@ -9761,20 +9792,6 @@ void SpModelOwner::AddFidelity(DataDefnBlk &DDB, bool Editable)
 
 // --------------------------------------------------------------------------
 
-void SpModelOwner::AddFnRanges(DataDefnBlk &DDB)
-  {
-#if WITHSPMDLRANGES
-  if (DDB.BeginStruct(this, "FnRange", 0, DDB_NoPage))
-    {
-    DDB.String("Errors",   "",   DC_,    "",      xidSMFnRanges,    this, isResult);
-    DDB.Long  ("ErrorID",  "",   DC_,    "",      xidSMFnRangeID,   this, isResult);
-    }
-  DDB.EndStruct();
-#endif
-  }
-
-// --------------------------------------------------------------------------
-
 flag SpModelOwner::DataXchg(DataChangeBlk & DCB)
   {
   if (TaggedObject::DataXchg(DCB))
@@ -9842,41 +9859,6 @@ flag SpModelOwner::DataXchg(DataChangeBlk & DCB)
         SpModel::SetFidelity(*DCB.rL);
       DCB.L=SpModel::Fidelity();
       return 1;
-    case xidSMFnRanges:
-      {
-      m_sSMFnRanges="";
-#if WITHSPMDLRANGES
-      MSMFnRanges * p=pModel->SMFnRanges();
-      if (p)
-        {
-        long Bad=(~p->m_Flags) & p->m_Masks;
-        for (int i=0; i<(long)eFn_Last; i++)
-          {
-          if ((Bad & 0x00000001)!=0)
-            {
-            if (m_sSMFnRanges.GetLength()>0)
-              m_sSMFnRanges+=":";
-            m_sSMFnRanges+=eSpFnsNames[i];
-            }
-          Bad = Bad >>1;
-          }
-        }
-      //if (m_sSMFnRanges.GetLength()==0)
-      //  m_sSMFnRanges="OK";
-#endif
-      DCB.pC=m_sSMFnRanges();
-      return 1;
-      }
-    case xidSMFnRangeID:
-      {
-#if WITHSPMDLRANGES
-      MSMFnRanges * p=pModel->SMFnRanges();
-      DCB.L=p ? ((~p->m_Flags) & p->m_Masks) : 0;
-#else
-      DCB.L=0;
-#endif
-      return 1;
-      }
     }
   return 0;
   };

@@ -264,10 +264,7 @@ XID xidHumiditySpecific     = SpcXID(100205);
 XID xidHumidityRelative     = SpcXID(100206);
 XID xidHumidityDewPt        = SpcXID(100207);
 
-XID xidSMFnRanges           = SpcXID(100208);
-XID xidSMFnRangeID          = SpcXID(100209);
-
-XID xidRhoSolvent1          = SpcXID(100210);
+XID xidRhoSolvent1          = SpcXID(100300);
 XID xidRhoCorrFuncFirst     = xidRhoSolvent1;
 XID xidRhoSolventLast       = xidRhoCorrFuncFirst + MaxSpSolvents - 1;
 XID xidRhoSoln1             = xidRhoSolventLast   + 1;
@@ -299,10 +296,10 @@ XID xidRhoCorrFuncLast      = xidRhoStream;
 XID xidRhoCorrFuncLast      = xidSpcFactorLast;
 #endif
 
-XID xidSpMdlVarsAvail       = SpcXID(100300); // leave 32
-XID xidSpMdlVarsAvailEnd    = SpcXID(100332); 
-XID xidSpMdlSpVarsAvail     = SpcXID(100333); // leave 32
-XID xidSpMdlSpVarsAvailEnd  = SpcXID(100365); 
+XID xidSpMdlVarsAvail       = SpcXID(100500); // leave 32
+XID xidSpMdlVarsAvailEnd    = SpcXID(100532); 
+XID xidSpMdlSpVarsAvail     = SpcXID(100533); // leave 32
+XID xidSpMdlSpVarsAvailEnd  = SpcXID(100565); 
 
 XID xidQualSwitch           = SpcXID(200000);   //xidAttribute      + MaxAttributes;            // ditto
 XID xidQualSwitch1          = xidQualSwitch     + MaxSpQualities;           // ditto
@@ -826,7 +823,6 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     virtual double CpCv(PhMask Phase=som_ALL)       { return m_M.CpCv(m_iFidelity, Phase); };
 
-    virtual MSMFnRanges * SMFnRanges() { return NULL; };
     virtual double msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
             double msCp(PhMask Phase=som_ALL)       { return msCp(Phase, Temp(), Press()); };
     virtual double msHs(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL);
@@ -1175,7 +1171,11 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     double         m_dGasMixAlpha;
 
     static long    sm_iFixupStrategy;
+    //static bool    sm_bRngChksAsCondition;
 
+#if WITHMDLRANGECHECKS
+    MRngChks       m_RngChks;
+#endif
   public:
     IE_Enables     m_iEnable;             // Integrators On/Off
 
@@ -1250,8 +1250,10 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     static double       dUsrDefT;
     static double       dUsrDefP;
     static double       dTestToleranceMassFrac;
+#if !WITHMDLRANGECHECKS
     static bool         m_RangeErrorsOn;
     static bool         m_RangeExtErrorsOn;
+#endif
 
 #if WITHSPMDLTIMERS
     static CGlblStopWatch   sm_swEvalM;
@@ -1323,7 +1325,6 @@ class DllImportExport SpModelEx : public SpModel
 
     // Must supply the next 3
 
-    virtual MSMFnRanges * SMFnRanges() { return &m_SMFnRanges; };
     virtual double msCp(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL)=0;
     virtual double msHm(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL, double *pTotalM=NULL)=0;
 
@@ -1339,7 +1340,6 @@ class DllImportExport SpModelEx : public SpModel
     virtual double totSf(PhMask Phase, double T_, double P_, CSysVector * pMA=NULL);
 
   protected:
-    MSMFnRanges  m_SMFnRanges;
   };
 
 // ===========================================================================
@@ -1370,7 +1370,7 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
     void           AddShapeName(DataDefnBlk &DDB);
     void           AddModelName(DataDefnBlk &DDB);
     void           AddFidelity(DataDefnBlk &DDB, bool Editable);
-    void           AddFnRanges(DataDefnBlk &DDB);
+    //void           ShowRngChks(DataDefnBlk &DDB);
     flag           DataXchg(DataChangeBlk & DCB);
 
     flag           ModelPermanent() { return fPermModel; };
@@ -1416,8 +1416,6 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
     virtual void    GetPropertyValue(long Index, DWORD Phase, double T, double P, MPropertyValue &Value) throw(...) { pModel->GetPropertyValue(Index, Phase, T, P, Value); };
     virtual void    PutPropertyValue(long Index, MPropertyValue &Value) throw(...)						  								              { pModel->PutPropertyValue(Index, Value); };
 
-    bool            SMFnsInRange() { MSMFnRanges *p=pModel->SMFnRanges(); return p ? p->AllInRange() : true; };
-
     CVLEBase      * VLEBlk() { return pModel->m_pVLE; };
 #ifndef _RELEASE
     void           SanityCheck();
@@ -1429,7 +1427,7 @@ class DllImportExport SpModelOwner : public TaggedObject, public CPropertyBase
     flag          m_fModelSelectable;
     SpModel *     pModel;
     Strng         sReqdModel;
-    Strng         m_sSMFnRanges;
+    //Strng         m_sSMFnRanges;
 
     static Strng  DefaultShape;
     static Strng  DefaultModel;
