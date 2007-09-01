@@ -66,7 +66,7 @@ class CSvcConnect
 
     //bool RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns);
 
-    void Export(LPCSTR projectPath, LPCSTR configPath);
+    void Export2Scd10(LPCSTR projectPath, LPCSTR configPath);
     void Load();
     void Save();
 
@@ -166,43 +166,85 @@ inline CSvcExecCtrl & PrjSvcCtrl() { return gs_pPrj->m_pSvc->m_Ctrl; };
 class CGetExistingItems
   {
   public:
-    enum eType { eIsError, eIsLink, eIsNode, eIsNull };
+
+    class CGroup
+      {
+      public:
+        CGroup()
+          {
+          m_No      = -1;
+          m_pDoc    = NULL;
+          m_XOff    = 0;
+          m_YOff    = 0;
+          }
+        CGroup(LPCSTR Title, int No, CGrfDoc *pDoc)
+          {
+          m_sTitle  = Title;
+          m_No      = No;
+          m_pDoc    = pDoc;
+          m_XOff    = 0;
+          m_YOff    = 0;
+          }
+
+        CString         m_sTitle;
+        CString         m_sSymbol;
+        int             m_No;
+        CGrfDoc       * m_pDoc;
+        CRectangleF     m_PageRct;
+        float           m_XOff;
+        float           m_YOff;
+
+        CGrfTagInfoArray  m_GTIA;
+      };
+
+    class CItem
+      {
+      public:
+        CItem()
+          {
+          m_pNLItem = NULL;
+          };
+        CItem(LPCSTR Tag, CNodeListItem * pNLItem)
+          {
+          m_sTag    = Tag;
+          m_pNLItem = pNLItem;
+          };
+
+
+        CString         m_sTag;
+        CNodeListItem * m_pNLItem;
+        CRectangleF     m_BndRct;
+      };
+
+    class CGroupIndex
+      {
+      public:
+        CGroupIndex()
+          {
+          m_pGrp = NULL;
+          m_iGTIA = -1;
+          };
+        CGroupIndex(CGroup *  pGrp, long iGTIA)
+          {
+          m_pGrp = pGrp;
+          m_iGTIA = iGTIA;
+          };
+        CGroup *  m_pGrp;
+        long      m_iGTIA;
+
+      };
+
     CGetExistingItems();
-
-    bool            GetOne();
-
-    int             PageCount()  { return m_nPages;           };
-    int             PageNo()     { return m_iPage;            };
-    LPCSTR          PageName()   { return m_sPage;            };
-    CGrfTagInfo   & Item()       { return m_GTIA[m_iInArray]; };
-    LPCSTR          Guid()       { return m_Guid;             };
-    eType           Type()       { return m_Type;             };
-    CRectangleF   & PageRct()    { return m_PageRct;          };
-
-
-  protected:
+    ~CGetExistingItems();
     
     int               m_nPages;
-    CDocTemplate    & m_GrfTemplate;
-    POSITION          m_GrfDocPos;
-    CGrfDoc         * m_pDoc;
-    CGrfTagInfoArray  m_GTIA;
-    CRectangleF       m_PageRct;
 
-    int               m_nInArray;
-    int               m_iInArray;
+    CList<CGroup*, CGroup*>                           m_Groups; 
+    CList<CItem*, CItem*>                             m_Items; 
+    CNodeList                                         m_Nodes;
+    CMap<LPCSTR, LPCSTR, CGroup*, CGroup*>            m_PageMap;
+    CMap<LPCSTR, LPCSTR, CGroupIndex, CGroupIndex&>   m_TagMap;
 
-    int               m_iPage;
-    CString           m_sPage;
-    CString           m_Guid;
-    eType             m_Type;
-
-  public:  //??
-    CLinePointsArray  m_LPA;
-    CString           m_SrcGuid;
-    CString           m_DstGuid;
-    CString           m_SrcPort;
-    CString           m_DstPort;
   };
 
 //========================================================================

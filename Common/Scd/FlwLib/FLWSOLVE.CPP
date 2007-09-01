@@ -13267,8 +13267,10 @@ int CFlwSolver::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
     {
     FlwNode * p=FindNodeTag((LPSTR)pTag);
     if (p)
+      {
+      dbgpln("SCChgGuid : %s > %s", pTag, ItemGuid);
       p->SetGuid((LPSTR)ItemGuid);
-    
+      }
     return EOSC_DONE;
     }
 
@@ -13282,6 +13284,7 @@ int CFlwSolver::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
     {
     FlwNode *pNd;
     int XError=FE_DoInsert((LPSTR)model, "", "", (LPSTR)pTag, NULL, NULL, &pNd, (LPSTR)ItemGuid);
+    dbgpln("SCCreateItem : %s > %s", pTag, ItemGuid);
     return (XError == 0) ? EOSC_DONE : EOSC_FAILED;
     }
 

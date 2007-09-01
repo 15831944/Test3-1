@@ -174,10 +174,7 @@ static CDocument* GetGrfDoc(int index, LPCSTR name)
 
 CSvcConnect::CSvcConnect()
   {
-  //m_lRequestId = 2000; // temporary - should be zeros
   m_lEventId   = 0;
-
-  //m_bExportBusy = false;
   }
 CSvcConnect::~CSvcConnect()
   {
@@ -216,40 +213,7 @@ void CSvcConnect::Shutdown()
   };
 
 
-//bool CSvcConnect::RequestItemDefinitions(LPSTR Group, CFlwNodeDefinitionList & Defns)
-//  {
-//  gs_pPrj->RequestNodeDefinitions(Group, Defns);
-//
-//  if (1)
-//    {
-//    POSITION Pos=Defns.GetHeadPosition();
-//    if (Pos)
-//      dbgpln("=======================================================================");
-//    while (Pos)
-//      {
-//      CFlwNodeDefinition &D=Defns.GetNext(Pos);
-//      dbgpln("ClassNV     : %s", D.m_sClassNV());
-//      dbgpln("Class       : %s", D.m_sClass());
-//      dbgpln("Description : %s", D.m_sDescription());
-//      dbgpln("ShortDesc   : %s", D.m_sShortDesc());
-//      dbgpln("Category    : 0x%08x", D.m_Category);
-//      dbgpln("IOs         : %i", D.m_IOs.GetCount());
-//      for (int io=0; io<D.m_IOs.GetCount(); io++)
-//        {
-//        CRequestModelIOInfoRec & IO = D.m_IOs[io];
-//        dbgpln("  %-9s : %4i %3i %3i %3i %2x %2i %s%s %s %s", 
-//          IO.Name(), IO.iId, IO.nIORqd, IO.nIOMax, IO.Dirn, 
-//          IO.m_dwType, IO.iGrp, IO.Input?"I":" ", IO.Output?"O":" ", IO.m_Hidden?"Hide":"    ", IO.Desc());
-//      
-//        }
-//      dbgpln("=======================================================================");
-//      }
-//    }
-//
-//  return Defns.GetCount()>0;
-//  }
-
-void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
+void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
   {
   m_Ctrl.m_bExportBusy = true;
   //m_pCLR->Export(projectPath, configPath);
@@ -259,82 +223,114 @@ void CSvcConnect::Export(LPCSTR projectPath, LPCSTR configPath)
   int PrevPage=-1;
   CString Path;
 
+  POSITION Pos=GI.m_Groups.GetHeadPosition();
+  while (Pos)
+    {
+    CGetExistingItems::CGroup & Grp=*GI.m_Groups.GetNext(Pos);
+
+    CString GrpGuid = TaggedObject::CreateGuidStr(); // where should this come from
+
+    DO_ENTRY_GTP("DoCreateGroupE", GrpGuid , Grp.m_sTitle, MakePath(projectPath));
+
+    m_pCLR->DoCreateGroup(m_lRequestIdRet, GrpGuid, Grp.m_sTitle, MakePath(projectPath), 
+      CRectangleF(Grp.m_PageRct.Left()+Grp.m_XOff,Grp.m_PageRct.Bottom()+Grp.m_YOff, Grp.m_PageRct.Width(), Grp.m_PageRct.Height()));
+
+    DO_EXIT_G("DoCreateGroupE", GrpGuid);
+    
+    }
   //    static __int64 RqID=0;
 
-  while (GI.GetOne())
+  Pos=GI.m_Items.GetHeadPosition();
+  while (Pos)
     {
-    CGrfTagInfo & I = GI.Item();
+    CGetExistingItems::CItem & I = *GI.m_Items.GetNext(Pos);
+    if (I.m_sTag.CompareNoCase("PlantArea")==0)
+      continue;
+
+    CNodeListItem & N = *I.m_pNLItem;
+    
+    CGetExistingItems::CGroupIndex Inx;
+    if (!GI.m_TagMap.Lookup(I.m_sTag, Inx))
+      {
+      LogError("Export2SCd10", 0, "Tag Not in Graphics %s", I.m_sTag);
+      continue;
+      };
+    
+    CGetExistingItems::CGroup & Grp = *Inx.m_pGrp;
+    CGrfTagInfo               & GTI =Grp.m_GTIA[Inx.m_iGTIA];
+
+    CString Symbol = GTI.m_sSymbol();
 
 #if dbgSvcConn
     if (dbgConnect())
       {
-      dbgpln("Export Item/Link %i %-20s %-20s %-20s", GI.Type(), I.m_sTag(), I.m_sSymbol(), I.m_sClass());
+      dbgpln("Export %s %-20s %-20s %-20s", N.m_bIsLnk?"Link":"Node", N.m_sTag, Symbol, N.m_sClass);
       dbgindent(4);
       }
 #endif
 
-    // Simple Layout
-    int NAcross=Max(1,int(Sqrt((double)GI.PageCount())+0.5));
-    float XOffSet=(GI.PageNo()%NAcross)*310.0f*1.414f;
-    float YOffSet=(GI.PageNo()/NAcross)*310.0f;
-
-    if (PrevPage!=GI.PageNo())
+    if (!N.m_bIsLnk)
       {
-      PrevPage=GI.PageNo();
+      CString ItemGuid;
+      CString Shape    = ExtractShape(Symbol);
+      CString Model    = N.m_sClass;
 
-      CString GrpGuid = TaggedObject::CreateGuidStr(); // where should this come from
+      DO_ENTRY_GTP("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle));
 
-      DO_ENTRY_GTP("DoCreateGroupE", GrpGuid , GI.PageName(), MakePath(projectPath));
+      m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
+        MakePath(projectPath, Grp.m_sTitle), Model, Shape,
+        CRectangleF(GTI.m_LoBnd.m_X+Grp.m_XOff, Grp.m_PageRct.Height()-GTI.m_HiBnd.m_Y+Grp.m_YOff, GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X, GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y),
+        0.0,  CRectangleF(0.0, 0.0, 0.0, 0.0), // !!! textArea not used!
+        0, false, false);
 
-      m_pCLR->DoCreateGroup(m_lRequestIdRet, GrpGuid, GI.PageName(), MakePath(projectPath), 
-        CRectangleF(GI.PageRct().Left()+XOffSet,GI.PageRct().Bottom()+YOffSet, GI.PageRct().Width(), GI.PageRct().Height()));
-
-      DO_EXIT_G("DoCreateGroupE", GrpGuid);
+      DO_EXIT_G("DoCreateItemE", ItemGuid);
       }
-
-    switch (GI.Type())
+    else
       {
-      case CGetExistingItems::eIsNode:
-        {
-        CString ItemGuid;
-        CString Shape    = ExtractShape(I.m_sSymbol());
-        CString Model    = I.m_sClass();
+      CString ItemGuid;
+      CString Shape    = ExtractShape(Symbol);
+      CString Model    = N.m_sClass;
 
-        DO_ENTRY_GTP("DoCreateItemE", "", I.m_sTag(), MakePath(projectPath, GI.PageName()));
+      DO_ENTRY_GTP("DoCreateLinkE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle));
 
-        m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag(),
-          MakePath(projectPath, GI.PageName()), Model, Shape,
-          CRectangleF(I.m_LoBnd.m_X+XOffSet, GI.PageRct().Height()-I.m_HiBnd.m_Y+YOffSet, I.m_HiBnd.m_X-I.m_LoBnd.m_X, I.m_HiBnd.m_Y-I.m_LoBnd.m_Y),
-          0.0,  CRectangleF(0.0, 0.0, 0.0, 0.0), // !!! textArea not used!
-          0, false, false);
+      CLinePointsArray  LPA;
 
-        DO_EXIT_G("DoCreateItemE", ItemGuid);
-        break;
+      LPA.SetSize(0);
+      Grp.m_pDoc->GCB.pDrw->CollectLinkInfo(GTI, LPA);
+
+      FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag, NULL);
+
+      CString SrcGuid = pNode->Nd_Rmt(0)->Guid();
+      CString SrcPort = pNode->IODesc_Rmt(0)->IOName();
+      CString DstGuid = pNode->Nd_Rmt(1)->Guid();
+      CString DstPort = pNode->IODesc_Rmt(1)->IOName();
+      if (dbgConnect())                                                              
+        {                                                                            
+        dbgpln("%-30s   Src %s.%s", "", SrcGuid, SrcPort);
+        dbgpln("%-30s   Dst %s.%s", "", DstGuid, DstPort);
         }
 
-      case CGetExistingItems::eIsLink:
-        {
-        CString ItemGuid;
-        CString Shape    = ExtractShape(I.m_sSymbol());
-        CString Model    = I.m_sClass();
 
-        DO_ENTRY_GTP("DoCreateLinkE", "", I.m_sTag(), MakePath(projectPath, GI.PageName()));
+      CPointFList CtrlPts;
+      for (int i=0; i<LPA.GetCount(); i++)
+        CtrlPts.AddHead(CPointF(LPA[i].x+Grp.m_XOff, Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff));
 
-        CPointFList CtrlPts;
-        for (int i=0; i<GI.m_LPA.GetCount(); i++)
-          CtrlPts.AddHead(CPointF(GI.m_LPA[i].x+XOffSet, GI.PageRct().Height()-GI.m_LPA[i].y+YOffSet));
-
-        m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag(), 
-          MakePath(projectPath, GI.PageName()), 
-          Model, 
-          GI.m_SrcGuid, GI.m_DstGuid, 
-          GI.m_SrcPort, GI.m_DstPort, CtrlPts);
+      m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag, 
+        MakePath(projectPath, Grp.m_sSymbol), 
+        Model, 
+        SrcGuid, DstGuid, SrcPort, DstPort, CtrlPts);
 
 
-        DO_EXIT_G("DoCreateLinkE", ItemGuid);
-        break;
-        }
+      DO_EXIT_G("DoCreateLinkE", ItemGuid);
       }
+
+    // Remove Original Symbol
+    if (GTI.e)
+      {
+      Grp.m_pDoc->GCB.pDsp->Draw(GTI.e, GrfHelper.GR_BACKGROUND);
+      Grp.m_pDoc->GCB.pDrw->Delete(GTI.e);
+      }
+
 #if dbgSvcConn
     if (dbgConnect())
       {
@@ -894,26 +890,6 @@ void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGu
 //
 //========================================================================
 
-CGetExistingItems::CGetExistingItems() : \
-m_GrfTemplate(ScdApp()->GraphTemplate())
-  {
-  m_nPages=0;
-  m_GrfDocPos = m_GrfTemplate.GetFirstDocPosition();
-  while (m_GrfDocPos)
-    {
-    m_nPages++;
-    m_GrfTemplate.GetNextDoc(m_GrfDocPos);
-    }
-
-  m_GrfDocPos = m_GrfTemplate.GetFirstDocPosition();
-  m_nInArray  = 0;
-  m_iInArray  = 0;
-  m_pDoc      = NULL;
-  m_iPage     = -1;
-  }
-
-//------------------------------------------------------------------------
-
 static struct CPageSizeInfo {LPCSTR Nm; float Scl;} s_PgInfo[]=
   {
     {"A5", 0.5f},
@@ -924,136 +900,117 @@ static struct CPageSizeInfo {LPCSTR Nm; float Scl;} s_PgInfo[]=
     {0}
   };
 
-bool CGetExistingItems::GetOne()
+
+CGetExistingItems::CGetExistingItems()
   {
-  for (;;)
+  m_nPages=0;
+
+  CDocTemplate & GrfTemplate(ScdApp()->GraphTemplate());
+
+  m_PageMap.InitHashTable(201);
+  m_TagMap.InitHashTable(20001);
+
+  POSITION Pos = GrfTemplate.GetFirstDocPosition();
+
+  float MaxPageW=0;
+  float MaxPageH=0;
+  while (Pos)
     {
-    m_iInArray++;
+    CGrfDoc * pDoc=dynamic_cast<CGrfDoc*>(GrfTemplate.GetNextDoc(Pos));
 
-    if (m_iInArray>=m_nInArray)
-      {// Get Next Page
-      if (!m_GrfDocPos)
-        return false; // no more pages
+    m_Groups.AddTail(new CGroup(pDoc->GetTitle(), m_nPages++, pDoc));
+    CGroup &Grp=*m_Groups.GetTail();
 
-      bool DoAllInserts=true;
-      m_pDoc=dynamic_cast<CGrfDoc*>(m_GrfTemplate.GetNextDoc(m_GrfDocPos));
-      m_iPage++;
-      m_sPage=m_pDoc->GetTitle();
+    double PageX = 0;
+    double PageY = 0;
+    double PageW = 420;
+    double PageH = 297;
 
-      double PageX = 0;
-      double PageY = 0;
-      double PageW = 420;
-      double PageH = 297;
-
-      if (m_pDoc->GCB.pDrw->GetBounds())
+    if (Grp.m_pDoc->GCB.pDrw->GetBounds())
+      {
+      double DrwX = C3_MIN_X(&Grp.m_pDoc->GCB.pDrw->Bounds);
+      double DrwY = C3_MIN_Y(&Grp.m_pDoc->GCB.pDrw->Bounds);
+      double DrwW = C3_MAX_X(&Grp.m_pDoc->GCB.pDrw->Bounds) - DrwX;
+      double DrwH = C3_MAX_Y(&Grp.m_pDoc->GCB.pDrw->Bounds) - DrwY;
+      bool FoundPageSz=false;
+      for (int i=0; s_PgInfo[i].Nm; i++)
         {
-        double DrwX = C3_MIN_X(&m_pDoc->GCB.pDrw->Bounds);
-        double DrwY = C3_MIN_Y(&m_pDoc->GCB.pDrw->Bounds);
-        double DrwW = C3_MAX_X(&m_pDoc->GCB.pDrw->Bounds) - DrwX;
-        double DrwH = C3_MAX_Y(&m_pDoc->GCB.pDrw->Bounds) - DrwY;
-        bool FoundPageSz=false;
-        for (int i=0; s_PgInfo[i].Nm; i++)
+        double Scl=s_PgInfo[i].Scl;
+        double PgW=s_PgInfo[i].Scl*420;
+        double PgH=s_PgInfo[i].Scl*297;
+        if (DrwW<=PgW*1.02 && DrwH<=PgH*1.02)
           {
-          double Scl=s_PgInfo[i].Scl;
-          double PgW=s_PgInfo[i].Scl*420;
-          double PgH=s_PgInfo[i].Scl*297;
-          if (DrwW<=PgW*1.02 && DrwH<=PgH*1.02)
-            {
-            PageW=PgW;
-            PageH=PgH;
-            FoundPageSz=true;
-            break;
-            }
-          }
-        if (!FoundPageSz)
-          {
-          PageX += (PageW-DrwW)*0.5;
-          PageY += (PageH-DrwH)*0.5;
+          PageW=PgW;
+          PageH=PgH;
+          FoundPageSz=true;
+          break;
           }
         }
-      else
+      if (!FoundPageSz)
         {
+        PageX += (PageW-DrwW)*0.5;
+        PageY += (PageH-DrwH)*0.5;
         }
-
-      m_PageRct.Set(PageX, PageY, PageW, PageH);
-
-      m_nInArray = m_pDoc->GetTagListInfo(DoAllInserts, m_GTIA);
-      m_iInArray=0;
+      }
+    else
+      {
       }
 
-    if (m_iInArray<m_nInArray)
+    Grp.m_PageRct.Set(PageX, PageY, PageW, PageH);
+    MaxPageW=Max(MaxPageW, PageW);
+    MaxPageH=Max(MaxPageH, PageH);
+    }
+
+  Pos=m_Groups.GetHeadPosition();
+  while (Pos)
+    {
+    CGroup & Grp=*m_Groups.GetNext(Pos);
+
+
+    int NAcross=Max(1,int(Sqrt((double)m_nPages)+0.5));
+    Grp.m_XOff=(Grp.m_No%NAcross)*MaxPageW*1.05f;
+    Grp.m_YOff=(Grp.m_No/NAcross)*MaxPageH*1.05f;
+
+    m_PageMap.SetAt(Grp.m_sTitle, &Grp);
+
+    bool DoAllInserts=true;
+    long nInArray = Grp.m_pDoc->GetTagListInfo(DoAllInserts, Grp.m_GTIA);
+    for (long i=0; i<nInArray; i++)
       {
-      // Load Data
-      CGrfTagInfo & I = m_GTIA[m_iInArray];
-
-      bool DoneOne=false;
-      m_Type = eIsError; //error
-      if (I.m_bHasTag)
+      CGroupIndex Inx;
+      if (!m_TagMap.Lookup(Grp.m_GTIA[i].m_sTag(), Inx))
         {
-        FlwNode * pNode = gs_pSfeSrvr->FE_FindNode(I.m_sTag(), NULL);
-        if (pNode)
-          {
-          TagObjClass * pTagObjC = pNode->Class();
-          I.m_sClass = pNode->ClassId();
-          m_Guid = pNode->Guid();
-
-          if (pTagObjC && (_stricmp(FlwLinkGrp, pTagObjC->Group())==0 || 
-            _stricmp(CtrlLinkGrp, pTagObjC->Group())==0 || 
-            _stricmp(ElecLinkGrp, pTagObjC->Group())==0 || 
-            _stricmp(AirLinkGrp, pTagObjC->Group())==0))
-            m_Type = eIsLink; //link
-          else
-            m_Type = eIsNode; //unit/node
-          if (pTagObjC)
-            {
-            I.m_sDrwGroup=pTagObjC->DrwGroup();
-            }
-
-          }
-        else
-          {
-          m_Type = eIsNull;
-          I.m_sClass = "";
-          }
-
-        switch (m_Type)
-          {
-          case eIsLink:
-            {
-            m_LPA.SetSize(0);
-            m_pDoc->GCB.pDrw->CollectLinkInfo(I, m_LPA);
-                        
-            m_SrcGuid = pNode->Nd_Rmt(0)->Guid();
-            m_SrcPort = pNode->IODesc_Rmt(0)->IOName();
-            m_DstGuid = pNode->Nd_Rmt(1)->Guid();
-            m_DstPort = pNode->IODesc_Rmt(1)->IOName();
-
-            DoneOne = true;
-            break;       
-            }
-          case eIsNode:
-            {
-
-            DoneOne = true;
-            break;
-            }
-          }
+        Inx.m_pGrp=&Grp;
+        Inx.m_iGTIA=i;
+        m_TagMap.SetAt(Grp.m_GTIA[i].m_sTag(), Inx);
+        dbgpln("TagMap %s", Grp.m_GTIA[i].m_sTag());
         }
-      if (DoneOne)
-        {
-        // Remove Original Symbol
-        m_pDoc->GCB.pDsp->Draw(I.e, GrfHelper.GR_BACKGROUND);
-        m_pDoc->GCB.pDrw->Delete(I.e);
-        }
-
-      if (DoneOne)
-        return true;
       }
     }
 
-  return false;
+
+  long iRet=gs_pPrj->m_pFlwLib->FE_GetNodeList(m_Nodes);
+
+  Pos=m_Nodes.GetHeadPosition();
+  while (Pos)
+    {
+    CNodeListItem &I=m_Nodes.GetNext(Pos);
+    m_Items.AddTail(new CItem(I.m_sTag, &I));
+        
+    dbgpln("Item %s", I.m_sTag);
+
+    }
   }
 
+//------------------------------------------------------------------------
+
+CGetExistingItems::~CGetExistingItems()
+  {
+  while (m_Groups.GetCount())
+    delete m_Groups.RemoveTail();
+  while (m_Items.GetCount())
+    delete m_Items.RemoveTail();
+  }
 
 //========================================================================
 //
