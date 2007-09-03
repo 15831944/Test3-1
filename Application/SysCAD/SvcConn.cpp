@@ -252,7 +252,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
     CGetExistingItems::CGroupIndex Inx;
     if (!GI.m_TagMap.Lookup(I.m_sTag, Inx))
       {
-      LogError("Export2SCd10", 0, "Tag Not in Graphics %s", I.m_sTag);
+      LogError("Export2Scd10", 0, "Tag Not in Graphics %s", I.m_sTag);
       continue;
       };
     
@@ -313,7 +313,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       CPointFList CtrlPts;
       for (int i=0; i<LPA.GetCount(); i++)
-        CtrlPts.AddHead(CPointF(LPA[i].x+Grp.m_XOff, Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff));
+        CtrlPts.AddTail(CPointF(LPA[i].x+Grp.m_XOff, Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff));
 
       m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag, 
         MakePath(projectPath, Grp.m_sSymbol), 

@@ -6614,7 +6614,7 @@ flag CProject::DoOpen(pchar pPrjPath, pchar pNewModelCfg, PrjLoadTypes PrjLoadTy
         //  };
         
         // Temporary
-        //m_pSvc->Export2Scd10(PrjName(), CfgFiles());
+        m_pSvc->Export2Scd10(PrjName(), CfgFiles());
          
         // CNM Removed - temp
         //m_pSvc->Save();
