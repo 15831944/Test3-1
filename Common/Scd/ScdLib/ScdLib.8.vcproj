@@ -701,10 +701,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RngChk.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Scdarray.cpp"
 				>
 			</File>
@@ -959,10 +955,6 @@
 			</File>
 			<File
 				RelativePath=".\RevHist.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RngChk.h"
 				>
 			</File>
 			<File
