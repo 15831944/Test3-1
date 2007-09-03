@@ -63,7 +63,7 @@ namespace SysCAD.Editor
         {
           state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, 
             graphicItem.Path, graphicItem.Model, gscf.Value, graphicItem.BoundingRect, 
-            graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, 
+            graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, 
             graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
         }
       }
@@ -77,7 +77,7 @@ namespace SysCAD.Editor
       {
         state.ModifyGraphicItem(out requestId, graphicItem.Guid, graphicItem.Tag, graphicItem.Path,
           graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea,
-          graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+          graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
       }
 
       if (graphicLink != null)

@@ -532,10 +532,10 @@ int CSfeSrvr::EO_CanClose(Strng_List & Problems)
 
 int CSfeSrvr::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                              LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                             float angle, const CRectangleF & textArea, COLORREF Colour, 
+                             float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                              bool mirrorX, bool mirrorY)
   {
-  return SfeFS->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
   };
 int CSfeSrvr::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path)
   {
@@ -543,10 +543,10 @@ int CSfeSrvr::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid,
   };
 int CSfeSrvr::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                    LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                   float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                   float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                    bool mirrorX, bool mirrorY)
   {
-  return SfeFS->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  return SfeFS->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
   };
 
 

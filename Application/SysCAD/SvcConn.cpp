@@ -293,7 +293,12 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
       m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
         CRectangleF(GTI.m_LoBnd.m_X+Grp.m_XOff, Grp.m_PageRct.Height()-GTI.m_HiBnd.m_Y+Grp.m_YOff, GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X, GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y),
-        0.0,  CRectangleF(GTI.m_Tag.m_X, GTI.m_Tag.m_Y, GTI.m_Tag.m_XScale*3.0, GTI.m_Tag.m_YScale*3.0),
+        0.0, 
+				CRectangleF(GTI.m_Tag.m_X+Grp.m_XOff-((GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X)/2.0), 
+				Grp.m_PageRct.Height()-GTI.m_Tag.m_Y+((GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y)/2.0)+Grp.m_YOff, 
+				GTI.m_Tag.m_XScale*3.0*GTI.m_sTag.GetLength(), 
+				GTI.m_Tag.m_YScale*3.0),
+				-GTI.m_Tag.m_Rotation,
         0, false, false);
 
       DO_EXIT_G("DoCreateItemE", ItemGuid);
@@ -503,7 +508,7 @@ void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
   CString GuidRet;
 
-  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0, false, false); // !!! textArea not used.
+  m_pCLR->DoCreateItem(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, Shape, boundingRect, Angle, CRectangleF(0.0, 0.0, 0.0, 0.0), 0.0, 0, false, false); // !!! textArea not used.
 
   DO_EXIT_G("GCBCreateItem", GuidRet);
   };
@@ -512,7 +517,7 @@ void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
 
 void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, LPCSTR tag, LPCSTR path, 
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect,
-                               float angle, const CRectangleF & textArea, COLORREF FillColor, 
+                               float angle, const CRectangleF & textArea, float textAngle, COLORREF FillColor, 
                                bool mirrorX, bool mirrorY)
   {
 
@@ -531,7 +536,7 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
     m_Ctrl.SetXObjArray(gs_pTheSFELib);
     m_Ctrl.AddXObjArray(FindGrfWnd(PageName));
 
-    int RetCode = gs_Exec.SCInsertItem(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, FillColor, mirrorX, mirrorY);
+    int RetCode = gs_Exec.SCInsertItem(m_Ctrl, tag, Guid, path, model, shape, boundingRect, angle, textArea, textAngle, FillColor, mirrorX, mirrorY);
 
 
     if (RetCode!=EOSC_DONE)
@@ -636,7 +641,7 @@ void CSvcConnect::GCBModifyItemPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCST
 
 void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGuid, LPCSTR tag, LPCSTR path, 
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                bool mirrorX, bool mirrorY)
   {
   ON_ENTRY_GT("OnModifyItem", ItemGuid, tag);
@@ -644,7 +649,7 @@ void CSvcConnect::OnModifyItem(__int64 eventId, __int64 requestId, LPCSTR ItemGu
   CString PageName=CSvcConnect::ExtractPageName(path);
   m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyItem(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+  int RetCode = gs_Exec.SCModifyItem(m_Ctrl, tag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
   if (RetCode!=EOSC_DONE)
     {
     LogError(tag, 0, "Model not modified");

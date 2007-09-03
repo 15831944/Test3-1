@@ -1,6 +1,10 @@
-namespace Service
+using SysCAD.Protocol;
+using System.Collections.Generic;
+using System;
+using System.Drawing;
+namespace TestApp
 {
-  partial class ServiceTemporaryWindow
+  partial class TestAppForm
   {
     /// <summary>
     /// Required designer variable.
@@ -26,38 +30,34 @@ namespace Service
     /// Required method for Designer support - do not modify
     /// the contents of this method with the code editor.
     /// </summary>
-    private void InitializeComponent()
+    private void InitializeComponent(Dictionary<String, Bitmap> modelThumbnails,
+                       Dictionary<String, ModelStencil> modelStencils)
     {
-      this.logView = new SysCAD.Log.LogView("c:\\ServiceLog.txt");
+      this.stencilChooser = new SysCAD.StencilChooser(modelThumbnails, modelStencils);
       this.SuspendLayout();
       // 
-      // logView1
+      // stencilListView
       // 
-      this.logView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.logView.Location = new System.Drawing.Point(0, 0);
-      this.logView.Name = "logView1";
-      this.logView.Size = new System.Drawing.Size(703, 20);
-      this.logView.TabIndex = 0;
+      this.stencilChooser.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.stencilChooser.Location = new System.Drawing.Point(0, 0);
+      this.stencilChooser.Name = "stencilListView";
+      this.stencilChooser.TabIndex = 0;
       // 
-      // ServiceTemporaryWindow
+      // TestApp
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(703, 272);
-      this.Controls.Add(this.logView);
-      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-      this.MaximizeBox = false;
-      this.Name = "ServiceTemporaryWindow";
-      this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-      this.Text = "Service -- Temporary Window";
+      this.ClientSize = new System.Drawing.Size(200, 600);
+      this.Controls.Add(this.stencilChooser);
+      this.Name = "TestApp";
+      this.Text = "TestApp";
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 
     #endregion
 
-    private SysCAD.Log.LogView logView;
+    private SysCAD.StencilChooser stencilChooser;
   }
 }
 

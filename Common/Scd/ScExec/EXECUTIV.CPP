@@ -1816,7 +1816,7 @@ int CExecutive::DeleteTag(pchar pDelTag)
 
 int CExecutive::SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   {
   int Ret = EOSC_DONE;
@@ -1826,7 +1826,7 @@ int CExecutive::SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCInsertItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCItem insert failure in %s", O[OInx]->Name());
@@ -1861,7 +1861,7 @@ int CExecutive::SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 int CExecutive::SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   {
   int Ret = EOSC_DONE;
@@ -1871,7 +1871,7 @@ int CExecutive::SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, Colour, mirrorX, mirrorY);
+    int e=O[OInx]->EO_SCModifyItem(Ctrl, pTag, ItemGuid, path, model, shape, boundingRect, angle, textArea, textAngle, Colour, mirrorX, mirrorY);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCItem modify failure in %s", O[OInx]->Name());

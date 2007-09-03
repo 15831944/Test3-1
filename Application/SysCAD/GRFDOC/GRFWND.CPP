@@ -394,7 +394,7 @@ int CGrfWnd::EO_DeleteTag(pchar pDelTag)
 
 int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY) 
   {
 #if SYSCAD10
@@ -461,7 +461,7 @@ int CGrfWnd::EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
 int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                             LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                            float angle, const CRectangleF & textArea, COLORREF Colour, 
+                            float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                             bool mirrorX, bool mirrorY)     
   { 
 #if SYSCAD10

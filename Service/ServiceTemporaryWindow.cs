@@ -186,7 +186,7 @@ namespace Service
       }
     }
 
-    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       // Need to check for runstate here, and decide if we'll fire DoItemCreated.
       // This is required in case a rogue client tries to create an item even when not supposed to.
@@ -205,6 +205,7 @@ namespace Service
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.TextArea = textArea;
+        graphicItem.TextAngle = textAngle;
         graphicItem.FillColor = fillColor;
         graphicItem.FillMode = fillMode;
         graphicItem.MirrorX = mirrorX;
@@ -214,7 +215,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -418,7 +419,7 @@ namespace Service
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -455,6 +456,7 @@ namespace Service
         graphicItem.BoundingRect = boundingRect;
         graphicItem.Angle = angle;
         graphicItem.TextArea = textArea;
+        graphicItem.TextAngle = textAngle;
         graphicItem.FillColor = fillColor;
         graphicItem.FillMode = fillMode;
         graphicItem.MirrorX = mirrorX;
@@ -462,7 +464,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
 
         return true;
       }
@@ -487,7 +489,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, path, graphicItem.Model, graphicItem.Shape, graphicItem.BoundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
 
         return true;
       }
@@ -512,7 +514,7 @@ namespace Service
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, boundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
+        clientClientServiceProtocol.DoItemModified(eventId, requestId, guid, graphicItem.Tag, graphicItem.Path, graphicItem.Model, graphicItem.Shape, boundingRect, graphicItem.Angle, graphicItem.TextArea, graphicItem.TextAngle, graphicItem.FillColor, graphicItem.FillMode, graphicItem.MirrorX, graphicItem.MirrorY);
 
         return true;
       }

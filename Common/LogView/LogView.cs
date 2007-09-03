@@ -37,6 +37,12 @@ namespace SysCAD.Log
       Initialize();
     }
 
+    public LogView(string logFile)
+    {
+      this.logFile = logFile;
+      Initialize();
+    }
+
     public LogView(int maxEntries, string logFile)
     {
       this.maxEntries = maxEntries;

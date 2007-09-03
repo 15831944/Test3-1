@@ -467,12 +467,12 @@ class DllImportExport CExecObj
 
     virtual int    EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
     virtual int    EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path) { return EOSC_NOTFOUND; };
     virtual int    EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                   LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                  float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                  float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                   bool mirrorX, bool mirrorY)           { return EOSC_NOTFOUND; };
 
     virtual int    EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
@@ -1045,12 +1045,12 @@ class DllImportExport CExecutive : public ConditionBlk
 #endif
     int            SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                bool mirrorX, bool mirrorY);
     int            SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
     int            SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                               float angle, const CRectangleF & textArea, COLORREF Colour, 
+                               float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                bool mirrorX, bool mirrorY);
 
     int            SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,

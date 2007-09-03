@@ -162,12 +162,12 @@ class DllImportExport CSfeSrvr : public CSfeSrvrBase
 
     int          EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                float angle, const CRectangleF & textArea, float textAngle, COLORREF Colour, 
                                 bool mirrorX, bool mirrorY);
     int          EO_SCDeleteItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path);
     int          EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, LPCSTR path,
                                 LPCSTR model, LPCSTR shape, const CRectangleF & boundingRect, 
-                                float angle, const CRectangleF & textArea, COLORREF Colour, 
+                                float angle, const CRectangleF & textArea, float testAngle, COLORREF Colour, 
                                 bool mirrorX, bool mirrorY);
 
     int          EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,

@@ -388,9 +388,9 @@ namespace SysCAD.Editor
       clientProtocol.ThingDeleted += thingDeletedHandler;
     }
 
-    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool CreateGraphicItem(out Int64 requestId, out Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -1090,9 +1090,9 @@ namespace SysCAD.Editor
       return modelStencil;
     }
 
-    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    internal bool ModifyGraphicItem(out Int64 requestId, Guid guid, String tag, String path, String model, String shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return clientProtocol.ModifyItem(out requestId, guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     internal bool ModifyGraphicItemPath(out Int64 requestId, Guid guid, String path)

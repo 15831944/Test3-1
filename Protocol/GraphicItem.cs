@@ -19,9 +19,11 @@ namespace SysCAD.Protocol
 
     public Dictionary<String, int> anchorTagToInt = new Dictionary<String, int>();
 
-    private float angle;
     private RectangleF boundingRect;
+    private float angle;
+
     private RectangleF textArea;
+    private float textAngle;
 
     private System.Drawing.Color fillColor;
     private FillMode fillMode;
@@ -113,88 +115,6 @@ namespace SysCAD.Protocol
       itemReader.Close();
     }
 
-    public void Populate(String filename, String page, String guid, String classId, float insertX, float insertY, float scaleX, float scaleY, float rotation)
-    {
-      path = "/" + filename + "/" + page + "/";
-      model = classId;
-      shape = classId;
-      this.guid = new Guid(guid);
-
-      fillColor = Color.FromArgb(255, 220, 220, 255);
-
-      float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
-
-      if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
-
-      if (shape.Contains("Tie")) { sx = 0.0653333333F; sy = 0.0653333333F; }
-
-      if (shape.Contains("Control")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("PID")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("Actuator")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("Transmitter")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("Valve")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("Pump")) { sx = 0.2F; sy = 0.2F; }
-
-      if (shape.Contains("Contct")) { sx = 0.8F; sy = 1.2F; }
-
-      if (shape.Contains("Tank")) { sx = 0.6348186528F; sy = 0.777777778F; dy = -2.45F; }
-
-      if (shape.Contains("Washer")) { sx = 1.2F; sy = 0.4F; }
-
-      if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
-
-      boundingRect.Width = scaleX * 30.0F * sx;
-      boundingRect.Height = scaleY * 30.0F * sy;
-
-      if (boundingRect.Width < 0.0F)
-      {
-        mirrorX = true;
-        boundingRect.Width = -boundingRect.Width;
-      }
-
-      if (boundingRect.Height < 0.0F)
-      {
-        mirrorY = true;
-        boundingRect.Height = -boundingRect.Height;
-      }
-
-      boundingRect.X = insertX - boundingRect.Width / 2.0F + dx;
-      boundingRect.Y = -insertY - boundingRect.Height / 2.0F + dy;
-      angle = rotation;
-
-    }
-
-    public void Populate(String filename, String page, String guid, String classId, RectangleF rectangle, float rotation)
-    {
-      path = "/" + filename + "/" + page + "/";
-      model = classId;
-      shape = classId;
-      this.guid = new Guid(guid);
-
-      fillColor = Color.FromArgb(255, 220, 220, 255);
-
-      boundingRect = rectangle;
-
-      if (boundingRect.Width < 0.0F)
-      {
-        mirrorX = true;
-        boundingRect.Width = -boundingRect.Width;
-      }
-
-      if (boundingRect.Height < 0.0F)
-      {
-        mirrorY = true;
-        boundingRect.Height = -boundingRect.Height;
-      }
-
-      angle = rotation;
-    }
-
     public float Angle
     {
       get { return angle; }
@@ -205,6 +125,12 @@ namespace SysCAD.Protocol
     {
       get { return boundingRect; }
       set { boundingRect = value; }
+    }
+
+    public float TextAngle
+    {
+      get { return textAngle; }
+      set { textAngle = value; }
     }
 
     public ARectangleF TextArea

@@ -59,7 +59,7 @@ namespace SysCAD.Protocol
     public delegate bool ChangePermissionsHandler(out Int64 requestId, Permissions permissions);
 
     public delegate bool CreateGroupHandler(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect);
-    public delegate bool CreateItemHandler(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool CreateItemHandler(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool CreateLinkHandler(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
     public delegate bool CreateThingHandler(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY);
 
@@ -72,7 +72,7 @@ namespace SysCAD.Protocol
     public delegate void GetSubTagsHandler(out Int64 requestId, String propertyPath, out ArrayList propertyList);
 
     public delegate bool ModifyGroupHandler(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
-    public delegate bool ModifyItemHandler(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
+    public delegate bool ModifyItemHandler(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY);
     public delegate bool ModifyItemPathHandler(out Int64 requestId, Guid guid, String path);
     public delegate bool ModifyItemBoundingRectHandler(out Int64 requestId, Guid guid, RectangleF boundingRect);
 
@@ -149,9 +149,9 @@ namespace SysCAD.Protocol
       return createGroupHandler(out requestId, out guid, tag, path, boundingRect);
     }
 
-    public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool CreateItem(out Int64 requestId, out Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return createItemHandler(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return createItemHandler(out requestId, out guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -199,9 +199,9 @@ namespace SysCAD.Protocol
       throw new NotImplementedException("The method or operation is not implemented.");
     }
 
-    public void DoItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, mirrorX, mirrorY);
+      OnItemCreated(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoItemDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -209,9 +209,9 @@ namespace SysCAD.Protocol
       OnItemDeleted(eventId, requestId, guid);
     }
 
-    public void DoItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
+    public void DoItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, System.Drawing.Drawing2D.FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, mirrorX, mirrorY);
+      OnItemModified(eventId, requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, mirrorX, mirrorY);
     }
 
     public void DoLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
@@ -285,9 +285,9 @@ namespace SysCAD.Protocol
       return modifyGroupHandler(out requestId, guid, tag, path, boundingRect);
     }
 
-    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
+    public bool ModifyItem(out Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, FillMode fillMode, bool mirrorX, bool mirrorY)
     {
-      return modifyItemHandler(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, fillColor, fillMode, mirrorX, mirrorY);
+      return modifyItemHandler(out requestId, guid, tag, path, model, stencil, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
     public bool ModifyItemPath(out Int64 requestId, Guid guid, String path)

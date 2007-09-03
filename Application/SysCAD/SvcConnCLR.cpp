@@ -302,26 +302,27 @@ ref class CSvcConnectCLRThread
 
     void DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path, 
       LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-      float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+      float Angle, const CRectangleF & textArea, float TextAngle, COLORREF FillColor, 
       bool MirrorX, bool MirrorY)
       {
       Guid guid;//X(gcnew String(guid))
       RectangleF BR(boundingRect.Left(), boundingRect.Bottom(), boundingRect.Width(), boundingRect.Height());
       RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
 
-      clientProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
-        gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA,
+      bool a = clientProtocol->CreateItem(requestId, guid, gcnew String(Tag), gcnew String(Path), 
+        gcnew String(ClassId), gcnew String(Symbol), BR, Angle, TA, TextAngle, 
         Color::Empty, Drawing2D::FillMode::Alternate, MirrorX, MirrorY);
       ItemGuid = guid.ToString();
       };
 
-    void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, RectangleF textArea, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    void ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       m_pConn->OnCreateItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(shape->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
         angle, 
         CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height),
+				textAngle,
         RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
@@ -361,7 +362,7 @@ ref class CSvcConnectCLRThread
 
 
         clientProtocol->ModifyItem(requestId, itemGuid, Item->Tag, Item->Path, 
-          Item->Model, Item->Shape, BR, Item->Angle, Item->TextArea,
+					Item->Model, Item->Shape, BR, Item->Angle, Item->TextArea, Item->TextAngle, 
           Color::Empty, Drawing2D::FillMode::Alternate, Item->MirrorX, Item->MirrorY);
         }
 
@@ -382,13 +383,14 @@ ref class CSvcConnectCLRThread
     //    
     //  };
 
-    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
+    void ItemModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ path, Model^ model, Shape^ stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System::Drawing::Color fillColor, bool mirrorX, bool mirrorY)
       {
       m_pConn->OnModifyItem(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(path), 
         ToCString(model->ToString()), ToCString(stencil->ToString()), //boundingRect, 
         CRectangleF(boundingRect.Left, boundingRect.Top, boundingRect.Width, boundingRect.Height), 
         angle, 
         CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
+				textAngle,
         RGB(fillColor.R, fillColor.G, fillColor.B), 
         mirrorX, mirrorY);
       }
@@ -608,11 +610,11 @@ void CSvcConnectCLR::DoCreateGroup(__int64 & requestId, CString & GrpGuid, LPCST
 
 void CSvcConnectCLR::DoCreateItem(__int64 & requestId, CString & ItemGuid, LPCSTR Tag, LPCSTR Path,  
                                   LPCSTR ClassId, LPCSTR Symbol, const CRectangleF & boundingRect,
-                                  float Angle, const CRectangleF & textArea, COLORREF FillColor, 
+                                  float Angle, const CRectangleF & textArea, float textAngle, COLORREF FillColor, 
                                   bool MirrorX, bool MirrorY)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateItem(requestId, ItemGuid, Tag, Path, 
-    ClassId, Symbol, boundingRect, Angle, textArea, FillColor, MirrorX, MirrorY);
+    ClassId, Symbol, boundingRect, Angle, textArea, textAngle, FillColor, MirrorX, MirrorY);
   };
 
 void CSvcConnectCLR::DoDeleteItem(__int64 & requestId, LPCSTR ItemGuid)
