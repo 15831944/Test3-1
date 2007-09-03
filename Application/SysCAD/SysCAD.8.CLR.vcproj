@@ -2571,6 +2571,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MultiPrintSelect.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAsManaged="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\NeutralCommon.cpp"
 				>
 				<FileConfiguration
@@ -5891,6 +5903,10 @@
 			</File>
 			<File
 				RelativePath=".\MsjDib.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MultiPrintSelect.h"
 				>
 			</File>
 			<File
