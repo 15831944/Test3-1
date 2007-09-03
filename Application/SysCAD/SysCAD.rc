@@ -440,7 +440,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -579,7 +580,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -768,7 +770,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -843,7 +846,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -1058,7 +1062,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -1272,7 +1277,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -1533,7 +1539,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -1750,7 +1757,8 @@ BEGIN
             MENUITEM "Co&mpare Scenarios ...",      ID_OPTIONS_COMPARE
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Print ...\tCtrl+Shift+P",    ID_FILE_PRINT
+        MENUITEM "&Print ...\tCtrl+P",          ID_FILE_PRINT
+        MENUITEM "Print &Multiple ...\tCtrl+Shift+P", ID_FILE_PRINT_MULTIPLE
         MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
         MENUITEM "P&rint Setup ...",            ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
@@ -4106,59 +4114,60 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    "A",            ID_PROJECT_OPTIONS,     VIRTKEY, CONTROL, NOINVERT
-    "A",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "B",            ID_GRF_DoRedraw,        VIRTKEY, CONTROL, NOINVERT
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_GRF_DeleteUnit,      VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_DELETEDEBUGFILE,     VIRTKEY, CONTROL, ALT, NOINVERT
-    "D",            ID_OPTIONS_DebugVisible, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "E",            ID_VIEW_EXPLORER,       VIRTKEY, CONTROL, NOINVERT
     "E",            ID_ACTIONS_EDIT,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "F",            ID_FIND_TAG,            VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_ACTIONS_SOLVENET,    VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "G",            ID_ACTIONS_RUN,         VIRTKEY, CONTROL, NOINVERT
     "H",            ID_ACTIONS_IDLE,        VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_GRF_Insert,          VIRTKEY, CONTROL, NOINVERT
     "I",            ID_ACTIONS_IDLE,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "G",            ID_ACTIONS_RUN,         VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_ACTIONS_RUN,         VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "F",            ID_ACTIONS_SOLVENET,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "T",            ID_ACTIONS_START,       VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_ACTIONS_STEP,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "P",            ID_ACTIONS_STOP,        VIRTKEY, CONTROL, NOINVERT
+    VK_F10,         ID_ACTIONS_STOP,        VIRTKEY, NOINVERT
+    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
+    "D",            ID_DELETEDEBUGFILE,     VIRTKEY, CONTROL, ALT, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "Q",            ID_EXEC_DumpMsgQueue,   VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_F6,          ID_FILE_LOADSCENARIO,   VIRTKEY, CONTROL, NOINVERT
     "J",            ID_FILE_LOADSNAPSHOT,   VIRTKEY, CONTROL, NOINVERT
-    "J",            ID_OPTIONS_COMPARE,     VIRTKEY, CONTROL, ALT, NOINVERT
-    "J",            ID_FILE_SAVESNAPSHOT,   VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "K",            ID_GRF_ConstructLink,   VIRTKEY, CONTROL, NOINVERT
-    "L",            ID_GRF_Connect,         VIRTKEY, CONTROL, NOINVERT
-    "M",            ID_GRF_Zoom,            VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_FILE_LOADSNAPSHOT,   VIRTKEY, CONTROL, NOINVERT
     "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_ACTIONS_STOP,        VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_FILE_PRINT,          VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "Q",            ID_EXEC_DumpMsgQueue,   VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "R",            ID_OPTIONS_REPORTS,     VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_ACTIONS_RUN,         VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "S",            ID_PROJECT_SAVEALL,     VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT_MULTIPLE, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "T",            ID_ACTIONS_START,       VIRTKEY, CONTROL, NOINVERT
-    "T",            ID_PROJECT_EMPTY,       VIRTKEY, CONTROL, NOINVERT
-    "T",            ID_ACTIONS_STEP,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "U",            ID_GRF_ConstructUnit,   VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_PROJECT_SAVEASNV,    VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
-    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
-    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
-    VK_F10,         ID_ACTIONS_STOP,        VIRTKEY, NOINVERT
-    VK_F11,         ID_GRF_Connect,         VIRTKEY, NOINVERT
-    VK_F3,          ID_FIND_NEXT,           VIRTKEY, NOINVERT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    "W",            ID_WNDW_SELECT,         VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
-    VK_F5,          ID_FILE_LOADSNAPSHOT,   VIRTKEY, CONTROL, NOINVERT
-    VK_F5,          ID_FILE_SAVESNAPSHOT,   VIRTKEY, SHIFT, NOINVERT
-    VK_F6,          ID_FILE_LOADSCENARIO,   VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_F6,          ID_FILE_SAVESCENARIO,   VIRTKEY, SHIFT, NOINVERT
+    "J",            ID_FILE_SAVESNAPSHOT,   VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_F5,          ID_FILE_SAVESNAPSHOT,   VIRTKEY, SHIFT, NOINVERT
+    VK_F3,          ID_FIND_NEXT,           VIRTKEY, NOINVERT
+    "F",            ID_FIND_TAG,            VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_GRF_Connect,         VIRTKEY, CONTROL, NOINVERT
+    VK_F11,         ID_GRF_Connect,         VIRTKEY, NOINVERT
+    "K",            ID_GRF_ConstructLink,   VIRTKEY, CONTROL, NOINVERT
+    "U",            ID_GRF_ConstructUnit,   VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_GRF_DeleteUnit,      VIRTKEY, CONTROL, NOINVERT
+    "B",            ID_GRF_DoRedraw,        VIRTKEY, CONTROL, NOINVERT
+    "I",            ID_GRF_Insert,          VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_GRF_Zoom,            VIRTKEY, CONTROL, NOINVERT
+    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
+    "J",            ID_OPTIONS_COMPARE,     VIRTKEY, CONTROL, ALT, NOINVERT
+    "D",            ID_OPTIONS_DebugVisible, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "R",            ID_OPTIONS_REPORTS,     VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_PROJECT_EMPTY,       VIRTKEY, CONTROL, NOINVERT
+    "A",            ID_PROJECT_OPTIONS,     VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_PROJECT_SAVEALL,     VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_PROJECT_SAVEASNV,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "E",            ID_VIEW_EXPLORER,       VIRTKEY, CONTROL, NOINVERT
+    "W",            ID_WNDW_SELECT,         VIRTKEY, CONTROL, NOINVERT
 END
 
 IDR_SYSCADTYPE_CNTR_IP ACCELERATORS 
@@ -4447,6 +4456,11 @@ BEGIN
     ID_FILE_PRINT_SETUP     "Change the printer and printing options"
     ID_FILE_PRINT           "Print the active document\nPrint"
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_PRINT_MULTIPLE  "Print Multiple Pages\nPrint Multiple"
 END
 
 STRINGTABLE 
@@ -5040,6 +5054,16 @@ BEGIN
     COMBOBOX        IDC_TAG_SHOW5,133,90,68,70,CBS_DROPDOWN | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_MULTIPRINTSELECT DIALOGEX 0, 0, 165, 290
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Multi Print Selection"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Print",IDOK,87,272,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,27,272,50,14
+    CONTROL         "",IDC_DOCLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SORTASCENDING | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,6,150,259
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -5111,6 +5135,14 @@ BEGIN
         RIGHTMARGIN, 206
         TOPMARGIN, 7
         BOTTOMMARGIN, 122
+    END
+
+    IDD_MULTIPRINTSELECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 158
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 283
     END
 END
 #endif    // APSTUDIO_INVOKED

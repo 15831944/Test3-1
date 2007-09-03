@@ -2568,6 +2568,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MultiPrintSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NeutralCommon.cpp"
 				>
 				<FileConfiguration
@@ -5734,6 +5738,10 @@
 			</File>
 			<File
 				RelativePath=".\MsjDib.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MultiPrintSelect.h"
 				>
 			</File>
 			<File

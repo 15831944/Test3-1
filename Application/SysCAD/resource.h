@@ -1428,10 +1428,12 @@
 #define IDR_SCDIOMARSHAL                25598
 #define IDD_ASSOCGRAPHICS_TAG           25598
 #define IDR_SCDTAGFIXUP                 25599
+#define IDD_MULTIPRINTSELECT            25599
 #define IDC_TABTREE                     25600
 #define IDC_INPLACEEDIT                 25600
 #define IDC_ADDINPUT                    25601
 #define IDC_DRVSLOTSREFRESHCONNS        25602
+#define ID_FILE_PRINT_MULTIPLE          25602
 #define IDC_ZIPSS                       25603
 #define IDC_DRVSLOTSREFRESHCONNS2       25603
 #define IDC_RICHEDIT1                   25604
@@ -1627,6 +1629,8 @@
 #define IDC_TAG_FRAME                   25772
 #define IDC_TAG_FRAME2                  25773
 #define IDC_CLASS_FRAME                 25773
+#define IDC_LIST1                       25773
+#define IDC_DOCLIST                     25773
 #define IDC_CLASS_SHOW0                 25800
 #define IDC_CLASS_SHOW1                 25801
 #define IDC_CLASS_SHOW2                 25802
@@ -2043,9 +2047,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        25599
-#define _APS_NEXT_COMMAND_VALUE         30539
-#define _APS_NEXT_CONTROL_VALUE         25773
-#define _APS_NEXT_SYMED_VALUE           25602
+#define _APS_NEXT_RESOURCE_VALUE        25600
+#define _APS_NEXT_COMMAND_VALUE         30540
+#define _APS_NEXT_CONTROL_VALUE         25774
+#define _APS_NEXT_SYMED_VALUE           25603
 #endif
 #endif

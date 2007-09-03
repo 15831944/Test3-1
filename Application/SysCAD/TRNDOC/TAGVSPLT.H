@@ -24,6 +24,7 @@ class CTagVwSplit : public CMDIChildWnd
 
     //{{AFX_MSG(CTagVwSplit)
     afx_msg void OnFilePrint();
+    afx_msg void OnFilePrintMultiple();
     //afx_msg void OnFilePrintPreview();
     afx_msg void OnSetFocus(CWnd* pOldWnd);
     afx_msg void OnSize(UINT nType, int cx, int cy);

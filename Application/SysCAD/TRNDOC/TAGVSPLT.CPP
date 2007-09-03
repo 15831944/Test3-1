@@ -13,6 +13,7 @@
 #include "tagvdlgs.h"
 #include "mainfrm.h"
 #include "scd_wm.h"
+#include "multiprintselect.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -63,6 +64,7 @@ BOOL CTagVwSplit::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext)
 BEGIN_MESSAGE_MAP(CTagVwSplit, CMDIChildWnd)
   //{{AFX_MSG_MAP(CTagVwSplit)
   ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
+  //ON_COMMAND(ID_FILE_PRINT_MULTIPLE, OnFilePrintMultiple)
   //ON_COMMAND(ID_FILE_PRINT_PREVIEW, OnFilePrintPreview)
   ON_WM_SETFOCUS()
   ON_WM_SIZE()
@@ -82,6 +84,39 @@ void CTagVwSplit::OnFilePrint()
     if (Dlg.m_PrintTrendText)
       ((CTagVwText*)m_wndSplitter.GetPane(1,0))->DoOnFilePrint(Dlg.m_TrueColors);
     }
+  }
+
+void CTagVwSplit::OnFilePrintMultiple()
+  {
+  CMultiPrintSelect Dlg(this);
+
+  //POSITION Pos = ScdApp()->TrendTemplate().GetFirstDocPosition();
+  //while (Pos)
+  //  {
+  //  CTagVwDoc * pTrndDoc = (CTagVwDoc*)(ScdApp()->TrendTemplate().GetNextDoc(Pos));
+  //  Dlg.AddDocument(pTrndDoc);
+  //  }
+
+  ////Dlg.AddStartDocument(this->GetDocument());
+
+  //if (Dlg.DoModal()==IDOK)
+  //  {
+  //  //Dlg.m_Documents // now contain doc to print
+  //  POSITION Pos=Dlg.m_Documents.GetHeadPosition();
+  //  while (Pos)
+  //    {
+  //    CDocument * pDoc=Dlg.m_Documents.GetNext(Pos);
+  //    POSITION VPos=pDoc->GetFirstViewPosition();
+  //    CTagVwSplit * pSplt = dynamic_cast<CTagVwSplit*>(pDoc->GetNextView(VPos));
+  //    if (pSplt)
+  //      pSplt->OnFilePrint();
+
+  //    // Change to Print Direct to stop the PrintDlg box
+  //    // see http://www.codeguru.com/forum/archive/index.php/t-52473.html
+  //    MSG& msg = AfxGetThreadState()->m_lastSentMsg;
+  //    msg.wParam = ID_FILE_PRINT_DIRECT; 
+  //    }
+  //  };
   }
 
 //---------------------------------------------------------------------------

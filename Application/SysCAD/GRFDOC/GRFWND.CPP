@@ -15,6 +15,7 @@
 #include "wndslct.h"
 #include "explorescd.h"
 #include "svcconn.h"
+#include "multiprintselect.h"
 
 //#include "optoff.h"
 
@@ -46,6 +47,7 @@ BEGIN_MESSAGE_MAP(CGrfWnd, CView)
   ON_WM_SETCURSOR()
   ON_WM_LBUTTONDBLCLK()
   ON_COMMAND(ID_FILE_PRINT, OnFilePrint)
+  ON_COMMAND(ID_FILE_PRINT_MULTIPLE, OnFilePrintMultiple)
   ON_WM_SETFOCUS()
   //}}AFX_MSG_MAP
   ON_MESSAGE(WMU_DOGRFCMD, OnDoGrfCmd)
@@ -1171,6 +1173,39 @@ void CGrfWnd::OnFilePrint()
   {
   CView::OnFilePrint();
   }
+
+void CGrfWnd::OnFilePrintMultiple()
+  {
+  CMultiPrintSelect Dlg(this);
+
+  POSITION Pos = ScdApp()->GraphTemplate().GetFirstDocPosition();
+  while (Pos)
+    {
+    CGrfDoc* pGrfDoc = (CGrfDoc*)(ScdApp()->GraphTemplate().GetNextDoc(Pos));
+    Dlg.AddDocument(pGrfDoc);
+    }
+
+  Dlg.AddStartDocument(this->GetDocument());
+
+  if (Dlg.DoModal()==IDOK)
+    {
+    //Dlg.m_Documents // now contain doc to print
+    POSITION Pos=Dlg.m_Documents.GetHeadPosition();
+    while (Pos)
+      {
+      CDocument * pDoc=Dlg.m_Documents.GetNext(Pos);
+      POSITION VPos=pDoc->GetFirstViewPosition();
+      CGrfWnd * pWnd  = dynamic_cast<CGrfWnd*>(pDoc->GetNextView(VPos));
+      if (pWnd)
+        pWnd->OnFilePrint();
+
+      // Change to Print Direct to stop the PrintDlg box
+      // see http://www.codeguru.com/forum/archive/index.php/t-52473.html
+      MSG& msg = AfxGetThreadState()->m_lastSentMsg;
+      msg.wParam = ID_FILE_PRINT_DIRECT; 
+      }
+    };
+  };
 
 //---------------------------------------------------------------------------
 

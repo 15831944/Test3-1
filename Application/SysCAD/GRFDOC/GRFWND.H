@@ -109,6 +109,7 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
     afx_msg void OnFilePrint();
+    afx_msg void OnFilePrintMultiple();
   	//}}AFX_MSG
     afx_msg LRESULT OnDoGrfCmd(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnDoSetFocus(WPARAM wParam, LPARAM lParam);
