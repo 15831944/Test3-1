@@ -488,6 +488,7 @@
 #define IDC_BARCOLOURBTN                24080
 #define IDC_COPY2CLIP                   24080
 #define IDC_BROWSE_EDITOR               24080
+#define IDC_SELALL                      24080
 #define IDC_TBEDIT0                     24081
 #define IDC_MDLPOS_X                    24081
 #define IDC_REMOVETAG                   24081
@@ -505,6 +506,8 @@
 #define IDC_SHOWOUT                     24081
 #define IDC_COLOURBTN                   24081
 #define IDC_EXPORT                      24081
+#define IDC_SELALL2                     24081
+#define IDC_SELNONE                     24081
 #define IDC_MDLPOS_Y                    24082
 #define IDC_FORCENONE                   24082
 #define IDC_QUERY                       24082
@@ -1629,7 +1632,6 @@
 #define IDC_TAG_FRAME                   25772
 #define IDC_TAG_FRAME2                  25773
 #define IDC_CLASS_FRAME                 25773
-#define IDC_LIST1                       25773
 #define IDC_DOCLIST                     25773
 #define IDC_CLASS_SHOW0                 25800
 #define IDC_CLASS_SHOW1                 25801

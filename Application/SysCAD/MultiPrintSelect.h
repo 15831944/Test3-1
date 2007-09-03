@@ -33,4 +33,6 @@ public:
   CDocument * pStartDoc;
 
 
+  afx_msg void OnBnClickedSelall();
+  afx_msg void OnBnClickedSelnone();
   };

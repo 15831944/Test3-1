@@ -28,6 +28,8 @@ void CMultiPrintSelect::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CMultiPrintSelect, CDialog)
+  ON_BN_CLICKED(IDC_SELALL, &CMultiPrintSelect::OnBnClickedSelall)
+  ON_BN_CLICKED(IDC_SELNONE, &CMultiPrintSelect::OnBnClickedSelnone)
 END_MESSAGE_MAP()
 
 
@@ -78,3 +80,15 @@ void CMultiPrintSelect::OnOK()
   CDialog::OnOK();
   };
 
+
+void CMultiPrintSelect::OnBnClickedSelall()
+  {
+  for (int i=0; i<m_DocList.GetItemCount(); i++)
+    m_DocList.SetCheck(i, 1);
+  }
+
+void CMultiPrintSelect::OnBnClickedSelnone()
+  {
+  for (int i=0; i<m_DocList.GetItemCount(); i++)
+    m_DocList.SetCheck(i, 0);
+  }
