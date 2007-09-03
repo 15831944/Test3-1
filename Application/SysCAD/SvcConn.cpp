@@ -43,6 +43,12 @@ if (dbgConnect())                                                               
   dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s", Method, "", "", Guid, Tag, Path);                                     \
   dbgindent(2);                                                                                                    \
   }
+#define DO_ENTRY_GTPSM(Method, Guid, Tag, Path, Shape, Model)                                                      \
+if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgpln("%-30s  >>> %7s %7s %s  %-20s  %s  %s  %s", Method, "", "", Guid, Tag, Path, Shape, Model);               \
+  dbgindent(2);                                                                                                    \
+  }
 
 #define DO_EXIT(Method)                                                                                            \
 if (dbgConnect())                                                                                                  \
@@ -82,6 +88,13 @@ if (dbgConnect())                                                               
 if (dbgConnect())                                                                                                  \
   {                                                                                                                \
   dbgpln("%-30s  >>> %7I64i %7I64i %s  %-20s  %s", Method, eventId, requestId, Guid, Tag, Path);                   \
+  dbgindent(4);                                                                                                    \
+  }
+
+#define ON_ENTRY_GTPSM(Method, Guid, Tag, Path, Shape, Model)                                                      \
+if (dbgConnect())                                                                                                  \
+  {                                                                                                                \
+  dbgpln("%-30s  >>> %7I64i %7I64i %s  %-20s  %s  %s  %s", Method, eventId, requestId, Guid, Tag, Path, Shape, Model); \
   dbgindent(4);                                                                                                    \
   }
 
@@ -275,12 +288,12 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
       CString Shape    = ExtractShape(Symbol);
       CString Model    = N.m_sClass;
 
-      DO_ENTRY_GTP("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle));
+      DO_ENTRY_GTPSM("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
       m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
         CRectangleF(GTI.m_LoBnd.m_X+Grp.m_XOff, Grp.m_PageRct.Height()-GTI.m_HiBnd.m_Y+Grp.m_YOff, GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X, GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y),
-        0.0,  CRectangleF(0.0, 0.0, 0.0, 0.0), // !!! textArea not used!
+        0.0,  CRectangleF(GTI.m_Tag.m_X, GTI.m_Tag.m_Y, GTI.m_Tag.m_XScale*3.0, GTI.m_Tag.m_YScale*3.0),
         0, false, false);
 
       DO_EXIT_G("DoCreateItemE", ItemGuid);
@@ -505,7 +518,7 @@ void CSvcConnect::OnCreateItem(__int64 eventId, __int64 requestId, LPCSTR Guid, 
 
 // !!! textArea not handled as yet.
 
-  ON_ENTRY_GTP("OnCreateItem", Guid, tag, path);
+  ON_ENTRY_GTPSM("OnCreateItem", Guid, tag, path, shape, model);
 
   try
     {
