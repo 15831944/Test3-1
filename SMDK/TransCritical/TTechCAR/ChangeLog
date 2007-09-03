@@ -1,3 +1,9 @@
+2007-09-03  Rod Stephenson  <rod.stephenson@transcritical.com>
+
+	* CARTubeDigester.cpp (CCARTubeDigester::DoLiveSteamHeater): Fixup
+	for case when vent is not attached; previously this was not  a
+	problem, but with 125 it causes access violations.
+
 2007-05-08  Rod Stephenson  <rod.stephenson@transcritical.com>
 
 	* TTCARPrecip.cpp: Replaced SetF() with full deep copy to carry
