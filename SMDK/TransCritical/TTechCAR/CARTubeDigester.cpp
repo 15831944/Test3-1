@@ -1,5 +1,5 @@
 //================== SysCAD - Copyright Kenwalt (Pty) Ltd ===================
-//   Time-stamp: <2007-05-31 08:55:26 Rod Stephenson Transcritical Pty Ltd>
+//   Time-stamp: <2007-09-03 15:30:53 Rod Stephenson Transcritical Pty Ltd>
 // Copyright (C) 2005 by Transcritical Technologies Pty Ltd and KWA
 //   CAR Specific extensions by Transcritical Technologies Pty Ltd
 // $Nokeywords: $
@@ -38,9 +38,9 @@ static double LMTD(double TbTi, double TbTo, double ShTi, double ShTo)
   double gttd = ShTo - TbTi;
   double lttd = ShTi - TbTo;
   if (gttd==0 || lttd==0) return 0.0;
-  const double r = gttd/lttd;
+  const double r = gttd/GTZ(lttd);
   if (r <= 0) return 0.0;
-  return   (gttd==lttd) ? gttd : (gttd-lttd)/log(r);
+  return   (gttd==lttd) ? gttd : (gttd-lttd)/Log(r);
 }
 
 //====================================================================================
@@ -799,7 +799,8 @@ void CCARTubeDigester::DoSimpleHeater(MStream & ShellI, MStream & TubeI, MStream
 
 // Live steam heater has a fixed mass flow input that is generally controlled externally. So the duty is 
 // actually fixed 
-void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStream & ShellO, MStream & TubeO, MStream & VentO)
+void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, 
+					 MStream & ShellO, MStream & TubeO, MStream & VentO)
 {
   TubeO = TubeI;
   ShellO = ShellI;
@@ -812,13 +813,15 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
     Vapor = 0.0;
     Cond = ShellI.MassFlow();
     if (m_dQmVentRqd < ShellI.MassFlow())  { // Assumes all steam, should check for water vapor
-	Cond -= m_dQmVentRqd;
+      Cond -= m_dQmVentRqd;
+      if (VentO.Attached)
 	VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
+      
     } else 
       Log.Message(MMsg_Error, "Excess Vent Flow called for");
 		  
     ShellO.T = FTemp;
-    double duty = ShellI.totHz()-ShellO.totHz() - VentO.totHz();
+    double duty = ShellI.totHz()-ShellO.totHz() - (VentO.Attached ? VentO.totHz() : 0);
     m_dTotDuty = duty;         // This is the total duty incl env loss for Amount
 #if (USEEHXBLK)
     m_EHX.EvalProducts(TubeO);    
@@ -833,7 +836,6 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
     TubeO.Set_totHz(TubeO.totHz()+duty);
     if (TubeO.T > ShellI.T) TubeO.T = ShellI.T;
     m_dRMTD = m_dLMTD = LMTD(TubeI.T, TubeO.T, ShellO.T, ShellO.T);
-    
   } else {
     
     m_dTotDuty = m_dDuty = 0.0;
@@ -895,14 +897,16 @@ void CCARTubeDigester::EvalProducts()
     
 
 	switch (m_lOpMode) {
-	case OM_Simple:       DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); break;
+	case OM_Simple:       
+	  DoSimpleHeater(ShellI, TubeI, ShellO, TubeO); 
+	  break;
 	case OM_Condensing:  
 	  DoCondensingHeater(ShellI, TubeI, ShellO, TubeO);       
 	  if (VentO.Attached)
-      {
-      VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
-      }
-    break;
+	  {
+	    VentO.SetM(ShellI, MP_Gas, m_dQmVentRqd);
+	  }
+	  break;
 	case OM_LiveSteam:    
 	  DoLiveSteamHeater(ShellI, TubeI, ShellO, TubeO, VentO); break;
 	}    
@@ -928,7 +932,7 @@ void CCARTubeDigester::EvalProducts()
 	m_dQmSS = ShellO.Mass();
 	m_dTheoDuty = m_dUA*m_dLMTD;
 	m_dTheoDutyR = m_dUA*m_dRMTD;
-	double ad = 1./m_dDutyDampingFactor;
+	double ad = 1./GTZ(m_dDutyDampingFactor);
 	if (ad<0.0 || ad>1.0) ad = 1.0;
 	m_dDampedDuty = (1.-ad)*m_dDampedDuty + ad*m_dDuty;
     
