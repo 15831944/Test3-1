@@ -285,7 +285,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
     if (!N.m_bIsLnk)
       {
       CString ItemGuid;
-      CString Shape    = /*ExtractShape*/(Symbol);
+      CString Shape    = ExtractShape(Symbol);
       CString Model    = N.m_sClass;
 
       DO_ENTRY_GTPSM("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
@@ -306,7 +306,7 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
     else
       {
       CString ItemGuid;
-      CString Shape    = /*ExtractShape*/(Symbol);
+      CString Shape    = ExtractShape(Symbol);
       CString Model    = N.m_sClass;
 
       DO_ENTRY_GTP("DoCreateLinkE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle));
@@ -503,7 +503,7 @@ void CSvcConnect::GCBCreateItem(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
   CRectangleF boundingRect(Pt.x()-0.5*Width,PageRct.Top()-Pt.y()-0.5*Height,Width, Height);
   // TO Fix
   //CString Shape = ExtractShape(ClassId);//Symbol);
-  CString Shape = /*ExtractShape*/(Symbol);
+  CString Shape = ExtractShape(Symbol);
 
   DO_ENTRY_GTP("GCBCreateItem", "NULL-Guid", Tag, MakePath(Prj, Page));
 
