@@ -470,6 +470,12 @@ ref class CSvcConnectCLRThread
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
       CRectangleF textRect;  // TO GET FROM SOMEWHERE
+
+      // Ensure we don't have nulls so the ToString() call succeeds and passes on an empty string in the 
+      // case where there is no destination or origin port.
+      if (String::IsNullOrEmpty(originPort))      originPort = String::Empty;
+      if (String::IsNullOrEmpty(destinationPort)) destinationPort = String::Empty;
+
       m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, textRect);
       }
 
