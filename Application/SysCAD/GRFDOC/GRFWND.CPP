@@ -425,7 +425,7 @@ int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   //if (m_bExportBusy)
   //  {
   pGDoc->GCB.DoInsertNodeGrf(&CB);
-  pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
+  //pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
   //  }
   //else
   //  pGDoc->GCB.DoInsertNode(&CB);

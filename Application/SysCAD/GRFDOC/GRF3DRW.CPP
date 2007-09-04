@@ -5256,17 +5256,51 @@ pBlock DXF_Drawing::LoadFromLib(pchar Path, pchar FileName, pchar BlockName)
   if (fn[strlen(fn)-1]!='\\')
     strcat(fn, "\\");
   char * pcolon=strchr(FileName, ':');
+  DXF_FILE f = NULL;
   if (pcolon)
     {
     strncat(fn, FileName, pcolon-FileName);
     strcat(fn, "\\");
     strcat(fn, pcolon+1);
+    strcat(fn, ".dxf");
+    f = dxf_fopen(fn, DXF_READ);
     }
   else
+    {
     strcat(fn, FileName);
-  strcat(fn, ".dxf");
+    strcat(fn, ".dxf");
+    f = dxf_fopen(fn, DXF_READ);
+    if (f==NULL)
+      {
+      strcpy(fn, Path);
+      if (fn[strlen(fn)-1]!='\\')
+        strcat(fn, "\\");
+      strcat(fn, "*.*");
 
-  DXF_FILE f = dxf_fopen(fn, DXF_READ);
+      WIN32_FIND_DATA fd;
+      HANDLE H = FindFirstFile(fn, &fd);
+      flag AllDone = (H==INVALID_HANDLE_VALUE);
+      while (!AllDone)
+        {
+        if ((fd.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && (fd.cFileName[0]!='.'))
+          {
+          char fn1[1024];
+          strcpy(fn1, Path);
+          if (fn1[strlen(fn1)-1]!='\\')
+            strcat(fn1, "\\");
+          strcat(fn1, fd.cFileName);
+          strcat(fn1, "\\");
+          strcat(fn1, FileName);
+          strcat(fn1, ".dxf");
+          f = dxf_fopen(fn1, DXF_READ);
+          if (f)
+            break;
+          }
+        AllDone = !FindNextFile(H, &fd);
+        }
+      }
+    }
+
   if (!f)
     return (pBlock)NULL;
 
