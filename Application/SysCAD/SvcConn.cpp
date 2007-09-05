@@ -6,6 +6,8 @@
 #include "SvcConn.h"
 #include "SvcConnCLR.h"
 
+//#include "optoff.h"
+
 #define NETSERVERNAME "SvcConnect"
 
 //========================================================================

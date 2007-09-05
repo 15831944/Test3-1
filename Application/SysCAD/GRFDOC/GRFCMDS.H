@@ -179,6 +179,7 @@ class CInsertBlk
     eScdNDBOptions m_NDBOptions;
     DXF_ENTITY    m_Entity;
     CEntInView    *m_EntInVw;
+    CRectangleF   m_Rect;
 
     //CRectangleF   m_BoundRct;
   };

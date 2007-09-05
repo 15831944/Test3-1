@@ -4845,7 +4845,7 @@
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
 						DebugInformationFormat="0"
-						CompileAsManaged="1"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4883,7 +4883,7 @@
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
 						DebugInformationFormat="0"
-						CompileAsManaged="1"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4897,7 +4897,7 @@
 						FloatingPointExceptions="false"
 						UsePrecompiledHeader="0"
 						DebugInformationFormat="0"
-						CompileAsManaged="1"
+						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
 			</File>

@@ -3324,8 +3324,14 @@ bool GrfCmdBlk::DoInsertNodeGrf(CInsertBlk* CB, bool SkipTagTest)
 
   CB->e = AddUnitDrawing(CB->ATagBase(), CB->ASymbol(), CB->AClass(), CB->ATag(), NULL, CB->Pt.World, CB->NdScl, (float)CB->Rotate, True, Tag_Attr_Set, &Tag_InsertPt);
   if (CB->e)
-    pDsp->Draw(CB->e, -1);
+    {
+    if (CB->m_Rect.Width()>0)
+      {
 
+      int xxx=0;
+      }
+    pDsp->Draw(CB->e, -1);
+    }
   pDsp->Close();
   return (CB->e!=NULL);
   }

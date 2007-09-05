@@ -422,9 +422,12 @@ int CGrfWnd::EO_SCInsertItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
   CB.ATagBase="XX_";//MInfo.TagInitialID();
   CB.ASymbol=shape;
   CB.m_sGuid=ItemGuid;
+  CB.m_Rect=boundingRect;
   //if (m_bExportBusy)
   //  {
   pGDoc->GCB.DoInsertNodeGrf(&CB);
+
+  CB.m_Rect=CRectangleF(); // clear it
   //pGDoc->GCB.DoChangeNodeGuid(CB.ATag(), CB.m_sGuid());
   //  }
   //else
@@ -482,9 +485,25 @@ int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
       PageRct = PrjSvc().GetPageRect(PageName);
 
+      C3_BOX_S CurBounds;
+
+      DML_LIST CurveLst=dml_create_list();
+      DML_LIST InsertLst=dml_create_list();
+      DML_LIST OtherLst=dml_create_list();
+      dml_append_data(InsertLst,eInsert);
+      GCB.pDrw->GetBounds(&CurBounds, CurveLst, InsertLst, OtherLst);  
+      dml_clear_list(InsertLst);
+      dml_destroy_list(CurveLst, dmm_free);
+      dml_destroy_list(InsertLst, dmm_free);
+      dml_destroy_list(OtherLst, dmm_free);
+
       DXF_INSERT_PT(eInsert)[0]   = boundingRect.MidX()-PageRct.Left();
       DXF_INSERT_PT(eInsert)[1]   = PageRct.Top()-boundingRect.MidY();
       DXF_INSERT_PT(eInsert)[2]   = 0;
+      DXF_INSERT_X_SCALE(eInsert)  = DXF_INSERT_X_SCALE(eInsert)  * boundingRect.Width()/Max(1.0, (C3_MAX_X(&CurBounds)-C3_MIN_X(&CurBounds)));
+      DXF_INSERT_Y_SCALE(eInsert)  = DXF_INSERT_Y_SCALE(eInsert)  * boundingRect.Height()/Max(1.0, (C3_MAX_Y(&CurBounds)-C3_MIN_Y(&CurBounds)));
+
+
 
       GCB.pDrw->EntityInvalidate(eInsert);
       Invalidate(true);
