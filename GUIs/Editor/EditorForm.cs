@@ -209,6 +209,10 @@ namespace SysCAD.Editor
           this.ViewShowTags();
           break;
 
+        case "Tools.Unlock(Demo)":
+          this.ToolsUnlock();
+          break;
+
         case "Selection.SelectItems":
           this.ViewSelectItems();
           break;
@@ -245,6 +249,22 @@ namespace SysCAD.Editor
           this.Delete();
           break;
 
+      }
+    }
+
+    private void ToolsUnlock()
+    {
+      if (barManager1.Commands["Tools.Unlock(Demo)"].Text == "Unlock (Demo)")
+      {
+        frmFlowChart.State.Permissions = new ClientBaseProtocol.Permissions(true, true, true);
+        barManager1.Commands["Tools.Unlock(Demo)"].Text= "Lock (Demo)";
+        SetButtonStates();
+      }
+      else
+      {
+        frmFlowChart.State.Permissions = new ClientBaseProtocol.Permissions(false, false, false);
+        barManager1.Commands["Tools.Unlock(Demo)"].Text = "Unlock (Demo)";
+        SetButtonStates();
       }
     }
 
@@ -612,6 +632,7 @@ namespace SysCAD.Editor
         barManager1.Commands["View.ShowGraphics"].Enabled = projectOpen;
         barManager1.Commands["View.ShowLinks"].Enabled = projectOpen;
         barManager1.Commands["View.ShowTags"].Enabled = projectOpen;
+        barManager1.Commands["Tools.Unlock(Demo)"].Enabled = projectOpen;
         barManager1.Commands["Selection.SelectItems"].Enabled = projectOpen;
         barManager1.Commands["Selection.SelectLinks"].Enabled = projectOpen;
         barManager1.Commands["CreateItem.ModelType"].Enabled = projectOpen && permissions.Create;
