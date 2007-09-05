@@ -2542,6 +2542,7 @@ void CSpecieDataBase::Init()
   m_DensCorrSps.SetSize(0);
   m_CpCorrSps.SetSize(0);
   m_SolubleSps.SetSize(0);
+  m_AqueousSps.SetSize(0);
   //  Term();
   m_pExtraProps=NULL;
   m_iOC_Solvent=-1;
@@ -2568,6 +2569,8 @@ void CSpecieDataBase::Term()
   m_DensCorrSps.SetSize(0);
   m_CpCorrSps.SetSize(0);
   m_SolubleSps.SetSize(0);
+  m_AqueousSps.SetSize(0);
+  
   m_Map.RemoveAll();
   };
 
@@ -6541,7 +6544,6 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
   if (!bCDBBad)
     {
     LoadSolnInfo(CDBInit, PrjDBFn);
-    //for (int s=0; s<No(); s++)
     for (int s=0; s<m_SDB.m_iNo; s++)
       {
       if (m_SDB[s].m_DensCorrs.GetSize()>0)
@@ -6550,6 +6552,9 @@ flag CComponentDataBase::Initialise(CDBInitRec & CDBInit, char* PrjDBFn, flag Us
         m_SDB.m_CpCorrSps.Add(s);
       if (m_SDB[s].m_Solubilities.GetSize()>0)
         m_SDB.m_SolubleSps.Add(s);
+
+      if (m_SDB[s].m_Aq.m_iSolvent>=0)
+        m_SDB.m_AqueousSps.Add(s);
       }
 
     if (CDBInit.NSpDensCorrPrj)

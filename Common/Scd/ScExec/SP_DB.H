@@ -1147,6 +1147,8 @@ class DllImportExport CSpecieDataBase
     CSVLongArray   m_DensCorrSps;
     CSVLongArray   m_CpCorrSps;
     CSVLongArray   m_SolubleSps;
+
+    CSVLongArray   m_AqueousSps;
     
     CSVLongArray   m_Acids;
     CSVLongArray   m_Bases;

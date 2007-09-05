@@ -1014,6 +1014,27 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
           dbgp("%5i",Iter);
 #endif
 
+        for (int j=0; j<SDB.m_AqueousSps.GetSize(); j++)
+          {
+          double Ht=totHf();
+
+          int iAqueous=SDB.m_AqueousSps[j];
+          int iSolvent=SDB[iAqueous].m_Aq.m_iSolvent;
+          int iOtherSp=SDB[iAqueous].m_Aq.m_iOtherSpecie;
+          double TotSolute=m_M[iAqueous]+m_M[iOtherSp];
+          if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iAqueous].m_Aq.m_SoluteMaxMF)
+            {
+            VValue[iOtherSp] = TotSolute;
+            VValue[iAqueous] = 0.0;
+            }
+          else
+            {
+            VValue[iAqueous] = TotSolute;
+            VValue[iOtherSp] = 0.0;
+            }
+          Set_totHf(Ht);
+          }
+
         for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
           {
           int iSolvent=SDB.m_SolubleSps[j];
