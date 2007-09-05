@@ -290,14 +290,16 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       DO_ENTRY_GTPSM("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
+      float textBoxW = GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength();
+      float textBoxH = GTI.m_Tag.m_YScale * 5.0;
+      float textBoxX = GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0;
+      float textBoxY = Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH;
+
       m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
         CRectangleF(GTI.m_LoBnd.m_X+Grp.m_XOff, Grp.m_PageRct.Height()-GTI.m_HiBnd.m_Y+Grp.m_YOff, GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X, GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y),
         0.0, 
-				CRectangleF(GTI.m_Tag.m_X+Grp.m_XOff-((GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X)/2.0), 
-				Grp.m_PageRct.Height()-GTI.m_Tag.m_Y+((GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y)/2.0)+Grp.m_YOff, 
-				GTI.m_Tag.m_XScale*3.0*GTI.m_sTag.GetLength(), 
-				GTI.m_Tag.m_YScale*3.0),
+				CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
 				-GTI.m_Tag.m_Rotation,
         0, false, false);
 

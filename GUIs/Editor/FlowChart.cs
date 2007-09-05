@@ -226,16 +226,16 @@ namespace SysCAD.Editor
         link.Arrow.ArrowBaseSize = 150.0F / zoomFactor;
       }
 
-      fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 12.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      fcFlowChart.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 
       foreach (Item item in state.Items)
       {
-        item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 12.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        item.Text.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       }
 
       //foreach (Thing thing in state.Things)
       //{
-      //  thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 12.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      //  thing.Box.Font = new System.Drawing.Font("Microsoft Sans Serif", zoomFactor / 10.0F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       //}
 
       fcFlowChart.Invalidate();
