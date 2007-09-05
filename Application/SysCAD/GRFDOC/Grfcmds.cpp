@@ -4113,8 +4113,9 @@ void GrfCmdBlk::DoConnect()
           CPointFList ControlPoints;
           for (int i=0; i<TheLDH.NVerts(); i++)
             {
-            Pt_3f Pt = TheLDH.VertWorld(i);
-            ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
+            float PtX = int(TheLDH.VertWorld(i).X) + 0.5; // needs to bew x.5mm to meed grid in 10.
+            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5; // needs to bew x.5mm to meed grid in 10.
+            ControlPoints.AddTail(CPointF(PtX, PtY));
             }
           gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
           SCD10LEAVE;

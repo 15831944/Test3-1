@@ -290,14 +290,19 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       DO_ENTRY_GTPSM("DoCreateItemE", "", I.m_sTag, MakePath(projectPath, Grp.m_sTitle), Shape, Model);
 
-      float textBoxW = GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength();
-      float textBoxH = GTI.m_Tag.m_YScale * 5.0;
-      float textBoxX = GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0;
-      float textBoxY = Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH;
+      float boxW = int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X);
+      float boxH = int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y);
+      float boxX = int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+      float boxY = int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+
+      float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
+      float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
+      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to bew x.5mm to meed grid in 10.
+      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to bew x.5mm to meed grid in 10.
 
       m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
-        CRectangleF(GTI.m_LoBnd.m_X+Grp.m_XOff, Grp.m_PageRct.Height()-GTI.m_HiBnd.m_Y+Grp.m_YOff, GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X, GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y),
+        CRectangleF(boxX, boxY, boxW, boxH),
         0.0, 
 				CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
 				-GTI.m_Tag.m_Rotation,
@@ -333,7 +338,11 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       CPointFList CtrlPts;
       for (int i=0; i<LPA.GetCount(); i++)
-        CtrlPts.AddTail(CPointF(LPA[i].x+Grp.m_XOff, Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff));
+      {
+        float PtX = int(LPA[i].x+Grp.m_XOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+        float PtY = int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+        CtrlPts.AddTail(CPointF(PtX, PtY));
+      }
 
       m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag, 
         MakePath(projectPath, Grp.m_sSymbol), 
