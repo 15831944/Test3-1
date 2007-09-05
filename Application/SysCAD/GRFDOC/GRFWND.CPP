@@ -487,6 +487,47 @@ int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
 
       C3_BOX_S CurBounds;
 
+      if (1) // change the shape
+        {
+        CGrfDoc * pGDoc=(CGrfDoc*)pDoc;
+        GrfCmdBlk& GCB = pGDoc->GCB;
+        Dsp.Draw(eInsert, GrfHelper.GR_BACKGROUND);
+        GCB.pDrw->Delete(eInsert);
+
+        CInsertBlk CB; 
+
+        CB.ATag=pTag;
+        CB.AClass=model;//();
+        CB.Pt.World.X=boundingRect.MidX()-PageRct.Left(); // not inversion
+        CB.Pt.World.Y=PageRct.Top()-boundingRect.MidY();  // this must be inverted
+        CB.Pt.World.Z=0;
+        CB.NdScl.X=mirrorX ? -1:1;//XScale;
+        CB.NdScl.Y=mirrorY ? -1:1;
+        CB.NdScl.Z=1;
+        CB.Rotate=(float)angle;
+        CB.ATagBase="XX_";//MInfo.TagInitialID();
+        CB.ASymbol=shape;
+        CB.m_sGuid=ItemGuid;
+        //CB.m_Rect=boundingRect;
+        //if (m_bExportBusy)
+        //  {
+
+        // A Kludge - get around a bug ????????????????????????????????????????
+        int iDash = CB.ASymbol.Find('-');
+        if (iDash>0)
+          CB.ASymbol=CB.ASymbol.Left(iDash);
+        // ????????????????????????????????????????????????????????????????????
+
+        if (pGDoc->GCB.DoInsertNodeGrf(&CB))
+          eInsert=CB.e;
+
+        //CB.m_Rect=CRectangleF(); // clear it
+
+        }
+      //else
+      //  {
+      DXF_INSERT_ROT_ANG(eInsert) = 0; // do this to allow GetBounds to get the correct size
+
       DML_LIST CurveLst=dml_create_list();
       DML_LIST InsertLst=dml_create_list();
       DML_LIST OtherLst=dml_create_list();
@@ -503,7 +544,8 @@ int CGrfWnd::EO_SCModifyItem(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid, 
       DXF_INSERT_X_SCALE(eInsert)  = DXF_INSERT_X_SCALE(eInsert)  * boundingRect.Width()/Max(1.0, (C3_MAX_X(&CurBounds)-C3_MIN_X(&CurBounds)));
       DXF_INSERT_Y_SCALE(eInsert)  = DXF_INSERT_Y_SCALE(eInsert)  * boundingRect.Height()/Max(1.0, (C3_MAX_Y(&CurBounds)-C3_MIN_Y(&CurBounds)));
 
-
+      DXF_INSERT_ROT_ANG(eInsert) = -angle;
+      //  }
 
       GCB.pDrw->EntityInvalidate(eInsert);
       Invalidate(true);
