@@ -445,6 +445,9 @@
 				RelativePath=".\MsjDib.cpp">
 			</File>
 			<File
+				RelativePath=".\MultiPrintSelect.cpp">
+			</File>
+			<File
 				RelativePath=".\NeutralCommon.cpp">
 			</File>
 			<File
@@ -897,6 +900,9 @@
 			</File>
 			<File
 				RelativePath=".\MsjDib.h">
+			</File>
+			<File
+				RelativePath=".\MultiPrintSelect.h">
 			</File>
 			<File
 				RelativePath=".\NeutralCommon.h">

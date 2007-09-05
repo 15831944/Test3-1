@@ -541,7 +541,11 @@ inline void MRngChks::AddMessage(long IdMask, LPCSTR Name, LPCSTR Fmt, ...)
       char Buff[4096];
       va_list argptr;
       va_start(argptr,Fmt);
-      vsprintf_s(Buff, sizeof(Buff), Fmt, argptr);
+#if (_MSC_VER >= 1400)
+    vsprintf_s(Buff, sizeof(Buff), Fmt, argptr);
+#else
+    vsprintf(Buff, Fmt, argptr);
+#endif
       va_end(argptr);
 
       pCntxt->AddRngChkMsg(Name, m_pSrc, Buff); 
