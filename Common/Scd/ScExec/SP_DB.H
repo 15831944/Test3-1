@@ -316,12 +316,93 @@ class DllImportExport CSpDBEqn
     virtual double IntegrateOverT_dT(double T1, double T2, double P) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
 
     static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom=NULL);
-    static CSpDBEqn *ConstructCopy(CSpConstData *pConst, CSpFidelData *pFData);
+    CSpDBEqn        *ConstructCopy(CSpConstData *pConst, CSpFidelData *pFData);
 
   public:
+    double            m_Ts;      
+    double            m_Te;      
+    double            m_Const;      
+
     CSpFidelData    * m_pFData;
     CSpConstData    * m_pConst;
     static bool       m_bDoTheBreak;
+  };
+
+static const byte ET_Null=0;
+static const byte ET_Std=1;
+static const byte ET_Integral=2;
+static const byte ET_IntegralOverT=3;
+
+class DllImportExport CSpDBEqnSet
+  {
+  public:
+    //struct CEqnRng
+    //  {
+    //  CSpDBEqn   * m_pEqn;
+    //  double       m_Ts;
+    //  double       m_Te;
+    //  };
+    CSpDBEqnSet();
+    CSpDBEqnSet(LPCSTR Name, LPCSTR XName);
+    ~CSpDBEqnSet();
+
+    CSpDBEqnSet(const CSpDBEqnSet & D)
+      {
+      *this=D;
+      }
+    CSpDBEqnSet & operator=(const CSpDBEqnSet & D);
+
+    void          Attach(CSpConstData *pConst, CSpFidelData *pFData);
+
+    const char *  VName()         { return m_Eqns.GetCount() ? m_Eqns[0]->VName() : ""; };
+    bool          Exists()        { return m_Eqns.GetCount()>0; };
+
+    void          SetEqn(byte Type, CSpDBEqn * pEqn, double Ts=0.0, double Te=1.0e6);
+    //void          SetEqnInt(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
+    //void          SetEqnIntdT(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
+    void          AddEqn(byte Type, CSpDBEqn * pEqn, double Ts=0.0, double Te=1.0e6);
+    //void          AddEqnInt(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
+    //void          AddEqnIntdT(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
+    //void          AddEqn(CSpDBEqn * pEqn, double Te);
+    
+    void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List);
+
+    void          Merge(CSpDBEqnSet & Eqns);
+    void          Clear();
+    
+    double        AtV()                                              { return dNAN; };
+    double        AtT(double T)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtT(T); };
+    //double        AtP(double P)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtP(T); };
+    double        AtTP(double T, double P)                           { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtTP(T, P); };
+    double        Integrate_dT(double T1, double T2, double P);       
+    double        IntegrateOverT_dT(double T1, double T2, double P);
+
+    double        Eval(double T, double P);
+    double        EvalDiff(double T1, double T2, double P);
+    double        EvalMassRatio(double R);
+
+    int           CheckRanges();
+    double        LoRange()                                    { return m_Eqns[0]->m_Ts;  };
+    double        HiRange()                                    { return m_Eqns[m_Eqns.GetUpperBound()]->m_Te; };
+
+    //protected:
+    int           FindPos4Range(double Ts, double Te);
+    int           FindSegment(double T);
+
+    int           SegmentCount()    { return m_Eqns.GetCount(); };
+
+  public:
+  //protected:
+    
+    byte              m_Type;
+    double            m_TRef;
+    //double            m_VAtRef;
+
+    //CArray<CEqnRng, CEqnRng&>  m_Eqns;
+    CArray<CSpDBEqn*, CSpDBEqn*>  m_Eqns;
+    Strng             m_sName;
+    Strng             m_sXName;
+  
   };
 
 // ===========================================================================
@@ -616,14 +697,14 @@ class DllImportExport CSpCommonData
   public:
     CSpCommonData();
 
-    double        VapourP(double T) { return m_pVp->AtT(T); };
+    double        VapourP(double T) { return m_Vp.AtT(T); };
     double        VapourT(double P, double dPrvVapT=dNAN);
 
-    bool          VpOK()            { return m_bVpOK; };
+    bool          VpOK()            { return m_VpOK; };
 
   public:
-    bool            m_bVpOK;
-    CSpDBEqn      * m_pVp;           // Vapour Pressure Eqn
+    bool            m_VpOK;
+    CSpDBEqnSet     m_Vp;           // Vapour Pressure Eqn
     Strng           m_sVp;           // 
 
     CSpConstData  * m_pConst;
@@ -635,8 +716,7 @@ typedef CSpCommonData CSpCommonDataA[MaxFidelity];
 
 // ---------------------------------------------------------------------------
 
-const int MaxTPoints=10;
-const int SpDBEqnCnt=4;
+//const int MaxTPoints=10;
 
 class DllImportExport CSpFidelData
   {
@@ -650,7 +730,13 @@ class DllImportExport CSpFidelData
     CSpFidelData();
     ~CSpFidelData();
 
-    void           AddSpecieTData(CSpFidelData *m_pData);
+    CSpFidelData(const CSpFidelData & D)
+      {
+      *this=D;
+      }
+    CSpFidelData & operator=(const CSpFidelData & D);
+
+    void           MergeSpecieData(CSpFidelData *m_pData);
 
     double         MoleWt();
 
@@ -665,12 +751,21 @@ class DllImportExport CSpFidelData
     double         TestLoT();
     double         TestHiT();
 
-    double         mlCp(double T, double P) { int i=FindTIndex(T); return m_pCp[i]->AtTP(T, P); };
-    double         mlSf(double T, double P) { int i=FindTIndex(T); return (m_pS[i] ? m_pS[i]->AtTP(T, P) : m_pCp[i]->IntegrateOverT_dT(m_dTs[i], GTZ(T), P)); };
-    double         mlHf(double T, double P) { int i=FindTIndex(T); return (m_pH[i] ? m_pH[i]->AtTP(T, P) : m_pCp[i]->Integrate_dT(m_dTs[i], T, P)); };
+    double         mlCp(double T, double P)
+      {
+      _asm int 3;
+      };// { int i=FindTIndex(T); return m_pCp[i]->AtTP(T, P); };
+    double         mlSf(double T, double P)
+      {
+      _asm int 3;
+      };// { int i=FindTIndex(T); return (m_pS[i] ? m_pS[i]->AtTP(T, P) : m_pCp[i]->IntegrateOverT_dT(m_pCp[i]->m_dTs, GTZ(T), P)); };
+    double         mlHf(double T, double P)
+      {
+      _asm int 3;
+      };// { int i=FindTIndex(T); return (m_pH[i] ? m_pH[i]->AtTP(T, P) : m_pCp[i]->Integrate_dT(m_pCp[i]->m_dTs, T, P)); };
 
   protected:
-    int            FindTIndex(double T);
+    int            xFindTIndex(double T);
 
     double         CpOverTdT(double Tex, double Tad);
 
@@ -686,48 +781,45 @@ class DllImportExport CSpFidelData
 
     bool           m_bIsCopy;
     int            m_iHfBase;
-    int            m_iLastTPoint;
+    int            m_iSfBase;
 
-    double         m_dTs[MaxTPoints];      // Heat Data validity Range Start
-    double         m_dTe[MaxTPoints];      // Heat Data validity Range End
 
-    union
-      {
-      CSpDBEqn *    m_pEqns[SpDBEqnCnt][MaxTPoints];    //
-      struct
-        {
-        CSpDBEqn *  m_pRho[MaxTPoints];    // Density Eqn
-        CSpDBEqn *  m_pCp[MaxTPoints];     // Cp Eqn
-        CSpDBEqn *  m_pH[MaxTPoints];      // Enthalpy Eqn
-        CSpDBEqn *  m_pS[MaxTPoints];      // Entropy Eqn
-        };
-      };
+    double         xm_dTs;      // Data validity Range Start
+    double         xm_dTe;      // Data validity Range End
+    CSpDBEqnSet    m_Rho;    // Density Eqn
+    CSpDBEqnSet    m_Cp;     // Cp Eqn
+    CSpDBEqnSet    m_H;      // Enthalpy Eqn
+    CSpDBEqnSet    m_S;      // Entropy Eqn
 
-    double         m_dH25[MaxTPoints];    // Standard Heat of formation @ 298K
-    double         m_dCZRef[MaxTPoints];  // Const of Integration for Zero Ref
-    double         m_dCdHf[MaxTPoints];   // Const of Integration for Hf Diff
-    double         m_dCHf[MaxTPoints];    // Const of Integration with Heat of Formation
+    //double         m_dH25[MaxTPoints];    // Standard Heat of formation @ 298K
+    //double         m_dCZRef[MaxTPoints];  // Const of Integration for Zero Ref
+    //double         m_dCdHf[MaxTPoints];   // Const of Integration for Hf Diff
+    //double         m_dCHf[MaxTPoints];    // Const of Integration with Heat of Formation
 
-    double         m_dS25[MaxTPoints];    // Standard Entropy @ 298K
-    double         m_dCSf[MaxTPoints];    // Const of Integration with Standard Entropy
+    //double         m_dS25[MaxTPoints];    // Standard Entropy @ 298K
+    //double         m_dCSf[MaxTPoints];    // Const of Integration with Standard Entropy
 
-    double         m_dHf0;                // Standard Heat of formation @ 0C
+    CSpDBEqnSet    m_H25;     // Standard Heat of formation @ 298K
+    double         m_S25;    // Standard Entropy @ 298K
 
-    double         m_dHfBase0;            // Standard Heat of formation Diff @ 0C
+
+
+    double         m_Hf0;                 // Standard Heat of formation @ 0C
+    double         m_HfBase0;             // Standard Heat of formation Diff @ 0C
+    double         m_HsOff;               // Offset to be added to get to Hs
+    double         m_HzOff;               // Offset to be added to get to Hz
+
     double         m_dS0;                 // Standard Entropy @ 0C
-
     double         m_dSBase0;             // Standard Entropy Diff @ 0C
-    double         m_dTRef;               // Ref Temp for this Specie
 
     double         m_dCpCv;
 
     bool           m_bHasHFn;
     bool           m_bHasSFn;
 
-    bool           m_bH25OK;
-    bool           m_bS25OK;
-
-    bool           m_bCpOK;
+    bool           m_H25OK;
+    bool           m_S25OK;
+    bool           m_CpOK;
 
     byte           m_bChecked:1;
 
@@ -761,7 +853,7 @@ class DllImportExport CSpecie : public CPropertyBase
 
     flag          FixMissingData(CComponent * pC);
     flag          CopyDataForMultiFidelity();
-    int           AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* dDensCorr, char* dHCapCorr, char* pSoluble, char* pHeatOfMix);
+    int           AddSolnInfo(int iSoluteA, int iSoluteS, int iSolvent, char* dDensCorr, char* dHCapCorr, char* pSoluble);
 
     flag          PhaseIs(PhMask OccM__);
     flag          IsSol();
@@ -797,7 +889,7 @@ class DllImportExport CSpecie : public CPropertyBase
 
     void          Dump(LPCTSTR Location=NULL, long NPts=50);
 
-    int           FindTIndex(long Fidelity, double T);
+    //int           xFindTIndex(long Fidelity, double T);
 
 
     bool          DensityX(CDensityInfo & C, double SpMass);
@@ -862,7 +954,7 @@ class DllImportExport CSpecie : public CPropertyBase
     bool          TcOK()             { return m_Const.m_bTcOK; };
     bool          VcOK()             { return m_Const.m_bVcOK; };
     bool          AcOK()             { return m_Const.m_bAcOK; };
-    bool          VpOK(long Fidelity)  { return m_Common[Fidelity].m_bVpOK; };
+    bool          VpOK(long Fidelity)  { return m_Common[Fidelity].m_VpOK; };
 
     bool          H25OK();
     bool          S25OK();
@@ -899,6 +991,15 @@ class DllImportExport CSpecie : public CPropertyBase
 
     int             iSId;
     int             iCId;
+
+    struct
+      {
+      double           m_SoluteMaxMF;
+      int              m_iSolvent;
+      int              m_iOtherSpecie;
+      Strng            m_sSolvent;
+      Strng            m_sOtherSpecie;
+      }              m_Aq;
 
     CComponent     & m_Cmp;
     CSpConstData   & m_Const;
@@ -1051,6 +1152,8 @@ class DllImportExport CSpecieDataBase
     CSVLongArray   m_Bases;
 
     int            m_iNo;
+    int            m_iOC_Solvent;
+    int            m_iOC_OtherSpecie;
     int            m_iOC_Dissociation;
     int            m_iOC_MolecularDiam;
     int            m_iOC_MolVol;
@@ -1593,13 +1696,13 @@ inline double     CSpDBEqn::MolecularDiam()    { return m_pConst->MolecularDiam(
 
 // ===========================================================================
 
-inline double     CSpFidelData::LoT()              { return m_dTs[0]; };
-inline double     CSpFidelData::HiT()              { return m_dTe[m_iLastTPoint]; };
-inline double     CSpFidelData::TestLoT()          { return m_dTs[0]-m_pSp->m_dTsTol; };
-inline double     CSpFidelData::TestHiT()          { return m_dTe[m_iLastTPoint]+m_pSp->m_dTeTol; };
+inline double     CSpFidelData::LoT()              { return xm_dTs/*[0]*/; };
+inline double     CSpFidelData::HiT()              { return xm_dTe/*[m_iLastTPoint]*/; };
+inline double     CSpFidelData::TestLoT()          { return xm_dTs/*[0]*/-m_pSp->m_dTsTol; };
+inline double     CSpFidelData::TestHiT()          { return xm_dTe/*[m_iLastTPoint]*/+m_pSp->m_dTeTol; };
 
-inline int        CSpFidelData::FindTIndex(double T) { int i=0; while (i<m_iLastTPoint && T>m_dTe[i]) i++; return i;};
-inline double     CSpFidelData::SpRho(double T, double P) { return m_pRho[FindTIndex(T)]->AtTP(T,P);};
+//inline int        CSpFidelData::FindTIndex(double T) { int i=0; while (i<m_iLastTPoint && T>xm_dTe[i]) i++; return i;};
+inline double     CSpFidelData::SpRho(double T, double P) { return m_Rho./*[FindTIndex(T)]->*/AtTP(T,P);};
 inline double     CSpFidelData::MoleWt()           { return m_pConst->MoleWt(); };
 
 inline bool       CSpFidelData::H25OK()            { return m_pSp->H25OK();             };
@@ -1614,14 +1717,14 @@ inline double     CSpecie::SpRho(long Fidelity, double T, double P)  { return m_
 inline flag       CSpecie::CpDirect()                                { return !m_bCpInDirect; };
 inline flag       CSpecie::CpInDirect()                              { return m_bCpInDirect; };
 
-inline double     CSpecie::LoT(long Fidelity)                        { return m_FData[Fidelity].m_dTs[0]; };
-inline double     CSpecie::HiT(long Fidelity)                        { return m_FData[Fidelity].m_dTe[m_FData[Fidelity].m_iLastTPoint]; };
-inline double     CSpecie::TestLoT(long Fidelity)                    { return m_FData[Fidelity].m_dTs[0]-m_dTsTol; };
-inline double     CSpecie::TestHiT(long Fidelity)                    { return m_FData[Fidelity].m_dTe[m_FData[Fidelity].m_iLastTPoint]+m_dTeTol; };
+inline double     CSpecie::LoT(long Fidelity)                        { return m_FData[Fidelity].xm_dTs/*[0]*/; };
+inline double     CSpecie::HiT(long Fidelity)                        { return m_FData[Fidelity].xm_dTe/*[m_FData[Fidelity].m_iLastTPoint]*/; };
+inline double     CSpecie::TestLoT(long Fidelity)                    { return m_FData[Fidelity].xm_dTs/*[0]*/-m_dTsTol; };
+inline double     CSpecie::TestHiT(long Fidelity)                    { return m_FData[Fidelity].xm_dTe/*[m_FData[Fidelity].m_iLastTPoint]*/+m_dTeTol; };
 
 inline double     CSpecie::CpCv(long Fidelity)                       { return m_FData[Fidelity].m_dCpCv; }
-inline double     CSpecie::mlHf0(long Fidelity)                      { return m_FData[Fidelity].m_dHf0; };
-inline double     CSpecie::mlHfBase0(long Fidelity)                  { return m_FData[Fidelity].m_dHfBase0; };
+inline double     CSpecie::mlHf0(long Fidelity)                      { return m_FData[Fidelity].m_Hf0; };
+inline double     CSpecie::mlHfBase0(long Fidelity)                  { return m_FData[Fidelity].m_HfBase0; };
 
 inline double     CSpecie::msHs(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)      { return mlHs(Fidelity, T, P, Ovr, M)/m_Const.m_dMoleWt;};
 inline double     CSpecie::msHz(long Fidelity, double T, double P, SpPropOveride *Ovr, CSVData M)      { return mlHz(Fidelity, T, P, Ovr, M)/m_Const.m_dMoleWt;};
@@ -1634,9 +1737,9 @@ inline double     CSpecie::msHfBase0(long Fidelity)        { return mlHfBase0(Fi
 
 //inline double     CSpecie::VapourP(long Fidelity, double T)  { return m_FData[Fidelity].m_pVp[m_FData[Fidelity].FindTIndex(T)]->AtT(T); };
 
-inline bool       CSpecie::CpOK()             { return m_FData[0].m_bCpOK; };
-inline bool       CSpecie::H25OK()            { return m_FData[0].m_bH25OK; };
-inline bool       CSpecie::S25OK()            { return m_FData[0].m_bS25OK; };
+inline bool       CSpecie::CpOK()             { return m_FData[0].m_CpOK; };
+inline bool       CSpecie::H25OK()            { return m_FData[0].m_H25OK; };
+inline bool       CSpecie::S25OK()            { return m_FData[0].m_S25OK; };
 //inline bool       CSpecie::VpOK()             { return m_pCommon->m_bVpOK; };
 
 // ===========================================================================
@@ -1645,7 +1748,7 @@ inline char *     CSpecie::Tag()                  { return sTag() ? sTag() : "";
 inline char *     CSpecie::Sym()                  { return sSym(); };
 inline char *     CSpecie::CmpTag()               { return sCmpTag(); };
 
-inline int        CSpecie::FindTIndex(long Fidelity, double T)   { return m_FData[Fidelity].FindTIndex(T);};
+//inline int        CSpecie::xFindTIndex(long Fidelity, double T)   { return m_FData[Fidelity].xFindTIndex(T);};
 
 inline flag       CSpecie::PhaseIs(PhMask Ph)     { return (m_PhMsk & Ph)!=0; };
 inline flag       CSpecie::IsSol()                { return (m_PhMsk & m_CDB.m_som_Sol)!=0; };

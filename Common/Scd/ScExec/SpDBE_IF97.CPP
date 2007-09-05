@@ -4247,122 +4247,114 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
   {
   if (1)
     {
-    m_Liq[0].m_dTRef        = C_2_K(25);
-    m_Liq[0].m_dTs[0]       = C_2_K(0);
-    m_Liq[0].m_dTe[0]       = 500.0;
-    m_Liq[0].m_pRho[0]      = CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL);
-    m_Liq[0].m_pCp[0]       = CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL);
-    m_Liq[0].m_pH[0]        = NULL;
-    m_Liq[0].m_pS[0]        = NULL;
-    m_Liq[0].m_dH25[0]      = -285829.970;
-    m_Liq[0].m_dS25[0]      = 69.948;
-    m_Liq[0].m_bH25OK       = true;
-    m_Liq[0].m_bS25OK       = true;
+    m_Liq[0].xm_dTs           = C_2_K(0);
+    m_Liq[0].xm_dTe           = 500.0;
+    m_Liq[0].m_Rho.SetEqn     (ET_Std,            CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_Cp.SetEqn      (ET_Std,            CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_H.SetEqn       (ET_Integral,       CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT,  CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), C_2_K(0), 500.0);
+    m_Liq[0].m_H25.SetEqn     (ET_Std,            CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
+    m_Liq[0].m_S25            = 69.948;
+    m_Liq[0].m_H25OK          = true;
+    m_Liq[0].m_S25OK          = true;
 
-    m_Vap[0].m_dTRef        = C_2_K(25);
-    m_Vap[0].m_dTs[0]       = 298.15;                                                                      
-    m_Vap[0].m_dTe[0]       = 500.0;
+    m_Vap[0].xm_dTs           = 298.15;                                                                      
+    m_Vap[0].xm_dTe           = 500.0;
 
-    m_Vap[0].m_pRho[0]      = CSpDBEqn::Construct(NULL, NULL, "IdealGasDensity(18.01528)", NULL);//CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL);
-    m_Vap[0].m_pCp[0]       = CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL);       
-    m_Vap[0].m_pH[0]        = NULL;                                                                        
-    m_Vap[0].m_pS[0]        = NULL;                                                                        
-    m_Vap[0].m_dH25[0]      = -241826.833;                                                                 
-    m_Vap[0].m_dS25[0]      = 188.832;                                                                      
-    m_Vap[0].m_bH25OK       = true;
-    m_Vap[0].m_bS25OK       = true;
+    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "IdealGasDensity(18.01528)", NULL), 298.15, 500.0);//CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL);
+    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
+    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
+    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 500.0);       
+    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));                                                                 
+    m_Vap[0].m_S25            = 188.832;                                                                      
+    m_Vap[0].m_H25OK          = true;
+    m_Vap[0].m_S25OK          = true;
     
-    m_Liq[1].m_dTs[0]       = 273.16;
-    m_Liq[1].m_dTe[0]       = 623.16;
-    m_Liq[1].m_pRho[0]      = new IF97_WaterDensity(NULL, NULL);
-    m_Liq[1].m_pCp[0]       = new IF97_WaterHeatCapacity(NULL, NULL);
-    m_Liq[1].m_pH[0]        = new IF97_WaterEnthalpy(NULL, NULL);
-    m_Liq[1].m_pS[0]        = new IF97_WaterEntropy(NULL, NULL);
-    m_Liq[1].m_dH25[0]      = -285829.970;
-    m_Liq[1].m_dS25[0]      = 69.948;
-    m_Liq[1].m_bH25OK       = true;
-    m_Liq[1].m_bS25OK       = true;
+    m_Liq[1].xm_dTs           = 273.16;
+    m_Liq[1].xm_dTe           = 623.16;
+    m_Liq[1].m_Rho.SetEqn     (ET_Std, new IF97_WaterDensity(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_Cp.SetEqn      (ET_Std, new IF97_WaterHeatCapacity(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_H.SetEqn       (ET_Std, new IF97_WaterEnthalpy(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_S.SetEqn       (ET_Std, new IF97_WaterEntropy(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_H25.SetEqn     (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
+    m_Liq[1].m_S25            = 69.948;
+    m_Liq[1].m_H25OK          = true;
+    m_Liq[1].m_S25OK          = true;
 
-    m_Vap[1].m_dTs[0]       = 273.16;
-    m_Vap[1].m_dTe[0]       = 1073.16;
-    m_Vap[1].m_pRho[0]      = new IF97_SteamDensity(NULL, NULL);
-    m_Vap[1].m_pCp[0]       = new IF97_SteamHeatCapacity(NULL, NULL);
-    m_Vap[1].m_pH[0]        = new IF97_SteamEnthalpy(NULL, NULL);
-    m_Vap[1].m_pS[0]        = new IF97_SteamEntropy(NULL, NULL);
-    m_Vap[1].m_dTRef        = C_2_K(25);
-    m_Vap[1].m_dH25[0]      = -241826.833;
-    m_Vap[1].m_dS25[0]      = 188.832;
-    m_Vap[1].m_bH25OK       = true;
-    m_Vap[1].m_bS25OK       = true;
+    m_Vap[1].xm_dTs           = 273.16;
+    m_Vap[1].xm_dTe           = 1073.16;
+    m_Vap[1].m_Rho.SetEqn     (ET_Std, new IF97_SteamDensity(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_Cp.SetEqn      (ET_Std, new IF97_SteamHeatCapacity(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_H.SetEqn       (ET_Std, new IF97_SteamEnthalpy(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_S.SetEqn       (ET_Std, new IF97_SteamEntropy(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_H25.SetEqn     (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));
+    m_Vap[1].m_S25            = 188.832;
+    m_Vap[1].m_H25OK          = true;
+    m_Vap[1].m_S25OK          = true;
 
-    m_Common[0].m_bVpOK     = true;
-    m_Common[0].m_pVp       = CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL);
-    m_Common[1].m_bVpOK     = true;
-    m_Common[1].m_pVp       = new IF97_WaterVapourPress(NULL, NULL);
+    m_Common[0].m_VpOK        = true;
+    m_Common[0].m_Vp.SetEqn   (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL), 273.15, 623.16);
+    m_Common[1].m_VpOK        = true;
+    m_Common[1].m_Vp.SetEqn   (ET_Std, new IF97_WaterVapourPress(NULL, NULL), 273.15, 623.16);
     }
   else
     {
-    m_Liq[0].m_dTRef        = C_2_K(25);
-    m_Liq[0].m_dTs[0]       = 298.15;
-    m_Liq[0].m_dTe[0]       = 372.78;
-    m_Liq[0].m_pRho[0]      = CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL);
-    m_Liq[0].m_pCp[0]       = CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL);
-    m_Liq[0].m_pH[0]        = NULL;
-    m_Liq[0].m_pS[0]        = NULL;
-    m_Liq[0].m_dH25[0]      = -285829.970;
-    m_Liq[0].m_dS25[0]      = 69.948;
+    m_Liq[0].xm_dTs           = 298.15;
+    m_Liq[0].xm_dTe           = 372.78;
+    m_Liq[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL),                         298.15, 372.78);
+    m_Liq[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
+    m_Liq[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
+    m_Liq[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC1_Cp(53.927,31.712,31.365,8.167)", NULL), 298.15, 372.78);
+    m_Liq[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
+    m_Liq[0].m_S25            = 69.948;
 
-    m_Liq[0].m_dTs[1]       = 372.78;
-    m_Liq[0].m_dTe[1]       = 500;
-    m_Liq[0].m_pRho[1]      = CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL);
-    m_Liq[0].m_pCp[1]       = CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL);
-    m_Liq[0].m_pH[1]        = NULL;
-    m_Liq[0].m_pS[1]        = NULL;
-    m_Liq[0].m_dH25[1]      = -285965.245;
-    m_Liq[0].m_dS25[1]      = 0;
-    m_Liq[0].m_bH25OK       = true;
-    m_Liq[0].m_bS25OK       = true;
+    m_Liq[0].xm_dTs           = 372.78;
+    m_Liq[0].xm_dTe           = 500;
+    m_Liq[0].m_Rho.AddEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "LiqH2ORho()", NULL),                         372.78, 500);
+    m_Liq[0].m_Cp.AddEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
+    m_Liq[0].m_H.AddEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
+    m_Liq[0].m_S.AddEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "HSC_Cp(16.749,62.120,32.798,90.391)", NULL), 372.78, 500);
+    m_Liq[0].m_H25OK          = true;
+    m_Liq[0].m_S25OK          = true;
 
 
-    m_Vap[0].m_dTRef        = C_2_K(25);
-    m_Vap[0].m_dTs[0]       = 298.15;                                                                      
-    m_Vap[0].m_dTe[0]       = 513;                                                                      
-    m_Vap[0].m_pRho[0]      = CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL);                               
-    m_Vap[0].m_pCp[0]       = CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL);       
-    m_Vap[0].m_pH[0]        = NULL;                                                                        
-    m_Vap[0].m_pS[0]        = NULL;                                                                        
-    m_Vap[0].m_dH25[0]      = -241826.833;                                                                 
-    m_Vap[0].m_dS25[0]      = 188.832;                                                                      
-    m_Vap[0].m_bH25OK       = true;
-    m_Vap[0].m_bS25OK       = true;
+    m_Vap[0].xm_dTs           = 298.15;                                                                      
+    m_Vap[0].xm_dTe           = 513;                                                                      
+    m_Vap[0].m_Rho.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "0.8037", NULL),                                           298.15, 513);                               
+    m_Vap[0].m_Cp.SetEqn      (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 513);       
+    m_Vap[0].m_H.SetEqn       (ET_Integral,      CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 513);       
+    m_Vap[0].m_S.SetEqn       (ET_IntegralOverT, CSpDBEqn::Construct(NULL, NULL, "CRC_Cp(-38.14955, 463.4602, 6.24E-05, -762.3604)", NULL), 298.15, 513);       
+    m_Vap[0].m_H25.SetEqn     (ET_Std,           CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));                                                                 
+    m_Vap[0].m_S25            = 188.832;                                                                      
+    m_Vap[0].m_H25OK          = true;
+    m_Vap[0].m_S25OK          = true;
     
-    m_Liq[1].m_dTs[0]       = 273.16;
-    m_Liq[1].m_dTe[0]       = 623.16;
-    m_Liq[1].m_pRho[0]      = new IF97_WaterDensity(NULL, NULL);
-    m_Liq[1].m_pCp[0]       = new IF97_WaterHeatCapacity(NULL, NULL);
-    m_Liq[1].m_pH[0]        = new IF97_WaterEnthalpy(NULL, NULL);
-    m_Liq[1].m_pS[0]        = new IF97_WaterEntropy(NULL, NULL);
-    m_Liq[1].m_dH25[0]      = -285829.970;
-    m_Liq[1].m_dS25[0]      = 69.948;
-    m_Liq[1].m_bH25OK       = true;
-    m_Liq[1].m_bS25OK       = true;
+    m_Liq[1].xm_dTs           = 273.16;
+    m_Liq[1].xm_dTe           = 623.16;
+    m_Liq[1].m_Rho.SetEqn     (ET_Std, new IF97_WaterDensity(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_Cp.SetEqn      (ET_Std, new IF97_WaterHeatCapacity(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_H.SetEqn       (ET_Std, new IF97_WaterEnthalpy(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_S.SetEqn       (ET_Std, new IF97_WaterEntropy(NULL, NULL), 273.16, 623.16);
+    m_Liq[1].m_H25.SetEqn     (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
+    m_Liq[1].m_S25            = 69.948;
+    m_Liq[1].m_H25OK          = true;
+    m_Liq[1].m_S25OK          = true;
 
-    m_Vap[1].m_dTs[0]       = 273.16;
-    m_Vap[1].m_dTe[0]       = 1073.16;
-    m_Vap[1].m_pRho[0]      = new IF97_SteamDensity(NULL, NULL);
-    m_Vap[1].m_pCp[0]       = new IF97_SteamHeatCapacity(NULL, NULL);
-    m_Vap[1].m_pH[0]        = new IF97_SteamEnthalpy(NULL, NULL);
-    m_Vap[1].m_pS[0]        = new IF97_SteamEntropy(NULL, NULL);
-    m_Vap[1].m_dTRef        = C_2_K(25);
-    m_Vap[1].m_dH25[0]      = -241826.833;
-    m_Vap[1].m_dS25[0]      = 188.832;
-    m_Vap[1].m_bH25OK       = true;
-    m_Vap[1].m_bS25OK       = true;
+    m_Vap[1].xm_dTs           = 273.16;
+    m_Vap[1].xm_dTe           = 1073.16;
+    m_Vap[1].m_Rho.SetEqn     (ET_Std, new IF97_SteamDensity(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_Cp.SetEqn      (ET_Std, new IF97_SteamHeatCapacity(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_H.SetEqn       (ET_Std, new IF97_SteamEnthalpy(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_S.SetEqn       (ET_Std, new IF97_SteamEntropy(NULL, NULL), 273.16, 1073.16);
+    m_Vap[1].m_H25.SetEqn     (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));
+    m_Vap[1].m_S25            = 188.832;
+    m_Vap[1].m_H25OK          = true;
+    m_Vap[1].m_S25OK          = true;
 
-    m_Common[0].m_bVpOK     = true;
-    m_Common[0].m_pVp       = CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL);
-    m_Common[1].m_bVpOK     = true;
-    m_Common[1].m_pVp       = new IF97_WaterVapourPress(NULL, NULL);
+    m_Common[0].m_VpOK        = true;
+    m_Common[0].m_Vp.SetEqn   (ET_Std, CSpDBEqn::Construct(NULL, NULL, "Vp(-3433.74,-12.0063,0.004782,41.1767)", NULL), 273.15, 623.16);
+    m_Common[1].m_VpOK        = true;
+    m_Common[1].m_Vp.SetEqn   (ET_Std, new IF97_WaterVapourPress(NULL, NULL), 273.15, 623.16);
     }
   }
 
@@ -4370,20 +4362,22 @@ IF97H2OProps::IF97H2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAtta
 
 IF97H2OProps::~IF97H2OProps()
   {
-  for (int i=0; i<MaxFidelity; i++)
-    {
-    for (int e=0; e<SpDBEqnCnt; e++)
-      {
-      for (int j=0; j<MaxTPoints; j++)
-        {
-        delete m_Liq[i].m_pEqns[e][j];
-        delete m_Vap[i].m_pEqns[e][j];
+  //for (int i=0; i<MaxFidelity; i++)
+  //  {
+  //  _asm int 3;
+  //  //for (int e=0; e<SpDBEqnCnt; e++)
+  //  //  {
+  //  //  _asm int 3;
+  //  //  //for (int j=0; j<MaxTPoints; j++)
+  //  //  //  {
+  //  //  //  delete m_Liq[i].m_pEqns[e][j];
+  //  //  //  delete m_Vap[i].m_pEqns[e][j];
 
-        m_Liq[i].m_pEqns[e][j]=NULL;
-        m_Vap[i].m_pEqns[e][j]=NULL;
-        }
-      }
-    }
+  //  //  //  m_Liq[i].m_pEqns[e][j]=NULL;
+  //  //  //  m_Vap[i].m_pEqns[e][j]=NULL;
+  //  //  //  }
+  //  //  }
+  //  }
   }
 
 //--------------------------------------------------------------------------

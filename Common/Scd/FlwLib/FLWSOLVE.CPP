@@ -101,6 +101,8 @@ static CDbgMngr dbgDumpChanges        ("FlwNode",   "DumpChanges");
 static CDbgMngr dbgDumpChangesIn      ("FlwNode",   "DumpChangesIn");
 #endif
 
+static CDbgMngr dbgSDBDump            ("Specie_DB", "Dump");
+
 static CDbgMngr dbgDumpDerivs         ("FlwSolve",  "Dump-Derivs");
 static CDbgMngr dbgDumpStates         ("FlwSolve",  "Dump-States");
 #if (WITHTIMERS)
@@ -9849,8 +9851,7 @@ bool CFlwSolver::LoadSpecieData(LPCTSTR CfgFile, LPCTSTR PrjSDBName, bool WithMs
 
   SpModel::InitialiseHumidity();
 
-  CDbgMngr DbgDBDump("Specie_DB", "Dump");
-  if (DbgDBDump())
+  if (dbgSDBDump())
     CDB.DumpTest();
   return true;
   }

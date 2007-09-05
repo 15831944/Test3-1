@@ -477,44 +477,90 @@ inline bool MRngChks::Selected(long IdMask)
 inline void MRngChks::CheckMin(long IdMask, LPCSTR Name, double MinValue, double Value)  
   {
   if ((gs_RngChecks.m_SelectMask & IdMask) && Value<MinValue) 
-    Context()->AddRngChk(Name, m_pSrc, true, false, MinValue, dNAN, Value); 
+    {   
+    MRngChkCntxt  *pCntxt=Context();
+    if (pCntxt)
+      pCntxt->AddRngChk(Name, m_pSrc, true, false, MinValue, dNAN, Value); 
+    else
+      {
+      //dbgpln("MRngChks::CheckMin - No Context");
+      }
+    }
   };
 inline void MRngChks::CheckMax(long IdMask, LPCSTR Name, double MaxValue, double Value)  
   { 
   if ((gs_RngChecks.m_SelectMask & IdMask) && Value>MaxValue) 
-    Context()->AddRngChk(Name, m_pSrc, false, true, dNAN, MaxValue, Value);
+    {   
+    MRngChkCntxt  *pCntxt=Context();
+    if (pCntxt)
+      pCntxt->AddRngChk(Name, m_pSrc, false, true, dNAN, MaxValue, Value);
+    else
+      {
+      //dbgpln("MRngChks::CheckMax - No Context");
+      }
+    }
   };
 inline void MRngChks::CheckRange(long IdMask, LPCSTR Name, double MinValue, double MaxValue, double Value)
   {
   if (gs_RngChecks.m_SelectMask & IdMask)
-    {
-    if (Value<MinValue) 
-      Context()->AddRngChk(Name, m_pSrc, true, false, MinValue, MaxValue, Value); 
-    else if (Value>MaxValue) 
-      Context()->AddRngChk(Name, m_pSrc, false, true, MinValue, MaxValue, Value); 
+    {   
+    MRngChkCntxt  *pCntxt=Context();
+    if (pCntxt)
+      {
+      if (Value<MinValue) 
+        pCntxt->AddRngChk(Name, m_pSrc, true, false, MinValue, MaxValue, Value); 
+      else if (Value>MaxValue) 
+        pCntxt->AddRngChk(Name, m_pSrc, false, true, MinValue, MaxValue, Value); 
+      }
+    else
+      {
+      //dbgpln("MRngChks::CheckRange - No Context");
+      }
     }
   };
 inline void MRngChks::AddCheck(long IdMask, LPCSTR Name, bool LTMin, bool GTMax, double MinValue, double MaxValue, double Value) 
   { 
   if (gs_RngChecks.m_SelectMask & IdMask)
-    Context()->AddRngChk(Name, m_pSrc, LTMin, GTMax, MinValue, MaxValue, Value);
+    {   
+    MRngChkCntxt  *pCntxt=Context();
+    if (pCntxt)
+      pCntxt->AddRngChk(Name, m_pSrc, LTMin, GTMax, MinValue, MaxValue, Value);
+    else
+      {
+      //dbgpln("MRngChks::AddCheck - No Context");
+      }
+    }
   }
 inline void MRngChks::AddMessage(long IdMask, LPCSTR Name, LPCSTR Fmt, ...)          
   { 
   if (gs_RngChecks.m_SelectMask & IdMask)
-    {
-    char Buff[4096];
-    va_list argptr;
-    va_start(argptr,Fmt);
-    vsprintf_s(Buff, sizeof(Buff), Fmt, argptr);
-    va_end(argptr);
+    {   
+    MRngChkCntxt  *pCntxt=Context();
+    if (pCntxt)
+      {
+      char Buff[4096];
+      va_list argptr;
+      va_start(argptr,Fmt);
+      vsprintf_s(Buff, sizeof(Buff), Fmt, argptr);
+      va_end(argptr);
 
-    Context()->AddRngChkMsg(Name, m_pSrc, Buff); 
+      pCntxt->AddRngChkMsg(Name, m_pSrc, Buff); 
+      }
+    else
+      {
+      //dbgpln("MRngChks::AddMessage - No Context");
+      }
     }
   };
 inline void MRngChks::CheckRangeList(CRangeListItem Checks[])
   {
-  Context()->CheckRangeList(Checks, m_pSrc);
+  MRngChkCntxt  *pCntxt=Context();
+  if (pCntxt)
+    pCntxt->CheckRangeList(Checks, m_pSrc);
+  else
+    {
+    //dbgpln("MRngChks::CheckRangeList - No Context");
+    }
   };
 
 #endif

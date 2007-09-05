@@ -72,9 +72,9 @@ class SDBE_Poly : protected CSpDBEqn
   // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c,d,e,f;
+    double         a,b,c,d,e,f,g;
 
-    SDBE_Poly(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=0.0;};
+    SDBE_Poly(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=g=0.0;};
     virtual ~SDBE_Poly() {};
     static const char * Name() { return "Poly"; };
     virtual const char * VName() { return Name(); };
@@ -87,20 +87,21 @@ class SDBE_Poly : protected CSpDBEqn
   	  d=SpDB_TokenValue(Cols[3], 0.0);
   	  e=SpDB_TokenValue(Cols[4], 0.0);
   	  f=SpDB_TokenValue(Cols[5], 0.0);
+  	  g=SpDB_TokenValue(Cols[6], 0.0);
   	  return 0;
   	  };
     virtual void Copy(CSpDBEqn* p) 
       { 
       SDBE_Poly*pc=(SDBE_Poly*)p; 
-      a=pc->a; b=pc->b; c=pc->c; d=pc->d; e=pc->e; f=pc->f;
+      a=pc->a; b=pc->b; c=pc->c; d=pc->d; e=pc->e; f=pc->f; g=pc->g;
       };
     virtual double AtT(double T)
       { 
-      return a+T*(b+T*(c+T*(d+T*(e+T*f))));
+      return a+T*(b+T*(c+T*(d+T*(e+T*(f+T*g)))));
       };
     virtual double AtTP(double T, double P)
       { 
-      return a+T*(b+T*(c+T*(d+T*(e+T*f))));
+      return a+T*(b+T*(c+T*(d+T*(e+T*(f+T*g)))));
       };
   };
 
@@ -391,20 +392,20 @@ double SDBE_CRC_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -508,20 +509,20 @@ double SDBE_CRC1_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -617,20 +618,20 @@ double SDBE_CRC2_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -763,20 +764,20 @@ double SDBE_Poly_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -888,20 +889,20 @@ double SDBE_GenPoly_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -952,20 +953,20 @@ double SDBE_GenPoly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    Result = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    Result = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    Result = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    Result = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      Result = Result + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      Result = Result + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      Result = Result + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      Result = Result + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -1075,20 +1076,20 @@ double SDBE_API_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
 
@@ -1182,20 +1183,20 @@ double SDBE_HTE_Cp::Integrate_dT(double T1, double T2, double P)
   double HiT = rng ? hi : m_pFData->HiT();
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -1303,20 +1304,20 @@ double SDBE_Shomate_Cp::Integrate_dT(double T1, double T2, double P)
   T2/=1000.;
 
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*m_pFData->mlCp(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*m_pFData->mlCp(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*m_pFData->mlCp(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
       T1=LoT;
       }
   
@@ -2062,7 +2063,7 @@ extern bool TryConstructNBS(CSpRangeData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDB
 
 CSpDBEqn* CSpDBEqn::ConstructCopy(CSpConstData * pConst, CSpFidelData * pSpPh)
   {
-  CSpDBEqn *pEqn=pSpPh->m_pRho[pSpPh->m_iLastTPoint];
+  CSpDBEqn *pEqn=this;//pSpPh->m_pRho[pSpPh->m_iLastTPoint];
   return CSpDBEqn::Construct(pConst, pSpPh, NULL, pEqn);
   }
 
@@ -2330,43 +2331,41 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Const.m_dMd      = dNAN;           // MolecularDiam
  
   m_Liq[0].m_pSp         = NULL;
-  m_Liq[0].m_dTs[0]      = 273.16;
-  m_Liq[0].m_dTe[0]      = 623.16;
-  m_Liq[0].m_bCpOK       = true;
-  m_Liq[0].m_bH25OK      = true;
-  m_Liq[0].m_bS25OK      = true;
-  m_Liq[0].m_dTRef       = C_2_K(25);
-  m_Liq[0].m_dH25[0]     = -285829.970;
-  m_Liq[0].m_dS25[0]     = 69.948;
-  m_Liq[0].m_dCZRef[0]   = 0;
-  m_Liq[0].m_dCdHf[0]    = 0;
-  m_Liq[0].m_dCHf[0]     = 0;
-  m_Liq[0].m_dCSf[0]     = 0;
-  m_Liq[0].m_pRho[0]     = NULL;
-  m_Liq[0].m_pCp[0]      = NULL;
-  m_Liq[0].m_pH[0]       = NULL;
-  m_Liq[0].m_pS[0]       = NULL;
+  m_Liq[0].xm_dTs        = 273.16;
+  m_Liq[0].xm_dTe        = 623.16;
+  m_Liq[0].m_CpOK       = true;
+  m_Liq[0].m_H25OK      = true;
+  m_Liq[0].m_S25OK      = true;
+  m_Liq[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
+  m_Liq[0].m_S25     = 69.948;
+  //m_Liq[0].m_dCZRef[0]   = 0;
+  //m_Liq[0].m_dCdHf[0]    = 0;
+  //m_Liq[0].m_dCHf[0]     = 0;
+  //m_Liq[0].m_dCSf[0]     = 0;
+  //m_Liq[0].m_pRho        = NULL;
+  //m_Liq[0].m_pCp         = NULL;
+  //m_Liq[0].m_pH          = NULL;
+  //m_Liq[0].m_pS          = NULL;
   //m_Liq[0].m_bVpOK       = true;
   //m_Liq[0].m_pVp[0]      = NULL;
   m_Liq[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
                         
   m_Vap[0].m_pSp         = NULL;
-  m_Vap[0].m_dTs[0]      = 273.16;
-  m_Vap[0].m_dTe[0]      = 1073.16;
-  m_Vap[0].m_bCpOK       = true;
-  m_Vap[0].m_bH25OK      = true;
-  m_Vap[0].m_bS25OK      = true;
-  m_Vap[0].m_dTRef       = C_2_K(25);
-  m_Vap[0].m_dH25[0]     = -241826.833;
-  m_Vap[0].m_dS25[0]     = 188.832;
-  m_Vap[0].m_dCZRef[0]   = 0;
-  m_Vap[0].m_dCdHf[0]    = 0;
-  m_Vap[0].m_dCHf[0]     = 0;
-  m_Vap[0].m_dCSf[0]     = 0;
-  m_Vap[0].m_pRho[0]     = NULL;
-  m_Vap[0].m_pCp[0]      = NULL;
-  m_Vap[0].m_pH[0]       = NULL;
-  m_Vap[0].m_pS[0]       = NULL;
+  m_Vap[0].xm_dTs        = 273.16;
+  m_Vap[0].xm_dTe        = 1073.16;
+  m_Vap[0].m_CpOK       = true;
+  m_Vap[0].m_H25OK      = true;
+  m_Vap[0].m_S25OK      = true;
+  m_Vap[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));
+  m_Vap[0].m_S25     = 188.832;
+  //m_Vap[0].m_dCZRef[0]   = 0;
+  //m_Vap[0].m_dCdHf[0]    = 0;
+  //m_Vap[0].m_dCHf[0]     = 0;
+  //m_Vap[0].m_dCSf[0]     = 0;
+  //m_Vap[0].m_pRho     = NULL;
+  //m_Vap[0].m_pCp      = NULL;
+  //m_Vap[0].m_pH       = NULL;
+  //m_Vap[0].m_pS       = NULL;
   //m_Vap[0].m_bVpOK       = true;
   //m_Vap[0].m_pVp[0]      = NULL;
   m_Vap[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio

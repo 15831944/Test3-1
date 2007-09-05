@@ -3972,11 +3972,13 @@ void CSDBTest::TestThermo(int &nGood, int &nBad)
             }
           if (Pass>0)
             {
-            S.Set("%s\t%.1f\t%i\t%s\t%s\t%s\t%.4f\t%s\t%i",
-              it==0 ? (m_SDB[s].SymOrTag()?m_SDB[s].SymOrTag():""):"",
-                  m_ShowK.GetCheck()?t:K_2_C(t),
-                  m_SDB[s].FindTIndex(iFidelity, t),
-                  Hs(), Cps(), VpS(), Rho, Note() ? Note() : " ", s);
+            _asm int 3;
+            S="???????";
+            //S.Set("%s\t%.1f\t%i\t%s\t%s\t%s\t%.4f\t%s\t%i",
+            //  it==0 ? (m_SDB[s].SymOrTag()?m_SDB[s].SymOrTag():""):"",
+            //      m_ShowK.GetCheck()?t:K_2_C(t),
+            //      m_SDB[s].FindTIndex(iFidelity, t),
+            //      Hs(), Cps(), VpS(), Rho, Note() ? Note() : " ", s);
             m_ThermoGrid.AddItem(S(), COleVariant(row++));
             }
           fBad=fBad || (Note()!=NULL);
