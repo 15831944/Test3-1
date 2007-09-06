@@ -534,9 +534,9 @@ class MurdochMain(GenericMain):
             ldic[iv] = x
             ab.fromDic(ldic)
             self.extractDPData()
-            os = "%12.3f" % x
+            os = "%10.3f\t" % x
             for x in dv:
-                os += "%12.3f" % self.__dict__[x]
+                os += "%10.3f\t" % self.__dict__[x]
             self.of.appendText(os)
         print "Time... ", clock()-tStart
         self.normalCursor()
