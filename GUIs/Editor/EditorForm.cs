@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -62,7 +63,7 @@ namespace SysCAD.Editor
       (barManager1.Commands["CreateItem.ModelType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_ModelType_Changed);
       (barManager1.Commands["CreateItem.GraphicType"] as BarComboBoxCommand).SelectedIndexChanged += new EventHandler(NewItem_GraphicType_Changed);
 
-      this.Text += " -- " + SysCAD.SVNVersion.SVNVersion.version;
+      this.Text = "SysCAD.Editor (" + Assembly.Load("SysCAD.Editor").GetName().Version +") -- SVN Revision: " + SysCAD.SVNVersion.SVNVersion.version + " -- ";
     }
 
     public void LoadProject(ClientProtocol clientProtocol, Config config)
