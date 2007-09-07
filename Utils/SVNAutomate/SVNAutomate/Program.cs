@@ -125,9 +125,9 @@ namespace SVNAutomate
                         "//" + "\n" + "\n" +
                         "namespace SysCAD.SVNVersion" + "\n" +
                         "{" + "\n" +
-                        "  class SVNVersion" + "\n" +
+                        "  public class SVNVersion" + "\n" +
                         "  {" + "\n" +
-                        "    const int version = " + revision + ";" + "\n" +
+                        "    public const int version = " + revision + ";" + "\n" +
                         "  }" + "\n" +
                         "}";
 

@@ -186,6 +186,10 @@
       <Project>{21087F5B-F4A5-4A86-A18D-C8EDF4264D6C}</Project>
       <Name>SmartPropertyGrid</Name>
     </ProjectReference>
+    <ProjectReference Include="Start\Start.csproj">
+      <Project>{41259FBA-4939-495B-BDF8-7B75F3B7DB98}</Project>
+      <Name>Start</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
