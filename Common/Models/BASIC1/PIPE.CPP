@@ -228,10 +228,10 @@ void Pipe::BuildDataDefn(DataDefnBlk &DDB)
   //DDB.Text("FIX!");
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
 
-  DDB.String("",              "QmEst.Type",DC_,   "",     xidQmEstType,     this, isResult);
-  DDB.String("",              "QmEst.Src", DC_,   "",     xidQmEstSrc,      this, isResult|isTag);
+  DDB.String("",              "QmEst.Type",DC_,   "",     xidQmEstType,     this, isResult|InitHidden);
+  DDB.String("",              "QmEst.Src", DC_,   "",     xidQmEstSrc,      this, isResult|isTag|InitHidden);
 
-  DDB.Double("EstMassFlow",   "QmEst",    DC_Qm, "kg/s", xidQmEst,         this, isResult|0);
+  DDB.Double("EstMassFlow",   "QmEst",    DC_Qm, "kg/s",  xidQmEst,         this, NetDynamicMethod() ? isResult : isResult|InitHidden);
 
 //#ifdef _RELEASE
 //  DDB.Double ("Qm_MakeUpAvail",  "",  DC_Qm,   "kg/s",   xidIO_MkUpAvail0, this, isResult|InitHidden|noView|NAN_OK);
