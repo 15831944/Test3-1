@@ -8723,26 +8723,12 @@ double SpModel::PartialPress(SpecieIter &Ids, double T, double P)
   if (!Valid(P))
     P=Press();
 
-  CDensityInfo C(m_iFidelity, DensityMethod(), T, P, &m_Ovr, SVData());
-  double msVol1=0;
-  double Mass1=0;
+  double Moles1=0;
   for (int i=-1; Ids.Loop(i); )
-    {
-    if (SDB[i].DensityX(C, m_M[i]))
-      {
-      Mass1 += C.m_SpM;
-      msVol1 += C.m_SpM * C.msVolume();
-      }
-    }
-  msVol1 /= GTZ(Mass1);
-  double MassA = Mass(som_Gas);
-  double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
+    Moles1 += m_M[i] / SDB[i].MoleWt();
+  double MolesA = Moles(som_Gas);
 
-  // Assume Linear Relationship - Ideal Gas;
-  if (1)//MassA>Mass1)
-    PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
-  else
-    PPart=P;
+  PPart=P*(Moles1)/GTZ(MolesA);
 
   return PPart;
   }
@@ -8763,42 +8749,24 @@ double SpModel::PartialPress(int IncIds, int ExcIds, double T, double P)
   CDensityInfo C(m_iFidelity, DensityMethod(), T, P, &m_Ovr, SVData());
   if (IncIds>=0 )
     {
-    //double Mass1 = m_M[IncIds];
-    double MassA = Mass(som_Gas);
-    double msVol1 = SDB[IncIds].DensityX(C/*, Mass1*/) ? C.msVolume() : 0.0;
-    double Mass1  = C.Mass();
-    double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
-    // Assume Linear Relationship - Ideal Gas;
-    if (1)//MassA>Mass1)
-      PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
-    else
-      PPart=P;
+    double Moles1 = m_M[IncIds]/SDB[IncIds].MoleWt();
+    double MolesA = Moles(som_Gas);
+  
+    PPart=P*(Moles1)/GTZ(MolesA);
     }
   else
     {
     SpecieIter I(som_Gas);
-    double msVol1=0;
-    double Mass1=0;
+    double Moles1=0;
     for (int i=-1; I.Loop(i); )
       {
-      if (i!=ExcIds && SDB[i].DensityX(C, m_M[i]))
-        {
-        Mass1 += C.m_SpM;
-        msVol1 += C.m_SpM * C.msVolume();
-        // Assume Linear Relationship - Ideal Gas;
-        }
+      if (i!=ExcIds)
+        Moles1 += m_M[i] / SDB[i].MoleWt();
       }
-    msVol1 /= GTZ(Mass1);
-    double MassA = Mass(som_Gas);
-    double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
+    double MolesA = Moles(som_Gas);
 
-    // Assume Linear Relationship - Ideal Gas;
-    if (1)//MassA>Mass1)
-      PPart=P*(msVol1*Mass1)/GTZ(msVolA*MassA);
-    else
-      PPart=P;
+    PPart=P*(Moles1)/GTZ(MolesA);
     }
-
   return PPart;
   }
 
@@ -8826,26 +8794,12 @@ double SpModel::PartialPressFrac(SpecieIter &Ids, double T, double P)
 
   double Pf=1.0;
 
-  CDensityInfo C(m_iFidelity, DensityMethod(), T, P, &m_Ovr, SVData());
-
-  double msVol1=0;
-  double Mass1=0;
+  double Moles1=0;
   for (int i=-1; Ids.Loop(i); )
-    {
-    if (SDB[i].DensityX(C, m_M[i]))
-      {
-      Mass1 += C.m_SpM;
-      msVol1 += C.m_SpM * C.msVolume();
-      }
-    }
-  msVol1 /= GTZ(Mass1);
-  double MassA = Mass(som_Gas);
-  double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
+    Moles1 += m_M[i] / SDB[i].MoleWt();
+  double MolesA = Moles(som_Gas);
 
-  // Assume Linear Relationship - Ideal Gas;
-  if (1)//MassA>Mass1)
-    Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
-
+  Pf=(Moles1)/GTZ(MolesA);
   return Pf;
   }
 
@@ -8864,35 +8818,22 @@ double SpModel::PartialPressFrac(int IncIds, int ExcIds, double T, double P)
 
   if (IncIds>=0 )
     {
-    double Mass1 = m_M[IncIds];
-    double MassA = Mass(som_Gas);
-    double msVol1 = SDB[IncIds].DensityX(C, Mass1) ? C.msVolume() : 0.0;
-    double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
-    // Assume Linear Relationship - Ideal Gas;
-    if (1)//MassA>Mass1)
-      Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
+    double Moles1 = m_M[IncIds]/SDB[IncIds].MoleWt();
+    double MolesA = Moles(som_Gas);
+  
+    Pf=(Moles1)/GTZ(MolesA);
     }
   else
     {
     SpecieIter I(som_Gas);
-    double msVol1=0;
-    double Mass1=0;
+    double Moles1=0;
     for (int i=-1; I.Loop(i); )
       {
-      if (i!=ExcIds && SDB[i].DensityX(C, m_M[i]))
-        {
-        Mass1 += C.m_SpM;
-        msVol1 += C.m_SpM * C.msVolume();
-        // Assume Linear Relationship - Ideal Gas;
-        }
+      if (i!=ExcIds)
+        Moles1 += m_M[i] / SDB[i].MoleWt();
       }
-    msVol1 /= GTZ(Mass1);
-    double MassA = Mass(som_Gas);
-    double msVolA = SDB.msVolume(m_iFidelity, DensityMethod(), som_Gas, T, P, &m_Ovr, SVData());
-
-    // Assume Linear Relationship - Ideal Gas;
-    if (1)//MassA>Mass1)
-      Pf=(msVol1*Mass1)/GTZ(msVolA*MassA);
+    double MolesA = Moles(som_Gas);
+    Pf=(Moles1)/GTZ(MolesA);
     }
 
   return Pf;
