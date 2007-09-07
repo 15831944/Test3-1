@@ -37,6 +37,9 @@ namespace SysCAD.Protocol
     private Shape shape;
     private String tag;
 
+    [NonSerialized]
+    public Object other = null;
+
     public GraphicItem(Guid guid, String tag)
     {
       this.guid = guid;

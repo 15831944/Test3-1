@@ -1311,7 +1311,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_GroupCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect)
     {
-      //CNM throw new NotImplementedException("The method or operation is not implemented.");
+      state.CreateGroup(state.GraphicGroup(guid), true, fcFlowChart);
     }
 
     private void fcFlowChart_GroupDeleted(Int64 eventId, Int64 requestId, Guid guid)
@@ -1326,7 +1326,7 @@ namespace SysCAD.Editor
 
     private void fcFlowChart_ItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape shape, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
-      state.CreateItem(state.GraphicItem(guid), true, fcFlowChart);
+      state.CreateItem(state.GraphicItem(guid), state.TVNavigation.GetNodeByPath(path).IsSelected, fcFlowChart);
     }
 
     private void fcFlowChart_ItemDeleted(Int64 eventId, Int64 requestId, Guid guid)

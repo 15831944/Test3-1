@@ -20,6 +20,9 @@ namespace SysCAD.Protocol
     private String tag;
     private String path;
 
+    [NonSerialized]
+    public Object other = null;
+
     public GraphicGroup(Guid guid, String tag)
     {
       this.guid = guid;

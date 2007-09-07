@@ -26,6 +26,9 @@ namespace SysCAD.Protocol
     private String originPort;
     private String tag;
 
+    [NonSerialized]
+    public Object other = null;
+
     public GraphicLink(Guid guid, String tag, String classId, Guid srcGuid, String srcPort, Guid dstGuid, String dstPort, List<PointF> controlPoints)
     {
       this.guid = guid;

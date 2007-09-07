@@ -405,7 +405,6 @@ namespace SysCAD.Editor
 
     internal void CreateGroup(GraphicGroup graphicGroup, bool isVisible, FlowChart flowchart)
     {
-
       if (flowchart.InvokeRequired)
       {
         flowchart.BeginInvoke(new CreateGroupDelegate(CreateGroup), new object[] { graphicGroup, isVisible, flowchart });
@@ -932,6 +931,22 @@ namespace SysCAD.Editor
       if (box.Tag is Item)
         clientProtocol.graphicItems.TryGetValue((box.Tag as Item).Guid, out graphicItem);
       return graphicItem;
+    }
+
+    internal GraphicGroup GraphicGroup(Guid guid)
+    {
+      GraphicGroup graphicGroup;
+      clientProtocol.graphicGroups.TryGetValue(guid, out graphicGroup);
+      return graphicGroup;
+    }
+
+    internal GraphicGroup GraphicGroup(Box box)
+    {
+      GraphicGroup graphicGroup = null;
+
+      if (box.Tag is Item)
+        clientProtocol.graphicGroups.TryGetValue((box.Tag as Item).Guid, out graphicGroup);
+      return graphicGroup;
     }
 
     internal GraphicItem GraphicItem(Guid guid)
