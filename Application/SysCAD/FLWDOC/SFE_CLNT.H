@@ -211,14 +211,14 @@ class SFEFlwLib : public SFEMdlLib, public CExecObj
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
+                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
     int            EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
     int            EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                    LPCSTR model, 
                                    LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                    LPCSTR OriginTag, LPCSTR DestinationTag, 
                                    LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                   CPointFList & ControlPoints, const CRectangleF & textArea) ;
+                                   CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
 
     void           EO_SetSolveMode();
     flag           EO_Starting(flag fBeginStarting);

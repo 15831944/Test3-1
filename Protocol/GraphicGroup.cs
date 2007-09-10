@@ -47,7 +47,7 @@ namespace SysCAD.Protocol
       set { guid = value; }
     }
 
-    public float Height
+    public Single Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
@@ -65,19 +65,19 @@ namespace SysCAD.Protocol
       set { path = value; }
     }
 
-    public float Width
+    public Single Width
     {
       get { return boundingRect.Width; }
       set { boundingRect.Width = value; }
     }
 
-    public float X
+    public Single X
     {
       get { return boundingRect.X; }
       set { boundingRect.X = value; }
     }
 
-    public float Y
+    public Single Y
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }

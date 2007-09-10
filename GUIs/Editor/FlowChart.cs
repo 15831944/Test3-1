@@ -143,16 +143,16 @@ namespace SysCAD.Editor
     public void NewGraphicLink(out Guid guid, GraphicLink graphicLink)
     {
       if (graphicLink != null)
-        NewGraphicLink(out guid, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints);
+        NewGraphicLink(out guid, graphicLink.ClassID, graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort, graphicLink.ControlPoints, graphicLink.TextArea, graphicLink.TextAngle);
       else
         guid = Guid.Empty;
     }
     
-    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void NewGraphicLink(out Guid guid, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       Int64 requestId;
 
-      state.CreateGraphicLink(out requestId, out guid, "A_" + tempBoxKey.ToString(), classId, origin, destination, originPort, destinationPort, controlPoints);
+      state.CreateGraphicLink(out requestId, out guid, "A_" + tempBoxKey.ToString(), classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
     }
 
     //public GraphicLink NewGraphicLink(out Guid guid, GraphicLink graphicLink, float dx, float dy)
@@ -901,7 +901,9 @@ namespace SysCAD.Editor
         destinationGuid,
         originAnchor,
         destinationAnchor,
-        oldControlPoints))
+        oldControlPoints,
+        graphicLink.TextArea,
+        graphicLink.TextAngle))
       { // failure, revert back to previous.
         // do something here...
       }
@@ -1368,7 +1370,7 @@ namespace SysCAD.Editor
       }
     }
 
-    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    private void fcFlowChart_LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       state.CreateLink(state.GraphicLink(guid), true, fcFlowChart);
     }
@@ -1378,7 +1380,7 @@ namespace SysCAD.Editor
       // TBD
     }
 
-    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    private void fcFlowChart_LinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       Link link = state.Link(guid);
 
@@ -1391,6 +1393,9 @@ namespace SysCAD.Editor
         graphicLink.OriginPort = originPort;
         graphicLink.DestinationPort = destinationPort;
         graphicLink.ControlPoints = controlPoints;
+
+        graphicLink.TextArea = textArea;
+        graphicLink.TextAngle = textAngle;
 
         Arrow arrow = link.Arrow;
         Item originItem = null;
@@ -1736,7 +1741,9 @@ namespace SysCAD.Editor
             graphicLink.Destination,
             graphicLink.OriginPort,
             graphicLink.DestinationPort,
-            State.GetControlPoints(arrow.ControlPoints)))
+            State.GetControlPoints(arrow.ControlPoints),
+            graphicLink.TextArea,
+            graphicLink.TextAngle))
           {
             State.SetControlPoints(arrow, graphicLink.ControlPoints);
           }
@@ -1756,7 +1763,9 @@ namespace SysCAD.Editor
             graphicLink.Destination,
             graphicLink.OriginPort,
             graphicLink.DestinationPort,
-            State.GetControlPoints(arrow.ControlPoints)))
+            State.GetControlPoints(arrow.ControlPoints),
+            graphicLink.TextArea,
+            graphicLink.TextAngle))
           {
             State.SetControlPoints(arrow, graphicLink.ControlPoints);
           }
@@ -1909,7 +1918,9 @@ namespace SysCAD.Editor
           destinationItem.Guid,
           originPort,
           destinationPort,
-          controlPoints))
+          controlPoints,
+          graphicLink.TextArea,
+          graphicLink.TextAngle))
         { // failure, revert back to previous.
           // do something here...
         }

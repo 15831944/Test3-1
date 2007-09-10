@@ -43,13 +43,13 @@ class CSvcConnectCLR
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints);
+                      CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
     void DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid);
     void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, 
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints);
+                      CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
 
 
     //----------------------------------------------------------------------------------

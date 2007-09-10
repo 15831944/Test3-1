@@ -1888,7 +1888,7 @@ int CExecutive::SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                              LPCSTR OriginTag, LPCSTR DestinationTag, 
                              LPCSTR OriginPort, LPCSTR DestinationPort, 
-                             CPointFList & ControlPoints, const CRectangleF & textArea)
+                             CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   int Ret = EOSC_DONE;
 
@@ -1897,7 +1897,7 @@ int CExecutive::SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea);
+    int e=O[OInx]->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCLink insert failure in %s", O[OInx]->Name());
@@ -1935,7 +1935,7 @@ int CExecutive::SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                              LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                              LPCSTR OriginTag, LPCSTR DestinationTag, 
                              LPCSTR OriginPort, LPCSTR DestinationPort, 
-                             CPointFList & ControlPoints, const CRectangleF & textArea)
+                             CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   int Ret = EOSC_DONE;
 
@@ -1944,7 +1944,7 @@ int CExecutive::SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
   const int Size = O.GetSize();
   for (int OInx=0; OInx<Size; OInx++)
     {
-    int e=O[OInx]->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea);
+    int e=O[OInx]->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/ model, OriginGuid, DestinationGuid, OriginTag, DestinationTag, OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
     if ((e!=EOSC_DONE) && (e!=EOSC_NOTFOUND))
       {
       LogError(pTag, 0, "SCLink modify failure in %s", O[OInx]->Name());

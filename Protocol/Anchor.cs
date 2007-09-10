@@ -26,7 +26,7 @@ namespace SysCAD.Protocol
     {
     }
 
-    public Anchor(String tag, AnchorType type, float positionX, float positionY)//, uint min, uint max)
+    public Anchor(String tag, AnchorType type, Single positionX, Single positionY)//, uint min, uint max)
     {
       this.tag = tag;
       this.type = type;

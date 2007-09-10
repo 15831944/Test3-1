@@ -225,7 +225,7 @@ namespace Service
       }
     }
 
-    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool CreateLink(out Int64 requestId, out Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       GraphicItem originGraphicItem;
       GraphicItem destinationGraphicItem;
@@ -242,12 +242,12 @@ namespace Service
 
         guid = Guid.NewGuid();
 
-        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints);
+        GraphicLink graphicLink = new GraphicLink(guid, tag, classID, origin, originPort, destination, destinationPort, controlPoints, textArea, textAngle);
         graphicLinks.Add(guid, graphicLink);
 
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        clientClientServiceProtocol.DoLinkCreated(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
 
         return true;
       }
@@ -524,7 +524,7 @@ namespace Service
       }
     }
 
-    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    bool ModifyLink(out Int64 requestId, Guid guid, String tag, String classID, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       this.requestId++;
       requestId = this.requestId;
@@ -547,9 +547,12 @@ namespace Service
         foreach (PointF controlPoint in controlPoints)
           graphicLink.ControlPoints.Add(controlPoint);
 
+        graphicLink.TextArea = textArea;
+        graphicLink.TextAngle = textAngle;
+
         // Raise event(s).
         eventId++;
-        clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints);
+        clientClientServiceProtocol.DoLinkModified(eventId, requestId, guid, tag, classID, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
 
         return true;
       }

@@ -13431,7 +13431,7 @@ int CFlwSolver::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
   {
   if (Ctrl.m_bExportBusy)
     {
@@ -13494,7 +13494,7 @@ int CFlwSolver::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGui
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
   {
   return EOSC_NOTFOUND;
   };

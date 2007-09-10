@@ -652,7 +652,7 @@ int SFEFlwLib::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
   {
   SetLoadAllModelStatus();
   SetLoadAllModelAssocGrfs();
@@ -661,7 +661,7 @@ int SFEFlwLib::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                                    OriginGuid, DestinationGuid, 
                                    OriginTag, DestinationTag, 
                                    OriginPort, DestinationPort, 
-                                   ControlPoints, textArea) ;
+                                   ControlPoints, textArea, textAngle) ;
   CExploreScd::RefreshIt(false);
   ILEAVE
   };
@@ -680,7 +680,7 @@ int SFEFlwLib::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea) 
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
   {
   //SetLoadAllModelStatus();
   //SetLoadAllModelAssocGrfs();
@@ -689,7 +689,7 @@ int SFEFlwLib::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid
                                    OriginGuid, DestinationGuid, 
                                    OriginTag, DestinationTag, 
                                    OriginPort, DestinationPort, 
-                                   ControlPoints, textArea) ;
+                                   ControlPoints, textArea, textAngle) ;
   //CExploreScd::RefreshIt(false);
   ILEAVE
   };

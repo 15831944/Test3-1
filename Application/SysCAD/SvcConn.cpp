@@ -294,13 +294,13 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
 
       float boxW = int(GTI.m_HiBnd.m_X-GTI.m_LoBnd.m_X);
       float boxH = int(GTI.m_HiBnd.m_Y-GTI.m_LoBnd.m_Y);
-      float boxX = int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
-      float boxY = int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+      float boxX = int(GTI.m_LoBnd.m_X + Grp.m_XOff) + 0.5; // needs to be x.5mm to meet grid in 10.
+      float boxY = int(Grp.m_PageRct.Height() - GTI.m_HiBnd.m_Y + Grp.m_YOff) + 0.5; // needs to be x.5mm to meet grid in 10.
 
       float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
       float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
-      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to bew x.5mm to meed grid in 10.
-      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to bew x.5mm to meed grid in 10.
+      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
+      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
 
       m_pCLR->DoCreateItem(m_lRequestIdRet, ItemGuid, I.m_sTag,
         MakePath(projectPath, Grp.m_sTitle), Model, Shape,
@@ -341,15 +341,22 @@ void CSvcConnect::Export2Scd10(LPCSTR projectPath, LPCSTR configPath)
       CPointFList CtrlPts;
       for (int i=0; i<LPA.GetCount(); i++)
       {
-        float PtX = int(LPA[i].x+Grp.m_XOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
-        float PtY = int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5; // needs to bew x.5mm to meed grid in 10.
+        float PtX = int(LPA[i].x+Grp.m_XOff) + 0.5; // needs to be x.5mm to meet grid in 10.
+        float PtY = int(Grp.m_PageRct.Height()-LPA[i].y+Grp.m_YOff) + 0.5; // needs to be x.5mm to meet grid in 10.
         CtrlPts.AddTail(CPointF(PtX, PtY));
       }
 
+      float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
+      float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
+      float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
+      float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
+
       m_pCLR->DoCreateLink(m_lRequestIdRet, ItemGuid, I.m_sTag, 
-        MakePath(projectPath, Grp.m_sSymbol), 
-        Model, 
-        SrcGuid, DstGuid, SrcPort, DstPort, CtrlPts);
+      MakePath(projectPath, Grp.m_sSymbol), 
+      Model, 
+      SrcGuid, DstGuid, SrcPort, DstPort, CtrlPts,
+      CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
+		  -GTI.m_Tag.m_Rotation);
 
 
       DO_EXIT_G("DoCreateLinkE", ItemGuid);
@@ -708,8 +715,20 @@ void CSvcConnect::GCBCreateLink(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR T
     Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
     }
 
+  //float textBoxW = int(GTI.m_Tag.m_XScale * 3.0 * GTI.m_sTag.GetLength());
+  //float textBoxH = int(GTI.m_Tag.m_YScale * 5.0);
+  //float textBoxX = int(GTI.m_Tag.m_X + Grp.m_XOff - textBoxW / 2.0) + 0.5; // needs to be x.5mm to meet grid in 10.
+  //float textBoxY = int(Grp.m_PageRct.Height() - GTI.m_Tag.m_Y + Grp.m_YOff - textBoxH) + 0.5; // needs to be x.5mm to meet grid in 10.
+  float textBoxW = 0.0;
+  float textBoxH = 0.0;
+  float textBoxX = 0.0;
+  float textBoxY = 0.0;
+
+
   m_pCLR->DoCreateLink(m_lRequestIdRet, GuidRet, Tag, MakePath(Prj, Page), ClassId, 
-    pSrc?pSrc->Guid():"?", pDst?pDst->Guid():"?", SrcPort, DstPort, ControlPoints);
+    pSrc?pSrc->Guid():"?", pDst?pDst->Guid():"?", SrcPort, DstPort, ControlPoints,
+    CRectangleF(textBoxX, textBoxY, textBoxW, textBoxH),
+		0.0);
 
   DO_EXIT_G("GCBCreateLink", GuidRet);
   };
@@ -720,7 +739,8 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
                                 LPCSTR ClassId, 
                                 LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                 LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                CPointFList & ControlPoints, const CRectangleF & textArea)
+                                CPointFList & ControlPoints,
+                                const CRectangleF & textArea, float textAngle)
   {
 // !!! textArea not handled as yet.
 
@@ -754,7 +774,7 @@ void CSvcConnect::OnCreateLink(__int64 eventId, __int64 requestId, LPCSTR Guid, 
                     OriginGuid, DestinationGuid, 
                     pSrc?pSrc->Tag():"", pDst?pDst->Tag():"",
                     OriginPort, DestinationPort, 
-                    ControlPoints, textArea);
+                    ControlPoints, textArea, textAngle);
 
     if (RetCode!=EOSC_DONE)
       {
@@ -835,7 +855,7 @@ void CSvcConnect::OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR Guid)
 
 void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
                                 LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort,*/ 
-                                CPointFList & ControlPoints)//, const CRectangleF & textArea);
+                                CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
 
   Strng Guid;
@@ -859,7 +879,7 @@ void CSvcConnect::GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCST
       CPointF &Pt=ControlPoints.GetNext(Pos);
       Pt.Set(PageRct.Left()+Pt.X(),PageRct.Top()-Pt.Y());
       }
-    m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints);
+    m_pCLR->DoModifyLink(m_lRequestIdRet, Guid(), Tag, "?Path?", pClass, pSrcNd->Guid(), pDstNd->Guid(), pSrcIO, pDstIO, ControlPoints, textArea, textAngle);
 
     DO_EXIT("GCBModifyLinkPts");
     }
@@ -874,7 +894,7 @@ void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGu
                               LPCSTR ClassId, 
                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                               LPCSTR OriginPort, LPCSTR DestinationPort, 
-                              CPointFList & ControlPoints, const CRectangleF & textArea)
+                              CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   ON_ENTRY_GT("OnModifyLink", LinkGuid, Tag);
 
@@ -903,7 +923,7 @@ void CSvcConnect::OnModifyLink(__int64 eventId, __int64 requestId, LPCSTR LinkGu
   //CString PageName=CSvcConnect::ExtractPageName(path);
   //m_Ctrl.SetXObjArray(FindGrfWnd(PageName));
 
-  int RetCode = gs_Exec.SCModifyLink(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, textArea);
+  int RetCode = gs_Exec.SCModifyLink(m_Ctrl, Tag, LinkGuid, ClassId, OriginGuid, DestinationGuid, pSrc->Tag(), pDst->Tag(), OriginPort, DestinationPort, ControlPoints, textArea, textAngle);
   if (RetCode!=EOSC_DONE)
     {
     LogError(Tag, 0, "Link not modified");

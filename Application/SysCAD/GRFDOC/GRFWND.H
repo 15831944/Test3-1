@@ -149,14 +149,14 @@ class DllImportExport CGrfWnd : public CView, public CExecObj
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                  CPointFList & ControlPoints, const CRectangleF & textArea) ;
+                                  CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
     virtual int    EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/);
     virtual int    EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                   LPCSTR model, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                   LPCSTR OriginTag, LPCSTR DestinationTag, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                  CPointFList & ControlPoints, const CRectangleF & textArea) ;
+                                  CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) ;
 
     virtual flag   EO_QueryTime(CXM_TimeControl &CB, CTimeValue &TimeRqd, CTimeValue &dTimeRqd);
     virtual flag   EO_Start(CXM_TimeControl &CB);

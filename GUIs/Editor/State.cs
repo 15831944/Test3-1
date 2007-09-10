@@ -393,9 +393,9 @@ namespace SysCAD.Editor
       return clientProtocol.CreateItem(out requestId, out guid, tag, path, model, shape, boundingRect, angle, textArea, textAngle, fillColor, fillMode, mirrorX, mirrorY);
     }
 
-    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    internal bool CreateGraphicLink(out Int64 requestId, out Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
-      return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientProtocol.CreateLink(out requestId, out guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
     }
 
     internal bool CreateGraphicThing(out Int64 requestId, out Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)
@@ -1115,9 +1115,9 @@ namespace SysCAD.Editor
       return clientProtocol.ModifyItemPath(out requestId, guid, path);
     }
 
-    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    internal bool ModifyGraphicLink(out Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
-      return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);
+      return clientProtocol.ModifyLink(out requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);
     }
 
     internal bool ModifyGraphicThing(out Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect, String xaml, Single angle, bool mirrorX, bool mirrorY)

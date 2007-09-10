@@ -4119,8 +4119,8 @@ void GrfCmdBlk::DoConnect()
           CPointFList ControlPoints;
           for (int i=0; i<TheLDH.NVerts(); i++)
             {
-            float PtX = int(TheLDH.VertWorld(i).X) + 0.5; // needs to bew x.5mm to meed grid in 10.
-            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5; // needs to bew x.5mm to meed grid in 10.
+            float PtX = int(TheLDH.VertWorld(i).X) + 0.5; // needs to be x.5mm to meet grid in 10.
+            float PtY = int(TheLDH.VertWorld(i).Y) + 0.5; // needs to be x.5mm to meet grid in 10.
             ControlPoints.AddTail(CPointF(PtX, PtY));
             }
           gs_pPrj->Svc.GCBCreateLink((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), ATag(), AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(), ControlPoints);
@@ -4336,7 +4336,9 @@ void GrfCmdBlk::DoMoveLink()
             Pt_3f Pt = TheLDH.VertWorld(i);
             ControlPoints.AddTail(CPointF(Pt.X, Pt.Y));
             }
-          gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints);
+
+          CRectangleF TA(0.0, 0.0, 0.0, 0.0);
+          gs_pPrj->Svc.GCBModifyLinkPts((CGrfDoc*)pDoc, PrjFile(), pDoc->GetTitle(), LnkTag(), /*AClass(), SrcTag(), DstTag(), SrcIO(), DstIO(),*/ ControlPoints, TA, 0.0);
           SCD10LEAVE;
 #else
 

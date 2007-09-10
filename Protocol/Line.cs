@@ -13,16 +13,16 @@ namespace SysCAD.Protocol
   public class Line : Element
   {
 
-    public float x1;
-    public float x2;
-    public float y1;
-    public float y2;
+    public Single x1;
+    public Single x2;
+    public Single y1;
+    public Single y2;
 
     public Line()
     {
     }
 
-    public Line(float x1, float y1, float x2, float y2)
+    public Line(Single x1, Single y1, Single x2, Single y2)
     {
       this.x1 = x1;
       this.y1 = y1;

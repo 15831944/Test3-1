@@ -20,7 +20,6 @@ namespace SysCAD.Protocol
   [XmlInclude(typeof(Line)), XmlInclude(typeof(Arc)), XmlInclude(typeof(Bezier))]
   public class GraphicStencil
   {
-
     public SizeF defaultSize;
 
     public FillMode fillMode;

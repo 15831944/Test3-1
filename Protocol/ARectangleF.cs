@@ -45,7 +45,7 @@ namespace SysCAD.Protocol
   public struct ARectangleF
   {
 
-    private float x, y, width, height;
+    private Single x, y, width, height;
 
     /// <summary>
     ///	FromLTRB Shared Method
@@ -56,8 +56,8 @@ namespace SysCAD.Protocol
     ///	and bottom coordinates.
     /// </remarks>
 
-    private static ARectangleF FromLTRB(float left, float top,
-               float right, float bottom)
+    private static ARectangleF FromLTRB(Single left, Single top,
+               Single right, Single bottom)
     {
       return new ARectangleF(left, top, right - left, bottom - top);
     }
@@ -72,7 +72,7 @@ namespace SysCAD.Protocol
     /// </remarks>
 
     internal static ARectangleF Inflate(ARectangleF rect,
-              float x, float y)
+              Single x, Single y)
     {
       ARectangleF ir = new ARectangleF(rect.X, rect.Y, rect.Width, rect.Height);
       ir.Inflate(x, y);
@@ -87,7 +87,7 @@ namespace SysCAD.Protocol
     ///	Inflates the RectangleF by a specified width and height.
     /// </remarks>
 
-    internal void Inflate(float width, float height)
+    internal void Inflate(Single width, Single height)
     {
       x -= width;
       y -= height;
@@ -259,7 +259,7 @@ namespace SysCAD.Protocol
     ///	width and height values.
     /// </remarks>
 
-    public ARectangleF(float x, float y, float width, float height)
+    public ARectangleF(Single x, Single y, Single width, Single height)
     {
       this.x = x;
       this.y = y;
@@ -277,7 +277,7 @@ namespace SysCAD.Protocol
     /// </remarks>
 
     [Browsable(false)]
-    public float Bottom
+    public Single Bottom
     {
       get
       {
@@ -293,7 +293,7 @@ namespace SysCAD.Protocol
     ///	The Height of the RectangleF.
     /// </remarks>
 
-    public float Height
+    public Single Height
     {
       get
       {
@@ -337,7 +337,7 @@ namespace SysCAD.Protocol
     /// </remarks>
 
     [Browsable(false)]
-    public float Left
+    public Single Left
     {
       get
       {
@@ -377,7 +377,7 @@ namespace SysCAD.Protocol
     /// </remarks>
 
     [Browsable(false)]
-    public float Right
+    public Single Right
     {
       get
       {
@@ -417,7 +417,7 @@ namespace SysCAD.Protocol
     /// </remarks>
 
     [Browsable(false)]
-    public float Top
+    public Single Top
     {
       get
       {
@@ -433,7 +433,7 @@ namespace SysCAD.Protocol
     ///	The Width of the RectangleF.
     /// </remarks>
 
-    public float Width
+    public Single Width
     {
       get
       {
@@ -453,7 +453,7 @@ namespace SysCAD.Protocol
     ///	The X coordinate of the RectangleF.
     /// </remarks>
 
-    public float X
+    public Single X
     {
       get
       {
@@ -473,7 +473,7 @@ namespace SysCAD.Protocol
     ///	The Y coordinate of the RectangleF.
     /// </remarks>
 
-    public float Y
+    public Single Y
     {
       get
       {
@@ -493,7 +493,7 @@ namespace SysCAD.Protocol
     ///	Checks if an x,y coordinate lies within this RectangleF.
     /// </remarks>
 
-    public bool Contains(float positionX, float positionY)
+    public bool Contains(Single positionX, Single positionY)
     {
       return ((positionX >= Left) && (positionX <= Right) &&
         (positionY >= Top) && (positionY <= Bottom));
@@ -578,7 +578,7 @@ namespace SysCAD.Protocol
     ///	Moves the RectangleF a specified distance.
     /// </remarks>
 
-    public void Offset(float dx, float dy)
+    public void Offset(Single dx, Single dy)
     {
       X += dx;
       Y += dy;

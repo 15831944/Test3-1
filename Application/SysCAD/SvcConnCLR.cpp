@@ -403,7 +403,7 @@ ref class CSvcConnectCLRThread
     //
     // ====================================================================
 
-    void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints)
+    void DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
       {
       List<PointF> ^ Pts = gcnew List<PointF>;
       POSITION Pos=ControlPoints.GetHeadPosition();
@@ -413,12 +413,14 @@ ref class CSvcConnectCLRThread
         Pts->Add(PointF(Pt.X(), Pt.Y()));
         }
 
+      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+
       Guid guid;
-      clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts);
+      clientProtocol->CreateLink(requestId, guid, gcnew String(Tag), /*gcnew String(Path), */ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts, TA, textAngle);
       LinkGuid = guid.ToString();
       };
 
-    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String ^ tag, String ^ classId, Guid origin, Guid destination, String ^ originPort, String ^destinationPort, List<PointF> ^ controlPoints)
+    void LinkCreated(Int64 eventId, Int64 requestId, Guid guid, String ^ tag, String ^ classId, Guid origin, Guid destination, String ^ originPort, String ^destinationPort, List<PointF> ^ controlPoints, RectangleF textArea, Single textAngle)
       {
       CPointFList Pts;
 
@@ -427,8 +429,7 @@ ref class CSvcConnectCLRThread
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
 
-      CRectangleF textRect;  // TO GET FROM SOMEWHERE
-      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, textRect);
+      m_pConn->OnCreateLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), textAngle);
       }
 
     // ====================================================================
@@ -450,7 +451,7 @@ ref class CSvcConnectCLRThread
     // ====================================================================
 
 
-    void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints)
+    void DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR Tag, LPCSTR Path, LPCSTR ClassId, LPCSTR OriginGuid, LPCSTR DestinationGuid, LPCSTR OriginPort, LPCSTR DestinationPort, CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
       {
       List<PointF> ^ Pts = gcnew List<PointF>;
       POSITION Pos=ControlPoints.GetHeadPosition();
@@ -459,24 +460,26 @@ ref class CSvcConnectCLRThread
         CPointF & Pt=ControlPoints.GetNext(Pos);
         Pts->Add(PointF(Pt.X(), Pt.Y()));
         }
-      clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts);
+      RectangleF TA(textArea.Left(), textArea.Bottom(), textArea.Width(), textArea.Height());
+
+      clientProtocol->ModifyLink(requestId, Guid(gcnew String(LinkGuid)), gcnew String(Tag), /*LPCSTR Path,*/ gcnew String(ClassId), Guid(gcnew String(OriginGuid)), Guid(gcnew String(DestinationGuid)), gcnew String(OriginPort), gcnew String(DestinationPort), Pts, TA, textAngle);
       };
 
-    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> ^ controlPoints)
+    void LinkModified(Int64 eventId, Int64 requestId, Guid guid, String^ tag, String^ classId, Guid origin, Guid destination, String^ originPort, String^ destinationPort, List<PointF> ^ controlPoints, RectangleF textArea, Single textAngle)
       {
       CPointFList Pts;
       for each (PointF ^ Pt in controlPoints)
         {
         Pts.AddTail(CPointF(Pt->X, Pt->Y));
         }
-      CRectangleF textRect;  // TO GET FROM SOMEWHERE
 
       // Ensure we don't have nulls so the ToString() call succeeds and passes on an empty string in the 
       // case where there is no destination or origin port.
       if (String::IsNullOrEmpty(originPort))      originPort = String::Empty;
       if (String::IsNullOrEmpty(destinationPort)) destinationPort = String::Empty;
 
-      m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, textRect);
+      m_pConn->OnModifyLink(eventId, requestId, ToCString(guid.ToString()), ToCString(tag), ToCString(classId), ToCString(origin.ToString()), ToCString(destination.ToString()), ToCString(originPort), ToCString(destinationPort), Pts, CRectangleF(textArea.Left, textArea.Top, textArea.Width, textArea.Height), 
+				textAngle);
       }
 
 
@@ -639,13 +642,13 @@ void CSvcConnectCLR::DoCreateLink(__int64 & requestId, CString & LinkGuid, LPCST
                                   LPCSTR ClassId, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                  CPointFList & ControlPoints)
+                                  CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoCreateLink(requestId, LinkGuid, Tag, Path, 
     ClassId, 
     OriginGuid, DestinationGuid, 
     OriginPort, DestinationPort, 
-    ControlPoints);
+    ControlPoints, textArea, textAngle);
   };
 
 void CSvcConnectCLR::DoDeleteLink(__int64 & requestId, LPCSTR ItemGuid)
@@ -658,12 +661,12 @@ void CSvcConnectCLR::DoModifyLink(__int64 & requestId, LPCSTR LinkGuid, LPCSTR T
                                   LPCSTR ClassId, 
                                   LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                   LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                  CPointFList & ControlPoints)
+                                  CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   CSvcConnectCLRThreadGlbl::gs_SrvrThread->DoModifyLink(requestId, LinkGuid, Tag, Path, 
     ClassId, 
     OriginGuid, DestinationGuid, OriginPort, DestinationPort, 
-    ControlPoints);
+    ControlPoints, textArea, textAngle);
   };
 
 //========================================================================

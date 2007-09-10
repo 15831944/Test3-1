@@ -65,7 +65,7 @@ namespace SysCAD.Protocol
 
       while (linklineReader.Read())
       {
-        controlPoints.Add(new PointF((float)linklineReader.GetDouble(0), -(float)linklineReader.GetDouble(1)));
+        controlPoints.Add(new PointF((Single)linklineReader.GetDouble(0), -(Single)linklineReader.GetDouble(1)));
       }
 
       // Reverse the list if the first is closer to the destination and vice versa...
@@ -74,7 +74,7 @@ namespace SysCAD.Protocol
       graphicItems.TryGetValue(origin, out sourceItem);
       graphicItems.TryGetValue(destination, out destinationItem);
 
-      float distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
+      Single distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
 
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
@@ -129,7 +129,7 @@ namespace SysCAD.Protocol
       graphicItems.TryGetValue(origin, out sourceItem);
       graphicItems.TryGetValue(this.destination, out destinationItem);
 
-      float distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
+      Single distanceSource0, distanceSourceN, distanceDestination0, distanceDestinationN;
 
       if ((sourceItem != null) && (controlPoints.Count > 0))
       {
@@ -164,11 +164,11 @@ namespace SysCAD.Protocol
     }
 
     // Norm-1 distance between the closest side of the rectangle to the point.
-    static private float distance(PointF pointF, RectangleF rectangleF)
+    static private Single distance(PointF pointF, RectangleF rectangleF)
     {
-      float dXL = System.Math.Abs(pointF.X - rectangleF.Left);
-      float dXR = System.Math.Abs(pointF.X - rectangleF.Right);
-      float dX;
+      Single dXL = System.Math.Abs(pointF.X - rectangleF.Left);
+      Single dXR = System.Math.Abs(pointF.X - rectangleF.Right);
+      Single dX;
 
       if (dXL < dXR)
         dX = dXL;
@@ -176,9 +176,9 @@ namespace SysCAD.Protocol
       else
         dX = dXR;
 
-      float dYT = System.Math.Abs(pointF.Y - rectangleF.Top);
-      float dYB = System.Math.Abs(pointF.Y - rectangleF.Bottom);
-      float dY;
+      Single dYT = System.Math.Abs(pointF.Y - rectangleF.Top);
+      Single dYB = System.Math.Abs(pointF.Y - rectangleF.Bottom);
+      Single dY;
 
       if (dYT < dYB)
         dY = dYT;

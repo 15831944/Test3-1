@@ -1386,14 +1386,14 @@ class DllImportExport CSfeSrvrBase
                                          LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                          LPCSTR OriginTag, LPCSTR DestinationTag, 
                                          LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                         CPointFList & ControlPoints, const CRectangleF & textArea) { return EOSC_DONE; };
+                                         CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) { return EOSC_DONE; };
     virtual int          EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/){ return EOSC_DONE; };
     virtual int          EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/,
                                          LPCSTR model, 
                                          LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                          LPCSTR OriginTag, LPCSTR DestinationTag, 
                                          LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                         CPointFList & ControlPoints, const CRectangleF & textArea) { return EOSC_DONE; };
+                                         CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) { return EOSC_DONE; };
 
     virtual void         EO_SetSolveMode()                                                     { };
     virtual flag         EO_Starting(flag fBeginStarting)                                      { return 0; };

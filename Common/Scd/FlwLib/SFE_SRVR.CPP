@@ -555,14 +555,14 @@ int CSfeSrvr::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
                                  LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                  LPCSTR OriginTag, LPCSTR DestinationTag, 
                                  LPCSTR OriginPort, LPCSTR DestinationPort, 
-                                 CPointFList & ControlPoints, const CRectangleF & textArea)
+                                 CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
   return SfeFS->EO_SCInsertLink(Ctrl, pTag, ItemGuid, /*path,*/ 
                                 model, 
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
                                 OriginPort, DestinationPort, 
-                                ControlPoints, textArea) ;
+                                ControlPoints, textArea, textAngle) ;
   };
 int CSfeSrvr::EO_SCDeleteLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*, LPCSTR path*/)
   {
@@ -573,7 +573,7 @@ int CSfeSrvr::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
                               LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                               LPCSTR OriginTag, LPCSTR DestinationTag, 
                               LPCSTR OriginPort, LPCSTR DestinationPort, 
-                              CPointFList & ControlPoints, const CRectangleF & textArea) 
+                              CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle) 
 
   {
   return SfeFS->EO_SCModifyLink(Ctrl, pTag, ItemGuid, /*path,*/
@@ -581,7 +581,7 @@ int CSfeSrvr::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/
                                 OriginGuid, DestinationGuid, 
                                 OriginTag, DestinationTag, 
                                 OriginPort, DestinationPort, 
-                                ControlPoints, textArea) ;
+                                ControlPoints, textArea, textAngle) ;
   };
 
 int CSfeSrvr::EO_GetSolutionError(EqnSlvCtrlBlk & EQCtrl, Strng & RptLine)

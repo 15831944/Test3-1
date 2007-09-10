@@ -18,7 +18,7 @@ namespace SysCAD.Protocol
   public class GraphicThing
   {
 
-    private float angle;
+    private Single angle;
 
     private System.Drawing.RectangleF boundingRect;
     private Guid guid;
@@ -46,7 +46,7 @@ namespace SysCAD.Protocol
       xaml = String.Empty;
     }
 
-    public void Populate(String filename, String page, String guid, System.Drawing.RectangleF rectangle, String xaml, float angle, bool mirrorX, bool mirrorY)
+    public void Populate(String filename, String page, String guid, System.Drawing.RectangleF rectangle, String xaml, Single angle, bool mirrorX, bool mirrorY)
     {
       path = "/" + filename + "/" + page + "/";
       this.guid = new Guid(guid);
@@ -73,7 +73,7 @@ namespace SysCAD.Protocol
       this.angle = angle;
     }
 
-    public float Angle
+    public Single Angle
     {
       get { return angle; }
       set { angle = value; }
@@ -91,7 +91,7 @@ namespace SysCAD.Protocol
       set { guid = value; }
     }
 
-    public float Height
+    public Single Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
@@ -121,13 +121,13 @@ namespace SysCAD.Protocol
       set { tag = value; }
     }
 
-    public float Width
+    public Single Width
     {
       get { return boundingRect.Width; }
       set { boundingRect.Width = value; }
     }
 
-    public float X
+    public Single X
     {
       get { return boundingRect.X; }
       set { boundingRect.X = value; }
@@ -139,7 +139,7 @@ namespace SysCAD.Protocol
       set { xaml = value; }
     }
 
-    public float Y
+    public Single Y
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }

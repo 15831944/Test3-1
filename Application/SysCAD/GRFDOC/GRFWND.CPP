@@ -566,7 +566,7 @@ int CGrfWnd::EO_SCInsertLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea)
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
 #if SYSCAD10
   CRectangleF PageRct(0.0, 420, 0, 297);
@@ -638,7 +638,7 @@ int CGrfWnd::EO_SCModifyLink(CSvcExecCtrl & Ctrl, LPCSTR pTag, LPCSTR ItemGuid/*
                                LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                                LPCSTR OriginTag, LPCSTR DestinationTag, 
                                LPCSTR OriginPort, LPCSTR DestinationPort, 
-                               CPointFList & ControlPoints, const CRectangleF & textArea)
+                               CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle)
   {
 #if SYSCAD10
   CRectangleF PageRct(0.0, 420, 0, 297);

@@ -47,13 +47,13 @@ namespace SysCAD.Protocol
     public delegate void GroupDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
     public delegate void GroupModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, RectangleF boundingRect);
 
-    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
     public delegate void ItemDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
-    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
+    public delegate void ItemModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY);
 
-    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate void LinkCreatedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle);
     public delegate void LinkDeletedHandler(Int64 eventId, Int64 requestId, Guid guid);
-    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints);
+    public delegate void LinkModifiedHandler(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle);
 
     public delegate void PermissionsChangedHandler(Int64 eventId, Int64 requestId, Permissions permissions);
 
@@ -139,7 +139,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemCreated != null)
       {
@@ -157,7 +157,7 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, float textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
+    public void OnItemModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String path, Model model, Shape stencil, RectangleF boundingRect, Single angle, RectangleF textArea, Single textAngle, System.Drawing.Color fillColor, bool mirrorX, bool mirrorY)
     {
       if (ItemModified != null)
       {
@@ -166,11 +166,11 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void OnLinkCreated(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       if (LinkCreated != null)
       {
-        try {LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);}
+        try {LinkCreated(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);}
         catch (SocketException) { }
       }
     }
@@ -184,11 +184,11 @@ namespace SysCAD.Protocol
       }
     }
 
-    public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints)
+    public void OnLinkModified(Int64 eventId, Int64 requestId, Guid guid, String tag, String classId, Guid origin, Guid destination, String originPort, String destinationPort, List<PointF> controlPoints, RectangleF textArea, Single textAngle)
     {
       if (LinkModified != null)
       {
-        try {LinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints);}
+        try {LinkModified(eventId, requestId, guid, tag, classId, origin, destination, originPort, destinationPort, controlPoints, textArea, textAngle);}
         catch (SocketException) { }
       }
     }

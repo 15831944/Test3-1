@@ -84,7 +84,7 @@ namespace SysCAD.Editor
       {
         state.ModifyGraphicLink(out requestId, graphicLink.Guid, graphicLink.Tag, graphicLink.ClassID,
           graphicLink.Origin, graphicLink.Destination, graphicLink.OriginPort, graphicLink.DestinationPort,
-          graphicLink.ControlPoints);
+          graphicLink.ControlPoints, graphicLink.TextArea, graphicLink.TextAngle);
       }
     }
 

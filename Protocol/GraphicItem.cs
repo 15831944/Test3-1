@@ -20,10 +20,10 @@ namespace SysCAD.Protocol
     public Dictionary<String, int> anchorTagToInt = new Dictionary<String, int>();
 
     private RectangleF boundingRect;
-    private float angle;
+    private Single angle;
 
     private RectangleF textArea;
-    private float textAngle;
+    private Single textAngle;
 
     private System.Drawing.Color fillColor;
     private FillMode fillMode;
@@ -70,7 +70,7 @@ namespace SysCAD.Protocol
 
         fillColor = Color.FromArgb(255, 220, 220, 255);
 
-        float sx = 1.0F; float sy = 1.0F; float dx = 0.0F; float dy = 0.0F;
+        Single sx = 1.0F; Single sy = 1.0F; Single dx = 0.0F; Single dy = 0.0F;
 
         if (shape.Contains("Feed")) { sx = 0.666666667F; sy = 0.201060241F; }
 
@@ -96,8 +96,8 @@ namespace SysCAD.Protocol
 
         if (shape.Contains("FiltPrss")) { sx = 1.2F; sy = 0.4F; }
 
-        boundingRect.Width = (float)itemReader.GetDouble(3) * 30.0F * sx;
-        boundingRect.Height = (float)itemReader.GetDouble(4) * 30.0F * sy;
+        boundingRect.Width = (Single)itemReader.GetDouble(3) * 30.0F * sx;
+        boundingRect.Height = (Single)itemReader.GetDouble(4) * 30.0F * sy;
 
         if (boundingRect.Width < 0.0F)
         {
@@ -111,14 +111,14 @@ namespace SysCAD.Protocol
           boundingRect.Height = -boundingRect.Height;
         }
 
-        boundingRect.X = (float)itemReader.GetDouble(1) - boundingRect.Width / 2.0F + dx;
-        boundingRect.Y = -(float)itemReader.GetDouble(2) - boundingRect.Height / 2.0F + dy;
-        angle = (float)itemReader.GetDouble(5);
+        boundingRect.X = (Single)itemReader.GetDouble(1) - boundingRect.Width / 2.0F + dx;
+        boundingRect.Y = -(Single)itemReader.GetDouble(2) - boundingRect.Height / 2.0F + dy;
+        angle = (Single)itemReader.GetDouble(5);
       }
       itemReader.Close();
     }
 
-    public float Angle
+    public Single Angle
     {
       get { return angle; }
       set { angle = value; }
@@ -130,7 +130,7 @@ namespace SysCAD.Protocol
       set { boundingRect = value; }
     }
 
-    public float TextAngle
+    public Single TextAngle
     {
       get { return textAngle; }
       set { textAngle = value; }
@@ -160,7 +160,7 @@ namespace SysCAD.Protocol
       set { guid = value; }
     }
 
-    public float Height
+    public Single Height
     {
       get { return boundingRect.Height; }
       set { boundingRect.Height = value; }
@@ -202,19 +202,19 @@ namespace SysCAD.Protocol
       set { tag = value; }
     }
 
-    public float Width
+    public Single Width
     {
       get { return boundingRect.Width; }
       set { boundingRect.Width = value; }
     }
 
-    public float X
+    public Single X
     {
       get { return boundingRect.X; }
       set { boundingRect.X = value; }
     }
 
-    public float Y
+    public Single Y
     {
       get { return boundingRect.Y; }
       set { boundingRect.Y = value; }

@@ -12,18 +12,18 @@ namespace SysCAD.Protocol
   public class Arc : Element
   {
 
-    public float a;
-    public float h;
-    public float s;
-    public float w;
-    public float x;
-    public float y;
+    public Single a;
+    public Single h;
+    public Single s;
+    public Single w;
+    public Single x;
+    public Single y;
 
     public Arc()
     {
     }
 
-    public Arc(float x, float y, float w, float h, float a, float s)
+    public Arc(Single x, Single y, Single w, Single h, Single a, Single s)
     {
       this.x = x;
       this.y = y;

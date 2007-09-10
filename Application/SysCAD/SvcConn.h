@@ -120,7 +120,7 @@ class CSvcConnect
     //void GCBDoModifyLinkPosition(CGrfDoc *pDoc, DXF_ENTITY eEntity, LPCSTR Tag, Pt_3f Delta);
     void GCBModifyLinkPts(CGrfDoc *pDoc, LPCSTR Prj, LPCSTR Page, LPCSTR Tag, /*LPCSTR ClassId, 
                       LPCSTR SrcTag, LPCSTR DstTag, LPCSTR SrcPort, LPCSTR DstPort, */
-                      CPointFList & ControlPoints);//, const CRectangleF & textArea);
+                      CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
 
 
     // CallBack's
@@ -128,7 +128,7 @@ class CSvcConnect
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints, const CRectangleF & textArea);
+                      CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
 
     void OnDeleteLink(__int64 eventId, __int64 requestId, LPCSTR guid);
 
@@ -136,7 +136,7 @@ class CSvcConnect
                       LPCSTR ClassId, 
                       LPCSTR OriginGuid, LPCSTR DestinationGuid, 
                       LPCSTR OriginPort, LPCSTR DestinationPort, 
-                      CPointFList & ControlPoints, const CRectangleF & textArea);
+                      CPointFList & ControlPoints, const CRectangleF & textArea, float textAngle);
 
     //------------------------------------------------------------------------
 
