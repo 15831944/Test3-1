@@ -162,7 +162,7 @@ CIORec::CIORec()
   m_dEstL2VOnEntry=0;
 
   iExitRule=0;
-  m_pImg=NULL;
+  m_pFilter=NULL;
 
   dV2LQmVFact=0;
   dV2LQmLFact=0;
@@ -181,8 +181,8 @@ CIORec::CIORec()
 CIORec::~CIORec()
   {
   delete m_pMFlwDmd;
-  delete m_pImg;
-  m_pImg=NULL;
+  delete m_pFilter;
+  m_pFilter=NULL;
   }
 
 //--------------------------------------------------------------------------
@@ -240,8 +240,8 @@ CIORec & CIORec::operator=(CIORec &A)
 
   // Transfer the Image if it exists
   iExitRule        = A.iExitRule;
-  m_pImg           = A.m_pImg;
-  A.m_pImg         = NULL;
+  m_pFilter        = A.m_pFilter;
+  A.m_pFilter      = NULL;
 
   m_pMFlwDmd       = A.m_pMFlwDmd;
   A.m_pMFlwDmd     = NULL;
@@ -6484,7 +6484,7 @@ int FlwNode::Attach(int LIONo, FlwNode * R, int RIONo,
       io.iExitRule |= IOER_NoLiq;
     if (flags & IOBlockVapours)
       io.iExitRule |= IOER_NoVap;
-    io.m_pImg      = NULL;
+    io.m_pFilter    = NULL;
 
     io.dV2LQmVFact  = 0.0;
     io.dV2LQmLFact  = 0.0;
@@ -8424,6 +8424,39 @@ void FlwNode::SetEquilibratingV2L(int JoinId, SpContainer & C, ContStartInfo & S
   if (dbgSensitivity())
     dbgpln("     V2L    %14.6g ", V2LQ);
   #endif
+  }
+
+//--------------------------------------------------------------------------
+
+void FlwNode::SetIOExitRule(int i, byte Rule)
+  {
+  CIORec &io=m_IOs[i];
+  bool FixIt = (io.iExitRule!=Rule);
+  io.iExitRule=Rule;
+
+  if (FixIt)
+    {
+    if ((Rule&IOER_Filter) && !io.m_pFilter)
+      {
+      io.m_pFilter=new SpVectorObj("Filter", this, TOA_Embedded);
+
+      for (int s=0; s<SVSpcCount(); s++)
+        io.m_pFilter->M.SetVValue(s, 0.0);//SetNANFlag(NF_Ignore));
+
+      if (Rule&(IOER_Vap|IOER_Liq|IOER_Sol))
+        {
+        SpecieIter I((Rule&IOER_Vap?som_Gas:0)|(Rule&IOER_Liq?som_Liq:0)|(Rule&IOER_Sol?som_Sol:0));
+        for (int s=-1; I.Loop(s); )
+          io.m_pFilter->M.SetVValue(s, 1.0);
+        }
+      io.m_pFilter->SetView(SVV_AsRawFrac);
+      }
+    else if ((Rule&IOER_Filter)==0 && io.m_pFilter)
+      {
+      delete io.m_pFilter;
+      io.m_pFilter=NULL;
+      }
+    }
   }
 
 //--------------------------------------------------------------------------

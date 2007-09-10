@@ -1429,34 +1429,14 @@ void MdlNode::TranslateFilters(flag InLine, flag InEvalProdSurge, CHgtOrdInfo & 
         if (IOFlags&IOBlockVapours)
           Filter.SetToValue(som_Gas, 0.0);
 
-        if (ER&IOER_Img)
+        if (ER&IOER_Filter)
           {
-          _asm int 3; // may need to go backl
-          //SpVectorObj *IOImg = IOExitImage(i);
-          //double ImgTotal=0, IOImgTotal=0; 
-          //for (int s=0; s<SDB.Count(); s++)
-          //  {
-          //  if (Valid(IOImg->M[s]))
-          //    {
-          //    ImgTotal+=Img[s]; 
-          //    IOImgTotal+=IOImg->M[s]; 
-          //    Img.SetVMass(s, IOImg->M, IOImg->M[s]);
-          //    }
-          //  else if (HasNANFlag(IOImg->M[s], NF_Block))
-          //    {
-          //    ImgTotal+=Img[s]; 
-          //    IOImgTotal+=0; 
-          //    Img.ClrVMass(s);
-          //    }
-          //  }
-          //double Scl=ImgTotal/GTZ(IOImgTotal);
-          //for (int s=0; s<SDB.Count(); s++)
-          //  {
-          //  if (Valid(IOImg->M[s]))
-          //    Img.SclVMass(s, Scl);
-          //  else if (HasNANFlag(IOImg->M[s], NF_Block))
-          //    Img.ClrVMass(s);
-          //  }
+          SpVectorObj *IOFilter= IOExitFilter(iIONo);
+          for (int s=0; s<SDB.Count(); s++)
+            {
+            IOFilter->M.SetVValue(s, Range(0.0, IOFilter->M[s], 1.0));
+            Filter.SetVValue(s, IOFilter->M[s]);
+            }
           }
 
 #if dbgDerivs
@@ -3949,14 +3929,15 @@ DDBValueLst DDBExitRules[]={
   {IOER_NoVap,    "Block-Vapours"   },
   {IOER_NoLiq,    "Block-Liquids"   },
   {IOER_NoSol,    "Block-Solids"    },
-  // RESTORE CNM
-  //{IOER_ImgVap,   "Image-Vapours"   },
-  //{IOER_ImgLiq,   "Image-Liquids"   },
-  //{IOER_ImgSol,   "Image-Solids"    },
-  //{IOER_ImgNoVap, "Image-NoVapours" },
-  //{IOER_ImgNoLiq, "Image-NoLiquids" },
-  //{IOER_ImgNoSol, "Image-NoSolids"  },
-  //{IOER_ImgAll,   "Image-All"       },
+
+  {IOER_Filter,      "Filter"   },
+  {IOER_FilterVap,   "Filter-Vapours"   },
+  {IOER_FilterLiq,   "Filter-Liquids"   },
+  {IOER_FilterSol,   "Filter-Solids"    },
+  {IOER_FilterNoVap, "Filter-NoVapours" },
+  {IOER_FilterNoLiq, "Filter-NoLiquids" },
+  {IOER_FilterNoSol, "Filter-NoSolids"  },
+  {IOER_FilterAll,   "Filter-All"       },
   {0}};
 
 void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
@@ -3975,14 +3956,18 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
         {
         //char*pERTg=PrjFileVerNo()<42?"EntryRule":"ExitRule";
         Strng Tg;
+        //bool ForcePage=false;
         for (int i=0; i<NoFlwIOs(); i++)
           {
           IOAreaRec & D=*IODesc_Self(i);
           if (Nd_Rmt(i) && (D.m_dwFlags&IOOptsHide)!=IOOptsHide)
             {
+            bool ForcePage = (Nd_Rmt(i) && ((D.m_dwFlags&IOOptsHideO)==0) && IOExitRule(i)&IOER_Filter);
+
             MAKEIOTG4DDB(Tg, i, 0);
-            if (DDB.BeginElement(this, Tg(), D.IOName(), 0, DDB_OptPage, 0))
+            if (DDB.BeginElement(this, Tg(), D.IOName(), 0, ForcePage ? DDB_RqdPage:DDB_OptPage, 0))
               {
+              //ForcePage=false;
               DDB.Double ("HeightFrac",    "HFrc", DC_Frac,     "%",      xidIO_HFrc0+i,        this, (D.m_dwFlags&IOChgFracHgt)?isParmStopped:0);
               DDB.Double ("ApertureAngle", "",     DC_Ang,      "deg",    xidIO_ApertureAng0+i, this, (D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0);
               DDB.Double ("Aperture",      "",     DC_Frac,     "%",      xidIO_Aperture0+i,    this, ((D.m_dwFlags&IOChgAperture /*|| SolveInlineMethod()*/)?isParmStopped:0)|isResult|noFile|noSnap);
@@ -4000,8 +3985,11 @@ void MdlNode::BuildDataDefnIOOpts(DataDefnBlk & DDB, CBlockEvaluator * pBlkEval)
                 {
                 DDB.Byte   ("Exit.Rule",           "",     DC_,         "",       xidIO_ExitRule0+i,    this, isParm|SetOnChange, DDBExitRules);
 
-                if (IOExitRule(i)&IOER_Img)
-                  DDB.Object(IOExitImage(i), this, "Exit.Image", NULL, DDB_RqdPage, -1, isParm);
+                if (IOExitRule(i)&IOER_Filter && IOExitFilter(i))
+                  {
+                  DDB.Object(IOExitFilter(i), this, "Exit.Filter", NULL, DDB_NoPage, -1, isParm);
+                  //ForcePage=true;
+                  }
                 }
               }
             }

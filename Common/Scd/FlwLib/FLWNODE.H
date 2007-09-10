@@ -1962,24 +1962,24 @@ const byte LIO_In2      = eScdDirection_In2;
 const byte LIO_In0Out   = eScdDirection_In0Out;
 const byte LIO_InOut0   = eScdDirection_InOut0;
 
-const byte IOER_Lvl   = 0x00;
-const byte IOER_Vap   = 0x01;
-const byte IOER_Liq   = 0x02;
-const byte IOER_Sol   = 0x04;
-const byte IOER_Img   = 0x08;
+const byte IOER_Lvl         = 0x00;
+const byte IOER_Vap         = 0x01;
+const byte IOER_Liq         = 0x02;
+const byte IOER_Sol         = 0x04;
+const byte IOER_Filter      = 0x08;
 
-const byte IOER_All   = IOER_Vap|IOER_Liq|IOER_Sol;
-const byte IOER_NoVap = IOER_Liq|IOER_Sol;
-const byte IOER_NoLiq = IOER_Vap|IOER_Sol;
-const byte IOER_NoSol = IOER_Vap|IOER_Liq;
+const byte IOER_All         = IOER_Vap|IOER_Liq|IOER_Sol;
+const byte IOER_NoVap       = IOER_Liq|IOER_Sol;
+const byte IOER_NoLiq       = IOER_Vap|IOER_Sol;
+const byte IOER_NoSol       = IOER_Vap|IOER_Liq;
 
-const byte IOER_ImgVap   = IOER_Img|IOER_Vap;
-const byte IOER_ImgLiq   = IOER_Img|IOER_Liq;
-const byte IOER_ImgSol   = IOER_Img|IOER_Sol;
-const byte IOER_ImgNoVap = IOER_Img|IOER_Liq|IOER_Sol;
-const byte IOER_ImgNoLiq = IOER_Img|IOER_Vap|IOER_Sol;
-const byte IOER_ImgNoSol = IOER_Img|IOER_Vap|IOER_Liq;
-const byte IOER_ImgAll   = IOER_Img|IOER_All;
+const byte IOER_FilterVap   = IOER_Filter|IOER_Vap;
+const byte IOER_FilterLiq   = IOER_Filter|IOER_Liq;
+const byte IOER_FilterSol   = IOER_Filter|IOER_Sol;
+const byte IOER_FilterNoVap = IOER_Filter|IOER_NoVap;
+const byte IOER_FilterNoLiq = IOER_Filter|IOER_NoLiq;
+const byte IOER_FilterNoSol = IOER_Filter|IOER_NoSol;
+const byte IOER_FilterAll   = IOER_Filter|IOER_All;
 
 const sint FD_Out     = -1;
 const sint FD_Zero    = 0;
@@ -2235,7 +2235,7 @@ class DllImportExport CIORec
                    m_dEstL2VOnEntry;
 
     byte           iExitRule;
-    SpVectorObj  * m_pImg;
+    SpVectorObj  * m_pFilter;
 
     double         dV2LQmVFact;
     double         dV2LQmLFact;
@@ -4039,27 +4039,8 @@ class DllImportExport FlwNode : public CTNode
     void           SetIOEstL2VOnEntry(int i, double d) { m_IOs[i].m_dEstL2VOnEntry=d; };
 
     byte           IOExitRule(int i)                   { return m_IOs[i].iExitRule; };
-    SpVectorObj  * IOExitImage(int i)                  { return m_IOs[i].m_pImg; };
-    void           SetIOExitRule(int i, byte Rule)
-      {
-      CIORec &io=m_IOs[i];
-      io.iExitRule=Rule;
-      if (Rule&IOER_Img)
-        {
-        if (!io.m_pImg)
-          {
-          io.m_pImg=new SpVectorObj("Img", this, TOA_Embedded);
-          for (int s=0; s<SVSpcCount(); s++)
-            io.m_pImg->M.SetVValue(s, SetNANFlag(NF_Ignore));
-          io.m_pImg->SetView(SVV_AsRawFrac);
-          };
-        }
-      else
-        {
-        delete io.m_pImg;
-        io.m_pImg=NULL;
-        };
-      };
+    SpVectorObj  * IOExitFilter(int i)                 { return m_IOs[i].m_pFilter; };
+    void           SetIOExitRule(int i, byte Rule);
 
     CIOMFlwDmdRec & IOMFlwDmd(int i)
       {
