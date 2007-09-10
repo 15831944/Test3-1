@@ -264,8 +264,8 @@ bool Classifier::CalcSeparationNoPSD(MVector & Feed, MVector & OF, MVector & UF)
 
   double UFSolVolFlow = TtlUFSolids/UF.Density(MP_Sol);
   double UFLiqVolFlow = UFVolFlow - UFSolVolFlow;
-  double LiquidToOF_Frac = 1.0 - (UFLiqVolFlow/GTZ(FeedLiqVolFlow));
-  double SolidsToOF_Frac = 1.0 - (TtlUFSolids/GTZ(FeedSolMass));
+  double LiquidToOF_Frac = GEZ(1.0 - (UFLiqVolFlow/GTZ(FeedLiqVolFlow)));
+  double SolidsToOF_Frac = GEZ(1.0 - (TtlUFSolids/GTZ(FeedSolMass)));
 
   for (int i=0; i<gs_MVDefn.Count(); i++)
     {
@@ -347,6 +347,7 @@ bool Classifier::ComputeEfficiency(MVector & Feed, MVector & OF, MVector & UF, d
     FdMassFlow += Feed.M[SpId];
     }
   SolidsToOF_Frac /= GTZ(FdMassFlow);
+  SolidsToOF_Frac = Max(0.0, SolidsToOF_Frac);
   
   //solids split first
   double TtlUFSolids = 0.0; // kg/s
@@ -374,6 +375,7 @@ bool Classifier::ComputeEfficiency(MVector & Feed, MVector & OF, MVector & UF, d
   double UFLiqVolFlow = UFVolFlow - UFSolVolFlow;
   double FeedLiqVolFlow = Feed.Volume(MP_Liq);
   double LiquidToOF_Frac = 1.0 - (UFLiqVolFlow/GTZ(FeedLiqVolFlow));
+  LiquidToOF_Frac = Max(0.0, LiquidToOF_Frac);
 
   for (i=0; i<gs_MVDefn.Count(); i++)
     {
