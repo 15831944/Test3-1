@@ -5,13 +5,13 @@
 #include "stdafx.h"
 #define  __FLOTATION_CELL_CPP
 #include "Flotation Cell.h"
-#pragma optimize("", off)
+//#pragma optimize("", off)
 
 //====================================================================================
 
 const int maxSecondaries = 10;
 
-enum {	idFeed = 0,
+enum { idFeed = 0,
 		idTail,
 		idConc,
 		idAir,
@@ -20,30 +20,41 @@ enum {	idFeed = 0,
 static MInOutDefStruct s_IODefs[]=
   {
   //  Desc;             Name;			Id;			Rqd;Max;CnId,FracHgt;Options;
-    { "Feed",           "Feed",			idFeed,		1,	10,	0,	1.0f,	MIO_In |MIO_Material },
-    { "Tailings",       "Tailings",		idTail,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
-    { "Concentrate",    "Concentrate",	idConc,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
-	{ "Air",			"Air",			idAir,		0,	10,	0,	1.0f,	MIO_In |MIO_Material },
-	{ "Vent",			"Vent",			idVent,		0,	1,	0,	1.0f,	MIO_Out|MIO_Material },
-    { NULL },
+  { "Feed",           "Feed",			idFeed,		1,	10,	0,	1.0f,	MIO_In |MIO_Material },
+  { "Tailings",       "Tailings",		idTail,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
+  { "Concentrate",    "Concentrate",	idConc,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
+  { "Air",			"Air",			idAir,		0,	10,	0,	1.0f,	MIO_In |MIO_Material },
+  { "Vent",			"Vent",			idVent,		0,	1,	0,	1.0f,	MIO_Out|MIO_Material },
+  { NULL },
   };
 
 static double Drw_FlotCell[] = { 
   MDrw_Poly,  8.0,4.0, 8.0,-6.0, -8.0,-6.0, -8.0,4.0, 8.0,4.0,
   MDrw_Poly,  7.0,4.0, 7.0,6.0, -7.0,6.0, -7.0,4.0,
   MDrw_Poly,  8.0,2.5, 0.0,-6.0, -8.0,2.5,
+  MDrw_TagPos, 0, -7.5,
   MDrw_End };
 
 //---------------------------------------------------------------------------
 
-DEFINE_TRANSFER_UNIT(FlotationCell, "Flotation Cell", DLL_GroupName)
+#if UseInSepar1
+DEFINE_TRANSFER_UNIT_EX(FlotationCell, "FlotationCell", MDLLIBNAME)
+#else
+DEFINE_TRANSFER_UNIT(FlotationCell, "TestFlotationCell", DLL_GroupName)
+#endif
+
 void FlotationCell_UnitDef::GetOptions()
   {
   SetDefaultTag("FC");
   SetDrawing("Tank", Drw_FlotCell);
+  #if UseInSepar1
+  SetTreeDescription("Separation:Flotation Cell");
+  #else
   SetTreeDescription("Demo:Flotation Cell");
+  #endif
   SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow/*|MSolveMode_DynamicFull*/);
   SetModelGroup(MGroup_General);
+  SetModelLicense(MLicense_Standard);
   };
 
 //---------------------------------------------------------------------------
@@ -541,6 +552,8 @@ void FlotationCell::UpdatePrimaryIndices()
 		}
 }*/
 
+//---------------------------------------------------------------------------
+
 void FlotationCell::SetSecondaryCount(int newSize)
 {
 	if (newSize < 0) newSize = 0;
@@ -581,6 +594,8 @@ void FlotationCell::SetSecondaryCount(int newSize)
 	UpdateOtherIndices();
 }
 
+//---------------------------------------------------------------------------
+
 void FlotationCell::UpdateOtherIndices()
 {
 	vOtherIndices.clear();
@@ -599,6 +614,8 @@ void FlotationCell::UpdateOtherIndices()
 		}
 }
 
+//---------------------------------------------------------------------------
+
 double FlotationCell::ElementMassFrac(int compound, int element)
 {
 	double dElementMass = gs_PeriodicTable.ByAtmNo(element).AtomicWt();
@@ -613,3 +630,5 @@ double FlotationCell::ElementMassFrac(int compound, int element)
 		}
 	return ret;
 }
+
+//---------------------------------------------------------------------------

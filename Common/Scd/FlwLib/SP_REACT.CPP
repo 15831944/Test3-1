@@ -2855,8 +2855,8 @@ flag CReactionBlock::CIStrng(int No, pchar & pS)
     case  3: pS="W\tFinal Temperature not converged"; return 1;
 
     case  8: pS="E\tNot Balanced (see messages)";     return 1;
-    case  9: pS="W\tBad Cp's";                        return 1;
-    case 10: pS="W\tBad Hf's";                        return 1;
+    case  9: pS="W\tUser defined heat of reaction not specified; or Cp not defined in specie database."; return 1; //pS="W\tBad Cp's";
+    case 10: pS="W\tUser defined heat of reaction not specified; or Hf not defined in specie database."; return 1; //pS="W\tBad Hf's";
     case 11: pS="E\tNo Extent";                       return 1;
     case 12: pS="E\tNot Avail";                       return 1;
 

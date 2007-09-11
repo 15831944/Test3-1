@@ -5,7 +5,11 @@
 #ifndef  __FLOTATION_CELL_H
 #define  __FLOTATION_CELL_H
 
-#ifndef __MD_HEADERS_H
+#define UseInSepar1 0
+
+#if UseInSepar1
+#include "ex_headers.h"
+#else
 #include "md_headers.h"
 #endif
 
@@ -28,14 +32,14 @@ enum FT_SpecType {FTST_ByCompound, FTST_ByElement};
 class FlotationCell : public MBaseMethod
 {
 public:
-    FlotationCell(MUnitDefBase * pUnitDef, TaggedObject * pNd);
-    virtual void    Init();
-    virtual void    BuildDataFields();
-	virtual bool	ExchangeDataFields();
-	virtual bool	ValidateDataFields();
+  FlotationCell(MUnitDefBase * pUnitDef, TaggedObject * pNd);
+  virtual void    Init();
+  virtual void    BuildDataFields();
+  virtual bool	ExchangeDataFields();
+  virtual bool	ValidateDataFields();
 
-    virtual void    EvalProducts();
-	virtual bool	PreStartCheck();
+  virtual void    EvalProducts();
+  virtual bool	PreStartCheck();
 
 protected:
 	bool				m_bOn;
