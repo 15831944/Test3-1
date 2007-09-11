@@ -321,7 +321,8 @@ class DllImportExport CSpDBEqn
   public:
     double            m_Ts;      
     double            m_Te;      
-    double            m_Const;      
+    //double            m_IntC;      
+    double            m_CorrC;      
 
     CSpFidelData    * m_pFData;
     CSpConstData    * m_pConst;
@@ -336,12 +337,6 @@ static const byte ET_IntegralOverT=3;
 class DllImportExport CSpDBEqnSet
   {
   public:
-    //struct CEqnRng
-    //  {
-    //  CSpDBEqn   * m_pEqn;
-    //  double       m_Ts;
-    //  double       m_Te;
-    //  };
     CSpDBEqnSet();
     CSpDBEqnSet(LPCSTR Name, LPCSTR XName);
     ~CSpDBEqnSet();
@@ -357,15 +352,10 @@ class DllImportExport CSpDBEqnSet
     const char *  VName()         { return m_Eqns.GetCount() ? m_Eqns[0]->VName() : ""; };
     bool          Exists()        { return m_Eqns.GetCount()>0; };
 
-    void          SetEqn(byte Type, CSpDBEqn * pEqn, double Ts=0.0, double Te=1.0e6);
-    //void          SetEqnInt(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
-    //void          SetEqnIntdT(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
-    void          AddEqn(byte Type, CSpDBEqn * pEqn, double Ts=0.0, double Te=1.0e6);
-    //void          AddEqnInt(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
-    //void          AddEqnIntdT(CSpDBEqn * pEqn, double C, double Ts=0.0, double Te=1.0e6);
-    //void          AddEqn(CSpDBEqn * pEqn, double Te);
+    void          SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
+    void          AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
     
-    void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List);
+    void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT);
 
     void          Merge(CSpDBEqnSet & Eqns);
     void          Clear();
@@ -374,10 +364,11 @@ class DllImportExport CSpDBEqnSet
     double        AtT(double T)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtT(T); };
     //double        AtP(double P)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtP(T); };
     double        AtTP(double T, double P)                           { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtTP(T, P); };
-    double        Integrate_dT(double T1, double T2, double P);       
-    double        IntegrateOverT_dT(double T1, double T2, double P);
+    //double        Integrate_dT(double T1, double T2, double P);       
+    //double        IntegrateOverT_dT(double T1, double T2, double P);
 
     double        Eval(double T, double P);
+    double        EvalNoCorr(double T, double P);
     double        EvalDiff(double T1, double T2, double P);
     double        EvalMassRatio(double R);
 
@@ -396,9 +387,7 @@ class DllImportExport CSpDBEqnSet
     
     byte              m_Type;
     double            m_TRef;
-    //double            m_VAtRef;
 
-    //CArray<CEqnRng, CEqnRng&>  m_Eqns;
     CArray<CSpDBEqn*, CSpDBEqn*>  m_Eqns;
     Strng             m_sName;
     Strng             m_sXName;
@@ -746,8 +735,8 @@ class DllImportExport CSpFidelData
     bool           CpOK();
 
     double         SpRho(double T, double P);
-    double         LoT();
-    double         HiT();
+    double         xLoT();
+    double         xHiT();
     double         TestLoT();
     double         TestHiT();
 
@@ -784,33 +773,29 @@ class DllImportExport CSpFidelData
     int            m_iSfBase;
 
 
-    double         xm_dTs;      // Data validity Range Start
-    double         xm_dTe;      // Data validity Range End
-    CSpDBEqnSet    m_Rho;    // Density Eqn
-    CSpDBEqnSet    m_Cp;     // Cp Eqn
-    CSpDBEqnSet    m_H;      // Enthalpy Eqn
-    CSpDBEqnSet    m_S;      // Entropy Eqn
+    double         xm_LoT;                // Data validity Range Start - Lowest 
+    double         xm_HiT;                // Data validity Range End - Highest
 
-    //double         m_dH25[MaxTPoints];    // Standard Heat of formation @ 298K
-    //double         m_dCZRef[MaxTPoints];  // Const of Integration for Zero Ref
-    //double         m_dCdHf[MaxTPoints];   // Const of Integration for Hf Diff
-    //double         m_dCHf[MaxTPoints];    // Const of Integration with Heat of Formation
+    CSpDBEqnSet    m_Rho;                 // Density Eqn
+    CSpDBEqnSet    m_Cp;                  // Cp Eqn
+    CSpDBEqnSet    m_H;                   // Enthalpy Eqn
+    CSpDBEqnSet    m_S;                   // Entropy Eqn
 
-    //double         m_dS25[MaxTPoints];    // Standard Entropy @ 298K
-    //double         m_dCSf[MaxTPoints];    // Const of Integration with Standard Entropy
+    CSpDBEqnSet    m_H25;                 // Standard Heat of formation @ 298K
+    CSpDBEqnSet    m_S25;                 // Standard Entropy @ 298K
 
-    CSpDBEqnSet    m_H25;     // Standard Heat of formation @ 298K
-    double         m_S25;    // Standard Entropy @ 298K
-
-
-
+    
     double         m_Hf0;                 // Standard Heat of formation @ 0C
     double         m_HfBase0;             // Standard Heat of formation Diff @ 0C
+
+    double         m_HfOff;               // Offset to be added to get to Hf = Hf @ 25C - No Dilution
     double         m_HsOff;               // Offset to be added to get to Hs
     double         m_HzOff;               // Offset to be added to get to Hz
 
-    double         m_dS0;                 // Standard Entropy @ 0C
-    double         m_dSBase0;             // Standard Entropy Diff @ 0C
+    double         m_S0;                  // Standard Entropy @ 0C
+    double         m_SBase0;              // Standard Entropy Diff @ 0C
+
+    double         m_SOff;                // Offset to be added to get to S = S @ 25C - No Dilution
 
     double         m_dCpCv;
 
@@ -910,8 +895,8 @@ class DllImportExport CSpecie : public CPropertyBase
   public:
     double        SpRho(long Fidelity, double T, double P);
 
-    double        LoT(long Fidelity);
-    double        HiT(long Fidelity);
+    double        xLoT(long Fidelity);
+    double        xHiT(long Fidelity);
     double        TestLoT(long Fidelity);
     double        TestHiT(long Fidelity);
 
@@ -986,8 +971,8 @@ class DllImportExport CSpecie : public CPropertyBase
     PhMask          m_PhMsk;
     int             m_PhInx;
     int             m_iBOccT;
-    double          m_dTsTol;               // Heat Data Test Tolerance Start
-    double          m_dTeTol;               // Heat Data Test Tolerance End
+    double          m_TsTol;               // Heat Data Test Tolerance Start
+    double          m_TeTol;               // Heat Data Test Tolerance End
 
     int             iSId;
     int             iCId;
@@ -1051,6 +1036,8 @@ class DllImportExport CSpecie : public CPropertyBase
     double          m_dDa[3];        // Dissociation numbers
     //Strng           m_sDa;           // 
     Strng           m_sKaKbDesc;
+
+    bool             m_bHoldCopy;
 
   };
 
@@ -1284,6 +1271,7 @@ class DllImportExport CComponent : public CSpConstData //CSpCommonData
     CComponent(CSpecieDataBase & SDB, CComponentDataBase & CDB, CH2ODataBase & H2ODB, const char * Sym__);
     ~CComponent();
 
+    char *          Sym()   { return m_sSym(); };
     char *          SymOrTag();
 
     double          VapourP(long Fidelity, double T)                        { return m_Common[Fidelity].VapourP(T); }
@@ -1311,7 +1299,7 @@ class DllImportExport CComponent : public CSpConstData //CSpCommonData
     CSpecie *       operator[](int occ);
 
   public:
-    Strng           Sym;
+    Strng           m_sSym;
     Strng           m_sElDef;
     ElemCompArray & m_ElComp;
 
@@ -1320,7 +1308,7 @@ class DllImportExport CComponent : public CSpConstData //CSpCommonData
     CComponentDataBase & m_CDB;
     CH2ODataBase  & m_H2O;
 
-    int             iCId;
+    int             m_iCId;
     CSpecie *       m_SpPhaseD[MaxPhases]; //Phase Desc Indexed by Phase
 
     CSpCommonDataA  m_Common; 
@@ -1453,6 +1441,13 @@ class CPhaseInfo
     int         m_nSpecies;
   };
 
+
+// ===========================================================================
+
+const int SMOption_Default    = -1;
+const int SMOption_Off        = 0;
+const int SMOption_On         = 1;
+
 // ===========================================================================
 
 const int SMDensM_Default     = -1;
@@ -1581,6 +1576,10 @@ class DllImportExport CComponentDataBase
     int            PhaseLast(int Occ=BOT_All)   { return m_PhInfoLast[Occ]; };
     CPhaseInfo &   PhaseInfo(int i) { ASSERT(i>=0 && i<m_PhInfoCount[BOT_All]); return m_PhInfo[i]; }
 
+    int            DefEqAqPhChg()      { return m_DefEqAqPhChg; };
+    int            DefEqSoluble()      { return m_DefEqSoluble; };
+    int            DefEqAutoVLE()      { return m_DefEqAutoVLE; };
+
     int            DefDensityMethod()  { return m_DefDensityMethod; };
 
     CSaturationDefn DefFlashDefn()     { return CSaturationDefn(m_DefFlashMethod, m_DefFlashCmpIndex); }
@@ -1641,6 +1640,16 @@ class DllImportExport CComponentDataBase
     int                   m_PhInfoLast[BOT_All+1];
     CPhaseInfo            m_PhInfo[MaxPhases];
 
+    int                   m_DefEqAqPhChg;
+    int                   m_DefEqSoluble;
+    int                   m_DefEqAutoVLE;
+
+    DDBValueLstMem        m_DDBEqOptions;
+    DDBValueLstMem        m_DDBDefEqOptions;
+    CArray<Strng, Strng>  m_EqOptions;
+    CArray<Strng, Strng>  m_EqOptionsDef;
+    CArray<Strng, Strng>  m_EqOptionsInh;
+
     int                   m_DefDensityMethod;
 
     DDBValueLstMem        m_DDBDensityMethods;
@@ -1698,13 +1707,13 @@ inline double     CSpDBEqn::MolecularDiam()    { return m_pConst->MolecularDiam(
 
 // ===========================================================================
 
-inline double     CSpFidelData::LoT()              { return xm_dTs/*[0]*/; };
-inline double     CSpFidelData::HiT()              { return xm_dTe/*[m_iLastTPoint]*/; };
-inline double     CSpFidelData::TestLoT()          { return xm_dTs/*[0]*/-m_pSp->m_dTsTol; };
-inline double     CSpFidelData::TestHiT()          { return xm_dTe/*[m_iLastTPoint]*/+m_pSp->m_dTeTol; };
+inline double     CSpFidelData::xLoT()         { return xm_LoT; };
+inline double     CSpFidelData::xHiT()         { return xm_HiT; };
+inline double     CSpFidelData::TestLoT()      { return xm_LoT-m_pSp->m_TsTol; };
+inline double     CSpFidelData::TestHiT()      { return xm_HiT+m_pSp->m_TeTol; };
 
 //inline int        CSpFidelData::FindTIndex(double T) { int i=0; while (i<m_iLastTPoint && T>xm_dTe[i]) i++; return i;};
-inline double     CSpFidelData::SpRho(double T, double P) { return m_Rho./*[FindTIndex(T)]->*/AtTP(T,P);};
+inline double     CSpFidelData::SpRho(double T, double P) { return m_Rho.AtTP(T,P);};
 inline double     CSpFidelData::MoleWt()           { return m_pConst->MoleWt(); };
 
 inline bool       CSpFidelData::H25OK()            { return m_pSp->H25OK();             };
@@ -1719,10 +1728,10 @@ inline double     CSpecie::SpRho(long Fidelity, double T, double P)  { return m_
 inline flag       CSpecie::CpDirect()                                { return !m_bCpInDirect; };
 inline flag       CSpecie::CpInDirect()                              { return m_bCpInDirect; };
 
-inline double     CSpecie::LoT(long Fidelity)                        { return m_FData[Fidelity].xm_dTs/*[0]*/; };
-inline double     CSpecie::HiT(long Fidelity)                        { return m_FData[Fidelity].xm_dTe/*[m_FData[Fidelity].m_iLastTPoint]*/; };
-inline double     CSpecie::TestLoT(long Fidelity)                    { return m_FData[Fidelity].xm_dTs/*[0]*/-m_dTsTol; };
-inline double     CSpecie::TestHiT(long Fidelity)                    { return m_FData[Fidelity].xm_dTe/*[m_FData[Fidelity].m_iLastTPoint]*/+m_dTeTol; };
+inline double     CSpecie::xLoT(long Fidelity)                        { return m_FData[Fidelity].xm_LoT; };
+inline double     CSpecie::xHiT(long Fidelity)                        { return m_FData[Fidelity].xm_HiT; };
+inline double     CSpecie::TestLoT(long Fidelity)                    { return m_FData[Fidelity].xm_LoT-m_TsTol; };
+inline double     CSpecie::TestHiT(long Fidelity)                    { return m_FData[Fidelity].xm_HiT+m_TeTol; };
 
 inline double     CSpecie::CpCv(long Fidelity)                       { return m_FData[Fidelity].m_dCpCv; }
 inline double     CSpecie::mlHf0(long Fidelity)                      { return m_FData[Fidelity].m_Hf0; };
@@ -1786,7 +1795,7 @@ inline int        CComponent::VapPhCnt()          { return m_CDB.m_ph_GasE-m_CDB
 inline int        CComponent::SolPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph_SolS+i] ? m_SpPhaseD[m_CDB.m_ph_SolS+i]->iSId : -1; };
 inline int        CComponent::LiqPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph_LiqS+i] ? m_SpPhaseD[m_CDB.m_ph_LiqS+i]->iSId : -1; };
 inline int        CComponent::VapPhInx(int i)     { return m_SpPhaseD[m_CDB.m_ph_GasS+i] ? m_SpPhaseD[m_CDB.m_ph_GasS+i]->iSId : -1; };
-inline int        CComponent::CmpInx()            { return iCId; };
+inline int        CComponent::CmpInx()            { return m_iCId; };
 
 //inline int        CComponent::AqsPhInx()            { return m_CDB.m_ph_AqsInx>=0 && m_SpPhaseD[m_CDB.m_ph_AqsInx] ? m_SpPhaseD[m_CDB.m_ph_AqsInx]->iSId : -1; };
 

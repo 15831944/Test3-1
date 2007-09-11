@@ -3936,8 +3936,8 @@ void CSDBTest::TestThermo(int &nGood, int &nBad)
         if (Pass>0 && row>0)
           m_ThermoGrid.AddItem(SBlnk(), COleVariant(row++));
         //int iDt=10;
-        double T1=m_SDB[s].LoT(iFidelity);
-        double T2=m_SDB[s].HiT(iFidelity);
+        double T1=m_SDB[s].xLoT(iFidelity);
+        double T2=m_SDB[s].xHiT(iFidelity);
         double dt=(T2-T1)/m_NIntervals;
         double t=T1-dt;
         double PrevH=-1e100;
@@ -4093,8 +4093,8 @@ void CSDBTest::TestSoluble(int &nGood, int &nBad)
         if (Pass>0 && row>0)
           m_SolubleGrid.AddItem(SBlnk(), COleVariant(row++));
 
-        double T1=m_SDB[iSolvent].LoT(0);
-        double T2=m_SDB[iSolvent].HiT(0);
+        double T1=m_SDB[iSolvent].xLoT(0);
+        double T2=m_SDB[iSolvent].xHiT(0);
         double dt=(T2-T1)/m_NIntervals;
         double t=T1-dt;
 

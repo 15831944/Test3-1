@@ -119,150 +119,154 @@ XID xidSMMlSFrac        = SpcXID(100043);
 XID xidSMMlLFrac        = SpcXID(100044);
 XID xidSMMlVFrac        = SpcXID(100045);
 
-XID xidSMRhoMethod      = SpcXID(100047);
+XID xidSMAqPhChg        = SpcXID(100050);
+XID xidSMSoluble        = SpcXID(100051);
+XID xidSMAutoVLE        = SpcXID(100052);
 
-XID xidSMPureSatTemp    = SpcXID(100050);
-XID xidSMSatTempP       = SpcXID(100051);
-XID xidSMSatTempPP      = SpcXID(100052);
-XID xidSMSatPress       = SpcXID(100053);
-XID xidSMSatPPress      = SpcXID(100054);
-XID xidSMBoilPtEle      = SpcXID(100055);
-XID xidSMSatComp        = SpcXID(100056);
-XID xidSMSatMethod      = SpcXID(100057);
+XID xidSMRhoMethod      = SpcXID(100057);
 
-XID xidSMSmsH           = SpcXID(100060);
-XID xidSMLmsH           = SpcXID(100061);
-XID xidSMVmsH           = SpcXID(100062);
-XID xidSMSLmsH          = SpcXID(100063);
-XID xidSMSmsCp          = SpcXID(100064);
-XID xidSMLmsCp          = SpcXID(100065);
-XID xidSMVmsCp          = SpcXID(100066);
-XID xidSMSLmsCp         = SpcXID(100067);
+XID xidSMPureSatTemp    = SpcXID(100060);
+XID xidSMSatTempP       = SpcXID(100061);
+XID xidSMSatTempPP      = SpcXID(100062);
+XID xidSMSatPress       = SpcXID(100063);
+XID xidSMSatPPress      = SpcXID(100064);
+XID xidSMBoilPtEle      = SpcXID(100065);
+XID xidSMSatComp        = SpcXID(100066);
+XID xidSMSatMethod      = SpcXID(100067);
 
-XID xidSMmsLatHtVap     = SpcXID(100070);
-XID xidSMUsage          = SpcXID(100071);
+XID xidSMSmsH           = SpcXID(100070);
+XID xidSMLmsH           = SpcXID(100071);
+XID xidSMVmsH           = SpcXID(100072);
+XID xidSMSLmsH          = SpcXID(100073);
+XID xidSMSmsCp          = SpcXID(100074);
+XID xidSMLmsCp          = SpcXID(100075);
+XID xidSMVmsCp          = SpcXID(100076);
+XID xidSMSLmsCp         = SpcXID(100077);
 
-XID xidSMmsH            = SpcXID(100075);
-XID xidSMmsHz           = SpcXID(100076);
-XID xidSMmsHf           = SpcXID(100077);
-XID xidSMmsHf0          = SpcXID(100078);
-XID xidSMmsCp           = SpcXID(100079);
-XID xidSMmsCp0          = SpcXID(100080);
-XID xidSMmsCp0T         = SpcXID(100081);
-XID xidSMmsCpUt         = SpcXID(100082);
-XID xidSMmsCpUtT        = SpcXID(100083);
-XID xidSMtotH           = SpcXID(100084);
-XID xidSMtotHz          = SpcXID(100085);
-XID xidSMtotHf          = SpcXID(100086);
-XID xidSMtotHf0         = SpcXID(100087);
-XID xidSMtotHAtmP       = SpcXID(100088);
-XID xidSMtotHSatP       = SpcXID(100089);
+XID xidSMmsLatHtVap     = SpcXID(100080);
+XID xidSMUsage          = SpcXID(100081);
+                                     
+XID xidSMmsH            = SpcXID(100085);
+XID xidSMmsHz           = SpcXID(100086);
+XID xidSMmsHf           = SpcXID(100087);
+XID xidSMmsHf0          = SpcXID(100088);
+XID xidSMmsCp           = SpcXID(100089);
+XID xidSMmsCp0          = SpcXID(100090);
+XID xidSMmsCp0T         = SpcXID(100091);
+XID xidSMmsCpUt         = SpcXID(100092);
+XID xidSMmsCpUtT        = SpcXID(100093);
+XID xidSMtotH           = SpcXID(100094);
+XID xidSMtotHz          = SpcXID(100095);
+XID xidSMtotHf          = SpcXID(100096);
+XID xidSMtotHf0         = SpcXID(100097);
+XID xidSMtotHAtmP       = SpcXID(100098);
+XID xidSMtotHSatP       = SpcXID(100099);
 
-XID xidSMtotHUt         = SpcXID(100090);
-XID xidSMtotHzUt        = SpcXID(100091);
-XID xidSMtotHfUt        = SpcXID(100092);
+XID xidSMtotHUt         = SpcXID(100100);
+XID xidSMtotHzUt        = SpcXID(100101);
+XID xidSMtotHfUt        = SpcXID(100102);
 
-XID xidSMmsSf           = SpcXID(100093);
-XID xidSMmsSf0          = SpcXID(100094);
-XID xidSMtotSf          = SpcXID(100095);
-XID xidSMtotSf0         = SpcXID(100096);
+XID xidSMmsSf           = SpcXID(100103);
+XID xidSMmsSf0          = SpcXID(100104);
+XID xidSMtotSf          = SpcXID(100105);
+XID xidSMtotSf0         = SpcXID(100106);
 
-XID xidSMtotHsFn        = SpcXID(100097); 
-XID xidSMtotHzFn        = SpcXID(100098); 
-XID xidSMtotHfFn        = SpcXID(100099); 
+XID xidSMtotHsFn        = SpcXID(100107); 
+XID xidSMtotHzFn        = SpcXID(100108); 
+XID xidSMtotHfFn        = SpcXID(100109); 
 
-XID xidSSVolume         = SpcXID(100100);
-XID xidSSVolumeB        = SpcXID(100101);
-XID xidSSVapVolScale    = SpcXID(100102);
-XID xidSSArea           = SpcXID(100103);
-XID xidSSAreaB          = SpcXID(100104);
-XID xidSSVPt1           = SpcXID(100105);
-XID xidSSPPt1           = SpcXID(100106);
-XID xidSSVPt2           = SpcXID(100107);
-XID xidSSPPt2           = SpcXID(100108);
+XID xidSSVolume         = SpcXID(100110);
+XID xidSSVolumeB        = SpcXID(100111);
+XID xidSSVapVolScale    = SpcXID(100112);
+XID xidSSArea           = SpcXID(100113);
+XID xidSSAreaB          = SpcXID(100114);
+XID xidSSVPt1           = SpcXID(100115);
+XID xidSSPPt1           = SpcXID(100116);
+XID xidSSVPt2           = SpcXID(100117);
+XID xidSSPPt2           = SpcXID(100118);
 
-XID xidSMFlashComp      = SpcXID(100117);
+XID xidSMFlashComp      = SpcXID(100127);
 
-XID xidEquilSwitch      = SpcXID(100118);
+XID xidEquilSwitch      = SpcXID(100128);
 
-XID xidOvrAnyOn         = SpcXID(100119);
-XID xidOvrVDens         = SpcXID(100120);
-XID xidOvrLDens         = SpcXID(100121);
-XID xidOvrSDens         = SpcXID(100122);
-XID xidOvrVCp           = SpcXID(100123);
-XID xidOvrLCp           = SpcXID(100124);
-XID xidOvrSCp           = SpcXID(100125);
-XID xidOvrVDynVisc      = SpcXID(100126);
-XID xidOvrLDynVisc      = SpcXID(100127);
-XID xidOvrVThermCd      = SpcXID(100128);
-XID xidOvrLThermCd      = SpcXID(100129);
-XID xidOvrSurfT         = SpcXID(100130);
-XID xidOvrBPEle         = SpcXID(100131);
+XID xidOvrAnyOn         = SpcXID(100129);
+XID xidOvrVDens         = SpcXID(100130);
+XID xidOvrLDens         = SpcXID(100131);
+XID xidOvrSDens         = SpcXID(100132);
+XID xidOvrVCp           = SpcXID(100133);
+XID xidOvrLCp           = SpcXID(100134);
+XID xidOvrSCp           = SpcXID(100135);
+XID xidOvrVDynVisc      = SpcXID(100136);
+XID xidOvrLDynVisc      = SpcXID(100137);
+XID xidOvrVThermCd      = SpcXID(100138);
+XID xidOvrLThermCd      = SpcXID(100139);
+XID xidOvrSurfT         = SpcXID(100140);
+XID xidOvrBPEle         = SpcXID(100141);
 
-XID xidRqdVDens         = SpcXID(100132);
-XID xidRqdLDens         = SpcXID(100133);
-XID xidRqdSDens         = SpcXID(100134);
-XID xidRqdVVisc         = SpcXID(100135);
-XID xidRqdLVisc         = SpcXID(100136);
-XID xidRqdSurfT         = SpcXID(100137);
-XID xidRqdBPEle         = SpcXID(100138);
+XID xidRqdVDens         = SpcXID(100142);
+XID xidRqdLDens         = SpcXID(100143);
+XID xidRqdSDens         = SpcXID(100144);
+XID xidRqdVVisc         = SpcXID(100145);
+XID xidRqdLVisc         = SpcXID(100146);
+XID xidRqdSurfT         = SpcXID(100147);
+XID xidRqdBPEle         = SpcXID(100148);
 
-XID xidVVisc            = SpcXID(100140);
-XID xidLVisc            = SpcXID(100141);
-XID xidDVisc            = SpcXID(100142);
-XID xidVKVisc           = SpcXID(100143);
-XID xidLKVisc           = SpcXID(100144);
-XID xidVThermCond       = SpcXID(100145);
-XID xidLThermCond       = SpcXID(100146);
-XID xidVPrandtl         = SpcXID(100147);
-XID xidLPrandtl         = SpcXID(100148);
-XID xidLSurfT           = SpcXID(100149);
+XID xidVVisc            = SpcXID(100150);
+XID xidLVisc            = SpcXID(100151);
+XID xidDVisc            = SpcXID(100152);
+XID xidVKVisc           = SpcXID(100153);
+XID xidLKVisc           = SpcXID(100154);
+XID xidVThermCond       = SpcXID(100155);
+XID xidLThermCond       = SpcXID(100156);
+XID xidVPrandtl         = SpcXID(100157);
+XID xidLPrandtl         = SpcXID(100158);
+XID xidLSurfT           = SpcXID(100159);
 
-XID xidpHState          = SpcXID(100152);
-XID xidpHnegLogH        = SpcXID(100153);
-XID xidpHAcidsPres      = SpcXID(100154);
-XID xidpHBasesPres      = SpcXID(100155);
+XID xidpHState          = SpcXID(100162);
+XID xidpHnegLogH        = SpcXID(100163);
+XID xidpHAcidsPres      = SpcXID(100164);
+XID xidpHBasesPres      = SpcXID(100165);
 
-XID xidSpUseFlgs        = SpcXID(100156);
+XID xidSpUseFlgs        = SpcXID(100166);
 
-XID xidSpHeatValueHiM     = SpcXID(100160);
-XID xidSpHeatValueHiMl    = SpcXID(100161);
-XID xidSpHeatValueHiV     = SpcXID(100162);
-XID xidSpHeatValueHiNV    = SpcXID(100163);
-XID xidSpHeatValueLoM     = SpcXID(100164);
-XID xidSpHeatValueLoMl    = SpcXID(100165);
-XID xidSpHeatValueLoV     = SpcXID(100166);
-XID xidSpHeatValueLoNV    = SpcXID(100167);
-XID xidSpHeatValueHiM25   = SpcXID(100170);
-XID xidSpHeatValueHiMl25  = SpcXID(100171);
-XID xidSpHeatValueHiV25   = SpcXID(100172);
-XID xidSpHeatValueHiNV25  = SpcXID(100173);
-XID xidSpHeatValueLoM25   = SpcXID(100174);
-XID xidSpHeatValueLoMl25  = SpcXID(100175);
-XID xidSpHeatValueLoV25   = SpcXID(100176);
-XID xidSpHeatValueLoNV25  = SpcXID(100177);
+XID xidSpHeatValueHiM     = SpcXID(100170);
+XID xidSpHeatValueHiMl    = SpcXID(100171);
+XID xidSpHeatValueHiV     = SpcXID(100172);
+XID xidSpHeatValueHiNV    = SpcXID(100173);
+XID xidSpHeatValueLoM     = SpcXID(100174);
+XID xidSpHeatValueLoMl    = SpcXID(100175);
+XID xidSpHeatValueLoV     = SpcXID(100176);
+XID xidSpHeatValueLoNV    = SpcXID(100177);
+XID xidSpHeatValueHiM25   = SpcXID(100180);
+XID xidSpHeatValueHiMl25  = SpcXID(100181);
+XID xidSpHeatValueHiV25   = SpcXID(100182);
+XID xidSpHeatValueHiNV25  = SpcXID(100183);
+XID xidSpHeatValueLoM25   = SpcXID(100184);
+XID xidSpHeatValueLoMl25  = SpcXID(100185);
+XID xidSpHeatValueLoV25   = SpcXID(100186);
+XID xidSpHeatValueLoNV25  = SpcXID(100187);
 
-XID xidSpEqnOfState         = SpcXID(100180);
-XID xidSpMixtureRule        = SpcXID(100181);
-XID xidSpMixtureAlpha       = SpcXID(100182);
-XID xidSpMixtureTc          = SpcXID(100183);
-XID xidSpMixturePc          = SpcXID(100184);
-XID xidSpMixtureVc          = SpcXID(100185);
-XID xidSpMixtureAc          = SpcXID(100186);
-XID xidSpdHIdeal            = SpcXID(100187);
-XID xidSpdSIdeal            = SpcXID(100188);
-XID xidSpdHResidual         = SpcXID(100189);
-XID xidSpdSResidual         = SpcXID(100190);
+XID xidSpEqnOfState         = SpcXID(100190);
+XID xidSpMixtureRule        = SpcXID(100191);
+XID xidSpMixtureAlpha       = SpcXID(100192);
+XID xidSpMixtureTc          = SpcXID(100193);
+XID xidSpMixturePc          = SpcXID(100194);
+XID xidSpMixtureVc          = SpcXID(100195);
+XID xidSpMixtureAc          = SpcXID(100196);
+XID xidSpdHIdeal            = SpcXID(100197);
+XID xidSpdSIdeal            = SpcXID(100198);
+XID xidSpdHResidual         = SpcXID(100199);
+XID xidSpdSResidual         = SpcXID(100200);
 
-XID xidAutoVLEComp          = SpcXID(100200);
-XID xidAutoVLESet           = SpcXID(100201);
-XID xidAutoVLESpecH         = SpcXID(100202);
-XID xidAutoVLERelH          = SpcXID(100203);
-XID xidAutoVLEDewPt         = SpcXID(100204);
+XID xidAutoVLEComp          = SpcXID(100210);
+XID xidAutoVLESet           = SpcXID(100211);
+XID xidAutoVLESpecH         = SpcXID(100212);
+XID xidAutoVLERelH          = SpcXID(100213);
+XID xidAutoVLEDewPt         = SpcXID(100214);
 
-XID xidHumiditySpecific     = SpcXID(100205);
-XID xidHumidityRelative     = SpcXID(100206);
-XID xidHumidityDewPt        = SpcXID(100207);
+XID xidHumiditySpecific     = SpcXID(100215);
+XID xidHumidityRelative     = SpcXID(100216);
+XID xidHumidityDewPt        = SpcXID(100217);
 
 XID xidRhoSolvent1          = SpcXID(100300);
 XID xidRhoCorrFuncFirst     = xidRhoSolvent1;
@@ -753,6 +757,7 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual flag   ValidateData(ValidateDataBlk & VDB);
     virtual long   CheckDataRanges();
 
+    static  int    DoDCBEqOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption);
     static  int    DoDCBRhoMethod(DataChangeBlk & DCB, sint & iRhoMethodRqd, sint & iRhoMethod);
 
     static  int    DoDCBSatComp(DataChangeBlk & DCB, int & iSatCmpRqd, int & iSatCmp);
@@ -1020,8 +1025,16 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
     virtual double PhaseConc(double T_, PhMask Ph, PhMask Phase=som_ALL);
 
     virtual void   SetDebug(flag DbgOn_);
+    
+    int            EqAqPhChg();
+    int            EqSoluble();
+    int            EqAutoVLE();
+    bool           EqAqPhChgOn() { return EqAqPhChg()>0; };
+    bool           EqSolubleOn() { return EqSoluble()>0; };
+    bool           EqAutoVLEOn() { return EqAutoVLE()>0; };
+    bool           EqAnyOn()     { return EqAqPhChg()>0 || EqSoluble()>0 || EqAutoVLE()>0; };
 
-    virtual int    DensityMethod();
+    int            DensityMethod();
 
     virtual LPTSTR FlashDescription();
     virtual void   SetFlashDescription(LPCSTR Desc);
@@ -1199,12 +1212,12 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
 
     CVLEBase     * m_pVLE;
 
-    flag           m_bEquilOn;
-    byte           m_iEquilAct;
+    //flag           m_bEquilOn;
+    //byte           m_iEquilAct;
 
     void           ClearAutoVLE()   { m_AutoVLE.m_iCmp=m_AutoVLE.m_iVap=m_AutoVLE.m_iLiq=-1; };
     bool           AutoVLEOK()      { return CDB.m_Flashable.GetCount()>0; };//m_AutoVLE.m_iCmp>=0; };
-    flag           AutoVLEOn()      { return m_AutoVLE.m_iCmp>=0 && m_bEquilOn; };// && m_AutoVLE.m_bOn; };
+    flag           AutoVLEOn()      { return m_AutoVLE.m_iCmp>=0 && EqAutoVLE()>0/* bEquilOn*/; };// && m_AutoVLE.m_bOn; };
 
     struct 
       {
@@ -1217,6 +1230,13 @@ class DllImportExport SpModel : public TaggedObject, public CPropertyBase, publi
       double       m_dRelH;    
       double       m_dDewPt;    
       }            m_AutoVLE;
+
+    sint           m_iEqAqPhChg;
+    sint           m_iEqAqPhChgRqd;
+    sint           m_iEqSoluble;
+    sint           m_iEqSolubleRqd;
+    sint           m_iEqAutoVLE;
+    sint           m_iEqAutoVLERqd;
 
     sint           m_iRhoMethodRqd;
     sint           m_iRhoMethod;

@@ -642,13 +642,20 @@ TaggedObject(pClass_, Tag_, pAttach, eAttach)
   m_iRhoMethodRqd = SMDensM_Default;
   m_iRhoMethod    = SMDensM_Default;
 
+  m_iEqAqPhChg    = SMOption_Default;
+  m_iEqAqPhChgRqd = SMOption_Default;
+  m_iEqSoluble    = SMOption_Default;
+  m_iEqSolubleRqd = SMOption_Default;
+  m_iEqAutoVLE    = SMOption_Default;
+  m_iEqAutoVLERqd = SMOption_Default;
+
   m_iSatCmpRqd    = -1;
   m_iSatCmp       = -1;//CDB.DefFlashCmpIndex();
   m_iSatMethodRqd = SMSatPM_Default;
   m_iSatMethod    = SMSatPM_Default;
 
-  m_iEquilAct=SQA_Xfer;
-  m_bEquilOn=false;
+  //m_iEquilAct=SQA_Xfer;
+  //m_bEquilOn=false;
 
   m_AutoVLE.m_iCmp=-1;
   m_AutoVLE.m_iLiq=-1;
@@ -837,17 +844,23 @@ void SpModel::SetQualityPresent(int q, flag Present)
 
 void SpModel::CopyQualities(SpModel * SrcModel, int q0, int q1)
   {
+  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>=0 ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqSoluble  = (m_iEqSolubleRqd>=0 ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+  m_iEqAutoVLE  = (m_iEqAutoVLERqd>=0 ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
+  
   m_iRhoMethod  = (m_iRhoMethodRqd>=0 ? m_iRhoMethodRqd : SrcModel->DensityMethod());
   m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
   m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
 
-  if (m_iEquilAct==SQA_Create)
-    m_bEquilOn=true;
-  else if (SrcModel->m_iEquilAct==SQA_Remove)
-    m_bEquilOn=false;
-  else
+  //if (m_iEquilAct==SQA_Create)
+  //  m_bEquilOn=true;
+  //else if (SrcModel->m_iEquilAct==SQA_Remove)
+  //  m_bEquilOn=false;
+  //else
+
+  if (EqAutoVLEOn())
     {
-    m_bEquilOn=SrcModel->m_bEquilOn;
+    //m_bEquilOn=SrcModel->m_bEquilOn;
     m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
     m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
     m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
@@ -878,13 +891,18 @@ void SpModel::SetQualities(SpModel * SrcModel)
   m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
   m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
 
-  if (m_iEquilAct==SQA_Create)
-    m_bEquilOn=true;
-  else if (SrcModel->m_iEquilAct==SQA_Remove)
-    m_bEquilOn=false;
-  else
+  m_iEqAqPhChg  = (m_iEqAqPhChgRqd>=0 ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+  m_iEqSoluble  = (m_iEqSolubleRqd>=0 ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+  m_iEqAutoVLE  = (m_iEqAutoVLERqd>=0 ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
+
+  //if (m_iEquilAct==SQA_Create)
+  //  m_bEquilOn=true;
+  //else if (SrcModel->m_iEquilAct==SQA_Remove)
+  //  m_bEquilOn=false;
+  //else
+  if (EqAutoVLEOn())
     {
-    m_bEquilOn=SrcModel->m_bEquilOn;
+    //m_bEquilOn=SrcModel->m_bEquilOn;
     m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
     m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
     m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
@@ -913,15 +931,20 @@ void SpModel::AddQualities(SpModel * SrcModel, CSysVector & Cm)
     m_iRhoMethod  = (m_iRhoMethodRqd>=0 ? m_iRhoMethodRqd : SrcModel->DensityMethod());
     m_iSatCmp     = (m_iSatCmpRqd>=0    ? m_iSatCmpRqd    : SrcModel->SaturationCmpIndex());
     m_iSatMethod  = (m_iSatMethodRqd>=0 ? m_iSatMethodRqd : SrcModel->SaturationMethod());
+
+    m_iEqAqPhChg  = (m_iEqAqPhChgRqd>=0 ? m_iEqAqPhChgRqd : SrcModel->EqAqPhChg());
+    m_iEqSoluble  = (m_iEqSolubleRqd>=0 ? m_iEqSolubleRqd : SrcModel->EqSoluble());
+    m_iEqAutoVLE  = (m_iEqAutoVLERqd>=0 ? m_iEqAutoVLERqd : SrcModel->EqAutoVLE());
     }
 
-  if (m_iEquilAct==SQA_Create)
-    m_bEquilOn=true;
-  else if (SrcModel->m_iEquilAct==SQA_Remove)
-    m_bEquilOn=false;
-  else
+  //if (m_iEquilAct==SQA_Create)
+  //  m_bEquilOn=true;
+  //else if (SrcModel->m_iEquilAct==SQA_Remove)
+  //  m_bEquilOn=false;
+  //else
+  if (EqAutoVLEOn())
     {
-    m_bEquilOn=m_bEquilOn||SrcModel->m_bEquilOn;
+    //m_bEquilOn=m_bEquilOn||SrcModel->m_bEquilOn;
     m_AutoVLE.m_iCmp=SrcModel->m_AutoVLE.m_iCmp;
     m_AutoVLE.m_iVap=SrcModel->m_AutoVLE.m_iVap;
     m_AutoVLE.m_iLiq=SrcModel->m_AutoVLE.m_iLiq;
@@ -963,7 +986,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 
     //CHECK Remember Previous as starting values
 
-    if (m_bEquilOn)
+   if (EqAnyOn())
       {
 #if dbgSoluble || dbgAutoVLE
       if (dbgSolubleEquil() || dbgAutoVLEEquil())
@@ -971,7 +994,7 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
 #endif
 #if dbgSoluble
       double InitdbgT=Valid(RqdT)?RqdT:Temp();
-      if (dbgSolubleEquil())
+      if (EqSolubleOn() && dbgSolubleEquil())
         {
         dbgp("%5s","");
         for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
@@ -1014,112 +1037,118 @@ void SpModel::EquilibrateAll(double RqdT, double RqdP)
           dbgp("%5i",Iter);
 #endif
 
-        for (int j=0; j<SDB.m_AqueousSps.GetSize(); j++)
+        if (EqAqPhChgOn())
           {
           double Ht=totHf();
+          for (int j=0; j<SDB.m_AqueousSps.GetSize(); j++)
+            {
 
-          int iAqueous=SDB.m_AqueousSps[j];
-          int iSolvent=SDB[iAqueous].m_Aq.m_iSolvent;
-          int iOtherSp=SDB[iAqueous].m_Aq.m_iOtherSpecie;
-          double TotSolute=m_M[iAqueous]+m_M[iOtherSp];
-          if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iAqueous].m_Aq.m_SoluteMaxMF)
-            {
-            VValue[iOtherSp] = TotSolute;
-            VValue[iAqueous] = 0.0;
-            }
-          else
-            {
-            VValue[iAqueous] = TotSolute;
-            VValue[iOtherSp] = 0.0;
+            int iAqueous=SDB.m_AqueousSps[j];
+            int iSolvent=SDB[iAqueous].m_Aq.m_iSolvent;
+            int iOtherSp=SDB[iAqueous].m_Aq.m_iOtherSpecie;
+            double TotSolute=m_M[iAqueous]+m_M[iOtherSp];
+            if (TotSolute/GTZ(TotSolute+m_M[iSolvent])>=SDB[iAqueous].m_Aq.m_SoluteMaxMF)
+              {
+              VValue[iOtherSp] = TotSolute;
+              VValue[iAqueous] = 0.0;
+              }
+            else
+              {
+              VValue[iAqueous] = TotSolute;
+              VValue[iOtherSp] = 0.0;
+              }
             }
           Set_totHf(Ht);
           }
 
-        for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
+        if (EqSolubleOn())
           {
-          int iSolvent=SDB.m_SolubleSps[j];
-          CSpecie & Solvent=SDB[iSolvent];
-          for (int i=0; i<Solvent.SolubilityCount(); i++)
+          for (int j=0; j<SDB.m_SolubleSps.GetSize(); j++)
             {
-            CSolubility &S=Solvent.Solubility(i);
-            double Ht=totHf();
-            double TotSolute=m_M[S.m_iOtherPh]+m_M[S.m_iAqueous];
-            double MassSolvent=m_M[iSolvent];
-            if (TstGTZ(TotSolute) && TstGTZ(MassSolvent))
+            int iSolvent=SDB.m_SolubleSps[j];
+            CSpecie & Solvent=SDB[iSolvent];
+            for (int i=0; i<Solvent.SolubilityCount(); i++)
               {
-              double OtherFrac=m_M[S.m_iOtherPh]/TotSolute;
-              double MassAq=m_M[S.m_iAqueous];
+              CSolubility &S=Solvent.Solubility(i);
+              double Ht=totHf();
+              double TotSolute=m_M[S.m_iOtherPh]+m_M[S.m_iAqueous];
+              double MassSolvent=m_M[iSolvent];
+              if (TstGTZ(TotSolute) && TstGTZ(MassSolvent))
+                {
+                double OtherFrac=m_M[S.m_iOtherPh]/TotSolute;
+                double MassAq=m_M[S.m_iAqueous];
 
-              double T=Valid(RqdT)?RqdT:Temp();
-              double P=Valid(RqdP)?RqdP:Press();
-              //double SolventDens=SDB[iSolvent].Density(m_iFidelity, T, P, &m_Ovr, SVData());
-              //double SolventVol=(MassSolvent+MassAq)/SolventDens;
-              double ActConc=m_M[S.m_iAqueous]/MassSolvent;
-              //double RqdConc=GEZ(S.pFn1 ? S.pFn1->Value(T) : S.pFn2->Value(T, P));
-              double RqdConc=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T) : 1e12);
-              double Err=RqdConc-ActConc;
-              //Conc[i]=ActConc;
-#if dbgSoluble
-              if (dbgSolubleEquil())
-                dbgp(" %14.6g %14.6g %6.1f",ActConc,RqdConc,T);
-#endif
-              if (gs_EquilFinderTol.ConvergedDV(Err, RqdConc))
-                continue;
-              //if (fabs(Err)<1.0e-8*RqdConc+1.0e-10)
-              //  continue;
-              if (RqdConc>ActConc && OtherFrac<0.000000000001)
-                continue;
-              if (RqdConc<ActConc && OtherFrac>0.999999999999)
-                continue;
-              SolConverged=False;
+                double T=Valid(RqdT)?RqdT:Temp();
+                double P=Valid(RqdP)?RqdP:Press();
+                //double SolventDens=SDB[iSolvent].Density(m_iFidelity, T, P, &m_Ovr, SVData());
+                //double SolventVol=(MassSolvent+MassAq)/SolventDens;
+                double ActConc=m_M[S.m_iAqueous]/MassSolvent;
+                //double RqdConc=GEZ(S.pFn1 ? S.pFn1->Value(T) : S.pFn2->Value(T, P));
+                double RqdConc=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T) : 1e12);
+                double Err=RqdConc-ActConc;
+                //Conc[i]=ActConc;
+  #if dbgSoluble
+                if (dbgSolubleEquil())
+                  dbgp(" %14.6g %14.6g %6.1f",ActConc,RqdConc,T);
+  #endif
+                if (gs_EquilFinderTol.ConvergedDV(Err, RqdConc))
+                  continue;
+                //if (fabs(Err)<1.0e-8*RqdConc+1.0e-10)
+                //  continue;
+                if (RqdConc>ActConc && OtherFrac<0.000000000001)
+                  continue;
+                if (RqdConc<ActConc && OtherFrac>0.999999999999)
+                  continue;
+                SolConverged=False;
 
-              double TstdMassAq=OtherFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
-              double TstSolFrac=Range(0.0, OtherFrac-TstdMassAq/TotSolute, 1.0);
-              VValue[S.m_iOtherPh]=TotSolute*(TstSolFrac);
-              VValue[S.m_iAqueous]=TotSolute*(1.0-TstSolFrac);
-              ClrStatesOK();
+                double TstdMassAq=OtherFrac>0.5 ? +1.0e-3*TotSolute : -1.0e-3*TotSolute;
+                double TstSolFrac=Range(0.0, OtherFrac-TstdMassAq/TotSolute, 1.0);
+                VValue[S.m_iOtherPh]=TotSolute*(TstSolFrac);
+                VValue[S.m_iAqueous]=TotSolute*(1.0-TstSolFrac);
+                ClrStatesOK();
 
-              if (Valid(RqdT))
-                Ht=totHf(som_ALL, RqdT, RqdP);
-              Set_totHf(Ht);
+                if (Valid(RqdT))
+                  Ht=totHf(som_ALL, RqdT, RqdP);
+                Set_totHf(Ht);
 
-              double T1=Valid(RqdT)?RqdT:Temp();
-              //double RqdConc1=GEZ(S.pFn1 ? S.pFn1->Value(T1) : S.pFn2->Value(T1, P));
-              double RqdConc1=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T1) : 1e12);
-              double Slope=(RqdConc1-RqdConc)/TstdMassAq;
+                double T1=Valid(RqdT)?RqdT:Temp();
+                //double RqdConc1=GEZ(S.pFn1 ? S.pFn1->Value(T1) : S.pFn2->Value(T1, P));
+                double RqdConc1=GEZ(S.m_pSolubleFn ? S.m_pSolubleFn->AtT(T1) : 1e12);
+                double Slope=(RqdConc1-RqdConc)/TstdMassAq;
 
-              double dMAq=(MassSolvent*(RqdConc-ActConc))/(1-LEZ(MassSolvent*Slope));
-              double NewOtherFrac=Range(0.0, OtherFrac-dMAq/TotSolute, 1.0);
-              VValue[S.m_iOtherPh]=TotSolute*(NewOtherFrac);
-              VValue[S.m_iAqueous]=TotSolute*(1.0-NewOtherFrac);
-              ClrStatesOK();
+                double dMAq=(MassSolvent*(RqdConc-ActConc))/(1-LEZ(MassSolvent*Slope));
+                double NewOtherFrac=Range(0.0, OtherFrac-dMAq/TotSolute, 1.0);
+                VValue[S.m_iOtherPh]=TotSolute*(NewOtherFrac);
+                VValue[S.m_iAqueous]=TotSolute*(1.0-NewOtherFrac);
+                ClrStatesOK();
 
-              if (Valid(RqdT))
-                Ht=totHf(som_ALL, RqdT, RqdP);
-              Set_totHf(Ht);
+                if (Valid(RqdT))
+                  Ht=totHf(som_ALL, RqdT, RqdP);
+                Set_totHf(Ht);
 
-              //double SolventDens1=SDB[iSolvent].Density(m_iFidelity, Valid(RqdT)?RqdT:Temp(), P, &m_Ovr, SVData());
-              //double SolventVol1=(MassSolvent+MassAq)/SolventDens1;
-              double ActConc1=m_M[S.m_iAqueous]/MassSolvent;
+                //double SolventDens1=SDB[iSolvent].Density(m_iFidelity, Valid(RqdT)?RqdT:Temp(), P, &m_Ovr, SVData());
+                //double SolventVol1=(MassSolvent+MassAq)/SolventDens1;
+                double ActConc1=m_M[S.m_iAqueous]/MassSolvent;
 
-              int xxx=0;
-              }
-            else
-              {
-#if dbgSoluble
-              if (dbgSolubleEquil())
-                dbgp(" %14s %14s %6s","","","");
-#endif
+                int xxx=0;
+                }
+              else
+                {
+  #if dbgSoluble
+                if (dbgSolubleEquil())
+                  dbgp(" %14s %14s %6s","","","");
+  #endif
+                }
               }
             }
+  #if dbgSoluble
+          if (dbgSolubleEquil())
+            dbgpln("");
+  #endif
           }
-#if dbgSoluble
-        if (dbgSolubleEquil())
-          dbgpln("");
-#endif
 
 #if WITHAUTOVLE
-        if (m_AutoVLE.m_iCmp>=0)
+        if (EqAutoVLEOn() && m_AutoVLE.m_iCmp>=0)
           {
           switch (m_AutoVLE.m_iSet)
             {
@@ -1412,6 +1441,13 @@ static DDBFnParms Parms2[] = {{tt_Double, (DC_T), "C",  Std_T},
 
 void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
   {
+  DDB.Text("Rules");
+
+  DDB.String  ("AqPhaseChange", "",         DC_,      "",     xidSMAqPhChg,  this, isParm|SetOnChange, CDB.m_DDBEqOptions());
+  DDB.String  ("Solubility",    "",         DC_,      "",     xidSMSoluble,  this, isParm|SetOnChange, CDB.m_DDBEqOptions());
+  // restore isParm
+  DDB.String  ("AutoVLE",       "",         DC_,      "",     xidSMAutoVLE,  this, isParm|SetOnChange, CDB.m_DDBEqOptions());
+
   DDB.Text("Density");
 
   DDB.Double  ("Density",       "Rho",      DC_Rho,   "kg/m^3",   xidSMRho,         this, isResult|noFile|noSnap);
@@ -1804,17 +1840,18 @@ void SpModel::BuildDataDefn_Vars(DataDefnBlk & DDB)
               {0},
             };
 
-          DDB.Byte  ("Rqd.What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, m_iEquilAct==SQA_Create ? isParm|SetOnChange:isResult, DDBHSet);
-          if (m_iEquilAct==SQA_Create)
-            {
-            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
-            DDB.Double("Rqd.Specific", "", DC_Humidity ,  "kg(l)/kg(v)",  &m_AutoVLE.m_dSpecH,  this, isParm);
-            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
-            DDB.Double("Rqd.Relative", "", DC_Frac, "%",                  &m_AutoVLE.m_dRelH,   this, isParm);
-            DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
-            DDB.Double("Rqd.DewPoint", "", DC_T,    "C",                  &m_AutoVLE.m_dDewPt,  this, isParm);
-            }
-          DDB.Visibility(NSHM_All);
+          _asm int 3; //to go back
+          //DDB.Byte  ("Rqd.What",     "", DC_,           "",             &m_AutoVLE.m_iSet,    this, /*m_iEquilAct==SQA_Create ?*/ isParm|SetOnChange/*:isResult*/, DDBHSet);
+          //if (m_iEquilAct==SQA_Create)
+          //  {
+          //  DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_SpecH);
+          //  DDB.Double("Rqd.Specific", "", DC_Humidity ,  "kg(l)/kg(v)",  &m_AutoVLE.m_dSpecH,  this, isParm);
+          //  DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_RelH);
+          //  DDB.Double("Rqd.Relative", "", DC_Frac, "%",                  &m_AutoVLE.m_dRelH,   this, isParm);
+          //  DDB.Visibility(NSHM_All, m_AutoVLE.m_iSet==AVLESet_DewPt);
+          //  DDB.Double("Rqd.DewPoint", "", DC_T,    "C",                  &m_AutoVLE.m_dDewPt,  this, isParm);
+          //  }
+          //DDB.Visibility(NSHM_All);
           }
         //DDB.EndStruct();
         }
@@ -4369,37 +4406,37 @@ void SpModel::BuildDataDefn_QualsSlct(DataDefnBlk & DDB, flag AsParms)
     Flag|=isParm;
 
   DDB.Text("Qualities", Marker/*|MarkerClosed*/);
-  DDB.Byte("", "EquilFndOn", DC_, "", &m_bEquilOn, this, InitHidden|isParmConstruct, DDBYesNo);
-  DDBValueLstMem DDBX;
-  if (SQFlagsSet(SQF_TearSet))
-    {
-    DDBX.Add(SQA_Create, "Set in Tear");
-    DDBX.Add(SQA_Xfer, "-");
-    }
-  else if (SQFlagsSet(SQF_Source))
-    {
-    DDBX.Add(SQA_Create, "Create");
-    DDBX.Add(SQA_Xfer, "-");
-    }
-  else
-    {
-    DDBX.Add(SQA_Xfer, "-");
-    if (SQFlagsSet(SQF_CreateDsp))
-      DDBX.Add(SQA_Create, "Create");
-    if (SQFlagsSet(SQF_RemoveDsp))
-      DDBX.Add(SQA_Remove, "Remove");
-    }
+  //DDB.Byte("", "EquilFndOn", DC_, "", &m_bEquilOn, this, InitHidden|isParmConstruct, DDBYesNo);
+  //DDBValueLstMem DDBX;
+  //if (SQFlagsSet(SQF_TearSet))
+  //  {
+  //  DDBX.Add(SQA_Create, "Set in Tear");
+  //  DDBX.Add(SQA_Xfer, "-");
+  //  }
+  //else if (SQFlagsSet(SQF_Source))
+  //  {
+  //  DDBX.Add(SQA_Create, "Create");
+  //  DDBX.Add(SQA_Xfer, "-");
+  //  }
+  //else
+  //  {
+  //  DDBX.Add(SQA_Xfer, "-");
+  //  if (SQFlagsSet(SQF_CreateDsp))
+  //    DDBX.Add(SQA_Create, "Create");
+  //  if (SQFlagsSet(SQF_RemoveDsp))
+  //    DDBX.Add(SQA_Remove, "Remove");
+  //  }
+  //DDB.Byte("", "EquilFnd", DC_, "", xidEquilSwitch, this, Flag, &DDBX);
+  //if (m_bEquilOn)
+  //  DDB.TagComment("On");
 
-  DDB.Byte("", "EquilFnd", DC_, "", xidEquilSwitch, this, Flag, &DDBX);
-  if (m_bEquilOn)
-    DDB.TagComment("On");
 #if WITHAUTOVLE
   if (AutoVLEOK())// && m_bEquilOn)
     {
 
     //DDB.CheckBoxBtn("", "AutoVLE", DC_, "", &m_AutoVLE.m_bOn, this, Flag);
     DDBValueLstMem DDB1;
-    if (m_bEquilOn)
+    if (EqAutoVLEOn())// m_bEquilOn)
       {
       DDB1.Add(AutoVLEOff, "Off");
       //DDB1.Add(CDB.No(), "MultiComponent");
@@ -4630,6 +4667,10 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidSMMlLFrac     : DCB.D = MoleFrac(som_Liq);              return 1;
     case xidSMMlVFrac     : DCB.D = MoleFrac(som_Gas);              return 1;
 
+    case xidSMAqPhChg     : return DoDCBEqOption(DCB, m_iEqAqPhChgRqd, m_iEqAqPhChg, CDB.DefEqAqPhChg());
+    case xidSMSoluble     : return DoDCBEqOption(DCB, m_iEqSolubleRqd, m_iEqSoluble, CDB.DefEqSoluble());
+    case xidSMAutoVLE     : return DoDCBEqOption(DCB, m_iEqAutoVLERqd, m_iEqAutoVLE, CDB.DefEqAutoVLE());
+
     case xidSMRhoMethod   : return DoDCBRhoMethod(DCB, m_iRhoMethodRqd, m_iRhoMethod);
 
     case xidSMPureSatTemp : DCB.D = PureSaturationT(Press());       return 1;
@@ -4746,7 +4787,7 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
           }
         m_dwValidFlags &= ~(SMVF_EquilOK); 
         }; 
-      DCB.L = m_bEquilOn ? m_AutoVLE.m_iCmp : AutoVLEDisabled;
+      DCB.L = EqAutoVLEOn() ? m_AutoVLE.m_iCmp : AutoVLEDisabled;
       return 1;
     case xidAutoVLESet      : if (DCB.rB) { m_AutoVLE.m_iSet   = *DCB.rB; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.B = m_AutoVLE.m_iSet;   return 1;
     case xidAutoVLESpecH    : if (DCB.rD) { m_AutoVLE.m_dSpecH = *DCB.rD; m_dwValidFlags &= ~(SMVF_EquilOK); }; DCB.D = m_AutoVLE.m_dSpecH;   return 1;
@@ -4757,28 +4798,28 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
     case xidHumidityRelative: DCB.D = RelativeHumidity();                       return 1;
     case xidHumidityDewPt   : DCB.D = HumidityDewPt();                          return 1;
 
-    case xidEquilSwitch:
-      {
-      if (DCB.rB)
-        {
-        m_iEquilAct=*DCB.rB;
-        switch (m_iEquilAct)
-          {
-          case SQA_Xfer:
-            if (SQFlagsSet(SQF_Source|SQF_TearSet))
-              m_bEquilOn=false;
-            break;
-          case SQA_Create:
-            m_bEquilOn=true;
-            break;
-          case SQA_Remove:
-            m_bEquilOn=false;
-            break;
-          }
-        }
-      DCB.B=m_iEquilAct;
-      return 1;
-      }
+    //case xidEquilSwitch:
+    //  {
+    //  if (DCB.rB)
+    //    {
+    //    m_iEquilAct=*DCB.rB;
+    //    switch (m_iEquilAct)
+    //      {
+    //      case SQA_Xfer:
+    //        if (SQFlagsSet(SQF_Source|SQF_TearSet))
+    //          m_bEquilOn=false;
+    //        break;
+    //      case SQA_Create:
+    //        m_bEquilOn=true;
+    //        break;
+    //      case SQA_Remove:
+    //        m_bEquilOn=false;
+    //        break;
+    //      }
+    //    }
+    //  DCB.B=m_iEquilAct;
+    //  return 1;
+    //  }
     case xidSpUseFlgs:
       {
       if (DCB.rL)
@@ -5320,6 +5361,41 @@ flag SpModel::DataXchg(DataChangeBlk & DCB)
 
 // --------------------------------------------------------------------------
 
+int SpModel::DoDCBEqOption(DataChangeBlk & DCB, sint & iEqOptionRqd, sint & iEqOption, sint iDefEqOption)
+  {
+  if (DCB.rpC)
+    {
+    int i = FindString(CDB.m_EqOptions, DCB.rpC);
+    if (i>=0)  
+      {
+      iEqOption=i;
+      iEqOptionRqd=i;
+      goto Done;
+      }
+    i = FindString(CDB.m_EqOptionsInh, DCB.rpC);
+    if (i>=0)  
+      {
+      iEqOption=i;
+      iEqOptionRqd=SMOption_Default;
+      goto Done;
+      }
+    iEqOption=SMOption_Default;
+    iEqOptionRqd=SMOption_Default;
+    }
+
+Done:
+  if (iEqOptionRqd>=0)
+    DCB.pC = CDB.m_EqOptions[iEqOptionRqd]();
+  else if (iEqOption>=0)
+    DCB.pC = CDB.m_EqOptionsInh[iEqOption]();
+  else
+    DCB.pC = CDB.m_EqOptionsDef[iDefEqOption]();
+  //DCB.pC = "DoDCBRhoMethod";
+  return 1;
+  };
+
+// --------------------------------------------------------------------------
+
 int SpModel::DoDCBRhoMethod(DataChangeBlk & DCB, sint & iRhoMethodRqd, sint & iRhoMethod)
   {
   if (DCB.rpC)
@@ -5502,7 +5578,7 @@ long SpModel::CheckDataRanges()
           CSpecie & D=SDB[s];
           flag BadTemp=false;
 #if WITHMDLRANGECHECKS
-          if (gs_RngChecks.Selected(RngChk_T) && (T<D.LoT(m_iFidelity) || T>D.HiT(m_iFidelity)))
+          if (gs_RngChecks.Selected(RngChk_T) && (T<D.xLoT(m_iFidelity) || T>D.xHiT(m_iFidelity)))
             {
             BadTemp=true;
             }
@@ -6373,7 +6449,7 @@ void SpModel::ZeroMass()
 
   m_Ovr.bUse=0;
 
-  m_bEquilOn=false;
+  //m_bEquilOn=false;
 
   for (int q=0; q<nQuals; q++)
     {
@@ -7595,7 +7671,7 @@ void SpModel::FindTFromHAtP(double ThePress)
 
       if (m_bScan4EquilRqd4HEval)
         Scan4EquilRqd4HEval();
-      if ((m_bEquilRqd4HEval || m_bEquilOn) && !m_iEHBusy)
+      if ((m_bEquilRqd4HEval || EqAnyOn()/*bEquilOn*/) && !m_iEHBusy)
         {
         m_iEHBusy=EHBusy_RqdTemp;
         while (1)
@@ -7764,7 +7840,7 @@ Done:
 
   if (m_bScan4EquilRqd4HEval)
     Scan4EquilRqd4HEval();
-  if ((m_bEquilRqd4HEval || m_bEquilOn) && !m_iEHBusy)
+  if ((m_bEquilRqd4HEval || EqAnyOn()/*m_bEquilOn*/) && !m_iEHBusy)
     {
     m_iEHBusy=EHBusy_RqdH;
     EquilibrateAll();
@@ -9074,6 +9150,35 @@ double SpModel::msLatentHeatVap(double T, double P, CSysVector * pMA)
     return H0-H1;
     }
   return 0.0;
+  };
+
+//===========================================================================
+
+int SpModel::EqAqPhChg()
+  { 
+  if (m_iEqAqPhChgRqd>=0)
+    return m_iEqAqPhChgRqd;
+  if (m_iEqAqPhChg>=0)
+    return m_iEqAqPhChg;
+  return CDB.DefEqAqPhChg();
+  };
+
+int SpModel::EqSoluble()
+  { 
+  if (m_iEqSolubleRqd>=0)
+    return m_iEqSolubleRqd;
+  if (m_iEqSoluble>=0)
+    return m_iEqSoluble;
+  return CDB.DefEqSoluble();
+  };
+
+int SpModel::EqAutoVLE()
+  { 
+  if (m_iEqAutoVLERqd>=0)
+    return m_iEqAutoVLERqd;
+  if (m_iEqAutoVLE>=0)
+    return m_iEqAutoVLE;
+  return CDB.DefEqAutoVLE();
   };
 
 //===========================================================================

@@ -101,7 +101,7 @@ static CDbgMngr dbgDumpChanges        ("FlwNode",   "DumpChanges");
 static CDbgMngr dbgDumpChangesIn      ("FlwNode",   "DumpChangesIn");
 #endif
 
-static CDbgMngr dbgSDBDump            ("Specie_DB", "Dump");
+static CDbgMngr dbgSDBDump            ("SpecieDB",  "Dump");
 
 static CDbgMngr dbgDumpDerivs         ("FlwSolve",  "Dump-Derivs");
 static CDbgMngr dbgDumpStates         ("FlwSolve",  "Dump-States");

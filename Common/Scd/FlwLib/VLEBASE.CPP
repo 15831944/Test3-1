@@ -3215,12 +3215,11 @@ void CVLEFixdK::BuildDataDefn(DataDefnBlk &DDB)
 
     if (PrjFileVerNo()<22)
       {
-      Strng Sym;
       for (int i=0; i<Cmp.GetSize(); i++)
         {
         ASSERT(CDB[Cmp[i].iCmpNo].Sym());
         //Sym.Set("%s.K", CDB[Cmp[i].iCmpNo].Sym());
-        Sym=CDB[Cmp[i].iCmpNo].Sym + ".K";
+        Strng Sym(CDB[Cmp[i].iCmpNo].Sym(), ".K");
         DDB.Double("", Sym(), DC_Frac, "%", &Cmp[i].dData, this, isParm);
         }
       }
@@ -3291,12 +3290,11 @@ void CVLEIdealK::BuildDataDefn(DataDefnBlk &DDB)
 
     if (PrjFileVerNo()<22)
       {
-      Strng Sym;
       for (int i=0; i<Cmp.GetSize(); i++)
         {
         ASSERT(CDB[Cmp[i].iCmpNo].Sym());
         //Sym.Set("%s.K", CDB[Cmp[i].iCmpNo].Sym());
-        Sym= CDB[Cmp[i].iCmpNo].Sym + ".K";
+        Strng Sym(CDB[Cmp[i].iCmpNo].Sym(), ".K");
         DDB.Double("", Sym(), DC_Frac, "%", &Cmp[i].dData, this, isParm);
         }
       }

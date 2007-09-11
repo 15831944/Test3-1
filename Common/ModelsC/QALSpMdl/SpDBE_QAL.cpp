@@ -177,14 +177,14 @@ QALH2OProps::QALH2OProps(pTagObjClass pClass_, pchar pTag, pTaggedObject pAttach
   {
   for (int i=0; i<2; i++)
     {
-    m_Liq[i].m_pRho[0] = new QAL_WaterDensity(NULL, NULL);
-    m_Liq[i].m_pCp[0]  = new QAL_WaterHeatCapacity(NULL, NULL);
-    m_Liq[i].m_pH[0]   = new QAL_WaterEnthalpy(NULL, NULL);
-    m_Vap[i].m_pRho[0] = new QAL_SteamDensity(NULL, NULL);
-    m_Vap[i].m_pCp[0]  = new QAL_SteamHeatCapacity(NULL, NULL);
-    m_Vap[i].m_pH[0]   = new QAL_SteamEnthalpy(NULL, NULL);
+    m_Liq[i].m_Rho.SetEqn(ET_Std, new QAL_WaterDensity(NULL, NULL),        273.16, 623.16);
+    m_Liq[i].m_Cp.SetEqn(ET_Std,  new QAL_WaterHeatCapacity(NULL, NULL),   273.16, 623.16);
+    m_Liq[i].m_H.SetEqn(ET_Std,   new QAL_WaterEnthalpy(NULL, NULL),       273.16, 623.16);
+    m_Vap[i].m_Rho.SetEqn(ET_Std, new QAL_SteamDensity(NULL, NULL),        273.16, 1073.16);
+    m_Vap[i].m_Cp.SetEqn(ET_Std,  new QAL_SteamHeatCapacity(NULL, NULL),   273.16, 1073.16);
+    m_Vap[i].m_H.SetEqn(ET_Std,   new QAL_SteamEnthalpy(NULL, NULL),       273.16, 1073.16);
 
-    m_Common[i].m_pVp  = new QAL_WaterVapourPress(NULL, NULL);
+    m_Common[i].m_Vp.SetEqn(ET_Std, new QAL_WaterVapourPress(NULL, NULL),  273.16, 623.16);
     }
   }  
     
@@ -194,25 +194,14 @@ QALH2OProps::~QALH2OProps()
   {
   for (int i=0; i<2; i++)
     {
-    delete m_Liq[i].m_pRho[0];
-    delete m_Liq[i].m_pCp[0];
-    delete m_Liq[i].m_pH[0];
-    delete m_Vap[i].m_pRho[0];
-    delete m_Vap[i].m_pCp[0];
-    delete m_Vap[i].m_pH[0];
+    m_Liq[i].m_Rho.Clear();
+    m_Liq[i].m_Cp.Clear();
+    m_Liq[i].m_H.Clear();
+    m_Vap[i].m_Rho.Clear();
+    m_Vap[i].m_Cp.Clear();
+    m_Vap[i].m_H.Clear();
 
-    delete m_Common[i].m_pVp;
-
-    m_Liq[i].m_pRho[0]=NULL;
-    m_Liq[i].m_pCp[0]=NULL;
-    m_Liq[i].m_pH[0]=NULL;
-    m_Liq[i].m_pS[0]=NULL;
-    m_Vap[i].m_pRho[0]=NULL;
-    m_Vap[i].m_pCp[0]=NULL;
-    m_Vap[i].m_pH[0]=NULL;
-    m_Vap[i].m_pS[0]=NULL;
-
-    m_Common[i].m_pVp=NULL;
+    m_Common[i].m_Vp.Clear();
     }
   }
 

@@ -15,7 +15,7 @@
 
 #if dbgBuildSDB
 #include "dbgmngr.h"
-static CDbgMngr dbgBuild("Specie_DB", "Build"); 
+static CDbgMngr dbgBuild("SpecieDB", "Build"); 
 #endif
 
 // ==========================================================================
@@ -339,12 +339,12 @@ class SDBE_CRC_Cp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -388,8 +388,8 @@ double SDBE_CRC_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -459,12 +459,12 @@ class SDBE_CRC1_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -505,8 +505,8 @@ double SDBE_CRC1_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -577,13 +577,13 @@ class SDBE_CRC2_Cp : protected CSpDBEqn
 
 double SDBE_CRC2_Cp::AtT(double T) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+  T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
 double SDBE_CRC2_Cp::AtTP(double T, double P) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+  T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
@@ -592,9 +592,9 @@ double SDBE_CRC2_Cp::AtTP(double T, double P)
 int SDBE_CRC2_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[2])==0) return 2;
-  a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
-  b=SpDB_TokenValue(Cols[1], 0.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
-  c=SpDB_TokenValue(Cols[2], 0.0) * m_pConst->MoleWt();//m_pFData->MoleWt();
+  a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
+  b=SpDB_TokenValue(Cols[1], 0.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
+  c=SpDB_TokenValue(Cols[2], 0.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
   if (strlen(Cols[3])>0 && strlen(Cols[4])>0)
     {
     lo=SpDB_TokenValue(Cols[3], C_2_K(25.));
@@ -614,8 +614,8 @@ double SDBE_CRC2_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -683,7 +683,7 @@ class SDBE_HSC_Cp : protected SDBE_CRC_Cp
 //    
 //    virtual double AtT(double T) 
 //      { 
-//      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+//      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
 //      return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
 //      };
 //    virtual double Integrate_dT(double T1, double T2, double P);
@@ -717,12 +717,12 @@ class SDBE_Poly_Cp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + T * (b + T * (c + T * d));
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return a + T * (b + T * (c + T * d));
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -760,8 +760,8 @@ double SDBE_Poly_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -834,7 +834,7 @@ class SDBE_GenPoly_Cp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       double ret=c1*pow(T, p1);
       if (c2!=0.0) ret+=c2*pow(T, p2);
       if (c3!=0.0) ret+=c3*pow(T, p3);
@@ -843,7 +843,7 @@ class SDBE_GenPoly_Cp : protected CSpDBEqn
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       double ret=c1*pow(T, p1);
       if (c2!=0.0) ret+=c2*pow(T, p2);
       if (c3!=0.0) ret+=c3*pow(T, p3);
@@ -885,8 +885,8 @@ double SDBE_GenPoly_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -949,8 +949,8 @@ double SDBE_GenPoly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double Result=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     Result = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -1032,12 +1032,12 @@ class SDBE_API_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1048,12 +1048,12 @@ class SDBE_API_Cp : protected CSpDBEqn
 int SDBE_API_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[5])==0) return 2;
-  a=SpDB_TokenValue(Cols[0], 1.0) * m_pFData->MoleWt();
-  b=SpDB_TokenValue(Cols[1], 0.0) * m_pFData->MoleWt();
-  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-3 * m_pFData->MoleWt();
-  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6 * m_pFData->MoleWt();
-  e=SpDB_TokenValue(Cols[4], 0.0) * 1.0e-9 * m_pFData->MoleWt();
-  f=SpDB_TokenValue(Cols[5], 0.0) * 1.0e-13 * m_pFData->MoleWt();
+  a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();
+  b=SpDB_TokenValue(Cols[1], 0.0) * m_pConst->MoleWt();
+  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-3 * m_pConst->MoleWt();
+  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6 * m_pConst->MoleWt();
+  e=SpDB_TokenValue(Cols[4], 0.0) * 1.0e-9 * m_pConst->MoleWt();
+  f=SpDB_TokenValue(Cols[5], 0.0) * 1.0e-13 * m_pConst->MoleWt();
   if (strlen(Cols[6])>0 && strlen(Cols[7])>0)
     {
     lo=SpDB_TokenValue(Cols[6], C_2_K(25.));
@@ -1072,8 +1072,8 @@ double SDBE_API_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -1137,12 +1137,12 @@ class SDBE_HTE_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1179,8 +1179,8 @@ double SDBE_HTE_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_pFData->LoT();
-  double HiT = rng ? hi : m_pFData->HiT();
+  double LoT = rng ? lo : m_Ts;
+  double HiT = rng ? hi : m_Te;
   
   if (T2<LoT)
     HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
@@ -1253,13 +1253,13 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       }
     virtual double AtTP(double T, double P)
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       };
@@ -1298,8 +1298,8 @@ double SDBE_Shomate_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = (rng ? lo : m_pFData->LoT())/1000.0;
-  double HiT = (rng ? hi : m_pFData->HiT())/1000.0;
+  double LoT = (rng ? lo : m_Ts)/1000.0;
+  double HiT = (rng ? hi : m_Te)/1000.0;
   T1/=1000.;
   T2/=1000.;
 
@@ -1669,12 +1669,12 @@ class SDBE_HFC134a_GasCp : protected CSpDBEqn
 
     virtual double AtT(double T) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      //T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double AtTP(double T, double P) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_pFData->LoT(), T, m_pFData->HiT());
+      //T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1715,8 +1715,8 @@ double SDBE_HFC134a_GasCp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  //double LoT = rng ? lo : m_pFData->LoT();
-  //double HiT = rng ? hi : m_pFData->HiT();
+  //double LoT = rng ? lo : m_Ts;
+  //double HiT = rng ? hi : m_Te;
   //
   //if (T2<LoT)
   //  HCp = Sgn*(T2-T1)*m_pFData->mlCp(LoT, P);
@@ -2331,43 +2331,23 @@ H2OPropertiesBlock::H2OPropertiesBlock(pTagObjClass pClass_, pchar pTag, pTagged
   m_Const.m_dMd      = dNAN;           // MolecularDiam
  
   m_Liq[0].m_pSp         = NULL;
-  m_Liq[0].xm_dTs        = 273.16;
-  m_Liq[0].xm_dTe        = 623.16;
+  m_Liq[0].xm_LoT        = 273.16;
+  m_Liq[0].xm_HiT        = 623.16;
   m_Liq[0].m_CpOK       = true;
   m_Liq[0].m_H25OK      = true;
   m_Liq[0].m_S25OK      = true;
-  m_Liq[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"));
-  m_Liq[0].m_S25     = 69.948;
-  //m_Liq[0].m_dCZRef[0]   = 0;
-  //m_Liq[0].m_dCdHf[0]    = 0;
-  //m_Liq[0].m_dCHf[0]     = 0;
-  //m_Liq[0].m_dCSf[0]     = 0;
-  //m_Liq[0].m_pRho        = NULL;
-  //m_Liq[0].m_pCp         = NULL;
-  //m_Liq[0].m_pH          = NULL;
-  //m_Liq[0].m_pS          = NULL;
-  //m_Liq[0].m_bVpOK       = true;
-  //m_Liq[0].m_pVp[0]      = NULL;
+  m_Liq[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-285829.970)"), 273.16, 623.16);
+  m_Liq[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(69.948)"),      273.16, 623.16);
   m_Liq[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
                         
   m_Vap[0].m_pSp         = NULL;
-  m_Vap[0].xm_dTs        = 273.16;
-  m_Vap[0].xm_dTe        = 1073.16;
+  m_Vap[0].xm_LoT        = 273.16;
+  m_Vap[0].xm_HiT        = 1073.16;
   m_Vap[0].m_CpOK       = true;
   m_Vap[0].m_H25OK      = true;
   m_Vap[0].m_S25OK      = true;
-  m_Vap[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"));
-  m_Vap[0].m_S25     = 188.832;
-  //m_Vap[0].m_dCZRef[0]   = 0;
-  //m_Vap[0].m_dCdHf[0]    = 0;
-  //m_Vap[0].m_dCHf[0]     = 0;
-  //m_Vap[0].m_dCSf[0]     = 0;
-  //m_Vap[0].m_pRho     = NULL;
-  //m_Vap[0].m_pCp      = NULL;
-  //m_Vap[0].m_pH       = NULL;
-  //m_Vap[0].m_pS       = NULL;
-  //m_Vap[0].m_bVpOK       = true;
-  //m_Vap[0].m_pVp[0]      = NULL;
+  m_Vap[0].m_H25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(-241826.833)"), 273.16, 1073.16);
+  m_Vap[0].m_S25.SetEqn(ET_Std, CSpDBEqn::Construct(NULL, NULL, "Const(188.832)"),     273.16, 1073.16);
   m_Vap[0].m_dCpCv       = 1.37;           // Cp/Cv Ratio
        
   };

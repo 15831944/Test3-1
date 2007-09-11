@@ -456,8 +456,8 @@ double  MSpecieDefn::msVolume(double T, double P, MVector * MVec) { CDensityInfo
 double  MSpecieDefn::msNVolume(MVector * MVec)                    { CDensityInfo C(SpModel::Fidelity(), SMDensM_None, Norm_T, Norm_P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); return m_pSp->DensityX(C) ? C.msVolume() : 0.0; };
 //double  MSpecieDefn::Volume(double T, double P, MVector * MVec)  { return m_pSp->Volume(SpModel::Fidelity(), T, P, NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
 //double  MSpecieDefn::NVolume(MVector * MVec)                     { return m_pSp->NVolume(SpModel::Fidelity(), NULL, MVec?(MVec->SpMdl->SVData()):NULL); };
-double  MSpecieDefn::TempLimitLo()              { return m_pSp->LoT(SpModel::Fidelity()); };
-double  MSpecieDefn::TempLimitHi()              { return m_pSp->HiT(SpModel::Fidelity()); };
+double  MSpecieDefn::TempLimitLo()              { return m_pSp->xLoT(SpModel::Fidelity()); };
+double  MSpecieDefn::TempLimitHi()              { return m_pSp->xHiT(SpModel::Fidelity()); };
 double  MSpecieDefn::TempLimitTestLo()          { return m_pSp->TestLoT(SpModel::Fidelity()); };
 double  MSpecieDefn::TempLimitTestHi()          { return m_pSp->TestHiT(SpModel::Fidelity()); };
 double  MSpecieDefn::mlHs(double T, double P)   { return m_pSp->mlHs(SpModel::Fidelity(), T, P, NULL, NULL); };

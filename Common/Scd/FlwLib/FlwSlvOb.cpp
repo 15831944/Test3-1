@@ -235,8 +235,8 @@ flag SDBObject::DataXchg(DataChangeBlk & DCB)
     switch (i*MaxSpecies+xidMolWt)
       {
       case xidMolWt:  DCB.D=SDB[s].MoleWt(); return true;
-      case xidLoT:    DCB.D=SDB[s].LoT(FIDELITY(0)); return true;
-      case xidHiT:    DCB.D=SDB[s].HiT(FIDELITY(0)); return true;
+      case xidLoT:    DCB.D=SDB[s].xLoT(FIDELITY(0)); return true;
+      case xidHiT:    DCB.D=SDB[s].xHiT(FIDELITY(0)); return true;
       case xidSpTag:  DCB.pC=SDB[s].Tag(); return true;
       case xidKaKb:   DCB.pC=SDB[s].KaKbDesc();  return true;
 
@@ -1239,11 +1239,11 @@ void SDBObjectEdt::Load(FxdEdtInfo &EI, Strng & Str)
       switch (iId)
         {
         case Id_LoT1:
-          TFmt.FormatFloat(TCnv.Human(SDB[iSp].LoT(rSDBO.m_bHiFidelity?1:0)), Str);
+          TFmt.FormatFloat(TCnv.Human(SDB[iSp].xLoT(rSDBO.m_bHiFidelity?1:0)), Str);
           FixWide(iWd_LoHiT, Str, View());
           break;
         case Id_HiT1:
-          TFmt.FormatFloat(TCnv.Human(SDB[iSp].HiT(rSDBO.m_bHiFidelity?1:0)), Str);
+          TFmt.FormatFloat(TCnv.Human(SDB[iSp].xHiT(rSDBO.m_bHiFidelity?1:0)), Str);
           FixWide(iWd_LoHiT, Str, View());
           break;
         case Id_MolWt1:

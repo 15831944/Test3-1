@@ -158,16 +158,17 @@ bool CBayerConcs::Converge(MArray & MA, bool SetValid)
 #endif
               
 #if WITHMDLRANGECHECKS
-  pBayerMdl->RngChks.CheckRange(RngChk_T, "XTemp T(C)", 1, 2, pBayerMdl->Temperature);
-  
-  CRangeListItem RCList[] =
-    {
-      {RngChk_T|RngChk_TExtn,   "Temperature T(C)", 0.0, 271.0, pBayerMdl->Temperature },
-      {RngChk_P,                "Pressure P(kPa)",  0.0, 91.0, pBayerMdl->Pressure },
-      {RngChk_Comp,             "Mass M(kg)",       0.0, 1.0, MA[0] },
-      { }
-    };
-  pBayerMdl->RngChks.CheckRangeList(RCList);
+  // these are only for testing 
+  //pBayerMdl->RngChks.CheckRange(RngChk_T, "XTemp T(C)", 1, 2, pBayerMdl->Temperature);
+  //
+  //CRangeListItem RCList[] =
+  //  {
+  //    {RngChk_T|RngChk_TExtn,   "Temperature T(C)", 0.0, 271.0, pBayerMdl->Temperature },
+  //    {RngChk_P,                "Pressure P(kPa)",  0.0, 91.0, pBayerMdl->Pressure },
+  //    {RngChk_Comp,             "Mass M(kg)",       0.0, 1.0, MA[0] },
+  //    { }
+  //  };
+  //pBayerMdl->RngChks.CheckRangeList(RCList);
 #endif
 
   double OldDensity = Density25;
