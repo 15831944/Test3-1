@@ -6,9 +6,6 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Text;
-using System.Runtime.Serialization;
-using System.Collections.ObjectModel;
-using System.Runtime.InteropServices;
 using Mehroz;
 
 namespace Reaction_Editor
@@ -603,7 +600,7 @@ namespace Reaction_Editor
         public static Regex s_SequenceRegex = new Regex(@"^Sequence\s*:\s*(?<Value>\d+)$",
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex s_HORRegex = new Regex(
-            @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>-?\d+(\.\d+)?|\.\d+)\s*(/\s*(?<Specie>\S*))?\s*(At\s*((?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)|\.\d+)(\s*,\s*(?<P>\d*(\.\d+)|\.\d+))?))?\s*$",
+            @"^\s*HeatOfReaction\s*:\s*(?<Type>MsFixed|MlFixed)\s*=\s*(?<Value>-?\d+(\.\d+)?|\.\d+)\s*(/\s*(?<Specie>\S*))?\s*(At\s*((?<Condition>Feed|Prod|Std)|(?<T>\d*(\.\d+)?|\.\d+)(\s*,\s*(?<P>\d*(\.\d+)?|\.\d+))?))?\s*$",
             RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled);
         public static Regex s_CompoundRegex = new Regex(
             @"^\s*(?<Unparseable>.*?)(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s+]*)\s*(?>(?<Unparseable>.*?)\+\s*(?<Amount>\d+/\d+|\d*(\.\d+)?)(?<Space>\s*)(?<Compound>[^\s+]*)\s*)*(?<Unparseable>.*?)$",
@@ -1641,7 +1638,7 @@ namespace Reaction_Editor
 
         public SimpleReaction Clone(ListViewItem newLVI)
         {
-            SimpleReaction ret = new SimpleReaction(newLVI, null);
+            SimpleReaction ret = new SimpleReaction(newLVI, Log);
             ret.SetRegex(this.Enabled ? 
                 s_ReactionRegex.Match(ToSaveString(true)) :
                 s_DisabledReactionRegex.Match(ToSaveString(true)) , 
@@ -2226,7 +2223,7 @@ namespace Reaction_Editor
             return ret;
         }
 
-        public Vector Column(int col)
+        public Vector GetColumn(int col)
         {
             Vector ret = new Vector(Rows);
             for (int i = 0; i < Rows; i++)

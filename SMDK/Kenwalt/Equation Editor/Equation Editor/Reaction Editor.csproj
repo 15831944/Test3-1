@@ -69,7 +69,7 @@
     </Compile>
     <Compile Include="Data Structures.cs" />
     <Compile Include="FrmAutoComplete.cs">
-      <SubType>Form</SubType>
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="FrmAutoComplete.designer.cs">
       <DependentUpon>FrmAutoComplete.cs</DependentUpon>

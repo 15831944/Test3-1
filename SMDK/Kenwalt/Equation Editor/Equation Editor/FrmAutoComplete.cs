@@ -12,8 +12,8 @@ namespace Auto_Complete
 {
     internal partial class FrmAutoComplete : Form
     {
-        public static Regex s_AutoCompleteRegex = new Regex(@"(\s|\+|^)(\d*(\.\d+)?)?(?<Last>[A-Za-z0-9()\[\]]+?(?<Back>[\b]?)$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
-        public static Regex s_AutoCompleteOpeningRegex = new Regex(@"(\s|\+|^)(\d*(\.\d+)?)?(?<Last>[A-Za-z0-9()\[\]]$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        public static Regex s_AutoCompleteRegex = new Regex(@"(\s|\+|^|,)\d*(\.\d+)?(?<Last>[A-Za-z0-9()\[\]]+?(?<Back>[\b]?)$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
+        public static Regex s_AutoCompleteOpeningRegex = new Regex(@"(\s|\+|^|,)\d*(\.\d+)?(?<Last>[A-Za-z0-9()\[\]]$)", RegexOptions.ExplicitCapture | RegexOptions.Compiled);
 
         protected int m_nLastSelect;
         protected BoxAutoComplete m_OwnerBox;

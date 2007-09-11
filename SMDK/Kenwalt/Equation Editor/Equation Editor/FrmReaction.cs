@@ -8,8 +8,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.IO;
 using System.Collections;
-using System.Collections.Specialized;
-using Be.Windows.Forms;
 using Auto_Complete;
 using System.Threading;
 using Mehroz;
@@ -19,7 +17,7 @@ namespace Reaction_Editor
     public partial class FrmReaction : Form
     {
         #region Regex's
-        protected static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r*\n)?|\r*\n|$))*?$",
+        public static Regex s_CompoundSeperator = new Regex(@"^((?<Comp>[^,\r\n]*)(?<Delim>,(\r*\n)?|\r*\n|$))*?$",
             RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         protected static Regex s_LastSelectedRegex = new Regex(@"<LastSelected\s*=\s*(?<Value>\d+|None)>",
@@ -88,7 +86,13 @@ namespace Reaction_Editor
         //It's only ever used in adding a new reaction. And non-software people don't like zero referenced arrays.
         protected int ReactionNo
         {
-            get { return lstReactions.Items.Count; }
+            get 
+            {
+                if (lstReactions.Items.Contains(m_SourcesLVI) && !chkSourcesEnabled.Checked)
+                    return lstReactions.Items.Count - 1; 
+                else
+                    return lstReactions.Items.Count; 
+            }
         }
 
         protected bool m_bActualActive = true;
@@ -383,7 +387,7 @@ namespace Reaction_Editor
             pnlReaction_Resize(null, new EventArgs());
 
             txtSources.AllowDrop = true;
-            txtReactants.AllowDrop = true;
+            txtSinks.AllowDrop = true;
 
             txtSources.DragDrop += new DragEventHandler(txtCompounds_DragDrop);
             txtSinks.DragDrop += new DragEventHandler(txtCompounds_DragDrop);
@@ -682,7 +686,7 @@ namespace Reaction_Editor
             {
                 if (!existingSources.Contains(c))
                 {
-                    if (s_EndsWithComma.Match(txtSources.Text).Success || string.IsNullOrEmpty(txtSources.Text.Trim()))
+                    if (s_EndsWithCommaOrNL.Match(txtSources.Text).Success || string.IsNullOrEmpty(txtSources.Text.Trim()))
                         txtSources.AppendText(c.Symbol);
                     else
                         txtSources.AppendText(", " + c.Symbol);
@@ -704,7 +708,7 @@ namespace Reaction_Editor
             {
                 if (!existingSinks.Contains(c))
                 {
-                    if (s_EndsWithComma.Match(txtSinks.Text).Success || string.IsNullOrEmpty(txtSinks.Text.Trim()))
+                    if (s_EndsWithCommaOrNL.Match(txtSinks.Text).Success || string.IsNullOrEmpty(txtSinks.Text.Trim()))
                         txtSinks.AppendText(c.Symbol);
                     else
                         txtSinks.AppendText(", " + c.Symbol);
@@ -1273,7 +1277,6 @@ namespace Reaction_Editor
             if (string.IsNullOrEmpty(s.Trim()))
                 return ret;
             Match m = s_CompoundSeperator.Match(s);
-            //string[] seperatedCompounds = s.Split(new string[] { ",", "\r*\n" }, StringSplitOptions.None);
             foreach (Capture c in m.Groups["Comp"].Captures)
             {
                 if (!Compound.CompoundList.ContainsKey(c.Value.Trim()))
@@ -2157,7 +2160,7 @@ namespace Reaction_Editor
         private void txtSources_Leave(object sender, EventArgs e)
         {
             Log.SetSource(new MessageFrmReaction(this.Title + " Sources", this, null));
-            Match m = s_EndsWithComma.Match(txtSources.Text);
+            Match m = s_EndsWithCommaOrNL.Match(txtSources.Text);
             if (m.Success)
                 txtSources.Text = m.Groups["Data"].Value;
             ColourCompounds(txtSources);
@@ -2175,7 +2178,7 @@ namespace Reaction_Editor
         private void txtSinks_Leave(object sender, EventArgs e)
         {
             Log.SetSource(new MessageFrmReaction(this.Title + " Sinks", this, null));
-            Match m = s_EndsWithComma.Match(txtSinks.Text);
+            Match m = s_EndsWithCommaOrNL.Match(txtSinks.Text);
             if (m.Success)
                 txtSinks.Text = m.Groups["Data"].Value;
             ColourCompounds(txtSinks);
@@ -2200,7 +2203,7 @@ namespace Reaction_Editor
             }
             Compound newComp = (Compound)e.Data.GetData(typeof(Compound));
             //Determine if we already have the compound in the textbox:
-            if (Regex.Match(box.Text, @"(^|,)\s*" + Regex.Escape(newComp.Symbol) + @"\s*(,|$)", RegexOptions.ExplicitCapture).Success)
+            if (Regex.Match(box.Text, @"(^|,|\n)\s*" + Regex.Escape(newComp.Symbol) + @"\s*(,|$)", RegexOptions.ExplicitCapture).Success)
             {
                 e.Effect = DragDropEffects.None;
                 return;
@@ -2208,7 +2211,7 @@ namespace Reaction_Editor
             e.Effect = DragDropEffects.Link;
         }
 
-        protected static Regex s_EndsWithComma = new Regex(@"(?<Data>.*),\s*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline);
+        public static Regex s_EndsWithCommaOrNL = new Regex(@"(?<Data>.*)(,|\n)\s*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.Singleline);
         void txtCompounds_DragDrop(object sender, DragEventArgs e)
         {
             RichTextBox box = (RichTextBox)sender;
@@ -2219,16 +2222,12 @@ namespace Reaction_Editor
             }
             Compound newComp = (Compound)e.Data.GetData(typeof(Compound));
             //Determine if we already have the compound in the textbox:
-            if (Regex.Match(box.Text, @"(^|,)\s*" + Regex.Escape(newComp.Symbol) + @"\s*(,|$)", RegexOptions.ExplicitCapture).Success)
+            if (Regex.Match(box.Text, @"(^|,|\n)\s*" + Regex.Escape(newComp.Symbol) + @"\s*(,|$)", RegexOptions.ExplicitCapture).Success)
             {
                 e.Effect = DragDropEffects.None;
                 return;
             }
             e.Effect = DragDropEffects.Link;
-            //bool bWasActive = Log.Active;
-            //Log.Active = false;
-            //ColourCompounds(box);
-            //Log.Active = bWasActive;
             if (box == txtSinks)
                 AddSinks(newComp);
             else
@@ -2300,18 +2299,12 @@ namespace Reaction_Editor
                 string note = "Reaction is over-constrained, and requires additional compounds to allow autobalancing. Please specify a compound set to allow autobalancing.";
                 while (!m_CurrentReaction.IsBalanceable(extraComps))
                 {
-                    FrmAutobalanceExtraComps temp = new FrmAutobalanceExtraComps(Program.FrmAutobalanceExtraComps);
-                    temp.Note = note;
+                    Program.FrmAutobalanceExtraComps.Note = note;
                     note = "Previously selected set did not contain suitable compounds to allow autobalancing. Please adjust the compound set, or choose a different set.";
-                    if (temp.ShowDialog(this) == DialogResult.Cancel)
-                    {
-                        temp.Dispose();
+                    if (Program.FrmAutobalanceExtraComps.ShowDialog(this) == DialogResult.Cancel)
                         return;
-                    }
-                    Program.FrmAutobalanceExtraComps.Dispose();
-                    Program.FrmAutobalanceExtraComps = temp;
-                    temp.Note = "";
-                    extraComps = GetCommaSeperatedCompounds(temp.SelectedList);
+                    Program.FrmAutobalanceExtraComps.Note = "";
+                    extraComps = GetCommaSeperatedCompounds(Program.FrmAutobalanceExtraComps.SelectedList);
                 }
                 Matrix.RemovalInfo info = m_CurrentReaction.BalanceOptions(extraComps);
                 if (!info.m_bCanRemove)

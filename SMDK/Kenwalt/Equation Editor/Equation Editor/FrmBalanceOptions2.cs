@@ -202,12 +202,12 @@ namespace Reaction_Editor
 
             SetMinMaxValues();
 
-            Matrix.Vector finalCol = m_OriginalMatrix.Column(m_OriginalMatrix.Columns - 1);
+            Matrix.Vector finalCol = m_OriginalMatrix.GetColumn(m_OriginalMatrix.Columns - 1);
 
             for (int i = 0; i < m_Checkboxes.Count; i++)
             {
                 if (m_Checkboxes[i].Checked)
-                    finalCol -= m_OriginalMatrix.Column(i) * (Fraction)m_NumericUDs[i].Value;
+                    finalCol -= m_OriginalMatrix.GetColumn(i) * (Fraction)m_NumericUDs[i].Value;
             }
 
             Matrix currentMatrix = RemoveColumns();
@@ -227,12 +227,12 @@ namespace Reaction_Editor
 
         protected void SetMinMaxValues()
         {
-            Matrix.Vector finalCol = m_OriginalMatrix.Column(m_OriginalMatrix.Columns - 1);
+            Matrix.Vector finalCol = m_OriginalMatrix.GetColumn(m_OriginalMatrix.Columns - 1);
 
             for (int i = 0; i < m_Checkboxes.Count; i++)
             {
                 if (m_Checkboxes[i].Checked)
-                    finalCol -= m_OriginalMatrix.Column(i) * (Fraction)m_NumericUDs[i].Value;
+                    finalCol -= m_OriginalMatrix.GetColumn(i) * (Fraction)m_NumericUDs[i].Value;
             }
 
             Matrix currentMatrix = RemoveColumns(); //May be inefficient with particularly large matrices (Since this uses quite a bit of memory management)
@@ -240,7 +240,7 @@ namespace Reaction_Editor
             {
                 if (m_Checkboxes[i].Checked)
                 {
-                    Matrix.Vector currentCol = m_OriginalMatrix.Column(i);
+                    Matrix.Vector currentCol = m_OriginalMatrix.GetColumn(i);
                     Matrix scratch = currentMatrix.InsertColumn(currentMatrix.Columns, currentCol);
                     scratch.SetColumn(currentMatrix.Columns - 1, finalCol + currentCol * (Fraction)m_NumericUDs[i].Value);
                     scratch.RowReduce();

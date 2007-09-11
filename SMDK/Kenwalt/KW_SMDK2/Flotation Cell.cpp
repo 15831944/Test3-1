@@ -3,48 +3,50 @@
 //===========================================================================
 
 #include "stdafx.h"
-#define  __FLOTATION_TANK_CPP
-#include "FlotationTank.h"
+#define  __FLOTATION_CELL_CPP
+#include "Flotation Cell.h"
 #pragma optimize("", off)
 
 //====================================================================================
 
 const int maxSecondaries = 10;
 
-const long idFeed = 0;
-const long idTail = 1;
-const long idConc = 2;
+enum {	idFeed = 0,
+		idTail,
+		idConc,
+		idAir,
+		idVent };
 
 static MInOutDefStruct s_IODefs[]=
   {
-  //  Desc;             Name;			Id;    Rqd; Max; CnId, FracHgt;  Options;
-    { "Feed",           "Feed",			idFeed,  1,  10,    0,    1.0f,  MIO_In |MIO_Material },
-    { "Tailings",       "Tailings",		idTail,  1,   1,    0,    1.0f,  MIO_Out|MIO_Material },
-    { "Concentrate",    "Concentrate",	idConc,  1,   4,    0,    1.0f,  MIO_Out|MIO_Material },
+  //  Desc;             Name;			Id;			Rqd;Max;CnId,FracHgt;Options;
+    { "Feed",           "Feed",			idFeed,		1,	10,	0,	1.0f,	MIO_In |MIO_Material },
+    { "Tailings",       "Tailings",		idTail,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
+    { "Concentrate",    "Concentrate",	idConc,		1,	1,	0,	1.0f,	MIO_Out|MIO_Material },
+	{ "Air",			"Air",			idAir,		0,	10,	0,	1.0f,	MIO_In |MIO_Material },
+	{ "Vent",			"Vent",			idVent,		0,	1,	0,	1.0f,	MIO_Out|MIO_Material },
     { NULL },
   };
 
-static double Drw_FlotationTank[] = { 
-  MDrw_Poly,  8.0,4.0, 8.0,-6.0, -8.0,-6.0, -8.0,4.0, 8.0,4.0,
-  MDrw_Poly,  7.0,4.0, 7.0,6.0, -7.0,6.0, -7.0,4.0,
-  MDrw_Poly,  8.0,2.5, 0.0,-6.0, -8.0,2.5,
-  MDrw_End };
+static double Drw_FlotCell[] = { 
+	MDrw_Poly,  0.,16.,  32.,16.,  32.,6., 0.,16., 0.,0., 32.,0., 32.,6., 34.,6., 34.,16., 32.,16.,
+MDrw_End };
 
 //---------------------------------------------------------------------------
 
-DEFINE_TRANSFER_UNIT(FlotationTank, "TestFlotationTank", DLL_GroupName)
-void FlotationTank_UnitDef::GetOptions()
+DEFINE_TRANSFER_UNIT(FlotationCell, "Flotation Cell", DLL_GroupName)
+void FlotationCell_UnitDef::GetOptions()
   {
-  SetDefaultTag("FL");
-  SetDrawing("Tank", Drw_FlotationTank);
-  SetTreeDescription("Demo:Flotation Tank");
-  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow|MSolveMode_DynamicFull);
+  SetDefaultTag("FC");
+  SetDrawing("Tank", Drw_FlotCell);
+  SetTreeDescription("Demo:Flotation Cell");
+  SetModelSolveMode(MSolveMode_Probal|MSolveMode_DynamicFlow/*|MSolveMode_DynamicFull*/);
   SetModelGroup(MGroup_General);
   };
 
 //---------------------------------------------------------------------------
 
-FlotationTank::FlotationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
+FlotationCell::FlotationCell(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBaseMethod(pUnitDef, pNd)
 {
   //default values...
 	eSpecType = FTST_ByCompound;
@@ -54,6 +56,7 @@ FlotationTank::FlotationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 	dReqPrimaryRecovery = dReqPrimaryGrade = 0.0;
 
 	dWaterFrac = dReqWaterFrac = 0.0;
+	m_bOn = true;
 }
 
 //---------------------------------------------------------------------------
@@ -61,7 +64,7 @@ FlotationTank::FlotationTank(MUnitDefBase * pUnitDef, TaggedObject * pNd) : MBas
 static	vector<MDDValueLst>	gs_vSolidElements;
 
 
-void FlotationTank::Init()
+void FlotationCell::Init()
 {
 	SetIODefinition(s_IODefs);
 
@@ -111,12 +114,14 @@ const int idDX_SecondaryIndex = 10 + maxSecondaries;
 const int idDX_SecondaryReqRecovery = 10 + 2*maxSecondaries;
 const int idDX_SecondaryRecovery = 10 + 3*maxSecondaries;
 
-void FlotationTank::BuildDataFields()
+void FlotationCell::BuildDataFields()
 {
 	static MDDValueLst DDB1[] ={
 		{ FTST_ByCompound, "Compound" },
 		{ FTST_ByElement, "Element" },
 		{ 0 }};
+
+	DD.CheckBox("On", "", &m_bOn, MF_PARAMETER);
 
 	DD.Text("Requirements...");
 	DD.Long("Specify_By", "", idDX_SpecType, MF_PARAM_STOPPED | MF_SET_ON_CHANGE, DDB1);
@@ -156,7 +161,7 @@ void FlotationTank::BuildDataFields()
 
 //---------------------------------------------------------------------------
 
-bool FlotationTank::ExchangeDataFields()
+bool FlotationCell::ExchangeDataFields()
 {
 	switch (DX.Handle)
 	{
@@ -282,7 +287,7 @@ bool FlotationTank::ExchangeDataFields()
 
 //---------------------------------------------------------------------------
 
-bool FlotationTank::PreStartCheck()
+bool FlotationCell::PreStartCheck()
 {
 	if (!FlwIOs.getCount(idFeed) || !FlwIOs.getCount(idTail) || !FlwIOs.getCount(idConc))
 		return false;
@@ -301,7 +306,7 @@ bool FlotationTank::PreStartCheck()
 
 //---------------------------------------------------------------------------
 
-bool FlotationTank::ValidateDataFields()
+bool FlotationCell::ValidateDataFields()
 {
 	dReqPrimaryRecovery = Range(0.0, dReqPrimaryRecovery, 1.);
 	dReqPrimaryGrade = Range(ZeroLimit, dReqPrimaryGrade, 1.);
@@ -313,7 +318,9 @@ bool FlotationTank::ValidateDataFields()
 
 //---------------------------------------------------------------------------
 
-void FlotationTank::EvalProducts()
+enum {LC_NoGrade, LC_Vent, LC_Other};
+
+void FlotationCell::EvalProducts()
 {
 	try
 	{
@@ -326,16 +333,38 @@ void FlotationTank::EvalProducts()
 		//sum all input streams into a working copy
 		MStreamI QI;
 		FlwIOs.AddMixtureIn_Id(QI, idFeed);
+		MStreamI QAir;
+		FlwIOs.AddMixtureIn_Id(QAir, idAir);
+		bool bAirOn = FlwIOs.Count[idAir] > 0;
 
-		//get handles to input and output streams...
+		//get handles to output streams...
 		MStream & QOT = FlwIOs[FlwIOs.First[idTail]].Stream;
 		MStream & QOC = FlwIOs[FlwIOs.First[idConc]].Stream;
+		MStream & QOV = FlwIOs[FlwIOs.First[idVent]].Stream;
 
-		// Always initialise the outputs as a copy of the inputs. This ensures all "qualities" are copied.
 		QOT = QI;
 		QOT.ZeroMass();
 		QOC = QI;
 		QOC.ZeroMass();
+
+		if (!m_bOn)
+		{
+			QOT = QI;
+			QOV = QAir;
+			dPrimaryRecovery = dPrimaryGrade = dWaterFrac = 0;
+			for (vector<double>::iterator it = vSecondaryRecoveries.begin(); it != vSecondaryRecoveries.end(); it++)
+				*it = 0.0;
+			return;
+		}
+		if (QI.Mass(MP_Sol) > QI.Mass(MP_Liq))
+			Log.SetCondition(true, LC_Other, MMsg_Warning, "Input stream contains more solid than liquid.");
+
+		if (bAirOn && (QAir.Mass(MP_Sol) > UsableMass || QAir.Mass(MP_Liq) > UsableMass))
+			Log.SetCondition(true, LC_Vent, MMsg_Warning, "Air stream contains liquids or solids");
+		if (bAirOn && QAir.Volume(MP_Gas) < 2 * QI.Volume(MP_Sol))
+			Log.SetCondition(true, LC_Vent, MMsg_Warning, "Air stream contains very little gas");
+
+		QI.AddM(QAir, MP_All, QAir.Mass(MP_All));
 
 		//do the work...
 		const int NumSpecies = gs_MVDefn.Count();
@@ -348,27 +377,7 @@ void FlotationTank::EvalProducts()
 			double temp = QI.M[vPrimaryIndices.at(i)];
 			dPrimaryMassConc += temp * dReqPrimaryRecovery;
 			if (eSpecType == FTST_ByElement)
-			{
-				double dElementMass = gs_PeriodicTable[nPrimary1 - 1].AtomicWt();
-				MSpecieElements curElements = gs_MVDefn[vPrimaryIndices.at(i)].Elements();
-				int primaryElement = 0;
-				while (primaryElement < curElements.Count())
-				{
-					int debug1 = curElements[primaryElement].Element().AtomicNumber();
-					LPCSTR debug2 = curElements[primaryElement].Element().Symbol();
-					if (curElements[primaryElement].Element().AtomicNumber() == nPrimary1)
-					{
-						double amount = curElements[primaryElement].Amount();
-						double molWt = gs_MVDefn[vPrimaryIndices.at(i)].MolecularWt();
-						dPrimaryElementConc += temp * dReqPrimaryRecovery
-							* curElements[primaryElement].Amount() * dElementMass / gs_MVDefn[vPrimaryIndices.at(i)].MolecularWt();
-					}
-					primaryElement++;
-					
-				}
-				//if (primaryElement < curElements.Count())
-					//dPrimaryElementConc += temp * dReqPrimaryRecovery * curElements[primaryElement].Amount() * gs_PeriodicTable[nPrimary1 - 1].AtomicWt() / gs_MVDefn[i].MolecularWt();
-			}
+				dPrimaryElementConc += temp * dPrimaryRecovery * ElementMassFrac(vPrimaryIndices.at(i), nPrimary1);
 			else
 				dPrimaryElementConc += temp * dPrimaryRecovery;
 
@@ -384,43 +393,66 @@ void FlotationTank::EvalProducts()
 			dSecondaryMassConc += temp * vReqSecondaryRecoveries.at(i);
 			QOT.M[vSecondaryIndices.at(i)] = temp * (1 - vReqSecondaryRecoveries.at(i));
 			QOC.M[vSecondaryIndices.at(i)] = temp * vReqSecondaryRecoveries.at(i);
+			if (eSpecType == FTST_ByElement)
+				dPrimaryElementConc += temp * vReqSecondaryRecoveries.at(i) * ElementMassFrac(vSecondaryIndices.at(i), nPrimary1);
 		}
 
 		//Those not included in either primaries or secondaries.
+		double dPrimaryElementInGangue = 0;
 		double dOtherMassIn = 0.0;
 		for (unsigned int i = 0; i < vOtherIndices.size(); i++)
+		{
 			dOtherMassIn += QI.M[vOtherIndices.at(i)];
+			if (eSpecType == FTST_ByElement)
+				dPrimaryElementInGangue += QI.M[vOtherIndices.at(i)] * ElementMassFrac(vOtherIndices.at(i), nPrimary1);
+		}
+		double dPrimaryGangueFrac = dPrimaryElementInGangue / NZ(dOtherMassIn);
 
-		int liNoGrade = 0;
-		double dTotalReqImpurities = dPrimaryElementConc * 1.0 / NZ(dReqPrimaryGrade) - dPrimaryMassConc;
-		if (dTotalReqImpurities < dSecondaryMassConc) //If this is the case, we will put in no more impurities.
+		double dReqOtherMassOut = (dPrimaryElementConc - dReqPrimaryGrade * (dPrimaryMassConc + dSecondaryMassConc)) / NZ(dReqPrimaryGrade - dPrimaryGangueFrac);
+		if (dReqOtherMassOut < 0) //If this is the case, we will put in no more impurities.
 		{
-			Log.SetCondition(true, liNoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
-			dPrimaryGrade = dPrimaryMassConc / NZ(dPrimaryMassConc + dSecondaryMassConc);
-		}
-		else
-		{
-			double dReqOtherMassOut = dTotalReqImpurities - dSecondaryMassConc;
-			if (dReqOtherMassOut > dOtherMassIn)
+			if (dPrimaryElementConc / QOC.Mass(MP_Sol) < dReqPrimaryGrade)
 			{
-				Log.SetCondition(true, liNoGrade, MMsg_Warning, "Not enough unspecified input mass to achieve required primary grade");
-				dReqOtherMassOut = dOtherMassIn;
+				Log.SetCondition(true, LC_NoGrade, MMsg_Warning, "Secondary products prevent required primary grade");
+				dReqOtherMassOut = 0;
 			}
-			for (unsigned int i = 0; i < vOtherIndices.size(); i++)
+			else
 			{
-				QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / NZ(dOtherMassIn);
-				QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / NZ(dOtherMassIn));
+				Log.SetCondition(true, LC_NoGrade, MMsg_Warning, "Grade of gangue to concentrate higher than required grade");
+				if (dPrimaryElementConc / QOC.Mass(MP_Sol) > dPrimaryGangueFrac) //We will get as close as possible...
+					dReqOtherMassOut = dOtherMassIn;
 			}
 		}
+		if (dReqOtherMassOut > dOtherMassIn)
+		{
+			Log.SetCondition(true, LC_NoGrade, MMsg_Warning, "Not enough unspecified input mass to achieve required primary grade");
+			dReqOtherMassOut = dOtherMassIn;
+		}
+		for (unsigned int i = 0; i < vOtherIndices.size(); i++)
+		{
+			QOC.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * dReqOtherMassOut / NZ(dOtherMassIn);
+			QOT.M[vOtherIndices.at(i)] = QI.M[vOtherIndices.at(i)] * (1 - dReqOtherMassOut / NZ(dOtherMassIn));
+		}
+		dPrimaryElementConc += dReqOtherMassOut * dPrimaryGangueFrac;
 
 		//Finally: We deal with non-solid species:
-		for (int i = 0; i < gs_MVDefn.Count(); i++)
+		/*for (int i = 0; i < gs_MVDefn.Count(); i++)
 		{
 			if (gs_MVDefn[i].IsSolid())
 				continue;
 			QOC.M[i] = QI.M[i] * dReqWaterFrac;
 			QOT.M[i] = QI.M[i] * (1 - dReqWaterFrac);
+		}*/
+		QOC.AddM(QI, MP_Liq, QI.Mass(MP_Liq) * dReqWaterFrac);
+		QOT.AddM(QI, MP_Liq, QI.Mass(MP_Liq) * (1 - dReqWaterFrac));
+		if (FlwIOs.Count[idVent] > 0)
+		{
+			QOV = QI;
+			QOV.ZeroMass();
+			QOV.AddM(QI, MP_Gas, QI.Mass(MP_Gas));
 		}
+		else
+			QOT.AddM(QI, MP_Gas, QI.Mass(MP_Gas));
 
 		dPrimaryGrade = dPrimaryElementConc / NZ(QOC.Mass(MP_Sol));
 		dWaterFrac = QOC.Mass(MP_Liq) / NZ(QOC.Mass(MP_All));
@@ -447,7 +479,7 @@ void FlotationTank::EvalProducts()
 //====================================================================================
 
 //This will recalculate the primary indices if the mode is set to ByElement. It will then call UpdateMDDLists.
-void FlotationTank::UpdatePrimaryIndices()
+void FlotationCell::UpdatePrimaryIndices()
 {
 	if (eSpecType == FTST_ByElement)
 	{
@@ -483,7 +515,7 @@ void FlotationTank::UpdatePrimaryIndices()
 //If they are a primary, or if they are a different secondary.
 //The MDD lists will be created in SetSecondaryCount, so we will merely set flags at this point.
 //This is somewhat inefficent - the number of iterations is n^2 * c, where n is the secondary count and c is the element count.
-/*void FlotationTank::UpdateMDDLists()
+/*void FlotationCell::UpdateMDDLists()
 {
 	for (unsigned int i = 0; i < vSecondaryIndices.size(); i++)
 		for (unsigned int j = 0; j < vSecondaryMDDLists.at(i).size(); j++)
@@ -507,7 +539,7 @@ void FlotationTank::UpdatePrimaryIndices()
 		}
 }*/
 
-void FlotationTank::SetSecondaryCount(int newSize)
+void FlotationCell::SetSecondaryCount(int newSize)
 {
 	if (newSize < 0) newSize = 0;
 	if (newSize > maxSecondaries) newSize = maxSecondaries;
@@ -547,7 +579,7 @@ void FlotationTank::SetSecondaryCount(int newSize)
 	UpdateOtherIndices();
 }
 
-void FlotationTank::UpdateOtherIndices()
+void FlotationCell::UpdateOtherIndices()
 {
 	vOtherIndices.clear();
 	for (int i = 0; i < gs_MVDefn.Count(); i++)
@@ -563,4 +595,19 @@ void FlotationTank::UpdateOtherIndices()
 			if (other)
 				vOtherIndices.push_back(i);
 		}
+}
+
+double FlotationCell::ElementMassFrac(int compound, int element)
+{
+	double dElementMass = gs_PeriodicTable.ByAtmNo(element).AtomicWt();
+	double molWt = gs_MVDefn[compound].MolecularWt();
+	double ret = 0;
+	MSpecieElements curElements = gs_MVDefn[compound].Elements();
+	for (int curElement = 0; curElement < curElements.Count(); curElement++)
+		if (curElements[curElement].Element().AtomicNumber() == element)
+		{
+			double amount = curElements[curElement].Amount();
+			ret += amount * dElementMass / molWt;
+		}
+	return ret;
 }

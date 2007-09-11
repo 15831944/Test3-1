@@ -8,10 +8,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using System.Resources;
-using System.Reflection;
 using System.Collections;
-using System.Runtime.InteropServices;
 using Mehroz;
 
 namespace Reaction_Editor
@@ -150,6 +147,37 @@ namespace Reaction_Editor
             Program.FrmAutobalanceExtraComps.UpdateAutocomplete();
         }
 
+        protected bool CheckSpecieDB(string filename)
+        {
+            bool bDBLoaded = false;
+            foreach (TreeNode n in treeFiles.Nodes["SpecieDB"].Nodes)
+                if (Path.GetDirectoryName(n.Text) == Path.GetDirectoryName(filename))
+                {
+                    bDBLoaded = true;
+                    break;
+                }
+            if (!bDBLoaded)
+            {
+                switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
+                {
+                    case DialogResult.Yes:
+                        if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini"))
+                            MessageBox.Show(this, "No specie database found in reaction folder", "Open", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        else
+                        {
+                            if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show(this, "Unload existing specie databases before loading new database?", "Open", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                UnloadDatabase();
+                            OpenSpecieDB(Path.GetDirectoryName(filename) + "\\SpecieData.ini");
+                        }
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                        return false;
+                }
+            }
+            return true;
+        }
 
         protected void Open(string filename)
         {
@@ -221,10 +249,8 @@ namespace Reaction_Editor
 
         protected void RegisterForm(FrmReaction frm)
         {
-            frm.FormClosing += new FormClosingEventHandler(frm_FormClosing);
-            frm.FormClosed += new FormClosedEventHandler(frm_FormClosed);
-            frm.RecheckCutCopyPaste += new EventHandler(frm_RecheckCutCopyPaste);
-            frm.ReactionChanged += new FrmReaction.ReactionHandler(frm_ReactionChanged);
+            if (Program.FrmAutobalanceExtraComps.Visible)
+                frm.Enabled = false;
             frm.MdiParent = this;
             frm.Show();
             TreeNode newNode = new TreeNode(frm.Text);
@@ -246,6 +272,11 @@ namespace Reaction_Editor
             frm.SourcesSinksChanged += new EventHandler(frm_SourcesSinksChanged);
             frm.ReactionAdded += new FrmReaction.ReactionHandler(frm_ReactionAdded);
             frm.ReactionRemoved += new FrmReaction.ReactionHandler(frm_ReactionRemoved);
+
+            frm.FormClosing += new FormClosingEventHandler(frm_FormClosing);
+            frm.FormClosed += new FormClosedEventHandler(frm_FormClosed);
+            frm.RecheckCutCopyPaste += new EventHandler(frm_RecheckCutCopyPaste);
+            frm.ReactionChanged += new FrmReaction.ReactionHandler(frm_ReactionChanged);
         }
 
         protected void Save(FrmReaction target)
@@ -421,7 +452,21 @@ namespace Reaction_Editor
                     Open(rct.Groups["Filename"].Value);
             }
 
+            Program.FrmAutobalanceExtraComps.VisibleChanged += new EventHandler(FrmAutobalanceExtraComps_VisibleChanged);
+
             UpdateToolbar();
+        }
+
+        void FrmAutobalanceExtraComps_VisibleChanged(object sender, EventArgs e)
+        {
+            if (!Program.FrmAutobalanceExtraComps.Modal && Program.FrmAutobalanceExtraComps.Visible)
+                foreach (Form f in this.MdiChildren)
+                    if (f != Program.FrmAutobalanceExtraComps)
+                        f.Enabled = false;
+            if (!Program.FrmAutobalanceExtraComps.Visible)
+                foreach (Form f in this.MdiChildren)
+                    if (f != Program.FrmAutobalanceExtraComps)
+                        f.Enabled = true;
         }
 
         void frm_RecheckCutCopyPaste(object sender, EventArgs e)
@@ -517,43 +562,18 @@ namespace Reaction_Editor
 
         void recentFile_Click(object sender, EventArgs e)
         {
-            Open((string)((ToolStripMenuItem)sender).Tag);
+            if (CheckSpecieDB((string)((ToolStripMenuItem)sender).Tag))
+                Open((string)((ToolStripMenuItem)sender).Tag);
         }
 
         private void menuOpen_Click(object sender, EventArgs e)
         {
             if (dlgOpenRxn.ShowDialog(this) != DialogResult.OK)
                 return;
-            string filename = dlgOpenRxn.FileName;
-            bool bDBLoaded = false;
-            foreach (TreeNode n in treeFiles.Nodes["SpecieDB"].Nodes)
-                if (Path.GetDirectoryName(n.Text) == Path.GetDirectoryName(filename))
-                {
-                    bDBLoaded = true;
-                    break;
-                }
-            if (!bDBLoaded)
-            {
-                switch (MessageBox.Show(this, "No specie database loaded from same folder as reaction. Open database from reaction folder?", "Open", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1))
-                {
-                    case DialogResult.Yes:
-                        if (!File.Exists(Path.GetDirectoryName(filename) + "\\SpecieData.ini"))
-                            MessageBox.Show(this, "No specie database found in reaction folder", "Open", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        else
-                        {
-                            if (treeFiles.Nodes["SpecieDB"].Nodes.Count > 0 && MessageBox.Show(this, "Unload existing specie databases before loading new database?", "Open", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                                UnloadDatabase();
-                            OpenSpecieDB(Path.GetDirectoryName(filename) + "\\SpecieData.ini");
-                        }
-                        break;
-                    case DialogResult.No:
-                        break;
-                    case DialogResult.Cancel:
-                        return;
-                }
-            }
-            foreach (string file in dlgOpenRxn.FileNames)
-                Open(file);
+            
+            if (CheckSpecieDB(dlgOpenRxn.FileName))
+                foreach (string file in dlgOpenRxn.FileNames)
+                    Open(file);
         }
 
         Form AlreadyOpen(string filename)
@@ -567,8 +587,8 @@ namespace Reaction_Editor
         void frm_FormClosed(object sender, FormClosedEventArgs e)
         {
             TreeNode node = (TreeNode)((Form)sender).Tag;
-            if (treeFiles.Nodes["RBs"].Nodes.Contains(node))
-                treeFiles.Nodes["RBs"].Nodes.Remove(node);
+            if (node.Parent != null)
+                node.Parent.Nodes.Remove(node);
         }
 
         void frm_FormClosing(object sender, FormClosingEventArgs e)
@@ -608,6 +628,10 @@ namespace Reaction_Editor
 
         private void FrmMain_MdiChildActivate(object sender, EventArgs e)
         {
+            //Essentially makes the form a modal form, but allows drag-drop from the specie list on the RHS:
+            /*if (Program.FrmAutobalanceExtraComps.Visible)
+                Program.FrmAutobalanceExtraComps.Activate();*/
+
             if (ActiveMdiChild is FrmReaction)
                 m_StatusLabel.Text = ((FrmReaction)ActiveMdiChild).StatusMessage;
             else
@@ -1091,14 +1115,16 @@ namespace Reaction_Editor
 
         private void menuAutoCompleteSets_Click(object sender, EventArgs e)
         {
-            FrmAutobalanceExtraComps temp = new FrmAutobalanceExtraComps(Program.FrmAutobalanceExtraComps);
+            Program.FrmAutobalanceExtraComps.Show();
+            Program.FrmAutobalanceExtraComps.MdiParent = this;
+            /*FrmAutobalanceExtraComps temp = new FrmAutobalanceExtraComps(Program.FrmAutobalanceExtraComps);
             if (temp.ShowDialog(this) == DialogResult.OK)
             {
                 Program.FrmAutobalanceExtraComps.Dispose();
                 Program.FrmAutobalanceExtraComps = temp;
             }
             else
-                temp.Dispose();
+                temp.Dispose();*/
         }
     }
 
