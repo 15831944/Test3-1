@@ -7718,13 +7718,68 @@ void FlwNode::SetDatumsDone()
 
 double CRqdPressCtrl::m_dLowQmFracNC=0.001f;
 
+
+CRqdPressCtrl::CRqdPressCtrl()
+  {
+  m_iMethod     = PC_MinFd;
+  m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
+  m_dLowQmFrac  = 0.0001;
+  m_fMdlAvail   = false;
+  m_fDoInputs   = false;
+  m_fDoOutputs  = true;
+  m_dPRqd       = Std_P;
+  m_dTRqd       = Std_T;
+  m_dPMeas      = Std_P;
+  m_dTMeas      = Std_T;
+  m_dP2Set      = Std_P;
+  m_pMdl        = NULL;
+  m_pFeedSum    = NULL;
+  }
+CRqdPressCtrl::CRqdPressCtrl(long Method, double PRqd, bool MdlAvail)
+  {
+  m_iMethod     = Method;
+  m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
+  m_dLowQmFrac  = 0.0001;
+  m_fMdlAvail   = MdlAvail;
+  m_fDoInputs   = false;
+  m_fDoOutputs  = true;
+  m_dPRqd       = PRqd;
+  m_dTRqd       = Std_T;
+  m_dPMeas      = Std_P;
+  m_dTMeas      = Std_T;
+  m_dP2Set      = Std_P;
+  m_pMdl        = NULL;
+  m_pFeedSum    = NULL;
+  }
+CRqdPressCtrl::~CRqdPressCtrl()
+  {
+  delete m_pFeedSum;
+  }
+void CRqdPressCtrl::Set(long Method, double PRqd, bool MdlAvail)
+  {
+  m_iMethod    = Method;
+  m_dPRqd      = PRqd;
+  m_dTRqd      = Std_T;
+  m_fMdlAvail  = MdlAvail;
+  }
+void CRqdPressCtrl::SetMdl(SpModel/*Owner*/ *pMdl)
+  {
+  m_pMdl       = pMdl;
+  m_fMdlAvail  = pMdl!=NULL;
+  }
+
+void CRqdPressCtrl::SetP2Set(double P2Set, bool DoInputs, bool DoOutputs)
+  {
+  m_dP2Set = P2Set;
+  m_fDoInputs = DoInputs;
+  m_fDoOutputs = DoOutputs;
+  };
+
 void CRqdPressCtrl::BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag ForProbal, long PBAllowed, long DynAllowed)
   {
   long Allowed = ForProbal ? PBAllowed : DynAllowed;
   if (Allowed)
     {
-
-
     DDBValueLst DDBPBP[]={
       {PC_Null     , "Null",                                                       MDD_Hidden},
       {PC_Atmos    , "Atmospheric",  (PC_Atmos & Allowed)                  ? 0 : MDD_Hidden},
@@ -7792,7 +7847,7 @@ void CRqdPressCtrl::CalculateResult(flag ForProbal)
       {
       SpModel &Mdl=*m_pMdl;//->pModel;
       if (Mdl.Mass()>SmallPosFlow)
-        m_dP2Set=Mdl.SaturationP(Mdl.Temp());
+        m_dP2Set=Mdl.SaturationP(m_dTMeas);
       //else
         //m_dP2Set=Mdl.SaturationP(Mdl.Temp());
       m_fDoInputs=true;
@@ -7881,6 +7936,10 @@ double FlwNode::MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
 
   const double LoQm=QmIn*(pPC ? (pPC->IgnoreLoQm() ? pPC->LowQmFrac():0.0):pPC->LowQmFracNC());
 
+  bool DoingSat=(pPC->Method()==PC_SatP);
+  if (DoingSat)
+    pPC->FeedSum()->QZero();
+
   int n=0;
   for (c=0; c<J.NConns(); c++)
     {
@@ -7905,9 +7964,15 @@ double FlwNode::MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
             }
           else
             Pm=Min(Pm, P);
+          if (DoingSat)
+            pPC->FeedSum()->QAddF(*IOConduit(i), som_ALL, 1.0);
           }
         else
+          {
           Pm=P;
+          if (DoingSat)
+            pPC->FeedSum()->QSetF(*IOConduit(i), som_ALL, 1.0, P);
+          }
         }
       }
     }
@@ -7915,7 +7980,12 @@ double FlwNode::MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
     {
     pPC->SetPMeas(Pm);
     pPC->SetP2Set(Pm, true, true);
+    if (DoingSat)
+      pPC->SetTMeas(pPC->FeedSum()->Temp());
+    else
+      pPC->SetTMeas(Std_T);
     }
+
   return Pm;
   }
 

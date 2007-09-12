@@ -101,7 +101,10 @@ void X_Tie::BuildDataDefn(DataDefnBlk & DDB)
 
   DDB.Visibility(NM_Probal|SM_All|HM_All);
   DDB.Text   ("");
-  m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PC_BasicPB, PC_BasicDyn);//PC_Atmos|PC_Reqd);
+
+  long PBOpts= (m_VLE.Enabled() ? (PC_BasicPB & ~PC_SatP):PC_BasicPB);
+  long DynOpts= (m_VLE.Enabled() ? (PC_BasicDyn & ~PC_SatP):PC_BasicDyn);
+  m_PCtrl0.BuildDataDefn(DDB, this, NetProbalMethod(), PBOpts, DynOpts);//PC_Atmos|PC_Reqd);
   DDB.Visibility();
 
   if (NetDynamicMethod())

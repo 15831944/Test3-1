@@ -3141,68 +3141,32 @@ class DllImportExport CRqdPressCtrl
   {
   friend class FlwSlvPB;
   public:
-    CRqdPressCtrl()
-      {
-      m_iMethod     = PC_MinFd;
-      m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
-      m_dLowQmFrac  = 0.0001;
-      m_fMdlAvail   = false;
-      m_fDoInputs   = false;
-      m_fDoOutputs  = true;
-      m_dPRqd       = Std_P;
-      m_dTRqd       = Std_T;
-      m_dPMeas      = Std_P;
-      m_dP2Set      = Std_P;
-      m_pMdl        = NULL;
-      }
-    CRqdPressCtrl(long Method, double PRqd, bool MdlAvail)
-      {
-      m_iMethod     = Method;
-      m_fIgnoreLoQm = PrjFileVerNo() < 57 ? false : true;
-      m_dLowQmFrac  = 0.0001;
-      m_fMdlAvail   = MdlAvail;
-      m_fDoInputs   = false;
-      m_fDoOutputs  = true;
-      m_dPRqd       = PRqd;
-      m_dTRqd       = Std_T;
-      m_dPMeas      = Std_P;
-      m_dP2Set      = Std_P;
-      m_pMdl        = NULL;
-      }
+    CRqdPressCtrl();
+    CRqdPressCtrl(long Method, double PRqd, bool MdlAvail);
+    ~CRqdPressCtrl();
     void BuildDataDefn(DataDefnBlk & DDB, TaggedObject * pObj, flag ForProbal, long PBAllowed, long DynAllowed);
-    void Set(long Method, double PRqd, bool MdlAvail)
-      {
-      m_iMethod    = Method;
-      m_dPRqd      = PRqd;
-      m_dTRqd      = Std_T;
-      m_fMdlAvail  = MdlAvail;
-      }
-    void SetMdl(SpModel/*Owner*/ *pMdl)
-      {
-      m_pMdl       = pMdl;
-      m_fMdlAvail  = pMdl!=NULL;
-      }
+    void Set(long Method, double PRqd, bool MdlAvail);
+    void SetMdl(SpModel/*Owner*/ *pMdl);
     void CalculateResult(flag ForProbal);
 
-    void SetMethod(long Method) { m_iMethod = Method; }
-    void SetPRqd(double PRqd)   { m_dPRqd   = PRqd; }
-    void SetTRqd(double TRqd)   { m_dTRqd   = TRqd; }
-    void SetPMeas(double PMeas) { m_dPMeas  = PMeas; }
-    void SetP2Set(double P2Set)   { m_dP2Set = P2Set; };
-    void SetP2Set(double P2Set, bool DoInputs, bool DoOutputs)
-      {
-      m_dP2Set = P2Set;
-      m_fDoInputs = DoInputs;
-      m_fDoOutputs = DoOutputs;
-      };
+    void SetMethod(long Method)               { m_iMethod = Method; }
+    void SetPRqd(double PRqd)                 { m_dPRqd   = PRqd; }
+    void SetTRqd(double TRqd)                 { m_dTRqd   = TRqd; }
+    void SetPMeas(double PMeas)               { m_dPMeas  = PMeas; }
+    void SetTMeas(double TMeas)               { m_dTMeas  = TMeas; }
+    void SetP2Set(double P2Set)               { m_dP2Set = P2Set; };
+    void SetP2Set(double P2Set, bool DoInputs, bool DoOutputs);
+
     long          Method()                    { return m_iMethod; }
     double        PRqd()                      { return m_dPRqd; };
     double        TRqd()                      { return m_dTRqd; };
     double        PMeas()                     { return m_dPMeas; };
+    double        TMeas()                     { return m_dTMeas; };
     double        P2Set()                     { return m_dP2Set; };
     bool          DoInputs()                  { return m_fDoInputs; };
     bool          DoOutputs()                 { return m_fDoOutputs; };
     SpModel     * Mdl()                       { return m_pMdl; };
+    SpConduit   * FeedSum()                   { if (!m_pFeedSum) m_pFeedSum = new SpConduit("FeedSum", NULL, TOA_Free);return m_pFeedSum; };
 
     flag          IgnoreLoQm()                { return m_fIgnoreLoQm; };
     void          SetIgnoreLoQm(flag On)      { m_fIgnoreLoQm=On; };
@@ -3222,8 +3186,10 @@ class DllImportExport CRqdPressCtrl
     double        m_dPRqd;   // Set by User
     double        m_dTRqd;   // Set by User
     double        m_dPMeas;  // Press measured at Inputs
+    double        m_dTMeas;  // Temp measured at Inputs
     double        m_dP2Set;  // Press to set node to Set
-    SpModel/*Owner*/ *m_pMdl;
+    SpModel       *m_pMdl;
+    SpConduit     *m_pFeedSum;  // temporary used to meas temp etc
 
   };
 
