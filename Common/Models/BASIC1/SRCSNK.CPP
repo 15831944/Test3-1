@@ -197,16 +197,9 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   {
   DDB.BeginStruct(this, NULL, NULL, DDB_NoPage);
 
-  DDB.Text   ("Flow Conditions");
-  DDB.Double ("Mass_Flow",    "Qm",   DC_Qm,   "kg/s",   xidQm,         this, isResult|noFile|noSnap);
-  DDB.Double ("Vol_Flow",     "Qv",   DC_Qv,   "L/s",    xidQv,         this, isResult|noFile|noSnap);
-  DDB.Double ("NVol_Flow",    "NQv",  DC_NQv,  "NL/s",   xidNQv,        this, isResult|noFile|noSnap);
-  DDB.Double ("Temperature",  "T",    DC_T,    "C",      xidTemp,       this, isResult|noFile|noSnap);
-  DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
-  DDB.Double ("NDensity",     "NRho", DC_Rho,  "kg/m^3", xidNRho,       this, isResult|noFile|noSnap);
-  DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
-
-  DDB.Text   ("Mode of Operation");
+  DDB.Text   ("");
+  DDB.Text   ("Requirements:");
+  //DDB.Text   ("Mode of Operation");
   DDB.Visibility(NM_Dynamic|SM_All|HM_All|SM_Direct);
   DDB.Byte   ("",             "Qm_Mode", DC_, "", &QmRqdMode,  this, (fCrossConnected?0:isParm)|SetOnChange, DDB0);
   DDB.Byte   ("",             "Mode",    DC_, "", xidSSMode,   this, (fCrossConnected?0:isParm) | SetOnChange | AffectsStruct, DDBSrcSnk);
@@ -282,7 +275,7 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
     }
 
   DDB.Visibility();
-  DDB.Byte  ("ZeroOutput",  "",             DC_, "", &m_bKeepTrace,     this, (fCrossConnected?0:isParm)|SetOnChange, DDBKeepTrace);
+  DDB.Byte  ("ZeroOutput",  "",             DC_, "", &m_bKeepTrace,     this, (fCrossConnected?0:isParm)|SetOnChange|InitHidden, DDBKeepTrace);
 
   if (NetDynamicMethod())
     {
@@ -297,6 +290,18 @@ void Feed_XPG::BuildDataDefn(DataDefnBlk & DDB)
   DDB.Visibility(NM_Dynamic|SM_All|HM_All);
   BuildDataDefnElevation(DDB);
   
+
+  DDB.Visibility();
+  DDB.Text   ("");
+  DDB.Text   ("Results: Flow Conditions");
+  DDB.Double ("Mass_Flow",    "Qm",   DC_Qm,   "kg/s",   xidQm,         this, isResult|noFile|noSnap);
+  DDB.Double ("Vol_Flow",     "Qv",   DC_Qv,   "L/s",    xidQv,         this, isResult|noFile|noSnap);
+  DDB.Double ("NVol_Flow",    "NQv",  DC_NQv,  "NL/s",   xidNQv,        this, isResult|noFile|noSnap);
+  DDB.Double ("Temperature",  "T",    DC_T,    "C",      xidTemp,       this, isResult|noFile|noSnap);
+  DDB.Double ("Density",      "Rho",  DC_Rho,  "kg/m^3", xidRho,        this, isResult|noFile|noSnap);
+  DDB.Double ("NDensity",     "NRho", DC_Rho,  "kg/m^3", xidNRho,       this, isResult|noFile|noSnap);
+  DDB.Double ("Pressure",     "P",    DC_P,    "kPag",   xidPMean,      this, isResult|noFile|noSnap);
+
   DDB.Visibility(NSHM_All, !fCrossConnected);
   DDB.Text  ("");
   m_BlkEval.Add_OnOff(DDB);  

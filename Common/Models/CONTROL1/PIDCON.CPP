@@ -679,9 +679,9 @@ void PIDControl::BuildDataDefn(DataDefnBlk & DDB)
       //TODO Restore
       //DDB.Double("TuneOut",          "",     DC_, "", &(p->TuneOut()), this, isParm|InitHidden|NAN_OK);
 
-      DDB.Double("FeedFwd",         "",                  DC_, "", &(p->FeedFwd()), this, isParmConstruct|InitHidden|PID4ViewFlag);
+      DDB.Double("FeedFwd",          "",           DC_, "", &(p->FeedFwd()), this, isParmConstruct|InitHidden|PID4ViewFlag);
 
-      DDB.Long  ("Priority",         "",           DC_, "", idmCfgTags+(i*NoOfCfgTags)+9, this, isParmStopped);
+      DDB.Long  ("DisplayPriority", "Priority",    DC_, "", idmCfgTags+(i*NoOfCfgTags)+9, this, isParmStopped);
 
       Old=DDB.GetVisibility();
       DDB.Visibility(NM_Probal|SM_All|HM_All);
