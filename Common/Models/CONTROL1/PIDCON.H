@@ -63,10 +63,9 @@ class PIDInfo : public CXRefStatus
 
     virtual double &Period()=0;
     virtual double &Spt()=0;
-	virtual double &FeedFwd()=0;
+    virtual double &FeedFwd()=0;
     virtual double &Meas()=0;
     virtual double &Out()=0;
-    //virtual double &Meas()=0;
     virtual double PBand()=0;
     virtual double Gain()=0;
     virtual void   SetPBand(double v)=0;
