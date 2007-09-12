@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E65E04EE-9697-484F-9E3D-E3D5A6F844BC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Protocol</RootNamespace>
+    <AssemblyName>Protocol</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Protocol.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release Marshal|AnyCPU' ">
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Distribution|AnyCPU' ">
+    <OutputPath>..\bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <Compile Include="Anchor.cs" />
+    <Compile Include="Animation.cs" />
+    <Compile Include="Arc.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BaseProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Bezier.cs" />
+    <Compile Include="ClientBaseProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EngineBaseProtocol.cs" />
+    <Compile Include="ClientProtocol.cs" />
+    <Compile Include="ClientServiceProtocol.cs" />
+    <Compile Include="EngineProtocol.cs" />
+    <Compile Include="EngineServiceProtocol.cs" />
+    <Compile Include="GraphicGroup.cs" />
+    <Compile Include="GraphicStencil1.cs" />
+    <Compile Include="GraphicThing.cs" />
+    <Compile Include="Element.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="GraphicItem.cs" />
+    <Compile Include="GraphicStencil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Line.cs" />
+    <Compile Include="GraphicLink.cs" />
+    <Compile Include="Model.cs" />
+    <Compile Include="ModelItem.cs" />
+    <Compile Include="ModelLink.cs" />
+    <Compile Include="ModelStencil.cs" />
+    <Compile Include="ARectangleF.cs" />
+    <Compile Include="ModelStencil1.cs" />
+    <Compile Include="PortStatus.cs" />
+    <Compile Include="ModelProperty.cs" />
+    <Compile Include="Stencil.cs" />
+    <Compile Include="StencilConverter.cs" />
+    <Compile Include="ThingStencil.cs" />
+    <Compile Include="ThingStencil1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="LogView, Version=1.0.2788.21984, Culture=neutral, PublicKeyToken=175dbd78550156d0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Common\LogView\bin\Debug\LogView.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Protocol.snk" />
+  </ItemGroup>
+</Project>

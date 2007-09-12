@@ -609,77 +609,117 @@ namespace SysCAD.Editor
 
       else
       {
+        Box textBox = null;
+
+        {
+          RectangleF textArea = graphicLink.TextArea;
+
+          if (textArea.IsEmpty) // We haven't got a TextArea stored in the item yet.
+          {
+            PointF pointOrigin = new PointF();
+            PointF pointDestination = new PointF();
+            PointF pointCenter = new PointF();
+
+            if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
+            {
+              pointOrigin = graphicLink.ControlPoints[0];
+              pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
+              pointCenter = new PointF((pointDestination.X + pointOrigin.X) / 2.0F, (pointDestination.Y + pointOrigin.Y) / 2.0F);
+            }
+
+            textArea = new RectangleF(pointCenter.X,
+                                      pointCenter.Y + 4.0F,
+                                      20.0F,
+                                      4.0F);
+          }
+
+          textBox = flowchart.CreateBox(textArea.X, textArea.Y, textArea.Width, textArea.Height);
+          textBox.FillColor = System.Drawing.Color.FromArgb(100, System.Drawing.Color.Black);
+          textBox.FrameColor = System.Drawing.Color.FromArgb(200, System.Drawing.Color.Black);
+          textBox.Style = BoxStyle.Shape;
+          textBox.Shape = ShapeTemplate.FromId("Rectangle");
+          textBox.EnabledHandles = Handles.ResizeTopLeft | Handles.ResizeTopRight |
+            Handles.ResizeBottomRight | Handles.ResizeBottomLeft | Handles.ResizeTopCenter |
+            Handles.ResizeMiddleRight | Handles.ResizeBottomCenter | Handles.ResizeMiddleLeft |
+            Handles.Move;
+          textBox.Visible = ShowTags && isVisible;
+          textBox.Text = graphicLink.Tag;
+        }
+
         Arrow arrow = flowchart.CreateArrow(new PointF(0.0F, 0.0F), new PointF(10.0F, 10.0F));
 
-        switch (graphicLink.ClassID)
         {
+          switch (graphicLink.ClassID)
+          {
 
-          case "Pipe-1":
-            break;
+            case "Pipe-1":
+              break;
 
-          case "CtrlLink":
-            arrow.PenColor = System.Drawing.Color.Gray;
-            break;
-          default:
-            arrow.PenColor = System.Drawing.Color.Red;
-            break;
-        }
+            case "CtrlLink":
+              arrow.PenColor = System.Drawing.Color.Gray;
+              break;
+            default:
+              arrow.PenColor = System.Drawing.Color.Red;
+              break;
+          }
 
-        Item origin = null;
-        Item destination = null;
+          Item origin = null;
+          Item destination = null;
 
-        if (graphicLink.Origin != Guid.Empty) origin = Item(graphicLink.Origin);
+          if (graphicLink.Origin != Guid.Empty) origin = Item(graphicLink.Origin);
 
-        if (graphicLink.Destination != Guid.Empty) destination = Item(graphicLink.Destination);
+          if (graphicLink.Destination != Guid.Empty) destination = Item(graphicLink.Destination);
 
-        PointF pointOrigin = new PointF();
-        PointF pointDestination = new PointF();
+          PointF pointOrigin = new PointF();
+          PointF pointDestination = new PointF();
 
-        if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
-        {
-          pointOrigin = graphicLink.ControlPoints[0];
-          pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
-        }
+          if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
+          {
+            pointOrigin = graphicLink.ControlPoints[0];
+            pointDestination = graphicLink.ControlPoints[graphicLink.ControlPoints.Count - 1];
+          }
 
-        if (origin != null)
-          arrow.Origin = origin.Model;
+          if (origin != null)
+            arrow.Origin = origin.Model;
 
-        if (destination != null)
-          arrow.Destination = destination.Model;
+          if (destination != null)
+            arrow.Destination = destination.Model;
 
-        if ((graphicLink.OriginPort != null) && ((origin.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
-          arrow.OrgnAnchor = (origin.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
+          if ((graphicLink.OriginPort != null) && ((origin.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.OriginPort)))
+            arrow.OrgnAnchor = (origin.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.OriginPort];
 
-        else
-          arrow.OrgnAnchor = -1;
+          else
+            arrow.OrgnAnchor = -1;
 
-        if ((graphicLink.DestinationPort != null) && ((destination.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
-          arrow.DestAnchor = (destination.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
+          if ((graphicLink.DestinationPort != null) && ((destination.Model.Tag as Item).GraphicItem.anchorTagToInt.ContainsKey(graphicLink.DestinationPort)))
+            arrow.DestAnchor = (destination.Model.Tag as Item).GraphicItem.anchorTagToInt[graphicLink.DestinationPort];
 
-        else
-          arrow.DestAnchor = -1;
+          else
+            arrow.DestAnchor = -1;
 
-        String originTag = "";
+          String originTag = "";
 
-        if (origin != null) originTag = origin.Tag;
+          if (origin != null) originTag = origin.Tag;
 
-        String destinationTag = "";
+          String destinationTag = "";
 
-        if (destination != null) destinationTag = destination.Tag;
+          if (destination != null) destinationTag = destination.Tag;
 
-        arrow.ToolTip = "Tag:" + graphicLink.Tag +
-          "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
-          "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
-        arrow.ArrowHead = ArrowHead.Triangle;
-        arrow.Style = ArrowStyle.Cascading;
+          arrow.ToolTip = "Tag:" + graphicLink.Tag +
+            "\nSrc: " + origin.Tag + ":" + graphicLink.OriginPort +
+            "\nDst: " + destination.Tag + ":" + graphicLink.DestinationPort;
+          arrow.ArrowHead = ArrowHead.Triangle;
+          arrow.Style = ArrowStyle.Cascading;
 
-        if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
-        {
-          SetControlPoints(arrow, graphicLink.ControlPoints);
+          if (graphicLink.ControlPoints != null && graphicLink.ControlPoints.Count > 1)
+          {
+            SetControlPoints(arrow, graphicLink.ControlPoints);
+          }
         }
 
         Link link = new Link(graphicLink.Guid, graphicLink.Tag, graphicLink);
         link.Arrow = arrow;
+        link.Text = textBox;
         link.Visible = true;
 
         arrow.Tag = link;

@@ -807,6 +807,8 @@ namespace SysCAD.Editor
       foreach (Arrow arrow in frmFlowChart.FlowChart.Arrows)
       {
         bool visible = true;
+        Link link = arrow.Tag as Link;
+        Box textBox = link.Text;
         Item origin = arrow.Origin.Tag as Item;
         Item destination = arrow.Destination.Tag as Item;
 
@@ -817,6 +819,7 @@ namespace SysCAD.Editor
         if (destination != null) visible = visible && destination.Visible;
 
         arrow.Visible = visible && frmFlowChart.State.ShowLinks;
+        textBox.Visible = arrow.Visible;
       }
     }
 

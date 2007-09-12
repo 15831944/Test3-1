@@ -13,6 +13,7 @@ namespace SysCAD.Editor
   {
 
     private Arrow arrow;
+    private Box text;
 
     private GraphicLink graphicLink;
 
@@ -40,6 +41,12 @@ namespace SysCAD.Editor
     {
       get { return arrow; }
       set { arrow = value; }
+    }
+
+    public Box Text
+    {
+      get { return text; }
+      set { text = value; }
     }
 
     public GraphicLink GraphicLink
