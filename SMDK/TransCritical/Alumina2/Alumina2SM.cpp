@@ -661,6 +661,9 @@ enum
   idTOC25					    ,
   idCarbonateConc25		,
   idSolidsConc25			  ,
+#if DBGVALIDFLAGS 
+  idSolidsConc25Mass			  ,
+#endif
   idFreeCaustic25      ,
   idDigAtoCEquil,
   idNaOnCS, 
@@ -810,7 +813,9 @@ long Bayer::DefinedPropertyInfo(long Index, MPropertyInfo & Info)
     case idNa2C2O4Conc25    : Info.Set(ePT_Double,    "", "Oxalate*@25",	   MC_Conc, "g/L",    0, 0,  MP_RNH,    "SodiumOxalate Concentration @ 25"); return Inx;
     case idFreeCaustic25    : Info.Set(ePT_Double,    "FC", "FreeCaustic", MC_Conc, "g/L",    0, 0,  MP_RNH,    "Free Caustic Concentration @ 25"); return Inx;
     case idSolidsConc25	    : Info.Set(ePT_Double,    "", "SolidsConc",  MC_Conc, "g/L",    0, 0,  MP_RN,    "Solids Concentration @ 25");return Inx;
-
+#if DBGVALIDFLAGS 
+    case idSolidsConc25Mass	    : Info.Set(ePT_Double,    "", "SolidsConcMass",  MC_Qm, "kg/s",    0, 0,  MP_RN,    "");return Inx;
+#endif
     case idSeparator1	    : Info.SetText("..."); return Inx;
 
     case idSodaConc25:
@@ -960,6 +965,9 @@ void Bayer::GetPropertyValue(long Index, ULONG Phase/*=MP_All*/, double T/*=NAN*
     GVAL2(Na2C2O4Conc25,LiqConcs25.Liq[::SodiumOxalate]*::SodiumOxalate.MW/::SodiumCarbonate.MW);
     GVALFT(SolidsConc);
     GVALF(SolidsConc25);
+#if DBGVALIDFLAGS 
+    GVALF(SolidsConc25Mass);
+#endif
     GVAL2(FreeCaustic25,FreeCaustic(C_2_K(25.0)));
     GVALFT(TOC);
     GVALF(TOC25);
@@ -1239,7 +1247,12 @@ double Bayer::SolidsConc25()
   return (mt>=UsableMass) ? mt/GTZ(Mass(MP_SL))*get_Density(MP_SL, C_2_K(25.0), Pressure, NULL) : 0.0;
   }
 
-
+#if DBGVALIDFLAGS 
+double Bayer::SolidsConc25Mass()
+  {
+  return Mass(MP_Sol);
+  }
+#endif
 
 double Bayer::TOC(double T_)
   {

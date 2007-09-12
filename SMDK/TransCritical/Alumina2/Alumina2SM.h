@@ -9,6 +9,8 @@
 
 class Bayer; // forward declare
 
+#define DBGVALIDFLAGS 0
+
 //===========================================================================
 
 // A helper class to assist with calculating iterative concentration and density calculations.
@@ -172,6 +174,9 @@ class Bayer : public MSpModelBase, public MIBayer
     double	        TOC25();
     double          TOStoTOC();
     double	        SolidsConc25();
+#if DBGVALIDFLAGS 
+    double	        SolidsConc25Mass();
+#endif
     double          TOOCtoC();
     double          AluminaSSN(double T_);
     double          NaOnCS();                  
