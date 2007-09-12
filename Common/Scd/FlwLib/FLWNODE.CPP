@@ -7936,7 +7936,7 @@ double FlwNode::MeasureJoinPressure(int iJoinNo, CRqdPressCtrl *pPC/*=NULL*/)
 
   const double LoQm=QmIn*(pPC ? (pPC->IgnoreLoQm() ? pPC->LowQmFrac():0.0):pPC->LowQmFracNC());
 
-  bool DoingSat=(pPC->Method()==PC_SatP);
+  bool DoingSat=(pPC && pPC->Method()==PC_SatP);
   if (DoingSat)
     pPC->FeedSum()->QZero();
 
