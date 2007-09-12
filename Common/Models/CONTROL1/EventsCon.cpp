@@ -7,8 +7,6 @@
 #include "eventscon.h"
 //#include "optoff.h"
 
-#if !SKIPIT 
-
 //==========================================================================
 //
 //
@@ -63,10 +61,11 @@ EventConInfo::~EventConInfo()
   }
 
 //--------------------------------------------------------------------------
+const long MaxRowCount = 16000L;
 
 long EventConInfo::SetRowCnt(long NewSize)
   {
-  NewSize = Range(0L, NewSize, 8192L);
+  NewSize = Range(0L, NewSize, MaxRowCount);
   if (NewSize!=iRowCnt)
     {
     EventRowInfo ** NewRowData = NULL;
@@ -158,9 +157,16 @@ flag EventConInfo::DoLoad()
               }
             if (c[0] && c[1] && c[2] && strlen(c[0])>0 && strlen(c[1])>0/* && strlen(c[2])>0*/)
               {
-              RowData[ValidRowCnt]->m_dTime = atof(c[0]);
-              RowData[ValidRowCnt]->m_sOutputTag = c[1];
-              RowData[ValidRowCnt]->m_dOutputVal = strlen(c[2])==0 ? 0.0 : (c[2][0]=='*' ? dNAN : atof(c[2]));
+              if (ValidRowCnt<MaxRowCount)
+                {
+                RowData[ValidRowCnt]->m_dTime = atof(c[0]);
+                RowData[ValidRowCnt]->m_sOutputTag = c[1];
+                RowData[ValidRowCnt]->m_dOutputVal = strlen(c[2])==0 ? 0.0 : (c[2][0]=='*' ? dNAN : atof(c[2]));
+                }
+              else if (ValidRowCnt==MaxRowCount)
+                {
+                LogError(pParent->Tag(), 0, "Too many event rows (Maximum allowed %d)", MaxRowCount);
+                }
               ValidRowCnt++;
               }
             }
@@ -653,4 +659,4 @@ flag CEventsCon::CIStrng(int No, pchar & pS)
 
 //==========================================================================
 
-#endif
+
