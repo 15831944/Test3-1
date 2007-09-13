@@ -314,17 +314,17 @@ class DllImportExport CMeasInfo
 
     eSelect         m_eSelect;
     PhMask          m_Phases; 
-    
+
     CIArray         m_Species;
     CIArray         m_Comps;
     CIArray         m_Elements;
-    
+
     bool            m_DDBSpcsOK;
     DDBValueLstMem  m_DDBSpcAdd;
     DDBValueLstMem  m_DDBSpcRem;
     int             m_nLastSpcStr;
     CStringArray    m_SpcStr;
-    
+
     bool            m_DDBCmpsOK;
     DDBValueLstMem  m_DDBCmpAdd;
     DDBValueLstMem  m_DDBCmpRem;
@@ -810,7 +810,7 @@ void CMeasInfo::BuildDataDefn(DataDefnBlk& DDB, CXBlk_MUFeed &Blk, LPTSTR Tag, D
     }
   DDB.EndStruct();
   DDB.PopUserInfo();
-};
+  };
 
 //--------------------------------------------------------------------------
 
@@ -1354,7 +1354,7 @@ void CXBlk_MUFeed::BuildDataDefn(DataDefnBlk& DDB)
     DDB.Double ("Meas.NQv.Makeup",  "", DC_NQv,   "Nm^3/s",   &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
   else if (MoleBasis)
     DDB.Double ("Meas.QMl.Makeup",  "", DC_QKgMl, "kmol/s",   &m_dMakeupAct,     this, isResult|noFileAtAll|NAN_OK);
- 
+
   DDB.Text(" ");
   DDB.Text("Total mass flow:");
   DDB.Double ("Qm.Feed",            "", DC_Qm,    "kg/s",     &m_dQmFeed,     this, isResult);
@@ -1568,130 +1568,101 @@ void CXBlk_MUFeed::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
   ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
 
-  m_bHasFlow = (QPrd.QMass()>SmallPosFlow);
+  m_dQmFeed = QPrd.QMass();
+  m_dQvFeed = QPrd.QVolume();
+  m_dTempKFeed = QPrd.Temp();
+  double HzIn = QPrd.totHz();
 
-  if (m_bHasFlow || AsFixedFlow())
+  m_bHasFlow = (m_dQmFeed>SmallPosFlow);
+  bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
+
+  StkSpConduit QIn("QIn", "MkUp", pNd);
+  QIn().QCopy(QPrd);
+
+  StkSpConduit QSrcWrk("QSrcWrk", "SrcWrk", pNd);
+  SpConduit &QSrc=SrcIO.Cd;
+
+  m_dMeas     = GetMeasVal(QIn(), QSrc, QPrd);
+  m_dFeedAct  = GetFlowValue(m_In, QIn());
+  m_dTempKMakeup = QSrc.Temp();
+
+  bool CIsOn[12]={false,false,false,false,false,false,false,false,false,false,false,false};
+  if (m_AsRatio)
     {
-    m_dQmFeed = QPrd.QMass();
-    m_dQvFeed = QPrd.QVolume();
-
-    bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
-
-    m_dTempKFeed = QPrd.Temp();
-    const double HzIn = QPrd.totHz();
-
-    StkSpConduit QIn("QIn", "MkUp", pNd);
-    QIn().QCopy(QPrd);
-
-    StkSpConduit QSrcWrk("QSrcWrk", "SrcWrk", pNd);
-    SpConduit &QSrc=SrcIO.Cd;
-
-    m_dMeas     = GetMeasVal(QIn(), QSrc, QPrd);
-    m_dFeedAct  = GetFlowValue(m_In, QIn());
-    m_dTempKMakeup = QSrc.Temp();
-
-    bool CIsOn[12]={false,false,false,false,false,false,false,false,false,false,false,false};
-    if (m_AsRatio)
-      {
-      if (m_In.m_eSelect==CMeasInfo::Slct_Element)
-        CIsOn[7]=(m_In.m_Elements.GetCount()==0);
-      else if (m_In.m_eSelect>=CMeasInfo::Slct_Specie)
-        CIsOn[6]=(m_In.m_Species.GetCount()==0);
-      else 
-        CIsOn[5]=(m_In.m_Phases==0);
-      }
-    if (m_Mu.m_eSelect==CMeasInfo::Slct_Element)
-      CIsOn[10]=(m_Mu.m_Elements.GetCount()==0);
-    else if (m_Mu.m_eSelect>=CMeasInfo::Slct_Specie)
-      CIsOn[9]=(m_Mu.m_Species.GetCount()==0);
+    if (m_In.m_eSelect==CMeasInfo::Slct_Element)
+      CIsOn[7]=(m_In.m_Elements.GetCount()==0);
+    else if (m_In.m_eSelect>=CMeasInfo::Slct_Specie)
+      CIsOn[6]=(m_In.m_Species.GetCount()==0);
     else 
-      CIsOn[8]=(m_Mu.m_Phases==0);
-
-    CIsOn[11]=StopMakeUp;
-    if (!StopMakeUp && !CIsOn[5] && !CIsOn[6] && !CIsOn[7] && !CIsOn[8] && !CIsOn[9] && !CIsOn[10])
-      {
-      // Copy to Src if Self
-      if (m_eSource==Src_Self)
-        QSrc.QSetF(QPrd, som_ALL, 1.0);
-
-      CFeedMkUpFnd MkUpFnd(this, FullObjTag(), &QIn(), &QSrc, &QSrcWrk(), &QPrd, /*TReqd, Po,*/ sm_QmTol);
-      int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_MUQmMin, m_MUQmMax, m_dQmMakeup, 0.0, true);
-      switch (iRet)
-        {
-        case RF_OK:         
-          m_dQmMakeup = MkUpFnd.Result();
-          break;
-        case RF_LoLimit:    
-        case RF_EstimateLoLimit:    
-          m_dQmMakeup = MkUpFnd.Result();
-          CIsOn[2]=true;
-          break;
-        case RF_HiLimit:    
-        case RF_EstimateHiLimit:    
-          m_dQmMakeup = MkUpFnd.Result();   
-          CIsOn[3]=true;
-          break;
-        case RF_Independant:
-          MkUpFnd.Function(0);   
-          m_dQmMakeup = MkUpFnd.Result();   
-          CIsOn[4]=true;
-          break;
-
-        default: 
-          CIsOn[1]=true;
-          SetCI(1, "E\tConverge Error [%i]", iRet);
-          break;
-        }
-
-      //QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-      QSrc.QCopy(QSrcWrk());
-      }
-    if (SrcIO.Enabled)
-      SrcIO.Sum.Set(QSrc);
-    else
-      SrcIO.Sum.ZeroFlows();
-  
-    if (!CIsOn[1])
-      ClrCI(1);
-
-    for (int i=2; i<=11; i++)
-      SetCI(i, CIsOn[i]);
-
-    m_dSetPoint   = GetSetPoint();
-    m_dResult     = GetMeasVal(QIn(), QSrc, QPrd);
-    m_dQmProd     = QPrd.QMass();
-    m_dQmMakeup   = m_dQmProd-m_dQmFeed;
-    m_dQvProd     = QPrd.QVolume();
-    m_dQvMakeup   = QSrcWrk().QVolume();
-    m_dTempKProd  = QPrd.Temp();
-
-    m_dProdAct    = GetFlowValue(m_In, QPrd);
-    m_dMakeupAct  = GetFlowValue(m_Mu, QSrcWrk());
+      CIsOn[5]=(m_In.m_Phases==0);
     }
-  else
+  if (m_Mu.m_eSelect==CMeasInfo::Slct_Element)
+    CIsOn[10]=(m_Mu.m_Elements.GetCount()==0);
+  else if (m_Mu.m_eSelect>=CMeasInfo::Slct_Specie)
+    CIsOn[9]=(m_Mu.m_Species.GetCount()==0);
+  else 
+    CIsOn[8]=(m_Mu.m_Phases==0);
+
+  CIsOn[11]=StopMakeUp;
+  if (!StopMakeUp && !CIsOn[5] && !CIsOn[6] && !CIsOn[7] && !CIsOn[8] && !CIsOn[9] && !CIsOn[10])
     {
-    m_dQmFeed     = QPrd.QMass();
-    m_dQmProd     = m_dQmFeed;
-    m_dQmMakeup   = 0.0;
-    m_dQvFeed     = QPrd.QVolume();
-    m_dQvProd     = m_dQvFeed;
-    m_dQvMakeup   = 0.0;
-    m_dTempKFeed  = QPrd.Temp();
-    m_dTempKProd  = m_dTempKFeed;
-    m_dTempKMakeup= C2K(0.0);
-    m_dFeedAct    = GetFlowValue(m_In, QPrd);
-    m_dProdAct    = GetFlowValue(m_In, QPrd);
-    m_dMakeupAct  = 0.0;
-    m_dMeas       = dNAN;
-    m_dSetPoint   = GetSetPoint();
-    m_dResult     = dNAN;
+    // Copy to Src if Self
+    if (m_eSource==Src_Self)
+      QSrc.QSetF(QPrd, som_ALL, 1.0);
 
-    for (int i=1; i<=11; i++)
-      ClrCI(i);
+    CFeedMkUpFnd MkUpFnd(this, FullObjTag(), &QIn(), &QSrc, &QSrcWrk(), &QPrd, /*TReqd, Po,*/ sm_QmTol);
+    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_MUQmMin, m_MUQmMax, m_dQmMakeup, 0.0, true);
+    switch (iRet)
+      {
+      case RF_OK:         
+        m_dQmMakeup = MkUpFnd.Result();
+        break;
+      case RF_LoLimit:    
+      case RF_EstimateLoLimit:    
+        m_dQmMakeup = MkUpFnd.Result();
+        CIsOn[2]=true;
+        break;
+      case RF_HiLimit:    
+      case RF_EstimateHiLimit:    
+        m_dQmMakeup = MkUpFnd.Result();   
+        CIsOn[3]=true;
+        break;
+      case RF_Independant:
+        MkUpFnd.Function(0);   
+        m_dQmMakeup = MkUpFnd.Result();   
+        CIsOn[4]=true;
+        break;
 
-    SrcIO.Cd.QZero();
-    SrcIO.Sum.ZeroFlows();
+      default: 
+        CIsOn[1]=true;
+        SetCI(1, "E\tConverge Error [%i]", iRet);
+        break;
+      }
+
+    //QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+    QSrc.QCopy(QSrcWrk());
     }
+  if (SrcIO.Enabled)
+    SrcIO.Sum.Set(QSrc);
+  else
+    SrcIO.Sum.ZeroFlows();
+
+  if (!CIsOn[1])
+    ClrCI(1);
+
+  for (int i=2; i<=11; i++)
+    SetCI(i, CIsOn[i]);
+
+  m_dSetPoint   = GetSetPoint();
+  m_dResult     = GetMeasVal(QIn(), QSrc, QPrd);
+  m_dQmProd     = QPrd.QMass();
+  m_dQmMakeup   = m_dQmProd-m_dQmFeed;
+  m_dQvProd     = QPrd.QVolume();
+  m_dQvMakeup   = QSrcWrk().QVolume();
+  m_dTempKProd  = QPrd.Temp();
+
+  m_dProdAct    = GetFlowValue(m_In, QPrd);
+  m_dMakeupAct  = GetFlowValue(m_Mu, QSrcWrk());
 
   if (SrcIO.MyConnectedIO()>=0)
     pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_dQmMakeup);
@@ -1972,7 +1943,7 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
   m_dTempKFeed  = C2K(0.0);
   m_dTempKMakeup= C2K(0.0);
   m_dTempKProd  = C2K(0.0);
- 
+
   m_eLoFeedOpt= LF_Ignore;
   m_LoFeedQm  = 1.0;
   }
@@ -2931,151 +2902,122 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   FlwNode *pNd=FindObjOfType((FlwNode*)NULL);
   ASSERT_ALWAYS(pNd!=0, "Should always be part of a FlwNode", __FILE__, __LINE__);
 
-  if (QPrd.QMass()>SmallPosFlow)
+  m_dQmFeed = QPrd.QMass();
+  m_dQvFeed = QPrd.QVolume();
+  m_dTempKFeed = QPrd.Temp();            
+  double HzIn = QPrd.totHz();
+
+  m_bHasFlow = (m_dQmFeed>SmallPosFlow);
+  bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
+
+  StkSpConduit QIn("QIn", "MkUp", pNd);
+  QIn().QCopy(QPrd);
+
+  m_dMeas     = GetMeasVal(QIn(), QPrd);
+  m_dFeedAct  = GetFlowValue(QIn());
+
+  bool CIsOn[8]={false,false,false,false,false,false,false};
+
+  if (m_eSelect>=Slct_Specie)
+    CIsOn[6]=(m_Species.GetCount()==0);
+  else 
+    CIsOn[5]=(m_Phases==0);
+
+  CIsOn[7]=StopMakeUp;
+  if (!StopMakeUp && !CIsOn[5] && !CIsOn[6])
     {
-    m_bHasFlow = true;
+    SpConduit &QSrc=SrcIO.Cd;
 
-    m_dQmFeed = QPrd.QMass();
-    m_dQvFeed = QPrd.QVolume();
-    m_dTempKFeed = QPrd.Temp();
-    const double HzIn = QPrd.totHz();
+    // Copy to Src if Self
+    if (m_eSource==Src_Self)
+      QSrc.QSetF(QPrd, som_ALL, 1.0);
 
-    bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
+    m_dTempKMakeup = QSrc.Temp();
 
-    StkSpConduit QIn("QIn", "MkUp", pNd);
-    QIn().QCopy(QPrd);
-
-    m_dMeas     = GetMeasVal(QIn(), QPrd);
-    m_dFeedAct  = GetFlowValue(QIn());
-
-    bool CIsOn[8]={false,false,false,false,false,false,false};
-
-    if (m_eSelect>=Slct_Specie)
-      CIsOn[6]=(m_Species.GetCount()==0);
-    else 
-      CIsOn[5]=(m_Phases==0);
-
-    CIsOn[7]=StopMakeUp;
-    if (!StopMakeUp && !CIsOn[5] && !CIsOn[6])
+    double TReqd;
+    switch (m_eRqdTemp)
       {
-      SpConduit &QSrc=SrcIO.Cd;
-
-      // Copy to Src if Self
-      if (m_eSource==Src_Self)
-        QSrc.QSetF(QPrd, som_ALL, 1.0);
-
-      m_dTempKMakeup = QSrc.Temp();
-
-      double TReqd;
-      switch (m_eRqdTemp)
-        {
-        case Temp_Inlet:
-          TReqd=QPrd.Temp();
-          break;
-        case Temp_Source:
-          TReqd=QSrc.Temp();
-          break;
-        case Temp_Std:
-          TReqd=StdT;
-          break;
-        case Temp_Mixture:
-          TReqd=StdT; //??????
-          break;
-        default:
-          TReqd=QPrd.Temp();
-        }
-
-      CSimpleMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
-      //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
-      int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0, true);
-      switch (iRet)
-        {
-        case RF_OK:         
-          m_dQmMakeup = MkUpFnd.Result();
-          break;
-        case RF_LoLimit:    
-        case RF_EstimateLoLimit:    
-          m_dQmMakeup = MkUpFnd.Result();
-          if (m_dQmMakeup>SmallPosFlow)
-            CIsOn[2]=true;
-          break;
-        case RF_HiLimit:    
-        case RF_EstimateHiLimit:    
-          m_dQmMakeup = MkUpFnd.Result();   
-          if (m_dQmMakeup>SmallPosFlow)
-            CIsOn[3]=true;
-          break;
-        case RF_Independant:
-          MkUpFnd.Function(0);   
-          m_dQmMakeup = MkUpFnd.Result();   
-          CIsOn[4]=true;
-          break;
-
-        default: 
-          CIsOn[1]=true;
-          SetCI(1, "E\tConverge Error [%i]", iRet);
-          break;
-        }
-
-      QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-
-      m_dQvMakeup = QSrc.QVolume();
-
-      if (SrcIO.Enabled)
-        SrcIO.Sum.Set(QSrc);
-      else
-        SrcIO.Sum.ZeroFlows();
+      case Temp_Inlet:
+        TReqd=QPrd.Temp();
+        break;
+      case Temp_Source:
+        TReqd=QSrc.Temp();
+        break;
+      case Temp_Std:
+        TReqd=StdT;
+        break;
+      case Temp_Mixture:
+        TReqd=StdT; //??????
+        break;
+      default:
+        TReqd=QPrd.Temp();
       }
+
+    CSimpleMkUpFnd MkUpFnd(this, BaseTag(), &QIn(), &QSrc, &QPrd, TReqd, Po, sm_QmTol);
+    //int iRet=MkUpFnd.FindRootEst(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0);
+    int iRet=MkUpFnd.FindRoot(GetSetPoint(), m_QmMin, m_QmMax, m_dQmMakeup, 0.0, true);
+    switch (iRet)
+      {
+      case RF_OK:         
+        m_dQmMakeup = MkUpFnd.Result();
+        break;
+      case RF_LoLimit:    
+      case RF_EstimateLoLimit:    
+        m_dQmMakeup = MkUpFnd.Result();
+        if (m_dQmMakeup>SmallPosFlow)
+          CIsOn[2]=true;
+        break;
+      case RF_HiLimit:    
+      case RF_EstimateHiLimit:    
+        m_dQmMakeup = MkUpFnd.Result();   
+        if (m_dQmMakeup>SmallPosFlow)
+          CIsOn[3]=true;
+        break;
+      case RF_Independant:
+        MkUpFnd.Function(0);   
+        m_dQmMakeup = MkUpFnd.Result();   
+        CIsOn[4]=true;
+        break;
+
+      default: 
+        CIsOn[1]=true;
+        SetCI(1, "E\tConverge Error [%i]", iRet);
+        break;
+      }
+
+    QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+
+    m_dQvMakeup = QSrc.QVolume();
+
+    if (SrcIO.Enabled)
+      SrcIO.Sum.Set(QSrc);
     else
-      {
-      m_dTempKMakeup = C2K(0.0);
-      m_dQvMakeup = 0.0; 
-      SrcIO.Cd.QZero();
       SrcIO.Sum.ZeroFlows();
-      }
-
-    if (!CIsOn[1])
-      ClrCI(1);
-
-    for (int i=2; i<=7; i++)
-      SetCI(i, CIsOn[i]);
-
-    m_dSetPoint   = GetSetPoint();
-    m_dResult     = GetMeasVal(QIn(), QPrd);
-    m_dQmProd     = QPrd.QMass();
-    m_dQmMakeup   = m_dQmProd-m_dQmFeed;
-    m_dTempKProd  = QPrd.Temp();
-    m_dHeatFlow   = QPrd.totHz() - HzIn;
-    m_dQvProd     = QPrd.QVolume();
-    //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
-
-    m_dProdAct    = GetFlowValue(QPrd);
     }
   else
     {
-    m_bHasFlow    = false;
-    m_dQmFeed     = QPrd.QMass();
-    m_dQmProd     = m_dQmFeed;
-    m_dQmMakeup   = 0.0;
-    m_dQvFeed     = QPrd.QVolume();
-    m_dQvProd     = m_dQvFeed;
-    m_dQvMakeup   = 0.0;
-    m_dTempKFeed  = QPrd.Temp();
-    m_dTempKProd  = m_dTempKFeed;
-    m_dTempKMakeup= C2K(0.0);
-    m_dFeedAct    = GetFlowValue(QPrd);
-    m_dProdAct    = GetFlowValue(QPrd);
-    m_dMeas       = dNAN;
-    m_dSetPoint   = GetSetPoint();
-    m_dResult     = dNAN;
-    m_dHeatFlow   = 0.0;
-
-    for (int i=1; i<=7; i++)
-      ClrCI(i);
-
+    m_dTempKMakeup = C2K(0.0);
+    m_dQvMakeup = 0.0; 
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
     }
+
+  if (!CIsOn[1])
+    ClrCI(1);
+
+  for (int i=2; i<=7; i++)
+    SetCI(i, CIsOn[i]);
+
+  m_dSetPoint   = GetSetPoint();
+  m_dResult     = GetMeasVal(QIn(), QPrd);
+  m_dQmProd     = QPrd.QMass();
+  m_dQmMakeup   = m_dQmProd-m_dQmFeed;
+  m_dTempKProd  = QPrd.Temp();
+  m_dHeatFlow   = QPrd.totHz() - HzIn;
+  m_dQvProd     = QPrd.QVolume();
+  //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
+
+  m_dProdAct    = GetFlowValue(QPrd);
 
   if (SrcIO.MyConnectedIO()>=0)
     pNd->SetIOQm_In(SrcIO.MyConnectedIO(), m_dQmMakeup);
