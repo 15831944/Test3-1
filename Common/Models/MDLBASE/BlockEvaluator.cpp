@@ -501,6 +501,34 @@ void CBlockEvaluator::CheckFlowsConsistent(int iJoinNo, bool ForMakeup)
 
 //-------------------------------------------------------------------------
 
+double CBlockEvaluator::Duty()
+  {
+  double D=0.0;
+  for (int i=0; i<m_nBlocks ; i++)
+    {
+    switch (m_Blks[i]->BEId())
+      {
+      case BEId_RB:    
+      case BEId_HX:    
+      case BEId_EHX:  
+      case BEId_VLE:   
+      case BEId_Evap:  
+        break;
+
+      case BEId_Makeup:  
+        D+=m_pMakeups[m_Blks[i]->Index()]->Duty(); 
+        break;
+      case BEId_Bleed:  
+        //D+=m_pBleeds[m_Blks[i]->Index()]->Duty(); 
+        break;
+
+      }
+    //      }
+    }
+  return D;
+  }
+//-------------------------------------------------------------------------
+
 void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwThermalBlk * pFTB, double FinalTEst)
   {
   if (dbgBlkEvalProd && m_nBlocks>0)
@@ -551,24 +579,14 @@ void CBlockEvaluator::EvalProducts(int iJoinNo, SpConduit & Fo, double Po, CFlwT
 
       case BEId_Makeup:  
         CheckFlowsConsistent(iJoinNo, true);
-        //if (pFTB)
-        //  pFTB->AddEvapBegin();
         m_pMakeups[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
-        //if (pFTB)
-        //  pFTB->AddEvapEnd();
-        break;
-      case BEId_Bleed:  
-        CheckFlowsConsistent(iJoinNo, false);
-        //if (pFTB)
-        //  pFTB->AddEvapBegin();
-        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
-        //m_Blks[i]->EvalProducts(Fo, Po); 
-        //if (pFTB)
-        //  pFTB->AddEvapEnd();
         break;
 
+      case BEId_Bleed:  
+        CheckFlowsConsistent(iJoinNo, false);
+        m_pBleeds[m_Blks[i]->Index()]->EvalProducts(Fo, Po); 
+        break;
       }
-    //      }
     }
   if (dbgBlkEvalProd && m_nBlocks>0)
     dbgpln("                              << Qm:%10.3f", Fo.QMass());

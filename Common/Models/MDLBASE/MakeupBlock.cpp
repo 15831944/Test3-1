@@ -364,6 +364,8 @@ class DllImportExport CXBlk_MUFeed: public CMakeupBlock
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    virtual double  Duty() { return 0.0; };
+
     double         GetSetPoint();
     double         GetMeasVal(SpConduit &QIn, SpConduit &QSrc, SpConduit &QPrd);
     double         GetFlowValue(CMeasInfo &MI, SpConduit &Q, PhMask PhRqd=0);
@@ -1732,6 +1734,8 @@ class DllImportExport CXBlk_MUSimple: public CMakeupBlock
     virtual void   EvalProducts(SpConduit & Fo, double Po, double FinalTEst=dNAN);
     virtual void   EvalProductsInline(SpConduit & Fo, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    virtual double  Duty() { return m_dHeatFlow; };
+
     double         GetSetPoint();
     double         GetRawMeas(SpConduit &QPrd, PhMask PhRqd=0);
     double         GetMeasVal(SpConduit &QIn, SpConduit &QPrd);
@@ -2906,8 +2910,8 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   m_dQmFeed = QPrd.QMass();
   m_dQvFeed = QPrd.QVolume();
   m_dTempKFeed = QPrd.Temp();            
-  double HzIn  = QPrd.totHz();
-  double HzSrc = 0;
+  double HfIn  = QPrd.totHf();
+  double HfSrc = 0;
 
   m_bHasFlow = (m_dQmFeed>SmallPosFlow);
   bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
@@ -2991,7 +2995,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       }
 
     QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
-    HzSrc = QSrc.totHz();
+    HfSrc = QSrc.totHf();
 
     m_dQvMakeup = QSrc.QVolume();
 
@@ -3019,7 +3023,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   m_dQmProd     = QPrd.QMass();
   m_dQmMakeup   = m_dQmProd-m_dQmFeed;
   m_dTempKProd  = QPrd.Temp();
-  m_dHeatFlow   = QPrd.totHz() - (HzIn + HzSrc);
+  m_dHeatFlow   = QPrd.totHf() - (HfIn + HfSrc);
   m_dQvProd     = QPrd.QVolume();
   //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
 

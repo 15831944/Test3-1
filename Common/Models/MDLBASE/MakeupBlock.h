@@ -45,6 +45,8 @@ class DllImportExport CMakeupBlock : public TaggedObject
     virtual void    EvalProducts(SpConduit & QPrd, double Po, double FinalTEst=dNAN);
     virtual void    EvalProductsInline(SpConduit & QPrd, double Len, double Diam, double Po, double FinalTEst=dNAN);
 
+    virtual double  Duty() { return 0.0; };
+
     inline CDirectFlwIO & getSrcIO();
 
   public:
@@ -114,6 +116,7 @@ class DllImportExport CMakeupBase : public CBlockEvalBase
         m_pMakeupB->SrcIO.Sum.ZeroFlows();
         }
       };
+    double         Duty()       { return (Enabled() ? m_pMakeupB->Duty() : 0.0); };
 
     virtual int       ChangeTag(char * pOldTag, char * pNewTag);
     virtual int       DeleteTag(char * pDelTag);

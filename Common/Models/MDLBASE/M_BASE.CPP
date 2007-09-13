@@ -2601,7 +2601,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (AuditOption()>=Audit_Totals)
         {
         double Sig=0.0;
-        for (int i=0; i<NoProcessIOs(); i++)
+        for (int i=0; i<NoProcLnkIOs(); i++)
           {
           //dbgpln("%3i %3i %3i %3i %10.6f %10.6f %10.6f %10.6f %10.6f", i, IOId_Self(i), IO_In(i), IO_Out(i), IOQm_In(i), IOQm_Out(i), IOQmEst_In(i), IOQmEst_Out(i), IOAreaSum(i)->TotalMass);
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalMass;
@@ -2676,7 +2676,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (AuditOption()>=Audit_Flows)
         {
         double Sig=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcLnkIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->FlowHf;
         DCB.D=Sig;
         }
@@ -2747,7 +2747,7 @@ flag MdlNode::DataXchg(DataChangeBlk & DCB)
       if (AuditOption()>=Audit_Totals)
         {
         double Sig=0.0;
-        for (int i=0; i<NoFlwIOs(); i++)
+        for (int i=0; i<NoProcLnkIOs(); i++)
           Sig+=(IO_In(i) ? 1 : IO_Out(i) ? -1 : 0) * IOAreaSum(i)->TotalHf;
         DCB.D=Sig;
         }

@@ -726,6 +726,8 @@ void MN_Surge::EvalDerivs(CNodeEvalIndex & NEI)
       HX.EvalDerivs();
 
     m_VLE.AddQVDerivs(Contents, 0, 0);
+
+    Contents.SetDuty(Contents.Duty()+m_BlkEval.Duty());
     }
   };
 
@@ -948,6 +950,8 @@ void MN_Surge::EvalIntegral(CNodeEvalIndex & NEI)
       }
 #endif
 
+    Contents.SetDuty(Contents.Duty()+m_BlkEval.Duty());
+
     Contents.pModel->m_DC.Finalise(Contents.pModel, ICGetTimeInc());
     //Contents.m_DC.Finalise(this, ICGetTimeInc());
 
@@ -1067,7 +1071,7 @@ void MN_Surge::EvalDiscrete()
     }
 
   m_AccCalc.Complete(0, Contents);
-  m_ExtAudit.Complete(0, &RB);
+  m_ExtAudit.Complete(0, &RB, 0.0, m_BlkEval.Duty());
 
   if (1)  //restore Qm/QvAcc
     {
