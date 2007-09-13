@@ -3619,7 +3619,7 @@ flag GrfCmdBlk::GetConnsForUnit(char *Tag, flag Inputs, dword RqdClass, Strng &I
       }
 
   if (IODescs.GetSize()==0)
-    return True;
+    return False;
 
   if (Inputs)
     iDstIOIndex=-1;
@@ -3987,31 +3987,47 @@ void GrfCmdBlk::DoConnect()
               SrcTag = TmpTag;
               SrcIO = "O";
               GetConnsForUnit(SrcTag(), False, nc_MLnk|nc_CLnk|nc_ELnk|nc_ALnk, SrcIO, SrcIONames, SrcIODescs, SrcIOClass, SrcTermStrips, &Off, &Scl);
-              TagMod.Set(",%s.%s ", SrcTag(), SrcIO());
-              gs_pCmd->ExtendModifier(TagMod());
-              gs_pCmd->ExtendCmdLine("DNd ");
-              Pt1 = pDsp->CurrentPt;
-              pDsp->SetCPtWorld(Pos, Pt3);
-              if (CInsertLinkDlg::DrawMethod()==1)
-                pDsp->Show_Dig_Point(Pt1);
-              else if (CInsertLinkDlg::DrawMethod()==2)
-                pDsp->Show_Dig_Point(Pt3);
+              if (SrcIONames.GetCount())
+                {
+                TagMod.Set(",%s.%s ", SrcTag(), SrcIO());
+                gs_pCmd->ExtendModifier(TagMod());
+                gs_pCmd->ExtendCmdLine("DNd ");
+                Pt1 = pDsp->CurrentPt;
+                pDsp->SetCPtWorld(Pos, Pt3);
+                if (CInsertLinkDlg::DrawMethod()==1)
+                  pDsp->Show_Dig_Point(Pt1);
+                else if (CInsertLinkDlg::DrawMethod()==2)
+                  pDsp->Show_Dig_Point(Pt3);
+                }
+              else
+                {
+                LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Unit %s does not have a valid input connection IO", SrcTag());
+                gs_pCmd->ExtendCmdLine("\x1b\x1b");
+                }
               }
             else
               {
               DstTag = TmpTag;
               DstIO="I";
               GetConnsForUnit(DstTag(), True, iSrcIOIndex>=0?SrcIOClass[iSrcIOIndex]:0, DstIO, DstIONames, DstIODescs, DstIOClass, DstTermStrips, &Off, &Scl);
-              TagMod.Set(",%s.%s ", DstTag(), DstIO());
-              gs_pCmd->ExtendModifier(TagMod());
-              gs_pCmd->ExtendCmdLine("*");
-              pGWnd->SetCursor(IDC_POINTPOS);
-              Pt2 = pDsp->CurrentPt;
-              pDsp->SetCPtWorld(Pos, Pt4);
-              if (CInsertLinkDlg::DrawMethod()==1)
-                pDsp->Show_Dig_Point(Pt2);
-              else if (CInsertLinkDlg::DrawMethod()==2)
-                pDsp->Show_Dig_Point(Pt4);
+              if (DstIONames.GetCount())
+                {
+                TagMod.Set(",%s.%s ", DstTag(), DstIO());
+                gs_pCmd->ExtendModifier(TagMod());
+                gs_pCmd->ExtendCmdLine("*");
+                pGWnd->SetCursor(IDC_POINTPOS);
+                Pt2 = pDsp->CurrentPt;
+                pDsp->SetCPtWorld(Pos, Pt4);
+                if (CInsertLinkDlg::DrawMethod()==1)
+                  pDsp->Show_Dig_Point(Pt2);
+                else if (CInsertLinkDlg::DrawMethod()==2)
+                  pDsp->Show_Dig_Point(Pt4);
+                }
+              else
+                {
+                LogError("GrfCmds", LF_DoAfxMsgBox|LF_Exclamation, "Unit %s does not have a valid input connection IO", DstTag());
+                gs_pCmd->ExtendCmdLine("\x1b\x1b");
+                }
               }
             }
           else
