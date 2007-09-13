@@ -1927,7 +1927,7 @@ CMakeupBlock(pClass_, Tag_, pAttach, eAttach)
 
   m_bHasFlow  = true;
 
-  m_eRqdTemp  = Temp_Inlet;
+  m_eRqdTemp  = Temp_Mixture;
   m_RqdTemp   = C2K(25);
 
   m_dSetPoint   = 0.0;
@@ -2267,14 +2267,14 @@ void CXBlk_MUSimple::BuildDataDefn(DataDefnBlk& DDB)
       {Temp_Source,  "SourceTemp"},
       {Temp_Std,     "StdTemp"},
       {Temp_Const,   "Const"},
-      {Temp_Mixture, "Mixture"},  // Needs work - a solve loop for volume
+      {Temp_Mixture, "Mixture"},  
       {0}
     };
 
   if (!HeatSkipMethod())
     {
     DDB.Text(" ");
-    DDB.Long  ("Temp.Final",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/, DDBTemp);
+    DDB.Long  ("Temp.Final",      "",  DC_,  "", (long*)&m_eRqdTemp, this, isParm|SetOnChange/*|DDEF_WRITEPROTECT*/, DDBTemp);
     DDB.Visibility(NSHM_All, m_eRqdTemp==Temp_Const);
     DDB.Double("Temp.Reqd",        "",  DC_T, "C", &m_RqdTemp, this, isParm/*|DDEF_WRITEPROTECT*/);
     DDB.Visibility();
@@ -2876,7 +2876,8 @@ class CSimpleMkUpFnd : public MRootFinder
       {
       m_Prd.QCopy(m_In);
       m_Prd.QAddM(m_Src, som_ALL, Qm);
-      m_Prd.SetTempPress(m_TRqd, m_PRqd);
+      if (Valid(m_TRqd))
+        m_Prd.SetTempPress(m_TRqd, m_PRqd);
       if (dbgMakeup)
         {
         dbgpln("      Meas:%20.6f Qm:%20.6f In:%20.6f Src:%20.6f %s",
@@ -2905,7 +2906,8 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   m_dQmFeed = QPrd.QMass();
   m_dQvFeed = QPrd.QVolume();
   m_dTempKFeed = QPrd.Temp();            
-  double HzIn = QPrd.totHz();
+  double HzIn  = QPrd.totHz();
+  double HzSrc = 0;
 
   m_bHasFlow = (m_dQmFeed>SmallPosFlow);
   bool StopMakeUp = (m_eLoFeedOpt>LF_Ignore) && (m_dQmFeed<m_LoFeedQm); 
@@ -2947,7 +2949,10 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
         TReqd=StdT;
         break;
       case Temp_Mixture:
-        TReqd=StdT; //??????
+        TReqd=dNAN;//StdT; //??????
+        break;
+      case Temp_Const:
+        TReqd=Range(CDB.MinT, m_RqdTemp, CDB.MaxT);
         break;
       default:
         TReqd=QPrd.Temp();
@@ -2986,6 +2991,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
       }
 
     QSrc.QAdjustQmTo(som_ALL, m_dQmMakeup);
+    HzSrc = QSrc.totHz();
 
     m_dQvMakeup = QSrc.QVolume();
 
@@ -3013,7 +3019,7 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   m_dQmProd     = QPrd.QMass();
   m_dQmMakeup   = m_dQmProd-m_dQmFeed;
   m_dTempKProd  = QPrd.Temp();
-  m_dHeatFlow   = QPrd.totHz() - HzIn;
+  m_dHeatFlow   = QPrd.totHz() - (HzIn + HzSrc);
   m_dQvProd     = QPrd.QVolume();
   //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
 
