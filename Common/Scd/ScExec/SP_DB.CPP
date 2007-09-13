@@ -49,7 +49,6 @@ static long s_doExpressionEval=0;
 
 extern AFX_EXTENSION_MODULE SCExecDLL;
 
-static LPSTR SpecieDBLogHdr = "SpecieDB";
 // ===========================================================================
 //
 //
@@ -160,15 +159,17 @@ double FracMeasTolerance = 1.0e-8;
 
 // ==========================================================================
 
-bool CSpDBEqn::m_bDoTheBreak=0;
+bool CSpDBEqn::sm_bDoTheBreak=0;
+Strng CSpDBEqn::sm_sDataFileName;
 
 CSpDBEqn::CSpDBEqn(CSpConstData * pConst, CSpFidelData * pFData)
   {
-  m_pConst = pConst;
-  m_pFData = pFData;
-  m_Ts     = 0.0;
-  m_Te     = 1.0e6;
-  m_CorrC   = 0.0;
+  m_pConst  = pConst;
+  m_pFData  = pFData;
+  m_Ts      = 0.0;
+  m_Te      = 99999.0;
+  m_CorrC   = 0.0;                                                    
+  m_sEqn    = "???";
   };
 CSpDBEqn::~CSpDBEqn()
   {
@@ -217,6 +218,7 @@ CSpDBEqnSet & CSpDBEqnSet::operator=(const CSpDBEqnSet & D)
     m_Eqns[i]->m_Ts     = D.m_Eqns[i]->m_Ts;
     m_Eqns[i]->m_Te     = D.m_Eqns[i]->m_Te;
     m_Eqns[i]->m_CorrC  = D.m_Eqns[i]->m_CorrC;
+    m_Eqns[i]->m_sEqn   = D.m_Eqns[i]->m_sEqn;
     }
   return *this;
   };
@@ -224,10 +226,11 @@ CSpDBEqnSet & CSpDBEqnSet::operator=(const CSpDBEqnSet & D)
 
 // --------------------------------------------------------------------------
 
-void CSpDBEqnSet::SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te)
+CSpDBEqn * CSpDBEqnSet::SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te)
   {
   Clear();
   AddEqn(Type, pEqn, Ts, Te);
+  return pEqn;
   };
 
 //// --------------------------------------------------------------------------
@@ -248,14 +251,17 @@ void CSpDBEqnSet::SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te)
 //
 // --------------------------------------------------------------------------
 
-void CSpDBEqnSet::AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te)
+CSpDBEqn * CSpDBEqnSet::AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te)
   {
-  m_Eqns.Add(pEqn);
+  int i=FindPos4Range(Ts, Te);
+  if (i>=0)
+    m_Eqns.InsertAt(i, pEqn);
   pEqn->m_Ts   = Ts;
-  pEqn->m_Te   = Min(9999.0,Te);
+  pEqn->m_Te   = Min(99999.0,Te);
   pEqn->m_CorrC = 0.0;
   m_Type = Type;
-
+  //dbgpln("Add   %i  %.2f>%.2f  %s %s ", i, pEqn->m_Ts, pEqn->m_Te, m_sName(), m_sXName());
+  return pEqn;
   };
 
 //// --------------------------------------------------------------------------
@@ -301,6 +307,7 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
   Strng Tmp;
   int ParenCnt=0;
   int BracketCnt=0;
+  CSpDBEqn * pEqn=NULL;
   for (LPCSTR p=List; *p; p++)
     {
     switch (*p)
@@ -314,12 +321,20 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
         ParenCnt--;
         if (ParenCnt==0)
           {
-          Tmp.LRTrim();
-          AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp()), CfgLoT, CfgHiT);
+          Tmp.LRTrim(" \"\'");
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, Tmp()), CfgLoT, CfgHiT);
           }
         Tmp="";
         break;
       case '[':
+        Tmp.LRTrim(" \"\'");
+        if (Tmp.GetLength()>0)
+          {
+          Strng S("Const(", Tmp(), ")");
+          pEqn=AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S()), CfgLoT, CfgHiT);
+          Tmp="";
+          }
+
         Tmp+=*p;
         BracketCnt++;
         break;
@@ -339,19 +354,38 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
             }
           else
             Lo=Tmp;
-          CSpDBEqn & Eqn=*m_Eqns[m_Eqns.GetUpperBound()];
-          Eqn.m_Ts=SafeAtoF(Lo(), CfgLoT);
-          Eqn.m_Te=SafeAtoF(Hi(), CfgHiT);
+          if (pEqn);
+            {
+            pEqn->m_Ts=SafeAtoF(Lo(), CfgLoT);
+            pEqn->m_Te=SafeAtoF(Hi(), CfgHiT);
+            //RePosition
+            for (int i=0; i<m_Eqns.GetSize(); i++)
+              {
+              if (m_Eqns[i]==pEqn)
+                {
+                m_Eqns.RemoveAt(i);
+                break;
+                }
+              }
+            i=FindPos4Range(pEqn->m_Ts, pEqn->m_Te);
+            m_Eqns.InsertAt(i, pEqn);
+            }
           }
         Tmp="";
         break;
       case ',':
-        if (Tmp.GetLength()>0)
+        if (BracketCnt>0 || ParenCnt>0)//Tmp.GetLength()>0)
           Tmp+=*p;
         break;
       default:
         Tmp+=*p;
       }
+    }
+  Tmp.LRTrim(" \"\'");
+  if (Tmp.GetLength()>0)
+    {
+    Strng S("Const(", Tmp(), ")");
+    AddEqn(Type, CSpDBEqn::Construct(pConst, pFData, S()), CfgLoT, CfgHiT);
     }
   }
 
@@ -360,11 +394,14 @@ void CSpDBEqnSet::AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFDa
 int CSpDBEqnSet::FindPos4Range(double Ts, double Te)
   {
   if (Te<Ts)
-    return -2;
+    Exchange(Ts, Te);
+
   if (m_Eqns.GetSize()==0)
     return 0;
-  if (Te<m_Eqns[0]->m_Ts)
+
+  if (Te<=m_Eqns[0]->m_Ts)
     return 0;
+
   for (int i=0; i<m_Eqns.GetSize(); i++)
     {
     if (i==m_Eqns.GetUpperBound())
@@ -372,7 +409,7 @@ int CSpDBEqnSet::FindPos4Range(double Ts, double Te)
       // LastOne
       if (Ts>=m_Eqns[i]->m_Te)
         {
-        dbgpln("MergeA %.2f>%.2f after   %.2f>%.2f  %s %s ", Ts, Te, m_Eqns[i]->m_Ts, m_Eqns[i]->m_Te, m_sName(), m_sXName());
+        //dbgpln("MergeA   %.2f>%.2f after   %.2f>%.2f  %s %s ", Ts, Te, m_Eqns[i]->m_Ts, m_Eqns[i]->m_Te, m_sName(), m_sXName());
         return i+1;
         }
       }
@@ -380,13 +417,13 @@ int CSpDBEqnSet::FindPos4Range(double Ts, double Te)
       {
       if (Ts>=m_Eqns[i]->m_Te && Te<=m_Eqns[i+1]->m_Ts)
         {
-        dbgpln("MergeB %.2f>%.2f between %.2f>%.2f..%.2f>%.2f  %s %s ", Ts, Te, m_Eqns[i]->m_Ts, m_Eqns[i]->m_Te, m_Eqns[i+1]->m_Ts, m_Eqns[i+1]->m_Te,m_sName(), m_sXName());
+        //dbgpln("MergeB   %.2f>%.2f between %.2f>%.2f..%.2f>%.2f  %s %s ", Ts, Te, m_Eqns[i]->m_Ts, m_Eqns[i]->m_Te, m_Eqns[i+1]->m_Ts, m_Eqns[i+1]->m_Te,m_sName(), m_sXName());
         return i+1;
         }
       }
     }
-  dbgpln("MergeB %.2f>%.2f ?? %s %s ", Ts, Te, m_sName(), m_sXName());
-  return -1;// No Found - Overlap ?
+  //dbgpln("MergeB   %.2f>%.2f Att End %s %s ", Ts, Te, m_sName(), m_sXName());
+  return m_Eqns.GetSize();
   }
 
 // --------------------------------------------------------------------------
@@ -412,18 +449,9 @@ void CSpDBEqnSet::Merge(CSpDBEqnSet & Eqns)
     double TMs=Eqns.m_Eqns[m]->m_Ts;
     double TMe=Eqns.m_Eqns[m]->m_Te;
     int i=FindPos4Range(TMs, TMe);
-    if (i>=0)
-      {
-      m_Eqns.InsertAt(i, Eqns.m_Eqns[m]);
-      Eqns.m_Eqns.RemoveAt(m);
-      }
-    else
-      {
-      dbgpln("Range %.2f > %.2f not merged", TMs, TMe);
-      //INCOMPLETECODE(__FILE__, __LINE__); // should not get here
-      }
+    m_Eqns.InsertAt(i, Eqns.m_Eqns[m]);
+    Eqns.m_Eqns.RemoveAt(m);
     }
-
   };
 
 // --------------------------------------------------------------------------
@@ -449,46 +477,28 @@ int CSpDBEqnSet::CheckRanges()
   int iRet=0;
   for(int i=0; i<m_Eqns.GetSize()-1; i++)
     {
-    if (m_Eqns[i]->m_Te-0.01>m_Eqns[i+1]->m_Ts)
+    CSpDBEqn & Eqn0 = *m_Eqns[i];
+    CSpDBEqn & Eqn1 = *m_Eqns[i+1];
+    if (fabs(Eqn0.m_Ts-Eqn1.m_Ts)<0.01 && fabs(Eqn0.m_Te-Eqn1.m_Te)<0.01)
+      {
+      if (Eqn0.m_sEqn.XStrICmp(Eqn1.m_sEqn)==0)
+        {
+        delete m_Eqns[i+1];
+        m_Eqns.RemoveAt(i+1);
+        i--;
+        continue;
+        }
+      else
+        return 4;
+      }
+    if (Eqn0.m_Te-0.01>Eqn1.m_Ts)
       return 2;
-    if (m_Eqns[i]->m_Te+0.01<m_Eqns[i+1]->m_Ts)
+    if (Eqn0.m_Te+0.01<Eqn1.m_Ts)
       iRet=3;
     }
   return iRet;
   };
 
-// --------------------------------------------------------------------------
-
-//double CSpDBEqnSet::Integrate_dT(double T1, double T2, double P)
-//  {
-//  bool Rev = T2<T1;
-//  if (Rev) Exchange(T1,T2);
-//  double Value=0;
-//  int iSeg1=FindSegment(T1);
-//  int iSeg2=FindSegment(T2);
-//  for (int i=iSeg1; i<=iSeg2; i++)
-//    {
-//    CSpDBEqn * Eqn = m_Eqns[i];
-//    Value+=Eqn->Integrate_dT(Max(T1, Eqn->m_Ts), Min(T2, Eqn->m_Te), P);
-//    }
-//  if (Rev)
-//    Value=-Value;
-//  Value+=m_Eqns[iSeg1]->m_CorrC;
-//  return Value;
-//  };
-//
-//// --------------------------------------------------------------------------
-//
-//double CSpDBEqnSet::IntegrateOverT_dT(double T1, double T2, double P)
-//  {
-//  return dNAN;
-//  };
-
-double CSpDBEqnSet::EvalNoCorr(double T, double P)
-  {
-  _asm int 3;
-  return 0;
-  }
 // --------------------------------------------------------------------------
 
 double CSpDBEqnSet::Eval(double T, double P)
@@ -543,7 +553,7 @@ double CSpDBEqnSet::Eval(double T, double P)
         double t2=(i==iSeg2) ? T2:Eqn->m_Te;
         Value+=Eqn->IntegrateOverT_dT(t1,t2, P);
         }
-      if (Rev)
+      if (Rev)                                          
         {
         Value=-Value;
         Value+=m_Eqns[iSeg2]->m_CorrC;
@@ -862,26 +872,26 @@ flag CCElementDataBase::CheckElDef(Strng &ElDef)
       break;
     if (isalpha(ElDef[i]) && isupper(ElDef[i]))
       {
-	  FndOne = true;
+      FndOne = true;
       Strng El, No, Wt;
       while (isalpha(ElDef[i]))
-		El+=ElDef[i++];
+        El+=ElDef[i++];
       if (!isdigit(ElDef[i]) && ElDef[i]!='.')
         {
-		Strng c;
-		c = ElDef[i];
+        Strng c;
+        c = ElDef[i];
         LogError(SpecieDBLogHdr, 0, "Illegal character '%s', Element name must only contain characters and begin with uppercase character.", c());
         Ok=false;
-	    }
-	  if (ElDef[i]=='.')
-	    No="0";
+        }
+      if (ElDef[i]=='.')
+        No="0";
       while (isdigit(ElDef[i]) || ElDef[i]=='.' || ElDef[i]=='/')
-	    No+=ElDef[i++];
+        No+=ElDef[i++];
       if (i < ElDef.Length() && ElDef[i]=='(')
         {
         i++;
         while (isdigit(ElDef[i]) || ElDef[i]=='.')
-		  Wt+=ElDef[i++];
+          Wt+=ElDef[i++];
         Ok=Ok && (ElDef[i]==')');
         i++;
         }
@@ -1187,7 +1197,8 @@ CSpConstData::CSpConstData()
 //
 // ==========================================================================
 
-CSpCommonData::CSpCommonData()
+CSpCommonData::CSpCommonData() :
+  m_Vp("Vp", "Temperature")
   {
   m_VpOK = false;
   //m_pVp   = NULL;
@@ -1261,8 +1272,8 @@ CSpFidelData::CSpFidelData() :
   m_pCommon=NULL;
   m_bIsCopy=false;
   //m_iLastTPoint=0;
-  xm_LoT=0.0;
-  xm_HiT=1.0e6;
+  xm_LoT = 0.0;
+  xm_HiT = 99999.0;
 
   m_Hf0       = 0;
   m_HfBase0   = 0;
@@ -1632,27 +1643,6 @@ void CSpecie::SetData(CSpCommonDataA &C, CSpFidelDataA &D)
 
 void CSpFidelData::MergeSpecieData(CSpFidelData * pFData)
   {
-  //for (int i=0; i<m_iLastTPoint+1; i++)
-  //  if (pFData->m_LoT[0] < m_LoT[i])
-  //    break;
-
-  // MUST SORT !~
-  //m_iLastTPoint++;
-  //for (int j=m_iLastTPoint; j>i; j--)
-  //  {
-  //  //m_LoT[j]    = m_LoT[j-1];
-  //  //m_HiT[j]    = m_HiT[j-1];
-  //  //m_pRho[j]   = m_pRho[j-1];
-  //  //m_pCp[j]    = m_pCp[j-1];
-  //  //m_pH[j]     = m_pH[j-1];
-  //  //m_pS[j]     = m_pS[j-1];
-  //  m_dH25[j]   = m_dH25[j-1];
-  //  m_dS25[j]   = m_dS25[j-1];
-  //  m_dCZRef[j] = m_dCZRef[j-1];
-  //  m_dCdHf[j]  = m_dCdHf[j-1];
-  //  m_dCHf[j]   = m_dCHf[j-1];
-  //  m_dCSf[j]   = m_dCSf[j-1];
-  //  }
 
   m_Rho.Merge(pFData->m_Rho);
   m_Cp.Merge(pFData->m_Cp);
@@ -1660,31 +1650,7 @@ void CSpFidelData::MergeSpecieData(CSpFidelData * pFData)
   m_S.Merge(pFData->m_S);
 
   m_H25.Merge(pFData->m_H25);
-  //m_pRho[j]   = m_pRho[j-1];
-  //m_pCp[j]    = m_pCp[j-1];
-  //m_pH[j]     = m_pH[j-1];
-  //m_pS[j]     = m_pS[j-1];
-
-  //m_LoT[i]=pFData->m_LoT[0];
-  //m_HiT[i]=pFData->m_HiT[0];
-
-  //m_pRho[i]   = pFData->m_pRho[0];
-  //m_pCp[i]    = pFData->m_pCp[0];
-  //m_pH[i]     = pFData->m_pH[0];
-  //m_pS[i]     = pFData->m_pS[0];
-
-  dbgpln("??????????????????????????????????????? WHAT ABOUT THESE ????????????????");
-  //m_dH25[i]   = pFData->m_dH25[0];
-  //m_dS25[i]   = pFData->m_dS25[0];
-  //m_dCZRef[i] = pFData->m_dCZRef[0];
-  //m_dCdHf[i]  = pFData->m_dCdHf[0];
-  //m_dCHf[i]   = pFData->m_dCHf[0];
-  //m_dCSf[i]   = pFData->m_dCSf[0];
-
-  //pFData->m_pRho[0]  = NULL;
-  //pFData->m_pCp[0]   = NULL;
-  //pFData->m_pH[0]    = NULL;
-  //pFData->m_pS[0]    = NULL;
+  m_S25.Merge(pFData->m_S25);
 
   };
 
@@ -1755,36 +1721,24 @@ static void ParseAValue(CSpecie *pSp, bool &OK, double & Value, Strng & Str, fla
     }
   }
 
-static void ParseAnEqn(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, Strng & Str, flag & Specd, CSpConstData * pConst, CSpFidelData * pFData, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name, double CfgLoT, double CfgHiT)
+static void ParseAnEqnSet(CSpecie *pSp, bool &OK, CSpDBEqnSet & Eqns, /*Strng & Str,*/ flag & Specd, CSpConstData * pConst, CSpFidelData * pFData, LPCSTR StrValue, LPCSTR SpName, LPCSTR Name, double CfgLoT, double CfgHiT)
   {
   if (StrValue && strlen(StrValue)>0)
     {
-    if (!OK)
-      {
-      Eqns.AddEqn(ET_Std, CSpDBEqn::Construct(pConst, pFData, StrValue), CfgLoT, CfgHiT);
-      Str=StrValue;
+    Strng SEqn(StrValue);
+    SEqn.LRTrim(" \"\'");
+    //if (!OK)
+    //  {
+      Eqns.AddEqnSet(ET_Std, pConst, pFData, SEqn(), CfgLoT, CfgHiT);
+      //Str=SEqn();
       Specd=true;
-      OK=true;
-      }
-    else if (Str.Len()>0 && Str.XStrICmp(StrValue)!=0)
-      AppendErrorMsg(pSp, LogFlag_Fatal , "%s: %s = '%s' not the same as previous definition", SpName, Name, StrValue);
-    else
-      AppendErrorMsg(pSp, LogFlag_Note, "%s: %s value %s ignored (already defined)", SpName, Name, StrValue);
+    //  OK=true;
+    //  }
+    //else if (Str.Len()>0 && Str.XStrICmp(SEqn())!=0)
+    //  AppendErrorMsg(pSp, LogFlag_Fatal , "%s: %s = '%s' not the same as previous definition", SpName, Name, SEqn());
+    //else
+    //  AppendErrorMsg(pSp, LogFlag_Note, "%s: %s value %s ignored (already defined)", SpName, Name, SEqn());
     }
-  }
-
-inline bool IsFunction(LPSTR p)
-  {
-  if (p)
-    {
-    while (*p)
-      {
-      if (*p=='(')
-        return true;
-      p++;
-      }
-    }
-  return false;
   }
 
 static void DumpSpEqns(CSpecie & Sp, LPCSTR Tag=NULL)
@@ -1795,16 +1749,16 @@ static void DumpSpEqns(CSpecie & Sp, LPCSTR Tag=NULL)
     CSpFidelData & FD=Sp.m_FData[f];
 
     if (f==0)
-      dbgpln("  Specie : ------------------------------------------------------------ %-15.15s %-7.7s", Tag?Tag:Sp.m_Common[f].m_pCmp->SymOrTag(), Sp.m_sPhaseSymVisible() ? Sp.m_sPhaseSymVisible(): "");
+      dbgpln("  Specie : ============================================================ %-15.15s %-7.7s", Tag?Tag:Sp.m_Common[f].m_pCmp->SymOrTag(), Sp.m_sPhaseSymVisible() ? Sp.m_sPhaseSymVisible(): "");
 
-    dbgpln("    Fidelity : %s  %8.2f > %8.2f", f==0?"Lo":"Hi", FD.xm_LoT, FD.xm_HiT);
-    if (VP.SegmentCount())         { dbgp("      Vp :"); for (int i=0; i<VP.SegmentCount(); i++)        { CSpDBEqn &E=*VP.m_Eqns[i];       dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");              }
-    if (FD.m_Rho.SegmentCount()>0) { dbgp("      Rho:"); for (int i=0; i<FD.m_Rho.SegmentCount(); i++)  { CSpDBEqn &E=*FD.m_Rho.m_Eqns[i]; dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");  }
-    if (FD.m_Cp.SegmentCount()>0)  { dbgp("      Cp :"); for (int i=0; i<FD.m_Cp.SegmentCount(); i++)   { CSpDBEqn &E=*FD.m_Cp.m_Eqns[i];  dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");    }
-    if (FD.m_H.SegmentCount()>0)   { dbgp("      H  :"); for (int i=0; i<FD.m_H.SegmentCount(); i++)    { CSpDBEqn &E=*FD.m_H.m_Eqns[i];   dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");      }
-    if (FD.m_S.SegmentCount()>0)   { dbgp("      S  :"); for (int i=0; i<FD.m_S.SegmentCount(); i++)    { CSpDBEqn &E=*FD.m_S.m_Eqns[i];   dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");      }
-    if (FD.m_H25.SegmentCount()>0) { dbgp("      H25:"); for (int i=0; i<FD.m_H25.SegmentCount(); i++)  { CSpDBEqn &E=*FD.m_H25.m_Eqns[i]; dbgp(" [%-16s:%10.2f>%10.2f,%+12.3f]", E.VName(), /*K2C*/(E.m_Ts), /*K2C*/(E.m_Te), E.m_CorrC); }  dbgpln("");  }
-    }
+    dbgpln("    Fidelity : %s  %8.2f > %8.2f		    -------------------", f==0?"Lo":"Hi", FD.xm_LoT, FD.xm_HiT);
+    if (VP.SegmentCount())         { for (int i=0; i<VP.SegmentCount(); i++)        { CSpDBEqn &E=*VP.m_Eqns[i];       dbgp("      %-3s %i)      ",i==0?"Vp":"",i);   dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    if (FD.m_Rho.SegmentCount()>0) { for (int i=0; i<FD.m_Rho.SegmentCount(); i++)  { CSpDBEqn &E=*FD.m_Rho.m_Eqns[i]; dbgp("      %-3s %i)      ",i==0?"Rho":"",i);  dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    if (FD.m_Cp.SegmentCount()>0)  { for (int i=0; i<FD.m_Cp.SegmentCount(); i++)   { CSpDBEqn &E=*FD.m_Cp.m_Eqns[i];  dbgp("      %-3s %i)      ",i==0?"Cp":"",i);   dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    if (FD.m_H.SegmentCount()>0)   { for (int i=0; i<FD.m_H.SegmentCount(); i++)    { CSpDBEqn &E=*FD.m_H.m_Eqns[i];   dbgp("      %-3s %i)      ",i==0?"H":"",i);    dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    if (FD.m_S.SegmentCount()>0)   { for (int i=0; i<FD.m_S.SegmentCount(); i++)    { CSpDBEqn &E=*FD.m_S.m_Eqns[i];   dbgp("      %-3s %i)      ",i==0?"S":"",i);    dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    if (FD.m_H25.SegmentCount()>0) { for (int i=0; i<FD.m_H25.SegmentCount(); i++)  { CSpDBEqn &E=*FD.m_H25.m_Eqns[i]; dbgp("      %-3s %i)      ",i==0?"H25":"",i);  dbgpln(" %8.2f > %8.2f,%+12.3f %s", E.m_Ts, E.m_Te, E.m_CorrC, E.m_sEqn()); }  }
+    }                                                                                                                  
   }
 
 flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*/ flag UseH2OFns)
@@ -1894,54 +1848,37 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
         else if (S.XStrChr('(')==NULL)
           S.Set("LinearGasDensity(%s)", (LPCSTR)Values[ColNo]);
         }
-      DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S()), CfgLoT, CfgHiT);
+      //DataLo.m_Rho.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, S()), CfgLoT, CfgHiT);
+      DataLo.m_Rho.AddEqnSet(ET_Std, pC, &DataLo, S(), CfgLoT, CfgHiT);
       }
     ColNo++;
 
     // Heat of formation @ 298
     Strng sH25=(LPSTR)(LPCSTR)Values[ColNo++];
+    sH25.Trim(" \"\'");
     DataLo.m_H25OK  = sH25.GetLength()>0;
-    if (DataLo.m_H25OK)
-      {
-      if (IsFunction(sH25()))
-        DataLo.m_H25.AddEqnSet(ET_Std, pC, &DataLo, sH25(), CfgLoT, CfgHiT);
-      else
-        DataLo.m_H25.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, sH25()), CfgLoT, CfgHiT);
-      }
-    else
-      DataLo.m_H25.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "0.0"), CfgLoT, CfgHiT);
+    if (!DataLo.m_H25OK)
+      sH25="Const(0.0)";
+    DataLo.m_H25.AddEqnSet(ET_Std, pC, &DataLo, sH25(), CfgLoT, CfgHiT);
 
     // Entropy @ 298
     Strng sS25=(LPSTR)(LPCSTR)Values[ColNo++];
+    sS25.Trim(" \"\'");
     DataLo.m_S25OK  = sS25.GetLength()>0;
-    if (DataLo.m_S25OK)
-      {
-      if (IsFunction(sS25()))
-        DataLo.m_S25.AddEqnSet(ET_Std, pC, &DataLo, sS25(), CfgLoT, CfgHiT);
-      else
-        DataLo.m_S25.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, sS25()), CfgLoT, CfgHiT);
-      }
-    else
-      DataLo.m_S25.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, "0.0"), CfgLoT, CfgHiT);
- 
+    if (!DataLo.m_S25OK)
+      sS25="Const(0.0)";
+    DataLo.m_S25.AddEqnSet(ET_Std, pC, &DataLo, sS25(), CfgLoT, CfgHiT);
 
+    // Ref Temps
     DataLo.m_H.m_TRef   = C2K(DataLo.m_H25OK ? 25:0);
-    //DataLo.m_H.m_VAtRef = DataLo.m_H25;
     DataLo.m_S.m_TRef   = C2K(DataLo.m_H25OK ? 25:0);
-    //DataLo.m_S.m_VAtRef = DataLo.m_S25;
 
-    Strng CpS=(LPCSTR)Values[ColNo++];
-    CpS.Trim();
-    DataLo.m_CpOK = (CpS.Len()>0);
-
-    //DataLo.m_pH=NULL;
-    //DataLo.m_pS=NULL;
+    // Cp
+    Strng sCp=(LPCSTR)Values[ColNo++];
+    sCp.Trim(" \"\'");
+    DataLo.m_CpOK = (sCp.Len()>0);
     if (DataLo.m_CpOK)
-      {
-      DataLo.m_Cp.AddEqn(ET_Std, CSpDBEqn::Construct(pC, &DataLo, CpS()), CfgLoT, CfgHiT);
-      //DataLo.m_H.AddEqn(ET_Integral, CSpDBEqn::Construct(pC, &DataLo, CpS()), DataLo.m_LoT, DataLo.m_HiT);
-      //DataLo.m_S.AddEqn(ET_IntegralOverT, CSpDBEqn::Construct(pC, &DataLo, CpS()), DataLo.m_LoT, DataLo.m_HiT);
-      }
+      DataLo.m_Cp.AddEqnSet(ET_Std, pC, &DataLo, sCp(), CfgLoT, CfgHiT);
 
     Strng ID;
     ID.Set("%s[%s->%s]", pC->SymOrTag(), sTs, sTe);
@@ -1955,7 +1892,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
       ParseAValue(this, m_Const.m_bVcOK, m_Const.m_dVc, m_Const.m_sVc, m_bVcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Critical Volume");
       ParseAValue(this, m_Const.m_bAcOK, m_Const.m_dAc, m_Const.m_sAc, m_bAcSpecd,    1.0,    1.0, (LPCSTR)Values[ColNo++], ID(), "Acentricity");
 
-      ParseAnEqn(this, m_Common[0].m_VpOK, m_Common[0].m_Vp, m_Common[0].m_sVp, m_bVpSpecd, pC, NULL, (LPCSTR)Values[VpColNo], ID(), "Vapour Pressure", CfgLoT, CfgHiT);
+      ParseAnEqnSet(this, m_Common[0].m_VpOK, m_Common[0].m_Vp, m_bVpSpecd, pC, NULL, (LPCSTR)Values[VpColNo], ID(), "Vapour Pressure", CfgLoT, CfgHiT);
 
       if (m_Common[0].m_VpOK && !m_Const.m_bTcOK)
         AppendErrorMsg(this, LogFlag_Warning, "%s: Critical Temperature not defined (required for vapour pressure)", ID());
@@ -2067,7 +2004,7 @@ flag CSpecie::LoadADO(CComponent * pC, CStringArray& Values, /*CSpecie *pPrvSp,*
     //for (int i=0; i<=DataLo.m_Rho.SegmentCount(); i++)
     //  dbgpln("%*s  T:%10.2f > %10.2f Rho:%-20s Cp:%-20s H:%-20s %08x  %08x %08x",
     //  i==0?0:78,"",
-    //  K_2_C(DataLo.m_LoT[0]), K_2_C(DataLo.m_HiT[0]),
+    //  K_2_C(DataLo.m_LoT[0]), K_2_C(DataLo.m_HiT[0]),                       
     //  DataLo.m_pRho[i]?DataLo.m_pRho[i]->VName():"",
     //  DataLo.m_pCp[i]?DataLo.m_pCp[i]->VName():"",
     //  DataLo.m_pH[i]?DataLo.m_pH[i]->VName():"",
@@ -3932,6 +3869,8 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
   CFileStatus State;
   if (CFile::GetStatus(DataFile, State))
     {
+    CSpDBEqn::sm_sDataFileName=DataFile;
+
     //NBNB: The '°' in 'S°298' causes problems with other language utilities (eg chinese characters)
     const int iOC_S298 = 10; //index of S298 in columns
     char* SpColNames[] = { "Name", "Compound", "Definition", "Phase", "Occurence",
@@ -4089,6 +4028,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
               if (pSpPh)
                 {
                 // Specie Exists -- append data
+                pSpPh->m_Common[0].m_Vp.Merge(pSp->m_Common[0].m_Vp);
                 pSpPh->m_FData[0].MergeSpecieData(pSp->m_FData);
                 pSpPh->m_sVpErrors.Append(&pSp->m_sVpErrors);
                 delete pSp;
@@ -4135,6 +4075,7 @@ flag CComponentDataBase::LoadComponentsADO(CDBInitRec & CDBInit, char* DataFile,
       Ok = false;
       }
 
+    CSpDBEqn::sm_sDataFileName="";
     return Ok;
     }
   return false;
@@ -4411,6 +4352,28 @@ void CComponentDataBase::AddSpecieD(int c, CComponent & C, CSpecie * pSpD, int p
 
 //---------------------------------------------------------------------------
 
+static int ChkRngMsg(int Err, CSpecie *pSp, CSpDBEqnSet & Eqn)
+  {
+  switch (Err)
+    {
+    case 1:
+      AppendErrorMsg(NULL/*pSp*/, LogFlag_Fatal, "%s: %s Segments Reversed", pSp->Sym(), Eqn.m_sName(), Eqn.m_sXName());
+      break;
+    case 2:
+      AppendErrorMsg(NULL/*pSp*/, LogFlag_Fatal, "%s: %s Segments Overlap", pSp->Sym(), Eqn.m_sName(), Eqn.m_sXName());
+      break;
+    case 3:
+      AppendErrorMsg(NULL/*pSp*/, LogFlag_Note, "%s: %s Segments Not Contiguous", pSp->Sym(), Eqn.m_sName(), Eqn.m_sXName());
+      break;
+    case 4:
+      AppendErrorMsg(NULL/*pSp*/, LogFlag_Note, "%s: %s Duplicate Segment (Eqns Dont match)", pSp->Sym(), Eqn.m_sName(), Eqn.m_sXName());
+      break;
+    }
+  return Err;
+  };
+
+//---------------------------------------------------------------------------
+
 flag CComponentDataBase::CheckCommonData()
   {
   bool AllOK=true;
@@ -4429,6 +4392,34 @@ flag CComponentDataBase::CheckCommonData()
         {
         CSpFidelData & FD=S.m_FData[f];
 
+        CSpDBEqnSet * Chks[] = { &S.m_Common[f].m_Vp, &FD.m_Rho, &FD.m_Cp, &FD.m_H, &FD.m_S, &FD.m_H25};
+        for (int ichk=0; ichk<sizeof(Chks)/sizeof(Chks[0]); ichk++)
+          {
+          //ChkRngMsg(Chks[ichk]->CheckRanges(), &S, *Chks[ichk]);
+
+          //  switch (Chks[ichk]->CheckRanges())
+          //    {
+          //    case 1:
+          //      AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s %s Segments Reversed", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
+          //      break;
+          //    case 2:
+          //      AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s %s Segments Overlap", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
+          //      break;
+          //    case 3:
+          //      AppendErrorMsg(&S, LogFlag_Note, "%s: %s %s Segments No Contiguous", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
+          //      break;
+          //    case 4:
+          //      AppendErrorMsg(&S, LogFlag_Note, "%s: %s %s Duplicate Segment (Eqns Dont match)", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
+          //      break;
+          ////if (FD.m_Cp.CheckRanges()!=0)
+          ////  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "Cp");
+          ////if (FD.m_H.CheckRanges()!=0)
+          ////  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "H");
+          ////if (FD.m_S.CheckRanges()!=0)
+          ////  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "S");
+          //    }
+          }
+
         if (FD.m_Cp.Exists() && !FD.m_H.Exists())
           {
           for (int i=0; i<FD.m_Cp.m_Eqns.GetCount(); i++)
@@ -4446,28 +4437,6 @@ flag CComponentDataBase::CheckCommonData()
             }
           }
 
-        CSpDBEqnSet * Chks[] = { &FD.m_Rho, &FD.m_Cp, &FD.m_H, &FD.m_S, &FD.m_H25};
-        for (int ichk=0; ichk<5; ichk++)
-          {
-          switch (Chks[ichk]->CheckRanges())
-            {
-            case 1:
-              AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s %s Segments Reversed", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
-              break;
-            case 2:
-              AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s %s Segments Overlap", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
-              break;
-            case 3:
-              AppendErrorMsg(&S, LogFlag_Note, "%s: %s %s Segments No Contiguous", C.SymOrTag(), Chks[ichk]->m_sName(), Chks[ichk]->m_sXName());
-              break;
-        //if (FD.m_Cp.CheckRanges()!=0)
-        //  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "Cp");
-        //if (FD.m_H.CheckRanges()!=0)
-        //  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "H");
-        //if (FD.m_S.CheckRanges()!=0)
-        //  AppendErrorMsg(&S, LogFlag_Fatal, "%s: %s Temperature Segments Specification incorrect ", C.SymOrTag(), "S");
-            }
-          }
 
         //double TLastEnd=S.m_FData[f].m_HiT[0];
         //
@@ -5200,12 +5169,17 @@ flag CComponentDataBase::BuildSpecies(CDBInitRec & CDBInit, Strng_List & RqdCmp,
     CSpecie & Sp=m_SDB[s];
     for (int Fidelity=0; SOK && Fidelity<2; Fidelity++)
       {
-      CSpFidelData & D=m_SDB[s].m_FData[Fidelity];
-      SOK=(D.m_Rho.CheckRanges()==0 && D.m_Cp.CheckRanges()==0 && D.m_H.CheckRanges()==0 && D.m_S.CheckRanges()==0);
+      CSpFidelData & FD=m_SDB[s].m_FData[Fidelity];
+      CSpCommonData & Com=m_SDB[s].m_Common[Fidelity];
+      SOK=(ChkRngMsg(Com.m_Vp.CheckRanges(), &Sp, Com.m_Vp)==0 && 
+          ChkRngMsg(FD.m_Rho.CheckRanges(), &Sp, FD.m_Rho)==0 && 
+          ChkRngMsg(FD.m_Cp.CheckRanges(), &Sp, FD.m_Cp)==0 && 
+          ChkRngMsg(FD.m_H.CheckRanges(), &Sp, FD.m_H)==0 && 
+          ChkRngMsg(FD.m_S.CheckRanges(), &Sp, FD.m_S)==0);
       }
     if (!SOK)
       {
-      LogError(SpecieDBLogHdr, 0, "Temp Range Error %s", Sp.SymOrTag());
+      //LogError(SpecieDBLogHdr, 0, "Temp Range Error %s", Sp.SymOrTag());
       ROk=false;
       }
     }
@@ -5907,6 +5881,11 @@ flag CComponentDataBase::FixOffsetConstants()
   const double T25=C_2_K(25);
   const double T100=C_2_K(100);
 
+#if dbgBuildSDB
+    if (dbgBuildEqns())
+      dbgpln("FixOffsetConstants");
+#endif
+
   for (int Fidelity=0; Fidelity<MaxFidelity; Fidelity++)
     {
     for (int c=0; c<m_CDB.No(); c++)
@@ -6065,6 +6044,10 @@ flag CComponentDataBase::FixOffsetConstants()
           }
         }
       }
+#if dbgBuildSDB
+    if (dbgBuildEqns())
+      dbgpln("");
+#endif
     }
 
 #if dbgBuildSDB
@@ -6107,7 +6090,7 @@ flag CComponentDataBase::FixOffsetConstants()
               dbgp(" %6.1f", D.m_H.m_TRef);
 
               if (D.m_H25OK)
-                dbgp(" %12.3f", D.m_H25.Eval(E.m_Ts, StdP)*Scl);
+                dbgp(" %12.3f", D.m_H25.EvalMassRatio(0.0)*Scl);
               else
                 dbgp(" %12s", "-");
               dbgp(" %4s", D.m_CpOK?"CpOK":"");
@@ -7093,9 +7076,9 @@ void CComponentDataBase::DumpTest()
         //" %6s %6s %6s nT Ti %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s %10s",
         " %6s %6s Ti %7s ", "tK", "tC", "Hf");
 
-      dbgp("%10s %10s %10s ", "mlHs", "mlHz", "mlHf");
+      dbgp("%10s %10s %10s%3s ", "mlHs", "mlHz", "mlHf","(i)");
       dbgp("%10s %10s %10s %10s ", "Hf:R=0", "Hf:R=.1", "Hf:R=.5", "Hf:R=1");
-      dbgp("%10s %10s %10s %10s %10s %10s %10s", "mlDHf", "mlXCp", "mlCp", "mlSf", "mlGf", "VapP", "Rho");
+      dbgp("%10s %10s %10s %10s %10s %10s%3s %10s%3s", "mlDHf", "mlXCp", "mlCp", "mlSf", "mlGf", "VapP","(i)", "Rho","(i)");
       dbgpln("");
 
       for (int Fidelity=0; Fidelity<2; Fidelity++)
@@ -7137,6 +7120,7 @@ void CComponentDataBase::DumpTest()
           dbgp  (" %10.1f", LclChkZero(Sp.mlHs(Fidelity, t, Std_P, NULL, NULL)));
           dbgp  (" %10.1f", LclChkZero(Sp.mlHz(Fidelity, t, Std_P, NULL, NULL)));
           dbgp  (" %10.1f", LclChkZero(Sp.mlHf(Fidelity, t, Std_P, NULL, NULL)));
+          dbgp  ("(%i)", Sp.m_FData[Fidelity].m_H.FindSegment(t));
           if (Sp.m_FData[Fidelity].m_H25.EvalMassRatio(0)==Sp.m_FData[Fidelity].m_H25.EvalMassRatio(1))
             {
             dbgp  (" %10s", "");
@@ -7160,7 +7144,7 @@ void CComponentDataBase::DumpTest()
             dbgp  (" %10.1f", LclChkZero(Sp.mlHf(Fidelity, t, Std_P, NULL, NULL)-m_SDB[s1].mlHf(Fidelity, t, Std_P, NULL, NULL)));
             }
           else
-            dbgp  (" %10s ", "");
+            dbgp  (" %10s", "");
 
           if (i>0)
             {
@@ -7190,10 +7174,12 @@ void CComponentDataBase::DumpTest()
 
           sprintf(vps, vp<1.0e5 ? "%10.3f":"%10.3e", vp);
           dbgp  (" %10s", vps);
+          dbgp  ("(%i)", Sp.m_Common[Fidelity].m_Vp.FindSegment(t));
           //if (Sp..m_bfDensInDirect)
           //  dbgp  (" %10s", " ---");
           //else
           dbgp  (" %10.3f", LclChkZero(Sp.SpRho(Fidelity, t, Std_P)));
+          dbgp  ("(%i)", Sp.m_FData[Fidelity].m_Rho.FindSegment(t));
           dbgpln("");
           }
         }

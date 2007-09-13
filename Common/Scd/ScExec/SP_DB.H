@@ -64,6 +64,8 @@
 #define  MassWtMnSpModelName    "Mass WT Mean"
 #define  SteamWaterSpModelName  "Steam/Water"
 
+#define  SpecieDBLogHdr         "SpecieDB"
+
 #if WithSatH2OMdl
 #define  SaturatedH2OName       "SaturatedH2O"
 #endif
@@ -308,12 +310,12 @@ class DllImportExport CSpDBEqn
 
     // One or more of these to be implemented
   public:
-    virtual double AtV() { if (m_bDoTheBreak) DoBreak(); return dNAN; };
-    virtual double AtT(double T) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
-    virtual double AtP(double P) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
-    virtual double AtTP(double T, double P) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
-    virtual double Integrate_dT(double T1, double T2, double P) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
-    virtual double IntegrateOverT_dT(double T1, double T2, double P) { if (m_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double AtV() { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double AtT(double T) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double AtP(double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double AtTP(double T, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double Integrate_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
+    virtual double IntegrateOverT_dT(double T1, double T2, double P) { if (sm_bDoTheBreak) DoBreak(); return dNAN; };
 
     static CSpDBEqn *Construct(CSpConstData *pConst, CSpFidelData *pFData, const char *pInitString, CSpDBEqn *pCopyFrom=NULL);
     CSpDBEqn        *ConstructCopy(CSpConstData *pConst, CSpFidelData *pFData);
@@ -324,9 +326,13 @@ class DllImportExport CSpDBEqn
     //double            m_IntC;      
     double            m_CorrC;      
 
+    Strng             m_sEqn;
+    
     CSpFidelData    * m_pFData;
     CSpConstData    * m_pConst;
-    static bool       m_bDoTheBreak;
+    
+    static bool       sm_bDoTheBreak;
+    static Strng      sm_sDataFileName;
   };
 
 static const byte ET_Null=0;
@@ -352,8 +358,8 @@ class DllImportExport CSpDBEqnSet
     const char *  VName()         { return m_Eqns.GetCount() ? m_Eqns[0]->VName() : ""; };
     bool          Exists()        { return m_Eqns.GetCount()>0; };
 
-    void          SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
-    void          AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
+    CSpDBEqn *    SetEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
+    CSpDBEqn *    AddEqn(byte Type, CSpDBEqn * pEqn, double Ts, double Te);
     
     void          AddEqnSet(byte Type, CSpConstData * pConst, CSpFidelData *pFData, LPCSTR List, double CfgLoT, double CfgHiT);
 
@@ -364,11 +370,8 @@ class DllImportExport CSpDBEqnSet
     double        AtT(double T)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtT(T); };
     //double        AtP(double P)                                      { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtP(T); };
     double        AtTP(double T, double P)                           { int iSeg=FindSegment(T); return m_Eqns[iSeg]->AtTP(T, P); };
-    //double        Integrate_dT(double T1, double T2, double P);       
-    //double        IntegrateOverT_dT(double T1, double T2, double P);
 
     double        Eval(double T, double P);
-    double        EvalNoCorr(double T, double P);
     double        EvalDiff(double T1, double T2, double P);
     double        EvalMassRatio(double R);
 
@@ -694,7 +697,6 @@ class DllImportExport CSpCommonData
   public:
     bool            m_VpOK;
     CSpDBEqnSet     m_Vp;           // Vapour Pressure Eqn
-    Strng           m_sVp;           // 
 
     CSpConstData  * m_pConst;
     CComponent    * m_pCmp;

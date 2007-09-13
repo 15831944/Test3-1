@@ -75,10 +75,29 @@ TSpline& TSpline::operator=(TSpline * pSp)
  
 void TSpline::AddPt(double Xi, double Yi)
   {
-  int i=X.GetLen();
-  X.SetSize(i+1);
-  Y.SetSize(i+1);
-  T.SetSize(i+1);
+  // Keep The order correct - X Increasing
+  int n=X.GetLen();
+  int i=0; 
+  if (n>0 && Xi>X[0])
+    {
+    for ( ; i<n-1; i++)
+      {
+      if (Xi>X[i] && Xi<X[i+1])
+        break;
+      }
+    }
+
+  X.SetSize(n+1);
+  Y.SetSize(n+1);
+  T.SetSize(n+1);
+
+  for (int j=n; j>i; j--)
+    {
+    X[j]=X[j-1];
+    Y[j]=Y[j-1];
+    T[j]=T[j-1];
+    }
+
   X[i]=Xi;
   Y[i]=Yi;
   T[i]=0.0;
@@ -98,8 +117,7 @@ double TSpline::Yx(double Xi)
  
     s = X[last] - X[0];
     Sigmap = fabs(dSigma) * last / s;
- 
-    // try the old CurSeg value first
+
     if (Xi < X[0])
       {
       CurSeg = 1;
@@ -110,11 +128,39 @@ double TSpline::Yx(double Xi)
       CurSeg = last;
       return Y[last] + dSlpHi * (Xi - X[last]);
       }
-    CurSeg = Range(1L, CurSeg, last);
- 
-    while (CurSeg > 1 && X[CurSeg - 1] > Xi) CurSeg--;
-    while (CurSeg < last && X[CurSeg] <= Xi) CurSeg++;
- 
+
+    if (1) // bisection search
+      {
+      long i=-1;
+      long i0 = 1;
+      long i1 = last;
+      while (i0<i1)
+        {
+        i = (i1+i0)/2;
+        //dbgpln("                           - %3i %3i %3i", i, i0,i1);
+        if (Xi <= X[i])
+          i1=i;
+        else if (i0==i)
+          i0=i+1;
+        else
+          i0=i;
+        }
+      CurSeg = Range(1L, i, last);
+      while (CurSeg > 1 && X[CurSeg - 1] > Xi) 
+        CurSeg--;
+      while (CurSeg < last && X[CurSeg] <= Xi) 
+        CurSeg++;
+      //dbgpln("                           = %3i %3i ", i, CurSeg);
+      }
+    else
+      {
+      // try the old CurSeg value first
+      CurSeg = Range(1L, CurSeg, last);
+
+      while (CurSeg > 1 && X[CurSeg - 1] > Xi) CurSeg--;
+      while (CurSeg < last && X[CurSeg] <= Xi) CurSeg++;
+      }
+
     i = CurSeg;
     del1 = Xi - X[i - 1];
     del2 = X[i] - Xi;

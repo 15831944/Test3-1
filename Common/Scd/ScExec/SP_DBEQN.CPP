@@ -9,6 +9,8 @@
 #include "sp_db.h"
 #include "tknparse.h"
 #include "surfaces.h"
+#include "tspline.h"
+#include "dbhelper.h"
 //#include "optoff.h"
 
 //#define dbgBuildSDB    0
@@ -27,10 +29,6 @@ static CDbgMngr dbgBuild("SpecieDB", "Build");
 class SDBE_Const : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         C;
@@ -66,10 +64,6 @@ class SDBE_Const : protected CSpDBEqn
 class SDBE_Poly : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a,b,c,d,e,f,g;
@@ -111,10 +105,6 @@ class SDBE_Poly : protected CSpDBEqn
 class SDBE_LinearGasDensity : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         Rho;
@@ -146,10 +136,6 @@ class SDBE_LinearGasDensity : protected CSpDBEqn
 class SDBE_IdealGasDensity : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         m_dMoleWt;
@@ -181,10 +167,6 @@ class SDBE_IdealGasDensity : protected CSpDBEqn
 class SDBE_LiqH2ORho : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
 
@@ -227,10 +209,6 @@ class SDBE_LiqH2ORho : protected CSpDBEqn
 class SDBE_Ts : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a,b,c,d;
@@ -269,10 +247,6 @@ class SDBE_Ts : protected CSpDBEqn
 class SDBE_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
     double         a;
@@ -322,29 +296,24 @@ double SDBE_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_CRC_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c,d,lo,hi;
-    flag           rng;
-    SDBE_CRC_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    double         a,b,c,d;
+    SDBE_CRC_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_CRC_Cp() {};
     static const char * Name() { return "CRC_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_CRC_Cp*pc=(SDBE_CRC_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_CRC_Cp*pc=(SDBE_CRC_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; };
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -363,12 +332,6 @@ int SDBE_CRC_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
     d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6;
   else
     d=0.0;
-  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
-    {
-    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -388,24 +351,24 @@ double SDBE_CRC_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -442,29 +405,24 @@ double SDBE_CRC_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_CRC1_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c,d,lo,hi;
-    flag           rng;
-    SDBE_CRC1_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    double         a,b,c,d;
+    SDBE_CRC1_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_CRC1_Cp() {};
     static const char * Name() { return "CRC1_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_CRC1_Cp*pc=(SDBE_CRC1_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_CRC1_Cp*pc=(SDBE_CRC1_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + (b * T) + (c * T*T) + (d / GTZ(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -480,12 +438,6 @@ int SDBE_CRC1_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   b=SpDB_TokenValue(Cols[1], 0.0) * 1.0e-3;
   c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-6;
   d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e+5;
-  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
-    {
-    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -505,24 +457,24 @@ double SDBE_CRC1_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -553,21 +505,16 @@ double SDBE_CRC1_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_CRC2_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c,lo,hi;
-    flag           rng;
-    SDBE_CRC2_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=lo=hi=0.0;rng=0;};
+    double         a,b,c;
+    SDBE_CRC2_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=0.0;};
     virtual ~SDBE_CRC2_Cp() {};
     static const char * AltName() { return "QAL_Cp"; };
     static const char * Name() { return "CRC2_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_CRC2_Cp*pc=(SDBE_CRC2_Cp*)p; a=pc->a; b=pc->b; c=pc->c; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_CRC2_Cp*pc=(SDBE_CRC2_Cp*)p; a=pc->a; b=pc->b; c=pc->c;};
 
     virtual double AtT(double T);// { return a + (b * T) - (c / GTZ(T*T)); };
     virtual double AtTP(double T, double P);// { return a + (b * T) - (c / GTZ(T*T)); };
@@ -577,13 +524,13 @@ class SDBE_CRC2_Cp : protected CSpDBEqn
 
 double SDBE_CRC2_Cp::AtT(double T) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+  T=Range(m_Ts, T, m_Te);
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
 double SDBE_CRC2_Cp::AtTP(double T, double P) 
   { 
-  T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+  T=Range(m_Ts, T, m_Te);
   return a + (b * T) - (c / GTZ(T*T)); 
   };
 
@@ -595,12 +542,6 @@ int SDBE_CRC2_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   a=SpDB_TokenValue(Cols[0], 1.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
   b=SpDB_TokenValue(Cols[1], 0.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
   c=SpDB_TokenValue(Cols[2], 0.0) * m_pConst->MoleWt();//m_pConst->MoleWt();
-  if (strlen(Cols[3])>0 && strlen(Cols[4])>0)
-    {
-    lo=SpDB_TokenValue(Cols[3], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[4], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -614,24 +555,24 @@ double SDBE_CRC2_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -666,28 +607,10 @@ double SDBE_CRC2_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HSC_Cp : protected SDBE_CRC_Cp
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-//    double         a,b,c,d,lo,hi;
-//    flag           rng;
     SDBE_HSC_Cp(CSpConstData *pConst, CSpFidelData *Sp) : SDBE_CRC_Cp(pConst, Sp) { };
-//    virtual ~SDBE_CRC_Cp() {};
     static const char * Name() { return "HSC_Cp"; };
-//    virtual const char * VName() { return Name(); };
-//    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-//    virtual void Copy(CSpDBEqn* p) { SDBE_CRC_Cp*pc=(SDBE_CRC_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
-//    
-//    virtual double AtT(double T) 
-//      { 
-//      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
-//      return a + (b * T) + (c / GTZ(T*T)) + (d * T*T); 
-//      };
-//    virtual double Integrate_dT(double T1, double T2, double P);
-//    virtual double IntegrateOverT_dT(double T1, double T2, double P);
   };
 
 // ==========================================================================
@@ -700,29 +623,24 @@ class SDBE_HSC_Cp : protected SDBE_CRC_Cp
 class SDBE_Poly_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c,d,lo,hi;
-    flag           rng;
-    SDBE_Poly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    double         a,b,c,d;
+    SDBE_Poly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_Poly_Cp() {};
     static const char * Name() { return "Poly_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_Poly_Cp*pc=(SDBE_Poly_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_Poly_Cp*pc=(SDBE_Poly_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + T * (b + T * (c + T * d));
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return a + T * (b + T * (c + T * d));
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -738,13 +656,6 @@ int SDBE_Poly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   b=SpDB_TokenValue(Cols[1], 0.0);
   c=SpDB_TokenValue(Cols[2], 0.0);
   d=SpDB_TokenValue(Cols[3], 0.0);
-  //e=SpDB_TokenValue(Cols[4], 0.0);
-  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
-    {
-    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -760,24 +671,24 @@ double SDBE_Poly_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -810,15 +721,17 @@ double SDBE_Poly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_GenPoly_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
+  static const int MaxTerms=16;
   protected:
-    double         c1,p1,c2,p2,c3,p3,c4,p4,lo,hi;
-    flag           rng;
-    SDBE_GenPoly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {c1=p1=c2=p2=c3=p3=c4=p4=lo=hi=0.0;rng=0;};
+    SDBE_GenPoly_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) 
+      {
+      for (int i=0; i<MaxTerms; i++)
+        {
+        m_C[i]=0; 
+        m_P[i]=0; 
+        }
+      };
     virtual ~SDBE_GenPoly_Cp() {};
     static const char * Name() { return "GenPoly_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -826,32 +739,47 @@ class SDBE_GenPoly_Cp : protected CSpDBEqn
     virtual void Copy(CSpDBEqn* p) 
       { 
       SDBE_GenPoly_Cp*pc=(SDBE_GenPoly_Cp*)p; 
-      c1=pc->c1; p1=pc->p1; 
-      c2=pc->c2; p2=pc->p2; 
-      c3=pc->c3; p3=pc->p3; 
-      c4=pc->c4; p4=pc->p4; 
-      lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+      m_nTerms=pc->m_nTerms; 
+      for (int i=0; i<m_nTerms; i++)
+        {
+        m_C[i]=pc->m_C[i]; 
+        m_P[i]=pc->m_P[i]; 
+        }
+      };
 
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
-      double ret=c1*pow(T, p1);
-      if (c2!=0.0) ret+=c2*pow(T, p2);
-      if (c3!=0.0) ret+=c3*pow(T, p3);
-      if (c4!=0.0) ret+=c4*pow(T, p4);
+      T=Range(m_Ts, T, m_Te);
+      double ret=0.0;
+      for (int i=0; i<m_nTerms; i++)
+        if (m_C[i]!=0.0) ret+=m_C[i]*pow(T, m_P[i]);
       return ret;
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
-      double ret=c1*pow(T, p1);
-      if (c2!=0.0) ret+=c2*pow(T, p2);
-      if (c3!=0.0) ret+=c3*pow(T, p3);
-      if (c4!=0.0) ret+=c4*pow(T, p4);
+      T=Range(m_Ts, T, m_Te);
+      double ret=0.0;
+      for (int i=0; i<m_nTerms; i++)
+        if (m_C[i]!=0.0) ret+=m_C[i]*pow(T, m_P[i]);
       return ret;
       };
     virtual double Integrate_dT(double T1, double T2, double P);
     virtual double IntegrateOverT_dT(double T1, double T2, double P);
+
+    int            m_nTerms;
+    double         m_C[MaxTerms],m_P[MaxTerms];
+  };
+
+//---------------------------------------------------------------------------
+
+class SDBE_GenPoly : protected SDBE_GenPoly_Cp
+  {
+  friend class CSpDBEqn; 
+
+  protected:
+    SDBE_GenPoly(CSpConstData *pConst, CSpFidelData *Sp) : SDBE_GenPoly_Cp(pConst, Sp) {};
+    virtual ~SDBE_GenPoly() {};
+    static const char * Name() { return "GenPoly"; };
   };
 
 //---------------------------------------------------------------------------
@@ -859,19 +787,13 @@ class SDBE_GenPoly_Cp : protected CSpDBEqn
 int SDBE_GenPoly_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   {
   if (strlen(Cols[3])==0) return 2;
-  c1=SpDB_TokenValue(Cols[0], 0.0);
-  p1=SpDB_TokenValue(Cols[1], 1.0);
-  c2=SpDB_TokenValue(Cols[2], 0.0);
-  p2=SpDB_TokenValue(Cols[3], 1.0);
-  c3=SpDB_TokenValue(Cols[4], 0.0);
-  p3=SpDB_TokenValue(Cols[5], 1.0);
-  c4=SpDB_TokenValue(Cols[6], 0.0);
-  p4=SpDB_TokenValue(Cols[7], 1.0);
-  if (strlen(Cols[8])>0 && strlen(Cols[9])>0)
+  m_nTerms=0;
+  for (int i=0,j=0; i<MaxTerms; i++)
     {
-    lo=SpDB_TokenValue(Cols[8], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[9], C_2_K(1000.));
-    rng=1;
+    m_C[i]=SpDB_TokenValue(Cols[j++], 0.0);
+    m_P[i]=SpDB_TokenValue(Cols[j++], 1.0);
+    if (m_C[i]!=0.0)
+      m_nTerms=i+1;
     }
   return 0;
   };
@@ -885,55 +807,39 @@ double SDBE_GenPoly_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
-  
     
-    if (c1!=0.0)
+    for (int i=0; i<m_nTerms; i++)
       {
-      if (p1!=-1.0)
-        HCp = HCp + c1*((pow(T2, p1+1)-pow(T1, p1+1))/(p1+1));
-      else
-        HCp = HCp + c1*(log(T2)-log(T1));
-      }
-    if (c2!=0.0)
-      {
-      if (p2!=-1.0)
-        HCp = HCp + c2*((pow(T2, p2+1)-pow(T1, p2+1))/(p2+1));
-      else
-        HCp = HCp + c2*(log(T2)-log(T1));
-      }
-    if (c3!=0.0)
-      {
-      if (p3!=-1.0)
-        HCp = HCp + c3*((pow(T2, p3+1)-pow(T1, p3+1))/(p3+1));
-      else
-        HCp = HCp + c3*(log(T2)-log(T1));
-      }
-    if (c4!=0.0)
-      {
-      if (p4!=-1.0)
-        HCp = HCp + c4*((pow(T2, p4+1)-pow(T1, p4+1))/(p4+1));
-      else
-        HCp = HCp + c4*(log(T2)-log(T1));
+      if (m_C[i]!=0.0) 
+        {
+        double pwr=m_P[i]+1.0;
+        if (pwr!=0.0)
+          {
+          HCp = HCp + m_C[i]*((pow(T2, pwr)-pow(T1, pwr))/(pwr));
+          }
+        else
+          HCp = HCp + m_C[i]*(log(T2)-log(T1));
+        }
       }
     }
   
@@ -949,57 +855,40 @@ double SDBE_GenPoly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double Result=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    Result = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    Result = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    Result = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    Result = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      Result = Result + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      Result = Result + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      Result = Result + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      Result = Result + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
-    
-    if (c1!=0.0)
+    for (int i=0; i<m_nTerms; i++)
       {
-      if (p1!=0.0)
-        Result = Result + c1*((pow(T2, p1)-pow(T1, p1))/(p1));
-      else
-        Result = Result + c1*(log(T2)-log(T1));
+      if (m_C[i]!=0.0) 
+        {
+        double pwr=m_P[i];
+        if (pwr!=0.0)
+          {
+          Result = Result + m_C[i]*((pow(T2, pwr)-pow(T1, pwr))/(pwr));
+          }
+        else
+          Result = Result + m_C[i]*(log(T2)-log(T1));
+        }
       }
-    if (c2!=0.0)
-      {
-      if (p2!=0.0)
-        Result = Result + c2*((pow(T2, p2)-pow(T1, p2))/(p2));
-      else
-        Result = Result + c2*(log(T2)-log(T1));
-      }
-    if (c3!=0.0)
-      {
-      if (p3!=0.0)
-        Result = Result + c3*((pow(T2, p3)-pow(T1, p3))/(p3));
-      else
-        Result = Result + c3*(log(T2)-log(T1));
-      }
-    if (c4!=0.0)
-      {
-      if (p4!=0.0)
-        Result = Result + c4*((pow(T2, p4)-pow(T1, p4))/(p4));
-      else
-        Result = Result + c4*(log(T2)-log(T1));
-      }
-
     }
   
   return Result;
@@ -1014,30 +903,25 @@ double SDBE_GenPoly_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_API_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double          a,b,c,d,e,f,lo,hi;
-    flag            rng;
+    double          a,b,c,d,e,f;
 
-    SDBE_API_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=lo=hi=0.0;rng=0;};
+    SDBE_API_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=f=0.0;};
     virtual ~SDBE_API_Cp() {};
     static const char * Name() { return "API_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_API_Cp*pc=(SDBE_API_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; e=pc->e; f=pc->f; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_API_Cp*pc=(SDBE_API_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; e=pc->e; f=pc->f;};
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return b+T*(2.0*c+T*(3.0*d+T*(4.0*e+T*5.0*f))); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1054,12 +938,6 @@ int SDBE_API_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6 * m_pConst->MoleWt();
   e=SpDB_TokenValue(Cols[4], 0.0) * 1.0e-9 * m_pConst->MoleWt();
   f=SpDB_TokenValue(Cols[5], 0.0) * 1.0e-13 * m_pConst->MoleWt();
-  if (strlen(Cols[6])>0 && strlen(Cols[7])>0)
-    {
-    lo=SpDB_TokenValue(Cols[6], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[7], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -1072,24 +950,24 @@ double SDBE_API_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
 
@@ -1119,30 +997,25 @@ double SDBE_API_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HTE_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double          a,b,c,d,lo,hi;
-    flag            rng;
+    double          a,b,c,d;
 
-    SDBE_HTE_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=lo=hi=0.0;rng=0;};
+    SDBE_HTE_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=0.0;};
     virtual ~SDBE_HTE_Cp() {};
     static const char * Name() { return "HTE_Cp"; };
     virtual const char * VName() { return Name(); };
     virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
-    virtual void Copy(CSpDBEqn* p) { SDBE_HTE_Cp*pc=(SDBE_HTE_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;};
+    virtual void Copy(CSpDBEqn* p) { SDBE_HTE_Cp*pc=(SDBE_HTE_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d;};
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double AtTP(double T, double P) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       return 4.186*(b+2.0*c*T-d/(T*T)); 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
@@ -1159,13 +1032,6 @@ int SDBE_HTE_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   b=SpDB_TokenValue(Cols[1], 1.0);
   c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e-3;
   d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e5;
-  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
-    {
-    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
-    rng=1;
-    }
-
   return 0;
   };
       
@@ -1179,24 +1045,24 @@ double SDBE_HTE_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = rng ? lo : m_Ts;
-  double HiT = rng ? hi : m_Te;
+  double LoT = m_Ts;
+  double HiT = m_Te;
   
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -1230,16 +1096,11 @@ double SDBE_HTE_Cp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_Shomate_Cp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class SpecieD; 
-  // friend class ComponentD; 
-  // friend class SpecieDataBase;
-  // friend class ComponentDataBase;
 
   protected:
-    double         a,b,c,d,e,lo,hi;
-    flag           rng;
+    double         a,b,c,d,e;
 
-    SDBE_Shomate_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=lo=hi=0.0;rng=0;};
+    SDBE_Shomate_Cp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) {a=b=c=d=e=0.0;};
     virtual ~SDBE_Shomate_Cp() {};
     static const char * Name() { return "Shomate_Cp"; };
     virtual const char * VName() { return Name(); };
@@ -1247,19 +1108,18 @@ class SDBE_Shomate_Cp : protected CSpDBEqn
     virtual void Copy(CSpDBEqn* p) 
       { 
       SDBE_Shomate_Cp*pc=(SDBE_Shomate_Cp*)p; 
-      a=pc->a;b=pc->b;c=pc->c;d=pc->d;e=pc->e;/*f=pc->f;g=pc->g;h=pc->h;*/
-      lo=pc->lo; hi=pc->hi; rng=pc->rng;
+      a=pc->a;b=pc->b;c=pc->c;d=pc->d;e=pc->e;
       };
     
     virtual double AtT(double T) 
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       }
     virtual double AtTP(double T, double P)
       { 
-      T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
+      T=Range(m_Ts, T, m_Te);
       T/=1000.0; 
       return (a+T*(b+T*(c+T*d))+e/(T*T));//*1000;
       };
@@ -1277,15 +1137,6 @@ int SDBE_Shomate_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
   c=SpDB_TokenValue(Cols[2], 0.0);
   d=SpDB_TokenValue(Cols[3], 0.0);
   e=SpDB_TokenValue(Cols[4], 0.0);
-  //f=SpDB_TokenValue(Cols[5], 0.0);
-  //g=SpDB_TokenValue(Cols[6], 0.0);
-  //h=SpDB_TokenValue(Cols[7], 0.0);
-  if (strlen(Cols[5])>0 && strlen(Cols[6])>0)
-    {
-    lo=SpDB_TokenValue(Cols[5], C_2_K(25.));
-    hi=SpDB_TokenValue(Cols[6], C_2_K(1000.));
-    rng=1;
-    }
   return 0;
   };
       
@@ -1298,26 +1149,26 @@ double SDBE_Shomate_Cp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  double LoT = (rng ? lo : m_Ts)/1000.0;
-  double HiT = (rng ? hi : m_Te)/1000.0;
+  double LoT = m_Ts/1000.0;
+  double HiT = m_Te/1000.0;
   T1/=1000.;
   T2/=1000.;
 
   if (T2<LoT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+    HCp = Sgn*(T2-T1)*AtTP(LoT, P);
   else if (T1>=HiT)
-    HCp = Sgn*(T2-T1)*AtTP/*m_pFData->mlCp*/(HiT, P);
+    HCp = Sgn*(T2-T1)*AtTP(HiT, P);
   else
     {
     // Part Of Curve gets used
     if (T2>HiT)
       {
-      HCp = HCp + Sgn*(T2-HiT)*AtTP/*m_pFData->mlCp*/(HiT, P);
+      HCp = HCp + Sgn*(T2-HiT)*AtTP(HiT, P);
       T2=HiT;
       }
     if (T1<LoT)
       {
-      HCp = HCp + Sgn*(LoT-T1)*AtTP/*m_pFData->mlCp*/(LoT, P);
+      HCp = HCp + Sgn*(LoT-T1)*AtTP(LoT, P);
       T1=LoT;
       }
   
@@ -1640,14 +1491,9 @@ double SDBE_VpAnt::AtT(double T)
 class SDBE_HFC134a_GasCp : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
-    double         a,b,c;//,lo,hi;
-    //flag           rng;
+    double         a,b,c;
     SDBE_HFC134a_GasCp(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) 
       {
       a=1.94006e1;
@@ -1665,40 +1511,20 @@ class SDBE_HFC134a_GasCp : protected CSpDBEqn
   	  if (strlen(Cols[0])!=0) return 2;
   	  return 0;
   	  };
-    virtual void Copy(CSpDBEqn* p) { /*SDBE_HFC134a_Cp*pc=(SDBE_HFC134a_Cp*)p; a=pc->a; b=pc->b; c=pc->c; d=pc->d; lo=pc->lo; hi=pc->hi; rng=pc->rng;*/ };
+    virtual void Copy(CSpDBEqn* p) { };
 
     virtual double AtT(double T) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double AtTP(double T, double P) 
       { 
-      //T=rng ? Range(lo, T, hi) : Range(m_Ts, T, m_Te);
       return (a + (b * T) + (c * T*T));///102.03; 
       };
     virtual double Integrate_dT(double T1, double T2, double P);
     virtual double IntegrateOverT_dT(double T1, double T2, double P);
   };
 
-//---------------------------------------------------------------------------
-
-//int SDBE_HFC134a_Cp::Load(const char * pInitStr, char* Cols[MaxSPDBCols])
-//  {
-//  if (strlen(Cols[3])==0) return 2;
-//  a=SpDB_TokenValue(Cols[0], 1.0);
-//  b=SpDB_TokenValue(Cols[1], 0.0) * 1.0e-3;
-//  c=SpDB_TokenValue(Cols[2], 0.0) * 1.0e+5;
-//  d=SpDB_TokenValue(Cols[3], 0.0) * 1.0e-6;
-//  if (strlen(Cols[4])>0 && strlen(Cols[5])>0)
-//    {
-//    lo=SpDB_TokenValue(Cols[4], C_2_K(25.));
-//    hi=SpDB_TokenValue(Cols[5], C_2_K(1000.));
-//    rng=1;
-//    }
-//  return 0;
-//  };
-      
 //---------------------------------------------------------------------------
 
 double SDBE_HFC134a_GasCp::Integrate_dT(double T1, double T2, double P)
@@ -1715,7 +1541,7 @@ double SDBE_HFC134a_GasCp::Integrate_dT(double T1, double T2, double P)
     Exchange(T2, T1);
 
   double HCp=0.0;
-  //double LoT = rng ? lo : m_Ts;
+  //double LoT = =0.0m_Ts;
   //double HiT = rng ? hi : m_Te;
   //
   //if (T2<LoT)
@@ -1763,10 +1589,6 @@ double SDBE_HFC134a_GasCp::IntegrateOverT_dT(double T1, double T2, double P)
 class SDBE_HFC134a_Vp: protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
 
@@ -1798,10 +1620,6 @@ class SDBE_HFC134a_Vp: protected CSpDBEqn
 class SDBE_HFC134a_LiqRho : protected CSpDBEqn
   {
   friend class CSpDBEqn; 
-  // friend class CSpRangeData; 
-  // friend class CComponent; 
-  // friend class CSpecieDataBase;
-  // friend class CComponentDataBase;
 
   protected:
 
@@ -2061,6 +1879,138 @@ extern bool TryConstructNBS(CSpRangeData * pSpD, LPCTSTR Str, LPCTSTR &pn, CSpDB
 //
 // ==========================================================================
 
+#define WithSpDB_TSpline 01
+#if WithSpDB_TSpline       
+class SDBE_TSpline : protected CSpDBEqn
+  {
+  friend class CSpDBEqn; 
+
+  protected:
+
+    SDBE_TSpline(CSpConstData *pConst, CSpFidelData *Sp) : CSpDBEqn(pConst, Sp) { };
+    virtual ~SDBE_TSpline() {};
+    static const char * Name() { return "TSpline"; };
+    virtual const char * VName() { return Name(); };
+    virtual int Load(const char * pInitString, char* Cols[MaxSPDBCols]);
+
+    virtual void Copy(CSpDBEqn* p) 
+      { 
+      m_Spline = ((SDBE_TSpline*)p)->m_Spline;
+      m_Table  = ((SDBE_TSpline*)p)->m_Table;
+      };
+    
+    virtual double AtT(double T)              { return m_Spline.Yx(T); }; 
+    virtual double AtTP(double T, double P)   { return m_Spline.Yx(T); };
+
+    TSpline m_Spline;
+    Strng   m_Table;
+  };
+
+//---------------------------------------------------------------------------
+
+int SDBE_TSpline::Load(const char * pInitString, char* Cols[MaxSPDBCols])
+  {
+  if (strlen(Cols[0])==0) return 2;
+  m_Table=Cols[0];
+
+  m_Spline.SetSigma(SpDB_TokenValue(Cols[1], 1.0));
+
+  for (int i=0; i<4; i++)
+    {
+    int Type = TSpline::iSlopeFree;
+    double Slp = 0;
+    LPSTR Fld=Cols[i+2];
+    if (strlen(Fld))
+      {
+      if (_stricmp(Fld, "Free")==0)
+        Type=TSpline::iSlopeFree;
+      else if (_stricmp(Fld, "Seg")==0)
+        Type=TSpline::iSlopeOfSegment;
+      else 
+        {
+        Type=TSpline::iSlopeSpecd;
+        Slp=SafeAtoF(Fld);
+        }
+      }
+    switch (i)
+      {
+      case 0: m_Spline.SetSlopeLo(Type, Slp); break;
+      case 1: m_Spline.SetSlope1(Type, Slp);  break;
+      case 2: m_Spline.SetSlopeN(Type, Slp);  break;
+      case 3: m_Spline.SetSlopeHi(Type, Slp); break;
+      }
+    }
+
+  LPSTR ColNames[] = { "MassFraction", "Hf", NULL };
+  CDBHelper DB(sm_sDataFileName(), m_Table());
+  if (DB.Open(DBConnect_Default, ColNames[0], DBH_HasHeadings|DBH_ReadOnly|DBH_ForwardOnly|DBH_TrimStrings))
+    {
+    BOOL ColNamesOK = DB.CheckFieldNames(ColNames);
+    if (ColNamesOK)
+      {
+      CStringArray Values;
+      while (!DB.IsEOF())
+        {
+        DB.GetNextRow(Values);
+
+        double MassFrac = SafeAtoF(Values[0]);
+        double Hf       = SafeAtoF(Values[1]);
+        m_Spline.AddPt(MassFrac, Hf);
+        }
+      if (!m_Spline.Fit())
+        {
+        LogError(SpecieDBLogHdr, 0, "Cannot fit TSpline Data : Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+        return 3;
+        }
+
+      if (1)
+        {
+        double prevx, prevy; 
+        int n=m_Spline.NPts();
+        for (int i=0; i<n-1; i++)
+          {
+          for (int j=0; j<4; j++)
+            {
+            double x=m_Spline.X[i]+(m_Spline.X[i+1]-m_Spline.X[i])*(j/4.0);
+            double y=m_Spline.Yx(x);
+            double dy=(i||j) ? (y-prevy)/NZ(x-prevx):0;
+            if (j==0)
+              dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+            else
+              dbgpln("TSpline: %s %20.9f %20.9f %20s %20.9f", m_Table(), x, y, "", dy); 
+            prevx=x;
+            prevy=y; 
+            }
+          }
+        double x=m_Spline.X[i];
+        double y=m_Spline.Yx(x);
+        double dy=(i) ? (y-prevy)/NZ(x-prevx):0;
+        dbgpln("TSpline: %s %20.9f %20.9f %20.9f %20.9f", m_Table(), x, y, m_Spline.Y[i], dy); 
+        }
+      }
+    else
+      {
+      LogError(SpecieDBLogHdr, 0, "Incorrect field names: Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+      return 3;
+      }
+    DB.Close();
+    }
+  else
+    {
+    LogError(SpecieDBLogHdr, 0, "Unable to open Table '%s' in '%s'", m_Table(), sm_sDataFileName());
+    return 3;
+    }
+  return 0;
+  };
+
+#endif
+
+// ==========================================================================
+//
+//
+//
+// ==========================================================================
+
 CSpDBEqn* CSpDBEqn::ConstructCopy(CSpConstData * pConst, CSpFidelData * pSpPh)
   {
   CSpDBEqn *pEqn=this;//pSpPh->m_pRho[pSpPh->m_iLastTPoint];
@@ -2073,6 +2023,8 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
   char Str[1024], *Cols[MaxSPDBCols];
   const char *pn=NULL;
   char *pOpn=NULL, *pCls=NULL;
+  if (pInitString && strchr(pInitString, '\"')!=0)
+    { int xxx=0;}
   if (pCopyFrom==NULL) 
     {
     strcpy(Str, pCopyFrom ? pCopyFrom->VName() : pInitString);
@@ -2157,6 +2109,11 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
       {
       pn=SDBE_GenPoly_Cp::Name();
       p=new SDBE_GenPoly_Cp(pConst, pSpD);
+      }
+    else if (_stricmp(Str, SDBE_GenPoly::Name())==0) 
+      {
+      pn=SDBE_GenPoly::Name();
+      p=new SDBE_GenPoly(pConst, pSpD);
       }
     else if (_stricmp(Str, SDBE_API_Cp::Name())==0) 
       {
@@ -2270,16 +2227,29 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
 
 #endif
 
+#if WithSpDB_TSpline       
+    else if (_stricmp(Str, SDBE_TSpline::Name())==0) 
+      {
+      pn=SDBE_TSpline::Name();
+      p=new SDBE_TSpline(pConst, pSpD);
+      }
+#endif
+
+
     if (p)
       {
       if (pCopyFrom)
+        {
         p->Copy(pCopyFrom);
+        p->m_sEqn = pCopyFrom->m_sEqn;
+        }
       else
         {
         if (p->Load(pInitString, Cols)!=0)
           {
           LogError("SpecieDB", LF_Exclamation, "Bad Parameters %s for %s", pInitString, pSpD->m_pSp->sCmpTag());
           }
+        p->m_sEqn = pInitString;
         }
       }
     }
@@ -2291,6 +2261,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
     SpDB_ParseTokens(Str, Cols);
     p=new SDBE_Const(pConst, pSpD);
     p->Load(Str, Cols);
+    p->m_sEqn.Set("Const(%s)", pInitString);
     }
   
   if (!p)
@@ -2301,6 +2272,7 @@ CSpDBEqn* CSpDBEqn::Construct(CSpConstData * pConst, CSpFidelData * pSpD, const 
     SpDB_ParseTokens(Str, Cols);
     p=new SDBE_Const(pConst, pSpD);
     p->Load(Str, Cols);
+    p->m_sEqn = pInitString;
     }
 
   return p;
