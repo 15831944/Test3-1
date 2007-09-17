@@ -408,11 +408,11 @@ double BatchPrecip::PerformAluminaSolubility(MVector & Vec, double TRqd, double 
   double T=AdjustT ? Vec.T : TRqd;
 
 
-  double &AluminaMass  = Vec.MassVector[spAlumina];     // Al2O3
-  double &WaterMass    = Vec.MassVector[spWater];       // H2O
-  double &THAMass      = Vec.MassVector[spTHA];         // Al2O3.3H2O
-  double &CausticMass  = Vec.MassVector[spCausticSoda]; // NaOH
-  double &Na2OMass     = Vec.MassVector[spOccSoda];     // Na2O
+  MVDouble AluminaMass  (Vec, spAlumina);     // Al2O3
+  MVDouble WaterMass    (Vec, spWater);       // H2O
+  MVDouble THAMass      (Vec, spTHA);         // Al2O3.3H2O
+  MVDouble CausticMass  (Vec, spCausticSoda); // NaOH
+  MVDouble Na2OMass     (Vec, spOccSoda);     // Na2O
 
   const double Fact = spAlumina.MW/spTHA.MW; // 0.654;
 

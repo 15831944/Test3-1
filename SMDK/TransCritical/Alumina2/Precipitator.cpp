@@ -432,21 +432,21 @@ bool CPrecipitator::ValidateDataFields()
 // Modified for NaAl[OH]4 as primary species.
 void CPrecipitator::AdjustMasses(MStream & Prod)
 {
-  double &InAluminaMass  = Feed.MassVector[spAlumina];     // NaAl[OH]4(l)
-  double &InWaterMass    = Feed.MassVector[spWater];       // H2O
-  double &InTHAMass      = Feed.MassVector[spTHA];         // NaAl[OH]3(s)
-  double &InCausticMass  = Feed.MassVector[spCausticSoda]; // NaOH
-  double &InBoundSodaMass = Feed.MassVector[spBoundSoda];
-  double &InOrganicMass = Feed.MassVector[spOrganics];
-  double &InBoundOrganicMass = Feed.MassVector[spBoundOrganics];
+  double InAluminaMass  = Feed.MassVector[spAlumina];     // NaAl[OH]4(l)
+  double InWaterMass    = Feed.MassVector[spWater];       // H2O
+  double InTHAMass      = Feed.MassVector[spTHA];         // NaAl[OH]3(s)
+  double InCausticMass  = Feed.MassVector[spCausticSoda]; // NaOH
+  double InBoundSodaMass = Feed.MassVector[spBoundSoda];
+  double InOrganicMass = Feed.MassVector[spOrganics];
+  double InBoundOrganicMass = Feed.MassVector[spBoundOrganics];
 
-  double &AluminaMass  = Prod.MassVector[spAlumina];     // NaAl[OH]4(l)
-  double &WaterMass    = Prod.MassVector[spWater];       // H2O
-  double &THAMass      = Prod.MassVector[spTHA];         // NaAl[OH]3(s)
-  double &CausticMass  = Prod.MassVector[spCausticSoda]; // NaOH
-  double &BoundSodaMass = Prod.MassVector[spBoundSoda];
-  double &OrganicMass = Prod.MassVector[spOrganics];
-  double &BoundOrganicMass = Prod.MassVector[spBoundOrganics];
+  MVDouble AluminaMass  (Prod, spAlumina);     // NaAl[OH]4(l)
+  MVDouble WaterMass    (Prod, spWater);       // H2O
+  MVDouble THAMass      (Prod, spTHA);         // NaAl[OH]3(s)
+  MVDouble CausticMass  (Prod, spCausticSoda); // NaOH
+  MVDouble BoundSodaMass (Prod, spBoundSoda);
+  MVDouble OrganicMass (Prod, spOrganics);
+  MVDouble BoundOrganicMass (Prod, spBoundOrganics);
 
   if (m_dMassDamping>0.0) {
     // Mass damping terms... may only be needed at very high rates
@@ -463,13 +463,14 @@ void CPrecipitator::AdjustMasses(MStream & Prod)
   BoundOrganicMass = InBoundOrganicMass + x[iBOUND_ORGANICS];
   BoundSodaMass = InBoundSodaMass + x[iBOUND_SODA];
   WaterMass = InWaterMass - x[3];
+
   //  if (m_bUpdateT) Prod.MarkStateChanged();    // Manual fixup of heat loads eventually...
 }
 
 
 void CPrecipitator::AdjustT(MStream &Prod) 
 {
-  double &EvapWater = Evap.MassVector[spWaterVapor];
+  MVDouble EvapWater (Evap, spWaterVapor);
   EvapWater = x[3];
   double dHeatIn = Feed.totHz();
   dReactionHeat = x[iALUMINA]*GibbsiteHOR(K2C(Prod.T));

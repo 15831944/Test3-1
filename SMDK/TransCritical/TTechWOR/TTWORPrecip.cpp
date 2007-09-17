@@ -199,20 +199,20 @@ const long OM_Condensing  = 1;
 // Modified for NaAl[OH]4 as primary species.
 void CPrecipitator::AdjustMasses()
 {
-  double &InAluminaMass  = Feed.MassVector[spAlumina];     // Al2O3(l)
-  double &InWaterMass    = Feed.MassVector[spWater];       // H2O
-  double &InTHAMass      = Feed.MassVector[spTHA];         // Al[OH]3(s)
-  double &InCausticMass  = Feed.MassVector[spCausticSoda]; // NaOH
-  double &InOccSodaMass = Feed.MassVector[spOccSoda];
-  double &InOrganicMass = Feed.MassVector[spOrganics];
+  double InAluminaMass  = Feed.MassVector[spAlumina];     // Al2O3(l)
+  double InWaterMass    = Feed.MassVector[spWater];       // H2O
+  double InTHAMass      = Feed.MassVector[spTHA];         // Al[OH]3(s)
+  double InCausticMass  = Feed.MassVector[spCausticSoda]; // NaOH
+  double InOccSodaMass = Feed.MassVector[spOccSoda];
+  double InOrganicMass = Feed.MassVector[spOrganics];
   //  double &InBoundOrganicMass = Feed.MassVector[spBoundOrganics];
 
-  double &AluminaMass  = Tank.MassVector[spAlumina];     // Al2O3(l)
-  double &WaterMass    = Tank.MassVector[spWater];       // H2O
-  double &THAMass      = Tank.MassVector[spTHA];         // Al[OH]3(s)
-  double &CausticMass  = Tank.MassVector[spCausticSoda]; // NaOH
-  double &OccSodaMass = Tank.MassVector[spOccSoda];
-  double &OrganicMass = Tank.MassVector[spOrganics];
+  MVDouble AluminaMass  (Tank, spAlumina);     // Al2O3(l)
+  MVDouble WaterMass    (Tank, spWater);       // H2O
+  MVDouble THAMass      (Tank, spTHA);         // Al[OH]3(s)
+  MVDouble CausticMass  (Tank, spCausticSoda); // NaOH
+  MVDouble OccSodaMass (Tank, spOccSoda);
+  MVDouble OrganicMass (Tank, spOrganics);
   //  double &BoundOrganicMass = Tank.MassVector[spBoundOrganics];
 
   const int NumSpecies = gs_MVDefn.Count();

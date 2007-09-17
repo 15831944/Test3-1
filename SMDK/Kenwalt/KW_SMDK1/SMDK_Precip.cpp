@@ -233,11 +233,11 @@ bool CPrecipitator::ValidateDataFields()
 
 void CPrecipitator::AdjustMasses(MVector & Prod, double & x, double SodaFac)
   {
-  double &AluminaMass  = Prod.MassVector[spAlumina];     // Al2O3
-  double &WaterMass    = Prod.MassVector[spWater];       // H2O
-  double &THAMass      = Prod.MassVector[spTHA];         // Al2O3.3H2O
-  double &CausticMass  = Prod.MassVector[spCausticSoda]; // NaOH
-  double &Na2OMass     = Prod.MassVector[spOccSoda];     // Na2O
+  MVDouble AluminaMass(Prod, spAlumina);     // Al2O3
+  MVDouble WaterMass    (Prod, spWater);       // H2O
+  MVDouble THAMass      (Prod, spTHA);         // Al2O3.3H2O
+  MVDouble CausticMass  (Prod, spCausticSoda); // NaOH
+  MVDouble Na2OMass     (Prod, spOccSoda);     // Na2O
 
   const double MW_H2O       = spWater.MW;            //18.0152800
   const double MW_Na2O      = spOccSoda.MW;          //61.9789360
@@ -290,7 +290,7 @@ double CPrecipitator::PerformAluminaSolubility(MVector & Prod, double TRqd, doub
   MIBayer & ProdB=*Prod.FindIF<MIBayer>();
   double A = ProdB.AluminaConc(T);
 
-  double &AluminaMass  = Prod.MassVector[spAlumina];     // Al2O3
+  const double AluminaMass  = Prod.MassVector[spAlumina];     // Al2O3
 
   const double MW_Al2O3     = spAlumina.MW;          //101.961278
   const double MW_Al2O3_3H2O= spTHA.MW;              //156.007118

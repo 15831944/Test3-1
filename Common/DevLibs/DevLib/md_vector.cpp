@@ -301,7 +301,7 @@ double  MVector::getA(long i) const             { return SpMdl->VAttr[i]; };
 void    MVector::putA(long i, double A)         { SpMdl->VAttr[i]=A; };
 double  MVector::getMl(long i) const            { return SpMdl->VMole[i]; };
 //void    MVector::putMl(long i, double M)        { SpMdl->VMole[i] = M; };
-double *MVector::getMassVector()                { return SpMdl->SVData(); };
+const double *MVector::getMassVector()                { return SpMdl->SVData(); };
 void    MVector::MarkStateChanged()             { SpMdl->ClrStatesOK(); };
 void    MVector::putSuppressErrors(bool On)     { SpMdl->SetBadTempOK(On); };
 

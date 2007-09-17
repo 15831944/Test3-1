@@ -284,7 +284,7 @@ class DllImportExport MVector
     //
     void          putSuppressErrors(bool On);
 
-    double      * getMassVector();
+    const double * getMassVector();
     void          MarkStateChanged();  // Must be called if Masses are changed using the MassVector;
 
     __declspec(property(get=getTag))                    LPCTSTR Tag;
@@ -293,7 +293,7 @@ class DllImportExport MVector
     __declspec(property(get=getM, put=putM))            double M[];
     __declspec(property(get=getMl, put=putMl))          double Ml[];
     __declspec(property(get=getA, put=putA))            double A[];
-    __declspec(property(get=getMassVector))             double *MassVector;
+    __declspec(property(get=getMassVector))             const double * MassVector;
     __declspec(property(put=putSuppressErrors))         bool   SuppressErrors;
 
     // ----------------------------- Properties
@@ -444,6 +444,28 @@ class DllImportExport MVector
     __declspec(property(get=getSpMdl))    SpModel * SpMdl;
   };
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
+class MVDouble 
+  {
+  public:
+    MVDouble( MVector & V, long Index) : \
+      m_Vector(V), m_Index(Index)
+      {
+      }; 
+
+    void operator = (const double D) { m_Vector.M[m_Index]=D; };
+    void operator += (const double D) { m_Vector.M[m_Index]+=D; };
+    void operator -= (const double D) { m_Vector.M[m_Index]-=D; };
+    operator double() const { return m_Vector.M[m_Index]; };
+
+  protected:
+    long      m_Index;
+    MVector & m_Vector;
+  };
+
+//---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
 class DllImportExport MStream : public MVector

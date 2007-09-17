@@ -185,7 +185,7 @@ class DllImportExport MSpModelBase : public MBaseDataCommon, public MSubConstruc
     // ----------------------------- 
     __declspec(property(get=getM,put=putM))       double        M[];
     __declspec(property(get=getMl,put=putMl))     double        Ml[];
-    __declspec(property(get=getMassVector))       double      * MassVector;
+    __declspec(property(get=getMassVector))       const double * MassVector;
     //__declspec(property(get=getFidelity))         int     Fidelity;
     __declspec(property(get=getPropOverides))     SpPropOveride *PropOverides;
     __declspec(property(get=getMassArray))        MArray        MassArray;

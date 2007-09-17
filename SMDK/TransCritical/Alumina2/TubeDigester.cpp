@@ -810,8 +810,8 @@ void CCARTubeDigester::DoLiveSteamHeater(MStream & ShellI, MStream & TubeI, MStr
   double FTemp=ShellI.SaturationT();
   if (TubeI.MassFlow()>0 && ShellI.MassFlow()>0 && ShellI.T > TubeI.T) {
     ShellO.SetM(ShellI, MP_All, 0);
-    double &Vapor = ShellO.MassVector[spWaterVapor];
-    double &Cond = ShellO.MassVector[spWater];
+    MVDouble Vapor (ShellO, spWaterVapor);
+    MVDouble Cond (ShellO, spWater);
     Vapor = 0.0;
     Cond = ShellI.MassFlow();
     if (m_dQmVentRqd < ShellI.MassFlow())  { // Assumes all steam, should check for water vapor
