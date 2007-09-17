@@ -137,6 +137,7 @@
 <y>28.9999981</y>
 </position>
 
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-27" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <tag id="ref-29">Product</tag>
@@ -146,6 +147,7 @@
 <y>49</y>
 </position>
 
+  <look>0</look>
 </a1:Anchor>
 </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

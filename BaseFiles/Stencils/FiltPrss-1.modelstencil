@@ -57,6 +57,7 @@
 </position>
 <tag id="ref-32">Feed</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-12" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <position>
@@ -65,6 +66,7 @@
 </position>
 <tag id="ref-33">WashSoln</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-13" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <position>
@@ -73,6 +75,7 @@
 </position>
 <tag id="ref-34">Filtrate</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-14" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <position>
@@ -81,6 +84,7 @@
 </position>
 <tag id="ref-35">Cake</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-15" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <position>
@@ -89,6 +93,7 @@
 </position>
 <tag id="ref-36">Washings</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Anchor id="ref-16" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <position>
@@ -97,6 +102,7 @@
 </position>
 <tag id="ref-37">Vent</tag>
 <type>Process</type>
+  <look>0</look>
 </a1:Anchor>
 <a1:Line id="ref-17" xmlns:a1="http://schemas.microsoft.com/clr/nsassem/SysCAD.Protocol/Protocol%2C%20Version%3D4.2.0.28260%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3D8cb361a6244c44c8">
 <x1>10</x1>

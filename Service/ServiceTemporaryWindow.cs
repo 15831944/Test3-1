@@ -859,7 +859,7 @@ namespace Service
 
           //  modelStencil2.Decorations = new ArrayList();
           //  ArrayList anchors = new ArrayList();
-          //  Anchor anchor = new Anchor("tag", AnchorType.Electrical, 0.0f, 1.0f);
+          //  Anchor anchor = new Anchor("tag", AnchorType.Electrical, 0, 0.0f, 1.0f);
           //  anchors.Add(anchor);
           //  modelStencil2.Anchors = anchors;
           //  modelStencil2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
