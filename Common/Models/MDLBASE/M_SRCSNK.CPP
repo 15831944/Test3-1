@@ -1337,6 +1337,9 @@ void MN_SrcSnk::EvalDiscrete()
       }
     }
 
+  //m_AccCalc.Complete(0, Contents);
+  m_ExtAudit.Complete(0, NULL, 0.0, m_BlkEval.Duty());
+
   const double P = Contents.Press();
   if (fCrossConnected || InRange(CDB.MinP, P, CDB.MaxP))
     ClrCI(3);

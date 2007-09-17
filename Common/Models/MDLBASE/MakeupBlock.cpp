@@ -2867,19 +2867,30 @@ class CSimpleMkUpFnd : public MRootFinder
   {
   public:
     CSimpleMkUpFnd(CXBlk_MUSimple * pMU, LPCTSTR pTag, SpConduit * pIn, SpConduit * pSrc, SpConduit * pPrd, double TRqd, double PRqd, CToleranceBlock & Tol) : \
-      m_pMU(pMU), m_pTag(pTag), m_In(*pIn), m_Src(*pSrc), m_Prd(*pPrd), m_TRqd(TRqd), m_PRqd(PRqd), MRootFinder("MkUpFnd", Tol)
+      m_pMU(pMU), 
+      m_pTag(pTag), 
+      m_In(*pIn), 
+      m_Src(*pSrc), 
+      m_Prd(*pPrd), 
+      m_TRqd(TRqd), 
+      m_PRqd(PRqd), 
+      MRootFinder("MkUpFnd", Tol)
       { 
       if (dbgMakeup)
         {
         dbgpln(" CtrlSetPt:%20.6f %-25s ========================================================================",
           m_pMU->GetSetPoint(), m_pTag);
         }
+      m_TMix=0;
       };
     LPCTSTR ObjTag() { return m_pTag; };
     double Function(double Qm)
       {
       m_Prd.QCopy(m_In);
       m_Prd.QAddM(m_Src, som_ALL, Qm);
+
+      m_TMix=m_Prd.Temp();
+
       if (Valid(m_TRqd))
         m_Prd.SetTempPress(m_TRqd, m_PRqd);
       if (dbgMakeup)
@@ -2898,6 +2909,8 @@ class CSimpleMkUpFnd : public MRootFinder
     SpConduit     & m_Prd;
     double          m_TRqd;
     double          m_PRqd;
+  public:
+    double          m_TMix;
   };
 
 //--------------------------------------------------------------------------
@@ -2998,6 +3011,11 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     HfSrc = QSrc.totHf();
 
     m_dQvMakeup = QSrc.QVolume();
+    //m_dHeatFlow = QPrd.totHf(som_ALL, MkUpFnd.m_TMix, QPrd.Press()) - (HfIn + HfSrc);
+    m_dHeatFlow = QPrd.totHf() - QPrd.totHf(som_ALL, MkUpFnd.m_TMix, QPrd.Press());
+  
+    // debug kludge
+    //m_dHeatFlow *= 0.98533;
 
     if (SrcIO.Enabled)
       SrcIO.Sum.Set(QSrc);
@@ -3006,8 +3024,9 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
     }
   else
     {
-    m_dTempKMakeup = C2K(0.0);
-    m_dQvMakeup = 0.0; 
+    m_dTempKMakeup  = C2K(0.0);
+    m_dQvMakeup     = 0.0; 
+    m_dHeatFlow     = 0.0;
     SrcIO.Cd.QZero();
     SrcIO.Sum.ZeroFlows();
     }
@@ -3023,7 +3042,8 @@ void CXBlk_MUSimple::EvalProducts(SpConduit &QPrd, double Po, double FinalTEst)
   m_dQmProd     = QPrd.QMass();
   m_dQmMakeup   = m_dQmProd-m_dQmFeed;
   m_dTempKProd  = QPrd.Temp();
-  m_dHeatFlow   = QPrd.totHf() - (HfIn + HfSrc);
+
+
   m_dQvProd     = QPrd.QVolume();
   //m_dQvMakeup   = m_dQvProd-m_dQvFeed; //This is probably wrong because of temperature
 
